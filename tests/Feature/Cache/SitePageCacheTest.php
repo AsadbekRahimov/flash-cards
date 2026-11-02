@@ -162,6 +162,7 @@ it('changes the key with each input the pages quote', function (string $key, mix
     'a provider switched on' => ['billing.providers.click.enabled', true],
     'deck limits' => ['decks.limits.pro.decks', 99],
     'practice access' => ['practice.access', 'all'],
+    'battle switch' => ['practice.battle.enabled', false],
     'free practice limit' => ['practice.free_limits.sessions_per_day', 9],
     'locales' => ['localization.supported', ['ru']],
 ]);

@@ -2671,10 +2671,11 @@
 
 > Практика и баттлы без дневного лимита теперь входят в Pro (G1). В публичных текстах эта строка показывается **только когда практика открыта всем**
 > (`PRACTICE_ACCESS=all`) и у Free есть дневной лимит на неё; при `pilot` и `off` её нет, чтобы не обещать то, чем нельзя пользоваться
-> (`ProPromises::practiceUnlimited()`). Поэтому у счёта два варианта текста на каждый срок: прежний и «с практикой»; выбирает код, не шаблон.
+> (`ProPromises::practice()`). Баттлы называются только пока они включены (`PRACTICE_BATTLE`) и у Free есть лимит на них; если баттлы выключены — строка про одну практику,
+> как в TWA (`benefits.practice_solo`). Поэтому у счёта три варианта текста на каждый срок: прежний, «с практикой и баттлами» и «с практикой»; выбирает код, не шаблон.
 > Термины те же, что в TWA (`benefits.practice`, раздел «Лимиты практики 2026-11 · G1 (TWA)»): «Amaliyot» — практика, «bellashuvlar» — баттлы.
-> Пункт тарифной карточки Pro `landing.pricing.pro.features.1` — это заготовка `:practice`, её заменяет строка `landing.limits.pro_practice`
-> (или пункт пропадает); в таблицах выше номера пунктов Pro сдвинулись на один (`.1` — практика, `.2-.5` — прежние пункты 1-4).
+> Пункт тарифной карточки Pro `landing.pricing.pro.features.1` — это заготовка `:practice`, её заменяет строка `landing.limits.pro_practice` или
+> `landing.limits.pro_practice_solo` (или пункт пропадает); в таблицах выше номера пунктов Pro сдвинулись на один (`.1` — практика, `.2-.5` — прежние пункты 1-4).
 > Проверить: «yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz» — «kunlik limitsiz» относится ко всем трём подряд («новые слова, практика и баттлы без дневного лимита»).
 > В описании счёта Telegram разрешает не больше 255 знаков: у месячного варианта «с практикой» короче хвост («Har 30 kunda avtomatik yangilanadi; o'chirish: /pro.»), у годового нет «(365 kun)» — «1 yilga» уже говорит о сроке.
 
@@ -2683,10 +2684,13 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.limits.pro_practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `landing.limits.pro_practice_solo` | Amaliyot kunlik limitsiz | Практика без дневного лимита |
 
-### Описание счёта Telegram Stars «с практикой» (`lang/uz/billing.php`, блок `stars.invoice`)
+### Описание счёта Telegram Stars «с практикой и баттлами» и «с практикой» (`lang/uz/billing.php`, блок `stars.invoice`)
 
 | Ключ | uz | ru |
 |---|---|---|
 | `billing.stars.invoice.description_month_practice` | LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
 | `billing.stars.invoice.description_year_practice` | LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_month_practice_solo` | LexiFlow Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice_solo` | LexiFlow Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |

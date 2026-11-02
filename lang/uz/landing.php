@@ -70,8 +70,10 @@ return [
         'free_new_words_unlimited' => 'yangi so\'zlar uchun kunlik limitsiz',
         // Pro's first tick: only while Free has a daily limit that Pro lacks.
         'pro_new_words' => 'Yangi so\'zlar uchun kunlik limitsiz',
-        // Pro's practice tick: only while practice is open to everybody and Free has a daily limit of it (ProPromises).
+        // Pro's practice tick: only while practice is open to everybody and Free has a daily limit of it (ProPromises); the second
+        // sentence while the battles are switched off (PRACTICE_BATTLE=false). The same two sentences as `benefits.practice*` of the Mini App.
         'pro_practice' => 'Amaliyot va bellashuvlar kunlik limitsiz',
+        'pro_practice_solo' => 'Amaliyot kunlik limitsiz',
         // One deck / many (a rule of the plan: `{1}` is exactly one, 21 is many).
         'decks' => '{1} Shaxsiy to\'plam: :deck_words tagacha so\'z|[2,*] Shaxsiy to\'plamlar: :deck_words tadan so\'zli :decks tagacha to\'plam',
     ],
