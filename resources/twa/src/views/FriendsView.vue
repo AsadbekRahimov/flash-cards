@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -38,8 +38,8 @@ import type { BattleIncoming, BattleStatus, ChallengeItem, ChallengeMetric, Chal
  * invitations that came ("Battle invitations": "Accept" leads into the room, "Decline" closes them).
  *
  * Free has a few battles a day (docs/18 §3): under the list of friends a quiet line says how many are left ("Battles today: 1 of 1
- * left"; Pro sees nothing). With none left "Battle" opens the paywall of the limit at once instead of a setup that would end in it.
- * "Accept" is never limited.
+ * left"; Pro sees nothing). With none left "Battle" opens the paywall of the limit instead of a setup that would end in it - once `/me`
+ * has been read again and still says none. "Accept" is never limited.
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
@@ -133,13 +133,30 @@ function invitationMeta(invitation: BattleIncoming): string {
   return `${modeTitle(invitation.mode)} · ${topic}`
 }
 
-function startBattle(friendshipId: number): void {
+/** A press on "Battle" is being checked against the counter: the next one waits. */
+const checking = ref(false)
+
+/** The screen was left. What was still on its way (the counter being confirmed) neither carries the learner on nor leaves a sheet for the next visit. */
+let left = false
+onBeforeUnmount(() => {
+  left = true
+})
+
+async function startBattle(friendshipId: number): Promise<void> {
   haptic('light')
-  // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it.
-  const spent = billing.limitReached('battles')
-  if (spent !== null) {
-    battles.showLimit(spent)
-    return
+  if (checking.value) return
+  checking.value = true
+  try {
+    // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it - after `/me` was read
+    // again, as a battle that did not take place (declined, not answered in time) gives its place back and the number here may be from before.
+    const spent = await billing.confirmLimit('battles')
+    if (left) return
+    if (spent !== null) {
+      battles.showLimit(spent)
+      return
+    }
+  } finally {
+    checking.value = false
   }
   void router.push({ name: 'battle-new', query: { friendship: String(friendshipId) } })
 }
@@ -413,6 +430,7 @@ onMounted(() => {
                 v-if="battleOn && picking !== friend.id && removing !== friend.id"
                 type="button"
                 class="btn btn-tinted btn-sm mt-2"
+                :disabled="checking"
                 :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
                 data-testid="battle-btn"
                 @click="startBattle(friend.id)"

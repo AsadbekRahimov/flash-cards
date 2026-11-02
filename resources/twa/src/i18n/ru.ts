@@ -266,6 +266,8 @@ export const ru = {
   'paywall.lead_practice_limit_sessions_soon': 'Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when}.',
   'paywall.lead_practice_limit_battles': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
   'paywall.lead_practice_limit_battles_soon': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}.',
+  // A limit of 0: the kind is for Pro only. No "over", no "tomorrow" - nothing was spent, nothing comes back. (Practice: `paywall.lead_practice`.)
+  'paywall.lead_practice_limit_battles_pro': 'Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.',
   'paywall.reset_tomorrow': 'завтра в {time}',
   'paywall.reset_at': 'в {time}',
 

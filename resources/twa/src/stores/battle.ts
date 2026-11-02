@@ -490,8 +490,8 @@ export const useBattleStore = defineStore('battle', {
       this.dropStaleAnswer()
       this.updatePolling()
       // An invitation of mine that closed without a battle (declined, not answered in time, withdrawn) no longer counts among the battles of
-      // the day. The counters the screens hold are from before: the next reading of /me is asked for, not taken from the cache.
-      if (battle.status === 'closed' && battle.role === 'challenger') useBillingStore().invalidate()
+      // the day. The counter the screens hold is from before it: it is dropped (no line, no stop), and the next reading of /me asks the server.
+      if (battle.status === 'closed' && battle.role === 'challenger') useBillingStore().forgetLimit('battles')
     },
 
     /**

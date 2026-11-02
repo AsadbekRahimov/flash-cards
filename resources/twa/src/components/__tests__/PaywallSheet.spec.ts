@@ -6,14 +6,14 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTodayStore } from '@/stores/today'
-import type { DeckLimits, MeResponse, Paywall } from '@/api/types'
+import type { DeckLimits, MeResponse, Paywall, PracticeAccess } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
   api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() } },
 }))
 
-function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?: number | null; until?: string | null } = {}): MeResponse {
+function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?: number | null; until?: string | null; practice?: PracticeAccess } = {}): MeResponse {
   const plan = overrides.plan ?? 'free'
   const paywall: Paywall = { mode: 'coming_soon', contact: overrides.contact ?? null }
   return {
@@ -28,6 +28,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
     },
     paywall,
     settings: settingsFixture(),
+    ...(overrides.practice ? { practice: overrides.practice } : {}),
   }
 }
 
@@ -209,12 +210,53 @@ describe('PaywallSheet', () => {
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
       expect(w.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
         'Новые слова без дневного лимита',
-        'Практика и баттлы без дневного лимита',
         'Написание слова и пропуски в примерах',
         'До 20 своих колод по 2000 слов',
         'Заморозки серии: пропуск дня не обрывает серию',
         'Пробные тесты IELTS и SAT',
       ])
+    })
+
+    // The line about practice and battles is sold only where there is practice (`/me`: `practice.available`, docs/16 §3.3).
+    describe('the line about practice and battles', () => {
+      const practice = (overrides: Partial<PracticeAccess> = {}): PracticeAccess => ({
+        available: true,
+        pro_required: false,
+        modes: ['pairs', 'collocation', 'sentence', 'dictation'],
+        battle: true,
+        ...overrides,
+      })
+      const benefits = (w: Awaited<ReturnType<typeof render>>) => w.findAll('[data-testid=benefit]').map((b) => b.text())
+
+      it('is the second of six when the practice is available to the learner', async () => {
+        const w = await render(me({ practice: practice() }), { reason: 'quota' })
+
+        expect(benefits(w)).toHaveLength(6)
+        expect(benefits(w)[1]).toBe('Практика и баттлы без дневного лимита')
+      })
+
+      it('is not offered with PRACTICE_ACCESS=off, to a learner outside the pilot, or by a server that sends no practice block', async () => {
+        for (const response of [me({ practice: practice({ available: false, modes: [], battle: false }) }), me()]) {
+          setActivePinia(createPinia())
+          const w = await render(response, { reason: 'quota' })
+
+          expect(benefits(w)).toHaveLength(5)
+          expect(w.text()).not.toContain('Практика и баттлы')
+        }
+      })
+
+      it('stays when the practice is behind Pro: it is available, and that is what Pro opens', async () => {
+        const w = await render(me({ practice: practice({ pro_required: true }) }), { reason: 'practice' })
+
+        expect(benefits(w)).toContain('Практика и баттлы без дневного лимита')
+      })
+
+      it('is said in Uzbek too', async () => {
+        setLocale('uz')
+        const w = await render(me({ practice: practice() }), { reason: 'quota' })
+
+        expect(benefits(w)).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
+      })
     })
 
     it('has a close button with a name', async () => {

@@ -35,7 +35,7 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'practice'` is
  * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2); `'practice_limit'` is the end of the free sessions
  * of practice or of the free battles of today (docs/18 §3; `limitHit` holds the numbers the lead quotes, and the time the counter is full
- * again is told in the learner's zone, the one of the Today screen); `'info'` is
+ * again is told in the learner's zone, the one of the Today screen; a limit of 0 is "only Pro": the lead says so, with no day to wait for); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -114,6 +114,8 @@ const limitLead = computed((): string => {
   const hit = props.limitHit
   // Without the numbers of a refusal there is nothing to quote: the plain word on the practice stands.
   if (hit === null) return t('paywall.lead_practice')
+  // A limit of 0 is "only Pro": nothing was spent and nothing comes back tomorrow, so the lead says what Pro has - no "over", no time.
+  if (hit.limit === 0) return t(hit.kind === 'battles' ? 'paywall.lead_practice_limit_battles_pro' : 'paywall.lead_practice')
   return t(LIMIT_LEADS[hit.kind][purchaseMode.value ? 'purchase' : 'soon'], {
     limit: hit.limit,
     when: resetWhen(hit.resets_at, locale.value, today.data?.timezone),

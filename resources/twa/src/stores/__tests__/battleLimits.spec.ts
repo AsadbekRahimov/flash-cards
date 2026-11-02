@@ -25,6 +25,7 @@ vi.mock('@/api', () => ({
       audioFailed: vi.fn(),
       invite: vi.fn(),
     },
+    me: { get: vi.fn() },
   },
 }))
 
@@ -114,34 +115,55 @@ describe('battle store — the rematch meets the counter of battles', () => {
       paywall: { mode: 'coming_soon' as const, contact: null },
     })
 
-    it('makes the next reading of /me ask the server: the counters on the screens are from before it', async () => {
+    it('makes the screens forget the battles counter (no line, no stop) and the next reading of /me ask the server: the counter is from before it', async () => {
       const billing = useBillingStore()
       billing.apply(plan())
+      billing.setLimits(freeLimits(1, 1))
       expect(billing.loadedAt).not.toBeNull()
 
       await opened(closedBattle('invite_expired'))
 
       expect(billing.loadedAt).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+      expect(billing.sessionLimit).toMatchObject({ used: 1, remaining: 1 }) // the sessions of practice have nothing to do with it
     })
 
     it.each(['declined', 'canceled'] as const)('also when it was %s', async (reason) => {
       const billing = useBillingStore()
       billing.apply(plan())
+      billing.setLimits(freeLimits(0, 1))
 
       await opened(closedBattle(reason))
 
       expect(billing.loadedAt).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('the counter comes back with the next reading of /me, with the number the server has', async () => {
+      const billing = useBillingStore()
+      billing.apply(plan())
+      billing.setLimits(freeLimits(0, 1))
+      await opened(closedBattle('declined'))
+      vi.mocked(api.me.get).mockResolvedValue({ ...plan(), practice: { available: true, pro_required: false, modes: [], battle: true, limits: freeLimits(0, 0) } } as never)
+
+      await billing.load()
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
     })
 
     it('not when the invitation was the learner\'s to answer (the friend\'s battle is not counted against them), nor for a battle that is on or was played', async () => {
       const billing = useBillingStore()
       for (const b of [closedBattle('declined', { role: 'opponent' }), invitedBattle({ role: 'challenger' }), finishedBattle('won'), roomBattle()]) {
         billing.apply(plan())
+        billing.setLimits(freeLimits(0, 1))
         const at = billing.loadedAt
 
         await opened(b)
 
         expect(billing.loadedAt, `${b.status}/${b.role}`).toBe(at)
+        expect(billing.battleLimit, `${b.status}/${b.role}`).toMatchObject({ remaining: 0 })
         useBattleStore().leave()
       }
     })

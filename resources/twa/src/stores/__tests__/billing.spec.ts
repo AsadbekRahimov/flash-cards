@@ -256,6 +256,15 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(billing.limitReached('battles')).toBeNull()
     })
 
+    it('is the wall from the start for a kind that is for Pro only (limit 0): there is nothing to spend', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(5)
+      billing.setLimits({ sessions: counter(0, 0, resetsAt), battles: counter(0, 0, resetsAt) })
+
+      expect(billing.limitReached('sessions')).toEqual({ kind: 'sessions', limit: 0, used: 0, resets_at: resetsAt })
+      expect(billing.limitReached('battles')).toEqual({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+    })
+
     it('is nothing once the day of the counter is over: the app stayed open overnight, and the server decides', () => {
       vi.useFakeTimers()
       vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
@@ -283,6 +292,210 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       billing.setLimits({ sessions: counter(1, 2, '2026-11-02T09:00:00Z'), battles: counter(0, 1, '2026-11-02T09:00:00Z') })
       expect(billing.sessionLimit).toBeNull()
       expect(billing.battleLimit).toBeNull()
+    })
+  })
+
+  // The getters read `now`, which a timer moves at the end of the day of the nearest counter: a screen left open overnight redraws by itself.
+  describe('the end of the day of the counters (an app left open overnight)', () => {
+    const HOUR = 3_600_000
+    const NOON = new Date('2026-11-02T10:00:00Z')
+    const EVENING = '2026-11-02T19:00:00Z' // nine hours later
+
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(NOON)
+    })
+
+    it('the counters go by themselves when their day ends: no answer comes, nothing is touched', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      expect(billing.sessionLimit).toMatchObject({ remaining: 1 })
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+
+      vi.advanceTimersByTime(9 * HOUR - 1)
+      expect(billing.sessionLimit, 'a moment before the end of the day').not.toBeNull()
+
+      vi.advanceTimersByTime(1 + 200)
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toBeNull()
+    })
+
+    it('the nearest day ends first: the other counter stays until its own end', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: counter(1, 2, '2026-11-02T12:00:00Z'), battles: counter(0, 1, '2026-11-02T15:00:00Z') })
+      expect(billing.sessionLimit).not.toBeNull()
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(2 * HOUR + 500)
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(3 * HOUR)
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('/me brings the counters and their end is waited for as well', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(2, 1, EVENING))))
+      const billing = useBillingStore()
+      await billing.load()
+      expect(billing.sessionLimit).toMatchObject({ remaining: 0 })
+
+      vi.advanceTimersByTime(9 * HOUR + 500)
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('a refusal of the server counts too: the counter it makes goes at the end of its own day', () => {
+      const billing = useBillingStore()
+      billing.noteLimitHit({ kind: 'battles', limit: 1, used: 1, resets_at: '2026-11-02T12:00:00Z' })
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(2 * HOUR + 500)
+
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('the next day starts afresh: a new word after the end shows its counter, and that one is waited for in its turn', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      vi.advanceTimersByTime(9 * HOUR + 500)
+      expect(billing.sessionLimit).toBeNull()
+
+      billing.setLimits(freeLimits(0, 0, '2026-11-03T19:00:00Z'))
+      expect(billing.sessionLimit).toMatchObject({ remaining: 2 })
+
+      vi.advanceTimersByTime(24 * HOUR)
+      expect(billing.sessionLimit).toBeNull()
+    })
+
+    it('keeps one timer: every new word on the counters replaces the one before', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(0, 0, EVENING))
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: EVENING })
+      billing.forgetLimit('battles')
+
+      expect(vi.getTimerCount()).toBe(1)
+    })
+
+    it.each([
+      ['Pro (null)', null],
+      ['no limit of either kind', { sessions: null, battles: null }],
+      ['counters whose day is over', freeLimits(2, 1, '2026-11-02T09:00:00Z')],
+    ] as const)('has nothing to wait for with %s: the timer is taken away', (_, limits) => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 0, EVENING))
+      expect(vi.getTimerCount()).toBe(1)
+
+      billing.setLimits(limits)
+
+      expect(vi.getTimerCount()).toBe(0)
+    })
+
+    it('dropping the last counter takes the wait away, and a store that never had counters waits for nothing', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access()))
+      expect(vi.getTimerCount()).toBe(0)
+
+      billing.setLimits({ sessions: null, battles: counter(0, 1, EVENING) })
+      expect(vi.getTimerCount()).toBe(1)
+      billing.forgetLimit('battles')
+
+      expect(vi.getTimerCount()).toBe(0)
+    })
+
+    it('a day that ends in more than a timer can wait for (about 24 days) is waited for in steps, never at once', () => {
+      const spy = vi.spyOn(globalThis, 'setTimeout')
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(0, 0, new Date(NOON.getTime() + 40 * 24 * HOUR).toISOString()))
+
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy.mock.calls[0]?.[1]).toBeLessThanOrEqual(2 ** 31 - 1)
+      vi.advanceTimersByTime(1000)
+      expect(billing.sessionLimit, 'not at once').not.toBeNull()
+
+      vi.advanceTimersByTime(25 * 24 * HOUR) // the first step is over: the store looked again and waits on
+      expect(billing.sessionLimit).not.toBeNull()
+      expect(vi.getTimerCount()).toBe(1)
+
+      vi.advanceTimersByTime(16 * 24 * HOUR)
+      expect(billing.sessionLimit).toBeNull()
+      expect(vi.getTimerCount()).toBe(0)
+      spy.mockRestore()
+    })
+
+    it('a limit of 0 has no counter to draw at any time, and its wall stands until the day ends', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: null, battles: counter(0, 0, EVENING) })
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).not.toBeNull()
+
+      vi.advanceTimersByTime(9 * HOUR + 500)
+
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+  })
+
+  // A limit of 0 is "only Pro": "0 of 0 left" says nothing, so the screens get no counter for it - while the wall (`limitReached`) stands.
+  describe('a kind that is for Pro only (limit 0)', () => {
+    const proOnly = () => ({ sessions: counter(0, 0, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+    it('draws no counter, and stops the learner all the same', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(proOnly())
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toMatchObject({ kind: 'sessions', limit: 0 })
+      expect(billing.limitReached('battles')).toMatchObject({ kind: 'battles', limit: 0 })
+    })
+
+    it('takes it from /me the same way', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(proOnly())))
+      const billing = useBillingStore()
+
+      await billing.load()
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).not.toBeNull()
+    })
+
+    it('is told apart per kind: battles only for Pro, sessions with a counter', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits({ sessions: counter(1, 2, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+      expect(billing.sessionLimit).toMatchObject({ limit: 2, remaining: 1 })
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toBeNull()
+      expect(billing.limitReached('battles')).toMatchObject({ limit: 0 })
+    })
+
+    it('a refusal for it draws no counter either, but is the wall the paywall quotes', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).toEqual({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+    })
+
+    it('a limit that was raised on the server draws its counter again with the next answer', () => {
+      const billing = useBillingStore()
+      billing.setLimits(proOnly())
+
+      billing.setLimits(freeLimits(0, 0))
+
+      expect(billing.sessionLimit).toMatchObject({ limit: 2, remaining: 2 })
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
+      expect(billing.limitReached('battles')).toBeNull()
     })
   })
 
@@ -391,6 +604,107 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
 
       expect(billing.sessionLimit).not.toBeNull()
       expect(billing.battleLimit).toBeNull()
+    })
+  })
+
+  // A battle that did not take place is not counted: its place comes back on the server, while the screens hold the number from before.
+  describe('forgetLimit', () => {
+    it('drops the counter of that kind alone - nothing shown, nothing stopped - and makes the next /me ask the server', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(1, 1))))
+      expect(billing.loadedAt).not.toBeNull()
+
+      billing.forgetLimit('battles')
+
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+      expect(billing.sessionLimit).toMatchObject({ used: 1, remaining: 1 })
+      expect(billing.loadedAt).toBeNull()
+    })
+
+    it('the counter comes back with the next reading of /me', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      billing.forgetLimit('battles')
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(0, 0))))
+
+      await billing.load()
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
+    })
+
+    it('has nothing to drop for a learner without counters (Pro), but still makes /me ask', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(null)))
+
+      billing.forgetLimit('battles')
+
+      expect(billing.limits).toBeNull()
+      expect(billing.loadedAt).toBeNull()
+    })
+  })
+
+  // The wall that the SERVER stands behind: a zero on the screen may be old, so /me is read again before the paywall.
+  describe('confirmLimit', () => {
+    beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => {}))
+
+    it('is nothing, without a question, while some place is left, for a kind without a counter and for Pro', async () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(1, 0))
+      expect(await billing.confirmLimit('sessions')).toBeNull()
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      billing.setLimits({ sessions: null, battles: null })
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      billing.setLimits(null)
+      expect(await billing.confirmLimit('battles')).toBeNull()
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
+
+    it('reads /me again (the answer to a question, not the cache) and is the wall the fresh counter describes', async () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(5)
+      billing.apply(meWith(access(freeLimits(2, 1, resetsAt)))) // fresh in the cache: a plain load() would not ask
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(2, 1, resetsAt))))
+
+      expect(await billing.confirmLimit('battles')).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+    })
+
+    it('is nothing when the fresh counter has a place: the server gave it back', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(0, 0))))
+
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+    })
+
+    it('is nothing when /me cannot be read: the number cannot be checked, so the action itself goes to the server', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      expect(billing.battleLimit).toMatchObject({ remaining: 0 }) // what it knew is not thrown away
+    })
+
+    it('needs no question for a kind that is for Pro only (limit 0): nothing gives a place back there', async () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: counter(0, 0, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+      expect(await billing.confirmLimit('battles')).toMatchObject({ kind: 'battles', limit: 0 })
+      expect(await billing.confirmLimit('sessions')).toMatchObject({ kind: 'sessions', limit: 0 })
+
+      expect(api.me.get).not.toHaveBeenCalled()
+      expect(billing.battleLimit, 'no line for it: it is only for Pro').toBeNull()
+      expect(billing.sessionLimit).toBeNull()
     })
   })
 })

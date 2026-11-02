@@ -126,7 +126,7 @@ describe('PaywallSheet in purchase mode', () => {
   it('lists what Pro gives and names the way to pay above the buttons', async () => {
     const w = await render()
 
-    expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
+    expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
     expect(w.get('[data-testid=pay-method]').text()).toBe('Способ оплаты')
   })
 
@@ -570,7 +570,7 @@ describe('PaywallSheet in purchase mode', () => {
       expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата добавит срок к текущему Pro (до 20 ноября 2026 г.).')
       // the lead is not the sales pitch of Free; the benefits of Pro and the way to pay stay as they are
       expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('заморозки серии')
-      expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
+      expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
       expect(w.get('[data-testid=pay-method]').text()).toBe('Способ оплаты')
       expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', '29 000 сум'])
     })

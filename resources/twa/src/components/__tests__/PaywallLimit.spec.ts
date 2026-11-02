@@ -43,6 +43,8 @@ const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', plan: 'free' | 'pr
   },
   paywall: { mode, contact: null },
   settings: settingsFixture(),
+  // A learner who meets the end of a free limit has practice: the sheet offers the line about it among the things Pro gives.
+  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true },
 })
 
 const catalog = (): BillingCatalog => ({
@@ -167,6 +169,89 @@ describe('PaywallSheet — the end of the free battles', () => {
     const uz = await render({ limitHit: BATTLES })
     expect(lead(uz)).toContain('bellashuvlar')
     expect(lead(uz)).not.toMatch(/chaqiruv|musobaqa|battl/i)
+  })
+})
+
+// A limit of 0 is "only Pro" (the server's supported value for a kind Free does not get): nothing was spent, nothing comes back tomorrow.
+describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
+  const NO_SESSIONS: PracticeLimitHit = { kind: 'sessions', limit: 0, used: 0, resets_at: MIDNIGHT }
+  const NO_BATTLES: PracticeLimitHit = { kind: 'battles', limit: 0, used: 0, resets_at: MIDNIGHT }
+
+  const PRACTICE_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
+  const PRACTICE_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud."
+  const BATTLES_RU = 'Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.'
+  const BATTLES_UZ = "Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin."
+
+  it('sessions: the practice is in Pro - the existing lead of the practice, with no "over" and no day to wait for', async () => {
+    const soon = await render({ limitHit: NO_SESSIONS })
+    expect(lead(soon)).toBe(`${PRACTICE_RU} ${SOON_RU}`)
+
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    const sale = await render({ limitHit: NO_SESSIONS }, me('purchase'))
+    expect(lead(sale)).toBe(`${PRACTICE_RU} ${SALE_RU}`)
+  })
+
+  it('battles: calling a friend is in Pro, accepting an invitation is always possible', async () => {
+    const soon = await render({ limitHit: NO_BATTLES })
+    expect(lead(soon)).toBe(`${BATTLES_RU} ${SOON_RU}`)
+
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    const sale = await render({ limitHit: NO_BATTLES }, me('purchase'))
+    expect(lead(sale)).toBe(`${BATTLES_RU} ${SALE_RU}`)
+  })
+
+  it('says it in Uzbek, for sessions and for battles, in both modes', async () => {
+    setLocale('uz')
+
+    expect(lead(await render({ limitHit: NO_SESSIONS }))).toBe(`${PRACTICE_UZ} ${SOON_UZ}`)
+    expect(lead(await render({ limitHit: NO_BATTLES }))).toBe(`${BATTLES_UZ} ${SOON_UZ}`)
+
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    expect(lead(await render({ limitHit: NO_SESSIONS }, me('purchase')))).toBe(`${PRACTICE_UZ} ${SALE_UZ}`)
+    expect(lead(await render({ limitHit: NO_BATTLES }, me('purchase')))).toBe(`${BATTLES_UZ} ${SALE_UZ}`)
+  })
+
+  it.each([
+    ['ru', 'sessions', NO_SESSIONS, /закончил|завтра|из 0|сегодня/i],
+    ['ru', 'battles', NO_BATTLES, /закончил|завтра|из 0|сегодня/i],
+    ['uz', 'sessions', NO_SESSIONS, /tugadi|ertaga|0 tadan|bugun/i],
+    ['uz', 'battles', NO_BATTLES, /tugadi|ertaga|0 tadan|bugun/i],
+  ] as const)('%s / %s: nothing "is over", no "tomorrow", no "0 of 0", no time of a reset', async (locale, _kind, hit, banned) => {
+    setLocale(locale)
+
+    for (const mode of ['coming_soon', 'purchase'] as const) {
+      setActivePinia(createPinia())
+      knowZone('Asia/Tashkent')
+      const w = await render({ limitHit: hit }, me(mode))
+
+      expect(lead(w), `${locale}/${hit.kind}/${mode}`).not.toMatch(banned)
+      expect(lead(w), `${locale}/${hit.kind}/${mode}`).not.toMatch(/\d{2}:\d{2}/)
+    }
+  })
+
+  it('does not wait for the zone of the learner: the lead does not depend on the time at all', async () => {
+    useTodayStore().data = null
+
+    expect(lead(await render({ limitHit: NO_BATTLES }))).toBe(`${BATTLES_RU} ${SOON_RU}`)
+  })
+
+  it('a limit of 0 is not a limit of 1: a kind that does have a counter still says "over"', async () => {
+    const w = await render({ limitHit: BATTLES })
+
+    expect(lead(w)).toContain('закончились (1 из 1)')
+    expect(lead(w)).not.toContain(BATTLES_RU)
+  })
+
+  it('is the same sheet otherwise: the title, what Free gives, the promo code, "Got it"', async () => {
+    const w = await render({ limitHit: NO_BATTLES })
+
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
+    expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
+    expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
   })
 })
 
