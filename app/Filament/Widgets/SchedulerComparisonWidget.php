@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerMetricsService;
-use App\Domain\Operations\Support\PureCache;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
@@ -22,8 +22,10 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
 {
     use RequiresActiveAdmin;
 
-    /** `v1` = arrays of scalars; the objects of the unversioned key are never read (cache.serializable_classes = false). */
-    public const CACHE_KEY = 'admin:scheduler-comparison:v1';
+    /** The entry `admin:widget:scheduler_comparison:v1:all` ({@see WidgetCache}): arrays of scalars, fresh for {@see FRESH_SECONDS}, then served stale while it is recomputed. */
+    public const WIDGET = 'scheduler_comparison';
+
+    public const FRESH_SECONDS = 300;
 
     public static function canView(): bool
     {
@@ -45,7 +47,7 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     {
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var array<string, SchedulerMetricsArray> $rows */
-        $rows = PureCache::store()->remember(self::CACHE_KEY, 120, fn (): array => array_map(
+        $rows = app(WidgetCache::class)->remember(self::WIDGET, 'all', self::FRESH_SECONDS, fn (): array => array_map(
             static fn (SchedulerMetrics $metrics): array => $metrics->toArray(),
             app(SchedulerMetricsService::class)->compare(),
         ));

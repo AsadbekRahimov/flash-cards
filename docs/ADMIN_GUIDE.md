@@ -612,8 +612,9 @@ this part of the panel (enforcement belongs to the organization-membership work,
 subscription has a tier — chosen in Grant Pro or bought online — and empty otherwise; members are derived from group
 membership.
 
-The Pro and funnel figures are cached for 2 minutes, so a new subscription or event may take up to that long to show
-up. The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
+The Pro and funnel figures are cached for 2 minutes and the SM-2 / FSRS comparison for 5, so a new subscription, event or
+review may take up to that long to show up (and one more open of the dashboard: past its time a figure is still shown once
+while it is recomputed in the background, as described below). The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
 (`PRODUCT_EVENTS_RETENTION_DAYS`, 400 days) are pruned and do not affect a 7-day window.
 
 **Every other figure of the dashboard is cached too** (docs/19 K1, docs/20 F5): the learner counts and the exam tiles for 2

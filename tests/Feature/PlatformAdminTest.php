@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\PlatformStatsService;
+use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
@@ -28,6 +30,7 @@ use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -235,6 +238,27 @@ it('caches the aggregates briefly and recomputes after flush', function (): void
 
     $service->flush();
     expect($service->onboardingFunnel()['started'])->toBe(2);
+});
+
+it('keeps the aggregates under the keys of the dashboard widgets and drops both entries, mark of creation included, on flush', function (): void {
+    $service = app(PlatformStatsService::class);
+    $service->subscriptions();
+    $service->onboardingFunnel();
+
+    $keys = [WidgetCache::key(PlatformStatsService::SUBSCRIPTIONS_WIDGET, 'all'), WidgetCache::key(PlatformStatsService::FUNNEL_WIDGET, 'all')];
+
+    expect($keys)->toBe(['admin:widget:platform_subscriptions:v1:all', 'admin:widget:onboarding_funnel:v1:all']);
+    foreach ($keys as $key) {
+        expect(PureCache::store()->has($key))->toBeTrue($key)
+            ->and(PureCache::store()->has(Repository::FLEXIBLE_CREATED_KEY_PREFIX.$key))->toBeTrue($key);
+    }
+
+    $service->flush();
+
+    foreach ($keys as $key) {
+        expect(PureCache::store()->has($key))->toBeFalse($key)
+            ->and(PureCache::store()->has(Repository::FLEXIBLE_CREATED_KEY_PREFIX.$key))->toBeFalse($key);
+    }
 });
 
 it('lists seated and waiting members per organization from organization_members (docs/13 §1.3)', function (): void {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
-use App\Domain\Operations\Support\PureCache;
 use App\Filament\Resources\ExamSessionResource\Pages\ViewExamSession;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\ResultsRelationManager;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
@@ -80,10 +80,11 @@ it('writes the minutes of a learner day with a decimal comma', function (): void
 });
 
 it('writes the percents and ratios of the SM-2 / FSRS comparison with a decimal comma', function (): void {
-    PureCache::store()->put(SchedulerComparisonWidget::CACHE_KEY, [
+    // The entry the widget reads (computed "now", so it is fresh and the widget does not touch the database).
+    app(WidgetCache::class)->remember(SchedulerComparisonWidget::WIDGET, 'all', SchedulerComparisonWidget::FRESH_SECONDS, fn (): array => [
         SchedulerKind::Sm2->value => (new SchedulerMetrics(SchedulerKind::Sm2, 50, 40, 37, 16, 7, 4))->toArray(),
         SchedulerKind::Fsrs->value => (new SchedulerMetrics(SchedulerKind::Fsrs, 0, 0, 0, 0, 0, 0))->toArray(),
-    ], 60);
+    ]);
 
     livewire(SchedulerComparisonWidget::class)
         ->assertSee('SM-2 92,5% · FSRS —')

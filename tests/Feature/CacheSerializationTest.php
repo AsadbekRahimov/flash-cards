@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\PlatformStatsService;
+use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\LeagueService;
@@ -110,8 +111,10 @@ it('shows the SM-2 / FSRS comparison from the cache on the second render', funct
 
     Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 —');
 
-    expect(PureCache::store()->has(SchedulerComparisonWidget::CACHE_KEY))->toBeTrue()
-        ->and(cacheEntryIsPlain(PureCache::store()->get(SchedulerComparisonWidget::CACHE_KEY)))->toBeTrue();
+    $key = WidgetCache::key(SchedulerComparisonWidget::WIDGET, 'all');
+
+    expect(PureCache::store()->has($key))->toBeTrue()
+        ->and(cacheEntryIsPlain(PureCache::store()->get($key)))->toBeTrue();
 
     // Served from the cache this time: a class in it would have come back incomplete and broken the widget.
     Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 —');
@@ -154,8 +157,13 @@ it('serves the admin dashboard figures from the cache as the same numbers', func
     $subscriptions = $stats->subscriptions();
     $funnel = $stats->onboardingFunnel();
 
+    $subscriptionsKey = WidgetCache::key(PlatformStatsService::SUBSCRIPTIONS_WIDGET, 'all');
+    $funnelKey = WidgetCache::key(PlatformStatsService::FUNNEL_WIDGET, 'all');
+
     expect($stats->subscriptions())->toBe($subscriptions)
         ->and($stats->onboardingFunnel())->toBe($funnel)
-        ->and(cacheEntryIsPlain(PureCache::store()->get('platform_stats:subscriptions')))->toBeTrue()
-        ->and(cacheEntryIsPlain(PureCache::store()->get('platform_stats:funnel')))->toBeTrue();
+        ->and(PureCache::store()->get($subscriptionsKey))->toBe($subscriptions)
+        ->and(PureCache::store()->get($funnelKey))->toBe($funnel)
+        ->and(cacheEntryIsPlain(PureCache::store()->get($subscriptionsKey)))->toBeTrue()
+        ->and(cacheEntryIsPlain(PureCache::store()->get($funnelKey)))->toBeTrue();
 });
