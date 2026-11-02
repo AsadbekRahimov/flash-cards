@@ -70,6 +70,8 @@ return [
         'free_new_words_unlimited' => 'yangi so\'zlar uchun kunlik limitsiz',
         // Pro's first tick: only while Free has a daily limit that Pro lacks.
         'pro_new_words' => 'Yangi so\'zlar uchun kunlik limitsiz',
+        // Pro's practice tick: only while practice is open to everybody and Free has a daily limit of it (ProPromises).
+        'pro_practice' => 'Amaliyot va bellashuvlar kunlik limitsiz',
         // One deck / many (a rule of the plan: `{1}` is exactly one, 21 is many).
         'decks' => '{1} Shaxsiy to\'plam: :deck_words tagacha so\'z|[2,*] Shaxsiy to\'plamlar: :deck_words tadan so\'zli :decks tagacha to\'plam',
     ],
@@ -98,6 +100,7 @@ return [
             // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
                 ':new_words',
+                ':practice',
                 'Mashqlar: «So\'zni yozish» va «Misoldagi bo\'sh joy»',
                 ':decks',
                 'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',

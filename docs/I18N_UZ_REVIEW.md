@@ -118,9 +118,10 @@
 | `landing.pricing.pro.name` | Pro | Pro |
 | `landing.pricing.pro.tagline` | Ko'proq istaganlar uchun | Для тех, кто хочет больше |
 | `landing.pricing.pro.features.0` | :new_words | :new_words |
-| `landing.pricing.pro.features.1` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
-| `landing.pricing.pro.features.2` | :decks | :decks |
-| `landing.pricing.pro.features.3` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
+| `landing.pricing.pro.features.1` | :practice | :practice |
+| `landing.pricing.pro.features.2` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
+| `landing.pricing.pro.features.3` | :decks | :decks |
+| `landing.pricing.pro.features.4` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
 | `landing.pricing.pro.note` | Pro tarkibi va narxlari hozircha aniqlanmoqda. | Состав и цены Pro пока уточняются. |
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
@@ -1716,7 +1717,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `landing.pricing.pro.features.4` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+| `landing.pricing.pro.features.5` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
 | `landing.pricing.subtitle_open` | Bepul boshlang. Pro - ko'proq istaganingizda. | Начните бесплатно. Pro — когда захочется больше. |
 | `landing.pricing.pro.price` | Boshlang'ich narx - oyiga :price | от :price в месяц |
 | `landing.pricing.pro.price_stars` | yoki Telegram Stars orqali :price | или :price через Telegram Stars |
@@ -2654,3 +2655,27 @@
 | `paywall.reset_at` | soat {time} da | в {time} |
 | `benefits.practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
 | `error.code.practice_limit_reached` | Bugungi bepul limit tugadi. U ertaga yangilanadi. | Бесплатный лимит на сегодня закончился. Он обновится завтра. |
+
+## Состав Pro после G1 2026-11 · лендинг и счёт Stars — на проверку носителю
+
+> Практика и баттлы без дневного лимита теперь входят в Pro (G1). В публичных текстах эта строка показывается **только когда практика открыта всем**
+> (`PRACTICE_ACCESS=all`) и у Free есть дневной лимит на неё; при `pilot` и `off` её нет, чтобы не обещать то, чем нельзя пользоваться
+> (`ProPromises::practiceUnlimited()`). Поэтому у счёта два варианта текста на каждый срок: прежний и «с практикой»; выбирает код, не шаблон.
+> Термины те же, что в TWA (`benefits.practice`, раздел «Лимиты практики 2026-11 · G1 (TWA)»): «Amaliyot» — практика, «bellashuvlar» — баттлы.
+> Пункт тарифной карточки Pro `landing.pricing.pro.features.1` — это заготовка `:practice`, её заменяет строка `landing.limits.pro_practice`
+> (или пункт пропадает); в таблицах выше номера пунктов Pro сдвинулись на один (`.1` — практика, `.2-.5` — прежние пункты 1-4).
+> Проверить: «yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz» — «kunlik limitsiz» относится ко всем трём подряд («новые слова, практика и баттлы без дневного лимита»).
+> В описании счёта Telegram разрешает не больше 255 знаков: у месячного варианта «с практикой» короче хвост («Har 30 kunda avtomatik yangilanadi; o'chirish: /pro.»), у годового нет «(365 kun)» — «1 yilga» уже говорит о сроке.
+
+### Лендинг, карточка Pro (`lang/uz/landing.php`, блок `limits`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.limits.pro_practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
+
+### Описание счёта Telegram Stars «с практикой» (`lang/uz/billing.php`, блок `stars.invoice`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.stars.invoice.description_month_practice` | LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice` | LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
