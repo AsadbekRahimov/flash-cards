@@ -70,8 +70,9 @@ return [
         'free_new_words_unlimited' => 'новые слова без дневного лимита',
         // Pro's first tick: only while Free has a daily limit that Pro lacks.
         'pro_new_words' => 'Без дневного лимита новых слов',
-        // Pro's practice tick: only while practice is open to everybody and Free has a daily limit of it (ProPromises); the second
-        // sentence while the battles are switched off (PRACTICE_BATTLE=false). The same two sentences as `benefits.practice*` of the Mini App.
+        // Pro's practice tick: only while practice is open to everybody and Pro has something to lift there - a Free daily limit, or
+        // practice that is Pro's as a whole (ProPromises, the rule of the Mini App too); the second sentence while the battles are switched
+        // off (PRACTICE_BATTLE=false). The same two sentences as `benefits.practice*` of the Mini App.
         'pro_practice' => 'Практика и баттлы без дневного лимита',
         'pro_practice_solo' => 'Практика без дневного лимита',
         // One deck / many (a rule of the plan, not of the language: `{1}` is exactly one, 21 is many).

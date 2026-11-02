@@ -7,6 +7,7 @@ namespace App\Domain\Practice\Services;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Support\ProPromises;
 use App\Domain\Practice\DTO\PracticeAccessState;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\BattleException;
@@ -82,9 +83,11 @@ final class PracticeAccess
     /**
      * The block `practice` of `GET /me` (docs/16 §3.3), always there. `available`: the entries may be shown (a Free
      * learner at `plan = pro` too - with a Pro chip); `pro_required`: the tap opens the paywall `practice`; `modes`: the
-     * modes that are switched on; `battle`: the battle switch.
+     * modes that are switched on; `battle`: the battle switch; `pro_promise`: what the "what Pro gives" list may say about
+     * practice to this learner - `none` | `solo` | `both`, the case of {@see ProPromises} for "the entries are shown to them", the same
+     * rule that writes the landing and the Stars invoice (docs/18 §3). The Mini App draws it and decides nothing.
      *
-     * @return array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
+     * @return array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: 'none'|'solo'|'both'}
      */
     public function describe(Learner $learner, Entitlement $entitlement): array
     {
@@ -95,6 +98,7 @@ final class PracticeAccess
             'pro_required' => $state->isProRequired(),
             'modes' => $this->enabledModes(),
             'battle' => $this->battleEnabled(),
+            'pro_promise' => ProPromises::practice(open: $state->showsEntries())->value,
         ];
     }
 

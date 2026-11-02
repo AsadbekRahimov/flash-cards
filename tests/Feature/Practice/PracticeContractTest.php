@@ -323,7 +323,7 @@ it('keeps the practice block of GET /me in its exact shape', function (): void {
 
     $this->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/me')
         ->assertOk()
-        ->assertJsonStructure(['practice' => ['available', 'pro_required', 'modes', 'battle']])
+        ->assertJsonStructure(['practice' => ['available', 'pro_required', 'modes', 'battle', 'pro_promise']])
         ->assertJsonPath('practice.available', true);
 });
 

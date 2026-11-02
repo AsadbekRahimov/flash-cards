@@ -273,7 +273,7 @@ describe('battle store — the rematch meets the counter of battles', () => {
       billing.apply(plan())
       billing.setLimits(freeLimits(0, 1))
       await opened(closedBattle('declined'))
-      vi.mocked(api.me.get).mockResolvedValue({ ...plan(), practice: { available: true, pro_required: false, modes: [], battle: true, limits: freeLimits(0, 0) } } as never)
+      vi.mocked(api.me.get).mockResolvedValue({ ...plan(), practice: { available: true, pro_required: false, modes: [], battle: true, pro_promise: 'both', limits: freeLimits(0, 0) } } as never)
 
       await billing.load()
 

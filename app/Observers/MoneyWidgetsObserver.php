@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The money widgets of the admin dashboard (revenue, webhook errors) are cached for minutes (docs/19 K1), but money must not
- * lag: a payment, a renewal, a refund or a provider's cancel drops them after the commit that wrote it, so the next open
- * of the dashboard recomputes and shows the figure that includes it. Whatever path writes the ledger (the applier, the refund
+ * lag: a payment, a renewal, a refund or a provider's cancel moves the version in the key of those widgets after the commit that
+ * wrote it (`WidgetCache::forgetMoney()` is a `Cache::increment` of `admin:widget:money:ver`, not a delete - a reader that was
+ * computing the old figure while the commit landed writes it under the old version, which nobody reads), so the next open of the
+ * dashboard recomputes and shows the figure that includes it. Whatever path writes the ledger (the applier, the refund
  * service, a webhook) goes through Eloquent, so the model events are the one place to hook; a query-builder update would
  * bypass them. Registered in AppServiceProvider for {@see Payment} and {@see ProviderTransaction}.
  */

@@ -60,7 +60,7 @@ const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purch
   ...(practice ? { practice } : {}),
 })
 
-const PRACTICE: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true }
+const PRACTICE: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both' }
 
 const summary = (overrides: Partial<SubscriptionSummary> = {}): SubscriptionSummary => ({
   status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, perpetual: false, ...overrides,
@@ -218,13 +218,24 @@ describe('BillingView', () => {
     })
 
     it('sells no such line where there is no practice (PRACTICE_ACCESS=off, a pilot the learner is not in), and keeps it behind Pro', async () => {
-      const off = await render(me({ practice: { ...PRACTICE, available: false, modes: [], battle: false } }), catalog())
+      const off = await render(me({ practice: { ...PRACTICE, available: false, modes: [], battle: false, pro_promise: 'none' } }), catalog())
       expect(off.wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
       expect(off.wrapper.text()).not.toContain('Практика и баттлы')
 
       setActivePinia(createPinia())
       const proOnly = await render(me({ practice: { ...PRACTICE, pro_required: true } }), catalog())
       expect(proOnly.wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
+    })
+
+    it('says the practice alone for `solo` and nothing for `none`, as the server decides', async () => {
+      const solo = await render(me({ practice: { ...PRACTICE, battle: false, pro_promise: 'solo' } }), catalog())
+      expect(solo.wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Практика без дневного лимита')
+      expect(solo.wrapper.text()).not.toContain('баттл')
+
+      setActivePinia(createPinia())
+      const none = await render(me({ practice: { ...PRACTICE, pro_promise: 'none' } }), catalog())
+      expect(none.wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(none.wrapper.text()).not.toContain('Практика')
     })
 
     it('calls the same list «Your benefits» for a Pro learner', async () => {

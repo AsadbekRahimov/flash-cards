@@ -662,6 +662,7 @@ return [
   "pro_required": false,
   "modes": ["pairs", "collocation", "sentence", "dictation"],
   "battle": true,
+  "pro_promise": "both",
   "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" },
               "battles":  { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } }
 }
@@ -671,6 +672,7 @@ return [
 
 - `available` — `state ∈ {available, pro_required}`; `false` → TWA **не показывает** входы (курс, итог занятия, друзья) и маршруты практики отвечают 403;
 - `pro_required` — Free-ученик при `plan = pro`: входы показаны с чипом Pro, нажатие открывает `PaywallSheet reason="practice"`, сервер всё равно отвечает 403 `practice_pro_required`;
+- `pro_promise` (`none` | `solo` | `both`) — какую строку о практике может сказать этому ученику список «что даёт Pro»; решает сервер (`ProPromises`, то же правило, что у лендинга и счёта Stars; контракт — `docs/04` A.2, правило — `docs/18` §3), TWA ничего не выводит из `available` / `battle`;
 - `modes` — включённые режимы (список), `battle` — флаг баттла. `MePayloadBuilder::build` += `'practice' => $this->access->describe($learner, $entitlement)`; `MeResource` отдаёт блок; `TwaContractTest` расширяется ключами `practice.available|pro_required|modes|battle`.
 
 **Реализация 18.1.** Блок `practice` есть не только в `GET /me`, но и во всех ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`): их собирает один `MePayloadBuilder`. Без блока (старый сервер, сбой `/me`) TWA считает, что практики нет: вход не рисуется (`billing.practiceAccess`).

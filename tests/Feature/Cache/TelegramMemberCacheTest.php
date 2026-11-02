@@ -253,11 +253,44 @@ it('takes a learner out of the group on chat_member left while the pure cache is
     expect(GroupMember::query()->where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->value('status'))->toBe('left');
 });
 
-it('asks Telegram when the pure cache cannot be read, and does not fail when it cannot be written', function (): void {
+it('asks Telegram when the pure cache cannot be read, and does not even try to write', function (): void {
     Exceptions::fake();
-    memberCacheDownStore();
     $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
+    $store = Mockery::mock(Repository::class);
+    $store->shouldReceive('get')->once()->andThrow(new RuntimeException('redis-cache is down'));
+    $store->shouldNotReceive('put');
+    app()->instance(PureCache::CONTAINER_KEY, $store);
+    $asked = 0;
 
-    expect(app(ChatMemberStatusCache::class)->status($group->chat_id, MEMBER_CACHE_BOT, fn (): string => 'administrator'))->toBe('administrator');
-    Exceptions::assertReported(RuntimeException::class);
+    $status = app(ChatMemberStatusCache::class)->status($group->chat_id, MEMBER_CACHE_BOT, function () use (&$asked): string {
+        $asked++;
+
+        return 'administrator';
+    });
+
+    expect($status)->toBe('administrator')
+        ->and($asked)->toBe(1);
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
+});
+
+it('asks Telegram once and gives its answer when the pure cache can be read but not written, and reports the failed write', function (): void {
+    Exceptions::fake();
+    $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
+    $key = ChatMemberStatusCache::key($group->chat_id, MEMBER_CACHE_BOT);
+    // A miss on the read, a refusal on the write: the store is up when asked, and gone (or full, or read-only) when the answer is to be kept.
+    $store = Mockery::mock(Repository::class);
+    $store->shouldReceive('get')->once()->with($key)->andReturn(null);
+    $store->shouldReceive('put')->once()->with($key, 'administrator', ChatMemberStatusCache::TTL)->andThrow(new RuntimeException('redis-cache refuses writes'));
+    app()->instance(PureCache::CONTAINER_KEY, $store);
+    $asked = 0;
+
+    $status = app(ChatMemberStatusCache::class)->status($group->chat_id, MEMBER_CACHE_BOT, function () use (&$asked): string {
+        $asked++;
+
+        return 'administrator';
+    });
+
+    expect($status)->toBe('administrator')
+        ->and($asked)->toBe(1);
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache refuses writes');
 });

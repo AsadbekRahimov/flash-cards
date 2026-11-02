@@ -39,7 +39,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
                     'daily_goals',
                 ],
             ],
-            'practice' => ['available', 'pro_required', 'modes', 'battle', 'limits'],
+            'practice' => ['available', 'pro_required', 'modes', 'battle', 'pro_promise', 'limits'],
         ])
         ->assertJsonPath('entitlement.plan', 'pro')
         ->assertJsonPath('entitlement.source', 'subscription')

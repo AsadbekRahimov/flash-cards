@@ -71,7 +71,7 @@ return [
             'description_month' => 'Подписка LexiFlow Pro: новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Продлевается автоматически каждые 30 дней; отключить можно командой /pro.',
             'description_year' => 'LexiFlow Pro на 1 год (365 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',
             // The same two with the practice and battles of Pro, chosen by TelegramStarsProvider only while practice is open to everybody
-            // (ProPromises::practiceUnlimited()); the limit of Telegram is 255 characters, so the tail of the month text is shorter.
+            // (ProPromises::publicPractice()); the limit of Telegram is 255 characters, so the tail of the month text is shorter.
             'description_month_practice' => 'Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro.',
             'description_year_practice' => 'LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',
             // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.

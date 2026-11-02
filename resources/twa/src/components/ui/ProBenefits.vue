@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import AppIcon from './AppIcon.vue'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
+import type { ProPromise } from '@/api/types'
 import type { StringKey } from '@/i18n/ru'
 
 /**
@@ -12,32 +13,40 @@ import type { StringKey } from '@/i18n/ru'
  *
  * Texts are `benefits.*` in the dictionaries; `data-testid="pro-benefits"` on the list, `benefit` on each item.
  *
- * "Practice and battles without a daily limit" is on the list only where there is practice to sell: with `PRACTICE_ACCESS=off`, or for a
- * learner outside the pilot, `/me` says `practice.available = false` and the line is not offered (the Free limit it lifts does not exist
- * there either). With the practice behind Pro (`PRACTICE_PLAN=pro`) it IS available, `pro_required` set: the line stays.
+ * The line about practice is the server's word: `practice.pro_promise` of `/me` (`ProPromises` — one rule, which the landing and the Stars
+ * invoice follow too). `both` — "Practice and battles without a daily limit"; `solo` — "Practice without a daily limit" (the battles are
+ * switched off, or Free has no limit on them); `none` — no such line: practice is not open to this learner (`PRACTICE_ACCESS=off`, a learner
+ * outside the pilot), or Pro has nothing to lift there. The component works out nothing from the flags of the block, and until `/me` has come
+ * the word is `none`.
  *
  * @example <ProBenefits compact />
  */
 defineProps<{ compact?: boolean }>()
 
-const BENEFITS: readonly StringKey[] = [
+/** `practice` stands for the line about practice, which `practice.pro_promise` picks (or leaves out); the others are always on the list. */
+const BENEFITS: readonly (StringKey | 'practice')[] = [
   'benefits.new_words',
-  'benefits.practice',
+  'practice',
   'benefits.exercises',
   'benefits.decks',
   'benefits.freezes',
   'benefits.mock_exams',
 ]
 
+/** The sentence of each word that sells something; `none` — and a word this app does not know yet — has none. */
+const PRACTICE_LINES: Partial<Record<ProPromise, StringKey>> = {
+  both: 'benefits.practice',
+  solo: 'benefits.practice_solo',
+}
+
 const billing = useBillingStore()
 const { t } = useI18n()
 
-/** With the battles switched off (`PRACTICE_BATTLE=false`) the line speaks of the practice alone: no battles are sold that do not exist. */
-const benefits = computed((): StringKey[] =>
-  BENEFITS.filter((key) => key !== 'benefits.practice' || billing.practiceAccess.available).map((key) =>
-    key === 'benefits.practice' && !billing.practiceAccess.battle ? 'benefits.practice_solo' : key,
-  ),
-)
+const benefits = computed((): StringKey[] => {
+  const practice = PRACTICE_LINES[billing.practiceAccess.pro_promise]
+
+  return BENEFITS.flatMap((key) => (key !== 'practice' ? [key] : practice ? [practice] : []))
+})
 </script>
 
 <template>

@@ -93,11 +93,11 @@ it('says in GET /me what the learner sees: the flags of the modes and of the bat
 
     config(['practice.access' => 'off']);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'limits' => null]);
+        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null]);
 
     config(['practice.access' => 'all', 'practice.modes.sentence' => false, 'practice.battle.enabled' => false]);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation'], 'battle' => false, 'limits' => null]);
+        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation'], 'battle' => false, 'pro_promise' => 'none', 'limits' => null]);
 
     // A Free learner at plan = pro still SEES the entries (with a Pro chip): available + pro_required.
     config(['practice.plan' => 'pro']);
@@ -236,7 +236,7 @@ it('describes the state with the entitlement it is given, without asking again',
     $free = app(EntitlementResolver::class)->for($learner);
 
     expect(QueryLog::during(fn () => app(PracticeAccess::class)->describe($learner, $free)))->toBe([])
-        ->and(app(PracticeAccess::class)->describe($learner, $free))->toBe(['available' => true, 'pro_required' => true, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true])
+        ->and(app(PracticeAccess::class)->describe($learner, $free))->toBe(['available' => true, 'pro_required' => true, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'both'])
         ->and(PracticeAccessState::proRequired()->showsEntries())->toBeTrue()
         ->and(PracticeAccessState::off()->showsEntries())->toBeFalse();
 });

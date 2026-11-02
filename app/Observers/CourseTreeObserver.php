@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\DB;
  * `CoursePublisher::recount()`, which drops it as well. Registered in AppServiceProvider for {@see Stage} and {@see Lesson};
  * query-builder updates bypass model events and must go through Eloquent (or call `forgetCourseTree()` themselves).
  *
- * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded), and with one
- * primary-key lookup when it does not.
+ * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded, it is the module
+ * asked about, and it has its `course_id` - a module selected without that column does not count), and with one primary-key lookup
+ * when it does not.
  */
 final class CourseTreeObserver
 {
@@ -66,9 +67,11 @@ final class CourseTreeObserver
             return null;
         }
 
-        // The module in hand is the module asked about only if their ids agree: a lesson moved to another module still carries the old one.
+        // The module in hand is the module asked about only if their ids agree (a lesson moved to another module still carries the old one)
+        // and it was read WITH its course: a list that selects a few columns of the module (`lesson.stage:id,number`) leaves `course_id`
+        // out, and "no value" there is not "no course" - it would silently leave the tree of the course in the cache.
         $loaded = $model->relationLoaded('stage') ? $model->getRelation('stage') : null;
-        $courseId = $loaded instanceof Stage && (int) $loaded->getKey() === (int) $stageId
+        $courseId = $loaded instanceof Stage && (int) $loaded->getKey() === (int) $stageId && array_key_exists('course_id', $loaded->getAttributes())
             ? $loaded->course_id
             : Stage::query()->withoutGlobalScopes()->whereKey((int) $stageId)->value('course_id');
 

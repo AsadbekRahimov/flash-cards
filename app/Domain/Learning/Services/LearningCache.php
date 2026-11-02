@@ -17,9 +17,15 @@ use Illuminate\Support\Facades\DB;
  */
 final class LearningCache
 {
+    /** An hour: a documented exception of docs/19 §3 rule 5 (docs/19 §5.1) - a denominator of a progress bar, never a decision. */
     private const LESSON_WORD_COUNT_TTL = 3600;
 
-    private const EXAM_RESULT_TTL = 3600;
+    /**
+     * Five minutes: the table of results is what people read, and a `forget` that a failing `redis-cache` swallowed leaves the old one
+     * until the TTL (docs/19 §3 rule 5). Recomputing it is two indexed reads and the names of the learners - about 2 ms for the exams of
+     * the 200k-learner set, 60 µs more per participant (docs/19 §5.1).
+     */
+    private const EXAM_RESULT_TTL = 300;
 
     /** How long a learner's "words learned" shown to their friends may lag behind the real number. */
     private const WORDS_LEARNED_TTL = 600;

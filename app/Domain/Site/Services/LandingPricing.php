@@ -60,7 +60,8 @@ final class LandingPricing
      * ticks filled in; a tick with nothing to say is dropped: Free without a daily limit has no "N new words" and
      * Pro then has no "no daily limit" to sell either, a plan that cannot make decks (0) has no deck line. The practice tick
      * ("practice and battles without a daily limit", or "practice without a daily limit" while the battles are switched off) is
-     * Pro's only while practice is open to everybody and Free is limited in it ({@see ProPromises::practice()}): not at `pilot`,
+     * Pro's only while practice is open to everybody and Pro has something to lift there - a Free limit, or practice that is Pro's
+     * as a whole (`PRACTICE_PLAN=pro`) - by the rule the Mini App follows ({@see ProPromises::publicPractice()}): not at `pilot`,
      * not at `off`.
      *
      * @return array{free: string, freeFeatures: list<string>, proFeatures: list<string>}
@@ -86,7 +87,7 @@ final class LandingPricing
     /** The practice tick of the Pro card: practice and battles, practice alone, or '' (ProPromises decides). */
     private function practiceLine(string $locale): string
     {
-        $key = ProPromises::practice()->landingKey();
+        $key = ProPromises::publicPractice()->landingKey();
 
         return $key === null ? '' : $this->line($key, $locale);
     }
