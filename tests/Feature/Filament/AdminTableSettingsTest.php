@@ -145,6 +145,15 @@ it('opens the learners list with the newest first and sorts it by the first name
         ->assertCanSeeTableRecords([$zoya, $mira, $adam], inOrder: true);
 });
 
+it('does not sort the learners by the count of their referrals, an aggregate over the whole table', function (): void {
+    $table = Livewire::test(ListLearners::class)->instance()->getTable();
+
+    // The aggregates of the exams (10 000 rows) stay sortable; the one of the learners (200 000) would sort the table by a subquery.
+    expect($table->getColumn('referrals_count')?->isSortable())->toBeFalse()
+        ->and($table->getColumn('first_name')?->isSortable())->toBeTrue()
+        ->and(Livewire::test(ListExamSessions::class)->instance()->getTable()->getColumn('results_count')?->isSortable())->toBeTrue();
+});
+
 // --- search of the identifiers --------------------------------------------------------------------
 
 it('finds a payment by the whole charge id or event id of the provider, never by a part of it', function (): void {

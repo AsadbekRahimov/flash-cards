@@ -207,10 +207,10 @@ class LearnerResource extends Resource
                     ->toggleable()
                     ->visible($isAdmin),
                 // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
+                // Not sortable: an order by this aggregate sorts the whole table by the subquery (docs/20 §1.5, §4).
                 Tables\Columns\TextColumn::make('referrals_count')
                     ->label(__('admin.learners.fields.referrals_count'))
                     ->counts(['referrals' => fn (Builder $q): Builder => $q->where('status', '<>', ReferralStatus::Rejected->value)])
-                    ->sortable()
                     ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->sortable()->toggleable()->visible($isAdmin),
