@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -136,6 +136,12 @@ function invitationMeta(invitation: BattleIncoming): string {
 /** A press on "Battle" is being checked against the counter: the next one waits. */
 const checking = ref(false)
 
+/** The screen was left. What was still on its way (the counter being confirmed) neither carries the learner on nor leaves a sheet for the next visit. */
+let left = false
+onBeforeUnmount(() => {
+  left = true
+})
+
 async function startBattle(friendshipId: number): Promise<void> {
   haptic('light')
   if (checking.value) return
@@ -144,6 +150,7 @@ async function startBattle(friendshipId: number): Promise<void> {
     // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it - after `/me` was read
     // again, as a battle that did not take place (declined, not answered in time) gives its place back and the number here may be from before.
     const spent = await billing.confirmLimit('battles')
+    if (left) return
     if (spent !== null) {
       battles.showLimit(spent)
       return

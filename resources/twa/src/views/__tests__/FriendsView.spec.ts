@@ -1399,6 +1399,37 @@ describe('FriendsView', () => {
           expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') === undefined)).toBe(true)
         })
 
+        it('a learner who left the screen while the counter was being confirmed finds no sheet waiting for the next visit', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          const push = vi.spyOn(router, 'push')
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          wrapper.unmount()
+          answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          await flushPromises()
+
+          expect(useBattleStore().limitHit).toBeNull()
+          expect(push).not.toHaveBeenCalled()
+        })
+
+        it('nor is the learner carried to the setup of a battle when the place turns out to be free after they have left', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          const push = vi.spyOn(router, 'push')
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          wrapper.unmount()
+          answer(meWith(withLimits(freeLimits(0, 0, inHours(4)))))
+          await flushPromises()
+
+          expect(push).not.toHaveBeenCalled()
+        })
+
         it('a kind that is for Pro only (limit 0) needs no question', async () => {
           const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
           const { wrapper, router } = await renderBattles(withLimits(zero))
