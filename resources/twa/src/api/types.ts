@@ -754,11 +754,15 @@ export interface PracticeLimit {
 
 /**
  * The Free limits of today, in `practice.limits` of GET /me, `limits` of GET /practice/hub and of the 201 answers that create a session
- * or a battle (the value AFTER the creation). `null`: Pro, or no limit. A repeat of mistakes spends nothing; accepting a battle is never limited.
+ * or a battle (the value AFTER the creation). `null` as a whole: Pro, no limit at all, or practice is closed. A repeat of mistakes spends
+ * nothing; accepting a battle is never limited.
+ *
+ * Each kind can be `null` on its own: an empty env on the server means that kind has no limit (`{sessions: null, battles: {...}}` or the
+ * other way round). Nothing is shown for such a kind and it is never stopped.
  */
 export interface PracticeLimits {
-  sessions: PracticeLimit
-  battles: PracticeLimit
+  sessions: PracticeLimit | null
+  battles: PracticeLimit | null
 }
 
 /** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */

@@ -13,7 +13,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse, PracticeLimitHit } from '@/api/types'
+import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
 export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit'
 
@@ -100,12 +100,21 @@ const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   practice: 'paywall.lead_practice',
 }
 
-/** "Free practice for today is over (2 of 2). New ones - tomorrow at 00:00 or right away with Pro": the sessions, or the battles. */
+/**
+ * The lead of the end of a free limit, by the kind that is spent: "Free practice for today is over (2 of 2). A new one - tomorrow at 00:00
+ * or right away with Pro", or the same about the battles. "Right away with Pro" is said only while Pro is for sale (`purchase`); while it
+ * is just coming (`soon`) the lead promises nothing, and the pitch that follows it says "Pro opens soon".
+ */
+const LIMIT_LEADS: Record<PracticeLimitKind, { purchase: StringKey; soon: StringKey }> = {
+  sessions: { purchase: 'paywall.lead_practice_limit_sessions', soon: 'paywall.lead_practice_limit_sessions_soon' },
+  battles: { purchase: 'paywall.lead_practice_limit_battles', soon: 'paywall.lead_practice_limit_battles_soon' },
+}
+
 const limitLead = computed((): string => {
   const hit = props.limitHit
   // Without the numbers of a refusal there is nothing to quote: the plain word on the practice stands.
   if (hit === null) return t('paywall.lead_practice')
-  return t(hit.kind === 'battles' ? 'paywall.lead_practice_limit_battles' : 'paywall.lead_practice_limit_sessions', {
+  return t(LIMIT_LEADS[hit.kind][purchaseMode.value ? 'purchase' : 'soon'], {
     limit: hit.limit,
     when: resetWhen(hit.resets_at, locale.value, today.data?.timezone),
   })

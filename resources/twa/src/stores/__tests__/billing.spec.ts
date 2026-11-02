@@ -309,12 +309,88 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(billing.battleLimit).toEqual({ limit: 3, used: 3, remaining: 0, resets_at: resetsAt })
     })
 
-    it('does nothing when the counters were never told: one of two cannot be built from a refusal', () => {
+    it('builds the counter of the kind that refused when none were told at all (the learner was taken for Pro): the other kind stays without one', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: resetsAt })
+
+      expect(billing.limits).toEqual({ sessions: { limit: 2, used: 2, remaining: 0, resets_at: resetsAt }, battles: null })
+      expect(billing.sessionLimit).toMatchObject({ remaining: 0 })
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).not.toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+
+    it('turns a kind that had no counter into a spent one: the server has the last word on its own limit', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: null, battles: counter(0, 1) })
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'sessions', limit: 3, used: 3, resets_at: resetsAt })
+
+      expect(billing.sessionLimit).toEqual({ limit: 3, used: 3, remaining: 0, resets_at: resetsAt })
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+    })
+  })
+
+  // An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+  describe('a kind without a limit (null inside the limits)', () => {
+    const onlyBattles = () => ({ sessions: null, battles: counter(0, 1, inHours(5)) })
+    const onlySessions = () => ({ sessions: counter(1, 2, inHours(5)), battles: null })
+
+    it('takes it from /me: nothing for that kind, the counter of the other one as it is', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(onlyBattles())))
       const billing = useBillingStore()
 
-      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: inHours(2) })
+      await billing.load()
 
-      expect(billing.limits).toBeNull()
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
+      expect(billing.practiceAccess).toEqual(access())
+    })
+
+    it('stops nothing of that kind, and the other kind is stopped by its own counter only', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: null, battles: counter(1, 1, inHours(5)) })
+
+      expect(billing.limitReached('sessions')).toBeNull()
+      expect(billing.limitReached('battles')).not.toBeNull()
+
+      billing.setLimits({ sessions: counter(2, 2, inHours(5)), battles: null })
+
+      expect(billing.limitReached('sessions')).not.toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+
+    it('shows the counter of the other kind alone', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(onlySessions())
+
+      expect(billing.sessionLimit).toMatchObject({ limit: 2, used: 1, remaining: 1 })
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('both kinds without a limit are as good as no limits: nothing shown, nothing stopped', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits({ sessions: null, battles: null })
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+
+    it('a later answer replaces the whole picture: a limit that was switched on, or off, on the server', () => {
+      const billing = useBillingStore()
+      billing.setLimits(onlyBattles())
+
+      billing.setLimits(onlySessions())
+
+      expect(billing.sessionLimit).not.toBeNull()
+      expect(billing.battleLimit).toBeNull()
     })
   })
 })

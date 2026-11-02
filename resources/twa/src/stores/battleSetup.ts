@@ -278,7 +278,7 @@ export const useBattleSetupStore = defineStore('battleSetup', {
      * If the friend has invited the learner at this very moment (409 `battle_busy` names THEIR invitation), the id is that invitation's: the
      * screen leads into it, where the learner accepts it - no refusal is shown.
      *
-     * An invitation is a challenge, and Free has a few of them a day: a learner whose counter says they are spent gets the paywall at
+     * An invitation starts a battle, and Free has a few of them a day: a learner whose counter says they are spent gets the paywall at
      * once, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). The 201 brings
      * the counters as they are after the battle was created.
      */

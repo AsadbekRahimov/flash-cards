@@ -42,7 +42,7 @@ import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, P
  * Free has a few sessions of practice a day (docs/18 §3): under "Choose a mode" a quiet line says how many are left ("Free today: 1 of 2
  * left"; Pro sees nothing). The cards stay as they are when none is left - a press opens the paywall of the limit at once, without a request
  * (`practice.open` checks the counter) - except the "Continue" card and the card of the mode that is unfinished: going back into a
- * session that was already counted costs nothing. "Play with a friend" is a challenge and meets its own counter the same way.
+ * session that was already counted costs nothing. "Play with a friend" starts a battle and meets the counter of battles the same way.
  */
 const props = withDefaults(
   defineProps<{
@@ -216,7 +216,7 @@ function playWithFriend(): void {
     void router.push({ name: 'battle', params: { id: activeBattleId.value } })
     return
   }
-  // A new battle is a challenge, and Free has a few a day: with none left, the paywall instead of a setup that ends in it.
+  // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it.
   const spent = billing.limitReached('battles')
   if (spent !== null) {
     practice.showLimit(spent)

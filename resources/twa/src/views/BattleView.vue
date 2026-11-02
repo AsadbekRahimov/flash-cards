@@ -63,7 +63,7 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  * A battle of the learner's own that stands in the way of "Accept" or of a rematch (409 `battle_busy`) is told in a toast, and stays on the
  * screen as a line with the way into that battle: in the room and on the result screen.
  * Behind Pro (403 `practice_pro_required` on opening or on "Accept") the answer is the paywall, not a message.
- * A rematch ("Rematch" / "Invite again") is a challenge, and Free has a few a day (docs/18 §3): when none is left the answer is the paywall
+ * A rematch ("Rematch" / "Invite again") starts a new battle, and Free has a few a day (docs/18 §3): when none is left the answer is the paywall
  * of the free limit (`limitHit`). Accepting an invitation, a rematch of the friend's too, and the room are never limited.
  */
 const props = defineProps<{ id: number }>()

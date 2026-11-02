@@ -1454,7 +1454,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
   })
 })
 
-// "Play with a friend" starts a battle: a challenge, with a counter of its own (one a day on Free).
+// "Play with a friend" starts a battle, which has a counter of its own (one a day on Free).
 describe('PracticeHubView — the Free limit of battles', () => {
   const resetsAt = () => inHours(4)
 
@@ -1484,7 +1484,7 @@ describe('PracticeHubView — the Free limit of battles', () => {
     wrapper.unmount()
   })
 
-  it('with a challenge left it opens the friends as it always did, even when the sessions of the day are spent', async () => {
+  it('with a battle left it opens the friends as it always did, even when the sessions of the day are spent', async () => {
     const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
 
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
@@ -1498,7 +1498,7 @@ describe('PracticeHubView — the Free limit of battles', () => {
     wrapper.unmount()
   })
 
-  it('a battle that is on is not a new challenge: the button leads back into it, whatever the counter says', async () => {
+  it('a battle that is on is not a new battle: the button leads back into it, whatever the counter says', async () => {
     const { wrapper, router } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()), battle: { enabled: true, active_battle_id: 15, incoming_count: 0 } }))
 
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
@@ -1526,8 +1526,104 @@ describe('PracticeHubView — the Free limit of battles', () => {
   it('says nothing about battles on the hub: the line is about the sessions, the battle counter is told where a battle is made', async () => {
     const { wrapper } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()) }))
 
-    expect(wrapper.find('[data-testid=practice-limit]').text()).not.toContain('Вызов')
+    expect(wrapper.find('[data-testid=practice-limit]').text()).not.toContain('Баттл')
     expect(wrapper.get('[data-testid=battle-card]').text()).not.toContain('осталось')
+    wrapper.unmount()
+  })
+})
+
+// An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+describe('PracticeHubView — one kind of limit without a counter (null inside the limits)', () => {
+  const line = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']) => wrapper.find('[data-testid=practice-limit]')
+  const spent = (kind: 'sessions' | 'battles') => freeLimits(kind === 'sessions' ? 2 : 0, kind === 'battles' ? 1 : 0, inHours(4))
+
+  describe('sessions without a limit, battles with one', () => {
+    it('shows no line and opens a session as it did, with the battles spent as well', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 96, mode: 'sentence' }))
+      const { wrapper, router } = await render({}, hub({ limits: { sessions: null, battles: spent('battles').battles } }))
+      expect(line(wrapper).exists()).toBe(false)
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('practice-session')
+      wrapper.unmount()
+    })
+
+    it('"Play with a friend" is still stopped by the counter of the battles', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: null, battles: spent('battles').battles } }))
+
+      await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+      expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('the 201 that brings the sessions back under a limit makes the line appear', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 97, limits: freeLimits(1, 0) }))
+      const { wrapper } = await render({}, hub({ limits: { sessions: null, battles: spent('battles').battles } }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
+      wrapper.unmount()
+    })
+  })
+
+  describe('battles without a limit, sessions with one', () => {
+    it('shows the line of the sessions, and the cards meet it', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: spent('sessions').sessions, battles: null } }))
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
+
+      await card(wrapper, 'pairs').trigger('click')
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('sessions')
+      expect(api.practice.open).not.toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('"Play with a friend" opens the friends as it did, with the sessions spent', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: spent('sessions').sessions, battles: null } }))
+
+      await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+  })
+
+  it('both kinds without a limit: no line, nothing stopped', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 98 }))
+    const { wrapper } = await render({}, hub({ limits: { sessions: null, battles: null } }))
+    expect(line(wrapper).exists()).toBe(false)
+
+    await card(wrapper, 'pairs').trigger('click')
+    await flushPromises()
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('403 for a kind the screen took for unlimited: the wall, and the line appears spent', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions', inHours(4))))
+    const { wrapper } = await render({}, hub({ limits: { sessions: null, battles: spent('battles').battles } }))
+
+    await card(wrapper, 'pairs').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('sessions')
+    expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
     wrapper.unmount()
   })
 })

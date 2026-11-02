@@ -17,7 +17,7 @@ vi.mock('@/api', () => ({
 }))
 
 /**
- * The Free limits (docs/18 §3, G1) in the setup of a battle: "Invite" is a challenge and meets the counter of battles. The counters come
+ * The Free limits (docs/18 §3, G1) in the setup of a battle: "Invite" starts a battle and meets the counter of battles. The counters come
  * from the billing store (`/me`, the practice hub, the 201 of the last session or battle).
  */
 
@@ -49,7 +49,7 @@ afterEach(() => {
 })
 
 describe('battle setup — "Invite" meets the counter of battles', () => {
-  it('opens the wall at once, without a request, when the counter says today\'s challenges are spent', async () => {
+  it('opens the wall at once, without a request, when the counter says today\'s battles are spent', async () => {
     const resetsAt = inHours(4)
     useBillingStore().setLimits(freeLimits(0, 1, resetsAt))
     const setup = await ready()
@@ -63,14 +63,14 @@ describe('battle setup — "Invite" meets the counter of battles', () => {
     expect(setup.paywall).toBe(false)
   })
 
-  it('"Invite" is still on when the challenges are spent: it is what opens the wall (only a setup that cannot go on switches it off)', async () => {
+  it('"Invite" is still on when the battles are spent: it is what opens the wall (only a setup that cannot go on switches it off)', async () => {
     useBillingStore().setLimits(freeLimits(0, 1))
     const setup = await ready()
 
     expect(setup.canInvite).toBe(true)
   })
 
-  it('asks as usual while a challenge is left (the sessions of practice are another counter), for Pro and for an unknown counter', async () => {
+  it('asks as usual while a battle is left (the sessions of practice are another counter), for Pro and for an unknown counter', async () => {
     vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
     const billing = useBillingStore()
     const setup = await ready()
@@ -146,7 +146,7 @@ describe('battle setup — 403 practice_limit_reached from the server', () => {
   it('is the wall with the numbers of the refusal, no sentence beside it, and the counter is spent from now on', async () => {
     const resetsAt = inHours(5)
     const billing = useBillingStore()
-    billing.setLimits(freeLimits(0, 0)) // the screen believed a challenge was left
+    billing.setLimits(freeLimits(0, 0)) // the screen believed a battle was left
     vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles', resetsAt)))
     const setup = await ready()
 
@@ -228,6 +228,53 @@ describe('battle setup — 403 practice_limit_reached from the server', () => {
     await setup.invite()
     expect(setup.inviteError).toBe('Нет связи с сервером. Попробуйте ещё раз.')
     expect(setup.limitHit).toBeNull()
+  })
+})
+
+// An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+describe('battle setup — battles without a limit (null inside the limits)', () => {
+  it('"Invite" is never stopped, whatever the counter of the sessions of practice says', async () => {
+    useBillingStore().setLimits({ sessions: freeLimits(2, 0).sessions, battles: null })
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+    const setup = await ready()
+
+    expect(await setup.invite()).toBe(21)
+
+    expect(api.battles.invite).toHaveBeenCalledTimes(1)
+    expect(setup.limitHit).toBeNull()
+  })
+
+  it('both kinds without a limit stop nothing', async () => {
+    useBillingStore().setLimits({ sessions: null, battles: null })
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+    const setup = await ready()
+
+    expect(await setup.invite()).toBe(21)
+  })
+
+  it('the 201 says it: the battles go on without a counter, the sessions keep theirs', async () => {
+    const billing = useBillingStore()
+    billing.setLimits(freeLimits(1, 0))
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21, limits: { sessions: freeLimits(1, 0).sessions, battles: null } }))
+    const setup = await ready()
+
+    await setup.invite()
+
+    expect(billing.battleLimit).toBeNull()
+    expect(billing.sessionLimit).toMatchObject({ used: 1, remaining: 1 })
+  })
+
+  it('a 403 for the battles that the screen took for unlimited is the wall, and the counter appears spent', async () => {
+    const billing = useBillingStore()
+    billing.setLimits({ sessions: freeLimits(0, 0).sessions, battles: null })
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
+    const setup = await ready()
+
+    expect(await setup.invite()).toBeNull()
+
+    expect(setup.limitHit).toMatchObject({ kind: 'battles', limit: 1 })
+    expect(billing.battleLimit).toMatchObject({ used: 1, remaining: 0 })
+    expect(billing.sessionLimit).toMatchObject({ remaining: 2 })
   })
 })
 

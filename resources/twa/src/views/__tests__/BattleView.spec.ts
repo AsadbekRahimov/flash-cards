@@ -2259,8 +2259,8 @@ describe('BattleView — behind Pro (docs/16 §3.2)', () => {
   })
 })
 
-// docs/18 §3 (G1): Free has one battle (challenge) a day. A rematch - "Rematch", or "Invite again" after a battle that did not take place -
-// is a challenge like any other: when none is left it is the paywall of the limit instead of the invitation. Accepting a battle - an
+// docs/18 §3 (G1): Free has one battle a day. A rematch - "Rematch", or "Invite again" after a battle that did not take place -
+// is a new battle like any other: when none is left it is the paywall of the limit instead of the invitation. Accepting a battle - an
 // invitation, a rematch of the friend's - and the room are never limited.
 describe('BattleView — the Free limit of battles', () => {
   const spend = () => useBillingStore().setLimits(freeLimits(0, 1))
@@ -2296,7 +2296,7 @@ describe('BattleView — the Free limit of battles', () => {
       expect(api.battles.invite).not.toHaveBeenCalled()
     })
 
-    it('“Invite again” after a battle that did not take place is a challenge too', async () => {
+    it('“Invite again” after a battle that did not take place is a new battle too', async () => {
       spend()
       const r = await render(closedBattle('room_expired'))
       expect(text(r, 'rematch-btn')).toBe('Пригласить снова')
@@ -2329,7 +2329,7 @@ describe('BattleView — the Free limit of battles', () => {
     })
   })
 
-  describe('“Rematch” while a challenge is left', () => {
+  describe('“Rematch” while a battle is left', () => {
     it('invites as it did, leads to the new battle, and keeps the counters of the 201', async () => {
       useBillingStore().setLimits(freeLimits(1, 0))
       const r = await render(finishedBattle('lost'))
@@ -2353,6 +2353,19 @@ describe('BattleView — the Free limit of battles', () => {
       await click(r, 'rematch-btn')
 
       expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(route(r).params.id).toBe('16')
+    })
+
+    it('battles without a limit (null inside the limits): the rematch goes as it did, with the sessions of practice spent', async () => {
+      useBillingStore().setLimits({ sessions: freeLimits(2, 0).sessions, battles: null })
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : finishedBattle('lost')))
+
+      await click(r, 'rematch-btn')
+
+      expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(has(r, 'paywall')).toBe(false)
       expect(route(r).params.id).toBe('16')
     })
 
@@ -2439,7 +2452,7 @@ describe('BattleView — the Free limit of battles', () => {
       expect(has(r, 'paywall')).toBe(false)
     })
 
-    it('an unexpected 403 practice_limit_reached of an “Accept” is told as a refusal, never as the wall of a challenge', async () => {
+    it('an unexpected 403 practice_limit_reached of an “Accept” is told as a refusal, never as the wall of a new battle', async () => {
       spend()
       const r = await render(invitedBattle({ role: 'opponent' }))
       vi.mocked(api.battles.accept).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))

@@ -97,6 +97,34 @@ describe('reachedLimit', () => {
 
     expect(reachedLimit(limits, 'battles', NOW)).toEqual({ kind: 'battles', limit: 0, used: 0, resets_at: MIDNIGHT })
   })
+
+  // An empty env of the server means that kind has no limit: `limits` carries `null` for it, the other kind keeps its counter.
+  describe('a kind without a limit (null inside the limits)', () => {
+    it('is never stopped, however spent the other kind is', () => {
+      const onlyBattles = { sessions: null, battles: counter(1, 1, MIDNIGHT) }
+      const onlySessions = { sessions: counter(2, 2, MIDNIGHT), battles: null }
+
+      expect(reachedLimit(onlyBattles, 'sessions', NOW)).toBeNull()
+      expect(reachedLimit(onlySessions, 'battles', NOW)).toBeNull()
+    })
+
+    it('leaves the other kind as it is: its counter says what it says', () => {
+      const onlyBattles = { sessions: null, battles: counter(1, 1, MIDNIGHT) }
+      const onlySessions = { sessions: counter(2, 2, MIDNIGHT), battles: null }
+
+      expect(reachedLimit(onlyBattles, 'battles', NOW)).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: MIDNIGHT })
+      expect(reachedLimit(onlySessions, 'sessions', NOW)).toEqual({ kind: 'sessions', limit: 2, used: 2, resets_at: MIDNIGHT })
+      expect(reachedLimit({ sessions: null, battles: counter(0, 1, MIDNIGHT) }, 'battles', NOW)).toBeNull()
+    })
+
+    it('both kinds without a limit stop nothing and say nothing', () => {
+      const none = { sessions: null, battles: null }
+
+      expect(reachedLimit(none, 'sessions', NOW)).toBeNull()
+      expect(reachedLimit(none, 'battles', NOW)).toBeNull()
+      expect(liveLimit(none.sessions, NOW)).toBeNull()
+    })
+  })
 })
 
 describe('resetWhen', () => {

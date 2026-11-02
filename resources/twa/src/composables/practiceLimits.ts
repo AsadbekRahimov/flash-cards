@@ -24,8 +24,9 @@ export function limitHitFrom(details: Record<string, unknown> | null): PracticeL
 }
 
 /**
- * A counter while it still describes today. Past its `resets_at` a new day has begun: the number is out of date, it says nothing any more
- * (null), and the server is asked as usual - an app that stayed open overnight must not keep the learner behind yesterday's last session.
+ * A counter while it still describes today. Null for a counter that is not there - a kind without a limit (`null` in `PracticeLimits`),
+ * Pro, nothing told yet - and for one whose day is over: past its `resets_at` a new day has begun, the number is out of date and says nothing
+ * any more, and the server is asked as usual (an app that stayed open overnight must not keep the learner behind yesterday's last session).
  */
 export function liveLimit(limit: PracticeLimit | null | undefined, now: number = Date.now()): PracticeLimit | null {
   if (!limit) return null
@@ -35,7 +36,8 @@ export function liveLimit(limit: PracticeLimit | null | undefined, now: number =
 
 /**
  * The wall of `kind` when the counter says today's free allowance is spent: what the paywall needs, without asking the server. Null when
- * there is some left, when nothing is known (Pro, no limit, `/me` not read yet) and when the counter's day is over - the server decides then.
+ * there is some left, when `kind` has no counter (no limit of that kind, Pro, `/me` not read yet) and when the counter's day is over - the
+ * server decides then. The other kind does not matter: spent sessions never stop a battle, nor the other way round.
  */
 export function reachedLimit(limits: PracticeLimits | null | undefined, kind: PracticeLimitKind, now: number = Date.now()): PracticeLimitHit | null {
   const counter = liveLimit(limits?.[kind], now)

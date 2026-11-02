@@ -36,7 +36,7 @@ import type { PracticeMode } from '@/api/types'
  *   and the button stays off.
  * - A refusal is told in words: a battle of the learner's own in the way (with a link to it), the friend no longer a
  *   friend, battles switched off, the material gone since the numbers were read.
- * - Free has a few challenges a day (docs/18 §3): above "Invite" a quiet line says how many are left ("Challenges today: 1 of 1 left";
+ * - Free has a few battles a day (docs/18 §3): above "Invite" a quiet line says how many are left ("Battles today: 1 of 1 left";
  *   Pro sees nothing). With none left "Invite" still works - it opens the paywall of the limit at once, without a request.
  *   Accepting an invitation is never limited, and this screen is not where that happens.
  * "Back" leads to the Friends.
@@ -73,7 +73,7 @@ async function load(): Promise<void> {
     loginError.value = errorMessage(err, 'battle')
     return
   }
-  // The challenges left today are asked for beside the setup: best effort, the screen works without the line.
+  // The battles left today are asked for beside the setup: best effort, the screen works without the line.
   void billing.load()
   await setup.begin(props.friendshipId, props.course, props.lessonId)
 }
@@ -251,7 +251,7 @@ const blockedKey = computed(() => {
         <button v-if="busyBattleId !== null" type="button" class="btn btn-tinted btn-block" data-testid="open-busy" @click="openBusy">
           {{ t('battle.open_current') }}
         </button>
-        <!-- Free only: the challenges left today. -->
+        <!-- Free only: the battles left today. -->
         <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
           {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
         </p>

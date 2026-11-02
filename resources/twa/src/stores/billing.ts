@@ -44,6 +44,7 @@ interface BillingState {
   /**
    * The Free limits of today's practice and battles (docs/18 §3, G1): from `/me`, from the practice hub, and from the 201 that creates a
    * session or a battle, which is the newest word on them. null: Pro, no limit, or not told yet - nothing is shown and nothing is blocked.
+   * A kind can be null on its own (the server has no limit of that kind): it is treated the same way, the other kind goes on as usual.
    */
   limits: PracticeLimits | null
   loading: boolean
@@ -107,7 +108,7 @@ export const useBillingStore = defineStore('billing', {
     /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
     practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
 
-    /** The counter of today's practice sessions; null for Pro, when none was told, and once its day is over (it says nothing then). */
+    /** The counter of today's practice sessions; null for Pro, for sessions without a limit, when none was told, and once its day is over (it says nothing then). */
     sessionLimit: (state): PracticeLimit | null => liveLimit(state.limits?.sessions),
 
     /** The counter of the battles the learner starts today (accepting one is never counted); null as above. */
@@ -156,10 +157,14 @@ export const useBillingStore = defineStore('billing', {
       if (limits !== undefined) this.limits = limits
     },
 
-    /** The server refused for today's limit: that counter is spent, whatever this screen believed (the other counter is not touched). */
+    /**
+     * The server refused for today's limit: that counter is spent, whatever this screen believed - a counter that was not there included
+     * (the learner taken for Pro, a kind taken for unlimited). The other kind is not touched; when no counters were told at all it stays
+     * `null` (no counter: nothing shown, nothing stopped) until the next answer says more.
+     */
     noteLimitHit(hit: PracticeLimitHit): void {
-      if (this.limits === null) return
-      this.limits = { ...this.limits, [hit.kind]: { limit: hit.limit, used: hit.used, remaining: 0, resets_at: hit.resets_at } }
+      const spent: PracticeLimit = { limit: hit.limit, used: hit.used, remaining: 0, resets_at: hit.resets_at }
+      this.limits = { sessions: null, battles: null, ...this.limits, [hit.kind]: spent }
     },
 
     /** The wall of `kind` if today's free allowance of it is spent (the paywall opens without a request), else null: the server decides. */

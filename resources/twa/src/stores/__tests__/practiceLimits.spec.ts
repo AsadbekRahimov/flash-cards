@@ -311,3 +311,73 @@ describe('practice store — 403 practice_limit_reached from the server', () => 
     expect(store.openError).toBe('Для этого режима пока мало материала. Выучите ещё несколько слов.')
   })
 })
+
+// An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+describe('practice store — sessions without a limit (null inside the limits)', () => {
+  it('are never stopped, whatever the counter of the battles says', async () => {
+    useBillingStore().setLimits({ sessions: null, battles: freeLimits(0, 1).battles })
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 86 }))
+    const store = usePracticeStore()
+
+    expect(await store.open(request)).toBe(86)
+
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+    expect(store.limitHit).toBeNull()
+  })
+
+  it('the hub says it: no counter of sessions, the counter of the battles as it is', async () => {
+    const billing = useBillingStore()
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: { sessions: null, battles: freeLimits(0, 1).battles } }))
+
+    await usePracticeStore().loadHub('english-a1', 41)
+
+    expect(billing.sessionLimit).toBeNull()
+    expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 0 })
+  })
+
+  it('the 201 says it too, and the sessions stay without a counter', async () => {
+    const billing = useBillingStore()
+    billing.setLimits(freeLimits(1, 0))
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 87, limits: { sessions: null, battles: freeLimits(0, 0).battles } }))
+
+    await usePracticeStore().open(request)
+
+    expect(billing.sessionLimit).toBeNull()
+    expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+  })
+
+  it('the other kind spent does not stop them, and the spent kind without a counter next to them still stops its own entries', async () => {
+    const billing = useBillingStore()
+    const store = usePracticeStore()
+    billing.setLimits({ sessions: freeLimits(2, 0).sessions, battles: null })
+    expect(await store.open(request)).toBeNull()
+    expect(store.limitHit).toMatchObject({ kind: 'sessions' })
+
+    billing.setLimits({ sessions: null, battles: freeLimits(0, 1).battles })
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 88 }))
+    expect(await store.open(request)).toBe(88)
+  })
+
+  it('a 403 for the sessions that the screen took for unlimited is the wall, and the counter appears spent', async () => {
+    const billing = useBillingStore()
+    billing.setLimits({ sessions: null, battles: freeLimits(0, 0).battles })
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions')))
+    const store = usePracticeStore()
+
+    expect(await store.open(request)).toBeNull()
+
+    expect(store.limitHit).toMatchObject({ kind: 'sessions', limit: 2 })
+    expect(billing.sessionLimit).toMatchObject({ used: 2, remaining: 0 })
+    expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+  })
+
+  it('"Again" of the summary is not stopped either', async () => {
+    vi.mocked(api.practice.get).mockResolvedValue(finishedSession())
+    const store = usePracticeStore()
+    await store.load(77)
+    useBillingStore().setLimits({ sessions: null, battles: freeLimits(0, 1).battles })
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 89 }))
+
+    expect(await store.again()).toBe(89)
+  })
+})

@@ -1122,16 +1122,16 @@ describe('FriendsView', () => {
       })
     })
 
-    // docs/18 §3 (G1): Free has one battle (challenge) a day. The list of friends says how many are left, in a quiet line under it;
+    // docs/18 §3 (G1): Free has one battle a day. The list of friends says how many are left, in a quiet line under it;
     // with none left "Battle" opens the paywall of the limit at once. Accepting an invitation is never limited.
     describe('the Free limit of battles', () => {
       const withLimits = (limits: PracticeAccess['limits']): PracticeAccess => ({ ...BATTLES_ON, limits })
       const line = (wrapper: Wrapper) => wrapper.find('[data-testid=battle-limit]')
 
-      it('says how many challenges of the day are left, quietly, under the list of friends', async () => {
+      it('says how many battles of the day are left, quietly, under the list of friends', async () => {
         const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
 
-        expect(line(wrapper).text()).toBe('Вызовов сегодня: осталось 1 из 1')
+        expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
         const section = wrapper.get('[data-testid=friends]').html()
         expect(section.indexOf('friend-row')).toBeLessThan(section.indexOf('battle-limit'))
       })
@@ -1150,7 +1150,7 @@ describe('FriendsView', () => {
         setLocale('uz')
         const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
 
-        expect(line(wrapper).text()).toBe('Bugungi chaqiruvlar: 1 tadan 1 tasi qoldi')
+        expect(line(wrapper).text()).toBe('Bugungi bellashuvlar: 1 tadan 1 tasi qoldi')
       })
 
       it.each<[string, PracticeAccess['limits']]>([
@@ -1169,7 +1169,7 @@ describe('FriendsView', () => {
         expect(line(wrapper).exists()).toBe(false)
       })
 
-      it('says nothing when there is nobody to challenge', async () => {
+      it('says nothing when there is nobody to play with', async () => {
         vi.mocked(api.me.get).mockResolvedValue(meWith(withLimits(freeLimits(0, 0))))
         vi.mocked(api.battles.list).mockResolvedValue(battleList())
         const { wrapper } = await render(friendsResponse({ friends: [] }))
@@ -1188,7 +1188,7 @@ describe('FriendsView', () => {
         expect(router.currentRoute.value.name).toBe('battle-new')
       })
 
-      it('"Battle" leads to the setup as it did while a challenge is left (spent sessions of practice are another counter)', async () => {
+      it('"Battle" leads to the setup as it did while a battle is left (spent sessions of practice are another counter)', async () => {
         const { wrapper, router } = await renderBattles(withLimits(freeLimits(2, 0)))
 
         await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
@@ -1205,7 +1205,7 @@ describe('FriendsView', () => {
         it('the line says so in the same words, and every "Battle" button is still there', async () => {
           const { wrapper } = await renderBattles(spent())
 
-          expect(line(wrapper).text()).toBe('Вызовов сегодня: осталось 0 из 1')
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
           expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
         })
 
@@ -1236,7 +1236,7 @@ describe('FriendsView', () => {
           expect(router.currentRoute.value.name).toBe('friends')
         })
 
-        it('does not touch what is not a new challenge: the battle that is on is one tap away', async () => {
+        it('does not touch what is not a new battle: the battle that is on is one tap away', async () => {
           const { wrapper, router } = await renderBattles(spent(), battleList({ active: activeOf('room') }))
 
           await wrapper.get('[data-testid=active-battle-row]').trigger('click')
@@ -1280,6 +1280,40 @@ describe('FriendsView', () => {
 
           expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
           expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('')
+        })
+      })
+
+      // An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+      describe('one kind of limit without a counter (null inside the limits)', () => {
+        it('battles without a limit: no line, and "Battle" leads to the setup, with the sessions spent as well', async () => {
+          const { wrapper, router } = await renderBattles(withLimits({ sessions: freeLimits(2, 0).sessions, battles: null }))
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('sessions without a limit: the line of the battles as it is, and "Battle" meets its counter', async () => {
+          const { wrapper } = await renderBattles(withLimits({ sessions: null, battles: freeLimits(0, 1, inHours(4)).battles }))
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+        })
+
+        it('both kinds without a limit: nothing shown, nothing stopped', async () => {
+          const { wrapper, router } = await renderBattles(withLimits({ sessions: null, battles: null }))
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(router.currentRoute.value.name).toBe('battle-new')
         })
       })
     })

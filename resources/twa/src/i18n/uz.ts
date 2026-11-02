@@ -45,6 +45,7 @@ export const uz: Translations = {
 
   // ---- benefits ----
   'benefits.new_words': "Yangi so'zlar kunlik limitsiz",
+  'benefits.practice': 'Amaliyot va bellashuvlar kunlik limitsiz',
   'benefits.exercises': "So'zni yozish va misollardagi bo'sh joylar",
   'benefits.decks': "2000 tadan so'zli 20 tagacha o'z to'plamlaringiz",
   'benefits.freezes': "Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi",
@@ -235,9 +236,12 @@ export const uz: Translations = {
 
   // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
   'practice.limit.sessions': 'Bugun bepul: {limit} tadan {remaining} tasi qoldi',
-  'battle.limit.left': 'Bugungi chaqiruvlar: {limit} tadan {remaining} tasi qoldi',
-  'paywall.lead_practice_limit_sessions': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan.',
-  'paywall.lead_practice_limit_battles': 'Bugungi bepul chaqiruvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan.',
+  'battle.limit.left': 'Bugungi bellashuvlar: {limit} tadan {remaining} tasi qoldi',
+  // The lead of the paywall of the limit. "Or right away with Pro" only while Pro is for sale; while it is just "coming soon" (`_soon`) it promises nothing.
+  'paywall.lead_practice_limit_sessions': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when} yoki darhol Pro bilan.',
+  'paywall.lead_practice_limit_sessions_soon': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when}.',
+  'paywall.lead_practice_limit_battles': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan.',
+  'paywall.lead_practice_limit_battles_soon': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}.',
   'paywall.reset_tomorrow': 'ertaga soat {time} da',
   'paywall.reset_at': 'soat {time} da',
 

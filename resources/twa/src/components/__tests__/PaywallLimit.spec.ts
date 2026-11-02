@@ -19,8 +19,8 @@ vi.mock('@/api', () => ({
 
 /**
  * `reason = 'practice_limit'` (docs/18 §3, G1): the end of the free sessions of practice or of the free battles of today. The lead quotes the
- * numbers of the refusal and says when the counters are full again, in the zone of the learner; the rest of the sheet - purchase, promo
- * code, "coming soon", "Repeat words" - is the sheet of every other reason.
+ * numbers of the refusal and says when the counters are full again, in the zone of the learner; "or right away with Pro" is said only while
+ * Pro is for sale. The rest of the sheet - purchase, promo code, "coming soon", "Repeat words" - is the sheet of every other reason.
  */
 
 /** 2026-11-02, 15:00 in Tashkent (UTC+5): the learner's "today" ends at 00:00 of the 3rd, at 19:00 UTC. */
@@ -69,6 +69,12 @@ async function render(props: { limitHit?: PracticeLimitHit | null; reason?: 'pra
 
 const lead = (w: Awaited<ReturnType<typeof render>>) => w.get('[data-testid=paywall-lead]').text()
 
+/** What the end of the sale adds after the reason, in each mode: `Pro opens soon`, or what Pro gives. */
+const SOON_RU = 'Pro скоро откроется.'
+const SALE_RU = 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
+const SOON_UZ = 'Pro tez orada ochiladi.'
+const SALE_UZ = "Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari."
+
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
@@ -84,18 +90,31 @@ afterEach(() => {
   setLocale('ru')
 })
 
-describe('PaywallSheet — the end of the free sessions of practice', () => {
-  it('says they are over, how many there were, and when the new ones come: tomorrow, at the turn of the learner\'s day', async () => {
+describe('PaywallSheet — the end of the free practice', () => {
+  it('while Pro is only coming: says it is over, how many there were and when the new one comes - tomorrow, at the turn of the learner\'s day - and promises nothing', async () => {
     const w = await render()
 
-    expect(lead(w)).toBe('Бесплатные тренировки на сегодня закончились (2 из 2). Новые — завтра в 00:00 или сразу с Pro. Pro скоро откроется.')
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00. ${SOON_RU}`)
   })
 
-  it('says it in Uzbek', async () => {
+  it('while Pro is only coming, in Uzbek', async () => {
     setLocale('uz')
     const w = await render()
 
-    expect(lead(w)).toBe('Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan. Pro tez orada ochiladi.')
+    expect(lead(w)).toBe(`Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangisi — ertaga soat 00:00 da. ${SOON_UZ}`)
+  })
+
+  it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
+    const w = await render({}, me('purchase'))
+
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+  })
+
+  it('while Pro is for sale, in Uzbek', async () => {
+    setLocale('uz')
+    const w = await render({}, me('purchase'))
+
+    expect(lead(w)).toBe(`Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangisi — ertaga soat 00:00 da yoki darhol Pro bilan. ${SALE_UZ}`)
   })
 
   it('quotes the limit of the refusal twice, never "3 of 2": a limit that was lowered meanwhile is still a limit', async () => {
@@ -108,22 +127,87 @@ describe('PaywallSheet — the end of the free sessions of practice', () => {
   it('takes the numbers from the refusal, not from the text', async () => {
     const w = await render({ limitHit: { ...SESSIONS, limit: 5, used: 5 } })
 
-    expect(lead(w)).toContain('закончились (5 из 5)')
+    expect(lead(w)).toContain('закончилась (5 из 5)')
   })
 })
 
 describe('PaywallSheet — the end of the free battles', () => {
-  it('says the same about the challenges', async () => {
+  it('while Pro is only coming: says the same about the battles', async () => {
     const w = await render({ limitHit: BATTLES })
 
-    expect(lead(w)).toBe('Бесплатные вызовы на сегодня закончились (1 из 1). Новые — завтра в 00:00 или сразу с Pro. Pro скоро откроется.')
+    expect(lead(w)).toBe(`Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. ${SOON_RU}`)
   })
 
-  it('says it in Uzbek', async () => {
+  it('while Pro is only coming, in Uzbek', async () => {
     setLocale('uz')
     const w = await render({ limitHit: BATTLES })
 
-    expect(lead(w)).toBe('Bugungi bepul chaqiruvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan. Pro tez orada ochiladi.')
+    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da. ${SOON_UZ}`)
+  })
+
+  it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
+    const w = await render({ limitHit: BATTLES }, me('purchase'))
+
+    expect(lead(w)).toBe(`Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+  })
+
+  it('while Pro is for sale, in Uzbek', async () => {
+    setLocale('uz')
+    const w = await render({ limitHit: BATTLES }, me('purchase'))
+
+    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan. ${SALE_UZ}`)
+  })
+
+  it('calls them battles, never "challenges": that word is the weekly challenge of a friend, and the Uzbek one is "bellashuv" everywhere', async () => {
+    const ru = await render({ limitHit: BATTLES })
+    expect(lead(ru)).toContain('баттлы')
+    expect(lead(ru)).not.toMatch(/вызов/i)
+
+    setLocale('uz')
+    const uz = await render({ limitHit: BATTLES })
+    expect(lead(uz)).toContain('bellashuvlar')
+    expect(lead(uz)).not.toMatch(/chaqiruv|musobaqa|battl/i)
+  })
+})
+
+describe('PaywallSheet — "or right away with Pro" is said only while Pro can be bought', () => {
+  const HITS = { sessions: SESSIONS, battles: BATTLES }
+
+  it.each([
+    ['ru', 'sessions', 'сразу с Pro'],
+    ['ru', 'battles', 'сразу с Pro'],
+    ['uz', 'sessions', 'darhol Pro bilan'],
+    ['uz', 'battles', 'darhol Pro bilan'],
+  ] as const)('%s / %s', async (locale, kind, promise) => {
+    setLocale(locale)
+
+    const soon = await render({ limitHit: HITS[kind] })
+    expect(lead(soon)).not.toContain(promise)
+
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    const sale = await render({ limitHit: HITS[kind] }, me('purchase'))
+    expect(lead(sale)).toContain(promise)
+  })
+
+  it('the lead follows the sheet when it learns what is for sale: the catalog arrives after the sheet is open', async () => {
+    let arrive!: (value: BillingCatalog) => void
+    vi.mocked(api.billing.catalog).mockReturnValue(new Promise((resolve) => (arrive = resolve)))
+    const w = await render({}, me('purchase'))
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00. ${SOON_RU}`)
+
+    arrive(catalog())
+    await flushPromises()
+
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+  })
+
+  it('a catalog that cannot be read keeps the sheet on the words of "coming soon", which promise nothing', async () => {
+    vi.mocked(api.billing.catalog).mockRejectedValue(new Error('catalog'))
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const w = await render({}, me('purchase'))
+
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00. ${SOON_RU}`)
   })
 })
 
@@ -132,35 +216,42 @@ describe('PaywallSheet — when the counters are full again', () => {
     knowZone('UTC')
     const w = await render()
 
-    expect(lead(w)).toContain('Новые — в 19:00 или сразу с Pro.')
+    expect(lead(w)).toContain('Новая — в 19:00.')
   })
 
   it('follows the zone the Today screen names, whatever the device is on', async () => {
     knowZone('Europe/Moscow') // 22:00 of the same day: an hour of today, not its turn
     const w = await render()
 
-    expect(lead(w)).toContain('Новые — в 22:00 или сразу с Pro.')
+    expect(lead(w)).toContain('Новая — в 22:00.')
   })
 
   it('uses the zone of the device while the learner\'s is not known (the Today screen was not opened in this run)', async () => {
     useTodayStore().data = null
     const w = await render()
 
-    expect(lead(w)).toMatch(/Новые — (завтра )?в \d{2}:\d{2} или сразу с Pro\./)
+    expect(lead(w)).toMatch(/Новая — (завтра )?в \d{2}:\d{2}\./)
   })
 
   it('does not claim "tomorrow" when the clock of the device is days off: the time alone is true', async () => {
     vi.setSystemTime(new Date('2026-10-28T10:00:00Z'))
     const w = await render()
 
-    expect(lead(w)).toContain('Новые — в 00:00 или сразу с Pro.')
+    expect(lead(w)).toContain('Новая — в 00:00.')
   })
 
   it('is told in the same way whenever in the day the sheet opens, up to the last minute', async () => {
     vi.setSystemTime(new Date('2026-11-02T18:59:00Z'))
     const w = await render()
 
-    expect(lead(w)).toContain('Новые — завтра в 00:00 или сразу с Pro.')
+    expect(lead(w)).toContain('Новая — завтра в 00:00.')
+  })
+
+  it('is told the same way while Pro is for sale, in the learner\'s zone', async () => {
+    knowZone('UTC')
+    const w = await render({}, me('purchase'))
+
+    expect(lead(w)).toContain('Новая — в 19:00 или сразу с Pro.')
   })
 })
 
@@ -174,6 +265,14 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
     expect(w.find('[data-testid=purchase]').exists()).toBe(false)
+  })
+
+  it('says among the things Pro gives that practice and battles have no limit of the day', async () => {
+    const w = await render()
+
+    expect(w.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
+    setLocale('uz')
+    expect((await render()).findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
   })
 
   it('offers "Repeat words" when cards are due: reviews are never limited, the wall is not a dead end', async () => {
@@ -207,10 +306,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     const w = await render({}, me('purchase'))
 
     expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-    expect(lead(w)).toBe(
-      'Бесплатные тренировки на сегодня закончились (2 из 2). Новые — завтра в 00:00 или сразу с Pro. ' +
-        'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
-    )
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
     expect(w.findAll('[data-testid^=pay-]').filter((button) => button.element.tagName === 'BUTTON')).toHaveLength(3)
     expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-tinted')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
@@ -235,15 +331,17 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     expect(w.find('[data-testid=paywall-lead]').exists()).toBe(false)
   })
 
-  it('does not promise what is not there: no word of statistics, in both languages', async () => {
+  it('does not promise what is not there: no word of statistics, in both languages and in both modes', async () => {
     for (const locale of ['ru', 'uz'] as const) {
       for (const hit of [SESSIONS, BATTLES]) {
-        setActivePinia(createPinia())
-        knowZone('Asia/Tashkent')
-        setLocale(locale)
-        const w = await render({ limitHit: hit })
+        for (const mode of ['coming_soon', 'purchase'] as const) {
+          setActivePinia(createPinia())
+          knowZone('Asia/Tashkent')
+          setLocale(locale)
+          const w = await render({ limitHit: hit }, me(mode))
 
-        expect(w.text().toLowerCase(), `${locale}/${hit.kind}`).not.toMatch(/статистик|statistik/)
+          expect(w.text().toLowerCase(), `${locale}/${hit.kind}/${mode}`).not.toMatch(/статистик|statistik/)
+        }
       }
     }
   })

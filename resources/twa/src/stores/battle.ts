@@ -130,7 +130,7 @@ interface BattleState {
   /** The action was refused because practice is behind Pro (403 `practice_pro_required`): the paywall opens instead of a message. */
   paywall: boolean
   /**
-   * The paywall of today's free limit of battles: a rematch (a new challenge) that the counter says is spent - nothing was asked - or that
+   * The paywall of today's free limit of battles: a rematch (a new battle) that the counter says is spent - nothing was asked - or that
    * the server refused (403 `practice_limit_reached`); the Friends screen opens it too when "Battle" meets a spent counter.
    */
   limitHit: PracticeLimitHit | null
@@ -854,7 +854,7 @@ export const useBattleStore = defineStore('battle', {
      * (`actionError`, or `limitHit`). If the friend offered a rematch at the same moment, the invitation to go to is THEIRS - the learner
      * accepts it.
      *
-     * A rematch is a challenge like any other and Free has a few of them a day: when the counter says they are spent the paywall opens
+     * A rematch is a new battle like any other and Free has a few of them a day: when the counter says they are spent the paywall opens
      * instead, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). Accepting
      * a rematch (`acceptRematch`) is never limited.
      */

@@ -53,6 +53,7 @@ export const ru = {
 
   // ---- benefits ----
   'benefits.new_words': 'Новые слова без дневного лимита',
+  'benefits.practice': 'Практика и баттлы без дневного лимита',
   'benefits.exercises': 'Написание слова и пропуски в примерах',
   'benefits.decks': 'До 20 своих колод по 2000 слов',
   'benefits.freezes': 'Заморозки серии: пропуск дня не обрывает серию',
@@ -259,9 +260,12 @@ export const ru = {
 
   // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
   'practice.limit.sessions': 'Сегодня бесплатно: осталось {remaining} из {limit}',
-  'battle.limit.left': 'Вызовов сегодня: осталось {remaining} из {limit}',
-  'paywall.lead_practice_limit_sessions': 'Бесплатные тренировки на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
-  'paywall.lead_practice_limit_battles': 'Бесплатные вызовы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
+  'battle.limit.left': 'Баттлов сегодня: осталось {remaining} из {limit}',
+  // The lead of the paywall of the limit. "Or right away with Pro" only while Pro is for sale; while it is just "coming soon" (`_soon`) it promises nothing.
+  'paywall.lead_practice_limit_sessions': 'Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when} или сразу с Pro.',
+  'paywall.lead_practice_limit_sessions_soon': 'Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when}.',
+  'paywall.lead_practice_limit_battles': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
+  'paywall.lead_practice_limit_battles_soon': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}.',
   'paywall.reset_tomorrow': 'завтра в {time}',
   'paywall.reset_at': 'в {time}',
 
