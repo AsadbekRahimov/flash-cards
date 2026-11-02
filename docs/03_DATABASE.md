@@ -485,8 +485,9 @@ Append-only журнал для продуктовой аналитики (не 
 Под список `/admin/learners` (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): `learners_first_name_id_idx (first_name, id)` —
 сортировка по умолчанию (Filament добавляет первичный ключ вторым ключом); **PostgreSQL, `pg_trgm`:** GIN-триграммы под поиск `like '%…%'` —
 `learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме
-`lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL (и поиск участников `/org`), `learners_username_trgm_idx (username gin_trgm_ops)` —
-под `ilike` по самой колонке (`whereLike`). Форма запроса и форма индекса должны совпадать: `lower(col) like` не использует индекс по `col`, и наоборот.
+`lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL (и свои поиски учеников — `AdminTable::whereLearnerContains`: участники `/org`, выбор ученика в `/admin`),
+`learners_username_trgm_idx (username gin_trgm_ops)` — под `ilike` по самой колонке (`AdminTable::whereContains`: `learners.username ilike ? escape '!'`).
+Форма запроса и форма индекса должны совпадать: `lower(col) like` не использует индекс по `col`, и наоборот.
 Под виджеты дашборда (docs/20 F5, миграция `2026_11_02_200001_add_deleted_learners_partial_index`): **partial** `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` — удалённых
 единицы, и вопрос «удалён ли ученик» (таблица мест центров, рейтинг лучших учеников) задаётся анти-джойном `not exists (… deleted_at is not null)` по этому крошечному
 индексу, а не поиском по первичному ключу для каждой строки членства (оба драйвера; на PostgreSQL `CONCURRENTLY` вне транзакции мигратора, `down()` снимает индекс).
