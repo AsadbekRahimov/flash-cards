@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\ChatMemberStatusCache;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
@@ -40,6 +41,7 @@ final class ChatMemberHandler implements UpdateHandler
         private readonly ProductEventRecorder $events,
         private readonly LearnerRegistrar $registrar,
         private readonly GroupMembershipService $memberships,
+        private readonly ChatMemberStatusCache $statuses,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -117,6 +119,9 @@ final class ChatMemberHandler implements UpdateHandler
         if (($user['is_bot'] ?? false) === true || ! isset($user['id'])) {
             return;
         }
+
+        // The person's status in this chat changed: an entry of `getChatMember` kept for them (docs/19 K7) is stale.
+        $this->statuses->forget($chatId, (int) $user['id']);
 
         $status = (string) ($newMember['status'] ?? '');
         $at = isset($event['date']) && is_numeric($event['date']) ? CarbonImmutable::createFromTimestamp((int) $event['date']) : null;
