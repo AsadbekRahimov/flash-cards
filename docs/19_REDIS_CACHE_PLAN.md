@@ -52,10 +52,10 @@
 | `Billing/Services/EntitlementResolver` | `entitlement:learner:{id}:v{версия}`, версия — `entitlement:ver:{id}` | `BILLING_CACHE_TTL` (300 с) | кэш с версией |
 | `Content/Services/CourseCatalogService` | `catalog:courses:published:v1:{locale}` | 600 с | кэш |
 | `Learning/Services/LearningCache` | слова урока, лидерборд экзамена, «выучено слов» друзей | 3600 / 3600 / 600 с | кэш |
-| `Administration/Services/PlatformStatsService` | `platform_stats:subscriptions`, `platform_stats:funnel` | 120 с | кэш виджетов |
+| `Administration/Services/PlatformStatsService` + `WidgetCache` (F7-1) | `admin:widget:platform_subscriptions:v1:all`, `admin:widget:onboarding_funnel:v1:all` | свежий 120 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; прежние ключи `platform_stats:*` без версии не читаются и истекают сами |
 | `Engagement/Services/LeagueService` | `league:standings:v1:{группа}` | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш |
 | `Learning/Services/MockExamService` | `mock_exam:distribution:course:{id}` | конфиг | кэш |
-| `Filament/Widgets/SchedulerComparisonWidget` | `admin:scheduler-comparison:v1` | — | кэш виджета |
+| `Filament/Widgets/SchedulerComparisonWidget` + `WidgetCache` (F7-1) | `admin:widget:scheduler_comparison:v1:all` | свежий 300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; прежний `admin:scheduler-comparison:v1` истекает сам |
 | `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
 | `Learners/Services/ReminderSender`, `Jobs/PostLeaderboardJob` | `Cache::lock(...)` | — | **блокировка** |
 | `Organizations/Services/OrgBillingService` | маркеры запроса счёта | 10 мин, сутки | **защита от злоупотреблений** |
@@ -82,7 +82,7 @@
 | `EntitlementResolver` — ключ версии `entitlement:ver:{id}` | `redis` (невытесняемое) |
 | `CourseCatalogService` — `catalog:courses:published:v1:{locale}` | `lru` |
 | `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
-| `PlatformStatsService` — `platform_stats:*` | `lru` |
+| `PlatformStatsService` — `admin:widget:platform_subscriptions \| onboarding_funnel:v1:all` (F7-1) | `lru` |
 | `LeagueService` — `league:standings:v1:{группа}` | `lru` |
 | `AdminDashboardStats` — `admin:widget:*` (C3) | `lru` |
 | `WidgetCache` — ключ версии денег `admin:widget:money:ver` (C3) | `redis` (невытесняемое) |
@@ -94,7 +94,7 @@
 | `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
 | `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |
 | `MockExamService` — `mock_exam:distribution:course:{id}` | `lru` |
-| `SchedulerComparisonWidget` — `admin:scheduler-comparison:v1` | `lru` |
+| `SchedulerComparisonWidget` — `admin:widget:scheduler_comparison:v1:all` (F7-1) | `lru` |
 | `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
 | `ReminderSender`, `PostLeaderboardJob`, `RenewalReminderSender`, `TelegramMessageRateLimiter` — блокировки `Cache::lock` | `redis` (`locks`) |
 | `OrgBillingService`, `RenewalReminderSender`, `QueueRenewalReminder` — маркеры и счётчики | `redis` |
@@ -187,6 +187,7 @@
 |---|---|---|---|
 | `admin:widget:total_learners \| exams_30d \| activity_chart \| top_learners \| hardest_words:v1:<зритель>` (K1) | 120 / 120 / 300 / 300 / 300 с свежий, всего ×5 | TTL; у чарта день в ключе; у учителя состав групп в ключе (смена групп — новый ключ сразу) | `AdminDashboardCacheTest` |
 | `admin:widget:league_week:v1:all`, `league_groups:v1:all:w{неделя}:p{стр}:n{размер}`, `organization_seats:v1:all:p{стр}:n{размер}` (K1) | 60 / 60 / 120 с | TTL; страница и размер страницы — свои записи. Размер — только из тех, что предлагает виджет (10/25/50 и 10/25), страница — не дальше 1000-й: подделанные `tableRecordsPerPage` и номер страницы читают запись разрешённых, а не заводят свою (`AdminDashboardStats`, `enforcePaginationPageOptions()` у обоих виджетов) | там же |
+| `admin:widget:platform_subscriptions \| onboarding_funnel \| scheduler_comparison:v1:all` (K1, F7-1) | 120 / 120 / 300 с свежий, всего ×5 | TTL; виджеты только для админа (`RequiresActiveAdmin`), зритель — `all`, учитель их не видит. Прежние ключи без версии (`platform_stats:subscriptions`, `platform_stats:funnel`, `admin:scheduler-comparison:v1`) никто не читает: они истекают сами, сброс при деплое не нужен | `AdminDashboardCacheTest`; `tests/Feature/PlatformAdminTest.php`, `tests/Feature/SchedulerMetricsQueryTest.php` |
 | `admin:widget:revenue_30d \| webhook_errors:v1:all:n{версия}` — **деньги** (K1); версия `admin:widget:money:ver` — невытесняемое хранилище, без TTL | 120 / 60 с | счётчик версии: `MoneyWidgetsObserver` после коммита записи в `payments` и `provider_transactions` (оплата, возврат, отказ). Читатель берёт версию до расчёта, поэтому поздняя запись старой цифры попадает в ключ старой версии, который никто не читает. Три плитки аномалий по `payment_orders` (двойная скидка, несовпадение тарифа, двойная подписка Stars) платежом книги не сбрасываются — они меняются по TTL (до минуты) | там же |
 | `org:{id}:overview:v1:n{версия}:{зритель}` (K2) | 90 с | счётчик версии: `ForgetOrgOverview` (`OrganizationMember{Joined,Left,Seated}`), `TelegramGroupObserver` (группа перешла между центрами или удалена; после того как участники перешли за группой, внутри `guard()`), `SubscriptionService::forgetAfterCommit` (подписка центра) | `OrgOverviewCacheTest` |
 | `catalog:course:v1:{курс}:{locale}:n{версия}` (K3) | 1800 с | счётчик версии: `CoursePublisher::recount()` (все пути, меняющие слова: импорт, правка слова, колоды), `transition()` (публикация), `CourseTreeObserver` (любое сохранение и удаление `Stage`/`Lesson`; курс урока берётся из загруженного модуля без запроса) | `ContentCacheTest` |
@@ -196,6 +197,7 @@
 
 **Решения и отступления от черновика §5.**
 - **K1 — кэш поверх быстрого запроса.** Тяжёлые виджеты индексами не лечатся (`docs/20` §4, «Индексы F2»), поэтому вместе с кэшем переписаны их запросы: один агрегат по `training_reviews` за 30 дней вместо коррелированных подзапросов на каждое слово и каждого ученика, для админа без пустого фильтра по сессиям, анти-джойн по удалённым ученикам с partial-индексом `learners_deleted_idx`. Первый показ после истечения кэша — 153 мс вместо 1,1 с (50 тыс. учеников); результат тот же, что у прежних запросов (`AdminDashboardQueriesTest`, админ и учитель). Устаревшее значение отдаётся до четырёх свежих сроков, пока читатель пересчитывает его после ответа под блокировкой.
+- **K1 — «старые» виджеты (F7-1).** Три виджета, закэшированные ещё до C3 (`PlatformSubscriptionsWidget`, `OnboardingFunnelWidget`, `SchedulerComparisonWidget`), жили на `remember` с жёстким TTL 120 с: раз в две минуты запись истекала, и админ, открывший дашборд, ждал пересчёта в своём запросе (на 200 тыс. учеников у сравнения планировщиков — 73 запроса и 2 727 мс SQL). Теперь все три — на `WidgetCache::remember` (`flexible`), как остальные девять: устаревшее отдаётся сразу, пересчёт идёт после ответа под блокировкой; D7-удержание сравнения — один агрегатный запрос с `EXISTS` по индексу `training_reviews (learner_id, created_at)` (Index Only Scan без обращений к куче, 73 мс на когорте 35 000 при 200 тыс. учеников) вместо `MAX()` на каждую пачку из 1000 учеников, ответ тот же (прежний алгоритм лежит в `SchedulerMetricsQueryTest` эталоном).
 - **K1 — деньги: версия данных, а не `DEL`.** Первая версия сбрасывала ключи денег удалением после коммита. Читатель, посчитавший выручку по книге до платежа и записавший её после `DEL`, возвращал старую цифру на всё окно свежести. Теперь ключ содержит счётчик `admin:widget:money:ver` (невытесняемое хранилище, без TTL, как `entitlement:ver:*`); `MoneyWidgetsObserver` увеличивает его после коммита, читатель берёт версию **до** расчёта, поэтому поздняя запись попадает в ключ старой версии, который никто больше не читает (тест `AdminDashboardCacheTest`: платёж коммитится внутри самого расчёта). Версию теряет только потеря невытесняемого Redis — как и у остальных версий.
 - **Таблицы-виджеты — ограниченное число ключей.** `tableRecordsPerPage` и номер страницы — публичные свойства Livewire. Без ограничения `tableRecordsPerPage=1000000` давал запрос `limit 1000001`, а каждое придуманное число — свой ключ `p{стр}:n{размер}`. Теперь размер страницы — одно из предлагаемых виджетом значений (иначе первое из них), страница — от 1 до 1000; виджеты задают те же значения (`paginated(...)` и `enforcePaginationPageOptions()`).
 - **K3 — версия в ключе, а не `forget`.** Импорт идёт долгой транзакцией: читатель, посчитавший дерево по старым строкам, мог бы записать его после сброса. Счётчик версии на невытесняемом хранилище (как `entitlement:ver:*`) делает такую запись безвредной. Дерево колоды ученика (`owner_type = learner`) не кэшируется: колода личная и часто правится — её дерево читается всегда. Личный прогресс (`done` по урокам) не кэшируется нигде: один запрос по строкам самого ученика.
