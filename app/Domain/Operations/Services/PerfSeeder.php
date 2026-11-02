@@ -114,13 +114,13 @@ final class PerfSeeder
     /** @var list<int> */
     private array $courseIds = [];
 
-    /** @var list<int> first word id of each course (words of a course have consecutive ids) */
+    /** @var array<int, int> first word id of each course (words of a course have consecutive ids) */
     private array $courseFirstWord = [];
 
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $courseWordCount = [];
 
-    /** @var list<list<int>> lesson ids of each course */
+    /** @var array<int, list<int>> lesson ids of each course */
     private array $courseLessons = [];
 
     /** @var array<int, int> lesson id => first word id */

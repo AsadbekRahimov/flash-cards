@@ -193,6 +193,34 @@ it('leaves one consistent data set at a small volume', function (): void {
         ->and(DB::table('subscriptions')->where('subscriber_type', 'learner')->where('subscriber_id', $first->id)->count())->toBe(1);
 });
 
+it('seeds the smallest data set that still has every kind of row', function (): void {
+    // The edges: one learner, one course, one word - no division by zero, no empty range, no clash of the windows.
+    $this->artisan('perf:seed', [
+        '--learners' => 1, '--words' => 1, '--courses' => 1, '--repetitions' => 1, '--reviews' => 1, '--payers' => 1,
+        '--exams' => 2, '--organizations' => 1, '--members' => 1, '--groups' => 1, '--events' => 1,
+    ])->assertSuccessful();
+
+    expect(DB::table('learners')->count())->toBe(1)
+        ->and(DB::table('words')->count())->toBe(1)
+        ->and(DB::table('word_repetitions')->count())->toBe(1)
+        ->and(DB::table('training_reviews')->count())->toBe(10) // one session of ten reviews
+        ->and(DB::table('organization_members')->count())->toBe(1)
+        ->and(DB::table('exam_sessions')->count())->toBe(2)
+        ->and(DB::table('exam_results')->count())->toBe(2)
+        ->and(DB::table('friendships')->count())->toBe(0)
+        ->and(DB::table('league_members')->count())->toBe(1);
+
+    // A moderate volume with the proportions of the full one: 50 learners, derived defaults, a small catalog.
+    perfClear();
+    $this->artisan('perf:seed', ['--learners' => 50, '--words' => 200, '--courses' => 2])->assertSuccessful();
+
+    expect(DB::table('learners')->count())->toBe(50)
+        ->and(DB::table('product_events')->count())->toBe(150)
+        ->and(DB::table('training_reviews')->count())->toBe(150)
+        ->and(DB::table('payment_orders')->where('status', 'paid')->count())->toBe(3 + 1) // 6% of 50 payers + 1 center
+        ->and(DB::table('exam_sessions')->count())->toBe(2);
+});
+
 it('moves the id sequences past the seeded rows, so ordinary writes still work afterwards', function (): void {
     $this->artisan('perf:seed', perfSmall())->assertSuccessful();
 
