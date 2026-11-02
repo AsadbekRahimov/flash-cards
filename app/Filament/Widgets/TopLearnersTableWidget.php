@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Administration\Services\PanelDataScope;
-use App\Models\Learner;
+use App\Domain\Administration\Services\AdminDashboardStats;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * The ten learners with the most reviews in 30 days. The rows are the cached array of {@see AdminDashboardStats} (docs/20
+ * §1.11: an aggregate table reads `->records()`, not a query per open), keyed by the learner's id.
+ */
 class TopLearnersTableWidget extends TableWidget
 {
     protected static ?int $sort = 4;
@@ -24,34 +26,11 @@ class TopLearnersTableWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        $since = now()->subDays(30);
-        $scope = app(PanelDataScope::class);
-        $sessionIds = $scope->trainingSessionIds();
-
-        // Reviews are counted only inside sessions the viewer may see, so a teacher's
-        // ranking never includes a learner's personal practice or other groups' work.
-        $reviewsInScope = fn (Builder $q): Builder => $q
-            ->where('created_at', '>=', $since)
-            ->whereIn('training_session_id', clone $sessionIds);
-
         return $table
-            ->query(
-                $scope->learners()
-                    ->with(['groups' => fn ($groups) => $groups
-                        ->wherePivot('status', 'active')
-                        ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))])
-                    ->withCount(['trainingReviews as reviews_count' => $reviewsInScope])
-                    ->whereHas('trainingReviews', $reviewsInScope)
-                    ->orderByDesc('reviews_count')
-                    ->limit(10),
-            )
+            ->records(fn (): array => array_column(app(AdminDashboardStats::class)->topLearners(), null, 'id'))
             ->columns([
-                Tables\Columns\TextColumn::make('first_name')
-                    ->formatStateUsing(fn (Learner $r): string => trim(($r->first_name ?? '—').' '.($r->last_name ?? '')))
-                    ->label(__('admin.widgets.top_learners.learner')),
-                Tables\Columns\TextColumn::make('groups_list')
-                    ->label(__('admin.widgets.top_learners.groups'))
-                    ->state(fn (Learner $r): string => $r->groups->pluck('title')->implode(', ')),
+                Tables\Columns\TextColumn::make('name')->label(__('admin.widgets.top_learners.learner')),
+                Tables\Columns\TextColumn::make('groups')->label(__('admin.widgets.top_learners.groups')),
                 Tables\Columns\TextColumn::make('reviews_count')->label(__('admin.widgets.top_learners.reviews'))->badge()->color('success'),
             ])
             ->emptyStateHeading(__('admin.widgets.top_learners.empty'))

@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
-use App\Models\LeagueGroup;
-use App\Models\LeagueWeek;
 use Carbon\CarbonImmutable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Groups of the current league week (docs/13 §7.3): tier, members / capacity, status. The heading
  * carries the week's dates and totals. Admin only; empty until the first placement of the week.
+ *
+ * The heading and each page of rows come from the cached arrays of {@see AdminDashboardStats} (docs/20 §1.11, `->records()`
+ * with the page the viewer asked for), so an open of the dashboard runs no query.
  */
 class LeagueGroupsTableWidget extends TableWidget
 {
@@ -34,18 +37,19 @@ class LeagueGroupsTableWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        $leagues = app(LeagueService::class);
-        $week = $leagues->findWeek(CarbonImmutable::now());
-        $tiers = $leagues->tiers();
+        $stats = app(AdminDashboardStats::class);
+        $league = $stats->leagueWeek();
+        $tiers = app(LeagueService::class)->tiers();
 
         return $table
-            ->heading($this->headingFor($week, $leagues))
-            ->query(
-                LeagueGroup::query()
-                    ->where('league_week_id', $week === null ? 0 : $week->id)
-                    ->orderByDesc('tier')
-                    ->orderBy('id'),
-            )
+            ->heading($this->headingFor($league))
+            ->records(function (int|string $page, int|string $recordsPerPage) use ($stats, $league): LengthAwarePaginator {
+                [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
+                $weekId = $league['week']['id'] ?? null;
+                $groups = $weekId === null ? ['total' => 0, 'rows' => []] : $stats->leagueGroups($weekId, $page, $perPage);
+
+                return (new LengthAwarePaginator(array_column($groups['rows'], null, 'id'), $groups['total'], $perPage, $page))->onEachSide(0);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label(__('admin.widgets.league_groups.group')),
                 Tables\Columns\TextColumn::make('tier')
@@ -54,33 +58,33 @@ class LeagueGroupsTableWidget extends TableWidget
                     ->formatStateUsing(fn (int $state): string => AdminLabels::from('leagues.tiers', $tiers[$state] ?? $state).' ('.$state.')'),
                 Tables\Columns\TextColumn::make('members_count')
                     ->label(__('admin.widgets.league_groups.members'))
-                    ->formatStateUsing(fn (int $state, LeagueGroup $record): string => "{$state} / {$record->capacity}")
-                    ->color(fn (int $state, LeagueGroup $record): ?string => $state >= $record->capacity ? 'warning' : null),
+                    ->formatStateUsing(fn (int $state, array $record): string => "{$state} / {$record['capacity']}")
+                    ->color(fn (int $state, array $record): ?string => $state >= $record['capacity'] ? 'warning' : null),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.widgets.league_groups.opened'))->since(),
             ])
             ->emptyStateHeading(__('admin.widgets.league_groups.empty'))
             ->paginated([10, 25, 50]);
     }
 
-    private function headingFor(?LeagueWeek $week, LeagueService $leagues): string
+    /** @param  array{enabled: bool, week: array{id: int, from: string, to: string, status: string, groups: int, members: int}|null}  $league */
+    private function headingFor(array $league): string
     {
-        if (! $leagues->enabled()) {
+        if (! $league['enabled']) {
             return __('admin.widgets.league_groups.heading_disabled');
         }
+
+        $week = $league['week'];
 
         if ($week === null) {
             return __('admin.widgets.league_groups.heading_empty');
         }
 
-        $groups = LeagueGroup::query()->where('league_week_id', $week->id)->count();
-        $members = (int) LeagueGroup::query()->where('league_week_id', $week->id)->sum('members_count');
-
         return __('admin.widgets.league_groups.heading', [
-            'from' => AdminDates::date($week->starts_on),
-            'to' => AdminDates::date($week->ends_on),
-            'status' => AdminLabels::value('widgets.league_groups.week_status', $week->status),
-            'groups' => $groups,
-            'members' => $members,
+            'from' => AdminDates::date(CarbonImmutable::parse($week['from'])),
+            'to' => AdminDates::date(CarbonImmutable::parse($week['to'])),
+            'status' => AdminLabels::value('widgets.league_groups.week_status', $week['status']),
+            'groups' => $week['groups'],
+            'members' => $week['members'],
         ]);
     }
 }

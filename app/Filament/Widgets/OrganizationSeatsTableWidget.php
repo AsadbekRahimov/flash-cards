@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Billing\Support\PaidSubscriptionQuery;
+use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminLabels;
-use App\Models\Organization;
-use App\Models\Subscription;
-use Carbon\CarbonImmutable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * "Seats / waiting" per organization (docs/13 §1.3, §6.1). Seated = `organization_members`
@@ -21,6 +18,9 @@ use Illuminate\Support\Facades\DB;
  * Seats = `seats_limit` of the organization's granting subscription (empty = unlimited or no
  * subscription). Seated above the limit (a tariff downgrade) is shown as "excess", nobody is
  * unseated automatically. Admin only.
+ *
+ * A page of rows is the cached array of {@see AdminDashboardStats} (docs/20 §1.11, `->records()`): the query is the
+ * heavy part and it runs once per freshness window, not per open.
  */
 class OrganizationSeatsTableWidget extends TableWidget
 {
@@ -42,37 +42,13 @@ class OrganizationSeatsTableWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        $now = CarbonImmutable::now();
-
-        $members = fn (string $seatState) => DB::table('organization_members as om')
-            // A deleted learner (soft delete) is not a member any more, though the membership row stays.
-            ->join('learners as l', 'l.id', '=', 'om.learner_id')
-            ->whereNull('l.deleted_at')
-            ->whereColumn('om.organization_id', 'organizations.id')
-            ->where('om.status', 'active')
-            ->where('om.seat_state', $seatState)
-            ->selectRaw('count(*)');
-
-        $sponsoring = PaidSubscriptionQuery::granting(
-            Subscription::query()
-                ->where('subscriptions.subscriber_type', 'organization')
-                ->whereColumn('subscriptions.subscriber_id', 'organizations.id'),
-            $now,
-        )->orderByDesc('subscriptions.id')->limit(1);
-
         return $table
-            ->query(
-                Organization::query()
-                    ->withCount(['telegramGroups as active_groups_count' => fn ($groups) => $groups->where('status', 'active')])
-                    ->addSelect([
-                        'members_count' => $members('seated'),
-                        'waitlisted_count' => $members('waitlisted'),
-                        'sponsor_subscription_id' => (clone $sponsoring)->select('subscriptions.id'),
-                        'seats_limit' => (clone $sponsoring)->select('subscriptions.seats_limit'),
-                    ])
-                    ->orderByDesc('members_count')
-                    ->orderBy('name'),
-            )
+            ->records(function (int|string $page, int|string $recordsPerPage): LengthAwarePaginator {
+                [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
+                $organizations = app(AdminDashboardStats::class)->organizationSeats($page, $perPage);
+
+                return (new LengthAwarePaginator(array_column($organizations['rows'], null, 'id'), $organizations['total'], $perPage, $page))->onEachSide(0);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__('admin.widgets.organization_seats.name')),
                 Tables\Columns\TextColumn::make('status')
@@ -83,8 +59,8 @@ class OrganizationSeatsTableWidget extends TableWidget
                 Tables\Columns\TextColumn::make('active_groups_count')->label(__('admin.widgets.organization_seats.active_groups')),
                 Tables\Columns\TextColumn::make('members_count')
                     ->label(__('admin.widgets.organization_seats.seated'))
-                    ->color(fn (Organization $record): ?string => self::overLimit($record) ? 'danger' : null)
-                    ->description(function (Organization $record): ?string {
+                    ->color(fn (array $record): ?string => self::overLimit($record) ? 'danger' : null)
+                    ->description(function (array $record): ?string {
                         if (! self::overLimit($record)) {
                             return null;
                         }
@@ -99,17 +75,17 @@ class OrganizationSeatsTableWidget extends TableWidget
                     ->placeholder('—'),
                 Tables\Columns\IconColumn::make('sponsoring')
                     ->label(__('admin.widgets.organization_seats.sponsoring'))
-                    ->state(fn (Organization $record): bool => $record->getAttribute('sponsor_subscription_id') !== null && $record->status === 'active')
                     ->boolean(),
             ])
             ->emptyStateHeading(__('admin.widgets.organization_seats.empty'))
             ->paginated([10, 25]);
     }
 
-    private static function overLimit(Organization $record): bool
+    /** @param  array<string, mixed>  $record */
+    private static function overLimit(array $record): bool
     {
-        $limit = $record->getAttribute('seats_limit');
+        $limit = $record['seats_limit'] ?? null;
 
-        return $limit !== null && (int) $record->getAttribute('members_count') > (int) $limit;
+        return $limit !== null && (int) ($record['members_count'] ?? 0) > (int) $limit;
     }
 }

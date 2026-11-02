@@ -24,7 +24,10 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\Payment;
+use App\Models\ProviderTransaction;
 use App\Models\TelegramGroup;
+use App\Observers\MoneyWidgetsObserver;
 use App\Observers\OrganizationObserver;
 use App\Observers\TelegramGroupObserver;
 use App\Policies\Org\OrgPolicyResolver;
@@ -131,6 +134,10 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+
+        // The money widgets of the admin dashboard are cached; a payment, a refund or a provider's cancel drops them (docs/19 K1).
+        Payment::observe(MoneyWidgetsObserver::class);
+        ProviderTransaction::observe(MoneyWidgetsObserver::class);
 
         // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
         OrgPolicyResolver::register();

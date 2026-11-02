@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Billing\Services\BillingReportService;
+use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminLabels;
 use Filament\Widgets\StatsOverviewWidget;
@@ -12,7 +12,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 /**
  * Payment webhook trouble of the last 24 hours: events recorded as `failed` (money that could not
- * be credited) and canceled provider transactions. Admin only.
+ * be credited) and canceled provider transactions. Admin only. The figures are the cached array of {@see AdminDashboardStats}
+ * (a minute fresh, dropped by `PaymentObserver` after a payment).
  */
 class WebhookErrorsWidget extends StatsOverviewWidget
 {
@@ -25,6 +26,9 @@ class WebhookErrorsWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 10;
 
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
+
     protected function getHeading(): string
     {
         return __('admin.widgets.webhook_errors.heading');
@@ -33,7 +37,7 @@ class WebhookErrorsWidget extends StatsOverviewWidget
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
-        $errors = app(BillingReportService::class)->webhookErrorsLast24Hours();
+        $errors = app(AdminDashboardStats::class)->webhookErrors24h();
 
         $byProvider = collect($errors['failed_by_provider'])
             ->map(fn (int $count, string $provider): string => AdminLabels::value('common.provider', $provider).": {$count}")
