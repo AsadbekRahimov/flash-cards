@@ -66,9 +66,11 @@ class GroupsRelationManager extends RelationManager
                             ->required()
                             ->searchable()
                             ->helperText(__('admin.organizations.groups.actions.link_help'))
-                            ->getSearchResultsUsing(fn (string $search): array => TelegramGroup::query()
-                                ->whereNull('organization_id')
-                                ->where('title', 'like', '%'.$search.'%')
+                            ->getSearchResultsUsing(fn (string $search): array => AdminTable::whereContains(
+                                TelegramGroup::query()->whereNull('organization_id'),
+                                'telegram_groups.title',
+                                $search,
+                            )
                                 ->orderBy('title')
                                 ->limit(30)
                                 ->pluck('title', 'id')

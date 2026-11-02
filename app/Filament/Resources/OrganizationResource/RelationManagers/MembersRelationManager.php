@@ -51,10 +51,7 @@ class MembersRelationManager extends RelationManager
                     ->state(fn (OrganizationMember $record): string => $this->learnerLabel($record->learner))
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
                         'learner',
-                        fn (Builder $learner) => $learner
-                            ->where('first_name', 'like', '%'.$search.'%')
-                            ->orWhere('last_name', 'like', '%'.$search.'%')
-                            ->orWhere('username', 'like', '%'.ltrim($search, '@').'%'),
+                        fn (Builder $learner): Builder => AdminTable::whereLearnerContains($learner, $search),
                     )),
                 Tables\Columns\TextColumn::make('learner.telegram_user_id')->label(__('admin.organizations.members.columns.telegram_id'))->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('seat_state')
@@ -171,13 +168,10 @@ class MembersRelationManager extends RelationManager
     private function searchLearners(string $search): array
     {
         $search = trim($search);
-        $username = ltrim($search, '@');
 
         return Learner::query()
-            ->where(function (Builder $query) use ($search, $username): void {
-                $query->where('first_name', 'like', '%'.$search.'%')
-                    ->orWhere('last_name', 'like', '%'.$search.'%')
-                    ->orWhere('username', 'like', '%'.$username.'%');
+            ->where(function (Builder $query) use ($search): void {
+                AdminTable::whereLearnerContains($query, $search);
 
                 if (ctype_digit($search)) {
                     $query->orWhere('telegram_user_id', (int) $search);

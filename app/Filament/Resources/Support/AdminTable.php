@@ -49,22 +49,54 @@ final class AdminTable
      * `$column` contains `$term`, case-insensitively, with `%`, `_` and `!` of the term taken literally (an own LIKE search
      * without this lets "a_b" find "axb" and "%" find everything). The pattern is escaped with `!` and says so with an
      * explicit `ESCAPE '!'` - the escape character of Filament's own search, so it means the same on PostgreSQL and SQLite and
-     * does not depend on `standard_conforming_strings`. PostgreSQL compares `ilike` on the column itself - the form the
-     * trigram index of `learners.username` serves (docs/03 §2.17) - and SQLite's `like` is case-insensitive for ASCII.
+     * does not depend on `standard_conforming_strings`.
+     *
+     * The form of the comparison is the form of the trigram index under the column (docs/03 §2.17, docs/20 F2), or the search
+     * scans the table. By default PostgreSQL compares `ilike` on the column itself - the form of the plain index of
+     * `learners.username`. With `$lower` it compares `lower(column) like` the lower-cased term, as Filament's own search emits
+     * and as the indexes on `lower(column)` expect (the names of learners, the words). SQLite's `like` is case-insensitive for
+     * ASCII either way.
      *
      * @template TModel of Model
      *
      * @param  Builder<TModel>  $query
      * @param  literal-string  $column  a column name written in the code (`learners.username`), never taken from input
      * @param  'and'|'or'  $boolean
+     * @param  bool  $lower  the column is indexed as `lower(column)`
      * @return Builder<TModel>
      */
-    public static function whereContains(Builder $query, string $column, string $term, string $boolean = 'and'): Builder
+    public static function whereContains(Builder $query, string $column, string $term, string $boolean = 'and', bool $lower = false): Builder
     {
+        // The column name is part of the code, the term is a binding.
+        if ($lower) {
+            return $query->whereRaw("lower({$column}) like ? escape '!'", ['%'.self::escapeLike(mb_strtolower($term)).'%'], $boolean);
+        }
+
         $operator = $query->getModel()->getConnection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
-        // The column name is part of the code, the term is a binding.
         return $query->whereRaw("{$column} {$operator} ? escape '!'", ['%'.self::escapeLike($term).'%'], $boolean);
+    }
+
+    /**
+     * The learners whose first name, last name or username contains `$term`: the search of every picker of learners (members of
+     * /org, the lists and pickers of members and subscriptions in /admin). The forms are the ones of the trigram indexes of
+     * `learners` (docs/03 §2.17): `lower(name) like` for the names, `ilike` on the plain `username`, so the OR of the three is
+     * a BitmapOr of the indexes on PostgreSQL. "@name" and "name" both find the username (the leading @ is not stored).
+     *
+     * @template TModel of Model
+     *
+     * @param  Builder<TModel>  $learners  a query on `learners`, or the subquery of a relation to them (`whereHas('learner', …)`)
+     * @return Builder<TModel>
+     */
+    public static function whereLearnerContains(Builder $learners, string $term): Builder
+    {
+        $term = trim($term);
+
+        return $learners->where(function (Builder $match) use ($term): void {
+            self::whereContains($match, 'learners.first_name', $term, lower: true);
+            self::whereContains($match, 'learners.last_name', $term, 'or', lower: true);
+            self::whereContains($match, 'learners.username', ltrim($term, '@'), 'or');
+        });
     }
 
     /**

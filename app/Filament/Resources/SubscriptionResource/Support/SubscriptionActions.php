@@ -14,6 +14,7 @@ use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -237,13 +238,9 @@ final class SubscriptionActions
     /** @return array<int, string> */
     private static function searchLearners(string $search): array
     {
-        $like = '%'.mb_strtolower(trim($search)).'%';
-
         return Learner::query()
-            ->where(function (Builder $query) use ($like, $search): void {
-                $query->whereRaw('lower(first_name) like ?', [$like])
-                    ->orWhereRaw('lower(last_name) like ?', [$like])
-                    ->orWhereRaw('lower(username) like ?', [$like]);
+            ->where(function (Builder $query) use ($search): void {
+                AdminTable::whereLearnerContains($query, $search);
 
                 if (ctype_digit(trim($search))) {
                     $query->orWhere('telegram_user_id', (int) trim($search));
