@@ -182,8 +182,8 @@ it('reads the words in two queries for one locale and remembers them for the sco
 
     expect($first)->toHaveCount(2)
         ->and($again)->toBe([])      // the scope remembers: four modes of a hub read the words once
-        ->and($fresh)->toHaveCount(2) // a scope of the next request starts clean: nothing can go stale between requests
-        ->and($two)->toHaveCount(3);  // a battle: the words and one translation query per locale
+        ->and($fresh)->toHaveCount(1) // a scope of the next request starts clean: the words are read again; the uz translation rows are in the pure cache now (docs/19 K4)
+        ->and($two)->toHaveCount(2);  // a battle: the words and one translation query for the locale the cache has not seen (ru)
 });
 
 it('lists every active word of the scope for a battle, whatever the progress of the players', function (): void {

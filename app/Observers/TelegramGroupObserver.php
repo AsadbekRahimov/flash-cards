@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Organizations\Services\GroupAssignmentCloser;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Domain\Organizations\Services\OrgOverviewService;
 use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,9 @@ use Throwable;
  * of the cabinet is dropped in the same transaction.
  * Registered in AppServiceProvider. Such changes must go through Eloquent: query-builder
  * updates (`TelegramGroup::where()->update()`) bypass observers.
+ *
+ * The same link is an input of the `/org` dashboard (the number of groups, a teacher's own groups): the cached overview of both
+ * centers, the one the group left and the one it joined, is dropped after commit (docs/19 K2).
  */
 final class TelegramGroupObserver
 {
@@ -52,6 +56,13 @@ final class TelegramGroupObserver
             if ($previous !== null) {
                 $this->assignments->closeForGroup($group->id, $previous);
             }
+
+            $current = $group->organization_id === null ? null : (int) $group->organization_id;
+            DB::afterCommit(function () use ($previous, $current): void {
+                foreach (array_unique(array_filter([$previous, $current])) as $organizationId) {
+                    OrgOverviewService::forget($organizationId);
+                }
+            });
 
             DB::afterCommit(function () use ($group, $previous, $learnerIds): void {
                 $this->guard('organizations.group_relink_failed', $group, function () use ($group, $previous, $learnerIds): void {
@@ -90,6 +101,8 @@ final class TelegramGroupObserver
         }
 
         $this->memo->flush();
+
+        DB::afterCommit(fn () => OrgOverviewService::forget((int) $organizationId));
 
         DB::afterCommit(function () use ($group, $organizationId): void {
             $this->guard('organizations.group_delete_release_failed', $group, fn () => $this->organizations->releaseOrphans($organizationId));

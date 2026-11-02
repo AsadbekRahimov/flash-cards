@@ -19,6 +19,10 @@ use Illuminate\Support\Facades\Log;
  *
  * Never blocks anything: the group is registered either way, and a failed call (network, 4xx)
  * is only logged as a warning (exception messages are already free of the bot token).
+ *
+ * The bot's status is read through {@see ChatMemberStatusCache} (docs/19 K7): a group that is checked when the bot is added and
+ * again when a center links it costs one Bot API call, and `my_chat_member` (MyChatMemberHandler) drops the entry the moment the
+ * status changes.
  */
 final class GroupBotAccessChecker
 {
@@ -27,12 +31,13 @@ final class GroupBotAccessChecker
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
+        private readonly ChatMemberStatusCache $members,
     ) {}
 
     /** Returns true when the warning was sent. */
     public function warnIfNotAdmin(TelegramGroup $group, ?int $botId = null): bool
     {
-        $botId ??= $this->botIdFromToken();
+        $botId ??= $this->members->botId();
         if ($botId === null) {
             Log::warning('telegram.group_bot_admin_check_skipped', ['chat_id' => $group->chat_id, 'reason' => 'bot_id_unknown']);
 
@@ -40,7 +45,7 @@ final class GroupBotAccessChecker
         }
 
         try {
-            $status = $this->telegram->getChatMemberStatus($group->chat_id, $botId);
+            $status = $this->members->status($group->chat_id, $botId, fn (): string => $this->telegram->getChatMemberStatus($group->chat_id, $botId));
         } catch (TelegramApiException $e) {
             Log::warning('telegram.group_bot_admin_check_failed', ['chat_id' => $group->chat_id, 'error' => $e->getMessage()]);
 
@@ -63,13 +68,5 @@ final class GroupBotAccessChecker
         }
 
         return true;
-    }
-
-    /** A bot token is `<bot id>:<secret>`. */
-    private function botIdFromToken(): ?int
-    {
-        $id = explode(':', (string) config('telegram.bot_token'), 2)[0];
-
-        return ctype_digit($id) ? (int) $id : null;
     }
 }

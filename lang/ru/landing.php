@@ -70,6 +70,8 @@ return [
         'free_new_words_unlimited' => 'новые слова без дневного лимита',
         // Pro's first tick: only while Free has a daily limit that Pro lacks.
         'pro_new_words' => 'Без дневного лимита новых слов',
+        // Pro's practice tick: only while practice is open to everybody and Free has a daily limit of it (ProPromises).
+        'pro_practice' => 'Практика и баттлы без дневного лимита',
         // One deck / many (a rule of the plan, not of the language: `{1}` is exactly one, 21 is many).
         'decks' => '{1} Своя колода до :deck_words слов|[2,*] Свои колоды: до :decks колод по :deck_words слов',
     ],
@@ -98,6 +100,7 @@ return [
             // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
                 ':new_words',
+                ':practice',
                 'Упражнения «Написание слова» и «Пропуск в примере»',
                 ':decks',
                 'Заморозки серии: пропущенный день не обрывает серию',

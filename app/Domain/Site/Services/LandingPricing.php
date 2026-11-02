@@ -7,6 +7,7 @@ namespace App\Domain\Site\Services;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Support\PriceFormatter;
+use App\Domain\Billing\Support\ProPromises;
 use Illuminate\Support\Str;
 
 /**
@@ -57,7 +58,9 @@ final class LandingPricing
      * `free` is Free's daily allowance as a phrase for the middle of a sentence ("20 новых слов в день"). The ticks of
      * the plan cards are `lang/{locale}/landing.php` `pricing.{free,pro}.features` with their `:new_words` and `:decks`
      * ticks filled in; a tick with nothing to say is dropped: Free without a daily limit has no "N new words" and
-     * Pro then has no "no daily limit" to sell either, a plan that cannot make decks (0) has no deck line.
+     * Pro then has no "no daily limit" to sell either, a plan that cannot make decks (0) has no deck line. The practice tick
+     * ("practice and battles without a daily limit") is Pro's only while practice is open to everybody and Free is limited in it
+     * ({@see ProPromises::practiceUnlimited()}): not at `pilot`, not at `off`.
      *
      * @return array{free: string, freeFeatures: list<string>, proFeatures: list<string>}
      */
@@ -73,6 +76,7 @@ final class LandingPricing
             'freeFeatures' => $this->ticks('free', [':new_words' => Str::ucfirst($free), ':decks' => $this->decks(Plan::Free, $locale)], $locale),
             'proFeatures' => $this->ticks('pro', [
                 ':new_words' => $newWords === null ? '' : $this->line('landing.limits.pro_new_words', $locale),
+                ':practice' => ProPromises::practiceUnlimited() ? $this->line('landing.limits.pro_practice', $locale) : '',
                 ':decks' => $this->decks(Plan::Pro, $locale),
             ], $locale),
         ];

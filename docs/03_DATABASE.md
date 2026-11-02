@@ -487,6 +487,9 @@ Append-only журнал для продуктовой аналитики (не 
 `learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме
 `lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL (и поиск участников `/org`), `learners_username_trgm_idx (username gin_trgm_ops)` —
 под `ilike` по самой колонке (`whereLike`). Форма запроса и форма индекса должны совпадать: `lower(col) like` не использует индекс по `col`, и наоборот.
+Под виджеты дашборда (docs/20 F5, миграция `2026_11_02_200001_add_deleted_learners_partial_index`): **partial** `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` — удалённых
+единицы, и вопрос «удалён ли ученик» (таблица мест центров, рейтинг лучших учеников) задаётся анти-джойном `not exists (… deleted_at is not null)` по этому крошечному
+индексу, а не поиском по первичному ключу для каждой строки членства (оба драйвера; на PostgreSQL `CONCURRENTLY` вне транзакции мигратора, `down()` снимает индекс).
 
 ### 2.18 `group_members` — членство learner'а в Telegram-группе
 | Колонка | Тип | Описание |
@@ -1183,6 +1186,7 @@ CHECK не создаются — инвариант дублируют серв
     `learners_last_name_lower_trgm_idx`, `learners_username_trgm_idx`, `words_word_lower_trgm_idx`, `words_translation_lower_trgm_idx` (§2.7, §2.17).
     Как 44: `CONCURRENTLY` вне транзакции мигратора (`$withinTransaction = false`), обычные инструкции внутри чужой транзакции и на sqlite, `DROP INDEX IF EXISTS`
     перед каждой сборкой. `down()` снимает индексы и расширение; на sqlite расширения и GIN нет — только b-tree *(W2-A)*
+56. `2026_11_02_200001_add_deleted_learners_partial_index` — partial-индекс `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` под анти-джойн по удалённым ученикам виджетов дашборда (§2.17; docs/20 F5). Как 44 и 55: `CONCURRENTLY` вне транзакции мигратора, `DROP INDEX IF EXISTS` перед сборкой, рабочий `down()` *(W2-C)*
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 

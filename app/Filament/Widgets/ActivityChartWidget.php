@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Administration\Services\AdminDashboardStats;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
 class ActivityChartWidget extends ChartWidget
 {
     protected static ?int $sort = 3;
+
+    // No polling (docs/20 §1.11): Filament polls a chart widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
 
     public function getHeading(): string
     {
@@ -20,24 +23,13 @@ class ActivityChartWidget extends ChartWidget
     /** @return array{datasets: array<int, array<string, mixed>>, labels: array<int, string>} */
     protected function getData(): array
     {
+        // 30 numbers from `today - 29 days` to today (the cached part); the labels are the viewer's language and stay here.
+        $values = app(AdminDashboardStats::class)->activity30d();
         $since = Carbon::today()->subDays(29);
 
-        /** @var array<string, int> $counts */
-        $counts = app(PanelDataScope::class)->trainingReviews()
-            ->where('created_at', '>=', $since)
-            ->selectRaw('DATE(created_at) AS d, COUNT(*) AS c')
-            ->groupBy('d')
-            ->pluck('c', 'd')
-            ->map(fn ($v): int => (int) $v)
-            ->all();
-
         $labels = [];
-        $values = [];
-        for ($i = 0; $i < 30; $i++) {
-            $date = $since->copy()->addDays($i);
-            $key = $date->toDateString();
-            $labels[] = $date->translatedFormat('j M');
-            $values[] = $counts[$key] ?? 0;
+        foreach (array_keys($values) as $i) {
+            $labels[] = $since->copy()->addDays($i)->translatedFormat('j M');
         }
 
         return [

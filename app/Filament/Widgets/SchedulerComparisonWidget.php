@@ -32,6 +32,9 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 7;
 
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
+
     protected function getHeading(): string
     {
         return __('admin.widgets.scheduler_comparison.heading');

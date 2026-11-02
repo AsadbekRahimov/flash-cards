@@ -132,10 +132,20 @@ final class PanelDataScope
         return $this->trainingSessions()->select('training_sessions.id');
     }
 
-    /** @return Builder<TrainingReview> */
+    /**
+     * Admin: every review. Teacher: the reviews inside the sessions of {@see trainingSessions()}.
+     *
+     * An admin sees every session, and a review always belongs to one (`training_session_id` is a NOT NULL foreign key), so for
+     * an admin the filter by sessions is an empty one - which PostgreSQL still pays for with a hash join of the reviews against
+     * every session id (docs/20 §4, the activity chart at 200 000 learners: 249 ms). Left out for an admin, kept for anybody else.
+     *
+     * @return Builder<TrainingReview>
+     */
     public function trainingReviews(): Builder
     {
-        return TrainingReview::query()->whereIn('training_session_id', $this->trainingSessionIds());
+        $reviews = TrainingReview::query();
+
+        return $this->isAdmin() ? $reviews : $reviews->whereIn('training_session_id', $this->trainingSessionIds());
     }
 
     /**
@@ -171,6 +181,30 @@ final class PanelDataScope
         return $this->isAdmin()
             ? $query
             : $query->whereHas('lesson.stage.course', fn (Builder $course): Builder => $course->where('courses.owner_type', '!=', 'learner'));
+    }
+
+    /**
+     * WHICH data this viewer sees, as a short key part for a cached aggregate (docs/19 K1): `all` for an admin; for a
+     * teacher their user id and a hash of the ids of their groups, so the day a group is added or taken away is a
+     * different key at once and no stale aggregate of a group they lost is ever shown (nothing to invalidate); `none`
+     * when nobody is signed in (callers do not cache that). One small indexed read for a teacher, none for an admin.
+     */
+    public function fingerprint(): string
+    {
+        $user = $this->user();
+
+        if ($user === null) {
+            return 'none';
+        }
+
+        if ($user->hasRole('admin')) {
+            return 'all';
+        }
+
+        /** @var list<int> $groupIds */
+        $groupIds = $user->telegramGroups()->pluck('telegram_groups.id')->map(static fn (mixed $id): int => (int) $id)->sort()->values()->all();
+
+        return 'u'.$user->id.'g'.substr(hash('sha256', implode(',', $groupIds)), 0, 12);
     }
 
     private function user(): ?User

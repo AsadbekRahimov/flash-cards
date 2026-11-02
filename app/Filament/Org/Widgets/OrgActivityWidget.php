@@ -19,6 +19,9 @@ class OrgActivityWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 2;
 
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
+
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
@@ -29,7 +32,7 @@ class OrgActivityWidget extends StatsOverviewWidget
             return [];
         }
 
-        $overview = app(OrgOverviewService::class)->summary($user, $tenant);
+        $overview = app(OrgOverviewService::class)->cachedSummary($user, $tenant);
 
         return [
             Stat::make(__('org.dashboard.members'), (string) $overview->activeMembers)

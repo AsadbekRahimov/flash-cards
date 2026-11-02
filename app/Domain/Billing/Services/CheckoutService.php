@@ -277,17 +277,7 @@ final class CheckoutService
     public function catalog(Learner|Organization $subscriber, ?CarbonImmutable $now = null): BillingCatalog
     {
         $now ??= CarbonImmutable::now();
-        $subscriberType = SubscriptionService::subscriberType($subscriber);
-
-        $currencies = [];
-        $providerKeys = [];
-        foreach ($this->providers->enabled() as $provider) {
-            $currency = $provider->currency();
-            if ($currency !== null && $this->providers->for($provider)->supports($subscriberType, $currency)) {
-                $currencies[$currency] = true;
-                $providerKeys[] = $provider->value;
-            }
-        }
+        ['currencies' => $currencies, 'providers' => $providerKeys] = $this->sellingProviders(SubscriptionService::subscriberType($subscriber));
 
         $offer = null;
         $items = [];
@@ -337,6 +327,48 @@ final class CheckoutService
             offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'period' => $offer->period, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
             subscription: $live === null ? null : self::summarize($live, $now),
         );
+    }
+
+    /**
+     * Whether there is anything to sell to a learner at all: some enabled provider that serves learners settles in a currency in
+     * which some period of Pro has a list price. It is the STATIC part of {@see catalog()} (docs/19 K5): the providers and the
+     * prices come from config alone, so it costs no query and no learner - what the paywall of `/me` needs, without the personal
+     * part (the learner's offers and live subscription, which are never shared). It deliberately has no Redis key of its own: it is
+     * a handful of config reads, cheaper than the round trip a cache would take.
+     */
+    public function canSellToLearners(): bool
+    {
+        $currencies = array_keys($this->sellingProviders('learner')['currencies']);
+
+        foreach ($this->periods() as $period) {
+            foreach ($currencies as $currency) {
+                if ($this->configuredPrice(Plan::Pro, $period, (string) $currency) !== null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The enabled providers that can settle for this kind of subscriber and the currencies they settle in (config alone).
+     *
+     * @return array{currencies: array<string, true>, providers: list<string>}
+     */
+    private function sellingProviders(string $subscriberType): array
+    {
+        $currencies = [];
+        $providerKeys = [];
+        foreach ($this->providers->enabled() as $provider) {
+            $currency = $provider->currency();
+            if ($currency !== null && $this->providers->for($provider)->supports($subscriberType, $currency)) {
+                $currencies[$currency] = true;
+                $providerKeys[] = $provider->value;
+            }
+        }
+
+        return ['currencies' => $currencies, 'providers' => $providerKeys];
     }
 
     /**

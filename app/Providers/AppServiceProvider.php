@@ -24,12 +24,20 @@ use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
+use App\Models\Payment;
+use App\Models\ProviderTransaction;
+use App\Models\Stage;
 use App\Models\TelegramGroup;
+use App\Models\WordTranslation;
+use App\Observers\CourseTreeObserver;
+use App\Observers\MoneyWidgetsObserver;
 use App\Observers\OrganizationObserver;
 use App\Observers\OrganizationUserObserver;
 use App\Observers\TelegramGroupObserver;
+use App\Observers\WordTranslationObserver;
 use App\Policies\Org\OrgPolicyResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Cache\Repository;
@@ -140,6 +148,16 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+
+        // The money widgets of the admin dashboard are cached; a payment, a refund or a provider's cancel drops them (docs/19 K1).
+        Payment::observe(MoneyWidgetsObserver::class);
+        ProviderTransaction::observe(MoneyWidgetsObserver::class);
+
+        // Content caches (docs/19 K3, K4): the tree of a course follows its modules and lessons, the translation rows of a word
+        // follow its `word_translations`; the words of a course and the statuses are dropped by CoursePublisher::recount()/transition().
+        Stage::observe(CourseTreeObserver::class);
+        Lesson::observe(CourseTreeObserver::class);
+        WordTranslation::observe(WordTranslationObserver::class);
 
         // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
         OrgPolicyResolver::register();

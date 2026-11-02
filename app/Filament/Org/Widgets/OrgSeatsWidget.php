@@ -20,6 +20,9 @@ class OrgSeatsWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
+
     public static function canView(): bool
     {
         $user = Filament::auth()->user();
@@ -41,7 +44,7 @@ class OrgSeatsWidget extends StatsOverviewWidget
         /** @var Organization $tenant */
         $tenant = Filament::getTenant();
 
-        $overview = app(OrgOverviewService::class)->summary($user, $tenant);
+        $overview = app(OrgOverviewService::class)->cachedSummary($user, $tenant);
         $seats = $overview->seats;
 
         $seatsValue = $seats->sponsoring ? $seats->seated.' / '.($seats->limit ?? '∞') : (string) $seats->seated;

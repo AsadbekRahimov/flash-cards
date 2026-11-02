@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\ChatMemberStatusCache;
 use App\Domain\Telegram\Services\GroupBotAccessChecker;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
@@ -17,6 +18,7 @@ final class MyChatMemberHandler implements UpdateHandler
         private readonly ProductEventRecorder $events,
         private readonly DmLearnerResolver $dmLearners,
         private readonly GroupBotAccessChecker $botAccess,
+        private readonly ChatMemberStatusCache $members,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -58,6 +60,14 @@ final class MyChatMemberHandler implements UpdateHandler
 
         if ($chatId === 0 || ! in_array($chatType, ['group', 'supergroup'], true)) {
             return;
+        }
+
+        // The bot's status in this group changed: whatever was remembered of it (docs/19 K7) is stale from now on, whether the bot
+        // was promoted, demoted, removed or added; the next check asks Telegram.
+        $updatedBotId = $event['new_chat_member']['user']['id'] ?? null;
+        $botId = is_int($updatedBotId) ? $updatedBotId : $this->members->botId();
+        if ($botId !== null) {
+            $this->members->forget($chatId, $botId);
         }
 
         if (in_array($newStatus, ['left', 'kicked'], true)) {

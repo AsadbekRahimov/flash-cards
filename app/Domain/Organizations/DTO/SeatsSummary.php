@@ -45,6 +45,12 @@ final readonly class SeatsSummary
         return $this->limit !== null && $this->seated > $this->limit;
     }
 
+    /** @param  array{limit: int|null, seated: int, waitlisted: int, sponsoring: bool}  $data */
+    public static function fromArray(array $data): self
+    {
+        return new self($data['limit'], $data['seated'], $data['waitlisted'], $data['sponsoring']);
+    }
+
     /** @return array{limit: int|null, seated: int, waitlisted: int, sponsoring: bool} */
     public function toArray(): array
     {
