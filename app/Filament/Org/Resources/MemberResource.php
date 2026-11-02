@@ -9,6 +9,7 @@ use App\Domain\Organizations\Enums\SeatState;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Filament\Org\Resources\MemberResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\OrganizationMember;
 use Filament\Actions;
@@ -64,7 +65,8 @@ class MemberResource extends OrgResource
 
     public static function table(Table $table): Table
     {
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('learner_name')
                     ->label(__('org.members.columns.learner'))

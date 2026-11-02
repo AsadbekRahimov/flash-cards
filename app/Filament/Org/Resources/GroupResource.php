@@ -7,6 +7,7 @@ namespace App\Filament\Org\Resources;
 use App\Domain\Organizations\Exceptions\OrgGroupLinkException;
 use App\Domain\Organizations\Services\OrgGroupLinkService;
 use App\Filament\Org\Resources\GroupResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\TelegramGroup;
 use Filament\Actions;
 use Filament\Forms;
@@ -58,7 +59,8 @@ class GroupResource extends OrgResource
 
     public static function table(Table $table): Table
     {
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('title')->label(__('org.groups.columns.title'))->searchable()->limit(40),
                 Tables\Columns\TextColumn::make('status')

@@ -8,6 +8,7 @@ use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Exceptions\OrganizationStaffException;
 use App\Domain\Organizations\Services\OrganizationStaffService;
 use App\Filament\Org\Resources\StaffResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\OrganizationUser;
 use Filament\Actions;
 use Filament\Forms;
@@ -68,7 +69,8 @@ class StaffResource extends OrgResource
     {
         $staff = app(OrganizationStaffService::class);
 
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')->label(__('org.teachers.columns.name'))->searchable(),
                 Tables\Columns\TextColumn::make('user.email')->label(__('org.teachers.columns.email'))->searchable(),
