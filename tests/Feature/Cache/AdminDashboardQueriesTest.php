@@ -513,12 +513,20 @@ it('asks "deleted?" of the members as an anti-join, with no join of the learners
 
 // --- the partial index that goes with it -------------------------------------------------------------------
 
-it('has the partial index over the deleted learners, and drops it again', function (): void {
+it('has the partial index over the deleted learners, and the migration takes it away and puts it back', function (): void {
     $definition = fn (): ?string => DB::getDriverName() === 'pgsql'
         ? DB::table('pg_indexes')->where('indexname', 'learners_deleted_idx')->value('indexdef')
         : DB::table('sqlite_master')->where('type', 'index')->where('name', 'learners_deleted_idx')->value('sql');
 
-    $up = $definition();
-    expect($up)->not->toBeNull()
-        ->and(strtolower((string) $up))->toContain('learners')->toContain('where')->toContain('deleted_at is not null');
+    expect($definition())->not->toBeNull()
+        ->and(strtolower((string) $definition()))->toContain('learners')->toContain('where')->toContain('deleted_at is not null');
+
+    // down() and up() of the migration itself (inside the test's transaction the plain statements run, not CONCURRENTLY).
+    $migration = require database_path('migrations/2026_11_02_200001_add_deleted_learners_partial_index.php');
+
+    $migration->down();
+    expect($definition())->toBeNull();
+
+    $migration->up();
+    expect($definition())->not->toBeNull();
 });
