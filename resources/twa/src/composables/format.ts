@@ -11,6 +11,7 @@
  * - `dayMonthShortTime` — 28 окт., 18:00
  * - `weekdayTime` — пн 00:00
  * - `weekdayDayMonth` — вторник, 28 октября
+ * - `time` — 00:00
  */
 export type DateStyle =
   | 'dayMonth'
@@ -20,6 +21,7 @@ export type DateStyle =
   | 'dayMonthShortTime'
   | 'weekdayTime'
   | 'weekdayDayMonth'
+  | 'time'
 
 const DATE_OPTIONS: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   dayMonth: { day: 'numeric', month: 'long' },
@@ -29,6 +31,7 @@ const DATE_OPTIONS: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   dayMonthShortTime: { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
   weekdayTime: { weekday: 'short', hour: '2-digit', minute: '2-digit' },
   weekdayDayMonth: { weekday: 'long', day: 'numeric', month: 'long' },
+  time: { hour: '2-digit', minute: '2-digit' },
 }
 
 /** The interface locale (`ru` / `uz`) as a BCP 47 tag; Uzbek is always Latin script. */
@@ -73,6 +76,26 @@ export function formatDate(iso: string, style: DateStyle, locale: string, timeZo
   if (!formatter) {
     formatter = createDateFormatter(tag, DATE_OPTIONS[style], zone)
     dateFormatters.set(key, formatter)
+  }
+  return formatter.format(date)
+}
+
+const dayFormatters = new Map<string, Intl.DateTimeFormat>()
+
+/**
+ * The calendar day of a moment in a zone as `2026-10-28` (the device's zone when `timeZone` is omitted or not known to the browser), to
+ * tell whether two moments are on the same day or on neighbouring ones. '' for a value that is not a date.
+ */
+export function calendarDay(at: number | string | Date, timeZone?: string): string {
+  const date = at instanceof Date ? at : new Date(at)
+  if (Number.isNaN(date.getTime())) return ''
+
+  const zone = timeZone ?? ''
+  let formatter = dayFormatters.get(zone)
+  if (!formatter) {
+    // `en-CA` writes a date as year-month-day: the same text in every zone and every interface language.
+    formatter = createDateFormatter('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }, zone)
+    dayFormatters.set(zone, formatter)
   }
   return formatter.format(date)
 }

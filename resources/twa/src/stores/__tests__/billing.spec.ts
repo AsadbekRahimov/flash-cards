@@ -3,8 +3,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ME_FRESH_MS, useBillingStore } from '../billing'
-import type { MeResponse } from '@/api/types'
+import type { MeResponse, PracticeAccess } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import { counter, freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
 
 vi.mock('@/api', () => ({ api: { me: { get: vi.fn() } } }))
 
@@ -157,6 +158,163 @@ describe('billing store', () => {
       await billing.load()
 
       expect(api.me.get).toHaveBeenCalledTimes(2)
+    })
+  })
+})
+
+describe('billing store - the Free limits of practice and battles (docs/18 §3)', () => {
+  const access = (limits?: PracticeAccess['limits']): PracticeAccess => ({
+    available: true,
+    pro_required: false,
+    modes: ['pairs', 'collocation', 'sentence', 'dictation'],
+    battle: true,
+    ...(limits !== undefined ? { limits } : {}),
+  })
+  const meWith = (practice?: PracticeAccess): MeResponse => ({ ...me(), ...(practice ? { practice } : {}) })
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+  afterEach(() => vi.useRealTimers())
+
+  it('knows nothing until somebody says: nothing is shown and nothing is stopped', () => {
+    const billing = useBillingStore()
+
+    expect(billing.limits).toBeNull()
+    expect(billing.sessionLimit).toBeNull()
+    expect(billing.battleLimit).toBeNull()
+    expect(billing.limitReached('sessions')).toBeNull()
+    expect(billing.limitReached('battles')).toBeNull()
+  })
+
+  it('takes the limits from /me, next to the access to practice, and does not keep a second copy of them there', async () => {
+    vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(1, 0))))
+    const billing = useBillingStore()
+
+    await billing.load()
+
+    expect(billing.sessionLimit).toMatchObject({ limit: 2, used: 1, remaining: 1 })
+    expect(billing.battleLimit).toMatchObject({ limit: 1, used: 0, remaining: 1 })
+    expect(billing.practiceAccess).toEqual(access())
+    expect('limits' in billing.practiceAccess).toBe(false)
+  })
+
+  it('Pro has none: /me says null, and the counters the learner had are gone', () => {
+    const billing = useBillingStore()
+    billing.apply(meWith(access(freeLimits(2, 1))))
+    expect(billing.limitReached('sessions')).not.toBeNull()
+
+    billing.apply(meWith(access(null)))
+
+    expect(billing.limits).toBeNull()
+    expect(billing.sessionLimit).toBeNull()
+    expect(billing.limitReached('sessions')).toBeNull()
+  })
+
+  it('an answer that does not mention the limits (an older server, a /me without the block) leaves what the learner was told', () => {
+    const billing = useBillingStore()
+    billing.setLimits(freeLimits(1, 0))
+
+    billing.apply(meWith(access()))
+    billing.apply(meWith())
+
+    expect(billing.sessionLimit).toMatchObject({ used: 1, remaining: 1 })
+    expect(billing.practiceAccess.available).toBe(false) // a /me with no block still means "no practice", as before
+  })
+
+  describe('setLimits (the hub and the 201 of a session or a battle)', () => {
+    it('replaces the counters with the newest word on them', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 0))
+
+      billing.setLimits(freeLimits(1, 1))
+
+      expect(billing.sessionLimit?.remaining).toBe(1)
+      expect(billing.battleLimit?.remaining).toBe(0)
+    })
+
+    it('null is a word too (Pro, no limit); undefined is no word', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(1, 0))
+
+      billing.setLimits(undefined)
+      expect(billing.sessionLimit?.remaining).toBe(1)
+
+      billing.setLimits(null)
+      expect(billing.sessionLimit).toBeNull()
+    })
+  })
+
+  describe('limitReached', () => {
+    it('is the wall of a kind that is spent, with the numbers the paywall quotes', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(5)
+      billing.setLimits(freeLimits(2, 0, resetsAt))
+
+      expect(billing.limitReached('sessions')).toEqual({ kind: 'sessions', limit: 2, used: 2, resets_at: resetsAt })
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+
+    it('is nothing once the day of the counter is over: the app stayed open overnight, and the server decides', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(2, 1, '2026-11-02T19:00:00Z'))
+      expect(billing.limitReached('sessions')).not.toBeNull()
+
+      vi.setSystemTime(new Date('2026-11-02T19:00:01Z'))
+
+      expect(billing.limitReached('sessions')).toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+  })
+
+  describe('the counters that are shown', () => {
+    it('are the counters of today, and nothing for a day that is over', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+      const billing = useBillingStore()
+
+      billing.setLimits({ sessions: counter(1, 2, '2026-11-02T19:00:00Z'), battles: counter(0, 1, '2026-11-02T19:00:00Z') })
+      expect(billing.sessionLimit).toMatchObject({ remaining: 1 })
+
+      // a getter is computed when it is read after the counters changed: a fresh answer of the day after is read again
+      billing.setLimits({ sessions: counter(1, 2, '2026-11-02T09:00:00Z'), battles: counter(0, 1, '2026-11-02T09:00:00Z') })
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+    })
+  })
+
+  describe('noteLimitHit (the server refused for the limit)', () => {
+    it('marks that counter spent whatever the screen believed, and leaves the other one alone', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 0))
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: resetsAt })
+
+      expect(billing.sessionLimit).toEqual({ limit: 2, used: 2, remaining: 0, resets_at: resetsAt })
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+      expect(billing.limitReached('sessions')).toEqual({ kind: 'sessions', limit: 2, used: 2, resets_at: resetsAt })
+    })
+
+    it('takes the numbers of the refusal: the limit may have been changed since the counters were read', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 0))
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'battles', limit: 3, used: 3, resets_at: resetsAt })
+
+      expect(billing.battleLimit).toEqual({ limit: 3, used: 3, remaining: 0, resets_at: resetsAt })
+    })
+
+    it('does nothing when the counters were never told: one of two cannot be built from a refusal', () => {
+      const billing = useBillingStore()
+
+      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: inHours(2) })
+
+      expect(billing.limits).toBeNull()
     })
   })
 })

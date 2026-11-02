@@ -257,6 +257,14 @@ export const ru = {
   'paywall.lead_exam_simulator': 'Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими.',
   'paywall.lead_practice': 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.',
 
+  // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
+  'practice.limit.sessions': 'Сегодня бесплатно: осталось {remaining} из {limit}',
+  'battle.limit.left': 'Вызовов сегодня: осталось {remaining} из {limit}',
+  'paywall.lead_practice_limit_sessions': 'Бесплатные тренировки на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
+  'paywall.lead_practice_limit_battles': 'Бесплатные вызовы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
+  'paywall.reset_tomorrow': 'завтра в {time}',
+  'paywall.reset_at': 'в {time}',
+
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
   'paywall.lead_purchase': 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
@@ -1004,6 +1012,7 @@ export const ru = {
   // ---- errors: practice and battle (docs/16 §7.6) ----
   'error.code.practice_unavailable': 'Практика сейчас недоступна.',
   'error.code.practice_pro_required': 'Практика доступна в Pro.',
+  'error.code.practice_limit_reached': 'Бесплатный лимит на сегодня закончился. Он обновится завтра.',
   'error.code.practice_mode_disabled': 'Этот режим сейчас выключен. Выберите другой.',
   'error.code.practice_not_enough_material': 'Для этого режима пока мало материала. Выучите ещё несколько слов.',
   'error.code.practice_session_active': 'У вас уже есть незавершённая практика.',

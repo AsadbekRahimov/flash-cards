@@ -86,6 +86,7 @@ export const KNOWN_ERROR_CODES = [
   // Practice and battle (docs/16 §7.6); `course_not_found`, `lesson_not_found`, `friendship_not_found` and `not_friends` are above.
   'practice_unavailable',
   'practice_pro_required',
+  'practice_limit_reached',
   'practice_mode_disabled',
   'practice_not_enough_material',
   'practice_session_active',
