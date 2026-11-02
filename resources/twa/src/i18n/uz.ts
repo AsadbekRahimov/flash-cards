@@ -242,6 +242,8 @@ export const uz: Translations = {
   'paywall.lead_practice_limit_sessions_soon': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when}.',
   'paywall.lead_practice_limit_battles': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan.',
   'paywall.lead_practice_limit_battles_soon': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}.',
+  // A limit of 0: the kind is for Pro only. No "over", no "tomorrow" - nothing was spent, nothing comes back. (Practice: `paywall.lead_practice`.)
+  'paywall.lead_practice_limit_battles_pro': "Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin.",
   'paywall.reset_tomorrow': 'ertaga soat {time} da',
   'paywall.reset_at': 'soat {time} da',
 

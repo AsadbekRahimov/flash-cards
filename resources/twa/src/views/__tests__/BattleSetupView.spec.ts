@@ -848,6 +848,7 @@ describe('BattleSetupView — the Free limit of battles', () => {
       it('a kind that is for Pro only (limit 0) needs no question', async () => {
         serve({ limits: { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } } })
         const r = await render()
+        expect(line(r).exists()).toBe(false) // "0 of 0 left" says nothing: no line
 
         await click(r, 'invite-btn')
 
@@ -985,6 +986,49 @@ describe('BattleSetupView — the Free limit of battles', () => {
 
       expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
       expect(line(r).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+    })
+  })
+
+  // A limit of 0 is "only Pro": no line ("осталось 0 из 0" says nothing), the wall at once, and the paywall says Pro has it.
+  describe('battles that are for Pro only (limit 0)', () => {
+    const proOnly = () => ({ sessions: freeLimits(0, 0).sessions, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } })
+
+    it('draws no line, and "Invite" stays the one primary button, switched on', async () => {
+      serve({ limits: proOnly() })
+      const r = await render()
+
+      expect(line(r).exists()).toBe(false)
+      expect(get(r, 'invite-btn').attributes('disabled')).toBeUndefined()
+      expect(get(r, 'invite-btn').classes()).toContain('btn-primary')
+    })
+
+    it('"Invite" opens the paywall with the limit of 0 at once: no request, no sentence beside the button', async () => {
+      serve({ limits: proOnly() })
+      const r = await render()
+
+      await click(r, 'invite-btn')
+
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
+      expect(get(r, 'paywall').attributes('data-limit')).toBe('0')
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(has(r, 'invite-error')).toBe(false)
+      expect(line(r).exists()).toBe(false)
+    })
+
+    it('the 403 of the server for a limit of 0 (the screen took the battles for unlimited): the same paywall, and still no line', async () => {
+      serve({ limits: { sessions: freeLimits(0, 0).sessions, battles: null } })
+      vi.mocked(api.battles.invite).mockRejectedValue(
+        apiError('forbidden', 403, 'practice_limit_reached', { kind: 'battles', limit: 0, used: 0, resets_at: inHours(4) }),
+      )
+      const r = await render()
+
+      await click(r, 'invite-btn')
+
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(get(r, 'paywall').attributes('data-limit')).toBe('0')
+      expect(has(r, 'invite-error')).toBe(false)
+      expect(line(r).exists()).toBe(false)
     })
   })
 })

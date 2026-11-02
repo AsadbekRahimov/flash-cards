@@ -256,6 +256,15 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(billing.limitReached('battles')).toBeNull()
     })
 
+    it('is the wall from the start for a kind that is for Pro only (limit 0): there is nothing to spend', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(5)
+      billing.setLimits({ sessions: counter(0, 0, resetsAt), battles: counter(0, 0, resetsAt) })
+
+      expect(billing.limitReached('sessions')).toEqual({ kind: 'sessions', limit: 0, used: 0, resets_at: resetsAt })
+      expect(billing.limitReached('battles')).toEqual({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+    })
+
     it('is nothing once the day of the counter is over: the app stayed open overnight, and the server decides', () => {
       vi.useFakeTimers()
       vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
@@ -283,6 +292,65 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       billing.setLimits({ sessions: counter(1, 2, '2026-11-02T09:00:00Z'), battles: counter(0, 1, '2026-11-02T09:00:00Z') })
       expect(billing.sessionLimit).toBeNull()
       expect(billing.battleLimit).toBeNull()
+    })
+  })
+
+  // A limit of 0 is "only Pro": "0 of 0 left" says nothing, so the screens get no counter for it - while the wall (`limitReached`) stands.
+  describe('a kind that is for Pro only (limit 0)', () => {
+    const proOnly = () => ({ sessions: counter(0, 0, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+    it('draws no counter, and stops the learner all the same', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(proOnly())
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toMatchObject({ kind: 'sessions', limit: 0 })
+      expect(billing.limitReached('battles')).toMatchObject({ kind: 'battles', limit: 0 })
+    })
+
+    it('takes it from /me the same way', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(proOnly())))
+      const billing = useBillingStore()
+
+      await billing.load()
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).not.toBeNull()
+    })
+
+    it('is told apart per kind: battles only for Pro, sessions with a counter', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits({ sessions: counter(1, 2, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+      expect(billing.sessionLimit).toMatchObject({ limit: 2, remaining: 1 })
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toBeNull()
+      expect(billing.limitReached('battles')).toMatchObject({ limit: 0 })
+    })
+
+    it('a refusal for it draws no counter either, but is the wall the paywall quotes', () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(2)
+
+      billing.noteLimitHit({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).toEqual({ kind: 'battles', limit: 0, used: 0, resets_at: resetsAt })
+    })
+
+    it('a limit that was raised on the server draws its counter again with the next answer', () => {
+      const billing = useBillingStore()
+      billing.setLimits(proOnly())
+
+      billing.setLimits(freeLimits(0, 0))
+
+      expect(billing.sessionLimit).toMatchObject({ limit: 2, remaining: 2 })
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
+      expect(billing.limitReached('battles')).toBeNull()
     })
   })
 
@@ -490,6 +558,8 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(await billing.confirmLimit('sessions')).toMatchObject({ kind: 'sessions', limit: 0 })
 
       expect(api.me.get).not.toHaveBeenCalled()
+      expect(billing.battleLimit, 'no line for it: it is only for Pro').toBeNull()
+      expect(billing.sessionLimit).toBeNull()
     })
   })
 })

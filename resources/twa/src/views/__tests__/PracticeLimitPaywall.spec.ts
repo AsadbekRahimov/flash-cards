@@ -10,9 +10,9 @@ import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { courseDetail, courseRow, battleList, options } from '@/api/__tests__/battleFixtures'
-import { freeLimits, hub } from '@/api/__tests__/practiceFixtures'
+import { counter, freeLimits, hub } from '@/api/__tests__/practiceFixtures'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
-import type { MeResponse } from '@/api/types'
+import type { MeResponse, PracticeLimits } from '@/api/types'
 
 /**
  * The screens with the REAL `PaywallSheet` (the specs of each screen stub it): what the learner reads when a free limit is spent, from the
@@ -54,14 +54,14 @@ vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorT
 const NOW = new Date('2026-11-02T10:00:00Z')
 const MIDNIGHT = '2026-11-02T19:00:00Z'
 
-const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon'): MeResponse => ({
+const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', limits: PracticeLimits = freeLimits(2, 1, MIDNIGHT)): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
   entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
   paywall: { mode, contact: null },
   settings: settingsFixture(),
-  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, limits: freeLimits(2, 1, MIDNIGHT) },
+  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, limits },
 })
 
 const mounted: VueWrapper[] = []
@@ -231,5 +231,108 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
 
     expect(lead(wrapper)).toContain('Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.')
     expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
+  })
+})
+
+// A limit of 0 is "only Pro": the sheet says what Pro has, with no "over", no "0 of 0" and no time of a reset.
+describe('the real paywall behind a kind that is for Pro only (limit 0)', () => {
+  const NO_SESSIONS: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: null }
+  const NO_BATTLES: PracticeLimits = { sessions: null, battles: counter(0, 0, MIDNIGHT) }
+  const SALE_RU =
+    'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
+  const SALE_UZ = "Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari."
+
+  it('the practice hub, sessions: the practice is in Pro - no line before it, no "over" in it', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
+    const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+    expect(wrapper.find('[data-testid=practice-limit]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
+    await flushPromises()
+
+    expect(lead(wrapper)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Pro скоро откроется.')
+    expect(api.practice.open).not.toHaveBeenCalled()
+  })
+
+  it('the practice hub, "Play with a friend": calling a friend is in Pro, accepting is always possible', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_BATTLES }))
+    const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+    await flushPromises()
+
+    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Pro скоро откроется.')
+    expect(lead(wrapper)).not.toMatch(/закончил|завтра|из 0/)
+  })
+
+  it('the setup of a battle: no line, and "Invite" meets the same sheet', async () => {
+    vi.mocked(api.me.get).mockResolvedValue(me('coming_soon', NO_BATTLES))
+    vi.mocked(api.courses.list).mockResolvedValue({ courses: [courseRow({ slug: 'english-a1', title: 'Английский A1', is_active: true })] })
+    vi.mocked(api.courses.get).mockImplementation((slug) => Promise.resolve(courseDetail({ slug, title: slug })))
+    vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 3, deck_words: 50, used_decks: 0 } } as never)
+    vi.mocked(api.battles.options).mockResolvedValue(options())
+    const wrapper = await mountWith(BattleSetupView, { friendshipId: 11, course: null, lessonId: null })
+    expect(wrapper.find('[data-testid=battle-limit]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid=invite-btn]').trigger('click')
+    await flushPromises()
+
+    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Pro скоро откроется.')
+    expect(api.battles.invite).not.toHaveBeenCalled()
+  })
+
+  it('the Friends screen, in Uzbek: the same words', async () => {
+    setLocale('uz')
+    vi.mocked(api.me.get).mockResolvedValue(me('coming_soon', NO_BATTLES))
+    useBillingStore().apply(me('coming_soon', NO_BATTLES))
+    const wrapper = await mountWith(FriendsView)
+    expect(wrapper.find('[data-testid=battle-limit]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid=battle-btn]').trigger('click')
+    await flushPromises()
+
+    expect(lead(wrapper)).toBe("Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. Pro tez orada ochiladi.")
+    expect(lead(wrapper)).not.toMatch(/tugadi|ertaga|0 tadan/)
+  })
+
+  it('the hub in Uzbek, sessions: the existing words of the practice in Pro', async () => {
+    setLocale('uz')
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
+    const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+
+    await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
+    await flushPromises()
+
+    expect(lead(wrapper)).toBe("Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. Pro tez orada ochiladi.")
+  })
+
+  describe('while Pro is for sale', () => {
+    beforeEach(() => {
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', NO_BATTLES))
+      vi.mocked(api.billing.catalog).mockResolvedValue(SALE)
+    })
+
+    it('the Friends screen: what Pro has, then what Pro gives - and not "or right away"', async () => {
+      useBillingStore().apply(me('purchase', NO_BATTLES))
+      const wrapper = await mountWith(FriendsView)
+
+      await wrapper.get('[data-testid=battle-btn]').trigger('click')
+      await flushPromises()
+
+      expect(lead(wrapper)).toBe(`Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. ${SALE_RU}`)
+      expect(lead(wrapper)).not.toContain('сразу с Pro')
+    })
+
+    it('the hub, in Uzbek, sessions', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', NO_SESSIONS))
+      vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
+      const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+
+      await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
+      await flushPromises()
+
+      expect(lead(wrapper)).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. ${SALE_UZ}`)
+    })
   })
 })

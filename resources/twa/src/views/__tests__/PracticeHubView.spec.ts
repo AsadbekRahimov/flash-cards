@@ -1532,6 +1532,113 @@ describe('PracticeHubView — the Free limit of battles', () => {
   })
 })
 
+// A limit of 0 is "only Pro" (a kind that Free does not get at all): "осталось 0 из 0" says nothing, so no line - the wall stands, at once.
+describe('PracticeHubView — a kind that is for Pro only (limit 0)', () => {
+  const line = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']) => wrapper.find('[data-testid=practice-limit]')
+  const none = (): { limit: number; used: number; remaining: number; resets_at: string } => ({ limit: 0, used: 0, remaining: 0, resets_at: inHours(4) })
+
+  describe('sessions', () => {
+    it('shows no line ("0 of 0 left" says nothing), and the cards are cards', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: none(), battles: null } }))
+
+      expect(line(wrapper).exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('осталось')
+      for (const mode of ['pairs', 'collocation', 'sentence', 'dictation']) {
+        expect(card(wrapper, mode).element.tagName).toBe('BUTTON')
+      }
+      wrapper.unmount()
+    })
+
+    it('a press opens the paywall at once - no request, no toast - and the sheet is told the limit is 0', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: none(), battles: null } }))
+
+      await card(wrapper, 'sentence').trigger('click')
+
+      const sheet = wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('sessions')
+      expect(sheet.attributes('data-limit')).toBe('0')
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(line(wrapper).exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('the unfinished session is still the learner\'s: it goes on, the limit has nothing to say about it', async () => {
+      const { wrapper, router } = await render({}, hub({ limits: { sessions: none(), battles: null }, active_session: activeSession({ id: 77, mode: 'pairs' }) }))
+
+      await wrapper.get('[data-testid=continue-card]').trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.params.id).toBe('77')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('the 403 of the server for a limit of 0 (the screen took the sessions for unlimited): the same sheet, no toast, and still no line', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('forbidden', 403, 'practice_limit_reached', { kind: 'sessions', limit: 0, used: 0, resets_at: inHours(4) }),
+      )
+      const { wrapper } = await render({}, hub({ limits: { sessions: null, battles: null } }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-limit')).toBe('0')
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(line(wrapper).exists()).toBe(false)
+      wrapper.unmount()
+    })
+  })
+
+  describe('battles', () => {
+    it('"Play with a friend" opens the paywall at once, not the list of friends; the line of the sessions is as it was', async () => {
+      const { wrapper } = await render({}, hub({ limits: { sessions: freeLimits(1, 0).sessions, battles: none() } }))
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
+
+      await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+      await flushPromises()
+
+      const sheet = wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('battles')
+      expect(sheet.attributes('data-limit')).toBe('0')
+      expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(false)
+      expect(api.friends.get).not.toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('an invitation of a friend is answered in its battle all the same: accepting is always possible', async () => {
+      vi.mocked(api.battles.list).mockResolvedValue({ active: null, incoming: [incoming(15, 'Тимур')], finished: [] })
+      const { wrapper, router } = await render({}, hub({ limits: { sessions: null, battles: none() }, battle: { enabled: true, active_battle_id: null, incoming_count: 1 } }))
+
+      await wrapper.get('[data-testid=invitation-15]').trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.name).toBe('battle')
+      expect(router.currentRoute.value.params.id).toBe('15')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+  })
+
+  it('a limit that was raised on the server comes with the next hub: the line is back, and the press opens a session', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 99 }))
+    const first = await render({}, hub({ limits: { sessions: none(), battles: null } }))
+    expect(line(first.wrapper).exists()).toBe(false)
+    first.wrapper.unmount()
+
+    const next = await render({}, hub({ limits: freeLimits(0, 0) }))
+    expect(line(next.wrapper).text()).toBe('Сегодня бесплатно: осталось 2 из 2')
+    await card(next.wrapper, 'pairs').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+    expect(next.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    next.wrapper.unmount()
+  })
+})
+
 // An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
 describe('PracticeHubView — one kind of limit without a counter (null inside the limits)', () => {
   const line = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']) => wrapper.find('[data-testid=practice-limit]')

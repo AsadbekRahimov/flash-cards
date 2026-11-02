@@ -2623,8 +2623,9 @@
 >
 > Что решить носителю:
 > - **Остаток** (`practice.limit.sessions`, `battle.limit.left`): «Bugun bepul: 2 tadan 1 tasi qoldi» — «Сегодня бесплатно: осталось 1 из 2»; «Bugungi bellashuvlar: 1 tadan 1 tasi qoldi» —
->   «Баттлов сегодня: осталось 1 из 1». Порядок «{M} tadan {N} tasi» взят из `practice.hub.reason.no_items_few` («{required} tadan {available} tasi»). Когда осталось 0, строка та же
->   («2 tadan 0 tasi qoldi»); если для нуля естественнее другая фраза — сказать, отдельную строку для нуля заведём.
+>   «Баттлов сегодня: осталось 1 из 1». Порядок «{M} tadan {N} tasi» взят из `practice.hub.reason.no_items_few` («{required} tadan {available} tasi»). Когда осталось 0 из 2 (лимит есть, всё потрачено), строка та же
+>   («2 tadan 0 tasi qoldi»); если для нуля естественнее другая фраза — сказать, отдельную строку для нуля заведём. Когда сам лимит равен 0 (вид «только Pro»), строки нет вовсе:
+>   «0 tadan 0 tasi qoldi» ничего не говорит; вместо неё — окно Pro со своими словами (пункт «Вид «только Pro»» ниже).
 > - **«Баттл»** (`battle.limit.left`, `paywall.lead_practice_limit_battles*`): `bellashuv`, как во всех строках баттла (разделы `18-1t`, `18-6t`, сообщения бота). Слово «battl» не берём:
 >   его нет нигде в приложении. «Chaqiruv» и «musobaqa» не подходят: по-русски это «вызов», а «Вызовы» в разделе «Do'stlar» (`friends.challenge.*`) — недельные соревнования друзей, это другое.
 > - **«Практика»** (`paywall.lead_practice_limit_sessions*`): `amaliyot`, как название раздела (`practice.hub.title` = «Amaliyot»). По-русски здесь «практика», не «тренировка»: тренировкой
@@ -2635,6 +2636,14 @@
 >   - когда Pro можно купить: то же и «yoki darhol Pro bilan» («или сразу с Pro»): «… Yangisi — ertaga soat 00:00 da yoki darhol Pro bilan.»
 >
 >   Проверить «tugadi» («закончилась»), «Yangisi / Yangilari», «darhol Pro bilan».
+> - **Вид «только Pro»** (лимит 0: сервер так отключает бесплатную часть вида целиком; `paywall.lead_practice_limit_battles_pro`). Ничего не потрачено и завтра не вернётся, поэтому слов
+>   «tugadi» («закончилось»), «ertaga» («завтра») и числа здесь нет, и «yoki darhol Pro bilan» тоже: окно просто говорит, что это есть в Pro.
+>   - баттлы: «Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin.» — «Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.»
+>     Вторая фраза нужна, потому что принять приглашение друга можно всегда, даже без Pro. «Chaqirish» — позвать друга (как в разделе «G1 (backend)»), «taklif» — приглашение друга,
+>     «Pro'da mavjud» — «доступно в Pro» (как в `paywall.lead_practice`), «har doim mumkin» — «всегда можно»;
+>   - практика: отдельной строки нет, окно берёт уже проверенную `paywall.lead_practice` («Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.»).
+>
+>   Проверить естественность «Do'stni bellashuvga chaqirish» и «Do'stning taklifini qabul qilish».
 > - **Когда лимит вернётся** (`paywall.reset_tomorrow`, `paywall.reset_at`): подставляется в окно вместо `{when}`. Обычно сброс — начало следующих суток ученика: «ertaga soat 00:00 da»
 >   («завтра в 00:00»). Если часы телефона сбиты и приложение не может поручиться за день, остаётся одно время: «soat 19:00 da» («в 19:00»). Проверить «soat … da».
 > - **Пункт списка «Что даёт Pro»** (`benefits.practice`): «Amaliyot va bellashuvlar kunlik limitsiz» — по образцу `benefits.new_words` («Yangi so'zlar kunlik limitsiz»). Список виден в окне Pro
@@ -2650,6 +2659,7 @@
 | `paywall.lead_practice_limit_sessions_soon` | Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when}. | Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when}. |
 | `paywall.lead_practice_limit_battles` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
 | `paywall.lead_practice_limit_battles_soon` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}. |
+| `paywall.lead_practice_limit_battles_pro` | Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. | Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. |
 | `paywall.reset_tomorrow` | ertaga soat {time} da | завтра в {time} |
 | `paywall.reset_at` | soat {time} da | в {time} |
 | `benefits.practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |

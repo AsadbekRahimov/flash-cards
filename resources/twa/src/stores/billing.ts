@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import { liveLimit, reachedLimit } from '@/composables/practiceLimits'
+import { reachedLimit, shownLimit } from '@/composables/practiceLimits'
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -108,11 +108,14 @@ export const useBillingStore = defineStore('billing', {
     /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
     practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
 
-    /** The counter of today's practice sessions; null for Pro, for sessions without a limit, when none was told, and once its day is over (it says nothing then). */
-    sessionLimit: (state): PracticeLimit | null => liveLimit(state.limits?.sessions),
+    /**
+     * The counter of today's practice sessions to show; null for Pro, for sessions without a limit, for sessions that are for Pro only (limit 0:
+     * nothing to count), when none was told, and once its day is over (it says nothing then). The wall (`limitReached`) knows the limit 0.
+     */
+    sessionLimit: (state): PracticeLimit | null => shownLimit(state.limits?.sessions),
 
     /** The counter of the battles the learner starts today (accepting one is never counted); null as above. */
-    battleLimit: (state): PracticeLimit | null => liveLimit(state.limits?.battles),
+    battleLimit: (state): PracticeLimit | null => shownLimit(state.limits?.battles),
   },
 
   actions: {

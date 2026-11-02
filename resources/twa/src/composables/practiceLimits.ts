@@ -35,6 +35,16 @@ export function liveLimit(limit: PracticeLimit | null | undefined, now: number =
 }
 
 /**
+ * The counter to SHOW ("1 of 2 left"): a counter that describes today (`liveLimit`) and has something to count. A limit of 0 is "only Pro"
+ * (the server's supported value for a kind that Free does not get at all): "0 of 0 left" says nothing, so no line is shown for it - the wall
+ * stands all the same (`reachedLimit`), and its words are the words of Pro, not of a day that ends.
+ */
+export function shownLimit(limit: PracticeLimit | null | undefined, now: number = Date.now()): PracticeLimit | null {
+  const live = liveLimit(limit, now)
+  return live !== null && live.limit > 0 ? live : null
+}
+
+/**
  * The wall of `kind` when the counter says today's free allowance is spent: what the paywall needs, without asking the server. Null when
  * there is some left, when `kind` has no counter (no limit of that kind, Pro, `/me` not read yet) and when the counter's day is over - the
  * server decides then. The other kind does not matter: spent sessions never stop a battle, nor the other way round.

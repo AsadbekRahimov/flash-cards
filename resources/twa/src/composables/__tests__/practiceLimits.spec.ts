@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { limitHitFrom, liveLimit, reachedLimit, resetWhen } from '../practiceLimits'
+import { limitHitFrom, liveLimit, reachedLimit, resetWhen, shownLimit } from '../practiceLimits'
 import { setLocale } from '@/i18n'
 import { counter, freeLimits } from '@/api/__tests__/practiceFixtures'
 
@@ -62,6 +62,31 @@ describe('liveLimit', () => {
   it('reads the real clock when none is given', () => {
     expect(liveLimit(counter(0, 2, new Date(Date.now() + 60_000).toISOString()))).not.toBeNull()
     expect(liveLimit(counter(0, 2, new Date(Date.now() - 60_000).toISOString()))).toBeNull()
+  })
+})
+
+describe('shownLimit (the counter that is drawn)', () => {
+  it('is the live counter while something can be counted', () => {
+    const limit = counter(1, 2, MIDNIGHT)
+
+    expect(shownLimit(limit, NOW)).toBe(limit)
+    expect(shownLimit(counter(0, 2, MIDNIGHT), NOW)).not.toBeNull()
+  })
+
+  it('is nothing for what liveLimit gives nothing: no counter, or a day that is over', () => {
+    expect(shownLimit(null, NOW)).toBeNull()
+    expect(shownLimit(undefined, NOW)).toBeNull()
+    expect(shownLimit(counter(2, 2, MIDNIGHT), Date.parse(MIDNIGHT) + 1), 'the day of the counter is over').toBeNull()
+  })
+
+  it('is nothing for a limit of 0, "only Pro": "0 of 0 left" says nothing, so no line is drawn', () => {
+    expect(liveLimit(counter(0, 0, MIDNIGHT), NOW), 'the counter is alive, it is only not worth showing').not.toBeNull()
+    expect(shownLimit(counter(0, 0, MIDNIGHT), NOW)).toBeNull()
+  })
+
+  it('reads the real clock when none is given', () => {
+    expect(shownLimit(counter(0, 2, new Date(Date.now() + 60_000).toISOString()))).not.toBeNull()
+    expect(shownLimit(counter(0, 2, new Date(Date.now() - 60_000).toISOString()))).toBeNull()
   })
 })
 

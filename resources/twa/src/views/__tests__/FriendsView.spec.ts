@@ -1386,13 +1386,30 @@ describe('FriendsView', () => {
 
         it('a kind that is for Pro only (limit 0) needs no question', async () => {
           const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
-          const { wrapper } = await renderBattles(withLimits(zero))
+          const { wrapper, router } = await renderBattles(withLimits(zero))
+          expect(line(wrapper).exists()).toBe(false) // "0 of 0 left" says nothing: no footnote line
 
           await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
           await flushPromises()
 
           expect(api.me.get).toHaveBeenCalledTimes(1) // Friends' own reading at mount
           expect(wrapper.get('[data-testid=paywall]').attributes('data-limit')).toBe('0')
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+          expect(router.currentRoute.value.name).toBe('friends')
+          expect(line(wrapper).exists()).toBe(false)
+        })
+
+        it('and "Accept" of an invitation is still never limited, though the learner cannot call a friend', async () => {
+          const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
+          vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 15, role: 'opponent' }))
+          const { wrapper, router } = await renderBattles(withLimits(zero), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.accept).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle')
         })
       })
 
