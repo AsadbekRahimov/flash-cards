@@ -99,9 +99,10 @@ final class BattleService
      *
      * An invitation that CROSSES one that is open (the friend has invited me already: both pressed "Rematch" within seconds, or I
      * invite back instead of answering) is refused as `battle_busy` with the id of THAT invitation - I am its recipient, so the id
-     * is mine to know, and the screen leads me into it to accept. The unique `battles.open_pair` ("one battle that is not over per
-     * pair") makes it atomic: two invitations that cross in the very same instant end with the second INSERT refused by the index,
-     * whatever the gap; the check before the transaction only spares the exception on the common path (docs/16 §8.2).
+     * is mine to know, and the screen leads me into it to accept. The check runs right after the pair is known and BEFORE the Free
+     * limit, so a learner at the limit is led into the friend's invitation rather than to a paywall. The unique `battles.open_pair`
+     * ("one battle that is not over per pair") makes it atomic: two invitations that cross in the very same instant end with the
+     * second INSERT refused by the index, whatever the gap; the check only spares the exception on the common path (docs/16 §8.2).
      *
      * A learner kept "busy" only by an invitation of their own that has run out (the sweeper has not come yet) is not refused: the
      * dead invitation is closed by the clock in a short transaction of its own and the invitation is tried once more (Ж1).
@@ -129,11 +130,14 @@ final class BattleService
             $mode = $source->mode;
         }
         $this->access->assertModeEnabled($mode);
-        $this->limits->assertBattleAllowed($by, $now);
 
         [$friend, $friendship] = $source === null
             ? $this->friends->byFriendship($by, $friendshipId ?? throw FriendshipException::notFound())
             : $this->friends->ofRematch($by, $source);
+        // The friend's open invitation to me comes BEFORE the limit: a Free learner at the limit is led into it (409 battle_busy with
+        // its id) instead of a paywall, and no row of mine is written either way. The unique `open_pair` below is still the guarantee.
+        $this->assertNotCrossing($by, $friend, $now);
+        $this->limits->assertBattleAllowed($by, $now);
         $this->access->assertFriendCanPractice($friend);
 
         [$course, $lesson] = $source === null
@@ -164,9 +168,6 @@ final class BattleService
         $challengerLocale = $this->locales->forLearner($by);
         $opponentLocale = $this->locales->forLearner($friend);
 
-        // As close to the INSERTs as it gets: the friendly 409 for the common crossing; the index below is the guarantee.
-        $this->assertNotCrossing($by, $friend, $now);
-
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
                 return $this->transact(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source, $now): Battle|PracticeException {
@@ -176,7 +177,10 @@ final class BattleService
                         return $refusal;
                     }
 
-                    $battle = Battle::query()->create($attributes);
+                    // Stamped with the instant of the call - the one the limit of the day counts by (docs/18 G1) - not the clock of the
+                    // INSERT: a call at 23:59:59 whose row is written after midnight belongs to the day it was made.
+                    $battle = new Battle($attributes);
+                    $battle->setCreatedAt($now)->setUpdatedAt($now)->save();
 
                     // Complete rows (the defaults of the columns written out): the caller shows the battle at once, from these two models.
                     $challengerRow = BattleParticipant::query()->create([

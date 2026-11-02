@@ -76,7 +76,8 @@ final class PracticeSessionService
      * - the Free limit of the day (docs/18 G1, {@see PracticeLimits}): after the access and the switch of the mode, a Free learner
      *   who has opened `practice.free_limits.sessions_per_day` sessions today is refused 403 `practice_limit_reached` before any
      *   material is read; the place is TAKEN in the transaction, under the lock of the learner's row, before the active session
-     *   is looked at (two tabs racing for the last place: one opens). A retry of the mistakes is free of the limit;
+     *   is looked at (two tabs racing for the last place: one opens). ONE retry of the mistakes per source opened today is free of
+     *   the limit; a second retry of the same source, a retry of a retry and a retry of an older session take a place like a session;
      * - an active session and no `$replaceActive` -> 409 `practice_session_active` (with its details); with the flag it is
      *   finished (`replaced`); one past its `expires_at` is finished (`expired`) either way;
      * - `$retryOf`: the id of a FINISHED session of the learner; mode, course and lesson are taken from it, the material is its
@@ -118,9 +119,7 @@ final class PracticeSessionService
             $source = PracticeSession::SOURCE_RETRY;
         }
         $this->access->assertModeEnabled($mode);
-        if ($retrySource === null) {
-            $this->limits->assertSessionAllowed($learner, $now);
-        }
+        $this->limits->assertSessionAllowed($learner, $now, $retrySource);
 
         if ($retrySource !== null) {
             $course = $this->material->courseById($retrySource->course_id, $learner);
@@ -171,11 +170,10 @@ final class PracticeSessionService
             try {
                 $outcome = DB::transaction(function () use ($learner, $attributes, $replaceActive, $retrySource, $now): PracticeSession|PracticeException {
                     // The learner's row first (Free only), then the session row: the refusal is returned, thrown after the commit.
-                    if ($retrySource === null) {
-                        $refusal = $this->limits->claimSession($learner, $now);
-                        if ($refusal !== null) {
-                            return $refusal;
-                        }
+                    // A retry is free once per source opened today; any other retry takes a place like a session (docs/16 §3.2).
+                    $refusal = $this->limits->claimSession($learner, $now, $retrySource);
+                    if ($refusal !== null) {
+                        return $refusal;
                     }
 
                     /** @var PracticeSession|null $active */

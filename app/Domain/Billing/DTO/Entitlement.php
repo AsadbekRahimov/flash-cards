@@ -81,7 +81,11 @@ final readonly class Entitlement
     }
 
     /**
-     * @return array{plan:string, source:string, until:string|null, features:list<string>, new_words_per_day:int|null, subscription_id:int|null}
+     * The cache form (docs/12 §5.2): WHAT the learner has - the plan, its source, its end, the subscription - never what the
+     * plan grants. The features and the limit are read from `config/billing.php` on every read ({@see fromArray()}), so a
+     * release that adds a feature to a plan reaches a learner whose snapshot was written before it, within the same TTL.
+     *
+     * @return array{plan:string, source:string, until:string|null, subscription_id:int|null}
      */
     public function toArray(): array
     {
@@ -89,24 +93,26 @@ final readonly class Entitlement
             'plan' => $this->plan->value,
             'source' => $this->source,
             'until' => $this->until?->toIso8601String(),
-            'features' => $this->features,
-            'new_words_per_day' => $this->newWordsPerDay,
             'subscription_id' => $this->subscriptionId,
         ];
     }
 
-    /** @param array<string, mixed> $data */
+    /**
+     * The entitlement from its cache form: the features and the limit come from the plan's config of NOW, not from the
+     * snapshot (a `features` / `new_words_per_day` key of an older snapshot is ignored).
+     *
+     * @param  array<string, mixed>  $data
+     */
     public static function fromArray(array $data): self
     {
-        /** @var array<int, mixed> $features */
-        $features = is_array($data['features'] ?? null) ? $data['features'] : [];
+        $plan = Plan::from((string) ($data['plan'] ?? Plan::Free->value));
 
         return new self(
-            plan: Plan::from((string) ($data['plan'] ?? Plan::Free->value)),
+            plan: $plan,
             source: (string) ($data['source'] ?? self::SOURCE_FREE),
             until: isset($data['until']) && is_string($data['until']) ? CarbonImmutable::parse($data['until']) : null,
-            features: array_values(array_map(static fn (mixed $f): string => (string) $f, $features)),
-            newWordsPerDay: isset($data['new_words_per_day']) ? (int) $data['new_words_per_day'] : null,
+            features: $plan->features(),
+            newWordsPerDay: $plan->newWordsPerDay(),
             subscriptionId: isset($data['subscription_id']) ? (int) $data['subscription_id'] : null,
         );
     }
