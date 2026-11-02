@@ -320,31 +320,34 @@ function alb_teacher(TelegramGroup $group): User
     return $teacher;
 }
 
-it('lists the learners of a teacher, whose row policy still asks the database about every row', function (): void {
+it('lists the learners of a teacher without asking the database about the policy of every row', function (): void {
     $group = TelegramGroup::factory()->create();
     alb_teacher($group);
 
-    // KNOWN N+1 (docs/20 A11): LearnerPolicy::view re-asks "is the viewer a teacher of an active group of this learner" for the
-    // link, the view button and the record action of every row - 6 statements per row, though the list is already limited to
-    // exactly these learners (PanelDataScope). Fixing it touches the access rules: it waits for the decision recorded in
-    // docs/20 §4, and this test pins today's cost so it cannot get worse.
-    FilamentQueryBudget::assert(ListLearners::class, function (int $rows) use ($group): void {
+    // The link, the view button and the record action of every row ask LearnerPolicy::view; it answers from the teacher's
+    // groups (read once per request, PanelRequestMemo) and the active memberships the list loaded with the rows - 306
+    // statements for 50 rows before (docs/20 A11), a constant number now.
+    $queries = FilamentQueryBudget::assert(ListLearners::class, function (int $rows) use ($group): void {
         Learner::factory()->count($rows - Learner::query()->count())->memberOf($group)->create();
-    }, ceiling: 308, knownPerRow: 6);
+    }, ceiling: 14);
+
+    // Two requests in the measured window (the mount and the page-size update): the groups of the teacher once per request.
+    expect(QueryLog::matching($queries[FilamentQueryBudget::LARGE], '/from ["`]teacher_groups["`] where ["`]user_id["`] = \?/'))->toHaveCount(2);
 });
 
-it('lists the exams of a teacher, whose row policy still asks the database about every row', function (): void {
+it('lists the exams of a teacher without asking the database about the policy of every row', function (): void {
     $group = TelegramGroup::factory()->create();
     alb_teacher($group);
     $lesson = Lesson::factory()->create();
 
-    // KNOWN N+1 (docs/20 A11), the same as above: ExamSessionPolicy::view asks whether the viewer teaches the group of the
-    // exam, 6 statements per row.
-    FilamentQueryBudget::assert(ListExamSessions::class, function (int $rows) use ($group, $lesson): void {
+    // ExamSessionPolicy::view answers from the teacher's groups too - 310 statements for 50 rows before (docs/20 A11).
+    $queries = FilamentQueryBudget::assert(ListExamSessions::class, function (int $rows) use ($group, $lesson): void {
         for ($i = ExamSession::query()->count(); $i < $rows; $i++) {
             ExamSession::factory()->create(['telegram_group_id' => $group->id, 'lesson_id' => $lesson->id, 'status' => 'closed', 'closed_at' => now()]);
         }
-    }, ceiling: 312, knownPerRow: 6);
+    }, ceiling: 14);
+
+    expect(QueryLog::matching($queries[FilamentQueryBudget::LARGE], '/from ["`]teacher_groups["`] where ["`]user_id["`] = \?/'))->toHaveCount(2);
 });
 
 it('lists the groups of a teacher with the members counted by the page query', function (): void {

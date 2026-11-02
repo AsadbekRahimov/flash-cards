@@ -337,6 +337,9 @@ class LearnerResource extends Resource
             ->with(['groups' => fn ($groups) => $groups
                 ->wherePivot('status', 'active')
                 ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))])
+            // A teacher's row policy (LearnerPolicy::view) reads the learner's active memberships: loaded with the rows,
+            // not queried per row (docs/20 A11). An admin may see anyone and does not need them.
+            ->when(! $scope->isAdmin(), fn (Builder $q): Builder => $q->with('activeGroupMemberships'))
             ->withCount([
                 'repetitions',
                 'trainingReviews' => fn (Builder $q): Builder => $q->whereIn('training_session_id', clone $sessionIds),

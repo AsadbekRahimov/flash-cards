@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -11,17 +12,23 @@ use App\Models\User;
 
 final class ExamSessionPolicy
 {
-    public function __construct(private readonly GroupMembershipService $memberships) {}
+    public function __construct(
+        private readonly GroupMembershipService $memberships,
+        private readonly PanelDataScope $scope,
+    ) {}
 
     public function viewAny(User $user): bool
     {
         return $user->is_active && $user->hasAnyRole(['admin', 'teacher']);
     }
 
+    /**
+     * Admin: any session. Teacher: a group exam of one of their groups — answered by PanelDataScope from the teacher's
+     * groups, read once per request, so the rows of a list cost no statement (docs/20 A11).
+     */
     public function view(User $user, ExamSession $session): bool
     {
-        return $this->viewAny($user)
-            && ($user->hasRole('admin') || $session->group?->teachers()->whereKey($user->id)->exists() === true);
+        return $this->viewAny($user) && $this->scope->canViewExam($user, $session);
     }
 
     public function create(User $user): bool
