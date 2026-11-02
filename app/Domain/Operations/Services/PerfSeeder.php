@@ -174,6 +174,14 @@ final class PerfSeeder
             $this->section('counters and id sequences', fn () => $this->finish());
         });
 
+        // Statistics for the planner, after the commit: a measurement on a table nobody analysed shows the plan of an
+        // empty one (autovacuum would get there some minutes later).
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            $this->section('analyze', function (): void {
+                DB::statement('ANALYZE');
+            });
+        }
+
         return $this->counts;
     }
 
