@@ -40,8 +40,9 @@ fresh: ## Drop & re-run all migrations with seeders
 seed: ## Run database seeders
 	$(ARTISAN) db:seed
 
-cache-clear: ## Clear Laravel caches
+cache-clear: ## Clear Laravel and Filament caches (components, Blade icons)
 	$(ARTISAN) optimize:clear
+	$(ARTISAN) filament:optimize-clear
 
 pg-check: ## Show the PostgreSQL volumes of the dev stack (exit 1 = data still in the 16 volume)
 	bash docker/postgres/upgrade.sh --check
