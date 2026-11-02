@@ -264,9 +264,8 @@ final class PanelDataScope
      * WHICH data this viewer sees, as a short key part for a cached aggregate (docs/19 K1): `all` for an admin; for a
      * teacher their user id and a hash of the ids of their groups, so the day a group is added or taken away is a
      * different key from their next request on and no stale aggregate of a group they lost is ever shown (nothing to
-     * invalidate); `none`
-     * when nobody is signed in (callers do not cache that). One small indexed read per request for a teacher
-     * ({@see teacherGroupIds()}), none for an admin.
+     * invalidate); `none` when nobody is signed in (callers do not cache that). One small indexed read per request for a
+     * teacher ({@see teacherGroupIds()}), none for an admin.
      */
     public function fingerprint(): string
     {
