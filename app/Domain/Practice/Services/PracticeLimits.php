@@ -12,11 +12,14 @@ use App\Domain\Learners\DTO\DayBounds;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Practice\DTO\PracticeAccessState;
 use App\Domain\Practice\DTO\PracticeLimitState;
+use App\Domain\Practice\Enums\BattleEndReason;
+use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Models\Battle;
 use App\Models\Learner;
 use App\Models\PracticeSession;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -28,6 +31,9 @@ use Illuminate\Support\Facades\DB;
  *     of the mistakes, `retry_of_session_id`, is free; a session that replaces the active one is a new one and counts);
  *   - CALL at most `practice.free_limits.battles_per_day` battles (`battles.created_at` in the window, `challenger_id` = the
  *     learner: a rematch counts for the one who offers it; ACCEPTING is always free - a Pro friend brings Free friends in).
+ *     A call that never started through no fault of the caller is given back ({@see UNSPENT_END_REASONS}): what counts is a
+ *     call that waits (`invited`, `room`, `countdown`, `playing`) or was played (`finished`; `closed/both_absent`). An
+ *     invitation that has run out but has not been closed yet is already not counted (the clock closes it on the way, Ж1).
  *
  * Pro - a subscription of their own or the sponsored Pro of a center - has the feature and no limit. `0` = only Pro creates;
  * an empty value = no limit of that kind for Free either (the block says `null` for it, as for Pro). `PRACTICE_PLAN=pro` is
@@ -59,6 +65,22 @@ final class PracticeLimits
     /** The entitlement feature that lifts every limit (`config/billing.php`, `plans.pro.features`). */
     public const FEATURE_UNLIMITED = 'practice.unlimited';
 
+    /**
+     * The ends of a battle that never started through no fault of the one who called - declined, run out, withdrawn, a room
+     * that ran out, voided by `PRACTICE_ACCESS=off`: such a call is given back (the coordinator, 2026-11-02). Every other battle
+     * of the day is a call: one that waits (no `end_reason` yet) or one that was played (`completed`, `surrender`, `absent`,
+     * `both_absent`).
+     *
+     * @var list<string>
+     */
+    public const UNSPENT_END_REASONS = [
+        BattleEndReason::Declined->value,
+        BattleEndReason::InviteExpired->value,
+        BattleEndReason::Canceled->value,
+        BattleEndReason::RoomExpired->value,
+        BattleEndReason::Voided->value,
+    ];
+
     public function __construct(
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerClock $clock,
@@ -87,7 +109,7 @@ final class PracticeLimits
         $sessions = $this->limitOf(self::KIND_SESSIONS);
         $battles = $this->limitOf(self::KIND_BATTLES);
         $window = $this->clock->limitWindowUtc($learner, $now);
-        $used = $this->usedOfBoth((int) $learner->id, $window);
+        $used = $this->usedOfBoth((int) $learner->id, $window, $now);
 
         return [
             self::KIND_SESSIONS => $sessions === null ? null : (new PracticeLimitState(self::KIND_SESSIONS, $sessions, $used[self::KIND_SESSIONS], $window->endUtc))->toArray(),
@@ -176,7 +198,7 @@ final class PracticeLimits
             $this->lockLearner((int) $learner->id);
         }
         $window = $this->clock->limitWindowUtc($learner, $now);
-        $used = $this->usedOf($kind, (int) $learner->id, $window);
+        $used = $this->usedOf($kind, (int) $learner->id, $window, $now);
         if ($used < $limit) {
             return null;
         }
@@ -208,7 +230,7 @@ final class PracticeLimits
         (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->value('id');
     }
 
-    private function usedOf(string $kind, int $learnerId, DayBounds $window): int
+    private function usedOf(string $kind, int $learnerId, DayBounds $window, CarbonImmutable $now): int
     {
         if ($kind === self::KIND_SESSIONS) {
             return PracticeSession::query()
@@ -223,6 +245,12 @@ final class PracticeLimits
             ->where('challenger_id', $learnerId)
             ->where('created_at', '>=', $window->startUtc)
             ->where('created_at', '<', $window->endUtc)
+            ->where(function (Builder $spent): void {
+                $spent->whereNull('end_reason')->orWhereNotIn('end_reason', self::UNSPENT_END_REASONS);
+            })
+            ->whereNot(function (Builder $runOut) use ($now): void {
+                $runOut->where('status', BattleStatus::Invited->value)->where('invite_expires_at', '<=', $now);
+            })
             ->count();
     }
 
@@ -233,16 +261,21 @@ final class PracticeLimits
      *
      * @return array{sessions: int, battles: int}
      */
-    private function usedOfBoth(int $learnerId, DayBounds $window): array
+    private function usedOfBoth(int $learnerId, DayBounds $window, CarbonImmutable $now): array
     {
         $start = $window->startUtc->format('Y-m-d H:i:s');
         $end = $window->endUtc->format('Y-m-d H:i:s');
+        $unspent = implode(', ', array_fill(0, count(self::UNSPENT_END_REASONS), '?'));
 
         $row = DB::selectOne(
             'select'
             .' (select count(*) from practice_sessions where learner_id = ? and retry_of_session_id is null and started_at >= ? and started_at < ?) as sessions,'
-            .' (select count(*) from battles where challenger_id = ? and created_at >= ? and created_at < ?) as battles',
-            [$learnerId, $start, $end, $learnerId, $start, $end],
+            .' (select count(*) from battles where challenger_id = ? and created_at >= ? and created_at < ?'
+            ." and (end_reason is null or end_reason not in ({$unspent})) and not (status = ? and invite_expires_at <= ?)) as battles",
+            [
+                $learnerId, $start, $end,
+                $learnerId, $start, $end, ...self::UNSPENT_END_REASONS, BattleStatus::Invited->value, $now->setTimezone('UTC')->format('Y-m-d H:i:s'),
+            ],
         );
 
         return [

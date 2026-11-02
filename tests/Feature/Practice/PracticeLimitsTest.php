@@ -8,6 +8,7 @@ use App\Domain\Practice\DTO\PracticeLimitState;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\PracticeLimits;
+use App\Models\Battle;
 use App\Models\Course;
 use App\Models\Friendship;
 use App\Models\Learner;
@@ -304,51 +305,97 @@ it('spends one statement on the limits of a Free learner in /me and the hub, fou
 
 // ---------------------------------------------------------------- battles
 
-it('lets a Free learner call one battle a day, refuses the second call with kind battles, and lets a friend at their limit accept', function (): void {
+it('lets a Free learner call one battle a day: a call that waits is the call of the day, one that never started is given back, a friend at their limit still accepts', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     PracticeKit::limits(2, 1);
+    $third = Learner::factory()->create();
+    $withThird = Friendship::factory()->between($me, $third)->create();
 
     $first = BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertCreated();
     expect($first->json('limits'))->toBe(['sessions' => limitsBlock(2, 0), 'battles' => limitsBlock(1, 1)]);
 
-    // A call that was withdrawn still counts: it was created.
-    BattleHttp::cancel($me, (int) $first->json('id'))->assertOk();
-    BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertForbidden()
+    // While the call waits for an answer it is the call of the day: a second one is refused by the limit (before `battle_busy`).
+    BattleHttp::invite($me, $withThird, PracticeMode::Collocation, $course)->assertForbidden()
         ->assertJsonPath('error.code', 'practice_limit_reached')
         ->assertJsonPath('error.details', ['kind' => 'battles', 'limit' => 1, 'used' => 1, 'resets_at' => LIMITS_RESET]);
     expect(limitsEvents())->toBe([['kind' => 'battles', 'limit' => 1]]);
 
-    // The friend spends their call on somebody else ...
-    $third = Learner::factory()->create();
-    $withThird = Friendship::factory()->between($friend, $third)->create();
-    $spent = BattleHttp::invite($friend, $withThird, PracticeMode::Collocation, $course)->assertCreated();
-    BattleHttp::cancel($friend, (int) $spent->json('id'))->assertOk();
-    BattleHttp::invite($friend, $friendship, PracticeMode::Collocation, $course)->assertForbidden()->assertJsonPath('error.details.kind', 'battles');
+    // Withdrawn: the call is given back ...
+    BattleHttp::cancel($me, (int) $first->json('id'))->assertOk();
+    expect(limitsMe($me)->json('practice.limits.battles'))->toBe(limitsBlock(1, 0));
+    $second = BattleHttp::invite($me, $withThird, PracticeMode::Collocation, $course)->assertCreated();
+    expect($second->json('limits.battles'))->toBe(limitsBlock(1, 1));
 
-    // ... and may still ACCEPT: a Pro friend brings Free friends in.
-    PracticeKit::pro($me);
-    $invite = BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertCreated()->assertJsonPath('limits', null);
-    BattleHttp::accept($friend, (int) $invite->json('id'))->assertOk()->assertJsonPath('status', 'room');
+    // ... declined: given back ...
+    BattleHttp::decline($third, (int) $second->json('id'))->assertOk();
+    expect(limitsMe($me)->json('practice.limits.battles'))->toBe(limitsBlock(1, 0));
+    $again = BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertCreated();
+
+    // ... run out and not swept yet: not counted any more, and the next call closes the dead one on its way (Ж1).
+    CarbonImmutable::setTestNow(CarbonImmutable::parse(LIMITS_T0)->addMinutes(6));
+    expect(BattleKit::fresh((int) $again->json('id'))->status->value)->toBe('invited')
+        ->and(limitsMe($me)->json('practice.limits.battles'))->toBe(limitsBlock(1, 0));
+    $afterExpiry = BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertCreated();
+    expect(BattleKit::fresh((int) $again->json('id'))->end_reason?->value)->toBe('invite_expired')
+        ->and($afterExpiry->json('limits.battles'))->toBe(limitsBlock(1, 1));
+
+    // The friend spends their call on a battle they PLAYED with somebody else - that one is spent for good ...
+    $friendsThird = Friendship::factory()->between($friend, $third)->create();
+    $played = BattleKit::playing($friend, $third, $friendsThird, PracticeMode::Collocation, $course);
+    BattleKit::service()->surrender($friend, $played->id);
     expect(limitsMe($friend)->json('practice.limits.battles'))->toBe(limitsBlock(1, 1));
+    BattleHttp::invite($friend, $friendsThird, PracticeMode::Collocation, $course)->assertForbidden()->assertJsonPath('error.details.kind', 'battles');
+
+    // ... and may still ACCEPT my call: a Pro friend brings Free friends in.
+    BattleHttp::accept($friend, (int) $afterExpiry->json('id'))->assertOk()->assertJsonPath('status', 'room');
+    expect(limitsMe($friend)->json('practice.limits.battles'))->toBe(limitsBlock(1, 1))
+        ->and(limitsEvents())->toHaveCount(2);
 });
 
-it('counts a rematch for the one who offers it', function (): void {
+it('counts a rematch for the one who offers it, and gives it back when it is withdrawn', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     PracticeKit::limits(null, 1);
 
-    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson); // my call of the day
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson); // my call of the day, played
     BattleKit::service()->surrender($me, $battle->id);
 
     $rematch = BattleHttp::rematch($friend, $battle->id)->assertCreated(); // the friend's first call
     expect($rematch->json('limits'))->toBe(['sessions' => null, 'battles' => limitsBlock(1, 1)]);
 
+    BattleHttp::rematch($friend, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles'); // one that waits is the call of the day
+    BattleHttp::rematch($me, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles');     // mine was played: spent
     BattleHttp::cancel($friend, (int) $rematch->json('id'))->assertOk();
-    BattleHttp::rematch($friend, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles');
-    BattleHttp::rematch($me, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles'); // mine was the first call
-    expect(limitsMe($me)->json('practice.limits.battles.used'))->toBe(1)
-        ->and(limitsMe($friend)->json('practice.limits.battles.used'))->toBe(1)
+    expect(limitsMe($friend)->json('practice.limits.battles.used'))->toBe(0) // withdrawn: given back
+        ->and(limitsMe($me)->json('practice.limits.battles.used'))->toBe(1)
         ->and(limitsEvents())->toBe([['kind' => 'battles', 'limit' => 1], ['kind' => 'battles', 'limit' => 1]]);
 });
+
+it('counts the calls that wait or were played and gives back the ones that never started through no fault of the caller', function (string $status, ?string $endReason, bool $counted): void {
+    PracticeKit::limits(null, 1);
+    $me = Learner::factory()->create();
+    Battle::factory()->create([
+        'challenger_id' => $me->id, 'status' => $status, 'end_reason' => $endReason, 'created_at' => CarbonImmutable::now(),
+        // A match that is on has a round and a phase (`battles_phase_shape_check` on PostgreSQL).
+        'current_round' => $status === 'playing' ? 1 : 0, 'phase' => $status === 'playing' ? 'answering' : null,
+    ]);
+
+    expect(limitsMe($me)->json('practice.limits.battles.used'))->toBe($counted ? 1 : 0)
+        ->and(app(PracticeLimits::class)->claimBattle($me, CarbonImmutable::now()) === null)->toBe(! $counted);
+})->with([
+    'invited: waits' => ['invited', null, true],
+    'room: waits' => ['room', null, true],
+    'countdown: waits' => ['countdown', null, true],
+    'playing: on' => ['playing', null, true],
+    'finished / completed' => ['finished', 'completed', true],
+    'finished / surrender' => ['finished', 'surrender', true],
+    'finished / absent' => ['finished', 'absent', true],
+    'closed / both_absent: played' => ['closed', 'both_absent', true],
+    'closed / declined' => ['closed', 'declined', false],
+    'closed / invite_expired' => ['closed', 'invite_expired', false],
+    'closed / canceled' => ['closed', 'canceled', false],
+    'closed / room_expired' => ['closed', 'room_expired', false],
+    'closed / voided' => ['closed', 'voided', false],
+]);
 
 it('checks the limit of a battle after the switches and before the friend, the course and the material', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
