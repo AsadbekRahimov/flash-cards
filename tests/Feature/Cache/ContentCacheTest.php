@@ -232,6 +232,43 @@ it('finds the course of a lesson in the module it carries, and asks for it with 
         ->and($version($elsewhere['course']))->toBeGreaterThan($beforeTo);
 });
 
+it('does not take the course from a module that was loaded without it: a partial select costs the lookup, and the tree is still dropped', function (): void {
+    $fx = Fx::course([1 => [1 => 2]]);
+    $version = fn (): int => (int) Cache::get(CourseCatalogService::courseTreeVersionKey($fx['course']->id));
+    $stagesRead = fn (array $queries): array => QueryLog::matching($queries, '/from ["`]stages["`]/');
+
+    // What the list of exam sessions of the panel loads: the lesson with its `stage_id`, and the module with `id, number` only.
+    $lesson = Lesson::query()->select(['id', 'number', 'stage_id'])->with('stage:id,number')->findOrFail($fx['lessons']['1.1']->id);
+    expect($lesson->relationLoaded('stage'))->toBeTrue()
+        ->and(array_key_exists('course_id', $lesson->stage->getAttributes()))->toBeFalse();
+
+    $before = $version();
+    $saved = QueryLog::during(fn () => $lesson->update(['number' => 9]));
+
+    // The module in hand says nothing about the course: asking costs one lookup, and the tree is dropped as for any other save.
+    expect($stagesRead($saved))->toHaveCount(1)
+        ->and($version())->toBeGreaterThan($before);
+
+    $before = $version();
+    $deleted = QueryLog::during(fn () => $lesson->delete());
+
+    expect($stagesRead($deleted))->toHaveCount(1)
+        ->and($version())->toBeGreaterThan($before);
+});
+
+it('takes the course of a lesson from a module that is partial but carries its course: no lookup', function (): void {
+    $fx = Fx::course([1 => [1 => 2]]);
+    $version = fn (): int => (int) Cache::get(CourseCatalogService::courseTreeVersionKey($fx['course']->id));
+    $stagesRead = fn (array $queries): array => QueryLog::matching($queries, '/from ["`]stages["`]/');
+
+    $lesson = Lesson::query()->select(['id', 'number', 'stage_id'])->with('stage:id,course_id')->findOrFail($fx['lessons']['1.1']->id);
+    $before = $version();
+    $saved = QueryLog::during(fn () => $lesson->update(['number' => 9]));
+
+    expect($stagesRead($saved))->toBe([])
+        ->and($version())->toBeGreaterThan($before);
+});
+
 it('drops the tree on a change of status and leaves the trees of other courses alone', function (): void {
     app(RolePermissionSeeder::class)->run();
     $admin = User::factory()->create(['is_active' => true]);
