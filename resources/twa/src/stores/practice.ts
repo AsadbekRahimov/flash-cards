@@ -330,7 +330,8 @@ export const usePracticeStore = defineStore('practice', {
      * the hub asks what to do), `paywall`, `limitHit` (today's free sessions are spent) or `openError`. The answer is kept for `load()`.
      *
      * A learner whose counter says the free sessions of today are spent gets the paywall at once, without a request: the server would
-     * refuse (403 `practice_limit_reached`, which is told the same way). A repeat of mistakes spends nothing, so it is never stopped here.
+     * refuse (403 `practice_limit_reached`, which is told the same way). A repeat of mistakes is never stopped here: one repeat of a session opened today is free, and whether this one is (a second
+     * repeat, a repeat of a repeat or of yesterday's session counts as a session) is the server's call - a 403 opens the same paywall.
      * The 201 brings the counters as they are after the session: the hub the learner comes back to shows them.
      */
     async open(request: PracticeOpenRequest, { canAsk = true }: { canAsk?: boolean } = {}): Promise<number | null> {

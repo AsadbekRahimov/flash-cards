@@ -81,11 +81,15 @@ final readonly class Entitlement
     }
 
     /**
-     * The cache form (docs/12 §5.2): WHAT the learner has - the plan, its source, its end, the subscription - never what the
-     * plan grants. The features and the limit are read from `config/billing.php` on every read ({@see fromArray()}), so a
-     * release that adds a feature to a plan reaches a learner whose snapshot was written before it, within the same TTL.
+     * The cache form (docs/12 §5.2): WHAT the learner has - the plan, its source, its end, the subscription. The features
+     * and the limit are read from `config/billing.php` on every read ({@see fromArray()}), so a release that adds a feature
+     * to a plan reaches a learner whose snapshot was written before it, within the same TTL.
      *
-     * @return array{plan:string, source:string, until:string|null, subscription_id:int|null}
+     * `features` and `new_words_per_day` are still WRITTEN (as granted when the snapshot is made) for the release before
+     * this one, which reads them from the snapshot: during a rollback (`deploy.sh --rollback`, the cache instance keeps its
+     * keys) or while old workers run next to a new app, it must not read "no features, no limit" from a newer snapshot.
+     *
+     * @return array{plan:string, source:string, until:string|null, subscription_id:int|null, features:list<string>, new_words_per_day:int|null}
      */
     public function toArray(): array
     {
@@ -94,6 +98,8 @@ final readonly class Entitlement
             'source' => $this->source,
             'until' => $this->until?->toIso8601String(),
             'subscription_id' => $this->subscriptionId,
+            'features' => $this->features,
+            'new_words_per_day' => $this->newWordsPerDay,
         ];
     }
 

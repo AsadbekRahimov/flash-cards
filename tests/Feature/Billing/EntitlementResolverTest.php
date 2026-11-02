@@ -469,8 +469,13 @@ it('reads the features and the limit of a cached snapshot from the plan config o
         ->and($e->subscriptionId)->toBe(7)
         ->and($e->source)->toBe('subscription');
 
-    // What a fresh snapshot holds: the plan, its source, its end, the subscription - never what the plan grants.
+    // What a fresh snapshot holds: the plan, its source, its end, the subscription - and, for the release before this one
+    // (a rollback reads the same cache instance), what the plan granted when it was written. This release ignores those.
     $resolver->forget($learner);
     $resolver->for($learner);
-    expect(array_keys((array) PureCache::store()->get(EntitlementResolver::cacheKey($learner->id))))->toBe(['plan', 'source', 'until', 'subscription_id']);
+    $snapshot = (array) PureCache::store()->get(EntitlementResolver::cacheKey($learner->id));
+    $plan = Plan::from((string) $snapshot['plan']);
+    expect(array_keys($snapshot))->toBe(['plan', 'source', 'until', 'subscription_id', 'features', 'new_words_per_day'])
+        ->and($snapshot['features'])->toBe($plan->features())
+        ->and($snapshot['new_words_per_day'])->toBe($plan->newWordsPerDay());
 });
