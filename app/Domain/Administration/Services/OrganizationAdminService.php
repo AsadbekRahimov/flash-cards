@@ -8,6 +8,7 @@ use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -21,6 +22,11 @@ use Illuminate\Support\Facades\DB;
 final class OrganizationAdminService
 {
     public const ACTION_STATUS_CHANGED = 'organization.status_changed';
+
+    /** Attribute names of the facts a list of organizations carries for {@see deletionBlocker()}. */
+    public const LIVE_SUBSCRIPTION_FACT = 'has_live_subscription';
+
+    public const GROUPS_COUNT_FACT = 'telegram_groups_count';
 
     /** Not changeable after creation (`slug` is part of the identity). */
     private const EDITABLE = ['name', 'type', 'status', 'timezone', 'locale', 'settings'];
@@ -55,20 +61,42 @@ final class OrganizationAdminService
     }
 
     /**
+     * The two facts {@see deletionBlocker()} reads, added to the query of a LIST of organizations as subselects of the page
+     * query: otherwise the delete button of every row asks the database for them, several times (docs/20 §1.3, A11).
+     * `has_live_subscription` is a boolean, `telegram_groups_count` the number of linked groups.
+     *
+     * @param  Builder<Organization>  $query
+     * @return Builder<Organization>
+     */
+    public function withDeletionFacts(Builder $query): Builder
+    {
+        return $query
+            ->withExists(['subscriptions as '.self::LIVE_SUBSCRIPTION_FACT => fn (Builder $live): Builder => $live->whereIn('status', SubscriptionStatus::liveValues())])
+            ->withCount('telegramGroups as '.self::GROUPS_COUNT_FACT);
+    }
+
+    /**
      * Why the organization must not be deleted, or null when it may: a live subscription or
      * linked groups would be orphaned (suspend it instead to stop the sponsorship).
+     *
+     * A row of the list already carries both facts ({@see withDeletionFacts()}); any other organization (the edit page)
+     * asks the database.
      */
     public function deletionBlocker(Organization $organization): ?string
     {
-        $hasLiveSubscription = $organization->subscriptions()
-            ->whereIn('status', SubscriptionStatus::liveValues())
-            ->exists();
+        $hasLiveSubscription = $organization->getAttribute(self::LIVE_SUBSCRIPTION_FACT)
+            ?? $organization->subscriptions()
+                ->whereIn('status', SubscriptionStatus::liveValues())
+                ->exists();
 
         if ($hasLiveSubscription) {
             return 'The organization has a live subscription. Revoke it first, or suspend the organization instead of deleting it.';
         }
 
-        if ($organization->telegramGroups()->exists()) {
+        $groups = $organization->getAttribute(self::GROUPS_COUNT_FACT);
+        $hasGroups = $groups !== null ? (int) $groups > 0 : $organization->telegramGroups()->exists();
+
+        if ($hasGroups) {
             return 'The organization still has linked groups. Unlink them first, or suspend the organization instead of deleting it.';
         }
 

@@ -7,6 +7,7 @@ namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 use App\Domain\Administration\Services\OrganizationGroupLinker;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -38,7 +39,7 @@ class GroupsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.organizations.groups.singular'))
             ->pluralModelLabel(__('admin.organizations.groups.plural'))
             ->emptyStateHeading(__('admin.organizations.groups.empty'))

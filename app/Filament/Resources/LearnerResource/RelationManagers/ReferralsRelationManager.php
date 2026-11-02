@@ -128,6 +128,7 @@ class ReferralsRelationManager extends RelationManager
                     }),
             ])
             ->paginated([25, 50])
+            ->enforcePaginationPageOptions()
             ->defaultSort('id', 'desc');
     }
 }

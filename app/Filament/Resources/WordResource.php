@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\WordResource\Pages;
 use App\Filament\Resources\WordResource\RelationManagers\WordTranslationsRelationManager;
 use App\Models\Word;
@@ -29,6 +30,14 @@ class WordResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-language';
 
     protected static ?int $navigationSort = 25;
+
+    /**
+     * The columns the list selects: what the columns and the policy of the row read (docs/20 §1.4) - not the example, the
+     * audio path or the meta of a word.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = ['words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.is_active'];
 
     public static function getNavigationGroup(): ?string
     {
@@ -80,12 +89,30 @@ class WordResource extends Resource
         ]);
     }
 
+    /**
+     * The list: the query of the page narrowed to LIST_COLUMNS, and the course path of a word as the columns of the lesson, the
+     * stage and the course read it (their numbers and the code of the course, plus the owner of the course for the policy of
+     * the row).
+     *
+     * @param  Builder<Word>  $query  {@see getEloquentQuery()}
+     * @return Builder<Word>
+     */
+    private static function forList(Builder $query): Builder
+    {
+        return $query
+            ->select(self::LIST_COLUMNS)
+            ->with(['lesson:id,number,stage_id', 'lesson.stage:id,number,course_id', 'lesson.stage.course:id,slug,owner_type']);
+    }
+
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::big($table)
+            // A row action loads its own record (`$isResolvingRecord`): the whole row.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
                 Tables\Columns\TextColumn::make('word')->label(__('admin.words.fields.word'))->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('translation')->label(__('admin.words.columns.translation'))->searchable()->limit(30),
+                // The longer text of the two is searched from its own box in the header, not by the search of the table.
+                Tables\Columns\TextColumn::make('translation')->label(__('admin.words.columns.translation'))->searchable(isIndividual: true, isGlobal: false)->limit(30),
                 Tables\Columns\TextColumn::make('lesson.stage.course.slug')->label(__('admin.words.columns.course')),
                 Tables\Columns\TextColumn::make('lesson.stage.number')->label(__('admin.words.columns.stage')),
                 Tables\Columns\TextColumn::make('lesson.number')->label(__('admin.words.columns.lesson')),

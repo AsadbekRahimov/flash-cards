@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\ExamSessionResource\RelationManagers;
 
 use App\Filament\Resources\Support\AdminNumbers;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -26,7 +27,7 @@ class ResultsRelationManager extends RelationManager
     {
         $sessionId = (int) $this->getOwnerRecord()->getKey();
 
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.exams.results.singular'))
             ->pluralModelLabel(__('admin.exams.results.plural'))
             ->emptyStateHeading(__('admin.exams.results.empty'))
@@ -38,7 +39,8 @@ class ResultsRelationManager extends RelationManager
 
                 return $query
                     ->select('exam_results.*')
-                    ->selectSub($timeQuery, 'time_spent_ms');
+                    ->selectSub($timeQuery, 'time_spent_ms')
+                    ->with('learner:id,first_name,last_name');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('learner.first_name')

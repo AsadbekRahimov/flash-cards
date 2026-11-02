@@ -8,6 +8,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Filament\Resources\PromoCodeResource\Pages;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\PromoCode;
 use Closure;
 use Filament\Actions;
@@ -115,7 +116,7 @@ class PromoCodeResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('code')->label(__('admin.promo_codes.fields.code'))->searchable()->copyable()->fontFamily('mono')->sortable(),
                 Tables\Columns\TextColumn::make('plan')

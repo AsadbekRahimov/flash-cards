@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\StageResource\RelationManagers;
 
+use App\Filament\Resources\Support\AdminTable;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -33,7 +34,7 @@ class LessonsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(mb_strtolower(__('admin.lessons.singular')))
             ->pluralModelLabel(__('admin.lessons.plural'))
             ->emptyStateHeading(__('admin.lessons.empty'))

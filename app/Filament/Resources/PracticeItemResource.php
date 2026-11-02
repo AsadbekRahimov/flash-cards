@@ -11,6 +11,7 @@ use App\Domain\Practice\Services\PracticeItemService;
 use App\Filament\Resources\PracticeItemResource\Pages;
 use App\Filament\Resources\PracticeItemResource\Support\PracticeItemActions;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\PracticeItem;
@@ -240,7 +241,7 @@ class PracticeItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('course.slug')
                     ->label(__('admin.practice_items.fields.course'))

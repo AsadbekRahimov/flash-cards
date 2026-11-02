@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Resources\ProviderTransactionResource\Pages;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\Support\BillingDisplay;
 use App\Models\ProviderTransaction;
 use Filament\Actions;
@@ -34,6 +35,24 @@ class ProviderTransactionResource extends Resource
 
     /** The labels are several words long: Filament's title-casing ("Транзакция Провайдера") is wrong in Russian. */
     protected static bool $hasTitleCaseModelLabel = false;
+
+    /**
+     * The columns the list selects (docs/20 §1.4): everything but `raw` and the `history` journal of the webhooks, documents
+     * the page of the transaction shows.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'provider_transactions.id',
+        'provider_transactions.created_at',
+        'provider_transactions.provider',
+        'provider_transactions.provider_transaction_id',
+        'provider_transactions.payment_order_id',
+        'provider_transactions.state',
+        'provider_transactions.amount',
+        'provider_transactions.performed_at',
+        'provider_transactions.canceled_at',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -90,8 +109,11 @@ class ProviderTransactionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('paymentOrder'))
+        return AdminTable::big($table)
+            // The order is read for its currency only (the amount column).
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord
+                ? $query
+                : $query->select(self::LIST_COLUMNS)->with('paymentOrder:id,currency'))
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('#')->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.provider_transactions.fields.created_at'))->dateTime()->sortable(),
@@ -100,7 +122,10 @@ class ProviderTransactionResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.provider', $state))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('provider_transaction_id')->label(__('admin.provider_transactions.fields.provider_transaction_id'))->searchable()->copyable(),
+                // The id of the provider is searched whole (an exact match uses the index), not as a part of the text.
+                Tables\Columns\TextColumn::make('provider_transaction_id')->label(__('admin.provider_transactions.fields.provider_transaction_id'))
+                    ->searchable(query: fn (Builder $query, string $search): Builder => AdminTable::whereIdentifier($query, 'provider_transactions.provider_transaction_id', $search))
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('payment_order_id')->label(__('admin.provider_transactions.fields.order'))->sortable(),
                 Tables\Columns\TextColumn::make('state')
                     ->label(__('admin.provider_transactions.fields.state'))
