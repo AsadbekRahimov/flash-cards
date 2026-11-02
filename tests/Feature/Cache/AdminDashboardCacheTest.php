@@ -415,6 +415,112 @@ it('pages the cached tables in the simple mode: each page and page size is an en
         ->and($component->instance()->getTableRecords()->hasMorePages())->toBeFalse();
 });
 
+it('serves the league table only the page sizes it offers and the first 1000 pages: a forged number is the same entry, not a new one', function (): void {
+    $week = LeagueWeek::factory()->startingOn(app(LeagueService::class)->weekStart(CarbonImmutable::now())->toDateString())->create();
+    LeagueGroup::factory()->count(12)->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 3]);
+
+    $stats = app(AdminDashboardStats::class);
+    $key = fn (int|string $page, int|string $perPage): string => WidgetCache::key('league_groups', 'all', "w{$week->id}:p{$page}:n{$perPage}");
+    $first = $stats->leagueGroups($week->id, 1, 10);
+
+    // A size nobody offers is the default size: ten rows and the one more (never all twelve, as `limit 1000001` would give),
+    // read from the entry of the default size and with no entry of its own.
+    foreach ([1_000_000, 0, -3, 7, 11] as $forged) {
+        $rows = null;
+        $queries = QueryLog::during(function () use ($stats, $week, $forged, &$rows): void {
+            $rows = $stats->leagueGroups($week->id, 1, $forged);
+        });
+
+        expect($rows)->toBe($first, "size {$forged}")
+            ->and($queries)->toBe([], "size {$forged} reads the entry of the default size")
+            ->and(PureCache::store()->has($key(1, $forged)))->toBeFalse("no key of its own for size {$forged}");
+    }
+
+    // The sizes the widget offers are entries of their own.
+    expect($stats->leagueGroups($week->id, 1, 25))->toHaveCount(12)
+        ->and($stats->leagueGroups($week->id, 1, 50))->toHaveCount(12)
+        ->and(PureCache::store()->has($key(1, 25)))->toBeTrue()
+        ->and(PureCache::store()->has($key(1, 50)))->toBeTrue();
+
+    // A page before the first is the first; a page past the last one served is that last one, whatever number was sent.
+    expect($stats->leagueGroups($week->id, 0, 10))->toBe($first)
+        ->and($stats->leagueGroups($week->id, -4, 10))->toBe($first);
+
+    foreach ([1001, 5_000_000, PHP_INT_MAX] as $page) {
+        expect($stats->leagueGroups($week->id, $page, 10))->toBe([])
+            ->and(PureCache::store()->has($key($page, 10)))->toBeFalse("no key of its own for page {$page}");
+    }
+
+    expect(PureCache::store()->has($key(AdminDashboardStats::MAX_PAGE, 10)))->toBeTrue('they all share the entry of the last page');
+});
+
+it('serves the organization seats table only the page sizes it offers and the first 1000 pages', function (): void {
+    Organization::factory()->count(12)->create();
+
+    $stats = app(AdminDashboardStats::class);
+    $key = fn (int|string $page, int|string $perPage): string => WidgetCache::key('organization_seats', 'all', "p{$page}:n{$perPage}");
+    $first = $stats->organizationSeats(1, 10);
+
+    expect($first)->toHaveCount(11, 'ten and the one that says there is more');
+
+    // 50 and a million are not among the sizes of this widget (10 and 25): the default size, from the entry of the default size.
+    foreach ([50, 1_000_000, 0, -1] as $forged) {
+        $rows = null;
+        $queries = QueryLog::during(function () use ($stats, $forged, &$rows): void {
+            $rows = $stats->organizationSeats(1, $forged);
+        });
+
+        expect($rows)->toBe($first, "size {$forged}")
+            ->and($queries)->toBe([])
+            ->and(PureCache::store()->has($key(1, $forged)))->toBeFalse("no key of its own for size {$forged}");
+    }
+
+    expect($stats->organizationSeats(1, 25))->toHaveCount(12)
+        ->and(PureCache::store()->has($key(1, 25)))->toBeTrue()
+        ->and($stats->organizationSeats(0, 10))->toBe($first);
+
+    foreach ([1001, 5_000_000] as $page) {
+        expect($stats->organizationSeats($page, 10))->toBe([])
+            ->and(PureCache::store()->has($key($page, 10)))->toBeFalse("no key of its own for page {$page}");
+    }
+
+    expect(PureCache::store()->has($key(AdminDashboardStats::MAX_PAGE, 10)))->toBeTrue();
+});
+
+it('answers a forged page size or page of the table widgets with an offered size and a served page', function (string $widget, array $sizes): void {
+    $week = LeagueWeek::factory()->startingOn(app(LeagueService::class)->weekStart(CarbonImmutable::now())->toDateString())->create();
+    LeagueGroup::factory()->count(12)->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 3]);
+    Organization::factory()->count(12)->create();
+
+    $component = Livewire::test($widget);
+    $table = $component->instance()->getTable();
+
+    // The table offers the sizes of the service and enforces them: `tableRecordsPerPage` is a public Livewire property.
+    expect($table->enforcesPaginationPageOptions())->toBeTrue()
+        ->and($table->getPaginationPageOptions())->toBe($sizes);
+
+    foreach (['all', 1_000_000, 0, -1, 7, 'DROP'] as $forged) {
+        $component->set('tableRecordsPerPage', $forged);
+
+        expect($component->instance()->getTableRecordsPerPage())->toBe(10)
+            ->and($component->instance()->getTableRecords()->count())->toBe(10, "size {$forged}");
+    }
+
+    // A page number that no list has: the last page the widget serves, which is empty here, with no key of its own.
+    $component->set('tableRecordsPerPage', 10)->call('gotoPage', 5_000_000, 'page');
+
+    expect($component->instance()->getTableRecords()->count())->toBe(0);
+
+    $prefix = $widget === LeagueGroupsTableWidget::class ? "w{$week->id}:" : '';
+    $name = $widget === LeagueGroupsTableWidget::class ? 'league_groups' : 'organization_seats';
+    expect(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p5000000:n10")))->toBeFalse()
+        ->and(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p1000:n10")))->toBeTrue()
+        ->and(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p1:n1000000")))->toBeFalse();
+})->with([
+    'league groups' => [LeagueGroupsTableWidget::class, AdminDashboardStats::LEAGUE_GROUPS_PAGE_SIZES],
+    'organization seats' => [OrganizationSeatsTableWidget::class, AdminDashboardStats::ORGANIZATION_SEATS_PAGE_SIZES],
+]);
+
 it('switches the polling off on every stats and chart widget and keeps all the widgets lazy', function (): void {
     seedDashboardData();
 

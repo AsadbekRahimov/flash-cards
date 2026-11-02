@@ -20,7 +20,8 @@ use Illuminate\Pagination\Paginator;
  * unseated automatically. Admin only.
  *
  * A page of rows is the cached array of {@see AdminDashboardStats} (docs/20 §1.11, `->records()`): the query is the
- * heavy part and it runs once per freshness window, not per open.
+ * heavy part and it runs once per freshness window, not per open. The page sizes are the ones the service serves and the table
+ * ENFORCES them: `tableRecordsPerPage` is a public Livewire property, and a forged size would be a key of its own.
  */
 class OrganizationSeatsTableWidget extends TableWidget
 {
@@ -45,7 +46,7 @@ class OrganizationSeatsTableWidget extends TableWidget
         return $table
             // A table widget pages in the simple mode (no COUNT): the page and one row more, which tells the paginator there is a next one.
             ->records(function (int|string $page, int|string $recordsPerPage): Paginator {
-                [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
+                [$page, $perPage] = [AdminDashboardStats::pageNumber((int) $page), AdminDashboardStats::pageSize((int) $recordsPerPage, AdminDashboardStats::ORGANIZATION_SEATS_PAGE_SIZES)];
                 $organizations = app(AdminDashboardStats::class)->organizationSeats($page, $perPage);
 
                 return new Paginator(array_column($organizations, null, 'id'), $perPage, $page);
@@ -79,7 +80,8 @@ class OrganizationSeatsTableWidget extends TableWidget
                     ->boolean(),
             ])
             ->emptyStateHeading(__('admin.widgets.organization_seats.empty'))
-            ->paginated([10, 25]);
+            ->paginated(AdminDashboardStats::ORGANIZATION_SEATS_PAGE_SIZES)
+            ->enforcePaginationPageOptions();
     }
 
     /** @param  array<string, mixed>  $record */

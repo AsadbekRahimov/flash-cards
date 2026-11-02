@@ -20,7 +20,8 @@ use Illuminate\Pagination\Paginator;
  * carries the week's dates and totals. Admin only; empty until the first placement of the week.
  *
  * The heading and each page of rows come from the cached arrays of {@see AdminDashboardStats} (docs/20 §1.11, `->records()`
- * with the page the viewer asked for), so an open of the dashboard runs no query.
+ * with the page the viewer asked for), so an open of the dashboard runs no query. The page sizes are the ones the service serves
+ * and the table ENFORCES them: `tableRecordsPerPage` is a public Livewire property, and a forged size would be a key of its own.
  */
 class LeagueGroupsTableWidget extends TableWidget
 {
@@ -45,7 +46,7 @@ class LeagueGroupsTableWidget extends TableWidget
             ->heading($this->headingFor($league))
             // A table widget pages in the simple mode (no COUNT): the page and one row more, which tells the paginator there is a next one.
             ->records(function (int|string $page, int|string $recordsPerPage) use ($stats, $league): Paginator {
-                [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
+                [$page, $perPage] = [AdminDashboardStats::pageNumber((int) $page), AdminDashboardStats::pageSize((int) $recordsPerPage, AdminDashboardStats::LEAGUE_GROUPS_PAGE_SIZES)];
                 $weekId = $league['week']['id'] ?? null;
                 $rows = $weekId === null ? [] : $stats->leagueGroups($weekId, $page, $perPage);
 
@@ -64,7 +65,8 @@ class LeagueGroupsTableWidget extends TableWidget
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.widgets.league_groups.opened'))->since(),
             ])
             ->emptyStateHeading(__('admin.widgets.league_groups.empty'))
-            ->paginated([10, 25, 50]);
+            ->paginated(AdminDashboardStats::LEAGUE_GROUPS_PAGE_SIZES)
+            ->enforcePaginationPageOptions();
     }
 
     /** @param  array{enabled: bool, week: array{id: int, from: string, to: string, status: string, groups: int, members: int}|null}  $league */
