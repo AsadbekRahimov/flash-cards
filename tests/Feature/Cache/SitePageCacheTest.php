@@ -200,17 +200,48 @@ it('changes the key when a text file of the pages is changed: a deploy needs no 
     }
 });
 
+it('follows the PHP that builds the page: every listed file exists, and a touched one changes the key', function (): void {
+    // Every file of the list is a real file of the project (a renamed class must not drop out of the fingerprint unnoticed).
+    foreach (SitePageCache::PHP_SOURCES as $relative) {
+        expect(is_file(base_path($relative)))->toBeTrue($relative);
+    }
+
+    // A project root of its own, with a copy of each file: a test must not touch the real ones (other tests read the same key).
+    $root = sys_get_temp_dir().'/lexiflow-site-root-'.bin2hex(random_bytes(4));
+    foreach (SitePageCache::PHP_SOURCES as $relative) {
+        File::ensureDirectoryExists(dirname("{$root}/{$relative}"));
+        File::copy(base_path($relative), "{$root}/{$relative}");
+        touch("{$root}/{$relative}", 1_700_000_000);
+    }
+
+    try {
+        $cache = new SitePageCache($root);
+        $before = $cache->release();
+        expect($cache->release())->toBe($before, 'stable while nothing changes');
+
+        foreach (SitePageCache::PHP_SOURCES as $relative) {
+            touch("{$root}/{$relative}", 1_700_000_000 + 500);
+            $changed = $cache->release();
+
+            expect($changed)->not->toBe($before, "{$relative} does not reach the key");
+
+            touch("{$root}/{$relative}", 1_700_000_000);
+            expect($cache->release())->toBe($before, "{$relative}: the key follows the time of the file, back as well");
+        }
+
+        // A file that is gone is a change too, not an error.
+        File::delete("{$root}/routes/web.php");
+        expect($cache->release())->not->toBe($before);
+    } finally {
+        File::deleteDirectory($root);
+    }
+});
+
 it('lists every config key the pages read: a new config() call in them must be added to the fingerprint', function (): void {
+    // The views and the PHP files the key already follows by their modification time: what builds the HTML.
     $sources = [
         ...(glob(resource_path('views/site/*.blade.php')) ?: []),
-        app_path('Http/Controllers/PublicSiteController.php'),
-        app_path('Domain/Site/Services/LandingPricing.php'),
-        app_path('Domain/Site/Services/SiteLinks.php'),
-        app_path('Domain/Billing/Support/PriceFormatter.php'),
-        app_path('Domain/Billing/Support/ProPromises.php'),
-        app_path('Domain/Billing/Enums/Plan.php'),
-        app_path('Domain/Billing/Enums/SubscriptionProvider.php'),
-        app_path('Domain/Localization/Services/LocaleResolver.php'),
+        ...array_map(fn (string $relative): string => base_path($relative), SitePageCache::PHP_SOURCES),
     ];
 
     $uncovered = [];

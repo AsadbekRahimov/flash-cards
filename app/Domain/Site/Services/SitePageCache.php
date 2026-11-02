@@ -18,9 +18,11 @@ use Closure;
  * The pages read no request, no session and no user, only config and the files their texts live in. The `release` part of
  * the key is a fingerprint of exactly those inputs: the config values listed in {@see CONFIG} (prices, the paywall mode and
  * contact, which providers are on, the free limits, the decks, the bot link, the app URL, the practice switches) and the
- * modification times of the site views and of the language files of the pages. A deploy that changes a text, or an owner who
- * changes a price and restarts, is therefore a different key at once and the old entry just ages out; there is nothing to
- * invalidate. The TTL (a day) is only the bound on what a release leaves behind in the cache.
+ * modification times of the site views, of the language files of the pages and of the PHP files that build the HTML
+ * ({@see PHP_SOURCES}: the controller, the pricing and links services, the price formatter, the plan enums, the routes). A deploy
+ * that changes a text or only the PHP that assembles the page, or an owner who changes a price and restarts, is therefore a
+ * different key at once and the old entry just ages out; there is nothing to invalidate. The TTL (a day) is only the bound on
+ * what a release leaves behind in the cache.
  */
 final class SitePageCache
 {
@@ -49,8 +51,32 @@ final class SitePageCache
         'localization.fallback',
     ];
 
+    /**
+     * The PHP files that build the HTML besides the views (paths from the project root): what the controller assembles, how a
+     * price and a link are made, which plans and providers there are, how a locale is chosen, which routes the links name. A
+     * release that changes only one of them changes the page, and its fingerprint must change with it. `SitePageCacheTest`
+     * checks that every file exists and that a touched one changes the key, and scans these files (and the views) for
+     * `config()` calls that {@see CONFIG} does not list.
+     *
+     * @var list<string>
+     */
+    public const PHP_SOURCES = [
+        'app/Http/Controllers/PublicSiteController.php',
+        'app/Domain/Site/Services/LandingPricing.php',
+        'app/Domain/Site/Services/SiteLinks.php',
+        'app/Domain/Billing/Support/PriceFormatter.php',
+        'app/Domain/Billing/Support/ProPromises.php',
+        'app/Domain/Billing/Enums/Plan.php',
+        'app/Domain/Billing/Enums/SubscriptionProvider.php',
+        'app/Domain/Localization/Services/LocaleResolver.php',
+        'routes/web.php',
+    ];
+
     /** Language files the pages take their texts and prices from, by name. */
     private const LANG_FILES = ['landing', 'legal', 'billing'];
+
+    /** @param  string|null  $root  the project root the PHP sources are looked up under (the application's, unless a test says otherwise) */
+    public function __construct(private readonly ?string $root = null) {}
 
     /**
      * @param  Closure(): string  $render  the HTML of the page, called when it is not cached
@@ -83,7 +109,7 @@ final class SitePageCache
     }
 
     /**
-     * When the files the pages are made of last changed: a new deploy touches the ones it changed.
+     * When the files the pages are made of last changed (views, texts, PHP): a new deploy touches the ones it changed.
      *
      * @return array<string, int|false>
      */
@@ -100,6 +126,12 @@ final class SitePageCache
                 $path = lang_path("{$locale}/{$file}.php");
                 $times["lang:{$locale}/{$file}"] = is_file($path) ? filemtime($path) : false;
             }
+        }
+
+        $root = rtrim($this->root ?? base_path(), '/');
+        foreach (self::PHP_SOURCES as $relative) {
+            $path = "{$root}/{$relative}";
+            $times["php:{$relative}"] = is_file($path) ? filemtime($path) : false;
         }
 
         return $times;
