@@ -7,72 +7,49 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Domain\Operations\Support\CircuitBreakerFailoverRepository;
+use App\Domain\Operations\Support\CircuitBreakerFailoverStore;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Filament\Widgets\SchedulerComparisonWidget;
-use App\Listeners\Cache\LogCacheFailover;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Subscription;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Cache\Events\CacheFailedOver;
-use Illuminate\Cache\FailoverStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Redis\RedisManager;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
+use Tests\Support\PureCacheStandIn;
 
 /*
  * The second Redis instance (the pure cache) is unreachable: the store `lru` is a failover chain over the Redis store
- * and the array store (docs/19 §4.1), so everything that caches purely keeps working from the database, the failover
- * is reported once, and /health/ready says "degraded" instead of failing. The dead instance is a closed port on
- * localhost: a connection attempt is refused at once, whatever database or default store the suite runs on.
+ * and the array store, behind a circuit breaker (docs/19 §4.1), so everything that caches purely keeps working from the
+ * database, the failover is reported once per opening of the breaker, and /health/ready says "degraded" instead of
+ * failing. The dead instance is a closed port on localhost: a connection attempt is refused at once, whatever database
+ * or default store the suite runs on. The hung instance - accepts and never answers - is PureCacheCircuitBreakerTest.
  */
 
 uses(RefreshDatabase::class);
 
-/** Nothing listens here. */
-const DEAD_REDIS_PORT = 56399;
-
-/**
- * The production chain of the pure store with the second instance unreachable. The Redis manager copies its config
- * when it is built (the default store may already have built it), so it is rebuilt with the dead connection.
- */
-function pureCacheOnDeadRedis(): void
-{
-    Config::set('database.redis.lru', [
-        ...(array) config('database.redis.lru'),
-        'host' => '127.0.0.1',
-        'port' => DEAD_REDIS_PORT,
-        'timeout' => 0.5,
-        'read_timeout' => 0.5,
-        'max_retries' => 0,
-    ]);
-
-    $config = (array) config('database.redis');
-    $client = (string) ($config['client'] ?? 'phpredis');
-    unset($config['client']);
-    app()->forgetInstance('redis');
-    app()->instance('redis', new RedisManager(app(), $client, $config));
-
-    Cache::forgetDriver('lru_redis');
-    Cache::forgetDriver('lru');
-    Config::set('cache.pure_store', 'lru');
-    LogCacheFailover::reset();
-}
-
 beforeEach(function (): void {
-    pureCacheOnDeadRedis();
+    $this->markers = PureCacheStandIn::markerDirectory();
+    PureCacheStandIn::pointPureCacheAt('127.0.0.1', PureCacheStandIn::DEAD_PORT, $this->markers);
 })->skip(! extension_loaded('redis'), 'phpredis is required to talk to a (dead) Redis');
 
-it('resolves the pure store as the failover chain and still names the Redis connection behind it', function (): void {
-    expect(PureCache::store()->getStore())->toBeInstanceOf(FailoverStore::class)
+afterEach(function (): void {
+    PureCacheStandIn::removeDirectory($this->markers);
+});
+
+it('resolves the pure store as the failover chain behind the breaker and still names the Redis connection behind it', function (): void {
+    expect(PureCache::store())->toBeInstanceOf(CircuitBreakerFailoverRepository::class)
+        ->and(PureCache::store()->getStore())->toBeInstanceOf(CircuitBreakerFailoverStore::class)
         ->and(config('cache.stores.lru.stores'))->toBe(['lru_redis', 'array'])
-        ->and(PureCache::redisConnection())->toBe('lru');
+        ->and(PureCache::redisConnection())->toBe('lru')
+        ->and(PureCache::hasFallback())->toBeTrue();
 });
 
 it('keeps /me, the entitlement, the catalog and the platform stats working from the database and reports the failover', function (): void {
@@ -131,24 +108,26 @@ it('reports the pure-cache instance as degraded and stays ready', function (): v
         ->assertJsonPath('checks.db', 'ok');
 });
 
-it('writes the failover to the log as a warning, at most once a minute per store and process', function (): void {
+it('writes the failover to the log once per opening of the breaker, whatever the number of calls and processes', function (): void {
     Log::spy();
-    $event = new CacheFailedOver('lru_redis', new RuntimeException('Connection refused'));
 
-    event($event);
-    event($event);
-    event($event);
+    PureCache::store()->get('catalog:probe');
+    PureCache::store()->put('catalog:probe', 1, 60);
+    PureCache::store()->forget('catalog:probe');
     Log::shouldHaveReceived('warning')->once()->with('cache.failed_over', Mockery::on(
         fn (array $context): bool => $context['store'] === 'lru_redis'
-            && $context['exception'] === RuntimeException::class
-            && $context['error'] === 'Connection refused',
+            && $context['exception'] === RedisException::class
+            && str_contains($context['error'], 'refused'),
     ));
 
-    $this->travel(LogCacheFailover::THROTTLE_SECONDS + 1)->seconds();
-    event($event);
-    Log::shouldHaveReceived('warning')->twice();
+    // Another process (a php-fpm request of its own) finds the breaker open: no line of its own.
+    Cache::forgetDriver('lru');
+    PureCache::store()->get('catalog:probe');
+    Log::shouldHaveReceived('warning')->once();
 
-    // Another store has a line of its own.
-    event(new CacheFailedOver('other', new RuntimeException('x')));
-    Log::shouldHaveReceived('warning')->times(3);
+    // The window is over: the probe fails and re-opens - that is the next line.
+    $this->travel((int) config('cache.stores.lru.open_seconds'))->seconds();
+    PureCache::store()->get('catalog:probe');
+    PureCache::store()->get('catalog:probe');
+    Log::shouldHaveReceived('warning')->twice();
 });

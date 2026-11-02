@@ -38,7 +38,7 @@ final class ForkSafe
             Cache::forgetDriver();
             // The repositories of every Redis-backed store (and of the failover chain over one) hold the closed clients.
             foreach ((array) config('cache.stores', []) as $name => $store) {
-                if (in_array($store['driver'] ?? null, ['redis', 'failover'], true)) {
+                if (in_array($store['driver'] ?? null, ['redis', 'failover', 'failover_breaker'], true)) {
                     Cache::forgetDriver((string) $name);
                 }
             }

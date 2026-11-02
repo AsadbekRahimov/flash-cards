@@ -14,12 +14,15 @@ use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Subscription;
 use App\Models\User;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\RateLimiter as RateLimiterService;
+use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\RateLimiter;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -60,14 +63,15 @@ function redisFactoryAnswering(array $pings): void
 
 describe('configuration', function (): void {
     it('puts only the pure store on the evicting connection and keeps its locks on the first instance', function (): void {
-        // `lru` is a failover chain over the Redis store of the second instance and the array store (docs/19 §4.1).
-        expect(config('cache.stores.lru'))->toBe(['driver' => 'failover', 'stores' => ['lru_redis', 'array']])
+        // `lru` is a failover chain over the Redis store of the second instance and the array store, behind a circuit
+        // breaker that skips the Redis member for a window after a failure (docs/19 §4.1).
+        expect(config('cache.stores.lru'))->toBe(['driver' => 'failover_breaker', 'stores' => ['lru_redis', 'array'], 'open_seconds' => 15])
             ->and(config('cache.stores.lru_redis'))->toBe(['driver' => 'redis', 'connection' => 'lru', 'lock_connection' => 'locks'])
             ->and(config('database.redis.lru.host'))->not->toBe('')
             ->and(config('database.redis.lru.database'))->not->toBeNull()
-            // A dead cache fails fast: short timeouts, no client retries.
-            ->and(config('database.redis.lru.timeout'))->toBeLessThanOrEqual(1.0)
-            ->and(config('database.redis.lru.read_timeout'))->toBeLessThanOrEqual(1.0)
+            // A dead or hung cache fails fast: short timeouts (a healthy call takes under a millisecond), no client retries.
+            ->and(config('database.redis.lru.timeout'))->toBeLessThanOrEqual(0.3)
+            ->and(config('database.redis.lru.read_timeout'))->toBeLessThanOrEqual(0.3)
             ->and(config('database.redis.lru.max_retries'))->toBe(0);
 
         // Every other Redis store - the default `redis` among them - is on a connection of the first instance.
@@ -91,7 +95,7 @@ describe('configuration', function (): void {
             ->toMatch('/^CACHE_LIMITER_STORE=redis$/m')
             ->toMatch('/^CACHE_PURE_STORE=lru$/m')
             ->toMatch('/^REDIS_LRU_HOST=redis-cache$/m')
-            // An empty password, never `null`: compose would hand the string "null" to redis-server.
+            // An empty password in the example (compose and Laravel both read '', null, (null), empty, (empty) as none).
             ->toMatch('/^REDIS_PASSWORD=$/m')
             ->toMatch('/^REDIS_CACHE_PASSWORD=$/m')
             ->toMatch('/^REDIS_LRU_PASSWORD=$/m');
@@ -113,10 +117,58 @@ describe('PureCache', function (): void {
         expect(PureCache::storeName())->toBe('pure_test')
             ->and($pure)->toBe(Cache::store('pure_test'))
             ->and($pure)->not->toBe(Cache::store())
-            ->and(PureCache::redisConnection())->toBeNull();
+            ->and(PureCache::redisConnection())->toBeNull()
+            ->and(PureCache::hasFallback())->toBeFalse();
 
         Config::set('cache.pure_store', 'lru');
-        expect(PureCache::redisConnection())->toBe('lru');
+        expect(PureCache::redisConnection())->toBe('lru')
+            ->and(PureCache::hasFallback())->toBeTrue('the chain goes on to the array store');
+
+        // The Redis store alone, or a chain that ends with it: nowhere to fall over to.
+        Config::set('cache.pure_store', 'lru_redis');
+        expect(PureCache::redisConnection())->toBe('lru')->and(PureCache::hasFallback())->toBeFalse();
+        Config::set('cache.stores.lru.stores', ['array', 'lru_redis']);
+        Config::set('cache.pure_store', 'lru');
+        expect(PureCache::hasFallback())->toBeFalse();
+    });
+
+    it('drops many keys with one call to the store and never throws', function (): void {
+        $store = new class(new ArrayStore) extends CacheRepository
+        {
+            /** @var list<list<string>> */
+            public array $calls = [];
+
+            public function deleteMultiple($keys): bool
+            {
+                $this->calls[] = array_values(is_array($keys) ? $keys : iterator_to_array($keys));
+
+                return parent::deleteMultiple($keys);
+            }
+        };
+        app()->instance(PureCache::CONTAINER_KEY, $store);
+        $store->put('a', 1, 60);
+        $store->put('b', 2, 60);
+
+        PureCache::forgetMany(['a', 'b', 'c']);
+        PureCache::forgetMany([]);
+
+        expect($store->calls)->toBe([['a', 'b', 'c']])
+            ->and($store->has('a'))->toBeFalse()
+            ->and($store->has('b'))->toBeFalse();
+
+        // A store that is only the contract (a test double): the same one call.
+        $spy = Mockery::spy(Repository::class);
+        app()->instance(PureCache::CONTAINER_KEY, $spy);
+        PureCache::forgetMany(['x', 'y']);
+        $spy->shouldHaveReceived('deleteMultiple')->once()->with(['x', 'y']);
+
+        // A store that throws: reported, not thrown - the write the invalidation follows must not fail.
+        Exceptions::fake();
+        $down = Mockery::mock(Repository::class);
+        $down->shouldReceive('deleteMultiple')->andThrow(new RuntimeException('redis-cache is down'));
+        app()->instance(PureCache::CONTAINER_KEY, $down);
+        PureCache::forgetMany(['x']);
+        Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
     });
 
     it('resolves through the container so a test can swap the store', function (): void {
@@ -233,6 +285,19 @@ describe('readiness of the two instances', function (): void {
             ->and($report->checks['redis_cache'])->toBe('degraded');
 
         $this->getJson('/health/ready')->assertOk()->assertJsonPath('status', 'degraded')->assertJsonPath('checks.redis_cache', 'degraded');
+    });
+
+    it('fails, not degrades, when the pure store has no fallback: on Redis alone every call would throw', function (): void {
+        Config::set('cache.default', 'redis');
+        Config::set('cache.pure_store', 'lru_redis');
+        redisFactoryAnswering(['cache' => true, 'lru' => new RuntimeException('Connection refused')]);
+
+        $report = app(ReadinessProbe::class)->run();
+
+        expect($report->ok())->toBeFalse()
+            ->and($report->status())->toBe('fail')
+            ->and($report->checks['redis_cache'])->toBe('fail');
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.redis_cache', 'fail');
     });
 
     it('fails, not degrades, when the first instance is down even though the pure-cache one answers', function (): void {
