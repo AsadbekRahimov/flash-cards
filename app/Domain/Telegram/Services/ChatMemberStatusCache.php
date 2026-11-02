@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Services;
 
 use App\Domain\Operations\Support\PureCache;
 use Closure;
+use Throwable;
 
 /**
  * The answers of `getChatMember` for the check "is the bot an administrator of this group" (docs/19 K7), in the pure cache:
@@ -14,13 +15,16 @@ use Closure;
  *
  * What is cached is the status of the BOT, which Telegram announces itself: every change of it is a `my_chat_member` update,
  * and the handler of that update drops the entry ({@see forget()}), so a promotion to administrator is known to the very
- * next check and a stale "member" never sends a false warning. `chat_member` updates (a person's membership) drop the entry of
- * that person too, should one ever be cached.
+ * next check and a stale "member" never sends a false warning.
  *
- * What is NOT cached, on purpose (docs/19 §3 rule 9): decisions of access. `OrgGroupLinkService` asks Telegram afresh whether the
- * OWNER is an administrator of the group before it lets them link it; a status that was true five minutes ago must not open that
- * door, and a bot that is not an administrator receives no `chat_member` update that could close it again.
- * A failed call is never stored: the exception goes to the caller as it did.
+ * What is NOT cached, on purpose (docs/19 §3 rule 9): the status of a PERSON. `OrgGroupLinkService` asks Telegram afresh whether
+ * the OWNER is an administrator of the group before it lets them link it, and `chat_member` updates (a person's membership)
+ * touch this cache not at all: a status that was true five minutes ago must not open that door, and a bot that is not an
+ * administrator receives no `chat_member` update that could close it again.
+ *
+ * The cache is a shortcut and never a dependency: when the pure store cannot be reached the call goes to Telegram as it did
+ * before the cache existed, and the failure is reported, not thrown (a Telegram update must not fail because `redis-cache` is
+ * down). A failed Telegram call is never stored: the exception goes to the caller as it did.
  */
 final class ChatMemberStatusCache
 {
@@ -36,21 +40,32 @@ final class ChatMemberStatusCache
      */
     public function status(int|string $chatId, int $userId, Closure $fetch): string
     {
-        $store = PureCache::store();
         $key = self::key($chatId, $userId);
 
-        $cached = $store->get($key);
+        try {
+            $cached = PureCache::store()->get($key);
+        } catch (Throwable $e) {
+            report($e);
+
+            return $fetch();
+        }
+
         if (is_string($cached) && $cached !== '') {
             return $cached;
         }
 
         $status = $fetch();
-        $store->put($key, $status, self::TTL);
+
+        try {
+            PureCache::store()->put($key, $status, self::TTL);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         return $status;
     }
 
-    /** A membership changed (`my_chat_member`, `chat_member`): the next check asks Telegram. */
+    /** The bot's membership changed (`my_chat_member`): the next check asks Telegram. */
     public function forget(int|string $chatId, int $userId): void
     {
         PureCache::store()->forget(self::key($chatId, $userId));

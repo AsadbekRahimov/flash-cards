@@ -9,16 +9,21 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\ChatMemberStatusCache;
 use App\Domain\Telegram\Services\GroupBotAccessChecker;
 use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Models\GroupMember;
+use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Models\User;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\FakeTelegramClient;
 
 /*
  * `getChatMember` for "is the bot an administrator of this group" (docs/19 K7): remembered for ten minutes, forgotten by the
- * `my_chat_member` update that changes it, never remembered for a person's right to link a group.
+ * `my_chat_member` update that changes it, never remembered for a person (the owner's right to link a group, a member of the
+ * group); and never a dependency: with the pure cache down the updates are handled as if it did not exist.
  *
  * Where it is asked: once when the bot is added (MyChatMemberHandler) and once more when a center links the group
  * (OrgGroupLinkService) - not on every update, so the saving is the second call of that pair and of any later check.
@@ -47,6 +52,17 @@ function memberCacheBotUpdate(string $old, string $new, int $chatId = MEMBER_CAC
         'old_chat_member' => ['status' => $old],
         'new_chat_member' => ['status' => $new, 'user' => ['id' => MEMBER_CACHE_BOT, 'is_bot' => true]],
     ]]);
+}
+
+/** A pure store that is down: every call throws, as the connection to `redis-cache` would. */
+function memberCacheDownStore(): void
+{
+    $store = Mockery::mock(Repository::class);
+    foreach (['get', 'put', 'forget', 'has', 'many', 'putMany', 'deleteMultiple', 'flexible', 'remember', 'add', 'increment'] as $method) {
+        $store->shouldReceive($method)->andThrow(new RuntimeException('redis-cache is down'));
+    }
+
+    app()->instance(PureCache::CONTAINER_KEY, $store);
 }
 
 /** The check of the bot's rights, as the link of a center runs it. */
@@ -170,24 +186,6 @@ it('does not remember a failed call: the group is asked again', function (): voi
         ->and(memberCacheBotLookups($this->tg))->toBe(2);
 });
 
-it('drops the status of a person on a chat_member update about them', function (): void {
-    $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
-    $statuses = app(ChatMemberStatusCache::class);
-    $statuses->status($group->chat_id, 9001, fn (): string => 'administrator');
-    $statuses->status($group->chat_id, 9002, fn (): string => 'member');
-    expect(PureCache::store()->has(ChatMemberStatusCache::key($group->chat_id, 9001)))->toBeTrue();
-
-    app(TelegramDispatcher::class)->dispatch(['chat_member' => [
-        'chat' => ['id' => $group->chat_id, 'type' => 'supergroup', 'title' => 'Class 1'],
-        'date' => now()->timestamp,
-        'old_chat_member' => ['status' => 'administrator', 'user' => ['id' => 9001, 'is_bot' => false, 'first_name' => 'Ann']],
-        'new_chat_member' => ['status' => 'member', 'user' => ['id' => 9001, 'is_bot' => false, 'first_name' => 'Ann']],
-    ]]);
-
-    expect(PureCache::store()->has(ChatMemberStatusCache::key($group->chat_id, 9001)))->toBeFalse()
-        ->and(PureCache::store()->has(ChatMemberStatusCache::key($group->chat_id, 9002)))->toBeTrue();
-});
-
 it('never remembers whether the OWNER is an administrator: that decides who may link a group', function (): void {
     $this->tg->chatMemberStatus = 'administrator';
     memberCacheBotUpdate('left', 'member');
@@ -211,4 +209,55 @@ it('reads the bot id out of the token', function (): void {
 
     config(['telegram.bot_token' => 'not-a-token']);
     expect(app(ChatMemberStatusCache::class)->botId())->toBeNull();
+});
+
+// --- the pure cache is down: the updates are business logic and go on ----------------------------------------------
+
+it('takes the group out of service on my_chat_member left / kicked while the pure cache is down, and reports the failure', function (string $status): void {
+    Exceptions::fake();
+    $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
+    memberCacheDownStore();
+
+    memberCacheBotUpdate('administrator', $status);
+
+    expect($group->fresh()?->status)->toBe('disabled');
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
+})->with(['left', 'kicked']);
+
+it('registers a group the bot was added to while the pure cache is down, and still asks Telegram about the bot', function (): void {
+    Exceptions::fake();
+    $this->tg->chatMemberStatus = 'member';
+    memberCacheDownStore();
+
+    memberCacheBotUpdate('left', 'member');
+
+    expect(TelegramGroup::query()->where('chat_id', MEMBER_CACHE_CHAT)->value('status'))->toBe('pending')
+        ->and(memberCacheBotLookups($this->tg))->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
+});
+
+it('takes a learner out of the group on chat_member left while the pure cache is down: it does not touch that cache at all', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 9001]);
+    memberCacheDownStore();
+
+    app(TelegramDispatcher::class)->dispatch(['chat_member' => [
+        'chat' => ['id' => MEMBER_CACHE_CHAT, 'type' => 'supergroup', 'title' => 'Class 1'],
+        'date' => now()->timestamp,
+        'old_chat_member' => ['status' => 'member', 'user' => ['id' => 9001, 'is_bot' => false, 'first_name' => 'Ann']],
+        'new_chat_member' => ['status' => 'left', 'user' => ['id' => 9001, 'is_bot' => false, 'first_name' => 'Ann']],
+    ]]);
+
+    expect(GroupMember::query()->where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->value('status'))->toBe('left');
+});
+
+it('asks Telegram when the pure cache cannot be read, and does not fail when it cannot be written', function (): void {
+    Exceptions::fake();
+    memberCacheDownStore();
+    $group = TelegramGroup::factory()->create(['chat_id' => MEMBER_CACHE_CHAT, 'status' => 'active']);
+
+    expect(app(ChatMemberStatusCache::class)->status($group->chat_id, MEMBER_CACHE_BOT, fn (): string => 'administrator'))->toBe('administrator');
+    Exceptions::assertReported(RuntimeException::class);
 });

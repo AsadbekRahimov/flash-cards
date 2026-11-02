@@ -62,18 +62,11 @@ final class MyChatMemberHandler implements UpdateHandler
             return;
         }
 
-        // The bot's status in this group changed: whatever was remembered of it (docs/19 K7) is stale from now on, whether the bot
-        // was promoted, demoted, removed or added; the next check asks Telegram.
-        $updatedBotId = $event['new_chat_member']['user']['id'] ?? null;
-        $botId = is_int($updatedBotId) ? $updatedBotId : $this->members->botId();
-        if ($botId !== null) {
-            $this->members->forget($chatId, $botId);
-        }
-
         if (in_array($newStatus, ['left', 'kicked'], true)) {
             // Through Eloquent (not a query-builder update): TelegramGroupObserver drops the
             // members' cached entitlement, so a sponsored Pro ends at once (docs/12 §5.2).
             TelegramGroup::query()->where('chat_id', $chatId)->first()?->update(['status' => 'disabled']);
+            $this->forgetBotStatus($event, $chatId);
 
             return;
         }
@@ -93,6 +86,9 @@ final class MyChatMemberHandler implements UpdateHandler
         $group->meta = array_merge($group->meta ?? [], ['type' => $chatType]);
         $group->save();
 
+        // After the group is written, before the check below reads the status again.
+        $this->forgetBotStatus($event, $chatId);
+
         if ($botAdded) {
             $this->events->record(
                 ProductEventName::GroupBotAdded,
@@ -102,6 +98,24 @@ final class MyChatMemberHandler implements UpdateHandler
 
             $botId = $event['new_chat_member']['user']['id'] ?? null;
             $this->botAccess->warnIfNotAdmin($group, is_int($botId) ? $botId : null);
+        }
+    }
+
+    /**
+     * The bot's status in this group changed: whatever was remembered of it (docs/19 K7) is stale from now on, whether the bot
+     * was promoted, demoted, removed or added; the next check asks Telegram. A cache that cannot be reached is reported and
+     * nothing else: the update (the group going `disabled`, the registration of a group) is business logic and must never fail
+     * because the pure cache is down - at worst the remembered status lives out its ten minutes.
+     *
+     * @param  array<string, mixed>  $event
+     */
+    private function forgetBotStatus(array $event, int $chatId): void
+    {
+        $updatedBotId = $event['new_chat_member']['user']['id'] ?? null;
+        $botId = is_int($updatedBotId) ? $updatedBotId : $this->members->botId();
+
+        if ($botId !== null) {
+            rescue(fn () => $this->members->forget($chatId, $botId));
         }
     }
 }
