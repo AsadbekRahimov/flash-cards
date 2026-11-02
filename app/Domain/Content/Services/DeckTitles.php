@@ -24,8 +24,18 @@ final class DeckTitles
      */
     public function stage(Course $course, Learner $learner, ?string $original): ?string
     {
-        $locale = $this->localeFor($course, $learner);
-        if ($locale === null) {
+        return $course->isLearnerOwned() ? $this->stageIn($course, $this->locales->forLearner($learner), $original) : $original;
+    }
+
+    public function lesson(Course $course, Learner $learner, int $number, ?string $original): ?string
+    {
+        return $course->isLearnerOwned() ? $this->lessonIn($course, $this->locales->forLearner($learner), $number, $original) : $original;
+    }
+
+    /** The module title in a locale: what {@see stage()} gives a learner of that locale (the cached course tree is per locale). */
+    public function stageIn(Course $course, string $locale, ?string $original): ?string
+    {
+        if (! $course->isLearnerOwned()) {
             return $original;
         }
 
@@ -34,10 +44,10 @@ final class DeckTitles
         return is_string($title) ? $title : $original;
     }
 
-    public function lesson(Course $course, Learner $learner, int $number, ?string $original): ?string
+    /** The lesson title in a locale: what {@see Lesson()} gives a learner of that locale. */
+    public function lessonIn(Course $course, string $locale, int $number, ?string $original): ?string
     {
-        $locale = $this->localeFor($course, $learner);
-        if ($locale === null) {
+        if (! $course->isLearnerOwned()) {
             return $original;
         }
 
@@ -52,10 +62,5 @@ final class DeckTitles
         $course = $lesson->stage?->course;
 
         return $course === null ? $lesson->title : $this->lesson($course, $learner, $lesson->number, $lesson->title);
-    }
-
-    private function localeFor(Course $course, Learner $learner): ?string
-    {
-        return $course->isLearnerOwned() ? $this->locales->forLearner($learner) : null;
     }
 }

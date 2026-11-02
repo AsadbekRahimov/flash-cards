@@ -6,6 +6,7 @@ namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Word;
 use App\Models\WordTranslation;
 
@@ -17,9 +18,20 @@ use App\Models\WordTranslation;
  * "Fallback shown" means the text is not in the requested locale. Asking for
  * the fallback locale itself never counts as a fallback, even when the answer
  * comes from `words.translation`.
+ *
+ * The rows of `word_translations` are read through the pure cache (docs/19 K4): per word and locale, one `Cache::many` for a
+ * whole batch and one query plus one `Cache::putMany` for the words it has not seen; a word with no rows is an entry too (an
+ * empty array). Only the ROWS are cached - the legacy `words.translation` is always the live attribute of the Word in hand -
+ * so an edit of that column shows at once, and an edit of a row is dropped by {@see forget()}, which the WordTranslation
+ * observer calls after every save and delete (the manual writer, the importer, the decks).
  */
 final class WordTranslationResolver
 {
+    /** `word:tr:v1:{word id}:{locale}`: the rows the locale and the fallback read for the word, `locale => text`. */
+    private const CACHE_PREFIX = 'word:tr:v1:';
+
+    private const CACHE_TTL = 7200;
+
     public function __construct(private readonly LocaleResolver $locales) {}
 
     public function for(Word $word, string $locale): string
@@ -59,17 +71,7 @@ final class WordTranslationResolver
             $ids[(int) $word->id] = true;
         }
 
-        $byWord = [];
-        if ($ids !== []) {
-            $rows = WordTranslation::query()
-                ->whereIn('word_id', array_keys($ids))
-                ->whereIn('locale', $this->chain($locale))
-                ->get(['word_id', 'locale', 'translation']);
-
-            foreach ($rows as $row) {
-                $byWord[(int) $row->word_id][$row->locale] = $row->translation;
-            }
-        }
+        $byWord = $ids === [] ? [] : $this->rowsOf(array_keys($ids), $locale);
 
         $out = [];
         foreach ($list as $word) {
@@ -91,6 +93,84 @@ final class WordTranslationResolver
             static fn (ResolvedTranslation $t): string => $t->text,
             $this->resolveMany($words, $locale),
         );
+    }
+
+    /**
+     * Drops the cached rows of the words (every locale), after the commit of whatever changed their translations.
+     *
+     * @param  list<int>  $wordIds
+     */
+    public function forget(array $wordIds): void
+    {
+        $keys = [];
+        foreach ($wordIds as $wordId) {
+            foreach ($this->locales->supported() as $locale) {
+                $keys[] = self::cacheKey($wordId, $locale);
+            }
+        }
+
+        if ($keys !== []) {
+            PureCache::store()->deleteMultiple($keys);
+        }
+    }
+
+    public static function cacheKey(int $wordId, string $locale): string
+    {
+        return self::CACHE_PREFIX."{$wordId}:{$locale}";
+    }
+
+    /**
+     * The translation rows of the words for `$locale` and its fallback: from the cache with ONE `many`, the rest from ONE query
+     * and written back with ONE `putMany`.
+     *
+     * @param  list<int>  $wordIds
+     * @return array<int, array<string, string>> word id => `locale => translation`
+     */
+    private function rowsOf(array $wordIds, string $locale): array
+    {
+        $cache = PureCache::store();
+        $keys = [];
+        foreach ($wordIds as $wordId) {
+            $keys[$wordId] = self::cacheKey($wordId, $locale);
+        }
+
+        $cached = $cache->many(array_values($keys));
+
+        $byWord = [];
+        $missing = [];
+        foreach ($keys as $wordId => $key) {
+            $hit = $cached[$key] ?? null;
+
+            if (is_array($hit)) {
+                /** @var array<string, string> $hit */
+                $byWord[$wordId] = $hit;
+            } else {
+                $missing[] = $wordId;
+            }
+        }
+
+        if ($missing === []) {
+            return $byWord;
+        }
+
+        $loaded = [];
+        $rows = WordTranslation::query()
+            ->whereIn('word_id', $missing)
+            ->whereIn('locale', $this->chain($locale))
+            ->get(['word_id', 'locale', 'translation']);
+
+        foreach ($rows as $row) {
+            $loaded[(int) $row->word_id][$row->locale] = $row->translation;
+        }
+
+        $fresh = [];
+        foreach ($missing as $wordId) {
+            $byWord[$wordId] = $loaded[$wordId] ?? [];
+            $fresh[$keys[$wordId]] = $byWord[$wordId];
+        }
+        $cache->putMany($fresh, self::CACHE_TTL);
+
+        return $byWord;
     }
 
     /**

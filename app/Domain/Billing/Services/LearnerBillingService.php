@@ -169,7 +169,9 @@ final class LearnerBillingService
     {
         $paywall = $this->entitlements->paywall();
 
-        if ($paywall['mode'] === 'purchase' && $this->checkout->catalog($learner, $now)->isEmpty()) {
+        // Whether anything is for sale is the static half of the catalog (config alone): the learner's offers and live subscription,
+        // three queries, change nothing about it (docs/19 K5).
+        if ($paywall['mode'] === 'purchase' && ! $this->checkout->canSellToLearners()) {
             $paywall['mode'] = 'coming_soon';
         }
 
