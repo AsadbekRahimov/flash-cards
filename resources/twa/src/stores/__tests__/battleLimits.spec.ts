@@ -70,14 +70,81 @@ describe('battle store — the rematch meets the counter of battles', () => {
     expect(store.paywall).toBe(false)
   })
 
-  it('"Invite again" after a battle that did not take place is a new battle too', async () => {
-    useBillingStore().setLimits(freeLimits(0, 1))
-    const store = await opened(closedBattle('room_expired'))
+  // A battle that did not take place (declined, not answered in time, withdrawn) is not counted among the battles of the day: the counter the
+  // screen holds may be from before it, so "Invite again" after such a battle asks the server, which knows.
+  describe('after a battle that did not take place', () => {
+    it.each(['invite_expired', 'declined', 'canceled', 'room_expired'] as const)('"Invite again" (%s) asks the server, whatever the counter remembers', async (reason) => {
+      useBillingStore().setLimits(freeLimits(0, 1))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      const store = await opened(closedBattle(reason))
 
-    expect(await store.rematch()).toBeNull()
+      expect(await store.rematch()).toBe(16)
 
-    expect(api.battles.invite).not.toHaveBeenCalled()
-    expect(store.limitHit).toMatchObject({ kind: 'battles' })
+      expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(store.limitHit).toBeNull()
+    })
+
+    it('and the server\'s word is the wall: if it still counts that battle, 403 is the paywall with its numbers', async () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 1))
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
+      const store = await opened(closedBattle('room_expired'))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(store.limitHit).toMatchObject({ kind: 'battles', limit: 1 })
+      expect(store.actionError).toBe('')
+      expect(billing.battleLimit).toMatchObject({ remaining: 0 })
+    })
+
+    it('a battle that was played is counted: its rematch meets the counter', async () => {
+      useBillingStore().setLimits(freeLimits(0, 1))
+      const store = await opened(finishedBattle('draw'))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(store.limitHit).toMatchObject({ kind: 'battles' })
+    })
+  })
+
+  describe('an invitation of the learner that closed without a battle', () => {
+    const plan = () => ({
+      entitlement: { plan: 'free' as const, source: 'free' as const, until: null, new_words_per_day: 20 },
+      paywall: { mode: 'coming_soon' as const, contact: null },
+    })
+
+    it('makes the next reading of /me ask the server: the counters on the screens are from before it', async () => {
+      const billing = useBillingStore()
+      billing.apply(plan())
+      expect(billing.loadedAt).not.toBeNull()
+
+      await opened(closedBattle('invite_expired'))
+
+      expect(billing.loadedAt).toBeNull()
+    })
+
+    it.each(['declined', 'canceled'] as const)('also when it was %s', async (reason) => {
+      const billing = useBillingStore()
+      billing.apply(plan())
+
+      await opened(closedBattle(reason))
+
+      expect(billing.loadedAt).toBeNull()
+    })
+
+    it('not when the invitation was the learner\'s to answer (the friend\'s battle is not counted against them), nor for a battle that is on or was played', async () => {
+      const billing = useBillingStore()
+      for (const b of [closedBattle('declined', { role: 'opponent' }), invitedBattle({ role: 'challenger' }), finishedBattle('won'), roomBattle()]) {
+        billing.apply(plan())
+        const at = billing.loadedAt
+
+        await opened(b)
+
+        expect(billing.loadedAt, `${b.status}/${b.role}`).toBe(at)
+        useBattleStore().leave()
+      }
+    })
   })
 
   it('asks as usual while a battle is left (the sessions of practice are another counter), for Pro and for an unknown counter', async () => {

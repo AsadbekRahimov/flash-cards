@@ -2296,15 +2296,31 @@ describe('BattleView — the Free limit of battles', () => {
       expect(api.battles.invite).not.toHaveBeenCalled()
     })
 
-    it('“Invite again” after a battle that did not take place is a new battle too', async () => {
+    // A battle that did not take place (declined, not answered in time, withdrawn) is not counted among the battles of the day: the counter the
+    // screen holds may be from before it, so “Invite again” after such a battle asks the server, which knows.
+    it('“Invite again” after an invitation that ran out asks the server, whatever the counter remembers', async () => {
+      spend()
+      const r = await render(closedBattle('invite_expired'))
+      expect(text(r, 'rematch-btn')).toBe('Пригласить снова')
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : closedBattle('invite_expired')))
+
+      await click(r, 'rematch-btn')
+
+      expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(has(r, 'paywall')).toBe(false)
+      expect(route(r).params.id).toBe('16')
+    })
+
+    it('“Invite again” after an invitation the server still counts is the paywall of the limit, with its numbers', async () => {
       spend()
       const r = await render(closedBattle('room_expired'))
-      expect(text(r, 'rematch-btn')).toBe('Пригласить снова')
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
 
       await click(r, 'rematch-btn')
 
       expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
-      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
     })
 
     it('the button is still the one primary button of the screen, and it is not switched off', async () => {

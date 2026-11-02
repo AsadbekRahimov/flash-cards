@@ -489,6 +489,9 @@ export const useBattleStore = defineStore('battle', {
       this.applyRematch(battle.rematch)
       this.dropStaleAnswer()
       this.updatePolling()
+      // An invitation of mine that closed without a battle (declined, not answered in time, withdrawn) no longer counts among the battles of
+      // the day. The counters the screens hold are from before: the next reading of /me is asked for, not taken from the cache.
+      if (battle.status === 'closed' && battle.role === 'challenger') useBillingStore().invalidate()
     },
 
     /**
@@ -857,13 +860,16 @@ export const useBattleStore = defineStore('battle', {
      * A rematch is a new battle like any other and Free has a few of them a day: when the counter says they are spent the paywall opens
      * instead, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). Accepting
      * a rematch (`acceptRematch`) is never limited.
+     *
+     * Only after a battle that was played (`finished`): one that did not take place (declined, not answered in time, withdrawn) is not
+     * counted among the battles of the day, so after it "Invite again" asks the server whatever the counter on the screen remembers.
      */
     async rematch(): Promise<number | null> {
       const battle = this.battle
       if (battle === null || !this.isOver || this.acting !== null) return null
 
       this.limitHit = null
-      const spent = useBillingStore().limitReached('battles')
+      const spent = battle.status === 'finished' ? useBillingStore().limitReached('battles') : null
       if (spent !== null) {
         this.limitHit = spent
         return null
