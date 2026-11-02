@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ME_FRESH_MS, useBillingStore } from '../billing'
-import type { MeResponse, PracticeAccess, PracticeLimitHit } from '@/api/types'
+import type { MeResponse, PracticeAccess, PracticeLimitHit, ProPromise } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { counter, freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
 
@@ -204,12 +204,73 @@ describe('billing store', () => {
   })
 })
 
+describe('billing store - the word of the server about the Pro list and practice (practice.pro_promise, docs/18 §3)', () => {
+  const meWith = (practice: PracticeAccess | null): MeResponse => ({ ...me(), ...(practice ? { practice } : {}) })
+  const access = (pro_promise: ProPromise): PracticeAccess => ({
+    available: true,
+    pro_required: false,
+    modes: ['pairs', 'collocation', 'sentence', 'dictation'],
+    battle: pro_promise === 'both',
+    pro_promise,
+  })
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    vi.mocked(api.me.get).mockReset() // the answer of a test is not the answer of the next one
+    vi.restoreAllMocks()
+  })
+
+  it("is 'none' until /me has come: no line in the Pro list, with nothing else about the practice allowed either", () => {
+    const billing = useBillingStore()
+
+    expect(billing.practice).toBeNull()
+    expect(billing.practiceAccess).toEqual({ available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' })
+  })
+
+  it.each<ProPromise>(['none', 'solo', 'both'])("takes the word '%s' from /me", async (word) => {
+    vi.mocked(api.me.get).mockResolvedValue(meWith(access(word)))
+    const billing = useBillingStore()
+
+    await billing.load()
+
+    expect(billing.practiceAccess.pro_promise).toBe(word)
+  })
+
+  it('takes the newest word of every /me, and falls back to none for a /me with no block', () => {
+    const billing = useBillingStore()
+
+    billing.apply(meWith(access('both')))
+    expect(billing.practiceAccess.pro_promise).toBe('both')
+
+    billing.apply(meWith(access('solo')))
+    expect(billing.practiceAccess.pro_promise).toBe('solo')
+
+    billing.apply(meWith(null)) // an older server: no block, no line
+    expect(billing.practiceAccess.pro_promise).toBe('none')
+  })
+
+  it('keeps the word it had when /me cannot be read, like the rest of the plan', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const billing = useBillingStore()
+    billing.apply(meWith(access('solo')))
+    vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
+
+    await billing.load({ force: true })
+
+    expect(billing.practiceAccess.pro_promise).toBe('solo')
+  })
+})
+
 describe('billing store - the Free limits of practice and battles (docs/18 §3)', () => {
   const access = (limits?: PracticeAccess['limits']): PracticeAccess => ({
     available: true,
     pro_required: false,
     modes: ['pairs', 'collocation', 'sentence', 'dictation'],
     battle: true,
+    pro_promise: 'both',
     ...(limits !== undefined ? { limits } : {}),
   })
   const meWith = (practice?: PracticeAccess): MeResponse => ({ ...me(), ...(practice ? { practice } : {}) })

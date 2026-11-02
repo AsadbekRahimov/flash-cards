@@ -88,7 +88,7 @@ function me(limits?: PracticeLimits | null): MeResponse {
     entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
     paywall: { mode: 'coming_soon', contact: null },
     settings: settingsFixture(),
-    practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, ...(limits !== undefined ? { limits } : {}) },
+    practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both', ...(limits !== undefined ? { limits } : {}) },
   }
 }
 

@@ -217,13 +217,14 @@ describe('PaywallSheet', () => {
       ])
     })
 
-    // The line about practice and battles is sold only where there is practice (`/me`: `practice.available`, docs/16 §3.3).
+    // The line about practice and battles is the server's word, `practice.pro_promise` of `/me` (docs/18 §3): `both`, `solo`, or `none` - no line.
     describe('the line about practice and battles', () => {
       const practice = (overrides: Partial<PracticeAccess> = {}): PracticeAccess => ({
         available: true,
         pro_required: false,
         modes: ['pairs', 'collocation', 'sentence', 'dictation'],
         battle: true,
+        pro_promise: 'both',
         ...overrides,
       })
       const benefits = (w: Awaited<ReturnType<typeof render>>) => w.findAll('[data-testid=benefit]').map((b) => b.text())
@@ -236,13 +237,27 @@ describe('PaywallSheet', () => {
       })
 
       it('is not offered with PRACTICE_ACCESS=off, to a learner outside the pilot, or by a server that sends no practice block', async () => {
-        for (const response of [me({ practice: practice({ available: false, modes: [], battle: false }) }), me()]) {
+        for (const response of [me({ practice: practice({ available: false, modes: [], battle: false, pro_promise: 'none' }) }), me()]) {
           setActivePinia(createPinia())
           const w = await render(response, { reason: 'quota' })
 
           expect(benefits(w)).toHaveLength(5)
           expect(w.text()).not.toContain('Практика и баттлы')
         }
+      })
+
+      it('says the practice alone when the server says `solo`, and nothing when it says `none` although the practice is open', async () => {
+        const solo = await render(me({ practice: practice({ battle: false, pro_promise: 'solo' }) }), { reason: 'quota' })
+
+        expect(benefits(solo)).toHaveLength(6)
+        expect(benefits(solo)[1]).toBe('Практика без дневного лимита')
+
+        setActivePinia(createPinia())
+        const none = await render(me({ practice: practice({ pro_promise: 'none' }) }), { reason: 'quota' })
+
+        expect(benefits(none)).toHaveLength(5)
+        expect(none.text()).not.toContain('Практика и баттлы')
+        expect(none.text()).not.toContain('Практика без дневного лимита')
       })
 
       it('stays when the practice is behind Pro: it is available, and that is what Pro opens', async () => {

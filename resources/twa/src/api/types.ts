@@ -773,6 +773,12 @@ export interface PracticeLimitHit {
   resets_at: string
 }
 
+/**
+ * What the "what Pro gives" list may say about practice (docs/18 §3), decided by the server for this learner (`ProPromises`, the rule the
+ * landing and the Stars invoice follow too): `both` - practice and battles without a daily limit, `solo` - practice alone, `none` - no line.
+ */
+export type ProPromise = 'none' | 'solo' | 'both'
+
 /** Block `practice` of GET /me (docs/16 §3.3): `available` false hides every entry; `pro_required` shows them with a Pro chip. */
 export interface PracticeAccess {
   available: boolean
@@ -780,6 +786,8 @@ export interface PracticeAccess {
   /** The modes switched on. */
   modes: PracticeMode[]
   battle: boolean
+  /** The line of the Pro list about practice: the server says which one (or none); nothing is worked out from the flags above. */
+  pro_promise: ProPromise
   /** The Free limits of today; absent: an older server (nothing is shown, nothing is blocked). */
   limits?: PracticeLimits | null
 }

@@ -144,8 +144,9 @@ export const useBillingStore = defineStore('billing', {
     /** The server only reports `purchase` when something is for sale; the catalog is the second check. */
     canPurchase: (state): boolean => state.paywall?.mode === 'purchase' && (state.catalog?.items.length ?? 0) > 0,
 
-    /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
-    practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
+    /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake (and no Pro line about it). */
+    practiceAccess: (state): PracticeAccess =>
+      state.practice ?? { available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' },
 
     /**
      * The counter of today's practice sessions to show; null for Pro, for sessions without a limit, for sessions that are for Pro only (limit 0:

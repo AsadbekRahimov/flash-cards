@@ -39,7 +39,7 @@ const meWith = (limits: PracticeLimits | null): MeResponse =>
   ({
     entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
     paywall: { mode: 'coming_soon', contact: null },
-    practice: { available: true, pro_required: false, modes: ['pairs'], battle: true, limits },
+    practice: { available: true, pro_required: false, modes: ['pairs'], battle: true, pro_promise: 'both', limits },
   }) as MeResponse
 
 /** The server has not changed its mind: `/me` tells the counters the learner already has. */

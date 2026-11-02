@@ -121,7 +121,7 @@ const meWith = (practice?: PracticeAccess): MeResponse => ({
   ...(practice ? { practice } : {}),
 })
 
-const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true }
+const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both' }
 
 async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse()) {
   vi.mocked(api.friends.get).mockResolvedValue(friends)
@@ -761,7 +761,7 @@ describe('FriendsView', () => {
       })
 
       it.each<[string, PracticeAccess | undefined]>([
-        ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false }],
+        ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false, pro_promise: 'none' }],
         ['battles are switched off', { ...BATTLES_ON, battle: false }],
         ['practice is switched off but the flag of battles is on', { ...BATTLES_ON, available: false }],
         ['the server sends no practice block (an older one)', undefined],

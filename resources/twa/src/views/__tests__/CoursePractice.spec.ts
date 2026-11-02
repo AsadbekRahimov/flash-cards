@@ -66,6 +66,7 @@ const access = (overrides: Partial<PracticeAccess> = {}): PracticeAccess => ({
   pro_required: false,
   modes: ['pairs', 'collocation', 'sentence', 'dictation'],
   battle: true,
+  pro_promise: 'both',
   ...overrides,
 })
 
@@ -141,7 +142,7 @@ describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
   })
 
   it('is not there when practice is not available to the learner', async () => {
-    const { wrapper } = await render(access({ available: false, modes: [], battle: false }))
+    const { wrapper } = await render(access({ available: false, modes: [], battle: false, pro_promise: 'none' }))
 
     expect(wrapper.find('[data-testid=practice-btn]').exists()).toBe(false)
     wrapper.unmount()
@@ -296,7 +297,7 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
   })
 
   it('is not in the rows when practice is not available to the learner, or `/me` says nothing of it', async () => {
-    const off = await render(access({ available: false, modes: [], battle: false }), lessons())
+    const off = await render(access({ available: false, modes: [], battle: false, pro_promise: 'none' }), lessons())
     expect(off.wrapper.find('[data-testid=practice-lesson-btn]').exists()).toBe(false)
     expect(off.wrapper.get('[data-testid=lesson-41]').findAll('button')).toHaveLength(1)
     off.wrapper.unmount()

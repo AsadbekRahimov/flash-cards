@@ -61,7 +61,7 @@ const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', limits: PracticeLi
   entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
   paywall: { mode, contact: null },
   settings: settingsFixture(),
-  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, limits },
+  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both', limits },
 })
 
 const mounted: VueWrapper[] = []
