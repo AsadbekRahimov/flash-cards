@@ -205,13 +205,14 @@ it('completes a run played without a mistake: three stars, the combo, the score,
         ->and($run->srs_pulled)->toBe(0)
         ->and($run->finished_at?->toDateTimeString())->toBe('2026-11-05 10:00:00');
 
+    // The finish paid the first clearing of the stop (10 + 5 per star) and 2 league points per correct answer (docs/18 §12.5.3, G2.5a).
     $finished = runEvents('game.run_finished');
     expect($finished)->toHaveCount(1)
-        ->and($finished[0])->toMatchArray(['run_id' => $run->id, 'finish_reason' => 'completed', 'correct' => $n, 'stars' => 3, 'score' => $expected, 'srs_pulled' => 0]);
+        ->and($finished[0])->toMatchArray(['run_id' => $run->id, 'finish_reason' => 'completed', 'correct' => $n, 'stars' => 3, 'score' => $expected, 'srs_pulled' => 0, 'coins' => 25, 'league_points' => 2 * $n]);
 
     $view = runService()->view($run, $learner)->toArray();
     expect($view['current'])->toBeNull()
-        ->and($view['summary'])->toMatchArray(['stars' => 3, 'score' => $expected, 'mistakes' => [], 'coins' => 0, 'league_points' => 0]);
+        ->and($view['summary'])->toMatchArray(['stars' => 3, 'score' => $expected, 'mistakes' => [], 'coins' => 25, 'league_points' => 2 * $n]);
 
     expect(fn () => runService()->answer($run, $learner, (string) Str::uuid(), $run->snapshot['elements'][0]['id'], ['skip' => true]))
         ->toThrow(fn (GameException $e) => expect($e->errorCode)->toBe('game_run_closed')->and($e->httpStatus())->toBe(410)->and($e->details)->toBe(['finish_reason' => 'completed']));

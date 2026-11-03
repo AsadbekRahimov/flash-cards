@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
-use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Models\GameCoinLedgerEntry;
 use App\Models\GameRun;
 use App\Models\GameRunAttempt;
 use App\Models\GameWallet;
 use App\Models\Learner;
-use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Tests\Support\ForkSafe;
 use Tests\Support\Game\GameKit;
+use Tests\Support\Game\GameRace;
 
 /*
  * docs/18 §12.5.4: the real races of a run. Several OS processes, each with its own PostgreSQL connection, hit the same learner / run at
@@ -53,91 +51,37 @@ afterEach(function (): void {
 });
 
 /**
- * Runs each closure in a forked child with a fresh connection and a lock timeout, all released at the same instant; what they gave
- * back, in task order. A refusal of the game is a result, not a crash: `['code' => ..., 'details' => ...]`.
+ * The harness lives in Tests\Support\Game\GameRace (shared with GameWalletConcurrencyTest since G2.5a); these are its names here.
  *
  * @param  list<Closure(): mixed>  $tasks
  * @return list<array{ok: bool, value?: mixed, code?: string, details?: array<string, mixed>, error?: string}>
  */
 function gameRace(array $tasks): array
 {
-    ForkSafe::releaseConnections();
-
-    $dir = sys_get_temp_dir().'/lexiflow-game-race-'.bin2hex(random_bytes(4));
-    mkdir($dir, 0700, true);
-    $startAt = microtime(true) + 0.4;
-    $pids = [];
-
-    foreach ($tasks as $i => $task) {
-        $pid = pcntl_fork();
-        if ($pid === -1) {
-            throw new RuntimeException('pcntl_fork failed');
-        }
-
-        if ($pid === 0) {
-            $out = ['ok' => false, 'error' => 'no result'];
-            try {
-                ForkSafe::releaseConnections();
-                DB::reconnect();
-                DB::statement("SET lock_timeout = '8000'");
-                while (microtime(true) < $startAt) {
-                    usleep(500);
-                }
-                $out = ['ok' => true, 'value' => $task()];
-            } catch (GameException $e) {
-                $out = ['ok' => false, 'code' => $e->errorCode, 'details' => $e->details];
-            } catch (Throwable $e) {
-                $out = ['ok' => false, 'error' => $e::class.': '.$e->getMessage()];
-            } finally {
-                file_put_contents("{$dir}/{$i}.json", json_encode($out));
-                DB::disconnect();
-                posix_kill(posix_getpid(), SIGKILL);
-            }
-        }
-
-        $pids[$i] = $pid;
-    }
-
-    $results = [];
-    foreach ($pids as $i => $pid) {
-        pcntl_waitpid($pid, $status);
-        $raw = @file_get_contents("{$dir}/{$i}.json");
-        $results[$i] = $raw === false
-            ? ['ok' => false, 'error' => 'worker died without a result']
-            : json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-        @unlink("{$dir}/{$i}.json");
-    }
-    @rmdir($dir);
-
-    DB::reconnect();
-
-    return $results;
+    return GameRace::run($tasks);
 }
 
 /** The workers that crashed (not the ones the game refused). @param list<array<string, mixed>> $results @return list<string> */
 function gameRaceCrashes(array $results): array
 {
-    return array_values(array_map('strval', array_column(array_filter($results, static fn (array $r): bool => isset($r['error'])), 'error')));
+    return GameRace::crashes($results);
 }
 
 /** `ok` for a worker that succeeded, else its code. @param list<array<string, mixed>> $results @return list<string> */
 function gameRaceOutcomes(array $results): array
 {
-    $outcomes = array_map(static fn (array $r): string => $r['ok'] ? 'ok' : (string) ($r['code'] ?? 'crash'), $results);
-    sort($outcomes);
-
-    return $outcomes;
+    return GameRace::outcomes($results);
 }
 
 function gameRaceLearner(int $id): Learner
 {
-    return Learner::query()->findOrFail($id);
+    return GameRace::learner($id);
 }
 
 /** @return list<array<string, mixed>> */
 function gameRaceEvents(string $name): array
 {
-    return ProductEvent::query()->where('name', $name)->orderBy('id')->get()->map(fn (ProductEvent $e): array => (array) $e->props)->all();
+    return GameRace::events($name);
 }
 
 it('gives one learner one active run when two tabs start the same stop at once: both answer with the same run', function (): void {
