@@ -13,6 +13,7 @@ use App\Domain\Engagement\Enums\ChallengeStatus;
 use App\Domain\Engagement\Enums\FriendDmKind;
 use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Engagement\Exceptions\FriendshipException;
+use App\Domain\Game\Services\GameFriendsCache;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Jobs\SendFriendDmJob;
@@ -199,6 +200,7 @@ final class FriendshipService
         }
 
         $friendship->refresh();
+        GameFriendsCache::forget($friendship->learner_id, $friendship->friend_id);
 
         $this->events->record(ProductEventName::FriendAccepted, ['friendship_id' => $friendship->id], learner: $by);
         SendFriendDmJob::send(FriendDmKind::FriendAccepted, $friendship->id);
@@ -305,6 +307,7 @@ final class FriendshipService
             return $raced ?? throw FriendshipException::notFound();
         }
 
+        GameFriendsCache::forget($low, $high);
         $this->cancelOpenChallenges($low, $high, $now);
         $this->events->record(ProductEventName::FriendRemoved, ['friendship_id' => $friendship->id, 'how' => 'blocked'], learner: $by);
 
@@ -425,6 +428,8 @@ final class FriendshipService
         if ($deleted === 0) {
             return; // a parallel call ended it first: one event, one cancellation
         }
+
+        GameFriendsCache::forget($friendship->learner_id, $friendship->friend_id);
 
         $this->cancelOpenChallenges($friendship->learner_id, $friendship->friend_id, CarbonImmutable::now());
         $this->events->record(ProductEventName::FriendRemoved, ['friendship_id' => $friendship->id, 'how' => $how], learner: $by);
