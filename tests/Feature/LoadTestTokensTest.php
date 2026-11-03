@@ -5,8 +5,11 @@ declare(strict_types=1);
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     config()->set('twa.jwt.secret', 'load-test-secret-load-test-secret-0123456789');

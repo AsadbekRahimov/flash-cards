@@ -78,7 +78,7 @@ final class LoadTestTokenIssuer
             if ($learner->blocked_at !== null || ($course !== null && $learner->active_course_id !== $course->id)) {
                 $learner->forceFill([
                     'blocked_at' => null,
-                    'active_course_id' => $course?->id ?? $learner->active_course_id,
+                    'active_course_id' => $course === null ? $learner->active_course_id : $course->id,
                 ])->save();
             }
 
