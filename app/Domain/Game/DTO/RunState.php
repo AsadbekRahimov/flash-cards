@@ -11,7 +11,7 @@ use App\Domain\Practice\Enums\Verdict;
  * `game_runs.state` (docs/18 §12.3.3), changed only under the lock of the run:
  *
  *   { current, elements: {id: {status, verdict, first, hinted, hint, points, flask_lost, answered_at}}, pairs: {id: {...}},
- *     combo, flasks, oasis_used, boosters: {extra_flask, second_chance_left}, srs_pulled: [word ids] }
+ *     combo, flasks, oasis_used, boosters: {extra_flask, second_chance_left, used: [{key, effect, element_id}]}, srs_pulled: [word ids] }
  *
  * `elements[id]` is a superset of what the practice stores per element, so a handler of the practice reads it as an
  * {@see ElementState} ({@see ElementState()}). `hinted` is set by a hint before the answer; the answer that follows is counted in
@@ -28,6 +28,7 @@ final class RunState
      * @param  array<string, array<string, mixed>>  $elements
      * @param  array<string, array<string, mixed>>  $pairs
      * @param  list<int>  $srsPulled
+     * @param  list<array{key: string, effect: string, element_id: string|null}>  $boostersUsed  what was used in the run (the `used` of the view)
      */
     public function __construct(
         public int $current = 0,
@@ -39,6 +40,7 @@ final class RunState
         public bool $extraFlask = false,
         public int $secondChanceLeft = 0,
         public array $srsPulled = [],
+        public array $boostersUsed = [],
     ) {}
 
     public static function initial(int $flasks): self
@@ -69,6 +71,13 @@ final class RunState
             $pulled[] = (int) $wordId;
         }
 
+        $used = [];
+        foreach (is_array($boosters['used'] ?? null) ? $boosters['used'] : [] as $entry) {
+            if (is_array($entry) && isset($entry['key'], $entry['effect'])) {
+                $used[] = ['key' => (string) $entry['key'], 'effect' => (string) $entry['effect'], 'element_id' => isset($entry['element_id']) ? (string) $entry['element_id'] : null];
+            }
+        }
+
         return new self(
             current: (int) ($state['current'] ?? 0),
             elements: $elements,
@@ -79,6 +88,7 @@ final class RunState
             extraFlask: (bool) ($boosters['extra_flask'] ?? false),
             secondChanceLeft: (int) ($boosters['second_chance_left'] ?? 0),
             srsPulled: $pulled,
+            boostersUsed: $used,
         );
     }
 
@@ -92,9 +102,21 @@ final class RunState
             'combo' => $this->combo,
             'flasks' => $this->flasks,
             'oasis_used' => $this->oasisUsed,
-            'boosters' => ['extra_flask' => $this->extraFlask, 'second_chance_left' => $this->secondChanceLeft],
+            'boosters' => ['extra_flask' => $this->extraFlask, 'second_chance_left' => $this->secondChanceLeft, 'used' => $this->boostersUsed],
             'srs_pulled' => $this->srsPulled,
         ];
+    }
+
+    /** A booster of this effect is in the run already (`$elementId` for a hint; `null` for the ones of the whole run). */
+    public function hasUsedBooster(string $effect, ?string $elementId): bool
+    {
+        foreach ($this->boostersUsed as $used) {
+            if ($used['effect'] === $effect && $used['element_id'] === $elementId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return array<string, mixed>|null */

@@ -38,22 +38,24 @@ uses(RefreshDatabase::class);
  * Statements of the start of a stop, measured: `TwaAuth` 1, the course 1, the lesson 1, the active run 1, the words of the pool and their
  * translations 2, the authored tasks 3 kinds x 2 (the items, their versions) + the clips of the dictation 3, the distractors of the
  * wider tiers 1 + the translations of those 1 (only when the pool is short of distractors: 19 without them), then the lock of the
- * active run, the insert and the event 3. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real count is 19-20.)
+ * active run, the insert and the event 3, and (G2.5b part 2) the boosters of the learner for the view 1 and the block `limits` of the 201 with the
+ * plan of the learner (a cold cache) 2 more. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real count is
+ * 21-23: the authored tasks and the wider tiers are read once more when the dice of the pool say so.)
  */
-const BUDGET_GAME_START = 20;
+const BUDGET_GAME_START = 23;
 
-/** Statements of the read of a run: `TwaAuth`, the run itself - the snapshot is in its row. */
-const BUDGET_GAME_READ = 2;
+/** Statements of the read of a run: `TwaAuth`, the run itself - the snapshot is in its row - and, while the run is on, the boosters of the inventory (G2.5b part 2). */
+const BUDGET_GAME_READ = 3;
 
 /**
  * Statements of an answer, measured on the dearest one - the answer after a hint, a mistake for the SRS: `TwaAuth` 1, the lock of the run,
  * the journal check, the attempt and the update of the run 3, then after the commit the rule of the SRS (the due check, the
- * repetition, the misses 3, the counter of the run) 6. A plain right answer is the first five.
+ * repetition, the misses 3, the counter of the run) 6, and the boosters of the view 1. A plain right answer is the first five and the one.
  */
-const BUDGET_GAME_ANSWER = 11;
+const BUDGET_GAME_ANSWER = 12;
 
-/** Statements of the hint of the bazaar, measured: `TwaAuth` 1, the lock of the run and the journal check 2, the wallet 5, the state of the run, the attempt and the event 3. */
-const BUDGET_GAME_HINT = 11;
+/** Statements of the hint of the bazaar, measured: `TwaAuth` 1, the lock of the run and the journal check 2, the wallet 5, the state of the run, the attempt and the event 3, the boosters of the view 1. */
+const BUDGET_GAME_HINT = 12;
 
 /**
  * The start of a Free learner with a limit of runs (G2.8, docs/18 §12.7.2), measured with the entitlement cached: the start above plus
@@ -61,9 +63,9 @@ const BUDGET_GAME_HINT = 11;
  * ticket adds the UPDATE of the profile, the ledger entry, the balance and the event `game.ticket_spent` (4). Pro and a Free learner
  * without a limit pay BUDGET_GAME_START.
  */
-const BUDGET_GAME_START_FREE = 22;
+const BUDGET_GAME_START_FREE = 25;
 
-const BUDGET_GAME_START_TICKET = 26;
+const BUDGET_GAME_START_TICKET = 29;
 
 /**
  * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
@@ -337,4 +339,44 @@ it('keeps the wallet within its budget, and the number does not grow with the le
     }
 
     expect($small)->toBeLessThanOrEqual(BUDGET_GAME_WALLET)->and($measure())->toBe($small);
+});
+
+/**
+ * Statements of a booster (G2.5b part 2), measured on the dearest one - the hint, with a limit of the week, the entitlement cold: `TwaAuth` 1,
+ * the lock of the run and the journal check 2, the item 1, what the learner owns 1, the plan of the learner (the entitlement cache is the
+ * default store) and the count of the week 2, then the spend, the use, the attempt, the run 4, the boosters of the view 1, the event 1.
+ */
+const BUDGET_GAME_BOOSTER = 13;
+
+it('keeps the booster within its budget, and the read of a run grows by the one statement of the boosters only', function (): void {
+    GameKit::limits(null, null, 3);
+    (new GameItemSeeder)->run();
+    [$learner, $course, $lesson] = GameKit::richStop(13);
+    foreach (GameItem::query()->where('kind', 'booster')->get() as $item) {
+        GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $item->id, 'qty' => 2]);
+    }
+    $headers = PracticeKit::headers($learner);
+    $id = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated()->json('id');
+    $run = GameRun::query()->findOrFail($id);
+    $state = $run->state;
+    $state['current'] = (int) array_search('translate_fwd', array_column($run->snapshot['elements'], 'kind'), true);
+    $run->forceFill(['state' => $state])->save();
+
+    $measure = function (string $key) use ($headers, $id): int {
+        Cache::flush();
+
+        return count(QueryLog::during(fn () => test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => $key])->assertOk()));
+    };
+    $hint = $measure('booster_hint');
+    $flask = $measure('booster_extra_flask');
+    Cache::flush();
+    $read = count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson("/api/twa/game/runs/{$id}")->assertOk()));
+
+    // A finished run reads its boosters from the state: no inventory statement.
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/abandon", ['confirm' => true])->assertOk();
+    Cache::flush();
+    $closedRead = count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson("/api/twa/game/runs/{$id}")->assertOk()));
+
+    expect($hint)->toBeLessThanOrEqual(BUDGET_GAME_BOOSTER)->and($flask)->toBeLessThanOrEqual(BUDGET_GAME_BOOSTER)
+        ->and($read)->toBeLessThanOrEqual(BUDGET_GAME_READ)->and($closedRead)->toBe(BUDGET_GAME_READ - 1);
 });

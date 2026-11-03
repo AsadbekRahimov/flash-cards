@@ -47,6 +47,7 @@ final class MapService
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerStatsService $stats,
         private readonly DailyCaravanService $daily,
+        private readonly GameLimits $limits,
     ) {}
 
     /**
@@ -71,6 +72,7 @@ final class MapService
             me: $this->me($learner),
             friends: $this->friends($learner, $course),
             activeRun: $day['active_run'],
+            limits: $this->limits->state($learner, $this->entitlements->for($learner, $now), $now)->toArray(),
         );
     }
 

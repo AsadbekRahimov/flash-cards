@@ -10,6 +10,8 @@ use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Tasks\TaskHandler;
 use App\Domain\Game\Services\Tasks\WordTaskHandler;
 use App\Domain\Practice\DTO\SnapshotElement;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
 use App\Models\GameRun;
 use App\Models\GameWallet;
 use App\Models\Learner;
@@ -103,6 +105,14 @@ function gameContractRun(?string $kind, bool $summary = false): array
     return $run;
 }
 
+/** The block `limits` (the map, the start): the one of `/me.game.limits`; a limit that does not apply is a plain `null`. @return list<mixed> */
+function gameContractLimits(bool $limited = false): array
+{
+    $block = ['limit', 'used', 'remaining', 'resets_at'];
+
+    return $limited ? ['runs' => $block, 'tickets' => ['balance', 'max'], 'boosters' => $block, 'boss_stages'] : ['runs', 'tickets' => ['balance', 'max'], 'boosters', 'boss_stages'];
+}
+
 function gameContractGet(Learner $learner, int $id): TestResponse
 {
     return test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/game/runs/{$id}");
@@ -137,7 +147,7 @@ it('keeps the exact shape of a run and of an answer for each of the nine kinds o
             // The read of the run: the exact shape with this kind of element in it; the start answered the same shape for the first one.
             $read = gameContractGet($learner, $id)->assertOk()->assertExactJsonStructure(gameContractRun($kind));
             if ($guard === 0) {
-                $started->assertExactJsonStructure(gameContractRun($kind));
+                $started->assertExactJsonStructure([...gameContractRun($kind), 'limits' => gameContractLimits()]);
             }
             expect(gameContractLeaks($read->json()))->toBe([])
                 ->and($read->json('current.element.kind'))->toBe($kind)
@@ -354,4 +364,78 @@ it('keeps the exact shape of the wallet, the shop, the profile, the purchase and
         ->assertExactJsonStructure(['error' => ['code', 'message']]);
     test()->withHeaders($headers)->postJson('/api/twa/game/profile/equip', ['slot' => 'tent', 'item_key' => 'tent_silk'])->assertStatus(404)
         ->assertExactJsonStructure(['error' => ['code', 'message']]);
+});
+
+it('keeps the exact shape of the booster, of the boosters block of a run, and of the limits of the map and of the start (G2.5b part 2)', function (): void {
+    GameKit::limits(2, 1, 1);
+    (new GameItemSeeder)->run();
+    [$learner, $course, $lesson] = GameKit::richStop();
+    foreach (['booster_hint', 'booster_extra_flask'] as $key) {
+        GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => GameItem::query()->where('key', $key)->value('id'), 'qty' => 2]);
+    }
+    $headers = PracticeKit::headers($learner);
+
+    // The start: the run and, beside it, the limits after this start (one run of two used).
+    $started = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated();
+    $id = $started->json('id');
+    $available = [['key' => 'booster_hint', 'effect' => 'hint', 'qty' => 2], ['key' => 'booster_extra_flask', 'effect' => 'extra_flask', 'qty' => 2]];
+    expect(array_keys($started->json('limits')))->toBe(['runs', 'tickets', 'boosters', 'boss_stages'])
+        ->and(array_keys($started->json('limits.runs')))->toBe(['limit', 'used', 'remaining', 'resets_at'])
+        ->and(array_keys($started->json('limits.boosters')))->toBe(['limit', 'used', 'remaining', 'resets_at'])
+        ->and(array_keys($started->json('limits.tickets')))->toBe(['balance', 'max'])
+        ->and($started->json('limits.runs.used'))->toBe(1)->and($started->json('limits.runs.remaining'))->toBe(1)
+        ->and($started->json('limits.boosters.used'))->toBe(0)->and($started->json('limits.boss_stages'))->toBe(1)
+        ->and($started->json('boosters'))->toBe(['available' => $available, 'used' => []])
+        ->and(gameContractLeaks($started->json()))->toBe([]);
+    $runKeys = array_values(array_diff(array_keys($started->json()), ['limits']));
+
+    // A read of the run has no `limits` (it is not a creation).
+    expect(array_keys(gameContractGet($learner, $id)->assertOk()->json()))->toBe($runKeys);
+
+    // The booster answers the run itself (the keys of a run, `limits` not among them).
+    Cache::flush();
+    $answer = test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_extra_flask'])->assertOk();
+    expect(array_keys($answer->json()))->toBe($runKeys)
+        ->and($answer->json('boosters'))->toBe([
+            'available' => [['key' => 'booster_hint', 'effect' => 'hint', 'qty' => 2], ['key' => 'booster_extra_flask', 'effect' => 'extra_flask', 'qty' => 1]],
+            'used' => [['key' => 'booster_extra_flask', 'effect' => 'extra_flask', 'element_id' => null]],
+        ])
+        ->and(gameContractLeaks($answer->json()))->toBe([]);
+
+    // The hint is inside the current element; the weekly limit (1) is used up now.
+    $run = GameRun::query()->findOrFail($id);
+    $state = $run->state;
+    $state['current'] = (int) array_search('translate_fwd', array_column($run->snapshot['elements'], 'kind'), true);
+    $run->forceFill(['state' => $state])->save();
+    Cache::flush();
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_hint'])->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['limit', 'used', 'resets_at']]]);
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_nothing'])->assertStatus(404)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+
+    // The map carries the same block, with the numbers of now: the booster of the week is used.
+    Cache::flush();
+    $map = test()->withHeaders($headers)->getJson("/api/twa/game/map?course={$course->slug}")->assertOk();
+    expect($map->json('limits.runs'))->toBe($started->json('limits.runs'))
+        ->and($map->json('limits.boosters.used'))->toBe(1)->and($map->json('limits.boosters.remaining'))->toBe(0)
+        ->and($map->json('limits.tickets'))->toBe($started->json('limits.tickets'));
+});
+
+it('puts the hint of a booster inside the current element and nowhere else', function (): void {
+    GameKit::limits(null, null, null);
+    (new GameItemSeeder)->run();
+    [$learner, $course, $lesson] = GameKit::richStop();
+    GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => GameItem::query()->where('key', 'booster_hint')->value('id'), 'qty' => 1]);
+    $headers = PracticeKit::headers($learner);
+    $id = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated()->json('id');
+    $run = GameRun::query()->findOrFail($id);
+    $state = $run->state;
+    $state['current'] = (int) array_search('translate_fwd', array_column($run->snapshot['elements'], 'kind'), true);
+    $run->forceFill(['state' => $state])->save();
+
+    $hinted = test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_hint'])->assertOk();
+
+    expect($hinted->json('current.element.hint.options_removed'))->toHaveCount(2)
+        ->and($hinted->json('boosters.used.0.element_id'))->toBe($hinted->json('current.element.id'))
+        ->and(gameContractLeaks($hinted->json()))->toBe([]);
 });
