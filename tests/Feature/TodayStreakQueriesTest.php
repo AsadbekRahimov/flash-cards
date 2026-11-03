@@ -72,7 +72,7 @@ it('shows a Free learner who never studied an empty streak and stores nothing', 
     $learner = todayStreakLearner(0, null);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 0, 'best' => 0, 'last' => null, 'freezes' => 0, 'refilled_on' => null]);
 });
@@ -81,7 +81,7 @@ it('shows a Free learner a living series as at risk, and changes nothing in the 
     $learner = todayStreakLearner(3, '2026-10-20', best: 5);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 5, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 5, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 5, 'last' => '2026-10-20', 'freezes' => 0, 'refilled_on' => null]);
 });
@@ -90,7 +90,7 @@ it('burns the series of a Free learner who skipped days and keeps the idle stock
     $learner = todayStreakLearner(4, '2026-10-17', freezes: 2);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 4, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 4, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 0, 'best' => 4, 'last' => '2026-10-17', 'freezes' => 2, 'refilled_on' => null])
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(0);
@@ -107,7 +107,7 @@ it('repairs on read a day whose goal was met but never credited to the streak', 
 
     todayStreakGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 2, 'met' => true])
-        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
+        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal']);
 
     expect(todayStreakStored($learner))->toMatchArray(['current' => 1, 'last' => '2026-10-21']);
 });
@@ -116,7 +116,7 @@ it('leaves a Pro learner whose week was already handled exactly as it is', funct
     $learner = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => false]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => false, 'held_by' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 3, 'last' => '2026-10-20', 'freezes' => 1, 'refilled_on' => '2026-10-19']);
 });
@@ -135,7 +135,7 @@ it('spends a Pro learner\'s old stock on the missed day first and only then hand
     $learner = todayStreakLearner(3, '2026-10-19', freezes: 1, pro: true, refilledOn: '2026-10-12');
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 3, 'last' => '2026-10-20', 'freezes' => 1, 'refilled_on' => '2026-10-19'])
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(1);

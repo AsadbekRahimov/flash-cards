@@ -55,7 +55,7 @@ uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
-const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday'];
+const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];

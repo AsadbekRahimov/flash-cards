@@ -98,7 +98,7 @@ it('spends a freeze on read when exactly one day was missed and keeps the series
     $learner = freezeLearner(3, '2026-10-16', 2);
 
     expect(freezeState($learner))->toBe([
-        'current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true,
+        'current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null,
     ])->and(freezeStored($learner))->toMatchArray(['freezes' => 1, 'current' => 3, 'last' => '2026-10-17']);
 
     $row = frozenRow($learner, '2026-10-17');
@@ -180,7 +180,7 @@ it('does nothing for a Free learner: no freeze, zero shown, the stored inventory
     $learner = freezeLearner(3, '2026-10-16', 2, pro: false);
 
     expect(freezeState($learner))->toBe([
-        'current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false,
+        'current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null,
     ])->and(freezeStored($learner))->toMatchArray(['freezes' => 2, 'last' => '2026-10-16'])
         ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0)
         ->and(app(StreakFreezeService::class)->tryFreeze($learner, '2026-10-17', CarbonImmutable::parse(FREEZE_NOW, 'UTC')))->toBeFalse();
@@ -399,7 +399,7 @@ it('GET /today refills on Monday, reports the inventory and the frozen yesterday
     $pro = freezeLearner(4, '2026-10-17', 1); // Saturday held, Sunday missed, one freeze in stock
     Learner::query()->whereKey($pro->id)->update(['streak_freezes_refilled_on' => '2026-10-12']);
     $this->withHeaders($headers($pro))->getJson('/api/twa/today')->assertOk()
-        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true]);
+        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null]);
     expect(freezeStored($pro))->toMatchArray(['freezes' => 1, 'refilled_on' => '2026-10-19', 'last' => '2026-10-18']);
 
     // No freeze in stock when the screen is read: the series is burnt, the Monday refill does not bring it back.
