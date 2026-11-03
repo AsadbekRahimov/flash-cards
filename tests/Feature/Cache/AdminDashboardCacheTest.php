@@ -105,7 +105,7 @@ it('opens the dashboard of /admin a second time without a single query from its 
     seedDashboardData();
     $widgets = Filament::getPanel('admin')->getWidgets();
 
-    expect($widgets)->toHaveCount(12);
+    expect($widgets)->toHaveCount(13);
 
     // The first open computes and stores: it is where the queries are.
     $cold = [];
@@ -121,7 +121,7 @@ it('opens the dashboard of /admin a second time without a single query from its 
         ->and(count($cold[OnboardingFunnelWidget::class]))->toBeGreaterThan(0)
         ->and(count($cold[SchedulerComparisonWidget::class]))->toBeGreaterThan(0);
 
-    // The second one reads the cache: not one statement, from any of the twelve.
+    // The second one reads the cache: not one statement, from any of the thirteen.
     foreach ($widgets as $widget) {
         $queries = QueryLog::during(fn () => Livewire::test($widget)->assertOk());
 
