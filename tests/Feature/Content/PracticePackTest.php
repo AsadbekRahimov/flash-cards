@@ -514,16 +514,17 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
     expect(PracticeItem::query()->where('status', PracticeItemStatus::Published)->count())->toBe(PPK_TASKS)
         ->and(PracticeItemVersion::query()->count())->toBe($versions);
 
-    // The sessions, once the course is published: a lesson of every module (the numbers 1..5 in turn) and the lessons the tasks
-    // of the old pack moved between, each in every authored mode, in ru and in uz by turns.
+    // The sessions, once the course is published: a lesson of every module, each in every authored mode, in ru and in uz by turns.
+    // The lesson numbers go 1..5 in turn, but modules 2, 4 and 7 show the lessons the tasks of the old pack left: down to three
+    // tasks of a type there, so a single locked task would close the mode.
     PracticeKit::openAccess();
     $course->forceFill(['status' => CoursePublisher::PUBLISHED, 'published_at' => now()])->save();
-    $wanted = ['2.1', '2.2', '4.1', '4.2', '7.1', '7.2', '7.5'];
+    $wanted = [];
     foreach (range(1, 20) as $module) {
-        $wanted[] = $module.'.'.(($module - 1) % 5 + 1);
+        $wanted[] = $module.'.'.(in_array($module, [2, 4, 7], true) ? 1 : ($module - 1) % 5 + 1);
     }
     $chosen = array_keys(array_intersect($lessons, $wanted));
-    expect($chosen)->toHaveCount(count(array_unique($wanted)));
+    expect($chosen)->toHaveCount(20);
 
     // Their phrases are voiced (no job runs here): ready, with a file on the disk of the practice.
     $audio = app(PracticeAudioService::class);
