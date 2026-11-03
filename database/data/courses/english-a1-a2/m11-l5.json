@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 11,
+    "title": "Путешествия",
+    "title_uz": "Sayohat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Маршрут и ориентация",
+    "title_uz": "Marshrut va yo'nalish"
+  },
+  "words": [
+    {
+      "word": "lost",
+      "part_of_speech": "adjective",
+      "translation": "потерянный",
+      "translations": {
+        "ru": "потерянный",
+        "uz": "adashgan"
+      },
+      "example": "Excuse me, I am lost.",
+      "example_translations": {
+        "ru": "Извините, я заблудился.",
+        "uz": "Kechirasiz, men adashib qoldim."
+      }
+    },
+    {
+      "word": "direction",
+      "part_of_speech": "noun",
+      "translation": "направление",
+      "translations": {
+        "ru": "направление",
+        "uz": "yo'nalish"
+      },
+      "example": "Which direction is the station?",
+      "example_translations": {
+        "ru": "В каком направлении вокзал?",
+        "uz": "Vokzal qaysi yo'nalishda?"
+      }
+    },
+    {
+      "word": "route",
+      "part_of_speech": "noun",
+      "translation": "маршрут",
+      "translations": {
+        "ru": "маршрут",
+        "uz": "marshrut"
+      },
+      "example": "This route is shorter than that one.",
+      "example_translations": {
+        "ru": "Этот маршрут короче того.",
+        "uz": "Bu marshrut u marshrutdan qisqaroq."
+      }
+    },
+    {
+      "word": "destination",
+      "part_of_speech": "noun",
+      "translation": "пункт назначения",
+      "translations": {
+        "ru": "пункт назначения",
+        "uz": "manzil"
+      },
+      "example": "Our destination is a small village.",
+      "example_translations": {
+        "ru": "Наш пункт назначения — маленькая деревня.",
+        "uz": "Bizning manzilimiz kichik qishloq."
+      }
+    },
+    {
+      "word": "explore",
+      "part_of_speech": "verb",
+      "translation": "исследовать",
+      "translations": {
+        "ru": "исследовать",
+        "uz": "kashf etmoq"
+      },
+      "example": "We explore the old town on foot.",
+      "example_translations": {
+        "ru": "Мы исследуем старый город пешком.",
+        "uz": "Biz eski shaharni piyoda kashf etamiz."
+      }
+    },
+    {
+      "word": "ahead",
+      "part_of_speech": "adverb",
+      "translation": "впереди",
+      "translations": {
+        "ru": "впереди",
+        "uz": "oldinda"
+      },
+      "example": "The bridge is just ahead.",
+      "example_translations": {
+        "ru": "Мост прямо впереди.",
+        "uz": "Ko'prik shundoq oldinda."
+      }
+    },
+    {
+      "word": "nearby",
+      "part_of_speech": "adverb",
+      "translation": "поблизости",
+      "translations": {
+        "ru": "поблизости",
+        "uz": "yaqin atrofda"
+      },
+      "example": "Is there a bank nearby?",
+      "example_translations": {
+        "ru": "Поблизости есть банк?",
+        "uz": "Yaqin atrofda bank bormi?"
+      }
+    },
+    {
+      "word": "return",
+      "part_of_speech": "verb",
+      "translation": "возвращаться",
+      "translations": {
+        "ru": "возвращаться",
+        "uz": "qaytmoq"
+      },
+      "example": "They return home on Sunday.",
+      "example_translations": {
+        "ru": "Они возвращаются домой в воскресенье.",
+        "uz": "Ular yakshanba kuni uyga qaytadi."
+      }
+    },
+    {
+      "word": "border",
+      "part_of_speech": "noun",
+      "translation": "граница",
+      "translations": {
+        "ru": "граница",
+        "uz": "chegara"
+      },
+      "example": "The border is closed at night.",
+      "example_translations": {
+        "ru": "Граница ночью закрыта.",
+        "uz": "Chegara kechasi yopiq."
+      }
+    },
+    {
+      "word": "currency",
+      "part_of_speech": "noun",
+      "translation": "валюта",
+      "translations": {
+        "ru": "валюта",
+        "uz": "valyuta"
+      },
+      "example": "What is the currency in Japan?",
+      "example_translations": {
+        "ru": "Какая валюта в Японии?",
+        "uz": "Yaponiyada valyuta nima?"
+      }
+    }
+  ]
+}

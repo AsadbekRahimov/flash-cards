@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 18,
+    "title": "Здоровье и образ жизни",
+    "title_uz": "Salomatlik va turmush tarzi"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Привычки",
+    "title_uz": "Odatlar"
+  },
+  "words": [
+    {
+      "word": "habit",
+      "part_of_speech": "noun",
+      "translation": "привычка",
+      "translations": {
+        "ru": "привычка",
+        "uz": "odat"
+      },
+      "example": "Reading before bed is a good habit.",
+      "example_translations": {
+        "ru": "Чтение перед сном — хорошая привычка.",
+        "uz": "Uxlashdan oldin kitob o'qish yaxshi odat."
+      }
+    },
+    {
+      "word": "smoke",
+      "part_of_speech": "verb",
+      "translation": "курить",
+      "translations": {
+        "ru": "курить",
+        "uz": "chekmoq"
+      },
+      "example": "My grandfather does not smoke anymore.",
+      "example_translations": {
+        "ru": "Мой дедушка больше не курит.",
+        "uz": "Bobom endi chekmaydi."
+      }
+    },
+    {
+      "word": "stress",
+      "part_of_speech": "noun",
+      "translation": "стресс",
+      "translations": {
+        "ru": "стресс",
+        "uz": "stress"
+      },
+      "example": "Too much stress is bad for you.",
+      "example_translations": {
+        "ru": "Слишком много стресса вредно для тебя.",
+        "uz": "Haddan ortiq stress sizga zarar."
+      }
+    },
+    {
+      "word": "balance",
+      "part_of_speech": "noun",
+      "translation": "баланс",
+      "translations": {
+        "ru": "баланс",
+        "uz": "muvozanat"
+      },
+      "example": "Find a balance between work and rest.",
+      "example_translations": {
+        "ru": "Найди баланс между работой и отдыхом.",
+        "uz": "Ish va dam olish o'rtasida muvozanat top."
+      }
+    },
+    {
+      "word": "lifestyle",
+      "part_of_speech": "noun",
+      "translation": "образ жизни",
+      "translations": {
+        "ru": "образ жизни",
+        "uz": "turmush tarzi"
+      },
+      "example": "They have a quiet and healthy lifestyle.",
+      "example_translations": {
+        "ru": "У них спокойный и здоровый образ жизни.",
+        "uz": "Ularning turmush tarzi tinch va sog'lom."
+      }
+    },
+    {
+      "word": "avoid",
+      "part_of_speech": "verb",
+      "translation": "избегать",
+      "translations": {
+        "ru": "избегать",
+        "uz": "qochmoq"
+      },
+      "example": "Try to avoid sugar and fast food.",
+      "example_translations": {
+        "ru": "Старайся избегать сахара и фастфуда.",
+        "uz": "Shakar va tez ovqatdan qochishga harakat qil."
+      }
+    },
+    {
+      "word": "regular",
+      "part_of_speech": "adjective",
+      "translation": "регулярный",
+      "translations": {
+        "ru": "регулярный",
+        "uz": "muntazam"
+      },
+      "example": "Regular sleep helps you stay healthy.",
+      "example_translations": {
+        "ru": "Регулярный сон помогает оставаться здоровым.",
+        "uz": "Muntazam uyqu sog'lom bo'lishga yordam beradi."
+      }
+    },
+    {
+      "word": "harmful",
+      "part_of_speech": "adjective",
+      "translation": "вредный",
+      "translations": {
+        "ru": "вредный",
+        "uz": "zararli"
+      },
+      "example": "Smoking is harmful to your heart.",
+      "example_translations": {
+        "ru": "Курение вредно для сердца.",
+        "uz": "Chekish yurak uchun zararli."
+      }
+    },
+    {
+      "word": "mental",
+      "part_of_speech": "adjective",
+      "translation": "психический",
+      "translations": {
+        "ru": "психический",
+        "uz": "ruhiy"
+      },
+      "example": "Walking is good for mental health.",
+      "example_translations": {
+        "ru": "Ходьба полезна для психического здоровья.",
+        "uz": "Yurish ruhiy salomatlik uchun foydali."
+      }
+    },
+    {
+      "word": "active",
+      "part_of_speech": "adjective",
+      "translation": "активный",
+      "translations": {
+        "ru": "активный",
+        "uz": "faol"
+      },
+      "example": "My grandmother is still very active.",
+      "example_translations": {
+        "ru": "Моя бабушка всё ещё очень активна.",
+        "uz": "Buvim hali ham juda faol."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 19,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Дикая природа",
+    "title_uz": "Yovvoyi tabiat"
+  },
+  "words": [
+    {
+      "word": "wolf",
+      "part_of_speech": "noun",
+      "translation": "волк",
+      "translations": {
+        "ru": "волк",
+        "uz": "bo'ri"
+      },
+      "example": "A wolf can run very fast.",
+      "example_translations": {
+        "ru": "Волк умеет бегать очень быстро.",
+        "uz": "Bo'ri juda tez yugura oladi."
+      }
+    },
+    {
+      "word": "fox",
+      "part_of_speech": "noun",
+      "translation": "лиса",
+      "translations": {
+        "ru": "лиса",
+        "uz": "tulki"
+      },
+      "example": "The fox hides in the forest.",
+      "example_translations": {
+        "ru": "Лиса прячется в лесу.",
+        "uz": "Tulki o'rmonda yashirinadi."
+      }
+    },
+    {
+      "word": "deer",
+      "part_of_speech": "noun",
+      "translation": "олень",
+      "translations": {
+        "ru": "олень",
+        "uz": "kiyik"
+      },
+      "example": "We saw a deer near the road.",
+      "example_translations": {
+        "ru": "Мы увидели оленя у дороги.",
+        "uz": "Biz yo'l yonida kiyik ko'rdik."
+      }
+    },
+    {
+      "word": "eagle",
+      "part_of_speech": "noun",
+      "translation": "орёл",
+      "translations": {
+        "ru": "орёл",
+        "uz": "burgut"
+      },
+      "example": "An eagle flies above the mountains.",
+      "example_translations": {
+        "ru": "Орёл летит над горами.",
+        "uz": "Burgut tog'lar ustida uchadi."
+      }
+    },
+    {
+      "word": "snake",
+      "part_of_speech": "noun",
+      "translation": "змея",
+      "translations": {
+        "ru": "змея",
+        "uz": "ilon"
+      },
+      "example": "Be careful, there is a snake there.",
+      "example_translations": {
+        "ru": "Осторожно, там змея.",
+        "uz": "Ehtiyot bo'ling, u yerda ilon bor."
+      }
+    },
+    {
+      "word": "frog",
+      "part_of_speech": "noun",
+      "translation": "лягушка",
+      "translations": {
+        "ru": "лягушка",
+        "uz": "baqa"
+      },
+      "example": "The frog jumps into the pond.",
+      "example_translations": {
+        "ru": "Лягушка прыгает в пруд.",
+        "uz": "Baqa hovuzga sakraydi."
+      }
+    },
+    {
+      "word": "insect",
+      "part_of_speech": "noun",
+      "translation": "насекомое",
+      "translations": {
+        "ru": "насекомое",
+        "uz": "hasharot"
+      },
+      "example": "This insect is very small.",
+      "example_translations": {
+        "ru": "Это насекомое очень маленькое.",
+        "uz": "Bu hasharot juda kichik."
+      }
+    },
+    {
+      "word": "butterfly",
+      "part_of_speech": "noun",
+      "translation": "бабочка",
+      "translations": {
+        "ru": "бабочка",
+        "uz": "kapalak"
+      },
+      "example": "A yellow butterfly sits on the flower.",
+      "example_translations": {
+        "ru": "Жёлтая бабочка сидит на цветке.",
+        "uz": "Sariq kapalak gulga qo'nib turibdi."
+      }
+    },
+    {
+      "word": "bee",
+      "part_of_speech": "noun",
+      "translation": "пчела",
+      "translations": {
+        "ru": "пчела",
+        "uz": "asalari"
+      },
+      "example": "A bee makes sweet honey.",
+      "example_translations": {
+        "ru": "Пчела делает сладкий мёд.",
+        "uz": "Asalari shirin asal tayyorlaydi."
+      }
+    },
+    {
+      "word": "whale",
+      "part_of_speech": "noun",
+      "translation": "кит",
+      "translations": {
+        "ru": "кит",
+        "uz": "kit"
+      },
+      "example": "A whale is bigger than a bus.",
+      "example_translations": {
+        "ru": "Кит больше автобуса.",
+        "uz": "Kit avtobusdan ham katta."
+      }
+    }
+  ]
+}

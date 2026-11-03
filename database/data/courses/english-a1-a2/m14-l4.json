@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 14,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Условия труда",
+    "title_uz": "Mehnat sharoitlari"
+  },
+  "words": [
+    {
+      "word": "overtime",
+      "part_of_speech": "noun",
+      "translation": "сверхурочная работа",
+      "translations": {
+        "ru": "сверхурочная работа",
+        "uz": "qo'shimcha ish vaqti"
+      },
+      "example": "We work overtime before the holiday.",
+      "example_translations": {
+        "ru": "Перед праздником мы работаем сверхурочно.",
+        "uz": "Bayramdan oldin biz qo'shimcha vaqt ishlaymiz."
+      }
+    },
+    {
+      "word": "shift",
+      "part_of_speech": "noun",
+      "translation": "смена",
+      "translations": {
+        "ru": "смена",
+        "uz": "smena"
+      },
+      "example": "My night shift starts at ten.",
+      "example_translations": {
+        "ru": "Моя ночная смена начинается в десять.",
+        "uz": "Mening tungi smenam o'nda boshlanadi."
+      }
+    },
+    {
+      "word": "vacation",
+      "part_of_speech": "noun",
+      "translation": "отпуск",
+      "translations": {
+        "ru": "отпуск",
+        "uz": "ta'til"
+      },
+      "example": "I take my vacation in August.",
+      "example_translations": {
+        "ru": "Я беру отпуск в августе.",
+        "uz": "Men ta'tilimni avgustda olaman."
+      }
+    },
+    {
+      "word": "promotion",
+      "part_of_speech": "noun",
+      "translation": "повышение",
+      "translations": {
+        "ru": "повышение",
+        "uz": "lavozim ko'tarilishi"
+      },
+      "example": "She got a promotion last month.",
+      "example_translations": {
+        "ru": "В прошлом месяце её повысили.",
+        "uz": "U o'tgan oy lavozimda ko'tarildi."
+      }
+    },
+    {
+      "word": "retire",
+      "part_of_speech": "verb",
+      "translation": "уходить на пенсию",
+      "translations": {
+        "ru": "уходить на пенсию",
+        "uz": "nafaqaga chiqmoq"
+      },
+      "example": "My grandfather retired at sixty.",
+      "example_translations": {
+        "ru": "Мой дедушка ушёл на пенсию в шестьдесят.",
+        "uz": "Bobom oltmish yoshida nafaqaga chiqqan."
+      }
+    },
+    {
+      "word": "quit",
+      "part_of_speech": "verb",
+      "translation": "увольняться",
+      "translations": {
+        "ru": "увольняться",
+        "uz": "ishdan ketmoq"
+      },
+      "example": "He wants to quit his boring job.",
+      "example_translations": {
+        "ru": "Он хочет уволиться с нудной работы.",
+        "uz": "U zerikarli ishidan ketmoqchi."
+      }
+    },
+    {
+      "word": "busy",
+      "part_of_speech": "adjective",
+      "translation": "занятой",
+      "translations": {
+        "ru": "занятой",
+        "uz": "band"
+      },
+      "example": "I am very busy this week.",
+      "example_translations": {
+        "ru": "Я очень занят на этой неделе.",
+        "uz": "Men bu hafta juda bandman."
+      }
+    },
+    {
+      "word": "stressful",
+      "part_of_speech": "adjective",
+      "translation": "стрессовый",
+      "translations": {
+        "ru": "стрессовый",
+        "uz": "stressli"
+      },
+      "example": "A stressful job is bad for health.",
+      "example_translations": {
+        "ru": "Стрессовая работа вредна для здоровья.",
+        "uz": "Stressli ish salomatlik uchun yomon."
+      }
+    },
+    {
+      "word": "flexible",
+      "part_of_speech": "adjective",
+      "translation": "гибкий",
+      "translations": {
+        "ru": "гибкий",
+        "uz": "moslashuvchan"
+      },
+      "example": "I have flexible working hours.",
+      "example_translations": {
+        "ru": "У меня гибкий рабочий график.",
+        "uz": "Mening ish soatlarim moslashuvchan."
+      }
+    },
+    {
+      "word": "pension",
+      "part_of_speech": "noun",
+      "translation": "пенсия",
+      "translations": {
+        "ru": "пенсия",
+        "uz": "nafaqa"
+      },
+      "example": "My grandmother lives on a small pension.",
+      "example_translations": {
+        "ru": "Моя бабушка живёт на небольшую пенсию.",
+        "uz": "Buvim kichik nafaqa bilan yashaydi."
+      }
+    }
+  ]
+}

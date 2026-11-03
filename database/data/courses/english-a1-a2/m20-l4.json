@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 20,
+    "title": "Общество и культура",
+    "title_uz": "Jamiyat va madaniyat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Новости и СМИ",
+    "title_uz": "Yangiliklar va OAV"
+  },
+  "words": [
+    {
+      "word": "news",
+      "part_of_speech": "noun",
+      "translation": "новости",
+      "translations": {
+        "ru": "новости",
+        "uz": "yangiliklar"
+      },
+      "example": "I watch the news every evening.",
+      "example_translations": {
+        "ru": "Я смотрю новости каждый вечер.",
+        "uz": "Men har kuni kechqurun yangiliklarni ko'raman."
+      }
+    },
+    {
+      "word": "journalist",
+      "part_of_speech": "noun",
+      "translation": "журналист",
+      "translations": {
+        "ru": "журналист",
+        "uz": "jurnalist"
+      },
+      "example": "The journalist asks the mayor a question.",
+      "example_translations": {
+        "ru": "Журналист задаёт мэру вопрос.",
+        "uz": "Jurnalist merga savol beradi."
+      }
+    },
+    {
+      "word": "headline",
+      "part_of_speech": "noun",
+      "translation": "заголовок",
+      "translations": {
+        "ru": "заголовок",
+        "uz": "sarlavha"
+      },
+      "example": "The headline is on the front page.",
+      "example_translations": {
+        "ru": "Заголовок на первой странице.",
+        "uz": "Sarlavha birinchi sahifada."
+      }
+    },
+    {
+      "word": "article",
+      "part_of_speech": "noun",
+      "translation": "статья",
+      "translations": {
+        "ru": "статья",
+        "uz": "maqola"
+      },
+      "example": "I read an interesting article today.",
+      "example_translations": {
+        "ru": "Сегодня я прочитал интересную статью.",
+        "uz": "Bugun men qiziqarli maqola o'qidim."
+      }
+    },
+    {
+      "word": "channel",
+      "part_of_speech": "noun",
+      "translation": "канал",
+      "translations": {
+        "ru": "канал",
+        "uz": "kanal"
+      },
+      "example": "Which channel shows the football match?",
+      "example_translations": {
+        "ru": "По какому каналу показывают футбольный матч?",
+        "uz": "Futbol o'yinini qaysi kanalda ko'rsatishadi?"
+      }
+    },
+    {
+      "word": "celebrity",
+      "part_of_speech": "noun",
+      "translation": "знаменитость",
+      "translations": {
+        "ru": "знаменитость",
+        "uz": "mashhur shaxs"
+      },
+      "example": "She wants to be a celebrity.",
+      "example_translations": {
+        "ru": "Она хочет стать знаменитостью.",
+        "uz": "U mashhur shaxs bo'lishni xohlaydi."
+      }
+    },
+    {
+      "word": "advertisement",
+      "part_of_speech": "noun",
+      "translation": "реклама",
+      "translations": {
+        "ru": "реклама",
+        "uz": "reklama"
+      },
+      "example": "This advertisement is on every bus.",
+      "example_translations": {
+        "ru": "Эта реклама есть на каждом автобусе.",
+        "uz": "Bu reklama har bir avtobusda bor."
+      }
+    },
+    {
+      "word": "audience",
+      "part_of_speech": "noun",
+      "translation": "зрители",
+      "translations": {
+        "ru": "зрители",
+        "uz": "tomoshabinlar"
+      },
+      "example": "The audience laughs at his joke.",
+      "example_translations": {
+        "ru": "Зрители смеются над его шуткой.",
+        "uz": "Tomoshabinlar uning hazliga kuladi."
+      }
+    },
+    {
+      "word": "documentary",
+      "part_of_speech": "noun",
+      "translation": "документальный фильм",
+      "translations": {
+        "ru": "документальный фильм",
+        "uz": "hujjatli film"
+      },
+      "example": "We watched a documentary about whales.",
+      "example_translations": {
+        "ru": "Мы посмотрели документальный фильм о китах.",
+        "uz": "Biz kitlar haqida hujjatli film ko'rdik."
+      }
+    },
+    {
+      "word": "comedy",
+      "part_of_speech": "noun",
+      "translation": "комедия",
+      "translations": {
+        "ru": "комедия",
+        "uz": "komediya"
+      },
+      "example": "I prefer a comedy after a hard day.",
+      "example_translations": {
+        "ru": "После трудного дня я предпочитаю комедию.",
+        "uz": "Qiyin kundan keyin men komediyani afzal ko'raman."
+      }
+    }
+  ]
+}

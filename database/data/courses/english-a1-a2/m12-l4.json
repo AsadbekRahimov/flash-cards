@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 12,
+    "title": "Технологии и связь",
+    "title_uz": "Texnologiya va aloqa"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Компьютер и программы",
+    "title_uz": "Kompyuter va dasturlar"
+  },
+  "words": [
+    {
+      "word": "program",
+      "part_of_speech": "noun",
+      "translation": "программа",
+      "translations": {
+        "ru": "программа",
+        "uz": "dastur"
+      },
+      "example": "This program is free for students.",
+      "example_translations": {
+        "ru": "Эта программа бесплатна для студентов.",
+        "uz": "Bu dastur talabalar uchun bepul."
+      }
+    },
+    {
+      "word": "app",
+      "part_of_speech": "noun",
+      "translation": "приложение",
+      "translations": {
+        "ru": "приложение",
+        "uz": "ilova"
+      },
+      "example": "I use an app to learn words.",
+      "example_translations": {
+        "ru": "Я учу слова с помощью приложения.",
+        "uz": "Men so'zlarni ilova yordamida o'rganaman."
+      }
+    },
+    {
+      "word": "file",
+      "part_of_speech": "noun",
+      "translation": "файл",
+      "translations": {
+        "ru": "файл",
+        "uz": "fayl"
+      },
+      "example": "Where is the file I sent?",
+      "example_translations": {
+        "ru": "Где файл, который я отправил?",
+        "uz": "Men yuborgan fayl qayerda?"
+      }
+    },
+    {
+      "word": "folder",
+      "part_of_speech": "noun",
+      "translation": "папка",
+      "translations": {
+        "ru": "папка",
+        "uz": "papka"
+      },
+      "example": "Put the photos in this folder.",
+      "example_translations": {
+        "ru": "Положи фотографии в эту папку.",
+        "uz": "Suratlarni shu papkaga qo'y."
+      }
+    },
+    {
+      "word": "save",
+      "part_of_speech": "verb",
+      "translation": "сохранять",
+      "translations": {
+        "ru": "сохранять",
+        "uz": "saqlamoq"
+      },
+      "example": "Save your work before you close it.",
+      "example_translations": {
+        "ru": "Сохрани работу, прежде чем закрыть.",
+        "uz": "Yopishdan oldin ishingni saqla."
+      }
+    },
+    {
+      "word": "delete",
+      "part_of_speech": "verb",
+      "translation": "удалять",
+      "translations": {
+        "ru": "удалять",
+        "uz": "o'chirmoq"
+      },
+      "example": "Do not delete this old photo.",
+      "example_translations": {
+        "ru": "Не удаляй эту старую фотографию.",
+        "uz": "Bu eski suratni o'chirma."
+      }
+    },
+    {
+      "word": "update",
+      "part_of_speech": "verb",
+      "translation": "обновлять",
+      "translations": {
+        "ru": "обновлять",
+        "uz": "yangilamoq"
+      },
+      "example": "I need to update my phone.",
+      "example_translations": {
+        "ru": "Мне нужно обновить телефон.",
+        "uz": "Men telefonimni yangilashim kerak."
+      }
+    },
+    {
+      "word": "install",
+      "part_of_speech": "verb",
+      "translation": "устанавливать",
+      "translations": {
+        "ru": "устанавливать",
+        "uz": "o'rnatmoq"
+      },
+      "example": "Can you install this program for me?",
+      "example_translations": {
+        "ru": "Можешь установить для меня эту программу?",
+        "uz": "Bu dasturni men uchun o'rnata olasanmi?"
+      }
+    },
+    {
+      "word": "data",
+      "part_of_speech": "noun",
+      "translation": "данные",
+      "translations": {
+        "ru": "данные",
+        "uz": "ma'lumotlar"
+      },
+      "example": "The app uses a lot of data.",
+      "example_translations": {
+        "ru": "Приложение расходует много данных.",
+        "uz": "Ilova ko'p ma'lumot sarflaydi."
+      }
+    },
+    {
+      "word": "cable",
+      "part_of_speech": "noun",
+      "translation": "кабель",
+      "translations": {
+        "ru": "кабель",
+        "uz": "kabel"
+      },
+      "example": "The cable is too short.",
+      "example_translations": {
+        "ru": "Кабель слишком короткий.",
+        "uz": "Kabel juda qisqa."
+      }
+    }
+  ]
+}

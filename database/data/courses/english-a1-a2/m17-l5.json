@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 17,
+    "title": "Услуги и покупки",
+    "title_uz": "Xizmatlar va xaridlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Оценка покупки",
+    "title_uz": "Xaridni baholash"
+  },
+  "words": [
+    {
+      "word": "afford",
+      "part_of_speech": "verb",
+      "translation": "позволить себе",
+      "translations": {
+        "ru": "позволить себе",
+        "uz": "qurbi yetmoq"
+      },
+      "example": "I cannot afford a new car.",
+      "example_translations": {
+        "ru": "Я не могу позволить себе новую машину.",
+        "uz": "Yangi mashina olishga qurbim yetmaydi."
+      }
+    },
+    {
+      "word": "enough",
+      "part_of_speech": "adverb",
+      "translation": "достаточно",
+      "translations": {
+        "ru": "достаточно",
+        "uz": "yetarli"
+      },
+      "example": "Do you have enough money with you?",
+      "example_translations": {
+        "ru": "У тебя с собой достаточно денег?",
+        "uz": "Yoningda yetarlicha pul bormi?"
+      }
+    },
+    {
+      "word": "worth",
+      "part_of_speech": "adjective",
+      "translation": "стоящий",
+      "translations": {
+        "ru": "стоящий",
+        "uz": "arziydi"
+      },
+      "example": "This old book is worth a lot.",
+      "example_translations": {
+        "ru": "Эта старая книга стоит дорого.",
+        "uz": "Bu eski kitob ancha arziydi."
+      }
+    },
+    {
+      "word": "fashionable",
+      "part_of_speech": "adjective",
+      "translation": "модный",
+      "translations": {
+        "ru": "модный",
+        "uz": "zamonaviy"
+      },
+      "example": "Her coat is very fashionable.",
+      "example_translations": {
+        "ru": "Её пальто очень модное.",
+        "uz": "Uning paltosi juda zamonaviy."
+      }
+    },
+    {
+      "word": "tight",
+      "part_of_speech": "adjective",
+      "translation": "тесный",
+      "translations": {
+        "ru": "тесный",
+        "uz": "tor"
+      },
+      "example": "These jeans are too tight for me.",
+      "example_translations": {
+        "ru": "Эти джинсы слишком тесные для меня.",
+        "uz": "Bu jinsi men uchun juda tor."
+      }
+    },
+    {
+      "word": "loose",
+      "part_of_speech": "adjective",
+      "translation": "свободный",
+      "translations": {
+        "ru": "свободный",
+        "uz": "keng"
+      },
+      "example": "I like loose shirts in summer.",
+      "example_translations": {
+        "ru": "Летом я люблю свободные рубашки.",
+        "uz": "Yozda men keng ko'ylaklarni yaxshi ko'raman."
+      }
+    },
+    {
+      "word": "fit",
+      "part_of_speech": "verb",
+      "translation": "подходить по размеру",
+      "translations": {
+        "ru": "подходить по размеру",
+        "uz": "mos kelmoq"
+      },
+      "example": "These shoes do not fit me.",
+      "example_translations": {
+        "ru": "Эти туфли мне не подходят по размеру.",
+        "uz": "Bu poyabzal menga mos kelmaydi."
+      }
+    },
+    {
+      "word": "suit",
+      "part_of_speech": "verb",
+      "translation": "идти, быть к лицу",
+      "translations": {
+        "ru": "идти, быть к лицу",
+        "uz": "yarashmoq"
+      },
+      "example": "That green shirt suits you.",
+      "example_translations": {
+        "ru": "Эта зелёная рубашка тебе идёт.",
+        "uz": "Bu yashil ko'ylak senga yarashadi."
+      }
+    },
+    {
+      "word": "reasonable",
+      "part_of_speech": "adjective",
+      "translation": "разумный, приемлемый",
+      "translations": {
+        "ru": "разумный, приемлемый",
+        "uz": "o'rtacha"
+      },
+      "example": "The price is quite reasonable.",
+      "example_translations": {
+        "ru": "Цена вполне приемлемая.",
+        "uz": "Narx ancha o'rtacha."
+      }
+    },
+    {
+      "word": "bargain",
+      "part_of_speech": "noun",
+      "translation": "выгодная покупка",
+      "translations": {
+        "ru": "выгодная покупка",
+        "uz": "arzon xarid"
+      },
+      "example": "This jacket is a real bargain.",
+      "example_translations": {
+        "ru": "Эта куртка — настоящая выгодная покупка.",
+        "uz": "Bu kurtka haqiqiy arzon xarid."
+      }
+    }
+  ]
+}

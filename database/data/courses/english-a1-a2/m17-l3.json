@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 17,
+    "title": "Услуги и покупки",
+    "title_uz": "Xizmatlar va xaridlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Покупки в магазине",
+    "title_uz": "Do'konda xarid qilish"
+  },
+  "words": [
+    {
+      "word": "receipt",
+      "part_of_speech": "noun",
+      "translation": "чек",
+      "translations": {
+        "ru": "чек",
+        "uz": "chek"
+      },
+      "example": "Keep the receipt for the new shoes.",
+      "example_translations": {
+        "ru": "Сохрани чек на новые туфли.",
+        "uz": "Yangi poyabzal uchun chekni saqlab qo'y."
+      }
+    },
+    {
+      "word": "discount",
+      "part_of_speech": "noun",
+      "translation": "скидка",
+      "translations": {
+        "ru": "скидка",
+        "uz": "chegirma"
+      },
+      "example": "This shop gives a ten percent discount.",
+      "example_translations": {
+        "ru": "Этот магазин даёт скидку десять процентов.",
+        "uz": "Bu do'kon o'n foiz chegirma beradi."
+      }
+    },
+    {
+      "word": "sale",
+      "part_of_speech": "noun",
+      "translation": "распродажа",
+      "translations": {
+        "ru": "распродажа",
+        "uz": "chegirmalar"
+      },
+      "example": "The winter sale starts next week.",
+      "example_translations": {
+        "ru": "Зимняя распродажа начинается на следующей неделе.",
+        "uz": "Qishki chegirmalar kelasi hafta boshlanadi."
+      }
+    },
+    {
+      "word": "refund",
+      "part_of_speech": "noun",
+      "translation": "возврат денег",
+      "translations": {
+        "ru": "возврат денег",
+        "uz": "pulni qaytarish"
+      },
+      "example": "I want a refund for this shirt.",
+      "example_translations": {
+        "ru": "Я хочу вернуть деньги за эту рубашку.",
+        "uz": "Men bu ko'ylak uchun pulni qaytarib olmoqchiman."
+      }
+    },
+    {
+      "word": "basket",
+      "part_of_speech": "noun",
+      "translation": "корзина",
+      "translations": {
+        "ru": "корзина",
+        "uz": "savat"
+      },
+      "example": "Put the apples in the basket.",
+      "example_translations": {
+        "ru": "Положи яблоки в корзину.",
+        "uz": "Olmalarni savatga sol."
+      }
+    },
+    {
+      "word": "checkout",
+      "part_of_speech": "noun",
+      "translation": "касса",
+      "translations": {
+        "ru": "касса",
+        "uz": "kassa"
+      },
+      "example": "Please wait at the checkout.",
+      "example_translations": {
+        "ru": "Пожалуйста, подождите у кассы.",
+        "uz": "Iltimos, kassada kuting."
+      }
+    },
+    {
+      "word": "brand",
+      "part_of_speech": "noun",
+      "translation": "бренд",
+      "translations": {
+        "ru": "бренд",
+        "uz": "brend"
+      },
+      "example": "This brand makes good sports shoes.",
+      "example_translations": {
+        "ru": "Этот бренд делает хорошие кроссовки.",
+        "uz": "Bu brend yaxshi sport poyabzali ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "label",
+      "part_of_speech": "noun",
+      "translation": "этикетка",
+      "translations": {
+        "ru": "этикетка",
+        "uz": "yorliq"
+      },
+      "example": "Read the label before you buy it.",
+      "example_translations": {
+        "ru": "Прочитай этикетку, прежде чем купить.",
+        "uz": "Sotib olishdan oldin yorliqni o'qi."
+      }
+    },
+    {
+      "word": "shopping",
+      "part_of_speech": "noun",
+      "translation": "покупки",
+      "translations": {
+        "ru": "покупки",
+        "uz": "xarid"
+      },
+      "example": "We do our shopping on Saturday.",
+      "example_translations": {
+        "ru": "Мы делаем покупки по субботам.",
+        "uz": "Biz xaridni shanba kuni qilamiz."
+      }
+    },
+    {
+      "word": "supermarket",
+      "part_of_speech": "noun",
+      "translation": "супермаркет",
+      "translations": {
+        "ru": "супермаркет",
+        "uz": "supermarket"
+      },
+      "example": "The supermarket closes at ten tonight.",
+      "example_translations": {
+        "ru": "Супермаркет сегодня закрывается в десять.",
+        "uz": "Supermarket bugun kechqurun o'nda yopiladi."
+      }
+    }
+  ]
+}

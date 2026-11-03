@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 18,
+    "title": "Здоровье и образ жизни",
+    "title_uz": "Salomatlik va turmush tarzi"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Питание",
+    "title_uz": "Ovqatlanish"
+  },
+  "words": [
+    {
+      "word": "diet",
+      "part_of_speech": "noun",
+      "translation": "диета, рацион",
+      "translations": {
+        "ru": "диета, рацион",
+        "uz": "parhez"
+      },
+      "example": "A healthy diet includes many vegetables.",
+      "example_translations": {
+        "ru": "Здоровый рацион включает много овощей.",
+        "uz": "Sog'lom parhez ko'p sabzavotni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "calorie",
+      "part_of_speech": "noun",
+      "translation": "калория",
+      "translations": {
+        "ru": "калория",
+        "uz": "kaloriya"
+      },
+      "example": "This cake has too many calories.",
+      "example_translations": {
+        "ru": "В этом торте слишком много калорий.",
+        "uz": "Bu tortda kaloriya juda ko'p."
+      }
+    },
+    {
+      "word": "vitamin",
+      "part_of_speech": "noun",
+      "translation": "витамин",
+      "translations": {
+        "ru": "витамин",
+        "uz": "vitamin"
+      },
+      "example": "Oranges have a lot of vitamin C.",
+      "example_translations": {
+        "ru": "В апельсинах много витамина C.",
+        "uz": "Apelsinda S vitamini ko'p."
+      }
+    },
+    {
+      "word": "protein",
+      "part_of_speech": "noun",
+      "translation": "белок",
+      "translations": {
+        "ru": "белок",
+        "uz": "oqsil"
+      },
+      "example": "Fish and eggs are rich in protein.",
+      "example_translations": {
+        "ru": "Рыба и яйца богаты белком.",
+        "uz": "Baliq va tuxum oqsilga boy."
+      }
+    },
+    {
+      "word": "snack",
+      "part_of_speech": "noun",
+      "translation": "перекус",
+      "translations": {
+        "ru": "перекус",
+        "uz": "yengil tamaddi"
+      },
+      "example": "I eat a small snack at four.",
+      "example_translations": {
+        "ru": "Я перекусываю в четыре часа.",
+        "uz": "Men soat to'rtda yengil tamaddi qilaman."
+      }
+    },
+    {
+      "word": "meal",
+      "part_of_speech": "noun",
+      "translation": "приём пищи, блюдо",
+      "translations": {
+        "ru": "приём пищи, блюдо",
+        "uz": "ovqat"
+      },
+      "example": "Dinner is my biggest meal of the day.",
+      "example_translations": {
+        "ru": "Ужин — мой самый плотный приём пищи за день.",
+        "uz": "Kechki ovqat kunning eng to'yimli ovqatim."
+      }
+    },
+    {
+      "word": "vegetarian",
+      "part_of_speech": "adjective",
+      "translation": "вегетарианский",
+      "translations": {
+        "ru": "вегетарианский",
+        "uz": "vegetarian"
+      },
+      "example": "My sister is a vegetarian.",
+      "example_translations": {
+        "ru": "Моя сестра — вегетарианка.",
+        "uz": "Singlim vegetarian."
+      }
+    },
+    {
+      "word": "organic",
+      "part_of_speech": "adjective",
+      "translation": "органический",
+      "translations": {
+        "ru": "органический",
+        "uz": "organik"
+      },
+      "example": "We buy organic eggs at the market.",
+      "example_translations": {
+        "ru": "Мы покупаем органические яйца на рынке.",
+        "uz": "Biz bozordan organik tuxum sotib olamiz."
+      }
+    },
+    {
+      "word": "appetite",
+      "part_of_speech": "noun",
+      "translation": "аппетит",
+      "translations": {
+        "ru": "аппетит",
+        "uz": "ishtaha"
+      },
+      "example": "I have no appetite when I am sick.",
+      "example_translations": {
+        "ru": "У меня нет аппетита, когда я болею.",
+        "uz": "Kasal bo'lganimda ishtaham bo'lmaydi."
+      }
+    },
+    {
+      "word": "nutrition",
+      "part_of_speech": "noun",
+      "translation": "питание",
+      "translations": {
+        "ru": "питание",
+        "uz": "oziqlanish"
+      },
+      "example": "Good nutrition is important for children.",
+      "example_translations": {
+        "ru": "Хорошее питание важно для детей.",
+        "uz": "Yaxshi oziqlanish bolalar uchun muhim."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 16,
+    "title": "Дом и быт",
+    "title_uz": "Uy va maishat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Мебель и техника",
+    "title_uz": "Mebel va maishiy texnika"
+  },
+  "words": [
+    {
+      "word": "wardrobe",
+      "part_of_speech": "noun",
+      "translation": "шкаф для одежды",
+      "translations": {
+        "ru": "шкаф для одежды",
+        "uz": "kiyim shkafi"
+      },
+      "example": "Her dresses are in the wardrobe.",
+      "example_translations": {
+        "ru": "Её платья в шкафу.",
+        "uz": "Uning ko'ylaklari kiyim shkafida."
+      }
+    },
+    {
+      "word": "curtain",
+      "part_of_speech": "noun",
+      "translation": "штора",
+      "translations": {
+        "ru": "штора",
+        "uz": "parda"
+      },
+      "example": "Please close the curtains, it is bright.",
+      "example_translations": {
+        "ru": "Закрой шторы, слишком светло.",
+        "uz": "Pardalarni yoping, juda yorug'."
+      }
+    },
+    {
+      "word": "pillow",
+      "part_of_speech": "noun",
+      "translation": "подушка",
+      "translations": {
+        "ru": "подушка",
+        "uz": "yostiq"
+      },
+      "example": "I need a softer pillow.",
+      "example_translations": {
+        "ru": "Мне нужна более мягкая подушка.",
+        "uz": "Menga yumshoqroq yostiq kerak."
+      }
+    },
+    {
+      "word": "blanket",
+      "part_of_speech": "noun",
+      "translation": "одеяло",
+      "translations": {
+        "ru": "одеяло",
+        "uz": "ko'rpa"
+      },
+      "example": "It is cold, take another blanket.",
+      "example_translations": {
+        "ru": "Холодно, возьми ещё одно одеяло.",
+        "uz": "Sovuq, yana bitta ko'rpa ol."
+      }
+    },
+    {
+      "word": "fridge",
+      "part_of_speech": "noun",
+      "translation": "холодильник",
+      "translations": {
+        "ru": "холодильник",
+        "uz": "muzlatgich"
+      },
+      "example": "The milk is in the fridge.",
+      "example_translations": {
+        "ru": "Молоко в холодильнике.",
+        "uz": "Sut muzlatgichda."
+      }
+    },
+    {
+      "word": "oven",
+      "part_of_speech": "noun",
+      "translation": "духовка",
+      "translations": {
+        "ru": "духовка",
+        "uz": "duxovka"
+      },
+      "example": "Put the bread in the hot oven.",
+      "example_translations": {
+        "ru": "Поставь хлеб в горячую духовку.",
+        "uz": "Nonni issiq duxovkaga qo'y."
+      }
+    },
+    {
+      "word": "kettle",
+      "part_of_speech": "noun",
+      "translation": "чайник",
+      "translations": {
+        "ru": "чайник",
+        "uz": "choynak"
+      },
+      "example": "The kettle is boiling on the stove.",
+      "example_translations": {
+        "ru": "Чайник кипит на плите.",
+        "uz": "Choynak plitada qaynayapti."
+      }
+    },
+    {
+      "word": "heater",
+      "part_of_speech": "noun",
+      "translation": "обогреватель",
+      "translations": {
+        "ru": "обогреватель",
+        "uz": "isitgich"
+      },
+      "example": "We use a heater in the bedroom.",
+      "example_translations": {
+        "ru": "Мы пользуемся обогревателем в спальне.",
+        "uz": "Biz yotoqxonada isitgichdan foydalanamiz."
+      }
+    },
+    {
+      "word": "drawer",
+      "part_of_speech": "noun",
+      "translation": "ящик",
+      "translations": {
+        "ru": "ящик",
+        "uz": "tortma"
+      },
+      "example": "My keys are in the top drawer.",
+      "example_translations": {
+        "ru": "Мои ключи в верхнем ящике.",
+        "uz": "Kalitlarim yuqori tortmada."
+      }
+    },
+    {
+      "word": "vacuum",
+      "part_of_speech": "noun",
+      "translation": "пылесос",
+      "translations": {
+        "ru": "пылесос",
+        "uz": "changyutgich"
+      },
+      "example": "The vacuum is in the closet.",
+      "example_translations": {
+        "ru": "Пылесос стоит в кладовке.",
+        "uz": "Changyutgich omborxonada turibdi."
+      }
+    }
+  ]
+}

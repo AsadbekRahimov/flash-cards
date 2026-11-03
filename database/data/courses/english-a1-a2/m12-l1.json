@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 12,
+    "title": "Технологии и связь",
+    "title_uz": "Texnologiya va aloqa"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Устройства",
+    "title_uz": "Qurilmalar"
+  },
+  "words": [
+    {
+      "word": "laptop",
+      "part_of_speech": "noun",
+      "translation": "ноутбук",
+      "translations": {
+        "ru": "ноутбук",
+        "uz": "noutbuk"
+      },
+      "example": "My laptop is on the desk.",
+      "example_translations": {
+        "ru": "Мой ноутбук лежит на столе.",
+        "uz": "Mening noutbukim stolda."
+      }
+    },
+    {
+      "word": "screen",
+      "part_of_speech": "noun",
+      "translation": "экран",
+      "translations": {
+        "ru": "экран",
+        "uz": "ekran"
+      },
+      "example": "The screen of my phone is broken.",
+      "example_translations": {
+        "ru": "Экран моего телефона разбит.",
+        "uz": "Telefonimning ekrani singan."
+      }
+    },
+    {
+      "word": "keyboard",
+      "part_of_speech": "noun",
+      "translation": "клавиатура",
+      "translations": {
+        "ru": "клавиатура",
+        "uz": "klaviatura"
+      },
+      "example": "This keyboard is very quiet.",
+      "example_translations": {
+        "ru": "Эта клавиатура очень тихая.",
+        "uz": "Bu klaviatura juda sokin."
+      }
+    },
+    {
+      "word": "charger",
+      "part_of_speech": "noun",
+      "translation": "зарядное устройство",
+      "translations": {
+        "ru": "зарядное устройство",
+        "uz": "zaryadlagich"
+      },
+      "example": "I forgot my charger at the office.",
+      "example_translations": {
+        "ru": "Я забыл зарядку в офисе.",
+        "uz": "Zaryadlagichni ofisda unutib qoldirdim."
+      }
+    },
+    {
+      "word": "battery",
+      "part_of_speech": "noun",
+      "translation": "батарея",
+      "translations": {
+        "ru": "батарея",
+        "uz": "batareya"
+      },
+      "example": "The battery is almost empty.",
+      "example_translations": {
+        "ru": "Батарея почти разряжена.",
+        "uz": "Batareya deyarli bo'sh."
+      }
+    },
+    {
+      "word": "tablet",
+      "part_of_speech": "noun",
+      "translation": "планшет",
+      "translations": {
+        "ru": "планшет",
+        "uz": "planshet"
+      },
+      "example": "My son plays on the tablet.",
+      "example_translations": {
+        "ru": "Мой сын играет на планшете.",
+        "uz": "O'g'lim planshetda o'ynaydi."
+      }
+    },
+    {
+      "word": "headphones",
+      "part_of_speech": "noun",
+      "translation": "наушники",
+      "translations": {
+        "ru": "наушники",
+        "uz": "quloqchin"
+      },
+      "example": "She listens to music with headphones.",
+      "example_translations": {
+        "ru": "Она слушает музыку в наушниках.",
+        "uz": "U quloqchinda musiqa tinglaydi."
+      }
+    },
+    {
+      "word": "printer",
+      "part_of_speech": "noun",
+      "translation": "принтер",
+      "translations": {
+        "ru": "принтер",
+        "uz": "printer"
+      },
+      "example": "The printer has no paper.",
+      "example_translations": {
+        "ru": "В принтере нет бумаги.",
+        "uz": "Printerda qog'oz yo'q."
+      }
+    },
+    {
+      "word": "speaker",
+      "part_of_speech": "noun",
+      "translation": "колонка",
+      "translations": {
+        "ru": "колонка",
+        "uz": "karnay"
+      },
+      "example": "This speaker is small but loud.",
+      "example_translations": {
+        "ru": "Эта колонка маленькая, но громкая.",
+        "uz": "Bu karnay kichik, lekin baland ovozli."
+      }
+    },
+    {
+      "word": "device",
+      "part_of_speech": "noun",
+      "translation": "устройство",
+      "translations": {
+        "ru": "устройство",
+        "uz": "qurilma"
+      },
+      "example": "Every device in our house is new.",
+      "example_translations": {
+        "ru": "Все устройства в нашем доме новые.",
+        "uz": "Uyimizdagi har bir qurilma yangi."
+      }
+    }
+  ]
+}

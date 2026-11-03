@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 20,
+    "title": "Общество и культура",
+    "title_uz": "Jamiyat va madaniyat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Культура и искусство",
+    "title_uz": "Madaniyat va san'at"
+  },
+  "words": [
+    {
+      "word": "culture",
+      "part_of_speech": "noun",
+      "translation": "культура",
+      "translations": {
+        "ru": "культура",
+        "uz": "madaniyat"
+      },
+      "example": "Every country has its own culture.",
+      "example_translations": {
+        "ru": "У каждой страны своя культура.",
+        "uz": "Har bir mamlakatning o'z madaniyati bor."
+      }
+    },
+    {
+      "word": "tradition",
+      "part_of_speech": "noun",
+      "translation": "традиция",
+      "translations": {
+        "ru": "традиция",
+        "uz": "an'ana"
+      },
+      "example": "It is a tradition in our family.",
+      "example_translations": {
+        "ru": "Это традиция в нашей семье.",
+        "uz": "Bu bizning oilamizdagi an'ana."
+      }
+    },
+    {
+      "word": "custom",
+      "part_of_speech": "noun",
+      "translation": "обычай",
+      "translations": {
+        "ru": "обычай",
+        "uz": "urf-odat"
+      },
+      "example": "Each country has different customs.",
+      "example_translations": {
+        "ru": "В каждой стране свои обычаи.",
+        "uz": "Har bir mamlakatda turli urf-odatlar bor."
+      }
+    },
+    {
+      "word": "festival",
+      "part_of_speech": "noun",
+      "translation": "фестиваль",
+      "translations": {
+        "ru": "фестиваль",
+        "uz": "festival"
+      },
+      "example": "The music festival lasts three days.",
+      "example_translations": {
+        "ru": "Музыкальный фестиваль длится три дня.",
+        "uz": "Musiqa festivali uch kun davom etadi."
+      }
+    },
+    {
+      "word": "painting",
+      "part_of_speech": "noun",
+      "translation": "картина",
+      "translations": {
+        "ru": "картина",
+        "uz": "rasm"
+      },
+      "example": "This painting is over a hundred years old.",
+      "example_translations": {
+        "ru": "Этой картине больше ста лет.",
+        "uz": "Bu rasm yuz yildan ortiq vaqtga ega."
+      }
+    },
+    {
+      "word": "poem",
+      "part_of_speech": "noun",
+      "translation": "стихотворение",
+      "translations": {
+        "ru": "стихотворение",
+        "uz": "she'r"
+      },
+      "example": "She reads a poem at school.",
+      "example_translations": {
+        "ru": "Она читает стихотворение в школе.",
+        "uz": "U maktabda she'r o'qiydi."
+      }
+    },
+    {
+      "word": "novel",
+      "part_of_speech": "noun",
+      "translation": "роман",
+      "translations": {
+        "ru": "роман",
+        "uz": "roman"
+      },
+      "example": "I am reading a long novel now.",
+      "example_translations": {
+        "ru": "Сейчас я читаю длинный роман.",
+        "uz": "Men hozir uzun roman o'qiyapman."
+      }
+    },
+    {
+      "word": "author",
+      "part_of_speech": "noun",
+      "translation": "автор",
+      "translations": {
+        "ru": "автор",
+        "uz": "muallif"
+      },
+      "example": "The author lives in a small village.",
+      "example_translations": {
+        "ru": "Автор живёт в маленькой деревне.",
+        "uz": "Muallif kichik qishloqda yashaydi."
+      }
+    },
+    {
+      "word": "exhibition",
+      "part_of_speech": "noun",
+      "translation": "выставка",
+      "translations": {
+        "ru": "выставка",
+        "uz": "ko'rgazma"
+      },
+      "example": "We visit the art exhibition on Sunday.",
+      "example_translations": {
+        "ru": "Мы идём на выставку искусства в воскресенье.",
+        "uz": "Biz yakshanba kuni san'at ko'rgazmasiga boramiz."
+      }
+    },
+    {
+      "word": "orchestra",
+      "part_of_speech": "noun",
+      "translation": "оркестр",
+      "translations": {
+        "ru": "оркестр",
+        "uz": "orkestr"
+      },
+      "example": "The orchestra plays at the theater tonight.",
+      "example_translations": {
+        "ru": "Оркестр играет в театре сегодня вечером.",
+        "uz": "Orkestr bugun kechqurun teatrda chaladi."
+      }
+    }
+  ]
+}

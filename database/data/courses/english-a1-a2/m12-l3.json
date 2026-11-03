@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 12,
+    "title": "Технологии и связь",
+    "title_uz": "Texnologiya va aloqa"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Телефон и сообщения",
+    "title_uz": "Telefon va xabarlar"
+  },
+  "words": [
+    {
+      "word": "message",
+      "part_of_speech": "noun",
+      "translation": "сообщение",
+      "translations": {
+        "ru": "сообщение",
+        "uz": "xabar"
+      },
+      "example": "I send her a message every morning.",
+      "example_translations": {
+        "ru": "Я пишу ей сообщение каждое утро.",
+        "uz": "Men unga har kuni ertalab xabar yuboraman."
+      }
+    },
+    {
+      "word": "text",
+      "part_of_speech": "verb",
+      "translation": "писать сообщение",
+      "translations": {
+        "ru": "писать сообщение",
+        "uz": "xabar yozmoq"
+      },
+      "example": "Please text me when you arrive.",
+      "example_translations": {
+        "ru": "Напиши мне, когда приедешь.",
+        "uz": "Yetib kelganingda menga xabar yoz."
+      }
+    },
+    {
+      "word": "mobile",
+      "part_of_speech": "adjective",
+      "translation": "мобильный",
+      "translations": {
+        "ru": "мобильный",
+        "uz": "mobil"
+      },
+      "example": "My mobile number is on the card.",
+      "example_translations": {
+        "ru": "Мой мобильный номер указан на карточке.",
+        "uz": "Mobil raqamim kartochkada yozilgan."
+      }
+    },
+    {
+      "word": "signal",
+      "part_of_speech": "noun",
+      "translation": "сигнал",
+      "translations": {
+        "ru": "сигнал",
+        "uz": "signal"
+      },
+      "example": "There is no signal in the village.",
+      "example_translations": {
+        "ru": "В деревне нет сигнала.",
+        "uz": "Qishloqda signal yo'q."
+      }
+    },
+    {
+      "word": "contact",
+      "part_of_speech": "noun",
+      "translation": "контакт",
+      "translations": {
+        "ru": "контакт",
+        "uz": "kontakt"
+      },
+      "example": "I save his contact in my phone.",
+      "example_translations": {
+        "ru": "Я сохраняю его контакт в телефоне.",
+        "uz": "Men uning kontaktini telefonimga saqlayman."
+      }
+    },
+    {
+      "word": "voice",
+      "part_of_speech": "noun",
+      "translation": "голос",
+      "translations": {
+        "ru": "голос",
+        "uz": "ovoz"
+      },
+      "example": "I like her calm voice.",
+      "example_translations": {
+        "ru": "Мне нравится её спокойный голос.",
+        "uz": "Menga uning xotirjam ovozi yoqadi."
+      }
+    },
+    {
+      "word": "chat",
+      "part_of_speech": "verb",
+      "translation": "переписываться",
+      "translations": {
+        "ru": "переписываться",
+        "uz": "chatlashmoq"
+      },
+      "example": "We chat every evening after dinner.",
+      "example_translations": {
+        "ru": "Мы переписываемся каждый вечер после ужина.",
+        "uz": "Biz har kuni kechqurun ovqatdan keyin chatlashamiz."
+      }
+    },
+    {
+      "word": "ring",
+      "part_of_speech": "verb",
+      "translation": "звонить",
+      "translations": {
+        "ru": "звонить",
+        "uz": "jiringlamoq"
+      },
+      "example": "Your phone rings in the bag.",
+      "example_translations": {
+        "ru": "Твой телефон звонит в сумке.",
+        "uz": "Telefoning sumkada jiringlayapti."
+      }
+    },
+    {
+      "word": "reply",
+      "part_of_speech": "verb",
+      "translation": "отвечать",
+      "translations": {
+        "ru": "отвечать",
+        "uz": "javob qaytarmoq"
+      },
+      "example": "Please reply to my email soon.",
+      "example_translations": {
+        "ru": "Пожалуйста, скоро ответь на моё письмо.",
+        "uz": "Iltimos, xatimga tezroq javob qaytar."
+      }
+    },
+    {
+      "word": "sound",
+      "part_of_speech": "noun",
+      "translation": "звук",
+      "translations": {
+        "ru": "звук",
+        "uz": "tovush"
+      },
+      "example": "The sound on this video is bad.",
+      "example_translations": {
+        "ru": "Звук в этом видео плохой.",
+        "uz": "Bu videodagi tovush yomon."
+      }
+    }
+  ]
+}

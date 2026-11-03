@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 14,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Бизнес",
+    "title_uz": "Biznes"
+  },
+  "words": [
+    {
+      "word": "business",
+      "part_of_speech": "noun",
+      "translation": "бизнес",
+      "translations": {
+        "ru": "бизнес",
+        "uz": "biznes"
+      },
+      "example": "My aunt has a small business.",
+      "example_translations": {
+        "ru": "У моей тёти небольшой бизнес.",
+        "uz": "Xolamning kichik biznesi bor."
+      }
+    },
+    {
+      "word": "product",
+      "part_of_speech": "noun",
+      "translation": "продукт, товар",
+      "translations": {
+        "ru": "продукт, товар",
+        "uz": "mahsulot"
+      },
+      "example": "This product is popular in Asia.",
+      "example_translations": {
+        "ru": "Этот товар популярен в Азии.",
+        "uz": "Bu mahsulot Osiyoda mashhur."
+      }
+    },
+    {
+      "word": "profit",
+      "part_of_speech": "noun",
+      "translation": "прибыль",
+      "translations": {
+        "ru": "прибыль",
+        "uz": "foyda"
+      },
+      "example": "The shop makes a small profit.",
+      "example_translations": {
+        "ru": "Магазин получает небольшую прибыль.",
+        "uz": "Do'kon kichik foyda ko'radi."
+      }
+    },
+    {
+      "word": "budget",
+      "part_of_speech": "noun",
+      "translation": "бюджет",
+      "translations": {
+        "ru": "бюджет",
+        "uz": "byudjet"
+      },
+      "example": "Our budget for this month is low.",
+      "example_translations": {
+        "ru": "Наш бюджет на этот месяц небольшой.",
+        "uz": "Bu oy uchun byudjetimiz kam."
+      }
+    },
+    {
+      "word": "advertise",
+      "part_of_speech": "verb",
+      "translation": "рекламировать",
+      "translations": {
+        "ru": "рекламировать",
+        "uz": "reklama qilmoq"
+      },
+      "example": "They advertise the new phone on TV.",
+      "example_translations": {
+        "ru": "Они рекламируют новый телефон по телевизору.",
+        "uz": "Ular yangi telefonni televizorda reklama qiladi."
+      }
+    },
+    {
+      "word": "negotiate",
+      "part_of_speech": "verb",
+      "translation": "вести переговоры",
+      "translations": {
+        "ru": "вести переговоры",
+        "uz": "muzokara olib bormoq"
+      },
+      "example": "We negotiate the price with the seller.",
+      "example_translations": {
+        "ru": "Мы договариваемся о цене с продавцом.",
+        "uz": "Biz sotuvchi bilan narx haqida muzokara olib boramiz."
+      }
+    },
+    {
+      "word": "invest",
+      "part_of_speech": "verb",
+      "translation": "инвестировать",
+      "translations": {
+        "ru": "инвестировать",
+        "uz": "sarmoya kiritmoq"
+      },
+      "example": "He wants to invest in a farm.",
+      "example_translations": {
+        "ru": "Он хочет вложить деньги в ферму.",
+        "uz": "U fermaga sarmoya kiritmoqchi."
+      }
+    },
+    {
+      "word": "trade",
+      "part_of_speech": "noun",
+      "translation": "торговля",
+      "translations": {
+        "ru": "торговля",
+        "uz": "savdo"
+      },
+      "example": "Trade between the two countries is growing.",
+      "example_translations": {
+        "ru": "Торговля между двумя странами растёт.",
+        "uz": "Ikki mamlakat o'rtasidagi savdo o'smoqda."
+      }
+    },
+    {
+      "word": "quality",
+      "part_of_speech": "noun",
+      "translation": "качество",
+      "translations": {
+        "ru": "качество",
+        "uz": "sifat"
+      },
+      "example": "The quality of this cloth is excellent.",
+      "example_translations": {
+        "ru": "Качество этой ткани отличное.",
+        "uz": "Bu matoning sifati a'lo."
+      }
+    },
+    {
+      "word": "offer",
+      "part_of_speech": "noun",
+      "translation": "предложение",
+      "translations": {
+        "ru": "предложение",
+        "uz": "taklif"
+      },
+      "example": "I got a good offer from them.",
+      "example_translations": {
+        "ru": "Я получил от них хорошее предложение.",
+        "uz": "Men ulardan yaxshi taklif oldim."
+      }
+    }
+  ]
+}
