@@ -474,6 +474,12 @@ export const uz: Translations = {
   'settings.delete.pro': "Pro obuna to'xtatiladi.",
   'settings.delete.yes': "Ha, o'chirish",
   'settings.delete.no': 'Bekor qilish',
+  // ---- "account restored" sheet (R11b) ----
+  'restored.title': 'Xush kelibsiz!',
+  'restored.text': "Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
+  'restored.pro': "Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
+  'restored.billing': "«Obuna» bo'limini ochish",
+  'restored.ok': 'Tushunarli',
   'settings.deleted.title': "Akkaunt o'chirildi",
   'settings.deleted.text': "{date} gacha qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi.",
   'settings.deleted.text_plain': "30 kun ichida qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi.",

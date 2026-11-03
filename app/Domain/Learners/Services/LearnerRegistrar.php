@@ -36,6 +36,7 @@ final class LearnerRegistrar
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
         private readonly SchedulerResolver $schedulers,
+        private readonly AccountRestoreNotice $restoreNotice,
     ) {}
 
     /**
@@ -218,6 +219,9 @@ final class LearnerRegistrar
 
             $learner->setAttribute('deleted_at', null);
             $learner->syncOriginalAttribute('deleted_at');
+
+            // R11b: the bot's /start or the Mini App tells "the account is restored" once; a new row gets no notice.
+            $this->restoreNotice->markPending($learner);
         }
 
         $learner->fill($profile);

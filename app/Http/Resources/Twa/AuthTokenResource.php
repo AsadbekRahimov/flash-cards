@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 /**
  * POST /api/twa/auth
  *
- * @property array{jwt: array{token: string, expires_in: int, expires_at: int}, learner: Learner} $resource
+ * @property array{jwt: array{token: string, expires_in: int, expires_at: int}, learner: Learner, account_restored: array{pro_can_resume: bool}|null} $resource
  */
 final class AuthTokenResource extends TwaResource
 {
@@ -18,7 +18,8 @@ final class AuthTokenResource extends TwaResource
      * @return array{
      *   token: string,
      *   expires_in: int,
-     *   learner: array{id: int, first_name: string|null, locale: string, onboarding_completed: bool}
+     *   learner: array{id: int, first_name: string|null, locale: string, onboarding_completed: bool},
+     *   account_restored: array{pro_can_resume: bool}|null
      * }
      */
     public function toArray(Request $request): array
@@ -34,6 +35,7 @@ final class AuthTokenResource extends TwaResource
                 'locale' => $learner->interface_locale,
                 'onboarding_completed' => $learner->onboarding_state === 'done',
             ],
+            'account_restored' => $this->resource['account_restored'],
         ];
     }
 }

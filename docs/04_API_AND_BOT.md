@@ -42,9 +42,15 @@
     "first_name": "Alex",
     "locale": "ru",
     "onboarding_completed": false
-  }
+  },
+  "account_restored": null
 }
 ```
+
+- `account_restored` (R11b) — `null` почти всегда (и тогда лишних запросов нет). Если ученик удалил аккаунт, вернулся в течение 30 дней (этот самый `/auth`
+  оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
+  (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
+  один раз за сессию (docs/05).
 
 Токен — JWT **v2**: `{iss, sub: learner_id, v: 2, iat, exp}` (без `gid`), TTL 15 мин. Токен без `v = 2` (старый формат,
 где `sub` был `students.id`) отклоняется с 401 `invalid_token`; клиент перелогинивается автоматически (`api/client.ts`).
@@ -171,8 +177,13 @@
 (`LearnerDeletionService::delete`, решение владельца 03.11.2026): `learners.deleted_at`, аудит `learner.deleted {by: self}` (без PII), у Stars сразу
 снимается автопродление (best-effort; оплаченный период и платежи не трогаются). Ответ `200` (`AccountDeletedResource`):
 `{deleted: true, restorable_until}` — ISO-8601, `deleted_at + learners.purge.after_days` (30). Токен перестаёт работать сразу: любой следующий запрос с ним —
-`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until`;
+`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until` (вернувшемуся один раз скажут «Аккаунт восстановлен», `/auth.account_restored`, A.2d);
 после — `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
+
+### A.2d `POST /api/twa/me/account-restored/seen` — «аккаунт восстановлен» показан
+
+Без тела. Всегда `204 No Content`, идемпотентно (`AccountRestoreNotice::consume`: ключ `learners.meta.restored_notice_at` снимается под блокировкой строки; повтор или уже
+показанное ботом — тоже `204`). После вызова `/auth` отдаёт `account_restored: null`, а `/start` в боте молчит. Ограничение — `throttle:twa-api`.
 
 ### A.2b `PATCH /api/twa/me/settings`
 Частичное изменение настроек (docs/12 §3.8); `LearnerSettingsService::update` — то же место, через которое идёт `/settings` в боте. Меняются только переданные поля,

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
-import type { AuthContext, Learner } from '@/api/types'
+import type { AccountRestored, AuthContext, Learner } from '@/api/types'
 import { useTelegram } from '@/composables/useTelegram'
 import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
 
@@ -11,6 +11,10 @@ interface AuthState {
   context: AuthContext | null
   loading: boolean
   error: string | null
+  /** `account_restored` of the last `/auth` that has not been shown yet (R11b); the shell's sheet takes it. */
+  accountRestored: AccountRestored | null
+  /** Shown (or being shown) in this session: a token refresh must not show it again, even when `seen` failed. */
+  restoredShown: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -21,6 +25,8 @@ export const useAuthStore = defineStore('auth', {
     context: null,
     loading: false,
     error: null,
+    accountRestored: null,
+    restoredShown: false,
   }),
 
   getters: {
@@ -45,6 +51,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = res.token
         this.expiresAt = Date.now() + res.expires_in * 1000
         this.learner = res.learner
+        if (res.account_restored && !this.restoredShown) this.accountRestored = res.account_restored
         // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
         if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
       } catch (err: unknown) {
@@ -65,6 +72,19 @@ export const useAuthStore = defineStore('auth', {
         return
       }
       if (context) this.context = context
+    },
+
+    /**
+     * The "account restored" sheet is about to show (R11b): hands over the notice once per session and tells the server so that
+     * the bot's `/start` stays silent. A failed call is ignored - the notice may come once more in a later session, which is harmless.
+     */
+    takeAccountRestored(): AccountRestored | null {
+      const notice = this.accountRestored
+      if (notice === null || this.restoredShown) return null
+      this.restoredShown = true
+      this.accountRestored = null
+      void api.me.accountRestoredSeen().catch(() => {})
+      return notice
     },
 
     logout(): void {

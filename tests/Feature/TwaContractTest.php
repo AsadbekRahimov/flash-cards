@@ -124,9 +124,11 @@ it('POST /auth keeps its exact JSON shape', function (): void {
             'token',
             'expires_in',
             'learner' => ['id', 'first_name', 'locale', 'onboarding_completed'],
+            'account_restored',
         ]);
 
     expect($response->json('expires_in'))->toBeInt()
+        ->and($response->json('account_restored'))->toBeNull()
         ->and($response->json('learner.onboarding_completed'))->toBeFalse();
 });
 
