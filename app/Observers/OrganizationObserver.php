@@ -47,6 +47,7 @@ final class OrganizationObserver
                 try {
                     $this->entitlements->forget($learnerId);
                 } catch (Throwable $e) {
+                    report($e);
                     Log::warning('organizations.delete_entitlement_forget_failed', [
                         'organization_id' => $organizationId,
                         'learner_id' => $learnerId,

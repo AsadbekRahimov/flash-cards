@@ -40,13 +40,6 @@ final class ClickWebhookController extends Controller
     /** @param Closure(array<array-key, mixed>): array<string, mixed> $call */
     private function handle(Request $request, BillingProviderRegistry $providers, int $action, Closure $call): JsonResponse
     {
-        // A provider switched off in config answers -1 before the body is read, even when its key is set (docs/07 §2a).
-        if (! $providers->isEnabled(SubscriptionProvider::Click)) {
-            Log::warning('billing.click.disabled', ['ip' => $request->ip()]);
-
-            return response()->json(ClickMerchantService::errorResponse([], $action, ClickException::signCheckFailed('provider disabled')));
-        }
-
         if (strlen($request->getContent()) > self::MAX_BODY_BYTES) {
             return response()->json(ClickMerchantService::errorResponse([], $action, ClickException::requestError('body too large')));
         }
@@ -59,6 +52,14 @@ final class ClickWebhookController extends Controller
 
         /** @var array<array-key, mixed> $input */
         $input = $request->post();
+
+        // A provider switched off in config answers exactly like a wrong signature - the same code, the same echo of the
+        // request fields - so "off" cannot be told from "wrong key"; the key being set changes nothing (docs/07 §2a).
+        if (! $providers->isEnabled(SubscriptionProvider::Click)) {
+            Log::warning('billing.click.disabled', ['ip' => $request->ip()]);
+
+            return response()->json(ClickMerchantService::errorResponse($input, $action, ClickException::signCheckFailed('provider disabled')));
+        }
 
         try {
             return response()->json($call($input));

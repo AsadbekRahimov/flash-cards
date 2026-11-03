@@ -74,3 +74,54 @@ it('rejects a wrong number of learners, an unknown course and a missing secret',
 
     expect(Learner::query()->count())->toBe(0);
 });
+
+it('refuses outside local, testing and staging (an allowlist, so "prod" is refused too)', function (): void {
+    app()->detectEnvironment(fn (): string => 'prod');
+
+    $this->artisan('load:tokens', ['--count' => 1, '--output' => $this->path])->assertFailed();
+
+    expect(Learner::query()->count())->toBe(0)
+        ->and(file_exists($this->path))->toBeFalse();
+});
+
+it('works in staging', function (): void {
+    app()->detectEnvironment(fn (): string => 'staging');
+
+    $this->artisan('load:tokens', ['--count' => 1, '--output' => $this->path])->assertSuccessful();
+});
+
+it('marks the learners it creates and silences their DMs', function (): void {
+    $this->artisan('load:tokens', ['--count' => 2, '--output' => $this->path])->assertSuccessful();
+
+    $learners = Learner::query()->get();
+    expect($learners)->toHaveCount(2);
+    foreach ($learners as $learner) {
+        expect($learner->meta['load_test'])->toBeTrue()
+            ->and($learner->dm_blocked_at)->not->toBeNull();
+    }
+});
+
+it('refuses to touch a real learner with a colliding Telegram ID and leaves the row unchanged', function (): void {
+    $real = Learner::factory()->create(['telegram_user_id' => 8_000_000_001, 'blocked_at' => now(), 'meta' => []]);
+    $before = $real->fresh()->getAttributes();
+
+    $this->artisan('load:tokens', ['--count' => 3, '--output' => $this->path])->assertFailed();
+
+    expect($real->fresh()->getAttributes())->toBe($before)
+        ->and(Learner::query()->count())->toBe(1)
+        ->and(file_exists($this->path))->toBeFalse();
+});
+
+it('writes the token file with mode 0600', function (): void {
+    $this->artisan('load:tokens', ['--count' => 1, '--output' => $this->path])->assertSuccessful();
+
+    expect(substr(sprintf('%o', fileperms($this->path)), -4))->toBe('0600')
+        ->and(glob($this->path.'.*'))->toBe([]);
+});
+
+it('accepts --output only inside storage/ or "-"', function (string $output): void {
+    $this->artisan('load:tokens', ['--count' => 1, '--output' => $output])->assertFailed();
+
+    expect(Learner::query()->count())->toBe(0)
+        ->and(file_exists(base_path($output)))->toBeFalse();
+})->with(['public/x.json', 'storage/../public/x.json', 'storage/app/../../public/x.json', '/tmp/x.json']);

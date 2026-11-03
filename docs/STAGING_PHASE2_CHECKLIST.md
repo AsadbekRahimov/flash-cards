@@ -527,10 +527,10 @@
 
 Фокус — горячие эндпоинты (docs/11 O4). Пороги (решение владельца 03.11.2026) заданы в `options.thresholds` сценариев: p95 < 300 мс на горячих эндпоинтах при 1 250 активных учениках (NFR-03), ни одного ответа 5xx (счётчик `server_errors`, порог `count==0`); webhook Telegram p95 < 300 мс (NFR-01).
 Лимитеры: `twa-api` — 60 запросов в минуту на learner'а на ВСЕ маршруты API, `twa-review` — 60, `twa-session-create` — 10, `billing-webhook` — 120 в минуту на IP (поэтому Payme/Click под k6 не гоняются: нагрузка с одного IP упрётся в 429).
-Поэтому у каждого виртуального ученика свой JWT, а итерация сценария идёт с паузами «чтения» (~27 запросов за 50+ секунд, меньше 60 в минуту). Любой 429 — это ошибка сценария, а не сервера: порог `rate_limited` (`count==0`).
+Поэтому у каждого виртуального ученика свой JWT, а итерация сценария идёт с паузами «чтения» (23 запроса за ~30–65 секунд пауз, худший случай ~45 в минуту при THINK_SCALE=1). Любой 429 — это ошибка сценария, а не сервера: порог `rate_limited` (`count==0`).
 
 Файлы: `tests/load/k6/twa-hot-paths.js` (ученик), `tests/load/k6/telegram-webhook.js` (вебхук), `tests/load/k6/lib.js` (общее), `tests/load/k6/fixtures/telegram-update.json` (апдейт).
-Токены: `php artisan load:tokens` (`app/Console/Commands/LoadTestTokens.php`) создаёт (или берёт те же) тестовых учеников `telegram_user_id = 8 000 000 000 + N`, привязывает к первому опубликованному курсу (или `--course=<slug>`) и пишет JWT; в `production` отказывается работать.
+Токены: `php artisan load:tokens` (`app/Console/Commands/LoadTestTokens.php`) создаёт (или берёт те же) тестовых учеников `telegram_user_id = 8 000 000 000 + N`, помечает их `meta.load_test`, глушит ЛС (`dm_blocked_at`), привязывает к первому опубликованному курсу (или `--course=<slug>`) и пишет JWT; работает только в `local`, `testing`, `staging`; найденного по ID ученика без метки не трогает (отказ); `--output` — внутри `storage/` или `-`.
 
 Подготовка и запуск (на машине с Docker; staging — стек `docker-compose.prod.yml` с `APP_ENV=staging`):
 
@@ -541,7 +541,7 @@ make load-test BASE_URL=https://<staging>        # рампа 8 мин до 1 25
 TELEGRAM_URL_SECRET=... TELEGRAM_HEADER_SECRET=... make load-test-webhook BASE_URL=https://<staging>   # WEBHOOK_RPS=50 по умолчанию
 ```
 
-Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (0.5 — вдвое чаще запросы), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
+Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 23 запроса при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~90 запросов в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~56/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
 Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_ENABLED` (на staging на время прогона выключить); фикстура — `/start_training` из незарегистрированной супергруппы, обработчик молча отбрасывает её (Group Lock), в Telegram ничего не уходит.
 
 Что смотреть в отчёте k6 (конец вывода и `tests/load/k6/results/*-summary.json`): блок `thresholds` — каждая строка с галочкой; `http_req_duration{endpoint:…}` p(95) по `me`, `today`, `courses`, `practice_hub`, `billing_catalog`, `training_open`, `training_next`, `training_review`, `training_finish`;
