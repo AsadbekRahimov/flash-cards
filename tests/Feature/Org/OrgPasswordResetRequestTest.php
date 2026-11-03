@@ -174,7 +174,7 @@ it('hands the e-mail to the queue, so SMTP latency is not part of the response',
     Queue::assertPushed(SendQueuedNotifications::class, 1);
 });
 
-it('logs a warning without the e-mail when the work outruns the box', function (): void {
+it('logs a warning without the e-mail when the work takes over 75% of the box', function (): void {
     Notification::fake();
     Log::spy();
     config(['auth.password_reset_timebox_duration' => 1]);
@@ -185,20 +185,22 @@ it('logs a warning without the e-mail when the work outruns the box', function (
         ->assertNotified(__('passwords.sent'));
 
     Log::shouldHaveReceived('warning')->once()->with(
-        'org.password_reset.timebox_exceeded',
-        Mockery::on(fn (array $context): bool => array_keys($context) === ['elapsed_us', 'budget_us']
+        'org.password_reset.timebox_near_limit',
+        Mockery::on(fn (array $context): bool => array_keys($context) === ['worked_us', 'budget_us']
             && $context['budget_us'] === 1
-            && $context['elapsed_us'] > 1),
+            && $context['worked_us'] > 0),
     );
 });
 
-it('does not warn when the work fits in the box', function (): void {
+it('does not warn when the work fits in the box, even though the box sleeps a bit over the budget', function (): void {
+    Sleep::fake(false); // real sleep: the old check measured the box's own sleep too
     Notification::fake();
     Log::spy();
+    config(['auth.password_reset_timebox_duration' => 300_000]);
     createOrgOwner('owner@example.com');
 
     Livewire::test(OrgRequestPasswordReset::class)
-        ->fillForm(['email' => 'owner@example.com'])->call('request')
+        ->fillForm(['email' => 'nobody@example.com'])->call('request')
         ->assertNotified(__('passwords.sent'));
 
     Log::shouldNotHaveReceived('warning');
