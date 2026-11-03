@@ -362,6 +362,8 @@ class AppServiceProvider extends ServiceProvider
             'twa-battle-invite' => 5,    // an invitation = a snapshot, rows, a DM to the friend
             'twa-battle-action' => 60,   // accept / decline / cancel / ready / surrender / answer / audio-failed
             'twa-battle-poll' => 90,     // a poll every 2 s is 30 a minute, two tabs 60: a bucket of its own, not "no limit"
+            'twa-game-start' => 10,      // a run = a snapshot + the queries of the material (docs/18 §12.8)
+            'twa-game-answer' => 120,    // an answer or a hint of a run; `twa-api` (60) applies too
         ] as $name => $perMinute) {
             RateLimiter::for($name, function (Request $request) use ($name, $perMinute): Limit {
                 /** @var array{learner_id:int}|null $ctx */

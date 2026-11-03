@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
 use App\Http\Controllers\Api\Twa\GameMapController;
+use App\Http\Controllers\Api\Twa\GameRunController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
@@ -139,6 +141,19 @@ Route::prefix('twa')->group(function (): void {
         // The game "Caravan" (docs/18 §12.8, docs/04 A.18): the map; the runs, the wallet and the shop come with their tasks.
         Route::get('/game/map', [GameMapController::class, 'show'])->name('twa.game.map');
 
+        // The runs (docs/18 §12.8): starting has a limiter of its own, answering and the hint share another; the audio is OUTSIDE `twa-api`, below.
+        Route::post('/game/runs', [GameRunController::class, 'store'])
+            ->middleware('throttle:twa-game-start')
+            ->name('twa.game.runs.store');
+        Route::prefix('game/runs/{run}')->where(['run' => '[0-9]{1,18}'])->group(function (): void {
+            Route::get('/', [GameRunController::class, 'show'])->name('twa.game.runs.show');
+            Route::post('/abandon', [GameRunController::class, 'abandon'])->name('twa.game.runs.abandon');
+            Route::middleware('throttle:twa-game-answer')->group(function (): void {
+                Route::post('/answer', [GameRunController::class, 'answer'])->name('twa.game.runs.answer');
+                Route::post('/hint', [GameRunController::class, 'hint'])->name('twa.game.runs.hint');
+            });
+        });
+
         // Practice (docs/16 §7.1-7.2): the hub and the solo sessions. Opening a session and answering have limiters
         // of their own on top of `twa-api`. The battle (§7.3-7.4) follows below.
         Route::get('/practice/hub', [PracticeHubController::class, 'show'])->name('twa.practice.hub');
@@ -192,6 +207,9 @@ Route::prefix('twa')->group(function (): void {
     // The audio of a practice session and of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): five clips are loaded at once when a
     // room is entered, and that preloading must not eat the general budget of 60 requests a minute. It has its own limiter.
     Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-practice-audio'])->group(function (): void {
+        Route::get('/game/runs/{run}/audio/{element}', [GameRunController::class, 'audio'])
+            ->where('run', '[0-9]{1,18}')
+            ->name(RunService::AUDIO_ROUTE);
         Route::get('/practice/sessions/{session}/audio/{element}', [PracticeAudioController::class, 'session'])
             ->whereNumber('session')
             ->name('twa.practice.sessions.audio');
