@@ -39,6 +39,8 @@ export interface MeResponse {
    * every fixture typed as `MeResponse`) reads as "no practice": the billing store turns a missing block into `available: false`.
    */
   practice?: PracticeAccess
+  /** Game access (docs/18 §12.8); optional for the same reason as `practice`: no block reads as "no game". */
+  game?: GameAccess
 }
 
 /**
@@ -779,6 +781,93 @@ export interface PracticeLimit {
 export interface PracticeLimits {
   sessions: PracticeLimit | null
   battles: PracticeLimit | null
+}
+
+/** `me.game.limits` (docs/18 §12.7.2): `runs` is null where there is no limit of runs (Pro); the whole block is null until G2.8 and for a closed game. */
+export interface GameLimits {
+  runs: PracticeLimit | null
+  tickets: { balance: number; max: number }
+  boosters: PracticeLimit | null
+  boss_stages: number | null
+}
+
+/** The `game` block of GET /me (docs/18 §12.8). */
+export interface GameAccess {
+  available: boolean
+  limits: GameLimits | null
+  pro_promise: 'none' | 'full'
+  coins: number
+  tickets: number
+}
+
+export type GameBossState = 'locked_by_plan' | 'not_ready' | 'ready' | 'defeated'
+
+export interface GameMapStop {
+  lesson_id: number
+  number: number
+  title: string | null
+  unlocked: boolean
+  /** 0-3. */
+  stars: number
+  best_score: number
+  runs: number
+}
+
+export interface GameMapBoss {
+  state: GameBossState
+  defeated_at: string | null
+  introduced: number
+  required: number
+  cleared_stops: number
+  required_stops: number
+}
+
+export interface GameMapCity {
+  stage_id: number
+  number: number
+  /** The name on the Silk Road ("Samarkand"). */
+  city: string
+  /** The module's name; null = the client says "Module N". */
+  title: string | null
+  unlocked: boolean
+  stops: GameMapStop[]
+  boss: GameMapBoss
+}
+
+export interface GameMapFriend {
+  friendship_id: number
+  name: string
+  city_number: number
+  stops_cleared: number
+  camel_asset: string | null
+}
+
+export interface GameActiveRun {
+  id: number
+  kind: string
+  progress: { answered: number; total: number }
+}
+
+/** GET /game/map (docs/04 A.18). `daily` and `class_caravan` belong to later screens and are not typed here. */
+export interface GameMapResponse {
+  course: { slug: string; title: string }
+  cities: GameMapCity[]
+  me: { stops_cleared: number; cities_cleared: number; coins: number; tickets: number }
+  friends: GameMapFriend[]
+  active_run: GameActiveRun | null
+  limits: GameLimits | null
+}
+
+/** `POST /game/runs` (201): the map needs the id only; the run screen reads the rest itself. */
+export interface GameRunStarted {
+  id: number
+}
+
+export interface GameStartRequest {
+  kind: 'stop'
+  course: string
+  lesson_id: number
+  replace_active?: boolean
 }
 
 /** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */
