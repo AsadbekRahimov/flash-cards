@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 10,
+    "title": "Погода и природа",
+    "title_uz": "Ob-havo va tabiat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Времена года",
+    "title_uz": "Yil fasllari"
+  },
+  "words": [
+    {
+      "word": "season",
+      "part_of_speech": "noun",
+      "translation": "время года",
+      "translations": {
+        "ru": "время года",
+        "uz": "fasl"
+      },
+      "example": "Summer is my favorite season.",
+      "example_translations": {
+        "ru": "Лето — моё любимое время года.",
+        "uz": "Yoz — mening sevimli faslim."
+      }
+    },
+    {
+      "word": "spring",
+      "part_of_speech": "noun",
+      "translation": "весна",
+      "translations": {
+        "ru": "весна",
+        "uz": "bahor"
+      },
+      "example": "Spring is warm and green.",
+      "example_translations": {
+        "ru": "Весна тёплая и зелёная.",
+        "uz": "Bahor iliq va yashil."
+      }
+    },
+    {
+      "word": "summer",
+      "part_of_speech": "noun",
+      "translation": "лето",
+      "translations": {
+        "ru": "лето",
+        "uz": "yoz"
+      },
+      "example": "We swim in summer.",
+      "example_translations": {
+        "ru": "Летом мы плаваем.",
+        "uz": "Yozda biz suzamiz."
+      }
+    },
+    {
+      "word": "autumn",
+      "part_of_speech": "noun",
+      "translation": "осень",
+      "translations": {
+        "ru": "осень",
+        "uz": "kuz"
+      },
+      "example": "Autumn is rainy and cool.",
+      "example_translations": {
+        "ru": "Осень дождливая и прохладная.",
+        "uz": "Kuz yomg'irli va salqin."
+      }
+    },
+    {
+      "word": "winter",
+      "part_of_speech": "noun",
+      "translation": "зима",
+      "translations": {
+        "ru": "зима",
+        "uz": "qish"
+      },
+      "example": "Winter is cold and white.",
+      "example_translations": {
+        "ru": "Зима холодная и белая.",
+        "uz": "Qish sovuq va oq."
+      }
+    },
+    {
+      "word": "temperature",
+      "part_of_speech": "noun",
+      "translation": "температура воздуха",
+      "translations": {
+        "ru": "температура воздуха",
+        "uz": "harorat"
+      },
+      "example": "The temperature is twenty degrees.",
+      "example_translations": {
+        "ru": "Температура — двадцать градусов.",
+        "uz": "Harorat yigirma daraja."
+      }
+    },
+    {
+      "word": "degree",
+      "part_of_speech": "noun",
+      "translation": "градус",
+      "translations": {
+        "ru": "градус",
+        "uz": "daraja"
+      },
+      "example": "Today it is ten degrees.",
+      "example_translations": {
+        "ru": "Сегодня десять градусов.",
+        "uz": "Bugun o'n daraja."
+      }
+    },
+    {
+      "word": "forecast",
+      "part_of_speech": "noun",
+      "translation": "прогноз",
+      "translations": {
+        "ru": "прогноз",
+        "uz": "bashorat"
+      },
+      "example": "The forecast says rain tomorrow.",
+      "example_translations": {
+        "ru": "Прогноз обещает завтра дождь.",
+        "uz": "Bashoratga ko'ra, ertaga yomg'ir yog'adi."
+      }
+    },
+    {
+      "word": "umbrella",
+      "part_of_speech": "noun",
+      "translation": "зонт",
+      "translations": {
+        "ru": "зонт",
+        "uz": "soyabon"
+      },
+      "example": "Take an umbrella, it rains.",
+      "example_translations": {
+        "ru": "Возьми зонт, идёт дождь.",
+        "uz": "Soyabon ol, yomg'ir yog'yapti."
+      }
+    },
+    {
+      "word": "climate",
+      "part_of_speech": "noun",
+      "translation": "климат",
+      "translations": {
+        "ru": "климат",
+        "uz": "iqlim"
+      },
+      "example": "The climate here is dry.",
+      "example_translations": {
+        "ru": "Климат здесь сухой.",
+        "uz": "Bu yerda iqlim quruq."
+      }
+    }
+  ]
+}

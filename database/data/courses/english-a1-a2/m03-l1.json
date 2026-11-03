@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 3,
+    "title": "Еда и напитки",
+    "title_uz": "Ovqat va ichimliklar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Основная еда",
+    "title_uz": "Asosiy ovqatlar"
+  },
+  "words": [
+    {
+      "word": "bread",
+      "part_of_speech": "noun",
+      "translation": "хлеб",
+      "translations": {
+        "ru": "хлеб",
+        "uz": "non"
+      },
+      "example": "I buy fresh bread every day.",
+      "example_translations": {
+        "ru": "Я каждый день покупаю свежий хлеб.",
+        "uz": "Men har kuni yangi non olaman."
+      }
+    },
+    {
+      "word": "rice",
+      "part_of_speech": "noun",
+      "translation": "рис",
+      "translations": {
+        "ru": "рис",
+        "uz": "guruch"
+      },
+      "example": "We eat rice with meat.",
+      "example_translations": {
+        "ru": "Мы едим рис с мясом.",
+        "uz": "Biz guruchni go'sht bilan yeymiz."
+      }
+    },
+    {
+      "word": "meat",
+      "part_of_speech": "noun",
+      "translation": "мясо",
+      "translations": {
+        "ru": "мясо",
+        "uz": "go'sht"
+      },
+      "example": "He does not eat meat.",
+      "example_translations": {
+        "ru": "Он не ест мясо.",
+        "uz": "U go'sht yemaydi."
+      }
+    },
+    {
+      "word": "fish",
+      "part_of_speech": "noun",
+      "translation": "рыба",
+      "translations": {
+        "ru": "рыба",
+        "uz": "baliq"
+      },
+      "example": "My father likes fresh fish.",
+      "example_translations": {
+        "ru": "Мой папа любит свежую рыбу.",
+        "uz": "Dadam yangi baliqni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "egg",
+      "part_of_speech": "noun",
+      "translation": "яйцо",
+      "translations": {
+        "ru": "яйцо",
+        "uz": "tuxum"
+      },
+      "example": "I eat an egg for breakfast.",
+      "example_translations": {
+        "ru": "Я ем яйцо на завтрак.",
+        "uz": "Men nonushtada tuxum yeyman."
+      }
+    },
+    {
+      "word": "cheese",
+      "part_of_speech": "noun",
+      "translation": "сыр",
+      "translations": {
+        "ru": "сыр",
+        "uz": "pishloq"
+      },
+      "example": "Do you like cheese?",
+      "example_translations": {
+        "ru": "Ты любишь сыр?",
+        "uz": "Pishloqni yoqtirasanmi?"
+      }
+    },
+    {
+      "word": "butter",
+      "part_of_speech": "noun",
+      "translation": "сливочное масло",
+      "translations": {
+        "ru": "сливочное масло",
+        "uz": "sariyog'"
+      },
+      "example": "Put some butter on the bread.",
+      "example_translations": {
+        "ru": "Намажь немного масла на хлеб.",
+        "uz": "Nonga ozgina sariyog' surt."
+      }
+    },
+    {
+      "word": "soup",
+      "part_of_speech": "noun",
+      "translation": "суп",
+      "translations": {
+        "ru": "суп",
+        "uz": "sho'rva"
+      },
+      "example": "The soup is very hot.",
+      "example_translations": {
+        "ru": "Суп очень горячий.",
+        "uz": "Sho'rva juda issiq."
+      }
+    },
+    {
+      "word": "salad",
+      "part_of_speech": "noun",
+      "translation": "салат",
+      "translations": {
+        "ru": "салат",
+        "uz": "salat"
+      },
+      "example": "We have a salad for lunch.",
+      "example_translations": {
+        "ru": "У нас на обед салат.",
+        "uz": "Tushlikka bizda salat bor."
+      }
+    },
+    {
+      "word": "food",
+      "part_of_speech": "noun",
+      "translation": "еда",
+      "translations": {
+        "ru": "еда",
+        "uz": "ovqat, taom"
+      },
+      "example": "Uzbek food is delicious.",
+      "example_translations": {
+        "ru": "Узбекская еда очень вкусная.",
+        "uz": "O'zbek taomlari mazali."
+      }
+    }
+  ]
+}

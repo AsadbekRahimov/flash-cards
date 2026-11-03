@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 5,
+    "title": "Город и транспорт",
+    "title_uz": "Shahar va transport"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Места в городе",
+    "title_uz": "Shahardagi joylar"
+  },
+  "words": [
+    {
+      "word": "cinema",
+      "part_of_speech": "noun",
+      "translation": "кинотеатр",
+      "translations": {
+        "ru": "кинотеатр",
+        "uz": "kinoteatr"
+      },
+      "example": "Let's go to the cinema tonight.",
+      "example_translations": {
+        "ru": "Пойдём сегодня вечером в кино.",
+        "uz": "Bugun kechqurun kinoga boraylik."
+      }
+    },
+    {
+      "word": "theatre",
+      "part_of_speech": "noun",
+      "translation": "театр",
+      "translations": {
+        "ru": "театр",
+        "uz": "teatr"
+      },
+      "example": "The theatre is near the park.",
+      "example_translations": {
+        "ru": "Театр рядом с парком.",
+        "uz": "Teatr park yaqinida."
+      }
+    },
+    {
+      "word": "museum",
+      "part_of_speech": "noun",
+      "translation": "музей",
+      "translations": {
+        "ru": "музей",
+        "uz": "muzey"
+      },
+      "example": "The museum is closed on Monday.",
+      "example_translations": {
+        "ru": "Музей закрыт в понедельник.",
+        "uz": "Muzey dushanba kuni yopiq."
+      }
+    },
+    {
+      "word": "library",
+      "part_of_speech": "noun",
+      "translation": "библиотека",
+      "translations": {
+        "ru": "библиотека",
+        "uz": "kutubxona"
+      },
+      "example": "I read books in the library.",
+      "example_translations": {
+        "ru": "Я читаю книги в библиотеке.",
+        "uz": "Men kutubxonada kitob o'qiyman."
+      }
+    },
+    {
+      "word": "hotel",
+      "part_of_speech": "noun",
+      "translation": "гостиница, отель",
+      "translations": {
+        "ru": "гостиница, отель",
+        "uz": "mehmonxona"
+      },
+      "example": "The hotel is very clean.",
+      "example_translations": {
+        "ru": "Отель очень чистый.",
+        "uz": "Mehmonxona juda toza."
+      }
+    },
+    {
+      "word": "pharmacy",
+      "part_of_speech": "noun",
+      "translation": "аптека",
+      "translations": {
+        "ru": "аптека",
+        "uz": "dorixona"
+      },
+      "example": "The pharmacy is next to the bank.",
+      "example_translations": {
+        "ru": "Аптека рядом с банком.",
+        "uz": "Dorixona bankning yonida."
+      }
+    },
+    {
+      "word": "mosque",
+      "part_of_speech": "noun",
+      "translation": "мечеть",
+      "translations": {
+        "ru": "мечеть",
+        "uz": "masjid"
+      },
+      "example": "The old mosque is beautiful.",
+      "example_translations": {
+        "ru": "Старая мечеть красивая.",
+        "uz": "Eski masjid chiroyli."
+      }
+    },
+    {
+      "word": "airport",
+      "part_of_speech": "noun",
+      "translation": "аэропорт",
+      "translations": {
+        "ru": "аэропорт",
+        "uz": "aeroport"
+      },
+      "example": "The airport is far from here.",
+      "example_translations": {
+        "ru": "Аэропорт далеко отсюда.",
+        "uz": "Aeroport bu yerdan uzoqda."
+      }
+    },
+    {
+      "word": "station",
+      "part_of_speech": "noun",
+      "translation": "вокзал, станция",
+      "translations": {
+        "ru": "вокзал, станция",
+        "uz": "vokzal, bekat"
+      },
+      "example": "The station is near the bridge.",
+      "example_translations": {
+        "ru": "Вокзал рядом с мостом.",
+        "uz": "Vokzal ko'prik yaqinida."
+      }
+    },
+    {
+      "word": "stadium",
+      "part_of_speech": "noun",
+      "translation": "стадион",
+      "translations": {
+        "ru": "стадион",
+        "uz": "stadion"
+      },
+      "example": "We watch football at the stadium.",
+      "example_translations": {
+        "ru": "Мы смотрим футбол на стадионе.",
+        "uz": "Biz futbolni stadionda tomosha qilamiz."
+      }
+    }
+  ]
+}

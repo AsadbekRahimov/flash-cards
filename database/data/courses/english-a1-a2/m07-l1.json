@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 7,
+    "title": "Работа и учёба",
+    "title_uz": "Ish va o'qish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "words": [
+    {
+      "word": "work",
+      "part_of_speech": "verb",
+      "translation": "работать",
+      "translations": {
+        "ru": "работать",
+        "uz": "ishlamoq"
+      },
+      "example": "I work in an office.",
+      "example_translations": {
+        "ru": "Я работаю в офисе.",
+        "uz": "Men ofisda ishlayman."
+      }
+    },
+    {
+      "word": "job",
+      "part_of_speech": "noun",
+      "translation": "работа, должность",
+      "translations": {
+        "ru": "работа, должность",
+        "uz": "ish, kasb"
+      },
+      "example": "He has a good job.",
+      "example_translations": {
+        "ru": "У него хорошая работа.",
+        "uz": "Uning yaxshi ishi bor."
+      }
+    },
+    {
+      "word": "office",
+      "part_of_speech": "noun",
+      "translation": "офис",
+      "translations": {
+        "ru": "офис",
+        "uz": "ofis"
+      },
+      "example": "My office is near the station.",
+      "example_translations": {
+        "ru": "Мой офис рядом с вокзалом.",
+        "uz": "Mening ofisim vokzal yaqinida."
+      }
+    },
+    {
+      "word": "boss",
+      "part_of_speech": "noun",
+      "translation": "начальник",
+      "translations": {
+        "ru": "начальник",
+        "uz": "boshliq"
+      },
+      "example": "My boss is a kind man.",
+      "example_translations": {
+        "ru": "Мой начальник — добрый человек.",
+        "uz": "Boshlig'im mehribon odam."
+      }
+    },
+    {
+      "word": "manager",
+      "part_of_speech": "noun",
+      "translation": "менеджер, управляющий",
+      "translations": {
+        "ru": "менеджер, управляющий",
+        "uz": "menejer"
+      },
+      "example": "The manager is in a meeting.",
+      "example_translations": {
+        "ru": "Менеджер на совещании.",
+        "uz": "Menejer yig'ilishda."
+      }
+    },
+    {
+      "word": "team",
+      "part_of_speech": "noun",
+      "translation": "команда",
+      "translations": {
+        "ru": "команда",
+        "uz": "jamoa"
+      },
+      "example": "Our team is small but strong.",
+      "example_translations": {
+        "ru": "Наша команда маленькая, но сильная.",
+        "uz": "Bizning jamoamiz kichik, lekin kuchli."
+      }
+    },
+    {
+      "word": "client",
+      "part_of_speech": "noun",
+      "translation": "клиент",
+      "translations": {
+        "ru": "клиент",
+        "uz": "mijoz"
+      },
+      "example": "The client calls every Monday.",
+      "example_translations": {
+        "ru": "Клиент звонит каждый понедельник.",
+        "uz": "Mijoz har dushanba qo'ng'iroq qiladi."
+      }
+    },
+    {
+      "word": "salary",
+      "part_of_speech": "noun",
+      "translation": "зарплата",
+      "translations": {
+        "ru": "зарплата",
+        "uz": "maosh"
+      },
+      "example": "His salary is good.",
+      "example_translations": {
+        "ru": "Его зарплата хорошая.",
+        "uz": "Uning maoshi yaxshi."
+      }
+    },
+    {
+      "word": "meeting",
+      "part_of_speech": "noun",
+      "translation": "встреча, совещание",
+      "translations": {
+        "ru": "встреча, совещание",
+        "uz": "yig'ilish"
+      },
+      "example": "We have a meeting at ten.",
+      "example_translations": {
+        "ru": "У нас совещание в десять.",
+        "uz": "Bizda soat o'nda yig'ilish bor."
+      }
+    },
+    {
+      "word": "project",
+      "part_of_speech": "noun",
+      "translation": "проект",
+      "translations": {
+        "ru": "проект",
+        "uz": "loyiha"
+      },
+      "example": "This project is very big.",
+      "example_translations": {
+        "ru": "Этот проект очень большой.",
+        "uz": "Bu loyiha juda katta."
+      }
+    }
+  ]
+}

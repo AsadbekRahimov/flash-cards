@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 10,
+    "title": "Погода и природа",
+    "title_uz": "Ob-havo va tabiat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Природа",
+    "title_uz": "Tabiat"
+  },
+  "words": [
+    {
+      "word": "tree",
+      "part_of_speech": "noun",
+      "translation": "дерево",
+      "translations": {
+        "ru": "дерево",
+        "uz": "daraxt"
+      },
+      "example": "There is a big tree in the garden.",
+      "example_translations": {
+        "ru": "В саду растёт большое дерево.",
+        "uz": "Bog'da katta daraxt bor."
+      }
+    },
+    {
+      "word": "flower",
+      "part_of_speech": "noun",
+      "translation": "цветок",
+      "translations": {
+        "ru": "цветок",
+        "uz": "gul"
+      },
+      "example": "She gives me a flower.",
+      "example_translations": {
+        "ru": "Она дарит мне цветок.",
+        "uz": "U menga gul beradi."
+      }
+    },
+    {
+      "word": "grass",
+      "part_of_speech": "noun",
+      "translation": "трава",
+      "translations": {
+        "ru": "трава",
+        "uz": "o't"
+      },
+      "example": "The cows eat grass.",
+      "example_translations": {
+        "ru": "Коровы едят траву.",
+        "uz": "Sigirlar o't yeydi."
+      }
+    },
+    {
+      "word": "river",
+      "part_of_speech": "noun",
+      "translation": "река",
+      "translations": {
+        "ru": "река",
+        "uz": "daryo"
+      },
+      "example": "We swim in the river.",
+      "example_translations": {
+        "ru": "Мы плаваем в реке.",
+        "uz": "Biz daryoda suzamiz."
+      }
+    },
+    {
+      "word": "lake",
+      "part_of_speech": "noun",
+      "translation": "озеро",
+      "translations": {
+        "ru": "озеро",
+        "uz": "ko'l"
+      },
+      "example": "The lake is blue and quiet.",
+      "example_translations": {
+        "ru": "Озеро голубое и тихое.",
+        "uz": "Ko'l ko'k va sokin."
+      }
+    },
+    {
+      "word": "sea",
+      "part_of_speech": "noun",
+      "translation": "море",
+      "translations": {
+        "ru": "море",
+        "uz": "dengiz"
+      },
+      "example": "I want to see the sea.",
+      "example_translations": {
+        "ru": "Я хочу увидеть море.",
+        "uz": "Men dengizni ko'rmoqchiman."
+      }
+    },
+    {
+      "word": "mountain",
+      "part_of_speech": "noun",
+      "translation": "гора",
+      "translations": {
+        "ru": "гора",
+        "uz": "tog'"
+      },
+      "example": "We walk in the mountains.",
+      "example_translations": {
+        "ru": "Мы гуляем в горах.",
+        "uz": "Biz tog'larda sayr qilamiz."
+      }
+    },
+    {
+      "word": "forest",
+      "part_of_speech": "noun",
+      "translation": "лес",
+      "translations": {
+        "ru": "лес",
+        "uz": "o'rmon"
+      },
+      "example": "There is a forest near the lake.",
+      "example_translations": {
+        "ru": "Возле озера есть лес.",
+        "uz": "Ko'l yonida o'rmon bor."
+      }
+    },
+    {
+      "word": "field",
+      "part_of_speech": "noun",
+      "translation": "поле",
+      "translations": {
+        "ru": "поле",
+        "uz": "dala"
+      },
+      "example": "The farmer works in the field.",
+      "example_translations": {
+        "ru": "Фермер работает в поле.",
+        "uz": "Fermer dalada ishlaydi."
+      }
+    },
+    {
+      "word": "stone",
+      "part_of_speech": "noun",
+      "translation": "камень",
+      "translations": {
+        "ru": "камень",
+        "uz": "tosh"
+      },
+      "example": "There is a big stone in the river.",
+      "example_translations": {
+        "ru": "В реке лежит большой камень.",
+        "uz": "Daryoda katta tosh bor."
+      }
+    }
+  ]
+}

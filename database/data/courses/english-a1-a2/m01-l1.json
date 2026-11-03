@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и люди",
+    "title_uz": "Tanishuv va odamlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Приветствия",
+    "title_uz": "Salomlashish"
+  },
+  "words": [
+    {
+      "word": "hello",
+      "part_of_speech": "interjection",
+      "translation": "привет",
+      "translations": {
+        "ru": "привет",
+        "uz": "salom"
+      },
+      "example": "Hello, my name is Anna.",
+      "example_translations": {
+        "ru": "Привет, меня зовут Анна.",
+        "uz": "Salom, mening ismim Anna."
+      }
+    },
+    {
+      "word": "bye",
+      "part_of_speech": "interjection",
+      "translation": "пока",
+      "translations": {
+        "ru": "пока",
+        "uz": "ko'rishguncha"
+      },
+      "example": "Bye, see you tomorrow!",
+      "example_translations": {
+        "ru": "Пока, увидимся завтра!",
+        "uz": "Ko'rishguncha, ertaga ko'rishamiz!"
+      }
+    },
+    {
+      "word": "goodbye",
+      "part_of_speech": "interjection",
+      "translation": "до свидания",
+      "translations": {
+        "ru": "до свидания",
+        "uz": "xayr"
+      },
+      "example": "Goodbye, Mr. Brown.",
+      "example_translations": {
+        "ru": "До свидания, мистер Браун.",
+        "uz": "Xayr, janob Braun."
+      }
+    },
+    {
+      "word": "please",
+      "part_of_speech": "interjection",
+      "translation": "пожалуйста",
+      "translations": {
+        "ru": "пожалуйста",
+        "uz": "iltimos"
+      },
+      "example": "Please sit here.",
+      "example_translations": {
+        "ru": "Пожалуйста, садитесь сюда.",
+        "uz": "Iltimos, shu yerga o'tiring."
+      }
+    },
+    {
+      "word": "thanks",
+      "part_of_speech": "interjection",
+      "translation": "спасибо",
+      "translations": {
+        "ru": "спасибо",
+        "uz": "rahmat"
+      },
+      "example": "Thanks for your help.",
+      "example_translations": {
+        "ru": "Спасибо за вашу помощь.",
+        "uz": "Yordamingiz uchun rahmat."
+      }
+    },
+    {
+      "word": "sorry",
+      "part_of_speech": "interjection",
+      "translation": "извините, простите",
+      "translations": {
+        "ru": "извините, простите",
+        "uz": "kechirasiz"
+      },
+      "example": "Sorry, I am late.",
+      "example_translations": {
+        "ru": "Простите, я опоздал.",
+        "uz": "Kechirasiz, kech qoldim."
+      }
+    },
+    {
+      "word": "yes",
+      "part_of_speech": "interjection",
+      "translation": "да",
+      "translations": {
+        "ru": "да",
+        "uz": "ha"
+      },
+      "example": "Yes, I understand.",
+      "example_translations": {
+        "ru": "Да, я понимаю.",
+        "uz": "Ha, men tushunaman."
+      }
+    },
+    {
+      "word": "no",
+      "part_of_speech": "interjection",
+      "translation": "нет",
+      "translations": {
+        "ru": "нет",
+        "uz": "yo'q"
+      },
+      "example": "No, thank you.",
+      "example_translations": {
+        "ru": "Нет, спасибо.",
+        "uz": "Yo'q, rahmat."
+      }
+    },
+    {
+      "word": "welcome",
+      "part_of_speech": "interjection",
+      "translation": "добро пожаловать",
+      "translations": {
+        "ru": "добро пожаловать",
+        "uz": "xush kelibsiz"
+      },
+      "example": "Welcome to our home!",
+      "example_translations": {
+        "ru": "Добро пожаловать в наш дом!",
+        "uz": "Uyimizga xush kelibsiz!"
+      }
+    },
+    {
+      "word": "excuse",
+      "part_of_speech": "verb",
+      "translation": "извинять",
+      "translations": {
+        "ru": "извинять",
+        "uz": "kechirmoq"
+      },
+      "example": "Excuse me, where is the bank?",
+      "example_translations": {
+        "ru": "Извините, где здесь банк?",
+        "uz": "Kechirasiz, bank qayerda?"
+      }
+    }
+  ]
+}

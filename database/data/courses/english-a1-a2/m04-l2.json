@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 4,
+    "title": "Время, дни и числа",
+    "title_uz": "Vaqt, kunlar va sonlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Время суток",
+    "title_uz": "Kun vaqtlari"
+  },
+  "words": [
+    {
+      "word": "morning",
+      "part_of_speech": "noun",
+      "translation": "утро",
+      "translations": {
+        "ru": "утро",
+        "uz": "tong, ertalab"
+      },
+      "example": "Good morning, Mr. Brown.",
+      "example_translations": {
+        "ru": "Доброе утро, мистер Браун.",
+        "uz": "Xayrli tong, janob Braun."
+      }
+    },
+    {
+      "word": "afternoon",
+      "part_of_speech": "noun",
+      "translation": "время после полудня",
+      "translations": {
+        "ru": "время после полудня",
+        "uz": "tushdan keyingi vaqt"
+      },
+      "example": "I rest in the afternoon.",
+      "example_translations": {
+        "ru": "Днём я отдыхаю.",
+        "uz": "Tushdan keyin men dam olaman."
+      }
+    },
+    {
+      "word": "evening",
+      "part_of_speech": "noun",
+      "translation": "вечер",
+      "translations": {
+        "ru": "вечер",
+        "uz": "kech, oqshom"
+      },
+      "example": "We walk in the evening.",
+      "example_translations": {
+        "ru": "Вечером мы гуляем.",
+        "uz": "Kechqurun biz sayr qilamiz."
+      }
+    },
+    {
+      "word": "night",
+      "part_of_speech": "noun",
+      "translation": "ночь",
+      "translations": {
+        "ru": "ночь",
+        "uz": "tun"
+      },
+      "example": "The night is quiet.",
+      "example_translations": {
+        "ru": "Ночь тихая.",
+        "uz": "Tun sokin."
+      }
+    },
+    {
+      "word": "today",
+      "part_of_speech": "adverb",
+      "translation": "сегодня",
+      "translations": {
+        "ru": "сегодня",
+        "uz": "bugun"
+      },
+      "example": "Today is Monday.",
+      "example_translations": {
+        "ru": "Сегодня понедельник.",
+        "uz": "Bugun dushanba."
+      }
+    },
+    {
+      "word": "tomorrow",
+      "part_of_speech": "adverb",
+      "translation": "завтра",
+      "translations": {
+        "ru": "завтра",
+        "uz": "ertaga"
+      },
+      "example": "See you tomorrow!",
+      "example_translations": {
+        "ru": "Увидимся завтра!",
+        "uz": "Ertaga ko'rishamiz!"
+      }
+    },
+    {
+      "word": "yesterday",
+      "part_of_speech": "adverb",
+      "translation": "вчера",
+      "translations": {
+        "ru": "вчера",
+        "uz": "kecha"
+      },
+      "example": "Yesterday I visited my aunt.",
+      "example_translations": {
+        "ru": "Вчера я навестил тётю.",
+        "uz": "Kecha xolamnikiga bordim."
+      }
+    },
+    {
+      "word": "now",
+      "part_of_speech": "adverb",
+      "translation": "сейчас",
+      "translations": {
+        "ru": "сейчас",
+        "uz": "hozir"
+      },
+      "example": "I am busy now.",
+      "example_translations": {
+        "ru": "Сейчас я занят.",
+        "uz": "Men hozir bandman."
+      }
+    },
+    {
+      "word": "later",
+      "part_of_speech": "adverb",
+      "translation": "позже",
+      "translations": {
+        "ru": "позже",
+        "uz": "keyinroq"
+      },
+      "example": "I will call you later.",
+      "example_translations": {
+        "ru": "Я позвоню тебе позже.",
+        "uz": "Senga keyinroq qo'ng'iroq qilaman."
+      }
+    },
+    {
+      "word": "time",
+      "part_of_speech": "noun",
+      "translation": "время",
+      "translations": {
+        "ru": "время",
+        "uz": "vaqt"
+      },
+      "example": "I do not have time today.",
+      "example_translations": {
+        "ru": "У меня сегодня нет времени.",
+        "uz": "Bugun vaqtim yo'q."
+      }
+    }
+  ]
+}

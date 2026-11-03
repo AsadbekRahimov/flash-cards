@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 7,
+    "title": "Работа и учёба",
+    "title_uz": "Ish va o'qish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Профессии",
+    "title_uz": "Kasblar"
+  },
+  "words": [
+    {
+      "word": "doctor",
+      "part_of_speech": "noun",
+      "translation": "врач",
+      "translations": {
+        "ru": "врач",
+        "uz": "shifokor"
+      },
+      "example": "The doctor is very kind.",
+      "example_translations": {
+        "ru": "Врач очень добрый.",
+        "uz": "Shifokor juda mehribon."
+      }
+    },
+    {
+      "word": "nurse",
+      "part_of_speech": "noun",
+      "translation": "медсестра",
+      "translations": {
+        "ru": "медсестра",
+        "uz": "hamshira"
+      },
+      "example": "The nurse works at night.",
+      "example_translations": {
+        "ru": "Медсестра работает ночью.",
+        "uz": "Hamshira kechasi ishlaydi."
+      }
+    },
+    {
+      "word": "driver",
+      "part_of_speech": "noun",
+      "translation": "водитель",
+      "translations": {
+        "ru": "водитель",
+        "uz": "haydovchi"
+      },
+      "example": "The driver stops the bus.",
+      "example_translations": {
+        "ru": "Водитель останавливает автобус.",
+        "uz": "Haydovchi avtobusni to'xtatadi."
+      }
+    },
+    {
+      "word": "engineer",
+      "part_of_speech": "noun",
+      "translation": "инженер",
+      "translations": {
+        "ru": "инженер",
+        "uz": "muhandis"
+      },
+      "example": "My father is an engineer.",
+      "example_translations": {
+        "ru": "Мой отец — инженер.",
+        "uz": "Dadam muhandis."
+      }
+    },
+    {
+      "word": "farmer",
+      "part_of_speech": "noun",
+      "translation": "фермер",
+      "translations": {
+        "ru": "фермер",
+        "uz": "fermer, dehqon"
+      },
+      "example": "The farmer has many cows.",
+      "example_translations": {
+        "ru": "У фермера много коров.",
+        "uz": "Fermerning ko'p sigirlari bor."
+      }
+    },
+    {
+      "word": "worker",
+      "part_of_speech": "noun",
+      "translation": "рабочий",
+      "translations": {
+        "ru": "рабочий",
+        "uz": "ishchi"
+      },
+      "example": "The workers are tired.",
+      "example_translations": {
+        "ru": "Рабочие устали.",
+        "uz": "Ishchilar charchagan."
+      }
+    },
+    {
+      "word": "waiter",
+      "part_of_speech": "noun",
+      "translation": "официант",
+      "translations": {
+        "ru": "официант",
+        "uz": "ofitsiant"
+      },
+      "example": "The waiter brings the menu.",
+      "example_translations": {
+        "ru": "Официант приносит меню.",
+        "uz": "Ofitsiant menyuni olib keladi."
+      }
+    },
+    {
+      "word": "artist",
+      "part_of_speech": "noun",
+      "translation": "художник",
+      "translations": {
+        "ru": "художник",
+        "uz": "rassom"
+      },
+      "example": "The artist paints flowers.",
+      "example_translations": {
+        "ru": "Художник рисует цветы.",
+        "uz": "Rassom gul chizadi."
+      }
+    },
+    {
+      "word": "pilot",
+      "part_of_speech": "noun",
+      "translation": "лётчик, пилот",
+      "translations": {
+        "ru": "лётчик, пилот",
+        "uz": "uchuvchi"
+      },
+      "example": "The pilot flies the plane.",
+      "example_translations": {
+        "ru": "Пилот ведёт самолёт.",
+        "uz": "Uchuvchi samolyotni boshqaradi."
+      }
+    },
+    {
+      "word": "dentist",
+      "part_of_speech": "noun",
+      "translation": "стоматолог",
+      "translations": {
+        "ru": "стоматолог",
+        "uz": "tish shifokori"
+      },
+      "example": "I go to the dentist on Monday.",
+      "example_translations": {
+        "ru": "В понедельник я иду к стоматологу.",
+        "uz": "Men dushanba kuni tish shifokoriga boraman."
+      }
+    }
+  ]
+}

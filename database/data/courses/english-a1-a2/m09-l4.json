@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 9,
+    "title": "Тело и здоровье",
+    "title_uz": "Tana va salomatlik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Утро и вечер",
+    "title_uz": "Ertalab va kechqurun"
+  },
+  "words": [
+    {
+      "word": "wake",
+      "part_of_speech": "verb",
+      "translation": "просыпаться",
+      "translations": {
+        "ru": "просыпаться",
+        "uz": "uyg'onmoq"
+      },
+      "example": "I wake up early every day.",
+      "example_translations": {
+        "ru": "Я просыпаюсь рано каждый день.",
+        "uz": "Men har kuni erta uyg'onaman."
+      }
+    },
+    {
+      "word": "sleep",
+      "part_of_speech": "verb",
+      "translation": "спать",
+      "translations": {
+        "ru": "спать",
+        "uz": "uxlamoq"
+      },
+      "example": "The baby sleeps all night.",
+      "example_translations": {
+        "ru": "Малыш спит всю ночь.",
+        "uz": "Chaqaloq tun bo'yi uxlaydi."
+      }
+    },
+    {
+      "word": "shower",
+      "part_of_speech": "noun",
+      "translation": "душ",
+      "translations": {
+        "ru": "душ",
+        "uz": "dush"
+      },
+      "example": "I take a shower in the morning.",
+      "example_translations": {
+        "ru": "Утром я принимаю душ.",
+        "uz": "Men ertalab dush qabul qilaman."
+      }
+    },
+    {
+      "word": "bath",
+      "part_of_speech": "noun",
+      "translation": "ванна",
+      "translations": {
+        "ru": "ванна",
+        "uz": "vanna"
+      },
+      "example": "I like a hot bath.",
+      "example_translations": {
+        "ru": "Я люблю горячую ванну.",
+        "uz": "Men issiq vannani yoqtiraman."
+      }
+    },
+    {
+      "word": "soap",
+      "part_of_speech": "noun",
+      "translation": "мыло",
+      "translations": {
+        "ru": "мыло",
+        "uz": "sovun"
+      },
+      "example": "Wash your hands with soap.",
+      "example_translations": {
+        "ru": "Мой руки с мылом.",
+        "uz": "Qo'lingni sovun bilan yuv."
+      }
+    },
+    {
+      "word": "towel",
+      "part_of_speech": "noun",
+      "translation": "полотенце",
+      "translations": {
+        "ru": "полотенце",
+        "uz": "sochiq"
+      },
+      "example": "Here is a clean towel.",
+      "example_translations": {
+        "ru": "Вот чистое полотенце.",
+        "uz": "Mana toza sochiq."
+      }
+    },
+    {
+      "word": "brush",
+      "part_of_speech": "verb",
+      "translation": "чистить щёткой",
+      "translations": {
+        "ru": "чистить щёткой",
+        "uz": "cho'tkalamoq, tozalamoq"
+      },
+      "example": "Brush your teeth twice a day.",
+      "example_translations": {
+        "ru": "Чисти зубы два раза в день.",
+        "uz": "Tishlaringni kuniga ikki marta tozala."
+      }
+    },
+    {
+      "word": "smile",
+      "part_of_speech": "verb",
+      "translation": "улыбаться",
+      "translations": {
+        "ru": "улыбаться",
+        "uz": "jilmaymoq"
+      },
+      "example": "She smiles at the baby.",
+      "example_translations": {
+        "ru": "Она улыбается малышу.",
+        "uz": "U chaqaloqqa qarab jilmayadi."
+      }
+    },
+    {
+      "word": "laugh",
+      "part_of_speech": "verb",
+      "translation": "смеяться",
+      "translations": {
+        "ru": "смеяться",
+        "uz": "kulmoq"
+      },
+      "example": "We laugh a lot together.",
+      "example_translations": {
+        "ru": "Мы много смеёмся вместе.",
+        "uz": "Biz birga ko'p kulamiz."
+      }
+    },
+    {
+      "word": "breathe",
+      "part_of_speech": "verb",
+      "translation": "дышать",
+      "translations": {
+        "ru": "дышать",
+        "uz": "nafas olmoq"
+      },
+      "example": "Breathe slowly and relax.",
+      "example_translations": {
+        "ru": "Дыши медленно и расслабься.",
+        "uz": "Sekin nafas ol va tinchlan."
+      }
+    }
+  ]
+}

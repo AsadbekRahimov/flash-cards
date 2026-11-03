@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 2,
+    "title": "Семья и дом",
+    "title_uz": "Oila va uy"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Родственники",
+    "title_uz": "Qarindoshlar"
+  },
+  "words": [
+    {
+      "word": "husband",
+      "part_of_speech": "noun",
+      "translation": "муж",
+      "translations": {
+        "ru": "муж",
+        "uz": "er"
+      },
+      "example": "Her husband works in Samarkand.",
+      "example_translations": {
+        "ru": "Её муж работает в Самарканде.",
+        "uz": "Uning eri Samarqandda ishlaydi."
+      }
+    },
+    {
+      "word": "wife",
+      "part_of_speech": "noun",
+      "translation": "жена",
+      "translations": {
+        "ru": "жена",
+        "uz": "xotin"
+      },
+      "example": "His wife is a doctor.",
+      "example_translations": {
+        "ru": "Его жена — врач.",
+        "uz": "Uning xotini shifokor."
+      }
+    },
+    {
+      "word": "uncle",
+      "part_of_speech": "noun",
+      "translation": "дядя",
+      "translations": {
+        "ru": "дядя",
+        "uz": "amaki, tog'a"
+      },
+      "example": "My uncle has a farm.",
+      "example_translations": {
+        "ru": "У моего дяди есть ферма.",
+        "uz": "Amakimning fermasi bor."
+      }
+    },
+    {
+      "word": "aunt",
+      "part_of_speech": "noun",
+      "translation": "тётя",
+      "translations": {
+        "ru": "тётя",
+        "uz": "xola, amma"
+      },
+      "example": "My aunt lives in Bukhara.",
+      "example_translations": {
+        "ru": "Моя тётя живёт в Бухаре.",
+        "uz": "Xolam Buxoroda yashaydi."
+      }
+    },
+    {
+      "word": "cousin",
+      "part_of_speech": "noun",
+      "translation": "двоюродный брат, двоюродная сестра",
+      "translations": {
+        "ru": "двоюродный брат, двоюродная сестра",
+        "uz": "amakivachcha, xolavachcha"
+      },
+      "example": "My cousin and I are friends.",
+      "example_translations": {
+        "ru": "Мы с двоюродным братом друзья.",
+        "uz": "Amakivachcham bilan biz do'stmiz."
+      }
+    },
+    {
+      "word": "grandfather",
+      "part_of_speech": "noun",
+      "translation": "дедушка",
+      "translations": {
+        "ru": "дедушка",
+        "uz": "bobo"
+      },
+      "example": "My grandfather tells good stories.",
+      "example_translations": {
+        "ru": "Мой дедушка рассказывает хорошие истории.",
+        "uz": "Bobom yaxshi hikoyalar aytib beradi."
+      }
+    },
+    {
+      "word": "grandmother",
+      "part_of_speech": "noun",
+      "translation": "бабушка",
+      "translations": {
+        "ru": "бабушка",
+        "uz": "buvi"
+      },
+      "example": "My grandmother makes tasty bread.",
+      "example_translations": {
+        "ru": "Моя бабушка печёт вкусный хлеб.",
+        "uz": "Buvim mazali non yopadi."
+      }
+    },
+    {
+      "word": "together",
+      "part_of_speech": "adverb",
+      "translation": "вместе",
+      "translations": {
+        "ru": "вместе",
+        "uz": "birga"
+      },
+      "example": "We eat dinner together.",
+      "example_translations": {
+        "ru": "Мы ужинаем вместе.",
+        "uz": "Biz kechki ovqatni birga yeymiz."
+      }
+    },
+    {
+      "word": "love",
+      "part_of_speech": "noun",
+      "translation": "любовь",
+      "translations": {
+        "ru": "любовь",
+        "uz": "sevgi, muhabbat"
+      },
+      "example": "Family is love and care.",
+      "example_translations": {
+        "ru": "Семья — это любовь и забота.",
+        "uz": "Oila — bu sevgi va g'amxo'rlik."
+      }
+    },
+    {
+      "word": "home",
+      "part_of_speech": "noun",
+      "translation": "дом, домашний очаг",
+      "translations": {
+        "ru": "дом, домашний очаг",
+        "uz": "uy"
+      },
+      "example": "I am at home today.",
+      "example_translations": {
+        "ru": "Сегодня я дома.",
+        "uz": "Bugun men uydaman."
+      }
+    }
+  ]
+}

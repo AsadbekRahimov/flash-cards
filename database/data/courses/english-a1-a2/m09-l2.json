@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 9,
+    "title": "Тело и здоровье",
+    "title_uz": "Tana va salomatlik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Тело",
+    "title_uz": "Tana"
+  },
+  "words": [
+    {
+      "word": "foot",
+      "part_of_speech": "noun",
+      "translation": "ступня",
+      "translations": {
+        "ru": "ступня",
+        "uz": "oyoq kafti"
+      },
+      "example": "My left foot hurts.",
+      "example_translations": {
+        "ru": "У меня болит левая ступня.",
+        "uz": "Chap oyog'im kafti og'riyapti."
+      }
+    },
+    {
+      "word": "finger",
+      "part_of_speech": "noun",
+      "translation": "палец руки",
+      "translations": {
+        "ru": "палец руки",
+        "uz": "barmoq"
+      },
+      "example": "I have ten fingers.",
+      "example_translations": {
+        "ru": "У меня десять пальцев.",
+        "uz": "Menda o'nta barmoq bor."
+      }
+    },
+    {
+      "word": "tooth",
+      "part_of_speech": "noun",
+      "translation": "зуб",
+      "translations": {
+        "ru": "зуб",
+        "uz": "tish"
+      },
+      "example": "My tooth hurts.",
+      "example_translations": {
+        "ru": "У меня болит зуб.",
+        "uz": "Tishim og'riyapti."
+      }
+    },
+    {
+      "word": "neck",
+      "part_of_speech": "noun",
+      "translation": "шея",
+      "translations": {
+        "ru": "шея",
+        "uz": "bo'yin"
+      },
+      "example": "He has a long neck.",
+      "example_translations": {
+        "ru": "У него длинная шея.",
+        "uz": "Uning bo'yni uzun."
+      }
+    },
+    {
+      "word": "back",
+      "part_of_speech": "noun",
+      "translation": "спина",
+      "translations": {
+        "ru": "спина",
+        "uz": "orqa, bel"
+      },
+      "example": "My back hurts after work.",
+      "example_translations": {
+        "ru": "После работы у меня болит спина.",
+        "uz": "Ishdan keyin belim og'riydi."
+      }
+    },
+    {
+      "word": "stomach",
+      "part_of_speech": "noun",
+      "translation": "живот",
+      "translations": {
+        "ru": "живот",
+        "uz": "qorin, oshqozon"
+      },
+      "example": "My stomach hurts.",
+      "example_translations": {
+        "ru": "У меня болит живот.",
+        "uz": "Qornim og'riyapti."
+      }
+    },
+    {
+      "word": "heart",
+      "part_of_speech": "noun",
+      "translation": "сердце",
+      "translations": {
+        "ru": "сердце",
+        "uz": "yurak"
+      },
+      "example": "His heart is strong.",
+      "example_translations": {
+        "ru": "У него крепкое сердце.",
+        "uz": "Uning yuragi baquvvat."
+      }
+    },
+    {
+      "word": "shoulder",
+      "part_of_speech": "noun",
+      "translation": "плечо",
+      "translations": {
+        "ru": "плечо",
+        "uz": "yelka"
+      },
+      "example": "She has a bag on her shoulder.",
+      "example_translations": {
+        "ru": "У неё на плече сумка.",
+        "uz": "Uning yelkasida sumka bor."
+      }
+    },
+    {
+      "word": "knee",
+      "part_of_speech": "noun",
+      "translation": "колено",
+      "translations": {
+        "ru": "колено",
+        "uz": "tizza"
+      },
+      "example": "My knee hurts when I walk.",
+      "example_translations": {
+        "ru": "Когда я хожу, у меня болит колено.",
+        "uz": "Yurganimda tizzam og'riydi."
+      }
+    },
+    {
+      "word": "body",
+      "part_of_speech": "noun",
+      "translation": "тело",
+      "translations": {
+        "ru": "тело",
+        "uz": "tana"
+      },
+      "example": "Water is good for the body.",
+      "example_translations": {
+        "ru": "Вода полезна для тела.",
+        "uz": "Suv tana uchun foydali."
+      }
+    }
+  ]
+}

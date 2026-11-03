@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 8,
+    "title": "Свободное время и спорт",
+    "title_uz": "Bo'sh vaqt va sport"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Спорт",
+    "title_uz": "Sport"
+  },
+  "words": [
+    {
+      "word": "sport",
+      "part_of_speech": "noun",
+      "translation": "спорт",
+      "translations": {
+        "ru": "спорт",
+        "uz": "sport"
+      },
+      "example": "Sport is good for health.",
+      "example_translations": {
+        "ru": "Спорт полезен для здоровья.",
+        "uz": "Sport salomatlik uchun foydali."
+      }
+    },
+    {
+      "word": "football",
+      "part_of_speech": "noun",
+      "translation": "футбол",
+      "translations": {
+        "ru": "футбол",
+        "uz": "futbol"
+      },
+      "example": "My son plays football.",
+      "example_translations": {
+        "ru": "Мой сын играет в футбол.",
+        "uz": "O'g'lim futbol o'ynaydi."
+      }
+    },
+    {
+      "word": "tennis",
+      "part_of_speech": "noun",
+      "translation": "теннис",
+      "translations": {
+        "ru": "теннис",
+        "uz": "tennis"
+      },
+      "example": "We play tennis on Sunday.",
+      "example_translations": {
+        "ru": "В воскресенье мы играем в теннис.",
+        "uz": "Yakshanba kuni tennis o'ynaymiz."
+      }
+    },
+    {
+      "word": "swim",
+      "part_of_speech": "verb",
+      "translation": "плавать",
+      "translations": {
+        "ru": "плавать",
+        "uz": "suzmoq"
+      },
+      "example": "I can swim well.",
+      "example_translations": {
+        "ru": "Я хорошо умею плавать.",
+        "uz": "Men yaxshi suza olaman."
+      }
+    },
+    {
+      "word": "player",
+      "part_of_speech": "noun",
+      "translation": "игрок",
+      "translations": {
+        "ru": "игрок",
+        "uz": "o'yinchi"
+      },
+      "example": "He is a good player.",
+      "example_translations": {
+        "ru": "Он хороший игрок.",
+        "uz": "U yaxshi o'yinchi."
+      }
+    },
+    {
+      "word": "ball",
+      "part_of_speech": "noun",
+      "translation": "мяч",
+      "translations": {
+        "ru": "мяч",
+        "uz": "to'p"
+      },
+      "example": "Where is the ball?",
+      "example_translations": {
+        "ru": "Где мяч?",
+        "uz": "To'p qayerda?"
+      }
+    },
+    {
+      "word": "win",
+      "part_of_speech": "verb",
+      "translation": "выигрывать",
+      "translations": {
+        "ru": "выигрывать",
+        "uz": "yutmoq"
+      },
+      "example": "Our team wins today.",
+      "example_translations": {
+        "ru": "Сегодня наша команда выигрывает.",
+        "uz": "Bizning jamoamiz bugun yutadi."
+      }
+    },
+    {
+      "word": "lose",
+      "part_of_speech": "verb",
+      "translation": "проигрывать",
+      "translations": {
+        "ru": "проигрывать",
+        "uz": "yutqazmoq"
+      },
+      "example": "We do not want to lose.",
+      "example_translations": {
+        "ru": "Мы не хотим проиграть.",
+        "uz": "Biz yutqazishni xohlamaymiz."
+      }
+    },
+    {
+      "word": "match",
+      "part_of_speech": "noun",
+      "translation": "матч",
+      "translations": {
+        "ru": "матч",
+        "uz": "o'yin, musobaqa"
+      },
+      "example": "The match starts at seven.",
+      "example_translations": {
+        "ru": "Матч начинается в семь.",
+        "uz": "O'yin soat yettida boshlanadi."
+      }
+    },
+    {
+      "word": "gym",
+      "part_of_speech": "noun",
+      "translation": "спортзал",
+      "translations": {
+        "ru": "спортзал",
+        "uz": "sport zali"
+      },
+      "example": "I go to the gym on Monday.",
+      "example_translations": {
+        "ru": "По понедельникам я хожу в спортзал.",
+        "uz": "Men dushanba kunlari sport zaliga boraman."
+      }
+    }
+  ]
+}

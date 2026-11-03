@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и люди",
+    "title_uz": "Tanishuv va odamlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Местоимения",
+    "title_uz": "Olmoshlar"
+  },
+  "words": [
+    {
+      "word": "you",
+      "part_of_speech": "pronoun",
+      "translation": "ты, вы",
+      "translations": {
+        "ru": "ты, вы",
+        "uz": "sen, siz"
+      },
+      "example": "You are my best friend.",
+      "example_translations": {
+        "ru": "Ты мой лучший друг.",
+        "uz": "Sen mening eng yaxshi do'stimsan."
+      }
+    },
+    {
+      "word": "he",
+      "part_of_speech": "pronoun",
+      "translation": "он",
+      "translations": {
+        "ru": "он",
+        "uz": "u"
+      },
+      "example": "He is a student.",
+      "example_translations": {
+        "ru": "Он студент.",
+        "uz": "U talaba."
+      }
+    },
+    {
+      "word": "she",
+      "part_of_speech": "pronoun",
+      "translation": "она",
+      "translations": {
+        "ru": "она",
+        "uz": "u"
+      },
+      "example": "She is from Tashkent.",
+      "example_translations": {
+        "ru": "Она из Ташкента.",
+        "uz": "U Toshkentdan."
+      }
+    },
+    {
+      "word": "it",
+      "part_of_speech": "pronoun",
+      "translation": "оно, это",
+      "translations": {
+        "ru": "оно, это",
+        "uz": "u, bu"
+      },
+      "example": "It is a small book.",
+      "example_translations": {
+        "ru": "Это маленькая книга.",
+        "uz": "Bu kichkina kitob."
+      }
+    },
+    {
+      "word": "we",
+      "part_of_speech": "pronoun",
+      "translation": "мы",
+      "translations": {
+        "ru": "мы",
+        "uz": "biz"
+      },
+      "example": "We are at home.",
+      "example_translations": {
+        "ru": "Мы дома.",
+        "uz": "Biz uydamiz."
+      }
+    },
+    {
+      "word": "they",
+      "part_of_speech": "pronoun",
+      "translation": "они",
+      "translations": {
+        "ru": "они",
+        "uz": "ular"
+      },
+      "example": "They are very kind.",
+      "example_translations": {
+        "ru": "Они очень добрые.",
+        "uz": "Ular juda mehribon."
+      }
+    },
+    {
+      "word": "me",
+      "part_of_speech": "pronoun",
+      "translation": "меня, мне",
+      "translations": {
+        "ru": "меня, мне",
+        "uz": "meni, menga"
+      },
+      "example": "Please help me.",
+      "example_translations": {
+        "ru": "Пожалуйста, помогите мне.",
+        "uz": "Iltimos, menga yordam bering."
+      }
+    },
+    {
+      "word": "my",
+      "part_of_speech": "pronoun",
+      "translation": "мой",
+      "translations": {
+        "ru": "мой",
+        "uz": "mening"
+      },
+      "example": "My brother is tall.",
+      "example_translations": {
+        "ru": "Мой брат высокий.",
+        "uz": "Mening akam baland bo'yli."
+      }
+    },
+    {
+      "word": "your",
+      "part_of_speech": "pronoun",
+      "translation": "твой, ваш",
+      "translations": {
+        "ru": "твой, ваш",
+        "uz": "sening, sizning"
+      },
+      "example": "What is your name?",
+      "example_translations": {
+        "ru": "Как тебя зовут?",
+        "uz": "Sizning ismingiz nima?"
+      }
+    },
+    {
+      "word": "this",
+      "part_of_speech": "pronoun",
+      "translation": "этот, это",
+      "translations": {
+        "ru": "этот, это",
+        "uz": "bu"
+      },
+      "example": "This is my friend.",
+      "example_translations": {
+        "ru": "Это мой друг.",
+        "uz": "Bu mening do'stim."
+      }
+    }
+  ]
+}

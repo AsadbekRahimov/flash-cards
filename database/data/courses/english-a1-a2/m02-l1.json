@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 2,
+    "title": "Семья и дом",
+    "title_uz": "Oila va uy"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Ближайшая семья",
+    "title_uz": "Yaqin oila a'zolari"
+  },
+  "words": [
+    {
+      "word": "mother",
+      "part_of_speech": "noun",
+      "translation": "мать, мама",
+      "translations": {
+        "ru": "мать, мама",
+        "uz": "ona"
+      },
+      "example": "My mother cooks dinner.",
+      "example_translations": {
+        "ru": "Моя мама готовит ужин.",
+        "uz": "Onam kechki ovqat tayyorlaydi."
+      }
+    },
+    {
+      "word": "father",
+      "part_of_speech": "noun",
+      "translation": "отец, папа",
+      "translations": {
+        "ru": "отец, папа",
+        "uz": "ota"
+      },
+      "example": "My father drives a bus.",
+      "example_translations": {
+        "ru": "Мой папа водит автобус.",
+        "uz": "Dadam avtobus haydaydi."
+      }
+    },
+    {
+      "word": "parent",
+      "part_of_speech": "noun",
+      "translation": "родитель",
+      "translations": {
+        "ru": "родитель",
+        "uz": "ota yoki ona"
+      },
+      "example": "Every parent loves a child.",
+      "example_translations": {
+        "ru": "Каждый родитель любит своего ребёнка.",
+        "uz": "Har bir ota-ona o'z farzandini yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "sister",
+      "part_of_speech": "noun",
+      "translation": "сестра",
+      "translations": {
+        "ru": "сестра",
+        "uz": "opa, singil"
+      },
+      "example": "My sister is a student.",
+      "example_translations": {
+        "ru": "Моя сестра — студентка.",
+        "uz": "Opam talaba."
+      }
+    },
+    {
+      "word": "brother",
+      "part_of_speech": "noun",
+      "translation": "брат",
+      "translations": {
+        "ru": "брат",
+        "uz": "aka, uka"
+      },
+      "example": "My brother is ten.",
+      "example_translations": {
+        "ru": "Моему брату десять лет.",
+        "uz": "Ukam o'n yoshda."
+      }
+    },
+    {
+      "word": "son",
+      "part_of_speech": "noun",
+      "translation": "сын",
+      "translations": {
+        "ru": "сын",
+        "uz": "o'g'il"
+      },
+      "example": "Their son goes to school.",
+      "example_translations": {
+        "ru": "Их сын ходит в школу.",
+        "uz": "Ularning o'g'li maktabga boradi."
+      }
+    },
+    {
+      "word": "daughter",
+      "part_of_speech": "noun",
+      "translation": "дочь",
+      "translations": {
+        "ru": "дочь",
+        "uz": "qiz"
+      },
+      "example": "Her daughter is five years old.",
+      "example_translations": {
+        "ru": "Её дочери пять лет.",
+        "uz": "Uning qizi besh yoshda."
+      }
+    },
+    {
+      "word": "child",
+      "part_of_speech": "noun",
+      "translation": "ребёнок",
+      "translations": {
+        "ru": "ребёнок",
+        "uz": "bola"
+      },
+      "example": "The child is in the garden.",
+      "example_translations": {
+        "ru": "Ребёнок в саду.",
+        "uz": "Bola bog'da."
+      }
+    },
+    {
+      "word": "baby",
+      "part_of_speech": "noun",
+      "translation": "малыш, младенец",
+      "translations": {
+        "ru": "малыш, младенец",
+        "uz": "chaqaloq"
+      },
+      "example": "The baby is very small.",
+      "example_translations": {
+        "ru": "Малыш очень маленький.",
+        "uz": "Chaqaloq juda kichkina."
+      }
+    },
+    {
+      "word": "family",
+      "part_of_speech": "noun",
+      "translation": "семья",
+      "translations": {
+        "ru": "семья",
+        "uz": "oila"
+      },
+      "example": "I have a big family.",
+      "example_translations": {
+        "ru": "У меня большая семья.",
+        "uz": "Mening katta oilam bor."
+      }
+    }
+  ]
+}

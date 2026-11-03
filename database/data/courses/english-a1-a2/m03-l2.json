@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 3,
+    "title": "Еда и напитки",
+    "title_uz": "Ovqat va ichimliklar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Овощи и фрукты",
+    "title_uz": "Sabzavot va mevalar"
+  },
+  "words": [
+    {
+      "word": "apple",
+      "part_of_speech": "noun",
+      "translation": "яблоко",
+      "translations": {
+        "ru": "яблоко",
+        "uz": "olma"
+      },
+      "example": "She eats an apple every day.",
+      "example_translations": {
+        "ru": "Она ест яблоко каждый день.",
+        "uz": "U har kuni bitta olma yeydi."
+      }
+    },
+    {
+      "word": "orange",
+      "part_of_speech": "noun",
+      "translation": "апельсин",
+      "translations": {
+        "ru": "апельсин",
+        "uz": "apelsin"
+      },
+      "example": "I want an orange, please.",
+      "example_translations": {
+        "ru": "Я хочу апельсин, пожалуйста.",
+        "uz": "Men apelsin xohlayman, iltimos."
+      }
+    },
+    {
+      "word": "grape",
+      "part_of_speech": "noun",
+      "translation": "виноград",
+      "translations": {
+        "ru": "виноград",
+        "uz": "uzum"
+      },
+      "example": "The grapes are very sweet.",
+      "example_translations": {
+        "ru": "Виноград очень сладкий.",
+        "uz": "Uzum juda shirin."
+      }
+    },
+    {
+      "word": "lemon",
+      "part_of_speech": "noun",
+      "translation": "лимон",
+      "translations": {
+        "ru": "лимон",
+        "uz": "limon"
+      },
+      "example": "Add a lemon to your tea.",
+      "example_translations": {
+        "ru": "Добавь лимон в свой чай.",
+        "uz": "Choyingga limon qo'sh."
+      }
+    },
+    {
+      "word": "potato",
+      "part_of_speech": "noun",
+      "translation": "картофель",
+      "translations": {
+        "ru": "картофель",
+        "uz": "kartoshka"
+      },
+      "example": "We fry potatoes for dinner.",
+      "example_translations": {
+        "ru": "Мы жарим картошку на ужин.",
+        "uz": "Biz kechki ovqatga kartoshka qovuramiz."
+      }
+    },
+    {
+      "word": "tomato",
+      "part_of_speech": "noun",
+      "translation": "помидор",
+      "translations": {
+        "ru": "помидор",
+        "uz": "pomidor"
+      },
+      "example": "The tomato is red.",
+      "example_translations": {
+        "ru": "Помидор красный.",
+        "uz": "Pomidor qizil."
+      }
+    },
+    {
+      "word": "onion",
+      "part_of_speech": "noun",
+      "translation": "лук",
+      "translations": {
+        "ru": "лук",
+        "uz": "piyoz"
+      },
+      "example": "Onion makes me cry.",
+      "example_translations": {
+        "ru": "Лук заставляет меня плакать.",
+        "uz": "Piyoz meni yig'latadi."
+      }
+    },
+    {
+      "word": "carrot",
+      "part_of_speech": "noun",
+      "translation": "морковь",
+      "translations": {
+        "ru": "морковь",
+        "uz": "sabzi"
+      },
+      "example": "Rabbits like carrots.",
+      "example_translations": {
+        "ru": "Кролики любят морковь.",
+        "uz": "Quyonlar sabzini yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "cucumber",
+      "part_of_speech": "noun",
+      "translation": "огурец",
+      "translations": {
+        "ru": "огурец",
+        "uz": "bodring"
+      },
+      "example": "I put a cucumber in the salad.",
+      "example_translations": {
+        "ru": "Я кладу огурец в салат.",
+        "uz": "Men salatga bodring qo'shaman."
+      }
+    },
+    {
+      "word": "vegetable",
+      "part_of_speech": "noun",
+      "translation": "овощ",
+      "translations": {
+        "ru": "овощ",
+        "uz": "sabzavot"
+      },
+      "example": "Eat more vegetables, my son.",
+      "example_translations": {
+        "ru": "Ешь больше овощей, сынок.",
+        "uz": "Ko'proq sabzavot ye, o'g'lim."
+      }
+    }
+  ]
+}

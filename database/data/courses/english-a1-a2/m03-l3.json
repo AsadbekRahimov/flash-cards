@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 3,
+    "title": "Еда и напитки",
+    "title_uz": "Ovqat va ichimliklar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Напитки",
+    "title_uz": "Ichimliklar"
+  },
+  "words": [
+    {
+      "word": "water",
+      "part_of_speech": "noun",
+      "translation": "вода",
+      "translations": {
+        "ru": "вода",
+        "uz": "suv"
+      },
+      "example": "Can I have some water?",
+      "example_translations": {
+        "ru": "Можно мне воды?",
+        "uz": "Menga suv bersangiz bo'ladimi?"
+      }
+    },
+    {
+      "word": "tea",
+      "part_of_speech": "noun",
+      "translation": "чай",
+      "translations": {
+        "ru": "чай",
+        "uz": "choy"
+      },
+      "example": "We drink green tea.",
+      "example_translations": {
+        "ru": "Мы пьём зелёный чай.",
+        "uz": "Biz ko'k choy ichamiz."
+      }
+    },
+    {
+      "word": "coffee",
+      "part_of_speech": "noun",
+      "translation": "кофе",
+      "translations": {
+        "ru": "кофе",
+        "uz": "qahva"
+      },
+      "example": "He drinks coffee every morning.",
+      "example_translations": {
+        "ru": "Он каждое утро пьёт кофе.",
+        "uz": "U har ertalab qahva ichadi."
+      }
+    },
+    {
+      "word": "milk",
+      "part_of_speech": "noun",
+      "translation": "молоко",
+      "translations": {
+        "ru": "молоко",
+        "uz": "sut"
+      },
+      "example": "The baby needs milk.",
+      "example_translations": {
+        "ru": "Малышу нужно молоко.",
+        "uz": "Chaqaloqqa sut kerak."
+      }
+    },
+    {
+      "word": "juice",
+      "part_of_speech": "noun",
+      "translation": "сок",
+      "translations": {
+        "ru": "сок",
+        "uz": "sharbat"
+      },
+      "example": "I like orange juice.",
+      "example_translations": {
+        "ru": "Я люблю апельсиновый сок.",
+        "uz": "Men apelsin sharbatini yoqtiraman."
+      }
+    },
+    {
+      "word": "sugar",
+      "part_of_speech": "noun",
+      "translation": "сахар",
+      "translations": {
+        "ru": "сахар",
+        "uz": "shakar"
+      },
+      "example": "No sugar in my tea, please.",
+      "example_translations": {
+        "ru": "Без сахара в мой чай, пожалуйста.",
+        "uz": "Choyimga shakar solmang, iltimos."
+      }
+    },
+    {
+      "word": "salt",
+      "part_of_speech": "noun",
+      "translation": "соль",
+      "translations": {
+        "ru": "соль",
+        "uz": "tuz"
+      },
+      "example": "The soup needs more salt.",
+      "example_translations": {
+        "ru": "В суп нужно больше соли.",
+        "uz": "Sho'rvaga ko'proq tuz kerak."
+      }
+    },
+    {
+      "word": "drink",
+      "part_of_speech": "verb",
+      "translation": "пить",
+      "translations": {
+        "ru": "пить",
+        "uz": "ichmoq"
+      },
+      "example": "Drink a glass of water.",
+      "example_translations": {
+        "ru": "Выпей стакан воды.",
+        "uz": "Bir stakan suv ich."
+      }
+    },
+    {
+      "word": "cup",
+      "part_of_speech": "noun",
+      "translation": "чашка",
+      "translations": {
+        "ru": "чашка",
+        "uz": "piyola"
+      },
+      "example": "I need a clean cup.",
+      "example_translations": {
+        "ru": "Мне нужна чистая чашка.",
+        "uz": "Menga toza piyola kerak."
+      }
+    },
+    {
+      "word": "glass",
+      "part_of_speech": "noun",
+      "translation": "стакан",
+      "translations": {
+        "ru": "стакан",
+        "uz": "stakan"
+      },
+      "example": "Give me a glass of milk.",
+      "example_translations": {
+        "ru": "Дай мне стакан молока.",
+        "uz": "Menga bir stakan sut ber."
+      }
+    }
+  ]
+}

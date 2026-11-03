@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 10,
+    "title": "Погода и природа",
+    "title_uz": "Ob-havo va tabiat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Животные",
+    "title_uz": "Hayvonlar"
+  },
+  "words": [
+    {
+      "word": "dog",
+      "part_of_speech": "noun",
+      "translation": "собака",
+      "translations": {
+        "ru": "собака",
+        "uz": "it"
+      },
+      "example": "The dog runs in the garden.",
+      "example_translations": {
+        "ru": "Собака бегает по саду.",
+        "uz": "It bog'da yuguradi."
+      }
+    },
+    {
+      "word": "cat",
+      "part_of_speech": "noun",
+      "translation": "кошка",
+      "translations": {
+        "ru": "кошка",
+        "uz": "mushuk"
+      },
+      "example": "The cat sleeps on the sofa.",
+      "example_translations": {
+        "ru": "Кошка спит на диване.",
+        "uz": "Mushuk divanda uxlaydi."
+      }
+    },
+    {
+      "word": "bird",
+      "part_of_speech": "noun",
+      "translation": "птица",
+      "translations": {
+        "ru": "птица",
+        "uz": "qush"
+      },
+      "example": "A bird sings in the tree.",
+      "example_translations": {
+        "ru": "Птица поёт на дереве.",
+        "uz": "Qush daraxtda sayraydi."
+      }
+    },
+    {
+      "word": "horse",
+      "part_of_speech": "noun",
+      "translation": "лошадь",
+      "translations": {
+        "ru": "лошадь",
+        "uz": "ot"
+      },
+      "example": "The horse is very fast.",
+      "example_translations": {
+        "ru": "Лошадь очень быстрая.",
+        "uz": "Ot juda tez."
+      }
+    },
+    {
+      "word": "cow",
+      "part_of_speech": "noun",
+      "translation": "корова",
+      "translations": {
+        "ru": "корова",
+        "uz": "sigir"
+      },
+      "example": "The cow gives milk.",
+      "example_translations": {
+        "ru": "Корова даёт молоко.",
+        "uz": "Sigir sut beradi."
+      }
+    },
+    {
+      "word": "sheep",
+      "part_of_speech": "noun",
+      "translation": "овца",
+      "translations": {
+        "ru": "овца",
+        "uz": "qo'y"
+      },
+      "example": "The sheep eat grass in the field.",
+      "example_translations": {
+        "ru": "Овцы едят траву в поле.",
+        "uz": "Qo'ylar dalada o't yeydi."
+      }
+    },
+    {
+      "word": "chicken",
+      "part_of_speech": "noun",
+      "translation": "курица",
+      "translations": {
+        "ru": "курица",
+        "uz": "tovuq"
+      },
+      "example": "We have ten chickens.",
+      "example_translations": {
+        "ru": "У нас десять кур.",
+        "uz": "Bizda o'nta tovuq bor."
+      }
+    },
+    {
+      "word": "animal",
+      "part_of_speech": "noun",
+      "translation": "животное",
+      "translations": {
+        "ru": "животное",
+        "uz": "hayvon"
+      },
+      "example": "The cat is a small animal.",
+      "example_translations": {
+        "ru": "Кошка — маленькое животное.",
+        "uz": "Mushuk — kichik hayvon."
+      }
+    },
+    {
+      "word": "mouse",
+      "part_of_speech": "noun",
+      "translation": "мышь",
+      "translations": {
+        "ru": "мышь",
+        "uz": "sichqon"
+      },
+      "example": "A mouse is in the kitchen.",
+      "example_translations": {
+        "ru": "Мышь на кухне.",
+        "uz": "Oshxonada sichqon bor."
+      }
+    },
+    {
+      "word": "bear",
+      "part_of_speech": "noun",
+      "translation": "медведь",
+      "translations": {
+        "ru": "медведь",
+        "uz": "ayiq"
+      },
+      "example": "A bear lives in the forest.",
+      "example_translations": {
+        "ru": "Медведь живёт в лесу.",
+        "uz": "Ayiq o'rmonda yashaydi."
+      }
+    }
+  ]
+}

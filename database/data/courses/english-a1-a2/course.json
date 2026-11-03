@@ -1,0 +1,16 @@
+{
+  "slug": "english-a1-a2",
+  "title": {
+    "ru": "Английский A1–A2: базовые слова",
+    "uz": "Ingliz tili A1–A2: asosiy so'zlar"
+  },
+  "description": {
+    "ru": "1 000 самых нужных слов для начинающих: 20 модулей по темам, у каждого слова пример и перевод на русский и узбекский.",
+    "uz": "Boshlovchilar uchun eng kerakli 1 000 ta so'z: mavzular bo'yicha 20 ta modul, har bir so'zga misol va rus hamda o'zbek tilidagi tarjima berilgan."
+  },
+  "level": "A1",
+  "exam_tag": "general",
+  "visibility": "public",
+  "position": 10,
+  "is_featured": false
+}
