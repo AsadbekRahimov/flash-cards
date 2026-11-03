@@ -10,6 +10,7 @@ use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Support\EnglishLexicon;
 use App\Domain\Practice\Support\InflectionGuard;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
+use App\Domain\Practice\Support\SpellingVariants;
 
 /**
  * Grades what the learner wrote against what was dictated (docs/16 §5.2): `correct`, `typo`, `wrong` or `skipped`.
@@ -26,6 +27,8 @@ use App\Domain\Practice\Support\PracticeTextNormalizer;
  *      `right`) or another form (`wrote` for `write`, `nicer` for `nice`, `women` for `woman`) is a mistake; a token that spells
  *      nothing - `becuase`, but also `stoped` for `stopped` or `mothe` for `mother` - is a typo (docs/15 §3.4);
  *   3. anything else -> `wrong`. A doubtful case is a mistake, with the right text shown.
+ * The British and the American spelling of a word are the same token ({@see SpellingVariants}: `colour` / `color`), both ways, whatever
+ * the author wrote; a slip at either spelling is judged like any other.
  * Nothing written (or nothing but punctuation) is `skipped`: a hint and a mistake. A contraction is not the same as the long
  * form (`I'm` is not `I am`): only the variants the author lists are.
  *
@@ -92,8 +95,9 @@ final class DictationGrader
         $misses = [];
         foreach ($variant as $position => $expectedToken) {
             $got = $answer[$position];
-            $diff[] = ['expected' => $expectedToken, 'got' => $got, 'ok' => $got === $expectedToken];
-            if ($got !== $expectedToken) {
+            $same = SpellingVariants::same($got, $expectedToken);
+            $diff[] = ['expected' => $expectedToken, 'got' => $got, 'ok' => $same];
+            if (! $same) {
                 $misses[] = $position;
             }
         }
@@ -123,6 +127,16 @@ final class DictationGrader
      * @param  array<string, int>  $protected
      */
     private function isSafeTypo(string $got, string $expected, array $protected): bool
+    {
+        // A slip at the other spelling of the word (`colro` for `colour`, which is `color` with a swap) is a slip all the same.
+        $other = SpellingVariants::other($expected);
+
+        return $this->isSafeTypoOf($got, $expected, $protected)
+            || ($other !== null && $this->isSafeTypoOf($got, $other, $protected));
+    }
+
+    /** @param  array<string, int>  $protected */
+    private function isSafeTypoOf(string $got, string $expected, array $protected): bool
     {
         return mb_strlen($expected) >= max(1, (int) config('practice.grading.typo_min_length'))
             && ! $this->isProtected($got, $protected)

@@ -584,3 +584,54 @@ it('delivers the join DM through the fake client by default', function (): void 
 
     expect($tg->sent)->toHaveCount(1);
 });
+
+it('keeps going after the first learner when the cache drop fails after commit', function (): void {
+    $org = omsOrganization(null, null);
+    $first = Learner::factory()->create();
+    $second = Learner::factory()->create();
+    $service = omsService();
+    $service->joinByAdmin($first, $org, User::factory()->create());
+    $service->joinByAdmin($second, $org, User::factory()->create());
+
+    $calls = [];
+    $resolver = Mockery::mock(EntitlementResolver::class);
+    $resolver->shouldReceive('forget')->andReturnUsing(function (int $id) use (&$calls): void {
+        $calls[] = $id;
+
+        throw new RuntimeException('redis down');
+    });
+    app()->instance(EntitlementResolver::class, $resolver);
+    Log::spy();
+    Event::fake([OrganizationMemberLeft::class]);
+
+    $service = app(OrganizationMembershipService::class);
+    $service->leave($first, $org);
+    $service->leave($second, $org);
+
+    expect($calls)->toBe([$first->id, $second->id]);
+    Event::assertDispatchedTimes(OrganizationMemberLeft::class, 2);
+    Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
+});
+
+it('forgets every member on organization delete even when the first forget fails', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    omsService()->joinByAdmin($b, $org, User::factory()->create());
+
+    $calls = [];
+    $resolver = Mockery::mock(EntitlementResolver::class);
+    $resolver->shouldReceive('forget')->andReturnUsing(function (int $id) use (&$calls): void {
+        $calls[] = $id;
+
+        throw new RuntimeException('redis down');
+    });
+    app()->instance(EntitlementResolver::class, $resolver);
+    Log::spy();
+
+    $org->delete();
+
+    expect($calls)->toBe([$a->id, $b->id]);
+    Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
+});

@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Membership of a learner in an organization and the seats of the organization
@@ -247,10 +248,7 @@ final class OrganizationMembershipService
 
             $event = new OrganizationMemberLeft($locked->id, $learner->id, $member->id, $status, $wasSeated, $by?->id);
 
-            DB::afterCommit(function () use ($event): void {
-                $this->entitlements->forget($event->learnerId);
-                event($event);
-            });
+            DB::afterCommit(fn () => $this->afterCommitSteps($event->organizationId, $event->learnerId, $event));
             $this->announceSeated($promoted);
         });
     }
@@ -479,10 +477,7 @@ final class OrganizationMembershipService
 
         $event = new OrganizationMemberJoined($organization->id, $learner->id, $member->id, $via->value, $seat->value);
 
-        DB::afterCommit(function () use ($event): void {
-            $this->entitlements->forget($event->learnerId);
-            event($event);
-        });
+        DB::afterCommit(fn () => $this->afterCommitSteps($event->organizationId, $event->learnerId, $event));
 
         return ['member' => $member, 'changed' => true];
     }
@@ -534,10 +529,36 @@ final class OrganizationMembershipService
 
         DB::afterCommit(function () use ($events): void {
             foreach ($events as $event) {
-                $this->entitlements->forget($event->learnerId);
-                event($event);
+                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event);
             }
         });
+    }
+
+    /**
+     * After commit: drop the learner's cached entitlement, then raise the event. Each step is guarded - a failure
+     * (Redis down, a listener throwing) is logged and never stops the next step or the next learner of the loop.
+     */
+    private function afterCommitSteps(int $organizationId, int $learnerId, object $event): void
+    {
+        $this->guard('organizations.membership_entitlement_forget_failed', $organizationId, $learnerId, fn () => $this->entitlements->forget($learnerId));
+        $this->guard('organizations.membership_event_failed', $organizationId, $learnerId, function () use ($event): void {
+            event($event);
+        });
+    }
+
+    /** @param callable(): mixed $step */
+    private function guard(string $failureLog, int $organizationId, int $learnerId, callable $step): void
+    {
+        try {
+            $step();
+        } catch (Throwable $e) {
+            Log::warning($failureLog, [
+                'organization_id' => $organizationId,
+                'learner_id' => $learnerId,
+                'exception' => $e::class,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /** Same reads as {@see self::seatsSummary()}, but the caller holds the organization lock, so the counts are exact. */

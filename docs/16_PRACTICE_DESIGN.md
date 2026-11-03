@@ -81,7 +81,7 @@ app/Domain/Practice/
 ├── DTO/          PracticeAccessState, ModeAvailability, MaterialReport, Snapshot, SnapshotElement, GradeResult,
 │                 SessionView, SummaryView, BattleView, BattlePollView, RoundView, PracticeImportReport
 ├── Exceptions/   PracticeException, BattleException, PracticeContentException   (errorCode + httpStatus() + details)
-├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants, EnglishLexicon (+ resources/lexicon/en-common.txt: леммы, en-irregular.txt: неправильные формы)
+├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants, EnglishLexicon (+ resources/lexicon/en-common.txt: леммы, en-irregular.txt: неправильные формы), SpellingVariants (+ en-us-gb.txt: пары британского/американского написания)
 └── Services/
     ├── PracticeAccess                 флаги, пилот, тариф, блок `/me`
     ├── PracticeMaterialService        пригодные слова/задания для ученика (соло) и для пары игроков (баттл)
@@ -813,8 +813,8 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 
 Для каждого допустимого варианта `E` считается вердикт, берётся лучший (`correct` > `typo` > `wrong`):
 
-1. `norm(answer) === norm(E)` → `correct`;
-2. `typo` ⇔ **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `e` и `a` не в `grading.protected_tokens` (отрицания, числительные **и порядковые**); ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр; `!InflectionGuard::isInflection(a, e)`; **набранный токен `a` — не английское слово** (`!EnglishLexicon::isWord(a)`, ниже). Это правило владельца (docs/15 §3.4, в споре сильнее этого раздела): другое слово или другая форма — ошибка, «сомнительное» — ошибка, настоящая описка-не-слово — опечатка;
+1. `norm(answer) === norm(E)` → `correct`; токены сравниваются с учётом **британского/американского написания**: две формы пары из `resources/lexicon/en-us-gb.txt` (`colour`/`color`, `centre`/`center`, `travelling`/`traveling`, `organise`/`organize`…) — один и тот же токен, в обе стороны, что бы ни написал автор (`SpellingVariants`, чистая функция; в файле только однозначные пары, формы слова — по одной, строка `british american`, отсортировано, без повторов; неоднозначное — `practise`/`practice`, `tyre`/`tire`, `cheque`/`check`, `licence`/`license` — не в списке, такие варианты автор добавляет в `accepted` сам). В `diff` такой токен отмечен `ok`;
+2. `typo` ⇔ **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `e` и `a` не в `grading.protected_tokens` (отрицания, числительные **и порядковые**); ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр; `!InflectionGuard::isInflection(a, e)`; **набранный токен `a` — не английское слово** (`!EnglishLexicon::isWord(a)`, ниже). Если `e` входит в пару британского/американского написания, описка судится и относительно другой формы пары (`colro` для `colour` — одна транспозиция от `color`: `typo`). Это правило владельца (docs/15 §3.4, в споре сильнее этого раздела): другое слово или другая форма — ошибка, «сомнительное» — ошибка, настоящая описка-не-слово — опечатка;
 3. иначе `wrong`.
 
 `InflectionGuard::isInflection(a, e)` (правка координатора: стеммер с отрезанием `es`/`ed` ошибался — `coffee`/`coffees` давали разные стемы `coffe`/`coff` и проходили как опечатка). Так как до проверки уже известно `OSA(a, e) = 1`, смена грамматической формы на одну правку бывает только на конце слова, и правило — по хвосту: пусть `x` — более короткий токен, `y` — более длинный (при равной длине — любой порядок); `true`, если
@@ -868,6 +868,9 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | 26 | `Turn right here` | `Turn light here` | wrong | `light` — другое слово |
 | 27 | `The fourth floor` | `The forth floor` | wrong | порядковое защищено (`fourth`) |
 | 28 | `The books are on the table` | `The boots are on the table` | wrong | `boots` — другое слово |
+| 29 | `My colour` (без accepted) | `my color` | correct | американское написание пары `colour`/`color` |
+| 30 | `We are travelling` | `We are traveling` | correct | было `wrong` (`traveling` — слово лексикона); теперь пара из `en-us-gb.txt` |
+| 31 | `Nice colour` | `nice colro` | typo | транспозиция от `color` (другая форма пары); `practise`/`practice` — не пара, `wrong` |
 | 29 | `a nicer day` | `a nice day` | wrong | другая форма: `nice` — слово (`InflectionGuard` смотрит только хвосты `s`/`d`) |
 | 30 | `because` | `becuase` | typo | `becuase` — не слово, OSA 1 |
 | 31 | `My friend is here` | `My freind is here` | typo | `freind` — не слово |
