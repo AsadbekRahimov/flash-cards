@@ -23,6 +23,7 @@ use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -593,22 +594,16 @@ it('keeps going after the first learner when the cache drop fails after commit',
     $service->joinByAdmin($first, $org, User::factory()->create());
     $service->joinByAdmin($second, $org, User::factory()->create());
 
-    $calls = [];
-    $resolver = Mockery::mock(EntitlementResolver::class);
-    $resolver->shouldReceive('forget')->andReturnUsing(function (int $id) use (&$calls): void {
-        $calls[] = $id;
-
-        throw new RuntimeException('redis down');
-    });
-    app()->instance(EntitlementResolver::class, $resolver);
+    $attempts = omsEntitlementCacheDown();
     Log::spy();
     Event::fake([OrganizationMemberLeft::class]);
 
-    $service = app(OrganizationMembershipService::class);
     $service->leave($first, $org);
     $service->leave($second, $org);
 
-    expect($calls)->toBe([$first->id, $second->id]);
+    // Both drops were tried and failed, the commits stood, and the events still went out after each failed drop.
+    expect($attempts->getArrayCopy())->toBe([$first->id, $second->id])
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->where('status', 'active')->count())->toBe(0);
     Event::assertDispatchedTimes(OrganizationMemberLeft::class, 2);
     Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
 });
@@ -620,18 +615,49 @@ it('forgets every member on organization delete even when the first forget fails
     omsService()->joinByAdmin($a, $org, User::factory()->create());
     omsService()->joinByAdmin($b, $org, User::factory()->create());
 
-    $calls = [];
-    $resolver = Mockery::mock(EntitlementResolver::class);
-    $resolver->shouldReceive('forget')->andReturnUsing(function (int $id) use (&$calls): void {
-        $calls[] = $id;
-
-        throw new RuntimeException('redis down');
-    });
-    app()->instance(EntitlementResolver::class, $resolver);
+    $attempts = omsEntitlementCacheDown();
     Log::spy();
 
     $org->delete();
 
-    expect($calls)->toBe([$a->id, $b->id]);
+    // The first failed drop stopped neither the second learner nor the delete itself.
+    expect(array_values(array_unique($attempts->getArrayCopy())))->toEqualCanonicalizing([$a->id, $b->id])
+        ->and(Organization::query()->whereKey($org->id)->exists())->toBeFalse();
     Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
 });
+
+/**
+ * The default cache store is down for the entitlement versions alone (`EntitlementResolver::forget` bumps
+ * `entitlement:ver:{id}`): every such bump throws and is recorded with its learner id; every other key works.
+ * The resolver is final, so the failure is made in the store, the way `OrgOverviewCacheTest` does it.
+ *
+ * @return ArrayObject<int, int>
+ */
+function omsEntitlementCacheDown(): ArrayObject
+{
+    /** @var ArrayObject<int, int> $attempts */
+    $attempts = new ArrayObject;
+
+    Cache::extend('entitlements-down', fn () => Cache::repository(new class($attempts) extends ArrayStore
+    {
+        /** @param ArrayObject<int, int> $attempts */
+        public function __construct(private readonly ArrayObject $attempts)
+        {
+            parent::__construct();
+        }
+
+        public function increment($key, $value = 1)
+        {
+            if (preg_match('/^'.preg_quote(EntitlementResolver::VERSION_KEY_PREFIX, '/').'(\\d+)$/', (string) $key, $match) === 1) {
+                $this->attempts->append((int) $match[1]);
+
+                throw new RuntimeException('redis-cache is down');
+            }
+
+            return parent::increment($key, $value);
+        }
+    }));
+    config(['cache.stores.entitlements-down' => ['driver' => 'entitlements-down'], 'cache.default' => 'entitlements-down']);
+
+    return $attempts;
+}
