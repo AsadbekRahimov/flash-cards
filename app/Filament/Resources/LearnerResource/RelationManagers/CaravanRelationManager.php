@@ -6,6 +6,7 @@ namespace App\Filament\Resources\LearnerResource\RelationManagers;
 
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletAdjustmentService;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Models\GameCoinLedgerEntry;
@@ -27,7 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * The "Караван" tab of a learner (docs/18 §12.10): the balance of coins, the tickets and the last 50 entries of the ledger, with the
  * manual moves "Начислить монеты" / "Списать монеты". Admin only. Every move is audited FIRST (`game.coins_adjusted`) and keyed
  * `admin:{audit_log_id}` - that is {@see WalletAdjustmentService}'s; a debit below zero is refused with a notification.
- * Tickets can be only read here: the grant by an admin comes with `TicketService` (G2.8).
+ * "Выдать билеты" goes through {@see TicketService::grantByAdmin()} (its own audit record `game.tickets_adjusted`).
  */
 class CaravanRelationManager extends RelationManager
 {
@@ -81,6 +82,7 @@ class CaravanRelationManager extends RelationManager
             ->headerActions([
                 $this->adjustAction('grant', credit: true),
                 $this->adjustAction('revoke', credit: false),
+                $this->ticketsAction(),
             ])
             ->paginated(false)
             ->defaultSort('id', 'desc');
@@ -134,6 +136,59 @@ class CaravanRelationManager extends RelationManager
                     ->body(__('admin.game.wallet.notifications.balance', ['balance' => $entry->balance]))
                     ->success()
                     ->send();
+            });
+    }
+
+    /**
+     * «Выдать билеты»: a positive number grants under the cap `tickets.max`, a negative one takes (never below 0). The audit entry
+     * `game.tickets_adjusted` is written first by {@see TicketService::grantByAdmin()}.
+     */
+    private function ticketsAction(): Action
+    {
+        return Action::make('tickets')
+            ->label(__('admin.game.wallet.actions.tickets.label'))
+            ->icon('heroicon-o-ticket')
+            ->color('warning')
+            ->visible(fn (): bool => self::isActiveAdmin())
+            ->requiresConfirmation()
+            ->modalHeading(__('admin.game.wallet.actions.tickets.heading'))
+            ->modalDescription(__('admin.game.wallet.actions.tickets.help', ['max' => (int) config('game.tickets.max')]))
+            ->schema([
+                TextInput::make('delta')
+                    ->label(__('admin.game.wallet.actions.tickets.delta'))
+                    ->numeric()
+                    ->integer()
+                    ->minValue(-100)
+                    ->maxValue(100)
+                    ->notIn([0])
+                    ->required(),
+                Textarea::make('reason')
+                    ->label(__('admin.game.wallet.actions.reason'))
+                    ->rows(2)
+                    ->required()
+                    ->maxLength(WalletAdjustmentService::MAX_REASON),
+            ])
+            ->action(function (array $data): void {
+                $actor = auth()->user();
+                $learner = $this->getOwnerRecord();
+                if (! $actor instanceof User || ! $learner instanceof Learner) {
+                    return;
+                }
+
+                $grant = app(TicketService::class)->grantByAdmin($learner, (int) $data['delta'], $actor, request()->ip(), trim((string) $data['reason']));
+
+                Notification::make()
+                    ->title(__('admin.game.wallet.notifications.tickets_done'))
+                    ->body(__('admin.game.wallet.notifications.tickets_balance', ['balance' => $grant->balance]))
+                    ->success()
+                    ->send();
+
+                if ($grant->lost > 0) {
+                    Notification::make()
+                        ->title(__('admin.game.wallet.notifications.tickets_lost', ['lost' => $grant->lost]))
+                        ->info()
+                        ->send();
+                }
             });
     }
 

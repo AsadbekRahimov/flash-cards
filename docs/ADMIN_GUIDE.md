@@ -639,13 +639,14 @@ time), the rewards (*coins awarded*, *league points*) and *words pulled into rep
 holds the expected answers.
 
 **The «Караван» tab of a learner** (Learners → open a learner). The balance, the coins earned and spent, the tickets and the last 50 entries of the
-ledger. Two buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required).
+ledger. Buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required) and **Выдать билеты**.
 
 - Each move first writes the **audit record** `game.coins_adjusted` (who, which learner, amount, reason) and then the entry of the ledger with the key
   `admin:{audit record id}` — so every manual entry has its record. The entry is *Начисление от поддержки* / *Списание поддержкой*.
 - A debit **never takes the balance below zero**: the admin sees «У ученика N монет…», nothing is written to the ledger, and the audit record stays,
   marked `rejected: coins_insufficient`.
-- **Tickets** are shown, not granted here: «Выдать билеты» comes with the ticket service (G2.8).
+- **Выдать билеты** (tickets; a number from -100 to 100 without 0, and a reason): a positive number grants, a negative one takes (never below 0). The balance
+  stops at the cap (`tickets.max`, 10): if some tickets did not fit, a notice says how many. The audit record `game.tickets_adjusted` is written first.
 
 **Widget «Караван — 7 дней»** (dashboard, admin only): runs started in 7 days (all kinds, abandoned ones included), learners who played, and their
 share among the learners active in 7 days. Cached for 5 minutes (a figure past its time is shown once while it is recomputed); no polling.

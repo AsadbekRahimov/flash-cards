@@ -9,7 +9,6 @@ use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameShopCache;
-use App\Domain\Game\Services\TicketService;
 use App\Domain\Operations\Support\PureCache;
 use App\Filament\Resources\GameItemResource\Pages\CreateGameItem;
 use App\Filament\Resources\GameItemResource\Pages\EditGameItem;
@@ -27,6 +26,7 @@ use App\Models\GameItem;
 use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameRunAttempt;
+use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
 use App\Models\User;
@@ -345,12 +345,48 @@ it('gives the tab to an admin only', function (): void {
     Livewire::test(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])->assertForbidden();
 });
 
-it('does not offer the tickets to grant: the service of the tickets comes with G2.8', function (): void {
+it('grants tickets under an audit record written first, the ledger entry and the cap of the balance', function (): void {
     $learner = Learner::factory()->create();
+    $max = (int) config('game.tickets.max');
 
     livewire(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])
-        ->assertActionDoesNotExist('tickets');
-})->skip(fn (): bool => class_exists(TicketService::class), 'TicketService exists: the grant belongs to the tab');
+        ->callAction(TestAction::make('tickets')->table(), ['delta' => 3, 'reason' => 'Подарок'])
+        ->assertNotified(__('admin.game.wallet.notifications.tickets_done'));
+
+    $audit = AuditLog::query()->where('action', 'game.tickets_adjusted')->sole();
+    $entry = GameTicketLedgerEntry::query()->where('learner_id', $learner->id)->sole();
+    expect($audit->user_id)->toBe($this->admin->id)
+        ->and($audit->entity_id)->toBe($learner->id)
+        ->and($audit->meta)->toMatchArray(['delta' => 3, 'reason' => 'Подарок'])
+        ->and($entry->idempotency_key)->toBe('admin:'.$audit->id)
+        ->and($entry->delta)->toBe(3)
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(3);
+
+    // Over the cap: the balance stops at the maximum and the admin is told how many did not fit.
+    livewire(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])
+        ->callAction(TestAction::make('tickets')->table(), ['delta' => $max + 5, 'reason' => 'Много'])
+        ->assertNotified(__('admin.game.wallet.notifications.tickets_lost', ['lost' => 8]));
+    expect(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe($max);
+
+    // Taking more than there is leaves 0.
+    livewire(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])
+        ->callAction(TestAction::make('tickets')->table(), ['delta' => -50, 'reason' => 'Сброс']);
+    expect(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(0);
+
+    foreach ([['delta' => 0, 'reason' => 'x'], ['delta' => 1, 'reason' => '']] as $bad) {
+        livewire(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])
+            ->callAction(TestAction::make('tickets')->table(), $bad)
+            ->assertHasActionErrors();
+    }
+});
+
+it('does not let a teacher grant tickets', function (): void {
+    $learner = Learner::factory()->create();
+    $this->actingAs(gat_user('teacher'));
+
+    Livewire::test(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])->assertForbidden();
+    expect(AuditLog::query()->where('action', 'game.tickets_adjusted')->count())->toBe(0);
+});
 
 // --- widget ---------------------------------------------------------------------------------------
 
