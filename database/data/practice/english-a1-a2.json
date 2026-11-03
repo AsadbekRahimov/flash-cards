@@ -91,12 +91,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "yesterday",
-        "day"
+        "yesterday"
       ],
       "prompt": {
         "ru": "Вчера был очень долгий день.",
@@ -397,11 +396,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "tuesday",
         "today"
       ],
       "prompt": {
@@ -876,12 +874,11 @@
       "type": "dictation",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "today",
-        "friday"
+        "today"
       ],
       "text": "Today is Friday",
       "accepted": [
@@ -1208,12 +1205,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "love",
-        "family"
+        "love"
       ],
       "prompt": {
         "ru": "Мы очень любим нашу семью.",
@@ -1256,12 +1252,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "aunt",
-        "child"
+        "aunt"
       ],
       "prompt": {
         "ru": "У моей тёти трое детей.",
@@ -1294,11 +1289,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "father",
         "home"
       ],
       "prompt": {
@@ -1643,12 +1637,11 @@
       "type": "dictation",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "love",
-        "family"
+        "love"
       ],
       "text": "I love my family",
       "accepted": [
@@ -1872,11 +1865,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 5
       },
       "level": "A2",
       "target_words": [
-        "meeting",
         "start"
       ],
       "prompt": {
@@ -2090,11 +2082,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 2
       },
       "level": "A2",
       "target_words": [
-        "client",
         "discuss"
       ],
       "prompt": {
@@ -2513,12 +2504,11 @@
       "type": "collocation",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 2
       },
       "level": "A2",
       "target_words": [
-        "discuss",
-        "meeting"
+        "discuss"
       ],
       "text": "Let's ___ this problem at the meeting.",
       "options": [
