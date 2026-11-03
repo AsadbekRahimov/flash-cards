@@ -13,8 +13,8 @@ use App\Models\TelegramGroup;
 
 /**
  * `/paysupport` — where to turn with a payment problem. Telegram requires it from every bot that
- * sells with Stars (docs/13 §4.1). Plain text: the support contact (`BILLING_SUPPORT_CONTACT`), the
- * refund rules live in the public offer. Answers in a DM and in an active group (Group Lock).
+ * sells with Stars (docs/13 §4.1). Plain text: the support contact (`BILLING_SUPPORT_CONTACT`) and the
+ * refund rule (only through support, each request examined individually; the details are in the public offer). Answers in a DM and in an active group (Group Lock).
  */
 final class PaySupportCommandHandler implements UpdateHandler
 {

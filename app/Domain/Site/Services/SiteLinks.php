@@ -50,6 +50,47 @@ final class SiteLinks
         return ['label' => $raw, 'href' => null];
     }
 
+    /** Whether the offer / privacy pages still carry the "draft" notice (`SITE_LEGAL_DRAFT`, on until the owner switches it off). */
+    public function legalDraft(): bool
+    {
+        return (bool) config('site.legal.draft', true);
+    }
+
+    /**
+     * The contact the legal texts print: the support contact, else the legal e-mail, else a pointer to `/paysupport`.
+     * Plain text (the view escapes it).
+     */
+    public function legalContact(string $locale): string
+    {
+        $contact = $this->supportContact();
+        if ($contact !== null) {
+            return $contact['label'];
+        }
+
+        $email = config('site.legal.email');
+        $email = is_string($email) ? trim($email) : '';
+
+        return $email !== '' ? $email : __('legal.contact_fallback', [], $locale);
+    }
+
+    /**
+     * The operator's requisites for the last section of the offer: one "label: value" line per filled field of
+     * `config('site.legal')`; with none filled, a visible marker for the owner. Plain text, lines joined by "\n".
+     */
+    public function legalRequisites(string $locale): string
+    {
+        $lines = [];
+        foreach (['name', 'inn', 'address', 'bank', 'bank_account', 'mfo', 'phone', 'email'] as $field) {
+            $value = config("site.legal.{$field}");
+            $value = is_string($value) ? trim($value) : '';
+            if ($value !== '') {
+                $lines[] = __("legal.requisite.{$field}", [], $locale).': '.$value;
+            }
+        }
+
+        return $lines === [] ? __('legal.requisites_missing', [], $locale) : implode("\n", $lines);
+    }
+
     /** Absolute URL of a public page (`home|offer|privacy`) in an explicit locale. */
     public function pageUrl(string $page, string $locale): string
     {

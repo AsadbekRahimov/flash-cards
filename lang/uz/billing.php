@@ -54,11 +54,11 @@ return [
 
     'paysupport' => [
         'with_contact' => "LexiFlow to'lovlar bo'yicha yordam.\n\n".
-            "To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact\n".
-            "Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer\n".
+            "To'lov va obunani bekor qilish masalalari: :contact\n".
+            "Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi: har bir murojaat alohida ko'rib chiqiladi. Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Shartlar ofertada: :offer\n".
             "Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin.",
         'without_contact' => "LexiFlow to'lovlar bo'yicha yordam.\n\n".
-            "Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer\n".
+            "Yordam kontakti hozircha ko'rsatilmagan. Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi, har bir murojaat alohida ko'rib chiqiladi. Shartlar ofertada: :offer\n".
             "Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin.",
     ],
 

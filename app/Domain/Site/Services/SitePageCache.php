@@ -38,6 +38,7 @@ final class SitePageCache
      */
     public const CONFIG = [
         'app.url',
+        'site.legal',
         'telegram.bot_username',
         'billing.paywall',
         'billing.prices',

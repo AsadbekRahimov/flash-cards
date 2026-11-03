@@ -953,7 +953,7 @@ Product events (`product_events` table, see `docs/03_DATABASE.md`) are for produ
 
 The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets, so they are *not* in the BREACH `gzip off` block) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).
 
-**Replacing the legal text placeholders.** `offer` and `privacy` are stubs: a numbered list of section titles, each followed by "text will be provided by the owner", plus a "draft" notice and `noindex`. In `lang/{ru,uz}/legal.php`, `offer.sections` / `privacy.sections` is a list; replace a title string with `['title' => '...', 'text' => "Paragraph 1\n\nParagraph 2"]` to publish its text (paragraphs are split on blank lines; plain strings stay placeholders). Section order/count may differ from the stub but must stay identical in `ru` and `uz` (`LocalizationTest` checks key parity). Once all sections are real: remove `draft_notice` from the views (`resources/views/site/_legal.blade.php`) and drop `'noindex' => true` in `offer.blade.php` / `privacy.blade.php`.
+**Legal texts.** `offer` and `privacy` hold drafts (ru/uz) in `lang/{ru,uz}/legal.php`: `sections` is a list of `['title' => ..., 'text' => "Paragraph 1\n\nParagraph 2"]` (paragraphs split on blank lines; a plain string stays a placeholder section). Tokens `{contact}` (support contact, else `SITE_LEGAL_EMAIL`, else a pointer to `/paysupport`) and `{requisites}` (the filled `SITE_LEGAL_*` fields) are substituted by the view; the number and order of sections must be identical in `ru` and `uz` (`LocalizationTest`). Places the owner or the lawyer must fill are marked in square brackets in the texts (data storage country/provider, minimum age, mail provider, terms). While `SITE_LEGAL_DRAFT=true` (default) the pages show the "draft" notice and `noindex`; after the lawyer's approval set `SITE_LEGAL_DRAFT=false` and restart (the page cache key includes the flag): the notice disappears and the pages become indexable.
 
 **security.txt.** `Contact` is a placeholder (`security@example.com`): put a real monitored address there before launch. `Expires` must be renewed at least once a year (currently `2027-10-18`).
 
@@ -1001,7 +1001,8 @@ you switch a provider on.
 | `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
 | `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |
 | `BILLING_INVOICE_REQUEST_EMAIL` | where the cabinet's "Request an invoice" e-mail goes (empty = `SITE_LEGAL_EMAIL`; both empty = the button is hidden) |
-| `SITE_LEGAL_NAME`, `_INN`, `_ADDRESS`, `_BANK`, `_BANK_ACCOUNT`, `_MFO`, `_PHONE`, `_EMAIL` | seller requisites printed on a center's invoice (`config/site.php`, from the owner / accountant); empty fields are not printed |
+| `SITE_LEGAL_DRAFT` | `true` by default: the offer and privacy pages show the "draft" notice and are `noindex`; set `false` only after the lawyer has approved the texts (`config('site.legal.draft')`) |
+| `SITE_LEGAL_NAME`, `_INN`, `_ADDRESS`, `_BANK`, `_BANK_ACCOUNT`, `_MFO`, `_PHONE`, `_EMAIL` | seller requisites printed on a center's invoice and in the last section of the offer (`config/site.php`, from the owner / accountant); empty fields are not printed |
 
 `PAYME_KEY`, `PAYME_TEST_KEY` and `CLICK_SECRET_KEY` are secrets: only in `.env` (never in git, chat or tickets),
 `chmod 640`. The admin panel masks key-like fields of stored webhook payloads and the order token, and the log redactor
