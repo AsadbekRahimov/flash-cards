@@ -2,6 +2,9 @@ import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
   AchievementsResponse,
+  GameMapResponse,
+  GameRunStarted,
+  GameStartRequest,
   AssignmentsResponse,
   AuthContext,
   AuthResponse,
@@ -256,6 +259,12 @@ export const api = {
      * Gives up after 15 s (a `network` error); `signal` stops it sooner - the screen was left, a newer clip is wanted.
      */
     audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
+  },
+  game: {
+    /** The map of a course: cities (modules), stops (lessons), bosses, friends, the unfinished run. 404 `course_not_found`, 403 `game_unavailable`. */
+    map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
+    /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
+    startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
   },
   battles: {
     options: (friendshipId: number, course: string, lessonId: number | null = null) =>

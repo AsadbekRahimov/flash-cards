@@ -230,3 +230,33 @@ describe('style.css: contrast of text on soft backgrounds', () => {
     for (const kind of KINDS) expect(css).toContain(`--color-${kind}-ink: var(--app-${kind}-ink);`)
   })
 })
+
+/** The Karvon map (docs/05 §5b.2): everything a finger has to hit is 44 px high, the stars are 12 px. */
+describe('the Karvon map', () => {
+  const view = sources.get('views/GameMapView.vue') ?? ''
+
+  /** The `<button …>` tag of the template that carries `testid`. */
+  const buttonTag = (testid: string): string => new RegExp(`<button[^>]*data-testid="${testid}"[^>]*>`).exec(view)?.[0] ?? ''
+
+  it('reads the screen', () => {
+    expect(view).toContain('data-testid="game-map-view"')
+  })
+
+  it.each(['active-run', 'boss-pro'])('makes the target %s at least 44 px high', (testid) => {
+    expect(buttonTag(testid), testid).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('makes a stop row 44 px high', () => {
+    expect(view).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*:data-testid="`stop-/s)
+  })
+
+  it('draws the stars 12 px', () => {
+    const stars = [...view.matchAll(/name="star"[^>]*:size="(\d+)"/g)].map((match) => match[1])
+    expect(stars.length).toBeGreaterThan(0)
+    expect(new Set(stars)).toEqual(new Set(['12']))
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    expect(view).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+  })
+})

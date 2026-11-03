@@ -15,7 +15,7 @@ import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit'
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit' | 'game'
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6): a bottom sheet with a grabber and a close button, the
@@ -37,7 +37,7 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * `practiceLead`); `'practice_limit'` is the end of the free sessions of practice or of the free battles of today (docs/18 §3; `limitHit`
  * holds the numbers the lead quotes, and the time the counter is full again is told in the learner's zone, the one of the Today screen; a
  * limit of 0 is "only Pro": the lead says so, with no day to wait for - sessions: the practice, and the battles with it only when they are
- * for Pro only too); `'info'` is
+ * for Pro only too); `'game'` is a run of the Karvon map or a boss behind the Free allowance (docs/18 §3; the lead names no numbers: they are on the stop sheet); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -99,6 +99,7 @@ const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   quota: 'paywall.lead_quota',
   streak_freeze: 'paywall.lead_streak_freeze',
   exam_simulator: 'paywall.lead_exam_simulator',
+  game: 'paywall.lead_game',
 }
 
 /**

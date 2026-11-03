@@ -113,11 +113,22 @@ export const KNOWN_ERROR_CODES = [
   'battle_wrong_state',
   'round_not_open',
   'round_closed',
+  // The Karvon game (docs/18 §12.8); `course_not_found`, `lesson_not_found` and `lesson_not_in_course` are above.
+  'game_unavailable',
+  'game_limit_reached',
+  'game_pro_required',
+  'game_run_active',
+  'game_daily_done',
+  'boss_not_ready',
+  'stop_locked',
+  'game_not_enough_material',
+  'stage_not_found',
+  'stage_not_in_course',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks' | 'practice' | 'battle'
+export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks' | 'practice' | 'battle' | 'game'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)
