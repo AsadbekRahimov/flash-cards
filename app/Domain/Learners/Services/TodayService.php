@@ -144,7 +144,7 @@ final class TodayService
                 $lesson->id,
                 $lesson->stage?->number,
                 $lesson->number,
-                $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title),
+                $this->deckTitles->lesson($course, $learner, $lesson),
             ),
         );
     }

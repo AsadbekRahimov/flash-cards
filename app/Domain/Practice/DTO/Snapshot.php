@@ -13,11 +13,13 @@ use LogicException;
  *
  *   v, mode, locales, pool (the unused candidates in seeded order: the spares of a dictation), elements[],
  *   + what the screens show about the scope without a query (docs/16 §13): course_slug, course_title (locale =>
- *   title), lesson_stage, lesson_number, lesson_title.
+ *   title), lesson_stage, lesson_number, lesson_title (locale => title: a battle is read by two learners of possibly
+ *   different languages; a v1 row kept one string, which is read as the name in every locale).
  */
 final readonly class Snapshot
 {
-    public const VERSION = 1;
+    /** 2: `lesson_title` is a map locale => title (1: one string for every reader). */
+    public const VERSION = 2;
 
     /**
      * The size limit of a snapshot in UTF-8 bytes (docs/16 §13): the biggest snapshot that content within `practice.content` can make
@@ -31,6 +33,7 @@ final readonly class Snapshot
      * @param  list<SnapshotElement>  $elements
      * @param  list<array<string, mixed>>  $pool
      * @param  array<string, string>  $courseTitle  locale => the title of the course
+     * @param  array<string, string>  $lessonTitle  locale => the title of the lesson (no entry: the lesson has no name in that locale)
      */
     public function __construct(
         public PracticeMode $mode,
@@ -41,7 +44,7 @@ final readonly class Snapshot
         public array $courseTitle = [],
         public ?int $lessonStage = null,
         public ?int $lessonNumber = null,
-        public ?string $lessonTitle = null,
+        public array $lessonTitle = [],
         public int $v = self::VERSION,
     ) {}
 
@@ -80,6 +83,21 @@ final readonly class Snapshot
             }
         }
 
+        // v1 kept one string for every reader; it is that name in each locale of the snapshot.
+        $lessonTitles = [];
+        $rawLessonTitle = $data['lesson_title'] ?? null;
+        if (is_string($rawLessonTitle)) {
+            foreach ($locales as $locale) {
+                $lessonTitles[$locale] = $rawLessonTitle;
+            }
+        } else {
+            foreach ((array) $rawLessonTitle as $locale => $title) {
+                if (is_string($title)) {
+                    $lessonTitles[(string) $locale] = $title;
+                }
+            }
+        }
+
         return new self(
             mode: $mode,
             locales: $locales,
@@ -89,7 +107,7 @@ final readonly class Snapshot
             courseTitle: $titles,
             lessonStage: isset($data['lesson_stage']) ? (int) $data['lesson_stage'] : null,
             lessonNumber: isset($data['lesson_number']) ? (int) $data['lesson_number'] : null,
-            lessonTitle: isset($data['lesson_title']) ? (string) $data['lesson_title'] : null,
+            lessonTitle: $lessonTitles,
             v: (int) ($data['v'] ?? self::VERSION),
         );
     }
@@ -155,6 +173,21 @@ final readonly class Snapshot
     public function courseTitleFor(string $locale): string
     {
         return $this->courseTitle[$locale] ?? (array_values($this->courseTitle)[0] ?? $this->courseSlug);
+    }
+
+    /**
+     * The title of the lesson in the locale, else in any locale the snapshot has; null when the lesson has no name (the client
+     * names it by its number).
+     */
+    public function lessonTitleFor(string $locale): ?string
+    {
+        return $this->lessonTitle[$locale] ?? (array_values($this->lessonTitle)[0] ?? null);
+    }
+
+    /** Whether the snapshot carries anything of the lesson's name or place (a session with a lesson has at least its number). */
+    public function hasLessonFacts(): bool
+    {
+        return $this->lessonStage !== null || $this->lessonNumber !== null || $this->lessonTitle !== [];
     }
 
     /**

@@ -74,7 +74,7 @@ final class PracticeHubService
                 'id' => $lesson->id,
                 'stage' => $lesson->stage?->number,
                 'number' => $lesson->number,
-                'title' => $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title),
+                'title' => $this->deckTitles->lesson($course, $learner, $lesson),
             ],
             modes: $modes,
             activeSession: $active === null ? null : $this->sessions->activeSummary($active),

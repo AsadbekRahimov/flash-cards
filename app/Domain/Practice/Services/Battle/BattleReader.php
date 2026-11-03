@@ -105,7 +105,7 @@ final class BattleReader
             mode: $battle->mode->value,
             role: $me->role->value,
             course: ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($me->locale)],
-            lesson: $this->lessonOf($battle, $snapshot),
+            lesson: $this->lessonOf($battle, $snapshot, $me->locale),
             opponent: ['first_name' => $this->firstName($other->learner_id)],
             roundsTotal: $this->settings->rounds(),
             roundSeconds: $this->settings->roundSeconds($battle->mode),
@@ -262,7 +262,7 @@ final class BattleReader
                 'mode' => $battle->mode->value,
                 'from' => ['first_name' => $names[$battle->challenger_id] ?? null],
                 'course' => ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($battle->participant($viewer->id)->locale)],
-                'lesson' => $this->lessonOf($battle, $snapshot),
+                'lesson' => $this->lessonOf($battle, $snapshot, $battle->participant($viewer->id)->locale),
                 'invite_expires_at' => IsoTime::format($battle->invite_expires_at),
                 'rematch' => $battle->rematch_of_id !== null,
             ];
@@ -465,13 +465,13 @@ final class BattleReader
     }
 
     /** @return array{id: int, stage: int|null, number: int|null, title: string|null}|null */
-    private function lessonOf(Battle $battle, Snapshot $snapshot): ?array
+    private function lessonOf(Battle $battle, Snapshot $snapshot, string $viewerLocale): ?array
     {
         if ($battle->lesson_id === null) {
             return null;
         }
 
-        return ['id' => $battle->lesson_id, 'stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber, 'title' => $snapshot->lessonTitle];
+        return ['id' => $battle->lesson_id, 'stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber, 'title' => $snapshot->lessonTitleFor($viewerLocale)];
     }
 
     /**
@@ -521,7 +521,7 @@ final class BattleReader
             'mode' => $battle->mode->value,
             'role' => $me->role->value,
             'course' => ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($me->locale)],
-            'lesson' => $this->lessonOf($battle, $snapshot),
+            'lesson' => $this->lessonOf($battle, $snapshot, $me->locale),
             'opponent' => ['first_name' => $this->firstName($battle->otherId($viewer->id))],
         ];
     }

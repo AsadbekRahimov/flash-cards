@@ -441,6 +441,9 @@ final class WordTranslationResolver
 }
 
 // VocabularyImporter v2: схема JSON получает `course` (slug) и `translations: {ru, uz}` у слова; `translation` как раньше = ru.
+// R3c: `stage.title_uz` и `lesson.title_uz` (nullable, ≤ 255) — названия модуля и урока на uz (→ `stages.title_uz`, `lessons.title_uz`,
+// docs/03 §2.5). Правила как у `title`: пустое / пробелы = нет названия; файл без `stage.title_uz` не трогает uz-название существующего
+// модуля; `lesson.title_uz` — как `lesson.title`, из файла (нет в файле → NULL). Повторный импорт идемпотентен.
 ```
 
 > **Реализация 1.2a (2026-10-18).** Сделано из этого контракта: `CourseCatalogService` — `defaultCourse()`, `findBySlug`, `courseForGroup`, `findStage`/`findLesson`, `lessons(Course)` (каталог для learner'а — `published`/`forLearner`/`lessonsWithProgress`/`nextLessonWithNewWords`/`recommend` — в 1.2b/1.3a); `CoursePublisher::transition(Course, string $to, User $by, ?string $ip = null)` + `allowedTransitions`, `translationCoverage`, `recount`; `WordTranslationResolver` — `for`/`resolve` (+ признак fallback)/`map`/`resolveMany`; добавлен `WordTranslationWriter` (ручная запись + синхронизация ru). Переходы: `draft→review`, `review→draft|published`, `published→archived`, `archived→draft`. Публикация: заголовок на всех языках, ≥ 1 урока и ≥ 1 активного слова, `uz`+`ru` у ≥ `config('content.publish_translation_threshold')` (0.95) активных слов; только при новой публикации. Импорт v2: `course` — slug **существующего** курса (неизвестный → отказ всего файла), `translations`/`example_translations` по локалям из `config('localization.supported')`, `translation` ≡ `translations.ru`. `TrainingSessionService::openForLesson` — открыть сессию по уроку, без номеров (ссылка напоминания).

@@ -119,7 +119,7 @@ final class VocabularyImporter
             return $report;
         }
 
-        /** @var array{course?:string|null,stage:array{number:int,title?:string,description?:string},lesson:array{number:int,title?:string},words:list<array<string,mixed>>} $data */
+        /** @var array{course?:string|null,stage:array{number:int,title?:string,title_uz?:string|null,description?:string},lesson:array{number:int,title?:string|null,title_uz?:string|null},words:list<array<string,mixed>>} $data */
         $this->assertUniqueWords($data['words'], $report);
         $words = $this->normalizeWords($data['words'], $report);
         $course = $this->resolveCourse($data['course'] ?? null, $report);
@@ -139,20 +139,23 @@ final class VocabularyImporter
             $this->publisher->lockForWriting($course);
 
             // A file without a stage title (or with a blank one) gives a new module NO name (NULL: readers are shown
-            // "Модуль N" / "N-modul" in their language, docs/14 §8) and leaves the name of an existing module alone.
-            $stageTitle = $data['stage']['title'] ?? null;
-
+            // "Модуль N" / "N-modul" in their language, docs/14 §8) and leaves the name of an existing module alone. The
+            // Uzbek name (`title_uz`, docs/03 §2.5) follows the same rule; a lesson's names are the file's (absent = NULL).
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
-                    'title' => is_string($stageTitle) && trim($stageTitle) !== '' ? $stageTitle : null,
+                    'title' => self::name($data['stage']['title'] ?? null),
+                    'title_uz' => self::name($data['stage']['title_uz'] ?? null),
                     'description' => $data['stage']['description'] ?? null,
                 ], fn ($v): bool => $v !== null),
             );
 
             $lesson = Lesson::updateOrCreate(
                 ['stage_id' => $stage->id, 'number' => $data['lesson']['number']],
-                ['title' => $data['lesson']['title'] ?? null],
+                [
+                    'title' => $data['lesson']['title'] ?? null,
+                    'title_uz' => self::name($data['lesson']['title_uz'] ?? null),
+                ],
             );
 
             /** @var Collection<string, Word> $existingWords */
@@ -444,11 +447,13 @@ final class VocabularyImporter
             'stage' => ['required', 'array'],
             'stage.number' => ['required', 'integer', 'min:1'],
             'stage.title' => ['sometimes', 'string', 'max:255'],
+            'stage.title_uz' => ['sometimes', 'nullable', 'string', 'max:255'],
             'stage.description' => ['sometimes', 'nullable', 'string'],
 
             'lesson' => ['required', 'array'],
             'lesson.number' => ['required', 'integer', 'min:1'],
             'lesson.title' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'lesson.title_uz' => ['sometimes', 'nullable', 'string', 'max:255'],
 
             'words' => ['required', 'array', 'min:1', 'max:500'],
             'words.*' => ['required', 'array'],
@@ -463,6 +468,12 @@ final class VocabularyImporter
             'words.*.part_of_speech' => ['sometimes', 'nullable', 'string', 'in:'.implode(',', self::ALLOWED_POS)],
             'words.*.transcription' => ['sometimes', 'nullable', 'string', 'max:100'],
         ];
+    }
+
+    /** A name from the file: a string that is not blank; null for anything else (no name). */
+    private static function name(mixed $value): ?string
+    {
+        return is_string($value) && trim($value) !== '' ? $value : null;
     }
 
     /** @param  list<array<string,mixed>>  $words */

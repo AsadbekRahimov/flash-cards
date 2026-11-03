@@ -77,7 +77,8 @@ final class PracticeSnapshotBuilder
             courseTitle: $titles,
             lessonStage: $lesson?->stage?->number,
             lessonNumber: $lesson?->number,
-            lessonTitle: $lesson === null ? null : ($learner === null ? $lesson->title : $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title)),
+            // One name per locale of the snapshot: a battle is read by two learners who may not share a language.
+            lessonTitle: $lesson === null ? [] : $this->deckTitles->lessonTitles($course, $lesson, $locales->locales),
         );
         $snapshot->assertFits();
 
