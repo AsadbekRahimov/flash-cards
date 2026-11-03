@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
+use App\Http\Controllers\Api\Twa\GameMapController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
@@ -132,6 +133,9 @@ Route::prefix('twa')->group(function (): void {
                 ->name('twa.exam.answer');
             Route::get('/result', [ExamController::class, 'result'])->name('twa.exam.result');
         });
+
+        // The game "Caravan" (docs/18 §12.8, docs/04 A.18): the map; the runs, the wallet and the shop come with their tasks.
+        Route::get('/game/map', [GameMapController::class, 'show'])->name('twa.game.map');
 
         // Practice (docs/16 §7.1-7.2): the hub and the solo sessions. Opening a session and answering have limiters
         // of their own on top of `twa-api`. The battle (§7.3-7.4) follows below.
