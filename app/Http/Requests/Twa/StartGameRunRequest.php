@@ -9,20 +9,27 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * POST /api/twa/game/runs (docs/18 §12.8, docs/04 A.18). Only `kind = stop` for now: the boss, the daily caravan and the boss of a
- * class come with G2.4, G2.3 and G2.9 and widen the list of kinds (and the keys they need) then.
+ * POST /api/twa/game/runs (docs/18 §12.8, docs/04 A.18). `kind = stop` (course + lesson) and `kind = daily` (the daily caravan: no
+ * course, no lesson - the learner's active course); the boss and the boss of a class come with G2.4 and G2.9 and widen the list.
  */
 final class StartGameRunRequest extends FormRequest
 {
     /** @return array<string, list<mixed>> */
     public function rules(): array
     {
+        $stop = $this->input('kind') !== RunKind::Daily->value;
+
         return [
-            'kind' => ['required', 'string', Rule::in([RunKind::Stop->value])],
-            'course' => ['required', 'string', 'max:64'],
-            'lesson_id' => ['required', 'integer', 'min:1', 'max:9223372036854775807'],
+            'kind' => ['required', 'string', Rule::in([RunKind::Stop->value, RunKind::Daily->value])],
+            'course' => [$stop ? 'required' : 'nullable', 'string', 'max:64'],
+            'lesson_id' => [$stop ? 'required' : 'nullable', 'integer', 'min:1', 'max:9223372036854775807'],
             'replace_active' => ['nullable', 'boolean'],
         ];
+    }
+
+    public function isDaily(): bool
+    {
+        return $this->string('kind')->toString() === RunKind::Daily->value;
     }
 
     public function course(): string

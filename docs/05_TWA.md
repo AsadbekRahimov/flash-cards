@@ -335,15 +335,69 @@ Vitest (`resources/twa/src`): стор `practice.spec`, `practiceRaces.spec` (п
 
 ### 5b.1 Общее: маршруты, сторы, входы, ошибки, пейвол
 
-_(G2.7a, задача «карта»)_
+**Маршруты** (`router/index.ts`). `/game` (имя `game`, вкладка «Курсы»; `?course=<slug>` — курс, иначе активный курс ученика; `?stop=<lesson_id>` — открыть лист этой стоянки сразу после загрузки карты). `/game/runs/:id` (`game-run`, без таб-бара) — §5b.3. Экран босса, «Караван дня», «Мой караван» и класс — G2.7b/c, G2.9b.
+
+**Сторы.** `game` — карта (`map`, `status`: `idle | loading | ready | unavailable | error`, `error`) и старт стоянки: `startStop(lessonId, replaceActive?)` → `{ id }` или типизированная ошибка (`{ error: { code, kind, details, message } }`); курс берётся из загруженной карты. Единственные запросы стора — `GET /game/map` и `POST /game/runs`. `me.game` (`available`, `limits`, `pro_promise`, `coins`, `tickets`) живёт в **billing-сторе** вместе с остальным `/me` (`billing.game`, геттер `gameAccess`; пока `/me` не пришёл — «игры нет»). Ни `game`, ни экран карты **не запрашивают `/me`**: на «Сегодня» Pro-ученик `/me` намеренно не читает (стережёт `TodayView.spec.ts`). Лимиты, которые приносят сами ответы игры (`limits` карты), записываются в billing-стор как самое новое слово (`setGameLimits`), как у практики.
+
+**Входы.** Карточка «Караван» — только там, где `/me` уже загружен, и только при `me.game.available`: кнопка курса (`CourseView`, под «Практикой») → `/game?course=<slug>`. Пока `/me` не пришёл — входа нет. Вход на «Сегодня» появится с `/today.game` (G2.3 / G2.7b).
+
+**Коды ошибок** (`KNOWN_ERROR_CODES` + `error.code.*` ru/uz): `game_unavailable`, `game_limit_reached`, `game_pro_required`, `game_run_active`, `game_daily_done`, `boss_not_ready`, `stop_locked`, `game_not_enough_material`, `stage_not_found`, `stage_not_in_course` (`course_not_found`, `lesson_not_found`, `lesson_not_in_course` уже есть у практики). Контекст сообщений — `game` (`error.closed.game`, `error.forbidden.game`). Коды забега (`game_run_not_found`, `game_run_closed`, подсказки, бустеры, лавка) — §5b.3 и следующие задачи.
+
+**Пейвол `PaywallReason = 'game'`.** Забег по карте у Free ограничен (docs/18 §3): бесплатный забег в день и билеты (за серию и за друзей); Pro — без ограничений. Лид (один для отказа по лимиту и для босса Pro): «Караван: бесплатный забег в день и билеты за серию и за друзей. В Pro — без ограничений.» Чисел в тексте нет: они приходят только в `me.game.limits` (до G2.8 это `null`) и показываются строкой на листе стоянки, не в пейволе. Остальное — как у других причин: что даёт Free, покупка или `coming_soon`, промокод, «Повторить слова».
 
 ### 5b.2 Карта `/game`
 
-_(G2.7a, задача «карта»)_
+Контракт — `docs/04` A.18 (`GET /game/map`), поведение — `docs/18` §12.9. Экран — `views/GameMapView.vue`, тесты — `views/__tests__/GameMapView.spec.ts`.
+
+**Курс.** `?course=` → иначе активный курс из `today.data.active_course` (если «Сегодня» ещё не читалось — `today.load()`, это `/today`, не `/me`). Курса нет — состояние `no_course` («Выберите курс», кнопка в «Курсы»). Telegram Back → «Сегодня».
+
+**Состояния.** `loading` · `ready` · `empty` (ни одна стоянка не открыта: «Начните урок в карточках — откроется первая стоянка», кнопка «Учить» → курс) · `unavailable` (403 `game_unavailable`: «Караван пока недоступен») · `error` («Повторить»; в том числе 404 `course_not_found`). Баннер `active_run` («Идёт забег: 3 из 9 · Продолжить» → `/game/runs/<id>`) стоит над дорогой в `ready` и `empty`.
+
+**Дорога.** Вертикальный список городов в порядке модулей. Город: имя Шёлкового пути (`city`) и название модуля (`title`; пусто → «Модуль N»); метки друзей у города (`friends` с `city_number` = номер города; имена, не больше 3, остальные «+N»). Стоянки — точки со звёздами 0–3 (звезда 12 px, один столбец на 320 px, цель нажатия ≥ 44 px), подпись «Стоянка N» + название урока. Закрытая (`unlocked: false`) серая, с подписью «начните урок», не нажимается; город без открытых стоянок приглушён.
+
+**Босс** — неинтерактивный чип у города (старта босса нет: экран — G2.7b): `ready` «Босс ждёт», `not_ready` «ещё N стоянок» (`required_stops - cleared_stops`; если стоянок хватает, но слов не хватает — «ещё N слов»), `defeated` «Босс побеждён», `locked_by_plan` — чип Pro, нажатие → `PaywallSheet reason="game"`.
+
+**Лист стоянки** (`BottomSheet`): «Стоянка N · <урок>», «8–10 заданий, 3 фляги», звёзды и лучший счёт, если уже играли; строка лимитов Free — только если `limits.runs` не `null`: «Сегодня бесплатно: 1 из 1 · билеты: 2» (при `limits = null` строки нет — чисел не выдумываем); кнопка «В путь» → `startStop`. Лимиты: `limits` карты, иначе `me.game.limits`.
+
+**Старт и ошибки.** 201 → `router.push('/game/runs/' + id)`. 403 `game_limit_reached` и `game_pro_required` → `PaywallSheet reason="game"`; 409 `game_run_active {run_id, kind, progress}` → лист «Идёт забег: продолжить / начать этот (прежний не засчитается)», «начать этот» → тот же старт с `replace_active: true`; 409 `stop_locked` → тост и перечитывание карты; 422 `game_not_enough_material` → лист «Слов пока мало для этой стоянки» с кнопкой «Учить»; 403 `game_unavailable` → `unavailable`; прочее — тост по `errorMessage`. Пока идёт старт, второе нажатие игнорируется; ответ, пришедший после ухода с экрана, никуда не уводит.
+
+**`?stop=<lesson_id>`** — адрес кнопки «Ещё раз» итога забега: после загрузки карты открывается лист этой стоянки (если она есть и открыта; иначе параметр молча игнорируется). Закрытие листа убирает `stop` из адреса (`router.replace`).
+
+**Не входит:** «Караван дня», старт босса, класс (G2.7b / G2.9b); `daily` и `class_caravan` из ответа карты экран не читает.
 
 ### 5b.3 Забег `/game/runs/:id` и итог
 
-_(G2.7a, задача «забег»)_
+_(G2.7a, задача «забег»; контракт — `docs/18` §12.8–§12.9, `docs/04` A.18 «Забег»)_
+
+**Маршрут** `game-run` (`/game/runs/:id(\d+)`, без таб-бара). Карта открывает его после старта; в query можно передать `course=<slug>` и `stop=<lesson_id>` — `GET /game/runs/{id}` не отдаёт ни slug курса, ни id урока, а «Ещё раз» и «На карту» ведут на `/game?course=<slug>&stop=<lesson_id>` и `/game?course=<slug>`. Без query (ссылка напрямую) обе кнопки ведут на `/game` (активный курс).
+
+**Файлы.** `api/gameRunTypes.ts` (типы), `api.gameRuns.{get, answer, hint, abandon, audioBlob}`, стор `stores/gameRun.ts`, экран `views/GameRunView.vue`, `components/game/`: `ChoiceTask`, `SpellTask`, `GapTask` (виды из слова), `PracticeTask` (адаптер к компонентам практики), `GameReveal` (разбор видов из слова), `RunHeader`, `FlaskIcons`, `EventBanner`, `RunSummary`.
+
+**Стор `gameRun`** (по образцу `practice`): `status` — `idle · loading · event · playing · submitting · reveal · summary · closed · error`.
+- Поколения: `generation` растёт с каждым забегом, ответ прежнего забега отбрасывается. Пока статус не `playing`, повторное нажатие ничего не шлёт.
+- `request_id`: один на задание (пара — на каждую попытку «left|right»). При сетевой ошибке / 5xx / 429 id и **сам ответ** сохраняются (`pendingRequestId`, `pendingAnswer`), экран остаётся на задании с тостом, повтор уходит тем же id и тем же ответом. Подсказка — свой id (`pendingHint`).
+- `element_not_current` / `unknown_element_id` → тост «Задание уже сменилось» и перечитанный `GET`; `pair_already_matched` → тихий перечит; `answer_already_accepted {verdict}` → перечит и разбор «ответ засчитан раньше» (только вердикт); прочие 409/422 (`invalid_answer_shape`, `unknown_option_id`, `request_id_reused`) → тост, задание пересоздаётся.
+- 410 (`game_run_closed {finish_reason}`) → `closed`. Забег, прочитанный как `finished/abandoned|expired`, — тоже `closed`; `completed|failed` — `summary`.
+- Событие элемента (`current.event`): состояние `event` — баннер «Песчаная буря» / «Оазис» / «Базар» ~1,5 с (экран, не стор, ставит таймер и зовёт `dismissEvent`), показывается один раз на элемент; затем задание. Результат ответа `event_applied = oasis` показывается в разборе («Оазис: фляга вернулась»).
+- Подсказка базара: кнопка «Подсказка за N» только пока `hint.available` (сервер: событие `bazaar`, вид с подсказкой, ещё не куплена); после покупки задание остаётся (введённое не теряется), на нём появляется `hint` — убранные варианты (`options_removed`) или первые буквы (`prefix`). Баланс монет сервер присылает только в ответе подсказки и в `details` `coins_insufficient`; до этого рядом с ценой баланса нет. `coins_insufficient` → тост; `hint_not_available` → перечит, кнопки нет.
+- Разбор (`reveal`): вердикт символом и словами + разбор вида + «Дальше»; на последнем — «К итогу». Раунд пар идёт в `playing` до `round_done`; если забег кончился на ошибке в раунде — разбор.
+
+**Экран.** Шапка: ✕ (цель 44 px), «3 / 10» (в разборе — номер отвеченного), полоса, фляги (`FlaskIcons`: `flasks` из `flasks_max`, с подписью для чтения с экрана), счёт, метка комбо «×N» с третьего подряд. Выход: ✕ и Telegram Back → лист «Выйти? Забег не засчитается» → `abandon` → карта; в `summary`/`closed` ✕ ведёт на карту без вопроса. Бустеры: ряд не рисуется, пока `boosters.available` пуст (G2.5b). Аудио `listen`/`dictation` — `usePracticeAudio` (blob с заголовком авторизации), «Слушать» воспроизводит с начала, повтор — той же кнопкой.
+
+**Виды заданий.**
+
+| Вид | Компонент | Ответ |
+|---|---|---|
+| `translate_fwd`, `translate_back`, `listen` | `ChoiceTask`: слово/клип + 4 варианта (≥ 44 px), у `listen` — «Слушать»; убранные подсказкой варианты неактивны | `{option_id}`; «Не знаю» — `{skip: true}` |
+| `spell` | `SpellTask`: перевод + поле (`autocomplete/autocorrect/autocapitalize=off`, `spellcheck=false`), `answer_length` точек, префикс подсказки | `{text}` / `{skip: true}` |
+| `gap` | `GapTask`: пример с пропуском + перевод + поле | `{text}` / `{skip: true}` |
+| `pairs_round`, `collocation`, `sentence`, `dictation` | **компоненты практики** через адаптер `PracticeTask` (`mode="solo"`, те же `element`/`disabled`/события `answer`/`skip`); подсказка коллокации скрывает убранные варианты; `silent` диктанта («Пока без звука») открывает вопрос о выходе — замены задания в игре нет | как в практике |
+
+Разбор четырёх видов практики рисует `AnswerReveal` (адаптер даёт ему `PracticeOutcome`), видов из слова — `GameReveal` (правильный ответ, слово и перевод, пример для `gap`).
+
+**Итог (`summary`).** `completed`: звёзды 0–3 (символ + число для чтения с экрана), счёт, затем — **только если сервер дал не ноль**: монеты «+N» (`coins`), очки лиги «+N» (`league_points`), «Серия удержана» (`streak_held === true`), «Новые звёзды +N» (`new_stars`); у босса — точность и победа (`boss`, G2.4). `failed` («Фляги кончились»): то же без наград, список ошибок (`mistakes[] {label, your_answer, verdict}`: слово/фраза, что ответил, вердикт словами), кнопки «Повторить в карточках» (если `srs_pulled > 0` или есть ошибки; обычное повторение — `training.open({mode: 'daily_review', source: 'self'})` → `/training/:id`), «Ещё раз» → `/game?course=&stop=` (карта откроет лист стоянки: бесплатный забег дня / билет / пейвол решает карта), «На карту». Выдуманных значений нет: пока сервер отдаёт `coins`/`league_points` нулём, а `streak_held`/`new_stars`/`boss` не отдаёт (G2.5a, G2.10, G2.4), строк нет.
+
+**Тесты.** `stores/__tests__/gameRun.spec.ts` (поколения, повтор `request_id` с тем же ответом, `element_not_current`, 410, события, подсказка, выход), `components/game/__tests__` (виды, адаптер, итог), `views/__tests__/GameRunView.spec.ts` (состояния, итог completed/failed, выход, баннер), `designSystem.spec.ts` (≥ 44 px), i18n-страж (ru/uz, `docs/I18N_UZ_REVIEW.md`).
 
 ## 6. Режим «Exam»
 

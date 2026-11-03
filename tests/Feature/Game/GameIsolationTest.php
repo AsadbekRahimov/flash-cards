@@ -50,6 +50,10 @@ use Tests\Support\QueryLog;
  *   1. the rows of the protected tables are the same after the run (a hash of every column of every row);
  *   2. the run issued no INSERT / UPDATE / DELETE against any table but those the game owns;
  *   3. the code of the game imports none of the services and models that write the learning of a learner.
+ *
+ * The one thing the finish does outside the game (G2.10, docs/18 §12.6): after its commit it hands the held day to the engagement
+ * services - the streak projection (`learners.streak_*`, the same single UPDATE a goal day makes), the seat in the league and the
+ * counting achievements - which write their own tables and events, never the learning. Net 1 checks that move is exactly the goal's.
  */
 
 uses(RefreshDatabase::class);
@@ -74,8 +78,11 @@ beforeEach(function (): void {
     Storage::fake('practice_audio');
 });
 
-/** The events a run may write (docs/18 §12.8), and no other. */
-const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent', 'game.coins_earned'];
+/** The events a run may write (docs/18 §12.8), and no other - plus those of the engagement hooks after the commit (docs/18 §12.6, G2.10). */
+const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent', 'game.coins_earned', 'streak.extended', 'league.placed', 'achievement.unlocked'];
+
+/** The tables the engagement hooks after the commit of a finish may write (docs/18 §12.6): the streak projection, the league, the achievements. */
+const GAME_ISOLATION_ENGAGEMENT_WRITTEN = ['learners', 'league_weeks', 'league_groups', 'league_members', 'achievements'];
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
@@ -345,8 +352,17 @@ it('leaves the learning of the learner exactly as it was after runs of every out
         gameIsolationPlayEverything($learner, $course, $lesson);
     });
 
-    expect(gameIsolationChecksums())->toBe($before)
-        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, 'word_repetitions', 'learner_daily_stats']))->toBe([]);
+    // The streak moved exactly as a goal day moves it (G2.10: the first finished run holds the day, +1 after the commit); nothing else of the learner.
+    $after = gameIsolationChecksums();
+    $fresh = Learner::query()->findOrFail($learner->id);
+    expect([$fresh->streak_current, $fresh->streak_best, $fresh->streak_last_date?->toDateString(), $fresh->streak_freezes, $fresh->daily_goal])->toBe([5, 9, '2026-11-05', 2, 35])
+        ->and(array_diff_key($after, ['learners' => true]))->toBe(array_diff_key($before, ['learners' => true]))
+        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, ...GAME_ISOLATION_ENGAGEMENT_WRITTEN, 'word_repetitions', 'learner_daily_stats']))->toBe([]);
+
+    // The only statements against `learners`: the optimistic projection of the streak (StreakService), nothing of the settings or the plan.
+    $learnerWrites = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]learners["`]/i');
+    expect($learnerWrites)->toHaveCount(1)
+        ->and($learnerWrites[0])->toMatch('/^update ["`]learners["`] set ["`]streak_current["`] = \?, ["`]streak_best["`] = \?, ["`]streak_last_date["`] = \?, ["`]updated_at["`] = \? where/');
 
     // The one statement the game may issue against `word_repetitions`: the conditional UPDATE of the three columns (docs/18 §12.4).
     $writes = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]word_repetitions["`]/i');
@@ -403,8 +419,11 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
     gameIsolationPlayEverything($learner, $course, $lesson);
 
     $events = ProductEvent::query()->orderBy('id')->get();
-    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent', 'game.coins_earned'])
+    // `streak.extended` once: the first finished run held the day (G2.10); the learner graded today already (no seat to take) and holds streak_7.
+    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent', 'game.coins_earned', 'streak.extended'])
         ->and(array_diff($events->pluck('name')->unique()->all(), GAME_ISOLATION_EVENTS))->toBe([])
+        ->and($events->where('name', 'streak.extended')->count())->toBe(1)
+        ->and($events->where('name', 'daily_goal.met')->count())->toBe(0)
         ->and($events->where('name', 'game.run_started')->count())->toBe(5)
         ->and($events->where('name', 'game.run_finished')->count())->toBe(5)
         ->and($events->where('name', 'game.run_finished')->pluck('props.finish_reason')->sort()->values()->all())->toBe(['abandoned', 'completed', 'completed', 'expired', 'failed']);
@@ -415,6 +434,7 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
         $expected = match ($event->name) {
             'game.run_started' => ['run_id', 'kind', 'course_id', 'stage_id', 'lesson_id', 'total', 'free_slot', 'scope_widened'],
             'game.run_finished' => ['run_id', 'kind', 'finish_reason', 'total', 'answered', 'correct', 'typos', 'wrong', 'hints', 'stars', 'score', 'coins', 'league_points', 'srs_pulled', 'duration_ms', 'event'],
+            'streak.extended' => ['current', 'best'],
             default => ['amount', 'kind', 'ref_type', 'ref_id', 'balance'],
         };
         expect(array_keys($props))->toEqualCanonicalizing($expected);

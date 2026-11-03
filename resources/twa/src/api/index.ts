@@ -2,6 +2,9 @@ import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
   AchievementsResponse,
+  GameMapResponse,
+  GameRunStarted,
+  GameStartRequest,
   AssignmentsResponse,
   AuthContext,
   AuthResponse,
@@ -57,6 +60,13 @@ import type {
   TodayResponse,
   TrainingStartResponse,
 } from './types'
+import type {
+  GameAnswerRequest,
+  GameAnswerResponse,
+  GameHintRequest,
+  GameHintResponse,
+  GameRunView,
+} from './gameRunTypes'
 
 /**
  * How long a READ of a battle (the poll, the battle, a round, the list, the options) may take: past it the request is given up like a
@@ -238,6 +248,18 @@ export const api = {
     openMock: (slug: string) =>
       client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
   },
+  gameRuns: {
+    /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */
+    get: (id: number) => client().get<GameRunView>(`/game/runs/${id}`),
+    /** One answer; a repeat with the same `request_id` returns the first result. */
+    answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }),
+    /** The hint of the bazaar: coins for options taken away or the first letters. */
+    hint: (id: number, body: GameHintRequest) => client().post<GameHintResponse>(`/game/runs/${id}/hint`, { ...body }),
+    /** "Leave the run": it does not count (finished / abandoned). */
+    abandon: (id: number) => client().post<GameRunView>(`/game/runs/${id}/abandon`, { confirm: true }),
+    /** The clip of an element (`audio_url` of its projection): fetched with the token, played from a blob. */
+    audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
+  },
   practice: {
     /** The hub of a course (or of one lesson of it): four modes, the unfinished session, the battle badge. */
     hub: (course: string, lessonId: number | null = null) =>
@@ -256,6 +278,12 @@ export const api = {
      * Gives up after 15 s (a `network` error); `signal` stops it sooner - the screen was left, a newer clip is wanted.
      */
     audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
+  },
+  game: {
+    /** The map of a course: cities (modules), stops (lessons), bosses, friends, the unfinished run. 404 `course_not_found`, 403 `game_unavailable`. */
+    map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
+    /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
+    startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
   },
   battles: {
     options: (friendshipId: number, course: string, lessonId: number | null = null) =>

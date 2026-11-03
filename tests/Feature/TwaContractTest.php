@@ -56,7 +56,7 @@ uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
-const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday'];
+const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
@@ -226,6 +226,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'onboarding_completed',
             'league',
             'timezone',
+            'game' => ['daily_available', 'active_run'],
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -242,7 +243,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone',
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run'],
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)

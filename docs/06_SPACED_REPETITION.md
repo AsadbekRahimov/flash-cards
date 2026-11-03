@@ -392,10 +392,12 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 Правила streak — docs/12 §7.4; здесь — что меняет заморозка (docs/13 §2.4, §7.2). Код: `App\Domain\Engagement\Services\StreakFreezeService`
 (инвентарь и факт), `StreakService` (когда замораживать и как считать).
 
-- **Удержанный день.** Локальный день удержан, если `learner_daily_stats.goal_met_at IS NOT NULL` **или** `frozen_at IS NOT NULL`.
+- **Удержанный день.** Локальный день удержан, если `learner_daily_stats.goal_met_at IS NOT NULL` **или** `game_held_at IS NOT NULL`
+  (первый завершённый забег «Каравана», G2.10 — docs/18 §12.6) **или** `frozen_at IS NOT NULL`.
   `learners.streak_last_date` — последний удержанный день (не только «цель выполнена»). Серия = число дней с выполненной
-  целью в непрерывной цепочке удержанных дней: замороженный день **не обрывает** цепочку и **не прибавляет** к `streak_current`
+  целью **или забегом** в непрерывной цепочке удержанных дней: замороженный день **не обрывает** цепочку и **не прибавляет** к `streak_current`
   (`+0`, `best` не меняется); пересчёт по фактам (`factRunEndingOn`) идёт по той же цепочке — замороженные дни «мосты», не очки.
+  Чем удержан день — enum `StreakHeldBy {goal, game, freeze}` (`fromRow`: приоритет цель → игра → заморозка); его принимает проекция.
 - **Когда тратится.** Только у learner'а с фичей `streak.freeze` (Pro, личный или спонсорский; `config('learners.streak_freeze.max') = 0`
   выключает для всех) и при пропуске **N дней подряд, если заморозок ≥ N** (решение владельца, 2C.6): тратится N, по одной на
   каждый пропущенный локальный день, серия сохраняется. Заморозок **меньше N** — серия сгорает, **ни одна не тратится**
@@ -407,12 +409,15 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 - **Как тратится** (`tryFreeze(Learner, 'Y-m-d', now): bool` — обёртка над `tryFreezeMany(Learner, list<'Y-m-d'>, now): bool`, своя короткая транзакция, **никогда** внутри транзакции оценки):
   `UPDATE learners SET streak_freezes = streak_freezes − N WHERE id = ? AND streak_freezes >= N` (N = число пропущенных дней) (берёт строку `learners` первой —
   тот же первый замок, что у пикера, порядок §4.2 сохранён) → `INSERT … ON CONFLICT DO NOTHING` строки `(learner, вчера)` со
-  счётчиками 0 → `UPDATE learner_daily_stats SET frozen_at = now WHERE … AND frozen_at IS NULL AND goal_met_at IS NULL`
-  (affected ≠ 1 → откат, заморозка возвращается). Поэтому две параллельные `current()` тратят ровно одну заморозку
+  счётчиками 0 → `UPDATE learner_daily_stats SET frozen_at = now WHERE … AND frozen_at IS NULL AND goal_met_at IS NULL AND game_held_at IS NULL`
+  (affected ≠ 1 → откат, заморозка возвращается; день, удержанный забегом, не замораживается — и при гонке «чтение ∥ завершение забега», G2.10).
+  Поэтому две параллельные `current()` тратят ровно одну заморозку
   (`StreakFreezeConcurrencyTest`, PG), а заморозка без факта невозможна. Затем `StreakService` продвигает проекцию
   (`streak_last_date = вчера`, `streak_current` без изменений, событий `daily_goal.met`/`streak.extended` нет) и пишется событие
   `streak.frozen {date, freezes_left}`. Цель, выполненная «задним числом» на уже замороженную дату (переезд на запад), ставит
-  `goal_met_at` в ту же строку — день считается выполненным, заморозка потрачена зря; принимаем.
+  `goal_met_at` в ту же строку — день считается выполненным, заморозка потрачена зря; принимаем. То же с забегом, стартовавшим
+  до полуночи и завершённым после того, как чтение заморозило его `local_date`: `game_held_at` ложится в замороженную строку,
+  `+1` проекция не даёт (`last >= date`), пересчёт по фактам день считает — та же принятая аномалия.
 - **Пополнение** (`refill(Learner, today)`, лениво в `TodayService::summary`, после «закрепления» сгорания чтением `current()`): +1 за локальную неделю (понедельник —
   `startOfWeek` локального дня learner'а), до `max` (2). Неделя помечается её понедельником в `streak_freezes_refilled_on`
   **и при полном инвентаре** — потраченная во вторник заморозка не возвращается в среду; первое открытие экрана в четверг

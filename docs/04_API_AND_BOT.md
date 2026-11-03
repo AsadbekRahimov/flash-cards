@@ -148,7 +148,7 @@
   "due_count": 23,
   "new_words_remaining": null,
   "goal": { "target": 20, "done": 8, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "active_course": {
     "id": 3, "slug": "english-a1", "title": "English A1",
     "progress": { "learned": 120, "total": 900 },
@@ -157,19 +157,21 @@
   "open_session_id": 918,
   "entitlement": { "plan": "free", "source": "free", "until": null },
   "onboarding_completed": true,
-  "timezone": "Asia/Tashkent"
+  "timezone": "Asia/Tashkent",
+  "game": { "daily_available": true, "active_run": null }
 }
 ```
 
 - `due_count` — то же правило, что `words_due_today` в `/me` (`DueRepetitionCriteria`, A.2): слова, выведенные из курса (`is_active = false`), не считаются.
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **личных** сессиях за **локальный** день (`word_repetitions.created_at` в окне `LearnerClock::limitWindowUtc` по `learners.timezone` с переносом дня при смене пояса, `introduced_mode <> 'group_lesson'`), не меньше 0; слова групповых уроков не считаются (docs/12 §5.3). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
-- `streak` — `current` серия дней с выполненной целью (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодня уже засчитан, `at_risk` = `current > 0 && !met_today` (серия оборвётся, если не выполнить цель до локальной полуночи). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
+- `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
+- `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — один запрос к `game_runs` (`due_count` берётся из уже посчитанного).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -254,7 +256,7 @@ Learner завершает **свою личную** сессию (`status = clo
 {
   "reviewed": 14, "correct": 11, "new_words": 4,
   "goal": { "target": 20, "done": 14, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "practice_entry": { "course": "english-a1", "lesson_id": 41 }
 }
 ```
@@ -1453,7 +1455,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 
 | Маршрут | Лимитер | Тело → ответ |
 |---|---|---|
-| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. Другие `kind` (`boss`, `daily`, `class_boss`) — **422** валидации до G2.3 / G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}`; **403 `game_limit_reached {kind: "runs", limit, used, tickets: 0, resets_at}`** (G2.8) — Free сыграл забеги дня и билетов нет: пейвол `game`, лид по `kind`; с билетом забег стартует и стоит билет (`free_slot = ticket` в событии `game.run_started`, `tickets` в `/me` на один меньше). Активный забег той же стоянки (вторая вкладка) возвращается как есть и лимитом не проверяется. Босс города дальше `GAME_FREE_BOSS_STAGES` у Free — 403 `game_pro_required {kind: "boss", stage_number}` (G2.4) |
+| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). Другие `kind` (`boss`, `class_boss`) — **422** валидации до G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится; **403 `game_limit_reached {kind: "runs", limit, used, tickets: 0, resets_at}`** (G2.8) — Free сыграл забеги дня и билетов нет: пейвол `game`, лид по `kind`; с билетом забег стартует и стоит билет (`free_slot = ticket` в событии `game.run_started`, `tickets` в `/me` на один меньше). Активный забег той же стоянки (вторая вкладка) возвращается как есть и лимитом не проверяется. Босс города дальше `GAME_FREE_BOSS_STAGES` у Free — 403 `game_pro_required {kind: "boss", stage_number}` (G2.4) |
 | `GET /game/runs/{id}` | `twa-api` | забег |
 | `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |

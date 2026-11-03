@@ -53,7 +53,7 @@
 | `Content/Services/CourseCatalogService` | `catalog:courses:published:v1:{locale}` | 600 с | кэш |
 | `Learning/Services/LearningCache` | слова урока, лидерборд экзамена, «выучено слов» друзей | 3600 / 300 / 600 с | кэш |
 | `Administration/Services/PlatformStatsService` + `WidgetCache` (F7-1) | `admin:widget:platform_subscriptions:v1:all`, `admin:widget:onboarding_funnel:v1:all` | свежий 120 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; прежние ключи `platform_stats:*` без версии не читаются и истекают сами |
-| `Engagement/Services/LeagueService` | `league:standings:v1:{группа}` | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш |
+| `Engagement/Services/LeagueService` | `league:standings:v2:{группа}` (v2 с G2.10: `+ game_points`) | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш |
 | `Learning/Services/MockExamService` | `mock_exam:distribution:course:{id}` | конфиг | кэш |
 | `Filament/Widgets/SchedulerComparisonWidget` + `WidgetCache` (F7-1) | `admin:widget:scheduler_comparison:v1:all` | свежий 300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; прежний `admin:scheduler-comparison:v1` истекает сам |
 | `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
@@ -84,7 +84,7 @@
 | `CourseCatalogService` — `catalog:courses:published:v1:{locale}` | `lru` |
 | `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
 | `PlatformStatsService` — `admin:widget:platform_subscriptions \| onboarding_funnel:v1:all` (F7-1) | `lru` |
-| `LeagueService` — `league:standings:v1:{группа}` | `lru` |
+| `LeagueService` — `league:standings:v2:{группа}` | `lru` |
 | `AdminDashboardStats` — `admin:widget:*` (C3) | `lru` |
 | `WidgetCache` — ключ версии денег `admin:widget:money:ver` (C3) | `redis` (невытесняемое) |
 | `OrgOverviewService` — значения `org:{id}:overview:v1:*` (C3) | `lru` |
@@ -114,7 +114,7 @@
 
 1. **Только Redis.** В проде нет file- и database-кэшей.
 2. **В значениях — массивы и скаляры.** Модели, DTO и коллекции не кладём (`serializable_classes = false`). DTO хранятся через `toArray()` / `fromArray()`, как `Entitlement`.
-3. **Ключ:** `<домен>:<сущность>:v<версия формата>:<id>[:<locale>]`, например `league:standings:v1:`. При смене формата значения версия увеличивается — старые ключи просто истекают.
+3. **Ключ:** `<домен>:<сущность>:v<версия формата>:<id>[:<locale>]`, например `league:standings:v2:`. При смене формата **или смысла** значения версия увеличивается (`v1 → v2` в G2.10: в очки вошли `game_points`) — старые ключи просто истекают.
 4. **TTL есть всегда.** `rememberForever` — только для неизменяемых данных и с явным `forget`.
 5. **Инвалидация при записи.** Сбрасывает тот сервис, который пишет данные, после фиксации транзакции (`DB::afterCommit`), или наблюдатель модели. На каждый ключ есть тест «записал → старое значение не отдаётся». **Принятый компромисс при недоступном `redis-cache`** (§4.1): `forget` уходит в `array` и не бросает, а значение в Redis доживает до своего TTL — после восстановления экземпляра оно может отдаваться ещё до TTL. Поэтому TTL чистого кэша там, где устаревание заметно, — минуты, не часы; entitlement этому не подвержен: его инвалидация поднимает ключ версии в невытесняемом `redis`, и старый снимок никто не читает.
 6. **Защита от лавины пересчёта.** Тяжёлые агрегаты — через `Cache::flexible()` (отдать устаревшее и пересчитать в фоне) или `Cache::lock()->block()` вокруг пересчёта.

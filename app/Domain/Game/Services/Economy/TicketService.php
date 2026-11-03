@@ -49,14 +49,15 @@ final class TicketService
 
     /**
      * The streak just reached `$streakCurrent` days on `$localDate` (`Y-m-d`): every 7th day gives `game.tickets.per_streak_week`
-     * tickets, once per day (key `streak:{learner_id}:{local_date}`). Call after the commit of the streak (G2.10); everybody, Pro
-     * included (the tickets wait for the end of the subscription). Nothing on the other days.
+     * tickets, once per day (key `streak:{learner_id}:{local_date}`). Called by StreakService::project() after the commit of the fact
+     * (the day of a goal or of a run); everybody, Pro included (the tickets wait for the end of the subscription). Any other day is
+     * `null` without a query - the hook runs on every held day.
      */
-    public function grantForStreak(Learner $learner, int $streakCurrent, string $localDate, ?CarbonImmutable $now = null): TicketGrant
+    public function grantForStreak(Learner $learner, int $streakCurrent, string $localDate, ?CarbonImmutable $now = null): ?TicketGrant
     {
         $perWeek = max(0, (int) config('game.tickets.per_streak_week', 1));
         if ($streakCurrent <= 0 || $streakCurrent % 7 !== 0 || $perWeek === 0) {
-            return new TicketGrant($this->balance((int) $learner->id), 0, 0, false);
+            return null;
         }
 
         return $this->grant($learner, $perWeek, TicketSource::Streak, "streak:{$learner->id}:{$localDate}", $now);

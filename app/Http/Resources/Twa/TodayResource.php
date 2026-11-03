@@ -19,7 +19,7 @@ final class TodayResource extends TwaResource
      *   due_count: int,
      *   new_words_remaining: int|null,
      *   goal: array{target: int, done: int, met: bool},
-     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool},
+     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   active_course: array{
      *     id: int, slug: string, title: string,
      *     progress: array{learned: int, total: int},
@@ -29,7 +29,8 @@ final class TodayResource extends TwaResource
      *   entitlement: array{plan: string, source: string, until: string|null},
      *   onboarding_completed: bool,
      *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
-     *   timezone: string
+     *   timezone: string,
+     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null}
      * }
      */
     public function toArray(Request $request): array
@@ -64,6 +65,7 @@ final class TodayResource extends TwaResource
             'onboarding_completed' => $summary->onboardingCompleted,
             'league' => $summary->league?->toArray(),
             'timezone' => $summary->timezone,
+            'game' => $summary->game,
         ];
     }
 }

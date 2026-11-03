@@ -114,6 +114,8 @@ enum ProductEventName: string
     case GameCoinsSpent = 'game.coins_spent';
     /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
     case GameCoinsEarned = 'game.coins_earned';
+    /** The daily caravan was played to its end (props: run_id, due_count, correct - docs/18 §12.8). */
+    case GameDailyCompleted = 'game.daily_completed';
     /** A Free learner was refused by a limit of the game (props: kind - runs / boss / boosters, limit; docs/18 §12.7.4), on the courtesy check and under the lock alike. */
     case GameLimitReached = 'game.limit_reached';
     /** Tickets were granted (props: source - streak / referral / admin, delta - what was written after the cap, balance). */

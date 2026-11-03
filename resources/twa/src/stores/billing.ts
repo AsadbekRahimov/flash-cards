@@ -11,6 +11,8 @@ import type {
   BillingPeriod,
   BillingProviderKey,
   Entitlement,
+  GameAccess,
+  GameLimits,
   MeResponse,
   Paywall,
   PracticeAccess,
@@ -47,6 +49,10 @@ interface BillingState {
    * A kind can be null on its own (the server has no limit of that kind): it is treated the same way, the other kind goes on as usual.
    */
   limits: PracticeLimits | null
+  /** The `game` block of `/me` (docs/18 §12.8) without its limits; null until `/me` has come, or when the server sent none. */
+  game: Omit<GameAccess, 'limits'> | null
+  /** `me.game.limits`, and the newer word of `GET /game/map`; null: Pro, no limit, not told yet (before G2.8 always) - nothing is shown. */
+  gameLimits: GameLimits | null
   /**
    * The moment (`Date.now()`) the counters of `limits` are judged at. The getters read it instead of the clock, so what they give moves with
    * time: `watchDay` sets it again when a counter's day ends, and with every new word on the counters.
@@ -130,6 +136,8 @@ export const useBillingStore = defineStore('billing', {
     paywall: null,
     practice: null,
     limits: null,
+    game: null,
+    gameLimits: null,
     now: Date.now(),
     loading: false,
     catalog: null,
@@ -147,6 +155,10 @@ export const useBillingStore = defineStore('billing', {
     /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake (and no Pro line about it). */
     practiceAccess: (state): PracticeAccess =>
       state.practice ?? { available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' },
+
+    /** What the learner may do with the game; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
+    gameAccess: (state): Omit<GameAccess, 'limits'> =>
+      state.game ?? { available: false, pro_promise: 'none', coins: 0, tickets: 0 },
 
     /**
      * The counter of today's practice sessions to show; null for Pro, for sessions without a limit, for sessions that are for Pro only (limit 0:
@@ -180,9 +192,17 @@ export const useBillingStore = defineStore('billing', {
     },
 
     /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
-    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice'>): void {
+    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice' | 'game'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
+      if (me.game) {
+        const { limits, ...access } = me.game
+        this.game = access
+        this.gameLimits = limits
+      } else {
+        this.game = null
+        this.gameLimits = null
+      }
       if (me.practice) {
         // The limits live apart: the hub and the creation of a session or a battle bring newer ones than this `/me`.
         const { limits, ...access } = me.practice
@@ -192,6 +212,11 @@ export const useBillingStore = defineStore('billing', {
         this.practice = null
       }
       this.loadedAt = Date.now()
+    },
+
+    /** The limits of the game that an answer carries (`GET /game/map`). `undefined`: it did not say - nothing changes. */
+    setGameLimits(limits: GameLimits | null | undefined): void {
+      if (limits !== undefined) this.gameLimits = limits
     },
 
     /** An answer that carries the counters (`/me`, the hub, the 201 of a session or a battle). `undefined`: it did not say - nothing changes. */

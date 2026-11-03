@@ -143,10 +143,11 @@ final class StreakFreezeService
                         ->where('date', $date)
                         ->whereNull('frozen_at')
                         ->whereNull('goal_met_at')
+                        ->whereNull('game_held_at')
                         ->update(['frozen_at' => $now, 'updated_at' => $now]);
 
                     if ($claimed !== 1) {
-                        throw new FreezeNotApplied; // already frozen (a concurrent caller) or actually met: give the freezes back
+                        throw new FreezeNotApplied; // already frozen (a concurrent caller), met, or held by a run of the game: give the freezes back
                     }
                 }
 

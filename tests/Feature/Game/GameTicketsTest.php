@@ -7,6 +7,8 @@ use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\TicketSource;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learners\Services\StreakService;
 use App\Models\AuditLog;
 use App\Models\GameProfile;
 use App\Models\GameRun;
@@ -21,6 +23,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
+use Tests\Support\QueryLog;
 
 /*
  * docs/18 §12.7.3 (G2.8): the tickets of the Free runs. +1 every 7 days of the streak (once per day), +3 to the inviter for a rewarded
@@ -83,19 +86,18 @@ function gameTicketReferral(Learner $inviter, ?Learner $referee = null, bool $fl
 it('gives one ticket on every 7th day of the streak, once per day, and nothing on the other days', function (): void {
     $learner = Learner::factory()->create();
 
-    $none = gameTickets()->grantForStreak($learner, 6, '2026-11-04');
-    expect($none->applied)->toBeFalse()
-        ->and($none->balance)->toBe(0)
-        ->and(GameProfile::query()->where('learner_id', $learner->id)->exists())->toBeFalse() // nothing to write: no row made
+    // Not a 7th day: nothing, and not even a query (the hook runs on every held day).
+    expect(QueryLog::during(fn () => expect(gameTickets()->grantForStreak($learner, 6, '2026-11-04'))->toBeNull()))->toBe([])
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->exists())->toBeFalse()
         ->and(GameTicketLedgerEntry::query()->count())->toBe(0);
 
     $seventh = gameTickets()->grantForStreak($learner, 7, '2026-11-05');
     $again = gameTickets()->grantForStreak($learner, 7, '2026-11-05');
-    expect($seventh->applied)->toBeTrue()
-        ->and($seventh->delta)->toBe(1)
-        ->and($seventh->balance)->toBe(1)
-        ->and($again->applied)->toBeFalse()
-        ->and($again->balance)->toBe(1)
+    expect($seventh?->applied)->toBeTrue()
+        ->and($seventh?->delta)->toBe(1)
+        ->and($seventh?->balance)->toBe(1)
+        ->and($again?->applied)->toBeFalse()
+        ->and($again?->balance)->toBe(1)
         ->and(gameTicketLedger($learner))->toBe([['delta' => 1, 'source' => 'streak', 'key' => "streak:{$learner->id}:2026-11-05"]])
         ->and(GameProfile::query()->where('learner_id', $learner->id)->sole()->tickets_earned_total)->toBe(1)
         ->and(gameTicketEvents('game.ticket_granted'))->toEqual([['source' => 'streak', 'delta' => 1, 'balance' => 1]]);
@@ -108,11 +110,39 @@ it('gives one ticket on every 7th day of the streak, once per day, and nothing o
 
     // Pro collects tickets too (they wait for the end of the subscription); a config of 0 gives nothing.
     PracticeKit::pro($learner);
-    expect(gameTickets()->grantForStreak($learner, 21, '2026-11-19')->balance)->toBe(3);
+    expect(gameTickets()->grantForStreak($learner, 21, '2026-11-19')?->balance)->toBe(3);
     config(['game.tickets.per_streak_week' => 0]);
-    expect(gameTickets()->grantForStreak($learner, 28, '2026-11-26')->applied)->toBeFalse()
+    expect(gameTickets()->grantForStreak($learner, 28, '2026-11-26'))->toBeNull()
         ->and(gameTickets()->balance($learner->id))->toBe(3);
 });
+
+it('gives the ticket of the 7th day from the streak itself - held by the goal or by a run - once, and nothing on a second reading of the day', function (bool $byRun): void {
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $learner->forceFill(['streak_current' => 6, 'streak_best' => 6, 'streak_last_date' => '2026-11-04', 'daily_goal' => 1])->save();
+    $runs = app(RunService::class);
+
+    if ($byRun) {
+        GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    } else {
+        DB::transaction(fn () => app(DailyStatsService::class)->recordReview($learner, 4, 500, false, CarbonImmutable::now()));
+    }
+
+    expect(Learner::query()->findOrFail($learner->id)->streak_current)->toBe(7)
+        ->and(gameTickets()->balance($learner->id))->toBe(1)
+        ->and(gameTicketLedger($learner))->toBe([['delta' => 1, 'source' => 'streak', 'key' => "streak:{$learner->id}:2026-11-05"]])
+        ->and(gameTicketEvents('game.ticket_granted'))->toEqual([['source' => 'streak', 'delta' => 1, 'balance' => 1]]);
+
+    // The day read again (a second run, another grade, the Today screen): the series is the same, no second ticket.
+    CarbonImmutable::setTestNow('2026-11-05 10:30:00');
+    GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    DB::transaction(fn () => app(DailyStatsService::class)->recordReview($learner, 4, 500, false, CarbonImmutable::now()));
+    app(StreakService::class)->apply($learner, '2026-11-05');
+    test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/today')->assertOk();
+
+    expect(gameTickets()->balance($learner->id))->toBe(1)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(1);
+    expectGameTicketInvariant($learner);
+})->with(['held by a goal' => [false], 'held by a run' => [true]]);
 
 // ---------------------------------------------------------------- the referrals
 
@@ -169,16 +199,16 @@ it('caps the balance at tickets.max: a grant is cut to the room left, what is cu
 
     // At the cap: nothing is written, the key is NOT burnt (the next 7th day is another key anyway), only the capped event.
     $atCap = gameTickets()->grantForStreak($learner, 7, '2026-11-05');
-    expect($atCap->applied)->toBeFalse()
-        ->and($atCap->lost)->toBe(1)
-        ->and($atCap->balance)->toBe(10)
+    expect($atCap?->applied)->toBeFalse()
+        ->and($atCap?->lost)->toBe(1)
+        ->and($atCap?->balance)->toBe(10)
         ->and(GameTicketLedgerEntry::query()->count())->toBe(2)
         ->and(gameTicketEvents('game.ticket_capped'))->toHaveCount(2)
         ->and(GameProfile::query()->where('learner_id', $learner->id)->sole()->tickets_earned_total)->toBe(10);
     expectGameTicketInvariant($learner);
 
     config(['game.tickets.max' => 12]);
-    expect(gameTickets()->grantForStreak($learner, 7, '2026-11-05')->balance)->toBe(11);
+    expect(gameTickets()->grantForStreak($learner, 7, '2026-11-05')?->balance)->toBe(11);
 });
 
 // ---------------------------------------------------------------- the administrator

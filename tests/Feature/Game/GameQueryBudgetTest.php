@@ -58,14 +58,20 @@ const BUDGET_GAME_START_FREE = 22;
 const BUDGET_GAME_START_TICKET = 26;
 
 /**
- * The last answer, with the finish (docs/18 §12.5.3, measured G2.5a / G2.8 over HTTP): the answer's own statements, the row of the
- * stop (1), the wallet and its ledger (4), the stop and the profile (2), the day (2), the run (1), the events (2) - 16 when the
- * learner's rows exist; the first run of a learner the game has never seen makes the stop, the wallet and the day on the way
- * (`insertOrIgnore` + the read again, 2 each) and the profile (the UPDATE that finds nothing, then the insert) - 23.
+ * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
+ * statements, the row of the stop (1), the wallet and its ledger (4), the stop and the profile (2), the day (2), the run (1), the
+ * events (2) - 16 for the second run of a day (the learner's rows exist, the day is held already: no hook runs). The FIRST run of a
+ * day adds the hooks after the commit: the streak (the read of the learner, the UPDATE, its event - and the rows of the held days
+ * when the series is rebuilt), the ticket of the streak (none on an ordinary day: no query), the seat in the league (the week, the
+ * membership), the achievements (the keys, the best streak, the learned words) - 26. The first run of a learner the game has never
+ * seen makes the stop, the wallet, the profile and the day on the way (`insertOrIgnore` + the read again) and the week and the group
+ * of the league - 39 on SQLite, 41 on PostgreSQL (the group of the league is taken under an advisory lock and read again there).
  */
 const BUDGET_GAME_FINISH = 16;
 
-const BUDGET_GAME_FINISH_FIRST = 23;
+const BUDGET_GAME_FINISH_NEW_DAY = 26;
+
+const BUDGET_GAME_FINISH_FIRST = 41;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
@@ -172,12 +178,18 @@ function gameBudgetFinish(Learner $learner, int $runId): int
             $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], $answer);
         }
     }
+    // The last element may be a round of pairs (several answers): all but its final one go through the service as well.
     $last = GameKit::current($run);
+    $answers = GameKit::rightAnswers($last);
+    $final = array_pop($answers);
+    foreach ($answers as $answer) {
+        $runs->answer($run, $learner, (string) Str::uuid(), $last['id'], $answer);
+    }
     Cache::flush();
     test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/me')->assertOk(); // warms the entitlement and the auth
 
     return count(QueryLog::during(fn () => test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/game/runs/{$runId}/answer", [
-        'request_id' => (string) Str::uuid(), 'element_id' => $last['id'], 'answer' => GameKit::rightAnswers($last)[0],
+        'request_id' => (string) Str::uuid(), 'element_id' => $last['id'], 'answer' => $final,
     ])->assertOk()->assertJsonPath('run.status', 'finished')));
 }
 
@@ -215,16 +227,20 @@ it('stays within the budgets of the start of a Free learner with a limit - the f
         ->and($pro)->toBeLessThanOrEqual(BUDGET_GAME_START);
 });
 
-it('stays within the budgets of the finish: the first run of a learner makes the rows on the way, the next ones find them', function (): void {
+it('stays within the budgets of the finish: the first run of a learner makes the rows on the way, the second of a day runs no hook, the first of a new day runs them', function (): void {
     [$learner, $course, $lesson] = GameKit::richStop(13);
     $headers = PracticeKit::headers($learner);
     $body = ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id];
+    $start = fn (): int => test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');
 
-    $first = gameBudgetFinish($learner, test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id'));
-    $again = gameBudgetFinish($learner, test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id'));
+    $first = gameBudgetFinish($learner, $start());
+    $again = gameBudgetFinish($learner, $start());
+    CarbonImmutable::setTestNow('2026-11-06 10:00:00');
+    $newDay = gameBudgetFinish($learner, $start());
 
     expect($first)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_FIRST)
-        ->and($again)->toBeLessThanOrEqual(BUDGET_GAME_FINISH);
+        ->and($again)->toBeLessThanOrEqual(BUDGET_GAME_FINISH)
+        ->and($newDay)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_NEW_DAY);
 });
 
 it('does not read the material while a run is played: no word, lesson or practice item is touched by a read, an answer or a hint', function (): void {

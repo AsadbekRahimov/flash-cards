@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Services\PracticeSessionService;
@@ -15,6 +16,7 @@ use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
 use App\Models\PracticeSession;
+use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
@@ -349,4 +351,20 @@ it('does not deadlock the finish of a run against a Free start that replaces it:
         ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1)
         ->and(GameTicketLedgerEntry::query()->where('learner_id', $learnerId)->count())->toBe(1)
         ->and(GameProfile::query()->where('learner_id', $learnerId)->value('tickets'))->toBe(0);
+});
+
+it('gives the daily caravan of the day to one of two tabs at once: one row with the daily_key, the other is told game_daily_done', function (): void {
+    [$learner, $course] = GameKit::stop(8);
+    $learner->update(['active_course_id' => $course->id, 'timezone' => 'UTC']);
+    WordRepetition::query()->where('learner_id', $learner->id)->update(['next_review_at' => now()->subHour()]);
+    $learnerId = $learner->id;
+
+    $results = gameRace(array_fill(0, 2, fn (): int => app(DailyCaravanService::class)->start(gameRaceLearner($learnerId))->id));
+
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBe(['game_daily_done', 'ok'])
+        ->and(GameRun::query()->where('daily_key', $learnerId.':2026-11-05')->count())->toBe(1)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(1)
+        ->and(array_values(array_filter($results, static fn (array $r): bool => ! $r['ok']))[0]['details'])->toBe(['resets_at' => '2026-11-06T00:00:00.000Z'])
+        ->and(gameRaceEvents('game.run_started'))->toHaveCount(1);
 });

@@ -104,6 +104,52 @@ describe('style.css: touch targets', () => {
 })
 
 /**
+ * The run of "Karvon" (docs/05 §5b.3): every control is at least 44 px on a 320 px screen, the field of a typed answer is left alone by the
+ * keyboard, and nothing is told by colour only. The sources are read (the test environment has no layout).
+ */
+describe('the run of Karvon: touch targets and fields', () => {
+  const game = [...sources].filter(([file]) => file.startsWith('components/game/') || file === 'views/GameRunView.vue')
+
+  it('reads the screen and its components', () => {
+    expect(game.length).toBeGreaterThanOrEqual(11)
+  })
+
+  it('draws the answer options with .option, which is at least 56 px high', () => {
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option"/)
+    expect(rulesOf('.option').some((body) => /@apply[^;]*\bmin-h-14\b/.test(body))).toBe(true)
+  })
+
+  it('makes the ✕ of the header a 44 px target and the "Listen" circle bigger than that', () => {
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/data-testid="close-btn"/)
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/class="-ml-1 flex size-11\b/)
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/\bsize-20\b/)
+  })
+
+  it('has no control under 44 px: only buttons of the design system, no fixed small size on a button', () => {
+    for (const [file, code] of game) {
+      for (const button of code.match(/<button\b[^>]*>/g) ?? []) {
+        expect(button, file).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+      }
+    }
+  })
+
+  it('leaves the field of a typed answer alone: no autocorrection, no capitals, no spell check', () => {
+    const field = sources.get('components/game/TypedAnswer.vue') ?? ''
+
+    expect(field).toMatch(/autocapitalize="off"/)
+    expect(field).toMatch(/autocorrect="off"/)
+    expect(field).toMatch(/autocomplete="off"/)
+    expect(field).toMatch(/spellcheck="false"/)
+  })
+
+  it('tells the flasks and the stars by shape and in words, not by colour only', () => {
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/aria-label="label"|:aria-label="label"/)
+    expect(sources.get('components/game/RunSummary.vue')).toMatch(/:aria-label="t\('gameRun.summary.stars'/)
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/:fill="full \? 'currentColor' : 'none'"/)
+  })
+})
+
+/**
  * The toast (docs/14 §4.4) stands above whatever covers the bottom edge of the window: the tab bar, or the sticky block of buttons of
  * an immersive screen (`StickyActions`, which publishes its height as `--app-actions-h`). The test environment has no layout, so the
  * rules are read from the stylesheet.
@@ -228,5 +274,35 @@ describe('style.css: contrast of text on soft backgrounds', () => {
 
   it('has a Tailwind colour for every ink', () => {
     for (const kind of KINDS) expect(css).toContain(`--color-${kind}-ink: var(--app-${kind}-ink);`)
+  })
+})
+
+/** The Karvon map (docs/05 §5b.2): everything a finger has to hit is 44 px high, the stars are 12 px. */
+describe('the Karvon map', () => {
+  const view = sources.get('views/GameMapView.vue') ?? ''
+
+  /** The `<button …>` tag of the template that carries `testid`. */
+  const buttonTag = (testid: string): string => new RegExp(`<button[^>]*data-testid="${testid}"[^>]*>`).exec(view)?.[0] ?? ''
+
+  it('reads the screen', () => {
+    expect(view).toContain('data-testid="game-map-view"')
+  })
+
+  it.each(['active-run', 'boss-pro'])('makes the target %s at least 44 px high', (testid) => {
+    expect(buttonTag(testid), testid).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('makes a stop row 44 px high', () => {
+    expect(view).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*:data-testid="`stop-/s)
+  })
+
+  it('draws the stars 12 px', () => {
+    const stars = [...view.matchAll(/name="star"[^>]*:size="(\d+)"/g)].map((match) => match[1])
+    expect(stars.length).toBeGreaterThan(0)
+    expect(new Set(stars)).toEqual(new Set(['12']))
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    expect(view).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
   })
 })

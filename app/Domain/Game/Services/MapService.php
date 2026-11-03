@@ -9,10 +9,9 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Game\DTO\GameMapView;
-use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Support\CityNames;
-use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
@@ -47,7 +46,7 @@ final class MapService
         private readonly LocaleResolver $locales,
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerStatsService $stats,
-        private readonly LearnerClock $clock,
+        private readonly DailyCaravanService $daily,
     ) {}
 
     /**
@@ -62,15 +61,16 @@ final class MapService
         $course = $this->catalog->findAvailable($courseSlug, $learner) ?? throw GameException::courseNotFound();
         $locale = $this->locales->forLearner($learner);
 
-        [$runs, $daily] = $this->runsAndDaily($learner, $now);
+        // One definition of the day's caravan for the map and for `/today`: DailyCaravanService.
+        $day = $this->daily->state($learner, $now, $this->stats->dueCount($learner, $now));
 
         return new GameMapView(
             course: ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale)],
             cities: $this->cities($course, $learner, $locale),
-            daily: $daily,
+            daily: $day['daily'],
             me: $this->me($learner),
             friends: $this->friends($learner, $course),
-            activeRun: $runs,
+            activeRun: $day['active_run'],
         );
     }
 
@@ -197,48 +197,6 @@ final class MapService
 
             return $free;
         };
-    }
-
-    /**
-     * The unfinished run and the state of the daily caravan from ONE statement over the learner's runs: the live one (`active`, not
-     * expired) and the caravan of today (one per local day: its `daily_key` is unique, so any run of the day blocks a second one).
-     *
-     * @return array{0: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, 1: array{available: bool, done_today: bool, due_count: int, resets_at: string}}
-     */
-    private function runsAndDaily(Learner $learner, CarbonImmutable $now): array
-    {
-        $bounds = $this->clock->dayBoundsUtc($learner, $now);
-        $dailyKey = $learner->id.':'.$bounds->date;
-
-        $rows = DB::table('game_runs')
-            ->where('learner_id', $learner->id)
-            ->where(function ($q) use ($dailyKey): void {
-                $q->where('status', RunStatus::Active->value)->orWhere('daily_key', $dailyKey);
-            })
-            ->get(['id', 'kind', 'status', 'daily_key', 'answered', 'total', 'expires_at']);
-
-        $active = null;
-        $dailyDone = false;
-        $dailyLive = false;
-        foreach ($rows as $row) {
-            $live = $row->status === RunStatus::Active->value && CarbonImmutable::parse((string) $row->expires_at, 'UTC')->greaterThan($now);
-            if ($live) {
-                $active = ['id' => (int) $row->id, 'kind' => (string) $row->kind, 'progress' => ['answered' => (int) $row->answered, 'total' => (int) $row->total]];
-                $dailyLive = $dailyLive || $row->daily_key === $dailyKey;
-            } elseif ($row->daily_key === $dailyKey) {
-                // finished for any reason, or expired and not yet swept: the day's caravan is spent
-                $dailyDone = true;
-            }
-        }
-
-        $due = $this->stats->dueCount($learner, $now);
-
-        return [$active, [
-            'available' => ! $dailyDone && $active === null && $due > 0,
-            'done_today' => $dailyDone,
-            'due_count' => $due,
-            'resets_at' => $bounds->endUtc->utc()->toIso8601ZuluString('millisecond'),
-        ]];
     }
 
     /**

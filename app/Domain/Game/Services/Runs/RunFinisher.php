@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Runs;
 
+use App\Domain\Engagement\Services\AchievementService;
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Game\DTO\RunFinishOutcome;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\Enums\LedgerKind;
@@ -12,6 +14,8 @@ use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Support\RunScoring;
+use App\Domain\Learners\Enums\StreakHeldBy;
+use App\Domain\Learners\Services\StreakService;
 use App\Domain\Learners\Support\StoredDate;
 use App\Models\GameCityProgress;
 use App\Models\GameProfile;
@@ -38,12 +42,20 @@ use Throwable;
  *
  * Idempotent by construction: a run is finished once (the caller checks `status = active` under the lock), the reward is one entry
  * `run:{id}:reward` (unique), the day is held once (`game_held_at` set only while NULL).
+ *
+ * After the commit (step 7, docs/18 §12.6): the day held by this run goes to the streak (`StreakService::apply(…, Game)` - unless the
+ * goal had held it already), a run that is the first activity of the day seats the learner in the league (`LeagueService::place`,
+ * idempotent), and the achievements are looked at when the day was held (the streak projection is committed by then). Each hook on its
+ * own, reported and never a failed finish - like the hooks of DailyStatsService after a grade.
  */
 final class RunFinisher
 {
     public function __construct(
         private readonly WalletService $wallet,
         private readonly RunEventRecorder $events,
+        private readonly StreakService $streaks,
+        private readonly LeagueService $leagues,
+        private readonly AchievementService $achievements,
     ) {}
 
     /**
@@ -165,14 +177,26 @@ final class RunFinisher
         );
 
         // 7. After the commit, each on its own (a failed hook is reported, never a failed finish).
-        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind): void {
+        $localDate = $run->local_date->toDateString();
+        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind, $outcome, $localDate, $now): void {
             $this->hook(fn () => $this->events->finished($run, $learner));
             if ($entry->applied) {
                 $this->hook(fn () => $this->events->coinsEarned($run, $learner, $amount, $kind, $entry->balance));
             }
-            // G2.10: StreakService::apply($learner, $run->local_date) when $outcome->heldDay && ! $outcome->goalMetBefore;
-            //        LeagueService::place($learner, $now) when $outcome->firstRunOfDay && $outcome->reviewsCount === 0;
-            //        AchievementService::evaluate($learner, $now) when $outcome->heldDay.
+            // The streak: the day of the START of the run, held by the game - unless the goal held it first (its own hook counted it).
+            // A goal met at the same instant meets this on the optimistic UPDATE of `learners`: one of the two counts, +1 once.
+            if ($outcome->heldDay && ! $outcome->goalMetBefore) {
+                $this->hook(fn () => $this->streaks->apply($learner, $localDate, $now, StreakHeldBy::Game));
+            }
+            // The league: a run as the first activity of the day seats the learner in this week's group (a no-op once placed;
+            // leagues off, opt-out and a block are place()'s own checks).
+            if ($outcome->firstRunOfDay && $outcome->reviewsCount === 0) {
+                $this->hook(fn () => $this->leagues->place($learner, $now));
+            }
+            // The counting achievements (streak) - after the streak hook: evaluate() reads `streak_best` fresh from the database.
+            if ($outcome->heldDay) {
+                $this->hook(fn () => $this->achievements->evaluate($learner, $now));
+            }
             // G2.4:  AchievementService::unlock(game_first_boss), SendGameCardJob, `game.boss_defeated` when $outcome->bossFirst.
         });
 
