@@ -632,11 +632,11 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | new_words_count | int default 0 | карточек **впервые оценено** за день (`state = new` до оценки); квота Free считается не по нему, а по `word_repetitions.created_at` в границах локального дня (docs/12 §1.6, §5.3) |
 | correct_count | int default 0 | `quality >= 3` |
 | time_spent_ms | bigint default 0 | |
-| goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; источник истины для streak (`learners.streak_*` — проекция, обновляемая после commit) |
-| frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2)* |
+| goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; один из трёх фактов «день удержан» для streak (`goal_met_at` / `game_held_at` / `frozen_at`; `learners.streak_*` — проекция, обновляемая после commit) |
+| frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL AND game_held_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2; условие по `game_held_at` — G2.10)* |
 | game_runs_count | smallint default 0 | завершённых (`completed` / `failed`) забегов «Каравана» за локальный день *(G2.1)* |
-| game_points | smallint default 0 | очки лиги от игры за день после потолка `game.league.daily_cap` (40); пишутся в транзакции завершения забега *(G2.1)* |
-| game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией (docs/18 §12.6); ставится один раз, пока `NULL` *(G2.1)* |
+| game_points | smallint default 0 | очки лиги от игры за день после потолка `game.league.daily_cap` (40); пишутся в транзакции завершения забега; формула лиги прибавляет колонку как есть (docs/13 §2.4, G2.10) *(G2.1)* |
+| game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией и считается в неё `+1`, как день с целью (docs/18 §12.6, docs/12 §7.4); ставится один раз, пока `NULL`; читается `StreakService` вместе с `goal_met_at` / `frozen_at` *(G2.1; серия — G2.10)* |
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.

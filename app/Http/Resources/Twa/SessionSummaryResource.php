@@ -22,7 +22,7 @@ final class SessionSummaryResource extends TwaResource
      * @return array{
      *   reviewed: int, correct: int, new_words: int,
      *   goal: array{target: int, done: int, met: bool},
-     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool},
+     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   practice_entry: array{course: string, lesson_id: int|null}|null
      * }
      */
