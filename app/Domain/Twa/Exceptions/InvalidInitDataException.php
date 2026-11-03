@@ -16,6 +16,9 @@ final class InvalidInitDataException extends DomainException
 
     public const REASON_NO_USER = 'no_user';
 
+    /** The bot token is not configured: an HMAC with an empty key would accept any forged initData. */
+    public const REASON_NOT_CONFIGURED = 'not_configured';
+
     public function __construct(public readonly string $reason)
     {
         parent::__construct($reason);

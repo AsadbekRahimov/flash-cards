@@ -93,6 +93,8 @@ public function handle(Request $r, string $secret): Response
 
 Согласно [Telegram Web Apps Docs](https://core.telegram.org/bots/webapps#validating-data-received-via-the-web-app):
 
+Пустой `TELEGRAM_BOT_TOKEN` = пустой ключ HMAC, поэтому `InitDataValidator` при пустом токене отказывает всегда (401 `not_configured`), а `/health/ready` в production падает (`checks.config`) при пустых токене бота, `TELEGRAM_URL_SECRET`, `TELEGRAM_HEADER_SECRET` или `TWA_JWT_SECRET` короче 32 байт.
+
 Алгоритм:
 1. Парсим `init_data` как query string в массив пар.
 2. Извлекаем поле `hash`, остальные поля сортируем по ключу и склеиваем в `dataCheckString` через `\n`.
