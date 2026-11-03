@@ -91,7 +91,7 @@ it('invites a friend: an invited row, the two participants with the challenger b
         ->and($battle->snapshot['locales'])->toBe(['ru', 'uz'])
         ->and($battle->snapshot['elements'])->toHaveCount(5)
         ->and($battle->snapshot['course_title'])->toBe(['ru' => 'Английский A1', 'uz' => 'Ingliz tili A1'])
-        ->and($battle->snapshot['lesson_title'])->toBe(['ru' => 'Еда', 'uz' => 'Еда'], 'no uz name: the ru one for both readers');
+        ->and($battle->snapshot['lesson_titles'])->toBe(['ru' => 'Еда', 'uz' => 'Еда'], 'no uz name: the ru one for both readers');
     foreach ($battle->snapshot['elements'] as $element) {
         expect(array_keys($element['prompt']))->toBe(['ru', 'uz']);
     }

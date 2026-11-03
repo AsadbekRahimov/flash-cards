@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Practice\Services\Battle;
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Exceptions\FriendshipException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\DTO\BattleListView;
@@ -68,6 +69,7 @@ final class BattleReader
         private readonly PracticeMaterialService $material,
         private readonly CourseCatalogService $catalog,
         private readonly LocaleResolver $locales,
+        private readonly DeckTitles $deckTitles,
     ) {}
 
     /**
@@ -325,7 +327,7 @@ final class BattleReader
         return new BattleOptionsView(
             friend: ['first_name' => $friend->first_name],
             course: ['slug' => $course->slug, 'title' => $this->catalog->title($course, $viewerLocale)],
-            lesson: $lesson === null ? null : ['id' => $lesson->id, 'stage' => $lesson->stage?->number, 'number' => $lesson->number, 'title' => $lesson->title],
+            lesson: $lesson === null ? null : ['id' => $lesson->id, 'stage' => $lesson->stage?->number, 'number' => $lesson->number, 'title' => $this->deckTitles->lessonIn($course, $viewerLocale, $lesson->number, $lesson->title, $lesson->title_uz)],
             modes: $modes,
             friendAccess: $this->access->state($friend)->isAvailable() ? 'available' : 'no_access',
         );
