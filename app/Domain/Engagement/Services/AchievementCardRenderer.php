@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Engagement\Services;
 
-use App\Domain\Engagement\Enums\AchievementKey;
+use App\Domain\Engagement\DTO\CardSpec;
 use App\Models\Achievement;
 use GdImage;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -17,7 +17,7 @@ use Throwable;
  * The share card of an achievement (docs/13 §7.4): a 1080×1080 PNG drawn with GD and Noto Sans
  * (SIL OFL, `resources/fonts/`, Latin with the Uzbek letters + Cyrillic).
  *
- * The picture carries no personal data — only the achievement's texts in the chosen language — so it is
+ * The picture carries no personal data — only the texts of the card in the chosen language — so it is
  * cached per (key, locale, badge, texts): the file name holds a hash of exactly those, rendering the same
  * card again returns the existing file, and a changed text or template renders a new one. Written to a
  * temporary name and renamed, so a reader never sees a half-written PNG.
@@ -38,9 +38,12 @@ final class AchievementCardRenderer
         'league' => [[202, 138, 4], [154, 52, 18]],
         'friend' => [[13, 148, 136], [30, 64, 175]],
         'session' => [[22, 163, 74], [21, 94, 117]],
+        'game' => [[217, 119, 6], [67, 56, 202]],
     ];
 
     /**
+     * The card of an achievement: its texts in the language, drawn by {@see renderSpec()}.
+     *
      * @return string absolute path of the PNG on the achievements disk
      *
      * @throws InvalidArgumentException unknown key
@@ -49,22 +52,39 @@ final class AchievementCardRenderer
     public function render(Achievement $achievement, string $locale): string
     {
         $key = $achievement->keyEnum() ?? throw new InvalidArgumentException("Unknown achievement key '{$achievement->key}'.");
-        $locale = in_array($locale, self::LOCALES, true) ? $locale : 'ru';
+        $locale = $this->locale($locale);
 
-        $title = $key->title($locale);
-        $description = $key->description($locale);
+        return $this->renderSpec(new CardSpec($key->value, $key->family(), $key->badge(), $key->title($locale), $key->description($locale)), $locale);
+    }
+
+    /**
+     * Any card (docs/13 §7.4, docs/18 §12.3.4): the achievements' and the game's. Cached by what the card says - the file name holds
+     * a hash of the template version, key, language, badge and texts.
+     *
+     * @return string absolute path of the PNG on the achievements disk
+     *
+     * @throws RuntimeException GD / the font is not available
+     */
+    public function renderSpec(CardSpec $spec, string $locale): string
+    {
+        $locale = $this->locale($locale);
         $brand = __('achievements.card.brand', [], $locale);
         $tagline = __('achievements.card.tagline', [], $locale);
 
-        $hash = substr(sha1(implode('|', [self::TEMPLATE_VERSION, $key->value, $locale, $key->badge(), $title, $description, $brand, $tagline])), 0, 12);
-        $relative = trim((string) config('achievements.directory', 'achievements'), '/')."/{$key->value}-{$locale}-{$hash}.png";
+        $hash = substr(sha1(implode('|', [self::TEMPLATE_VERSION, $spec->key, $locale, $spec->badge, $spec->title, $spec->description, $brand, $tagline])), 0, 12);
+        $relative = trim((string) config('achievements.directory', 'achievements'), '/')."/{$spec->key}-{$locale}-{$hash}.png";
 
         $disk = $this->disk();
         if (! $disk->exists($relative)) {
-            $this->store($disk, $relative, $this->draw($key, $title, $description, $brand, $tagline));
+            $this->store($disk, $relative, $this->draw($spec, $brand, $tagline));
         }
 
         return $disk->path($relative);
+    }
+
+    private function locale(string $locale): string
+    {
+        return in_array($locale, self::LOCALES, true) ? $locale : 'ru';
     }
 
     private function disk(): FilesystemAdapter
@@ -90,7 +110,7 @@ final class AchievementCardRenderer
         }
     }
 
-    private function draw(AchievementKey $key, string $title, string $description, string $brand, string $tagline): string
+    private function draw(CardSpec $spec, string $brand, string $tagline): string
     {
         $regular = (string) config('achievements.fonts.regular');
         $bold = (string) config('achievements.fonts.bold');
@@ -107,7 +127,7 @@ final class AchievementCardRenderer
             throw new RuntimeException('Could not create the card image.');
         }
 
-        [$top, $bottom] = self::PALETTES[$key->family()] ?? self::PALETTES['streak'];
+        [$top, $bottom] = self::PALETTES[$spec->palette] ?? self::PALETTES['streak'];
         for ($y = 0; $y < $size; $y++) {
             $t = $y / ($size - 1);
             $line = $this->color($image, (int) round($top[0] + ($bottom[0] - $top[0]) * $t), (int) round($top[1] + ($bottom[1] - $top[1]) * $t), (int) round($top[2] + ($bottom[2] - $top[2]) * $t));
@@ -123,7 +143,7 @@ final class AchievementCardRenderer
         imagefilledellipse($image, 540, 400, 500, 500, $soft);
         imagefilledellipse($image, 540, 400, 420, 420, $white);
 
-        $badge = $key->badge();
+        $badge = $spec->badge;
         $badgeSize = match (true) {
             mb_strlen($badge) <= 1 => 220,
             mb_strlen($badge) === 2 => 190,
@@ -133,12 +153,12 @@ final class AchievementCardRenderer
         $this->centered($image, $badge, $bold, $badgeSize, 400 + (int) round($badgeSize * 0.36), $ink);
 
         $y = 745;
-        foreach ($this->wrap($title, $bold, 66, 900) as $line) {
+        foreach ($this->wrap($spec->title, $bold, 66, 900) as $line) {
             $this->centered($image, $line, $bold, 66, $y, $white);
             $y += 84;
         }
         $y += 6;
-        foreach ($this->wrap($description, $regular, 40, 880) as $line) {
+        foreach ($this->wrap($spec->description, $regular, 40, 880) as $line) {
             $this->centered($image, $line, $regular, 40, $y, $white);
             $y += 56;
         }

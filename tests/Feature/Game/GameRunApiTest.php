@@ -229,8 +229,8 @@ it('refuses a bad start: an unknown or an unavailable course and lesson, a stop 
     [$other, $otherLesson] = [Learner::factory()->create(), $lesson];
     apiError(apiStart($other, $course->slug, $otherLesson->id), 409, 'stop_locked');
 
-    // The kinds of G2.4 / G2.9 are not accepted yet; the body is validated before anything happens.
-    foreach (['boss', 'class_boss', 'nonsense'] as $kind) {
+    // The kind of G2.9 is not accepted yet (the boss of G2.4 is: see BossTest); the body is validated before anything happens.
+    foreach (['class_boss', 'nonsense'] as $kind) {
         test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => $kind, 'course' => $course->slug, 'lesson_id' => $lesson->id])
             ->assertStatus(422)->assertJsonValidationErrors('kind');
     }

@@ -17,6 +17,7 @@ use App\Domain\Game\Support\RunScoring;
 use App\Domain\Learners\Enums\StreakHeldBy;
 use App\Domain\Learners\Services\StreakService;
 use App\Domain\Learners\Support\StoredDate;
+use App\Jobs\SendGameCardJob;
 use App\Models\GameCityProgress;
 use App\Models\GameProfile;
 use App\Models\GameRun;
@@ -46,7 +47,8 @@ use Throwable;
  * After the commit (step 7, docs/18 §12.6): the day held by this run goes to the streak (`StreakService::apply(…, Game)` - unless the
  * goal had held it already), a run that is the first activity of the day seats the learner in the league (`LeagueService::place`,
  * idempotent), and the achievements are looked at when the day was held (the streak projection is committed by then). Each hook on its
- * own, reported and never a failed finish - like the hooks of DailyStatsService after a grade.
+ * own, reported and never a failed finish - like the hooks of DailyStatsService after a grade. The first win over the boss of a city
+ * adds the event `game.boss_defeated`, the achievement `game_first_boss` and the card DM (G2.4).
  */
 final class RunFinisher
 {
@@ -121,11 +123,11 @@ final class RunFinisher
             ])->save();
         }
         if ($city !== null) {
-            $accuracy = $run->total > 0 ? (int) round(100 * $run->correct / $run->total) : 0;
+            $accuracy = RunScoring::bossAccuracy($run->correct, $run->total);
             $city->forceFill([
                 'boss_attempts' => $city->boss_attempts + 1,
                 'boss_wins' => $city->boss_wins + ($bossWon ? 1 : 0),
-                'boss_best_accuracy' => max($city->boss_best_accuracy, min(100, $accuracy)),
+                'boss_best_accuracy' => max($city->boss_best_accuracy, $accuracy),
                 'boss_defeated_at' => $bossFirst ? $now : $city->boss_defeated_at,
             ])->save();
         }
@@ -150,7 +152,11 @@ final class RunFinisher
 
         // 6. G2.9a: the class caravan - `class_caravan_members` upsert, `class_caravans` FOR UPDATE (re-read `status = active`).
 
-        // 1. The run: the one UPDATE, with the attributes of the answer that arrived unsaved.
+        // 1. The run: the one UPDATE, with the attributes of the answer that arrived unsaved. The first win over the boss of the city is
+        // kept in the state (a finished run's `summary.boss.first` is read from it; the map row only says WHEN the city fell).
+        if ($bossFirst) {
+            $run->forceFill(['state' => [...$run->state, 'boss_first' => true]]);
+        }
         $run->forceFill([
             'status' => RunStatus::Finished,
             'finish_reason' => $reason,
@@ -178,7 +184,8 @@ final class RunFinisher
 
         // 7. After the commit, each on its own (a failed hook is reported, never a failed finish).
         $localDate = $run->local_date->toDateString();
-        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind, $outcome, $localDate, $now): void {
+        $isBossFight = $run->kind === RunKind::Boss;
+        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind, $outcome, $localDate, $now, $isBossFight): void {
             $this->hook(fn () => $this->events->finished($run, $learner));
             if ($entry->applied) {
                 $this->hook(fn () => $this->events->coinsEarned($run, $learner, $amount, $kind, $entry->balance));
@@ -197,7 +204,15 @@ final class RunFinisher
             if ($outcome->heldDay) {
                 $this->hook(fn () => $this->achievements->evaluate($learner, $now));
             }
-            // G2.4:  AchievementService::unlock(game_first_boss), SendGameCardJob, `game.boss_defeated` when $outcome->bossFirst.
+            // The boss of a city beaten (docs/18 §12.3.4): the event on every win; the first win of the city also unlocks
+            // `game_first_boss` (once per learner) and sends the card "I got to {city}" (once per learner and city).
+            if ($isBossFight && $outcome->bossWon) {
+                $this->hook(fn () => $this->events->bossDefeated($run, $learner, $outcome->bossFirst));
+            }
+            if ($isBossFight && $outcome->bossFirst) {
+                $this->hook(fn () => $this->achievements->onGameBossDefeated($learner, (int) $run->stage_id, $now));
+                $this->hook(fn () => SendGameCardJob::dispatch($learner->id, (int) $run->stage_id));
+            }
         });
 
         return $outcome;

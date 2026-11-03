@@ -11,6 +11,7 @@ use App\Models\GameInventoryItem;
 use App\Models\GameItem;
 use App\Models\GameProfile;
 use App\Models\GameRun;
+use App\Models\GameStopProgress;
 use App\Models\GameWallet;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -20,6 +21,7 @@ use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
@@ -40,6 +42,23 @@ uses(RefreshDatabase::class);
  * active run, the insert and the event 3. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real count is 19-20.)
  */
 const BUDGET_GAME_START = 20;
+
+/**
+ * Statements of the start of a boss, measured (G2.4): `TwaAuth` 1, the course 1, the stage 1, the readiness of the city 1, the picker 1,
+ * the words and their translations 2, the distractors of the wider tiers 1 + 1 (when the city is short of them), the lock of the active
+ * run, the insert and the event 3. A fixed set of phases, none per word or per lesson of the city.
+ */
+const BUDGET_BOSS_START = 12;
+
+/**
+ * Statements of the `POST /answer` that WINS the boss for the first time, measured on a learner the game sees for the first time (every
+ * table is touched cold, the first activity of the day): `TwaAuth`, the run, the journal and the attempt 4, the city 3 (+ its UPDATE),
+ * the wallet and its entry 6, the profile 2, the day 4, the run 1 - 21 in the transaction; after the commit the two events of the finish 2,
+ * the streak 3, the league 10, the achievements of the day (streak, words) 3 + `game.boss_defeated` 1 and `game_first_boss` (the insert,
+ * the row, `achievement.unlocked`) 3. The queued card DM is a job of its own. None of them runs per word or per stop of the city. That is 43 on SQLite; PostgreSQL
+ * spends two more (the placement in the league), hence the ceiling.
+ */
+const BUDGET_BOSS_FINISH = 45;
 
 /** Statements of the read of a run: `TwaAuth`, the run itself - the snapshot is in its row. */
 const BUDGET_GAME_READ = 2;
@@ -234,4 +253,61 @@ it('keeps the wallet within its budget, and the number does not grow with the le
     }
 
     expect($small)->toBeLessThanOrEqual(BUDGET_GAME_WALLET)->and($measure())->toBe($small);
+});
+
+/**
+ * A city of `$lessons` stops of 6 words, every stop cleared, and the statements of the start of its boss and of the answer that wins it.
+ *
+ * @return array{start: int, finish: int}
+ */
+function gameBossMeasure(int $lessons): array
+{
+    [$learner, $course, $first] = GameKit::stop(0);
+    $stage = $first->stage;
+    $all = [$first];
+    for ($n = 2; $n <= $lessons; $n++) {
+        $all[] = Lesson::factory()->for($stage)->create(['number' => $n]);
+    }
+    foreach ($all as $l => $lesson) {
+        foreach (range(1, 6) as $i) {
+            GameKit::word($lesson, $learner, "bossbudget{$l}x{$i}", "бюджет {$l}.{$i}", voiced: true);
+        }
+        GameStopProgress::factory()->cleared(1)->create(['learner_id' => $learner->id, 'lesson_id' => $lesson->id]);
+    }
+    $headers = PracticeKit::headers($learner);
+
+    $started = null;
+    $start = QueryLog::during(function () use ($course, $stage, $headers, &$started): void {
+        $started = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'boss', 'course' => $course->slug, 'stage_id' => $stage->id])->assertCreated();
+    });
+    $id = $started->json('id');
+    Cache::flush();
+
+    // every answer right: the last one wins the boss for the first time (the reward, the city, the profile, the day, the hooks)
+    $finish = [];
+    for ($guard = 0; $guard < 30; $guard++) {
+        $run = GameRun::query()->findOrFail($id);
+        if (! $run->isActive()) {
+            break;
+        }
+        $element = GameKit::current($run);
+        $finish = QueryLog::during(fn () => test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $element['id'], 'answer' => GameKit::rightAnswers($element)[0]])->assertOk());
+        Cache::flush();
+    }
+
+    return ['start' => count($start), 'finish' => count($finish)];
+}
+
+it('stays within the budget of statements for the start of a boss and for the answer that wins it', function (): void {
+    Queue::fake(); // the card DM is a job of its own: not part of the answer
+    $measured = gameBossMeasure(2);
+
+    expect($measured['start'])->toBeLessThanOrEqual(BUDGET_BOSS_START)->and($measured['finish'])->toBeLessThanOrEqual(BUDGET_BOSS_FINISH);
+});
+
+it('does not read more for a bigger city: the statements of the boss are those of a small one', function (): void {
+    Queue::fake();
+    $measured = gameBossMeasure(8);
+
+    expect($measured['start'])->toBeLessThanOrEqual(BUDGET_BOSS_START)->and($measured['finish'])->toBeLessThanOrEqual(BUDGET_BOSS_FINISH);
 });

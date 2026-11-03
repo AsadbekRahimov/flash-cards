@@ -2998,3 +2998,16 @@
 | `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
 | `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
 | `error.code.coins_insufficient` | Maslahat uchun tanga yetmaydi. Tangalar yurishlar uchun beriladi. | Не хватает монет на подсказку. Монеты дают за забеги. |
+
+### Karta «Я дошёл до …» va yutuq «Хранитель побеждён» (G2.4, `lang/uz/game.php` `card.*`, `lang/uz/achievements.php`)
+
+> Birinchi marta shahar bossini yengganda botdan keladigan rasm-karta va uning sarlavhasi. Uzbekcha shahar nomi o'zgarmaydi (rus tilidagi kabi bosh kelishikda emas, «Men yetib keldim: Samarqand» shaklida).
+
+| Kalit | uz | ru |
+|---|---|---|
+| `game.card.title` | Men yetib keldim: :city | Я дошёл до :city |
+| `game.card.description` | "Karvon" o'yinida darvoza qo'riqchisini yengdim | Победил(а) хранителя ворот в игре «Караван» |
+| `game.card.caption` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
+| `game.card.share_button` | Ulashish | Поделиться |
+| `achievements.items.game_first_boss.title` | Qo'riqchi yengildi | Хранитель побеждён |
+| `achievements.items.game_first_boss.description` | "Karvon" o'yinida shahar bossi ustidan birinchi g'alaba | Первая победа над боссом города в игре «Караван» |

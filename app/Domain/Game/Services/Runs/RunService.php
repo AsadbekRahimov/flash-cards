@@ -821,7 +821,27 @@ final class RunService
             'league_points' => $run->league_points,
             'srs_pulled' => $run->srs_pulled,
             'mistakes' => $mistakes,
-            'boss' => null,
+            'boss' => $this->bossSummary($run),
+        ];
+    }
+
+    /**
+     * `summary.boss` of the fight with a boss (docs/18 §12.8): the accuracy in whole per cent, whether the fight is won, whether it was
+     * the first win over the city's boss (kept in the state by the finisher). A fight left unfinished (abandoned, expired) is never won.
+     * `null` for any other run.
+     *
+     * @return array{accuracy: int, won: bool, first: bool}|null
+     */
+    private function bossSummary(GameRun $run): ?array
+    {
+        if ($run->kind !== RunKind::Boss && $run->kind !== RunKind::ClassBoss) {
+            return null;
+        }
+
+        return [
+            'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
+            'won' => $run->finish_reason === RunFinishReason::Completed && RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)),
+            'first' => $run->kind === RunKind::Boss && (bool) ($run->state['boss_first'] ?? false),
         ];
     }
 

@@ -37,6 +37,16 @@ return [
     ],
     'city_fallback' => ':number-shahar',
 
+    /* "Men yetib keldim: ..." kartochkasi (shahar bossi ustidan birinchi g'alaba): rasm, shaxsiy xabar sarlavhasi va "Ulashish" tugmasi. */
+    'card' => [
+        'title' => 'Men yetib keldim: :city',
+        'description' => "\"Karvon\" o'yinida darvoza qo'riqchisini yengdim",
+        'caption' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nDo'stlaringiz bilan ulashing - quyidagi tugmani bosing yoki shu xabarni yuboring.",
+        'caption_no_link' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nMaqtanish uchun shu xabarni do'stlaringizga yuboring.",
+        'share_button' => 'Ulashish',
+        'share_text' => "Men \"Karvon\" o'yinida yetib keldim: :city - LexiFlow! Telegramda ingliz tili.",
+    ],
+
     /* Hamyon yozuvlarining nomlari (`GET /game/wallet`, `ledger[].title`): yozuv turi bo'yicha (LedgerKind). */
     'ledger' => [
         'run_reward' => "To'xtash uchun mukofot",

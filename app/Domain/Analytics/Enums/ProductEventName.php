@@ -116,6 +116,8 @@ enum ProductEventName: string
     case GameCoinsEarned = 'game.coins_earned';
     /** The daily caravan was played to its end (props: run_id, due_count, correct - docs/18 §12.8). */
     case GameDailyCompleted = 'game.daily_completed';
+    /** A learner beat the boss of a city (props: run_id, stage_id, accuracy - 0..100, first - the first win over this boss; docs/18 §12.8). */
+    case GameBossDefeated = 'game.boss_defeated';
     /** A learner bought an item of the shop (props: item_key, kind, price). */
     case GameItemBought = 'game.item_bought';
     /** A learner put a cosmetic on or took it off (props: slot, item_key - null when taken off). */

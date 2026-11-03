@@ -945,7 +945,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 |---------|-----|----------|
 | id | bigint PK | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | |
-| key | string(32) | `first_session`, `streak_7` / `streak_30` / `streak_100`, `words_100` / `words_500` / `words_1000`, `league_top1`, `first_friend` (`App\Domain\Engagement\Enums\AchievementKey`); `course_completed:<slug>` из §1.5 пока не выдаётся |
+| key | string(32) | `first_session`, `streak_7` / `streak_30` / `streak_100`, `words_100` / `words_500` / `words_1000`, `league_top1`, `first_friend`, `game_first_boss` (первая победа над боссом, G2.4) (`App\Domain\Engagement\Enums\AchievementKey`); `course_completed:<slug>` из §1.5 пока не выдаётся |
 | unlocked_at | timestamp | момент выдачи |
 | shared_at | timestamp nullable | learner открыл диалог «Поделиться» в TWA (один раз) |
 | meta | json nullable | значение на момент выдачи (`{value: 7}`, `{league_week_id}`) |
