@@ -141,10 +141,23 @@ erDiagram
 | id | bigint PK |
 | course_id | bigint FK → courses, ON DELETE CASCADE, NOT NULL |
 | number | int |
-| title | string(255) **nullable** |
+| title | string(255) **nullable** — название на ru |
+| title_uz | string(255) **nullable** — название на uz (R3c); пусто — uz-ученик читает `title` |
 | description | text nullable |
 
 **Индексы:** `(course_id, number)` unique — номер модуля уникален внутри курса (одинаковый `number` в разных курсах разрешён).
+
+**Название на языке ученика (R3c, `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables`).** У модуля и урока два строковых
+названия — `title` (ru) и `title_uz`; выбирает одно место, `DeckTitles` (`stageIn` / `lessonIn` по локали, `stage` / `lesson` /
+`forLesson` — по `LocaleResolver::forLearner`): uz-читателю — `title_uz`, если непустое, иначе `title`; ru-читателю — `title`;
+пустое и пробелы = «нет названия» → `null`, и клиент подписывает модуль по номеру («Модуль N» / «N-modul»). Через `DeckTitles` идут
+дерево курса (`CourseCatalogService::buildCourseTree` — ключ кэша K3 уже на локаль, названия выбираются **до** записи в кэш, так что
+ru-дерево никогда не достаётся uz-ученику), «Сегодня» (`TodayService`), старт тренировки (`TrainingFlowService`, модуль приходит
+в join-строке — `title_uz` входит в `STAGE_COLUMNS`), хаб практики и снимок сессии/баттла (`PracticeSnapshotBuilder` кладёт в
+снимок карту `lesson_title {locale => название}`, читатель берёт свою локаль — у баттла два участника с разными языками).
+Админка показывает `title` (панель русская) и даёт поле «Название (uz)» у модуля и урока. Отвергнуто: `title` как JSON `{ru, uz}`
+по образцу `courses.title` — пришлось бы переписать все читатели строки (`LIKE` в поиске админки, `relationship('stage', 'title')`,
+миграцию 48 с её `'Stage ' || number`, задания центров, сидеры, фабрики) ради двух локалей; третья локаль — ещё одна колонка.
 
 **`title` = NULL — модуль без собственного названия** (17.14-S). Его подпись строится при показе на языке читателя: «Модуль N» /
 «N-modul» (docs/14 §8) — TWA из `number`, админка из `admin.stages.untitled`; в API `stages[].title` приходит `null`
@@ -160,7 +173,8 @@ erDiagram
 | id | bigint PK |
 | stage_id | bigint FK → stages |
 | number | int |
-| title | string(255) nullable |
+| title | string(255) nullable — название на ru |
+| title_uz | string(255) nullable — название на uz (R3c); правило выбора — как у `stages.title_uz`, §2.5 |
 
 **Индексы:** `(stage_id, number)` unique.
 
@@ -1189,6 +1203,9 @@ CHECK не создаются — инвариант дублируют серв
     перед каждой сборкой. `down()` снимает индексы, расширение `pg_trgm` оставляет (общая инфраструктура — от неё могут зависеть другие индексы;
     снятие расширения — отдельное решение); на sqlite расширения и GIN нет — только b-tree *(W2-A)*
 56. `2026_11_02_200001_add_deleted_learners_partial_index` — partial-индекс `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` под анти-джойн по удалённым ученикам виджетов дашборда (§2.17; docs/20 F5). Как 44 и 55: `CONCURRENTLY` вне транзакции мигратора, `DROP INDEX IF EXISTS` перед сборкой, рабочий `down()` *(W2-C)*
+57. `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables` — `stages.title_uz`, `lessons.title_uz` (string(255) nullable, последняя колонка таблицы): название
+    модуля / урока на узбекском рядом с русским `title` (§2.5–§2.6, выбор по локали — `DeckTitles`). Простой `ADD COLUMN` на обоих драйверах;
+    `down()` снимает обе колонки (`DROP COLUMN`, на sqlite ≥ 3.35 — без пересборки таблицы). Проверяет `LocalizedTitlesTest` *(R3c)*
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 

@@ -50,8 +50,8 @@ final class CourseCatalogService
 
     private const COURSE_TREE_TTL = 1800;
 
-    /** The columns of `stages`, selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
-    private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at'];
+    /** The columns of `stages` in table order (`title_uz` was added last), selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
+    private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at', 'title_uz'];
 
     /** The columns of `courses` a lesson row carries under `course__`: whose the course is and whether it is open. */
     private const COURSE_COLUMNS = ['id', 'slug', 'owner_type', 'owner_id', 'visibility', 'status'];
@@ -436,7 +436,8 @@ final class CourseCatalogService
 
     /**
      * Modules and lessons of the course in study order with the number of ACTIVE words of each, titles as a reader of `$locale`
-     * sees them: no learner in it, so it is the same for everybody who may open the course and safe to share (docs/19 K3). A
+     * sees them (`title_uz` / `title` picked by DeckTitles, so the ru and the uz entry never share a name): no learner in it, so it
+     * is the same for everybody of that locale who may open the course and safe to share (docs/19 K3). A
      * learner's own deck is the exception: it is private, small and edited all the time, so it is read, never cached.
      *
      * @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
@@ -465,20 +466,23 @@ final class CourseCatalogService
                 $join->on('words.lesson_id', '=', 'lessons.id')->where('words.is_active', '=', true);
             })
             ->where('stages.course_id', $course->id)
-            ->groupBy('stages.number', 'stages.title', 'lessons.id', 'lessons.number', 'lessons.title')
+            ->groupBy('stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
-            ->selectRaw('stages.number as stage_number, stages.title as stage_title, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, COUNT(words.id) as total')
+            ->selectRaw('stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
             ->get();
 
+        $text = static fn (mixed $value): ?string => $value === null ? null : (string) $value;
+
+        // The names are picked for $locale HERE, so the entry of a locale holds that locale's names and nothing of another's.
         $tree = [];
         foreach ($rows as $row) {
             $tree[] = [
                 'stage_number' => (int) $row->stage_number,
-                'stage_title' => $this->deckTitles->stageIn($course, $locale, $row->stage_title === null ? null : (string) $row->stage_title),
+                'stage_title' => $this->deckTitles->stageIn($course, $locale, $text($row->stage_title), $text($row->stage_title_uz)),
                 'lesson_id' => (int) $row->lesson_id,
                 'lesson_number' => (int) $row->lesson_number,
-                'lesson_title' => $this->deckTitles->lessonIn($course, $locale, (int) $row->lesson_number, $row->lesson_title === null ? null : (string) $row->lesson_title),
+                'lesson_title' => $this->deckTitles->lessonIn($course, $locale, (int) $row->lesson_number, $text($row->lesson_title), $text($row->lesson_title_uz)),
                 'total' => (int) $row->total,
             ];
         }

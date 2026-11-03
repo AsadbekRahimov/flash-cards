@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\StageResource\RelationManagers;
 
+use App\Filament\Resources\LessonResource;
 use App\Filament\Resources\Support\AdminTable;
 use Filament\Actions;
 use Filament\Forms;
@@ -29,6 +30,7 @@ class LessonsRelationManager extends RelationManager
         return $schema->components([
             Forms\Components\TextInput::make('number')->label(__('admin.lessons.fields.number'))->numeric()->required(),
             Forms\Components\TextInput::make('title')->label(__('admin.lessons.fields.title'))->maxLength(255),
+            LessonResource::titleUzField(),
         ]);
     }
 

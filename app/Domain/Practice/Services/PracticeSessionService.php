@@ -269,7 +269,7 @@ final class PracticeSessionService
     public function activeSummary(PracticeSession $session): array
     {
         $snapshot = Snapshot::fromArray($session->snapshot);
-        $named = $snapshot->lessonStage !== null || $snapshot->lessonNumber !== null || $snapshot->lessonTitle !== null;
+        $named = $snapshot->hasLessonFacts();
 
         return [
             'id' => $session->id,
@@ -278,7 +278,7 @@ final class PracticeSessionService
             'course_title' => $snapshot->courseTitleFor($session->locale),
             'lesson_id' => $session->lesson_id,
             'lesson' => $session->lesson_id !== null && $named
-                ? ['stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber, 'title' => $snapshot->lessonTitle]
+                ? ['stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber, 'title' => $snapshot->lessonTitleFor($session->locale)]
                 : null,
             'progress' => ['done' => $session->answered, 'total' => $session->total],
         ];
@@ -315,7 +315,7 @@ final class PracticeSessionService
                 'id' => $session->lesson_id,
                 'stage' => $snapshot->lessonStage,
                 'number' => $snapshot->lessonNumber,
-                'title' => $snapshot->lessonTitle,
+                'title' => $snapshot->lessonTitleFor($session->locale),
             ],
             done: $session->answered,
             total: $session->total,

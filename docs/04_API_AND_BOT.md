@@ -609,7 +609,8 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   ]
 }
 ```
-Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`. **`stages[].title` — `null`,
+Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `stages[].title` и `lessons[].title` — на языке ученика
+(`title_uz` для uz, если задано, иначе `title`/ru — docs/03 §2.5, `DeckTitles`); `lessons[].title` может быть `null`. **`stages[].title` — `null`,
 если у модуля нет собственного названия** (docs/03 §2.5): клиент подписывает его по `number` на языке читателя («Модуль 2» /
 «2-modul»; TWA — ключ `course.module`), а чип «Модуль N» рядом с названием показывает только у модуля с названием. Сервер
 не подставляет подпись сам — ни «Stage 2», ни пустую строку. Для колоды learner'а `title` всегда локализованное «Моя колода» / «Mening lug'atim».

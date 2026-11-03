@@ -73,7 +73,21 @@ class LessonResource extends Resource
                 ->disabledOn('edit'),
             Forms\Components\TextInput::make('number')->label(__('admin.lessons.fields.number'))->numeric()->required(),
             Forms\Components\TextInput::make('title')->label(__('admin.lessons.fields.title'))->maxLength(255),
+            self::titleUzField(),
         ]);
+    }
+
+    /**
+     * The Uzbek name of a lesson (`lessons.title_uz`): a learner of uz reads it, or the Russian one while it is empty (NULL). Shared
+     * with the lessons tab of a module.
+     */
+    public static function titleUzField(): Forms\Components\TextInput
+    {
+        return Forms\Components\TextInput::make('title_uz')
+            ->label(__('admin.lessons.fields.title_uz'))
+            ->helperText(__('admin.lessons.fields.title_uz_help'))
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
     }
 
     public static function table(Table $table): Table

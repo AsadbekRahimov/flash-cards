@@ -41,6 +41,7 @@ class StagesRelationManager extends RelationManager
                     modifyRuleUsing: fn (Unique $rule): Unique => $rule->where('course_id', $this->getOwnerRecord()->getKey()),
                 ),
             StageResource::titleField(),
+            StageResource::titleUzField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }

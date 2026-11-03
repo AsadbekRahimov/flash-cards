@@ -83,6 +83,7 @@ class StageResource extends Resource
                     modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('course_id', $get('course_id')),
                 ),
             self::titleField(),
+            self::titleUzField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }
@@ -96,6 +97,16 @@ class StageResource extends Resource
         return Forms\Components\TextInput::make('title')
             ->label(__('admin.stages.fields.title'))
             ->helperText(__('admin.stages.fields.title_help'))
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
+    }
+
+    /** The Uzbek name of a module (`stages.title_uz`): a learner of uz reads it, or the Russian one while it is empty (NULL). */
+    public static function titleUzField(): Forms\Components\TextInput
+    {
+        return Forms\Components\TextInput::make('title_uz')
+            ->label(__('admin.stages.fields.title_uz'))
+            ->helperText(__('admin.stages.fields.title_uz_help'))
             ->maxLength(255)
             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
     }
