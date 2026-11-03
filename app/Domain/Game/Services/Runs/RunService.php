@@ -1,0 +1,840 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Game\Services\Runs;
+
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Game\DTO\HintOutcome;
+use App\Domain\Game\DTO\RunAnswerOutcome;
+use App\Domain\Game\DTO\RunSnapshot;
+use App\Domain\Game\DTO\RunState;
+use App\Domain\Game\DTO\RunView;
+use App\Domain\Game\DTO\ScoreOutcome;
+use App\Domain\Game\DTO\ScoringRules;
+use App\Domain\Game\Enums\AttemptKind;
+use App\Domain\Game\Enums\LedgerKind;
+use App\Domain\Game\Enums\RunEvent;
+use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Enums\RunStatus;
+use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Economy\WalletService;
+use App\Domain\Game\Services\GameAccess;
+use App\Domain\Game\Services\Tasks\PracticeTaskAdapter;
+use App\Domain\Game\Services\Tasks\TaskRegistry;
+use App\Domain\Game\Support\CityNames;
+use App\Domain\Game\Support\RunScoring;
+use App\Domain\Learners\Services\LearnerClock;
+use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Practice\DTO\LocaleSet;
+use App\Domain\Practice\DTO\SnapshotElement;
+use App\Domain\Practice\Enums\Verdict;
+use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\PracticeMaterialService;
+use App\Domain\Practice\Support\IsoTime;
+use App\Domain\Practice\Support\JsonbKeyOrder;
+use App\Models\GameRun;
+use App\Models\GameRunAttempt;
+use App\Models\Learner;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
+use LogicException;
+use Throwable;
+
+/**
+ * The life of a run (docs/18 §12.2.1, §12.5): start, find, view, answer, hint, abandon, close the expired ones. Everything a run
+ * decides is decided here on the server from the snapshot and the state; the client only shows.
+ *
+ * Locks (docs/18 §12.5.1): the start takes `game_runs` (FOR UPDATE of the active one) then inserts; an answer / a hint takes the run's
+ * own row FOR UPDATE, then - a hint of the bazaar only - the wallet, then inserts the attempt and updates the run. Nothing of the
+ * learning is locked; the SRS rule runs AFTER the commit (`GameSrsAdjuster`). The Free limits (`GameLimits`, G2.8) take the learner's
+ * row FIRST in the transaction of the start - the place is marked in {@see open()}; the rewards of a finished run (`RunFinisher`,
+ * G2.5a) replace {@see finish()} at its place in the transaction of the answer.
+ *
+ * Idempotency: `(run_id, request_id)` is unique in `game_run_attempts`; a repeat answers the stored `result` and the view of now.
+ */
+final class RunService
+{
+    public function __construct(
+        private readonly GameAccess $access,
+        private readonly CourseCatalogService $catalog,
+        private readonly PracticeMaterialService $material,
+        private readonly LocaleResolver $locales,
+        private readonly LearnerClock $clock,
+        private readonly RunSnapshotBuilder $snapshots,
+        private readonly TaskRegistry $tasks,
+        private readonly WalletService $wallet,
+        private readonly GameSrsAdjuster $srs,
+        private readonly ProductEventRecorder $events,
+    ) {}
+
+    /**
+     * Starts the run of a stop (docs/18 §12.3.1). Not inside an outer transaction: after a unique violation (two tabs) the winner is read
+     * again. An unfinished run and no `$replaceActive` -> 409 `game_run_active` BEFORE the snapshot is built; with the flag the old one is
+     * closed `abandoned` in the same transaction. Two tabs at once: the loser gets the winner's run when it is the same stop, else the 409.
+     *
+     * @throws GameException game_unavailable | course_not_found | lesson_not_found | lesson_not_in_course | stop_locked |
+     *                       game_not_enough_material | game_run_active
+     */
+    public function start(Learner $learner, string $courseSlug, int $lessonId, bool $replaceActive = false, ?CarbonImmutable $now = null): GameRun
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+
+        $course = $this->catalog->findAvailable($courseSlug, $learner) ?? throw GameException::courseNotFound();
+        try {
+            $lesson = $this->material->lesson($course, $lessonId, $learner);
+        } catch (PracticeException $e) {
+            throw $e->errorCode === PracticeException::LESSON_NOT_IN_COURSE ? GameException::lessonNotInCourse() : GameException::lessonNotFound();
+        }
+
+        if (! $replaceActive) {
+            $busy = $this->activeOf($learner);
+            if ($busy !== null && $busy->expires_at->gt($now)) {
+                throw GameException::runActive($this->activeDetails($busy));
+            }
+        }
+
+        $locales = new LocaleSet([$this->locales->forLearner($learner)]);
+        try {
+            $snapshot = $this->snapshots->forStop($learner, $course, $lesson, $locales);
+        } catch (GameException $e) {
+            if ($e->errorCode === GameException::NOT_ENOUGH_MATERIAL) {
+                $this->events->record(ProductEventName::GameNotEnoughMaterial, [
+                    'kind' => RunKind::Stop->value, 'course_id' => $course->id, 'lesson_id' => $lesson->id, ...$e->details,
+                ], learner: $learner);
+            }
+
+            throw $e;
+        }
+
+        return $this->open($learner, $snapshot, [
+            'course_id' => $course->id,
+            'stage_id' => $lesson->stage_id,
+            'lesson_id' => $lesson->id,
+        ], $replaceActive, $now);
+    }
+
+    /**
+     * Opens a run from a built snapshot: the transaction of the start (docs/18 §12.5.1). The daily caravan (G2.3) and the bosses (G2.4)
+     * build their snapshots and call this with their `daily_key` / `class_boss_key` / `free_slot` in `$attributes`.
+     *
+     * @param  array<string, mixed>  $attributes  `course_id` (required), `stage_id`, `lesson_id`, `class_caravan_id`, `daily_key`, `class_boss_key`, `free_slot`
+     *
+     * @throws GameException game_run_active | game_daily_done
+     */
+    public function open(Learner $learner, RunSnapshot $snapshot, array $attributes, bool $replaceActive, CarbonImmutable $now): GameRun
+    {
+        $row = [
+            'learner_id' => $learner->id,
+            'active_learner_id' => $learner->id,
+            'kind' => $snapshot->kind,
+            'course_id' => $attributes['course_id'] ?? throw new LogicException('A run needs its course.'),
+            'stage_id' => $attributes['stage_id'] ?? null,
+            'lesson_id' => $attributes['lesson_id'] ?? null,
+            'class_caravan_id' => $attributes['class_caravan_id'] ?? null,
+            'daily_key' => $attributes['daily_key'] ?? null,
+            'class_boss_key' => $attributes['class_boss_key'] ?? null,
+            'local_date' => $this->clock->localDate($learner, $now),
+            'status' => RunStatus::Active,
+            'finish_reason' => null,
+            'free_slot' => $attributes['free_slot'] ?? null,
+            'snapshot' => $snapshot->toArray(),
+            'state' => RunState::initial($snapshot->flasksMax)->toArray(),
+            'total' => $snapshot->count(),
+            'answered' => 0,
+            'correct' => 0,
+            'typos' => 0,
+            'wrong' => 0,
+            'hints' => 0,
+            'flasks' => $snapshot->flasksMax,
+            'flasks_max' => $snapshot->flasksMax,
+            'combo_best' => 0,
+            'score' => 0,
+            'stars' => null,
+            'coins_awarded' => 0,
+            'league_points' => 0,
+            'srs_pulled' => 0,
+            'locale' => $snapshot->locales[0] ?? $this->locales->forLearner($learner),
+            'expires_at' => $now->addMinutes(max(1, (int) config('game.run.ttl_minutes', 30))),
+            'started_at' => $now,
+            'finished_at' => null,
+        ];
+
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            try {
+                $outcome = DB::transaction(function () use ($learner, $row, $replaceActive, $now): GameRun|GameException {
+                    // G2.8: the Free limits claim their place HERE, first - `learners (FOR NO KEY UPDATE)` -> `game_profiles` (tickets).
+
+                    /** @var GameRun|null $active */
+                    $active = GameRun::query()->where('active_learner_id', $learner->id)->lockForUpdate()->first();
+                    if ($active !== null) {
+                        if ($active->expires_at->lte($now)) {
+                            $this->close($active, RunFinishReason::Expired, $now, $learner);
+                        } elseif ($replaceActive) {
+                            $this->close($active, RunFinishReason::Abandoned, $now, $learner);
+                        } else {
+                            return GameException::runActive($this->activeDetails($active));
+                        }
+                    }
+
+                    $run = GameRun::query()->create($row);
+
+                    DB::afterCommit(fn () => $this->events->record(ProductEventName::GameRunStarted, [
+                        'run_id' => $run->id,
+                        'kind' => $run->kind->value,
+                        'course_id' => $run->course_id,
+                        'stage_id' => $run->stage_id,
+                        'lesson_id' => $run->lesson_id,
+                        'total' => $run->total,
+                        'free_slot' => $run->free_slot?->value,
+                        'scope_widened' => (bool) ($run->snapshot['scope_widened'] ?? false),
+                    ], learner: $learner));
+
+                    return $run;
+                });
+                if ($outcome instanceof GameException) {
+                    throw $outcome;
+                }
+
+                return $outcome;
+            } catch (UniqueConstraintViolationException $e) {
+                // The daily caravan of the day exists already (its key is unique): the second start is told so.
+                if (($row['daily_key'] ?? null) !== null && GameRun::query()->where('daily_key', $row['daily_key'])->exists()) {
+                    throw GameException::dailyDone($this->clock->limitWindowUtc($learner, $now)->endUtc->toIso8601ZuluString('millisecond'));
+                }
+                if (($row['class_boss_key'] ?? null) !== null && GameRun::query()->where('class_boss_key', $row['class_boss_key'])->exists()) {
+                    throw GameException::classBossDone();
+                }
+
+                // Two tabs at once: the other one has just started a run for this learner.
+                $winner = $this->activeOf($learner);
+                if ($winner !== null && $winner->kind === $row['kind'] && $winner->lesson_id === ($row['lesson_id'] ?? null) && $winner->stage_id === ($row['stage_id'] ?? null)) {
+                    return $winner;
+                }
+                if ($winner !== null && ! $replaceActive) {
+                    throw GameException::runActive($this->activeDetails($winner));
+                }
+                // The winner has ended already, or the learner asked to replace whatever is active: try once more.
+            }
+        }
+
+        throw new LogicException('Could not start a run: the active one keeps changing under us.');
+    }
+
+    /**
+     * The learner's OWN run by id (somebody else's looks like a missing one). A run past `expires_at` that the scheduler has not closed
+     * yet is closed here (`expired`).
+     *
+     * @throws GameException game_unavailable | game_run_not_found
+     */
+    public function find(Learner $learner, int $id, ?CarbonImmutable $now = null): GameRun
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+
+        /** @var GameRun|null $run */
+        $run = GameRun::query()->where('id', $id)->where('learner_id', $learner->id)->first();
+        if ($run === null) {
+            throw GameException::runNotFound();
+        }
+
+        return $this->expireIfDue($run, $learner, $now);
+    }
+
+    /** The learner's active run, if any (closed first when it is past its time). */
+    public function activeFor(Learner $learner, ?CarbonImmutable $now = null): ?GameRun
+    {
+        $run = $this->activeOf($learner);
+
+        return $run === null ? null : $this->expireIfDue($run, $learner, $now ?? CarbonImmutable::now());
+    }
+
+    /** What the learner sees of the run (docs/18 §12.8). */
+    public function view(GameRun $run, Learner $learner, ?CarbonImmutable $now = null): RunView
+    {
+        $now ??= CarbonImmutable::now();
+        $snapshot = RunSnapshot::fromArray($run->snapshot);
+        $state = RunState::fromArray($run->state);
+        $locale = $run->locale;
+
+        $current = null;
+        $hintAvailable = false;
+        if ($run->isActive()) {
+            $element = $snapshot->at($state->current);
+            if ($element !== null) {
+                $event = $snapshot->eventAt($state->current);
+                $current = [
+                    'element' => $this->tasks->forElement($element)->project($element, $locale, $state),
+                    'event' => $event?->value,
+                ];
+                $hintAvailable = $event === RunEvent::Bazaar && ! $state->isHinted($element->id) && $this->tasks->forElement($element)->hint($element, $state) !== null;
+            }
+        }
+
+        return new RunView(
+            id: $run->id,
+            kind: $run->kind,
+            status: $run->status,
+            finishReason: $run->finish_reason,
+            city: $snapshot->stageNumber === null ? null : CityNames::name($snapshot->stageNumber, $locale),
+            stageNumber: $snapshot->stageNumber,
+            lessonNumber: $snapshot->lessonNumber,
+            lessonTitle: RunSnapshot::titleFor($snapshot->lessonTitles, $locale),
+            scopeWidened: $snapshot->scopeWidened,
+            total: $run->total,
+            position: min($state->current + 1, $run->total),
+            flasks: $run->flasks,
+            flasksMax: $run->flasks_max,
+            combo: $state->combo,
+            score: $run->score,
+            current: $current,
+            hint: ['price' => $this->hintPrice(), 'available' => $hintAvailable],
+            summary: $run->isActive() ? null : $this->summary($run, $snapshot, $state),
+            serverNow: $now->toIso8601ZuluString('millisecond'),
+        );
+    }
+
+    /**
+     * Accepts an answer to the current element (docs/18 §12.5.2): grades, scores, writes the attempt and the state, closes the run with
+     * the last element (`completed`) or the last flask (`failed`). The SRS rule and the events follow the commit.
+     *
+     * @param  array<string, mixed>  $answer
+     *
+     * @throws GameException game_unavailable | game_run_not_found | game_run_closed | request_id_reused | element_not_current |
+     *                       answer_already_accepted | unknown_element_id | invalid_answer_shape | unknown_option_id | pair_already_matched
+     */
+    public function answer(GameRun|int $run, Learner $learner, string $requestId, string $elementId, array $answer, ?int $timeSpentMs = null, ?CarbonImmutable $now = null): RunAnswerOutcome
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+        $requestId = strtolower($requestId);
+        $runId = $run instanceof GameRun ? $run->id : $run;
+
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now): RunAnswerOutcome|GameException {
+            $locked = $this->lock($runId, $learner);
+            if ($locked === null) {
+                return GameException::runNotFound();
+            }
+
+            $prior = $this->attemptOf($locked, $requestId);
+            if ($prior !== null) {
+                return $prior->kind === AttemptKind::Hint || $prior->kind === AttemptKind::Booster
+                    ? GameException::requestIdReused()
+                    : new RunAnswerOutcome($prior->result, $this->view($locked, $learner, $now));
+            }
+
+            $closed = $this->refuseClosed($locked, $learner, $now);
+            if ($closed !== null) {
+                return $closed;
+            }
+
+            return $this->accept($locked, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now);
+        });
+
+        // An error raised AFTER the commit, so that the closing of an expired run is kept.
+        if ($outcome instanceof GameException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * The hint of the bazaar on the current element (docs/18 §12.5.2): the element carries the `bazaar` event, is not answered and has a
+     * hint; the coins are taken under the lock of the run (`game_runs` -> `game_wallets`), once per element (`run:{id}:hint:{element}`). A
+     * second request on the same element, with any `request_id`, returns the same hint and pays nothing.
+     *
+     * @throws GameException game_unavailable | game_run_not_found | game_run_closed | request_id_reused | element_not_current |
+     *                       answer_already_accepted | hint_not_available | coins_insufficient
+     */
+    public function hint(GameRun|int $run, Learner $learner, string $requestId, string $elementId, ?CarbonImmutable $now = null): HintOutcome
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+        $requestId = strtolower($requestId);
+        $runId = $run instanceof GameRun ? $run->id : $run;
+
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $now): HintOutcome|GameException {
+            $locked = $this->lock($runId, $learner);
+            if ($locked === null) {
+                return GameException::runNotFound();
+            }
+
+            $prior = $this->attemptOf($locked, $requestId);
+            if ($prior !== null) {
+                return $prior->kind === AttemptKind::Hint
+                    ? new HintOutcome($prior->result, $this->view($locked, $learner, $now))
+                    : GameException::requestIdReused();
+            }
+
+            $closed = $this->refuseClosed($locked, $learner, $now);
+            if ($closed !== null) {
+                return $closed;
+            }
+
+            return $this->giveHint($locked, $learner, $requestId, $elementId, $now);
+        });
+
+        if ($outcome instanceof GameException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * The learner leaves the run: `finished / abandoned`, nothing is paid (docs/18 §12.2.1). A run that is closed already stays as it is.
+     *
+     * @throws GameException game_unavailable | game_run_not_found
+     */
+    public function abandon(GameRun|int $run, Learner $learner, ?CarbonImmutable $now = null): GameRun
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+        $runId = $run instanceof GameRun ? $run->id : $run;
+
+        $outcome = DB::transaction(function () use ($runId, $learner, $now): GameRun|GameException {
+            $locked = $this->lock($runId, $learner);
+            if ($locked === null) {
+                return GameException::runNotFound();
+            }
+            if ($locked->isActive()) {
+                $this->close($locked, $locked->expires_at->lte($now) ? RunFinishReason::Expired : RunFinishReason::Abandoned, $now, $learner);
+            }
+
+            return $locked;
+        });
+
+        if ($outcome instanceof GameException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * The scheduler (`game:close-expired`, every 15 minutes): every active run past its `expires_at` becomes `finished / expired` and lets
+     * go of `active_learner_id` - one conditional UPDATE per run, no lock taken in advance; a run that a request closed in the meantime is
+     * skipped and raises no second event. An expired run pays nothing (docs/18 §12.5.1 rule 23).
+     *
+     * @return int runs closed by this call
+     */
+    public function closeExpired(?CarbonImmutable $now = null): int
+    {
+        $now ??= CarbonImmutable::now();
+        $closed = 0;
+
+        GameRun::query()
+            ->with('learner')
+            ->where('status', RunStatus::Active->value)
+            ->where('expires_at', '<=', $now)
+            ->lazyById(200)
+            ->each(function (GameRun $run) use ($now, &$closed): void {
+                if ($this->claimExpired($run->id, $now)) {
+                    $closed++;
+                    $run->forceFill(['status' => RunStatus::Finished, 'finish_reason' => RunFinishReason::Expired, 'finished_at' => $now, 'active_learner_id' => null]);
+                    $this->recordFinished($run, $run->learner);
+                }
+            });
+
+        return $closed;
+    }
+
+    // ------------------------------------------------------------------ under the lock
+
+    /**
+     * The body of {@see answer()} under the lock of the run.
+     *
+     * @param  array<string, mixed>  $answer
+     */
+    private function accept(GameRun $run, Learner $learner, string $requestId, string $elementId, array $answer, ?int $timeSpentMs, CarbonImmutable $now): RunAnswerOutcome
+    {
+        $snapshot = RunSnapshot::fromArray($run->snapshot);
+        $state = RunState::fromArray($run->state);
+        $element = $snapshot->element($elementId) ?? throw GameException::unknownElementId();
+
+        $current = $snapshot->at($state->current);
+        if ($current === null || $current->id !== $element->id) {
+            throw GameException::elementNotCurrent((string) $current?->id);
+        }
+        if ($state->isAnswered($element->id)) {
+            throw GameException::answerAlreadyAccepted((string) $state->verdictOf($element->id)?->value);
+        }
+
+        $handler = $this->tasks->forElement($element);
+        $grade = $handler->grade($element, $answer, $state);
+
+        if ($grade->extra !== null) {
+            $state->pairs[$element->id] = $grade->extra;
+        }
+
+        // A finished round of pairs is one answer: correct only without a mismatch; its flask went at the first mismatch.
+        $verdict = $grade->verdict;
+        if ($element->isPairsRound() && $grade->final) {
+            $verdict = ($handler instanceof PracticeTaskAdapter && $handler->isPairsMistake($element, $state)) ? Verdict::Wrong : Verdict::Correct;
+        }
+        $hinted = $state->isHinted($element->id);
+        $chargeFlask = ! $state->hasLostFlask($element->id) && ! ($element->isPairsRound() && $grade->final);
+        $oasis = $snapshot->eventAt($state->current) === RunEvent::Oasis;
+
+        $score = RunScoring::apply($state, $verdict, $grade->final, $hinted, $chargeFlask, $oasis, $run->flasks_max, ScoringRules::fromConfig());
+
+        $state->flasks = $score->flasks;
+        $state->combo = $score->combo;
+        if ($score->oasisApplied) {
+            $state->oasisUsed = true;
+        }
+        if ($score->secondChanceUsed) {
+            $state->secondChanceLeft = max(0, $state->secondChanceLeft - 1);
+        }
+        if ($score->flaskLost) {
+            $state->markFlaskLost($element->id);
+        }
+        $state->rememberMistakes($grade->srsErrorWordIds);
+
+        $pair = $element->isPairsRound() ? ['left_id' => $grade->normalizedAnswer['left_id'] ?? null, 'right_id' => $grade->normalizedAnswer['right_id'] ?? null] : null;
+        $body = [
+            'verdict' => $grade->verdict->value,
+            'points' => $score->points,
+            'reveal' => $grade->reveal,
+            'flask_lost' => $score->flaskLost,
+            'combo' => $score->combo,
+            'event_applied' => $score->oasisApplied ? RunEvent::Oasis->value : null,
+        ];
+        if ($element->isPairsRound()) {
+            $body['pair'] = $pair;
+            $body['round_done'] = $grade->final;
+        }
+        $body = JsonbKeyOrder::object($body);
+
+        GameRunAttempt::query()->create([
+            'run_id' => $run->id,
+            'learner_id' => $learner->id,
+            'request_id' => $requestId,
+            'element_id' => $element->id,
+            'kind' => $element->isPairsRound() ? AttemptKind::Pair : ($grade->verdict === Verdict::Skipped ? AttemptKind::Skip : AttemptKind::Answer),
+            'payload' => $grade->normalizedAnswer,
+            'verdict' => $grade->verdict,
+            'is_first' => $grade->firstAttempt,
+            'result' => $body,
+            'time_spent_ms' => $timeSpentMs,
+            'accepted_at' => $now,
+        ]);
+
+        $updates = [
+            'flasks' => $score->flasks,
+            'combo_best' => max($run->combo_best, $score->combo),
+            'score' => $run->score + $score->points,
+        ];
+        if ($grade->final) {
+            $state->markAnswered($element->id, $verdict, $grade->firstAttempt, $score->points, $state->hasLostFlask($element->id), $grade->normalizedAnswer, IsoTime::format($now));
+            $state->current++;
+            $updates['answered'] = $run->answered + 1;
+            $updates += match ($score->counted) {
+                ScoreOutcome::COUNTED_CORRECT => ['correct' => $run->correct + 1],
+                ScoreOutcome::COUNTED_TYPO => ['typos' => $run->typos + 1],
+                ScoreOutcome::COUNTED_HINT => ['hints' => $run->hints + 1],
+                default => ['wrong' => $run->wrong + 1],
+            };
+        }
+        $updates['state'] = $state->toArray();
+        $run->forceFill($updates)->save();
+
+        if ($score->failed) {
+            $this->finish($run, RunFinishReason::Failed, $now, $learner); // G2.5a: RunFinisher::finish($run, Failed) here
+        } elseif ($state->current >= $run->total) {
+            $this->finish($run, RunFinishReason::Completed, $now, $learner); // G2.5a: RunFinisher::finish($run, Completed) here
+        }
+
+        $wordIds = $grade->srsErrorWordIds;
+        if ($wordIds !== []) {
+            DB::afterCommit(function () use ($run, $learner, $wordIds, $now): void {
+                try {
+                    $moved = $this->srs->pull($learner->id, $wordIds, $now);
+                    if ($moved > 0) {
+                        GameRun::query()->whereKey($run->id)->increment('srs_pulled', $moved);
+                    }
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
+        }
+
+        return new RunAnswerOutcome($body, $this->view($run, $learner, $now));
+    }
+
+    /** The body of {@see hint()} under the lock of the run. */
+    private function giveHint(GameRun $run, Learner $learner, string $requestId, string $elementId, CarbonImmutable $now): HintOutcome|GameException
+    {
+        $snapshot = RunSnapshot::fromArray($run->snapshot);
+        $state = RunState::fromArray($run->state);
+        $element = $snapshot->element($elementId);
+        if ($element === null) {
+            return GameException::unknownElementId();
+        }
+        $current = $snapshot->at($state->current);
+        if ($current === null || $current->id !== $element->id) {
+            return GameException::elementNotCurrent((string) $current?->id);
+        }
+        if ($state->isAnswered($element->id)) {
+            return GameException::answerAlreadyAccepted((string) $state->verdictOf($element->id)?->value);
+        }
+
+        $price = $this->hintPrice();
+        $given = $state->hintOf($element->id);
+        if ($given !== null) {
+            // The element has its hint already (another request_id, or a reload): the same hint, nothing to pay.
+            $body = JsonbKeyOrder::object(['hint' => $given, 'coins' => ['balance' => $this->wallet->balance($learner->id)]]);
+            $this->journalHint($run, $learner, $requestId, $element, $body, $now);
+
+            return new HintOutcome($body, $this->view($run, $learner, $now));
+        }
+
+        if ($snapshot->eventAt($state->current) !== RunEvent::Bazaar) {
+            return GameException::hintNotAvailable();
+        }
+        $hint = $this->tasks->forElement($element)->hint($element, $state);
+        if ($hint === null) {
+            return GameException::hintNotAvailable();
+        }
+
+        try {
+            $debit = $this->wallet->debit($learner->id, $price, LedgerKind::BazaarHint, "run:{$run->id}:hint:{$element->id}", 'game_run', $run->id, ['element_id' => $element->id]);
+        } catch (GameException $e) {
+            return $e;
+        }
+
+        $state->markHinted($element->id, $hint);
+        $run->forceFill(['state' => $state->toArray()])->save();
+
+        $body = JsonbKeyOrder::object(['hint' => $hint, 'coins' => ['balance' => $debit->balance]]);
+        $this->journalHint($run, $learner, $requestId, $element, $body, $now);
+
+        if ($debit->applied) {
+            DB::afterCommit(fn () => $this->events->record(ProductEventName::GameCoinsSpent, [
+                'amount' => $price, 'kind' => LedgerKind::BazaarHint->value, 'ref_type' => 'game_run', 'ref_id' => $run->id, 'balance' => $debit->balance,
+            ], learner: $learner));
+        }
+
+        return new HintOutcome($body, $this->view($run, $learner, $now));
+    }
+
+    /** @param array<string, mixed> $body */
+    private function journalHint(GameRun $run, Learner $learner, string $requestId, SnapshotElement $element, array $body, CarbonImmutable $now): void
+    {
+        GameRunAttempt::query()->create([
+            'run_id' => $run->id,
+            'learner_id' => $learner->id,
+            'request_id' => $requestId,
+            'element_id' => $element->id,
+            'kind' => AttemptKind::Hint,
+            'payload' => [],
+            'verdict' => null,
+            'is_first' => false,
+            'result' => $body,
+            'time_spent_ms' => null,
+            'accepted_at' => $now,
+        ]);
+    }
+
+    /**
+     * Finishes a played run under the lock: the stars, the status, `active_learner_id` let go. G2.5a's `RunFinisher` takes this place and
+     * adds the rewards, the progress of the map and the day of the learner (docs/18 §12.5.3).
+     */
+    private function finish(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, Learner $learner): void
+    {
+        $state = RunState::fromArray($run->state);
+        $isBoss = $run->kind === RunKind::Boss || $run->kind === RunKind::ClassBoss;
+        $stars = $isBoss
+            ? RunScoring::bossStars(RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)))
+            : RunScoring::stars($state->flaskLosses(), $reason === RunFinishReason::Failed);
+
+        $run->forceFill([
+            'status' => RunStatus::Finished,
+            'finish_reason' => $reason,
+            'finished_at' => $now,
+            'stars' => $stars,
+            'active_learner_id' => null,
+        ])->save();
+
+        DB::afterCommit(fn () => $this->recordFinished($run, $learner));
+    }
+
+    /** Closes a run that pays nothing (`expired` / `abandoned`) under the lock. */
+    private function close(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, ?Learner $learner): void
+    {
+        $run->forceFill([
+            'status' => RunStatus::Finished,
+            'finish_reason' => $reason,
+            'finished_at' => $now,
+            'active_learner_id' => null,
+        ])->save();
+
+        DB::afterCommit(fn () => $this->recordFinished($run, $learner));
+    }
+
+    /** A closed run answers 410; one past its time is closed (kept: the caller returns the error after the commit). Under the lock. */
+    private function refuseClosed(GameRun $locked, Learner $learner, CarbonImmutable $now): ?GameException
+    {
+        if (! $locked->isActive()) {
+            return GameException::runClosed((string) $locked->finish_reason?->value);
+        }
+        if ($locked->expires_at->lte($now)) {
+            $this->close($locked, RunFinishReason::Expired, $now, $learner);
+
+            return GameException::runClosed(RunFinishReason::Expired->value);
+        }
+
+        return null;
+    }
+
+    // ------------------------------------------------------------------ reads
+
+    private function lock(int $id, Learner $learner): ?GameRun
+    {
+        /** @var GameRun|null $run */
+        $run = GameRun::query()->where('id', $id)->where('learner_id', $learner->id)->lockForUpdate()->first();
+
+        return $run;
+    }
+
+    private function activeOf(Learner $learner): ?GameRun
+    {
+        /** @var GameRun|null $run */
+        $run = GameRun::query()->where('active_learner_id', $learner->id)->first();
+
+        return $run;
+    }
+
+    private function attemptOf(GameRun $run, string $requestId): ?GameRunAttempt
+    {
+        /** @var GameRunAttempt|null $attempt */
+        $attempt = GameRunAttempt::query()->where('run_id', $run->id)->where('request_id', $requestId)->first();
+
+        return $attempt;
+    }
+
+    /** @return array{run_id: int, kind: string, progress: array<string, mixed>} */
+    private function activeDetails(GameRun $run): array
+    {
+        return [
+            'run_id' => $run->id,
+            'kind' => $run->kind->value,
+            'progress' => ['answered' => $run->answered, 'total' => $run->total, 'flasks' => $run->flasks, 'score' => $run->score, 'expires_at' => $run->expires_at->toIso8601ZuluString('millisecond')],
+        ];
+    }
+
+    /** A run past its `expires_at` but still `active` is closed by one conditional UPDATE, the way the scheduler does it. */
+    private function expireIfDue(GameRun $run, ?Learner $learner, CarbonImmutable $now): GameRun
+    {
+        if (! $run->isExpiredAt($now)) {
+            return $run;
+        }
+
+        if ($this->claimExpired($run->id, $now)) {
+            $run->forceFill(['status' => RunStatus::Finished, 'finish_reason' => RunFinishReason::Expired, 'finished_at' => $now, 'active_learner_id' => null])->syncOriginal();
+            $this->recordFinished($run, $learner);
+
+            return $run;
+        }
+
+        return $run->refresh();
+    }
+
+    /** The conditional UPDATE that closes one expired run; true when this call is the one that did. */
+    private function claimExpired(int $id, CarbonImmutable $now): bool
+    {
+        return GameRun::query()
+            ->whereKey($id)
+            ->where('status', RunStatus::Active->value)
+            ->where('expires_at', '<=', $now)
+            ->update([
+                'status' => RunStatus::Finished->value,
+                'finish_reason' => RunFinishReason::Expired->value,
+                'finished_at' => $now,
+                'active_learner_id' => null,
+                'updated_at' => $now,
+            ]) === 1;
+    }
+
+    private function recordFinished(GameRun $run, ?Learner $learner): void
+    {
+        $finishedAt = $run->finished_at ?? CarbonImmutable::now();
+        $events = is_array($run->snapshot['events'] ?? null) ? $run->snapshot['events'] : [];
+        $event = is_array($events[0] ?? null) ? ($events[0]['type'] ?? null) : null;
+
+        $this->events->record(ProductEventName::GameRunFinished, [
+            'run_id' => $run->id,
+            'kind' => $run->kind->value,
+            'finish_reason' => $run->finish_reason?->value,
+            'total' => $run->total,
+            'answered' => $run->answered,
+            'correct' => $run->correct,
+            'typos' => $run->typos,
+            'wrong' => $run->wrong,
+            'hints' => $run->hints,
+            'stars' => $run->stars,
+            'score' => $run->score,
+            'coins' => $run->coins_awarded,
+            'league_points' => $run->league_points,
+            'srs_pulled' => $run->srs_pulled,
+            'duration_ms' => max(0, ($finishedAt->getTimestamp() - $run->started_at->getTimestamp()) * 1000),
+            'event' => is_string($event) ? $event : null,
+        ], learner: $learner);
+    }
+
+    /**
+     * The summary of a finished run (docs/18 §12.9): the stars, the score, what was earned, the mistakes with their labels.
+     *
+     * @return array<string, mixed>
+     */
+    private function summary(GameRun $run, RunSnapshot $snapshot, RunState $state): array
+    {
+        $mistakes = [];
+        foreach ($snapshot->elements as $element) {
+            $entry = $state->entry($element->id);
+            if ($entry === null || ($entry['status'] ?? null) !== RunState::STATUS_ANSWERED) {
+                continue;
+            }
+            $handler = $this->tasks->forElement($element);
+            $verdict = $state->verdictOf($element->id);
+            $isMistake = $verdict !== null && $verdict !== Verdict::Correct && $verdict !== Verdict::Typo;
+            if ($element->isPairsRound() && $handler instanceof PracticeTaskAdapter) {
+                $isMistake = $handler->isPairsMistake($element, $state);
+            }
+            if (! $isMistake && ! (bool) ($entry['hinted'] ?? false)) {
+                continue;
+            }
+
+            foreach ($handler->mistakeLabel($element, $state, $run->locale) as $row) {
+                $mistakes[] = [
+                    'element_id' => $element->id,
+                    'kind' => $element->kind,
+                    'label' => $row['label'],
+                    'your_answer' => $row['your_answer'],
+                    'verdict' => $element->isPairsRound() ? Verdict::Wrong->value : (string) $verdict?->value,
+                ];
+            }
+        }
+
+        return [
+            'stars' => $run->stars,
+            'score' => $run->score,
+            'coins' => $run->coins_awarded,
+            'league_points' => $run->league_points,
+            'srs_pulled' => $run->srs_pulled,
+            'mistakes' => $mistakes,
+            'boss' => null,
+        ];
+    }
+
+    private function hintPrice(): int
+    {
+        return max(0, (int) config('game.events.bazaar_hint_coins', 5));
+    }
+}
