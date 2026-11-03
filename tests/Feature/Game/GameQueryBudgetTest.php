@@ -8,14 +8,17 @@ use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\ClassCaravan;
 use App\Models\GameInventoryItem;
 use App\Models\GameItem;
 use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameWallet;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItem;
+use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
 use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,9 +41,11 @@ uses(RefreshDatabase::class);
  * Statements of the start of a stop, measured: `TwaAuth` 1, the course 1, the lesson 1, the active run 1, the words of the pool and their
  * translations 2, the authored tasks 3 kinds x 2 (the items, their versions) + the clips of the dictation 3, the distractors of the
  * wider tiers 1 + the translations of those 1 (only when the pool is short of distractors: 19 without them), then the lock of the
- * active run, the insert and the event 3. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real count is 19-20.)
+ * active run, the insert and the event 3, and - G2.9a - the caravan of the class the run joins (the learner's active groups with an
+ * active caravan, one read without a lock) 1. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real
+ * count is 20-21.)
  */
-const BUDGET_GAME_START = 20;
+const BUDGET_GAME_START = 21;
 
 /** Statements of the read of a run: `TwaAuth`, the run itself - the snapshot is in its row. */
 const BUDGET_GAME_READ = 2;
@@ -61,9 +66,9 @@ const BUDGET_GAME_HINT = 11;
  * ticket adds the UPDATE of the profile, the ledger entry, the balance and the event `game.ticket_spent` (4). Pro and a Free learner
  * without a limit pay BUDGET_GAME_START.
  */
-const BUDGET_GAME_START_FREE = 22;
+const BUDGET_GAME_START_FREE = 23;
 
-const BUDGET_GAME_START_TICKET = 26;
+const BUDGET_GAME_START_TICKET = 27;
 
 /**
  * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
@@ -80,6 +85,15 @@ const BUDGET_GAME_FINISH = 16;
 const BUDGET_GAME_FINISH_NEW_DAY = 26;
 
 const BUDGET_GAME_FINISH_FIRST = 41;
+
+/**
+ * The finish of a run that joined the caravan of its class (G2.9a, docs/18 §12.5.3 step 6), measured: the finish above plus the
+ * caravan's row FOR UPDATE, the member's row and the totals (3); the first run of a member in the caravan makes the member's row
+ * (`insertOrIgnore` after the UPDATE of nothing) - one more. Measured on the second run of a day of a learner the game has seen.
+ */
+const BUDGET_GAME_FINISH_CLASS = 19;
+
+const BUDGET_GAME_FINISH_CLASS_FIRST_RUN = 20;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
@@ -249,6 +263,25 @@ it('stays within the budgets of the finish: the first run of a learner makes the
     expect($first)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_FIRST)
         ->and($again)->toBeLessThanOrEqual(BUDGET_GAME_FINISH)
         ->and($newDay)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_NEW_DAY);
+});
+
+it('stays within the budget of the finish of a run in the caravan of the class: the caravan and the member cost three statements, the first run of the member one more', function (): void {
+    [$learner, $course, $lesson] = GameKit::richStop(13);
+    $headers = PracticeKit::headers($learner);
+    $body = ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id];
+    $start = fn (): int => test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');
+    gameBudgetFinish($learner, $start()); // the learner's rows exist, the day is held
+    $group = TelegramGroup::factory()->create(['course_id' => $course->id]);
+    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
+    $caravan = ClassCaravan::factory()->create(['telegram_group_id' => $group->id, 'course_id' => $course->id]);
+
+    $firstInCaravan = gameBudgetFinish($learner, $start());
+    $again = gameBudgetFinish($learner, $start());
+
+    expect(GameRun::query()->where('class_caravan_id', $caravan->id)->count())->toBe(2)
+        ->and($caravan->fresh()?->runs_total)->toBe(2)
+        ->and($firstInCaravan)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_CLASS_FIRST_RUN)
+        ->and($again)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_CLASS);
 });
 
 it('does not read the material while a run is played: no word, lesson or practice item is touched by a read, an answer or a hint', function (): void {

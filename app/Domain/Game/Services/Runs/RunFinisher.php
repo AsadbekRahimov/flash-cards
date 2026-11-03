@@ -12,6 +12,7 @@ use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Support\RunScoring;
 use App\Domain\Learners\Enums\StreakHeldBy;
@@ -37,8 +38,9 @@ use Throwable;
  * Locks, in order (docs/18 §12.5.1, rules 19-20): `game_runs` (held by the caller) -> `game_stop_progress` / `game_city_progress`
  * (the learner's own row, `insertOrIgnore` + FOR UPDATE: the reward depends on the stars / the wins so far) -> `game_wallets`
  * (WalletService) -> `game_coin_ledger` -> `game_profiles` (one conditional UPDATE) -> `learner_daily_stats` (the row of
- * `game_runs.local_date`, `insertOrIgnore` + FOR UPDATE, last - the transaction of a grade ends on the same row and never waits for
- * a row of the game). Nothing of the learning is touched.
+ * `game_runs.local_date`, `insertOrIgnore` + FOR UPDATE - the transaction of a grade ends on the same row and never waits for
+ * a row of the game) -> `class_caravans` (FOR UPDATE, the one row of the caravan the run joined at its start) -> `class_caravan_members`
+ * (the learner's own row), last (G2.9a, rule 21). Nothing of the learning is touched.
  *
  * Idempotent by construction: a run is finished once (the caller checks `status = active` under the lock), the reward is one entry
  * `run:{id}:reward` (unique), the day is held once (`game_held_at` set only while NULL).
@@ -56,6 +58,7 @@ final class RunFinisher
         private readonly StreakService $streaks,
         private readonly LeagueService $leagues,
         private readonly AchievementService $achievements,
+        private readonly ClassCaravanService $caravans,
     ) {}
 
     /**
@@ -148,7 +151,9 @@ final class RunFinisher
             'game_held_at' => $heldDay ? $now : $day->game_held_at,
         ])->save();
 
-        // 6. G2.9a: the class caravan - `class_caravan_members` upsert, `class_caravans` FOR UPDATE (re-read `status = active`).
+        // 6. The class caravan (G2.9a, docs/18 §12.5.3 step 6), last of the locks: the caravan's row FOR UPDATE (read again as active and
+        //    inside its window), the member's row, the totals - nothing when the run is in no caravan or the caravan is over.
+        $this->caravans->contribute($run, $stars, $bossWon, $now);
 
         // 1. The run: the one UPDATE, with the attributes of the answer that arrived unsaved.
         $run->forceFill([

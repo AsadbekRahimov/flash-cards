@@ -22,6 +22,7 @@ use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Enums\TaskKind;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameAccess;
@@ -82,6 +83,7 @@ final class RunService
         private readonly RunEventRecorder $runEvents,
         private readonly GameLimits $limits,
         private readonly TicketService $tickets,
+        private readonly ClassCaravanService $caravans,
     ) {}
 
     /**
@@ -160,7 +162,9 @@ final class RunService
             'course_id' => $attributes['course_id'] ?? throw new LogicException('A run needs its course.'),
             'stage_id' => $attributes['stage_id'] ?? null,
             'lesson_id' => $attributes['lesson_id'] ?? null,
-            'class_caravan_id' => $attributes['class_caravan_id'] ?? null,
+            // The caravan of the class the run joins (G2.9a, docs/18 §12.5.3 step 6): read once, without a lock, at the start; the
+            // finish reads it again under its lock. A `class_boss` run brings its own.
+            'class_caravan_id' => $attributes['class_caravan_id'] ?? $this->caravans->activeIdFor($learner, $now),
             'daily_key' => $attributes['daily_key'] ?? null,
             'class_boss_key' => $attributes['class_boss_key'] ?? null,
             'local_date' => $this->clock->localDate($learner, $now),

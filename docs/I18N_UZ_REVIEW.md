@@ -2998,3 +2998,19 @@
 | `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
 | `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
 | `error.code.coins_insufficient` | Maslahat uchun tanga yetmaydi. Tangalar yurishlar uchun beriladi. | Не хватает монет на подсказку. Монеты дают за забеги. |
+
+## Игра «Караван» 2026-11 · G2.9a (караван класса — итоги недели в чат) — на проверку носителю
+
+### Сервер, итоги недели каравана класса (`lang/uz/game.php`, ключи `class.summary.*`; HTML, в чат группы)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `class.summary.title` | 🏁 «:group» sinf karvoni haftani yakunladi! | 🏁 Караван класса «:group» завершил неделю! |
+| `class.summary.stars` | ⭐ Yig'ilgan yulduzlar: :stars / :target | ⭐ Звёзд собрано: :stars из :target |
+| `class.summary.runs` | 🐪 Yurishlar: :runs | 🐪 Забегов: :runs |
+| `class.summary.boss_defeated` | 👹 Sinf bossi yengildi! | 👹 Босс класса побеждён! |
+| `class.summary.boss_survived` | 👹 Sinf bossi bardosh berdi — keyingi safar chiqadi. | 👹 Босс класса устоял — в следующий раз получится. |
+| `class.summary.boss_locked` | 👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi. | 👹 До босса класса не дошли — цель недели не взята. |
+| `class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
+| `class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
+| `class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |

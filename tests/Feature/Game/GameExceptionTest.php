@@ -16,6 +16,7 @@ function gameErrorCases(): array
         'game_unavailable' => [GameException::unavailable(), 403, []],
         'game_limit_reached' => [GameException::limitReached(['kind' => 'runs', 'limit' => 1, 'used' => 1, 'tickets' => 0, 'resets_at' => '2026-11-05T19:00:00.000Z']), 403, ['kind' => 'runs', 'limit' => 1, 'used' => 1, 'tickets' => 0, 'resets_at' => '2026-11-05T19:00:00.000Z']],
         'game_pro_required' => [GameException::proRequired('boss', 2), 403, ['kind' => 'boss', 'stage_number' => 2]],
+        'class_caravan_forbidden' => [GameException::classCaravanForbidden('centers_only'), 403, ['reason' => 'centers_only']],
         'game_run_not_found' => [GameException::runNotFound(), 404, []],
         'course_not_found' => [GameException::courseNotFound(), 404, []],
         'lesson_not_found' => [GameException::lessonNotFound(), 404, []],
@@ -63,7 +64,7 @@ it('carries the code, the HTTP status and the details of docs/18 §12.8', functi
 it('covers every code constant of the exception', function (): void {
     $constants = array_values(array_filter(
         (new ReflectionClass(GameException::class))->getConstants(),
-        static fn (string $value, string $name): bool => ! str_starts_with($name, 'KIND_'),
+        static fn (string $value, string $name): bool => ! str_starts_with($name, 'KIND_') && ! str_starts_with($name, 'REASON_'),
         ARRAY_FILTER_USE_BOTH,
     ));
 
