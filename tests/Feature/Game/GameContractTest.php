@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\DTO\TaskGrade;
+use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunEvent;
+use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Tasks\TaskHandler;
 use App\Domain\Game\Services\Tasks\WordTaskHandler;
 use App\Domain\Practice\DTO\SnapshotElement;
@@ -12,8 +14,10 @@ use App\Models\GameRun;
 use App\Models\GameWallet;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\Game\GameKit;
@@ -311,4 +315,43 @@ it('cleans a key of the snapshot out of the current element even when a handler 
 
     expect(gameContractLeaks($read->json()))->toBe([])
         ->and($read->json('current.element.nested'))->toBe(['keep' => 1]);
+});
+
+it('keeps the exact shape of the wallet, the shop, the profile, the purchase and the equip, with their errors, and no id of the database in them (G2.5b)', function (): void {
+    (new GameItemSeeder)->run();
+    $learner = Learner::factory()->create();
+    DB::transaction(fn () => app(WalletService::class)->credit($learner->id, 300, LedgerKind::RunReward, "run:{$learner->id}:1", 'game_run', 1));
+    $headers = PracticeKit::headers($learner);
+    $wallet = ['balance', 'earned_total', 'spent_total', 'tickets' => ['balance', 'max'], 'ledger' => ['*' => ['amount', 'kind', 'created_at', 'title']]];
+    $profile = ['equipped', 'stops_cleared', 'cities_cleared', 'coins', 'tickets'];
+    $leaks = ['id', 'item_id', 'learner_id', 'achievement_key', 'season_id', 'status', 'sort', ...CONTRACT_FORBIDDEN_GAME_KEYS];
+
+    $shop = test()->withHeaders($headers)->getJson('/api/twa/game/shop')->assertOk()
+        ->assertExactJsonStructure(['items' => ['*' => ['key', 'kind', 'slot', 'effect', 'price', 'availability', 'owned', 'qty', 'equipped', 'locked_reason', 'title', 'description', 'asset']], 'balance']);
+    $read = test()->withHeaders($headers)->getJson('/api/twa/game/wallet')->assertOk()->assertExactJsonStructure($wallet);
+    $bought = test()->withHeaders($headers)->postJson('/api/twa/game/shop/camel_bactrian/buy', ['request_id' => (string) Str::uuid()])->assertOk()->assertExactJsonStructure($wallet);
+    $worn = test()->withHeaders($headers)->postJson('/api/twa/game/profile/equip', ['slot' => 'camel', 'item_key' => 'camel_bactrian'])->assertOk()
+        ->assertExactJsonStructure(['equipped' => ['camel' => ['key', 'asset']], 'stops_cleared', 'cities_cleared', 'coins', 'tickets']);
+    $empty = test()->withHeaders($headers)->getJson('/api/twa/game/profile')->assertOk();
+    test()->withHeaders($headers)->postJson('/api/twa/game/profile/equip', ['slot' => 'camel', 'item_key' => null])->assertOk()->assertExactJsonStructure($profile);
+
+    foreach ([$shop, $read, $bought, $worn, $empty] as $response) {
+        expect(array_values(array_intersect(gameContractKeys($response->json()), $leaks)))->toBe([]);
+    }
+    // the kinds of the values the client relies on
+    expect($shop->json('items.0.price'))->toBeInt()->and($shop->json('items.0.owned'))->toBeBool()->and($shop->json('items.0.locked_reason'))->toBeNull()
+        ->and($read->json('ledger.0.created_at'))->toBe(CarbonImmutable::now()->utc()->toIso8601ZuluString('millisecond'));
+
+    // the errors: the envelope, and `details` exactly where the document puts them
+    test()->withHeaders($headers)->postJson('/api/twa/game/shop/camel_golden/buy', ['request_id' => (string) Str::uuid()])->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['reason']]]);
+    test()->withHeaders($headers)->postJson('/api/twa/game/shop/camel_bactrian/buy', ['request_id' => (string) Str::uuid()])->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+    test()->withHeaders($headers)->postJson('/api/twa/game/shop/carpet_bukhara/buy', ['request_id' => (string) Str::uuid()])->assertOk();
+    test()->withHeaders($headers)->postJson('/api/twa/game/shop/tent_silk/buy', ['request_id' => (string) Str::uuid()])->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['balance', 'price']]]);
+    test()->withHeaders($headers)->postJson('/api/twa/game/shop/nope/buy', ['request_id' => (string) Str::uuid()])->assertStatus(404)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+    test()->withHeaders($headers)->postJson('/api/twa/game/profile/equip', ['slot' => 'tent', 'item_key' => 'tent_silk'])->assertStatus(404)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
 });
