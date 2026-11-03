@@ -204,7 +204,7 @@ return [
                 'text' => <<<'TXT'
                     Ma'lumotlarni saqlash joyi: [egasiga: xosting mamlakati va provayderini ko'rsating; yurist uchun: O'zbekiston Respublikasining «Shaxsga doir ma'lumotlar to'g'risida»gi qonuni (O'RQ-547), 27-1-moddasi O'zbekiston fuqarolarining shaxsiy ma'lumotlarini O'zbekiston hududidagi bazalarda saqlashni talab qiladi].
 
-                    Muddatlar. Hisob ma'lumotlari va natijalaringizni Xizmatdan foydalanayotganingizda va so'rovingiz bilan o'chirilgunga qadar saqlaymiz. Foydalanish hodisalari 400 kungacha, texnik jurnallar — 30 kun, xodimlar harakatlari jurnali — 2 yil saqlanadi. Ma'lumotlar bazasining zaxira nusxalari 14 kun saqlanadi, so'ng o'chiriladi; o'chirilgan ma'lumotlar shu muddatgacha nusxalarda qolishi mumkin. To'lov yozuvlari qonun talab qilsa, uzoqroq saqlanishi mumkin [yurist uchun: muddatni ko'rsating].
+                    Muddatlar. Hisob ma'lumotlari va natijalaringizni Xizmatdan foydalanayotganingizda va so'rovingiz bilan o'chirilgunga qadar saqlaymiz. Foydalanish hodisalari 400 kungacha, texnik jurnallar — 30 kun, xodimlar harakatlari jurnali — 2 yil saqlanadi. Ma'lumotlar bazasining zaxira nusxalari 14 kun saqlanadi, so'ng o'chiriladi; o'chirilgan ma'lumotlar shu muddatgacha nusxalarda qolishi mumkin. To'lov yozuvlari — kim, qachon va qancha to'lagani (to'lov paytidagi Telegram akkaunt identifikatori, ism va foydalanuvchi nomi, summa, sana, to'lov raqami) — buxgalteriya hisobi va qonun talablari bo'yicha uzoqroq saqlanadi: [yurist uchun: to'lov hujjatlarini saqlash muddatini ko'rsating, masalan, O'zbekiston Respublikasining buxgalteriya hisobi to'g'risidagi qonunchiligi bo'yicha 5 yil].
 
                     Himoya. Kabinetlarga kirish parol va ikki bosqichli autentifikatsiya bilan himoyalangan, ulanish shifrlangan (HTTPS), xodimlar kirishi rollar bilan cheklangan, sirlar va tokenlar jurnallarga tushmaydi. Hech bir tizim to'liq himoyalanmagan; jiddiy hodisalar haqida qonunda belgilangan tartibda xabar beramiz.
                     TXT,
@@ -214,7 +214,7 @@ return [
                 'text' => <<<'TXT'
                     Siz so'rashingiz mumkin: Siz haqingizda qanday ma'lumotlar saqlanayotgani, ularni tuzatish, o'chirish, rozilikni qaytarib olish. Qo'llab-quvvatlash xizmatiga yozing: {contact}. Xizmatda alohida o'chirish tugmasi hozircha yo'q, so'rovlar qo'lda ko'rib chiqiladi.
 
-                    O'chirish. So'rovdan keyin hisobni o'chirilgan deb belgilaymiz, ma'lumotlarni esa 30 kungacha bo'lgan muddatda butunlay o'chiramiz [yurist uchun: muddatni tasdiqlang]. Hisob bilan birga natijalaringiz o'chiriladi; to'lov yozuvlari qonun talab qilsa saqlanishi mumkin. Agar yakuniy o'chirishdan oldin botni yana ishga tushirsangiz, hisob tiklanadi.
+                    O'chirish. So'rovdan keyin hisobni o'chirilgan deb belgilaymiz va 30 kundan so'ng uni avtomatik tarzda butunlay o'chiramiz [yurist uchun: muddatni tasdiqlang]. Hisob bilan birga profilingiz, natijalaringiz, do'stlar, ligalar, bahslar va eslatmalar o'chiriladi. To'lov yozuvlari (kim, qachon va qancha to'lagani) o'chirilmaydi va «Ma'lumotlarni saqlash va himoya qilish» bo'limida ko'rsatilgan muddatlarda saqlanadi. Agar yakuniy o'chirishdan oldin botni yana ishga tushirsangiz, hisob tiklanadi; yakuniy o'chirishdan keyin botni qayta ishga tushirish yangi, bo'sh hisob yaratadi.
 
                     Eslatmalarni bot sozlamalarida (/settings) o'chirish mumkin.
                     TXT,

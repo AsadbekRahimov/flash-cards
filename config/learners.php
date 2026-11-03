@@ -34,6 +34,18 @@ return [
     ],
 
     /**
+     * Final deletion of a soft-deleted learner (docs/03 §8 rule 2, docs/07 §10): `learners:purge-deleted` removes the
+     * rows whose `deleted_at` is older than `after_days`, at most `max_per_run` per run, `batch` at a time. Payment
+     * records are never touched (the payer snapshot in them is what says who paid). `after_days` is also the promise
+     * of the privacy policy (lang/ru and lang/uz, legal.php): change both together.
+     */
+    'purge' => [
+        'after_days' => (int) env('LEARNERS_PURGE_AFTER_DAYS', 30),
+        'batch' => (int) env('LEARNERS_PURGE_BATCH', 50),
+        'max_per_run' => (int) env('LEARNERS_PURGE_MAX_PER_RUN', 500),
+    ],
+
+    /**
      * Time zones offered in the onboarding / `/settings` picker (IANA ids, the default first;
      * each needs a `onboarding.options.timezone.<city>` string in lang/{ru,uz}). Only ids that
      * are also valid for PHP (`DateTimeZone::listIdentifiers()`) are ever accepted.

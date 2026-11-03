@@ -38,6 +38,9 @@ use Illuminate\Support\Carbon;
  * @property int|null $subscription_id
  * @property string $created_via
  * @property array<string, mixed> $meta
+ * @property int|null $payer_telegram_user_id the payer snapshot (PayerSnapshot, docs/03 §2.27): who ordered, as of `created_at`
+ * @property string|null $payer_name
+ * @property string|null $payer_username
  */
 class PaymentOrder extends Model
 {
@@ -101,6 +104,9 @@ class PaymentOrder extends Model
         'subscription_id',
         'created_via',
         'meta',
+        'payer_telegram_user_id',
+        'payer_name',
+        'payer_username',
     ];
 
     /** @return array<string, string> */
@@ -113,6 +119,7 @@ class PaymentOrder extends Model
             'expires_at' => 'datetime',
             'paid_at' => 'datetime',
             'meta' => 'array',
+            'payer_telegram_user_id' => 'integer',
         ];
     }
 
