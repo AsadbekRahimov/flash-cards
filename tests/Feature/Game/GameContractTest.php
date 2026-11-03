@@ -13,8 +13,10 @@ use App\Domain\Practice\DTO\SnapshotElement;
 use App\Models\GameInventoryItem;
 use App\Models\GameItem;
 use App\Models\GameRun;
+use App\Models\GameStopProgress;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use App\Models\Lesson;
 use Carbon\CarbonImmutable;
 use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -438,4 +440,50 @@ it('puts the hint of a booster inside the current element and nowhere else', fun
     expect($hinted->json('current.element.hint.options_removed'))->toHaveCount(2)
         ->and($hinted->json('boosters.used.0.element_id'))->toBe($hinted->json('current.element.id'))
         ->and(gameContractLeaks($hinted->json()))->toBe([]);
+});
+
+it('keeps the shape of the start of a boss, of its run without flasks and of the summary.boss of a won, a lost and an abandoned fight; and of its errors', function (): void {
+    [$course, $first] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $lessons = [$first, Lesson::factory()->for($first->stage)->create(['number' => 2]), Lesson::factory()->for($first->stage)->create(['number' => 3])];
+    foreach ($lessons as $l => $lesson) {
+        for ($i = 1; $i <= 4; $i++) {
+            GameKit::word($lesson, $learner, 'bosscontract'.$l.'x'.$i, "перевод {$l}.{$i}");
+        }
+    }
+    $headers = PracticeKit::headers($learner);
+    $body = ['kind' => 'boss', 'course' => $course->slug, 'stage_id' => $first->stage_id];
+
+    // not ready: the envelope with its four numbers
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['introduced', 'required', 'cleared_stops', 'required_stops']]]);
+    foreach ($lessons as $lesson) {
+        GameStopProgress::factory()->cleared(1)->create(['learner_id' => $learner->id, 'lesson_id' => $lesson->id]);
+    }
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs', [...$body, 'stage_id' => 999999])->assertStatus(404)->assertExactJsonStructure(['error' => ['code', 'message']]);
+
+    // the start: a run as any other, with no flasks, and no summary yet
+    $started = test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated();
+    $kind = GameKit::current(GameRun::query()->findOrFail($started->json('id')))['kind'];
+    $started->assertExactJsonStructure([...gameContractRun($kind), 'limits' => gameContractLimits()]);
+    expect($started->json('kind'))->toBe('boss')->and($started->json('flasks_max'))->toBe(0)->and($started->json('total'))->toBe(12)
+        ->and(gameContractLeaks($started->json()))->toBe([]);
+    $id = $started->json('id');
+
+    // played to a win: the summary with the boss
+    for ($guard = 0; $guard < 30 && GameRun::query()->findOrFail($id)->isActive(); $guard++) {
+        $element = GameKit::current(GameRun::query()->findOrFail($id));
+        $last = gameContractAnswer($learner, $id, $element['id'], GameKit::rightAnswers($element)[0])->assertOk();
+        Cache::flush();
+    }
+    $summary = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes', 'boss' => ['accuracy', 'won', 'first']];
+    $last->assertExactJsonStructure(['verdict', 'points', 'reveal', 'flask_lost', 'combo', 'event_applied', 'run' => [...array_slice(gameContractRun(null), 0, -1), 'summary' => $summary]]);
+    $done = gameContractGet($learner, $id)->assertOk();
+    expect($done->json('summary.boss'))->toBe(['accuracy' => 100, 'won' => true, 'first' => true])
+        ->and($done->json('summary.stars'))->toBe(3)->and($done->json('summary.coins'))->toBe(50)->and($done->json('flasks'))->toBe(0);
+
+    // abandoned: the same shape, never won
+    $again = test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$again}/abandon", ['confirm' => true])->assertOk()
+        ->assertJsonPath('summary.boss', ['accuracy' => 0, 'won' => false, 'first' => false]);
 });

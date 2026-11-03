@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Support\RunScoring;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Models\GameRun;
 use App\Models\Learner;
@@ -62,6 +63,17 @@ final class RunEventRecorder
                 'correct' => $run->correct,
             ], learner: $learner);
         }
+    }
+
+    /** `game.boss_defeated`: the boss of a city was beaten (every win; `first` - the first one). */
+    public function bossDefeated(GameRun $run, Learner $learner, bool $first): void
+    {
+        $this->events->record(ProductEventName::GameBossDefeated, [
+            'run_id' => $run->id,
+            'stage_id' => $run->stage_id,
+            'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
+            'first' => $first,
+        ], learner: $learner);
     }
 
     /** `game.coins_earned`: an applied credit of the reward of a run. */

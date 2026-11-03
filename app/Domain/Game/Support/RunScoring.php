@@ -106,6 +106,12 @@ final class RunScoring
         return $total > 0 && $correct / $total >= $required;
     }
 
+    /** The accuracy of a boss fight in whole per cent (0..100): `round(100 x correct / total)`. */
+    public static function bossAccuracy(int $correct, int $total): int
+    {
+        return $total > 0 ? max(0, min(100, (int) round(100 * $correct / $total))) : 0;
+    }
+
     /** The stars of a boss fight: 3 for a victory, none for a defeat. */
     public static function bossStars(bool $won): int
     {

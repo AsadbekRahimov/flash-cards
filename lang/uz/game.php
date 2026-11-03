@@ -36,6 +36,44 @@ return [
         24 => "Chang'an",
     ],
     'city_fallback' => ':number-shahar',
+    /* Rus tilida "до Самарканда" uchun kelishik kerak; o'zbekchada shahar nomi o'zgarmaydi (CityNames::toward). */
+    'cities_gen' => [
+        1 => 'Toshkent',
+        2 => "Qo'qon",
+        3 => 'Samarqand',
+        4 => 'Buxoro',
+        5 => 'Xiva',
+        6 => 'Shahrisabz',
+        7 => 'Termiz',
+        8 => 'Balx',
+        9 => 'Marv',
+        10 => 'Nishopur',
+        11 => 'Tus',
+        12 => 'Ray',
+        13 => 'Hamadon',
+        14 => "Bag'dod",
+        15 => 'Damashq',
+        16 => 'Halab',
+        17 => 'Antioxiya',
+        18 => 'Konstantinopol',
+        19 => 'Qashqar',
+        20 => "Xo'tan",
+        21 => 'Dunxuan',
+        22 => 'Turfon',
+        23 => 'Loyan',
+        24 => "Chang'an",
+    ],
+    'city_fallback_gen' => ':number-shahar',
+
+    /* "Men yetib keldim: ..." kartochkasi (shahar bossi ustidan birinchi g'alaba): rasm, shaxsiy xabar sarlavhasi va "Ulashish" tugmasi. */
+    'card' => [
+        'title' => 'Men yetib keldim: :city',
+        'description' => "\"Karvon\" o'yinida darvoza qo'riqchisini yengdim",
+        'caption' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nDo'stlaringiz bilan ulashing - quyidagi tugmani bosing yoki shu xabarni yuboring.",
+        'caption_no_link' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nMaqtanish uchun shu xabarni do'stlaringizga yuboring.",
+        'share_button' => 'Ulashish',
+        'share_text' => "Men \"Karvon\" o'yinida yetib keldim: :city - LexiFlow! Telegramda ingliz tili.",
+    ],
 
     /* Hamyon yozuvlarining nomlari (`GET /game/wallet`, `ledger[].title`): yozuv turi bo'yicha (LedgerKind). */
     'ledger' => [

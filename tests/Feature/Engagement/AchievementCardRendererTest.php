@@ -7,6 +7,7 @@ declare(strict_types=1);
  * cached by (key, locale, texts), written atomically, with the bundled Noto Sans (OFL).
  */
 
+use App\Domain\Engagement\DTO\CardSpec;
 use App\Domain\Engagement\Enums\AchievementKey;
 use App\Domain\Engagement\Services\AchievementCardRenderer;
 use App\Models\Achievement;
@@ -108,4 +109,24 @@ it('refuses an unknown key and reports missing fonts', function (): void {
 
     config(['achievements.fonts.bold' => resource_path('fonts/missing.ttf')]);
     expect(fn () => cardFor(AchievementKey::Streak7))->toThrow(RuntimeException::class, 'fonts are missing');
+});
+
+it('draws any card from a CardSpec (the game cards): a PNG cached by its texts, and the achievement card is the same spec drawn', function (): void {
+    $renderer = app(AchievementCardRenderer::class);
+    $spec = new CardSpec('boss_3', 'game', 'BOSS', 'Я дошёл до Самарканда', 'Победил(а) хранителя ворот в игре «Караван»');
+
+    $path = $renderer->renderSpec($spec, 'ru');
+    $info = getimagesize($path);
+
+    expect(basename($path))->toStartWith('boss_3-ru-')
+        ->and($info[0] ?? null)->toBe(1080)->and($info[2] ?? null)->toBe(IMAGETYPE_PNG)
+        ->and($renderer->renderSpec($spec, 'ru'))->toBe($path)
+        ->and($renderer->renderSpec(new CardSpec('boss_3', 'game', 'BOSS', 'Я дошёл до Бухары', $spec->description), 'ru'))->not->toBe($path)
+        ->and(basename($renderer->renderSpec($spec, 'uz')))->toStartWith('boss_3-uz-');
+
+    // render(Achievement) is renderSpec of the texts of its key: the same file
+    $achievement = Achievement::factory()->key(AchievementKey::Streak7)->create();
+    $key = AchievementKey::Streak7;
+    $same = $renderer->renderSpec(new CardSpec($key->value, $key->family(), $key->badge(), $key->title('ru'), $key->description('ru')), 'ru');
+    expect($renderer->render($achievement, 'ru'))->toBe($same);
 });

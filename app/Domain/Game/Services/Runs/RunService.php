@@ -143,6 +143,29 @@ final class RunService
     }
 
     /**
+     * The courtesy check of the start of a boss (like the one of a stop in {@see start()}): an unfinished run of the SAME boss is the
+     * answer (a second tab, a double tap) and is returned; any other live run is 409 `game_run_active` - unless `$replaceActive`.
+     * Null: nothing stands in the way.
+     *
+     * @throws GameException game_run_active
+     */
+    public function busyForBoss(Learner $learner, int $stageId, bool $replaceActive, CarbonImmutable $now): ?GameRun
+    {
+        if ($replaceActive) {
+            return null;
+        }
+        $busy = $this->activeOf($learner);
+        if ($busy === null || ! $busy->expires_at->gt($now)) {
+            return null;
+        }
+        if ($busy->kind === RunKind::Boss && $busy->stage_id === $stageId) {
+            return $busy;
+        }
+
+        throw GameException::runActive($this->activeDetails($busy));
+    }
+
+    /**
      * Opens a run from a built snapshot: the transaction of the start (docs/18 §12.5.1). The daily caravan (G2.3) and the bosses (G2.4)
      * build their snapshots and call this with their `daily_key` / `class_boss_key` in `$attributes`; what pays for the run
      * (`free_slot`) is decided HERE by the Free limits - a map run (`stop` / `boss`) of a Free learner takes the free run of the day or
@@ -896,7 +919,27 @@ final class RunService
             'league_points' => $run->league_points,
             'srs_pulled' => $run->srs_pulled,
             'mistakes' => $mistakes,
-            'boss' => null,
+            'boss' => $this->bossSummary($run),
+        ];
+    }
+
+    /**
+     * `summary.boss` of the fight with a boss (docs/18 §12.8): the accuracy in whole per cent, whether the fight is won, whether it was
+     * the first win over the city's boss (kept in the state by the finisher). A fight left unfinished (abandoned, expired) is never won.
+     * `null` for any other run.
+     *
+     * @return array{accuracy: int, won: bool, first: bool}|null
+     */
+    private function bossSummary(GameRun $run): ?array
+    {
+        if ($run->kind !== RunKind::Boss && $run->kind !== RunKind::ClassBoss) {
+            return null;
+        }
+
+        return [
+            'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
+            'won' => $run->finish_reason === RunFinishReason::Completed && RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)),
+            'first' => $run->kind === RunKind::Boss && (bool) ($run->state['boss_first'] ?? false),
         ];
     }
 

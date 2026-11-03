@@ -11,6 +11,7 @@ use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Game\DTO\GameMapView;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
+use App\Domain\Game\Support\BossReadiness;
 use App\Domain\Game\Support\CityNames;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -31,8 +32,8 @@ use Illuminate\Support\Facades\DB;
  *     started in the cards; a `new` row counts). It is not stored, the same query that reads the course reads it;
  *   - stars, runs, the score and the defeated boss are the learner's `game_stop_progress` / `game_city_progress` rows, joined in
  *     that one query (they are 1:1 with the lesson / the module of the learner, so the join does not multiply anything);
- *   - the state of the boss only SAYS whether the fight may start (the fight itself is G2.4): defeated / locked by the plan /
- *     ready / not ready;
+ *   - the state of the boss only SAYS whether the fight may start (the fight is BossService's, the readiness is the one rule of
+ *     {@see BossReadiness}): defeated / locked by the plan / ready / not ready;
  *   - the friends are the cached `game:friends` ({@see GameFriendsCache}), the rest of the learner's own state is one statement each.
  *
  * Nothing here writes. The statements of the map do not grow with the lessons and the friends (GameMapTest: the budget).
@@ -148,13 +149,12 @@ final class MapService
         $cities = [];
         foreach ($stages as $stage) {
             $cleared = count(array_filter($stage['stops'], static fn (array $stop): bool => $stop['stars'] >= 1));
-            $requiredStops = min(max(1, (int) config('game.boss.min_cleared_stops')), count($stage['stops']));
-            $requiredWords = (int) config('game.boss.min_words');
+            $readiness = BossReadiness::of($stage['introduced'], count($stage['stops']), $cleared);
 
             $state = match (true) {
                 $stage['defeated_at'] !== null => 'defeated',
                 $planLocks($stage['number']) => 'locked_by_plan',
-                $stage['introduced'] >= $requiredWords && $cleared >= $requiredStops => 'ready',
+                $readiness->isReady() => 'ready',
                 default => 'not_ready',
             };
 
@@ -168,10 +168,10 @@ final class MapService
                 'boss' => [
                     'state' => $state,
                     'defeated_at' => $stage['defeated_at'],
-                    'introduced' => $stage['introduced'],
-                    'required' => $requiredWords,
-                    'cleared_stops' => $cleared,
-                    'required_stops' => $requiredStops,
+                    'introduced' => $readiness->introduced,
+                    'required' => $readiness->required,
+                    'cleared_stops' => $readiness->clearedStops,
+                    'required_stops' => $readiness->requiredStops,
                 ],
             ];
         }
