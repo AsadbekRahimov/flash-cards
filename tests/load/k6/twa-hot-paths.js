@@ -4,7 +4,7 @@
 // Thresholds (owner's decision 03.11.2026): p95 < 300 ms on every hot endpoint at 1 250 active learners, no 5xx.
 //
 // Pacing: one VU = one learner with a token of its own. `twa-api` allows 60 requests a minute per learner for ALL routes,
-// `twa-review` 60 and `twa-session-create` 10 more; an iteration below makes about 27 requests in 50+ seconds, so a
+// `twa-review` 60 and `twa-session-create` 10 more; an iteration below makes 23 requests with at least ~30.5 s of pauses at THINK_SCALE=1, so a
 // well-paced run never sees a 429 (the `rate_limited` threshold checks exactly that).
 //
 // Run: `make load-test` (see docs/STAGING_PHASE2_CHECKLIST.md §7.3).

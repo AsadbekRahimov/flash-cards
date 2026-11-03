@@ -36,7 +36,7 @@ final class LoadTestTokens extends Command
         $output = (string) $this->option('output');
         $path = $output === '-' ? null : $this->resolvePath($output);
         if ($output !== '-' && $path === null) {
-            $this->components->error('--output must be "-" or a path inside storage/ (live tokens must not land anywhere else, least of all public/).');
+            $this->components->error('--output must be "-" or a path inside storage/, but not storage/app/public (live tokens must not land anywhere else, least of all where the web server serves files).');
 
             return self::FAILURE;
         }
@@ -101,6 +101,13 @@ final class LoadTestTokens extends Command
         $real = realpath($dir);
 
         if ($real === false || ($real !== $storage && ! str_starts_with($real, $storage.DIRECTORY_SEPARATOR))) {
+            return null;
+        }
+
+        // storage/app/public is what the web server may hand out as /storage/...: live tokens never go there.
+        $public = (realpath(storage_path('app/public')) ?: storage_path('app/public')).DIRECTORY_SEPARATOR;
+        $target = $real.substr($path, strlen($dir));
+        if (str_starts_with($target.DIRECTORY_SEPARATOR, $public)) {
             return null;
         }
 

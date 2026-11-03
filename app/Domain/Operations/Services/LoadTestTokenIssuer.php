@@ -86,6 +86,9 @@ final class LoadTestTokenIssuer
                     'dm_blocked_at' => now(),
                     'meta' => [self::META_KEY => true],
                 ]);
+            } elseif (($learner->meta[self::META_KEY] ?? false) !== true) {
+                // Re-checked here: a row may have appeared (or lost its mark) since assertNoRealLearners(); a real learner is never touched.
+                throw new RuntimeException(sprintf('Learner with telegram_user_id %d exists without the load-test mark: a real learner, refusing to touch it.', $telegramId));
             } elseif ($learner->trashed() || $learner->blocked_at !== null || $learner->dm_blocked_at === null
                 || ($course !== null && $learner->active_course_id !== $course->id)) {
                 // A test learner left from an earlier run, blocked or on another course, gets back into shape.

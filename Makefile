@@ -99,7 +99,7 @@ load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (lo
 	@mkdir -p "$(dir $(TOKENS_FILE))"
 	@umask 077; tmp="$(TOKENS_FILE).tmp.$$$$"; \
 	  if $(LOAD_ARTISAN) load:tokens --count=$(TARGET_VUS) --output=- > "$$tmp"; then mv "$$tmp" "$(TOKENS_FILE)"; \
-	  else rm -f "$$tmp"; echo "load:tokens failed, $(TOKENS_FILE) left as it was"; exit 1; fi
+	  else cat "$$tmp" >&2; rm -f "$$tmp"; echo "load:tokens failed, $(TOKENS_FILE) left as it was"; exit 1; fi
 	@chmod 600 "$(TOKENS_FILE)"
 	@echo "Tokens in $(TOKENS_FILE): live tokens, remove the file after the run"
 
