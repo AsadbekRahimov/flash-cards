@@ -599,6 +599,50 @@ SENTRY_ENVIRONMENT=production
   команда `practice:battles-sweep` каждую минуту закрывает просроченные приглашения и матчи, которые оба игрока бросили; без неё такие матчи и «занятость» учеников «зависают».
   После правки `.env` — `php artisan config:cache` и `supervisorctl restart lexiflow-worker:*` (§17).
 
+### Значения на запуск (решения владельца 03.11.2026)
+
+На старте продаём **только через Telegram Stars**, практика и баттлы открыты **всем** с лимитами Free. Добавьте в прод `.env`
+(имена сверены с `config/billing.php`, `config/practice.php`, `config/site.php`, `config/telegram.php`):
+
+```dotenv
+# --- Оплата: только Telegram Stars ---
+BILLING_PAYWALL_MODE=purchase               # по умолчанию coming_soon: без purchase ученик не увидит цену и не сможет купить
+BILLING_STARS_ENABLED=true
+PAYME_ENABLED=false                         # до договоров
+CLICK_ENABLED=false                         # до договоров
+BILLING_SUPPORT_CONTACT=@lexiflow_support   # @handle, e-mail или https://-ссылка
+
+# --- Цены (утверждены; минимальные единицы: XTR — целые Stars, UZS — тийины = сумы x 100) ---
+BILLING_PRICE_PRO_MONTH_XTR=150
+BILLING_PRICE_PRO_YEAR_XTR=1300
+BILLING_PRICE_PRO_MONTH_UZS=2900000
+BILLING_PRICE_PRO_YEAR_UZS=24900000
+BILLING_PRICE_TUTOR_MONTH_UZS=12900000
+BILLING_PRICE_CENTER_S_MONTH_UZS=34900000
+BILLING_PRICE_CENTER_M_MONTH_UZS=84900000
+
+# --- Практика и баттлы: всем, лимиты Free G1 ---
+PRACTICE_ACCESS=all                         # по умолчанию off
+PRACTICE_PLAN=all
+PRACTICE_BATTLE=true
+PRACTICE_FREE_SESSIONS_PER_DAY=2            # сессий практики в день у Free; у Pro без лимита
+PRACTICE_FREE_BATTLES_PER_DAY=1             # вызовов на баттл в день у Free; у Pro без лимита
+```
+
+Что важно:
+- **Только Stars.** Цены в сумах остаются в `.env`, но пока `PAYME_ENABLED=false` и `CLICK_ENABLED=false`, ученику предлагается лишь оплата Stars
+  (Mini App, `/pro`, лендинг показывают цену только в Stars). Покупка Pro за сумы возвращает `provider_disabled`.
+  В `/org` → «Биллинг» без Payme и Click онлайн-оплаты нет; владелец центра видит «Запросить счёт», если задан `BILLING_INVOICE_REQUEST_EMAIL` (или `SITE_LEGAL_EMAIL`).
+- **`BILLING_SUPPORT_CONTACT` обязателен для продаж в Telegram.** Его показывает `/paysupport` (Telegram требует эту команду от бота, принимающего Stars),
+  страница возврата из оплаты и лендинг. Без него ответ `/paysupport` не содержит контакта.
+- **`TELEGRAM_BOT_USERNAME`** (без `@`) — ссылки на бота, `/pro` и кнопки лендинга, рефералки; без него лендинг не знает, куда вести ученика.
+- **`SITE_LEGAL_NAME`, `SITE_LEGAL_INN`, `SITE_LEGAL_ADDRESS`, `SITE_LEGAL_BANK`, `SITE_LEGAL_BANK_ACCOUNT`, `SITE_LEGAL_MFO`, `SITE_LEGAL_PHONE`, `SITE_LEGAL_EMAIL`** —
+  реквизиты продавца на публичных страницах оферты и политики. Заполните до открытия продаж.
+- **`REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD`** — при Docker-деплое `deploy.sh` останавливается (`STOP: ... is empty`), если любой из них пуст или равен `null`/`empty`.
+  Сгенерируйте: `openssl rand -hex 32`. (В примере `.env` для установки без Docker выше второй экземпляр настраивается через `REDIS_LRU_PASSWORD`.)
+- Значения по умолчанию в `.env.example` и `config/*.php` остаются прежними (`coming_soon`, всё выключено, `PRACTICE_ACCESS=off`): запуск задаётся именно прод `.env`.
+- После правки `.env` — `php artisan config:cache` и перезапуск воркеров (§17); при Docker-деплое — обычный `deploy.sh`.
+
 > **`.env` никогда не коммитим** и не отдаём наружу (nginx ниже запрещает доступ к dot-файлам, а корень сайта — `public/`).
 
 ---
