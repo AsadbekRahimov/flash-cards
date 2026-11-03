@@ -33,6 +33,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $period_ends_at
  * @property Carbon $occurred_at
  * @property array<string, mixed> $raw
+ * @property int|null $payer_telegram_user_id the payer snapshot (PayerSnapshot, docs/03 §2.29): who paid, as of `occurred_at`
+ * @property string|null $payer_name
+ * @property string|null $payer_username
  */
 class Payment extends Model
 {
@@ -70,6 +73,9 @@ class Payment extends Model
         'period_ends_at',
         'occurred_at',
         'raw',
+        'payer_telegram_user_id',
+        'payer_name',
+        'payer_username',
     ];
 
     /** @return array<string, string> */
@@ -82,6 +88,7 @@ class Payment extends Model
             'period_ends_at' => 'datetime',
             'occurred_at' => 'datetime',
             'raw' => 'array',
+            'payer_telegram_user_id' => 'integer',
         ];
     }
 

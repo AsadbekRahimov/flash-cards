@@ -130,6 +130,13 @@ Schedule::command('reminders:dispatch')
 // Retention of product_events and notifications_log (operations.*.retention_days).
 Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class]])->daily()->at('03:00');
 
+// Final deletion of learners soft-deleted more than `learners.purge.after_days` (30) days ago (docs/03 §8 rule 2,
+// docs/07 §10): personal and learning data go by FK cascade, payment records stay with the payer snapshot.
+// Idempotent: a purge lock per run and a row lock per learner, so a repeated or parallel run deletes nothing twice.
+Schedule::command('learners:purge-deleted')
+    ->dailyAt('03:30')
+    ->withoutOverlapping(60);
+
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');
 Schedule::command('backup:run')->daily()->at('01:30');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\PayloadMasker;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Resources\PaymentOrderResource\Pages;
@@ -46,6 +47,9 @@ class PaymentOrderResource extends Resource
         'payment_orders.created_at',
         'payment_orders.subscriber_type',
         'payment_orders.subscriber_id',
+        'payment_orders.payer_telegram_user_id',
+        'payment_orders.payer_name',
+        'payment_orders.payer_username',
         'payment_orders.tier',
         'payment_orders.period',
         'payment_orders.provider',
@@ -94,7 +98,7 @@ class PaymentOrderResource extends Resource
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('orders.status', $state))
                     ->color(fn (string $state): string => self::statusColor($state)),
                 TextEntry::make('token_label')->label(__('admin.orders.fields.token'))->state(fn (PaymentOrder $record): string => PayloadMasker::token($record->token)),
-                TextEntry::make('subscriber_label')->label(__('admin.orders.fields.subscriber'))->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                TextEntry::make('subscriber_label')->label(__('admin.orders.fields.subscriber'))->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 TextEntry::make('plan')
                     ->label(__('admin.orders.fields.plan'))
                     ->badge()
@@ -152,7 +156,7 @@ class PaymentOrderResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.orders.fields.created_at'))->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('subscriber_label')
                     ->label(__('admin.orders.fields.subscriber'))
-                    ->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                    ->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 Tables\Columns\TextColumn::make('tier')
                     ->label(__('admin.orders.fields.tier'))
                     ->badge()

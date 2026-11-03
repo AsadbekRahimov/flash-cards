@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Support;
 
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\PayloadMasker;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -17,7 +18,10 @@ use Illuminate\Support\HtmlString;
 /** Shared labels of the read-only billing screens (payments, orders, provider transactions). */
 final class BillingDisplay
 {
-    public static function subscriber(string $type, int $id, ?Model $subscriber): string
+    /**
+     * @param  PayerSnapshot|null  $payer  the record's payer snapshot (docs/03 §2.27, §2.29): shown when the subscriber row is gone
+     */
+    public static function subscriber(string $type, int $id, ?Model $subscriber, ?PayerSnapshot $payer = null): string
     {
         if ($subscriber instanceof Learner) {
             $name = trim(($subscriber->first_name ?? '').' '.($subscriber->last_name ?? ''));
@@ -30,7 +34,9 @@ final class BillingDisplay
             return $subscriber->name.' #'.$subscriber->id;
         }
 
-        return AdminLabels::value('common.subscriber_type', $type).' #'.$id.' '.__('admin.common.deleted');
+        $snapshot = $payer?->label();
+
+        return ($snapshot ?? AdminLabels::value('common.subscriber_type', $type)).' #'.$id.' '.__('admin.common.deleted');
     }
 
     /**

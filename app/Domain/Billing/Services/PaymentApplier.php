@@ -12,6 +12,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Exceptions\SubscriptionException;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\AuditLog;
 use App\Models\Learner;
@@ -151,7 +152,7 @@ final class PaymentApplier
                     'status' => Payment::STATUS_SUCCEEDED,
                     'period_starts_at' => $periodStart,
                     'period_ends_at' => $subscription->current_period_ends_at,
-                ]);
+                ], subject: $subject);
 
                 $meta = $order->meta;
                 if ($honouredAfterCancel) {
@@ -303,6 +304,8 @@ final class PaymentApplier
                     'period_ends_at' => $charge->period_ends_at,
                     'occurred_at' => $e->occurredAt,
                     'raw' => $e->raw,
+                    // The payer as of now, else as the refunded charge recorded them (the learner may be gone by now).
+                    ...PayerSnapshot::of($subject)->or(PayerSnapshot::fromRecord($charge))->toColumns(),
                 ]);
 
                 if ($by !== null) {
@@ -369,6 +372,7 @@ final class PaymentApplier
                     'currency' => $e->currency,
                     'occurred_at' => $e->occurredAt,
                     'raw' => [...$e->raw, 'failure_reason' => $reason],
+                    ...PayerSnapshot::of($subscriber)->toColumns(),
                 ]);
 
                 $this->recordFailed($payment, null, $reason, $subscriber instanceof Learner ? $subscriber : null);
@@ -471,15 +475,18 @@ final class PaymentApplier
     /** The `failed` ledger row + `payment.failed` event for an event that fits no credit. */
     private function failed(PaymentOrder $order, ChargeEvent $e, string $kind, string $reason): Payment
     {
+        /** @var Learner|null $learner */
+        $learner = $order->subscriber_type === 'learner' ? Learner::withTrashed()->find($order->subscriber_id) : null;
+
         $payment = $this->insert($order, $e, [
             'subscription_id' => null,
             'kind' => $kind,
             'status' => Payment::STATUS_FAILED,
             'period_starts_at' => null,
             'period_ends_at' => null,
-        ], $reason);
+        ], $reason, $learner);
 
-        $this->recordFailed($payment, $order, $reason, $order->subscriber_type === 'learner' ? Learner::withTrashed()->find($order->subscriber_id) : null);
+        $this->recordFailed($payment, $order, $reason, $learner);
 
         return $payment;
     }
@@ -493,10 +500,14 @@ final class PaymentApplier
         );
     }
 
-    /** @param array<string, mixed> $attributes */
-    private function insert(PaymentOrder $order, ChargeEvent $e, array $attributes, ?string $failureReason = null): Payment
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @param  Learner|Organization|null  $subject  the subscriber row as it is now; null (gone) = the payer snapshot of the order is copied
+     */
+    private function insert(PaymentOrder $order, ChargeEvent $e, array $attributes, ?string $failureReason = null, Learner|Organization|null $subject = null): Payment
     {
         return Payment::query()->create([
+            ...PayerSnapshot::of($subject)->or(PayerSnapshot::fromRecord($order))->toColumns(),
             'payment_order_id' => $order->id,
             'provider_transaction_id' => $e->providerTransactionId,
             'subscriber_type' => $order->subscriber_type,

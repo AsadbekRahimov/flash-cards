@@ -13,6 +13,7 @@ use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\Learner;
@@ -255,6 +256,8 @@ final class CheckoutService
             'expires_at' => $now->addMinutes($ttl),
             'created_via' => $via,
             'meta' => $subscriber instanceof Learner ? ['learner_locale' => $subscriber->interface_locale] : [],
+            // Who is buying, as of now (docs/03 §2.27): what still names the payer after the learner is deleted for good.
+            ...PayerSnapshot::of($subscriber)->toColumns(),
         ]);
 
         // The discount moved: the previous holders are closed (their tokens are refused by every

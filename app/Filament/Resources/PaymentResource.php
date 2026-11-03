@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Filament\Resources\PaymentResource\Support\PaymentActions;
@@ -46,6 +47,9 @@ class PaymentResource extends Resource
         'payments.occurred_at',
         'payments.subscriber_type',
         'payments.subscriber_id',
+        'payments.payer_telegram_user_id',
+        'payments.payer_name',
+        'payments.payer_username',
         'payments.provider',
         'payments.kind',
         'payments.status',
@@ -101,7 +105,7 @@ class PaymentResource extends Resource
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.provider', $state)),
                 TextEntry::make('amount_label')->label(__('admin.payments.fields.amount'))->state(fn (Payment $record): string => PriceFormatter::plain($record->amount, $record->currency)),
                 TextEntry::make('occurred_at')->label(__('admin.payments.fields.occurred_at'))->dateTime(),
-                TextEntry::make('subscriber_label')->label(__('admin.payments.fields.subscriber'))->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                TextEntry::make('subscriber_label')->label(__('admin.payments.fields.subscriber'))->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 TextEntry::make('provider_charge_id')->label(__('admin.payments.fields.provider_charge_id'))->placeholder('—')->copyable(),
                 TextEntry::make('provider_event_id')->label(__('admin.payments.fields.provider_event_id'))->copyable(),
                 TextEntry::make('payment_order_id')->label(__('admin.payments.fields.order'))->placeholder('—')
@@ -132,7 +136,7 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('occurred_at')->label(__('admin.payments.fields.occurred_at'))->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('subscriber_label')
                     ->label(__('admin.payments.fields.subscriber'))
-                    ->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                    ->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 Tables\Columns\TextColumn::make('provider')
                     ->label(__('admin.payments.fields.provider'))
                     ->badge()

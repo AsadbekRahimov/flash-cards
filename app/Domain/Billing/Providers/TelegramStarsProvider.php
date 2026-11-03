@@ -211,8 +211,9 @@ final class TelegramStarsProvider implements BillingProvider
             throw ProviderCapabilityException::unsupported($this->key(), 'refund without a Stars charge id');
         }
 
-        $userId = $payment->subscriber_type === 'learner' ? $this->telegramUserId($payment->subscriber_id) : null;
-        if ($userId === null) {
+        // The learner row may be deleted for good by now (docs/03 §8 rule 2): the ledger row's payer snapshot keeps the Telegram id.
+        $userId = $payment->subscriber_type === 'learner' ? ($this->telegramUserId($payment->subscriber_id) ?? $payment->payer_telegram_user_id) : null;
+        if ($userId === null || $userId <= 0) {
             throw ProviderCapabilityException::unsupported($this->key(), 'refund without a Telegram user');
         }
 

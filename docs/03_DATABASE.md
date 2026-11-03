@@ -490,7 +490,7 @@ Append-only журнал для продуктовой аналитики (не 
 | practice_pilot_at | timestamp nullable | ученик включён в пилот практики (`PRACTICE_ACCESS=pilot`, docs/16 §2.1, §3.2): ставит и снимает админ действием «Включить в пилот практики» / «Исключить из пилота» (`PracticePilotService`), `audit_logs` `learner.practice_pilot_changed {from, to}`; `NULL` — не в пилоте. При `PRACTICE_ACCESS=all` колонка не читается; индекса нет (редкий флаг) |
 | last_seen_at | timestamp nullable | |
 | blocked_at | timestamp nullable | бан платформой |
-| deleted_at | timestamp nullable | `SoftDeletes` |
+| deleted_at | timestamp nullable | `SoftDeletes`: удаление аккаунта. Пока строка soft-deleted, `telegram_user_id` за ней закреплён и собственный `/start` / `/auth` её восстанавливает (`LearnerRegistrar`). Через `config('learners.purge.after_days')` (30) дней `LearnerPurgeService` удаляет строку окончательно (§8 п. 2) |
 | meta | jsonb default '{}' | |
 | created_at, updated_at | | |
 
@@ -739,8 +739,13 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
 | created_via | string(16) | `twa` / `bot` / `org_panel` / `admin` |
 | meta | jsonb | `{learner_locale, checkout: {kind, expires_at}, checkout_error?}` |
+| payer_telegram_user_id | bigint nullable | **снимок плательщика** на момент создания заказа (`PayerSnapshot`): Telegram id ученика; `NULL` для организации |
+| payer_name | string(201) nullable | имя и фамилия ученика / название организации на момент заказа |
+| payer_username | string(100) nullable | `@username` ученика на момент заказа |
 
-**Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`.
+Снимок плательщика — единственное, что говорит «кто платил» после окончательного удаления ученика (§8 п. 2): `subscriber_id` остаётся, но строки `learners` уже нет. Заполняет `CheckoutService` при создании заказа; backfill — миграция 58.
+
+**Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`; `payer_telegram_user_id`.
 
 ### 2.28 `provider_transactions` — состояние транзакции провайдера *(2A.1, +`perform_time`/`cancel_time` в 2A.4)*
 | Колонка | Тип | Описание |
@@ -778,8 +783,13 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | period_starts_at, period_ends_at | timestamp nullable | за какой период уплачено |
 | occurred_at | timestamp NOT NULL | момент у провайдера |
 | raw | jsonb | нормализованное событие без секретов |
+| payer_telegram_user_id | bigint nullable | **снимок плательщика** на момент платежа (`PayerSnapshot`, как в §2.27): Telegram id ученика — по нему делается возврат Stars (`refundStarPayment(user_id, charge_id)`) и после окончательного удаления ученика; `NULL` для организации |
+| payer_name | string(201) nullable | имя и фамилия ученика / название организации на момент платежа |
+| payer_username | string(100) nullable | `@username` ученика на момент платежа |
 
-**Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`.
+«Кто и когда платил» = снимок плательщика + `occurred_at`; эти строки при удалении ученика **не трогаются** (§8 п. 2). Снимок пишет `PaymentApplier` в каждую строку леджера: с живой строки `learners`, если она ещё есть, иначе — копией с заказа (продление после удаления) или с возвращаемого платежа (возврат). `BillingDisplay::subscriber` в админке показывает снимок, когда строки ученика уже нет.
+
+**Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`; `payer_telegram_user_id`.
 
 ### 2.30 `organization_users` — персонал кабинета `/org` *(2B.1, docs/13 §1.3)*
 | Колонка | Тип | Описание |
@@ -1206,6 +1216,10 @@ CHECK не создаются — инвариант дублируют серв
 57. `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables` — `stages.title_uz`, `lessons.title_uz` (string(255) nullable, последняя колонка таблицы): название
     модуля / урока на узбекском рядом с русским `title` (§2.5–§2.6, выбор по локали — `DeckTitles`). Простой `ADD COLUMN` на обоих драйверах;
     `down()` снимает обе колонки (`DROP COLUMN`, на sqlite ≥ 3.35 — без пересборки таблицы). Проверяет `LocalizedTitlesTest` *(R3c)*
+58. `2026_11_03_200001_add_payer_snapshot_to_payment_tables` — снимок плательщика `payer_telegram_user_id` (bigint nullable, индекс), `payer_name` (string(201) nullable),
+    `payer_username` (string(100) nullable) в `payment_orders` и `payments` (§2.27, §2.29) — «кто платил» после окончательного удаления ученика (§8 п. 2).
+    Backfill тем же файлом: коррелированным `UPDATE … SET … = (SELECT … FROM learners WHERE learners.id = subscriber_id)` по строкам `subscriber_type = 'learner'`
+    (включая soft-deleted учеников) и из `organizations.name` по `organization`; оба драйвера. `down()` снимает индексы и колонки *(purge)*
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 
@@ -1285,7 +1299,14 @@ ORDER BY er.rank ASC;
 ## 8. Важные правила
 
 1. **Никогда не удаляем `words`** — только soft-deactivate (`words.is_active`). Иначе сломается история `word_repetitions`.
-2. **Удаление learner'а** (жёсткое) — каскадом удаляются его `group_members`, `word_repetitions`, `training_reviews`, `exam_question_attempts`, `notifications_log`, `learner_daily_stats`, личные `training_sessions`. `exam_answers`, `exam_results` и `product_events` сохраняются с анонимизацией `learner_id → NULL`, чтобы статистика группы не разваливалась. Обычное удаление аккаунта — мягкое (`learners.deleted_at`); при следующем входе тем же Telegram-пользователем `LearnerRegistrar` возвращает запись.
+2. **Удаление learner'а** — в два шага (решение владельца 03.11.2026; docs/07 §10).
+   **Шаг 1, мягкое:** `learners.deleted_at` (сегодня его ставит оператор по запросу в поддержку; кнопки в сервисе нет). Пока строка soft-deleted, ничего не удаляется: `telegram_user_id` закреплён за ней, собственный `/start` / `/auth` того же Telegram-пользователя её восстанавливает (`LearnerRegistrar`, условным `UPDATE … WHERE deleted_at IS NOT NULL`), пассивные события группы — нет.
+   **Шаг 2, окончательное:** через `config('learners.purge.after_days')` (30, `LEARNERS_PURGE_AFTER_DAYS`) дней после `deleted_at` команда `learners:purge-deleted` (ежедневно 03:30, `LearnerPurgeService`) удаляет строку `learners`. Один ученик — одна транзакция: `SELECT … FOR UPDATE` с повторной проверкой `deleted_at <= cutoff` (восстановление, успевшее между выборкой и блокировкой, оставляет строку), затем `DELETE`. Пачками (`learners.purge.batch`), не больше `learners.purge.max_per_run` за запуск, под `Cache::lock('learners:purge')`; повторный или параллельный запуск ничего не меняет.
+   *Уходит каскадом (`ON DELETE CASCADE`):* `group_members`, `organization_members` (место центра освобождается), `word_repetitions`, `training_reviews`, личные `training_sessions`, личные `exam_sessions` (`personal_mock`) со своими ответами и результатами, `exam_question_attempts`, `notifications_log`, `learner_daily_stats`, `achievements`, `assignment_results`, `offers`, `promo_redemptions` (счётчик `promo_codes.redemptions_count` не уменьшается), `referrals` (как пригласивший и как приглашённый; уже выданные награды не отзываются), `friendships`, `challenges`, `battles` с `battle_participants` / `battle_answers` (и из истории соперника — docs/07 §10), `league_members`, `practice_sessions` / `practice_attempts`.
+   *Обнуляется (`ON DELETE SET NULL`):* `exam_answers.learner_id`, `exam_results.learner_id` (статистика группового экзамена остаётся, анонимно), `product_events.learner_id`, `learners.referrer_learner_id` у приглашённых, `challenges.winner_learner_id`, `battles.winner_learner_id`.
+   *Остаётся целиком (без FK на `learners`):* `payment_orders`, `payments`, `provider_transactions`, `subscriptions` — платёжные записи с `subscriber_id` старого ученика и снимком плательщика (`payer_*`, §2.27, §2.29): «кто и когда платил» видно и в админке, и для возврата Stars. Живые подписки ученика перед удалением сервис завершает (`SubscriptionService::endNow`, reason `learner_purged`), у Stars — пробует снять автопродление (`cancelAutoRenew`, best-effort: отказ Telegram пишется в лог, удаление не останавливает; пришедшее позже продление ляжет `failed`-строкой `subscriber_missing` со снимком плательщика с заказа — его возвращают из админки). `audit_logs` (без FK) хранят строку `learner.purged` (`entity_id` = старый id, `meta.deleted_at`).
+   *После удаления:* `EntitlementResolver::forget`, `OrgOverviewService::forget` по организациям ученика, сброс `league:standings` его групп (docs/19 §3 п. 5). Повторный `/start` того же Telegram-пользователя создаёт **нового** ученика с новым `id`: прогресс, подписки, друзья и рефералы не наследуются; старые платежи остаются на старом `subscriber_id` и находятся по `payer_telegram_user_id`.
+   **Известное окно:** `/start`, пришедший в ту же секунду, что и удаление, может восстановить уже удаляемую строку только до её блокировки; после — условный `UPDATE` регистратора не находит строки, и он создаёт нового ученика в том же запросе.
 2a. **Выход из группы** не удаляет ничего: `group_members.status` становится `left` / `removed`, прогресс остаётся у learner'а.
 3. **FK всегда с `onDelete` явно**. Не полагайся на дефолты.
 4. **Всегда транзакция** для: импорта JSON, закрытия экзамена, подсчёта лидерборда.
