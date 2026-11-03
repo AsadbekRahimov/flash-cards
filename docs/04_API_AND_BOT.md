@@ -155,7 +155,8 @@
   "open_session_id": 918,
   "entitlement": { "plan": "free", "source": "free", "until": null },
   "onboarding_completed": true,
-  "timezone": "Asia/Tashkent"
+  "timezone": "Asia/Tashkent",
+  "game": { "daily_available": true, "active_run": null }
 }
 ```
 
@@ -168,6 +169,7 @@
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
+- `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — один запрос к `game_runs` (`due_count` берётся из уже посчитанного).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -1451,7 +1453,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 
 | Маршрут | Лимитер | Тело → ответ |
 |---|---|---|
-| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. Другие `kind` (`boss`, `daily`, `class_boss`) — **422** валидации до G2.3 / G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` |
+| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). Другие `kind` (`boss`, `class_boss`) — **422** валидации до G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится |
 | `GET /game/runs/{id}` | `twa-api` | забег |
 | `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
