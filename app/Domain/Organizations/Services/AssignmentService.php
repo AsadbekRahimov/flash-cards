@@ -398,7 +398,7 @@ final class AssignmentService
         $now ??= CarbonImmutable::now();
 
         $assignments = Assignment::query()
-            ->with(['lesson.stage.course', 'group'])
+            ->with(['lesson.stage.course:id,owner_type', 'group'])
             ->where('status', Assignment::STATUS_ACTIVE)
             ->ofActiveOrganization()
             ->inLinkedGroup()
@@ -766,7 +766,7 @@ final class AssignmentService
         }
 
         /** @var Assignment $fresh */
-        $fresh = Assignment::query()->with(['organization', 'group', 'lesson.stage.course'])->findOrFail($assignment->id);
+        $fresh = Assignment::query()->with(['organization', 'group', 'lesson.stage.course:id,owner_type'])->findOrFail($assignment->id);
         $locale = $this->locales->forGroup($fresh->group);
         $due = $fresh->due_at->toImmutable()->setTimezone($fresh->organization->timezone);
         $stage = $fresh->lesson->stage;

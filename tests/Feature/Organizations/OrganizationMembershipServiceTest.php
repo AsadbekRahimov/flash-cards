@@ -671,6 +671,48 @@ it('forgets every member on organization delete even when the first forget fails
     Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
 });
 
+it('reports only the first failure of a seating loop to Sentry and warns about every one', function (): void {
+    $org = omsOrganization('tutor', 2);
+    $invite = omsInvite($org);
+    $service = omsService();
+    foreach (Learner::factory()->count(4)->create() as $learner) {
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinute());
+        $service->joinByInvite($learner, $invite->code);
+    }
+
+    // Two seats more: the two waitlisted are seated by one reseat, and for each of them both after-commit steps fail.
+    Subscription::query()->where('subscriber_type', 'organization')->where('subscriber_id', $org->id)->update(['seats_limit' => 4]);
+    omsEntitlementCacheDown();
+    Event::listen(OrganizationMemberSeated::class, static function (): never {
+        throw new RuntimeException('listener is down');
+    });
+    Exceptions::fake();
+    Log::spy();
+
+    expect($service->reseat($org))->toBe(2);
+
+    Exceptions::assertReportedCount(1);
+    Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
+    Log::shouldHaveReceived('warning')->with('organizations.membership_event_failed', Mockery::any())->twice();
+});
+
+it('reports only the first failed forget of an organization delete to Sentry and warns about every one', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    omsService()->joinByAdmin($b, $org, User::factory()->create());
+
+    omsEntitlementCacheDown();
+    Exceptions::fake();
+    Log::spy();
+
+    $org->delete();
+
+    Exceptions::assertReportedCount(1);
+    Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
+});
+
 /**
  * The default cache store is down for the entitlement versions alone (`EntitlementResolver::forget` bumps
  * `entitlement:ver:{id}`): every such bump throws and is recorded with its learner id; every other key works.

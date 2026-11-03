@@ -18,5 +18,5 @@ public/twa
 *.md
 docs
 tests/load/k6/tokens.json
-storage/app/load-tokens.json
+storage/app/load-tokens.json*
 tests/load/k6/tokens.json.tmp.*

@@ -225,9 +225,17 @@ it('lists the assignments of a center within budget', function (string $who): vo
     // Assignments of the teacher's group, each with a result row of an active learner (the progress column counts them).
     $fill = function (int $rows) use ($c): void {
         $have = Assignment::query()->where('organization_id', $c['organization']->id)->count();
+        // Every assignment in its own module and lesson, with the default title (a copy of the lesson's): `displayTitle()` reads the
+        // module's course for each of them, so a lazy-loaded course shows up as growth with the number of rows.
         Assignment::factory()
             ->count($rows - $have)
-            ->create(['organization_id' => $c['organization']->id, 'telegram_group_id' => $c['group']->id, 'lesson_id' => $c['lesson']->id])
+            ->state(function () use ($c): array {
+                $stage = Stage::factory()->create(['course_id' => $c['group']->course_id]);
+                $lesson = Lesson::factory()->create(['stage_id' => $stage->id, 'number' => 1]);
+
+                return ['organization_id' => $c['organization']->id, 'telegram_group_id' => $c['group']->id, 'lesson_id' => $lesson->id, 'title' => $lesson->title];
+            })
+            ->create()
             ->each(function (Assignment $assignment) use ($c): void {
                 $learner = Learner::factory()->memberOf($c['group'])->create();
                 AssignmentResult::factory()->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id]);

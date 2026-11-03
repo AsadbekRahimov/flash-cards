@@ -55,7 +55,7 @@ class AssignmentResource extends OrgResource
     public static function getEloquentQuery(): Builder
     {
         return static::scope()->assignments(static::user(), static::tenant())
-            ->with(['group', 'lesson.stage'])
+            ->with(['group', 'lesson.stage.course:id,owner_type'])
             ->withProgressCounts();
     }
 
