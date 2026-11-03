@@ -140,12 +140,15 @@ function starsLabel(stop: GameMapStop): string {
 
 // ---- the caravan of the day ----
 
-/** What the card says: a run that is on, a caravan that is waiting, one that was played today, or nothing due. */
+/**
+ * What the card says: the caravan that is on (the banner above is for any other run), one that was played today, one that is waiting
+ * (words are due; a stop run that is on does not change that - the caravan screen says "a run is on"), or nothing due.
+ */
 const dailyState = computed((): 'running' | 'ready' | 'done' | 'empty' => {
   const daily = map.value?.daily
-  if (map.value?.active_run) return 'running'
+  if (map.value?.active_run?.kind === 'daily') return 'running'
   if (daily?.done_today) return 'done'
-  return daily?.available ? 'ready' : 'empty'
+  return daily?.available || (daily?.due_count ?? 0) > 0 ? 'ready' : 'empty'
 })
 
 const dailyText = computed((): string => {

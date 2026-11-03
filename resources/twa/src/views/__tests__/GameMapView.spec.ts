@@ -212,10 +212,16 @@ describe('GameMapView: the caravan of the day', () => {
     ['played', { daily: mapDaily({ available: false, done_today: true }) }, 'done', 'Сыграно, завтра снова'],
     ['nothing due', { daily: mapDaily({ available: false, due_count: 0 }) }, 'empty', 'Пока нечего повторять'],
     [
-      'a run is on',
-      { daily: mapDaily({ available: false }), active_run: { id: 9, kind: 'stop', progress: { answered: 3, total: 9 } } },
+      'on',
+      { daily: mapDaily({ available: false }), active_run: { id: 9, kind: 'daily', progress: { answered: 3, total: 9 } } },
       'running',
       'Идёт забег — продолжить',
+    ],
+    [
+      'waiting while a stop run is on (the banner above is for that run)',
+      { daily: mapDaily({ available: false }), active_run: { id: 9, kind: 'stop', progress: { answered: 3, total: 9 } } },
+      'ready',
+      'К повторению 14 слов',
     ],
   ] as const)('is a card above the road when the caravan is %s', async (_name, overrides, dailyState, text) => {
     const { wrapper } = await render(gameMap(overrides))
