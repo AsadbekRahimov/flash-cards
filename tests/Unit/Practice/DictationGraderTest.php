@@ -6,6 +6,7 @@ use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Services\Grading\DictationGrader;
 use App\Domain\Practice\Support\EnglishLexicon;
 use App\Domain\Practice\Support\InflectionGuard;
+use App\Domain\Practice\Support\SpellingVariants;
 
 /*
  * docs/16 §5.2: the verdicts of a dictation - the table of 38 cases of the document, the rules of a safe typo one by one, the
@@ -294,13 +295,12 @@ it('keeps a slip of two letters a mistake, whatever it spells: wensday for Wedne
     expect(dictationVerdict(['wednesday'], 'wensday'))->toBe(Verdict::Wrong);
 });
 
-it('keeps a slip a mistake when the typed token is a word after all: another spelling, a verb that has a twin, a form of another lemma', function (string $expected, string $typed, string $why): void {
+it('keeps a slip a mistake when the typed token is a word after all: a verb that has a twin', function (string $expected, string $typed, string $why): void {
     expect(EnglishLexicon::isWord($typed))->toBeTrue($why)
         ->and(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
 })->with([
     'sitting / siting' => ['sitting', 'siting', 'site is a verb: siting'],
     'planned / planed' => ['planned', 'planed', 'plane is a verb: planed'],
-    'travelling / traveling' => ['travelling', 'traveling', 'the American spelling'],
     'hopping / hoping' => ['hopping', 'hoping', 'hope is a verb: hoping'],
 ]);
 
@@ -532,4 +532,63 @@ it('does not mistake a longer word for a form when more than one letter is added
 
 it('works on empty tokens without an error', function (): void {
     expect(InflectionGuard::isInflection('', ''))->toBeFalse();
+});
+
+// ---------------------------------------------------------------- British / American spellings (resources/lexicon/en-us-gb.txt)
+
+it('takes the American spelling for the British one the author wrote, and the other way round', function (string $british, string $american): void {
+    expect(dictationVerdict(["My {$british} teacher"], "my {$american} teacher."))->toBe(Verdict::Correct)
+        ->and(dictationVerdict(["My {$american} teacher"], "My {$british} teacher"))->toBe(Verdict::Correct);
+})->with([
+    ['colour', 'color'], ['centre', 'center'], ['travelling', 'traveling'], ['favourite', 'favorite'], ['organise', 'organize'],
+    ['realise', 'realize'], ['theatre', 'theater'], ['metre', 'meter'], ['neighbour', 'neighbor'], ['programme', 'program'],
+]);
+
+it('takes the spelling of a pair in a sentence with several, and in the review marks it as right', function (): void {
+    $result = dictationGrader()->grade(['The neighbours organised a theatre trip'], 'the neighbors organized a theater trip');
+    $diff = $result->reveal['diff'] ?? [];
+
+    expect($result->verdict)->toBe(Verdict::Correct)
+        ->and($diff)->toHaveCount(6)
+        ->and(array_column($diff, 'ok'))->each->toBeTrue();
+});
+
+it('keeps the words outside the list and the other mistakes as they were', function (): void {
+    expect(dictationVerdict(['I like the colour'], 'I like the cular'))->toBe(Verdict::Wrong)   // two edits from both spellings
+        ->and(dictationVerdict(['I like the colour'], 'I like the colours'))->toBe(Verdict::Wrong)
+        ->and(dictationVerdict(['I like the table'], 'I like the tabel'))->toBe(Verdict::Typo)
+        ->and(dictationVerdict(['They practise a lot'], 'They practice a lot'))->toBe(Verdict::Wrong)    // ambiguous pair: not in the list
+        ->and(dictationVerdict(['I like the colour'], 'I like the center'))->toBe(Verdict::Wrong);
+});
+
+it('forgives a slip at either spelling of a pair like any other slip', function (): void {
+    // `colro` is one transposition from `color` and two edits from `colour`; `colouur` is one from `colour`; both spell nothing.
+    expect(dictationVerdict(['Nice colour'], 'nice colro'))->toBe(Verdict::Typo)
+        ->and(dictationVerdict(['Nice color'], 'nice colouur'))->toBe(Verdict::Typo)
+        ->and(dictationVerdict(['Nice colour'], 'nice colouur'))->toBe(Verdict::Typo)
+        // a slip of a different word next to a right pair is still a slip of one token only
+        ->and(dictationVerdict(['A colour of tabel'], 'a color of tabel'))->toBe(Verdict::Correct)
+        ->and(dictationVerdict(['A colour of table'], 'a color of tabel'))->toBe(Verdict::Typo)
+        ->and(dictationVerdict(['A colour of table'], 'a colro of tabel'))->toBe(Verdict::Wrong);
+});
+
+it('keeps the list of spellings well formed: sorted, two lower-case words to a line, no spelling twice', function (): void {
+    $lines = array_values(array_filter(
+        (array) file(resource_path('lexicon/en-us-gb.txt'), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES),
+        static fn (string $line): bool => $line[0] !== '#',
+    ));
+    $sorted = $lines;
+    sort($sorted, SORT_STRING);
+    $words = [];
+    foreach ($lines as $line) {
+        expect($line)->toMatch('/\A[a-z]+ [a-z]+\z/');
+        array_push($words, ...explode(' ', $line));
+    }
+
+    expect($lines)->toBe($sorted)
+        ->and(array_unique($words))->toHaveCount(count($words))
+        ->and(SpellingVariants::other('colour'))->toBe('color')
+        ->and(SpellingVariants::other('color'))->toBe('colour')
+        ->and(SpellingVariants::other('table'))->toBeNull()
+        ->and(SpellingVariants::same('colour', 'colour'))->toBeTrue();
 });
