@@ -2835,3 +2835,84 @@
 ### Публичный сайт, политика (`lang/uz/legal.php`)
 
 > Блок `legal.privacy.sections.6.text` изменён (см. выше, исходная строка обновлена).
+
+## Игра «Караван» 2026-11 · G2.7a (забег, TWA) — на проверку носителю
+
+### TWA, экран забега и итог (`resources/twa/src/i18n/uz.ts`, ключи `gameRun.*` и коды ошибок забега)
+
+> Что решить носителю:
+> - **Название игры и «фляга».** «Karvon» — как в `lang/uz/game.php`; «фляга» (запас попыток в забеге) передана как «mesh» (бурдюк для воды). Если есть привычнее слово — заменить во всех строках `gameRun.*` сразу.
+> - **«Voha»** (оазис), **«Bozor»** (базар), **«Qum bo'roni»** (песчаная буря) — названия событий забега; в событии «Оазис» потерянная фляга возвращается один раз за забег.
+> - **«Yurish»** — «забег» (в ru «забег»). Рядом «Hisob» — счёт, «Kombo ×N» — серия верных ответов подряд (с третьего).
+> - Формулировка «{price} tangaga maslahat» — «Подсказка за {price}» (цена в монетах).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameRun.progress` | {total} ta topshiriqdan {done}-si | Задание {done} из {total} |
+| `gameRun.flasks` | Meshlar: {left} / {max} | Фляги: {left} из {max} |
+| `gameRun.score` | Hisob | Счёт |
+| `gameRun.combo` | Kombo ×{count} | Комбо ×{count} |
+| `gameRun.to_map` | Xaritaga | На карту |
+| `gameRun.exit.title` | Yurishdan chiqasizmi? | Выйти из забега? |
+| `gameRun.exit.text` | Yurish hisobga olinmaydi. | Забег не засчитается. |
+| `gameRun.exit.confirm` | Chiqish | Выйти |
+| `gameRun.exit.stay` | Qolish | Остаться |
+| `gameRun.event.sandstorm` | Qum bo'roni | Песчаная буря |
+| `gameRun.event.sandstorm_text` | So'zni faqat eshitib topasiz. | Слово — только на слух. |
+| `gameRun.event.oasis` | Voha | Оазис |
+| `gameRun.event.oasis_text` | Yo'qolgan mesh qaytadi. | Потерянная фляга вернётся. |
+| `gameRun.event.bazaar` | Bozor | Базар |
+| `gameRun.event.bazaar_text` | Bu yerda maslahat sotib olish mumkin. | Здесь можно купить подсказку. |
+| `gameRun.event.applied_oasis` | Voha: mesh qaytdi. | Оазис: фляга вернулась. |
+| `gameRun.task.translate_fwd` | Tarjimani tanlang | Выберите перевод |
+| `gameRun.task.translate_back` | Inglizcha qanday? | Как это по-английски? |
+| `gameRun.task.listen` | Tinglang va so'zni tanlang | Послушайте и выберите слово |
+| `gameRun.task.spell` | Inglizcha yozing | Напишите по-английски |
+| `gameRun.task.gap` | Tushib qolgan so'zni qo'ying | Вставьте пропущенное слово |
+| `gameRun.options` | Javob variantlari | Варианты ответа |
+| `gameRun.option_removed` | maslahat bilan olib tashlandi | убран подсказкой |
+| `gameRun.spell.placeholder` | Inglizcha so'z | Слово по-английски |
+| `gameRun.spell.letters` | Harflar: {count} | Букв: {count} |
+| `gameRun.gap.placeholder` | Tushib qolgan so'z | Пропущенное слово |
+| `gameRun.hint.buy` | {price} tangaga maslahat | Подсказка за {price} |
+| `gameRun.hint.coins` | Sizda {coins} | У вас {coins} |
+| `gameRun.hint.prefix` | «{prefix}» bilan boshlanadi | Начинается на «{prefix}» |
+| `gameRun.hint.wait` | Maslahat olinmoqda… | Покупаем подсказку… |
+| `gameRun.reveal.right` | To'g'ri javob | Верный ответ |
+| `gameRun.reveal.word` | So'z | Слово |
+| `gameRun.reveal.translation` | Tarjima | Перевод |
+| `gameRun.reveal.example` | Misol | Пример |
+| `gameRun.reveal.points` | +{points} | +{points} |
+| `gameRun.reveal.flask_lost` | Mesh yo'qoldi | Фляга потеряна |
+| `gameRun.reveal.next` | Keyingisi | Дальше |
+| `gameRun.reveal.to_summary` | Natijaga | К итогу |
+| `gameRun.closed.title` | Yurish tugadi | Забег закончился |
+| `gameRun.closed.abandoned` | Siz yurishdan chiqdingiz: u hisobga olinmadi. | Вы вышли из забега: он не засчитан. |
+| `gameRun.closed.expired` | Yurish vaqti tugadi: u hisobga olinmadi. | Время забега вышло: он не засчитан. |
+| `gameRun.closed.default` | Bu yurish allaqachon tugagan. | Этот забег уже закончен. |
+| `gameRun.summary.title.completed` | Yurish yakunlandi | Забег пройден |
+| `gameRun.summary.title.failed` | Meshlar tugadi | Фляги кончились |
+| `gameRun.summary.stars` | Yulduzlar: 3 tadan {stars} | Звёзды: {stars} из 3 |
+| `gameRun.summary.score` | Hisob | Счёт |
+| `gameRun.summary.coins` | Tangalar | Монеты |
+| `gameRun.summary.league` | Liga ochkolari | Очки лиги |
+| `gameRun.summary.new_stars` | Yangi yulduzlar | Новые звёзды |
+| `gameRun.summary.plus` | +{count} | +{count} |
+| `gameRun.summary.streak_held` | Seriya saqlandi | Серия удержана |
+| `gameRun.summary.boss_won` | Boss yengildi | Босс побеждён |
+| `gameRun.summary.boss_lost` | Boss bardosh berdi | Босс устоял |
+| `gameRun.summary.boss_accuracy` | Aniqlik {accuracy}% | Точность {accuracy}% |
+| `gameRun.summary.mistakes` | Ustida ishlash kerak | Над чем поработать |
+| `gameRun.summary.your_answer` | Javobingiz: {answer} | Вы ответили: {answer} |
+| `gameRun.summary.no_answer` | Javobsiz | Без ответа |
+| `gameRun.summary.verdict.typo` | Imlo xatosi | Опечатка |
+| `gameRun.summary.verdict.wrong` | Noto'g'ri | Неверно |
+| `gameRun.summary.verdict.skipped` | Bilmadingiz | Не знали |
+| `gameRun.summary.review` | Kartochkalarda takrorlash | Повторить в карточках |
+| `gameRun.summary.again` | Yana bir bor | Ещё раз |
+| `gameRun.summary.failed_hint` | Bu so'zlar tez orada takrorlashga qaytadi. | Эти слова скоро вернутся в повторение. |
+| `error.code.game_run_not_found` | Yurish topilmadi. | Забег не найден. |
+| `error.code.game_run_closed` | Bu yurish allaqachon tugagan. | Этот забег уже закончился. |
+| `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
+| `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
+| `error.code.coins_insufficient` | Maslahat uchun tanga yetmaydi. Tangalar yurishlar uchun beriladi. | Не хватает монет на подсказку. Монеты дают за забеги. |
