@@ -53,7 +53,7 @@
         "low"
       ],
       "translation": {
-        "ru": "У меня садится батарея. Можно одолжить твою зарядку?",
+        "ru": "У меня садится батарея. Можно одолжить вашу зарядку?",
         "uz": "Batareyam tugab qolyapti. Zaryadlagichingizni olib tursam bo'ladimi?"
       },
       "explanation": {
@@ -82,7 +82,7 @@
         "share"
       ],
       "translation": {
-        "ru": "Никогда ни с кем не делись своим паролем.",
+        "ru": "Никогда ни с кем не делитесь своим паролем.",
         "uz": "Parolingizni hech qachon hech kim bilan baham ko'rmang."
       },
       "explanation": {
@@ -141,7 +141,7 @@
         "weak"
       ],
       "translation": {
-        "ru": "Я тебя не слышу. Здесь очень слабый сигнал.",
+        "ru": "Я вас не слышу. Здесь очень слабый сигнал.",
         "uz": "Sizni eshitmayapman. Bu yerda signal juda kuchsiz."
       },
       "explanation": {
@@ -171,7 +171,7 @@
         "to"
       ],
       "translation": {
-        "ru": "Почему ты не ответил на моё сообщение?",
+        "ru": "Почему вы не ответили на моё сообщение?",
         "uz": "Nega xabarimga javob qaytarmadingiz?"
       },
       "explanation": {
@@ -231,7 +231,7 @@
         "on"
       ],
       "translation": {
-        "ru": "Можешь установить эту программу на мой ноутбук?",
+        "ru": "Можете установить эту программу на мой ноутбук?",
         "uz": "Bu dasturni noutbukimga o'rnatib bera olasizmi?"
       },
       "explanation": {
@@ -481,7 +481,7 @@
         "text"
       ],
       "prompt": {
-        "ru": "Я напишу тебе после урока.",
+        "ru": "Я напишу вам после урока.",
         "uz": "Darsdan keyin sizga xabar yozaman."
       },
       "fragments": [
@@ -531,7 +531,7 @@
         "mobile"
       ],
       "prompt": {
-        "ru": "Можно мне твой номер мобильного?",
+        "ru": "Можно мне ваш номер мобильного?",
         "uz": "Mobil raqamingizni bera olasizmi?"
       },
       "fragments": [
@@ -610,7 +610,7 @@
         "app"
       ],
       "prompt": {
-        "ru": "Тебе нужно обновить это приложение.",
+        "ru": "Вам нужно обновить это приложение.",
         "uz": "Bu ilovani yangilashingiz kerak."
       },
       "fragments": [
@@ -842,7 +842,7 @@
         "Your phone's ringing"
       ],
       "translation": {
-        "ru": "Твой телефон звонит",
+        "ru": "Ваш телефон звонит",
         "uz": "Telefoningiz jiringlayapti"
       }
     },
@@ -863,7 +863,7 @@
         "Send me a voice message"
       ],
       "translation": {
-        "ru": "Пришли мне голосовое сообщение",
+        "ru": "Пришлите мне голосовое сообщение",
         "uz": "Menga ovozli xabar yuboring"
       }
     },
@@ -884,7 +884,7 @@
         "Did you save the file?"
       ],
       "translation": {
-        "ru": "Ты сохранил файл?",
+        "ru": "Вы сохранили файл?",
         "uz": "Faylni saqladingizmi?"
       }
     },
@@ -1003,7 +1003,7 @@
         "with"
       ],
       "translation": {
-        "ru": "Почему ты на меня сердишься?",
+        "ru": "Почему вы на меня сердитесь?",
         "uz": "Nega mendan jahlingiz chiqdi?"
       },
       "explanation": {
@@ -1119,7 +1119,7 @@
         "with"
       ],
       "translation": {
-        "ru": "Я не хочу с тобой спорить.",
+        "ru": "Я не хочу с вами спорить.",
         "uz": "Siz bilan bahslashishni xohlamayman."
       },
       "explanation": {
@@ -1206,7 +1206,7 @@
         "mood"
       ],
       "translation": {
-        "ru": "Почему у тебя сегодня такое хорошее настроение?",
+        "ru": "Почему у вас сегодня такое хорошее настроение?",
         "uz": "Nega bugun kayfiyatingiz bunchalik yaxshi?"
       },
       "explanation": {
@@ -1296,7 +1296,7 @@
         "nervous"
       ],
       "prompt": {
-        "ru": "Почему ты сегодня так нервничаешь?",
+        "ru": "Почему вы сегодня так нервничаете?",
         "uz": "Nega bugun buncha asabiylashyapsiz?"
       },
       "fragments": [
@@ -1376,7 +1376,7 @@
         "brave"
       ],
       "prompt": {
-        "ru": "Это было очень смело с твоей стороны.",
+        "ru": "Это было очень смело с вашей стороны.",
         "uz": "Bu siz tomoningizdan juda jasoratli ish bo'ldi."
       },
       "fragments": [
@@ -1399,7 +1399,7 @@
       ],
       "display": "It was very brave of you.",
       "explanation": {
-        "ru": "It was + прилагательное + of you — «это было… с твоей стороны».",
+        "ru": "It was + прилагательное + of you — «это было… с вашей стороны».",
         "uz": "It was + sifat + of you — «bu siz tomoningizdan … bo'ldi»."
       }
     },
@@ -1415,7 +1415,7 @@
         "miss"
       ],
       "prompt": {
-        "ru": "Мы очень по тебе скучаем.",
+        "ru": "Мы очень по вам скучаем.",
         "uz": "Biz sizni juda sog'indik."
       },
       "fragments": [
@@ -1502,7 +1502,7 @@
         "agree"
       ],
       "prompt": {
-        "ru": "Я с тобой не согласен.",
+        "ru": "Я с вами не согласен.",
         "uz": "Men siz bilan rozi emasman."
       },
       "fragments": [
@@ -1539,7 +1539,7 @@
         "hope"
       ],
       "prompt": {
-        "ru": "Надеюсь, тебе скоро станет лучше.",
+        "ru": "Надеюсь, вам скоро станет лучше.",
         "uz": "Umid qilamanki, tez orada o'zingizni yaxshiroq his qilasiz."
       },
       "fragments": [
@@ -1673,7 +1673,7 @@
         "Try to stay calm"
       ],
       "translation": {
-        "ru": "Постарайся сохранять спокойствие",
+        "ru": "Постарайтесь сохранять спокойствие",
         "uz": "Xotirjam bo'lishga harakat qiling"
       }
     },
@@ -1694,7 +1694,7 @@
         "I'm worried about you"
       ],
       "translation": {
-        "ru": "Я волнуюсь за тебя",
+        "ru": "Я волнуюсь за вас",
         "uz": "Siz uchun xavotirdaman"
       },
       "explanation": {
@@ -1719,7 +1719,7 @@
         "Do not be rude to the waiter"
       ],
       "translation": {
-        "ru": "Не груби официанту",
+        "ru": "Не грубите официанту",
         "uz": "Ofitsiantga qo'pollik qilmang"
       },
       "explanation": {
@@ -1764,7 +1764,7 @@
         "Can you forgive me?"
       ],
       "translation": {
-        "ru": "Ты можешь меня простить?",
+        "ru": "Вы можете меня простить?",
         "uz": "Meni kechira olasizmi?"
       }
     },
@@ -1808,7 +1808,7 @@
         "Do you remember me?"
       ],
       "translation": {
-        "ru": "Ты меня помнишь?",
+        "ru": "Вы меня помните?",
         "uz": "Meni eslaysizmi?"
       }
     },
@@ -1854,7 +1854,7 @@
         "You're very lucky"
       ],
       "translation": {
-        "ru": "Тебе очень повезло",
+        "ru": "Вам очень повезло",
         "uz": "Siz juda omadlisiz"
       }
     },
@@ -1932,7 +1932,7 @@
         "go"
       ],
       "translation": {
-        "ru": "Как прошло твоё собеседование?",
+        "ru": "Как прошло ваше собеседование?",
         "uz": "Suhbatingiz qanday o'tdi?"
       },
       "explanation": {
@@ -2458,7 +2458,7 @@
         "quit"
       ],
       "prompt": {
-        "ru": "Почему ты уволился с работы?",
+        "ru": "Почему вы уволились с работы?",
         "uz": "Nega ishdan ketdingiz?"
       },
       "fragments": [
@@ -2795,7 +2795,7 @@
         "Can you repair my bike?"
       ],
       "translation": {
-        "ru": "Ты можешь починить мой велосипед?",
+        "ru": "Вы можете починить мой велосипед?",
         "uz": "Velosipedimni tuzatib bera olasizmi?"
       }
     },
@@ -2961,7 +2961,7 @@
         "makes"
       ],
       "translation": {
-        "ru": "Не переживай, все делают ошибки.",
+        "ru": "Не переживайте, все делают ошибки.",
         "uz": "Xavotir olmang, hamma xato qiladi."
       },
       "explanation": {
@@ -2990,7 +2990,7 @@
         "to"
       ],
       "translation": {
-        "ru": "Можешь объяснить мне это правило?",
+        "ru": "Можете объяснить мне это правило?",
         "uz": "Bu qoidani menga tushuntirib bera olasizmi?"
       },
       "explanation": {
@@ -3108,7 +3108,7 @@
         "into"
       ],
       "translation": {
-        "ru": "Переведи это предложение на узбекский.",
+        "ru": "Переведите это предложение на узбекский.",
         "uz": "Bu gapni o'zbek tiliga tarjima qiling."
       },
       "explanation": {
@@ -3263,7 +3263,7 @@
         "principal"
       ],
       "prompt": {
-        "ru": "Директор хочет поговорить с твоими родителями.",
+        "ru": "Директор хочет поговорить с вашими родителями.",
         "uz": "Direktor ota-onangiz bilan gaplashmoqchi."
       },
       "fragments": [
@@ -3306,7 +3306,7 @@
         "practice"
       ],
       "prompt": {
-        "ru": "Тебе нужно заниматься каждый день.",
+        "ru": "Вам нужно заниматься каждый день.",
         "uz": "Har kuni mashq qilishingiz kerak."
       },
       "fragments": [
@@ -3674,7 +3674,7 @@
         "Did you pass the test?"
       ],
       "translation": {
-        "ru": "Ты сдал тест?",
+        "ru": "Вы сдали тест?",
         "uz": "Testdan o'tdingizmi?"
       },
       "explanation": {
