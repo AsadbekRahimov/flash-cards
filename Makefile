@@ -95,9 +95,11 @@ K6_RUN        = docker run --rm -i $(if $(K6_NET),--network $(K6_NET)) --user "$
 	-e BASE_URL="$(BASE_URL)" -e TARGET_VUS="$(TARGET_VUS)" -e HOLD -e THINK_SCALE -e CARDS_PER_SESSION -e WEBHOOK_RPS \
 	-e TELEGRAM_URL_SECRET -e TELEGRAM_HEADER_SECRET $(K6_IMAGE)
 
-load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (staging/local, refuses production)
+load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (local, testing, staging only)
 	@mkdir -p "$(dir $(TOKENS_FILE))"
-	$(LOAD_ARTISAN) load:tokens --count=$(TARGET_VUS) --output=- > "$(TOKENS_FILE)"
+	@umask 077; tmp="$(TOKENS_FILE).tmp.$$$$"; \
+	  if $(LOAD_ARTISAN) load:tokens --count=$(TARGET_VUS) --output=- > "$$tmp"; then mv "$$tmp" "$(TOKENS_FILE)"; \
+	  else rm -f "$$tmp"; echo "load:tokens failed, $(TOKENS_FILE) left as it was"; exit 1; fi
 	@chmod 600 "$(TOKENS_FILE)"
 	@echo "Tokens in $(TOKENS_FILE): live tokens, remove the file after the run"
 
