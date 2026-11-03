@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
@@ -66,155 +65,115 @@ afterEach(() => {
 })
 
 describe('battle setup — "Invite" meets the counter of battles', () => {
-  it('opens the wall instead of sending the invitation, when the counter says today\'s battles are spent and /me, read again, says so too', async () => {
+  // The counter on the screen never stops the invitation: the server decides (it looks for the friend's own invitation before the limit).
+  it('sends the invitation at a zero; the 403 of the server is the wall with its numbers, the counter is marked, no sentence beside it', async () => {
     const resetsAt = inHours(4)
-    useBillingStore().setLimits(freeLimits(0, 1, resetsAt))
+    const billing = useBillingStore()
+    billing.setLimits(freeLimits(0, 1, resetsAt))
     const setup = await ready()
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles', resetsAt)))
+    const noted = vi.spyOn(billing, 'noteLimitHit')
 
     expect(await setup.invite()).toBeNull()
 
-    expect(api.me.get).toHaveBeenCalledTimes(1)
-    expect(api.battles.invite).not.toHaveBeenCalled()
+    expect(api.battles.invite).toHaveBeenCalledTimes(1)
+    expect(noted).toHaveBeenCalledTimes(1)
     expect(setup.limitHit).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
     expect(setup.inviting).toBe(false)
     expect(setup.inviteError).toBe('')
     expect(setup.paywall).toBe(false)
   })
 
-  // A battle that did not take place (declined, not answered in time, withdrawn) is not counted: its place comes back on the server,
-  // and the counter the screen holds is from before. So a zero is confirmed by `/me` read again, not believed.
-  describe('a zero that the server may have forgiven', () => {
-    it('opens the way when /me, read again, gives the place back: the invitation is sent', async () => {
-      const billing = useBillingStore()
-      billing.setLimits(freeLimits(0, 1)) // the 201 of the invitation that was declined meanwhile said so
-      const setup = await ready()
-      serveMe(freeLimits(0, 0)) // ... and the server has given the place back
-      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+  it('the friend has invited the learner meanwhile: at a zero the 409 battle_busy leads into THEIR invitation, no wall', async () => {
+    useBillingStore().setLimits(freeLimits(0, 1))
+    const setup = await ready()
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 33 }))
+    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 33, status: 'invited', role: 'opponent' }))
 
-      expect(await setup.invite()).toBe(21)
+    expect(await setup.invite()).toBe(33)
 
-      expect(api.me.get).toHaveBeenCalledTimes(1)
-      expect(setup.limitHit).toBeNull()
-      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
-    })
-
-    it('does not ask /me while some place is left, nor for a kind without a counter', async () => {
-      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
-      const billing = useBillingStore()
-      const setup = await ready()
-
-      billing.setLimits(freeLimits(2, 0))
-      await setup.invite()
-      billing.setLimits({ sessions: freeLimits(0, 0).sessions, battles: null })
-      await setup.invite()
-      billing.setLimits(null)
-      await setup.invite()
-
-      expect(api.me.get).not.toHaveBeenCalled()
-      expect(api.battles.invite).toHaveBeenCalledTimes(3)
-    })
-
-    it('does not sell Pro on a number that cannot be checked: with /me out of reach the invitation goes to the server, which decides', async () => {
-      vi.spyOn(console, 'warn').mockImplementation(() => {})
-      useBillingStore().setLimits(freeLimits(0, 1))
-      const setup = await ready()
-      vi.mocked(api.me.get).mockRejectedValue(apiError('network', 0, 'network'))
-      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
-
-      expect(await setup.invite()).toBe(21)
-
-      expect(setup.limitHit).toBeNull()
-    })
-
-    it('... and what the server then says is the wall, as ever (403 with its numbers)', async () => {
-      vi.spyOn(console, 'warn').mockImplementation(() => {})
-      useBillingStore().setLimits(freeLimits(0, 1))
-      const setup = await ready()
-      vi.mocked(api.me.get).mockRejectedValue(apiError('server', 500, 'server_error'))
-      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
-
-      expect(await setup.invite()).toBeNull()
-
-      expect(setup.limitHit).toMatchObject({ kind: 'battles', limit: 1 })
-    })
-
-    it('waits for the answer with the button switched off: one press is one question and one invitation', async () => {
-      useBillingStore().setLimits(freeLimits(0, 1))
-      const setup = await ready()
-      let answer!: (value: MeResponse) => void
-      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
-      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
-
-      const first = setup.invite()
-      expect(setup.inviting).toBe(true)
-      expect(setup.canInvite).toBe(false)
-      expect(await setup.invite()).toBeNull() // a second press does nothing
-      answer(meWith(freeLimits(0, 0)))
-
-      expect(await first).toBe(21)
-      expect(api.me.get).toHaveBeenCalledTimes(1)
-      expect(api.battles.invite).toHaveBeenCalledTimes(1)
-      expect(setup.inviting).toBe(false)
-    })
-
-    it('a /me that is already on its way (the reading of the screen itself) is waited for, and its counter decides: no second question', async () => {
-      useBillingStore().setLimits(freeLimits(0, 1))
-      const setup = await ready()
-      let answer!: (value: MeResponse) => void
-      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
-      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
-      vi.mocked(api.me.get).mockClear()
-      const reading = useBillingStore().load({ force: true }) // began with the screen, the learner pressed before the answer
-
-      const inviting = setup.invite()
-      expect(setup.inviting).toBe(true)
-      await flushPromises()
-      expect(api.battles.invite, 'the old zero does not decide, and nothing is sent before the answer').not.toHaveBeenCalled()
-      answer(meWith(freeLimits(0, 0))) // the server had given the place back
-
-      expect(await inviting).toBe(21)
-      await reading
-      expect(api.me.get).toHaveBeenCalledTimes(1) // the one that was on its way: the invitation did not ask a second time
-      expect(setup.limitHit).toBeNull()
-    })
-
-    it('... and when that answer still says none, the wall opens without the invitation', async () => {
-      const resetsAt = inHours(4)
-      useBillingStore().setLimits(freeLimits(0, 1, resetsAt))
-      const setup = await ready()
-      let answer!: (value: MeResponse) => void
-      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
-      vi.mocked(api.me.get).mockClear()
-      void useBillingStore().load({ force: true })
-
-      const inviting = setup.invite()
-      await flushPromises()
-      expect(api.battles.invite, 'nothing is sent before the answer').not.toHaveBeenCalled()
-      answer(meWith(freeLimits(0, 1, resetsAt)))
-
-      expect(await inviting).toBeNull()
-      expect(api.me.get).toHaveBeenCalledTimes(1)
-      expect(api.battles.invite).not.toHaveBeenCalled()
-      expect(setup.limitHit).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
-    })
-
-    it('an answer that comes after a new setup was started moves nobody', async () => {
-      useBillingStore().setLimits(freeLimits(0, 1))
-      const setup = await ready()
-      let answer!: (value: MeResponse) => void
-      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
-
-      const first = setup.invite()
-      await setup.begin(12, null, null)
-      answer(meWith(freeLimits(0, 0)))
-
-      expect(await first).toBeNull()
-      expect(api.battles.invite).not.toHaveBeenCalled()
-      expect(setup.limitHit).toBeNull()
-    })
+    expect(api.battles.get).toHaveBeenCalledWith(33)
+    expect(setup.limitHit).toBeNull()
+    expect(setup.paywall).toBe(false)
+    expect(setup.inviteError).toBe('')
+    expect(setup.busyBattleId).toBeNull()
+    expect(setup.inviting).toBe(false)
   })
 
-  it('"Invite" is still on when the battles are spent: it is what opens the wall (only a setup that cannot go on switches it off)', async () => {
+  it('a 201 at a zero (the place came back on the server) is the id of the new battle', async () => {
+    const billing = useBillingStore()
+    billing.setLimits(freeLimits(0, 1)) // the invitation that was declined meanwhile said so
+    const setup = await ready()
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21, limits: freeLimits(0, 1) }))
+
+    expect(await setup.invite()).toBe(21)
+
+    expect(setup.limitHit).toBeNull()
+    expect(billing.battleLimit).toMatchObject({ used: 1, remaining: 0 })
+  })
+
+  it('does not read /me before the invitation', async () => {
+    const billing = useBillingStore()
+    const setup = await ready()
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+    vi.mocked(api.me.get).mockClear()
+
+    billing.setLimits(freeLimits(0, 1))
+    await setup.invite()
+    billing.setLimits(freeLimits(2, 0))
+    await setup.invite()
+
+    expect(api.me.get).not.toHaveBeenCalled()
+    expect(api.battles.invite).toHaveBeenCalledTimes(2)
+  })
+
+  it('waits for the answer with the button switched off: one press is one invitation', async () => {
+    useBillingStore().setLimits(freeLimits(0, 1))
+    const setup = await ready()
+    let answer!: (value: ReturnType<typeof invitedBattle>) => void
+    vi.mocked(api.battles.invite).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+    const first = setup.invite()
+    expect(setup.inviting).toBe(true)
+    expect(setup.canInvite).toBe(false)
+    expect(await setup.invite()).toBeNull() // a second press does nothing
+    answer(invitedBattle({ id: 21 }))
+
+    expect(await first).toBe(21)
+    expect(api.battles.invite).toHaveBeenCalledTimes(1)
+    expect(setup.inviting).toBe(false)
+  })
+
+  it('an answer that comes after a new setup was started moves nobody', async () => {
+    useBillingStore().setLimits(freeLimits(0, 1))
+    const setup = await ready()
+    let answer!: (value: ReturnType<typeof invitedBattle>) => void
+    vi.mocked(api.battles.invite).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+    const first = setup.invite()
+    await setup.begin(12, null, null)
+    answer(invitedBattle({ id: 21 }))
+
+    expect(await first).toBeNull()
+    expect(setup.limitHit).toBeNull()
+  })
+
+  it('a friend\'s invitation found after a new setup was started moves nobody', async () => {
+    useBillingStore().setLimits(freeLimits(0, 1))
+    const setup = await ready()
+    let refuse!: (reason: unknown) => void
+    vi.mocked(api.battles.invite).mockReturnValue(new Promise((_, reject) => (refuse = reject)))
+    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 33, status: 'invited', role: 'opponent' }))
+
+    const first = setup.invite()
+    await setup.begin(12, null, null)
+    refuse(apiError('conflict', 409, 'battle_busy', { battle_id: 33 }))
+
+    expect(await first).toBeNull()
+    expect(setup.limitHit).toBeNull()
+  })
+
+  it('"Invite" is still on when the battles are spent: only a setup that cannot go on switches it off', async () => {
     useBillingStore().setLimits(freeLimits(0, 1))
     const setup = await ready()
 
@@ -236,20 +195,6 @@ describe('battle setup — "Invite" meets the counter of battles', () => {
     expect(await setup.invite()).toBe(21)
     expect(api.battles.invite).toHaveBeenCalledTimes(3)
     expect(api.me.get).not.toHaveBeenCalled()
-    expect(setup.limitHit).toBeNull()
-  })
-
-  it('asks once the day of the counter is over: the app stayed open overnight, and the server decides', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
-    useBillingStore().setLimits(freeLimits(0, 1, '2026-11-02T19:00:00Z'))
-    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
-    const setup = await ready()
-    expect(await setup.invite()).toBeNull()
-
-    vi.setSystemTime(new Date('2026-11-02T19:00:01Z'))
-
-    expect(await setup.invite()).toBe(21)
     expect(setup.limitHit).toBeNull()
   })
 
@@ -435,6 +380,7 @@ describe('battle setup — battles without a limit (null inside the limits)', ()
 describe('battle setup — the wall belongs to one setup', () => {
   it('is forgotten when a setup begins again (another friend, the address changed)', async () => {
     useBillingStore().setLimits(freeLimits(0, 1))
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
     const setup = await ready()
     await setup.invite()
     expect(setup.limitHit).not.toBeNull()
@@ -444,15 +390,15 @@ describe('battle setup — the wall belongs to one setup', () => {
     expect(setup.limitHit).toBeNull()
   })
 
-  it('is forgotten by the next press of "Invite", which asks the counter again', async () => {
-    const billing = useBillingStore()
-    billing.setLimits(freeLimits(0, 1))
-    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+  it('is forgotten by the next press of "Invite", which asks the server again', async () => {
+    useBillingStore().setLimits(freeLimits(0, 1))
+    vi.mocked(api.battles.invite).mockRejectedValueOnce(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
+    vi.mocked(api.battles.invite).mockResolvedValueOnce(invitedBattle({ id: 21 }))
     const setup = await ready()
     await setup.invite()
+    expect(setup.limitHit).not.toBeNull()
 
-    billing.setLimits(freeLimits(0, 0)) // the counters were told again meanwhile (the hub, a new /me): the press asks them again
-    expect(await setup.invite()).toBe(21)
+    expect(await setup.invite()).toBe(21) // the second press goes to the server again (the place may have come back)
 
     expect(setup.limitHit).toBeNull()
   })

@@ -6,6 +6,7 @@ import PracticeHubView from '../PracticeHubView.vue'
 import BattleSetupView from '../BattleSetupView.vue'
 import FriendsView from '../FriendsView.vue'
 import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
@@ -168,6 +169,10 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     vi.mocked(api.courses.get).mockImplementation((slug) => Promise.resolve(courseDetail({ slug, title: slug })))
     vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 3, deck_words: 50, used_decks: 0 } } as never)
     vi.mocked(api.battles.options).mockResolvedValue(options())
+    // The press goes to the server, which refuses with the numbers the sheet quotes.
+    vi.mocked(api.battles.invite).mockRejectedValue(
+      new ApiClientError('forbidden', 403, 'practice_limit_reached', 'English message', undefined, { kind: 'battles', limit: 1, used: 1, resets_at: MIDNIGHT }),
+    )
     const wrapper = await mountWith(BattleSetupView, { friendshipId: 11, course: null, lessonId: null })
     expect(wrapper.get('[data-testid=battle-limit]').text()).toBe('Баттлов сегодня: осталось 0 из 1')
 
@@ -175,7 +180,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await flushPromises()
 
     expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Pro скоро откроется.')
-    expect(api.battles.invite).not.toHaveBeenCalled()
+    expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
   it('the Friends screen: "Battle" meets the same sheet', async () => {
@@ -296,6 +301,9 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     vi.mocked(api.courses.get).mockImplementation((slug) => Promise.resolve(courseDetail({ slug, title: slug })))
     vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 3, deck_words: 50, used_decks: 0 } } as never)
     vi.mocked(api.battles.options).mockResolvedValue(options())
+    vi.mocked(api.battles.invite).mockRejectedValue(
+      new ApiClientError('forbidden', 403, 'practice_limit_reached', 'English message', undefined, { kind: 'battles', limit: 0, used: 0, resets_at: MIDNIGHT }),
+    )
     const wrapper = await mountWith(BattleSetupView, { friendshipId: 11, course: null, lessonId: null })
     expect(wrapper.find('[data-testid=battle-limit]').exists()).toBe(false)
 
@@ -303,7 +311,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     await flushPromises()
 
     expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Pro скоро откроется.')
-    expect(api.battles.invite).not.toHaveBeenCalled()
+    expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
   it('the Friends screen, in Uzbek: the same words', async () => {
