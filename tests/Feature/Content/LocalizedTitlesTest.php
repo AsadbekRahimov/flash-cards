@@ -291,6 +291,12 @@ it('imports stage.title_uz and lesson.title_uz, idempotently, and treats a blank
     ltImport($course, ['title' => 'Знакомство', 'title_uz' => 'Tanishuv va odamlar'], ['title' => 'Приветствия', 'title_uz' => 'Salom'], 'hi');
     expect($stage->refresh()->title_uz)->toBe('Tanishuv va odamlar')
         ->and($lesson->refresh()->title_uz)->toBe('Salom');
+
+    // A file without the `title_uz` key leaves the lesson's name alone; with the key blank - NULL.
+    ltImport($course, ['title' => 'Знакомство'], ['title' => 'Приветствия'], 'again');
+    expect($lesson->refresh()->title_uz)->toBe('Salom');
+    ltImport($course, ['title' => 'Знакомство'], ['title' => 'Приветствия', 'title_uz' => null], 'blank');
+    expect($lesson->refresh()->title_uz)->toBeNull();
 });
 
 it('rejects a title_uz that is not a string or is too long', function (): void {
@@ -318,7 +324,7 @@ it('imports the uz names of the modules and lessons of the A1-A2 pack files', fu
     $stage = Stage::query()->where('course_id', $course->id)->where('number', 1)->sole();
     expect($stage->title_uz)->toBe($data['stage']['title_uz'])
         ->and($stage->lessons()->where('number', 1)->sole()->title_uz)->toBe($data['lesson']['title_uz']);
-})->skip(fn (): bool => ! file_exists(base_path('database/data/courses/english-a1-a2/m01-l1.json')), 'the pack is not in the repository');
+});
 
 // --- practice: a snapshot read by two learners ---------------------------------------------------------------------
 
@@ -327,7 +333,8 @@ it('keeps the lesson name per locale in a battle snapshot, so each participant r
     $lesson->update(['title_uz' => 'Ovqat']);
 
     $battle = BattleKit::fresh(BattleKit::invite($me, $friendship, PracticeMode::Sentence, $course, $lesson));
-    expect($battle->snapshot['lesson_title'])->toBe(['ru' => 'Еда', 'uz' => 'Ovqat'])
+    expect($battle->snapshot['lesson_titles'])->toBe(['ru' => 'Еда', 'uz' => 'Ovqat'])
+        ->and($battle->snapshot['lesson_title'])->toBe('Еда', 'the string of the pre-v2 code: the first locale')
         ->and($battle->snapshot['v'])->toBe(Snapshot::VERSION);
 
     $mine = $this->withHeaders(PracticeKit::headers($me))->getJson("/api/twa/practice/battles/{$battle->id}")->assertOk();
@@ -336,11 +343,39 @@ it('keeps the lesson name per locale in a battle snapshot, so each participant r
         ->and($theirs->json('lesson.title'))->toBe('Ovqat');
 
     // A snapshot written before (v1): one string, read as the name in every locale; no entry at all - no name.
-    $legacy = Snapshot::fromArray([...$battle->snapshot, 'lesson_title' => 'Еда', 'v' => 1]);
+    $v1 = array_diff_key($battle->snapshot, ['lesson_titles' => 1]);
+    $legacy = Snapshot::fromArray([...$v1, 'lesson_title' => 'Еда', 'v' => 1]);
     expect($legacy->lessonTitle)->toBe(['ru' => 'Еда', 'uz' => 'Еда'])
         ->and($legacy->lessonTitleFor('uz'))->toBe('Еда')
-        ->and(Snapshot::fromArray([...$battle->snapshot, 'lesson_title' => null])->lessonTitleFor('uz'))->toBeNull()
-        ->and(Snapshot::fromArray([...$battle->snapshot, 'lesson_title' => ['ru' => 'Еда']])->lessonTitleFor('uz'))->toBe('Еда', 'any name the snapshot has');
+        ->and(Snapshot::fromArray([...$v1, 'lesson_title' => null])->lessonTitleFor('uz'))->toBeNull()
+        ->and(Snapshot::fromArray([...$battle->snapshot, 'lesson_title' => 'Еда', 'lesson_titles' => ['ru' => 'Еда']])->lessonTitleFor('uz'))->toBeNull('no name of its own: no other locale\'s');
+});
+
+it('writes the snapshot so that the pre-v2 code reads it after a rollback', function (): void {
+    $snapshot = new Snapshot(PracticeMode::Sentence, ['uz', 'ru'], [], lessonTitle: ['ru' => 'Еда', 'uz' => 'Ovqat']);
+    $data = $snapshot->toArray();
+
+    expect($data['lesson_title'])->toBe('Ovqat', 'a string - the first locale of the snapshot, as the old code wrote it')
+        ->and($data['lesson_titles'])->toBe(['ru' => 'Еда', 'uz' => 'Ovqat'])
+        ->and(Snapshot::fromArray($data)->lessonTitle)->toBe(['ru' => 'Еда', 'uz' => 'Ovqat'])
+        // only the v1 string: the name in every locale
+        ->and(Snapshot::fromArray(['mode' => 'sentence', 'locales' => ['ru', 'uz'], 'lesson_title' => 'Еда', 'v' => 1])->lessonTitle)->toBe(['ru' => 'Еда', 'uz' => 'Еда'])
+        // both keys: the map wins over the string
+        ->and(Snapshot::fromArray([...$data, 'lesson_title' => 'other'])->lessonTitle)->toBe(['ru' => 'Еда', 'uz' => 'Ovqat'])
+        ->and((new Snapshot(PracticeMode::Sentence, ['ru'], []))->toArray()['lesson_title'])->toBeNull();
+});
+
+it('names the lesson in the options of a battle by the viewer locale', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $lesson->update(['title_uz' => 'Ovqat']);
+    $url = "/api/twa/practice/battles/options?friendship_id={$friendship->id}&course={$course->slug}&lesson_id={$lesson->id}";
+
+    $ru = $this->withHeaders(PracticeKit::headers($me))->getJson($url)->assertOk();
+    $me->update(['interface_locale' => 'uz']);
+    $uz = $this->withHeaders(PracticeKit::headers($me->refresh()))->getJson($url)->assertOk();
+
+    expect($ru->json('lesson.title'))->toBe('Еда')
+        ->and($uz->json('lesson.title'))->toBe('Ovqat');
 });
 
 // --- the admin panel -------------------------------------------------------------------------------------------------

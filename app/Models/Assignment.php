@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Content\Services\DeckTitles;
 use Carbon\CarbonInterface;
 use Database\Factories\AssignmentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * A lesson set by a center for one of its Telegram groups (docs/13 §1.4). Written by
@@ -113,12 +115,27 @@ class Assignment extends Model
         return $this->isActive() && $this->due_at->lte($now ?? now());
     }
 
-    /** The title shown to people: the custom one, the lesson's or "Lesson N". Needs `lesson` loaded. */
+    /**
+     * The title shown to people: the teacher's own one, else the lesson's in the reader's locale, else "Lesson N". Needs `lesson`
+     * loaded (with `stage.course`, to avoid a query). `create()` copies the lesson's ru title into `title` when the teacher gave none,
+     * so a title equal to the lesson's is the default one and follows the reader's locale (uz name when the lesson has it).
+     */
     public function displayTitle(?string $locale = null): string
     {
-        return $this->title
-            ?? $this->lesson->title
-            ?? __('assignments.lesson_fallback', ['number' => $this->lesson->number], $locale);
+        $lesson = $this->lesson;
+        $locale ??= app()->getLocale();
+        $lessonRu = $lesson->title !== null ? trim($lesson->title) : '';
+
+        if ($this->title !== null && trim($this->title) !== '' && trim($this->title) !== Str::limit($lessonRu, 120, '')) {
+            return $this->title;
+        }
+
+        $course = $lesson->stage?->course;
+        $lessonTitle = $course === null ? null : app(DeckTitles::class)->lessonIn($course, $locale, $lesson->number, $lesson->title, $lesson->title_uz);
+
+        return $lessonTitle
+            ?? $this->title
+            ?? __('assignments.lesson_fallback', ['number' => $lesson->number], $locale);
     }
 
     /**

@@ -140,7 +140,7 @@ final class VocabularyImporter
 
             // A file without a stage title (or with a blank one) gives a new module NO name (NULL: readers are shown
             // "Модуль N" / "N-modul" in their language, docs/14 §8) and leaves the name of an existing module alone. The
-            // Uzbek name (`title_uz`, docs/03 §2.5) follows the same rule; a lesson's names are the file's (absent = NULL).
+            // Uzbek name (`title_uz`, docs/03 §2.5) follows the same rule; a lesson's `title_uz` is the file's when the key is present.
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
@@ -150,12 +150,14 @@ final class VocabularyImporter
                 ], fn ($v): bool => $v !== null),
             );
 
+            // `title_uz`: no key in the file - the name typed in the panel stays; the key present and blank - NULL.
+            $lessonValues = ['title' => $data['lesson']['title'] ?? null];
+            if (array_key_exists('title_uz', $data['lesson'])) {
+                $lessonValues['title_uz'] = self::name($data['lesson']['title_uz']);
+            }
             $lesson = Lesson::updateOrCreate(
                 ['stage_id' => $stage->id, 'number' => $data['lesson']['number']],
-                [
-                    'title' => $data['lesson']['title'] ?? null,
-                    'title_uz' => self::name($data['lesson']['title_uz'] ?? null),
-                ],
+                $lessonValues,
             );
 
             /** @var Collection<string, Word> $existingWords */

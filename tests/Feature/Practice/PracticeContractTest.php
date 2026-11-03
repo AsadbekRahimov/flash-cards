@@ -653,7 +653,7 @@ it('names no lesson of a snapshot that has none, and falls back for the title of
     // A snapshot written before the names were kept in it: the session is still found by its ids, nothing is made up.
     $row = PracticeSession::query()->findOrFail($session['id']);
     $bare = $row->snapshot;
-    unset($bare['course_title'], $bare['lesson_stage'], $bare['lesson_number'], $bare['lesson_title']);
+    unset($bare['course_title'], $bare['lesson_stage'], $bare['lesson_number'], $bare['lesson_title'], $bare['lesson_titles']);
     $row->forceFill(['snapshot' => $bare])->save();
 
     expect($hub())->toBe(['id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'course_title' => 'english-a1', 'lesson_id' => $lesson->id, 'lesson' => null, 'progress' => ['done' => 0, 'total' => 5]]);

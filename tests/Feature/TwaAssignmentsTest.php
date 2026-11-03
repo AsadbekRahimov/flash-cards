@@ -103,3 +103,25 @@ it('accepts source=assignment when the lesson session is opened from the assignm
         ->assertOk()
         ->assertJsonStructure(['session_id']);
 });
+
+it('names the lesson by the learner locale unless the teacher gave their own title', function (): void {
+    $this->lesson->update(['title' => 'Еда', 'title_uz' => 'Ovqat']);
+    $uz = Learner::factory()->memberOf($this->group)->create(['interface_locale' => 'uz']);
+    $ru = Learner::factory()->memberOf($this->group)->create(['interface_locale' => 'ru']);
+    $base = ['organization_id' => $this->org->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id];
+    $default = Assignment::factory()->create([...$base, 'title' => 'Еда', 'due_at' => now()->addDay()]); // what create() copies
+    $none = Assignment::factory()->create([...$base, 'title' => null, 'due_at' => now()->addDays(2)]);
+    $own = Assignment::factory()->create([...$base, 'title' => 'Homework 1', 'due_at' => now()->addDays(3)]);
+
+    $titles = fn (Learner $l): array => array_column($this->withHeaders(asgApiHeaders($l))->getJson('/api/twa/assignments')->assertOk()->json('assignments'), 'title', 'id');
+
+    expect($titles($uz))->toBe([$default->id => 'Ovqat', $none->id => 'Ovqat', $own->id => 'Homework 1'])
+        ->and($titles($ru))->toBe([$default->id => 'Еда', $none->id => 'Еда', $own->id => 'Homework 1']);
+
+    // No uz name: the ru one; no name at all: "Lesson N".
+    $this->lesson->update(['title_uz' => null]);
+    expect($titles($uz)[$default->id])->toBe('Еда');
+    $this->lesson->update(['title' => null]);
+    expect($default->refresh()->load('lesson.stage.course')->displayTitle('uz'))->toBe('Еда', 'a stored title with no lesson name stays')
+        ->and($none->refresh()->load('lesson.stage.course')->displayTitle('ru'))->toBe(__('assignments.lesson_fallback', ['number' => 1], 'ru'));
+});
