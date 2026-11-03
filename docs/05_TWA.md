@@ -343,7 +343,7 @@ Vitest (`resources/twa/src`): стор `practice.spec`, `practiceRaces.spec` (п
 
 **Коды ошибок** (`KNOWN_ERROR_CODES` + `error.code.*` ru/uz): `game_unavailable`, `game_limit_reached`, `game_pro_required`, `game_run_active`, `game_daily_done`, `boss_not_ready`, `stop_locked`, `game_not_enough_material`, `stage_not_found`, `stage_not_in_course` (`course_not_found`, `lesson_not_found`, `lesson_not_in_course` уже есть у практики). Контекст сообщений — `game` (`error.closed.game`, `error.forbidden.game`). Коды забега (`game_run_not_found`, `game_run_closed`, подсказки, бустеры, лавка) — §5b.3 и следующие задачи.
 
-**Пейвол `PaywallReason = 'game'`.** Забег по карте у Free ограничен (docs/18 §3): бесплатный забег в день и билеты (за серию и за друзей); Pro — без ограничений. Лид: «Бесплатный забег на сегодня сыгран. Новый — завтра, по билету или сразу с Pro.» Чисел в тексте нет: они приходят только в `me.game.limits` (до G2.8 это `null`) и показываются строкой на листе стоянки, не в пейволе. Остальное — как у других причин: что даёт Free, покупка или `coming_soon`, промокод, «Повторить слова».
+**Пейвол `PaywallReason = 'game'`.** Забег по карте у Free ограничен (docs/18 §3): бесплатный забег в день и билеты (за серию и за друзей); Pro — без ограничений. Лид (один для отказа по лимиту и для босса Pro): «Караван: бесплатный забег в день и билеты за серию и за друзей. В Pro — без ограничений.» Чисел в тексте нет: они приходят только в `me.game.limits` (до G2.8 это `null`) и показываются строкой на листе стоянки, не в пейволе. Остальное — как у других причин: что даёт Free, покупка или `coming_soon`, промокод, «Повторить слова».
 
 ### 5b.2 Карта `/game`
 

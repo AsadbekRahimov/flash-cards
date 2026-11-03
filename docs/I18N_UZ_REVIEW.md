@@ -2835,3 +2835,69 @@
 ### Публичный сайт, политика (`lang/uz/legal.php`)
 
 > Блок `legal.privacy.sections.6.text` изменён (см. выше, исходная строка обновлена).
+
+### TWA: «Караван» — карта (G2.7a, `docs/05` §5b)
+
+> Тексты карты Шёлкового пути, листа стоянки, пейвола `game` и ошибок игры (коды `docs/18` §12.8, карта и старт). Забег, итог, босс и лавка добавят свои ключи отдельными разделами.
+>
+> Что решить носителю:
+> - **«Караван»** — `Karvon`; **«забег»** — `reys`; **«стоянка»** — `bekat`; **«босс / Хранитель ворот»** — `qo'riqchi`; **«фляга»** — `mesh` (бурдюк для воды).
+> - **«Модуль N»** в uz — `N-modul`, как в остальном приложении.
+> - Названия городов (Самарканд, Бухара…) приходят с сервера (`lang/{ru,uz}/game.php`), здесь их нет.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.boss.defeated` | Qo'riqchi yengildi | Босс побеждён |
+| `game.boss.not_ready_stops.one` | yana {count} ta bekat | ещё {count} стоянка |
+| `game.boss.not_ready_stops.few` | _(в uz этой формы нет — используется `other`)_ | ещё {count} стоянки |
+| `game.boss.not_ready_stops.many` | _(в uz этой формы нет — используется `other`)_ | ещё {count} стоянок |
+| `game.boss.not_ready_stops.other` | yana {count} ta bekat | ещё {count} стоянки |
+| `game.boss.not_ready_words.one` | yana {count} ta so'z | ещё {count} слово |
+| `game.boss.not_ready_words.few` | _(в uz этой формы нет — используется `other`)_ | ещё {count} слова |
+| `game.boss.not_ready_words.many` | _(в uz этой формы нет — используется `other`)_ | ещё {count} слов |
+| `game.boss.not_ready_words.other` | yana {count} ta so'z | ещё {count} слова |
+| `game.boss.pro` | Qo'riqchi · Pro | Босс · Pro |
+| `game.boss.ready` | Qo'riqchi kutmoqda | Босс ждёт |
+| `game.conflict.continue` | Reysni davom ettirish | Продолжить забег |
+| `game.conflict.replace` | Shuni boshlash | Начать этот |
+| `game.conflict.text` | Uni davom ettiring yoki shuni boshlang — oldingisi hisobga olinmaydi. | Продолжите его или начните этот — прежний не засчитается. |
+| `game.conflict.title` | Reys davom etmoqda | Идёт забег |
+| `game.map.active_progress` | {total} tadan {answered} ta | {answered} из {total} |
+| `game.map.active_run` | Reys davom etmoqda | Идёт забег |
+| `game.map.continue` | Davom etish | Продолжить |
+| `game.map.empty_text` | Kartochkalarda darsni boshlang — birinchi bekat ochiladi. | Начните урок в карточках — откроется первая стоянка. |
+| `game.map.friends` | Shu yerda: {names} | Здесь: {names} |
+| `game.map.friends_more` | +{count} | +{count} |
+| `game.map.learn` | O'rganish | Учить |
+| `game.map.module` | {number}-modul | Модуль {number} |
+| `game.map.no_course_text` | Karvon kursingiz so'zlari bo'ylab yuradi. | Караван идёт по словам вашего курса. |
+| `game.map.no_course_title` | Kursni tanlang | Выберите курс |
+| `game.map.road` | Karvon yo'li | Дорога каравана |
+| `game.map.stars_aria` | 3 tadan {stars} ta yulduz | {stars} из 3 звёзд |
+| `game.map.stop` | {number}-bekat | Стоянка {number} |
+| `game.map.stop_locked` | darsni boshlang | начните урок |
+| `game.map.to_course` | Kursga | К курсу |
+| `game.map.to_courses` | Kurslarga | К курсам |
+| `game.map.unavailable_text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishingiz mumkin. | Он откроется позже. А заниматься по курсу можно как обычно. |
+| `game.map.unavailable_title` | Karvon hozircha mavjud emas | Караван пока недоступен |
+| `game.material.text` | Bu bekat uchun ko'proq so'z kerak. Kartochkalarda yana o'rganing — bekat ochiladi. | Для этой стоянки нужно больше слов. Выучите ещё в карточках — и она откроется. |
+| `game.material.title` | So'zlar hozircha kam | Слов пока мало |
+| `game.stop.best` | Eng yaxshi hisob: {score} | Лучший счёт: {score} |
+| `game.stop.free_today` | Bugun bepul: {limit} tadan {remaining} ta | Сегодня бесплатно: {remaining} из {limit} |
+| `game.stop.go` | Yo'lga chiqish | В путь |
+| `game.stop.text` | 8–10 ta topshiriq, 3 ta mesh | 8–10 заданий, 3 фляги |
+| `game.stop.tickets` | chiptalar: {count} | билеты: {count} |
+| `game.title` | Karvon | Караван |
+| `paywall.lead_game` | Karvon: kuniga bitta bepul reys va seriya hamda do'stlar uchun chiptalar. Pro'da — cheklovsiz. | Караван: бесплатный забег в день и билеты за серию и за друзей. В Pro — без ограничений. |
+| `error.closed.game` | Bu reys allaqachon yopilgan. | Этот забег уже закрыт. |
+| `error.forbidden.game` | Karvonga kirish huquqingiz yo'q. | У вас нет доступа к каравану. |
+| `error.code.game_unavailable` | Karvon hozircha mavjud emas. | Караван пока недоступен. |
+| `error.code.game_limit_reached` | Bugungi bepul reyslar tugadi. | Бесплатные забеги на сегодня закончились. |
+| `error.code.game_pro_required` | Bu Pro'da mavjud. | Это доступно в Pro. |
+| `error.code.game_run_active` | Sizda allaqachon davom etayotgan reys bor. | У вас уже есть идущий забег. |
+| `error.code.game_daily_done` | Kunlik karvon o'ynalgan. Yangisi — ertaga. | Караван дня уже сыгран. Новый — завтра. |
+| `error.code.boss_not_ready` | Qo'riqchi hali tayyor emas: ko'proq bekatdan o'ting. | Босс пока не готов: пройдите больше стоянок. |
+| `error.code.stop_locked` | Bu bekat yopiq: kartochkalarda darsni boshlang. | Эта стоянка закрыта: начните урок в карточках. |
+| `error.code.game_not_enough_material` | Bu bekat uchun so'z hozircha yetarli emas. | Для этой стоянки пока не хватает слов. |
+| `error.code.stage_not_found` | Shahar topilmadi. | Город не найден. |
+| `error.code.stage_not_in_course` | Bu shahar tanlangan kursga tegishli emas. | Этот город не относится к выбранному курсу. |
