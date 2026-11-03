@@ -456,6 +456,7 @@ class LearnerResource extends Resource
             RelationManagers\ReferralsRelationManager::class,
             RelationManagers\ProductEventsRelationManager::class,
             RelationManagers\DailyStatsRelationManager::class,
+            RelationManagers\CaravanRelationManager::class,
         ];
     }
 

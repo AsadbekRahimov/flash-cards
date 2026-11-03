@@ -216,6 +216,12 @@ class Learner extends Model
         return $this->hasMany(LearnerDailyStats::class);
     }
 
+    /** @return HasMany<GameCoinLedgerEntry, $this> */
+    public function gameCoinLedger(): HasMany
+    {
+        return $this->hasMany(GameCoinLedgerEntry::class);
+    }
+
     /** @return HasMany<ProductEvent, $this> */
     public function productEvents(): HasMany
     {

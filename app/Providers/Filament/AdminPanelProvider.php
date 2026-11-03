@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
+use App\Filament\Widgets\GameActivityWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\LeagueGroupsTableWidget;
 use App\Filament\Widgets\OnboardingFunnelWidget;
@@ -64,6 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 LeagueGroupsTableWidget::class,
                 RevenueLast30DaysWidget::class,
                 WebhookErrorsWidget::class,
+                GameActivityWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
