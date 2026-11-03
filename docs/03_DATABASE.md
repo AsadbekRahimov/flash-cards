@@ -1317,13 +1317,13 @@ CHECK не создаются — инвариант дублируют серв
     Backfill тем же файлом: коррелированным `UPDATE … SET … = (SELECT … FROM learners WHERE learners.id = subscriber_id)` по строкам `subscriber_type = 'learner'`
     (включая soft-deleted учеников) и из `organizations.name` по `organization`; оба драйвера. `down()` снимает индексы и колонки *(purge)*
 
-58. `2026_11_05_100001_create_game_runs_tables` — `game_runs` (без FK на `class_caravans`), `game_run_attempts`; CHECK — только pgsql *(G2.1, §2.48–§2.49)*
-59. `2026_11_05_100002_create_game_progress_tables` — `game_stop_progress`, `game_city_progress`, `game_word_misses` *(G2.1, §2.50–§2.52)*
-60. `2026_11_05_100003_create_game_economy_tables` — `game_wallets`, `game_coin_ledger`, `game_items`, `game_inventory`, `game_profiles`, `game_ticket_ledger`, `game_booster_uses`; CHECK — только pgsql *(G2.1, §2.53–§2.59)*
-61. `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` — `game_runs_count`, `game_points`, `game_held_at` (§2.22) *(G2.1)*
-62. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
+59. `2026_11_05_100001_create_game_runs_tables` — `game_runs` (без FK на `class_caravans`), `game_run_attempts`; CHECK — только pgsql *(G2.1, §2.48–§2.49)*
+60. `2026_11_05_100002_create_game_progress_tables` — `game_stop_progress`, `game_city_progress`, `game_word_misses` *(G2.1, §2.50–§2.52)*
+61. `2026_11_05_100003_create_game_economy_tables` — `game_wallets`, `game_coin_ledger`, `game_items`, `game_inventory`, `game_profiles`, `game_ticket_ledger`, `game_booster_uses`; CHECK — только pgsql *(G2.1, §2.53–§2.59)*
+62. `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` — `game_runs_count`, `game_points`, `game_held_at` (§2.22) *(G2.1)*
+63. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
 
-Миграции игры (58–62) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 62 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
+Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 
