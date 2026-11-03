@@ -295,6 +295,8 @@ final class RunService
             kind: $run->kind,
             status: $run->status,
             finishReason: $run->finish_reason,
+            courseSlug: $snapshot->courseSlug === '' ? null : $snapshot->courseSlug,
+            lessonId: $run->lesson_id,
             city: $snapshot->stageNumber === null ? null : CityNames::name($snapshot->stageNumber, $locale),
             stageNumber: $snapshot->stageNumber,
             lessonNumber: $snapshot->lessonNumber,
