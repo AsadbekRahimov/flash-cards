@@ -163,6 +163,7 @@ Route::prefix('twa')->group(function (): void {
             Route::middleware('throttle:twa-game-answer')->group(function (): void {
                 Route::post('/answer', [GameRunController::class, 'answer'])->name('twa.game.runs.answer');
                 Route::post('/hint', [GameRunController::class, 'hint'])->name('twa.game.runs.hint');
+                Route::post('/booster', [GameRunController::class, 'booster'])->name('twa.game.runs.booster');
             });
         });
 

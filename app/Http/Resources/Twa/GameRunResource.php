@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
  *
  * A white list. The current element comes from the `project()` of its kind - the ONLY way an element reaches a response - and is
  * cleaned once more of the keys that live in the snapshot only: should a kind ever put one into its projection, it would not leave the
- * server (`GameContractTest` lists the same keys). `boosters` are empty lists until G2.5b: the shape is final, the state is honest.
+ * server (`GameContractTest` lists the same keys). `boosters`: what the learner owns while the run is on and what was used in it (G2.5b).
  *
  * @property RunView $resource
  */
@@ -51,7 +51,7 @@ final class GameRunResource extends TwaResource
                 'element' => self::clean($view->current['element']),
                 'event' => $view->current['event'],
             ],
-            'boosters' => ['available' => [], 'used' => []],
+            'boosters' => $view->boosters,
             'hint' => $view->hint,
             'summary' => $view->summary,
             'server_now' => $view->serverNow,

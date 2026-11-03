@@ -120,6 +120,8 @@ enum ProductEventName: string
     case GameItemBought = 'game.item_bought';
     /** A learner put a cosmetic on or took it off (props: slot, item_key - null when taken off). */
     case GameCosmeticEquipped = 'game.cosmetic_equipped';
+    /** A booster was used in a run (props: run_id, effect - hint / extra_flask / second_chance). */
+    case GameBoosterUsed = 'game.booster_used';
     /** A Free learner was refused by a limit of the game (props: kind - runs / boss / boosters, limit; docs/18 §12.7.4), on the courtesy check and under the lock alike. */
     case GameLimitReached = 'game.limit_reached';
     /** Tickets were granted (props: source - streak / referral / admin, delta - what was written after the cap, balance). */

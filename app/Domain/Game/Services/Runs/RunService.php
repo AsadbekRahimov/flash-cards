@@ -82,6 +82,7 @@ final class RunService
         private readonly RunEventRecorder $runEvents,
         private readonly GameLimits $limits,
         private readonly TicketService $tickets,
+        private readonly BoosterService $boosters,
     ) {}
 
     /**
@@ -333,6 +334,7 @@ final class RunService
             score: $run->score,
             current: $current,
             hint: ['price' => $this->hintPrice(), 'available' => $hintAvailable],
+            boosters: ['available' => $run->isActive() ? $this->boosters->available($learner->id) : [], 'used' => $state->boostersUsed],
             summary: $run->isActive() ? null : $this->summary($run, $snapshot, $state),
             serverNow: $now->toIso8601ZuluString('millisecond'),
         );
@@ -417,6 +419,54 @@ final class RunService
             }
 
             return $this->giveHint($locked, $learner, $requestId, $elementId, $now);
+        });
+
+        if ($outcome instanceof GameException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * A booster of the learner's inventory for the run (docs/18 §12.5.2, §12.8; {@see BoosterService}): under the lock of the run, once per
+     * `request_id` (a repeat returns the run of now and spends nothing). The refusals are returned out of the transaction and thrown
+     * after the commit, so that the closing of an expired run and the event `game.limit_reached` are kept.
+     *
+     * @throws GameException game_unavailable | game_run_not_found | game_run_closed | request_id_reused | item_not_found | unknown_element_id |
+     *                       element_not_current | answer_already_accepted | hint_not_available | booster_already_used | booster_not_applicable |
+     *                       booster_not_owned | booster_limit_reached
+     */
+    public function booster(GameRun|int $run, Learner $learner, string $requestId, string $itemKey, ?string $elementId = null, ?CarbonImmutable $now = null): RunView
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+        $requestId = strtolower($requestId);
+        $runId = $run instanceof GameRun ? $run->id : $run;
+
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $itemKey, $elementId, $now): RunView|GameException {
+            $locked = $this->lock($runId, $learner);
+            if ($locked === null) {
+                return GameException::runNotFound();
+            }
+
+            $prior = $this->attemptOf($locked, $requestId);
+            if ($prior !== null) {
+                return $prior->kind === AttemptKind::Booster ? $this->view($locked, $learner, $now) : GameException::requestIdReused();
+            }
+
+            $closed = $this->refuseClosed($locked, $learner, $now);
+            if ($closed !== null) {
+                return $closed;
+            }
+
+            try {
+                $this->boosters->use($locked, $learner, $requestId, $itemKey, $elementId, $now);
+            } catch (GameException $e) {
+                return $e;
+            }
+
+            return $this->view($locked, $learner, $now);
         });
 
         if ($outcome instanceof GameException) {

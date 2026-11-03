@@ -6,6 +6,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Friendship;
+use App\Models\GameBoosterUse;
 use App\Models\GameCityProgress;
 use App\Models\GameProfile;
 use App\Models\GameRun;
@@ -18,6 +19,7 @@ use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
@@ -28,8 +30,8 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-/** Budget of the map in SQL statements, `TwaAuth` (1) included - and it must not grow with the lessons and the friends. */
-const BUDGET_MAP = 10;
+/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2) - and it must not grow with the lessons and the friends. */
+const BUDGET_MAP = 11;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
@@ -344,7 +346,7 @@ it('keeps the contract: the keys of the answer', function (): void {
         ->and(array_keys($json['cities'][0]['boss']))->toBe(['state', 'defeated_at', 'introduced', 'required', 'cleared_stops', 'required_stops'])
         ->and(array_keys($json['daily']))->toBe(['available', 'done_today', 'due_count', 'resets_at'])
         ->and($json['class_caravan'])->toBeNull()
-        ->and($json['limits'])->toBeNull();
+        ->and(array_keys($json['limits']))->toBe(['runs', 'tickets', 'boosters', 'boss_stages']);
 });
 
 it('does not write anything: the same map twice, no rows created', function (): void {
@@ -420,4 +422,27 @@ it('reads no more than the friends cache holds when it is warm', function (): vo
     $warm = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk());
 
     expect(QueryLog::matching($warm, '/friendships/'))->toBe([])->and(count($warm))->toBeLessThanOrEqual(BUDGET_MAP);
+});
+
+it('carries the limits of the learner (G2.8, G2.5b): the Free numbers with the runs and the boosters used, the tickets, null for what Pro does not have', function (): void {
+    [, $lessons] = mapCourse(1, 1);
+    GameKit::limits(1, 1, 1);
+    $learner = Learner::factory()->create();
+    mapStart($learner, $lessons[0][0]);
+    GameProfile::factory()->withTickets(3)->create(['learner_id' => $learner->id]);
+    $run = GameRun::factory()->create(['learner_id' => $learner->id, 'kind' => 'stop', 'status' => 'finished', 'finish_reason' => 'completed', 'answered' => 5, 'active_learner_id' => null, 'started_at' => CarbonImmutable::now()]);
+    GameBoosterUse::factory()->create(['run_id' => $run->id, 'week_start' => '2026-11-02']);
+
+    $limits = mapGet($learner)->assertOk()->json('limits');
+
+    expect($limits)->toBe([
+        'runs' => ['limit' => 1, 'used' => 1, 'remaining' => 0, 'resets_at' => '2026-11-05T19:00:00.000Z'],
+        'tickets' => ['balance' => 3, 'max' => 10],
+        'boosters' => ['limit' => 1, 'used' => 1, 'remaining' => 0, 'resets_at' => '2026-11-08T19:00:00.000Z'],
+        'boss_stages' => 1,
+    ]);
+
+    PracticeKit::pro($learner);
+    $pro = mapGet($learner)->assertOk()->json('limits');
+    expect($pro['runs'])->toBeNull()->and($pro['boss_stages'])->toBeNull()->and($pro['boosters']['limit'])->toBe(5)->and($pro['tickets']['balance'])->toBe(3);
 });
