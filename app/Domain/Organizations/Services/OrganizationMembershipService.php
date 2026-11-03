@@ -248,7 +248,10 @@ final class OrganizationMembershipService
 
             $event = new OrganizationMemberLeft($locked->id, $learner->id, $member->id, $status, $wasSeated, $by?->id);
 
-            DB::afterCommit(fn () => $this->afterCommitSteps($event->organizationId, $event->learnerId, $event));
+            DB::afterCommit(function () use ($event): void {
+                $reported = false;
+                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
+            });
             $this->announceSeated($promoted);
         });
     }
@@ -477,7 +480,10 @@ final class OrganizationMembershipService
 
         $event = new OrganizationMemberJoined($organization->id, $learner->id, $member->id, $via->value, $seat->value);
 
-        DB::afterCommit(fn () => $this->afterCommitSteps($event->organizationId, $event->learnerId, $event));
+        DB::afterCommit(function () use ($event): void {
+            $reported = false;
+            $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
+        });
 
         return ['member' => $member, 'changed' => true];
     }
@@ -528,8 +534,9 @@ final class OrganizationMembershipService
         );
 
         DB::afterCommit(function () use ($events): void {
+            $reported = false;
             foreach ($events as $event) {
-                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event);
+                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
             }
         });
     }
@@ -537,22 +544,27 @@ final class OrganizationMembershipService
     /**
      * After commit: drop the learner's cached entitlement, then raise the event. Each step is guarded - a failure
      * (Redis down, a listener throwing) is logged and never stops the next step or the next learner of the loop.
+     * `$reported` is shared by the whole loop: only its first failure goes to `report()` (a dead Redis would otherwise send
+     * up to 2N events to Sentry, synchronously); the rest are warnings.
      */
-    private function afterCommitSteps(int $organizationId, int $learnerId, object $event): void
+    private function afterCommitSteps(int $organizationId, int $learnerId, object $event, bool &$reported): void
     {
-        $this->guard('organizations.membership_entitlement_forget_failed', $organizationId, $learnerId, fn () => $this->entitlements->forget($learnerId));
+        $this->guard('organizations.membership_entitlement_forget_failed', $organizationId, $learnerId, fn () => $this->entitlements->forget($learnerId), $reported);
         $this->guard('organizations.membership_event_failed', $organizationId, $learnerId, function () use ($event): void {
             event($event);
-        });
+        }, $reported);
     }
 
     /** @param callable(): mixed $step */
-    private function guard(string $failureLog, int $organizationId, int $learnerId, callable $step): void
+    private function guard(string $failureLog, int $organizationId, int $learnerId, callable $step, bool &$reported): void
     {
         try {
             $step();
         } catch (Throwable $e) {
-            report($e);
+            if (! $reported) {
+                $reported = true;
+                report($e);
+            }
             Log::warning($failureLog, [
                 'organization_id' => $organizationId,
                 'learner_id' => $learnerId,

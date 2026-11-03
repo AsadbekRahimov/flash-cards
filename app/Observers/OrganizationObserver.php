@@ -43,11 +43,16 @@ final class OrganizationObserver
 
         // One guarded step per learner: a dead cache stops neither the other learners nor the commit of the deleter.
         DB::afterCommit(function () use ($organizationId, $learnerIds): void {
+            $reported = false; // only the first failure goes to report(): a dead cache would otherwise flood Sentry with one event per learner
+
             foreach ($learnerIds as $learnerId) {
                 try {
                     $this->entitlements->forget($learnerId);
                 } catch (Throwable $e) {
-                    report($e);
+                    if (! $reported) {
+                        $reported = true;
+                        report($e);
+                    }
                     Log::warning('organizations.delete_entitlement_forget_failed', [
                         'organization_id' => $organizationId,
                         'learner_id' => $learnerId,
