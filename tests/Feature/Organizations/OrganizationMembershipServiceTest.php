@@ -27,6 +27,7 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\FakeTelegramClient;
 
@@ -606,6 +607,50 @@ it('keeps going after the first learner when the cache drop fails after commit',
         ->and(OrganizationMember::query()->where('organization_id', $org->id)->where('status', 'active')->count())->toBe(0);
     Event::assertDispatchedTimes(OrganizationMemberLeft::class, 2);
     Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
+});
+
+it('absorbs an exception of an event listener after commit, reports it, and still handles the next learner', function (): void {
+    $org = omsOrganization(null, null);
+    $first = Learner::factory()->create();
+    $second = Learner::factory()->create();
+    $service = omsService();
+    $service->joinByAdmin($first, $org, User::factory()->create());
+    $service->joinByAdmin($second, $org, User::factory()->create());
+    omsPlan($first);
+    omsPlan($second);
+
+    Exceptions::fake();
+    Log::spy();
+    Event::listen(OrganizationMemberLeft::class, function (): void {
+        throw new RuntimeException('listener boom');
+    });
+
+    $service->leave($first, $org);
+    $service->leave($second, $org);
+
+    expect(OrganizationMember::query()->where('organization_id', $org->id)->where('status', 'active')->count())->toBe(0)
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($first->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($second->id)))->toBeFalse();
+    Log::shouldHaveReceived('warning')->with('organizations.membership_event_failed', Mockery::any())->twice();
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'listener boom');
+});
+
+it('reports a failed forget to the exception handler on leave and on organization delete', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    $other = omsOrganization(null, null);
+    omsService()->joinByAdmin(Learner::factory()->create(), $other, User::factory()->create());
+
+    omsEntitlementCacheDown();
+    Exceptions::fake();
+    Log::spy();
+
+    omsService()->leave($a, $org);
+    Exceptions::assertReportedCount(1);
+
+    $other->delete();
+    Exceptions::assertReportedCount(2);
 });
 
 it('forgets every member on organization delete even when the first forget fails', function (): void {

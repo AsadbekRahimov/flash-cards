@@ -308,3 +308,19 @@ it('ships a well-formed RFC 9116 security.txt', function (): void {
         ->toMatch('/^Expires: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/m')
         ->toMatch('/^Preferred-Languages: ru, uz, en$/m');
 });
+
+it('escapes operator-supplied legal fields on /offer and /privacy', function (): void {
+    Config::set('site.legal.name', '<script>alert(1)</script>');
+    Config::set('billing.paywall.contact', '<img src=x onerror=alert(2)>');
+
+    foreach (['/offer', '/privacy'] as $url) {
+        $this->get($url)
+            ->assertOk()
+            ->assertDontSee('<script>alert(1)</script>', false)
+            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
+
+    $this->get('/offer')
+        ->assertDontSee('<img src=x onerror=alert(2)>', false)
+        ->assertSee('&lt;img src=x onerror=alert(2)&gt;', false);
+});

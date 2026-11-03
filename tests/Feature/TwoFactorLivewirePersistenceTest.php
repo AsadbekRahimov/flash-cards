@@ -69,5 +69,6 @@ it('rejects a Livewire update once the 2FA mark is gone from the session', funct
         ]],
     ], ['X-Livewire' => 'true']);
 
-    expect($response->getStatusCode())->not->toBe(200);
+    $response->assertStatus(302);
+    expect($response->headers->get('Location'))->toEndWith('/2fa/challenge?guard=web');
 });

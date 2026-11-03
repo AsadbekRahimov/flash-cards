@@ -552,6 +552,7 @@ final class OrganizationMembershipService
         try {
             $step();
         } catch (Throwable $e) {
+            report($e);
             Log::warning($failureLog, [
                 'organization_id' => $organizationId,
                 'learner_id' => $learnerId,
