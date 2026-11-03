@@ -20,6 +20,9 @@ use Illuminate\Support\Carbon;
  * @property int $time_spent_ms
  * @property Carbon|null $goal_met_at
  * @property Carbon|null $frozen_at
+ * @property int $game_runs_count
+ * @property int $game_points
+ * @property Carbon|null $game_held_at
  */
 class LearnerDailyStats extends Model
 {
@@ -38,6 +41,9 @@ class LearnerDailyStats extends Model
         'time_spent_ms',
         'goal_met_at',
         'frozen_at',
+        'game_runs_count',
+        'game_points',
+        'game_held_at',
     ];
 
     /** @return array<string, string> */
@@ -51,6 +57,9 @@ class LearnerDailyStats extends Model
             'time_spent_ms' => 'integer',
             'goal_met_at' => 'datetime',
             'frozen_at' => 'datetime',
+            'game_runs_count' => 'integer',
+            'game_points' => 'integer',
+            'game_held_at' => 'datetime',
         ];
     }
 
