@@ -43,3 +43,17 @@ it('accepts valid webhook and dispatches the job', function (): void {
 
     Bus::assertDispatched(HandleTelegramUpdate::class);
 });
+
+it('answers the webhook statelessly: no session started, no cookies', function (): void {
+    Bus::fake();
+
+    $response = $this->postJson(
+        '/telegram/webhook/url-secret-value-1234567890',
+        ['update_id' => 43, 'message' => ['text' => '/help']],
+        ['X-Telegram-Bot-Api-Secret-Token' => 'header-secret-value-abcdef'],
+    )->assertOk();
+
+    expect($response->headers->getCookies())->toBe([])
+        ->and($response->headers->has('Set-Cookie'))->toBeFalse()
+        ->and(app('session.store')->isStarted())->toBeFalse();
+});

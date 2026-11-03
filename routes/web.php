@@ -41,7 +41,9 @@ Route::get('/health/ready', ReadinessController::class)
     ->middleware('throttle:60,1')
     ->name('health.ready');
 
+// Stateless: authenticated by the URL secret + header token, so no session in Redis per update, no cookies, no CSRF.
 Route::post('/telegram/webhook/{secret}', WebhookController::class)
+    ->withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
     ->middleware(TelegramIpAllowlist::class)
     ->where('secret', '[A-Za-z0-9\-_]{16,128}')
     ->name('telegram.webhook');
