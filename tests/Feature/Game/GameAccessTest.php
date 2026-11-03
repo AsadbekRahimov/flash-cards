@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Enums\ProGamePromise;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Support\ProPromises;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameAccess;
 use App\Models\GameProfile;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -19,6 +21,10 @@ use Tests\Support\QueryLog;
  */
 
 uses(RefreshDatabase::class);
+
+// A fixed instant: the `resets_at` of the limits are the local midnights of the test learner (UTC+5) after it.
+beforeEach(fn () => CarbonImmutable::setTestNow('2026-11-05 10:00:00'));
+afterEach(fn () => CarbonImmutable::setTestNow());
 
 /** The learner in the pilot of the practice / not. */
 function gameLearner(bool $pilot = false): Learner
@@ -83,16 +89,25 @@ it('describes a closed game without a query: not available, nothing to promise, 
         ->and($queries)->toBe([]);
 });
 
-it('describes an open game with the coins and the tickets in ONE query, zeros while the rows are not there', function (): void {
+it('describes an open game with the limits, the coins and the tickets in ONE query, zeros while the rows are not there', function (): void {
     config(['game.access' => 'all']);
     $learner = gameLearner();
     $access = app(GameAccess::class);
+    app(EntitlementResolver::class)->for($learner); // the cache of the entitlement is warm, as after any request of the Mini App
 
     $block = null;
     $queries = QueryLog::during(function () use ($access, $learner, &$block): void {
         $block = $access->describe($learner);
     });
-    expect($block)->toBe(['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0])
+    expect($block)->toMatchArray(['available' => true, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0])
+        ->and(array_keys($block))->toBe(['available', 'limits', 'pro_promise', 'coins', 'tickets'])
+        // The shipped Free limits (docs/18 §12.7.1), nothing used yet; the day resets at the learner's local midnight (UTC+5).
+        ->and($block['limits'])->toBe([
+            'runs' => ['limit' => 1, 'used' => 0, 'remaining' => 1, 'resets_at' => '2026-11-05T19:00:00.000Z'],
+            'tickets' => ['balance' => 0, 'max' => 10],
+            'boosters' => ['limit' => 1, 'used' => 0, 'remaining' => 1, 'resets_at' => '2026-11-08T19:00:00.000Z'],
+            'boss_stages' => 1,
+        ])
         ->and($queries)->toHaveCount(1);
 
     GameWallet::factory()->withBalance(35)->create(['learner_id' => $learner->id]);
@@ -105,15 +120,26 @@ it('describes an open game with the coins and the tickets in ONE query, zeros wh
 
     expect(QueryLog::during(fn () => $access->describe($learner)))->toHaveCount(1)
         ->and($access->describe($learner))->toMatchArray(['coins' => 35, 'tickets' => 4])
+        ->and($access->describe($learner)['limits']['tickets'])->toBe(['balance' => 4, 'max' => 10])
         ->and($access->describe($other))->toMatchArray(['coins' => 999, 'tickets' => 0]);
 });
 
-it('opens the game to a Free learner too: the tariff does not change the block', function (): void {
+it('opens the game to a Free learner too: the tariff changes only the limits Pro lifts', function (): void {
     config(['game.access' => 'all']);
-    $free = gameLearner();
-    $pro = PracticeKit::pro(gameLearner());
+    $free = app(GameAccess::class)->describe(gameLearner());
+    $pro = app(GameAccess::class)->describe(PracticeKit::pro(gameLearner()));
 
-    expect(app(GameAccess::class)->describe($free))->toBe(app(GameAccess::class)->describe($pro));
+    expect($pro)->toMatchArray(['available' => true, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0])
+        ->and($free)->toMatchArray(['available' => true, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0])
+        ->and($free['limits']['runs'])->not->toBeNull()
+        ->and($free['limits']['boss_stages'])->toBe(1)
+        // Pro: no limit of runs, all the bosses; the boosters of the week - the limit of the Pro plan; the tickets are kept.
+        ->and($pro['limits'])->toBe([
+            'runs' => null,
+            'tickets' => ['balance' => 0, 'max' => 10],
+            'boosters' => ['limit' => 5, 'used' => 0, 'remaining' => 5, 'resets_at' => $free['limits']['boosters']['resets_at']],
+            'boss_stages' => null,
+        ]);
 });
 
 it('says in GET /me what the learner sees: closed, the pilot and open', function (): void {
@@ -132,7 +158,13 @@ it('says in GET /me what the learner sees: closed, the pilot and open', function
     config(['game.access' => 'all']);
     GameWallet::factory()->withBalance(12)->create(['learner_id' => $learner->id]);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('game', ['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 12, 'tickets' => 0]);
+        ->assertJsonPath('game.available', true)
+        ->assertJsonPath('game.pro_promise', 'full')
+        ->assertJsonPath('game.coins', 12)
+        ->assertJsonPath('game.tickets', 0)
+        ->assertJsonPath('game.limits.runs', ['limit' => 1, 'used' => 0, 'remaining' => 1, 'resets_at' => '2026-11-05T19:00:00.000Z'])
+        ->assertJsonPath('game.limits.tickets', ['balance' => 0, 'max' => 10])
+        ->assertJsonPath('game.limits.boss_stages', 1);
 });
 
 it('adds ONE query to GET /me while the game is open and none while it is closed', function (): void {
