@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Game\DTO\RunSnapshot;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\PracticeAudioService;
@@ -31,16 +32,19 @@ final class GameRunController
 {
     public function __construct(
         private readonly RunService $runs,
+        private readonly DailyCaravanService $daily,
         private readonly PracticeAudioService $audio,
     ) {}
 
-    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop). */
+    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop); `kind = daily`: the day's caravan. */
     public function store(StartGameRunRequest $request): JsonResponse
     {
         $learner = $this->learner($request);
 
         try {
-            $run = $this->runs->start($learner, $request->course(), $request->lessonId(), $request->replaceActive());
+            $run = $request->isDaily()
+                ? $this->daily->start($learner, $request->replaceActive())
+                : $this->runs->start($learner, $request->course(), $request->lessonId(), $request->replaceActive());
 
             return (new GameRunResource($this->runs->view($run, $learner)))->response()->setStatusCode(201);
         } catch (GameException $e) {

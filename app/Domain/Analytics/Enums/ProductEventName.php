@@ -114,4 +114,6 @@ enum ProductEventName: string
     case GameCoinsSpent = 'game.coins_spent';
     /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
     case GameCoinsEarned = 'game.coins_earned';
+    /** The daily caravan was played to its end (props: run_id, due_count, correct - docs/18 §12.8). */
+    case GameDailyCompleted = 'game.daily_completed';
 }

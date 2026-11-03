@@ -100,6 +100,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'onboarding_completed' => false,
         'league' => null,
         'timezone' => $learner->timezone,
+        'game' => ['daily_available' => false, 'active_run' => null],
     ]);
 });
 
