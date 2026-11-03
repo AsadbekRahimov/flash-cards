@@ -77,6 +77,7 @@ it('serves the friends from the cache: the second map reads no friendships', fun
 });
 
 it('stores arrays under a key with the version, for the TTL (docs/19 §3)', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
     [$course, $lesson] = gameCacheCourse();
     $me = Learner::factory()->create();
     $friend = gameCacheFriend($lesson, 'Dilnoza');

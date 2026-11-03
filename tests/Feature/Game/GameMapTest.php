@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Friendship;
 use App\Models\GameCityProgress;
@@ -362,6 +363,9 @@ function mapStatements(Learner $learner): int
 {
     $headers = PracticeKit::headers($learner);
     cache()->flush();
+    // The pure cache is a store of its own (docs/19 §4: `lru`, a second Redis in CI and production); flushing the
+    // default store leaves it warm, and the second measurement would read the course and the friends from it.
+    PureCache::store()->flush();
     app(EntitlementResolver::class)->forget($learner);
 
     return count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk()));
