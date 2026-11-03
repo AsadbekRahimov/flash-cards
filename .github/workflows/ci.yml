@@ -235,7 +235,30 @@ jobs:
             group: production-deploy
             cancel-in-progress: false
         steps:
+            # No server yet (owner's decision 03.11.2026): with none of the three secrets set the deploy is skipped with a
+            # warning instead of failing master on every merge. A partial set is a misconfiguration and fails.
+            - name: Check the deploy secrets
+              id: target
+              env:
+                  SSH_HOST: ${{ secrets.SSH_HOST }}
+                  SSH_USER: ${{ secrets.SSH_USER }}
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+              run: |
+                  count=0
+                  for value in "$SSH_HOST" "$SSH_USER" "$SSH_PRIVATE_KEY"; do
+                      if [ -n "$value" ]; then count=$((count + 1)); fi
+                  done
+                  if [ "$count" -eq 3 ]; then
+                      echo "ready=true" >> "$GITHUB_OUTPUT"
+                  elif [ "$count" -eq 0 ]; then
+                      echo "ready=false" >> "$GITHUB_OUTPUT"
+                      echo "::warning title=Deploy skipped::No SSH_HOST, SSH_USER or SSH_PRIVATE_KEY secret in the LexiFlow environment: there is no server to deploy to yet (docs/DEVOPS_GUIDE.md §0)."
+                  else
+                      echo "::error title=Deploy secrets incomplete::Only $count of SSH_HOST, SSH_USER, SSH_PRIVATE_KEY are set in the LexiFlow environment: set all three or none."
+                      exit 1
+                  fi
             - name: Deploy via SSH
+              if: steps.target.outputs.ready == 'true'
               env:
                   DEPLOY_SHA: ${{ github.sha }}
               uses: appleboy/ssh-action@v1.2.5

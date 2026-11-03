@@ -27,7 +27,12 @@ bash deploy.sh
 
 Скрипт принимает SHA коммита: `bash deploy.sh <sha>` (или переменная `DEPLOY_SHA`). Он делает `git fetch origin`, `git checkout --detach <sha>` и **до сборки** проверяет, что `git rev-parse HEAD` равен запрошенному SHA, иначе завершается с кодом 1. CI передаёт `${{ github.sha }}`, поэтому выкатывается ровно тот коммит, который прошёл проверки, а не то, на что `master` указывает к моменту деплоя; job `deploy` идёт с `concurrency: production-deploy` (без отмены уже идущего деплоя). Деплой по SHA разрешён только вперёд (`git merge-base --is-ancestor HEAD <sha>`), назад — только с `--rollback`. Без SHA скрипт делает `git fetch origin && git checkout --detach origin/${DEPLOY_BRANCH:-master}` (не `git pull`, который ломается в detached HEAD после отката) и печатает предупреждение. Образы в registry не публикуются: собираются на сервере из этого SHA.
 
-Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
+Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты.
+
+**Секреты деплоя из CI** — в окружении GitHub `LexiFlow`: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`. Сервера пока нет (решение владельца 03.11.2026), поэтому:
+- ни одного секрета нет — job `deploy` пропускается с предупреждением «Deploy skipped», CI на `master` остаётся зелёным;
+- задана только часть — job падает с ошибкой «Deploy secrets incomplete»: это ошибка настройки, а не «сервера нет»;
+- заданы все три — деплой идёт как описано выше.
 
 Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
 
