@@ -54,7 +54,7 @@ final class ReadinessProbe
             };
         }
 
-        // A group-chat Mini App link cannot be built without the bot username: production must have it.
+        // Production must have the bot username (Mini App links), the bot token and webhook secrets, and a TWA JWT secret of 32+ bytes.
         if (app()->isProduction()) {
             $checks['config'] = $this->guard('config', $this->checkConfig(...));
         }
@@ -113,7 +113,14 @@ final class ReadinessProbe
 
     private function checkConfig(): bool
     {
-        return trim((string) config('telegram.bot_username')) !== '';
+        // The username builds group Mini App links; the secrets keep initData, the webhook URL and header unforgeable.
+        foreach (['telegram.bot_username', 'telegram.bot_token', 'telegram.url_secret', 'telegram.header_secret'] as $key) {
+            if (trim((string) config($key)) === '') {
+                return false;
+            }
+        }
+
+        return strlen((string) config('twa.jwt.secret')) >= 32;
     }
 
     private function checkScheduler(): bool

@@ -47,6 +47,17 @@ function clickPost(string $action, array $form, array $server = [])
     return test()->call('POST', "/billing/webhook/click/{$action}", $form, [], [], array_merge(test()->transformHeadersToServerVars(['Accept' => 'application/json']), $server));
 }
 
+it('answers -1 and writes nothing when Click is switched off, even with a valid signature', function (string $action): void {
+    config()->set('billing.providers.click.enabled', false);
+    $order = PaymentOrder::factory()->click()->create();
+
+    clickPost($action, ClickFixtures::prepare($order))
+        ->assertOk()
+        ->assertJsonPath('error', -1);
+
+    expect(ProviderTransaction::query()->count())->toBe(0);
+})->with(['prepare', 'complete']);
+
 it('runs Prepare -> Complete from the fixtures over HTTP as form data, crediting the order once', function (): void {
     $order = PaymentOrder::factory()->click()->create();
 

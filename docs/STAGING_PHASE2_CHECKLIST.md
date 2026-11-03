@@ -513,6 +513,9 @@
       Код выхода: `0` — High нет; `1` — есть High (или сработало правило `FAIL`); `2` — есть Medium при `STRICT_MEDIUM=1`; `3` — ошибка инструмента.
       Отчёты — `tests/security/zap/reports/zap-<цель>.html|json|md` (каталог в `.gitignore`). Смотреть: итог `check_reports.py` в конце вывода (High/Medium по именам и правилам), затем HTML нужных целей.
       Критерий допуска (решение владельца 03.11.2026): ни одной находки High; каждая Medium разобрана — исправлена или записана с причиной (в §9.3 журнал расхождений: правило, URL, причина). Новое правило в `IGNORE` — только с причиной в комментарии.
+- [ ] Принятая Medium ZAP ("CSP: script-src unsafe-inline", "CSP: script-src unsafe-eval") на `/admin/login`, `/org/login`, `/2fa/*`: CSP панелей и страниц 2FA
+      содержит `'unsafe-inline' 'unsafe-eval'`, потому что Filament (Livewire) и Alpine.js без них не работают (`app/Http/Middleware/SecurityHeaders.php`, `contentSecurityPolicy()`).
+      Допускается только на этих адресах (вход требует пароля и 2FA); внести в §9.3 с этой причиной. Публичные страницы (`/`, `/offer`, `/privacy`, `/billing/return`) и TWA (`/twa/`) отдаются со строгим `script-src` (`'none'` / `'self' https://telegram.org`, без `unsafe-inline` и `unsafe-eval`; `style-src 'unsafe-inline'` остаётся): Medium про `script-src` на них — находка.
 - [ ] Ручные пункты пен-теста Фазы 2 (docs/13 §10): вебхук Payme с чужим ключом → `-32504`; `PerformTransaction` дважды → один платёж; Click с неверной подписью → `-1`;
       чужой `GET /billing/orders/{token}` → 404; пользователь организации A на URL организации B → 404; `answer` для flash-карточки → 422; 31-й по инвайту Tutor → `waitlisted`.
 - [ ] Подмена `initData` → 401; токен заблокированного learner'а → 401 `learner_blocked` (docs/07 §14).

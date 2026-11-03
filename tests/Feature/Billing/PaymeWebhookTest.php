@@ -59,6 +59,19 @@ function paymePost(array $body, ?string $authorization = 'LIVE', array $server =
 
 // --- authentication ------------------------------------------------------------------------------
 
+it('answers -32504 and writes nothing when Payme is switched off, even with a valid key', function (): void {
+    config()->set('billing.providers.payme.enabled', false);
+    $order = PaymentOrder::factory()->payme()->create();
+
+    paymePost(PaymeFixtures::for('CheckPerformTransaction', $order), 'LIVE')
+        ->assertOk()
+        ->assertJsonPath('id', 1)
+        ->assertJsonPath('error.code', -32504)
+        ->assertJsonMissingPath('result');
+
+    expect(ProviderTransaction::query()->count())->toBe(0);
+});
+
 it('answers a missing, malformed or wrong Basic header with HTTP 200 and -32504, echoing the request id', function (?string $authorization): void {
     Log::spy();
     $order = PaymentOrder::factory()->payme()->create();

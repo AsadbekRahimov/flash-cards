@@ -195,13 +195,35 @@ describe('production config check', function (): void {
         $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.config', 'fail');
     });
 
-    it('is ready in production once the bot username is set', function (): void {
+    it('is ready in production once the bot username and the secrets are set', function (): void {
         app()->detectEnvironment(fn (): string => 'production');
         Config::set('telegram.bot_username', 'lexi_bot');
+        Config::set('telegram.bot_token', 'bot-token');
+        Config::set('telegram.url_secret', 'url-secret');
+        Config::set('telegram.header_secret', 'header-secret');
+        Config::set('twa.jwt.secret', str_repeat('a', 32));
         app(SchedulerHeartbeat::class)->beat();
 
         $this->getJson('/health/ready')->assertOk()->assertJsonPath('checks.config', 'ok');
     });
+
+    it('fails readiness in production when a token or secret is empty or too short', function (string $key, string $value): void {
+        app()->detectEnvironment(fn (): string => 'production');
+        Config::set('telegram.bot_username', 'lexi_bot');
+        Config::set('telegram.bot_token', 'bot-token');
+        Config::set('telegram.url_secret', 'url-secret');
+        Config::set('telegram.header_secret', 'header-secret');
+        Config::set('twa.jwt.secret', str_repeat('a', 32));
+        Config::set($key, $value);
+        app(SchedulerHeartbeat::class)->beat();
+
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.config', 'fail');
+    })->with([
+        'empty bot token' => ['telegram.bot_token', ''],
+        'empty url secret' => ['telegram.url_secret', ''],
+        'empty header secret' => ['telegram.header_secret', ''],
+        'short jwt secret' => ['twa.jwt.secret', 'too-short-secret'],
+    ]);
 
     it('does not check it outside production', function (): void {
         Config::set('telegram.bot_username', '');

@@ -627,6 +627,16 @@ PRACTICE_PLAN=all
 PRACTICE_BATTLE=true
 PRACTICE_FREE_SESSIONS_PER_DAY=2            # сессий практики в день у Free; у Pro без лимита
 PRACTICE_FREE_BATTLES_PER_DAY=1             # вызовов на баттл в день у Free; у Pro без лимита
+
+# --- Безопасность (проверьте до открытия запуска) ---
+APP_ENV=production
+APP_DEBUG=false                             # true в проде раскрывает стек-трейсы и переменные окружения
+SESSION_SECURE_COOKIE=true                  # по умолчанию не задан: cookie админки/кабинета должны идти только по HTTPS
+TELEGRAM_IP_ALLOWLIST_ENABLED=true          # nginx - крайний узел, REMOTE_ADDR настоящий (DEVOPS_GUIDE §17.2); за CDN/балансировщиком сначала trusted proxies
+PAYME_KEY=                                  # пусто, пока PAYME_ENABLED=false: ключи платёжных провайдеров не кладём в .env заранее
+PAYME_TEST_KEY=
+PAYME_ALLOW_TEST_KEY=false                  # тестовый ключ Payme в проде не принимается
+CLICK_SECRET_KEY=
 ```
 
 Что важно:
@@ -640,6 +650,7 @@ PRACTICE_FREE_BATTLES_PER_DAY=1             # вызовов на баттл в 
   реквизиты продавца на публичных страницах оферты и политики. Заполните до открытия продаж.
 - **`REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD`** — при Docker-деплое `deploy.sh` останавливается (`STOP: ... is empty`), если любой из них пуст или равен `null`/`empty`.
   Сгенерируйте: `openssl rand -hex 32`. (В примере `.env` для установки без Docker выше второй экземпляр настраивается через `REDIS_LRU_PASSWORD`.)
+- **Выключенный провайдер не отвечает на вебхуки** (Payme `-32504`, Click `-1`) даже с заданным ключом, но ключи всё равно держим пустыми до договора: так исключена случайная оплата при ошибке в `*_ENABLED`.
 - Значения по умолчанию в `.env.example` и `config/*.php` остаются прежними (`coming_soon`, всё выключено, `PRACTICE_ACCESS=off`): запуск задаётся именно прод `.env`.
 - После правки `.env` — `php artisan config:cache` и перезапуск воркеров (§17); при Docker-деплое — обычный `deploy.sh`.
 

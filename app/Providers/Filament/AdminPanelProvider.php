@@ -79,6 +79,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 RequireTwoFactor::class,
-            ]);
+            ], isPersistent: true);
     }
 }

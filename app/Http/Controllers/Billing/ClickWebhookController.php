@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Billing;
 
+use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Providers\Click\ClickException;
 use App\Domain\Billing\Providers\Click\ClickMerchantService;
 use App\Domain\Billing\Providers\Click\ClickRequest;
+use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Http\JsonResponse;
@@ -25,19 +27,26 @@ final class ClickWebhookController extends Controller
     /** Bodies above this are refused before parsing (docs/13 §4). */
     public const MAX_BODY_BYTES = 65_536;
 
-    public function prepare(Request $request, ClickMerchantService $service): JsonResponse
+    public function prepare(Request $request, ClickMerchantService $service, BillingProviderRegistry $providers): JsonResponse
     {
-        return $this->handle($request, ClickRequest::ACTION_PREPARE, static fn (array $input): array => $service->prepare($input));
+        return $this->handle($request, $providers, ClickRequest::ACTION_PREPARE, static fn (array $input): array => $service->prepare($input));
     }
 
-    public function complete(Request $request, ClickMerchantService $service): JsonResponse
+    public function complete(Request $request, ClickMerchantService $service, BillingProviderRegistry $providers): JsonResponse
     {
-        return $this->handle($request, ClickRequest::ACTION_COMPLETE, static fn (array $input): array => $service->complete($input));
+        return $this->handle($request, $providers, ClickRequest::ACTION_COMPLETE, static fn (array $input): array => $service->complete($input));
     }
 
     /** @param Closure(array<array-key, mixed>): array<string, mixed> $call */
-    private function handle(Request $request, int $action, Closure $call): JsonResponse
+    private function handle(Request $request, BillingProviderRegistry $providers, int $action, Closure $call): JsonResponse
     {
+        // A provider switched off in config answers -1 before the body is read, even when its key is set (docs/07 §2a).
+        if (! $providers->isEnabled(SubscriptionProvider::Click)) {
+            Log::warning('billing.click.disabled', ['ip' => $request->ip()]);
+
+            return response()->json(ClickMerchantService::errorResponse([], $action, ClickException::signCheckFailed('provider disabled')));
+        }
+
         if (strlen($request->getContent()) > self::MAX_BODY_BYTES) {
             return response()->json(ClickMerchantService::errorResponse([], $action, ClickException::requestError('body too large')));
         }

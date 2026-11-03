@@ -75,3 +75,28 @@ it('masks the payment order token carried as invoice_payload but keeps the payme
         ->and($cleaned['message']['successful_payment']['total_amount'])->toBe(150)
         ->and($cleaned['pre_checkout_query']['invoice_payload'])->toBe('Ab***');
 });
+
+it('masks the tail of callback data (invite codes) and keeps the prefix', function (): void {
+    $cleaned = UpdateSanitizer::forLog([
+        'callback_query' => ['id' => '1', 'data' => 'org1:join:SECRETCODE12'],
+    ]);
+    $friend = UpdateSanitizer::forLog(['callback_query' => ['data' => 'fr1:snd:ABCDEF']]);
+    $plain = UpdateSanitizer::forLog(['callback_query' => ['data' => 'noprefixcode']]);
+
+    expect($cleaned['callback_query']['data'])->toBe('org1:join:***')
+        ->and($friend['callback_query']['data'])->toBe('fr1:snd:***')
+        ->and($plain['callback_query']['data'])->toBe('no***')
+        ->and($cleaned['callback_query']['id'])->toBe('1');
+});
+
+it('masks geolocation coordinates', function (): void {
+    $cleaned = UpdateSanitizer::forLog([
+        'message' => [
+            'location' => ['latitude' => 41.311081, 'longitude' => 69.240562],
+            'venue' => ['location' => ['latitude' => 41.3, 'longitude' => 69.2]],
+        ],
+    ]);
+
+    expect($cleaned['message']['location'])->toBe(['latitude' => '***', 'longitude' => '***'])
+        ->and($cleaned['message']['venue']['location'])->toBe(['latitude' => '***', 'longitude' => '***']);
+});

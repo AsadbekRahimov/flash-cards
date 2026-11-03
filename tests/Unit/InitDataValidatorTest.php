@@ -130,3 +130,13 @@ it('accepts initData of a direct link: start_param is part of the signed data', 
     $tampered = str_replace($startParam, 'L2V4YW0vMQ', $initData);
     expect(fn () => (new InitDataValidator(BOT_TOKEN))->validate($tampered))->toThrow(InvalidInitDataException::class);
 });
+
+it('refuses everything when the bot token is empty, even initData signed with the empty key', function (string $token): void {
+    $forged = InitDataValidator::sign($token, [
+        'user' => json_encode(['id' => 42, 'first_name' => 'Eve']),
+        'auth_date' => (string) time(),
+    ]);
+
+    expect(fn () => (new InitDataValidator($token))->validate($forged))
+        ->toThrow(fn (InvalidInitDataException $e) => $e->reason === InvalidInitDataException::REASON_NOT_CONFIGURED);
+})->with(['empty' => [''], 'blank' => ['  ']]);
