@@ -329,6 +329,22 @@ Vitest (`resources/twa/src`): стор `practice.spec`, `practiceRaces.spec` (п
 экраны `PracticeHubView`, `PracticeSessionView`, `PracticePairsFlow`, `PracticeSentenceSession`, `CoursePractice` (входы в курсе и в строках уроков), `FinishedView` (вход с итога), `BattleSetupView`, `BattleView`, `FriendsView` (в трёх из них и в хабе — блоки про лимиты), `PracticeLimitPaywall` (экраны с настоящим листом); компоненты `PaywallLimit.spec` (причина `practice_limit`), `ProBenefits.spec` (строка о практике по слову сервера `pro_promise`: `both` / `solo` / `none`, `/me` ещё не пришёл, неизвестное слово), `components/practice/__tests__`, `components/battle/__tests__`; маршруты — `router/__tests__/practiceRoutes.spec.ts`;
 `designSystem.spec` (токены, области нажатия), страж кириллицы вне `src/i18n`.
 
+## 5b. «Караван» — игра (docs/18 §12.9)
+
+> Статус: G2.7a — карта и забег (в работе: 5b.1–5b.2 — задача «карта», 5b.3 — задача «забег»). Экраны босса, каравана дня, «моего каравана» и каравана класса — G2.7b, G2.7c, G2.9b. Контракт API — `docs/04` A.18, поведение — `docs/18` §12.9. Пока `GAME_ACCESS=off`, `me.game.available = false` и входов в игру нет.
+
+### 5b.1 Общее: маршруты, сторы, входы, ошибки, пейвол
+
+_(G2.7a, задача «карта»)_
+
+### 5b.2 Карта `/game`
+
+_(G2.7a, задача «карта»)_
+
+### 5b.3 Забег `/game/runs/:id` и итог
+
+_(G2.7a, задача «забег»)_
+
 ## 6. Режим «Exam»
 
 ### 6.1 Состояние
