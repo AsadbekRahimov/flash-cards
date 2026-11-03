@@ -27,10 +27,24 @@ use Tests\Support\Practice\PracticeKit;
  */
 final class GameKit
 {
-    /** The game is `off` by default (docs/18 §12.7.4): open it to everybody. */
+    /**
+     * The game is `off` by default (docs/18 §12.7.4): open it to everybody, with no Free limit (the tests of the limits set them with
+     * {@see limits()}; the shipped defaults are pinned by GameAccessTest).
+     */
     public static function openAccess(): void
     {
         config(['game.access' => 'all']);
+        self::limits(null, null, null);
+    }
+
+    /** The Free limits (docs/18 §12.7.2): map runs per local day, cities with a free boss, boosters per local week; `null` = none of that kind. */
+    public static function limits(?int $runsPerDay, ?int $bossStages = null, ?int $boostersPerWeek = null): void
+    {
+        config([
+            'game.free_limits.runs_per_day' => $runsPerDay,
+            'game.free_limits.boss_stages' => $bossStages,
+            'game.free_limits.boosters_per_week' => $boostersPerWeek,
+        ]);
     }
 
     /** No random event in the runs (the tests of the events set the chance themselves). */

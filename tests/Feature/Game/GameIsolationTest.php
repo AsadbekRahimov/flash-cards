@@ -73,7 +73,7 @@ const GAME_ISOLATION_WRITTEN = [
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
-    config(['game.access' => 'all']);
+    GameKit::openAccess();
     GameKit::noEvents();
     Storage::fake('practice_audio');
 });

@@ -10,6 +10,7 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Engagement\DTO\ReferralOverview;
 use App\Domain\Engagement\Enums\ReferralRejectReason;
 use App\Domain\Engagement\Enums\ReferralStatus;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Support\StoredDate;
 use App\Jobs\RewardReferralJob;
@@ -80,6 +81,7 @@ final class ReferralService
         private readonly ProductEventRecorder $events,
         private readonly LearnerClock $clock,
         private readonly ReferralCodeGenerator $codes,
+        private readonly TicketService $tickets,
     ) {}
 
     /**
@@ -268,6 +270,10 @@ final class ReferralService
         }
 
         $referral->refresh();
+
+        // The tickets of the game to the inviter (docs/18 §12.7.3), after both sides, in a transaction of their own, once per referral
+        // (the key `referral:{id}`): a failure here is not swallowed - the job is idempotent and a retry grants only what is missing.
+        $this->tickets->grantForReferral($referral, $now);
     }
 
     /**
