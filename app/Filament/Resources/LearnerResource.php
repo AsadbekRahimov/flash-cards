@@ -16,6 +16,7 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\LearnerResource\Support\DeleteAccountAction;
 use App\Filament\Resources\LearnerResource\Support\PracticePilotAction;
 use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
@@ -313,6 +314,7 @@ class LearnerResource extends Resource
                 // The pilot of the practice (docs/16 §2.1): admin only, audited (`learner.practice_pilot_changed`).
                 PracticePilotAction::include(),
                 PracticePilotAction::exclude(),
+                DeleteAccountAction::make(),
                 Actions\ViewAction::make(),
             ])
             // The newest first, on the primary key: sorted by the first name, the page of a search for a frequent name walked the

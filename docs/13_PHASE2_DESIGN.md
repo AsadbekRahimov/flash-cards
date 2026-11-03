@@ -76,6 +76,8 @@ erDiagram
 
 ### 1.2 Оплата — `payment_orders`, `provider_transactions`, `payments`, `offers`
 
+> `payment_orders` и `payments` несут **снимок плательщика** `payer_telegram_user_id` / `payer_name` / `payer_username` (`PayerSnapshot`): он остаётся читаемым после удаления ученика («Удалить аккаунт» → через 30 дней окончательно) и показан в админке строкой «Плательщик (снимок)». Канон — docs/03 §2.27, §2.29, §8 п. 2.
+
 **`payment_orders`** — намерение купить; единственный источник суммы.
 
 | Колонка | Тип | Описание |

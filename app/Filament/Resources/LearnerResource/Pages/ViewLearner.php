@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\LearnerResource\Pages;
 
 use App\Filament\Resources\LearnerResource;
+use App\Filament\Resources\LearnerResource\Support\DeleteAccountAction;
 use App\Filament\Resources\LearnerResource\Support\PracticePilotAction;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
@@ -21,6 +22,6 @@ class ViewLearner extends ViewRecord
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return [PracticePilotAction::include(), PracticePilotAction::exclude()];
+        return [PracticePilotAction::include(), PracticePilotAction::exclude(), DeleteAccountAction::make(redirectToList: true)];
     }
 }

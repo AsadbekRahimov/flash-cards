@@ -99,6 +99,8 @@ class PaymentOrderResource extends Resource
                     ->color(fn (string $state): string => self::statusColor($state)),
                 TextEntry::make('token_label')->label(__('admin.orders.fields.token'))->state(fn (PaymentOrder $record): string => PayloadMasker::token($record->token)),
                 TextEntry::make('subscriber_label')->label(__('admin.orders.fields.subscriber'))->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
+                // The snapshot taken at checkout (payer_*): it stays readable after the learner is deleted for good.
+                TextEntry::make('payer_snapshot')->label(__('admin.orders.fields.payer_snapshot'))->state(fn (PaymentOrder $record): ?string => PayerSnapshot::fromRecord($record)->label())->placeholder('—'),
                 TextEntry::make('plan')
                     ->label(__('admin.orders.fields.plan'))
                     ->badge()

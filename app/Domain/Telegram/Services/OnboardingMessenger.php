@@ -122,6 +122,12 @@ final class OnboardingMessenger
             ]];
         }
 
+        // "Delete account" last, alone in its row: its own confirmation follows (AccountDeletionMessenger).
+        $rows[] = [[
+            'text' => __('bot.delete_account.settings_button', [], $locale),
+            'callback_data' => AccountDeletionMessenger::ASK,
+        ]];
+
         $this->telegram->sendMessage($chatId, __('onboarding.settings.menu', [], $locale), replyMarkup: [
             'inline_keyboard' => $rows,
         ]);

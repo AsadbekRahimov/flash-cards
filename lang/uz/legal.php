@@ -212,9 +212,9 @@ return [
             [
                 'title' => 'Foydalanuvchi huquqlari',
                 'text' => <<<'TXT'
-                    Siz so'rashingiz mumkin: Siz haqingizda qanday ma'lumotlar saqlanayotgani, ularni tuzatish, o'chirish, rozilikni qaytarib olish. Qo'llab-quvvatlash xizmatiga yozing: {contact}. Xizmatda alohida o'chirish tugmasi hozircha yo'q, so'rovlar qo'lda ko'rib chiqiladi.
+                    Siz so'rashingiz mumkin: Siz haqingizda qanday ma'lumotlar saqlanayotgani, ularni tuzatish, o'chirish, rozilikni qaytarib olish. Qo'llab-quvvatlash xizmatiga yozing: {contact}. Hisobni o'zingiz ham o'chirishingiz mumkin: Mini App'da — «Sozlamalar» → «Xavfli hudud» → «Akkauntni o'chirish», botda — /delete_account buyrug'i yoki /settings dagi «Akkauntni o'chirish» tugmasi; ikkala holatda ham o'chirishdan oldin Xizmat tasdiqlashni so'raydi.
 
-                    O'chirish. So'rovdan keyin hisobni o'chirilgan deb belgilaymiz va 30 kundan so'ng uni avtomatik tarzda butunlay o'chiramiz [yurist uchun: muddatni tasdiqlang]. Hisob bilan birga profilingiz, natijalaringiz, do'stlar, ligalar, bahslar va eslatmalar o'chiriladi. To'lov yozuvlari (kim, qachon va qancha to'lagani) o'chirilmaydi va «Ma'lumotlarni saqlash va himoya qilish» bo'limida ko'rsatilgan muddatlarda saqlanadi. Agar yakuniy o'chirishdan oldin botni yana ishga tushirsangiz, hisob tiklanadi; yakuniy o'chirishdan keyin botni qayta ishga tushirish yangi, bo'sh hisob yaratadi.
+                    O'chirish. Tasdiqlashdan (yoki qo'llab-quvvatlash xizmatiga so'rovdan) keyin hisobni o'chirilgan deb belgilaymiz va 30 kundan so'ng uni avtomatik tarzda butunlay o'chiramiz [yurist uchun: muddatni tasdiqlang]. Hisob bilan birga profilingiz, natijalaringiz, do'stlar, ligalar, bahslar va eslatmalar o'chiriladi. To'lov yozuvlari (kim, qachon va qancha to'lagani) o'chirilmaydi va «Ma'lumotlarni saqlash va himoya qilish» bo'limida ko'rsatilgan muddatlarda saqlanadi. Agar yakuniy o'chirishdan oldin botni yana ishga tushirsangiz, hisob tiklanadi; yakuniy o'chirishdan keyin botni qayta ishga tushirish yangi, bo'sh hisob yaratadi.
 
                     Eslatmalarni bot sozlamalarida (/settings) o'chirish mumkin.
                     TXT,

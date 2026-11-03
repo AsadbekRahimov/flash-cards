@@ -24,7 +24,7 @@ final class BotMenuBuilder
      * @var array<string, array{0: string, 1: list<string>}>
      */
     public const SCOPES = [
-        'all_private_chats' => ['private', ['today', 'settings', 'invite', 'pro', 'promo', 'help']],
+        'all_private_chats' => ['private', ['today', 'settings', 'invite', 'pro', 'promo', 'delete_account', 'help']],
         'all_group_chats' => ['group', ['help']],
         'all_chat_administrators' => ['group', ['start_training', 'start_exam', 'close_exam', 'help']],
     ];
