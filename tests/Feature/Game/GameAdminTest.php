@@ -281,8 +281,8 @@ it('shows the balance, the tickets and the ledger on the tab of a learner', func
 
 it('shows the last 50 entries only', function (): void {
     $learner = Learner::factory()->create();
-    GameWallet::factory()->create(['learner_id' => $learner->id, 'balance' => 0]);
-    GameCoinLedgerEntry::factory()->count(55)->create(['learner_id' => $learner->id, 'amount' => 0, 'balance_after' => 0]);
+    GameWallet::factory()->create(['learner_id' => $learner->id, 'balance' => 55]);
+    GameCoinLedgerEntry::factory()->count(55)->create(['learner_id' => $learner->id, 'amount' => 1, 'balance_after' => 1]);
 
     $component = livewire(CaravanRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
 
