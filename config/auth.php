@@ -133,4 +133,19 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Request Timebox
+    |--------------------------------------------------------------------------
+    |
+    | Minimum time, in microseconds, that the `/org` "forgot password" form
+    | takes to answer, whatever the outcome (docs/07 §8). It must exceed the
+    | longest synchronous path: user lookup, bcrypt of the token at
+    | BCRYPT_ROUNDS, the token insert and the queue push of the e-mail. The
+    | broker's own `auth.timebox_duration` (200 ms) is too short for that.
+    |
+    */
+
+    'password_reset_timebox_duration' => (int) env('AUTH_PASSWORD_RESET_TIMEBOX_DURATION', 1_000_000),
+
 ];

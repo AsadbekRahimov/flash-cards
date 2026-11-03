@@ -9,22 +9,30 @@ use Filament\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 use Filament\Auth\Pages\PasswordReset\RequestPasswordReset;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
-use Filament\Notifications\Notification;
 use Filament\Support\Components\Attributes\Exposed;
 use Illuminate\Auth\Events\PasswordResetLinkSent;
 use Illuminate\Contracts\Auth\CanResetPassword;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use Illuminate\Support\Timebox;
 use LogicException;
 use SensitiveParameter;
 
 /**
- * `/org/password-reset/request`: the same "link sent" answer whether or not the e-mail belongs to an
- * account (docs/07 §8), so the form cannot be used to enumerate staff. The parent page clears the form
- * only on success and answers `INVALID_USER` / the broker's `THROTTLED` with an error; here every outcome
- * gives the same notification and an empty form, and an unknown e-mail pays for a dummy hash so the
- * response time is closer to the real one. The per-visitor rate limit of the parent page stays.
+ * `/org/password-reset/request`: the same answer whether or not the e-mail belongs to an account
+ * (docs/07 §8), so the form cannot be used to enumerate staff.
+ *
+ * Response: the parent page clears the form only on success and answers `INVALID_USER` / the broker's
+ * `THROTTLED` with an error; here every outcome gives the same notification and an empty form.
+ *
+ * Time: the broker boxes its own work to `auth.timebox_duration` (200 ms), which an unknown e-mail
+ * fits in but a known one does not — bcrypt of the token at BCRYPT_ROUNDS=12 alone takes ~250 ms, then
+ * the token insert and the queue push of the e-mail. The call is therefore wrapped in a second, longer
+ * {@see Timebox} (`auth.password_reset_timebox_duration`, 1 s by default) that covers the longest
+ * synchronous path with a margin; the e-mail itself is a queued notification (Filament's
+ * `ResetPassword` is `ShouldQueue`), so SMTP latency never reaches the response. An overrun is logged
+ * (without the e-mail) so the protection does not degrade silently. The per-visitor rate limit of the
+ * parent page stays.
  */
 class OrgRequestPasswordReset extends RequestPasswordReset
 {
@@ -41,7 +49,25 @@ class OrgRequestPasswordReset extends RequestPasswordReset
 
         $data = $this->form->getState();
 
-        $status = Password::broker(Filament::getAuthPasswordBroker())->sendResetLink(
+        $status = $this->timeboxed(fn (): string => $this->sendResetLink($data));
+
+        if (in_array($status, [Password::RESET_LINK_SENT, Password::INVALID_USER, Password::RESET_THROTTLED], true)) {
+            $this->getSentNotification(Password::RESET_LINK_SENT)?->send();
+            $this->form->fill();
+
+            return;
+        }
+
+        $this->getFailureNotification($status)?->send();
+        $this->form->fill();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function sendResetLink(array $data): string
+    {
+        return Password::broker(Filament::getAuthPasswordBroker())->sendResetLink(
             $this->getCredentialsFromFormData($data),
             function (CanResetPassword $user, #[SensitiveParameter] string $token): void {
                 if (
@@ -63,20 +89,31 @@ class OrgRequestPasswordReset extends RequestPasswordReset
                 event(new PasswordResetLinkSent($user));
             },
         );
+    }
 
-        if ($status === Password::INVALID_USER) {
-            // A known e-mail costs the broker a token hash and a DB write; spend the same here.
-            Hash::make(Str::random(40));
+    /**
+     * Run the broker call inside a timebox of `auth.password_reset_timebox_duration` microseconds, so
+     * the response takes the same time for a known, an unknown and a throttled e-mail.
+     *
+     * @param  callable(): string  $callback
+     */
+    protected function timeboxed(callable $callback): string
+    {
+        $duration = (int) config('auth.password_reset_timebox_duration', 1_000_000);
+        $start = hrtime(true);
+
+        try {
+            return app(Timebox::class)->call($callback, $duration);
+        } finally {
+            $elapsed = (int) ((hrtime(true) - $start) / 1_000);
+
+            if ($elapsed > $duration) {
+                // The work outran the box, so the response time leaks the outcome again; raise the budget.
+                Log::warning('org.password_reset.timebox_exceeded', [
+                    'elapsed_us' => $elapsed,
+                    'budget_us' => $duration,
+                ]);
+            }
         }
-
-        if (in_array($status, [Password::RESET_LINK_SENT, Password::INVALID_USER, Password::RESET_THROTTLED], true)) {
-            $this->getSentNotification(Password::RESET_LINK_SENT)?->send();
-            $this->form->fill();
-
-            return;
-        }
-
-        $this->getFailureNotification($status)?->send();
-        $this->form->fill();
     }
 }
