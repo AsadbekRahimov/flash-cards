@@ -634,6 +634,9 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | time_spent_ms | bigint default 0 | |
 | goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; источник истины для streak (`learners.streak_*` — проекция, обновляемая после commit) |
 | frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2)* |
+| game_runs_count | smallint default 0 | завершённых (`completed` / `failed`) забегов «Каравана» за локальный день *(G2.1)* |
+| game_points | smallint default 0 | очки лиги от игры за день после потолка `game.league.daily_cap` (40); пишутся в транзакции завершения забега *(G2.1)* |
+| game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией (docs/18 §12.6); ставится один раз, пока `NULL` *(G2.1)* |
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.
@@ -1126,6 +1129,99 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** unique `(battle_id, round, learner_id)` — один окончательный ответ на раунд; unique `(battle_id, learner_id, request_id)` — повтор запроса. Читают ответы раунда одним запросом при приёме ответа и при разрешении раунда по времени, разбор и итог — `BattleReader`.
 
+## Игра «Караван» *(G2.1; проект — docs/18 §12.2, API — docs/04 A.18)*
+
+Карта игры своих таблиц не имеет: город = `stages`, стоянка = `lessons` (docs/18 §12.0). Таблицы ниже хранят забеги, прогресс, кошелёк, лавку и караван класса. Стиль как у практики (§2.43): перечисления — `varchar`, CHECK только на PostgreSQL, «один активный» — nullable unique-колонка (работает и на SQLite). Правило из docs/18 §12.4: игра в `word_repetitions` трогает только `next_review_at`, `is_hard`, `updated_at`.
+
+### 2.48 `game_runs` — забег *(G2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | владелец; чужой забег отвечает 404 |
+| active_learner_id | bigint nullable **unique** | `= learner_id`, пока `status = active` — один активный забег на ученика |
+| kind | varchar(12) | `stop` / `boss` / `daily` / `class_boss` (открытое перечисление: арена G3 расширяет CHECK) |
+| course_id | bigint FK → courses, ON DELETE CASCADE | |
+| stage_id | bigint nullable FK → stages, ON DELETE SET NULL | город (`stop`, `boss`); `NULL` у `daily` |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | стоянка (`stop`) |
+| class_caravan_id | bigint nullable FK → class_caravans, ON DELETE SET NULL | забег шёл во время активного каравана группы; у `class_boss` обязателен. FK добавляет миграция `class_caravans` (на SQLite — пересборкой таблицы) |
+| daily_key | varchar(32) nullable **unique** | `"{learner_id}:{local_date}"` у `daily`: один ежедневный караван в локальный день |
+| class_boss_key | varchar(40) nullable **unique** | `"{class_caravan_id}:{learner_id}"` у `class_boss`: одна попытка |
+| local_date | date NOT NULL | локальный день ученика в момент старта (лимиты дня, строка `learner_daily_stats`) |
+| status | varchar(10) default 'active' | `active` / `finished` |
+| finish_reason | varchar(12) nullable | `completed` / `failed` / `expired` / `abandoned` |
+| free_slot | varchar(8) nullable | чем оплачен забег `stop`/`boss` у Free: `daily` / `ticket`; `NULL` у Pro, `daily` и `class_boss` |
+| snapshot | jsonb NOT NULL | серверная выдача (docs/18 §12.3), наружу только через `project()` |
+| state | jsonb NOT NULL default '{}' | прогресс по элементам; меняется только под `FOR UPDATE` строки |
+| total | smallint | число элементов |
+| answered, correct, typos, wrong, hints | smallint default 0 | `answered = correct + typos + wrong + hints`; `wrong` включает `skipped` |
+| flasks, flasks_max | smallint | текущие / максимум фляг (у боссов `flasks_max = 0`) |
+| combo_best | smallint default 0 | |
+| score | int default 0 | |
+| stars | smallint nullable | 0..3 после завершения |
+| coins_awarded | int default 0 | |
+| league_points | smallint default 0 | очков лиги, зачтённых забегом после потолка |
+| srs_pulled | smallint default 0 | слов, которым приблизили повторение |
+| locale | varchar(5) | |
+| expires_at | timestamp NOT NULL | `started_at + game.run.ttl_minutes` (30) |
+| started_at, finished_at | timestamp (finished_at nullable) | |
+| created_at, updated_at | | |
+
+**Индексы:** `active_learner_id`, `daily_key`, `class_boss_key` — unique; `(learner_id, status, started_at)`; `(learner_id, kind, local_date)`; `(status, expires_at)`; `(class_caravan_id, status)`; `(course_id, kind, finished_at)`.
+**PostgreSQL CHECK:** `game_runs_kind_check`, `game_runs_status_check`, `game_runs_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `game_runs_active_owner_check`, `game_runs_daily_shape_check ((kind = 'daily') = (daily_key IS NOT NULL))`, `game_runs_class_boss_shape_check ((kind = 'class_boss') = (class_boss_key IS NOT NULL))`, `game_runs_flasks_check (flasks BETWEEN 0 AND flasks_max)`.
+
+### 2.49 `game_run_attempts` — журнал принятых запросов забега *(G2.1)*
+Копия `practice_attempts` (§2.44): `run_id` FK → `game_runs` CASCADE, `learner_id` FK CASCADE, `request_id` uuid, `element_id` varchar(16), `kind` varchar(8) (`answer` / `pair` / `skip` / `hint` / `booster`), `payload` jsonb, `verdict` varchar(8) nullable (`correct` / `typo` / `wrong` / `skipped`; `NULL` у `hint` и `booster`), `is_first` boolean default true, `result` jsonb, `time_spent_ms` int nullable, `accepted_at` timestamp, `created_at` (без `updated_at`). **Индексы:** unique `(run_id, request_id)`; `(run_id, element_id)`; `(learner_id, accepted_at)`.
+
+### 2.50 `game_stop_progress` — прогресс по стоянке (уроку) *(G2.1)*
+`learner_id` FK CASCADE, `lesson_id` FK CASCADE, `course_id` FK CASCADE, `stage_id` FK CASCADE, `stars` smallint default 0 (лучший, 0..3), `best_score` int default 0, `runs_count` smallint default 0, `first_cleared_at` timestamp nullable, `last_run_at` timestamp, `created_at`, `updated_at`. **Индексы:** unique `(learner_id, lesson_id)`; `(learner_id, course_id)`; `(course_id, stage_id, learner_id)`. Строка появляется при первом завершённом забеге стоянки; «открыта» ли стоянка, не хранится — выводится из `word_repetitions` (docs/18 §12.2.3).
+
+### 2.51 `game_city_progress` — прогресс по городу (модулю) *(G2.1)*
+`learner_id` FK CASCADE, `stage_id` FK CASCADE, `course_id` FK CASCADE, `boss_attempts` smallint default 0, `boss_defeated_at` timestamp nullable, `boss_best_accuracy` smallint default 0 (0..100), `boss_wins` smallint default 0, `shared_at` timestamp nullable, `created_at`, `updated_at`. **Индексы:** unique `(learner_id, stage_id)`; `(learner_id, course_id)`.
+
+### 2.52 `game_word_misses` — промахи игры по слову *(G2.1)*
+`learner_id` FK CASCADE, `word_id` FK → words CASCADE, `misses` int default 0, `last_missed_at` timestamp, `last_pulled_at` timestamp nullable (когда игра в последний раз приблизила `next_review_at`), `created_at`, `updated_at`. **Индекс:** unique `(learner_id, word_id)`. Пишет только `GameSrsAdjuster` (`upsert()` билдера).
+
+### 2.53 `game_wallets` — кошелёк монет *(G2.1)*
+`learner_id` FK CASCADE **unique**, `balance` int NOT NULL default 0 (PostgreSQL CHECK `game_wallets_balance_check (balance >= 0)`), `earned_total` bigint default 0, `spent_total` bigint default 0, `created_at`, `updated_at`. Строка создаётся лениво; баланс меняется только под `FOR UPDATE`.
+
+### 2.54 `game_coin_ledger` — леджер монет, только добавление *(G2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| amount | int NOT NULL | `> 0` начисление, `< 0` списание; PostgreSQL CHECK `game_coin_ledger_amount_check (amount <> 0)` |
+| kind | varchar(24) | `run_reward` / `boss_reward` / `daily_reward` / `class_reward` / `bazaar_hint` / `item_purchase` / `admin_grant` / `admin_revoke` / `refund` |
+| idempotency_key | varchar(96) NOT NULL **unique** | `run:{run_id}:reward`, `run:{run_id}:hint:{element_id}`, `shop:{learner_id}:{request_id}`, `admin:{audit_log_id}`, `class:{caravan_id}:{learner_id}` |
+| ref_type, ref_id | varchar(24) nullable, bigint nullable | |
+| balance_after | int NOT NULL | баланс после проводки |
+| meta | jsonb default '{}' | |
+| created_at | timestamp default now | без `updated_at` |
+
+**Индексы:** unique `idempotency_key`; `(learner_id, created_at)`; `(kind, created_at)`. **Инвариант:** `SUM(amount) = game_wallets.balance` по ученику.
+
+### 2.55 `game_items` — каталог предметов *(G2.1)*
+`key` varchar(48) **unique**, `kind` varchar(10) (`cosmetic` / `booster`), `slot` varchar(10) nullable (`camel` / `carpet` / `tent` / `frame`), `effect` varchar(16) nullable (`hint` / `extra_flask` / `second_chance`), `price_coins` int default 0, `availability` varchar(12) (`base` / `achievement` / `seasonal` / `exclusive`), `achievement_key` varchar(32) nullable, `season_id` bigint nullable (задел G4, без FK), `status` varchar(10) default 'draft' (`draft` / `published` / `archived`), `sort` smallint default 0, `title` jsonb `{ru, uz}`, `description` jsonb nullable, `asset` varchar(64) nullable, `created_at`, `updated_at`. **Индексы:** unique `key`; `(kind, status, sort)`. **PostgreSQL CHECK:** `game_items_kind_shape_check` (косметика ⇔ `slot`, бустер ⇔ `effect`).
+
+### 2.56 `game_inventory` — владение предметами *(G2.1)*
+`learner_id` FK CASCADE, `item_id` FK → game_items CASCADE, `qty` int default 1 (PostgreSQL CHECK `qty >= 0`), `acquired_at` timestamp, `source` varchar(12) (`purchase` / `achievement` / `admin` / `default`), `created_at`, `updated_at`. **Индекс:** unique `(learner_id, item_id)`.
+
+### 2.57 `game_profiles` — игровой профиль *(G2.1)*
+`learner_id` FK CASCADE **unique**, `equipped` jsonb default '{}' (`{slot: item_id}`), `tickets` smallint NOT NULL default 0 (PostgreSQL CHECK `tickets >= 0`; меняется под замком `learners`), `tickets_earned_total` int default 0, `stops_cleared` smallint default 0, `cities_cleared` smallint default 0, `last_run_at` timestamp nullable, `created_at`, `updated_at`.
+
+### 2.58 `game_ticket_ledger` — леджер билетов, только добавление *(G2.1)*
+`learner_id` FK CASCADE, `delta` smallint, `source` varchar(12) (`streak` / `referral` / `admin` / `spend`), `idempotency_key` varchar(96) **unique** (`streak:{learner_id}:{local_date}`, `referral:{referral_id}`, `spend:run:{run_id}`, `admin:{audit_log_id}`), `run_id` bigint nullable FK → game_runs ON DELETE SET NULL, `created_at` (без `updated_at`). **Индексы:** unique ключ; `(learner_id, created_at)`.
+
+### 2.59 `game_booster_uses` — расход бустеров *(G2.1)*
+`learner_id` FK CASCADE, `run_id` FK → game_runs CASCADE, `item_id` FK → game_items, `element_id` varchar(16) nullable, `used_at` timestamp, `week_start` date (понедельник локальной недели ученика), `created_at`, `updated_at`. **Индексы:** `(learner_id, week_start)`; unique `(run_id, item_id, element_id)` (при `element_id = NULL` unique ничего не держит — «один на забег» обеспечивает сервис под замком забега).
+
+### 2.60 `class_caravans` — караван класса *(G2.1; логика — G2.9)*
+`telegram_group_id` FK → telegram_groups CASCADE, `organization_id` nullable FK → organizations SET NULL, `course_id` FK → courses CASCADE, `started_by_user_id` nullable FK → users SET NULL, `active_group_id` bigint nullable **unique** (`= telegram_group_id`, пока `status = active`), `status` varchar(10) (`active` / `finished` / `canceled`), `starts_at`, `ends_at` timestamp, `target_stars` int, `stars_total`, `runs_total` int default 0, `boss_snapshot_words` jsonb nullable, `boss_unlocked_at`, `boss_defeated_at`, `summary_posted_at`, `finished_at` timestamp nullable, `meta` jsonb default '{}', `created_at`, `updated_at`. **Индексы:** unique `active_group_id`; `(status, ends_at)`; `(telegram_group_id, starts_at)`. **PostgreSQL CHECK:** `class_caravans_status_check`, `class_caravans_active_shape_check ((status = 'active') = (active_group_id IS NOT NULL))`.
+
+### 2.61 `class_caravan_members` — вклад участников *(G2.1; логика — G2.9)*
+`class_caravan_id` FK CASCADE, `learner_id` FK CASCADE, `runs` smallint default 0, `stars` smallint default 0, `best_score` int default 0, `boss_won_at` timestamp nullable, `last_run_at` timestamp nullable, `created_at`, `updated_at`. **Индексы:** unique `(class_caravan_id, learner_id)`; `(class_caravan_id, stars, runs)`.
+
+Пишут таблицы игры только сервисы домена `Game` (`app/Domain/Game`); порядок блокировок и транзакция завершения — docs/18 §12.5.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1206,6 +1302,14 @@ CHECK не создаются — инвариант дублируют серв
 57. `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables` — `stages.title_uz`, `lessons.title_uz` (string(255) nullable, последняя колонка таблицы): название
     модуля / урока на узбекском рядом с русским `title` (§2.5–§2.6, выбор по локали — `DeckTitles`). Простой `ADD COLUMN` на обоих драйверах;
     `down()` снимает обе колонки (`DROP COLUMN`, на sqlite ≥ 3.35 — без пересборки таблицы). Проверяет `LocalizedTitlesTest` *(R3c)*
+
+58. `2026_11_05_100001_create_game_runs_tables` — `game_runs` (без FK на `class_caravans`), `game_run_attempts`; CHECK — только pgsql *(G2.1, §2.48–§2.49)*
+59. `2026_11_05_100002_create_game_progress_tables` — `game_stop_progress`, `game_city_progress`, `game_word_misses` *(G2.1, §2.50–§2.52)*
+60. `2026_11_05_100003_create_game_economy_tables` — `game_wallets`, `game_coin_ledger`, `game_items`, `game_inventory`, `game_profiles`, `game_ticket_ledger`, `game_booster_uses`; CHECK — только pgsql *(G2.1, §2.53–§2.59)*
+61. `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` — `game_runs_count`, `game_points`, `game_held_at` (§2.22) *(G2.1)*
+62. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
+
+Миграции игры (58–62) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 62 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 

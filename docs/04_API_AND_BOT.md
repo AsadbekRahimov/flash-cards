@@ -90,7 +90,8 @@
     }
   },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
-                "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } }
+                "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
+  "game": { "available": true, "limits": null, "pro_promise": "full", "coins": 35, "tickets": 2 }
 }
 ```
 
@@ -125,6 +126,9 @@
   `limits` (G1, docs/16 §3.2–§3.3, docs/18 §3) — лимиты Free на сегодня: `sessions` — открытия сессий практики (один повтор ошибок сессии, открытой сегодня, не считается; второй повтор той же сессии, повтор повтора и повтор вчерашней сессии считаются; замена активной считается), `battles` — вызовы на баттл (приглашения и реванши, которые предложил ученик; принять вызов можно всегда). У каждого `limit`, `used`, `remaining`, `resets_at` (конец локального дня ученика, ISO 8601 UTC с миллисекундами; то же окно, что у квоты новых слов, с переносом дня после смены пояса).
   `null` — лимитов нет: Pro (фича `practice.unlimited`, в том числе спонсорский Pro центра), лимиты не заданы (пустые `PRACTICE_FREE_*`), либо практика ученику закрыта (`available = false` или `pro_required = true`). Вид без лимита — `null` внутри блока. Лимит `0` — вид только для Pro (`remaining: 0`). TWA показывает остаток и пейвол `practice_limit` при `remaining = 0`.
   Цена: у Free с открытой практикой `/me` стоит **на один SQL больше** (оба счётчика одним запросом); у Pro и при закрытой практике — ничего.
+- `game` (docs/18 §12.7–§12.8, G2.1) — доступ к игре «Караван»; блок **всегда** есть в ответе и в других ответах формы `/me` (`MePayloadBuilder` → `GameAccess::describe`). `available` — входы в игру можно показывать: `GAME_ACCESS=all`, либо `pilot` и ученик в пилоте (флаг пилота практики `learners.practice_pilot_at` — одна аудитория); иначе `false`, TWA входов не рисует, а эндпоинты игры отвечают 403 `game_unavailable` (один код для «выключено» и «не в пилоте»). Режима «только Pro» у игры нет: бесплатная часть — продуктовое решение, лимиты Free — `limits`.
+  `limits` — лимиты Free на сегодня (docs/18 §12.7.2: `runs`, `tickets`, `boosters`, `boss_stages`); **до G2.8 всегда `null`**, потом `null` и при закрытой игре. `pro_promise` — `full` | `none`: что о игре может сказать этому ученику список «что даёт Pro» («Караван без лимита забегов и все боссы»); `full`, пока игра открыта читающему (`available`) и у Free есть лимит, который снимает Pro (`GAME_FREE_RUNS_PER_DAY`, `GAME_FREE_BOSS_STAGES` или `GAME_FREE_BOOSTERS_PER_WEEK` не пусто; `0` — лимит есть), иначе `none` (`ProPromises::game`; TWA ничего не выводит сам, пока `/me` не пришёл — `none`).
+  `coins` — баланс монет (`game_wallets.balance`), `tickets` — билеты (`game_profiles.tickets`); `0`, пока игра закрыта или ученик не играл (строки создаются лениво). Цена: пока игра открыта, `/me` стоит **на один SQL больше** (обе суммы одним запросом); при закрытой игре — ничего.
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
 
 ### A.2a `GET /api/twa/today`

@@ -533,7 +533,7 @@ app/Domain/Telegram/Handlers/StartCaravanHandler (/start_caravan, /cancel_carava
 | 4 | `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` | три колонки §12.2.7 |
 | 5 | `2026_11_05_100005_create_class_caravans_tables` | `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы, как `2026_10_30_100010`) |
 
-Порядок таблиц в `down()` — обратный; `DatabaseSchemaTest` считает `--step` от имени файла.
+Порядок таблиц в `down()` — обратный; `DatabaseSchemaTest` считает `--step` от имени файла. `down()` №5 перед удалением таблиц снимает FK и обнуляет `game_runs.class_caravan_id` (иначе повторный `up()` встретит id без строки).
 
 ### 12.3 Снимок забега
 
@@ -813,7 +813,7 @@ return [
 | `POST /game/shop/{key}/buy` | `GameWalletResource` | `{request_id}` → проводка `shop:{learner}:{request_id}` |
 | `GET /game/profile` · `POST /game/profile/equip` | `GameProfileResource` | `{equipped {slot: {key, asset}}, stops_cleared, cities_cleared, coins, tickets}`; equip `{slot, item_key \| null}` |
 | `GET /game/class` · `GET /game/class/{id}` | `ClassCaravanResource` | караваны моих групп: `{id, group_title, status, starts_at, ends_at, stars_total, target_stars, runs_total, boss {unlocked, defeated, my_attempt: won \| lost \| null}, members[] {name, stars, runs, is_me}, my {stars, runs}}` |
-| `GET /me` | `MeResource` | новый блок `game: {available, limits, pro_promise, coins, tickets}` (всегда присутствует; `MePayloadBuilder += GameAccess::describe`) |
+| `GET /me` | `MeResource` | новый блок `game: {available, limits, pro_promise, coins, tickets}` (всегда присутствует; `MePayloadBuilder += GameAccess::describe`; `pro_promise` — `ProPromises::game` / enum `ProGamePromise`; до G2.8 `limits = null`) |
 | `GET /today` | | `streak.held_by`; `game {daily_available, active_run}` — вход «Караван» на «Сегодня» (вторичное действие) |
 
 **Коды ошибок** (TWA: `KNOWN_ERROR_CODES` + `error.code.*` ru/uz): 403 `game_unavailable`, `game_limit_reached`, `game_pro_required`; 404 `game_run_not_found`, `course_not_found`, `lesson_not_found`, `stage_not_found`, `item_not_found`, `class_caravan_not_found`; 409 `game_run_active {run_id, kind, progress}`, `game_daily_done {resets_at}`, `boss_not_ready {introduced, required, cleared_stops, required_stops}`, `stop_locked` (урок не начат), `element_not_current {current}`, `answer_already_accepted {verdict}`, `pair_already_matched`, `request_id_reused`, `hint_not_available`, `coins_insufficient {balance, price}`, `booster_limit_reached {limit, used, resets_at}`, `booster_not_owned`, `item_not_purchasable {reason}`, `item_already_owned`, `class_caravan_active`, `class_boss_done`, `class_boss_locked`; 410 `game_run_closed {finish_reason}`; 422 `game_not_enough_material {available, required, reason}`, `invalid_answer_shape`, `unknown_element_id`, `unknown_option_id`, `lesson_not_in_course`, `stage_not_in_course`.
