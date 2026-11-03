@@ -47,6 +47,7 @@ admit
 adopt
 adult
 adults
+advance
 advantage
 adventure
 adverb
@@ -511,11 +512,13 @@ calendar
 calf
 call
 calm
+calorie
 camel
 camera
 camp
 camping
 campsite
+campus
 can
 can't
 cancel
@@ -576,6 +579,7 @@ cd
 ceiling
 celebrate
 celebration
+celebrity
 celery
 cell
 cellar
@@ -588,6 +592,7 @@ centre
 cents
 century
 cereal
+ceremony
 certain
 certainly
 certificate
@@ -606,6 +611,7 @@ chapter
 character
 charge
 charger
+charity
 charm
 chart
 chase
@@ -647,6 +653,7 @@ choir
 choose
 chop
 chopsticks
+chore
 chunk
 church
 cinema
@@ -988,6 +995,7 @@ designer
 desire
 desk
 dessert
+destination
 destroy
 detail
 details
@@ -1035,6 +1043,7 @@ disappear
 disappoint
 disappointed
 disappointing
+disaster
 disc
 discipline
 discount
@@ -1069,6 +1078,7 @@ dizzy
 do
 dock
 doctor
+document
 documentary
 does
 doesn't
@@ -1085,6 +1095,7 @@ donate
 donkey
 door
 doors
+dormitory
 dose
 double
 doubt
@@ -1356,6 +1367,7 @@ farm
 farmer
 fascinate
 fashion
+fashionable
 fast
 fasten
 faster
@@ -1444,6 +1456,7 @@ flea
 flee
 fleet
 flesh
+flexible
 flies
 flight
 fling
@@ -1458,6 +1471,7 @@ flow
 flower
 flowers
 flu
+fluent
 fluid
 flush
 flute
@@ -1516,6 +1530,7 @@ fourth
 fox
 fracture
 frame
+france
 frank
 fraud
 free
@@ -1627,6 +1642,7 @@ grace
 grade
 grades
 gradual
+graduate
 grain
 grammar
 grand
@@ -1718,6 +1734,7 @@ hardly
 hardworking
 hare
 harm
+harmful
 harmless
 harsh
 harvest
@@ -1737,6 +1754,7 @@ head
 headache
 headed
 heading
+headline
 headmaster
 headphones
 heal
@@ -2031,6 +2049,7 @@ kid
 kidnap
 kill
 kind
+kindergarten
 kindly
 kindness
 king
@@ -2063,6 +2082,7 @@ lamb
 lamp
 land
 landing
+landlord
 landscape
 lane
 language
@@ -2138,6 +2158,7 @@ life
 lifestyle
 lift
 light
+lightbulb
 lighten
 lightning
 lights
@@ -2214,6 +2235,7 @@ lure
 lying
 lyrics
 ma'am
+machine
 mad
 madam
 magazine
@@ -2289,6 +2311,7 @@ melon
 melt
 member
 memo
+memorize
 memory
 mend
 mental
@@ -2460,6 +2483,7 @@ nerve
 nervous
 nest
 net
+network
 never
 new
 newly
@@ -2514,6 +2538,7 @@ nowhere
 number
 nurse
 nut
+nutrition
 nuts
 nylon
 o'clock
@@ -2614,6 +2639,7 @@ overlook
 overnight
 overseas
 overtake
+overtime
 overtook
 overweight
 owe
@@ -2664,6 +2690,7 @@ pass
 passenger
 passengers
 passport
+password
 past
 pasta
 paste
@@ -2722,6 +2749,7 @@ persuade
 pet
 petrol
 pets
+pharmacist
 pharmacy
 phase
 phone
@@ -2776,6 +2804,7 @@ player
 playground
 plaza
 plead
+pleasant
 please
 pleased
 pleasure
@@ -2919,6 +2948,7 @@ propose
 prosper
 protect
 protection
+protein
 protest
 proud
 prove
@@ -2982,6 +3012,7 @@ rage
 rail
 railway
 rain
+rainbow
 raincoat
 rainy
 raise
@@ -3019,6 +3050,7 @@ really
 realm
 rear
 reason
+reasonable
 reasons
 rebel
 recall
@@ -3052,11 +3084,13 @@ reflect
 reflection
 reform
 refresh
+refund
 refuse
 regard
 region
 register
 regret
+regular
 regulate
 reign
 rein
@@ -3272,6 +3306,7 @@ scene
 scent
 schedule
 scheme
+scholarship
 school
 science
 scientific
@@ -3678,6 +3713,7 @@ stream
 street
 strength
 stress
+stressful
 stretch
 strict
 strike
@@ -3774,6 +3810,7 @@ syllable
 symbol
 sympathetic
 sympathy
+symptom
 system
 table
 tablecloth
@@ -3781,6 +3818,7 @@ tables
 tablet
 tackle
 tail
+tailor
 take
 tale
 talent
@@ -3827,6 +3865,7 @@ temperature
 temple
 tempt
 ten
+tenant
 tend
 tendency
 tennis
@@ -4126,6 +4165,7 @@ user
 usual
 usually
 utter
+vacancy
 vacation
 vaccination
 vaccine
@@ -4176,6 +4216,7 @@ vision
 visit
 visual
 vital
+vitamin
 vivid
 vocabulary
 vocal
@@ -4225,6 +4266,7 @@ wasn't
 waste
 watch
 water
+waterfall
 watermelon
 wave
 waves
@@ -4301,6 +4343,7 @@ wide
 widow
 width
 wife
+wifi
 wild
 will
 win
@@ -4343,6 +4386,7 @@ word
 words
 work
 worker
+workout
 world
 worm
 worried
