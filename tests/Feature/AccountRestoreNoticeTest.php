@@ -139,6 +139,9 @@ it('POST /auth tells whether the Pro auto-renewal can be switched on again', fun
 });
 
 it('POST /auth spends no extra query on the notice while there is none', function (): void {
+    // Every /auth sets `last_seen_at = now()`, written only when the second changed (the column keeps seconds): with the clock
+    // running, a second boundary between the calls of a slow runner added an UPDATE to one count and not the other.
+    $this->freezeTime();
     $plain = Learner::factory()->create(['telegram_user_id' => 881_020]);
     $marked = Learner::factory()->create(['telegram_user_id' => 881_021]);
     restoreAuth($plain)->assertOk();
