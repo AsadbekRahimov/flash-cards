@@ -278,9 +278,10 @@ export const useBattleSetupStore = defineStore('battleSetup', {
      * If the friend has invited the learner at this very moment (409 `battle_busy` names THEIR invitation), the id is that invitation's: the
      * screen leads into it, where the learner accepts it - no refusal is shown.
      *
-     * An invitation starts a battle, and Free has a few of them a day: a learner whose counter says they are spent gets the paywall
-     * instead of a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way) - after `/me` was read
-     * again (`confirmLimit`): a battle that did not take place gives its place back, and the number on the screen may be from before.
+     * An invitation starts a battle, and Free has a few of them a day - but the counter on the screen never stops it: the request always goes
+     * to the server, which decides. It looks for the friend's own invitation first (409 `battle_busy`, above) and only then at the limit, so
+     * a learner whose battles are spent can still accept the friend's invitation for free; otherwise 403 `practice_limit_reached` opens the
+     * wall with the numbers of the refusal. A battle that did not take place gives its place back, so the 201 may come even at a zero.
      * The 201 brings the counters as they are after the battle was created.
      */
     async invite(): Promise<number | null> {
@@ -292,16 +293,9 @@ export const useBattleSetupStore = defineStore('battleSetup', {
       this.limitHit = null
 
       const generation = this.generation
-      // The button waits (and a second press is not a second invitation) while the counter is being confirmed.
+      // The button waits for the answer, and a second press is not a second invitation.
       this.inviting = true
       try {
-        const spent = await useBillingStore().confirmLimit('battles')
-        if (generation !== this.generation) return null
-        if (spent !== null) {
-          this.limitHit = spent
-          return null
-        }
-
         const battle = await api.battles.invite({ friendship_id: this.friendshipId, mode: this.mode, course: this.course, lesson_id: this.lessonId })
         // The battle exists, and counts, whether or not this setup is still on screen.
         useBillingStore().setLimits(battle.limits)
