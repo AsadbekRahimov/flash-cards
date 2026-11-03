@@ -75,7 +75,7 @@ beforeEach(function (): void {
 });
 
 /** The events a run may write (docs/18 §12.8), and no other. */
-const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent'];
+const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent', 'game.coins_earned'];
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
@@ -346,13 +346,21 @@ it('leaves the learning of the learner exactly as it was after runs of every out
     });
 
     expect(gameIsolationChecksums())->toBe($before)
-        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, 'word_repetitions']))->toBe([]);
+        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, 'word_repetitions', 'learner_daily_stats']))->toBe([]);
 
     // The one statement the game may issue against `word_repetitions`: the conditional UPDATE of the three columns (docs/18 §12.4).
     $writes = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]word_repetitions["`]/i');
     expect($writes)->not->toBe([]);
     foreach ($writes as $sql) {
         expect($sql)->toMatch('/^update ["`]word_repetitions["`] set ["`]next_review_at["`] = \?, ["`]is_hard["`] = \?, ["`]updated_at["`] = \? where ["`]learner_id["`] = \? and ["`]word_id["`] in \(.*\) and ["`]next_review_at["`] > \?$/i');
+    }
+
+    // The day of the learner (docs/18 §12.2.7, G2.5a): the finish makes the row of the day with the counters of the learning at zero and
+    // then moves only the `game_*` columns (and `updated_at`) - never a review, a word or the goal.
+    $days = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]learner_daily_stats["`]/i');
+    expect($days)->not->toBe([]);
+    foreach ($days as $sql) {
+        expect($sql)->toMatch('/^(insert (or ignore )?into ["`]learner_daily_stats["`] \(|update ["`]learner_daily_stats["`] set ["`]game_runs_count["`] = \?, ["`]game_points["`] = \?(, ["`]game_held_at["`] = \?)?, ["`]updated_at["`] = \? where ["`]id["`] = \?$)/i');
     }
 
     // Every kind of task was played at least once.
@@ -395,7 +403,7 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
     gameIsolationPlayEverything($learner, $course, $lesson);
 
     $events = ProductEvent::query()->orderBy('id')->get();
-    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent'])
+    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent', 'game.coins_earned'])
         ->and(array_diff($events->pluck('name')->unique()->all(), GAME_ISOLATION_EVENTS))->toBe([])
         ->and($events->where('name', 'game.run_started')->count())->toBe(5)
         ->and($events->where('name', 'game.run_finished')->count())->toBe(5)

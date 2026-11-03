@@ -143,6 +143,12 @@ Schedule::command('learners:purge-deleted')
     ->dailyAt('03:30')
     ->withoutOverlapping(60);
 
+// The wallets of the game against their ledger (docs/18 §12.2.5): a report in the log, nothing is changed. Not 03:30 (the purge
+// of learners runs then) and not 04:30 (the reconciliation of Stars).
+Schedule::command('game:wallets-verify')
+    ->dailyAt('04:10')
+    ->withoutOverlapping(30);
+
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');
 Schedule::command('backup:run')->daily()->at('01:30');

@@ -53,8 +53,8 @@ use Throwable;
  * Locks (docs/18 §12.5.1): the start takes `game_runs` (FOR UPDATE of the active one) then inserts; an answer / a hint takes the run's
  * own row FOR UPDATE, then - a hint of the bazaar only - the wallet, then inserts the attempt and updates the run. Nothing of the
  * learning is locked; the SRS rule runs AFTER the commit (`GameSrsAdjuster`). The Free limits (`GameLimits`, G2.8) take the learner's
- * row FIRST in the transaction of the start - the place is marked in {@see open()}; the rewards of a finished run (`RunFinisher`,
- * G2.5a) replace {@see finish()} at its place in the transaction of the answer.
+ * row FIRST in the transaction of the start - the place is marked in {@see open()}; the last answer hands the run to {@see RunFinisher}
+ * inside the same transaction (the rewards, the map, the day of the learner - docs/18 §12.5.3).
  *
  * Idempotency: `(run_id, request_id)` is unique in `game_run_attempts`; a repeat answers the stored `result` and the view of now.
  */
@@ -74,6 +74,8 @@ final class RunService
         private readonly WalletService $wallet,
         private readonly GameSrsAdjuster $srs,
         private readonly ProductEventRecorder $events,
+        private readonly RunFinisher $finisher,
+        private readonly RunEventRecorder $runEvents,
     ) {}
 
     /**
@@ -560,12 +562,15 @@ final class RunService
             };
         }
         $updates['state'] = $state->toArray();
-        $run->forceFill($updates)->save();
+        $run->forceFill($updates);
 
+        // The last flask or the last element: the finish (docs/18 §12.5.3) saves the run - rewards, map and day in this very transaction.
         if ($score->failed) {
-            $this->finish($run, RunFinishReason::Failed, $now, $learner); // G2.5a: RunFinisher::finish($run, Failed) here
+            $this->finisher->finish($run, RunFinishReason::Failed, $learner, $now);
         } elseif ($state->current >= $run->total) {
-            $this->finish($run, RunFinishReason::Completed, $now, $learner); // G2.5a: RunFinisher::finish($run, Completed) here
+            $this->finisher->finish($run, RunFinishReason::Completed, $learner, $now);
+        } else {
+            $run->save();
         }
 
         if ($wordIds !== []) {
@@ -656,29 +661,6 @@ final class RunService
             'time_spent_ms' => null,
             'accepted_at' => $now,
         ]);
-    }
-
-    /**
-     * Finishes a played run under the lock: the stars, the status, `active_learner_id` let go. G2.5a's `RunFinisher` takes this place and
-     * adds the rewards, the progress of the map and the day of the learner (docs/18 §12.5.3).
-     */
-    private function finish(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, Learner $learner): void
-    {
-        $state = RunState::fromArray($run->state);
-        $isBoss = $run->kind === RunKind::Boss || $run->kind === RunKind::ClassBoss;
-        $stars = $isBoss
-            ? RunScoring::bossStars(RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)))
-            : RunScoring::stars($state->flaskLosses(), $reason === RunFinishReason::Failed);
-
-        $run->forceFill([
-            'status' => RunStatus::Finished,
-            'finish_reason' => $reason,
-            'finished_at' => $now,
-            'stars' => $stars,
-            'active_learner_id' => null,
-        ])->save();
-
-        DB::afterCommit(fn () => $this->recordFinished($run, $learner));
     }
 
     /** Closes a run that pays nothing (`expired` / `abandoned`) under the lock. */
@@ -792,30 +774,10 @@ final class RunService
             ]) === 1;
     }
 
+    /** `game.run_finished` of a run closed without a reward (`expired` / `abandoned`); a played run's event is RunFinisher's. */
     private function recordFinished(GameRun $run, ?Learner $learner): void
     {
-        $finishedAt = $run->finished_at ?? CarbonImmutable::now();
-        $events = is_array($run->snapshot['events'] ?? null) ? $run->snapshot['events'] : [];
-        $event = is_array($events[0] ?? null) ? ($events[0]['type'] ?? null) : null;
-
-        $this->events->record(ProductEventName::GameRunFinished, [
-            'run_id' => $run->id,
-            'kind' => $run->kind->value,
-            'finish_reason' => $run->finish_reason?->value,
-            'total' => $run->total,
-            'answered' => $run->answered,
-            'correct' => $run->correct,
-            'typos' => $run->typos,
-            'wrong' => $run->wrong,
-            'hints' => $run->hints,
-            'stars' => $run->stars,
-            'score' => $run->score,
-            'coins' => $run->coins_awarded,
-            'league_points' => $run->league_points,
-            'srs_pulled' => $run->srs_pulled,
-            'duration_ms' => max(0, ($finishedAt->getTimestamp() - $run->started_at->getTimestamp()) * 1000),
-            'event' => is_string($event) ? $event : null,
-        ], learner: $learner);
+        $this->runEvents->finished($run, $learner);
     }
 
     /**

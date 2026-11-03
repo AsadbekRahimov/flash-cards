@@ -112,4 +112,6 @@ enum ProductEventName: string
     case GameNotEnoughMaterial = 'game.not_enough_material';
     /** Coins were spent (props: amount, kind, ref_type, ref_id, balance). */
     case GameCoinsSpent = 'game.coins_spent';
+    /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
+    case GameCoinsEarned = 'game.coins_earned';
 }
