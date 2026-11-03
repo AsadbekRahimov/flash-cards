@@ -46,7 +46,7 @@ class OrgRequestPasswordReset extends RequestPasswordReset
             function (CanResetPassword $user, #[SensitiveParameter] string $token): void {
                 if (
                     ($user instanceof FilamentUser) &&
-                    (! $user->canAccessPanel(Filament::getCurrentOrDefaultPanel()))
+                    (! $user->canAccessPanel(Filament::getPanel('org')))
                 ) {
                     return;
                 }

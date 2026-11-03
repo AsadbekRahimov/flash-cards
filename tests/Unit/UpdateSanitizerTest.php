@@ -100,3 +100,15 @@ it('masks geolocation coordinates', function (): void {
     expect($cleaned['message']['location'])->toBe(['latitude' => '***', 'longitude' => '***'])
         ->and($cleaned['message']['venue']['location'])->toBe(['latitude' => '***', 'longitude' => '***']);
 });
+
+it('masks the address of a venue and of a chat location', function (): void {
+    $cleaned = UpdateSanitizer::forLog([
+        'message' => [
+            'venue' => ['address' => '12 Amir Temur street'],
+            'chat' => ['id' => -100, 'location' => ['address' => 'Tashkent, Chilanzar 5']],
+        ],
+    ]);
+
+    expect($cleaned['message']['venue']['address'])->toBe('12***')
+        ->and($cleaned['message']['chat']['location']['address'])->toBe('Ta***');
+});

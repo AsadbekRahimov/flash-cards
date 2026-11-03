@@ -42,8 +42,8 @@ final class UpdateSanitizer
                 continue;
             }
 
-            // `invoice_payload` is the payment order token (docs/13 §1.2): masked like the admin panel does.
-            if (in_array($k, ['first_name', 'last_name', 'username', 'text', 'caption', 'title', 'phone_number', 'vcard', 'invoice_payload'], true) && is_string($v)) {
+            // `address` is a venue / chat location address. `invoice_payload` is the payment order token (docs/13 §1.2): masked like the admin panel does.
+            if (in_array($k, ['first_name', 'last_name', 'username', 'text', 'caption', 'title', 'phone_number', 'vcard', 'invoice_payload', 'address'], true) && is_string($v)) {
                 $data[$k] = self::mask($v);
             }
         }
