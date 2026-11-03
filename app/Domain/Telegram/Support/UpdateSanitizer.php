@@ -28,6 +28,20 @@ final class UpdateSanitizer
                 continue;
             }
 
+            // Geolocation is personal data: dropped entirely.
+            if (in_array($k, ['latitude', 'longitude'], true) && (is_int($v) || is_float($v) || is_string($v))) {
+                $data[$k] = '***';
+
+                continue;
+            }
+
+            // `callback_query.data` carries invite codes (`org1:join:<code>`, `fr1:snd:<code>`): keep the prefix up to the last ':'.
+            if ($k === 'data' && is_string($v)) {
+                $data[$k] = self::maskCallbackData($v);
+
+                continue;
+            }
+
             // `invoice_payload` is the payment order token (docs/13 §1.2): masked like the admin panel does.
             if (in_array($k, ['first_name', 'last_name', 'username', 'text', 'caption', 'title', 'phone_number', 'vcard', 'invoice_payload'], true) && is_string($v)) {
                 $data[$k] = self::mask($v);
@@ -35,6 +49,13 @@ final class UpdateSanitizer
         }
 
         return $data;
+    }
+
+    private static function maskCallbackData(string $value): string
+    {
+        $pos = strrpos($value, ':');
+
+        return $pos === false ? self::mask($value) : substr($value, 0, $pos + 1).'***';
     }
 
     private static function mask(string $value): string
