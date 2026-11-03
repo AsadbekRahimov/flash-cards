@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 11,
+    "title": "Путешествия",
+    "title_uz": "Sayohat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "В отеле",
+    "title_uz": "Mehmonxonada"
+  },
+  "words": [
+    {
+      "word": "reception",
+      "part_of_speech": "noun",
+      "translation": "стойка регистрации",
+      "translations": {
+        "ru": "стойка регистрации",
+        "uz": "resepshn"
+      },
+      "example": "Ask at reception for a map.",
+      "example_translations": {
+        "ru": "Спросите карту на стойке регистрации.",
+        "uz": "Xarita uchun resepshndan so'rang."
+      }
+    },
+    {
+      "word": "stay",
+      "part_of_speech": "verb",
+      "translation": "останавливаться, жить",
+      "translations": {
+        "ru": "останавливаться, жить",
+        "uz": "qolmoq"
+      },
+      "example": "We stay at a small hotel.",
+      "example_translations": {
+        "ru": "Мы остановились в небольшом отеле.",
+        "uz": "Biz kichik mehmonxonada qolamiz."
+      }
+    },
+    {
+      "word": "view",
+      "part_of_speech": "noun",
+      "translation": "вид",
+      "translations": {
+        "ru": "вид",
+        "uz": "manzara"
+      },
+      "example": "The room has a great view.",
+      "example_translations": {
+        "ru": "Из номера открывается отличный вид.",
+        "uz": "Xonadan ajoyib manzara ko'rinadi."
+      }
+    },
+    {
+      "word": "balcony",
+      "part_of_speech": "noun",
+      "translation": "балкон",
+      "translations": {
+        "ru": "балкон",
+        "uz": "balkon"
+      },
+      "example": "We eat breakfast on the balcony.",
+      "example_translations": {
+        "ru": "Мы завтракаем на балконе.",
+        "uz": "Biz nonushtani balkonda qilamiz."
+      }
+    },
+    {
+      "word": "pool",
+      "part_of_speech": "noun",
+      "translation": "бассейн",
+      "translations": {
+        "ru": "бассейн",
+        "uz": "basseyn"
+      },
+      "example": "The hotel pool is open all day.",
+      "example_translations": {
+        "ru": "Бассейн отеля открыт весь день.",
+        "uz": "Mehmonxona havzasi kun bo'yi ochiq."
+      }
+    },
+    {
+      "word": "noise",
+      "part_of_speech": "noun",
+      "translation": "шум",
+      "translations": {
+        "ru": "шум",
+        "uz": "shovqin"
+      },
+      "example": "I cannot sleep because of the noise.",
+      "example_translations": {
+        "ru": "Я не могу спать из-за шума.",
+        "uz": "Shovqin tufayli uxlay olmayman."
+      }
+    },
+    {
+      "word": "quiet",
+      "part_of_speech": "adjective",
+      "translation": "тихий",
+      "translations": {
+        "ru": "тихий",
+        "uz": "tinch"
+      },
+      "example": "It is a quiet street at night.",
+      "example_translations": {
+        "ru": "Ночью это тихая улица.",
+        "uz": "Kechasi bu tinch ko'cha."
+      }
+    },
+    {
+      "word": "comfortable",
+      "part_of_speech": "adjective",
+      "translation": "удобный",
+      "translations": {
+        "ru": "удобный",
+        "uz": "qulay"
+      },
+      "example": "This bed is very comfortable.",
+      "example_translations": {
+        "ru": "Эта кровать очень удобная.",
+        "uz": "Bu karavot juda qulay."
+      }
+    },
+    {
+      "word": "double",
+      "part_of_speech": "adjective",
+      "translation": "двойной",
+      "translations": {
+        "ru": "двойной",
+        "uz": "ikki kishilik"
+      },
+      "example": "We need a double room.",
+      "example_translations": {
+        "ru": "Нам нужен двухместный номер.",
+        "uz": "Bizga ikki kishilik xona kerak."
+      }
+    },
+    {
+      "word": "available",
+      "part_of_speech": "adjective",
+      "translation": "свободный, доступный",
+      "translations": {
+        "ru": "свободный, доступный",
+        "uz": "bo'sh"
+      },
+      "example": "Is a room available tonight?",
+      "example_translations": {
+        "ru": "Есть ли свободный номер на сегодня?",
+        "uz": "Bugun kechqurun bo'sh xona bormi?"
+      }
+    }
+  ]
+}

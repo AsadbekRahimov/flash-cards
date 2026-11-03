@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 20,
+    "title": "Общество и культура",
+    "title_uz": "Jamiyat va madaniyat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "words": [
+    {
+      "word": "society",
+      "part_of_speech": "noun",
+      "translation": "общество",
+      "translations": {
+        "ru": "общество",
+        "uz": "jamiyat"
+      },
+      "example": "Society changes very fast today.",
+      "example_translations": {
+        "ru": "Общество сегодня меняется очень быстро.",
+        "uz": "Jamiyat bugun juda tez o'zgaryapti."
+      }
+    },
+    {
+      "word": "population",
+      "part_of_speech": "noun",
+      "translation": "население",
+      "translations": {
+        "ru": "население",
+        "uz": "aholi"
+      },
+      "example": "The population of the city is growing.",
+      "example_translations": {
+        "ru": "Население города растёт.",
+        "uz": "Shahar aholisi o'smoqda."
+      }
+    },
+    {
+      "word": "poverty",
+      "part_of_speech": "noun",
+      "translation": "бедность",
+      "translations": {
+        "ru": "бедность",
+        "uz": "qashshoqlik"
+      },
+      "example": "Poverty is a problem in many countries.",
+      "example_translations": {
+        "ru": "Бедность — проблема во многих странах.",
+        "uz": "Qashshoqlik ko'p mamlakatlarda muammo."
+      }
+    },
+    {
+      "word": "rich",
+      "part_of_speech": "adjective",
+      "translation": "богатый",
+      "translations": {
+        "ru": "богатый",
+        "uz": "boy"
+      },
+      "example": "A rich man lives in that house.",
+      "example_translations": {
+        "ru": "В том доме живёт богатый человек.",
+        "uz": "U uyda boy odam yashaydi."
+      }
+    },
+    {
+      "word": "poor",
+      "part_of_speech": "adjective",
+      "translation": "бедный",
+      "translations": {
+        "ru": "бедный",
+        "uz": "kambag'al"
+      },
+      "example": "They were poor but very happy.",
+      "example_translations": {
+        "ru": "Они были бедными, но очень счастливыми.",
+        "uz": "Ular kambag'al, lekin juda baxtli edi."
+      }
+    },
+    {
+      "word": "freedom",
+      "part_of_speech": "noun",
+      "translation": "свобода",
+      "translations": {
+        "ru": "свобода",
+        "uz": "erkinlik"
+      },
+      "example": "Freedom is important for every person.",
+      "example_translations": {
+        "ru": "Свобода важна для каждого человека.",
+        "uz": "Erkinlik har bir inson uchun muhim."
+      }
+    },
+    {
+      "word": "peace",
+      "part_of_speech": "noun",
+      "translation": "мир",
+      "translations": {
+        "ru": "мир",
+        "uz": "tinchlik"
+      },
+      "example": "Everyone wants peace in the world.",
+      "example_translations": {
+        "ru": "Все хотят мира во всём мире.",
+        "uz": "Hamma dunyoda tinchlik istaydi."
+      }
+    },
+    {
+      "word": "war",
+      "part_of_speech": "noun",
+      "translation": "война",
+      "translations": {
+        "ru": "война",
+        "uz": "urush"
+      },
+      "example": "My grandfather remembers the war.",
+      "example_translations": {
+        "ru": "Мой дедушка помнит войну.",
+        "uz": "Bobom urushni eslaydi."
+      }
+    },
+    {
+      "word": "community",
+      "part_of_speech": "noun",
+      "translation": "сообщество",
+      "translations": {
+        "ru": "сообщество",
+        "uz": "jamoa"
+      },
+      "example": "Our community helps old people.",
+      "example_translations": {
+        "ru": "Наше сообщество помогает пожилым людям.",
+        "uz": "Jamoamiz keksalarga yordam beradi."
+      }
+    },
+    {
+      "word": "charity",
+      "part_of_speech": "noun",
+      "translation": "благотворительность",
+      "translations": {
+        "ru": "благотворительность",
+        "uz": "xayriya"
+      },
+      "example": "She gives money to charity.",
+      "example_translations": {
+        "ru": "Она жертвует деньги на благотворительность.",
+        "uz": "U xayriyaga pul beradi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 11,
+    "title": "Путешествия",
+    "title_uz": "Sayohat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Планирование поездки",
+    "title_uz": "Safarni rejalashtirish"
+  },
+  "words": [
+    {
+      "word": "journey",
+      "part_of_speech": "noun",
+      "translation": "путешествие",
+      "translations": {
+        "ru": "путешествие",
+        "uz": "sayohat"
+      },
+      "example": "The journey to the coast takes three hours.",
+      "example_translations": {
+        "ru": "Поездка к побережью занимает три часа.",
+        "uz": "Qirg'oqqa sayohat uch soat davom etadi."
+      }
+    },
+    {
+      "word": "passport",
+      "part_of_speech": "noun",
+      "translation": "паспорт",
+      "translations": {
+        "ru": "паспорт",
+        "uz": "pasport"
+      },
+      "example": "Do not forget your passport at home.",
+      "example_translations": {
+        "ru": "Не забудь паспорт дома.",
+        "uz": "Pasportingni uyda unutma."
+      }
+    },
+    {
+      "word": "luggage",
+      "part_of_speech": "noun",
+      "translation": "багаж",
+      "translations": {
+        "ru": "багаж",
+        "uz": "yuk"
+      },
+      "example": "Our luggage is too heavy.",
+      "example_translations": {
+        "ru": "Наш багаж слишком тяжёлый.",
+        "uz": "Bizning yukimiz juda og'ir."
+      }
+    },
+    {
+      "word": "tourist",
+      "part_of_speech": "noun",
+      "translation": "турист",
+      "translations": {
+        "ru": "турист",
+        "uz": "sayyoh"
+      },
+      "example": "Many tourists visit this old town.",
+      "example_translations": {
+        "ru": "Многие туристы посещают этот старый город.",
+        "uz": "Ko'p sayyohlar bu eski shaharga tashrif buyuradi."
+      }
+    },
+    {
+      "word": "abroad",
+      "part_of_speech": "adverb",
+      "translation": "за границей",
+      "translations": {
+        "ru": "за границей",
+        "uz": "chet elda"
+      },
+      "example": "She wants to study abroad.",
+      "example_translations": {
+        "ru": "Она хочет учиться за границей.",
+        "uz": "U chet elda o'qishni xohlaydi."
+      }
+    },
+    {
+      "word": "travel",
+      "part_of_speech": "verb",
+      "translation": "путешествовать",
+      "translations": {
+        "ru": "путешествовать",
+        "uz": "sayohat qilmoq"
+      },
+      "example": "We travel by train every summer.",
+      "example_translations": {
+        "ru": "Мы путешествуем на поезде каждое лето.",
+        "uz": "Biz har yozda poyezdda sayohat qilamiz."
+      }
+    },
+    {
+      "word": "plan",
+      "part_of_speech": "verb",
+      "translation": "планировать",
+      "translations": {
+        "ru": "планировать",
+        "uz": "rejalashtirmoq"
+      },
+      "example": "They plan a trip to Turkey.",
+      "example_translations": {
+        "ru": "Они планируют поездку в Турцию.",
+        "uz": "Ular Turkiyaga safarni rejalashtiradi."
+      }
+    },
+    {
+      "word": "reservation",
+      "part_of_speech": "noun",
+      "translation": "бронь",
+      "translations": {
+        "ru": "бронь",
+        "uz": "bron"
+      },
+      "example": "I have a reservation for two nights.",
+      "example_translations": {
+        "ru": "У меня бронь на две ночи.",
+        "uz": "Menda ikki kechaga bron bor."
+      }
+    },
+    {
+      "word": "visa",
+      "part_of_speech": "noun",
+      "translation": "виза",
+      "translations": {
+        "ru": "виза",
+        "uz": "viza"
+      },
+      "example": "You need a visa for this country.",
+      "example_translations": {
+        "ru": "Для этой страны нужна виза.",
+        "uz": "Bu mamlakat uchun viza kerak."
+      }
+    },
+    {
+      "word": "pack",
+      "part_of_speech": "verb",
+      "translation": "собирать вещи",
+      "translations": {
+        "ru": "собирать вещи",
+        "uz": "yig'moq"
+      },
+      "example": "I must pack my bag tonight.",
+      "example_translations": {
+        "ru": "Мне нужно собрать сумку сегодня вечером.",
+        "uz": "Bugun kechqurun sumkamni yig'ishim kerak."
+      }
+    }
+  ]
+}

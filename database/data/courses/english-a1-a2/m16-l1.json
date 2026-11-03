@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 16,
+    "title": "Дом и быт",
+    "title_uz": "Uy va maishat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Части дома",
+    "title_uz": "Uyning qismlari"
+  },
+  "words": [
+    {
+      "word": "roof",
+      "part_of_speech": "noun",
+      "translation": "крыша",
+      "translations": {
+        "ru": "крыша",
+        "uz": "tom"
+      },
+      "example": "The roof of our house is red.",
+      "example_translations": {
+        "ru": "Крыша нашего дома красная.",
+        "uz": "Uyimizning tomi qizil."
+      }
+    },
+    {
+      "word": "stairs",
+      "part_of_speech": "noun",
+      "translation": "лестница",
+      "translations": {
+        "ru": "лестница",
+        "uz": "zina"
+      },
+      "example": "Be careful on the old stairs.",
+      "example_translations": {
+        "ru": "Осторожно на старой лестнице.",
+        "uz": "Eski zinada ehtiyot bo'ling."
+      }
+    },
+    {
+      "word": "ceiling",
+      "part_of_speech": "noun",
+      "translation": "потолок",
+      "translations": {
+        "ru": "потолок",
+        "uz": "shift"
+      },
+      "example": "The ceiling in this room is high.",
+      "example_translations": {
+        "ru": "Потолок в этой комнате высокий.",
+        "uz": "Bu xonaning shifti baland."
+      }
+    },
+    {
+      "word": "apartment",
+      "part_of_speech": "noun",
+      "translation": "квартира",
+      "translations": {
+        "ru": "квартира",
+        "uz": "kvartira"
+      },
+      "example": "They rent an apartment near the park.",
+      "example_translations": {
+        "ru": "Они снимают квартиру рядом с парком.",
+        "uz": "Ular park yaqinidagi kvartirani ijaraga olishadi."
+      }
+    },
+    {
+      "word": "garage",
+      "part_of_speech": "noun",
+      "translation": "гараж",
+      "translations": {
+        "ru": "гараж",
+        "uz": "garaj"
+      },
+      "example": "He keeps his car in the garage.",
+      "example_translations": {
+        "ru": "Он держит машину в гараже.",
+        "uz": "U mashinasini garajda saqlaydi."
+      }
+    },
+    {
+      "word": "yard",
+      "part_of_speech": "noun",
+      "translation": "двор",
+      "translations": {
+        "ru": "двор",
+        "uz": "hovli"
+      },
+      "example": "The kids play in the yard.",
+      "example_translations": {
+        "ru": "Дети играют во дворе.",
+        "uz": "Bolalar hovlida o'ynaydi."
+      }
+    },
+    {
+      "word": "fence",
+      "part_of_speech": "noun",
+      "translation": "забор",
+      "translations": {
+        "ru": "забор",
+        "uz": "to'siq"
+      },
+      "example": "A white fence is around the garden.",
+      "example_translations": {
+        "ru": "Вокруг сада стоит белый забор.",
+        "uz": "Bog' atrofida oq to'siq bor."
+      }
+    },
+    {
+      "word": "hall",
+      "part_of_speech": "noun",
+      "translation": "прихожая, коридор",
+      "translations": {
+        "ru": "прихожая, коридор",
+        "uz": "yo'lak"
+      },
+      "example": "Leave your shoes in the hall.",
+      "example_translations": {
+        "ru": "Оставь обувь в прихожей.",
+        "uz": "Poyabzalingni yo'lakda qoldir."
+      }
+    },
+    {
+      "word": "basement",
+      "part_of_speech": "noun",
+      "translation": "подвал",
+      "translations": {
+        "ru": "подвал",
+        "uz": "yerto'la"
+      },
+      "example": "We keep old boxes in the basement.",
+      "example_translations": {
+        "ru": "Мы храним старые коробки в подвале.",
+        "uz": "Biz eski qutilarni yerto'lada saqlaymiz."
+      }
+    },
+    {
+      "word": "elevator",
+      "part_of_speech": "noun",
+      "translation": "лифт",
+      "translations": {
+        "ru": "лифт",
+        "uz": "lift"
+      },
+      "example": "The elevator is broken again today.",
+      "example_translations": {
+        "ru": "Лифт сегодня снова сломан.",
+        "uz": "Lift bugun yana buzilgan."
+      }
+    }
+  ]
+}

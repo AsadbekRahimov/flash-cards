@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 11,
+    "title": "Путешествия",
+    "title_uz": "Sayohat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "В аэропорту",
+    "title_uz": "Aeroportda"
+  },
+  "words": [
+    {
+      "word": "flight",
+      "part_of_speech": "noun",
+      "translation": "рейс",
+      "translations": {
+        "ru": "рейс",
+        "uz": "reys"
+      },
+      "example": "Our flight leaves at six.",
+      "example_translations": {
+        "ru": "Наш рейс вылетает в шесть.",
+        "uz": "Bizning reysimiz oltida uchadi."
+      }
+    },
+    {
+      "word": "departure",
+      "part_of_speech": "noun",
+      "translation": "вылет",
+      "translations": {
+        "ru": "вылет",
+        "uz": "jo'nash"
+      },
+      "example": "The departure time is ten thirty.",
+      "example_translations": {
+        "ru": "Время вылета — десять тридцать.",
+        "uz": "Jo'nash vaqti o'n o'ttiz."
+      }
+    },
+    {
+      "word": "gate",
+      "part_of_speech": "noun",
+      "translation": "выход на посадку",
+      "translations": {
+        "ru": "выход на посадку",
+        "uz": "chiqish eshigi"
+      },
+      "example": "Go to gate twelve, please.",
+      "example_translations": {
+        "ru": "Пройдите к выходу двенадцать, пожалуйста.",
+        "uz": "O'n ikkinchi eshikka boring, iltimos."
+      }
+    },
+    {
+      "word": "platform",
+      "part_of_speech": "noun",
+      "translation": "платформа",
+      "translations": {
+        "ru": "платформа",
+        "uz": "platforma"
+      },
+      "example": "The train leaves from platform four.",
+      "example_translations": {
+        "ru": "Поезд отправляется с четвёртой платформы.",
+        "uz": "Poyezd to'rtinchi platformadan jo'naydi."
+      }
+    },
+    {
+      "word": "delay",
+      "part_of_speech": "noun",
+      "translation": "задержка",
+      "translations": {
+        "ru": "задержка",
+        "uz": "kechikish"
+      },
+      "example": "There is a long delay today.",
+      "example_translations": {
+        "ru": "Сегодня большая задержка.",
+        "uz": "Bugun katta kechikish bor."
+      }
+    },
+    {
+      "word": "cancel",
+      "part_of_speech": "verb",
+      "translation": "отменять",
+      "translations": {
+        "ru": "отменять",
+        "uz": "bekor qilmoq"
+      },
+      "example": "They cancel many flights in winter.",
+      "example_translations": {
+        "ru": "Зимой они отменяют много рейсов.",
+        "uz": "Ular qishda ko'p reyslarni bekor qiladi."
+      }
+    },
+    {
+      "word": "passenger",
+      "part_of_speech": "noun",
+      "translation": "пассажир",
+      "translations": {
+        "ru": "пассажир",
+        "uz": "yo'lovchi"
+      },
+      "example": "Every passenger needs a ticket.",
+      "example_translations": {
+        "ru": "Каждому пассажиру нужен билет.",
+        "uz": "Har bir yo'lovchiga chipta kerak."
+      }
+    },
+    {
+      "word": "customs",
+      "part_of_speech": "noun",
+      "translation": "таможня",
+      "translations": {
+        "ru": "таможня",
+        "uz": "bojxona"
+      },
+      "example": "We wait at customs for an hour.",
+      "example_translations": {
+        "ru": "Мы ждём на таможне час.",
+        "uz": "Biz bojxonada bir soat kutamiz."
+      }
+    },
+    {
+      "word": "suitcase",
+      "part_of_speech": "noun",
+      "translation": "чемодан",
+      "translations": {
+        "ru": "чемодан",
+        "uz": "chamadon"
+      },
+      "example": "My suitcase is blue and big.",
+      "example_translations": {
+        "ru": "Мой чемодан синий и большой.",
+        "uz": "Mening chamadonim ko'k va katta."
+      }
+    },
+    {
+      "word": "land",
+      "part_of_speech": "verb",
+      "translation": "приземляться",
+      "translations": {
+        "ru": "приземляться",
+        "uz": "qo'nmoq"
+      },
+      "example": "The plane lands in ten minutes.",
+      "example_translations": {
+        "ru": "Самолёт приземляется через десять минут.",
+        "uz": "Samolyot o'n daqiqadan keyin qo'nadi."
+      }
+    }
+  ]
+}

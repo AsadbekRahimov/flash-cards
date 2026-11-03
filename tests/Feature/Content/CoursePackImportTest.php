@@ -23,8 +23,8 @@ uses(RefreshDatabase::class);
 
 /*
  * The course pack `english-a1-a2` (database/data/courses/english-a1-a2, docs/CONTENT_A1_A2.md) and its importer
- * `content:import-course`. The invariants are checked on the files that are actually there, so they hold after the A2
- * modules (11-20) are added; the A1 part is pinned separately at exactly 500 words.
+ * `content:import-course`. The invariants are checked on the files that are actually there; the full course is
+ * pinned at 20 modules / 100 lessons / 1 000 words, each half (A1: modules 1-10, A2: modules 11-20) at exactly 500.
  */
 
 const CPI_DIR = 'database/data/courses/english-a1-a2';
@@ -70,16 +70,32 @@ it('has five lessons of ten words in every module, numbered without gaps', funct
     }
 });
 
-it('has exactly 500 words in the A1 part (modules 1-10)', function (): void {
+it('has exactly 500 words in the A1 part (modules 1-10) and 500 in the A2 part (modules 11-20)', function (): void {
     $a1 = 0;
+    $a2 = 0;
     foreach (cpi_lesson_files() as $file) {
         $data = cpi_read($file);
         if ($data['stage']['number'] <= 10) {
             $a1 += count($data['words']);
+        } else {
+            $a2 += count($data['words']);
         }
     }
 
-    expect($a1)->toBe(500);
+    expect($a1)->toBe(500)->and($a2)->toBe(500);
+});
+
+it('keeps USED_WORDS.txt in step with the lesson files: sorted, no repeats, exactly the words of the course', function (): void {
+    $words = [];
+    foreach (cpi_lesson_files() as $file) {
+        foreach (cpi_read($file)['words'] as $w) {
+            $words[] = $w['word'];
+        }
+    }
+    $used = array_values(array_filter(array_map('trim', file(base_path(CPI_DIR).'/USED_WORDS.txt') ?: [])));
+    sort($words, SORT_STRING);
+
+    expect($used)->toHaveCount(1000)->and($used)->toBe($words);
 });
 
 it('gives every word a ru and uz translation, an example with both translations and a known part of speech; no word repeats in the course', function (): void {
@@ -113,6 +129,8 @@ it('imports the whole pack: modules, lessons, words and both translations of eve
     $files = cpi_lesson_files();
     $course = Course::query()->where('slug', 'english-a1-a2')->firstOrFail();
     $expectedWords = array_sum(array_map(fn (string $f): int => count(cpi_read($f)['words']), $files));
+
+    expect($files)->toHaveCount(100)->and($expectedWords)->toBe(1000);
 
     expect($course->status)->toBe(CoursePublisher::DRAFT)
         ->and($course->published_at)->toBeNull()

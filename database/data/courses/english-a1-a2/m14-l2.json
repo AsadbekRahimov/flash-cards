@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 14,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "В офисе",
+    "title_uz": "Ofisda"
+  },
+  "words": [
+    {
+      "word": "desk",
+      "part_of_speech": "noun",
+      "translation": "рабочий стол",
+      "translations": {
+        "ru": "рабочий стол",
+        "uz": "ish stoli"
+      },
+      "example": "My desk is near the window.",
+      "example_translations": {
+        "ru": "Мой рабочий стол у окна.",
+        "uz": "Mening ish stolim deraza yonida."
+      }
+    },
+    {
+      "word": "schedule",
+      "part_of_speech": "noun",
+      "translation": "расписание",
+      "translations": {
+        "ru": "расписание",
+        "uz": "jadval"
+      },
+      "example": "What is your schedule for tomorrow?",
+      "example_translations": {
+        "ru": "Какое у тебя расписание на завтра?",
+        "uz": "Ertangi jadvaling qanday?"
+      }
+    },
+    {
+      "word": "colleague",
+      "part_of_speech": "noun",
+      "translation": "коллега",
+      "translations": {
+        "ru": "коллега",
+        "uz": "hamkasb"
+      },
+      "example": "My colleague speaks German very well.",
+      "example_translations": {
+        "ru": "Мой коллега очень хорошо говорит по-немецки.",
+        "uz": "Hamkasbim nemis tilida juda yaxshi gapiradi."
+      }
+    },
+    {
+      "word": "document",
+      "part_of_speech": "noun",
+      "translation": "документ",
+      "translations": {
+        "ru": "документ",
+        "uz": "hujjat"
+      },
+      "example": "Please sign this document here.",
+      "example_translations": {
+        "ru": "Пожалуйста, подпишите здесь этот документ.",
+        "uz": "Iltimos, bu hujjatni shu yerda imzolang."
+      }
+    },
+    {
+      "word": "contract",
+      "part_of_speech": "noun",
+      "translation": "контракт",
+      "translations": {
+        "ru": "контракт",
+        "uz": "shartnoma"
+      },
+      "example": "He signs a contract for two years.",
+      "example_translations": {
+        "ru": "Он подписывает контракт на два года.",
+        "uz": "U ikki yilga shartnoma imzolaydi."
+      }
+    },
+    {
+      "word": "appointment",
+      "part_of_speech": "noun",
+      "translation": "встреча по записи",
+      "translations": {
+        "ru": "встреча по записи",
+        "uz": "uchrashuv"
+      },
+      "example": "I have an appointment at three.",
+      "example_translations": {
+        "ru": "У меня встреча в три часа.",
+        "uz": "Mening soat uchda uchrashuvim bor."
+      }
+    },
+    {
+      "word": "presentation",
+      "part_of_speech": "noun",
+      "translation": "презентация",
+      "translations": {
+        "ru": "презентация",
+        "uz": "taqdimot"
+      },
+      "example": "She gives a presentation on Friday.",
+      "example_translations": {
+        "ru": "Она проводит презентацию в пятницу.",
+        "uz": "U juma kuni taqdimot o'tkazadi."
+      }
+    },
+    {
+      "word": "customer",
+      "part_of_speech": "noun",
+      "translation": "покупатель",
+      "translations": {
+        "ru": "покупатель",
+        "uz": "mijoz"
+      },
+      "example": "The customer wants a cheaper price.",
+      "example_translations": {
+        "ru": "Покупатель хочет цену пониже.",
+        "uz": "Mijoz arzonroq narxni xohlaydi."
+      }
+    },
+    {
+      "word": "department",
+      "part_of_speech": "noun",
+      "translation": "отдел",
+      "translations": {
+        "ru": "отдел",
+        "uz": "bo'lim"
+      },
+      "example": "He works in the sales department.",
+      "example_translations": {
+        "ru": "Он работает в отделе продаж.",
+        "uz": "U sotuv bo'limida ishlaydi."
+      }
+    },
+    {
+      "word": "company",
+      "part_of_speech": "noun",
+      "translation": "компания",
+      "translations": {
+        "ru": "компания",
+        "uz": "kompaniya"
+      },
+      "example": "This company has two hundred workers.",
+      "example_translations": {
+        "ru": "В этой компании двести работников.",
+        "uz": "Bu kompaniyada ikki yuz ishchi bor."
+      }
+    }
+  ]
+}

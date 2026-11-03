@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 18,
+    "title": "Здоровье и образ жизни",
+    "title_uz": "Salomatlik va turmush tarzi"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Болезни",
+    "title_uz": "Kasalliklar"
+  },
+  "words": [
+    {
+      "word": "flu",
+      "part_of_speech": "noun",
+      "translation": "грипп",
+      "translations": {
+        "ru": "грипп",
+        "uz": "gripp"
+      },
+      "example": "Half of my class has the flu.",
+      "example_translations": {
+        "ru": "Половина моего класса болеет гриппом.",
+        "uz": "Sinfimning yarmi gripp bilan og'rigan."
+      }
+    },
+    {
+      "word": "allergy",
+      "part_of_speech": "noun",
+      "translation": "аллергия",
+      "translations": {
+        "ru": "аллергия",
+        "uz": "allergiya"
+      },
+      "example": "I have an allergy to nuts.",
+      "example_translations": {
+        "ru": "У меня аллергия на орехи.",
+        "uz": "Mening yong'oqqa allergiyam bor."
+      }
+    },
+    {
+      "word": "infection",
+      "part_of_speech": "noun",
+      "translation": "инфекция",
+      "translations": {
+        "ru": "инфекция",
+        "uz": "infeksiya"
+      },
+      "example": "The doctor says it is an infection.",
+      "example_translations": {
+        "ru": "Врач говорит, что это инфекция.",
+        "uz": "Shifokor bu infeksiya, deydi."
+      }
+    },
+    {
+      "word": "injury",
+      "part_of_speech": "noun",
+      "translation": "травма",
+      "translations": {
+        "ru": "травма",
+        "uz": "jarohat"
+      },
+      "example": "He has a serious knee injury.",
+      "example_translations": {
+        "ru": "У него серьёзная травма колена.",
+        "uz": "Uning tizzasida jiddiy jarohat bor."
+      }
+    },
+    {
+      "word": "wound",
+      "part_of_speech": "noun",
+      "translation": "рана",
+      "translations": {
+        "ru": "рана",
+        "uz": "yara"
+      },
+      "example": "Clean the wound with water.",
+      "example_translations": {
+        "ru": "Промой рану водой.",
+        "uz": "Yarani suv bilan yuving."
+      }
+    },
+    {
+      "word": "bandage",
+      "part_of_speech": "noun",
+      "translation": "бинт",
+      "translations": {
+        "ru": "бинт",
+        "uz": "bint"
+      },
+      "example": "She puts a bandage on his arm.",
+      "example_translations": {
+        "ru": "Она накладывает бинт на его руку.",
+        "uz": "U uning qo'liga bint bog'laydi."
+      }
+    },
+    {
+      "word": "symptom",
+      "part_of_speech": "noun",
+      "translation": "симптом",
+      "translations": {
+        "ru": "симптом",
+        "uz": "alomat"
+      },
+      "example": "A cough is a common symptom.",
+      "example_translations": {
+        "ru": "Кашель — частый симптом.",
+        "uz": "Yo'tal keng tarqalgan alomat."
+      }
+    },
+    {
+      "word": "sneeze",
+      "part_of_speech": "verb",
+      "translation": "чихать",
+      "translations": {
+        "ru": "чихать",
+        "uz": "aksirmoq"
+      },
+      "example": "I sneeze a lot in spring.",
+      "example_translations": {
+        "ru": "Весной я часто чихаю.",
+        "uz": "Men bahorda tez-tez aksiraman."
+      }
+    },
+    {
+      "word": "bleed",
+      "part_of_speech": "verb",
+      "translation": "кровоточить",
+      "translations": {
+        "ru": "кровоточить",
+        "uz": "qon ketmoq"
+      },
+      "example": "His finger bleeds after the cut.",
+      "example_translations": {
+        "ru": "Его палец кровоточит после пореза.",
+        "uz": "Kesilgandan keyin uning barmog'idan qon ketadi."
+      }
+    },
+    {
+      "word": "recover",
+      "part_of_speech": "verb",
+      "translation": "выздоравливать",
+      "translations": {
+        "ru": "выздоравливать",
+        "uz": "tuzalmoq"
+      },
+      "example": "She recovers quickly after the flu.",
+      "example_translations": {
+        "ru": "Она быстро выздоравливает после гриппа.",
+        "uz": "U gripp bilan og'riganidan keyin tez tuzaladi."
+      }
+    }
+  ]
+}

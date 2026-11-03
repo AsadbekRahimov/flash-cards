@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 20,
+    "title": "Общество и культура",
+    "title_uz": "Jamiyat va madaniyat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Праздники и традиции",
+    "title_uz": "Bayramlar va an'analar"
+  },
+  "words": [
+    {
+      "word": "religion",
+      "part_of_speech": "noun",
+      "translation": "религия",
+      "translations": {
+        "ru": "религия",
+        "uz": "din"
+      },
+      "example": "Religion is important for many people.",
+      "example_translations": {
+        "ru": "Религия важна для многих людей.",
+        "uz": "Din ko'p odamlar uchun muhim."
+      }
+    },
+    {
+      "word": "wedding",
+      "part_of_speech": "noun",
+      "translation": "свадьба",
+      "translations": {
+        "ru": "свадьба",
+        "uz": "to'y"
+      },
+      "example": "My cousin's wedding is in June.",
+      "example_translations": {
+        "ru": "Свадьба моего двоюродного брата в июне.",
+        "uz": "Amakivachchamning to'yi iyun oyida."
+      }
+    },
+    {
+      "word": "ceremony",
+      "part_of_speech": "noun",
+      "translation": "церемония",
+      "translations": {
+        "ru": "церемония",
+        "uz": "marosim"
+      },
+      "example": "The ceremony begins at noon.",
+      "example_translations": {
+        "ru": "Церемония начинается в полдень.",
+        "uz": "Marosim tushda boshlanadi."
+      }
+    },
+    {
+      "word": "celebrate",
+      "part_of_speech": "verb",
+      "translation": "праздновать",
+      "translations": {
+        "ru": "праздновать",
+        "uz": "nishonlamoq"
+      },
+      "example": "We celebrate the new year together.",
+      "example_translations": {
+        "ru": "Мы вместе празднуем Новый год.",
+        "uz": "Biz yangi yilni birga nishonlaymiz."
+      }
+    },
+    {
+      "word": "congratulate",
+      "part_of_speech": "verb",
+      "translation": "поздравлять",
+      "translations": {
+        "ru": "поздравлять",
+        "uz": "tabriklamoq"
+      },
+      "example": "I congratulate you on your success.",
+      "example_translations": {
+        "ru": "Я поздравляю тебя с успехом.",
+        "uz": "Men seni muvaffaqiyating bilan tabriklayman."
+      }
+    },
+    {
+      "word": "pray",
+      "part_of_speech": "verb",
+      "translation": "молиться",
+      "translations": {
+        "ru": "молиться",
+        "uz": "ibodat qilmoq"
+      },
+      "example": "Many people pray before a meal.",
+      "example_translations": {
+        "ru": "Многие люди молятся перед едой.",
+        "uz": "Ko'p odamlar ovqatdan oldin ibodat qiladi."
+      }
+    },
+    {
+      "word": "flag",
+      "part_of_speech": "noun",
+      "translation": "флаг",
+      "translations": {
+        "ru": "флаг",
+        "uz": "bayroq"
+      },
+      "example": "The flag of my country is green.",
+      "example_translations": {
+        "ru": "Флаг моей страны зелёный.",
+        "uz": "Mening mamlakatim bayrog'i yashil."
+      }
+    },
+    {
+      "word": "national",
+      "part_of_speech": "adjective",
+      "translation": "национальный",
+      "translations": {
+        "ru": "национальный",
+        "uz": "milliy"
+      },
+      "example": "Independence Day is a national holiday.",
+      "example_translations": {
+        "ru": "День независимости — национальный праздник.",
+        "uz": "Mustaqillik kuni milliy bayram."
+      }
+    },
+    {
+      "word": "capital",
+      "part_of_speech": "noun",
+      "translation": "столица",
+      "translations": {
+        "ru": "столица",
+        "uz": "poytaxt"
+      },
+      "example": "Tashkent is the capital of Uzbekistan.",
+      "example_translations": {
+        "ru": "Ташкент — столица Узбекистана.",
+        "uz": "Toshkent — O'zbekistonning poytaxti."
+      }
+    },
+    {
+      "word": "nation",
+      "part_of_speech": "noun",
+      "translation": "нация",
+      "translations": {
+        "ru": "нация",
+        "uz": "millat"
+      },
+      "example": "The whole nation watches the game.",
+      "example_translations": {
+        "ru": "Вся нация смотрит матч.",
+        "uz": "Butun millat o'yinni tomosha qiladi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 15,
+    "title": "Образование",
+    "title_uz": "Ta'lim"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Как мы учимся",
+    "title_uz": "Qanday o'qiymiz"
+  },
+  "words": [
+    {
+      "word": "practice",
+      "part_of_speech": "verb",
+      "translation": "практиковать, тренироваться",
+      "translations": {
+        "ru": "практиковать, тренироваться",
+        "uz": "mashq qilmoq"
+      },
+      "example": "I practice English with my friends.",
+      "example_translations": {
+        "ru": "Я практикую английский с друзьями.",
+        "uz": "Men do'stlarim bilan ingliz tilini mashq qilaman."
+      }
+    },
+    {
+      "word": "repeat",
+      "part_of_speech": "verb",
+      "translation": "повторять",
+      "translations": {
+        "ru": "повторять",
+        "uz": "takrorlamoq"
+      },
+      "example": "Please repeat the last sentence.",
+      "example_translations": {
+        "ru": "Пожалуйста, повторите последнее предложение.",
+        "uz": "Iltimos, oxirgi gapni takrorlang."
+      }
+    },
+    {
+      "word": "memorize",
+      "part_of_speech": "verb",
+      "translation": "запоминать",
+      "translations": {
+        "ru": "запоминать",
+        "uz": "yodlamoq"
+      },
+      "example": "I memorize ten new words daily.",
+      "example_translations": {
+        "ru": "Я запоминаю десять новых слов ежедневно.",
+        "uz": "Men har kuni o'nta yangi so'zni yodlayman."
+      }
+    },
+    {
+      "word": "explain",
+      "part_of_speech": "verb",
+      "translation": "объяснять",
+      "translations": {
+        "ru": "объяснять",
+        "uz": "tushuntirmoq"
+      },
+      "example": "Can you explain this rule again?",
+      "example_translations": {
+        "ru": "Можешь объяснить это правило ещё раз?",
+        "uz": "Bu qoidani yana tushuntirib bera olasanmi?"
+      }
+    },
+    {
+      "word": "correct",
+      "part_of_speech": "verb",
+      "translation": "исправлять",
+      "translations": {
+        "ru": "исправлять",
+        "uz": "to'g'rilamoq"
+      },
+      "example": "The teacher corrects our mistakes.",
+      "example_translations": {
+        "ru": "Учитель исправляет наши ошибки.",
+        "uz": "O'qituvchi xatolarimizni to'g'rilaydi."
+      }
+    },
+    {
+      "word": "improve",
+      "part_of_speech": "verb",
+      "translation": "улучшать",
+      "translations": {
+        "ru": "улучшать",
+        "uz": "yaxshilamoq"
+      },
+      "example": "I want to improve my writing.",
+      "example_translations": {
+        "ru": "Я хочу улучшить своё письмо.",
+        "uz": "Men yozish ko'nikmamni yaxshilamoqchiman."
+      }
+    },
+    {
+      "word": "pass",
+      "part_of_speech": "verb",
+      "translation": "сдавать успешно",
+      "translations": {
+        "ru": "сдавать успешно",
+        "uz": "topshirmoq"
+      },
+      "example": "She passed the test with no problems.",
+      "example_translations": {
+        "ru": "Она без проблем сдала тест.",
+        "uz": "U testni muammosiz topshirdi."
+      }
+    },
+    {
+      "word": "fail",
+      "part_of_speech": "verb",
+      "translation": "провалить",
+      "translations": {
+        "ru": "провалить",
+        "uz": "yiqilmoq"
+      },
+      "example": "He failed the driving test twice.",
+      "example_translations": {
+        "ru": "Он дважды провалил экзамен по вождению.",
+        "uz": "U haydovchilik imtihonidan ikki marta yiqildi."
+      }
+    },
+    {
+      "word": "grade",
+      "part_of_speech": "noun",
+      "translation": "оценка",
+      "translations": {
+        "ru": "оценка",
+        "uz": "baho"
+      },
+      "example": "I got a good grade in history.",
+      "example_translations": {
+        "ru": "Я получил хорошую оценку по истории.",
+        "uz": "Men tarixdan yaxshi baho oldim."
+      }
+    },
+    {
+      "word": "mistake",
+      "part_of_speech": "noun",
+      "translation": "ошибка",
+      "translations": {
+        "ru": "ошибка",
+        "uz": "xato"
+      },
+      "example": "I make the same mistake again.",
+      "example_translations": {
+        "ru": "Я снова делаю ту же ошибку.",
+        "uz": "Men yana o'sha xatoni qilaman."
+      }
+    }
+  ]
+}

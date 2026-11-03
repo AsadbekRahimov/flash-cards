@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 17,
+    "title": "Услуги и покупки",
+    "title_uz": "Xizmatlar va xaridlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Банк и деньги",
+    "title_uz": "Bank va pul"
+  },
+  "words": [
+    {
+      "word": "account",
+      "part_of_speech": "noun",
+      "translation": "счёт",
+      "translations": {
+        "ru": "счёт",
+        "uz": "hisob raqami"
+      },
+      "example": "I open a new account at the bank.",
+      "example_translations": {
+        "ru": "Я открываю новый счёт в банке.",
+        "uz": "Men bankda yangi hisob raqami ochaman."
+      }
+    },
+    {
+      "word": "cash",
+      "part_of_speech": "noun",
+      "translation": "наличные",
+      "translations": {
+        "ru": "наличные",
+        "uz": "naqd pul"
+      },
+      "example": "Do you pay in cash or by card?",
+      "example_translations": {
+        "ru": "Вы платите наличными или картой?",
+        "uz": "Naqd to'laysizmi yoki kartadami?"
+      }
+    },
+    {
+      "word": "credit",
+      "part_of_speech": "noun",
+      "translation": "кредит",
+      "translations": {
+        "ru": "кредит",
+        "uz": "kredit"
+      },
+      "example": "They buy the car on credit.",
+      "example_translations": {
+        "ru": "Они покупают машину в кредит.",
+        "uz": "Ular mashinani kreditga sotib oladi."
+      }
+    },
+    {
+      "word": "loan",
+      "part_of_speech": "noun",
+      "translation": "заём",
+      "translations": {
+        "ru": "заём",
+        "uz": "qarz"
+      },
+      "example": "He takes a loan from the bank.",
+      "example_translations": {
+        "ru": "Он берёт заём в банке.",
+        "uz": "U bankdan qarz oladi."
+      }
+    },
+    {
+      "word": "coin",
+      "part_of_speech": "noun",
+      "translation": "монета",
+      "translations": {
+        "ru": "монета",
+        "uz": "tanga"
+      },
+      "example": "I have only one coin in my pocket.",
+      "example_translations": {
+        "ru": "У меня в кармане всего одна монета.",
+        "uz": "Cho'ntagimda faqat bitta tanga bor."
+      }
+    },
+    {
+      "word": "exchange",
+      "part_of_speech": "verb",
+      "translation": "обменивать",
+      "translations": {
+        "ru": "обменивать",
+        "uz": "almashtirmoq"
+      },
+      "example": "I want to exchange dollars for euros.",
+      "example_translations": {
+        "ru": "Я хочу обменять доллары на евро.",
+        "uz": "Men dollarni yevroga almashtirmoqchiman."
+      }
+    },
+    {
+      "word": "withdraw",
+      "part_of_speech": "verb",
+      "translation": "снимать со счёта",
+      "translations": {
+        "ru": "снимать со счёта",
+        "uz": "yechib olmoq"
+      },
+      "example": "You can withdraw money at this machine.",
+      "example_translations": {
+        "ru": "Вы можете снять деньги в этом банкомате.",
+        "uz": "Bu apparatdan pul yechib olishingiz mumkin."
+      }
+    },
+    {
+      "word": "borrow",
+      "part_of_speech": "verb",
+      "translation": "занимать",
+      "translations": {
+        "ru": "занимать",
+        "uz": "qarz olmoq"
+      },
+      "example": "Can I borrow your pen for a minute?",
+      "example_translations": {
+        "ru": "Можно взять твою ручку на минуту?",
+        "uz": "Qalamingni bir daqiqaga olib tursam bo'ladimi?"
+      }
+    },
+    {
+      "word": "lend",
+      "part_of_speech": "verb",
+      "translation": "одалживать",
+      "translations": {
+        "ru": "одалживать",
+        "uz": "qarz bermoq"
+      },
+      "example": "My brother lends me some money.",
+      "example_translations": {
+        "ru": "Брат одалживает мне немного денег.",
+        "uz": "Akam menga bir oz pul qarz beradi."
+      }
+    },
+    {
+      "word": "tax",
+      "part_of_speech": "noun",
+      "translation": "налог",
+      "translations": {
+        "ru": "налог",
+        "uz": "soliq"
+      },
+      "example": "We pay tax on our income.",
+      "example_translations": {
+        "ru": "Мы платим налог с дохода.",
+        "uz": "Biz daromadimizdan soliq to'laymiz."
+      }
+    }
+  ]
+}

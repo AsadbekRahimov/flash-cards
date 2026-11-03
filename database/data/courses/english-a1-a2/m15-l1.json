@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 15,
+    "title": "Образование",
+    "title_uz": "Ta'lim"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Школьные предметы",
+    "title_uz": "Maktab fanlari"
+  },
+  "words": [
+    {
+      "word": "science",
+      "part_of_speech": "noun",
+      "translation": "наука, естествознание",
+      "translations": {
+        "ru": "наука, естествознание",
+        "uz": "fan"
+      },
+      "example": "We have science on Tuesday morning.",
+      "example_translations": {
+        "ru": "У нас естествознание во вторник утром.",
+        "uz": "Bizda seshanba kuni ertalab tabiiy fan bor."
+      }
+    },
+    {
+      "word": "math",
+      "part_of_speech": "noun",
+      "translation": "математика",
+      "translations": {
+        "ru": "математика",
+        "uz": "matematika"
+      },
+      "example": "Math is my favorite subject.",
+      "example_translations": {
+        "ru": "Математика — мой любимый предмет.",
+        "uz": "Matematika mening sevimli faning."
+      }
+    },
+    {
+      "word": "history",
+      "part_of_speech": "noun",
+      "translation": "история",
+      "translations": {
+        "ru": "история",
+        "uz": "tarix"
+      },
+      "example": "We study history of ancient Rome.",
+      "example_translations": {
+        "ru": "Мы изучаем историю Древнего Рима.",
+        "uz": "Biz qadimgi Rim tarixini o'rganamiz."
+      }
+    },
+    {
+      "word": "geography",
+      "part_of_speech": "noun",
+      "translation": "география",
+      "translations": {
+        "ru": "география",
+        "uz": "geografiya"
+      },
+      "example": "Geography helps me understand the world.",
+      "example_translations": {
+        "ru": "География помогает мне понимать мир.",
+        "uz": "Geografiya dunyoni tushunishimga yordam beradi."
+      }
+    },
+    {
+      "word": "physics",
+      "part_of_speech": "noun",
+      "translation": "физика",
+      "translations": {
+        "ru": "физика",
+        "uz": "fizika"
+      },
+      "example": "Physics is hard but interesting.",
+      "example_translations": {
+        "ru": "Физика трудная, но интересная.",
+        "uz": "Fizika qiyin, lekin qiziqarli."
+      }
+    },
+    {
+      "word": "chemistry",
+      "part_of_speech": "noun",
+      "translation": "химия",
+      "translations": {
+        "ru": "химия",
+        "uz": "kimyo"
+      },
+      "example": "The chemistry lab is on the second floor.",
+      "example_translations": {
+        "ru": "Лаборатория химии находится на втором этаже.",
+        "uz": "Kimyo laboratoriyasi ikkinchi qavatda."
+      }
+    },
+    {
+      "word": "biology",
+      "part_of_speech": "noun",
+      "translation": "биология",
+      "translations": {
+        "ru": "биология",
+        "uz": "biologiya"
+      },
+      "example": "In biology we learn about plants.",
+      "example_translations": {
+        "ru": "На биологии мы изучаем растения.",
+        "uz": "Biologiyada biz o'simliklar haqida o'rganamiz."
+      }
+    },
+    {
+      "word": "literature",
+      "part_of_speech": "noun",
+      "translation": "литература",
+      "translations": {
+        "ru": "литература",
+        "uz": "adabiyot"
+      },
+      "example": "She loves literature and old poems.",
+      "example_translations": {
+        "ru": "Она любит литературу и старые стихи.",
+        "uz": "U adabiyot va eski she'rlarni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "art",
+      "part_of_speech": "noun",
+      "translation": "искусство, рисование",
+      "translations": {
+        "ru": "искусство, рисование",
+        "uz": "san'at"
+      },
+      "example": "We paint pictures in art class.",
+      "example_translations": {
+        "ru": "На уроке рисования мы рисуем картины.",
+        "uz": "San'at darsida biz rasm chizamiz."
+      }
+    },
+    {
+      "word": "grammar",
+      "part_of_speech": "noun",
+      "translation": "грамматика",
+      "translations": {
+        "ru": "грамматика",
+        "uz": "grammatika"
+      },
+      "example": "English grammar is not so difficult.",
+      "example_translations": {
+        "ru": "Английская грамматика не так уж сложна.",
+        "uz": "Ingliz tili grammatikasi unchalik qiyin emas."
+      }
+    }
+  ]
+}

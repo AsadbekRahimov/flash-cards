@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 13,
+    "title": "Чувства и характер",
+    "title_uz": "His-tuyg'ular va xarakter"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Эмоции",
+    "title_uz": "Hissiyotlar"
+  },
+  "words": [
+    {
+      "word": "angry",
+      "part_of_speech": "adjective",
+      "translation": "сердитый",
+      "translations": {
+        "ru": "сердитый",
+        "uz": "jahldor"
+      },
+      "example": "My father is angry about the noise.",
+      "example_translations": {
+        "ru": "Мой отец сердит из-за шума.",
+        "uz": "Dadam shovqinga jahli chiqqan."
+      }
+    },
+    {
+      "word": "afraid",
+      "part_of_speech": "adjective",
+      "translation": "испуганный",
+      "translations": {
+        "ru": "испуганный",
+        "uz": "qo'rqqan"
+      },
+      "example": "Are you afraid of dogs?",
+      "example_translations": {
+        "ru": "Ты боишься собак?",
+        "uz": "Sen itlardan qo'rqasanmi?"
+      }
+    },
+    {
+      "word": "nervous",
+      "part_of_speech": "adjective",
+      "translation": "нервничающий",
+      "translations": {
+        "ru": "нервничающий",
+        "uz": "asabiy"
+      },
+      "example": "I am nervous before every exam.",
+      "example_translations": {
+        "ru": "Я нервничаю перед каждым экзаменом.",
+        "uz": "Men har bir imtihondan oldin asabiylashaman."
+      }
+    },
+    {
+      "word": "excited",
+      "part_of_speech": "adjective",
+      "translation": "взволнованный",
+      "translations": {
+        "ru": "взволнованный",
+        "uz": "hayajonlangan"
+      },
+      "example": "The kids are excited about the trip.",
+      "example_translations": {
+        "ru": "Дети взволнованы поездкой.",
+        "uz": "Bolalar safardan hayajonlangan."
+      }
+    },
+    {
+      "word": "worried",
+      "part_of_speech": "adjective",
+      "translation": "обеспокоенный",
+      "translations": {
+        "ru": "обеспокоенный",
+        "uz": "xavotirli"
+      },
+      "example": "She is worried about her brother.",
+      "example_translations": {
+        "ru": "Она беспокоится о своём брате.",
+        "uz": "U akasi haqida xavotirda."
+      }
+    },
+    {
+      "word": "proud",
+      "part_of_speech": "adjective",
+      "translation": "гордый",
+      "translations": {
+        "ru": "гордый",
+        "uz": "g'ururli"
+      },
+      "example": "We are proud of our team.",
+      "example_translations": {
+        "ru": "Мы гордимся нашей командой.",
+        "uz": "Biz jamoamizdan faxrlanamiz."
+      }
+    },
+    {
+      "word": "lonely",
+      "part_of_speech": "adjective",
+      "translation": "одинокий",
+      "translations": {
+        "ru": "одинокий",
+        "uz": "yolg'iz"
+      },
+      "example": "He feels lonely in the big city.",
+      "example_translations": {
+        "ru": "Он чувствует себя одиноким в большом городе.",
+        "uz": "U katta shaharda o'zini yolg'iz his qiladi."
+      }
+    },
+    {
+      "word": "surprised",
+      "part_of_speech": "adjective",
+      "translation": "удивлённый",
+      "translations": {
+        "ru": "удивлённый",
+        "uz": "hayron"
+      },
+      "example": "I was surprised by the news.",
+      "example_translations": {
+        "ru": "Меня удивила эта новость.",
+        "uz": "Men bu xabardan hayron bo'ldim."
+      }
+    },
+    {
+      "word": "calm",
+      "part_of_speech": "adjective",
+      "translation": "спокойный",
+      "translations": {
+        "ru": "спокойный",
+        "uz": "xotirjam"
+      },
+      "example": "Stay calm and breathe slowly.",
+      "example_translations": {
+        "ru": "Сохраняй спокойствие и дыши медленно.",
+        "uz": "Xotirjam bo'l va sekin nafas ol."
+      }
+    },
+    {
+      "word": "upset",
+      "part_of_speech": "adjective",
+      "translation": "расстроенный",
+      "translations": {
+        "ru": "расстроенный",
+        "uz": "xafa"
+      },
+      "example": "She is upset because she lost her key.",
+      "example_translations": {
+        "ru": "Она расстроена, потому что потеряла ключ.",
+        "uz": "U kalitini yo'qotgani uchun xafa."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 18,
+    "title": "Здоровье и образ жизни",
+    "title_uz": "Salomatlik va turmush tarzi"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Спорт и фитнес",
+    "title_uz": "Sport va fitnes"
+  },
+  "words": [
+    {
+      "word": "exercise",
+      "part_of_speech": "noun",
+      "translation": "упражнение",
+      "translations": {
+        "ru": "упражнение",
+        "uz": "mashq"
+      },
+      "example": "Morning exercise gives me more energy.",
+      "example_translations": {
+        "ru": "Утренняя зарядка даёт мне больше энергии.",
+        "uz": "Ertalabki mashq menga ko'proq quvvat beradi."
+      }
+    },
+    {
+      "word": "jog",
+      "part_of_speech": "verb",
+      "translation": "бегать трусцой",
+      "translations": {
+        "ru": "бегать трусцой",
+        "uz": "yengil yugurmoq"
+      },
+      "example": "I jog in the park every morning.",
+      "example_translations": {
+        "ru": "Я бегаю трусцой в парке каждое утро.",
+        "uz": "Men har kuni ertalab parkda yengil yuguraman."
+      }
+    },
+    {
+      "word": "stretch",
+      "part_of_speech": "verb",
+      "translation": "растягиваться",
+      "translations": {
+        "ru": "растягиваться",
+        "uz": "cho'zilmoq"
+      },
+      "example": "Stretch your legs before you run.",
+      "example_translations": {
+        "ru": "Разомни ноги перед бегом.",
+        "uz": "Yugurishdan oldin oyoqlaringni cho'z."
+      }
+    },
+    {
+      "word": "muscle",
+      "part_of_speech": "noun",
+      "translation": "мышца",
+      "translations": {
+        "ru": "мышца",
+        "uz": "mushak"
+      },
+      "example": "My leg muscles are very tired.",
+      "example_translations": {
+        "ru": "Мои мышцы ног очень устали.",
+        "uz": "Oyoq mushaklarim juda charchagan."
+      }
+    },
+    {
+      "word": "weight",
+      "part_of_speech": "noun",
+      "translation": "вес",
+      "translations": {
+        "ru": "вес",
+        "uz": "vazn"
+      },
+      "example": "He wants to lose some weight.",
+      "example_translations": {
+        "ru": "Он хочет сбросить немного веса.",
+        "uz": "U biroz vazn yo'qotmoqchi."
+      }
+    },
+    {
+      "word": "lift",
+      "part_of_speech": "verb",
+      "translation": "поднимать",
+      "translations": {
+        "ru": "поднимать",
+        "uz": "ko'tarmoq"
+      },
+      "example": "She can lift fifty kilos.",
+      "example_translations": {
+        "ru": "Она может поднять пятьдесят килограммов.",
+        "uz": "U ellik kilogrammni ko'tara oladi."
+      }
+    },
+    {
+      "word": "yoga",
+      "part_of_speech": "noun",
+      "translation": "йога",
+      "translations": {
+        "ru": "йога",
+        "uz": "yoga"
+      },
+      "example": "We do yoga on Wednesday evenings.",
+      "example_translations": {
+        "ru": "Мы занимаемся йогой по средам вечером.",
+        "uz": "Biz chorshanba kuni kechqurun yoga bilan shug'ullanamiz."
+      }
+    },
+    {
+      "word": "energy",
+      "part_of_speech": "noun",
+      "translation": "энергия",
+      "translations": {
+        "ru": "энергия",
+        "uz": "quvvat"
+      },
+      "example": "I have no energy after work.",
+      "example_translations": {
+        "ru": "После работы у меня нет сил.",
+        "uz": "Ishdan keyin menda quvvat qolmaydi."
+      }
+    },
+    {
+      "word": "cycle",
+      "part_of_speech": "verb",
+      "translation": "ездить на велосипеде",
+      "translations": {
+        "ru": "ездить на велосипеде",
+        "uz": "velosipedda yurmoq"
+      },
+      "example": "They cycle to work every day.",
+      "example_translations": {
+        "ru": "Они ездят на работу на велосипеде каждый день.",
+        "uz": "Ular har kuni ishga velosipedda boradi."
+      }
+    },
+    {
+      "word": "workout",
+      "part_of_speech": "noun",
+      "translation": "тренировка",
+      "translations": {
+        "ru": "тренировка",
+        "uz": "mashg'ulot"
+      },
+      "example": "My workout takes about an hour.",
+      "example_translations": {
+        "ru": "Моя тренировка длится около часа.",
+        "uz": "Mening mashg'ulotim taxminan bir soat davom etadi."
+      }
+    }
+  ]
+}

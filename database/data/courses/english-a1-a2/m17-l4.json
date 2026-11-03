@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 17,
+    "title": "Услуги и покупки",
+    "title_uz": "Xizmatlar va xaridlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Аксессуары и товары",
+    "title_uz": "Aksessuarlar va tovarlar"
+  },
+  "words": [
+    {
+      "word": "wallet",
+      "part_of_speech": "noun",
+      "translation": "кошелёк",
+      "translations": {
+        "ru": "кошелёк",
+        "uz": "hamyon"
+      },
+      "example": "My wallet is in my jacket.",
+      "example_translations": {
+        "ru": "Мой кошелёк лежит в куртке.",
+        "uz": "Hamyonim kurtkamda."
+      }
+    },
+    {
+      "word": "purse",
+      "part_of_speech": "noun",
+      "translation": "женская сумочка",
+      "translations": {
+        "ru": "женская сумочка",
+        "uz": "sumkacha"
+      },
+      "example": "She keeps her phone in a small purse.",
+      "example_translations": {
+        "ru": "Она держит телефон в маленькой сумочке.",
+        "uz": "U telefonini kichik sumkachada saqlaydi."
+      }
+    },
+    {
+      "word": "necklace",
+      "part_of_speech": "noun",
+      "translation": "ожерелье",
+      "translations": {
+        "ru": "ожерелье",
+        "uz": "marjon"
+      },
+      "example": "He gives her a silver necklace.",
+      "example_translations": {
+        "ru": "Он дарит ей серебряное ожерелье.",
+        "uz": "U unga kumush marjon sovg'a qiladi."
+      }
+    },
+    {
+      "word": "scarf",
+      "part_of_speech": "noun",
+      "translation": "шарф",
+      "translations": {
+        "ru": "шарф",
+        "uz": "ro'mol"
+      },
+      "example": "Wear a scarf, it is cold.",
+      "example_translations": {
+        "ru": "Надень шарф, на улице холодно.",
+        "uz": "Ro'mol o'rang, tashqarida sovuq."
+      }
+    },
+    {
+      "word": "gloves",
+      "part_of_speech": "noun",
+      "translation": "перчатки",
+      "translations": {
+        "ru": "перчатки",
+        "uz": "qo'lqop"
+      },
+      "example": "I lost my gloves on the bus.",
+      "example_translations": {
+        "ru": "Я потерял перчатки в автобусе.",
+        "uz": "Qo'lqoplarimni avtobusda yo'qotib qo'ydim."
+      }
+    },
+    {
+      "word": "belt",
+      "part_of_speech": "noun",
+      "translation": "ремень",
+      "translations": {
+        "ru": "ремень",
+        "uz": "kamar"
+      },
+      "example": "This belt is too long for me.",
+      "example_translations": {
+        "ru": "Этот ремень слишком длинный для меня.",
+        "uz": "Bu kamar men uchun juda uzun."
+      }
+    },
+    {
+      "word": "sunglasses",
+      "part_of_speech": "noun",
+      "translation": "солнцезащитные очки",
+      "translations": {
+        "ru": "солнцезащитные очки",
+        "uz": "quyosh ko'zoynagi"
+      },
+      "example": "She wears sunglasses on sunny days.",
+      "example_translations": {
+        "ru": "Она носит солнцезащитные очки в солнечные дни.",
+        "uz": "U quyoshli kunlarda quyosh ko'zoynagi taqadi."
+      }
+    },
+    {
+      "word": "jewelry",
+      "part_of_speech": "noun",
+      "translation": "украшения",
+      "translations": {
+        "ru": "украшения",
+        "uz": "taqinchoqlar"
+      },
+      "example": "The shop sells gold jewelry.",
+      "example_translations": {
+        "ru": "Магазин продаёт золотые украшения.",
+        "uz": "Do'kon oltin taqinchoqlar sotadi."
+      }
+    },
+    {
+      "word": "perfume",
+      "part_of_speech": "noun",
+      "translation": "духи",
+      "translations": {
+        "ru": "духи",
+        "uz": "atir"
+      },
+      "example": "I buy perfume for my wife.",
+      "example_translations": {
+        "ru": "Я покупаю духи для жены.",
+        "uz": "Men xotinim uchun atir sotib olaman."
+      }
+    },
+    {
+      "word": "bracelet",
+      "part_of_speech": "noun",
+      "translation": "браслет",
+      "translations": {
+        "ru": "браслет",
+        "uz": "bilaguzuk"
+      },
+      "example": "She wears a thin silver bracelet.",
+      "example_translations": {
+        "ru": "Она носит тонкий серебряный браслет.",
+        "uz": "U ingichka kumush bilaguzuk taqadi."
+      }
+    }
+  ]
+}

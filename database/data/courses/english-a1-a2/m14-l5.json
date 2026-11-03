@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 14,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Рабочие действия",
+    "title_uz": "Ish harakatlari"
+  },
+  "words": [
+    {
+      "word": "manage",
+      "part_of_speech": "verb",
+      "translation": "управлять",
+      "translations": {
+        "ru": "управлять",
+        "uz": "boshqarmoq"
+      },
+      "example": "She manages a team of six people.",
+      "example_translations": {
+        "ru": "Она руководит командой из шести человек.",
+        "uz": "U olti kishilik jamoani boshqaradi."
+      }
+    },
+    {
+      "word": "organize",
+      "part_of_speech": "verb",
+      "translation": "организовывать",
+      "translations": {
+        "ru": "организовывать",
+        "uz": "tashkil etmoq"
+      },
+      "example": "We organize a meeting every Monday.",
+      "example_translations": {
+        "ru": "Мы организуем встречу каждый понедельник.",
+        "uz": "Biz har dushanba uchrashuv tashkil etamiz."
+      }
+    },
+    {
+      "word": "prepare",
+      "part_of_speech": "verb",
+      "translation": "готовить",
+      "translations": {
+        "ru": "готовить",
+        "uz": "tayyorlamoq"
+      },
+      "example": "I prepare a report for the boss.",
+      "example_translations": {
+        "ru": "Я готовлю отчёт для начальника.",
+        "uz": "Men boshliq uchun hisobot tayyorlayman."
+      }
+    },
+    {
+      "word": "produce",
+      "part_of_speech": "verb",
+      "translation": "производить",
+      "translations": {
+        "ru": "производить",
+        "uz": "ishlab chiqarmoq"
+      },
+      "example": "This factory produces cars and trucks.",
+      "example_translations": {
+        "ru": "Этот завод производит легковые и грузовые машины.",
+        "uz": "Bu zavod yengil va yuk mashinalarini ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "repair",
+      "part_of_speech": "verb",
+      "translation": "ремонтировать",
+      "translations": {
+        "ru": "ремонтировать",
+        "uz": "ta'mirlamoq"
+      },
+      "example": "He repairs old computers for a living.",
+      "example_translations": {
+        "ru": "Он зарабатывает на жизнь ремонтом старых компьютеров.",
+        "uz": "U eski kompyuterlarni ta'mirlab pul topadi."
+      }
+    },
+    {
+      "word": "build",
+      "part_of_speech": "verb",
+      "translation": "строить",
+      "translations": {
+        "ru": "строить",
+        "uz": "qurmoq"
+      },
+      "example": "They build a new school here.",
+      "example_translations": {
+        "ru": "Здесь они строят новую школу.",
+        "uz": "Ular bu yerda yangi maktab quradi."
+      }
+    },
+    {
+      "word": "design",
+      "part_of_speech": "verb",
+      "translation": "проектировать",
+      "translations": {
+        "ru": "проектировать",
+        "uz": "loyihalashtirmoq"
+      },
+      "example": "She designs clothes for children.",
+      "example_translations": {
+        "ru": "Она создаёт одежду для детей.",
+        "uz": "U bolalar uchun kiyim loyihalaydi."
+      }
+    },
+    {
+      "word": "supervise",
+      "part_of_speech": "verb",
+      "translation": "контролировать",
+      "translations": {
+        "ru": "контролировать",
+        "uz": "nazorat qilmoq"
+      },
+      "example": "He supervises ten workers at the factory.",
+      "example_translations": {
+        "ru": "Он руководит десятью рабочими на заводе.",
+        "uz": "U zavodda o'nta ishchini nazorat qiladi."
+      }
+    },
+    {
+      "word": "lead",
+      "part_of_speech": "verb",
+      "translation": "возглавлять",
+      "translations": {
+        "ru": "возглавлять",
+        "uz": "rahbarlik qilmoq"
+      },
+      "example": "He leads the project very well.",
+      "example_translations": {
+        "ru": "Он очень хорошо руководит проектом.",
+        "uz": "U loyihaga juda yaxshi rahbarlik qiladi."
+      }
+    },
+    {
+      "word": "achieve",
+      "part_of_speech": "verb",
+      "translation": "достигать",
+      "translations": {
+        "ru": "достигать",
+        "uz": "erishmoq"
+      },
+      "example": "She wants to achieve her goals.",
+      "example_translations": {
+        "ru": "Она хочет достичь своих целей.",
+        "uz": "U maqsadlariga erishmoqchi."
+      }
+    }
+  ]
+}

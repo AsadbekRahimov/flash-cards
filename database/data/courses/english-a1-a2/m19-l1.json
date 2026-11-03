@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 19,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Ландшафты",
+    "title_uz": "Landshaftlar"
+  },
+  "words": [
+    {
+      "word": "valley",
+      "part_of_speech": "noun",
+      "translation": "долина",
+      "translations": {
+        "ru": "долина",
+        "uz": "vodiy"
+      },
+      "example": "A small river runs through the valley.",
+      "example_translations": {
+        "ru": "По долине течёт небольшая река.",
+        "uz": "Vodiy bo'ylab kichik daryo oqadi."
+      }
+    },
+    {
+      "word": "desert",
+      "part_of_speech": "noun",
+      "translation": "пустыня",
+      "translations": {
+        "ru": "пустыня",
+        "uz": "cho'l"
+      },
+      "example": "It is very hot in the desert.",
+      "example_translations": {
+        "ru": "В пустыне очень жарко.",
+        "uz": "Cho'lda juda issiq."
+      }
+    },
+    {
+      "word": "hill",
+      "part_of_speech": "noun",
+      "translation": "холм",
+      "translations": {
+        "ru": "холм",
+        "uz": "tepalik"
+      },
+      "example": "Our house is on a green hill.",
+      "example_translations": {
+        "ru": "Наш дом стоит на зелёном холме.",
+        "uz": "Uyimiz yashil tepalikda joylashgan."
+      }
+    },
+    {
+      "word": "coast",
+      "part_of_speech": "noun",
+      "translation": "побережье",
+      "translations": {
+        "ru": "побережье",
+        "uz": "qirg'oq"
+      },
+      "example": "We drive along the coast to Italy.",
+      "example_translations": {
+        "ru": "Мы едем вдоль побережья в Италию.",
+        "uz": "Biz Italiyaga qirg'oq bo'ylab boramiz."
+      }
+    },
+    {
+      "word": "waterfall",
+      "part_of_speech": "noun",
+      "translation": "водопад",
+      "translations": {
+        "ru": "водопад",
+        "uz": "sharshara"
+      },
+      "example": "The waterfall is higher than a house.",
+      "example_translations": {
+        "ru": "Водопад выше дома.",
+        "uz": "Sharshara uydan ham baland."
+      }
+    },
+    {
+      "word": "cave",
+      "part_of_speech": "noun",
+      "translation": "пещера",
+      "translations": {
+        "ru": "пещера",
+        "uz": "g'or"
+      },
+      "example": "Bats live in this dark cave.",
+      "example_translations": {
+        "ru": "В этой тёмной пещере живут летучие мыши.",
+        "uz": "Bu qorong'i g'orda ko'rshapalaklar yashaydi."
+      }
+    },
+    {
+      "word": "volcano",
+      "part_of_speech": "noun",
+      "translation": "вулкан",
+      "translations": {
+        "ru": "вулкан",
+        "uz": "vulqon"
+      },
+      "example": "The volcano is not active now.",
+      "example_translations": {
+        "ru": "Сейчас вулкан не действует.",
+        "uz": "Vulqon hozir faol emas."
+      }
+    },
+    {
+      "word": "jungle",
+      "part_of_speech": "noun",
+      "translation": "джунгли",
+      "translations": {
+        "ru": "джунгли",
+        "uz": "tropik o'rmon"
+      },
+      "example": "Many strange animals live in the jungle.",
+      "example_translations": {
+        "ru": "В джунглях живёт много странных животных.",
+        "uz": "Tropik o'rmonda ko'p g'alati hayvonlar yashaydi."
+      }
+    },
+    {
+      "word": "ocean",
+      "part_of_speech": "noun",
+      "translation": "океан",
+      "translations": {
+        "ru": "океан",
+        "uz": "okean"
+      },
+      "example": "The ocean is deep and cold here.",
+      "example_translations": {
+        "ru": "Океан здесь глубокий и холодный.",
+        "uz": "Bu yerda okean chuqur va sovuq."
+      }
+    },
+    {
+      "word": "cliff",
+      "part_of_speech": "noun",
+      "translation": "утёс",
+      "translations": {
+        "ru": "утёс",
+        "uz": "qoya"
+      },
+      "example": "Do not stand near the cliff.",
+      "example_translations": {
+        "ru": "Не стой рядом с утёсом.",
+        "uz": "Qoya yonida turma."
+      }
+    }
+  ]
+}

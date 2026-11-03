@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 16,
+    "title": "Дом и быт",
+    "title_uz": "Uy va maishat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Инструменты и мелочи",
+    "title_uz": "Asboblar va mayda buyumlar"
+  },
+  "words": [
+    {
+      "word": "hammer",
+      "part_of_speech": "noun",
+      "translation": "молоток",
+      "translations": {
+        "ru": "молоток",
+        "uz": "bolg'a"
+      },
+      "example": "Pass me the hammer, please.",
+      "example_translations": {
+        "ru": "Подай мне молоток, пожалуйста.",
+        "uz": "Menga bolg'ani uzating, iltimos."
+      }
+    },
+    {
+      "word": "nail",
+      "part_of_speech": "noun",
+      "translation": "гвоздь",
+      "translations": {
+        "ru": "гвоздь",
+        "uz": "mix"
+      },
+      "example": "I need a nail for this picture.",
+      "example_translations": {
+        "ru": "Мне нужен гвоздь для этой картины.",
+        "uz": "Bu rasm uchun menga mix kerak."
+      }
+    },
+    {
+      "word": "ladder",
+      "part_of_speech": "noun",
+      "translation": "стремянка",
+      "translations": {
+        "ru": "стремянка",
+        "uz": "narvon"
+      },
+      "example": "He climbs the ladder to the roof.",
+      "example_translations": {
+        "ru": "Он поднимается по стремянке на крышу.",
+        "uz": "U narvon bilan tomga chiqadi."
+      }
+    },
+    {
+      "word": "paint",
+      "part_of_speech": "verb",
+      "translation": "красить",
+      "translations": {
+        "ru": "красить",
+        "uz": "bo'yamoq"
+      },
+      "example": "We paint the walls light blue.",
+      "example_translations": {
+        "ru": "Мы красим стены в светло-голубой цвет.",
+        "uz": "Biz devorlarni och ko'k rangga bo'yaymiz."
+      }
+    },
+    {
+      "word": "candle",
+      "part_of_speech": "noun",
+      "translation": "свеча",
+      "translations": {
+        "ru": "свеча",
+        "uz": "sham"
+      },
+      "example": "She lights a candle in the evening.",
+      "example_translations": {
+        "ru": "Вечером она зажигает свечу.",
+        "uz": "U kechqurun sham yoqadi."
+      }
+    },
+    {
+      "word": "bulb",
+      "part_of_speech": "noun",
+      "translation": "лампочка",
+      "translations": {
+        "ru": "лампочка",
+        "uz": "lampochka"
+      },
+      "example": "The bulb in the hall is old.",
+      "example_translations": {
+        "ru": "Лампочка в прихожей старая.",
+        "uz": "Yo'lakdagi lampochka eski."
+      }
+    },
+    {
+      "word": "plug",
+      "part_of_speech": "noun",
+      "translation": "вилка, розетка",
+      "translations": {
+        "ru": "вилка, розетка",
+        "uz": "vilka"
+      },
+      "example": "Pull the plug out of the wall.",
+      "example_translations": {
+        "ru": "Выдерни вилку из розетки.",
+        "uz": "Vilkani devordan sug'ir."
+      }
+    },
+    {
+      "word": "rope",
+      "part_of_speech": "noun",
+      "translation": "верёвка",
+      "translations": {
+        "ru": "верёвка",
+        "uz": "arqon"
+      },
+      "example": "We need a long rope for the boat.",
+      "example_translations": {
+        "ru": "Нам нужна длинная верёвка для лодки.",
+        "uz": "Qayiq uchun bizga uzun arqon kerak."
+      }
+    },
+    {
+      "word": "bucket",
+      "part_of_speech": "noun",
+      "translation": "ведро",
+      "translations": {
+        "ru": "ведро",
+        "uz": "chelak"
+      },
+      "example": "Fill the bucket with warm water.",
+      "example_translations": {
+        "ru": "Наполни ведро тёплой водой.",
+        "uz": "Chelakni iliq suv bilan to'ldir."
+      }
+    },
+    {
+      "word": "tool",
+      "part_of_speech": "noun",
+      "translation": "инструмент",
+      "translations": {
+        "ru": "инструмент",
+        "uz": "asbob"
+      },
+      "example": "My father keeps his tools in the garage.",
+      "example_translations": {
+        "ru": "Мой отец хранит инструменты в гараже.",
+        "uz": "Dadam asboblarini garajda saqlaydi."
+      }
+    }
+  ]
+}

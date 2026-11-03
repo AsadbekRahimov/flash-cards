@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 20,
+    "title": "Общество и культура",
+    "title_uz": "Jamiyat va madaniyat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Государство и закон",
+    "title_uz": "Davlat va qonun"
+  },
+  "words": [
+    {
+      "word": "government",
+      "part_of_speech": "noun",
+      "translation": "правительство",
+      "translations": {
+        "ru": "правительство",
+        "uz": "hukumat"
+      },
+      "example": "The government plans a new road.",
+      "example_translations": {
+        "ru": "Правительство планирует новую дорогу.",
+        "uz": "Hukumat yangi yo'l rejalashtiryapti."
+      }
+    },
+    {
+      "word": "law",
+      "part_of_speech": "noun",
+      "translation": "закон",
+      "translations": {
+        "ru": "закон",
+        "uz": "qonun"
+      },
+      "example": "Everyone must follow the law.",
+      "example_translations": {
+        "ru": "Каждый должен соблюдать закон.",
+        "uz": "Hamma qonunga rioya qilishi kerak."
+      }
+    },
+    {
+      "word": "president",
+      "part_of_speech": "noun",
+      "translation": "президент",
+      "translations": {
+        "ru": "президент",
+        "uz": "prezident"
+      },
+      "example": "The president speaks on TV tonight.",
+      "example_translations": {
+        "ru": "Президент выступает по телевизору сегодня вечером.",
+        "uz": "Prezident bugun kechqurun televizorda so'zlaydi."
+      }
+    },
+    {
+      "word": "vote",
+      "part_of_speech": "verb",
+      "translation": "голосовать",
+      "translations": {
+        "ru": "голосовать",
+        "uz": "ovoz bermoq"
+      },
+      "example": "Citizens vote every four years.",
+      "example_translations": {
+        "ru": "Граждане голосуют каждые четыре года.",
+        "uz": "Fuqarolar har to'rt yilda ovoz beradi."
+      }
+    },
+    {
+      "word": "election",
+      "part_of_speech": "noun",
+      "translation": "выборы",
+      "translations": {
+        "ru": "выборы",
+        "uz": "saylov"
+      },
+      "example": "The election is next month.",
+      "example_translations": {
+        "ru": "Выборы пройдут в следующем месяце.",
+        "uz": "Saylov keyingi oyda bo'ladi."
+      }
+    },
+    {
+      "word": "citizen",
+      "part_of_speech": "noun",
+      "translation": "гражданин",
+      "translations": {
+        "ru": "гражданин",
+        "uz": "fuqaro"
+      },
+      "example": "He is a citizen of this country.",
+      "example_translations": {
+        "ru": "Он гражданин этой страны.",
+        "uz": "U shu mamlakat fuqarosi."
+      }
+    },
+    {
+      "word": "police",
+      "part_of_speech": "noun",
+      "translation": "полиция",
+      "translations": {
+        "ru": "полиция",
+        "uz": "politsiya"
+      },
+      "example": "Call the police if you see it.",
+      "example_translations": {
+        "ru": "Позвони в полицию, если увидишь это.",
+        "uz": "Buni ko'rsang, politsiyaga qo'ng'iroq qil."
+      }
+    },
+    {
+      "word": "army",
+      "part_of_speech": "noun",
+      "translation": "армия",
+      "translations": {
+        "ru": "армия",
+        "uz": "armiya"
+      },
+      "example": "My cousin serves in the army.",
+      "example_translations": {
+        "ru": "Мой двоюродный брат служит в армии.",
+        "uz": "Amakivachcham armiyada xizmat qiladi."
+      }
+    },
+    {
+      "word": "crime",
+      "part_of_speech": "noun",
+      "translation": "преступление",
+      "translations": {
+        "ru": "преступление",
+        "uz": "jinoyat"
+      },
+      "example": "Crime is low in this small town.",
+      "example_translations": {
+        "ru": "В этом маленьком городе мало преступлений.",
+        "uz": "Bu kichik shaharda jinoyat kam."
+      }
+    },
+    {
+      "word": "rule",
+      "part_of_speech": "noun",
+      "translation": "правило",
+      "translations": {
+        "ru": "правило",
+        "uz": "qoida"
+      },
+      "example": "The first rule is to be on time.",
+      "example_translations": {
+        "ru": "Первое правило — приходить вовремя.",
+        "uz": "Birinchi qoida — o'z vaqtida kelish."
+      }
+    }
+  ]
+}

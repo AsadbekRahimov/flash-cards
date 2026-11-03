@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 13,
+    "title": "Чувства и характер",
+    "title_uz": "His-tuyg'ular va xarakter"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Черты характера",
+    "title_uz": "Xarakter xususiyatlari"
+  },
+  "words": [
+    {
+      "word": "friendly",
+      "part_of_speech": "adjective",
+      "translation": "дружелюбный",
+      "translations": {
+        "ru": "дружелюбный",
+        "uz": "samimiy"
+      },
+      "example": "Our neighbors are very friendly.",
+      "example_translations": {
+        "ru": "Наши соседи очень дружелюбные.",
+        "uz": "Qo'shnilarimiz juda samimiy."
+      }
+    },
+    {
+      "word": "shy",
+      "part_of_speech": "adjective",
+      "translation": "застенчивый",
+      "translations": {
+        "ru": "застенчивый",
+        "uz": "uyatchan"
+      },
+      "example": "My little sister is shy.",
+      "example_translations": {
+        "ru": "Моя младшая сестра застенчивая.",
+        "uz": "Singlim uyatchan."
+      }
+    },
+    {
+      "word": "polite",
+      "part_of_speech": "adjective",
+      "translation": "вежливый",
+      "translations": {
+        "ru": "вежливый",
+        "uz": "xushmuomala"
+      },
+      "example": "The waiter is always polite.",
+      "example_translations": {
+        "ru": "Официант всегда вежливый.",
+        "uz": "Ofitsiant doim xushmuomala."
+      }
+    },
+    {
+      "word": "rude",
+      "part_of_speech": "adjective",
+      "translation": "грубый",
+      "translations": {
+        "ru": "грубый",
+        "uz": "qo'pol"
+      },
+      "example": "It is rude to shout at people.",
+      "example_translations": {
+        "ru": "Кричать на людей грубо.",
+        "uz": "Odamlarga qichqirish qo'pollik."
+      }
+    },
+    {
+      "word": "honest",
+      "part_of_speech": "adjective",
+      "translation": "честный",
+      "translations": {
+        "ru": "честный",
+        "uz": "halol"
+      },
+      "example": "He is an honest and kind man.",
+      "example_translations": {
+        "ru": "Он честный и добрый человек.",
+        "uz": "U halol va mehribon inson."
+      }
+    },
+    {
+      "word": "lazy",
+      "part_of_speech": "adjective",
+      "translation": "ленивый",
+      "translations": {
+        "ru": "ленивый",
+        "uz": "dangasa"
+      },
+      "example": "I feel lazy on hot days.",
+      "example_translations": {
+        "ru": "В жаркие дни я чувствую лень.",
+        "uz": "Issiq kunlarda o'zimni dangasa his qilaman."
+      }
+    },
+    {
+      "word": "clever",
+      "part_of_speech": "adjective",
+      "translation": "сообразительный",
+      "translations": {
+        "ru": "сообразительный",
+        "uz": "zehni o'tkir"
+      },
+      "example": "Your daughter is a clever girl.",
+      "example_translations": {
+        "ru": "Ваша дочь — сообразительная девочка.",
+        "uz": "Qizingiz zehni o'tkir qiz."
+      }
+    },
+    {
+      "word": "brave",
+      "part_of_speech": "adjective",
+      "translation": "смелый",
+      "translations": {
+        "ru": "смелый",
+        "uz": "jasur"
+      },
+      "example": "The brave boy saved the dog.",
+      "example_translations": {
+        "ru": "Смелый мальчик спас собаку.",
+        "uz": "Jasur bola itni qutqardi."
+      }
+    },
+    {
+      "word": "generous",
+      "part_of_speech": "adjective",
+      "translation": "щедрый",
+      "translations": {
+        "ru": "щедрый",
+        "uz": "saxiy"
+      },
+      "example": "My uncle is generous with his money.",
+      "example_translations": {
+        "ru": "Мой дядя щедр со своими деньгами.",
+        "uz": "Amakim pulini ayamaydigan saxiy odam."
+      }
+    },
+    {
+      "word": "patient",
+      "part_of_speech": "adjective",
+      "translation": "терпеливый",
+      "translations": {
+        "ru": "терпеливый",
+        "uz": "sabrli"
+      },
+      "example": "A good teacher is always patient.",
+      "example_translations": {
+        "ru": "Хороший учитель всегда терпелив.",
+        "uz": "Yaxshi o'qituvchi doim sabrli bo'ladi."
+      }
+    }
+  ]
+}

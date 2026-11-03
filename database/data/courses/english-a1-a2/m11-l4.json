@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 11,
+    "title": "Путешествия",
+    "title_uz": "Sayohat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Достопримечательности",
+    "title_uz": "Diqqatga sazovor joylar"
+  },
+  "words": [
+    {
+      "word": "tour",
+      "part_of_speech": "noun",
+      "translation": "экскурсия",
+      "translations": {
+        "ru": "экскурсия",
+        "uz": "ekskursiya"
+      },
+      "example": "The city tour starts at nine.",
+      "example_translations": {
+        "ru": "Экскурсия по городу начинается в девять.",
+        "uz": "Shahar ekskursiyasi to'qqizda boshlanadi."
+      }
+    },
+    {
+      "word": "guide",
+      "part_of_speech": "noun",
+      "translation": "гид",
+      "translations": {
+        "ru": "гид",
+        "uz": "gid"
+      },
+      "example": "Our guide speaks three languages.",
+      "example_translations": {
+        "ru": "Наш гид говорит на трёх языках.",
+        "uz": "Bizning gidimiz uch tilda gapiradi."
+      }
+    },
+    {
+      "word": "souvenir",
+      "part_of_speech": "noun",
+      "translation": "сувенир",
+      "translations": {
+        "ru": "сувенир",
+        "uz": "esdalik sovg'a"
+      },
+      "example": "I buy a souvenir for my mother.",
+      "example_translations": {
+        "ru": "Я покупаю сувенир для мамы.",
+        "uz": "Men onam uchun esdalik sovg'a sotib olaman."
+      }
+    },
+    {
+      "word": "camera",
+      "part_of_speech": "noun",
+      "translation": "фотоаппарат",
+      "translations": {
+        "ru": "фотоаппарат",
+        "uz": "fotoapparat"
+      },
+      "example": "Take your camera to the mountains.",
+      "example_translations": {
+        "ru": "Возьми фотоаппарат в горы.",
+        "uz": "Fotoapparatingni tog'larga ol."
+      }
+    },
+    {
+      "word": "castle",
+      "part_of_speech": "noun",
+      "translation": "замок",
+      "translations": {
+        "ru": "замок",
+        "uz": "qal'a"
+      },
+      "example": "The old castle is on a hill.",
+      "example_translations": {
+        "ru": "Старый замок стоит на холме.",
+        "uz": "Eski qal'a tepalikda turibdi."
+      }
+    },
+    {
+      "word": "beach",
+      "part_of_speech": "noun",
+      "translation": "пляж",
+      "translations": {
+        "ru": "пляж",
+        "uz": "plyaj"
+      },
+      "example": "The children play on the beach.",
+      "example_translations": {
+        "ru": "Дети играют на пляже.",
+        "uz": "Bolalar plyajda o'ynaydi."
+      }
+    },
+    {
+      "word": "island",
+      "part_of_speech": "noun",
+      "translation": "остров",
+      "translations": {
+        "ru": "остров",
+        "uz": "orol"
+      },
+      "example": "We take a boat to the island.",
+      "example_translations": {
+        "ru": "Мы плывём на лодке на остров.",
+        "uz": "Biz qayiqda orolga boramiz."
+      }
+    },
+    {
+      "word": "monument",
+      "part_of_speech": "noun",
+      "translation": "памятник",
+      "translations": {
+        "ru": "памятник",
+        "uz": "yodgorlik"
+      },
+      "example": "There is a monument in the square.",
+      "example_translations": {
+        "ru": "На площади есть памятник.",
+        "uz": "Maydonda yodgorlik bor."
+      }
+    },
+    {
+      "word": "palace",
+      "part_of_speech": "noun",
+      "translation": "дворец",
+      "translations": {
+        "ru": "дворец",
+        "uz": "saroy"
+      },
+      "example": "The king lived in this palace.",
+      "example_translations": {
+        "ru": "Король жил в этом дворце.",
+        "uz": "Qirol shu saroyda yashagan."
+      }
+    },
+    {
+      "word": "postcard",
+      "part_of_speech": "noun",
+      "translation": "открытка",
+      "translations": {
+        "ru": "открытка",
+        "uz": "otkritka"
+      },
+      "example": "I send a postcard to my friend.",
+      "example_translations": {
+        "ru": "Я отправляю открытку другу.",
+        "uz": "Men do'stimga otkritka yuboraman."
+      }
+    }
+  ]
+}

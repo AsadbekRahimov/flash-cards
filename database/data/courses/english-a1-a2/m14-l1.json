@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 14,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Поиск работы",
+    "title_uz": "Ish qidirish"
+  },
+  "words": [
+    {
+      "word": "career",
+      "part_of_speech": "noun",
+      "translation": "карьера",
+      "translations": {
+        "ru": "карьера",
+        "uz": "karyera"
+      },
+      "example": "She wants a career in medicine.",
+      "example_translations": {
+        "ru": "Она хочет сделать карьеру в медицине.",
+        "uz": "U tibbiyotda karyera qilishni xohlaydi."
+      }
+    },
+    {
+      "word": "apply",
+      "part_of_speech": "verb",
+      "translation": "подавать заявку",
+      "translations": {
+        "ru": "подавать заявку",
+        "uz": "ariza bermoq"
+      },
+      "example": "I apply for a job at the bank.",
+      "example_translations": {
+        "ru": "Я подаю заявку на работу в банке.",
+        "uz": "Men bankdagi ishga ariza beraman."
+      }
+    },
+    {
+      "word": "interview",
+      "part_of_speech": "noun",
+      "translation": "собеседование",
+      "translations": {
+        "ru": "собеседование",
+        "uz": "suhbat"
+      },
+      "example": "My interview is on Monday morning.",
+      "example_translations": {
+        "ru": "Моё собеседование в понедельник утром.",
+        "uz": "Mening suhbatim dushanba kuni ertalab."
+      }
+    },
+    {
+      "word": "experience",
+      "part_of_speech": "noun",
+      "translation": "опыт",
+      "translations": {
+        "ru": "опыт",
+        "uz": "tajriba"
+      },
+      "example": "He has five years of experience.",
+      "example_translations": {
+        "ru": "У него пять лет опыта.",
+        "uz": "Uning besh yillik tajribasi bor."
+      }
+    },
+    {
+      "word": "skill",
+      "part_of_speech": "noun",
+      "translation": "навык",
+      "translations": {
+        "ru": "навык",
+        "uz": "ko'nikma"
+      },
+      "example": "Speaking English is a useful skill.",
+      "example_translations": {
+        "ru": "Говорить по-английски — полезный навык.",
+        "uz": "Inglizcha gapirish foydali ko'nikma."
+      }
+    },
+    {
+      "word": "candidate",
+      "part_of_speech": "noun",
+      "translation": "кандидат",
+      "translations": {
+        "ru": "кандидат",
+        "uz": "nomzod"
+      },
+      "example": "The company has three good candidates.",
+      "example_translations": {
+        "ru": "В компании три хороших кандидата.",
+        "uz": "Kompaniyada uchta yaxshi nomzod bor."
+      }
+    },
+    {
+      "word": "vacancy",
+      "part_of_speech": "noun",
+      "translation": "вакансия",
+      "translations": {
+        "ru": "вакансия",
+        "uz": "bo'sh ish o'rni"
+      },
+      "example": "There is a vacancy at our shop.",
+      "example_translations": {
+        "ru": "В нашем магазине есть вакансия.",
+        "uz": "Do'konimizda bo'sh ish o'rni bor."
+      }
+    },
+    {
+      "word": "employer",
+      "part_of_speech": "noun",
+      "translation": "работодатель",
+      "translations": {
+        "ru": "работодатель",
+        "uz": "ish beruvchi"
+      },
+      "example": "My employer pays on the fifth.",
+      "example_translations": {
+        "ru": "Мой работодатель платит пятого числа.",
+        "uz": "Ish beruvchim beshinchi kuni to'laydi."
+      }
+    },
+    {
+      "word": "employee",
+      "part_of_speech": "noun",
+      "translation": "сотрудник",
+      "translations": {
+        "ru": "сотрудник",
+        "uz": "xodim"
+      },
+      "example": "Every employee gets a free lunch.",
+      "example_translations": {
+        "ru": "Каждый сотрудник получает бесплатный обед.",
+        "uz": "Har bir xodim bepul tushlik oladi."
+      }
+    },
+    {
+      "word": "hire",
+      "part_of_speech": "verb",
+      "translation": "нанимать",
+      "translations": {
+        "ru": "нанимать",
+        "uz": "ishga olmoq"
+      },
+      "example": "They hire new workers in spring.",
+      "example_translations": {
+        "ru": "Весной они нанимают новых рабочих.",
+        "uz": "Ular bahorda yangi ishchilarni ishga oladi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 12,
+    "title": "Технологии и связь",
+    "title_uz": "Texnologiya va aloqa"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Интернет",
+    "title_uz": "Internet"
+  },
+  "words": [
+    {
+      "word": "internet",
+      "part_of_speech": "noun",
+      "translation": "интернет",
+      "translations": {
+        "ru": "интернет",
+        "uz": "internet"
+      },
+      "example": "The internet is slow today.",
+      "example_translations": {
+        "ru": "Сегодня интернет медленный.",
+        "uz": "Bugun internet sekin."
+      }
+    },
+    {
+      "word": "website",
+      "part_of_speech": "noun",
+      "translation": "сайт",
+      "translations": {
+        "ru": "сайт",
+        "uz": "veb-sayt"
+      },
+      "example": "This website has useful lessons.",
+      "example_translations": {
+        "ru": "На этом сайте есть полезные уроки.",
+        "uz": "Bu veb-saytda foydali darslar bor."
+      }
+    },
+    {
+      "word": "password",
+      "part_of_speech": "noun",
+      "translation": "пароль",
+      "translations": {
+        "ru": "пароль",
+        "uz": "parol"
+      },
+      "example": "Never tell anyone your password.",
+      "example_translations": {
+        "ru": "Никому не говори свой пароль.",
+        "uz": "Parolingni hech kimga aytma."
+      }
+    },
+    {
+      "word": "link",
+      "part_of_speech": "noun",
+      "translation": "ссылка",
+      "translations": {
+        "ru": "ссылка",
+        "uz": "havola"
+      },
+      "example": "Click the link in the message.",
+      "example_translations": {
+        "ru": "Нажмите на ссылку в сообщении.",
+        "uz": "Xabardagi havolani bosing."
+      }
+    },
+    {
+      "word": "search",
+      "part_of_speech": "verb",
+      "translation": "искать",
+      "translations": {
+        "ru": "искать",
+        "uz": "qidirmoq"
+      },
+      "example": "I search for cheap flights online.",
+      "example_translations": {
+        "ru": "Я ищу дешёвые рейсы в интернете.",
+        "uz": "Men internetda arzon reyslarni qidiraman."
+      }
+    },
+    {
+      "word": "download",
+      "part_of_speech": "verb",
+      "translation": "скачивать",
+      "translations": {
+        "ru": "скачивать",
+        "uz": "yuklab olmoq"
+      },
+      "example": "You can download the file here.",
+      "example_translations": {
+        "ru": "Вы можете скачать файл здесь.",
+        "uz": "Faylni shu yerdan yuklab olishingiz mumkin."
+      }
+    },
+    {
+      "word": "online",
+      "part_of_speech": "adjective",
+      "translation": "онлайн",
+      "translations": {
+        "ru": "онлайн",
+        "uz": "onlayn"
+      },
+      "example": "She has an online class today.",
+      "example_translations": {
+        "ru": "У неё сегодня онлайн-урок.",
+        "uz": "Uning bugun onlayn darsi bor."
+      }
+    },
+    {
+      "word": "wifi",
+      "part_of_speech": "noun",
+      "translation": "вайфай",
+      "translations": {
+        "ru": "вайфай",
+        "uz": "vayfay"
+      },
+      "example": "Is there free wifi in the cafe?",
+      "example_translations": {
+        "ru": "В кафе есть бесплатный вайфай?",
+        "uz": "Kafeda bepul vayfay bormi?"
+      }
+    },
+    {
+      "word": "click",
+      "part_of_speech": "verb",
+      "translation": "нажимать",
+      "translations": {
+        "ru": "нажимать",
+        "uz": "bosmoq"
+      },
+      "example": "Click here to open the page.",
+      "example_translations": {
+        "ru": "Нажмите здесь, чтобы открыть страницу.",
+        "uz": "Sahifani ochish uchun shu yerni bosing."
+      }
+    },
+    {
+      "word": "page",
+      "part_of_speech": "noun",
+      "translation": "страница",
+      "translations": {
+        "ru": "страница",
+        "uz": "sahifa"
+      },
+      "example": "Open page twenty in your book.",
+      "example_translations": {
+        "ru": "Откройте двадцатую страницу в книге.",
+        "uz": "Kitobingizning yigirmanchi sahifasini oching."
+      }
+    }
+  ]
+}
