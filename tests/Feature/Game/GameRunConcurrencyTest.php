@@ -5,24 +5,30 @@ declare(strict_types=1);
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Practice\Enums\PracticeMode;
+use App\Domain\Practice\Services\PracticeSessionService;
 use App\Models\GameCoinLedgerEntry;
+use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameRunAttempt;
+use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use App\Models\PracticeSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Game\GameRace;
+use Tests\Support\Practice\PracticeKit;
 
 /*
  * docs/18 §12.5.4: the real races of a run. Several OS processes, each with its own PostgreSQL connection, hit the same learner / run at
  * the same instant. The `FOR UPDATE` of the run row, the unique `active_learner_id`, the unique `(run_id, request_id)` and the unique
  * `idempotency_key` of the ledger are what the assertions rely on, so this file runs only on pgsql with pcntl. Every worker sets a
  * lock timeout: a deadlock (40P01) or a wait that never ends (55P03) is a crash, never a hang. Data is committed (DatabaseTruncation).
- * The races of the Free tickets (`GameLimits`) join this file with G2.8.
+ * The races of the Free limits and the tickets (`GameLimits`, `TicketService`, G2.8) are at the end.
  */
 
 if ((getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql') {
@@ -237,4 +243,110 @@ it('does not deadlock a start against the lock of the learner row the training p
     expect(gameRaceCrashes($results))->toBe([])
         ->and(gameRaceOutcomes($results))->toBe(['ok', 'ok'])
         ->and(GameRun::query()->where('active_learner_id', $learnerId)->count())->toBe(1);
+});
+
+// ---------------------------------------------------------------- the Free limits and the tickets (G2.8, docs/18 §12.7.2)
+
+it('spends the one ticket of a Free learner once when three tabs start at the same instant: one run, one entry spend:run:*, tickets = 0', function (bool $replaceActive, array $losers): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    GameProfile::factory()->withTickets(1)->create(['learner_id' => $learner->id]);
+    // The free run of the day is played: every further run of the day costs a ticket.
+    $runs = app(RunService::class);
+    GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    $learnerId = $learner->id;
+    $slug = $course->slug;
+    $lessonId = $lesson->id;
+
+    $results = gameRace(array_fill(0, 3, fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, $replaceActive)->id));
+
+    // Under the learner's lock the tabs go one by one: the first takes the ticket and starts; without `replace_active` the others find
+    // the run that is on - the same stop - and get it as it is (the limit is not even counted for them); with it the second closes
+    // that run (unanswered: its PLACE comes back, the ticket does not) and both are refused by the limit. The ticket is never spent twice.
+    $limitRefusals = count(array_filter($losers, fn (string $code): bool => $code === 'game_limit_reached'));
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBe([...$losers, 'ok'])
+        ->and(count(array_unique(array_column(array_filter($results, fn (array $r): bool => $r['ok']), 'value'))))->toBe(1)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(2)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1)
+        ->and(GameTicketLedgerEntry::query()->where('learner_id', $learnerId)->where('source', 'spend')->count())->toBe(1)
+        ->and(GameProfile::query()->where('learner_id', $learnerId)->value('tickets'))->toBe(0)
+        ->and(gameRaceEvents('game.ticket_spent'))->toHaveCount(1)
+        ->and(gameRaceEvents('game.run_started'))->toHaveCount(2)
+        ->and(gameRaceEvents('game.limit_reached'))->toBe(array_fill(0, $limitRefusals, ['kind' => 'runs', 'limit' => 1]));
+    foreach ($results as $r) {
+        if (($r['code'] ?? null) === 'game_limit_reached') {
+            expect($r['details'])->toMatchArray(['kind' => 'runs', 'limit' => 1, 'used' => 1, 'tickets' => 0]);
+        }
+    }
+})->with([
+    'the same stop: the run that is on is the answer to all' => [false, ['ok', 'ok']],
+    'replace_active: the limit refuses the rest' => [true, ['game_limit_reached', 'game_limit_reached']],
+]);
+
+it('does not deadlock a Free start against a Free opening of the practice and the lock of the learner row the training picker takes', function (): void {
+    GameKit::limits(1);
+    PracticeKit::openAccess();
+    PracticeKit::limits(2, 1);
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $learnerId = $learner->id;
+    $slug = $course->slug;
+    $lessonId = $lesson->id;
+
+    // Three transactions, the same first lock (the learner's row), no cycle (docs/18 §12.5.1 rule 18, docs/16 §9 rule 16).
+    $results = gameRace([
+        fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId)->id,
+        fn (): int => app(PracticeSessionService::class)->open(gameRaceLearner($learnerId), PracticeMode::Collocation, $slug, null, 'hub', false, null)->id,
+        function () use ($learnerId): int {
+            return DB::transaction(function () use ($learnerId): int {
+                Learner::query()->whereKey($learnerId)->lock('for no key update')->value('id');
+                usleep(200_000);
+
+                return 1;
+            });
+        },
+    ]);
+
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBe(['ok', 'ok', 'ok'])
+        ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('free_slot', 'daily')->count())->toBe(1)
+        ->and(PracticeSession::query()->where('active_learner_id', $learnerId)->count())->toBe(1);
+});
+
+it('does not deadlock the finish of a run against a Free start that replaces it: the finish holds game_runs then game_profiles, the start takes them in the same order', function (): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    GameProfile::factory()->withTickets(1)->create(['learner_id' => $learner->id]);
+    $runs = app(RunService::class);
+    $run = $runs->start($learner, $course->slug, $lesson->id);
+    for ($i = 0; $i < $run->total - 1; $i++) {
+        $element = GameKit::current($run);
+        foreach (GameKit::rightAnswers($element) as $answer) {
+            $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], $answer);
+        }
+    }
+    $last = GameKit::current($run);
+    $answer = GameKit::rightAnswers($last)[0];
+    $learnerId = $learner->id;
+    $runId = $run->id;
+    $slug = $course->slug;
+    $lessonId = $lesson->id;
+
+    $results = gameRace([
+        fn (): string => app(RunService::class)->answer($runId, gameRaceLearner($learnerId), (string) Str::uuid(), $last['id'], $answer)->run->status->value,
+        fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, true)->id,
+    ]);
+
+    // Whoever locks the run first wins: the finish completes it and the start (waiting on the row) pays the ticket for a new run; or
+    // the start abandons it (answered, so its place stays taken) and the answer is told the run is closed. Never a deadlock, and the
+    // ticket is spent exactly once either way.
+    $old = GameRun::query()->findOrFail($runId);
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBeIn([['ok', 'ok'], ['game_run_closed', 'ok']])
+        ->and($old->finish_reason)->toBeIn([RunFinishReason::Completed, RunFinishReason::Abandoned])
+        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(2)
+        ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1)
+        ->and(GameTicketLedgerEntry::query()->where('learner_id', $learnerId)->count())->toBe(1)
+        ->and(GameProfile::query()->where('learner_id', $learnerId)->value('tickets'))->toBe(0);
 });

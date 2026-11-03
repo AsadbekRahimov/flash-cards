@@ -114,4 +114,14 @@ enum ProductEventName: string
     case GameCoinsSpent = 'game.coins_spent';
     /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
     case GameCoinsEarned = 'game.coins_earned';
+    /** A Free learner was refused by a limit of the game (props: kind - runs / boss / boosters, limit; docs/18 §12.7.4), on the courtesy check and under the lock alike. */
+    case GameLimitReached = 'game.limit_reached';
+    /** Tickets were granted (props: source - streak / referral / admin, delta - what was written after the cap, balance). */
+    case GameTicketGranted = 'game.ticket_granted';
+    /** A ticket paid for a map run beyond the free run of the day (props: run_id). */
+    case GameTicketSpent = 'game.ticket_spent';
+    /** A grant of tickets was cut by the cap of the balance, wholly or in part (props: source, lost). */
+    case GameTicketCapped = 'game.ticket_capped';
+    /** An administrator changed a learner's tickets (props: amount, audit_log_id); actor - the user, the learner. */
+    case GameTicketsAdjusted = 'game.tickets_adjusted';
 }

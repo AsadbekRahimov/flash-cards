@@ -22,8 +22,10 @@ use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Enums\TaskKind;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameAccess;
+use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Services\Tasks\PracticeTaskAdapter;
 use App\Domain\Game\Services\Tasks\TaskRegistry;
 use App\Domain\Game\Support\CityNames;
@@ -50,11 +52,13 @@ use Throwable;
  * The life of a run (docs/18 §12.2.1, §12.5): start, find, view, answer, hint, abandon, close the expired ones. Everything a run
  * decides is decided here on the server from the snapshot and the state; the client only shows.
  *
- * Locks (docs/18 §12.5.1): the start takes `game_runs` (FOR UPDATE of the active one) then inserts; an answer / a hint takes the run's
- * own row FOR UPDATE, then - a hint of the bazaar only - the wallet, then inserts the attempt and updates the run. Nothing of the
- * learning is locked; the SRS rule runs AFTER the commit (`GameSrsAdjuster`). The Free limits (`GameLimits`, G2.8) take the learner's
- * row FIRST in the transaction of the start - the place is marked in {@see open()}; the last answer hands the run to {@see RunFinisher}
- * inside the same transaction (the rewards, the map, the day of the learner - docs/18 §12.5.3).
+ * Locks (docs/18 §12.5.1): the start of a Free learner with a limit takes the learner's row FIRST (`GameLimits::lockForRun`, FOR NO KEY
+ * UPDATE), then `game_runs` (FOR UPDATE of the active one), inserts, and - a run paid with a ticket - updates `game_profiles` and inserts
+ * the ledger entry (`TicketService::spendForRun`): `learners` -> `game_runs` -> `game_profiles` -> `game_ticket_ledger`, the profile
+ * AFTER the run as in the finish. Pro takes `game_runs` only. An answer / a hint takes the run's own row FOR UPDATE, then - a hint of
+ * the bazaar only - the wallet, then inserts the attempt and updates the run. Nothing of the learning is locked; the SRS rule runs
+ * AFTER the commit (`GameSrsAdjuster`). The last answer hands the run to {@see RunFinisher} inside the same transaction (the rewards,
+ * the map, the day of the learner - docs/18 §12.5.3).
  *
  * Idempotency: `(run_id, request_id)` is unique in `game_run_attempts`; a repeat answers the stored `result` and the view of now.
  */
@@ -76,6 +80,8 @@ final class RunService
         private readonly ProductEventRecorder $events,
         private readonly RunFinisher $finisher,
         private readonly RunEventRecorder $runEvents,
+        private readonly GameLimits $limits,
+        private readonly TicketService $tickets,
     ) {}
 
     /**
@@ -83,9 +89,11 @@ final class RunService
      * again. An unfinished run of ANOTHER stop and no `$replaceActive` -> 409 `game_run_active` BEFORE the snapshot is built; an unfinished
      * run of the SAME stop is returned as it is (a second tab, a double tap: the run that is on is the answer); with the flag the old one is
      * closed `abandoned` in the same transaction. Two tabs at once: the loser gets the winner's run when it is the same stop, else the 409.
+     * The Free limit of the day (docs/18 §12.7.2) is read before the material (the courtesy check, after the active run: a run that is
+     * on is the answer whatever the limit) and claimed under the lock in {@see open()}.
      *
      * @throws GameException game_unavailable | course_not_found | lesson_not_found | lesson_not_in_course | stop_locked |
-     *                       game_not_enough_material | game_run_active
+     *                       game_not_enough_material | game_run_active | game_limit_reached
      */
     public function start(Learner $learner, string $courseSlug, int $lessonId, bool $replaceActive = false, ?CarbonImmutable $now = null): GameRun
     {
@@ -111,6 +119,8 @@ final class RunService
             }
         }
 
+        $this->limits->assertRunAllowed($learner, RunKind::Stop, $now);
+
         $locales = new LocaleSet([$this->locales->forLearner($learner)]);
         try {
             $snapshot = $this->snapshots->forStop($learner, $course, $lesson, $locales);
@@ -133,11 +143,13 @@ final class RunService
 
     /**
      * Opens a run from a built snapshot: the transaction of the start (docs/18 §12.5.1). The daily caravan (G2.3) and the bosses (G2.4)
-     * build their snapshots and call this with their `daily_key` / `class_boss_key` / `free_slot` in `$attributes`.
+     * build their snapshots and call this with their `daily_key` / `class_boss_key` in `$attributes`; what pays for the run
+     * (`free_slot`) is decided HERE by the Free limits - a map run (`stop` / `boss`) of a Free learner takes the free run of the day or
+     * a ticket, or is refused; the caller has made the courtesy check (`GameLimits::assertRunAllowed`) before building the snapshot.
      *
-     * @param  array<string, mixed>  $attributes  `course_id` (required), `stage_id`, `lesson_id`, `class_caravan_id`, `daily_key`, `class_boss_key`, `free_slot`
+     * @param  array<string, mixed>  $attributes  `course_id` (required), `stage_id`, `lesson_id`, `class_caravan_id`, `daily_key`, `class_boss_key`
      *
-     * @throws GameException game_run_active | game_daily_done
+     * @throws GameException game_run_active | game_daily_done | game_limit_reached
      */
     public function open(Learner $learner, RunSnapshot $snapshot, array $attributes, bool $replaceActive, CarbonImmutable $now): GameRun
     {
@@ -154,7 +166,7 @@ final class RunService
             'local_date' => $this->clock->localDate($learner, $now),
             'status' => RunStatus::Active,
             'finish_reason' => null,
-            'free_slot' => $attributes['free_slot'] ?? null,
+            'free_slot' => null,
             'snapshot' => $snapshot->toArray(),
             'state' => RunState::initial($snapshot->flasksMax)->toArray(),
             'total' => $snapshot->count(),
@@ -180,7 +192,8 @@ final class RunService
         for ($attempt = 0; $attempt < 3; $attempt++) {
             try {
                 $outcome = DB::transaction(function () use ($learner, $row, $replaceActive, $now): GameRun|GameException {
-                    // G2.8: the Free limits claim their place HERE, first - `learners (FOR NO KEY UPDATE)` -> `game_profiles` (tickets).
+                    // The Free limits take the learner's row FIRST (docs/18 §12.5.1 rule 18); Pro and the kinds without a limit take nothing.
+                    $pending = $this->limits->lockForRun($learner, $row['kind'], $now);
 
                     /** @var GameRun|null $active */
                     $active = GameRun::query()->where('active_learner_id', $learner->id)->lockForUpdate()->first();
@@ -196,7 +209,19 @@ final class RunService
                         }
                     }
 
+                    // The place of the day or a ticket, counted under the lock now that the active run is settled (a run closed
+                    // without an answer has just given its place back); the refusal goes out of the transaction and is thrown after
+                    // the commit, so that its event is recorded.
+                    $claim = $pending === null ? null : $this->limits->claimRun($pending);
+                    if ($claim instanceof GameException) {
+                        return $claim;
+                    }
+                    $row['free_slot'] = $claim?->freeSlot;
+
                     $run = GameRun::query()->create($row);
+                    if ($claim?->spendsTicket()) {
+                        $this->tickets->spendForRun($learner, $run, $now); // game_profiles after game_runs, the order of the finish
+                    }
 
                     DB::afterCommit(fn () => $this->events->record(ProductEventName::GameRunStarted, [
                         'run_id' => $run->id,

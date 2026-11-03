@@ -50,6 +50,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Tests\Support\FakeBillingProvider;
+use Tests\Support\Practice\PracticeKit;
 
 uses(RefreshDatabase::class);
 
@@ -172,14 +173,33 @@ it('GET /me carries the block `game` with the coins and the tickets once the gam
     config(['game.access' => 'all']);
 
     $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('game', ['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0]);
+        ->assertJsonPath('game.available', true)
+        ->assertJsonPath('game.pro_promise', 'full')
+        ->assertJsonPath('game.coins', 0)
+        ->assertJsonPath('game.tickets', 0)
+        // The Free limits of the day (docs/18 §12.7.2, docs/04 A.2): the shipped limits, nothing used.
+        ->assertJsonPath('game.limits.runs.limit', 1)
+        ->assertJsonPath('game.limits.runs.used', 0)
+        ->assertJsonPath('game.limits.tickets', ['balance' => 0, 'max' => 10])
+        ->assertJsonPath('game.limits.boss_stages', 1);
 
     GameWallet::factory()->withBalance(35)->create(['learner_id' => $s['learner']->id]);
     GameProfile::factory()->withTickets(2)->create(['learner_id' => $s['learner']->id]);
 
     $response = $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('game', ['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 35, 'tickets' => 2]);
-    expect(array_keys($response->json('game')))->toBe(CONTRACT_GAME_ME);
+        ->assertJsonPath('game.coins', 35)
+        ->assertJsonPath('game.tickets', 2)
+        ->assertJsonPath('game.limits.tickets', ['balance' => 2, 'max' => 10]);
+    expect(array_keys($response->json('game')))->toBe(CONTRACT_GAME_ME)
+        ->and(array_keys($response->json('game.limits')))->toBe(['runs', 'tickets', 'boosters', 'boss_stages']);
+
+    // Pro: `null` where Pro has no limit; the game stays open and the tickets are kept (docs/18 §12.7.2).
+    PracticeKit::pro($s['learner']);
+    $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()
+        ->assertJsonPath('game.limits.runs', null)
+        ->assertJsonPath('game.limits.boss_stages', null)
+        ->assertJsonPath('game.limits.boosters.limit', 5)
+        ->assertJsonPath('game.tickets', 2);
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
