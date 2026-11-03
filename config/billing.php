@@ -46,7 +46,9 @@ return [
             'rank' => 1,
             'limits' => ['new_words_per_day' => null],
             // `practice.unlimited`: no daily limit of practice sessions and battle calls (docs/18 §3; the Free limits are `practice.free_limits`).
-            'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill', 'practice.unlimited'],
+            // `game.*` (docs/18 §12.7): `unlimited_runs` - no limit of map runs, no tickets; `all_bosses` - the bosses of every city and the purchase
+            // of `exclusive` / `seasonal` cosmetics; `boosters_plus` - the weekly limit of boosters of `game.pro_limits`.
+            'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill', 'practice.unlimited', 'game.unlimited_runs', 'game.all_bosses', 'game.boosters_plus'],
         ],
     ],
 
