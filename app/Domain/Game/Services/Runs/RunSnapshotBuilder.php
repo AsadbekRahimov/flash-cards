@@ -108,6 +108,92 @@ final class RunSnapshotBuilder
     }
 
     /**
+     * The snapshot of the daily caravan (docs/18 §12.3.1): tasks made of the words `$wordIds` (the order is the order of the pool:
+     * the hard and the oldest due first), no authored tasks, no pairs, no city. The distractors are the course's and the public ones.
+     *
+     * @param  list<int>  $wordIds  active words of the learner, already chosen by `DailyCaravanService`
+     *
+     * @throws GameException game_not_enough_material
+     */
+    public function forDaily(Course $course, array $wordIds, LocaleSet $locales, ?string $seed = null): RunSnapshot
+    {
+        $seed ??= SeededShuffle::newSeed();
+        $limits = RunLimits::for(RunKind::Daily);
+
+        $words = $this->wordsByIds($wordIds, $locales);
+        $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+
+        $composition = RunComposer::compose($pool, $seed, $limits);
+        if ($composition->count() < $limits->minElements) {
+            throw GameException::notEnoughMaterial($composition->count(), $limits->minElements, 'no_words');
+        }
+
+        $courseTitle = [];
+        foreach ($locales->locales as $locale) {
+            $courseTitle[$locale] = $this->catalog->title($course, $locale);
+        }
+
+        $snapshot = new RunSnapshot(
+            kind: RunKind::Daily,
+            locales: $locales->locales,
+            elements: $composition->elements,
+            events: $composition->events,
+            courseSlug: $course->slug,
+            courseTitle: $courseTitle,
+            flasksMax: $limits->flasks,
+        );
+        $snapshot->assertFits();
+
+        return $snapshot;
+    }
+
+    /**
+     * The active words by id in one query, in the order of `$ids`, with their translations.
+     *
+     * @param  list<int>  $ids
+     * @return list<MaterialWord>
+     */
+    private function wordsByIds(array $ids, LocaleSet $locales): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        /** @var array<int, Word> $rows */
+        $rows = Word::query()
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example')
+            ->whereIn('words.id', $ids)
+            ->where('words.is_active', true)
+            ->get()
+            ->keyBy('id')
+            ->all();
+
+        $ordered = [];
+        foreach ($ids as $id) {
+            if (isset($rows[$id])) {
+                $ordered[] = $rows[$id];
+            }
+        }
+
+        $byLocale = [];
+        foreach ($locales->locales as $locale) {
+            $byLocale[$locale] = $this->translations->map($ordered, $locale);
+        }
+
+        $words = [];
+        foreach ($ordered as $row) {
+            $translations = [];
+            foreach ($byLocale as $locale => $texts) {
+                $translations[$locale] = $texts[$row->id] ?? $row->translation;
+            }
+            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example);
+        }
+
+        return $words;
+    }
+
+    /**
      * The pool of a stop (public for the tests of the composition).
      *
      * @throws GameException stop_locked | game_not_enough_material

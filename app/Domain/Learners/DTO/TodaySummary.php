@@ -18,6 +18,7 @@ final readonly class TodaySummary
      * @param  int|null  $openSessionId  the open, unexpired `daily_review` session to continue
      * @param  string  $timezone  IANA id of the zone the learner's day (goal, streak) is counted in: the one LearnerClock uses
      * @param  TodayLeague|null  $league  the learner's place in this week's league group; null while not placed
+     * @param  array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null}  $game  the entry "Caravan" (docs/04 A.2a)
      */
     public function __construct(
         public int $dueCount,
@@ -29,5 +30,6 @@ final readonly class TodaySummary
         public bool $onboardingCompleted,
         public string $timezone,
         public ?TodayLeague $league = null,
+        public array $game = ['daily_available' => false, 'active_run' => null],
     ) {}
 }
