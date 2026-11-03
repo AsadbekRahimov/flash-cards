@@ -1,0 +1,2348 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m16-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "fence"
+      ],
+      "prompt": {
+        "ru": "Кто тот мужчина за забором?",
+        "uz": "To'siq ortidagi anavi kishi kim?"
+      },
+      "fragments": [
+        "who",
+        "is",
+        "that",
+        "man",
+        "behind",
+        "the",
+        "fence"
+      ],
+      "accepted": [
+        [
+          "who",
+          "is",
+          "that",
+          "man",
+          "behind",
+          "the",
+          "fence"
+        ]
+      ],
+      "display": "Who is that man behind the fence?",
+      "explanation": {
+        "ru": "Вопрос с who: who + is + that man. Behind the fence — «за забором» — стоит после man.",
+        "uz": "who bilan savol: who + is + that man. Behind the fence — «to'siq ortida» — man dan keyin keladi."
+      }
+    },
+    {
+      "key": "a1a2-m16-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "oven"
+      ],
+      "prompt": {
+        "ru": "Пока не открывайте дверцу духовки.",
+        "uz": "Duxovka eshigini hozircha ochmang."
+      },
+      "fragments": [
+        "don't",
+        "open",
+        "the",
+        "oven",
+        "door",
+        "yet"
+      ],
+      "accepted": [
+        [
+          "don't",
+          "open",
+          "the",
+          "oven",
+          "door",
+          "yet"
+        ]
+      ],
+      "display": "Don't open the oven door yet.",
+      "explanation": {
+        "ru": "Запрет — don't + глагол: don't open. Yet в отрицании значит «пока, ещё» и стоит в конце. Oven door — дверца духовки.",
+        "uz": "Taqiq — don't + fe'l: don't open. Inkor gapda yet «hali, hozircha» degani va oxirida turadi. Oven door — duxovka eshigi."
+      }
+    },
+    {
+      "key": "a1a2-m16-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "fold"
+      ],
+      "prompt": {
+        "ru": "Вы можете помочь мне сложить чистую одежду?",
+        "uz": "Menga toza kiyimlarni buklashga yordam bera olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "help",
+        "me",
+        "fold",
+        "the",
+        "clean",
+        "clothes"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "help",
+          "me",
+          "fold",
+          "the",
+          "clean",
+          "clothes"
+        ]
+      ],
+      "display": "Can you help me fold the clean clothes?",
+      "explanation": {
+        "ru": "Просьба в форме вопроса: can стоит перед you. После help глагол можно ставить без to: help me fold.",
+        "uz": "Iltimos savol shaklida: can you dan oldin turadi. help dan keyin fe'l oldidan to qo'yilmasa ham bo'ladi: help me fold."
+      }
+    },
+    {
+      "key": "a1a2-m16-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "tenant"
+      ],
+      "prompt": {
+        "ru": "Арендатор каждый месяц платит за аренду.",
+        "uz": "Ijarachi har oy ijara haqini to'laydi."
+      },
+      "fragments": [
+        "the",
+        "tenant",
+        "pays",
+        "the",
+        "rent",
+        "every",
+        "month"
+      ],
+      "accepted": [
+        [
+          "the",
+          "tenant",
+          "pays",
+          "the",
+          "rent",
+          "every",
+          "month"
+        ],
+        [
+          "every",
+          "month",
+          "the",
+          "tenant",
+          "pays",
+          "the",
+          "rent"
+        ]
+      ],
+      "display": "The tenant pays the rent every month.",
+      "explanation": {
+        "ru": "Подлежащее в 3-м лице единственного числа — глагол с -s: the tenant pays. Every month можно поставить в конец или в начало.",
+        "uz": "Ega uchinchi shaxs birlikda bo'lsa, fe'lga -s qo'shiladi: the tenant pays. Every month oxirida yoki boshida keladi."
+      }
+    },
+    {
+      "key": "a1a2-m16-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "tool"
+      ],
+      "prompt": {
+        "ru": "Куда вы положили мои инструменты?",
+        "uz": "Asboblarimni qayerga qo'ydingiz?"
+      },
+      "fragments": [
+        "where",
+        "did",
+        "you",
+        "put",
+        "my",
+        "tools"
+      ],
+      "accepted": [
+        [
+          "where",
+          "did",
+          "you",
+          "put",
+          "my",
+          "tools"
+        ]
+      ],
+      "display": "Where did you put my tools?",
+      "explanation": {
+        "ru": "Вопрос в прошедшем времени: where + did + you + глагол в начальной форме (put). У put все три формы одинаковые: put — put — put.",
+        "uz": "O'tgan zamondagi savol: where + did + you + fe'lning boshlang'ich shakli (put). put ning uchala shakli bir xil: put — put — put."
+      }
+    },
+    {
+      "key": "a1a2-m16-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "ceiling"
+      ],
+      "text": "The ceiling is too ___. I can touch it with my hand.",
+      "options": [
+        "low",
+        "short",
+        "small"
+      ],
+      "correct": [
+        "low"
+      ],
+      "translation": {
+        "ru": "Потолок слишком низкий. Я могу дотронуться до него рукой.",
+        "uz": "Shift juda past. Unga qo'lim bilan tega olaman."
+      },
+      "explanation": {
+        "ru": "О высоте потолка говорят high и low: a low ceiling — низкий потолок. Short — о длине и росте (short hair, a short man), small — о размере.",
+        "uz": "Shiftning balandligi haqida high va low deyiladi: a low ceiling — past shift. Short — uzunlik va bo'y haqida (short hair, a short man), small — o'lcham haqida."
+      }
+    },
+    {
+      "key": "a1a2-m16-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "heater"
+      ],
+      "text": "It's cold in here. Please ___ on the heater.",
+      "options": [
+        "turn",
+        "open",
+        "light"
+      ],
+      "correct": [
+        "turn"
+      ],
+      "translation": {
+        "ru": "Здесь холодно. Включите, пожалуйста, обогреватель.",
+        "uz": "Bu yer sovuq. Iltimos, isitgichni yoqing."
+      },
+      "explanation": {
+        "ru": "Turn on — включить прибор или свет, turn off — выключить. Open — открыть (окно, дверь), light — зажечь огонь (light a candle).",
+        "uz": "Turn on — asbob yoki chiroqni yoqmoq, turn off — o'chirmoq. Open — ochmoq (deraza, eshik), light — olov yoqmoq (light a candle)."
+      }
+    },
+    {
+      "key": "a1a2-m16-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "tidy"
+      ],
+      "text": "Your room is a mess! Please tidy it ___.",
+      "options": [
+        "up",
+        "on",
+        "off"
+      ],
+      "correct": [
+        "up"
+      ],
+      "translation": {
+        "ru": "У вас в комнате беспорядок! Приберитесь в ней, пожалуйста.",
+        "uz": "Xonangiz tartibsiz! Iltimos, uni yig'ishtiring."
+      },
+      "explanation": {
+        "ru": "Tidy up — прибраться, навести порядок. Местоимение it стоит между глаголом и up: tidy it up. On и off с tidy не употребляются.",
+        "uz": "Tidy up — yig'ishtirmoq, tartibga solmoq. it olmoshi fe'l bilan up orasida turadi: tidy it up. On va off tidy bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m16-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "rent"
+      ],
+      "text": "We ___ this house for 700 dollars a month.",
+      "options": [
+        "rent",
+        "borrow",
+        "lend"
+      ],
+      "correct": [
+        "rent"
+      ],
+      "translation": {
+        "ru": "Мы снимаем этот дом за 700 долларов в месяц.",
+        "uz": "Biz bu uyni oyiga 700 dollarga ijaraga olganmiz."
+      },
+      "explanation": {
+        "ru": "Rent — снимать жильё за деньги. Borrow — взять на время бесплатно (книгу, ручку), lend — дать на время; о съёме жилья так не говорят.",
+        "uz": "Rent — uy-joyni pulga ijaraga olmoq. Borrow — vaqtincha tekinga olmoq (kitob, ruchka), lend — vaqtincha bermoq; ijara haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m16-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "rope"
+      ],
+      "text": "Can you ___ the rope to the tree?",
+      "options": [
+        "tie",
+        "knit",
+        "sew"
+      ],
+      "correct": [
+        "tie"
+      ],
+      "translation": {
+        "ru": "Вы можете привязать верёвку к дереву?",
+        "uz": "Arqonni daraxtga bog'lay olasizmi?"
+      },
+      "explanation": {
+        "ru": "Tie — завязывать, привязывать: tie the rope to the tree, tie your shoes. Knit — вязать спицами (шарф), sew — шить иголкой.",
+        "uz": "Tie — bog'lamoq: tie the rope to the tree, tie your shoes. Knit — to'qimoq (sharf), sew — igna bilan tikmoq."
+      }
+    },
+    {
+      "key": "a1a2-m16-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "yard"
+      ],
+      "text": "We have a small yard",
+      "accepted": [
+        "We have a small yard"
+      ],
+      "translation": {
+        "ru": "У нас маленький двор",
+        "uz": "Bizning hovlimiz kichkina"
+      }
+    },
+    {
+      "key": "a1a2-m16-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "blanket"
+      ],
+      "text": "This blanket is soft and warm",
+      "accepted": [
+        "This blanket is soft and warm",
+        "This blanket's soft and warm"
+      ],
+      "translation": {
+        "ru": "Это одеяло мягкое и тёплое",
+        "uz": "Bu ko'rpa yumshoq va issiq"
+      }
+    },
+    {
+      "key": "a1a2-m16-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "chore"
+      ],
+      "text": "Everyone helps with the chores",
+      "accepted": [
+        "Everyone helps with the chores"
+      ],
+      "translation": {
+        "ru": "Все помогают с домашними делами",
+        "uz": "Hamma uy yumushlarida yordam beradi"
+      },
+      "explanation": {
+        "ru": "Everyone — «все», но глагол после него в единственном числе: everyone helps.",
+        "uz": "Everyone — «hamma», lekin undan keyingi fe'l birlikda: everyone helps."
+      }
+    },
+    {
+      "key": "a1a2-m16-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "heating"
+      ],
+      "text": "The heating is not working",
+      "accepted": [
+        "The heating is not working",
+        "The heating isn't working",
+        "The heating's not working"
+      ],
+      "translation": {
+        "ru": "Отопление не работает",
+        "uz": "Isitish ishlamayapti"
+      }
+    },
+    {
+      "key": "a1a2-m16-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "plug"
+      ],
+      "text": "Don't touch the plug with wet hands",
+      "accepted": [
+        "Don't touch the plug with wet hands",
+        "Do not touch the plug with wet hands"
+      ],
+      "translation": {
+        "ru": "Не трогайте вилку мокрыми руками",
+        "uz": "Vilkaga ho'l qo'l bilan tegmang"
+      }
+    },
+    {
+      "key": "a1a2-m17-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "loan"
+      ],
+      "prompt": {
+        "ru": "Банк выдал нам заём.",
+        "uz": "Bank bizga qarz berdi."
+      },
+      "fragments": [
+        "the",
+        "bank",
+        "gave",
+        "us",
+        "a",
+        "loan"
+      ],
+      "accepted": [
+        [
+          "the",
+          "bank",
+          "gave",
+          "us",
+          "a",
+          "loan"
+        ]
+      ],
+      "display": "The bank gave us a loan.",
+      "explanation": {
+        "ru": "После give сначала кому (us), потом что (a loan): gave us a loan. Gave — прошедшее время от give.",
+        "uz": "give dan keyin avval kimga (us), keyin nima (a loan) keladi: gave us a loan. Gave — give ning o'tgan zamon shakli."
+      }
+    },
+    {
+      "key": "a1a2-m17-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "tailor"
+      ],
+      "prompt": {
+        "ru": "Мой дядя работает портным.",
+        "uz": "Amakim tikuvchi bo'lib ishlaydi."
+      },
+      "fragments": [
+        "my",
+        "uncle",
+        "works",
+        "as",
+        "a",
+        "tailor"
+      ],
+      "accepted": [
+        [
+          "my",
+          "uncle",
+          "works",
+          "as",
+          "a",
+          "tailor"
+        ]
+      ],
+      "display": "My uncle works as a tailor.",
+      "explanation": {
+        "ru": "О профессии говорят work as + a + профессия: works as a tailor. Артикль a обязателен.",
+        "uz": "Kasb haqida work as + a + kasb deyiladi: works as a tailor. a artikli albatta kerak."
+      }
+    },
+    {
+      "key": "a1a2-m17-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "checkout"
+      ],
+      "prompt": {
+        "ru": "На кассе длинная очередь.",
+        "uz": "Kassada uzun navbat bor."
+      },
+      "fragments": [
+        "there",
+        "is",
+        "a",
+        "long",
+        "line",
+        "at",
+        "the",
+        "checkout"
+      ],
+      "accepted": [
+        [
+          "there",
+          "is",
+          "a",
+          "long",
+          "line",
+          "at",
+          "the",
+          "checkout"
+        ],
+        [
+          "at",
+          "the",
+          "checkout",
+          "there",
+          "is",
+          "a",
+          "long",
+          "line"
+        ]
+      ],
+      "display": "There is a long line at the checkout.",
+      "explanation": {
+        "ru": "There is — «есть, находится». Line — очередь в американском английском (в британском — queue). At the checkout можно поставить в конец или в начало.",
+        "uz": "There is — «bor». Line — amerika inglizchasida navbat (britaniyada — queue). At the checkout oxirida yoki boshida keladi."
+      }
+    },
+    {
+      "key": "a1a2-m17-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "sunglasses"
+      ],
+      "prompt": {
+        "ru": "Чьи это солнцезащитные очки?",
+        "uz": "Bu quyosh ko'zoynagi kimniki?"
+      },
+      "fragments": [
+        "whose",
+        "sunglasses",
+        "are",
+        "these"
+      ],
+      "accepted": [
+        [
+          "whose",
+          "sunglasses",
+          "are",
+          "these"
+        ],
+        [
+          "whose",
+          "are",
+          "these",
+          "sunglasses"
+        ]
+      ],
+      "display": "Whose sunglasses are these?",
+      "explanation": {
+        "ru": "Whose — «чей, чьи». Sunglasses — всегда множественное число, поэтому are these. Можно сказать и Whose are these sunglasses?",
+        "uz": "Whose — «kimning». Sunglasses doim ko'plikda, shuning uchun are these. Whose are these sunglasses? deb ham aytish mumkin."
+      }
+    },
+    {
+      "key": "a1a2-m17-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "fashionable"
+      ],
+      "prompt": {
+        "ru": "Эти сапоги уже не в моде.",
+        "uz": "Bu etiklar endi urfda emas."
+      },
+      "fragments": [
+        "these",
+        "boots",
+        "are",
+        "not",
+        "fashionable",
+        "anymore"
+      ],
+      "accepted": [
+        [
+          "these",
+          "boots",
+          "are",
+          "not",
+          "fashionable",
+          "anymore"
+        ]
+      ],
+      "display": "These boots are not fashionable anymore.",
+      "explanation": {
+        "ru": "Not … anymore — «уже не, больше не»: anymore стоит в конце. These boots — множественное число, поэтому are.",
+        "uz": "Not … anymore — «endi … emas»: anymore gap oxirida turadi. These boots — ko'plik, shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m17-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "withdraw"
+      ],
+      "text": "I need to withdraw some money ___ my account.",
+      "options": [
+        "from",
+        "of",
+        "off"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Мне нужно снять немного денег со своего счёта.",
+        "uz": "Hisobimdan biroz pul yechib olishim kerak."
+      },
+      "explanation": {
+        "ru": "Withdraw money from an account — снять деньги со счёта: «откуда» — from. Of и off здесь не подходят.",
+        "uz": "Withdraw money from an account — hisobdan pul yechib olmoq: «qayerdan» — from. Of va off bu yerda mos emas."
+      }
+    },
+    {
+      "key": "a1a2-m17-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "hairdresser"
+      ],
+      "text": "I'm going to the hairdresser to ___ my hair cut.",
+      "options": [
+        "have",
+        "do",
+        "make"
+      ],
+      "correct": [
+        "have"
+      ],
+      "translation": {
+        "ru": "Я иду в парикмахерскую подстричься.",
+        "uz": "Soch oldirgani sartaroshga ketyapman."
+      },
+      "explanation": {
+        "ru": "Have + предмет + третья форма глагола — это делает для вас другой человек: have my hair cut — подстричься у мастера. Do и make так не употребляются.",
+        "uz": "Have + narsa + fe'lning 3-shakli — buni siz uchun boshqa odam qiladi: have my hair cut — sartaroshda soch oldirmoq. Do va make bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "brand"
+      ],
+      "text": "Which ___ of coffee do you usually buy?",
+      "options": [
+        "brand",
+        "mark",
+        "stamp"
+      ],
+      "correct": [
+        "brand"
+      ],
+      "translation": {
+        "ru": "Какую марку кофе вы обычно покупаете?",
+        "uz": "Odatda qaysi brenddagi kofeni sotib olasiz?"
+      },
+      "explanation": {
+        "ru": "Марка товара — brand (кофе, одежды, телефона). Mark — знак, отметка или оценка, stamp — почтовая марка или печать.",
+        "uz": "Tovar markasi — brand (kofe, kiyim, telefon). Mark — belgi yoki baho, stamp — pochta markasi yoki muhr."
+      }
+    },
+    {
+      "key": "a1a2-m17-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "perfume"
+      ],
+      "text": "I love this perfume. It ___ like roses.",
+      "options": [
+        "smells",
+        "sniffs",
+        "tastes"
+      ],
+      "correct": [
+        "smells"
+      ],
+      "translation": {
+        "ru": "Мне очень нравятся эти духи. Они пахнут розами.",
+        "uz": "Bu atir menga juda yoqadi. Undan atirgul hidi keladi."
+      },
+      "explanation": {
+        "ru": "Smell like — пахнуть чем-то: it smells like roses. Sniff — нюхать (это делает человек), taste — иметь вкус.",
+        "uz": "Smell like — biror narsaning hidi kelmoq: it smells like roses. Sniff — hidlamoq (buni odam qiladi), taste — ta'mi bo'lmoq."
+      }
+    },
+    {
+      "key": "a1a2-m17-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "reasonable"
+      ],
+      "text": "This cafe has good food at ___ prices.",
+      "options": [
+        "reasonable",
+        "clever",
+        "logical"
+      ],
+      "correct": [
+        "reasonable"
+      ],
+      "translation": {
+        "ru": "В этом кафе хорошая еда по разумным ценам.",
+        "uz": "Bu kafeda maqbul narxlarda mazali taomlar bor."
+      },
+      "explanation": {
+        "ru": "Reasonable price — разумная, приемлемая цена. Clever — умный (о человеке), logical — логичный (о мысли, решении); с ценами они не сочетаются.",
+        "uz": "Reasonable price — maqbul, o'rtacha narx. Clever — aqlli (odam haqida), logical — mantiqiy (fikr, qaror haqida); ular narx bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "credit"
+      ],
+      "text": "Can I buy it on credit?",
+      "accepted": [
+        "Can I buy it on credit"
+      ],
+      "translation": {
+        "ru": "Можно купить это в кредит?",
+        "uz": "Buni kreditga olsam bo'ladimi?"
+      },
+      "explanation": {
+        "ru": "buy (покупать) звучит так же, как by и bye: здесь нужен глагол buy.",
+        "uz": "buy (sotib olmoq) by va bye bilan bir xil eshitiladi: bu yerda buy fe'li kerak."
+      }
+    },
+    {
+      "key": "a1a2-m17-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "service"
+      ],
+      "text": "The service here is very good",
+      "accepted": [
+        "The service here is very good"
+      ],
+      "translation": {
+        "ru": "Обслуживание здесь очень хорошее",
+        "uz": "Bu yerda xizmat ko'rsatish juda yaxshi"
+      },
+      "explanation": {
+        "ru": "here (здесь) звучит так же, как hear (слышать); в этой фразе нужно here.",
+        "uz": "here (bu yerda) hear (eshitmoq) bilan bir xil eshitiladi; bu gapda here kerak."
+      }
+    },
+    {
+      "key": "a1a2-m17-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "basket"
+      ],
+      "text": "My basket is almost full",
+      "accepted": [
+        "My basket is almost full",
+        "My basket's almost full"
+      ],
+      "translation": {
+        "ru": "Моя корзина почти полная",
+        "uz": "Savatim deyarli to'la"
+      }
+    },
+    {
+      "key": "a1a2-m17-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "purse"
+      ],
+      "text": "I left my purse in the car",
+      "accepted": [
+        "I left my purse in the car"
+      ],
+      "translation": {
+        "ru": "Я оставила сумочку в машине",
+        "uz": "Sumkachamni mashinada qoldirdim"
+      },
+      "explanation": {
+        "ru": "left — прошедшее время от leave (оставлять): I left my purse.",
+        "uz": "left — leave (qoldirmoq) ning o'tgan zamon shakli: I left my purse."
+      }
+    },
+    {
+      "key": "a1a2-m17-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "bargain"
+      ],
+      "text": "I love a good bargain",
+      "accepted": [
+        "I love a good bargain"
+      ],
+      "translation": {
+        "ru": "Обожаю выгодные покупки",
+        "uz": "Arzon xaridlarni juda yaxshi ko'raman"
+      },
+      "explanation": {
+        "ru": "bargain пишется с -ain на конце: bar-gain.",
+        "uz": "bargain oxiri -ain bilan yoziladi: bar-gain."
+      }
+    },
+    {
+      "key": "a1a2-m18-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "injury"
+      ],
+      "prompt": {
+        "ru": "Он не может играть из-за травмы.",
+        "uz": "U jarohati tufayli o'ynay olmaydi."
+      },
+      "fragments": [
+        "he",
+        "can't",
+        "play",
+        "because",
+        "of",
+        "his",
+        "injury"
+      ],
+      "accepted": [
+        [
+          "he",
+          "can't",
+          "play",
+          "because",
+          "of",
+          "his",
+          "injury"
+        ],
+        [
+          "because",
+          "of",
+          "his",
+          "injury",
+          "he",
+          "can't",
+          "play"
+        ]
+      ],
+      "display": "He can't play because of his injury.",
+      "explanation": {
+        "ru": "Because of + существительное — «из-за»: because of his injury. Эту часть можно поставить в конец или в начало.",
+        "uz": "Because of + ot — «… tufayli»: because of his injury. Bu qismni oxiriga yoki boshiga qo'yish mumkin."
+      }
+    },
+    {
+      "key": "a1a2-m18-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "vaccine"
+      ],
+      "prompt": {
+        "ru": "Ваши дети сделали прививку от гриппа?",
+        "uz": "Farzandlaringiz grippga qarshi emlandimi?"
+      },
+      "fragments": [
+        "did",
+        "your",
+        "children",
+        "get",
+        "the",
+        "flu",
+        "vaccine"
+      ],
+      "accepted": [
+        [
+          "did",
+          "your",
+          "children",
+          "get",
+          "the",
+          "flu",
+          "vaccine"
+        ]
+      ],
+      "display": "Did your children get the flu vaccine?",
+      "explanation": {
+        "ru": "Вопрос в прошедшем времени: did + подлежащее + глагол в начальной форме (get). Flu vaccine — вакцина от гриппа: первое слово уточняет второе.",
+        "uz": "O'tgan zamondagi savol: did + ega + fe'lning boshlang'ich shakli (get). Flu vaccine — gripp vaksinasi: birinchi so'z ikkinchisini aniqlaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "organic"
+      ],
+      "prompt": {
+        "ru": "Мои родители выращивают органические овощи.",
+        "uz": "Ota-onam organik sabzavot yetishtirishadi."
+      },
+      "fragments": [
+        "my",
+        "parents",
+        "grow",
+        "organic",
+        "vegetables"
+      ],
+      "accepted": [
+        [
+          "my",
+          "parents",
+          "grow",
+          "organic",
+          "vegetables"
+        ]
+      ],
+      "display": "My parents grow organic vegetables.",
+      "explanation": {
+        "ru": "Прилагательное стоит перед существительным: organic vegetables. С parents (они) глагол grow — без -s.",
+        "uz": "Sifat otdan oldin turadi: organic vegetables. Parents (ular) bilan grow fe'liga -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "cycle"
+      ],
+      "prompt": {
+        "ru": "По выходным мы ездим на велосипедах к озеру.",
+        "uz": "Dam olish kunlari ko'lga velosipedda boramiz."
+      },
+      "fragments": [
+        "we",
+        "cycle",
+        "to",
+        "the",
+        "lake",
+        "on",
+        "weekends"
+      ],
+      "accepted": [
+        [
+          "we",
+          "cycle",
+          "to",
+          "the",
+          "lake",
+          "on",
+          "weekends"
+        ],
+        [
+          "on",
+          "weekends",
+          "we",
+          "cycle",
+          "to",
+          "the",
+          "lake"
+        ]
+      ],
+      "display": "We cycle to the lake on weekends.",
+      "explanation": {
+        "ru": "Cycle — ездить на велосипеде; куда — to + место: cycle to the lake. On weekends (по выходным) можно поставить в конец или в начало.",
+        "uz": "Cycle — velosipedda yurmoq; qayerga — to + joy: cycle to the lake. On weekends (dam olish kunlari) oxirida yoki boshida keladi."
+      }
+    },
+    {
+      "key": "a1a2-m18-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "active"
+      ],
+      "prompt": {
+        "ru": "Мой младший брат активнее меня.",
+        "uz": "Ukam mendan faolroq."
+      },
+      "fragments": [
+        "my",
+        "little",
+        "brother",
+        "is",
+        "more",
+        "active",
+        "than",
+        "me"
+      ],
+      "accepted": [
+        [
+          "my",
+          "little",
+          "brother",
+          "is",
+          "more",
+          "active",
+          "than",
+          "me"
+        ]
+      ],
+      "display": "My little brother is more active than me.",
+      "explanation": {
+        "ru": "Длинные прилагательные сравнивают так: more + прилагательное + than: more active than me. Little brother — младший брат.",
+        "uz": "Uzun sifatlar more + sifat + than bilan qiyoslanadi: more active than me. Little brother — uka."
+      }
+    },
+    {
+      "key": "a1a2-m18-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "infection"
+      ],
+      "text": "Wash your hands often, or you can ___ an infection.",
+      "options": [
+        "catch",
+        "take",
+        "make"
+      ],
+      "correct": [
+        "catch"
+      ],
+      "translation": {
+        "ru": "Чаще мойте руки, иначе можно подхватить инфекцию.",
+        "uz": "Qo'llaringizni tez-tez yuving, aks holda infeksiya yuqtirib olishingiz mumkin."
+      },
+      "explanation": {
+        "ru": "Catch — подхватить болезнь: catch a cold, catch an infection. Take и make с болезнями так не употребляются.",
+        "uz": "Catch — kasallikni yuqtirib olmoq: catch a cold, catch an infection. Take va make kasallik bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "prescription"
+      ],
+      "text": "The doctor ___ me a prescription for my cough.",
+      "options": [
+        "wrote",
+        "made",
+        "took"
+      ],
+      "correct": [
+        "wrote"
+      ],
+      "translation": {
+        "ru": "Врач выписал мне рецепт от кашля.",
+        "uz": "Shifokor menga yo'talim uchun retsept yozib berdi."
+      },
+      "explanation": {
+        "ru": "Write a prescription — выписать рецепт: врач его пишет (wrote me a prescription). Make и take в этом значении с prescription не употребляются.",
+        "uz": "Write a prescription — retsept yozib bermoq: shifokor uni yozadi (wrote me a prescription). Make va take bu ma'noda prescription bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "appetite"
+      ],
+      "text": "Don't eat sweets before dinner. They will ___ your appetite.",
+      "options": [
+        "spoil",
+        "break",
+        "damage"
+      ],
+      "correct": [
+        "spoil"
+      ],
+      "translation": {
+        "ru": "Не ешьте сладкое перед ужином — перебьёте аппетит.",
+        "uz": "Kechki ovqatdan oldin shirinlik yemang, ishtahangiz bo'g'iladi."
+      },
+      "explanation": {
+        "ru": "Spoil your appetite — перебить аппетит. Break — ломать, damage — повреждать; с appetite они не сочетаются.",
+        "uz": "Spoil your appetite — ishtahani bo'g'moq. Break — sindirmoq, damage — shikastlamoq; ular appetite bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "workout"
+      ],
+      "text": "I had a great ___ at the gym today.",
+      "options": [
+        "workout",
+        "exercise",
+        "sport"
+      ],
+      "correct": [
+        "workout"
+      ],
+      "translation": {
+        "ru": "Сегодня у меня была отличная тренировка в спортзале.",
+        "uz": "Bugun sport zalida ajoyib mashg'ulot bo'ldi."
+      },
+      "explanation": {
+        "ru": "Workout — одна тренировка: have a great workout. Exercise в значении «физическая нагрузка» с a не употребляется, sport — вид спорта.",
+        "uz": "Workout — bitta mashg'ulot: have a great workout. Exercise «jismoniy faollik» ma'nosida a bilan ishlatilmaydi, sport — sport turi."
+      }
+    },
+    {
+      "key": "a1a2-m18-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "lifestyle"
+      ],
+      "text": "My doctor says I should ___ a healthier lifestyle.",
+      "options": [
+        "lead",
+        "do",
+        "make"
+      ],
+      "correct": [
+        "lead"
+      ],
+      "translation": {
+        "ru": "Врач говорит, что мне стоит вести более здоровый образ жизни.",
+        "uz": "Shifokorimning aytishicha, men sog'lomroq turmush tarzida yashashim kerak."
+      },
+      "explanation": {
+        "ru": "Lead a healthy lifestyle — вести здоровый образ жизни: lead здесь значит «вести». Do и make с lifestyle не сочетаются.",
+        "uz": "Lead a healthy lifestyle — sog'lom turmush tarzida yashamoq: lead bu yerda «olib bormoq» degani. Do va make lifestyle bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "wound"
+      ],
+      "text": "The wound is not deep",
+      "accepted": [
+        "The wound is not deep",
+        "The wound isn't deep",
+        "The wound's not deep"
+      ],
+      "translation": {
+        "ru": "Рана неглубокая",
+        "uz": "Yara chuqur emas"
+      }
+    },
+    {
+      "key": "a1a2-m18-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "surgery"
+      ],
+      "text": "The surgery went well",
+      "accepted": [
+        "The surgery went well"
+      ],
+      "translation": {
+        "ru": "Операция прошла хорошо",
+        "uz": "Jarrohlik amaliyoti yaxshi o'tdi"
+      },
+      "explanation": {
+        "ru": "went — прошедшее время от go; go well — пройти хорошо, удачно.",
+        "uz": "went — go ning o'tgan zamon shakli; go well — yaxshi o'tmoq."
+      }
+    },
+    {
+      "key": "a1a2-m18-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "nutrition"
+      ],
+      "text": "I am reading a book about nutrition",
+      "accepted": [
+        "I am reading a book about nutrition",
+        "I'm reading a book about nutrition"
+      ],
+      "translation": {
+        "ru": "Я читаю книгу о питании",
+        "uz": "Men oziqlanish haqida kitob o'qiyapman"
+      }
+    },
+    {
+      "key": "a1a2-m18-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "exercise"
+      ],
+      "text": "Do this exercise ten times",
+      "accepted": [
+        "Do this exercise ten times",
+        "Do this exercise 10 times"
+      ],
+      "translation": {
+        "ru": "Сделайте это упражнение десять раз",
+        "uz": "Bu mashqni o'n marta bajaring"
+      },
+      "explanation": {
+        "ru": "Число можно написать и цифрой: 10 times.",
+        "uz": "Sonni raqam bilan ham yozish mumkin: 10 times."
+      }
+    },
+    {
+      "key": "a1a2-m18-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "mental"
+      ],
+      "text": "How is your mental health?",
+      "accepted": [
+        "How is your mental health",
+        "How's your mental health"
+      ],
+      "translation": {
+        "ru": "Как ваше психическое здоровье?",
+        "uz": "Ruhiy salomatligingiz qanday?"
+      }
+    },
+    {
+      "key": "a1a2-m19-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "coast"
+      ],
+      "prompt": {
+        "ru": "Многие люди живут на побережье.",
+        "uz": "Ko'p odamlar dengiz qirg'og'ida yashaydi."
+      },
+      "fragments": [
+        "many",
+        "people",
+        "live",
+        "on",
+        "the",
+        "coast"
+      ],
+      "accepted": [
+        [
+          "many",
+          "people",
+          "live",
+          "on",
+          "the",
+          "coast"
+        ]
+      ],
+      "display": "Many people live on the coast.",
+      "explanation": {
+        "ru": "На побережье — on the coast (как on the beach). People — множественное число, поэтому live без -s.",
+        "uz": "Qirg'oqda — on the coast (on the beach kabi). People — ko'plik, shuning uchun live ga -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m19-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "frog"
+      ],
+      "prompt": {
+        "ru": "Лягушки умеют прыгать очень далеко.",
+        "uz": "Baqalar juda uzoqqa sakray oladi."
+      },
+      "fragments": [
+        "frogs",
+        "can",
+        "jump",
+        "very",
+        "far"
+      ],
+      "accepted": [
+        [
+          "frogs",
+          "can",
+          "jump",
+          "very",
+          "far"
+        ]
+      ],
+      "display": "Frogs can jump very far.",
+      "explanation": {
+        "ru": "Can + глагол без to — «умеет, может»: can jump. Very far (очень далеко) стоит после глагола.",
+        "uz": "Can + fe'l (oldidan to qo'yilmaydi) — «qila oladi»: can jump. Very far (juda uzoqqa) fe'ldan keyin keladi."
+      }
+    },
+    {
+      "key": "a1a2-m19-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "branch"
+      ],
+      "prompt": {
+        "ru": "Кошка залезла на самую высокую ветку.",
+        "uz": "Mushuk eng baland shoxga chiqib oldi."
+      },
+      "fragments": [
+        "the",
+        "cat",
+        "climbed",
+        "up",
+        "to",
+        "the",
+        "highest",
+        "branch"
+      ],
+      "accepted": [
+        [
+          "the",
+          "cat",
+          "climbed",
+          "up",
+          "to",
+          "the",
+          "highest",
+          "branch"
+        ]
+      ],
+      "display": "The cat climbed up to the highest branch.",
+      "explanation": {
+        "ru": "Превосходная степень: the + прилагательное с -est: the highest branch. Climbed — прошедшее время от climb (залезать).",
+        "uz": "Orttirma daraja: the + -est qo'shimchali sifat: the highest branch. Climbed — climb (tirmashib chiqmoq) ning o'tgan zamon shakli."
+      }
+    },
+    {
+      "key": "a1a2-m19-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "nature"
+      ],
+      "prompt": {
+        "ru": "Папа научил меня любить природу.",
+        "uz": "Dadam menga tabiatni sevishni o'rgatdi."
+      },
+      "fragments": [
+        "my",
+        "father",
+        "taught",
+        "me",
+        "to",
+        "love",
+        "nature"
+      ],
+      "accepted": [
+        [
+          "my",
+          "father",
+          "taught",
+          "me",
+          "to",
+          "love",
+          "nature"
+        ]
+      ],
+      "display": "My father taught me to love nature.",
+      "explanation": {
+        "ru": "Teach somebody to do something — научить кого-то что-то делать: taught me to love. Taught — прошедшее время от teach. Nature — без артикля.",
+        "uz": "Teach somebody to do something — kimgadir biror narsani o'rgatmoq: taught me to love. Taught — teach ning o'tgan zamon shakli. Nature artiklsiz ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m19-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "drought"
+      ],
+      "prompt": {
+        "ru": "Засуха длилась три месяца.",
+        "uz": "Qurg'oqchilik uch oy davom etdi."
+      },
+      "fragments": [
+        "the",
+        "drought",
+        "lasted",
+        "three",
+        "months"
+      ],
+      "accepted": [
+        [
+          "the",
+          "drought",
+          "lasted",
+          "three",
+          "months"
+        ]
+      ],
+      "display": "The drought lasted three months.",
+      "explanation": {
+        "ru": "Last — длиться, в прошедшем времени lasted. Срок ставят сразу после глагола: lasted three months.",
+        "uz": "Last — davom etmoq, o'tgan zamonda lasted. Muddat fe'ldan keyin keladi: lasted three months."
+      }
+    },
+    {
+      "key": "a1a2-m19-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "cliff"
+      ],
+      "text": "Don't stand too close ___ the edge of the cliff.",
+      "options": [
+        "to",
+        "at",
+        "of"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Не стойте слишком близко к краю утёса.",
+        "uz": "Qoya chetiga juda yaqin turmang."
+      },
+      "explanation": {
+        "ru": "Close to — близко к чему-то: close to the edge. После close не ставят at или of.",
+        "uz": "Close to — biror narsaga yaqin: close to the edge. close dan keyin at yoki of qo'yilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m19-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "deer"
+      ],
+      "text": "We saw a ___ of deer in the forest.",
+      "options": [
+        "herd",
+        "flock",
+        "pack"
+      ],
+      "correct": [
+        "herd"
+      ],
+      "translation": {
+        "ru": "Мы увидели в лесу стадо оленей.",
+        "uz": "O'rmonda bir poda kiyik ko'rdik."
+      },
+      "explanation": {
+        "ru": "Об оленях говорят a herd — стадо (как о коровах). A flock — стая птиц или отара овец, a pack — стая волков или собак.",
+        "uz": "Kiyiklar haqida a herd — poda deyiladi (sigirlar kabi). A flock — qushlar galasi yoki qo'y suruvi, a pack — bo'rilar yoki itlar to'dasi."
+      }
+    },
+    {
+      "key": "a1a2-m19-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "bush"
+      ],
+      "text": "There are ___ bushes in front of our house.",
+      "options": [
+        "rose",
+        "roses",
+        "rosy"
+      ],
+      "correct": [
+        "rose"
+      ],
+      "translation": {
+        "ru": "Перед нашим домом растут кусты роз.",
+        "uz": "Uyimiz oldida atirgul butalari bor."
+      },
+      "explanation": {
+        "ru": "Первое существительное в паре стоит в единственном числе и работает как прилагательное: rose bushes — кусты роз (как apple trees). Rosy — «розовый, румяный».",
+        "uz": "Juftlikdagi birinchi ot birlikda turadi va sifatdek ishlaydi: rose bushes — atirgul butalari (apple trees kabi). Rosy — «pushti, qizg'ish»."
+      }
+    },
+    {
+      "key": "a1a2-m19-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "fuel"
+      ],
+      "text": "This bus runs ___ electricity, so it needs no fuel.",
+      "options": [
+        "on",
+        "with",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Этот автобус работает на электричестве, поэтому ему не нужно топливо.",
+        "uz": "Bu avtobus elektrda yuradi, shuning uchun unga yoqilg'i kerak emas."
+      },
+      "explanation": {
+        "ru": "Run on — работать на каком-то топливе или энергии: runs on electricity, runs on gas. With и by здесь не подходят.",
+        "uz": "Run on — biror yoqilg'i yoki energiyada ishlamoq: runs on electricity, runs on gas. With va by bu yerda mos emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "lightning"
+      ],
+      "text": "We saw a flash of ___ in the sky.",
+      "options": [
+        "lightning",
+        "thunder",
+        "storm"
+      ],
+      "correct": [
+        "lightning"
+      ],
+      "translation": {
+        "ru": "Мы увидели в небе вспышку молнии.",
+        "uz": "Osmonda chaqmoq chaqnaganini ko'rdik."
+      },
+      "explanation": {
+        "ru": "A flash of lightning — вспышка молнии. Гром (thunder) не видят, а слышат: a clap of thunder. Storm — гроза или буря целиком.",
+        "uz": "A flash of lightning — chaqmoq chaqnashi. Momaqaldiroq (thunder) ko'rinmaydi, eshitiladi: a clap of thunder. Storm — bo'ron, butun hodisa."
+      }
+    },
+    {
+      "key": "a1a2-m19-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "hill"
+      ],
+      "text": "We walked up the hill",
+      "accepted": [
+        "We walked up the hill"
+      ],
+      "translation": {
+        "ru": "Мы пешком поднялись на холм",
+        "uz": "Biz tepalikka piyoda chiqdik"
+      }
+    },
+    {
+      "key": "a1a2-m19-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "wolf"
+      ],
+      "text": "Wolves look like big dogs",
+      "accepted": [
+        "Wolves look like big dogs"
+      ],
+      "translation": {
+        "ru": "Волки похожи на больших собак",
+        "uz": "Bo'rilar katta itlarga o'xshaydi"
+      },
+      "explanation": {
+        "ru": "wolf — волк, wolves — волки: во множественном числе f меняется на v.",
+        "uz": "wolf — bo'ri, wolves — bo'rilar: ko'plikda f harfi v ga almashadi."
+      }
+    },
+    {
+      "key": "a1a2-m19-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "rock"
+      ],
+      "text": "This rock is too heavy to lift",
+      "accepted": [
+        "This rock is too heavy to lift",
+        "This rock's too heavy to lift"
+      ],
+      "translation": {
+        "ru": "Этот камень слишком тяжёлый, его не поднять",
+        "uz": "Bu tosh ko'tarish uchun juda og'ir"
+      },
+      "explanation": {
+        "ru": "too (слишком) звучит как two (два) и to: too heavy — слишком тяжёлый, to lift — чтобы поднять.",
+        "uz": "too (haddan tashqari) two (ikki) va to bilan bir xil eshitiladi: too heavy — juda og'ir, to lift — ko'tarish uchun."
+      }
+    },
+    {
+      "key": "a1a2-m19-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "damage"
+      ],
+      "text": "The storm damaged our roof",
+      "accepted": [
+        "The storm damaged our roof"
+      ],
+      "translation": {
+        "ru": "Буря повредила нашу крышу",
+        "uz": "Bo'ron tomimizga zarar yetkazdi"
+      }
+    },
+    {
+      "key": "a1a2-m19-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "shade"
+      ],
+      "text": "It is cool in the shade",
+      "accepted": [
+        "It is cool in the shade",
+        "It's cool in the shade"
+      ],
+      "translation": {
+        "ru": "В тени прохладно",
+        "uz": "Soyada salqin"
+      }
+    },
+    {
+      "key": "a1a2-m20-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "government"
+      ],
+      "prompt": {
+        "ru": "Правительство построило новую больницу.",
+        "uz": "Hukumat yangi kasalxona qurdi."
+      },
+      "fragments": [
+        "the",
+        "government",
+        "built",
+        "a",
+        "new",
+        "hospital"
+      ],
+      "accepted": [
+        [
+          "the",
+          "government",
+          "built",
+          "a",
+          "new",
+          "hospital"
+        ]
+      ],
+      "display": "The government built a new hospital.",
+      "explanation": {
+        "ru": "Built — прошедшее время от build (неправильный глагол). Прилагательное new стоит между a и hospital: a new hospital.",
+        "uz": "Built — build ning o'tgan zamon shakli (noto'g'ri fe'l). new sifati a bilan hospital orasida turadi: a new hospital."
+      }
+    },
+    {
+      "key": "a1a2-m20-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "orchestra"
+      ],
+      "prompt": {
+        "ru": "Моя сестра играет на скрипке в оркестре.",
+        "uz": "Opam orkestrda skripka chaladi."
+      },
+      "fragments": [
+        "my",
+        "sister",
+        "plays",
+        "the",
+        "violin",
+        "in",
+        "an",
+        "orchestra"
+      ],
+      "accepted": [
+        [
+          "my",
+          "sister",
+          "plays",
+          "the",
+          "violin",
+          "in",
+          "an",
+          "orchestra"
+        ]
+      ],
+      "display": "My sister plays the violin in an orchestra.",
+      "explanation": {
+        "ru": "С музыкальными инструментами нужен the: play the violin. Перед гласным звуком — an: an orchestra.",
+        "uz": "Musiqa asboblari bilan the kerak: play the violin. Unli tovushdan oldin an keladi: an orchestra."
+      }
+    },
+    {
+      "key": "a1a2-m20-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "poor"
+      ],
+      "prompt": {
+        "ru": "Нам следует помогать бедным людям.",
+        "uz": "Biz kambag'al odamlarga yordam berishimiz kerak."
+      },
+      "fragments": [
+        "we",
+        "should",
+        "help",
+        "poor",
+        "people"
+      ],
+      "accepted": [
+        [
+          "we",
+          "should",
+          "help",
+          "poor",
+          "people"
+        ]
+      ],
+      "display": "We should help poor people.",
+      "explanation": {
+        "ru": "Should + глагол без to — «следует, нужно»: should help. Прилагательное poor стоит перед people.",
+        "uz": "Should + fe'l (oldidan to qo'yilmaydi) — «kerak, lozim»: should help. poor sifati people dan oldin turadi."
+      }
+    },
+    {
+      "key": "a1a2-m20-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "documentary"
+      ],
+      "prompt": {
+        "ru": "Вы видели новый документальный фильм о космосе?",
+        "uz": "Koinot haqidagi yangi hujjatli filmni ko'rdingizmi?"
+      },
+      "fragments": [
+        "have",
+        "you",
+        "seen",
+        "the",
+        "new",
+        "documentary",
+        "about",
+        "space"
+      ],
+      "accepted": [
+        [
+          "have",
+          "you",
+          "seen",
+          "the",
+          "new",
+          "documentary",
+          "about",
+          "space"
+        ]
+      ],
+      "display": "Have you seen the new documentary about space?",
+      "explanation": {
+        "ru": "Present perfect в вопросе: have + you + третья форма глагола (seen). About space — «о космосе» — стоит после documentary.",
+        "uz": "Present perfect savolda: have + you + fe'lning 3-shakli (seen). About space — «koinot haqida» — documentary dan keyin keladi."
+      }
+    },
+    {
+      "key": "a1a2-m20-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "national"
+      ],
+      "prompt": {
+        "ru": "Плов — национальное блюдо Узбекистана.",
+        "uz": "Palov — O'zbekistonning milliy taomi."
+      },
+      "fragments": [
+        "plov",
+        "is",
+        "the",
+        "national",
+        "dish",
+        "of",
+        "Uzbekistan"
+      ],
+      "accepted": [
+        [
+          "plov",
+          "is",
+          "the",
+          "national",
+          "dish",
+          "of",
+          "Uzbekistan"
+        ],
+        [
+          "the",
+          "national",
+          "dish",
+          "of",
+          "Uzbekistan",
+          "is",
+          "plov"
+        ]
+      ],
+      "display": "Plov is the national dish of Uzbekistan.",
+      "explanation": {
+        "ru": "The national dish of + страна — национальное блюдо страны. Можно начать и с plov, и с the national dish: The national dish of Uzbekistan is plov.",
+        "uz": "The national dish of + mamlakat — mamlakatning milliy taomi. Gapni plov bilan ham, the national dish bilan ham boshlash mumkin: The national dish of Uzbekistan is plov."
+      }
+    },
+    {
+      "key": "a1a2-m20-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "crime"
+      ],
+      "text": "He ___ a crime and went to prison.",
+      "options": [
+        "committed",
+        "made",
+        "performed"
+      ],
+      "correct": [
+        "committed"
+      ],
+      "translation": {
+        "ru": "Он совершил преступление и попал в тюрьму.",
+        "uz": "U jinoyat sodir etdi va qamoqqa tushdi."
+      },
+      "explanation": {
+        "ru": "Commit a crime — совершить преступление. Make и perform с crime не сочетаются: perform — выступать, исполнять (perform a song).",
+        "uz": "Commit a crime — jinoyat sodir etmoq. Make va perform crime bilan ishlatilmaydi: perform — ijro etmoq (perform a song)."
+      }
+    },
+    {
+      "key": "a1a2-m20-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "culture"
+      ],
+      "text": "Uzbekistan is famous ___ its rich culture.",
+      "options": [
+        "for",
+        "with",
+        "of"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Узбекистан славится своей богатой культурой.",
+        "uz": "O'zbekiston boy madaniyati bilan mashhur."
+      },
+      "explanation": {
+        "ru": "Famous for — знаменитый чем-то: famous for its culture. With и of после famous не ставят.",
+        "uz": "Famous for — biror narsa bilan mashhur: famous for its culture. O'zbekchada «bilan» deyilsa ham, famous dan keyin with yoki of qo'yilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "war"
+      ],
+      "text": "The two countries were ___ war for five years.",
+      "options": [
+        "at",
+        "in",
+        "on"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Эти две страны воевали пять лет.",
+        "uz": "Ikki davlat besh yil davomida urushdi."
+      },
+      "explanation": {
+        "ru": "Be at war — воевать, быть в состоянии войны: предлог at и без артикля. In и on здесь не подходят.",
+        "uz": "Be at war — urushmoq, urush holatida bo'lmoq: at predlogi, artiklsiz. In va on bu yerda mos emas."
+      }
+    },
+    {
+      "key": "a1a2-m20-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "celebrity"
+      ],
+      "text": "After that TV show, she ___ a real celebrity.",
+      "options": [
+        "became",
+        "got",
+        "turned"
+      ],
+      "correct": [
+        "became"
+      ],
+      "translation": {
+        "ru": "После того телешоу она стала настоящей знаменитостью.",
+        "uz": "O'sha teleshoudan keyin u haqiqiy mashhur shaxsga aylandi."
+      },
+      "explanation": {
+        "ru": "Become + существительное — стать кем-то: became a celebrity. Get бывает с прилагательным (got famous), turn — только turn into a celebrity.",
+        "uz": "Become + ot — kimdir bo'lib qolmoq: became a celebrity. Get sifat bilan keladi (got famous), turn esa faqat turn into a celebrity shaklida."
+      }
+    },
+    {
+      "key": "a1a2-m20-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "nation"
+      ],
+      "text": "The president spoke to the ___ last night.",
+      "options": [
+        "nation",
+        "national",
+        "nature"
+      ],
+      "correct": [
+        "nation"
+      ],
+      "translation": {
+        "ru": "Вчера вечером президент выступил с обращением к нации.",
+        "uz": "Kecha kechqurun prezident xalqqa murojaat qildi."
+      },
+      "explanation": {
+        "ru": "The nation — народ страны: speak to the nation — обратиться к народу. National — прилагательное (national holiday), nature — природа.",
+        "uz": "The nation — mamlakat xalqi, millat: speak to the nation — xalqqa murojaat qilmoq. National — sifat (national holiday), nature — tabiat."
+      }
+    },
+    {
+      "key": "a1a2-m20-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "citizen"
+      ],
+      "text": "Every citizen has the right to vote",
+      "accepted": [
+        "Every citizen has the right to vote"
+      ],
+      "translation": {
+        "ru": "Каждый гражданин имеет право голосовать",
+        "uz": "Har bir fuqaro ovoz berish huquqiga ega"
+      },
+      "explanation": {
+        "ru": "right (право) звучит так же, как write (писать); здесь нужно right: the right to vote.",
+        "uz": "right (huquq) write (yozmoq) bilan bir xil eshitiladi; bu yerda right kerak: the right to vote."
+      }
+    },
+    {
+      "key": "a1a2-m20-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "tradition"
+      ],
+      "text": "We keep our family traditions",
+      "accepted": [
+        "We keep our family traditions"
+      ],
+      "translation": {
+        "ru": "Мы храним наши семейные традиции",
+        "uz": "Biz oilaviy an'analarimizni saqlaymiz"
+      }
+    },
+    {
+      "key": "a1a2-m20-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "society"
+      ],
+      "text": "Young people can change society",
+      "accepted": [
+        "Young people can change society"
+      ],
+      "translation": {
+        "ru": "Молодёжь может изменить общество",
+        "uz": "Yoshlar jamiyatni o'zgartira oladi"
+      },
+      "explanation": {
+        "ru": "society пишется с ie в середине: so-ci-e-ty. Артикль не нужен: change society.",
+        "uz": "society o'rtasida ie bilan yoziladi: so-ci-e-ty. Artikl kerak emas: change society."
+      }
+    },
+    {
+      "key": "a1a2-m20-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "headline"
+      ],
+      "text": "Did you see the headlines today?",
+      "accepted": [
+        "Did you see the headlines today"
+      ],
+      "translation": {
+        "ru": "Вы видели сегодняшние заголовки?",
+        "uz": "Bugungi sarlavhalarni ko'rdingizmi?"
+      },
+      "explanation": {
+        "ru": "headline пишется слитно: head + line.",
+        "uz": "headline qo'shib yoziladi: head + line."
+      }
+    },
+    {
+      "key": "a1a2-m20-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "pray"
+      ],
+      "text": "My grandmother prays every day",
+      "accepted": [
+        "My grandmother prays every day"
+      ],
+      "translation": {
+        "ru": "Моя бабушка молится каждый день",
+        "uz": "Buvim har kuni ibodat qiladi"
+      },
+      "explanation": {
+        "ru": "every day — «каждый день», пишется раздельно. Prays (молится) звучит так же, как praise (хвалить).",
+        "uz": "every day — «har kuni», alohida yoziladi. Prays (ibodat qiladi) praise (maqtamoq) bilan bir xil eshitiladi."
+      }
+    }
+  ]
+}
