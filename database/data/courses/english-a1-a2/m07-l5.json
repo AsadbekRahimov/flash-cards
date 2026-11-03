@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 7,
+    "title": "Работа и учёба",
+    "title_uz": "Ish va o'qish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Учимся действовать",
+    "title_uz": "Harakatlarni o'rganamiz"
+  },
+  "words": [
+    {
+      "word": "start",
+      "part_of_speech": "verb",
+      "translation": "начинать",
+      "translations": {
+        "ru": "начинать",
+        "uz": "boshlamoq"
+      },
+      "example": "Let's start the lesson.",
+      "example_translations": {
+        "ru": "Давайте начнём урок.",
+        "uz": "Keling, darsni boshlaylik."
+      }
+    },
+    {
+      "word": "stop",
+      "part_of_speech": "verb",
+      "translation": "останавливаться",
+      "translations": {
+        "ru": "останавливаться",
+        "uz": "to'xtamoq"
+      },
+      "example": "The bus stops here.",
+      "example_translations": {
+        "ru": "Автобус останавливается здесь.",
+        "uz": "Avtobus shu yerda to'xtaydi."
+      }
+    },
+    {
+      "word": "help",
+      "part_of_speech": "verb",
+      "translation": "помогать",
+      "translations": {
+        "ru": "помогать",
+        "uz": "yordam bermoq"
+      },
+      "example": "Can you help me, please?",
+      "example_translations": {
+        "ru": "Вы можете мне помочь?",
+        "uz": "Menga yordam bera olasizmi?"
+      }
+    },
+    {
+      "word": "ask",
+      "part_of_speech": "verb",
+      "translation": "спрашивать",
+      "translations": {
+        "ru": "спрашивать",
+        "uz": "so'ramoq"
+      },
+      "example": "You can ask me anything.",
+      "example_translations": {
+        "ru": "Ты можешь спросить меня о чём угодно.",
+        "uz": "Mendan xohlagan narsangni so'rashing mumkin."
+      }
+    },
+    {
+      "word": "answer",
+      "part_of_speech": "verb",
+      "translation": "отвечать",
+      "translations": {
+        "ru": "отвечать",
+        "uz": "javob bermoq"
+      },
+      "example": "Please answer my email.",
+      "example_translations": {
+        "ru": "Пожалуйста, ответьте на моё письмо.",
+        "uz": "Iltimos, xatimga javob bering."
+      }
+    },
+    {
+      "word": "write",
+      "part_of_speech": "verb",
+      "translation": "писать",
+      "translations": {
+        "ru": "писать",
+        "uz": "yozmoq"
+      },
+      "example": "I write my name here.",
+      "example_translations": {
+        "ru": "Я пишу своё имя здесь.",
+        "uz": "Men ismimni shu yerga yozaman."
+      }
+    },
+    {
+      "word": "read",
+      "part_of_speech": "verb",
+      "translation": "читать",
+      "translations": {
+        "ru": "читать",
+        "uz": "o'qimoq"
+      },
+      "example": "She reads a book every week.",
+      "example_translations": {
+        "ru": "Она читает книгу каждую неделю.",
+        "uz": "U har hafta bitta kitob o'qiydi."
+      }
+    },
+    {
+      "word": "listen",
+      "part_of_speech": "verb",
+      "translation": "слушать",
+      "translations": {
+        "ru": "слушать",
+        "uz": "tinglamoq"
+      },
+      "example": "Listen to the teacher.",
+      "example_translations": {
+        "ru": "Слушай учителя.",
+        "uz": "O'qituvchini tingla."
+      }
+    },
+    {
+      "word": "speak",
+      "part_of_speech": "verb",
+      "translation": "говорить",
+      "translations": {
+        "ru": "говорить",
+        "uz": "gapirmoq"
+      },
+      "example": "Do you speak English?",
+      "example_translations": {
+        "ru": "Ты говоришь по-английски?",
+        "uz": "Ingliz tilida gapirasanmi?"
+      }
+    },
+    {
+      "word": "understand",
+      "part_of_speech": "verb",
+      "translation": "понимать",
+      "translations": {
+        "ru": "понимать",
+        "uz": "tushunmoq"
+      },
+      "example": "I do not understand this word.",
+      "example_translations": {
+        "ru": "Я не понимаю это слово.",
+        "uz": "Men bu so'zni tushunmayman."
+      }
+    }
+  ]
+}

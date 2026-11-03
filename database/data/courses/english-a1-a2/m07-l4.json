@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 7,
+    "title": "Работа и учёба",
+    "title_uz": "Ish va o'qish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Школа и учёба",
+    "title_uz": "Maktab va o'qish"
+  },
+  "words": [
+    {
+      "word": "school",
+      "part_of_speech": "noun",
+      "translation": "школа",
+      "translations": {
+        "ru": "школа",
+        "uz": "maktab"
+      },
+      "example": "Our school is near the park.",
+      "example_translations": {
+        "ru": "Наша школа рядом с парком.",
+        "uz": "Bizning maktabimiz park yaqinida."
+      }
+    },
+    {
+      "word": "student",
+      "part_of_speech": "noun",
+      "translation": "студент, ученик",
+      "translations": {
+        "ru": "студент, ученик",
+        "uz": "talaba, o'quvchi"
+      },
+      "example": "He is a good student.",
+      "example_translations": {
+        "ru": "Он хороший студент.",
+        "uz": "U yaxshi talaba."
+      }
+    },
+    {
+      "word": "teacher",
+      "part_of_speech": "noun",
+      "translation": "учитель",
+      "translations": {
+        "ru": "учитель",
+        "uz": "o'qituvchi"
+      },
+      "example": "Our teacher is very kind.",
+      "example_translations": {
+        "ru": "Наш учитель очень добрый.",
+        "uz": "Bizning o'qituvchimiz juda mehribon."
+      }
+    },
+    {
+      "word": "class",
+      "part_of_speech": "noun",
+      "translation": "класс",
+      "translations": {
+        "ru": "класс",
+        "uz": "sinf"
+      },
+      "example": "We are in the same class.",
+      "example_translations": {
+        "ru": "Мы в одном классе.",
+        "uz": "Biz bir sinfdamiz."
+      }
+    },
+    {
+      "word": "lesson",
+      "part_of_speech": "noun",
+      "translation": "урок",
+      "translations": {
+        "ru": "урок",
+        "uz": "dars"
+      },
+      "example": "The English lesson is on Tuesday.",
+      "example_translations": {
+        "ru": "Урок английского во вторник.",
+        "uz": "Ingliz tili darsi seshanba kuni."
+      }
+    },
+    {
+      "word": "homework",
+      "part_of_speech": "noun",
+      "translation": "домашнее задание",
+      "translations": {
+        "ru": "домашнее задание",
+        "uz": "uy vazifasi"
+      },
+      "example": "I do my homework after dinner.",
+      "example_translations": {
+        "ru": "Я делаю домашнее задание после ужина.",
+        "uz": "Men uy vazifamni kechki ovqatdan keyin qilaman."
+      }
+    },
+    {
+      "word": "exam",
+      "part_of_speech": "noun",
+      "translation": "экзамен",
+      "translations": {
+        "ru": "экзамен",
+        "uz": "imtihon"
+      },
+      "example": "The exam is next week.",
+      "example_translations": {
+        "ru": "Экзамен на следующей неделе.",
+        "uz": "Imtihon keyingi hafta."
+      }
+    },
+    {
+      "word": "learn",
+      "part_of_speech": "verb",
+      "translation": "учить, выучить",
+      "translations": {
+        "ru": "учить, выучить",
+        "uz": "o'rganmoq"
+      },
+      "example": "I learn ten new words a day.",
+      "example_translations": {
+        "ru": "Я учу десять новых слов в день.",
+        "uz": "Men kuniga o'nta yangi so'z o'rganaman."
+      }
+    },
+    {
+      "word": "study",
+      "part_of_speech": "verb",
+      "translation": "учиться, изучать",
+      "translations": {
+        "ru": "учиться, изучать",
+        "uz": "o'qimoq, o'rganmoq"
+      },
+      "example": "I study English in the evening.",
+      "example_translations": {
+        "ru": "Вечером я изучаю английский.",
+        "uz": "Men kechqurun ingliz tilini o'qiyman."
+      }
+    },
+    {
+      "word": "pen",
+      "part_of_speech": "noun",
+      "translation": "ручка",
+      "translations": {
+        "ru": "ручка",
+        "uz": "ruchka"
+      },
+      "example": "Can I use your pen?",
+      "example_translations": {
+        "ru": "Можно взять твою ручку?",
+        "uz": "Ruchkangdan foydalansam bo'ladimi?"
+      }
+    }
+  ]
+}

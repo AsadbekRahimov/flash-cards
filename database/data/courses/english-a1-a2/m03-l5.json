@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 3,
+    "title": "Еда и напитки",
+    "title_uz": "Ovqat va ichimliklar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "В кафе",
+    "title_uz": "Kafeda"
+  },
+  "words": [
+    {
+      "word": "restaurant",
+      "part_of_speech": "noun",
+      "translation": "ресторан",
+      "translations": {
+        "ru": "ресторан",
+        "uz": "restoran"
+      },
+      "example": "We eat at a restaurant on Sunday.",
+      "example_translations": {
+        "ru": "По воскресеньям мы ужинаем в ресторане.",
+        "uz": "Yakshanba kuni biz restoranda ovqatlanamiz."
+      }
+    },
+    {
+      "word": "order",
+      "part_of_speech": "verb",
+      "translation": "заказывать",
+      "translations": {
+        "ru": "заказывать",
+        "uz": "buyurtma bermoq"
+      },
+      "example": "I want to order tea.",
+      "example_translations": {
+        "ru": "Я хочу заказать чай.",
+        "uz": "Men choy buyurtma bermoqchiman."
+      }
+    },
+    {
+      "word": "bill",
+      "part_of_speech": "noun",
+      "translation": "счёт",
+      "translations": {
+        "ru": "счёт",
+        "uz": "hisob"
+      },
+      "example": "The bill, please.",
+      "example_translations": {
+        "ru": "Счёт, пожалуйста.",
+        "uz": "Hisobni keltiring, iltimos."
+      }
+    },
+    {
+      "word": "hungry",
+      "part_of_speech": "adjective",
+      "translation": "голодный",
+      "translations": {
+        "ru": "голодный",
+        "uz": "och"
+      },
+      "example": "I am very hungry.",
+      "example_translations": {
+        "ru": "Я очень голоден.",
+        "uz": "Men juda ochman."
+      }
+    },
+    {
+      "word": "thirsty",
+      "part_of_speech": "adjective",
+      "translation": "испытывающий жажду",
+      "translations": {
+        "ru": "испытывающий жажду",
+        "uz": "chanqagan"
+      },
+      "example": "Are you thirsty?",
+      "example_translations": {
+        "ru": "Тебе хочется пить?",
+        "uz": "Chanqadingmi?"
+      }
+    },
+    {
+      "word": "delicious",
+      "part_of_speech": "adjective",
+      "translation": "вкусный",
+      "translations": {
+        "ru": "вкусный",
+        "uz": "mazali"
+      },
+      "example": "This soup is delicious.",
+      "example_translations": {
+        "ru": "Этот суп очень вкусный.",
+        "uz": "Bu sho'rva juda mazali."
+      }
+    },
+    {
+      "word": "sweet",
+      "part_of_speech": "adjective",
+      "translation": "сладкий",
+      "translations": {
+        "ru": "сладкий",
+        "uz": "shirin"
+      },
+      "example": "The tea is too sweet.",
+      "example_translations": {
+        "ru": "Чай слишком сладкий.",
+        "uz": "Choy juda shirin."
+      }
+    },
+    {
+      "word": "eat",
+      "part_of_speech": "verb",
+      "translation": "есть, кушать",
+      "translations": {
+        "ru": "есть, кушать",
+        "uz": "yemoq, ovqatlanmoq"
+      },
+      "example": "We eat at six o'clock.",
+      "example_translations": {
+        "ru": "Мы едим в шесть часов.",
+        "uz": "Biz soat oltida ovqatlanamiz."
+      }
+    },
+    {
+      "word": "fresh",
+      "part_of_speech": "adjective",
+      "translation": "свежий",
+      "translations": {
+        "ru": "свежий",
+        "uz": "yangi"
+      },
+      "example": "The bread is fresh.",
+      "example_translations": {
+        "ru": "Хлеб свежий.",
+        "uz": "Non yangi."
+      }
+    },
+    {
+      "word": "spicy",
+      "part_of_speech": "adjective",
+      "translation": "острый",
+      "translations": {
+        "ru": "острый",
+        "uz": "achchiq"
+      },
+      "example": "I do not like spicy food.",
+      "example_translations": {
+        "ru": "Я не люблю острую еду.",
+        "uz": "Men achchiq ovqatni yoqtirmayman."
+      }
+    }
+  ]
+}

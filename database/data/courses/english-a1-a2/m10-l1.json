@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 10,
+    "title": "Погода и природа",
+    "title_uz": "Ob-havo va tabiat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Погода",
+    "title_uz": "Ob-havo"
+  },
+  "words": [
+    {
+      "word": "weather",
+      "part_of_speech": "noun",
+      "translation": "погода",
+      "translations": {
+        "ru": "погода",
+        "uz": "ob-havo"
+      },
+      "example": "The weather is nice today.",
+      "example_translations": {
+        "ru": "Сегодня хорошая погода.",
+        "uz": "Bugun ob-havo yaxshi."
+      }
+    },
+    {
+      "word": "sun",
+      "part_of_speech": "noun",
+      "translation": "солнце",
+      "translations": {
+        "ru": "солнце",
+        "uz": "quyosh"
+      },
+      "example": "The sun is hot today.",
+      "example_translations": {
+        "ru": "Сегодня солнце жаркое.",
+        "uz": "Bugun quyosh issiq."
+      }
+    },
+    {
+      "word": "rain",
+      "part_of_speech": "noun",
+      "translation": "дождь",
+      "translations": {
+        "ru": "дождь",
+        "uz": "yomg'ir"
+      },
+      "example": "I like the rain.",
+      "example_translations": {
+        "ru": "Я люблю дождь.",
+        "uz": "Men yomg'irni yoqtiraman."
+      }
+    },
+    {
+      "word": "snow",
+      "part_of_speech": "noun",
+      "translation": "снег",
+      "translations": {
+        "ru": "снег",
+        "uz": "qor"
+      },
+      "example": "The children play in the snow.",
+      "example_translations": {
+        "ru": "Дети играют в снегу.",
+        "uz": "Bolalar qorda o'ynaydi."
+      }
+    },
+    {
+      "word": "wind",
+      "part_of_speech": "noun",
+      "translation": "ветер",
+      "translations": {
+        "ru": "ветер",
+        "uz": "shamol"
+      },
+      "example": "The wind is strong today.",
+      "example_translations": {
+        "ru": "Сегодня сильный ветер.",
+        "uz": "Bugun shamol kuchli."
+      }
+    },
+    {
+      "word": "cloud",
+      "part_of_speech": "noun",
+      "translation": "облако",
+      "translations": {
+        "ru": "облако",
+        "uz": "bulut"
+      },
+      "example": "There is a big cloud in the sky.",
+      "example_translations": {
+        "ru": "В небе большое облако.",
+        "uz": "Osmonda katta bulut bor."
+      }
+    },
+    {
+      "word": "storm",
+      "part_of_speech": "noun",
+      "translation": "буря, гроза",
+      "translations": {
+        "ru": "буря, гроза",
+        "uz": "bo'ron"
+      },
+      "example": "A storm is coming.",
+      "example_translations": {
+        "ru": "Приближается буря.",
+        "uz": "Bo'ron yaqinlashmoqda."
+      }
+    },
+    {
+      "word": "fog",
+      "part_of_speech": "noun",
+      "translation": "туман",
+      "translations": {
+        "ru": "туман",
+        "uz": "tuman"
+      },
+      "example": "There is fog on the road.",
+      "example_translations": {
+        "ru": "На дороге туман.",
+        "uz": "Yo'lda tuman bor."
+      }
+    },
+    {
+      "word": "ice",
+      "part_of_speech": "noun",
+      "translation": "лёд",
+      "translations": {
+        "ru": "лёд",
+        "uz": "muz"
+      },
+      "example": "I want water with ice.",
+      "example_translations": {
+        "ru": "Я хочу воды со льдом.",
+        "uz": "Men muzli suv xohlayman."
+      }
+    },
+    {
+      "word": "sky",
+      "part_of_speech": "noun",
+      "translation": "небо",
+      "translations": {
+        "ru": "небо",
+        "uz": "osmon"
+      },
+      "example": "Look at the sky!",
+      "example_translations": {
+        "ru": "Посмотри на небо!",
+        "uz": "Osmonga qara!"
+      }
+    }
+  ]
+}

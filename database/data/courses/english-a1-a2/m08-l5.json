@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 8,
+    "title": "Свободное время и спорт",
+    "title_uz": "Bo'sh vaqt va sport"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Что нравится",
+    "title_uz": "Nima yoqadi"
+  },
+  "words": [
+    {
+      "word": "favorite",
+      "part_of_speech": "adjective",
+      "translation": "любимый",
+      "translations": {
+        "ru": "любимый",
+        "uz": "sevimli"
+      },
+      "example": "Blue is my favorite color.",
+      "example_translations": {
+        "ru": "Синий — мой любимый цвет.",
+        "uz": "Ko'k — mening sevimli rangim."
+      }
+    },
+    {
+      "word": "boring",
+      "part_of_speech": "adjective",
+      "translation": "скучный",
+      "translations": {
+        "ru": "скучный",
+        "uz": "zerikarli"
+      },
+      "example": "This movie is boring.",
+      "example_translations": {
+        "ru": "Этот фильм скучный.",
+        "uz": "Bu film zerikarli."
+      }
+    },
+    {
+      "word": "interesting",
+      "part_of_speech": "adjective",
+      "translation": "интересный",
+      "translations": {
+        "ru": "интересный",
+        "uz": "qiziqarli"
+      },
+      "example": "Her story is very interesting.",
+      "example_translations": {
+        "ru": "Её рассказ очень интересный.",
+        "uz": "Uning hikoyasi juda qiziqarli."
+      }
+    },
+    {
+      "word": "popular",
+      "part_of_speech": "adjective",
+      "translation": "популярный",
+      "translations": {
+        "ru": "популярный",
+        "uz": "mashhur"
+      },
+      "example": "This song is very popular.",
+      "example_translations": {
+        "ru": "Эта песня очень популярна.",
+        "uz": "Bu qo'shiq juda mashhur."
+      }
+    },
+    {
+      "word": "easy",
+      "part_of_speech": "adjective",
+      "translation": "лёгкий, простой",
+      "translations": {
+        "ru": "лёгкий, простой",
+        "uz": "oson"
+      },
+      "example": "English is easy for me.",
+      "example_translations": {
+        "ru": "Английский для меня лёгкий.",
+        "uz": "Ingliz tili men uchun oson."
+      }
+    },
+    {
+      "word": "difficult",
+      "part_of_speech": "adjective",
+      "translation": "трудный",
+      "translations": {
+        "ru": "трудный",
+        "uz": "qiyin"
+      },
+      "example": "This word is difficult.",
+      "example_translations": {
+        "ru": "Это слово трудное.",
+        "uz": "Bu so'z qiyin."
+      }
+    },
+    {
+      "word": "fast",
+      "part_of_speech": "adjective",
+      "translation": "быстрый",
+      "translations": {
+        "ru": "быстрый",
+        "uz": "tez"
+      },
+      "example": "The train is very fast.",
+      "example_translations": {
+        "ru": "Поезд очень быстрый.",
+        "uz": "Poyezd juda tez."
+      }
+    },
+    {
+      "word": "slow",
+      "part_of_speech": "adjective",
+      "translation": "медленный",
+      "translations": {
+        "ru": "медленный",
+        "uz": "sekin"
+      },
+      "example": "The bus is slow today.",
+      "example_translations": {
+        "ru": "Автобус сегодня медленный.",
+        "uz": "Avtobus bugun sekin."
+      }
+    },
+    {
+      "word": "strong",
+      "part_of_speech": "adjective",
+      "translation": "сильный",
+      "translations": {
+        "ru": "сильный",
+        "uz": "kuchli"
+      },
+      "example": "My father is strong.",
+      "example_translations": {
+        "ru": "Мой папа сильный.",
+        "uz": "Dadam kuchli."
+      }
+    },
+    {
+      "word": "weak",
+      "part_of_speech": "adjective",
+      "translation": "слабый",
+      "translations": {
+        "ru": "слабый",
+        "uz": "zaif"
+      },
+      "example": "The baby is still weak.",
+      "example_translations": {
+        "ru": "Малыш ещё слабый.",
+        "uz": "Chaqaloq hali zaif."
+      }
+    }
+  ]
+}

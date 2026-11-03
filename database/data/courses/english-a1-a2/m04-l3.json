@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 4,
+    "title": "Время, дни и числа",
+    "title_uz": "Vaqt, kunlar va sonlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Календарь и частота",
+    "title_uz": "Kalendar va takrorlanish"
+  },
+  "words": [
+    {
+      "word": "month",
+      "part_of_speech": "noun",
+      "translation": "месяц",
+      "translations": {
+        "ru": "месяц",
+        "uz": "oy"
+      },
+      "example": "There are twelve months in a year.",
+      "example_translations": {
+        "ru": "В году двенадцать месяцев.",
+        "uz": "Bir yilda o'n ikki oy bor."
+      }
+    },
+    {
+      "word": "year",
+      "part_of_speech": "noun",
+      "translation": "год",
+      "translations": {
+        "ru": "год",
+        "uz": "yil"
+      },
+      "example": "This year I start school.",
+      "example_translations": {
+        "ru": "В этом году я иду в школу.",
+        "uz": "Bu yil men maktabga boraman."
+      }
+    },
+    {
+      "word": "hour",
+      "part_of_speech": "noun",
+      "translation": "час",
+      "translations": {
+        "ru": "час",
+        "uz": "soat"
+      },
+      "example": "The lesson lasts one hour.",
+      "example_translations": {
+        "ru": "Урок длится один час.",
+        "uz": "Dars bir soat davom etadi."
+      }
+    },
+    {
+      "word": "minute",
+      "part_of_speech": "noun",
+      "translation": "минута",
+      "translations": {
+        "ru": "минута",
+        "uz": "daqiqa"
+      },
+      "example": "Wait a minute, please.",
+      "example_translations": {
+        "ru": "Подожди минуту, пожалуйста.",
+        "uz": "Bir daqiqa kuting, iltimos."
+      }
+    },
+    {
+      "word": "early",
+      "part_of_speech": "adverb",
+      "translation": "рано",
+      "translations": {
+        "ru": "рано",
+        "uz": "erta"
+      },
+      "example": "I get up early on Monday.",
+      "example_translations": {
+        "ru": "В понедельник я встаю рано.",
+        "uz": "Dushanba kuni erta turaman."
+      }
+    },
+    {
+      "word": "late",
+      "part_of_speech": "adverb",
+      "translation": "поздно",
+      "translations": {
+        "ru": "поздно",
+        "uz": "kech"
+      },
+      "example": "We go to bed late.",
+      "example_translations": {
+        "ru": "Мы ложимся спать поздно.",
+        "uz": "Biz kech yotamiz."
+      }
+    },
+    {
+      "word": "always",
+      "part_of_speech": "adverb",
+      "translation": "всегда",
+      "translations": {
+        "ru": "всегда",
+        "uz": "doim"
+      },
+      "example": "She always smiles.",
+      "example_translations": {
+        "ru": "Она всегда улыбается.",
+        "uz": "U doim jilmayadi."
+      }
+    },
+    {
+      "word": "never",
+      "part_of_speech": "adverb",
+      "translation": "никогда",
+      "translations": {
+        "ru": "никогда",
+        "uz": "hech qachon"
+      },
+      "example": "I never drink coffee at night.",
+      "example_translations": {
+        "ru": "Я никогда не пью кофе ночью.",
+        "uz": "Men kechasi hech qachon qahva ichmayman."
+      }
+    },
+    {
+      "word": "often",
+      "part_of_speech": "adverb",
+      "translation": "часто",
+      "translations": {
+        "ru": "часто",
+        "uz": "tez-tez"
+      },
+      "example": "We often eat rice.",
+      "example_translations": {
+        "ru": "Мы часто едим рис.",
+        "uz": "Biz tez-tez guruch yeymiz."
+      }
+    },
+    {
+      "word": "sometimes",
+      "part_of_speech": "adverb",
+      "translation": "иногда",
+      "translations": {
+        "ru": "иногда",
+        "uz": "ba'zan"
+      },
+      "example": "Sometimes I walk to work.",
+      "example_translations": {
+        "ru": "Иногда я хожу на работу пешком.",
+        "uz": "Ba'zan ishga piyoda boraman."
+      }
+    }
+  ]
+}

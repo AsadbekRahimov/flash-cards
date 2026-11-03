@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 9,
+    "title": "Тело и здоровье",
+    "title_uz": "Tana va salomatlik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Чувства и ощущения",
+    "title_uz": "His-tuyg'ular va sezgilar"
+  },
+  "words": [
+    {
+      "word": "see",
+      "part_of_speech": "verb",
+      "translation": "видеть",
+      "translations": {
+        "ru": "видеть",
+        "uz": "ko'rmoq"
+      },
+      "example": "I can see the mountains from here.",
+      "example_translations": {
+        "ru": "Отсюда я вижу горы.",
+        "uz": "Bu yerdan tog'larni ko'ra olaman."
+      }
+    },
+    {
+      "word": "hear",
+      "part_of_speech": "verb",
+      "translation": "слышать",
+      "translations": {
+        "ru": "слышать",
+        "uz": "eshitmoq"
+      },
+      "example": "I cannot hear you.",
+      "example_translations": {
+        "ru": "Я тебя не слышу.",
+        "uz": "Seni eshitmayapman."
+      }
+    },
+    {
+      "word": "smell",
+      "part_of_speech": "verb",
+      "translation": "пахнуть",
+      "translations": {
+        "ru": "пахнуть",
+        "uz": "hid taratmoq, hidlamoq"
+      },
+      "example": "The soup smells delicious.",
+      "example_translations": {
+        "ru": "Суп вкусно пахнет.",
+        "uz": "Sho'rva mazali hid taratadi."
+      }
+    },
+    {
+      "word": "touch",
+      "part_of_speech": "verb",
+      "translation": "трогать, касаться",
+      "translations": {
+        "ru": "трогать, касаться",
+        "uz": "tegmoq"
+      },
+      "example": "Do not touch the hot cup.",
+      "example_translations": {
+        "ru": "Не трогай горячую чашку.",
+        "uz": "Issiq piyolaga tegma."
+      }
+    },
+    {
+      "word": "taste",
+      "part_of_speech": "verb",
+      "translation": "пробовать на вкус",
+      "translations": {
+        "ru": "пробовать на вкус",
+        "uz": "tatib ko'rmoq"
+      },
+      "example": "Taste the soup, please.",
+      "example_translations": {
+        "ru": "Попробуй суп, пожалуйста.",
+        "uz": "Sho'rvani tatib ko'r, iltimos."
+      }
+    },
+    {
+      "word": "feel",
+      "part_of_speech": "verb",
+      "translation": "чувствовать",
+      "translations": {
+        "ru": "чувствовать",
+        "uz": "his qilmoq"
+      },
+      "example": "I feel happy today.",
+      "example_translations": {
+        "ru": "Сегодня я чувствую себя счастливым.",
+        "uz": "Bugun o'zimni baxtli his qilyapman."
+      }
+    },
+    {
+      "word": "look",
+      "part_of_speech": "verb",
+      "translation": "смотреть",
+      "translations": {
+        "ru": "смотреть",
+        "uz": "qaramoq"
+      },
+      "example": "Look at that bird!",
+      "example_translations": {
+        "ru": "Посмотри на ту птицу!",
+        "uz": "O'sha qushga qara!"
+      }
+    },
+    {
+      "word": "hold",
+      "part_of_speech": "verb",
+      "translation": "держать",
+      "translations": {
+        "ru": "держать",
+        "uz": "ushlamoq"
+      },
+      "example": "Hold my hand.",
+      "example_translations": {
+        "ru": "Держи меня за руку.",
+        "uz": "Qo'limdan ushla."
+      }
+    },
+    {
+      "word": "carry",
+      "part_of_speech": "verb",
+      "translation": "нести",
+      "translations": {
+        "ru": "нести",
+        "uz": "ko'tarib yurmoq"
+      },
+      "example": "I carry a heavy bag.",
+      "example_translations": {
+        "ru": "Я несу тяжёлую сумку.",
+        "uz": "Men og'ir sumka ko'taraman."
+      }
+    },
+    {
+      "word": "cry",
+      "part_of_speech": "verb",
+      "translation": "плакать",
+      "translations": {
+        "ru": "плакать",
+        "uz": "yig'lamoq"
+      },
+      "example": "The baby cries at night.",
+      "example_translations": {
+        "ru": "Малыш плачет по ночам.",
+        "uz": "Chaqaloq tunda yig'laydi."
+      }
+    }
+  ]
+}

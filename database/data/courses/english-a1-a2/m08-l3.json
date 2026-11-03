@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 8,
+    "title": "Свободное время и спорт",
+    "title_uz": "Bo'sh vaqt va sport"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Отдых и праздники",
+    "title_uz": "Dam olish va bayramlar"
+  },
+  "words": [
+    {
+      "word": "holiday",
+      "part_of_speech": "noun",
+      "translation": "праздник",
+      "translations": {
+        "ru": "праздник",
+        "uz": "bayram"
+      },
+      "example": "Navruz is a big holiday.",
+      "example_translations": {
+        "ru": "Навруз — большой праздник.",
+        "uz": "Navro'z — katta bayram."
+      }
+    },
+    {
+      "word": "party",
+      "part_of_speech": "noun",
+      "translation": "вечеринка",
+      "translations": {
+        "ru": "вечеринка",
+        "uz": "ziyofat"
+      },
+      "example": "We have a party tonight.",
+      "example_translations": {
+        "ru": "Сегодня вечером у нас вечеринка.",
+        "uz": "Bugun kechqurun bizda ziyofat bor."
+      }
+    },
+    {
+      "word": "picnic",
+      "part_of_speech": "noun",
+      "translation": "пикник",
+      "translations": {
+        "ru": "пикник",
+        "uz": "piknik"
+      },
+      "example": "We have a picnic in the park.",
+      "example_translations": {
+        "ru": "У нас пикник в парке.",
+        "uz": "Biz parkda piknik qilamiz."
+      }
+    },
+    {
+      "word": "trip",
+      "part_of_speech": "noun",
+      "translation": "поездка",
+      "translations": {
+        "ru": "поездка",
+        "uz": "sayohat"
+      },
+      "example": "The trip to Bukhara is long.",
+      "example_translations": {
+        "ru": "Поездка в Бухару долгая.",
+        "uz": "Buxoroga sayohat uzoq."
+      }
+    },
+    {
+      "word": "visit",
+      "part_of_speech": "verb",
+      "translation": "посещать, навещать",
+      "translations": {
+        "ru": "посещать, навещать",
+        "uz": "tashrif buyurmoq, borib kelmoq"
+      },
+      "example": "I want to visit the museum.",
+      "example_translations": {
+        "ru": "Я хочу посетить музей.",
+        "uz": "Men muzeyga bormoqchiman."
+      }
+    },
+    {
+      "word": "relax",
+      "part_of_speech": "verb",
+      "translation": "отдыхать, расслабляться",
+      "translations": {
+        "ru": "отдыхать, расслабляться",
+        "uz": "dam olmoq"
+      },
+      "example": "I relax after work.",
+      "example_translations": {
+        "ru": "После работы я отдыхаю.",
+        "uz": "Men ishdan keyin dam olaman."
+      }
+    },
+    {
+      "word": "rest",
+      "part_of_speech": "noun",
+      "translation": "отдых",
+      "translations": {
+        "ru": "отдых",
+        "uz": "dam olish"
+      },
+      "example": "You need some rest.",
+      "example_translations": {
+        "ru": "Тебе нужен отдых.",
+        "uz": "Senga dam olish kerak."
+      }
+    },
+    {
+      "word": "invite",
+      "part_of_speech": "verb",
+      "translation": "приглашать",
+      "translations": {
+        "ru": "приглашать",
+        "uz": "taklif qilmoq"
+      },
+      "example": "I invite you to my party.",
+      "example_translations": {
+        "ru": "Я приглашаю тебя на вечеринку.",
+        "uz": "Seni ziyofatimga taklif qilaman."
+      }
+    },
+    {
+      "word": "enjoy",
+      "part_of_speech": "verb",
+      "translation": "наслаждаться",
+      "translations": {
+        "ru": "наслаждаться",
+        "uz": "rohatlanmoq"
+      },
+      "example": "Enjoy the music.",
+      "example_translations": {
+        "ru": "Наслаждайся музыкой.",
+        "uz": "Musiqadan rohatlan."
+      }
+    },
+    {
+      "word": "fun",
+      "part_of_speech": "noun",
+      "translation": "веселье",
+      "translations": {
+        "ru": "веселье",
+        "uz": "quvnoq vaqt"
+      },
+      "example": "We have fun together.",
+      "example_translations": {
+        "ru": "Нам вместе весело.",
+        "uz": "Biz birga quvnoq vaqt o'tkazamiz."
+      }
+    }
+  ]
+}

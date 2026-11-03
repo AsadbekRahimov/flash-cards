@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 3,
+    "title": "Еда и напитки",
+    "title_uz": "Ovqat va ichimliklar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Приём пищи и посуда",
+    "title_uz": "Ovqatlanish va idish-tovoq"
+  },
+  "words": [
+    {
+      "word": "breakfast",
+      "part_of_speech": "noun",
+      "translation": "завтрак",
+      "translations": {
+        "ru": "завтрак",
+        "uz": "nonushta"
+      },
+      "example": "We have breakfast at seven.",
+      "example_translations": {
+        "ru": "Мы завтракаем в семь.",
+        "uz": "Biz soat yettida nonushta qilamiz."
+      }
+    },
+    {
+      "word": "lunch",
+      "part_of_speech": "noun",
+      "translation": "обед",
+      "translations": {
+        "ru": "обед",
+        "uz": "tushlik"
+      },
+      "example": "Lunch is at one o'clock.",
+      "example_translations": {
+        "ru": "Обед в час.",
+        "uz": "Tushlik soat birda."
+      }
+    },
+    {
+      "word": "dinner",
+      "part_of_speech": "noun",
+      "translation": "ужин",
+      "translations": {
+        "ru": "ужин",
+        "uz": "kechki ovqat"
+      },
+      "example": "Dinner is ready.",
+      "example_translations": {
+        "ru": "Ужин готов.",
+        "uz": "Kechki ovqat tayyor."
+      }
+    },
+    {
+      "word": "plate",
+      "part_of_speech": "noun",
+      "translation": "тарелка",
+      "translations": {
+        "ru": "тарелка",
+        "uz": "likopcha"
+      },
+      "example": "Put the bread on the plate.",
+      "example_translations": {
+        "ru": "Положи хлеб на тарелку.",
+        "uz": "Nonni likopchaga qo'y."
+      }
+    },
+    {
+      "word": "bowl",
+      "part_of_speech": "noun",
+      "translation": "миска, пиала",
+      "translations": {
+        "ru": "миска, пиала",
+        "uz": "kosa"
+      },
+      "example": "A bowl of hot soup, please.",
+      "example_translations": {
+        "ru": "Миску горячего супа, пожалуйста.",
+        "uz": "Iltimos, bir kosa issiq sho'rva."
+      }
+    },
+    {
+      "word": "spoon",
+      "part_of_speech": "noun",
+      "translation": "ложка",
+      "translations": {
+        "ru": "ложка",
+        "uz": "qoshiq"
+      },
+      "example": "I need a spoon for the soup.",
+      "example_translations": {
+        "ru": "Мне нужна ложка для супа.",
+        "uz": "Sho'rva uchun menga qoshiq kerak."
+      }
+    },
+    {
+      "word": "fork",
+      "part_of_speech": "noun",
+      "translation": "вилка",
+      "translations": {
+        "ru": "вилка",
+        "uz": "sanchqi"
+      },
+      "example": "There is no fork on the table.",
+      "example_translations": {
+        "ru": "На столе нет вилки.",
+        "uz": "Stolda sanchqi yo'q."
+      }
+    },
+    {
+      "word": "knife",
+      "part_of_speech": "noun",
+      "translation": "нож",
+      "translations": {
+        "ru": "нож",
+        "uz": "pichoq"
+      },
+      "example": "Be careful with the knife.",
+      "example_translations": {
+        "ru": "Осторожно с ножом.",
+        "uz": "Pichoq bilan ehtiyot bo'l."
+      }
+    },
+    {
+      "word": "bottle",
+      "part_of_speech": "noun",
+      "translation": "бутылка",
+      "translations": {
+        "ru": "бутылка",
+        "uz": "shisha"
+      },
+      "example": "He has a bottle of water.",
+      "example_translations": {
+        "ru": "У него бутылка воды.",
+        "uz": "Uning bir shisha suvi bor."
+      }
+    },
+    {
+      "word": "menu",
+      "part_of_speech": "noun",
+      "translation": "меню",
+      "translations": {
+        "ru": "меню",
+        "uz": "menyu"
+      },
+      "example": "Can I see the menu?",
+      "example_translations": {
+        "ru": "Можно посмотреть меню?",
+        "uz": "Menyuni ko'rsam bo'ladimi?"
+      }
+    }
+  ]
+}

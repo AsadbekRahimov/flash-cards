@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 6,
+    "title": "Покупки и одежда",
+    "title_uz": "Xaridlar va kiyim"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "В магазине",
+    "title_uz": "Do'konda"
+  },
+  "words": [
+    {
+      "word": "want",
+      "part_of_speech": "verb",
+      "translation": "хотеть",
+      "translations": {
+        "ru": "хотеть",
+        "uz": "xohlamoq"
+      },
+      "example": "I want a cup of tea.",
+      "example_translations": {
+        "ru": "Я хочу чашку чая.",
+        "uz": "Men bir piyola choy xohlayman."
+      }
+    },
+    {
+      "word": "need",
+      "part_of_speech": "verb",
+      "translation": "нуждаться, быть нужным",
+      "translations": {
+        "ru": "нуждаться, быть нужным",
+        "uz": "kerak bo'lmoq"
+      },
+      "example": "I need a new jacket.",
+      "example_translations": {
+        "ru": "Мне нужна новая куртка.",
+        "uz": "Menga yangi kurtka kerak."
+      }
+    },
+    {
+      "word": "like",
+      "part_of_speech": "verb",
+      "translation": "любить, нравиться",
+      "translations": {
+        "ru": "любить, нравиться",
+        "uz": "yoqtirmoq"
+      },
+      "example": "I like this blue shirt.",
+      "example_translations": {
+        "ru": "Мне нравится эта синяя рубашка.",
+        "uz": "Menga bu ko'k ko'ylak yoqadi."
+      }
+    },
+    {
+      "word": "take",
+      "part_of_speech": "verb",
+      "translation": "брать",
+      "translations": {
+        "ru": "брать",
+        "uz": "olmoq"
+      },
+      "example": "I take this one.",
+      "example_translations": {
+        "ru": "Я беру этот.",
+        "uz": "Men buni olaman."
+      }
+    },
+    {
+      "word": "give",
+      "part_of_speech": "verb",
+      "translation": "давать",
+      "translations": {
+        "ru": "давать",
+        "uz": "bermoq"
+      },
+      "example": "Please give me the bill.",
+      "example_translations": {
+        "ru": "Пожалуйста, дайте мне счёт.",
+        "uz": "Iltimos, menga hisobni bering."
+      }
+    },
+    {
+      "word": "show",
+      "part_of_speech": "verb",
+      "translation": "показывать",
+      "translations": {
+        "ru": "показывать",
+        "uz": "ko'rsatmoq"
+      },
+      "example": "Can you show me that bag?",
+      "example_translations": {
+        "ru": "Можете показать мне ту сумку?",
+        "uz": "Menga o'sha sumkani ko'rsata olasizmi?"
+      }
+    },
+    {
+      "word": "try",
+      "part_of_speech": "verb",
+      "translation": "пробовать, примерять",
+      "translations": {
+        "ru": "пробовать, примерять",
+        "uz": "sinab ko'rmoq"
+      },
+      "example": "Can I try this jacket?",
+      "example_translations": {
+        "ru": "Можно примерить эту куртку?",
+        "uz": "Bu kurtkani kiyib ko'rsam bo'ladimi?"
+      }
+    },
+    {
+      "word": "wear",
+      "part_of_speech": "verb",
+      "translation": "носить одежду",
+      "translations": {
+        "ru": "носить одежду",
+        "uz": "kiymoq"
+      },
+      "example": "She wears a green dress.",
+      "example_translations": {
+        "ru": "Она носит зелёное платье.",
+        "uz": "U yashil libos kiyadi."
+      }
+    },
+    {
+      "word": "size",
+      "part_of_speech": "noun",
+      "translation": "размер",
+      "translations": {
+        "ru": "размер",
+        "uz": "o'lcham"
+      },
+      "example": "What size are your shoes?",
+      "example_translations": {
+        "ru": "Какой у тебя размер обуви?",
+        "uz": "Poyabzal o'lchamingiz qanday?"
+      }
+    },
+    {
+      "word": "gift",
+      "part_of_speech": "noun",
+      "translation": "подарок",
+      "translations": {
+        "ru": "подарок",
+        "uz": "sovg'a"
+      },
+      "example": "This is a gift for my mother.",
+      "example_translations": {
+        "ru": "Это подарок для моей мамы.",
+        "uz": "Bu onam uchun sovg'a."
+      }
+    }
+  ]
+}

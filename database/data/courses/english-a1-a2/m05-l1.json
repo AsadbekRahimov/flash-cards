@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 5,
+    "title": "Город и транспорт",
+    "title_uz": "Shahar va transport"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Город",
+    "title_uz": "Shahar"
+  },
+  "words": [
+    {
+      "word": "city",
+      "part_of_speech": "noun",
+      "translation": "город",
+      "translations": {
+        "ru": "город",
+        "uz": "shahar"
+      },
+      "example": "Tashkent is a big city.",
+      "example_translations": {
+        "ru": "Ташкент — большой город.",
+        "uz": "Toshkent — katta shahar."
+      }
+    },
+    {
+      "word": "town",
+      "part_of_speech": "noun",
+      "translation": "городок",
+      "translations": {
+        "ru": "городок",
+        "uz": "shaharcha"
+      },
+      "example": "My town is small and quiet.",
+      "example_translations": {
+        "ru": "Мой городок маленький и тихий.",
+        "uz": "Mening shaharchamiz kichik va sokin."
+      }
+    },
+    {
+      "word": "street",
+      "part_of_speech": "noun",
+      "translation": "улица",
+      "translations": {
+        "ru": "улица",
+        "uz": "ko'cha"
+      },
+      "example": "Our house is on this street.",
+      "example_translations": {
+        "ru": "Наш дом на этой улице.",
+        "uz": "Bizning uyimiz shu ko'chada."
+      }
+    },
+    {
+      "word": "road",
+      "part_of_speech": "noun",
+      "translation": "дорога",
+      "translations": {
+        "ru": "дорога",
+        "uz": "yo'l"
+      },
+      "example": "The road is long.",
+      "example_translations": {
+        "ru": "Дорога длинная.",
+        "uz": "Yo'l uzun."
+      }
+    },
+    {
+      "word": "building",
+      "part_of_speech": "noun",
+      "translation": "здание",
+      "translations": {
+        "ru": "здание",
+        "uz": "bino"
+      },
+      "example": "That building is a school.",
+      "example_translations": {
+        "ru": "То здание — школа.",
+        "uz": "U bino — maktab."
+      }
+    },
+    {
+      "word": "market",
+      "part_of_speech": "noun",
+      "translation": "рынок",
+      "translations": {
+        "ru": "рынок",
+        "uz": "bozor"
+      },
+      "example": "We buy fruit at the market.",
+      "example_translations": {
+        "ru": "Мы покупаем фрукты на рынке.",
+        "uz": "Biz bozordan meva sotib olamiz."
+      }
+    },
+    {
+      "word": "bank",
+      "part_of_speech": "noun",
+      "translation": "банк",
+      "translations": {
+        "ru": "банк",
+        "uz": "bank"
+      },
+      "example": "The bank opens at nine.",
+      "example_translations": {
+        "ru": "Банк открывается в девять.",
+        "uz": "Bank soat to'qqizda ochiladi."
+      }
+    },
+    {
+      "word": "hospital",
+      "part_of_speech": "noun",
+      "translation": "больница",
+      "translations": {
+        "ru": "больница",
+        "uz": "kasalxona"
+      },
+      "example": "My aunt works at the hospital.",
+      "example_translations": {
+        "ru": "Моя тётя работает в больнице.",
+        "uz": "Xolam kasalxonada ishlaydi."
+      }
+    },
+    {
+      "word": "park",
+      "part_of_speech": "noun",
+      "translation": "парк",
+      "translations": {
+        "ru": "парк",
+        "uz": "park"
+      },
+      "example": "We walk in the park.",
+      "example_translations": {
+        "ru": "Мы гуляем в парке.",
+        "uz": "Biz parkda sayr qilamiz."
+      }
+    },
+    {
+      "word": "bridge",
+      "part_of_speech": "noun",
+      "translation": "мост",
+      "translations": {
+        "ru": "мост",
+        "uz": "ko'prik"
+      },
+      "example": "The bridge is old.",
+      "example_translations": {
+        "ru": "Мост старый.",
+        "uz": "Ko'prik eski."
+      }
+    }
+  ]
+}

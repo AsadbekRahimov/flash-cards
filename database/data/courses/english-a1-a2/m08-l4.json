@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 8,
+    "title": "Свободное время и спорт",
+    "title_uz": "Bo'sh vaqt va sport"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Медиа",
+    "title_uz": "Ommaviy axborot vositalari"
+  },
+  "words": [
+    {
+      "word": "television",
+      "part_of_speech": "noun",
+      "translation": "телевизор",
+      "translations": {
+        "ru": "телевизор",
+        "uz": "televizor"
+      },
+      "example": "We watch television in the evening.",
+      "example_translations": {
+        "ru": "Вечером мы смотрим телевизор.",
+        "uz": "Biz kechqurun televizor ko'ramiz."
+      }
+    },
+    {
+      "word": "radio",
+      "part_of_speech": "noun",
+      "translation": "радио",
+      "translations": {
+        "ru": "радио",
+        "uz": "radio"
+      },
+      "example": "Dad listens to the radio.",
+      "example_translations": {
+        "ru": "Папа слушает радио.",
+        "uz": "Dadam radio tinglaydi."
+      }
+    },
+    {
+      "word": "newspaper",
+      "part_of_speech": "noun",
+      "translation": "газета",
+      "translations": {
+        "ru": "газета",
+        "uz": "gazeta"
+      },
+      "example": "He reads a newspaper every morning.",
+      "example_translations": {
+        "ru": "Он каждое утро читает газету.",
+        "uz": "U har ertalab gazeta o'qiydi."
+      }
+    },
+    {
+      "word": "magazine",
+      "part_of_speech": "noun",
+      "translation": "журнал",
+      "translations": {
+        "ru": "журнал",
+        "uz": "jurnal"
+      },
+      "example": "This magazine is about sport.",
+      "example_translations": {
+        "ru": "Этот журнал о спорте.",
+        "uz": "Bu jurnal sport haqida."
+      }
+    },
+    {
+      "word": "story",
+      "part_of_speech": "noun",
+      "translation": "рассказ, история",
+      "translations": {
+        "ru": "рассказ, история",
+        "uz": "hikoya"
+      },
+      "example": "I read a short story.",
+      "example_translations": {
+        "ru": "Я читаю короткий рассказ.",
+        "uz": "Men qisqa hikoya o'qiyman."
+      }
+    },
+    {
+      "word": "video",
+      "part_of_speech": "noun",
+      "translation": "видео",
+      "translations": {
+        "ru": "видео",
+        "uz": "video"
+      },
+      "example": "We watch a funny video.",
+      "example_translations": {
+        "ru": "Мы смотрим смешное видео.",
+        "uz": "Biz kulgili video ko'ramiz."
+      }
+    },
+    {
+      "word": "picture",
+      "part_of_speech": "noun",
+      "translation": "картина, рисунок",
+      "translations": {
+        "ru": "картина, рисунок",
+        "uz": "rasm"
+      },
+      "example": "I like this picture.",
+      "example_translations": {
+        "ru": "Мне нравится эта картина.",
+        "uz": "Menga bu rasm yoqadi."
+      }
+    },
+    {
+      "word": "watch",
+      "part_of_speech": "verb",
+      "translation": "смотреть",
+      "translations": {
+        "ru": "смотреть",
+        "uz": "tomosha qilmoq"
+      },
+      "example": "I watch a movie every Friday.",
+      "example_translations": {
+        "ru": "Каждую пятницу я смотрю фильм.",
+        "uz": "Men har juma kuni film tomosha qilaman."
+      }
+    },
+    {
+      "word": "play",
+      "part_of_speech": "verb",
+      "translation": "играть",
+      "translations": {
+        "ru": "играть",
+        "uz": "o'ynamoq"
+      },
+      "example": "The children play in the garden.",
+      "example_translations": {
+        "ru": "Дети играют в саду.",
+        "uz": "Bolalar bog'da o'ynaydi."
+      }
+    },
+    {
+      "word": "sing",
+      "part_of_speech": "verb",
+      "translation": "петь",
+      "translations": {
+        "ru": "петь",
+        "uz": "kuylamoq, qo'shiq aytmoq"
+      },
+      "example": "She sings very well.",
+      "example_translations": {
+        "ru": "Она очень хорошо поёт.",
+        "uz": "U juda yaxshi kuylaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 5,
+    "title": "Город и транспорт",
+    "title_uz": "Shahar va transport"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Как пройти",
+    "title_uz": "Yo'lni so'rash"
+  },
+  "words": [
+    {
+      "word": "left",
+      "part_of_speech": "adverb",
+      "translation": "налево, левый",
+      "translations": {
+        "ru": "налево, левый",
+        "uz": "chapga, chap"
+      },
+      "example": "Turn left at the bank.",
+      "example_translations": {
+        "ru": "Поверните налево у банка.",
+        "uz": "Bankdan chapga buring."
+      }
+    },
+    {
+      "word": "right",
+      "part_of_speech": "adverb",
+      "translation": "направо, правый",
+      "translations": {
+        "ru": "направо, правый",
+        "uz": "o'ngga, o'ng"
+      },
+      "example": "The shop is on the right.",
+      "example_translations": {
+        "ru": "Магазин справа.",
+        "uz": "Do'kon o'ng tomonda."
+      }
+    },
+    {
+      "word": "straight",
+      "part_of_speech": "adverb",
+      "translation": "прямо",
+      "translations": {
+        "ru": "прямо",
+        "uz": "to'g'ri"
+      },
+      "example": "Go straight for two minutes.",
+      "example_translations": {
+        "ru": "Идите прямо две минуты.",
+        "uz": "Ikki daqiqa to'g'riga yuring."
+      }
+    },
+    {
+      "word": "near",
+      "part_of_speech": "preposition",
+      "translation": "рядом с, около",
+      "translations": {
+        "ru": "рядом с, около",
+        "uz": "yaqinida"
+      },
+      "example": "The park is near my house.",
+      "example_translations": {
+        "ru": "Парк рядом с моим домом.",
+        "uz": "Park mening uyim yaqinida."
+      }
+    },
+    {
+      "word": "far",
+      "part_of_speech": "adverb",
+      "translation": "далеко",
+      "translations": {
+        "ru": "далеко",
+        "uz": "uzoq"
+      },
+      "example": "Is the airport far?",
+      "example_translations": {
+        "ru": "Аэропорт далеко?",
+        "uz": "Aeroport uzoqmi?"
+      }
+    },
+    {
+      "word": "corner",
+      "part_of_speech": "noun",
+      "translation": "угол",
+      "translations": {
+        "ru": "угол",
+        "uz": "burchak"
+      },
+      "example": "The shop is on the corner.",
+      "example_translations": {
+        "ru": "Магазин на углу.",
+        "uz": "Do'kon burchakda."
+      }
+    },
+    {
+      "word": "map",
+      "part_of_speech": "noun",
+      "translation": "карта местности",
+      "translations": {
+        "ru": "карта местности",
+        "uz": "xarita"
+      },
+      "example": "Look at the map.",
+      "example_translations": {
+        "ru": "Посмотри на карту.",
+        "uz": "Xaritaga qara."
+      }
+    },
+    {
+      "word": "between",
+      "part_of_speech": "preposition",
+      "translation": "между",
+      "translations": {
+        "ru": "между",
+        "uz": "orasida"
+      },
+      "example": "The bank is between two shops.",
+      "example_translations": {
+        "ru": "Банк находится между двумя магазинами.",
+        "uz": "Bank ikki do'kon orasida."
+      }
+    },
+    {
+      "word": "behind",
+      "part_of_speech": "preposition",
+      "translation": "позади, за",
+      "translations": {
+        "ru": "позади, за",
+        "uz": "orqasida"
+      },
+      "example": "The park is behind the hospital.",
+      "example_translations": {
+        "ru": "Парк находится за больницей.",
+        "uz": "Park kasalxona orqasida."
+      }
+    },
+    {
+      "word": "north",
+      "part_of_speech": "noun",
+      "translation": "север",
+      "translations": {
+        "ru": "север",
+        "uz": "shimol"
+      },
+      "example": "The wind comes from the north.",
+      "example_translations": {
+        "ru": "Ветер дует с севера.",
+        "uz": "Shamol shimoldan esadi."
+      }
+    }
+  ]
+}

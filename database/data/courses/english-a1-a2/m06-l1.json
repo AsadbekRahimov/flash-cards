@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 6,
+    "title": "Покупки и одежда",
+    "title_uz": "Xaridlar va kiyim"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Покупки",
+    "title_uz": "Xarid qilish"
+  },
+  "words": [
+    {
+      "word": "buy",
+      "part_of_speech": "verb",
+      "translation": "покупать",
+      "translations": {
+        "ru": "покупать",
+        "uz": "sotib olmoq"
+      },
+      "example": "I want to buy bread.",
+      "example_translations": {
+        "ru": "Я хочу купить хлеб.",
+        "uz": "Men non sotib olmoqchiman."
+      }
+    },
+    {
+      "word": "sell",
+      "part_of_speech": "verb",
+      "translation": "продавать",
+      "translations": {
+        "ru": "продавать",
+        "uz": "sotmoq"
+      },
+      "example": "They sell fruit and vegetables.",
+      "example_translations": {
+        "ru": "Они продают фрукты и овощи.",
+        "uz": "Ular meva va sabzavot sotadi."
+      }
+    },
+    {
+      "word": "shop",
+      "part_of_speech": "noun",
+      "translation": "магазин",
+      "translations": {
+        "ru": "магазин",
+        "uz": "do'kon"
+      },
+      "example": "There is a small shop near my house.",
+      "example_translations": {
+        "ru": "Рядом с моим домом есть маленький магазин.",
+        "uz": "Uyim yonida kichkina do'kon bor."
+      }
+    },
+    {
+      "word": "price",
+      "part_of_speech": "noun",
+      "translation": "цена",
+      "translations": {
+        "ru": "цена",
+        "uz": "narx"
+      },
+      "example": "The price is too high.",
+      "example_translations": {
+        "ru": "Цена слишком высокая.",
+        "uz": "Narx juda baland."
+      }
+    },
+    {
+      "word": "money",
+      "part_of_speech": "noun",
+      "translation": "деньги",
+      "translations": {
+        "ru": "деньги",
+        "uz": "pul"
+      },
+      "example": "I have no money today.",
+      "example_translations": {
+        "ru": "У меня сегодня нет денег.",
+        "uz": "Bugun menda pul yo'q."
+      }
+    },
+    {
+      "word": "pay",
+      "part_of_speech": "verb",
+      "translation": "платить",
+      "translations": {
+        "ru": "платить",
+        "uz": "to'lamoq"
+      },
+      "example": "I pay for the tea.",
+      "example_translations": {
+        "ru": "Я плачу за чай.",
+        "uz": "Men choy uchun to'layman."
+      }
+    },
+    {
+      "word": "cost",
+      "part_of_speech": "verb",
+      "translation": "стоить",
+      "translations": {
+        "ru": "стоить",
+        "uz": "turmoq"
+      },
+      "example": "How much does this bag cost?",
+      "example_translations": {
+        "ru": "Сколько стоит эта сумка?",
+        "uz": "Bu sumka qancha turadi?"
+      }
+    },
+    {
+      "word": "cheap",
+      "part_of_speech": "adjective",
+      "translation": "дешёвый",
+      "translations": {
+        "ru": "дешёвый",
+        "uz": "arzon"
+      },
+      "example": "This shirt is cheap.",
+      "example_translations": {
+        "ru": "Эта рубашка дешёвая.",
+        "uz": "Bu ko'ylak arzon."
+      }
+    },
+    {
+      "word": "expensive",
+      "part_of_speech": "adjective",
+      "translation": "дорогой",
+      "translations": {
+        "ru": "дорогой",
+        "uz": "qimmat"
+      },
+      "example": "The hotel is expensive.",
+      "example_translations": {
+        "ru": "Отель дорогой.",
+        "uz": "Mehmonxona qimmat."
+      }
+    },
+    {
+      "word": "bag",
+      "part_of_speech": "noun",
+      "translation": "сумка",
+      "translations": {
+        "ru": "сумка",
+        "uz": "sumka"
+      },
+      "example": "My bag is very heavy.",
+      "example_translations": {
+        "ru": "Моя сумка очень тяжёлая.",
+        "uz": "Mening sumkam juda og'ir."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и люди",
+    "title_uz": "Tanishuv va odamlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Люди вокруг",
+    "title_uz": "Atrofdagi odamlar"
+  },
+  "words": [
+    {
+      "word": "man",
+      "part_of_speech": "noun",
+      "translation": "мужчина",
+      "translations": {
+        "ru": "мужчина",
+        "uz": "erkak"
+      },
+      "example": "That man is my uncle.",
+      "example_translations": {
+        "ru": "Тот мужчина — мой дядя.",
+        "uz": "U erkak mening amakim."
+      }
+    },
+    {
+      "word": "woman",
+      "part_of_speech": "noun",
+      "translation": "женщина",
+      "translations": {
+        "ru": "женщина",
+        "uz": "ayol"
+      },
+      "example": "The woman works in a bank.",
+      "example_translations": {
+        "ru": "Женщина работает в банке.",
+        "uz": "Ayol bankda ishlaydi."
+      }
+    },
+    {
+      "word": "boy",
+      "part_of_speech": "noun",
+      "translation": "мальчик",
+      "translations": {
+        "ru": "мальчик",
+        "uz": "o'g'il bola"
+      },
+      "example": "The boy plays with a ball.",
+      "example_translations": {
+        "ru": "Мальчик играет с мячом.",
+        "uz": "O'g'il bola to'p bilan o'ynaydi."
+      }
+    },
+    {
+      "word": "girl",
+      "part_of_speech": "noun",
+      "translation": "девочка",
+      "translations": {
+        "ru": "девочка",
+        "uz": "qiz bola"
+      },
+      "example": "The girl has a red bag.",
+      "example_translations": {
+        "ru": "У девочки красная сумка.",
+        "uz": "Qiz bolaning qizil sumkasi bor."
+      }
+    },
+    {
+      "word": "person",
+      "part_of_speech": "noun",
+      "translation": "человек",
+      "translations": {
+        "ru": "человек",
+        "uz": "odam, shaxs"
+      },
+      "example": "She is a very kind person.",
+      "example_translations": {
+        "ru": "Она очень добрый человек.",
+        "uz": "U juda mehribon odam."
+      }
+    },
+    {
+      "word": "people",
+      "part_of_speech": "noun",
+      "translation": "люди",
+      "translations": {
+        "ru": "люди",
+        "uz": "odamlar"
+      },
+      "example": "Many people live in this city.",
+      "example_translations": {
+        "ru": "В этом городе живёт много людей.",
+        "uz": "Bu shaharda ko'p odamlar yashaydi."
+      }
+    },
+    {
+      "word": "friend",
+      "part_of_speech": "noun",
+      "translation": "друг",
+      "translations": {
+        "ru": "друг",
+        "uz": "do'st"
+      },
+      "example": "My friend lives near here.",
+      "example_translations": {
+        "ru": "Мой друг живёт недалеко отсюда.",
+        "uz": "Do'stim shu yaqin atrofda yashaydi."
+      }
+    },
+    {
+      "word": "neighbor",
+      "part_of_speech": "noun",
+      "translation": "сосед",
+      "translations": {
+        "ru": "сосед",
+        "uz": "qo'shni"
+      },
+      "example": "Our neighbor has a big dog.",
+      "example_translations": {
+        "ru": "У нашего соседа большая собака.",
+        "uz": "Qo'shnimizning katta iti bor."
+      }
+    },
+    {
+      "word": "stranger",
+      "part_of_speech": "noun",
+      "translation": "незнакомец",
+      "translations": {
+        "ru": "незнакомец",
+        "uz": "notanish odam"
+      },
+      "example": "Do not talk to a stranger.",
+      "example_translations": {
+        "ru": "Не разговаривай с незнакомцем.",
+        "uz": "Notanish odam bilan gaplashma."
+      }
+    },
+    {
+      "word": "guest",
+      "part_of_speech": "noun",
+      "translation": "гость",
+      "translations": {
+        "ru": "гость",
+        "uz": "mehmon"
+      },
+      "example": "We have a guest today.",
+      "example_translations": {
+        "ru": "Сегодня у нас гость.",
+        "uz": "Bugun bizda mehmon bor."
+      }
+    }
+  ]
+}

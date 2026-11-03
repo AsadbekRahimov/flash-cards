@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 5,
+    "title": "Город и транспорт",
+    "title_uz": "Shahar va transport"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Движение",
+    "title_uz": "Harakat"
+  },
+  "words": [
+    {
+      "word": "go",
+      "part_of_speech": "verb",
+      "translation": "идти, ехать",
+      "translations": {
+        "ru": "идти, ехать",
+        "uz": "bormoq"
+      },
+      "example": "I go to school every day.",
+      "example_translations": {
+        "ru": "Я хожу в школу каждый день.",
+        "uz": "Men har kuni maktabga boraman."
+      }
+    },
+    {
+      "word": "come",
+      "part_of_speech": "verb",
+      "translation": "приходить",
+      "translations": {
+        "ru": "приходить",
+        "uz": "kelmoq"
+      },
+      "example": "Come to my house on Sunday.",
+      "example_translations": {
+        "ru": "Приходи ко мне домой в воскресенье.",
+        "uz": "Yakshanba kuni uyimga kel."
+      }
+    },
+    {
+      "word": "walk",
+      "part_of_speech": "verb",
+      "translation": "ходить пешком",
+      "translations": {
+        "ru": "ходить пешком",
+        "uz": "piyoda yurmoq"
+      },
+      "example": "I walk to school.",
+      "example_translations": {
+        "ru": "Я хожу в школу пешком.",
+        "uz": "Men maktabga piyoda boraman."
+      }
+    },
+    {
+      "word": "run",
+      "part_of_speech": "verb",
+      "translation": "бегать",
+      "translations": {
+        "ru": "бегать",
+        "uz": "yugurmoq"
+      },
+      "example": "He runs in the park.",
+      "example_translations": {
+        "ru": "Он бегает в парке.",
+        "uz": "U parkda yuguradi."
+      }
+    },
+    {
+      "word": "turn",
+      "part_of_speech": "verb",
+      "translation": "поворачивать",
+      "translations": {
+        "ru": "поворачивать",
+        "uz": "burilmoq"
+      },
+      "example": "Turn right at the corner.",
+      "example_translations": {
+        "ru": "На углу поверните направо.",
+        "uz": "Burchakdan o'ngga buring."
+      }
+    },
+    {
+      "word": "cross",
+      "part_of_speech": "verb",
+      "translation": "переходить",
+      "translations": {
+        "ru": "переходить",
+        "uz": "kesib o'tmoq"
+      },
+      "example": "Cross the road carefully.",
+      "example_translations": {
+        "ru": "Переходи дорогу осторожно.",
+        "uz": "Yo'lni ehtiyotkorlik bilan kesib o't."
+      }
+    },
+    {
+      "word": "arrive",
+      "part_of_speech": "verb",
+      "translation": "прибывать, приезжать",
+      "translations": {
+        "ru": "прибывать, приезжать",
+        "uz": "yetib kelmoq"
+      },
+      "example": "We arrive in Bukhara at six.",
+      "example_translations": {
+        "ru": "Мы приезжаем в Бухару в шесть.",
+        "uz": "Biz soat oltida Buxoroga yetib boramiz."
+      }
+    },
+    {
+      "word": "leave",
+      "part_of_speech": "verb",
+      "translation": "уходить, уезжать",
+      "translations": {
+        "ru": "уходить, уезжать",
+        "uz": "ketmoq"
+      },
+      "example": "I leave home at seven.",
+      "example_translations": {
+        "ru": "Я ухожу из дома в семь.",
+        "uz": "Men soat yettida uydan chiqib ketaman."
+      }
+    },
+    {
+      "word": "drive",
+      "part_of_speech": "verb",
+      "translation": "водить машину",
+      "translations": {
+        "ru": "водить машину",
+        "uz": "haydamoq"
+      },
+      "example": "My uncle drives a taxi.",
+      "example_translations": {
+        "ru": "Мой дядя водит такси.",
+        "uz": "Amakim taksi haydaydi."
+      }
+    },
+    {
+      "word": "ride",
+      "part_of_speech": "verb",
+      "translation": "ездить, кататься",
+      "translations": {
+        "ru": "ездить, кататься",
+        "uz": "minib yurmoq"
+      },
+      "example": "I ride a bike in the park.",
+      "example_translations": {
+        "ru": "Я катаюсь на велосипеде в парке.",
+        "uz": "Men parkda velosiped minaman."
+      }
+    }
+  ]
+}

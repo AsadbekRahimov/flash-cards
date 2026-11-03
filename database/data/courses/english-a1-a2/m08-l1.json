@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 8,
+    "title": "Свободное время и спорт",
+    "title_uz": "Bo'sh vaqt va sport"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Хобби",
+    "title_uz": "Sevimli mashg'ulotlar"
+  },
+  "words": [
+    {
+      "word": "hobby",
+      "part_of_speech": "noun",
+      "translation": "хобби",
+      "translations": {
+        "ru": "хобби",
+        "uz": "sevimli mashg'ulot"
+      },
+      "example": "My hobby is music.",
+      "example_translations": {
+        "ru": "Моё хобби — музыка.",
+        "uz": "Mening sevimli mashg'ulotim — musiqa."
+      }
+    },
+    {
+      "word": "music",
+      "part_of_speech": "noun",
+      "translation": "музыка",
+      "translations": {
+        "ru": "музыка",
+        "uz": "musiqa"
+      },
+      "example": "I listen to music every day.",
+      "example_translations": {
+        "ru": "Я слушаю музыку каждый день.",
+        "uz": "Men har kuni musiqa tinglayman."
+      }
+    },
+    {
+      "word": "movie",
+      "part_of_speech": "noun",
+      "translation": "фильм",
+      "translations": {
+        "ru": "фильм",
+        "uz": "film"
+      },
+      "example": "We watch a movie on Saturday.",
+      "example_translations": {
+        "ru": "В субботу мы смотрим фильм.",
+        "uz": "Biz shanba kuni film ko'ramiz."
+      }
+    },
+    {
+      "word": "game",
+      "part_of_speech": "noun",
+      "translation": "игра",
+      "translations": {
+        "ru": "игра",
+        "uz": "o'yin"
+      },
+      "example": "This game is fun.",
+      "example_translations": {
+        "ru": "Эта игра весёлая.",
+        "uz": "Bu o'yin qiziq."
+      }
+    },
+    {
+      "word": "book",
+      "part_of_speech": "noun",
+      "translation": "книга",
+      "translations": {
+        "ru": "книга",
+        "uz": "kitob"
+      },
+      "example": "This book is very interesting.",
+      "example_translations": {
+        "ru": "Эта книга очень интересная.",
+        "uz": "Bu kitob juda qiziqarli."
+      }
+    },
+    {
+      "word": "photo",
+      "part_of_speech": "noun",
+      "translation": "фотография",
+      "translations": {
+        "ru": "фотография",
+        "uz": "surat, foto"
+      },
+      "example": "Show me your photo.",
+      "example_translations": {
+        "ru": "Покажи мне своё фото.",
+        "uz": "Menga suratingni ko'rsat."
+      }
+    },
+    {
+      "word": "guitar",
+      "part_of_speech": "noun",
+      "translation": "гитара",
+      "translations": {
+        "ru": "гитара",
+        "uz": "gitara"
+      },
+      "example": "He plays the guitar well.",
+      "example_translations": {
+        "ru": "Он хорошо играет на гитаре.",
+        "uz": "U gitarada yaxshi chaladi."
+      }
+    },
+    {
+      "word": "song",
+      "part_of_speech": "noun",
+      "translation": "песня",
+      "translations": {
+        "ru": "песня",
+        "uz": "qo'shiq"
+      },
+      "example": "This is my favorite song.",
+      "example_translations": {
+        "ru": "Это моя любимая песня.",
+        "uz": "Bu mening sevimli qo'shig'im."
+      }
+    },
+    {
+      "word": "dance",
+      "part_of_speech": "verb",
+      "translation": "танцевать",
+      "translations": {
+        "ru": "танцевать",
+        "uz": "raqsga tushmoq"
+      },
+      "example": "They dance at the party.",
+      "example_translations": {
+        "ru": "Они танцуют на вечеринке.",
+        "uz": "Ular ziyofatda raqsga tushadi."
+      }
+    },
+    {
+      "word": "draw",
+      "part_of_speech": "verb",
+      "translation": "рисовать",
+      "translations": {
+        "ru": "рисовать",
+        "uz": "chizmoq"
+      },
+      "example": "My daughter likes to draw.",
+      "example_translations": {
+        "ru": "Моя дочь любит рисовать.",
+        "uz": "Qizim rasm chizishni yaxshi ko'radi."
+      }
+    }
+  ]
+}

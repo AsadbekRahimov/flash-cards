@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и люди",
+    "title_uz": "Tanishuv va odamlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Какой человек",
+    "title_uz": "Odam qanday"
+  },
+  "words": [
+    {
+      "word": "young",
+      "part_of_speech": "adjective",
+      "translation": "молодой",
+      "translations": {
+        "ru": "молодой",
+        "uz": "yosh"
+      },
+      "example": "My teacher is young.",
+      "example_translations": {
+        "ru": "Мой учитель молодой.",
+        "uz": "Mening o'qituvchim yosh."
+      }
+    },
+    {
+      "word": "old",
+      "part_of_speech": "adjective",
+      "translation": "старый",
+      "translations": {
+        "ru": "старый",
+        "uz": "keksa, qari"
+      },
+      "example": "My grandfather is very old.",
+      "example_translations": {
+        "ru": "Мой дедушка очень старый.",
+        "uz": "Bobom juda keksa."
+      }
+    },
+    {
+      "word": "tall",
+      "part_of_speech": "adjective",
+      "translation": "высокий",
+      "translations": {
+        "ru": "высокий",
+        "uz": "baland bo'yli"
+      },
+      "example": "He is tall and strong.",
+      "example_translations": {
+        "ru": "Он высокий и сильный.",
+        "uz": "U baland bo'yli va baquvvat."
+      }
+    },
+    {
+      "word": "short",
+      "part_of_speech": "adjective",
+      "translation": "невысокий",
+      "translations": {
+        "ru": "невысокий",
+        "uz": "past bo'yli"
+      },
+      "example": "My sister is short.",
+      "example_translations": {
+        "ru": "Моя сестра невысокая.",
+        "uz": "Opam past bo'yli."
+      }
+    },
+    {
+      "word": "happy",
+      "part_of_speech": "adjective",
+      "translation": "счастливый, радостный",
+      "translations": {
+        "ru": "счастливый, радостный",
+        "uz": "baxtli, xursand"
+      },
+      "example": "She looks very happy today.",
+      "example_translations": {
+        "ru": "Сегодня она выглядит очень счастливой.",
+        "uz": "Bugun u juda xursand ko'rinadi."
+      }
+    },
+    {
+      "word": "sad",
+      "part_of_speech": "adjective",
+      "translation": "грустный",
+      "translations": {
+        "ru": "грустный",
+        "uz": "g'amgin, xafa"
+      },
+      "example": "Why are you sad?",
+      "example_translations": {
+        "ru": "Почему ты грустишь?",
+        "uz": "Nega xafasan?"
+      }
+    },
+    {
+      "word": "nice",
+      "part_of_speech": "adjective",
+      "translation": "приятный, милый",
+      "translations": {
+        "ru": "приятный, милый",
+        "uz": "yoqimli, yaxshi"
+      },
+      "example": "Your mother is a nice woman.",
+      "example_translations": {
+        "ru": "Твоя мама — милая женщина.",
+        "uz": "Onang yoqimli ayol."
+      }
+    },
+    {
+      "word": "kind",
+      "part_of_speech": "adjective",
+      "translation": "добрый",
+      "translations": {
+        "ru": "добрый",
+        "uz": "mehribon"
+      },
+      "example": "He is kind to everyone.",
+      "example_translations": {
+        "ru": "Он добр ко всем.",
+        "uz": "U hammaga mehribon."
+      }
+    },
+    {
+      "word": "funny",
+      "part_of_speech": "adjective",
+      "translation": "смешной",
+      "translations": {
+        "ru": "смешной",
+        "uz": "kulgili"
+      },
+      "example": "My brother is very funny.",
+      "example_translations": {
+        "ru": "Мой брат очень смешной.",
+        "uz": "Akam juda kulgili."
+      }
+    },
+    {
+      "word": "beautiful",
+      "part_of_speech": "adjective",
+      "translation": "красивый",
+      "translations": {
+        "ru": "красивый",
+        "uz": "chiroyli, go'zal"
+      },
+      "example": "What a beautiful girl!",
+      "example_translations": {
+        "ru": "Какая красивая девочка!",
+        "uz": "Qanday go'zal qiz!"
+      }
+    }
+  ]
+}

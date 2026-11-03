@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 2,
+    "title": "Семья и дом",
+    "title_uz": "Oila va uy"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мебель и вещи",
+    "title_uz": "Mebel va buyumlar"
+  },
+  "words": [
+    {
+      "word": "table",
+      "part_of_speech": "noun",
+      "translation": "стол",
+      "translations": {
+        "ru": "стол",
+        "uz": "stol"
+      },
+      "example": "The book is on the table.",
+      "example_translations": {
+        "ru": "Книга лежит на столе.",
+        "uz": "Kitob stol ustida."
+      }
+    },
+    {
+      "word": "chair",
+      "part_of_speech": "noun",
+      "translation": "стул",
+      "translations": {
+        "ru": "стул",
+        "uz": "stul"
+      },
+      "example": "Sit on this chair.",
+      "example_translations": {
+        "ru": "Садись на этот стул.",
+        "uz": "Shu stulga o'tir."
+      }
+    },
+    {
+      "word": "bed",
+      "part_of_speech": "noun",
+      "translation": "кровать",
+      "translations": {
+        "ru": "кровать",
+        "uz": "krovat, to'shak"
+      },
+      "example": "The bed is very soft.",
+      "example_translations": {
+        "ru": "Кровать очень мягкая.",
+        "uz": "Krovat juda yumshoq."
+      }
+    },
+    {
+      "word": "sofa",
+      "part_of_speech": "noun",
+      "translation": "диван",
+      "translations": {
+        "ru": "диван",
+        "uz": "divan"
+      },
+      "example": "Dad sleeps on the sofa.",
+      "example_translations": {
+        "ru": "Папа спит на диване.",
+        "uz": "Dadam divanda uxlaydi."
+      }
+    },
+    {
+      "word": "lamp",
+      "part_of_speech": "noun",
+      "translation": "лампа",
+      "translations": {
+        "ru": "лампа",
+        "uz": "chiroq"
+      },
+      "example": "Turn on the lamp.",
+      "example_translations": {
+        "ru": "Включи лампу.",
+        "uz": "Chiroqni yoq."
+      }
+    },
+    {
+      "word": "shelf",
+      "part_of_speech": "noun",
+      "translation": "полка",
+      "translations": {
+        "ru": "полка",
+        "uz": "tokcha, javon"
+      },
+      "example": "The books are on the shelf.",
+      "example_translations": {
+        "ru": "Книги стоят на полке.",
+        "uz": "Kitoblar tokchada turibdi."
+      }
+    },
+    {
+      "word": "carpet",
+      "part_of_speech": "noun",
+      "translation": "ковёр",
+      "translations": {
+        "ru": "ковёр",
+        "uz": "gilam"
+      },
+      "example": "We have a red carpet.",
+      "example_translations": {
+        "ru": "У нас красный ковёр.",
+        "uz": "Bizda qizil gilam bor."
+      }
+    },
+    {
+      "word": "mirror",
+      "part_of_speech": "noun",
+      "translation": "зеркало",
+      "translations": {
+        "ru": "зеркало",
+        "uz": "ko'zgu"
+      },
+      "example": "She looks in the mirror.",
+      "example_translations": {
+        "ru": "Она смотрит в зеркало.",
+        "uz": "U ko'zguga qaraydi."
+      }
+    },
+    {
+      "word": "key",
+      "part_of_speech": "noun",
+      "translation": "ключ",
+      "translations": {
+        "ru": "ключ",
+        "uz": "kalit"
+      },
+      "example": "I cannot find my key.",
+      "example_translations": {
+        "ru": "Я не могу найти свой ключ.",
+        "uz": "Kalitimni topa olmayapman."
+      }
+    },
+    {
+      "word": "clock",
+      "part_of_speech": "noun",
+      "translation": "часы",
+      "translations": {
+        "ru": "часы",
+        "uz": "soat"
+      },
+      "example": "The clock is on the wall.",
+      "example_translations": {
+        "ru": "Часы висят на стене.",
+        "uz": "Soat devorda osilib turibdi."
+      }
+    }
+  ]
+}
