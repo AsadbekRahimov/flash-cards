@@ -361,7 +361,9 @@ it('reads nothing of the game tables for /today while the game is closed, and on
     config(['game.access' => 'all']);
     $open = $read();
 
-    expect(QueryLog::matching($closed, '/game_/'))->toBe([])
+    // The game TABLES (`from` / `join` / `into` / `update` "game_…"): the streak reads the column `learner_daily_stats.game_held_at`
+    // whether the game is open or not (G2.10), which is no read of the game.
+    expect(QueryLog::matching($closed, '/\b(from|join|into|update)\s+["`]game_/i'))->toBe([])
         ->and(QueryLog::matching($open, '/["`]game_runs["`]/'))->toHaveCount(1)
         ->and(count($open) - count($closed))->toBeLessThanOrEqual(1);
 });
