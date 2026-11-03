@@ -74,7 +74,8 @@ final class RunService
 
     /**
      * Starts the run of a stop (docs/18 §12.3.1). Not inside an outer transaction: after a unique violation (two tabs) the winner is read
-     * again. An unfinished run and no `$replaceActive` -> 409 `game_run_active` BEFORE the snapshot is built; with the flag the old one is
+     * again. An unfinished run of ANOTHER stop and no `$replaceActive` -> 409 `game_run_active` BEFORE the snapshot is built; an unfinished
+     * run of the SAME stop is returned as it is (a second tab, a double tap: the run that is on is the answer); with the flag the old one is
      * closed `abandoned` in the same transaction. Two tabs at once: the loser gets the winner's run when it is the same stop, else the 409.
      *
      * @throws GameException game_unavailable | course_not_found | lesson_not_found | lesson_not_in_course | stop_locked |
@@ -95,6 +96,11 @@ final class RunService
         if (! $replaceActive) {
             $busy = $this->activeOf($learner);
             if ($busy !== null && $busy->expires_at->gt($now)) {
+                // The same stop asked twice (a second tab, a double tap): the run that is on IS the answer; another stop is a 409.
+                if ($busy->kind === RunKind::Stop && $busy->lesson_id === $lesson->id) {
+                    return $busy;
+                }
+
                 throw GameException::runActive($this->activeDetails($busy));
             }
         }
@@ -176,7 +182,9 @@ final class RunService
                         if ($active->expires_at->lte($now)) {
                             $this->close($active, RunFinishReason::Expired, $now, $learner);
                         } elseif ($replaceActive) {
-                            $this->close($active, RunFinishReason::Abandoned, $now, $learner);
+                            $this->close($active, RunFinishReason::Abandoned, $now, $learner); // "once more" on the same stop is a fresh run
+                        } elseif ($this->isSameRun($active, $row)) {
+                            return $active; // two tabs at once: the other one has just started this very run
                         } else {
                             return GameException::runActive($this->activeDetails($active));
                         }
@@ -213,7 +221,7 @@ final class RunService
 
                 // Two tabs at once: the other one has just started a run for this learner.
                 $winner = $this->activeOf($learner);
-                if ($winner !== null && $winner->kind === $row['kind'] && $winner->lesson_id === ($row['lesson_id'] ?? null) && $winner->stage_id === ($row['stage_id'] ?? null)) {
+                if ($winner !== null && $this->isSameRun($winner, $row)) {
                     return $winner;
                 }
                 if ($winner !== null && ! $replaceActive) {
@@ -495,7 +503,12 @@ final class RunService
         if ($score->flaskLost) {
             $state->markFlaskLost($element->id);
         }
-        $state->rememberMistakes($grade->srsErrorWordIds);
+        // An answer after a hint is a mistake for the SRS whatever its verdict (docs/18 §12.4: the learner did not know).
+        $wordIds = $grade->srsErrorWordIds;
+        if ($hinted && $grade->final) {
+            $wordIds = array_values(array_unique([...$wordIds, ...$handler->wordIds($element)]));
+        }
+        $state->rememberMistakes($wordIds);
 
         $pair = $element->isPairsRound() ? ['left_id' => $grade->normalizedAnswer['left_id'] ?? null, 'right_id' => $grade->normalizedAnswer['right_id'] ?? null] : null;
         $body = [
@@ -551,7 +564,6 @@ final class RunService
             $this->finish($run, RunFinishReason::Completed, $now, $learner); // G2.5a: RunFinisher::finish($run, Completed) here
         }
 
-        $wordIds = $grade->srsErrorWordIds;
         if ($wordIds !== []) {
             DB::afterCommit(function () use ($run, $learner, $wordIds, $now): void {
                 try {
@@ -717,6 +729,20 @@ final class RunService
         $attempt = GameRunAttempt::query()->where('run_id', $run->id)->where('request_id', $requestId)->first();
 
         return $attempt;
+    }
+
+    /**
+     * The active run is the very run the row describes (the same kind, stop, city and keys): a second tab gets it instead of a 409.
+     *
+     * @param  array<string, mixed>  $row
+     */
+    private function isSameRun(GameRun $active, array $row): bool
+    {
+        return $active->kind === $row['kind']
+            && $active->lesson_id === ($row['lesson_id'] ?? null)
+            && $active->stage_id === ($row['stage_id'] ?? null)
+            && $active->daily_key === ($row['daily_key'] ?? null)
+            && $active->class_boss_key === ($row['class_boss_key'] ?? null);
     }
 
     /** @return array{run_id: int, kind: string, progress: array<string, mixed>} */

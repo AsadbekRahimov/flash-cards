@@ -24,7 +24,7 @@ use App\Domain\Practice\Support\TranslationVariants;
  * 2. the authored tasks take their places first (no more than `authored_max`); their target words are "used";
  * 3. one round of pairs of `pairs_per_round` unused words that do not clash with one another in any locale (docs/16 §4.4) - only when
  *    the words are plentiful: the round folds four words into one element, so it is made only if the size `N` is still reachable
- *    without them (`unused - per_round + 1 + authored >= N`; a stop of 8 words plays 8 tasks of words, one of 12 plays pairs too);
+ *    without them (`unused - per_round + 1 + authored >= N`; a stop of 8 words plays 8 tasks of words, one of 13 plays pairs too);
  *    the words of the round are "used";
  * 4. the places left: one task per unused word, the kinds in a circle `translate_fwd -> translate_back -> listen -> spell -> gap`,
  *    skipping what the word cannot do (`listen` without a recording, `gap` without the word in its example, a task with options

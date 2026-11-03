@@ -245,8 +245,15 @@ it('loses a flask per mistake, two stars for one, one for two, and fails on the 
 it('refuses a second start while a run is active, and replaces it on request (the old one is abandoned, pays nothing)', function (): void {
     [$learner, $course, $lesson] = GameKit::stop(8);
     $first = runService()->start($learner, $course->slug, $lesson->id);
+    $stage = Stage::query()->findOrFail($lesson->stage_id);
+    $other = Lesson::factory()->for($stage)->create(['number' => 2]);
+    for ($i = 1; $i <= 6; $i++) {
+        GameKit::word($other, $learner, "otherword{$i}", "другое {$i}");
+    }
 
-    expect(fn () => runService()->start($learner, $course->slug, $lesson->id))
+    // The same stop again is the run that is on; another stop is refused.
+    expect(runService()->start($learner, $course->slug, $lesson->id)->id)->toBe($first->id);
+    expect(fn () => runService()->start($learner, $course->slug, $other->id))
         ->toThrow(fn (GameException $e) => expect($e->errorCode)->toBe('game_run_active')->and($e->details['run_id'])->toBe($first->id)->and($e->details['progress']['total'])->toBe($first->total));
 
     $second = runService()->start($learner, $course->slug, $lesson->id, replaceActive: true);
