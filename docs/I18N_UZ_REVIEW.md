@@ -2743,3 +2743,41 @@
 | `legal.privacy.sections.8.text` | Siyosatni yangilashimiz mumkin. Yangi tahrir ushbu sahifada e'lon qilinadi va e'lon qilingan paytdan amal qiladi. Jiddiy o'zgarishlar haqida botda xabar berishga harakat qilamiz. | Мы можем обновлять политику. Новая редакция публикуется на этой странице и действует с момента публикации. О существенных изменениях мы постараемся сообщить в боте. |
 | `legal.privacy.sections.9.title` | Ma'lumotlar operatorining aloqa ma'lumotlari | Контакты оператора данных |
 | `legal.privacy.sections.9.text` | Shaxsiy ma'lumotlar bo'yicha savollar: {contact}<br><br>{requisites} | По вопросам о персональных данных: {contact}<br><br>{requisites} |
+
+## Игра «Караван» 2026-11 · G2.1 — на проверку носителю
+
+> Названия городов Шёлкового пути (`lang/uz/game.php`, `lang/ru/game.php`): город карты игры — модуль курса, имя берётся из списка по номеру модуля (`stages.number`, `CityNames`).
+> Карта показывает «Samarqand · 3-modul: …»: имя города — отсюда, название модуля — из курса. После 24-го модуля — `game.city_fallback`.
+> Названия — традиционные узбекские формы современных и исторических городов; апостроф ASCII.
+>
+> Что решить носителю:
+> - **Историческая форма или современная:** «Marv» (Мерв), «Balx» (Балх), «Nishopur» (Нишапур), «Turfon» (Турфан), «Loyan» (Лоян), «Chang'an» (Чанъань) — достаточно ли привычны ученикам; при сомнении заменить на ближайший узнаваемый город.
+> - **`game.city_fallback`** — «:number-shahar» («N-й город»): показывается у модулей после 24-го вместо имени города («3-shahar» вместо «Город 3»): естественна ли такая форма.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.cities.1` | Toshkent | Ташкент |
+| `game.cities.2` | Qo'qon | Коканд |
+| `game.cities.3` | Samarqand | Самарканд |
+| `game.cities.4` | Buxoro | Бухара |
+| `game.cities.5` | Xiva | Хива |
+| `game.cities.6` | Shahrisabz | Шахрисабз |
+| `game.cities.7` | Termiz | Термез |
+| `game.cities.8` | Balx | Балх |
+| `game.cities.9` | Marv | Мерв |
+| `game.cities.10` | Nishopur | Нишапур |
+| `game.cities.11` | Tus | Тус |
+| `game.cities.12` | Ray | Рей |
+| `game.cities.13` | Hamadon | Хамадан |
+| `game.cities.14` | Bag'dod | Багдад |
+| `game.cities.15` | Damashq | Дамаск |
+| `game.cities.16` | Halab | Алеппо |
+| `game.cities.17` | Antioxiya | Антиохия |
+| `game.cities.18` | Konstantinopol | Константинополь |
+| `game.cities.19` | Qashqar | Кашгар |
+| `game.cities.20` | Xo'tan | Хотан |
+| `game.cities.21` | Dunxuan | Дуньхуан |
+| `game.cities.22` | Turfon | Турфан |
+| `game.cities.23` | Loyan | Лоян |
+| `game.cities.24` | Chang'an | Чанъань |
+| `game.city_fallback` | :number-shahar | Город :number |

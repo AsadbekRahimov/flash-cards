@@ -1242,3 +1242,18 @@ The switches are read from `.env`; everything else of `config/practice.php` (siz
 Fixed in `config/practice.php`: solo session TTL 24 h (`practice.solo.session_ttl_hours`); 5 tasks per session, at least 3 (`solo.items`); pairs — up to 3 rounds of 4, rounds of 3 allowed (`solo.pairs`); dictation — at most 3 phrases, 2 swaps of a clip (`solo.dictation`); import ≤ 2 MB and ≤ 300 tasks (`import`); the disk of the phrase audio `practice_audio` (`config/filesystems.php`, root `storage/app/practice-audio`, no URL).
 The battle (`practice.battle.*`): 5 rounds; a round lasts 30 s (collocation), 45 s (pairs, sentence) or 60 s (dictation); a countdown of 3 s and a review of 4 s; an invitation lives 300 s, a room 120 s; the opponent is warned about after 10 s of silence (`presence_warn_seconds`), a player silent for 30 s loses (`presence_grace_seconds`); the presence is written at most once per 5 s (`heartbeat_write_seconds`);
 an answer is taken up to 1500 ms after the deadline (`deadline_grace_ms`); a round is worth 100 points, a pair 25 (`points`); the list of finished matches holds 10 (`finished_list`). The limiters (`AppServiceProvider`): `twa-battle-invite` 5/min, `twa-battle-action` 60/min, `twa-battle-poll` 90/min (outside `twa-api`), `twa-practice-audio` 60/min (shared with the solo audio).
+
+
+### Game "Caravan" variables (docs/18 §12.7)
+
+Read from `.env`; everything else of `config/game.php` (run sizes, scoring, economy, league, class) is changed by a release.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `GAME_ACCESS` | `off` | Who plays: `off` (nobody; every endpoint answers 403 `game_unavailable`), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `all`. Anything else counts as `off`. `GET /me` → `game.available` |
+| `GAME_FREE_RUNS_PER_DAY` | `1` | Free map runs (stops + bosses) a Free learner plays per local day; more cost a ticket. Pro (feature `game.unlimited_runs`) has no limit; the daily caravan is not limited. `0` — only Pro; empty — no limit for Free |
+| `GAME_FREE_BOSS_STAGES` | `1` | The bosses of the first N cities of a course a Free learner may fight (Pro: `game.all_bosses`); past that 403 `game_pro_required`. Empty — all |
+| `GAME_FREE_BOOSTERS_PER_WEEK` / `GAME_PRO_BOOSTERS_PER_WEEK` | `1` / `5` | Boosters a learner may use per local week (Pro: `game.boosters_plus`) |
+| `GAME_TICKETS_PER_STREAK_WEEK` / `GAME_TICKETS_PER_REFERRAL` / `GAME_TICKETS_MAX` | `1` / `3` / `10` | Tickets: per 7 days of the streak, to the inviter per activated friend, the cap of the balance |
+| `GAME_LEAGUE_DAILY_CAP` | `40` | The cap of the league points the game gives per local day |
+| `GAME_CLASS_CENTERS_ONLY` | `true` | The caravan of a class only for the centers with a live subscription |

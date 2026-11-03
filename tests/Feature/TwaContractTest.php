@@ -27,6 +27,8 @@ use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Friendship;
+use App\Models\GameProfile;
+use App\Models\GameWallet;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
 use App\Models\LeagueWeek;
@@ -60,6 +62,8 @@ const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 // The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
 const CONTRACT_PRACTICE_ME = ['available', 'pro_required', 'modes', 'battle', 'pro_promise', 'limits'];
+// The block `game` of GET /me and of every answer with the refreshed profile (docs/04 A.2, docs/18 §12.8).
+const CONTRACT_GAME_ME = ['available', 'limits', 'pro_promise', 'coins', 'tickets'];
 
 function contractHeaders(Learner $learner): array
 {
@@ -149,13 +153,31 @@ it('GET /me keeps its exact JSON shape', function (): void {
                 ],
             ],
             'practice' => CONTRACT_PRACTICE_ME,
+            'game' => CONTRACT_GAME_ME,
         ]);
 
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
         // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
-        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null]);
+        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
+        // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
+        ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);
+});
+
+it('GET /me carries the block `game` with the coins and the tickets once the game is open to the learner', function (): void {
+    $s = contractTraining();
+    config(['game.access' => 'all']);
+
+    $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()
+        ->assertJsonPath('game', ['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 0, 'tickets' => 0]);
+
+    GameWallet::factory()->withBalance(35)->create(['learner_id' => $s['learner']->id]);
+    GameProfile::factory()->withTickets(2)->create(['learner_id' => $s['learner']->id]);
+
+    $response = $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()
+        ->assertJsonPath('game', ['available' => true, 'limits' => null, 'pro_promise' => 'full', 'coins' => 35, 'tickets' => 2]);
+    expect(array_keys($response->json('game')))->toBe(CONTRACT_GAME_ME);
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
@@ -348,6 +370,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
             'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
         ],
         'practice' => CONTRACT_PRACTICE_ME,
+        'game' => CONTRACT_GAME_ME,
     ];
 
     $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()->assertExactJsonStructure($me);

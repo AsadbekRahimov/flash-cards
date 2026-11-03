@@ -7,6 +7,7 @@ namespace App\Domain\Twa\Services;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\LearnerBillingService;
+use App\Domain\Game\Services\GameAccess;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
@@ -22,6 +23,7 @@ use Illuminate\Support\Collection;
  * @phpstan-import-type LimitsBlock from PracticeLimits
  *
  * @phpstan-type PracticeBlock array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: 'none'|'solo'|'both', limits: LimitsBlock|null}
+ * @phpstan-type GameBlock array{available: bool, limits: null, pro_promise: 'none'|'full', coins: int, tickets: int}
  *
  * The data behind `App\Http\Resources\Twa\MeResource`: GET /me and every
  * endpoint that answers with the refreshed profile (e.g. POST /promo/redeem).
@@ -36,6 +38,7 @@ final class MePayloadBuilder
         private readonly LearnerBillingService $billing,
         private readonly PracticeAccess $practice,
         private readonly PracticeLimits $limits,
+        private readonly GameAccess $game,
     ) {}
 
     /**
@@ -48,7 +51,8 @@ final class MePayloadBuilder
      *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
-     *   practice: PracticeBlock
+     *   practice: PracticeBlock,
+     *   game: GameBlock
      * }
      */
     public function build(Learner $learner): array
@@ -69,6 +73,7 @@ final class MePayloadBuilder
                 // The Free limits of the day (docs/18 G1): one statement, and only while the practice is open to the learner.
                 'limits' => $this->limits->describe($learner, $this->practice->stateFor($learner, $entitlement), $entitlement),
             ],
+            'game' => $this->game->describe($learner),
         ];
     }
 }

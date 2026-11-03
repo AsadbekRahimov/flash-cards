@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Support;
 
+use App\Domain\Billing\Enums\ProGamePromise;
 use App\Domain\Billing\Enums\ProPracticePromise;
 
 /**
@@ -63,11 +64,37 @@ final class ProPromises
         };
     }
 
+    /**
+     * The promise about the game "Caravan" (docs/18 §12.7.4) for the one who reads: `Full` while the game is open to them
+     * (`$open`: `GameAccessState::isAvailable()`) and Free has at least one limit that Pro lifts - the map runs of the day, the
+     * bosses of the first cities or the boosters of the week (`0` is a limit, empty is none); otherwise `None`. Mini App only:
+     * the landing and the Stars invoice do not mention the game.
+     *
+     * @param  bool  $open  whether the game is open to the one who reads
+     */
+    public static function game(bool $open): ProGamePromise
+    {
+        if (! $open) {
+            return ProGamePromise::None;
+        }
+
+        foreach (['runs_per_day', 'boss_stages', 'boosters_per_week'] as $kind) {
+            if (self::isLimited(config("game.free_limits.{$kind}"))) {
+                return ProGamePromise::Full;
+            }
+        }
+
+        return ProGamePromise::None;
+    }
+
     /** A Free limit exists unless the value is empty (`null`, '' or false): `0` is a limit (only Pro may). */
     private static function freeIsLimited(string $kind): bool
     {
-        $value = config("practice.free_limits.{$kind}");
+        return self::isLimited(config("practice.free_limits.{$kind}"));
+    }
 
+    private static function isLimited(mixed $value): bool
+    {
         return ! ($value === null || $value === '' || $value === false);
     }
 
