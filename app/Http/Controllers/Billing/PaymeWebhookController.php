@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Billing;
 
+use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
 use App\Domain\Billing\Providers\Payme\PaymeRpcException;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
+use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +18,7 @@ use Throwable;
 /**
  * `POST /billing/webhook/payme` — the one JSON-RPC endpoint Payme calls (docs/13 §4.2, docs/04 D.1).
  *
- * Order of checks: body size -> Basic auth (-32504) -> JSON (-32700) -> PaymeRpcService. Every
+ * Order of checks: body size -> provider switched on (-32504) -> Basic auth (-32504) -> JSON (-32700) -> PaymeRpcService. Every
  * protocol-level answer is HTTP 200 with a JSON-RPC body (Payme reads the body, not the status);
  * only an unexpected exception is HTTP 500 (-32400) so that Payme retries the call.
  */
@@ -25,7 +27,7 @@ final class PaymeWebhookController extends Controller
     /** Bodies above this are refused before parsing (docs/13 §4). */
     public const MAX_BODY_BYTES = 65_536;
 
-    public function __invoke(Request $request, PaymeAuth $auth, PaymeRpcService $rpc): JsonResponse
+    public function __invoke(Request $request, PaymeAuth $auth, PaymeRpcService $rpc, BillingProviderRegistry $providers): JsonResponse
     {
         $body = $request->getContent();
         if (strlen($body) > self::MAX_BODY_BYTES) {
@@ -35,6 +37,13 @@ final class PaymeWebhookController extends Controller
         $decoded = json_decode($body, true);
         $id = is_array($decoded) ? ($decoded['id'] ?? null) : null;
         $id = is_int($id) || is_string($id) ? $id : null;
+
+        // A provider switched off in config answers nothing, even when its key is set (docs/07 §2a).
+        if (! $providers->isEnabled(SubscriptionProvider::Payme)) {
+            Log::warning('billing.payme.disabled', ['ip' => $request->ip()]);
+
+            return $this->error($id, PaymeRpcException::insufficientPrivileges());
+        }
 
         $mode = $auth->verify($request->header('Authorization'));
         if ($mode === null) {
