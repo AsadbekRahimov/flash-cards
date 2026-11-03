@@ -104,6 +104,52 @@ describe('style.css: touch targets', () => {
 })
 
 /**
+ * The run of "Karvon" (docs/05 §5b.3): every control is at least 44 px on a 320 px screen, the field of a typed answer is left alone by the
+ * keyboard, and nothing is told by colour only. The sources are read (the test environment has no layout).
+ */
+describe('the run of Karvon: touch targets and fields', () => {
+  const game = [...sources].filter(([file]) => file.startsWith('components/game/') || file === 'views/GameRunView.vue')
+
+  it('reads the screen and its components', () => {
+    expect(game.length).toBeGreaterThanOrEqual(11)
+  })
+
+  it('draws the answer options with .option, which is at least 56 px high', () => {
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option"/)
+    expect(rulesOf('.option').some((body) => /@apply[^;]*\bmin-h-14\b/.test(body))).toBe(true)
+  })
+
+  it('makes the ✕ of the header a 44 px target and the "Listen" circle bigger than that', () => {
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/data-testid="close-btn"/)
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/class="-ml-1 flex size-11\b/)
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/\bsize-20\b/)
+  })
+
+  it('has no control under 44 px: only buttons of the design system, no fixed small size on a button', () => {
+    for (const [file, code] of game) {
+      for (const button of code.match(/<button\b[^>]*>/g) ?? []) {
+        expect(button, file).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+      }
+    }
+  })
+
+  it('leaves the field of a typed answer alone: no autocorrection, no capitals, no spell check', () => {
+    const field = sources.get('components/game/TypedAnswer.vue') ?? ''
+
+    expect(field).toMatch(/autocapitalize="off"/)
+    expect(field).toMatch(/autocorrect="off"/)
+    expect(field).toMatch(/autocomplete="off"/)
+    expect(field).toMatch(/spellcheck="false"/)
+  })
+
+  it('tells the flasks and the stars by shape and in words, not by colour only', () => {
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/aria-label="label"|:aria-label="label"/)
+    expect(sources.get('components/game/RunSummary.vue')).toMatch(/:aria-label="t\('gameRun.summary.stars'/)
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/:fill="full \? 'currentColor' : 'none'"/)
+  })
+})
+
+/**
  * The toast (docs/14 §4.4) stands above whatever covers the bottom edge of the window: the tab bar, or the sticky block of buttons of
  * an immersive screen (`StickyActions`, which publishes its height as `--app-actions-h`). The test environment has no layout, so the
  * rules are read from the stylesheet.

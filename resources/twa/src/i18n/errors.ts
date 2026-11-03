@@ -98,6 +98,12 @@ export const KNOWN_ERROR_CODES = [
   'invalid_answer_shape',
   'unknown_element_id',
   'request_id_reused',
+  // A run of "Karvon" (docs/18 §12.8); the codes of practice above (`element_not_current`, …) are shared.
+  'game_run_not_found',
+  'game_run_closed',
+  'unknown_option_id',
+  'hint_not_available',
+  'coins_insufficient',
   'replace_not_allowed',
   'retry_not_available',
   'practice_audio_unavailable',

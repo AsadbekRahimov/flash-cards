@@ -113,6 +113,17 @@ const routes: RouteRecordRaw[] = [
     }),
   },
   {
+    // A run of "Karvon" (docs/05 §5b.3): immersive, no tab. `course` / `stop` (query) tell the summary where "Again" / "To the map" lead.
+    path: '/game/runs/:id(\\d+)',
+    name: 'game-run',
+    component: () => import('@/views/GameRunView.vue'),
+    props: (route) => ({
+      id: Number(route.params.id),
+      course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
+      stop: queryId(route.query.stop),
+    }),
+  },
+  {
     path: '/battles/new',
     name: 'battle-new',
     component: () => import('@/views/BattleSetupView.vue'),

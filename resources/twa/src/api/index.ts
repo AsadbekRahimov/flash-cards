@@ -60,6 +60,13 @@ import type {
   TodayResponse,
   TrainingStartResponse,
 } from './types'
+import type {
+  GameAnswerRequest,
+  GameAnswerResponse,
+  GameHintRequest,
+  GameHintResponse,
+  GameRunView,
+} from './gameRunTypes'
 
 /**
  * How long a READ of a battle (the poll, the battle, a round, the list, the options) may take: past it the request is given up like a
@@ -240,6 +247,18 @@ export const api = {
     /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
     openMock: (slug: string) =>
       client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
+  },
+  gameRuns: {
+    /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */
+    get: (id: number) => client().get<GameRunView>(`/game/runs/${id}`),
+    /** One answer; a repeat with the same `request_id` returns the first result. */
+    answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }),
+    /** The hint of the bazaar: coins for options taken away or the first letters. */
+    hint: (id: number, body: GameHintRequest) => client().post<GameHintResponse>(`/game/runs/${id}/hint`, { ...body }),
+    /** "Leave the run": it does not count (finished / abandoned). */
+    abandon: (id: number) => client().post<GameRunView>(`/game/runs/${id}/abandon`, { confirm: true }),
+    /** The clip of an element (`audio_url` of its projection): fetched with the token, played from a blob. */
+    audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
   },
   practice: {
     /** The hub of a course (or of one lesson of it): four modes, the unfinished session, the battle badge. */
