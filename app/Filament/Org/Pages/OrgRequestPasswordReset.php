@@ -100,17 +100,24 @@ class OrgRequestPasswordReset extends RequestPasswordReset
     protected function timeboxed(callable $callback): string
     {
         $duration = (int) config('auth.password_reset_timebox_duration', 1_000_000);
-        $start = hrtime(true);
+        $worked = 0;
 
         try {
-            return app(Timebox::class)->call($callback, $duration);
-        } finally {
-            $elapsed = (int) ((hrtime(true) - $start) / 1_000);
+            return app(Timebox::class)->call(function () use ($callback, &$worked): string {
+                $started = hrtime(true);
 
-            if ($elapsed > $duration) {
-                // The work outran the box, so the response time leaks the outcome again; raise the budget.
-                Log::warning('org.password_reset.timebox_exceeded', [
-                    'elapsed_us' => $elapsed,
+                try {
+                    return $callback();
+                } finally {
+                    // Only the work itself: the sleep the box adds afterwards must not count.
+                    $worked = intdiv(hrtime(true) - $started, 1_000);
+                }
+            }, $duration);
+        } finally {
+            if ($worked > $duration * 0.75) {
+                // Near or past the budget the response time starts to leak the outcome; raise the budget before it does.
+                Log::warning('org.password_reset.timebox_near_limit', [
+                    'worked_us' => $worked,
                     'budget_us' => $duration,
                 ]);
             }

@@ -123,14 +123,14 @@ it('accepts --output only inside storage/ or "-"', function (string $output): vo
     $this->artisan('load:tokens', ['--count' => 1, '--output' => $output])->assertFailed();
 
     expect(Learner::query()->count())->toBe(0)
-        ->and(file_exists(base_path($output)))->toBeFalse();
+        ->and(file_exists(str_starts_with($output, '/') ? $output : base_path($output)))->toBeFalse();
 })->with(['public/x.json', 'storage/../public/x.json', 'storage/app/../../public/x.json', '/tmp/x.json']);
 
 it('refuses a path under storage/app/public, which the web server may serve', function (string $output): void {
     $this->artisan('load:tokens', ['--count' => 1, '--output' => $output])->assertFailed();
 
     expect(Learner::query()->count())->toBe(0)
-        ->and(file_exists(base_path($output)))->toBeFalse();
+        ->and(file_exists(str_starts_with($output, '/') ? $output : base_path($output)))->toBeFalse();
 })->with(['storage/app/public/t.json', 'storage/app/public/new-dir/t.json', fn () => storage_path('app/public/t.json')]);
 
 it('checks the load-test mark again in the loop and refuses a row that lost it after the first check', function (): void {

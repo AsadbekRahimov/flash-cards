@@ -119,6 +119,7 @@ class Assignment extends Model
      * The title shown to people: the teacher's own one, else the lesson's in the reader's locale, else "Lesson N". Needs `lesson`
      * loaded (with `stage.course`, to avoid a query). `create()` copies the lesson's ru title into `title` when the teacher gave none,
      * so a title equal to the lesson's is the default one and follows the reader's locale (uz name when the lesson has it).
+     * The course is loaded there with `id,owner_type` only (`AssignmentResource`, `AssignmentService`): do not read other course fields without widening the load.
      */
     public function displayTitle(?string $locale = null): string
     {
