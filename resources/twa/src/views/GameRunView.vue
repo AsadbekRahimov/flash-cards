@@ -35,14 +35,15 @@ import type { GameAnswerPayload } from '@/api/gameRunTypes'
  * - `summary` - `RunSummary` (completed / failed); `closed` (410, a run that was left or ran out of time) - "The run is over".
  *
  * ✕ and the system "Back" ask "Leave the run? It will not count" (`abandon`) while the run is on; on the summary and the closed screen they
- * lead to the map. The route may carry `course` and `stop` (the map puts them there): "Again" and "To the map" lead to
- * `/game?course=&stop=` and `/game?course=`, where the map opens the sheet of the stop - starting a run is the map's business, not ours.
+ * lead to the map. "Again" and "To the map" lead to `/game?course=&stop=` and `/game?course=`: the course and the stop come with the run
+ * (`course.slug`, `lesson_id`), the `course` / `stop` of the route are the fallback; the map opens the sheet of the stop - starting a run is
+ * the map's business, not ours. The caravan of the day has no "Again" (one a day).
  */
 const props = defineProps<{
   id: number
-  /** The slug of the course the run belongs to (the server does not send it with the run). */
+  /** The slug of the course, from the route: used until the run itself (`course.slug`) is read, and for a closed run. */
   course?: string | null
-  /** The lesson of the stop (likewise). */
+  /** The lesson of the stop (likewise: `lesson_id`). */
   stop?: number | null
 }>()
 
@@ -60,12 +61,16 @@ const { status, run, errorMessage, actionError, outcome, elementSeq, element, co
 
 // ---- the way out ----
 
+/** The course and the stop of the run: the run itself tells (G2.7b), the query of the route is the fallback (a run not read yet, a 410). */
+const courseSlug = computed((): string | null => run.value?.course?.slug ?? props.course ?? null)
+const stopId = computed((): number | null => run.value?.lesson_id ?? props.stop ?? null)
+
 /** `/game?course=` (and `&stop=` for "Again"): the map of the course; without a course - the map of the active one. */
 function mapLocation(withStop = false): RouteLocationRaw {
   const query: Record<string, string> = {}
-  if (props.course) {
-    query.course = props.course
-    if (withStop && props.stop) query.stop = String(props.stop)
+  if (courseSlug.value) {
+    query.course = courseSlug.value
+    if (withStop && stopId.value) query.stop = String(stopId.value)
   }
   return { path: '/game', query }
 }
@@ -273,6 +278,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
       v-else-if="status === 'summary' && run?.summary"
       :summary="run.summary"
       :failed="run.finish_reason === 'failed'"
+      :can-again="run.kind !== 'daily'"
       @review="reviewFromPaywall"
       @again="goTo(mapLocation(true))"
       @map="goTo(mapLocation())"

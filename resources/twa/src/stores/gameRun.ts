@@ -327,7 +327,7 @@ export const useGameRunStore = defineStore('gameRun', {
       if (isUncertain(err)) {
         // The server may or may not have it: the same answer will carry the same id and the same content, and it is counted once.
         this.status = 'playing'
-        this.actionError = errorMessage(err, 'practice')
+        this.actionError = errorMessage(err, 'game')
         return
       }
       this.clearPending(element.kind === 'pairs_round' ? pairKey(payload) : null)
@@ -369,7 +369,7 @@ export const useGameRunStore = defineStore('gameRun', {
         if (err.kind === 'validation' || err.kind === 'conflict') {
           // The server refused this answer, not the run: nothing was counted, the learner can answer otherwise and the task starts afresh.
           this.status = 'playing'
-          this.actionError = errorMessage(err, 'practice')
+          this.actionError = errorMessage(err, 'game')
           this.elementSeq += 1
           return
         }
@@ -430,7 +430,7 @@ export const useGameRunStore = defineStore('gameRun', {
         if (generation !== this.generation) return
         if (isUncertain(err)) {
           this.status = 'playing'
-          this.actionError = errorMessage(err, 'practice')
+          this.actionError = errorMessage(err, 'game')
           return
         }
         this.pendingHint = null
@@ -439,12 +439,12 @@ export const useGameRunStore = defineStore('gameRun', {
             const balance = err.details?.balance
             if (typeof balance === 'number') this.coins = balance
             this.status = 'playing'
-            this.actionError = errorMessage(err, 'practice')
+            this.actionError = errorMessage(err, 'game')
             return
           }
           if (err.code === 'hint_not_available' || err.code === 'element_not_current') {
             // The button was out of date: the run is read again and has none.
-            this.actionError = errorMessage(err, 'practice')
+            this.actionError = errorMessage(err, 'game')
             const fresh = await this.reread(generation)
             if (fresh !== null) this.applyRun(fresh)
             return
@@ -469,7 +469,7 @@ export const useGameRunStore = defineStore('gameRun', {
       } catch (err) {
         if (generation !== this.generation) return false
         if (err instanceof ApiClientError && err.kind === 'gone') return true
-        this.actionError = errorMessage(err, 'practice')
+        this.actionError = errorMessage(err, 'game')
         return false
       } finally {
         if (generation === this.generation) this.abandoning = false
@@ -483,7 +483,7 @@ export const useGameRunStore = defineStore('gameRun', {
       } else {
         this.status = 'error'
       }
-      this.errorMessage = errorMessage(err, 'practice')
+      this.errorMessage = errorMessage(err, 'game')
     },
   },
 })

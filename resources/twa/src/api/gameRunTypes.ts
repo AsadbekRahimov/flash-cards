@@ -112,6 +112,9 @@ export interface GameRunView {
   kind: GameRunKind
   status: GameRunStatus
   finish_reason: GameFinishReason | null
+  /** Where the run belongs, so that "Again" / "To the map" need no query (G2.7b); `daily` has no lesson. */
+  course?: { slug: string } | null
+  lesson_id?: number | null
   city: string | null
   stage_number: number | null
   lesson_number: number | null

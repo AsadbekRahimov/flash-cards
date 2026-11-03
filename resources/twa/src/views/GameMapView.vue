@@ -138,6 +138,34 @@ function starsLabel(stop: GameMapStop): string {
   return t('game.map.stars_aria', { stars: stop.stars })
 }
 
+// ---- the caravan of the day ----
+
+/** What the card says: a run that is on, a caravan that is waiting, one that was played today, or nothing due. */
+const dailyState = computed((): 'running' | 'ready' | 'done' | 'empty' => {
+  const daily = map.value?.daily
+  if (map.value?.active_run) return 'running'
+  if (daily?.done_today) return 'done'
+  return daily?.available ? 'ready' : 'empty'
+})
+
+const dailyText = computed((): string => {
+  switch (dailyState.value) {
+    case 'running':
+      return t('game.daily.card.running')
+    case 'ready':
+      return tn('game.daily.card.ready', map.value?.daily?.due_count ?? 0)
+    case 'done':
+      return t('game.daily.card.done')
+    default:
+      return t('game.daily.card.empty')
+  }
+})
+
+function openDaily(): void {
+  haptic('light')
+  void router.push({ name: 'game-daily', query: map.value ? { course: map.value.course.slug } : {} })
+}
+
 // ---- the sheet of a stop ----
 
 const sheetLesson = ref<number | null>(null)
@@ -349,6 +377,23 @@ onBeforeUnmount(() => {
           </span>
         </span>
         <span class="text-[15px] font-semibold text-accent-ink">{{ t('game.map.continue') }}</span>
+      </button>
+
+      <!-- The caravan of the day (docs/05 §5b.4): what is due today, in one tap. -->
+      <button
+        v-if="map.daily"
+        type="button"
+        class="card mb-4 flex min-h-11 w-full items-center gap-3 text-left transition-transform active:scale-[0.99]"
+        :data-state="dailyState"
+        data-testid="daily-card"
+        @click="openDaily"
+      >
+        <span class="icon-tile size-10 rounded-xl" :class="dailyState === 'ready' ? 'tile-orange' : 'tile-gray'"><AppIcon name="sparkles" :size="20" /></span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-[15px] leading-5 font-semibold">{{ t('game.daily.title') }}</span>
+          <span class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="daily-text">{{ dailyText }}</span>
+        </span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
       </button>
 
       <EmptyState v-if="view === 'empty'" icon="flag" :text="t('game.map.empty_text')" data-testid="empty">

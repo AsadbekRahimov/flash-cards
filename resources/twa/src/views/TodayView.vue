@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
@@ -122,6 +122,25 @@ const newWordsText = computed(() => {
 
 const assignmentItems = computed(() => assignments.items)
 const streak = computed(() => data.value?.streak ?? null)
+
+/**
+ * The entry of Karvon, by `/today.game` (never `/me`): a run that is on first, else the caravan of the day. A closed game sends
+ * `{daily_available: false, active_run: null}` - no entry; no `game` block (an older server) - none either.
+ */
+const gameEntry = computed((): { kind: 'run' | 'daily'; to: RouteLocationRaw; text: string; progress: string } | null => {
+  const game = data.value?.game
+  if (!game) return null
+  if (game.active_run) {
+    const { id, progress } = game.active_run
+    return {
+      kind: 'run',
+      to: `/game/runs/${id}`,
+      text: t('today.game.continue'),
+      progress: t('game.map.active_progress', { answered: progress.answered, total: progress.total }),
+    }
+  }
+  return game.daily_available ? { kind: 'daily', to: { name: 'game-daily' }, text: t('today.game.daily'), progress: '' } : null
+})
 
 const lessonLabel = computed(() => {
   const lesson = data.value?.active_course?.next_lesson
@@ -280,6 +299,23 @@ onBeforeUnmount(() => training.clearOpenError())
         </button>
       </section>
 
+      <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
+      <RouterLink
+        v-if="gameEntry"
+        :to="gameEntry.to"
+        class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
+        :data-kind="gameEntry.kind"
+        data-testid="game-entry"
+      >
+        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="sparkles" :size="20" /></span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
+          <span class="block text-[15px] leading-5 font-medium" data-testid="game-entry-text">{{ gameEntry.text }}</span>
+          <span v-if="gameEntry.progress" class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="game-entry-progress">{{ gameEntry.progress }}</span>
+        </span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+      </RouterLink>
+
       <section v-if="streak" class="card" data-testid="streak-card">
         <div class="flex items-start gap-3">
           <span class="icon-tile size-10 rounded-xl" :class="streak.current > 0 ? 'tile-orange' : 'tile-gray'">
@@ -296,6 +332,13 @@ onBeforeUnmount(() => training.clearOpenError())
             </div>
             <p v-if="streak.at_risk" class="mt-0.5 text-[15px] leading-5 text-warning-ink" data-testid="streak-at-risk">
               {{ t('today.streak.at_risk') }}
+            </p>
+            <p
+              v-else-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'"
+              class="mt-0.5 text-[15px] leading-5 text-tg-subtitle"
+              data-testid="streak-held-by-game"
+            >
+              {{ t('today.streak.held_by_game') }}
             </p>
             <p
               v-else-if="streak.current > 0 && streak.met_today"

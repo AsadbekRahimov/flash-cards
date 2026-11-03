@@ -1,4 +1,13 @@
-import type { GameLimits, GameMapBoss, GameMapCity, GameMapResponse, GameMapStop } from '../types'
+import type { GameLimits, GameMapBoss, GameMapCity, GameMapDaily, GameMapResponse, GameMapStop } from '../types'
+
+/** `daily` of the map: the caravan of the day is waiting with 14 due words. */
+export const mapDaily = (overrides: Partial<GameMapDaily> = {}): GameMapDaily => ({
+  available: true,
+  done_today: false,
+  due_count: 14,
+  resets_at: '2026-11-06T19:00:00.000Z',
+  ...overrides,
+})
 
 /** Answers of `GET /game/map` for the specs of the store and the map screen (docs/04 A.18). */
 

@@ -169,6 +169,43 @@ describe('game store: starting a stop', () => {
   })
 })
 
+describe('game store: the caravan of the day', () => {
+  it('starts it with the kind alone (no course, no lesson: the server knows the active course), and needs no map', async () => {
+    vi.mocked(api.game.startRun).mockResolvedValue({ id: 12 })
+    const game = useGameStore()
+
+    expect(await game.startDaily()).toEqual({ ok: true, id: 12 })
+    expect(api.game.startRun).toHaveBeenCalledWith({ kind: 'daily' })
+    expect(game.starting).toBe(false)
+
+    await game.startDaily(true)
+    expect(api.game.startRun).toHaveBeenLastCalledWith({ kind: 'daily', replace_active: true })
+  })
+
+  it.each([
+    ['conflict', 409, 'game_daily_done', { resets_at: '2026-11-06T19:00:00.000Z' }, 'Караван дня уже сыгран. Новый — завтра.'],
+    ['validation', 422, 'game_not_enough_material', { available: 2, required: 8, reason: 'no_words' }, 'Для этой стоянки пока не хватает слов.'],
+    ['conflict', 409, 'game_run_active', { run_id: 9, kind: 'stop', progress: { answered: 1, total: 9 } }, 'У вас уже есть идущий забег.'],
+  ] as const)('returns %s %i %s typed, with its details', async (kind, status, code, details, message) => {
+    vi.mocked(api.game.startRun).mockRejectedValue(apiError(kind, status, code, details))
+    const game = useGameStore()
+
+    expect(await game.startDaily()).toMatchObject({ ok: false, error: { code, details, message } })
+  })
+
+  it('shares the one-start-at-a-time guard with the stops', async () => {
+    let created!: (value: { id: number }) => void
+    vi.mocked(api.game.startRun).mockReturnValue(new Promise((resolve) => (created = resolve)))
+    const game = useGameStore()
+
+    const first = game.startDaily()
+    expect(await game.startDaily()).toMatchObject({ ok: false, error: { code: 'busy' } })
+    created({ id: 3 })
+    expect(await first).toEqual({ ok: true, id: 3 })
+    expect(api.game.startRun).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('billing store: the game block of /me', () => {
   const meWith = (game: unknown) =>
     ({

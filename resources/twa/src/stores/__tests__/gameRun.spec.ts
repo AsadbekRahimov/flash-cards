@@ -98,6 +98,20 @@ describe('gameRun store — entering a run', () => {
     expect(store.errorMessage).toBe('Забег не найден.')
   })
 
+  it('speaks in the words of the game, not of the practice, when the failure has no text of its own (docs/05 §5b.4)', async () => {
+    vi.mocked(api.gameRuns.get).mockRejectedValue(apiError('forbidden', 403, 'forbidden'))
+    const store = useGameRunStore()
+
+    await store.load(9)
+    expect(store.errorMessage).toBe('У вас нет доступа к каравану.')
+
+    vi.mocked(api.gameRuns.get).mockResolvedValue(runView({}, translateBack()))
+    await store.load(9)
+    vi.mocked(api.gameRuns.abandon).mockRejectedValue(apiError('forbidden', 403, 'forbidden'))
+    await store.abandon()
+    expect(store.actionError).toBe('У вас нет доступа к каравану.')
+  })
+
   it('drops the reply of a run that was left for another one (generation)', async () => {
     const first = pending<GameRunView>()
     vi.mocked(api.gameRuns.get).mockReturnValueOnce(first.promise)
