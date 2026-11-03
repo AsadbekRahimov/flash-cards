@@ -418,8 +418,7 @@
       ],
       "text": "My bag is dark brown",
       "accepted": [
-        "My bag is dark brown",
-        "My bag's dark brown"
+        "My bag is dark brown"
       ],
       "translation": {
         "ru": "Моя сумка тёмно-коричневая",
@@ -1172,8 +1171,7 @@
       ],
       "text": "Our exam is on Friday",
       "accepted": [
-        "Our exam is on Friday",
-        "Our exam's on Friday"
+        "Our exam is on Friday"
       ],
       "translation": {
         "ru": "Наш экзамен в пятницу",

@@ -91,12 +91,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "yesterday",
-        "day"
+        "yesterday"
       ],
       "prompt": {
         "ru": "Вчера был очень долгий день.",
@@ -268,8 +267,8 @@
         "later"
       ],
       "prompt": {
-        "ru": "Я позвоню тебе позже.",
-        "uz": "Senga keyinroq qo'ng'iroq qilaman."
+        "ru": "Я позвоню вам позже.",
+        "uz": "Sizga keyinroq qo'ng'iroq qilaman."
       },
       "fragments": [
         "I",
@@ -397,11 +396,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "tuesday",
         "today"
       ],
       "prompt": {
@@ -542,7 +540,7 @@
         "next"
       ],
       "translation": {
-        "ru": "Давай встретимся на следующей неделе.",
+        "ru": "Давайте встретимся на следующей неделе.",
         "uz": "Kelasi hafta uchrashaylik."
       },
       "explanation": {
@@ -572,8 +570,8 @@
         "have"
       ],
       "translation": {
-        "ru": "Извини, у меня сегодня нет времени.",
-        "uz": "Kechirasan, bugun vaqtim yo'q."
+        "ru": "Извините, у меня сегодня нет времени.",
+        "uz": "Kechirasiz, bugun vaqtim yo'q."
       },
       "explanation": {
         "ru": "have time — иметь время: I don't have time — у меня нет времени.",
@@ -717,8 +715,8 @@
         "morning"
       ],
       "translation": {
-        "ru": "Доброе утро! Хорошо спал?",
-        "uz": "Xayrli tong! Yaxshi uxladingmi?"
+        "ru": "Доброе утро! Хорошо спали?",
+        "uz": "Xayrli tong! Yaxshi uxladingizmi?"
       },
       "explanation": {
         "ru": "Good morning — приветствие утром. Good night говорят перед сном, а не после.",
@@ -778,7 +776,7 @@
       ],
       "text": "What time is it?",
       "accepted": [
-        "What time is it"
+        "What time is it?"
       ],
       "translation": {
         "ru": "Который час?",
@@ -867,8 +865,8 @@
         "Call me later"
       ],
       "translation": {
-        "ru": "Позвони мне позже",
-        "uz": "Keyinroq menga qo'ng'iroq qil"
+        "ru": "Позвоните мне позже",
+        "uz": "Keyinroq menga qo'ng'iroq qiling"
       }
     },
     {
@@ -876,17 +874,15 @@
       "type": "dictation",
       "lesson": {
         "stage": 4,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "today",
-        "friday"
+        "today"
       ],
       "text": "Today is Friday",
       "accepted": [
-        "Today is Friday",
-        "Today's Friday"
+        "Today is Friday"
       ],
       "translation": {
         "ru": "Сегодня пятница",
@@ -1208,12 +1204,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "love",
-        "family"
+        "love"
       ],
       "prompt": {
         "ru": "Мы очень любим нашу семью.",
@@ -1256,12 +1251,11 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "aunt",
-        "child"
+        "aunt"
       ],
       "prompt": {
         "ru": "У моей тёти трое детей.",
@@ -1294,16 +1288,15 @@
       "type": "sentence",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "father",
         "home"
       ],
       "prompt": {
-        "ru": "Твой папа дома?",
-        "uz": "Otang uydami?"
+        "ru": "Ваш папа дома?",
+        "uz": "Otangiz uydami?"
       },
       "fragments": [
         "is",
@@ -1552,8 +1545,8 @@
         "on"
       ],
       "translation": {
-        "ru": "Ты хорошо ладишь с сестрой?",
-        "uz": "Opang bilan yaxshi chiqishasanmi?"
+        "ru": "Вы хорошо ладите с сестрой?",
+        "uz": "Opangiz bilan yaxshi chiqishasizmi?"
       },
       "explanation": {
         "ru": "get on well with — хорошо ладить с кем-то.",
@@ -1643,12 +1636,11 @@
       "type": "dictation",
       "lesson": {
         "stage": 2,
-        "number": 1
+        "number": 2
       },
       "level": "A1",
       "target_words": [
-        "love",
-        "family"
+        "love"
       ],
       "text": "I love my family",
       "accepted": [
@@ -1753,12 +1745,12 @@
       ],
       "text": "Where is your father?",
       "accepted": [
-        "Where is your father",
-        "Where's your father"
+        "Where is your father?",
+        "Where's your father?"
       ],
       "translation": {
-        "ru": "Где твой папа?",
-        "uz": "Otang qayerda?"
+        "ru": "Где ваш папа?",
+        "uz": "Otangiz qayerda?"
       }
     },
     {
@@ -1795,7 +1787,8 @@
       ],
       "text": "I have one sister",
       "accepted": [
-        "I have one sister"
+        "I have one sister",
+        "I have 1 sister"
       ],
       "translation": {
         "ru": "У меня одна сестра",
@@ -1829,7 +1822,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "email"
@@ -1872,11 +1865,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 5
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
-        "meeting",
         "start"
       ],
       "prompt": {
@@ -1919,7 +1911,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team",
         "project"
@@ -1963,7 +1955,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "finish",
         "report"
@@ -2014,7 +2006,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "boss",
         "office"
@@ -2054,14 +2046,14 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "receive",
         "email"
       ],
       "prompt": {
-        "ru": "Ты получил моё письмо?",
-        "uz": "Xatimni oldingmi?"
+        "ru": "Вы получили моё письмо?",
+        "uz": "Xatimni oldingizmi?"
       },
       "fragments": [
         "did",
@@ -2090,11 +2082,10 @@
       "type": "sentence",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
-        "client",
         "discuss"
       ],
       "prompt": {
@@ -2134,7 +2125,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "manager",
         "work"
@@ -2172,7 +2163,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2216,7 +2207,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "task"
       ],
@@ -2253,7 +2244,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "manager"
       ],
@@ -2282,7 +2273,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team"
       ],
@@ -2311,7 +2302,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2340,7 +2331,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "meeting"
       ],
@@ -2369,7 +2360,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "project"
       ],
@@ -2398,7 +2389,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "email"
@@ -2413,8 +2404,8 @@
         "send"
       ],
       "translation": {
-        "ru": "Можешь прислать мне письмо?",
-        "uz": "Menga xat yubora olasanmi?"
+        "ru": "Не могли бы вы прислать мне письмо?",
+        "uz": "Menga xat yubora olasizmi?"
       },
       "explanation": {
         "ru": "send an email — отправить письмо.",
@@ -2428,7 +2419,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "phone"
       ],
@@ -2442,8 +2433,8 @@
         "answer"
       ],
       "translation": {
-        "ru": "Пожалуйста, ответь на звонок!",
-        "uz": "Iltimos, telefonga javob ber!"
+        "ru": "Пожалуйста, ответьте на звонок!",
+        "uz": "Iltimos, telefonga javob bering!"
       },
       "explanation": {
         "ru": "answer the phone — ответить на звонок, без предлога. Reply и respond говорят о сообщениях: reply to an email.",
@@ -2457,7 +2448,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "salary"
       ],
@@ -2486,7 +2477,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2513,12 +2504,11 @@
       "type": "collocation",
       "lesson": {
         "stage": 7,
-        "number": 1
+        "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
-        "discuss",
-        "meeting"
+        "discuss"
       ],
       "text": "Let's ___ this problem at the meeting.",
       "options": [
@@ -2545,7 +2535,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "report"
@@ -2555,8 +2545,8 @@
         "Send me the report"
       ],
       "translation": {
-        "ru": "Пришли мне отчёт",
-        "uz": "Menga hisobotni yubor"
+        "ru": "Пришлите мне отчёт",
+        "uz": "Menga hisobotni yuboring"
       }
     },
     {
@@ -2566,16 +2556,14 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "meeting"
       ],
       "text": "The meeting is at ten",
       "accepted": [
         "The meeting is at ten",
-        "The meeting is at 10",
-        "The meeting's at ten",
-        "The meeting's at 10"
+        "The meeting is at 10"
       ],
       "translation": {
         "ru": "Встреча в десять",
@@ -2589,7 +2577,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "work",
         "office"
@@ -2610,7 +2598,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "client"
       ],
@@ -2619,8 +2607,8 @@
         "Call the client today"
       ],
       "translation": {
-        "ru": "Позвони клиенту сегодня",
-        "uz": "Bugun mijozga qo'ng'iroq qil"
+        "ru": "Позвоните клиенту сегодня",
+        "uz": "Bugun mijozga qo'ng'iroq qiling"
       }
     },
     {
@@ -2630,7 +2618,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "boss"
       ],
@@ -2650,7 +2638,7 @@
         "stage": 7,
         "number": 5
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "start"
       ],
@@ -2671,7 +2659,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "email"
       ],
@@ -2681,8 +2669,8 @@
         "Check your e-mail"
       ],
       "translation": {
-        "ru": "Проверь почту",
-        "uz": "Pochtangni tekshir"
+        "ru": "Проверьте почту",
+        "uz": "Pochtangizni tekshiring"
       }
     },
     {
@@ -2692,14 +2680,13 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "project"
       ],
       "text": "The project is ready",
       "accepted": [
-        "The project is ready",
-        "The project's ready"
+        "The project is ready"
       ],
       "translation": {
         "ru": "Проект готов",
@@ -2713,7 +2700,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "computer"
       ],
@@ -2733,7 +2720,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team",
         "work"

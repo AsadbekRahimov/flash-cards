@@ -766,8 +766,7 @@
       ],
       "text": "The car is in the garage",
       "accepted": [
-        "The car is in the garage",
-        "The car's in the garage"
+        "The car is in the garage"
       ],
       "translation": {
         "ru": "Машина в гараже",
@@ -827,7 +826,8 @@
       ],
       "text": "Who will sweep the floor?",
       "accepted": [
-        "Who will sweep the floor"
+        "Who will sweep the floor?",
+        "Who'll sweep the floor?"
       ],
       "translation": {
         "ru": "Кто подметёт пол?",
@@ -867,7 +867,7 @@
       ],
       "text": "Did you pay the deposit?",
       "accepted": [
-        "Did you pay the deposit"
+        "Did you pay the deposit?"
       ],
       "translation": {
         "ru": "Вы заплатили залог?",
@@ -1699,7 +1699,7 @@
       ],
       "text": "Did you get my letter?",
       "accepted": [
-        "Did you get my letter"
+        "Did you get my letter?"
       ],
       "translation": {
         "ru": "Вы получили моё письмо?",
@@ -1719,7 +1719,7 @@
       ],
       "text": "Can you deliver it today?",
       "accepted": [
-        "Can you deliver it today"
+        "Can you deliver it today?"
       ],
       "translation": {
         "ru": "Вы можете доставить это сегодня?",
@@ -1760,7 +1760,7 @@
       ],
       "text": "Can I get a refund?",
       "accepted": [
-        "Can I get a refund"
+        "Can I get a refund?"
       ],
       "translation": {
         "ru": "Можно мне вернуть деньги?",
@@ -1780,8 +1780,8 @@
       ],
       "text": "Where is my scarf?",
       "accepted": [
-        "Where is my scarf",
-        "Where's my scarf"
+        "Where is my scarf?",
+        "Where's my scarf?"
       ],
       "translation": {
         "ru": "Где мой шарф?",
@@ -1801,7 +1801,7 @@
       ],
       "text": "What a beautiful necklace!",
       "accepted": [
-        "What a beautiful necklace"
+        "What a beautiful necklace!"
       ],
       "translation": {
         "ru": "Какое красивое ожерелье!",
@@ -2672,7 +2672,7 @@
       ],
       "text": "Do you want a snack?",
       "accepted": [
-        "Do you want a snack"
+        "Do you want a snack?"
       ],
       "translation": {
         "ru": "Хотите перекусить?",
@@ -2692,7 +2692,7 @@
       ],
       "text": "How many calories are in this?",
       "accepted": [
-        "How many calories are in this"
+        "How many calories are in this?"
       ],
       "translation": {
         "ru": "Сколько в этом калорий?",
@@ -3579,8 +3579,8 @@
       ],
       "text": "What is this insect?",
       "accepted": [
-        "What is this insect",
-        "What's this insect"
+        "What is this insect?",
+        "What's this insect?"
       ],
       "translation": {
         "ru": "Что это за насекомое?",
@@ -4461,8 +4461,7 @@
       ],
       "text": "My brother is in the army",
       "accepted": [
-        "My brother is in the army",
-        "My brother's in the army"
+        "My brother is in the army"
       ],
       "translation": {
         "ru": "Мой брат служит в армии",
@@ -4604,8 +4603,8 @@
       ],
       "text": "What is the capital of France?",
       "accepted": [
-        "What is the capital of France",
-        "What's the capital of France"
+        "What is the capital of France?",
+        "What's the capital of France?"
       ],
       "translation": {
         "ru": "Какая столица у Франции?",

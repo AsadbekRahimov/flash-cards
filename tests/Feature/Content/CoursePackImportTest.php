@@ -5,10 +5,8 @@ declare(strict_types=1);
 use App\Domain\Content\Services\CoursePackImporter;
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\VocabularyImporter;
-use App\Domain\Practice\Services\PracticeImporter;
 use App\Models\Course;
 use App\Models\Lesson;
-use App\Models\PracticeItem;
 use App\Models\Stage;
 use App\Models\User;
 use App\Models\Word;
@@ -17,7 +15,6 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
@@ -25,6 +22,7 @@ uses(RefreshDatabase::class);
  * The course pack `english-a1-a2` (database/data/courses/english-a1-a2, docs/CONTENT_A1_A2.md) and its importer
  * `content:import-course`. The invariants are checked on the files that are actually there; the full course is
  * pinned at 20 modules / 100 lessons / 1 000 words, each half (A1: modules 1-10, A2: modules 11-20) at exactly 500.
+ * Its practice packs (database/data/practice/english-a1-a2*.json) are PracticePackTest.
  */
 
 const CPI_DIR = 'database/data/courses/english-a1-a2';
@@ -177,35 +175,6 @@ it('is idempotent: a second run adds nothing and skips every word', function ():
         ->and($second->courseCreated)->toBeFalse()
         ->and($second->totals())->toBe(['added' => 0, 'updated' => 0, 'skipped' => $words])
         ->and(Course::query()->where('slug', 'english-a1-a2')->count())->toBe(1);
-});
-
-it('imports the practice pack of the new course without a refusal, on lessons that hold the target words', function (): void {
-    Queue::fake();
-    cpi_import();
-    $raw = (string) file_get_contents(base_path('database/data/practice/english-a1-a2.json'));
-    $file = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-
-    $report = app(PracticeImporter::class)->importAsSystem($raw, false);
-
-    expect($file['course'])->toBe('english-a1-a2')
-        ->and($report->errors)->toBe([])
-        ->and($report->toArray())->toMatchArray(['added' => 90, 'updated' => 0, 'skipped' => 0, 'aborted' => false])
-        ->and(PracticeItem::query()->count())->toBe(90)
-        ->and(PracticeItem::query()->whereDoesntHave('words')->count())->toBe(0);
-
-    // Every target word is a word of the task's module, and the task sits in the lesson of at least one of them.
-    $words = Word::query()->with('lesson.stage')->get()->groupBy('word');
-    foreach ($file['items'] as $task) {
-        $inLesson = 0;
-        foreach ($task['target_words'] as $target) {
-            $inModule = $words->get($target)?->first(fn (Word $w): bool => $w->lesson->stage->number === $task['lesson']['stage']);
-            expect($inModule)->not->toBeNull("{$task['key']}: '{$target}' is not in its module");
-            $inLesson += $inModule->lesson->number === $task['lesson']['number'] ? 1 : 0;
-        }
-        expect($inLesson)->toBeGreaterThan(0, $task['key']);
-    }
-
-    expect(app(PracticeImporter::class)->importAsSystem($raw, false)->toArray())->toMatchArray(['added' => 0, 'skipped' => 90]);
 });
 
 it('runs content:import-course: refuses without --create, creates a draft with it, and succeeds again', function (): void {
