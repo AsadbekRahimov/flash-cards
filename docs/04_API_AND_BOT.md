@@ -1445,6 +1445,42 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - **`active_run`**: идущий и не просроченный забег ученика (`progress {answered, total}`) или `null`.
 - **`class_caravan`** — `null` до G2.9, **`limits`** — `null` до G2.8.
 
+#### Забег (G2.2b + G2.2c)
+
+Все пять маршрутов — `throttle:twa-api` плюс свой лимитер по ученику; аудио — вне `twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`; чужой и несуществующий забег — **404** `game_run_not_found`; закрытый (`finished`, не принявший ответ / подсказку) — **410** `game_run_closed {finish_reason}`. Ошибки — `ApiErrorResource` с `details` (коды — docs/18 §12.8). Даты — ISO 8601 UTC с мс.
+
+| Маршрут | Лимитер | Тело → ответ |
+|---|---|---|
+| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. Другие `kind` (`boss`, `daily`, `class_boss`) — **422** валидации до G2.3 / G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` |
+| `GET /game/runs/{id}` | `twa-api` | забег |
+| `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
+| `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
+| `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
+| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store`; элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
+
+`answer.*` — как в практике: `option_id` (виды с вариантами), `text` (`spell`, `gap`, `dictation`), `order` (`sentence`), `left_id` + `right_id` (`pairs_round`), `skip: true` (пропуск — не знаю); форму проверяет вид: 422 `invalid_answer_shape`, `unknown_option_id`, `unknown_element_id`.
+
+Забег (`GET`, `POST /runs`, `run` в ответах, `abandon`):
+
+```json
+{
+  "id": 9, "kind": "stop", "status": "active", "finish_reason": null,
+  "city": "Самарканд", "stage_number": 1, "lesson_number": 1, "lesson_title": "Фрукты", "scope_widened": false,
+  "total": 9, "position": 3, "flasks": 3, "flasks_max": 3, "combo": 2, "score": 40,
+  "current": {"element": {"id": "e3k9", "kind": "translate_fwd", "prompt": "apple", "audio": true, "audio_url": "/api/twa/game/runs/9/audio/e3k9", "options": [{"id": "o1a2", "text": "яблоко"}]}, "event": "bazaar"},
+  "boosters": {"available": [], "used": []},
+  "hint": {"price": 5, "available": true},
+  "summary": null,
+  "server_now": "2026-11-05T10:00:00.000Z"
+}
+```
+
+- `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`.
+- `boosters` — пустые списки до G2.5b (контракт потом не меняется). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict}, boss}`.
+- Повтор того же `request_id` (ответ и подсказка) возвращает тот же `verdict` / `hint` и актуальный `run`; другой `request_id` на уже отвеченный элемент — 409 `answer_already_accepted {verdict}`; тот же `request_id` с другим элементом — 409 `request_id_reused`; не текущий элемент — 409 `element_not_current {current}`.
+- Просроченный забег (`expires_at`) закрывается лениво любым обращением (`finished/expired`) и командой `game:close-expired` (каждые 15 минут, `withoutOverlapping`).
+- События: `game.run_started` пишет `RunService` при старте (после commit); `game.run_finished` и награды — G2.5a.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook

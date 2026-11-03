@@ -20,6 +20,7 @@ use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
+use App\Domain\Game\Enums\TaskKind;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameAccess;
@@ -59,6 +60,9 @@ use Throwable;
  */
 final class RunService
 {
+    /** The route of the clip of an element (docs/18 §12.8); the URL goes into the projection of `listen` and `dictation`. */
+    public const AUDIO_ROUTE = 'twa.game.runs.audio';
+
     public function __construct(
         private readonly GameAccess $access,
         private readonly CourseCatalogService $catalog,
@@ -277,7 +281,7 @@ final class RunService
             if ($element !== null) {
                 $event = $snapshot->eventAt($state->current);
                 $current = [
-                    'element' => $this->tasks->forElement($element)->project($element, $locale, $state),
+                    'element' => $this->withAudioUrl($run, $element, $this->tasks->forElement($element)->project($element, $locale, $state)),
                     'event' => $event?->value,
                 ];
                 $hintAvailable = $event === RunEvent::Bazaar && ! $state->isHinted($element->id) && $this->tasks->forElement($element)->hint($element, $state) !== null;
@@ -857,6 +861,21 @@ final class RunService
             'mistakes' => $mistakes,
             'boss' => null,
         ];
+    }
+
+    /**
+     * The URL of the clip of a `listen` / `dictation` element (docs/18 §12.8: the audio route of the run, by the opaque id of the element).
+     *
+     * @param  array<string, mixed>  $projection
+     * @return array<string, mixed>
+     */
+    private function withAudioUrl(GameRun $run, SnapshotElement $element, array $projection): array
+    {
+        if (($element->kind === TaskKind::Listen->value || $element->kind === TaskKind::Dictation->value) && is_string($element->get('audio_path'))) {
+            $projection['audio_url'] = route(self::AUDIO_ROUTE, ['run' => $run->id, 'element' => $element->id], false);
+        }
+
+        return $projection;
     }
 
     private function hintPrice(): int

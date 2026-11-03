@@ -11,11 +11,13 @@ use App\Models\Course;
 use App\Models\GameRun;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\PracticeItem;
 use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Tests\Support\Practice\DictationKit;
 use Tests\Support\Practice\PracticeKit;
 
 /**
@@ -50,6 +52,23 @@ final class GameKit
         for ($i = 1; $i <= $words; $i++) {
             $list[] = self::word($lesson, $learner, "wordnum{$i}", "перевод {$i}", $voiced, $state);
         }
+
+        return [$learner, $course, $lesson, $list];
+    }
+
+    /**
+     * A stop rich enough for every kind of task: `$words` voiced words with examples (a round of pairs, listen, gap, spell, the
+     * translations), a published collocation, a sentence and a dictation with its clip.
+     *
+     * @return array{0: Learner, 1: Course, 2: Lesson, 3: list<Word>}
+     */
+    public static function richStop(int $words = 13): array
+    {
+        Storage::fake('practice_audio');
+        [$learner, $course, $lesson, $list] = self::stop($words, voiced: true);
+        PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($list[0])->create();
+        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($list[1])->create();
+        DictationKit::phrase($lesson, $learner, 'Phrase of the caravan');
 
         return [$learner, $course, $lesson, $list];
     }

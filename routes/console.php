@@ -50,6 +50,12 @@ Schedule::command('practice:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// The runs of the game past `expires_at` become finished / expired and let go of the learner's "one active run" (docs/18 §12.2.1, §12.5.1):
+// one conditional UPDATE per run, so overlapping or repeated runs are harmless.
+Schedule::command('game:close-expired')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')

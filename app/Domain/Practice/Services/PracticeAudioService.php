@@ -10,6 +10,7 @@ use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Practice\DTO\AudioClip;
 use App\Domain\Practice\DTO\AudioStream;
 use App\Domain\Practice\DTO\Snapshot;
+use App\Domain\Practice\DTO\SnapshotElement;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Domain\Twa\Services\TtsFallbackService;
@@ -89,10 +90,13 @@ final class PracticeAudioService
     public function clipFor(Snapshot $snapshot, string $elementId): ?AudioClip
     {
         $element = $snapshot->element($elementId);
-        if ($element === null) {
-            return null;
-        }
 
+        return $element === null ? null : $this->clipOf($element);
+    }
+
+    /** The file one element names (a session's, a battle's, a run's): null when it names none, or a disk that is not ours. */
+    public function clipOf(SnapshotElement $element): ?AudioClip
+    {
         $disk = $element->get('audio_disk');
         $path = $element->get('audio_path');
         if (! is_string($disk) || ! is_string($path) || $path === '' || ! in_array($disk, $this->disks(), true)) {
