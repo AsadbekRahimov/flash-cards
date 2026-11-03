@@ -51,7 +51,7 @@ it('answers -1 and writes nothing when Click is switched off, even with a valid 
     config()->set('billing.providers.click.enabled', false);
     $order = PaymentOrder::factory()->click()->create();
 
-    clickPost($action, ClickFixtures::prepare($order))
+    clickPost($action, $action === 'prepare' ? ClickFixtures::prepare($order) : ClickFixtures::complete($order, 1))
         ->assertOk()
         ->assertJsonPath('error', -1);
 
@@ -73,6 +73,31 @@ it('answers a switched-off provider exactly like a wrong signature, echoing the 
         ->and($off)->toBe($wrong)
         ->and($off['merchant_trans_id'])->toBe($order->token)
         ->and($off['click_trans_id'])->toBe(1234567890);
+})->with(['prepare', 'complete']);
+
+it('answers a malformed form the same whether Click is switched on or off', function (string $action, string $case): void {
+    $order = PaymentOrder::factory()->click()->create();
+    $valid = $action === 'prepare' ? ClickFixtures::prepare($order) : ClickFixtures::complete($order, 1);
+    $form = match ($case) {
+        'empty' => [],
+        'wrong action' => array_replace($valid, ['action' => 7]),
+        'bad sign_time' => array_replace($valid, ['sign_time' => 'yesterday']),
+        'no amount' => array_diff_key($valid, ['amount' => 1]),
+    };
+
+    $on = clickPost($action, $form)->assertOk()->json();
+    config()->set('billing.providers.click.enabled', false);
+    $off = clickPost($action, $form)->assertOk()->json();
+
+    expect($on['error'])->not->toBe(0)->and($off)->toBe($on);
+})->with(['prepare', 'complete'])->with(['empty', 'wrong action', 'bad sign_time', 'no amount']);
+
+it('answers a well-formed request to a switched-off Click with -1, like a wrong signature', function (string $action): void {
+    config()->set('billing.providers.click.enabled', false);
+    $order = PaymentOrder::factory()->click()->create();
+    $form = $action === 'prepare' ? ClickFixtures::prepare($order) : ClickFixtures::complete($order, 1);
+
+    clickPost($action, $form)->assertOk()->assertJsonPath('error', -1);
 })->with(['prepare', 'complete']);
 
 it('runs Prepare -> Complete from the fixtures over HTTP as form data, crediting the order once', function (): void {

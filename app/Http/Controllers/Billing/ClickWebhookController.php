@@ -54,11 +54,19 @@ final class ClickWebhookController extends Controller
         $input = $request->post();
 
         // A provider switched off in config answers exactly like a wrong signature - the same code, the same echo of the
-        // request fields - so "off" cannot be told from "wrong key"; the key being set changes nothing (docs/07 §2a).
+        // request fields - so "off" cannot be told from "wrong key"; the key being set changes nothing (docs/07 §2a). The form is
+        // parsed first, as the enabled provider does, so a malformed request gets the same -8 / -3 either way.
         if (! $providers->isEnabled(SubscriptionProvider::Click)) {
             Log::warning('billing.click.disabled', ['ip' => $request->ip()]);
 
-            return response()->json(ClickMerchantService::errorResponse($input, $action, ClickException::signCheckFailed('provider disabled')));
+            try {
+                ClickRequest::parse($input, $action);
+                $e = ClickException::signCheckFailed('provider disabled');
+            } catch (ClickException $malformed) {
+                $e = $malformed;
+            }
+
+            return response()->json(ClickMerchantService::errorResponse($input, $action, $e));
         }
 
         try {
