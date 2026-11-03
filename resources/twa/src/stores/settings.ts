@@ -13,6 +13,8 @@ interface SettingsState {
   status: SettingsStatus
   /** a PATCH is in flight: the screen disables its controls, changes are applied one at a time */
   saving: boolean
+  /** "Delete account" is in flight */
+  deleting: boolean
   errorMessage: string
 }
 
@@ -35,6 +37,7 @@ export const useSettingsStore = defineStore('settings', {
     data: null,
     status: 'idle',
     saving: false,
+    deleting: false,
     errorMessage: '',
   }),
 
@@ -123,6 +126,31 @@ export const useSettingsStore = defineStore('settings', {
         return false
       } finally {
         this.saving = false
+      }
+    },
+
+    /**
+     * "Delete account": the server soft-deletes it and the token stops working at once, so the session is dropped here
+     * too and nothing may ask the server again (a request with a stale token would sign the learner in anew and
+     * bring the account back). The refusal is returned, not put in `errorMessage` (that one is the screen's toast):
+     * the sheet that asked shows it.
+     *
+     * @returns `until` - the moment up to which `/start` in the bot brings the account back; or `error` - why it was not deleted
+     */
+    async deleteAccount(): Promise<{ until: string } | { error: string }> {
+      if (this.deleting) return { error: '' }
+
+      this.deleting = true
+      try {
+        const res = await api.me.deleteAccount()
+        useAuthStore().logout()
+        this.data = null
+        this.status = 'idle'
+        return { until: res.restorable_until }
+      } catch (err) {
+        return { error: errorMessage(err, 'settings') }
+      } finally {
+        this.deleting = false
       }
     },
 

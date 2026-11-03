@@ -165,6 +165,15 @@
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
+### A.2c `POST /api/twa/me/delete` — «Удалить аккаунт»
+
+Тело `{"confirm": true}` (`DeleteAccountRequest`: без подтверждения — `422`, ничего не меняется). Мягкое удаление ученика
+(`LearnerDeletionService::delete`, решение владельца 03.11.2026): `learners.deleted_at`, аудит `learner.deleted {by: self}` (без PII), у Stars сразу
+снимается автопродление (best-effort; оплаченный период и платежи не трогаются). Ответ `200` (`AccountDeletedResource`):
+`{deleted: true, restorable_until}` — ISO-8601, `deleted_at + learners.purge.after_days` (30). Токен перестаёт работать сразу: любой следующий запрос с ним —
+`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until`;
+после — `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
+
 ### A.2b `PATCH /api/twa/me/settings`
 Частичное изменение настроек (docs/12 §3.8); `LearnerSettingsService::update` — то же место, через которое идёт `/settings` в боте. Меняются только переданные поля,
 лишние поля игнорируются, пустое тело — no-op. Ответ — тот же JSON, что у `GET /me` (A.2), уже с новыми настройками (подписи в новом языке).
@@ -1436,13 +1445,14 @@ public function __invoke(Request $request, string $secret)
 | `/invite` | ЛС | любой learner | «Пригласить друга» (docs/13 §7.1, 2C.1): ссылка `https://t.me/<bot>?start=ref_<referral_code>` (код генерируется лениво `ReferralService::codeFor`; пока `TELEGRAM_BOT_USERNAME` пуст — только код), правило («друг позанимается 3 дня от 10 карточек — оба получите 7 дней Pro», числа из `config/referrals.php`), счётчики «пришли / занимаются / награждены» и inline-кнопка «Поделиться ссылкой» (`https://t.me/share/url?url=…&text=…`). Язык learner'а (`referrals.*`). Заблокированному — `referrals.blocked`; учителю и в группе — ничего. |
 | `/paysupport` | ЛС, активная группа | любой | Требование Telegram для оплаты Stars: контакт платёжной поддержки (`BILLING_SUPPORT_CONTACT`; «не указан», если пуст), ссылка на публичную оферту (правила возврата) и подсказка про `/pro`. Язык: learner'а, иначе Telegram-язык отправителя / язык группы. В неактивной группе — молчание (Group Lock). |
 | `/start f_<code>` | ЛС | любой learner | Приглашение в друзья (docs/13 §7.5, 2C.5), **с согласием открывшего**: ссылка ничего не пишет, бот спрашивает «Отправить X запрос в друзья?» + кнопки (`fr1:snd:<code>` / `fr1:no:<code>`); по «Отправить» создаётся `request(открывший → владелец)`, владельцу уходит ЛС с кнопками принять/отклонить (`fr1:acc:<id>` / `fr1:dec:<id>`), запрос виден и во «Входящих» TWA. Уже друзья / уже отправлено / блок — короткое сообщение; если владелец сам уже запрашивал открывшего — показывается этот входящий запрос. **`ref_<code>` дружбу не предлагает** (существующий learner: реферал `rejected {existing_learner}` + «Сегодня»). Не прошедшему онбординг ничего не записывается. |
-| `/help` | любой | любая | Справка простым текстом (без HTML), `bot.help.*`. В ЛС **сначала ученик** — «Как заниматься»: кнопка «LexiFlow» слева от поля ввода и `/today`, `/settings`, `/invite`, `/pro` и `/promo`, `/paysupport`; затем «Для учителей»: бот в группе администратором, `/start_training`, `/start_exam`, `/close_exam`, `/stats`. В группе — команды учителя. |
+| `/delete_account` | ЛС | learner | «Удалить аккаунт»: сообщение-подтверждение с inline-кнопками `del1:yes` («Да, удалить») и `del1:no` («Отмена»); сама команда ничего не удаляет. `yes` — `LearnerDeletionService::delete` (как A.2c, аудит `by: self`), кнопки убираются, ответ «Аккаунт удалён… отправьте /start, и аккаунт вернётся»; `no` — «аккаунт не удалён». Ученик ищется без восстановления: уже удалённому бот отвечает «аккаунта нет… /start», повторное `yes` ничего не делает. Заблокированный ученик удалить аккаунт не может (иначе бан исчез бы вместе с ним) — «доступ ограничен». Только в личном чате: в активной группе — подсказка «откройте личный чат», в неактивной — молчание; кнопка из сообщения не в личном чате игнорируется. Тот же вопрос задаёт кнопка «Удалить аккаунт» в `/settings` (`del1:ask`). Тексты — `bot.delete_account.*`; команда есть в меню `telegram:setup-bot` (`commands.private.delete_account`) и в `/help`. |
+| `/help` | любой | любая | Справка простым текстом (без HTML), `bot.help.*`. В ЛС **сначала ученик** — «Как заниматься»: кнопка «LexiFlow» слева от поля ввода и `/today`, `/settings`, `/invite`, `/pro` и `/promo`, `/paysupport`, `/delete_account`; затем «Для учителей»: бот в группе администратором, `/start_training`, `/start_exam`, `/close_exam`, `/stats`. В группе — команды учителя. |
 
 **Меню команд и кнопка Mini App: `telegram:setup-bot`** (docs/14 §7). Бот сам не регистрирует свои команды, поэтому без этого шага
 по «/» Telegram ничего не подсказывает, а в личном чате нет постоянной кнопки приложения. Команда вызывает Bot API (контракт
 `TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
 
-- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`), `all_group_chats`
+- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `delete_account`, `help`), `all_group_chats`
   (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый
   scope: без `language_code` (язык по умолчанию, ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`.
   Описания — `lang/{ru,uz}/commands.php` (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и

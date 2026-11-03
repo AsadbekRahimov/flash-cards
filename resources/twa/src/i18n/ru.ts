@@ -501,6 +501,18 @@ export const ru = {
   'league.rating_title': 'Рейтинг',
   'league.rules_title': 'Как работают лиги',
   'settings.leagues.hint': 'Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент.',
+  'settings.group.danger': 'Опасная зона',
+  'settings.delete': 'Удалить аккаунт',
+  'settings.delete.title': 'Удалить аккаунт?',
+  'settings.delete.data': 'Ваши данные будут окончательно удалены через 30 дней.',
+  'settings.delete.return': 'Вернуться можно до этого срока: достаточно отправить боту команду /start.',
+  'settings.delete.payments': 'Платёжные записи хранятся по закону.',
+  'settings.delete.pro': 'Подписка Pro прекращается.',
+  'settings.delete.yes': 'Да, удалить',
+  'settings.delete.no': 'Отмена',
+  'settings.deleted.title': 'Аккаунт удалён',
+  'settings.deleted.text': 'Вернуться можно до {date}: отправьте боту команду /start. После этого срока данные будут удалены окончательно.',
+  'settings.deleted.text_plain': 'Вернуться можно в течение 30 дней: отправьте боту команду /start. После этого срока данные будут удалены окончательно.',
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': 'Пригласить друга',

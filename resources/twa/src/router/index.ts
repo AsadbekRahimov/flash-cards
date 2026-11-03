@@ -131,6 +131,13 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'profile' },
   },
   {
+    // After "Delete account": no tab bar, no request (the session is gone).
+    path: '/account-deleted',
+    name: 'account-deleted',
+    component: () => import('@/views/AccountDeletedView.vue'),
+    props: (route) => ({ until: typeof route.query.until === 'string' ? route.query.until : null }),
+  },
+  {
     path: '/billing',
     name: 'billing',
     component: () => import('@/views/BillingView.vue'),

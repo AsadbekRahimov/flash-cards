@@ -465,6 +465,18 @@ export const uz: Translations = {
   'league.rating_title': 'Reyting',
   'league.rules_title': 'Ligalar qanday ishlaydi',
   'settings.leagues.hint': "Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.",
+  'settings.group.danger': 'Xavfli hudud',
+  'settings.delete': "Akkauntni o'chirish",
+  'settings.delete.title': "Akkauntni o'chirasizmi?",
+  'settings.delete.data': "Ma'lumotlaringiz 30 kundan keyin butunlay o'chiriladi.",
+  'settings.delete.return': "Bu muddatgacha qaytish mumkin: botga /start buyrug'ini yuborishning o'zi kifoya.",
+  'settings.delete.payments': "To'lov yozuvlari qonunga ko'ra saqlanadi.",
+  'settings.delete.pro': "Pro obuna to'xtatiladi.",
+  'settings.delete.yes': "Ha, o'chirish",
+  'settings.delete.no': 'Bekor qilish',
+  'settings.deleted.title': "Akkaunt o'chirildi",
+  'settings.deleted.text': "{date} gacha qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi.",
+  'settings.deleted.text_plain': "30 kun ichida qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi.",
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': "Do'stni taklif qilish",

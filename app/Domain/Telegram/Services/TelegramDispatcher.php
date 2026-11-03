@@ -7,6 +7,8 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
+use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
 use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\InviteCommandHandler;
@@ -64,11 +66,13 @@ final class TelegramDispatcher
         ChatMemberHandler $chatMember,
         TodayCommandHandler $today,
         SettingsCommandHandler $settings,
+        DeleteAccountCommandHandler $deleteAccount,
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
         ProCallbackHandler $proCallback,
         OrganizationCallbackHandler $organizationCallback,
         FriendsCallbackHandler $friendsCallback,
+        DeleteAccountCallbackHandler $deleteAccountCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -91,6 +95,7 @@ final class TelegramDispatcher
             $start,
             $today,
             $settings,
+            $deleteAccount,
             $help,
             // Catch-all for the rest of a learner's DM: must stay last.
             $learnerDm,
@@ -102,6 +107,7 @@ final class TelegramDispatcher
             $proCallback,
             $organizationCallback,
             $friendsCallback,
+            $deleteAccountCallback,
         ];
     }
 

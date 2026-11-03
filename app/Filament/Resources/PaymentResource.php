@@ -106,6 +106,8 @@ class PaymentResource extends Resource
                 TextEntry::make('amount_label')->label(__('admin.payments.fields.amount'))->state(fn (Payment $record): string => PriceFormatter::plain($record->amount, $record->currency)),
                 TextEntry::make('occurred_at')->label(__('admin.payments.fields.occurred_at'))->dateTime(),
                 TextEntry::make('subscriber_label')->label(__('admin.payments.fields.subscriber'))->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
+                // The snapshot taken at payment time (payer_*): it stays readable after the learner is deleted for good.
+                TextEntry::make('payer_snapshot')->label(__('admin.payments.fields.payer_snapshot'))->state(fn (Payment $record): ?string => PayerSnapshot::fromRecord($record)->label())->placeholder('—'),
                 TextEntry::make('provider_charge_id')->label(__('admin.payments.fields.provider_charge_id'))->placeholder('—')->copyable(),
                 TextEntry::make('provider_event_id')->label(__('admin.payments.fields.provider_event_id'))->copyable(),
                 TextEntry::make('payment_order_id')->label(__('admin.payments.fields.order'))->placeholder('—')

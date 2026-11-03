@@ -381,6 +381,9 @@ invited, rejected ones excluded), last seen.
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
+- **Delete account** (Удалить аккаунт; row button and the button on the learner page, confirmation required; admin only, like Block): see
+  *Account deletion* below.
+
 - **Practice pilot** (Пилот практики; column, filter *In the pilot / Not in the pilot*, and the button **Включить в пилот практики** /
   **Исключить из пилота** on the row and on the learner page; admin only): with `PRACTICE_ACCESS=pilot` only the learners in the pilot get the practice.
   Every real change is written to the audit log (`learner.practice_pilot_changed`: `from`, `to` — the moment the learner entered the pilot, or empty).
@@ -391,6 +394,30 @@ invited, rejected ones excluded), last seen.
   change is written to the audit log (`learner.scheduler_changed`: from, to, number of initialised cards). The learner page
   shows the current algorithm ("(default)" = no own bucket, the platform default applies). Rollback of the whole
   experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
+
+### Account deletion
+
+A learner deletes their account themselves (Mini App: Profile → Settings → Danger zone → *Delete account*; bot: `/delete_account` or the
+button in `/settings`; both ask for a confirmation). Support can do the same for them with **Delete account** in the panel — for example
+when the person asked in a message. What happens:
+
+1. **At once (soft delete).** The learner disappears from the lists, the Mini App stops opening (`401 learner_not_found`), reminders, battle
+   and friend messages stop, and the Stars auto-renewal is canceled at Telegram (the paid period is not cut: a learner who returns keeps the Pro they
+   paid for). If Telegram refuses, the deletion still goes through and the purge below ends the subscription anyway. Payments are not touched.
+2. **Within 30 days the person can come back** by writing `/start` to the bot (opening the Mini App again does the same): the account returns as it
+   was. Nothing is done by an admin — there is no «restore» button.
+3. **After 30 days** the command `learners:purge-deleted` (daily, 03:30) deletes the data for good (progress, sessions, friends, leagues,
+   memberships, reminders log). A new `/start` then creates a **new** learner from scratch.
+
+Every deletion is written to the audit log: `learner.deleted` (`meta.by` = `self` or `admin`, the admin's name in the *User* column; no personal
+data in the record), and the final one as `learner.purged`. A **blocked** learner cannot delete themselves in the bot (otherwise the block would
+disappear with the account); an admin can.
+
+**How a deleted learner reads in Payments.** Payment records are kept by law. In **Payments**, **Payment orders** and **Subscriptions** the
+*Payer* column shows `Name @username · tg:<Telegram id> #<learner id> (удалён)` for such a person: «(удалён)» means the learner row is deleted (soft
+or for good); `tg:<id>` is their Telegram id from the payer snapshot, taken when the order / payment was made. The page of a payment or an order
+has the snapshot as a line of its own — **Плательщик (снимок)** (`payer_telegram_user_id`, `payer_name`, `payer_username`) — also for a
+learner who is still alive: it is who paid *at that time*. A Stars refund of such a payment works the same, by the Telegram id of the snapshot.
 
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
 captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:

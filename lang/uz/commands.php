@@ -15,6 +15,7 @@ return [
         'invite' => "Do'stni taklif qilish",
         'pro' => 'Pro obuna',
         'promo' => 'Promokodni faollashtirish',
+        'delete_account' => "Akkauntni o'chirish",
         'help' => 'Yordam',
     ],
 

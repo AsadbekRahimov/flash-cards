@@ -33,6 +33,7 @@ import type {
   ExamQuestionResponse,
   MockExamOpenResponse,
   MeResponse,
+  AccountDeletedResponse,
   NextCardResponse,
   OrderStatusResponse,
   OrganizationsResponse,
@@ -107,6 +108,8 @@ export const api = {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
     revertTimezone: () => client().post<MeResponse>('/me/settings/timezone/revert'),
+    /** "Delete account": soft delete with the explicit confirmation; the token stops working at once. */
+    deleteAccount: () => client().post<AccountDeletedResponse>('/me/delete', { confirm: true }),
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),

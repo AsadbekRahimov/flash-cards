@@ -16,6 +16,12 @@ export interface AuthResponse {
   learner: Learner
 }
 
+/** `POST /me/delete` (docs/04 A.1a): the account is soft-deleted; `/start` in the bot brings it back until `restorable_until`. */
+export interface AccountDeletedResponse {
+  deleted: true
+  restorable_until: string
+}
+
 export interface MeResponse {
   learner: Learner & { username: string | null }
   groups: { id: number; title: string }[]
