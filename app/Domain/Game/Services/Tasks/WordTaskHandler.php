@@ -245,7 +245,9 @@ final class WordTaskHandler implements TaskHandler
     {
         $kind = $this->kindOf($element);
         $translation = $this->localized($kind === TaskKind::Spell ? $element->get('prompt') : $element->get('translation'), $locale);
-        $label = trim((string) $element->get('word').' — '.$translation, ' —');
+        // Not `trim($text, ' —')`: the mask is bytes, and the bytes of the dash are the tails of Cyrillic letters ("мир" ends in D1 80, which would be cut
+        // to a lone D1 and the JSON of the run would fail with malformed UTF-8).
+        $label = preg_replace('/^[\s—]+|[\s—]+$/u', '', (string) $element->get('word').' — '.$translation) ?? '';
 
         $entry = $state->entry($element->id);
         $answer = is_array($entry['answer'] ?? null) ? $entry['answer'] : [];
