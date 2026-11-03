@@ -4,25 +4,32 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services;
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Support\ProPromises;
 use App\Domain\Game\DTO\GameAccessState;
+use App\Domain\Game\DTO\GameLimitState;
 use App\Domain\Game\Exceptions\GameException;
 use App\Models\Learner;
-use Illuminate\Support\Facades\DB;
+use Carbon\CarbonImmutable;
 
 /**
  * The gate of the game "Caravan" (docs/18 §12.7.4): the flag of `config/game.php` and the pilot. There is no tariff mode - the free
- * part of the game is the product decision, and the Free limits are the business of `GameLimits` (G2.8).
+ * part of the game is the product decision, and the Free limits are the business of `GameLimits`.
  *
  *   access = off                                  -> `off`           403 game_unavailable
  *   access = pilot, the learner is not in it      -> `not_in_pilot`  403 game_unavailable (the same code: no hint)
  *   otherwise                                     -> `available`
  *
  * The pilot is the one of the practice (`learners.practice_pilot_at`, docs/18 §12.15): one audience for both. The check itself
- * reads the config and the loaded learner only; the block of `/me` adds one query (the coins and the tickets) while the game is open.
+ * reads the config and the loaded learner only; the block of `/me` adds one query (the limits, the coins and the tickets) while the
+ * game is open.
+ *
+ * @phpstan-import-type LimitsBlock from GameLimitState
  */
 final class GameAccess
 {
+    public function __construct(private readonly GameLimits $limits) {}
+
     public function state(Learner $learner): GameAccessState
     {
         $access = strtolower(trim((string) config('game.access', 'off')));
@@ -58,39 +65,24 @@ final class GameAccess
 
     /**
      * The block `game` of `GET /me` (docs/18 §12.8, docs/04 A.2), always there. `available`: the entries may be shown; `limits`: the
-     * Free limits of the day - `null` until `GameLimits` (G2.8) and while the game is closed; `pro_promise`: what the "what Pro gives"
-     * list may say about the game to this learner - `none` | `full` ({@see ProPromises::game()}); `coins` and `tickets`: the balances,
-     * 0 while the game is closed or the learner has not played. The Mini App draws it and decides nothing.
+     * Free limits of the day and the week ({@see GameLimits}, docs/18 §12.7.2) - `null` while the game is closed; `pro_promise`: what
+     * the "what Pro gives" list may say about the game to this learner - `none` | `full` ({@see ProPromises::game()}); `coins` and
+     * `tickets`: the balances, 0 while the game is closed or the learner has not played. The Mini App draws it and decides nothing.
+     * One statement while the game is open (the counts and the balances together), none while it is closed.
      *
-     * @return array{available: bool, limits: null, pro_promise: 'none'|'full', coins: int, tickets: int}
+     * @return array{available: bool, limits: LimitsBlock|null, pro_promise: 'none'|'full', coins: int, tickets: int}
      */
-    public function describe(Learner $learner): array
+    public function describe(Learner $learner, ?Entitlement $entitlement = null, ?CarbonImmutable $now = null): array
     {
         $available = $this->state($learner)->isAvailable();
-        [$coins, $tickets] = $available ? $this->balances($learner) : [0, 0];
+        $state = $available ? $this->limits->state($learner, $entitlement, $now) : null;
 
         return [
             'available' => $available,
-            'limits' => null,
+            'limits' => $state?->toArray(),
             'pro_promise' => ProPromises::game(open: $available)->value,
-            'coins' => $coins,
-            'tickets' => $tickets,
+            'coins' => $state === null ? 0 : $state->coins,
+            'tickets' => $state === null ? 0 : $state->tickets,
         ];
-    }
-
-    /**
-     * The coins and the tickets of the learner in one query (both rows are created lazily: a missing one is 0).
-     *
-     * @return array{0: int, 1: int}
-     */
-    private function balances(Learner $learner): array
-    {
-        $row = DB::table('learners')
-            ->leftJoin('game_wallets', 'game_wallets.learner_id', '=', 'learners.id')
-            ->leftJoin('game_profiles', 'game_profiles.learner_id', '=', 'learners.id')
-            ->where('learners.id', $learner->id)
-            ->first(['game_wallets.balance as coins', 'game_profiles.tickets as tickets']);
-
-        return [(int) ($row->coins ?? 0), (int) ($row->tickets ?? 0)];
     }
 }

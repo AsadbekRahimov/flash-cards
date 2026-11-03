@@ -6,6 +6,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Services\Economy\WalletService;
+use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\GameInventoryItem;
 use App\Models\GameItem;
@@ -44,11 +45,11 @@ uses(RefreshDatabase::class);
 const BUDGET_GAME_START = 20;
 
 /**
- * Statements of the start of a boss, measured (G2.4): `TwaAuth` 1, the course 1, the stage 1, the readiness of the city 1, the picker 1,
+ * Statements of the start of a boss, measured (G2.4): `TwaAuth` 1, the course 1, the stage 1, the live run 1, the plan (G2.8) 1, the readiness of the city 1, the picker 1,
  * the words and their translations 2, the distractors of the wider tiers 1 + 1 (when the city is short of them), the lock of the active
- * run, the insert and the event 3. A fixed set of phases, none per word or per lesson of the city.
+ * run, the insert and the event 3 (a Free learner adds the profile row of the claim). 13-14 measured. A fixed set of phases, none per word or per lesson of the city.
  */
-const BUDGET_BOSS_START = 12;
+const BUDGET_BOSS_START = 14;
 
 /**
  * Statements of the `POST /answer` that WINS the boss for the first time, measured on a learner the game sees for the first time (every
@@ -72,6 +73,32 @@ const BUDGET_GAME_ANSWER = 11;
 
 /** Statements of the hint of the bazaar, measured: `TwaAuth` 1, the lock of the run and the journal check 2, the wallet 5, the state of the run, the attempt and the event 3. */
 const BUDGET_GAME_HINT = 11;
+
+/**
+ * The start of a Free learner with a limit of runs (G2.8, docs/18 §12.7.2), measured with the entitlement cached: the start above plus
+ * the courtesy count (1), the lock of the learner's row (1) and the count under it (1) - the free run of the day; a run paid with a
+ * ticket adds the UPDATE of the profile, the ledger entry, the balance and the event `game.ticket_spent` (4). Pro and a Free learner
+ * without a limit pay BUDGET_GAME_START.
+ */
+const BUDGET_GAME_START_FREE = 22;
+
+const BUDGET_GAME_START_TICKET = 26;
+
+/**
+ * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
+ * statements, the row of the stop (1), the wallet and its ledger (4), the stop and the profile (2), the day (2), the run (1), the
+ * events (2) - 16 for the second run of a day (the learner's rows exist, the day is held already: no hook runs). The FIRST run of a
+ * day adds the hooks after the commit: the streak (the read of the learner, the UPDATE, its event - and the rows of the held days
+ * when the series is rebuilt), the ticket of the streak (none on an ordinary day: no query), the seat in the league (the week, the
+ * membership), the achievements (the keys, the best streak, the learned words) - 26. The first run of a learner the game has never
+ * seen makes the stop, the wallet, the profile and the day on the way (`insertOrIgnore` + the read again) and the week and the group
+ * of the league - 39 on SQLite, 41 on PostgreSQL (the group of the league is taken under an advisory lock and read again there).
+ */
+const BUDGET_GAME_FINISH = 16;
+
+const BUDGET_GAME_FINISH_NEW_DAY = 26;
+
+const BUDGET_GAME_FINISH_FIRST = 41;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
@@ -165,6 +192,82 @@ it('does not read more for a bigger lesson or a bigger city: the number of state
 
     // The count depends on whether the pool has the distractors itself (a wider tier is one more read), never on how big the pool is.
     expect($small)->toBeLessThanOrEqual(BUDGET_GAME_START)->and($big)->toBeLessThanOrEqual(BUDGET_GAME_START);
+});
+
+/** Plays the run to its last element (the service, outside the log) and measures the last answer over HTTP: the finish. */
+function gameBudgetFinish(Learner $learner, int $runId): int
+{
+    $runs = app(RunService::class);
+    $run = GameRun::query()->findOrFail($runId);
+    for ($i = 0; $i < $run->total - 1; $i++) {
+        $element = GameKit::current($run);
+        foreach (GameKit::rightAnswers($element) as $answer) {
+            $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], $answer);
+        }
+    }
+    // The last element may be a round of pairs (several answers): all but its final one go through the service as well.
+    $last = GameKit::current($run);
+    $answers = GameKit::rightAnswers($last);
+    $final = array_pop($answers);
+    foreach ($answers as $answer) {
+        $runs->answer($run, $learner, (string) Str::uuid(), $last['id'], $answer);
+    }
+    Cache::flush();
+    test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/me')->assertOk(); // warms the entitlement and the auth
+
+    return count(QueryLog::during(fn () => test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/game/runs/{$runId}/answer", [
+        'request_id' => (string) Str::uuid(), 'element_id' => $last['id'], 'answer' => $final,
+    ])->assertOk()->assertJsonPath('run.status', 'finished')));
+}
+
+it('stays within the budgets of the start of a Free learner with a limit - the free run of the day and a run paid with a ticket - and of Pro', function (): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::richStop(13);
+    GameProfile::factory()->withTickets(2)->create(['learner_id' => $learner->id]);
+    $headers = PracticeKit::headers($learner);
+    $body = ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id];
+    $start = fn (): int => count(QueryLog::during(fn () => test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()));
+    test()->withHeaders($headers)->getJson('/api/twa/me')->assertOk(); // warms the entitlement, the way the Mini App's first request does
+
+    $freeSlot = $start();
+    $firstId = GameRun::query()->latest('id')->value('id');
+    expect(GameRun::query()->findOrFail($firstId)->free_slot?->value)->toBe('daily');
+
+    // The free run of the day is spent with one answer; the next start pays a ticket.
+    $run = GameRun::query()->findOrFail($firstId);
+    $element = GameKit::current($run);
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$firstId}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $element['id'], 'answer' => GameKit::rightAnswers($element)[0]])->assertOk();
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$firstId}/abandon", ['confirm' => true])->assertOk();
+    Cache::flush();
+    test()->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+    $ticket = $start();
+    expect(GameRun::query()->latest('id')->firstOrFail()->free_slot?->value)->toBe('ticket');
+
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs/'.GameRun::query()->latest('id')->value('id').'/abandon', ['confirm' => true])->assertOk();
+    Cache::flush(); // before Pro: a flush after it would reset the version of the entitlement and resurrect the Free snapshot of the LRU store
+    PracticeKit::pro($learner);
+    test()->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+    $pro = $start();
+
+    expect($freeSlot)->toBeLessThanOrEqual(BUDGET_GAME_START_FREE)
+        ->and($ticket)->toBeLessThanOrEqual(BUDGET_GAME_START_TICKET)
+        ->and($pro)->toBeLessThanOrEqual(BUDGET_GAME_START);
+});
+
+it('stays within the budgets of the finish: the first run of a learner makes the rows on the way, the second of a day runs no hook, the first of a new day runs them', function (): void {
+    [$learner, $course, $lesson] = GameKit::richStop(13);
+    $headers = PracticeKit::headers($learner);
+    $body = ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id];
+    $start = fn (): int => test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');
+
+    $first = gameBudgetFinish($learner, $start());
+    $again = gameBudgetFinish($learner, $start());
+    CarbonImmutable::setTestNow('2026-11-06 10:00:00');
+    $newDay = gameBudgetFinish($learner, $start());
+
+    expect($first)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_FIRST)
+        ->and($again)->toBeLessThanOrEqual(BUDGET_GAME_FINISH)
+        ->and($newDay)->toBeLessThanOrEqual(BUDGET_GAME_FINISH_NEW_DAY);
 });
 
 it('does not read the material while a run is played: no word, lesson or practice item is touched by a read, an answer or a hint', function (): void {

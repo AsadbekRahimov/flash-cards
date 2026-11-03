@@ -11,6 +11,7 @@ use App\Domain\Game\DTO\RunLimits;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameAccess;
+use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Support\BossReadiness;
 use App\Domain\Game\Support\BossWordPicker;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -31,8 +32,8 @@ use Illuminate\Support\Facades\DB;
  *   - ready: the same rule as `boss.state` on the map ({@see BossReadiness}) - enough words introduced and enough stops cleared, else
  *     409 `boss_not_ready {introduced, required, cleared_stops, required_stops}`. A defeated boss is fought again without the check
  *     (the city is open; the reward is `boss_repeat`), as long as there are words to fight with;
- *   - the Free plan (bosses of the first `boss_stages` cities, 403 `game_pro_required`) and the free run / the ticket of the fight
- *     belong to G2.8 (`GameLimits`).
+ *   - the Free plan is {@see GameLimits}: the bosses of the first `boss_stages` cities only (403 `game_pro_required`), and the fight
+ *     costs the free run of the day or a ticket like a stop (403 `game_limit_reached`; claimed in {@see RunService::open()}).
  */
 final class BossService
 {
@@ -43,6 +44,7 @@ final class BossService
         private readonly BossWordPicker $picker,
         private readonly RunSnapshotBuilder $snapshots,
         private readonly RunService $runs,
+        private readonly GameLimits $limits,
         private readonly ProductEventRecorder $events,
     ) {}
 
@@ -64,12 +66,22 @@ final class BossService
             throw GameException::stageNotInCourse();
         }
 
-        // G2.8: GameLimits - boss_stages (403 game_pro_required)
+        // The same boss already on (a second tab) is the answer, whatever the limits say; another live run is 409.
+        $busy = $this->runs->busyForBoss($learner, $stage->id, $replaceActive, $now);
+        if ($busy !== null) {
+            return $busy;
+        }
+
+        // Free fights the bosses of the first `boss_stages` cities only (403 game_pro_required); the fight itself is claimed in open().
+        $this->limits->assertBossAllowed($learner, $stage->number, $now);
 
         ['readiness' => $readiness, 'defeated' => $defeated] = $this->readiness($learner, $stage);
         if (! $defeated && ! $readiness->isReady()) {
             throw GameException::bossNotReady($readiness->introduced, $readiness->required, $readiness->clearedStops, $readiness->requiredStops);
         }
+
+        // The runs of the day used up and no ticket (403 game_limit_reached), before the material is read.
+        $this->limits->assertRunAllowed($learner, RunKind::Boss, $now);
 
         $limits = RunLimits::for(RunKind::Boss);
         $wordIds = $this->picker->pick($learner->id, $stage->id, $limits->sizeMax);

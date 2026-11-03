@@ -21,8 +21,10 @@ use App\Models\Achievement;
 use App\Models\Course;
 use App\Models\GameCityProgress;
 use App\Models\GameCoinLedgerEntry;
+use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameStopProgress;
+use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\GameWordMiss;
 use App\Models\Learner;
@@ -514,4 +516,50 @@ it('is the same fight for the service as for the route', function (): void {
     $run = app(BossService::class)->start($learner, $course->slug, $stage->id);
 
     expect($run->kind)->toBe(RunKind::Boss)->and($run->total)->toBe(12);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------
+// the Free plan (G2.8: GameLimits)
+// ---------------------------------------------------------------------------------------------------------------------------
+
+it('lets Free fight only the bosses of the first boss_stages cities: 403 game_pro_required {kind: boss, stage_number} past them, and Pro fights any', function (): void {
+    [$learner, $course, $stage1] = bossWorld();
+    GameKit::limits(5, 1);
+    $city2 = Stage::factory()->create(['course_id' => $course->id, 'number' => 2]);
+    $lesson2 = Lesson::factory()->for($city2)->create(['number' => 1]);
+    foreach (range(1, 9) as $i) {
+        GameKit::word($lesson2, $learner, "secondcityword{$i}", "второй {$i}");
+    }
+
+    $refused = bossPost($learner, $course, $city2->id)->assertForbidden()->assertJsonPath('error.code', 'game_pro_required');
+    expect($refused->json('error.details'))->toBe(['kind' => 'boss', 'stage_number' => 2])
+        ->and(GameRun::query()->count())->toBe(0);
+    bossPost($learner, $course, $stage1->id)->assertCreated();
+
+    // the plan comes before the readiness: the second city is not ready either, and for Free it is still Pro's
+    bossPost($learner, $course, $city2->id, ['replace_active' => true])->assertForbidden()->assertJsonPath('error.code', 'game_pro_required');
+
+    PracticeKit::pro($learner);
+    bossPost($learner, $course, $city2->id, ['replace_active' => true])->assertConflict()->assertJsonPath('error.code', 'boss_not_ready');
+});
+
+it('costs the fight the free run of the day, then a ticket, then 403 game_limit_reached; the same boss on in a second tab is free', function (): void {
+    [$learner, $course, $stage] = bossWorld();
+    GameKit::limits(1, 1);
+
+    $run = GameRun::query()->findOrFail(bossPost($learner, $course, $stage->id)->assertCreated()->json('id'));
+    expect($run->free_slot?->value)->toBe('daily');
+
+    // a double tap on the live fight: the same run, nothing spent
+    bossPost($learner, $course, $stage->id)->assertCreated()->assertJsonPath('id', $run->id);
+    $played = bossPlay($run, $learner, wrong: [0, 1, 2]);
+    expect($played->isActive())->toBeFalse();
+
+    bossPost($learner, $course, $stage->id)->assertForbidden()->assertJsonPath('error.code', 'game_limit_reached')->assertJsonPath('error.details.kind', 'runs');
+
+    GameProfile::query()->where('learner_id', $learner->id)->update(['tickets' => 1]);
+    $paid = GameRun::query()->findOrFail(bossPost($learner, $course, $stage->id)->assertCreated()->json('id'));
+    expect($paid->free_slot?->value)->toBe('ticket')
+        ->and(GameTicketLedgerEntry::query()->where('idempotency_key', "spend:run:{$paid->id}")->count())->toBe(1)
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(0);
 });

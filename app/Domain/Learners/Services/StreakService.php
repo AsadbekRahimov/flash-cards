@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\Services\StreakFreezeService;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Learners\DTO\StreakState;
 use App\Domain\Learners\Enums\StreakHeldBy;
 use App\Domain\Learners\Support\StoredDate;
@@ -86,6 +87,7 @@ class StreakService
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly StreakFreezeService $freezes,
+        private readonly TicketService $tickets,
     ) {}
 
     /**
@@ -404,8 +406,13 @@ class StreakService
                 $this->syncModel($learner, $current, $best, $date);
                 if ($counts) {
                     $this->recordEvents($learner, $by, $date, $current, $best, $continues);
-                    // G2.8: TicketService::grantForStreak($learner, $current, $date) - the one point where a goal day or a game day
-                    //       just added one to the series (after the commit of the fact; `$current % 7 === 0` is the ticket's own rule).
+                    // The tickets of the game (docs/18 §12.7.3): the one point where a goal day or a game day just added one to the
+                    // series - after the commit of the fact; every 7th day is the ticket's own rule, the key is the day (once).
+                    try {
+                        $this->tickets->grantForStreak($learner, $current, $date, $now);
+                    } catch (Throwable $e) {
+                        report($e);
+                    }
                 }
 
                 return true;

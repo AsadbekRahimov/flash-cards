@@ -47,9 +47,9 @@ jobs:
     test:
         name: Pest
         runs-on: ubuntu-latest
-        # The suite takes ~25 min on PostgreSQL; a hung test (a forked race worker that never returns) must fail the job with its
-        # log instead of holding the runner for GitHub's default 6 hours.
-        timeout-minutes: 60
+        # The suite takes 24-51 min on PostgreSQL (the runners differ); a hung test (a forked race worker that never returns) must
+        # fail the job with its log instead of holding the runner for GitHub's default 6 hours.
+        timeout-minutes: 90
         services:
             postgres:
                 image: postgres:18-alpine
