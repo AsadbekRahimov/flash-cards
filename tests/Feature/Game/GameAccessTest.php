@@ -173,10 +173,13 @@ it('follows the config in GET /me: pro_promise is none once Free has no limit le
 });
 
 it('has the Free limits and the Pro limits of docs/18 §12.7.1 in the shipped config', function (): void {
-    expect(config('game.free_limits'))->toBe(['runs_per_day' => 1, 'boss_stages' => 1, 'boosters_per_week' => 1])
-        ->and(config('game.pro_limits'))->toBe(['boosters_per_week' => 5])
-        ->and(config('game.tickets'))->toBe(['per_streak_week' => 1, 'per_referral' => 3, 'max' => 10])
-        ->and(config('game.league.daily_cap'))->toBe(40)
+    // The limits are compared by value: from config/game.php's defaults they are integers, from a `.env` made of
+    // `.env.example` (as CI makes it) env() reads the strings '1', '5', '40' - the same setting either way; the readers
+    // cast them (an empty value is "no limit").
+    expect(config('game.free_limits'))->toEqual(['runs_per_day' => 1, 'boss_stages' => 1, 'boosters_per_week' => 1])
+        ->and(config('game.pro_limits'))->toEqual(['boosters_per_week' => 5])
+        ->and(config('game.tickets'))->toEqual(['per_streak_week' => 1, 'per_referral' => 3, 'max' => 10])
+        ->and(config('game.league.daily_cap'))->toEqual(40)
         ->and(config('game.run.ttl_minutes'))->toBe(30)
         ->and(config('game.class.centers_only'))->toBeTrue();
 });
