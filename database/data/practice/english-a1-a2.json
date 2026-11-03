@@ -1822,7 +1822,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "email"
@@ -1867,7 +1867,7 @@
         "stage": 7,
         "number": 5
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "start"
       ],
@@ -1911,7 +1911,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team",
         "project"
@@ -1955,7 +1955,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "finish",
         "report"
@@ -2006,7 +2006,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "boss",
         "office"
@@ -2046,7 +2046,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "receive",
         "email"
@@ -2084,7 +2084,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "discuss"
       ],
@@ -2125,7 +2125,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "manager",
         "work"
@@ -2163,7 +2163,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2207,7 +2207,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "task"
       ],
@@ -2244,7 +2244,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "manager"
       ],
@@ -2273,7 +2273,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team"
       ],
@@ -2302,7 +2302,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2331,7 +2331,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "meeting"
       ],
@@ -2360,7 +2360,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "project"
       ],
@@ -2389,7 +2389,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "email"
@@ -2419,7 +2419,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "phone"
       ],
@@ -2448,7 +2448,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "salary"
       ],
@@ -2477,7 +2477,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "deadline"
       ],
@@ -2506,7 +2506,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "discuss"
       ],
@@ -2535,7 +2535,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "send",
         "report"
@@ -2556,7 +2556,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "meeting"
       ],
@@ -2579,7 +2579,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "work",
         "office"
@@ -2600,7 +2600,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "client"
       ],
@@ -2620,7 +2620,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "boss"
       ],
@@ -2640,7 +2640,7 @@
         "stage": 7,
         "number": 5
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "start"
       ],
@@ -2661,7 +2661,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "email"
       ],
@@ -2682,7 +2682,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "project"
       ],
@@ -2703,7 +2703,7 @@
         "stage": 7,
         "number": 2
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "computer"
       ],
@@ -2723,7 +2723,7 @@
         "stage": 7,
         "number": 1
       },
-      "level": "A2",
+      "level": "A1",
       "target_words": [
         "team",
         "work"
