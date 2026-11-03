@@ -2,42 +2,36 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createPinia, setActivePinia } from 'pinia'
-import AccountRestoredSheet from '../AccountRestoredSheet.vue'
+import App from '@/App.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
-import type { AccountRestored, MeResponse } from '@/api/types'
-import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import { useAuthStore } from '@/stores/auth'
+import type { AccountRestored, AuthResponse } from '@/api/types'
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn(), accountRestoredSeen: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { auth: { authenticate: vi.fn() }, me: { accountRestoredSeen: vi.fn() } } }))
+vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ initData: () => 'signed', selectionHaptic: vi.fn() }) }))
 
-const me = (accountRestored: AccountRestored | null): MeResponse => ({
-  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
-  groups: [],
-  stats: { words_learned: 0, words_due_today: 0 },
-  entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
-  paywall: { mode: 'purchase', contact: null },
-  settings: settingsFixture(),
-  account_restored: accountRestored,
-})
+const learner = { id: 1, first_name: 'A', locale: 'ru', onboarding_completed: true }
+const answer = (accountRestored?: AccountRestored | null): AuthResponse => ({ token: 'jwt', expires_in: 900, learner, account_restored: accountRestored })
 
-async function render(response: MeResponse) {
-  vi.mocked(api.me.get).mockResolvedValue(response)
+/** The shell (App.vue) on a route that is NOT Today - a deep link. */
+async function openShell() {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/', name: 'today', component: { template: '<div />' } },
+      { path: '/deck', name: 'deck', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
     ],
   })
-  await router.push('/')
-  const wrapper = mount(AccountRestoredSheet, { global: { plugins: [router] }, attachTo: document.body })
+  await router.push('/deck')
+  const wrapper = mount(App, { global: { plugins: [router] }, attachTo: document.body })
   await flushPromises()
   return Object.assign(wrapper, { router })
 }
 
 const byId = (id: string) => document.body.querySelector<HTMLElement>(`[data-testid=${id}]`)
 
-describe('AccountRestoredSheet', () => {
+describe('AccountRestoredSheet in the app shell', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
@@ -49,14 +43,20 @@ describe('AccountRestoredSheet', () => {
   })
 
   it('shows nothing and calls nothing while the server has no notice', async () => {
-    await render(me(null))
+    vi.mocked(api.auth.authenticate).mockResolvedValue(answer(null))
+    await openShell()
+    await useAuthStore().login()
+    await flushPromises()
 
     expect(byId('restored-sheet')).toBeNull()
     expect(api.me.accountRestoredSeen).not.toHaveBeenCalled()
   })
 
-  it('shows the welcome once and tells the server once; no Pro line without pro_can_resume', async () => {
-    await render(me({ pro_can_resume: false }))
+  it('shows the welcome once, on any screen, tells the server once; no Pro line without pro_can_resume', async () => {
+    vi.mocked(api.auth.authenticate).mockResolvedValue(answer({ pro_can_resume: false }))
+    await openShell()
+    await useAuthStore().login()
+    await flushPromises()
 
     expect(byId('restored-title')?.textContent).toBe('С возвращением!')
     expect(byId('restored-text')?.textContent).toBe('Аккаунт восстановлен — слова и прогресс на месте.')
@@ -69,8 +69,28 @@ describe('AccountRestoredSheet', () => {
     expect(byId('restored-sheet')).toBeNull()
   })
 
+  it('does not show it again after a token refresh, even when seen failed', async () => {
+    vi.mocked(api.auth.authenticate).mockResolvedValue(answer({ pro_can_resume: false }))
+    vi.mocked(api.me.accountRestoredSeen).mockRejectedValue(new Error('offline'))
+    await openShell()
+    const auth = useAuthStore()
+    await auth.login()
+    await flushPromises()
+    byId('restored-ok')?.click()
+    await flushPromises()
+
+    await auth.login() // the refresh after ~15 minutes: the server still carries the notice (seen failed)
+    await flushPromises()
+
+    expect(byId('restored-sheet')).toBeNull()
+    expect(api.me.accountRestoredSeen).toHaveBeenCalledTimes(1)
+  })
+
   it('adds the auto-renewal line and the button to the subscription when it can be switched on again', async () => {
-    const w = await render(me({ pro_can_resume: true }))
+    vi.mocked(api.auth.authenticate).mockResolvedValue(answer({ pro_can_resume: true }))
+    const w = await openShell()
+    await useAuthStore().login()
+    await flushPromises()
 
     expect(byId('restored-pro')?.textContent).toContain('Автопродление Pro было выключено при удалении')
     byId('restored-billing')?.click()
@@ -78,13 +98,13 @@ describe('AccountRestoredSheet', () => {
 
     expect(w.router.currentRoute.value.name).toBe('billing')
     expect(byId('restored-sheet')).toBeNull()
-    expect(api.me.accountRestoredSeen).toHaveBeenCalledTimes(1)
   })
 
-  it('ignores a failed seen call and speaks uz', async () => {
-    setLocale('uz')
-    vi.mocked(api.me.accountRestoredSeen).mockRejectedValue(new Error('offline'))
-    await render(me({ pro_can_resume: false }))
+  it('speaks uz', async () => {
+    vi.mocked(api.auth.authenticate).mockResolvedValue({ ...answer({ pro_can_resume: false }), learner: { ...learner, locale: 'uz' } })
+    await openShell()
+    await useAuthStore().login()
+    await flushPromises()
 
     expect(byId('restored-title')?.textContent).toBe('Xush kelibsiz!')
   })

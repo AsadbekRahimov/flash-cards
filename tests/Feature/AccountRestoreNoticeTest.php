@@ -7,12 +7,14 @@ use App\Domain\Learners\Services\LearnerDeletionService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Testing\TestResponse;
 use Tests\Support\FakeTelegramClient;
 
 /*
@@ -104,47 +106,65 @@ it('consume takes the marker once and is idempotent', function (): void {
         ->and(Learner::query()->findOrFail($back->id)->meta)->toBe([]);
 });
 
-it('GET /me carries account_restored after the return and null after seen; seen is idempotent', function (): void {
+function restoreAuth(Learner $learner): TestResponse
+{
+    config(['telegram.bot_token' => 'test-bot-token-1234567890']);
+
+    return test()->postJson('/api/twa/auth', ['init_data' => InitDataValidator::sign('test-bot-token-1234567890', [
+        'user' => json_encode(['id' => $learner->telegram_user_id, 'first_name' => 'Ali']),
+        'auth_date' => (string) time(),
+    ])]);
+}
+
+it('POST /auth revives the learner and carries account_restored; seen then /auth gives null; seen is idempotent', function (): void {
     $learner = deletedLearner(881_006);
-    comeBack($learner);
 
-    $this->withHeaders(restoreHeaders($learner))->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('account_restored', ['pro_can_resume' => false]);
+    restoreAuth($learner)->assertOk()->assertJsonPath('account_restored', ['pro_can_resume' => false]);
 
-    $this->withHeaders(restoreHeaders($learner))->postJson('/api/twa/me/account-restored/seen')->assertNoContent();
-    $this->withHeaders(restoreHeaders($learner))->getJson('/api/twa/me')->assertOk()->assertJsonPath('account_restored', null);
-    $this->withHeaders(restoreHeaders($learner))->postJson('/api/twa/me/account-restored/seen')->assertNoContent();
+    // The marker waits for the "seen" call: a re-login (token refresh) still carries it, the client keeps its own flag.
+    $token = restoreAuth($learner)->assertOk()->assertJsonPath('account_restored', ['pro_can_resume' => false])->json('token');
+    $headers = ['Authorization' => 'Bearer '.$token];
+
+    $this->withHeaders($headers)->postJson('/api/twa/me/account-restored/seen')->assertNoContent();
+    $this->withHeaders($headers)->postJson('/api/twa/me/account-restored/seen')->assertNoContent();
+    restoreAuth($learner)->assertOk()->assertJsonPath('account_restored', null);
+    $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()->assertJsonMissingPath('account_restored');
 });
 
-it('GET /me tells whether the Pro auto-renewal can be switched on again', function (): void {
+it('POST /auth tells whether the Pro auto-renewal can be switched on again', function (): void {
     $learner = deletedLearner(881_007);
     Subscription::factory()->create(['subscriber_id' => $learner->id, 'status' => 'canceled', 'provider' => 'telegram_stars']);
-    comeBack($learner);
 
-    $this->withHeaders(restoreHeaders($learner))->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('account_restored.pro_can_resume', true);
+    restoreAuth($learner)->assertOk()->assertJsonPath('account_restored.pro_can_resume', true);
 });
 
-it('GET /me does not spend a query on the notice while there is none', function (): void {
-    $learner = Learner::factory()->create();
-    $headers = restoreHeaders($learner);
-    $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+it('POST /auth spends no extra query on the notice while there is none', function (): void {
+    $plain = Learner::factory()->create(['telegram_user_id' => 881_020]);
+    $marked = Learner::factory()->create(['telegram_user_id' => 881_021]);
+    restoreAuth($plain)->assertOk();
+    restoreAuth($marked)->assertOk();
 
+    // Same learner shape twice: the baseline with a marker absent, then the same learner, still absent - zero difference.
     DB::enableQueryLog();
-    $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
-    $without = count(DB::getQueryLog());
+    restoreAuth($plain)->assertOk()->assertJsonPath('account_restored', null);
+    $first = count(DB::getQueryLog());
+    DB::flushQueryLog();
+    restoreAuth($marked)->assertOk()->assertJsonPath('account_restored', null);
+    $second = count(DB::getQueryLog());
+    $touchingSubscriptions = collect(DB::getQueryLog())->filter(fn (array $q): bool => str_contains((string) $q['query'], 'subscriptions'))->count();
     DB::flushQueryLog();
 
-    $other = deletedLearner(881_008);
-    comeBack($other);
-    $withHeaders = restoreHeaders($other);
-    $this->withHeaders($withHeaders)->getJson('/api/twa/me')->assertOk();
+    $pending = deletedLearner(881_022);
+    restoreAuth($pending)->assertOk()->assertJsonPath('account_restored.pro_can_resume', false);
+    restoreAuth($pending)->assertOk();
     DB::flushQueryLog();
-    $this->withHeaders($withHeaders)->getJson('/api/twa/me')->assertOk();
-    $with = count(DB::getQueryLog());
+    restoreAuth($pending)->assertOk()->assertJsonPath('account_restored.pro_can_resume', false);
+    $withNotice = count(DB::getQueryLog());
 
-    // Only the subscription lookup on top, and the authentication of a learner already known is the same.
-    expect($with - $without)->toBeLessThanOrEqual(1);
+    expect($second)->toBe($first)
+        ->and($touchingSubscriptions)->toBe(0)
+        // Pending: only the lookup of the live subscription on top.
+        ->and($withNotice - $first)->toBe(1);
 });
 
 it('/start tells about the return once, in the learner language', function (string $lang, string $needle): void {
@@ -183,7 +203,7 @@ it('the first channel takes the notice: the Mini App silences /start, /start sil
     $b = deletedLearner(881_013);
     restoreStart(881_013);
     expect(collect($this->tg->sent)->pluck('text')->implode("\n"))->toContain('Аккаунт восстановлен');
-    $this->withHeaders(restoreHeaders($b))->getJson('/api/twa/me')->assertOk()->assertJsonPath('account_restored', null);
+    restoreAuth($b)->assertOk()->assertJsonPath('account_restored', null);
 });
 
 it('other commands do not spend the marker', function (): void {

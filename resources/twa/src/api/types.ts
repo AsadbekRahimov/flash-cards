@@ -14,6 +14,8 @@ export interface AuthResponse {
   token: string
   expires_in: number
   learner: Learner
+  /** Optional so that an answer of an older server reads as "nothing to say". */
+  account_restored?: AccountRestored | null
 }
 
 /** `POST /me/delete` (docs/04 A.1a): the account is soft-deleted; `/start` in the bot brings it back until `restorable_until`. */
@@ -37,13 +39,12 @@ export interface MeResponse {
    * every fixture typed as `MeResponse`) reads as "no practice": the billing store turns a missing block into `available: false`.
    */
   practice?: PracticeAccess
-  /**
-   * "Account restored" (R11b): null = nothing to say; else the learner came back within the 30 days and has not been told yet.
-   * `pro_can_resume`: the Pro auto-renewal, stopped by the deletion, can be switched on again.
-   */
-  account_restored?: AccountRestored | null
 }
 
+/**
+ * "Account restored" (R11b, docs/04 A.1): null = nothing to say; else the learner came back within the 30 days and has not been
+ * told yet. `pro_can_resume`: the Pro auto-renewal, stopped by the deletion, can be switched on again.
+ */
 export interface AccountRestored {
   pro_can_resume: boolean
 }

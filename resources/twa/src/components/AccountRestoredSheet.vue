@@ -1,31 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import { useBillingStore } from '@/stores/billing'
+import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 
 /**
  * "Welcome back! The account is restored" (R11b): a one-time sheet for a learner who deleted the account and came back
- * within the 30 days. The server decides (`/me.account_restored`, kept by the billing store); the sheet takes the notice
- * from the store on mount, which tells the server once (`seen`) - so neither a second visit nor the bot's `/start` repeats it.
+ * within the 30 days. The server decides (`account_restored` of `POST /auth`, kept by the auth store); the sheet lives in the app shell,
+ * so it shows on whatever screen the Mini App opens with. It takes the notice from the store once per session, which tells the server
+ * (`seen`) - so neither a token refresh nor the bot's `/start` repeats it.
  * With `pro_can_resume` it adds that the Pro auto-renewal was stopped by the deletion and a button to the subscription screen.
  */
-const billing = useBillingStore()
+const auth = useAuthStore()
 const router = useRouter()
 const { t } = useI18n()
 
 const open = ref(false)
 const canResume = ref(false)
 
-onMounted(async () => {
-  await billing.load()
-  const notice = billing.takeAccountRestored()
-  if (notice === null) return
-  canResume.value = notice.pro_can_resume === true
-  open.value = true
-})
+// The shell mounts before `/auth` is done (and `/auth` runs again at every token refresh): watch the store, take the notice once.
+watch(
+  () => auth.accountRestored,
+  (pending) => {
+    if (pending === null) return
+    const notice = auth.takeAccountRestored()
+    if (notice === null) return
+    canResume.value = notice.pro_can_resume === true
+    open.value = true
+  },
+  { immediate: true },
+)
 
 function openBilling(): void {
   open.value = false

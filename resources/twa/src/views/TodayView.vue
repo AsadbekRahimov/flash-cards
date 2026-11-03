@@ -2,7 +2,6 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import AccountRestoredSheet from '@/components/AccountRestoredSheet.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
@@ -403,9 +402,6 @@ onBeforeUnmount(() => training.clearOpenError())
         />
       </ListGroup>
     </div>
-
-    <!-- R11b: once, for a learner who came back within the 30 days; asks `/me` through the billing store (shared, 30 s). -->
-    <AccountRestoredSheet />
 
     <PaywallSheet
       v-if="paywallOpen"

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
+import { createPinia } from 'pinia'
 import App from '../App.vue'
 import { useToast } from '@/composables/useToast'
 
@@ -22,7 +23,7 @@ async function mountApp(start: string) {
     ],
   })
   await router.push(start)
-  const w = mount(App, { global: { plugins: [router] } })
+  const w = mount(App, { global: { plugins: [router, createPinia()] } })
   await flushPromises()
   return { w, router }
 }

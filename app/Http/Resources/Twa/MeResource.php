@@ -20,7 +20,7 @@ use Illuminate\Support\Collection;
  * @phpstan-import-type PracticeBlock from MePayloadBuilder
  * @phpstan-import-type GameBlock from MePayloadBuilder
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock, account_restored: array{pro_can_resume: bool}|null} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -33,8 +33,7 @@ final class MeResource extends TwaResource
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
      *   practice: PracticeBlock,
-     *   game: GameBlock,
-     *   account_restored: array{pro_can_resume: bool}|null
+     *   game: GameBlock
      * }
      */
     public function toArray(Request $request): array
@@ -72,7 +71,6 @@ final class MeResource extends TwaResource
             'settings' => $this->resource['settings'],
             'practice' => $this->resource['practice'],
             'game' => $this->resource['game'],
-            'account_restored' => $this->resource['account_restored'],
         ];
     }
 }
