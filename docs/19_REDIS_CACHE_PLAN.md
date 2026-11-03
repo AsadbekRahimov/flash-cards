@@ -69,6 +69,7 @@
 | `Content/Services/WordTranslationResolver` (C4) | `word:tr:v1:{слово}:{locale}:{запасная локаль}` — строки `word_translations`, пачкой `many`/`putMany` | 7200 с | кэш |
 | `Site/Services/SitePageCache` (C5) | `site:page:v1:{страница}:{locale}:{отпечаток релиза}` — готовый HTML | 86400 с | кэш страниц |
 | `Telegram/Services/ChatMemberStatusCache` (C6) | `tg:member:v1:{чат}:{пользователь}` — статус бота в группе | 600 с | кэш |
+| `Game/Services/MapService` (G2.1m) | `game:friends:v1:{ученик}` — друзья на карте: массив `{friendship_id, learner_id, course_id, city_number, stops_cleared, camel_asset}` по всем курсам принятых друзей (карта фильтрует свой курс; имя читается при выдаче) | 300 с | кэш; сброс обеих сторон при принятии, удалении и блокировке дружбы (`FriendshipService`), иначе TTL |
 
 **Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
 
@@ -90,6 +91,7 @@
 | `OrgOverviewService` — ключ версии `org:{id}:overview:ver` (C3) | `redis` (невытесняемое) |
 | `CourseCatalogService` — значения `catalog:course:v1:*` (C4) | `lru` |
 | `CourseCatalogService` — ключ версии `catalog:course:ver:{id}` (C4) | `redis` (невытесняемое) |
+| `MapService` — `game:friends:v1:{ученик}` (G2.1m) | `lru` |
 | `WordTranslationResolver` — `word:tr:v1:*` (C4) | `lru` |
 | `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
 | `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |

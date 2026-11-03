@@ -1389,6 +1389,42 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 **События аналитики** (`product_events`, после commit, актёр — инициатор матча; в props только числа и коды): `battle.invited` `{battle_id, mode, course_id, lesson_id, rematch}`; `battle.accepted` `{battle_id}`; `battle.started` `{battle_id, mode}`;
 `battle.finished` `{battle_id, end_reason, result (challenger|opponent|draw), rounds_played, duration_ms}`; `battle.closed` `{battle_id, end_reason}`; `practice.not_enough_material` (с `battle: true`), `practice.audio_failed` `{battle_id, source (word|phrase), reason (file_missing|client_report), verified}` и `practice.limit_reached` `{kind: "battles", limit}` (отказ приглашения по лимиту Free, актёр — инициатор). Событие пишется один раз, после commit той транзакции, которая изменила состояние матча, — не опросом и не повтором запроса.
 
+### A.18 Игра «Караван» — карта (docs/18 §12.8–§12.9; задача G2.1m)
+
+Остальные маршруты игры (`/game/runs`, кошелёк, лавка, профиль, класс) добавляют свои задачи в этот же раздел. Все маршруты — `/api/twa/game/*`, `TwaAuth` + `SetTwaLocale`, `throttle:twa-api`.
+
+**`GET /api/twa/game/map?course={slug}`** — карта курса: город = модуль (`stages`), стоянка = урок с активными словами (`lessons`). Своей таблицы «городов и стоянок» нет.
+
+- `course` обязателен (TWA подставляет активный курс сам). Недоступный ученику или несуществующий курс — **404** `course_not_found`.
+- Игра выключена или ученик вне пилота — **403** `game_unavailable` (один код, без подсказки).
+- Названия: город — `lang/{ru,uz}/game.php` по номеру модуля (`CityNames`), «Город N» после 24-го; `title` города и стоянки — название модуля / урока на языке ученика (`DeckTitles`, `null` — без названия, клиент подставляет «Модуль N»).
+
+```json
+{
+  "course": {"slug": "english-a1", "title": "Английский A1"},
+  "cities": [{
+    "stage_id": 3, "number": 1, "city": "Самарканд", "title": "Еда", "unlocked": true,
+    "stops": [{"lesson_id": 11, "number": 1, "title": "Фрукты", "unlocked": true, "stars": 2, "best_score": 120, "runs": 3}],
+    "boss": {"state": "not_ready", "defeated_at": null, "introduced": 5, "required": 8, "cleared_stops": 1, "required_stops": 3}
+  }],
+  "daily": {"available": true, "done_today": false, "due_count": 14, "resets_at": "2026-11-06T19:00:00.000Z"},
+  "me": {"stops_cleared": 4, "cities_cleared": 1, "coins": 35, "tickets": 2},
+  "friends": [{"friendship_id": 11, "name": "Dilnoza", "city_number": 2, "stops_cleared": 7, "camel_asset": null}],
+  "active_run": {"id": 9, "kind": "stop", "progress": {"answered": 3, "total": 9}},
+  "class_caravan": null,
+  "limits": null
+}
+```
+
+- **Стоянка `unlocked`** ⇔ у ученика есть строка `word_repetitions` по активному слову урока (урок начат в карточках; состояние `new` тоже считается). Не хранится, выводится одним запросом. `stars` / `best_score` / `runs` — из `game_stop_progress` (0, пока забегов не было). Уроки без активных слов на карту не попадают.
+- **Город `unlocked`** ⇔ открыта хотя бы одна его стоянка.
+- **`boss.state`**: `defeated` (есть `game_city_progress.boss_defeated_at`; остаётся и после конца Pro) · `locked_by_plan` (Free, `stages.number > game.free_limits.boss_stages`, нет фичи `game.all_bosses`; пустой лимит — без ограничения, `0` — только Pro) · `ready` (введено слов города `introduced >= required` и очищено — ≥ 1 звезда — не меньше `required_stops` стоянок) · `not_ready`. `required` = `boss.min_words` (8); `required_stops` = `min(boss.min_cleared_stops (3), число стоянок города)`. Бой с боссом — G2.4.
+- **`daily`**: `due_count` — слова к повторению ученика (то же определение, что у `/today`); `done_today` — караван дня уже сыгран (завершён любой причиной: второй в тот же день невозможен); `available` ⇔ не сыгран, нет идущего забега и `due_count > 0`; `resets_at` — начало следующего локального дня ученика.
+- **`me`**: из `game_profiles` и `game_wallets` (нули, пока строк нет).
+- **`friends[]`**: принятые друзья с прогрессом по этому курсу (`game_stop_progress`, ≥ 1 звезда), по убыванию `stops_cleared`, не больше `game.map.friends_max` (20); `city_number` — самый дальний город, где друг очистил стоянку; `camel_asset` — `null` до G2.6. Прогресс друзей может отставать до 5 минут (кэш `game:friends`, docs/19 §2.2).
+- **`active_run`**: идущий и не просроченный забег ученика (`progress {answered, total}`) или `null`.
+- **`class_caravan`** — `null` до G2.9, **`limits`** — `null` до G2.8.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook
