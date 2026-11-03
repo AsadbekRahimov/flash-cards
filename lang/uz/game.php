@@ -36,4 +36,17 @@ return [
         24 => "Chang'an",
     ],
     'city_fallback' => ':number-shahar',
+
+    /* Hamyon yozuvlarining nomlari (`GET /game/wallet`, `ledger[].title`): yozuv turi bo'yicha (LedgerKind). */
+    'ledger' => [
+        'run_reward' => "To'xtash uchun mukofot",
+        'boss_reward' => 'Boss uchun mukofot',
+        'daily_reward' => 'Kun karvoni uchun mukofot',
+        'class_reward' => 'Sinf karvoni mukofoti',
+        'bazaar_hint' => 'Bozordagi maslahat',
+        'item_purchase' => "Do'kondan xarid",
+        'admin_grant' => "Qo'llab-quvvatlash qo'shgan",
+        'admin_revoke' => "Qo'llab-quvvatlash yechgan",
+        'refund' => 'Qaytarish',
+    ],
 ];

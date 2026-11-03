@@ -27,6 +27,7 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
+use App\Models\GameItem;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Organization;
@@ -37,6 +38,7 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\WordTranslation;
 use App\Observers\CourseTreeObserver;
+use App\Observers\GameItemObserver;
 use App\Observers\MoneyWidgetsObserver;
 use App\Observers\OrganizationObserver;
 use App\Observers\OrganizationUserObserver;
@@ -191,6 +193,7 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+        GameItem::observe(GameItemObserver::class);
 
         // The money widgets of the admin dashboard are cached; a payment, a refund or a provider's cancel drops them (docs/19 K1).
         Payment::observe(MoneyWidgetsObserver::class);

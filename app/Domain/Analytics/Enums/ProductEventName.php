@@ -114,4 +114,8 @@ enum ProductEventName: string
     case GameCoinsSpent = 'game.coins_spent';
     /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
     case GameCoinsEarned = 'game.coins_earned';
+    /** A learner bought an item of the shop (props: item_key, kind, price). */
+    case GameItemBought = 'game.item_bought';
+    /** A learner put a cosmetic on or took it off (props: slot, item_key - null when taken off). */
+    case GameCosmeticEquipped = 'game.cosmetic_equipped';
 }
