@@ -745,7 +745,7 @@
       ],
       "text": "Do you like music?",
       "accepted": [
-        "Do you like music"
+        "Do you like music?"
       ],
       "translation": {
         "ru": "Вы любите музыку?",
@@ -765,7 +765,8 @@
       ],
       "text": "Let's watch a movie",
       "accepted": [
-        "Let's watch a movie"
+        "Let's watch a movie",
+        "Let us watch a movie"
       ],
       "translation": {
         "ru": "Давайте посмотрим фильм",
@@ -805,7 +806,7 @@
       ],
       "text": "Can you swim?",
       "accepted": [
-        "Can you swim"
+        "Can you swim?"
       ],
       "translation": {
         "ru": "Вы умеете плавать?",
@@ -825,8 +826,7 @@
       ],
       "text": "Today is a holiday",
       "accepted": [
-        "Today is a holiday",
-        "Today's a holiday"
+        "Today is a holiday"
       ],
       "translation": {
         "ru": "Сегодня праздник",
@@ -910,7 +910,7 @@
       ],
       "text": "What a boring game!",
       "accepted": [
-        "What a boring game"
+        "What a boring game!"
       ],
       "translation": {
         "ru": "Какая скучная игра!",
@@ -1647,7 +1647,8 @@
       ],
       "text": "Why is your face so red?",
       "accepted": [
-        "Why is your face so red"
+        "Why is your face so red?",
+        "Why's your face so red?"
       ],
       "translation": {
         "ru": "Почему у вас такое красное лицо?",
@@ -1727,7 +1728,7 @@
       ],
       "text": "Do you have a cough?",
       "accepted": [
-        "Do you have a cough"
+        "Do you have a cough?"
       ],
       "translation": {
         "ru": "У вас кашель?",
@@ -1768,7 +1769,7 @@
       ],
       "text": "Did you sleep well?",
       "accepted": [
-        "Did you sleep well"
+        "Did you sleep well?"
       ],
       "translation": {
         "ru": "Вы хорошо спали?",
@@ -1833,7 +1834,7 @@
       ],
       "text": "How do you feel today?",
       "accepted": [
-        "How do you feel today"
+        "How do you feel today?"
       ],
       "translation": {
         "ru": "Как вы себя чувствуете сегодня?",
@@ -2632,7 +2633,7 @@
       ],
       "text": "Is it windy outside?",
       "accepted": [
-        "Is it windy outside"
+        "Is it windy outside?"
       ],
       "translation": {
         "ru": "На улице ветрено?",
@@ -2733,7 +2734,7 @@
       ],
       "text": "Do you have a dog?",
       "accepted": [
-        "Do you have a dog"
+        "Do you have a dog?"
       ],
       "translation": {
         "ru": "У вас есть собака?",
@@ -3506,7 +3507,7 @@
       ],
       "text": "Do I need a visa?",
       "accepted": [
-        "Do I need a visa"
+        "Do I need a visa?"
       ],
       "translation": {
         "ru": "Мне нужна виза?",
@@ -3527,8 +3528,7 @@
       ],
       "text": "Our flight is canceled",
       "accepted": [
-        "Our flight is canceled",
-        "Our flight's canceled"
+        "Our flight is canceled"
       ],
       "translation": {
         "ru": "Наш рейс отменили",
@@ -3572,7 +3572,7 @@
       ],
       "text": "How long are you staying?",
       "accepted": [
-        "How long are you staying"
+        "How long are you staying?"
       ],
       "translation": {
         "ru": "Как долго вы у нас пробудете?",
@@ -3617,7 +3617,8 @@
       ],
       "text": "Let's go to the beach",
       "accepted": [
-        "Let's go to the beach"
+        "Let's go to the beach",
+        "Let us go to the beach"
       ],
       "translation": {
         "ru": "Пойдёмте на пляж",
@@ -3658,7 +3659,7 @@
       ],
       "text": "Is there a hotel nearby?",
       "accepted": [
-        "Is there a hotel nearby"
+        "Is there a hotel nearby?"
       ],
       "translation": {
         "ru": "Здесь поблизости есть гостиница?",
@@ -3678,7 +3679,7 @@
       ],
       "text": "What currency do they use here?",
       "accepted": [
-        "What currency do they use here"
+        "What currency do they use here?"
       ],
       "translation": {
         "ru": "Какой валютой здесь пользуются?",

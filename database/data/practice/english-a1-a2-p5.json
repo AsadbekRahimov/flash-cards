@@ -1247,8 +1247,7 @@
       ],
       "text": "The bathroom is upstairs",
       "accepted": [
-        "The bathroom is upstairs",
-        "The bathroom's upstairs"
+        "The bathroom is upstairs"
       ],
       "translation": {
         "ru": "Ванная наверху",
@@ -2563,9 +2562,7 @@
       "text": "The baby is three months old",
       "accepted": [
         "The baby is three months old",
-        "The baby is 3 months old",
-        "The baby's three months old",
-        "The baby's 3 months old"
+        "The baby is 3 months old"
       ],
       "translation": {
         "ru": "Малышу три месяца",
@@ -2644,9 +2641,7 @@
       "text": "My father is fifty",
       "accepted": [
         "My father is fifty",
-        "My father's fifty",
-        "My father is 50",
-        "My father's 50"
+        "My father is 50"
       ],
       "translation": {
         "ru": "Моему папе пятьдесят лет",
@@ -3067,8 +3062,7 @@
       ],
       "text": "The station is over there",
       "accepted": [
-        "The station is over there",
-        "The station's over there"
+        "The station is over there"
       ],
       "translation": {
         "ru": "Вокзал вон там",

@@ -776,7 +776,7 @@
       ],
       "text": "What time is it?",
       "accepted": [
-        "What time is it"
+        "What time is it?"
       ],
       "translation": {
         "ru": "Который час?",
@@ -882,8 +882,7 @@
       ],
       "text": "Today is Friday",
       "accepted": [
-        "Today is Friday",
-        "Today's Friday"
+        "Today is Friday"
       ],
       "translation": {
         "ru": "Сегодня пятница",
@@ -1746,8 +1745,8 @@
       ],
       "text": "Where is your father?",
       "accepted": [
-        "Where is your father",
-        "Where's your father"
+        "Where is your father?",
+        "Where's your father?"
       ],
       "translation": {
         "ru": "Где ваш папа?",
@@ -1788,7 +1787,8 @@
       ],
       "text": "I have one sister",
       "accepted": [
-        "I have one sister"
+        "I have one sister",
+        "I have 1 sister"
       ],
       "translation": {
         "ru": "У меня одна сестра",
@@ -2563,9 +2563,7 @@
       "text": "The meeting is at ten",
       "accepted": [
         "The meeting is at ten",
-        "The meeting is at 10",
-        "The meeting's at ten",
-        "The meeting's at 10"
+        "The meeting is at 10"
       ],
       "translation": {
         "ru": "Встреча в десять",
@@ -2688,8 +2686,7 @@
       ],
       "text": "The project is ready",
       "accepted": [
-        "The project is ready",
-        "The project's ready"
+        "The project is ready"
       ],
       "translation": {
         "ru": "Проект готов",

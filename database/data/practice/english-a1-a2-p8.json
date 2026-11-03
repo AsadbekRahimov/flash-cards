@@ -392,8 +392,7 @@
       ],
       "text": "This blanket is soft and warm",
       "accepted": [
-        "This blanket is soft and warm",
-        "This blanket's soft and warm"
+        "This blanket is soft and warm"
       ],
       "translation": {
         "ru": "Это одеяло мягкое и тёплое",
@@ -438,8 +437,7 @@
       "text": "The heating is not working",
       "accepted": [
         "The heating is not working",
-        "The heating isn't working",
-        "The heating's not working"
+        "The heating isn't working"
       ],
       "translation": {
         "ru": "Отопление не работает",
@@ -836,7 +834,7 @@
       ],
       "text": "Can I buy it on credit?",
       "accepted": [
-        "Can I buy it on credit"
+        "Can I buy it on credit?"
       ],
       "translation": {
         "ru": "Можно купить это в кредит?",
@@ -884,8 +882,7 @@
       ],
       "text": "My basket is almost full",
       "accepted": [
-        "My basket is almost full",
-        "My basket's almost full"
+        "My basket is almost full"
       ],
       "translation": {
         "ru": "Моя корзина почти полная",
@@ -1320,8 +1317,7 @@
       "text": "The wound is not deep",
       "accepted": [
         "The wound is not deep",
-        "The wound isn't deep",
-        "The wound's not deep"
+        "The wound isn't deep"
       ],
       "translation": {
         "ru": "Рана неглубокая",
@@ -1411,8 +1407,8 @@
       ],
       "text": "How is your mental health?",
       "accepted": [
-        "How is your mental health",
-        "How's your mental health"
+        "How is your mental health?",
+        "How's your mental health?"
       ],
       "translation": {
         "ru": "Как ваше психическое здоровье?",
@@ -1818,8 +1814,7 @@
       ],
       "text": "This rock is too heavy to lift",
       "accepted": [
-        "This rock is too heavy to lift",
-        "This rock's too heavy to lift"
+        "This rock is too heavy to lift"
       ],
       "translation": {
         "ru": "Этот камень слишком тяжёлый, его не поднять",
@@ -2309,7 +2304,7 @@
       ],
       "text": "Did you see the headlines today?",
       "accepted": [
-        "Did you see the headlines today"
+        "Did you see the headlines today?"
       ],
       "translation": {
         "ru": "Вы видели сегодняшние заголовки?",

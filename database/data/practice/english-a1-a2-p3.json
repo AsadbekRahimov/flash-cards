@@ -838,8 +838,7 @@
       ],
       "text": "Your phone is ringing",
       "accepted": [
-        "Your phone is ringing",
-        "Your phone's ringing"
+        "Your phone is ringing"
       ],
       "translation": {
         "ru": "Ваш телефон звонит",
