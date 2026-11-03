@@ -117,7 +117,7 @@ it('keeps the exact shape of a run and of an answer for each of the nine kinds o
     $headers = PracticeKit::headers($learner);
     $seen = [];
 
-    for ($round = 0; $round < 15 && count($seen) < count(CONTRACT_ALL_KINDS); $round++) {
+    for ($round = 0; $round < 30 && count($seen) < count(CONTRACT_ALL_KINDS); $round++) {
         $started = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated();
         $id = $started->json('id');
 
@@ -174,32 +174,41 @@ it('keeps the exact shape of the review of an answer for the five kinds made of 
         'gap' => ['correct_text', 'full_text', 'translation'],
     ];
     $seen = [];
+    $wrongSeen = [];
 
-    for ($round = 0; $round < 15 && count($seen) < count($reveals); $round++) {
+    for ($round = 0; $round < 40 && (count($seen) < count($reveals) || count($wrongSeen) < count($reveals)); $round++) {
         $id = test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated()->json('id');
+        $wrongs = 0;
         for ($guard = 0; $guard < 40; $guard++) {
             $run = GameRun::query()->findOrFail($id);
             if (! $run->isActive()) {
                 break;
             }
             $element = GameKit::current($run);
-            // A wrong answer shows the same review as a right one, and costs a flask.
-            $wrong = $element['kind'] === 'pairs_round' ? GameKit::rightAnswers($element)[0] : GameKit::wrongAnswer($element);
-            $answer = gameContractAnswer($learner, $id, $element['id'], $wrong)->assertOk();
-            if (isset($reveals[$element['kind']])) {
-                $seen[$element['kind']] = true;
-                $answer->assertJsonStructure(['reveal' => $reveals[$element['kind']]]);
-                expect(collect($answer->json('reveal'))->keys()->sort()->values()->all())->toBe(collect($reveals[$element['kind']])->sort()->values()->all())
-                    ->and($answer->json('verdict'))->toBe('wrong')->and($answer->json('flask_lost'))->toBeTrue();
+            $kind = $element['kind'];
+            if (isset($reveals[$kind]) && ! isset($wrongSeen[$kind]) && $wrongs < 2) {
+                // A wrong answer shows the same review as a right one, and costs a flask (two a run at most: the run stays on).
+                $wrongs++;
+                $wrongSeen[$kind] = true;
+                $answer = gameContractAnswer($learner, $id, $element['id'], GameKit::wrongAnswer($element))->assertOk();
+                expect($answer->json('verdict'))->toBe('wrong')->and($answer->json('flask_lost'))->toBeTrue();
+            } else {
+                $answer = gameContractAnswer($learner, $id, $element['id'], GameKit::rightAnswers($element)[0])->assertOk();
+            }
+            if (isset($reveals[$kind])) {
+                $seen[$kind] = true;
+                expect(collect($answer->json('reveal'))->keys()->sort()->values()->all())->toBe(collect($reveals[$kind])->sort()->values()->all());
+            } elseif ($kind === 'pairs_round') {
+                // The rest of the round, so that the next element comes.
+                foreach (array_slice(GameKit::rightAnswers($element), 1) as $match) {
+                    gameContractAnswer($learner, $id, $element['id'], $match)->assertOk();
+                }
             }
             Cache::flush();
-            if (! GameRun::query()->findOrFail($id)->isActive() || isset($seen[$element['kind']])) {
-                break;
-            }
         }
     }
 
-    expect(array_keys($seen))->toHaveCount(count($reveals));
+    expect(array_keys($seen))->toHaveCount(count($reveals))->and(array_keys($wrongSeen))->toHaveCount(count($reveals));
 });
 
 it('keeps the exact shape of the hint, of the finished run with its summary, of the abandoned run and of the errors with their details', function (): void {
