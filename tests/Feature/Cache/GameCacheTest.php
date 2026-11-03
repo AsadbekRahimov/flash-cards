@@ -3,23 +3,32 @@
 declare(strict_types=1);
 
 use App\Domain\Engagement\Services\FriendshipService;
+use App\Domain\Game\Enums\ItemStatus;
+use App\Domain\Game\Enums\LedgerKind;
+use App\Domain\Game\Services\Economy\ShopService;
+use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameFriendsCache;
+use App\Domain\Game\Services\GameShopCache;
 use App\Domain\Game\Services\MapService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Friendship;
+use App\Models\GameItem;
 use App\Models\GameStopProgress;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
 /*
- * The cache of the game (docs/18 §12.12, docs/19 §2.2). `game:friends:v1:{learner}`: the friends on the map - a pure cache of arrays with a
+ * The cache of the game (docs/18 §12.12, docs/19 §2.2); the shop is at the end of the file. `game:friends:v1:{learner}`: the friends on the map - a pure cache of arrays with a
  * TTL, dropped for BOTH sides when a friendship is accepted, ended or blocked. Each way that writes has a test of the kind "write, and the
  * old value is not served"; the progress of a friend is allowed to be up to the TTL old (the last test says so).
  */
@@ -190,4 +199,83 @@ it('lets the progress of a friend be up to the TTL old, and shows the new one af
 
     PureCache::store()->forget(GameFriendsCache::key($me->id)); // what the TTL does
     expect(app(MapService::class)->map($me, 'silk')->friends[0]['stops_cleared'])->toBe(2);
+});
+
+/*
+ * `game:shop:v1:{locale}:n{version}`: the published catalogue of the shop as arrays, 1800 s; the version `game:shop:ver` lives on the default
+ * store and is moved on after the commit of any save / delete of an item (GameItemObserver). Balance, inventory and what is worn are never cached.
+ */
+
+/** @return list<string> the statements of the catalogue read in one request of the shop */
+function gameCacheShopStatements(Learner $learner): array
+{
+    return QueryLog::matching(QueryLog::during(fn () => app(ShopService::class)->shop($learner)), '/game_items/');
+}
+
+it('serves the catalogue of the shop from the cache: the second read touches no item', function (): void {
+    GameItem::factory()->count(3)->create();
+    $learner = Learner::factory()->create();
+
+    expect(gameCacheShopStatements($learner))->toHaveCount(1)
+        ->and(gameCacheShopStatements($learner))->toBe([])
+        ->and(app(ShopService::class)->shop($learner)->items)->toHaveCount(3);
+});
+
+it('stores arrays of scalars under a key with the version, in a key of its own for each locale, for the TTL', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
+    $item = GameItem::factory()->create(['key' => 'camel_x', 'title' => ['ru' => 'Икс', 'uz' => 'Iks']]);
+    $ru = Learner::factory()->create(['interface_locale' => 'ru']);
+    $uz = Learner::factory()->create(['interface_locale' => 'uz']);
+    app(ShopService::class)->shop($ru);
+    app(ShopService::class)->shop($uz);
+
+    $version = (int) Cache::get(GameShopCache::VERSION_KEY, 0);
+    $stored = PureCache::store()->get("game:shop:v1:ru:n{$version}");
+
+    expect(GameShopCache::key('ru'))->toBe("game:shop:v1:ru:n{$version}")
+        ->and(GameShopCache::key('uz'))->toBe("game:shop:v1:uz:n{$version}")
+        ->and($stored)->toBe([[
+            'id' => $item->id, 'key' => 'camel_x', 'kind' => 'cosmetic', 'slot' => 'camel', 'effect' => null, 'price' => 50,
+            'availability' => 'base', 'title' => 'Икс', 'description' => null, 'asset' => null,
+        ]])
+        ->and(PureCache::store()->get(GameShopCache::key('uz'))[0]['title'])->toBe('Iks');
+
+    // 1800 s: gone after the TTL
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(GameShopCache::TTL_SECONDS + 1));
+    expect(PureCache::store()->has(GameShopCache::key('ru')))->toBeFalse();
+});
+
+it('does not serve the old catalogue after an item is saved, created or deleted', function (): void {
+    $item = GameItem::factory()->create(['key' => 'camel_x', 'title' => ['ru' => 'Старое', 'uz' => 'Eski'], 'price_coins' => 50]);
+    $learner = Learner::factory()->create();
+    $read = fn (): array => app(ShopService::class)->shop($learner)->items;
+    expect($read()[0])->toMatchArray(['title' => 'Старое', 'price' => 50]);
+    $before = (int) Cache::get(GameShopCache::VERSION_KEY, 0);
+
+    $item->update(['title' => ['ru' => 'Новое', 'uz' => 'Yangi'], 'price_coins' => 70]);
+    expect((int) Cache::get(GameShopCache::VERSION_KEY, 0))->toBeGreaterThan($before)
+        ->and($read()[0])->toMatchArray(['title' => 'Новое', 'price' => 70]);
+
+    GameItem::factory()->create(['key' => 'camel_y']);
+    expect(array_column($read(), 'key'))->toBe(['camel_x', 'camel_y']);
+
+    $item->update(['status' => ItemStatus::Archived->value]);
+    expect(array_column($read(), 'key'))->toBe(['camel_y']);
+
+    GameItem::query()->where('key', 'camel_y')->firstOrFail()->delete();
+    expect($read())->toBe([]);
+});
+
+it('never caches what is the learner\'s own: a purchase shows at once while the catalogue is warm', function (): void {
+    GameItem::factory()->booster()->create(['key' => 'booster_x', 'price_coins' => 10]);
+    $learner = Learner::factory()->create();
+    DB::transaction(fn () => app(WalletService::class)->credit($learner->id, 30, LedgerKind::AdminGrant, "admin:seed:{$learner->id}"));
+    app(ShopService::class)->shop($learner); // warm
+
+    app(ShopService::class)->buy($learner, 'booster_x', (string) Str::uuid());
+    $shop = app(ShopService::class)->shop($learner);
+
+    expect($shop->balance)->toBe(20)
+        ->and($shop->items[0])->toMatchArray(['owned' => true, 'qty' => 1])
+        ->and(PureCache::store()->get(GameShopCache::key('ru'))[0])->not->toHaveKeys(['owned', 'qty', 'equipped', 'balance']);
 });

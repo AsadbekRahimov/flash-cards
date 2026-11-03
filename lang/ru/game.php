@@ -37,4 +37,17 @@ return [
         24 => 'Чанъань',
     ],
     'city_fallback' => 'Город :number',
+
+    /* Названия проводок кошелька (`GET /game/wallet`, `ledger[].title`): по виду проводки (LedgerKind). */
+    'ledger' => [
+        'run_reward' => 'Награда за стоянку',
+        'boss_reward' => 'Награда за босса',
+        'daily_reward' => 'Награда за караван дня',
+        'class_reward' => 'Награда каравана класса',
+        'bazaar_hint' => 'Подсказка на базаре',
+        'item_purchase' => 'Покупка в лавке',
+        'admin_grant' => 'Начисление от поддержки',
+        'admin_revoke' => 'Списание поддержкой',
+        'refund' => 'Возврат',
+    ],
 ];

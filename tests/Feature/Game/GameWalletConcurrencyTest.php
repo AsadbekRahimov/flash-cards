@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\ItemSlot;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Services\Economy\ShopService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Services\ReviewSubmissionService;
 use App\Models\GameCoinLedgerEntry;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
+use App\Models\GameProfile;
 use App\Models\GameStopProgress;
 use App\Models\GameWallet;
 use App\Models\Learner;
@@ -246,4 +251,88 @@ it('finishes a run while the same learner grades a card of the same local day: n
         ->and($day[0]->game_held_at)->not->toBeNull()
         ->and(WordRepetition::query()->where('learner_id', $learnerId)->where('word_id', $wordId)->value('repetitions'))->toBe(4);
     expectWalletRaceInvariant($learnerId, 25);
+});
+
+it('sells a booster of 4 coins to five tabs with 10 coins: exactly two purchases, the balance 2, qty 2, the rest coins_insufficient (G2.5b)', function (): void {
+    $learner = Learner::factory()->create();
+    $learnerId = $learner->id;
+    walletRaceFunded($learnerId, 10);
+    GameItem::factory()->booster()->create(['key' => 'booster_cheap', 'price_coins' => 4]);
+
+    $results = GameRace::run(array_map(
+        fn (int $i): Closure => fn (): int => app(ShopService::class)->buy(GameRace::learner($learnerId), 'booster_cheap', (string) Str::uuid())->balance,
+        range(1, 5),
+    ));
+
+    expect(GameRace::crashes($results))->toBe([])
+        ->and(GameRace::outcomes($results))->toBe(['coins_insufficient', 'coins_insufficient', 'coins_insufficient', 'ok', 'ok'])
+        ->and(GameCoinLedgerEntry::query()->where('kind', LedgerKind::ItemPurchase->value)->count())->toBe(2)
+        ->and(GameInventoryItem::query()->where('learner_id', $learnerId)->count())->toBe(1)
+        ->and(GameInventoryItem::query()->where('learner_id', $learnerId)->value('qty'))->toBe(2)
+        ->and(GameRace::events('game.item_bought'))->toHaveCount(2);
+    foreach ($results as $r) {
+        if (! $r['ok']) {
+            expect($r['details'])->toBe(['balance' => 2, 'price' => 4]);
+        }
+    }
+    expectWalletRaceInvariant($learnerId, 2);
+});
+
+it('pays one request id once when the tab sends it four times at once (G2.5b)', function (): void {
+    $learner = Learner::factory()->create();
+    $learnerId = $learner->id;
+    walletRaceFunded($learnerId, 10);
+    GameItem::factory()->booster()->create(['key' => 'booster_cheap', 'price_coins' => 4]);
+    $request = (string) Str::uuid();
+
+    $results = GameRace::run(array_fill(0, 4, fn (): bool => app(ShopService::class)->buy(GameRace::learner($learnerId), 'booster_cheap', $request)->applied));
+
+    expect(GameRace::crashes($results))->toBe([])
+        ->and(GameRace::outcomes($results))->toBe(['ok', 'ok', 'ok', 'ok'])
+        ->and(array_sum(array_map(static fn (array $r): int => $r['value'] ? 1 : 0, $results)))->toBe(1)
+        ->and(GameInventoryItem::query()->where('learner_id', $learnerId)->value('qty'))->toBe(1)
+        ->and(GameRace::events('game.item_bought'))->toHaveCount(1);
+    expectWalletRaceInvariant($learnerId, 6);
+});
+
+it('sells a cosmetic once to three tabs with different request ids: one purchase, the others item_already_owned, the coins of the losers not taken (G2.5b)', function (): void {
+    $learner = Learner::factory()->create();
+    $learnerId = $learner->id;
+    walletRaceFunded($learnerId, 10);
+    GameItem::factory()->create(['key' => 'camel_cheap', 'price_coins' => 4]);
+
+    $results = GameRace::run(array_map(
+        fn (int $i): Closure => fn (): int => app(ShopService::class)->buy(GameRace::learner($learnerId), 'camel_cheap', (string) Str::uuid())->balance,
+        range(1, 3),
+    ));
+
+    expect(GameRace::crashes($results))->toBe([])
+        ->and(GameRace::outcomes($results))->toBe(['item_already_owned', 'item_already_owned', 'ok'])
+        ->and(GameInventoryItem::query()->where('learner_id', $learnerId)->count())->toBe(1)
+        ->and(GameCoinLedgerEntry::query()->where('kind', LedgerKind::ItemPurchase->value)->count())->toBe(1);
+    expectWalletRaceInvariant($learnerId, 6);
+});
+
+it('lets a purchase and putting an item on run side by side: the wallet and the profile are different rows (G2.5b)', function (): void {
+    $learner = Learner::factory()->create();
+    $learnerId = $learner->id;
+    walletRaceFunded($learnerId, 10);
+    GameItem::factory()->create(['key' => 'camel_free', 'price_coins' => 0]);
+    GameItem::factory()->booster()->create(['key' => 'booster_cheap', 'price_coins' => 4]);
+
+    $results = GameRace::run([
+        fn (): int => app(ShopService::class)->buy(GameRace::learner($learnerId), 'booster_cheap', (string) Str::uuid())->balance,
+        function () use ($learnerId): string {
+            app(ShopService::class)->equip(GameRace::learner($learnerId), ItemSlot::Camel, 'camel_free');
+
+            return 'worn';
+        },
+        fn (): int => app(ShopService::class)->buy(GameRace::learner($learnerId), 'booster_cheap', (string) Str::uuid())->balance,
+    ]);
+
+    expect(GameRace::crashes($results))->toBe([])
+        ->and(GameRace::outcomes($results))->toBe(['ok', 'ok', 'ok'])
+        ->and(GameInventoryItem::query()->where('learner_id', $learnerId)->count())->toBe(2) // the booster and the default camel
+        ->and(GameProfile::query()->where('learner_id', $learnerId)->value('equipped'))->not->toBeNull();
+    expectWalletRaceInvariant($learnerId, 2);
 });

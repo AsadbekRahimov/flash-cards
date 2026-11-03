@@ -15,7 +15,10 @@ use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
 use App\Http\Controllers\Api\Twa\GameMapController;
+use App\Http\Controllers\Api\Twa\GameProfileController;
 use App\Http\Controllers\Api\Twa\GameRunController;
+use App\Http\Controllers\Api\Twa\GameShopController;
+use App\Http\Controllers\Api\Twa\GameWalletController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
@@ -138,8 +141,17 @@ Route::prefix('twa')->group(function (): void {
             Route::get('/result', [ExamController::class, 'result'])->name('twa.exam.result');
         });
 
-        // The game "Caravan" (docs/18 §12.8, docs/04 A.18): the map; the runs, the wallet and the shop come with their tasks.
+        // The game "Caravan" (docs/18 §12.8, docs/04 A.18): the map; the runs, the wallet, the shop and the profile are below.
         Route::get('/game/map', [GameMapController::class, 'show'])->name('twa.game.map');
+
+        // The wallet, the shop and the profile (docs/18 §12.8, G2.5b): all under `twa-api`; a purchase is paid once per `request_id`.
+        Route::get('/game/wallet', [GameWalletController::class, 'show'])->name('twa.game.wallet');
+        Route::get('/game/shop', [GameShopController::class, 'index'])->name('twa.game.shop');
+        Route::post('/game/shop/{key}/buy', [GameShopController::class, 'buy'])
+            ->where('key', '[a-z0-9][a-z0-9_]{0,47}')
+            ->name('twa.game.shop.buy');
+        Route::get('/game/profile', [GameProfileController::class, 'show'])->name('twa.game.profile');
+        Route::post('/game/profile/equip', [GameProfileController::class, 'equip'])->name('twa.game.profile.equip');
 
         // The runs (docs/18 §12.8): starting has a limiter of its own, answering and the hint share another; the audio is OUTSIDE `twa-api`, below.
         Route::post('/game/runs', [GameRunController::class, 'store'])

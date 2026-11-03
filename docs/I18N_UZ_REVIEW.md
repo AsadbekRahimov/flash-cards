@@ -2782,6 +2782,22 @@
 | `game.cities.24` | Chang'an | Чанъань |
 | `game.city_fallback` | :number-shahar | Город :number |
 
+### Игра «Караван» · G2.5b — кошелёк и лавка
+
+> `game.ledger.*` — названия проводок кошелька (`GET /game/wallet`, строка истории). Проверить: «Qo'llab-quvvatlash qo'shgan / yechgan» (начислено / списано поддержкой), «Kun karvoni» (караван дня). Названия и описания предметов лавки (верблюды, ковры, шатры, рамки, бустеры) лежат не в `lang/`, а в `GameItemSeeder` / таблице `game_items` (`title`, `description`: ru, uz) — их тоже проверить носителю по сидеру.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.ledger.run_reward` | To'xtash uchun mukofot | Награда за стоянку |
+| `game.ledger.boss_reward` | Boss uchun mukofot | Награда за босса |
+| `game.ledger.daily_reward` | Kun karvoni uchun mukofot | Награда за караван дня |
+| `game.ledger.class_reward` | Sinf karvoni mukofoti | Награда каравана класса |
+| `game.ledger.bazaar_hint` | Bozordagi maslahat | Подсказка на базаре |
+| `game.ledger.item_purchase` | Do'kondan xarid | Покупка в лавке |
+| `game.ledger.admin_grant` | Qo'llab-quvvatlash qo'shgan | Начисление от поддержки |
+| `game.ledger.admin_revoke` | Qo'llab-quvvatlash yechgan | Списание поддержкой |
+| `game.ledger.refund` | Qaytarish | Возврат |
+
 ## Удаление аккаунта (кнопка у ученика, команда `/delete_account`) — на проверку носителю
 
 > Проверить: «Akkauntni o'chirish» (Удалить аккаунт), «Xavfli hudud» (Опасная зона), «qonunga ko'ra saqlanadi» (хранятся по закону), «Pro obuna to'xtatiladi» (подписка Pro прекращается). В двух старых строках исправлены значения: `bot.help.private` (добавлена строка `/delete_account`) и `legal.privacy.sections.6.text` (кнопка вместо «пока нет»; исходные строки выше обновлены).

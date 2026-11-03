@@ -2,14 +2,24 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunEvent;
+use App\Domain\Game\Services\Economy\WalletService;
+use App\Domain\Operations\Support\PureCache;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
+use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameWallet;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItem;
 use Carbon\CarbonImmutable;
+use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
@@ -152,4 +162,76 @@ it('does not read the material while a run is played: no word, lesson or practic
     });
 
     expect(QueryLog::matching($queries, '/\b(from|join)\s+"?(words|lessons|stages|courses|practice_items|practice_item_versions)"?/i'))->toBe([]);
+});
+
+/**
+ * Statements of the shop with the catalogue cold (docs/18 §12.13, G2.5b): `TwaAuth` 1, the catalogue 1 (a warm cache: 0), what the learner
+ * owns 1, the wallet and the profile in one join 1. The plan of a Free learner is read only because an exclusive item is in the catalogue; it
+ * is the entitlement cache of the whole API (the default store), so it is warm in a real request and costs one more statement when it is not.
+ */
+const BUDGET_GAME_SHOP = 4;
+
+/** Statements of the wallet: `TwaAuth` 1, the wallet and the profile in one join 1, the ledger 1. */
+const BUDGET_GAME_WALLET = 3;
+
+/** Cold: every cache of the request is empty, the pure one included (it is a store of its own); the plan of the learner is warm when asked. */
+function gameBudgetCold(Learner $learner, bool $plan = true): void
+{
+    Cache::flush();
+    PureCache::store()->flush();
+    app(EntitlementResolver::class)->forget($learner);
+    if ($plan) {
+        app(EntitlementResolver::class)->for($learner);
+    }
+}
+
+it('keeps the shop within its budget, and the number does not grow with the catalogue and the inventory', function (): void {
+    (new GameItemSeeder)->run();
+    GameItem::factory()->exclusive()->create(['key' => 'camel_emir']);
+    $learner = Learner::factory()->create();
+    DB::transaction(fn () => app(WalletService::class)->credit($learner->id, 500, LedgerKind::RunReward, "run:{$learner->id}:1", 'game_run', 1));
+    GameProfile::factory()->create(['learner_id' => $learner->id]);
+    $headers = PracticeKit::headers($learner);
+    $measure = function (bool $plan) use ($headers, $learner): array {
+        gameBudgetCold($learner, $plan);
+        $cold = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/shop')->assertOk());
+        $warm = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/shop')->assertOk());
+
+        return [count($cold), count($warm)];
+    };
+    [$small, $smallWarm] = $measure(plan: true);
+    [$noPlan] = $measure(plan: false);
+
+    // five times the catalogue, a third of it owned
+    foreach (GameItem::factory()->count(48)->create() as $i => $item) {
+        if ($i % 3 === 0) {
+            GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $item->id]);
+        }
+    }
+    [$big, $bigWarm] = $measure(plan: true);
+
+    expect($small)->toBeLessThanOrEqual(BUDGET_GAME_SHOP)->and($big)->toBe($small)
+        ->and($smallWarm)->toBe($small - 1)->and($bigWarm)->toBe($smallWarm)
+        ->and($noPlan)->toBe($small + 1); // the plan of a learner nobody has asked about yet: one statement
+});
+
+it('keeps the wallet within its budget, and the number does not grow with the ledger', function (): void {
+    $learner = Learner::factory()->create();
+    GameProfile::factory()->withTickets(2)->create(['learner_id' => $learner->id]);
+    $headers = PracticeKit::headers($learner);
+    $measure = function () use ($headers): int {
+        Cache::flush();
+
+        return count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/wallet')->assertOk()));
+    };
+    foreach (range(1, 3) as $i) {
+        DB::transaction(fn () => app(WalletService::class)->credit($learner->id, 5, LedgerKind::RunReward, "run:{$learner->id}:{$i}"));
+    }
+    $small = $measure();
+
+    foreach (range(4, 60) as $i) {
+        DB::transaction(fn () => app(WalletService::class)->credit($learner->id, 5, LedgerKind::RunReward, "run:{$learner->id}:{$i}"));
+    }
+
+    expect($small)->toBeLessThanOrEqual(BUDGET_GAME_WALLET)->and($measure())->toBe($small);
 });
