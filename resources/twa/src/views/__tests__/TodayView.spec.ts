@@ -438,14 +438,15 @@ describe('TodayView', () => {
         expect(w.router.currentRoute.value.name).toBe('billing')
       })
 
-      it('shows nothing when nothing lapsed, and does not even ask /me of a Pro learner', async () => {
+      it('shows nothing when nothing lapsed; a Pro learner gets no banner, and /me is asked once (by the "account restored" sheet)', async () => {
         vi.mocked(api.me.get).mockResolvedValue(lapsedMe(false))
         expect((await render()).find('[data-testid=lapsed-banner]').exists()).toBe(false)
 
         vi.mocked(api.me.get).mockClear()
         setActivePinia(createPinia())
-        await render(today({ entitlement: PRO }))
-        expect(api.me.get).not.toHaveBeenCalled()
+        const pro = await render(today({ entitlement: PRO }))
+        expect(pro.find('[data-testid=lapsed-banner]').exists()).toBe(false)
+        expect(api.me.get).toHaveBeenCalledTimes(1)
       })
     })
 

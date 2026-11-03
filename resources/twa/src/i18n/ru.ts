@@ -510,6 +510,12 @@ export const ru = {
   'settings.delete.pro': 'Подписка Pro прекращается.',
   'settings.delete.yes': 'Да, удалить',
   'settings.delete.no': 'Отмена',
+  // ---- "account restored" sheet (R11b) ----
+  'restored.title': 'С возвращением!',
+  'restored.text': 'Аккаунт восстановлен — слова и прогресс на месте.',
+  'restored.pro': 'Автопродление Pro было выключено при удалении. Включить его снова можно в «Подписке».',
+  'restored.billing': 'Открыть «Подписку»',
+  'restored.ok': 'Понятно',
   'settings.deleted.title': 'Аккаунт удалён',
   'settings.deleted.text': 'Вернуться можно до {date}: отправьте боту команду /start. После этого срока данные будут удалены окончательно.',
   'settings.deleted.text_plain': 'Вернуться можно в течение 30 дней: отправьте боту команду /start. После этого срока данные будут удалены окончательно.',

@@ -7,6 +7,7 @@ import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import { useTodayStore } from '@/stores/today'
 import type {
+  AccountRestored,
   BillingCatalog,
   BillingPeriod,
   BillingProviderKey,
@@ -64,6 +65,8 @@ interface BillingState {
    * request failed / the plan may have changed since (`invalidate()`), so the next `load()` has to ask.
    */
   loadedAt: number | null
+  /** `/me.account_restored` (R11b): the notice is waiting; null once `consumeRestored()` took it, or when there is none. */
+  accountRestored: AccountRestored | null
 }
 
 /** The payment is confirmed by a webhook, so the TWA asks again: not more often than every 3 s, for 2 minutes. */
@@ -138,6 +141,7 @@ export const useBillingStore = defineStore('billing', {
     acting: false,
     actionError: '',
     loadedAt: null,
+    accountRestored: null,
   }),
 
   getters: {
@@ -180,9 +184,11 @@ export const useBillingStore = defineStore('billing', {
     },
 
     /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
-    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice'>): void {
+    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice' | 'account_restored'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
+      // Only a full `/me` says anything about it; the answers that carry just the plan leave it as it was.
+      if (me.account_restored !== undefined) this.accountRestored = me.account_restored
       if (me.practice) {
         // The limits live apart: the hub and the creation of a session or a battle bring newer ones than this `/me`.
         const { limits, ...access } = me.practice
@@ -192,6 +198,18 @@ export const useBillingStore = defineStore('billing', {
         this.practice = null
       }
       this.loadedAt = Date.now()
+    },
+
+    /**
+     * The "account restored" sheet is being shown (R11b): returns what it says and tells the server once, so that no other channel
+     * (the bot's `/start`) repeats it. A failed call is ignored - the notice may then come once more, which is harmless.
+     */
+    takeAccountRestored(): AccountRestored | null {
+      const notice = this.accountRestored
+      if (notice === null) return null
+      this.accountRestored = null
+      void api.me.accountRestoredSeen().catch(() => {})
+      return notice
     },
 
     /** An answer that carries the counters (`/me`, the hub, the 201 of a session or a battle). `undefined`: it did not say - nothing changes. */

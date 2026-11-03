@@ -37,6 +37,15 @@ export interface MeResponse {
    * every fixture typed as `MeResponse`) reads as "no practice": the billing store turns a missing block into `available: false`.
    */
   practice?: PracticeAccess
+  /**
+   * "Account restored" (R11b): null = nothing to say; else the learner came back within the 30 days and has not been told yet.
+   * `pro_can_resume`: the Pro auto-renewal, stopped by the deletion, can be switched on again.
+   */
+  account_restored?: AccountRestored | null
+}
+
+export interface AccountRestored {
+  pro_can_resume: boolean
 }
 
 export interface SettingsChoice {
