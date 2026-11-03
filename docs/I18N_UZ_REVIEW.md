@@ -2818,6 +2818,20 @@
 | `settings.deleted.text` | {date} gacha qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi. | Вернуться можно до {date}: отправьте боту команду /start. После этого срока данные будут удалены окончательно. |
 | `settings.deleted.text_plain` | 30 kun ichida qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi. | Вернуться можно в течение 30 дней: отправьте боту команду /start. После этого срока данные будут удалены окончательно. |
 
+### Возврат в течение 30 дней: «Аккаунт восстановлен» (R11b; бот `lang/uz/bot.php`, TWA `resources/twa/src/i18n/uz.ts`)
+
+> Проверить: «Hisobingiz tiklandi» (Аккаунт восстановлен), «Obuna» (раздел «Подписка», как `billing.title`), «avtomatik uzaytirilishi» (автопродление).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.account.restored` | Xush kelibsiz! Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida. | С возвращением! Аккаунт восстановлен — слова и прогресс на месте. |
+| `bot.account.restored_pro` | Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin. | Автопродление Pro было выключено при удалении. Включить его снова можно в «Подписке». |
+| `restored.title` | Xush kelibsiz! | С возвращением! |
+| `restored.text` | Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida. | Аккаунт восстановлен — слова и прогресс на месте. |
+| `restored.pro` | Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin. | Автопродление Pro было выключено при удалении. Включить его снова можно в «Подписке». |
+| `restored.billing` | «Obuna» bo'limini ochish | Открыть «Подписку» |
+| `restored.ok` | Tushunarli | Понятно |
+
 ### Публичный сайт, политика (`lang/uz/legal.php`)
 
 > Блок `legal.privacy.sections.6.text` изменён (см. выше, исходная строка обновлена).

@@ -91,9 +91,14 @@
   },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
                 "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
-  "game": { "available": true, "limits": null, "pro_promise": "full", "coins": 35, "tickets": 2 }
+  "game": { "available": true, "limits": null, "pro_promise": "full", "coins": 35, "tickets": 2 },
+  "account_restored": null
 }
 ```
+
+- `account_restored` (R11b) — `null`, пока нечего сообщать (и тогда лишних запросов нет). Если ученик удалил аккаунт и вернулся в течение 30 дней
+  (docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: `pro_can_resume` — автопродление Pro, снятое при удалении, можно включить снова
+  (то же `can_resume`, что в сводке подписки). Mini App показывает лист один раз и вызывает A.2d; бот в `/start` делает то же — кто первый, тот и гасит.
 
 - `groups` — группы, где learner состоит **сейчас** (активное членство в активной группе); пустой массив, если групп нет.
 - `words_learned` — слова с хотя бы одним успешным повторением (`repetitions >= 1`).
@@ -165,13 +170,18 @@
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
+### A.2d `POST /api/twa/me/account-restored/seen` — «аккаунт восстановлен» показан
+
+Без тела. Всегда `204 No Content`, идемпотентно (`AccountRestoreNotice::consume`: ключ `learners.meta.restored_notice_at` снимается под блокировкой строки; повтор или уже
+показанное ботом — тоже `204`). После вызова `/me.account_restored` = `null`, а `/start` в боте молчит. Ограничение — `throttle:twa-api`.
+
 ### A.2c `POST /api/twa/me/delete` — «Удалить аккаунт»
 
 Тело `{"confirm": true}` (`DeleteAccountRequest`: без подтверждения — `422`, ничего не меняется). Мягкое удаление ученика
 (`LearnerDeletionService::delete`, решение владельца 03.11.2026): `learners.deleted_at`, аудит `learner.deleted {by: self}` (без PII), у Stars сразу
 снимается автопродление (best-effort; оплаченный период и платежи не трогаются). Ответ `200` (`AccountDeletedResource`):
 `{deleted: true, restorable_until}` — ISO-8601, `deleted_at + learners.purge.after_days` (30). Токен перестаёт работать сразу: любой следующий запрос с ним —
-`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until`;
+`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until` (вернувшемуся один раз скажут «Аккаунт восстановлен», `/me.account_restored`, A.2d);
 после — `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
 
 ### A.2b `PATCH /api/twa/me/settings`

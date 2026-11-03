@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
+use App\Domain\Learners\Services\AccountRestoreNotice;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -17,6 +18,7 @@ use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 
@@ -43,6 +45,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly OrganizationMessenger $organizations,
         private readonly ReferralService $referrals,
         private readonly FriendsMessenger $friends,
+        private readonly AccountRestoreNotice $restoreNotice,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -104,6 +107,8 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
+        $this->announceRestore($learner, $chatId);
+
         $payload = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')));
         $this->registrar->attributeAcquisition($learner, $payload);
 
@@ -148,6 +153,31 @@ final class StartCommandHandler implements UpdateHandler
         }
 
         $this->messenger->resume($learner, $chatId, $payload);
+    }
+
+    /**
+     * R11b: a learner who came back within the 30 days is told so, once, before the usual answer. Only `/start` (and the
+     * Mini App) spend the marker; whoever takes it first shows the notice, the other channel stays silent.
+     */
+    private function announceRestore(Learner $learner, int $chatId): void
+    {
+        if (! $this->restoreNotice->isPending($learner)) {
+            return;
+        }
+
+        $canResume = $this->restoreNotice->proCanResume($learner);
+
+        if (! $this->restoreNotice->consume($learner)) {
+            return;
+        }
+
+        $locale = $this->locales->forLearner($learner);
+        $text = __('bot.account.restored', [], $locale);
+        if ($canResume) {
+            $text .= "\n\n".__('bot.account.restored_pro', [], $locale);
+        }
+
+        $this->telegram->sendMessage($chatId, $text);
     }
 
     /** The first word after `/start` (Telegram sends the deep-link parameter as `/start <parameter>`). */

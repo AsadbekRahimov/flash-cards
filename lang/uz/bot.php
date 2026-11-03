@@ -38,6 +38,11 @@ return [
         'not_linked' => "Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.\nSizning Telegram ID'ngiz: :id",
     ],
 
+    'account' => [
+        'restored' => "Xush kelibsiz! Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
+        'restored_pro' => "Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
+    ],
+
     'delete_account' => [
         'settings_button' => "Akkauntni o'chirish",
         'confirm' => "LexiFlow akkauntini o'chirasizmi?\n\nMa'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi.",

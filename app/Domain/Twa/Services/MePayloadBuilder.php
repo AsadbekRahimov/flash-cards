@@ -8,6 +8,7 @@ use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\LearnerBillingService;
 use App\Domain\Game\Services\GameAccess;
+use App\Domain\Learners\Services\AccountRestoreNotice;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
@@ -39,6 +40,7 @@ final class MePayloadBuilder
         private readonly PracticeAccess $practice,
         private readonly PracticeLimits $limits,
         private readonly GameAccess $game,
+        private readonly AccountRestoreNotice $restoreNotice,
     ) {}
 
     /**
@@ -52,7 +54,8 @@ final class MePayloadBuilder
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
      *   practice: PracticeBlock,
-     *   game: GameBlock
+     *   game: GameBlock,
+     *   account_restored: array{pro_can_resume: bool}|null
      * }
      */
     public function build(Learner $learner): array
@@ -74,6 +77,10 @@ final class MePayloadBuilder
                 'limits' => $this->limits->describe($learner, $this->practice->stateFor($learner, $entitlement), $entitlement),
             ],
             'game' => $this->game->describe($learner),
+            // R11b: only while the "account restored" notice is waiting - no extra query otherwise.
+            'account_restored' => $this->restoreNotice->isPending($learner)
+                ? ['pro_can_resume' => $this->restoreNotice->proCanResume($learner)]
+                : null,
         ];
     }
 }

@@ -37,6 +37,9 @@ final class LearnerDeletionService
 {
     public const ACTION_DELETED = 'learner.deleted';
 
+    /** Written by {@see AccountRestoreNotice} when the learner comes back before the purge. */
+    public const ACTION_RESTORED = 'learner.restored';
+
     public const BY_SELF = 'self';
 
     public const BY_ADMIN = 'admin';

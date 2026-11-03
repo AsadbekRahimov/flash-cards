@@ -410,7 +410,7 @@ when the person asked in a message. What happens:
    memberships, reminders log). A new `/start` then creates a **new** learner from scratch.
 
 Every deletion is written to the audit log: `learner.deleted` (`meta.by` = `self` or `admin`, the admin's name in the *User* column; no personal
-data in the record), and the final one as `learner.purged`. A **blocked** learner cannot delete themselves in the bot (otherwise the block would
+data in the record), the learner coming back within the 30 days as `learner.restored` (`meta.by` = `self`, no personal data), and the final one as `learner.purged`. A **blocked** learner cannot delete themselves in the bot (otherwise the block would
 disappear with the account); an admin can.
 
 **How a deleted learner reads in Payments.** Payment records are kept by law. In **Payments**, **Payment orders** and **Subscriptions** the

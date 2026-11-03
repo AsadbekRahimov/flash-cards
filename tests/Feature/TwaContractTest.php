@@ -154,6 +154,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
             ],
             'practice' => CONTRACT_PRACTICE_ME,
             'game' => CONTRACT_GAME_ME,
+            'account_restored',
         ]);
 
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
@@ -162,7 +163,9 @@ it('GET /me keeps its exact JSON shape', function (): void {
         // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
         ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
         // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
-        ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);
+        ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0])
+        // R11b: null until a learner who came back within 30 days is waiting for the notice.
+        ->and($response->json('account_restored'))->toBeNull();
 });
 
 it('GET /me carries the block `game` with the coins and the tickets once the game is open to the learner', function (): void {
@@ -371,6 +374,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         ],
         'practice' => CONTRACT_PRACTICE_ME,
         'game' => CONTRACT_GAME_ME,
+        'account_restored',
     ];
 
     $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()->assertExactJsonStructure($me);
