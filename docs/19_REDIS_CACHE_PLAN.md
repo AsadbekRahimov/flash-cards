@@ -70,6 +70,7 @@
 | `Site/Services/SitePageCache` (C5) | `site:page:v1:{страница}:{locale}:{отпечаток релиза}` — готовый HTML | 86400 с | кэш страниц |
 | `Telegram/Services/ChatMemberStatusCache` (C6) | `tg:member:v1:{чат}:{пользователь}` — статус бота в группе | 600 с | кэш |
 | `Game/Services/MapService` (G2.1m) | `game:friends:v1:{ученик}` — друзья на карте: массив `{friendship_id, learner_id, course_id, city_number, stops_cleared, camel_asset}` по всем курсам принятых друзей (карта фильтрует свой курс; имя читается при выдаче) | 300 с | кэш; сброс обеих сторон при принятии, удалении и блокировке дружбы (`FriendshipService`), иначе TTL |
+| `Game/Services/Economy/ShopService` (G2.5b) | `game:shop:v1:{locale}:n{версия}` — опубликованный каталог предметов (массив: id, key, kind, slot, effect, price, availability, achievement_key, title, description, asset; тексты — на языке из ключа); версия `game:shop:ver` (без TTL, невытесняемое хранилище); баланс, инвентарь и экипировка не кэшируются | 1800 с | кэш с версией; `GameItemObserver` поднимает версию после commit любого сохранения / удаления предмета |
 
 **Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
 
@@ -92,6 +93,8 @@
 | `CourseCatalogService` — значения `catalog:course:v1:*` (C4) | `lru` |
 | `CourseCatalogService` — ключ версии `catalog:course:ver:{id}` (C4) | `redis` (невытесняемое) |
 | `MapService` — `game:friends:v1:{ученик}` (G2.1m) | `lru` |
+| `ShopService` — значения `game:shop:v1:*` (G2.5b) | `lru` |
+| `ShopService` — ключ версии `game:shop:ver` (G2.5b) | `redis` (невытесняемое) |
 | `WordTranslationResolver` — `word:tr:v1:*` (C4) | `lru` |
 | `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
 | `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |

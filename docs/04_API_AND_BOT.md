@@ -1481,6 +1481,24 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - Просроченный забег (`expires_at`) закрывается лениво любым обращением (`finished/expired`) и командой `game:close-expired` (каждые 15 минут, `withoutOverlapping`).
 - События: `game.run_started` пишет `RunService` при старте (после commit); `game.run_finished` и награды — G2.5a.
 
+#### Кошелёк, лавка, профиль (G2.5b, часть 1)
+
+Четыре группы маршрутов в `/api/twa/game/*`: `TwaAuth` + `SetTwaLocale` + `throttle:twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`. Бустеры **в забеге** (`POST /game/runs/{id}/booster`, `boosters.available` у забега) — часть 2 (после G2.8): здесь бустер только покупается и лежит в инвентаре.
+
+| Маршрут | Тело → ответ |
+|---|---|
+| `GET /game/wallet` | `{balance, earned_total, spent_total, tickets {balance, max}, ledger[20] {amount, kind, created_at, title}}` |
+| `GET /game/shop` | `{items[] {key, kind, slot, effect, price, availability, owned, qty, equipped, locked_reason, title, description, asset}, balance}` |
+| `POST /game/shop/{key}/buy` | `{request_id (uuid)}` → тот же `wallet`, что у `GET /game/wallet` (уже после покупки). Проводка `shop:{learner}:{request_id}`; повтор `request_id` — те же 200 и состояние, второго списания нет |
+| `GET /game/profile` | `{equipped {slot: {key, asset}}, stops_cleared, cities_cleared, coins, tickets}` (`equipped` — объект, пустой `{}`, пока ничего не надето) |
+| `POST /game/profile/equip` | `{slot: camel \| carpet \| tent \| frame, item_key: string \| null}` → `profile`; `null` снимает предмет слота |
+
+- `items[]` — опубликованные предметы (`status = published`) по `sort`; `title` / `description` — на языке ученика (запасной — ru), `asset` — имя из белого списка ассетов Mini App (`App\Domain\Game\Support\GameAssets`), не URL. `owned` — есть в инвентаре **или** это предмет по умолчанию (косметика `availability = base`, `price = 0`: достаётся каждому, запись в инвентарь появляется при первом надевании, `source = default`); `qty` — число бустеров (у косметики 1/0); `equipped` — надет ли сейчас. `locked_reason`: `pro` (`exclusive` / `seasonal` без фичи `game.all_bosses`, ещё не куплен), `achievement` (предмет за достижение, не получен), иначе `null`. Каталог кэшируется (`game:shop`, docs/19 §2.2); `owned`, `qty`, `equipped`, `balance` - никогда.
+- Ошибки покупки: **404** `item_not_found` (нет такого опубликованного предмета) · **409** `item_not_purchasable {reason: achievement \| not_for_sale \| pro}` · **409** `item_already_owned` (косметика уже есть; бустеры копятся, `qty + 1`) · **409** `coins_insufficient {balance, price}` · **409** `request_id_reused` (тот же `request_id` у покупки другого предмета) · 422 валидации. Покупка за реальные деньги и обмен монет невозможны.
+- Ошибки экипировки: **404** `item_not_found` — ключа нет, предмета нет в инвентаре ученика, предмет не косметика или он не этого слота (все четыре случая выглядят одинаково).
+- `ledger[].title` — по виду проводки (`lang/{ru,uz}/game.php`, `ledger.*`); `tickets.max` = `game.tickets.max`.
+- События (после commit, `product_events`): `game.item_bought {item_key, kind, price}` · `game.coins_spent {amount, kind = item_purchase, ref_type = game_item, ref_id, balance}` (только при настоящем списании, не при повторе) · `game.cosmetic_equipped {slot, item_key | null}`.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook
