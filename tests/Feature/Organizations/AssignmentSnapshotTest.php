@@ -275,7 +275,10 @@ it('writes a whole chunk of the group in one upsert and claims only the threshol
         ->toBe([$this->learner->id => 100, $half->id => 50, $idle->id => 0]);
 
     $reloaded = $assignment->fresh();
-    $again = $statements(fn (): int => $this->service->refreshResults($reloaded, CarbonImmutable::now()->addMinute()));
+    // One reading of the clock for the refresh and for the check below: read twice, a second boundary between them
+    // (a slow CI runner) would make the same stamp look one second off.
+    $refreshedAt = CarbonImmutable::now()->addMinute();
+    $again = $statements(fn (): int => $this->service->refreshResults($reloaded, $refreshedAt));
     expect($again['result'])->toBe(0)
         ->and($again['inserts'])->toBe(1)
         ->and($again['updates'])->toBe(0)
@@ -284,7 +287,7 @@ it('writes a whole chunk of the group in one upsert and claims only the threshol
 
     // Every row carries the time of the last refresh (the report's "as of").
     expect(AssignmentResult::query()->where('assignment_id', $assignment->id)->pluck('computed_at')->map(static fn ($at): int => $at->getTimestamp())->unique()->all())
-        ->toBe([CarbonImmutable::now()->addMinute()->getTimestamp()]);
+        ->toBe([$refreshedAt->getTimestamp()]);
 });
 
 it('answers a learner without assignments from one read and writes nothing', function (): void {
