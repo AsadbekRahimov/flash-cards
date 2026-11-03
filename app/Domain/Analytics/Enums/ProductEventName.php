@@ -104,4 +104,12 @@ enum ProductEventName: string
     case BattleFinished = 'battle.finished';
     /** A battle was closed without a result (props: battle_id, end_reason). */
     case BattleClosed = 'battle.closed';
+    /** A run of the game started (props: run_id, kind, course_id, stage_id, lesson_id, total, free_slot, scope_widened - docs/18 §12.8). */
+    case GameRunStarted = 'game.run_started';
+    /** A run ended, once, by whoever finished it (props: run_id, kind, finish_reason, total, answered, correct, typos, wrong, hints, stars, score, coins, league_points, srs_pulled, duration_ms, event). */
+    case GameRunFinished = 'game.run_finished';
+    /** A run was refused for lack of material (props: kind, course_id, lesson_id, available, required, reason). */
+    case GameNotEnoughMaterial = 'game.not_enough_material';
+    /** Coins were spent (props: amount, kind, ref_type, ref_id, balance). */
+    case GameCoinsSpent = 'game.coins_spent';
 }

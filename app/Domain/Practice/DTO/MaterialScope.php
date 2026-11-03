@@ -6,11 +6,14 @@ namespace App\Domain\Practice\DTO;
 
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Stage;
 use Closure;
 
 /**
  * Which material a mode may use (docs/16 §1.2): a course, optionally one lesson of it, and - for "repeat the
- * mistakes" - the {@see RetryMaterial} that narrows both words and tasks.
+ * mistakes" - the {@see RetryMaterial} that narrows both words and tasks. The game (docs/18 §12.3.1) adds the scope of a
+ * STAGE ({@see forStage()}): every lesson of one module, when a stop is short of words - `lesson` is null and the
+ * queries filter by `stages.id`.
  *
  * A scope is ONE operation's view of the material (a hub request, an opening of a session): it remembers what was read
  * from the database for it, so four modes asking for the same words and tasks cost the queries of one
@@ -26,7 +29,14 @@ final class MaterialScope
         public readonly Course $course,
         public readonly ?Lesson $lesson = null,
         public readonly ?RetryMaterial $retry = null,
+        public readonly ?Stage $stage = null,
     ) {}
+
+    /** The words and the tasks of every lesson of the stage (docs/18 §12.3.1: a stop widened to its city). */
+    public static function forStage(Course $course, Stage $stage): self
+    {
+        return new self($course, null, null, $stage);
+    }
 
     /**
      * @template T

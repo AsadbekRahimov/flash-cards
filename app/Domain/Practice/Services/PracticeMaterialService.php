@@ -257,7 +257,7 @@ final class PracticeMaterialService
     private function wordQuery(MaterialScope $scope): Builder
     {
         $query = Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('stages.course_id', $scope->course->id)
@@ -266,6 +266,9 @@ final class PracticeMaterialService
 
         if ($scope->lesson !== null) {
             $query->where('lessons.id', $scope->lesson->id);
+        }
+        if ($scope->stage !== null) {
+            $query->where('lessons.stage_id', $scope->stage->id);
         }
         if ($scope->retry !== null) {
             $query->whereIn('words.id', $scope->retry->wordIds);
@@ -298,7 +301,7 @@ final class PracticeMaterialService
                 $translations[$locale] = $texts[$word->id] ?? $word->translation;
             }
 
-            $material[] = new MaterialWord($word->id, $word->lesson_id, $word->word, $word->translation, $word->audio_path, $translations);
+            $material[] = new MaterialWord($word->id, $word->lesson_id, $word->word, $word->translation, $word->audio_path, $translations, $word->example);
         }
 
         return $material;
@@ -323,6 +326,10 @@ final class PracticeMaterialService
 
             if ($scope->lesson !== null) {
                 $query->where('practice_items.lesson_id', $scope->lesson->id);
+            }
+            if ($scope->stage !== null) {
+                // The tasks of the lessons of the stage; a task of the whole course (no lesson) is not a task of this city.
+                $query->whereIn('practice_items.lesson_id', Lesson::query()->select('id')->where('stage_id', $scope->stage->id));
             }
             if ($scope->retry !== null) {
                 $query->whereIn('practice_items.id', $scope->retry->itemIds);

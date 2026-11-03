@@ -2,18 +2,25 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\RunEvent;
+use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Services\Runs\RunService;
 use App\Models\Achievement;
 use App\Models\AssignmentResult;
 use App\Models\Battle;
 use App\Models\Challenge;
+use App\Models\Course;
 use App\Models\GameProfile;
 use App\Models\GameRun;
+use App\Models\GameRunAttempt;
 use App\Models\GameWallet;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\PracticeItem;
 use App\Models\PracticeSession;
+use App\Models\ProductEvent;
 use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\TrainingReview;
@@ -25,6 +32,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Tests\Support\Game\GameKit;
+use Tests\Support\Practice\DictationKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
@@ -33,10 +44,9 @@ use Tests\Support\QueryLog;
  * and in `word_repetitions` only `next_review_at`, `is_hard` and `updated_at` (rule §5, from G2.2a). It never touches the schedule of
  * the repetitions, the training, the practice, the battles, the assignments, the challenges or the referrals.
  *
- * This is the skeleton of G2.1, the way PracticeIsolationTest was the skeleton of 18.1: the harness and the three nets, run over what
- * exists so far (the schema, the models, the access and the block of `/me`). The runs of the game themselves come with G2.2a: the task
- * that adds them adds the full run of every kind of run HERE (the checksums, the written tables, the events of docs/18 §12.8) and
- * puts the tables it writes into GAME_ISOLATION_WRITTEN. The nets:
+ * The harness and the three nets came with G2.1 (the skeleton, the way PracticeIsolationTest was the skeleton of 18.1); G2.2a added the
+ * runs of a stop in every way a run can go (completed, failed, abandoned, expired, with a hint of the bazaar) on the real handlers of
+ * every kind of task. The daily caravan (G2.3) and the bosses (G2.4) add their runs here. The nets:
  *   1. the rows of the protected tables are the same after the run (a hash of every column of every row);
  *   2. the run issued no INSERT / UPDATE / DELETE against any table but those the game owns;
  *   3. the code of the game imports none of the services and models that write the learning of a learner.
@@ -60,7 +70,12 @@ const GAME_ISOLATION_WRITTEN = [
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
     config(['game.access' => 'all']);
+    GameKit::noEvents();
+    Storage::fake('practice_audio');
 });
+
+/** The events a run may write (docs/18 §12.8), and no other. */
+const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent'];
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
@@ -255,4 +270,148 @@ it('imports none of the services and models that write the learning of a learner
     }
 
     expect($offences)->toBe([]);
+});
+
+/**
+ * A stop rich enough for every kind of task: 13 voiced words with examples (a round of pairs, listen, gap, spell, the translations),
+ * a published collocation, a sentence and a dictation with its clip. The learner of gameIsolationWorld() gets it on top of their life.
+ *
+ * @return array{0: Course, 1: Lesson}
+ */
+function gameIsolationStop(Learner $learner): array
+{
+    [$course, $lesson] = PracticeKit::course('english-game');
+    $words = [];
+    for ($i = 1; $i <= 13; $i++) {
+        $words[] = GameKit::word($lesson, $learner, "isoword{$i}", "изо-перевод {$i}", voiced: true);
+    }
+    PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($words[0])->create();
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words[1])->create();
+    DictationKit::phrase($lesson, $learner, 'Phrase of the caravan');
+    GameWallet::factory()->withBalance(30)->create(['learner_id' => $learner->id]);
+
+    return [$course, $lesson];
+}
+
+/**
+ * Every way a run of a stop can go, on the real handlers: completed without a mistake, failed on three mistakes (with a hint of the bazaar
+ * on the way), abandoned, expired by the scheduler, and one more completed with a mistake on every kind of task.
+ *
+ * @return list<int> the ids of the runs
+ */
+function gameIsolationPlayEverything(Learner $learner, Course $course, Lesson $lesson): array
+{
+    $runs = app(RunService::class);
+    $ids = [];
+
+    $clean = GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    expect($clean->finish_reason)->toBe(RunFinishReason::Completed)->and($clean->stars)->toBe(3);
+    $ids[] = $clean->id;
+
+    $run = $runs->start($learner, $course->slug, $lesson->id);
+    $run->forceFill(['snapshot' => [...$run->snapshot, 'events' => [['at' => 0, 'type' => RunEvent::Bazaar->value]]]])->save();
+    $first = GameKit::current($run);
+    if (in_array($first['kind'], ['translate_fwd', 'translate_back', 'listen', 'spell', 'gap', 'collocation'], true)) {
+        $runs->hint($run, $learner, (string) Str::uuid(), $first['id']);
+    }
+    $failed = GameKit::play($runs, $run, $learner, wrongAt: [0, 1, 2, 3]);
+    expect($failed->finish_reason)->toBe(RunFinishReason::Failed)->and($failed->stars)->toBe(0);
+    $ids[] = $failed->id;
+
+    $abandoned = $runs->start($learner, $course->slug, $lesson->id);
+    $runs->answer($abandoned, $learner, (string) Str::uuid(), GameKit::current($abandoned)['id'], ['skip' => true]);
+    expect($runs->abandon($abandoned, $learner)->finish_reason)->toBe(RunFinishReason::Abandoned);
+    $ids[] = $abandoned->id;
+
+    $expired = $runs->start($learner, $course->slug, $lesson->id);
+    expect($runs->closeExpired(CarbonImmutable::now()->addMinutes(31)))->toBe(1)
+        ->and($expired->refresh()->finish_reason)->toBe(RunFinishReason::Expired);
+    $ids[] = $expired->id;
+
+    $mistakes = GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner, wrongAt: [1, 4]);
+    expect($mistakes->finish_reason)->toBe(RunFinishReason::Completed)->and($mistakes->stars)->toBe(1);
+    $ids[] = $mistakes->id;
+
+    return $ids;
+}
+
+it('leaves the learning of the learner exactly as it was after runs of every outcome on the real handlers, except the repetitions of the words it was wrong about', function (): void {
+    $learner = gameIsolationWorld();
+    [$course, $lesson] = gameIsolationStop($learner);
+    $before = gameIsolationChecksums();
+    $repetitionsBefore = DB::table('word_repetitions')->where('learner_id', $learner->id)->orderBy('id')->get()->keyBy('word_id');
+
+    $queries = QueryLog::during(function () use ($learner, $course, $lesson): void {
+        gameIsolationPlayEverything($learner, $course, $lesson);
+    });
+
+    expect(gameIsolationChecksums())->toBe($before)
+        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, 'word_repetitions']))->toBe([]);
+
+    // The one statement the game may issue against `word_repetitions`: the conditional UPDATE of the three columns (docs/18 §12.4).
+    $writes = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]word_repetitions["`]/i');
+    expect($writes)->not->toBe([]);
+    foreach ($writes as $sql) {
+        expect($sql)->toMatch('/^update ["`]word_repetitions["`] set ["`]next_review_at["`] = \?, ["`]is_hard["`] = \?, ["`]updated_at["`] = \? where ["`]learner_id["`] = \? and ["`]word_id["`] in \(.*\) and ["`]next_review_at["`] > \?$/i');
+    }
+
+    // Every kind of task was played at least once.
+    $kinds = [];
+    foreach (GameRun::query()->where('learner_id', $learner->id)->get() as $run) {
+        foreach ($run->snapshot['elements'] as $element) {
+            $kinds[$element['kind']] = true;
+        }
+    }
+    expect(array_keys($kinds))->toEqualCanonicalizing(['translate_fwd', 'translate_back', 'listen', 'spell', 'gap', 'pairs_round', 'collocation', 'sentence', 'dictation']);
+
+    // In `word_repetitions` only the words of the mistakes moved, and only `next_review_at`, `is_hard`, `updated_at`.
+    $mistakes = [];
+    foreach (GameRun::query()->where('learner_id', $learner->id)->get() as $run) {
+        foreach ((array) ($run->state['srs_pulled'] ?? []) as $wordId) {
+            $mistakes[(int) $wordId] = true;
+        }
+    }
+    expect($mistakes)->not->toBe([]);
+    foreach (DB::table('word_repetitions')->where('learner_id', $learner->id)->orderBy('id')->get() as $row) {
+        $was = $repetitionsBefore[$row->word_id];
+        if (isset($mistakes[(int) $row->word_id])) {
+            // Brought to now and marked hard when it was in the future; a card that was due already is left as it was (the UPDATE is conditional).
+            $wasAhead = CarbonImmutable::parse($was->next_review_at)->gt(CarbonImmutable::now());
+            expect(CarbonImmutable::parse($row->next_review_at)->lte(CarbonImmutable::now()))->toBeTrue()
+                ->and((bool) $row->is_hard)->toBe($wasAhead ? true : (bool) $was->is_hard);
+        } else {
+            expect([$row->next_review_at, (bool) $row->is_hard])->toBe([$was->next_review_at, (bool) $was->is_hard]);
+        }
+    }
+    expect(GameRunAttempt::query()->count())->toBeGreaterThan(20)
+        ->and(TrainingReview::query()->count())->toBe(1);
+});
+
+it('writes only the events of docs/18 §12.8, with the props the document lists and no personal data', function (): void {
+    $learner = gameIsolationWorld();
+    [$course, $lesson] = gameIsolationStop($learner);
+    ProductEvent::query()->delete();
+
+    gameIsolationPlayEverything($learner, $course, $lesson);
+
+    $events = ProductEvent::query()->orderBy('id')->get();
+    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent'])
+        ->and(array_diff($events->pluck('name')->unique()->all(), GAME_ISOLATION_EVENTS))->toBe([])
+        ->and($events->where('name', 'game.run_started')->count())->toBe(5)
+        ->and($events->where('name', 'game.run_finished')->count())->toBe(5)
+        ->and($events->where('name', 'game.run_finished')->pluck('props.finish_reason')->sort()->values()->all())->toBe(['abandoned', 'completed', 'completed', 'expired', 'failed']);
+
+    foreach ($events as $event) {
+        expect($event->learner_id)->toBe($learner->id);
+        $props = (array) $event->props;
+        $expected = match ($event->name) {
+            'game.run_started' => ['run_id', 'kind', 'course_id', 'stage_id', 'lesson_id', 'total', 'free_slot', 'scope_widened'],
+            'game.run_finished' => ['run_id', 'kind', 'finish_reason', 'total', 'answered', 'correct', 'typos', 'wrong', 'hints', 'stars', 'score', 'coins', 'league_points', 'srs_pulled', 'duration_ms', 'event'],
+            default => ['amount', 'kind', 'ref_type', 'ref_id', 'balance'],
+        };
+        expect(array_keys($props))->toEqualCanonicalizing($expected);
+        foreach ($props as $value) {
+            expect(is_scalar($value) || $value === null)->toBeTrue();
+        }
+    }
 });
