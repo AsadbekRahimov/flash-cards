@@ -3,6 +3,8 @@
 # directions, so a learner who types `color` where the author wrote `colour` (or the other way round) is right.
 # Only UNAMBIGUOUS pairs: a word that is another word in the other variety (`tyre`/`tire`, `cheque`/`check`, `practise`/`practice`,
 # `licence`/`license`, `kerb`/`curb`) is not here. The forms of a word (plural, past, -ing, -er, -ation) are listed one by one: nothing is derived.
+# `analyses` is not here: it is also the plural of the noun in both varieties, while `analyzes` is only the verb. Pairs like `metre`/`meter`
+# and `programme`/`program` (and their forms) stay: the American spelling covers both meanings, and a learner who types it is right.
 # Format: `british american` on a line, lower case, one space between, sorted in byte order (LC_ALL=C sort), a spelling occurs once;
 # a line with # is a comment.
 ageing aging
@@ -10,7 +12,6 @@ aluminium aluminum
 analyse analyze
 analysed analyzed
 analyser analyzer
-analyses analyzes
 analysing analyzing
 apologisation apologization
 apologisations apologizations
