@@ -46,6 +46,16 @@ The exit code is 1 on any FAIL.
 | `battle:absent-lazy` | the same without the janitor: the first one to come back closes the match by their own request - `closed / both_absent`, no winner, the mark of nobody renewed; the other reads the same later |
 | `shots` | 390 and 320 px x light and dark: the screens of each mode (task, review) and of a battle (room, round, review, result); nothing may stick out of the window sideways |
 
+## In CI
+
+`.github/workflows/e2e.yml` runs the whole thing every night (02:37 UTC) and by hand (Actions -> "E2E Mini App" -> Run workflow); not on
+push or pull request. The job sets up PHP 8.5 and Node 22 (`node:sqlite` needs 22.13+), installs `ffmpeg` from apt (the workflow
+checks that it has the `flite` filter), Playwright pinned in the workflow (`PLAYWRIGHT_VERSION`, installed globally: nothing in
+`package.json`) with `npx playwright install --with-deps chromium`, then `stand.sh up`, `practice.mjs`, `stand.sh down` (also when the run fails).
+The artifact `e2e-report` (14 days) holds `report.txt` (the output of the script: PASS/FAIL lines and the findings), the pictures
+(`shots/`) and `storage/logs/`. A red night is a failed run of the workflow; to reproduce, run the same commands as in "The stand" and "The run".
+When Playwright is updated, change the version in the workflow and look at the pictures once.
+
 ## Things to know
 
 - **`presence_grace_seconds`.** The server's default is 30 s; `PRACTICE_BATTLE_PRESENCE_GRACE` (stand: `E2E_GRACE=15`, script: `--grace 15`)
