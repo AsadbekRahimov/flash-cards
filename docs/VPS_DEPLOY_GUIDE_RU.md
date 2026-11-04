@@ -223,6 +223,8 @@ sudo systemctl restart php8.5-fpm
 sudo systemctl enable php8.5-fpm
 ```
 
+> **Docker-путь.** В прод-образе пул настраивается не файлом `www.conf`, а переменными `PHP_FPM_MAX_CHILDREN`, `PHP_FPM_START_SERVERS`, `PHP_FPM_MIN_SPARE_SERVERS`, `PHP_FPM_MAX_SPARE_SERVERS`, `PHP_FPM_MAX_REQUESTS` (умолчания 16 / 4 / 2 / 6 / 500; образ без них держал бы `pm.max_children = 5`). Задайте их в `.env` и пересоздайте `app`; правило подбора то же: RAM под PHP / 50 МБ, но не больше 2–4 воркеров на ядро. Подробности: `docs/DEVOPS_GUIDE.md`, «Пул php-fpm».
+
 ---
 
 ## 3. Установка Composer
