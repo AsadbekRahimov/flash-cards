@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\WidgetCache;
+use App\Domain\Engagement\Enums\AchievementKey;
 use App\Domain\Game\Enums\ItemAvailability;
 use App\Domain\Game\Enums\ItemStatus;
 use App\Domain\Game\Enums\LedgerKind;
@@ -36,11 +37,11 @@ use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 use Livewire\Livewire;
 
 use function Pest\Livewire\livewire;
 
-use Illuminate\Support\Facades\Lang;
 use Tests\Support\FilamentQueryBudget;
 use Tests\Support\QueryLog;
 
@@ -153,7 +154,7 @@ it('needs a slot for a cosmetic, an effect for a booster and an achievement for 
 });
 
 it('words every achievement key of the item form in Russian, the game boss included', function (): void {
-    foreach (\App\Domain\Engagement\Enums\AchievementKey::cases() as $key) {
+    foreach (AchievementKey::cases() as $key) {
         expect(Lang::has("admin.game.items.achievement.{$key->value}", 'ru'))->toBeTrue("no label for {$key->value}");
     }
 });
