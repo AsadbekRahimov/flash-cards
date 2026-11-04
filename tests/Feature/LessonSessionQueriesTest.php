@@ -114,8 +114,11 @@ it('costs the same statements for a lesson of 6 and of 40 words, and counts no w
 
     // Before: start 14, next 12, review 25. The words of the lesson are counted once an hour, not on each step;
     // the access check is one statement instead of three, and /start reads the lesson with its stage and course in
-    // one statement instead of three (12 -> 10).
-    foreach (['start' => 10, 'next' => 9, 'review' => 22] as $step => $budget) {
+    // one statement instead of three (12 -> 10). R12g: the word rides with the repetition, the counters are one
+    // statement, the quota is counted once, the day row is read with the goal and created only on the first grade
+    // of the day, the plan is read once a request (start 10 -> 7, next 9 -> 6, review 22 -> 16; see
+    // TrainingCycleQueryBudgetTest for what each statement is; /start reads the lesson with its context on top of /next).
+    foreach (['start' => 7, 'next' => 6, 'review' => 16] as $step => $budget) {
         expect(count($small[$step]))->toBeLessThanOrEqual($budget)
             ->and(count($large[$step]))->toBe(count($small[$step]))
             ->and(QueryLog::matching($large[$step], '/select count\(\*\) as "?aggregate"? from ["`]words["`]/'))->toBe([]);
