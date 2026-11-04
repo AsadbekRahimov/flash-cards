@@ -35,6 +35,8 @@ function gameErrorCases(): array
         'coins_insufficient' => [GameException::coinsInsufficient(3, 5), 409, ['balance' => 3, 'price' => 5]],
         'booster_limit_reached' => [GameException::boosterLimitReached(1, 1, '2026-11-09T19:00:00.000Z'), 409, ['limit' => 1, 'used' => 1, 'resets_at' => '2026-11-09T19:00:00.000Z']],
         'booster_not_owned' => [GameException::boosterNotOwned(), 409, []],
+        'booster_already_used' => [GameException::boosterAlreadyUsed(), 409, []],
+        'booster_not_applicable' => [GameException::boosterNotApplicable(), 409, []],
         'item_not_purchasable' => [GameException::itemNotPurchasable('achievement'), 409, ['reason' => 'achievement']],
         'item_already_owned' => [GameException::itemAlreadyOwned(), 409, []],
         'class_caravan_active' => [GameException::classCaravanActive(), 409, []],

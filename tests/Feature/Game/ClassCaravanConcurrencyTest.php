@@ -138,7 +138,7 @@ it('adds the stars of three members who finish their runs at the same instant: t
     }
 
     $results = GameRace::run(array_map(
-        fn (array $p): Closure => fn (): string => app(RunService::class)->answer($p['run_id'], GameRace::learner($p['learner_id']), (string) Str::uuid(), $p['element_id'], $p['answer'])->view->status->value,
+        fn (array $p): Closure => fn (): string => app(RunService::class)->answer($p['run_id'], GameRace::learner($p['learner_id']), (string) Str::uuid(), $p['element_id'], $p['answer'])->run->status->value,
         $pending,
     ));
 

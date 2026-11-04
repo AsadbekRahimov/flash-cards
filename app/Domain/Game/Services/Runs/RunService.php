@@ -83,6 +83,7 @@ final class RunService
         private readonly RunEventRecorder $runEvents,
         private readonly GameLimits $limits,
         private readonly TicketService $tickets,
+        private readonly BoosterService $boosters,
         private readonly ClassCaravanService $caravans,
     ) {}
 
@@ -141,6 +142,51 @@ final class RunService
             'stage_id' => $lesson->stage_id,
             'lesson_id' => $lesson->id,
         ], $replaceActive, $now);
+    }
+
+    /**
+     * The courtesy check of the start of a boss (like the one of a stop in {@see start()}): an unfinished run of the SAME boss is the
+     * answer (a second tab, a double tap) and is returned; any other live run is 409 `game_run_active` - unless `$replaceActive`.
+     * Null: nothing stands in the way.
+     *
+     * @throws GameException game_run_active
+     */
+    public function busyForBoss(Learner $learner, int $stageId, bool $replaceActive, CarbonImmutable $now): ?GameRun
+    {
+        if ($replaceActive) {
+            return null;
+        }
+        $busy = $this->activeOf($learner);
+        if ($busy === null || ! $busy->expires_at->gt($now)) {
+            return null;
+        }
+        if ($busy->kind === RunKind::Boss && $busy->stage_id === $stageId) {
+            return $busy;
+        }
+
+        throw GameException::runActive($this->activeDetails($busy));
+    }
+
+    /**
+     * The same courtesy check for the boss of a class (G2.9a): the learner's own unfinished fight with the boss of THIS caravan is the
+     * answer; any other live run is 409 `game_run_active` - unless `$replaceActive`.
+     *
+     * @throws GameException game_run_active
+     */
+    public function busyForClassBoss(Learner $learner, string $classBossKey, bool $replaceActive, CarbonImmutable $now): ?GameRun
+    {
+        if ($replaceActive) {
+            return null;
+        }
+        $busy = $this->activeOf($learner);
+        if ($busy === null || ! $busy->expires_at->gt($now)) {
+            return null;
+        }
+        if ($busy->kind === RunKind::ClassBoss && $busy->class_boss_key === $classBossKey) {
+            return $busy;
+        }
+
+        throw GameException::runActive($this->activeDetails($busy));
     }
 
     /**
@@ -337,6 +383,7 @@ final class RunService
             score: $run->score,
             current: $current,
             hint: ['price' => $this->hintPrice(), 'available' => $hintAvailable],
+            boosters: ['available' => $run->isActive() ? $this->boosters->available($learner->id) : [], 'used' => $state->boostersUsed],
             summary: $run->isActive() ? null : $this->summary($run, $snapshot, $state),
             serverNow: $now->toIso8601ZuluString('millisecond'),
         );
@@ -421,6 +468,54 @@ final class RunService
             }
 
             return $this->giveHint($locked, $learner, $requestId, $elementId, $now);
+        });
+
+        if ($outcome instanceof GameException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * A booster of the learner's inventory for the run (docs/18 §12.5.2, §12.8; {@see BoosterService}): under the lock of the run, once per
+     * `request_id` (a repeat returns the run of now and spends nothing). The refusals are returned out of the transaction and thrown
+     * after the commit, so that the closing of an expired run and the event `game.limit_reached` are kept.
+     *
+     * @throws GameException game_unavailable | game_run_not_found | game_run_closed | request_id_reused | item_not_found | unknown_element_id |
+     *                       element_not_current | answer_already_accepted | hint_not_available | booster_already_used | booster_not_applicable |
+     *                       booster_not_owned | booster_limit_reached
+     */
+    public function booster(GameRun|int $run, Learner $learner, string $requestId, string $itemKey, ?string $elementId = null, ?CarbonImmutable $now = null): RunView
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertAvailable($learner);
+        $requestId = strtolower($requestId);
+        $runId = $run instanceof GameRun ? $run->id : $run;
+
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $itemKey, $elementId, $now): RunView|GameException {
+            $locked = $this->lock($runId, $learner);
+            if ($locked === null) {
+                return GameException::runNotFound();
+            }
+
+            $prior = $this->attemptOf($locked, $requestId);
+            if ($prior !== null) {
+                return $prior->kind === AttemptKind::Booster ? $this->view($locked, $learner, $now) : GameException::requestIdReused();
+            }
+
+            $closed = $this->refuseClosed($locked, $learner, $now);
+            if ($closed !== null) {
+                return $closed;
+            }
+
+            try {
+                $this->boosters->use($locked, $learner, $requestId, $itemKey, $elementId, $now);
+            } catch (GameException $e) {
+                return $e;
+            }
+
+            return $this->view($locked, $learner, $now);
         });
 
         if ($outcome instanceof GameException) {
@@ -850,7 +945,27 @@ final class RunService
             'league_points' => $run->league_points,
             'srs_pulled' => $run->srs_pulled,
             'mistakes' => $mistakes,
-            'boss' => null,
+            'boss' => $this->bossSummary($run),
+        ];
+    }
+
+    /**
+     * `summary.boss` of the fight with a boss (docs/18 §12.8): the accuracy in whole per cent, whether the fight is won, whether it was
+     * the first win over the city's boss (kept in the state by the finisher). A fight left unfinished (abandoned, expired) is never won.
+     * `null` for any other run.
+     *
+     * @return array{accuracy: int, won: bool, first: bool}|null
+     */
+    private function bossSummary(GameRun $run): ?array
+    {
+        if ($run->kind !== RunKind::Boss && $run->kind !== RunKind::ClassBoss) {
+            return null;
+        }
+
+        return [
+            'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
+            'won' => $run->finish_reason === RunFinishReason::Completed && RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)),
+            'first' => $run->kind === RunKind::Boss && (bool) ($run->state['boss_first'] ?? false),
         ];
     }
 

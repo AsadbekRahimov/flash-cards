@@ -11,6 +11,7 @@ use App\Domain\Engagement\DTO\AchievementsOverview;
 use App\Domain\Engagement\Enums\AchievementKey;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Jobs\SendAchievementJob;
+use App\Jobs\SendGameCardJob;
 use App\Models\Achievement;
 use App\Models\Friendship;
 use App\Models\LeagueMember;
@@ -129,6 +130,19 @@ class AchievementService
                 $this->unlock($learner, AchievementKey::FirstFriend, $now);
             }
         }
+    }
+
+    /**
+     * The first win over the boss of a city (G2.4): the key is the learner's first boss ever. No DM of its own - the card of the city
+     * ({@see SendGameCardJob}) is the one message of the win.
+     */
+    public function onGameBossDefeated(Learner $learner, int $stageId, CarbonImmutable $now): ?Achievement
+    {
+        if (! $this->enabled() || $learner->blocked_at !== null) {
+            return null;
+        }
+
+        return $this->unlock($learner, AchievementKey::GameFirstBoss, $now, ['stage_id' => $stageId], notify: false);
     }
 
     /**

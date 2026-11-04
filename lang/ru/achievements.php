@@ -15,6 +15,7 @@ return [
         'words_1000' => ['title' => '1000 слов', 'description' => 'Выучено 1000 слов'],
         'league_top1' => ['title' => 'Победитель лиги', 'description' => 'Первое место в группе лиги за неделю'],
         'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в LexiFlow'],
+        'game_first_boss' => ['title' => 'Хранитель побеждён', 'description' => 'Первая победа над боссом города в игре «Караван»'],
     ],
 
     // Text on the card under the description.

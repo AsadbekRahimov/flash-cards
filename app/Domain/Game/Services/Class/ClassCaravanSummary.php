@@ -20,7 +20,7 @@ final class ClassCaravanSummary
     public function text(ClassCaravan $caravan, array $standings, string $locale): string
     {
         $lines = [
-            __('game.class.summary.title', ['group' => $this->escape($caravan->group->title)], $locale),
+            __('game.class.summary.title', ['group' => $this->escape($caravan->group->title ?? '')], $locale),
             '',
             __('game.class.summary.stars', ['stars' => $caravan->stars_total, 'target' => $caravan->target_stars], $locale),
             __('game.class.summary.runs', ['runs' => $caravan->runs_total], $locale),

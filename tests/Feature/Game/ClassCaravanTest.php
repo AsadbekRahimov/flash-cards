@@ -8,6 +8,7 @@ use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassBossService;
 use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Class\ClassCaravanSummary;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
@@ -20,6 +21,7 @@ use App\Jobs\PostClassCaravanSummaryJob;
 use App\Models\ClassCaravan;
 use App\Models\ClassCaravanMember;
 use App\Models\Course;
+use App\Models\GameCoinLedgerEntry;
 use App\Models\GameRun;
 use App\Models\GameWordMiss;
 use App\Models\GroupMember;
@@ -40,6 +42,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Mockery\MockInterface;
 use Spatie\Permission\Models\Role;
 use Tests\Support\FakeTelegramClient;
@@ -199,7 +202,7 @@ it('starts the caravan of the group for a week: the course of the group, the mem
 
     $events = classEvents('game.class_started');
     expect($events)->toHaveCount(1)
-        ->and($events[0]['props'])->toBe(['class_caravan_id' => $caravan->id, 'group_id' => $w['group']->id, 'members' => 3, 'target' => 18])
+        ->and($events[0]['props'])->toEqualCanonicalizing(['class_caravan_id' => $caravan->id, 'group_id' => $w['group']->id, 'members' => 3, 'target' => 18])
         ->and($events[0]['group'])->toBe($w['group']->id)
         ->and($events[0]['user'])->toBe($w['teacher']->id);
 });
@@ -563,7 +566,7 @@ it('closes the caravans past their end: finished, the group released, the event,
     Bus::assertDispatched(PostClassCaravanSummaryJob::class, fn (PostClassCaravanSummaryJob $job): bool => $job->classCaravanId === $due->id);
     $events = classEvents('game.class_finished');
     expect($events)->toHaveCount(1)
-        ->and($events[0]['props'])->toBe(['class_caravan_id' => $due->id, 'group_id' => $w['group']->id, 'stars_total' => 3, 'runs_total' => 1, 'boss_defeated' => false])
+        ->and($events[0]['props'])->toEqualCanonicalizing(['class_caravan_id' => $due->id, 'group_id' => $w['group']->id, 'stars_total' => 3, 'runs_total' => 1, 'boss_defeated' => false])
         ->and($events[0]['group'])->toBe($w['group']->id);
 
     // The group is free for a new caravan; the sweep again finds nothing.
@@ -670,7 +673,7 @@ it('posts nothing for a caravan that is active or canceled, skips a group that i
         ->and($active->fresh()?->summary_posted_at)->toBeNull()
         ->and($canceled->fresh()?->summary_posted_at)->toBeNull()
         ->and($orphan->fresh()?->summary_posted_at?->toDateTimeString())->toBe('2026-11-05 10:00:00')
-        ->and($orphan->fresh()?->meta)->toBe(['members_at_start' => 2, 'summary_skipped' => 'group_inactive'])
+        ->and($orphan->fresh()?->meta)->toEqualCanonicalizing(['members_at_start' => 2, 'summary_skipped' => 'group_inactive'])
         ->and(classEvents('game.class_summary_posted'))->toBe([]);
 
     $telegram->failSends = 1;
@@ -698,7 +701,7 @@ it('cancels the caravan by the teacher or an admin with the reason kept, posts n
     expect($canceled->status)->toBe(ClassCaravanStatus::Canceled)
         ->and($canceled->active_group_id)->toBeNull()
         ->and($canceled->finished_at?->toDateTimeString())->toBe('2026-11-06 10:00:00')
-        ->and($canceled->meta)->toBe(['members_at_start' => 1, 'canceled_reason' => 'teacher', 'canceled_by_user_id' => $w['teacher']->id])
+        ->and($canceled->meta)->toEqualCanonicalizing(['members_at_start' => 1, 'canceled_reason' => 'teacher', 'canceled_by_user_id' => $w['teacher']->id])
         ->and($run->fresh()?->status)->toBe(RunStatus::Finished)
         ->and($run->fresh()?->finish_reason)->toBe(RunFinishReason::Completed)
         ->and($run->fresh()?->class_caravan_id)->toBe($caravan->id)
@@ -779,4 +782,100 @@ it('gives the standings best first as arrays, from the cache while the caravan i
     expect(PureCache::store()->has(ClassCaravanService::standingsKey($caravan->id)))->toBeFalse()
         ->and(count(QueryLog::during(fn () => classService()->standings($over))))->toBe(1)
         ->and(PureCache::store()->has(ClassCaravanService::standingsKey($caravan->id)))->toBeFalse();
+});
+
+// ---------------------------------------------------------------------- the fight with the boss of the class (G2.4 + G2.9a)
+
+/** Plays a fight to its end: every element right but the positions in `$wrong`. @param list<int> $wrong */
+function classFight(GameRun $run, Learner $learner, array $wrong = []): GameRun
+{
+    $runs = app(RunService::class);
+    for ($guard = 0; $guard < 40; $guard++) {
+        $run->refresh();
+        if (! $run->isActive()) {
+            return $run;
+        }
+        $index = (int) $run->state['current'];
+        $element = $run->snapshot['elements'][$index];
+        $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], in_array($index, $wrong, true) ? GameKit::wrongAnswer($element) : GameKit::rightAnswers($element)[0]);
+    }
+
+    throw new RuntimeException('The fight did not end.');
+}
+
+it('starts the fight with the boss of the class over the API: 12 tasks of the words fixed at the start, no flasks, no city, no ticket, 409 while locked or fought, 404 for a stranger', function (): void {
+    GameKit::limits(1);
+    $w = classWorld(2, words: 14);
+    [$a, $b] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    $post = fn (Learner $learner, int $id): TestResponse => test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => 'class_boss', 'class_caravan_id' => $id]);
+
+    $post($a, $caravan->id)->assertStatus(409)->assertJsonPath('error.code', 'class_boss_locked');
+    $post(Learner::factory()->create(), $caravan->id)->assertNotFound()->assertJsonPath('error.code', 'class_caravan_not_found');
+    $post($a, 999_999)->assertNotFound()->assertJsonPath('error.code', 'class_caravan_not_found');
+
+    $caravan->update(['boss_unlocked_at' => now()]);
+    classPlay($a, $w['course'], $w['lesson']); // the free run of the day is spent: the boss of the class must not ask for a ticket
+    $started = $post($a, $caravan->id)->assertCreated();
+    $run = GameRun::query()->findOrFail($started->json('id'));
+    $ids = array_values(array_unique(array_map(fn (array $e): int => (int) $e['word_id'], $run->snapshot['elements'])));
+
+    expect($started->json('kind'))->toBe('class_boss')
+        ->and($started->json('flasks_max'))->toBe(0)
+        ->and($started->json('city'))->toBeNull()
+        ->and($started->json('total'))->toBe(12)
+        ->and($run->class_caravan_id)->toBe($caravan->id)
+        ->and($run->class_boss_key)->toBe("{$caravan->id}:{$a->id}")
+        ->and($run->free_slot)->toBeNull()
+        ->and($run->course_id)->toBe($w['course']->id)
+        ->and(array_values(array_diff($ids, $caravan->boss_snapshot_words)))->toBe([])
+        ->and(collect($run->snapshot['elements'])->pluck('kind')->unique()->diff(['translate_fwd', 'translate_back', 'listen', 'spell', 'gap'])->all())->toBe([]);
+
+    // The same fight asked again is the fight that is on; after it is over, a second fight is 409 class_boss_done; another member fights.
+    expect($post($a, $caravan->id)->assertCreated()->json('id'))->toBe($run->id);
+    classFight($run, $a);
+    $post($a, $caravan->id)->assertStatus(409)->assertJsonPath('error.code', 'class_boss_done');
+    $post($b, $caravan->id)->assertCreated()->assertJsonPath('kind', 'class_boss');
+    expect(GameRun::query()->where('kind', 'class_boss')->count())->toBe(2);
+});
+
+it('wins the boss of the class at 80 percent: 20 coins, 3 stars to the caravan, the member marked, the caravan beats the boss at half the participants; a loss pays nothing and is the member\'s one fight', function (): void {
+    $w = classWorld(3, words: 14);
+    [$a, $b, $c] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    foreach ([$a, $b, $c] as $learner) {
+        classPlay($learner, $w['course'], $w['lesson']);
+    }
+    $caravan->update(['boss_unlocked_at' => now()]);
+    $fight = fn (Learner $learner): GameRun => app(ClassBossService::class)->start($learner, $caravan->id);
+
+    $lost = classFight($fight($a), $a, wrong: [0, 1, 2]);
+    $summary = app(RunService::class)->view($lost, $a)->summary;
+    expect($lost->finish_reason)->toBe(RunFinishReason::Completed)
+        ->and($lost->stars)->toBe(0)
+        ->and($lost->coins_awarded)->toBe(0)
+        ->and($summary['boss'] ?? null)->toBe(['accuracy' => 75, 'won' => false, 'first' => false])
+        ->and(ClassCaravanMember::query()->where('learner_id', $a->id)->firstOrFail()->boss_won_at)->toBeNull()
+        ->and($caravan->refresh()->boss_defeated_at)->toBeNull()
+        ->and($caravan->runs_total)->toBe(4);
+    expect(fn () => $fight($a))->toThrow(fn (GameException $e) => $e->errorCode === 'class_boss_done');
+
+    CarbonImmutable::setTestNow('2026-11-05 11:00:00');
+    $won = classFight($fight($b), $b, wrong: [0, 1]);
+    $rowB = ClassCaravanMember::query()->where('learner_id', $b->id)->firstOrFail();
+    expect($won->stars)->toBe(3)
+        ->and($won->coins_awarded)->toBe(20)
+        ->and(app(RunService::class)->view($won, $b)->summary['boss'] ?? null)->toBe(['accuracy' => 83, 'won' => true, 'first' => false])
+        ->and((int) GameCoinLedgerEntry::query()->where('learner_id', $b->id)->where('kind', 'class_reward')->sum('amount'))->toBe(20)
+        ->and($rowB->boss_won_at?->toDateTimeString())->toBe('2026-11-05 11:00:00')
+        ->and($rowB->stars)->toBe(6)
+        ->and($rowB->runs)->toBe(2)
+        ->and($caravan->refresh()->stars_total)->toBe(12)
+        ->and($caravan->boss_defeated_at)->toBeNull(); // 1 win of 3 participants
+
+    CarbonImmutable::setTestNow('2026-11-05 12:00:00');
+    classFight($fight($c), $c);
+    expect($caravan->refresh()->boss_defeated_at?->toDateTimeString())->toBe('2026-11-05 12:00:00')
+        ->and(collect(classService()->standings($caravan->fresh() ?? $caravan))->firstWhere('learner_id', $c->id))->toMatchArray(['stars' => 6, 'runs' => 2, 'boss_won' => true])
+        ->and(ProductEvent::query()->where('name', 'game.boss_defeated')->count())->toBe(0); // the event of the city's boss is not the class's
 });

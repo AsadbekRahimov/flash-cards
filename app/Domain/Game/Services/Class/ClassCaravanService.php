@@ -14,6 +14,7 @@ use App\Domain\Game\Enums\ClassCaravanStatus;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameAccess;
+use App\Domain\Game\Support\BossWordPicker;
 use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Operations\Support\PureCache;
 use App\Jobs\PostClassCaravanSummaryJob;
@@ -68,6 +69,7 @@ final class ClassCaravanService
         private readonly CourseCatalogService $catalog,
         private readonly GameAccess $access,
         private readonly ProductEventRecorder $events,
+        private readonly BossWordPicker $picker,
     ) {}
 
     // ------------------------------------------------------------------ the teacher
@@ -109,7 +111,7 @@ final class ClassCaravanService
                 'target_stars' => $target,
                 'stars_total' => 0,
                 'runs_total' => 0,
-                'boss_snapshot_words' => $this->classBossWords($group->id, $course->id),
+                'boss_snapshot_words' => $this->picker->pickForGroup($group->id, $course->id, max(1, (int) config('game.boss.size', 12))),
                 'boss_unlocked_at' => null,
                 'boss_defeated_at' => null,
                 'summary_posted_at' => null,
@@ -343,7 +345,7 @@ final class ClassCaravanService
         }
     }
 
-    // ------------------------------------------------------------------ the boss of the class (G2.4: the fight itself - ClassBossService)
+    // ------------------------------------------------------------------ the boss of the class (the fight itself: ClassBossService)
 
     /** `game_runs.class_boss_key` of the one fight of a member (docs/18 §12.2.8). */
     public static function classBossKey(ClassCaravan $caravan, Learner $learner): string
@@ -511,44 +513,6 @@ final class ClassCaravanService
             ->where('status', 'active')
             ->orderBy('learner_id')
             ->pluck('learner_id')
-            ->map(static fn (mixed $id): int => (int) $id)
-            ->all());
-    }
-
-    /**
-     * The boss words of the class (docs/18 §12.3.4): the words of the course of the group the active members have been introduced to,
-     * the hardest for the class first - the number of learners who find a word hard, then the lapses, then the misses in the game,
-     * then the easiness - up to `boss.size`, fixed at the start of the caravan.
-     *
-     * // G2.4: BossWordPicker::forStage() is the same query for one learner and one city; when it lands, this becomes BossWordPicker::forGroup().
-     *
-     * @return list<int>
-     */
-    private function classBossWords(int $groupId, int $courseId): array
-    {
-        return array_values(DB::table('word_repetitions as wr')
-            ->join('words as w', function (JoinClause $join): void {
-                $join->on('w.id', '=', 'wr.word_id')->where('w.is_active', true);
-            })
-            ->join('lessons as l', 'l.id', '=', 'w.lesson_id')
-            ->join('stages as s', function (JoinClause $join) use ($courseId): void {
-                $join->on('s.id', '=', 'l.stage_id')->where('s.course_id', $courseId);
-            })
-            ->join('group_members as gm', function (JoinClause $join) use ($groupId): void {
-                $join->on('gm.learner_id', '=', 'wr.learner_id')->where('gm.telegram_group_id', $groupId)->where('gm.status', 'active');
-            })
-            ->leftJoin('game_word_misses as m', function (JoinClause $join): void {
-                $join->on('m.learner_id', '=', 'wr.learner_id')->on('m.word_id', '=', 'wr.word_id');
-            })
-            ->groupBy('wr.word_id')
-            ->selectRaw('wr.word_id, SUM(CASE WHEN wr.is_hard THEN 1 ELSE 0 END) AS hard, SUM(wr.lapses) AS lapses, COALESCE(SUM(m.misses), 0) AS misses, AVG(wr.easiness_factor) AS easiness')
-            ->orderByDesc('hard')
-            ->orderByDesc('lapses')
-            ->orderByDesc('misses')
-            ->orderBy('easiness')
-            ->orderBy('wr.word_id')
-            ->limit(max(1, (int) config('game.boss.size', 12)))
-            ->pluck('wr.word_id')
             ->map(static fn (mixed $id): int => (int) $id)
             ->all());
     }

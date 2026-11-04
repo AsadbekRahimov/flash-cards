@@ -229,11 +229,11 @@ it('refuses a bad start: an unknown or an unavailable course and lesson, a stop 
     [$other, $otherLesson] = [Learner::factory()->create(), $lesson];
     apiError(apiStart($other, $course->slug, $otherLesson->id), 409, 'stop_locked');
 
-    // The kinds of G2.4 / G2.9 are not accepted yet; the body is validated before anything happens.
-    foreach (['boss', 'class_boss', 'nonsense'] as $kind) {
-        test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => $kind, 'course' => $course->slug, 'lesson_id' => $lesson->id])
-            ->assertStatus(422)->assertJsonValidationErrors('kind');
-    }
+    // The body is validated before anything happens: an unknown kind, the boss of a class without its caravan (G2.9a: see ClassCaravanTest).
+    test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => 'nonsense', 'course' => $course->slug, 'lesson_id' => $lesson->id])
+        ->assertStatus(422)->assertJsonValidationErrors('kind');
+    test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => 'class_boss', 'course' => $course->slug, 'lesson_id' => $lesson->id])
+        ->assertStatus(422)->assertJsonValidationErrors('class_caravan_id');
     test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs', ['kind' => 'stop'])->assertStatus(422)->assertJsonValidationErrors(['course', 'lesson_id']);
     expect(GameRun::query()->count())->toBe(0);
 });

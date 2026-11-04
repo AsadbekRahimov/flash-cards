@@ -7,17 +7,22 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Game\DTO\RunSnapshot;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassBossService;
+use App\Domain\Game\Services\GameLimits;
+use App\Domain\Game\Services\Runs\BossService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\PracticeAudioService;
 use App\Http\Requests\Twa\GameAbandonRequest;
 use App\Http\Requests\Twa\GameAnswerRequest;
+use App\Http\Requests\Twa\GameBoosterRequest;
 use App\Http\Requests\Twa\GameHintRequest;
 use App\Http\Requests\Twa\StartGameRunRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\GameAnswerResource;
 use App\Http\Resources\Twa\GameRunResource;
+use App\Http\Resources\Twa\GameRunStartedResource;
 use App\Models\Learner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +30,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * The runs of the game "Caravan" (docs/18 §12.8, docs/04 A.18): start, read, answer, hint, abandon, the audio of an element. Thin: the
+ * The runs of the game "Caravan" (docs/18 §12.8, docs/04 A.18): start, read, answer, hint, booster, abandon, the audio of an element. Thin: the
  * request is validated by a FormRequest, the work is RunService's, the body is a Resource. Somebody else's run is "not found".
  */
 final class GameRunController
@@ -33,20 +38,26 @@ final class GameRunController
     public function __construct(
         private readonly RunService $runs,
         private readonly DailyCaravanService $daily,
+        private readonly BossService $bosses,
+        private readonly ClassBossService $classBosses,
         private readonly PracticeAudioService $audio,
+        private readonly GameLimits $limits,
     ) {}
 
-    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop); `kind = daily`: the day's caravan. */
+    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop); `kind = daily`: the day's caravan; `kind = boss`: the fight with the boss of a city; `kind = class_boss`: the fight with the boss of the class (G2.9a). */
     public function store(StartGameRunRequest $request): JsonResponse
     {
         $learner = $this->learner($request);
 
         try {
-            $run = $request->isDaily()
-                ? $this->daily->start($learner, $request->replaceActive())
-                : $this->runs->start($learner, $request->course(), $request->lessonId(), $request->replaceActive());
+            $run = match (true) {
+                $request->isDaily() => $this->daily->start($learner, $request->replaceActive()),
+                $request->isBoss() => $this->bosses->start($learner, $request->course(), $request->stageId(), $request->replaceActive()),
+                $request->isClassBoss() => $this->classBosses->start($learner, $request->classCaravanId(), $request->replaceActive()),
+                default => $this->runs->start($learner, $request->course(), $request->lessonId(), $request->replaceActive()),
+            };
 
-            return (new GameRunResource($this->runs->view($run, $learner)))->response()->setStatusCode(201);
+            return (new GameRunStartedResource($this->runs->view($run, $learner), $this->limits->describe($learner, true)))->response()->setStatusCode(201);
         } catch (GameException $e) {
             return $this->error($e);
         }
@@ -92,6 +103,20 @@ final class GameRunController
             $outcome = $this->runs->hint($run, $this->learner($request), $request->requestId(), $request->elementId());
 
             return (new GameAnswerResource($outcome))->response();
+        } catch (GameException $e) {
+            return $this->error($e);
+        }
+    }
+
+    /** POST /api/twa/game/runs/{run}/booster - the run of now (the hint, the flask or the second chance are in it). */
+    public function booster(GameBoosterRequest $request, int $run): JsonResponse
+    {
+        $learner = $this->learner($request);
+
+        try {
+            $view = $this->runs->booster($run, $learner, $request->requestId(), $request->itemKey(), $request->elementId());
+
+            return (new GameRunResource($view))->response();
         } catch (GameException $e) {
             return $this->error($e);
         }
