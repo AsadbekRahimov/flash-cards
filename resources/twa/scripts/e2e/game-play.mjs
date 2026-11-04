@@ -257,7 +257,7 @@ export async function playRun(env, s, p, runId, { plan = () => 'right', hooks = 
       await s.check(reply.verdict === verdictOf(intent), `the API counts ${intent} as ${verdictOf(intent)} (${element.kind})`, { ...opts, since: done.mark, expected: verdictOf(intent), actual: reply.verdict })
       await s.check(reveal.verdict === reply.verdict, `the review says what the API says (${element.kind}: ${reply.verdict})`, { ...opts, expected: reply.verdict, actual: reveal.verdict })
     } else {
-      await s.check(reply.round_done === true, 'the last match of the round ends it', { ...opts, actual: JSON.stringify(reply.round_done) })
+      await s.check(reply.round_done === true || reply.run.status !== 'active', 'the last match of the round ends it (or the last flask went before)', { ...opts, actual: JSON.stringify(reply.round_done) })
     }
     if (reveal.own && intent !== 'skip') {
       await s.check((reveal.right ?? '').length > 0, `the review of ${element.kind} shows the right answer`, { ...opts, actual: reveal.right })

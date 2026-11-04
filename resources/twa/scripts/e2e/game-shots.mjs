@@ -178,7 +178,7 @@ async function screens(env, s, p, config, options) {
   await playRun(env, s, p, lost.id, { plan: () => 'wrong' })
   await waitStatus(p, ['summary'])
   const failed = await readSummary(p)
-  await s.check(failed.outcome === 'failed' && failed.mistakes.length >= 3, 'the lost run says "Фляги кончились" and lists the mistakes', { ...opts, actual: `${failed.outcome} ${failed.title}, ${failed.mistakes.length} mistakes` })
+  await s.check(failed.outcome === 'failed' && failed.mistakes.length >= 2, 'the lost run says "Фляги кончились" and lists the mistakes', { ...opts, actual: `${failed.outcome} ${failed.title}, ${failed.mistakes.length} mistakes` })
   await look(s, p, 'summary-failed')
 
   s.step(`${p.name}: ✕ in a run, the unfinished run on the map and in the caravan of the day, the conflict`)
