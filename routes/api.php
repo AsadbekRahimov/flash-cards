@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BattleController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\ChallengeController;
+use App\Http\Controllers\Api\Twa\ClassCaravanController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
@@ -152,6 +153,10 @@ Route::prefix('twa')->group(function (): void {
             ->name('twa.game.shop.buy');
         Route::get('/game/profile', [GameProfileController::class, 'show'])->name('twa.game.profile');
         Route::post('/game/profile/equip', [GameProfileController::class, 'equip'])->name('twa.game.profile.equip');
+
+        // The caravans of the learner's classes (docs/18 §12.8, G2.9b): the list and one caravan with its table; under `twa-api`.
+        Route::get('/game/class', [ClassCaravanController::class, 'index'])->name('twa.game.class.index');
+        Route::get('/game/class/{id}', [ClassCaravanController::class, 'show'])->where('id', '[0-9]{1,18}')->name('twa.game.class.show');
 
         // The runs (docs/18 §12.8): starting has a limiter of its own, answering and the hint share another; the audio is OUTSIDE `twa-api`, below.
         Route::post('/game/runs', [GameRunController::class, 'store'])

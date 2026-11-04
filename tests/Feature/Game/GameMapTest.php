@@ -30,8 +30,8 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2) - and it must not grow with the lessons and the friends. */
-const BUDGET_MAP = 11;
+/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2; and the card of the class caravan, G2.9b) - and it must not grow with the lessons and the friends. */
+const BUDGET_MAP = 12;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');

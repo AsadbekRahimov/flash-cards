@@ -262,6 +262,25 @@ final class ClassCaravanService
     }
 
     /**
+     * The card of the caravan on the map and on "Today" (docs/18 §12.8, G2.9b): the same caravan {@see activeIdFor()} picks, in the same
+     * single read, with what the card draws. `ends_at` is ISO 8601 UTC with milliseconds. Null when the learner has no caravan on its way.
+     * The caller has checked that the game is open.
+     *
+     * @return array{id: int, stars_total: int, target_stars: int, ends_at: string}|null
+     */
+    public function activeCardFor(Learner $learner, CarbonImmutable $now): ?array
+    {
+        $row = $this->activeCaravansOf($learner->id, $now)->orderBy('cc.starts_at')->orderBy('cc.id')->first(['cc.id', 'cc.stars_total', 'cc.target_stars', 'cc.ends_at']);
+
+        return $row === null ? null : [
+            'id' => (int) $row->id,
+            'stars_total' => (int) $row->stars_total,
+            'target_stars' => (int) $row->target_stars,
+            'ends_at' => CarbonImmutable::parse((string) $row->ends_at, 'UTC')->toIso8601ZuluString('millisecond'),
+        ];
+    }
+
+    /**
      * The contribution of a finished run (docs/18 §12.5.3 step 6), INSIDE the transaction of the finish, last: the caravan's row FOR
      * UPDATE first - read again as `active` and inside its window (a caravan closed, canceled or past its end since the start of the run
      * gets nothing) - then the member's row, then the totals. A `class_boss` victory marks the member and, when the wins reach half of

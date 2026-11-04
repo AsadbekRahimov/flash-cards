@@ -23,7 +23,7 @@ final class ClassKit
     /**
      * @return array{organization: Organization, group: TelegramGroup, course: Course, teacher: User, learners: list<Learner>}
      */
-    public static function world(int $members = 2, ?Organization $organization = null, int $chatId = -1001234, string $title = 'Группа A1'): array
+    public static function world(int $members = 2, ?Organization $organization = null, int $chatId = -1001234, string $title = 'Группа A1', ?int $teacherTelegramId = 777): array
     {
         $organization ??= self::center();
         $course = Course::factory()->published()->create();
@@ -41,7 +41,7 @@ final class ClassKit
             GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
         }
 
-        return ['organization' => $organization, 'group' => $group, 'course' => $course, 'teacher' => self::teacher($group), 'learners' => $learners];
+        return ['organization' => $organization, 'group' => $group, 'course' => $course, 'teacher' => self::teacher($group, $teacherTelegramId), 'learners' => $learners];
     }
 
     /** A center with a live subscription: the condition of `class.centers_only`. */

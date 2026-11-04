@@ -30,7 +30,7 @@ final class TodayResource extends TwaResource
      *   onboarding_completed: bool,
      *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
      *   timezone: string,
-     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null}
+     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}
      * }
      */
     public function toArray(Request $request): array
