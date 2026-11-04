@@ -12,7 +12,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * `throttle:*` in ONE Redis command per limiter (docs/19 §5.1, K9 / R12i).
+ * `throttle:*` in ONE Redis command per request (docs/19 §5.1, K9 / R12i).
  *
  * Laravel's ThrottleRequests spends five commands of the limiter store on every allowed request: `GET` (the attempts),
  * then the hit - `SET NX` of the timer, `SET NX` of the counter, `INCRBY` - and one more `GET` for the `X-RateLimit-Remaining`
@@ -23,33 +23,48 @@ use Illuminate\Support\Facades\Cache;
  * reading and writing the same thing - the tests exhaust a limiter with `RateLimiter::hit()` and the login / 2FA
  * limiters, which use the RateLimiter directly, are not touched.
  *
+ * One script serves all limits of the request (variant (a) of R12j). It touches two or more keys, which in Redis Cluster
+ * is CROSSSLOT unless the keys share a hash slot; the limiter store is a single instance now, revisit if it is clustered.
+ *
  * A refused request does not count (as in the original); `Retry-After` is the rest of the window as the timer says. When
  * the limiter store is not Redis with phpredis (the tests on sqlite run on `array`) every call goes to the parent.
  */
 final class AtomicThrottle extends ThrottleRequests
 {
     /**
-     * KEYS[1] the counter, KEYS[2] its timer; ARGV[1] max attempts, ARGV[2] decay seconds, ARGV[3] now (unix seconds),
-     * ARGV[4] the end of a window that starts now. Returns {allowed 0|1, hits after this call, seconds until the window ends
-     * (0 when allowed)}.
+     * KEYS: pairs (counter, its timer), one pair per limit. ARGV[1] now (unix seconds); then three values per limit:
+     * max attempts, decay seconds, the end of a window that starts now. Like the parent (`tooManyAttempts` for all limits,
+     * then `hit` for all) it first checks every limit and only if none is exhausted hits them all, so a refusal by the
+     * second limit does not spend the first one. Returns {0, index of the refused limit, seconds until its window ends}
+     * or {1, hits after this call of limit 1, of limit 2, ...}.
      */
     private const SCRIPT = <<<'LUA'
-local hits = tonumber(redis.call('GET', KEYS[1]) or '0')
-if hits >= tonumber(ARGV[1]) then
-    local timer = redis.call('GET', KEYS[2])
-    if timer then
-        return {0, hits, math.max(0, tonumber(timer) - tonumber(ARGV[3]))}
+local n = #KEYS / 2
+local now = tonumber(ARGV[1])
+for i = 1, n do
+    local counter, timerKey = KEYS[2 * i - 1], KEYS[2 * i]
+    local hits = tonumber(redis.call('GET', counter) or '0')
+    if hits >= tonumber(ARGV[3 * i - 1]) then
+        local timer = redis.call('GET', timerKey)
+        if timer then
+            return {0, i, math.max(0, tonumber(timer) - now)}
+        end
+        redis.call('DEL', counter)
     end
-    redis.call('DEL', KEYS[1])
-    hits = 0
 end
-redis.call('SET', KEYS[2], ARGV[4], 'EX', ARGV[2], 'NX')
-local added = redis.call('SET', KEYS[1], '0', 'EX', ARGV[2], 'NX')
-hits = redis.call('INCRBY', KEYS[1], 1)
-if (not added) and hits == 1 then
-    redis.call('SET', KEYS[1], '1', 'EX', ARGV[2])
+local result = {1}
+for i = 1, n do
+    local counter, timerKey = KEYS[2 * i - 1], KEYS[2 * i]
+    local decay, window = ARGV[3 * i], ARGV[3 * i + 1]
+    redis.call('SET', timerKey, window, 'EX', decay, 'NX')
+    local added = redis.call('SET', counter, '0', 'EX', decay, 'NX')
+    local hits = redis.call('INCRBY', counter, 1)
+    if (not added) and hits == 1 then
+        redis.call('SET', counter, '1', 'EX', decay)
+    end
+    result[#result + 1] = hits
 end
-return {1, hits, 0}
+return result
 LUA;
 
     /** @var array<string, int> attempts left after this request, by limiter key */
@@ -76,22 +91,27 @@ LUA;
         $prefix = $store->getPrefix();
         $now = $this->currentTime();
 
+        $keys = [];
+        $args = [$now];
         foreach ($limits as $limit) {
             $key = $this->limiter->cleanRateLimiterKey($limit->key);
             $decay = max(1, (int) $limit->decaySeconds);
+            array_push($keys, $prefix.$key, $prefix.$key.':timer');
+            array_push($args, (int) $limit->maxAttempts, $decay, $now + $decay);
+        }
 
-            /** @var array{0: int, 1: int, 2: int} $result */
-            $result = $connection->eval(
-                self::SCRIPT, 2, $prefix.$key, $prefix.$key.':timer', (int) $limit->maxAttempts, $decay, $now, $now + $decay,
-            );
+        /** @var array<int, int> $result */
+        $result = $connection->eval(self::SCRIPT, count($keys), ...$keys, ...$args);
 
-            if ((int) $result[0] !== 1) {
-                $this->retryAfter[$limit->key] = (int) $result[2];
+        if ((int) $result[0] !== 1) {
+            $refused = $limits[(int) $result[1] - 1];
+            $this->retryAfter[$refused->key] = (int) $result[2];
 
-                throw $this->buildException($request, $limit->key, $limit->maxAttempts, $limit->responseCallback);
-            }
+            throw $this->buildException($request, $refused->key, $refused->maxAttempts, $refused->responseCallback);
+        }
 
-            $this->remaining[$limit->key] = max(0, (int) $limit->maxAttempts - (int) $result[1]);
+        foreach ($limits as $i => $limit) {
+            $this->remaining[$limit->key] = max(0, (int) $limit->maxAttempts - (int) $result[$i + 1]);
         }
 
         $response = $next($request);

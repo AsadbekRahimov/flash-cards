@@ -107,3 +107,32 @@ it('spends exactly one Redis command on a limiter, whether the request is allowe
         expect($commands)->toBe(['eval']);
     }
 })->skip(! throttleOnRedis(), 'a Redis limiter store (CACHE_LIMITER_STORE=redis, reachable) is required');
+
+/** Two limits on one route, as `twa-promo` (per learner and per IP): the tight one is the second. */
+function twoLimitKeys(): array
+{
+    RateLimiter::for('r12j-two', fn (Request $request): array => [
+        Limit::perMinute(10)->by('r12j-a|'.$request->ip()),
+        Limit::perMinute(2)->by('r12j-b|'.$request->ip()),
+    ]);
+    Route::middleware('throttle:r12j-two')->get('/_r12j/two', fn (): array => ['ok' => true]);
+    $keys = [md5('r12j-two'.'r12j-a|127.0.0.1'), md5('r12j-two'.'r12j-b|127.0.0.1')];
+    foreach ($keys as $key) {
+        RateLimiter::clear($key);
+    }
+
+    return $keys;
+}
+
+it('does not spend the first limit when the second one refuses', function (): void {
+    [$a, $b] = twoLimitKeys();
+
+    $this->getJson('/_r12j/two')->assertOk();
+    $this->getJson('/_r12j/two')->assertOk();
+    expect((int) RateLimiter::attempts($a))->toBe(2)->and((int) RateLimiter::attempts($b))->toBe(2);
+
+    $this->getJson('/_r12j/two')->assertStatus(429)->assertHeader('Retry-After');
+    $this->getJson('/_r12j/two')->assertStatus(429);
+
+    expect((int) RateLimiter::attempts($a))->toBe(2)->and((int) RateLimiter::attempts($b))->toBe(2);
+});
