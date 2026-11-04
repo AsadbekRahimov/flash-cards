@@ -288,6 +288,8 @@ export const api = {
     map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
     /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
     startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
+    /** The card of a city that was reached was shared (docs/04 A.18): once, a repeat answers the same. 404 `stage_not_found`. */
+    cityShared: (stageId: number) => client().post<{ stage_id: number; shared_at: string | null }>(`/game/cities/${stageId}/shared`),
   },
   gameClass: {
     /** The caravans of the learner's classes as short rows. 403 `game_unavailable`. */

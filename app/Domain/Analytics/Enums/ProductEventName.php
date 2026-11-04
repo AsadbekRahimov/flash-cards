@@ -118,6 +118,8 @@ enum ProductEventName: string
     case GameDailyCompleted = 'game.daily_completed';
     /** A learner beat the boss of a city (props: run_id, stage_id, accuracy - 0..100, first - the first win over this boss; docs/18 §12.8). */
     case GameBossDefeated = 'game.boss_defeated';
+    /** A learner opened the share dialog of the card of a city they reached, once (props: stage_id; docs/18 §12.9). */
+    case GameCityShared = 'game.city_shared';
     /** A learner bought an item of the shop (props: item_key, kind, price). */
     case GameItemBought = 'game.item_bought';
     /** A learner put a cosmetic on or took it off (props: slot, item_key - null when taken off). */

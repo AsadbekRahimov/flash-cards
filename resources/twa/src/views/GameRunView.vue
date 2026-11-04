@@ -21,6 +21,7 @@ import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { useGameStore } from '@/stores/game'
 import { useGameRunStore } from '@/stores/gameRun'
 import { useI18n } from '@/i18n'
 import type { GameAnswerPayload } from '@/api/gameRunTypes'
@@ -48,6 +49,8 @@ const props = defineProps<{
   course?: string | null
   /** The lesson of the stop (likewise: `lesson_id`). */
   stop?: number | null
+  /** The stage of the boss that this run fights (the screen of the boss puts it in the address): the mark of the card of the city needs it. */
+  boss?: number | null
 }>()
 
 /** How long the banner of an event stands before the task. */
@@ -57,7 +60,8 @@ const router = useRouter()
 const auth = useAuthStore()
 const game = useGameRunStore()
 const audio = usePracticeAudio({ fetchBlob: (url, signal) => api.gameRuns.audioBlob(url, signal) })
-const { haptic, notificationHaptic } = useTelegram()
+const { haptic, notificationHaptic, shareUrl } = useTelegram()
+const cities = useGameStore()
 const { t } = useI18n()
 
 const { status, run, errorMessage, actionError, outcome, elementSeq, element, coins, closedReason, boosterLimit } = storeToRefs(game)
@@ -277,6 +281,23 @@ const closedText = computed((): string => {
   return t('gameRun.closed.default')
 })
 
+let shareMarked = false
+
+/**
+ * "Share" on the card of the city (docs/05 §5b.8): the dialog of Telegram with the link and the text of the server, then the mark that it
+ * was opened (once; a refusal is silent). Without the stage of the boss in the address (a reload) the dialog opens and no mark is put.
+ */
+function onShare(): void {
+  const share = run.value?.summary?.boss?.share
+  if (!share) return
+  haptic('light')
+  shareUrl(share.link, share.text)
+  if (!shareMarked && props.boss) {
+    shareMarked = true
+    void cities.markCityShared(props.boss)
+  }
+}
+
 const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastErrors: true })
 </script>
 
@@ -304,8 +325,9 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
       v-else-if="status === 'summary' && run?.summary"
       :summary="run.summary"
       :failed="run.finish_reason === 'failed'"
-      :can-again="run.kind !== 'daily'"
+      :can-again="run.kind === 'stop'"
       @review="reviewFromPaywall"
+      @share="onShare"
       @again="goTo(mapLocation(true))"
       @map="goTo(mapLocation())"
     />

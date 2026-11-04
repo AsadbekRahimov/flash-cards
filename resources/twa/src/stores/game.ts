@@ -93,6 +93,20 @@ export const useGameStore = defineStore('game', {
       return this.start({ kind: 'daily', ...(replaceActive ? { replace_active: true } : {}) })
     },
 
+    /** Starts the fight with the boss of a city of the course (docs/05 §5b.8); 403 `game_pro_required` / `game_limit_reached` are the paywall, 409 `boss_not_ready`. */
+    async startBoss(course: string, stageId: number, replaceActive = false): Promise<GameStartResult> {
+      return this.start({ kind: 'boss', course, stage_id: stageId, ...(replaceActive ? { replace_active: true } : {}) })
+    },
+
+    /** The learner opened the share dialog of the card of the city: the mark. A refusal is silent - the dialog is open already, a repeat is harmless. */
+    async markCityShared(stageId: number): Promise<void> {
+      try {
+        await api.game.cityShared(stageId)
+      } catch {
+        // nothing to tell the learner
+      }
+    },
+
     /** One start at a time: a second press waits. */
     async start(body: GameStartRequest): Promise<GameStartResult> {
       if (this.starting) return busy()

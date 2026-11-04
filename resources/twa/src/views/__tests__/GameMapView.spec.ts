@@ -59,6 +59,7 @@ async function render(map: GameMapResponse | Promise<GameMapResponse> | Error = 
       { path: '/courses', name: 'courses', component: stub },
       { path: '/courses/:slug', name: 'course', component: stub },
       { path: '/game', name: 'game', component: stub },
+      { path: '/game/boss/:stageId(\\d+)', name: 'game-boss', component: stub },
       { path: '/game/caravan', name: 'game-caravan', component: stub },
       { path: '/game/runs/:id(\\d+)', name: 'game-run', component: stub },
     ],
@@ -303,13 +304,24 @@ describe('GameMapView: friends and bosses', () => {
     ['not_ready', { cleared_stops: 1, required_stops: 3 }, 'ещё 2 стоянки'],
     ['not_ready', { cleared_stops: 2, required_stops: 3 }, 'ещё 1 стоянка'],
     ['not_ready', { cleared_stops: 3, required_stops: 3, introduced: 6, required: 8 }, 'ещё 2 слова'],
-  ] as const)('shows the boss %s as a chip that is not a button (%j)', async (state, extra, text) => {
+  ] as const)('shows the boss %s as a chip in a button to its screen (%j)', async (state, extra, text) => {
     const { wrapper } = await render(gameMap({ cities: [mapCity({ boss: mapBoss({ state, ...extra }) })] }))
 
     const chip = testid(wrapper, `boss-${state}`)
     expect(chip.text()).toBe(text)
     expect(chip.element.tagName).toBe('SPAN')
+    expect(chip.element.parentElement?.tagName).toBe('BUTTON')
+    expect(chip.element.parentElement?.className).toContain('min-h-11')
     expect(wrapper.find('[data-testid=boss-pro]').exists()).toBe(false)
+  })
+
+  it('leads the chip of a boss to its screen, with the course of the map', async () => {
+    const { wrapper, router } = await render(gameMap({ cities: [mapCity({ stage_id: 3, boss: mapBoss({ state: 'ready' }) })] }))
+
+    await testid(wrapper, 'boss-open-3').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.fullPath).toBe('/game/boss/3?course=english-a1')
   })
 
   it('opens the paywall of the game from the Pro chip of a boss', async () => {

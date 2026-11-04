@@ -71,7 +71,7 @@ final class GameCardSender
             title: __('game.card.title', $params, $locale),
             description: __('game.card.description', [], $locale),
         ), $locale);
-        $link = $this->shareLink($learner);
+        $share = $this->share($learner, $stage->number);
 
         $log = NotificationLog::query()->create([
             'learner_id' => $learner->id,
@@ -84,10 +84,10 @@ final class GameCardSender
             $this->telegram->sendPhoto(
                 chatId: $learner->telegram_user_id,
                 photoPath: $path,
-                caption: __($link === null ? 'game.card.caption_no_link' : 'game.card.caption', $params, $locale),
-                replyMarkup: $link === null ? null : ['inline_keyboard' => [[[
+                caption: __($share === null ? 'game.card.caption_no_link' : 'game.card.caption', $params, $locale),
+                replyMarkup: $share === null ? null : ['inline_keyboard' => [[[
                     'text' => __('game.card.share_button', [], $locale),
-                    'url' => $this->achievements->shareUrl($link, __('game.card.share_text', $params, $locale)),
+                    'url' => $this->achievements->shareUrl($share['link'], $share['text']),
                 ]]]],
             );
         } catch (TelegramForbiddenException $e) {
@@ -99,6 +99,26 @@ final class GameCardSender
         }
 
         return 'sent';
+    }
+
+    /**
+     * What the "Share" button of the card of the boss of city number `$stageNumber` shares: the learner's invite link and the text, in the
+     * learner's language - the very pair of the DM card and of `summary.boss.share` of the TWA (docs/18 §12.9, one rule). `null` while the
+     * bot has no username (no link, nothing to share). `title` is the heading of the card ("I got to Samarkand").
+     *
+     * @return array{link: string, text: string, title: string}|null
+     */
+    public function share(Learner $learner, int $stageNumber): ?array
+    {
+        $link = $this->shareLink($learner);
+        if ($link === null) {
+            return null;
+        }
+        $locale = $this->locales->forLearner($learner);
+
+        $params = ['city' => CityNames::toward($stageNumber, $locale)];
+
+        return ['link' => $link, 'text' => __('game.card.share_text', $params, $locale), 'title' => __('game.card.title', $params, $locale)];
     }
 
     private function shareLink(Learner $learner): ?string

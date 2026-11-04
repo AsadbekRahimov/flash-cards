@@ -854,7 +854,7 @@ it('wins the boss of the class at 80 percent: 20 coins, 3 stars to the caravan, 
     expect($lost->finish_reason)->toBe(RunFinishReason::Completed)
         ->and($lost->stars)->toBe(0)
         ->and($lost->coins_awarded)->toBe(0)
-        ->and($summary['boss'] ?? null)->toBe(['accuracy' => 75, 'won' => false, 'first' => false])
+        ->and($summary['boss'] ?? null)->toBe(['accuracy' => 75, 'won' => false, 'first' => false, 'share' => null])
         ->and(ClassCaravanMember::query()->where('learner_id', $a->id)->firstOrFail()->boss_won_at)->toBeNull()
         ->and($caravan->refresh()->boss_defeated_at)->toBeNull()
         ->and($caravan->runs_total)->toBe(4);
@@ -865,7 +865,7 @@ it('wins the boss of the class at 80 percent: 20 coins, 3 stars to the caravan, 
     $rowB = ClassCaravanMember::query()->where('learner_id', $b->id)->firstOrFail();
     expect($won->stars)->toBe(3)
         ->and($won->coins_awarded)->toBe(20)
-        ->and(app(RunService::class)->view($won, $b)->summary['boss'] ?? null)->toBe(['accuracy' => 83, 'won' => true, 'first' => false])
+        ->and(app(RunService::class)->view($won, $b)->summary['boss'] ?? null)->toBe(['accuracy' => 83, 'won' => true, 'first' => false, 'share' => null])
         ->and((int) GameCoinLedgerEntry::query()->where('learner_id', $b->id)->where('kind', 'class_reward')->sum('amount'))->toBe(20)
         ->and($rowB->boss_won_at?->toDateTimeString())->toBe('2026-11-05 11:00:00')
         ->and($rowB->stars)->toBe(6)

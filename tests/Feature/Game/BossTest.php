@@ -305,7 +305,13 @@ it('wins at 80 percent: the first win pays 50, marks the city, unlocks game_firs
     $summary = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$run->id)->assertOk()->assertJsonPath('status', 'finished')->json('summary');
     expect($run->finish_reason->value)->toBe('completed')
         ->and($run->correct)->toBe(10)->and($run->wrong)->toBe(2)->and($run->stars)->toBe(3)->and($run->coins_awarded)->toBe(50)
-        ->and($summary['boss'])->toBe(['accuracy' => 83, 'won' => true, 'first' => true])
+        ->and($summary['boss'])->toBe(['accuracy' => 83, 'won' => true, 'first' => true, 'share' => [
+            // the pair of the DM card (the city is number 1 here: "I got to Tashkent" in the language of the learner)
+            'link' => 'https://t.me/LexiFlowBot?start=ref_'.$learner->fresh()?->referral_code,
+            'text' => $summary['boss']['share']['text'],
+            'title' => $summary['boss']['share']['title'],
+        ]])
+        ->and($summary['boss']['share']['text'])->toContain('Ташкент')
         ->and($summary['stars'])->toBe(3)->and($summary['coins'])->toBe(50);
 
     $city = GameCityProgress::query()->where('learner_id', $learner->id)->where('stage_id', $stage->id)->firstOrFail();
@@ -343,7 +349,7 @@ it('does not count a typo: 9 right and 2 typos of 12 is a defeat', function (): 
     expect($run->correct)->toBe(9)->and($run->typos)->toBe(2)->and($run->wrong)->toBe(1)
         ->and($run->stars)->toBe(0)->and($run->coins_awarded)->toBe(0);
     $summary = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$run->id)->json('summary');
-    expect($summary['boss'])->toBe(['accuracy' => 75, 'won' => false, 'first' => false]);
+    expect($summary['boss'])->toBe(['accuracy' => 75, 'won' => false, 'first' => false, 'share' => null]);
 });
 
 it('loses below 80 percent: no reward, no defeat, no achievement, no card, no boss_defeated; the attempt is counted and the boss can be tried again', function (): void {
@@ -386,7 +392,7 @@ it('pays a repeated win 5, and neither the achievement nor the card nor first=tr
     Queue::assertPushed(SendGameCardJob::class, 1);
 
     $summary = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$second->id)->json('summary');
-    expect($summary['boss'])->toBe(['accuracy' => 92, 'won' => true, 'first' => false]);
+    expect($summary['boss'])->toBe(['accuracy' => 92, 'won' => true, 'first' => false, 'share' => null]);
     // the first fight still remembers it was the first
     expect(test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$first->id)->json('summary.boss.first'))->toBeTrue();
 });
@@ -414,7 +420,7 @@ it('never calls an abandoned fight won, even with enough answers right', functio
     }
 
     test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/game/runs/'.$run->id.'/abandon', ['confirm' => true])->assertOk()
-        ->assertJsonPath('summary.boss', ['accuracy' => 92, 'won' => false, 'first' => false]);
+        ->assertJsonPath('summary.boss', ['accuracy' => 92, 'won' => false, 'first' => false, 'share' => null]);
     expect(GameCityProgress::query()->count())->toBe(0)->and(GameCoinLedgerEntry::query()->count())->toBe(0);
 });
 
@@ -562,4 +568,69 @@ it('costs the fight the free run of the day, then a ticket, then 403 game_limit_
     expect($paid->free_slot?->value)->toBe('ticket')
         ->and(GameTicketLedgerEntry::query()->where('idempotency_key', "spend:run:{$paid->id}")->count())->toBe(1)
         ->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(0);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------
+// the card of the city: the share of the TWA (docs/18 §12.9, G2.7b)
+// ---------------------------------------------------------------------------------------------------------------------------
+
+function bossShared(Learner $learner, int $stageId): TestResponse
+{
+    return test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/game/cities/{$stageId}/shared");
+}
+
+it('gives the first win the pair of the DM card to share, and nobody else: the same link and text as the card', function (): void {
+    Queue::fake();
+    [$learner, $course, $stage] = bossWorld();
+    $learner->update(['interface_locale' => 'ru']);
+    Stage::query()->whereKey($stage->id)->update(['number' => 3]);
+
+    $won = bossPlay(bossStart($learner, $course, $stage), $learner);
+    $share = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$won->id)->assertOk()->json('summary.boss.share');
+    $expected = app(GameCardSender::class)->share($learner->fresh() ?? $learner, 3);
+
+    expect($share)->toBe($expected)
+        ->and($share['link'])->toBe('https://t.me/LexiFlowBot?start=ref_'.$learner->fresh()?->referral_code)
+        ->and($share['text'])->toBe('Я дошёл до Самарканда в игре «Караван» — LexiFlow! Учим английский в Telegram.');
+
+    // a repeated win and a lost fight carry no card
+    $again = bossPlay(bossStart($learner, $course, $stage), $learner);
+    $lost = bossPlay(bossStart($learner, $course, $stage), $learner, wrong: [0, 1, 2, 3, 4]);
+    foreach ([$again, $lost] as $run) {
+        expect(test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/runs/'.$run->id)->json('summary.boss.share'))->toBeNull();
+    }
+});
+
+it('marks the card of a beaten city as shared once: the same answer again, one event, nothing changes', function (): void {
+    Queue::fake();
+    [$learner, $course, $stage] = bossWorld();
+    bossPlay(bossStart($learner, $course, $stage), $learner);
+
+    $first = bossShared($learner, $stage->id)->assertOk()->assertExactJsonStructure(['stage_id', 'shared_at'])->assertJsonPath('stage_id', $stage->id);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(5));
+    $second = bossShared($learner, $stage->id)->assertOk();
+    CarbonImmutable::setTestNow();
+
+    expect($second->json('shared_at'))->toBe($first->json('shared_at'))->and($first->json('shared_at'))->not->toBeNull()
+        ->and(GameCityProgress::query()->where('learner_id', $learner->id)->where('stage_id', $stage->id)->value('shared_at'))->not->toBeNull()
+        ->and(bossEvents(ProductEventName::GameCityShared->value))->toBe(1)
+        ->and(ProductEvent::query()->where('name', ProductEventName::GameCityShared->value)->first()?->props)->toBe(['stage_id' => $stage->id]);
+});
+
+it('has no card to share for a city that was not beaten, a missing one, someone else\'s, or while the game is closed', function (): void {
+    Queue::fake();
+    [$learner, $course, $stage] = bossWorld();
+    $other = Learner::factory()->create();
+    // a lost fight is a row of the city with no defeat
+    bossPlay(bossStart($learner, $course, $stage), $learner, wrong: [0, 1, 2, 3, 4]);
+
+    bossShared($learner, $stage->id)->assertNotFound()->assertJsonPath('error.code', 'stage_not_found');
+    bossShared($learner, 999999)->assertNotFound()->assertJsonPath('error.code', 'stage_not_found');
+
+    bossPlay(bossStart($learner, $course, $stage), $learner);
+    bossShared($other, $stage->id)->assertNotFound()->assertJsonPath('error.code', 'stage_not_found');
+    expect(bossEvents(ProductEventName::GameCityShared->value))->toBe(0);
+
+    config(['game.access' => 'off']);
+    bossShared($learner, $stage->id)->assertForbidden()->assertJsonPath('error.code', 'game_unavailable');
 });

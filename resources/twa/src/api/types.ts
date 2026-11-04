@@ -898,6 +898,8 @@ export type GameStartRequest =
   | { kind: 'stop'; course: string; lesson_id: number; replace_active?: boolean }
   /** The caravan of the day: the course is the active one, the server needs neither course nor lesson. */
   | { kind: 'daily'; replace_active?: boolean }
+  /** The boss of a city (docs/05 §5b.8): the course and the stage of the map. */
+  | { kind: 'boss'; course: string; stage_id: number; replace_active?: boolean }
   /** The boss of the class (docs/05 §5b.7): no course, no lesson. */
   | GameClassBossStartRequest
 

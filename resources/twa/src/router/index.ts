@@ -128,6 +128,17 @@ const routes: RouteRecordRaw[] = [
     props: (route) => ({ course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null }),
   },
   {
+    // The boss of a city (docs/05 §5b.8): `?course=` is the course of the map, else the active one.
+    path: '/game/boss/:stageId(\\d+)',
+    name: 'game-boss',
+    component: () => import('@/views/GameBossView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({
+      stageId: Number(route.params.stageId),
+      course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
+    }),
+  },
+  {
     // The caravan of a class (docs/05 §5b.7); the bot's link in the group chat (`startapp=`) leads here.
     path: '/game/class/:id(\\d+)',
     name: 'game-class',
@@ -144,6 +155,7 @@ const routes: RouteRecordRaw[] = [
       id: Number(route.params.id),
       course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
       stop: queryId(route.query.stop),
+      boss: queryId(route.query.boss),
     }),
   },
   {

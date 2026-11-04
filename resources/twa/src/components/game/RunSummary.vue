@@ -9,6 +9,7 @@
  * "To the map". Events: `review`, `again`, `map`.
  */
 import { computed } from 'vue'
+import CityCard from '@/components/game/CityCard.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useI18n } from '@/i18n'
@@ -23,13 +24,21 @@ const props = withDefaults(defineProps<{
   canAgain?: boolean
 }>(), { canAgain: true })
 
-defineEmits<{ review: []; again: []; map: [] }>()
+defineEmits<{ review: []; again: []; map: []; share: [] }>()
 
 const { t } = useI18n()
 
 const again = computed((): boolean => props.canAgain)
 const stars = computed((): number => Math.min(3, Math.max(0, props.summary.stars)))
-const canReview = computed((): boolean => props.failed && (props.summary.mistakes.length > 0 || props.summary.srs_pulled > 0))
+/** A fight with a boss: won or not (a lost one is not `failed` - a boss has no flasks), and the card of the first win. */
+const boss = computed(() => props.summary.boss)
+const bossLost = computed((): boolean => boss.value !== null && !boss.value.won)
+const card = computed(() => (boss.value?.won === true && boss.value.first && boss.value.share ? boss.value.share : null))
+const title = computed((): string => {
+  if (boss.value !== null) return boss.value.won ? t('gameRun.summary.title.boss_won') : t('gameRun.summary.title.boss_lost')
+  return props.failed ? t('gameRun.summary.title.failed') : t('gameRun.summary.title.completed')
+})
+const canReview = computed((): boolean => (props.failed || bossLost.value) && (props.summary.mistakes.length > 0 || props.summary.srs_pulled > 0))
 
 /** The rows of what the run earned: only the values that exist and are not zero. */
 const rewards = computed((): { key: string; label: string; value: string }[] => {
@@ -50,7 +59,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
   <div class="flex flex-1 flex-col" :data-outcome="failed ? 'failed' : 'completed'" data-testid="run-summary">
     <div class="flex flex-1 flex-col gap-4 px-4 pt-6 pb-4">
       <div class="flex flex-col items-center gap-3 text-center">
-        <h2 class="text-[22px] leading-7 font-bold" data-testid="summary-title">{{ failed ? t('gameRun.summary.title.failed') : t('gameRun.summary.title.completed') }}</h2>
+        <h2 class="text-[22px] leading-7 font-bold" data-testid="summary-title">{{ title }}</h2>
 
         <div class="flex items-center gap-1" role="img" :aria-label="t('gameRun.summary.stars', { stars })" data-testid="stars">
           <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= stars" :size="36" :class="n <= stars ? 'text-warning' : 'text-tg-hint'" :data-full="n <= stars ? 'true' : 'false'" data-testid="star" />
@@ -60,6 +69,12 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
           {{ t('gameRun.summary.score') }}: <span class="font-semibold text-tg-text tabular-nums" data-testid="summary-score">{{ summary.score }}</span>
         </p>
       </div>
+
+      <p v-if="boss && !boss.won" class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="boss-lost-hint">
+        {{ t('gameRun.summary.boss_lost_hint', { accuracy: Math.round(boss.accuracy) }) }}
+      </p>
+
+      <CityCard v-if="card" :title="card.title" @share="$emit('share')" />
 
       <section v-if="rewards.length > 0 || streakHeld || summary.boss" class="card flex flex-col gap-2" data-testid="rewards">
         <p v-for="row in rewards" :key="row.key" class="flex items-center justify-between text-[15px] leading-5" :data-testid="`reward-${row.key}`">

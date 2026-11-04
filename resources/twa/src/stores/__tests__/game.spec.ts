@@ -7,7 +7,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useGameStore } from '@/stores/game'
 import { gameLimits, gameMap } from '@/api/__tests__/gameMapFixtures'
 
-vi.mock('@/api', () => ({ api: { game: { map: vi.fn(), startRun: vi.fn() }, me: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { game: { map: vi.fn(), startRun: vi.fn(), cityShared: vi.fn() }, me: { get: vi.fn() } } }))
 
 const apiError = (kind: ConstructorParameters<typeof ApiClientError>[0], status: number, code: string, details: Record<string, unknown> | null = null) =>
   new ApiClientError(kind, status, code, 'English message', undefined, details)
@@ -203,6 +203,45 @@ describe('game store: the caravan of the day', () => {
     created({ id: 3 })
     expect(await first).toEqual({ ok: true, id: 3 })
     expect(api.game.startRun).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('game store: the boss of a city (docs/05 §5b.8)', () => {
+  it('starts the fight with the course and the stage of the map, replace_active only on request', async () => {
+    vi.mocked(api.game.startRun).mockResolvedValue({ id: 21 })
+    const game = useGameStore()
+
+    expect(await game.startBoss('english-a1', 3)).toEqual({ ok: true, id: 21 })
+    expect(api.game.startRun).toHaveBeenCalledWith({ kind: 'boss', course: 'english-a1', stage_id: 3 })
+
+    await game.startBoss('english-a1', 3, true)
+    expect(api.game.startRun).toHaveBeenLastCalledWith({ kind: 'boss', course: 'english-a1', stage_id: 3, replace_active: true })
+  })
+
+  it.each([
+    ['forbidden', 403, 'game_pro_required', 'Это доступно в Pro.'],
+    ['forbidden', 403, 'game_limit_reached', 'Бесплатные забеги на сегодня закончились.'],
+    ['conflict', 409, 'boss_not_ready', 'Босс пока не готов: пройдите больше стоянок.'],
+    ['not_found', 404, 'stage_not_found', null],
+  ] as const)('returns %s %i %s typed, with the text of the code', async (kind, status, code, text) => {
+    vi.mocked(api.game.startRun).mockRejectedValue(apiError(kind, status, code))
+    const game = useGameStore()
+
+    const result = await game.startBoss('english-a1', 3)
+
+    expect(result).toMatchObject({ ok: false, error: { code, kind } })
+    if (text !== null && !result.ok) expect(result.error.message).toBe(text)
+  })
+
+  it('marks the card of the city as shared, and never throws: a refusal is silent', async () => {
+    vi.mocked(api.game.cityShared).mockResolvedValueOnce({ stage_id: 3, shared_at: '2026-11-05T10:00:00.000Z' })
+    const game = useGameStore()
+
+    await expect(game.markCityShared(3)).resolves.toBeUndefined()
+    expect(api.game.cityShared).toHaveBeenCalledWith(3)
+
+    vi.mocked(api.game.cityShared).mockRejectedValueOnce(apiError('not_found', 404, 'stage_not_found'))
+    await expect(game.markCityShared(4)).resolves.toBeUndefined()
   })
 })
 

@@ -7,7 +7,7 @@
 // Four runs (width x theme), two at a time; each has its own learner (the caravan of the day is one a day for a person, and the API
 // allows 60 calls a minute). The kinds of tasks are met by playing runs of the four stops until all nine have been drawn.
 import { E2EError, until } from './kit.mjs'
-import { GAME_KINDS, isWordKind, playRun, readSummary, waitStatus } from './game-play.mjs'
+import { GAME_KINDS, isWordKind, playRun, playRunViaApi, readSummary, waitStatus } from './game-play.mjs'
 import { GAME_EXPECTED_STATUSES } from './game-scenarios.mjs'
 
 const CONFIGS = [
@@ -181,6 +181,8 @@ async function screens(env, s, p, config, options) {
   await s.check(failed.outcome === 'failed' && failed.mistakes.length >= 2, 'the lost run says "Фляги кончились" and lists the mistakes', { ...opts, actual: `${failed.outcome} ${failed.title}, ${failed.mistakes.length} mistakes` })
   await look(s, p, 'summary-failed')
 
+  await bossScreens(env, s, p)
+
   s.step(`${p.name}: ✕ in a run, the unfinished run on the map and in the caravan of the day, the conflict`)
   await openRun(env, p, 3)
   await waitStatus(p, ['playing', 'event'])
@@ -245,3 +247,73 @@ async function screens(env, s, p, config, options) {
   }
 }
 
+
+/**
+ * The boss of the first city (docs/05 §5b.8): what is missing, the intro, a lost fight, a won one with the card of the city, the intro of
+ * a beaten boss, and the boss of the second city that Free does not fight. The stops of the city that the runs above did not clear are
+ * cleared through the API first (a boss asks for them).
+ */
+async function bossScreens(env, s, p) {
+  const opts = { players: [p] }
+  s.step(`${p.name}: the boss of the first city (${p.width} px, ${p.theme})`)
+  await env.rest(p.who, 40)
+  const read = async () => (await env.api(p.who).get('/game/map?course=default')).json
+  let map = await read()
+  const first = map.cities[0]
+  const second = map.cities[1]
+
+  // What is missing: only for a learner who has not cleared the city yet.
+  if (first.boss.state === 'not_ready') {
+    await p.go(`/game/boss/${first.stage_id}?course=default`)
+    await p.waitFor('not-ready')
+    await look(s, p, 'boss-not-ready')
+  } else {
+    s.note('the stops of the city are cleared already: no picture of "not ready"')
+  }
+
+  for (const stop of first.stops.filter((stop) => stop.unlocked && stop.stars === 0)) {
+    await env.rest(p.who, 20)
+    const created = await env.api(p.who).post('/game/runs', { kind: 'stop', course: 'default', lesson_id: stop.lesson_id, replace_active: true })
+    if (created.status !== 201) throw new E2EError(`the run of lesson ${stop.lesson_id} was not started: ${created.status} ${created.text.slice(0, 160)}`)
+    await playRunViaApi(env, p.who, created.json.id)
+  }
+  map = await read()
+  await s.check(map.cities[0].boss.state === 'ready' || map.cities[0].boss.state === 'defeated', 'the boss of the first city is ready after its stops are cleared', { ...opts, actual: JSON.stringify(map.cities[0].boss) })
+
+  await env.rest(p.who, 35)
+  await p.go('/game?course=default')
+  await p.waitFor('road')
+  await look(s, p, 'map-boss-ready')
+  await p.click(`boss-open-${first.stage_id}`)
+  await p.waitFor('intro')
+  await look(s, p, 'boss-intro')
+
+  // A lost fight (3 mistakes of 12), then a won one with the card.
+  for (const [name, mistakes] of [['lost', 3], ['won', 0]]) {
+    await env.rest(p.who, 40)
+    const mark = p.mark()
+    await p.click('start-btn')
+    const run = JSON.parse((await p.waitCall(/\/game\/runs$/, { method: 'POST', since: mark, status: 201 })).body)
+    await p.waitFor('game-run-view')
+    await playRun(env, s, p, run.id, {
+      plan: (index) => (index < mistakes ? 'wrong' : 'right'),
+      hooks: {
+        task: async (element, index) => {
+          if (name === 'lost' && index === 0) await look(s, p, 'boss-task')
+        },
+      },
+    })
+    await waitStatus(p, ['summary'])
+    await look(s, p, `boss-${name}`)
+    await p.click('map-btn')
+    await p.waitFor('road')
+    await p.click(`boss-open-${first.stage_id}`)
+    await p.waitFor('intro')
+  }
+  await look(s, p, 'boss-beaten')
+
+  // The boss of the second city: Free fights only the first (`boss_stages`), the rest is Pro.
+  await p.go(`/game/boss/${second.stage_id}?course=default`)
+  await p.waitFor('pro-chip')
+  await look(s, p, 'boss-locked')
+}

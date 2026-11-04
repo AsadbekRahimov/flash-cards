@@ -1,8 +1,9 @@
 // What a learner does in a run of "Karvon" (docs/05 §5b.3), shared by the scenarios of game.mjs and its pictures. `element` is the element
 // of the snapshot of the run in the database of the stand (the oracle: the API never sends the right answers, docs/18 §12.8); what the
 // screen shows and what the API says is judged separately.
+import { randomUUID } from 'node:crypto'
 import { E2EError, sel, until } from './kit.mjs'
-import { boardCards, doCollocation, doDictation, doSentence, matchPair, normalize } from './screens.mjs'
+import { boardCards, doCollocation, doDictation, doSentence, matchPair, normalize, rightOrder } from './screens.mjs'
 
 /** The component each kind of element is drawn with. */
 export const GAME_TASK = {
@@ -276,4 +277,49 @@ export async function playRun(env, s, p, runId, { plan = () => 'right', hooks = 
 export function firstOf(oracle, runId, kinds, from = 0) {
   const run = runRow(oracle, runId)
   return run.snapshot.elements.findIndex((element, index) => index >= from && kinds.includes(element.kind))
+}
+
+// ------------------------------------------------------------------------- a run through the API
+
+/** The right answers to an element, for the API (the oracle knows them): one per call, a round of pairs has several. */
+function rightAnswers(element) {
+  switch (element.kind) {
+    case 'translate_fwd':
+    case 'translate_back':
+    case 'listen':
+      return [{ option_id: element.correct_option_id }]
+    case 'spell':
+      return [{ text: element.expected }]
+    case 'gap':
+      return [{ text: [].concat(element.expected)[0] }]
+    case 'pairs_round':
+      return Object.entries(element.pairs).map(([left, right]) => ({ left_id: left, right_id: right }))
+    case 'collocation':
+      return [{ option_id: element.correct_ids[0] }]
+    case 'sentence':
+      return [{ order: rightOrder(element) }]
+    case 'dictation':
+      return [{ text: element.expected[0] }]
+    default:
+      throw new E2EError(`no answer to an element of the kind ${element.kind}`)
+  }
+}
+
+/**
+ * Plays a run to its end through the API, every answer right: the quick way to what a scenario needs as a start (the stops that open a
+ * boss), not the thing under test. `who` is the learner of `env.api(who)`.
+ */
+export async function playRunViaApi(env, who, runId) {
+  const api = env.api(who)
+  for (let step = 0; step < 60; step++) {
+    const run = runRow(env.oracle, runId)
+    if (run.status !== 'active') return run
+    const element = run.snapshot.elements[run.state.current]
+    for (const answer of rightAnswers(element)) {
+      await env.rest(who, 4)
+      const reply = await api.post(`/game/runs/${runId}/answer`, { request_id: randomUUID(), element_id: element.id, answer })
+      if (reply.status !== 200) throw new E2EError(`the answer to ${element.kind} of run #${runId} was refused: ${reply.status} ${reply.text.slice(0, 160)}`)
+    }
+  }
+  throw new E2EError(`run #${runId} did not end`)
 }
