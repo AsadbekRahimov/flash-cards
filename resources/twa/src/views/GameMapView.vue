@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import GameItemImage from '@/components/game/GameItemImage.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
@@ -11,6 +12,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { shownLimit } from '@/composables/practiceLimits'
+import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -108,9 +110,15 @@ function stopTitle(stop: GameMapStop): string {
 
 const cityOpen = (city: GameMapCity): boolean => city.stops.some((stop) => stop.unlocked)
 
+const friendsIn = (city: GameMapCity) => (map.value?.friends ?? []).filter((friend) => friend.city_number === city.number)
+
+/** The camels of the first three friends in the city (the same three whose names are written): the one they wear, the base one otherwise. */
+const camelsAt = (city: GameMapCity): { id: number; asset: string }[] =>
+  friendsIn(city).slice(0, 3).map((friend) => ({ id: friend.friendship_id, asset: friend.camel_asset ?? BASE_CAMEL_ASSET }))
+
 /** Friends who are in the city: up to three names, the rest as "+N" (the server sends at most 20 friends of the course). */
 function friendsAt(city: GameMapCity): string {
-  const here = (map.value?.friends ?? []).filter((friend) => friend.city_number === city.number)
+  const here = friendsIn(city)
   if (here.length === 0) return ''
   const names = here.slice(0, 3).map((friend) => friend.name).join(', ')
   return t('game.map.friends', { names: here.length > 3 ? `${names} ${t('game.map.friends_more', { count: here.length - 3 })}` : names })
@@ -428,6 +436,7 @@ onBeforeUnmount(() => {
               <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="city-title">{{ cityTitle(city) }}</p>
               <p v-if="friendsAt(city)" class="mt-0.5 flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="city-friends">
                 <AppIcon name="users" :size="14" />
+                <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
                 <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
               </p>
             </div>

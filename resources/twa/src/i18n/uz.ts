@@ -40,6 +40,8 @@ export const uz: Translations = {
   'profile.pro.text': "Cheklovsiz yangi so'zlar, o'z to'plamlaringiz, IELTS va SAT sinov testlari, seriyani muzlatish.",
   'profile.pro.more': 'Pro haqida batafsil',
   'profile.friends': "Do'stlar va musobaqalar",
+  'profile.caravan.title': 'Mening karvonim',
+  'profile.caravan.open': 'Karvonni ochish',
   'profile.referrals.hint': "Sizga va do'stingizga — bepul Pro",
   'profile.support': 'Yordam kerakmi? Yozing:',
 

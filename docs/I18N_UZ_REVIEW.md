@@ -3148,3 +3148,14 @@
 | `game.class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
 | `game.class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
 | `game.class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |
+
+## Игра «Караван» 2026-11 · G2.6 (косметика в профиле и у друзей) — на проверку носителю
+
+### TWA: карточка «Мой караван» на экране профиля (G2.6, `docs/05` §5b.6; `resources/twa/src/i18n/uz.ts`)
+
+> Что решить носителю: «Мой караван» — «Mening karvonim», как на экране каравана (`gameCaravan.title`); подписи слотов — те же `gameCaravan.slot.*`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `profile.caravan.title` | Mening karvonim | Мой караван |
+| `profile.caravan.open` | Karvonni ochish | Открыть караван |
