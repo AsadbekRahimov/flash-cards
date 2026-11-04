@@ -73,7 +73,7 @@
 | `Game/Services/Economy/ShopService` (G2.5b) | `game:shop:v1:{locale}:n{версия}` — опубликованный каталог предметов (массив: id, key, kind, slot, effect, price, availability, title, description, asset; тексты — на языке из ключа); версия `game:shop:ver` (без TTL, невытесняемое хранилище); баланс, инвентарь и экипировка не кэшируются | 1800 с | кэш с версией; `GameItemObserver` поднимает версию после commit любого сохранения / удаления предмета |
 | `Game/Services/Class/ClassCaravanService` (G2.9b) | `game:class:v1:{караван}:standings` — таблица каравана класса: массив строк `{learner_id, name, stars, runs, best_score, boss_won}` (имя читается при сборке; удалённый аккаунт — «—», суммы сходятся) | 60 с | кэш, только пока караван идёт; сбрасывается при закрытии и отмене (`forgetStandings`), иначе TTL; у завершённого каравана — чтение из БД |
 | `Jobs/PostClassCaravanSummaryJob` (G2.9a) | `game:class-summary:{караван}` — `Cache::lock`, итоги недели уходят в чат группы ровно один раз | 120 с (ожидание 10 с) | **блокировка** |
-| `Filament/Widgets/GameActivityWidget` + `WidgetCache` (G2.11) | `admin:widget:game_activity:v1:all` — скаляры за 7 дней (забеги, игроки, доля активных); только admin | свежий 300 с | кэш |
+| `Filament/Widgets/GameActivityWidget` + `WidgetCache` (G2.11) | `admin:widget:game_activity:v2:all` — скаляры за 7 дней (забеги, игроки, доля активных, забегов на игрока в день, конверсия пейвола в оплату, верные ответы игроков и остальных); только admin | свежий 300 с | кэш |
 
 **Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
 
@@ -100,7 +100,7 @@
 | `ShopService` — ключ версии `game:shop:ver` (G2.5b) | `redis` (невытесняемое) |
 | `ClassCaravanService` — `game:class:v1:*:standings` (G2.9b) | `lru` |
 | `PostClassCaravanSummaryJob` — блокировка `game:class-summary:{караван}` (G2.9a) | `redis` (`locks`) |
-| `GameActivityWidget` — `admin:widget:game_activity:v1:all` (G2.11) | `lru` |
+| `GameActivityWidget` — `admin:widget:game_activity:v2:all` (G2.11) | `lru` |
 | `WordTranslationResolver` — `word:tr:v1:*` (C4) | `lru` |
 | `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
 | `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |
