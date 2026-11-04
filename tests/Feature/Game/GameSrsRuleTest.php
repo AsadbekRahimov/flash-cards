@@ -219,3 +219,23 @@ it('gives a pulled FSRS card the very grade of its twin that was due by itself: 
         ->and($pulled->lapses)->toBe(0)
         ->and($pulled->interval_days)->toBeGreaterThan(12);
 });
+
+it('shows in the view of the final answer the same srs_pulled as the row has afterwards', function (): void {
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    WordRepetition::query()->where('learner_id', $learner->id)->update(['next_review_at' => srsNow()->addDays(3), 'is_hard' => false]);
+    $runs = app(RunService::class);
+    $run = $runs->start($learner, $course->slug, $lesson->id);
+    $last = count($run->snapshot['elements']) - 1;
+
+    // every element right but the last one: the answer that finishes the run is the one that pulls a word
+    $outcome = null;
+    for ($i = 0; $i <= $last; $i++) {
+        $current = GameKit::current($run->refresh());
+        $answer = $i === $last ? GameKit::wrongAnswer($current) : GameKit::rightAnswers($current)[0];
+        $outcome = $runs->answer($run, $learner, (string) Str::uuid(), $current['id'], $answer);
+    }
+
+    $row = $run->refresh();
+    expect($row->srs_pulled)->toBeGreaterThan(0)
+        ->and($outcome?->run->toArray()['summary']['srs_pulled'])->toBe($row->srs_pulled);
+});
