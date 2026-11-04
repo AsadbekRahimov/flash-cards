@@ -302,10 +302,14 @@ final class ClassCaravanService
 
     /**
      * The caravan a run of the learner joins at its start (docs/18 §12.5.3 step 6): the active caravan of an active group the learner is
-     * an active member of, inside its window - one read, no lock. A learner in two such groups joins the caravan that started first.
+     * an active member of, inside its window - one read, no lock; none (and no read) unless `GAME_ACCESS=all`. A learner in two such groups joins the caravan that started first.
      */
     public function activeIdFor(Learner $learner, CarbonImmutable $now): ?int
     {
+        if (! $this->access->classCaravanOpen()) {
+            return null; // no caravan outside GAME_ACCESS=all, and no statement on the start of a run
+        }
+
         $id = $this->activeCaravansOf($learner->id, $now)->orderBy('cc.starts_at')->orderBy('cc.id')->value('cc.id');
 
         return $id === null ? null : (int) $id;

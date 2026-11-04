@@ -376,6 +376,19 @@ it('puts the caravan on the runs of its members at the start - a stop and the da
     expect(app(RunService::class)->start($a, $w['course']->slug, $w['lesson']->id)->class_caravan_id)->toBeNull();
 });
 
+it('puts no caravan on the run of a learner outside GAME_ACCESS=all, and reads no caravan table for it', function (): void {
+    $w = classWorld(1);
+    [$a] = $w['learners'];
+    $a->forceFill(['practice_pilot_at' => now()])->save();
+    classService()->start($w['group'], $w['teacher']);
+    config(['game.access' => 'pilot']);
+
+    $queries = QueryLog::during(fn () => expect(classService()->activeIdFor($a, CarbonImmutable::now()))->toBeNull());
+    $run = classPlay($a, $w['course'], $w['lesson']);
+
+    expect($queries)->toBe([])->and($run->class_caravan_id)->toBeNull();
+});
+
 it('joins no caravan outside its window or after its end, and - in two groups with caravans - the one that started first', function (): void {
     $w = classWorld(1);
     $a = $w['learners'][0];
