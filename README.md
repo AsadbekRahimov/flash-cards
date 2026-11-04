@@ -55,7 +55,7 @@ docker compose exec app php artisan migrate --seed
 
 | Файл / таргет | Назначение |
 |---------------|-----------|
-| `docker-compose.prod.yml` | Prod-стек: app (php-fpm), queue-high, queue-default, scheduler, nginx, certbot, postgres, redis, redis-cache (`docs/19` §4) |
+| `docker-compose.prod.yml` | Prod-стек: app (php-fpm), queue-high, queue-default, queue-low, scheduler, nginx, certbot, postgres, redis, redis-cache (`docs/19` §4) |
 | `docker/nginx/prod.conf` | Nginx с HTTPS + ACME webroot (подстановка `APP_DOMAIN` через `envsubst`) |
 | `deploy.sh` / `make deploy` | Fast-forward pull → immutable app/nginx images → TLS → migrate → smoke-check |
 | `make backup` | Ручной запуск `artisan backup:run` (`spatie/laravel-backup`) |

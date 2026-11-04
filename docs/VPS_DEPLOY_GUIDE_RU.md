@@ -905,8 +905,9 @@ curl -I https://lexiflow.uz/up        # HTTP/2 200
 sudo nano /etc/supervisor/conf.d/lexiflow.conf
 ```
 
-Два пула воркеров: `high` (ответы бота, платежи) никогда не ждёт за тяжёлыми задачами из `default`/`low`
-(рассылки, пре-генерация аудио). Программы объединены в группу `lexiflow-worker`, поэтому
+Три пула воркеров: `high` (ответы бота, платежи) никогда не ждёт за тяжёлыми задачами, а `low` (пре-генерация аудио)
+не голодает под потоком `default` (рассылки): воркер с `--queue=default,low` берёт `low` только когда `default` пуст,
+и пульс `low` в `/health/ready` стареет. Программы объединены в группу `lexiflow-worker`, поэтому
 `supervisorctl restart lexiflow-worker:*` по-прежнему перезапускает всех.
 
 ```ini
@@ -928,7 +929,7 @@ user=www-data
 
 [program:lexiflow-worker-default]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default --tries=3 --timeout=120 --sleep=1 --max-time=3600
 directory=/var/www/lexiflow
 autostart=true
 autorestart=true
@@ -942,17 +943,33 @@ stdout_logfile_backups=3
 stopwaitsecs=130
 user=www-data
 
+[program:lexiflow-worker-low]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+directory=/var/www/lexiflow
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-low.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+stopwaitsecs=130
+user=www-data
+
 [group:lexiflow-worker]
-programs=lexiflow-worker-high,lexiflow-worker-default
+programs=lexiflow-worker-high,lexiflow-worker-default,lexiflow-worker-low
 ```
 
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl status          # lexiflow-worker:lexiflow-worker-high_00 и lexiflow-worker:lexiflow-worker-default_00/_01 RUNNING
+sudo supervisorctl status          # lexiflow-worker:lexiflow-worker-high_00, ...-default_00/_01 и ...-low_00 RUNNING
 ```
 
-> Обновляетесь со старой единой программой `lexiflow-worker`: замените её блок на два блока выше и группу,
+> Обновляетесь со старой единой программой `lexiflow-worker`: замените её блок на три блока выше и группу,
 > затем `reread` + `update` (старые процессы будут остановлены, новые запущены).
 
 Очередь проверяется в `/health/ready` двумя способами: размер очередей `high`/`default` и «пульс воркеров» —

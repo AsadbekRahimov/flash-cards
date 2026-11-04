@@ -37,7 +37,7 @@
 Список — всё, что добавлено в `.env.example` после коммита `12a881e` (`git diff 12a881e HEAD -- .env.example`).
 «Обяз.» — нужна для проверяемой функции; «Опц.» — есть рабочий дефолт. Секреты — только в `.env` (`chmod 600`/`640`), не в git,
 чате и тикетах (`docs/DEVOPS_GUIDE.md` §17.1). После правки `.env`: `php artisan config:cache` и рестарт воркеров
-(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue-high queue-default scheduler app`).
+(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue-high queue-default queue-low scheduler app`).
 
 **Telegram / обучение**
 
@@ -133,7 +133,7 @@
 ### 1.3 Планировщик и очереди
 
 - [ ] Cron `* * * * * … php artisan schedule:run` (bare-метал, DEVOPS §11) или контейнер `scheduler` (`schedule:work`, docker-compose.prod.yml).
-- [ ] Воркеры слушают `--queue=high,default,low` (supervisor / сервис `queue`); `php artisan queue:work` не падает.
+- [ ] Воркеры слушают три отдельных пула `--queue=high`, `--queue=default`, `--queue=low` (supervisor / сервисы `queue-high`, `queue-default`, `queue-low`; общий `default,low` голодает `low` и роняет `queue` в `/health/ready`); `php artisan queue:work` не падает.
 - [ ] `php artisan schedule:list` показывает все команды из `routes/console.php`:
 
 | Команда | Расписание | Что делает |
