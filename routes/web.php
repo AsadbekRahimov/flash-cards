@@ -10,6 +10,7 @@ use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Telegram\WebhookController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Middleware\BillingIpAllowlist;
+use App\Http\Middleware\ReadinessThrottle;
 use App\Http\Middleware\StaticPageCsp;
 use App\Http\Middleware\TelegramIpAllowlist;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -38,7 +39,7 @@ Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::cla
 // Readiness probe for monitoring: stateless (no session/cookies), throttled.
 Route::get('/health/ready', ReadinessController::class)
     ->withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
-    ->middleware('throttle:60,1')
+    ->middleware(ReadinessThrottle::class)
     ->name('health.ready');
 
 // Stateless: authenticated by the URL secret + header token, so no session in Redis per update, no cookies, no CSRF.
