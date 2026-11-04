@@ -397,7 +397,7 @@ it('keeps the locked tasks inside the two queries: the fitness is a column of th
 
     expect($log)->toHaveCount(2)
         ->and(QueryLog::matching($log, '/practice_items/'))->toHaveCount(1)
-        ->and(QueryLog::matching($log, '/practice_item_versions/'))->toHaveCount(1);
+        ->and(QueryLog::matching($log, '/from ["`]practice_item_versions["`]/'))->toHaveCount(1);
 });
 
 it('reads the tasks of ALL the types in two queries and remembers them for the scope', function (): void {
@@ -417,7 +417,7 @@ it('reads the tasks of ALL the types in two queries and remembers them for the s
 
     expect($log)->toHaveCount(2)
         ->and(QueryLog::matching($log, '/practice_items/'))->toHaveCount(1)
-        ->and(QueryLog::matching($log, '/practice_item_versions/'))->toHaveCount(1)
+        ->and(QueryLog::matching($log, '/from ["`]practice_item_versions["`]/'))->toHaveCount(1)
         ->and($battle)->toHaveCount(2); // the other viewpoint (no learner) is another question: asked once, then remembered
 });
 

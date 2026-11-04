@@ -20,7 +20,6 @@ use App\Domain\Practice\Support\OpaqueId;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
-use App\Models\PracticeItemVersion;
 
 /**
  * "Build the sentence" (docs/15 §3.2, docs/16 §5.3): the learner sees the meaning of a sentence in their language and the English
@@ -60,7 +59,7 @@ final class SentenceMode implements PracticeModeHandler
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
         $required = $this->required($scope, $learner);
-        $available = count($this->tasks($scope, $learner));
+        $available = $this->taskCount($scope, $learner);
 
         return $available >= $required
             ? ModeAvailability::enough($available, $required)
@@ -193,6 +192,24 @@ final class SentenceMode implements PracticeModeHandler
     }
 
     /**
+     * How many tasks can be played, for the availability: the rows of the versions, not the models (nothing is hydrated). The very
+     * test of {@see tasks()}: {@see task()}.
+     */
+    private function taskCount(MaterialScope $scope, ?Learner $learner): int
+    {
+        return $scope->remember('sentence:count:'.($learner->id ?? 0), function () use ($scope, $learner): int {
+            $count = 0;
+            foreach ($this->material->eligibleRows($scope, PracticeItemType::Sentence, $learner) as $row) {
+                if ($this->task($row['item_id'], $row['id'], $row['content']) !== null) {
+                    $count++;
+                }
+            }
+
+            return $count;
+        });
+    }
+
+    /**
      * The tasks the scope offers that can be played, read once per scope (the hub asks twice: the card and the opening).
      *
      * @return list<SentenceTask>
@@ -202,7 +219,7 @@ final class SentenceMode implements PracticeModeHandler
         return $scope->remember('sentence:tasks:'.($learner->id ?? 0), function () use ($scope, $learner) {
             $tasks = [];
             foreach ($this->material->eligibleItems($scope, PracticeItemType::Sentence, $learner) as $version) {
-                $task = $this->task($version);
+                $task = $this->task($version->item_id, $version->id, $version->content);
                 if ($task !== null) {
                     $tasks[] = $task;
                 }
@@ -217,12 +234,11 @@ final class SentenceMode implements PracticeModeHandler
      * happening - this only keeps a stray row from breaking a session). Fragments are all or nothing: the allowed orders point
      * into the list by index, so a dropped fragment would move the rest.
      *
+     * @param  array<array-key, mixed>  $content
      * @return SentenceTask|null
      */
-    private function task(PracticeItemVersion $version): ?array
+    private function task(int $itemId, int $versionId, array $content): ?array
     {
-        $content = $version->content;
-
         $fragments = $this->strings($content['fragments'] ?? null);
         if ($fragments === [] || count($fragments) !== count((array) ($content['fragments'] ?? []))) {
             return null;
@@ -237,8 +253,8 @@ final class SentenceMode implements PracticeModeHandler
         $display = $content['display'] ?? null;
 
         return [
-            'item_id' => $version->item_id,
-            'version_id' => $version->id,
+            'item_id' => $itemId,
+            'version_id' => $versionId,
             'fragments' => $fragments,
             'sequences' => $sequences,
             'prompt' => $prompt,

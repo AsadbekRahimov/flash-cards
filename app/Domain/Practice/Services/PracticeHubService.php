@@ -59,7 +59,7 @@ final class PracticeHubService
 
         $availability = $access->isProRequired()
             ? []
-            : $this->material->availability(new MaterialScope($course, $lesson), $learner, new LocaleSet([$locale]));
+            : $this->material->availability(MaterialScope::forCount($course, $lesson), $learner, new LocaleSet([$locale]));
 
         $modes = [];
         foreach (PracticeMode::cases() as $mode) {

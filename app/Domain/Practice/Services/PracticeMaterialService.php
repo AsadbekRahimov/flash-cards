@@ -18,7 +18,6 @@ use App\Domain\Practice\Services\Modes\ModeRegistry;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
-use App\Models\PracticeItem;
 use App\Models\PracticeItemVersion;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,10 +36,15 @@ use Illuminate\Support\Facades\DB;
  * words are active), then their published versions; a dictation only with `audio_status = ready`.
  *
  * The fitness of a task is not a filter of the query but two columns of it (`lock_dead`, `lock_unseen`: a target word is
- * inactive / not introduced yet, see {@see selectLockFlags()}) that make its state - 0 fit, 1 LOCKED, 2 DEAD - and the rows are
- * sorted out in PHP. The locked tasks are what the filter used to hide: a mode that is short of tasks can then tell
- * "the tasks are there, the words are not learned" (`items_locked`) from "there are no such tasks" (`no_items`) at no query
- * more ({@see shortageReason()}).
+ * inactive / not introduced yet, see {@see taskStates()}) that make its state - 0 fit, 1 LOCKED, 2 DEAD - and the rows are
+ * sorted out in PHP ({@see stock()}: ONE rule for every reader). The locked tasks are what the filter used to hide: a mode that
+ * is short of tasks can then tell "the tasks are there, the words are not learned" (`items_locked`) from "there are no such
+ * tasks" (`no_items`) at no query more ({@see shortageReason()}).
+ *
+ * Two readers of the sorted tasks. {@see eligibleItems()} - the versions as models, for a session that is being opened (the
+ * snapshot needs everything). {@see eligibleRows()} - plain rows of the same versions (`content` decoded, no model), for the
+ * COUNTS of the hub and of the options of a battle: nothing is hydrated, and the versions of the locked and the unvoiced
+ * tasks are not read at all ({@see stock()} knows the audio status from the task row).
  *
  * Everything read here is remembered by the {@see MaterialScope} it was read for: the four modes of a hub ask for the
  * same words and tasks, and the database is asked once. The tasks of ALL the types come in one pass.
@@ -160,13 +164,95 @@ final class PracticeMaterialService
      */
     public function eligibleItems(MaterialScope $scope, PracticeItemType $type, ?Learner $learner): array
     {
-        return $this->items($scope, $learner)['ready'][$type->value] ?? [];
+        /** @var array<string, list<PracticeItemVersion>> $models */
+        $models = $scope->remember('items:models:'.($learner->id ?? 0), function () use ($scope, $learner): array {
+            $ready = $this->stock($scope, $learner)['ready'];
+            $ids = [];
+            foreach ($ready as $list) {
+                foreach ($list as $row) {
+                    $ids[] = $row['version_id'];
+                }
+            }
+
+            /** @var array<int, PracticeItemVersion> $versions */
+            $versions = $ids === [] ? [] : PracticeItemVersion::query()->whereIn('id', $ids)->get()->keyBy('id')->all();
+
+            $byType = [];
+            foreach ($ready as $kind => $list) {
+                foreach ($list as $row) {
+                    if (isset($versions[$row['version_id']])) {
+                        $byType[$kind][] = $versions[$row['version_id']];
+                    }
+                }
+            }
+
+            return $byType;
+        });
+
+        return $models[$type->value] ?? [];
+    }
+
+    /**
+     * The same versions as {@see eligibleItems()}, as plain rows - for counting what a mode has, not for playing it. A scope made
+     * for counting ({@see MaterialScope::forCount()}) reads one query, no model, only the columns a count needs (the `content`
+     * decoded: whether a task can be played is decided by it); any other scope is going to play, its models are read anyway and
+     * the rows are made of them - opening a session costs no query more than it did.
+     *
+     * @return list<array{id: int, item_id: int, audio_key: string|null, content: array<array-key, mixed>}>
+     */
+    public function eligibleRows(MaterialScope $scope, PracticeItemType $type, ?Learner $learner): array
+    {
+        if (! $scope->countOnly) {
+            $rows = [];
+            foreach ($this->eligibleItems($scope, $type, $learner) as $version) {
+                $rows[] = ['id' => $version->id, 'item_id' => $version->item_id, 'audio_key' => $version->audio_key, 'content' => $version->content];
+            }
+
+            return $rows;
+        }
+
+        /** @var array<string, list<array{id: int, item_id: int, audio_key: string|null, content: array<array-key, mixed>}>> $rows */
+        $rows = $scope->remember('items:rows:'.($learner->id ?? 0), function () use ($scope, $learner): array {
+            $ready = $this->stock($scope, $learner)['ready'];
+            $ids = [];
+            foreach ($ready as $list) {
+                foreach ($list as $row) {
+                    $ids[] = $row['version_id'];
+                }
+            }
+
+            $versions = [];
+            if ($ids !== []) {
+                foreach (DB::table('practice_item_versions')->select('id', 'item_id', 'audio_key', 'content')->whereIn('id', $ids)->get() as $version) {
+                    $content = is_string($version->content) ? json_decode($version->content, true) : $version->content;
+                    $versions[(int) $version->id] = [
+                        'id' => (int) $version->id,
+                        'item_id' => (int) $version->item_id,
+                        'audio_key' => is_string($version->audio_key) ? $version->audio_key : null,
+                        'content' => is_array($content) ? $content : [],
+                    ];
+                }
+            }
+
+            $byType = [];
+            foreach ($ready as $kind => $list) {
+                foreach ($list as $row) {
+                    if (isset($versions[$row['version_id']])) {
+                        $byType[$kind][] = $versions[$row['version_id']];
+                    }
+                }
+            }
+
+            return $byType;
+        });
+
+        return $rows[$type->value] ?? [];
     }
 
     /** Dictations that would be eligible but whose audio is not ready: the reason `audio_pending` of the availability. */
     public function pendingAudioItems(MaterialScope $scope, ?Learner $learner): int
     {
-        return $this->items($scope, $learner)['pending_audio'];
+        return $this->stock($scope, $learner)['pending_audio'];
     }
 
     /**
@@ -175,7 +261,7 @@ final class PracticeMaterialService
      */
     public function lockedItems(MaterialScope $scope, PracticeItemType $type, ?Learner $learner): int
     {
-        return $this->items($scope, $learner)['locked'][$type->value] ?? 0;
+        return $this->stock($scope, $learner)['locked'][$type->value] ?? 0;
     }
 
     /**
@@ -215,21 +301,12 @@ final class PracticeMaterialService
             return 0;
         }
 
-        $rows = $this->selectLockFlags(
-            PracticeItem::query()->select('practice_items.id', 'practice_items.type', 'practice_items.status', 'practice_items.published_version_id'),
-            $learner,
-        )
-            ->selectSub(
-                PracticeItemVersion::query()->select('audio_status')->whereColumn('practice_item_versions.id', 'practice_items.published_version_id'),
-                'audio_status',
-            )
-            ->whereIn('practice_items.id', $itemIds)
-            ->get();
+        $rows = $this->taskStates($learner)->whereIn('practice_items.id', $itemIds)->get();
 
         $playable = 0;
         foreach ($rows as $row) {
-            $voiced = $row->type !== PracticeItemType::Dictation || $row->getAttribute('audio_status') === AudioStatus::Ready->value;
-            if ($row->status === PracticeItemStatus::Published && $row->published_version_id !== null && $this->lockStateOf($row) === self::FIT && $voiced) {
+            $voiced = $row->type !== PracticeItemType::Dictation->value || $row->audio_status === AudioStatus::Ready->value;
+            if ($row->status === PracticeItemStatus::Published->value && $row->published_version_id !== null && $this->lockStateOf($row) === self::FIT && $voiced) {
                 $playable++;
             }
         }
@@ -308,17 +385,16 @@ final class PracticeMaterialService
     }
 
     /**
-     * The tasks of ALL the types for the scope in two queries (the tasks with their lock flags, then the versions), split by type.
+     * The published tasks of ALL the types for the scope sorted out by their state - ONE query, no version read: the audio status
+     * of the task's version comes with the task. Ready: the version ids a learner can play now (a dictation only voiced), by type, by
+     * the id of the task; pending audio: fit dictations that are not voiced; locked: LOCKED tasks (a dictation only voiced), by type.
      *
-     * @return array{ready: array<string, list<PracticeItemVersion>>, pending_audio: int, locked: array<string, int>}
+     * @return array{ready: array<string, list<array{version_id: int, item_id: int}>>, pending_audio: int, locked: array<string, int>}
      */
-    private function items(MaterialScope $scope, ?Learner $learner): array
+    private function stock(MaterialScope $scope, ?Learner $learner): array
     {
         return $scope->remember('items:'.($learner->id ?? 0), function () use ($scope, $learner): array {
-            $query = $this->selectLockFlags(
-                PracticeItem::query()->select('practice_items.id', 'practice_items.type', 'practice_items.published_version_id'),
-                $learner,
-            )
+            $query = $this->taskStates($learner)
                 ->where('practice_items.course_id', $scope->course->id)
                 ->where('practice_items.status', PracticeItemStatus::Published->value)
                 ->whereNotNull('practice_items.published_version_id')
@@ -335,42 +411,27 @@ final class PracticeMaterialService
                 $query->whereIn('practice_items.id', $scope->retry->itemIds);
             }
 
-            // What the learner can play now needs its version; so does a LOCKED dictation (is it voiced? then it is worth counting).
-            $items = $query->get();
-            $versionIds = [];
-            foreach ($items as $item) {
-                $state = $this->lockStateOf($item);
-                if ($state === self::FIT || ($state === self::LOCKED && $item->type === PracticeItemType::Dictation)) {
-                    $versionIds[] = (int) $item->published_version_id;
-                }
-            }
-
-            /** @var array<int, PracticeItemVersion> $versions */
-            $versions = $versionIds === []
-                ? []
-                : PracticeItemVersion::query()->whereIn('id', $versionIds)->get()->keyBy('id')->all();
-
             $ready = [];
             $locked = [];
             $pendingAudio = 0;
-            foreach ($items as $item) {
+            foreach ($query->get() as $item) {
                 $state = $this->lockStateOf($item);
                 if ($state === self::DEAD) {
                     continue; // a target word is switched off: nothing the learner does opens this task
                 }
-                if ($state === self::LOCKED && $item->type !== PracticeItemType::Dictation) {
-                    $locked[$item->type->value] = ($locked[$item->type->value] ?? 0) + 1;
+                $type = (string) $item->type;
+                if ($state === self::LOCKED && $type !== PracticeItemType::Dictation->value) {
+                    $locked[$type] = ($locked[$type] ?? 0) + 1;
 
                     continue;
                 }
 
-                $version = $versions[(int) $item->published_version_id] ?? null;
-                if ($version === null) {
+                if ($item->version_id === null) {
                     continue;
                 }
-                $voiced = $item->type !== PracticeItemType::Dictation || $version->audio_status === AudioStatus::Ready;
+                $voiced = $type !== PracticeItemType::Dictation->value || $item->audio_status === AudioStatus::Ready->value;
                 if ($state === self::LOCKED) {
-                    $locked[$item->type->value] = ($locked[$item->type->value] ?? 0) + ($voiced ? 1 : 0);
+                    $locked[$type] = ($locked[$type] ?? 0) + ($voiced ? 1 : 0);
 
                     continue;
                 }
@@ -379,7 +440,7 @@ final class PracticeMaterialService
 
                     continue;
                 }
-                $ready[$item->type->value][] = $version;
+                $ready[$type][] = ['version_id' => (int) $item->version_id, 'item_id' => (int) $item->id];
             }
 
             return ['ready' => $ready, 'pending_audio' => $pendingAudio, 'locked' => $locked];
@@ -387,56 +448,55 @@ final class PracticeMaterialService
     }
 
     /**
-     * Adds the two flags a task's state is made of to a query of `practice_items`, each a correlated sub-select that is not NULL
-     * when it holds: `lock_dead` - a target word is inactive; `lock_unseen` - a target word is not introduced to the learner (no
-     * `word_repetitions` row, in any state). A battle (`$learner = null`) knows only the first. The learner is a binding.
-     *
-     * Typed query-builder calls, not a `case when exists (...)` text: Laravel's `selectRaw()` takes a literal string only, and
-     * that text would be put together from the SQL of the two sub-queries.
-     *
-     * @param  Builder<PracticeItem>  $query
-     * @return Builder<PracticeItem>
+     * The tasks (`practice_items`) with what their state is made of, in ONE pass over their target words (no sub-select per task):
+     * `lock_dead` - 1 when a target word is inactive; `lock_unseen` - 1 when a target word is not introduced to the learner (no
+     * `word_repetitions` row, in any state; a battle - `$learner = null` - knows only the first, the column is 0). Also the
+     * published version of the task: `version_id` (null: it is gone), `audio_status`, `audio_key`. A task without target words
+     * is fit. Plain rows, the learner is a binding. The caller adds the conditions and the order.
      */
-    private function selectLockFlags(Builder $query, ?Learner $learner): Builder
+    private function taskStates(?Learner $learner): QueryBuilder
     {
-        $query->selectSub($this->targetWords()->where('target.is_active', false)->limit(1), 'lock_dead');
+        $query = DB::table('practice_items')
+            ->leftJoin('practice_item_versions as published', 'published.id', '=', 'practice_items.published_version_id')
+            ->leftJoinSub(
+                DB::table('practice_item_words as target_words')
+                    ->join('words as target', 'target.id', '=', 'target_words.word_id')
+                    ->select('target_words.item_id', 'target.id as word_id', 'target.is_active'),
+                'targets',
+                'targets.item_id',
+                '=',
+                'practice_items.id',
+            )
+            ->select(
+                'practice_items.id',
+                'practice_items.type',
+                'practice_items.status',
+                'practice_items.published_version_id',
+                'published.id as version_id',
+                'published.audio_status',
+                'published.audio_key',
+            )
+            ->selectRaw('max(case when targets.is_active = false then 1 else 0 end) as lock_dead')
+            ->groupBy('practice_items.id', 'published.id');
 
-        if ($learner !== null) {
-            $query->selectSub(
-                $this->targetWords()
-                    ->leftJoin('word_repetitions as seen', function (JoinClause $join) use ($learner): void {
-                        $join->on('seen.word_id', '=', 'target_words.word_id')->where('seen.learner_id', '=', $learner->id);
-                    })
-                    ->whereNull('seen.id')
-                    ->limit(1),
-                'lock_unseen',
-            );
+        if ($learner === null) {
+            return $query->selectRaw('0 as lock_unseen');
         }
 
-        return $query;
+        return $query
+            ->leftJoin('word_repetitions as seen', function (JoinClause $join) use ($learner): void {
+                $join->on('seen.word_id', '=', 'targets.word_id')->where('seen.learner_id', '=', $learner->id);
+            })
+            ->selectRaw('max(case when targets.word_id is not null and seen.id is null then 1 else 0 end) as lock_unseen');
     }
 
-    /** 2 when a target word is inactive, else 1 when a target word is not introduced to the learner, else 0 (see {@see selectLockFlags()}). */
-    private function lockStateOf(PracticeItem $item): int
+    /** DEAD when a target word is inactive, else LOCKED when a target word is not introduced to the learner, else FIT (see {@see taskStates()}). */
+    private function lockStateOf(object $item): int
     {
-        // The raw attributes, not getAttribute(): `lock_unseen` is not selected for a battle, and a model in strict mode
-        // (preventAccessingMissingAttributes) would throw on a column the query did not select.
-        $flags = $item->getAttributes();
-
-        if (($flags['lock_dead'] ?? null) !== null) {
+        if ((int) ($item->lock_dead ?? 0) === 1) {
             return self::DEAD;
         }
 
-        return ($flags['lock_unseen'] ?? null) !== null ? self::LOCKED : self::FIT;
-    }
-
-    /** The target words of the task being selected (`practice_items`): the part of a `lock_state` subquery that the two share. */
-    private function targetWords(): QueryBuilder
-    {
-        return DB::query()
-            ->select('target_words.item_id')
-            ->from('practice_item_words as target_words')
-            ->join('words as target', 'target.id', '=', 'target_words.word_id')
-            ->whereColumn('target_words.item_id', 'practice_items.id');
+        return (int) ($item->lock_unseen ?? 0) === 1 ? self::LOCKED : self::FIT;
     }
 }

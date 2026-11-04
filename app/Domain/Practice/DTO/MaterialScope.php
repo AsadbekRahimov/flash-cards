@@ -30,12 +30,23 @@ final class MaterialScope
         public readonly ?Lesson $lesson = null,
         public readonly ?RetryMaterial $retry = null,
         public readonly ?Stage $stage = null,
+        public readonly bool $countOnly = false,
     ) {}
 
     /** The words and the tasks of every lesson of the stage (docs/18 §12.3.1: a stop widened to its city). */
     public static function forStage(Course $course, Stage $stage): self
     {
         return new self($course, null, null, $stage);
+    }
+
+    /**
+     * A scope that only COUNTS what the modes have (the hub, the options of a battle): the tasks are read as plain rows, no model
+     * is hydrated. A scope that is meant to be played (the default) reads the models: the snapshot is built from them, and the
+     * count is made of the very same read.
+     */
+    public static function forCount(Course $course, ?Lesson $lesson = null): self
+    {
+        return new self($course, $lesson, countOnly: true);
     }
 
     /**
