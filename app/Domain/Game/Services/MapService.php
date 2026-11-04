@@ -51,6 +51,7 @@ final class MapService
         private readonly DailyCaravanService $daily,
         private readonly GameLimits $limits,
         private readonly ClassCaravanService $classCaravans,
+        private readonly FriendCosmetics $cosmetics,
     ) {}
 
     /**
@@ -274,8 +275,8 @@ final class MapService
 
     /**
      * The value of `game:friends`: for every accepted friend and every course where they cleared a stop (>= 1 star) the furthest
-     * city and the number of cleared stops. Two statements, whatever the friends are; arrays only (docs/19 §3).
-     * `camel_asset` is `null` until G2.6 (the cosmetics).
+     * city and the number of cleared stops, and the asset of the camel he wears (`null`: none; {@see FriendCosmetics}). Three
+     * statements, whatever the friends are; arrays only (docs/19 §3).
      *
      * @return list<array{friendship_id: int, learner_id: int, course_id: int, city_number: int, stops_cleared: int, camel_asset: string|null}>
      */
@@ -305,6 +306,8 @@ final class MapService
             ->selectRaw('game_stop_progress.learner_id as learner_id, game_stop_progress.course_id as course_id, MAX(stages.number) as city_number, COUNT(*) as stops_cleared')
             ->get();
 
+        $camels = $this->cosmetics->camelAssets(array_values(array_unique(array_map(static fn (object $row): int => (int) $row->learner_id, $rows->all()))));
+
         $friends = [];
         foreach ($rows as $row) {
             $friends[] = [
@@ -313,7 +316,7 @@ final class MapService
                 'course_id' => (int) $row->course_id,
                 'city_number' => (int) $row->city_number,
                 'stops_cleared' => (int) $row->stops_cleared,
-                'camel_asset' => null,
+                'camel_asset' => $camels[(int) $row->learner_id] ?? null,
             ];
         }
 

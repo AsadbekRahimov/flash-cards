@@ -14,7 +14,7 @@ use App\Domain\Operations\Support\PureCache;
 final class GameFriendsCache
 {
     /** The version of the FORMAT of the value (raise it when the shape changes: nobody reads the old entries). */
-    public const VERSION = 'v1';
+    public const VERSION = 'v2';
 
     public const TTL_SECONDS = 300;
 

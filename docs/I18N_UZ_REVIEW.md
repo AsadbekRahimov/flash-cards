@@ -3130,3 +3130,67 @@
 | `game.class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
 | `game.class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
 | `game.class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |
+
+### Караван класса — бот и кабинет `/org` (G2.9b; `lang/uz/game.php` `class.*`, `commands.php`, `bot.php`, `org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.class.started` | 🐪 Sinf karvoni yo'lga chiqdi! Hafta maqsadi — :target ⭐, karvon :until gacha yo'lda.<br>Har bir yakunlangan yurish yulduz qo'shadi; maqsadga yetilsa, sinf bossi ochiladi. | 🐪 Караван класса отправился! Цель недели — :target ⭐, караван в пути до :until.<br>Каждый завершённый забег добавляет звёзды; набрали цель — откроется босс класса. |
+| `game.class.open_button` | Karvonni ochish | Открыть караван |
+| `game.class.already_active` | Bu guruhning karvoni allaqachon yo'lda — :until gacha. | Караван этой группы уже в пути — до :until. |
+| `game.class.canceled` | Sinf karvoni bekor qilindi. Yakunlar bo'lmaydi, ishtirokchilarning yurishlari o'zlarida qoladi. | Караван класса отменён. Итогов не будет, забеги участников остаются при них. |
+| `game.class.no_active` | Bu guruhning yo'ldagi karvoni yo'q. | У этой группы нет каравана в пути. |
+| `game.class.not_teacher` | Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin. | Запускать и отменять караван может только учитель этой группы. |
+| `game.class.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |
+| `game.class.centers_only` | Sinf karvoni — markazlar uchun: guruhni amaldagi obunali o'quv markaziga ulang. | Караван класса — для центров: подключите группу к учебному центру с действующей подпиской. |
+| `game.class.not_delivered` | Chatga xabar yuborib bo'lmadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshirib, qayta urinib ko'ring. | Не удалось отправить сообщение в чат, поэтому караван не запущен. Проверьте, что бот может писать в группу, и повторите. |
+| `commands.group.start_caravan` | Sinf karvonini boshlash | Запустить караван класса |
+| `commands.group.cancel_caravan` | Sinf karvonini bekor qilish | Отменить караван класса |
+| `bot.help.group_caravan` | /start_caravan — sinf karvonini boshlash<br>/cancel_caravan — sinf karvonini bekor qilish<br> | /start_caravan — запустить караван класса<br>/cancel_caravan — отменить караван класса<br> |
+| `org.nav.caravans` | Karvonlar | Караваны |
+| `org.caravans.singular` | Karvon | Караван |
+| `org.caravans.plural` | Karvonlar | Караваны |
+| `org.caravans.columns.group` | Guruh | Группа |
+| `org.caravans.columns.course` | Kurs | Курс |
+| `org.caravans.columns.status` | Holat | Статус |
+| `org.caravans.columns.progress` | Yulduzlar | Звёзды |
+| `org.caravans.columns.window` | Hafta | Неделя |
+| `org.caravans.columns.boss` | Sinf bossi | Босс класса |
+| `org.caravans.columns.members` | Hissa qo'shgan ishtirokchilar | Участников с вкладом |
+| `org.caravans.status.active` | Yo'lda | В пути |
+| `org.caravans.status.finished` | Yakunlangan | Завершён |
+| `org.caravans.status.canceled` | Bekor qilingan | Отменён |
+| `org.caravans.boss.locked` | Yopiq | Закрыт |
+| `org.caravans.boss.ready` | Ochiq | Открыт |
+| `org.caravans.boss.defeated` | Yengilgan | Побеждён |
+| `org.caravans.progress_of` | :stars / :target | :stars / :target |
+| `org.caravans.actions.start` | Karvonni ishga tushirish | Запустить караван |
+| `org.caravans.actions.start_help` | Karvon bir hafta yuradi: guruh o'quvchilarining har bir yurishi yulduz qo'shadi. Guruh chatiga «Karvon yo'lga chiqdi» xabari yuboriladi. | Караван идёт неделю: каждый забег учеников группы добавляет звёзды. В чат группы уйдёт сообщение «Караван отправился». |
+| `org.caravans.actions.cancel` | Bekor qilish | Отменить |
+| `org.caravans.actions.cancel_confirm` | Karvon bekor qilinadi, hafta yakunlari chatga yuborilmaydi. O'quvchilarning yurishlari o'zlarida qoladi. | Караван будет отменён, итоги недели в чат не придут. Забеги учеников останутся при них. |
+| `org.caravans.fields.group` | Guruh | Группа |
+| `org.caravans.fields.group_help` | Faqat markazdagi o'zingizning guruhlaringiz. Kurs — guruhning kursi. | Только ваши группы центра. Курс — курс группы. |
+| `org.caravans.members.heading` | Ishtirokchilar hissasi | Вклад участников |
+| `org.caravans.members.empty` | Hozircha hech kim yo'lga chiqmagan. | Пока никто не вышел в путь. |
+| `org.caravans.members.name` | O'quvchi | Ученик |
+| `org.caravans.members.stars` | Yulduzlar | Звёзды |
+| `org.caravans.members.runs` | Yurishlar | Забеги |
+| `org.caravans.members.best_score` | Eng yaxshi hisob | Лучший счёт |
+| `org.caravans.members.boss_won` | Boss yengildi | Босс побеждён |
+| `org.caravans.members.yes` | Ha | Да |
+| `org.caravans.members.no` | Yo'q | Нет |
+| `org.caravans.notifications.started` | Karvon yo'lga chiqdi. | Караван отправился. |
+| `org.caravans.notifications.started_not_delivered` | Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring. | Сообщение не дошло до чата, поэтому караван не запущен. Проверьте, что бот может писать в группу. |
+| `org.caravans.notifications.canceled` | Karvon bekor qilindi. | Караван отменён. |
+| `org.caravans.errors.foreign_group` | Bu guruh mavjud emas. | Эта группа недоступна. |
+
+## Игра «Караван» 2026-11 · G2.6 (косметика в профиле и у друзей) — на проверку носителю
+
+### TWA: карточка «Мой караван» на экране профиля (G2.6, `docs/05` §5b.6; `resources/twa/src/i18n/uz.ts`)
+
+> Что решить носителю: «Мой караван» — «Mening karvonim», как на экране каравана (`gameCaravan.title`); подписи слотов — те же `gameCaravan.slot.*`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `profile.caravan.title` | Mening karvonim | Мой караван |
+| `profile.caravan.open` | Karvonni ochish | Открыть караван |

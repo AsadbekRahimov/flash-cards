@@ -18,5 +18,7 @@ final readonly class FriendEntry
         public int $streak,
         public int $wordsLearned,
         public ?CarbonInterface $since,
+        /** Internal (never in the payload): lets the game add what the friend wears. */
+        public int $learnerId = 0,
     ) {}
 }

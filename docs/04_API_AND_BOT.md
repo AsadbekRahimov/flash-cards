@@ -158,7 +158,7 @@
   "entitlement": { "plan": "free", "source": "free", "until": null },
   "onboarding_completed": true,
   "timezone": "Asia/Tashkent",
-  "game": { "daily_available": true, "active_run": null }
+  "game": { "daily_available": true, "active_run": null, "class_caravan": null }
 }
 ```
 
@@ -171,7 +171,7 @@
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
-- `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — один запрос к `game_runs` (`due_count` берётся из уже посчитанного).
+- `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — два запроса: к `game_runs` (`due_count` берётся из уже посчитанного) и карточка каравана класса `class_caravan` (G2.9b; `{id, stars_total, target_stars, ends_at}` или `null`; `{daily_available: false, active_run: null, class_caravan: null}` при закрытой игре).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -882,6 +882,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 }
 ```
 `invite_link` — `null`, пока не задан `TELEGRAM_BOT_USERNAME`. О другом человеке уходят только имя, `streak` (хранимая серия друга; 0, если последний удержанный день старше «вчера» по поясу друга — без записи в чужой профиль) и `words_learned` (слова с `repetitions ≥ 1`; только у принятых друзей и **до 10 минут давности** — кэш `stats:words_learned:{id}`, в БД считаются лишь друзья без записи в кэше, одним запросом); ни id, ни username, ни пояс.
+`friends[].camel_asset` (G2.6) — `asset` надетого верблюда друга (`string`) или `null`; ключ есть, **только когда игра открыта смотрящему** (`GAME_ACCESS`, docs/18 §12.7.4), при закрытой игре его нет и таблиц `game_*` запрос не трогает; когда открыта — один запрос на всех друзей.
 - `POST /friends/{id}/accept` — принять входящий (идемпотентно; лимит `friends.max` проверяется у обеих сторон: **409** `friend_limit` / `friend_limit_other`; приглашавший сам принять не может: **403** `not_recipient`); `POST …/decline` — отклонить входящий (строка удаляется); `POST …/remove` — удалить из друзей / отозвать свой запрос / снять свою блокировку (открытые вызовы пары → `canceled`).
 
 **`GET /api/twa/challenges`** → `{ "days": 7, "open": [Challenge], "finished": [Challenge] }` (`open` — `pending`/`active`, `finished` — последние 20). `Challenge` (то же — ответ остальных вызовов):
@@ -1435,7 +1436,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   "me": {"stops_cleared": 4, "cities_cleared": 1, "coins": 35, "tickets": 2},
   "friends": [{"friendship_id": 11, "name": "Dilnoza", "city_number": 2, "stops_cleared": 7, "camel_asset": null}],
   "active_run": {"id": 9, "kind": "stop", "progress": {"answered": 3, "total": 9}},
-  "class_caravan": null,
+  "class_caravan": { "id": 7, "stars_total": 9, "target_stars": 18, "ends_at": "2026-11-12T10:00:00.000Z" },  // или null
   "limits": {"runs": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-05T19:00:00.000Z"}, "tickets": {"balance": 0, "max": 10}, "boosters": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-08T19:00:00.000Z"}, "boss_stages": 1}
 }
 ```
@@ -1447,7 +1448,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - **`me`**: из `game_profiles` и `game_wallets` (нули, пока строк нет).
 - **`friends[]`**: принятые друзья с прогрессом по этому курсу (`game_stop_progress`, ≥ 1 звезда), по убыванию `stops_cleared`, не больше `game.map.friends_max` (20); `city_number` — самый дальний город, где друг очистил стоянку; `camel_asset` — `null` до G2.6. Прогресс друзей может отставать до 5 минут (кэш `game:friends`, docs/19 §2.2).
 - **`active_run`**: идущий и не просроченный забег ученика (`progress {answered, total}`) или `null`.
-- **`class_caravan`** — `null` до G2.9. **`limits`** (G2.5b ч.2) — тот же блок, что `/me.game.limits` (`GameLimits::describe`, один запрос; форма — A.2): забеги дня, билеты, бустеры недели, `boss_stages`. Карта открыта только ученику, которому игра доступна, поэтому здесь это всегда объект; тот же блок приходит и в 201 `POST /game/runs` (ключ `limits` рядом с полями забега) — клиент видит остаток дня и недели сразу после старта.
+- **`class_caravan`** (G2.9b) — карточка идущего каравана класса `{id, stars_total, target_stars, ends_at}` или `null` (одно чтение: тот же караван, в который попадают забеги ученика — самый ранний `starts_at`); тот же блок `class_caravan` в `/today.game`. **`limits`** (G2.5b ч.2) — тот же блок, что `/me.game.limits` (`GameLimits::describe`, один запрос; форма — A.2): забеги дня, билеты, бустеры недели, `boss_stages`. Карта открыта только ученику, которому игра доступна, поэтому здесь это всегда объект; тот же блок приходит и в 201 `POST /game/runs` (ключ `limits` рядом с полями забега) — клиент видит остаток дня и недели сразу после старта.
 
 #### Забег (G2.2b + G2.2c)
 
@@ -1497,6 +1498,8 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 | `GET /game/wallet` | `{balance, earned_total, spent_total, tickets {balance, max}, ledger[20] {amount, kind, created_at, title}}` |
 | `GET /game/shop` | `{items[] {key, kind, slot, effect, price, availability, owned, qty, equipped, locked_reason, title, description, asset}, balance}` |
 | `POST /game/shop/{key}/buy` | `{request_id (uuid)}` → тот же `wallet`, что у `GET /game/wallet` (уже после покупки). Проводка `shop:{learner}:{request_id}`; повтор `request_id` — те же 200 и состояние, второго списания нет |
+| `GET /game/class` | `{caravans: [{id, group_title, course {slug, title}, status: active \| finished, starts_at, ends_at, stars_total, target_stars, runs_total, boss {unlocked, defeated, my_attempt: won \| lost \| null}}]}` — караваны активных групп, где ученик активный участник, новые первыми, до 10; короткие строки без таблицы участников (G2.9b). Лимитер `twa-api`. 403 `game_unavailable` |
+| `GET /game/class/{id}` | те же поля + `members [{name, stars, runs, best_score, boss_won, is_me}]` (по `stars DESC, runs DESC`, только имя — без id, username и telegram id; кэш таблицы 60 с у идущего), `my {stars, runs, best_score, boss_won} \| null`, `summary {target_reached, boss_defeated, finished_at} \| null` (у завершённого). `my_attempt` — по забегу `class_boss_key`: `won` / `lost` после завершения боя (победа — ≥ `boss.required_accuracy`), `null` пока боя не было или он идёт. Чужой, отменённый, несуществующий — 404 `class_caravan_not_found`; 403 `game_unavailable` |
 | `GET /game/profile` | `{equipped {slot: {key, asset}}, stops_cleared, cities_cleared, coins, tickets}` (`equipped` — объект, пустой `{}`, пока ничего не надето) |
 | `POST /game/profile/equip` | `{slot: camel \| carpet \| tent \| frame, item_key: string \| null}` → `profile`; `null` снимает предмет слота |
 
@@ -1547,6 +1550,8 @@ public function __invoke(Request $request, string $secret)
 | `/start_training [stage] [lesson]` | группа | teacher | Создаёт `training_session`, постит сообщение с WebApp-кнопкой. Номера stage/lesson ищутся **в курсе группы** (`telegram_groups.course_id`, иначе курс `default`); без аргументов — список уроков этого курса. |
 | `/start_exam [stage] [lesson] [minutes]` | группа | teacher | Создаёт `exam_session`, планирует закрытие. Номера — в курсе группы, как выше. |
 | `/close_exam` | группа | teacher | Досрочно закрывает открытый экзамен. |
+| `/start_caravan` | группа | teacher (или admin платформы) | Караван класса (G2.9b, docs/18 §12.11): `ClassCaravanService::start`, в чат — «Караван отправился» с кнопкой на `/twa/game/class/{id}` (прямая ссылка Mini App — в группе web_app-кнопка невозможна). Отказы — текстом по причине (`not_teacher`, `group_inactive`, `centers_only` — `game.class.*`); уже идёт — «до какого числа»; если Telegram отверг сообщение, караван отменяется и учитель просит повторить. При `GAME_ACCESS=off` команды нет: бот молчит и не читает таблицы `game_*`. |
+| `/cancel_caravan` | группа | teacher (или admin платформы) | Отменяет идущий караван группы (`activeOfGroup` + `cancel`), в чат — «Караван отменён»; итогов нет. Нет идущего — «у группы нет каравана». Тот же режим `GAME_ACCESS`. |
 | `/stats` | ЛС | teacher | Отчёт по его группам за 7 дней. |
 | `/promo КОД` | ЛС | любой learner | Активирует промокод (`PromoCodeService::redeem`, как A.7). `/promo` без кода — подсказка. Learner создаётся/обновляется по самому человеку (`LearnerRegistrar::fromTelegramUser`). Ответ — на языке learner'а: «Pro активен до дд.мм.гггг» (в поясе learner'а) / «без ограничения по сроку», либо текст ошибки по `errorCode` (`lang/{ru,uz}/bot.php`, `bot.promo.errors.*`). Не более 5 попыток в минуту на learner'а (иначе «слишком много попыток»); заблокированному — «доступ ограничен». В **активной группе** бот отвечает «откройте личный чат» и код не обрабатывает (код в группе виден всем), в неактивной — молчит (Group Lock). |
 | `/pro` | ЛС | любой learner | Тариф и оплата (docs/13 §5, 2A.2). Текст: «Free: N новых слов в день» / «LexiFlow Pro до дд.мм.гггг» (в поясе learner'а), состояние автопродления Stars. При `paywall.mode = purchase` и непустом каталоге — цены периодов и по inline-кнопке на (период × провайдер): `pro1:buy:<period>:<telegram_stars\|payme\|click>`; **заказ создаётся только по нажатию** (меню не расходует лимит 3 неоплаченных заказов); пока автопродление Stars работает, кнопок покупки нет (сначала «Отключить автопродление»). Иначе — «Pro скоро откроется», подсказка `/promo` и `BILLING_SUPPORT_CONTACT`. Кнопки `pro1:cancel` / `pro1:resume` — отключить/включить автопродление Stars (`LearnerBillingService`). Только в личном чате; в группе и у учителя — молчание, заблокированному learner'у — «доступ ограничен». |
@@ -1561,7 +1566,7 @@ public function __invoke(Request $request, string $secret)
 `TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
 
 - `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `delete_account`, `help`), `all_group_chats`
-  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый
+  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, при открытой игре (`GAME_ACCESS` не `off`) ещё `start_caravan`, `cancel_caravan`, затем `help`) — по два вызова на каждый
   scope: без `language_code` (язык по умолчанию, ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`.
   Описания — `lang/{ru,uz}/commands.php` (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и
   `/paysupport` в меню не входят.

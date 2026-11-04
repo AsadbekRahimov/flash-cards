@@ -50,6 +50,8 @@ export const ru = {
   'profile.friends': 'Друзья и вызовы',
   'profile.referrals.hint': 'Вам и другу — Pro бесплатно',
   'profile.support': 'Нужна помощь? Напишите:',
+  'profile.caravan.title': 'Мой караван',
+  'profile.caravan.open': 'Открыть караван',
 
   // ---- benefits ----
   'benefits.new_words': 'Новые слова без дневного лимита',

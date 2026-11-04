@@ -1545,6 +1545,29 @@ describe('FriendsView', () => {
     })
   })
 
+  describe('what the friends wear (docs/05 §5b.6)', () => {
+    it('draws the camel of a friend next to the name, the base one for null', async () => {
+      const { wrapper } = await render(
+        friendsResponse({
+          friends: [
+            { id: 11, first_name: 'Dilnoza', streak: 5, words_learned: 120, since: null, camel_asset: 'camel_golden' },
+            { id: 12, first_name: 'Aziz', streak: 0, words_learned: 3, since: null, camel_asset: null },
+          ],
+        }),
+      )
+
+      const camels = wrapper.findAll('[data-testid=friend-camel]')
+      expect(camels.map((c) => c.attributes('data-asset'))).toEqual(['camel_golden', 'camel_dromedary'])
+      expect(wrapper.findAll('[data-testid=friend-row]')[0]!.text()).toContain('Dilnoza')
+    })
+
+    it('draws nothing where the field did not come (the game is closed)', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=friend-camel]').exists()).toBe(false)
+    })
+  })
+
   it('uses only the tokens of the design system: no raw palette colours', async () => {
     const { wrapper } = await render(
       friendsResponse(),
