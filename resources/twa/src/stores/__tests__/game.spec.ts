@@ -206,7 +206,7 @@ describe('game store: the caravan of the day', () => {
   })
 })
 
-describe('game store: the boss of a city (docs/05 §5b.7)', () => {
+describe('game store: the boss of a city (docs/05 §5b.8)', () => {
   it('starts the fight with the course and the stage of the map, replace_active only on request', async () => {
     vi.mocked(api.game.startRun).mockResolvedValue({ id: 21 })
     const game = useGameStore()

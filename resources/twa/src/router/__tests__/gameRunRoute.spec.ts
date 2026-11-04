@@ -37,7 +37,7 @@ describe('router: a run of "Karvon" (docs/05 §5b.3)', () => {
   })
 })
 
-describe('router: the boss of a city (docs/05 §5b.7)', () => {
+describe('router: the boss of a city (docs/05 §5b.8)', () => {
   it('knows /game/boss/:stageId as game-boss, lazy-loaded, in the tab of the courses', () => {
     const record = router.getRoutes().find((r) => r.name === 'game-boss')
 

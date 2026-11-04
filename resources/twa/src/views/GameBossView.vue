@@ -22,7 +22,7 @@ import { useI18n } from '@/i18n'
 import type { GameActiveRun, GameMapCity } from '@/api/types'
 
 /**
- * The boss of a city (docs/05 §5b.7, docs/18 §12.9): the gate of the city is kept by "the Keeper of the Gate" - 12 words, 80 % of them
+ * The boss of a city (docs/05 §5b.8, docs/18 §12.9): the gate of the city is kept by "the Keeper of the Gate" - 12 words, 80 % of them
  * right. It reads the map of the course (`?course=`, else the active one of `/today`; never `/me`) and shows the boss of the city
  * `stageId` by `boss.state`:
  * - `ready` / `defeated`: the intro (the city, what is asked, the Free limit of the day) and "Challenge" (a beaten boss may be fought again);

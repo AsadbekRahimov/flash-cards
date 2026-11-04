@@ -454,7 +454,7 @@ describe('GameRunView — leaving', () => {
   })
 })
 
-describe('GameRunView — the fight with a boss (docs/05 §5b.7)', () => {
+describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
   const share = { link: 'https://t.me/LexiFlowBot?start=ref_x', text: 'Я дошёл до Самарканда в игре «Караван»', title: 'Я дошёл до Самарканда' }
   const wonBoss = (extra: Partial<RunView> = {}) =>
     finishedRun('completed', { kind: 'boss', lesson_id: null, ...extra }, { stars: 3, boss: { accuracy: 92, won: true, first: true, share } })

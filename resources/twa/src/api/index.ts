@@ -67,6 +67,7 @@ import type {
   GameHintResponse,
   GameRunView,
 } from './gameRunTypes'
+import type { GameClass, GameClassList } from './gameClassTypes'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
 
 /**
@@ -289,6 +290,12 @@ export const api = {
     startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
     /** The card of a city that was reached was shared (docs/04 A.18): once, a repeat answers the same. 404 `stage_not_found`. */
     cityShared: (stageId: number) => client().post<{ stage_id: number; shared_at: string | null }>(`/game/cities/${stageId}/shared`),
+  },
+  gameClass: {
+    /** The caravans of the learner's classes as short rows. 403 `game_unavailable`. */
+    list: () => client().get<GameClassList>('/game/class'),
+    /** One caravan with the table of contributions. 404 `class_caravan_not_found`, 403 `game_unavailable`. */
+    show: (id: number) => client().get<GameClass>(`/game/class/${id}`),
   },
   gameShop: {
     /** The coins, the tickets and the last entries of the ledger. 403 `game_unavailable`. */

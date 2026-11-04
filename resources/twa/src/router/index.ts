@@ -128,7 +128,7 @@ const routes: RouteRecordRaw[] = [
     props: (route) => ({ course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null }),
   },
   {
-    // The boss of a city (docs/05 §5b.7): `?course=` is the course of the map, else the active one.
+    // The boss of a city (docs/05 §5b.8): `?course=` is the course of the map, else the active one.
     path: '/game/boss/:stageId(\\d+)',
     name: 'game-boss',
     component: () => import('@/views/GameBossView.vue'),
@@ -137,6 +137,14 @@ const routes: RouteRecordRaw[] = [
       stageId: Number(route.params.stageId),
       course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
     }),
+  },
+  {
+    // The caravan of a class (docs/05 §5b.7); the bot's link in the group chat (`startapp=`) leads here.
+    path: '/game/class/:id(\\d+)',
+    name: 'game-class',
+    component: () => import('@/views/GameClassView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ id: Number(route.params.id) }),
   },
   {
     // A run of "Karvon" (docs/05 §5b.3): immersive, no tab. `course` / `stop` (query) tell the summary where "Again" / "To the map" lead.

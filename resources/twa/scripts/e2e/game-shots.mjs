@@ -249,7 +249,7 @@ async function screens(env, s, p, config, options) {
 
 
 /**
- * The boss of the first city (docs/05 §5b.7): what is missing, the intro, a lost fight, a won one with the card of the city, the intro of
+ * The boss of the first city (docs/05 §5b.8): what is missing, the intro, a lost fight, a won one with the card of the city, the intro of
  * a beaten boss, and the boss of the second city that Free does not fight. The stops of the city that the runs above did not clear are
  * cleared through the API first (a boss asks for them).
  */

@@ -93,7 +93,7 @@ export const useGameStore = defineStore('game', {
       return this.start({ kind: 'daily', ...(replaceActive ? { replace_active: true } : {}) })
     },
 
-    /** Starts the fight with the boss of a city of the course (docs/05 §5b.7); 403 `game_pro_required` / `game_limit_reached` are the paywall, 409 `boss_not_ready`. */
+    /** Starts the fight with the boss of a city of the course (docs/05 §5b.8); 403 `game_pro_required` / `game_limit_reached` are the paywall, 409 `boss_not_ready`. */
     async startBoss(course: string, stageId: number, replaceActive = false): Promise<GameStartResult> {
       return this.start({ kind: 'boss', course, stage_id: stageId, ...(replaceActive ? { replace_active: true } : {}) })
     },

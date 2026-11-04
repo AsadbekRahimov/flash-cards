@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * The card of a city that the learner has reached (docs/05 §5b.7): "I got to Samarkand", under it the name of the game and "Share". The
+ * The card of a city that the learner has reached (docs/05 §5b.8): "I got to Samarkand", under it the name of the game and "Share". The
  * heading is the one the server wrote in the learner's language (`summary.boss.share.title`, the same as on the picture of the DM card).
  * "Share" is the business of the screen that owns the run (`share` event: the dialog of Telegram, then the mark).
  */

@@ -284,7 +284,7 @@ const closedText = computed((): string => {
 let shareMarked = false
 
 /**
- * "Share" on the card of the city (docs/05 §5b.7): the dialog of Telegram with the link and the text of the server, then the mark that it
+ * "Share" on the card of the city (docs/05 §5b.8): the dialog of Telegram with the link and the text of the server, then the mark that it
  * was opened (once; a refusal is silent). Without the stage of the boss in the address (a reload) the dialog opens and no mark is put.
  */
 function onShare(): void {

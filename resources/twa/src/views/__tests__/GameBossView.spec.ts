@@ -11,7 +11,7 @@ import { useBillingStore } from '@/stores/billing'
 import { gameLimits, gameMap, mapBoss, mapCity } from '@/api/__tests__/gameMapFixtures'
 import type { GameMapResponse, TodayResponse } from '@/api/types'
 
-/** The boss of a city (docs/05 §5b.7): the states by `boss.state`, the start and each refusal of it. */
+/** The boss of a city (docs/05 §5b.8): the states by `boss.state`, the start and each refusal of it. */
 
 vi.mock('@/api', () => ({
   api: { game: { map: vi.fn(), startRun: vi.fn() }, today: { get: vi.fn() }, me: { get: vi.fn() } },

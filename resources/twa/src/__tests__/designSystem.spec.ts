@@ -369,7 +369,7 @@ describe('My caravan and the boosters: touch targets', () => {
   })
 })
 
-/** The boss of a city (docs/05 §5b.7): the screen and the card of the city - 44 px targets, nothing is a fixed width. */
+/** The boss of a city (docs/05 §5b.8): the screen and the card of the city - 44 px targets, nothing is a fixed width. */
 describe('the boss of a city', () => {
   const boss = sources.get('views/GameBossView.vue') ?? ''
   const card = sources.get('components/game/CityCard.vue') ?? ''

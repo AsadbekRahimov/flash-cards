@@ -226,7 +226,7 @@ describe('RunSummary', () => {
     expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 91%')
   })
 
-  describe('the fight with a boss (docs/05 §5b.7)', () => {
+  describe('the fight with a boss (docs/05 §5b.8)', () => {
     const share = { link: 'https://t.me/LexiFlowBot?start=ref_x', text: 'Я дошёл до Самарканда в игре «Караван»', title: 'Я дошёл до Самарканда' }
     const won = (extra = {}) => render(summary({ boss: { accuracy: 92, won: true, first: true, share }, ...extra }))
     const mistake = { element_id: 'e1', kind: 'spell' as const, label: 'apple — яблоко', your_answer: 'appel', verdict: 'wrong' as const }
