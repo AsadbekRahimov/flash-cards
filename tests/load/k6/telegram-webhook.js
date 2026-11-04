@@ -44,7 +44,7 @@ export const options = {
     'http_req_duration{endpoint:telegram_webhook}': ['p(95)<300'],
     checks: ['rate>0.99'],
   },
-  summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'max'],
+  summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 export function setup() {

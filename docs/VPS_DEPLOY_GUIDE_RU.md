@@ -223,6 +223,8 @@ sudo systemctl restart php8.5-fpm
 sudo systemctl enable php8.5-fpm
 ```
 
+> **Docker-путь.** В прод-образе пул настраивается не файлом `www.conf`, а переменными `PHP_FPM_MAX_CHILDREN`, `PHP_FPM_START_SERVERS`, `PHP_FPM_MIN_SPARE_SERVERS`, `PHP_FPM_MAX_SPARE_SERVERS`, `PHP_FPM_MAX_REQUESTS` (умолчания 16 / 4 / 2 / 6 / 500; образ без них держал бы `pm.max_children = 5`). Задайте их в `.env` и пересоздайте `app`; правило подбора то же: RAM под PHP / 50 МБ, но не больше 2–4 воркеров на ядро. Подробности: `docs/DEVOPS_GUIDE.md`, «Пул php-fpm».
+
 ---
 
 ## 3. Установка Composer
@@ -788,7 +790,9 @@ server {
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
+    server_tokens off;
     add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;   # only nginx sets HSTS/nosniff: PHP locations hide the copies from Laravel
 
     root /var/www/lexiflow/public;
     index index.php;
@@ -844,6 +848,9 @@ server {
         alias /var/www/lexiflow/storage/app/public/audio/;
         gzip off;
         add_header Cache-Control "public, max-age=2592000, immutable";
+        # add_header here drops the server-level ones: repeat HSTS and nosniff.
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
         location ~ /\. {
             deny all;
         }
@@ -853,6 +860,8 @@ server {
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -865,6 +874,8 @@ server {
 
     location ~ \.php$ {
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
         fastcgi_read_timeout 60s;
@@ -894,8 +905,9 @@ curl -I https://lexiflow.uz/up        # HTTP/2 200
 sudo nano /etc/supervisor/conf.d/lexiflow.conf
 ```
 
-Два пула воркеров: `high` (ответы бота, платежи) никогда не ждёт за тяжёлыми задачами из `default`/`low`
-(рассылки, пре-генерация аудио). Программы объединены в группу `lexiflow-worker`, поэтому
+Три пула воркеров: `high` (ответы бота, платежи) никогда не ждёт за тяжёлыми задачами, а `low` (пре-генерация аудио)
+не голодает под потоком `default` (рассылки): воркер с `--queue=default,low` берёт `low` только когда `default` пуст,
+и пульс `low` в `/health/ready` стареет. Программы объединены в группу `lexiflow-worker`, поэтому
 `supervisorctl restart lexiflow-worker:*` по-прежнему перезапускает всех.
 
 ```ini
@@ -917,7 +929,7 @@ user=www-data
 
 [program:lexiflow-worker-default]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default --tries=3 --timeout=120 --sleep=1 --max-time=3600
 directory=/var/www/lexiflow
 autostart=true
 autorestart=true
@@ -931,17 +943,33 @@ stdout_logfile_backups=3
 stopwaitsecs=130
 user=www-data
 
+[program:lexiflow-worker-low]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+directory=/var/www/lexiflow
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-low.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+stopwaitsecs=130
+user=www-data
+
 [group:lexiflow-worker]
-programs=lexiflow-worker-high,lexiflow-worker-default
+programs=lexiflow-worker-high,lexiflow-worker-default,lexiflow-worker-low
 ```
 
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl status          # lexiflow-worker:lexiflow-worker-high_00 и lexiflow-worker:lexiflow-worker-default_00/_01 RUNNING
+sudo supervisorctl status          # lexiflow-worker:lexiflow-worker-high_00, ...-default_00/_01 и ...-low_00 RUNNING
 ```
 
-> Обновляетесь со старой единой программой `lexiflow-worker`: замените её блок на два блока выше и группу,
+> Обновляетесь со старой единой программой `lexiflow-worker`: замените её блок на три блока выше и группу,
 > затем `reread` + `update` (старые процессы будут остановлены, новые запущены).
 
 Очередь проверяется в `/health/ready` двумя способами: размер очередей `high`/`default` и «пульс воркеров» —

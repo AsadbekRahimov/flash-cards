@@ -61,6 +61,22 @@ RUN set -eu; \
         printf '%s\n' "$info" | grep -q "^$setting" || { echo "OPcache setting not applied: $setting" >&2; exit 1; }; \
     done
 
+# php-fpm pool (prod image only): the image default is pm.max_children = 5, which saturates under load
+# ("server reached pm.max_children"). The values come from the environment; these are the defaults, a
+# PHP_FPM_* variable of the container (.env via compose env_file) overrides them. Sizing: docs/DEVOPS_GUIDE.md.
+COPY docker/php/zz-lexiflow-pool.conf /usr/local/etc/php-fpm.d/zz-lexiflow-pool.conf
+ENV PHP_FPM_MAX_CHILDREN=16 \
+    PHP_FPM_START_SERVERS=4 \
+    PHP_FPM_MIN_SPARE_SERVERS=2 \
+    PHP_FPM_MAX_SPARE_SERVERS=6 \
+    PHP_FPM_MAX_REQUESTS=500
+# A pool file that is not picked up must break the build, not production.
+RUN set -eu; \
+    conf="$(php-fpm -tt 2>&1)"; \
+    for setting in 'pm = dynamic' 'pm.max_children = 16' 'pm.start_servers = 4' 'pm.min_spare_servers = 2' 'pm.max_spare_servers = 6' 'pm.max_requests = 500'; do \
+        printf '%s\n' "$conf" | grep -q "$setting\$" || { echo "php-fpm pool setting not applied: $setting" >&2; exit 1; }; \
+    done
+
 RUN addgroup -g "${GID}" app \
     && adduser -D -u "${UID}" -G app -s /bin/bash app
 

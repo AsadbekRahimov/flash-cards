@@ -6,7 +6,10 @@
 #   - Two Redis instances: `redis` (queues, sessions, locks, limits; noeviction + AOF) and `redis-cache` (the pure
 #     cache store `lru`; volatile-lru, no persistence) - docs/19_REDIS_CACHE_PLAN.md §4. Both require a password.
 #   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
-#   - Dedicated queue worker containers: queue-high and queue-default (separate from php-fpm).
+#   - Dedicated queue worker containers (separate from php-fpm), one pool per queue: queue-high (`high`),
+#     queue-default (`default`) and queue-low (`low`). A worker takes queues in strict priority order, so a shared
+#     `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
+#     limit of 25/s keeps it busy for minutes): the `low` heartbeat then goes stale and /health/ready fails on `queue`.
 #   - All services restart unless explicitly stopped.
 #
 # Required env vars (populate via .env on the host, chmod 600):
@@ -55,7 +58,8 @@ services:
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
             - app_audio:/var/www/html/storage/app/public/audio
 
-    # Two worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low.
+    # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
+    # and `low` (long TTS jobs) is never starved by a steady stream of `default`.
     queue-high:
         image: lexiflow/app:${IMAGE_TAG:-latest}
         container_name: lexiflow-queue-high
@@ -92,7 +96,27 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
-        command: ["php", "artisan", "queue:work", "redis", "--queue=default,low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+        command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+
+    # TTS (PregenerateWordAudioJob, GeneratePracticeAudioJob): long jobs on their own pool.
+    queue-low:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-queue-low
+        restart: unless-stopped
+        depends_on:
+            app:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            redis-cache:
+                condition: service_started
+        env_file: .env
+        environment:
+            <<: *lru-env
+        volumes:
+            - app_storage:/var/www/html/storage
+            - app_audio:/var/www/html/storage/app/public/audio
+        command: ["php", "artisan", "queue:work", "redis", "--queue=low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     scheduler:
         image: lexiflow/app:${IMAGE_TAG:-latest}

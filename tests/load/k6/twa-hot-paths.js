@@ -50,7 +50,7 @@ export const options = {
     },
   },
   thresholds,
-  summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'max'],
+  summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 export function setup() {

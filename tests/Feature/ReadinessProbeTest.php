@@ -6,6 +6,7 @@ use App\Domain\Operations\Services\QueueHeartbeat;
 use App\Domain\Operations\Services\SchedulerHeartbeat;
 use App\Domain\Operations\Support\PureCache;
 use App\Jobs\QueueHeartbeatJob;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -231,4 +232,26 @@ describe('production config check', function (): void {
 
         $this->getJson('/health/ready')->assertOk()->assertJsonMissingPath('checks.config');
     });
+});
+
+it('answers 503 with a failed redis check, not 500, when Redis is unreachable', function (): void {
+    // The production shape: cache, rate limiter and queue all on Redis, and the host is wrong (no REDIS_HOST).
+    Config::set('cache.default', 'redis');
+    Config::set('cache.limiter', 'redis');
+    Config::set('queue.default', 'redis');
+    foreach (['default', 'cache', 'locks'] as $connection) {
+        Config::set("database.redis.{$connection}.host", '127.0.0.1');
+        Config::set("database.redis.{$connection}.port", '1');
+        Config::set("database.redis.{$connection}.max_retries", 0);
+    }
+
+    // AppServiceProvider registers the named limiters at boot, which builds the RateLimiter on the test store.
+    app()->forgetInstance(RateLimiter::class);
+
+    $response = $this->getJson('/health/ready');
+
+    $response->assertStatus(503)
+        ->assertJsonPath('status', 'fail')
+        ->assertJsonPath('checks.redis', 'fail');
+    expect((string) $response->getContent())->not->toContain('127.0.0.1')->not->toContain('refused');
 });

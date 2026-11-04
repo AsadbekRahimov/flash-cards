@@ -34,13 +34,16 @@ bash deploy.sh
 - задана только часть — job падает с ошибкой «Deploy secrets incomplete»: это ошибка настройки, а не «сервера нет»;
 - заданы все три — деплой идёт как описано выше.
 
-Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
+Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`), `queue-default` (`--queue=default`) и `queue-low` (`--queue=low`), `scheduler` отдельно. Воркер берёт очереди в строгом порядке приоритета, поэтому общий `default,low` голодает `low`, пока `default` не пуст: при рассылке напоминаний (`SendLearnerReminderJob`, лимит Telegram 25/с) поток `default` держится минутами, пульс `low` стареет больше 5 минут, и `/health/ready` падает по `queue`. Отсюда отдельный пул для `low` (долгая TTS-озвучка).
 
 ### Кэши и OPcache прод-образа
 
 - **Кэши при старте.** `docker/entrypoint.sh` при `APP_ENV=production` на каждом старте контейнера собирает `config:cache`, `route:cache`, `view:cache`, **`filament:optimize`** (кэш компонентов панелей `/admin` и `/org` и Blade-иконок Filament, `docs/20` §1.12) и `event:cache`. В dev-контейнере (`APP_ENV=local`) ничего из этого не запускается: кэш компонентов скрыл бы новый ресурс или виджет. Новый ресурс в проде появляется вместе с новым контейнером: `filament:optimize` выполняется заново. Сбросить все кэши в dev — `make cache-clear` (`optimize:clear` и `filament:optimize-clear`).
 - **OPcache.** `docker/php/opcache-prod.ini` копируется **только** в прод-образ (`Dockerfile`, стадия `app`; `Dockerfile.dev` его не получает): `opcache.enable=1`, `opcache.validate_timestamps=0`, `opcache.save_comments=1`, `memory_consumption=256`, `interned_strings_buffer=64`, `max_accelerated_files=32531`. Размер взят по `find vendor app -name '*.php' | wc -l` = 16 899 файлов (дерево разработки; в `--no-dev` образе меньше) плюс около 250 скомпилированных Blade-шаблонов; PHP округляет значение до простого числа из своего списка (16229, 32531, 65407), так что запас — примерно вдвое. Сборка образа падает, если `php -i` не показывает `opcache.validate_timestamps => Off`, `opcache.save_comments => On` и `opcache.enable => On`.
-- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `queue-high`, `queue-default`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app`). Так не делаем: любая правка идёт через коммит и деплой.
+- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `queue-high`, `queue-default`, `queue-low`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app`). Так не делаем: любая правка идёт через коммит и деплой.
+- **Пул php-fpm.** Образ `php:8.5-fpm-alpine` по умолчанию держит `pm.max_children = 5`: под нагрузкой в логе `server reached pm.max_children (5)`, запросы встают в очередь. Прод-образ кладёт `docker/php/zz-lexiflow-pool.conf` в `php-fpm.d/` (грузится после `zz-docker.conf`): `pm = dynamic`, значения берутся из окружения контейнера — `PHP_FPM_MAX_CHILDREN`, `PHP_FPM_START_SERVERS`, `PHP_FPM_MIN_SPARE_SERVERS`, `PHP_FPM_MAX_SPARE_SERVERS`, `PHP_FPM_MAX_REQUESTS`. Умолчания в `Dockerfile` (`ENV`): 16 / 4 / 2 / 6 / 500; сборка падает, если `php-fpm -tt` их не видит. Переопределение — строка в `.env` хоста (compose подключает его как `env_file`) и `docker compose up -d app`; пустое значение недопустимо (php-fpm не стартует) — не нужно, закомментируйте строку.
+  - *Как подобрать `PHP_FPM_MAX_CHILDREN`.* Один воркер с этим приложением занимает примерно 40–60 МБ RSS (OPcache общий и в это не входит). Верхняя граница по памяти: `(RAM под php-fpm) / 50 МБ`, где «RAM под php-fpm» = RAM хоста минус PostgreSQL, Redis, воркеры очередей, nginx и запас ~20 %. Запросы почти целиком CPU-bound (БД и Redis на той же машине, внешних долгих вызовов в веб-пути нет), поэтому смысла выше 2–4 воркеров на ядро нет: больше процессов только делят то же время CPU. Берите меньшее из двух. Для 2 vCPU / 4 ГБ — 8–16 (умолчание 16), для 4 vCPU / 8 ГБ — 16–32.
+  - *Остальные значения.* `start_servers` ≈ четверть `max_children`, `min_spare` — половина `start_servers`, `max_spare` — не больше трети `max_children`; `max_requests=500` перезапускает воркер и ограничивает утечки памяти. Проверка: `docker compose exec app php-fpm -tt 2>&1 | grep pm`; насыщение — строки `server reached pm.max_children` в `docker compose logs app`.
 - **Хватает ли памяти.** Статус общего кэша FPM (`opcache_get_status()`: `memory_usage`, `interned_strings_usage`, `opcache_statistics.num_cached_keys` против `max_cached_keys`, `oom_restarts`, `hash_restarts`) виден только из запроса, обработанного самим FPM: у CLI свой кэш, и `docker compose exec app php -r …` покажет не то. Норма: свободно не меньше ~20 % `memory_consumption`, `oom_restarts = 0`, `hash_restarts = 0`, `num_cached_keys` заметно ниже `max_cached_keys`. Снять эти числа под реальным трафиком — задача C8 (`docs/19`); поднять `memory_consumption` / `max_accelerated_files` в `docker/php/opcache-prod.ini` и пересобрать образ, если запас меньше нормы.
 - **Bare-сервер (без Docker).** Этот ini там не применяется. Если выставить `validate_timestamps=0` и на bare-сервере, после каждого деплоя нужен `systemctl reload php8.5-fpm` (сбрасывает кэш), иначе FPM продолжит исполнять старый код.
 
@@ -381,7 +384,9 @@ server {
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
+    server_tokens off;
     add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;   # only nginx sets HSTS/nosniff: PHP locations hide the copies from Laravel
 
     root /var/www/lexiflow/public;
     index index.php;
@@ -437,6 +442,9 @@ server {
         alias /var/www/lexiflow/storage/app/public/audio/;
         gzip off;
         add_header Cache-Control "public, max-age=2592000, immutable";
+        # add_header here drops the server-level ones: repeat HSTS and nosniff.
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
 
         # `^~` skips the server-level dotfile rule: deny `.tmp/` (half-written files) explicitly.
         location ~ /\. {
@@ -452,6 +460,8 @@ server {
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -466,6 +476,8 @@ server {
         # Update the socket path to match your installed PHP version
         # (php8.5-fpm.sock for PHP 8.5, php8.6-fpm.sock for 8.6, ...). Verify with: ls /run/php/
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -544,7 +556,7 @@ user=www-data
 
 [program:lexiflow-worker-default]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default --tries=3 --timeout=120 --sleep=1 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -556,13 +568,27 @@ stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=3
 user=www-data
 
+[program:lexiflow-worker-low]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-low.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+user=www-data
+
 [group:lexiflow-worker]
-programs=lexiflow-worker-high,lexiflow-worker-default
+programs=lexiflow-worker-high,lexiflow-worker-default,lexiflow-worker-low
 ```
 
-Два пула: `high` (ответы бота, платежи) не стоит в очереди за bulk-задачами `default`/`low`. Группа `lexiflow-worker` сохраняет команды `supervisorctl ... lexiflow-worker:*`.
+Три пула: `high` (ответы бота, платежи) не стоит в очереди за bulk-задачами, а `low` (долгая TTS-озвучка) не голодает под непрерывным потоком `default` (воркер с `--queue=default,low` берёт `low` только когда `default` пуст). Группа `lexiflow-worker` сохраняет команды `supervisorctl ... lexiflow-worker:*`.
 
-Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, served by `lexiflow-worker-default` (`--queue=default,low`; in Docker the `queue-default` service). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
+Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, served by its own pool `lexiflow-worker-low` (`--queue=low`; in Docker the `queue-low` service). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
 
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
@@ -810,7 +836,7 @@ php artisan courses:recount-words
 The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a deploy changes nothing for learners until you turn it on.
 
 1. `php artisan migrate --force` runs the four forward migrations `2026_10_30_100001..100004` (`learners.practice_pilot_at`; `practice_items`, `practice_item_versions`, `practice_item_words`; `practice_sessions`, `practice_attempts`; `battles`, `battle_participants`, `battle_answers`) — new tables and one nullable column, no rewrite of existing data.
-2. `php artisan config:cache`, then restart the queue workers (`supervisorctl restart lexiflow-worker:*`): the voicing job `GeneratePracticeAudioJob` runs on the `low` queue (the `default,low` worker, §10) and the DM that invites a friend to a battle (`SendBattleDmJob`) on the `default` queue; both need the new code.
+2. `php artisan config:cache`, then restart the queue workers (`supervisorctl restart lexiflow-worker:*`): the voicing job `GeneratePracticeAudioJob` runs on the `low` queue (the `low` worker, §10) and the DM that invites a friend to a battle (`SendBattleDmJob`) on the `default` queue; both need the new code.
 3. The directory `storage/app/practice-audio` is created by the application on first use (private, §10.2); on a bare VPS it is in the `mkdir -p` list of the VPS guide §7.1. It is part of the backup (`backup:run`) next to `storage/app/public`.
 4. `php artisan schedule:list` shows `practice:close-expired` (every 15 minutes) and `practice:battles-sweep` (every minute, §11). `/health/ready` needs no change: a dead scheduler already fails its `scheduler` check, and the battle sweeper rides on the same cron entry.
 5. Turn it on in steps (`docs/ADMIN_GUIDE.md`, «Practice tasks»): import the pilot package as drafts (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), check and publish the tasks in the admin, wait until the column «Аудио» of the dictations says «Готово» (the `tts` service and a queue worker must be up), then `PRACTICE_ACCESS=pilot` + `php artisan config:cache`, put a few learners into the pilot, and later `all`.
