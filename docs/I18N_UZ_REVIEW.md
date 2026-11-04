@@ -3114,3 +3114,19 @@
 | `game.cities_gen.23` | Loyan | Лояна |
 | `game.cities_gen.24` | Chang'an | Чанъани |
 | `game.city_fallback_gen` | :number-shahar | города :number |
+
+## Игра «Караван» 2026-11 · G2.9a (караван класса — итоги недели в чат) — на проверку носителю
+
+### Сервер, итоги недели каравана класса (`lang/uz/game.php`, ключи `class.summary.*`; HTML, в чат группы)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.class.summary.title` | 🏁 «:group» sinf karvoni haftani yakunladi! | 🏁 Караван класса «:group» завершил неделю! |
+| `game.class.summary.stars` | ⭐ Yig'ilgan yulduzlar: :stars / :target | ⭐ Звёзд собрано: :stars из :target |
+| `game.class.summary.runs` | 🐪 Yurishlar: :runs | 🐪 Забегов: :runs |
+| `game.class.summary.boss_defeated` | 👹 Sinf bossi yengildi! | 👹 Босс класса побеждён! |
+| `game.class.summary.boss_survived` | 👹 Sinf bossi bardosh berdi — keyingi safar chiqadi. | 👹 Босс класса устоял — в следующий раз получится. |
+| `game.class.summary.boss_locked` | 👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi. | 👹 До босса класса не дошли — цель недели не взята. |
+| `game.class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
+| `game.class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
+| `game.class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |

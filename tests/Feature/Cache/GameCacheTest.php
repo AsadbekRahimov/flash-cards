@@ -5,12 +5,15 @@ declare(strict_types=1);
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Game\Enums\ItemStatus;
 use App\Domain\Game\Enums\LedgerKind;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\ShopService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameFriendsCache;
 use App\Domain\Game\Services\GameShopCache;
 use App\Domain\Game\Services\MapService;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\ClassCaravan;
+use App\Models\ClassCaravanMember;
 use App\Models\Course;
 use App\Models\Friendship;
 use App\Models\GameItem;
@@ -211,6 +214,35 @@ function gameCacheShopStatements(Learner $learner): array
 {
     return QueryLog::matching(QueryLog::during(fn () => app(ShopService::class)->shop($learner)), '/game_items/');
 }
+
+it('keeps the standings of an active class caravan as arrays under game:class:v1:{caravan}:standings for 60 s, and drops them when the caravan is over (docs/18 §12.12)', function (): void {
+    config(['cache.pure_store' => 'array']);
+    $learner = Learner::factory()->create(['first_name' => 'Dilnoza']);
+    $caravan = ClassCaravan::factory()->create();
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $learner->id, 'runs' => 2, 'stars' => 5, 'best_score' => 90]);
+    $caravans = app(ClassCaravanService::class);
+    $key = ClassCaravanService::standingsKey($caravan->id);
+
+    $rows = $caravans->standings($caravan);
+    expect($key)->toBe("game:class:v1:{$caravan->id}:standings")
+        ->and($rows)->toBe([['learner_id' => $learner->id, 'name' => 'Dilnoza', 'stars' => 5, 'runs' => 2, 'best_score' => 90, 'boss_won' => false]])
+        ->and(PureCache::store()->get($key))->toBe($rows)
+        ->and(QueryLog::during(fn () => $caravans->standings($caravan)))->toBe([]);
+
+    // A run that lands while the value is warm shows after the TTL (like the standings of a league).
+    ClassCaravanMember::query()->where('learner_id', $learner->id)->update(['stars' => 8]);
+    expect($caravans->standings($caravan)[0]['stars'])->toBe(5);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(ClassCaravanService::STANDINGS_TTL + 1));
+    expect($caravans->standings($caravan)[0]['stars'])->toBe(8)->and(PureCache::store()->has($key))->toBeTrue();
+
+    // The close drops the key; a caravan that is over reads the database and writes no cache.
+    $caravan->update(['ends_at' => CarbonImmutable::now()->subMinute()]);
+    $caravans->closeDue();
+    $over = $caravan->fresh() ?? $caravan;
+    expect(PureCache::store()->has($key))->toBeFalse()
+        ->and(count(QueryLog::during(fn () => $caravans->standings($over))))->toBe(1)
+        ->and(PureCache::store()->has($key))->toBeFalse();
+});
 
 it('serves the catalogue of the shop from the cache: the second read touches no item', function (): void {
     GameItem::factory()->count(3)->create();

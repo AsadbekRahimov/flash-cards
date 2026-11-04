@@ -87,4 +87,19 @@ return [
         'admin_revoke' => "Qo'llab-quvvatlash yechgan",
         'refund' => 'Qaytarish',
     ],
+
+    /* Sinf karvoni (docs/18 §12.11): hafta yakunlari guruh chatiga (`PostClassCaravanSummaryJob`, HTML). Bot buyruqlari matnlari - G2.9b (`bot.php`). */
+    'class' => [
+        'summary' => [
+            'title' => '🏁 «:group» sinf karvoni haftani yakunladi!',
+            'stars' => '⭐ Yig\'ilgan yulduzlar: <b>:stars</b> / :target',
+            'runs' => '🐪 Yurishlar: <b>:runs</b>',
+            'boss_defeated' => '👹 Sinf bossi yengildi!',
+            'boss_survived' => '👹 Sinf bossi bardosh berdi — keyingi safar chiqadi.',
+            'boss_locked' => '👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi.',
+            'top' => 'Eng yaxshi karvonchilar:',
+            'row' => ':place :name — <b>:stars</b> ⭐ (yurishlar: :runs)',
+            'nobody' => 'Bu hafta hech kim yo\'lga chiqmadi. Yana urinib ko\'ramiz!',
+        ],
+    ],
 ];
