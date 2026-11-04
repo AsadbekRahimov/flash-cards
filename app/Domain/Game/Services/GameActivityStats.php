@@ -7,7 +7,6 @@ namespace App\Domain\Game\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunStatus;
-use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Models\GameRun;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -28,6 +27,9 @@ use Illuminate\Support\Facades\DB;
 final class GameActivityStats
 {
     public const DAYS = 7;
+
+    /** A grade of the cards that counts as right (the bar of `SpacedRepetitionEngine::PASS_QUALITY`; the game does not import the learning domain). */
+    public const RIGHT_QUALITY = 3;
 
     /**
      * @return array{
@@ -120,7 +122,7 @@ final class GameActivityStats
             ->where(fn ($q) => $q->whereNotNull('p.learner_id')->orWhere('l.last_seen_at', '>=', $since))
             ->selectRaw('CASE WHEN p.learner_id IS NULL THEN 0 ELSE 1 END AS is_player')
             ->selectRaw('COUNT(*) AS total')
-            ->selectRaw('SUM(CASE WHEN tr.quality >= ? THEN 1 ELSE 0 END) AS right_count', [SpacedRepetitionEngine::PASS_QUALITY])
+            ->selectRaw('SUM(CASE WHEN tr.quality >= ? THEN 1 ELSE 0 END) AS right_count', [self::RIGHT_QUALITY])
             ->groupByRaw('1')
             ->get();
 
