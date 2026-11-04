@@ -16,7 +16,7 @@ This guide covers deploying LexiFlow Pro on a **bare server** that already has:
 
 ## 0. Docker deployment
 
-The production Dockerfile builds three reproducible stages: both Laravel/TWA frontend bundles, the PHP application with `vendor/`, and an nginx image containing the exact same `public/` tree. Production does not mount a persistent volume over `public/`.
+The production Dockerfile builds four reproducible stages: both Laravel/TWA frontend bundles, the PHP application with `vendor/`, an nginx image containing the exact same `public/` tree, and `pgbouncer` (Alpine package, configured from the environment at start; see «pgbouncer и постоянные соединения» below). Production does not mount a persistent volume over `public/`.
 
 Set `APP_DOMAIN`, `CERTBOT_EMAIL`, `APP_KEY` and the other required values in `.env`, then run:
 
@@ -46,6 +46,52 @@ bash deploy.sh
   - *Остальные значения.* `start_servers` ≈ четверть `max_children`, `min_spare` — половина `start_servers`, `max_spare` — не больше трети `max_children`; `max_requests=500` перезапускает воркер и ограничивает утечки памяти. Проверка: `docker compose exec app php-fpm -tt 2>&1 | grep pm`; насыщение — строки `server reached pm.max_children` в `docker compose logs app`.
 - **Хватает ли памяти.** Статус общего кэша FPM (`opcache_get_status()`: `memory_usage`, `interned_strings_usage`, `opcache_statistics.num_cached_keys` против `max_cached_keys`, `oom_restarts`, `hash_restarts`) виден только из запроса, обработанного самим FPM: у CLI свой кэш, и `docker compose exec app php -r …` покажет не то. Норма: свободно не меньше ~20 % `memory_consumption`, `oom_restarts = 0`, `hash_restarts = 0`, `num_cached_keys` заметно ниже `max_cached_keys`. Снять эти числа под реальным трафиком — задача C8 (`docs/19`); поднять `memory_consumption` / `max_accelerated_files` в `docker/php/opcache-prod.ini` и пересобрать образ, если запас меньше нормы.
 - **Bare-сервер (без Docker).** Этот ini там не применяется. Если выставить `validate_timestamps=0` и на bare-сервере, после каждого деплоя нужен `systemctl reload php8.5-fpm` (сбрасывает кэш), иначе FPM продолжит исполнять старый код.
+
+### pgbouncer и постоянные соединения (R12d, решение владельца 04.11.2026)
+
+Репетиция R12b показала, что без постоянных соединений каждый HTTP-запрос открывает новое соединение с PostgreSQL: около 5,5 мс CPU в PHP (`Connector::createPdoConnection`) плюс около 15 мс CPU в PostgreSQL (fork backend, SCRAM, прогрев каталога). С `PDO::ATTR_PERSISTENT` CPU на запрос упал с 66 до 37 мс, p95 при 100 VU — с 514 до 107 мс, пропускная способность при 300 VU — с 42,6 до 67,2 req/s. Схема прод-стека теперь такая:
+
+```
+php-fpm (16 воркеров, по одному постоянному PDO-соединению на воркер)  ─┐
+queue-high / queue-default / queue-low (по одному соединению)           ├─► pgbouncer:5432 (transaction mode) ─► postgres:5432
+scheduler и его команды (короткие соединения)                           ─┘        PGBOUNCER_POOL_SIZE + RESERVE backend'ов
+migrate (deploy.sh), pg_dump (backup:run)  ───────────────── pgsql_direct ──────────────────────────────────────► postgres:5432
+```
+
+**Переменные.** В `.env` прода: `DB_HOST=pgbouncer` (порт тот же, 5432) и `DB_PERSISTENT=true`; `DB_DISABLE_PREPARES=true` — умолчание. `DB_DIRECT_HOST=postgres` / `DB_DIRECT_PORT=5432` compose подставляет контейнерам приложения сам (`environment` сильнее `env_file`): это имена сервисов этого файла, а не секреты. Размеры пула — `PGBOUNCER_POOL_SIZE` (20), `PGBOUNCER_RESERVE_POOL_SIZE` (4), `PGBOUNCER_MAX_CLIENT_CONN` (200), `PGBOUNCER_QUERY_WAIT_TIMEOUT` (30 с) — тоже из `.env`, умолчания в `docker/pgbouncer/entrypoint.sh`.
+
+**Что делает каждая часть.**
+- `DB_PERSISTENT=true` (`config/database.php`, `PDO::ATTR_PERSISTENT`): воркер php-fpm держит соединение между запросами. Открытую транзакцию PHP откатывает сам в момент освобождения объекта PDO в конце запроса (`ext/pdo/pdo_dbh.c`, `pdo_dbh_free_storage`: спрашивает драйвер `in_transaction` — у pdo_pgsql это `PQtransactionStatus` — и шлёт `ROLLBACK`); тот же обработчик выполняется при необработанном исключении, fatal (memory limit) и `max_execution_time`, а убитый по `request_terminate_timeout` воркер закрывает сокет, и PostgreSQL сам откатывает его транзакцию. Мёртвый после рестарта handle `PDO::connect()` проверяет перед выдачей (`ext/pdo_pgsql/pgsql_driver.c`, `pdo_pgsql_check_liveness`: `PQconsumeInput` + `PQreset`), а внутри запроса потерю соединения вне транзакции Laravel чинит переподключением и повтором запроса (`Connection::tryAgainIfCausedByLostConnection`); внутри транзакции запрос падает с 500, следующий получает чистое соединение. В dev и тестах выключено (`phpunit.xml`: `DB_PERSISTENT=false`): тесты гонок делают `pcntl_fork()`, а дочерний процесс унаследовал бы чужой сокет. Тест семантики — `tests/Feature/Database/PersistentPgsqlConnectionTest.php` (только на PostgreSQL).
+- `DB_DISABLE_PREPARES=true` (`Pdo\Pgsql::ATTR_DISABLE_PREPARES`): запрос уходит как безымянный statement (`PQexecParams`), значения — отдельными параметрами, как и раньше. Без этого pdo_pgsql на каждый запрос делает `PREPARE pdo_stmt_N` + `EXECUTE` + закрытие — лишний круг на запрос, который Laravel никогда не переиспользует, а с libpq < 17 закрытие идёт SQL-командой `DEALLOCATE`, которую pgbouncer в transaction mode отдаёт на чужое серверное соединение (ошибка, внутри транзакции — её отмена). Сборка `app` падает, если pdo_pgsql собран с libpq < 17; pgbouncer держит `max_prepared_statements = 200` на случай `DB_DISABLE_PREPARES=false`.
+- `pgbouncer` (`pool_mode = transaction`, образ — стадия `pgbouncer` в `Dockerfile`: `alpine:3.24` + пакет `pgbouncer` ≥ 1.21, проверяется при сборке; CI собирает её в job `build`): серверное соединение занято клиентом только на время транзакции, вне её у постоянного клиентского соединения нет backend'а вообще. Аутентификация `scram-sha-256` в обе стороны по `DB_USERNAME`/`DB_PASSWORD` (`userlist.txt` пишется при старте, mode 0600, в образ не попадает). Сессионных возможностей приложение не использует: единственный advisory lock — транзакционный `pg_advisory_xact_lock` (`LeagueService`), ни `LISTEN/NOTIFY`, ни временных таблиц, ни курсоров `WITH HOLD`, ни `SET` без `LOCAL` в коде нет (поиск сделан в R12d; новое такое место — повод для `pgsql_direct`). Коннектор Laravel шлёт `set search_path to "public"` при каждом подключении и `client_encoding` в стартовом пакете: `client_encoding` pgbouncer отслеживает и переносит на серверное соединение сам, а `search_path` намеренно не отслеживается (`ignore_startup_parameters = ..., search_path`: в 1.26.0 отслеживание появилось, в 1.26.1 признаны ошибки) — у всех клиентов этого пула одно и то же значение, и `public` — единственная схема базы, так что команда безвредна, на какое бы серверное соединение ни попала.
+- `pgsql_direct` (`config/database.php`): та же база мимо pgbouncer. `deploy.sh` запускает `migrate --force --database=pgsql_direct` (мигратор делает это соединение умолчанием на время каждой миграции, так что `Schema::`/`DB::` внутри миграций тоже идут напрямую; миграция может держать блокировки и работать минуты), `config/backup.php` отдаёт spatie `pg_dump` это же соединение (имя файла дампа — по имени базы, как раньше). `docker/postgres/upgrade.sh` ходит в контейнер `postgres` через сокет и приложение не трогает.
+- `idle_in_transaction_session_timeout=60s` — флаг `-c` у `postgres` в `docker-compose.prod.yml`: сессия, которая минуту молчит с открытой транзакцией, закрывается, транзакция откатывается. Штатные пути так не простаивают (между запросами одного HTTP-запроса — микросекунды, `pg_dump` и миграции активны, а не idle); это страховка от утёкшей транзакции — зависший воркер, забытый `BEGIN` в psql оператора, — которая с pgbouncer ещё и заняла бы серверное соединение из пула навсегда. На сервере, а не в pgbouncer или в DSN, чтобы действовало для любого клиента, в пуле или напрямую, и в режиме без pgbouncer тоже.
+
+**Бюджет соединений** (`max_connections` официального образа — 100, VPS-гайд §4.3 — тоже 100):
+
+| Кто | Соединений с PostgreSQL |
+|---|---|
+| pgbouncer: `PGBOUNCER_POOL_SIZE` + `PGBOUNCER_RESERVE_POOL_SIZE` (`max_db_connections` = их сумма) | 20 + 4 = 24 |
+| `migrate` во время деплоя, `pg_dump` ночью (через `pgsql_direct`) | 1–2 |
+| psql оператора, `upgrade.sh` | 1–3 |
+| `superuser_reserved_connections` PostgreSQL | 3 |
+| **Итого** | **≈ 32 из 100** |
+
+Клиентская сторона pgbouncer: `PGBOUNCER_MAX_CLIENT_CONN` ≥ Σ `PHP_FPM_MAX_CHILDREN` по контейнерам `app` + воркеры очередей (3) + `scheduler` с его командами (≈ 5) + healthcheck и консоль; 200 при умолчаниях 16 воркеров FPM — с большим запасом, клиентское соединение pgbouncer стоит ~2 КБ. Серверная сторона: `PGBOUNCER_POOL_SIZE` — это сколько транзакций PostgreSQL выполняет одновременно; для OLTP правило 2–4 × vCPU (4 vCPU → 8–16, умолчание 20 с запасом на ожидание диска); больше — не быстрее, а очередь перед PostgreSQL. При `PGBOUNCER_QUERY_WAIT_TIMEOUT` (30 с) ожидания свободного серверного соединения клиент получает ошибку (запрос — 500), а не висит. **Без pgbouncer** (`DB_HOST=postgres`, `DB_PERSISTENT=true`) формула другая: Σ `PHP_FPM_MAX_CHILDREN` + воркеры очередей + команды планировщика + запас < `max_connections`, потому что каждый воркер FPM держит backend даже простаивая: 16 + 3 + 5 + 10 = 34 — тоже укладывается в 100, но при росте `PHP_FPM_MAX_CHILDREN` или втором контейнере `app` считать заново.
+
+**Как смотреть.** Консоль pgbouncer (пользователь `DB_USERNAME` — `admin_users` и `stats_users`):
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env exec pgbouncer psql -h 127.0.0.1 -U lexiflow pgbouncer -c 'SHOW POOLS'   # cl_active/cl_waiting - клиенты, sv_active/sv_idle - backend'ы, maxwait - ожидание пула
+docker compose -f docker-compose.prod.yml --env-file .env exec pgbouncer psql -h 127.0.0.1 -U lexiflow pgbouncer -c 'SHOW STATS'   # total_xact_count, avg_xact_time, avg_wait_time (мкс), total_wait_time
+docker compose -f docker-compose.prod.yml --env-file .env exec pgbouncer psql -h 127.0.0.1 -U lexiflow pgbouncer -c 'SHOW SERVERS'
+```
+
+`psql` спросит пароль (`DB_PASSWORD`). Тревожные признаки: `cl_waiting` > 0 постоянно или `maxwait` в секундах — пул мал или запросы медленные (сначала `pg_stat_statements`/медленные запросы, потом `PGBOUNCER_POOL_SIZE`); `avg_wait_time` растёт; в `docker compose logs pgbouncer` строки `query_wait_timeout` или `server login failed`. В PostgreSQL: `select state, count(*) from pg_stat_activity where datname = 'lexiflow' group by 1` — `idle in transaction` старше секунд там быть не должно (срез идёт через 60 с).
+
+**Рестарты.** PostgreSQL перезапустился — pgbouncer теряет серверные соединения, запросы, бывшие в полёте, падают (внутри транзакции — 500 без повтора), простаивавшие клиенты ничего не замечают; новые серверные соединения pgbouncer открывает через `server_login_retry = 2` с. pgbouncer перезапустился (`docker compose restart pgbouncer`, ~1 с) — каждый воркер FPM на следующем запросе находит свой handle мёртвым и пересоздаёт его сам (проверено на стенде R12d: 551 «запросов» подряд с двумя рестартами, 11 ошибок — ровно те, что пришлись на секунду недоступности, после них всё само восстановилось). `/health/ready` ходит в базу через то же соединение приложения, то есть через pgbouncer: лежит pgbouncer — проверка `db` даёт `fail` и `503`, что и нужно (§15.2).
+
+**Как отключить pgbouncer.** В `.env` прода `DB_HOST=postgres` и обычный `deploy.sh` (или `docker compose up -d app queue-high queue-default queue-low scheduler`): приложение, воркеры и `pgsql_direct` идут в PostgreSQL напрямую, контейнер `pgbouncer` остаётся запущенным, но без клиентов. `DB_PERSISTENT=true` можно оставить — тогда действует бюджет «без pgbouncer» выше; `DB_PERSISTENT=false` возвращает соединение на запрос. Та же пара переменных — путь отката, если pgbouncer ведёт себя неожиданно.
 
 ### Откат
 
@@ -925,7 +971,7 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 
 | Check | Fails when |
 |---|---|
-| `db` | `select 1` throws |
+| `db` | `select 1` throws - on the application's own connection, i.e. through pgbouncer in the Docker stack (§0 «pgbouncer и постоянные соединения»): a pooler that is down or cannot reach PostgreSQL is a `fail` here, as it is for every request |
 | `redis` | `PING` of the first instance fails (only reported if cache or queue use the `redis` driver) |
 | `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails → the value is `degraded`, not `fail`, as long as the pure store has a fallback: the chain goes on to the array store and the application serves from the database (`docs/19` §4.1). With a pure store on Redis alone (`CACHE_PURE_STORE=lru_redis`) every cache call would throw, so the value is `fail`. Only reported when `CACHE_PURE_STORE` is (a failover chain over) a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
