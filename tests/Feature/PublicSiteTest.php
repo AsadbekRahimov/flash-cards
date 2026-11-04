@@ -156,7 +156,10 @@ it('applies security headers and CSP to every public page', function (string $ur
         ->toContain("script-src 'none'")
         ->not->toContain("'unsafe-inline' 'unsafe-eval'")
         ->toContain("style-src 'self' 'unsafe-inline'")
-        ->toContain("frame-ancestors 'self'");
+        ->toContain("frame-ancestors 'self'")
+        ->toContain("object-src 'none'")
+        ->toContain("base-uri 'self'")
+        ->toContain("form-action 'self'");
 })->with(['/', '/offer', '/privacy', '/ru', '/uz', '/uz/offer', '/uz/privacy']);
 
 it('does not weaken or change the CSP of the rest of the app', function (): void {
