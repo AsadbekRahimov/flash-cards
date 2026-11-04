@@ -1250,10 +1250,12 @@ Read from `.env`; everything else of `config/game.php` (run sizes, scoring, econ
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `GAME_ACCESS` | `off` | Who plays: `off` (nobody; every endpoint answers 403 `game_unavailable`), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `all`. Anything else counts as `off`. `GET /me` → `game.available` |
+| `GAME_ACCESS` | `off` | Who plays: `off` (nobody; every endpoint answers 403 `game_unavailable`), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `all`. Anything else counts as `off`. `GET /me` → `game.available`. The **class caravan** (`/start_caravan`, `/cancel_caravan`, the page «Караваны» in `/org`, the cards on the map and on «Сегодня») exists **only with `all`**: in `pilot` the game is seen by single learners, a caravan is for the whole group. After any change of `GAME_ACCESS`: `php artisan config:cache` and `php artisan telegram:setup-bot` (the command menu is built when the command runs: the caravan commands are in it only with `all`) |
 | `GAME_FREE_RUNS_PER_DAY` | `1` | Free map runs (stops + bosses) a Free learner plays per local day; more cost a ticket. Pro (feature `game.unlimited_runs`) has no limit; the daily caravan is not limited. `0` — only Pro; empty — no limit for Free |
 | `GAME_FREE_BOSS_STAGES` | `1` | The bosses of the first N cities of a course a Free learner may fight (Pro: `game.all_bosses`); past that 403 `game_pro_required`. Empty — all |
 | `GAME_FREE_BOOSTERS_PER_WEEK` / `GAME_PRO_BOOSTERS_PER_WEEK` | `1` / `5` | Boosters a learner may use per local week (Pro: `game.boosters_plus`) |
 | `GAME_TICKETS_PER_STREAK_WEEK` / `GAME_TICKETS_PER_REFERRAL` / `GAME_TICKETS_MAX` | `1` / `3` / `10` | Tickets: per 7 days of the streak, to the inviter per activated friend, the cap of the balance |
 | `GAME_LEAGUE_DAILY_CAP` | `40` | The cap of the league points the game gives per local day |
 | `GAME_CLASS_CENTERS_ONLY` | `true` | The caravan of a class only for the centers with a live subscription |
+
+Turning the game on (the pilot checklist): `php artisan migrate --force` (the game tables and the index `game_runs (started_at, learner_id)`); put the pilot learners in (`learners.practice_pilot_at`, as for the practice); `GAME_ACCESS=pilot`; then **`php artisan config:cache` and `php artisan telegram:setup-bot`** (the bot menu is built when the command runs, not on every request); watch the widget «Караван — 7 дней»; later `GAME_ACCESS=all` and the same two commands again — only then the caravan of a class appears in the bot, in `/org` and in the Mini App.

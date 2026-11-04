@@ -620,7 +620,8 @@ Changes apply within seconds.
 ## Caravan game (docs/18 §12.10)
 
 The game «Караван» has its own group in the left menu, **Караван** (Караван), and a tab on the learner's page. All of it is **admin only**
-(a teacher gets 403; the cabinet of a center has none of it). The caravans of classes (`ClassCaravanResource`) come after G2.9a.
+(a teacher gets 403). The one exception is the caravan of a class: the cabinet of a center (`/org`) has its own page «Караваны» where the owner sees every group of the
+center and a teacher runs their own groups; here the admin sees them all (below, **Class caravans**).
 
 **Items — Предметы** (`/admin/game-items`). The catalogue of the shop: cosmetics (a *slot*: camel, carpet, tent, frame) and boosters (an *effect*:
 hint, extra flask, second chance). The list shows kind, slot, effect, price, availability, status and order; filters by kind, status and availability.
@@ -643,7 +644,7 @@ group, center, course, status (*В пути* / *Завершён* / *Отмен�
 *Побеждён*) and when the summary went to the chat (`summary_posted_at`; empty — not sent yet or skipped because the group is inactive). Filters: status,
 center. The page of a caravan shows the contributions of the members (first names only). The only action is **Отменить** (confirmation): the caravan stops,
 no summary is sent, the runs of the members stay theirs, and the group chat gets «Караван класса отменён». The cancel is recorded in the caravan
-(`meta.canceled_reason`: `admin`, or `teacher` if you are also a teacher of that group). Caravans are started by teachers (`/start_caravan`, `/org`).
+(`meta.canceled_reason`: `admin`, or `teacher` if you are also a teacher of that group; `not_delivered` — Telegram did not take the message about the start, the caravan was withdrawn at once). The chat is told «canceled» only if this very click canceled it (not after the weekly summary, not twice). Caravans are started by teachers (`/start_caravan`, `/org`) and only with `GAME_ACCESS=all`.
 
 **The «Караван» tab of a learner** (Learners → open a learner). The balance, the coins earned and spent, the tickets and the last 50 entries of the
 ledger. Buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required) and **Выдать билеты**.

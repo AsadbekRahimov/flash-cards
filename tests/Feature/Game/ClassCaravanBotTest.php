@@ -330,6 +330,17 @@ it('does not list the caravan commands in the menu in the pilot mode either', fu
     }
 });
 
+it('lists the caravan commands in the private /help (for teachers) only with GAME_ACCESS=all', function (): void {
+    foreach (['all', 'pilot', 'off'] as $mode) {
+        config(['game.access' => $mode]);
+        caravanSays('/help', chatId: 555, type: 'private');
+    }
+
+    expect($this->tg->sent[0]['text'])->toContain('/start_caravan')->toContain('/cancel_caravan')->not->toContain(':caravan')
+        ->and($this->tg->sent[1]['text'])->not->toContain('caravan')->not->toContain(':caravan')
+        ->and($this->tg->sent[2]['text'])->not->toContain('caravan')->not->toContain(':caravan');
+});
+
 it('lists the caravan commands in /help of a group only with GAME_ACCESS=all', function (): void {
     ClassKit::world(2);
 

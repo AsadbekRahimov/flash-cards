@@ -20,6 +20,7 @@ return [
             "Для учителей:\n".
             "• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.\n".
             "• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.\n".
+            ':caravan'.
             '• /stats — ваш отчёт за 7 дней (здесь, в личном чате).',
         'group' => "LexiFlow в группе.\n\nКоманды учителя:\n".
             "/start_training — запустить тренировку\n".
@@ -28,7 +29,9 @@ return [
             ':caravan'.
             "/stats — личный отчёт в чате с ботом\n".
             '/help — эта справка',
-        // The lines of `:caravan` in `group`: shown while the game is open (GAME_ACCESS is not off), G2.9b.
+        // The line of `:caravan` in `private` (the part «Для учителей»): shown only with GAME_ACCESS=all, like `group_caravan`.
+        'private_caravan' => "• Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.\n",
+        // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
         'group_caravan' => "/start_caravan — запустить караван класса\n".
             "/cancel_caravan — отменить караван класса\n",
     ],
