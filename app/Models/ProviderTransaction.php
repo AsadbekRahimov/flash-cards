@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\MoneyWidgetsObserver;
 use Carbon\CarbonImmutable;
 use Database\Factories\ProviderTransactionFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +34,7 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed> $raw
  * @property list<array<string, mixed>> $history
  */
+#[ObservedBy(MoneyWidgetsObserver::class)]
 class ProviderTransaction extends Model
 {
     /** @use HasFactory<ProviderTransactionFactory> */

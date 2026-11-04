@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\OrganizationUserObserver;
 use Database\Factories\OrganizationUserFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $role
  * @property int|null $invited_by_user_id
  */
+#[ObservedBy(OrganizationUserObserver::class)]
 class OrganizationUser extends Model
 {
     /** @use HasFactory<OrganizationUserFactory> */

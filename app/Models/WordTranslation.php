@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\WordTranslationObserver;
 use Database\Factories\WordTranslationFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property string $source
  * @property Carbon|null $reviewed_at
  */
+#[ObservedBy(WordTranslationObserver::class)]
 class WordTranslation extends Model
 {
     /** @use HasFactory<WordTranslationFactory> */

@@ -4,8 +4,14 @@
 // Thresholds (owner's decision 03.11.2026): p95 < 300 ms on every hot endpoint at 1 250 active learners, no 5xx.
 //
 // Pacing: one VU = one learner with a token of its own. `twa-api` allows 60 requests a minute per learner for ALL routes,
-// `twa-review` 60 and `twa-session-create` 10 more; an iteration below makes 23 requests with at least ~30.5 s of pauses at THINK_SCALE=1, so a
-// well-paced run never sees a 429 (the `rate_limited` threshold checks exactly that).
+// `twa-review` 60 and `twa-session-create` 10 more. Like the Mini App (resources/twa/src/stores/training.ts, submit()), the
+// scenario asks `GET /next` only for the FIRST card of a session; every following card comes from the `card` key of the
+// `POST /review` answer (the client calls `GET /next` again only after `card_not_due` / an exercise mismatch, which a
+// well-paced run does not meet). With CARDS_PER_SESSION=8 an iteration makes
+// 16 requests (5 browsing + open + first next + 8 review + finish) with at least ~30.5 s of pauses at THINK_SCALE=1 (0.5-1.5 s,
+// 4 x 1-3 s, 8 x 3-6 s, 2-5 s; the request time is not counted), so the worst case is ~31 requests a minute against
+// `twa-api` 60, ~16 reviews against `twa-review` 60 and ~2 session opens against `twa-session-create` 10: a well-paced run
+// never sees a 429 (the `rate_limited` threshold checks exactly that).
 //
 // Run: `make load-test` (see docs/STAGING_PHASE2_CHECKLIST.md §7.3).
 import { fail } from 'k6';
@@ -112,30 +118,43 @@ export default function (data) {
   }
   const sessionId = json(opened).session_id;
 
-  for (let i = 0; i < CARDS_PER_SESSION; i++) {
-    const next = get(`/api/twa/training/sessions/${sessionId}/next`, token, 'training_next');
-    if (!ok(next, 'training_next')) {
-      break;
-    }
-    const step = json(next);
-    if (step === null || step.card === null) {
-      break; // the lesson is out of cards for now
-    }
+  // The first card of a session comes from `GET /next`, like in the Mini App.
+  let card = null;
+  const first = get(`/api/twa/training/sessions/${sessionId}/next`, token, 'training_next');
+  if (ok(first, 'training_next')) {
+    const step = json(first);
+    card = step === null ? null : step.card; // null: the lesson is out of cards for now
+  }
 
+  for (let i = 0; i < CARDS_PER_SESSION && card; i++) {
     think(3, 6); // the learner reads the card and answers
 
-    const typed = step.card.prompt && (step.card.prompt.type === 'spelling' || step.card.prompt.type === 'gap_fill');
+    const typed = card.prompt && (card.prompt.type === 'spelling' || card.prompt.type === 'gap_fill');
     const body = {
-      word_id: step.card.word_id,
+      word_id: card.word_id,
       time_spent_ms: 3000 + Math.floor(Math.random() * 3000),
-      serve_token: step.card.serve_token,
+      serve_token: card.serve_token,
     };
     if (typed) {
       body.answer = 'test';
     } else {
       body.quality = 3 + Math.floor(Math.random() * 3); // 3..5
     }
-    ok(post(`/api/twa/training/sessions/${sessionId}/review`, body, token, 'training_review'), 'training_review');
+    const reviewed = post(`/api/twa/training/sessions/${sessionId}/review`, body, token, 'training_review');
+    if (!ok(reviewed, 'training_review')) {
+      break;
+    }
+
+    // The next card rides on the review answer. `card: null` ends the session; an answer without the `card` key
+    // makes the client fetch it with `GET /next` (the old API shape).
+    const answer = json(reviewed);
+    if (answer !== null && 'card' in answer) {
+      card = answer.card;
+    } else {
+      const next = get(`/api/twa/training/sessions/${sessionId}/next`, token, 'training_next');
+      const step = ok(next, 'training_next') ? json(next) : null;
+      card = step === null ? null : step.card;
+    }
   }
 
   ok(post(`/api/twa/training/sessions/${sessionId}/finish`, {}, token, 'training_finish'), 'training_finish');
