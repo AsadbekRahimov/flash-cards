@@ -9,6 +9,7 @@ use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Class\ClassBossService;
+use App\Domain\Game\Services\Class\ClassCaravanOverview;
 use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Class\ClassCaravanSummary;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
@@ -543,7 +544,7 @@ it('is scheduled every 15 minutes, without overlapping', function (): void {
     expect($event)->not->toBeNull()->and($event->expression)->toBe('*/15 * * * *')->and($event->withoutOverlapping)->toBeTrue();
 });
 
-it('closes the caravans past their end: finished, the group released, the event, the summary job queued once; the others untouched; a second sweep does nothing', function (): void {
+it('closes the caravans past their end: finished, the group released, the event, the summary job queued once; the others untouched; a second sweep closes nothing and queues the summary again while it is not posted', function (): void {
     Bus::fake();
     $w = classWorld(1);
     $due = classService()->start($w['group'], $w['teacher']);
@@ -569,10 +570,54 @@ it('closes the caravans past their end: finished, the group released, the event,
         ->and($events[0]['props'])->toEqualCanonicalizing(['class_caravan_id' => $due->id, 'group_id' => $w['group']->id, 'stars_total' => 3, 'runs_total' => 1, 'boss_defeated' => false])
         ->and($events[0]['group'])->toBe($w['group']->id);
 
-    // The group is free for a new caravan; the sweep again finds nothing.
+    // The group is free for a new caravan; the sweep again closes nothing - and, the summary of the closed one still not posted (the
+    // bus is a fake here), queues it once more (G2.13: the job is idempotent, a lost first queueing is not a lost summary).
     expect(classService()->start($w['group'], $w['teacher'])->isActive())->toBeTrue();
     expect(classService()->closeDue())->toBe(0);
-    Bus::assertDispatchedTimes(PostClassCaravanSummaryJob::class, 1);
+    Bus::assertDispatchedTimes(PostClassCaravanSummaryJob::class, 2);
+    Bus::assertDispatched(PostClassCaravanSummaryJob::class, fn (PostClassCaravanSummaryJob $job): bool => $job->classCaravanId === $due->id);
+
+    // Once the marker stands, no sweep queues it again.
+    $due->update(['summary_posted_at' => now()]);
+    expect(classService()->closeDue())->toBe(0);
+    Bus::assertDispatchedTimes(PostClassCaravanSummaryJob::class, 2);
+});
+
+it('queues the summary again on the next sweep when its first queueing failed, until the marker is set - not for a posted, an old, a canceled or an active caravan (G2.13)', function (): void {
+    Exceptions::fake();
+    $groups = TelegramGroup::factory()->count(3)->create();
+    $caravans = $groups->map(fn (TelegramGroup $g): ClassCaravan => ClassCaravan::factory()->create(['telegram_group_id' => $g->id, 'ends_at' => '2026-11-05 09:00:00']));
+    $calls = 0;
+    /** @var list<int> $queued the caravans whose summary job reached the queue, in order */
+    $queued = [];
+    $this->app->instance(Dispatcher::class, Mockery::mock(Dispatcher::class, function (MockInterface $mock) use (&$calls, &$queued): void {
+        $mock->shouldReceive('dispatch')->andReturnUsing(function (PostClassCaravanSummaryJob $job) use (&$calls, &$queued): void {
+            if (++$calls === 1) {
+                throw new RuntimeException('queue down');
+            }
+            $queued[] = $job->classCaravanId;
+        });
+    }));
+    // The failed queueing is reported and counted as a failed close (the caravan is finished all the same); the sweep does not queue
+    // the three it has just closed a second time.
+    [$lost, $posted, $old] = $caravans->all();
+    expect(classService()->closeDue())->toBe(2)->and($calls)->toBe(3)->and($queued)->toBe([$posted->id, $old->id])
+        ->and($caravans->map(fn (ClassCaravan $c): string => (string) $c->fresh()?->status->value)->all())->toBe(['finished', 'finished', 'finished']);
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'queue down');
+
+    // The first caravan is finished without its summary ever queued; the second got its summary; the third is "old" (closed 7 hours ago).
+    $posted->update(['summary_posted_at' => now()]);
+    $old->update(['finished_at' => now()->subHours(7)]);
+    $canceled = ClassCaravan::factory()->canceled()->create(['finished_at' => now()->subHour()]);
+    $active = ClassCaravan::factory()->create(['ends_at' => '2026-11-06 10:00:00']);
+
+    expect(classService()->closeDue())->toBe(0)->and($queued)->toBe([$posted->id, $old->id, $lost->id])
+        ->and($active->fresh()?->status)->toBe(ClassCaravanStatus::Active)->and($canceled->fresh()?->status)->toBe(ClassCaravanStatus::Canceled);
+
+    // Every sweep until the marker: the second delivery of the job posts nothing (the marker, the lock) - ClassCaravanConcurrencyTest.
+    expect(classService()->closeDue())->toBe(0)->and($queued)->toBe([$posted->id, $old->id, $lost->id, $lost->id]);
+    $lost->update(['summary_posted_at' => now()]);
+    expect(classService()->closeDue())->toBe(0)->and($queued)->toHaveCount(4);
 });
 
 it('goes on with the next caravan when one fails to close: the failure is reported, the others are closed', function (): void {
@@ -823,6 +868,7 @@ it('starts the fight with the boss of the class over the API: 12 tasks of the wo
     expect($started->json('kind'))->toBe('class_boss')
         ->and($started->json('flasks_max'))->toBe(0)
         ->and($started->json('city'))->toBeNull()
+        ->and($started->json('class_caravan_id'))->toBe($caravan->id)->and($started->json('stage_id'))->toBeNull() // G2.13: the way back to the class screen
         ->and($started->json('total'))->toBe(12)
         ->and($run->class_caravan_id)->toBe($caravan->id)
         ->and($run->class_boss_key)->toBe("{$caravan->id}:{$a->id}")
@@ -837,6 +883,60 @@ it('starts the fight with the boss of the class over the API: 12 tasks of the wo
     $post($a, $caravan->id)->assertStatus(409)->assertJsonPath('error.code', 'class_boss_done');
     $post($b, $caravan->id)->assertCreated()->assertJsonPath('kind', 'class_boss');
     expect(GameRun::query()->where('kind', 'class_boss')->count())->toBe(2);
+});
+
+it('does not count a fight closed without a single answer as the member\'s attempt: the key is let go of on an exit, on running out and on "once more"; one answer keeps it (G2.13)', function (): void {
+    $w = classWorld(2, words: 14);
+    [$a, $b] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    $caravan->update(['boss_unlocked_at' => now()]);
+    $boss = app(ClassBossService::class);
+    $runs = app(RunService::class);
+    $key = ClassCaravanService::classBossKey($caravan, $a);
+    $attempt = fn (): ?string => app(ClassCaravanOverview::class)->show($a, $caravan->id)->boss['my_attempt'];
+
+    // An exit: the fight is abandoned, the key is gone, the member has no attempt and may fight.
+    $left = $boss->start($a, $caravan->id);
+    expect($left->class_boss_key)->toBe($key);
+    $runs->abandon($left, $a);
+    $left->refresh();
+    expect($left->finish_reason)->toBe(RunFinishReason::Abandoned)->and($left->kind)->toBe(RunKind::ClassBoss)->and($left->class_boss_key)->toBeNull()
+        ->and($attempt())->toBeNull();
+    classService()->assertClassBossAllowed($caravan, $a, CarbonImmutable::now());
+
+    // Run out, closed by the scheduler.
+    $expired = $boss->start($a, $caravan->id);
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+    CarbonImmutable::setTestNow($later);
+    expect($runs->closeExpired($later))->toBe(1)
+        ->and($expired->refresh()->finish_reason)->toBe(RunFinishReason::Expired)->and($expired->class_boss_key)->toBeNull();
+
+    // Run out, seen by a read.
+    $stale = $boss->start($a, $caravan->id, now: $later);
+    $evenLater = $later->addMinutes(31);
+    CarbonImmutable::setTestNow($evenLater);
+    expect($runs->find($a, $stale->id, $evenLater)->finish_reason)->toBe(RunFinishReason::Expired)->and($stale->refresh()->class_boss_key)->toBeNull();
+
+    // "Once more" over an untouched live fight: a fresh fight, the old one let go of the key in the same transaction.
+    $untouched = $boss->start($a, $caravan->id, now: $evenLater);
+    $fresh = $boss->start($a, $caravan->id, true, $evenLater);
+    expect($fresh->id)->not->toBe($untouched->id)->and($fresh->class_boss_key)->toBe($key)->and($fresh->isActive())->toBeTrue()
+        ->and($untouched->refresh()->finish_reason)->toBe(RunFinishReason::Abandoned)->and($untouched->class_boss_key)->toBeNull()
+        ->and(GameRun::query()->where('class_boss_key', $key)->count())->toBe(1);
+
+    // One answer: the attempt is spent, however the fight ends - "once more" and a new fight are refused, the attempt shows as lost.
+    $element = GameKit::current($fresh);
+    $runs->answer($fresh, $a, (string) Str::uuid(), $element['id'], GameKit::wrongAnswer($element), null, $evenLater);
+    expect(fn () => $boss->start($a, $caravan->id, true, $evenLater))->toThrow(fn (GameException $e) => $e->errorCode === 'class_boss_done');
+    $runs->abandon($fresh, $a, $evenLater);
+    expect($fresh->refresh()->class_boss_key)->toBe($key)->and($fresh->answered)->toBe(1)
+        ->and(fn () => classService()->assertClassBossAllowed($caravan, $a, $evenLater))->toThrow(fn (GameException $e) => $e->errorCode === 'class_boss_done')
+        ->and(fn () => $boss->start($a, $caravan->id, now: $evenLater))->toThrow(fn (GameException $e) => $e->errorCode === 'class_boss_done')
+        ->and($attempt())->toBe('lost')
+        // the unanswered fights gave the caravan nothing and took nothing from the other member
+        ->and($caravan->refresh()->runs_total)->toBe(0)
+        ->and(GameRun::query()->where('kind', 'class_boss')->where('learner_id', $a->id)->count())->toBe(5);
+    classService()->assertClassBossAllowed($caravan, $b, $evenLater);
 });
 
 it('wins the boss of the class at 80 percent: 20 coins, 3 stars to the caravan, the member marked, the caravan beats the boss at half the participants; a loss pays nothing and is the member\'s one fight', function (): void {

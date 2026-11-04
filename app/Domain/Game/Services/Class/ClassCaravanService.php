@@ -12,6 +12,7 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Game\DTO\ClassContribution;
 use App\Domain\Game\Enums\ClassCaravanStatus;
 use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Game\Support\BossWordPicker;
@@ -182,10 +183,18 @@ final class ClassCaravanService
 
     // ------------------------------------------------------------------ the scheduler
 
+    /** How long after its close a finished caravan without a summary is queued again by the sweep (the `retryUntil` of the job). */
+    public const SUMMARY_REQUEUE_HOURS = 6;
+
     /**
      * `game:class-caravans-close` (every 15 minutes): every active caravan past its `ends_at` becomes `finished` in a transaction of its
      * own (the row FOR UPDATE, read again), and its summary is queued after the commit. A caravan that fails is reported and the sweep
      * goes on (docs/18 §12.5.1 rule 23).
+     *
+     * The summary is not lost with its first queueing (G2.13, docs/18 §12.11): a caravan that is `finished` within the last
+     * {@see SUMMARY_REQUEUE_HOURS} hours and has no `summary_posted_at` yet - the dispatch after the commit failed, the queue lost the job,
+     * the job gave up - is queued again by every sweep until the marker is set; the job is idempotent (the marker before, the cache lock,
+     * the marker again under it), so a second delivery posts nothing. The caravans this very sweep closed are not queued twice.
      *
      * @return int caravans closed by this call
      */
@@ -213,7 +222,42 @@ final class ClassCaravanService
             }
         }
 
+        $this->requeueSummaries($now, $ids);
+
         return $closed;
+    }
+
+    /**
+     * Queues the summary again for the caravans finished recently that have none (see {@see closeDue()}); `$except` are the ones closed
+     * by this sweep, whose summary was queued with their commit. A failure to queue one is reported and the others are still queued.
+     *
+     * @param  list<int>  $except
+     * @return int caravans queued again
+     */
+    public function requeueSummaries(CarbonImmutable $now, array $except = []): int
+    {
+        /** @var list<int> $ids */
+        $ids = ClassCaravan::query()
+            ->where('status', ClassCaravanStatus::Finished->value)
+            ->whereNull('summary_posted_at')
+            ->where('finished_at', '>', $now->subHours(self::SUMMARY_REQUEUE_HOURS))
+            ->when($except !== [], fn ($query) => $query->whereNotIn('id', $except))
+            ->orderBy('id')
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
+
+        $queued = 0;
+        foreach ($ids as $id) {
+            try {
+                PostClassCaravanSummaryJob::dispatch($id);
+                $queued++;
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
+        return $queued;
     }
 
     /** One caravan: `finished` under its lock; the cache, the event and the summary job after the commit. True when this call closed it. */
@@ -374,11 +418,13 @@ final class ClassCaravanService
 
     /**
      * May the learner fight the boss of the class now (docs/18 §12.11): the caravan is active and inside its window and the learner a
-     * member of its group (else 404), the boss is open, the learner has not fought yet, the snapshot has enough words.
+     * member of its group (else 404), the boss is open, the learner has not fought yet, the snapshot has enough words. "Fought" is a run
+     * that holds the key: a fight closed without a single answer let go of it (G2.13) and was no attempt; with `$replaceActive` the
+     * learner's live fight without an answer does not count either - the start is about to close it, and the close frees the key.
      *
      * @throws GameException game_unavailable | class_caravan_not_found | class_boss_locked | class_boss_done | game_not_enough_material
      */
-    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now): void
+    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now, bool $replaceActive = false): void
     {
         $this->access->assertAvailable($learner);
         if (! $caravan->isActive() || $caravan->starts_at->gt($now) || $caravan->ends_at->lte($now) || ! $this->isVisibleTo($caravan, $learner)) {
@@ -387,7 +433,11 @@ final class ClassCaravanService
         if ($caravan->boss_unlocked_at === null) {
             throw GameException::classBossLocked();
         }
-        if (GameRun::query()->where('class_boss_key', self::classBossKey($caravan, $learner))->exists()) {
+        $fought = GameRun::query()
+            ->where('class_boss_key', self::classBossKey($caravan, $learner))
+            ->when($replaceActive, fn ($query) => $query->where(fn ($q) => $q->where('status', RunStatus::Finished->value)->orWhere('answered', '>', 0)))
+            ->exists();
+        if ($fought) {
             throw GameException::classBossDone();
         }
         $required = max(1, (int) config('game.boss.min_words', 8));

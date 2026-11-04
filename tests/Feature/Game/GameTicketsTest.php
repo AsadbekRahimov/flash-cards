@@ -10,6 +10,7 @@ use App\Domain\Game\Enums\TicketSource;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Learners\Enums\StreakHeldBy;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learners\Services\StreakService;
 use App\Models\AuditLog;
@@ -120,6 +121,37 @@ it('gives one ticket on every 7th day of the streak, once per day, and nothing o
     config(['game.tickets.per_streak_week' => 0]);
     expect(gameTickets()->grantForStreak($learner, 28, '2026-11-26'))->toBeNull()
         ->and(gameTickets()->balance($learner->id))->toBe(3);
+});
+
+it('grants nothing while the game is closed to the learner - off, or a pilot the learner is not in: no statement on the game tables, no event; the streak itself still counts (G2.13)', function (): void {
+    $learner = Learner::factory()->create(['practice_pilot_at' => null]);
+    $pilot = Learner::factory()->create(['practice_pilot_at' => now()]);
+    $referral = Referral::factory()->rewarded()->create(['referrer_learner_id' => $learner->id, 'referee_learner_id' => Learner::factory()->create()->id]);
+
+    config(['game.access' => 'off']);
+    expect(QueryLog::during(fn () => expect(gameTickets()->grantForStreak($learner, 7, '2026-11-05'))->toBeNull()))->toBe([])
+        ->and(QueryLog::during(fn () => expect(gameTickets()->grantForStreak($pilot, 7, '2026-11-05'))->toBeNull()))->toBe([])
+        ->and(QueryLog::matching(QueryLog::during(fn () => expect(gameTickets()->grantForReferral($referral->refresh()))->toBeNull()), '/game_/'))->toBe([]);
+
+    // The streak projection runs its hook and still goes +1 - the hook just writes nothing of the game.
+    $learner->update(['timezone' => 'UTC', 'streak_current' => 6, 'streak_best' => 6, 'streak_last_date' => '2026-11-04']);
+    app(StreakService::class)->apply($learner, '2026-11-05', CarbonImmutable::now(), StreakHeldBy::Game);
+    expect($learner->fresh()?->streak_current)->toBe(7)
+        ->and(GameProfile::query()->count())->toBe(0)->and(GameTicketLedgerEntry::query()->count())->toBe(0)
+        ->and(gameTicketEvents('game.ticket_granted'))->toBe([]);
+
+    // The pilot: the learner in it is granted, the one outside is not.
+    config(['game.access' => 'pilot']);
+    expect(gameTickets()->grantForStreak($learner, 7, '2026-11-05'))->toBeNull()
+        ->and(gameTickets()->grantForReferral($referral->refresh()))->toBeNull()
+        ->and(gameTickets()->grantForStreak($pilot, 7, '2026-11-05')?->balance)->toBe(1)
+        ->and(GameProfile::query()->count())->toBe(1);
+
+    // Open to everybody: the same days grant - the key is the day, the closed days left nothing behind to collide with.
+    config(['game.access' => 'all']);
+    expect(gameTickets()->grantForStreak($learner, 7, '2026-11-05')?->balance)->toBe(1)
+        ->and(gameTickets()->grantForReferral($referral->refresh())?->balance)->toBe(4);
+    expectGameTicketInvariant($learner);
 });
 
 it('gives the ticket of the 7th day from the streak itself - held by the goal or by a run - once, and nothing on a second reading of the day', function (bool $byRun): void {

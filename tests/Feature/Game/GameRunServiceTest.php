@@ -349,6 +349,15 @@ it('sells the hint of the bazaar once per element: the coins go once, a second r
     expect(fn () => runService()->hint($run, $learner, (string) Str::uuid(), $next['id']))
         ->toThrow(fn (GameException $e) => expect($e->errorCode)->toBe('coins_insufficient')->and($e->details)->toBe(['balance' => 2, 'price' => 5]));
     expect(GameCoinLedgerEntry::query()->count())->toBe(1)->and(GameRunAttempt::query()->where('kind', 'hint')->count())->toBe(3);
+
+    // In the summary the hinted element is a row of the mistakes with its honest verdict and `hinted: true` (G2.13); a wrong answer
+    // without a hint is `hinted: false`.
+    runService()->answer($run, $learner, (string) Str::uuid(), $next['id'], GameKit::wrongAnswer($next));
+    $played = GameKit::play(runService(), $run, $learner);
+    $rows = collect(runService()->view($played, $learner)->summary['mistakes'] ?? [])->keyBy('element_id');
+    expect($rows->get($element['id']))->toMatchArray(['verdict' => 'correct', 'hinted' => true])
+        ->and($rows->get($next['id']))->toMatchArray(['verdict' => 'wrong', 'hinted' => false])
+        ->and($rows->pluck('hinted')->filter()->count())->toBe(1);
 });
 
 it('gives the oasis flask back after the element in the middle and keeps the snapshot fixed under a reload', function (): void {

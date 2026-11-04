@@ -12,6 +12,8 @@ use App\Domain\Game\Enums\RunStatus;
  * What a learner sees of a run (docs/18 §12.8, `GET /game/runs/{id}`): the place, the counters, the CURRENT element projected for the
  * viewer's locale (never the snapshot), the event of that element, whether a hint may be bought, the summary once the run is over.
  * `GameRunResource` (G2.2c) wraps {@see toArray()}; `boosters` (G2.5b): what the learner owns while the run is on, and what was used in it.
+ * `stageId` (a boss run: the city, for the share mark after a reload) and `classCaravanId` (a class-boss run: the way back to the class
+ * screen) are set for those kinds only, `null` otherwise (G2.13, docs/04 A.18).
  */
 final readonly class RunView
 {
@@ -28,6 +30,8 @@ final readonly class RunView
         public ?RunFinishReason $finishReason,
         public ?string $courseSlug,
         public ?int $lessonId,
+        public ?int $stageId,
+        public ?int $classCaravanId,
         public ?string $city,
         public ?int $stageNumber,
         public ?int $lessonNumber,
@@ -56,6 +60,8 @@ final readonly class RunView
             'finish_reason' => $this->finishReason?->value,
             'course' => $this->courseSlug === null ? null : ['slug' => $this->courseSlug],
             'lesson_id' => $this->lessonId,
+            'stage_id' => $this->stageId,
+            'class_caravan_id' => $this->classCaravanId,
             'city' => $this->city,
             'stage_number' => $this->stageNumber,
             'lesson_number' => $this->lessonNumber,
