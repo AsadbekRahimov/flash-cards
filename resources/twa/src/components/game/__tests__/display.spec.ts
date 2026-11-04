@@ -226,6 +226,56 @@ describe('RunSummary', () => {
     expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 91%')
   })
 
+  describe('the fight with a boss (docs/05 §5b.7)', () => {
+    const share = { link: 'https://t.me/LexiFlowBot?start=ref_x', text: 'Я дошёл до Самарканда в игре «Караван»', title: 'Я дошёл до Самарканда' }
+    const won = (extra = {}) => render(summary({ boss: { accuracy: 92, won: true, first: true, share }, ...extra }))
+    const mistake = { element_id: 'e1', kind: 'spell' as const, label: 'apple — яблоко', your_answer: 'appel', verdict: 'wrong' as const }
+
+    it('a first win: the title of the gate, the accuracy, the card of the city with its heading, "Поделиться" says `share`', async () => {
+      const wrapper = won()
+
+      expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Ворота открыты')
+      expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 92%')
+      expect(wrapper.get('[data-testid=city-card-title]').text()).toBe('Я дошёл до Самарканда')
+      expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Поделиться')
+      expect(wrapper.find('[data-testid=boss-lost-hint]').exists()).toBe(false)
+
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
+      expect(wrapper.emitted('share')).toHaveLength(1)
+    })
+
+    it('no card for a repeated win, for a server that sent no link, or for a fight that is lost', () => {
+      expect(render(summary({ boss: { accuracy: 92, won: true, first: false, share: null } })).find('[data-testid=city-card]').exists()).toBe(false)
+      expect(render(summary({ boss: { accuracy: 92, won: true, first: true, share: null } })).find('[data-testid=city-card]').exists()).toBe(false)
+      expect(render(summary({ boss: { accuracy: 92, won: true, first: true } })).find('[data-testid=city-card]').exists()).toBe(false)
+      expect(render(summary({ boss: { accuracy: 50, won: false, first: false, share } })).find('[data-testid=city-card]').exists()).toBe(false)
+    })
+
+    it('a lost fight: "Хранитель устоял", the accuracy and the way back after a review, "Повторить в карточках" with the mistakes', async () => {
+      const wrapper = render(summary({ boss: { accuracy: 67, won: false, first: false, share: null }, mistakes: [mistake] }))
+
+      expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Хранитель устоял')
+      expect(wrapper.get('[data-testid=boss-lost-hint]').text()).toBe('Точность 67% — вернитесь после повторения')
+      expect(wrapper.find('[data-testid=review-btn]').exists()).toBe(true)
+      await wrapper.get('[data-testid=review-btn]').trigger('click')
+      expect(wrapper.emitted('review')).toHaveLength(1)
+    })
+
+    it('a lost fight with nothing to review has no review button; "Ещё раз" is the screen\'s to leave out', () => {
+      const wrapper = mount(RunSummary, { props: { summary: summary({ boss: { accuracy: 67, won: false, first: false, share: null } }), failed: false, canAgain: false } })
+
+      expect(wrapper.find('[data-testid=review-btn]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=again-btn]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=map-btn]').classes()).toContain('btn-primary')
+    })
+
+    it('speaks Uzbek', () => {
+      setLocale('uz')
+      expect(won().get('[data-testid=summary-title]').text()).toBe('Darvoza ochildi')
+      expect(won().get('[data-testid=share-btn]').text()).toBe('Ulashish')
+    })
+  })
+
   it('failed: "The flasks are over", the mistakes with the answer and the verdict in words, no rewards', () => {
     const wrapper = render(
       summary({

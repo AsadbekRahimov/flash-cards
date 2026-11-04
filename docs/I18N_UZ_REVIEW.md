@@ -3078,6 +3078,22 @@
 | `gameRun.summary.boss_won` | Boss yengildi | Босс побеждён |
 | `gameRun.summary.boss_lost` | Boss bardosh berdi | Босс устоял |
 | `gameRun.summary.boss_accuracy` | Aniqlik {accuracy}% | Точность {accuracy}% |
+| `gameRun.summary.title.boss_won` | Darvoza ochildi | Ворота открыты |
+| `gameRun.summary.title.boss_lost` | Qo'riqchi bardosh berdi | Хранитель устоял |
+| `gameRun.summary.boss_lost_hint` | Aniqlik {accuracy}% — takrorlagandan keyin qayting | Точность {accuracy}% — вернитесь после повторения |
+| `gameRun.summary.card_caption` | LexiFlow Karvoni | Караван LexiFlow |
+| `gameRun.summary.share` | Ulashish | Поделиться |
+| `game.bossScreen.title` | Shahar qorovuli | Босс города |
+| `game.bossScreen.keeper` | Darvoza qo'riqchisi | Хранитель ворот |
+| `game.bossScreen.words` | {count} ta so'z | {count} слово |
+| `game.bossScreen.need` | Kamida {percent}% to'g'ri javob kerak | Нужно {percent}% верных ответов |
+| `game.bossScreen.beaten` | Siz bu shaharni allaqachon o'tgansiz. Takroriy jang uchun mukofot kamroq. | Вы уже прошли этот город. За повторный бой награда меньше. |
+| `game.bossScreen.locked` | Bu shahar qo'riqchisi — Pro uchun. | Хранитель этого города — для Pro. |
+| `game.bossScreen.pro_btn` | Pro'ni ochish | Открыть Pro |
+| `game.bossScreen.challenge` | Jangga chiqish | Бросить вызов |
+| `game.bossScreen.again` | Yana jang qilish | Сразиться ещё раз |
+| `game.bossScreen.missing` | Bunday shahar yo'q. | Такого города нет. |
+| `game.bossScreen.not_ready` | Qo'riqchi hali kutmayapti: {missing}. | Хранитель ещё не ждёт: {missing}. |
 | `gameRun.summary.mistakes` | Ustida ishlash kerak | Над чем поработать |
 | `gameRun.summary.your_answer` | Javobingiz: {answer} | Вы ответили: {answer} |
 | `gameRun.summary.no_answer` | Javobsiz | Без ответа |

@@ -93,6 +93,17 @@ export interface GameMistake {
   verdict: 'typo' | 'wrong' | 'skipped'
 }
 
+/**
+ * `summary.boss` (docs/18 §12.8): the accuracy in whole per cent, won or not, the first win over the city's boss; `share` - the pair of the
+ * card of the city to share and its heading - only on the first win (and when the bot has a link).
+ */
+export interface GameBossSummary {
+  accuracy: number
+  won: boolean
+  first: boolean
+  share?: { link: string; text: string; title: string } | null
+}
+
 /** `summary` of a finished run. `coins` / `league_points` are 0 until the rewards are paid; `boss` is null for a stop. */
 export interface GameSummary {
   stars: number
@@ -101,7 +112,7 @@ export interface GameSummary {
   league_points: number
   srs_pulled: number
   mistakes: GameMistake[]
-  boss: { accuracy: number; won: boolean; first: boolean } | null
+  boss: GameBossSummary | null
   /** Not sent yet (the streak is G2.10): shown only when it is true. */
   streak_held?: boolean
   /** Not sent yet: the stars that were not there before this run. */

@@ -26,8 +26,8 @@ import type { GameActiveRun, GameMapBoss, GameMapCity, GameMapStop } from '@/api
 /**
  * The map of the Karvon game (docs/05 §5b.2, docs/18 §12.9): a vertical road of cities (the modules of the course, each with its name on
  * the Silk Road), and on it the stops (the lessons) with 0-3 stars. A stop of a lesson that was not started in the cards is grey and
- * says "start the lesson"; a stop that is open leads to a sheet and from there to a run. The boss of a city is a chip, not a button (its
- * screen is G2.7b) - except the Pro chip, which opens the paywall.
+ * says "start the lesson"; a stop that is open leads to a sheet and from there to a run. The boss of a city is a chip that leads to its screen
+ * (docs/05 §5b.7); the Pro chip opens the paywall at once.
  *
  * States: loading, no course, "not available yet" (`game_unavailable`), error (Retry), empty (nothing started: "Learn"), the map; over
  * the road the banner of the unfinished run. `?course=` is the course, else the active one of `/today` (this screen never reads `/me`:
@@ -300,6 +300,12 @@ async function learn(): Promise<void> {
   await router.push(slug.value ? { name: 'course', params: { slug: slug.value } } : { name: 'courses' })
 }
 
+/** The chip of a boss that is not behind the paywall: its screen (the intro, what is missing, the fight). */
+function openBoss(city: GameMapCity): void {
+  haptic('light')
+  void router.push({ name: 'game-boss', params: { stageId: city.stage_id }, query: slug.value ? { course: slug.value } : {} })
+}
+
 const bossPaywall = (): void => {
   haptic('light')
   paywall.value = true
@@ -453,7 +459,10 @@ onBeforeUnmount(() => {
                   {{ chip.text }}
                 </span>
               </button>
-              <span v-else class="chip shrink-0" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
+              <!-- The other chips lead to the screen of the boss (docs/05 §5b.7). -->
+              <button v-else type="button" class="-my-2 flex min-h-11 shrink-0 items-center" :data-testid="`boss-open-${city.stage_id}`" @click="openBoss(city)">
+                <span class="chip" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
+              </button>
             </template>
           </div>
 

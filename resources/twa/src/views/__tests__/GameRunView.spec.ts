@@ -12,13 +12,13 @@ import { answerResponse, collocation, finishedRun, gap, listen, runView, spell, 
 import type { GameRunView as RunView } from '@/api/gameRunTypes'
 
 vi.mock('@/api', () => ({
-  api: { gameRuns: { get: vi.fn(), answer: vi.fn(), hint: vi.fn(), abandon: vi.fn(), audioBlob: vi.fn() }, practice: { audioBlob: vi.fn() } },
+  api: { gameRuns: { get: vi.fn(), answer: vi.fn(), hint: vi.fn(), abandon: vi.fn(), audioBlob: vi.fn() }, practice: { audioBlob: vi.fn() }, game: { cityShared: vi.fn() } },
 }))
 
 const authEnsure = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: authEnsure }) }))
 
-const tg = vi.hoisted(() => ({ backHandler: null as (() => void) | null, haptic: vi.fn(), notification: vi.fn() }))
+const tg = vi.hoisted(() => ({ backHandler: null as (() => void) | null, haptic: vi.fn(), notification: vi.fn(), shareUrl: vi.fn() }))
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     close: vi.fn(),
@@ -31,6 +31,7 @@ vi.mock('@/composables/useTelegram', () => ({
     haptic: tg.haptic,
     notificationHaptic: tg.notification,
     selectionHaptic: () => {},
+    shareUrl: tg.shareUrl,
   }),
 }))
 
@@ -52,7 +53,7 @@ function pending<T>() {
 
 type Rendered = Awaited<ReturnType<typeof render>>
 
-async function render(opened: RunView | Error | Promise<RunView> = runView(), props: { id?: number; course?: string | null; stop?: number | null } = {}) {
+async function render(opened: RunView | Error | Promise<RunView> = runView(), props: { id?: number; course?: string | null; stop?: number | null; boss?: number | null } = {}) {
   if (opened instanceof Error) vi.mocked(api.gameRuns.get).mockRejectedValue(opened)
   else vi.mocked(api.gameRuns.get).mockReturnValue(Promise.resolve(opened))
   const stub = { template: '<div />' }
@@ -449,6 +450,57 @@ describe('GameRunView — leaving', () => {
 
     expect(has(r, 'exit-sheet')).toBe(false)
     expect(r.router.currentRoute.value.fullPath).toBe('/game?course=english-a1')
+    r.wrapper.unmount()
+  })
+})
+
+describe('GameRunView — the fight with a boss (docs/05 §5b.7)', () => {
+  const share = { link: 'https://t.me/LexiFlowBot?start=ref_x', text: 'Я дошёл до Самарканда в игре «Караван»', title: 'Я дошёл до Самарканда' }
+  const wonBoss = (extra: Partial<RunView> = {}) =>
+    finishedRun('completed', { kind: 'boss', lesson_id: null, ...extra }, { stars: 3, boss: { accuracy: 92, won: true, first: true, share } })
+
+  it('a first win shows the card; "Поделиться" opens the dialog of Telegram with the pair of the server and puts the mark of the city once', async () => {
+    vi.mocked(api.game.cityShared).mockResolvedValue({ stage_id: 3, shared_at: '2026-11-05T10:00:00.000Z' })
+    const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
+
+    expect(tid(r, 'city-card-title').text()).toBe('Я дошёл до Самарканда')
+    await click(r, 'share-btn')
+    await click(r, 'share-btn')
+
+    expect(tg.shareUrl).toHaveBeenCalledWith(share.link, share.text)
+    expect(tg.shareUrl).toHaveBeenCalledTimes(2) // the dialog may be opened again
+    expect(api.game.cityShared).toHaveBeenCalledTimes(1) // the mark is once
+    expect(api.game.cityShared).toHaveBeenCalledWith(3)
+    r.wrapper.unmount()
+  })
+
+  it('a refused mark is silent: no toast, the dialog was opened', async () => {
+    vi.mocked(api.game.cityShared).mockRejectedValue(apiError('not_found', 404, 'stage_not_found'))
+    const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
+
+    await click(r, 'share-btn')
+
+    expect(tg.shareUrl).toHaveBeenCalledTimes(1)
+    expect(showErrorToast).not.toHaveBeenCalled()
+    r.wrapper.unmount()
+  })
+
+  it('without the stage of the boss in the address (a link, an old tab) the dialog opens and no mark is put', async () => {
+    const r = await render(wonBoss())
+
+    await click(r, 'share-btn')
+
+    expect(tg.shareUrl).toHaveBeenCalledTimes(1)
+    expect(api.game.cityShared).not.toHaveBeenCalled()
+    r.wrapper.unmount()
+  })
+
+  it('a boss has no "Ещё раз": the map is the way on, the course comes from the run', async () => {
+    const r = await render(wonBoss({ course: { slug: 'ielts' } }), { boss: 3 })
+
+    expect(has(r, 'again-btn')).toBe(false)
+    await click(r, 'map-btn')
+    expect(r.router.currentRoute.value.fullPath).toBe('/game?course=ielts')
     r.wrapper.unmount()
   })
 })

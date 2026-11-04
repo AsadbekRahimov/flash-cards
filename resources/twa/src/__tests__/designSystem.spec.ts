@@ -368,3 +368,31 @@ describe('My caravan and the boosters: touch targets', () => {
     for (const button of view.match(/<button\b[^>]*>/g) ?? []) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
   })
 })
+
+/** The boss of a city (docs/05 §5b.7): the screen and the card of the city - 44 px targets, nothing is a fixed width. */
+describe('the boss of a city', () => {
+  const boss = sources.get('views/GameBossView.vue') ?? ''
+  const card = sources.get('components/game/CityCard.vue') ?? ''
+  const map = sources.get('views/GameMapView.vue') ?? ''
+
+  it('reads the screen and the card', () => {
+    expect(boss).toContain('data-testid="game-boss-view"')
+    expect(card).toContain('data-testid="city-card"')
+  })
+
+  it('has no button under 44 px on the screen and on the card: only buttons of the design system', () => {
+    for (const code of [boss, card]) {
+      const buttons = code.match(/<button\b[^>]*>/g) ?? []
+      expect(buttons.length).toBeGreaterThanOrEqual(1)
+      for (const button of buttons) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+    }
+  })
+
+  it('makes the chip of a boss on the map a 44 px target', () => {
+    expect(/<button[^>]*:data-testid="`boss-open-/s.exec(map)?.[0]).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    for (const code of [boss, card]) expect(code).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+  })
+})
