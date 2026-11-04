@@ -927,7 +927,7 @@ return [
 
 | Ключ | Что | TTL | Инвалидация | Хранилище |
 |---|---|---|---|---|
-| `game:friends:v1:{learner}` | друзья на карте: массив `{friendship_id, learner_id, course_id, city_number, stops_cleared, camel_asset}` по всем курсам принятых друзей (карта фильтрует свой курс) | 300 с | TTL (устаревание до 5 мин у чужого прогресса допустимо); сброс при изменении дружбы — `FriendshipService` после commit (`forget` обеих сторон) | `lru` |
+| `game:friends:v2:{learner}` | друзья на карте: массив `{friendship_id, learner_id, course_id, city_number, stops_cleared, camel_asset}` по всем курсам принятых друзей (карта фильтрует свой курс) | 300 с | TTL (устаревание до 5 мин у чужого прогресса допустимо); сброс при изменении дружбы — `FriendshipService` после commit (`forget` обеих сторон) | `lru` |
 | `game:shop:v1:{locale}:n{версия}`; версия `game:shop:ver` | опубликованный каталог предметов (массивы) | 1800 с | счётчик версии: `GameItemObserver` после commit любого сохранения / удаления предмета | значение `lru`, версия `redis` |
 | `game:class:v1:{caravan}:standings` | вклад участников каравана (массивы) | 60 с | TTL (как `league:standings`); у `finished` читается из БД и не кэшируется | `lru` |
 | `league:standings:v2:{group}` | версия формата поднимается (очки включают игру) | как было | как было | `lru` |

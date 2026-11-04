@@ -28,7 +28,7 @@ use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
 /*
- * The cache of the game (docs/18 §12.12, docs/19 §2.2); the shop is at the end of the file. `game:friends:v1:{learner}`: the friends on the map - a pure cache of arrays with a
+ * The cache of the game (docs/18 §12.12, docs/19 §2.2); the shop is at the end of the file. `game:friends:v2:{learner}`: the friends on the map - a pure cache of arrays with a
  * TTL, dropped for BOTH sides when a friendship is accepted, ended or blocked. Each way that writes has a test of the kind "write, and the
  * old value is not served"; the progress of a friend is allowed to be up to the TTL old (the last test says so).
  */
@@ -93,9 +93,9 @@ it('stores arrays under a key with the version, for the TTL (docs/19 §3)', func
     $friendship = Friendship::factory()->between($me, $friend)->create();
     gameCacheNames($me);
 
-    $stored = PureCache::store()->get("game:friends:v1:{$me->id}");
+    $stored = PureCache::store()->get("game:friends:v2:{$me->id}");
 
-    expect(GameFriendsCache::key($me->id))->toBe("game:friends:v1:{$me->id}")
+    expect(GameFriendsCache::key($me->id))->toBe("game:friends:v2:{$me->id}")
         ->and($stored)->toBe([[
             'friendship_id' => $friendship->id, 'learner_id' => $friend->id, 'course_id' => $course->id,
             'city_number' => 1, 'stops_cleared' => 1, 'camel_asset' => null,
