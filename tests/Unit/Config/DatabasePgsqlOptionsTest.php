@@ -108,3 +108,12 @@ it('dumps the backup from the direct connection on pgsql', function (): void {
     expect($pgsql['backup']['source']['databases'])->toBe(['pgsql_direct'])
         ->and($sqlite['backup']['source']['databases'])->toBe(['sqlite']);
 });
+
+it('does not let the application DB_URL override the direct connection, only DB_DIRECT_URL', function (): void {
+    $app = loadConfigFileWith('database', ['DB_URL' => 'pgsql://u:p@pgbouncer:5432/db', 'DB_DIRECT_URL' => null]);
+    $direct = loadConfigFileWith('database', ['DB_URL' => 'pgsql://u:p@pgbouncer:5432/db', 'DB_DIRECT_URL' => 'pgsql://u:p@postgres:5432/db']);
+
+    expect($app['connections']['pgsql']['url'])->toBe('pgsql://u:p@pgbouncer:5432/db')
+        ->and($app['connections']['pgsql_direct']['url'])->toBeNull()
+        ->and($direct['connections']['pgsql_direct']['url'])->toBe('pgsql://u:p@postgres:5432/db');
+});

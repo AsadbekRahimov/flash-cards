@@ -157,7 +157,8 @@ final class ReviewSubmissionService
             $scope,
         ): AcceptedReview {
             // The lock on the session row orders this grade against `/finish` (docs/06 §5.1): what is read under it
-            // is only what can change - the status and the expiry. Mode, lesson and course are fixed at creation.
+            // is only what can change - the status and the expiry. Mode and lesson are fixed at creation; the
+            // course_id of a daily_review session may change (openPersonal), but neither the scope nor the exercise pick reads it.
             /** @var TrainingSession|null $lockedSession */
             $lockedSession = TrainingSession::query()
                 ->select(['id', 'status', 'expires_at'])

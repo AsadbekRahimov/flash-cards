@@ -266,7 +266,7 @@ review-карточку** (то есть после того, как слово 
 5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`, затем `DailyStatsService::recordReview(learner, quality, timeSpentMs, isNewCard, now)` — **в той же транзакции** (`isNewCard` = карточка была в `new` до этой оценки; агрегат за день наполняет задача 1.3b, в 1.3a это хук-заглушка). Ошибка в любом шаге откатывает всё, включая оценку.
 
 Операторы транзакции (R12g, порядок блокировок §4.2 прежний): строка сессии `FOR UPDATE` — читаются только `status` и `expires_at`
-(режим, урок и курс сессии не меняются после создания, они берутся из уже прочитанной модели); строка `word_repetitions` **вместе со
+(режим и урок сессии не меняются после создания, они берутся из уже прочитанной модели; `course_id` сессии `daily_review` может смениться при `openPersonal()`, но ни scope, ни выбор упражнения его не читают); строка `word_repetitions` **вместе со
 словом** одним `JOIN`-чтением под `FOR UPDATE OF word_repetitions` (`RepetitionWithWord`: строку `words` делят все ученики урока, её
 блокировать нельзя; sqlite блокирует всю БД); `UPDATE` планировщика; `INSERT` в `training_reviews` обычным билдером (строка назад не
 читается); затем `learner_daily_stats` (docs/12 §1.6: чтение строки дня под `FOR UPDATE` с `daily_goal` подзапросом — подзапросы не

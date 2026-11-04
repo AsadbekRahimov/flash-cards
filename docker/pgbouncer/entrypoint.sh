@@ -8,6 +8,8 @@
 #   PGBOUNCER_RESERVE_POOL_SIZE             extra server connections when all of the pool are busy for reserve_pool_timeout
 #   PGBOUNCER_MAX_CLIENT_CONN               client connections pgbouncer accepts (php-fpm workers + queue workers + ...)
 #   PGBOUNCER_QUERY_WAIT_TIMEOUT            seconds a client waits for a free server connection before it gets an error
+#   PGBOUNCER_ADMIN_USER / _PASSWORD        a separate console admin (SHUTDOWN, PAUSE, KILL); both or none. Without them nobody
+#                                           is admin, and DB_USERNAME may only SHOW (stats_users)
 #   PGBOUNCER_CONFIG_DIR                    where the files are written (/etc/pgbouncer)
 #
 # The auth file holds the plain-text password (mode 0600, written at start, never in the image): with auth_type
@@ -38,8 +40,13 @@ for pair in "PGBOUNCER_POOL_SIZE=$POOL_SIZE" "PGBOUNCER_RESERVE_POOL_SIZE=$RESER
     esac
 done
 # The database name and the user name go into the ini unquoted: letters, digits and underscore only.
-case "$DB_DATABASE$DB_USERNAME" in
-    *[!A-Za-z0-9_]*) echo "pgbouncer: DB_DATABASE and DB_USERNAME may contain only letters, digits and _" >&2; exit 1 ;;
+ADMIN_USER="${PGBOUNCER_ADMIN_USER:-}"
+ADMIN_PASSWORD="${PGBOUNCER_ADMIN_PASSWORD:-}"
+if [ -n "$ADMIN_USER" ] && [ -z "$ADMIN_PASSWORD" ]; then
+    echo "pgbouncer: PGBOUNCER_ADMIN_USER needs PGBOUNCER_ADMIN_PASSWORD" >&2; exit 1
+fi
+case "$DB_DATABASE$DB_USERNAME$ADMIN_USER" in
+    *[!A-Za-z0-9_]*) echo "pgbouncer: DB_DATABASE, DB_USERNAME and PGBOUNCER_ADMIN_USER may contain only letters, digits and _" >&2; exit 1 ;;
 esac
 
 mkdir -p "$CONFIG_DIR"
@@ -48,6 +55,11 @@ umask 077
 # Auth file: "user" "password"; a double quote inside a field is written twice.
 printf '"%s" "%s"\n' "$(printf '%s' "$DB_USERNAME" | sed 's/"/""/g')" "$(printf '%s' "$DB_PASSWORD" | sed 's/"/""/g')" \
     > "$CONFIG_DIR/userlist.txt"
+ADMIN_USERS_LINE=""
+if [ -n "$ADMIN_USER" ] && [ "$ADMIN_USER" != "$DB_USERNAME" ]; then
+    printf '"%s" "%s"\n' "$ADMIN_USER" "$(printf '%s' "$ADMIN_PASSWORD" | sed 's/"/""/g')" >> "$CONFIG_DIR/userlist.txt"
+    ADMIN_USERS_LINE="admin_users = ${ADMIN_USER}"
+fi
 
 # max_db_connections caps the server side of this database whatever the pools do: pool + reserve.
 MAX_DB_CONNECTIONS=$((POOL_SIZE + RESERVE_POOL_SIZE))
@@ -63,7 +75,7 @@ listen_port = ${LISTEN_PORT}
 unix_socket_dir =
 auth_type = scram-sha-256
 auth_file = ${CONFIG_DIR}/userlist.txt
-admin_users = ${DB_USERNAME}
+${ADMIN_USERS_LINE}
 stats_users = ${DB_USERNAME}
 
 ; One server connection per transaction; outside a transaction a client holds none. Anything per-session (SET without
