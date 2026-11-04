@@ -159,7 +159,11 @@ review-карточку** (то есть после того, как слово 
    `word_repetitions_next_card_idx (learner_id, is_hard DESC, next_review_at, id)` (docs/03 §2.8), так что карточка —
    первая подходящая запись индекса, без сортировки всех просроченных; менять порядок — только вместе с индексом.
    Сюда попадают и review-карточки, и learning-карточки, у которых минутный шаг уже истёк. Для `daily_review` —
-   из любых уроков: трудные карточки разных курсов идут вперемешку, по сроку.
+   из любых уроков: трудные карточки разных курсов идут вперемешку, по сроку. Строка и её слово читаются **одним**
+   оператором (`App\Domain\Learning\Support\RepetitionWithWord`, R12g): `words` присоединяется через `INNER JOIN` с условиями
+   scope (`is_active`, для урока — `lesson_id`), колонки слова едут как `word__*` и раскладываются в модель `Word`; план на
+   PostgreSQL тот же обход индекса, что у прежней формы `whereHas` (проверено EXPLAIN на наборе 200 тыс. учеников). Так же читается
+   learn-ahead (шаг 3) и строка под оценкой (§5.1).
 2. **New**: первое невыданное слово scope (создаётся строка `state = new`, `next_review_at = now`) — в транзакции
    под `SELECT … FOR NO KEY UPDATE` строки **learner'а** (`learners.id`; sqlite блокирует всю БД). Не `FOR UPDATE`: `FOR NO KEY UPDATE` не конфликтует с `FOR KEY SHARE`, который берёт любая вставка с внешним ключом на `learners` (`word_repetitions`, `training_reviews` и др.), поэтому такие вставки не ждут пикер. Блокировка сериализует
    выдачу новых карточек одному человеку: две вкладки получают разные слова, а бюджет (ниже) считается после
@@ -173,10 +177,14 @@ review-карточку** (то есть после того, как слово 
    `learners`. Обратно: транзакция оценки (§5) не обновляет и не блокирует `learners` — ни явным `FOR UPDATE`, ни `UPDATE`
    (стрик, цели, `last_seen_at` и т. п. пишутся вне неё или в `learner_daily_stats`). Квота 1.4b считается обычным
    чтением под блокировкой learner'а — без `lockForUpdate` других таблиц.
-   **Бюджет** (`NewCardBudget`, docs/12 §5.3): `remaining(learnerId, now)` вычисляется под той же блокировкой;
-   `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается, строка не создаётся. Повторения бюджетом
-   **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
-   `App\Domain\Learning\Contracts`); привязан `NewWordQuota` (задача 1.4b: Pro → `unlimited()`, Free →
+   **Бюджет** (`NewCardBudget`, docs/12 §5.3): решение — `check(learnerId, now)` — вычисляется под той же блокировкой и
+   **всегда** заново (никогда из памяти, docs/19 §3 п. 9); `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается,
+   строка не создаётся; после вставки строки пикер зовёт `spend()`. Показ (`quota.new_words_remaining`) — `remaining(learnerId, now)`:
+   число последней проверки минус выданное после неё, а если в этом запросе проверки не было (выдана due-карточка) — одно
+   обычное чтение; один запрос — один подсчёт квоты (R12g). Повторения бюджетом
+   **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now, ?Entitlement)` (контракт в
+   `App\Domain\Learning\Contracts`; план передаётся, если вызывающий уже прочитал его в этом запросе — `TrainingFlowService`
+   читает entitlement один раз на запрос для оценки, бюджета и выбора упражнения); привязан `NewWordQuota` (задача 1.4b: Pro → `unlimited()`, Free →
    `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`; `UnlimitedNewCardBudgetResolver` остался для тестов),
    где «сегодня» — `LearnerClock::limitWindowUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, при смене часового пояса —
    перенесённого в новый пояс (docs/12 §5.3), а «выдано» — `word_repetitions.created_at` в этих границах с `introduced_mode <> 'group_lesson'`
@@ -256,6 +264,14 @@ review-карточку** (то есть после того, как слово 
 3. Слово в scope сессии (`TrainingScope::contains`: урок сессии для `group_lesson`/`lesson`, любое уже виденное слово для `daily_review`; неактивное слово — всегда вне scope) — иначе 422 `out_of_scope`.
 4. Карточку **можно оценить** (§5.2) — иначе 409 `card_not_due`.
 5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`, затем `DailyStatsService::recordReview(learner, quality, timeSpentMs, isNewCard, now)` — **в той же транзакции** (`isNewCard` = карточка была в `new` до этой оценки; агрегат за день наполняет задача 1.3b, в 1.3a это хук-заглушка). Ошибка в любом шаге откатывает всё, включая оценку.
+
+Операторы транзакции (R12g, порядок блокировок §4.2 прежний): строка сессии `FOR UPDATE` — читаются только `status` и `expires_at`
+(режим, урок и курс сессии не меняются после создания, они берутся из уже прочитанной модели); строка `word_repetitions` **вместе со
+словом** одним `JOIN`-чтением под `FOR UPDATE OF word_repetitions` (`RepetitionWithWord`: строку `words` делят все ученики урока, её
+блокировать нельзя; sqlite блокирует всю БД); `UPDATE` планировщика; `INSERT` в `training_reviews` обычным билдером (строка назад не
+читается); затем `learner_daily_stats` (docs/12 §1.6: чтение строки дня под `FOR UPDATE` с `daily_goal` подзапросом — подзапросы не
+блокируются, `learners` не трогается; `INSERT … ON CONFLICT DO NOTHING` только когда строки дня ещё нет, то есть на первой оценке дня).
+План (entitlement) читается один раз на запрос в `TrainingFlowService` и передаётся сюда и в выбор следующей карточки.
 
 ### 5.2 Защита от повторного submit и learn-ahead
 

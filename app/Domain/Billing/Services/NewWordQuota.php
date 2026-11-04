@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Services;
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\NewCardBudget;
@@ -39,9 +40,9 @@ final class NewWordQuota implements NewCardBudgetResolver
         private readonly LearnerClock $clock,
     ) {}
 
-    public function budgetFor(Learner $learner, CarbonImmutable $now): NewCardBudget
+    public function budgetFor(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): NewCardBudget
     {
-        $limit = $this->entitlements->for($learner, $now)->newWordsPerDay;
+        $limit = ($entitlement ?? $this->entitlements->for($learner, $now))->newWordsPerDay;
         if ($limit === null) {
             return NewCardBudget::unlimited();
         }
