@@ -12,14 +12,13 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
-import { shownLimit } from '@/composables/practiceLimits'
+import { useGameLimitLine } from '@/composables/gameLimitLine'
 import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
-import { useBillingStore } from '@/stores/billing'
-import { useGameStore, type GameStartError } from '@/stores/game'
+import { activeRunFrom, useGameStore } from '@/stores/game'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { GameActiveRun, GameMapBoss, GameMapCity, GameMapStop } from '@/api/types'
@@ -49,7 +48,6 @@ const router = useRouter()
 const auth = useAuthStore()
 const game = useGameStore()
 const today = useTodayStore()
-const billing = useBillingStore()
 const { haptic } = useTelegram()
 const { t, tn } = useI18n()
 
@@ -190,15 +188,7 @@ const sheetStop = computed((): { city: GameMapCity; stop: GameMapStop } | null =
   return null
 })
 
-/** "Free today: 1 of 1 · tickets: 2": only where the server told the limits (`null` until G2.8 and for Pro - then nothing is said). */
-const limitLine = computed((): string => {
-  const limits = billing.gameLimits
-  if (limits === null) return ''
-  const runs = shownLimit(limits.runs)
-  if (runs === null) return ''
-  const free = t('game.stop.free_today', { remaining: Math.max(0, runs.remaining), limit: runs.limit })
-  return limits.tickets ? `${free} · ${t('game.stop.tickets', { count: limits.tickets.balance })}` : free
-})
+const limitLine = useGameLimitLine()
 
 function openStop(stop: GameMapStop): void {
   if (!stop.unlocked) return
@@ -233,14 +223,6 @@ function openRun(id: number): Promise<unknown> {
 }
 
 /** The run that is on, from the 409: its `details`, else the banner's. */
-function activeFrom(failure: GameStartError): GameActiveRun | null {
-  const details = failure.details
-  const id = details?.run_id
-  if (typeof id !== 'number') return map.value?.active_run ?? null
-  const progress = details?.progress as GameActiveRun['progress'] | undefined
-  return { id, kind: typeof details?.kind === 'string' ? details.kind : 'stop', progress: progress ?? { answered: 0, total: 0 } }
-}
-
 async function start(replaceActive: boolean): Promise<void> {
   const lesson = sheetLesson.value
   if (lesson === null || starting.value) return
@@ -261,7 +243,7 @@ async function start(replaceActive: boolean): Promise<void> {
       paywall.value = true
       break
     case 'game_run_active':
-      conflict.value = activeFrom(failure)
+      conflict.value = activeRunFrom(failure, map.value?.active_run ?? null, 'stop')
       if (conflict.value === null) showErrorToast(failure.message)
       break
     case 'game_not_enough_material':
@@ -341,7 +323,7 @@ onBeforeUnmount(() => {
   <div class="page" data-testid="game-map-view">
     <PageHeader :title="t('game.title')" :subtitle="subtitle">
       <template v-if="map !== null && (view === 'ready' || view === 'empty')" #trailing>
-        <button type="button" class="btn btn-tinted btn-sm min-h-11" data-testid="caravan-btn" @click="router.push({ name: 'game-caravan' })">
+        <button type="button" class="btn btn-tinted btn-sm min-h-11" data-testid="caravan-btn" @click="router.push({ name: 'game-caravan', query: slug ? { course: slug } : {} })">
           {{ t('gameCaravan.open') }}
         </button>
       </template>

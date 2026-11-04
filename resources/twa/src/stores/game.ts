@@ -3,7 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import { useBillingStore } from '@/stores/billing'
-import type { GameMapResponse, GameStartRequest } from '@/api/types'
+import type { GameActiveRun, GameMapResponse, GameStartRequest } from '@/api/types'
 
 /** idle → loading (the map is being read) → ready; unavailable (403 `game_unavailable`) and error end it. */
 export type GameMapStatus = 'idle' | 'loading' | 'ready' | 'unavailable' | 'error'
@@ -14,6 +14,19 @@ export interface GameStartError {
   kind: ApiClientError['kind'] | 'unexpected'
   details: Record<string, unknown> | null
   message: string
+}
+
+/**
+ * The run that is on, from the 409 `game_run_active` of a start (`details {run_id, kind, progress}`); without a `run_id` - `fallback` (the
+ * unfinished run the map shows, or none). `kind` is the kind to say when the server did not. One reading for the map, the boss, the class and
+ * the caravan of the day.
+ */
+export function activeRunFrom(failure: GameStartError, fallback: GameActiveRun | null = null, kind = 'stop'): GameActiveRun | null {
+  const details = failure.details
+  const id = details?.run_id
+  if (typeof id !== 'number') return fallback
+  const progress = details?.progress as GameActiveRun['progress'] | undefined
+  return { id, kind: typeof details?.kind === 'string' ? details.kind : kind, progress: progress ?? { answered: 0, total: 0 } }
 }
 
 export type GameStartResult = { ok: true; id: number } | { ok: false; error: GameStartError }
@@ -113,6 +126,8 @@ export const useGameStore = defineStore('game', {
       this.starting = true
       try {
         const run = await api.game.startRun(body)
+        // What is left after this start: the newest word on the limits (the next sheet shows it without reading the map again).
+        useBillingStore().setGameLimits(run.limits)
         return { ok: true, id: run.id }
       } catch (err) {
         const message = errorMessage(err, 'game')

@@ -112,6 +112,17 @@ describe('gameShop store - buying', () => {
     expect(sentId(3)).toMatch(UUID)
   })
 
+  it('forgets a purchase that got no reply when the shop is read again: the next try is a new one, judged by what the server says now', async () => {
+    const store = await loaded()
+    vi.mocked(api.gameShop.buy).mockRejectedValueOnce(apiError('network', 0, 'network')).mockResolvedValue(wallet())
+
+    await store.buy('carpet_bukhara')
+    await store.load()
+    await store.buy('carpet_bukhara')
+
+    expect(sentId(1)).not.toBe(sentId(0))
+  })
+
   it('does not take the id of an earlier try for another item', async () => {
     const store = await loaded()
     vi.mocked(api.gameShop.buy).mockRejectedValueOnce(apiError('network', 0, 'network')).mockResolvedValue(wallet())

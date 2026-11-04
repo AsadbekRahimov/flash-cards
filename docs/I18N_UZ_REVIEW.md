@@ -2865,6 +2865,8 @@
 | `gameCaravan.booster.effect.hint` | Maslahat | Подсказка |
 | `gameCaravan.booster.effect.extra_flask` | Zaxira mesh | Запасная фляга |
 | `gameCaravan.booster.effect.second_chance` | Ikkinchi imkon | Второй шанс |
+| `gameCaravan.booster.effect.unknown` | Kuchaytirgich | Бустер |
+| `gameCaravan.booster.aria_useless` | {name}: bu yerda ishlamaydi | {name}: здесь не сработает |
 | `gameCaravan.booster.aria` | {name}, {qty} ta qoldi | {name}, осталось {qty} |
 | `gameCaravan.booster.aria_used` | {name}, allaqachon ishlatilgan | {name}, уже использовано |
 | `gameCaravan.booster.qty` | ×{qty} | ×{qty} |
@@ -2997,6 +2999,7 @@
 | `game.stop.go` | Yo'lga chiqish | В путь |
 | `game.stop.text` | 8–10 ta topshiriq, 3 ta mesh | 8–10 заданий, 3 фляги |
 | `game.stop.tickets` | chiptalar: {count} | билеты: {count} |
+| `game.stop.tickets_only` | Reys chiptalari: {count} | Билеты на забеги: {count} |
 | `game.title` | Karvon | Караван |
 | `paywall.lead_game` | Karvon: kuniga bitta bepul reys va seriya hamda do'stlar uchun chiptalar. Pro'da — cheklovsiz. | Караван: бесплатный забег в день и билеты за серию и за друзей. В Pro — без ограничений. |
 | `error.closed.game` | Bu reys allaqachon yopilgan. | Этот забег уже закрыт. |
@@ -3081,6 +3084,13 @@
 | `gameRun.summary.title.boss_won` | Darvoza ochildi | Ворота открыты |
 | `gameRun.summary.title.boss_lost` | Qo'riqchi bardosh berdi | Хранитель устоял |
 | `gameRun.summary.boss_lost_hint` | Aniqlik {accuracy}% — takrorlagandan keyin qayting | Точность {accuracy}% — вернитесь после повторения |
+| `gameRun.summary.title.class_boss_won` | Sinf boshlig'i yengildi | Босс класса побеждён |
+| `gameRun.summary.title.class_boss_lost` | Sinf boshlig'i bardosh berdi | Босс класса устоял |
+| `gameRun.summary.class_boss_won` | Sinf boshlig'i yengildi | Босс класса побеждён |
+| `gameRun.summary.class_boss_lost` | Sinf boshlig'i bardosh berdi | Босс класса устоял |
+| `gameRun.summary.class_boss_lost_hint` | Aniqlik {accuracy}% — har bir o'quvchiga bitta urinish, natija sinf jadvalida | Точность {accuracy}% — у каждого ученика одна попытка, результат уже в таблице класса |
+| `gameRun.summary.to_class` | Sinf ekraniga | К экрану класса |
+| `gameRun.booster.limit_pro` | Bu haftaning kuchaytirgichlari tugadi. Yangilari — {when}. | Бустеры этой недели закончились. Новые — {when}. |
 | `gameRun.summary.card_caption` | LexiFlow Karvoni | Караван LexiFlow |
 | `gameRun.summary.share` | Ulashish | Поделиться |
 | `game.bossScreen.title` | Shahar qorovuli | Босс города |
@@ -3100,6 +3110,7 @@
 | `gameRun.summary.verdict.typo` | Imlo xatosi | Опечатка |
 | `gameRun.summary.verdict.wrong` | Noto'g'ri | Неверно |
 | `gameRun.summary.verdict.skipped` | Bilmadingiz | Не знали |
+| `gameRun.summary.verdict.correct` | Maslahat bilan | С подсказкой |
 | `gameRun.summary.review` | Kartochkalarda takrorlash | Повторить в карточках |
 | `gameRun.summary.again` | Yana bir bor | Ещё раз |
 | `gameRun.summary.failed_hint` | Bu so'zlar tez orada takrorlashga qaytadi. | Эти слова скоро вернутся в повторение. |
@@ -3107,7 +3118,7 @@
 | `error.code.game_run_closed` | Bu yurish allaqachon tugagan. | Этот забег уже закончился. |
 | `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
 | `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
-| `error.code.coins_insufficient` | Maslahat uchun tanga yetmaydi. Tangalar yurishlar uchun beriladi. | Не хватает монет на подсказку. Монеты дают за забеги. |
+| `error.code.coins_insufficient` | Tanga yetmaydi. Tangalar yurishlar va qo\'riqchilar uchun beriladi. | Не хватает монет. Монеты дают за забеги и боссов. |
 
 ### Karta «Я дошёл до …» va yutuq «Хранитель побеждён» (G2.4, `lang/uz/game.php` `card.*`, `lang/uz/achievements.php`)
 

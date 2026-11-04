@@ -13,7 +13,7 @@ import CityCard from '@/components/game/CityCard.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useI18n } from '@/i18n'
-import type { GameSummary } from '@/api/gameRunTypes'
+import type { GameMistake, GameSummary } from '@/api/gameRunTypes'
 
 const props = withDefaults(defineProps<{
   summary: GameSummary
@@ -22,9 +22,13 @@ const props = withDefaults(defineProps<{
   busy?: boolean
   /** The caravan of the day is one a day: `false` leaves "Again" out. */
   canAgain?: boolean
-}>(), { canAgain: true })
+  /** The kind of the run: a fight with the boss of a CLASS has its own words (one fight per member). */
+  kind?: string
+  /** The class caravan of a class-boss run: "To the class" leads there instead of "To the map". */
+  classCaravanId?: number | null
+}>(), { canAgain: true, kind: 'stop', classCaravanId: null })
 
-defineEmits<{ review: []; again: []; map: []; share: [] }>()
+defineEmits<{ review: []; again: []; map: []; share: []; class: [] }>()
 
 const { t } = useI18n()
 
@@ -34,7 +38,10 @@ const stars = computed((): number => Math.min(3, Math.max(0, props.summary.stars
 const boss = computed(() => props.summary.boss)
 const bossLost = computed((): boolean => boss.value !== null && !boss.value.won)
 const card = computed(() => (boss.value?.won === true && boss.value.first && boss.value.share ? boss.value.share : null))
+const classFight = computed((): boolean => props.kind === 'class_boss')
+const toClass = computed((): boolean => classFight.value && props.classCaravanId !== null)
 const title = computed((): string => {
+  if (boss.value !== null && classFight.value) return boss.value.won ? t('gameRun.summary.title.class_boss_won') : t('gameRun.summary.title.class_boss_lost')
   if (boss.value !== null) return boss.value.won ? t('gameRun.summary.title.boss_won') : t('gameRun.summary.title.boss_lost')
   return props.failed ? t('gameRun.summary.title.failed') : t('gameRun.summary.title.completed')
 })
@@ -51,6 +58,20 @@ const rewards = computed((): { key: string; label: string; value: string }[] => 
   }
   return rows
 })
+
+/** The chip of a line of the list: a right answer after a hint is neutral (it is here for the hint), not red. */
+function verdictChip(verdict: GameMistake['verdict']): string {
+  switch (verdict) {
+    case 'typo':
+      return 'chip-warning'
+    case 'skipped':
+      return 'chip-accent'
+    case 'correct':
+      return 'chip-neutral'
+    default:
+      return 'chip-danger'
+  }
+}
 
 const streakHeld = computed((): boolean => !props.failed && props.summary.streak_held === true)
 </script>
@@ -71,7 +92,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
       </div>
 
       <p v-if="boss && !boss.won" class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="boss-lost-hint">
-        {{ t('gameRun.summary.boss_lost_hint', { accuracy: Math.round(boss.accuracy) }) }}
+        {{ t(classFight ? 'gameRun.summary.class_boss_lost_hint' : 'gameRun.summary.boss_lost_hint', { accuracy: Math.round(boss.accuracy) }) }}
       </p>
 
       <CityCard v-if="card" :title="card.title" @share="$emit('share')" />
@@ -85,7 +106,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
           <AppIcon name="fire" solid :size="20" class="text-warning" />{{ t('gameRun.summary.streak_held') }}
         </p>
         <p v-if="summary.boss" class="flex items-center justify-between text-[15px] leading-5" data-testid="boss">
-          <span class="font-medium">{{ summary.boss.won ? t('gameRun.summary.boss_won') : t('gameRun.summary.boss_lost') }}</span>
+          <span class="font-medium">{{ summary.boss.won ? t(classFight ? 'gameRun.summary.class_boss_won' : 'gameRun.summary.boss_won') : t(classFight ? 'gameRun.summary.class_boss_lost' : 'gameRun.summary.boss_lost') }}</span>
           <span class="tabular-nums text-tg-hint">{{ t('gameRun.summary.boss_accuracy', { accuracy: Math.round(summary.boss.accuracy) }) }}</span>
         </p>
       </section>
@@ -100,7 +121,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
                 {{ mistake.your_answer ? t('gameRun.summary.your_answer', { answer: mistake.your_answer }) : t('gameRun.summary.no_answer') }}
               </p>
             </div>
-            <span class="chip shrink-0" :class="mistake.verdict === 'typo' ? 'chip-warning' : mistake.verdict === 'skipped' ? 'chip-accent' : 'chip-danger'" data-testid="mistake-verdict">
+            <span class="chip shrink-0" :class="verdictChip(mistake.verdict)" data-testid="mistake-verdict">
               {{ t(`gameRun.summary.verdict.${mistake.verdict}`) }}
             </span>
           </li>
@@ -117,6 +138,17 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
         {{ t('gameRun.summary.again') }}
       </button>
       <button
+        v-if="toClass"
+        type="button"
+        class="btn btn-block"
+        :class="canReview ? 'btn-plain' : 'btn-primary btn-lg'"
+        data-testid="class-btn"
+        @click="$emit('class')"
+      >
+        {{ t('gameRun.summary.to_class') }}
+      </button>
+      <button
+        v-else
         type="button"
         class="btn btn-block"
         :class="canReview || again ? 'btn-plain' : 'btn-primary btn-lg'"

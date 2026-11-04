@@ -90,7 +90,7 @@ describe('gameRun store - boosters', () => {
 
     await store.useBooster('booster_hint', 'hint')
 
-    expect(store.boosterLimit).toEqual({ limit: 1, used: 1, resets_at: '2026-11-09T19:00:00.000Z' })
+    expect(store.boosterLimit).toEqual({ limit: 1, used: 1, resets_at: '2026-11-09T19:00:00.000Z', upsell: true })
     expect(store.status).toBe('playing')
     expect(store.actionError).toBe('')
 

@@ -15,7 +15,7 @@ import AnswerReveal from '@/components/practice/AnswerReveal.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
-import { verdictLabel } from '@/composables/practiceLabels'
+import { gameVerdictLabel } from '@/composables/practiceLabels'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { GameWordReveal } from '@/api/gameRunTypes'
@@ -91,7 +91,7 @@ function next(): void {
           <span class="flex size-16 items-center justify-center rounded-full" :class="look.circle" :data-verdict="outcome.verdict" data-testid="verdict-circle">
             <AppIcon :name="look.icon" :size="32" />
           </span>
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="verdict-label">{{ verdictLabel('collocation', outcome.verdict) }}</h2>
+          <h2 class="text-[22px] leading-7 font-bold" data-testid="verdict-label">{{ gameVerdictLabel(outcome.verdict) }}</h2>
         </div>
 
         <p v-if="outcome.earlier" class="text-center text-[15px] leading-5 text-tg-hint" data-testid="earlier-note">{{ t('practice.reveal.earlier') }}</p>

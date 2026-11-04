@@ -461,7 +461,7 @@ describe('ProfileView', () => {
       // a slot that is empty draws no picture and says so to a screen reader
       expect(w.find('[data-testid=caravan-carpet] img').exists()).toBe(false)
       expect(w.get('[data-testid=caravan-carpet]').text()).toContain('не надето')
-      expect(w.get('[data-testid=profile-caravan-open]').attributes('href')).toBe('/game/caravan')
+      expect(w.get('[data-testid=profile-caravan-open]').attributes('href')).toBe('/game/caravan?from=profile')
     })
 
     it('draws no frame when none is worn', async () => {

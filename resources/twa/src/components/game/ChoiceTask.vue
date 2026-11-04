@@ -103,8 +103,8 @@ function listen(): void {
 <template>
   <div class="flex flex-1 flex-col" :data-kind="element.kind" data-testid="choice-task">
     <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4 short:gap-3 short:pt-3">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center short:py-4">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
+      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center short:py-3">
+        <p class="text-[15px] leading-5 font-medium text-tg-subtitle short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
 
         <h2 v-if="element.kind === 'translate_fwd'" class="text-[28px] leading-8 font-bold break-words" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
         <h2 v-else-if="element.kind === 'translate_back'" class="text-[28px] leading-8 font-bold break-words" data-testid="task-prompt">{{ element.prompt }}</h2>
@@ -135,7 +135,7 @@ function listen(): void {
           v-for="(option, index) in element.options"
           :key="option.id"
           type="button"
-          class="option short:min-h-12"
+          class="option short:min-h-11"
           :class="{ 'opacity-60': (locked && stateOf(option) === 'idle') || removed.has(option.id) }"
           :data-state="stateOf(option)"
           :data-removed="removed.has(option.id) ? 'true' : undefined"

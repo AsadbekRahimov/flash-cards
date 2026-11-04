@@ -889,9 +889,10 @@ export interface GameMapResponse {
   limits: GameLimits | null
 }
 
-/** `POST /game/runs` (201): the map needs the id only; the run screen reads the rest itself. */
+/** `POST /game/runs` (201): the map needs the id (the run screen reads the rest itself) and the limits AFTER this start (a run of the day or a ticket is spent). */
 export interface GameRunStarted {
   id: number
+  limits?: GameLimits | null
 }
 
 export type GameStartRequest =

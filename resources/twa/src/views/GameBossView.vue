@@ -10,13 +10,12 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
-import { shownLimit } from '@/composables/practiceLimits'
+import { useGameLimitLine } from '@/composables/gameLimitLine'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
-import { useBillingStore } from '@/stores/billing'
-import { useGameStore, type GameStartError } from '@/stores/game'
+import { activeRunFrom, useGameStore } from '@/stores/game'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { GameActiveRun, GameMapCity } from '@/api/types'
@@ -44,7 +43,6 @@ const router = useRouter()
 const auth = useAuthStore()
 const game = useGameStore()
 const today = useTodayStore()
-const billing = useBillingStore()
 const { haptic } = useTelegram()
 const { t, tn } = useI18n()
 
@@ -94,15 +92,7 @@ const missingText = computed((): string => {
   return stops > 0 ? tn('game.boss.not_ready_stops', stops) : tn('game.boss.not_ready_words', Math.max(1, boss.required - boss.introduced))
 })
 
-/** "Free today: 1 of 1 · tickets: 2": only where the server told the limits (nothing is made up). */
-const limitLine = computed((): string => {
-  const limits = billing.gameLimits
-  if (limits === null) return ''
-  const runs = shownLimit(limits.runs)
-  if (runs === null) return ''
-  const free = t('game.stop.free_today', { remaining: Math.max(0, runs.remaining), limit: runs.limit })
-  return limits.tickets ? `${free} · ${t('game.stop.tickets', { count: limits.tickets.balance })}` : free
-})
+const limitLine = useGameLimitLine()
 
 async function load(): Promise<void> {
   try {
@@ -134,14 +124,6 @@ function openRun(id: number): Promise<unknown> {
 }
 
 /** The run that is on, from the 409: its `details`. */
-function activeFrom(failure: GameStartError): GameActiveRun | null {
-  const details = failure.details
-  const id = details?.run_id
-  if (typeof id !== 'number') return map.value?.active_run ?? null
-  const progress = details?.progress as GameActiveRun['progress'] | undefined
-  return { id, kind: typeof details?.kind === 'string' ? details.kind : 'boss', progress: progress ?? { answered: 0, total: 0 } }
-}
-
 async function start(replaceActive = false): Promise<void> {
   const course = slug.value
   if (course === null || starting.value) return
@@ -162,7 +144,7 @@ async function start(replaceActive = false): Promise<void> {
       paywall.value = true
       break
     case 'game_run_active':
-      conflict.value = activeFrom(failure)
+      conflict.value = activeRunFrom(failure, map.value?.active_run ?? null, 'boss')
       if (conflict.value === null) showErrorToast(failure.message)
       break
     case 'game_not_enough_material':

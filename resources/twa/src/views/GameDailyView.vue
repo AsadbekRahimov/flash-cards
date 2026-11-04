@@ -12,7 +12,7 @@ import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
-import { useGameStore } from '@/stores/game'
+import { activeRunFrom, useGameStore } from '@/stores/game'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { GameActiveRun } from '@/api/types'
@@ -116,10 +116,9 @@ async function start(): Promise<void> {
       told.value = { kind: 'done', resetsAt: typeof failure.details?.resets_at === 'string' ? failure.details.resets_at : null }
       break
     case 'game_run_active': {
-      const id = failure.details?.run_id
-      if (typeof id === 'number') {
-        const progress = failure.details?.progress as GameActiveRun['progress'] | undefined
-        told.value = { kind: 'running', run: { id, kind: typeof failure.details?.kind === 'string' ? failure.details.kind : 'daily', progress: progress ?? { answered: 0, total: 0 } } }
+      const run = activeRunFrom(failure, null, 'daily')
+      if (run !== null) {
+        told.value = { kind: 'running', run }
       } else {
         showErrorToast(failure.message)
         void load()

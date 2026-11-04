@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import ShopItemCard from '@/components/game/ShopItemCard.vue'
@@ -17,7 +18,7 @@ import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
-import { useGameStore } from '@/stores/game'
+import { useTodayStore } from '@/stores/today'
 import { useGameShopStore } from '@/stores/gameShop'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
@@ -35,15 +36,19 @@ const CATEGORIES = ['camel', 'carpet', 'tent', 'frame', 'booster'] as const
 type Category = (typeof CATEGORIES)[number]
 
 const auth = useAuthStore()
-const gameMap = useGameStore()
+const route = useRoute()
+const today = useTodayStore()
 const store = useGameShopStore()
 const { haptic, notificationHaptic } = useTelegram()
 const { t, locale } = useI18n()
 
 const { wallet, shop, profile, status, error, buying } = storeToRefs(store)
 
-// Back to the map of the course that was open (the map reads the active course when there was none).
-useBackButton({ name: 'game', ...(gameMap.course ? { query: { course: gameMap.course } } : {}) })
+// Back: to the profile when the learner came from it (`?from=profile`), else to the map of the course the map put in the address (`?course=`; the
+// map reads the active course when there was none). The address, not the store of the map: that one is reset when the map is left.
+const fromProfile = route.query.from === 'profile'
+const backCourse = typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null
+useBackButton(fromProfile ? { name: 'profile' } : { name: 'game', ...(backCourse ? { query: { course: backCourse } } : {}) })
 
 let left = false
 
@@ -89,7 +94,7 @@ const entries = computed(() =>
     ...entry,
     key: `${index}-${entry.created_at}`,
     amountText: t(entry.amount >= 0 ? 'gameCaravan.wallet.plus' : 'gameCaravan.wallet.minus', { count: Math.abs(entry.amount) }),
-    date: formatDate(entry.created_at, 'dayMonthShortTime', locale.value),
+    date: formatDate(entry.created_at, 'dayMonthShortTime', locale.value, today.data?.timezone),
   })),
 )
 
@@ -142,6 +147,11 @@ async function confirmBuy(): Promise<void> {
     notificationHaptic('success')
     bought.value = t('gameCaravan.buy.done', { title: item.title })
     closeSheet()
+    // The button that was pressed is gone (the card of a bought cosmetic has "Wear" now): the focus goes to the new one, not to the page.
+    if (item.kind === 'cosmetic') {
+      await nextTick()
+      document.querySelector<HTMLElement>(`[data-testid="item-${item.key}"] [data-testid="item-equip"]`)?.focus()
+    }
     return
   }
   const { code, details, message } = result.error

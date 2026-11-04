@@ -14,7 +14,7 @@ import BottomSheet from '@/components/ui/BottomSheet.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
-import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
+import { gameVerdictLabel, lessonHeader } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -23,6 +23,8 @@ import { api } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useGameStore } from '@/stores/game'
 import { useGameRunStore } from '@/stores/gameRun'
+import { useTodayStore } from '@/stores/today'
+import { formatDate } from '@/composables/format'
 import { useI18n } from '@/i18n'
 import type { GameAnswerPayload } from '@/api/gameRunTypes'
 import type { GameBoosterEffect } from '@/api/gameShopTypes'
@@ -62,7 +64,8 @@ const game = useGameRunStore()
 const audio = usePracticeAudio({ fetchBlob: (url, signal) => api.gameRuns.audioBlob(url, signal) })
 const { haptic, notificationHaptic, shareUrl } = useTelegram()
 const cities = useGameStore()
-const { t } = useI18n()
+const today = useTodayStore()
+const { t, locale } = useI18n()
 
 const { status, run, errorMessage, actionError, outcome, elementSeq, element, coins, closedReason, boosterLimit } = storeToRefs(game)
 
@@ -215,7 +218,14 @@ const hinted = computed(() => {
 /** The free boosters of the week are used up: the paywall of the game, with the numbers of the refusal. */
 const paywallOpen = ref(false)
 watch(boosterLimit, (hit) => {
-  if (hit !== null) paywallOpen.value = true
+  if (hit === null) return
+  if (hit.upsell === false) {
+    // Pro at the limit of the week: nothing to buy - when the new ones come.
+    showErrorToast(t('gameRun.booster.limit_pro', { when: formatDate(hit.resets_at, 'dayMonth', locale.value, today.data?.timezone) }))
+    game.clearBoosterLimit()
+    return
+  }
+  paywallOpen.value = true
 })
 
 function closePaywall(): void {
@@ -233,7 +243,7 @@ function onContinue(): void {
 const liveText = computed((): string => {
   const done = outcome.value
   if (done === null || status.value !== 'reveal') return ''
-  const words = verdictLabel('collocation', done.verdict)
+  const words = gameVerdictLabel(done.verdict)
   return done.earlier ? `${words}. ${t('practice.reveal.earlier')}` : words
 })
 
@@ -285,16 +295,18 @@ let shareMarked = false
 
 /**
  * "Share" on the card of the city (docs/05 §5b.8): the dialog of Telegram with the link and the text of the server, then the mark that it
- * was opened (once; a refusal is silent). Without the stage of the boss in the address (a reload) the dialog opens and no mark is put.
+ * was opened (once; a refusal is silent). Without the stage of the boss (neither in the run nor in the address) the dialog opens and no mark is put.
  */
 function onShare(): void {
   const share = run.value?.summary?.boss?.share
   if (!share) return
   haptic('light')
   shareUrl(share.link, share.text)
-  if (!shareMarked && props.boss) {
+  // The stage of the boss: from the run (G2.13), so that a reload or "Continue" from Today marks the card too; the query is the fallback.
+  const stageId = run.value?.stage_id ?? props.boss ?? null
+  if (!shareMarked && stageId !== null) {
     shareMarked = true
-    void cities.markCityShared(props.boss)
+    void cities.markCityShared(stageId)
   }
 }
 
@@ -326,8 +338,11 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
       :summary="run.summary"
       :failed="run.finish_reason === 'failed'"
       :can-again="run.kind === 'stop'"
+      :kind="run.kind"
+      :class-caravan-id="run.class_caravan_id ?? null"
       @review="reviewFromPaywall"
       @share="onShare"
+      @class="goTo(`/game/class/${run.class_caravan_id}`)"
       @again="goTo(mapLocation(true))"
       @map="goTo(mapLocation())"
     />
@@ -354,12 +369,23 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 
       <template v-else-if="task">
         <!-- The boosters of the learner's stock: not drawn while there are none. -->
-        <BoosterRow v-if="run.boosters.available.length > 0" :boosters="run.boosters" :element-id="task.id" :hinted="hinted" :disabled="busy" @use="onBooster" />
-
-        <!-- The bazaar: a hint for coins; the balance is shown once the server has told it. -->
-        <div v-if="hintOffer" class="flex items-center justify-center gap-3 px-4 pt-3" data-testid="hint-offer">
-          <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
-          <span v-if="coins !== null" class="text-[15px] leading-5 text-tg-subtitle tabular-nums" data-testid="hint-coins">{{ t('gameRun.hint.coins', { coins }) }}</span>
+        <!-- The bazaar: a hint for coins; the balance is shown once the server has told it. Both in one line: in a short window (320 x 568) two
+             rows of 60 px would push the last option under the bar. -->
+        <div v-if="run.boosters.available.length > 0 || hintOffer" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-3 short:pt-0.5" data-testid="task-tools">
+          <BoosterRow
+            v-if="run.boosters.available.length > 0"
+            :boosters="run.boosters"
+            :element-id="task.id"
+            :element-kind="task.kind"
+            :flasks-max="run.flasks_max"
+            :hinted="hinted"
+            :disabled="busy"
+            @use="onBooster"
+          />
+          <div v-if="hintOffer" class="flex items-center gap-3" data-testid="hint-offer">
+            <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
+            <span v-if="coins !== null" class="text-[15px] leading-5 text-tg-subtitle tabular-nums" data-testid="hint-coins">{{ t('gameRun.hint.coins', { coins }) }}</span>
+          </div>
         </div>
 
         <!-- The component of the kind (gameTasks.ts); the key makes every element a new one, with no pick left over. -->

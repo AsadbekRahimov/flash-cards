@@ -80,6 +80,8 @@ export const useGameShopStore = defineStore('gameShop', {
         this.shop = shop
         this.profile = profile
         this.status = 'ready'
+        // A purchase that was left half-way (a lost reply) is judged by what the server says now: the next try is a new one.
+        if (this.buying === null) this.pendingBuy = null
       } catch (err) {
         if (seq !== this.seq) return
         if (err instanceof ApiClientError && err.code === 'game_unavailable') {

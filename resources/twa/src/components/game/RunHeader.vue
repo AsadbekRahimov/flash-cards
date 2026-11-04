@@ -27,7 +27,7 @@ const percent = computed((): number => (props.total > 0 ? Math.min(100, Math.max
 </script>
 
 <template>
-  <header class="px-4 pt-3" data-testid="run-header">
+  <header class="px-4 pt-3 short:pt-2" data-testid="run-header">
     <div class="flex items-center gap-2">
       <button type="button" class="-ml-1 flex size-11 shrink-0 items-center justify-center" :aria-label="t('common.close')" data-testid="close-btn" @click="$emit('close')">
         <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle">
@@ -51,7 +51,9 @@ const percent = computed((): number => (props.total > 0 ? Math.min(100, Math.max
     </div>
 
     <div class="mt-1 flex items-center justify-between gap-2">
-      <FlaskIcons :flasks="flasks" :max="flasksMax" />
+      <!-- A fight with a boss has no flasks: nothing to draw (and nothing for a screen reader to read as "0 of 0"). -->
+      <FlaskIcons v-if="flasksMax > 0" :flasks="flasks" :max="flasksMax" />
+      <span v-else />
       <span v-if="combo >= 3" class="chip chip-warning" data-testid="combo">{{ t('gameRun.combo', { count: combo }) }}</span>
       <span class="text-[15px] leading-5 font-semibold tabular-nums" :aria-label="`${t('gameRun.score')}: ${score}`" data-testid="score">{{ score }}</span>
     </div>

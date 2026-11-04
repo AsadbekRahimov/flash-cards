@@ -135,7 +135,7 @@ describe('GameReveal — a task made of a word', () => {
   it('a hint ("I don\'t know") shows the answer without a reproach', () => {
     const wrapper = reveal(outcome({ element: spell(), verdict: 'skipped', points: 0, answer: { skip: true }, reveal: { correct_text: 'apple', translation: 'яблоко' } }))
 
-    expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Подсказка')
+    expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Не знали')
     expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
   })
 
@@ -269,11 +269,70 @@ describe('RunSummary', () => {
       expect(wrapper.get('[data-testid=map-btn]').classes()).toContain('btn-primary')
     })
 
+    describe('the boss of a class (one fight per member)', () => {
+      const classLost = (props = {}) =>
+        mount(RunSummary, { props: { summary: summary({ boss: { accuracy: 67, won: false, first: false, share: null }, mistakes: [mistake] }), failed: false, canAgain: false, kind: 'class_boss', classCaravanId: 4, ...props } })
+
+      it('has its own words, not the gate of a city, and leads back to the screen of the class', async () => {
+        const wrapper = classLost()
+
+        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Босс класса устоял')
+        expect(wrapper.get('[data-testid=boss-lost-hint]').text()).toBe('Точность 67% — у каждого ученика одна попытка, результат уже в таблице класса')
+        expect(wrapper.get('[data-testid=boss]').text()).toContain('Босс класса устоял')
+        expect(wrapper.find('[data-testid=map-btn]').exists()).toBe(false)
+        expect(wrapper.get('[data-testid=class-btn]').text()).toBe('К экрану класса')
+
+        await wrapper.get('[data-testid=class-btn]').trigger('click')
+        expect(wrapper.emitted('class')).toHaveLength(1)
+      })
+
+      it('says "Босс класса побеждён" for a win and shows no card of a city', () => {
+        const wrapper = mount(RunSummary, { props: { summary: summary({ boss: { accuracy: 92, won: true, first: false, share: null } }), failed: false, canAgain: false, kind: 'class_boss', classCaravanId: 4 } })
+
+        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Босс класса побеждён')
+        expect(wrapper.find('[data-testid=city-card]').exists()).toBe(false)
+      })
+
+      it('falls back to the map when the run does not tell its caravan', () => {
+        const wrapper = classLost({ classCaravanId: null })
+        expect(wrapper.find('[data-testid=class-btn]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=map-btn]').exists()).toBe(true)
+      })
+    })
+
     it('speaks Uzbek', () => {
       setLocale('uz')
       expect(won().get('[data-testid=summary-title]').text()).toBe('Darvoza ochildi')
       expect(won().get('[data-testid=share-btn]').text()).toBe('Ulashish')
     })
+  })
+
+  it('lists a right answer after a hint as "С подсказкой" in a neutral chip, not as a mistake with a raw key (G2.13)', () => {
+    const wrapper = render(
+      summary({
+        mistakes: [
+          { element_id: 'e1', kind: 'spell', label: 'apple — яблоко', your_answer: 'apple', verdict: 'correct', hinted: true },
+          { element_id: 'e2', kind: 'gap', label: 'walk — гулять', your_answer: 'run', verdict: 'wrong', hinted: true },
+        ],
+      }),
+    )
+
+    const chips = wrapper.findAll('[data-testid=mistake-verdict]')
+    expect(chips[0]!.text()).toBe('С подсказкой')
+    expect(chips[0]!.classes()).toContain('chip-neutral')
+    expect(chips[1]!.text()).toBe('Неверно')
+    expect(chips[1]!.classes()).toContain('chip-danger')
+    expect(wrapper.html()).not.toContain('gameRun.summary.verdict')
+  })
+
+  it('draws "Серия удержана" and "Новые звёзды" from the fields of the server, and nothing when they are false / zero', () => {
+    const held = render(summary({ streak_held: true, new_stars: 2 }))
+    expect(held.get('[data-testid=streak-held]').text()).toBe('Серия удержана')
+    expect(held.get('[data-testid=reward-new_stars]').text()).toContain('+2')
+
+    const none = render(summary({ streak_held: false, new_stars: 0 }))
+    expect(none.find('[data-testid=streak-held]').exists()).toBe(false)
+    expect(none.find('[data-testid=reward-new_stars]').exists()).toBe(false)
   })
 
   it('failed: "The flasks are over", the mistakes with the answer and the verdict in words, no rewards', () => {

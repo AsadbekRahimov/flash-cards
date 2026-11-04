@@ -365,7 +365,7 @@ describe('GameRunView — the hint of the bazaar', () => {
     await wrapper.get('[data-testid=hint-btn]').trigger('click')
     await flushPromises()
 
-    expect(showErrorToast).toHaveBeenCalledWith('Не хватает монет на подсказку. Монеты дают за забеги.')
+    expect(showErrorToast).toHaveBeenCalledWith('Не хватает монет. Монеты дают за забеги и боссов.')
     expect(wrapper.get('[data-testid=hint-coins]').text()).toBe('У вас 2')
     expect(wrapper.find('[data-testid=hint-btn]').exists()).toBe(true)
     wrapper.unmount()
@@ -471,6 +471,31 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
     expect(tg.shareUrl).toHaveBeenCalledTimes(2) // the dialog may be opened again
     expect(api.game.cityShared).toHaveBeenCalledTimes(1) // the mark is once
     expect(api.game.cityShared).toHaveBeenCalledWith(3)
+    r.wrapper.unmount()
+  })
+
+  it('puts the mark by the stage of the run itself - after a reload or "Continue" from Today there is no ?boss= (G2.13)', async () => {
+    vi.mocked(api.game.cityShared).mockResolvedValue({ stage_id: 7, shared_at: '2026-11-05T10:00:00.000Z' })
+    const r = await render(wonBoss({ stage_id: 7 }), { course: 'english-a1' })
+
+    await click(r, 'share-btn')
+
+    expect(api.game.cityShared).toHaveBeenCalledWith(7)
+    r.wrapper.unmount()
+  })
+
+  it('a fight of a class: "К экрану класса" leads to the caravan of the run, "Ещё раз" is not offered', async () => {
+    const r = await render(
+      finishedRun('completed', { kind: 'class_boss', class_caravan_id: 4, lesson_id: null }, { boss: { accuracy: 50, won: false, first: false, share: null } }),
+      { course: 'english-a1' },
+    )
+    r.router.addRoute({ path: '/game/class/:id(\\d+)', name: 'game-class', component: { template: '<div />' } })
+
+    expect(has(r, 'again-btn')).toBe(false)
+    expect(tid(r, 'summary-title').text()).toBe('Босс класса устоял')
+    await click(r, 'class-btn')
+
+    expect(r.router.currentRoute.value.fullPath).toBe('/game/class/4')
     r.wrapper.unmount()
   })
 

@@ -494,27 +494,28 @@ export const useGameRunStore = defineStore('gameRun', {
         if (generation !== this.generation) return
         if (isUncertain(err)) {
           this.status = 'playing'
-          this.actionError = errorMessage(err, 'practice')
+          this.actionError = errorMessage(err, 'game')
           return
         }
         this.pendingBooster = null
         if (err instanceof ApiClientError) {
           if (err.code === 'booster_limit_reached') {
-            const { limit, used, resets_at: resetsAt } = err.details ?? {}
+            const { limit, used, resets_at: resetsAt, upsell } = err.details ?? {}
             this.status = 'playing'
-            if (typeof limit === 'number' && typeof used === 'number' && typeof resetsAt === 'string') this.boosterLimit = { limit, used, resets_at: resetsAt }
-            else this.actionError = errorMessage(err, 'practice')
+            // `upsell: false` - the learner is Pro already: there is nothing to sell, the screen tells when the new boosters come.
+            if (typeof limit === 'number' && typeof used === 'number' && typeof resetsAt === 'string') this.boosterLimit = { limit, used, resets_at: resetsAt, upsell: upsell !== false }
+            else this.actionError = errorMessage(err, 'game')
             return
           }
           if (['booster_not_owned', 'booster_already_used', 'booster_not_applicable', 'hint_not_available', 'element_not_current', 'answer_already_accepted'].includes(err.code)) {
-            this.actionError = errorMessage(err, 'practice')
+            this.actionError = errorMessage(err, 'game')
             const fresh = await this.reread(generation)
             if (fresh !== null) this.applyRun(fresh)
             return
           }
           if (err.kind === 'validation' || err.kind === 'conflict' || err.kind === 'not_found') {
             this.status = 'playing'
-            this.actionError = errorMessage(err, 'practice')
+            this.actionError = errorMessage(err, 'game')
             return
           }
         }
