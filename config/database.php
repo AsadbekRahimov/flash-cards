@@ -121,10 +121,11 @@ return [
         // The same database bypassing pgbouncer: what needs a whole session or runs for long goes here - migrations
         // (deploy.sh: `migrate --database=pgsql_direct`) and the pg_dump of spatie/laravel-backup (config/backup.php).
         // DB_DIRECT_HOST/DB_DIRECT_PORT default to DB_HOST/DB_PORT, so without a pooler it is the `pgsql` connection
-        // again; docker-compose.prod.yml sets them to the postgres service. Never persistent: these are one-off processes.
+        // again; docker-compose.prod.yml sets them to the postgres service. Its own `DB_DIRECT_URL`, not `DB_URL`: a URL
+        // overrides host and port, and the direct connection would follow the application into pgbouncer. Never persistent: these are one-off processes.
         'pgsql_direct' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => env('DB_DIRECT_URL'),
             'host' => env('DB_DIRECT_HOST', env('DB_HOST', '127.0.0.1')),
             'port' => env('DB_DIRECT_PORT', env('DB_PORT', '5432')),
             'database' => env('DB_DATABASE', 'laravel'),
