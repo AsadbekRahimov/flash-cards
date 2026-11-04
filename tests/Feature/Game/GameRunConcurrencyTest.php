@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Enums\PracticeMode;
@@ -30,7 +32,8 @@ use Tests\Support\Practice\PracticeKit;
  * the same instant. The `FOR UPDATE` of the run row, the unique `active_learner_id`, the unique `(run_id, request_id)` and the unique
  * `idempotency_key` of the ledger are what the assertions rely on, so this file runs only on pgsql with pcntl. Every worker sets a
  * lock timeout: a deadlock (40P01) or a wait that never ends (55P03) is a crash, never a hang. Data is committed (DatabaseTruncation).
- * The races of the Free limits and the tickets (`GameLimits`, `TicketService`, G2.8) are at the end.
+ * The races of the Free limits and the tickets (`GameLimits`, `TicketService`, G2.8) are at the end - with the refund of the ticket of
+ * a run closed without an answer (G2.8b): against its first answer, against a second close, against a spend and a grant.
  */
 
 if ((getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql') {
@@ -249,13 +252,44 @@ it('does not deadlock a start against the lock of the learner row the training p
 
 // ---------------------------------------------------------------- the Free limits and the tickets (G2.8, docs/18 §12.7.2)
 
-it('spends the one ticket of a Free learner once when three tabs start at the same instant: one run, one entry spend:run:*, tickets = 0', function (bool $replaceActive, array $losers): void {
+/** The tickets of a learner as the ledger and the profile see them: `[tickets, SUM(ledger), spends, refunds]`. @return array{0: int, 1: int, 2: int, 3: int} */
+function gameRaceTickets(int $learnerId): array
+{
+    $ledger = GameTicketLedgerEntry::query()->where('learner_id', $learnerId);
+
+    return [
+        (int) GameProfile::query()->where('learner_id', $learnerId)->value('tickets'),
+        (int) $ledger->clone()->sum('delta'),
+        $ledger->clone()->where('source', 'spend')->count(),
+        $ledger->clone()->where('source', 'refund')->count(),
+    ];
+}
+
+/**
+ * A Free learner (limit 1) with one ticket in the ledger, the free run of the day played, and a run paid with the ticket on - untouched.
+ *
+ * @return array{learnerId: int, slug: string, lessonId: int, runId: int}
+ */
+function gameRaceTicketRun(): array
+{
     GameKit::limits(1);
     [$learner, $course, $lesson] = GameKit::stop(8);
-    GameProfile::factory()->withTickets(1)->create(['learner_id' => $learner->id]);
-    // The free run of the day is played: every further run of the day costs a ticket.
+    app(TicketService::class)->grantForStreak($learner, 7, '2026-11-05');
     $runs = app(RunService::class);
     GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    $run = $runs->start($learner, $course->slug, $lesson->id);
+    expect($run->free_slot)->toBe(FreeSlot::Ticket)->and(gameRaceTickets($learner->id))->toBe([0, 0, 1, 0]);
+
+    return ['learnerId' => $learner->id, 'slug' => $course->slug, 'lessonId' => $lesson->id, 'runId' => $run->id];
+}
+
+it('spends one ticket per run when three tabs of a Free learner start at the same instant, and gives the ticket of a run replaced without an answer back', function (bool $replaceActive, int $runs, int $distinct, int $spends, int $refunds): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    app(TicketService::class)->grantForStreak($learner, 7, '2026-11-05');
+    // The free run of the day is played: every further run of the day costs a ticket.
+    $service = app(RunService::class);
+    GameKit::play($service, $service->start($learner, $course->slug, $lesson->id), $learner);
     $learnerId = $learner->id;
     $slug = $course->slug;
     $lessonId = $lesson->id;
@@ -263,28 +297,130 @@ it('spends the one ticket of a Free learner once when three tabs start at the sa
     $results = gameRace(array_fill(0, 3, fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, $replaceActive)->id));
 
     // Under the learner's lock the tabs go one by one: the first takes the ticket and starts; without `replace_active` the others find
-    // the run that is on - the same stop - and get it as it is (the limit is not even counted for them); with it the second closes
-    // that run (unanswered: its PLACE comes back, the ticket does not) and both are refused by the limit. The ticket is never spent twice.
-    $limitRefusals = count(array_filter($losers, fn (string $code): bool => $code === 'game_limit_reached'));
+    // the run that is on - the same stop - and get it as it is (the limit is not even counted for them - and when a tab read the limit
+    // a moment after the first commit, the courtesy count said "no place, no ticket" and recorded its event, the start reads the run
+    // that is on once more and answers with it); with it each next tab closes the untouched run of the one before (its place AND its
+    // ticket come back - G2.8b) and spends that ticket on a run of its own. One run is on at the end, the ticket is never spent twice
+    // over, and SUM(ledger) = tickets.
     expect(gameRaceCrashes($results))->toBe([])
-        ->and(gameRaceOutcomes($results))->toBe([...$losers, 'ok'])
-        ->and(count(array_unique(array_column(array_filter($results, fn (array $r): bool => $r['ok']), 'value'))))->toBe(1)
-        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(2)
-        ->and(GameRun::query()->where('learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1)
-        ->and(GameTicketLedgerEntry::query()->where('learner_id', $learnerId)->where('source', 'spend')->count())->toBe(1)
-        ->and(GameProfile::query()->where('learner_id', $learnerId)->value('tickets'))->toBe(0)
-        ->and(gameRaceEvents('game.ticket_spent'))->toHaveCount(1)
-        ->and(gameRaceEvents('game.run_started'))->toHaveCount(2)
-        ->and(gameRaceEvents('game.limit_reached'))->toBe(array_fill(0, $limitRefusals, ['kind' => 'runs', 'limit' => 1]));
-    foreach ($results as $r) {
-        if (($r['code'] ?? null) === 'game_limit_reached') {
-            expect($r['details'])->toMatchArray(['kind' => 'runs', 'limit' => 1, 'used' => 1, 'tickets' => 0]);
-        }
-    }
+        ->and(gameRaceOutcomes($results))->toBe(['ok', 'ok', 'ok'], (string) json_encode($results))
+        ->and(count(array_unique(array_column($results, 'value'))))->toBe($distinct)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe($runs)
+        ->and(GameRun::query()->where('active_learner_id', $learnerId)->count())->toBe(1)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe($spends)
+        ->and(GameRun::query()->where('learner_id', $learnerId)->where('finish_reason', 'abandoned')->where('answered', 0)->count())->toBe($refunds)
+        ->and(gameRaceTickets($learnerId))->toBe([0, 0, $spends, $refunds])
+        ->and(gameRaceEvents('game.ticket_spent'))->toHaveCount($spends)
+        ->and(gameRaceEvents('game.ticket_refunded'))->toHaveCount($refunds)
+        ->and(array_column(gameRaceEvents('game.ticket_refunded'), 'reason'))->toBe(array_fill(0, $refunds, 'replaced'))
+        ->and(gameRaceEvents('game.run_started'))->toHaveCount($runs)
+        ->and(count(gameRaceEvents('game.limit_reached')))->toBeLessThanOrEqual($replaceActive ? 0 : 2); // the stray event of the window above, same stop only
 })->with([
-    'the same stop: the run that is on is the answer to all' => [false, ['ok', 'ok']],
-    'replace_active: the limit refuses the rest' => [true, ['game_limit_reached', 'game_limit_reached']],
+    'the same stop: the run that is on is the answer to all' => [false, 2, 1, 1, 0],
+    'replace_active: each tab starts over, the ticket of the untouched run pays for the next' => [true, 4, 3, 3, 2],
 ]);
+
+it('refunds the ticket of a run closed without an answer, or counts the first answer that lands at the same instant - never both', function (string $closer): void {
+    ['learnerId' => $learnerId, 'slug' => $slug, 'lessonId' => $lessonId, 'runId' => $runId] = gameRaceTicketRun();
+    $run = GameRun::query()->findOrFail($runId);
+    $element = GameKit::current($run);
+    $answer = GameKit::rightAnswers($element)[0];
+
+    $results = gameRace([
+        fn (): string => app(RunService::class)->answer($runId, gameRaceLearner($learnerId), (string) Str::uuid(), $element['id'], $answer)->body['verdict'],
+        match ($closer) {
+            'an exit' => fn (): string => app(RunService::class)->abandon($runId, gameRaceLearner($learnerId))->finish_reason?->value ?? 'active',
+            'a start over' => fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, true)->id,
+        },
+    ]);
+
+    // Whoever locks the row first decides: the answer lands and the run keeps its ticket (closed with its answer, or still on when the
+    // courtesy check of the start refused before the lock); or the run is closed, its ticket comes back, and the answer is told 410.
+    $run->refresh();
+    $answered = GameRunAttempt::query()->where('run_id', $runId)->count();
+    [$tickets, $sum, $spends, $refunds] = gameRaceTickets($learnerId);
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and($answered)->toBeIn([0, 1])
+        ->and($run->answered)->toBe($answered)
+        ->and($refunds)->toBe(1 - $answered)
+        ->and($sum)->toBe($tickets)
+        ->and(gameRaceEvents('game.ticket_refunded'))->toHaveCount(1 - $answered);
+    if ($closer === 'an exit') {
+        expect(gameRaceOutcomes($results))->toBe($answered === 1 ? ['ok', 'ok'] : ['game_run_closed', 'ok'])
+            ->and($run->finish_reason)->toBe(RunFinishReason::Abandoned)
+            ->and([$tickets, $spends])->toBe([1 - $answered, 1]);
+    } elseif ($answered === 1) {
+        // The answer first: the run holds its place and its ticket, there is no other - the start is refused by the limit.
+        expect(gameRaceOutcomes($results))->toBe(['game_limit_reached', 'ok'])
+            ->and($run->finish_reason)->toBeIn([null, RunFinishReason::Abandoned])
+            ->and([$tickets, $spends])->toBe([0, 1])
+            ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(2);
+    } else {
+        // The start first: it closes the untouched run, gets the ticket back and spends it on the fresh run in the same transaction.
+        expect(gameRaceOutcomes($results))->toBe(['game_run_closed', 'ok'])
+            ->and($run->finish_reason)->toBe(RunFinishReason::Abandoned)
+            ->and([$tickets, $spends])->toBe([0, 2])
+            ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1);
+    }
+})->with(['an exit', 'a start over']);
+
+it('refunds the ticket once when two closes of the same untouched run meet', function (string $pair, string $reason): void {
+    ['learnerId' => $learnerId, 'runId' => $runId] = gameRaceTicketRun();
+    $run = GameRun::query()->findOrFail($runId);
+    $element = GameKit::current($run);
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+
+    $exit = fn (?CarbonImmutable $at = null): string => app(RunService::class)->abandon($runId, gameRaceLearner($learnerId), $at)->finish_reason?->value ?? 'active';
+    $scheduler = fn (): int => app(RunService::class)->closeExpired($later);
+    $read = fn (): string => app(RunService::class)->find(gameRaceLearner($learnerId), $runId, $later)->finish_reason?->value ?? 'active';
+    $answer = fn (): string => app(RunService::class)->answer($runId, gameRaceLearner($learnerId), (string) Str::uuid(), $element['id'], GameKit::rightAnswers($element)[0], null, $later)->body['verdict'];
+    $results = gameRace(match ($pair) {
+        'two exits' => [$exit, $exit],
+        'an exit and the scheduler' => [fn (): string => $exit($later), $scheduler],
+        'two schedulers' => [$scheduler, $scheduler],
+        'a read and the scheduler' => [$read, $scheduler],
+        'an answer past the time and the scheduler' => [$answer, $scheduler],
+    });
+
+    $run->refresh();
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBe($pair === 'an answer past the time and the scheduler' ? ['game_run_closed', 'ok'] : ['ok', 'ok'])
+        ->and($run->finish_reason?->value)->toBe($reason)
+        ->and($run->answered)->toBe(0)
+        ->and(GameRunAttempt::query()->where('run_id', $runId)->count())->toBe(0)
+        ->and(gameRaceTickets($learnerId))->toBe([1, 1, 1, 1])
+        ->and(GameTicketLedgerEntry::query()->where('idempotency_key', "refund:run:{$runId}")->count())->toBe(1)
+        ->and(gameRaceEvents('game.ticket_refunded'))->toEqual([['run_id' => $runId, 'reason' => $reason === 'expired' ? 'expired' : 'exited']])
+        ->and(gameRaceEvents('game.run_finished'))->toHaveCount(2); // the played free run and this one, once
+})->with([
+    'two exits' => ['two exits', 'abandoned'],
+    'an exit and the scheduler' => ['an exit and the scheduler', 'expired'],
+    'two schedulers' => ['two schedulers', 'expired'],
+    'a read and the scheduler' => ['a read and the scheduler', 'expired'],
+    'an answer past the time and the scheduler' => ['an answer past the time and the scheduler', 'expired'],
+]);
+
+it('keeps SUM(ledger) = tickets when a refund, a start that spends and a grant of the streak meet on one learner', function (): void {
+    ['learnerId' => $learnerId, 'slug' => $slug, 'lessonId' => $lessonId, 'runId' => $runId] = gameRaceTicketRun();
+
+    // The exit gives the ticket back under the run's row; the start takes `learners` first and either closes the run itself or finds it
+    // closed - and spends the ticket that came back; the grant takes `learners` and the profile row FOR UPDATE, so the refund that lands
+    // under the run's row is never overwritten by the balance the grant read (docs/18 §12.5.1 rule 18). No deadlock: the profile row
+    // is always taken after `game_runs` and after `learners`, and nothing holding it waits for either.
+    $results = gameRace([
+        fn (): string => app(RunService::class)->abandon($runId, gameRaceLearner($learnerId))->finish_reason?->value ?? 'active',
+        fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, true)->id,
+        fn (): ?int => app(TicketService::class)->grantForStreak(gameRaceLearner($learnerId), 14, '2026-11-12')?->balance,
+    ]);
+
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBe(['ok', 'ok', 'ok'])
+        ->and(GameRun::query()->findOrFail($runId)->finish_reason)->toBe(RunFinishReason::Abandoned)
+        ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('free_slot', 'ticket')->count())->toBe(1)
+        ->and(gameRaceTickets($learnerId))->toBe([1, 1, 2, 1])
+        ->and(gameRaceEvents('game.ticket_refunded'))->toHaveCount(1)
+        ->and(gameRaceEvents('game.ticket_granted'))->toHaveCount(2);
+});
 
 it('does not deadlock a Free start against a Free opening of the practice and the lock of the learner row the training picker takes', function (): void {
     GameKit::limits(1);

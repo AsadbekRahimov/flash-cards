@@ -15,12 +15,14 @@ use App\Domain\Game\DTO\RunView;
 use App\Domain\Game\DTO\ScoreOutcome;
 use App\Domain\Game\DTO\ScoringRules;
 use App\Domain\Game\Enums\AttemptKind;
+use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Enums\TaskKind;
+use App\Domain\Game\Enums\TicketRefundReason;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\TicketService;
@@ -60,7 +62,10 @@ use Throwable;
  * AFTER the run as in the finish. Pro takes `game_runs` only. An answer / a hint takes the run's own row FOR UPDATE, then - a hint of
  * the bazaar only - the wallet, then inserts the attempt and updates the run. Nothing of the learning is locked; the SRS rule runs
  * AFTER the commit (`GameSrsAdjuster`). The last answer hands the run to {@see RunFinisher} inside the same transaction (the rewards,
- * the map, the day of the learner - docs/18 §12.5.3).
+ * the map, the day of the learner - docs/18 §12.5.3). A run paid with a ticket that is closed WITHOUT A SINGLE ANSWER - replaced,
+ * left, run out - gets its ticket back in the transaction of the close, after the row of the run and before the ledger
+ * (`TicketService::refundForRun`, docs/18 §12.7.3): every close goes through {@see close()} (the row locked) or {@see claimExpired()}
+ * (the conditional UPDATE), and those two are where the refund is decided.
  *
  * Idempotency: `(run_id, request_id)` is unique in `game_run_attempts`; a repeat answers the stored `result` and the view of now.
  */
@@ -124,7 +129,18 @@ final class RunService
             }
         }
 
-        $this->limits->assertRunAllowed($learner, RunKind::Stop, $now);
+        try {
+            $this->limits->assertRunAllowed($learner, RunKind::Stop, $now, $replaceActive);
+        } catch (GameException $e) {
+            // The limit was read a moment after another tab started this very stop (the run it saw none of now holds the place): the
+            // run that is on is the answer, whatever the limit says - one more read on this refusal only, never on the way to a start.
+            $busy = $e->errorCode === GameException::LIMIT_REACHED && ! $replaceActive ? $this->activeOf($learner) : null;
+            if ($busy !== null && $busy->kind === RunKind::Stop && $busy->lesson_id === $lesson->id && $busy->expires_at->gt($now)) {
+                return $busy;
+            }
+
+            throw $e;
+        }
 
         $locales = new LocaleSet([$this->locales->forLearner($learner)]);
         try {
@@ -251,9 +267,10 @@ final class RunService
                     $active = GameRun::query()->where('active_learner_id', $learner->id)->lockForUpdate()->first();
                     if ($active !== null) {
                         if ($active->expires_at->lte($now)) {
-                            $this->close($active, RunFinishReason::Expired, $now, $learner);
+                            $this->close($active, RunFinishReason::Expired, $now, $learner, TicketRefundReason::Expired);
                         } elseif ($replaceActive) {
-                            $this->close($active, RunFinishReason::Abandoned, $now, $learner); // "once more" on the same stop is a fresh run
+                            // "Once more" on the same stop is a fresh run; one closed without an answer gives its place and its ticket back.
+                            $this->close($active, RunFinishReason::Abandoned, $now, $learner, TicketRefundReason::Replaced);
                         } elseif ($this->isSameRun($active, $row)) {
                             return $active; // two tabs at once: the other one has just started this very run
                         } else {
@@ -262,8 +279,8 @@ final class RunService
                     }
 
                     // The place of the day or a ticket, counted under the lock now that the active run is settled (a run closed
-                    // without an answer has just given its place back); the refusal goes out of the transaction and is thrown after
-                    // the commit, so that its event is recorded.
+                    // without an answer has just given its place - and its ticket - back); the refusal goes out of the transaction and
+                    // is thrown after the commit, so that its event is recorded.
                     $claim = $pending === null ? null : $this->limits->claimRun($pending);
                     if ($claim instanceof GameException) {
                         return $claim;
@@ -530,7 +547,8 @@ final class RunService
     }
 
     /**
-     * The learner leaves the run: `finished / abandoned`, nothing is paid (docs/18 §12.2.1). A run that is closed already stays as it is.
+     * The learner leaves the run: `finished / abandoned`, nothing is paid (docs/18 §12.2.1); left without a single answer, a run paid
+     * with a ticket gives the ticket back (docs/18 §12.7.3). A run that is closed already stays as it is.
      *
      * @throws GameException game_unavailable | game_run_not_found
      */
@@ -546,7 +564,9 @@ final class RunService
                 return GameException::runNotFound();
             }
             if ($locked->isActive()) {
-                $this->close($locked, $locked->expires_at->lte($now) ? RunFinishReason::Expired : RunFinishReason::Abandoned, $now, $learner);
+                $locked->expires_at->lte($now)
+                    ? $this->close($locked, RunFinishReason::Expired, $now, $learner, TicketRefundReason::Expired)
+                    : $this->close($locked, RunFinishReason::Abandoned, $now, $learner, TicketRefundReason::Exited);
             }
 
             return $locked;
@@ -562,7 +582,8 @@ final class RunService
     /**
      * The scheduler (`game:close-expired`, every 15 minutes): every active run past its `expires_at` becomes `finished / expired` and lets
      * go of `active_learner_id` - one conditional UPDATE per run, no lock taken in advance; a run that a request closed in the meantime is
-     * skipped and raises no second event. An expired run pays nothing (docs/18 §12.5.1 rule 23).
+     * skipped and raises no second event. An expired run pays nothing (docs/18 §12.5.1 rule 23); one paid with a ticket and left
+     * without a single answer gets the ticket back, in a transaction with its close ({@see claimExpired()}).
      *
      * @return int runs closed by this call
      */
@@ -577,7 +598,7 @@ final class RunService
             ->where('expires_at', '<=', $now)
             ->lazyById(200)
             ->each(function (GameRun $run) use ($now, &$closed): void {
-                if ($this->claimExpired($run->id, $now)) {
+                if ($this->claimExpired($run, $now, $run->learner)) {
                     $closed++;
                     $run->forceFill(['status' => RunStatus::Finished, 'finish_reason' => RunFinishReason::Expired, 'finished_at' => $now, 'active_learner_id' => null]);
                     $this->recordFinished($run, $run->learner);
@@ -791,8 +812,12 @@ final class RunService
         ]);
     }
 
-    /** Closes a run that pays nothing (`expired` / `abandoned`) under the lock. */
-    private function close(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, ?Learner $learner): void
+    /**
+     * Closes a run that pays nothing (`expired` / `abandoned`) under the lock of its row - the row is exact, so `answered` decides the
+     * refund of a ticket here and now (docs/18 §12.7.3): `game_runs` -> `game_profiles` -> `game_ticket_ledger`, the order of the start
+     * and of the finish.
+     */
+    private function close(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, ?Learner $learner, TicketRefundReason $refund): void
     {
         $run->forceFill([
             'status' => RunStatus::Finished,
@@ -800,6 +825,8 @@ final class RunService
             'finished_at' => $now,
             'active_learner_id' => null,
         ])->save();
+
+        $this->tickets->refundForRun($run, $refund, $learner, $now); // nothing unless free_slot = ticket and no answer
 
         DB::afterCommit(fn () => $this->recordFinished($run, $learner));
     }
@@ -811,7 +838,7 @@ final class RunService
             return GameException::runClosed((string) $locked->finish_reason?->value);
         }
         if ($locked->expires_at->lte($now)) {
-            $this->close($locked, RunFinishReason::Expired, $now, $learner);
+            $this->close($locked, RunFinishReason::Expired, $now, $learner, TicketRefundReason::Expired);
 
             return GameException::runClosed(RunFinishReason::Expired->value);
         }
@@ -876,7 +903,7 @@ final class RunService
             return $run;
         }
 
-        if ($this->claimExpired($run->id, $now)) {
+        if ($this->claimExpired($run, $now, $learner)) {
             $run->forceFill(['status' => RunStatus::Finished, 'finish_reason' => RunFinishReason::Expired, 'finished_at' => $now, 'active_learner_id' => null])->syncOriginal();
             $this->recordFinished($run, $learner);
 
@@ -886,13 +913,39 @@ final class RunService
         return $run->refresh();
     }
 
-    /** The conditional UPDATE that closes one expired run; true when this call is the one that did. */
-    private function claimExpired(int $id, CarbonImmutable $now): bool
+    /**
+     * Closes one expired run by a conditional UPDATE, no lock taken in advance; true when this call is the one that did. `$run` was read
+     * WITHOUT a lock, so its `answered` may be behind an answer that landed since (a run paid with a ticket is otherwise exact:
+     * `free_slot` never changes, `answered` never falls). Such a run, seen without an answer, is closed in a transaction with the refund
+     * of its ticket, and the UPDATE that closes it checks `answered = 0` itself on the row of now: when it matches, the run is closed and
+     * the ticket comes back; when it does not, either an answer landed (the ticket stays spent - the plain UPDATE closes the run) or
+     * somebody else closed the run (nothing to do). Never both an answer and a refund.
+     */
+    private function claimExpired(GameRun $run, CarbonImmutable $now, ?Learner $learner): bool
+    {
+        if ($run->free_slot !== FreeSlot::Ticket || $run->answered > 0) {
+            return $this->expireRow($run->id, $now, unanswered: false);
+        }
+
+        return DB::transaction(function () use ($run, $now, $learner): bool {
+            if ($this->expireRow($run->id, $now, unanswered: true)) {
+                $this->tickets->refundForRun($run, TicketRefundReason::Expired, $learner, $now);
+
+                return true;
+            }
+
+            return $this->expireRow($run->id, $now, unanswered: false);
+        });
+    }
+
+    /** The conditional UPDATE itself: `status = active AND expires_at <= now` (and `answered = 0` when `$unanswered`); true for one row. */
+    private function expireRow(int $id, CarbonImmutable $now, bool $unanswered): bool
     {
         return GameRun::query()
             ->whereKey($id)
             ->where('status', RunStatus::Active->value)
             ->where('expires_at', '<=', $now)
+            ->when($unanswered, fn ($query) => $query->where('answered', 0))
             ->update([
                 'status' => RunStatus::Finished->value,
                 'finish_reason' => RunFinishReason::Expired->value,

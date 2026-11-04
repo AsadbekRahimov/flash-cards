@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunEvent;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Operations\Support\PureCache;
@@ -15,12 +16,14 @@ use App\Models\GameItem;
 use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameStopProgress;
+use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItem;
 use App\Models\TelegramGroup;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\GameItemSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -92,6 +95,19 @@ const BUDGET_GAME_HINT = 12;
 const BUDGET_GAME_START_FREE = 26;
 
 const BUDGET_GAME_START_TICKET = 30;
+
+/**
+ * The refund of a ticket (G2.8b, docs/18 §12.7.3), measured over HTTP: the exit of a run (`POST /abandon`) is `TwaAuth` 1, the lock of
+ * the run 1, its UPDATE 1 and the event `game.run_finished` after the commit 1 - a closed run reads no boosters; a run paid with a
+ * ticket and left without an answer adds the UPDATE of the profile, the ledger entry `refund:run:{id}` and the event
+ * `game.ticket_refunded` (3) - 4 and 7 measured. A start with `replace_active` over such a run pays the plain start by a ticket (28
+ * measured), the UPDATE that closes the old run and its `game.run_finished` (2) and the same three of the refund - 33 measured.
+ */
+const BUDGET_GAME_ABANDON = 4;
+
+const BUDGET_GAME_ABANDON_REFUND = 7;
+
+const BUDGET_GAME_START_TICKET_REPLACE = 33;
 
 /**
  * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
@@ -270,6 +286,43 @@ it('stays within the budgets of the start of a Free learner with a limit - the f
     expect($freeSlot)->toBeLessThanOrEqual(BUDGET_GAME_START_FREE)
         ->and($ticket)->toBeLessThanOrEqual(BUDGET_GAME_START_TICKET)
         ->and($pro)->toBeLessThanOrEqual(BUDGET_GAME_START);
+});
+
+it('stays within the budgets of the exit of a run and of a start that replaces an untouched ticket run: the refund costs three statements', function (): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::richStop(13);
+    app(TicketService::class)->grantByAdmin($learner, 3, User::factory()->create());
+    $headers = PracticeKit::headers($learner);
+    $body = ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id];
+    $abandon = fn (int $id): int => count(QueryLog::during(fn () => test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/abandon", ['confirm' => true])->assertOk()));
+    test()->withHeaders($headers)->getJson('/api/twa/me')->assertOk(); // warms the entitlement, the way the Mini App's first request does
+
+    // The free run of the day, with one answer: the exit pays nothing and gives nothing back.
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated();
+    $run = GameRun::query()->latest('id')->firstOrFail();
+    $element = GameKit::current($run);
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$run->id}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $element['id'], 'answer' => GameKit::rightAnswers($element)[0]])->assertOk();
+    $plain = $abandon($run->id);
+
+    // A run paid with a ticket, untouched: the exit gives the ticket back.
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated();
+    $paid = GameRun::query()->latest('id')->firstOrFail();
+    expect($paid->free_slot?->value)->toBe('ticket');
+    $refund = $abandon($paid->id);
+    expect(GameTicketLedgerEntry::query()->where('idempotency_key', "refund:run:{$paid->id}")->exists())->toBeTrue();
+
+    // "Once more" over an untouched ticket run: the start closes it, takes its ticket back and spends it on the fresh run.
+    test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated();
+    Cache::flush();
+    test()->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+    $replace = count(QueryLog::during(fn () => test()->withHeaders($headers)->postJson('/api/twa/game/runs', [...$body, 'replace_active' => true])->assertCreated()));
+    expect(GameTicketLedgerEntry::query()->where('source', 'refund')->count())->toBe(2)
+        ->and(GameRun::query()->where('active_learner_id', $learner->id)->where('free_slot', 'ticket')->count())->toBe(1);
+
+    expect($plain)->toBeLessThanOrEqual(BUDGET_GAME_ABANDON)
+        ->and($refund)->toBeLessThanOrEqual(BUDGET_GAME_ABANDON_REFUND)
+        ->and($refund - $plain)->toBeLessThanOrEqual(3)
+        ->and($replace)->toBeLessThanOrEqual(BUDGET_GAME_START_TICKET_REPLACE);
 });
 
 it('stays within the budgets of the finish: the first run of a learner makes the rows on the way, the second of a day runs no hook, the first of a new day runs them', function (): void {

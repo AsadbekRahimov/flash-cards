@@ -81,7 +81,7 @@ final class BossService
         }
 
         // The runs of the day used up and no ticket (403 game_limit_reached), before the material is read.
-        $this->limits->assertRunAllowed($learner, RunKind::Boss, $now);
+        $this->limits->assertRunAllowed($learner, RunKind::Boss, $now, $replaceActive);
 
         $limits = RunLimits::for(RunKind::Boss);
         $wordIds = $this->picker->pick($learner->id, $stage->id, $limits->sizeMax);
