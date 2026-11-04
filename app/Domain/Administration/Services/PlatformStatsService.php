@@ -12,24 +12,31 @@ use App\Models\ProductEvent;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Platform-wide aggregates for the admin dashboard (docs/12 §9, task 1.8). Read-only and NOT scoped
- * by {@see PanelDataScope}: the callers (admin-only widgets) are the access check. Every figure is a
- * single aggregate query and is cached briefly, so opening the dashboard does not rescan
- * `product_events` / `subscriptions` on every Livewire poll.
+ * by {@see PanelDataScope}: the callers (admin-only widgets) are the access check, so the entries are the
+ * admin's (`all`). Every figure is a single aggregate query read through {@see WidgetCache} like the
+ * other widgets of the dashboard (docs/19 §3 rule 6, §5.1): fresh for {@see CACHE_TTL} seconds, then still
+ * served while the next reader recomputes it after the response - opening the dashboard never waits for
+ * `product_events` / `subscriptions` except when nothing is cached at all.
  */
 final class PlatformStatsService
 {
+    /** Seconds an entry is fresh; it is served stale for four times as long while it is recomputed ({@see WidgetCache}). */
     public const CACHE_TTL = 120;
 
-    private const CACHE_PREFIX = 'platform_stats:';
+    /** The widget names in the keys `admin:widget:<name>:v1:all`. */
+    public const SUBSCRIPTIONS_WIDGET = 'platform_subscriptions';
+
+    public const FUNNEL_WIDGET = 'onboarding_funnel';
 
     public const EXPIRING_DAYS = 7;
 
     public const FUNNEL_DAYS = 7;
+
+    public function __construct(private readonly WidgetCache $cache) {}
 
     /**
      * Paid-plan subscriptions that grant right now.
@@ -44,7 +51,7 @@ final class PlatformStatsService
     public function subscriptions(): array
     {
         /** @var array{pro_learners:int, personal:int, organizations:int, expiring:int} */
-        return Cache::remember(self::CACHE_PREFIX.'subscriptions', self::CACHE_TTL, function (): array {
+        return $this->cache->remember(self::SUBSCRIPTIONS_WIDGET, 'all', self::CACHE_TTL, function (): array {
             $now = CarbonImmutable::now();
             // Only an ACTIVE organization sponsors (a suspended one keeps its row but grants nothing).
             $learnerSubscriptions = fn (): Builder => Subscription::query()->where('subscriptions.subscriber_type', 'learner');
@@ -77,7 +84,7 @@ final class PlatformStatsService
     public function onboardingFunnel(): array
     {
         /** @var array{started:int, completed:int, conversion:float|null} */
-        return Cache::remember(self::CACHE_PREFIX.'funnel', self::CACHE_TTL, function (): array {
+        return $this->cache->remember(self::FUNNEL_WIDGET, 'all', self::CACHE_TTL, function (): array {
             $since = CarbonImmutable::now()->subDays(self::FUNNEL_DAYS);
             $started = ProductEvent::query()
                 ->where('name', ProductEventName::OnboardingStarted->value)
@@ -104,9 +111,10 @@ final class PlatformStatsService
         });
     }
 
+    /** Drops both entries (the value and its "created at" mark): the next read computes from the database. */
     public function flush(): void
     {
-        Cache::forget(self::CACHE_PREFIX.'subscriptions');
-        Cache::forget(self::CACHE_PREFIX.'funnel');
+        $this->cache->forget(self::SUBSCRIPTIONS_WIDGET, 'all');
+        $this->cache->forget(self::FUNNEL_WIDGET, 'all');
     }
 }

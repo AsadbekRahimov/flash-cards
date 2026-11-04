@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Actions;
@@ -85,7 +86,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__('admin.users.fields.name'))->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label(__('admin.users.fields.email'))->searchable()->copyable(),
@@ -124,7 +125,12 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make()->modalHeading(__('admin.users.actions.delete_selected')),
+                    // Rows are read in chunks as the action goes through them, never all at once (docs/20 §1.9). The policy is asked
+                    // for every user, not just once for the whole action (`deleteAny`): it forbids deleting oneself.
+                    Actions\DeleteBulkAction::make()
+                        ->modalHeading(__('admin.users.actions.delete_selected'))
+                        ->chunkSelectedRecords(250)
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

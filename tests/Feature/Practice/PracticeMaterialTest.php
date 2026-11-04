@@ -182,8 +182,8 @@ it('reads the words in two queries for one locale and remembers them for the sco
 
     expect($first)->toHaveCount(2)
         ->and($again)->toBe([])      // the scope remembers: four modes of a hub read the words once
-        ->and($fresh)->toHaveCount(2) // a scope of the next request starts clean: nothing can go stale between requests
-        ->and($two)->toHaveCount(3);  // a battle: the words and one translation query per locale
+        ->and($fresh)->toHaveCount(1) // a scope of the next request starts clean: the words are read again; the uz translation rows are in the pure cache now (docs/19 K4)
+        ->and($two)->toHaveCount(2);  // a battle: the words and one translation query for the locale the cache has not seen (ru)
 });
 
 it('lists every active word of the scope for a battle, whatever the progress of the players', function (): void {
@@ -1059,3 +1059,29 @@ function matBattleWorld(int $extra = 22): array
 
     return [$course, $lesson];
 }
+
+it('reads the words and the tasks of a whole stage with the scope of a stage (docs/18 §12.3.1), no lesson, no task of the course alone', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $stage = Stage::query()->findOrFail($lesson->stage_id);
+    $second = Lesson::factory()->for($stage)->create(['number' => 2]);
+    $otherStage = Stage::factory()->create(['course_id' => $course->id, 'number' => 2]);
+    $elsewhere = Lesson::factory()->for($otherStage)->create(['number' => 1]);
+
+    [$a] = PracticeKit::words($lesson, 1, $learner);
+    [$b] = PracticeKit::words($second, 1, $learner);
+    [$c] = PracticeKit::words($elsewhere, 1, $learner);
+    PracticeKit::words($second, 1); // not introduced
+    $ofStage = PracticeItem::factory()->collocation()->published()->forLesson($second)->targeting($b)->create();
+    PracticeItem::factory()->collocation()->published()->forLesson($elsewhere)->targeting($c)->create();
+    PracticeItem::factory()->collocation()->published()->forCourse($course)->targeting($a)->create(); // of the course, no lesson
+
+    $scope = MaterialScope::forStage($course, $stage);
+    $words = matService()->introducedWords($scope, $learner, LocaleSet::of('ru'));
+
+    expect($scope->lesson)->toBeNull()
+        ->and($scope->stage?->is($stage))->toBeTrue()
+        ->and(array_map(static fn ($w): int => $w->id, $words))->toEqualCanonicalizing([$a->id, $b->id])
+        ->and($words[0]->example)->not->toBeNull()
+        ->and(array_map(static fn (PracticeItemVersion $v): int => $v->item_id, matService()->eligibleItems($scope, PracticeItemType::Collocation, $learner)))->toBe([$ofStage->id]);
+});

@@ -30,10 +30,19 @@ final class PracticeKit
     /** Every limiter a practice route can sit behind (`twa-api` and docs/16 §7.5). */
     public const LIMITERS = ['twa-api', 'twa-practice-open', 'twa-practice-answer', 'twa-practice-audio', 'twa-battle-invite', 'twa-battle-action', 'twa-battle-poll'];
 
-    /** The practice is `off` by default (docs/16 §3.2): open it to everyone and drop the plan restriction. */
+    /**
+     * The practice is `off` by default (docs/16 §3.2): open it to everyone, drop the plan restriction and the Free limits of the
+     * day (docs/18 G1; an empty limit = none, so `limits` is `null` as for Pro). The tests of the limits set them themselves.
+     */
     public static function openAccess(): void
     {
-        config(['practice.access' => 'all', 'practice.plan' => 'all']);
+        config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.free_limits.sessions_per_day' => null, 'practice.free_limits.battles_per_day' => null]);
+    }
+
+    /** The Free limits of the day (docs/18 G1): `null` = none of that kind. */
+    public static function limits(?int $sessions, ?int $battles): void
+    {
+        config(['practice.free_limits.sessions_per_day' => $sessions, 'practice.free_limits.battles_per_day' => $battles]);
     }
 
     /** @return array<string, string> */

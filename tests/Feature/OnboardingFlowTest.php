@@ -870,7 +870,7 @@ it('lets a finished learner change one value at a time through /settings', funct
     ]);
 
     onbSend(7060, '/settings');
-    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:timezone', 'set1:reminder']);
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:timezone', 'set1:reminder', 'del1:ask']);
 
     onbTap(7060, 'set1:timezone', 10);
     expect($this->tg->sent[1]['text'])->toContain('часовом поясе')

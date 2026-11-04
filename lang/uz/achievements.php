@@ -15,6 +15,7 @@ return [
         'words_1000' => ['title' => "1000 ta so'z", 'description' => "1000 ta so'z o'rganildi"],
         'league_top1' => ['title' => "Liga g'olibi", 'description' => "Haftada liga guruhida birinchi o'rin"],
         'first_friend' => ['title' => "Birinchi do'st", 'description' => "LexiFlow'da birinchi do'st paydo bo'ldi"],
+        'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "\"Karvon\" o'yinida shahar bossi ustidan birinchi g'alaba"],
     ],
 
     // Text on the card under the description.

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 16,
+    "title": "Дом и быт",
+    "title_uz": "Uy va maishat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Домашние дела",
+    "title_uz": "Uy yumushlari"
+  },
+  "words": [
+    {
+      "word": "sweep",
+      "part_of_speech": "verb",
+      "translation": "подметать",
+      "translations": {
+        "ru": "подметать",
+        "uz": "supurmoq"
+      },
+      "example": "I sweep the floor every morning.",
+      "example_translations": {
+        "ru": "Я подметаю пол каждое утро.",
+        "uz": "Men har kuni ertalab polni supuraman."
+      }
+    },
+    {
+      "word": "tidy",
+      "part_of_speech": "verb",
+      "translation": "прибираться",
+      "translations": {
+        "ru": "прибираться",
+        "uz": "tartibga solmoq"
+      },
+      "example": "Please tidy your room before dinner.",
+      "example_translations": {
+        "ru": "Пожалуйста, прибери комнату до ужина.",
+        "uz": "Iltimos, kechki ovqatdan oldin xonangni tartibga sol."
+      }
+    },
+    {
+      "word": "iron",
+      "part_of_speech": "verb",
+      "translation": "гладить",
+      "translations": {
+        "ru": "гладить",
+        "uz": "dazmollamoq"
+      },
+      "example": "She irons her shirts on Sunday.",
+      "example_translations": {
+        "ru": "Она гладит рубашки в воскресенье.",
+        "uz": "U ko'ylaklarini yakshanba kuni dazmollaydi."
+      }
+    },
+    {
+      "word": "fold",
+      "part_of_speech": "verb",
+      "translation": "складывать",
+      "translations": {
+        "ru": "складывать",
+        "uz": "buklamoq"
+      },
+      "example": "Fold the clean towels, please.",
+      "example_translations": {
+        "ru": "Сложи чистые полотенца, пожалуйста.",
+        "uz": "Toza sochiqlarni buklang, iltimos."
+      }
+    },
+    {
+      "word": "laundry",
+      "part_of_speech": "noun",
+      "translation": "стирка, бельё",
+      "translations": {
+        "ru": "стирка, бельё",
+        "uz": "kir"
+      },
+      "example": "I do the laundry on Saturday.",
+      "example_translations": {
+        "ru": "Я стираю бельё в субботу.",
+        "uz": "Men kirni shanba kuni yuvaman."
+      }
+    },
+    {
+      "word": "trash",
+      "part_of_speech": "noun",
+      "translation": "мусор",
+      "translations": {
+        "ru": "мусор",
+        "uz": "axlat"
+      },
+      "example": "Take out the trash tonight.",
+      "example_translations": {
+        "ru": "Вынеси мусор сегодня вечером.",
+        "uz": "Axlatni bugun kechqurun chiqarib tashla."
+      }
+    },
+    {
+      "word": "dust",
+      "part_of_speech": "noun",
+      "translation": "пыль",
+      "translations": {
+        "ru": "пыль",
+        "uz": "chang"
+      },
+      "example": "There is dust on the shelf.",
+      "example_translations": {
+        "ru": "На полке лежит пыль.",
+        "uz": "Javonda chang bor."
+      }
+    },
+    {
+      "word": "mop",
+      "part_of_speech": "verb",
+      "translation": "мыть пол шваброй",
+      "translations": {
+        "ru": "мыть пол шваброй",
+        "uz": "artmoq"
+      },
+      "example": "He mops the kitchen floor twice a week.",
+      "example_translations": {
+        "ru": "Он моет пол на кухне два раза в неделю.",
+        "uz": "U oshxona polini haftasiga ikki marta artadi."
+      }
+    },
+    {
+      "word": "dishes",
+      "part_of_speech": "noun",
+      "translation": "посуда",
+      "translations": {
+        "ru": "посуда",
+        "uz": "idish-tovoq"
+      },
+      "example": "Who washes the dishes today?",
+      "example_translations": {
+        "ru": "Кто сегодня моет посуду?",
+        "uz": "Bugun idish-tovoqni kim yuvadi?"
+      }
+    },
+    {
+      "word": "chore",
+      "part_of_speech": "noun",
+      "translation": "домашняя обязанность",
+      "translations": {
+        "ru": "домашняя обязанность",
+        "uz": "uy yumushi"
+      },
+      "example": "Cooking is my favorite chore.",
+      "example_translations": {
+        "ru": "Готовка — моя любимая домашняя обязанность.",
+        "uz": "Ovqat pishirish mening sevimli uy yumushim."
+      }
+    }
+  ]
+}

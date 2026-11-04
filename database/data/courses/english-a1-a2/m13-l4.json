@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 13,
+    "title": "Чувства и характер",
+    "title_uz": "His-tuyg'ular va xarakter"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мысли и мнения",
+    "title_uz": "Fikrlar va qarashlar"
+  },
+  "words": [
+    {
+      "word": "think",
+      "part_of_speech": "verb",
+      "translation": "думать",
+      "translations": {
+        "ru": "думать",
+        "uz": "o'ylamoq"
+      },
+      "example": "I think this movie is great.",
+      "example_translations": {
+        "ru": "Я думаю, этот фильм отличный.",
+        "uz": "Menimcha, bu film ajoyib."
+      }
+    },
+    {
+      "word": "believe",
+      "part_of_speech": "verb",
+      "translation": "верить",
+      "translations": {
+        "ru": "верить",
+        "uz": "ishonmoq"
+      },
+      "example": "Do you believe his story?",
+      "example_translations": {
+        "ru": "Ты веришь его истории?",
+        "uz": "Sen uning hikoyasiga ishonasanmi?"
+      }
+    },
+    {
+      "word": "agree",
+      "part_of_speech": "verb",
+      "translation": "соглашаться",
+      "translations": {
+        "ru": "соглашаться",
+        "uz": "rozi bo'lmoq"
+      },
+      "example": "I agree with you completely.",
+      "example_translations": {
+        "ru": "Я полностью с тобой согласен.",
+        "uz": "Men sen bilan to'liq roziman."
+      }
+    },
+    {
+      "word": "opinion",
+      "part_of_speech": "noun",
+      "translation": "мнение",
+      "translations": {
+        "ru": "мнение",
+        "uz": "fikr"
+      },
+      "example": "In my opinion, the soup is too salty.",
+      "example_translations": {
+        "ru": "По-моему, суп слишком солёный.",
+        "uz": "Mening fikrimcha, sho'rva juda sho'r."
+      }
+    },
+    {
+      "word": "idea",
+      "part_of_speech": "noun",
+      "translation": "идея",
+      "translations": {
+        "ru": "идея",
+        "uz": "g'oya"
+      },
+      "example": "That is a really good idea.",
+      "example_translations": {
+        "ru": "Это действительно хорошая идея.",
+        "uz": "Bu juda yaxshi g'oya."
+      }
+    },
+    {
+      "word": "decide",
+      "part_of_speech": "verb",
+      "translation": "решать",
+      "translations": {
+        "ru": "решать",
+        "uz": "qaror qilmoq"
+      },
+      "example": "We decide to stay at home.",
+      "example_translations": {
+        "ru": "Мы решаем остаться дома.",
+        "uz": "Biz uyda qolishga qaror qilamiz."
+      }
+    },
+    {
+      "word": "remember",
+      "part_of_speech": "verb",
+      "translation": "помнить",
+      "translations": {
+        "ru": "помнить",
+        "uz": "eslamoq"
+      },
+      "example": "Do you remember my phone number?",
+      "example_translations": {
+        "ru": "Ты помнишь мой номер телефона?",
+        "uz": "Telefon raqamimni eslaysanmi?"
+      }
+    },
+    {
+      "word": "forget",
+      "part_of_speech": "verb",
+      "translation": "забывать",
+      "translations": {
+        "ru": "забывать",
+        "uz": "unutmoq"
+      },
+      "example": "I always forget his name.",
+      "example_translations": {
+        "ru": "Я всегда забываю его имя.",
+        "uz": "Men uning ismini doim unutaman."
+      }
+    },
+    {
+      "word": "hope",
+      "part_of_speech": "verb",
+      "translation": "надеяться",
+      "translations": {
+        "ru": "надеяться",
+        "uz": "umid qilmoq"
+      },
+      "example": "I hope it does not rain tomorrow.",
+      "example_translations": {
+        "ru": "Надеюсь, завтра не будет дождя.",
+        "uz": "Umid qilamanki, ertaga yomg'ir yog'maydi."
+      }
+    },
+    {
+      "word": "imagine",
+      "part_of_speech": "verb",
+      "translation": "представлять",
+      "translations": {
+        "ru": "представлять",
+        "uz": "tasavvur qilmoq"
+      },
+      "example": "Imagine a house on the beach.",
+      "example_translations": {
+        "ru": "Представь дом на пляже.",
+        "uz": "Plyajdagi uyni tasavvur qil."
+      }
+    }
+  ]
+}

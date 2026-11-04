@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Models\ExamSession;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -15,12 +16,88 @@ use App\Models\User;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
+/**
+ * What the signed-in user of `/admin` may see (docs/07 §5): an admin — everything; a teacher — their groups
+ * (`teacher_groups`), the learners active in them and the group sessions and exams of those groups. The list
+ * queries (`learners()`, `exams()`, …) and the per-record checks of the row policies (`canViewLearner()`,
+ * `canViewExam()`) state the same rule; the per-record checks answer from the groups of the teacher, read once
+ * per request ({@see PanelRequestMemo}), and from a relation the list query loaded — never with a query per row.
+ */
 final class PanelDataScope
 {
+    public function __construct(private readonly PanelRequestMemo $memo) {}
+
     public function isAdmin(): bool
     {
         return $this->user()?->hasRole('admin') === true;
+    }
+
+    /**
+     * Ids of the groups $user is assigned to (`teacher_groups`), read once per request. The role is not looked at
+     * here: the policies check it in `viewAny` before they ask, and an admin never needs the list (admin: all).
+     *
+     * @return list<int>
+     */
+    public function teacherGroupIds(User $user): array
+    {
+        return $this->memo->remember("teacher_groups:{$user->id}", function () use ($user): array {
+            /** @var list<int> $ids */
+            $ids = DB::table('teacher_groups')
+                ->where('user_id', $user->id)
+                ->orderBy('telegram_group_id')
+                ->pluck('telegram_group_id')
+                ->map(fn ($id): int => (int) $id)
+                ->values()
+                ->all();
+
+            return $ids;
+        });
+    }
+
+    /**
+     * Whether $user may see this learner: an admin — anyone; a teacher — a learner with an ACTIVE membership in one
+     * of the teacher's groups (the rule of `learners()`). Read from `learner.activeGroupMemberships` when it is loaded
+     * (LearnerResource loads it with the list for a teacher), with one query otherwise (a single record elsewhere).
+     */
+    public function canViewLearner(User $user, Learner $learner): bool
+    {
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        $groupIds = $this->teacherGroupIds($user);
+
+        if ($groupIds === []) {
+            return false;
+        }
+
+        if ($learner->relationLoaded('activeGroupMemberships')) {
+            return $learner->activeGroupMemberships->contains(
+                fn (GroupMember $membership): bool => in_array((int) $membership->telegram_group_id, $groupIds, true),
+            );
+        }
+
+        return GroupMember::query()
+            ->where('learner_id', $learner->id)
+            ->where('status', 'active')
+            ->whereIn('telegram_group_id', $groupIds)
+            ->exists();
+    }
+
+    /**
+     * Whether $user may see this exam: an admin — any; a teacher — a group exam of one of their groups (the rule of
+     * `exams()`; a personal mock has no group and is nobody's in the panel but the admin's).
+     */
+    public function canViewExam(User $user, ExamSession $session): bool
+    {
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        return $session->telegram_group_id !== null
+            && in_array((int) $session->telegram_group_id, $this->teacherGroupIds($user), true);
     }
 
     /** @return Builder<TelegramGroup> */
@@ -132,10 +209,20 @@ final class PanelDataScope
         return $this->trainingSessions()->select('training_sessions.id');
     }
 
-    /** @return Builder<TrainingReview> */
+    /**
+     * Admin: every review. Teacher: the reviews inside the sessions of {@see trainingSessions()}.
+     *
+     * An admin sees every session, and a review always belongs to one (`training_session_id` is a NOT NULL foreign key), so for
+     * an admin the filter by sessions is an empty one - which PostgreSQL still pays for with a hash join of the reviews against
+     * every session id (docs/20 §4, the activity chart at 200 000 learners: 249 ms). Left out for an admin, kept for anybody else.
+     *
+     * @return Builder<TrainingReview>
+     */
     public function trainingReviews(): Builder
     {
-        return TrainingReview::query()->whereIn('training_session_id', $this->trainingSessionIds());
+        $reviews = TrainingReview::query();
+
+        return $this->isAdmin() ? $reviews : $reviews->whereIn('training_session_id', $this->trainingSessionIds());
     }
 
     /**
@@ -171,6 +258,29 @@ final class PanelDataScope
         return $this->isAdmin()
             ? $query
             : $query->whereHas('lesson.stage.course', fn (Builder $course): Builder => $course->where('courses.owner_type', '!=', 'learner'));
+    }
+
+    /**
+     * WHICH data this viewer sees, as a short key part for a cached aggregate (docs/19 K1): `all` for an admin; for a
+     * teacher their user id and a hash of the ids of their groups, so the day a group is added or taken away is a
+     * different key from their next request on and no stale aggregate of a group they lost is ever shown (nothing to
+     * invalidate); `none` when nobody is signed in (callers do not cache that). One small indexed read per request for a
+     * teacher ({@see teacherGroupIds()}), none for an admin.
+     */
+    public function fingerprint(): string
+    {
+        $user = $this->user();
+
+        if ($user === null) {
+            return 'none';
+        }
+
+        if ($user->hasRole('admin')) {
+            return 'all';
+        }
+
+        // The groups of the teacher, read once per request (ascending by id, so the hash is stable).
+        return 'u'.$user->id.'g'.substr(hash('sha256', implode(',', $this->teacherGroupIds($user))), 0, 12);
     }
 
     private function user(): ?User

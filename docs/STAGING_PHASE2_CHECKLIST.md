@@ -491,8 +491,7 @@
 
 ## 7. Нефункциональные проверки (0.7 / 2R.8)
 
-Скриптов k6, конфигураций ZAP/Lighthouse в репозитории **нет** (проверено по `docs/`, `Makefile`, `.github/workflows/ci.yml`): сценарии нужно написать — **уточнить**,
-кто пишет и где хранятся. Команды ниже — стандартные для этих инструментов, не зафиксированные в проекте.
+Сценарии k6 (`tests/load/k6/`) и настройка ZAP baseline (`tests/security/zap/`) лежат в репозитории (решение владельца 03.11.2026); запускаются из Docker-образов инструментов с закреплёнными тегами, без пакетов в composer и npm, в CI не подключены. Прогон на staging — владелец; к релизу — ещё ревью безопасности кода. Конфигураций Lighthouse в репозитории нет (команды в §7.4 стандартные).
 
 ### 7.1 Restore-тест бэкапа (docs/ADMIN_GUIDE «Backups», NFR-08)
 
@@ -506,8 +505,17 @@
 
 ### 7.2 OWASP ZAP baseline (docs/07 §14, docs/10 пен-тест чек-лист)
 
-- [ ] Baseline-скан staging, например `docker run --rm -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://<staging>/ -r zap.html` (без аутентификации; для публичных страниц, `/admin/login`, `/org/login`, `/billing/*`, `/twa/`).
-      Критерий: нет High; Medium разобраны (критерий допуска — **уточнить**).
+- [ ] Baseline-скан staging (пассивный, без аутентификации и без атак): `make zap-baseline BASE_URL=https://<staging>`.
+      Цели по умолчанию: `/`, `/offer`, `/privacy`, `/admin/login`, `/org/login`, `/billing/return`, `/twa/` (свой список: `TARGETS="/ /admin/login /twa/"`; страницы `/billing/*` — это `/billing/return`, остальное там POST-вебхуки провайдеров, baseline их не проходит).
+      Файлы: `tests/security/zap/run-baseline.sh` (запуск `ghcr.io/zaproxy/zaproxy:2.16.1` по целям; тег меняется переменной `ZAP_IMAGE`, `ZAP_MINUTES` — время паука на цель),
+      `tests/security/zap/zap-baseline.conf` (правила: `IGNORE` с причиной — шум SPA и вендорных бандлов; `FAIL` — свои заголовки и cookie: HSTS, `Secure`, `nosniff`, утечка версий; остальные `WARN`),
+      `tests/security/zap/check_reports.py` (разбирает JSON-отчёты). Нужны Docker и `python3` на машине запуска.
+      Код выхода: `0` — High нет; `1` — есть High (или сработало правило `FAIL`); `2` — есть Medium при `STRICT_MEDIUM=1`; `3` — ошибка инструмента.
+      Отчёты — `tests/security/zap/reports/zap-<цель>.html|json|md` (каталог в `.gitignore`). Смотреть: итог `check_reports.py` в конце вывода (High/Medium по именам и правилам), затем HTML нужных целей.
+      Критерий допуска (решение владельца 03.11.2026): ни одной находки High; каждая Medium разобрана — исправлена или записана с причиной (в §9.3 журнал расхождений: правило, URL, причина). Новое правило в `IGNORE` — только с причиной в комментарии.
+- [ ] Принятая Medium ZAP ("CSP: script-src unsafe-inline", "CSP: script-src unsafe-eval") на `/admin/login`, `/org/login`, `/2fa/*`: CSP панелей и страниц 2FA
+      содержит `'unsafe-inline' 'unsafe-eval'`, потому что Filament (Livewire) и Alpine.js без них не работают (`app/Http/Middleware/SecurityHeaders.php`, `contentSecurityPolicy()`).
+      Допускается только на этих адресах (вход требует пароля и 2FA); внести в §9.3 с этой причиной. Публичные страницы (`/`, `/offer`, `/privacy`, `/billing/return`) и TWA (`/twa/`) отдаются со строгим `script-src` (`'none'` / `'self' https://telegram.org`, без `unsafe-inline` и `unsafe-eval`; `style-src 'unsafe-inline'` остаётся): Medium про `script-src` на них — находка.
 - [ ] Ручные пункты пен-теста Фазы 2 (docs/13 §10): вебхук Payme с чужим ключом → `-32504`; `PerformTransaction` дважды → один платёж; Click с неверной подписью → `-1`;
       чужой `GET /billing/orders/{token}` → 404; пользователь организации A на URL организации B → 404; `answer` для flash-карточки → 422; 31-й по инвайту Tutor → `waitlisted`.
 - [ ] Подмена `initData` → 401; токен заблокированного learner'а → 401 `learner_blocked` (docs/07 §14).
@@ -517,15 +525,31 @@
 
 ### 7.3 Нагрузка k6
 
-Фокус — горячие эндпоинты (docs/11 O4); целевые пороги (p95, RPS, ошибки) в проекте не зафиксированы — **уточнить** у владельца. NFR-03: 1250 активных пользователей; NFR-01: webhook Telegram < 300 мс.
-Учесть лимитеры: `twa-review` — 60 запросов в минуту на ключ (learner), поэтому нужно много виртуальных learner'ов с собственными JWT; `billing-webhook` — 120 в минуту на IP (нагрузку с одного IP упрёт в 429);
-`twa-session-create`, `twa-auth`, `twa-api` — см. `AppServiceProvider`.
+Фокус — горячие эндпоинты (docs/11 O4). Пороги (решение владельца 03.11.2026) заданы в `options.thresholds` сценариев: p95 < 300 мс на горячих эндпоинтах при 1 250 активных учениках (NFR-03), ни одного ответа 5xx (счётчик `server_errors`, порог `count==0`); webhook Telegram p95 < 300 мс (NFR-01).
+Лимитеры: `twa-api` — 60 запросов в минуту на learner'а на ВСЕ маршруты API, `twa-review` — 60, `twa-session-create` — 10, `billing-webhook` — 120 в минуту на IP (поэтому Payme/Click под k6 не гоняются: нагрузка с одного IP упрётся в 429).
+Поэтому у каждого виртуального ученика свой JWT, а итерация сценария идёт с паузами «чтения» (23 запроса за ~30–65 секунд пауз, худший случай ~45 в минуту при THINK_SCALE=1). Любой 429 — это ошибка сценария, а не сервера: порог `rate_limited` (`count==0`).
 
-- [ ] Сценарий «оценка карточки»: `POST /api/twa/training/sessions` → `/start` → цикл `GET /next` + `POST /review` (`quality`) на тестовых learner'ах.
-- [ ] Сценарий «Сегодня»: `GET /api/twa/today` (включает лигу, задания, заморозки).
-- [ ] Сценарий «вебхук Telegram»: `POST /telegram/webhook/{secret}` с заголовком `X-Telegram-Bot-Api-Secret-Token` и фикстурами апдейтов; тяжёлое уходит в очередь, ответ быстрый.
-- [ ] Сценарий «Payme/Click RPC»: `POST /billing/webhook/payme` (Basic, фикстуры из `tests/Fixtures/billing/payme/*.json`: Check→Create→Perform) и `POST /billing/webhook/click/prepare|complete`
-      (фикстуры `tests/Fixtures/billing/click/*.json`, подпись считается скриптом). Нагрузку гнать по **песочничным** ключам; повторы `Perform` не должны давать второй платёж. Дополнительно `GET /api/twa/billing/catalog` (2R.8).
+Файлы: `tests/load/k6/twa-hot-paths.js` (ученик), `tests/load/k6/telegram-webhook.js` (вебхук), `tests/load/k6/lib.js` (общее), `tests/load/k6/fixtures/telegram-update.json` (апдейт).
+Токены: `php artisan load:tokens` (`app/Console/Commands/LoadTestTokens.php`) создаёт (или берёт те же) тестовых учеников `telegram_user_id = 8 000 000 000 + N`, помечает их `meta.load_test`, глушит ЛС (`dm_blocked_at`), привязывает к первому опубликованному курсу (или `--course=<slug>`) и пишет JWT; работает только в `local`, `testing`, `staging`; найденного по ID ученика без метки не трогает (отказ); `--output` — внутри `storage/` или `-`.
+
+Подготовка и запуск (на машине с Docker; staging — стек `docker-compose.prod.yml` с `APP_ENV=staging`):
+
+```bash
+make load-tokens TARGET_VUS=1250                 # токены в tests/load/k6/tokens.json (live-токены, после прогона удалить)
+make load-test BASE_URL=https://<staging>        # рампа 8 мин до 1 250 VU (20 % → 50 % → 100 %), затем HOLD (по умолчанию 10m), 1 мин спад
+# разведка на малом числе: make load-tokens TARGET_VUS=20 && make load-test BASE_URL=... TARGET_VUS=20 HOLD=1m
+TELEGRAM_URL_SECRET=... TELEGRAM_HEADER_SECRET=... make load-test-webhook BASE_URL=https://<staging>   # WEBHOOK_RPS=50 по умолчанию
+```
+
+Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 23 запроса при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~90 запросов в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~56/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
+Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_ENABLED` (на staging на время прогона выключить); фикстура — `/start_training` из незарегистрированной супергруппы, обработчик молча отбрасывает её (Group Lock), в Telegram ничего не уходит.
+
+Что смотреть в отчёте k6 (конец вывода и `tests/load/k6/results/*-summary.json`): блок `thresholds` — каждая строка с галочкой; `http_req_duration{endpoint:…}` p(95) по `me`, `today`, `courses`, `practice_hub`, `billing_catalog`, `training_open`, `training_next`, `training_review`, `training_finish`;
+`server_errors` = 0, `rate_limited` = 0, `http_req_failed` < 1 %, `checks` > 99 %. Код выхода k6 `99` = порог нарушен. Параллельно — Grafana/логи/`/health/ready` (см. следующий пункт).
+
+- [ ] Сценарий «ученик» (`make load-test`): `GET /api/twa/me`, `/today` (лига, задания, заморозки), `/courses`, `/practice/hub`, `/billing/catalog` (2R.8) и тренировка `POST /training/sessions` → цикл `GET /next` + `POST /review` (`quality`; для spelling/gap-fill — `answer`) → `POST /finish`; все пороги зелёные.
+- [ ] Сценарий «вебхук Telegram» (`make load-test-webhook`): `POST /telegram/webhook/{secret}` с `X-Telegram-Bot-Api-Secret-Token`; тяжёлое уходит в очередь, ответ быстрый; p95 < 300 мс.
+- [ ] Payme/Click RPC под k6 не гоняются (лимит `billing-webhook` 120/мин на IP, песочничные ключи): проверяются руками по §3.2 и §4.3 с фикстурами `tests/Fixtures/billing/*`; повторы `Perform` не должны давать второй платёж.
 - [ ] Во время теста: `/health/ready` остаётся 200; backlog очередей `high`/`default` ниже `READINESS_QUEUE_MAX_SIZE` (1000) и рассасывается; `failed_jobs` не растёт; нет 5xx на `/billing/webhook/*`.
 - [ ] Глобальный лимит исходящих Telegram: массовый прогон `reminders:dispatch` (много learner'ов) — отправки идут не быстрее `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (25/с),
       job'ы без слота «откладываются» на 1–5 с, ЛС не теряются (2R.3); `reminders:dispatch` печатает `claimed / queued / skipped stale / repaired / backfilled`, клеймит не более `send_rate × 840` за запуск.

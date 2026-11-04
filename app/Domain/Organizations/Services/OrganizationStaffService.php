@@ -51,6 +51,8 @@ final class OrganizationStaffService
 
     public const PASSWORD_BROKER = 'org';
 
+    public function __construct(private readonly OrgRequestMemo $memo) {}
+
     /**
      * @throws OrganizationStaffException invalid_email | already_staff
      */
@@ -78,7 +80,8 @@ final class OrganizationStaffService
                     'is_active' => true,
                 ]);
                 $created = true;
-            } elseif ($user->organizationRole($organization) !== null) {
+            } elseif (OrganizationUser::query()->where('organization_id', $organization->id)->where('user_id', $user->id)->exists()) {
+                // Under the row lock the table is asked, not the per-request memory of the role.
                 throw OrganizationStaffException::alreadyStaff($email, $organization->id);
             }
 
@@ -184,6 +187,8 @@ final class OrganizationStaffService
             ]);
 
             $current->delete();
+            // The groups went with a query-builder delete (no model events): drop the per-request memory by hand.
+            $this->memo->flush();
         });
     }
 
@@ -250,6 +255,10 @@ final class OrganizationStaffService
                     'attached' => $toAttach,
                     'detached' => $toDetach,
                 ]);
+
+                // `teacher_groups` is an input of what the teacher sees (OrgTenantScope::teacherGroupIds); it was
+                // rewritten with the query builder, so the per-request memory is dropped by hand.
+                $this->memo->flush();
             }
         });
     }

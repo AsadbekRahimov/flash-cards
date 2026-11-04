@@ -133,12 +133,44 @@ else
     echo "    the postgres container of the 18 compose refuses to start until then (docs/DEVOPS_GUIDE.md §0 «Откат и его цена»)."
 fi
 
+# Both Redis passwords are mandatory in production (docker-compose.prod.yml), and a .env that says `null`, `(null)`, `empty`
+# or `(empty)` - what Laravel's env() reads as "no password", in any case of letters - is as bad as a missing one: compose's
+# `:?` rejects only an EMPTY value, so it would start the stack, the Redis container would refuse the word and restart
+# forever, and the application would come up without its cache (readiness 200 `degraded`, forever) or, for `redis`, not at
+# all. Stop here, before anything is built or started. The value checked is the one compose will interpolate: the shell
+# environment first, then .env (quotes and an inline comment stripped as compose strips them).
+redis_password_of() {
+    local name=$1 value=''
+    if [ -v "$name" ]; then
+        value="${!name}"
+    else
+        value="$(grep -E "^[[:space:]]*(export[[:space:]]+)?${name}=" .env 2>/dev/null | tail -n 1 | sed -E "s/^[[:space:]]*(export[[:space:]]+)?${name}=//")"
+        case "$value" in
+            \"*\") value="${value#\"}"; value="${value%\"}" ;;
+            \'*\') value="${value#\'}"; value="${value%\'}" ;;
+            *) value="$(printf '%s' "$value" | sed -E 's/[[:space:]]+#.*$//; s/[[:space:]]+$//')" ;;
+        esac
+    fi
+    printf '%s' "$value"
+}
+echo "==> Checking the Redis passwords"
+for name in REDIS_PASSWORD REDIS_CACHE_PASSWORD; do
+    value="$(redis_password_of "$name")"
+    case "$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')" in
+        ''|null|'(null)'|empty|'(empty)')
+            echo "STOP: ${name} is empty or the word '${value}' (shell environment or .env): Laravel reads that as \"no password\", the" >&2
+            echo "      Redis container refuses to start with it, and the application would run without its cache or not at all." >&2
+            echo "      Set a real one in .env:  ${name}=\$(openssl rand -hex 32)   (docs/DEVOPS_GUIDE.md, \"Redis\")" >&2
+            exit 1 ;;
+    esac
+done
+
 echo "==> Building immutable application and nginx images"
 $COMPOSE build --pull app nginx
 
-echo "==> Starting database and Redis"
+echo "==> Starting database and both Redis instances"
 STACK_TOUCHED=1
-$COMPOSE up -d postgres redis
+$COMPOSE up -d postgres redis redis-cache
 
 echo "==> Checking the TLS certificate"
 if ! $COMPOSE run --rm --no-deps --entrypoint sh certbot -c \
@@ -186,14 +218,26 @@ $CURL "${BASE}/up" >/dev/null || smoke_fail "${BASE}/up"
 # to appear after the containers restart: up to ~5 minutes.
 echo "==> Waiting for /health/ready (DB, Redis, scheduler, queue workers)"
 READY=0
+READY_BODY=''
 for _ in $(seq 1 30); do
-    if curl --fail --silent --max-time 10 "${BASE}/health/ready" >/dev/null; then
+    if READY_BODY="$(curl --fail --silent --max-time 10 "${BASE}/health/ready")"; then
         READY=1
         break
     fi
     sleep 10
 done
 [ "$READY" -eq 1 ] || smoke_fail "${BASE}/health/ready did not become ready: $(curl --silent --max-time 10 "${BASE}/health/ready" || true)"
+
+# 200 with `degraded` is ready - the application serves - but without something it works around: the second Redis instance
+# (the pure cache, docs/19 §4.1), with PostgreSQL carrying the load until it is back. The deploy is not blocked; the
+# operator must see it in the output, not only in the monitor.
+case "$READY_BODY" in
+    *'"status":"degraded"'*|*'"status": "degraded"'*)
+        echo "WARNING: /health/ready answers 200 but DEGRADED: ${READY_BODY}" >&2
+        echo "         A dependency the application works without is down - usually redis-cache (the pure cache): the application" >&2
+        echo "         computes from the database meanwhile. Check:  $COMPOSE ps redis-cache ; $COMPOSE logs --tail=50 redis-cache" >&2
+        echo "         (docs/DEVOPS_GUIDE.md §15.2; an alert fires when it lasts longer than 10 minutes, §15.3)" >&2 ;;
+esac
 
 echo "==> Checking static assets"
 for path in /twa/index.html /build/manifest.json; do

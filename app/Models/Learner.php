@@ -150,6 +150,18 @@ class Learner extends Model
         return $this->hasMany(GroupMember::class);
     }
 
+    /**
+     * The groups the learner is currently in (`group_members.status = active`). A fixed relation, so that when
+     * it is eager-loaded its content means the same wherever it is read — `OrgTenantScope::canSeeMember` checks
+     * a teacher's rows against it instead of running a query per row (docs/20 §1.3).
+     *
+     * @return HasMany<GroupMember, $this>
+     */
+    public function activeGroupMemberships(): HasMany
+    {
+        return $this->hasMany(GroupMember::class)->where('group_members.status', 'active');
+    }
+
     /** @return BelongsToMany<TelegramGroup, $this> */
     public function groups(): BelongsToMany
     {
@@ -202,6 +214,12 @@ class Learner extends Model
     public function dailyStats(): HasMany
     {
         return $this->hasMany(LearnerDailyStats::class);
+    }
+
+    /** @return HasMany<GameCoinLedgerEntry, $this> */
+    public function gameCoinLedger(): HasMany
+    {
+        return $this->hasMany(GameCoinLedgerEntry::class);
     }
 
     /** @return HasMany<ProductEvent, $this> */

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 6,
+    "title": "Покупки и одежда",
+    "title_uz": "Xaridlar va kiyim"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Какой предмет",
+    "title_uz": "Buyum qanday"
+  },
+  "words": [
+    {
+      "word": "big",
+      "part_of_speech": "adjective",
+      "translation": "большой",
+      "translations": {
+        "ru": "большой",
+        "uz": "katta"
+      },
+      "example": "We live in a big house.",
+      "example_translations": {
+        "ru": "Мы живём в большом доме.",
+        "uz": "Biz katta uyda yashaymiz."
+      }
+    },
+    {
+      "word": "small",
+      "part_of_speech": "adjective",
+      "translation": "маленький",
+      "translations": {
+        "ru": "маленький",
+        "uz": "kichik"
+      },
+      "example": "The room is small.",
+      "example_translations": {
+        "ru": "Комната маленькая.",
+        "uz": "Xona kichkina."
+      }
+    },
+    {
+      "word": "new",
+      "part_of_speech": "adjective",
+      "translation": "новый",
+      "translations": {
+        "ru": "новый",
+        "uz": "yangi"
+      },
+      "example": "I have a new phone.",
+      "example_translations": {
+        "ru": "У меня новый телефон.",
+        "uz": "Menda yangi telefon bor."
+      }
+    },
+    {
+      "word": "good",
+      "part_of_speech": "adjective",
+      "translation": "хороший",
+      "translations": {
+        "ru": "хороший",
+        "uz": "yaxshi"
+      },
+      "example": "This is a good book.",
+      "example_translations": {
+        "ru": "Это хорошая книга.",
+        "uz": "Bu yaxshi kitob."
+      }
+    },
+    {
+      "word": "bad",
+      "part_of_speech": "adjective",
+      "translation": "плохой",
+      "translations": {
+        "ru": "плохой",
+        "uz": "yomon"
+      },
+      "example": "The weather is bad today.",
+      "example_translations": {
+        "ru": "Сегодня плохая погода.",
+        "uz": "Bugun ob-havo yomon."
+      }
+    },
+    {
+      "word": "long",
+      "part_of_speech": "adjective",
+      "translation": "длинный",
+      "translations": {
+        "ru": "длинный",
+        "uz": "uzun"
+      },
+      "example": "She has long black hair.",
+      "example_translations": {
+        "ru": "У неё длинные чёрные волосы.",
+        "uz": "Uning uzun qora sochlari bor."
+      }
+    },
+    {
+      "word": "heavy",
+      "part_of_speech": "adjective",
+      "translation": "тяжёлый",
+      "translations": {
+        "ru": "тяжёлый",
+        "uz": "og'ir"
+      },
+      "example": "This table is very heavy.",
+      "example_translations": {
+        "ru": "Этот стол очень тяжёлый.",
+        "uz": "Bu stol juda og'ir."
+      }
+    },
+    {
+      "word": "full",
+      "part_of_speech": "adjective",
+      "translation": "полный",
+      "translations": {
+        "ru": "полный",
+        "uz": "to'la"
+      },
+      "example": "The bus is full.",
+      "example_translations": {
+        "ru": "Автобус полный.",
+        "uz": "Avtobus to'la."
+      }
+    },
+    {
+      "word": "empty",
+      "part_of_speech": "adjective",
+      "translation": "пустой",
+      "translations": {
+        "ru": "пустой",
+        "uz": "bo'sh"
+      },
+      "example": "The glass is empty.",
+      "example_translations": {
+        "ru": "Стакан пустой.",
+        "uz": "Stakan bo'sh."
+      }
+    },
+    {
+      "word": "different",
+      "part_of_speech": "adjective",
+      "translation": "другой, разный",
+      "translations": {
+        "ru": "другой, разный",
+        "uz": "boshqa, har xil"
+      },
+      "example": "These two shirts are different.",
+      "example_translations": {
+        "ru": "Эти две рубашки разные.",
+        "uz": "Bu ikki ko'ylak har xil."
+      }
+    }
+  ]
+}

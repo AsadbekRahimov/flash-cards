@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 5,
+    "title": "Город и транспорт",
+    "title_uz": "Shahar va transport"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Транспорт",
+    "title_uz": "Transport"
+  },
+  "words": [
+    {
+      "word": "bus",
+      "part_of_speech": "noun",
+      "translation": "автобус",
+      "translations": {
+        "ru": "автобус",
+        "uz": "avtobus"
+      },
+      "example": "The bus is late today.",
+      "example_translations": {
+        "ru": "Автобус сегодня опаздывает.",
+        "uz": "Avtobus bugun kechikdi."
+      }
+    },
+    {
+      "word": "train",
+      "part_of_speech": "noun",
+      "translation": "поезд",
+      "translations": {
+        "ru": "поезд",
+        "uz": "poyezd"
+      },
+      "example": "The train leaves at six.",
+      "example_translations": {
+        "ru": "Поезд отправляется в шесть.",
+        "uz": "Poyezd soat oltida jo'naydi."
+      }
+    },
+    {
+      "word": "car",
+      "part_of_speech": "noun",
+      "translation": "машина",
+      "translations": {
+        "ru": "машина",
+        "uz": "mashina"
+      },
+      "example": "My father has a new car.",
+      "example_translations": {
+        "ru": "У моего папы новая машина.",
+        "uz": "Dadamning yangi mashinasi bor."
+      }
+    },
+    {
+      "word": "taxi",
+      "part_of_speech": "noun",
+      "translation": "такси",
+      "translations": {
+        "ru": "такси",
+        "uz": "taksi"
+      },
+      "example": "Let's take a taxi.",
+      "example_translations": {
+        "ru": "Давай возьмём такси.",
+        "uz": "Keling, taksi olaylik."
+      }
+    },
+    {
+      "word": "bike",
+      "part_of_speech": "noun",
+      "translation": "велосипед",
+      "translations": {
+        "ru": "велосипед",
+        "uz": "velosiped"
+      },
+      "example": "I go to school by bike.",
+      "example_translations": {
+        "ru": "Я езжу в школу на велосипеде.",
+        "uz": "Men maktabga velosipedda boraman."
+      }
+    },
+    {
+      "word": "plane",
+      "part_of_speech": "noun",
+      "translation": "самолёт",
+      "translations": {
+        "ru": "самолёт",
+        "uz": "samolyot"
+      },
+      "example": "The plane flies fast.",
+      "example_translations": {
+        "ru": "Самолёт летит быстро.",
+        "uz": "Samolyot tez uchadi."
+      }
+    },
+    {
+      "word": "metro",
+      "part_of_speech": "noun",
+      "translation": "метро",
+      "translations": {
+        "ru": "метро",
+        "uz": "metro"
+      },
+      "example": "I take the metro to work.",
+      "example_translations": {
+        "ru": "Я езжу на работу на метро.",
+        "uz": "Men ishga metroda boraman."
+      }
+    },
+    {
+      "word": "ticket",
+      "part_of_speech": "noun",
+      "translation": "билет",
+      "translations": {
+        "ru": "билет",
+        "uz": "chipta"
+      },
+      "example": "I need a ticket to Samarkand.",
+      "example_translations": {
+        "ru": "Мне нужен билет до Самарканда.",
+        "uz": "Menga Samarqandga chipta kerak."
+      }
+    },
+    {
+      "word": "traffic",
+      "part_of_speech": "noun",
+      "translation": "дорожное движение",
+      "translations": {
+        "ru": "дорожное движение",
+        "uz": "yo'l harakati"
+      },
+      "example": "There is a lot of traffic today.",
+      "example_translations": {
+        "ru": "Сегодня очень плотное движение.",
+        "uz": "Bugun yo'l harakati juda gavjum."
+      }
+    },
+    {
+      "word": "truck",
+      "part_of_speech": "noun",
+      "translation": "грузовик",
+      "translations": {
+        "ru": "грузовик",
+        "uz": "yuk mashinasi"
+      },
+      "example": "A big truck is on the road.",
+      "example_translations": {
+        "ru": "Большой грузовик на дороге.",
+        "uz": "Yo'lda katta yuk mashinasi bor."
+      }
+    }
+  ]
+}

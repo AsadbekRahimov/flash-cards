@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
@@ -9,10 +10,17 @@ use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BattleController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\ChallengeController;
+use App\Http\Controllers\Api\Twa\ClassCaravanController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
+use App\Http\Controllers\Api\Twa\GameCityController;
+use App\Http\Controllers\Api\Twa\GameMapController;
+use App\Http\Controllers\Api\Twa\GameProfileController;
+use App\Http\Controllers\Api\Twa\GameRunController;
+use App\Http\Controllers\Api\Twa\GameShopController;
+use App\Http\Controllers\Api\Twa\GameWalletController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
@@ -39,6 +47,8 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
         Route::post('/me/settings/timezone/revert', [SettingsController::class, 'revertTimezone'])->name('twa.me.settings.timezone.revert');
+        Route::post('/me/account-restored/seen', [MeController::class, 'restoredSeen'])->name('twa.me.account_restored.seen');
+        Route::post('/me/delete', [SettingsController::class, 'delete'])->name('twa.me.delete');
         Route::get('/me/organizations', [OrganizationController::class, 'index'])->name('twa.me.organizations');
         Route::delete('/me/organizations/{member}', [OrganizationController::class, 'leave'])
             ->whereNumber('member')
@@ -133,6 +143,39 @@ Route::prefix('twa')->group(function (): void {
             Route::get('/result', [ExamController::class, 'result'])->name('twa.exam.result');
         });
 
+        // The game "Caravan" (docs/18 §12.8, docs/04 A.18): the map; the runs, the wallet, the shop and the profile are below.
+        Route::get('/game/map', [GameMapController::class, 'show'])->name('twa.game.map');
+
+        // The wallet, the shop and the profile (docs/18 §12.8, G2.5b): all under `twa-api`; a purchase is paid once per `request_id`.
+        Route::get('/game/wallet', [GameWalletController::class, 'show'])->name('twa.game.wallet');
+        Route::get('/game/shop', [GameShopController::class, 'index'])->name('twa.game.shop');
+        Route::post('/game/shop/{key}/buy', [GameShopController::class, 'buy'])
+            ->where('key', '[a-z0-9][a-z0-9_]{0,47}')
+            ->name('twa.game.shop.buy');
+        Route::get('/game/profile', [GameProfileController::class, 'show'])->name('twa.game.profile');
+        Route::post('/game/profile/equip', [GameProfileController::class, 'equip'])->name('twa.game.profile.equip');
+
+        // The card of a city that the learner has reached (docs/18 §12.9, G2.7b): the mark "shared".
+        Route::post('/game/cities/{stage}/shared', [GameCityController::class, 'shared'])->where('stage', '[0-9]{1,18}')->name('twa.game.cities.shared');
+
+        // The caravans of the learner's classes (docs/18 §12.8, G2.9b): the list and one caravan with its table; under `twa-api`.
+        Route::get('/game/class', [ClassCaravanController::class, 'index'])->name('twa.game.class.index');
+        Route::get('/game/class/{id}', [ClassCaravanController::class, 'show'])->where('id', '[0-9]{1,18}')->name('twa.game.class.show');
+
+        // The runs (docs/18 §12.8): starting has a limiter of its own, answering and the hint share another; the audio is OUTSIDE `twa-api`, below.
+        Route::post('/game/runs', [GameRunController::class, 'store'])
+            ->middleware('throttle:twa-game-start')
+            ->name('twa.game.runs.store');
+        Route::prefix('game/runs/{run}')->where(['run' => '[0-9]{1,18}'])->group(function (): void {
+            Route::get('/', [GameRunController::class, 'show'])->name('twa.game.runs.show');
+            Route::post('/abandon', [GameRunController::class, 'abandon'])->name('twa.game.runs.abandon');
+            Route::middleware('throttle:twa-game-answer')->group(function (): void {
+                Route::post('/answer', [GameRunController::class, 'answer'])->name('twa.game.runs.answer');
+                Route::post('/hint', [GameRunController::class, 'hint'])->name('twa.game.runs.hint');
+                Route::post('/booster', [GameRunController::class, 'booster'])->name('twa.game.runs.booster');
+            });
+        });
+
         // Practice (docs/16 §7.1-7.2): the hub and the solo sessions. Opening a session and answering have limiters
         // of their own on top of `twa-api`. The battle (§7.3-7.4) follows below.
         Route::get('/practice/hub', [PracticeHubController::class, 'show'])->name('twa.practice.hub');
@@ -186,6 +229,9 @@ Route::prefix('twa')->group(function (): void {
     // The audio of a practice session and of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): five clips are loaded at once when a
     // room is entered, and that preloading must not eat the general budget of 60 requests a minute. It has its own limiter.
     Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-practice-audio'])->group(function (): void {
+        Route::get('/game/runs/{run}/audio/{element}', [GameRunController::class, 'audio'])
+            ->where('run', '[0-9]{1,18}')
+            ->name(RunService::AUDIO_ROUTE);
         Route::get('/practice/sessions/{session}/audio/{element}', [PracticeAudioController::class, 'session'])
             ->whereNumber('session')
             ->name('twa.practice.sessions.audio');

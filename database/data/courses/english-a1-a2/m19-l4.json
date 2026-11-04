@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 19,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Окружающая среда",
+    "title_uz": "Atrof-muhit"
+  },
+  "words": [
+    {
+      "word": "environment",
+      "part_of_speech": "noun",
+      "translation": "окружающая среда",
+      "translations": {
+        "ru": "окружающая среда",
+        "uz": "atrof-muhit"
+      },
+      "example": "We must protect the environment.",
+      "example_translations": {
+        "ru": "Мы должны защищать окружающую среду.",
+        "uz": "Biz atrof-muhitni himoya qilishimiz kerak."
+      }
+    },
+    {
+      "word": "pollution",
+      "part_of_speech": "noun",
+      "translation": "загрязнение",
+      "translations": {
+        "ru": "загрязнение",
+        "uz": "ifloslanish"
+      },
+      "example": "Air pollution is high in big cities.",
+      "example_translations": {
+        "ru": "Загрязнение воздуха велико в больших городах.",
+        "uz": "Katta shaharlarda havo ifloslanishi yuqori."
+      }
+    },
+    {
+      "word": "recycle",
+      "part_of_speech": "verb",
+      "translation": "перерабатывать",
+      "translations": {
+        "ru": "перерабатывать",
+        "uz": "qayta ishlamoq"
+      },
+      "example": "We recycle paper and glass at home.",
+      "example_translations": {
+        "ru": "Дома мы перерабатываем бумагу и стекло.",
+        "uz": "Biz uyda qog'oz va shishani qayta ishlaymiz."
+      }
+    },
+    {
+      "word": "waste",
+      "part_of_speech": "noun",
+      "translation": "отходы",
+      "translations": {
+        "ru": "отходы",
+        "uz": "chiqindi"
+      },
+      "example": "Too much waste goes to the sea.",
+      "example_translations": {
+        "ru": "Слишком много отходов попадает в море.",
+        "uz": "Juda ko'p chiqindi dengizga tushadi."
+      }
+    },
+    {
+      "word": "plastic",
+      "part_of_speech": "noun",
+      "translation": "пластик",
+      "translations": {
+        "ru": "пластик",
+        "uz": "plastik"
+      },
+      "example": "Plastic bags are bad for the ocean.",
+      "example_translations": {
+        "ru": "Пластиковые пакеты вредны для океана.",
+        "uz": "Plastik paketlar okean uchun zararli."
+      }
+    },
+    {
+      "word": "protect",
+      "part_of_speech": "verb",
+      "translation": "защищать",
+      "translations": {
+        "ru": "защищать",
+        "uz": "himoya qilmoq"
+      },
+      "example": "Trees protect us from the wind.",
+      "example_translations": {
+        "ru": "Деревья защищают нас от ветра.",
+        "uz": "Daraxtlar bizni shamoldan himoya qiladi."
+      }
+    },
+    {
+      "word": "fuel",
+      "part_of_speech": "noun",
+      "translation": "топливо",
+      "translations": {
+        "ru": "топливо",
+        "uz": "yoqilg'i"
+      },
+      "example": "Cars use a lot of fuel.",
+      "example_translations": {
+        "ru": "Машины расходуют много топлива.",
+        "uz": "Mashinalar ko'p yoqilg'i sarflaydi."
+      }
+    },
+    {
+      "word": "nature",
+      "part_of_speech": "noun",
+      "translation": "природа",
+      "translations": {
+        "ru": "природа",
+        "uz": "tabiat"
+      },
+      "example": "I love spending time in nature.",
+      "example_translations": {
+        "ru": "Я люблю проводить время на природе.",
+        "uz": "Men tabiatda vaqt o'tkazishni yaxshi ko'raman."
+      }
+    },
+    {
+      "word": "planet",
+      "part_of_speech": "noun",
+      "translation": "планета",
+      "translations": {
+        "ru": "планета",
+        "uz": "sayyora"
+      },
+      "example": "Earth is our home planet.",
+      "example_translations": {
+        "ru": "Земля — наша родная планета.",
+        "uz": "Yer — bizning uy sayyoramiz."
+      }
+    },
+    {
+      "word": "damage",
+      "part_of_speech": "verb",
+      "translation": "вредить, повреждать",
+      "translations": {
+        "ru": "вредить, повреждать",
+        "uz": "zarar yetkazmoq"
+      },
+      "example": "Cars damage the air in cities.",
+      "example_translations": {
+        "ru": "Машины вредят воздуху в городах.",
+        "uz": "Mashinalar shaharlardagi havoga zarar yetkazadi."
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerMetricsService;
@@ -11,7 +12,6 @@ use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * "SM-2 vs FSRS" over the last 28 days (docs/13 §8.3, docs/06 §9.6). Admin only: platform-wide numbers.
@@ -22,8 +22,10 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
 {
     use RequiresActiveAdmin;
 
-    /** `v1` = arrays of scalars; the objects of the unversioned key are never read (cache.serializable_classes = false). */
-    public const CACHE_KEY = 'admin:scheduler-comparison:v1';
+    /** The entry `admin:widget:scheduler_comparison:v1:all` ({@see WidgetCache}): arrays of scalars, fresh for {@see FRESH_SECONDS}, then served stale while it is recomputed. */
+    public const WIDGET = 'scheduler_comparison';
+
+    public const FRESH_SECONDS = 300;
 
     public static function canView(): bool
     {
@@ -31,6 +33,9 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     }
 
     protected static ?int $sort = 7;
+
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
 
     protected function getHeading(): string
     {
@@ -42,7 +47,7 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     {
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var array<string, SchedulerMetricsArray> $rows */
-        $rows = Cache::remember(self::CACHE_KEY, 120, fn (): array => array_map(
+        $rows = app(WidgetCache::class)->remember(self::WIDGET, 'all', self::FRESH_SECONDS, fn (): array => array_map(
             static fn (SchedulerMetrics $metrics): array => $metrics->toArray(),
             app(SchedulerMetricsService::class)->compare(),
         ));

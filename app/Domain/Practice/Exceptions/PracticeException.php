@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Practice\Exceptions;
 
 use App\Domain\Practice\DTO\ModeAvailability;
+use App\Domain\Practice\DTO\PracticeLimitState;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\Verdict;
+use App\Domain\Practice\Support\IsoTime;
 use RuntimeException;
 
 /**
@@ -18,6 +20,8 @@ use RuntimeException;
  *
  *   practice_unavailable            403  the practice is off / the learner is not in the pilot (one code: no hint)
  *   practice_pro_required           403  `PRACTICE_PLAN=pro` and the learner is on Free (the TWA opens the paywall `practice`)
+ *   practice_limit_reached          403  {kind, limit, used, resets_at}: the Free limit of the day (sessions | battles) is used up
+ *                                        (the TWA opens the paywall `practice` with the rest; docs/18 G1)
  *   practice_mode_disabled          409  {mode}: the mode is switched off - blocks only the CREATION
  *   practice_not_enough_material    422  {mode, available, required, reason, course, lesson_id}
  *   practice_session_active         409  {session_id, mode, course, course_title, lesson_id, lesson, progress}
@@ -39,6 +43,8 @@ final class PracticeException extends RuntimeException
     public const UNAVAILABLE = 'practice_unavailable';
 
     public const PRO_REQUIRED = 'practice_pro_required';
+
+    public const LIMIT_REACHED = 'practice_limit_reached';
 
     public const MODE_DISABLED = 'practice_mode_disabled';
 
@@ -109,6 +115,20 @@ final class PracticeException extends RuntimeException
     public static function proRequired(): self
     {
         return new self(self::PRO_REQUIRED, 'The practice is a Pro feature.');
+    }
+
+    /**
+     * The Free limit of the day is used up (docs/18 G1): `details` carry the kind (`sessions` | `battles`), the limit, how many
+     * were used and when the window ends (ISO 8601 UTC). The message is the learner's (`lang/{ru,uz,en}/practice.php`): the TWA
+     * shows the paywall by the code, the message is the fallback of any other client.
+     */
+    public static function limitReached(PracticeLimitState $state): self
+    {
+        return new self(
+            self::LIMIT_REACHED,
+            trans_choice('practice.limit_reached.'.$state->kind, $state->limit, ['limit' => $state->limit]),
+            ['kind' => $state->kind, 'limit' => $state->limit, 'used' => $state->used, 'resets_at' => IsoTime::format($state->resetsAt)],
+        );
     }
 
     public static function modeDisabled(PracticeMode $mode): self
@@ -215,7 +235,7 @@ final class PracticeException extends RuntimeException
     public function httpStatus(): int
     {
         return match ($this->errorCode) {
-            self::UNAVAILABLE, self::PRO_REQUIRED => 403,
+            self::UNAVAILABLE, self::PRO_REQUIRED, self::LIMIT_REACHED => 403,
             self::SESSION_NOT_FOUND, self::COURSE_NOT_FOUND, self::LESSON_NOT_FOUND => 404,
             self::SESSION_CLOSED => 410,
             self::NOT_ENOUGH_MATERIAL, self::INVALID_ANSWER_SHAPE, self::UNKNOWN_ELEMENT_ID, self::LESSON_NOT_IN_COURSE => 422,

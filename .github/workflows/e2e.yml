@@ -1,0 +1,107 @@
+name: E2E Mini App
+
+# Browser e2e of the practice, the battle and the game "Karvon" (resources/twa/scripts/e2e/README.md): minutes of real Chromium against the real API,
+# so it runs at night and by hand, never on push / pull request.
+on:
+    schedule:
+        # Once a day, 02:37 UTC (not on the hour, when the runners are busiest).
+        - cron: '37 2 * * *'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: e2e-miniapp
+    cancel-in-progress: false
+
+env:
+    E2E_DIR: /tmp/lexiflow-e2e
+    # Playwright is global and pinned here, not in package.json (kit.mjs loads it from `npm root -g`).
+    PLAYWRIGHT_VERSION: '1.63.0'
+
+jobs:
+    e2e:
+        name: Practice, battle and game in Chromium
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  extensions: mbstring, intl, bcmath, pdo_sqlite, sqlite3, zip, gd, pcntl
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer packages
+              uses: actions/cache@v6
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Prepare environment
+              # The stand brings its own APP_KEY / JWT secret / database through the environment; the file only has to exist.
+              run: cp .env.example .env
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  # node:sqlite needs 22.13+
+                  node-version: '22'
+                  cache: npm
+                  cache-dependency-path: resources/twa/package-lock.json
+
+            - name: Install TWA dependencies
+              run: npm ci --prefix resources/twa
+
+            - name: Install ffmpeg
+              # The demo seed voices the phrases of the dictations with the `flite` filter.
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y --no-install-recommends ffmpeg
+                  ffmpeg -hide_banner -filters | grep -w flite
+
+            - name: Install Playwright with Chromium
+              run: |
+                  npm install -g "playwright@${PLAYWRIGHT_VERSION}"
+                  npx playwright install --with-deps chromium
+
+            - name: Stand up
+              run: resources/twa/scripts/e2e/stand.sh up
+
+            - name: Run e2e
+              shell: bash
+              run: node resources/twa/scripts/e2e/practice.mjs --db "$E2E_DIR/e2e.sqlite" --out "$E2E_DIR/shots" 2>&1 | tee "$E2E_DIR/report.txt"
+
+            - name: Run e2e of the game
+              # The API allows a learner 60 calls a minute and the practice has just spent them: the game starts from a clean minute. A red
+              # practice does not hide the game (`always`); each step is red for its own scenarios.
+              if: ${{ always() }}
+              shell: bash
+              run: |
+                  sleep 60
+                  node resources/twa/scripts/e2e/game.mjs --db "$E2E_DIR/e2e.sqlite" --base "http://127.0.0.1:${E2E_PORT:-8010}" --out "$E2E_DIR/shots" 2>&1 | tee "$E2E_DIR/report-game.txt"
+
+            - name: Stand down
+              if: ${{ always() }}
+              run: resources/twa/scripts/e2e/stand.sh down
+
+            - name: Upload report and screenshots
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v7
+              with:
+                  name: e2e-report
+                  path: |
+                      ${{ env.E2E_DIR }}/report.txt
+                      ${{ env.E2E_DIR }}/report-game.txt
+                      ${{ env.E2E_DIR }}/shots/
+                      storage/logs/
+                  if-no-files-found: warn
+                  retention-days: 14

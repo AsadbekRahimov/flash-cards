@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Filament\Resources\PaymentResource\Support\PaymentActions;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\Support\BillingDisplay;
 use App\Models\Payment;
 use Filament\Actions;
@@ -33,6 +35,30 @@ class PaymentResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?int $navigationSort = 40;
+
+    /**
+     * The columns the list selects (docs/20 §1.4): everything the columns and the refund button read - not the `raw` payload
+     * of the provider, which only the payment page shows (masked).
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'payments.id',
+        'payments.occurred_at',
+        'payments.subscriber_type',
+        'payments.subscriber_id',
+        'payments.payer_telegram_user_id',
+        'payments.payer_name',
+        'payments.payer_username',
+        'payments.provider',
+        'payments.kind',
+        'payments.status',
+        'payments.amount',
+        'payments.currency',
+        'payments.provider_charge_id',
+        'payments.provider_event_id',
+        'payments.payment_order_id',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -79,7 +105,9 @@ class PaymentResource extends Resource
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.provider', $state)),
                 TextEntry::make('amount_label')->label(__('admin.payments.fields.amount'))->state(fn (Payment $record): string => PriceFormatter::plain($record->amount, $record->currency)),
                 TextEntry::make('occurred_at')->label(__('admin.payments.fields.occurred_at'))->dateTime(),
-                TextEntry::make('subscriber_label')->label(__('admin.payments.fields.subscriber'))->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                TextEntry::make('subscriber_label')->label(__('admin.payments.fields.subscriber'))->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
+                // The snapshot taken at payment time (payer_*): it stays readable after the learner is deleted for good.
+                TextEntry::make('payer_snapshot')->label(__('admin.payments.fields.payer_snapshot'))->state(fn (Payment $record): ?string => PayerSnapshot::fromRecord($record)->label())->placeholder('—'),
                 TextEntry::make('provider_charge_id')->label(__('admin.payments.fields.provider_charge_id'))->placeholder('—')->copyable(),
                 TextEntry::make('provider_event_id')->label(__('admin.payments.fields.provider_event_id'))->copyable(),
                 TextEntry::make('payment_order_id')->label(__('admin.payments.fields.order'))->placeholder('—')
@@ -100,14 +128,17 @@ class PaymentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('subscriber'))
+        return AdminTable::big($table)
+            // A row action loads its own record (`$isResolvingRecord`): the whole row.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord
+                ? $query
+                : $query->select(self::LIST_COLUMNS)->with('subscriber', BillingDisplay::subscriberColumns()))
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('#')->sortable(),
                 Tables\Columns\TextColumn::make('occurred_at')->label(__('admin.payments.fields.occurred_at'))->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('subscriber_label')
                     ->label(__('admin.payments.fields.subscriber'))
-                    ->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                    ->state(fn (Payment $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 Tables\Columns\TextColumn::make('provider')
                     ->label(__('admin.payments.fields.provider'))
                     ->badge()
@@ -127,8 +158,13 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('amount_label')
                     ->label(__('admin.payments.fields.amount'))
                     ->state(fn (Payment $record): string => PriceFormatter::plain($record->amount, $record->currency)),
-                Tables\Columns\TextColumn::make('provider_charge_id')->label(__('admin.payments.fields.charge_id'))->searchable()->copyable()->placeholder('—')->toggleable(),
-                Tables\Columns\TextColumn::make('provider_event_id')->label(__('admin.payments.fields.event_id'))->searchable()->toggleable(isToggledHiddenByDefault: true),
+                // The ids of the provider are searched whole (an exact match uses the index), not as a part of the text.
+                Tables\Columns\TextColumn::make('provider_charge_id')->label(__('admin.payments.fields.charge_id'))
+                    ->searchable(query: fn (Builder $query, string $search): Builder => AdminTable::whereIdentifier($query, 'payments.provider_charge_id', $search))
+                    ->copyable()->placeholder('—')->toggleable(),
+                Tables\Columns\TextColumn::make('provider_event_id')->label(__('admin.payments.fields.event_id'))
+                    ->searchable(query: fn (Builder $query, string $search): Builder => AdminTable::whereIdentifier($query, 'payments.provider_event_id', $search))
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('payment_order_id')->label(__('admin.payments.fields.order'))->placeholder('—')->toggleable(),
             ])
             ->filters([

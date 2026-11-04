@@ -1,0 +1,334 @@
+# 19. Redis 8.10 и кэширование — план и задачи
+
+> **Статус:** ✅ C0–C8 выполнены и приняты 02.11.2026: C0 замер «до», C1 и C2 (architect; деградация и размыкатель §4.1 — по двум ревью), C3–C6 (coder, §5.1), C7 (`9d46a3a`, вместе с F1), C8 — ревью и повторное ревью без блокирующих находок, замер «после» в §8. Правила §3 действуют для всех новых задач с 02.11.2026.
+> **Основание — решение владельца 02.11.2026:**
+> - всё, что можно кэшировать, — в Redis;
+> - версия Redis — 8.10;
+> - приложение ещё не запущено, поэтому конфликтов со старыми версиями Redis не будет.
+>
+> **Связано:** `20_FILAMENT_PERFORMANCE.md` — кэш виджетов и деплой Filament; `DEVOPS_GUIDE.md`; `07_SECURITY.md`.
+
+## 1. Версия Redis 8.10
+
+- **Прежняя причина держать 8.4 больше не действует.** 8.4 держали ради отката на коммит до обновления стека (`DEVOPS_GUIDE.md` §0 «Redis», решение U-обновления в `PROGRESS.md`): там был `redis:7.4`, который не читает RDB 13+, а 8.6+ пишут именно такой формат. Приложение не запущено, данных в Redis на проде нет, откатываться не на что.
+- **Тег закрепляется точный — `redis:8.10-alpine`,** а не плавающий `redis:8-alpine`: образ воспроизводим, следующее обновление делается осознанно.
+- **Последствие:** 8.10 пишет RDB 15. Обратно на 8.4 том Redis уже не поднимется. На проде это не важно, а на деве — пересоздать том `redisdata`, если понадобится старая версия.
+- **Защитное монтирование тома PostgreSQL 16 (`pgdata`)** в эту задачу не входит, его снятие — отдельное решение. Комментарий в compose, связывающий эти два шага, удаляется.
+
+**Где менять** — задача C1 (✅ выполнено 02.11.2026 вместе с C2):
+
+| Файл | Что |
+|---|---|
+| `docker-compose.yml` (сервис `redis`) | `redis:8.10-alpine`, комментарий о закреплении |
+| `docker-compose.prod.yml` (сервис `redis`) | то же |
+| `.github/workflows/ci.yml` (job `test`, сервис `redis`) | `redis:8.10-alpine` — тесты на той же версии, что прод |
+| `docs/DEVOPS_GUIDE.md` §0, абзац «Redis» | новое правило и причина |
+| `PROGRESS.md` | решение «Redis закреплён на 8.4» помечено как заменённое; пункт «Следующий релиз» — только про `pgdata` |
+| `docs/VPS_DEPLOY_GUIDE_RU.md` §5 | ставить 8.10 или новее из `packages.redis.io` |
+
+## 2. Что есть сейчас
+
+### 2.1. Инфраструктура
+
+> Состояние до C2 (02.11.2026); что стало — §4.
+
+- **Один экземпляр Redis:** AOF (`appendfsync everysec`), `maxmemory 256mb`, `maxmemory-policy noeviction`.
+- **Подключения в `config/database.php`:**
+  - `default` — DB 0: очереди и сессии;
+  - `cache` — DB 1: хранилище кэша `redis`;
+  - `locks` — DB 4: блокировки кэша.
+- **Переменные:** `CACHE_STORE=redis`, `SESSION_DRIVER=redis`, `QUEUE_CONNECTION=redis`.
+- **`cache.serializable_classes = false`** (с обновления до Laravel 13): в кэше только массивы и скаляры, объекты не десериализуются.
+- **Ограничения скорости** (throttle-мидлвары, `RateLimiter`) пишут в хранилище по умолчанию — тот же Redis.
+- **Кэши фреймворка:** `config:cache`, `route:cache`, `view:cache`, `event:cache` в `docker/entrypoint.sh` — есть. `filament:optimize` — нет (`docs/20`, F1).
+- **OPcache** — с настройками по умолчанию, свои значения в `docker/php/zz-lexiflow.ini` не заданы (задача C7).
+
+**Почему один экземпляр — проблема для «кэшировать всё».** При `noeviction` заполненный кэш ломает запись очередей и сессий: Redis отвечает OOM на любую запись. Если же включить вытеснение, Redis может выкинуть ключи лимитов и защиты 2FA. Тогда атака «забить память кэшем → сбросить лимит попыток» становится реальной. Решение — §4 (выполнено в C2).
+
+### 2.2. Что уже кэшируется
+
+| Где | Ключ | TTL | Вид |
+|---|---|---|---|
+| `Billing/Services/EntitlementResolver` | `entitlement:learner:{id}:v{версия}`, версия — `entitlement:ver:{id}` | `BILLING_CACHE_TTL` (300 с) | кэш с версией |
+| `Content/Services/CourseCatalogService` | `catalog:courses:published:v1:{locale}` | 600 с | кэш |
+| `Learning/Services/LearningCache` | слова урока, лидерборд экзамена, «выучено слов» друзей | 3600 / 300 / 600 с | кэш |
+| `Administration/Services/PlatformStatsService` + `WidgetCache` (F7-1) | `admin:widget:platform_subscriptions:v1:all`, `admin:widget:onboarding_funnel:v1:all` | свежий 120 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; прежние ключи `platform_stats:*` без версии не читаются и истекают сами |
+| `Engagement/Services/LeagueService` | `league:standings:v2:{группа}` (v2 с G2.10: `+ game_points`) | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш |
+| `Learning/Services/MockExamService` | `mock_exam:distribution:course:{id}` | конфиг | кэш |
+| `Filament/Widgets/SchedulerComparisonWidget` + `WidgetCache` (F7-1) | `admin:widget:scheduler_comparison:v1:all` | свежий 300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; прежний `admin:scheduler-comparison:v1` истекает сам |
+| `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
+| `Learners/Services/ReminderSender`, `Jobs/PostLeaderboardJob` | `Cache::lock(...)` | — | **блокировка** |
+| `Organizations/Services/OrgBillingService` | маркеры запроса счёта | 10 мин, сутки | **защита от злоупотреблений** |
+| `Billing/Services/RenewalReminderSender`, `Listeners/Billing/QueueRenewalReminder` | маркеры и счётчики | до 45 дней | **дедупликация ЛС** |
+| `Administration/Services/TwoFactorAttemptService` | счётчики попыток, `2fa:step:{user}:{step}` | 60 с, 3600 с, 180 с | **безопасность** |
+| `Telegram/Services/TelegramMessageRateLimiter` | счётчики и блокировки | — | **лимиты Telegram** |
+| `Practice/Services/PracticeAudioService` | `practice:audio-missing:{session}:{element}` | 600 с | **маркер** |
+| `Administration/Services/AdminDashboardStats` + `WidgetCache` (C3) | `admin:widget:<виджет>:v1:<зритель>[:<параметры>]` (версия формата — перед параметрами), зритель — `PanelDataScope::fingerprint()`; у денег зритель — `all:n{версия}`, версия `admin:widget:money:ver` | свежий 60–300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; деньги — кэш с версией |
+| `Organizations/Services/OrgOverviewService::cachedSummary()` (C3) | `org:{id}:overview:v1:n{версия}:{owner \| u{id}g{хэш групп}}`; версия `org:{id}:overview:ver` | 90 с | кэш с версией |
+| `Content/Services/CourseCatalogService` — дерево курса (C4) | `catalog:course:v1:{id}:{locale}:n{версия}`; версия `catalog:course:ver:{id}` | 1800 с | кэш с версией |
+| `Content/Services/WordTranslationResolver` (C4) | `word:tr:v1:{слово}:{locale}:{запасная локаль}` — строки `word_translations`, пачкой `many`/`putMany` | 7200 с | кэш |
+| `Site/Services/SitePageCache` (C5) | `site:page:v1:{страница}:{locale}:{отпечаток релиза}` — готовый HTML | 86400 с | кэш страниц |
+| `Telegram/Services/ChatMemberStatusCache` (C6) | `tg:member:v1:{чат}:{пользователь}` — статус бота в группе | 600 с | кэш |
+| `Game/Services/MapService` (G2.1m) | `game:friends:v2:{ученик}` — друзья на карте: массив `{friendship_id, learner_id, course_id, city_number, stops_cleared, camel_asset}` по всем курсам принятых друзей (карта фильтрует свой курс; имя читается при выдаче) | 300 с | кэш; сброс обеих сторон при принятии, удалении и блокировке дружбы (`FriendshipService`), иначе TTL |
+| `Game/Services/Economy/ShopService` (G2.5b) | `game:shop:v1:{locale}:n{версия}` — опубликованный каталог предметов (массив: id, key, kind, slot, effect, price, availability, title, description, asset; тексты — на языке из ключа); версия `game:shop:ver` (без TTL, невытесняемое хранилище); баланс, инвентарь и экипировка не кэшируются | 1800 с | кэш с версией; `GameItemObserver` поднимает версию после commit любого сохранения / удаления предмета |
+| `Game/Services/Class/ClassCaravanService` (G2.9b) | `game:class:v1:{караван}:standings` — таблица каравана класса: массив строк `{learner_id, name, stars, runs, best_score, boss_won}` (имя читается при сборке; удалённый аккаунт — «—», суммы сходятся) | 60 с | кэш, только пока караван идёт; сбрасывается при закрытии и отмене (`forgetStandings`), иначе TTL; у завершённого каравана — чтение из БД |
+| `Jobs/PostClassCaravanSummaryJob` (G2.9a) | `game:class-summary:{караван}` — `Cache::lock`, итоги недели уходят в чат группы ровно один раз | 120 с (ожидание 10 с) | **блокировка** |
+| `Filament/Widgets/GameActivityWidget` + `WidgetCache` (G2.11) | `admin:widget:game_activity:v2:all` — скаляры за 7 дней (забеги, игроки, доля активных, забегов на игрока в день, конверсия пейвола в оплату, верные ответы игроков и остальных); только admin | свежий 300 с | кэш |
+
+**Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
+
+**Отдельный случай — версия entitlement.** Ключ версии без TTL, значение — с TTL. Если вытеснить ключ версии, версия снова станет 0, и может вернуться старое значение `:v0` в пределах TTL — например, Pro после возврата денег. Поэтому с C2 значение лежит в `lru`, а ключ версии — в невытесняемом `redis` (тест `PureCacheStoresTest`: Pro → возврат → потеря всего `lru` → Free).
+
+**Кэш → хранилище после C2** (`CACHE_PURE_STORE=lru` — чистый кэш через `PureCache::store()`; всё остальное — `Cache::` по умолчанию, невытесняемое):
+
+| Где | Хранилище |
+|---|---|
+| `EntitlementResolver` — снимки `entitlement:learner:{id}:v{n}` | `lru` |
+| `EntitlementResolver` — ключ версии `entitlement:ver:{id}` | `redis` (невытесняемое) |
+| `CourseCatalogService` — `catalog:courses:published:v1:{locale}` | `lru` |
+| `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
+| `PlatformStatsService` — `admin:widget:platform_subscriptions \| onboarding_funnel:v1:all` (F7-1) | `lru` |
+| `LeagueService` — `league:standings:v2:{группа}` | `lru` |
+| `AdminDashboardStats` — `admin:widget:*` (C3) | `lru` |
+| `WidgetCache` — ключ версии денег `admin:widget:money:ver` (C3) | `redis` (невытесняемое) |
+| `OrgOverviewService` — значения `org:{id}:overview:v1:*` (C3) | `lru` |
+| `OrgOverviewService` — ключ версии `org:{id}:overview:ver` (C3) | `redis` (невытесняемое) |
+| `CourseCatalogService` — значения `catalog:course:v1:*` (C4) | `lru` |
+| `CourseCatalogService` — ключ версии `catalog:course:ver:{id}` (C4) | `redis` (невытесняемое) |
+| `MapService` — `game:friends:v2:{ученик}` (G2.1m) | `lru` |
+| `ShopService` — значения `game:shop:v1:*` (G2.5b) | `lru` |
+| `ShopService` — ключ версии `game:shop:ver` (G2.5b) | `redis` (невытесняемое) |
+| `ClassCaravanService` — `game:class:v1:*:standings` (G2.9b) | `lru` |
+| `PostClassCaravanSummaryJob` — блокировка `game:class-summary:{караван}` (G2.9a) | `redis` (`locks`) |
+| `GameActivityWidget` — `admin:widget:game_activity:v2:all` (G2.11) | `lru` |
+| `WordTranslationResolver` — `word:tr:v1:*` (C4) | `lru` |
+| `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
+| `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |
+| `MockExamService` — `mock_exam:distribution:course:{id}` | `lru` |
+| `SchedulerComparisonWidget` — `admin:widget:scheduler_comparison:v1:all` (F7-1) | `lru` |
+| `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
+| `ReminderSender`, `PostLeaderboardJob`, `RenewalReminderSender`, `TelegramMessageRateLimiter` — блокировки `Cache::lock` | `redis` (`locks`) |
+| `OrgBillingService`, `RenewalReminderSender`, `QueueRenewalReminder` — маркеры и счётчики | `redis` |
+| `TwoFactorAttemptService` — счётчики попыток (`RateLimiter`) и `2fa:step:*` | `redis` |
+| `TelegramMessageRateLimiter` — счётчики | `redis` |
+| `SchedulerHeartbeat`, `QueueHeartbeat` — пульсы `/health/ready` | `redis` |
+| `RateLimiter` (throttle-мидлвары, логин, TWA) | `redis` (`cache.limiter`) |
+| Сессии, очереди, `APP_MAINTENANCE_STORE` | `redis` |
+
+Чистых кэшей в `Practice` не оказалось: `PracticeAudioService` хранит маркер события, `PracticeMaterialService` и `Modes/*` в кэш не пишут.
+
+## 3. Правила кэширования
+
+Обязательны для всех задач — правило в `CLAUDE.md`.
+
+1. **Только Redis.** В проде нет file- и database-кэшей.
+2. **В значениях — массивы и скаляры.** Модели, DTO и коллекции не кладём (`serializable_classes = false`). DTO хранятся через `toArray()` / `fromArray()`, как `Entitlement`.
+3. **Ключ:** `<домен>:<сущность>:v<версия формата>:<id>[:<locale>]`, например `league:standings:v2:`. При смене формата **или смысла** значения версия увеличивается (`v1 → v2` в G2.10: в очки вошли `game_points`) — старые ключи просто истекают.
+4. **TTL есть всегда.** `rememberForever` — только для неизменяемых данных и с явным `forget`.
+5. **Инвалидация при записи.** Сбрасывает тот сервис, который пишет данные, после фиксации транзакции (`DB::afterCommit`), или наблюдатель модели. На каждый ключ есть тест «записал → старое значение не отдаётся». **Принятый компромисс при недоступном `redis-cache`** (§4.1): `forget` уходит в `array` и не бросает, а значение в Redis доживает до своего TTL — после восстановления экземпляра оно может отдаваться ещё до TTL. Поэтому TTL чистого кэша там, где устаревание заметно, — минуты, не часы; entitlement этому не подвержен: его инвалидация поднимает ключ версии в невытесняемом `redis`, и старый снимок никто не читает.
+6. **Защита от лавины пересчёта.** Тяжёлые агрегаты — через `Cache::flexible()` (отдать устаревшее и пересчитать в фоне) или `Cache::lock()->block()` вокруг пересчёта.
+7. **Пакетное чтение** — `Cache::many` / `putMany`, как `LearningCache::wordsLearned`. Не делаем N отдельных `get` в цикле.
+8. **В ключах только id,** без имён, телефонов и токенов. В значениях нет секретов.
+9. **Не кэшируем решения, которые принимаются под блокировкой БД:** списание квоты, деньги и статусы оплат, выдачу карточки в тренировке, финал матча и экзамена. Их показ на экранах можно кэшировать коротко, но решение всегда принимается по БД.
+10. **Чистый кэш — в вытесняемом хранилище** (§4) только через `App\Domain\Operations\Support\PureCache::store()` (возвращает хранилище `config('cache.pure_store')`), лучше внутри доменного сервиса-обёртки, как `LearningCache`. **Маркеры, блокировки, счётчики, лимиты и защита** — только в невытесняемом: `Cache::` по умолчанию. При сомнении — невытесняемое.
+11. **Метрики:** у каждого нового ключа понятно, как замерить эффект — число запросов до и после, время ответа.
+
+## 4. Инфраструктура: два экземпляра Redis
+
+✅ Выполнено в C2 (02.11.2026). Фактические имена ниже.
+
+| Экземпляр (compose) | Что хранит | Политика | Сохранение на диск |
+|---|---|---|---|
+| `redis` | очереди, сессии, блокировки (`locks`), лимиты (`cache.limiter`), маркеры и защита, ключи версий entitlement | `noeviction` (зашито в compose, переменной больше нет) | AOF `everysec`, том `redisdata` |
+| `redis-cache` | чистый кэш — хранилище `lru` | `volatile-lru`: вытесняются только ключи с TTL (у чистого кэша он есть всегда, §3 п. 4) | нет: `--appendonly no --save ""`, после рестарта пусто |
+
+- **Подключения `config/database.php` → `redis`:** `default`, `cache`, `queue`, `session`, `locks` — первый экземпляр (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`); `lru` — второй (`REDIS_LRU_HOST`, `REDIS_LRU_PORT`, `REDIS_LRU_PASSWORD`, `REDIS_LRU_DB`; в Docker `redis-cache:6379`, на голом сервере `127.0.0.1:6380`).
+- **Хранилища `config/cache.php`:**
+  - `redis` — по умолчанию (`CACHE_STORE=redis`), невытесняемое: всё, что не помечено как чистый кэш, в безопасности;
+  - `lru_redis` — `driver redis`, `connection lru`, `lock_connection locks`: блокировки чистого кэша (`Cache::lock`, `Cache::flexible`) остаются на первом экземпляре; `lru` — цепочка `failover_breaker` [`lru_redis`, `array`] с размыкателем перед `lru_redis` (`open_seconds` 15; §4.1), на неё указывает `CACHE_PURE_STORE`;
+  - `cache.pure_store` (`CACHE_PURE_STORE=lru`; в тестах `array`) — то, что отдаёт `PureCache::store()`;
+  - `cache.limiter` (`CACHE_LIMITER_STORE=redis`; в тестах `array`) — `RateLimiter` явно на невытесняемом хранилище, от `CACHE_STORE` не зависит.
+- **Точка доступа:** `App\Domain\Operations\Support\PureCache` — `store()` (репозиторий), `storeName()`, `redisConnection()`, `hasFallback()` (есть ли у хранилища запасное), `forgetMany(list<string>)` (сброс пачки ключей одной командой, не бросает); контейнерный ключ `cache.pure` (`PureCache::CONTAINER_KEY`), который тест подменяет через `app()->instance(PureCache::CONTAINER_KEY, $spy)`.
+- **Безопасность.**
+  - Пароли: `REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD`. В проде обязательны: `docker-compose.prod.yml` без них не стартует (`${VAR:?…}` с понятным сообщением). Контейнерам приложения compose (dev и prod) сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379`, `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD` — один пароль в `.env`, нечему разойтись; `REDIS_LRU_*` в `.env` — для голого сервера и `artisan` на хосте. В деве — по желанию: пустое значение, а также слова `null`, `(null)`, `empty`, `(empty)` в любом регистре = без пароля — то же правило, по которому `env()` Laravel читает их как `null`/`''` и не шлёт AUTH. В проде такие значения — отказ: `deploy.sh` останавливается до сборки и `up` (оба пароля, окружение shell важнее `.env`, как у compose), а контейнер с таким значением не стартует и пишет причину в лог.
+  - Пароль попадает в `redis-server` строкой конфига через stdin, не аргументом командной строки; healthcheck авторизуется через `REDISCLI_AUTH`. В `ps` пароля нет; в `docker inspect` (окружение контейнера) он виден — компромисс описан в `DEVOPS_GUIDE.md`.
+  - В проде порты не публикуются. В деве оба порта только на `127.0.0.1` (`REDIS_PORT_HOST`=6379, `REDIS_CACHE_PORT_HOST`=6380), как и PostgreSQL.
+- **Размер:** `REDIS_CACHE_MAXMEMORY` (по умолчанию 256 МБ), уточняется по метрикам C8; первый экземпляр — `REDIS_MAXMEMORY`.
+- **Мониторинг:**
+  - `/health/ready` проверяет оба: `redis` (подключения кэша и очереди) и `redis_cache` (подключение `lru`) — отдельные проверки, видно, какой упал; падение второго — `degraded` и HTTP 200, не 503, пока у чистого хранилища есть запасное (`PureCache::hasFallback()`, цепочка §4.1); с `CACHE_PURE_STORE=lru_redis` (без цепочки) каждый вызов кэша бросал бы — это `fail` и 503;
+  - метрики `INFO`: `keyspace_hits` / `keyspace_misses`, `evicted_keys`, `used_memory`;
+  - алерт, если в `redis` растёт память или в `redis-cache` слишком много вытеснений (`DEVOPS_GUIDE.md`, «Redis»).
+- **Тесты:** `tests/Feature/Operations/PureCacheStoresTest.php` — конфиг, точка доступа (`hasFallback`, `forgetMany`), потеря всего чистого кэша не трогает `RateLimiter`, шаг 2FA и пульсы, entitlement после потери кэша, readiness обоих экземпляров (`degraded` с запасным хранилищем, `fail` без него). Деградация и размыкатель — §4.1. CI (job `test`) гоняет Pest на PostgreSQL с двумя сервисами Redis (`CACHE_PURE_STORE=lru`); `docker/postgres/tests/run.sh` держит `redis-cache` в тестовом стеке.
+
+### 4.1. Деградация при недоступном или зависшем `redis-cache`
+
+✅ Решение координатора по ревью раздела (02.11.2026): падение второго экземпляра не роняет приложение — оно считает из базы. ✅ Повторное ревью (02.11.2026, architect): зависший экземпляр — тот, что принимает TCP и молчит (`docker pause`, своп, долгая команда) — не должен стоить таймаут на каждый вызов; решение — размыкатель ниже.
+
+- **Хранилище `lru` — цепочка `failover` Laravel 13 с размыкателем:** драйвер приложения `failover_breaker` (`App\Domain\Operations\Support\CircuitBreakerFailoverStore`, регистрируется в `AppServiceProvider` до `boot` провайдеров) — наследник `FailoverStore`: `lru_redis` (driver `redis`, подключение `lru`, блокировки на `locks`) → `array`. Вызов, не прошедший в Redis, выполняется на array-хранилище процесса: промах чтения = расчёт из БД, запись и `forget` не бросают.
+- **Размыкатель (`App\Domain\Operations\Support\CacheCircuitBreaker`).** Перед каждым членом цепочки, кроме последнего (`array` — «пол», падать дальше некуда). Состояние — один файл на член, `storage/framework/cache/circuits/lru_redis`: есть файл = разомкнуто, его mtime = момент последнего сбоя, разомкнуто, пока `mtime + open_seconds` (15 с, `config/cache.php`) в будущем.
+  - *Замкнут* (файла нет): каждый вызов идёт в Redis; цена проверки — один `stat()` несуществующего пути на запрос php-fpm (микросекунда, без сети); ответивший член процесс дальше не перепроверяет, пока тот не упадёт.
+  - *Сбой* создаёт файл атомарно (`fopen` с `x`): файл создаёт ровно один процесс — он и шлёт `CacheFailedOver`; остальные, упавшие в ту же секунду, находят свежий маркер и молчат.
+  - *Разомкнут* (файл моложе окна): член пропускается без попытки соединения, вызов сразу уходит в `array` — во всех процессах, которые делят каталог: воркеры php-fpm контейнера `app` и, через том `app_storage`, `queue-high`, `queue-default`, `scheduler`.
+  - *Полуразомкнут* (файл старше окна): пробует ровно один процесс — тот, что взял `flock()` на маркер; остальные пропускают, пока проба идёт. Удачная проба удаляет файл (замкнут, событие `CacheCircuitClosed`), неудачная — `touch` (новое окно, снова `CacheFailedOver`). Умерший посреди пробы процесс ничего не держит: `flock` снимает ядро, а следующий сбой обновляет устаревший маркер.
+  - `lock()` и `restoreLock()` размыкатель не смотрят: блокировка Redis-члена живёт на `lock_connection` (первый, невытесняемый экземпляр) и зависший экземпляр не трогает — `Cache::flexible` и во время сбоя берёт настоящую блокировку.
+  - Каталог маркеров не доступен на запись — размыкатель вырождается в окно на процесс (память процесса) и каждый сбой логируется: оператор видит и сбой, и странный маркер.
+  - **Почему файл, а не Redis или APCu.** Статика php-fpm живёт один запрос; маркер в первом Redis — сетевой вызов на каждый запрос ради проверки «а не лежит ли Redis», и ещё один компонент в критическом пути; APCu в образе `php:8.5-fpm-alpine` нет, а новых зависимостей не добавляем. Файл на локальном томе — общий для процессов контейнера и соседних контейнеров, бесплатный в норме, переживающий запрос. Отвергнуто также: держать размыкатель в `RedisManager`/коннекторе (не видно команд на уже открытом соединении долгоживущего воркера) и декоратор только над `lru_redis` (тогда `CacheFailedOver` фреймворка шёл бы раз на процесс, а не на размыкание — проблема Ж-2 повторного ревью).
+- **Подключение `lru`:** `timeout` 0,25 с, `read_timeout` 0,25 с, `max_retries` 0. Обоснование числа: нормальный вызов на том же хосте — доли миллисекунды, значение ~130 КБ — около миллисекунды, экземпляр не форкается ради сохранения (`--save ""`, без AOF) — ~100-кратный запас над здоровым p99; при этом цена зависшего экземпляра ограничена: 0,25 с платит один вызов — тот, что размыкает (0,5 с у воркера, державшего соединение: таймаут команды плюс одно переподключение `PhpRedisConnection`), все остальные вызовы окна идут в `array` за микросекунды. Замер на зависшем экземпляре (принимает соединение и молчит; `scratchpad/bench_hung_cache.php` ревью, SQLite в памяти): до — `get`/`put`/`many` по 1,0 с, промах `flexible` 2,0 с, `deleteMultiple` на 20 ключей 20 с, `/me` 2 053 мс первый и 1 007 мс каждый следующий запрос; после — вызов, открывающий размыкание, 0,25 с (и `deleteMultiple` на 20 ключей тоже 0,25 с: один `DEL`), каждый следующий вызов в том же или новом процессе 0,1 мс, `/me` 310 мс первый, 4 мс каждый следующий; соединений к зависшему экземпляру за весь прогон 8 вместо 33.
+- **Лог:** `App\Listeners\Cache\LogCacheFailover` пишет `cache.failed_over` (warning: хранилище, класс исключения, текст) на каждое размыкание — одно на все процессы хоста, не одно на запрос, — пока сбой длится, по строке на окно (каждые 15 с), и `cache.recovered` (info), когда проба прошла. Троттлинга в слушателе больше нет: размыкатель и есть троттлинг.
+- **Сброс пачки ключей:** репозиторий цепочки — `CircuitBreakerFailoverRepository`, у него `deleteMultiple()` — один вызов цепочки: на Redis-члене один `DEL` всеми ключами с префиксом хранилища, через размыкатель (у репозитория фреймворка — `forget` на каждый ключ, то есть по таймауту на ключ при зависшем экземпляре). `PureCache::forgetMany(list<string>)` — тот же `deleteMultiple` в `try/catch` с `report()`: инвалидация не роняет запись, за которой идёт; на не-Redis хранилище (тесты) — обычный цикл. Использует `WordTranslationResolver::forget()` (K4): сброс импорта — одна команда, а не N × locales `DEL` (и при зависшем экземпляре — один таймаут на импорт, не N).
+- **`/health/ready`:** проверка `redis_cache` пингует экземпляр сама (один таймаут раз в минуту — оператор видит правду, а не память размыкателя); при сбое отвечает `degraded`, общий `status: degraded`, HTTP **200**, пока у чистого хранилища есть запасное; без него (`CACHE_PURE_STORE=lru_redis`) — `fail` и 503. `503` также при `fail` базы, первого экземпляра, планировщика или очереди (`DEVOPS_GUIDE.md` §15.2). Smoke-проверка `deploy.sh` принимает 200, но печатает **WARNING** с телом ответа, если в нём `"status":"degraded"`: деплой не блокируется, оператор видит это в выводе деплоя, не только в мониторе.
+- **Пароли в проде:** `deploy.sh` до сборки и `up` проверяет `REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD` (окружение shell, затем `.env`; кавычки и комментарий снимаются, как у compose) на `''`, `null`, `(null)`, `empty`, `(empty)` без учёта регистра и останавливается: иначе `:?` compose пропускал бы слово `null`, контейнер уходил в цикл перезапусков, а приложение жило бы без кэша «навсегда» с `degraded`.
+- **Compose:** `app`, воркеры и `scheduler` зависят от `redis-cache` как `service_started`, не `service_healthy`: приложение стартует и отдаёт данные без кэша, а `redis` (очереди, сессии, блокировки) остаётся `service_healthy`.
+- **Компромисс инвалидаций** — §3 п. 5: во время сбоя `forget` не доходит до Redis, значение там живёт до TTL.
+- **Цена сбоя:** один таймаут (0,25–0,5 с) на окно в 15 с на все процессы, остальные вызовы — расчёт из БД (нагрузка на PostgreSQL растёт); array-хранилище долгоживущего воркера держит значения до их TTL; после возвращения экземпляра кэш снова в деле не позже чем через окно. Ложное срабатывание (одна команда дольше 0,25 с под нагрузкой хоста) стоит 15 с без кэша и одну строку в логе — поэтому окно короткое.
+- **Тесты:** `tests/Unit/CacheCircuitBreakerTest.php` — протокол размыкателя на двух экземплярах над одним каталогом (два процесса): одно размыкание, один пробующий, окно, замыкание пробой, устаревший маркер, недоступный каталог. `tests/Feature/Operations/PureCacheDegradationTest.php` — закрытый порт `127.0.0.1:56399` (отказ мгновенный): `/me`, entitlement, каталог, статистика платформы и виджет дашборда работают из БД, `CacheFailedOver` приходит, инвалидации не бросают, readiness = `degraded` (200), одна строка лога на размыкание при любом числе вызовов и процессов. `tests/Feature/Operations/PureCacheCircuitBreakerTest.php` — зависший экземпляр (`stream_socket_server` без `accept()`: ядро завершает handshake, чтения висят до таймаута): первый вызов платит таймаут и размыкает, следующие не соединяются вовсе (сервер считает принятые соединения), новый процесс видит разомкнутое без соединения, одна проба на окно, `/me` и инвалидации при зависшем, восстановление долгоживущего процесса и один `DEL` на пачку — на живом втором экземпляре (CI и прогон на PostgreSQL), протокол цепочки на «хромающем» члене без Redis, блокировки с первого члена при разомкнутом. Помощники — `tests/Support/PureCacheStandIn.php`.
+
+## 5. Что добавить в кэш
+
+Кандидаты. Каждый подтверждается замером C0: кэшируем то, что даёт эффект.
+
+| # | Что | Где сейчас | Ключ (черновик) | TTL | Инвалидация |
+|---|---|---|---|---|---|
+| K1 | Виджеты админки без кэша: `ActivityChartWidget`, `ExamsLast30DaysWidget`, `TotalLearnersWidget`, `TopLearnersTableWidget`, `HardestWordsTableWidget`, `LeagueGroupsTableWidget`, `OrganizationSeatsTableWidget`, `RevenueLast30DaysWidget`, `WebhookErrorsWidget` | `app/Filament/Widgets` | `admin:widget:<имя>:v1:<зритель>[:<параметры>]` | 60–300 с, `Cache::flexible` | по TTL; для денег — новая версия данных после оплаты и возврата |
+| K2 | Кабинет центра: обзор (`OrgOverviewService`) и виджеты `/org` | `Organizations` | `org:<id>:overview:v1` | 60–120 с | события `OrganizationMember{Joined,Left,Seated}`, задания |
+| K3 | Дерево курса для `/courses/{slug}`: модули, уроки, число слов — без личного прогресса | `CourseCatalogService` / контроллер | `catalog:course:v1:<id>:<locale>` | 10–60 мин | публикация, импорт, правка урока (`CoursePublisher`, `VocabularyImporter`, `LessonContentRefresher`) |
+| K4 | Переводы слов пачкой | `WordTranslationResolver` | `word:tr:v1:<word>:<locale>:<fallback>` через `Cache::many` | 1–24 ч | `WordTranslationWriter`, правка слова |
+| K5 | Статичная часть каталога оплаты: планы, цены, провайдеры — без личных офферов | `LearnerBillingService` | `billing:catalog:v1:<hash конфига>` | до деплоя | хэш конфига в ключе |
+| K6 | Страницы сайта `/`, `/offer`, `/privacy` (ru/uz): без cookies и CSRF, CSP `script-src 'none'` | `Site` | `site:page:v1:<страница>:<locale>:<версия релиза>` | до деплоя | версия релиза в ключе |
+| K7 | Ответы Telegram `getChatMember` при проверках «бот — админ группы» и прав учителя | `GroupBotAccessChecker` и др. | `tg:member:v1:<chat>:<user>` | 5–10 мин | событие `my_chat_member` (кэшируется только статус бота; `chat_member` ничего не сбрасывает) |
+| K8 | Обзор хаба практики (сколько материала по урокам) | `PracticeHubService` | по замеру | короткий | по замеру |
+| K9 | Части `/today` и `/me`, которые не меняются от ответа к ответу (активный курс, блок заданий) | `TodayService`, `MePayloadBuilder` | решает architect | короткий | события ученика |
+
+Не кэшируются (правило 9): квоты, деньги, выдача карточки, ход матча и экзамена, решения доступа.
+
+### 5.1. Что сделано в C3–C6 (02.11.2026)
+
+**Ключ → TTL → инвалидация → тест** (тесты — в `tests/Feature/Cache/`; весь набор прогнан и на SQLite, и на PostgreSQL 16 с настоящим вторым Redis):
+
+| Ключ | TTL | Инвалидация | Тест |
+|---|---|---|---|
+| `admin:widget:total_learners \| exams_30d \| activity_chart \| top_learners \| hardest_words:v1:<зритель>` (K1) | 120 / 120 / 300 / 300 / 300 с свежий, всего ×5 | TTL; у чарта день в ключе; у учителя состав групп в ключе (смена групп — новый ключ сразу) | `AdminDashboardCacheTest` |
+| `admin:widget:league_week:v1:all`, `league_groups:v1:all:w{неделя}:p{стр}:n{размер}`, `organization_seats:v1:all:p{стр}:n{размер}` (K1) | 60 / 60 / 120 с | TTL; страница и размер страницы — свои записи. Размер — только из тех, что предлагает виджет (10/25/50 и 10/25), страница — не дальше 1000-й: подделанные `tableRecordsPerPage` и номер страницы читают запись разрешённых, а не заводят свою (`AdminDashboardStats`, `enforcePaginationPageOptions()` у обоих виджетов) | там же |
+| `admin:widget:platform_subscriptions \| onboarding_funnel \| scheduler_comparison:v1:all` (K1, F7-1) | 120 / 120 / 300 с свежий, всего ×5 | TTL; виджеты только для админа (`RequiresActiveAdmin`), зритель — `all`, учитель их не видит. Прежние ключи без версии (`platform_stats:subscriptions`, `platform_stats:funnel`, `admin:scheduler-comparison:v1`) никто не читает: они истекают сами, сброс при деплое не нужен | `AdminDashboardCacheTest`; `tests/Feature/PlatformAdminTest.php`, `tests/Feature/SchedulerMetricsQueryTest.php` |
+| `admin:widget:revenue_30d \| webhook_errors:v1:all:n{версия}` — **деньги** (K1); версия `admin:widget:money:ver` — невытесняемое хранилище, без TTL | 120 / 60 с | счётчик версии: `MoneyWidgetsObserver` после коммита записи в `payments` и `provider_transactions` (оплата, возврат, отказ). Читатель берёт версию до расчёта, поэтому поздняя запись старой цифры попадает в ключ старой версии, который никто не читает. Три плитки аномалий по `payment_orders` (двойная скидка, несовпадение тарифа, двойная подписка Stars) платежом книги не сбрасываются — они меняются по TTL (до минуты) | там же |
+| `org:{id}:overview:v1:n{версия}:{зритель}` (K2) | 90 с | счётчик версии: `ForgetOrgOverview` (`OrganizationMember{Joined,Left,Seated}`), `TelegramGroupObserver` (группа перешла между центрами или удалена; после того как участники перешли за группой, внутри `guard()`), `SubscriptionService::forgetAfterCommit` (подписка центра) | `OrgOverviewCacheTest` |
+| `catalog:course:v1:{курс}:{locale}:n{версия}` (K3) | 1800 с | счётчик версии: `CoursePublisher::recount()` (все пути, меняющие слова: импорт, правка слова, колоды), `transition()` (публикация), `CourseTreeObserver` (любое сохранение и удаление `Stage`/`Lesson`; курс урока берётся из загруженного модуля без запроса, только если у модуля прочитан `course_id` — частичный `select` вроде `lesson.stage:id,number` не в счёт, тогда один запрос по ключу) | `ContentCacheTest` |
+| `word:tr:v1:{слово}:{locale}:{запасная локаль}` (K4) | 7200 с | `WordTranslationObserver` после коммита сохранения и удаления строки `word_translations` (ручная правка `WordTranslationWriter`, импорт, колоды); все локали слова сразу, **одним вызовом хранилища на транзакцию**: слова копятся в пачке (`scoped`-привязка наблюдателя), первый колбэк коммита сбрасывает всю пачку, каждое слово один раз. Запасная локаль в ключе, потому что значение — строки `[locale, fallback]`: после смены `localization.fallback` старые записи не читаются, а истекают | `ContentCacheTest` |
+| `site:page:v1:{страница}:{locale}:{отпечаток}` (K6) | 86400 с | не сбрасывается: отпечаток = хэш перечисленного конфига (цены, режим paywall, провайдеры, лимиты, ссылка бота, `APP_URL`, доступ к практике, её тариф `PRACTICE_PLAN` и переключатель баттлов; без секретов) и времён изменения шаблонов, lang-файлов страниц и PHP-файлов, из которых собирается HTML (`SitePageCache::PHP_SOURCES`: контроллер сайта, цены лендинга, ссылки, форматтер цен, обещания Pro, план, провайдер оплаты, определение локали, `routes/web.php`) — деплой или смена цены дают новый ключ | `SitePageCacheTest` |
+| `tg:member:v1:{чат}:{пользователь}` (K7) | 600 с | `MyChatMemberHandler` на каждое изменение статуса бота — **после** записи группы и в `rescue()`; `chat_member` не сбрасывает ничего (статус людей не кэшируется) | `TelegramMemberCacheTest` |
+
+**Решения и отступления от черновика §5.**
+- **K1 — кэш поверх быстрого запроса.** Тяжёлые виджеты индексами не лечатся (`docs/20` §4, «Индексы F2»), поэтому вместе с кэшем переписаны их запросы: один агрегат по `training_reviews` за 30 дней вместо коррелированных подзапросов на каждое слово и каждого ученика, для админа без пустого фильтра по сессиям, анти-джойн по удалённым ученикам с partial-индексом `learners_deleted_idx`. Первый показ после истечения кэша — 153 мс вместо 1,1 с (50 тыс. учеников); результат тот же, что у прежних запросов (`AdminDashboardQueriesTest`, админ и учитель). Устаревшее значение отдаётся до четырёх свежих сроков, пока читатель пересчитывает его после ответа под блокировкой.
+- **K1 — «старые» виджеты (F7-1).** Три виджета, закэшированные ещё до C3 (`PlatformSubscriptionsWidget`, `OnboardingFunnelWidget`, `SchedulerComparisonWidget`), жили на `remember` с жёстким TTL 120 с: раз в две минуты запись истекала, и админ, открывший дашборд, ждал пересчёта в своём запросе (на 200 тыс. учеников у сравнения планировщиков — 73 запроса и 2 727 мс SQL). Теперь все три — на `WidgetCache::remember` (`flexible`), как остальные девять: устаревшее отдаётся сразу, пересчёт идёт после ответа под блокировкой; D7-удержание сравнения — один агрегатный запрос с `EXISTS` по индексу `training_reviews (learner_id, created_at)` (Index Only Scan без обращений к куче, 73 мс на когорте 35 000 при 200 тыс. учеников) вместо `MAX()` на каждую пачку из 1000 учеников, ответ тот же (прежний алгоритм лежит в `SchedulerMetricsQueryTest` эталоном).
+- **K1 — деньги: версия данных, а не `DEL`.** Первая версия сбрасывала ключи денег удалением после коммита. Читатель, посчитавший выручку по книге до платежа и записавший её после `DEL`, возвращал старую цифру на всё окно свежести. Теперь ключ содержит счётчик `admin:widget:money:ver` (невытесняемое хранилище, без TTL, как `entitlement:ver:*`); `MoneyWidgetsObserver` увеличивает его после коммита, читатель берёт версию **до** расчёта, поэтому поздняя запись попадает в ключ старой версии, который никто больше не читает (тест `AdminDashboardCacheTest`: платёж коммитится внутри самого расчёта). Версию теряет только потеря невытесняемого Redis — как и у остальных версий.
+- **Таблицы-виджеты — ограниченное число ключей.** `tableRecordsPerPage` и номер страницы — публичные свойства Livewire. Без ограничения `tableRecordsPerPage=1000000` давал запрос `limit 1000001`, а каждое придуманное число — свой ключ `p{стр}:n{размер}`. Теперь размер страницы — одно из предлагаемых виджетом значений (иначе первое из них), страница — от 1 до 1000; виджеты задают те же значения (`paginated(...)` и `enforcePaginationPageOptions()`).
+- **K3 — версия в ключе, а не `forget`.** Импорт идёт долгой транзакцией: читатель, посчитавший дерево по старым строкам, мог бы записать его после сброса. Счётчик версии на невытесняемом хранилище (как `entitlement:ver:*`) делает такую запись безвредной. Дерево колоды ученика (`owner_type = learner`) не кэшируется: колода личная и часто правится — её дерево читается всегда. Личный прогресс (`done` по урокам) не кэшируется нигде: один запрос по строкам самого ученика.
+- **K4 — кэшируются строки, а не итог.** Итоговый перевод зависит ещё и от `words.translation` (запасная колонка) — она читается из самого `Word` и всегда свежая; правка слова не требует сброса. Слово без строк — тоже запись (пустой массив).
+- **K4 — допущенная гонка.** Ключи K4 сбрасываются удалением, без счётчика версии (в отличие от K1-денег, K2, K3). Читатель, промахнувшийся по слову и прочитавший строки из БД до коммита правки, может записать их в кэш после сброса, и старый перевод простоит до TTL (2 часа) или до следующей правки. Это допущено осознанно: ошибка — только в показе текста перевода (не деньги, не доступ, не квоты); окно — миллисекунды между чтением и записью читателя, пересекающиеся с коммитом правки (импорт, правка админом и колоды учеников — редкие записи, а слово колоды читает почти только её владелец); самоисцеляется по TTL. Версия на слово потребовала бы невытесняемый ключ на каждое слово (десятки–сотни тысяч ключей без TTL) ради косметики, поэтому не делается.
+- **Исключения из §3 п. 5: ключи со сбросом через `forget` и TTL в часах.** Компромисс п. 5 при сбое «недоступен, но жив» (§4.1) таков: `forget` уходит в `array`, и значение в Redis доживает до TTL — после восстановления экземпляра оно отдаётся устаревшим. Для таблицы, которую видят люди, часы недопустимы; для показа, где устаревание ничего не решает, — допущены, по ключам:
+  - **`exam:{id}:leaderboard` — TTL 3600 → 300 с (исправлено).** Таблица результатов экзамена группы (`LearningCache::examLeaderboard()`, её читает `ExamFlowService::result()`), её видят ученики. Строится из `exam_results` (индексный диапазон по `exam_session_id, rank` и имена учеников); тяжёлая агрегация `exam_answers` (`LeaderboardBuilder::build()`) на истечение TTL **не** идёт — только при закрытии экзамена (учитель, таймер) и при пустых `exam_results`. Замер на `lexiflow_perf_a` (10 тыс. экзаменов, 51,7 тыс. результатов, 433 тыс. ответов; база только для чтения: `SELECT` / `EXPLAIN`, сессия `READ ONLY`; PHP 8.5 CLI, PostgreSQL 16.15, общая машина ±30 %): промах `examLeaderboard()` — **p50 1,5–2,0 мс, p95 2,4–4,1 мс, максимум 3,7–4,5 мс** на 100 самых больших экзаменах и 300 случайных, три прогона (единичный холодный выброс 128 мс в первом прогоне не повторился); в наборе не больше 6 участников на экзамен. План — `Index Scan using exam_results_exam_session_id_rank_index`, 0,2 мс на сервере БД. Агрегат `LeaderboardBuilder`: p50 0,6–0,8 мс, максимум 3–12 мс. Цена растёт с числом участников, около 70 мкс на каждого (почти вся — гидратация моделей `ExamResult` и `Learner`): 100 участников — 7 мс, 500 — 36 мс, 1000 — 63 мс (p95 72–85 мс), 5000 — 364 мс (первые N результатов набора, тем же кодом замыкания), то есть 50 мс наступают примерно на 700 участниках в одном экзамене. Меньше 50 мс, поэтому 300 с: потерянный сброс держит старую таблицу не дольше пяти минут, а пересчёт раз в пять минут на экзамен — копейки (`LearningCacheTest`).
+  - **`lesson:{id}:word_count` — 3600 с, исключение.** Число активных слов урока — знаменатель полосы прогресса «N из M слов» (`TrainingFlowService`, `CardPicker::progress()`). Карточку выбирает база, а не это число, решений по нему нет. Оно меняется только записью слов (импорт, правка в админке, колоды учеников — каждый путь вызывает `forgetLesson`), поэтому потерянный в сбое сброс оставляет неверный знаменатель до часа и ничего больше.
+  - **`word:tr:v1:…` (K4) — 7200 с, исключение.** Строки `word_translations`, только показ текста перевода (не деньги, доступ или квоты; итог зависит ещё и от `words.translation`, который всегда свежий — см. K4 выше). Сбрасывается удалением без версии, и потерянный в сбое сброс держит старый перевод до двух часов после восстановления — к допущенной гонке (выше) добавляется это окно. Допущено по той же причине: правка перевода — редкая запись (импорт, админ, колоды), ошибка — только текст, самоисцеляется по TTL.
+  Новый ключ чистого кэша со сбросом через `forget` получает TTL в минутах; часы — только записью сюда с причиной.
+- **K5 — Redis-ключа нет.** Статическая часть каталога (провайдеры, валюты, цены) — только чтение конфига, без SQL: **9 мкс** на вызов против **15 мкс** на чтение записи из Redis даже по loopback (замер C4, PHP 8.5 CLI). Кэш был бы медленнее пересчёта и добавил бы риск показать старую цену. Вместо него: `CheckoutService::canSellToLearners()` — статическая половина каталога; `LearnerBillingService::paywall()` спрашивает её, а не строит весь каталог с офферами и подпиской ученика (−3 запроса на `/me` в режиме `purchase`). Личная часть (офферы, подписка) по-прежнему не общая.
+- **K6 — отпечаток вместо версии релиза.** В репозитории нет идентификатора релиза, а деплой и `docker/compose` в этой задаче не менялись; времена изменения файлов + хэш конфига дают то же свойство (новый деплой — новый ключ) и работают в деве (правка шаблона видна сразу). Тест сканирует источники страниц на вызовы `config()` и требует, чтобы каждый ключ был в отпечатке.
+- **K7 — `getChatMember` зовётся не на каждый апдейт.** Он вызывается дважды за жизнь группы: когда бота добавили (`MyChatMemberHandler`) и когда владелец центра привязывает группу (`OrgGroupLinkService`: статус владельца и ещё раз статус бота). Кэшируется только статус **бота**: его меняет `my_chat_member`, и обработчик сбрасывает запись; повторная проверка в пределах 10 минут не ходит в Telegram. Статус **владельца** центра не кэшируется: это решение о доступе (правило 9), а бот без прав администратора не получает `chat_member`, который мог бы закрыть устаревший ответ. Статус людей не кэшируется нигде, поэтому `ChatMemberHandler` кэш не трогает.
+- **Обработчики Telegram не зависят от чистого кэша.** `my_chat_member` сначала пишет группу (отключает или регистрирует), и только потом сбрасывает статус бота — в `rescue()` с отчётом; `ChatMemberStatusCache::status()` при недоступном хранилище идёт в Telegram (чтение и запись в `try/catch`). Недоступный `redis-cache` не оставляет группу работающей после того, как бота удалили (`TelegramMemberCacheTest`: хранилище бросает на каждом вызове).
+- **Наблюдатели не падают из-за кэша и не ходят в него лишний раз.** `WordTranslationObserver` и `MoneyWidgetsObserver` сбрасывают в `rescue()` после коммита; `TelegramGroupObserver` делает всё после коммита **одним колбэком, по порядку, каждый шаг под своим `guard()`**: перелинковка участников (или освобождение мест при удалении группы) → сброс entitlement участников (`forgetGroup` / `forgetMany`) → сброс обзора центра; сбой шага логируется (`organizations.group_relink_failed`, `group_delete_release_failed`, `group_entitlement_forget_failed`, `group_overview_forget_failed`), не вылетает из коммита и не останавливает следующие шаги (раньше исключение сброса вылетало из коммита, и перелинковка не выполнялась — повтор её не повторит: ученик оставался в старом центре с местом и спонсорским Pro; `forgetMany` стоял в `deleting` и без внешней транзакции срабатывал до удаления строки). Порядок для entitlement безопасен: `OrganizationMembershipService` сам поднимает версию ученика после каждого входа, выхода и повышения из очереди, так что сбой `forgetGroup` / `forgetMany` (страховка) плана не портит (`TelegramGroupObserverTest`); `CourseTreeObserver` берёт курс урока из загруженного модуля, если тот прочитан вместе с `course_id` (иначе — запрос по ключу: пустой `course_id` частичного модуля не должен молча оставлять дерево в кэше).
+- **K8 (хаб практики) — нет.** Практика в этой задаче не меняется; замер C0 — 6–7 запросов и p50 13–16 мс на пустом каталоге практики (материалов в наборе нет), оценить выигрыш на реальном объёме нельзя. Вернуться после появления материалов и решения по G2+.
+- **K9 (`/today`, `/me`) — нет.** 7 и 12–17 запросов, p50 18 и 38–45 мс при 200 тыс. учеников — уже лёгкие эндпоинты; кэшировать их части значит вешать инвалидацию на события ученика (каждый ответ в тренировке), а граница «что от ответа к ответу не меняется» — решение architect. Выигрыш — единицы миллисекунд.
+- **Опрос виджетов.** Filament опрашивает StatsOverview- и Chart-виджеты **каждые 5 с по умолчанию** (`CanPoll::$pollingInterval = '5s'`); `docs/20` §2 ошибочно считал, что опроса нет. Теперь у всех 12 виджетов `/admin` и 2 виджетов `/org` — `null`, а виджеты остаются ленивыми (тест `AdminDashboardCacheTest`).
+
+## 6. Задачи
+
+Нумерация — C (cache). Исполнители — по `CLAUDE.md`.
+
+| # | Задача | Исполнитель | Готово, когда |
+|---|---|---|---|
+| C0 | **Замер и инвентаризация.** Команда объёмных данных `perf:seed` (только local и testing; общая с `docs/20` F0). Базовые замеры горячих эндпоинтов (`/me`, `/today`, `/courses`, `/courses/{slug}`, `/league`, `/friends`, `/practice/hub`, `/training/*`): число запросов, p50/p95. Таблица §2.2 дополнена всеми ключами | coder | ✅ 02.11.2026: таблица «до» в §8. Таблица замеров «до» в §8 |
+| C1 | **Redis 8.10** по §1 | architect (вместе с C2) | ✅ 02.11.2026: `redis:8.10-alpine` в compose dev/prod и CI; документы и `PROGRESS.md` обновлены |
+| C2 | **Два экземпляра и хранилища** по §4: compose (dev, prod, тестовый стек), `config/database.php` (`lru`), `config/cache.php` (`lru`, `pure_store`, `limiter`), `PureCache`, перенос существующих чистых кэшей на `lru`, маркеры и защита — на невытесняемом, версия entitlement — на невытесняемом, пароли, порты дева на `127.0.0.1`, `/health/ready` | architect | ✅ 02.11.2026: `PureCacheStoresTest` (потеря кэша не трогает лимиты, 2FA и маркеры), `DEVOPS_GUIDE` обновлён; `run.sh` переноса PostgreSQL зелёный с `redis-cache` |
+| C3 | **Кэш админки и кабинета центра** — K1, K2 (вместе с `docs/20` F5) | coder | ✅ 02.11.2026: дашборд `/admin` — 0 запросов от 12 виджетов на втором открытии (`AdminDashboardCacheTest`), обзор `/org` — `OrgOverviewCacheTest`; данные обновляются по TTL и событиям; опрос выключен |
+| C4 | **Контент** — K3, K4, K5 | coder | ✅ 02.11.2026: K3, K4 с тестами инвалидации на каждый путь записи; K5 без Redis-ключа — см. §5.1 |
+| C5 | **Сайт** — K6 | coder | ✅ 02.11.2026: `SitePageCacheTest` — тело байт в байт, заголовки (CSP `script-src 'none'` и др.) те же |
+| C6 | **Telegram** — K7, и K8, K9 по замеру | coder | ✅ 02.11.2026: K7 (`TelegramMemberCacheTest`); K8, K9 — нет, причины в §5.1 |
+| C7 | **OPcache для прод-образа:** `opcache.validate_timestamps=0` (код в образе неизменен), `memory_consumption`, `interned_strings_buffer`, `max_accelerated_files` по числу файлов `vendor` (Filament и Livewire — тысячи файлов); проверка, что после деплоя кэш новый (контейнер пересоздаётся) | coder | ✅ 02.11.2026 (`9d46a3a`, вместе с F1 `filament:optimize`): `docker/php/zz-lexiflow.ini` — `validate_timestamps=0`, память и число файлов по `vendor`; `opcache_get_status()` в проде без нехватки памяти и ключей |
+| C8 | **Замер после и ревью:** сравнение с C0, hit ratio, вытеснения; `PROGRESS.md` | reviewer, координатор | ✅ 02.11.2026: ревью, исправления в два захода, повторное ревью без блокирующих; таблица «после» в §8. Таблица «после» в §8, блокирующих находок нет |
+
+**Общий DoD:**
+- pint, PHPStan level 8, весь Pest зелёные: SQLite и PostgreSQL 18 + Redis 8.10;
+- правила §3 соблюдены;
+- новые зависимости не добавляются: всё делается средствами Laravel 13 и Redis.
+
+## 7. Решения владельца
+
+**Принято 02.11.2026:**
+1. Второй экземпляр Redis (`redis-cache`) под кэш (§2.1, §4).
+2. Пароль Redis в проде.
+
+**Открыто:** размер памяти под кэш на сервере. По умолчанию — 256 МБ (`REDIS_CACHE_MAXMEMORY`), уточняется по метрикам C8.
+
+## 8. Замеры
+
+Заполняется в C0 (столбцы «до») и C8 (столбцы «после»). Замер страниц `/admin` и `/org` — в `docs/20` §4.
+
+**Как снято (C0, 02.11.2026).**
+- **Данные:** `perf:seed --learners=200000 --words=100000 --members=400` на PostgreSQL 18.6 (подробнее — `docs/20` §4). Кэш — Redis 8.10 (`CACHE_STORE=redis`), перед каждым эндпоинтом сброшен: общие кэши (каталог, лидерборды) прогреваются первым запросом, персональные видят каждого ученика впервые.
+- **Что мерили:** `PERF_MEASURE=1 ./vendor/bin/pest --group=perf`: по одному запросу от 18 разных учеников на эндпоинт (лимитер и персональные кэши видят каждого ученика впервые) после прогрева другим учеником. «Опытный» — один из первых учеников набора: 300 повторений, друзья, место в лиге, участник центра (Pro — у части). «Обычный» — около 24 повторений, не в центре. Время — в процессе PHP CLI без OPcache и без nginx, на общей машине (±30 %); запросов это не касается.
+- **Ограничения замера:** в наборе нет материалов практики, поэтому `/practice/hub` измерен на пустом каталоге практики; тренировка — дневное повторение, первая карточка (`POST /training/sessions`), следующая (`GET …/next`) и ответ (`POST …/review`).
+
+| Эндпоинт / страница | Запросов до | p50 до, мс | p95 до, мс | Запросов после | p50 после, мс | p95 после, мс |
+|---|---|---|---|---|---|---|
+| `/me`, опытный | 7 (макс. 11) | 18 | 23 | 7 (макс. 11) | 14 | 173¹ |
+| `/me`, обычный | 7 (макс. 11) | 17 | 22 | 7 (макс. 11) | 26² | 35 |
+| `/today`, опытный | 16 (макс. 19) | 38 | 68 | 16 (макс. 19) | 37 | 55 |
+| `/today`, обычный | 17 (макс. 23) | 45 | 60 | 17 (макс. 23) | 39 | 256¹ |
+| `/courses`, опытный | 2 (макс. 3) | 6 | 9 | 2 (макс. 3) | 7 | 13 |
+| `/courses`, обычный | 2 (макс. 3) | 8 | 14 | 2 (макс. 3) | 6 | 10 |
+| `/courses/{slug}`, опытный | 3 (макс. 3) | 13 | 23 | 3 (макс. 4) | 11 | 21 |
+| `/courses/{slug}`, обычный | 3 (макс. 3) | 17 | 22 | 3 (макс. 4) | 7 | 18 |
+| `/league`, опытный | 6 (макс. 7) | 12 | 15 | 6 (макс. 7) | 12 | 16 |
+| `/league`, обычный | 7 (макс. 7) | 15 | 24 | 7 (макс. 7) | 9 | 10 |
+| `/friends`, опытный | 4 (макс. 4) | 10 | 14 | 4 (макс. 4) | 8 | 10 |
+| `/friends`, обычный | 4 (макс. 4) | 10 | 16 | 4 (макс. 4) | 8 | 10 |
+| `/practice/hub`, опытный | 6 (макс. 7) | 13 | 37 | 7 (макс. 10)³ | 15 | 76¹ |
+| `/practice/hub`, обычный | 6 (макс. 7) | 16 | 23 | 7 (макс. 10)³ | 16 | 23 |
+| `POST /training/sessions`, опытный | 10 (макс. 14) | 22 | 26 | 10 (макс. 14) | 22 | 28 |
+| `POST /training/sessions`, обычный | 10 (макс. 13) | 23 | 34 | 10 (макс. 13) | 19 | 28 |
+| `GET /training/sessions/{id}/next`, опытный | 7 (макс. 11) | 16 | 22 | 7 (макс. 11) | 14 | 37 |
+| `GET /training/sessions/{id}/next`, обычный | 7 (макс. 10) | 20 | 26 | 7 (макс. 10) | 13 | 22 |
+| `POST /training/sessions/{id}/review`, опытный | 18 (макс. 47) | 41 | 183 | 20 (макс. 29)⁴ | 36 | 112 |
+| `POST /training/sessions/{id}/review`, обычный | 16 (макс. 39) | 40 | 117 | 18 (макс. 27)⁴ | 38 | 53 |
+
+**«После» этой таблицы (C8, 02.11.2026)** — финальный код ветки (`b918c0b`) на том же объёме, что «до»: свежий набор `perf:seed --learners=200000 --words=100000 --members=400`, первый прогон на нём (TWA-часть замера пишет в базу — открывает тренировки и отвечает в них, — поэтому повторные прогоны на том же наборе уже не «свежие»). Отличия от «до»: PostgreSQL **16.15** вместо 18.6 (Docker-демон песочницы остановился по лимиту времени; PostgreSQL 18 и Redis 8.10 проверяет CI), чистый кэш — на втором экземпляре (`lru`, Redis 7.0 на той же машине), невытесняемый — Redis 7.0. Время — PHP CLI без OPcache на общей машине, ±30 %.
+- ¹ **Единичные выбросы p95** (18 учеников на эндпоинт: p95 — почти максимум). Повторные прогоны того же кода: `/me` опытного — p50 15 мс, p95 25–28 мс; хаб — p95 52–62 мс.
+- ² **`/me` обычного — шум первого прогона:** повторные дают SQL 6,1–6,9 мс и p50 15,5 мс при тех же 7 запросах.
+- ³ **Хаб практики: +1 запрос (p50) и максимум 10 вместо 7** — блок `limits` G1 (`docs/18` G1.1): остаток Free считается по сессиям и баттлам дня ученика (у Pro блок `limits` — `null`). Цена фичи, не кэша: в замере C0 (коммит `9999697`) G1 ещё не было, а на одном наборе до и после C3–C6 хаб одинаков (таблица ниже).
+- ⁴ **Ответ в тренировке: p50 20 / 18 вместо 18 / 16, максимум 29 / 27 вместо 47 / 39.** Число запросов здесь зависит от того, какая карточка выпала (новая или на повторение, диктант, пропуск), а карточки зависят от дня сида: наборы «до» и «после» засеяны в разное время. Код тренировки этими задачами не менялся; на одном наборе C3–C6 его не меняют (таблица ниже: 19 (42) → 19 (42), 20 (31) → 20 (31)).
+- **Остальные эндпоинты — то же число запросов и то же время в пределах шума;** `/courses/{slug}` — p50 13 → 11 и 17 → 7 мс (K3).
+- **Вытеснения и hit ratio.** За замер `evicted_keys` второго экземпляра — 0, память — 1,1 МБ из 64 МБ `maxmemory`. Hit ratio синтетического замера (592 попадания / 1 509 промахов) не показателен: каждый эндпоинт и каждый виджет начинается с пустого кэша нарочно. Настоящий hit ratio и вытеснения снимаются в проде по `INFO` обоих экземпляров (`DEVOPS_GUIDE` §0 «Redis»: алерт при hit ratio ниже ~0,8 или быстром росте `evicted_keys`) — по ним уточняется `REDIS_CACHE_MAXMEMORY` (§7).
+
+**C3–C6 на одном наборе (50 тыс. учеников, PostgreSQL 16.15, Redis 7.0 на той же машине, PHP 8.5 CLI без OPcache, ±30 %).** Набор пересоздан командой `perf:seed` перед «до» (коммит `8718d45`) и перед «после» (ветка с C3–C6); общие кэши в начале каждого эндпоинта пусты (тест сбрасывает оба хранилища), первый запрос — другим учеником. Запросов p50 (макс.) / p50 общее время, мс:
+
+| Эндпоинт | Опытный: до | Опытный: после | Обычный: до | Обычный: после |
+|---|---|---|---|---|
+| `/me` | 7 (11) / 13,5 | 7 (11) / 13,1 | 9 (11) / 15,5 | 9 (11) / 14,0 |
+| `/today` | 16 (19) / 35,4 | 16 (19) / 37,2 | 12 (19) / 27,1 | 12 (19) / 22,7 |
+| `/courses` | 2 (3) / 6,4 | 2 (3) / 6,1 | 2 (3) / 4,7 | 2 (3) / 4,7 |
+| **`/courses/{slug}`** | 3 (3) / 13,2, SQL 7,2 | **3 (4) / 9,3, SQL 4,3** | 3 (3) / 12,0, SQL 6,4 | **3 (4) / 7,5, SQL 2,4** |
+| `/league` | 6 (7) / 7,8 | 6 (7) / 8,4 | 4 (7) / 9,9 | 4 (7) / 6,5 |
+| `/friends` | 4 (4) / 6,9 | 4 (4) / 7,5 | 4 (4) / 7,2 | 4 (4) / 5,9 |
+| `/practice/hub` | 7 (10) / 17,3 | 7 (10) / 16,7 | 8 (10) / 13,0 | 8 (10) / 12,2 |
+| `POST /training/sessions` | 10 (13) / 19,3 | 10 (13) / 19,9 | 11 (13) / 18,6 | 11 (13) / 16,3 |
+| `GET …/next` | 7 (10) / 12,7 | 7 (10) / 13,0 | 8 (10) / 13,5 | 8 (10) / 12,7 |
+| `POST …/review` | 19 (42) / 26,2 | 19 (42) / 36,8 | 20 (31) / 28,6 | 20 (31) / 29,7 |
+
+- **Число запросов не изменилось нигде**: K3 заменяет один большой запрос двумя (дерево — из кэша, прогресс ученика — свой), а K4 в этом замере ничего не выигрывает — каждый ученик приходит впервые и читает свои слова, которых в кэше ещё нет; выигрыш K4 в работе, когда одни и те же слова читают много раз (повторения, экзамены, практика).
+- **`/courses/{slug}`: SQL 7,2 → 4,3 мс (опытный) и 6,4 → 2,4 мс (обычный)**, общее время 13,2 → 9,3 и 12,0 → 7,5 мс. Размер ответа тот же (25,6 КБ): выигрыш во времени, не в payload.
+- Остальные различия — шум общей машины (±30 %): у `POST …/review` на этом прогоне выросли и SQL, и рендер при тех же запросах; повторить на тихой машине при C8.
+- **Дашборды `/admin` и `/org`** — `docs/20` §4 (F5): 0 запросов на повторном открытии, SQL 1 100 мс → 0.
+
+**Что показал замер «до»:**
+- **Горячие эндпоинты уже лёгкие:** 2–18 запросов, p50 6–45 мс и p95 9–68 мс (без ответа в тренировке) при 200 тыс. учеников и 4,8 млн повторений; единственный выброс — ответ в тренировке `POST …/review` (p95 183 мс у опытного и 117 у обычного, до 47 запросов у отдельных учеников). Самые дорогие по запросам — `/today` (16–17) и этот ответ (16–18).
+- **`/courses/{slug}` отдаёт 25,6 КБ** при 3 запросах: кандидат на кэш K3, выигрыш — в payload и времени, а не в числе запросов.
+- **Главный выигрыш кэша — не TWA, а дашборд админки** (`docs/20` §4: 3,0 с SQL на 200 тыс. учеников); план кэша K1 начинать с него.

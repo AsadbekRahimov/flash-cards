@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 15,
+    "title": "Образование",
+    "title_uz": "Ta'lim"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Высшее образование",
+    "title_uz": "Oliy ta'lim"
+  },
+  "words": [
+    {
+      "word": "lecture",
+      "part_of_speech": "noun",
+      "translation": "лекция",
+      "translations": {
+        "ru": "лекция",
+        "uz": "ma'ruza"
+      },
+      "example": "The lecture starts at eight thirty.",
+      "example_translations": {
+        "ru": "Лекция начинается в половине девятого.",
+        "uz": "Ma'ruza sakkiz o'ttizda boshlanadi."
+      }
+    },
+    {
+      "word": "diploma",
+      "part_of_speech": "noun",
+      "translation": "диплом",
+      "translations": {
+        "ru": "диплом",
+        "uz": "diplom"
+      },
+      "example": "He received his diploma last June.",
+      "example_translations": {
+        "ru": "Он получил диплом в прошлом июне.",
+        "uz": "U diplomini o'tgan iyunda oldi."
+      }
+    },
+    {
+      "word": "course",
+      "part_of_speech": "noun",
+      "translation": "курс",
+      "translations": {
+        "ru": "курс",
+        "uz": "kurs"
+      },
+      "example": "I take an English course online.",
+      "example_translations": {
+        "ru": "Я прохожу онлайн-курс английского.",
+        "uz": "Men onlayn ingliz tili kursida o'qiyman."
+      }
+    },
+    {
+      "word": "scholarship",
+      "part_of_speech": "noun",
+      "translation": "стипендия",
+      "translations": {
+        "ru": "стипендия",
+        "uz": "stipendiya"
+      },
+      "example": "She won a scholarship to study abroad.",
+      "example_translations": {
+        "ru": "Она получила стипендию для учёбы за границей.",
+        "uz": "U chet elda o'qish uchun stipendiya yutdi."
+      }
+    },
+    {
+      "word": "professor",
+      "part_of_speech": "noun",
+      "translation": "профессор",
+      "translations": {
+        "ru": "профессор",
+        "uz": "professor"
+      },
+      "example": "The professor gives clear lectures.",
+      "example_translations": {
+        "ru": "Профессор читает понятные лекции.",
+        "uz": "Professor tushunarli ma'ruzalar o'qiydi."
+      }
+    },
+    {
+      "word": "graduate",
+      "part_of_speech": "verb",
+      "translation": "оканчивать вуз",
+      "translations": {
+        "ru": "оканчивать вуз",
+        "uz": "bitirmoq"
+      },
+      "example": "My brother graduates from university in June.",
+      "example_translations": {
+        "ru": "Мой брат оканчивает университет в июне.",
+        "uz": "Akam iyun oyida universitetni bitiradi."
+      }
+    },
+    {
+      "word": "research",
+      "part_of_speech": "noun",
+      "translation": "исследование",
+      "translations": {
+        "ru": "исследование",
+        "uz": "tadqiqot"
+      },
+      "example": "Her research is about water.",
+      "example_translations": {
+        "ru": "Её исследование посвящено воде.",
+        "uz": "Uning tadqiqoti suv haqida."
+      }
+    },
+    {
+      "word": "essay",
+      "part_of_speech": "noun",
+      "translation": "эссе",
+      "translations": {
+        "ru": "эссе",
+        "uz": "insho"
+      },
+      "example": "I must write an essay tonight.",
+      "example_translations": {
+        "ru": "Мне нужно написать эссе сегодня вечером.",
+        "uz": "Bugun kechqurun insho yozishim kerak."
+      }
+    },
+    {
+      "word": "dormitory",
+      "part_of_speech": "noun",
+      "translation": "общежитие",
+      "translations": {
+        "ru": "общежитие",
+        "uz": "yotoqxona"
+      },
+      "example": "Many students live in the dormitory.",
+      "example_translations": {
+        "ru": "Многие студенты живут в общежитии.",
+        "uz": "Ko'p talabalar yotoqxonada yashaydi."
+      }
+    },
+    {
+      "word": "campus",
+      "part_of_speech": "noun",
+      "translation": "кампус",
+      "translations": {
+        "ru": "кампус",
+        "uz": "talabalar shaharchasi"
+      },
+      "example": "The campus has a library and a gym.",
+      "example_translations": {
+        "ru": "В кампусе есть библиотека и спортзал.",
+        "uz": "Talabalar shaharchasida kutubxona va sport zali bor."
+      }
+    }
+  ]
+}

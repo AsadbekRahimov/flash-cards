@@ -94,7 +94,7 @@ it('resolves a batch with one query', function (): void {
         ->and($many[$a->id]->isFallback)->toBeFalse()
         ->and($many[$b->id]->isFallback)->toBeTrue()
         ->and($many[$c->id]->isFallback)->toBeTrue()
-        ->and($queries)->toHaveCount(2); // one per call, not per word
+        ->and($queries)->toHaveCount(1); // one for the whole batch, not per word; the second call reads the pure cache (docs/19 K4)
 });
 
 it('returns an empty map for no words without querying', function (): void {

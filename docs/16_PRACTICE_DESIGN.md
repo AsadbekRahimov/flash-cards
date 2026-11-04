@@ -26,6 +26,7 @@
 | 18.11 | Доводка соло после повторного ревью: экранирование отказа в админке; «Сгенерировать аудио заново» не снимает готовую опубликованную версию; диктант `no_words` при нескольких озвученных словах; диктант различает слово и описку (`EnglishLexicon` с проверкой орфографии форм, `en-irregular.txt`, хвосты `InflectionGuard` — только `s`/`d`); `course_title` и `lesson` незавершённой сессии в хабе и в 409; pending-`request_id` пары по паре; `unknown_element_id` перечитывает сессию; тексты `items_locked` курса и «заданий пока мало»; индекс `practice_item_versions (lesson_id)`; 429 лимитеров вне конверта (docs/04 A.16) | сделано |
 | 18.9b | Правки по ревью сервера соло-практики: пары — ключи `base|…`; диктант — другое слово и другая форма есть ошибка, а не опечатка (`EnglishLexicon`); снимок ≤ 40 КБ в UTF-8; причина `items_locked`; одно решение для `retry_available` и открытия повтора, порядок проверок `open()`, `source: retry` ↔ `retry_of`, `request_id_reused`, диск замены вне блокировки, `your_option_id` в разборе сочетания; `PracticeIsolationTest` ещё и на четырёх настоящих режимах | сделано |
 | 18.7c | Документация баттла по коду: `docs/04` A.17 (маршруты, лимитеры, JSON по статусам, коды с `details`) и B.14 (ЛС), `USER_GUIDE` «Баттл 1 на 1 с другом», `docs/07` (угрозы, лимитеры, чек-лист пен-теста), `docs/05` §5a.5 сверен с API, `ADMIN_GUIDE` / `DEVOPS_GUIDE` / `VPS_DEPLOY_GUIDE_RU` (выключатель, дворник `practice:battles-sweep`, «завис»), `docs/03` §2.45–§2.47 (ключи `meta`), блоки «Реализация 18.6b» и «Реализация 18.9t» здесь. Браузерный e2e двух игроков (§14.4) в 18.7c не входит — отдельная задача | сделано |
+| G1 (backend) | Лимиты Free вместо «всё или ничего» (`docs/18` §3, §9): `config('practice.free_limits')`, фича `practice.unlimited` у Pro, `PracticeLimits` (окно `LearnerClock::limitWindowUtc`, подсчёт под `FOR NO KEY UPDATE` строки ученика), 403 `practice_limit_reached`, событие `practice.limit_reached`, блок `limits` в `/me.practice`, хабе и ответах 201 (`PracticeSessionOpenedResource`, `BattleInvitedResource`), `lang/{ru,uz,en}/practice.php`; `PracticeLimitsTest`, `PracticeLimitsConcurrencyTest` (§3.2, §3.3, §3.4, §7, §8.2, §9 правило 16) | сделано; TWA — G1.2 |
 | 18.12a | Присутствие в баттле по находкам e2e 18.8e: часы раньше отметки — любой запрос участника сначала продвигает матч по прежним `last_seen_at` и только у живого матча пишет heartbeat (`BattleClock::advanceThenTouch`, `BattleReader::settle`); первый вернувшийся после общего отсутствия получает `closed/both_absent`, ушедший дольше grace проигрывает, кто бы ни спросил первым; нижняя граница grace 15 с (`BattleSettings::presenceGraceFloorSeconds`); `BattlePresenceTest`, `BattleSettingsTest`, две гонки в `BattleConcurrencyTest`, e2e `battle:absent-lazy` в основном прогоне (§8.1, §8.4, §9, §13, §14) | сделано |
 
 **Где реализация уточнила проект** (по коду и тестам):
@@ -80,7 +81,7 @@ app/Domain/Practice/
 ├── DTO/          PracticeAccessState, ModeAvailability, MaterialReport, Snapshot, SnapshotElement, GradeResult,
 │                 SessionView, SummaryView, BattleView, BattlePollView, RoundView, PracticeImportReport
 ├── Exceptions/   PracticeException, BattleException, PracticeContentException   (errorCode + httpStatus() + details)
-├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants, EnglishLexicon (+ resources/lexicon/en-common.txt: леммы, en-irregular.txt: неправильные формы)
+├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants, EnglishLexicon (+ resources/lexicon/en-common.txt: леммы, en-irregular.txt: неправильные формы), SpellingVariants (+ en-us-gb.txt: пары британского/американского написания)
 └── Services/
     ├── PracticeAccess                 флаги, пилот, тариф, блок `/me`
     ├── PracticeMaterialService        пригодные слова/задания для ученика (соло) и для пары игроков (баттл)
@@ -572,6 +573,10 @@ final class BattleReader
 return [
     'access' => env('PRACTICE_ACCESS', 'off'),          // off | pilot | all
     'plan' => env('PRACTICE_PLAN', 'all'),              // all | pro
+    'free_limits' => [                                   // G1 (docs/18 §3): в локальный день ученика; 0 = только Pro; пусто = без лимита
+        'sessions_per_day' => env('PRACTICE_FREE_SESSIONS_PER_DAY', 2),
+        'battles_per_day' => env('PRACTICE_FREE_BATTLES_PER_DAY', 1),
+    ],
     'modes' => [
         'pairs' => (bool) env('PRACTICE_MODE_PAIRS', true),
         'collocation' => (bool) env('PRACTICE_MODE_COLLOCATION', true),
@@ -636,6 +641,19 @@ return [
 
 Баттл требует `available` у **обоих**: приглашение проверяет друга (`assertFriendCanPractice` → 409 `battle_friend_no_access`), принятие — себя.
 
+**Реализация G1 (2026-11-02, `docs/18` §3): лимиты Free вместо «всё или ничего».** При `plan = all` (по умолчанию) Free практикует, но в пределах дня; `plan = pro` остаётся как было (Free целиком получает 403 `practice_pro_required`). Сервис — `PracticeLimits` (`app/Domain/Practice/Services`):
+
+| Что | Правило |
+|---|---|
+| Кто без лимита | ученик с фичей entitlement `practice.unlimited` (`config/billing.php`, `plans.pro.features`) — Pro, в том числе спонсорский Pro центра |
+| Окно | локальный день ученика, то же окно, что у квоты новых слов: `LearnerClock::limitWindowUtc` (с переносом дня после смены пояса, docs/12 §5.3) |
+| Сессии | `practice.free_limits.sessions_per_day` (env `PRACTICE_FREE_SESSIONS_PER_DAY`, 2) — сессии, **открытые** учеником в окне (`practice_sessions.started_at`); замена активной (`replace_active`) — новая сессия, считается. **Повтор ошибок:** бесплатен ровно **один** повтор на исходную сессию, и только если исходная открыта в этом окне (сегодня) — самый ранний повтор источника, который сам не повтор; второй повтор того же источника, повтор повтора и повтор вчерашней или более старой сессии считаются как сессия (при лимите 0 — только Pro). Проверка «повтор ещё не было» и подсчёт — под тем же замком ученика (`PracticeLimits::FREE_RETRY_SQL`, `isFreeRetry`). Решение координатора 02.11.2026 |
+| Баттлы | `practice.free_limits.battles_per_day` (env `PRACTICE_FREE_BATTLES_PER_DAY`, 1) — вызовы ученика в окне (`battles.challenger_id`, `created_at`): ожидающие (`invited`, `room`, `countdown`, `playing`) и сыгранные (`finished`: `completed` / `surrender` / `absent`; `closed/both_absent`); реванш — тому, кто его предлагает. **Не считаются** баттлы, которые не начались не по вине вызвавшего — `end_reason ∈ {declined, invite_expired, canceled, room_expired, voided}` (`PracticeLimits::UNSPENT_END_REASONS`): вызов возвращается; просроченное, ещё не закрытое дворником приглашение уже не считается (следующий вызов закрывает его по пути, Ж1). Решение координатора 02.11.2026. **Принятие всегда бесплатно** и не считается (Pro-друг приводит Free-друзей) |
+| Значения | `0` — создание только для Pro; пусто (`PRACTICE_FREE_SESSIONS_PER_DAY=`) — лимита этого вида нет (`null` в блоке `limits`; оба пусты — `limits: null`, как у Pro) |
+| Отказ | 403 `practice_limit_reached`, `details` `{kind: sessions|battles, limit, used, resets_at}` (`resets_at` — конец окна, ISO 8601 UTC с миллисекундами); событие `practice.limit_reached {kind, limit}`; `message` — текст ученика из `lang/{ru,uz,en}/practice.php` (TWA показывает пейвол `practice_limit` по коду) |
+| Порядок проверок | доступ (`off` / `pilot` / `plan = pro`) → выключатели режима и баттла → **лимит** → остальное как раньше (курс, урок, материал, активная сессия). У `retry_of` / `rematch_of` разбор источника (404/409) идёт до проверки режима и, значит, до лимита — режим берётся из источника. У приглашения **пара** (404 `friendship_not_found`, 403 `not_friends`) и **встречное приглашение друга** (409 `battle_busy` с id **его** приглашения) тоже идут до лимита: ученика у лимита ведут в приглашение друга, а не на пейвол, и строки это не создаёт |
+| Атомарность | вежливая проверка до работы без блокировки (ученик у лимита не читает материал); решающий подсчёт — **в транзакции создания под блокировкой строки ученика** (`FOR NO KEY UPDATE`, как `CardPicker` и квота новых слов) — две вкладки за последнее место: проходит ровно одна (`PracticeLimitsConcurrencyTest`). Pro блокировку не берёт. Порядок замков — §9 правило 16 |
+
 ### 3.3 Блок `practice` в `GET /api/twa/me` (всегда присутствует)
 
 ```json
@@ -643,12 +661,18 @@ return [
   "available": true,
   "pro_required": false,
   "modes": ["pairs", "collocation", "sentence", "dictation"],
-  "battle": true
+  "battle": true,
+  "pro_promise": "both",
+  "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" },
+              "battles":  { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } }
 }
 ```
 
+- `limits` (G1) — лимиты Free на сегодня: `null` у Pro (фича `practice.unlimited`), когда лимиты не заданы и когда практика ученику закрыта (`available = false` или `pro_required = true` — считать нечего); вид без лимита — `null` внутри блока. Один запрос к БД (оба счётчика одним SQL) и только у Free с открытой практикой. Тот же блок — в хабе (§7.1) и в ответах 201 на открытие сессии (§7.2) и на приглашение (§7.3) — там значение **после** создания.
+
 - `available` — `state ∈ {available, pro_required}`; `false` → TWA **не показывает** входы (курс, итог занятия, друзья) и маршруты практики отвечают 403;
 - `pro_required` — Free-ученик при `plan = pro`: входы показаны с чипом Pro, нажатие открывает `PaywallSheet reason="practice"`, сервер всё равно отвечает 403 `practice_pro_required`;
+- `pro_promise` (`none` | `solo` | `both`) — какую строку о практике может сказать этому ученику список «что даёт Pro»; решает сервер (`ProPromises`, то же правило, что у лендинга и счёта Stars; контракт — `docs/04` A.2, правило — `docs/18` §3), TWA ничего не выводит из `available` / `battle`;
 - `modes` — включённые режимы (список), `battle` — флаг баттла. `MePayloadBuilder::build` += `'practice' => $this->access->describe($learner, $entitlement)`; `MeResource` отдаёт блок; `TwaContractTest` расширяется ключами `practice.available|pro_required|modes|battle`.
 
 **Реализация 18.1.** Блок `practice` есть не только в `GET /me`, но и во всех ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`): их собирает один `MePayloadBuilder`. Без блока (старый сервер, сбой `/me`) TWA считает, что практики нет: вход не рисуется (`billing.practiceAccess`).
@@ -661,6 +685,7 @@ return [
 | `practice.session_finished` | `session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms` | `completed` / `expired` / `replaced` (один раз, кто перевёл в finished) |
 | `practice.not_enough_material` | `mode, course_id, lesson_id, available, required, reason, battle` | отказ 422 (соло и баттл) |
 | `practice.audio_failed` | `session_id|battle_id, source (word|phrase), reason (file_missing|client_report), verified` | замена/сообщение о сбое |
+| `practice.limit_reached` | `kind (sessions|battles), limit` | отказ 403 `practice_limit_reached` (G1): Free упёрся в лимит дня — и при вежливой проверке, и при проигрыше гонки за последнее место |
 | `battle.invited` | `battle_id, mode, course_id, lesson_id, rematch` | приглашение |
 | `battle.accepted` / `battle.started` | `battle_id` (+ `mode`) | принятие / оба готовы |
 | `battle.finished` | `battle_id, end_reason, result (challenger|opponent|draw), rounds_played, duration_ms` | статус `finished` |
@@ -780,7 +805,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 4. пунктуация `. , ! ? ; : … ( ) [ ]` → пробел;
 5. `mb_strtolower`;
 6. схлопнуть пробелы, `trim`.
-`tokens(string): list<string>` — `normalize` → `explode(' ')` (пусто → `[]`). Апостроф внутри токена сохраняется (`don't`), цифры сохраняются. Сокращения (`I'm`/`I am`, `don't`/`do not`) **не** приравниваются: только авторские варианты `accepted`.
+`tokens(string): list<string>` — `normalize` → `explode(' ')` (пусто → `[]`). Апостроф внутри токена сохраняется (`don't`), цифры сохраняются. Сокращения (`I'm`/`I am`, `don't`/`do not`) **не** приравниваются: только авторские варианты `accepted` (правило для пакетов — §5.2, «Варианты `accepted` фразы»).
 
 `SpellingGrader::distance` (OSA) переиспользуется для расстояния токенов; `SpellingGrader::normalize` не используется (другие правила пунктуации).
 
@@ -788,8 +813,8 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 
 Для каждого допустимого варианта `E` считается вердикт, берётся лучший (`correct` > `typo` > `wrong`):
 
-1. `norm(answer) === norm(E)` → `correct`;
-2. `typo` ⇔ **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `e` и `a` не в `grading.protected_tokens` (отрицания, числительные **и порядковые**); ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр; `!InflectionGuard::isInflection(a, e)`; **набранный токен `a` — не английское слово** (`!EnglishLexicon::isWord(a)`, ниже). Это правило владельца (docs/15 §3.4, в споре сильнее этого раздела): другое слово или другая форма — ошибка, «сомнительное» — ошибка, настоящая описка-не-слово — опечатка;
+1. `norm(answer) === norm(E)` → `correct`; токены сравниваются с учётом **британского/американского написания**: две формы пары из `resources/lexicon/en-us-gb.txt` (`colour`/`color`, `centre`/`center`, `travelling`/`traveling`, `organise`/`organize`…) — один и тот же токен, в обе стороны, что бы ни написал автор (`SpellingVariants`, чистая функция; в файле только однозначные пары, формы слова — по одной, строка `british american`, отсортировано, без повторов; неоднозначное — `practise`/`practice`, `tyre`/`tire`, `cheque`/`check`, `licence`/`license` — не в списке, такие варианты автор добавляет в `accepted` сам). В `diff` такой токен отмечен `ok`;
+2. `typo` ⇔ **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `e` и `a` не в `grading.protected_tokens` (отрицания, числительные **и порядковые**); ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр; `!InflectionGuard::isInflection(a, e)`; **набранный токен `a` — не английское слово** (`!EnglishLexicon::isWord(a)`, ниже). Если `e` входит в пару британского/американского написания, описка судится и относительно другой формы пары (`colro` для `colour` — одна транспозиция от `color`: `typo`). Это правило владельца (docs/15 §3.4, в споре сильнее этого раздела): другое слово или другая форма — ошибка, «сомнительное» — ошибка, настоящая описка-не-слово — опечатка;
 3. иначе `wrong`.
 
 `InflectionGuard::isInflection(a, e)` (правка координатора: стеммер с отрезанием `es`/`ed` ошибался — `coffee`/`coffees` давали разные стемы `coffe`/`coff` и проходили как опечатка). Так как до проверки уже известно `OSA(a, e) = 1`, смена грамматической формы на одну правку бывает только на конце слова, и правило — по хвосту: пусть `x` — более короткий токен, `y` — более длинный (при равной длине — любой порядок); `true`, если
@@ -843,6 +868,9 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | 26 | `Turn right here` | `Turn light here` | wrong | `light` — другое слово |
 | 27 | `The fourth floor` | `The forth floor` | wrong | порядковое защищено (`fourth`) |
 | 28 | `The books are on the table` | `The boots are on the table` | wrong | `boots` — другое слово |
+| 29 | `My colour` (без accepted) | `my color` | correct | американское написание пары `colour`/`color` |
+| 30 | `We are travelling` | `We are traveling` | correct | было `wrong` (`traveling` — слово лексикона); теперь пара из `en-us-gb.txt` |
+| 31 | `Nice colour` | `nice colro` | typo | транспозиция от `color` (другая форма пары); `practise`/`practice` — не пара, `wrong` |
 | 29 | `a nicer day` | `a nice day` | wrong | другая форма: `nice` — слово (`InflectionGuard` смотрит только хвосты `s`/`d`) |
 | 30 | `because` | `becuase` | typo | `becuase` — не слово, OSA 1 |
 | 31 | `My friend is here` | `My freind is here` | typo | `freind` — не слово |
@@ -860,6 +888,13 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 - Запасные кандидаты (`pool`) — до 4 фраз и до 4 слов; замена берёт следующего того же источника, при его отсутствии — другого, без запасных элемент убирается (`total` уменьшается, минимум один элемент).
 - Аудио: снимок называет диск элемента (`practice_audio` — фразы, `public` — слова); **любое другое имя диска сервис не открывает**. Нет файла → 503 `practice_audio_unavailable` и событие `practice.audio_failed`. Сбой последней попытки job'а — `audio_status = failed` + `audio_error`; «Сгенерировать заново» в админке ставит job снова.
 - `typo` в соло не засчитывается как «верно с первой попытки» и показывается в итогах отдельно (чип «Опечатка», счётчик `typos`).
+
+**Варианты `accepted` фразы в пакетах заданий (R9c; одно правило для всех пакетов `database/data/practice/`).** Грейдер не приравнивает сокращение полной форме и цифру слову (§5.1): допустимые написания перечисляет автор, и всегда так:
+1. **Сокращение служебного слова с глаголом и отрицание — в обе стороны.** Какую бы форму ни дал `text`, другая — в `accepted`: личное или неопределённое местоимение с глаголом (`I'm` / `I am`, `you're` / `you are`, `it's` / `it is`, `I'll` / `I will`, `everything's` / `everything is`); в начале предложения — `that`, `there`, `here` и вопросительное слово (`that's`, `there's`, `what's`, `who's`, `where's`, `when's`, `how's`, `why's`, `who'll`); `Let's` / `Let us`; отрицание (`don't` / `do not`, `isn't` / `is not`, `can't` / `cannot`, `won't` / `will not`); местоимение + `is not` — все три формы (`He is not` / `He isn't` / `He's not`). Не сокращаются `have` / `has` в значении «иметь» (`I have good news`), вопрос с инверсией (`Are you…?`), нестандартные `there're`, `where're`.
+2. **Существительное с `is` — полная форма всегда, сокращённая — только если она есть в `text`.** Диктуется `text`, ученик пишет то, что слышит: к `The train is late` вариант `The train's late` не добавляется; к тексту `The train's late` добавлялся бы `The train is late`. Притяжательное `'s` (`today's newspaper`) — не сокращение.
+3. **Число — словом и цифрами, если оно есть в тексте:** `two` / `2`, `zero` / `0`, `seven o'clock` / `7 o'clock`, `Two thousand` / `2000` / `2,000`.
+
+Где мест несколько — все сочетания (`I am twenty years old` → `I'm twenty…`, `I am 20…`, `I'm 20…`), не больше 5 дополнительных (`content.dictation_accepted_max`). Вариант пишется с пунктуацией `text` (вариант, отличающийся только знаками, — тот же ответ: валидатор схлопывает его молча, в файле его нет). Другое написание слова (`e-mail` / `email`, `light bulb` / `lightbulb`) — на усмотрение автора; британское написание в `accepted` не нужно — пары сводит `en-us-gb.txt`. Правило и то, что каждый вариант засчитывается как `correct`, проверяет `tests/Feature/Content/PracticePackTest.php`.
 
 ### 5.3 Собери предложение (`SentenceGrader`)
 
@@ -930,6 +965,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 - **Несколько вкладок** — все записи под `FOR UPDATE` строки сессии; вторая вкладка после ответа первой получает 409 `element_not_current` с `details.current` и перечитывает `GET /practice/sessions/{id}`; стор отбрасывает устаревшие ответы поколением (§11.4).
 - **Правка контента во время сессии** — не влияет: проверка идёт по снимку; `version_id` в снимке остаётся для аналитики; архив задания тоже не влияет.
 - **Выключение режима** — §3.2: доигрывается.
+- **Известное поведение (G1, ревью): два одновременных открытия с `replace_active: true` с двух устройств тратят два места дня.** Под замком строки ученика транзакции идут по очереди: первая создаёт сессию, вторая закрывает её (`replaced`) и создаёт свою — у Free это два открытия, как и без лимитов (`PracticeSessionConcurrencyTest`, сценарий REPLACE с датасетом «лимиты вкл/выкл»). Не чиним: оба запроса — настоящие открытия по явному согласию ученика (клиент не шлёт `replace_active` без подтверждения), а «склеить» их значило бы отдавать второму устройству чужой снимок.
 
 ### 6.2 `practice_sessions.state` (jsonb, только под блокировкой)
 
@@ -999,9 +1035,10 @@ afterCommit: product_events (session_finished при завершении)
   ],
   "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
                       "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } } | null,
-  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
+  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 },
+  "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "…" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "…" } } | null }
 ```
-`state`: `available` / `not_enough` / `disabled` / `pro_required`. Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
+`state`: `available` / `not_enough` / `disabled` / `pro_required`. `limits` — лимиты Free на сегодня (§3.3, G1; `null` у Pro и за пейволом). Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
 
 `active_session` называет место сессии и id, и словами (М4 повторного ревью; `PracticeSessionService::activeSummary`): `course_title` — название курса на языке сессии (иначе любой язык снимка, иначе slug), `lesson` — `{stage, number, title}` либо `null`
 (практика курса; снимок без названий; часть, которой у урока нет, — `null`). Всё берётся из снимка, который `activeSummary` и так разбирает ради slug: ни одного запроса сверх бюджета хаба. Те же поля — в `details` 409 `practice_session_active` (`session_id` вместо `id`).
@@ -1012,7 +1049,7 @@ afterCommit: product_events (session_finished при завершении)
 ```json
 { "mode": "pairs", "course": "english-a1", "lesson_id": 41, "source": "hub", "replace_active": false, "retry_of": null }
 ```
-`mode` ∈ 4; `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionResource` (как `GET`). Ошибки: 403 `practice_unavailable` / `practice_pro_required`; 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
+`mode` ∈ 4; `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionOpenedResource` — сессия как в `GET` плюс `limits` (§3.3, значение после открытия; `null` у Pro). Ошибки: 403 `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (G1, details `{kind: sessions, limit, used, resets_at}`; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются как сессия); 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
 
 **`GET /practice/sessions/{id}`** — `PracticeSessionResource`:
 ```json
@@ -1068,12 +1105,12 @@ afterCommit: product_events (session_finished при завершении)
 ```
 `incoming` — `invited` ко мне с непросроченным `invite_expires_at`; `finished` — последние 10 `finished|closed` с моим участием.
 
-**`POST /practice/battles`** (лимитер `twa-battle-invite` 5/мин) — `{ "friendship_id": 11, "mode": "sentence", "course": "english-a1", "lesson_id": 41, "rematch_of": null }` → **201** `BattleResource`. Ошибки: 409 `battle_disabled`, `battle_busy` (details `{battle_id}` моего активного), `battle_friend_no_access`, `practice_mode_disabled`; 403 `not_friends`; 404 `friendship_not_found`, `course_not_found`, `lesson_not_found`; 422 `lesson_not_in_course`, `battle_material_unavailable` (details §4.3). `rematch_of` — мой завершённый матч: формат/тема берутся из него (присланные игнорируются), друг — соперник того матча.
+**`POST /practice/battles`** (лимитер `twa-battle-invite` 5/мин) — `{ "friendship_id": 11, "mode": "sentence", "course": "english-a1", "lesson_id": 41, "rematch_of": null }` → **201** `BattleInvitedResource` — матч как в `BattleResource` плюс `limits` (§3.3, значение после приглашения; `null` у Pro). Ошибки: 403 `practice_limit_reached` (G1, details `{kind: battles, …}`: Free исчерпал вызовы дня — считаются ожидающие и сыгранные вызовы, реванш — предлагающему; отклонённый, просроченный, отозванный, с истёкшей комнатой и аннулированный вызов возвращается; принятие всегда бесплатно); 409 `battle_disabled`, `battle_busy` (details `{battle_id}` моего активного), `battle_friend_no_access`, `practice_mode_disabled`; 403 `not_friends`; 404 `friendship_not_found`, `course_not_found`, `lesson_not_found`; 422 `lesson_not_in_course`, `battle_material_unavailable` (details §4.3). `rematch_of` — мой завершённый матч: формат/тема берутся из него (присланные игнорируются), друг — соперник того матча.
 
 **Реализация 18.6:** реванш работает **без** `friendship_id` (решение координатора): друг — другая сторона завершённого матча, пара должна по-прежнему быть `accepted` (иначе 403 `not_friends`); `rematch_of` чужого матча — 404 `battle_not_found`, незавершённого — 409 `battle_wrong_state`. `BattleListView.active` — матч, которым я занят (`battle_participants.active_learner_id = me`: своё непросроченное приглашение, комната, отсчёт, игра; просроченное закрывается лениво и в `active` не попадает); `incoming` — `invited` ко мне с `invite_expires_at > now`; `finished` — последние `finished_list` по `finished_at` (лениво закрытое приглашение туда тоже попадает, `outcome: none`). `options.modes[].state`: `disabled` (выключен) / `available` / `not_enough` — доступность считается по локалям **обоих** игроков.
 
 **Реализация 18.6b:** `BattleInviteRequest` — без `rematch_of` обязательны `friendship_id`, `mode`, `course`; **с** `rematch_of` остальные поля не валидируются и не читаются вовсе (TWA шлёт `mode`, `course`, `lesson_id` и `friendship_id` заодно — это не 422, даже если там мусор). `POST /battles` стоит за `twa-practice-open` **и** `twa-battle-invite` (§7.5). Встречное приглашение — 409 `battle_busy` с `details.battle_id` открытого приглашения друга **мне** (§8.2). Компактный `active` списка — ровно `id, status, mode, role, course, lesson, opponent`. Ошибки валидации Laravel (422 `{message, errors}`) вне конверта `ApiErrorResource`, как у соло.
-`options` бросает ещё 404 `lesson_not_found` и 422 `lesson_not_in_course`; состояния формата — только `available` / `not_enough` / `disabled`, без `pro_required` (Free при `PRACTICE_PLAN=pro` получает 403 на весь запрос), и у `disabled` числа и `reason` настоящие (материал считается и для выключенного формата, в отличие от хаба, §7.1). Порядок проверок приглашения: доступ → `battle_disabled` → реванш (404/409) → `practice_mode_disabled` → пара → `battle_friend_no_access` → встречное `battle_busy` → курс → урок → материал → запись (`docs/04` A.17).
+`options` бросает ещё 404 `lesson_not_found` и 422 `lesson_not_in_course`; состояния формата — только `available` / `not_enough` / `disabled`, без `pro_required` (Free при `PRACTICE_PLAN=pro` получает 403 на весь запрос), и у `disabled` числа и `reason` настоящие (материал считается и для выключенного формата, в отличие от хаба, §7.1). Порядок проверок приглашения: доступ → `battle_disabled` → реванш (404/409) → `practice_mode_disabled` → пара → встречное `battle_busy` → лимит Free (403 `practice_limit_reached`, G1) → `battle_friend_no_access` → курс → урок → материал → запись (`docs/04` A.17).
 
 ### 7.4 Баттл — комната и матч
 
@@ -1157,6 +1194,7 @@ afterCommit: product_events (session_finished при завершении)
 |---|---|---|
 | `practice_unavailable` | 403 | — |
 | `practice_pro_required` | 403 | — (paywall reason `practice`) |
+| `practice_limit_reached` | 403 | `{kind: sessions|battles, limit, used, resets_at}` (G1; paywall reason `practice_limit` с остатком) |
 | `practice_mode_disabled` | 409 | `{mode}` |
 | `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
 | `practice_session_active` | 409 | `{session_id, mode, course, course_title, lesson_id, lesson, progress}` |
@@ -1251,13 +1289,15 @@ afterCommit: battle.accepted
 ```
 **Реализация 18.6b (встречные приглашения):** перед транзакцией `invite()` ищет **открытое** приглашение друга ко мне (`challenger = друг`, `opponent = я`, `invited`, `invite_expires_at > now`; индекс `(opponent_id, status)`) и при находке отвечает 409 `battle_busy` с `details.battle_id` **этого** приглашения: оба нажали «Реванш» (или «Пригласить») в пределах секунд — второй получает приглашение первого, открывает его и принимает; иначе каждый сидел бы на своём «Ждём ответа», а принять чужое мешал бы `active_learner_id` (409). Это матч, где спрашивающий — адресат, поэтому `battle_busy` по-прежнему называет только матчи самого спрашивающего (`active_learner_id = learner_id` держит CHECK на PostgreSQL). ~~Проверка без блокировок (§9 правило 8): два приглашения, пересёкшиеся в ту же миллисекунду, обе пройдут~~ — ревью измерило «слепое окно» проверки (от её SELECT до COMMIT) в 6–15 мс на локальном PG, в проде — десятки; закрыто в 18.6-fix (ниже). `invite()` возвращает `Battle` с уже подвешенными двумя `participants` (полные строки, умолчания колонок записаны) — ответ 201 показывает матч без повторного чтения (бюджет §13).
 
-**Реализация 18.6-fix (атомарность встречных приглашений — вариант (г), `open_pair`):** решает **БД**, а не проверка: `invite()` пишет `battles.open_pair = "<low>:<high>"` (§2.7, unique), поэтому из двух приглашений одной пары, идущих одновременно с любым разрывом, второй INSERT получает нарушение unique — вторая транзакция ждёт commit первой на индексе и откатывается, ровно как с `active_learner_id` (правило §9.9 расширено на `open_pair`: каждая держит только свои новые строки, цикла нет). В `catch UniqueConstraintViolation` сервис различает причины без разбора текста ошибки: (1) `busyWith(me)` — мой активный матч → 409 `battle_busy {battle_id: мой}`; (2) иначе `openBattleOfPair(me, friend)` — незавершённый матч пары (приглашение друга мне, закоммиченное первым) → 409 `battle_busy {battle_id: его}` — тот же ответ, что даёт прежняя проверка `assertNotCrossing`, которая осталась **вплотную перед транзакцией** (вариант (а)) как дружелюбный путь без исключения; в обоих случаях у проигравшего нет ни строки, ни события, ни ЛС. Отвергнуто: (б) `pg_advisory_xact_lock` по паре — замок вне строки `battles` (против духа правил 8/10) и только PostgreSQL; (в) пост-commit правило «закрыть приглашение с большим id» — у проигравшего уже созданы строка, событие `battle.invited` и job ЛС, а окно «commit → повторная проверка» лишь сужается, не исчезает. Гонка закреплена в `BattleConcurrencyTest` (два реванша с разрывом 0/5/10 мс: ровно одно открытое приглашение, второй — 409 с id первого).
+**Реализация 18.6-fix (атомарность встречных приглашений — вариант (г), `open_pair`):** решает **БД**, а не проверка: `invite()` пишет `battles.open_pair = "<low>:<high>"` (§2.7, unique), поэтому из двух приглашений одной пары, идущих одновременно с любым разрывом, второй INSERT получает нарушение unique — вторая транзакция ждёт commit первой на индексе и откатывается, ровно как с `active_learner_id` (правило §9.9 расширено на `open_pair`: каждая держит только свои новые строки, цикла нет). В `catch UniqueConstraintViolation` сервис различает причины без разбора текста ошибки: (1) `busyWith(me)` — мой активный матч → 409 `battle_busy {battle_id: мой}`; (2) иначе `openBattleOfPair(me, friend)` — незавершённый матч пары (приглашение друга мне, закоммиченное первым) → 409 `battle_busy {battle_id: его}` — тот же ответ, что даёт прежняя проверка `assertNotCrossing` (вариант (а)) как дружелюбный путь без исключения — с G1 она стоит сразу после определения пары и **до** лимита Free, чтобы ученик у лимита попадал в приглашение друга, а не на пейвол; в обоих случаях у проигравшего нет ни строки, ни события, ни ЛС. Отвергнуто: (б) `pg_advisory_xact_lock` по паре — замок вне строки `battles` (против духа правил 8/10) и только PostgreSQL; (в) пост-commit правило «закрыть приглашение с большим id» — у проигравшего уже созданы строка, событие `battle.invited` и job ЛС, а окно «commit → повторная проверка» лишь сужается, не исчезает. Гонка закреплена в `BattleConcurrencyTest` (два реванша с разрывом 0/5/10 мс: ровно одно открытое приглашение, второй — 409 с id первого).
 
 **Реализация 18.6-fix (Ж1, своё истёкшее приглашение):** игрок, которого держит «занятым» только его просроченное, ещё не выметенное приглашение (до 60 с до прихода дворника), больше не получает 409: в `catch` `invite()` и `accept()` найденный активный матч, если он `isDue`, продвигается **отдельной короткой транзакцией** (`FOR UPDATE` + `advance` → `closed/invite_expired`, событие), и действие повторяется **один раз**; то же для просроченного приглашения пары (`openBattleOfPair`). Обычный путь без исключения не дорожает (бюджет invite ≤ 14 прежний); исключительный — +2–4 запроса.
 
 **Реализация 18.6-fix (М2, М3 — `accept`):** принятие — «создание» для обоих выключателей (§3.2): после `assertBattleEnabled` проверяется и `mode->isEnabled()` → 409 `practice_mode_disabled {mode}`, приглашение остаётся `invited` до истечения; инициатор должен всё ещё иметь практику (`PracticeAccess::state(challenger)->isAvailable()`, не `blocked_at`) → иначе 409 `battle_friend_no_access` сразу, без комнаты, которая закрылась бы через 30 с (строка `learners` инициатора читается без блокировки; та же модель затем даёт actor события).
 
 Параллельные принятия **двух разных** приглашений одним учеником: оба меняют его `active_learner_id` → второй ждёт commit первого на unique-индексе и получает нарушение → 409 `battle_busy`; каждый держит только свою строку `battles`, цикла нет. Параллельные `accept` одного приглашения (двойной тап) — сериализуются `FOR UPDATE`, второй идемпотентен. `accept ∥ cancel` — сериализуются, проигравший видит терминальный статус.
+
+**Реализация G1 (лимит вызовов Free, §3.2):** транзакция приглашения у Free начинается с `SELECT id FROM learners WHERE id = :by FOR NO KEY UPDATE` и подсчёта баттлов инициатора за окно дня (`PracticeLimits::claimBattle`); место занято → отказ **возвращается** из транзакции и бросается после commit (`transact()`), чтобы событие `practice.limit_reached` записалось. Два приглашения одного Free-ученика двум друзьям в один миг: второе ждёт commit первого на строке `learners`, считает заново и получает 403 `practice_limit_reached` — не `battle_busy` (строки баттла оно ещё не писало). Строка друга не блокируется никогда; `accept` лимита не касается и `learners` не трогает. Соло: та же схема в `PracticeSessionService::open` (`claimSession` перед `FOR UPDATE` активной сессии).
 
 ### 8.3 `BattleClock::advance` (под `FOR UPDATE`, идемпотентна)
 
@@ -1365,6 +1405,9 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 13. Проверка — `tests/Feature/Practice/BattleConcurrencyTest` и `PracticeSessionConcurrencyTest` (pcntl, PG), сценарии §14.
 14. (18.6-fix) Дворник изолирует сбой одного матча: транзакция каждого live-матча — в `try/catch Throwable` с `report()`, проход по списку продолжается; матч, у которого ничего не назрело, не блокируется. Правило 9 распространяется на unique `battles.open_pair`: ожидание на индексе — только между двумя транзакциями одной пары, каждая держит лишь свои новые строки.
 15. (18.12a) Порядок шагов под замком `battles` един для всех точек входа: `advance` (часы по прежним `last_seen_at`) → при живом матче — heartbeat автора (`UPDATE` своей строки `battle_participants`, в документированном порядке `battles → battle_participants`) → проверки действия. Опрос без назревшего перехода замок не берёт и пишет только heartbeat (как прежде); опрос с переходом пишет heartbeat под замком **после** `advance`, а не до транзакции. Новых замков нет: heartbeat вне транзакции держит только свою строку участника и ничего не ждёт; heartbeat под замком пишет строку того же матча. Гонки «оба вернулись в один миг ∥ дворник» и «отсутствующий опрашивает и отвечает ∥ опрос соперника ∥ дворник» — `BattleConcurrencyTest` (одно событие, одни отметки).
+16. (G1) **Единственное исключение из правила 8 — строка самого создающего ученика при лимите Free.** Транзакция создания (открытие сессии, приглашение) у Free берёт **первым** замок `learners (FOR NO KEY UPDATE, своя строка)` → затем `practice_sessions` (`FOR UPDATE` активной) или `battles` → `battle_participants`. Тот же первый замок берут `CardPicker` и `LearnerSettingsService`, которые практику не трогают; ничто, держащее строки практики или баттла, не ждёт `learners` (ответ, опрос, дворник, `accept` — без замка ученика), поэтому цикла нет. Друг (вторая сторона) не блокируется никогда (правило 4 docs/13 §3). Pro замок не берёт. `FOR NO KEY UPDATE`, а не `FOR UPDATE`: вставки строк с FK на ученика (сессии, ответы, события) других транзакций не ждут. Проверка — `PracticeLimitsConcurrencyTest` (три вкладки за последнее место, два приглашения за один вызов, открытие ∥ приглашение другу ∥ замок пикера).
+
+17–23. (G2) Игра «Караван» продолжает нумерацию: её транзакции не блокируют ни строк практики, ни `word_repetitions` (приближение SRS — после commit), а строку `learners` берут первой и только у Free при старте забега, как правило 16. Текст правил 17–23 и порядок замков игры — **docs/18 §12.5.1**; `MaterialScope::forStage` (пул слов города) — расширение §1.3 из G2.2a, читает те же `introducedWords` / `eligibleItems` по `stages.id`.
 
 **Реализация 18.6:** правила 8–11 выполнены буквально: внутри транзакции матча читаются без блокировки только `friendships` (при `accept`: пара ещё accepted?) и `battle_answers`; проверка файлов диктанта при `ready`/`audio-failed` — локальный диск (≤ 5 `stat`) под блокировкой строки, внешних вызовов нет. Каждый воркер `BattleConcurrencyTest` ставит `SET lock_timeout = '8000'`: deadlock (40P01) или бесконечное ожидание (55P03) видны как падение, а не как зависший тест. Проверка «зубастости»: без `lockForUpdate()` падают 5 из 7 сценариев (accept ∥ cancel, два ответа, answer ∥ дворник, финализация, surrender ∥ answer); два оставшихся (два приглашения одному адресату, три приглашения одного инициатора) держатся на unique `active_learner_id` — как и задумано правилом 9. В docs/13 §3 добавлена строка-ссылка на эти правила.
 
@@ -1525,7 +1568,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 |---|---|---|
 | `GET /practice/hub` | ≤ 9 | learner, курс, урок (join), введённые слова + переводы (2), задания ×3 типа (3: один запрос по типам `IN (...)` + версии), активная сессия, активный баттл/входящие (1) |
 | `POST /practice/sessions` | ≤ 12 (повтор — ≤ 13) | как хаб для одного режима (≤ 4) + чтение активной сессии до сборки снимка (§6.1; с `replace_active` его нет) + транзакция (lock активной, update/insert ≤ 3) + событие (1) + диск ≤ 5 `exists` у диктанта; повтор — ещё чтение исходной сессии и один запрос о заданиях-ошибках (§6.1) |
-| `GET /practice/sessions/{id}` | ≤ 3 | learner, сессия (+ курс/урок подписи — из снимка: `course_title`, `lesson_title` кладутся в снимок при создании); у завершённой с ошибками-заданиями — + один запрос о них для `retry_available` (у пар и без ошибок его нет: 2) |
+| `GET /practice/sessions/{id}` | ≤ 3 | learner, сессия (+ курс/урок подписи — из снимка: `course_title` и `lesson_titles` — карты `{locale => название}`, кладутся в снимок при создании; читатель берёт свою локаль и не подставляет чужую; снимок v1 с одной строкой `lesson_title` читается как имя во всех локалях. Обратная совместимость при откате (expand/contract): `lesson_title` по-прежнему пишется строкой — название в первой локали снимка (так писал код до R3c, он читает только её и игнорирует лишние ключи и версию `v`); карта идёт в новый ключ `lesson_titles`. Строку `lesson_title` убрать в одном из следующих релизов, когда откат на код до R3c уже не нужен); у завершённой с ошибками-заданиями — + один запрос о них для `retry_available` (у пар и без ошибок его нет: 2) |
 | `POST …/answer` | ≤ 6; последний, с итогом — ≤ 7 | learner, lock, attempt lookup, insert attempt, update session, событие при завершении; итог спрашивает, можно ли повторить ошибки (+1 запрос о заданиях, у пар нет) |
 | `POST …/replace` | ≤ 7 | learner, сессия без блокировки (пул запасных; их файлы читаются вне транзакции, §9), lock, attempt lookup, insert attempt, update session, событие `audio_failed` |
 | `GET …/audio/{element}` | ≤ 2 | learner, сессия/матч; дальше — поток файла |

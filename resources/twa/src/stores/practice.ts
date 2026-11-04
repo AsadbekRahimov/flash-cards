@@ -5,12 +5,15 @@ import { newRequestId } from '@/composables/requestId'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import { PRACTICE_MODE_ORDER, lessonHeader } from '@/composables/practiceLabels'
+import { limitHitFrom } from '@/composables/practiceLimits'
+import { useBillingStore } from '@/stores/billing'
 import type {
   PracticeActiveSession,
   PracticeAnswerPayload,
   PracticeAnswerResponse,
   PracticeElement,
   PracticeHubResponse,
+  PracticeLimitHit,
   PracticeMode,
   PracticeOpenRequest,
   PracticeReveal,
@@ -89,6 +92,11 @@ interface PracticeState {
   conflict: PracticeActiveSession | null
   /** Show the paywall (`practice_pro_required`). */
   paywall: boolean
+  /**
+   * Show the paywall of today's free limit: the counter says it is spent (nothing was asked), or the server refused with 403
+   * `practice_limit_reached`. Holds the numbers the sheet quotes; `kind` says whether it is the sessions or the battles.
+   */
+  limitHit: PracticeLimitHit | null
   /** The retry of mistakes was refused (nothing worth repeating): "Repeat mistakes" gives way to "Again". */
   retryUnavailable: boolean
 
@@ -222,6 +230,7 @@ export const usePracticeStore = defineStore('practice', {
     abandoned: null,
     conflict: null,
     paywall: false,
+    limitHit: null,
     retryUnavailable: false,
     preloaded: null,
     sessionId: null,
@@ -295,6 +304,7 @@ export const usePracticeStore = defineStore('practice', {
         if (seq !== this.hubSeq) return
         this.hub = res
         this.hubStatus = 'ready'
+        useBillingStore().setLimits(res.limits)
       } catch (err) {
         if (seq !== this.hubSeq) return
         if (err instanceof ApiClientError && err.code === 'practice_unavailable') {
@@ -317,15 +327,27 @@ export const usePracticeStore = defineStore('practice', {
 
     /**
      * Opens a solo session. Returns its id for the route, or null with the reason in `conflict` (an unfinished session:
-     * the hub asks what to do), `paywall`, or `openError`. The answer is kept for `load()`.
+     * the hub asks what to do), `paywall`, `limitHit` (today's free sessions are spent) or `openError`. The answer is kept for `load()`.
+     *
+     * A learner whose counter says the free sessions of today are spent gets the paywall at once, without a request: the server would
+     * refuse (403 `practice_limit_reached`, which is told the same way). A repeat of mistakes is never stopped here: one repeat of a session opened today is free, and whether this one is (a second
+     * repeat, a repeat of a repeat or of yesterday's session counts as a session) is the server's call - a 403 opens the same paywall.
+     * The 201 brings the counters as they are after the session: the hub the learner comes back to shows them.
      */
     async open(request: PracticeOpenRequest, { canAsk = true }: { canAsk?: boolean } = {}): Promise<number | null> {
       if (this.opening !== null) return null
       const seq = ++this.openSeq
-      this.opening = request.mode
       this.openError = ''
       this.conflict = null
       this.paywall = false
+      this.limitHit = null
+      const retrying = request.source === 'retry' || (request.retry_of ?? null) !== null
+      const spent = retrying ? null : useBillingStore().limitReached('sessions')
+      if (spent !== null) {
+        this.limitHit = spent
+        return null
+      }
+      this.opening = request.mode
       try {
         const session = await api.practice.open(request)
         // The session exists on the server whether or not the screen is still there: it is kept, and the hub shows it to continue.
@@ -333,6 +355,7 @@ export const usePracticeStore = defineStore('practice', {
         this.retryUnavailable = false
         // The hub the learner comes back to shows this session as the one to continue (the server has one per learner).
         if (this.hub !== null) this.hub.active_session = activeOf(session)
+        useBillingStore().setLimits(session.limits)
         return session.id
       } catch (err) {
         // A refusal that comes after its screen was left is nobody's: the next hub must not open with its sheet, paywall or toast.
@@ -353,6 +376,7 @@ export const usePracticeStore = defineStore('practice', {
       this.openError = ''
       this.conflict = null
       this.paywall = false
+      this.limitHit = null
     },
 
     /** "No sound for now": this session is dropped on purpose; the hub the learner comes to starts another mode over it. */
@@ -387,6 +411,15 @@ export const usePracticeStore = defineStore('practice', {
           this.paywall = true
           return
         }
+        if (err.code === 'practice_limit_reached') {
+          // The free sessions of today are spent: the paywall with the numbers of the refusal. Without them the message of the code is told.
+          const hit = limitHitFrom(err.details)
+          if (hit !== null) {
+            this.limitHit = hit
+            useBillingStore().noteLimitHit(hit)
+            return
+          }
+        }
         if (err.code === 'practice_unavailable') this.hubStatus = 'unavailable'
         if (err.code === 'retry_not_available') this.retryUnavailable = true
       }
@@ -403,6 +436,12 @@ export const usePracticeStore = defineStore('practice', {
 
     dismissPaywall(): void {
       this.paywall = false
+      this.limitHit = null
+    },
+
+    /** The paywall of today's free limit, opened by a screen whose own check found the counter spent (the hub's "Play with a friend": the battles' counter). */
+    showLimit(hit: PracticeLimitHit): void {
+      this.limitHit = hit
     },
 
     clearActionError(): void {
@@ -439,6 +478,7 @@ export const usePracticeStore = defineStore('practice', {
       this.clearPending()
       this.replacing = null
       this.paywall = false
+      this.limitHit = null
       this.elementShownAt = 0
       this.releaseAudio()
     },

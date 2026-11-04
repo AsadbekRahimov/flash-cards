@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\ClassCaravanStatus;
+use App\Domain\Game\Enums\ItemKind;
+use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Practice\Enums\AudioStatus;
@@ -22,12 +27,26 @@ use App\Models\Battle;
 use App\Models\BattleAnswer;
 use App\Models\BattleParticipant;
 use App\Models\Challenge;
+use App\Models\ClassCaravan;
+use App\Models\ClassCaravanMember;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Friendship;
+use App\Models\GameBoosterUse;
+use App\Models\GameCityProgress;
+use App\Models\GameCoinLedgerEntry;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
+use App\Models\GameProfile;
+use App\Models\GameRun;
+use App\Models\GameRunAttempt;
+use App\Models\GameStopProgress;
+use App\Models\GameTicketLedgerEntry;
+use App\Models\GameWallet;
+use App\Models\GameWordMiss;
 use App\Models\GroupMember;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -112,6 +131,10 @@ $expectedTables = [
     // Practice and battle (docs/16 §2).
     'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts',
     'battles', 'battle_participants', 'battle_answers',
+    // The game "Caravan" (docs/18 §12.2).
+    'game_runs', 'game_run_attempts', 'game_stop_progress', 'game_city_progress', 'game_word_misses',
+    'game_wallets', 'game_coin_ledger', 'game_items', 'game_inventory', 'game_profiles', 'game_ticket_ledger', 'game_booster_uses',
+    'class_caravans', 'class_caravan_members',
 ];
 
 /**
@@ -429,6 +452,66 @@ it('has the next-card index in the exact order of CardPicker and the partial ind
         ->count();
     expect($invalid)->toBe(0);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+it('has the b-tree indexes under the default sorts of the list pages (docs/20 F2)', function (): void {
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+
+    expect($names('learners'))->toContain('learners_first_name_id_idx')
+        ->and($names('exam_sessions'))->toContain('exam_sessions_started_at_id_idx');
+
+    $columns = fn (string $table, string $index): ?array => collect(Schema::getIndexes($table))->firstWhere('name', $index)['columns'] ?? null;
+
+    expect($columns('learners', 'learners_first_name_id_idx'))->toBe(['first_name', 'id'])
+        ->and($columns('exam_sessions', 'exam_sessions_started_at_id_idx'))->toBe(['started_at', 'id']);
+});
+
+it('has pg_trgm and the trigram indexes under the searches, in the forms the pages compare (docs/20 F2)', function (): void {
+    expect(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeTrue();
+
+    $defs = DB::table('pg_indexes')
+        ->whereIn('tablename', ['learners', 'words'])
+        ->pluck('indexdef', 'indexname');
+
+    // Filament's search on PostgreSQL compares `lower(column) like`; `username` is `ilike` on the plain column.
+    expect($defs->get('learners_first_name_lower_trgm_idx'))->toContain('USING gin (lower((first_name)::text) gin_trgm_ops)')
+        ->and($defs->get('learners_last_name_lower_trgm_idx'))->toContain('USING gin (lower((last_name)::text) gin_trgm_ops)')
+        ->and($defs->get('learners_username_trgm_idx'))->toContain('USING gin (username gin_trgm_ops)')
+        ->and($defs->get('words_word_lower_trgm_idx'))->toContain('USING gin (lower((word)::text) gin_trgm_ops)')
+        ->and($defs->get('words_translation_lower_trgm_idx'))->toContain('USING gin (lower((translation)::text) gin_trgm_ops)');
+
+    // All valid (a CONCURRENTLY build that failed would leave an INVALID one).
+    $invalid = DB::table('pg_index')
+        ->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')
+        ->where('pg_class.relname', 'like', '%_trgm_idx')
+        ->where('pg_index.indisvalid', false)
+        ->count();
+    expect($invalid)->toBe(0);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_trgm and GIN indexes are PostgreSQL-only.');
+
+it('drops the list-page indexes on rollback of their migration and rebuilds them on re-run', function (): void {
+    $migration = require database_path('migrations/2026_11_02_100001_add_filament_list_indexes.php');
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+    $pgsql = DB::getDriverName() === 'pgsql';
+
+    $migration->down();
+    expect($names('learners'))->not->toContain('learners_first_name_id_idx')
+        ->and($names('exam_sessions'))->not->toContain('exam_sessions_started_at_id_idx');
+    if ($pgsql) {
+        // The extension is shared infrastructure: the rollback of these indexes leaves it in place.
+        expect($names('learners'))->not->toContain('learners_username_trgm_idx')
+            ->and($names('words'))->not->toContain('words_word_lower_trgm_idx')
+            ->and(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeTrue();
+    }
+
+    $migration->up();
+    $migration->up(); // a retry after an interrupted deploy is harmless
+    expect(array_count_values($names('learners'))['learners_first_name_id_idx'])->toBe(1)
+        ->and($names('exam_sessions'))->toContain('exam_sessions_started_at_id_idx');
+    if ($pgsql) {
+        expect(array_count_values($names('learners'))['learners_username_trgm_idx'])->toBe(1)
+            ->and($names('words'))->toContain('words_word_lower_trgm_idx', 'words_translation_lower_trgm_idx');
+    }
+});
 
 it('restores the old hard-due index on rollback of the next-card index migration and swaps it back on re-run', function (): void {
     $migration = require database_path('migrations/2026_10_28_000001_add_next_card_and_inactive_words_indexes.php');
@@ -1789,4 +1872,318 @@ it('has the CHECK constraints of the practice tables (PostgreSQL)', function ():
     expectConstraintViolation(fn () => DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid(), 'round' => 0]));
     expectConstraintViolation(fn () => DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid(), 'round' => 6]));
     DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid()]);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');
+
+/*
+ * The game "Caravan" (docs/18 §12.2, G2.1): five migrations, 14 tables and three columns of `learner_daily_stats`.
+ */
+
+/**
+ * A raw `game_runs` row.
+ *
+ * @param  array<string, mixed>  $override
+ * @return array<string, mixed>
+ */
+function gameRawRun(array $override = []): array
+{
+    $learner = Learner::factory()->create();
+
+    return [
+        'learner_id' => $learner->id,
+        'active_learner_id' => $learner->id,
+        'kind' => 'stop',
+        'course_id' => Course::factory()->create()->id,
+        'local_date' => '2026-11-05',
+        'status' => 'active',
+        'snapshot' => '{}',
+        'state' => '{}',
+        'total' => 8,
+        'flasks' => 3,
+        'flasks_max' => 3,
+        'locale' => 'ru',
+        'expires_at' => now()->addMinutes(30),
+        'started_at' => now(),
+        ...$override,
+    ];
+}
+
+it('rolls back and re-applies the game migrations (G2.1) in FK order', function (): void {
+    $tables = ['class_caravan_members', 'class_caravans', 'game_booster_uses', 'game_ticket_ledger', 'game_profiles', 'game_inventory', 'game_items',
+        'game_coin_ledger', 'game_wallets', 'game_word_misses', 'game_city_progress', 'game_stop_progress', 'game_run_attempts', 'game_runs'];
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_05_100001_create_game_runs_tables')])->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
+    }
+    expect(Schema::hasColumns('learner_daily_stats', ['game_runs_count', 'game_points', 'game_held_at']))->toBeFalse()
+        ->and(Schema::hasTable('learner_daily_stats'))->toBeTrue()
+        ->and(Schema::hasTable('practice_sessions'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
+    }
+    expect(Schema::hasColumns('learner_daily_stats', ['game_runs_count', 'game_points', 'game_held_at']))->toBeTrue();
+
+    // The invariants are back with the tables: the unique "one active run" and the foreign key to the caravan (added by the last migration).
+    $learner = Learner::factory()->create();
+    GameRun::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameRun::factory()->create(['learner_id' => $learner->id]));
+    expectConstraintViolation(fn () => GameRun::factory()->create(['class_caravan_id' => 987_654]));
+});
+
+it('indexes game_runs by (started_at, learner_id) for the activity widget and the date filter, and drops it on rollback', function (): void {
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_08_100000_add_started_at_index_to_game_runs_table')])->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeFalse();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+});
+
+it('rolls back the foreign key game_runs.class_caravan_id with the caravans, keeps the runs and clears their link', function (): void {
+    $caravan = ClassCaravan::factory()->create();
+    $run = GameRun::factory()->create(['class_caravan_id' => $caravan->id]);
+
+    // Back to (and including) the caravans migration, whatever came after it (G2.9b added an index migration on top).
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_05_100005_create_class_caravans_tables')])->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeFalse()
+        ->and(Schema::hasColumn('game_runs', 'class_caravan_id'))->toBeTrue()
+        ->and(GameRun::query()->whereKey($run->id)->exists())->toBeTrue()
+        ->and($run->fresh()?->class_caravan_id)->toBeNull();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeTrue();
+});
+
+it('rolls back the class-boss key CHECK with a freed fight in the table, and on through the caravans migration (the freed row takes a stub key)', function (): void {
+    $caravan = ClassCaravan::factory()->create();
+    $freed = GameRun::factory()->finished(RunFinishReason::Abandoned)->classBoss($caravan)->create(['class_boss_key' => null, 'answered' => 0]);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key')])->assertSuccessful();
+    expect($freed->fresh()?->class_boss_key)->toBe(DB::getDriverName() === 'pgsql' ? "freed:{$freed->id}" : null);
+
+    // further back: the UPDATE of the caravans migration touches the old row, the validated CHECK holds
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_05_100005_create_class_caravans_tables') - migrationStepsBackTo('2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key')])->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeFalse()->and($freed->fresh()?->class_caravan_id)->toBeNull();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeTrue()->and(GameRun::query()->whereKey($freed->id)->exists())->toBeTrue();
+});
+
+it('adds the game columns of learner_daily_stats with their defaults', function (): void {
+    $row = LearnerDailyStats::factory()->create();
+
+    expect($row->fresh()?->game_runs_count)->toBe(0)
+        ->and($row->fresh()?->game_points)->toBe(0)
+        ->and($row->fresh()?->game_held_at)->toBeNull();
+
+    $row->update(['game_runs_count' => 2, 'game_points' => 40, 'game_held_at' => now()]);
+    expect($row->fresh()?->game_points)->toBe(40)
+        ->and($row->fresh()?->game_held_at)->not->toBeNull();
+});
+
+it('allows ONE active game run per learner through the unique active_learner_id, and many finished ones', function (): void {
+    $learner = Learner::factory()->create();
+    GameRun::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameRun::factory()->create(['learner_id' => $learner->id]));
+
+    GameRun::factory()->finished()->count(2)->create(['learner_id' => $learner->id]);
+    GameRun::factory()->create(); // another learner
+    expect(GameRun::query()->where('learner_id', $learner->id)->count())->toBe(3);
+});
+
+it('allows ONE daily caravan per learner and local day and ONE class-boss try per caravan and learner', function (): void {
+    $learner = Learner::factory()->create();
+    GameRun::factory()->daily()->finished()->create(['learner_id' => $learner->id, 'local_date' => '2026-11-05']);
+
+    expectConstraintViolation(fn () => GameRun::factory()->daily()->finished()->create(['learner_id' => $learner->id, 'local_date' => '2026-11-05']));
+    GameRun::factory()->daily()->finished()->create(['learner_id' => $learner->id, 'local_date' => '2026-11-06']);
+    expect(GameRun::query()->where('daily_key', "{$learner->id}:2026-11-05")->count())->toBe(1);
+
+    $caravan = ClassCaravan::factory()->create();
+    GameRun::factory()->classBoss($caravan)->finished()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameRun::factory()->classBoss($caravan)->finished()->create(['learner_id' => $learner->id]));
+    GameRun::factory()->classBoss($caravan)->finished()->create();
+});
+
+it('keeps one active class caravan per group', function (): void {
+    $group = ClassCaravan::factory()->create();
+    expectConstraintViolation(fn () => ClassCaravan::factory()->create(['telegram_group_id' => $group->telegram_group_id]));
+
+    ClassCaravan::factory()->finished()->count(2)->create(['telegram_group_id' => $group->telegram_group_id]);
+    ClassCaravan::factory()->canceled()->create(['telegram_group_id' => $group->telegram_group_id]);
+    expect(ClassCaravan::query()->where('telegram_group_id', $group->telegram_group_id)->count())->toBe(4);
+});
+
+it('keeps the game keys unique: one request per run, one stop and city per learner, one wallet and profile, one item key, one entry per idempotency key', function (): void {
+    $learner = Learner::factory()->create();
+    $run = GameRun::factory()->create(['learner_id' => $learner->id]);
+
+    $attempt = GameRunAttempt::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameRunAttempt::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id, 'request_id' => $attempt->request_id]));
+    GameRunAttempt::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id]);
+
+    $stop = GameStopProgress::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameStopProgress::factory()->create(['learner_id' => $learner->id, 'lesson_id' => $stop->lesson_id]));
+    $city = GameCityProgress::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameCityProgress::factory()->create(['learner_id' => $learner->id, 'stage_id' => $city->stage_id]));
+    $miss = GameWordMiss::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameWordMiss::factory()->create(['learner_id' => $learner->id, 'word_id' => $miss->word_id]));
+
+    GameWallet::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameWallet::factory()->create(['learner_id' => $learner->id]));
+    GameProfile::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => GameProfile::factory()->create(['learner_id' => $learner->id]));
+
+    GameItem::factory()->create(['key' => 'camel_bactrian']);
+    expectConstraintViolation(fn () => GameItem::factory()->create(['key' => 'camel_bactrian']));
+    $item = GameItem::factory()->create();
+    GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $item->id]);
+    expectConstraintViolation(fn () => GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $item->id]));
+
+    GameCoinLedgerEntry::factory()->create(['learner_id' => $learner->id, 'idempotency_key' => "run:{$run->id}:reward"]);
+    expectConstraintViolation(fn () => GameCoinLedgerEntry::factory()->create(['learner_id' => $learner->id, 'idempotency_key' => "run:{$run->id}:reward"]));
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'idempotency_key' => "streak:{$learner->id}:2026-11-05"]);
+    expectConstraintViolation(fn () => GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'idempotency_key' => "streak:{$learner->id}:2026-11-05"]));
+
+    $booster = GameItem::factory()->booster()->create();
+    GameBoosterUse::factory()->create(['run_id' => $run->id, 'item_id' => $booster->id, 'element_id' => 'e1']);
+    expectConstraintViolation(fn () => GameBoosterUse::factory()->create(['run_id' => $run->id, 'item_id' => $booster->id, 'element_id' => 'e1']));
+    GameBoosterUse::factory()->create(['run_id' => $run->id, 'item_id' => $booster->id, 'element_id' => 'e2']);
+
+    $member = ClassCaravanMember::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => ClassCaravanMember::factory()->create(['learner_id' => $learner->id, 'class_caravan_id' => $member->class_caravan_id]));
+});
+
+it('stores the jsonb columns of the game as arrays and the enumerations as enums', function (): void {
+    $run = GameRun::factory()->daily()->finished(RunFinishReason::Failed)->create(['snapshot' => ['elements' => [['id' => 'a']]], 'state' => ['current' => 2]]);
+    $item = GameItem::factory()->booster()->create(['title' => ['ru' => 'Подсказка', 'uz' => 'Maslahat']]);
+    $caravan = ClassCaravan::factory()->create(['boss_snapshot_words' => [3, 5, 8], 'meta' => ['members_at_start' => 4]]);
+    $profile = GameProfile::factory()->create(['equipped' => ['camel' => 7]]);
+
+    expect($run->fresh()?->kind)->toBe(RunKind::Daily)
+        ->and($run->fresh()?->status)->toBe(RunStatus::Finished)
+        ->and($run->fresh()?->finish_reason)->toBe(RunFinishReason::Failed)
+        ->and($run->fresh()?->snapshot)->toBe(['elements' => [['id' => 'a']]])
+        ->and($run->fresh()?->state)->toBe(['current' => 2])
+        ->and($run->fresh()?->active_learner_id)->toBeNull()
+        ->and($run->fresh()?->expires_at->isFuture())->toBeTrue()
+        ->and($item->fresh()?->kind)->toBe(ItemKind::Booster)
+        ->and($item->fresh()?->title)->toBe(['ru' => 'Подсказка', 'uz' => 'Maslahat'])
+        ->and($caravan->fresh()?->status)->toBe(ClassCaravanStatus::Active)
+        ->and($caravan->fresh()?->boss_snapshot_words)->toBe([3, 5, 8])
+        ->and($caravan->fresh()?->meta)->toBe(['members_at_start' => 4])
+        ->and($profile->fresh()?->equipped)->toBe(['camel' => 7]);
+});
+
+it('cascades the game rows with their learner, course, stage and lesson, and nulls the optional links', function (): void {
+    $learner = Learner::factory()->create();
+    $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
+    $run = GameRun::factory()->forLesson($lesson)->create(['learner_id' => $learner->id]);
+    GameRunAttempt::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id]);
+    GameStopProgress::factory()->create(['learner_id' => $learner->id, 'lesson_id' => $lesson->id]);
+    GameWallet::factory()->create(['learner_id' => $learner->id]);
+    GameProfile::factory()->create(['learner_id' => $learner->id]);
+    GameCoinLedgerEntry::factory()->create(['learner_id' => $learner->id]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'run_id' => $run->id]);
+    GameBoosterUse::factory()->create(['learner_id' => $learner->id, 'run_id' => $run->id]);
+    ClassCaravanMember::factory()->create(['learner_id' => $learner->id]);
+    $keep = GameRun::factory()->create();
+
+    // A lesson that goes leaves the run (SET NULL) and takes the progress of the stop along (CASCADE).
+    Lesson::query()->whereKey($lesson->id)->delete();
+    expect($run->fresh()?->lesson_id)->toBeNull()
+        ->and($run->fresh()?->stage_id)->toBe($lesson->stage_id)
+        ->and(GameStopProgress::query()->count())->toBe(0);
+
+    // A caravan that goes leaves the runs of its members.
+    $caravan = ClassCaravan::factory()->create();
+    $inCaravan = GameRun::factory()->create(['class_caravan_id' => $caravan->id]);
+    $caravan->delete();
+    expect($inCaravan->fresh()?->class_caravan_id)->toBeNull()
+        ->and(ClassCaravanMember::query()->count())->toBe(1);
+
+    // A learner takes everything of the game along.
+    $learner->forceDelete();
+    expect(GameRun::query()->whereKey($run->id)->exists())->toBeFalse()
+        ->and(GameRunAttempt::query()->count())->toBe(0)
+        ->and(GameWallet::query()->count())->toBe(0)
+        ->and(GameProfile::query()->count())->toBe(0)
+        ->and(GameCoinLedgerEntry::query()->count())->toBe(0)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(0)
+        ->and(GameBoosterUse::query()->count())->toBe(0)
+        ->and(ClassCaravanMember::query()->count())->toBe(0)
+        ->and(GameRun::query()->whereKey($keep->id)->exists())->toBeTrue();
+
+    // The course takes the runs and the caravans along.
+    $course = Course::factory()->published()->create();
+    $courseRun = GameRun::factory()->create(['course_id' => $course->id]);
+    $courseCaravan = ClassCaravan::factory()->create(['course_id' => $course->id]);
+    $course->delete();
+    expect(GameRun::query()->whereKey($courseRun->id)->exists())->toBeFalse()
+        ->and(ClassCaravan::query()->whereKey($courseCaravan->id)->exists())->toBeFalse();
+});
+
+it('has the CHECK constraints of the game tables (PostgreSQL)', function (): void {
+    // game_runs: the enumerations, active <=> active_learner_id, the owner, the shape of daily_key / class_boss_key, 0 <= flasks <= flasks_max.
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'arena'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['status' => 'paused'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['active_learner_id' => null])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['status' => 'finished'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['active_learner_id' => Learner::factory()->create()->id])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'daily'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['daily_key' => '1:2026-11-05'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss'])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['class_boss_key' => '1:1'])));
+    // G2.13: a fight with the boss of a class lets go of its key only when it is finished without a single answer.
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'status' => 'finished', 'active_learner_id' => null, 'finish_reason' => 'abandoned', 'answered' => 1, 'flasks' => 0, 'flasks_max' => 0])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['flasks' => 4])));
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['flasks' => -1])));
+    DB::table('game_runs')->insert(gameRawRun());
+    DB::table('game_runs')->insert(gameRawRun(['status' => 'finished', 'active_learner_id' => null, 'kind' => 'boss', 'flasks' => 0, 'flasks_max' => 0]));
+    DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'status' => 'finished', 'active_learner_id' => null, 'finish_reason' => 'abandoned', 'answered' => 0, 'flasks' => 0, 'flasks_max' => 0]));
+    DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'class_boss_key' => '1:1', 'flasks' => 0, 'flasks_max' => 0]));
+
+    $runId = (int) DB::table('game_runs')->value('id');
+    $learnerId = (int) DB::table('game_runs')->value('learner_id');
+    $attempt = ['run_id' => $runId, 'learner_id' => $learnerId, 'element_id' => 'e1', 'kind' => 'answer', 'payload' => '{}', 'result' => '{}', 'accepted_at' => now()];
+    expectConstraintViolation(fn () => DB::table('game_run_attempts')->insert([...$attempt, 'request_id' => (string) Str::uuid(), 'kind' => 'replace']));
+    expectConstraintViolation(fn () => DB::table('game_run_attempts')->insert([...$attempt, 'request_id' => (string) Str::uuid(), 'verdict' => 'timeout']));
+    DB::table('game_run_attempts')->insert([...$attempt, 'request_id' => (string) Str::uuid(), 'verdict' => 'skipped']);
+    DB::table('game_run_attempts')->insert([...$attempt, 'request_id' => (string) Str::uuid(), 'kind' => 'hint']);
+
+    // progress: stars 0..3, accuracy 0..100.
+    expectConstraintViolation(fn () => GameStopProgress::factory()->create(['stars' => 4]));
+    expectConstraintViolation(fn () => GameCityProgress::factory()->create(['boss_best_accuracy' => 101]));
+    GameStopProgress::factory()->cleared()->create();
+    GameCityProgress::factory()->defeated(100)->create();
+
+    // economy: no negative balance, tickets or quantity, no zero entry, the shape of an item, the kinds.
+    expectConstraintViolation(fn () => GameWallet::factory()->create(['balance' => -1]));
+    expectConstraintViolation(fn () => GameProfile::factory()->create(['tickets' => -1]));
+    expectConstraintViolation(fn () => GameInventoryItem::factory()->create(['qty' => -1]));
+    expectConstraintViolation(fn () => GameCoinLedgerEntry::factory()->create(['amount' => 0]));
+    expectConstraintViolation(fn () => DB::table('game_coin_ledger')->insert(['learner_id' => $learnerId, 'amount' => 5, 'kind' => 'purchase', 'idempotency_key' => 'k1', 'balance_after' => 5]));
+    expectConstraintViolation(fn () => DB::table('game_ticket_ledger')->insert(['learner_id' => $learnerId, 'delta' => 1, 'source' => 'gift', 'idempotency_key' => 'k2']));
+    $item = ['key' => 'i1', 'availability' => 'base', 'status' => 'published', 'title' => '{}'];
+    expectConstraintViolation(fn () => DB::table('game_items')->insert([...$item, 'kind' => 'cosmetic']));                                          // a cosmetic needs a slot
+    expectConstraintViolation(fn () => DB::table('game_items')->insert([...$item, 'kind' => 'booster']));                                           // a booster needs an effect
+    expectConstraintViolation(fn () => DB::table('game_items')->insert([...$item, 'kind' => 'cosmetic', 'slot' => 'camel', 'effect' => 'hint'])); // not both
+    expectConstraintViolation(fn () => DB::table('game_items')->insert([...$item, 'kind' => 'hat', 'slot' => 'camel']));
+    expectConstraintViolation(fn () => DB::table('game_items')->insert([...$item, 'kind' => 'cosmetic', 'slot' => 'camel', 'availability' => 'free']));
+    DB::table('game_items')->insert([...$item, 'kind' => 'cosmetic', 'slot' => 'camel']);
+    DB::table('game_items')->insert([...$item, 'key' => 'i2', 'kind' => 'booster', 'effect' => 'hint']);
+
+    // class_caravans: the status, active <=> active_group_id.
+    $caravan = [
+        'telegram_group_id' => TelegramGroup::factory()->create()->id, 'course_id' => Course::factory()->create()->id, 'starts_at' => now(),
+        'ends_at' => now()->addDays(7), 'target_stars' => 12,
+    ];
+    expectConstraintViolation(fn () => DB::table('class_caravans')->insert([...$caravan, 'status' => 'paused', 'active_group_id' => null]));
+    expectConstraintViolation(fn () => DB::table('class_caravans')->insert([...$caravan, 'status' => 'active', 'active_group_id' => null]));
+    expectConstraintViolation(fn () => DB::table('class_caravans')->insert([...$caravan, 'status' => 'finished', 'active_group_id' => $caravan['telegram_group_id']]));
+    DB::table('class_caravans')->insert([...$caravan, 'status' => 'active', 'active_group_id' => $caravan['telegram_group_id']]);
+    DB::table('class_caravans')->insert([...$caravan, 'status' => 'canceled', 'active_group_id' => null]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');

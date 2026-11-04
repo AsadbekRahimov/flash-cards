@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Operations\Support\PureCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Lesson;
 use Closure;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Pure caches of the learning domain, all on the evicting store ({@see PureCache}): every value here is recomputed
+ * from the database when it is missing, nothing decides anything by it alone.
+ */
 final class LearningCache
 {
+    /** An hour: a documented exception of docs/19 §3 rule 5 (docs/19 §5.1) - a denominator of a progress bar, never a decision. */
     private const LESSON_WORD_COUNT_TTL = 3600;
 
-    private const EXAM_RESULT_TTL = 3600;
+    /**
+     * Five minutes: the table of results is what people read, and a `forget` that a failing `redis-cache` swallowed leaves the old one
+     * until the TTL (docs/19 §3 rule 5). Recomputing it is two indexed reads and the names of the learners - about 2 ms for the exams of
+     * the 200k-learner set, 60 µs more per participant (docs/19 §5.1).
+     */
+    private const EXAM_RESULT_TTL = 300;
 
     /** How long a learner's "words learned" shown to their friends may lag behind the real number. */
     private const WORDS_LEARNED_TTL = 600;
@@ -26,7 +36,7 @@ final class LearningCache
      */
     public function lessonWordCount(int $lessonId): int
     {
-        return (int) Cache::remember(
+        return (int) PureCache::store()->remember(
             "lesson:{$lessonId}:word_count",
             self::LESSON_WORD_COUNT_TTL,
             fn (): int => (int) DB::table('words')
@@ -45,7 +55,7 @@ final class LearningCache
     public function examLeaderboard(ExamSession $session): array
     {
         /** @var array{total_participants:int, rows:list<array{learner_id:int|null, rank:int, name:string, score:int}>} $leaderboard */
-        $leaderboard = Cache::remember(
+        $leaderboard = PureCache::store()->remember(
             "exam:{$session->id}:leaderboard",
             self::EXAM_RESULT_TTL,
             function () use ($session): array {
@@ -98,7 +108,8 @@ final class LearningCache
             return [];
         }
 
-        $cached = Cache::many(array_values($keys));
+        $cache = PureCache::store();
+        $cached = $cache->many(array_values($keys));
 
         $counts = [];
         $missing = [];
@@ -118,7 +129,7 @@ final class LearningCache
                 $counts[$id] = $loaded[$id] ?? 0;
                 $fresh[$keys[$id]] = $counts[$id];
             }
-            Cache::putMany($fresh, self::WORDS_LEARNED_TTL);
+            $cache->putMany($fresh, self::WORDS_LEARNED_TTL);
         }
 
         // The order of the request, not "hits first".
@@ -127,12 +138,12 @@ final class LearningCache
 
     public function forgetLesson(Lesson $lesson): void
     {
-        Cache::forget("lesson:{$lesson->id}:word_count");
+        PureCache::store()->forget("lesson:{$lesson->id}:word_count");
     }
 
     public function forgetExam(ExamSession $session): void
     {
-        Cache::forget("exam:{$session->id}:leaderboard");
+        PureCache::store()->forget("exam:{$session->id}:leaderboard");
     }
 
     private static function wordsLearnedKey(int $learnerId): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Domain\Operations\Support\PureCache;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -19,7 +20,10 @@ final class ForkSafe
     {
         DB::disconnect();
 
-        if (config('cache.default') === 'redis' || config('queue.default') === 'redis' || config('session.driver') === 'redis') {
+        $pureOnRedis = PureCache::redisConnection() !== null;
+
+        if (config('cache.default') === 'redis' || $pureOnRedis || config('queue.default') === 'redis' || config('session.driver') === 'redis') {
+            // Every connection of config, the second instance (`lru`) included.
             foreach (array_keys((array) config('database.redis', [])) as $name) {
                 if (in_array($name, ['client', 'options', 'clusters'], true)) {
                     continue;
@@ -32,6 +36,12 @@ final class ForkSafe
             }
             app('redis')->purge();
             Cache::forgetDriver();
+            // The repositories of every Redis-backed store (and of the failover chain over one) hold the closed clients.
+            foreach ((array) config('cache.stores', []) as $name => $store) {
+                if (in_array($store['driver'] ?? null, ['redis', 'failover', 'failover_breaker'], true)) {
+                    Cache::forgetDriver((string) $name);
+                }
+            }
         }
     }
 }

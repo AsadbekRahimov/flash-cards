@@ -1,0 +1,11 @@
+{
+  "update_id": __UPDATE_ID__,
+  "message": {
+    "message_id": __UPDATE_ID__,
+    "date": __DATE__,
+    "from": { "id": __USER_ID__, "is_bot": false, "first_name": "Load", "language_code": "ru" },
+    "chat": { "id": -1009999999999, "type": "supergroup", "title": "k6 load test (not registered)" },
+    "text": "/start_training",
+    "entities": [{ "offset": 0, "length": 15, "type": "bot_command" }]
+  }
+}

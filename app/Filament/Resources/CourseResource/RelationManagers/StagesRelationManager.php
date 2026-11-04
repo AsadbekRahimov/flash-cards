@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\CourseResource\RelationManagers;
 
 use App\Filament\Resources\StageResource;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Stage;
 use Filament\Actions;
 use Filament\Forms;
@@ -40,13 +41,14 @@ class StagesRelationManager extends RelationManager
                     modifyRuleUsing: fn (Unique $rule): Unique => $rule->where('course_id', $this->getOwnerRecord()->getKey()),
                 ),
             StageResource::titleField(),
+            StageResource::titleUzField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->recordTitle(fn (Stage $record): string => StageResource::displayTitle($record))
             ->modelLabel(mb_strtolower(__('admin.stages.singular')))
             ->pluralModelLabel(__('admin.stages.plural'))

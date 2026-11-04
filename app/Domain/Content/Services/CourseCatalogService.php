@@ -10,6 +10,7 @@ use App\Domain\Content\DTO\CourseListing;
 use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LessonProgress;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -33,6 +34,10 @@ use Illuminate\Support\Facades\DB;
  * active course) when it is published and not private; the list shows only
  * `public` ones. Anything not available answers "not found", so draft /
  * private / archived courses are not revealed.
+ *
+ * The page of one course (`detail()`) is the cached TREE of the course (modules, lessons, the number of active words of
+ * each - nothing of the learner, docs/19 K3) plus the learner's own `done` per lesson, one query that follows what they have
+ * studied. The tree is dropped by {@see forgetCourseTree()} whenever a course's words, lessons, modules or status change.
  */
 final class CourseCatalogService
 {
@@ -40,8 +45,13 @@ final class CourseCatalogService
 
     private const PUBLISHED_CACHE_TTL = 600;
 
-    /** The columns of `stages`, selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
-    private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at'];
+    /** `catalog:course:v1:{course id}:{locale}:n{data version}`: the tree of one course in one locale (docs/19 K3). */
+    private const COURSE_TREE_PREFIX = 'catalog:course:v1:';
+
+    private const COURSE_TREE_TTL = 1800;
+
+    /** The columns of `stages` in table order (`title_uz` was added last), selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
+    private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at', 'title_uz'];
 
     /** The columns of `courses` a lesson row carries under `course__`: whose the course is and whether it is open. */
     private const COURSE_COLUMNS = ['id', 'slug', 'owner_type', 'owner_id', 'visibility', 'status'];
@@ -192,7 +202,7 @@ final class CourseCatalogService
         $locale = $this->locales->isSupported($locale) ? $locale : $this->locales->default();
 
         /** @var list<array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool}> $rows */
-        $rows = Cache::remember(
+        $rows = PureCache::store()->remember(
             self::PUBLISHED_CACHE_PREFIX.$locale,
             self::PUBLISHED_CACHE_TTL,
             fn (): array => Course::query()
@@ -210,7 +220,7 @@ final class CourseCatalogService
 
     public function forgetPublished(): void
     {
-        Cache::deleteMultiple(array_map(
+        PureCache::store()->deleteMultiple(array_map(
             fn (string $locale): string => self::PUBLISHED_CACHE_PREFIX.$locale,
             $this->locales->supported(),
         ));
@@ -373,44 +383,139 @@ final class CourseCatalogService
     }
 
     /**
-     * Lessons of the course in study order with the learner's progress, in one query. Only active
-     * words count. Progress is the learner's own (`word_repetitions` is per learner and word), so a
-     * word studied in two groups is counted once.
+     * Lessons of the course in study order with the learner's progress. Only active words count. Progress is the learner's
+     * own (`word_repetitions` is per learner and word), so a word studied in two groups is counted once. The lessons and their
+     * word totals are the cached {@see courseTree()}; `done` is the learner's one query ({@see lessonsDone()}).
      *
      * @return list<LessonProgress>
      */
     public function lessonsWithProgress(Course $course, Learner $learner): array
+    {
+        $tree = $this->courseTree($course, $this->locales->forLearner($learner));
+        $done = $this->lessonsDone($course, $learner);
+
+        $lessons = [];
+        foreach ($tree as $row) {
+            $lessons[] = new LessonProgress(
+                $row['stage_number'],
+                $row['stage_title'],
+                $row['lesson_id'],
+                $row['lesson_number'],
+                $row['lesson_title'],
+                // A word added since the tree was read is in `done` but not yet in `total` for the moment before its drop.
+                new LearnerProgress(min($done[$row['lesson_id']] ?? 0, $row['total']), $row['total']),
+            );
+        }
+
+        return $lessons;
+    }
+
+    /**
+     * Drops the cached tree of the course in EVERY locale at once by moving its data version on (the version key has no TTL and
+     * lives on the non-evicting default store, docs/19 §4; the trees are a pure cache). Called after commit by whatever changes the
+     * course's words ({@see CoursePublisher::recount()}), its status ({@see CoursePublisher::transition()}) and its modules and
+     * lessons (CourseTreeObserver). A reader that computed the tree from rows older than the change writes to the old version,
+     * which nobody reads any more.
+     */
+    public function forgetCourseTree(int $courseId): void
+    {
+        Cache::increment(self::courseTreeVersionKey($courseId));
+    }
+
+    public static function courseTreeVersionKey(int $courseId): string
+    {
+        return "catalog:course:ver:{$courseId}";
+    }
+
+    public static function courseTreeKey(int $courseId, string $locale): string
+    {
+        $version = (int) Cache::get(self::courseTreeVersionKey($courseId), 0);
+
+        return self::COURSE_TREE_PREFIX."{$courseId}:{$locale}:n{$version}";
+    }
+
+    /**
+     * Modules and lessons of the course in study order with the number of ACTIVE words of each, titles as a reader of `$locale`
+     * sees them (`title_uz` / `title` picked by DeckTitles, so the ru and the uz entry never share a name): no learner in it, so it
+     * is the same for everybody of that locale who may open the course and safe to share (docs/19 K3). A
+     * learner's own deck is the exception: it is private, small and edited all the time, so it is read, never cached.
+     *
+     * @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
+     */
+    private function courseTree(Course $course, string $locale): array
+    {
+        if ($course->isLearnerOwned()) {
+            return $this->buildCourseTree($course, $locale);
+        }
+
+        // The key (with the data version) is made BEFORE the rows are read.
+        /** @var list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+        return PureCache::store()->remember(
+            self::courseTreeKey($course->id, $locale),
+            self::COURSE_TREE_TTL,
+            fn (): array => $this->buildCourseTree($course, $locale),
+        );
+    }
+
+    /** @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+    private function buildCourseTree(Course $course, string $locale): array
     {
         $rows = DB::table('lessons')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->leftJoin('words', function (JoinClause $join): void {
                 $join->on('words.lesson_id', '=', 'lessons.id')->where('words.is_active', '=', true);
             })
-            ->leftJoin('word_repetitions', function (JoinClause $join) use ($learner): void {
-                $join->on('word_repetitions.word_id', '=', 'words.id')
-                    ->where('word_repetitions.learner_id', '=', $learner->id)
-                    ->where('word_repetitions.repetitions', '>=', 1);
-            })
             ->where('stages.course_id', $course->id)
-            ->groupBy('stages.number', 'stages.title', 'lessons.id', 'lessons.number', 'lessons.title')
+            ->groupBy('stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
-            ->selectRaw('stages.number as stage_number, stages.title as stage_title, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, COUNT(words.id) as total, COUNT(word_repetitions.id) as done')
+            ->selectRaw('stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
             ->get();
 
-        $lessons = [];
+        $text = static fn (mixed $value): ?string => $value === null ? null : (string) $value;
+
+        // The names are picked for $locale HERE, so the entry of a locale holds that locale's names and nothing of another's.
+        $tree = [];
         foreach ($rows as $row) {
-            $lessons[] = new LessonProgress(
-                (int) $row->stage_number,
-                $this->deckTitles->stage($course, $learner, $row->stage_title === null ? null : (string) $row->stage_title),
-                (int) $row->lesson_id,
-                (int) $row->lesson_number,
-                $this->deckTitles->lesson($course, $learner, (int) $row->lesson_number, $row->lesson_title === null ? null : (string) $row->lesson_title),
-                new LearnerProgress((int) $row->done, (int) $row->total),
-            );
+            $tree[] = [
+                'stage_number' => (int) $row->stage_number,
+                'stage_title' => $this->deckTitles->stageIn($course, $locale, $text($row->stage_title), $text($row->stage_title_uz)),
+                'lesson_id' => (int) $row->lesson_id,
+                'lesson_number' => (int) $row->lesson_number,
+                'lesson_title' => $this->deckTitles->lessonIn($course, $locale, (int) $row->lesson_number, $text($row->lesson_title), $text($row->lesson_title_uz)),
+                'total' => (int) $row->total,
+            ];
         }
 
-        return $lessons;
+        return $tree;
+    }
+
+    /**
+     * Active words the learner has answered (`repetitions >= 1`) per lesson of the course - their own rows only, so the size of the
+     * query follows what they have studied, not the size of the course.
+     *
+     * @return array<int, int> lesson id => words learned
+     */
+    private function lessonsDone(Course $course, Learner $learner): array
+    {
+        $rows = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
+            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->where('word_repetitions.learner_id', $learner->id)
+            ->where('word_repetitions.repetitions', '>=', 1)
+            ->where('words.is_active', true)
+            ->where('stages.course_id', $course->id)
+            ->groupBy('words.lesson_id')
+            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as done')
+            ->get();
+
+        $done = [];
+        foreach ($rows as $row) {
+            $done[(int) $row->lesson_id] = (int) $row->done;
+        }
+
+        return $done;
     }
 
     /**

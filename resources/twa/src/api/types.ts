@@ -1,3 +1,5 @@
+import type { GameClassBossStartRequest, GameClassCard } from './gameClassTypes'
+
 export interface Learner {
   id: number
   first_name: string | null
@@ -14,6 +16,14 @@ export interface AuthResponse {
   token: string
   expires_in: number
   learner: Learner
+  /** Optional so that an answer of an older server reads as "nothing to say". */
+  account_restored?: AccountRestored | null
+}
+
+/** `POST /me/delete` (docs/04 A.1a): the account is soft-deleted; `/start` in the bot brings it back until `restorable_until`. */
+export interface AccountDeletedResponse {
+  deleted: true
+  restorable_until: string
 }
 
 export interface MeResponse {
@@ -31,6 +41,16 @@ export interface MeResponse {
    * every fixture typed as `MeResponse`) reads as "no practice": the billing store turns a missing block into `available: false`.
    */
   practice?: PracticeAccess
+  /** Game access (docs/18 §12.8); optional for the same reason as `practice`: no block reads as "no game". */
+  game?: GameAccess
+}
+
+/**
+ * "Account restored" (R11b, docs/04 A.1): null = nothing to say; else the learner came back within the 30 days and has not been
+ * told yet. `pro_can_resume`: the Pro auto-renewal, stopped by the deletion, can be switched on again.
+ */
+export interface AccountRestored {
+  pro_can_resume: boolean
 }
 
 export interface SettingsChoice {
@@ -169,6 +189,8 @@ export interface FriendItem {
   streak: number
   words_learned: number
   since: string | null
+  /** The asset of the camel the friend wears; the key is there only while the game is open to the learner (docs/05 §5b.6). */
+  camel_asset?: string | null
 }
 
 export interface FriendRequestItem {
@@ -385,6 +407,11 @@ export interface Streak {
   freezes: number
   /** Yesterday was missed and held by a freeze. */
   frozen_yesterday: boolean
+  /**
+   * What held today (docs/04 A.2a): `goal`, `game` (only a run of Karvon - "Streak held by a run"), `freeze`; null while `met_today` is false.
+   * Absent on an older server.
+   */
+  held_by?: 'goal' | 'game' | 'freeze' | null
 }
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
@@ -433,6 +460,15 @@ export interface TodayResponse {
    * header of Home dates itself by it, not by the device (docs/04 A.2a). Always a non-empty string.
    */
   timezone: string
+  /** The entry of Karvon (docs/04 A.2a, G2.3): always there; a closed game says `{daily_available: false, active_run: null}`. */
+  game?: TodayGame
+}
+
+export interface TodayGame {
+  daily_available: boolean
+  active_run: GameActiveRun | null
+  /** The class caravan that is on (docs/05 §5b.7); `null` or absent: none. */
+  class_caravan?: GameClassCard | null
 }
 
 export interface TodayLeague {
@@ -741,6 +777,147 @@ export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation'
 /** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
 export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
 
+/** What the Free plan counts per day (docs/18 §3, G1): the sessions of practice and the battles the learner starts. */
+export type PracticeLimitKind = 'sessions' | 'battles'
+
+/** One counter of today. `resets_at` is the end of the learner's "today" (ISO 8601, UTC): from then on the counter is full again. */
+export interface PracticeLimit {
+  limit: number
+  used: number
+  remaining: number
+  resets_at: string
+}
+
+/**
+ * The Free limits of today, in `practice.limits` of GET /me, `limits` of GET /practice/hub and of the 201 answers that create a session
+ * or a battle (the value AFTER the creation). `null` as a whole: Pro, no limit at all, or practice is closed. A repeat of mistakes spends
+ * nothing; accepting a battle is never limited.
+ *
+ * Each kind can be `null` on its own: an empty env on the server means that kind has no limit (`{sessions: null, battles: {...}}` or the
+ * other way round). Nothing is shown for such a kind and it is never stopped.
+ */
+export interface PracticeLimits {
+  sessions: PracticeLimit | null
+  battles: PracticeLimit | null
+}
+
+/** `me.game.limits` (docs/18 §12.7.2): `runs` is null where there is no limit of runs (Pro); the whole block is null until G2.8 and for a closed game. */
+export interface GameLimits {
+  runs: PracticeLimit | null
+  tickets: { balance: number; max: number }
+  boosters: PracticeLimit | null
+  boss_stages: number | null
+}
+
+/** The `game` block of GET /me (docs/18 §12.8). */
+export interface GameAccess {
+  available: boolean
+  limits: GameLimits | null
+  pro_promise: 'none' | 'full'
+  coins: number
+  tickets: number
+}
+
+export type GameBossState = 'locked_by_plan' | 'not_ready' | 'ready' | 'defeated'
+
+export interface GameMapStop {
+  lesson_id: number
+  number: number
+  title: string | null
+  unlocked: boolean
+  /** 0-3. */
+  stars: number
+  best_score: number
+  runs: number
+}
+
+export interface GameMapBoss {
+  state: GameBossState
+  defeated_at: string | null
+  introduced: number
+  required: number
+  cleared_stops: number
+  required_stops: number
+}
+
+export interface GameMapCity {
+  stage_id: number
+  number: number
+  /** The name on the Silk Road ("Samarkand"). */
+  city: string
+  /** The module's name; null = the client says "Module N". */
+  title: string | null
+  unlocked: boolean
+  stops: GameMapStop[]
+  boss: GameMapBoss
+}
+
+export interface GameMapFriend {
+  friendship_id: number
+  name: string
+  city_number: number
+  stops_cleared: number
+  camel_asset: string | null
+}
+
+export interface GameActiveRun {
+  id: number
+  kind: string
+  progress: { answered: number; total: number }
+}
+
+/** The caravan of the day on the map (docs/04 A.18): `available` = not played, no run on, something due. */
+export interface GameMapDaily {
+  available: boolean
+  done_today: boolean
+  due_count: number
+  /** The start of the learner's next local day. */
+  resets_at: string
+}
+
+/** GET /game/map (docs/04 A.18). `class_caravan`: the caravan of the class that is on its way (docs/05 §5b.7). */
+export interface GameMapResponse {
+  course: { slug: string; title: string }
+  cities: GameMapCity[]
+  me: { stops_cleared: number; cities_cleared: number; coins: number; tickets: number }
+  /** The caravan of the day; absent on an older server. */
+  daily?: GameMapDaily | null
+  friends: GameMapFriend[]
+  active_run: GameActiveRun | null
+  /** The card of the class caravan that is on; `null` or absent (an older server): none. */
+  class_caravan?: GameClassCard | null
+  limits: GameLimits | null
+}
+
+/** `POST /game/runs` (201): the map needs the id (the run screen reads the rest itself) and the limits AFTER this start (a run of the day or a ticket is spent). */
+export interface GameRunStarted {
+  id: number
+  limits?: GameLimits | null
+}
+
+export type GameStartRequest =
+  | { kind: 'stop'; course: string; lesson_id: number; replace_active?: boolean }
+  /** The caravan of the day: the course is the active one, the server needs neither course nor lesson. */
+  | { kind: 'daily'; replace_active?: boolean }
+  /** The boss of a city (docs/05 §5b.8): the course and the stage of the map. */
+  | { kind: 'boss'; course: string; stage_id: number; replace_active?: boolean }
+  /** The boss of the class (docs/05 §5b.7): no course, no lesson. */
+  | GameClassBossStartRequest
+
+/** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */
+export interface PracticeLimitHit {
+  kind: PracticeLimitKind
+  limit: number
+  used: number
+  resets_at: string
+}
+
+/**
+ * What the "what Pro gives" list may say about practice (docs/18 §3), decided by the server for this learner (`ProPromises`, the rule the
+ * landing and the Stars invoice follow too): `both` - practice and battles without a daily limit, `solo` - practice alone, `none` - no line.
+ */
+export type ProPromise = 'none' | 'solo' | 'both'
+
 /** Block `practice` of GET /me (docs/16 §3.3): `available` false hides every entry; `pro_required` shows them with a Pro chip. */
 export interface PracticeAccess {
   available: boolean
@@ -748,6 +925,10 @@ export interface PracticeAccess {
   /** The modes switched on. */
   modes: PracticeMode[]
   battle: boolean
+  /** The line of the Pro list about practice: the server says which one (or none); nothing is worked out from the flags above. */
+  pro_promise: ProPromise
+  /** The Free limits of today; absent: an older server (nothing is shown, nothing is blocked). */
+  limits?: PracticeLimits | null
 }
 
 export interface PracticeCourseRef {
@@ -813,6 +994,8 @@ export interface PracticeHubResponse {
   modes: PracticeModeInfo[]
   active_session: PracticeActiveSession | null
   battle: { enabled: boolean; active_battle_id: number | null; incoming_count: number }
+  /** The Free limits of today (`null`: Pro, or no limit); absent: an older server. */
+  limits?: PracticeLimits | null
 }
 
 /** A fragment, an option or a side of a pair: an opaque id and what is written on it. */
@@ -981,6 +1164,8 @@ export interface PracticeSession {
   /** The element to answer; null once the session is finished. */
   current: PracticeElement | null
   summary: PracticeSummary | null
+  /** Only in the 201 of `POST /practice/sessions`: the Free limits after the session was created (`null`: Pro, or no limit). */
+  limits?: PracticeLimits | null
 }
 
 /** Answer of POST /practice/sessions/{id}/answer. Pairs: `verdict` is correct|wrong, `pair` the match tried, `reveal` null. */
@@ -1110,6 +1295,8 @@ export interface Battle {
   friendship_id: number | null
   /** Dictation, `room` and `countdown` only (docs/16 §10.3): the clips of the five rounds to load before "Ready"; else `null`. */
   audio_preload: string[] | null
+  /** Only in the 201 of `POST /practice/battles` (a rematch too): the Free limits after the battle was created (`null`: Pro, or no limit). */
+  limits?: PracticeLimits | null
 }
 
 /** GET /practice/battles/{id}/poll (docs/16 §7.4): at most 600 bytes, read every two seconds. */

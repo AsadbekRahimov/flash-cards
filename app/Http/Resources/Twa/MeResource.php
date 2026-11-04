@@ -7,6 +7,7 @@ namespace App\Http\Resources\Twa;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
+use App\Domain\Twa\Services\MePayloadBuilder;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Http\Request;
@@ -16,8 +17,10 @@ use Illuminate\Support\Collection;
  * GET /api/twa/me
  *
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
+ * @phpstan-import-type PracticeBlock from MePayloadBuilder
+ * @phpstan-import-type GameBlock from MePayloadBuilder
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -29,7 +32,8 @@ final class MeResource extends TwaResource
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null},
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
-     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
+     *   practice: PracticeBlock,
+     *   game: GameBlock
      * }
      */
     public function toArray(Request $request): array
@@ -66,6 +70,7 @@ final class MeResource extends TwaResource
             'paywall' => $this->resource['paywall'],
             'settings' => $this->resource['settings'],
             'practice' => $this->resource['practice'],
+            'game' => $this->resource['game'],
         ];
     }
 }

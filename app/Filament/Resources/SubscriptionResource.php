@@ -9,6 +9,8 @@ use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Filament\Resources\SubscriptionResource\Support\SubscriptionActions;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
+use App\Filament\Resources\Support\BillingDisplay;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -30,6 +32,27 @@ class SubscriptionResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-credit-card';
 
     protected static ?int $navigationSort = 10;
+
+    /**
+     * The columns the list selects (docs/20 §1.4): everything the columns and the revoke button read - not the `meta`, which
+     * keeps the whole history of the subscription.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'subscriptions.id',
+        'subscriptions.subscriber_type',
+        'subscriptions.subscriber_id',
+        'subscriptions.plan',
+        'subscriptions.tier',
+        'subscriptions.seats_limit',
+        'subscriptions.status',
+        'subscriptions.provider',
+        'subscriptions.starts_at',
+        'subscriptions.current_period_ends_at',
+        'subscriptions.granted_by_user_id',
+        'subscriptions.note',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -58,8 +81,10 @@ class SubscriptionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['subscriber', 'grantedBy']))
+        return AdminTable::big($table)
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord
+                ? $query
+                : $query->select(self::LIST_COLUMNS)->with('subscriber', BillingDisplay::subscriberColumns())->with('grantedBy:id,name'))
             ->columns([
                 Tables\Columns\TextColumn::make('subscriber_type')
                     ->label(__('admin.subscriptions.fields.subscriber_type'))

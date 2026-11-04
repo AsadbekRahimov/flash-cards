@@ -36,6 +36,7 @@ final class LearnerRegistrar
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
         private readonly SchedulerResolver $schedulers,
+        private readonly AccountRestoreNotice $restoreNotice,
     ) {}
 
     /**
@@ -155,8 +156,9 @@ final class LearnerRegistrar
 
     /**
      * @param  array<string, string|null>  $profile  `language_code` only when present
+     * @param  bool  $retrying  second pass after the soft-deleted row vanished under us (purged): no third one
      */
-    private function upsert(int $telegramUserId, array $profile, ?string $source, ?string $startPayload, bool $selfInitiated): ?Learner
+    private function upsert(int $telegramUserId, array $profile, ?string $source, ?string $startPayload, bool $selfInitiated, bool $retrying = false): ?Learner
     {
         /** @var Learner|null $learner */
         $learner = Learner::withTrashed()->where('telegram_user_id', $telegramUserId)->first();
@@ -202,8 +204,24 @@ final class LearnerRegistrar
                 return null;
             }
 
-            // The unique telegram_user_id still points at the soft-deleted row; coming back revives it.
-            $learner->restore();
+            // The unique telegram_user_id still points at the soft-deleted row; coming back revives it. A conditional
+            // UPDATE, not restore(): the final deletion (LearnerPurgeService, docs/03 §8 rule 2) may have removed the row
+            // between our read and now — then there is nothing to revive and the person starts afresh with a new row.
+            $revived = Learner::withTrashed()->whereKey($learner->id)->whereNotNull('deleted_at')->update(['deleted_at' => null]);
+
+            if ($revived !== 1) {
+                if ($retrying) {
+                    return null;
+                }
+
+                return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, retrying: true);
+            }
+
+            $learner->setAttribute('deleted_at', null);
+            $learner->syncOriginalAttribute('deleted_at');
+
+            // R11b: the bot's /start or the Mini App tells "the account is restored" once; a new row gets no notice.
+            $this->restoreNotice->markPending($learner);
         }
 
         $learner->fill($profile);

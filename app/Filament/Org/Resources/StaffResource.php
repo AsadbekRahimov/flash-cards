@@ -8,6 +8,7 @@ use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Exceptions\OrganizationStaffException;
 use App\Domain\Organizations\Services\OrganizationStaffService;
 use App\Filament\Org\Resources\StaffResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\OrganizationUser;
 use Filament\Actions;
 use Filament\Forms;
@@ -16,6 +17,7 @@ use Filament\Resources\Pages\PageRegistration;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Staff of the organization — "Teachers" (docs/13 §6.3): owner only. Invite by email (letter with a
@@ -46,17 +48,29 @@ class StaffResource extends OrgResource
         return __('org.teachers.plural');
     }
 
-    /** @return Builder<OrganizationUser> */
+    /**
+     * `groups_count` — the organization's groups the staff member teaches — rides in the list query as an
+     * aggregate (docs/20 §1.3), not as a lookup per row.
+     *
+     * @return Builder<OrganizationUser>
+     */
     public static function getEloquentQuery(): Builder
     {
-        return static::scope()->staff(static::user(), static::tenant())->with('user');
+        return static::scope()->staff(static::user(), static::tenant())
+            ->with('user')
+            ->addSelect(['groups_count' => DB::table('teacher_groups')
+                ->join('telegram_groups', 'telegram_groups.id', '=', 'teacher_groups.telegram_group_id')
+                ->whereColumn('teacher_groups.user_id', 'organization_users.user_id')
+                ->where('telegram_groups.organization_id', static::tenant()->id)
+                ->selectRaw('count(*)')]);
     }
 
     public static function table(Table $table): Table
     {
         $staff = app(OrganizationStaffService::class);
 
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')->label(__('org.teachers.columns.name'))->searchable(),
                 Tables\Columns\TextColumn::make('user.email')->label(__('org.teachers.columns.email'))->searchable(),
@@ -70,8 +84,7 @@ class StaffResource extends OrgResource
                     ->boolean()
                     ->state(fn (OrganizationUser $record): bool => $record->user?->telegram_user_id !== null),
                 Tables\Columns\TextColumn::make('groups_count')
-                    ->label(__('org.teachers.columns.groups'))
-                    ->state(fn (OrganizationUser $record): int => count($staff->groupIdsOf(static::tenant(), $record))),
+                    ->label(__('org.teachers.columns.groups')),
                 Tables\Columns\TextColumn::make('user.last_login_at')
                     ->label(__('org.teachers.columns.last_login'))
                     ->since()

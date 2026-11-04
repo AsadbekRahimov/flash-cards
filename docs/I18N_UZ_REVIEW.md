@@ -1,5 +1,7 @@
 # Узбекские строки интерфейса — на проверку носителю
 
+> **Решение владельца (03.11.2026):** к релизу выпускаем узбекские тексты как есть, без проверки носителем; правки — по обратной связи учеников. Документ остаётся списком строк для будущей проверки.
+
 > Сгенерировано из `lang/{ru,uz}/*.php` (бот, напоминания, 2FA) и `resources/twa/src/i18n/{ru,uz}.ts` (TWA) — Фаза 0, задача 0.5.
 > Узбекский — латиница, апостроф ASCII `'` (o'qish, so'z). Обращение на «Siz».
 > Плейсхолдеры: `:x` — Laravel, `{x}` — TWA; их не переводить и не удалять.
@@ -14,7 +16,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
-| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
+| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br>• /delete_account — akkauntni o'chirish<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br>• /delete_account — удалить аккаунт<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
 | `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
 | `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
 | `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
@@ -118,9 +120,10 @@
 | `landing.pricing.pro.name` | Pro | Pro |
 | `landing.pricing.pro.tagline` | Ko'proq istaganlar uchun | Для тех, кто хочет больше |
 | `landing.pricing.pro.features.0` | :new_words | :new_words |
-| `landing.pricing.pro.features.1` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
-| `landing.pricing.pro.features.2` | :decks | :decks |
-| `landing.pricing.pro.features.3` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
+| `landing.pricing.pro.features.1` | :practice | :practice |
+| `landing.pricing.pro.features.2` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
+| `landing.pricing.pro.features.3` | :decks | :decks |
+| `landing.pricing.pro.features.4` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
 | `landing.pricing.pro.note` | Pro tarkibi va narxlari hozircha aniqlanmoqda. | Состав и цены Pro пока уточняются. |
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
@@ -132,30 +135,6 @@
 | `landing.footer.contact` | Qo'llab-quvvatlash: | Поддержка: |
 | `landing.footer.language` | Til | Язык |
 | `landing.footer.legal_label` | Hujjatlar | Документы |
-| `legal.draft_notice` | Qoralama. Ushbu hujjat matni xizmat egasi tomonidan taqdim etiladi; sahifa hozircha amaldagi hujjat hisoblanmaydi. | Черновик. Текст этого документа будет предоставлен владельцем сервиса; страница пока не является действующим документом. |
-| `legal.placeholder` | Bo'lim matni xizmat egasi tomonidan taqdim etiladi. | Текст раздела будет предоставлен владельцем. |
-| `legal.back` | Bosh sahifaga | На главную |
-| `legal.offer.title` | Ommaviy oferta | Публичная оферта |
-| `legal.offer.sections.0` | Umumiy qoidalar | Общие положения |
-| `legal.offer.sections.1` | Shartnoma predmeti | Предмет договора |
-| `legal.offer.sections.2` | Ro'yxatdan o'tish va hisob | Регистрация и учётная запись |
-| `legal.offer.sections.3` | Tariflar, to'lov va qaytarish tartibi | Тарифы, порядок оплаты и возврата |
-| `legal.offer.sections.4` | Tomonlarning huquq va majburiyatlari | Права и обязанности сторон |
-| `legal.offer.sections.5` | Tomonlarning javobgarligi | Ответственность сторон |
-| `legal.offer.sections.6` | Shaxsiy ma'lumotlar | Персональные данные |
-| `legal.offer.sections.7` | Nizolarni hal qilish | Разрешение споров |
-| `legal.offer.sections.8` | Amal qilish muddati va shartlarni o'zgartirish | Срок действия и изменение условий |
-| `legal.offer.sections.9` | Ijrochining rekvizitlari | Реквизиты исполнителя |
-| `legal.privacy.title` | Maxfiylik siyosati | Политика конфиденциальности |
-| `legal.privacy.sections.0` | Umumiy qoidalar | Общие положения |
-| `legal.privacy.sections.1` | Qanday ma'lumotlarni qayta ishlaymiz | Какие данные мы обрабатываем |
-| `legal.privacy.sections.2` | Qayta ishlash maqsadlari va asoslari | Цели и основания обработки |
-| `legal.privacy.sections.3` | Ma'lumotlarni uchinchi shaxslarga berish | Передача данных третьим лицам |
-| `legal.privacy.sections.4` | Ma'lumotlarni saqlash va himoya qilish | Хранение и защита данных |
-| `legal.privacy.sections.5` | Foydalanuvchi huquqlari | Права пользователя |
-| `legal.privacy.sections.6` | Cookie fayllar va analitika | Файлы cookie и аналитика |
-| `legal.privacy.sections.7` | Siyosatni o'zgartirish | Изменение политики |
-| `legal.privacy.sections.8` | Ma'lumotlar operatorining aloqa ma'lumotlari | Контакты оператора данных |
 
 ## TWA (`resources/twa/src/i18n/uz.ts`)
 
@@ -388,6 +367,10 @@
 | `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
 | `today.streak.at_risk` | Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring | Выполните цель до полуночи, чтобы не потерять серию |
 | `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
+| `today.streak.held_by_game` | Seriya reys bilan saqlandi | Серия удержана забегом |
+| `today.game.title` | Karvon | Караван |
+| `today.game.daily` | Kunlik karvon kutmoqda | Караван дня ждёт |
+| `today.game.continue` | Reysni davom ettirish | Продолжить забег |
 | `today.streak.best` | Rekord: {best} | Рекорд: {best} |
 | `today.review.due.one` | Takrorlash uchun {count} ta so'z | {count} слово к повторению |
 | `today.review.due.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова к повторению |
@@ -1716,7 +1699,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `landing.pricing.pro.features.4` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+| `landing.pricing.pro.features.5` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
 | `landing.pricing.subtitle_open` | Bepul boshlang. Pro - ko'proq istaganingizda. | Начните бесплатно. Pro — когда захочется больше. |
 | `landing.pricing.pro.price` | Boshlang'ich narx - oyiga :price | от :price в месяц |
 | `landing.pricing.pro.price_stars` | yoki Telegram Stars orqali :price | или :price через Telegram Stars |
@@ -2596,3 +2579,720 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `battle.invite.mode_disabled` | Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz. | Этот формат сейчас выключен — принять приглашение нельзя. |
+
+## Лимиты практики 2026-11 · G1 (backend) — на проверку носителю
+
+> Тексты сервера для 403 `practice_limit_reached` (`lang/uz/practice.php`, `lang/ru/practice.php`; английский в `lang/en/practice.php` — для консоли и тестов).
+> Это `message` ответа API: приложение показывает окно Pro по коду, а текст — запасной вариант для любого другого клиента.
+> `{0}` — лимит 0 (вид только для Pro), `[1,*]` — лимит исчерпан, `:limit` — число.
+> Термины — как в приложении (раздел «G1 (TWA)» ниже): «amaliyot» — практика, «bellashuv» — баттл; «chaqirish» — позвать друга, «taklif» — приглашение друга.
+>
+> Что решить носителю:
+> - **«kuniga :limit marta amaliyot»** — «практика :limit раз в день»: естественно ли, или лучше «kuniga :limit ta amaliyot».
+> - **«do'stni bellashuvga chaqirish»** — как в уведомлении бота `battle.invited` («sizni bellashuvga chaqiryapti»).
+> - Апостроф в «Pro'da», «Free'da» — как в остальных строках (`billing.*`).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.limit_reached.sessions` `{0}` | Amaliyot Pro'da mavjud. | Практика доступна в Pro. |
+| `practice.limit_reached.sessions` `[1,*]` | Bugungi bepul amaliyot tugadi: Free'da kuniga :limit marta amaliyot. Pro'da cheklov yo'q. | Бесплатная практика на сегодня закончилась: на Free — :limit сессия/сессии/сессий практики в день. В Pro — без ограничений. |
+| `practice.limit_reached.battles` `{0}` | Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. | Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. |
+| `practice.limit_reached.battles` `[1,*]` | Bugungi bepul bellashuvlar tugadi: Free'da do'stni kuniga :limit marta bellashuvga chaqirish mumkin. Do'stning taklifini qabul qilish har doim mumkin. | Бесплатные баттлы на сегодня закончились: на Free звать друга на баттл можно :limit раз/раза/раз в день. Принять приглашение друга можно всегда. |
+
+## Лимиты практики 2026-11 · G1 (TWA) — на проверку носителю
+
+> Бесплатный тариф получает две сессии практики и один баттл в день (`docs/18` §3, `resources/twa/src/i18n/uz.ts`, задача G1-TWA). Приложение пишет, сколько осталось,
+> а когда лимит кончился — открывает окно Pro. Названия «Pro», «Free», «amaliyot», «bellashuv» и кнопки взяты из уже проверенных строк.
+>
+> Что решить носителю:
+> - **Остаток** (`practice.limit.sessions`, `battle.limit.left`): «Bugun bepul: 2 tadan 1 tasi qoldi» — «Сегодня бесплатно: осталось 1 из 2»; «Bugungi bellashuvlar: 1 tadan 1 tasi qoldi» —
+>   «Баттлов сегодня: осталось 1 из 1». Порядок «{M} tadan {N} tasi» взят из `practice.hub.reason.no_items_few` («{required} tadan {available} tasi»). Когда осталось 0 из 2 (лимит есть, всё потрачено), строка та же
+>   («2 tadan 0 tasi qoldi»); если для нуля естественнее другая фраза — сказать, отдельную строку для нуля заведём. Когда сам лимит равен 0 (вид «только Pro»), строки нет вовсе:
+>   «0 tadan 0 tasi qoldi» ничего не говорит; вместо неё — окно Pro со своими словами (пункт «Вид «только Pro»» ниже).
+> - **«Баттл»** (`battle.limit.left`, `paywall.lead_practice_limit_battles*`): `bellashuv`, как во всех строках баттла (разделы `18-1t`, `18-6t`, сообщения бота). Слово «battl» не берём:
+>   его нет нигде в приложении. «Chaqiruv» и «musobaqa» не подходят: по-русски это «вызов», а «Вызовы» в разделе «Do'stlar» (`friends.challenge.*`) — недельные соревнования друзей, это другое.
+> - **«Практика»** (`paywall.lead_practice_limit_sessions*`): `amaliyot`, как название раздела (`practice.hub.title` = «Amaliyot»). По-русски здесь «практика», не «тренировка»: тренировкой
+>   в приложении названы занятия по карточкам. «Yangisi» — «новая» (единственное число, как «Новая» в ru), «Yangilari» — «новые» (баттлы).
+> - **Окно Pro при исчерпанном лимите** — два варианта на каждый вид, по режиму окна:
+>   - пока Pro только «скоро» (`..._soon`): «Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangisi — ertaga soat 00:00 da.» — «Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00.»
+>     Дальше окно говорит `paywall.soon` («Pro tez orada ochiladi»), поэтому обещания «сразу с Pro» здесь нет;
+>   - когда Pro можно купить: то же и «yoki darhol Pro bilan» («или сразу с Pro»): «… Yangisi — ertaga soat 00:00 da yoki darhol Pro bilan.»
+>
+>   Проверить «tugadi» («закончилась»), «Yangisi / Yangilari», «darhol Pro bilan».
+> - **Вид «только Pro»** (лимит 0: сервер так отключает бесплатную часть вида целиком; `paywall.lead_practice_limit_battles_pro`). Ничего не потрачено и завтра не вернётся, поэтому слов
+>   «tugadi» («закончилось»), «ertaga» («завтра») и числа здесь нет, и «yoki darhol Pro bilan» тоже: окно просто говорит, что это есть в Pro.
+>   - баттлы: «Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin.» — «Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.»
+>     Вторая фраза нужна, потому что принять приглашение друга можно всегда, даже без Pro. «Chaqirish» — позвать друга (как в разделе «G1 (backend)»), «taklif» — приглашение друга,
+>     «Pro'da mavjud» — «доступно в Pro» (как в `paywall.lead_practice`), «har doim mumkin» — «всегда можно»;
+>   - практика: окно берёт слово о практике, и оно не называет баттлы там, где они не в Pro (бесплатный тариф их получает, или они выключены):
+>     - баттлы тоже только в Pro — уже проверенная `paywall.lead_practice`: «Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.» — «Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.»;
+>     - иначе — новая `paywall.lead_practice_solo`: «Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud.» — «Практика — игры на закрепление слов — доступна в Pro.» Это та же фраза без «va do'stlar bilan bellashuvlar».
+>       Её же говорит окно, когда практика за Pro целиком (`PRACTICE_PLAN=pro`), а баттлы выключены.
+>
+>   Проверить естественность «Do'stni bellashuvga chaqirish» и «Do'stning taklifini qabul qilish», а в «Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud» — что фраза читается без хвоста про баттлы.
+> - **Когда лимит вернётся** (`paywall.reset_tomorrow`, `paywall.reset_at`): подставляется в окно вместо `{when}`. Обычно сброс — начало следующих суток ученика: «ertaga soat 00:00 da»
+>   («завтра в 00:00»). Если часы телефона сбиты и приложение не может поручиться за день, остаётся одно время: «soat 19:00 da» («в 19:00»). Проверить «soat … da».
+> - **Пункт списка «Что даёт Pro»** (`benefits.practice`): «Amaliyot va bellashuvlar kunlik limitsiz» — по образцу `benefits.new_words` («Yangi so'zlar kunlik limitsiz»). Список виден в окне Pro
+>   и на экране «Obuna»; этот пункт — только там, где сервер его разрешает (слово `practice.pro_promise` из `/me`: при выключенной практике, вне пилота и когда Pro нечего снимать его нет). Когда баттлы выключены, вместо него
+>   `benefits.practice_solo`: «Amaliyot kunlik limitsiz» («Практика без дневного лимита») — без «va bellashuvlar».
+> - **`error.code.practice_limit_reached`** — запасной текст на случай, когда сервер отказал по лимиту, но не прислал цифры (обычно вместо него открывается окно Pro): «Bugungi bepul limit
+>   tugadi. U ertaga yangilanadi.» — «Бесплатный лимит на сегодня закончился. Он обновится завтра.»
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.limit.sessions` | Bugun bepul: {limit} tadan {remaining} tasi qoldi | Сегодня бесплатно: осталось {remaining} из {limit} |
+| `battle.limit.left` | Bugungi bellashuvlar: {limit} tadan {remaining} tasi qoldi | Баттлов сегодня: осталось {remaining} из {limit} |
+| `paywall.lead_practice_limit_sessions` | Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when} yoki darhol Pro bilan. | Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when} или сразу с Pro. |
+| `paywall.lead_practice_limit_sessions_soon` | Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when}. | Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when}. |
+| `paywall.lead_practice_limit_battles` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
+| `paywall.lead_practice_limit_battles_soon` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}. |
+| `paywall.lead_practice_limit_battles_pro` | Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. | Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. |
+| `paywall.lead_practice_solo` | Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud. | Практика — игры на закрепление слов — доступна в Pro. |
+| `paywall.reset_tomorrow` | ertaga soat {time} da | завтра в {time} |
+| `paywall.reset_at` | soat {time} da | в {time} |
+| `benefits.practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `benefits.practice_solo` | Amaliyot kunlik limitsiz | Практика без дневного лимита (баттлы выключены) |
+| `error.code.practice_limit_reached` | Bugungi bepul limit tugadi. U ertaga yangilanadi. | Бесплатный лимит на сегодня закончился. Он обновится завтра. |
+
+## Состав Pro после G1 2026-11 · лендинг и счёт Stars — на проверку носителю
+
+> Практика и баттлы без дневного лимита теперь входят в Pro (G1). В публичных текстах эта строка показывается **только когда практика открыта всем**
+> (`PRACTICE_ACCESS=all`) и Pro есть что снимать: у Free есть дневной лимит на практику или практика целиком в Pro (`PRACTICE_PLAN=pro`); при `pilot` и `off` её нет, чтобы не обещать то, чем нельзя пользоваться
+> (`ProPromises::publicPractice()`; в TWA то же правило приходит словом `practice.pro_promise` из `/me`). Баттлы называются только пока они включены (`PRACTICE_BATTLE`) и у Free есть лимит на них
+> (или практика целиком в Pro); если баттлы выключены — строка про одну практику,
+> как в TWA (`benefits.practice_solo`). Поэтому у счёта три варианта текста на каждый срок: прежний, «с практикой и баттлами» и «с практикой»; выбирает код, не шаблон.
+> Термины те же, что в TWA (`benefits.practice`, раздел «Лимиты практики 2026-11 · G1 (TWA)»): «Amaliyot» — практика, «bellashuvlar» — баттлы.
+> Пункт тарифной карточки Pro `landing.pricing.pro.features.1` — это заготовка `:practice`, её заменяет строка `landing.limits.pro_practice` или
+> `landing.limits.pro_practice_solo` (или пункт пропадает); в таблицах выше номера пунктов Pro сдвинулись на один (`.1` — практика, `.2-.5` — прежние пункты 1-4).
+> Проверить: «yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz» — «kunlik limitsiz» относится ко всем трём подряд («новые слова, практика и баттлы без дневного лимита»).
+> В описании счёта Telegram разрешает не больше 255 знаков: у месячного варианта «с практикой» короче хвост («Har 30 kunda avtomatik yangilanadi; o'chirish: /pro.»), у годового нет «(365 kun)» — «1 yilga» уже говорит о сроке.
+
+### Лендинг, карточка Pro (`lang/uz/landing.php`, блок `limits`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.limits.pro_practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `landing.limits.pro_practice_solo` | Amaliyot kunlik limitsiz | Практика без дневного лимита |
+
+### Описание счёта Telegram Stars «с практикой и баттлами» и «с практикой» (`lang/uz/billing.php`, блок `stars.invoice`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.stars.invoice.description_month_practice` | LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice` | LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_month_practice_solo` | LexiFlow Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice_solo` | LexiFlow Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+
+## Оферта и политика конфиденциальности 2026-11 · R2 — на проверку носителю и юристу
+
+> Черновики оферты и политики (`lang/uz/legal.php`) заменили заглушки. Решение владельца 03.11.2026: узбекские тексты выходят без проверки
+> носителем, а сами документы до запуска проверяет юрист; пока `SITE_LEGAL_DRAFT=true`, на страницах видна пометка «Qoralama» и стоит `noindex`.
+> Места, которые заполняет владелец или юрист, помечены `[для юриста: …]` / `[yurist uchun: …]`. Токены `{contact}` и `{requisites}` подставляет страница.
+> Прежние строки `legal.*` из раздела «Публичный сайт» перенесены сюда: разделы теперь `sections.N.title` и `sections.N.text`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `legal.draft_notice` | Qoralama. Matn yurist tekshiruvida va hozircha amaldagi hujjat hisoblanmaydi. | Черновик. Текст находится на проверке у юриста и пока не является действующим документом. |
+| `legal.placeholder` | Bo'lim matni xizmat egasi tomonidan taqdim etiladi. | Текст раздела будет предоставлен владельцем. |
+| `legal.back` | Bosh sahifaga | На главную |
+| `legal.contact_fallback` | LexiFlow botidagi /paysupport buyrug'i | команда /paysupport в боте LexiFlow |
+| `legal.requisites_missing` | [Xizmat egasi: ijrochi rekvizitlarini kiriting - nomi, STIR, manzil, bank rekvizitlari, telefon, e-mail] | [Владелец сервиса: указать реквизиты исполнителя - наименование, ИНН, адрес, банковские реквизиты, телефон, e-mail] |
+| `legal.requisite.name` | Nomi | Наименование |
+| `legal.requisite.inn` | STIR | ИНН |
+| `legal.requisite.address` | Manzil | Адрес |
+| `legal.requisite.bank` | Bank | Банк |
+| `legal.requisite.bank_account` | Hisob raqami | Расчётный счёт |
+| `legal.requisite.mfo` | MFO | МФО |
+| `legal.requisite.phone` | Telefon | Телефон |
+| `legal.requisite.email` | E-mail | E-mail |
+| `legal.offer.title` | Ommaviy oferta | Публичная оферта |
+| `legal.offer.sections.0.title` | Umumiy qoidalar | Общие положения |
+| `legal.offer.sections.0.text` | Ushbu hujjat LexiFlow xizmatidan («Xizmat») foydalanish bo'yicha ommaviy oferta (shartnoma tuzish taklifi) hisoblanadi. Ijrochi — rekvizitlari oxirgi bo'limda ko'rsatilgan shaxs.<br><br>Xizmat ingliz tilidagi so'zlarni o'rganish uchun Telegram-bot va Telegram Mini App'dan, shuningdek o'quv markazlari va o'qituvchilar kabinetidan iborat. Foydalanuvchi («Siz») botdan yoki Mini App'dan foydalanishni boshlash yoki pullik tarif uchun to'lash bilan ofertani qabul qiladi.<br><br>Shartlarga rozi bo'lmasangiz, Xizmatdan foydalanmang. | Настоящий документ — публичная оферта (предложение заключить договор) на пользование сервисом LexiFlow («Сервис»). Исполнитель — лицо, реквизиты которого указаны в последнем разделе.<br><br>Сервис состоит из Telegram-бота и Telegram Mini App для изучения английских слов, а также кабинета учебных центров и учителей. Пользователь («Вы») принимает оферту, начав пользоваться ботом или Mini App, либо оплатив платный тариф.<br><br>Если Вы не согласны с условиями, не пользуйтесь Сервисом. |
+| `legal.offer.sections.1.title` | Shartnoma predmeti | Предмет договора |
+| `legal.offer.sections.1.text` | Ijrochi Sizga Xizmatdan foydalanish imkonini beradi: oraliqli takrorlash bilan so'z kartochkalari, kundalik mashq, imtihonlar va sinov testlari, mashq va bahslar (battle), ligalar, do'stlar, yutuqlar va referal dasturi. Imkoniyatlar tarifga bog'liq.<br><br>Xizmat — o'quv vositasi. Ijrochi aniq o'qish natijasini (bilim darajasi, imtihon bali) kafolatlamaydi: natija Sizning mashg'ulotlaringizga bog'liq.<br><br>O'quv markazlari va o'qituvchilar alohida kabinetdan (/org) foydalanadi: ular o'z o'quvchilarining natijalarini ko'radi va topshiriq bera oladi. Markazlar uchun shartlar — markazga beriladigan tariflar va hisob-fakturalar — ushbu oferta bilan birga amal qiladi. | Исполнитель предоставляет Вам доступ к Сервису: карточкам слов с интервальным повторением, ежедневной тренировке, экзаменам и пробным тестам, практике и баттлам, лигам, друзьям, достижениям и реферальной программе. Состав возможностей зависит от тарифа.<br><br>Сервис — учебный инструмент. Исполнитель не гарантирует конкретного результата обучения (уровня знаний, балла на экзамене): результат зависит от Ваших занятий.<br><br>Учебные центры и учителя пользуются отдельным кабинетом (/org): они видят прогресс своих учеников и могут назначать задания. Условия для центров — тарифы и счета, выставляемые центру, — действуют наряду с этой офертой. |
+| `legal.offer.sections.2.title` | Ro'yxatdan o'tish va hisob | Регистрация и учётная запись |
+| `legal.offer.sections.2.text` | Alohida ro'yxatdan o'tish yo'q: hisob bot yoki Mini App birinchi marta ishga tushirilganda avtomatik yaratiladi va Telegram akkauntingizga bog'lanadi. Kirish Telegram vositalari orqali amalga oshadi. Telegram akkauntingiz xavfsizligi uchun Siz javobgarsiz.<br><br>O'quv markazlari xodimlari taklifnoma bo'yicha e-mail va parol bilan kabinetga kiradi; markaz egalari uchun ikki bosqichli autentifikatsiya majburiy.<br><br>Minimal yosh: [yurist uchun: foydalanuvchining minimal yoshini va voyaga yetmaganlar uchun ota-ona yoki qonuniy vakillar roziligi tartibini ko'rsating; o'quvchilar orasida maktab o'quvchilari bor].<br><br>Taqiqlanadi: kirishni boshqalarga berish, natijalarni (reyting, liga, bahslar) soxtalashtirish uchun Xizmatdan foydalanish, Xizmat ishiga xalaqit berish, boshqa foydalanuvchilar huquqlarini buzish. Qoidabuzarlik uchun kirish cheklanishi mumkin. | Отдельной регистрации нет: учётная запись создаётся автоматически при первом запуске бота или Mini App и привязана к Вашему аккаунту Telegram. Вход осуществляется средствами Telegram. Вы отвечаете за безопасность своего аккаунта Telegram.<br><br>Сотрудники учебных центров входят в кабинет по приглашению с адресом e-mail и паролем; для владельцев центров двухфакторная аутентификация обязательна.<br><br>Минимальный возраст: [для юриста: указать минимальный возраст пользователя и порядок согласия родителей или законных представителей для несовершеннолетних; среди учеников есть школьники].<br><br>Запрещено: передавать доступ другим лицам, использовать Сервис для накрутки результатов (рейтингов, лиг, баттлов), мешать работе Сервиса, нарушать права других пользователей. За нарушение доступ может быть ограничен. |
+| `legal.offer.sections.3.title` | Tariflar, to'lov va qaytarish tartibi | Тарифы, порядок оплаты и возврата |
+| `legal.offer.sections.3.text` | Tariflar. Free — bepul tarif: kuniga yangi so'zlar soni va imkoniyatlar to'plami cheklangan. Pro — pullik tarif: kunlik limitsiz yangi so'zlar, kengaytirilgan mashq va qo'shimcha topshiriqlar, seriyani muzlatish, sinov testlari va boshqa imkoniyatlar. Pro'ning joriy tarkibi va narxi to'lovdan oldin botda va saytda ko'rsatiladi.<br><br>To'lov. Boshlanishida Pro Telegram Stars orqali to'lanadi. Bir oylik obuna — 30 kunlik Telegram obunasi: Siz uni o'chirmaguningizcha avtomatik yangilanadi (botdagi /pro buyrug'i yoki Telegram'dagi Stars obunalari sozlamalari). Yillik Pro 365 kunga bir martalik to'lanadi va avtomatik yangilanmaydi. Payme va Click orqali karta bilan to'lov keyinroq ulanishi mumkin; bu haqda botda va saytda xabar beramiz. Ijrochi bank kartalari ma'lumotlarini olmaydi.<br><br>Promokodlar va markazdan Pro. Promokod unda ko'rsatilgan muddatga Pro'dan foydalanish imkonini beradi. O'quv markazi o'z o'quvchilari uchun Pro'ni to'lashi mumkin: markaz obunasi amal qilar ekan va Siz uning o'quvchilari qatorida ekansiz, Sizda Pro bor.<br><br>Muddat tugashi. To'langan davr tugagach (avtoyangilanishda — yangilanish muvaffaqiyatsiz bo'lib, imtiyozli davr o'tgach) kirish Free tarifiga qaytadi; yutuqlaringiz saqlanadi.<br><br>Pulni qaytarish. Pulni qaytarishga avtomatik huquq yo'q. Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi: bizga yozing ({contact}) yoki botdagi /paysupport buyrug'idan foydalaning, chek yoki to'lov raqamini ilova qiling. Har bir murojaat alohida ko'rib chiqiladi. Qaytarish ma'qullansa, Telegram Stars orqali to'langan to'lov Stars bilan Telegram'dagi hisobingizga qaytariladi; shu to'lov bilan to'langan Pro davri tugatiladi, avtoyangilanish to'xtatiladi. Boshqa usul bilan to'langan to'lovlarni qaytarish muddati va usuli murojaat natijasiga ko'ra belgilanadi.<br><br>Avtoyangilanishni bekor qilish allaqachon to'langan davr uchun pulni qaytarmaydi — Pro shu davr oxirigacha amal qiladi.<br><br>Telegram Stars shartlari (Stars sotib olish, saqlash va ishlatish) Telegram tomonidan belgilanadi. | Тарифы. Free — бесплатный: ограничены число новых слов в день и состав возможностей. Pro — платный тариф: новые слова без дневного лимита, расширенная практика и дополнительные упражнения, заморозки серии, пробные тесты и другие возможности. Актуальный состав и цена Pro показаны в боте и на сайте до оплаты.<br><br>Оплата. На старте Pro оплачивается через Telegram Stars. Подписка на месяц — это подписка Telegram на 30 дней: она продлевается автоматически, пока Вы её не отключите (команда /pro в боте или настройки подписок Stars в Telegram). Годовой Pro оплачивается разово на 365 дней и не продлевается автоматически. Оплата картами через Payme и Click может быть подключена позже; о подключении сообщим в боте и на сайте. Данные банковских карт Исполнитель не получает.<br><br>Промокоды и Pro от центра. Промокод даёт доступ к Pro на указанный в нём срок. Учебный центр может оплатить Pro для своих учеников: пока действует подписка центра и Вы в числе его учеников, у Вас есть Pro.<br><br>Окончание срока. По окончании оплаченного периода (при автопродлении — после неудачного продления и льготного периода) доступ возвращается к тарифу Free; Ваш прогресс сохраняется.<br><br>Возвраты. Автоматического права на возврат нет. Возврат осуществляется только через поддержку: напишите нам ({contact}) или используйте команду /paysupport в боте, приложите чек или номер платежа. Каждое обращение рассматривается индивидуально. Если возврат одобрен, платёж, оплаченный через Telegram Stars, возвращается в Stars на Ваш счёт в Telegram; период Pro, оплаченный этим платежом, при этом завершается, а автопродление останавливается. Срок и способ возврата платежей, оплаченных другим способом, определяются по итогам обращения.<br><br>Отмена автопродления не возвращает деньги за уже оплаченный период — Pro действует до его конца.<br><br>Условия Telegram Stars (покупка, хранение и использование Stars) определяются Telegram. |
+| `legal.offer.sections.4.title` | Tomonlarning huquq va majburiyatlari | Права и обязанности сторон |
+| `legal.offer.sections.4.text` | Ijrochi majburiyatlari: tarifingiz doirasida Xizmatdan foydalanishni ta'minlash; qo'llab-quvvatlashga murojaatlarni ko'rib chiqish; ma'lumotlaringizni Maxfiylik siyosatiga muvofiq himoya qilish.<br><br>Ijrochi huquqlari: Xizmat imkoniyatlari va dizaynini o'zgartirish; vaqtincha ishlamay qoladigan texnik ishlar o'tkazish; qoidabuzarlarning kirishini cheklash; kelgusi uchun tarif va narxlarni o'zgartirish — to'langan davr uchun narx o'zgarmaydi.<br><br>Sizning majburiyatlaringiz: ishonchli ma'lumot ko'rsatish, qonun va uchinchi shaxslar huquqlarini buzmaslik, Xizmat ishiga aralashmaslik va tarif cheklovlarini chetlab o'tmaslik. | Исполнитель обязуется: предоставлять доступ к Сервису в рамках Вашего тарифа; рассматривать обращения в поддержку; защищать Ваши данные в соответствии с Политикой конфиденциальности.<br><br>Исполнитель вправе: менять функциональность и дизайн Сервиса; проводить технические работы с временной недоступностью; ограничивать доступ нарушителям; менять тарифы и цены на будущее — для уже оплаченного периода цена не меняется.<br><br>Вы обязуетесь: указывать достоверные данные, не нарушать закон и права третьих лиц, не вмешиваться в работу Сервиса и не обходить ограничения тарифов. |
+| `legal.offer.sections.5.title` | Tomonlarning javobgarligi | Ответственность сторон |
+| `legal.offer.sections.5.text` | Xizmat «mavjud holicha» taqdim etiladi. Ijrochi uzluksiz ishlash uchun oqilona choralar ko'radi, lekin nosozliklar yo'qligini, shu jumladan Telegram, xosting-provayder yoki to'lov xizmatlari aybi bilan yuzaga keladiganlarini kafolatlamaydi.<br><br>Ijrochi Telegram'ning ishlamasligi, to'lov xizmatlari va banklar harakatlari, bilvosita zararlar uchun javobgar emas. Ijrochining javobgarligi qonun ruxsat etgan doirada Siz oxirgi pullik davr uchun to'lagan summa bilan cheklanadi.<br><br>Tomonlar yengib bo'lmas kuch holatlari tufayli majburiyatlarni bajarmaganlik uchun javobgarlikdan ozod etiladi. | Сервис предоставляется «как есть». Исполнитель принимает разумные меры для бесперебойной работы, но не гарантирует отсутствие сбоев, в том числе по вине Telegram, хостинг-провайдера или платёжных сервисов.<br><br>Исполнитель не отвечает за недоступность Telegram, за действия платёжных сервисов и банков, за косвенные убытки. Ответственность Исполнителя ограничена суммой, которую Вы заплатили за последний платный период, в пределах, допускаемых законом.<br><br>Стороны освобождаются от ответственности за неисполнение обязательств вследствие обстоятельств непреодолимой силы. |
+| `legal.offer.sections.6.title` | Shaxsiy ma'lumotlar | Персональные данные |
+| `legal.offer.sections.6.text` | Qanday ma'lumotlarni va nima uchun qayta ishlashimiz Maxfiylik siyosatida (/privacy sahifasi) tavsiflangan. Ofertani qabul qilib, Siz u bilan tanishganingizni tasdiqlaysiz. | Какие данные мы обрабатываем и зачем, описано в Политике конфиденциальности (страница /privacy). Принимая оферту, Вы подтверждаете, что ознакомились с ней. |
+| `legal.offer.sections.7.title` | Nizolarni hal qilish | Разрешение споров |
+| `legal.offer.sections.7.text` | Tomonlar nizolarni muzokaralar yo'li bilan hal qilishga harakat qiladi. Avval qo'llab-quvvatlash xizmatiga yozing ({contact}); murojaatga oqilona muddatda javob beramiz [yurist uchun: da'voga javob muddatini ko'rsating].<br><br>Kelishib bo'lmasa, nizo Ijrochining joylashgan joyidagi sudda O'zbekiston Respublikasi qonunchiligiga muvofiq ko'riladi [yurist uchun: qo'llaniladigan huquq va sudlovga taalluqlilikni tasdiqlang]. | Споры стороны стараются решить переговорами. Сначала напишите в поддержку ({contact}); мы ответим на обращение в разумный срок [для юриста: указать срок ответа на претензию].<br><br>Если договориться не удалось, спор рассматривается в суде по месту нахождения Исполнителя в соответствии с законодательством Республики Узбекистан [для юриста: подтвердить применимое право и подсудность]. |
+| `legal.offer.sections.8.title` | Amal qilish muddati va shartlarni o'zgartirish | Срок действия и изменение условий |
+| `legal.offer.sections.8.text` | Oferta saytda e'lon qilingan paytdan to chaqirib olingunga qadar amal qiladi. Ijrochi yangi tahrirni ushbu sahifada e'lon qilib, shartlarni o'zgartirishi mumkin; yangi tahrir e'lon qilingan paytdan, to'langan davr uchun esa keyingi davrdan qo'llaniladi. Xizmatdan foydalanishni davom ettirib, Siz yangi tahrirni qabul qilasiz. | Оферта действует с момента публикации на сайте до её отзыва. Исполнитель вправе изменить условия, опубликовав новую редакцию на этой странице; новая редакция применяется с момента публикации, а для оплаченного периода — со следующего периода. Продолжая пользоваться Сервисом, Вы принимаете новую редакцию. |
+| `legal.offer.sections.9.title` | Ijrochining rekvizitlari | Реквизиты исполнителя |
+| `legal.offer.sections.9.text` | {requisites}<br><br>Murojaatlar va savollar: {contact} | {requisites}<br><br>Обращения и вопросы: {contact} |
+| `legal.privacy.title` | Maxfiylik siyosati | Политика конфиденциальности |
+| `legal.privacy.sections.0.title` | Umumiy qoidalar | Общие положения |
+| `legal.privacy.sections.0.text` | Ushbu siyosat LexiFlow xizmati (Telegram-bot, Mini App va /org markazlar kabineti) qanday ma'lumotlarni to'plashi, nima uchun va ularni qanday himoya qilishimizni tavsiflaydi. Ma'lumotlar operatori — rekvizitlari ommaviy ofertada ko'rsatilgan Ijrochi.<br><br>Biz o'qish va to'lov uchun zarur bo'lgan minimal ma'lumotni to'playmiz. Reklama ko'rsatmaymiz va ma'lumotlarni reklama tarmoqlariga bermaymiz. | Эта политика описывает, какие данные собирает сервис LexiFlow (Telegram-бот, Mini App и кабинет центров /org), зачем и как мы их защищаем. Оператор данных — Исполнитель, реквизиты которого указаны в публичной оферте.<br><br>Мы собираем минимум данных, необходимый для обучения и оплаты. Мы не показываем рекламу и не передаём данные рекламным сетям. |
+| `legal.privacy.sections.1.title` | Qanday ma'lumotlarni qayta ishlaymiz | Какие данные мы обрабатываем |
+| `legal.privacy.sections.1.text` | O'quvchilar (Telegram va Sizning harakatlaringizdan): Telegram identifikatori, ism va familiya, foydalanuvchi nomi (username), Telegram til kodi, interfeys tili, vaqt mintaqasi, maqsad va daraja, kunlik maqsad, eslatma vaqti, o'tish manbasi (masalan, referal havola), texnik belgilar (oxirgi faollik, botni bloklash).<br><br>O'quv faoliyati: o'rganilgan so'zlar va ularni takrorlash jadvali, mashqlar, imtihonlar, amaliyot va bahslardagi javoblar va natijalar, mashg'ulotlar seriyasi, ligalar va ochkolar, yutuqlar, kunlik statistika.<br><br>Ijtimoiy aloqalar: do'stlar va chaqiriqlar, referal takliflar, bot ulangan Telegram guruhlari va markazlarning o'quv guruhlaridagi a'zolik. Bahs raqibi va liga ishtirokchilari Sizning ismingizni ko'radi; username, identifikator va natijalaringiz boshqa foydalanuvchilarga ko'rsatilmaydi.<br><br>To'lovlar: tarif, provayder, summa, valyuta, holat va to'lov identifikatorlari, ishlatilgan promokodlar. Bank kartalari ma'lumotlarini olmaymiz va saqlamaymiz: Stars to'lovini Telegram qabul qiladi.<br><br>Markaz xodimlari: ism, e-mail, parol xeshi, ikki bosqichli autentifikatsiya ma'lumotlari, rol va markaz hamda guruhlarga bog'lanish, harakatlar jurnali (IP-manzil va brauzer ma'lumotlari bilan).<br><br>Jurnallar va analitika: yuborilgan eslatmalar jurnali, foydalanishning shaxsiz hodisalari (masalan, mashq boshlandi), server va xatolar texnik jurnallari. Telefon raqami va profil rasmini saqlamaymiz. | Ученики (из Telegram и Ваших действий): идентификатор Telegram, имя и фамилия, имя пользователя (username), код языка Telegram, язык интерфейса, часовой пояс, цель и уровень, дневная цель, время напоминаний, источник перехода (например, реферальная ссылка), технические отметки (последняя активность, блокировка бота).<br><br>Учебная активность: изученные слова и расписание их повторений, ответы и результаты тренировок, экзаменов, практики и баттлов, серия занятий, лиги и очки, достижения, дневная статистика.<br><br>Социальные связи: друзья и вызовы, реферальные приглашения, членство в группах Telegram, к которым подключён бот, и в учебных группах центров. Соперник по баттлу и участники лиги видят Ваше имя; username, идентификатор и прогресс другим пользователям не показываются.<br><br>Платежи: тариф, провайдер, сумма, валюта, статус и идентификаторы платежей, использованные промокоды. Данных банковских карт мы не получаем и не храним: оплату Stars принимает Telegram.<br><br>Сотрудники центров: имя, e-mail, хэш пароля, данные двухфакторной аутентификации, роль и привязка к центру и группам, журнал действий (с IP-адресом и данными браузера).<br><br>Журналы и аналитика: журнал отправленных напоминаний, обезличенные события использования (например, начата тренировка), технические журналы сервера и ошибок. Телефон и фотографию профиля мы не сохраняем. |
+| `legal.privacy.sections.2.title` | Qayta ishlash maqsadlari va asoslari | Цели и основания обработки |
+| `legal.privacy.sections.2.text` | Ma'lumotlarni quyidagilar uchun qayta ishlaymiz: Xizmatni taqdim etish va natijangizni hisoblash; takrorlash haqida eslatmalar yuborish (ularni sozlamalarda o'chirish mumkin); to'lovni qabul qilish va Pro'ni berish; o'qituvchi va markazga o'z o'quvchilarining natijalarini ko'rsatish; xavfsizlikni ta'minlash va suiiste'molliklarga qarshi kurashish; xatolarni topish va tuzatish; shaxsiz statistika asosida Xizmatni yaxshilash.<br><br>Asos — Xizmatdan foydalanishni boshlash bilan bildirilgan Sizning rozilingiz va shartnoma (oferta) ijrosi [yurist uchun: qayta ishlash asoslarini tasdiqlang]. | Мы обрабатываем данные, чтобы: предоставлять Сервис и считать Ваш прогресс; отправлять напоминания о повторении (их можно отключить в настройках); принимать оплату и выдавать Pro; показывать учителю и центру прогресс его учеников; обеспечивать безопасность и бороться со злоупотреблениями; находить и исправлять ошибки; улучшать Сервис на основе обезличенной статистики.<br><br>Основание — Ваше согласие, выраженное началом пользования Сервисом, и исполнение договора (оферты) [для юриста: подтвердить основания обработки]. |
+| `legal.privacy.sections.3.title` | Ma'lumotlarni uchinchi shaxslarga berish | Передача данных третьим лицам |
+| `legal.privacy.sections.3.text` | Ma'lumotlarni sotmaymiz. Ma'lumotlarni faqat Xizmat ishlashi uchun zarur ishlov beruvchilar oladi:<br><br>Telegram — bot va Mini App ishlaydigan platforma; Stars to'lovini ham u qabul qiladi.<br><br>Sentry xatolar monitoringi xizmati — xatolar haqidagi texnik ma'lumotni oladi; yuborishdan oldin shaxsiy ma'lumotlar va sirlar olib tashlanadi yoki yashiriladi.<br><br>Pochta xizmati — markaz xodimlariga xatlar (takliflar, bildirishnomalar, hisob-fakturalar) uchun [egasiga: pochta provayderini ko'rsating].<br><br>Ovoz berish xizmati — amaliyotdagi diktant uchun so'zlar nutq sintezatori (edge-tts) bilan ovozlantiriladi, unga faqat ibora matni beriladi, foydalanuvchi ma'lumotlari berilmaydi.<br><br>Xosting-provayder — ma'lumotlar uning serverlarida saqlanadi [egasiga: provayderni ko'rsating].<br><br>Payme va Click to'lov xizmatlari — ulanganda; ular to'lov uchun zarur ma'lumotni oladi.<br><br>Bundan tashqari, ma'lumotlar davlat organlarining qonuniy talabi bo'yicha berilishi mumkin. O'qituvchilar va markazlar o'z o'quvchilarining ma'lumotlarini /org kabineti doirasida ko'radi. | Мы не продаём данные. Данные получают только обработчики, без которых Сервис не работает:<br><br>Telegram — платформа, через которую работают бот и Mini App; он же принимает оплату Stars.<br><br>Сервис мониторинга ошибок Sentry — получает технические сведения об ошибках; персональные данные и секреты перед отправкой удаляются или маскируются.<br><br>Почтовый сервис — для писем сотрудникам центров (приглашения, уведомления, счета) [владельцу: указать почтового провайдера].<br><br>Сервис озвучки — для диктанта в практике слова озвучиваются синтезатором речи (edge-tts), которому передаётся только текст фразы, без данных пользователя.<br><br>Хостинг-провайдер — на его серверах хранятся данные [владельцу: указать провайдера].<br><br>Платёжные сервисы Payme и Click — когда будут подключены; они получают сведения, необходимые для платежа.<br><br>Кроме того, данные могут быть переданы по законному требованию государственных органов. Учителя и центры видят данные своих учеников в пределах кабинета /org. |
+| `legal.privacy.sections.4.title` | Bolalar va o'smirlar | Дети и подростки |
+| `legal.privacy.sections.4.text` | Xizmat foydalanuvchilari orasida maktab o'quvchilari bor. Biz faqat Telegram profili ma'lumotlarini saqlaymiz, telefon, manzil va rasmlarni yig'maymiz hamda reklama ko'rsatmaymiz.<br><br>Minimal yosh: [yurist uchun: minimal yoshni va ota-ona yoki qonuniy vakillar roziligi tartibini ko'rsating]. Ota-ona yoki qonuniy vakil bola ma'lumotlarini ko'rsatish yoki o'chirish iltimosi bilan qo'llab-quvvatlash xizmatiga murojaat qilishi mumkin. | Среди пользователей Сервиса есть школьники. Мы сохраняем только данные Telegram-профиля, не собираем телефон, адрес и фотографии и не показываем рекламу.<br><br>Минимальный возраст: [для юриста: указать минимальный возраст и порядок согласия родителей или законных представителей]. Родитель или законный представитель может обратиться в поддержку с просьбой показать или удалить данные ребёнка. |
+| `legal.privacy.sections.5.title` | Ma'lumotlarni saqlash va himoya qilish | Хранение и защита данных |
+| `legal.privacy.sections.5.text` | Ma'lumotlarni saqlash joyi: [egasiga: xosting mamlakati va provayderini ko'rsating; yurist uchun: O'zbekiston Respublikasining «Shaxsga doir ma'lumotlar to'g'risida»gi qonuni (O'RQ-547), 27-1-moddasi O'zbekiston fuqarolarining shaxsiy ma'lumotlarini O'zbekiston hududidagi bazalarda saqlashni talab qiladi].<br><br>Muddatlar. Hisob ma'lumotlari va natijalaringizni Xizmatdan foydalanayotganingizda va so'rovingiz bilan o'chirilgunga qadar saqlaymiz. Foydalanish hodisalari 400 kungacha, texnik jurnallar — 30 kun, xodimlar harakatlari jurnali — 2 yil saqlanadi. Ma'lumotlar bazasining zaxira nusxalari 14 kun saqlanadi, so'ng o'chiriladi; o'chirilgan ma'lumotlar shu muddatgacha nusxalarda qolishi mumkin. To'lov yozuvlari — kim, qachon va qancha to'lagani (to'lov paytidagi Telegram akkaunt identifikatori, ism va foydalanuvchi nomi, summa, sana, to'lov raqami) — buxgalteriya hisobi va qonun talablari bo'yicha uzoqroq saqlanadi: [yurist uchun: to'lov hujjatlarini saqlash muddatini ko'rsating, masalan, O'zbekiston Respublikasining buxgalteriya hisobi to'g'risidagi qonunchiligi bo'yicha 5 yil].<br><br>Himoya. Kabinetlarga kirish parol va ikki bosqichli autentifikatsiya bilan himoyalangan, ulanish shifrlangan (HTTPS), xodimlar kirishi rollar bilan cheklangan, sirlar va tokenlar jurnallarga tushmaydi. Hech bir tizim to'liq himoyalanmagan; jiddiy hodisalar haqida qonunda belgilangan tartibda xabar beramiz. | Место хранения данных: [владельцу: указать страну и провайдера хостинга; для юриста: закон Республики Узбекистан «О персональных данных» (ЗРУ-547), ст. 27-1, требует хранить персональные данные граждан Узбекистана в базах на территории Узбекистана].<br><br>Сроки. Данные учётной записи и прогресс храним, пока Вы пользуетесь Сервисом и до удаления по Вашему запросу. События использования храним до 400 дней, технические журналы — 30 дней, журнал действий сотрудников — 2 года. Резервные копии базы данных хранятся 14 дней, после чего удаляются; удалённые данные могут оставаться в копиях до этого срока. Платёжные записи — кто, когда и сколько заплатил (идентификатор аккаунта Telegram, имя и имя пользователя на момент платежа, сумма, дата, номер платежа) — храним дольше, по требованиям учёта и закона: [для юриста: указать срок хранения платёжных документов, например 5 лет по законодательству Республики Узбекистан о бухгалтерском учёте].<br><br>Защита. Доступ в кабинеты защищён паролем и двухфакторной аутентификацией, соединение шифруется (HTTPS), доступ сотрудников ограничен ролями, секреты и токены не попадают в журналы. Ни одна система не защищена полностью; о существенных инцидентах мы сообщим в порядке, установленном законом. |
+| `legal.privacy.sections.6.title` | Foydalanuvchi huquqlari | Права пользователя |
+| `legal.privacy.sections.6.text` | Siz so'rashingiz mumkin: Siz haqingizda qanday ma'lumotlar saqlanayotgani, ularni tuzatish, o'chirish, rozilikni qaytarib olish. Qo'llab-quvvatlash xizmatiga yozing: {contact}. Hisobni o'zingiz ham o'chirishingiz mumkin: Mini App'da — «Sozlamalar» → «Xavfli hudud» → «Akkauntni o'chirish», botda — /delete_account buyrug'i yoki /settings dagi «Akkauntni o'chirish» tugmasi; ikkala holatda ham o'chirishdan oldin Xizmat tasdiqlashni so'raydi.<br><br>O'chirish. Tasdiqlashdan (yoki qo'llab-quvvatlash xizmatiga so'rovdan) keyin hisobni o'chirilgan deb belgilaymiz va 30 kundan so'ng uni avtomatik tarzda butunlay o'chiramiz [yurist uchun: muddatni tasdiqlang]. Hisob bilan birga profilingiz, natijalaringiz, do'stlar, ligalar, bahslar va eslatmalar o'chiriladi. To'lov yozuvlari (kim, qachon va qancha to'lagani) o'chirilmaydi va «Ma'lumotlarni saqlash va himoya qilish» bo'limida ko'rsatilgan muddatlarda saqlanadi. Agar yakuniy o'chirishdan oldin botni yana ishga tushirsangiz, hisob tiklanadi; yakuniy o'chirishdan keyin botni qayta ishga tushirish yangi, bo'sh hisob yaratadi.<br><br>Eslatmalarni bot sozlamalarida (/settings) o'chirish mumkin. | Вы можете запросить: какие данные о Вас хранятся, их исправление, удаление, отзыв согласия. Напишите в поддержку: {contact}. Удалить учётную запись можно и самостоятельно: в Mini App — «Настройки» → «Опасная зона» → «Удалить аккаунт», в боте — команда /delete_account или кнопка «Удалить аккаунт» в /settings; в обоих случаях перед удалением Сервис просит подтверждение.<br><br>Удаление. После подтверждения (или запроса в поддержку) мы помечаем учётную запись удалённой и через 30 дней удаляем её окончательно и автоматически [для юриста: подтвердить срок]. Вместе с учётной записью удаляются Ваш профиль, прогресс и результаты, друзья, лиги, баттлы и напоминания. Платёжные записи (кто, когда и сколько заплатил) при этом не удаляются и хранятся в сроки, указанные в разделе «Хранение и защита данных». Если Вы снова запустите бота до окончательного удаления, учётная запись будет восстановлена; после окончательного удаления новый запуск создаёт новую учётную запись с чистого листа.<br><br>Отписаться от напоминаний можно в настройках бота (/settings). |
+| `legal.privacy.sections.7.title` | Cookie fayllar va analitika | Файлы cookie и аналитика |
+| `legal.privacy.sections.7.text` | Saytning ommaviy sahifalari (bosh sahifa, oferta, siyosat) cookie ishlatmaydi, uchinchi tomon hisoblagichlari va reklamasini ulamaydi.<br><br>/admin va /org kabinetlari faqat kirish va so'rovlarni soxtalashtirishdan himoya uchun zarur sessiya cookie'larini ishlatadi. Mini App Telegram ichida ishlaydi va kirishingizni Telegram imzolagan ma'lumotlar bilan tekshiradi.<br><br>Foydalanish statistikasini o'z serverlarimizda, uchinchi tomon analitika tizimlarisiz yig'amiz. | Публичные страницы сайта (главная, оферта, политика) не используют cookie и не подключают сторонние счётчики и рекламу.<br><br>Кабинеты /admin и /org используют только сессионные cookie, необходимые для входа и защиты от подделки запросов. Mini App работает внутри Telegram и проверяет Ваш вход данными, которые подписывает Telegram.<br><br>Статистику использования мы собираем на своих серверах, без сторонних систем аналитики. |
+| `legal.privacy.sections.8.title` | Siyosatni o'zgartirish | Изменение политики |
+| `legal.privacy.sections.8.text` | Siyosatni yangilashimiz mumkin. Yangi tahrir ushbu sahifada e'lon qilinadi va e'lon qilingan paytdan amal qiladi. Jiddiy o'zgarishlar haqida botda xabar berishga harakat qilamiz. | Мы можем обновлять политику. Новая редакция публикуется на этой странице и действует с момента публикации. О существенных изменениях мы постараемся сообщить в боте. |
+| `legal.privacy.sections.9.title` | Ma'lumotlar operatorining aloqa ma'lumotlari | Контакты оператора данных |
+| `legal.privacy.sections.9.text` | Shaxsiy ma'lumotlar bo'yicha savollar: {contact}<br><br>{requisites} | По вопросам о персональных данных: {contact}<br><br>{requisites} |
+
+## Игра «Караван» 2026-11 · G2.1 — на проверку носителю
+
+> Названия городов Шёлкового пути (`lang/uz/game.php`, `lang/ru/game.php`): город карты игры — модуль курса, имя берётся из списка по номеру модуля (`stages.number`, `CityNames`).
+> Карта показывает «Samarqand · 3-modul: …»: имя города — отсюда, название модуля — из курса. После 24-го модуля — `game.city_fallback`.
+> Названия — традиционные узбекские формы современных и исторических городов; апостроф ASCII.
+>
+> Что решить носителю:
+> - **Историческая форма или современная:** «Marv» (Мерв), «Balx» (Балх), «Nishopur» (Нишапур), «Turfon» (Турфан), «Loyan» (Лоян), «Chang'an» (Чанъань) — достаточно ли привычны ученикам; при сомнении заменить на ближайший узнаваемый город.
+> - **`game.city_fallback`** — «:number-shahar» («N-й город»): показывается у модулей после 24-го вместо имени города («3-shahar» вместо «Город 3»): естественна ли такая форма.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.cities.1` | Toshkent | Ташкент |
+| `game.cities.2` | Qo'qon | Коканд |
+| `game.cities.3` | Samarqand | Самарканд |
+| `game.cities.4` | Buxoro | Бухара |
+| `game.cities.5` | Xiva | Хива |
+| `game.cities.6` | Shahrisabz | Шахрисабз |
+| `game.cities.7` | Termiz | Термез |
+| `game.cities.8` | Balx | Балх |
+| `game.cities.9` | Marv | Мерв |
+| `game.cities.10` | Nishopur | Нишапур |
+| `game.cities.11` | Tus | Тус |
+| `game.cities.12` | Ray | Рей |
+| `game.cities.13` | Hamadon | Хамадан |
+| `game.cities.14` | Bag'dod | Багдад |
+| `game.cities.15` | Damashq | Дамаск |
+| `game.cities.16` | Halab | Алеппо |
+| `game.cities.17` | Antioxiya | Антиохия |
+| `game.cities.18` | Konstantinopol | Константинополь |
+| `game.cities.19` | Qashqar | Кашгар |
+| `game.cities.20` | Xo'tan | Хотан |
+| `game.cities.21` | Dunxuan | Дуньхуан |
+| `game.cities.22` | Turfon | Турфан |
+| `game.cities.23` | Loyan | Лоян |
+| `game.cities.24` | Chang'an | Чанъань |
+| `game.city_fallback` | :number-shahar | Город :number |
+
+### Игра «Караван» · G2.5b — кошелёк и лавка
+
+> `game.ledger.*` — названия проводок кошелька (`GET /game/wallet`, строка истории). Проверить: «Qo'llab-quvvatlash qo'shgan / yechgan» (начислено / списано поддержкой), «Kun karvoni» (караван дня). Названия и описания предметов лавки (верблюды, ковры, шатры, рамки, бустеры) лежат не в `lang/`, а в `GameItemSeeder` / таблице `game_items` (`title`, `description`: ru, uz) — их тоже проверить носителю по сидеру.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.ledger.run_reward` | To'xtash uchun mukofot | Награда за стоянку |
+| `game.ledger.boss_reward` | Boss uchun mukofot | Награда за босса |
+| `game.ledger.daily_reward` | Kun karvoni uchun mukofot | Награда за караван дня |
+| `game.ledger.class_reward` | Sinf karvoni mukofoti | Награда каравана класса |
+| `game.ledger.bazaar_hint` | Bozordagi maslahat | Подсказка на базаре |
+| `game.ledger.item_purchase` | Do'kondan xarid | Покупка в лавке |
+| `game.ledger.admin_grant` | Qo'llab-quvvatlash qo'shgan | Начисление от поддержки |
+| `game.ledger.admin_revoke` | Qo'llab-quvvatlash yechgan | Списание поддержкой |
+| `game.ledger.refund` | Qaytarish | Возврат |
+
+## Игра «Караван» 2026-11 · G2.7c (мой караван, TWA) — на проверку носителю
+
+### TWA: «Караван» - «Мой караван» и бустеры в забеге (G2.7c, `docs/05` §5b.5; `resources/twa/src/i18n/uz.ts`, ключи `gameCaravan.*`, `paywall.lead_game_boosters*` и коды лавки)
+
+> Что решить носителю:
+> - **Лавка** — «Do'kon»; **кошелёк** — «Hamyon»; **бустеры** — «kuchaytirgichlar» (усилители); **«Надеть / Надето»** — «Kiyish / Kiyilgan» (предметы: верблюд, ковёр, шатёр, рамка).
+> - «Фляга» — «mesh», как в `gameRun.*`; «стоянка» — «bekat», «босс» — «qo'riqchi», как на карте.
+> - «Pro bilan ochish» — кнопка у предмета только для Pro.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameCaravan.title` | Mening karvonim | Мой караван |
+| `gameCaravan.open` | Mening karvonim | Мой караван |
+| `gameCaravan.tabs_aria` | Karvon bo'limi | Раздел каравана |
+| `gameCaravan.tab.wallet` | Hamyon | Кошелёк |
+| `gameCaravan.tab.shop` | Do'kon | Лавка |
+| `gameCaravan.cats_aria` | Do'kon bo'limi | Раздел лавки |
+| `gameCaravan.cat.camel` | Tuyalar | Верблюды |
+| `gameCaravan.cat.carpet` | Gilamlar | Ковры |
+| `gameCaravan.cat.tent` | Chodirlar | Шатры |
+| `gameCaravan.cat.frame` | Ramkalar | Рамки |
+| `gameCaravan.cat.booster` | Kuchaytirgichlar | Бустеры |
+| `gameCaravan.cat_empty` | Bu yerda hozircha hech narsa yo'q. | Здесь пока ничего нет. |
+| `gameCaravan.profile.title` | Kiyilgan | Надето |
+| `gameCaravan.profile.none` | kiyilmagan | не надето |
+| `gameCaravan.profile.stops` | O'tilgan bekatlar: {count} | Пройдено стоянок: {count} |
+| `gameCaravan.profile.cities` | O'tilgan shaharlar: {count} | Пройдено городов: {count} |
+| `gameCaravan.slot.camel` | Tuya | Верблюд |
+| `gameCaravan.slot.carpet` | Gilam | Ковёр |
+| `gameCaravan.slot.tent` | Chodir | Шатёр |
+| `gameCaravan.slot.frame` | Ramka | Рамка |
+| `gameCaravan.wallet.balance` | Tangalar | Монеты |
+| `gameCaravan.wallet.tickets` | Chiptalar | Билеты |
+| `gameCaravan.wallet.tickets_value` | {balance} / {max} | {balance} из {max} |
+| `gameCaravan.wallet.earned` | Topilgan | Заработано |
+| `gameCaravan.wallet.spent` | Sarflangan | Потрачено |
+| `gameCaravan.wallet.hint` | Tangalar yurishlar va qo'riqchilar uchun beriladi. | Монеты — за забеги и боссов. |
+| `gameCaravan.wallet.ledger` | Oxirgi amallar | Последние операции |
+| `gameCaravan.wallet.ledger_empty` | Hozircha amallar yo'q. | Операций пока нет. |
+| `gameCaravan.wallet.plus` | +{count} | +{count} |
+| `gameCaravan.wallet.minus` | −{count} | −{count} |
+| `gameCaravan.item.buy` | Sotib olish | Купить |
+| `gameCaravan.item.equip` | Kiyish | Надеть |
+| `gameCaravan.item.equipped` | Kiyilgan | Надето |
+| `gameCaravan.item.stock` | Zaxirada: {count} | В запасе: {count} |
+| `gameCaravan.item.pro` | Pro | Pro |
+| `gameCaravan.item.pro_open` | Pro bilan ochish | Открыть с Pro |
+| `gameCaravan.item.achievement` | Yutuq uchun mukofot | Награда за достижение |
+| `gameCaravan.buy.title` | {price} tangaga sotib olasizmi? | Купить за {price}? |
+| `gameCaravan.buy.balance` | Sizda {balance} | У вас {balance} |
+| `gameCaravan.buy.confirm` | Sotib olish | Купить |
+| `gameCaravan.buy.cancel` | Bekor qilish | Отмена |
+| `gameCaravan.buy.coins_insufficient` | Tangalar yetmaydi. Tangalar yurishlar va qo'riqchilar uchun beriladi. | Не хватает монет. Монеты — за забеги и боссов. |
+| `gameCaravan.buy.done` | Sotib olindi: {title} | Куплено: {title} |
+| `gameCaravan.buy.not_purchasable.achievement` | Bu buyum yutuq uchun mukofot. | Этот предмет — награда за достижение. |
+| `gameCaravan.buy.not_purchasable.not_for_sale` | Bu buyum hozir sotilmaydi. | Этот предмет сейчас не продаётся. |
+| `gameCaravan.unavailable_title` | Karvon hozircha mavjud emas | Караван пока недоступен |
+| `gameCaravan.unavailable_text` | U keyinroq ochiladi. | Он откроется позже. |
+| `gameCaravan.to_map` | Xaritaga | На карту |
+| `gameCaravan.booster.row_aria` | Kuchaytirgichlar | Бустеры |
+| `gameCaravan.booster.effect.hint` | Maslahat | Подсказка |
+| `gameCaravan.booster.effect.extra_flask` | Zaxira mesh | Запасная фляга |
+| `gameCaravan.booster.effect.second_chance` | Ikkinchi imkon | Второй шанс |
+| `gameCaravan.booster.effect.unknown` | Kuchaytirgich | Бустер |
+| `gameCaravan.booster.aria_useless` | {name}: bu yerda ishlamaydi | {name}: здесь не сработает |
+| `gameCaravan.booster.aria` | {name}, {qty} ta qoldi | {name}, осталось {qty} |
+| `gameCaravan.booster.aria_used` | {name}, allaqachon ishlatilgan | {name}, уже использовано |
+| `gameCaravan.booster.qty` | ×{qty} | ×{qty} |
+| `paywall.lead_game_boosters` | Bu haftaga bepul kuchaytirgichlar tugadi ({limit} / {limit}). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные бустеры на эту неделю закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
+| `paywall.lead_game_boosters_soon` | Bu haftaga bepul kuchaytirgichlar tugadi ({limit} / {limit}). Yangilari — {when}. | Бесплатные бустеры на эту неделю закончились ({limit} из {limit}). Новые — {when}. |
+| `error.code.item_not_found` | Bunday buyum yo'q. | Такого предмета нет. |
+| `error.code.item_already_owned` | Bu buyum sizda allaqachon bor. | Этот предмет у вас уже есть. |
+| `error.code.item_not_purchasable` | Bu buyumni sotib olib bo'lmaydi. | Этот предмет нельзя купить. |
+| `error.code.booster_not_owned` | Bu kuchaytirgich zaxirada yo'q. | Этого бустера нет в запасе. |
+| `error.code.booster_limit_reached` | Haftalik bepul kuchaytirgichlar tugadi. | Бесплатные бустеры на неделю закончились. |
+| `error.code.booster_already_used` | Bu kuchaytirgich allaqachon ishlatilgan. | Этот бустер уже использован. |
+| `error.code.booster_not_applicable` | Bu yerda bu kuchaytirgich ishlamaydi. | Здесь этот бустер не работает. |
+
+## Удаление аккаунта (кнопка у ученика, команда `/delete_account`) — на проверку носителю
+
+> Проверить: «Akkauntni o'chirish» (Удалить аккаунт), «Xavfli hudud» (Опасная зона), «qonunga ko'ra saqlanadi» (хранятся по закону), «Pro obuna to'xtatiladi» (подписка Pro прекращается). В двух старых строках исправлены значения: `bot.help.private` (добавлена строка `/delete_account`) и `legal.privacy.sections.6.text` (кнопка вместо «пока нет»; исходные строки выше обновлены).
+
+### Бот (`lang/uz/bot.php`, `lang/uz/commands.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.delete_account.settings_button` | Akkauntni o'chirish | Удалить аккаунт |
+| `bot.delete_account.confirm` | LexiFlow akkauntini o'chirasizmi?<br><br>Ma'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi. | Удалить аккаунт LexiFlow?<br><br>Ваши данные будут окончательно удалены через :days дн. Пока этот срок не прошёл, вы можете вернуться — достаточно отправить боту /start. Платёжные записи хранятся по закону, подписка Pro прекращается. |
+| `bot.delete_account.yes_button` | Ha, o'chirish | Да, удалить |
+| `bot.delete_account.no_button` | Bekor qilish | Отмена |
+| `bot.delete_account.canceled` | Mayli, akkaunt o'chirilmadi. | Хорошо, аккаунт не удалён. |
+| `bot.delete_account.done` | Akkaunt o'chirildi. Ma'lumotlar :days kundan keyin butunlay o'chiriladi. Fikringiz o'zgarsa — /start yuboring, akkaunt qaytadi. | Аккаунт удалён. Данные будут окончательно стёрты через :days дн. Передумали — отправьте /start, и аккаунт вернётся. |
+| `bot.delete_account.none` | Akkaunt yo'q yoki allaqachon o'chirilgan. Qaytish uchun /start yuboring. | Аккаунта нет или он уже удалён. Чтобы вернуться, отправьте /start. |
+| `bot.delete_account.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `bot.delete_account.use_private` | Akkaunt faqat shaxsiy chatda o'chiriladi. Bot bilan chatni oching va /delete_account yuboring. | Аккаунт удаляется только в личном чате. Откройте чат с ботом и отправьте /delete_account. |
+| `commands.private.delete_account` | Akkauntni o'chirish | Удалить аккаунт |
+
+### TWA, «Sozlamalar» → «Xavfli hudud» и экран «Akkaunt o'chirildi» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.group.danger` | Xavfli hudud | Опасная зона |
+| `settings.delete` | Akkauntni o'chirish | Удалить аккаунт |
+| `settings.delete.title` | Akkauntni o'chirasizmi? | Удалить аккаунт? |
+| `settings.delete.data` | Ma'lumotlaringiz 30 kundan keyin butunlay o'chiriladi. | Ваши данные будут окончательно удалены через 30 дней. |
+| `settings.delete.return` | Bu muddatgacha qaytish mumkin: botga /start buyrug'ini yuborishning o'zi kifoya. | Вернуться можно до этого срока: достаточно отправить боту команду /start. |
+| `settings.delete.payments` | To'lov yozuvlari qonunga ko'ra saqlanadi. | Платёжные записи хранятся по закону. |
+| `settings.delete.pro` | Pro obuna to'xtatiladi. | Подписка Pro прекращается. |
+| `settings.delete.yes` | Ha, o'chirish | Да, удалить |
+| `settings.delete.no` | Bekor qilish | Отмена |
+| `settings.deleted.title` | Akkaunt o'chirildi | Аккаунт удалён |
+| `settings.deleted.text` | {date} gacha qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi. | Вернуться можно до {date}: отправьте боту команду /start. После этого срока данные будут удалены окончательно. |
+| `settings.deleted.text_plain` | 30 kun ichida qaytish mumkin: botga /start buyrug'ini yuboring. Bu muddatdan keyin ma'lumotlar butunlay o'chiriladi. | Вернуться можно в течение 30 дней: отправьте боту команду /start. После этого срока данные будут удалены окончательно. |
+
+### Возврат в течение 30 дней: «Аккаунт восстановлен» (R11b; бот `lang/uz/bot.php`, TWA `resources/twa/src/i18n/uz.ts`)
+
+> Проверить: «Hisobingiz tiklandi» (Аккаунт восстановлен), «Obuna» (раздел «Подписка», как `billing.title`), «avtomatik uzaytirilishi» (автопродление).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.account.restored` | Xush kelibsiz! Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida. | С возвращением! Аккаунт восстановлен — слова и прогресс на месте. |
+| `bot.account.restored_pro` | Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin. | Автопродление Pro было выключено при удалении. Включить его снова можно в «Подписке». |
+| `restored.title` | Xush kelibsiz! | С возвращением! |
+| `restored.text` | Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida. | Аккаунт восстановлен — слова и прогресс на месте. |
+| `restored.pro` | Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin. | Автопродление Pro было выключено при удалении. Включить его снова можно в «Подписке». |
+| `restored.billing` | «Obuna» bo'limini ochish | Открыть «Подписку» |
+| `restored.ok` | Tushunarli | Понятно |
+
+### Публичный сайт, политика (`lang/uz/legal.php`)
+
+> Блок `legal.privacy.sections.6.text` изменён (см. выше, исходная строка обновлена).
+
+### TWA: «Караван» — карта (G2.7a, `docs/05` §5b)
+
+> Тексты карты Шёлкового пути, листа стоянки, пейвола `game` и ошибок игры (коды `docs/18` §12.8, карта и старт). Забег, итог, босс и лавка добавят свои ключи отдельными разделами.
+>
+> Что решить носителю:
+> - **«Караван»** — `Karvon`; **«забег»** — `reys`; **«стоянка»** — `bekat`; **«босс / Хранитель ворот»** — `qo'riqchi`; **«фляга»** — `mesh` (бурдюк для воды).
+> - **«Модуль N»** в uz — `N-modul`, как в остальном приложении.
+> - Названия городов (Самарканд, Бухара…) приходят с сервера (`lang/{ru,uz}/game.php`), здесь их нет.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.boss.defeated` | Qo'riqchi yengildi | Босс побеждён |
+| `game.boss.not_ready_stops.one` | yana {count} ta bekat | ещё {count} стоянка |
+| `game.boss.not_ready_stops.few` | _(в uz этой формы нет — используется `other`)_ | ещё {count} стоянки |
+| `game.boss.not_ready_stops.many` | _(в uz этой формы нет — используется `other`)_ | ещё {count} стоянок |
+| `game.boss.not_ready_stops.other` | yana {count} ta bekat | ещё {count} стоянки |
+| `game.boss.not_ready_words.one` | yana {count} ta so'z | ещё {count} слово |
+| `game.boss.not_ready_words.few` | _(в uz этой формы нет — используется `other`)_ | ещё {count} слова |
+| `game.boss.not_ready_words.many` | _(в uz этой формы нет — используется `other`)_ | ещё {count} слов |
+| `game.boss.not_ready_words.other` | yana {count} ta so'z | ещё {count} слова |
+| `game.boss.pro` | Qo'riqchi · Pro | Босс · Pro |
+| `game.boss.ready` | Qo'riqchi kutmoqda | Босс ждёт |
+| `game.conflict.continue` | Reysni davom ettirish | Продолжить забег |
+| `game.conflict.replace` | Shuni boshlash | Начать этот |
+| `game.conflict.text` | Uni davom ettiring yoki shuni boshlang — oldingisi hisobga olinmaydi. | Продолжите его или начните этот — прежний не засчитается. |
+| `game.conflict.title` | Reys davom etmoqda | Идёт забег |
+| `game.map.active_progress` | {total} tadan {answered} ta | {answered} из {total} |
+| `game.map.active_run` | Reys davom etmoqda | Идёт забег |
+| `game.map.continue` | Davom etish | Продолжить |
+| `game.map.empty_text` | Kartochkalarda darsni boshlang — birinchi bekat ochiladi. | Начните урок в карточках — откроется первая стоянка. |
+| `game.map.friends` | Shu yerda: {names} | Здесь: {names} |
+| `game.map.friends_more` | +{count} | +{count} |
+| `game.map.learn` | O'rganish | Учить |
+| `game.map.module` | {number}-modul | Модуль {number} |
+| `game.map.no_course_text` | Karvon kursingiz so'zlari bo'ylab yuradi. | Караван идёт по словам вашего курса. |
+| `game.map.no_course_title` | Kursni tanlang | Выберите курс |
+| `game.map.road` | Karvon yo'li | Дорога каравана |
+| `game.map.stars_aria` | 3 tadan {stars} ta yulduz | {stars} из 3 звёзд |
+| `game.map.stop` | {number}-bekat | Стоянка {number} |
+| `game.map.stop_locked` | darsni boshlang | начните урок |
+| `game.map.to_course` | Kursga | К курсу |
+| `game.map.to_courses` | Kurslarga | К курсам |
+| `game.map.unavailable_text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishingiz mumkin. | Он откроется позже. А заниматься по курсу можно как обычно. |
+| `game.map.unavailable_title` | Karvon hozircha mavjud emas | Караван пока недоступен |
+| `game.material.text` | Bu bekat uchun ko'proq so'z kerak. Kartochkalarda yana o'rganing — bekat ochiladi. | Для этой стоянки нужно больше слов. Выучите ещё в карточках — и она откроется. |
+| `game.daily.title` | Kunlik karvon | Караван дня |
+| `game.daily.card.ready` | Takrorlash uchun {count} ta so'z | К повторению {count} слово |
+| `game.daily.card.done` | O'ynaldi, ertaga yana | Сыграно, завтра снова |
+| `game.daily.card.empty` | Hozircha takrorlaydigan narsa yo'q | Пока нечего повторять |
+| `game.daily.card.running` | Reys davom etmoqda — davom eting | Идёт забег — продолжить |
+| `game.daily.ready_text` | Takrorlash uchun {count} ta so'z — 8–10 topshiriqlik mashq. | К повторению {count} слово — разминка на 8–10 заданий. |
+| `game.daily.go` | Yo'lga chiqish | В путь |
+| `game.daily.running_title` | Reys davom etmoqda | Идёт забег |
+| `game.daily.done_title` | Kunlik karvon o'ynaldi | Караван дня сыгран |
+| `game.daily.done_text` | Keyingisi — ertaga. Oddiy takrorlash — kartochkalarda. | Следующий — завтра. Обычное повторение — в карточках. |
+| `game.daily.review` | Kartochkalarda takrorlash | Повторять в карточках |
+| `game.daily.empty_title` | Hozircha takrorlaydigan narsa yo'q | Пока нечего повторять |
+| `game.daily.empty_text` | So'zlar takrorlashga yetib kelganda, kunlik karvon shu yerda sizni kutadi. | Когда слова подойдут к повторению, караван дня будет ждать вас здесь. |
+| `game.daily.to_map` | Xaritaga | К карте |
+| `game.material.title` | So'zlar hozircha kam | Слов пока мало |
+| `game.stop.best` | Eng yaxshi hisob: {score} | Лучший счёт: {score} |
+| `game.stop.free_today` | Bugun bepul: {limit} tadan {remaining} ta | Сегодня бесплатно: {remaining} из {limit} |
+| `game.stop.go` | Yo'lga chiqish | В путь |
+| `game.stop.text` | 8–10 ta topshiriq, 3 ta mesh | 8–10 заданий, 3 фляги |
+| `game.stop.tickets` | chiptalar: {count} | билеты: {count} |
+| `game.stop.tickets_only` | Reys chiptalari: {count} | Билеты на забеги: {count} |
+| `game.title` | Karvon | Караван |
+| `paywall.lead_game` | Karvon: kuniga bitta bepul reys va seriya hamda do'stlar uchun chiptalar. Pro'da — cheklovsiz. | Караван: бесплатный забег в день и билеты за серию и за друзей. В Pro — без ограничений. |
+| `error.closed.game` | Bu reys allaqachon yopilgan. | Этот забег уже закрыт. |
+| `error.forbidden.game` | Karvonga kirish huquqingiz yo'q. | У вас нет доступа к каравану. |
+| `error.code.game_unavailable` | Karvon hozircha mavjud emas. | Караван пока недоступен. |
+| `error.code.game_limit_reached` | Bugungi bepul reyslar tugadi. | Бесплатные забеги на сегодня закончились. |
+| `error.code.game_pro_required` | Bu Pro'da mavjud. | Это доступно в Pro. |
+| `error.code.game_run_active` | Sizda allaqachon davom etayotgan reys bor. | У вас уже есть идущий забег. |
+| `error.code.game_daily_done` | Kunlik karvon o'ynalgan. Yangisi — ertaga. | Караван дня уже сыгран. Новый — завтра. |
+| `error.code.boss_not_ready` | Qo'riqchi hali tayyor emas: ko'proq bekatdan o'ting. | Босс пока не готов: пройдите больше стоянок. |
+| `error.code.stop_locked` | Bu bekat yopiq: kartochkalarda darsni boshlang. | Эта стоянка закрыта: начните урок в карточках. |
+| `error.code.game_not_enough_material` | Bu bekat uchun so'z hozircha yetarli emas. | Для этой стоянки пока не хватает слов. |
+| `error.code.stage_not_found` | Shahar topilmadi. | Город не найден. |
+| `error.code.stage_not_in_course` | Bu shahar tanlangan kursga tegishli emas. | Этот город не относится к выбранному курсу. |
+
+## Игра «Караван» 2026-11 · G2.7a (забег, TWA) — на проверку носителю
+
+### TWA, экран забега и итог (`resources/twa/src/i18n/uz.ts`, ключи `gameRun.*` и коды ошибок забега)
+
+> Что решить носителю:
+> - **Название игры и «фляга».** «Karvon» — как в `lang/uz/game.php`; «фляга» (запас попыток в забеге) передана как «mesh» (бурдюк для воды). Если есть привычнее слово — заменить во всех строках `gameRun.*` сразу.
+> - **«Voha»** (оазис), **«Bozor»** (базар), **«Qum bo'roni»** (песчаная буря) — названия событий забега; в событии «Оазис» потерянная фляга возвращается один раз за забег.
+> - **«Yurish»** — «забег» (в ru «забег»). Рядом «Hisob» — счёт, «Kombo ×N» — серия верных ответов подряд (с третьего).
+> - Формулировка «{price} tangaga maslahat» — «Подсказка за {price}» (цена в монетах).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameRun.progress` | {total} ta topshiriqdan {done}-si | Задание {done} из {total} |
+| `gameRun.flasks` | Meshlar: {left} / {max} | Фляги: {left} из {max} |
+| `gameRun.score` | Hisob | Счёт |
+| `gameRun.combo` | Kombo ×{count} | Комбо ×{count} |
+| `gameRun.to_map` | Xaritaga | На карту |
+| `gameRun.exit.title` | Yurishdan chiqasizmi? | Выйти из забега? |
+| `gameRun.exit.text` | Yurish hisobga olinmaydi. | Забег не засчитается. |
+| `gameRun.exit.confirm` | Chiqish | Выйти |
+| `gameRun.exit.stay` | Qolish | Остаться |
+| `gameRun.event.sandstorm` | Qum bo'roni | Песчаная буря |
+| `gameRun.event.sandstorm_text` | So'zni faqat eshitib topasiz. | Слово — только на слух. |
+| `gameRun.event.oasis` | Voha | Оазис |
+| `gameRun.event.oasis_text` | Yo'qolgan mesh qaytadi. | Потерянная фляга вернётся. |
+| `gameRun.event.bazaar` | Bozor | Базар |
+| `gameRun.event.bazaar_text` | Bu yerda maslahat sotib olish mumkin. | Здесь можно купить подсказку. |
+| `gameRun.event.applied_oasis` | Voha: mesh qaytdi. | Оазис: фляга вернулась. |
+| `gameRun.task.translate_fwd` | Tarjimani tanlang | Выберите перевод |
+| `gameRun.task.translate_back` | Inglizcha qanday? | Как это по-английски? |
+| `gameRun.task.listen` | Tinglang va so'zni tanlang | Послушайте и выберите слово |
+| `gameRun.task.spell` | Inglizcha yozing | Напишите по-английски |
+| `gameRun.task.gap` | Tushib qolgan so'zni qo'ying | Вставьте пропущенное слово |
+| `gameRun.options` | Javob variantlari | Варианты ответа |
+| `gameRun.option_removed` | maslahat bilan olib tashlandi | убран подсказкой |
+| `gameRun.spell.placeholder` | Inglizcha so'z | Слово по-английски |
+| `gameRun.spell.letters` | Harflar: {count} | Букв: {count} |
+| `gameRun.gap.placeholder` | Tushib qolgan so'z | Пропущенное слово |
+| `gameRun.hint.buy` | {price} tangaga maslahat | Подсказка за {price} |
+| `gameRun.hint.free` | Maslahat bepul | Подсказка бесплатно |
+| `gameRun.hint.coins` | Sizda {coins} | У вас {coins} |
+| `gameRun.hint.prefix` | «{prefix}» bilan boshlanadi | Начинается на «{prefix}» |
+| `gameRun.hint.wait` | Maslahat olinmoqda… | Покупаем подсказку… |
+| `gameRun.reveal.right` | To'g'ri javob | Верный ответ |
+| `gameRun.reveal.word` | So'z | Слово |
+| `gameRun.reveal.translation` | Tarjima | Перевод |
+| `gameRun.reveal.example` | Misol | Пример |
+| `gameRun.reveal.points` | +{points} | +{points} |
+| `gameRun.reveal.flask_lost` | Mesh yo'qoldi | Фляга потеряна |
+| `gameRun.reveal.next` | Keyingisi | Дальше |
+| `gameRun.reveal.to_summary` | Natijaga | К итогу |
+| `gameRun.closed.title` | Yurish tugadi | Забег закончился |
+| `gameRun.closed.abandoned` | Siz yurishdan chiqdingiz: u hisobga olinmadi. | Вы вышли из забега: он не засчитан. |
+| `gameRun.closed.expired` | Yurish vaqti tugadi: u hisobga olinmadi. | Время забега вышло: он не засчитан. |
+| `gameRun.closed.default` | Bu yurish allaqachon tugagan. | Этот забег уже закончен. |
+| `gameRun.summary.title.completed` | Yurish yakunlandi | Забег пройден |
+| `gameRun.summary.title.failed` | Meshlar tugadi | Фляги кончились |
+| `gameRun.summary.stars` | Yulduzlar: 3 tadan {stars} | Звёзды: {stars} из 3 |
+| `gameRun.summary.score` | Hisob | Счёт |
+| `gameRun.summary.coins` | Tangalar | Монеты |
+| `gameRun.summary.league` | Liga ochkolari | Очки лиги |
+| `gameRun.summary.new_stars` | Yangi yulduzlar | Новые звёзды |
+| `gameRun.summary.plus` | +{count} | +{count} |
+| `gameRun.summary.streak_held` | Seriya saqlandi | Серия удержана |
+| `gameRun.summary.boss_won` | Boss yengildi | Босс побеждён |
+| `gameRun.summary.boss_lost` | Boss bardosh berdi | Босс устоял |
+| `gameRun.summary.boss_accuracy` | Aniqlik {accuracy}% | Точность {accuracy}% |
+| `gameRun.summary.title.boss_won` | Darvoza ochildi | Ворота открыты |
+| `gameRun.summary.title.boss_lost` | Qo'riqchi bardosh berdi | Хранитель устоял |
+| `gameRun.summary.boss_lost_hint` | Aniqlik {accuracy}% — takrorlagandan keyin qayting | Точность {accuracy}% — вернитесь после повторения |
+| `gameRun.summary.title.class_boss_won` | Sinf boshlig'i yengildi | Босс класса побеждён |
+| `gameRun.summary.title.class_boss_lost` | Sinf boshlig'i bardosh berdi | Босс класса устоял |
+| `gameRun.summary.class_boss_won` | Sinf boshlig'i yengildi | Босс класса побеждён |
+| `gameRun.summary.class_boss_lost` | Sinf boshlig'i bardosh berdi | Босс класса устоял |
+| `gameRun.summary.class_boss_lost_hint` | Aniqlik {accuracy}% — har bir o'quvchiga bitta urinish, natija sinf jadvalida | Точность {accuracy}% — у каждого ученика одна попытка, результат уже в таблице класса |
+| `gameRun.summary.to_class` | Sinf ekraniga | К экрану класса |
+| `gameRun.booster.limit_pro` | Bu haftaning kuchaytirgichlari tugadi. Yangilari — {when}. | Бустеры этой недели закончились. Новые — {when}. |
+| `gameRun.summary.card_caption` | LexiFlow Karvoni | Караван LexiFlow |
+| `gameRun.summary.share` | Ulashish | Поделиться |
+| `game.bossScreen.title` | Shahar qorovuli | Босс города |
+| `game.bossScreen.keeper` | Darvoza qo'riqchisi | Хранитель ворот |
+| `game.bossScreen.words` | {count} ta so'z | {count} слово |
+| `game.bossScreen.need` | Kamida {percent}% to'g'ri javob kerak | Нужно {percent}% верных ответов |
+| `game.bossScreen.beaten` | Siz bu shaharni allaqachon o'tgansiz. Takroriy jang uchun mukofot kamroq. | Вы уже прошли этот город. За повторный бой награда меньше. |
+| `game.bossScreen.locked` | Bu shahar qo'riqchisi — Pro uchun. | Хранитель этого города — для Pro. |
+| `game.bossScreen.pro_btn` | Pro'ni ochish | Открыть Pro |
+| `game.bossScreen.challenge` | Jangga chiqish | Бросить вызов |
+| `game.bossScreen.again` | Yana jang qilish | Сразиться ещё раз |
+| `game.bossScreen.missing` | Bunday shahar yo'q. | Такого города нет. |
+| `game.bossScreen.not_ready` | Qo'riqchi hali kutmayapti: {missing}. | Хранитель ещё не ждёт: {missing}. |
+| `gameRun.summary.mistakes` | Ustida ishlash kerak | Над чем поработать |
+| `gameRun.summary.your_answer` | Javobingiz: {answer} | Вы ответили: {answer} |
+| `gameRun.summary.no_answer` | Javobsiz | Без ответа |
+| `gameRun.summary.verdict.typo` | Imlo xatosi | Опечатка |
+| `gameRun.summary.verdict.wrong` | Noto'g'ri | Неверно |
+| `gameRun.summary.verdict.skipped` | Bilmadingiz | Не знали |
+| `gameRun.summary.verdict.correct` | Maslahat bilan | С подсказкой |
+| `gameRun.summary.review` | Kartochkalarda takrorlash | Повторить в карточках |
+| `gameRun.summary.again` | Yana bir bor | Ещё раз |
+| `gameRun.summary.failed_hint` | Bu so'zlar tez orada takrorlashga qaytadi. | Эти слова скоро вернутся в повторение. |
+| `error.code.game_run_not_found` | Yurish topilmadi. | Забег не найден. |
+| `error.code.game_run_closed` | Bu yurish allaqachon tugagan. | Этот забег уже закончился. |
+| `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
+| `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
+| `error.code.coins_insufficient` | Tanga yetmaydi. Tangalar yurishlar va qo\'riqchilar uchun beriladi. | Не хватает монет. Монеты дают за забеги и боссов. |
+
+### Karta «Я дошёл до …» va yutuq «Хранитель побеждён» (G2.4, `lang/uz/game.php` `card.*`, `lang/uz/achievements.php`)
+
+> Birinchi marta shahar bossini yengganda botdan keladigan rasm-karta va uning sarlavhasi. Uzbekcha shahar nomi o'zgarmaydi (rus tilidagi kabi bosh kelishikda emas, «Men yetib keldim: Samarqand» shaklida).
+
+| Kalit | uz | ru |
+|---|---|---|
+| `game.card.title` | Men yetib keldim: :city | Я дошёл до :city |
+| `game.card.description` | "Karvon" o'yinida darvoza qo'riqchisini yengdim | Победил(а) хранителя ворот в игре «Караван» |
+| `game.card.caption` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
+| `game.card.share_button` | Ulashish | Поделиться |
+| `achievements.items.game_first_boss.title` | Qo'riqchi yengildi | Хранитель побеждён |
+| `achievements.items.game_first_boss.description` | "Karvon" o'yinida shahar bossi ustidan birinchi g'alaba | Первая победа над боссом города в игре «Караван» |
+| `game.card.caption_no_link` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
+| `game.card.share_text` | Men "Karvon" o'yinida yetib keldim: :city - LexiFlow! Telegramda ingliz tili. | Я дошёл до :city в игре «Караван» — LexiFlow! Учим английский в Telegram. |
+| `game.cities_gen.1` | Toshkent | Ташкента |
+| `game.cities_gen.2` | Qo'qon | Коканда |
+| `game.cities_gen.3` | Samarqand | Самарканда |
+| `game.cities_gen.4` | Buxoro | Бухары |
+| `game.cities_gen.5` | Xiva | Хивы |
+| `game.cities_gen.6` | Shahrisabz | Шахрисабза |
+| `game.cities_gen.7` | Termiz | Термеза |
+| `game.cities_gen.8` | Balx | Балха |
+| `game.cities_gen.9` | Marv | Мерва |
+| `game.cities_gen.10` | Nishopur | Нишапура |
+| `game.cities_gen.11` | Tus | Туса |
+| `game.cities_gen.12` | Ray | Рея |
+| `game.cities_gen.13` | Hamadon | Хамадана |
+| `game.cities_gen.14` | Bag'dod | Багдада |
+| `game.cities_gen.15` | Damashq | Дамаска |
+| `game.cities_gen.16` | Halab | Алеппо |
+| `game.cities_gen.17` | Antioxiya | Антиохии |
+| `game.cities_gen.18` | Konstantinopol | Константинополя |
+| `game.cities_gen.19` | Qashqar | Кашгара |
+| `game.cities_gen.20` | Xo'tan | Хотана |
+| `game.cities_gen.21` | Dunxuan | Дуньхуана |
+| `game.cities_gen.22` | Turfon | Турфана |
+| `game.cities_gen.23` | Loyan | Лояна |
+| `game.cities_gen.24` | Chang'an | Чанъани |
+| `game.city_fallback_gen` | :number-shahar | города :number |
+
+## Игра «Караван» 2026-11 · G2.9a (караван класса — итоги недели в чат) — на проверку носителю
+
+### Сервер, итоги недели каравана класса (`lang/uz/game.php`, ключи `class.summary.*`; HTML, в чат группы)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.class.summary.title` | 🏁 «:group» sinf karvoni haftani yakunladi! | 🏁 Караван класса «:group» завершил неделю! |
+| `game.class.summary.stars` | ⭐ Yig'ilgan yulduzlar: :stars / :target | ⭐ Звёзд собрано: :stars из :target |
+| `game.class.summary.runs` | 🐪 Yurishlar: :runs | 🐪 Забегов: :runs |
+| `game.class.summary.boss_defeated` | 👹 Sinf bossi yengildi! | 👹 Босс класса побеждён! |
+| `game.class.summary.boss_survived` | 👹 Sinf bossi bardosh berdi — keyingi safar chiqadi. | 👹 Босс класса устоял — в следующий раз получится. |
+| `game.class.summary.boss_locked` | 👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi. | 👹 До босса класса не дошли — цель недели не взята. |
+| `game.class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
+| `game.class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
+| `game.class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |
+
+### Караван класса — бот и кабинет `/org` (G2.9b; `lang/uz/game.php` `class.*`, `commands.php`, `bot.php`, `org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.class.started` | 🐪 Sinf karvoni yo'lga chiqdi! Hafta maqsadi — :target ⭐, karvon :until gacha yo'lda.<br>Har bir yakunlangan yurish yulduz qo'shadi; maqsadga yetilsa, sinf bossi ochiladi. | 🐪 Караван класса отправился! Цель недели — :target ⭐, караван в пути до :until.<br>Каждый завершённый забег добавляет звёзды; набрали цель — откроется босс класса. |
+| `game.class.open_button` | Karvonni ochish | Открыть караван |
+| `game.class.already_active` | Bu guruhning karvoni allaqachon yo'lda — :until gacha. | Караван этой группы уже в пути — до :until. |
+| `game.class.canceled` | Sinf karvoni bekor qilindi. Yakunlar bo'lmaydi, ishtirokchilarning yurishlari o'zlarida qoladi. | Караван класса отменён. Итогов не будет, забеги участников остаются при них. |
+| `game.class.no_active` | Bu guruhning yo'ldagi karvoni yo'q. | У этой группы нет каравана в пути. |
+| `game.class.not_teacher` | Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin. | Запускать и отменять караван может только учитель этой группы. |
+| `game.class.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |
+| `game.class.centers_only` | Sinf karvoni — markazlar uchun: guruhni amaldagi obunali o'quv markaziga ulang. | Караван класса — для центров: подключите группу к учебному центру с действующей подпиской. |
+| `game.class.not_delivered` | Chatga xabar yuborib bo'lmadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshirib, qayta urinib ko'ring. | Не удалось отправить сообщение в чат, поэтому караван не запущен. Проверьте, что бот может писать в группу, и повторите. |
+| `game.class.failed` | Karvon buyrug'ini bajarib bo'lmadi. Keyinroq qayta urinib ko'ring. | Не удалось выполнить команду с караваном. Попробуйте ещё раз позже. |
+| `commands.group.start_caravan` | Sinf karvonini boshlash | Запустить караван класса |
+| `commands.group.cancel_caravan` | Sinf karvonini bekor qilish | Отменить караван класса |
+| `bot.help.group_caravan` | /start_caravan — sinf karvonini boshlash<br>/cancel_caravan — sinf karvonini bekor qilish<br> | /start_caravan — запустить караван класса<br>/cancel_caravan — отменить караван класса<br> |
+| `bot.help.private_caravan` | • Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.<br> | • Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.<br> |
+| `org.nav.caravans` | Karvonlar | Караваны |
+| `org.caravans.singular` | Karvon | Караван |
+| `org.caravans.plural` | Karvonlar | Караваны |
+| `org.caravans.columns.group` | Guruh | Группа |
+| `org.caravans.columns.course` | Kurs | Курс |
+| `org.caravans.columns.status` | Holat | Статус |
+| `org.caravans.columns.progress` | Yulduzlar | Звёзды |
+| `org.caravans.columns.window` | Hafta | Неделя |
+| `org.caravans.columns.boss` | Sinf bossi | Босс класса |
+| `org.caravans.columns.members` | Hissa qo'shgan ishtirokchilar | Участников с вкладом |
+| `org.caravans.status.active` | Yo'lda | В пути |
+| `org.caravans.status.finished` | Yakunlangan | Завершён |
+| `org.caravans.status.canceled` | Bekor qilingan | Отменён |
+| `org.caravans.boss.locked` | Yopiq | Закрыт |
+| `org.caravans.boss.ready` | Ochiq | Открыт |
+| `org.caravans.boss.defeated` | Yengilgan | Побеждён |
+| `org.caravans.progress_of` | :stars / :target | :stars / :target |
+| `org.caravans.actions.start` | Karvonni ishga tushirish | Запустить караван |
+| `org.caravans.actions.start_help` | Karvon bir hafta yuradi: guruh o'quvchilarining har bir yurishi yulduz qo'shadi. Guruh chatiga «Karvon yo'lga chiqdi» xabari yuboriladi. | Караван идёт неделю: каждый забег учеников группы добавляет звёзды. В чат группы уйдёт сообщение «Караван отправился». |
+| `org.caravans.actions.cancel` | Bekor qilish | Отменить |
+| `org.caravans.actions.cancel_confirm` | Karvon bekor qilinadi, hafta yakunlari chatga yuborilmaydi. O'quvchilarning yurishlari o'zlarida qoladi. | Караван будет отменён, итоги недели в чат не придут. Забеги учеников останутся при них. |
+| `org.caravans.fields.group` | Guruh | Группа |
+| `org.caravans.fields.group_help` | Faqat markazdagi o'zingizning guruhlaringiz. Kurs — guruhning kursi. | Только ваши группы центра. Курс — курс группы. |
+| `org.caravans.members.heading` | Ishtirokchilar hissasi | Вклад участников |
+| `org.caravans.members.empty` | Hozircha hech kim yo'lga chiqmagan. | Пока никто не вышел в путь. |
+| `org.caravans.members.name` | O'quvchi | Ученик |
+| `org.caravans.members.stars` | Yulduzlar | Звёзды |
+| `org.caravans.members.runs` | Yurishlar | Забеги |
+| `org.caravans.members.best_score` | Eng yaxshi hisob | Лучший счёт |
+| `org.caravans.members.boss_won` | Boss yengildi | Босс побеждён |
+| `org.caravans.members.yes` | Ha | Да |
+| `org.caravans.members.no` | Yo'q | Нет |
+| `org.caravans.notifications.started` | Karvon yo'lga chiqdi. | Караван отправился. |
+| `org.caravans.notifications.started_not_delivered` | Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring. | Сообщение не дошло до чата, поэтому караван не запущен. Проверьте, что бот может писать в группу. |
+| `org.caravans.notifications.canceled` | Karvon bekor qilindi. | Караван отменён. |
+| `org.caravans.notifications.already_over` | Karvon allaqachon yakunlangan yoki bekor qilingan — hech narsa o'zgarmadi. | Караван уже завершён или отменён — ничего не изменилось. |
+| `org.caravans.errors.foreign_group` | Bu guruh mavjud emas. | Эта группа недоступна. |
+| `org.caravans.errors.not_teacher` | Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin. | Запускать и отменять караван может только учитель этой группы. |
+| `org.caravans.errors.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |
+| `org.caravans.errors.centers_only` | Sinf karvoni — markazlar uchun: markazning amaldagi obunasi bo'lishi kerak. | Караван класса — для центров: у центра должна быть действующая подписка. |
+| `org.caravans.errors.already_active` | Bu guruhning karvoni allaqachon yo'lda. | Караван этой группы уже в пути. |
+| `org.caravans.errors.closed` | Sinf karvoni hozir mavjud emas. | Караван класса сейчас недоступен. |
+| `org.caravans.errors.failed` | Karvon bilan amalni bajarib bo'lmadi. Sahifani yangilab, qayta urinib ko'ring. | Не удалось выполнить действие с караваном. Обновите страницу и попробуйте ещё раз. |
+
+## Игра «Караван» 2026-11 · G2.6 (косметика в профиле и у друзей) — на проверку носителю
+
+### TWA: карточка «Мой караван» на экране профиля (G2.6, `docs/05` §5b.6; `resources/twa/src/i18n/uz.ts`)
+
+> Что решить носителю: «Мой караван» — «Mening karvonim», как на экране каравана (`gameCaravan.title`); подписи слотов — те же `gameCaravan.slot.*`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `profile.caravan.title` | Mening karvonim | Мой караван |
+| `profile.caravan.open` | Karvonni ochish | Открыть караван |
+
+## Игра «Караван» 2026-11 · G2.9b (караван класса, TWA) — на проверку носителю
+
+### TWA: экран «Sinf karvoni» `/game/class/:id`, карточка на карте и на «Сегодня» (`docs/05` §5b.7; `resources/twa/src/i18n/uz.ts`, ключи `gameClass.*` и коды ошибок)
+
+> Что решить носителю: босс — «qo'riqchi» (как в `game.boss.*`); «забег» — «reys»; «класс» — «sinf». Время окончания собирается как «{день недели, время} gacha».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `error.code.class_caravan_not_found` | Bu sinf karvoni mavjud emas. | Этот караван класса недоступен. |
+| `error.code.class_boss_locked` | Sinf qo'riqchisi karvon maqsadga yetganda ochiladi. | Босс класса откроется, когда караван возьмёт цель. |
+| `error.code.class_boss_done` | Siz sinf qo'riqchisi bilan allaqachon jang qilgansiz. | Вы уже сражались с боссом класса. |
+| `gameClass.title` | Sinf karvoni | Караван класса |
+| `gameClass.card.text` | {stars} / {target} · {until} | {stars} / {target} · {until} |
+| `gameClass.card.aria` | Sinf karvoni: {target} yulduzdan {stars} tasi, {until} | Караван класса: звёзд {stars} из {target}, {until} |
+| `gameClass.subtitle` | {group} · {course} | {group} · {course} |
+| `gameClass.until` | {when} gacha | до {when} |
+| `gameClass.progress_aria` | Yig'ilgan yulduzlar: {target} dan {stars} | Собрано звёзд: {stars} из {target} |
+| `gameClass.target_reached` | Maqsadga erishildi! | Цель взята! |
+| `gameClass.stars_left` | Maqsadgacha yana {count} ta yulduz qoldi | До цели осталось звёзд: {count} |
+| `gameClass.my.title` | Mening hissam | Мой вклад |
+| `gameClass.my.stats` | Yulduzlar: {stars} · reyslar: {runs} · eng yaxshi hisob: {score} | Звёзды: {stars} · забеги: {runs} · лучший счёт: {score} |
+| `gameClass.my.none` | Siz hali o'ynamagansiz: xaritadagi har qanday reys karvon hisobiga o'tadi. | Вы ещё не играли: любой забег по карте идёт в зачёт каравана. |
+| `gameClass.members.title` | Ishtirokchilar | Участники |
+| `gameClass.members.me` | Siz | Вы |
+| `gameClass.members.stats` | Yulduzlar: {stars} · reyslar: {runs} | Звёзды: {stars} · забеги: {runs} |
+| `gameClass.members.boss_won` | qo'riqchini yengdi | победил босса |
+| `gameClass.members.empty` | Hozircha hech kim o'ynamagan. | Пока никто не играл. |
+| `gameClass.boss.title` | Sinf qo'riqchisi | Босс класса |
+| `gameClass.boss.locked` | Karvon maqsadga yetganda ochiladi. | Откроется, когда караван возьмёт цель. |
+| `gameClass.boss.ready` | Maqsadga erishildi — qo'riqchi kutmoqda. Jang har kimga bitta, uni takrorlab bo'lmaydi. | Цель взята — босс ждёт. Бой один на каждого, повторить его нельзя. |
+| `gameClass.boss.go` | Jangga | Сразиться |
+| `gameClass.boss.won` | Siz sinf qo'riqchisini yengdingiz. | Вы победили босса класса. |
+| `gameClass.boss.lost` | Qo'riqchi kuchliroq chiqdi. Jang bitta edi — uni takrorlab bo'lmaydi. | Босс оказался сильнее. Бой был один — повторить его нельзя. |
+| `gameClass.boss.defeated` | Sinf qo'riqchini yengdi | Класс победил босса |
+| `gameClass.boss.missed` | Sinf qo'riqchisi yengilmadi. | Босс класса не побеждён. |
+| `gameClass.finished.title` | Karvon haftasi tugadi | Неделя каравана окончена |
+| `gameClass.finished.target_reached` | Maqsadga erishildi | Цель взята |
+| `gameClass.finished.target_missed` | Maqsadga erishilmadi | Цель не взята |
+| `gameClass.finished.boss_defeated` | Qo'riqchi yengildi | Босс побеждён |
+| `gameClass.finished.boss_not_defeated` | Qo'riqchi yengilmadi | Босс не побеждён |
+| `gameClass.finished.at` | {date} da tugagan | Закончился {date} |
+| `gameClass.canceled.title` | Karvon bekor qilindi | Караван отменён |
+| `gameClass.canceled.text` | O'qituvchi bu karvonni bekor qildi. | Учитель отменил этот караван. |
+| `gameClass.not_found.title` | Karvon mavjud emas | Караван недоступен |
+| `gameClass.not_found.text` | U bekor qilingan yoki bu sizning sinfingiz emas. | Он отменён, или это не ваш класс. |
+| `gameClass.to_map` | Xaritaga | К карте |

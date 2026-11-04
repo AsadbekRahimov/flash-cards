@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Domain\Learning\DTO\GapFill;
+use App\Domain\Practice\DTO\MaterialWord;
 use App\Models\Word;
 
 /**
@@ -22,8 +23,14 @@ final class GapFillBuilder
 
     public function build(Word $word): ?GapFill
     {
-        $example = trim((string) $word->example);
-        $base = trim($word->word);
+        return $this->fromText($word->word, $word->example);
+    }
+
+    /** The same mask from the texts alone (the game reads the words of a run as {@see MaterialWord}, not as models). */
+    public function fromText(string $word, ?string $example): ?GapFill
+    {
+        $example = trim((string) $example);
+        $base = trim($word);
         if ($example === '' || $base === '') {
             return null;
         }

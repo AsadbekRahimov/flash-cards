@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 19,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Стихийные явления",
+    "title_uz": "Tabiat hodisalari"
+  },
+  "words": [
+    {
+      "word": "flood",
+      "part_of_speech": "noun",
+      "translation": "наводнение",
+      "translations": {
+        "ru": "наводнение",
+        "uz": "toshqin"
+      },
+      "example": "The flood destroyed many houses.",
+      "example_translations": {
+        "ru": "Наводнение разрушило много домов.",
+        "uz": "Toshqin ko'p uylarni vayron qildi."
+      }
+    },
+    {
+      "word": "drought",
+      "part_of_speech": "noun",
+      "translation": "засуха",
+      "translations": {
+        "ru": "засуха",
+        "uz": "qurg'oqchilik"
+      },
+      "example": "The long drought hurts the farmers.",
+      "example_translations": {
+        "ru": "Долгая засуха вредит фермерам.",
+        "uz": "Uzoq qurg'oqchilik fermerlarga zarar yetkazadi."
+      }
+    },
+    {
+      "word": "earthquake",
+      "part_of_speech": "noun",
+      "translation": "землетрясение",
+      "translations": {
+        "ru": "землетрясение",
+        "uz": "zilzila"
+      },
+      "example": "There was a small earthquake last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью было небольшое землетрясение.",
+        "uz": "Kecha tunda kichik zilzila bo'ldi."
+      }
+    },
+    {
+      "word": "thunder",
+      "part_of_speech": "noun",
+      "translation": "гром",
+      "translations": {
+        "ru": "гром",
+        "uz": "momaqaldiroq"
+      },
+      "example": "I hear thunder in the distance.",
+      "example_translations": {
+        "ru": "Я слышу гром вдали.",
+        "uz": "Men uzoqdan momaqaldiroqni eshityapman."
+      }
+    },
+    {
+      "word": "lightning",
+      "part_of_speech": "noun",
+      "translation": "молния",
+      "translations": {
+        "ru": "молния",
+        "uz": "chaqmoq"
+      },
+      "example": "Lightning hit the tall tree.",
+      "example_translations": {
+        "ru": "Молния ударила в высокое дерево.",
+        "uz": "Chaqmoq baland daraxtga urildi."
+      }
+    },
+    {
+      "word": "melt",
+      "part_of_speech": "verb",
+      "translation": "таять",
+      "translations": {
+        "ru": "таять",
+        "uz": "erimoq"
+      },
+      "example": "The snow melts in the spring.",
+      "example_translations": {
+        "ru": "Весной снег тает.",
+        "uz": "Bahorda qor eriydi."
+      }
+    },
+    {
+      "word": "freeze",
+      "part_of_speech": "verb",
+      "translation": "замерзать",
+      "translations": {
+        "ru": "замерзать",
+        "uz": "muzlamoq"
+      },
+      "example": "The lake freezes in January.",
+      "example_translations": {
+        "ru": "Озеро замерзает в январе.",
+        "uz": "Ko'l yanvar oyida muzlaydi."
+      }
+    },
+    {
+      "word": "rainbow",
+      "part_of_speech": "noun",
+      "translation": "радуга",
+      "translations": {
+        "ru": "радуга",
+        "uz": "kamalak"
+      },
+      "example": "Look, there is a rainbow over the hills!",
+      "example_translations": {
+        "ru": "Смотри, над холмами радуга!",
+        "uz": "Qara, tepaliklar ustida kamalak bor!"
+      }
+    },
+    {
+      "word": "shade",
+      "part_of_speech": "noun",
+      "translation": "тень",
+      "translations": {
+        "ru": "тень",
+        "uz": "soya"
+      },
+      "example": "Let us sit in the shade.",
+      "example_translations": {
+        "ru": "Давай посидим в тени.",
+        "uz": "Keling, soyada o'tiraylik."
+      }
+    },
+    {
+      "word": "disaster",
+      "part_of_speech": "noun",
+      "translation": "катастрофа",
+      "translations": {
+        "ru": "катастрофа",
+        "uz": "ofat"
+      },
+      "example": "The storm was a terrible disaster.",
+      "example_translations": {
+        "ru": "Буря была ужасной катастрофой.",
+        "uz": "Bo'ron dahshatli ofat bo'ldi."
+      }
+    }
+  ]
+}

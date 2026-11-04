@@ -41,6 +41,7 @@ it('lists the private commands in the order of the menu with the Russian descrip
         ['command' => 'invite', 'description' => 'Пригласить друга'],
         ['command' => 'pro', 'description' => 'Подписка Pro'],
         ['command' => 'promo', 'description' => 'Активировать промокод'],
+        ['command' => 'delete_account', 'description' => 'Удалить аккаунт'],
         ['command' => 'help', 'description' => 'Справка'],
     ]);
 });
@@ -120,8 +121,8 @@ it('sets the Mini App as the menu button of every private chat, with a single sl
 
 it('reports what it has set', function (): void {
     $this->artisan('telegram:setup-bot')
-        ->expectsOutputToContain('Commands all_private_chats, default (ru): /today /settings /invite /pro /promo /help')
-        ->expectsOutputToContain('Commands all_private_chats, uz: /today /settings /invite /pro /promo /help')
+        ->expectsOutputToContain('Commands all_private_chats, default (ru): /today /settings /invite /pro /promo /delete_account /help')
+        ->expectsOutputToContain('Commands all_private_chats, uz: /today /settings /invite /pro /promo /delete_account /help')
         ->expectsOutputToContain('Commands all_group_chats, default (ru): /help')
         ->expectsOutputToContain('Commands all_group_chats, uz: /help')
         ->expectsOutputToContain('Commands all_chat_administrators, default (ru): /start_training /start_exam /close_exam /help')

@@ -74,10 +74,36 @@ return [
             ],
         ],
 
+        // The non-evicting instance (docs/19 §4): markers, locks, counters, rate limits, 2FA protection, the entitlement
+        // version keys. The default store: whatever is not explicitly a pure cache is safe from eviction.
         'redis' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
+        ],
+
+        // The Redis store on the second, volatile-lru instance. Never used directly: `lru` below wraps it. Its locks
+        // (Cache::lock on the pure store, Cache::flexible) stay on the non-evicting instance: a lock must never be evicted.
+        'lru_redis' => [
+            'driver' => 'redis',
+            'connection' => 'lru',
+            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
+        ],
+
+        // The pure cache (docs/19 §3 rule 10, §4.1): values that are recomputed when missing. Reached only through
+        // App\Domain\Operations\Support\PureCache. A failover chain with a circuit breaker (the app's driver
+        // `failover_breaker`, App\Domain\Operations\Support\CircuitBreakerFailoverStore): `lru_redis` first; when it fails -
+        // refused, or hung and timed out after `database.redis.lru.timeout` - the breaker opens for `open_seconds` and
+        // every call of every process lands on the per-process array store straight away (a miss = a computation from the
+        // database); then one process probes Redis again. CacheFailedOver is dispatched once per opening
+        // (App\Listeners\Cache\LogCacheFailover writes it to the log), so the application degrades instead of failing.
+        // An invalidation during an outage does not reach Redis: a value there may outlive its forget() until its TTL
+        // (docs/19 §3 rule 5). The marker of the breaker is a file under storage/framework/cache/circuits, shared by the
+        // php-fpm workers and - through the storage volume - the queue workers and the scheduler.
+        'lru' => [
+            'driver' => 'failover_breaker',
+            'stores' => ['lru_redis', 'array'],
+            'open_seconds' => 15,
         ],
 
         'dynamodb' => [
@@ -115,6 +141,32 @@ return [
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pure Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | The store PureCache::store() hands out: the one on the evicting Redis
+    | instance (docs/19 §4). Nothing that must survive memory pressure may be
+    | written there. Tests use the array store (phpunit.xml).
+    |
+    */
+
+    'pure_store' => env('CACHE_PURE_STORE', 'lru'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiter Store
+    |--------------------------------------------------------------------------
+    |
+    | The store of the RateLimiter (throttle middleware, RateLimiter facade).
+    | Pinned explicitly to the non-evicting instance: an evicted counter would
+    | reset a login or 2FA limit (docs/19 §4). Never the pure cache store.
+    |
+    */
+
+    'limiter' => env('CACHE_LIMITER_STORE', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\PayloadMasker;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Resources\PaymentOrderResource\Pages;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\Support\BillingDisplay;
 use App\Models\PaymentOrder;
 use Filament\Actions;
@@ -33,6 +35,32 @@ class PaymentOrderResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?int $navigationSort = 50;
+
+    /**
+     * The columns the list selects (docs/20 §1.4): everything the columns read, the flags of the `meta` included - not the
+     * token (the key the providers know the order by), the checkout link or the amounts of the page.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'payment_orders.id',
+        'payment_orders.created_at',
+        'payment_orders.subscriber_type',
+        'payment_orders.subscriber_id',
+        'payment_orders.payer_telegram_user_id',
+        'payment_orders.payer_name',
+        'payment_orders.payer_username',
+        'payment_orders.tier',
+        'payment_orders.period',
+        'payment_orders.provider',
+        'payment_orders.amount',
+        'payment_orders.currency',
+        'payment_orders.status',
+        'payment_orders.created_via',
+        'payment_orders.expires_at',
+        'payment_orders.paid_at',
+        'payment_orders.meta',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -70,7 +98,9 @@ class PaymentOrderResource extends Resource
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('orders.status', $state))
                     ->color(fn (string $state): string => self::statusColor($state)),
                 TextEntry::make('token_label')->label(__('admin.orders.fields.token'))->state(fn (PaymentOrder $record): string => PayloadMasker::token($record->token)),
-                TextEntry::make('subscriber_label')->label(__('admin.orders.fields.subscriber'))->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                TextEntry::make('subscriber_label')->label(__('admin.orders.fields.subscriber'))->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
+                // The snapshot taken at checkout (payer_*): it stays readable after the learner is deleted for good.
+                TextEntry::make('payer_snapshot')->label(__('admin.orders.fields.payer_snapshot'))->state(fn (PaymentOrder $record): ?string => PayerSnapshot::fromRecord($record)->label())->placeholder('—'),
                 TextEntry::make('plan')
                     ->label(__('admin.orders.fields.plan'))
                     ->badge()
@@ -119,14 +149,16 @@ class PaymentOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('subscriber'))
+        return AdminTable::big($table)
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord
+                ? $query
+                : $query->select(self::LIST_COLUMNS)->with('subscriber', BillingDisplay::subscriberColumns()))
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label('#')->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.orders.fields.created_at'))->dateTime()->sortable(),
                 Tables\Columns\TextColumn::make('subscriber_label')
                     ->label(__('admin.orders.fields.subscriber'))
-                    ->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber)),
+                    ->state(fn (PaymentOrder $record): string => BillingDisplay::subscriber($record->subscriber_type, $record->subscriber_id, $record->subscriber, PayerSnapshot::fromRecord($record))),
                 Tables\Columns\TextColumn::make('tier')
                     ->label(__('admin.orders.fields.tier'))
                     ->badge()

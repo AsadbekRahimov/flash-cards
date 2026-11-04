@@ -1,0 +1,87 @@
+import { calendarDay, formatDate } from '@/composables/format'
+import { t } from '@/i18n'
+import type { PracticeLimit, PracticeLimitHit, PracticeLimitKind, PracticeLimits } from '@/api/types'
+
+/**
+ * The Free limits of practice (docs/18 §3, G1): two counters of the learner's "today" - the sessions of practice and the battles they
+ * start. The server owns them; these are the small pure rules the screens share:
+ * - `limitHitFrom` reads the `details` of 403 `practice_limit_reached`;
+ * - `liveLimit`, `shownLimit` and `reachedLimit` tell what a counter says while its day lasts, and `nextReset` when that is over;
+ * - `resetWhen` says in words when the counters are full again.
+ */
+
+const KINDS: readonly PracticeLimitKind[] = ['sessions', 'battles']
+
+const isCount = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0
+
+/** `details` of 403 `practice_limit_reached` as the paywall needs them; null when the server's fields do not add up (the message of the code is told then). */
+export function limitHitFrom(details: Record<string, unknown> | null): PracticeLimitHit | null {
+  if (details === null) return null
+  const { kind, limit, used, resets_at: resetsAt } = details
+  if (!KINDS.includes(kind as PracticeLimitKind) || !isCount(limit) || !isCount(used)) return null
+  if (typeof resetsAt !== 'string' || !Number.isFinite(Date.parse(resetsAt))) return null
+  return { kind: kind as PracticeLimitKind, limit, used, resets_at: resetsAt }
+}
+
+/**
+ * A counter while it still describes today. Null for a counter that is not there - a kind without a limit (`null` in `PracticeLimits`),
+ * Pro, nothing told yet - and for one whose day is over: past its `resets_at` a new day has begun, the number is out of date and says nothing
+ * any more, and the server is asked as usual (an app that stayed open overnight must not keep the learner behind yesterday's last session).
+ */
+export function liveLimit(limit: PracticeLimit | null | undefined, now: number = Date.now()): PracticeLimit | null {
+  if (!limit) return null
+  const resetsAt = Date.parse(limit.resets_at)
+  return Number.isFinite(resetsAt) && resetsAt <= now ? null : limit
+}
+
+/**
+ * The counter to SHOW ("1 of 2 left"): a counter that describes today (`liveLimit`) and has something to count. A limit of 0 is "only Pro"
+ * (the server's supported value for a kind that Free does not get at all): "0 of 0 left" says nothing, so no line is shown for it - the wall
+ * stands all the same (`reachedLimit`), and its words are the words of Pro, not of a day that ends.
+ */
+export function shownLimit(limit: PracticeLimit | null | undefined, now: number = Date.now()): PracticeLimit | null {
+  const live = liveLimit(limit, now)
+  return live !== null && live.limit > 0 ? live : null
+}
+
+/**
+ * The nearest end of a day among the counters that still describe today (epoch ms), or null when there is none: the moment a screen that
+ * shows a counter has to look again, because `liveLimit` turns null there. A counter whose `resets_at` cannot be read never ends (see
+ * `liveLimit`), so it gives no moment either.
+ */
+export function nextReset(limits: PracticeLimits | null | undefined, now: number = Date.now()): number | null {
+  let next: number | null = null
+  for (const kind of KINDS) {
+    const counter = limits?.[kind]
+    const at = counter ? Date.parse(counter.resets_at) : Number.NaN
+    if (Number.isFinite(at) && at > now && (next === null || at < next)) next = at
+  }
+  return next
+}
+
+/**
+ * The wall of `kind` when the counter says today's free allowance is spent: what the paywall needs, without asking the server. Null when
+ * there is some left, when `kind` has no counter (no limit of that kind, Pro, `/me` not read yet) and when the counter's day is over - the
+ * server decides then. The other kind does not matter: spent sessions never stop a battle, nor the other way round.
+ */
+export function reachedLimit(limits: PracticeLimits | null | undefined, kind: PracticeLimitKind, now: number = Date.now()): PracticeLimitHit | null {
+  const counter = liveLimit(limits?.[kind], now)
+  if (counter === null || counter.remaining > 0) return null
+  return { kind, limit: counter.limit, used: counter.used, resets_at: counter.resets_at }
+}
+
+/**
+ * When the counters are full again, in words, in the learner's zone (`/today` names it): "tomorrow at 00:00" when `resetsAt` is the start of
+ * the learner's next day - what the server sends, the end of their "today" - else the time alone ("at 00:00"). The reset is always at that time
+ * of the learner's day; a device clock that is off must not make the text claim a day it cannot vouch for.
+ */
+export function resetWhen(resetsAt: string, locale: string, timeZone?: string, now: number = Date.now()): string {
+  const time = formatDate(resetsAt, 'time', locale, timeZone)
+  if (time === '') return ''
+  // The minute before the reset is the last minute of the day that ends there. The reset is "tomorrow" when it is the very turn of that day
+  // (not just some hour of it) and that day is today.
+  const at = Date.parse(resetsAt)
+  const lastDay = calendarDay(at - 60_000, timeZone)
+  const tomorrow = calendarDay(at, timeZone) !== lastDay && calendarDay(now, timeZone) === lastDay
+  return t(tomorrow ? 'paywall.reset_tomorrow' : 'paywall.reset_at', { time })
+}

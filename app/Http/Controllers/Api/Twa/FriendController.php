@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
+use App\Domain\Engagement\DTO\FriendEntry;
 use App\Domain\Engagement\Exceptions\FriendshipException;
 use App\Domain\Engagement\Services\FriendshipService;
+use App\Domain\Game\Services\FriendCosmetics;
 use App\Http\Requests\Twa\FriendshipActionRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\FriendsResource;
@@ -20,7 +22,10 @@ use Illuminate\Http\Request;
  */
 final class FriendController
 {
-    public function __construct(private readonly FriendshipService $friendships) {}
+    public function __construct(
+        private readonly FriendshipService $friendships,
+        private readonly FriendCosmetics $cosmetics,
+    ) {}
 
     /** GET /api/twa/friends */
     public function index(Request $request): JsonResponse
@@ -72,7 +77,11 @@ final class FriendController
 
     private function overview(Learner $learner): JsonResponse
     {
-        return (new FriendsResource($this->friendships->overview($learner)))->response();
+        $overview = $this->friendships->overview($learner);
+        // What the friends wear (G2.6): one statement while the game is open to this learner, none while it is closed.
+        $camels = $this->cosmetics->camelsForViewer($learner, array_map(static fn (FriendEntry $entry): int => $entry->learnerId, $overview->friends));
+
+        return (new FriendsResource($overview, $camels))->response();
     }
 
     private function learner(Request $request): Learner

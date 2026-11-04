@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 13,
+    "title": "Чувства и характер",
+    "title_uz": "His-tuyg'ular va xarakter"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Настроение и качества",
+    "title_uz": "Kayfiyat va sifatlar"
+  },
+  "words": [
+    {
+      "word": "mood",
+      "part_of_speech": "noun",
+      "translation": "настроение",
+      "translations": {
+        "ru": "настроение",
+        "uz": "kayfiyat"
+      },
+      "example": "He is in a bad mood today.",
+      "example_translations": {
+        "ru": "Сегодня он в плохом настроении.",
+        "uz": "Bugun uning kayfiyati yomon."
+      }
+    },
+    {
+      "word": "feeling",
+      "part_of_speech": "noun",
+      "translation": "чувство",
+      "translations": {
+        "ru": "чувство",
+        "uz": "tuyg'u"
+      },
+      "example": "I have a strange feeling about this.",
+      "example_translations": {
+        "ru": "У меня странное чувство на этот счёт.",
+        "uz": "Bu haqda menda g'alati tuyg'u bor."
+      }
+    },
+    {
+      "word": "pleasant",
+      "part_of_speech": "adjective",
+      "translation": "приятный",
+      "translations": {
+        "ru": "приятный",
+        "uz": "yoqimli"
+      },
+      "example": "We had a pleasant evening together.",
+      "example_translations": {
+        "ru": "Мы приятно провели вечер вместе.",
+        "uz": "Biz kechqurunni birga yoqimli o'tkazdik."
+      }
+    },
+    {
+      "word": "terrible",
+      "part_of_speech": "adjective",
+      "translation": "ужасный",
+      "translations": {
+        "ru": "ужасный",
+        "uz": "dahshatli"
+      },
+      "example": "The weather was terrible last week.",
+      "example_translations": {
+        "ru": "На прошлой неделе погода была ужасная.",
+        "uz": "O'tgan hafta ob-havo dahshatli edi."
+      }
+    },
+    {
+      "word": "wonderful",
+      "part_of_speech": "adjective",
+      "translation": "чудесный",
+      "translations": {
+        "ru": "чудесный",
+        "uz": "ajoyib"
+      },
+      "example": "What a wonderful surprise for us!",
+      "example_translations": {
+        "ru": "Какой чудесный сюрприз для нас!",
+        "uz": "Biz uchun qanday ajoyib syurpriz!"
+      }
+    },
+    {
+      "word": "awful",
+      "part_of_speech": "adjective",
+      "translation": "отвратительный",
+      "translations": {
+        "ru": "отвратительный",
+        "uz": "jirkanch"
+      },
+      "example": "This coffee tastes really awful.",
+      "example_translations": {
+        "ru": "Этот кофе на вкус просто ужасный.",
+        "uz": "Bu qahva haqiqatan jirkanch ta'mga ega."
+      }
+    },
+    {
+      "word": "strange",
+      "part_of_speech": "adjective",
+      "translation": "странный",
+      "translations": {
+        "ru": "странный",
+        "uz": "g'alati"
+      },
+      "example": "I heard a strange noise last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью я слышал странный шум.",
+        "uz": "Kecha tunda g'alati shovqin eshitdim."
+      }
+    },
+    {
+      "word": "serious",
+      "part_of_speech": "adjective",
+      "translation": "серьёзный",
+      "translations": {
+        "ru": "серьёзный",
+        "uz": "jiddiy"
+      },
+      "example": "Your teacher looks very serious today.",
+      "example_translations": {
+        "ru": "Твой учитель сегодня выглядит очень серьёзным.",
+        "uz": "Sening o'qituvching bugun juda jiddiy ko'rinadi."
+      }
+    },
+    {
+      "word": "careful",
+      "part_of_speech": "adjective",
+      "translation": "осторожный",
+      "translations": {
+        "ru": "осторожный",
+        "uz": "ehtiyotkor"
+      },
+      "example": "Be careful with that hot cup.",
+      "example_translations": {
+        "ru": "Осторожнее с этой горячей чашкой.",
+        "uz": "Bu issiq piyola bilan ehtiyot bo'ling."
+      }
+    },
+    {
+      "word": "lucky",
+      "part_of_speech": "adjective",
+      "translation": "везучий",
+      "translations": {
+        "ru": "везучий",
+        "uz": "omadli"
+      },
+      "example": "You are lucky to have a job.",
+      "example_translations": {
+        "ru": "Тебе повезло, что у тебя есть работа.",
+        "uz": "Sen ishing borligi bilan omadlisan."
+      }
+    }
+  ]
+}

@@ -6,6 +6,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Events\OrganizationMemberJoined;
 use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Organizations\Events\OrganizationMemberSeated;
@@ -22,9 +23,11 @@ use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\FakeTelegramClient;
 
@@ -84,7 +87,7 @@ it('seats a learner who redeems an invite, counts the use, drops the cache and r
         ->and($member->seated_at?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
         ->and($member->waitlisted_at)->toBeNull()
         ->and($invite->refresh()->uses_count)->toBe(1)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and(omsPlan($learner))->toBe(Plan::Pro)
         ->and(app(EntitlementResolver::class)->for($learner)->source)->toBe("sponsor:organization:{$org->id}");
 
@@ -110,7 +113,7 @@ it('is idempotent for an active member: no second use, no event, nothing changes
         ->and($invite->refresh()->uses_count)->toBe(1)
         ->and(OrganizationMember::query()->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', 'org.member_joined')->count())->toBe(1)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 });
 
 it('rejects an unknown, deactivated, expired or exhausted invite with the documented codes', function (): void {
@@ -249,10 +252,10 @@ it('gives a freed seat to the earliest waitlisted member in the same transaction
         ->and($promoted->waitlisted_at)->toBeNull()
         ->and(OrganizationMember::query()->where('learner_id', $secondWaiting->id)->sole()->seat_state)->toBe('waitlisted')
         // Caches: the leaver and the promoted one are dropped, the untouched ones stay.
-        ->and(Cache::has(EntitlementResolver::cacheKey($a->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($firstWaiting->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($b->id)))->toBeTrue()
-        ->and(Cache::has(EntitlementResolver::cacheKey($secondWaiting->id)))->toBeTrue()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($a->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($firstWaiting->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($b->id)))->toBeTrue()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($secondWaiting->id)))->toBeTrue()
         ->and(omsPlan($a))->toBe(Plan::Free)
         ->and(omsPlan($firstWaiting))->toBe(Plan::Pro)
         ->and(omsService()->seatsSummary($org)->toArray())->toBe(['limit' => 2, 'seated' => 2, 'waitlisted' => 1, 'sponsoring' => true])
@@ -358,7 +361,7 @@ it('seats the waitlist FIFO after a tariff upgrade (grantManual with a bigger ti
         ->and($states[$learners[2]->id]->seat_state)->toBe('seated')
         ->and($states[$learners[3]->id]->seat_state)->toBe('seated')
         ->and($states[$learners[4]->id]->seat_state)->toBe('waitlisted')
-        ->and(Cache::has(EntitlementResolver::cacheKey($learners[2]->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learners[2]->id)))->toBeFalse()
         ->and(omsPlan($learners[3]))->toBe(Plan::Pro)
         ->and(omsPlan($learners[4]))->toBe(Plan::Free);
 
@@ -583,3 +586,165 @@ it('delivers the join DM through the fake client by default', function (): void 
 
     expect($tg->sent)->toHaveCount(1);
 });
+
+it('keeps going after the first learner when the cache drop fails after commit', function (): void {
+    $org = omsOrganization(null, null);
+    $first = Learner::factory()->create();
+    $second = Learner::factory()->create();
+    $service = omsService();
+    $service->joinByAdmin($first, $org, User::factory()->create());
+    $service->joinByAdmin($second, $org, User::factory()->create());
+
+    $attempts = omsEntitlementCacheDown();
+    Log::spy();
+    Event::fake([OrganizationMemberLeft::class]);
+
+    $service->leave($first, $org);
+    $service->leave($second, $org);
+
+    // Both drops were tried and failed, the commits stood, and the events still went out after each failed drop.
+    expect($attempts->getArrayCopy())->toBe([$first->id, $second->id])
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->where('status', 'active')->count())->toBe(0);
+    Event::assertDispatchedTimes(OrganizationMemberLeft::class, 2);
+    Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
+});
+
+it('absorbs an exception of an event listener after commit, reports it, and still handles the next learner', function (): void {
+    $org = omsOrganization(null, null);
+    $first = Learner::factory()->create();
+    $second = Learner::factory()->create();
+    $service = omsService();
+    $service->joinByAdmin($first, $org, User::factory()->create());
+    $service->joinByAdmin($second, $org, User::factory()->create());
+    omsPlan($first);
+    omsPlan($second);
+
+    Exceptions::fake();
+    Log::spy();
+    Event::listen(OrganizationMemberLeft::class, function (): void {
+        throw new RuntimeException('listener boom');
+    });
+
+    $service->leave($first, $org);
+    $service->leave($second, $org);
+
+    expect(OrganizationMember::query()->where('organization_id', $org->id)->where('status', 'active')->count())->toBe(0)
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($first->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($second->id)))->toBeFalse();
+    Log::shouldHaveReceived('warning')->with('organizations.membership_event_failed', Mockery::any())->twice();
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'listener boom');
+});
+
+it('reports a failed forget to the exception handler on leave and on organization delete', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    $other = omsOrganization(null, null);
+    omsService()->joinByAdmin(Learner::factory()->create(), $other, User::factory()->create());
+
+    omsEntitlementCacheDown();
+    Exceptions::fake();
+    Log::spy();
+
+    omsService()->leave($a, $org);
+    Exceptions::assertReportedCount(1);
+
+    $other->delete();
+    Exceptions::assertReportedCount(2);
+});
+
+it('forgets every member on organization delete even when the first forget fails', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    omsService()->joinByAdmin($b, $org, User::factory()->create());
+
+    $attempts = omsEntitlementCacheDown();
+    Log::spy();
+
+    $org->delete();
+
+    // The first failed drop stopped neither the second learner nor the delete itself.
+    expect(array_values(array_unique($attempts->getArrayCopy())))->toEqualCanonicalizing([$a->id, $b->id])
+        ->and(Organization::query()->whereKey($org->id)->exists())->toBeFalse();
+    Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
+});
+
+it('reports only the first failure of a seating loop to Sentry and warns about every one', function (): void {
+    $org = omsOrganization('tutor', 2);
+    $invite = omsInvite($org);
+    $service = omsService();
+    foreach (Learner::factory()->count(4)->create() as $learner) {
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinute());
+        $service->joinByInvite($learner, $invite->code);
+    }
+
+    // Two seats more: the two waitlisted are seated by one reseat, and for each of them both after-commit steps fail.
+    Subscription::query()->where('subscriber_type', 'organization')->where('subscriber_id', $org->id)->update(['seats_limit' => 4]);
+    omsEntitlementCacheDown();
+    Event::listen(OrganizationMemberSeated::class, static function (): never {
+        throw new RuntimeException('listener is down');
+    });
+    Exceptions::fake();
+    Log::spy();
+
+    expect($service->reseat($org))->toBe(2);
+
+    Exceptions::assertReportedCount(1);
+    Log::shouldHaveReceived('warning')->with('organizations.membership_entitlement_forget_failed', Mockery::any())->twice();
+    Log::shouldHaveReceived('warning')->with('organizations.membership_event_failed', Mockery::any())->twice();
+});
+
+it('reports only the first failed forget of an organization delete to Sentry and warns about every one', function (): void {
+    $org = omsOrganization(null, null);
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+    omsService()->joinByAdmin($a, $org, User::factory()->create());
+    omsService()->joinByAdmin($b, $org, User::factory()->create());
+
+    omsEntitlementCacheDown();
+    Exceptions::fake();
+    Log::spy();
+
+    $org->delete();
+
+    Exceptions::assertReportedCount(1);
+    Log::shouldHaveReceived('warning')->with('organizations.delete_entitlement_forget_failed', Mockery::any())->twice();
+});
+
+/**
+ * The default cache store is down for the entitlement versions alone (`EntitlementResolver::forget` bumps
+ * `entitlement:ver:{id}`): every such bump throws and is recorded with its learner id; every other key works.
+ * The resolver is final, so the failure is made in the store, the way `OrgOverviewCacheTest` does it.
+ *
+ * @return ArrayObject<int, int>
+ */
+function omsEntitlementCacheDown(): ArrayObject
+{
+    /** @var ArrayObject<int, int> $attempts */
+    $attempts = new ArrayObject;
+
+    Cache::extend('entitlements-down', fn () => Cache::repository(new class($attempts) extends ArrayStore
+    {
+        /** @param ArrayObject<int, int> $attempts */
+        public function __construct(private readonly ArrayObject $attempts)
+        {
+            parent::__construct();
+        }
+
+        public function increment($key, $value = 1)
+        {
+            if (preg_match('/^'.preg_quote(EntitlementResolver::VERSION_KEY_PREFIX, '/').'(\\d+)$/', (string) $key, $match) === 1) {
+                $this->attempts->append((int) $match[1]);
+
+                throw new RuntimeException('redis-cache is down');
+            }
+
+            return parent::increment($key, $value);
+        }
+    }));
+    config(['cache.stores.entitlements-down' => ['driver' => 'entitlements-down'], 'cache.default' => 'entitlements-down']);
+
+    return $attempts;
+}

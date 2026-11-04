@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 13,
+    "title": "Чувства и характер",
+    "title_uz": "His-tuyg'ular va xarakter"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Отношения",
+    "title_uz": "Munosabatlar"
+  },
+  "words": [
+    {
+      "word": "trust",
+      "part_of_speech": "verb",
+      "translation": "доверять",
+      "translations": {
+        "ru": "доверять",
+        "uz": "ishonmoq"
+      },
+      "example": "I trust my best friend.",
+      "example_translations": {
+        "ru": "Я доверяю своему лучшему другу.",
+        "uz": "Men eng yaqin do'stimga ishonaman."
+      }
+    },
+    {
+      "word": "argue",
+      "part_of_speech": "verb",
+      "translation": "спорить, ссориться",
+      "translations": {
+        "ru": "спорить, ссориться",
+        "uz": "janjallashmoq"
+      },
+      "example": "My brothers argue about everything.",
+      "example_translations": {
+        "ru": "Мои братья спорят обо всём.",
+        "uz": "Akalarim hamma narsa haqida janjallashadi."
+      }
+    },
+    {
+      "word": "forgive",
+      "part_of_speech": "verb",
+      "translation": "прощать",
+      "translations": {
+        "ru": "прощать",
+        "uz": "kechirmoq"
+      },
+      "example": "Please forgive me for being late.",
+      "example_translations": {
+        "ru": "Пожалуйста, прости, что я опоздал.",
+        "uz": "Iltimos, kechikkanim uchun meni kechir."
+      }
+    },
+    {
+      "word": "miss",
+      "part_of_speech": "verb",
+      "translation": "скучать",
+      "translations": {
+        "ru": "скучать",
+        "uz": "sog'inmoq"
+      },
+      "example": "I miss my family very much.",
+      "example_translations": {
+        "ru": "Я очень скучаю по семье.",
+        "uz": "Men oilamni juda sog'inaman."
+      }
+    },
+    {
+      "word": "care",
+      "part_of_speech": "verb",
+      "translation": "заботиться",
+      "translations": {
+        "ru": "заботиться",
+        "uz": "g'amxo'rlik qilmoq"
+      },
+      "example": "She cares about her old parents.",
+      "example_translations": {
+        "ru": "Она заботится о своих старых родителях.",
+        "uz": "U keksa ota-onasiga g'amxo'rlik qiladi."
+      }
+    },
+    {
+      "word": "respect",
+      "part_of_speech": "verb",
+      "translation": "уважать",
+      "translations": {
+        "ru": "уважать",
+        "uz": "hurmat qilmoq"
+      },
+      "example": "We respect our old teachers.",
+      "example_translations": {
+        "ru": "Мы уважаем наших старых учителей.",
+        "uz": "Biz keksa o'qituvchilarimizni hurmat qilamiz."
+      }
+    },
+    {
+      "word": "promise",
+      "part_of_speech": "verb",
+      "translation": "обещать",
+      "translations": {
+        "ru": "обещать",
+        "uz": "va'da bermoq"
+      },
+      "example": "I promise to call you tonight.",
+      "example_translations": {
+        "ru": "Я обещаю позвонить тебе сегодня вечером.",
+        "uz": "Bugun kechqurun qo'ng'iroq qilishga va'da beraman."
+      }
+    },
+    {
+      "word": "apologize",
+      "part_of_speech": "verb",
+      "translation": "извиняться",
+      "translations": {
+        "ru": "извиняться",
+        "uz": "uzr so'ramoq"
+      },
+      "example": "He apologized for his rude words.",
+      "example_translations": {
+        "ru": "Он извинился за свои грубые слова.",
+        "uz": "U qo'pol so'zlari uchun uzr so'radi."
+      }
+    },
+    {
+      "word": "hug",
+      "part_of_speech": "verb",
+      "translation": "обнимать",
+      "translations": {
+        "ru": "обнимать",
+        "uz": "quchoqlamoq"
+      },
+      "example": "She hugs her mother at the door.",
+      "example_translations": {
+        "ru": "Она обнимает маму у двери.",
+        "uz": "U onasini eshik oldida quchoqlaydi."
+      }
+    },
+    {
+      "word": "support",
+      "part_of_speech": "verb",
+      "translation": "поддерживать",
+      "translations": {
+        "ru": "поддерживать",
+        "uz": "qo'llab-quvvatlamoq"
+      },
+      "example": "My family supports my decision.",
+      "example_translations": {
+        "ru": "Моя семья поддерживает моё решение.",
+        "uz": "Oilam mening qarorimni qo'llab-quvvatlaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 4,
+    "title": "Время, дни и числа",
+    "title_uz": "Vaqt, kunlar va sonlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Дни недели",
+    "title_uz": "Hafta kunlari"
+  },
+  "words": [
+    {
+      "word": "monday",
+      "part_of_speech": "noun",
+      "translation": "понедельник",
+      "translations": {
+        "ru": "понедельник",
+        "uz": "dushanba"
+      },
+      "example": "I work on Monday.",
+      "example_translations": {
+        "ru": "Я работаю в понедельник.",
+        "uz": "Men dushanba kuni ishlayman."
+      }
+    },
+    {
+      "word": "tuesday",
+      "part_of_speech": "noun",
+      "translation": "вторник",
+      "translations": {
+        "ru": "вторник",
+        "uz": "seshanba"
+      },
+      "example": "We have English on Tuesday.",
+      "example_translations": {
+        "ru": "По вторникам у нас английский.",
+        "uz": "Seshanba kuni bizda ingliz tili bor."
+      }
+    },
+    {
+      "word": "wednesday",
+      "part_of_speech": "noun",
+      "translation": "среда",
+      "translations": {
+        "ru": "среда",
+        "uz": "chorshanba"
+      },
+      "example": "Wednesday is my free day.",
+      "example_translations": {
+        "ru": "Среда — мой свободный день.",
+        "uz": "Chorshanba — mening bo'sh kunim."
+      }
+    },
+    {
+      "word": "thursday",
+      "part_of_speech": "noun",
+      "translation": "четверг",
+      "translations": {
+        "ru": "четверг",
+        "uz": "payshanba"
+      },
+      "example": "The meeting is on Thursday.",
+      "example_translations": {
+        "ru": "Встреча в четверг.",
+        "uz": "Uchrashuv payshanba kuni."
+      }
+    },
+    {
+      "word": "friday",
+      "part_of_speech": "noun",
+      "translation": "пятница",
+      "translations": {
+        "ru": "пятница",
+        "uz": "juma"
+      },
+      "example": "Friday is the last day of school.",
+      "example_translations": {
+        "ru": "Пятница — последний школьный день.",
+        "uz": "Juma — maktabdagi oxirgi kun."
+      }
+    },
+    {
+      "word": "saturday",
+      "part_of_speech": "noun",
+      "translation": "суббота",
+      "translations": {
+        "ru": "суббота",
+        "uz": "shanba"
+      },
+      "example": "We clean the house on Saturday.",
+      "example_translations": {
+        "ru": "Мы убираем дом в субботу.",
+        "uz": "Biz shanba kuni uyni tozalaymiz."
+      }
+    },
+    {
+      "word": "sunday",
+      "part_of_speech": "noun",
+      "translation": "воскресенье",
+      "translations": {
+        "ru": "воскресенье",
+        "uz": "yakshanba"
+      },
+      "example": "On Sunday we visit my grandmother.",
+      "example_translations": {
+        "ru": "В воскресенье мы навещаем бабушку.",
+        "uz": "Yakshanba kuni biz buvimnikiga boramiz."
+      }
+    },
+    {
+      "word": "week",
+      "part_of_speech": "noun",
+      "translation": "неделя",
+      "translations": {
+        "ru": "неделя",
+        "uz": "hafta"
+      },
+      "example": "There are seven days in a week.",
+      "example_translations": {
+        "ru": "В неделе семь дней.",
+        "uz": "Bir haftada yetti kun bor."
+      }
+    },
+    {
+      "word": "day",
+      "part_of_speech": "noun",
+      "translation": "день",
+      "translations": {
+        "ru": "день",
+        "uz": "kun"
+      },
+      "example": "It is a nice day today.",
+      "example_translations": {
+        "ru": "Сегодня хороший день.",
+        "uz": "Bugun yaxshi kun."
+      }
+    },
+    {
+      "word": "weekend",
+      "part_of_speech": "noun",
+      "translation": "выходные",
+      "translations": {
+        "ru": "выходные",
+        "uz": "dam olish kunlari"
+      },
+      "example": "What do you do at the weekend?",
+      "example_translations": {
+        "ru": "Что ты делаешь в выходные?",
+        "uz": "Dam olish kunlari nima qilasan?"
+      }
+    }
+  ]
+}

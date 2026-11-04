@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Learning\Services\LearningCache;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -18,6 +19,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Config::set('cache.default', 'array');
+    Config::set('cache.pure_store', 'array'); // LearningCache is a pure cache: the same array store, so time travel expires it
     Cache::flush();
 });
 
@@ -75,6 +77,27 @@ it('caches exam leaderboards until the exam cache is cleared', function (): void
     expect($cache->examLeaderboard($session)['total_participants'])->toBe(2);
 });
 
+it('keeps an exam leaderboard under exam:{id}:leaderboard for five minutes: a forget a failing cache swallowed is not an hour of an old table', function (): void {
+    $group = TelegramGroup::factory()->create();
+    $session = ExamSession::factory()->create(['telegram_group_id' => $group->id, 'status' => 'closed', 'closed_at' => now()]);
+    $alice = Learner::factory()->memberOf($group)->create(['first_name' => 'Alice']);
+    $bob = Learner::factory()->memberOf($group)->create(['first_name' => 'Bob']);
+    ExamResult::factory()->create(['exam_session_id' => $session->id, 'learner_id' => $alice->id, 'total_score' => 30, 'rank' => 1]);
+    $cache = app(LearningCache::class);
+
+    expect($cache->examLeaderboard($session)['total_participants'])->toBe(1)
+        ->and(PureCache::store()->has("exam:{$session->id}:leaderboard"))->toBeTrue();
+
+    ExamResult::factory()->create(['exam_session_id' => $session->id, 'learner_id' => $bob->id, 'total_score' => 20, 'rank' => 2]);
+
+    $this->travel(299)->seconds();
+    expect($cache->examLeaderboard($session)['total_participants'])->toBe(1, 'inside the five minutes: the cached table');
+
+    $this->travel(2)->seconds();
+    expect(PureCache::store()->has("exam:{$session->id}:leaderboard"))->toBeFalse()
+        ->and($cache->examLeaderboard($session)['total_participants'])->toBe(2, 'past them: read again');
+});
+
 it('caches words learned per learner and hands only the learners without an entry to the loader', function (): void {
     $calls = [];
     $load = function (array $ids) use (&$calls): array {
@@ -95,13 +118,13 @@ it('caches words learned per learner and hands only the learners without an entr
 it('keeps a words learned entry under stats:words_learned:{id} for ten minutes', function (): void {
     app(LearningCache::class)->wordsLearned([7], fn (array $ids): array => [7 => 12]);
 
-    expect((int) Cache::get('stats:words_learned:7'))->toBe(12);
+    expect((int) PureCache::store()->get('stats:words_learned:7'))->toBe(12);
 
     $this->travel(599)->seconds();
-    expect(Cache::has('stats:words_learned:7'))->toBeTrue();
+    expect(PureCache::store()->has('stats:words_learned:7'))->toBeTrue();
 
     $this->travel(2)->seconds();
-    expect(Cache::has('stats:words_learned:7'))->toBeFalse();
+    expect(PureCache::store()->has('stats:words_learned:7'))->toBeFalse();
 
     $reloaded = [];
     app(LearningCache::class)->wordsLearned([7], function (array $ids) use (&$reloaded): array {
@@ -109,5 +132,5 @@ it('keeps a words learned entry under stats:words_learned:{id} for ten minutes',
 
         return [7 => 15];
     });
-    expect($reloaded)->toBe([7])->and((int) Cache::get('stats:words_learned:7'))->toBe(15);
+    expect($reloaded)->toBe([7])->and((int) PureCache::store()->get('stats:words_learned:7'))->toBe(15);
 });

@@ -110,6 +110,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => exam.dismissMockPaywall
  * every row of a lesson; behind Pro they open the paywall instead.
  */
 const practice = computed(() => billing.practiceAccess)
+/** The Karvon map of this course (docs/05 §5b.1): the entry shows while `/me.game.available`, which is read here already - no extra request. */
+const gameOn = computed(() => billing.gameAccess.available)
 const practicePaywall = ref(false)
 const { reviewFromPaywall: reviewFromPracticePaywall } = useReviewFromPaywall(() => {
   practicePaywall.value = false
@@ -233,6 +235,17 @@ onBeforeUnmount(() => {
           <AppIcon name="sparkles" solid :size="12" />
           {{ t('practice.hub.state.pro') }}
         </span>
+      </button>
+
+      <button
+        v-if="gameOn"
+        type="button"
+        class="btn btn-tinted btn-block mt-2"
+        data-testid="game-btn"
+        @click="router.push({ name: 'game', query: { course: props.slug } })"
+      >
+        <AppIcon name="flag" :size="20" />
+        {{ t('game.title') }}
       </button>
 
       <section v-if="offersMock" class="card mt-4" data-testid="mock-exam">

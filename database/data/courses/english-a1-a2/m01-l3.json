@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и люди",
+    "title_uz": "Tanishuv va odamlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "О себе",
+    "title_uz": "O'zim haqimda"
+  },
+  "words": [
+    {
+      "word": "name",
+      "part_of_speech": "noun",
+      "translation": "имя",
+      "translations": {
+        "ru": "имя",
+        "uz": "ism"
+      },
+      "example": "My name is Ali.",
+      "example_translations": {
+        "ru": "Меня зовут Али.",
+        "uz": "Mening ismim Ali."
+      }
+    },
+    {
+      "word": "age",
+      "part_of_speech": "noun",
+      "translation": "возраст",
+      "translations": {
+        "ru": "возраст",
+        "uz": "yosh"
+      },
+      "example": "Age is just a number.",
+      "example_translations": {
+        "ru": "Возраст — это просто цифра.",
+        "uz": "Yosh — shunchaki raqam."
+      }
+    },
+    {
+      "word": "country",
+      "part_of_speech": "noun",
+      "translation": "страна",
+      "translations": {
+        "ru": "страна",
+        "uz": "mamlakat"
+      },
+      "example": "Uzbekistan is a beautiful country.",
+      "example_translations": {
+        "ru": "Узбекистан — красивая страна.",
+        "uz": "O'zbekiston — go'zal mamlakat."
+      }
+    },
+    {
+      "word": "language",
+      "part_of_speech": "noun",
+      "translation": "язык",
+      "translations": {
+        "ru": "язык",
+        "uz": "til"
+      },
+      "example": "English is a useful language.",
+      "example_translations": {
+        "ru": "Английский — полезный язык.",
+        "uz": "Ingliz tili foydali tildir."
+      }
+    },
+    {
+      "word": "address",
+      "part_of_speech": "noun",
+      "translation": "адрес",
+      "translations": {
+        "ru": "адрес",
+        "uz": "manzil"
+      },
+      "example": "Please write your address here.",
+      "example_translations": {
+        "ru": "Пожалуйста, напишите здесь свой адрес.",
+        "uz": "Iltimos, manzilingizni shu yerga yozing."
+      }
+    },
+    {
+      "word": "birthday",
+      "part_of_speech": "noun",
+      "translation": "день рождения",
+      "translations": {
+        "ru": "день рождения",
+        "uz": "tug'ilgan kun"
+      },
+      "example": "My birthday is in May.",
+      "example_translations": {
+        "ru": "Мой день рождения в мае.",
+        "uz": "Mening tug'ilgan kunim may oyida."
+      }
+    },
+    {
+      "word": "married",
+      "part_of_speech": "adjective",
+      "translation": "женатый, замужняя",
+      "translations": {
+        "ru": "женатый, замужняя",
+        "uz": "uylangan, turmush qurgan"
+      },
+      "example": "My sister is married.",
+      "example_translations": {
+        "ru": "Моя сестра замужем.",
+        "uz": "Opam turmush qurgan."
+      }
+    },
+    {
+      "word": "single",
+      "part_of_speech": "adjective",
+      "translation": "не женат, не замужем",
+      "translations": {
+        "ru": "не женат, не замужем",
+        "uz": "turmush qurmagan"
+      },
+      "example": "Is he married or single?",
+      "example_translations": {
+        "ru": "Он женат или нет?",
+        "uz": "U uylanganmi yoki yo'qmi?"
+      }
+    },
+    {
+      "word": "call",
+      "part_of_speech": "verb",
+      "translation": "звать, называть",
+      "translations": {
+        "ru": "звать, называть",
+        "uz": "chaqirmoq"
+      },
+      "example": "Everyone calls him Bobby.",
+      "example_translations": {
+        "ru": "Все зовут его Бобби.",
+        "uz": "Hamma uni Bobbi deb chaqiradi."
+      }
+    },
+    {
+      "word": "meet",
+      "part_of_speech": "verb",
+      "translation": "встречать, знакомиться",
+      "translations": {
+        "ru": "встречать, знакомиться",
+        "uz": "uchrashmoq, tanishmoq"
+      },
+      "example": "Nice to meet you!",
+      "example_translations": {
+        "ru": "Рад познакомиться!",
+        "uz": "Tanishganimdan xursandman!"
+      }
+    }
+  ]
+}

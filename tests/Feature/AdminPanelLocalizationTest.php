@@ -5,10 +5,13 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Pages\ImportLesson;
+use App\Filament\Resources\ClassCaravanResource;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
 use App\Filament\Resources\ExamSessionResource;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
+use App\Filament\Resources\GameItemResource;
+use App\Filament\Resources\GameRunResource;
 use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
@@ -39,6 +42,7 @@ use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\WordResource;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
+use App\Filament\Widgets\GameActivityWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\LeagueGroupsTableWidget;
 use App\Filament\Widgets\OnboardingFunnelWidget;
@@ -49,8 +53,11 @@ use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
+use App\Models\ClassCaravan;
 use App\Models\Course;
 use App\Models\ExamSession;
+use App\Models\GameItem;
+use App\Models\GameRun;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Organization;
@@ -176,6 +183,9 @@ function loc_records(User $admin): array
         PaymentResource::class => Payment::factory()->create(),
         ProviderTransactionResource::class => ProviderTransaction::factory()->create(),
         UserResource::class => $admin,
+        GameItemResource::class => GameItem::factory()->create(),
+        GameRunResource::class => GameRun::factory()->create(),
+        ClassCaravanResource::class => ClassCaravan::factory()->create(),
     ];
 }
 
@@ -545,10 +555,11 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [LeagueGroupsTableWidget::class, 'Лиги — текущая неделя: групп пока нет', 'Leagues'],
     [RevenueLast30DaysWidget::class, 'Выручка за 30 дней', 'Revenue, last 30 days'],
     [WebhookErrorsWidget::class, 'Ошибки вебхуков оплаты за 24 часа', 'Payment webhook errors'],
+    [GameActivityWidget::class, 'Караван — 7 дней', 'Caravan'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {
-    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(12);
+    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(13);
 });
 
 // --- values -----------------------------------------------------------------------------------

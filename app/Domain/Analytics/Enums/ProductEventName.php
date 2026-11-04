@@ -92,6 +92,8 @@ enum ProductEventName: string
     case PracticeNotEnoughMaterial = 'practice.not_enough_material';
     /** A dictation could not be played and was swapped / reported (props: session_id | battle_id, source — word / phrase, reason — file_missing / client_report, verified). */
     case PracticeAudioFailed = 'practice.audio_failed';
+    /** A Free learner was refused a session or a battle call by the daily limit (props: kind — sessions / battles, limit; docs/18 G1). */
+    case PracticeLimitReached = 'practice.limit_reached';
     /** A battle invitation was sent (props: battle_id, mode, course_id, lesson_id, rematch); actor = the challenger. */
     case BattleInvited = 'battle.invited';
     /** The invited friend accepted (props: battle_id). */
@@ -102,4 +104,46 @@ enum ProductEventName: string
     case BattleFinished = 'battle.finished';
     /** A battle was closed without a result (props: battle_id, end_reason). */
     case BattleClosed = 'battle.closed';
+    /** A run of the game started (props: run_id, kind, course_id, stage_id, lesson_id, total, free_slot, scope_widened - docs/18 §12.8). */
+    case GameRunStarted = 'game.run_started';
+    /** A run ended, once, by whoever finished it (props: run_id, kind, finish_reason, total, answered, correct, typos, wrong, hints, stars, score, coins, league_points, srs_pulled, duration_ms, event). */
+    case GameRunFinished = 'game.run_finished';
+    /** A run was refused for lack of material (props: kind, course_id, lesson_id, available, required, reason). */
+    case GameNotEnoughMaterial = 'game.not_enough_material';
+    /** Coins were spent (props: amount, kind, ref_type, ref_id, balance). */
+    case GameCoinsSpent = 'game.coins_spent';
+    /** Coins were earned by a run (props: amount, kind, ref_type, ref_id, balance). */
+    case GameCoinsEarned = 'game.coins_earned';
+    /** The daily caravan was played to its end (props: run_id, due_count, correct - docs/18 §12.8). */
+    case GameDailyCompleted = 'game.daily_completed';
+    /** A learner beat the boss of a city (props: run_id, stage_id, accuracy - 0..100, first - the first win over this boss; docs/18 §12.8). */
+    case GameBossDefeated = 'game.boss_defeated';
+    /** A learner opened the share dialog of the card of a city they reached, once (props: stage_id; docs/18 §12.9). */
+    case GameCityShared = 'game.city_shared';
+    /** A learner bought an item of the shop (props: item_key, kind, price). */
+    case GameItemBought = 'game.item_bought';
+    /** A learner put a cosmetic on or took it off (props: slot, item_key - null when taken off). */
+    case GameCosmeticEquipped = 'game.cosmetic_equipped';
+    /** A booster was used in a run (props: run_id, effect - hint / extra_flask / second_chance). */
+    case GameBoosterUsed = 'game.booster_used';
+    /** A Free learner was refused by a limit of the game (props: kind - runs / boss / boosters, limit; docs/18 §12.7.4), on the courtesy check and under the lock alike. */
+    case GameLimitReached = 'game.limit_reached';
+    /** Tickets were granted (props: source - streak / referral / admin, delta - what was written after the cap, balance). */
+    case GameTicketGranted = 'game.ticket_granted';
+    /** A ticket paid for a map run beyond the free run of the day (props: run_id). */
+    case GameTicketSpent = 'game.ticket_spent';
+    /** The ticket of a run that ended without a single answer came back (props: run_id, reason - replaced / exited / expired; docs/18 §12.7.3). */
+    case GameTicketRefunded = 'game.ticket_refunded';
+    /** A grant of tickets was cut by the cap of the balance, wholly or in part (props: source, lost). */
+    case GameTicketCapped = 'game.ticket_capped';
+    /** An administrator changed a learner's coins (props: amount - signed, audit_log_id); actor - the user, the learner. */
+    case GameCoinsAdjusted = 'game.coins_adjusted';
+    /** An administrator changed a learner's tickets (props: amount, audit_log_id); actor - the user, the learner. */
+    case GameTicketsAdjusted = 'game.tickets_adjusted';
+    /** A teacher (or an admin) started the caravan of a class (props: class_caravan_id, group_id, members, target - docs/18 §12.11); actor - the user, the group. */
+    case GameClassStarted = 'game.class_started';
+    /** The week of a class caravan ended by the clock (props: class_caravan_id, group_id, stars_total, runs_total, boss_defeated); actor - the group. */
+    case GameClassFinished = 'game.class_finished';
+    /** The summary of a class caravan went to the group chat, once (props: class_caravan_id); actor - the group. */
+    case GameClassSummaryPosted = 'game.class_summary_posted';
 }

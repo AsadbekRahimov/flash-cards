@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Billing\Services\BillingReportService;
+use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use Filament\Widgets\StatsOverviewWidget;
@@ -14,6 +14,9 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  * Money of the last 30 days, one figure per currency (UZS and XTR are never added together): the headline
  * is the NET CASH MOVEMENT (charges by their date minus refunds by THEIR date); the description adds the
  * two parts and the cohort net (the period's own charges less what was refunded of them). Admin only.
+ *
+ * The figures are the cached array of {@see AdminDashboardStats} (docs/19 K1), read at a data version that `MoneyWidgetsObserver`
+ * moves on after the commit of a payment or a refund, so money is never older than the commit that moved it (docs/19 §5.1).
  */
 class RevenueLast30DaysWidget extends StatsOverviewWidget
 {
@@ -25,6 +28,9 @@ class RevenueLast30DaysWidget extends StatsOverviewWidget
     }
 
     protected static ?int $sort = 9;
+
+    // No polling (docs/20 §1.11): Filament polls a stats widget every 5 s by default; the figures are cached anyway.
+    protected ?string $pollingInterval = null;
 
     protected ?string $heading = null;
 
@@ -38,11 +44,11 @@ class RevenueLast30DaysWidget extends StatsOverviewWidget
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
-        $report = app(BillingReportService::class);
-        $cohort = $report->cohortRevenueLast30Days();
+        $revenue = app(AdminDashboardStats::class)->revenue30d();
+        $cohort = $revenue['cohort'];
         $stats = [];
 
-        foreach ($report->cashFlowLast30Days() as $currency => $row) {
+        foreach ($revenue['cash'] as $currency => $row) {
             $label = __('billing.report.net_cash', ['currency' => $currency]);
             $description = __('billing.report.description', [
                 'charges' => $row['charge_count'],

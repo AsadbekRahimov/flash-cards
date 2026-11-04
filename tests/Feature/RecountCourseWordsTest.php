@@ -13,10 +13,10 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Learning\Services\LearningCache;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\HotPathFixtures as Fx;
 
@@ -92,7 +92,7 @@ it('drops the cached word count of every lesson, and the catalog cache shows the
     ['platform' => $platform] = recountDriftedCourses();
     $lessonIds = DB::table('lessons')->pluck('id')->map(fn ($id): int => (int) $id)->all();
     foreach ($lessonIds as $id) {
-        Cache::put("lesson:{$id}:word_count", 999, 3600);
+        PureCache::store()->put("lesson:{$id}:word_count", 999, 3600);
     }
     $catalog = app(CourseCatalogService::class);
     $listed = fn (): ?int => collect($catalog->published('ru'))->firstWhere('id', $platform->id)?->wordsCount;
@@ -101,7 +101,7 @@ it('drops the cached word count of every lesson, and the catalog cache shows the
     $this->artisan('courses:recount-words')->assertSuccessful();
 
     foreach ($lessonIds as $id) {
-        expect(Cache::has("lesson:{$id}:word_count"))->toBeFalse();
+        expect(PureCache::store()->has("lesson:{$id}:word_count"))->toBeFalse();
     }
     $lesson = DB::table('lessons')->orderBy('id')->first();
     expect(app(LearningCache::class)->lessonWordCount((int) $lesson?->id))->toBe((int) DB::table('words')->where('lesson_id', $lesson?->id)->where('is_active', true)->count())

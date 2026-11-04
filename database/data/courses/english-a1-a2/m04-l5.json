@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 4,
+    "title": "Время, дни и числа",
+    "title_uz": "Vaqt, kunlar va sonlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Большие числа и порядок",
+    "title_uz": "Katta sonlar va tartib"
+  },
+  "words": [
+    {
+      "word": "twenty",
+      "part_of_speech": "adjective",
+      "translation": "двадцать",
+      "translations": {
+        "ru": "двадцать",
+        "uz": "yigirma"
+      },
+      "example": "There are twenty students in my class.",
+      "example_translations": {
+        "ru": "В моём классе двадцать учеников.",
+        "uz": "Mening sinfimda yigirma o'quvchi bor."
+      }
+    },
+    {
+      "word": "fifty",
+      "part_of_speech": "adjective",
+      "translation": "пятьдесят",
+      "translations": {
+        "ru": "пятьдесят",
+        "uz": "ellik"
+      },
+      "example": "This bag costs fifty dollars.",
+      "example_translations": {
+        "ru": "Эта сумка стоит пятьдесят долларов.",
+        "uz": "Bu sumka ellik dollar turadi."
+      }
+    },
+    {
+      "word": "hundred",
+      "part_of_speech": "adjective",
+      "translation": "сто",
+      "translations": {
+        "ru": "сто",
+        "uz": "yuz"
+      },
+      "example": "One hundred people are here.",
+      "example_translations": {
+        "ru": "Здесь сто человек.",
+        "uz": "Bu yerda yuz kishi bor."
+      }
+    },
+    {
+      "word": "thousand",
+      "part_of_speech": "adjective",
+      "translation": "тысяча",
+      "translations": {
+        "ru": "тысяча",
+        "uz": "ming"
+      },
+      "example": "The ticket costs one thousand soums.",
+      "example_translations": {
+        "ru": "Билет стоит тысячу сумов.",
+        "uz": "Chipta bir ming so'm turadi."
+      }
+    },
+    {
+      "word": "first",
+      "part_of_speech": "adjective",
+      "translation": "первый",
+      "translations": {
+        "ru": "первый",
+        "uz": "birinchi"
+      },
+      "example": "This is my first lesson.",
+      "example_translations": {
+        "ru": "Это мой первый урок.",
+        "uz": "Bu mening birinchi darsim."
+      }
+    },
+    {
+      "word": "last",
+      "part_of_speech": "adjective",
+      "translation": "последний",
+      "translations": {
+        "ru": "последний",
+        "uz": "oxirgi"
+      },
+      "example": "This is the last bus.",
+      "example_translations": {
+        "ru": "Это последний автобус.",
+        "uz": "Bu oxirgi avtobus."
+      }
+    },
+    {
+      "word": "next",
+      "part_of_speech": "adjective",
+      "translation": "следующий",
+      "translations": {
+        "ru": "следующий",
+        "uz": "keyingi"
+      },
+      "example": "The next lesson is on Monday.",
+      "example_translations": {
+        "ru": "Следующий урок в понедельник.",
+        "uz": "Keyingi dars dushanba kuni."
+      }
+    },
+    {
+      "word": "number",
+      "part_of_speech": "noun",
+      "translation": "число, номер",
+      "translations": {
+        "ru": "число, номер",
+        "uz": "raqam, son"
+      },
+      "example": "What is your phone number?",
+      "example_translations": {
+        "ru": "Какой у тебя номер телефона?",
+        "uz": "Telefon raqamingiz qanday?"
+      }
+    },
+    {
+      "word": "half",
+      "part_of_speech": "noun",
+      "translation": "половина",
+      "translations": {
+        "ru": "половина",
+        "uz": "yarim"
+      },
+      "example": "Give me half of the bread.",
+      "example_translations": {
+        "ru": "Дай мне половину хлеба.",
+        "uz": "Menga nonning yarmini ber."
+      }
+    },
+    {
+      "word": "date",
+      "part_of_speech": "noun",
+      "translation": "дата, число",
+      "translations": {
+        "ru": "дата, число",
+        "uz": "sana"
+      },
+      "example": "What is the date today?",
+      "example_translations": {
+        "ru": "Какое сегодня число?",
+        "uz": "Bugun oyning nechanchisi?"
+      }
+    }
+  ]
+}

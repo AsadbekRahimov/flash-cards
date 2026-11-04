@@ -6,6 +6,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PromoCodeService;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\ProductEvent;
@@ -14,7 +15,6 @@ use App\Models\PromoRedemption;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
@@ -64,7 +64,7 @@ it('redeems a code into a promo subscription, records the redemption and invalid
     expect(ProductEvent::query()->where('name', 'promo.redeemed')->sole()->props['promo_code_id'])->toBe($promo->id)
         ->and(ProductEvent::query()->where('name', 'subscription.granted')->sole()->props['provider'])->toBe('promo');
 
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
     $e = $resolver->for($learner);
     expect($e->plan)->toBe(Plan::Pro)->and($e->subscriptionId)->toBe($sub->id);
 });

@@ -1,0 +1,3150 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m01-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "sorry"
+      ],
+      "prompt": {
+        "ru": "Извините, вы можете повторить?",
+        "uz": "Kechirasiz, yana bir marta ayta olasizmi?"
+      },
+      "fragments": [
+        "sorry",
+        "can",
+        "you",
+        "say",
+        "that",
+        "again"
+      ],
+      "accepted": [
+        [
+          "sorry",
+          "can",
+          "you",
+          "say",
+          "that",
+          "again"
+        ]
+      ],
+      "display": "Sorry, can you say that again?",
+      "explanation": {
+        "ru": "Так вежливо просят повторить: Sorry, can you say that again? Again («ещё раз») стоит в самом конце, после that.",
+        "uz": "Qayta aytishni shunday xushmuomalalik bilan so'rashadi: Sorry, can you say that again? Again («yana bir marta») eng oxirida, that dan keyin keladi."
+      }
+    },
+    {
+      "key": "a1a2-m01-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "she",
+        "my"
+      ],
+      "prompt": {
+        "ru": "Она — моя учительница английского.",
+        "uz": "U mening ingliz tili o'qituvchim."
+      },
+      "fragments": [
+        "she",
+        "is",
+        "my",
+        "English",
+        "teacher"
+      ],
+      "accepted": [
+        [
+          "she",
+          "is",
+          "my",
+          "English",
+          "teacher"
+        ]
+      ],
+      "display": "She is my English teacher.",
+      "explanation": {
+        "ru": "Предмет стоит перед словом teacher: English teacher — учитель английского. По-русски наоборот: сначала «учитель», потом «английского».",
+        "uz": "Fan nomi teacher so'zidan oldin keladi: English teacher — ingliz tili o'qituvchisi. Xuddi o'zbek tilidagidek: avval fan, keyin o'qituvchi."
+      }
+    },
+    {
+      "key": "a1a2-m01-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "single"
+      ],
+      "prompt": {
+        "ru": "Мой брат всё ещё не женат.",
+        "uz": "Akam hali ham uylanmagan."
+      },
+      "fragments": [
+        "my",
+        "brother",
+        "is",
+        "still",
+        "single"
+      ],
+      "accepted": [
+        [
+          "my",
+          "brother",
+          "is",
+          "still",
+          "single"
+        ]
+      ],
+      "display": "My brother is still single.",
+      "explanation": {
+        "ru": "single — не женат или не замужем. Still («всё ещё») ставится после is: is still single.",
+        "uz": "single — uylanmagan yoki turmushga chiqmagan. Still («hali ham») is dan keyin keladi: is still single."
+      }
+    },
+    {
+      "key": "a1a2-m01-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "girl"
+      ],
+      "prompt": {
+        "ru": "Вас ждут две девочки.",
+        "uz": "Sizni ikki qiz kutyapti."
+      },
+      "fragments": [
+        "two",
+        "girls",
+        "are",
+        "waiting",
+        "for",
+        "you"
+      ],
+      "accepted": [
+        [
+          "two",
+          "girls",
+          "are",
+          "waiting",
+          "for",
+          "you"
+        ]
+      ],
+      "display": "Two girls are waiting for you.",
+      "explanation": {
+        "ru": "По-русски фразу можно начать с «вас», а по-английски сначала тот, кто ждёт: Two girls are waiting… Ждать кого-то — wait for: waiting for you.",
+        "uz": "O'zbekchada gap «Sizni» bilan boshlanadi, inglizchada esa avval kim kutayotgani aytiladi: Two girls are waiting… Kimnidir kutmoq — wait for: waiting for you."
+      }
+    },
+    {
+      "key": "a1a2-m01-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "short"
+      ],
+      "prompt": {
+        "ru": "Мой брат ниже меня.",
+        "uz": "Akam mendan past bo'yli."
+      },
+      "fragments": [
+        "my",
+        "brother",
+        "is",
+        "shorter",
+        "than",
+        "me"
+      ],
+      "accepted": [
+        [
+          "my",
+          "brother",
+          "is",
+          "shorter",
+          "than",
+          "me"
+        ]
+      ],
+      "display": "My brother is shorter than me.",
+      "explanation": {
+        "ru": "Сравнение: short → shorter + than. По-русски «ниже», но о росте человека говорят short, а не low. После than в разговоре — me.",
+        "uz": "Taqqoslash: short → shorter + than. «Past bo'yli» deganda low emas, short ishlatiladi. Than dan keyin so'zlashuvda me keladi."
+      }
+    },
+    {
+      "key": "a1a2-m01-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "welcome"
+      ],
+      "text": "Thank you for the tea! — You're ___.",
+      "options": [
+        "welcome",
+        "please",
+        "sorry"
+      ],
+      "correct": [
+        "welcome"
+      ],
+      "translation": {
+        "ru": "Спасибо за чай! — Не за что.",
+        "uz": "Choy uchun rahmat! — Arzimaydi."
+      },
+      "explanation": {
+        "ru": "На «спасибо» отвечают You're welcome — «пожалуйста, не за что». Please — «пожалуйста» в просьбе (Please sit down), sorry — извинение; в ответ на благодарность их не говорят.",
+        "uz": "Rahmatga javoban You're welcome deyiladi — «arzimaydi». Please iltimos qilganda aytiladi (Please sit down), sorry — kechirim so'raganda; rahmatga javoban ular aytilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m01-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "it"
+      ],
+      "text": "Where is my phone? — ___ is on the table.",
+      "options": [
+        "It",
+        "She",
+        "He"
+      ],
+      "correct": [
+        "It"
+      ],
+      "translation": {
+        "ru": "Где мой телефон? — Он на столе.",
+        "uz": "Telefonim qayerda? — U stol ustida."
+      },
+      "explanation": {
+        "ru": "О вещах говорят it. По-русски «телефон — он», «сумка — она», но в английском вещи не бывают he или she: he — мужчина, she — женщина.",
+        "uz": "Narsalar haqida it ishlatiladi. O'zbek tilida hammasi «u», ingliz tilida esa narsa — it, erkak — he, ayol — she."
+      }
+    },
+    {
+      "key": "a1a2-m01-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "age"
+      ],
+      "text": "Ali and I are the ___ age.",
+      "options": [
+        "same",
+        "one",
+        "equal"
+      ],
+      "correct": [
+        "same"
+      ],
+      "translation": {
+        "ru": "Мы с Али одного возраста.",
+        "uz": "Ali bilan men tengdoshmiz."
+      },
+      "explanation": {
+        "ru": "the same age — одного возраста, ровесники. Дословно «один возраст» — one age — по-английски не говорят; equal — «равный» (equal parts).",
+        "uz": "the same age — bir xil yoshda, tengdosh. «Bir yosh» deb one age deyilmaydi; equal — «teng» (equal parts — teng qismlar)."
+      }
+    },
+    {
+      "key": "a1a2-m01-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "stranger"
+      ],
+      "text": "Don't open the door to a ___.",
+      "options": [
+        "stranger",
+        "strange",
+        "foreign"
+      ],
+      "correct": [
+        "stranger"
+      ],
+      "translation": {
+        "ru": "Не открывайте дверь незнакомому человеку.",
+        "uz": "Eshikni notanish odamga ochmang."
+      },
+      "explanation": {
+        "ru": "stranger — незнакомый человек (иностранец — это foreigner). Strange — «странный», foreign — «иностранный»: это прилагательные, после них нужно существительное (a strange man).",
+        "uz": "stranger — notanish odam (chet ellik — foreigner). Strange — «g'alati», foreign — «chet ellik, xorijiy»: bular sifat, ulardan keyin ot kerak (a strange man)."
+      }
+    },
+    {
+      "key": "a1a2-m01-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "old"
+      ],
+      "text": "How ___ is your son?",
+      "options": [
+        "old",
+        "many",
+        "age"
+      ],
+      "correct": [
+        "old"
+      ],
+      "translation": {
+        "ru": "Сколько лет вашему сыну?",
+        "uz": "O'g'lingiz necha yoshda?"
+      },
+      "explanation": {
+        "ru": "Возраст спрашивают так: How old…? — «Сколько лет…?». How many — «сколько штук» (how many books), а age после how не ставят.",
+        "uz": "Yosh shunday so'raladi: How old…? — «Necha yoshda?». How many — «nechta» (how many books), age esa how dan keyin qo'yilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m01-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hello"
+      ],
+      "text": "Hello, how are you?",
+      "accepted": [
+        "Hello, how are you?"
+      ],
+      "translation": {
+        "ru": "Здравствуйте, как у вас дела?",
+        "uz": "Salom, ishlaringiz qalay?"
+      }
+    },
+    {
+      "key": "a1a2-m01-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "he"
+      ],
+      "text": "He is not at home",
+      "accepted": [
+        "He is not at home",
+        "He isn't at home",
+        "He's not at home"
+      ],
+      "translation": {
+        "ru": "Его нет дома",
+        "uz": "U uyda yo'q"
+      },
+      "explanation": {
+        "ru": "По-русски «его нет», а по-английски he is not. Можно сократить: he isn't или he's not.",
+        "uz": "Inglizchada he is not deyiladi. Qisqa shakllari ham to'g'ri: he isn't yoki he's not."
+      }
+    },
+    {
+      "key": "a1a2-m01-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "address"
+      ],
+      "text": "What is your address?",
+      "accepted": [
+        "What is your address?",
+        "What's your address?"
+      ],
+      "translation": {
+        "ru": "Какой у вас адрес?",
+        "uz": "Manzilingiz qanday?"
+      },
+      "explanation": {
+        "ru": "В address две d и две s. «Какой адрес?» спрашивают через what: What is your address?",
+        "uz": "address so'zida ikkita d va ikkita s bor. «Manzilingiz qanday?» deb so'rashda what ishlatiladi: What is your address?"
+      }
+    },
+    {
+      "key": "a1a2-m01-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "man"
+      ],
+      "text": "Those two men are brothers",
+      "accepted": [
+        "Those two men are brothers",
+        "Those 2 men are brothers"
+      ],
+      "translation": {
+        "ru": "Те двое мужчин — братья",
+        "uz": "Anavi ikki erkak aka-uka"
+      },
+      "explanation": {
+        "ru": "men — множественное число от man: a man, two men. Число можно написать цифрой: 2.",
+        "uz": "men — man so'zining ko'plik shakli: a man, two men. Sonni raqam bilan ham yozish mumkin: 2."
+      }
+    },
+    {
+      "key": "a1a2-m01-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "kind"
+      ],
+      "text": "That's very kind of you",
+      "accepted": [
+        "That's very kind of you",
+        "That is very kind of you"
+      ],
+      "translation": {
+        "ru": "Очень мило с вашей стороны",
+        "uz": "Siz juda mehribonsiz"
+      },
+      "explanation": {
+        "ru": "kind of you — мило с вашей стороны: после kind здесь нужен of, хотя в речи он звучит очень коротко. That's = that is.",
+        "uz": "kind of you — Sizning mehribonligingiz: kind dan keyin bu yerda of keladi, garchi u juda qisqa eshitilsa ham. That's = that is."
+      }
+    },
+    {
+      "key": "a1a2-m02-s01",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "cousin",
+        "uncle"
+      ],
+      "prompt": {
+        "ru": "Мой двоюродный брат — сын моего дяди.",
+        "uz": "Amakivachcham — amakimning o'g'li."
+      },
+      "fragments": [
+        "my",
+        "cousin",
+        "is",
+        "my",
+        "uncle's",
+        "son"
+      ],
+      "accepted": [
+        [
+          "my",
+          "cousin",
+          "is",
+          "my",
+          "uncle's",
+          "son"
+        ],
+        [
+          "my",
+          "uncle's",
+          "son",
+          "is",
+          "my",
+          "cousin"
+        ]
+      ],
+      "display": "My cousin is my uncle's son.",
+      "explanation": {
+        "ru": "Чей: uncle's son — сын дяди, с 's. По-русски сначала «сын», потом «дяди», а в английском наоборот. Можно сказать и так: My uncle's son is my cousin.",
+        "uz": "Kimniki: uncle's son — amakining o'g'li, 's bilan. Xuddi o'zbek tilidagidek, avval kimniki, keyin nima. Shunday ham deyish mumkin: My uncle's son is my cousin."
+      }
+    },
+    {
+      "key": "a1a2-m02-s02",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "house",
+        "bedroom"
+      ],
+      "prompt": {
+        "ru": "В нашем доме три спальни.",
+        "uz": "Uyimizda uchta yotoqxona bor."
+      },
+      "fragments": [
+        "our",
+        "house",
+        "has",
+        "three",
+        "bedrooms"
+      ],
+      "accepted": [
+        [
+          "our",
+          "house",
+          "has",
+          "three",
+          "bedrooms"
+        ]
+      ],
+      "display": "Our house has three bedrooms.",
+      "explanation": {
+        "ru": "«В доме есть…» по-английски часто говорят через has: Our house has… После three — множественное число: bedrooms.",
+        "uz": "«Uyimizda … bor» inglizchada ko'pincha has bilan aytiladi: Our house has… Three dan keyin ko'plik shakli keladi: bedrooms."
+      }
+    },
+    {
+      "key": "a1a2-m02-s03",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "kitchen",
+        "floor"
+      ],
+      "prompt": {
+        "ru": "Пол на кухне холодный.",
+        "uz": "Oshxonadagi pol sovuq."
+      },
+      "fragments": [
+        "the",
+        "kitchen",
+        "floor",
+        "is",
+        "cold"
+      ],
+      "accepted": [
+        [
+          "the",
+          "kitchen",
+          "floor",
+          "is",
+          "cold"
+        ]
+      ],
+      "display": "The kitchen floor is cold.",
+      "explanation": {
+        "ru": "Существительное перед другим существительным работает как определение: kitchen floor — пол на кухне. Главное слово — последнее: floor.",
+        "uz": "Ot boshqa otdan oldin kelib, uni aniqlaydi: kitchen floor — oshxonadagi pol. Asosiy so'z — oxirgisi: floor."
+      }
+    },
+    {
+      "key": "a1a2-m02-s04",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "window",
+        "garden"
+      ],
+      "prompt": {
+        "ru": "Из моего окна видно сад.",
+        "uz": "Derazamdan bog' ko'rinadi."
+      },
+      "fragments": [
+        "I",
+        "can",
+        "see",
+        "the",
+        "garden",
+        "from",
+        "my",
+        "window"
+      ],
+      "accepted": [
+        [
+          "I",
+          "can",
+          "see",
+          "the",
+          "garden",
+          "from",
+          "my",
+          "window"
+        ],
+        [
+          "from",
+          "my",
+          "window",
+          "I",
+          "can",
+          "see",
+          "the",
+          "garden"
+        ]
+      ],
+      "display": "I can see the garden from my window.",
+      "explanation": {
+        "ru": "По-русски «из окна видно сад» — без «я», а по-английски нужен тот, кто видит: I can see… Место можно поставить и в начало: From my window I can see the garden.",
+        "uz": "O'zbekchada «derazamdan bog' ko'rinadi» deyiladi, inglizchada esa kim ko'rayotgani aytiladi: I can see… Joyni boshiga ham qo'yish mumkin: From my window I can see the garden."
+      }
+    },
+    {
+      "key": "a1a2-m02-s05",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "lamp"
+      ],
+      "prompt": {
+        "ru": "Вы можете выключить лампу?",
+        "uz": "Chiroqni o'chira olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "turn",
+        "off",
+        "the",
+        "lamp"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "turn",
+          "off",
+          "the",
+          "lamp"
+        ],
+        [
+          "can",
+          "you",
+          "turn",
+          "the",
+          "lamp",
+          "off"
+        ]
+      ],
+      "display": "Can you turn off the lamp?",
+      "explanation": {
+        "ru": "turn off — выключать. Предмет можно поставить и после off, и между turn и off: Can you turn the lamp off?",
+        "uz": "turn off — o'chirmoq. Narsani off dan keyin ham, turn bilan off orasiga ham qo'yish mumkin: Can you turn the lamp off?"
+      }
+    },
+    {
+      "key": "a1a2-m02-s06",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "carpet"
+      ],
+      "prompt": {
+        "ru": "Наш кот всегда спит на ковре.",
+        "uz": "Mushugimiz doim gilam ustida uxlaydi."
+      },
+      "fragments": [
+        "our",
+        "cat",
+        "always",
+        "sleeps",
+        "on",
+        "the",
+        "carpet"
+      ],
+      "accepted": [
+        [
+          "our",
+          "cat",
+          "always",
+          "sleeps",
+          "on",
+          "the",
+          "carpet"
+        ]
+      ],
+      "display": "Our cat always sleeps on the carpet.",
+      "explanation": {
+        "ru": "always ставится перед глаголом: always sleeps. Our cat — третье лицо единственного числа (как he, she, it), поэтому sleeps с -s.",
+        "uz": "always fe'ldan oldin keladi: always sleeps. Our cat — birlikdagi uchinchi shaxs (he, she, it kabi), shuning uchun sleeps -s bilan."
+      }
+    },
+    {
+      "key": "a1a2-m02-s07",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "chair"
+      ],
+      "prompt": {
+        "ru": "Сколько стульев в комнате?",
+        "uz": "Xonada nechta stul bor?"
+      },
+      "fragments": [
+        "how",
+        "many",
+        "chairs",
+        "are",
+        "there",
+        "in",
+        "the",
+        "room"
+      ],
+      "accepted": [
+        [
+          "how",
+          "many",
+          "chairs",
+          "are",
+          "there",
+          "in",
+          "the",
+          "room"
+        ]
+      ],
+      "display": "How many chairs are there in the room?",
+      "explanation": {
+        "ru": "How many + множественное число: how many chairs (по-русски «сколько стульев»). «Есть» в таком вопросе — are there: How many chairs are there…?",
+        "uz": "How many + ko'plik: how many chairs. O'zbekchada «nechta stul» birlikda, inglizchada esa chairs ko'plikda. «Bor» — are there: How many chairs are there…?"
+      }
+    },
+    {
+      "key": "a1a2-m02-s08",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "live"
+      ],
+      "prompt": {
+        "ru": "Мои бабушка и дедушка живут в маленькой деревне.",
+        "uz": "Bobom va buvim kichik qishloqda yashashadi."
+      },
+      "fragments": [
+        "my",
+        "grandparents",
+        "live",
+        "in",
+        "a",
+        "small",
+        "village"
+      ],
+      "accepted": [
+        [
+          "my",
+          "grandparents",
+          "live",
+          "in",
+          "a",
+          "small",
+          "village"
+        ]
+      ],
+      "display": "My grandparents live in a small village.",
+      "explanation": {
+        "ru": "grandparents — бабушка и дедушка вместе. Это «они» (they), поэтому live без -s.",
+        "uz": "grandparents — bobo va buvi birgalikda. Bu «ular» (they), shuning uchun live -s siz."
+      }
+    },
+    {
+      "key": "a1a2-m02-s09",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "clean"
+      ],
+      "prompt": {
+        "ru": "Вы можете помочь мне убрать кухню?",
+        "uz": "Oshxonani tozalashga yordam bera olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "help",
+        "me",
+        "clean",
+        "the",
+        "kitchen"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "help",
+          "me",
+          "clean",
+          "the",
+          "kitchen"
+        ]
+      ],
+      "display": "Can you help me clean the kitchen?",
+      "explanation": {
+        "ru": "help + кто + глагол: help me clean — помочь мне убрать (to перед clean можно не ставить). Просьба — Can you…?",
+        "uz": "help + kim + fe'l: help me clean — tozalashga yordam bermoq (clean dan oldin to shart emas). Iltimos — Can you…?"
+      }
+    },
+    {
+      "key": "a1a2-m02-s10",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "open"
+      ],
+      "prompt": {
+        "ru": "Во сколько открывается магазин?",
+        "uz": "Do'kon soat nechada ochiladi?"
+      },
+      "fragments": [
+        "what",
+        "time",
+        "does",
+        "the",
+        "shop",
+        "open"
+      ],
+      "accepted": [
+        [
+          "what",
+          "time",
+          "does",
+          "the",
+          "shop",
+          "open"
+        ]
+      ],
+      "display": "What time does the shop open?",
+      "explanation": {
+        "ru": "Вопрос о времени: What time does…? После does — open без -s. По-русски «открывается», а по-английски просто open.",
+        "uz": "Vaqt haqida savol: What time does…? Does dan keyin open -s siz keladi. O'zbekchada «ochiladi», inglizchada esa shunchaki open."
+      }
+    },
+    {
+      "key": "a1a2-m02-c01",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "home"
+      ],
+      "text": "After work I go ___ by bus.",
+      "options": [
+        "home",
+        "to home",
+        "at home"
+      ],
+      "correct": [
+        "home"
+      ],
+      "translation": {
+        "ru": "После работы я еду домой на автобусе.",
+        "uz": "Ishdan keyin uyga avtobusda boraman."
+      },
+      "explanation": {
+        "ru": "go home — идти или ехать домой, без to: go home, come home. At home — «дома» (где?), а не «домой» (куда?).",
+        "uz": "go home — uyga bormoq. O'zbekchada «uyga» -ga qo'shimchasi bilan aytiladi, lekin inglizchada to qo'yilmaydi: go home, come home. At home — «uyda», «uyga» emas."
+      }
+    },
+    {
+      "key": "a1a2-m02-c02",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "aunt"
+      ],
+      "text": "Every summer I stay ___ my aunt in Bukhara.",
+      "options": [
+        "with",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Каждое лето я живу у тёти в Бухаре.",
+        "uz": "Har yozda Buxoroda xolamnikida turaman."
+      },
+      "explanation": {
+        "ru": "stay with someone — жить у кого-то, гостить. По-русски «у тёти», но at my aunt без 's не говорят (можно at my aunt's), а to — «к» (go to my aunt).",
+        "uz": "stay with someone — kimnikidadir mehmon bo'lib turmoq. «Xolamnikida» deb at my aunt deyilmaydi ('s bilan bo'ladi: at my aunt's), to esa «-ga» (go to my aunt)."
+      }
+    },
+    {
+      "key": "a1a2-m02-c03",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "kitchen"
+      ],
+      "text": "We have breakfast ___ the kitchen.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мы завтракаем на кухне.",
+        "uz": "Biz oshxonada nonushta qilamiz."
+      },
+      "explanation": {
+        "ru": "Внутри помещения — in: in the kitchen, in the bedroom. По-русски «на кухне», но on the kitchen — ошибка; at здесь тоже не подходит.",
+        "uz": "Xona ichida — in: in the kitchen, in the bedroom. «Oshxonada» deganda on ham, at ham emas, in ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c04",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "wall"
+      ],
+      "text": "There is a big picture ___ the wall.",
+      "options": [
+        "on",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "На стене висит большая картина.",
+        "uz": "Devorda katta rasm bor."
+      },
+      "explanation": {
+        "ru": "На поверхности — on: on the wall, on the door. In the wall — «внутри стены» (a hole in the wall), at здесь не подходит.",
+        "uz": "Sirt ustida — on: on the wall, on the door. «Devorda» deganda in yoki at emas, on ishlatiladi; in the wall — devor ichida (a hole in the wall)."
+      }
+    },
+    {
+      "key": "a1a2-m02-c05",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "room"
+      ],
+      "text": "We watch TV in the ___ room.",
+      "options": [
+        "living",
+        "live",
+        "life"
+      ],
+      "correct": [
+        "living"
+      ],
+      "translation": {
+        "ru": "Мы смотрим телевизор в гостиной.",
+        "uz": "Biz zalda televizor ko'ramiz."
+      },
+      "explanation": {
+        "ru": "living room — гостиная: комната, где отдыхают и смотрят телевизор. Нужна форма с -ing — living; live и life здесь не подходят.",
+        "uz": "living room — zal, mehmonxona: dam olinadigan va televizor ko'riladigan xona. -ing shakli kerak — living; live va life to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c06",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "bed"
+      ],
+      "text": "I ___ my bed every morning.",
+      "options": [
+        "make",
+        "lay",
+        "collect"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Каждое утро я заправляю кровать.",
+        "uz": "Har kuni ertalab o'rnimni yig'ishtiraman."
+      },
+      "explanation": {
+        "ru": "make the bed — заправлять кровать. По-русски постель «стелят» или «убирают», но lay («класть») и collect («собирать, коллекционировать») с bed так не употребляют.",
+        "uz": "make the bed — o'rinni yig'ishtirmoq. «Yig'ishtirmoq» deb collect («kolleksiya yig'moq») deyilmaydi, lay («to'shamoq, qo'ymoq») ham bed bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c07",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "table"
+      ],
+      "text": "After dinner we sit ___ the table and talk.",
+      "options": [
+        "at",
+        "behind",
+        "on"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "После ужина мы сидим за столом и разговариваем.",
+        "uz": "Kechki ovqatdan keyin stol atrofida o'tirib suhbatlashamiz."
+      },
+      "explanation": {
+        "ru": "sit at the table — сидеть за столом. По-русски «за», но behind — «позади, за спиной», а on the table — «на столе», сверху.",
+        "uz": "sit at the table — stol atrofida o'tirmoq. Behind — «orqasida», on the table esa — «stolning ustida»."
+      }
+    },
+    {
+      "key": "a1a2-m02-c08",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "key"
+      ],
+      "text": "This is the key ___ the front door.",
+      "options": [
+        "to",
+        "from",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Это ключ от входной двери.",
+        "uz": "Bu kirish eshigining kaliti."
+      },
+      "explanation": {
+        "ru": "the key to the door — ключ от двери. По-русски «от», но from здесь не подходит: по-английски ключ «к» двери — to. At тоже не подходит.",
+        "uz": "the key to the door — eshik kaliti. Inglizchada bu yerda to ishlatiladi; from («-dan») va at to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c09",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "move"
+      ],
+      "text": "Next month we are moving ___ a bigger apartment.",
+      "options": [
+        "to",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "В следующем месяце мы переезжаем в квартиру побольше.",
+        "uz": "Kelasi oy kattaroq kvartiraga ko'chamiz."
+      },
+      "explanation": {
+        "ru": "move to — переезжать куда-то: move to a new apartment, move to Tashkent. По-русски «в квартиру», но in — «где», а не «куда»; at тоже не подходит.",
+        "uz": "move to — biror joyga ko'chmoq: move to a new apartment, move to Tashkent. In — «qayerda», «qayerga» emas; at ham bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c10",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "sit"
+      ],
+      "text": "Please ___ down and have some tea.",
+      "options": [
+        "sit",
+        "seat",
+        "set"
+      ],
+      "correct": [
+        "sit"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, садитесь и выпейте чаю.",
+        "uz": "Iltimos, o'tiring, choy iching."
+      },
+      "explanation": {
+        "ru": "sit down — садиться. Seat — «место, сиденье» (a free seat), set — «ставить»; в значении «садиться» seat down и set down не говорят.",
+        "uz": "sit down — o'tirmoq. Seat — «o'rindiq» (a free seat), set — «qo'ymoq»; «o'tiring» ma'nosida seat down va set down deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "cook"
+      ],
+      "text": "My father is a very good ___.",
+      "options": [
+        "cook",
+        "cooker",
+        "cooking"
+      ],
+      "correct": [
+        "cook"
+      ],
+      "translation": {
+        "ru": "Мой папа — очень хороший повар.",
+        "uz": "Otam juda yaxshi oshpaz."
+      },
+      "explanation": {
+        "ru": "cook — и глагол «готовить», и существительное «повар»: a good cook. Cooker — кухонный прибор (a rice cooker), а не человек; cooking — «готовка».",
+        "uz": "cook — ham «ovqat pishirmoq» fe'li, ham «oshpaz» oti: a good cook. Cooker — oshxona jihozi (a rice cooker), odam emas; cooking — «ovqat pishirish»."
+      }
+    },
+    {
+      "key": "a1a2-m02-d01",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "door"
+      ],
+      "text": "Who is at the door?",
+      "accepted": [
+        "Who is at the door?",
+        "Who's at the door?"
+      ],
+      "translation": {
+        "ru": "Кто там за дверью?",
+        "uz": "Eshik oldida kim bor?"
+      },
+      "explanation": {
+        "ru": "Who's = who is. Не путайте с whose — «чей».",
+        "uz": "Who's = who is. Uni whose («kimning») bilan adashtirmang."
+      }
+    },
+    {
+      "key": "a1a2-m02-d02",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "bathroom"
+      ],
+      "text": "The bathroom is upstairs",
+      "accepted": [
+        "The bathroom is upstairs"
+      ],
+      "translation": {
+        "ru": "Ванная наверху",
+        "uz": "Hammom yuqori qavatda"
+      },
+      "explanation": {
+        "ru": "upstairs — наверху, на верхнем этаже; пишется одним словом.",
+        "uz": "upstairs — yuqori qavatda; bitta so'z qilib yoziladi."
+      }
+    },
+    {
+      "key": "a1a2-m02-d03",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "house"
+      ],
+      "text": "Whose house is this?",
+      "accepted": [
+        "Whose house is this?"
+      ],
+      "translation": {
+        "ru": "Чей это дом?",
+        "uz": "Bu kimning uyi?"
+      },
+      "explanation": {
+        "ru": "whose — «чей». Who's (= who is) звучит так же, но значит другое.",
+        "uz": "whose — «kimning». Who's (= who is) xuddi shunday eshitiladi, lekin ma'nosi boshqa."
+      }
+    },
+    {
+      "key": "a1a2-m02-d04",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "shelf"
+      ],
+      "text": "There are two shelves in my room",
+      "accepted": [
+        "There are two shelves in my room",
+        "There are 2 shelves in my room"
+      ],
+      "translation": {
+        "ru": "В моей комнате две полки",
+        "uz": "Xonamda ikkita javon bor"
+      },
+      "explanation": {
+        "ru": "shelf — shelves: во множественном числе f меняется на v, как knife — knives. Число можно написать цифрой: 2.",
+        "uz": "shelf — shelves: ko'plikda f harfi v ga almashadi, knife — knives kabi. Sonni raqam bilan ham yozish mumkin: 2."
+      }
+    },
+    {
+      "key": "a1a2-m02-d05",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "mirror"
+      ],
+      "text": "We bought a new mirror",
+      "accepted": [
+        "We bought a new mirror"
+      ],
+      "translation": {
+        "ru": "Мы купили новое зеркало",
+        "uz": "Biz yangi ko'zgu sotib oldik"
+      },
+      "explanation": {
+        "ru": "bought — прошедшее время от buy (покупать). В mirror два r.",
+        "uz": "bought — buy (sotib olmoq) fe'lining o'tgan zamon shakli. Mirror so'zida ikkita r bor."
+      }
+    },
+    {
+      "key": "a1a2-m02-d06",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "clock"
+      ],
+      "text": "Look at the clock!",
+      "accepted": [
+        "Look at the clock!"
+      ],
+      "translation": {
+        "ru": "Посмотрите на часы!",
+        "uz": "Soatga qarang!"
+      },
+      "explanation": {
+        "ru": "look at — смотреть на что-то. Clock — настенные или настольные часы, а наручные — watch.",
+        "uz": "look at — biror narsaga qaramoq. Clock — devor yoki stol soati, qo'l soati esa watch."
+      }
+    },
+    {
+      "key": "a1a2-m02-d07",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "close"
+      ],
+      "text": "Close your eyes",
+      "accepted": [
+        "Close your eyes"
+      ],
+      "translation": {
+        "ru": "Закройте глаза",
+        "uz": "Ko'zingizni yuming"
+      },
+      "explanation": {
+        "ru": "close (закрывать) и clothes (одежда) в быстрой речи звучат почти одинаково: здесь по смыслу нужно close.",
+        "uz": "close (yopmoq) va clothes (kiyim) tez nutqda deyarli bir xil eshitiladi: bu yerda ma'nosiga ko'ra close kerak."
+      }
+    },
+    {
+      "key": "a1a2-m02-d08",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "share"
+      ],
+      "text": "Let's share the cake",
+      "accepted": [
+        "Let's share the cake",
+        "Let us share the cake"
+      ],
+      "translation": {
+        "ru": "Давайте разделим торт",
+        "uz": "Keling, tortni bo'lishaylik"
+      },
+      "explanation": {
+        "ru": "Let's — сокращение от let us («давайте»).",
+        "uz": "Let's — let us ning qisqa shakli («keling, …aylik»)."
+      }
+    },
+    {
+      "key": "a1a2-m02-d09",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "stand"
+      ],
+      "text": "Stand next to me",
+      "accepted": [
+        "Stand next to me"
+      ],
+      "translation": {
+        "ru": "Встаньте рядом со мной",
+        "uz": "Yonimda turing"
+      }
+    },
+    {
+      "key": "a1a2-m03-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "rice"
+      ],
+      "prompt": {
+        "ru": "Сколько риса нам нужно?",
+        "uz": "Bizga qancha guruch kerak?"
+      },
+      "fragments": [
+        "how",
+        "much",
+        "rice",
+        "do",
+        "we",
+        "need"
+      ],
+      "accepted": [
+        [
+          "how",
+          "much",
+          "rice",
+          "do",
+          "we",
+          "need"
+        ]
+      ],
+      "display": "How much rice do we need?",
+      "explanation": {
+        "ru": "Rice — неисчисляемое существительное, поэтому how much, а не how many. Дальше вопрос: do we need…?",
+        "uz": "Rice — sanalmaydigan ot, shuning uchun how many emas, how much. Keyin savol: do we need…?"
+      }
+    },
+    {
+      "key": "a1a2-m03-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "grape"
+      ],
+      "prompt": {
+        "ru": "В Узбекистане хорошо растёт виноград.",
+        "uz": "O'zbekistonda uzum yaxshi o'sadi."
+      },
+      "fragments": [
+        "grapes",
+        "grow",
+        "well",
+        "in",
+        "Uzbekistan"
+      ],
+      "accepted": [
+        [
+          "grapes",
+          "grow",
+          "well",
+          "in",
+          "Uzbekistan"
+        ],
+        [
+          "in",
+          "Uzbekistan",
+          "grapes",
+          "grow",
+          "well"
+        ]
+      ],
+      "display": "Grapes grow well in Uzbekistan.",
+      "explanation": {
+        "ru": "По-русски «виноград» — в единственном числе, а по-английски обычно grapes (ягоды), поэтому grow без -s. Well — после глагола; in Uzbekistan можно поставить и в начало.",
+        "uz": "O'zbekchada «uzum» birlikda, inglizchada esa odatda grapes — ko'plikda, shuning uchun grow -s siz. Well fe'ldan keyin keladi; in Uzbekistan ni boshiga ham qo'yish mumkin."
+      }
+    },
+    {
+      "key": "a1a2-m03-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "juice"
+      ],
+      "prompt": {
+        "ru": "Хотите сока?",
+        "uz": "Sharbat xohlaysizmi?"
+      },
+      "fragments": [
+        "would",
+        "you",
+        "like",
+        "some",
+        "juice"
+      ],
+      "accepted": [
+        [
+          "would",
+          "you",
+          "like",
+          "some",
+          "juice"
+        ]
+      ],
+      "display": "Would you like some juice?",
+      "explanation": {
+        "ru": "Вежливо предлагают так: Would you like…? — «Хотите…?». В таком вопросе-предложении ставят some, а не any.",
+        "uz": "Xushmuomalalik bilan shunday taklif qilinadi: Would you like…? — «…xohlaysizmi?». Bunday taklifda any emas, some ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "lunch"
+      ],
+      "prompt": {
+        "ru": "Где вы обычно обедаете?",
+        "uz": "Odatda qayerda tushlik qilasiz?"
+      },
+      "fragments": [
+        "where",
+        "do",
+        "you",
+        "usually",
+        "have",
+        "lunch"
+      ],
+      "accepted": [
+        [
+          "where",
+          "do",
+          "you",
+          "usually",
+          "have",
+          "lunch"
+        ]
+      ],
+      "display": "Where do you usually have lunch?",
+      "explanation": {
+        "ru": "Обедать — have lunch, без артикля. Usually в вопросе стоит после you, перед глаголом: do you usually have.",
+        "uz": "Tushlik qilmoq — have lunch, artiklsiz. Savolda usually you dan keyin, fe'ldan oldin keladi: do you usually have."
+      }
+    },
+    {
+      "key": "a1a2-m03-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "fresh"
+      ],
+      "prompt": {
+        "ru": "Рыба сегодня свежая?",
+        "uz": "Bugun baliq yangimi?"
+      },
+      "fragments": [
+        "is",
+        "the",
+        "fish",
+        "fresh",
+        "today"
+      ],
+      "accepted": [
+        [
+          "is",
+          "the",
+          "fish",
+          "fresh",
+          "today"
+        ]
+      ],
+      "display": "Is the fish fresh today?",
+      "explanation": {
+        "ru": "В вопросе is ставится перед подлежащим: Is the fish…? Today — в конце. О еде «свежий» — fresh, а не new.",
+        "uz": "Savolda is egadan oldin keladi: Is the fish…? Today — oxirida. Ovqat haqida «yangi» — new emas, fresh."
+      }
+    },
+    {
+      "key": "a1a2-m03-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "salad"
+      ],
+      "text": "Can you ___ a salad for dinner?",
+      "options": [
+        "make",
+        "cook",
+        "do"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Вы можете приготовить салат на ужин?",
+        "uz": "Kechki ovqatga salat tayyorlay olasizmi?"
+      },
+      "explanation": {
+        "ru": "make a salad — приготовить салат. Cook — готовить на огне (cook rice, cook dinner), а салат не варят и не жарят; do a salad так не говорят.",
+        "uz": "make a salad — salat tayyorlamoq. Cook — olovda pishirmoq (cook rice, cook dinner), salat esa pishirilmaydi; do a salad deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m03-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "potato"
+      ],
+      "text": "Please buy two kilos ___ potatoes.",
+      "options": [
+        "of",
+        "with",
+        "for"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, купите два килограмма картошки.",
+        "uz": "Iltimos, ikki kilo kartoshka sotib oling."
+      },
+      "explanation": {
+        "ru": "Количество + of: two kilos of potatoes, a bottle of water. По-русски «два кило картошки» — без предлога, а по-английски of нужен.",
+        "uz": "Miqdor + of: two kilos of potatoes, a bottle of water. O'zbekchada «ikki kilo kartoshka» predlogsiz, inglizchada esa of kerak."
+      }
+    },
+    {
+      "key": "a1a2-m03-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "sugar"
+      ],
+      "text": "Do you ___ sugar in your tea?",
+      "options": [
+        "take",
+        "eat",
+        "drink"
+      ],
+      "correct": [
+        "take"
+      ],
+      "translation": {
+        "ru": "Вы кладёте сахар в чай?",
+        "uz": "Choyga shakar solasizmi?"
+      },
+      "explanation": {
+        "ru": "take sugar — класть сахар в чай или кофе (о привычке): Do you take sugar? Можно сказать и put sugar in. Eat и drink так не употребляют.",
+        "uz": "take sugar — choy yoki qahvaga shakar solmoq (odat haqida): Do you take sugar? Put sugar in ham deyish mumkin. Eat va drink bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m03-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "menu"
+      ],
+      "text": "What's ___ the menu today?",
+      "options": [
+        "on",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Что сегодня в меню?",
+        "uz": "Bugun menyuda nima bor?"
+      },
+      "explanation": {
+        "ru": "on the menu — в меню (о блюдах). По-русски «в меню», но in здесь не говорят; at тоже не подходит.",
+        "uz": "on the menu — menyuda (taomlar haqida). «Menyuda» deganda in yoki at emas, on ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "spicy"
+      ],
+      "text": "My father likes ___ food with a lot of pepper.",
+      "options": [
+        "spicy",
+        "sharp",
+        "bitter"
+      ],
+      "correct": [
+        "spicy"
+      ],
+      "translation": {
+        "ru": "Мой папа любит острую еду с большим количеством перца.",
+        "uz": "Otam ko'p qalampirli achchiq ovqatni yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "Острая еда — spicy food. Sharp — «острый» о ноже (a sharp knife), bitter — «горький», как кофе без сахара.",
+        "uz": "Achchiq (qalampirli) ovqat — spicy food. O'zbekchada «achchiq» taxir ta'mni ham bildiradi, lekin inglizchada bitter — faqat taxir (shakarsiz qahva kabi); sharp — o'tkir (a sharp knife)."
+      }
+    },
+    {
+      "key": "a1a2-m03-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "egg"
+      ],
+      "text": "Two eggs, please",
+      "accepted": [
+        "Two eggs, please",
+        "2 eggs, please"
+      ],
+      "translation": {
+        "ru": "Два яйца, пожалуйста",
+        "uz": "Ikkita tuxum bering, iltimos"
+      },
+      "explanation": {
+        "ru": "После two — множественное число: eggs. Число можно написать цифрой: 2.",
+        "uz": "Two dan keyin ko'plik shakli: eggs. Sonni raqam bilan ham yozish mumkin: 2."
+      }
+    },
+    {
+      "key": "a1a2-m03-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "vegetable"
+      ],
+      "text": "Wash the vegetables, please",
+      "accepted": [
+        "Wash the vegetables, please"
+      ],
+      "translation": {
+        "ru": "Помойте, пожалуйста, овощи",
+        "uz": "Iltimos, sabzavotlarni yuving"
+      },
+      "explanation": {
+        "ru": "В vegetables после g пишется e, хотя в речи её почти не слышно.",
+        "uz": "vegetables so'zida g dan keyin e yoziladi, garchi u deyarli eshitilmasa ham."
+      }
+    },
+    {
+      "key": "a1a2-m03-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "cup",
+        "tea"
+      ],
+      "text": "A cup of tea, please",
+      "accepted": [
+        "A cup of tea, please"
+      ],
+      "translation": {
+        "ru": "Чашку чая, пожалуйста",
+        "uz": "Bir piyola choy bering, iltimos"
+      },
+      "explanation": {
+        "ru": "В a cup of tea слово of звучит очень коротко, но писать его нужно.",
+        "uz": "A cup of tea da of juda qisqa eshitiladi, lekin uni yozish kerak."
+      }
+    },
+    {
+      "key": "a1a2-m03-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "knife",
+        "fork"
+      ],
+      "text": "Use a knife and fork",
+      "accepted": [
+        "Use a knife and fork"
+      ],
+      "translation": {
+        "ru": "Пользуйтесь ножом и вилкой",
+        "uz": "Pichoq va sanchqidan foydalaning"
+      },
+      "explanation": {
+        "ru": "В knife первая буква k не читается.",
+        "uz": "knife so'zida birinchi k harfi o'qilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m03-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "sweet"
+      ],
+      "text": "I want something sweet",
+      "accepted": [
+        "I want something sweet"
+      ],
+      "translation": {
+        "ru": "Я хочу чего-нибудь сладкого",
+        "uz": "Biror shirin narsa yegim kelyapti"
+      },
+      "explanation": {
+        "ru": "something sweet — что-нибудь сладкое: прилагательное стоит после something.",
+        "uz": "something sweet — biror shirin narsa: sifat something dan keyin keladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-s01",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "never",
+        "late"
+      ],
+      "prompt": {
+        "ru": "Она никогда не опаздывает на работу.",
+        "uz": "U hech qachon ishga kechikmaydi."
+      },
+      "fragments": [
+        "she",
+        "is",
+        "never",
+        "late",
+        "for",
+        "work"
+      ],
+      "accepted": [
+        [
+          "she",
+          "is",
+          "never",
+          "late",
+          "for",
+          "work"
+        ]
+      ],
+      "display": "She is never late for work.",
+      "explanation": {
+        "ru": "С is наречие never стоит после глагола: is never late. Отрицание одно — never, без not. Опаздывать на работу — be late for work.",
+        "uz": "Is bilan never fe'ldan keyin keladi: is never late. Inkor bitta — never, not kerak emas. Ishga kechikmoq — be late for work."
+      }
+    },
+    {
+      "key": "a1a2-m04-s02",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "often"
+      ],
+      "prompt": {
+        "ru": "Как часто вы навещаете бабушку?",
+        "uz": "Buvingizni qanchalik tez-tez ko'rgani borasiz?"
+      },
+      "fragments": [
+        "how",
+        "often",
+        "do",
+        "you",
+        "visit",
+        "your",
+        "grandmother"
+      ],
+      "accepted": [
+        [
+          "how",
+          "often",
+          "do",
+          "you",
+          "visit",
+          "your",
+          "grandmother"
+        ]
+      ],
+      "display": "How often do you visit your grandmother?",
+      "explanation": {
+        "ru": "Вопрос о частоте: How often…? — «Как часто…?». Дальше — do you и глагол: do you visit.",
+        "uz": "Takrorlanish haqida savol: How often…? — «Qanchalik tez-tez…?». Keyin — do you va fe'l: do you visit."
+      }
+    },
+    {
+      "key": "a1a2-m04-s03",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "eight"
+      ],
+      "prompt": {
+        "ru": "В этом доме живут восемь человек.",
+        "uz": "Bu uyda sakkiz kishi yashaydi."
+      },
+      "fragments": [
+        "eight",
+        "people",
+        "live",
+        "in",
+        "this",
+        "house"
+      ],
+      "accepted": [
+        [
+          "eight",
+          "people",
+          "live",
+          "in",
+          "this",
+          "house"
+        ]
+      ],
+      "display": "Eight people live in this house.",
+      "explanation": {
+        "ru": "По-русски «восемь человек», а по-английски people: eight people. People — множественное число, поэтому live без -s.",
+        "uz": "O'zbekchada «sakkiz kishi yashaydi» — birlikda, inglizchada esa eight people — ko'plik, shuning uchun live -s siz keladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-s04",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "ten"
+      ],
+      "prompt": {
+        "ru": "Мой младший брат умеет считать до десяти.",
+        "uz": "Ukam o'ngacha sanay oladi."
+      },
+      "fragments": [
+        "my",
+        "little",
+        "brother",
+        "can",
+        "count",
+        "to",
+        "ten"
+      ],
+      "accepted": [
+        [
+          "my",
+          "little",
+          "brother",
+          "can",
+          "count",
+          "to",
+          "ten"
+        ]
+      ],
+      "display": "My little brother can count to ten.",
+      "explanation": {
+        "ru": "can + глагол без to: can count. «До десяти» — to ten.",
+        "uz": "can + to siz fe'l: can count. «O'ngacha» — to ten."
+      }
+    },
+    {
+      "key": "a1a2-m04-s05",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "six"
+      ],
+      "prompt": {
+        "ru": "Для торта нам нужно шесть яиц.",
+        "uz": "Tort uchun bizga oltita tuxum kerak."
+      },
+      "fragments": [
+        "we",
+        "need",
+        "six",
+        "eggs",
+        "for",
+        "the",
+        "cake"
+      ],
+      "accepted": [
+        [
+          "we",
+          "need",
+          "six",
+          "eggs",
+          "for",
+          "the",
+          "cake"
+        ],
+        [
+          "for",
+          "the",
+          "cake",
+          "we",
+          "need",
+          "six",
+          "eggs"
+        ]
+      ],
+      "display": "We need six eggs for the cake.",
+      "explanation": {
+        "ru": "По-русски «нам нужно», а по-английски «мы нуждаемся»: we need. После six — множественное число: eggs. For the cake можно поставить и в начало.",
+        "uz": "«Bizga kerak» inglizchada we need («biz muhtojmiz») deyiladi. Six dan keyin ko'plik: eggs. For the cake ni boshiga ham qo'yish mumkin."
+      }
+    },
+    {
+      "key": "a1a2-m04-s06",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "half"
+      ],
+      "prompt": {
+        "ru": "Половина моих друзей живёт в Ташкенте.",
+        "uz": "Do'stlarimning yarmi Toshkentda yashaydi."
+      },
+      "fragments": [
+        "half",
+        "of",
+        "my",
+        "friends",
+        "live",
+        "in",
+        "Tashkent"
+      ],
+      "accepted": [
+        [
+          "half",
+          "of",
+          "my",
+          "friends",
+          "live",
+          "in",
+          "Tashkent"
+        ]
+      ],
+      "display": "Half of my friends live in Tashkent.",
+      "explanation": {
+        "ru": "После half of + множественное число глагол тоже во множественном: half of my friends live (без -s). По-русски «половина живёт», но в английском смотрят на friends.",
+        "uz": "Half of + ko'plikdan keyin fe'l ham ko'plikda: half of my friends live (-s siz). O'zbekchada «yarmi yashaydi», inglizchada esa friends ga qaraladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-s07",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "first"
+      ],
+      "prompt": {
+        "ru": "Вы здесь в первый раз?",
+        "uz": "Bu yerga birinchi marta kelishingizmi?"
+      },
+      "fragments": [
+        "is",
+        "this",
+        "your",
+        "first",
+        "time",
+        "here"
+      ],
+      "accepted": [
+        [
+          "is",
+          "this",
+          "your",
+          "first",
+          "time",
+          "here"
+        ]
+      ],
+      "display": "Is this your first time here?",
+      "explanation": {
+        "ru": "По-русски «Вы здесь в первый раз?», а по-английски спрашивают через this: Is this your first time here? Перед first time нужно your.",
+        "uz": "O'zbekchada «Bu yerga birinchi marta kelishingizmi?», inglizchada esa this bilan so'raladi: Is this your first time here? First time dan oldin your kerak."
+      }
+    },
+    {
+      "key": "a1a2-m04-s08",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "date"
+      ],
+      "prompt": {
+        "ru": "Напишите дату на доске.",
+        "uz": "Sanani doskaga yozing."
+      },
+      "fragments": [
+        "write",
+        "the",
+        "date",
+        "on",
+        "the",
+        "board"
+      ],
+      "accepted": [
+        [
+          "write",
+          "the",
+          "date",
+          "on",
+          "the",
+          "board"
+        ]
+      ],
+      "display": "Write the date on the board.",
+      "explanation": {
+        "ru": "Просьба или указание начинается с глагола: Write… «На доске» — on the board.",
+        "uz": "Buyruq gap fe'l bilan boshlanadi: Write… «Doskaga» — on the board."
+      }
+    },
+    {
+      "key": "a1a2-m04-c01",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "day"
+      ],
+      "text": "The party is the day ___ tomorrow.",
+      "options": [
+        "after",
+        "next",
+        "later"
+      ],
+      "correct": [
+        "after"
+      ],
+      "translation": {
+        "ru": "Вечеринка послезавтра.",
+        "uz": "Ziyofat indinga bo'ladi."
+      },
+      "explanation": {
+        "ru": "the day after tomorrow — послезавтра, дословно «день после завтра». Next и later так не употребляют: next week, see you later.",
+        "uz": "the day after tomorrow — indinga, so'zma-so'z «ertadan keyingi kun». Next va later bunday ishlatilmaydi: next week, see you later."
+      }
+    },
+    {
+      "key": "a1a2-m04-c02",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "hour"
+      ],
+      "text": "I read ___ an hour every evening.",
+      "options": [
+        "for",
+        "during",
+        "since"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Каждый вечер я читаю по часу.",
+        "uz": "Har kuni kechqurun bir soat kitob o'qiyman."
+      },
+      "explanation": {
+        "ru": "Сколько длится действие — for: for an hour, for two days. During — «во время» (during the lesson), since — «с» какого-то момента (since Monday).",
+        "uz": "Harakat qancha davom etishi — for: for an hour, for two days. During — «… paytida» (during the lesson), since — «…dan beri» (since Monday)."
+      }
+    },
+    {
+      "key": "a1a2-m04-c03",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "four"
+      ],
+      "text": "We are a family ___ four.",
+      "options": [
+        "of",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "У нас семья из четырёх человек.",
+        "uz": "Oilamiz to'rt kishidan iborat."
+      },
+      "explanation": {
+        "ru": "a family of four — семья из четырёх человек. По-русски «из», но from здесь не подходит; with нужен перед существительным (a family with two children).",
+        "uz": "a family of four — to'rt kishilik oila. «-dan iborat» deb from qo'yilmaydi; with esa ot bilan keladi (a family with two children)."
+      }
+    },
+    {
+      "key": "a1a2-m04-c04",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "nine"
+      ],
+      "text": "My son goes to bed ___ nine.",
+      "options": [
+        "at",
+        "in",
+        "on"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Мой сын ложится спать в девять.",
+        "uz": "O'g'lim soat to'qqizda uxlashga yotadi."
+      },
+      "explanation": {
+        "ru": "Точное время — at: at nine, at seven o'clock. По-русски «в девять», но in и on с часами не употребляют.",
+        "uz": "Aniq vaqt — at: at nine, at seven o'clock. «Soat to'qqizda» deganda in yoki on emas, at ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-c05",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "one"
+      ],
+      "text": "Please come in one ___ one.",
+      "options": [
+        "by",
+        "to",
+        "from"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, заходите по одному.",
+        "uz": "Iltimos, birma-bir kiring."
+      },
+      "explanation": {
+        "ru": "one by one — по одному, один за другим. One to one — «один на один» (a one-to-one talk), а from здесь не подходит.",
+        "uz": "one by one — birma-bir, bittadan. «Bittadan» deb from qo'yilmaydi; one to one esa — «yakkama-yakka» (a one-to-one talk)."
+      }
+    },
+    {
+      "key": "a1a2-m04-c06",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "last"
+      ],
+      "text": "We visited my aunt ___ week.",
+      "options": [
+        "last",
+        "past",
+        "ago"
+      ],
+      "correct": [
+        "last"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе мы навестили тётю.",
+        "uz": "O'tgan hafta xolamnikiga bordik."
+      },
+      "explanation": {
+        "ru": "last week — на прошлой неделе, без предлога. Past week без the не говорят, а ago ставится после срока: a week ago — неделю назад.",
+        "uz": "last week — o'tgan hafta, predlogsiz. «O'tgan» deb past week deyilmaydi, ago esa muddatdan keyin keladi: a week ago — bir hafta oldin."
+      }
+    },
+    {
+      "key": "a1a2-m04-c07",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "number"
+      ],
+      "text": "Sorry, you have the ___ number.",
+      "options": [
+        "wrong",
+        "false",
+        "bad"
+      ],
+      "correct": [
+        "wrong"
+      ],
+      "translation": {
+        "ru": "Извините, вы ошиблись номером.",
+        "uz": "Kechirasiz, siz noto'g'ri raqam terdingiz."
+      },
+      "explanation": {
+        "ru": "the wrong number — не тот номер. По-русски «неверный», но false — «ложный» (false information), а bad number так не говорят.",
+        "uz": "the wrong number — noto'g'ri raqam. False — «yolg'on, soxta» (false information), bad number esa deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m04-c08",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "hundred"
+      ],
+      "text": "This book has three ___ pages.",
+      "options": [
+        "hundred",
+        "hundreds",
+        "hundreds of"
+      ],
+      "correct": [
+        "hundred"
+      ],
+      "translation": {
+        "ru": "В этой книге триста страниц.",
+        "uz": "Bu kitobda uch yuz bet bor."
+      },
+      "explanation": {
+        "ru": "После числа hundred пишется без -s и без of: three hundred pages. Hundreds of — «сотни», без точного числа: hundreds of books.",
+        "uz": "Sondan keyin hundred -s siz va of siz keladi: three hundred pages. Hundreds of — aniq son bo'lmaganda «yuzlab»: hundreds of books."
+      }
+    },
+    {
+      "key": "a1a2-m04-d01",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "year"
+      ],
+      "text": "Happy New Year!",
+      "accepted": [
+        "Happy New Year!"
+      ],
+      "translation": {
+        "ru": "С Новым годом!",
+        "uz": "Yangi yilingiz bilan!"
+      },
+      "explanation": {
+        "ru": "По-русски «С Новым годом!», а по-английски поздравляют словом happy: Happy New Year! Happy birthday!",
+        "uz": "Inglizchada tabrik happy so'zi bilan boshlanadi: Happy New Year! Happy birthday!"
+      }
+    },
+    {
+      "key": "a1a2-m04-d02",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "minute"
+      ],
+      "text": "Come back in five minutes",
+      "accepted": [
+        "Come back in five minutes",
+        "Come back in 5 minutes"
+      ],
+      "translation": {
+        "ru": "Вернитесь через пять минут",
+        "uz": "Besh daqiqadan keyin qaytib keling"
+      },
+      "explanation": {
+        "ru": "in five minutes — через пять минут. Число можно написать цифрой: 5.",
+        "uz": "in five minutes — besh daqiqadan keyin. Sonni raqam bilan ham yozish mumkin: 5."
+      }
+    },
+    {
+      "key": "a1a2-m04-d03",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "sometimes"
+      ],
+      "text": "I sometimes go by bus",
+      "accepted": [
+        "I sometimes go by bus"
+      ],
+      "translation": {
+        "ru": "Иногда я езжу на автобусе",
+        "uz": "Ba'zan avtobusda boraman"
+      },
+      "explanation": {
+        "ru": "sometimes («иногда») пишется одним словом. By звучит так же, как buy (покупать).",
+        "uz": "sometimes («ba'zan») bitta so'z qilib yoziladi. By buy (sotib olmoq) bilan bir xil eshitiladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-d04",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "two"
+      ],
+      "text": "Give me two minutes",
+      "accepted": [
+        "Give me two minutes",
+        "Give me 2 minutes"
+      ],
+      "translation": {
+        "ru": "Дайте мне две минуты",
+        "uz": "Menga ikki daqiqa bering"
+      },
+      "explanation": {
+        "ru": "two (два) звучит так же, как to и too. Число можно написать цифрой: 2.",
+        "uz": "two (ikki) to va too bilan bir xil eshitiladi. Sonni raqam bilan ham yozish mumkin: 2."
+      }
+    },
+    {
+      "key": "a1a2-m04-d05",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "three"
+      ],
+      "text": "The baby is three months old",
+      "accepted": [
+        "The baby is three months old",
+        "The baby is 3 months old"
+      ],
+      "translation": {
+        "ru": "Малышу три месяца",
+        "uz": "Chaqaloq uch oylik"
+      },
+      "explanation": {
+        "ru": "Возраст: be + число + months old. Число можно написать цифрой: 3.",
+        "uz": "Yosh: be + son + months old. Sonni raqam bilan ham yozish mumkin: 3."
+      }
+    },
+    {
+      "key": "a1a2-m04-d06",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "seven"
+      ],
+      "text": "It's seven o'clock",
+      "accepted": [
+        "It's seven o'clock",
+        "It is seven o'clock",
+        "It's 7 o'clock",
+        "It is 7 o'clock"
+      ],
+      "translation": {
+        "ru": "Сейчас семь часов",
+        "uz": "Soat yetti bo'ldi"
+      },
+      "explanation": {
+        "ru": "It's = it is, с апострофом (its без него — «его»). O'clock тоже пишется с апострофом. Число можно написать цифрой: 7.",
+        "uz": "It's = it is, apostrof bilan (its — «uning»). O'clock ham apostrof bilan yoziladi. Sonni raqam bilan ham yozish mumkin: 7."
+      }
+    },
+    {
+      "key": "a1a2-m04-d07",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "twenty"
+      ],
+      "text": "I am twenty years old",
+      "accepted": [
+        "I am twenty years old",
+        "I'm twenty years old",
+        "I am 20 years old",
+        "I'm 20 years old"
+      ],
+      "translation": {
+        "ru": "Мне двадцать лет",
+        "uz": "Men yigirma yoshdaman"
+      },
+      "explanation": {
+        "ru": "По-русски «мне двадцать лет», а по-английски возраст называют через be: I am twenty years old. Число можно написать цифрой: 20.",
+        "uz": "Inglizchada yosh be bilan aytiladi: I am twenty years old. Sonni raqam bilan ham yozish mumkin: 20."
+      }
+    },
+    {
+      "key": "a1a2-m04-d08",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "fifty"
+      ],
+      "text": "My father is fifty",
+      "accepted": [
+        "My father is fifty",
+        "My father is 50"
+      ],
+      "translation": {
+        "ru": "Моему папе пятьдесят лет",
+        "uz": "Otam ellik yoshda"
+      },
+      "explanation": {
+        "ru": "fifty (50) — ударение на первый слог, fifteen (15) — на второй. Число можно написать цифрой: 50.",
+        "uz": "fifty (50) — urg'u birinchi bo'g'inda, fifteen (15) — ikkinchisida. Sonni raqam bilan ham yozish mumkin: 50."
+      }
+    },
+    {
+      "key": "a1a2-m04-d09",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "thousand"
+      ],
+      "text": "Two thousand people live here",
+      "accepted": [
+        "Two thousand people live here",
+        "2000 people live here",
+        "2,000 people live here"
+      ],
+      "translation": {
+        "ru": "Здесь живут две тысячи человек",
+        "uz": "Bu yerda ikki ming kishi yashaydi"
+      },
+      "explanation": {
+        "ru": "После two thousand без -s: two thousand people. Число можно написать цифрами: 2000 или 2,000.",
+        "uz": "Two thousand dan keyin -s qo'yilmaydi: two thousand people. Sonni raqamlar bilan ham yozish mumkin: 2000 yoki 2,000."
+      }
+    },
+    {
+      "key": "a1a2-m05-s11",
+      "type": "sentence",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hospital"
+      ],
+      "prompt": {
+        "ru": "Какой автобус идёт до больницы?",
+        "uz": "Kasalxonaga qaysi avtobus boradi?"
+      },
+      "fragments": [
+        "which",
+        "bus",
+        "goes",
+        "to",
+        "the",
+        "hospital"
+      ],
+      "accepted": [
+        [
+          "which",
+          "bus",
+          "goes",
+          "to",
+          "the",
+          "hospital"
+        ]
+      ],
+      "display": "Which bus goes to the hospital?",
+      "explanation": {
+        "ru": "Вопрос к подлежащему — без do: Which bus goes…? Bus — it, поэтому goes с -es.",
+        "uz": "Egaga savol — do siz: Which bus goes…? Bus — it, shuning uchun goes -es bilan."
+      }
+    },
+    {
+      "key": "a1a2-m05-s12",
+      "type": "sentence",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "mosque"
+      ],
+      "prompt": {
+        "ru": "По пятницам мы ходим в мечеть.",
+        "uz": "Juma kunlari masjidga boramiz."
+      },
+      "fragments": [
+        "we",
+        "go",
+        "to",
+        "the",
+        "mosque",
+        "on",
+        "Fridays"
+      ],
+      "accepted": [
+        [
+          "we",
+          "go",
+          "to",
+          "the",
+          "mosque",
+          "on",
+          "Fridays"
+        ],
+        [
+          "on",
+          "Fridays",
+          "we",
+          "go",
+          "to",
+          "the",
+          "mosque"
+        ]
+      ],
+      "display": "We go to the mosque on Fridays.",
+      "explanation": {
+        "ru": "on Fridays — по пятницам, каждую пятницу: on + день недели с -s. Можно поставить и в начало: On Fridays we go to the mosque.",
+        "uz": "on Fridays — juma kunlari, har juma: on + -s qo'shilgan hafta kuni. Boshiga ham qo'yish mumkin: On Fridays we go to the mosque."
+      }
+    },
+    {
+      "key": "a1a2-m05-s13",
+      "type": "sentence",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "car"
+      ],
+      "prompt": {
+        "ru": "Можно мне поставить здесь машину?",
+        "uz": "Mashinamni shu yerga qo'ysam bo'ladimi?"
+      },
+      "fragments": [
+        "can",
+        "I",
+        "park",
+        "my",
+        "car",
+        "here"
+      ],
+      "accepted": [
+        [
+          "can",
+          "I",
+          "park",
+          "my",
+          "car",
+          "here"
+        ]
+      ],
+      "display": "Can I park my car here?",
+      "explanation": {
+        "ru": "park — ставить машину на стоянку. Разрешение спрашивают так: Can I…? — «Можно мне…?». Here — в конце.",
+        "uz": "park — mashinani to'xtash joyiga qo'ymoq. Ruxsat so'rash: Can I…? — «Mumkinmi?». Here — oxirida."
+      }
+    },
+    {
+      "key": "a1a2-m05-s14",
+      "type": "sentence",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "north"
+      ],
+      "prompt": {
+        "ru": "Ташкент находится к северу от Самарканда.",
+        "uz": "Toshkent Samarqanddan shimolda joylashgan."
+      },
+      "fragments": [
+        "Tashkent",
+        "is",
+        "north",
+        "of",
+        "Samarkand"
+      ],
+      "accepted": [
+        [
+          "Tashkent",
+          "is",
+          "north",
+          "of",
+          "Samarkand"
+        ]
+      ],
+      "display": "Tashkent is north of Samarkand.",
+      "explanation": {
+        "ru": "north of + место — к северу от чего-то, без артикля: north of Samarkand. Сравните: in the north — на севере.",
+        "uz": "north of + joy — biror joydan shimolda, artiklsiz: north of Samarkand. Solishtiring: in the north — shimolda."
+      }
+    },
+    {
+      "key": "a1a2-m05-s15",
+      "type": "sentence",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "arrive"
+      ],
+      "prompt": {
+        "ru": "Когда прибывает поезд?",
+        "uz": "Poyezd qachon yetib keladi?"
+      },
+      "fragments": [
+        "when",
+        "does",
+        "the",
+        "train",
+        "arrive"
+      ],
+      "accepted": [
+        [
+          "when",
+          "does",
+          "the",
+          "train",
+          "arrive"
+        ]
+      ],
+      "display": "When does the train arrive?",
+      "explanation": {
+        "ru": "Вопрос: When does…? После does глагол без -s: arrive, а не arrives.",
+        "uz": "Savol: When does…? Does dan keyin fe'l -s siz keladi: arrives emas, arrive."
+      }
+    },
+    {
+      "key": "a1a2-m05-c11",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "market"
+      ],
+      "text": "My mother buys vegetables ___ the market.",
+      "options": [
+        "at",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Моя мама покупает овощи на рынке.",
+        "uz": "Onam bozordan sabzavot oladi."
+      },
+      "explanation": {
+        "ru": "Где покупают — at the market. По-русски «на рынке», но on здесь не подходит; to — «куда» (go to the market).",
+        "uz": "Qayerda sotib olinadi — at the market. «Bozorda» deganda on emas, at ishlatiladi; to — «qayerga» (go to the market)."
+      }
+    },
+    {
+      "key": "a1a2-m05-c12",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "cinema"
+      ],
+      "text": "What's ___ at the cinema tonight?",
+      "options": [
+        "on",
+        "going",
+        "in"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Что сегодня вечером идёт в кино?",
+        "uz": "Bugun kechqurun kinoteatrda nima ko'rsatiladi?"
+      },
+      "explanation": {
+        "ru": "What's on? — что идёт (в кино, в театре, по телевизору). По-русски «идёт», но going здесь не подходит; in тоже.",
+        "uz": "What's on? — nima ko'rsatilyapti (kinoteatrda, teatrda, televizorda). Going va in bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-c13",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "traffic"
+      ],
+      "text": "There is a big traffic ___ on the bridge.",
+      "options": [
+        "jam",
+        "cork",
+        "plug"
+      ],
+      "correct": [
+        "jam"
+      ],
+      "translation": {
+        "ru": "На мосту большая пробка.",
+        "uz": "Ko'prikda katta tirbandlik bor."
+      },
+      "explanation": {
+        "ru": "traffic jam — пробка на дороге. Русское «пробка» — это cork (от бутылки), plug — «затычка»; о дороге так не говорят.",
+        "uz": "traffic jam — yo'ldagi tirbandlik. Cork — shisha tiqini, plug — tiqin; yo'l haqida ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-c14",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "corner"
+      ],
+      "text": "The bus stop is just ___ the corner.",
+      "options": [
+        "around",
+        "behind",
+        "after"
+      ],
+      "correct": [
+        "around"
+      ],
+      "translation": {
+        "ru": "Остановка прямо за углом.",
+        "uz": "Bekat shundoqqina muyulishda."
+      },
+      "explanation": {
+        "ru": "around the corner — за углом, совсем рядом. По-русски «за», но behind the corner так не говорят; after тоже не подходит.",
+        "uz": "around the corner — muyulishda, juda yaqinda. Behind the corner va after the corner deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-c15",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "leave"
+      ],
+      "text": "Tomorrow we leave ___ Tashkent.",
+      "options": [
+        "for",
+        "to",
+        "in"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Завтра мы уезжаем в Ташкент.",
+        "uz": "Ertaga Toshkentga jo'naymiz."
+      },
+      "explanation": {
+        "ru": "leave for + место — уезжать куда-то: leave for Tashkent. Leave Tashkent без предлога — уезжать из Ташкента. To после leave не ставят.",
+        "uz": "leave for + joy — biror joyga jo'nab ketmoq: leave for Tashkent. Leave Tashkent (predlogsiz) — Toshkentdan ketmoq. Leave dan keyin to qo'yilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-d11",
+      "type": "dictation",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "bridge"
+      ],
+      "text": "Meet me at the bridge",
+      "accepted": [
+        "Meet me at the bridge"
+      ],
+      "translation": {
+        "ru": "Встретимся у моста",
+        "uz": "Ko'prik oldida uchrashamiz"
+      },
+      "explanation": {
+        "ru": "В bridge перед ge пишется d: bridge.",
+        "uz": "bridge so'zida ge dan oldin d yoziladi: bridge."
+      }
+    },
+    {
+      "key": "a1a2-m05-d12",
+      "type": "dictation",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "station"
+      ],
+      "text": "The station is over there",
+      "accepted": [
+        "The station is over there"
+      ],
+      "translation": {
+        "ru": "Вокзал вон там",
+        "uz": "Vokzal ana u yerda"
+      },
+      "explanation": {
+        "ru": "over there — вон там. There (там) звучит так же, как their (их).",
+        "uz": "over there — ana u yerda. There (u yerda) their (ularning) bilan bir xil eshitiladi."
+      }
+    },
+    {
+      "key": "a1a2-m05-d13",
+      "type": "dictation",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "plane"
+      ],
+      "text": "We are going by plane",
+      "accepted": [
+        "We are going by plane",
+        "We're going by plane"
+      ],
+      "translation": {
+        "ru": "Мы летим на самолёте",
+        "uz": "Biz samolyotda uchamiz"
+      },
+      "explanation": {
+        "ru": "plane (самолёт) звучит так же, как plain (простой). We're = we are.",
+        "uz": "plane (samolyot) plain (oddiy) bilan bir xil eshitiladi. We're = we are."
+      }
+    },
+    {
+      "key": "a1a2-m05-d14",
+      "type": "dictation",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "far"
+      ],
+      "text": "How far is the museum?",
+      "accepted": [
+        "How far is the museum?"
+      ],
+      "translation": {
+        "ru": "Как далеко до музея?",
+        "uz": "Muzey qancha uzoqda?"
+      },
+      "explanation": {
+        "ru": "Вопрос о расстоянии: How far is…? — «Как далеко…?».",
+        "uz": "Masofa haqida savol: How far is…? — «Qancha uzoqda…?»."
+      }
+    },
+    {
+      "key": "a1a2-m05-d15",
+      "type": "dictation",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "go"
+      ],
+      "text": "Where are you going?",
+      "accepted": [
+        "Where are you going?"
+      ],
+      "translation": {
+        "ru": "Куда вы идёте?",
+        "uz": "Qayerga ketyapsiz?"
+      },
+      "explanation": {
+        "ru": "where (куда, где) не путайте с were (были): звучат похоже.",
+        "uz": "where (qayerga, qayerda) ni were (edi) bilan adashtirmang: ular o'xshash eshitiladi."
+      }
+    }
+  ]
+}

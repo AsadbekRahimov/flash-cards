@@ -50,6 +50,18 @@ Schedule::command('practice:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// The runs of the game past `expires_at` become finished / expired and let go of the learner's "one active run" (docs/18 §12.2.1, §12.5.1):
+// one conditional UPDATE per run, so overlapping or repeated runs are harmless.
+Schedule::command('game:close-expired')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+// The class caravans whose week has ended become finished and their summary is queued (docs/18 §12.11): one transaction per caravan,
+// read again under its lock, the summary posted exactly once by the job - a repeated or parallel run changes nothing.
+Schedule::command('game:class-caravans-close')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')
@@ -129,6 +141,19 @@ Schedule::command('reminders:dispatch')
 
 // Retention of product_events and notifications_log (operations.*.retention_days).
 Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class]])->daily()->at('03:00');
+
+// Final deletion of learners soft-deleted more than `learners.purge.after_days` (30) days ago (docs/03 §8 rule 2,
+// docs/07 §10): personal and learning data go by FK cascade, payment records stay with the payer snapshot.
+// Idempotent: a purge lock per run and a row lock per learner, so a repeated or parallel run deletes nothing twice.
+Schedule::command('learners:purge-deleted')
+    ->dailyAt('03:30')
+    ->withoutOverlapping(60);
+
+// The wallets of the game against their ledger (docs/18 §12.2.5): a report in the log, nothing is changed. Not 03:30 (the purge
+// of learners runs then) and not 04:30 (the reconciliation of Stars).
+Schedule::command('game:wallets-verify')
+    ->dailyAt('04:10')
+    ->withoutOverlapping(30);
 
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');

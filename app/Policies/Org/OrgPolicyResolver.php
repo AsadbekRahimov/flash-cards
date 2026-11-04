@@ -6,6 +6,7 @@ namespace App\Policies\Org;
 
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
+use App\Models\ClassCaravan;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
@@ -46,6 +47,7 @@ final class OrgPolicyResolver
         Learner::class => OrgLearnerPolicy::class,
         Assignment::class => OrgAssignmentPolicy::class,
         AssignmentResult::class => OrgAssignmentResultPolicy::class,
+        ClassCaravan::class => OrgClassCaravanPolicy::class,
     ];
 
     public static function register(): void

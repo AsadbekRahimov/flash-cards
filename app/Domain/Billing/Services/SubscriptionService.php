@@ -18,6 +18,7 @@ use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Domain\Organizations\Services\OrgOverviewService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -1259,6 +1260,8 @@ final class SubscriptionService
         DB::afterCommit(function () use ($type, $id): void {
             if ($type === 'organization') {
                 $this->entitlements->forgetOrganization($id);
+                // The seats, tier and end date of the `/org` dashboard (docs/19 K2): the owner who has just paid sees them at once.
+                OrgOverviewService::forget($id);
 
                 try {
                     $this->memberships->reseat($id);

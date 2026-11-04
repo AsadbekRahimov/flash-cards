@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 4,
+    "title": "Время, дни и числа",
+    "title_uz": "Vaqt, kunlar va sonlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Числа от 1 до 10",
+    "title_uz": "1 dan 10 gacha sonlar"
+  },
+  "words": [
+    {
+      "word": "one",
+      "part_of_speech": "adjective",
+      "translation": "один",
+      "translations": {
+        "ru": "один",
+        "uz": "bir"
+      },
+      "example": "I have one brother.",
+      "example_translations": {
+        "ru": "У меня один брат.",
+        "uz": "Mening bitta akam bor."
+      }
+    },
+    {
+      "word": "two",
+      "part_of_speech": "adjective",
+      "translation": "два",
+      "translations": {
+        "ru": "два",
+        "uz": "ikki"
+      },
+      "example": "We have two children.",
+      "example_translations": {
+        "ru": "У нас двое детей.",
+        "uz": "Bizning ikkita farzandimiz bor."
+      }
+    },
+    {
+      "word": "three",
+      "part_of_speech": "adjective",
+      "translation": "три",
+      "translations": {
+        "ru": "три",
+        "uz": "uch"
+      },
+      "example": "There are three apples on the table.",
+      "example_translations": {
+        "ru": "На столе три яблока.",
+        "uz": "Stolda uchta olma bor."
+      }
+    },
+    {
+      "word": "four",
+      "part_of_speech": "adjective",
+      "translation": "четыре",
+      "translations": {
+        "ru": "четыре",
+        "uz": "to'rt"
+      },
+      "example": "The room has four windows.",
+      "example_translations": {
+        "ru": "В комнате четыре окна.",
+        "uz": "Xonada to'rtta deraza bor."
+      }
+    },
+    {
+      "word": "five",
+      "part_of_speech": "adjective",
+      "translation": "пять",
+      "translations": {
+        "ru": "пять",
+        "uz": "besh"
+      },
+      "example": "He is five years old.",
+      "example_translations": {
+        "ru": "Ему пять лет.",
+        "uz": "U besh yoshda."
+      }
+    },
+    {
+      "word": "six",
+      "part_of_speech": "adjective",
+      "translation": "шесть",
+      "translations": {
+        "ru": "шесть",
+        "uz": "olti"
+      },
+      "example": "I get up at six.",
+      "example_translations": {
+        "ru": "Я встаю в шесть.",
+        "uz": "Men soat oltida turaman."
+      }
+    },
+    {
+      "word": "seven",
+      "part_of_speech": "adjective",
+      "translation": "семь",
+      "translations": {
+        "ru": "семь",
+        "uz": "yetti"
+      },
+      "example": "We eat dinner at seven.",
+      "example_translations": {
+        "ru": "Мы ужинаем в семь.",
+        "uz": "Biz soat yettida kechki ovqat yeymiz."
+      }
+    },
+    {
+      "word": "eight",
+      "part_of_speech": "adjective",
+      "translation": "восемь",
+      "translations": {
+        "ru": "восемь",
+        "uz": "sakkiz"
+      },
+      "example": "Lessons start at eight.",
+      "example_translations": {
+        "ru": "Уроки начинаются в восемь.",
+        "uz": "Darslar soat sakkizda boshlanadi."
+      }
+    },
+    {
+      "word": "nine",
+      "part_of_speech": "adjective",
+      "translation": "девять",
+      "translations": {
+        "ru": "девять",
+        "uz": "to'qqiz"
+      },
+      "example": "My son is nine.",
+      "example_translations": {
+        "ru": "Моему сыну девять лет.",
+        "uz": "O'g'lim to'qqiz yoshda."
+      }
+    },
+    {
+      "word": "ten",
+      "part_of_speech": "adjective",
+      "translation": "десять",
+      "translations": {
+        "ru": "десять",
+        "uz": "o'n"
+      },
+      "example": "I need ten minutes.",
+      "example_translations": {
+        "ru": "Мне нужно десять минут.",
+        "uz": "Menga o'n daqiqa kerak."
+      }
+    }
+  ]
+}

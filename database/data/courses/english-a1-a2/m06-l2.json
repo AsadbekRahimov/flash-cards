@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 6,
+    "title": "Покупки и одежда",
+    "title_uz": "Xaridlar va kiyim"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Одежда",
+    "title_uz": "Kiyim"
+  },
+  "words": [
+    {
+      "word": "shirt",
+      "part_of_speech": "noun",
+      "translation": "рубашка",
+      "translations": {
+        "ru": "рубашка",
+        "uz": "ko'ylak"
+      },
+      "example": "He wears a white shirt.",
+      "example_translations": {
+        "ru": "Он носит белую рубашку.",
+        "uz": "U oq ko'ylak kiyadi."
+      }
+    },
+    {
+      "word": "dress",
+      "part_of_speech": "noun",
+      "translation": "платье",
+      "translations": {
+        "ru": "платье",
+        "uz": "libos"
+      },
+      "example": "She has a long blue dress.",
+      "example_translations": {
+        "ru": "У неё длинное синее платье.",
+        "uz": "Uning uzun ko'k libosi bor."
+      }
+    },
+    {
+      "word": "jacket",
+      "part_of_speech": "noun",
+      "translation": "куртка, пиджак",
+      "translations": {
+        "ru": "куртка, пиджак",
+        "uz": "kurtka"
+      },
+      "example": "Take your jacket, it is cold.",
+      "example_translations": {
+        "ru": "Возьми куртку, холодно.",
+        "uz": "Kurtkangni ol, sovuq."
+      }
+    },
+    {
+      "word": "coat",
+      "part_of_speech": "noun",
+      "translation": "пальто",
+      "translations": {
+        "ru": "пальто",
+        "uz": "palto"
+      },
+      "example": "My grandmother has a warm coat.",
+      "example_translations": {
+        "ru": "У моей бабушки тёплое пальто.",
+        "uz": "Buvimning issiq paltosi bor."
+      }
+    },
+    {
+      "word": "shoe",
+      "part_of_speech": "noun",
+      "translation": "туфля, ботинок",
+      "translations": {
+        "ru": "туфля, ботинок",
+        "uz": "tufli, poyabzal"
+      },
+      "example": "These shoes are too small.",
+      "example_translations": {
+        "ru": "Эти ботинки слишком малы.",
+        "uz": "Bu tuflilar juda kichik."
+      }
+    },
+    {
+      "word": "hat",
+      "part_of_speech": "noun",
+      "translation": "шапка, шляпа",
+      "translations": {
+        "ru": "шапка, шляпа",
+        "uz": "qalpoq, shlyapa"
+      },
+      "example": "He wears a hat in winter.",
+      "example_translations": {
+        "ru": "Зимой он носит шапку.",
+        "uz": "U qishda qalpoq kiyadi."
+      }
+    },
+    {
+      "word": "skirt",
+      "part_of_speech": "noun",
+      "translation": "юбка",
+      "translations": {
+        "ru": "юбка",
+        "uz": "yubka"
+      },
+      "example": "I like your skirt.",
+      "example_translations": {
+        "ru": "Мне нравится твоя юбка.",
+        "uz": "Yubkangiz menga yoqadi."
+      }
+    },
+    {
+      "word": "sock",
+      "part_of_speech": "noun",
+      "translation": "носок",
+      "translations": {
+        "ru": "носок",
+        "uz": "paypoq"
+      },
+      "example": "I need new socks.",
+      "example_translations": {
+        "ru": "Мне нужны новые носки.",
+        "uz": "Menga yangi paypoq kerak."
+      }
+    },
+    {
+      "word": "jeans",
+      "part_of_speech": "noun",
+      "translation": "джинсы",
+      "translations": {
+        "ru": "джинсы",
+        "uz": "jinsi shim"
+      },
+      "example": "These jeans are cheap.",
+      "example_translations": {
+        "ru": "Эти джинсы дешёвые.",
+        "uz": "Bu jinsi shimlar arzon."
+      }
+    },
+    {
+      "word": "trousers",
+      "part_of_speech": "noun",
+      "translation": "брюки",
+      "translations": {
+        "ru": "брюки",
+        "uz": "shim"
+      },
+      "example": "His trousers are black.",
+      "example_translations": {
+        "ru": "Его брюки чёрные.",
+        "uz": "Uning shimi qora."
+      }
+    }
+  ]
+}

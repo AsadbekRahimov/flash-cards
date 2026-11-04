@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 6,
+    "title": "Покупки и одежда",
+    "title_uz": "Xaridlar va kiyim"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Цвета",
+    "title_uz": "Ranglar"
+  },
+  "words": [
+    {
+      "word": "red",
+      "part_of_speech": "adjective",
+      "translation": "красный",
+      "translations": {
+        "ru": "красный",
+        "uz": "qizil"
+      },
+      "example": "The apple is red.",
+      "example_translations": {
+        "ru": "Яблоко красное.",
+        "uz": "Olma qizil."
+      }
+    },
+    {
+      "word": "blue",
+      "part_of_speech": "adjective",
+      "translation": "синий, голубой",
+      "translations": {
+        "ru": "синий, голубой",
+        "uz": "ko'k"
+      },
+      "example": "The sky is blue.",
+      "example_translations": {
+        "ru": "Небо голубое.",
+        "uz": "Osmon ko'k."
+      }
+    },
+    {
+      "word": "green",
+      "part_of_speech": "adjective",
+      "translation": "зелёный",
+      "translations": {
+        "ru": "зелёный",
+        "uz": "yashil"
+      },
+      "example": "The grass is green.",
+      "example_translations": {
+        "ru": "Трава зелёная.",
+        "uz": "O't yashil."
+      }
+    },
+    {
+      "word": "yellow",
+      "part_of_speech": "adjective",
+      "translation": "жёлтый",
+      "translations": {
+        "ru": "жёлтый",
+        "uz": "sariq"
+      },
+      "example": "I like yellow flowers.",
+      "example_translations": {
+        "ru": "Я люблю жёлтые цветы.",
+        "uz": "Men sariq gullarni yoqtiraman."
+      }
+    },
+    {
+      "word": "black",
+      "part_of_speech": "adjective",
+      "translation": "чёрный",
+      "translations": {
+        "ru": "чёрный",
+        "uz": "qora"
+      },
+      "example": "She has a black cat.",
+      "example_translations": {
+        "ru": "У неё чёрная кошка.",
+        "uz": "Uning qora mushugi bor."
+      }
+    },
+    {
+      "word": "white",
+      "part_of_speech": "adjective",
+      "translation": "белый",
+      "translations": {
+        "ru": "белый",
+        "uz": "oq"
+      },
+      "example": "The snow is white.",
+      "example_translations": {
+        "ru": "Снег белый.",
+        "uz": "Qor oq."
+      }
+    },
+    {
+      "word": "brown",
+      "part_of_speech": "adjective",
+      "translation": "коричневый",
+      "translations": {
+        "ru": "коричневый",
+        "uz": "jigarrang"
+      },
+      "example": "My dog is brown.",
+      "example_translations": {
+        "ru": "Моя собака коричневая.",
+        "uz": "Mening itim jigarrang."
+      }
+    },
+    {
+      "word": "gray",
+      "part_of_speech": "adjective",
+      "translation": "серый",
+      "translations": {
+        "ru": "серый",
+        "uz": "kulrang"
+      },
+      "example": "The sky is gray today.",
+      "example_translations": {
+        "ru": "Сегодня небо серое.",
+        "uz": "Bugun osmon kulrang."
+      }
+    },
+    {
+      "word": "pink",
+      "part_of_speech": "adjective",
+      "translation": "розовый",
+      "translations": {
+        "ru": "розовый",
+        "uz": "pushti"
+      },
+      "example": "The baby wears pink socks.",
+      "example_translations": {
+        "ru": "Малыш носит розовые носки.",
+        "uz": "Chaqaloq pushti paypoq kiyadi."
+      }
+    },
+    {
+      "word": "color",
+      "part_of_speech": "noun",
+      "translation": "цвет",
+      "translations": {
+        "ru": "цвет",
+        "uz": "rang"
+      },
+      "example": "What color is your car?",
+      "example_translations": {
+        "ru": "Какого цвета твоя машина?",
+        "uz": "Mashinangning rangi qanday?"
+      }
+    }
+  ]
+}

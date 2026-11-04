@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
+import AccountRestoredSheet from '@/components/AccountRestoredSheet.vue'
 import AppToast from '@/components/ui/AppToast.vue'
 import TabBar from '@/components/ui/TabBar.vue'
 
@@ -18,5 +19,6 @@ const showTabBar = computed(() => route.meta.tab !== undefined)
     </main>
     <TabBar v-if="showTabBar" />
     <AppToast />
+    <AccountRestoredSheet />
   </div>
 </template>

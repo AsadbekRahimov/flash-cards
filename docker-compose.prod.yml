@@ -3,16 +3,30 @@
 # Differences from docker-compose.yml (dev):
 #   - No host bind-mount of the app source — image ships pre-baked code.
 #   - Postgres/Redis ports are NOT exposed to host.
+#   - Two Redis instances: `redis` (queues, sessions, locks, limits; noeviction + AOF) and `redis-cache` (the pure
+#     cache store `lru`; volatile-lru, no persistence) - docs/19_REDIS_CACHE_PLAN.md §4. Both require a password.
 #   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
 #   - Dedicated queue worker containers: queue-high and queue-default (separate from php-fpm).
 #   - All services restart unless explicitly stopped.
 #
 # Required env vars (populate via .env on the host, chmod 600):
-#   APP_DOMAIN, APP_KEY, DB_PASSWORD, TELEGRAM_BOT_TOKEN, TELEGRAM_URL_SECRET,
-#   TELEGRAM_HEADER_SECRET, TWA_JWT_SECRET, TWA_BASE_URL, CERTBOT_EMAIL
+#   APP_DOMAIN, APP_KEY, DB_PASSWORD, REDIS_PASSWORD, REDIS_CACHE_PASSWORD, TELEGRAM_BOT_TOKEN,
+#   TELEGRAM_URL_SECRET, TELEGRAM_HEADER_SECRET, TWA_JWT_SECRET, TWA_BASE_URL, CERTBOT_EMAIL
 #
 # Usage:
 #   docker compose -f docker-compose.prod.yml --env-file .env up -d
+
+# The second Redis instance as the application sees it (docs/19 §4): the host and port inside the compose network and
+# the very password compose gives `redis-cache` - one REDIS_CACHE_PASSWORD in .env, nothing to keep equal by hand.
+# `environment` wins over `env_file`, so the REDIS_LRU_* lines of .env do not apply inside the containers.
+# The application services depend on `redis-cache` as `service_started`, not `service_healthy`: the pure cache is a
+# failover chain (config/cache.php `lru`, docs/19 §4.1) - without the second instance the application serves from the
+# database and /health/ready says `degraded`. Waiting for `healthy` would tie the whole application to a disposable
+# component; `redis` (queues, sessions, locks) stays `service_healthy`.
+x-lru-env: &lru-env
+    REDIS_LRU_HOST: redis-cache
+    REDIS_LRU_PORT: "6379"
+    REDIS_LRU_PASSWORD: ${REDIS_CACHE_PASSWORD:?REDIS_CACHE_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
 
 services:
     app:
@@ -31,7 +45,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            redis-cache:
+                condition: service_started
         env_file: .env
+        environment:
+            <<: *lru-env
         volumes:
             - app_storage:/var/www/html/storage
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
@@ -47,7 +65,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            redis-cache:
+                condition: service_started
         env_file: .env
+        environment:
+            <<: *lru-env
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
@@ -62,7 +84,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            redis-cache:
+                condition: service_started
         env_file: .env
+        environment:
+            <<: *lru-env
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
@@ -77,7 +103,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            redis-cache:
+                condition: service_started
         env_file: .env
+        environment:
+            <<: *lru-env
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
@@ -159,27 +189,64 @@ services:
             timeout: 5s
             retries: 5
 
+    # Two Redis instances (docs/19_REDIS_CACHE_PLAN.md §4):
+    #   redis       - queues, sessions, locks, rate limits, markers, the entitlement version keys: `noeviction` + AOF,
+    #                 nothing here may ever be dropped by memory pressure;
+    #   redis-cache - the pure cache (store `lru`): `volatile-lru`, no persistence - a lost key is recomputed.
+    # Exact image tag on purpose (not the floating redis:8-alpine): the image is reproducible and the next upgrade is a
+    # decision, not an accident. 8.10 writes RDB format 15: a `redisdata` volume written by it does not start on 8.4 again.
+    # Both passwords are mandatory here (`:?` - compose refuses to start without them; the words `null`, `(null)`, `empty`
+    # and `(empty)` in any case of letters - what older .env files say - are refused by the container itself with a message
+    # in its log, because Laravel's env() would read them as "no password" and send no AUTH; deploy.sh refuses them before
+    # anything is started, so the stack never comes up half). A password reaches redis-server as a config line on stdin, not as
+    # a command line argument, and the healthcheck authenticates through REDISCLI_AUTH; it remains readable in the
+    # container environment (`docker inspect`) - see docs/DEVOPS_GUIDE.md, "Redis".
     redis:
-        # Pinned to 8.4 while the rollback path to the commit before the PostgreSQL upgrade is alive: 8.4 writes RDB format 12,
-        # which the redis:7.4 of that commit still reads; 8.6+ write 13+ and 7.4 refuses the AOF/RDB after the first rewrite
-        # ("Can't handle RDB format version"). Move to the latest 8.x together with removing the guard mount of pgdata.
-        image: redis:8.4-alpine
+        image: redis:8.10-alpine
         container_name: lexiflow-redis
         restart: unless-stopped
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
         command:
-            - redis-server
-            - --appendonly
-            - "yes"
-            - --appendfsync
-            - everysec
-            - --maxmemory
-            - ${REDIS_MAXMEMORY:-256mb}
-            - --maxmemory-policy
-            - ${REDIS_MAXMEMORY_POLICY:-noeviction}
+            - sh
+            - -c
+            - |
+              case "$$(printf '%s' "$$REDIS_PASSWORD" | tr '[:upper:]' '[:lower:]')" in ''|null|'(null)'|empty|'(empty)')
+                  echo "redis: REDIS_PASSWORD is empty or the word null/empty in .env - set a real password: openssl rand -hex 32" >&2
+                  exit 1 ;;
+              esac
+              exec redis-server - --appendonly yes --appendfsync everysec --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy noeviction <<EOF
+              requirepass $$REDIS_PASSWORD
+              EOF
         volumes:
             - redisdata:/data
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    redis-cache:
+        image: redis:8.10-alpine
+        container_name: lexiflow-redis-cache
+        restart: unless-stopped
+        environment:
+            REDIS_PASSWORD: ${REDIS_CACHE_PASSWORD:?REDIS_CACHE_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
+        # No AOF, no RDB: the cache starts empty after a restart, which is the point. Only keys with a TTL are evicted
+        # (every pure-cache key has one, docs/19 §3 rule 4). Size: REDIS_CACHE_MAXMEMORY, tuned by the INFO metrics (C8).
+        command:
+            - sh
+            - -c
+            - |
+              case "$$(printf '%s' "$$REDIS_PASSWORD" | tr '[:upper:]' '[:lower:]')" in ''|null|'(null)'|empty|'(empty)')
+                  echo "redis-cache: REDIS_CACHE_PASSWORD is empty or the word null/empty in .env - set a real password: openssl rand -hex 32" >&2
+                  exit 1 ;;
+              esac
+              exec redis-server - --appendonly no --save "" --maxmemory ${REDIS_CACHE_MAXMEMORY:-256mb} --maxmemory-policy volatile-lru <<EOF
+              requirepass $$REDIS_PASSWORD
+              EOF
+        healthcheck:
+            test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
             interval: 10s
             timeout: 5s
             retries: 5

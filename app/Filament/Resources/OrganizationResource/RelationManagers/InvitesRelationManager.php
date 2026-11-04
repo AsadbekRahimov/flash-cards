@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
 use App\Domain\Organizations\Services\OrganizationInviteService;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\TelegramGroup;
@@ -37,7 +38,7 @@ class InvitesRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.organizations.invites.singular'))
             ->pluralModelLabel(__('admin.organizations.invites.plural'))
             ->emptyStateHeading(__('admin.organizations.invites.empty'))

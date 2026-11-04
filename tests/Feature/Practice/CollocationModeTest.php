@@ -511,6 +511,7 @@ it('shows the client the phrase and the options and nothing else - the blank and
         'expires_at', 'server_now',
         'current' => ['id', 'kind', 'text', 'options' => ['*' => ['id', 'text']]],
         'summary',
+        'limits', // the 201 alone carries the Free limits of the day (docs/18 G1)
     ]);
     $current = $session->json('current');
     $stored = collStored($session->json('id'), $current['id']);

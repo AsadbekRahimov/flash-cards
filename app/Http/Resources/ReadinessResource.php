@@ -22,7 +22,7 @@ final class ReadinessResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'status' => $this->resource->ok() ? ReadinessReport::OK : ReadinessReport::FAIL,
+            'status' => $this->resource->status(),
             'checks' => $this->resource->checks,
         ];
     }

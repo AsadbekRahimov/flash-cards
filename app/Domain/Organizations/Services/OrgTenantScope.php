@@ -7,6 +7,8 @@ namespace App\Domain\Organizations\Services;
 use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Models\Assignment;
+use App\Models\ClassCaravan;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
@@ -15,6 +17,7 @@ use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * What a staff user sees inside ONE organization of the `/org` cabinet (docs/13 §6.3).
@@ -30,12 +33,30 @@ use Illuminate\Database\Eloquent\Builder;
  * A user who is not staff of the organization gets a query that matches nothing (`whereRaw('0 = 1')`
  * is spelled as `whereKey([])` here): the panel's tenant check (`canAccessTenant`) already stops
  * such a user with a 404, this is the belt to that braces.
+ *
+ * Two inputs are read once per request and kept in {@see OrgRequestMemo}: the role of the user in the
+ * organization and the ids of the groups they may see there. The policies ask for them on every row of a
+ * list and every action on it (docs/20 §4: 14 role lookups per row before), so the per-row checks
+ * (`canSee*`) are answered from memory and from relations already loaded by the list query — never with
+ * a query of their own.
  */
 final class OrgTenantScope
 {
-    public function role(User $user, Organization $organization): ?OrganizationRole
+    public function __construct(private readonly OrgRequestMemo $memo) {}
+
+    /** The role of the user in the organization (`null` = not staff there); one query per request. */
+    public function role(User $user, Organization|int $organization): ?OrganizationRole
     {
-        return $user->organizationRole($organization);
+        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
+
+        return $this->memo->remember("role:{$user->id}:{$organizationId}", function () use ($user, $organizationId): ?OrganizationRole {
+            $role = OrganizationUser::query()
+                ->where('organization_id', $organizationId)
+                ->where('user_id', $user->id)
+                ->value('role');
+
+            return is_string($role) ? OrganizationRole::tryFrom($role) : null;
+        });
     }
 
     public function isOwner(User $user, Organization $organization): bool
@@ -65,26 +86,36 @@ final class OrgTenantScope
     }
 
     /**
-     * Ids of the organization's groups a teacher is assigned to (`teacher_groups`); for an owner —
-     * every group of the organization.
+     * Ids of the organization's groups the user may see: for a teacher — those they are assigned to
+     * (`teacher_groups`); for an owner — every group currently linked to the organization; for anyone
+     * else — none. One query per request (OrgRequestMemo); the group's link is checked here, so an
+     * assignment of a group that was unlinked or moved since is not "ours" any more.
      *
      * @return list<int>
      */
     public function teacherGroupIds(User $user, Organization $organization): array
     {
-        $query = TelegramGroup::query()->where('telegram_groups.organization_id', $organization->id);
+        $role = $this->role($user, $organization);
 
-        if ($this->role($user, $organization) !== OrganizationRole::Owner) {
-            $query->whereIn('telegram_groups.id', fn ($sub) => $sub
-                ->select('telegram_group_id')
-                ->from('teacher_groups')
-                ->where('user_id', $user->id));
+        if ($role === null) {
+            return [];
         }
 
-        /** @var list<int> $ids */
-        $ids = $query->pluck('telegram_groups.id')->map(fn ($id): int => (int) $id)->values()->all();
+        return $this->memo->remember("groups:{$user->id}:{$organization->id}", function () use ($user, $organization, $role): array {
+            $query = TelegramGroup::query()->where('telegram_groups.organization_id', $organization->id);
 
-        return $ids;
+            if ($role !== OrganizationRole::Owner) {
+                $query->whereIn('telegram_groups.id', fn ($sub) => $sub
+                    ->select('telegram_group_id')
+                    ->from('teacher_groups')
+                    ->where('user_id', $user->id));
+            }
+
+            /** @var list<int> $ids */
+            $ids = $query->orderBy('telegram_groups.id')->pluck('telegram_groups.id')->map(fn ($id): int => (int) $id)->values()->all();
+
+            return $ids;
+        });
     }
 
     /**
@@ -175,23 +206,69 @@ final class OrgTenantScope
         };
     }
 
-    /** Whether the user may see this assignment (same rule as assignments()). */
+    /**
+     * Whether the user may see this assignment (same rule as assignments()). No query of its own: the
+     * group must be among the ones the user sees (owner — the organization's linked groups, so a group
+     * unlinked / moved to another center since is not ours any more; teacher — their own).
+     */
     public function canSeeAssignment(User $user, Organization $organization, Assignment $assignment): bool
     {
         if ($assignment->organization_id !== $organization->id) {
             return false;
         }
 
-        // The group may have been unlinked / moved to another center since: then it is not ours anymore.
-        if (! TelegramGroup::query()->withoutGlobalScopes()->whereKey($assignment->telegram_group_id)->where('organization_id', $organization->id)->exists()) {
-            return false;
+        return in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Class caravans (docs/18 §12.10, G2.9b) of the organization visible to the user: the caravans of the groups they see - owner: every
+     * linked group of the center; teacher: their own groups (`teacher_groups`). A group unlinked or moved to another center since the
+     * caravan started is not ours any more.
+     *
+     * @return Builder<ClassCaravan>
+     */
+    public function classCaravans(User $user, Organization $organization): Builder
+    {
+        return ClassCaravan::query()
+            ->where('class_caravans.organization_id', $organization->id)
+            ->whereIn('class_caravans.telegram_group_id', $this->teacherGroupIds($user, $organization));
+    }
+
+    /** Whether the user may see this caravan (same rule as classCaravans()); no query of its own. */
+    public function canSeeClassCaravan(User $user, Organization $organization, ClassCaravan $caravan): bool
+    {
+        return $caravan->organization_id === $organization->id
+            && in_array($caravan->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Ids of the groups the user may start and cancel a class caravan in: the groups they see AND teach (`teacher_groups`) - the rule of
+     * `ClassCaravanService` (a teacher of the group or an admin of the platform). For a teacher of the center that is all of their groups;
+     * an owner who is not assigned to a group sees its caravans and cannot run them. One query per request (OrgRequestMemo).
+     *
+     * @return list<int>
+     */
+    public function caravanGroupIds(User $user, Organization $organization): array
+    {
+        $visible = $this->teacherGroupIds($user, $organization);
+
+        if ($visible === [] || ! $user->is_active) {
+            return [];
         }
 
-        return match ($this->role($user, $organization)) {
-            OrganizationRole::Owner => true,
-            OrganizationRole::Teacher => in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true),
-            null => false,
-        };
+        return $this->memo->remember("caravan_groups:{$user->id}:{$organization->id}", function () use ($user, $visible): array {
+            /** @var list<int> $ids */
+            $ids = DB::table('teacher_groups')
+                ->where('user_id', $user->id)
+                ->whereIn('telegram_group_id', $visible)
+                ->orderBy('telegram_group_id')
+                ->pluck('telegram_group_id')
+                ->map(fn ($id): int => (int) $id)
+                ->values()
+                ->all();
+
+            return $ids;
+        });
     }
 
     /** Whether the user may see this group (same rule as groups()). */
@@ -203,12 +280,18 @@ final class OrgTenantScope
 
         return match ($this->role($user, $organization)) {
             OrganizationRole::Owner => true,
-            OrganizationRole::Teacher => $group->teachers()->whereKey($user->id)->exists(),
+            OrganizationRole::Teacher => in_array((int) $group->id, $this->teacherGroupIds($user, $organization), true),
             null => false,
         };
     }
 
-    /** Whether the user may see this membership row (same rule as members()). */
+    /**
+     * Whether the user may see this membership row. An owner: every row of the organization. A teacher: the row of a learner
+     * who is active in one of their groups - read from `learner.activeGroupMemberships` when the list query loaded it
+     * (MemberResource does), with one query otherwise (a single record page). The one difference from members(): a row whose
+     * learner is soft-deleted is no teacher's (as `learners()` lists none of them), while members() still lists it - the
+     * learner's group membership stays active.
+     */
     public function canSeeMember(User $user, Organization $organization, OrganizationMember $member): bool
     {
         if ($member->organization_id !== $organization->id) {
@@ -217,8 +300,7 @@ final class OrgTenantScope
 
         return match ($this->role($user, $organization)) {
             OrganizationRole::Owner => true,
-            OrganizationRole::Teacher => $member->isActive()
-                && $this->learners($user, $organization)->whereKey($member->learner_id)->exists(),
+            OrganizationRole::Teacher => $member->isActive() && $this->learnerInTeacherGroups($user, $organization, $member),
             null => false,
         };
     }
@@ -227,6 +309,40 @@ final class OrgTenantScope
     public function canSeeLearner(User $user, Organization $organization, Learner $learner): bool
     {
         return $this->learners($user, $organization)->whereKey($learner->id)->exists();
+    }
+
+    private function learnerInTeacherGroups(User $user, Organization $organization, OrganizationMember $member): bool
+    {
+        $groupIds = $this->teacherGroupIds($user, $organization);
+
+        if ($groupIds === []) {
+            return false;
+        }
+
+        if ($member->relationLoaded('learner')) {
+            $learner = $member->learner;
+
+            // The learner was loaded and is not there (soft-deleted), or is there trashed (loaded `withTrashed`). Not a teacher's
+            // to see (`learners()` never lists them), and not a query per row either.
+            if ($learner === null || $learner->trashed()) {
+                return false;
+            }
+
+            if ($learner->relationLoaded('activeGroupMemberships')) {
+                return $learner->activeGroupMemberships->contains(
+                    fn (GroupMember $membership): bool => in_array((int) $membership->telegram_group_id, $groupIds, true),
+                );
+            }
+        }
+
+        // The memberships are not loaded (a single record page): the same answer from one query. The learner must be alive
+        // here too - `whereHas` carries the soft-delete scope - or a deleted learner would be the teacher's on this path only.
+        return GroupMember::query()
+            ->whereHas('learner')
+            ->where('learner_id', $member->learner_id)
+            ->where('status', 'active')
+            ->whereIn('telegram_group_id', $groupIds)
+            ->exists();
     }
 
     /**

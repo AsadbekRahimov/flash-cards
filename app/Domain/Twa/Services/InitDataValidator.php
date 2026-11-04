@@ -35,6 +35,11 @@ final class InitDataValidator
      */
     public function validate(string $initData, ?int $maxAgeSeconds = null): array
     {
+        // An empty token means an empty HMAC key: anyone could sign initData for any telegram_user_id.
+        if (trim($this->botToken) === '') {
+            throw new InvalidInitDataException(InvalidInitDataException::REASON_NOT_CONFIGURED);
+        }
+
         $maxAgeSeconds ??= (int) config('twa.init_data.max_age', 86400);
 
         // parse_str() mutates keys (e.g. "a.b" -> "a_b"). Use manual parsing instead.

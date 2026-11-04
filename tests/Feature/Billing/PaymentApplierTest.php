@@ -11,6 +11,7 @@ use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Offer;
@@ -22,7 +23,6 @@ use App\Models\Subscription;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\FakeBillingProvider;
 
@@ -98,7 +98,7 @@ it('credits a first charge: active subscription for the order period, ledger row
 
     expect(ProductEvent::query()->where('name', 'payment.succeeded')->sole()->props['payment_order_id'])->toBe($order->id)
         ->and(ProductEvent::query()->where('name', 'subscription.granted')->sole()->props['provider'])->toBe('telegram_stars')
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
 
     $e = $resolver->for($learner);
     expect($e->plan)->toBe(Plan::Pro)->and($e->until?->toIso8601String())->toBe($now->addDays(33)->toIso8601String()); // Stars: + grace
@@ -283,7 +283,7 @@ it('credits an organization order with its tier and drops the cache of the spons
         ->and($sub->plan)->toBe('pro')
         ->and($sub->tier)->toBe('center_s')
         ->and($sub->seats_limit)->toBe(100)
-        ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
         ->and($resolver->for($member)->source)->toBe("sponsor:organization:{$org->id}")
         ->and(ProductEvent::query()->where('name', 'payment.succeeded')->sole()->learner_id)->toBeNull();
 

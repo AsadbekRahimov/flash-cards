@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Administration\Services\PanelRequestMemo;
 use App\Domain\Billing\Providers\Click\ClickSignature;
 use App\Domain\Billing\Providers\ClickProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
@@ -15,21 +16,46 @@ use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\CacheCircuitBreaker;
+use App\Domain\Operations\Support\CircuitBreakerFailoverRepository;
+use App\Domain\Operations\Support\CircuitBreakerFailoverStore;
+use App\Domain\Operations\Support\PureCache;
+use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
+use App\Models\GameItem;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
+use App\Models\Payment;
+use App\Models\ProviderTransaction;
+use App\Models\Stage;
 use App\Models\TelegramGroup;
+use App\Models\WordTranslation;
+use App\Observers\CourseTreeObserver;
+use App\Observers\GameItemObserver;
+use App\Observers\MoneyWidgetsObserver;
 use App\Observers\OrganizationObserver;
+use App\Observers\OrganizationUserObserver;
 use App\Observers\TelegramGroupObserver;
+use App\Observers\WordTranslationObserver;
 use App\Policies\Org\OrgPolicyResolver;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -56,6 +82,33 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        // The pure cache store (docs/19 §4): PureCache::store() resolves it here, so a test can swap it with instance().
+        // Not a singleton: the cache manager already keeps one repository per store name.
+        $this->app->bind(PureCache::CONTAINER_KEY, fn (): Repository => PureCache::resolve());
+
+        // The cache driver of the pure store's chain (config/cache.php `lru`): Laravel's failover chain with a circuit
+        // breaker in front of the Redis member (docs/19 §4.1). Registered before any provider boots, so no store can be
+        // resolved on a manager that does not know the driver yet.
+        $this->app->booting(function (): void {
+            Cache::extend('failover_breaker', function (Application $app, array $config): Repository {
+                /** @var CacheManager $manager */
+                $manager = $app->make('cache');
+                $breaker = new CacheCircuitBreaker(
+                    directory: (string) ($config['marker_path'] ?? storage_path('framework/cache/circuits')),
+                    openSeconds: max(1, (int) ($config['open_seconds'] ?? 15)),
+                );
+                /** @var list<string> $members */
+                $members = array_values((array) ($config['stores'] ?? []));
+
+                // The chain's repository drops many keys with one call; it fires no cache events of its own - its
+                // members do (as with the framework's failover driver, which builds its repository without events).
+                return new CircuitBreakerFailoverRepository(
+                    new CircuitBreakerFailoverStore($manager, $app->make(Dispatcher::class), $members, $breaker),
+                    Arr::only($config, ['store']),
+                );
+            });
+        });
+
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));
         });
@@ -73,6 +126,21 @@ class AppServiceProvider extends ServiceProvider
 
             return $registry;
         });
+
+        // The access checks of the panels (the role and the visible groups in `/org`, the groups of a teacher in
+        // `/admin`) are read once per request or queued job: a scoped binding is forgotten by the queue worker before
+        // each job and by Octane between requests (docs/20 F4, A11).
+        $this->app->scoped(OrgRequestMemo::class);
+        $this->app->scoped(PanelRequestMemo::class);
+
+        // The words whose cached translations an open transaction has changed are gathered by the observer and dropped with ONE call
+        // after the commit (docs/19 K4). Eloquent makes the observer anew for every event, so the rows of an import share the state
+        // only through a binding: one instance for the request or the job, forgotten with it.
+        $this->app->scoped(WordTranslationObserver::class);
+
+        // The same for the members of a group that is being deleted: the observer enumerates them in `deleting` (the cascade is about to
+        // remove their rows) and uses them in `deleted`, which is a different event and, without a binding, a different observer.
+        $this->app->scoped(TelegramGroupObserver::class);
 
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
@@ -125,9 +193,33 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+        GameItem::observe(GameItemObserver::class);
+
+        // The money widgets of the admin dashboard are cached; a payment, a refund or a provider's cancel drops them (docs/19 K1).
+        Payment::observe(MoneyWidgetsObserver::class);
+        ProviderTransaction::observe(MoneyWidgetsObserver::class);
+
+        // Content caches (docs/19 K3, K4): the tree of a course follows its modules and lessons, the translation rows of a word
+        // follow its `word_translations`; the words of a course and the statuses are dropped by CoursePublisher::recount()/transition().
+        Stage::observe(CourseTreeObserver::class);
+        Lesson::observe(CourseTreeObserver::class);
+        WordTranslation::observe(WordTranslationObserver::class);
 
         // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
         OrgPolicyResolver::register();
+
+        // A staff row written in this request changes the role its policies see: drop the per-request memory.
+        OrganizationUser::observe(OrganizationUserObserver::class);
+
+        // A process that handles many requests without Octane (the test suite) would carry the memories of the
+        // panels from one request into the next; FPM and Octane do not need this, it costs them nothing.
+        Event::listen(RequestHandled::class, function (): void {
+            foreach ([OrgRequestMemo::class, PanelRequestMemo::class] as $memo) {
+                if ($this->app->resolved($memo)) {
+                    $this->app->make($memo)->flush();
+                }
+            }
+        });
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
@@ -273,6 +365,8 @@ class AppServiceProvider extends ServiceProvider
             'twa-battle-invite' => 5,    // an invitation = a snapshot, rows, a DM to the friend
             'twa-battle-action' => 60,   // accept / decline / cancel / ready / surrender / answer / audio-failed
             'twa-battle-poll' => 90,     // a poll every 2 s is 30 a minute, two tabs 60: a bucket of its own, not "no limit"
+            'twa-game-start' => 10,      // a run = a snapshot + the queries of the material (docs/18 §12.8)
+            'twa-game-answer' => 120,    // an answer or a hint of a run; `twa-api` (60) applies too
         ] as $name => $perMinute) {
             RateLimiter::for($name, function (Request $request) use ($name, $perMinute): Limit {
                 /** @var array{learner_id:int}|null $ctx */

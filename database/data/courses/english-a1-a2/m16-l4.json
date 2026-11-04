@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 16,
+    "title": "Дом и быт",
+    "title_uz": "Uy va maishat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Аренда и коммуналка",
+    "title_uz": "Ijara va kommunal xizmatlar"
+  },
+  "words": [
+    {
+      "word": "rent",
+      "part_of_speech": "verb",
+      "translation": "снимать, арендовать",
+      "translations": {
+        "ru": "снимать, арендовать",
+        "uz": "ijaraga olmoq"
+      },
+      "example": "We rent a small house by the river.",
+      "example_translations": {
+        "ru": "Мы снимаем небольшой дом у реки.",
+        "uz": "Biz daryo bo'yidagi kichik uyni ijaraga olamiz."
+      }
+    },
+    {
+      "word": "landlord",
+      "part_of_speech": "noun",
+      "translation": "хозяин жилья",
+      "translations": {
+        "ru": "хозяин жилья",
+        "uz": "uy egasi"
+      },
+      "example": "Our landlord lives in the next building.",
+      "example_translations": {
+        "ru": "Наш хозяин живёт в соседнем здании.",
+        "uz": "Uy egamiz qo'shni binoda yashaydi."
+      }
+    },
+    {
+      "word": "tenant",
+      "part_of_speech": "noun",
+      "translation": "арендатор",
+      "translations": {
+        "ru": "арендатор",
+        "uz": "ijarachi"
+      },
+      "example": "The new tenant moves in on Monday.",
+      "example_translations": {
+        "ru": "Новый жилец въезжает в понедельник.",
+        "uz": "Yangi ijarachi dushanba kuni ko'chib kiradi."
+      }
+    },
+    {
+      "word": "electricity",
+      "part_of_speech": "noun",
+      "translation": "электричество",
+      "translations": {
+        "ru": "электричество",
+        "uz": "elektr"
+      },
+      "example": "We pay for electricity every month.",
+      "example_translations": {
+        "ru": "Мы платим за электричество каждый месяц.",
+        "uz": "Biz har oy elektr uchun to'laymiz."
+      }
+    },
+    {
+      "word": "gas",
+      "part_of_speech": "noun",
+      "translation": "газ",
+      "translations": {
+        "ru": "газ",
+        "uz": "gaz"
+      },
+      "example": "The gas is off in our street.",
+      "example_translations": {
+        "ru": "На нашей улице отключили газ.",
+        "uz": "Ko'chamizda gaz o'chirilgan."
+      }
+    },
+    {
+      "word": "heating",
+      "part_of_speech": "noun",
+      "translation": "отопление",
+      "translations": {
+        "ru": "отопление",
+        "uz": "isitish"
+      },
+      "example": "The heating works well in winter.",
+      "example_translations": {
+        "ru": "Зимой отопление работает хорошо.",
+        "uz": "Qishda isitish yaxshi ishlaydi."
+      }
+    },
+    {
+      "word": "deposit",
+      "part_of_speech": "noun",
+      "translation": "залог",
+      "translations": {
+        "ru": "залог",
+        "uz": "garov puli"
+      },
+      "example": "I paid a deposit for the apartment.",
+      "example_translations": {
+        "ru": "Я заплатил залог за квартиру.",
+        "uz": "Men kvartira uchun garov puli to'ladim."
+      }
+    },
+    {
+      "word": "furnished",
+      "part_of_speech": "adjective",
+      "translation": "с мебелью",
+      "translations": {
+        "ru": "с мебелью",
+        "uz": "mebelli"
+      },
+      "example": "Is the apartment furnished or empty?",
+      "example_translations": {
+        "ru": "Квартира с мебелью или пустая?",
+        "uz": "Kvartira mebelli yoki bo'shmi?"
+      }
+    },
+    {
+      "word": "plumber",
+      "part_of_speech": "noun",
+      "translation": "сантехник",
+      "translations": {
+        "ru": "сантехник",
+        "uz": "santexnik"
+      },
+      "example": "The plumber fixes the kitchen tap.",
+      "example_translations": {
+        "ru": "Сантехник чинит кран на кухне.",
+        "uz": "Santexnik oshxonadagi jo'mrakni tuzatadi."
+      }
+    },
+    {
+      "word": "lock",
+      "part_of_speech": "noun",
+      "translation": "замок",
+      "translations": {
+        "ru": "замок",
+        "uz": "qulf"
+      },
+      "example": "The lock on the door is broken.",
+      "example_translations": {
+        "ru": "Замок на двери сломан.",
+        "uz": "Eshikdagi qulf buzilgan."
+      }
+    }
+  ]
+}

@@ -86,6 +86,7 @@ export const KNOWN_ERROR_CODES = [
   // Practice and battle (docs/16 §7.6); `course_not_found`, `lesson_not_found`, `friendship_not_found` and `not_friends` are above.
   'practice_unavailable',
   'practice_pro_required',
+  'practice_limit_reached',
   'practice_mode_disabled',
   'practice_not_enough_material',
   'practice_session_active',
@@ -97,6 +98,12 @@ export const KNOWN_ERROR_CODES = [
   'invalid_answer_shape',
   'unknown_element_id',
   'request_id_reused',
+  // A run of "Karvon" (docs/18 §12.8); the codes of practice above (`element_not_current`, …) are shared.
+  'game_run_not_found',
+  'game_run_closed',
+  'unknown_option_id',
+  'hint_not_available',
+  'coins_insufficient',
   'replace_not_allowed',
   'retry_not_available',
   'practice_audio_unavailable',
@@ -112,11 +119,34 @@ export const KNOWN_ERROR_CODES = [
   'battle_wrong_state',
   'round_not_open',
   'round_closed',
+  // The Karvon game (docs/18 §12.8); `course_not_found`, `lesson_not_found` and `lesson_not_in_course` are above.
+  'game_unavailable',
+  'game_limit_reached',
+  'game_pro_required',
+  'game_run_active',
+  'game_daily_done',
+  'boss_not_ready',
+  'stop_locked',
+  'game_not_enough_material',
+  'stage_not_found',
+  'stage_not_in_course',
+  // The caravan of a class (docs/18 §12.8, docs/05 §5b.7).
+  'class_caravan_not_found',
+  'class_boss_locked',
+  'class_boss_done',
+  // The shop and the boosters of a run (docs/18 §12.8, docs/05 §5b.5); `coins_insufficient`, `hint_not_available`, `request_id_reused` are above.
+  'item_not_found',
+  'item_already_owned',
+  'item_not_purchasable',
+  'booster_not_owned',
+  'booster_limit_reached',
+  'booster_already_used',
+  'booster_not_applicable',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks' | 'practice' | 'battle'
+export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks' | 'practice' | 'battle' | 'game'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)

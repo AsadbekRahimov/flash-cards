@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\LessonResource\Pages;
 use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Lesson;
 use App\Models\Stage;
 use Filament\Actions;
@@ -15,6 +16,7 @@ use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -71,12 +73,26 @@ class LessonResource extends Resource
                 ->disabledOn('edit'),
             Forms\Components\TextInput::make('number')->label(__('admin.lessons.fields.number'))->numeric()->required(),
             Forms\Components\TextInput::make('title')->label(__('admin.lessons.fields.title'))->maxLength(255),
+            self::titleUzField(),
         ]);
+    }
+
+    /**
+     * The Uzbek name of a lesson (`lessons.title_uz`): a learner of uz reads it, or the Russian one while it is empty (NULL). Shared
+     * with the lessons tab of a module.
+     */
+    public static function titleUzField(): Forms\Components\TextInput
+    {
+        return Forms\Components\TextInput::make('title_uz')
+            ->label(__('admin.lessons.fields.title_uz'))
+            ->helperText(__('admin.lessons.fields.title_uz_help'))
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('stage.title')
                     ->label(__('admin.lessons.fields.stage'))
@@ -87,17 +103,38 @@ class LessonResource extends Resource
                 Tables\Columns\TextColumn::make('words_count')->counts('words')->label(__('admin.lessons.columns.words_count')),
             ])
             ->filters([
+                // Every deck of every learner has modules of its own, so the platform has more of them than anybody scrolls: the
+                // select offers the first ones and finds the others by a part of the title or the number (GroupFilter does the same
+                // for the groups). A teacher is offered the modules of the content they may read.
                 Tables\Filters\SelectFilter::make('stage_id')
-                    // Only the columns the caption needs: the filter lists every module of the platform.
-                    ->relationship('stage', 'title', fn (Builder $query): Builder => $query->select(['stages.id', 'stages.number', 'stages.title'])->orderBy('stages.course_id')->orderBy('stages.number'))
-                    ->getOptionLabelFromRecordUsing(fn (Stage $record): string => StageResource::displayTitle($record))
-                    ->label(__('admin.lessons.filters.stage')),
+                    ->label(__('admin.lessons.filters.stage'))
+                    ->searchable()
+                    ->options(fn (): array => StageResource::searchOptions(null, app(PanelDataScope::class)->stages()))
+                    ->getSearchResultsUsing(fn (string $search): array => StageResource::searchOptions($search, app(PanelDataScope::class)->stages()))
+                    ->getOptionLabelUsing(fn (mixed $value): ?string => self::stageLabel($value))
+                    ->indicateUsing(function (array $state): array {
+                        $label = self::stageLabel($state['value'] ?? null);
+
+                        return $label === null ? [] : [Indicator::make(__('admin.lessons.filters.stage').': '.$label)];
+                    }),
             ])
             ->emptyStateHeading(__('admin.lessons.empty'))
             ->actions([
                 Actions\EditAction::make(),
             ])
             ->defaultSort('stage_id');
+    }
+
+    /** The caption of one of the modules the viewer may read; null for none, or one they may not. */
+    private static function stageLabel(mixed $id): ?string
+    {
+        if (! is_numeric($id)) {
+            return null;
+        }
+
+        $stage = app(PanelDataScope::class)->stages()->whereKey((int) $id)->first(['stages.id', 'stages.number', 'stages.title']);
+
+        return $stage === null ? null : StageResource::displayTitle($stage);
     }
 
     /** @return array<int, class-string> */

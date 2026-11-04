@@ -51,6 +51,15 @@ RUN pg_dump --version | grep -q ' 18\.' || { echo "pg_dump must be 18.x, got: $(
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php/zz-lexiflow.ini /usr/local/etc/php/conf.d/zz-lexiflow.ini
+# OPcache for the production image only (docs/19 C7; Dockerfile.dev does not have it): the code of the image never changes,
+# a deploy recreates the container, so files are never revalidated.
+COPY docker/php/opcache-prod.ini /usr/local/etc/php/conf.d/zz-opcache-prod.ini
+# A lost OPcache setting must break the build, not production.
+RUN set -eu; \
+    info="$(php -i)"; \
+    for setting in 'opcache.enable => On' 'opcache.validate_timestamps => Off' 'opcache.save_comments => On'; do \
+        printf '%s\n' "$info" | grep -q "^$setting" || { echo "OPcache setting not applied: $setting" >&2; exit 1; }; \
+    done
 
 RUN addgroup -g "${GID}" app \
     && adduser -D -u "${UID}" -G app -s /bin/bash app

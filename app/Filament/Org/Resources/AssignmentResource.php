@@ -7,6 +7,7 @@ namespace App\Filament\Org\Resources;
 use App\Domain\Organizations\Services\AssignmentService;
 use App\Filament\Org\Resources\AssignmentResource\Pages;
 use App\Filament\Org\Resources\AssignmentResource\RelationManagers\ResultsRelationManager;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Assignment;
 use App\Models\Lesson;
 use Filament\Actions;
@@ -54,7 +55,7 @@ class AssignmentResource extends OrgResource
     public static function getEloquentQuery(): Builder
     {
         return static::scope()->assignments(static::user(), static::tenant())
-            ->with(['group', 'lesson.stage'])
+            ->with(['group', 'lesson.stage.course:id,owner_type'])
             ->withProgressCounts();
     }
 
@@ -156,7 +157,8 @@ class AssignmentResource extends OrgResource
     {
         $timezone = static::tenant()->timezone;
 
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('group.title')->label(__('org.assignments.columns.group'))->limit(32),
                 Tables\Columns\TextColumn::make('title')

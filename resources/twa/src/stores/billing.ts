@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimits'
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -10,9 +11,15 @@ import type {
   BillingPeriod,
   BillingProviderKey,
   Entitlement,
+  GameAccess,
+  GameLimits,
   MeResponse,
   Paywall,
   PracticeAccess,
+  PracticeLimit,
+  PracticeLimitHit,
+  PracticeLimitKind,
+  PracticeLimits,
 } from '@/api/types'
 
 /**
@@ -34,8 +41,23 @@ interface PurchaseState {
 interface BillingState {
   entitlement: Entitlement | null
   paywall: Paywall | null
-  /** The `practice` block of `/me` (docs/16 §3.3); null until `/me` has come, or when the server sent none. */
+  /** The `practice` block of `/me` (docs/16 §3.3); null until `/me` has come, or when the server sent none. Its `limits` are kept in `limits`. */
   practice: PracticeAccess | null
+  /**
+   * The Free limits of today's practice and battles (docs/18 §3, G1): from `/me`, from the practice hub, and from the 201 that creates a
+   * session or a battle, which is the newest word on them. null: Pro, no limit, or not told yet - nothing is shown and nothing is blocked.
+   * A kind can be null on its own (the server has no limit of that kind): it is treated the same way, the other kind goes on as usual.
+   */
+  limits: PracticeLimits | null
+  /** The `game` block of `/me` (docs/18 §12.8) without its limits; null until `/me` has come, or when the server sent none. */
+  game: Omit<GameAccess, 'limits'> | null
+  /** `me.game.limits`, and the newer word of `GET /game/map`; null: Pro, no limit, not told yet (before G2.8 always) - nothing is shown. */
+  gameLimits: GameLimits | null
+  /**
+   * The moment (`Date.now()`) the counters of `limits` are judged at. The getters read it instead of the clock, so what they give moves with
+   * time: `watchDay` sets it again when a counter's day ends, and with every new word on the counters.
+   */
+  now: number
   loading: boolean
   catalog: BillingCatalog | null
   catalogLoading: boolean
@@ -64,6 +86,39 @@ const idlePurchase = (): PurchaseState => ({ status: 'idle', orderToken: null, e
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
+/** The timer that wakes a store when the day of its nearest counter ends (`watchDay`); one per store. */
+const dayTimers = new WeakMap<object, ReturnType<typeof setTimeout>>()
+
+/** A little after the moment, so that the clock is surely past it when the store looks again (a timer may fire a hair early). */
+const DAY_SLACK_MS = 100
+
+/** `setTimeout` takes a signed 32-bit number of milliseconds and fires at once with more: a day that ends later is waited for in steps. */
+const MAX_TIMER_MS = 2 ** 31 - 1
+
+/** The `/me` request that is in flight, one per store: whoever asks for `/me` meanwhile gets ITS answer instead of a second request (`load`). */
+const meRequests = new WeakMap<object, Promise<void>>()
+
+/** The part of the store that a reading of `/me` writes into. */
+interface MeTarget {
+  loading: boolean
+  loadedAt: number | null
+  apply: (me: MeResponse) => void
+}
+
+/** One reading of `/me`, best effort: it never throws - a failure keeps what the store had and makes the next `load()` ask again. */
+async function readMe(store: MeTarget): Promise<void> {
+  store.loading = true
+  try {
+    store.apply(await api.me.get())
+  } catch (err) {
+    // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
+    store.loadedAt = null
+    console.warn('billing: failed to load /me', err)
+  } finally {
+    store.loading = false
+  }
+}
+
 /**
  * Plan, paywall settings and the purchase flow of the learner (docs/13 §5, docs/04 A.8): `GET /me`
  * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
@@ -80,6 +135,10 @@ export const useBillingStore = defineStore('billing', {
     entitlement: null,
     paywall: null,
     practice: null,
+    limits: null,
+    game: null,
+    gameLimits: null,
+    now: Date.now(),
     loading: false,
     catalog: null,
     catalogLoading: false,
@@ -93,38 +152,141 @@ export const useBillingStore = defineStore('billing', {
     /** The server only reports `purchase` when something is for sale; the catalog is the second check. */
     canPurchase: (state): boolean => state.paywall?.mode === 'purchase' && (state.catalog?.items.length ?? 0) > 0,
 
-    /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
-    practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
+    /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake (and no Pro line about it). */
+    practiceAccess: (state): PracticeAccess =>
+      state.practice ?? { available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' },
+
+    /** What the learner may do with the game; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
+    gameAccess: (state): Omit<GameAccess, 'limits'> =>
+      state.game ?? { available: false, pro_promise: 'none', coins: 0, tickets: 0 },
+
+    /**
+     * The counter of today's practice sessions to show; null for Pro, for sessions without a limit, for sessions that are for Pro only (limit 0:
+     * nothing to count), when none was told, and once its day is over (it says nothing then - and a screen left open overnight redraws by
+     * itself at that moment: the getter reads `now`, which `watchDay` moves). The wall (`limitReached`) knows the limit 0.
+     */
+    sessionLimit: (state): PracticeLimit | null => shownLimit(state.limits?.sessions, state.now),
+
+    /** The counter of the battles the learner starts today (accepting one is never counted); null as above. */
+    battleLimit: (state): PracticeLimit | null => shownLimit(state.limits?.battles, state.now),
   },
 
   actions: {
     /**
      * Best effort: the paywall still works without it (no support contact, no numeric limit).
      * Without `force` nothing is requested while the stored data is younger than `ME_FRESH_MS` and the last request
-     * did not fail; a request already in flight is not repeated either way.
+     * did not fail. A request already in flight is not repeated either way: whoever asks meanwhile, `force` or not, WAITS for its
+     * answer and finds it in the store (`confirmLimit` decides by it).
      */
     async load({ force = false }: { force?: boolean } = {}): Promise<void> {
-      if (this.loading) return
+      if (this.loading) return meRequests.get(this)
       if (!force && this.loadedAt !== null && Date.now() - this.loadedAt < ME_FRESH_MS) return
 
-      this.loading = true
-      try {
-        this.apply(await api.me.get())
-      } catch (err) {
-        // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
-        this.loadedAt = null
-        console.warn('billing: failed to load /me', err)
-      } finally {
-        this.loading = false
-      }
+      const request = readMe(this)
+      meRequests.set(this, request)
+      void request.then(() => {
+        // a newer request (after a payment, `onPaid`) may have taken the place of this one meanwhile
+        if (meRequests.get(this) === request) meRequests.delete(this)
+      })
+      return request
     },
 
     /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
-    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice'>): void {
+    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice' | 'game'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
-      this.practice = me.practice ?? null
+      if (me.game) {
+        const { limits, ...access } = me.game
+        this.game = access
+        this.gameLimits = limits
+      } else {
+        this.game = null
+        this.gameLimits = null
+      }
+      if (me.practice) {
+        // The limits live apart: the hub and the creation of a session or a battle bring newer ones than this `/me`.
+        const { limits, ...access } = me.practice
+        this.practice = access
+        this.setLimits(limits)
+      } else {
+        this.practice = null
+      }
       this.loadedAt = Date.now()
+    },
+
+    /** The limits of the game that an answer carries (`GET /game/map`). `undefined`: it did not say - nothing changes. */
+    setGameLimits(limits: GameLimits | null | undefined): void {
+      if (limits !== undefined) this.gameLimits = limits
+    },
+
+    /** An answer that carries the counters (`/me`, the hub, the 201 of a session or a battle). `undefined`: it did not say - nothing changes. */
+    setLimits(limits: PracticeLimits | null | undefined): void {
+      if (limits === undefined) return
+      this.limits = limits
+      this.watchDay()
+    },
+
+    /**
+     * Keeps `now` true, the moment the counters are judged at: the getters `sessionLimit` / `battleLimit` read it, so a line drawn for today
+     * goes by itself when the day of its counter ends - an app left open overnight does not keep yesterday's "0 of 2" on the screen. One
+     * timer per store, set for the nearest end of a day among the counters and only while there is one; every new word on the counters
+     * sets it again. (`useNow` is a clock of a component and stops with it, a store has no such scope; it would also tick all the time,
+     * where this wakes once, at the very moment.)
+     */
+    watchDay(): void {
+      const pending = dayTimers.get(this)
+      if (pending !== undefined) clearTimeout(pending)
+      dayTimers.delete(this)
+
+      this.now = Date.now()
+      const at = nextReset(this.limits, this.now)
+      if (at === null) return
+      dayTimers.set(this, setTimeout(() => this.watchDay(), Math.min(at - this.now + DAY_SLACK_MS, MAX_TIMER_MS)))
+    },
+
+    /**
+     * The server refused for today's limit: that counter is spent, whatever this screen believed - a counter that was not there included
+     * (the learner taken for Pro, a kind taken for unlimited). The other kind is not touched; when no counters were told at all it stays
+     * `null` (no counter: nothing shown, nothing stopped) until the next answer says more.
+     */
+    noteLimitHit(hit: PracticeLimitHit): void {
+      const spent: PracticeLimit = { limit: hit.limit, used: hit.used, remaining: 0, resets_at: hit.resets_at }
+      this.limits = { sessions: null, battles: null, ...this.limits, [hit.kind]: spent }
+      this.watchDay()
+    },
+
+    /** The wall of `kind` if today's free allowance of it is spent (the paywall opens without a request), else null: the server decides. */
+    limitReached(kind: PracticeLimitKind): PracticeLimitHit | null {
+      return reachedLimit(this.limits, kind)
+    },
+
+    /**
+     * The counter of `kind` is not known any more: a place may have been given back (a battle that did not take place is not counted,
+     * and the screen may have seen it close). Nothing is shown for it and nothing is stopped by it, and the next reading of `/me` asks the
+     * server instead of the cache - that brings the counter back with the right number.
+     */
+    forgetLimit(kind: PracticeLimitKind): void {
+      if (this.limits !== null) {
+        this.limits = { ...this.limits, [kind]: null }
+        this.watchDay()
+      }
+      this.loadedAt = null
+    },
+
+    /**
+     * The wall of `kind` that the SERVER stands behind. A counter that says the free allowance is spent may be old (a battle that never
+     * started gives its place back, and this screen may not have seen it), so `/me` is read again first and the wall is what the FRESH
+     * counter says. A `/me` that is already on its way (the screen's own reading at its start) is waited for - its answer is the newest
+     * there is, and the stale zero must not decide before it - else a new one is asked for, whatever the cache says. Null: nothing is
+     * spent, the server gave a place back, or it could not be asked (no network) - the action itself then goes to the server and tells what
+     * is wrong, rather than a sales pitch on a number that cannot be checked. A kind that is for Pro only (limit 0) needs no question:
+     * nothing gives a place back there.
+     */
+    async confirmLimit(kind: PracticeLimitKind): Promise<PracticeLimitHit | null> {
+      const remembered = this.limitReached(kind)
+      if (remembered === null || remembered.limit === 0) return remembered
+      await this.load({ force: true })
+      return this.loadedAt === null ? null : this.limitReached(kind)
     },
 
     /** The plan may have changed behind our back (e.g. the learner left a center): the next `load()` asks the server. */
@@ -258,7 +420,7 @@ export const useBillingStore = defineStore('billing', {
 
     async onPaid(): Promise<void> {
       this.purchase.status = 'paid'
-      this.loading = false // a /me request still in flight predates the payment; ask again
+      this.loading = false // a /me request still in flight predates the payment: `load` does not join it, it asks again
       await Promise.all([this.load({ force: true }), this.loadCatalog()])
       // The numbers on the Today screen (quota, plan badge) change with the plan.
       void useTodayStore().load()

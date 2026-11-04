@@ -27,9 +27,22 @@ bash deploy.sh
 
 Скрипт принимает SHA коммита: `bash deploy.sh <sha>` (или переменная `DEPLOY_SHA`). Он делает `git fetch origin`, `git checkout --detach <sha>` и **до сборки** проверяет, что `git rev-parse HEAD` равен запрошенному SHA, иначе завершается с кодом 1. CI передаёт `${{ github.sha }}`, поэтому выкатывается ровно тот коммит, который прошёл проверки, а не то, на что `master` указывает к моменту деплоя; job `deploy` идёт с `concurrency: production-deploy` (без отмены уже идущего деплоя). Деплой по SHA разрешён только вперёд (`git merge-base --is-ancestor HEAD <sha>`), назад — только с `--rollback`. Без SHA скрипт делает `git fetch origin && git checkout --detach origin/${DEPLOY_BRANCH:-master}` (не `git pull`, который ломается в detached HEAD после отката) и печатает предупреждение. Образы в registry не публикуются: собираются на сервере из этого SHA.
 
-Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
+Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты.
+
+**Секреты деплоя из CI** — в окружении GitHub `LexiFlow`: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`. Сервера пока нет (решение владельца 03.11.2026), поэтому:
+- ни одного секрета нет — job `deploy` пропускается с предупреждением «Deploy skipped», CI на `master` остаётся зелёным;
+- задана только часть — job падает с ошибкой «Deploy secrets incomplete»: это ошибка настройки, а не «сервера нет»;
+- заданы все три — деплой идёт как описано выше.
 
 Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
+
+### Кэши и OPcache прод-образа
+
+- **Кэши при старте.** `docker/entrypoint.sh` при `APP_ENV=production` на каждом старте контейнера собирает `config:cache`, `route:cache`, `view:cache`, **`filament:optimize`** (кэш компонентов панелей `/admin` и `/org` и Blade-иконок Filament, `docs/20` §1.12) и `event:cache`. В dev-контейнере (`APP_ENV=local`) ничего из этого не запускается: кэш компонентов скрыл бы новый ресурс или виджет. Новый ресурс в проде появляется вместе с новым контейнером: `filament:optimize` выполняется заново. Сбросить все кэши в dev — `make cache-clear` (`optimize:clear` и `filament:optimize-clear`).
+- **OPcache.** `docker/php/opcache-prod.ini` копируется **только** в прод-образ (`Dockerfile`, стадия `app`; `Dockerfile.dev` его не получает): `opcache.enable=1`, `opcache.validate_timestamps=0`, `opcache.save_comments=1`, `memory_consumption=256`, `interned_strings_buffer=64`, `max_accelerated_files=32531`. Размер взят по `find vendor app -name '*.php' | wc -l` = 16 899 файлов (дерево разработки; в `--no-dev` образе меньше) плюс около 250 скомпилированных Blade-шаблонов; PHP округляет значение до простого числа из своего списка (16229, 32531, 65407), так что запас — примерно вдвое. Сборка образа падает, если `php -i` не показывает `opcache.validate_timestamps => Off`, `opcache.save_comments => On` и `opcache.enable => On`.
+- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `queue-high`, `queue-default`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app`). Так не делаем: любая правка идёт через коммит и деплой.
+- **Хватает ли памяти.** Статус общего кэша FPM (`opcache_get_status()`: `memory_usage`, `interned_strings_usage`, `opcache_statistics.num_cached_keys` против `max_cached_keys`, `oom_restarts`, `hash_restarts`) виден только из запроса, обработанного самим FPM: у CLI свой кэш, и `docker compose exec app php -r …` покажет не то. Норма: свободно не меньше ~20 % `memory_consumption`, `oom_restarts = 0`, `hash_restarts = 0`, `num_cached_keys` заметно ниже `max_cached_keys`. Снять эти числа под реальным трафиком — задача C8 (`docs/19`); поднять `memory_consumption` / `max_accelerated_files` в `docker/php/opcache-prod.ini` и пересобрать образ, если запас меньше нормы.
+- **Bare-сервер (без Docker).** Этот ini там не применяется. Если выставить `validate_timestamps=0` и на bare-сервере, после каждого деплоя нужен `systemctl reload php8.5-fpm` (сбрасывает кэш), иначе FPM продолжит исполнять старый код.
 
 ### Откат
 
@@ -40,7 +53,7 @@ cd /var/www/lexiflow
 bash deploy.sh --rollback <prev_sha>   # или ROLLBACK=1 bash deploy.sh <prev_sha>
 ```
 
-Без `--rollback` обычный деплой по SHA идёт только вперёд: если `HEAD` не является предком указанного SHA (например, запуск Actions для старого коммита закончился позже нового), скрипт печатает «SHA ... older than the current HEAD: skipping» и завершается с кодом 0. Флаг `--rollback` пропускает эту проверку. Скрипт заново чекаутит коммит, пересобирает образы, перезапускает стек и прогоняет те же smoke-проверки. Миграции автоматически **не** откатываются, поэтому каждая миграция должна быть обратно совместимой со старым кодом (expand/contract): в релизе N только добавляем (столбцы nullable/с default, новые таблицы, индексы), в релизе N+1 или позже, когда старый код уже не нужен, удаляем/переименовываем. Миграции с `--skip-migrate` для отката не нужны, но и не мешают. Если откат невозможен из-за уже применённой несовместимой миграции — чините вперёд новой миграцией, а не `migrate:rollback` в продакшене.
+Без `--rollback` обычный деплой по SHA идёт только вперёд: если `HEAD` не является предком указанного SHA (например, запуск Actions для старого коммита закончился позже нового), скрипт печатает «SHA ... older than the current HEAD: skipping» и завершается с кодом 0. Флаг `--rollback` пропускает эту проверку. Скрипт заново чекаутит коммит, пересобирает образы, перезапускает стек и прогоняет те же smoke-проверки. Миграции автоматически **не** откатываются, поэтому каждая миграция должна быть обратно совместимой со старым кодом (expand/contract): в релизе N только добавляем (столбцы nullable/с default, новые таблицы, индексы), в релизе N+1 или позже, когда старый код уже не нужен, удаляем/переименовываем. Миграции с `--skip-migrate` для отката не нужны, но и не мешают. То же для JSON-данных: снимок практики пишет `lesson_title` строкой (для кода до R3c) рядом с картой `lesson_titles`; строку убрать в одном из следующих релизов (docs/16 §13). Если откат невозможен из-за уже применённой несовместимой миграции — чините вперёд новой миграцией, а не `migrate:rollback` в продакшене.
 
 ### Обновление PostgreSQL 16 → 18 (Docker)
 
@@ -122,7 +135,21 @@ bash docker/postgres/upgrade.sh --prod --keep-current   # правда — на 
 
 Затем деплой заново (после `--keep-current` контейнер `postgres`, остановленный guard'ом, в проде перезапустится сам; в dev — `docker compose up -d`). Отказы, которые защищают рабочую базу 18 от подмены: `--redo` на неизменившемся кластере 16 («nothing is stale»); `--redo`, когда 16 только запускалась и ничего не записала (NextXID/NextOID не сдвинулись), когда в старом томе другой, переинициализированный кластер (сменился system identifier — например, том удалили, а откат создал пустой) или когда 16 выключена нечисто (`Database cluster state` ≠ `shut down`: убита OOM или `docker rm -f`, и `pg_controldata` не может сказать, были ли записи после последней контрольной точки) — все три могли бы заменить живую базу 18 её же старым снимком или пустой базой, поэтому требуют `--redo --force` (копия 16 при этом сама доигрывает свой WAL); `--redo` и `--keep-current`, пока 16 работает (есть контейнер, держащий старый том на запись) — остановите её и повторите. Нечисто выключенная, но никем не запущенная 16 для `--keep-current` не помеха: кластер неподвижен, он записывается как есть с предупреждением; если 16 когда-нибудь запустить снова, отпечаток сменится и проверки остановят деплой ещё раз. Прерванный `--redo` оставляет маркер `in-progress` с `redo=1`, маркер `done` при этом сохраняется (история сверенного переноса): `--check` отвечает `STOP: a --redo … is in progress or was interrupted`, а дальше либо `--redo` доводит перенос (уже отложенная база и её имя в маркере не теряются: если восстановление успело завершиться, несверенная копия удаляется и восстанавливается заново, второй раз ничего не откладывается), либо `--keep-current` возвращает стек к данным 18 — открывает шлагбаум, поднимает остановленные сервисы, снимает маркер. Второе возможно, пока прерванный `--redo` не успел переименовать базу (`stale_db=` в маркере пишется перед переименованием): иначе скрипт откажет и скажет, как вернуть отложенную базу на место вручную (ничего не удаляется); если базу нельзя проверить (например, `psql` не подключается), скрипт тоже откажет, а не примет ошибку за ответ. Если `--redo` сорвался уже на запуске сервисов (данные сверены, `done` переписан), маркер становится `redo=0`: `--check` отвечает `OK`, а `make prod-pg-upgrade` без флагов поднимает сервисы и снимает маркер. Если старый том к этому времени удалён, `--redo`/`--keep-current` откажут (нечего копировать и сравнивать) — `--check` предлагает тот же запуск без флагов. Отложенные базы `lexiflow_stale_<время>` `make prod-pg-check` перечисляет строкой `databases set aside by --redo`. Тот же `--redo` — выход, если на пустой 18 успели прогнать миграции и сверка показала diff (раньше здесь предлагался `dropdb`).
 
-*Redis.* Образ закреплён на `redis:8.4-alpine`, а не на плавающем `redis:8-alpine`, пока жив путь отката: 8.4 пишет RDB формата 12, который читает `redis:7.4` коммита до апгрейда; 8.6+ пишут 13+, и 7.4 после первой перезаписи AOF/RDB падает с «Can't handle RDB format version» — откат остался бы без очереди и сессий. На последнюю 8.x переходим вместе с удалением защитного монтирования `pgdata`. Тесты в CI (job `test`) идут на той же версии.
+*Redis.* Образ — точный тег `redis:8.10-alpine` (решение владельца 02.11.2026, `docs/19_REDIS_CACHE_PLAN.md` §1), не плавающий `redis:8-alpine`: образ воспроизводим, обновление делается осознанно. 8.10 пишет RDB формата 15 — том `redisdata`, записанный 8.10, на 8.4 уже не поднимется (приложение не запущено, откат на старые Redis не нужен). Тесты в CI (job `test`) идут на той же версии.
+
+**Два экземпляра Redis** (`docs/19` §4; выполнено в C2, 02.11.2026):
+
+| Сервис | Для чего | Политика | Диск | Laravel |
+|---|---|---|---|---|
+| `redis` | очереди, сессии, блокировки, лимиты (`RateLimiter`), маркеры «уже отправлено», защита 2FA, ключи версий entitlement, пульсы `/health/ready` | `noeviction` — зашито в compose, переменной нет: ничего отсюда не должно пропасть из-за нехватки памяти | AOF `everysec`, том `redisdata` | подключения `default`/`cache`/`queue`/`session`/`locks`; `CACHE_STORE=redis`, `CACHE_LIMITER_STORE=redis` |
+| `redis-cache` | чистый кэш: каталог, таблицы лиг, агрегаты виджетов, снимки entitlement — всё, что пересчитывается из базы | `volatile-lru`: при нехватке памяти вытесняются ключи с TTL (у чистого кэша он есть всегда) | нет (`--appendonly no --save ""`): после рестарта пусто, это нормально | подключение `lru` (`REDIS_LRU_HOST/PORT/PASSWORD/DB`), хранилище `lru`, `CACHE_PURE_STORE=lru`; код берёт его только через `App\Domain\Operations\Support\PureCache::store()` |
+
+- **Пароли.** В проде обязательны оба: `REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD` (`openssl rand -hex 32`). `docker-compose.prod.yml` без них не стартует: `required variable REDIS_PASSWORD is missing a value: …`. Контейнерам приложения compose сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379` и `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD` (`environment` сильнее `env_file`), так что в Docker строки `REDIS_LRU_*` из `.env` внутри контейнеров не действуют; на голом сервере их задают руками (§4, VPS-гайд §5). В деве пароль по желанию: пустое значение = без пароля; слова `null`, `(null)`, `empty`, `(empty)` в любом регистре (старые `.env`) оба контейнера тоже считают отсутствием пароля — как Laravel, чей `env()` читает их как PHP null или `''` и не шлёт AUTH; в проде `deploy.sh` с таким значением (в окружении shell или в `.env`) останавливается до сборки и `up`, а контейнер, запущенный мимо него, не стартует и пишет причину в свой лог (`docker compose logs redis`). Пароль только из hex-символов: он попадает в конфиг Redis строкой `requirepass …` без кавычек.
+- **Где пароль виден.** `redis-server` получает его строкой конфига через stdin, а не аргументом, и `redis-cli` в healthcheck — через `REDISCLI_AUTH`: в `ps`, `/proc/*/cmdline` и `docker compose ps` пароля нет. Но он остаётся в окружении контейнера (`docker inspect lexiflow-redis` → `Config.Env`) и в `.env` на хосте — как `DB_PASSWORD`. Компромисс принят: иначе нужен отдельный файл конфига или Docker secrets ради секрета, который и так читается всеми, кто может выполнять `docker` на сервере (`docker` = root). Защита — права на `.env` (`chmod 600`) и круг людей с доступом к Docker.
+- **Размер.** `REDIS_MAXMEMORY` (первый, 256 МБ) и `REDIS_CACHE_MAXMEMORY` (второй, 256 МБ; уточняется по замерам C8 в `docs/19` §8). Заполненный первый экземпляр при `noeviction` отвечает `OOM command not allowed` на запись: очередь и сессии встают — это сигнал увеличить `REDIS_MAXMEMORY` и искать, кто пишет без TTL, а не включать вытеснение.
+- **Мониторинг.** Раз в минуту с обоих экземпляров (`docker compose exec redis sh -c 'REDISCLI_AUTH=$REDIS_PASSWORD redis-cli INFO'`, то же для `redis-cache`): `used_memory` и `maxmemory`, `evicted_keys`, `keyspace_hits` / `keyspace_misses` (hit ratio = hits / (hits + misses)), `rejected_connections`. Алерты: `used_memory` первого экземпляра растёт неделю подряд или выше 80 % `maxmemory` — ищем ключи без TTL (`redis-cli --bigkeys`, `SCAN` + `TTL`); `evicted_keys` второго растёт быстрее, чем пополняется кэш, или hit ratio ниже ~0.8 — поднимаем `REDIS_CACHE_MAXMEMORY` (`docker compose up -d redis-cache` применит); `evicted_keys` первого экземпляра всегда 0 — иначе политика не `noeviction`. `/health/ready` показывает оба экземпляра отдельно: `redis` и `redis_cache` (§15.2).
+- **Деградация.** Хранилище чистого кэша `lru` — цепочка `failover` → `array` с размыкателем (`docs/19` §4.1): при недоступном или зависшем `redis-cache` первый неудачный вызов (отказ сразу, на зависшем — таймаут 0,25 с) размыкает цепь на 15 с, и все процессы хоста (маркер — файл `storage/framework/cache/circuits/lru_redis` на общем томе) считают из базы без попыток соединения; раз в окно один процесс пробует снова. В лог пишется `cache.failed_over` (warning) на каждое размыкание — одна строка на окно на весь хост, не на запрос — и `cache.recovered` (info), когда экземпляр снова отвечает. `/health/ready` отвечает `200` со `status: degraded` и `checks.redis_cache: degraded`; контейнеры приложения не ждут `redis-cache` (`depends_on: service_started`). Деплой этим не блокируется — smoke-проверка `deploy.sh` принимает `200`, но печатает `WARNING` с телом ответа, если в нём `degraded`. Пока кэш лежит, растёт нагрузка на PostgreSQL: алерт на `degraded` дольше 10 минут (§15.3). Вмешательство не нужно: после починки экземпляра цепь замкнётся сама не позже чем через 15 с (первая удачная проба). Если нужно немедленно — удалить маркер в любом контейнере приложения: `docker compose exec app rm -f storage/framework/cache/circuits/lru_redis`.
+- **Голый сервер без Docker:** второй `redis-server` на `127.0.0.1:6380`, `docs/VPS_DEPLOY_GUIDE_RU.md` §5.
 
 **Когда удалить старый том.** Когда 18 поработала достаточно (например, неделю), есть свежий бэкап и откат больше не нужен. Том держит контейнер `postgres` (защитное монтирование только для чтения — и остановленный контейнер тоже держит), поэтому `docker volume rm` сразу ответит «volume is in use»; сначала убрать контейнер:
 
@@ -133,7 +160,7 @@ docker volume rm lexiflow_pgdata                                           # т�
 docker compose -f docker-compose.prod.yml --env-file .env up -d            # postgres пересоздаётся; compose заведёт пустой lexiflow_pgdata — это безвредно
 ```
 
-Скрипты этого не делают никогда. Пустой том entrypoint не смущает, `make prod-pg-check` отвечает `OK` уже без «rollback copy». Внимание: из-за защитного монтирования том `pgdata` объявлен в compose, поэтому `docker compose down -v` удалит и его (как и все остальные данные стека). Само монтирование уберём из compose в одном из следующих релизов вместе с переходом Redis на последнюю 8.x.
+Скрипты этого не делают никогда. Пустой том entrypoint не смущает, `make prod-pg-check` отвечает `OK` уже без «rollback copy». Внимание: из-за защитного монтирования том `pgdata` объявлен в compose, поэтому `docker compose down -v` удалит и его (как и все остальные данные стека). Само монтирование уберём из compose в одном из следующих релизов.
 
 ---
 
@@ -203,6 +230,7 @@ DB_PASSWORD=your_strong_password
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+REDIS_PASSWORD=<openssl rand -hex 32>
 REDIS_DB=0
 REDIS_CACHE_DB=1
 REDIS_QUEUE_CONNECTION=queue
@@ -211,8 +239,16 @@ REDIS_SESSION_DB=3
 REDIS_LOCK_DB=4
 REDIS_QUEUE_BLOCK_FOR=5
 REDIS_MAXMEMORY=256mb
-REDIS_MAXMEMORY_POLICY=noeviction
+# The second instance (pure cache, docs/19 §4): Docker - service redis-cache; bare server - 127.0.0.1:6380.
+REDIS_LRU_HOST=127.0.0.1
+REDIS_LRU_PORT=6380
+REDIS_LRU_PASSWORD=<openssl rand -hex 32>
+REDIS_LRU_DB=0
+REDIS_CACHE_PASSWORD=<Docker only: what docker-compose.prod.yml gives redis-cache and the app containers as REDIS_LRU_PASSWORD>
+REDIS_CACHE_MAXMEMORY=256mb
 CACHE_STORE=redis
+CACHE_LIMITER_STORE=redis
+CACHE_PURE_STORE=lru
 SESSION_DRIVER=redis
 SESSION_CONNECTION=session
 
@@ -269,6 +305,17 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 > `migrate:status` mismatch (the `create_students_table` row has no file on disk). From the first production release on,
 > schema changes are **forward migrations only**.
 
+> **Index migrations with `CONCURRENTLY`** (`2026_10_28_000001`, `2026_10_28_200001`, `2026_10_28_300001`,
+> `2026_11_02_100001`, `2026_11_02_200001`): `CREATE INDEX CONCURRENTLY` / `DROP INDEX CONCURRENTLY` wait for the
+> transactions that may still use the table the old way — a build waits for every transaction of the **database** whose
+> snapshot is older than its own, not only for those on that table. If `php artisan migrate --force` hangs during a deploy,
+> find what blocks it instead of ending every idle session:
+> `select pid, pg_blocking_pids(pid) as blocked_by, left(query, 60) from pg_stat_activity where query ilike '%concurrently%'`,
+> then look at those pids (`select pid, state, xact_start, left(query, 80) from pg_stat_activity where pid = any('{…}')`)
+> and end the stuck one — usually an `idle in transaction` session — with `select pg_terminate_backend(<pid>)`; the build
+> then goes on by itself. Only an interrupted **migration** (Ctrl+C, a killed container, a lost connection) leaves an
+> INVALID index behind; running the migration again drops it first and rebuilds.
+
 ---
 
 ## 6. Build the Frontend (TWA SPA)
@@ -294,12 +341,14 @@ If Node.js is not on the server, build locally and upload the `public/twa/` dire
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize   # components of /admin and /org + Blade icons (docs/20 §1.12); production only
 php artisan event:cache
 ```
 
 To clear all caches (e.g. after a config change):
 ```bash
 php artisan optimize:clear
+php artisan filament:optimize-clear
 ```
 
 ---
@@ -517,7 +566,7 @@ Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low
 
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
-Keep `REDIS_MAXMEMORY_POLICY=noeviction` while cache, sessions and queues share the same Redis instance. `allkeys-lru` is only safe after moving queues/sessions to a separate Redis instance, otherwise Redis can evict pending jobs under memory pressure.
+The first Redis instance (queues, sessions, locks, limits) runs with `noeviction` and that is not configurable on purpose: an evicting policy there could drop pending jobs, locks or the login limits under memory pressure. The pure cache lives on the second instance (`redis-cache` / port 6380, `volatile-lru`), see §0 "Redis" and `docs/19` §4.
 
 Apply:
 ```bash
@@ -579,6 +628,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
+- `learners:purge-deleted` — daily at 03:30 (`withoutOverlapping`): learners soft-deleted more than `LEARNERS_PURGE_AFTER_DAYS` (30) days ago are deleted for good — personal and learning data go by FK cascade, payment records (`payment_orders`, `payments`, `provider_transactions`, `subscriptions`) stay whole with the payer snapshot (`payer_*`), see docs/03 §8 rule 2 and docs/07 §10. At most `LEARNERS_PURGE_MAX_PER_RUN` (500) learners per run, in batches of `LEARNERS_PURGE_BATCH` (50), one transaction per learner under a `Cache::lock`; a repeated or parallel run changes nothing. Prints `Learners purged: N` and logs `learners.purge_finished {purged, skipped, duration_ms}`; every deleted learner leaves an `audit_logs` row `learner.purged` (old id, `deleted_at`, no personal data). The Stars auto-renewal of a live subscription is canceled best-effort first (needs the bot token); a failure is logged (`learners.purge.stars_cancel_failed`) and does not stop the run.
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing.
 - `practice:battles-sweep` — every minute (`everyMinute()->withoutOverlapping()->runInBackground()`; the 1-on-1 battle, docs/16 §8.6, task 18.6). One run: (1) invitations past `invite_expires_at` (5 minutes) become `closed / invite_expired` — one conditional UPDATE per row, so an invitation accepted a moment earlier is left alone — and release both players' «one active battle»;
@@ -694,6 +744,7 @@ php artisan livewire:publish --assets --no-interaction
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize
 php artisan event:cache
 
 # Restart queue workers to pick up new code (both pools: lexiflow-worker-high / -default)
@@ -714,6 +765,7 @@ php artisan livewire:publish --assets --no-interaction
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize   # optimize:clear dropped it
 nginx -t && systemctl reload nginx
 ```
 
@@ -848,12 +900,13 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 | Check | Fails when |
 |---|---|
 | `db` | `select 1` throws |
-| `redis` | `PING` fails (only reported if cache or queue use the `redis` driver) |
+| `redis` | `PING` of the first instance fails (only reported if cache or queue use the `redis` driver) |
+| `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails → the value is `degraded`, not `fail`, as long as the pure store has a fallback: the chain goes on to the array store and the application serves from the database (`docs/19` §4.1). With a pure store on Redis alone (`CACHE_PURE_STORE=lru_redis`) every cache call would throw, so the value is `fail`. Only reported when `CACHE_PURE_STORE` is (a failover chain over) a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
 | `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
 
-Response: `200 {"status":"ok","checks":{"db":"ok",...}}` or `503 {"status":"fail","checks":{"db":"fail",...}}`.
-Only `ok`/`fail` is returned; error details, hosts and versions are written to the application log
+Response: `200 {"status":"ok","checks":{"db":"ok",...}}`, `200 {"status":"degraded","checks":{...,"redis_cache":"degraded"}}` (a dependency the application works without is down; `deploy.sh` and uptime monitors accept it, a lasting `degraded` is an alert of its own in §15.3) or `503 {"status":"fail","checks":{"db":"fail",...}}`.
+Only `ok`/`degraded`/`fail` is returned; error details, hosts and versions are written to the application log
 (`readiness.check_failed`), never to the response. The route is throttled (60 req/min per IP) and stateless.
 
 The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heartbeat`, every minute, see
@@ -865,7 +918,9 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 
 | Signal | Alert when |
 |---|---|
-| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed |
+| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed (`redis` and `redis_cache` are separate) |
+| `GET /health/ready` body `status: degraded` | longer than 10 minutes: the second Redis instance is down or hung and the application computes from the database (slower, more load on PostgreSQL) — `docker compose ps redis-cache` and its log; `cache.failed_over` in the application log says when it started (one line per 15 s window while it lasts), `cache.recovered` when it ended; `deploy.sh` prints a WARNING when the smoke check sees it |
+| Redis `INFO` of both instances (every 1 min) | first instance: `used_memory` above 80 % of `maxmemory` or growing for days, `evicted_keys` > 0; second instance: `evicted_keys` growing fast or hit ratio `keyspace_hits / (hits + misses)` below ~0.8 — raise `REDIS_CACHE_MAXMEMORY` (§0 "Redis") |
 | Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
 | Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
 | `backup:monitor` mail | any message (backup is missing or too old) |
@@ -899,7 +954,7 @@ Product events (`product_events` table, see `docs/03_DATABASE.md`) are for produ
 
 The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets, so they are *not* in the BREACH `gzip off` block) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).
 
-**Replacing the legal text placeholders.** `offer` and `privacy` are stubs: a numbered list of section titles, each followed by "text will be provided by the owner", plus a "draft" notice and `noindex`. In `lang/{ru,uz}/legal.php`, `offer.sections` / `privacy.sections` is a list; replace a title string with `['title' => '...', 'text' => "Paragraph 1\n\nParagraph 2"]` to publish its text (paragraphs are split on blank lines; plain strings stay placeholders). Section order/count may differ from the stub but must stay identical in `ru` and `uz` (`LocalizationTest` checks key parity). Once all sections are real: remove `draft_notice` from the views (`resources/views/site/_legal.blade.php`) and drop `'noindex' => true` in `offer.blade.php` / `privacy.blade.php`.
+**Legal texts.** `offer` and `privacy` hold drafts (ru/uz) in `lang/{ru,uz}/legal.php`: `sections` is a list of `['title' => ..., 'text' => "Paragraph 1\n\nParagraph 2"]` (paragraphs split on blank lines; a plain string stays a placeholder section). Tokens `{contact}` (support contact, else `SITE_LEGAL_EMAIL`, else a pointer to `/paysupport`) and `{requisites}` (the filled `SITE_LEGAL_*` fields) are substituted by the view; the number and order of sections must be identical in `ru` and `uz` (`LocalizationTest`). Places the owner or the lawyer must fill are marked in square brackets in the texts (data storage country/provider, minimum age, mail provider, terms). While `SITE_LEGAL_DRAFT=true` (default) the pages show the "draft" notice and `noindex`; after the lawyer's approval set `SITE_LEGAL_DRAFT=false` and restart (the page cache key includes the flag): the notice disappears and the pages become indexable.
 
 **security.txt.** `Contact` is a placeholder (`security@example.com`): put a real monitored address there before launch. `Expires` must be renewed at least once a year (currently `2027-10-18`).
 
@@ -947,7 +1002,8 @@ you switch a provider on.
 | `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
 | `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |
 | `BILLING_INVOICE_REQUEST_EMAIL` | where the cabinet's "Request an invoice" e-mail goes (empty = `SITE_LEGAL_EMAIL`; both empty = the button is hidden) |
-| `SITE_LEGAL_NAME`, `_INN`, `_ADDRESS`, `_BANK`, `_BANK_ACCOUNT`, `_MFO`, `_PHONE`, `_EMAIL` | seller requisites printed on a center's invoice (`config/site.php`, from the owner / accountant); empty fields are not printed |
+| `SITE_LEGAL_DRAFT` | `true` by default: the offer and privacy pages show the "draft" notice and are `noindex`; set `false` only after the lawyer has approved the texts (`config('site.legal.draft')`) |
+| `SITE_LEGAL_NAME`, `_INN`, `_ADDRESS`, `_BANK`, `_BANK_ACCOUNT`, `_MFO`, `_PHONE`, `_EMAIL` | seller requisites printed on a center's invoice and in the last section of the offer (`config/site.php`, from the owner / accountant); empty fields are not printed |
 
 `PAYME_KEY`, `PAYME_TEST_KEY` and `CLICK_SECRET_KEY` are secrets: only in `.env` (never in git, chat or tickets),
 `chmod 640`. The admin panel masks key-like fields of stored webhook payloads and the order token, and the log redactor
@@ -1088,11 +1144,18 @@ chmod 600 .env
 | `TWA_JWT_SECRET` | ✅ | `openssl rand -hex 32` |
 | `TWA_BASE_URL` | ✅ | `https://yourdomain.com` |
 | `REDIS_HOST` | ✅ | `127.0.0.1` |
+| `REDIS_PASSWORD` | ✅ (production) | `openssl rand -hex 32`; empty in dev = no password (never `null`) |
 | `REDIS_CACHE_DB` | recommended | `1` |
 | `REDIS_QUEUE_DB` | recommended | `2` |
 | `REDIS_SESSION_DB` | recommended | `3` |
 | `REDIS_LOCK_DB` | recommended | `4` |
-| `REDIS_MAXMEMORY_POLICY` | recommended | `noeviction` |
+| `REDIS_MAXMEMORY` | recommended | `256mb` (first instance; its policy is `noeviction`, fixed) |
+| `REDIS_LRU_HOST` / `REDIS_LRU_PORT` | ✅ (bare server) | second instance: `127.0.0.1` / `6380`; in Docker compose sets `redis-cache` / `6379` for the app containers itself |
+| `REDIS_LRU_PASSWORD` | ✅ (bare server) | password of the second instance, `openssl rand -hex 32`; in Docker compose sets it from `REDIS_CACHE_PASSWORD` |
+| `REDIS_CACHE_PASSWORD` | ✅ (Docker production) | what `docker-compose.prod.yml` gives `redis-cache` and the app containers |
+| `REDIS_CACHE_MAXMEMORY` | recommended | `256mb` (second instance, `volatile-lru`) |
+| `CACHE_LIMITER_STORE` | recommended | `redis` (the rate limiter never on the evicting store) |
+| `CACHE_PURE_STORE` | recommended | `lru` (the pure cache, `PureCache::store()`) |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
 | `TTS_VOICE` | optional | `en-US-AriaNeural` (voice of pre-generated audio) |
 | `TTS_AUDIO_VERSION` | optional | `1` (bump to re-voice the library) |
@@ -1169,7 +1232,9 @@ The switches are read from `.env`; everything else of `config/practice.php` (siz
 | Variable | Default | Meaning |
 |---|---|---|
 | `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
-| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`) |
+| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`). With `all`, Free learners practise within the daily limits below |
+| `PRACTICE_FREE_SESSIONS_PER_DAY` | `2` | Practice sessions a Free learner may open per local day (docs/18 G1); a retry of the mistakes is free, replacing the unfinished session counts. Pro (feature `practice.unlimited`, sponsored Pro included) has no limit. `0` — only Pro opens sessions; empty — no limit for Free. Refused: 403 `practice_limit_reached` |
+| `PRACTICE_FREE_BATTLES_PER_DAY` | `1` | Battle calls a Free learner may send per local day: invitations and rematches they offer that wait for an answer or were played. A call that never started through no fault of the caller (declined, run out, withdrawn, a room that ran out, voided) is given back; accepting a friend's call is always free. `0` / empty as above |
 | `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` | `true` | Switches one mode off: no new session of it; sessions already started finish |
 | `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle: `false` refuses new invitations and the acceptance of sent ones (409 `battle_disabled`) and hides the entries (`/me` → `practice.battle`); matches that are on finish. `PRACTICE_ACCESS=off` is stronger: the sweeper voids the matches that are on |
 | `TTS_SERVICE_URL`, `TTS_VOICE`, `TTS_AUDIO_VERSION` | see §10.1 | Voicing of the dictation phrases uses the same service and voice as the word audio (§10.2) |
@@ -1177,3 +1242,20 @@ The switches are read from `.env`; everything else of `config/practice.php` (siz
 Fixed in `config/practice.php`: solo session TTL 24 h (`practice.solo.session_ttl_hours`); 5 tasks per session, at least 3 (`solo.items`); pairs — up to 3 rounds of 4, rounds of 3 allowed (`solo.pairs`); dictation — at most 3 phrases, 2 swaps of a clip (`solo.dictation`); import ≤ 2 MB and ≤ 300 tasks (`import`); the disk of the phrase audio `practice_audio` (`config/filesystems.php`, root `storage/app/practice-audio`, no URL).
 The battle (`practice.battle.*`): 5 rounds; a round lasts 30 s (collocation), 45 s (pairs, sentence) or 60 s (dictation); a countdown of 3 s and a review of 4 s; an invitation lives 300 s, a room 120 s; the opponent is warned about after 10 s of silence (`presence_warn_seconds`), a player silent for 30 s loses (`presence_grace_seconds`); the presence is written at most once per 5 s (`heartbeat_write_seconds`);
 an answer is taken up to 1500 ms after the deadline (`deadline_grace_ms`); a round is worth 100 points, a pair 25 (`points`); the list of finished matches holds 10 (`finished_list`). The limiters (`AppServiceProvider`): `twa-battle-invite` 5/min, `twa-battle-action` 60/min, `twa-battle-poll` 90/min (outside `twa-api`), `twa-practice-audio` 60/min (shared with the solo audio).
+
+
+### Game "Caravan" variables (docs/18 §12.7)
+
+Read from `.env`; everything else of `config/game.php` (run sizes, scoring, economy, league, class) is changed by a release.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `GAME_ACCESS` | `off` | Who plays: `off` (nobody; every endpoint answers 403 `game_unavailable`), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `all`. Anything else counts as `off`. `GET /me` → `game.available`. The **class caravan** (`/start_caravan`, `/cancel_caravan`, the page «Караваны» in `/org`, the cards on the map and on «Сегодня») exists **only with `all`**: in `pilot` the game is seen by single learners, a caravan is for the whole group. After any change of `GAME_ACCESS`: `php artisan config:cache` and `php artisan telegram:setup-bot` (the command menu is built when the command runs: the caravan commands are in it only with `all`) |
+| `GAME_FREE_RUNS_PER_DAY` | `1` | Free map runs (stops + bosses) a Free learner plays per local day; more cost a ticket. Pro (feature `game.unlimited_runs`) has no limit; the daily caravan is not limited. `0` — only Pro; empty — no limit for Free |
+| `GAME_FREE_BOSS_STAGES` | `1` | The bosses of the first N cities of a course a Free learner may fight (Pro: `game.all_bosses`); past that 403 `game_pro_required`. Empty — all |
+| `GAME_FREE_BOOSTERS_PER_WEEK` / `GAME_PRO_BOOSTERS_PER_WEEK` | `1` / `5` | Boosters a learner may use per local week (Pro: `game.boosters_plus`) |
+| `GAME_TICKETS_PER_STREAK_WEEK` / `GAME_TICKETS_PER_REFERRAL` / `GAME_TICKETS_MAX` | `1` / `3` / `10` | Tickets: per 7 days of the streak, to the inviter per activated friend, the cap of the balance |
+| `GAME_LEAGUE_DAILY_CAP` | `40` | The cap of the league points the game gives per local day |
+| `GAME_CLASS_CENTERS_ONLY` | `true` | The caravan of a class only for the centers with a live subscription |
+
+Turning the game on (the pilot checklist): `php artisan migrate --force` (the game tables and the index `game_runs (started_at, learner_id)`); put the pilot learners in (`learners.practice_pilot_at`, as for the practice); `GAME_ACCESS=pilot`; then **`php artisan config:cache` and `php artisan telegram:setup-bot`** (the bot menu is built when the command runs, not on every request); watch the widget «Караван — 7 дней»; later `GAME_ACCESS=all` and the same two commands again — only then the caravan of a class appears in the bot, in `/org` and in the Mini App. **Before switching `GAME_ACCESS` from `all` back to `pilot` or `off`, cancel the class caravans that are on their way** (`/cancel_caravan`, `/org` or `/admin`): afterwards the bot is silent and `/org` has no page, so a teacher cannot cancel them, and runs no longer count for them; they only finish on their own at the end of the week (the summary still goes to the chat).

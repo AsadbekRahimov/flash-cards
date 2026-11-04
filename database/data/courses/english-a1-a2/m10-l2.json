@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 10,
+    "title": "Погода и природа",
+    "title_uz": "Ob-havo va tabiat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Какая погода",
+    "title_uz": "Ob-havo qanday"
+  },
+  "words": [
+    {
+      "word": "hot",
+      "part_of_speech": "adjective",
+      "translation": "жаркий, горячий",
+      "translations": {
+        "ru": "жаркий, горячий",
+        "uz": "issiq"
+      },
+      "example": "It is very hot in summer.",
+      "example_translations": {
+        "ru": "Летом очень жарко.",
+        "uz": "Yozda juda issiq."
+      }
+    },
+    {
+      "word": "cold",
+      "part_of_speech": "adjective",
+      "translation": "холодный",
+      "translations": {
+        "ru": "холодный",
+        "uz": "sovuq"
+      },
+      "example": "It is cold today.",
+      "example_translations": {
+        "ru": "Сегодня холодно.",
+        "uz": "Bugun sovuq."
+      }
+    },
+    {
+      "word": "warm",
+      "part_of_speech": "adjective",
+      "translation": "тёплый",
+      "translations": {
+        "ru": "тёплый",
+        "uz": "iliq"
+      },
+      "example": "The water is warm.",
+      "example_translations": {
+        "ru": "Вода тёплая.",
+        "uz": "Suv iliq."
+      }
+    },
+    {
+      "word": "cool",
+      "part_of_speech": "adjective",
+      "translation": "прохладный",
+      "translations": {
+        "ru": "прохладный",
+        "uz": "salqin"
+      },
+      "example": "The evening is cool.",
+      "example_translations": {
+        "ru": "Вечер прохладный.",
+        "uz": "Kech salqin."
+      }
+    },
+    {
+      "word": "wet",
+      "part_of_speech": "adjective",
+      "translation": "мокрый",
+      "translations": {
+        "ru": "мокрый",
+        "uz": "ho'l"
+      },
+      "example": "My shoes are wet.",
+      "example_translations": {
+        "ru": "Мои туфли мокрые.",
+        "uz": "Tuflilarim ho'l."
+      }
+    },
+    {
+      "word": "dry",
+      "part_of_speech": "adjective",
+      "translation": "сухой",
+      "translations": {
+        "ru": "сухой",
+        "uz": "quruq"
+      },
+      "example": "The towel is dry.",
+      "example_translations": {
+        "ru": "Полотенце сухое.",
+        "uz": "Sochiq quruq."
+      }
+    },
+    {
+      "word": "sunny",
+      "part_of_speech": "adjective",
+      "translation": "солнечный",
+      "translations": {
+        "ru": "солнечный",
+        "uz": "quyoshli"
+      },
+      "example": "It is a sunny day.",
+      "example_translations": {
+        "ru": "Сегодня солнечный день.",
+        "uz": "Quyoshli kun."
+      }
+    },
+    {
+      "word": "cloudy",
+      "part_of_speech": "adjective",
+      "translation": "облачный",
+      "translations": {
+        "ru": "облачный",
+        "uz": "bulutli"
+      },
+      "example": "It is cloudy this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром облачно.",
+        "uz": "Bugun ertalab havo bulutli."
+      }
+    },
+    {
+      "word": "rainy",
+      "part_of_speech": "adjective",
+      "translation": "дождливый",
+      "translations": {
+        "ru": "дождливый",
+        "uz": "yomg'irli"
+      },
+      "example": "Tomorrow will be rainy.",
+      "example_translations": {
+        "ru": "Завтра будет дождливо.",
+        "uz": "Ertaga yomg'irli bo'ladi."
+      }
+    },
+    {
+      "word": "windy",
+      "part_of_speech": "adjective",
+      "translation": "ветреный",
+      "translations": {
+        "ru": "ветреный",
+        "uz": "shamolli"
+      },
+      "example": "It is windy today.",
+      "example_translations": {
+        "ru": "Сегодня ветрено.",
+        "uz": "Bugun shamolli."
+      }
+    }
+  ]
+}

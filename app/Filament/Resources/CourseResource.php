@@ -10,6 +10,7 @@ use App\Filament\Resources\CourseResource\Pages;
 use App\Filament\Resources\CourseResource\RelationManagers\StagesRelationManager;
 use App\Filament\Resources\CourseResource\Support\CourseTransitionActions;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Course;
 use Filament\Actions;
 use Filament\Forms;
@@ -107,7 +108,7 @@ class CourseResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('slug')->label(__('admin.courses.fields.slug'))->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('title.ru')->label(__('admin.courses.fields.title_locale', ['locale' => 'RU']))->limit(40),

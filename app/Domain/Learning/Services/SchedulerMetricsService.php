@@ -108,58 +108,67 @@ final class SchedulerMetricsService
     }
 
     /**
+     * The cohort and the retained of each arm in ONE statement, however many learners the cohort has. A learner is retained when
+     * a grade exists at or after `created_at + RETENTION_DAY days` - the same as "the last grade is not before it", which the
+     * earlier version fetched as `MAX(created_at)` for every chunk of 1000 learners (35 chunks, some 70 statements at 200 000
+     * learners, docs/20 F7). Here that is an EXISTS per cohort learner: an index-only probe of
+     * `training_reviews (learner_id, created_at)` that stops at the first grade past the deadline. The deleted learners stay out
+     * (the soft-delete scope of `Learner::query()`), and a learner without a bucket (NULL) is counted in the arm the config names.
+     *
      * @return array<string, array{cohort: int, retained: int}>
      */
     private function retentionD7(CarbonImmutable $since, CarbonImmutable $now): array
     {
         $cohortEnd = $now->subDays(self::RETENTION_DAY);
         $default = $this->resolver->defaultKind()->value;
+        [$deadline, $deadlineBindings] = $this->retentionDeadline();
 
-        /** @var array<string, int> $cohort */
-        $cohort = [];
-        /** @var array<string, int> $retained */
-        $retained = [];
+        /** @var array<string, array{cohort: int, retained: int}> $out */
+        $out = [];
         foreach (SchedulerKind::cases() as $kind) {
-            $cohort[$kind->value] = 0;
-            $retained[$kind->value] = 0;
+            $out[$kind->value] = ['cohort' => 0, 'retained' => 0];
         }
 
-        Learner::query()
+        // Grouped by the stored bucket, NULL included: the default is applied below, to a handful of rows.
+        $rows = Learner::query()
             ->whereBetween('created_at', [$since, $cohortEnd])
-            ->select(['id', 'created_at', 'scheduler'])
-            ->chunkById(1000, function ($learners) use (&$cohort, &$retained, $default): void {
-                /** @var array<int, CarbonImmutable> $createdAt */
-                $createdAt = [];
-                /** @var array<int, string> $bucket */
-                $bucket = [];
-                /** @var Learner $learner */
-                foreach ($learners as $learner) {
-                    $createdAt[$learner->id] = CarbonImmutable::instance($learner->created_at ?? CarbonImmutable::now());
-                    $bucket[$learner->id] = $learner->scheduler instanceof SchedulerKind ? $learner->scheduler->value : $default;
-                    $cohort[$bucket[$learner->id]] = ($cohort[$bucket[$learner->id]] ?? 0) + 1;
-                }
+            ->groupBy('scheduler')
+            ->select('scheduler')
+            ->selectRaw('COUNT(*) AS cohort')
+            ->selectRaw(
+                'SUM(CASE WHEN EXISTS (SELECT 1 FROM training_reviews WHERE training_reviews.learner_id = learners.id'
+                ." AND training_reviews.created_at >= {$deadline}) THEN 1 ELSE 0 END) AS retained",
+                $deadlineBindings,
+            )
+            ->toBase()
+            ->get();
 
-                $lastReview = DB::table('training_reviews')
-                    ->whereIn('learner_id', array_keys($createdAt))
-                    ->groupBy('learner_id')
-                    ->select('learner_id')
-                    ->selectRaw('MAX(created_at) AS last_at')
-                    ->get();
+        foreach ($rows as $row) {
+            $bucket = $row->scheduler === null ? $default : (string) $row->scheduler;
 
-                foreach ($lastReview as $row) {
-                    $learnerId = (int) $row->learner_id;
-                    $lastAt = CarbonImmutable::parse((string) $row->last_at);
-                    if (! $lastAt->lessThan($createdAt[$learnerId]->addDays(self::RETENTION_DAY))) {
-                        $retained[$bucket[$learnerId]] = ($retained[$bucket[$learnerId]] ?? 0) + 1;
-                    }
-                }
-            });
-
-        $out = [];
-        foreach ($cohort as $kind => $count) {
-            $out[$kind] = ['cohort' => $count, 'retained' => $retained[$kind] ?? 0];
+            // Only the arms: the column holds one of them or NULL, and a widget has no place for any other value.
+            if (isset($out[$bucket])) {
+                $out[$bucket]['cohort'] += (int) $row->cohort;
+                $out[$bucket]['retained'] += (int) $row->retained;
+            }
         }
 
         return $out;
+    }
+
+    /**
+     * The SQL of "the learner's creation + RETENTION_DAY days" and its bindings. Both columns are wall-clock timestamps without a
+     * zone, so this is plain calendar arithmetic, the same as `addDays()` of the application: an interval on PostgreSQL, the
+     * `datetime()` modifier on SQLite (the database of the tests).
+     *
+     * @return array{0: literal-string, 1: list<int|string>}
+     */
+    private function retentionDeadline(): array
+    {
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            return ['learners.created_at + make_interval(days => ?)', [self::RETENTION_DAY]];
+        }
+
+        return ['datetime(learners.created_at, ?)', ['+'.self::RETENTION_DAY.' days']];
     }
 }

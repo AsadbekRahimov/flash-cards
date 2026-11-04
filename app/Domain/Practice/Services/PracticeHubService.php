@@ -26,7 +26,8 @@ use Illuminate\Database\Eloquent\Collection;
  *
  * `state` of a mode: `available`, `not_enough` (with the reason of ModeAvailability), `disabled` (the switch is off: only the
  * CREATION is blocked), `pro_required` (a Free learner at `PRACTICE_PLAN=pro`: the entry is shown with a Pro chip and the
- * paywall opens on the tap). A learner without access (`off`, `not_in_pilot`) gets 403 `practice_unavailable`.
+ * paywall opens on the tap). A learner without access (`off`, `not_in_pilot`) gets 403 `practice_unavailable`. `limits` -
+ * the Free limits of the day (docs/18 G1, one statement; `null` for Pro and behind the paywall).
  */
 final class PracticeHubService
 {
@@ -37,6 +38,7 @@ final class PracticeHubService
         private readonly CourseCatalogService $catalog,
         private readonly DeckTitles $deckTitles,
         private readonly LocaleResolver $locales,
+        private readonly PracticeLimits $limits,
     ) {}
 
     /**
@@ -72,11 +74,12 @@ final class PracticeHubService
                 'id' => $lesson->id,
                 'stage' => $lesson->stage?->number,
                 'number' => $lesson->number,
-                'title' => $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title),
+                'title' => $this->deckTitles->lesson($course, $learner, $lesson),
             ],
             modes: $modes,
             activeSession: $active === null ? null : $this->sessions->activeSummary($active),
             battle: $this->battleSummary($learner, $now),
+            limits: $this->limits->describe($learner, $access, now: $now),
         );
     }
 

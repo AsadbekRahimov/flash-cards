@@ -13,11 +13,14 @@ use LogicException;
  *
  *   v, mode, locales, pool (the unused candidates in seeded order: the spares of a dictation), elements[],
  *   + what the screens show about the scope without a query (docs/16 §13): course_slug, course_title (locale =>
- *   title), lesson_stage, lesson_number, lesson_title.
+ *   title), lesson_stage, lesson_number, lesson_titles (locale => title: a battle is read by two learners of possibly
+ *   different languages) + lesson_title (one string, the first locale's name: kept for a rollback to the pre-v2 code, which reads
+ *   only it; a v1 row has only it, and it is read as the name in every locale).
  */
 final readonly class Snapshot
 {
-    public const VERSION = 1;
+    /** 2: `lesson_titles` is a map locale => title (1: only `lesson_title`, one string for every reader). */
+    public const VERSION = 2;
 
     /**
      * The size limit of a snapshot in UTF-8 bytes (docs/16 §13): the biggest snapshot that content within `practice.content` can make
@@ -31,6 +34,7 @@ final readonly class Snapshot
      * @param  list<SnapshotElement>  $elements
      * @param  list<array<string, mixed>>  $pool
      * @param  array<string, string>  $courseTitle  locale => the title of the course
+     * @param  array<string, string>  $lessonTitle  locale => the title of the lesson (no entry: the lesson has no name in that locale)
      */
     public function __construct(
         public PracticeMode $mode,
@@ -41,7 +45,7 @@ final readonly class Snapshot
         public array $courseTitle = [],
         public ?int $lessonStage = null,
         public ?int $lessonNumber = null,
-        public ?string $lessonTitle = null,
+        public array $lessonTitle = [],
         public int $v = self::VERSION,
     ) {}
 
@@ -80,6 +84,20 @@ final readonly class Snapshot
             }
         }
 
+        // v1 kept one string for every reader; it is that name in each locale of the snapshot.
+        $lessonTitles = [];
+        if (is_array($data['lesson_titles'] ?? null)) {
+            foreach ($data['lesson_titles'] as $locale => $title) {
+                if (is_string($title)) {
+                    $lessonTitles[(string) $locale] = $title;
+                }
+            }
+        } elseif (is_string($data['lesson_title'] ?? null)) {
+            foreach ($locales as $locale) {
+                $lessonTitles[$locale] = $data['lesson_title'];
+            }
+        }
+
         return new self(
             mode: $mode,
             locales: $locales,
@@ -89,7 +107,7 @@ final readonly class Snapshot
             courseTitle: $titles,
             lessonStage: isset($data['lesson_stage']) ? (int) $data['lesson_stage'] : null,
             lessonNumber: isset($data['lesson_number']) ? (int) $data['lesson_number'] : null,
-            lessonTitle: isset($data['lesson_title']) ? (string) $data['lesson_title'] : null,
+            lessonTitle: $lessonTitles,
             v: (int) ($data['v'] ?? self::VERSION),
         );
     }
@@ -107,8 +125,22 @@ final readonly class Snapshot
             'course_title' => $this->courseTitle,
             'lesson_stage' => $this->lessonStage,
             'lesson_number' => $this->lessonNumber,
-            'lesson_title' => $this->lessonTitle,
+            // The string is for the pre-R3c code after a rollback (it casts it to string); to be dropped in a later release.
+            'lesson_title' => $this->legacyLessonTitle(),
+            'lesson_titles' => $this->lessonTitle,
         ];
+    }
+
+    /** The one-string form the pre-v2 readers know: the title in the first locale of the snapshot that has one. */
+    private function legacyLessonTitle(): ?string
+    {
+        foreach ($this->locales as $locale) {
+            if (isset($this->lessonTitle[$locale])) {
+                return $this->lessonTitle[$locale];
+            }
+        }
+
+        return array_values($this->lessonTitle)[0] ?? null;
     }
 
     public function count(): int
@@ -155,6 +187,18 @@ final readonly class Snapshot
     public function courseTitleFor(string $locale): string
     {
         return $this->courseTitle[$locale] ?? (array_values($this->courseTitle)[0] ?? $this->courseSlug);
+    }
+
+    /** The title of the lesson in the locale; null when it has none in that locale (the client names it by its number). */
+    public function lessonTitleFor(string $locale): ?string
+    {
+        return $this->lessonTitle[$locale] ?? null;
+    }
+
+    /** Whether the snapshot carries anything of the lesson's name or place (a session with a lesson has at least its number). */
+    public function hasLessonFacts(): bool
+    {
+        return $this->lessonStage !== null || $this->lessonNumber !== null || $this->lessonTitle !== [];
     }
 
     /**

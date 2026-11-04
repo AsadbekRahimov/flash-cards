@@ -4,38 +4,27 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Models\Learner;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 
 final class LearnerPolicy
 {
+    public function __construct(private readonly PanelDataScope $scope) {}
+
     public function viewAny(User $user): bool
     {
         return $user->is_active && $user->hasAnyRole(['admin', 'teacher']);
     }
 
     /**
-     * Admin: any learner. Teacher: only a learner with an ACTIVE membership in
-     * one of their groups.
+     * Admin: any learner. Teacher: only a learner with an ACTIVE membership in one of their groups — answered by
+     * PanelDataScope from the teacher's groups (read once per request) and the memberships the list loaded, so the
+     * link, the view button and the actions of every row of a list cost no statement (docs/20 A11).
      */
     public function view(User $user, Learner $learner): bool
     {
-        if (! $this->viewAny($user)) {
-            return false;
-        }
-
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        return $learner->memberships()
-            ->where('status', 'active')
-            ->whereHas(
-                'group.teachers',
-                fn (Builder $teachers): Builder => $teachers->whereKey($user->id),
-            )
-            ->exists();
+        return $this->viewAny($user) && $this->scope->canViewLearner($user, $learner);
     }
 
     public function create(User $user): bool

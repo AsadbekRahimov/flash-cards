@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Game\DTO;
+
+/**
+ * The map of a course for a learner (docs/18 §12.8, docs/04 A.18): what `GameMapResource` draws. The cities and the stops are
+ * derived from the course, the rest is the learner's own. `class_caravan` (G2.9b) is the card of the caravan of the
+ * learner's class that is on its way, or `null`; `limits` is the block of `/me.game.limits` (G2.8).
+ *
+ * @phpstan-import-type LimitsBlock from GameLimitState
+ *
+ * @phpstan-type Stop array{lesson_id: int, number: int, title: string|null, unlocked: bool, stars: int, best_score: int, runs: int}
+ * @phpstan-type Boss array{state: string, defeated_at: string|null, introduced: int, required: int, cleared_stops: int, required_stops: int}
+ * @phpstan-type City array{stage_id: int, number: int, city: string, title: string|null, unlocked: bool, stops: list<Stop>, boss: Boss}
+ * @phpstan-type Daily array{available: bool, done_today: bool, due_count: int, resets_at: string}
+ * @phpstan-type Me array{stops_cleared: int, cities_cleared: int, coins: int, tickets: int}
+ * @phpstan-type Friend array{friendship_id: int, name: string, city_number: int, stops_cleared: int, camel_asset: string|null}
+ * @phpstan-type ActiveRun array{id: int, kind: string, progress: array{answered: int, total: int}}
+ * @phpstan-type ClassCaravanCard array{id: int, stars_total: int, target_stars: int, ends_at: string}
+ */
+final readonly class GameMapView
+{
+    /**
+     * @param  array{slug: string, title: string}  $course
+     * @param  list<City>  $cities
+     * @param  Daily  $daily
+     * @param  Me  $me
+     * @param  list<Friend>  $friends
+     * @param  ActiveRun|null  $activeRun
+     * @param  ClassCaravanCard|null  $classCaravan
+     * @param  LimitsBlock  $limits
+     */
+    public function __construct(
+        public array $course,
+        public array $cities,
+        public array $daily,
+        public array $me,
+        public array $friends,
+        public ?array $activeRun,
+        public ?array $classCaravan,
+        public array $limits,
+    ) {}
+}

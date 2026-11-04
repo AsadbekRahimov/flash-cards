@@ -113,16 +113,16 @@ it('costs the same number of queries for 1 and 20 assignments — cold, after a 
     // The same for 1 and for 20 assignments: nothing here is per assignment.
     expect($measured[20])->toBe($measured[1]);
 
-    // Upper bounds (SQLite and PostgreSQL alike): auth + assignments (with lesson, stage, group) + totals
-    // + repeated + snapshot rows = 8 on a warm call; a cold call or one after a session adds the single
+    // Upper bounds (SQLite and PostgreSQL alike): auth + assignments (with lesson, stage, course, group) + totals
+    // + repeated + snapshot rows = 9 on a warm call; a cold call or one after a session adds the single
     // upsert and one re-read.
     [$coldQueries, $coldWrites] = $measured[20]['cold'];
     [$warmQueries, $warmWrites] = $measured[20]['warm'];
     [$afterQueries, $afterWrites] = $measured[20]['after_session'];
 
-    expect($coldQueries)->toBeLessThanOrEqual(10)->and($coldWrites)->toBe(1)
-        ->and($afterQueries)->toBeLessThanOrEqual(10)->and($afterWrites)->toBe(1)
-        ->and($warmQueries)->toBeLessThanOrEqual(8)->and($warmWrites)->toBe(0)
+    expect($coldQueries)->toBeLessThanOrEqual(11)->and($coldWrites)->toBe(1)
+        ->and($afterQueries)->toBeLessThanOrEqual(11)->and($afterWrites)->toBe(1)
+        ->and($warmQueries)->toBeLessThanOrEqual(9)->and($warmWrites)->toBe(0)
         ->and($measured[20]['warm_again'])->toBe($measured[20]['warm']);
 });
 
@@ -275,7 +275,10 @@ it('writes a whole chunk of the group in one upsert and claims only the threshol
         ->toBe([$this->learner->id => 100, $half->id => 50, $idle->id => 0]);
 
     $reloaded = $assignment->fresh();
-    $again = $statements(fn (): int => $this->service->refreshResults($reloaded, CarbonImmutable::now()->addMinute()));
+    // One reading of the clock for the refresh and for the check below: read twice, a second boundary between them
+    // (a slow CI runner) would make the same stamp look one second off.
+    $refreshedAt = CarbonImmutable::now()->addMinute();
+    $again = $statements(fn (): int => $this->service->refreshResults($reloaded, $refreshedAt));
     expect($again['result'])->toBe(0)
         ->and($again['inserts'])->toBe(1)
         ->and($again['updates'])->toBe(0)
@@ -284,7 +287,7 @@ it('writes a whole chunk of the group in one upsert and claims only the threshol
 
     // Every row carries the time of the last refresh (the report's "as of").
     expect(AssignmentResult::query()->where('assignment_id', $assignment->id)->pluck('computed_at')->map(static fn ($at): int => $at->getTimestamp())->unique()->all())
-        ->toBe([CarbonImmutable::now()->addMinute()->getTimestamp()]);
+        ->toBe([$refreshedAt->getTimestamp()]);
 });
 
 it('answers a learner without assignments from one read and writes nothing', function (): void {

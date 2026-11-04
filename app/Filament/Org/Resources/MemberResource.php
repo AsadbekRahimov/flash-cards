@@ -9,6 +9,7 @@ use App\Domain\Organizations\Enums\SeatState;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Filament\Org\Resources\MemberResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\OrganizationMember;
 use Filament\Actions;
@@ -50,24 +51,31 @@ class MemberResource extends OrgResource
         return __('org.members.plural');
     }
 
-    /** @return Builder<OrganizationMember> */
+    /**
+     * The row policy of a teacher needs the learner's active group memberships (`OrgTenantScope::canSeeMember`):
+     * loaded with the list, not queried per row (docs/20 §1.3). An owner sees every row, so only the learner.
+     *
+     * @return Builder<OrganizationMember>
+     */
     public static function getEloquentQuery(): Builder
     {
-        return static::scope()->members(static::user(), static::tenant())->with('learner');
+        return static::scope()->members(static::user(), static::tenant())
+            ->with(static::isOwner() ? ['learner'] : ['learner.activeGroupMemberships']);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('learner_name')
                     ->label(__('org.members.columns.learner'))
                     ->state(fn (OrganizationMember $record): string => self::learnerName($record->learner))
+                    // Case-insensitive, in the forms the trigram indexes of `learners` serve (docs/03 §2.17, docs/20 F2); `%`, `_`
+                    // and `!` of the typed text are literal (AdminTable::whereLearnerContains).
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
                         'learner',
-                        fn (Builder $q): Builder => $q->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('username', 'like', "%{$search}%"),
+                        fn (Builder $learner): Builder => AdminTable::whereLearnerContains($learner, $search),
                     )),
                 Tables\Columns\TextColumn::make('learner.username')
                     ->label(__('org.members.columns.username'))

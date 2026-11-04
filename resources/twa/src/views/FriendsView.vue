@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import GameItemImage from '@/components/game/GameItemImage.vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -11,6 +12,7 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
+import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
@@ -36,6 +38,10 @@ import type { BattleIncoming, BattleStatus, ChallengeItem, ChallengeMetric, Chal
  * Battles 1 on 1 (docs/16 §11.1), only while `/me.practice` says practice and battles are available: "Battle" at every
  * friend leads to the setup of a battle with them; above everything is the battle that is on ("A battle is on") and the
  * invitations that came ("Battle invitations": "Accept" leads into the room, "Decline" closes them).
+ *
+ * Free has a few battles a day (docs/18 §3): under the list of friends a quiet line says how many are left ("Battles today: 1 of 1
+ * left"; Pro sees nothing). With none left "Battle" opens the paywall of the limit instead of a setup that would end in it - once `/me`
+ * has been read again and still says none. "Accept" is never limited.
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
@@ -82,14 +88,16 @@ watch(
 /** Battles are offered only to a learner who may practise and whose server has battles switched on. */
 const battleOn = computed(() => billing.practiceAccess.available && billing.practiceAccess.battle)
 const invitations = computed(() => (battleOn.value ? battles.incoming : []))
+/** The battles left today (Free); null for Pro and while nothing is known. */
+const battleLimit = computed(() => (battleOn.value ? billing.battleLimit : null))
 const activeBattle = computed(() => (battleOn.value ? battles.active : null))
 
 /** Counts the taps on "Retry": each one asks for the list of battles again (see the watch below). */
 const retries = ref(0)
 
 // The battle that is on and the invitations are asked for as soon as the learner is known to play battles. That is when `/me` has come,
-// and it may be on its way for another screen already (then `billing.load()` of this one returns at once and `battleOn` turns true
-// later, with nobody to ask): the list follows the switch, not the end of this screen's own reading.
+// and it may be on its way for another screen already (then `billing.load()` of this one just waits for that request): the list follows
+// the switch `battleOn`, not the end of this screen's own reading.
 // "Retry" asks again as well: when `/me` was known before this screen opened, `battleOn` does not turn and the switch alone would stay
 // silent, so the screen would come back with the friends but without the invitations and the battle that is on. One watch for both
 // keeps it a single request per cause: a retry whose `/me` comes in the middle of it asks once, not twice.
@@ -127,8 +135,31 @@ function invitationMeta(invitation: BattleIncoming): string {
   return `${modeTitle(invitation.mode)} · ${topic}`
 }
 
-function startBattle(friendshipId: number): void {
+/** A press on "Battle" is being checked against the counter: the next one waits. */
+const checking = ref(false)
+
+/** The screen was left. What was still on its way (the counter being confirmed) neither carries the learner on nor leaves a sheet for the next visit. */
+let left = false
+onBeforeUnmount(() => {
+  left = true
+})
+
+async function startBattle(friendshipId: number): Promise<void> {
   haptic('light')
+  if (checking.value) return
+  checking.value = true
+  try {
+    // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it - after `/me` was read
+    // again, as a battle that did not take place (declined, not answered in time) gives its place back and the number here may be from before.
+    const spent = await billing.confirmLimit('battles')
+    if (left) return
+    if (spent !== null) {
+      battles.showLimit(spent)
+      return
+    }
+  } finally {
+    checking.value = false
+  }
   void router.push({ name: 'battle-new', query: { friendship: String(friendshipId) } })
 }
 
@@ -394,13 +425,18 @@ onMounted(() => {
           <div v-for="friend in friends.friends" :key="friend.id" class="list-row flex-wrap gap-y-3" data-testid="friend-row">
             <InitialAvatar :name="personName(friend)" />
             <div class="min-w-0 flex-1">
-              <div class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</div>
+              <div class="flex items-center gap-1.5">
+                <span class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</span>
+                <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
+                <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
+              </div>
               <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
               <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
               <button
                 v-if="battleOn && picking !== friend.id && removing !== friend.id"
                 type="button"
                 class="btn btn-tinted btn-sm mt-2"
+                :disabled="checking"
                 :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
                 data-testid="battle-btn"
                 @click="startBattle(friend.id)"
@@ -468,6 +504,10 @@ onMounted(() => {
             </div>
           </div>
         </div>
+        <!-- Free only: the battles left today. -->
+        <p v-if="battleLimit && friends.friends.length > 0" class="mt-1.5 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
+          {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
+        </p>
       </section>
 
       <section data-testid="challenges">
@@ -541,6 +581,12 @@ onMounted(() => {
       </section>
     </div>
 
-    <PaywallSheet v-if="battles.paywall" reason="practice" @close="battles.dismissPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="battles.paywall || battles.limitHit"
+      :reason="battles.limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="battles.limitHit"
+      @close="battles.dismissPaywall()"
+      @review="reviewFromPaywall"
+    />
   </div>
 </template>

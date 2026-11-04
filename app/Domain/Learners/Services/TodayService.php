@@ -10,6 +10,7 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\StreakFreezeService;
+use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learners\DTO\TodayCourse;
@@ -48,6 +49,7 @@ final class TodayService
         private readonly StreakFreezeService $freezes,
         private readonly LeagueService $leagues,
         private readonly DeckTitles $deckTitles,
+        private readonly DailyCaravanService $caravan,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -60,8 +62,10 @@ final class TodayService
 
         $this->handOutWeeklyFreeze($learner, $today, $stats, $now);
 
+        $dueCount = $this->stats->dueCount($learner, $now);
+
         return new TodaySummary(
-            dueCount: $this->stats->dueCount($learner, $now),
+            dueCount: $dueCount,
             newWordsRemaining: $this->quota->remaining($learner, $now),
             progress: $this->progressOn($learner, $today, $stats, $now),
             activeCourse: $this->activeCourse($learner),
@@ -71,6 +75,7 @@ final class TodayService
             // The zone the clock really counted the day in (an unknown stored value falls back there): the TWA dates its header by it.
             timezone: $this->clock->timezone($learner)->getName(),
             league: $this->leagues->todayLine($learner, $now),
+            game: $this->caravan->todayBlock($learner, $now, $dueCount),
         );
     }
 
@@ -144,7 +149,7 @@ final class TodayService
                 $lesson->id,
                 $lesson->stage?->number,
                 $lesson->number,
-                $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title),
+                $this->deckTitles->lesson($course, $learner, $lesson),
             ),
         );
     }

@@ -16,9 +16,12 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\LearnerResource\Support\DeleteAccountAction;
 use App\Filament\Resources\LearnerResource\Support\PracticePilotAction;
 use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
+use App\Filament\Resources\Support\GroupFilter;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -47,6 +50,26 @@ class LearnerResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
 
     protected static ?int $navigationSort = 30;
+
+    /**
+     * The columns the list selects: every attribute a column or a row action of the table reads, the toggleable columns
+     * (hidden by default) included. A column added to the table needs its attribute here: AdminTableSettingsTest renders every
+     * column with `preventAccessingMissingAttributes` on, so a missing one fails there.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'learners.id',
+        'learners.telegram_user_id',
+        'learners.first_name',
+        'learners.last_name',
+        'learners.username',
+        'learners.onboarding_state',
+        'learners.blocked_at',
+        'learners.practice_pilot_at',
+        'learners.last_seen_at',
+        'learners.created_at',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -121,19 +144,26 @@ class LearnerResource extends Resource
     {
         $isAdmin = fn (): bool => app(PanelDataScope::class)->isAdmin();
 
-        return $table
+        // The biggest table of the platform (docs/20 §1.6, §1.7). A full name is two words that find one person, so the
+        // search of the learners keeps splitting the typed text; the rest of the settings is the big table's.
+        return AdminTable::big($table, splitsSearch: true)
+            // A row action loads its own record (`$isResolvingRecord`): the whole row, the scheduler of the learner included.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->formatStateUsing(fn (Learner $record): string => trim(($record->first_name ?? '').' '.($record->last_name ?? '')))
                     ->placeholder('—')
                     ->label(__('admin.learners.fields.name'))
-                    ->searchable(['first_name', 'last_name']),
+                    ->searchable(['first_name', 'last_name'])
+                    // From the header, by the first name (the index `(first_name, id)`); the list itself opens with the newest first.
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('username')
                     ->label(__('admin.learners.fields.username'))
                     ->prefix('@')
                     ->placeholder('—')
-                    // "@name" and "name" both match; the leading @ is not part of the stored username.
-                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereLike('username', '%'.ltrim(trim($search), '@').'%')),
+                    // "@name" and "name" both match; the leading @ is not part of the stored username. `_` and `%` of the
+                    // typed text are literal (AdminTable::whereContains); the form is the one of `learners_username_trgm_idx`.
+                    ->searchable(query: fn (Builder $query, string $search): Builder => AdminTable::whereContains($query, 'learners.username', ltrim(trim($search), '@'))),
                 // Searching by Telegram ID is exact (the number is an identity: never a partial match) and admin-only,
                 // also here, because a hidden column still takes part in the table search.
                 Tables\Columns\TextColumn::make('telegram_user_id')
@@ -179,22 +209,18 @@ class LearnerResource extends Resource
                     ->toggleable()
                     ->visible($isAdmin),
                 // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
+                // Not sortable: an order by this aggregate sorts the whole table by the subquery (docs/20 §1.5, §4).
                 Tables\Columns\TextColumn::make('referrals_count')
                     ->label(__('admin.learners.fields.referrals_count'))
                     ->counts(['referrals' => fn (Builder $q): Builder => $q->where('status', '<>', ReferralStatus::Rejected->value)])
-                    ->sortable()
                     ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->sortable()->toggleable()->visible($isAdmin),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.learners.fields.created_at'))->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->visible($isAdmin),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('telegram_group_id')
-                    ->options(fn (): array => app(PanelDataScope::class)
-                        ->groups()
-                        ->orderBy('title')
-                        ->pluck('title', 'id')
-                        ->all())
+                // The groups are found by typing, not rendered into the page (GroupFilter).
+                GroupFilter::make('telegram_group_id', __('admin.learners.filters.group'))
                     // The value comes from the client (Livewire state): restrict it to the viewer's own groups.
                     ->query(fn (Builder $query, array $data): Builder => ($data['value'] ?? null) === null || $data['value'] === ''
                         ? $query
@@ -204,8 +230,7 @@ class LearnerResource extends Resource
                                 ->where('telegram_group_id', $data['value'])
                                 ->whereIn('telegram_group_id', app(PanelDataScope::class)->groups()->select('telegram_groups.id'))
                                 ->where('status', 'active'),
-                        ))
-                    ->label(__('admin.learners.filters.group')),
+                        )),
                 // Platform filters: admin only. `visible()` hides the control; the query closures re-check the
                 // role because the filter state comes from the client.
                 Tables\Filters\SelectFilter::make('plan')
@@ -289,14 +314,17 @@ class LearnerResource extends Resource
                 // The pilot of the practice (docs/16 §2.1): admin only, audited (`learner.practice_pilot_changed`).
                 PracticePilotAction::include(),
                 PracticePilotAction::exclude(),
+                DeleteAccountAction::make(),
                 Actions\ViewAction::make(),
             ])
-            ->defaultSort('first_name');
+            // The newest first, on the primary key: sorted by the first name, the page of a search for a frequent name walked the
+            // name index and filtered it (135-790 ms at 200 000 learners, docs/20 §4); by `id` it is 0.1-4.6 ms.
+            ->defaultSort('id', 'desc');
     }
 
     /**
-     * Counts are limited to what the viewer may see: a teacher gets only reviews of
-     * their groups' sessions and answers of their groups' exams, never a learner's
+     * The learner page: the whole row and the counts of its infolist. Counts are limited to what the viewer may see: a
+     * teacher gets only reviews of their groups' sessions and answers of their groups' exams, never a learner's
      * personal sessions or other groups' activity.
      *
      * @return Builder<Learner>
@@ -312,15 +340,42 @@ class LearnerResource extends Resource
             ->with(['groups' => fn ($groups) => $groups
                 ->wherePivot('status', 'active')
                 ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))])
+            // A teacher's row policy (LearnerPolicy::view) reads the learner's active memberships: loaded with the rows,
+            // not queried per row (docs/20 A11). An admin may see anyone and does not need them.
+            ->when(! $scope->isAdmin(), fn (Builder $q): Builder => $q->with('activeGroupMemberships'))
             ->withCount([
                 'repetitions',
                 'trainingReviews' => fn (Builder $q): Builder => $q->whereIn('training_session_id', clone $sessionIds),
                 'examAnswers' => fn (Builder $q): Builder => $q->whereIn('exam_session_id', clone $examIds),
             ]);
 
+        return self::withPlanColumns($query, $scope);
+    }
+
+    /**
+     * The list (docs/20 §1.4): the query of the page narrowed to the columns the table and its row actions read - not the
+     * whole row, and none of the three counts of the learner page, which the list never shows and which cost a subquery
+     * each over the biggest tables.
+     *
+     * @param  Builder<Learner>  $query  {@see getEloquentQuery()}
+     * @return Builder<Learner>
+     */
+    private static function forList(Builder $query): Builder
+    {
+        // `select()` drops the columns the query carried (the counts, the plan); the plan comes back.
+        return self::withPlanColumns($query->select(self::LIST_COLUMNS), app(PanelDataScope::class));
+    }
+
+    /**
+     * The plan column in one query (no per-row entitlement lookups): the id of a granting own / sponsoring subscription, or
+     * NULL. Admin only.
+     *
+     * @param  Builder<Learner>  $query
+     * @return Builder<Learner>
+     */
+    private static function withPlanColumns(Builder $query, PanelDataScope $scope): Builder
+    {
         if ($scope->isAdmin()) {
-            // The plan column in one query (no per-row entitlement lookups): the id of a granting own /
-            // sponsoring subscription, or NULL.
             $now = CarbonImmutable::now();
             $query->addSelect([
                 'personal_pro_id' => PaidSubscriptionQuery::personalFor($now)->select('subscriptions.id')->limit(1),
@@ -401,6 +456,7 @@ class LearnerResource extends Resource
             RelationManagers\ReferralsRelationManager::class,
             RelationManagers\ProductEventsRelationManager::class,
             RelationManagers\DailyStatsRelationManager::class,
+            RelationManagers\CaravanRelationManager::class,
         ];
     }
 

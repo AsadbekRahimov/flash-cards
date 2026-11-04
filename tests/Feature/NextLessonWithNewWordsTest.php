@@ -160,7 +160,7 @@ it('returns the same lesson and stage models a plain find would, with nothing of
         ->and($lesson?->stage?->getAttributes())->toBe($plain->stage?->getAttributes())
         ->and($lesson?->stage?->exists)->toBeTrue()
         ->and($lesson?->stage?->is($plain->stage))->toBeTrue()
-        ->and(array_keys($lesson?->stage?->getAttributes() ?? []))->toBe(['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at'])
+        ->and(array_keys($lesson?->stage?->getAttributes() ?? []))->toBe(['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at', 'title_uz'])
         ->and($lesson?->stage?->getDirty())->toBe([])
         ->and($lesson?->isDirty())->toBeFalse();
 });

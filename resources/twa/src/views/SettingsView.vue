@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -25,17 +26,20 @@ import type { ExerciseSettings, SettingsPatch } from '@/api/types'
  * exercises), reminders, language and region, leagues and "My centers". Every change is saved at once ("Saved" is a
  * toast); a refused change leaves the control at the value the server still has and is told in a toast too — the screen
  * is long, an alert at its top would be out of sight when the learner changes a league or a time zone further down.
- * A page of the Profile tab: the system "Back" button leads to the Profile.
+ * A page of the Profile tab: the system "Back" button leads to the Profile. The last group is the danger zone with
+ * "Delete account" (owner's decision of 03.11.2026): a sheet says what happens, "Yes, delete" deletes and leads to the
+ * "Account deleted" screen.
  */
 const auth = useAuthStore()
 const settings = useSettingsStore()
 const organizations = useOrganizationsStore()
 const toast = useToast()
+const router = useRouter()
 const { t } = useI18n()
 
 useBackButton({ name: 'profile' })
 
-const { data, status, saving, errorMessage: message, timezoneLockMessage } = storeToRefs(settings)
+const { data, status, saving, deleting, errorMessage: message, timezoneLockMessage } = storeToRefs(settings)
 
 /** Up to this many daily goals fit side by side as a segmented control; more go to a select. */
 const MAX_SEGMENTS = 4
@@ -116,6 +120,27 @@ async function leave(id: number): Promise<void> {
 async function save(patch: SettingsPatch): Promise<void> {
   if (await settings.update(patch)) toast.show(t('common.saved'))
   syncDraft()
+}
+
+// "Delete account": the sheet with the question; its refusal is shown in the sheet, not as a toast under it.
+const deleteOpen = ref(false)
+const deleteError = ref('')
+
+function askDelete(): void {
+  deleteError.value = ''
+  deleteOpen.value = true
+}
+
+/** Deletes the account and goes to the "Account deleted" screen, which closes the Mini App. A refusal stays in the sheet. */
+async function deleteAccount(): Promise<void> {
+  const result = await settings.deleteAccount()
+  if ('error' in result) {
+    deleteError.value = result.error
+    return
+  }
+
+  deleteOpen.value = false
+  await router.replace({ name: 'account-deleted', query: { until: result.until } })
 }
 
 async function revertTimezone(): Promise<void> {
@@ -306,6 +331,22 @@ onBeforeUnmount(() => {
         :message="organizations.errorMessage"
         data-testid="orgs-error"
       />
+
+      <!-- The danger zone is the last group: the question follows in a sheet, nothing is deleted by this tap. -->
+      <ListGroup :header="t('settings.group.danger')" data-testid="danger-zone">
+        <button type="button" class="list-row text-danger-ink" data-testid="delete-account" @click="askDelete">
+          <AppIcon name="trash" :size="20" class="shrink-0" />
+          <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.delete') }}</span>
+        </button>
+      </ListGroup>
     </div>
+
+    <DeleteAccountSheet
+      v-if="deleteOpen"
+      :busy="deleting"
+      :message="deleteError"
+      @confirm="deleteAccount"
+      @cancel="deleteOpen = false"
+    />
   </div>
 </template>

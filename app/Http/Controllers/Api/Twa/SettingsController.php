@@ -6,10 +6,13 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
+use App\Domain\Learners\Services\LearnerDeletionService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Twa\Services\MePayloadBuilder;
+use App\Http\Requests\Twa\DeleteAccountRequest;
 use App\Http\Requests\Twa\UpdateSettingsRequest;
 use App\Http\Resources\ApiErrorResource;
+use App\Http\Resources\Twa\AccountDeletedResource;
 use App\Http\Resources\Twa\MeResource;
 use App\Models\Learner;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +23,7 @@ final class SettingsController
     public function __construct(
         private readonly LearnerSettingsService $settings,
         private readonly MePayloadBuilder $payload,
+        private readonly LearnerDeletionService $deletion,
     ) {}
 
     /**
@@ -56,5 +60,20 @@ final class SettingsController
         }
 
         return (new MeResource($this->payload->build($learner)))->response();
+    }
+
+    /**
+     * POST /api/twa/me/delete `{"confirm": true}` — "Delete account" (owner's decision of 03.11.2026): soft delete; the
+     * token stops working at once and `/start` within `learners.purge.after_days` days brings the account back.
+     * 422 without the confirmation. A repeated call never gets here: the token is already refused (401).
+     */
+    public function delete(DeleteAccountRequest $request): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
+
+        $this->deletion->delete($learner, null, $request->ip());
+
+        return (new AccountDeletedResource($this->deletion->restorableUntil($learner)))->response();
     }
 }

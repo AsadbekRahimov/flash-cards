@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Billing;
 
+use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Providers\Click\ClickException;
 use App\Domain\Billing\Providers\Click\ClickMerchantService;
 use App\Domain\Billing\Providers\Click\ClickRequest;
+use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Http\Controllers\Controller;
 use Closure;
 use Illuminate\Http\JsonResponse;
@@ -25,18 +27,18 @@ final class ClickWebhookController extends Controller
     /** Bodies above this are refused before parsing (docs/13 §4). */
     public const MAX_BODY_BYTES = 65_536;
 
-    public function prepare(Request $request, ClickMerchantService $service): JsonResponse
+    public function prepare(Request $request, ClickMerchantService $service, BillingProviderRegistry $providers): JsonResponse
     {
-        return $this->handle($request, ClickRequest::ACTION_PREPARE, static fn (array $input): array => $service->prepare($input));
+        return $this->handle($request, $providers, ClickRequest::ACTION_PREPARE, static fn (array $input): array => $service->prepare($input));
     }
 
-    public function complete(Request $request, ClickMerchantService $service): JsonResponse
+    public function complete(Request $request, ClickMerchantService $service, BillingProviderRegistry $providers): JsonResponse
     {
-        return $this->handle($request, ClickRequest::ACTION_COMPLETE, static fn (array $input): array => $service->complete($input));
+        return $this->handle($request, $providers, ClickRequest::ACTION_COMPLETE, static fn (array $input): array => $service->complete($input));
     }
 
     /** @param Closure(array<array-key, mixed>): array<string, mixed> $call */
-    private function handle(Request $request, int $action, Closure $call): JsonResponse
+    private function handle(Request $request, BillingProviderRegistry $providers, int $action, Closure $call): JsonResponse
     {
         if (strlen($request->getContent()) > self::MAX_BODY_BYTES) {
             return response()->json(ClickMerchantService::errorResponse([], $action, ClickException::requestError('body too large')));
@@ -50,6 +52,22 @@ final class ClickWebhookController extends Controller
 
         /** @var array<array-key, mixed> $input */
         $input = $request->post();
+
+        // A provider switched off in config answers exactly like a wrong signature - the same code, the same echo of the
+        // request fields - so "off" cannot be told from "wrong key"; the key being set changes nothing (docs/07 §2a). The form is
+        // parsed first, as the enabled provider does, so a malformed request gets the same -8 / -3 either way.
+        if (! $providers->isEnabled(SubscriptionProvider::Click)) {
+            Log::warning('billing.click.disabled', ['ip' => $request->ip()]);
+
+            try {
+                ClickRequest::parse($input, $action);
+                $e = ClickException::signCheckFailed('provider disabled');
+            } catch (ClickException $malformed) {
+                $e = $malformed;
+            }
+
+            return response()->json(ClickMerchantService::errorResponse($input, $action, $e));
+        }
 
         try {
             return response()->json($call($input));

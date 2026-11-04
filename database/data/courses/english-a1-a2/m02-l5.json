@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 2,
+    "title": "Семья и дом",
+    "title_uz": "Oila va uy"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Дела по дому",
+    "title_uz": "Uy ishlari"
+  },
+  "words": [
+    {
+      "word": "clean",
+      "part_of_speech": "verb",
+      "translation": "убирать, чистить",
+      "translations": {
+        "ru": "убирать, чистить",
+        "uz": "tozalamoq"
+      },
+      "example": "I clean my room on Saturday.",
+      "example_translations": {
+        "ru": "Я убираю комнату по субботам.",
+        "uz": "Men shanba kuni xonamni tozalayman."
+      }
+    },
+    {
+      "word": "wash",
+      "part_of_speech": "verb",
+      "translation": "мыть, стирать",
+      "translations": {
+        "ru": "мыть, стирать",
+        "uz": "yuvmoq"
+      },
+      "example": "Please wash your hands.",
+      "example_translations": {
+        "ru": "Пожалуйста, вымой руки.",
+        "uz": "Iltimos, qo'lingni yuv."
+      }
+    },
+    {
+      "word": "cook",
+      "part_of_speech": "verb",
+      "translation": "готовить еду",
+      "translations": {
+        "ru": "готовить еду",
+        "uz": "pishirmoq"
+      },
+      "example": "My father cooks very well.",
+      "example_translations": {
+        "ru": "Мой папа очень хорошо готовит.",
+        "uz": "Dadam juda yaxshi ovqat pishiradi."
+      }
+    },
+    {
+      "word": "open",
+      "part_of_speech": "verb",
+      "translation": "открывать",
+      "translations": {
+        "ru": "открывать",
+        "uz": "ochmoq"
+      },
+      "example": "Can you open the door?",
+      "example_translations": {
+        "ru": "Ты можешь открыть дверь?",
+        "uz": "Eshikni ocha olasanmi?"
+      }
+    },
+    {
+      "word": "close",
+      "part_of_speech": "verb",
+      "translation": "закрывать",
+      "translations": {
+        "ru": "закрывать",
+        "uz": "yopmoq"
+      },
+      "example": "Close the window, it is cold.",
+      "example_translations": {
+        "ru": "Закрой окно, холодно.",
+        "uz": "Derazani yop, sovuq."
+      }
+    },
+    {
+      "word": "live",
+      "part_of_speech": "verb",
+      "translation": "жить",
+      "translations": {
+        "ru": "жить",
+        "uz": "yashamoq"
+      },
+      "example": "We live in a new house.",
+      "example_translations": {
+        "ru": "Мы живём в новом доме.",
+        "uz": "Biz yangi uyda yashaymiz."
+      }
+    },
+    {
+      "word": "sit",
+      "part_of_speech": "verb",
+      "translation": "сидеть, садиться",
+      "translations": {
+        "ru": "сидеть, садиться",
+        "uz": "o'tirmoq"
+      },
+      "example": "Please sit on the sofa.",
+      "example_translations": {
+        "ru": "Пожалуйста, садитесь на диван.",
+        "uz": "Iltimos, divanga o'tiring."
+      }
+    },
+    {
+      "word": "stand",
+      "part_of_speech": "verb",
+      "translation": "стоять",
+      "translations": {
+        "ru": "стоять",
+        "uz": "turmoq"
+      },
+      "example": "Do not stand near the door.",
+      "example_translations": {
+        "ru": "Не стой у двери.",
+        "uz": "Eshik oldida turma."
+      }
+    },
+    {
+      "word": "move",
+      "part_of_speech": "verb",
+      "translation": "переезжать",
+      "translations": {
+        "ru": "переезжать",
+        "uz": "ko'chmoq"
+      },
+      "example": "We move to a new house in May.",
+      "example_translations": {
+        "ru": "В мае мы переезжаем в новый дом.",
+        "uz": "Biz may oyida yangi uyga ko'chamiz."
+      }
+    },
+    {
+      "word": "share",
+      "part_of_speech": "verb",
+      "translation": "делить, делиться",
+      "translations": {
+        "ru": "делить, делиться",
+        "uz": "bo'lishmoq"
+      },
+      "example": "I share a room with my brother.",
+      "example_translations": {
+        "ru": "Я делю комнату с братом.",
+        "uz": "Men xonani akam bilan bo'lishaman."
+      }
+    }
+  ]
+}

@@ -14,10 +14,21 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            # Started, not healthy: the pure cache is a failover chain (config/cache.php `lru`, docs/19 §4.1) - without
+            # the second instance the application serves from the database and reports `degraded`. Waiting for `healthy`
+            # would tie the whole application to a disposable component.
+            redis-cache:
+                condition: service_started
         volumes:
             - ./:/var/www/html
         environment:
             PHP_IDE_CONFIG: serverName=lexiflow
+            # The second Redis instance as the application sees it (docs/19 §4): the host and port inside the compose
+            # network and the very password compose gives `redis-cache` (REDIS_CACHE_PASSWORD, empty = none). Real
+            # environment wins over .env, so the REDIS_LRU_* lines of .env matter only outside the containers.
+            REDIS_LRU_HOST: redis-cache
+            REDIS_LRU_PORT: "6379"
+            REDIS_LRU_PASSWORD: ${REDIS_CACHE_PASSWORD:-}
 
     nginx:
         image: nginx:1.30-alpine
@@ -48,7 +59,8 @@ services:
             LEXIFLOW_UPGRADE_CMD: bash docker/postgres/upgrade.sh
             LEXIFLOW_UP_CMD: docker compose up -d
         ports:
-            - "${DB_PORT_HOST:-5432}:5432"
+            # Loopback only: a dev database with a known password must not be reachable from the local network.
+            - "127.0.0.1:${DB_PORT_HOST:-5432}:5432"
         volumes:
             # 18+ images keep the cluster in /var/lib/postgresql/<major>/docker: one mount at /var/lib/postgresql,
             # the volume name carries no version. Data of the ≤16 stack lives in the old volume `pgdata`
@@ -66,28 +78,61 @@ services:
             timeout: 3s
             retries: 10
 
+    # Two Redis instances (docs/19_REDIS_CACHE_PLAN.md §4):
+    #   redis       - queues, sessions, locks, rate limits, markers, the entitlement version keys: `noeviction` + AOF,
+    #                 nothing here may ever be dropped by memory pressure;
+    #   redis-cache - the pure cache (store `lru`): `volatile-lru`, no persistence - a lost key is recomputed.
+    # Exact image tag on purpose (not the floating redis:8-alpine): the image is reproducible and the next upgrade is a
+    # decision, not an accident. 8.10 writes RDB format 15: a `redisdata` volume written by it does not start on 8.4 again
+    # (dev: recreate the volume if an older version is ever needed).
+    # The optional password (empty = none, fine for dev) reaches redis-server as a config line on stdin, not as a command
+    # line argument; the healthcheck authenticates through REDISCLI_AUTH, so the password is in no argument list either.
+    # It remains readable in the container environment (`docker inspect`) - see docs/DEVOPS_GUIDE.md, "Redis".
+    # The words `null`, `(null)`, `empty` and `(empty)`, in any case of letters, count as "no password" - the rule of
+    # Laravel's env(), which reads them as PHP null or '' and sends no AUTH (older .env files say `REDIS_PASSWORD=null`);
+    # compose would otherwise hand the literal word to redis-server - a NOAUTH on every request.
     redis:
-        # Pinned to 8.4 while the rollback path to the commit before the PostgreSQL upgrade is alive: 8.4 writes RDB format 12,
-        # which the redis:7.4 of that commit still reads; 8.6+ write 13+ and 7.4 refuses the AOF/RDB after the first rewrite
-        # ("Can't handle RDB format version"). Move to the latest 8.x together with removing the guard mount of pgdata.
-        image: redis:8.4-alpine
+        image: redis:8.10-alpine
         container_name: lexiflow-redis
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD:-}
         command:
-            - redis-server
-            - --appendonly
-            - "yes"
-            - --appendfsync
-            - everysec
-            - --maxmemory
-            - ${REDIS_MAXMEMORY:-256mb}
-            - --maxmemory-policy
-            - ${REDIS_MAXMEMORY_POLICY:-noeviction}
+            - sh
+            - -c
+            - |
+              case "$$(printf '%s' "$$REDIS_PASSWORD" | tr '[:upper:]' '[:lower:]')" in ''|null|'(null)'|empty|'(empty)') AUTH='' ;; *) AUTH="requirepass $$REDIS_PASSWORD" ;; esac
+              exec redis-server - --appendonly yes --appendfsync everysec --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy noeviction <<EOF
+              $$AUTH
+              EOF
         ports:
-            - "${REDIS_PORT_HOST:-6379}:6379"
+            - "127.0.0.1:${REDIS_PORT_HOST:-6379}:6379"
         volumes:
             - redisdata:/data
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ["CMD-SHELL", "case \"$$(printf '%s' \"$$REDIS_PASSWORD\" | tr '[:upper:]' '[:lower:]')\" in ''|null|'(null)'|empty|'(empty)') ;; *) export REDISCLI_AUTH=\"$$REDIS_PASSWORD\" ;; esac; redis-cli ping | grep -q PONG"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+
+    redis-cache:
+        image: redis:8.10-alpine
+        container_name: lexiflow-redis-cache
+        environment:
+            REDIS_PASSWORD: ${REDIS_CACHE_PASSWORD:-}
+        # No AOF, no RDB: the cache starts empty after a restart, which is the point. Only keys with a TTL are evicted
+        # (every pure-cache key has one, docs/19 §3 rule 4).
+        command:
+            - sh
+            - -c
+            - |
+              case "$$(printf '%s' "$$REDIS_PASSWORD" | tr '[:upper:]' '[:lower:]')" in ''|null|'(null)'|empty|'(empty)') AUTH='' ;; *) AUTH="requirepass $$REDIS_PASSWORD" ;; esac
+              exec redis-server - --appendonly no --save "" --maxmemory ${REDIS_CACHE_MAXMEMORY:-256mb} --maxmemory-policy volatile-lru <<EOF
+              $$AUTH
+              EOF
+        ports:
+            - "127.0.0.1:${REDIS_CACHE_PORT_HOST:-6380}:6379"
+        healthcheck:
+            test: ["CMD-SHELL", "case \"$$(printf '%s' \"$$REDIS_PASSWORD\" | tr '[:upper:]' '[:lower:]')\" in ''|null|'(null)'|empty|'(empty)') ;; *) export REDISCLI_AUTH=\"$$REDIS_PASSWORD\" ;; esac; redis-cli ping | grep -q PONG"]
             interval: 5s
             timeout: 3s
             retries: 10

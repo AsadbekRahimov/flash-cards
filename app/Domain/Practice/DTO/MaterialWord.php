@@ -11,7 +11,10 @@ namespace App\Domain\Practice\DTO;
  */
 final readonly class MaterialWord
 {
-    /** @param array<string, string> $translations locale => the translation shown in that locale */
+    /**
+     * @param  array<string, string>  $translations  locale => the translation shown in that locale
+     * @param  string|null  $example  `words.example` - the game's `gap` task masks the word in it (docs/18 §12.3.1)
+     */
     public function __construct(
         public int $id,
         public int $lessonId,
@@ -19,6 +22,7 @@ final readonly class MaterialWord
         public string $translation,
         public ?string $audioPath,
         public array $translations,
+        public ?string $example = null,
     ) {}
 
     public function translationFor(string $locale): string

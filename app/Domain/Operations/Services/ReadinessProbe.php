@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Operations\Services;
 
 use App\Domain\Operations\DTO\ReadinessReport;
+use App\Domain\Operations\Support\PureCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Database\DatabaseManager;
@@ -14,8 +15,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * Dependency checks behind `GET /health/ready`.
  *
- * The report carries only "ok"/"fail" per check: exception messages, hosts
- * and versions are logged internally and never exposed to the caller.
+ * The report carries only "ok"/"degraded"/"fail" per check: exception messages,
+ * hosts and versions are logged internally and never exposed to the caller.
  */
 final class ReadinessProbe
 {
@@ -38,7 +39,22 @@ final class ReadinessProbe
             $checks['redis'] = $this->guard('redis', fn (): bool => $this->checkRedis($redisConnections));
         }
 
-        // A group-chat Mini App link cannot be built without the bot username: production must have it.
+        // The second, evicting instance behind the pure cache (docs/19 §4.1) is its own check, and its loss is a
+        // degradation, not a failure, as long as the pure store has somewhere to fall over to: the chain goes to the array
+        // store and the application serves from the database, so the report says `degraded` and the endpoint stays 200 -
+        // visible to the operator, no page. A pure store on Redis alone would throw on every call: that loss is a failure.
+        // Skipped when the pure store is not on Redis (tests) or shares a connection with the first instance.
+        $pureConnection = PureCache::redisConnection();
+        if ($pureConnection !== null && ! in_array($pureConnection, $redisConnections, true)) {
+            $alive = $this->guard('redis_cache', fn (): bool => $this->checkRedis([$pureConnection])) === ReadinessReport::OK;
+            $checks['redis_cache'] = match (true) {
+                $alive => ReadinessReport::OK,
+                PureCache::hasFallback() => ReadinessReport::DEGRADED,
+                default => ReadinessReport::FAIL,
+            };
+        }
+
+        // Production must have the bot username (Mini App links), the bot token and webhook secrets, and a TWA JWT secret of 32+ bytes.
         if (app()->isProduction()) {
             $checks['config'] = $this->guard('config', $this->checkConfig(...));
         }
@@ -97,7 +113,14 @@ final class ReadinessProbe
 
     private function checkConfig(): bool
     {
-        return trim((string) config('telegram.bot_username')) !== '';
+        // The username builds group Mini App links; the secrets keep initData, the webhook URL and header unforgeable.
+        foreach (['telegram.bot_username', 'telegram.bot_token', 'telegram.url_secret', 'telegram.header_secret'] as $key) {
+            if (trim((string) config($key)) === '') {
+                return false;
+            }
+        }
+
+        return strlen((string) config('twa.jwt.secret')) >= 32;
     }
 
     private function checkScheduler(): bool

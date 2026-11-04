@@ -81,31 +81,70 @@ final class PairsMode implements PracticeModeHandler
         $taken = [];
         $elements = [];
         foreach ($plan['rounds'] as $index => $members) {
-            $number = $index + 1;
-            $elementId = OpaqueId::make('e', $taken);
-            $taken[] = $elementId;
-
-            $left = [];
-            $right = [];
-            $table = [];
-            foreach ($members as $member) {
-                $candidate = $plan['words'][$member];
-                $leftId = OpaqueId::make('l', $taken);
-                $taken[] = $leftId;
-                $rightId = OpaqueId::make('r', $taken);
-                $taken[] = $rightId;
-
-                $left[] = ['id' => $leftId, 'word_id' => $candidate['word']->id, 'text' => $candidate['text']];
-                $right[] = ['id' => $rightId, 'text' => $candidate['labels']];
-                $table[$leftId] = $rightId;
-            }
-
-            [$left, $right] = self::columns($left, $right, $table, $seed, $number);
-            $round = new PairsRound($number, $total, $left, $right, $table, $strictSize);
-            $elements[] = new SnapshotElement($elementId, SnapshotElement::KIND_PAIRS_ROUND, $round->toData());
+            $candidates = array_map(static fn (int $member): array => $plan['words'][$member], $members);
+            $elements[] = self::roundElement($candidates, $seed, $index + 1, $total, $strictSize, $taken);
         }
 
         return $elements;
+    }
+
+    /**
+     * One round of pairs as an element of a snapshot, laid out by the seed: the words (`left`) and the translations (`right`)
+     * each shuffled on their own. Shared with the game (docs/18 §12.3.1: `RunComposer` builds its one round of 4 words with it),
+     * so a round of a run is graded, projected and reviewed by this very handler. `$taken` collects the opaque ids used.
+     *
+     * @param  list<Candidate>  $members  see {@see candidate()}
+     * @param  list<string>  $taken
+     */
+    public static function roundElement(array $members, string $seed, int $number, int $total, bool $strict, array &$taken): SnapshotElement
+    {
+        $elementId = OpaqueId::make('e', $taken);
+        $taken[] = $elementId;
+
+        $left = [];
+        $right = [];
+        $table = [];
+        foreach ($members as $candidate) {
+            $leftId = OpaqueId::make('l', $taken);
+            $taken[] = $leftId;
+            $rightId = OpaqueId::make('r', $taken);
+            $taken[] = $rightId;
+
+            $left[] = ['id' => $leftId, 'word_id' => $candidate['word']->id, 'text' => $candidate['text']];
+            $right[] = ['id' => $rightId, 'text' => $candidate['labels']];
+            $table[$leftId] = $rightId;
+        }
+
+        [$left, $right] = self::columns($left, $right, $table, $seed, $number);
+        $round = new PairsRound($number, $total, $left, $right, $table, $strict);
+
+        return new SnapshotElement($elementId, SnapshotElement::KIND_PAIRS_ROUND, $round->toData());
+    }
+
+    /**
+     * A word as the board needs it: the text of the card, the label of the translation in each locale and the keys by which it
+     * clashes with another word (docs/16 §4.4). Null: the word is unfit for the pairs (no variant in some locale).
+     *
+     * @return Candidate|null
+     */
+    public static function candidate(MaterialWord $word, LocaleSet $locales): ?array
+    {
+        $translations = [];
+        foreach ($locales->locales as $locale) {
+            $translations[$locale] = $word->translationFor($locale);
+        }
+
+        $keys = TranslationVariants::clashKeys($word->word, $translations, $word->translation);
+        if ($keys === null) {
+            return null;
+        }
+
+        $labels = [];
+        foreach ($translations as $locale => $translation) {
+            $labels[$locale] = (string) TranslationVariants::label($translation);
+        }
+
+        return ['word' => $word, 'text' => trim((string) preg_replace('/\s+/u', ' ', $word->word)), 'labels' => $labels, 'keys' => $keys];
     }
 
     public function project(SnapshotElement $element, string $locale, ElementState $state): array
@@ -211,22 +250,10 @@ final class PairsMode implements PracticeModeHandler
 
             $fit = [];
             foreach ($material as $word) {
-                $translations = [];
-                foreach ($locales->locales as $locale) {
-                    $translations[$locale] = $word->translationFor($locale);
+                $candidate = self::candidate($word, $locales);
+                if ($candidate !== null) {
+                    $fit[] = $candidate;
                 }
-
-                $keys = TranslationVariants::clashKeys($word->word, $translations, $word->translation);
-                if ($keys === null) {
-                    continue;
-                }
-
-                $labels = [];
-                foreach ($translations as $locale => $translation) {
-                    $labels[$locale] = (string) TranslationVariants::label($translation);
-                }
-
-                $fit[] = ['word' => $word, 'text' => trim((string) preg_replace('/\s+/u', ' ', $word->word)), 'labels' => $labels, 'keys' => $keys];
             }
 
             return $fit;

@@ -10,6 +10,7 @@ use App\Domain\Billing\DTO\CheckoutLink;
 use App\Domain\Billing\DTO\RefundEvent;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\ProviderCapabilityException;
+use App\Domain\Billing\Support\ProPromises;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\Learner;
@@ -72,10 +73,14 @@ final class TelegramStarsProvider implements BillingProvider
         $locale = $this->orderLocale($order);
         $period = __("billing.period.{$order->period}", [], $locale);
         $isSubscription = $order->period === 'month';
+        // The text that names practice (and battles) among the things Pro gives is for a release where practice is open to everybody
+        // and Pro has something to lift there; the choice is made here, from ProPromises (docs/18 G1), not by the lang file.
+        $description = ($isSubscription ? 'billing.stars.invoice.description_month' : 'billing.stars.invoice.description_year')
+            .ProPromises::publicPractice()->invoiceSuffix();
 
         $url = $this->telegram->createInvoiceLink(
             title: mb_substr(__('billing.stars.invoice.title', ['period' => $period], $locale), 0, 32),
-            description: mb_substr(__($isSubscription ? 'billing.stars.invoice.description_month' : 'billing.stars.invoice.description_year', [], $locale), 0, 255),
+            description: mb_substr(__($description, [], $locale), 0, 255),
             payload: $order->token,
             currency: 'XTR',
             prices: [['label' => mb_substr(__('billing.stars.invoice.label', ['period' => $period], $locale), 0, 32), 'amount' => $order->amount]],
@@ -206,8 +211,9 @@ final class TelegramStarsProvider implements BillingProvider
             throw ProviderCapabilityException::unsupported($this->key(), 'refund without a Stars charge id');
         }
 
-        $userId = $payment->subscriber_type === 'learner' ? $this->telegramUserId($payment->subscriber_id) : null;
-        if ($userId === null) {
+        // The learner row may be deleted for good by now (docs/03 §8 rule 2): the ledger row's payer snapshot keeps the Telegram id.
+        $userId = $payment->subscriber_type === 'learner' ? ($this->telegramUserId($payment->subscriber_id) ?? $payment->payer_telegram_user_id) : null;
+        if ($userId === null || $userId <= 0) {
             throw ProviderCapabilityException::unsupported($this->key(), 'refund without a Telegram user');
         }
 

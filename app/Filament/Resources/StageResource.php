@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\StageResource\Pages;
 use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Course;
 use App\Models\Stage;
 use Filament\Actions;
@@ -82,6 +83,7 @@ class StageResource extends Resource
                     modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('course_id', $get('course_id')),
                 ),
             self::titleField(),
+            self::titleUzField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }
@@ -95,6 +97,16 @@ class StageResource extends Resource
         return Forms\Components\TextInput::make('title')
             ->label(__('admin.stages.fields.title'))
             ->helperText(__('admin.stages.fields.title_help'))
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
+    }
+
+    /** The Uzbek name of a module (`stages.title_uz`): a learner of uz reads it, or the Russian one while it is empty (NULL). */
+    public static function titleUzField(): Forms\Components\TextInput
+    {
+        return Forms\Components\TextInput::make('title_uz')
+            ->label(__('admin.stages.fields.title_uz'))
+            ->helperText(__('admin.stages.fields.title_uz_help'))
             ->maxLength(255)
             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
     }
@@ -116,16 +128,17 @@ class StageResource extends Resource
      * "Модуль 3"); without a text, the first ones in course and number order. A module without a title has no title to
      * match, which is why the relationship search of the select (a LIKE on the title) is not enough.
      *
+     * @param  Builder<Stage>|null  $stages  the modules to choose from; all of them by default (the viewer's own, for a filter)
      * @return array<int, string> stage id => {@see displayTitle()}
      */
-    public static function searchOptions(?string $search): array
+    public static function searchOptions(?string $search, ?Builder $stages = null): array
     {
         $term = trim((string) $search);
 
-        return Stage::query()
+        return ($stages ?? Stage::query())
             ->when($term !== '', function (Builder $query) use ($term): void {
                 $query->where(function (Builder $query) use ($term): void {
-                    $query->whereLike('title', "%{$term}%");
+                    AdminTable::whereContains($query, 'stages.title', $term);
 
                     if (preg_match('/\d+/', $term, $digits) === 1) {
                         $query->orWhere('number', (int) $digits[0]);
@@ -142,7 +155,7 @@ class StageResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('course.slug')->label(__('admin.stages.fields.course'))->sortable(),
                 Tables\Columns\TextColumn::make('number')->label(__('admin.stages.fields.number'))->sortable(),

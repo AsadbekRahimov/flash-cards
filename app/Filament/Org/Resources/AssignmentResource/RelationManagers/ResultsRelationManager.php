@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Org\Resources\AssignmentResource\RelationManagers;
 
 use App\Filament\Org\Resources\MemberResource;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -36,7 +37,8 @@ class ResultsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->description(__('org.assignments.results.privacy'))
             ->modifyQueryUsing(fn (Builder $query) => $query
                 ->with(['learner', 'assignment'])
@@ -79,7 +81,6 @@ class ResultsRelationManager extends RelationManager
                     ->placeholder('—')
                     ->sortable(),
             ])
-            ->defaultSort('progress_pct', 'desc')
-            ->paginated([25, 50, 100]);
+            ->defaultSort('progress_pct', 'desc');
     }
 }

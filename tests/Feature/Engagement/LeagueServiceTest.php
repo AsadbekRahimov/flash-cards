@@ -12,6 +12,7 @@ declare(strict_types=1);
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Operations\Support\PureCache;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -363,11 +364,11 @@ it('breaks ties by the earlier placement and serves a group from the cache until
     // New points land, the cached standings do not move until the TTL passes.
     LearnerDailyStats::query()->where('learner_id', $a->id)->update(['reviews_count' => 50]);
     expect(lgService()->standings($group, lgNow())->first()?->memberId)->toBe($mb?->id)
-        ->and(Cache::has(LeagueService::CACHE_PREFIX.$group->id))->toBeTrue();
+        ->and(PureCache::store()->has(LeagueService::CACHE_PREFIX.$group->id))->toBeTrue();
 
     // The TTL is the cache store's own clock (Redis in CI ignores time travel): once the entry is gone,
     // the next read recomputes and the new leader shows.
-    Cache::forget(LeagueService::CACHE_PREFIX.$group->id);
+    PureCache::store()->forget(LeagueService::CACHE_PREFIX.$group->id);
     expect(lgService()->standings($group, lgNow())->first()?->memberId)->toBe($ma?->id);
 });
 
@@ -463,7 +464,7 @@ it('closes a week once: final ranks and points, top-N promoted, bottom-N demoted
     // Closed standings come from the final columns (no cache, no recomputation).
     $closed = lgService()->standings($groups[2], $now->addDay());
     expect($closed->map(fn ($s): array => [$s->rank, $s->points])->all())->toBe([[1, 60], [2, 50], [3, 40], [4, 30], [5, 20], [6, 10]])
-        ->and(Cache::has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
+        ->and(PureCache::store()->has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
 });
 
 it('queues every batch of the mailing with one deadline, counted from the close', function (): void {
@@ -609,7 +610,7 @@ it('finalises only the learner\'s own group when the first grade of the week com
         // The verdict is already visible to the group, final columns, while the week is open.
         ->and(lgService()->overview($learners[2][5], $monday)->lastResult?->result)->toBe('demoted')
         ->and(lgService()->standings($groups[2]->fresh() ?? $groups[2], $monday)->map(fn ($s): array => [$s->rank, $s->points])->all())->toBe([[1, 60], [2, 50], [3, 40], [4, 30], [5, 20], [6, 10]])
-        ->and(Cache::has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
+        ->and(PureCache::store()->has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
     Queue::assertNothingPushed();
 
     // The demoted one is placed one tier lower without a second finalisation; points that land late do not move the verdict.

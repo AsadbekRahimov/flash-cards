@@ -13,6 +13,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Learning\Exceptions\MockExamException;
 use App\Domain\Learning\Services\ExamQuestionPersonalizer;
 use App\Domain\Learning\Services\MockExamService;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\Course;
@@ -36,7 +37,7 @@ use Illuminate\Testing\TestResponse;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    Cache::flush();
+    PureCache::store()->flush(); // the distribution is a pure cache (docs/19 §4)
     CarbonImmutable::setTestNow('2026-10-20 10:00:00');
 });
 
@@ -491,21 +492,21 @@ it('computes the percentile over the closed mocks of the course within 90 days, 
         ->and($result->percentile)->toBe(67);
 
     $top = mkClosedMock($course, 10, 10);
-    Cache::flush();
+    PureCache::store()->flush(); // the distribution is a pure cache (docs/19 §4)
     $topResult = $service->result($top);
     expect($topResult->percent)->toBe(100)
         ->and($topResult->attempts)->toBe(7)
         ->and($topResult->percentile)->toBe(100);
 
     $low = mkClosedMock($course, 0, 10);
-    Cache::flush();
+    PureCache::store()->flush(); // the distribution is a pure cache (docs/19 §4)
     $lowResult = $service->result($low);
     expect($lowResult->percent)->toBe(0)
         ->and($lowResult->attempts)->toBe(8)
         ->and($lowResult->percentile)->toBe(13);
 
     $alone = mkClosedMock($otherCourse, 3, 10);
-    Cache::flush();
+    PureCache::store()->flush(); // the distribution is a pure cache (docs/19 §4)
     expect($service->result($alone)->percentile)->toBe(50)
         ->and($service->result($alone)->attempts)->toBe(2);
 });
@@ -531,8 +532,8 @@ it('caches the distribution for an hour and drops it when a mock of the course i
     // expiry, so the key is dropped by hand here instead of travelling in time.)
     mkClosedMock($course, 1, 10);
     expect($service->result($mine)->attempts)->toBe(2)
-        ->and(Cache::has(MockExamService::distributionCacheKey((int) $course->id)))->toBeTrue();
-    Cache::forget(MockExamService::distributionCacheKey((int) $course->id));
+        ->and(PureCache::store()->has(MockExamService::distributionCacheKey((int) $course->id)))->toBeTrue();
+    PureCache::store()->forget(MockExamService::distributionCacheKey((int) $course->id));
     expect($service->result($mine)->attempts)->toBe(3);
 });
 

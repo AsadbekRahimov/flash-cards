@@ -104,6 +104,52 @@ describe('style.css: touch targets', () => {
 })
 
 /**
+ * The run of "Karvon" (docs/05 §5b.3): every control is at least 44 px on a 320 px screen, the field of a typed answer is left alone by the
+ * keyboard, and nothing is told by colour only. The sources are read (the test environment has no layout).
+ */
+describe('the run of Karvon: touch targets and fields', () => {
+  const game = [...sources].filter(([file]) => file.startsWith('components/game/') || file === 'views/GameRunView.vue')
+
+  it('reads the screen and its components', () => {
+    expect(game.length).toBeGreaterThanOrEqual(11)
+  })
+
+  it('draws the answer options with .option, which is at least 56 px high', () => {
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option(?: short:min-h-1[12])?"/)
+    expect(rulesOf('.option').some((body) => /@apply[^;]*\bmin-h-14\b/.test(body))).toBe(true)
+  })
+
+  it('makes the ✕ of the header a 44 px target and the "Listen" circle bigger than that', () => {
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/data-testid="close-btn"/)
+    expect(sources.get('components/game/RunHeader.vue')).toMatch(/class="-ml-1 flex size-11\b/)
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/\bsize-20\b/)
+  })
+
+  it('has no control under 44 px: only buttons of the design system, no fixed small size on a button', () => {
+    for (const [file, code] of game) {
+      for (const button of code.match(/<button\b[^>]*>/g) ?? []) {
+        expect(button, file).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+      }
+    }
+  })
+
+  it('leaves the field of a typed answer alone: no autocorrection, no capitals, no spell check', () => {
+    const field = sources.get('components/game/TypedAnswer.vue') ?? ''
+
+    expect(field).toMatch(/autocapitalize="off"/)
+    expect(field).toMatch(/autocorrect="off"/)
+    expect(field).toMatch(/autocomplete="off"/)
+    expect(field).toMatch(/spellcheck="false"/)
+  })
+
+  it('tells the flasks and the stars by shape and in words, not by colour only', () => {
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/aria-label="label"|:aria-label="label"/)
+    expect(sources.get('components/game/RunSummary.vue')).toMatch(/:aria-label="t\('gameRun.summary.stars'/)
+    expect(sources.get('components/game/FlaskIcons.vue')).toMatch(/:fill="full \? 'currentColor' : 'none'"/)
+  })
+})
+
+/**
  * The toast (docs/14 §4.4) stands above whatever covers the bottom edge of the window: the tab bar, or the sticky block of buttons of
  * an immersive screen (`StickyActions`, which publishes its height as `--app-actions-h`). The test environment has no layout, so the
  * rules are read from the stylesheet.
@@ -228,5 +274,125 @@ describe('style.css: contrast of text on soft backgrounds', () => {
 
   it('has a Tailwind colour for every ink', () => {
     for (const kind of KINDS) expect(css).toContain(`--color-${kind}-ink: var(--app-${kind}-ink);`)
+  })
+})
+
+/** The Karvon map (docs/05 §5b.2): everything a finger has to hit is 44 px high, the stars are 12 px. */
+describe('the Karvon map', () => {
+  const view = sources.get('views/GameMapView.vue') ?? ''
+
+  /** The `<button …>` tag of the template that carries `testid`. */
+  const buttonTag = (testid: string): string => new RegExp(`<button[^>]*data-testid="${testid}"[^>]*>`).exec(view)?.[0] ?? ''
+
+  it('reads the screen', () => {
+    expect(view).toContain('data-testid="game-map-view"')
+  })
+
+  it.each(['active-run', 'boss-pro'])('makes the target %s at least 44 px high', (testid) => {
+    expect(buttonTag(testid), testid).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('makes a stop row 44 px high', () => {
+    expect(view).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*:data-testid="`stop-/s)
+  })
+
+  it('draws the stars 12 px', () => {
+    const stars = [...view.matchAll(/name="star"[^>]*:size="(\d+)"/g)].map((match) => match[1])
+    expect(stars.length).toBeGreaterThan(0)
+    expect(new Set(stars)).toEqual(new Set(['12']))
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    expect(view).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+  })
+})
+
+/** The caravan of the day and its entries (docs/05 §5b.4): every target is 44 px, nothing is a fixed width. */
+describe('the caravan of the day', () => {
+  const daily = sources.get('views/GameDailyView.vue') ?? ''
+  const map = sources.get('views/GameMapView.vue') ?? ''
+  const todayView = sources.get('views/TodayView.vue') ?? ''
+
+  it('reads the screen', () => {
+    expect(daily).toContain('data-testid="game-daily-view"')
+  })
+
+  it('has no button under 44 px and no fixed size on a button', () => {
+    const buttons = daily.match(/<button\b[^>]*>/g) ?? []
+    expect(buttons.length).toBeGreaterThanOrEqual(4)
+    for (const button of buttons) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+  })
+
+  it('makes the card on the map and the entry on "Today" 44 px high', () => {
+    expect(/<button[^>]*data-testid="daily-card"[^>]*>/s.exec(map)?.[0]).toMatch(/\bmin-h-11\b/)
+    expect(/<RouterLink[^>]*data-testid="game-entry"[^>]*>/s.exec(todayView)?.[0]).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    expect(daily).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+  })
+})
+
+/** "My caravan" and the boosters (docs/05 §5b.5): every control is 44 px at least on a 320 px screen. Sources are read (no layout in tests). */
+describe('My caravan and the boosters: touch targets', () => {
+  const view = sources.get('views/GameCaravanView.vue') ?? ''
+  const card = sources.get('components/game/ShopItemCard.vue') ?? ''
+  const row = sources.get('components/game/BoosterRow.vue') ?? ''
+
+  it('reads the screen and its components', () => {
+    expect(view).toContain('data-testid="game-caravan-view"')
+    expect(card).toContain('data-testid')
+    expect(row).toContain('data-testid="boosters"')
+  })
+
+  it('makes the category buttons and the ledger rows 44 px high', () => {
+    expect(view).toMatch(/<button[^>]*role="tab"[^>]*class="[^"]*\bmin-h-11\b/s)
+    expect(view).toMatch(/class="list-row[^"]*\bmin-h-11\b/)
+  })
+
+  it('makes every button of the card 44 px high (btn-sm is 36 px, min-h-11 lifts it)', () => {
+    const buttons = card.match(/<button\b[^>]*>/g) ?? []
+    expect(buttons.length).toBe(4)
+    for (const button of buttons) expect(button).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('makes the booster button 48 px and the "My caravan" button of the map 44 px', () => {
+    expect(row).toMatch(/<button[^>]*class="[^"]*\bsize-12\b/s)
+    expect(sources.get('views/GameMapView.vue')).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*data-testid="caravan-btn"/s)
+  })
+
+  it('has no fixed width that would break 320 px, and no control under 44 px on the screen', () => {
+    for (const code of [view, card, row]) {
+      expect(code).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+    }
+    for (const button of view.match(/<button\b[^>]*>/g) ?? []) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+  })
+})
+
+/** The boss of a city (docs/05 §5b.8): the screen and the card of the city - 44 px targets, nothing is a fixed width. */
+describe('the boss of a city', () => {
+  const boss = sources.get('views/GameBossView.vue') ?? ''
+  const card = sources.get('components/game/CityCard.vue') ?? ''
+  const map = sources.get('views/GameMapView.vue') ?? ''
+
+  it('reads the screen and the card', () => {
+    expect(boss).toContain('data-testid="game-boss-view"')
+    expect(card).toContain('data-testid="city-card"')
+  })
+
+  it('has no button under 44 px on the screen and on the card: only buttons of the design system', () => {
+    for (const code of [boss, card]) {
+      const buttons = code.match(/<button\b[^>]*>/g) ?? []
+      expect(buttons.length).toBeGreaterThanOrEqual(1)
+      for (const button of buttons) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+    }
+  })
+
+  it('makes the chip of a boss on the map a 44 px target', () => {
+    expect(/<button[^>]*:data-testid="`boss-open-/s.exec(map)?.[0]).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    for (const code of [boss, card]) expect(code).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
   })
 })

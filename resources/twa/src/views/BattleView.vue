@@ -63,6 +63,11 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  * A battle of the learner's own that stands in the way of "Accept" or of a rematch (409 `battle_busy`) is told in a toast, and stays on the
  * screen as a line with the way into that battle: in the room and on the result screen.
  * Behind Pro (403 `practice_pro_required` on opening or on "Accept") the answer is the paywall, not a message.
+ * A rematch ("Rematch" / "Invite again") starts a new battle, and Free has a few a day (docs/18 §3): when none is left the answer is the paywall
+ * of the free limit (`limitHit`) - after a battle that was played, with no request for the invitation but after one reading of the state of the
+ * rematch (the friend may have offered theirs a moment ago: then the way leads into THEIR battle); after one that did not take place (declined,
+ * not answered in time, withdrawn) the server is asked, as such a battle is not counted. Accepting an invitation, a rematch of the friend's too,
+ * and the room are never limited.
  */
 const props = defineProps<{ id: number }>()
 
@@ -73,7 +78,7 @@ const { haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 const now = useNow()
 
-const { battle: data, status, loadStatus, errorMessage, gone, acting, actionError, offline, offlineCause, answerState, answerCause, busyBattleId, rematchOffer, serverOffsetMs, paywall } =
+const { battle: data, status, loadStatus, errorMessage, gone, acting, actionError, offline, offlineCause, answerState, answerCause, busyBattleId, rematchOffer, serverOffsetMs, paywall, limitHit } =
   storeToRefs(store)
 
 // ---------------------------------------------------------------- entering
@@ -668,6 +673,12 @@ watch(over, (isOver) => {
       @stay="leaving = null"
     />
 
-    <PaywallSheet v-if="paywall" reason="practice" @close="store.dismissPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="paywall || limitHit"
+      :reason="limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="limitHit"
+      @close="store.dismissPaywall()"
+      @review="reviewFromPaywall"
+    />
   </section>
 </template>

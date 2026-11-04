@@ -146,7 +146,7 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture(), [membership()])
 
       const sections = w.findAll('h2.section-label').map((h) => h.text())
-      expect(sections).toEqual(['Обучение', 'Упражнения', 'Напоминания', 'Язык и регион', 'Лиги', 'Мои центры'])
+      expect(sections).toEqual(['Обучение', 'Упражнения', 'Напоминания', 'Язык и регион', 'Лиги', 'Мои центры', 'Опасная зона'])
       const text = w.text()
       expect(text).toContain('карточек в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
@@ -820,7 +820,7 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture({ interface_locale: 'uz', active_course: null }))
 
       expect(w.get('h1').text()).toBe('Sozlamalar')
-      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar'])
+      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar', 'Xavfli hudud'])
       expect(w.text()).toContain('kuniga nechta kartochka')
       expect(w.text()).toContain('Asosiy kurs')
       expect(w.get('[data-testid=course-title]').text()).toBe('Tanlanmagan')

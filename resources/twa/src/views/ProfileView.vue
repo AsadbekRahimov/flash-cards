@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import GameItemImage from '@/components/game/GameItemImage.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
@@ -12,8 +13,11 @@ import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useGameShopStore } from '@/stores/gameShop'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
+import type { GameItemSlot } from '@/api/gameShopTypes'
 
 /**
  * "Profile" tab (docs/14 §5.2): who the learner is and the plan, the way to Pro, and the entries to the
@@ -24,6 +28,7 @@ import { useI18n } from '@/i18n'
 const { t, tn, locale } = useI18n()
 const auth = useAuthStore()
 const billing = useBillingStore()
+const shop = useGameShopStore()
 const { entitlement, paywall } = storeToRefs(billing)
 
 useBackButton(null)
@@ -84,6 +89,27 @@ const planLine = computed(() => {
 const planChip = computed(() => t(isPro.value ? 'profile.chip.pro' : 'profile.chip.free'))
 const support = computed(() => supportContactLink(paywall.value?.contact))
 
+/**
+ * "My caravan" (docs/05 §5b.6): what the learner wears, from `GET /game/profile`. Only while `/me.game.available`: a closed game has no card and
+ * asks for nothing. A failed read leaves no card (the profile works without it).
+ */
+const gameOn = computed(() => billing.gameAccess.available)
+const gameLoaded = ref(false)
+const wornSlots: GameItemSlot[] = ['camel', 'carpet', 'tent']
+const worn = computed(() =>
+  wornSlots.map((slot) => ({ slot, label: t(`gameCaravan.slot.${slot}` as StringKey), item: shop.profile?.equipped[slot] ?? null })),
+)
+const frame = computed(() => shop.profile?.equipped.frame ?? null)
+const showCaravan = computed(() => gameOn.value && gameLoaded.value && shop.profile !== null)
+
+watch(
+  gameOn,
+  (on) => {
+    if (on && !gameLoaded.value) void shop.loadProfile().then((ok) => (gameLoaded.value = ok))
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   void load()
 })
@@ -127,6 +153,29 @@ onMounted(() => {
         </div>
         <RouterLink :to="{ name: 'billing' }" class="btn btn-primary btn-block" data-testid="profile-pro-cta">
           {{ t('profile.pro.more') }}
+        </RouterLink>
+      </section>
+
+      <section v-if="showCaravan" class="card space-y-3" :aria-label="t('profile.caravan.title')" data-testid="profile-caravan">
+        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('profile.caravan.title') }}</h2>
+        <div class="flex items-center gap-3">
+          <!-- The frame goes round the avatar: it is drawn behind a smaller avatar. -->
+          <span class="relative flex size-[72px] shrink-0 items-center justify-center" data-testid="caravan-frame">
+            <GameItemImage v-if="frame" :name="frame.asset" :size="72" class="absolute inset-0" data-testid="caravan-frame-image" />
+            <span class="relative flex size-11 items-center justify-center rounded-full bg-accent text-[20px] leading-none font-semibold text-tg-button-text" aria-hidden="true">{{ initial }}</span>
+          </span>
+          <ul class="grid min-w-0 flex-1 grid-cols-3 gap-2">
+            <li v-for="slot in worn" :key="slot.slot" class="flex min-w-0 flex-col items-center gap-1 text-center" :data-testid="`caravan-${slot.slot}`">
+              <span class="flex size-12 items-center justify-center rounded-xl bg-fill">
+                <GameItemImage v-if="slot.item" :name="slot.item.asset" :size="40" />
+              </span>
+              <span class="w-full truncate text-[12px] leading-4 text-tg-subtitle">{{ slot.label }}</span>
+              <span v-if="!slot.item" class="sr-only">{{ t('gameCaravan.profile.none') }}</span>
+            </li>
+          </ul>
+        </div>
+        <RouterLink :to="{ name: 'game-caravan', query: { from: 'profile' } }" class="btn btn-tinted btn-block" data-testid="profile-caravan-open">
+          {{ t('profile.caravan.open') }}
         </RouterLink>
       </section>
 

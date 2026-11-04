@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Org\Pages\Dashboard;
 use App\Filament\Org\Pages\OrgProfile;
+use App\Filament\Org\Pages\OrgRequestPasswordReset;
 use App\Filament\Org\Pages\OrgSettings;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
@@ -56,7 +57,7 @@ class OrgPanelProvider extends PanelProvider
             ->authGuard('org')
             ->authPasswordBroker('org')
             ->login()
-            ->passwordReset()
+            ->passwordReset(OrgRequestPasswordReset::class)
             ->profile(OrgProfile::class, isSimple: false)
             ->brandName('LexiFlow Pro')
             ->colors([

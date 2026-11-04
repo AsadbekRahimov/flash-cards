@@ -7,6 +7,7 @@ namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 use App\Domain\Administration\Services\OrganizationGroupLinker;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -38,7 +39,7 @@ class GroupsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.organizations.groups.singular'))
             ->pluralModelLabel(__('admin.organizations.groups.plural'))
             ->emptyStateHeading(__('admin.organizations.groups.empty'))
@@ -65,9 +66,11 @@ class GroupsRelationManager extends RelationManager
                             ->required()
                             ->searchable()
                             ->helperText(__('admin.organizations.groups.actions.link_help'))
-                            ->getSearchResultsUsing(fn (string $search): array => TelegramGroup::query()
-                                ->whereNull('organization_id')
-                                ->where('title', 'like', '%'.$search.'%')
+                            ->getSearchResultsUsing(fn (string $search): array => AdminTable::whereContains(
+                                TelegramGroup::query()->whereNull('organization_id'),
+                                'telegram_groups.title',
+                                $search,
+                            )
                                 ->orderBy('title')
                                 ->limit(30)
                                 ->pluck('title', 'id')

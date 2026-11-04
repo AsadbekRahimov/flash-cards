@@ -101,6 +101,63 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/PracticeSessionView.vue'),
     props: (route) => ({ id: Number(route.params.id) }),
   },
+  // The Karvon game (docs/05 §5b): the map is a screen of the Courses tab. `?course=` is the course (else the active one), `?stop=` opens the sheet of that stop.
+  {
+    path: '/game',
+    name: 'game',
+    component: () => import('@/views/GameMapView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({
+      course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
+      stop: queryId(route.query.stop),
+    }),
+  },
+  // "My caravan" (docs/05 §5b.5): the wallet, the shop, what is worn. Back leads to the map.
+  {
+    path: '/game/caravan',
+    name: 'game-caravan',
+    component: () => import('@/views/GameCaravanView.vue'),
+    meta: { tab: 'courses' },
+  },
+  {
+    // The caravan of the day (docs/05 §5b.4): `?course=` is the course (from the map), else the active one.
+    path: '/game/daily',
+    name: 'game-daily',
+    component: () => import('@/views/GameDailyView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null }),
+  },
+  {
+    // The boss of a city (docs/05 §5b.8): `?course=` is the course of the map, else the active one.
+    path: '/game/boss/:stageId(\\d+)',
+    name: 'game-boss',
+    component: () => import('@/views/GameBossView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({
+      stageId: Number(route.params.stageId),
+      course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
+    }),
+  },
+  {
+    // The caravan of a class (docs/05 §5b.7); the bot's link in the group chat (`startapp=`) leads here.
+    path: '/game/class/:id(\\d+)',
+    name: 'game-class',
+    component: () => import('@/views/GameClassView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    // A run of "Karvon" (docs/05 §5b.3): immersive, no tab. `course` / `stop` (query) tell the summary where "Again" / "To the map" lead.
+    path: '/game/runs/:id(\\d+)',
+    name: 'game-run',
+    component: () => import('@/views/GameRunView.vue'),
+    props: (route) => ({
+      id: Number(route.params.id),
+      course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
+      stop: queryId(route.query.stop),
+      boss: queryId(route.query.boss),
+    }),
+  },
   {
     path: '/battles/new',
     name: 'battle-new',
@@ -129,6 +186,13 @@ const routes: RouteRecordRaw[] = [
     name: 'settings',
     component: () => import('@/views/SettingsView.vue'),
     meta: { tab: 'profile' },
+  },
+  {
+    // After "Delete account": no tab bar, no request (the session is gone).
+    path: '/account-deleted',
+    name: 'account-deleted',
+    component: () => import('@/views/AccountDeletedView.vue'),
+    props: (route) => ({ until: typeof route.query.until === 'string' ? route.query.until : null }),
   },
   {
     path: '/billing',

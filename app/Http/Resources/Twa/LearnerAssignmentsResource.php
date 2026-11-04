@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\DTO\LearnerAssignment;
+use App\Models\Learner;
 use Illuminate\Http\Request;
 
 /**
@@ -21,13 +23,17 @@ final class LearnerAssignmentsResource extends TwaResource
      */
     public function toArray(Request $request): array
     {
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
+        $locale = app(LocaleResolver::class)->forLearner($learner);
+
         return [
-            'assignments' => array_map(static function (LearnerAssignment $item): array {
+            'assignments' => array_map(static function (LearnerAssignment $item) use ($locale): array {
                 $assignment = $item->assignment;
 
                 return [
                     'id' => $assignment->id,
-                    'title' => $assignment->displayTitle(),
+                    'title' => $assignment->displayTitle($locale),
                     'group' => $assignment->group->title,
                     'lesson_id' => $assignment->lesson_id,
                     'stage' => $assignment->lesson->stage->number ?? 0, // stage_id is NOT NULL; fallback only for the nullable relation type

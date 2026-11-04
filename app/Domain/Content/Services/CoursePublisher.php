@@ -125,7 +125,10 @@ final class CoursePublisher
 
         // After commit (the caller's too, if it wraps us): a request that re-fills the cache earlier
         // would store the old status.
-        DB::afterCommit(fn () => $this->catalog->forgetPublished());
+        DB::afterCommit(function () use ($course): void {
+            $this->catalog->forgetPublished();
+            $this->catalog->forgetCourseTree($course->id);
+        });
 
         return $result;
     }
@@ -185,8 +188,13 @@ final class CoursePublisher
         $course->words_count = $count;
         $course->syncOriginalAttribute('words_count');
 
-        // The importer calls this inside its transaction: forget once that commits.
-        DB::afterCommit(fn () => $this->catalog->forgetPublished());
+        // The importer calls this inside its transaction: forget once that commits. The words of the course moved, so did the
+        // word totals of its cached tree (docs/19 K3): every path that changes words ends here.
+        $courseId = $course->id;
+        DB::afterCommit(function () use ($courseId): void {
+            $this->catalog->forgetPublished();
+            $this->catalog->forgetCourseTree($courseId);
+        });
     }
 
     /**

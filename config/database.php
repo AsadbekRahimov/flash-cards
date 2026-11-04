@@ -220,6 +220,27 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
+        // The SECOND Redis instance (`redis-cache` in compose, docs/19_REDIS_CACHE_PLAN.md §4): volatile-lru, no
+        // persistence. Only the pure cache store `lru` (config/cache.php) lives here - every connection above is on the
+        // first, non-evicting instance.
+        'lru' => [
+            'host' => env('REDIS_LRU_HOST', '127.0.0.1'),
+            'username' => env('REDIS_LRU_USERNAME'),
+            'password' => env('REDIS_LRU_PASSWORD'),
+            'port' => env('REDIS_LRU_PORT', '6380'),
+            'database' => env('REDIS_LRU_DB', '0'),
+            // A dead or HUNG cache must fail fast and be stepped over (the store `lru` is a failover chain with a circuit
+            // breaker, config/cache.php): short connect and read timeouts and no client-side retries. 0.25 s is ~100x the
+            // worst healthy call - a same-host round trip takes well under a millisecond, a 130 KB value about one, and this
+            // instance never forks for persistence (`--save ""`, no AOF), so nothing stalls it - and still bounds what a hung
+            // instance costs: the one call that opens the breaker waits 0.25 s (0.5 s on a worker that had a connection
+            // and reconnects once), every other call of the window goes straight to the array store. The first instance
+            // keeps the defaults above.
+            'timeout' => 0.25,
+            'read_timeout' => 0.25,
+            'max_retries' => 0,
+        ],
+
     ],
 
 ];

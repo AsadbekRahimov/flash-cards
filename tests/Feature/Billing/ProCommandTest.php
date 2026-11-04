@@ -257,6 +257,18 @@ it('/paysupport gives the support contact and the offer link in a DM', function 
         ->and($this->sent[0]['text'])->toContain('https://lexiflow.test/ru/offer');
 });
 
+it('/paysupport says refunds go only through support, each request individually', function (): void {
+    app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport'));
+    app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport', lang: 'uz'));
+
+    expect($this->sent[0]['text'])->toContain('Возврат возможен только через поддержку')->toContain('индивидуально')
+        ->and($this->sent[1]['text'])->toContain("Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi")->toContain("alohida ko'rib chiqiladi");
+
+    config()->set('billing.paywall.contact', '');
+    app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport'));
+    expect($this->sent[2]['text'])->toContain('только через поддержку');
+});
+
 it('/paysupport follows the learner\'s locale, or the Telegram language of a stranger', function (): void {
     app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport', lang: 'uz'));
     expect($this->sent[0]['text'])->toContain("LexiFlow to'lovlar bo'yicha yordam.")

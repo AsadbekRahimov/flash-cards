@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 12,
+    "title": "Технологии и связь",
+    "title_uz": "Texnologiya va aloqa"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Современные технологии",
+    "title_uz": "Zamonaviy texnologiyalar"
+  },
+  "words": [
+    {
+      "word": "technology",
+      "part_of_speech": "noun",
+      "translation": "технология",
+      "translations": {
+        "ru": "технология",
+        "uz": "texnologiya"
+      },
+      "example": "New technology changes our daily life.",
+      "example_translations": {
+        "ru": "Новые технологии меняют нашу повседневную жизнь.",
+        "uz": "Yangi texnologiya kundalik hayotimizni o'zgartiradi."
+      }
+    },
+    {
+      "word": "robot",
+      "part_of_speech": "noun",
+      "translation": "робот",
+      "translations": {
+        "ru": "робот",
+        "uz": "robot"
+      },
+      "example": "A robot cleans the floor at night.",
+      "example_translations": {
+        "ru": "Робот убирает пол ночью.",
+        "uz": "Robot kechasi polni tozalaydi."
+      }
+    },
+    {
+      "word": "invent",
+      "part_of_speech": "verb",
+      "translation": "изобретать",
+      "translations": {
+        "ru": "изобретать",
+        "uz": "ixtiro qilmoq"
+      },
+      "example": "Who invented the first telephone?",
+      "example_translations": {
+        "ru": "Кто изобрёл первый телефон?",
+        "uz": "Birinchi telefonni kim ixtiro qilgan?"
+      }
+    },
+    {
+      "word": "modern",
+      "part_of_speech": "adjective",
+      "translation": "современный",
+      "translations": {
+        "ru": "современный",
+        "uz": "zamonaviy"
+      },
+      "example": "They live in a modern apartment.",
+      "example_translations": {
+        "ru": "Они живут в современной квартире.",
+        "uz": "Ular zamonaviy kvartirada yashaydi."
+      }
+    },
+    {
+      "word": "digital",
+      "part_of_speech": "adjective",
+      "translation": "цифровой",
+      "translations": {
+        "ru": "цифровой",
+        "uz": "raqamli"
+      },
+      "example": "I prefer a digital clock.",
+      "example_translations": {
+        "ru": "Я предпочитаю цифровые часы.",
+        "uz": "Men raqamli soatni afzal ko'raman."
+      }
+    },
+    {
+      "word": "smart",
+      "part_of_speech": "adjective",
+      "translation": "умный",
+      "translations": {
+        "ru": "умный",
+        "uz": "aqlli"
+      },
+      "example": "She has a smart watch and speaker.",
+      "example_translations": {
+        "ru": "У неё есть умные часы и колонка.",
+        "uz": "Uning aqlli soati va karnayi bor."
+      }
+    },
+    {
+      "word": "connect",
+      "part_of_speech": "verb",
+      "translation": "подключать",
+      "translations": {
+        "ru": "подключать",
+        "uz": "ulamoq"
+      },
+      "example": "Connect the speaker to your phone.",
+      "example_translations": {
+        "ru": "Подключи колонку к телефону.",
+        "uz": "Karnayni telefoningga ulang."
+      }
+    },
+    {
+      "word": "network",
+      "part_of_speech": "noun",
+      "translation": "сеть",
+      "translations": {
+        "ru": "сеть",
+        "uz": "tarmoq"
+      },
+      "example": "The network is down this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром сеть не работает.",
+        "uz": "Bugun ertalab tarmoq ishlamayapti."
+      }
+    },
+    {
+      "word": "social",
+      "part_of_speech": "adjective",
+      "translation": "социальный",
+      "translations": {
+        "ru": "социальный",
+        "uz": "ijtimoiy"
+      },
+      "example": "Teenagers spend time on social media.",
+      "example_translations": {
+        "ru": "Подростки проводят время в социальных сетях.",
+        "uz": "O'smirlar ijtimoiy tarmoqlarda vaqt o'tkazadi."
+      }
+    },
+    {
+      "word": "machine",
+      "part_of_speech": "noun",
+      "translation": "аппарат",
+      "translations": {
+        "ru": "аппарат",
+        "uz": "apparat"
+      },
+      "example": "This machine makes hot coffee.",
+      "example_translations": {
+        "ru": "Этот аппарат готовит горячий кофе.",
+        "uz": "Bu apparat issiq qahva tayyorlaydi."
+      }
+    }
+  ]
+}

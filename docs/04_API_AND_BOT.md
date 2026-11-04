@@ -42,9 +42,15 @@
     "first_name": "Alex",
     "locale": "ru",
     "onboarding_completed": false
-  }
+  },
+  "account_restored": null
 }
 ```
+
+- `account_restored` (R11b) — `null` почти всегда (и тогда лишних запросов нет). Если ученик удалил аккаунт, вернулся в течение 30 дней (этот самый `/auth`
+  оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
+  (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
+  один раз за сессию (docs/05).
 
 Токен — JWT **v2**: `{iss, sub: learner_id, v: 2, iat, exp}` (без `gid`), TTL 15 мин. Токен без `v = 2` (старый формат,
 где `sub` был `students.id`) отклоняется с 401 `invalid_token`; клиент перелогинивается автоматически (`api/client.ts`).
@@ -89,7 +95,11 @@
       "daily_goals": [10, 20, 40]
     }
   },
-  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true }
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
+                "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
+  "game": { "available": true, "pro_promise": "full", "coins": 35, "tickets": 2,
+            "limits": { "runs": { "limit": 1, "used": 1, "remaining": 0, "resets_at": "2026-10-30T19:00:00.000Z" }, "tickets": { "balance": 2, "max": 10 },
+                        "boosters": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-01T19:00:00.000Z" }, "boss_stages": 1 } }
 }
 ```
 
@@ -120,6 +130,13 @@
   можно показывать: практика открыта ученику (`PRACTICE_ACCESS` = `all`, либо `pilot` и ученик в пилоте) **или** это Free-ученик при `PRACTICE_PLAN=pro` (вход виден с чипом Pro); при `false` TWA входов не рисует, а
   эндпоинты практики отвечают 403 `practice_unavailable`. `pro_required` — Free-ученик при `PRACTICE_PLAN=pro`: нажатие на вход открывает пейвол `practice`, сервер отвечает 403 `practice_pro_required`.
   `modes` — включённые режимы (`PRACTICE_MODE_*`), `battle` — переключатель баттла (`PRACTICE_BATTLE`). Блок есть и в других ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`) — их собирает тот же `MePayloadBuilder`.
+  `pro_promise` (docs/18 §3) — что о практике может сказать **этому ученику** список «что даёт Pro»: `both` — «Практика и баттлы без дневного лимита», `solo` — «Практика без дневного лимита», `none` — строки нет. Решает сервер, одно правило `ProPromises` на лендинг, счёт Stars и TWA; TWA ничего не выводит из `available` / `battle` (пока `/me` не пришёл — `none`). Правило: практика читающему не открыта (`available = false`) → `none`; иначе при `PRACTICE_PLAN=pro` (Free практики не имеет вовсе, Pro даёт её целиком) — `both`, при выключенных баттлах `solo`; иначе пока у Free есть лимит, который снимает Pro: баттлы включены и у Free есть лимит баттлов → `both`; есть лимит сессий → `solo`; иначе `none` (пустое значение `PRACTICE_FREE_*` — лимита нет, `0` — лимит есть). Чтение конфига, без запросов к БД.
+  `limits` (G1, docs/16 §3.2–§3.3, docs/18 §3) — лимиты Free на сегодня: `sessions` — открытия сессий практики (один повтор ошибок сессии, открытой сегодня, не считается; второй повтор той же сессии, повтор повтора и повтор вчерашней сессии считаются; замена активной считается), `battles` — вызовы на баттл (приглашения и реванши, которые предложил ученик; принять вызов можно всегда). У каждого `limit`, `used`, `remaining`, `resets_at` (конец локального дня ученика, ISO 8601 UTC с миллисекундами; то же окно, что у квоты новых слов, с переносом дня после смены пояса).
+  `null` — лимитов нет: Pro (фича `practice.unlimited`, в том числе спонсорский Pro центра), лимиты не заданы (пустые `PRACTICE_FREE_*`), либо практика ученику закрыта (`available = false` или `pro_required = true`). Вид без лимита — `null` внутри блока. Лимит `0` — вид только для Pro (`remaining: 0`). TWA показывает остаток и пейвол `practice_limit` при `remaining = 0`.
+  Цена: у Free с открытой практикой `/me` стоит **на один SQL больше** (оба счётчика одним запросом); у Pro и при закрытой практике — ничего.
+- `game` (docs/18 §12.7–§12.8, G2.1) — доступ к игре «Караван»; блок **всегда** есть в ответе и в других ответах формы `/me` (`MePayloadBuilder` → `GameAccess::describe`). `available` — входы в игру можно показывать: `GAME_ACCESS=all`, либо `pilot` и ученик в пилоте (флаг пилота практики `learners.practice_pilot_at` — одна аудитория); иначе `false`, TWA входов не рисует, а эндпоинты игры отвечают 403 `game_unavailable` (один код для «выключено» и «не в пилоте»). Режима «только Pro» у игры нет: бесплатная часть — продуктовое решение, лимиты Free — `limits`.
+  `limits` (G2.8, docs/18 §12.7.2) — `null`, пока игра закрыта ученику; иначе объект: `runs` — забеги по карте (`stop` + `boss`) за локальный день (`limit`, `used`, `remaining`, `resets_at` — конец окна `LearnerClock::limitWindowUtc`, то же, что у практики), `null` у Pro (`game.unlimited_runs`) и при пустом `GAME_FREE_RUNS_PER_DAY`; `tickets` — `{balance, max}` (всегда; билеты копятся и у Pro); `boosters` — использования бустеров за локальную неделю с понедельника (`resets_at` — следующий понедельник; лимит плана: Free `GAME_FREE_BOOSTERS_PER_WEEK`, Pro `GAME_PRO_BOOSTERS_PER_WEEK`), `null` при пустом лимите; `boss_stages` — число первых городов, чьи боссы открыты Free, `null` у Pro (`game.all_bosses`) и при пустом лимите. Сверх дневного лимита забег стоит билет (`tickets.balance − 1`); без билета сервер отвечает 403 `game_limit_reached` (A.18), TWA показывает пейвол `game`. Ключи блока `game` в этом порядке: `available`, `limits`, `pro_promise`, `coins`, `tickets`. `pro_promise` — `full` | `none`: что о игре может сказать этому ученику список «что даёт Pro» («Караван без лимита забегов и все боссы»); `full`, пока игра открыта читающему (`available`) и у Free есть лимит, который снимает Pro (`GAME_FREE_RUNS_PER_DAY`, `GAME_FREE_BOSS_STAGES` или `GAME_FREE_BOOSTERS_PER_WEEK` не пусто; `0` — лимит есть), иначе `none` (`ProPromises::game`; TWA ничего не выводит сам, пока `/me` не пришёл — `none`).
+  `coins` — баланс монет (`game_wallets.balance`), `tickets` — билеты (`game_profiles.tickets`); `0`, пока игра закрыта или ученик не играл (строки создаются лениво). Цена: пока игра открыта, `/me` стоит **на один SQL больше** (балансы и счётчики лимитов одним запросом, `GameLimits::state`); при закрытой игре — ничего.
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
 
 ### A.2a `GET /api/twa/today`
@@ -131,7 +148,7 @@
   "due_count": 23,
   "new_words_remaining": null,
   "goal": { "target": 20, "done": 8, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "active_course": {
     "id": 3, "slug": "english-a1", "title": "English A1",
     "progress": { "learned": 120, "total": 900 },
@@ -140,21 +157,37 @@
   "open_session_id": 918,
   "entitlement": { "plan": "free", "source": "free", "until": null },
   "onboarding_completed": true,
-  "timezone": "Asia/Tashkent"
+  "timezone": "Asia/Tashkent",
+  "game": { "daily_available": true, "active_run": null, "class_caravan": null }
 }
 ```
 
 - `due_count` — то же правило, что `words_due_today` в `/me` (`DueRepetitionCriteria`, A.2): слова, выведенные из курса (`is_active = false`), не считаются.
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **личных** сессиях за **локальный** день (`word_repetitions.created_at` в окне `LearnerClock::limitWindowUtc` по `learners.timezone` с переносом дня при смене пояса, `introduced_mode <> 'group_lesson'`), не меньше 0; слова групповых уроков не считаются (docs/12 §5.3). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
-- `streak` — `current` серия дней с выполненной целью (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодня уже засчитан, `at_risk` = `current > 0 && !met_today` (серия оборвётся, если не выполнить цель до локальной полуночи). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
+- `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
+- `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — два запроса: к `game_runs` (`due_count` берётся из уже посчитанного) и карточка каравана класса `class_caravan` (G2.9b; `{id, stars_total, target_stars, ends_at}` или `null`; `{daily_available: false, active_run: null, class_caravan: null}` при закрытой игре).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
+
+### A.2c `POST /api/twa/me/delete` — «Удалить аккаунт»
+
+Тело `{"confirm": true}` (`DeleteAccountRequest`: без подтверждения — `422`, ничего не меняется). Мягкое удаление ученика
+(`LearnerDeletionService::delete`, решение владельца 03.11.2026): `learners.deleted_at`, аудит `learner.deleted {by: self}` (без PII), у Stars сразу
+снимается автопродление (best-effort; оплаченный период и платежи не трогаются). Ответ `200` (`AccountDeletedResource`):
+`{deleted: true, restorable_until}` — ISO-8601, `deleted_at + learners.purge.after_days` (30). Токен перестаёт работать сразу: любой следующий запрос с ним —
+`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until` (вернувшемуся один раз скажут «Аккаунт восстановлен», `/auth.account_restored`, A.2d);
+после — `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
+
+### A.2d `POST /api/twa/me/account-restored/seen` — «аккаунт восстановлен» показан
+
+Без тела. Всегда `204 No Content`, идемпотентно (`AccountRestoreNotice::consume`: ключ `learners.meta.restored_notice_at` снимается под блокировкой строки; повтор или уже
+показанное ботом — тоже `204`). После вызова `/auth` отдаёт `account_restored: null`, а `/start` в боте молчит. Ограничение — `throttle:twa-api`.
 
 ### A.2b `PATCH /api/twa/me/settings`
 Частичное изменение настроек (docs/12 §3.8); `LearnerSettingsService::update` — то же место, через которое идёт `/settings` в боте. Меняются только переданные поля,
@@ -223,7 +256,7 @@ Learner завершает **свою личную** сессию (`status = clo
 {
   "reviewed": 14, "correct": 11, "new_words": 4,
   "goal": { "target": 20, "done": 14, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "practice_entry": { "course": "english-a1", "lesson_id": 41 }
 }
 ```
@@ -604,7 +637,8 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   ]
 }
 ```
-Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`. **`stages[].title` — `null`,
+Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `stages[].title` и `lessons[].title` — на языке ученика
+(`title_uz` для uz, если задано, иначе `title`/ru — docs/03 §2.5, `DeckTitles`); `lessons[].title` может быть `null`. **`stages[].title` — `null`,
 если у модуля нет собственного названия** (docs/03 §2.5): клиент подписывает его по `number` на языке читателя («Модуль 2» /
 «2-modul»; TWA — ключ `course.module`), а чип «Модуль N» рядом с названием показывает только у модуля с названием. Сервер
 не подставляет подпись сам — ни «Stage 2», ни пустую строку. Для колоды learner'а `title` всегда локализованное «Моя колода» / «Mening lug'atim».
@@ -623,7 +657,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
     "progress_pct": 40, "completed": false, "completed_at": null, "late": false }
 ] }
 ```
-`title` — название задания (по умолчанию название урока, иначе «Урок N»); `lesson_id` — то, что принимает `POST /training/sessions {mode: "lesson", lesson_id, source: "assignment"}` (`source = assignment` теперь допустим; тренировка идёт обычным путём, без отдельного режима); `overdue` — срок прошёл, а задание ещё открыто (опоздавшие выполнения учитываются до закрытия); `late` — выполнено после `due_at`. `progress_pct` = доля активных слов урока с `word_repetitions.repetitions >= 1`; `completed` — достигнут порог задания (`completion_threshold`).
+`title` — название задания: своё, если учитель его задал, иначе название урока на языке ученика (`ru` или `uz`, если у урока есть узбекское), иначе «Урок N»; `lesson_id` — то, что принимает `POST /training/sessions {mode: "lesson", lesson_id, source: "assignment"}` (`source = assignment` теперь допустим; тренировка идёт обычным путём, без отдельного режима); `overdue` — срок прошёл, а задание ещё открыто (опоздавшие выполнения учитываются до закрытия); `late` — выполнено после `due_at`. `progress_pct` = доля активных слов урока с `word_repetitions.repetitions >= 1`; `completed` — достигнут порог задания (`completion_threshold`).
 
 **Ссылка из группы.** Объявление в чате — одно сообщение с `web_app`-кнопкой `/twa/?from=assignment&lesson=<id>`: TWA убирает метку из URL и открывает сессию урока (`source = assignment`); доступ к уроку перепроверяет сервер обычными правилами. Ошибка открытия остаётся на экране «Сегодня».
 
@@ -848,6 +882,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 }
 ```
 `invite_link` — `null`, пока не задан `TELEGRAM_BOT_USERNAME`. О другом человеке уходят только имя, `streak` (хранимая серия друга; 0, если последний удержанный день старше «вчера» по поясу друга — без записи в чужой профиль) и `words_learned` (слова с `repetitions ≥ 1`; только у принятых друзей и **до 10 минут давности** — кэш `stats:words_learned:{id}`, в БД считаются лишь друзья без записи в кэше, одним запросом); ни id, ни username, ни пояс.
+`friends[].camel_asset` (G2.6) — `asset` надетого верблюда друга (`string`) или `null`; ключ есть, **только когда игра открыта смотрящему** (`GAME_ACCESS`, docs/18 §12.7.4), при закрытой игре его нет и таблиц `game_*` запрос не трогает; когда открыта — один запрос на всех друзей.
 - `POST /friends/{id}/accept` — принять входящий (идемпотентно; лимит `friends.max` проверяется у обеих сторон: **409** `friend_limit` / `friend_limit_other`; приглашавший сам принять не может: **403** `not_recipient`); `POST …/decline` — отклонить входящий (строка удаляется); `POST …/remove` — удалить из друзей / отозвать свой запрос / снять свою блокировку (открытые вызовы пары → `canceled`).
 
 **`GET /api/twa/challenges`** → `{ "days": 7, "open": [Challenge], "finished": [Challenge] }` (`open` — `pending`/`active`, `finished` — последние 20). `Challenge` (то же — ответ остальных вызовов):
@@ -890,6 +925,10 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 (TWA открывает пейвол `practice`). Выключатель режима `PRACTICE_MODE_*` проверяется **только при создании** сессии (**409** `practice_mode_disabled`) и показывается в хабе как `disabled`: открытые сессии доигрываются.
 Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
 
+**Лимиты Free** (G1, docs/16 §3.2, docs/18 §3; `PracticeLimits`). При `PRACTICE_PLAN=all` Free практикует в пределах локального дня: `PRACTICE_FREE_SESSIONS_PER_DAY` (2) открытий сессий и `PRACTICE_FREE_BATTLES_PER_DAY` (1) вызовов на баттл (A.17); Pro (фича `practice.unlimited`, в т. ч. спонсорский) — без лимита; `0` — только Pro; пустое значение — без лимита. Замена активной сессии считается. Повтор ошибок (`retry_of`): бесплатен **один** повтор на исходную сессию, открытую сегодня; второй повтор того же источника, повтор повтора и повтор вчерашней сессии считаются как сессия (при лимите 0 — только Pro); проверка «повтора ещё не было» — под тем же замком ученика.
+Отказ — **403** `practice_limit_reached` с `details` `{kind: "sessions" | "battles", limit, used, resets_at}` и событие `practice.limit_reached {kind, limit}`; `message` — текст на языке ученика (`lang/*/practice.php`), TWA ведёт по коду: пейвол `practice_limit` с остатком. Порядок: доступ → выключатель режима → **лимит** → курс, урок, активная сессия, материал (ученик у лимита получает 403 и при неизвестном курсе, и при незавершённой сессии — её можно доиграть из `hub.active_session`).
+Решает БД: подсчёт — в транзакции создания под `FOR NO KEY UPDATE` строки ученика (две вкладки за последнее место — одна сессия, `PracticeLimitsConcurrencyTest`). Остаток — в `GET /me` → `practice.limits` (A.2), в хабе (`limits`) и в ответе 201 открытия (значение после открытия). Цена: один SQL на блок (оба счётчика), на открытие у Free — 4 запроса сверх прежних; у Pro — ничего.
+
 **Лимиты** (ключ — `learner_id`, `TwaAuth` раньше `throttle`): все маршруты, кроме аудио, под `twa-api` (60/мин); дополнительно `POST /practice/sessions` — `twa-practice-open` **10/мин**; `…/answer` и `…/replace` — `twa-practice-answer` **90/мин**
 (быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет).
 Отказ лимитера — 429 **вне** конверта A.6 (middleware `throttle:` отвечает сам, как в A.17): `{"message": "Too Many Attempts."}` и заголовок `Retry-After` (секунды до сброса), без `error` и без кода (у запроса, который просит не JSON, — например, у аудио с `Accept: audio/mpeg` — вместо тела страница HTML; статус и `Retry-After` те же).
@@ -908,9 +947,11 @@ TWA различает отказ по статусу, а не по коду: `a
   ],
   "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
                       "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } },
-  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
+  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 },
+  "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } }
 ```
 - `lesson` — `null` без `lesson_id` (хаб курса); `stage` и `number` — номера модуля и урока, `title` — название (у безымянного урока `null`; у колоды ученика — по `DeckTitles`). Тексты на языке ученика.
+- `limits` (G1) — лимиты Free на сегодня, как `practice.limits` в `/me` (A.2): `null` у Pro, за пейволом (`state: pro_required`) и когда лимиты не заданы. Один SQL (оба счётчика) — бюджет хаба Free с лимитами 10, без них 9.
 - `modes[]` всегда четыре, в порядке `pairs`, `collocation`, `sentence`, `dictation`. `state`: `available` (можно играть), `not_enough` (материала мало: числа `available` / `required` и `reason`), `disabled` (режим выключен
   `PRACTICE_MODE_*`), `pro_required` (Free при `PRACTICE_PLAN=pro`: числа не считаются). У `disabled` и `pro_required` `available = 0`, `reason = null`. `required` — минимум: у пар 3 слова в раунде, у остальных 3 задания (`practice.solo.items.min`).
   `reason`: `no_words` (введённых слов меньше минимума; у диктанта — и когда озвученные слова есть, но вместе с фразами их меньше минимума: ещё одно выученное слово откроет режим), `ambiguous` (слов хватает, но после исключения неоднозначных переводов — нет), `no_items` (опубликованных заданий типа мало, и «запертые» их не дополнят — обещать «они появятся» нельзя), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с ними хватило бы — «выучите слова урока»; у баттла не бывает),
@@ -929,16 +970,16 @@ TWA различает отказ по статусу, а не по коду: `a
 `mode` — один из четырёх; `course` — slug (≤ 64); `lesson_id` — целое ≥ 1 или `null` (практика курса); `source` — `hub` (по умолчанию) | `after_training` (хаб открыт с итога занятия: `?from=finished`) | `retry` | `deeplink` — откуда открыта, для аналитики;
 `replace_active` — закрыть незавершённую сессию (`finish_reason = replaced`); `retry_of` — id **завершённой** своей сессии: «Повторить ошибки» (режим, курс и урок берутся из неё, присланные игнорируются, `source = retry`).
 **`source: retry` и `retry_of` приходят только вместе**: одно без другого — **422** (валидация Laravel), чтобы повтор нельзя было выдать за обычное открытие и наоборот.
-Ответ **201** — сессия (форма ниже, как `GET`); в `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
+Ответ **201** — сессия (форма ниже, как `GET`) плюс ключ `limits` (`PracticeSessionOpenedResource`): лимиты Free на сегодня **после** этого открытия в форме `practice.limits` из `/me` (A.2), `null` у Pro; у `GET` и у `session` ответа на вопрос ключа нет. В `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
 Раскладка и ожидаемые ответы создаются на сервере один раз и хранятся в снимке (`practice_sessions.snapshot`, docs/03 §2.43): перезагрузка отдаёт ту же раскладку, правка контента на идущую сессию не влияет.
 - Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия, те же поля, что у `active_session` хаба, с `session_id` вместо `id`:
   `{session_id, mode, course, course_title, lesson_id, lesson, progress}`).
   Две вкладки, открывшие одну и ту же практику одновременно, получают **одну** сессию (проигравший гонку читает победителя); другую практику — 409.
 - Порядок работы: незавершённая живая сессия без `replace_active` даёт 409 **до** сборки снимка (ни чтений материала, ни диска, ни события `practice.not_enough_material`); с `replace_active` снимок строится первым — 422 «мало материала» не закрывает идущую сессию, старая закрывается только вместе с созданием новой.
-- Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять, или все задания-ошибки сняты с публикации / потеряли озвучку или слова; кнопку `summary.retry_available` скрывает то же решение, плюс выключенный режим и закрытый доступ — их открытие повтора отдаёт обычными `practice_mode_disabled` и 403); **404** `course_not_found`, `lesson_not_found`,
+- Ошибки: **403** `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (`{kind: "sessions", limit, used, resets_at}` — лимит дня Free исчерпан; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются; проверяется после выключателя режима и **до** курса, урока, активной сессии и материала); **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять, или все задания-ошибки сняты с публикации / потеряли озвучку или слова; кнопку `summary.retry_available` скрывает то же решение, плюс выключенный режим и закрытый доступ — их открытие повтора отдаёт обычными `practice_mode_disabled` и 403); **404** `course_not_found`, `lesson_not_found`,
   `practice_session_not_found` (чужая или несуществующая `retry_of`); **422** `lesson_not_in_course`, `practice_not_enough_material`, валидация.
 - **422 `practice_not_enough_material`** — `details`: `{ "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }` (те же `reason`, что в хабе). TWA по нему объясняет причину и предлагает «Учить урок».
-- Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок).
+- Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок); отказ 403 `practice_limit_reached` — `practice.limit_reached {kind, limit}`.
 
 #### `GET /api/twa/practice/sessions/{id}` — сессия
 ```json
@@ -1013,6 +1054,7 @@ TWA различает отказ по статусу, а не по коду: `a
 |---|---|---|
 | `practice_unavailable` | 403 | — |
 | `practice_pro_required` | 403 | — (пейвол `practice`) |
+| `practice_limit_reached` | 403 | `{kind, limit, used, resets_at}` — `kind` `sessions` \| `battles`; лимит дня Free (G1), пейвол `practice_limit` с остатком |
 | `practice_mode_disabled` | 409 | `{mode}` |
 | `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
 | `practice_session_active` | 409 | `{session_id, mode, course, course_title, lesson_id, lesson, progress}` (`lesson` — `{stage, number, title}` или `null`) |
@@ -1030,7 +1072,7 @@ TWA различает отказ по статусу, а не по коду: `a
 | `course_not_found` / `lesson_not_found` | 404 | — |
 | `lesson_not_in_course` | 422 | — |
 
-TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz; новый в 18.9b — `request_id_reused`); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`.
+TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz; новый в 18.9b — `request_id_reused`, в G1 — `practice_limit_reached`); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`, `practice_limit_reached`.
 
 **Запросы к БД** (`PracticeQueryBudgetTest`, `DictationSessionTest`, `PracticeRetryTest`; `TwaAuth` с его запросом `learners` включён): хаб ≤ 9; открытие ≤ 12, открытие повтора ≤ 13; `GET` сессии ≤ 3 (завершённая с ошибками-заданиями — 3, пары — 2); ответ ≤ 6, последний ответ сессии (с итогом) ≤ 7; замена диктанта ≤ 7; аудио ≤ 2. Снимок сессии — не больше 40 КБ в UTF-8 (`Snapshot::MAX_BYTES`), ответ сессии — не больше 8 КБ.
 
@@ -1276,13 +1318,14 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 ```json
 { "friendship_id": 11, "mode": "sentence", "course": "english-a1", "lesson_id": 41 }
 ```
-`friendship_id`, `mode`, `course` обязательны, `lesson_id` — целое ≥ 1 или `null` (весь курс). Ответ **201** `BattleResource` (`status: invited`); другу уходит ЛС (B.14) и событие `battle.invited`. Снимок на 5 раундов строится сразу, на языках обоих игроков.
+`friendship_id`, `mode`, `course` обязательны, `lesson_id` — целое ≥ 1 или `null` (весь курс). Ответ **201** `BattleInvitedResource` — `BattleResource` (`status: invited`) плюс ключ `limits`: лимиты Free на сегодня **после** этого вызова в форме `practice.limits` из `/me` (A.2), `null` у Pro (у остальных ответов баттла ключа нет); другу уходит ЛС (B.14) и событие `battle.invited`. Снимок на 5 раундов строится сразу, на языках обоих игроков.
+- **Лимит вызовов Free** (G1, A.16, docs/18 §3): `PRACTICE_FREE_BATTLES_PER_DAY` (1) вызовов в локальный день — считаются вызовы ученика (`challenger_id`), которые **ждут ответа или идут** (`invited`, `room`, `countdown`, `playing`) и **сыгранные** (`finished`; `closed/both_absent`); **реванш — тому, кто его предлагает**. Вызов, который не начался не по вине вызвавшего, **возвращается**: `end_reason` `declined` / `invite_expired` / `canceled` / `room_expired` / `voided` не считаются, просроченное и ещё не закрытое приглашение — тоже (следующий вызов закрывает его по пути). `accept` всегда бесплатен и не считается (Pro-друг приводит Free-друзей). Отказ — **403** `practice_limit_reached` `{kind: "battles", limit, used, resets_at}` и событие `practice.limit_reached`; решает подсчёт под `FOR NO KEY UPDATE` строки инициатора в транзакции приглашения (два приглашения в один миг → одно 201, другое 403 по лимиту, не `battle_busy`).
 - **Реванш:** `{ "rematch_of": 15 }` — мой терминальный матч (`finished` или `closed`). Друг — соперник того матча (пара всё ещё `accepted`, иначе **403** `not_friends`), формат, курс и урок — оттуда, снимок новый (при ровно 5 заданиях те же задания в другом порядке).
   Остальные поля тела при `rematch_of` **не читаются и не валидируются** (TWA шлёт `mode`, `course`, `lesson_id`, `friendship_id` заодно — это не 422, даже если там мусор). `rematch_of` чужого матча → **404** `battle_not_found`; матча, который ещё идёт → **409** `battle_wrong_state {status}`.
 - **Занятость.** Один живой матч на ученика (unique `battle_participants.active_learner_id`): второе приглашение → **409** `battle_busy {battle_id}` — id моего матча. Встречное приглашение (друг **уже пригласил меня**, оно открыто) тоже **409** `battle_busy`, но с id **его** приглашения: открой его и прими
   (оба нажали «Реванш» с разницей в секунды — второй попадает сюда). Встречные приглашения атомарны: незавершённый матч пары держит ключ `battles.open_pair` (unique, docs/03), поэтому из двух приглашений одной пары, пересёкшихся даже в одну миллисекунду, второе получает тот же **409** `battle_busy` с id первого — без строки, события и ЛС (18.6-fix). Своё просроченное, ещё не выметенное приглашение занятым не делает: сервер закрывает его по пути (`closed/invite_expired`, событие) и повторяет действие один раз.
-- Порядок проверок и ошибки: доступ (403) → `battle_disabled` (409) → [реванш: 404/409] → `practice_mode_disabled` (409 `{mode}`) → пара (404 `friendship_not_found`, 403 `not_friends`) → `battle_friend_no_access` (409) → курс (404 `course_not_found`) → урок (404 `lesson_not_found`, 422 `lesson_not_in_course`) → материал
-  (422 `battle_material_unavailable` с `details` как у `practice_not_enough_material`, событие `practice.not_enough_material {battle: true}`) → встречное `battle_busy` (вплотную перед записью) → запись (нарушение unique `active_learner_id` → `battle_busy` с id моего матча, `open_pair` → с id матча пары). Поэтому при встречном приглашении и нехватке материала ответ — 422, а не 409. Валидация Laravel — 422 до всего этого.
+- Порядок проверок и ошибки: доступ (403) → `battle_disabled` (409) → [реванш: 404/409] → `practice_mode_disabled` (409 `{mode}`) → пара (404 `friendship_not_found`, 403 `not_friends`) → встречное `battle_busy` (409, id **его** открытого приглашения — до лимита: ученика у лимита ведут в приглашение друга, строки это не создаёт) → `practice_limit_reached` (403, G1 — до курса и материала) → `battle_friend_no_access` (409) → курс (404 `course_not_found`) → урок (404 `lesson_not_found`, 422 `lesson_not_in_course`) → материал
+  (422 `battle_material_unavailable` с `details` как у `practice_not_enough_material`, событие `practice.not_enough_material {battle: true}`) → запись (нарушение unique `active_learner_id` → `battle_busy` с id моего матча, `open_pair` → с id матча пары). Поэтому при встречном приглашении и нехватке материала ответ — 422, а не 409. Валидация Laravel — 422 до всего этого.
 
 #### Действия: `accept` · `decline` · `cancel` · `ready` · `surrender`
 `POST /practice/battles/{id}/<действие>`, без тела, кроме `surrender` (`{ "confirm": true }`; без него **422** — выход из игры не делается случайным запросом). Ответ **200** `BattleResource` — матч таким, каким его видит действующий.
@@ -1338,6 +1381,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 |---|---|---|---|
 | `practice_unavailable` | 403 | — | любой маршрут: практика закрыта (`off`, не в пилоте) |
 | `practice_pro_required` | 403 | — | любой маршрут: Free при `PRACTICE_PLAN=pro` (пейвол `practice`) |
+| `practice_limit_reached` | 403 | `{kind: "battles", limit, used, resets_at}` | `POST /battles` (приглашение и реванш): Free исчерпал вызовы дня (G1) — ожидающий или сыгранный вызов; отклонённый / просроченный / отозванный / с истёкшей комнатой / аннулированный возвращается; `accept` не ограничен |
 | `battle_disabled` | 409 | — | `options`, `POST /battles`, `accept`: `PRACTICE_BATTLE=false` |
 | `practice_mode_disabled` | 409 | `{mode}` | `POST /battles`: формат выключен (`PRACTICE_MODE_*`); `accept`: формат выключили после приглашения — оно остаётся `invited` до истечения |
 | `battle_busy` | 409 | `{battle_id}` | `POST /battles`: я занят своим матчем (id) либо друг уже пригласил меня (id **его** приглашения); `accept`: я занят другим матчем. Называет только матчи, где спрашивающий — участник. `battle_id` бывает `null`, если матч, державший ученика, успел закрыться |
@@ -1368,7 +1412,106 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 7. После конца: итог из `result`; реванш — `POST /battles {rematch_of}`; предложение соперника — `rematch.by_me = false` и `status = invited`. На 409 `battle_busy` с чужим приглашением — открыть его (`GET /battles/{battle_id}`) и принять.
 
 **События аналитики** (`product_events`, после commit, актёр — инициатор матча; в props только числа и коды): `battle.invited` `{battle_id, mode, course_id, lesson_id, rematch}`; `battle.accepted` `{battle_id}`; `battle.started` `{battle_id, mode}`;
-`battle.finished` `{battle_id, end_reason, result (challenger|opponent|draw), rounds_played, duration_ms}`; `battle.closed` `{battle_id, end_reason}`; `practice.not_enough_material` (с `battle: true`) и `practice.audio_failed` `{battle_id, source (word|phrase), reason (file_missing|client_report), verified}`. Событие пишется один раз, после commit той транзакции, которая изменила состояние матча, — не опросом и не повтором запроса.
+`battle.finished` `{battle_id, end_reason, result (challenger|opponent|draw), rounds_played, duration_ms}`; `battle.closed` `{battle_id, end_reason}`; `practice.not_enough_material` (с `battle: true`), `practice.audio_failed` `{battle_id, source (word|phrase), reason (file_missing|client_report), verified}` и `practice.limit_reached` `{kind: "battles", limit}` (отказ приглашения по лимиту Free, актёр — инициатор). Событие пишется один раз, после commit той транзакции, которая изменила состояние матча, — не опросом и не повтором запроса.
+
+### A.18 Игра «Караван» — карта (docs/18 §12.8–§12.9; задача G2.1m)
+
+Остальные маршруты игры (`/game/runs`, кошелёк, лавка, профиль, класс) добавляют свои задачи в этот же раздел. Все маршруты — `/api/twa/game/*`, `TwaAuth` + `SetTwaLocale`, `throttle:twa-api`.
+
+**`GET /api/twa/game/map?course={slug}`** — карта курса: город = модуль (`stages`), стоянка = урок с активными словами (`lessons`). Своей таблицы «городов и стоянок» нет.
+
+- `course` обязателен (TWA подставляет активный курс сам). Недоступный ученику или несуществующий курс — **404** `course_not_found`.
+- Игра выключена или ученик вне пилота — **403** `game_unavailable` (один код, без подсказки).
+- Названия: город — `lang/{ru,uz}/game.php` по номеру модуля (`CityNames`), «Город N» после 24-го; `title` города и стоянки — название модуля / урока на языке ученика (`DeckTitles`, `null` — без названия, клиент подставляет «Модуль N»).
+
+```json
+{
+  "course": {"slug": "english-a1", "title": "Английский A1"},
+  "cities": [{
+    "stage_id": 3, "number": 1, "city": "Самарканд", "title": "Еда", "unlocked": true,
+    "stops": [{"lesson_id": 11, "number": 1, "title": "Фрукты", "unlocked": true, "stars": 2, "best_score": 120, "runs": 3}],
+    "boss": {"state": "not_ready", "defeated_at": null, "introduced": 5, "required": 8, "cleared_stops": 1, "required_stops": 3}
+  }],
+  "daily": {"available": true, "done_today": false, "due_count": 14, "resets_at": "2026-11-06T19:00:00.000Z"},
+  "me": {"stops_cleared": 4, "cities_cleared": 1, "coins": 35, "tickets": 2},
+  "friends": [{"friendship_id": 11, "name": "Dilnoza", "city_number": 2, "stops_cleared": 7, "camel_asset": null}],
+  "active_run": {"id": 9, "kind": "stop", "progress": {"answered": 3, "total": 9}},
+  "class_caravan": { "id": 7, "stars_total": 9, "target_stars": 18, "ends_at": "2026-11-12T10:00:00.000Z" },  // или null
+  "limits": {"runs": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-05T19:00:00.000Z"}, "tickets": {"balance": 0, "max": 10}, "boosters": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-08T19:00:00.000Z"}, "boss_stages": 1}
+}
+```
+
+- **Стоянка `unlocked`** ⇔ у ученика есть строка `word_repetitions` по активному слову урока (урок начат в карточках; состояние `new` тоже считается). Не хранится, выводится одним запросом. `stars` / `best_score` / `runs` — из `game_stop_progress` (0, пока забегов не было). Уроки без активных слов на карту не попадают.
+- **Город `unlocked`** ⇔ открыта хотя бы одна его стоянка.
+- **`boss.state`**: `defeated` (есть `game_city_progress.boss_defeated_at`; остаётся и после конца Pro) · `locked_by_plan` (Free, `stages.number > game.free_limits.boss_stages`, нет фичи `game.all_bosses`; пустой лимит — без ограничения, `0` — только Pro) · `ready` (введено слов города `introduced >= required` и очищено — ≥ 1 звезда — не меньше `required_stops` стоянок) · `not_ready`. `required` = `boss.min_words` (8); `required_stops` = `min(boss.min_cleared_stops (3), число стоянок города)`. Бой с боссом — G2.4.
+- **`daily`**: `due_count` — слова к повторению ученика (то же определение, что у `/today`); `done_today` — караван дня уже сыгран (завершён любой причиной: второй в тот же день невозможен); `available` ⇔ не сыгран, нет идущего забега и `due_count > 0`; `resets_at` — начало следующего локального дня ученика.
+- **`me`**: из `game_profiles` и `game_wallets` (нули, пока строк нет).
+- **`friends[]`**: принятые друзья с прогрессом по этому курсу (`game_stop_progress`, ≥ 1 звезда), по убыванию `stops_cleared`, не больше `game.map.friends_max` (20); `city_number` — самый дальний город, где друг очистил стоянку; `camel_asset` — `null` до G2.6. Прогресс друзей может отставать до 5 минут (кэш `game:friends`, docs/19 §2.2).
+- **`active_run`**: идущий и не просроченный забег ученика (`progress {answered, total}`) или `null`.
+- **`class_caravan`** (G2.9b) — карточка идущего каравана класса `{id, stars_total, target_stars, ends_at}` или `null` (одно чтение: тот же караван, в который попадают забеги ученика — самый ранний `starts_at`); тот же блок `class_caravan` в `/today.game`. **`limits`** (G2.5b ч.2) — тот же блок, что `/me.game.limits` (`GameLimits::describe`, один запрос; форма — A.2): забеги дня, билеты, бустеры недели, `boss_stages`. Карта открыта только ученику, которому игра доступна, поэтому здесь это всегда объект; тот же блок приходит и в 201 `POST /game/runs` (ключ `limits` рядом с полями забега) — клиент видит остаток дня и недели сразу после старта.
+
+#### Забег (G2.2b + G2.2c)
+
+Все пять маршрутов — `throttle:twa-api` плюс свой лимитер по ученику; аудио — вне `twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`; чужой и несуществующий забег — **404** `game_run_not_found`; закрытый (`finished`, не принявший ответ / подсказку) — **410** `game_run_closed {finish_reason}`. Ошибки — `ApiErrorResource` с `details` (коды — docs/18 §12.8). Даты — ISO 8601 UTC с мс.
+
+| Маршрут | Лимитер | Тело → ответ |
+|---|---|---|
+| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). `{kind: "boss", course, stage_id, replace_active?}` (G2.4) → бой с боссом города (12 самых трудных слов ученика в городе, набор фиксируется в снимке; бой без фляг; забег дня / билет стоит так же, как стоянка). `{kind: "class_boss", class_caravan_id, replace_active?}` (G2.9a) → бой с боссом класса на словах, зафиксированных в караване при его старте (`course` и `lesson_id` не нужны); один бой на участника (`class_boss_key`; бой, закрытый без единого ответа, попыткой не считается и ключ отдаёт — G2.13, docs/18 §12.11); забега дня и билета **не стоит**. Ошибки босса класса: 404 `class_caravan_not_found` (чужой, отменённый или истёкший караван), 409 `class_boss_locked` (цель каравана ещё не взята), 409 `class_boss_done` (участник уже бился — бой с хотя бы одним ответом; проигравшая гонку вкладка получает идущий бой победителя, G2.13), 422 `game_not_enough_material {reason: no_words}`; без `class_caravan_id` — 422 валидации. Ошибки босса: 404 `course_not_found` / `stage_not_found`, 422 `stage_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `boss_not_ready {introduced, required, cleared_stops, required_stops}` (тот же расчёт, что `boss.state` на карте; у побеждённого босса готовность не проверяется — повторный бой всегда доступен). Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится; **403 `game_limit_reached {kind: "runs", limit, used, tickets: 0, resets_at}`** (G2.8) — Free сыграл забеги дня и билетов нет: пейвол `game`, лид по `kind`; с билетом забег стартует и стоит билет (`free_slot = ticket` в событии `game.run_started`, `tickets` в `/me` на один меньше). Активный забег той же стоянки (вторая вкладка) возвращается как есть и лимитом не проверяется. Босс города дальше `GAME_FREE_BOSS_STAGES` у Free — 403 `game_pro_required {kind: "boss", stage_number}` (G2.4) |
+| `GET /game/runs/{id}` | `twa-api` | забег |
+| `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
+| `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
+| `POST /game/runs/{id}/booster` | `twa-game-answer` | `{request_id (uuid), item_key, element_id?}` → забег (`GameRunResource`, как `GET`). Бустер из инвентаря ученика: `hint` (подсказка текущего элемента в форме вида; `element_id` необязателен, по умолчанию текущий; результат в `current.element` — убранные варианты / `prefix`), `extra_flask` (+1 фляга, `flasks_max` растёт до `game.run.flasks_max_with_booster`), `second_chance` (первая ошибка забега не стоит фляги). Ошибки: 404 `item_not_found` (нет такого предмета или он не бустер); 409 `booster_not_owned` (`qty = 0`), `booster_limit_reached {limit, used, resets_at, upsell}` (`upsell: true` — у ученика нет `game.boosters_plus`, Pro снял бы лимит: только тогда TWA показывает пейвол; Pro на своём лимите — `false`, G2.13), `booster_already_used` (этот вид уже применён к элементу / в забеге), `booster_not_applicable` (`extra_flask` / `second_chance` в забеге без фляг — босс), `hint_not_available` (у вида или у элемента подсказка уже есть), `element_not_current {current}`, `answer_already_accepted {verdict}`, `request_id_reused`; 410 `game_run_closed` |
+| `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
+| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store`; элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
+
+`answer.*` — как в практике: `option_id` (виды с вариантами), `text` (`spell`, `gap`, `dictation`), `order` (`sentence`), `left_id` + `right_id` (`pairs_round`), `skip: true` (пропуск — не знаю); форму проверяет вид: 422 `invalid_answer_shape`, `unknown_option_id`, `unknown_element_id`.
+
+Забег (`GET`, `POST /runs`, `run` в ответах, `abandon`):
+
+```json
+{
+  "id": 9, "kind": "stop", "status": "active", "finish_reason": null,
+  "course": {"slug": "english-a1"}, "lesson_id": 11, "stage_id": null, "class_caravan_id": null,
+  "city": "Самарканд", "stage_number": 1, "lesson_number": 1, "lesson_title": "Фрукты", "scope_widened": false,
+  "total": 9, "position": 3, "flasks": 3, "flasks_max": 3, "combo": 2, "score": 40,
+  "current": {"element": {"id": "e3k9", "kind": "translate_fwd", "prompt": "apple", "audio": true, "audio_url": "/api/twa/game/runs/9/audio/e3k9", "options": [{"id": "o1a2", "text": "яблоко"}]}, "event": "bazaar"},
+  "boosters": {"available": [{"key": "booster_hint", "effect": "hint", "qty": 2}], "used": [{"key": "booster_extra_flask", "effect": "extra_flask", "element_id": null}]},
+  "hint": {"price": 5, "available": true},
+  "summary": null,
+  "server_now": "2026-11-05T10:00:00.000Z"
+}
+```
+
+- `course {slug}` и `lesson_id` (G2.7b): куда вернуться с итога — курс забега (`snapshot.course_slug`; для `daily` это курс записи, активный курс ученика) и урок стоянки (`game_runs.lesson_id`; у `daily` и боссов — `null`). По ним «Ещё раз» и «На карту» собирают адрес без query. `course` — `null`, только если снимок не помнит slug. `stage_id` (G2.13) — город боя **только у `boss`** (отметка «поделился» после перезагрузки или «Продолжить» с «Сегодня»), `class_caravan_id` — **только у `class_boss`** (возврат на экран класса после боя); у остальных видов оба `null`.
+- `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`.
+- `boosters` (G2.5b ч.2): `available[] {key, effect, qty}` — бустеры инвентаря ученика с `qty > 0` (только пока забег идёт; у закончившегося `[]`), `used[] {key, effect, element_id}` — применённые в этом забеге (`element_id` — только у `hint`, иначе `null`; хранятся в `state`, без запроса). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict, hinted}, streak_held, new_stars, boss}`. G2.13: `mistakes[].hinted` — строка в списке из-за подсказки (базар или бустер: верный ответ после подсказки — ошибка для SRS, docs/18 §12.4), `verdict` при этом честный (`correct`) — TWA показывает чип «подсказка», не красный; `streak_held` — **это** завершение удержало день серии (финишер поставил `game_held_at`, цель день ещё не держала; `false` у второго забега дня, дня с целью, брошенного и просроченного забега); `new_stars` — звёзд сверх прежнего лучшего результата стоянки (0 у босса, каравана дня и босса класса). `summary.boss` — `null`, кроме забегов `boss` / `class_boss`; у них `{accuracy (0..100, round(100 × correct / total)), won (accuracy ≥ 80 %, `typo` не считается), first (эта победа — первая над боссом города; у `class_boss` всегда false)}`; `stars` босса — 3 за победу, иначе 0.
+- Повтор того же `request_id` (ответ и подсказка) возвращает тот же `verdict` / `hint` и актуальный `run`; другой `request_id` на уже отвеченный элемент — 409 `answer_already_accepted {verdict}`; тот же `request_id` с другим элементом — 409 `request_id_reused`; не текущий элемент — 409 `element_not_current {current}`.
+- Просроченный забег (`expires_at`) закрывается лениво любым обращением (`finished/expired`) и командой `game:close-expired` (каждые 15 минут, `withoutOverlapping`).
+- События: `game.run_started` пишет `RunService` при старте (после commit); `game.run_finished` и награды — G2.5a; `game.limit_reached {kind, limit}` при каждом отказе лимита (вежливом и под замком), `game.ticket_spent {run_id}` при старте по билету (G2.8).
+- Бустер (G2.5b ч.2): под замком забега и с идемпотентностью по `request_id` (повтор — тот же забег, второго списания нет). Порядок проверок: предмет (404) → `booster_not_owned` → один бустер вида на элемент / на забег → лимит недели (`GameLimits::assertBoosterAllowed`, 409 `booster_limit_reached`) → атомарный расход `qty` → запись `game_booster_uses` (`week_start`) и попытки `kind = booster`. Лимит недели считается по использованиям, а не по покупкам. Подсказка бустером не списывает монет; подсказка базара (`POST …/hint`) по-прежнему только за монеты. Событие `game.booster_used {run_id, effect}` после commit.
+- `summary.boss` (G2.4, G2.7b) — у боя с боссом: `{accuracy, won, first, share}`; `share {link, text, title}` — пара «Поделиться» карточки города и её заголовок (`title` — «Я дошёл до Самарканда», `text` — «…в игре «Караван» — LexiFlow!…»: пригласительная ссылка ученика и тексты на его языке — **те же**, что в ЛС-карточке `GameCardSender`, одно правило), только у первой победы (`won && first`), иначе `null` (и пока у бота нет username — ссылки нет). TWA открывает `shareUrl(link, text)` и ставит отметку ручкой ниже.
+- **`POST /api/twa/game/cities/{stage}/shared`** (G2.7b, `twa-api`; по образцу `POST /achievements/{key}/shared`) — ученик открыл диалог «Поделиться» карточкой города: ставит `game_city_progress.shared_at` один раз (+ событие `game.city_shared {stage_id}`), повтор ничего не меняет и отвечает тем же. Ответ `200 {stage_id, shared_at}`. **404** `stage_not_found` — город не побеждён этим учеником (нет строки, бой проигран, чужой город, нет такого модуля: одним кодом), **403** `game_unavailable` — игра закрыта.
+- Лимит дня (G2.8, docs/18 §12.7.2): считаются забеги `stop` / `boss`, начатые в окне локального дня, кроме брошенных или просроченных **без единого ответа** (место возвращается); активный забег место занимает, пока не закрыт — кроме просроченного без ответа, которого планировщик ещё не закрыл: `/me.game.limits` и `limits` карты считают его закрытым (места нет, билет возвращён), как считает его старт (G2.13). Pro с `game.unlimited_runs` не считается и билетов не тратит.
+
+#### Кошелёк, лавка, профиль (G2.5b, часть 1)
+
+Четыре группы маршрутов в `/api/twa/game/*`: `TwaAuth` + `SetTwaLocale` + `throttle:twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`. Бустеры **в забеге** (`POST /game/runs/{id}/booster`, `boosters` у забега) — часть 2, см. «Забег» выше: здесь бустер покупается и лежит в инвентаре.
+
+| Маршрут | Тело → ответ |
+|---|---|
+| `GET /game/wallet` | `{balance, earned_total, spent_total, tickets {balance, max}, ledger[20] {amount, kind, created_at, title}}` |
+| `GET /game/shop` | `{items[] {key, kind, slot, effect, price, availability, owned, qty, equipped, locked_reason, title, description, asset}, balance}` |
+| `POST /game/shop/{key}/buy` | `{request_id (uuid)}` → тот же `wallet`, что у `GET /game/wallet` (уже после покупки). Проводка `shop:{learner}:{request_id}`; повтор `request_id` — те же 200 и состояние, второго списания нет |
+| `GET /game/class` | `{caravans: [{id, group_title, course {slug, title}, status: active \| finished, starts_at, ends_at, stars_total, target_stars, runs_total, boss {unlocked, defeated, my_attempt: won \| lost \| null}}]}` — караваны активных групп, где ученик активный участник, новые первыми, до 10; короткие строки без таблицы участников (G2.9b). Лимитер `twa-api`. 403 `game_unavailable` |
+| `GET /game/class/{id}` | те же поля + `members [{name, stars, runs, best_score, boss_won, is_me}]` (по `stars DESC, runs DESC`, только имя — без id, username и telegram id; кэш таблицы 60 с у идущего), `my {stars, runs, best_score, boss_won} \| null`, `summary {target_reached, boss_defeated, finished_at} \| null` (у завершённого). `my_attempt` — по забегу `class_boss_key`: `won` / `lost` после завершения боя (победа — ≥ `boss.required_accuracy`), `null` пока боя не было или он идёт. Чужой, отменённый, несуществующий — 404 `class_caravan_not_found`; 403 `game_unavailable` |
+| `GET /game/profile` | `{equipped {slot: {key, asset}}, stops_cleared, cities_cleared, coins, tickets}` (`equipped` — объект, пустой `{}`, пока ничего не надето) |
+| `POST /game/profile/equip` | `{slot: camel \| carpet \| tent \| frame, item_key: string \| null}` → `profile`; `null` снимает предмет слота |
+
+- `items[]` — опубликованные предметы (`status = published`) по `sort`; `title` / `description` — на языке ученика (запасной — ru), `asset` — имя из белого списка ассетов Mini App (`App\Domain\Game\Support\GameAssets`), не URL. `owned` — есть в инвентаре **или** это предмет по умолчанию (косметика `availability = base`, `price = 0`: достаётся каждому, запись в инвентарь появляется при первом надевании, `source = default`); `qty` — число бустеров (у косметики 1/0); `equipped` — надет ли сейчас. `locked_reason`: `pro` (`exclusive` / `seasonal` без фичи `game.all_bosses`, ещё не куплен), `achievement` (предмет за достижение, не получен), иначе `null`. Каталог кэшируется (`game:shop`, docs/19 §2.2); `owned`, `qty`, `equipped`, `balance` - никогда.
+- Ошибки покупки: **404** `item_not_found` (нет такого опубликованного предмета) · **409** `item_not_purchasable {reason: achievement \| not_for_sale \| pro}` · **409** `item_already_owned` (косметика уже есть; бустеры копятся, `qty + 1`) · **409** `coins_insufficient {balance, price}` · **409** `request_id_reused` (тот же `request_id` у покупки другого предмета) · 422 валидации. Покупка за реальные деньги и обмен монет невозможны.
+- Ошибки экипировки: **404** `item_not_found` — ключа нет, предмета нет в инвентаре ученика, предмет не косметика или он не этого слота (все четыре случая выглядят одинаково).
+- `ledger[].title` — по виду проводки (`lang/{ru,uz}/game.php`, `ledger.*`); `tickets.max` = `game.tickets.max`.
+- События (после commit, `product_events`): `game.item_bought {item_key, kind, price}` · `game.coins_spent {amount, kind = item_purchase, ref_type = game_item, ref_id, balance}` (только при настоящем списании, не при повторе) · `game.cosmetic_equipped {slot, item_key | null}`.
 
 ## Часть B — Telegram Bot
 
@@ -1411,20 +1554,23 @@ public function __invoke(Request $request, string $secret)
 | `/start_training [stage] [lesson]` | группа | teacher | Создаёт `training_session`, постит сообщение с WebApp-кнопкой. Номера stage/lesson ищутся **в курсе группы** (`telegram_groups.course_id`, иначе курс `default`); без аргументов — список уроков этого курса. |
 | `/start_exam [stage] [lesson] [minutes]` | группа | teacher | Создаёт `exam_session`, планирует закрытие. Номера — в курсе группы, как выше. |
 | `/close_exam` | группа | teacher | Досрочно закрывает открытый экзамен. |
+| `/start_caravan` | группа | teacher (или admin платформы) | Караван класса (G2.9b, docs/18 §12.11): `ClassCaravanService::start`, в чат — «Караван отправился» с кнопкой на `/twa/game/class/{id}` (прямая ссылка Mini App — в группе web_app-кнопка невозможна). Отказы — текстом по причине (`not_teacher`, `group_inactive`, `centers_only` — `game.class.*`); уже идёт — «до какого числа»; если Telegram отверг сообщение, караван отменяется и учитель просит повторить. Команды есть только при `GAME_ACCESS=all`: при `off` и `pilot` бот молчит и не читает таблицы `game_*`. Причина отмены при отказе Telegram — `meta.canceled_reason = not_delivered`. |
+| `/cancel_caravan` | группа | teacher (или admin платформы) | Отменяет идущий караван группы (`activeOfGroup` + `cancel`), в чат — «Караван отменён»; итогов нет. Нет идущего — «у группы нет каравана». «Отменён» уходит, только если караван отменил именно этот вызов (не после закрытия планировщиком, не второй раз). Тот же режим `GAME_ACCESS` (только `all`). |
 | `/stats` | ЛС | teacher | Отчёт по его группам за 7 дней. |
 | `/promo КОД` | ЛС | любой learner | Активирует промокод (`PromoCodeService::redeem`, как A.7). `/promo` без кода — подсказка. Learner создаётся/обновляется по самому человеку (`LearnerRegistrar::fromTelegramUser`). Ответ — на языке learner'а: «Pro активен до дд.мм.гггг» (в поясе learner'а) / «без ограничения по сроку», либо текст ошибки по `errorCode` (`lang/{ru,uz}/bot.php`, `bot.promo.errors.*`). Не более 5 попыток в минуту на learner'а (иначе «слишком много попыток»); заблокированному — «доступ ограничен». В **активной группе** бот отвечает «откройте личный чат» и код не обрабатывает (код в группе виден всем), в неактивной — молчит (Group Lock). |
 | `/pro` | ЛС | любой learner | Тариф и оплата (docs/13 §5, 2A.2). Текст: «Free: N новых слов в день» / «LexiFlow Pro до дд.мм.гггг» (в поясе learner'а), состояние автопродления Stars. При `paywall.mode = purchase` и непустом каталоге — цены периодов и по inline-кнопке на (период × провайдер): `pro1:buy:<period>:<telegram_stars\|payme\|click>`; **заказ создаётся только по нажатию** (меню не расходует лимит 3 неоплаченных заказов); пока автопродление Stars работает, кнопок покупки нет (сначала «Отключить автопродление»). Иначе — «Pro скоро откроется», подсказка `/promo` и `BILLING_SUPPORT_CONTACT`. Кнопки `pro1:cancel` / `pro1:resume` — отключить/включить автопродление Stars (`LearnerBillingService`). Только в личном чате; в группе и у учителя — молчание, заблокированному learner'у — «доступ ограничен». |
 | `/invite` | ЛС | любой learner | «Пригласить друга» (docs/13 §7.1, 2C.1): ссылка `https://t.me/<bot>?start=ref_<referral_code>` (код генерируется лениво `ReferralService::codeFor`; пока `TELEGRAM_BOT_USERNAME` пуст — только код), правило («друг позанимается 3 дня от 10 карточек — оба получите 7 дней Pro», числа из `config/referrals.php`), счётчики «пришли / занимаются / награждены» и inline-кнопка «Поделиться ссылкой» (`https://t.me/share/url?url=…&text=…`). Язык learner'а (`referrals.*`). Заблокированному — `referrals.blocked`; учителю и в группе — ничего. |
 | `/paysupport` | ЛС, активная группа | любой | Требование Telegram для оплаты Stars: контакт платёжной поддержки (`BILLING_SUPPORT_CONTACT`; «не указан», если пуст), ссылка на публичную оферту (правила возврата) и подсказка про `/pro`. Язык: learner'а, иначе Telegram-язык отправителя / язык группы. В неактивной группе — молчание (Group Lock). |
 | `/start f_<code>` | ЛС | любой learner | Приглашение в друзья (docs/13 §7.5, 2C.5), **с согласием открывшего**: ссылка ничего не пишет, бот спрашивает «Отправить X запрос в друзья?» + кнопки (`fr1:snd:<code>` / `fr1:no:<code>`); по «Отправить» создаётся `request(открывший → владелец)`, владельцу уходит ЛС с кнопками принять/отклонить (`fr1:acc:<id>` / `fr1:dec:<id>`), запрос виден и во «Входящих» TWA. Уже друзья / уже отправлено / блок — короткое сообщение; если владелец сам уже запрашивал открывшего — показывается этот входящий запрос. **`ref_<code>` дружбу не предлагает** (существующий learner: реферал `rejected {existing_learner}` + «Сегодня»). Не прошедшему онбординг ничего не записывается. |
-| `/help` | любой | любая | Справка простым текстом (без HTML), `bot.help.*`. В ЛС **сначала ученик** — «Как заниматься»: кнопка «LexiFlow» слева от поля ввода и `/today`, `/settings`, `/invite`, `/pro` и `/promo`, `/paysupport`; затем «Для учителей»: бот в группе администратором, `/start_training`, `/start_exam`, `/close_exam`, `/stats`. В группе — команды учителя. |
+| `/delete_account` | ЛС | learner | «Удалить аккаунт»: сообщение-подтверждение с inline-кнопками `del1:yes` («Да, удалить») и `del1:no` («Отмена»); сама команда ничего не удаляет. `yes` — `LearnerDeletionService::delete` (как A.2c, аудит `by: self`), кнопки убираются, ответ «Аккаунт удалён… отправьте /start, и аккаунт вернётся»; `no` — «аккаунт не удалён». Ученик ищется без восстановления: уже удалённому бот отвечает «аккаунта нет… /start», повторное `yes` ничего не делает. Заблокированный ученик удалить аккаунт не может (иначе бан исчез бы вместе с ним) — «доступ ограничен». Только в личном чате: в активной группе — подсказка «откройте личный чат», в неактивной — молчание; кнопка из сообщения не в личном чате игнорируется. Тот же вопрос задаёт кнопка «Удалить аккаунт» в `/settings` (`del1:ask`). Тексты — `bot.delete_account.*`; команда есть в меню `telegram:setup-bot` (`commands.private.delete_account`) и в `/help`. |
+| `/help` | любой | любая | Справка простым текстом (без HTML), `bot.help.*`. В ЛС **сначала ученик** — «Как заниматься»: кнопка «LexiFlow» слева от поля ввода и `/today`, `/settings`, `/invite`, `/pro` и `/promo`, `/paysupport`, `/delete_account`; затем «Для учителей»: бот в группе администратором, `/start_training`, `/start_exam`, `/close_exam`, при `GAME_ACCESS=all` — `/start_caravan`, `/cancel_caravan` (`bot.help.private_caravan`), `/stats`. В группе — команды учителя (строки каравана — `bot.help.group_caravan`, тоже только при `all`). |
 
 **Меню команд и кнопка Mini App: `telegram:setup-bot`** (docs/14 §7). Бот сам не регистрирует свои команды, поэтому без этого шага
 по «/» Telegram ничего не подсказывает, а в личном чате нет постоянной кнопки приложения. Команда вызывает Bot API (контракт
 `TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
 
-- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`), `all_group_chats`
-  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый
+- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `delete_account`, `help`), `all_group_chats`
+  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, только при `GAME_ACCESS=all` ещё `start_caravan`, `cancel_caravan`, затем `help`) — по два вызова на каждый
   scope: без `language_code` (язык по умолчанию, ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`.
   Описания — `lang/{ru,uz}/commands.php` (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и
   `/paysupport` в меню не входят.
@@ -1656,6 +1802,22 @@ Job — по образцу `SendFriendDmJob`: middleware `ThrottleTelegramOutbo
 Любой другой сбой — исключение (ретрай, не больше 3 сбоев) **при оставленном маркере**: сообщение могло уйти, повтор не продублирует его. `dm_blocked_at` снимается, когда человек сам пишет боту (B.5a).
 Кнопка не `immediate`: если у чата исчерпан лимит бота в секунду, `sendMessage` откладывает сообщение в `SendTelegramMessageJob` (очередь `high`), и 403 там только логируется (`telegram.deferred_message_forbidden`) — `dm_blocked_at` не ставится, а доставка может прийти после срока приглашения (приложение всё равно покажет его закрытым).
 Приглашение видно и без ЛС: оно в `incoming` списка баттлов (A.17), в «Друзьях» и в хабе практики.
+
+### B.15 Караван класса: сообщения в чат группы (docs/18 §12.11; задача G2.9b)
+Команды `/start_caravan` и `/cancel_caravan` — B.3. Все тексты — простой текст без HTML, на языке группы (`LocaleResolver::forGroup`, `lang/{ru,uz}/game.php`, `game.class.*`); их шлёт `ClassCaravanMessenger`, тот же набор говорит страница «Караваны» в `/org` (но отказы в кабинете — своими текстами `org.caravans.errors.*`, на языке кабинета).
+Итоги недели — не отсюда: `PostClassCaravanSummaryJob` (HTML, ровно один раз за караван, замок `game:class-summary:{id}`).
+
+| Когда | Текст (`game.class.*`) |
+|---|---|
+| Старт | `started`: «Караван класса отправился! Цель недели — N ⭐, караван в пути до D.» + кнопка `open_button` «Открыть караван» на `{twa.base_url}/twa/game/class/{id}` (ссылка Mini App: в группе `web_app`-кнопка невозможна, `MiniAppLinks`) |
+| Telegram не принял сообщение о старте | `not_delivered`; караван снимается (`canceled_reason = not_delivered`), повтор команды работает |
+| Уже идёт | `already_active` («до D») |
+| Отмена | `canceled` — только если отменил этот вызов; итогов не будет |
+| Нет идущего | `no_active` |
+| Отказ | `not_teacher`, `group_inactive`, `centers_only`; прочее — `failed` |
+
+**Путь.** Сообщение уходит сразу, как у `/start_exam` (`GroupSessionAnnouncer`, `sendWebAppButton(immediate: true)`), а не через очередь исходящих: отказ Telegram должен быть виден вызывающему, иначе караван, которого никто не видит, нельзя снять. Транспортный сбой (таймаут, 5xx) — сообщение могло дойти, караван остаётся. Сообщение «отменён» при отказе Telegram только логируется: отмена остаётся в силе.
+**Когда молчим.** `GAME_ACCESS` не `all` — ни ответа, ни запросов к таблицам игры; группа не активна (блокировка группы).
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 15,
+    "title": "Образование",
+    "title_uz": "Ta'lim"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Изучение языка",
+    "title_uz": "Til o'rganish"
+  },
+  "words": [
+    {
+      "word": "vocabulary",
+      "part_of_speech": "noun",
+      "translation": "словарный запас",
+      "translations": {
+        "ru": "словарный запас",
+        "uz": "lug'at boyligi"
+      },
+      "example": "Reading books builds your vocabulary.",
+      "example_translations": {
+        "ru": "Чтение книг расширяет словарный запас.",
+        "uz": "Kitob o'qish lug'at boyligingizni oshiradi."
+      }
+    },
+    {
+      "word": "pronunciation",
+      "part_of_speech": "noun",
+      "translation": "произношение",
+      "translations": {
+        "ru": "произношение",
+        "uz": "talaffuz"
+      },
+      "example": "Her pronunciation is very clear.",
+      "example_translations": {
+        "ru": "У неё очень чёткое произношение.",
+        "uz": "Uning talaffuzi juda aniq."
+      }
+    },
+    {
+      "word": "spell",
+      "part_of_speech": "verb",
+      "translation": "писать по буквам",
+      "translations": {
+        "ru": "писать по буквам",
+        "uz": "harflab aytmoq"
+      },
+      "example": "How do you spell your name?",
+      "example_translations": {
+        "ru": "Как пишется твоё имя по буквам?",
+        "uz": "Ismingni qanday harflab aytasan?"
+      }
+    },
+    {
+      "word": "translate",
+      "part_of_speech": "verb",
+      "translation": "переводить",
+      "translations": {
+        "ru": "переводить",
+        "uz": "tarjima qilmoq"
+      },
+      "example": "Please translate this sentence into Russian.",
+      "example_translations": {
+        "ru": "Пожалуйста, переведи это предложение на русский.",
+        "uz": "Iltimos, bu gapni rus tiliga tarjima qil."
+      }
+    },
+    {
+      "word": "dictionary",
+      "part_of_speech": "noun",
+      "translation": "словарь",
+      "translations": {
+        "ru": "словарь",
+        "uz": "lug'at"
+      },
+      "example": "I look it up in the dictionary.",
+      "example_translations": {
+        "ru": "Я ищу это в словаре.",
+        "uz": "Men buni lug'atdan qidiraman."
+      }
+    },
+    {
+      "word": "sentence",
+      "part_of_speech": "noun",
+      "translation": "предложение",
+      "translations": {
+        "ru": "предложение",
+        "uz": "gap"
+      },
+      "example": "Write one sentence about your day.",
+      "example_translations": {
+        "ru": "Напиши одно предложение о своём дне.",
+        "uz": "Kuningiz haqida bitta gap yozing."
+      }
+    },
+    {
+      "word": "knowledge",
+      "part_of_speech": "noun",
+      "translation": "знания",
+      "translations": {
+        "ru": "знания",
+        "uz": "bilim"
+      },
+      "example": "Knowledge of English opens many doors.",
+      "example_translations": {
+        "ru": "Знание английского открывает много дверей.",
+        "uz": "Ingliz tili bilimi ko'p eshiklarni ochadi."
+      }
+    },
+    {
+      "word": "fluent",
+      "part_of_speech": "adjective",
+      "translation": "беглый",
+      "translations": {
+        "ru": "беглый",
+        "uz": "ravon"
+      },
+      "example": "He is fluent in three languages.",
+      "example_translations": {
+        "ru": "Он свободно говорит на трёх языках.",
+        "uz": "U uch tilda ravon gapiradi."
+      }
+    },
+    {
+      "word": "beginner",
+      "part_of_speech": "noun",
+      "translation": "новичок",
+      "translations": {
+        "ru": "новичок",
+        "uz": "boshlovchi"
+      },
+      "example": "This class is for beginners only.",
+      "example_translations": {
+        "ru": "Этот класс только для начинающих.",
+        "uz": "Bu sinf faqat boshlovchilar uchun."
+      }
+    },
+    {
+      "word": "advanced",
+      "part_of_speech": "adjective",
+      "translation": "продвинутый",
+      "translations": {
+        "ru": "продвинутый",
+        "uz": "ilg'or"
+      },
+      "example": "She is in the advanced group.",
+      "example_translations": {
+        "ru": "Она в продвинутой группе.",
+        "uz": "U ilg'or guruhda."
+      }
+    }
+  ]
+}

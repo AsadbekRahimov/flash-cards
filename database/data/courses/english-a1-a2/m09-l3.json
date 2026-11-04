@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 9,
+    "title": "Тело и здоровье",
+    "title_uz": "Tana va salomatlik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Здоровье",
+    "title_uz": "Salomatlik"
+  },
+  "words": [
+    {
+      "word": "healthy",
+      "part_of_speech": "adjective",
+      "translation": "здоровый, полезный",
+      "translations": {
+        "ru": "здоровый, полезный",
+        "uz": "sog'lom"
+      },
+      "example": "Fruit is healthy food.",
+      "example_translations": {
+        "ru": "Фрукты — здоровая пища.",
+        "uz": "Meva — sog'lom ovqat."
+      }
+    },
+    {
+      "word": "sick",
+      "part_of_speech": "adjective",
+      "translation": "больной",
+      "translations": {
+        "ru": "больной",
+        "uz": "kasal"
+      },
+      "example": "My son is sick today.",
+      "example_translations": {
+        "ru": "Мой сын сегодня болен.",
+        "uz": "O'g'lim bugun kasal."
+      }
+    },
+    {
+      "word": "pain",
+      "part_of_speech": "noun",
+      "translation": "боль",
+      "translations": {
+        "ru": "боль",
+        "uz": "og'riq"
+      },
+      "example": "I have a pain in my back.",
+      "example_translations": {
+        "ru": "У меня боль в спине.",
+        "uz": "Belimda og'riq bor."
+      }
+    },
+    {
+      "word": "headache",
+      "part_of_speech": "noun",
+      "translation": "головная боль",
+      "translations": {
+        "ru": "головная боль",
+        "uz": "bosh og'rig'i"
+      },
+      "example": "I have a bad headache.",
+      "example_translations": {
+        "ru": "У меня сильная головная боль.",
+        "uz": "Menda kuchli bosh og'rig'i bor."
+      }
+    },
+    {
+      "word": "fever",
+      "part_of_speech": "noun",
+      "translation": "температура, жар",
+      "translations": {
+        "ru": "температура, жар",
+        "uz": "isitma"
+      },
+      "example": "The child has a fever.",
+      "example_translations": {
+        "ru": "У ребёнка температура.",
+        "uz": "Bolada isitma bor."
+      }
+    },
+    {
+      "word": "medicine",
+      "part_of_speech": "noun",
+      "translation": "лекарство",
+      "translations": {
+        "ru": "лекарство",
+        "uz": "dori"
+      },
+      "example": "Take this medicine twice a day.",
+      "example_translations": {
+        "ru": "Принимай это лекарство два раза в день.",
+        "uz": "Bu dorini kuniga ikki marta ich."
+      }
+    },
+    {
+      "word": "pill",
+      "part_of_speech": "noun",
+      "translation": "таблетка",
+      "translations": {
+        "ru": "таблетка",
+        "uz": "tabletka"
+      },
+      "example": "Take one pill after lunch.",
+      "example_translations": {
+        "ru": "Прими одну таблетку после обеда.",
+        "uz": "Tushlikdan keyin bitta tabletka ich."
+      }
+    },
+    {
+      "word": "tired",
+      "part_of_speech": "adjective",
+      "translation": "уставший",
+      "translations": {
+        "ru": "уставший",
+        "uz": "charchagan"
+      },
+      "example": "I am tired after work.",
+      "example_translations": {
+        "ru": "После работы я устал.",
+        "uz": "Men ishdan keyin charchadim."
+      }
+    },
+    {
+      "word": "hurt",
+      "part_of_speech": "verb",
+      "translation": "болеть",
+      "translations": {
+        "ru": "болеть",
+        "uz": "og'rimoq"
+      },
+      "example": "Does it hurt?",
+      "example_translations": {
+        "ru": "Это болит?",
+        "uz": "Og'riyaptimi?"
+      }
+    },
+    {
+      "word": "cough",
+      "part_of_speech": "noun",
+      "translation": "кашель",
+      "translations": {
+        "ru": "кашель",
+        "uz": "yo'tal"
+      },
+      "example": "I have a bad cough.",
+      "example_translations": {
+        "ru": "У меня сильный кашель.",
+        "uz": "Menda qattiq yo'tal bor."
+      }
+    }
+  ]
+}

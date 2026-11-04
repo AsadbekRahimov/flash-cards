@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 
 /**
@@ -24,15 +25,26 @@ final class BotMenuBuilder
      * @var array<string, array{0: string, 1: list<string>}>
      */
     public const SCOPES = [
-        'all_private_chats' => ['private', ['today', 'settings', 'invite', 'pro', 'promo', 'help']],
+        'all_private_chats' => ['private', ['today', 'settings', 'invite', 'pro', 'promo', 'delete_account', 'help']],
         'all_group_chats' => ['group', ['help']],
         'all_chat_administrators' => ['group', ['start_training', 'start_exam', 'close_exam', 'help']],
     ];
 
+    /**
+     * The commands of the class caravan (docs/18 §12.11): in the administrators' list only while the game is open
+     * (`GAME_ACCESS` is not `off`), right before `/help`.
+     *
+     * @var list<string>
+     */
+    public const CARAVAN_COMMANDS = ['start_caravan', 'cancel_caravan'];
+
     /** The caption of the menu button; /help tells people to look for it. */
     public const MENU_BUTTON_TEXT = 'LexiFlow';
 
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly GameAccess $game,
+    ) {}
 
     /**
      * One list per chat type and supported language. The default language goes without `language_code`: Telegram
@@ -46,6 +58,10 @@ final class BotMenuBuilder
         $sets = [];
 
         foreach (self::SCOPES as $type => [$group, $commands]) {
+            if ($type === 'all_chat_administrators' && $this->game->classCaravanOpen()) {
+                array_splice($commands, -1, 0, self::CARAVAN_COMMANDS); // before `help`
+            }
+
             foreach ($this->locales->supported() as $locale) {
                 $sets[] = [
                     'scope' => ['type' => $type],

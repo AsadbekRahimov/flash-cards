@@ -76,14 +76,56 @@ it('exposes canonical, hreflang alternates and a language switcher', function ()
         ->toContain('hreflang="x-default" href="'.url('/privacy').'"');
 });
 
-it('marks legal stubs as draft and noindex, the landing as indexable', function (): void {
+it('marks the draft legal pages as noindex by default, the landing as indexable', function (): void {
     foreach (['/ru/offer', '/uz/offer', '/ru/privacy', '/uz/privacy'] as $url) {
         $this->get($url)->assertSee('noindex', false);
     }
     $this->get('/ru')->assertDontSee('noindex', false);
 
-    $this->get('/ru/offer')->assertSee(__('legal.draft_notice', [], 'ru'))->assertSee(__('legal.placeholder', [], 'ru'));
-    $this->get('/uz/privacy')->assertSee(__('legal.draft_notice', [], 'uz'))->assertSee(__('legal.placeholder', [], 'uz'));
+    $this->get('/ru/offer')->assertSee(__('legal.draft_notice', [], 'ru'));
+    $this->get('/uz/privacy')->assertSee(__('legal.draft_notice', [], 'uz'));
+});
+
+it('drops the draft notice and noindex when SITE_LEGAL_DRAFT is off', function (): void {
+    config()->set('site.legal.draft', false);
+
+    foreach (['ru', 'uz'] as $locale) {
+        foreach (['offer', 'privacy'] as $page) {
+            $this->get("/{$locale}/{$page}")
+                ->assertOk()
+                ->assertDontSee(__('legal.draft_notice', [], $locale))
+                ->assertDontSee('noindex', false);
+        }
+    }
+});
+
+it('renders the real legal texts without the placeholder, in both languages', function (): void {
+    config()->set('billing.paywall.contact', '@lexiflow_support');
+    config()->set('site.legal.name', 'LexiFlow LLC');
+    config()->set('site.legal.inn', '123456789');
+
+    foreach (['ru', 'uz'] as $locale) {
+        foreach (['offer', 'privacy'] as $page) {
+            $response = $this->get("/{$locale}/{$page}")->assertOk()
+                ->assertDontSee(__('legal.placeholder', [], $locale))
+                ->assertSee('@lexiflow_support')
+                ->assertSee('123456789')
+                ->assertDontSee('{contact}', false)
+                ->assertDontSee('{requisites}', false);
+
+            expect(substr_count($response->getContent(), '<section>'))->toBe(count(__("legal.{$page}.sections", [], $locale)));
+        }
+    }
+});
+
+it('states the refund rule: only through support, each request individually', function (): void {
+    $this->get('/ru/offer')->assertSee('Возврат осуществляется только через поддержку')->assertSee('Каждое обращение рассматривается индивидуально');
+    $this->get('/uz/offer')->assertSee('Pul faqat qo\'llab-quvvatlash xizmati orqali qaytariladi')->assertSee('alohida ko\'rib chiqiladi');
+});
+
+it('shows visible markers instead of missing requisites', function (): void {
+    $this->get('/ru/offer')->assertSee('Владелец сервиса: указать реквизиты');
+    $this->get('/uz/offer')->assertSee('Xizmat egasi: ijrochi rekvizitlarini kiriting');
 });
 
 it('renders owner-provided legal text instead of the placeholder', function (): void {
@@ -265,4 +307,20 @@ it('ships a well-formed RFC 9116 security.txt', function (): void {
         ->toMatch('/^Contact: (mailto:|https:\/\/)\S+$/m')
         ->toMatch('/^Expires: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/m')
         ->toMatch('/^Preferred-Languages: ru, uz, en$/m');
+});
+
+it('escapes operator-supplied legal fields on /offer and /privacy', function (): void {
+    Config::set('site.legal.name', '<script>alert(1)</script>');
+    Config::set('billing.paywall.contact', '<img src=x onerror=alert(2)>');
+
+    foreach (['/offer', '/privacy'] as $url) {
+        $this->get($url)
+            ->assertOk()
+            ->assertDontSee('<script>alert(1)</script>', false)
+            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
+
+    $this->get('/offer')
+        ->assertDontSee('<img src=x onerror=alert(2)>', false)
+        ->assertSee('&lt;img src=x onerror=alert(2)&gt;', false);
 });

@@ -8,6 +8,7 @@ use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
@@ -39,7 +40,7 @@ class MembersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.organizations.members.singular'))
             ->pluralModelLabel(__('admin.organizations.members.plural'))
             ->emptyStateHeading(__('admin.organizations.members.empty'))
@@ -50,10 +51,7 @@ class MembersRelationManager extends RelationManager
                     ->state(fn (OrganizationMember $record): string => $this->learnerLabel($record->learner))
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
                         'learner',
-                        fn (Builder $learner) => $learner
-                            ->where('first_name', 'like', '%'.$search.'%')
-                            ->orWhere('last_name', 'like', '%'.$search.'%')
-                            ->orWhere('username', 'like', '%'.ltrim($search, '@').'%'),
+                        fn (Builder $learner): Builder => AdminTable::whereLearnerContains($learner, $search),
                     )),
                 Tables\Columns\TextColumn::make('learner.telegram_user_id')->label(__('admin.organizations.members.columns.telegram_id'))->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('seat_state')
@@ -170,13 +168,10 @@ class MembersRelationManager extends RelationManager
     private function searchLearners(string $search): array
     {
         $search = trim($search);
-        $username = ltrim($search, '@');
 
         return Learner::query()
-            ->where(function (Builder $query) use ($search, $username): void {
-                $query->where('first_name', 'like', '%'.$search.'%')
-                    ->orWhere('last_name', 'like', '%'.$search.'%')
-                    ->orWhere('username', 'like', '%'.$username.'%');
+            ->where(function (Builder $query) use ($search): void {
+                AdminTable::whereLearnerContains($query, $search);
 
                 if (ctype_digit($search)) {
                     $query->orWhere('telegram_user_id', (int) $search);

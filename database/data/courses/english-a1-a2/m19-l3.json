@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 19,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Растения и земля",
+    "title_uz": "O'simliklar va yer"
+  },
+  "words": [
+    {
+      "word": "plant",
+      "part_of_speech": "noun",
+      "translation": "растение",
+      "translations": {
+        "ru": "растение",
+        "uz": "o'simlik"
+      },
+      "example": "This plant needs a lot of water.",
+      "example_translations": {
+        "ru": "Этому растению нужно много воды.",
+        "uz": "Bu o'simlikka ko'p suv kerak."
+      }
+    },
+    {
+      "word": "seed",
+      "part_of_speech": "noun",
+      "translation": "семя",
+      "translations": {
+        "ru": "семя",
+        "uz": "urug'"
+      },
+      "example": "We put a seed in the ground.",
+      "example_translations": {
+        "ru": "Мы кладём семя в землю.",
+        "uz": "Biz yerga urug' qo'yamiz."
+      }
+    },
+    {
+      "word": "leaf",
+      "part_of_speech": "noun",
+      "translation": "лист",
+      "translations": {
+        "ru": "лист",
+        "uz": "barg"
+      },
+      "example": "One green leaf fell on the table.",
+      "example_translations": {
+        "ru": "Один зелёный лист упал на стол.",
+        "uz": "Bitta yashil barg stol ustiga tushdi."
+      }
+    },
+    {
+      "word": "branch",
+      "part_of_speech": "noun",
+      "translation": "ветка",
+      "translations": {
+        "ru": "ветка",
+        "uz": "shox"
+      },
+      "example": "A bird sits on the long branch.",
+      "example_translations": {
+        "ru": "Птица сидит на длинной ветке.",
+        "uz": "Qush uzun shoxda o'tiribdi."
+      }
+    },
+    {
+      "word": "root",
+      "part_of_speech": "noun",
+      "translation": "корень",
+      "translations": {
+        "ru": "корень",
+        "uz": "ildiz"
+      },
+      "example": "The roots of this tree are deep.",
+      "example_translations": {
+        "ru": "Корни этого дерева глубокие.",
+        "uz": "Bu daraxtning ildizlari chuqur."
+      }
+    },
+    {
+      "word": "soil",
+      "part_of_speech": "noun",
+      "translation": "почва",
+      "translations": {
+        "ru": "почва",
+        "uz": "tuproq"
+      },
+      "example": "The soil here is good for vegetables.",
+      "example_translations": {
+        "ru": "Почва здесь хороша для овощей.",
+        "uz": "Bu yerdagi tuproq sabzavotlar uchun yaxshi."
+      }
+    },
+    {
+      "word": "sand",
+      "part_of_speech": "noun",
+      "translation": "песок",
+      "translations": {
+        "ru": "песок",
+        "uz": "qum"
+      },
+      "example": "The sand on the beach is hot.",
+      "example_translations": {
+        "ru": "Песок на пляже горячий.",
+        "uz": "Plyajdagi qum issiq."
+      }
+    },
+    {
+      "word": "rock",
+      "part_of_speech": "noun",
+      "translation": "камень, скала",
+      "translations": {
+        "ru": "камень, скала",
+        "uz": "tosh"
+      },
+      "example": "He sits on a big rock.",
+      "example_translations": {
+        "ru": "Он сидит на большом камне.",
+        "uz": "U katta toshda o'tiribdi."
+      }
+    },
+    {
+      "word": "mud",
+      "part_of_speech": "noun",
+      "translation": "грязь",
+      "translations": {
+        "ru": "грязь",
+        "uz": "loy"
+      },
+      "example": "My shoes are full of mud.",
+      "example_translations": {
+        "ru": "Мои ботинки полны грязи.",
+        "uz": "Poyabzalim loyga to'la."
+      }
+    },
+    {
+      "word": "bush",
+      "part_of_speech": "noun",
+      "translation": "куст",
+      "translations": {
+        "ru": "куст",
+        "uz": "buta"
+      },
+      "example": "Berries grow on this small bush.",
+      "example_translations": {
+        "ru": "На этом маленьком кусте растут ягоды.",
+        "uz": "Bu kichik butada rezavorlar o'sadi."
+      }
+    }
+  ]
+}

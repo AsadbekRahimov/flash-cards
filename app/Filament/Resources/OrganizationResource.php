@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Administration\Services\OrganizationAdminService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Filament\Resources\OrganizationResource\RelationManagers\GroupsRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\InvitesRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\MembersRelationManager;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Organization;
 use Filament\Actions;
 use Filament\Forms;
@@ -18,6 +20,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Organizations: learning centers that can sponsor Pro for the learners of their groups
@@ -100,7 +103,9 @@ class OrganizationResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
+            // The delete button asks OrganizationPolicy, which needs two facts per row: they ride along with the page query.
+            ->modifyQueryUsing(fn (Builder $query): Builder => app(OrganizationAdminService::class)->withDeletionFacts($query))
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__('admin.organizations.fields.name'))->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('slug')->label(__('admin.organizations.fields.slug'))->searchable()->toggleable(),
@@ -115,7 +120,7 @@ class OrganizationResource extends Resource
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('organizations.status', $state))
                     ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('telegram_groups_count')->counts('telegramGroups')->label(__('admin.organizations.fields.groups_count')),
+                Tables\Columns\TextColumn::make('telegram_groups_count')->label(__('admin.organizations.fields.groups_count')),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.organizations.fields.created_at'))->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

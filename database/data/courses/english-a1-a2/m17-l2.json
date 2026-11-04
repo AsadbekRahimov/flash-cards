@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 17,
+    "title": "Услуги и покупки",
+    "title_uz": "Xizmatlar va xaridlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Почта и услуги",
+    "title_uz": "Pochta va xizmatlar"
+  },
+  "words": [
+    {
+      "word": "letter",
+      "part_of_speech": "noun",
+      "translation": "письмо",
+      "translations": {
+        "ru": "письмо",
+        "uz": "xat"
+      },
+      "example": "I wrote a long letter to my aunt.",
+      "example_translations": {
+        "ru": "Я написал длинное письмо тёте.",
+        "uz": "Men xolamga uzun xat yozdim."
+      }
+    },
+    {
+      "word": "parcel",
+      "part_of_speech": "noun",
+      "translation": "посылка",
+      "translations": {
+        "ru": "посылка",
+        "uz": "posilka"
+      },
+      "example": "A parcel is waiting for you at the post office.",
+      "example_translations": {
+        "ru": "Посылка ждёт тебя на почте.",
+        "uz": "Pochtada sizni posilka kutmoqda."
+      }
+    },
+    {
+      "word": "stamp",
+      "part_of_speech": "noun",
+      "translation": "марка",
+      "translations": {
+        "ru": "марка",
+        "uz": "marka"
+      },
+      "example": "I need a stamp for this letter.",
+      "example_translations": {
+        "ru": "Мне нужна марка для этого письма.",
+        "uz": "Menga bu xat uchun marka kerak."
+      }
+    },
+    {
+      "word": "envelope",
+      "part_of_speech": "noun",
+      "translation": "конверт",
+      "translations": {
+        "ru": "конверт",
+        "uz": "konvert"
+      },
+      "example": "Put the letter in the envelope.",
+      "example_translations": {
+        "ru": "Положи письмо в конверт.",
+        "uz": "Xatni konvertga sol."
+      }
+    },
+    {
+      "word": "deliver",
+      "part_of_speech": "verb",
+      "translation": "доставлять",
+      "translations": {
+        "ru": "доставлять",
+        "uz": "yetkazib bermoq"
+      },
+      "example": "They deliver pizza to our door.",
+      "example_translations": {
+        "ru": "Они доставляют пиццу к нашей двери.",
+        "uz": "Ular pitsani eshigimizgacha yetkazib beradi."
+      }
+    },
+    {
+      "word": "hairdresser",
+      "part_of_speech": "noun",
+      "translation": "парикмахер",
+      "translations": {
+        "ru": "парикмахер",
+        "uz": "sartarosh"
+      },
+      "example": "My hairdresser works near the market.",
+      "example_translations": {
+        "ru": "Мой парикмахер работает рядом с рынком.",
+        "uz": "Sartaroshim bozor yaqinida ishlaydi."
+      }
+    },
+    {
+      "word": "tailor",
+      "part_of_speech": "noun",
+      "translation": "портной",
+      "translations": {
+        "ru": "портной",
+        "uz": "tikuvchi"
+      },
+      "example": "The tailor makes me a new jacket.",
+      "example_translations": {
+        "ru": "Портной шьёт мне новый пиджак.",
+        "uz": "Tikuvchi menga yangi kurtka tikadi."
+      }
+    },
+    {
+      "word": "service",
+      "part_of_speech": "noun",
+      "translation": "обслуживание",
+      "translations": {
+        "ru": "обслуживание",
+        "uz": "xizmat"
+      },
+      "example": "The service in this cafe is slow.",
+      "example_translations": {
+        "ru": "Обслуживание в этом кафе медленное.",
+        "uz": "Bu kafedagi xizmat sekin."
+      }
+    },
+    {
+      "word": "mechanic",
+      "part_of_speech": "noun",
+      "translation": "механик",
+      "translations": {
+        "ru": "механик",
+        "uz": "mexanik"
+      },
+      "example": "The mechanic checks my car today.",
+      "example_translations": {
+        "ru": "Механик сегодня проверяет мою машину.",
+        "uz": "Mexanik bugun mashinamni tekshiradi."
+      }
+    },
+    {
+      "word": "queue",
+      "part_of_speech": "noun",
+      "translation": "очередь",
+      "translations": {
+        "ru": "очередь",
+        "uz": "navbat"
+      },
+      "example": "There is a long queue at the bank.",
+      "example_translations": {
+        "ru": "В банке длинная очередь.",
+        "uz": "Bankda uzun navbat bor."
+      }
+    }
+  ]
+}

@@ -172,6 +172,11 @@ describe('ExerciseSelector', function (): void {
 describe('ExercisePromptBuilder', function (): void {
     it('builds reverse with four English words and audio with four translations, stable per seed', function (): void {
         $s = exScenario(5, 2);
+        // Distinct translations: the factory draws them at random (`fake()->word()`), and two equal ones leave the audio card
+        // fewer than three distractors, so it falls back to flash (the CI run of 4c47d1d hit it).
+        foreach ($s['words'] as $i => $scenarioWord) {
+            $scenarioWord->forceFill(['translation' => 'перевод '.($i + 1)])->save();
+        }
         $word = $s['words'][0];
         $translation = new ResolvedTranslation($word->translation, 'ru', false);
         $builder = app(ExercisePromptBuilder::class);

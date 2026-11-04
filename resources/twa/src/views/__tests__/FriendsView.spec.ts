@@ -7,10 +7,12 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useBattleStore } from '@/stores/battle'
 import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { activeOf, battleList, closedBattle, incoming, roomBattle } from '@/api/__tests__/battleFixtures'
+import { freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, ChallengeItem, ChallengesResponse, FriendsResponse, MeResponse, PracticeAccess } from '@/api/types'
 
 const state = vi.hoisted(() => ({
@@ -37,10 +39,12 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
   return {
     default: defineComponent({
-      props: { reason: { type: String, default: 'info' } },
+      props: { reason: { type: String, default: 'info' }, limitHit: { type: Object, default: null } },
       emits: ['close', 'review'],
       setup: (props, { emit }) => () =>
-        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-kind': props.limitHit?.kind ?? '', 'data-limit': String(props.limitHit?.limit ?? '') }, [
+          h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') }),
+        ]),
     }),
   }
 })
@@ -117,7 +121,7 @@ const meWith = (practice?: PracticeAccess): MeResponse => ({
   ...(practice ? { practice } : {}),
 })
 
-const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true }
+const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both' }
 
 async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse()) {
   vi.mocked(api.friends.get).mockResolvedValue(friends)
@@ -154,6 +158,7 @@ describe('FriendsView', () => {
     useToast().hide()
   })
   afterEach(() => {
+    vi.useRealTimers()
     setLocale('ru')
     useToast().hide()
   })
@@ -756,7 +761,7 @@ describe('FriendsView', () => {
       })
 
       it.each<[string, PracticeAccess | undefined]>([
-        ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false }],
+        ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false, pro_promise: 'none' }],
         ['battles are switched off', { ...BATTLES_ON, battle: false }],
         ['practice is switched off but the flag of battles is on', { ...BATTLES_ON, available: false }],
         ['the server sends no practice block (an older one)', undefined],
@@ -1117,6 +1122,449 @@ describe('FriendsView', () => {
 
         expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
       })
+    })
+
+    // docs/18 §3 (G1): Free has one battle a day. The list of friends says how many are left, in a quiet line under it;
+    // with none left "Battle" opens the paywall of the limit at once. Accepting an invitation is never limited.
+    describe('the Free limit of battles', () => {
+      const withLimits = (limits: PracticeAccess['limits']): PracticeAccess => ({ ...BATTLES_ON, limits })
+      const line = (wrapper: Wrapper) => wrapper.find('[data-testid=battle-limit]')
+
+      it('says how many battles of the day are left, quietly, under the list of friends', async () => {
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+        const section = wrapper.get('[data-testid=friends]').html()
+        expect(section.indexOf('friend-row')).toBeLessThan(section.indexOf('battle-limit'))
+      })
+
+      it('is plain secondary text that wraps on a narrow screen: no button, no chip, no alert, no colour of its own', async () => {
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).element.tagName).toBe('P')
+        expect(line(wrapper).classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+        expect(line(wrapper).classes()).not.toContain('truncate')
+        expect(line(wrapper).classes()).not.toContain('whitespace-nowrap')
+        expect(line(wrapper).find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).text()).toBe('Bugungi bellashuvlar: 1 tadan 1 tasi qoldi')
+      })
+
+      it.each<[string, PracticeAccess['limits']]>([
+        ['Pro has none', null],
+        ['an older server does not send them', undefined],
+      ])('says nothing when %s', async (_name, limits) => {
+        const { wrapper } = await renderBattles(withLimits(limits))
+
+        expect(line(wrapper).exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+
+      it('says nothing where there are no battles to start: battles switched off', async () => {
+        const { wrapper } = await renderBattles({ ...withLimits(freeLimits(0, 0)), battle: false })
+
+        expect(line(wrapper).exists()).toBe(false)
+      })
+
+      it('says nothing when there is nobody to play with', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(meWith(withLimits(freeLimits(0, 0))))
+        vi.mocked(api.battles.list).mockResolvedValue(battleList())
+        const { wrapper } = await render(friendsResponse({ friends: [] }))
+
+        expect(line(wrapper).exists()).toBe(false)
+      })
+
+      it('the line goes by itself when the day of the counter ends: the app stayed open overnight, and nothing else happened', async () => {
+        // Only the timers the store waits with and the date: `flushPromises` waits on `setImmediate`, which keeps running.
+        vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+        vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0, '2026-11-02T19:00:00Z')))
+        expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+
+        vi.advanceTimersByTime(9 * 3_600_000 + 500)
+        await flushPromises()
+
+        expect(line(wrapper).exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+
+      it('says nothing for a counter whose day is over: the app stayed open overnight, and the server decides', async () => {
+        const stale = freeLimits(0, 1, new Date(Date.now() - 60_000).toISOString())
+        const { wrapper, router } = await renderBattles(withLimits(stale))
+
+        expect(line(wrapper).exists()).toBe(false)
+        await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+        await flushPromises()
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('battle-new')
+      })
+
+      it('"Battle" leads to the setup as it did while a battle is left (spent sessions of practice are another counter)', async () => {
+        const { wrapper, router } = await renderBattles(withLimits(freeLimits(2, 0)))
+
+        await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('battle-new')
+        expect(router.currentRoute.value.query).toEqual({ friendship: '11' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
+
+      describe('when none is left', () => {
+        const spent = () => withLimits(freeLimits(0, 1, inHours(4)))
+
+        it('the line says so in the same words, and every "Battle" button is still there', async () => {
+          const { wrapper } = await renderBattles(spent())
+
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+          expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+        })
+
+        it('"Battle" opens the paywall of the limit at once - no setup that would end in it, no request, no toast', async () => {
+          const { wrapper, router } = await renderBattles(spent())
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          const sheet = wrapper.get('[data-testid=paywall]')
+          expect(sheet.attributes('data-reason')).toBe('practice_limit')
+          expect(sheet.attributes('data-kind')).toBe('battles')
+          expect(sheet.attributes('data-limit')).toBe('1')
+          expect(router.currentRoute.value.name).toBe('friends')
+          expect(useToast().toast.value).toBeNull()
+          expect(state.haptic).toHaveBeenCalledWith('light')
+        })
+
+        it('every friend does the same, the sheet closes, and the next press opens it again', async () => {
+          const { wrapper, router } = await renderBattles(spent())
+
+          for (const name of ['Dilnoza', 'Друг']) {
+            await rowOf(wrapper, name).get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
+            expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+            await wrapper.get('[data-testid=paywall-close]').trigger('click')
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          }
+          expect(router.currentRoute.value.name).toBe('friends')
+        })
+
+        it('does not touch what is not a new battle: the battle that is on is one tap away', async () => {
+          const { wrapper, router } = await renderBattles(spent(), battleList({ active: activeOf('room') }))
+
+          await wrapper.get('[data-testid=active-battle-row]').trigger('click')
+          await flushPromises()
+
+          expect(router.currentRoute.value.name).toBe('battle')
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        })
+
+        it('"Accept" is never limited: the invitation is accepted and leads into its room', async () => {
+          vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 15, role: 'opponent' }))
+          const { wrapper, router } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.accept).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(useToast().toast.value).toBeNull()
+          expect(router.currentRoute.value.name).toBe('battle')
+          expect(router.currentRoute.value.params.id).toBe('15')
+        })
+
+        it('and so is "Decline"', async () => {
+          vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined'))
+          const { wrapper } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-decline-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.decline).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=battle-invite-row]').exists()).toBe(false)
+        })
+
+        it('the Pro wall of an "Accept" is the other paywall, as it was', async () => {
+          vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('forbidden', 403, 'practice_pro_required', 'x'))
+          const { wrapper } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('')
+        })
+      })
+
+      // A battle that did not take place (declined, not answered in time, withdrawn) is not counted: its place comes back on the server, and the
+      // number on this screen may be from before. So a zero is confirmed by `/me` read again, not believed.
+      describe('a zero that the server may have forgiven', () => {
+        it.each(['declined', 'invite_expired', 'canceled'] as const)(
+          'invited Dilnoza, the invitation did not become a battle (%s): "Battle" at the other friend shows no paywall when the server allows it',
+          async (reason) => {
+            // the 201 of the invitation to Dilnoza said that no place was left ...
+            useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+            // ... and the battle screen saw it close without a match
+            useBattleStore().applyBattle(closedBattle(reason, { role: 'challenger' }))
+
+            // Friends opens: the server has given the place back
+            const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 0, inHours(4))))
+            expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+
+            await rowOf(wrapper, 'Друг').get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
+
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+            expect(router.currentRoute.value.name).toBe('battle-new')
+            expect(router.currentRoute.value.query).toEqual({ friendship: '12' })
+            expect(api.me.get).toHaveBeenCalledTimes(1) // the reading that Friends does itself: the tap had nothing left to ask
+          },
+        )
+
+        it('after the closure the screen shows no number and stops nobody until /me has said it: the line is not a stale zero', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          useBattleStore().applyBattle(closedBattle('declined', { role: 'challenger' }))
+          vi.mocked(api.me.get).mockReturnValue(new Promise(() => {})) // /me is still on its way
+          vi.mocked(api.battles.list).mockResolvedValue(battleList())
+
+          const { wrapper, router } = await render()
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('a zero that the screen still remembers (the closure was not seen) is confirmed by /me before the paywall: the place was given back', async () => {
+          const billing = useBillingStore()
+          billing.apply(meWith(withLimits(freeLimits(0, 1, inHours(4))))) // fresh in the cache: Friends does not read /me itself
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 0, inHours(4)))) // ... what the server says now
+          expect(api.me.get).not.toHaveBeenCalled()
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+        })
+
+        it('the fresh counter still says none: the paywall, after one question and not more', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+          expect(router.currentRoute.value.name).toBe('friends')
+        })
+
+        it('with /me out of reach there is no sales pitch on a number that cannot be checked: the setup opens, and the server decides there', async () => {
+          vi.spyOn(console, 'warn').mockImplementation(() => {})
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('the buttons wait while the counter is being confirmed: a second press is not a second question', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') !== undefined)).toBe(true)
+          await rowOf(wrapper, 'Друг').get('[data-testid=battle-btn]').trigger('click')
+          answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.findAll('[data-testid=paywall]')).toHaveLength(1)
+          expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') === undefined)).toBe(true)
+        })
+
+        // The screen asks for /me at its start when what it has is older than the cache allows, and the learner may press before the answer: the
+        // zero from the earlier screen must not decide - that reading is waited for, and its counter is the word.
+        describe('a /me that the screen itself began and that is still on its way', () => {
+          const staleZero = () => {
+            const billing = useBillingStore()
+            billing.apply(meWith(withLimits(freeLimits(0, 1, inHours(4))))) // the earlier screen: the practice block and the zero
+            billing.invalidate() // ... older than the cache allows, so this screen asks again
+          }
+          const onItsWay = () => {
+            let answer!: (value: MeResponse) => void
+            vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+            return (value: MeResponse) => answer(value)
+          }
+
+          it('"Battle" waits for it, and the place it gives back is a place: no paywall, the setup opens - after ONE reading', async () => {
+            staleZero()
+            const answer = onItsWay()
+            const { wrapper, router } = await render()
+            expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1') // the stale zero is what the screen shows meanwhile
+
+            await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
+            expect(wrapper.find('[data-testid=paywall]').exists(), 'the stale zero does not decide').toBe(false)
+            expect(router.currentRoute.value.name).toBe('friends')
+            expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') !== undefined)).toBe(true)
+
+            answer(meWith(withLimits(freeLimits(0, 0, inHours(4))))) // the server had given the place back
+            await flushPromises()
+
+            expect(api.me.get).toHaveBeenCalledTimes(1)
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+            expect(router.currentRoute.value.name).toBe('battle-new')
+            expect(router.currentRoute.value.query).toEqual({ friendship: '11' })
+          })
+
+          it('and when that answer still says none, the paywall opens', async () => {
+            staleZero()
+            const answer = onItsWay()
+            const { wrapper, router } = await render()
+
+            await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+            answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+            await flushPromises()
+
+            expect(api.me.get).toHaveBeenCalledTimes(1)
+            expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+            expect(router.currentRoute.value.name).toBe('friends')
+          })
+        })
+
+        it('a learner who left the screen while the counter was being confirmed finds no sheet waiting for the next visit', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          const push = vi.spyOn(router, 'push')
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          wrapper.unmount()
+          answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          await flushPromises()
+
+          expect(useBattleStore().limitHit).toBeNull()
+          expect(push).not.toHaveBeenCalled()
+        })
+
+        it('nor is the learner carried to the setup of a battle when the place turns out to be free after they have left', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          const push = vi.spyOn(router, 'push')
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          wrapper.unmount()
+          answer(meWith(withLimits(freeLimits(0, 0, inHours(4)))))
+          await flushPromises()
+
+          expect(push).not.toHaveBeenCalled()
+        })
+
+        it('a kind that is for Pro only (limit 0) needs no question', async () => {
+          const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
+          const { wrapper, router } = await renderBattles(withLimits(zero))
+          expect(line(wrapper).exists()).toBe(false) // "0 of 0 left" says nothing: no footnote line
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1) // Friends' own reading at mount
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-limit')).toBe('0')
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+          expect(router.currentRoute.value.name).toBe('friends')
+          expect(line(wrapper).exists()).toBe(false)
+        })
+
+        it('and "Accept" of an invitation is still never limited, though the learner cannot call a friend', async () => {
+          const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
+          vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 15, role: 'opponent' }))
+          const { wrapper, router } = await renderBattles(withLimits(zero), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.accept).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle')
+        })
+      })
+
+      // An empty env of the server means that kind has no limit: `limits` carries `null` for it and the other kind keeps its counter.
+      describe('one kind of limit without a counter (null inside the limits)', () => {
+        it('battles without a limit: no line, and "Battle" leads to the setup, with the sessions spent as well', async () => {
+          const { wrapper, router } = await renderBattles(withLimits({ sessions: freeLimits(2, 0).sessions, battles: null }))
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('sessions without a limit: the line of the battles as it is, and "Battle" meets its counter', async () => {
+          const { wrapper } = await renderBattles(withLimits({ sessions: null, battles: freeLimits(0, 1, inHours(4)).battles }))
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+        })
+
+        it('both kinds without a limit: nothing shown, nothing stopped', async () => {
+          const { wrapper, router } = await renderBattles(withLimits({ sessions: null, battles: null }))
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+      })
+    })
+  })
+
+  describe('what the friends wear (docs/05 §5b.6)', () => {
+    it('draws the camel of a friend next to the name, the base one for null', async () => {
+      const { wrapper } = await render(
+        friendsResponse({
+          friends: [
+            { id: 11, first_name: 'Dilnoza', streak: 5, words_learned: 120, since: null, camel_asset: 'camel_golden' },
+            { id: 12, first_name: 'Aziz', streak: 0, words_learned: 3, since: null, camel_asset: null },
+          ],
+        }),
+      )
+
+      const camels = wrapper.findAll('[data-testid=friend-camel]')
+      expect(camels.map((c) => c.attributes('data-asset'))).toEqual(['camel_golden', 'camel_dromedary'])
+      expect(wrapper.findAll('[data-testid=friend-row]')[0]!.text()).toContain('Dilnoza')
+    })
+
+    it('draws nothing where the field did not come (the game is closed)', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=friend-camel]').exists()).toBe(false)
     })
   })
 

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 15,
+    "title": "Образование",
+    "title_uz": "Ta'lim"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Школьная жизнь",
+    "title_uz": "Maktab hayoti"
+  },
+  "words": [
+    {
+      "word": "subject",
+      "part_of_speech": "noun",
+      "translation": "предмет",
+      "translations": {
+        "ru": "предмет",
+        "uz": "fan"
+      },
+      "example": "Which subject do you like best?",
+      "example_translations": {
+        "ru": "Какой предмет тебе нравится больше всего?",
+        "uz": "Qaysi fan senga eng ko'p yoqadi?"
+      }
+    },
+    {
+      "word": "university",
+      "part_of_speech": "noun",
+      "translation": "университет",
+      "translations": {
+        "ru": "университет",
+        "uz": "universitet"
+      },
+      "example": "My sister studies at a big university.",
+      "example_translations": {
+        "ru": "Моя сестра учится в большом университете.",
+        "uz": "Singlim katta universitetda o'qiydi."
+      }
+    },
+    {
+      "word": "college",
+      "part_of_speech": "noun",
+      "translation": "колледж",
+      "translations": {
+        "ru": "колледж",
+        "uz": "kollej"
+      },
+      "example": "He goes to college in the capital.",
+      "example_translations": {
+        "ru": "Он учится в колледже в столице.",
+        "uz": "U poytaxtdagi kollejda o'qiydi."
+      }
+    },
+    {
+      "word": "kindergarten",
+      "part_of_speech": "noun",
+      "translation": "детский сад",
+      "translations": {
+        "ru": "детский сад",
+        "uz": "bolalar bog'chasi"
+      },
+      "example": "My son goes to kindergarten every day.",
+      "example_translations": {
+        "ru": "Мой сын ходит в детский сад каждый день.",
+        "uz": "O'g'lim har kuni bolalar bog'chasiga boradi."
+      }
+    },
+    {
+      "word": "classroom",
+      "part_of_speech": "noun",
+      "translation": "класс, аудитория",
+      "translations": {
+        "ru": "класс, аудитория",
+        "uz": "sinf xonasi"
+      },
+      "example": "The classroom is bright and clean.",
+      "example_translations": {
+        "ru": "Класс светлый и чистый.",
+        "uz": "Sinf xonasi yorug' va toza."
+      }
+    },
+    {
+      "word": "textbook",
+      "part_of_speech": "noun",
+      "translation": "учебник",
+      "translations": {
+        "ru": "учебник",
+        "uz": "darslik"
+      },
+      "example": "Open your textbook at page ten.",
+      "example_translations": {
+        "ru": "Откройте учебник на десятой странице.",
+        "uz": "Darslikni o'ninchi sahifada oching."
+      }
+    },
+    {
+      "word": "notebook",
+      "part_of_speech": "noun",
+      "translation": "тетрадь",
+      "translations": {
+        "ru": "тетрадь",
+        "uz": "daftar"
+      },
+      "example": "I write new words in my notebook.",
+      "example_translations": {
+        "ru": "Я записываю новые слова в тетрадь.",
+        "uz": "Men yangi so'zlarni daftarimga yozaman."
+      }
+    },
+    {
+      "word": "pupil",
+      "part_of_speech": "noun",
+      "translation": "ученик",
+      "translations": {
+        "ru": "ученик",
+        "uz": "o'quvchi"
+      },
+      "example": "Every pupil has a small desk.",
+      "example_translations": {
+        "ru": "У каждого ученика есть маленькая парта.",
+        "uz": "Har bir o'quvchining kichik partasi bor."
+      }
+    },
+    {
+      "word": "principal",
+      "part_of_speech": "noun",
+      "translation": "директор школы",
+      "translations": {
+        "ru": "директор школы",
+        "uz": "maktab direktori"
+      },
+      "example": "The principal talks to the parents today.",
+      "example_translations": {
+        "ru": "Директор школы сегодня говорит с родителями.",
+        "uz": "Maktab direktori bugun ota-onalar bilan gaplashadi."
+      }
+    },
+    {
+      "word": "uniform",
+      "part_of_speech": "noun",
+      "translation": "форма",
+      "translations": {
+        "ru": "форма",
+        "uz": "forma"
+      },
+      "example": "Our school uniform is dark blue.",
+      "example_translations": {
+        "ru": "Наша школьная форма тёмно-синяя.",
+        "uz": "Bizning maktab formamiz to'q ko'k."
+      }
+    }
+  ]
+}

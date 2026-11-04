@@ -141,10 +141,23 @@ erDiagram
 | id | bigint PK |
 | course_id | bigint FK → courses, ON DELETE CASCADE, NOT NULL |
 | number | int |
-| title | string(255) **nullable** |
+| title | string(255) **nullable** — название на ru |
+| title_uz | string(255) **nullable** — название на uz (R3c); пусто — uz-ученик читает `title` |
 | description | text nullable |
 
 **Индексы:** `(course_id, number)` unique — номер модуля уникален внутри курса (одинаковый `number` в разных курсах разрешён).
+
+**Название на языке ученика (R3c, `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables`).** У модуля и урока два строковых
+названия — `title` (ru) и `title_uz`; выбирает одно место, `DeckTitles` (`stageIn` / `lessonIn` по локали, `stage` / `lesson` /
+`forLesson` — по `LocaleResolver::forLearner`): uz-читателю — `title_uz`, если непустое, иначе `title`; ru-читателю — `title`;
+пустое и пробелы = «нет названия» → `null`, и клиент подписывает модуль по номеру («Модуль N» / «N-modul»). Через `DeckTitles` идут
+дерево курса (`CourseCatalogService::buildCourseTree` — ключ кэша K3 уже на локаль, названия выбираются **до** записи в кэш, так что
+ru-дерево никогда не достаётся uz-ученику), «Сегодня» (`TodayService`), старт тренировки (`TrainingFlowService`, модуль приходит
+в join-строке — `title_uz` входит в `STAGE_COLUMNS`), хаб практики и снимок сессии/баттла (`PracticeSnapshotBuilder` кладёт в
+снимок карту `lesson_title {locale => название}`, читатель берёт свою локаль — у баттла два участника с разными языками).
+Админка показывает `title` (панель русская) и даёт поле «Название (uz)» у модуля и урока. Отвергнуто: `title` как JSON `{ru, uz}`
+по образцу `courses.title` — пришлось бы переписать все читатели строки (`LIKE` в поиске админки, `relationship('stage', 'title')`,
+миграцию 48 с её `'Stage ' || number`, задания центров, сидеры, фабрики) ради двух локалей; третья локаль — ещё одна колонка.
 
 **`title` = NULL — модуль без собственного названия** (17.14-S). Его подпись строится при показе на языке читателя: «Модуль N» /
 «N-modul» (docs/14 §8) — TWA из `number`, админка из `admin.stages.untitled`; в API `stages[].title` приходит `null`
@@ -160,7 +173,8 @@ erDiagram
 | id | bigint PK |
 | stage_id | bigint FK → stages |
 | number | int |
-| title | string(255) nullable |
+| title | string(255) nullable — название на ru |
+| title_uz | string(255) nullable — название на uz (R3c); правило выбора — как у `stages.title_uz`, §2.5 |
 
 **Индексы:** `(stage_id, number)` unique.
 
@@ -178,9 +192,12 @@ erDiagram
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска); `(id) WHERE is_active = false` — partial
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `(id) WHERE is_active = false` — partial
 `words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
 выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
+**PostgreSQL, `pg_trgm`** (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): поиск `/admin/words` — `like '%…%'`, b-tree по `word`
+ему не помогает; GIN-триграммы `words_word_lower_trgm_idx (lower(word) gin_trgm_ops)` и `words_translation_lower_trgm_idx (lower(translation) gin_trgm_ops)`
+в форме `lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL.
 
 ### 2.8 `word_repetitions` — состояние SM-2 для пары (learner, слово)
 | Колонка | Тип | Описание |
@@ -332,6 +349,8 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id) WHERE status = 'open' AND mode = 'personal_mock'` unique (`exam_sessions_one_open_mock_per_learner`) — не
   более одного открытого mock'а у learner'а (2D.4).
 - `(learner_id, status, started_at)`, `(course_id, mode, closed_at)` — открытый mock learner'а и выборка процентиля по курсу.
+- `exam_sessions_started_at_id_idx (started_at, id)` — сортировка по умолчанию списка `/admin/exam-sessions` (`started_at desc, id desc`;
+  docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): первая страница — первые записи индекса, а не сортировка всей таблицы.
 - PG CHECK `exam_sessions_mode_shape_check`: `group_exam` ⇒ `telegram_group_id`, `lesson_id`, `started_by_user_id` NOT NULL;
   `personal_mock` ⇒ `learner_id`, `course_id` NOT NULL (миграция `2026_10_23_400001_generalize_exam_sessions_for_personal_mock`;
   на sqlite таблица перестраивается, partial-индекс группы пересоздаётся явно).
@@ -471,12 +490,21 @@ Append-only журнал для продуктовой аналитики (не 
 | practice_pilot_at | timestamp nullable | ученик включён в пилот практики (`PRACTICE_ACCESS=pilot`, docs/16 §2.1, §3.2): ставит и снимает админ действием «Включить в пилот практики» / «Исключить из пилота» (`PracticePilotService`), `audit_logs` `learner.practice_pilot_changed {from, to}`; `NULL` — не в пилоте. При `PRACTICE_ACCESS=all` колонка не читается; индекса нет (редкий флаг) |
 | last_seen_at | timestamp nullable | |
 | blocked_at | timestamp nullable | бан платформой |
-| deleted_at | timestamp nullable | `SoftDeletes` |
+| deleted_at | timestamp nullable | `SoftDeletes`: удаление аккаунта. Пока строка soft-deleted, `telegram_user_id` за ней закреплён и собственный `/start` / `/auth` её восстанавливает (`LearnerRegistrar`). Через `config('learners.purge.after_days')` (30) дней `LearnerPurgeService` удаляет строку окончательно (§8 п. 2) |
 | meta | jsonb default '{}' | |
 | created_at, updated_at | | |
 
 **Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
 (`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
+Под список `/admin/learners` (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): `learners_first_name_id_idx (first_name, id)` —
+сортировка по умолчанию (Filament добавляет первичный ключ вторым ключом); **PostgreSQL, `pg_trgm`:** GIN-триграммы под поиск `like '%…%'` —
+`learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме
+`lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL (и свои поиски учеников — `AdminTable::whereLearnerContains`: участники `/org`, выбор ученика в `/admin`),
+`learners_username_trgm_idx (username gin_trgm_ops)` — под `ilike` по самой колонке (`AdminTable::whereContains`: `learners.username ilike ? escape '!'`).
+Форма запроса и форма индекса должны совпадать: `lower(col) like` не использует индекс по `col`, и наоборот.
+Под виджеты дашборда (docs/20 F5, миграция `2026_11_02_200001_add_deleted_learners_partial_index`): **partial** `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` — удалённых
+единицы, и вопрос «удалён ли ученик» (таблица мест центров, рейтинг лучших учеников) задаётся анти-джойном `not exists (… deleted_at is not null)` по этому крошечному
+индексу, а не поиском по первичному ключу для каждой строки членства (оба драйвера; на PostgreSQL `CONCURRENTLY` вне транзакции мигратора, `down()` снимает индекс).
 
 ### 2.18 `group_members` — членство learner'а в Telegram-группе
 | Колонка | Тип | Описание |
@@ -604,8 +632,11 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | new_words_count | int default 0 | карточек **впервые оценено** за день (`state = new` до оценки); квота Free считается не по нему, а по `word_repetitions.created_at` в границах локального дня (docs/12 §1.6, §5.3) |
 | correct_count | int default 0 | `quality >= 3` |
 | time_spent_ms | bigint default 0 | |
-| goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; источник истины для streak (`learners.streak_*` — проекция, обновляемая после commit) |
-| frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2)* |
+| goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; один из трёх фактов «день удержан» для streak (`goal_met_at` / `game_held_at` / `frozen_at`; `learners.streak_*` — проекция, обновляемая после commit) |
+| frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL AND game_held_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2; условие по `game_held_at` — G2.10)* |
+| game_runs_count | smallint default 0 | завершённых (`completed` / `failed`) забегов «Каравана» за локальный день *(G2.1)* |
+| game_points | smallint default 0 | очки лиги от игры за день после потолка `game.league.daily_cap` (40); пишутся в транзакции завершения забега; формула лиги прибавляет колонку как есть (docs/13 §2.4, G2.10) *(G2.1)* |
+| game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией и считается в неё `+1`, как день с целью (docs/18 §12.6, docs/12 §7.4); ставится один раз, пока `NULL`; читается `StreakService` вместе с `goal_met_at` / `frozen_at` *(G2.1; серия — G2.10)* |
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.
@@ -711,8 +742,13 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
 | created_via | string(16) | `twa` / `bot` / `org_panel` / `admin` |
 | meta | jsonb | `{learner_locale, checkout: {kind, expires_at}, checkout_error?}` |
+| payer_telegram_user_id | bigint nullable | **снимок плательщика** на момент создания заказа (`PayerSnapshot`): Telegram id ученика; `NULL` для организации |
+| payer_name | string(201) nullable | имя и фамилия ученика / название организации на момент заказа |
+| payer_username | string(100) nullable | `@username` ученика на момент заказа |
 
-**Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`.
+Снимок плательщика — единственное, что говорит «кто платил» после окончательного удаления ученика (§8 п. 2): `subscriber_id` остаётся, но строки `learners` уже нет. Заполняет `CheckoutService` при создании заказа; backfill — миграция 58.
+
+**Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`; `payer_telegram_user_id`.
 
 ### 2.28 `provider_transactions` — состояние транзакции провайдера *(2A.1, +`perform_time`/`cancel_time` в 2A.4)*
 | Колонка | Тип | Описание |
@@ -750,8 +786,13 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | period_starts_at, period_ends_at | timestamp nullable | за какой период уплачено |
 | occurred_at | timestamp NOT NULL | момент у провайдера |
 | raw | jsonb | нормализованное событие без секретов |
+| payer_telegram_user_id | bigint nullable | **снимок плательщика** на момент платежа (`PayerSnapshot`, как в §2.27): Telegram id ученика — по нему делается возврат Stars (`refundStarPayment(user_id, charge_id)`) и после окончательного удаления ученика; `NULL` для организации |
+| payer_name | string(201) nullable | имя и фамилия ученика / название организации на момент платежа |
+| payer_username | string(100) nullable | `@username` ученика на момент платежа |
 
-**Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`.
+«Кто и когда платил» = снимок плательщика + `occurred_at`; эти строки при удалении ученика **не трогаются** (§8 п. 2). Снимок пишет `PaymentApplier` в каждую строку леджера: с живой строки `learners`, если она ещё есть, иначе — копией с заказа (продление после удаления) или с возвращаемого платежа (возврат). `BillingDisplay::subscriber` в админке показывает снимок, когда строки ученика уже нет.
+
+**Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`; `payer_telegram_user_id`.
 
 ### 2.30 `organization_users` — персонал кабинета `/org` *(2B.1, docs/13 §1.3)*
 | Колонка | Тип | Описание |
@@ -904,7 +945,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 |---------|-----|----------|
 | id | bigint PK | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | |
-| key | string(32) | `first_session`, `streak_7` / `streak_30` / `streak_100`, `words_100` / `words_500` / `words_1000`, `league_top1`, `first_friend` (`App\Domain\Engagement\Enums\AchievementKey`); `course_completed:<slug>` из §1.5 пока не выдаётся |
+| key | string(32) | `first_session`, `streak_7` / `streak_30` / `streak_100`, `words_100` / `words_500` / `words_1000`, `league_top1`, `first_friend`, `game_first_boss` (первая победа над боссом, G2.4) (`App\Domain\Engagement\Enums\AchievementKey`); `course_completed:<slug>` из §1.5 пока не выдаётся |
 | unlocked_at | timestamp | момент выдачи |
 | shared_at | timestamp nullable | learner открыл диалог «Поделиться» в TWA (один раз) |
 | meta | json nullable | значение на момент выдачи (`{value: 7}`, `{league_week_id}`) |
@@ -1098,6 +1139,99 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** unique `(battle_id, round, learner_id)` — один окончательный ответ на раунд; unique `(battle_id, learner_id, request_id)` — повтор запроса. Читают ответы раунда одним запросом при приёме ответа и при разрешении раунда по времени, разбор и итог — `BattleReader`.
 
+## Игра «Караван» *(G2.1; проект — docs/18 §12.2, API — docs/04 A.18)*
+
+Карта игры своих таблиц не имеет: город = `stages`, стоянка = `lessons` (docs/18 §12.0). Таблицы ниже хранят забеги, прогресс, кошелёк, лавку и караван класса. Стиль как у практики (§2.43): перечисления — `varchar`, CHECK только на PostgreSQL, «один активный» — nullable unique-колонка (работает и на SQLite). Правило из docs/18 §12.4: игра в `word_repetitions` трогает только `next_review_at`, `is_hard`, `updated_at`.
+
+### 2.48 `game_runs` — забег *(G2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | владелец; чужой забег отвечает 404 |
+| active_learner_id | bigint nullable **unique** | `= learner_id`, пока `status = active` — один активный забег на ученика |
+| kind | varchar(12) | `stop` / `boss` / `daily` / `class_boss` (открытое перечисление: арена G3 расширяет CHECK) |
+| course_id | bigint FK → courses, ON DELETE CASCADE | |
+| stage_id | bigint nullable FK → stages, ON DELETE SET NULL | город (`stop`, `boss`); `NULL` у `daily` |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | стоянка (`stop`) |
+| class_caravan_id | bigint nullable FK → class_caravans, ON DELETE SET NULL | забег шёл во время активного каравана группы; у `class_boss` обязателен. FK добавляет миграция `class_caravans` (на SQLite — пересборкой таблицы) |
+| daily_key | varchar(32) nullable **unique** | `"{learner_id}:{local_date}"` у `daily`: один ежедневный караван в локальный день |
+| class_boss_key | varchar(40) nullable **unique** | `"{class_caravan_id}:{learner_id}"` у `class_boss`: одна попытка; бой, закрытый без единого ответа, отдаёт ключ (`NULL`) и попыткой не считается (G2.13, docs/18 §12.11) |
+| local_date | date NOT NULL | локальный день ученика в момент старта (лимиты дня, строка `learner_daily_stats`) |
+| status | varchar(10) default 'active' | `active` / `finished` |
+| finish_reason | varchar(12) nullable | `completed` / `failed` / `expired` / `abandoned` |
+| free_slot | varchar(8) nullable | чем оплачен забег `stop`/`boss` у Free: `daily` / `ticket`; `NULL` у Pro, `daily` и `class_boss` |
+| snapshot | jsonb NOT NULL | серверная выдача (docs/18 §12.3), наружу только через `project()` |
+| state | jsonb NOT NULL default '{}' | прогресс по элементам; меняется только под `FOR UPDATE` строки |
+| total | smallint | число элементов |
+| answered, correct, typos, wrong, hints | smallint default 0 | `answered = correct + typos + wrong + hints`; `wrong` включает `skipped` |
+| flasks, flasks_max | smallint | текущие / максимум фляг (у боссов `flasks_max = 0`) |
+| combo_best | smallint default 0 | |
+| score | int default 0 | |
+| stars | smallint nullable | 0..3 после завершения |
+| coins_awarded | int default 0 | |
+| league_points | smallint default 0 | очков лиги, зачтённых забегом после потолка |
+| srs_pulled | smallint default 0 | слов, которым приблизили повторение |
+| locale | varchar(5) | |
+| expires_at | timestamp NOT NULL | `started_at + game.run.ttl_minutes` (30) |
+| started_at, finished_at | timestamp (finished_at nullable) | |
+| created_at, updated_at | | |
+
+**Индексы:** `active_learner_id`, `daily_key`, `class_boss_key` — unique; `(learner_id, status, started_at)`; `(learner_id, kind, local_date)`; `(status, expires_at)`; `(class_caravan_id, status)`; `(course_id, kind, finished_at)`; `(started_at, learner_id)` (миграция 66).
+**PostgreSQL CHECK:** `game_runs_kind_check`, `game_runs_status_check`, `game_runs_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `game_runs_active_owner_check`, `game_runs_daily_shape_check ((kind = 'daily') = (daily_key IS NOT NULL))`, `game_runs_class_boss_shape_check ((class_boss_key IS NULL OR kind = 'class_boss') AND (kind <> 'class_boss' OR class_boss_key IS NOT NULL OR (status = 'finished' AND answered = 0)))` (с G2.13, миграция 67; до неё — `(kind = 'class_boss') = (class_boss_key IS NOT NULL)`), `game_runs_flasks_check (flasks BETWEEN 0 AND flasks_max)`.
+
+### 2.49 `game_run_attempts` — журнал принятых запросов забега *(G2.1)*
+Копия `practice_attempts` (§2.44): `run_id` FK → `game_runs` CASCADE, `learner_id` FK CASCADE, `request_id` uuid, `element_id` varchar(16), `kind` varchar(8) (`answer` / `pair` / `skip` / `hint` / `booster`), `payload` jsonb, `verdict` varchar(8) nullable (`correct` / `typo` / `wrong` / `skipped`; `NULL` у `hint` и `booster`), `is_first` boolean default true, `result` jsonb, `time_spent_ms` int nullable, `accepted_at` timestamp, `created_at` (без `updated_at`). **Индексы:** unique `(run_id, request_id)`; `(run_id, element_id)`; `(learner_id, accepted_at)`.
+
+### 2.50 `game_stop_progress` — прогресс по стоянке (уроку) *(G2.1)*
+`learner_id` FK CASCADE, `lesson_id` FK CASCADE, `course_id` FK CASCADE, `stage_id` FK CASCADE, `stars` smallint default 0 (лучший, 0..3), `best_score` int default 0, `runs_count` smallint default 0, `first_cleared_at` timestamp nullable, `last_run_at` timestamp, `created_at`, `updated_at`. **Индексы:** unique `(learner_id, lesson_id)`; `(learner_id, course_id)`; `(course_id, stage_id, learner_id)`. Строка появляется при первом завершённом забеге стоянки; «открыта» ли стоянка, не хранится — выводится из `word_repetitions` (docs/18 §12.2.3).
+
+### 2.51 `game_city_progress` — прогресс по городу (модулю) *(G2.1)*
+`learner_id` FK CASCADE, `stage_id` FK CASCADE, `course_id` FK CASCADE, `boss_attempts` smallint default 0, `boss_defeated_at` timestamp nullable, `boss_best_accuracy` smallint default 0 (0..100), `boss_wins` smallint default 0, `shared_at` timestamp nullable, `created_at`, `updated_at`. **Индексы:** unique `(learner_id, stage_id)`; `(learner_id, course_id)`.
+
+### 2.52 `game_word_misses` — промахи игры по слову *(G2.1)*
+`learner_id` FK CASCADE, `word_id` FK → words CASCADE, `misses` int default 0, `last_missed_at` timestamp, `last_pulled_at` timestamp nullable (когда игра в последний раз приблизила `next_review_at`), `created_at`, `updated_at`. **Индекс:** unique `(learner_id, word_id)`. Пишет только `GameSrsAdjuster` (`upsert()` билдера).
+
+### 2.53 `game_wallets` — кошелёк монет *(G2.1)*
+`learner_id` FK CASCADE **unique**, `balance` int NOT NULL default 0 (PostgreSQL CHECK `game_wallets_balance_check (balance >= 0)`), `earned_total` bigint default 0, `spent_total` bigint default 0, `created_at`, `updated_at`. Строка создаётся лениво; баланс меняется только под `FOR UPDATE`.
+
+### 2.54 `game_coin_ledger` — леджер монет, только добавление *(G2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| amount | int NOT NULL | `> 0` начисление, `< 0` списание; PostgreSQL CHECK `game_coin_ledger_amount_check (amount <> 0)` |
+| kind | varchar(24) | `run_reward` / `boss_reward` / `daily_reward` / `class_reward` / `bazaar_hint` / `item_purchase` / `admin_grant` / `admin_revoke` / `refund` |
+| idempotency_key | varchar(96) NOT NULL **unique** | `run:{run_id}:reward`, `run:{run_id}:hint:{element_id}`, `shop:{learner_id}:{request_id}`, `admin:{audit_log_id}`, `class:{caravan_id}:{learner_id}` |
+| ref_type, ref_id | varchar(24) nullable, bigint nullable | |
+| balance_after | int NOT NULL | баланс после проводки |
+| meta | jsonb default '{}' | |
+| created_at | timestamp default now | без `updated_at` |
+
+**Индексы:** unique `idempotency_key`; `(learner_id, created_at)`; `(kind, created_at)`. **Инвариант:** `SUM(amount) = game_wallets.balance` по ученику.
+
+### 2.55 `game_items` — каталог предметов *(G2.1)*
+`key` varchar(48) **unique**, `kind` varchar(10) (`cosmetic` / `booster`), `slot` varchar(10) nullable (`camel` / `carpet` / `tent` / `frame`), `effect` varchar(16) nullable (`hint` / `extra_flask` / `second_chance`), `price_coins` int default 0, `availability` varchar(12) (`base` / `achievement` / `seasonal` / `exclusive`), `achievement_key` varchar(32) nullable, `season_id` bigint nullable (задел G4, без FK), `status` varchar(10) default 'draft' (`draft` / `published` / `archived`), `sort` smallint default 0, `title` jsonb `{ru, uz}`, `description` jsonb nullable, `asset` varchar(64) nullable, `created_at`, `updated_at`. **Индексы:** unique `key`; `(kind, status, sort)`. **PostgreSQL CHECK:** `game_items_kind_shape_check` (косметика ⇔ `slot`, бустер ⇔ `effect`).
+
+### 2.56 `game_inventory` — владение предметами *(G2.1)*
+`learner_id` FK CASCADE, `item_id` FK → game_items CASCADE, `qty` int default 1 (PostgreSQL CHECK `qty >= 0`), `acquired_at` timestamp, `source` varchar(12) (`purchase` / `achievement` / `admin` / `default`), `created_at`, `updated_at`. **Индекс:** unique `(learner_id, item_id)`.
+
+### 2.57 `game_profiles` — игровой профиль *(G2.1)*
+`learner_id` FK CASCADE **unique**, `equipped` jsonb default '{}' (`{slot: item_id}`), `tickets` smallint NOT NULL default 0 (PostgreSQL CHECK `tickets >= 0`; меняется под замком `learners`), `tickets_earned_total` int default 0, `stops_cleared` smallint default 0, `cities_cleared` smallint default 0, `last_run_at` timestamp nullable, `created_at`, `updated_at`.
+
+### 2.58 `game_ticket_ledger` — леджер билетов, только добавление *(G2.1)*
+`learner_id` FK CASCADE, `delta` smallint, `source` varchar(12) (`streak` / `referral` / `admin` / `spend` / `refund` — G2.8b, возврат билета забега без ответа), `idempotency_key` varchar(96) **unique** (`streak:{learner_id}:{local_date}`, `referral:{referral_id}`, `spend:run:{run_id}`, `refund:run:{run_id}`, `admin:{audit_log_id}`), `run_id` bigint nullable FK → game_runs ON DELETE SET NULL, `created_at` (без `updated_at`). **Индексы:** unique ключ; `(learner_id, created_at)`. **PostgreSQL CHECK** `game_ticket_ledger_source_check` — список расширен миграцией 65.
+
+### 2.59 `game_booster_uses` — расход бустеров *(G2.1)*
+`learner_id` FK CASCADE, `run_id` FK → game_runs CASCADE, `item_id` FK → game_items, `element_id` varchar(16) nullable, `used_at` timestamp, `week_start` date (понедельник локальной недели ученика), `created_at`, `updated_at`. **Индексы:** `(learner_id, week_start)`; unique `(run_id, item_id, element_id)` (при `element_id = NULL` unique ничего не держит — «один на забег» обеспечивает сервис под замком забега).
+
+### 2.60 `class_caravans` — караван класса *(G2.1; логика — G2.9)*
+`telegram_group_id` FK → telegram_groups CASCADE, `organization_id` nullable FK → organizations SET NULL, `course_id` FK → courses CASCADE, `started_by_user_id` nullable FK → users SET NULL, `active_group_id` bigint nullable **unique** (`= telegram_group_id`, пока `status = active`), `status` varchar(10) (`active` / `finished` / `canceled`), `starts_at`, `ends_at` timestamp, `target_stars` int, `stars_total`, `runs_total` int default 0, `boss_snapshot_words` jsonb nullable, `boss_unlocked_at`, `boss_defeated_at`, `summary_posted_at`, `finished_at` timestamp nullable, `meta` jsonb default '{}', `created_at`, `updated_at`. **Индексы:** unique `active_group_id`; `(status, ends_at)`; `(telegram_group_id, starts_at)`. **PostgreSQL CHECK:** `class_caravans_status_check`, `class_caravans_active_shape_check ((status = 'active') = (active_group_id IS NOT NULL))`.
+
+### 2.61 `class_caravan_members` — вклад участников *(G2.1; логика — G2.9)*
+`class_caravan_id` FK CASCADE, `learner_id` FK CASCADE, `runs` smallint default 0, `stars` smallint default 0, `best_score` int default 0, `boss_won_at` timestamp nullable, `last_run_at` timestamp nullable, `created_at`, `updated_at`. **Индексы:** unique `(class_caravan_id, learner_id)`; `(class_caravan_id, stars, runs)`.
+
+Пишут таблицы игры только сервисы домена `Game` (`app/Domain/Game`); порядок блокировок и транзакция завершения — docs/18 §12.5.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1167,6 +1301,33 @@ CHECK не создаются — инвариант дублируют серв
 52. `2026_10_30_100004_create_battles_tables` — `battles`, `battle_participants`, `battle_answers`; созданы вместе с практикой, чтобы баттл (18.6) стартовал на готовой схеме *(18.1, §2.45–§2.47)*
 53. `2026_10_30_100010_add_scope_to_practice_item_versions_table` — `practice_item_versions.target_word_ids` (jsonb NOT NULL default `'[]'`), `lesson_id` (nullable FK → `lessons`, ON DELETE SET NULL), `level`; backfill всех существующих версий из их заданий (слова — из `practice_item_words` по возрастанию, урок и уровень — из `practice_items`; query builder, чанки по 500 заданий, переносимо для SQLite и PostgreSQL). На SQLite FK добавляется пересборкой таблицы, а пересборка пересоздаёт индексы без предиката — поэтому partial-индекс `practice_item_versions_audio_pending_idx` перед ней снимается и после неё ставится заново. `down()` снимает FK и три колонки *(18.9a, §2.41–§2.42)*
 54. `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` — индекс `practice_item_versions (lesson_id)` (`practice_item_versions_lesson_id_index`): внешний ключ `lesson_id` с `ON DELETE SET NULL` не имел своего индекса, а PostgreSQL его для ссылающегося столбца не создаёт — удаление урока сканировало бы всю таблицу версий (она только растёт). `down()` снимает индекс *(18.11b, §2.41)*
+55. `2026_11_02_100001_add_filament_list_indexes` — индексы под страницы списков Filament по `EXPLAIN` реальных запросов на 200 тыс. учеников (docs/20 F2, §4):
+    b-tree `learners_first_name_id_idx (first_name, id)` и `exam_sessions_started_at_id_idx (started_at, id)` под сортировки по умолчанию (оба драйвера);
+    на PostgreSQL — `CREATE EXTENSION IF NOT EXISTS pg_trgm` и GIN-триграммы под поиск `like '%…%'`: `learners_first_name_lower_trgm_idx`,
+    `learners_last_name_lower_trgm_idx`, `learners_username_trgm_idx`, `words_word_lower_trgm_idx`, `words_translation_lower_trgm_idx` (§2.7, §2.17).
+    Как 44: `CONCURRENTLY` вне транзакции мигратора (`$withinTransaction = false`), обычные инструкции внутри чужой транзакции и на sqlite, `DROP INDEX IF EXISTS`
+    перед каждой сборкой. `down()` снимает индексы, расширение `pg_trgm` оставляет (общая инфраструктура — от неё могут зависеть другие индексы;
+    снятие расширения — отдельное решение); на sqlite расширения и GIN нет — только b-tree *(W2-A)*
+56. `2026_11_02_200001_add_deleted_learners_partial_index` — partial-индекс `learners_deleted_idx (id) WHERE deleted_at IS NOT NULL` под анти-джойн по удалённым ученикам виджетов дашборда (§2.17; docs/20 F5). Как 44 и 55: `CONCURRENTLY` вне транзакции мигратора, `DROP INDEX IF EXISTS` перед сборкой, рабочий `down()` *(W2-C)*
+57. `2026_11_03_100001_add_title_uz_to_stages_and_lessons_tables` — `stages.title_uz`, `lessons.title_uz` (string(255) nullable, последняя колонка таблицы): название
+    модуля / урока на узбекском рядом с русским `title` (§2.5–§2.6, выбор по локали — `DeckTitles`). Простой `ADD COLUMN` на обоих драйверах;
+    `down()` снимает обе колонки (`DROP COLUMN`, на sqlite ≥ 3.35 — без пересборки таблицы). Проверяет `LocalizedTitlesTest` *(R3c)*
+58. `2026_11_03_200001_add_payer_snapshot_to_payment_tables` — снимок плательщика `payer_telegram_user_id` (bigint nullable, индекс), `payer_name` (string(201) nullable),
+    `payer_username` (string(100) nullable) в `payment_orders` и `payments` (§2.27, §2.29) — «кто платил» после окончательного удаления ученика (§8 п. 2).
+    Backfill тем же файлом: коррелированным `UPDATE … SET … = (SELECT … FROM learners WHERE learners.id = subscriber_id)` по строкам `subscriber_type = 'learner'`
+    (включая soft-deleted учеников) и из `organizations.name` по `organization`; оба драйвера. `down()` снимает индексы и колонки *(purge)*
+
+59. `2026_11_05_100001_create_game_runs_tables` — `game_runs` (без FK на `class_caravans`), `game_run_attempts`; CHECK — только pgsql *(G2.1, §2.48–§2.49)*
+60. `2026_11_05_100002_create_game_progress_tables` — `game_stop_progress`, `game_city_progress`, `game_word_misses` *(G2.1, §2.50–§2.52)*
+61. `2026_11_05_100003_create_game_economy_tables` — `game_wallets`, `game_coin_ledger`, `game_items`, `game_inventory`, `game_profiles`, `game_ticket_ledger`, `game_booster_uses`; CHECK — только pgsql *(G2.1, §2.53–§2.59)*
+62. `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` — `game_runs_count`, `game_points`, `game_held_at` (§2.22) *(G2.1)*
+63. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
+64. `2026_11_06_100000_add_organization_index_to_class_caravans_table` — индекс `class_caravans (organization_id, starts_at)` для страницы «Караваны» в `/org` *(G2.9b)*
+65. `2026_11_07_100000_add_refund_to_game_ticket_ledger_source_check` — PG CHECK `game_ticket_ledger.source` += `refund` (только pgsql; `down()` возвращает прежний список и требует отсутствия строк `refund`) *(G2.8b, §2.58)*
+66. `2026_11_08_100000_add_started_at_index_to_game_runs_table` — индекс `game_runs (started_at, learner_id)` для `GameActivityStats` и фильтра дат `GameRunResource` *(G2.13)*
+67. `2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key` — PG CHECK `game_runs_class_boss_shape_check` допускает `class_boss_key IS NULL` у завершённого без ответа боя с боссом класса (только pgsql; `down()` даёт отданным ключам заглушку `freed:{id}` и возвращает прежний CHECK проверенным — настоящие ключи не восстановить) *(G2.13, §2.48)*
+
+Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 
@@ -1246,7 +1407,14 @@ ORDER BY er.rank ASC;
 ## 8. Важные правила
 
 1. **Никогда не удаляем `words`** — только soft-deactivate (`words.is_active`). Иначе сломается история `word_repetitions`.
-2. **Удаление learner'а** (жёсткое) — каскадом удаляются его `group_members`, `word_repetitions`, `training_reviews`, `exam_question_attempts`, `notifications_log`, `learner_daily_stats`, личные `training_sessions`. `exam_answers`, `exam_results` и `product_events` сохраняются с анонимизацией `learner_id → NULL`, чтобы статистика группы не разваливалась. Обычное удаление аккаунта — мягкое (`learners.deleted_at`); при следующем входе тем же Telegram-пользователем `LearnerRegistrar` возвращает запись.
+2. **Удаление learner'а** — в два шага (решение владельца 03.11.2026; docs/07 §10).
+   **Шаг 1, мягкое:** `learners.deleted_at` (ставит `LearnerDeletionService`: кнопка «Удалить аккаунт» в настройках Mini App (`POST /me/delete`), команда `/delete_account` и кнопка в `/settings` бота — с подтверждением, и действие «Удалить аккаунт» админа в карточке ученика; аудит `learner.deleted {by: self|admin}`; автопродление Stars снимается сразу, оплаченный период и платежи не трогаются). Пока строка soft-deleted, ничего не удаляется: `telegram_user_id` закреплён за ней, собственный `/start` / `/auth` того же Telegram-пользователя её восстанавливает (`LearnerRegistrar`, условным `UPDATE … WHERE deleted_at IS NOT NULL`), пассивные события группы — нет. При таком возвращении `AccountRestoreNotice::markPending` кладёт в `learners.meta` ключ `restored_notice_at` (ISO-время; другие ключи `meta` не затираются) и пишет аудит `learner.restored {by: self}` (без PII); ключ живёт, пока ученику не показали «Аккаунт восстановлен» (бот `/start` или Mini App (`/auth`), кто первый — тот снимает ключ под `lockForUpdate`). Новый ученик и «строку уже стёрла очистка → новая строка» ключа не получают.
+   **Шаг 2, окончательное:** через `config('learners.purge.after_days')` (30, `LEARNERS_PURGE_AFTER_DAYS`) дней после `deleted_at` команда `learners:purge-deleted` (ежедневно 03:30, `LearnerPurgeService`) удаляет строку `learners`. Один ученик — одна транзакция: `SELECT … FOR UPDATE` с повторной проверкой `deleted_at <= cutoff` (восстановление, успевшее между выборкой и блокировкой, оставляет строку), затем `DELETE`. Пачками (`learners.purge.batch`), не больше `learners.purge.max_per_run` за запуск, под `Cache::lock('learners:purge')`; повторный или параллельный запуск ничего не меняет.
+   *Уходит каскадом (`ON DELETE CASCADE`):* `group_members`, `organization_members` (место центра освобождается), `word_repetitions`, `training_reviews`, личные `training_sessions`, личные `exam_sessions` (`personal_mock`) со своими ответами и результатами, `exam_question_attempts`, `notifications_log`, `learner_daily_stats`, `achievements`, `assignment_results`, `offers`, `promo_redemptions` (счётчик `promo_codes.redemptions_count` не уменьшается), `referrals` (как пригласивший и как приглашённый; уже выданные награды не отзываются), `friendships`, `challenges`, `battles` с `battle_participants` / `battle_answers` (и из истории соперника — docs/07 §10), `league_members`, `practice_sessions` / `practice_attempts`.
+   *Обнуляется (`ON DELETE SET NULL`):* `exam_answers.learner_id`, `exam_results.learner_id` (статистика группового экзамена остаётся, анонимно), `product_events.learner_id`, `learners.referrer_learner_id` у приглашённых, `challenges.winner_learner_id`, `battles.winner_learner_id`.
+   *Остаётся целиком (без FK на `learners`):* `payment_orders`, `payments`, `provider_transactions`, `subscriptions` — платёжные записи с `subscriber_id` старого ученика и снимком плательщика (`payer_*`, §2.27, §2.29): «кто и когда платил» видно и в админке, и для возврата Stars. Живые подписки ученика перед удалением сервис завершает (`SubscriptionService::endNow`, reason `learner_purged`), у Stars — пробует снять автопродление (`cancelAutoRenew`, best-effort: отказ Telegram пишется в лог, удаление не останавливает; пришедшее позже продление ляжет `failed`-строкой `subscriber_missing` со снимком плательщика с заказа — его возвращают из админки). `audit_logs` (без FK) хранят строку `learner.purged` (`entity_id` = старый id, `meta.deleted_at`).
+   *После удаления:* `EntitlementResolver::forget`, `OrgOverviewService::forget` по организациям ученика, сброс `league:standings` его групп (docs/19 §3 п. 5). Повторный `/start` того же Telegram-пользователя создаёт **нового** ученика с новым `id`: прогресс, подписки, друзья и рефералы не наследуются; старые платежи остаются на старом `subscriber_id` и находятся по `payer_telegram_user_id`.
+   **Известное окно:** `/start`, пришедший в ту же секунду, что и удаление, может восстановить уже удаляемую строку только до её блокировки; после — условный `UPDATE` регистратора не находит строки, и он создаёт нового ученика в том же запросе.
 2a. **Выход из группы** не удаляет ничего: `group_members.status` становится `left` / `removed`, прогресс остаётся у learner'а.
 3. **FK всегда с `onDelete` явно**. Не полагайся на дефолты.
 4. **Всегда транзакция** для: импорта JSON, закрытия экзамена, подсчёта лидерборда.

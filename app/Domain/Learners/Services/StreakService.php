@@ -7,7 +7,9 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\Services\StreakFreezeService;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Learners\DTO\StreakState;
+use App\Domain\Learners\Enums\StreakHeldBy;
 use App\Domain\Learners\Support\StoredDate;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -16,21 +18,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use LogicException;
 use Throwable;
 
 /**
- * Daily-goal streak of a learner (docs/12 §7.4, freezes: docs/06 §6a, docs/13 §7.2).
+ * Daily streak of a learner (docs/12 §7.4, freezes: docs/06 §6a, docs/13 §7.2, the game: docs/18 §12.6).
  *
  * Source of truth is `learner_daily_stats`: a local day is **held** when `goal_met_at` is set
- * (written inside the review transaction) OR `frozen_at` is set (a streak freeze spent on a
- * missed day, StreakFreezeService). `learners.streak_current / streak_best / streak_last_date`
- * are a denormalised projection of those facts maintained by {@see project()}:
+ * (written inside the review transaction) OR `game_held_at` is set (the first finished run of the
+ * game that day, written inside the transaction of the finish) OR `frozen_at` is set (a streak
+ * freeze spent on a missed day, StreakFreezeService) — {@see StreakHeldBy}. `learners.streak_current /
+ * streak_best / streak_last_date` are a denormalised projection of those facts maintained by {@see project()}:
  *
- *  - held local day `d`: if `streak_last_date = d - 1` → `current + 1` for a met day, unchanged
- *    for a frozen one; otherwise (a gap, or no credit yet) the series is **rebuilt from the
- *    facts**: `run` = the goal-met days of the unbroken series of held days ending on `d - 1`
- *    (frozen days bridge it without counting; at most {@see MAX_REBUILD_DAYS} deep),
- *    `current = run + 1` for a met day (so a day whose callback was lost, or arrived after the
+ *  - held local day `d`: if `streak_last_date = d - 1` → `current + 1` for a day that counts (goal
+ *    or game), unchanged for a frozen one; otherwise (a gap, or no credit yet) the series is
+ *    **rebuilt from the facts**: `run` = the counting days of the unbroken series of held days
+ *    ending on `d - 1` (frozen days bridge it without counting; at most {@see MAX_REBUILD_DAYS} deep),
+ *    `current = run + 1` for a counting day (so a day whose callback was lost, or arrived after the
  *    next day's, is not lost: with nothing held on `d - 1` this is the plain restart `current = 1`);
  *    `best = max(best, current)`; `last = d`;
  *  - a day is held at most once, and never a day **before** the last held one (`last >= d` →
@@ -63,6 +67,10 @@ use Throwable;
  * and callback, `current()` repairs the projection from the facts (today's stats row, or
  * yesterday's fact).
  *
+ * Events: a goal day writes `daily_goal.met` and (when the series continues) `streak.extended`; a game day only
+ * `streak.extended`; a frozen day nothing. A goal met on a day the game held already changes no projection, so
+ * {@see onGoalMet()} tells `daily_goal.met` itself then (docs/18 §12.6 "Реализация G2.10").
+ *
  * Deliberately not final: tests of DailyStatsService replace it with a double
  * to observe `onGoalMet`.
  */
@@ -73,9 +81,13 @@ class StreakService
     /** How many days back a series is rebuilt from `learner_daily_stats` when the projection has a gap. */
     private const MAX_REBUILD_DAYS = 400;
 
+    /** The columns a held day row is read with: enough for {@see StreakHeldBy::fromRow()}. */
+    private const HELD_COLUMNS = ['id', 'learner_id', 'date', 'goal_met_at', 'game_held_at', 'frozen_at'];
+
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly StreakFreezeService $freezes,
+        private readonly TicketService $tickets,
     ) {}
 
     /**
@@ -91,7 +103,11 @@ class StreakService
             // A failure must not stop the hooks registered after this one (referrals, league, achievements);
             // a projection that did not happen is repaired on read from the committed day row ({@see current()}).
             try {
-                $this->apply($learner, $date);
+                if (! $this->apply($learner, $date) && $this->heldRow($learner->id, $date)?->game_held_at !== null) {
+                    // The day was counted already - by a run of the game finished earlier (or whose projection got there
+                    // first): the series is as it should be, only the fact of the goal is still to be told (docs/18 §12.6).
+                    $this->events->record(ProductEventName::DailyGoalMet, ['streak' => (int) $learner->streak_current, 'date' => $date], learner: $learner);
+                }
             } catch (Throwable $e) {
                 report($e);
             }
@@ -99,17 +115,22 @@ class StreakService
     }
 
     /**
-     * Credits local day `$date` (`Y-m-d`), on which the goal was met, to the learner's streak.
-     * Idempotent; returns true when the projection changed. Also refreshes the streak attributes
-     * of the passed model so the current request sees the result.
+     * Credits local day `$date` (`Y-m-d`), held by the goal (`$by = Goal`, the default) or by a finished run of the game
+     * (`$by = Game`, RunFinisher after its commit), to the learner's streak. Idempotent; returns true when the projection
+     * changed. Also refreshes the streak attributes of the passed model so the current request sees the result.
      *
      * Not a pure projection step: when `streak_last_date` is not `$date - 1` the series is
      * rebuilt from `learner_daily_stats` — after an attempt to freeze `$date - 1` if exactly that
-     * one day was missed (see the class docblock).
+     * one day was missed (see the class docblock). A frozen day is never applied here: the freeze
+     * is spent by StreakFreezeService and projected from the inside.
      */
-    public function apply(Learner $learner, string $date, ?CarbonImmutable $now = null): bool
+    public function apply(Learner $learner, string $date, ?CarbonImmutable $now = null, StreakHeldBy $by = StreakHeldBy::Goal): bool
     {
-        return $this->project($learner, $date, true, $now ?? CarbonImmutable::now());
+        if ($by === StreakHeldBy::Freeze) {
+            throw new LogicException('A frozen day is projected by the freeze itself, not applied as a credit.');
+        }
+
+        return $this->project($learner, $date, $by, $now ?? CarbonImmutable::now());
     }
 
     /**
@@ -118,8 +139,9 @@ class StreakService
      * `learner_daily_stats`.
      *
      * @param  CarbonImmutable  $today  the learner's local day from LearnerClock::today()
-     * @param  LearnerDailyStats|null  $todayStats  today's row when the caller already has it: lets a goal met
-     *                                              today but not yet projected onto `learners` be repaired here
+     * @param  LearnerDailyStats|null  $todayStats  today's row when the caller already has it: lets a day held
+     *                                              today but not yet projected onto `learners` be repaired here,
+     *                                              and names what held it (`held_by`)
      * @param  CarbonImmutable|null  $now  the instant (entitlement, `frozen_at`); defaults to the real clock
      */
     public function current(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $todayStats = null, ?CarbonImmutable $now = null): StreakState
@@ -133,18 +155,19 @@ class StreakService
         $frozenYesterday = $yesterdayRow?->frozen_at !== null;
         $freezesAvailable = $this->freezes->available($learner, $now);
         $mayHaveRaced = false;
+        $heldToday = $todayStats === null ? null : StreakHeldBy::fromRow($todayStats);
 
-        if ($todayStats?->goal_met_at !== null && ($last === null || $last < $todayDate)) {
+        if ($heldToday !== null && ($last === null || $last < $todayDate)) {
             $mayHaveRaced = true;
-            $this->apply($learner, $todayDate, $now);
+            $this->project($learner, $todayDate, $heldToday, $now);
             if ($yesterdayRow === null && $freezesAvailable > 0) {
-                $frozenYesterday = $this->heldRow($learner->id, $yesterday)?->frozen_at !== null; // apply() may have frozen it
+                $frozenYesterday = $this->heldRow($learner->id, $yesterday)?->frozen_at !== null; // project() may have frozen it
             }
         } elseif ($last === null || $last < $yesterday) {
             $mayHaveRaced = true;
             if ($yesterdayRow !== null) {
                 // The projection missed yesterday (callback lost) — without this fact the series would read as 0.
-                $this->project($learner, $yesterday, $yesterdayRow->goal_met_at !== null, $now);
+                $this->project($learner, $yesterday, StreakHeldBy::fromRow($yesterdayRow) ?? StreakHeldBy::Freeze, $now);
             } elseif ($last !== null && $this->freezeMissed($learner, $yesterday, $last, $now)) {
                 $frozenYesterday = true;
             }
@@ -171,6 +194,8 @@ class StreakService
             atRisk: $current > 0 && ! $metToday,
             freezes: $this->freezes->available($learner, $now),
             frozenYesterday: $frozenYesterday,
+            // Named only once the projection counts today: while it lags (a contended UPDATE) both fields say "not yet".
+            heldBy: $metToday ? $heldToday : null,
         );
     }
 
@@ -257,15 +282,15 @@ class StreakService
     }
 
     /**
-     * Projects the held days (goal met or frozen) after `$last` up to `$through`, oldest first. Looks back
-     * at most as far as freezes can reach (the older gap cannot be bridged anyway).
+     * Projects the held days (goal met, game held or frozen) after `$last` up to `$through`, oldest first. Looks
+     * back at most as far as freezes can reach (the older gap cannot be bridged anyway).
      */
     private function projectHeldRows(Learner $learner, string $last, string $through, CarbonImmutable $now): void
     {
         $from = $this->windowStart($last, $through);
 
         foreach ($this->heldRowsBetween($learner->id, $from, $through) as $row) {
-            $this->project($learner, $row->date->toDateString(), $row->goal_met_at !== null, $now);
+            $this->project($learner, $row->date->toDateString(), StreakHeldBy::fromRow($row) ?? StreakHeldBy::Freeze, $now);
         }
     }
 
@@ -310,27 +335,26 @@ class StreakService
     }
 
     /**
-     * Held rows (goal met or frozen) with `$from <= date <= $through`, oldest first.
+     * Held rows (goal met, game held or frozen) with `$from <= date <= $through`, oldest first.
      *
      * @return Collection<int, LearnerDailyStats>
      */
     private function heldRowsBetween(int $learnerId, string $from, string $through): Collection
     {
-        return LearnerDailyStats::query()
-            ->where('learner_id', $learnerId)
-            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+        return $this->held(LearnerDailyStats::query()->where('learner_id', $learnerId))
             ->where('date', '>=', StoredDate::of($from))
             ->where('date', '<=', StoredDate::of($through))
             ->orderBy('date')
-            ->get(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
+            ->get(self::HELD_COLUMNS);
     }
 
     /**
-     * Projects held local day `$date` onto `learners` (`$goalMet`: the goal was met on it; otherwise it
-     * was frozen). Idempotent; returns true when the projection changed.
+     * Projects held local day `$date` onto `learners` (`$by`: what held it — the goal or the game count `+1`,
+     * a freeze only bridges). Idempotent; returns true when the projection changed.
      */
-    private function project(Learner $learner, string $date, bool $goalMet, CarbonImmutable $now): bool
+    private function project(Learner $learner, string $date, StreakHeldBy $by, CarbonImmutable $now): bool
     {
+        $counts = $by->counts();
         $freezeTried = false;
 
         for ($attempt = 0; $attempt < self::MAX_ATTEMPTS; $attempt++) {
@@ -351,17 +375,17 @@ class StreakService
             $previous = CarbonImmutable::parse($date)->subDay()->toDateString();
             $bridged = false;
 
-            if ($goalMet && $last !== null && $last !== $previous && $fresh->streak_current > 0 && ! $freezeTried) {
-                // Goal met today after exactly one missed day (yesterday): a freeze keeps the series.
+            if ($counts && $last !== null && $last !== $previous && $fresh->streak_current > 0 && ! $freezeTried) {
+                // A day held today after exactly one missed day (yesterday): a freeze keeps the series.
                 $freezeTried = true;
                 $bridged = $this->freezeGapBefore($learner, $previous, $last, $now);
             }
 
-            $credit = $goalMet ? 1 : 0;
+            $credit = $counts ? 1 : 0;
             $current = $last === $previous || $bridged
                 ? $fresh->streak_current + $credit
                 : $this->factRunEndingOn($learner->id, $previous) + $credit;
-            $continues = $goalMet && $current > 1;
+            $continues = $counts && $current > 1;
             $best = max($fresh->streak_best, $current);
 
             // Optimistic single-statement UPDATE: no FOR UPDATE, no lock ordering concerns.
@@ -380,8 +404,15 @@ class StreakService
 
             if ($affected === 1) {
                 $this->syncModel($learner, $current, $best, $date);
-                if ($goalMet) {
-                    $this->recordEvents($learner, $date, $current, $best, $continues);
+                if ($counts) {
+                    $this->recordEvents($learner, $by, $date, $current, $best, $continues);
+                    // The tickets of the game (docs/18 §12.7.3): the one point where a goal day or a game day just added one to the
+                    // series - after the commit of the fact; every 7th day is the ticket's own rule, the key is the day (once).
+                    try {
+                        $this->tickets->grantForStreak($learner, $current, $date, $now);
+                    } catch (Throwable $e) {
+                        report($e);
+                    }
                 }
 
                 return true;
@@ -418,27 +449,24 @@ class StreakService
             $this->freezes->tryFreezeMany($learner, $tail, $now); // false: too few freezes, or a concurrent caller froze them a moment ago
         }
 
-        // A met day (its callback was lost) must be counted by the rebuild; only frozen days bridge.
+        // A counting day (its callback was lost) must be counted by the rebuild; only frozen days bridge.
         $rows = $this->heldRowsBetween($learner->id, CarbonImmutable::parse($last)->addDay()->toDateString(), $previous);
 
-        return $rows->count() === $gap && $rows->every(fn (LearnerDailyStats $row): bool => $row->goal_met_at === null);
+        return $rows->count() === $gap && $rows->every(fn (LearnerDailyStats $row): bool => ! (StreakHeldBy::fromRow($row)?->counts() ?? false));
     }
 
-    /** The row of a held local day (goal met or frozen), or null when the day is not held. */
+    /** The row of a held local day (goal met, game held or frozen), or null when the day is not held. */
     private function heldRow(int $learnerId, string $date): ?LearnerDailyStats
     {
         /** @var LearnerDailyStats|null $row */
-        $row = LearnerDailyStats::query()
-            ->where('learner_id', $learnerId)
-            ->where('date', StoredDate::of($date))
-            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
-            ->first(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
+        $row = $this->held(LearnerDailyStats::query()->where('learner_id', $learnerId)->where('date', StoredDate::of($date)))
+            ->first(self::HELD_COLUMNS);
 
         return $row;
     }
 
     /**
-     * Goal-met days of the unbroken series of held local days (`goal_met_at` or `frozen_at`) that ends on
+     * Counting days (goal met or game held) of the unbroken series of held local days that ends on
      * `$endDate` (0 when `$endDate` itself is not held). Frozen days keep the series unbroken but are not
      * counted. One query, at most MAX_REBUILD_DAYS rows.
      */
@@ -446,13 +474,11 @@ class StreakService
     {
         $end = CarbonImmutable::parse($endDate);
 
-        $rows = LearnerDailyStats::query()
-            ->where('learner_id', $learnerId)
-            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+        $rows = $this->held(LearnerDailyStats::query()->where('learner_id', $learnerId))
             ->where('date', '<=', StoredDate::of($endDate))
             ->where('date', '>', StoredDate::of($end->subDays(self::MAX_REBUILD_DAYS)->toDateString()))
             ->orderByDesc('date')
-            ->get(['date', 'goal_met_at']);
+            ->get(['date', 'goal_met_at', 'game_held_at']);
 
         $run = 0;
         $offset = 0;
@@ -461,12 +487,23 @@ class StreakService
                 break;
             }
             $offset++;
-            if ($row->goal_met_at !== null) {
+            if ($row->goal_met_at !== null || $row->game_held_at !== null) {
                 $run++;
             }
         }
 
         return $run;
+    }
+
+    /**
+     * The rows of held days: the goal met, the game held or frozen (docs/06 §6a).
+     *
+     * @param  Builder<LearnerDailyStats>  $query
+     * @return Builder<LearnerDailyStats>
+     */
+    private function held(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('game_held_at')->orWhereNotNull('frozen_at'));
     }
 
     private function syncModel(Learner $learner, int $current, int $best, string $last): void
@@ -478,9 +515,12 @@ class StreakService
         ])->syncOriginalAttributes(['streak_current', 'streak_best', 'streak_last_date']);
     }
 
-    private function recordEvents(Learner $learner, string $date, int $current, int $best, bool $continues): void
+    /** A goal day tells `daily_goal.met`; any counting day that continues the series tells `streak.extended`. */
+    private function recordEvents(Learner $learner, StreakHeldBy $by, string $date, int $current, int $best, bool $continues): void
     {
-        $this->events->record(ProductEventName::DailyGoalMet, ['streak' => $current, 'date' => $date], learner: $learner);
+        if ($by === StreakHeldBy::Goal) {
+            $this->events->record(ProductEventName::DailyGoalMet, ['streak' => $current, 'date' => $date], learner: $learner);
+        }
 
         if ($continues) {
             $this->events->record(ProductEventName::StreakExtended, ['current' => $current, 'best' => $best], learner: $learner);

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 9,
+    "title": "Тело и здоровье",
+    "title_uz": "Tana va salomatlik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Части тела",
+    "title_uz": "Tana a'zolari"
+  },
+  "words": [
+    {
+      "word": "head",
+      "part_of_speech": "noun",
+      "translation": "голова",
+      "translations": {
+        "ru": "голова",
+        "uz": "bosh"
+      },
+      "example": "My head hurts.",
+      "example_translations": {
+        "ru": "У меня болит голова.",
+        "uz": "Boshim og'riyapti."
+      }
+    },
+    {
+      "word": "face",
+      "part_of_speech": "noun",
+      "translation": "лицо",
+      "translations": {
+        "ru": "лицо",
+        "uz": "yuz"
+      },
+      "example": "Wash your face.",
+      "example_translations": {
+        "ru": "Умой лицо.",
+        "uz": "Yuzingni yuv."
+      }
+    },
+    {
+      "word": "eye",
+      "part_of_speech": "noun",
+      "translation": "глаз",
+      "translations": {
+        "ru": "глаз",
+        "uz": "ko'z"
+      },
+      "example": "She has blue eyes.",
+      "example_translations": {
+        "ru": "У неё голубые глаза.",
+        "uz": "Uning ko'k ko'zlari bor."
+      }
+    },
+    {
+      "word": "ear",
+      "part_of_speech": "noun",
+      "translation": "ухо",
+      "translations": {
+        "ru": "ухо",
+        "uz": "quloq"
+      },
+      "example": "The baby has small ears.",
+      "example_translations": {
+        "ru": "У малыша маленькие уши.",
+        "uz": "Chaqaloqning kichkina quloqlari bor."
+      }
+    },
+    {
+      "word": "nose",
+      "part_of_speech": "noun",
+      "translation": "нос",
+      "translations": {
+        "ru": "нос",
+        "uz": "burun"
+      },
+      "example": "His nose is red from the cold.",
+      "example_translations": {
+        "ru": "Его нос красный от холода.",
+        "uz": "Uning burni sovuqdan qizargan."
+      }
+    },
+    {
+      "word": "mouth",
+      "part_of_speech": "noun",
+      "translation": "рот",
+      "translations": {
+        "ru": "рот",
+        "uz": "og'iz"
+      },
+      "example": "Open your mouth, please.",
+      "example_translations": {
+        "ru": "Откройте рот, пожалуйста.",
+        "uz": "Iltimos, og'zingizni oching."
+      }
+    },
+    {
+      "word": "hair",
+      "part_of_speech": "noun",
+      "translation": "волосы",
+      "translations": {
+        "ru": "волосы",
+        "uz": "soch"
+      },
+      "example": "Her hair is long and black.",
+      "example_translations": {
+        "ru": "Её волосы длинные и чёрные.",
+        "uz": "Uning sochlari uzun va qora."
+      }
+    },
+    {
+      "word": "hand",
+      "part_of_speech": "noun",
+      "translation": "кисть руки, рука",
+      "translations": {
+        "ru": "кисть руки, рука",
+        "uz": "qo'l"
+      },
+      "example": "Give me your hand.",
+      "example_translations": {
+        "ru": "Дай мне руку.",
+        "uz": "Qo'lingni ber."
+      }
+    },
+    {
+      "word": "arm",
+      "part_of_speech": "noun",
+      "translation": "рука от плеча до кисти",
+      "translations": {
+        "ru": "рука от плеча до кисти",
+        "uz": "bilak, qo'l"
+      },
+      "example": "His arm hurts.",
+      "example_translations": {
+        "ru": "У него болит рука.",
+        "uz": "Uning qo'li og'riyapti."
+      }
+    },
+    {
+      "word": "leg",
+      "part_of_speech": "noun",
+      "translation": "нога",
+      "translations": {
+        "ru": "нога",
+        "uz": "oyoq"
+      },
+      "example": "My leg hurts after running.",
+      "example_translations": {
+        "ru": "После бега у меня болит нога.",
+        "uz": "Yugurgandan keyin oyog'im og'riydi."
+      }
+    }
+  ]
+}

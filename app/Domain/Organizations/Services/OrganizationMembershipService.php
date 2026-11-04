@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Membership of a learner in an organization and the seats of the organization
@@ -248,8 +249,8 @@ final class OrganizationMembershipService
             $event = new OrganizationMemberLeft($locked->id, $learner->id, $member->id, $status, $wasSeated, $by?->id);
 
             DB::afterCommit(function () use ($event): void {
-                $this->entitlements->forget($event->learnerId);
-                event($event);
+                $reported = false;
+                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
             });
             $this->announceSeated($promoted);
         });
@@ -480,8 +481,8 @@ final class OrganizationMembershipService
         $event = new OrganizationMemberJoined($organization->id, $learner->id, $member->id, $via->value, $seat->value);
 
         DB::afterCommit(function () use ($event): void {
-            $this->entitlements->forget($event->learnerId);
-            event($event);
+            $reported = false;
+            $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
         });
 
         return ['member' => $member, 'changed' => true];
@@ -533,11 +534,44 @@ final class OrganizationMembershipService
         );
 
         DB::afterCommit(function () use ($events): void {
+            $reported = false;
             foreach ($events as $event) {
-                $this->entitlements->forget($event->learnerId);
-                event($event);
+                $this->afterCommitSteps($event->organizationId, $event->learnerId, $event, $reported);
             }
         });
+    }
+
+    /**
+     * After commit: drop the learner's cached entitlement, then raise the event. Each step is guarded - a failure
+     * (Redis down, a listener throwing) is logged and never stops the next step or the next learner of the loop.
+     * `$reported` is shared by the whole loop: only its first failure goes to `report()` (a dead Redis would otherwise send
+     * up to 2N events to Sentry, synchronously); the rest are warnings.
+     */
+    private function afterCommitSteps(int $organizationId, int $learnerId, object $event, bool &$reported): void
+    {
+        $this->guard('organizations.membership_entitlement_forget_failed', $organizationId, $learnerId, fn () => $this->entitlements->forget($learnerId), $reported);
+        $this->guard('organizations.membership_event_failed', $organizationId, $learnerId, function () use ($event): void {
+            event($event);
+        }, $reported);
+    }
+
+    /** @param callable(): mixed $step */
+    private function guard(string $failureLog, int $organizationId, int $learnerId, callable $step, bool &$reported): void
+    {
+        try {
+            $step();
+        } catch (Throwable $e) {
+            if (! $reported) {
+                $reported = true;
+                report($e);
+            }
+            Log::warning($failureLog, [
+                'organization_id' => $organizationId,
+                'learner_id' => $learnerId,
+                'exception' => $e::class,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /** Same reads as {@see self::seatsSummary()}, but the caller holds the organization lock, so the counts are exact. */

@@ -1,0 +1,155 @@
+{
+  "course": "english-a1-a2",
+  "stage": {
+    "number": 2,
+    "title": "Семья и дом",
+    "title_uz": "Oila va uy"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Дом",
+    "title_uz": "Uy"
+  },
+  "words": [
+    {
+      "word": "house",
+      "part_of_speech": "noun",
+      "translation": "дом, здание",
+      "translations": {
+        "ru": "дом, здание",
+        "uz": "uy, imorat"
+      },
+      "example": "They live in a small house.",
+      "example_translations": {
+        "ru": "Они живут в маленьком доме.",
+        "uz": "Ular kichkina uyda yashaydi."
+      }
+    },
+    {
+      "word": "room",
+      "part_of_speech": "noun",
+      "translation": "комната",
+      "translations": {
+        "ru": "комната",
+        "uz": "xona"
+      },
+      "example": "This room has two windows.",
+      "example_translations": {
+        "ru": "В этой комнате два окна.",
+        "uz": "Bu xonada ikkita deraza bor."
+      }
+    },
+    {
+      "word": "kitchen",
+      "part_of_speech": "noun",
+      "translation": "кухня",
+      "translations": {
+        "ru": "кухня",
+        "uz": "oshxona"
+      },
+      "example": "Mother is in the kitchen.",
+      "example_translations": {
+        "ru": "Мама на кухне.",
+        "uz": "Ona oshxonada."
+      }
+    },
+    {
+      "word": "bedroom",
+      "part_of_speech": "noun",
+      "translation": "спальня",
+      "translations": {
+        "ru": "спальня",
+        "uz": "yotoqxona"
+      },
+      "example": "My bedroom is quiet.",
+      "example_translations": {
+        "ru": "Моя спальня тихая.",
+        "uz": "Mening yotoqxonam tinch."
+      }
+    },
+    {
+      "word": "bathroom",
+      "part_of_speech": "noun",
+      "translation": "ванная комната",
+      "translations": {
+        "ru": "ванная комната",
+        "uz": "hammom"
+      },
+      "example": "The bathroom is on the left.",
+      "example_translations": {
+        "ru": "Ванная комната слева.",
+        "uz": "Hammom chap tomonda."
+      }
+    },
+    {
+      "word": "door",
+      "part_of_speech": "noun",
+      "translation": "дверь",
+      "translations": {
+        "ru": "дверь",
+        "uz": "eshik"
+      },
+      "example": "Please close the door.",
+      "example_translations": {
+        "ru": "Пожалуйста, закрой дверь.",
+        "uz": "Iltimos, eshikni yoping."
+      }
+    },
+    {
+      "word": "window",
+      "part_of_speech": "noun",
+      "translation": "окно",
+      "translations": {
+        "ru": "окно",
+        "uz": "deraza"
+      },
+      "example": "Open the window, please.",
+      "example_translations": {
+        "ru": "Откройте окно, пожалуйста.",
+        "uz": "Iltimos, derazani oching."
+      }
+    },
+    {
+      "word": "floor",
+      "part_of_speech": "noun",
+      "translation": "пол",
+      "translations": {
+        "ru": "пол",
+        "uz": "pol"
+      },
+      "example": "The floor is clean.",
+      "example_translations": {
+        "ru": "Пол чистый.",
+        "uz": "Pol toza."
+      }
+    },
+    {
+      "word": "wall",
+      "part_of_speech": "noun",
+      "translation": "стена",
+      "translations": {
+        "ru": "стена",
+        "uz": "devor"
+      },
+      "example": "The wall is white.",
+      "example_translations": {
+        "ru": "Стена белая.",
+        "uz": "Devor oq."
+      }
+    },
+    {
+      "word": "garden",
+      "part_of_speech": "noun",
+      "translation": "сад",
+      "translations": {
+        "ru": "сад",
+        "uz": "bog'"
+      },
+      "example": "We have a garden behind the house.",
+      "example_translations": {
+        "ru": "У нас за домом есть сад.",
+        "uz": "Uyimiz orqasida bog' bor."
+      }
+    }
+  ]
+}

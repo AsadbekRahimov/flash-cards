@@ -15,6 +15,7 @@ use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
 use App\Domain\Learners\Support\StoredDate;
+use App\Domain\Operations\Support\PureCache;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -27,7 +28,6 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
@@ -47,8 +47,8 @@ use Throwable;
  *                 week: when the learner's last group was not finalised yet (Monday before the close,
  *                 a missed scheduler run) it finalises that one group ({@see closeGroup}) and no other;
  *   standings   — ONE aggregate query over `learner_daily_stats` for the dates of the week with
- *                 the weights of `config('leagues.points')`, cached `standings_cache_seconds`
- *                 (`league:standings:v1:{group}`, arrays of scalars); a finalised group reads the final columns instead;
+ *                 the weights of `config('leagues.points')` plus the capped `game_points` of the game, cached
+ *                 `standings_cache_seconds` (`league:standings:v2:{group}`, arrays of scalars); a finalised group reads the final columns instead;
  *   closeGroup  — the unit of closing: one short transaction under the group row lock writes the
  *                 final points / ranks / results of the whole group in ONE statement and stamps
  *                 `league_groups.closed_at`; idempotent by that stamp;
@@ -63,8 +63,9 @@ use Throwable;
  * alone for milliseconds, its group steps hold one group row `FOR UPDATE` alone. So the barrier
  * waits for in-flight placements (never the other way round for longer than one group's write),
  * a seat is never taken in a `closing` week, and no cycle exists. Nothing here runs inside the
- * review transaction: `place` is called by DailyStatsService in a `DB::afterCommit` hook and locks
- * only `league_*` rows (docs/13 §3 rule 5); nothing of `learners` is locked at all.
+ * review transaction: `place` is called by DailyStatsService (the first grade of a local day) and by
+ * RunFinisher (a run that is the first activity of the day, docs/18 §12.6) in a `DB::afterCommit` hook and
+ * locks only `league_*` rows (docs/13 §3 rule 5); nothing of `learners` is locked at all.
  *
  * @phpstan-import-type LeagueStandingArray from LeagueStanding
  */
@@ -72,8 +73,11 @@ final class LeagueService
 {
     public const OPT_OUT_META = 'leagues_opt_out';
 
-    /** `v1` = arrays of scalars; the objects of the unversioned keys are never read (cache.serializable_classes = false). */
-    public const CACHE_PREFIX = 'league:standings:v1:';
+    /**
+     * `v1` = arrays of scalars (the objects of the unversioned keys are never read, cache.serializable_classes = false);
+     * `v2` = the points include `game_points` of the day rows (docs/18 §12.6, G2.10) — the same shape, another meaning.
+     */
+    public const CACHE_PREFIX = 'league:standings:v2:';
 
     public function __construct(
         private readonly ProductEventRecorder $events,
@@ -307,7 +311,7 @@ final class LeagueService
 
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var list<LeagueStandingArray> $rows */
-        $rows = Cache::remember(
+        $rows = PureCache::store()->remember(
             self::CACHE_PREFIX.$group->id,
             $ttl,
             fn (): array => array_map(
@@ -760,7 +764,8 @@ final class LeagueService
 
     /**
      * Fresh standings of an open group: one grouped query over the members, their names and the
-     * `learner_daily_stats` rows of the week's dates.
+     * `learner_daily_stats` rows of the week's dates. The points of the game (`game_points`) are added as stored:
+     * the daily cap was applied when the run was finished (docs/18 §12.6), the formula knows nothing of runs.
      *
      * @return list<LeagueStanding>
      */
@@ -782,7 +787,7 @@ final class LeagueService
             ->selectRaw(
                 'lm.id as member_id, lm.learner_id, l.first_name, l.deleted_at, '
                 .'coalesce(sum(s.reviews_count * ? + s.correct_count * ? + s.new_words_count * ? '
-                .'+ case when s.goal_met_at is not null then ? else 0 end), 0) as points',
+                .'+ case when s.goal_met_at is not null then ? else 0 end + s.game_points), 0) as points',
                 [$weights['review'], $weights['correct'], $weights['new_word'], $weights['goal_met']],
             )
             ->orderByDesc('points')

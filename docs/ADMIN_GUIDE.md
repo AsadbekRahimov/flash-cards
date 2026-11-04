@@ -381,6 +381,9 @@ invited, rejected ones excluded), last seen.
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
+- **Delete account** (Удалить аккаунт; row button and the button on the learner page, confirmation required; admin only, like Block): see
+  *Account deletion* below.
+
 - **Practice pilot** (Пилот практики; column, filter *In the pilot / Not in the pilot*, and the button **Включить в пилот практики** /
   **Исключить из пилота** on the row and on the learner page; admin only): with `PRACTICE_ACCESS=pilot` only the learners in the pilot get the practice.
   Every real change is written to the audit log (`learner.practice_pilot_changed`: `from`, `to` — the moment the learner entered the pilot, or empty).
@@ -391,6 +394,30 @@ invited, rejected ones excluded), last seen.
   change is written to the audit log (`learner.scheduler_changed`: from, to, number of initialised cards). The learner page
   shows the current algorithm ("(default)" = no own bucket, the platform default applies). Rollback of the whole
   experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
+
+### Account deletion
+
+A learner deletes their account themselves (Mini App: Profile → Settings → Danger zone → *Delete account*; bot: `/delete_account` or the
+button in `/settings`; both ask for a confirmation). Support can do the same for them with **Delete account** in the panel — for example
+when the person asked in a message. What happens:
+
+1. **At once (soft delete).** The learner disappears from the lists, the Mini App stops opening (`401 learner_not_found`), reminders, battle
+   and friend messages stop, and the Stars auto-renewal is canceled at Telegram (the paid period is not cut: a learner who returns keeps the Pro they
+   paid for). If Telegram refuses, the deletion still goes through and the purge below ends the subscription anyway. Payments are not touched.
+2. **Within 30 days the person can come back** by writing `/start` to the bot (opening the Mini App again does the same): the account returns as it
+   was. Nothing is done by an admin — there is no «restore» button.
+3. **After 30 days** the command `learners:purge-deleted` (daily, 03:30) deletes the data for good (progress, sessions, friends, leagues,
+   memberships, reminders log). A new `/start` then creates a **new** learner from scratch.
+
+Every deletion is written to the audit log: `learner.deleted` (`meta.by` = `self` or `admin`, the admin's name in the *User* column; no personal
+data in the record), the learner coming back within the 30 days as `learner.restored` (`meta.by` = `self`, no personal data), and the final one as `learner.purged`. A **blocked** learner cannot delete themselves in the bot (otherwise the block would
+disappear with the account); an admin can.
+
+**How a deleted learner reads in Payments.** Payment records are kept by law. In **Payments**, **Payment orders** and **Subscriptions** the
+*Payer* column shows `Name @username · tg:<Telegram id> #<learner id> (удалён)` for such a person: «(удалён)» means the learner row is deleted (soft
+or for good); `tg:<id>` is their Telegram id from the payer snapshot, taken when the order / payment was made. The page of a payment or an order
+has the snapshot as a line of its own — **Плательщик (снимок)** (`payer_telegram_user_id`, `payer_name`, `payer_username`) — also for a
+learner who is still alive: it is who paid *at that time*. A Stars refund of such a payment works the same, by the Telegram id of the snapshot.
 
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
 captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
@@ -590,6 +617,54 @@ Changes apply within seconds.
 
 ---
 
+## Caravan game (docs/18 §12.10)
+
+The game «Караван» has its own group in the left menu, **Караван** (Караван), and a tab on the learner's page. All of it is **admin only**
+(a teacher gets 403). The one exception is the caravan of a class: the cabinet of a center (`/org`) has its own page «Караваны» where the owner sees every group of the
+center and a teacher runs their own groups; here the admin sees them all (below, **Class caravans**).
+
+**Items — Предметы** (`/admin/game-items`). The catalogue of the shop: cosmetics (a *slot*: camel, carpet, tent, frame) and boosters (an *effect*:
+hint, extra flask, second chance). The list shows kind, slot, effect, price, availability, status and order; filters by kind, status and availability.
+
+- **Create / edit.** *Key* — lower-case latin letters, digits and `_`, up to 48 characters, the first one a letter or a digit; it is set once and then
+  read-only. Title (ru, uz) is required, description is optional. *Image* is chosen from the list of the Mini App images (a link is refused).
+  A cosmetic needs a slot, a booster an effect; the availability *За достижение* needs the achievement. A new item is a **draft**.
+- **Опубликовать / В архив** (row buttons, confirmation). Only published items are in the shop. Nothing is deleted: an archived item leaves the
+  shelf and stays with those who already have it. Every save moves the version of the cached catalogue on, so the shop shows the change at once.
+- **Warning.** A cosmetic with availability *Базовый* and price 0 is given to **every** learner by default. Giving such an item a price (or another
+  availability) takes it out of everybody's wardrobe: the price field says so and the save is followed by a warning.
+
+**Runs — Забеги** (`/admin/game-runs`). Read-only. Filters: kind, status, course, learner (by id), dates of the start. The page of a run shows the
+learner, kind, course, result, **the composition by kind of task** («Перевод на английский × 3, …»), the answers of the journal (verdict, first try,
+time), the rewards (*coins awarded*, *league points*) and *words pulled into repetition* (`srs_pulled`). The snapshot of the run is **never shown**: it
+holds the expected answers.
+
+**Class caravans — Караваны классов** (`/admin/class-caravans`). Read-only list of the week-long caravans of the classes (docs/18 §12.11) of every center:
+group, center, course, status (*В пути* / *Завершён* / *Отменён*), stars against the target, the week, the state of the class boss (*Закрыт* / *Открыт* /
+*Побеждён*) and when the summary went to the chat (`summary_posted_at`; empty — not sent yet or skipped because the group is inactive). Filters: status,
+center. The page of a caravan shows the contributions of the members (first names only). The only action is **Отменить** (confirmation): the caravan stops,
+no summary is sent, the runs of the members stay theirs, and the group chat gets «Караван класса отменён». The cancel is recorded in the caravan
+(`meta.canceled_reason`: `admin`, or `teacher` if you are also a teacher of that group; `not_delivered` — Telegram did not take the message about the start, the caravan was withdrawn at once). The chat is told «canceled» only if this very click canceled it (not after the weekly summary, not twice). Caravans are started by teachers (`/start_caravan`, `/org`) and only with `GAME_ACCESS=all`.
+
+**The «Караван» tab of a learner** (Learners → open a learner). The balance, the coins earned and spent, the tickets and the last 50 entries of the
+ledger. Buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required) and **Выдать билеты**.
+
+- Each move first writes the **audit record** `game.coins_adjusted` (who, which learner, amount, reason) and then the entry of the ledger with the key
+  `admin:{audit record id}` — so every manual entry has its record. The entry is *Начисление от поддержки* / *Списание поддержкой*.
+- A debit **never takes the balance below zero**: the admin sees «У ученика N монет…», nothing is written to the ledger, and the audit record stays,
+  marked `rejected: coins_insufficient`.
+- **Выдать билеты** (tickets; a number from -100 to 100 without 0, and a reason): a positive number grants, a negative one takes (never below 0). The balance
+  stops at the cap (`tickets.max`, 10): if some tickets did not fit, a notice says how many. The audit record `game.tickets_adjusted` is written first.
+
+**Widget «Караван — 7 дней»** (dashboard, admin only): runs started in 7 days (all kinds, abandoned ones included), learners who played, and their
+share among the learners active in 7 days. Three pilot numbers follow (docs/18 §10): **runs per player a day** (runs that ended completed or failed,
+divided by the learners who started a run and by 7, one decimal); **from the game paywall to payment** («N из M (x %)»: M = learners refused by a Free limit
+in 7 days, N = those of them with a payment after the first refusal); **right answers in cards** (share of grades 3+ in the training of the last 7 days,
+for the players, i.e. at least one completed or failed run in the week, and for the other active learners; «—» when there are no answers). Cached for
+5 minutes (a figure past its time is shown once while it is recomputed); no polling. Retention D7/D30 by A/B group is not here: it is counted once the group exists.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |
@@ -605,6 +680,7 @@ Changes apply within seconds.
 | SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
+| Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`), plus runs per player a day, paywall-to-payment conversion and right answers in cards (players vs others). Cached for 5 minutes; see *Caravan game* above |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in
@@ -612,9 +688,22 @@ this part of the panel (enforcement belongs to the organization-membership work,
 subscription has a tier — chosen in Grant Pro or bought online — and empty otherwise; members are derived from group
 membership.
 
-The Pro and funnel figures are cached for 2 minutes, so a new subscription or event may take up to that long to show
-up. The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
+The Pro and funnel figures are cached for 2 minutes and the SM-2 / FSRS comparison for 5, so a new subscription, event or
+review may take up to that long to show up (and one more open of the dashboard: past its time a figure is still shown once
+while it is recomputed in the background, as described below). The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
 (`PRODUCT_EVENTS_RETENTION_DAYS`, 400 days) are pruned and do not affect a 7-day window.
+
+**Every other figure of the dashboard is cached too** (docs/19 K1, docs/20 F5): the learner counts and the exam tiles for 2
+minutes, the activity chart, top learners and hardest words for 5, the league and organization tables for 1-2. A figure past
+its time is still shown once while it is recomputed in the background, so the next open is fresh; opening the dashboard never
+waits for the heavy queries. A teacher's figures are cached separately from the admin's and from other teachers' and follow
+the teacher's groups at once. **Money is not left to the timer:** *Revenue* and *Payment webhook errors* are recomputed right
+after a payment, a renewal, a refund or a provider's cancel is saved. The exception is the three anomaly tiles of the webhook
+widget that count **payment orders** (*Double discounts*, *Tier mismatches*, *Double Stars subscriptions*): an order is flagged by
+the order itself, not by a payment row, so they follow the timer and may take up to a minute (and one more open of the dashboard) to show a
+new flagged order. The widgets no longer refresh themselves every 5
+seconds; reload the page to see new numbers. The dashboard of a learning center (`/org`) caches its tiles for 90 seconds and
+drops them when a member joins, leaves or gets a seat, when a group is linked or unlinked, and when the subscription changes.
 
 ---
 
