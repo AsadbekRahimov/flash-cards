@@ -23,6 +23,8 @@ return [
         'start_training' => 'Treningni boshlash',
         'start_exam' => 'Imtihonni boshlash',
         'close_exam' => 'Imtihonni yakunlash',
+        'start_caravan' => 'Sinf karvonini boshlash',
+        'cancel_caravan' => 'Sinf karvonini bekor qilish',
         'help' => 'Yordam',
     ],
 

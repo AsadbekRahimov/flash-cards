@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
@@ -14,6 +15,7 @@ final class HelpCommandHandler implements UpdateHandler
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
+        private readonly GameAccess $game,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -47,7 +49,9 @@ final class HelpCommandHandler implements UpdateHandler
         } else {
             $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
-            $text = __('bot.help.group', [], $locale);
+            // The caravan commands are listed only while the game is open (G2.9b): GAME_ACCESS=off hides them everywhere.
+            $caravan = $this->game->isOff() ? '' : __('bot.help.group_caravan', [], $locale);
+            $text = __('bot.help.group', ['caravan' => $caravan], $locale);
         }
 
         $this->telegram->sendMessage($chatId, $text);

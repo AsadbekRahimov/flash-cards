@@ -90,6 +90,16 @@ return [
 
     /* Sinf karvoni (docs/18 §12.11): hafta yakunlari guruh chatiga (`PostClassCaravanSummaryJob`, HTML). Bot buyruqlari matnlari - G2.9b (`bot.php`). */
     'class' => [
+        // Bot va /org (G2.9b): guruh chatiga matnlar, HTMLsiz oddiy matn.
+        'started' => "🐪 Sinf karvoni yo'lga chiqdi! Hafta maqsadi — :target ⭐, karvon :until gacha yo'lda.\nHar bir yakunlangan yurish yulduz qo'shadi; maqsadga yetilsa, sinf bossi ochiladi.",
+        'open_button' => 'Karvonni ochish',
+        'already_active' => "Bu guruhning karvoni allaqachon yo'lda — :until gacha.",
+        'canceled' => "Sinf karvoni bekor qilindi. Yakunlar bo'lmaydi, ishtirokchilarning yurishlari o'zlarida qoladi.",
+        'no_active' => "Bu guruhning yo'ldagi karvoni yo'q.",
+        'not_teacher' => "Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin.",
+        'group_inactive' => "Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi.",
+        'centers_only' => "Sinf karvoni — markazlar uchun: guruhni amaldagi obunali o'quv markaziga ulang.",
+        'not_delivered' => "Chatga xabar yuborib bo'lmadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshirib, qayta urinib ko'ring.",
         'summary' => [
             'title' => '🏁 «:group» sinf karvoni haftani yakunladi!',
             'stars' => '⭐ Yig\'ilgan yulduzlar: <b>:stars</b> / :target',
