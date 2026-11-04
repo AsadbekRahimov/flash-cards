@@ -91,7 +91,7 @@ LOAD_ARTISAN ?= $(PROD_DC) exec -T app php artisan
 # K6_NET=host lets the container reach a staging on this very machine (Linux). K6_INSECURE_SKIP_TLS_VERIFY=true: a staging
 # with a self-signed or private-CA certificate (k6 is told to skip the check; never for a public host).
 K6_RUN        = docker run --rm -i $(if $(K6_NET),--network $(K6_NET)) --user "$$(id -u):$$(id -g)" \
-	-v "$(CURDIR)/$(K6_DIR):/scripts:ro" -v "$(CURDIR)/$(K6_OUT):/out" \
+	-v "$(CURDIR)/$(K6_DIR):/scripts:ro" -v "$(abspath $(K6_OUT)):/out" \
 	$(if $(wildcard $(TOKENS_FILE)),-v "$(abspath $(TOKENS_FILE)):/data/load-tokens.json:ro") \
 	-e BASE_URL="$(BASE_URL)" -e TARGET_VUS="$(TARGET_VUS)" -e HOLD -e THINK_SCALE -e CARDS_PER_SESSION -e WEBHOOK_RPS \
 	-e TELEGRAM_URL_SECRET -e TELEGRAM_HEADER_SECRET -e K6_INSECURE_SKIP_TLS_VERIFY $(K6_IMAGE)
@@ -107,12 +107,12 @@ load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (lo
 load-test: ## k6: learner hot paths up to TARGET_VUS (BASE_URL=https://staging..., TOKENS_FILE=...): p95 < 300 ms, no 5xx
 	@test -n "$(BASE_URL)" || { echo "BASE_URL is required, e.g. make load-test BASE_URL=https://staging.example.com"; exit 1; }
 	@test -f "$(TOKENS_FILE)" || { echo "No $(TOKENS_FILE): run 'make load-tokens' first"; exit 1; }
-	@mkdir -p "$(K6_OUT)" && chmod a+rwx "$(K6_OUT)"
+	@mkdir -p "$(abspath $(K6_OUT))" && chmod a+rwx "$(abspath $(K6_OUT))"
 	$(K6_RUN) run --summary-export=/out/twa-hot-paths-summary.json /scripts/twa-hot-paths.js
 
 load-test-webhook: ## k6: Telegram webhook (BASE_URL, env TELEGRAM_URL_SECRET and TELEGRAM_HEADER_SECRET): p95 < 300 ms
 	@test -n "$(BASE_URL)" || { echo "BASE_URL is required"; exit 1; }
-	@mkdir -p "$(K6_OUT)" && chmod a+rwx "$(K6_OUT)"
+	@mkdir -p "$(abspath $(K6_OUT))" && chmod a+rwx "$(abspath $(K6_OUT))"
 	$(K6_RUN) run --summary-export=/out/telegram-webhook-summary.json /scripts/telegram-webhook.js
 
 zap-baseline: ## OWASP ZAP baseline of the public pages (BASE_URL=https://staging..., TARGETS="/ /admin/login"): exit 1 on High

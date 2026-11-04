@@ -517,6 +517,7 @@
 - [ ] Принятая Medium ZAP ("CSP: script-src unsafe-inline", "CSP: script-src unsafe-eval") на `/admin/login`, `/org/login`, `/2fa/*`: CSP панелей и страниц 2FA
       содержит `'unsafe-inline' 'unsafe-eval'`, потому что Filament (Livewire) и Alpine.js без них не работают (`app/Http/Middleware/SecurityHeaders.php`, `contentSecurityPolicy()`).
       Допускается только на этих адресах (вход требует пароля и 2FA); внести в §9.3 с этой причиной. Публичные страницы (`/`, `/offer`, `/privacy`, `/billing/return`) и TWA (`/twa/`) отдаются со строгим `script-src` (`'none'` / `'self' https://telegram.org`, без `unsafe-inline` и `unsafe-eval`; `style-src 'unsafe-inline'` остаётся): Medium про `script-src` на них — находка.
+- [x] Локальная репетиция 04.11.2026: High 0, правила `FAIL` (10035, 10036, 10021 и др.) закрыты задачей R12c (nginx: `server_tokens off`, HSTS и nosniff одним источником; CSP: `base-uri`, `form-action`, `object-src`, строгая политика на страницах ошибок).
 - [ ] Ручные пункты пен-теста Фазы 2 (docs/13 §10): вебхук Payme с чужим ключом → `-32504`; `PerformTransaction` дважды → один платёж; Click с неверной подписью → `-1`;
       чужой `GET /billing/orders/{token}` → 404; пользователь организации A на URL организации B → 404; `answer` для flash-карточки → 422; 31-й по инвайту Tutor → `waitlisted`.
 - [ ] Подмена `initData` → 401; токен заблокированного learner'а → 401 `learner_blocked` (docs/07 §14).
@@ -630,4 +631,8 @@ Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_
 
 | № | Раздел | Ожидали | Увидели | Решение / ссылка на задачу |
 |---|---|---|---|---|
-| 1 | | | | |
+| 1 | §7.2 ZAP, 10055 / CSP `script-src` | Строгий `script-src` везде | `'unsafe-inline' 'unsafe-eval'` на `/admin*`, `/org*`, `/2fa*` | Принято: Filament, Livewire и Alpine.js без них не работают (`SecurityHeaders::contentSecurityPolicy()`). Только на этих адресах: вход требует пароля и 2FA. Страницы ошибок (>= 400), публичные страницы и `/twa/` строгие |
+| 2 | §7.2 ZAP, 10055 / CSP `style-src` | Без `'unsafe-inline'` | `style-src 'self' 'unsafe-inline'` на `/`, `/offer`, `/privacy`, `/billing/return` | Принято: страницы используют inline-стили; скриптов на этих страницах нет (`script-src 'none'`), риск ограничен стилями |
+| 3 | §7.2 ZAP, 10010 / cookie без HttpOnly | Все cookie с HttpOnly | `XSRF-TOKEN` без HttpOnly на `/admin/login`, `/org/login` | Принято: Livewire и Axios читают её из JS и шлют как `X-XSRF-TOKEN`. Сессионная cookie HttpOnly; `XSRF-TOKEN` не даёт доступа к сессии |
+| 4 | §7.2 ZAP, 10044 / Big Redirect | Редирект без тела | Редирект `/admin`, `/org` на логин с телом страницы | Принято (шум): тело — стандартный ответ Laravel `RedirectResponse` с meta refresh, секретов в нём нет |
+| 5 | §7.2 ZAP, 10017 / cross-domain JS | Скрипты только со своего домена | `https://telegram.org/js/telegram-web-app.js` на `/twa/` | Принято: SDK Mini App от Telegram, обязателен для запуска; разрешён CSP (`script-src 'self' https://telegram.org`) |
