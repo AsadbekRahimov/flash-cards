@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
@@ -298,6 +299,9 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ t('paywall.open') }}
         </button>
       </section>
+
+      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. -->
+      <ClassCaravanCard v-if="data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
 
       <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
       <RouterLink

@@ -1,3 +1,5 @@
+import type { GameClassBossStartRequest, GameClassCard } from './gameClassTypes'
+
 export interface Learner {
   id: number
   first_name: string | null
@@ -465,6 +467,8 @@ export interface TodayResponse {
 export interface TodayGame {
   daily_available: boolean
   active_run: GameActiveRun | null
+  /** The class caravan that is on (docs/05 §5b.7); `null` or absent: none. */
+  class_caravan?: GameClassCard | null
 }
 
 export interface TodayLeague {
@@ -871,7 +875,7 @@ export interface GameMapDaily {
   resets_at: string
 }
 
-/** GET /game/map (docs/04 A.18). `class_caravan` belongs to a later screen and is not typed here. */
+/** GET /game/map (docs/04 A.18). `class_caravan`: the caravan of the class that is on its way (docs/05 §5b.7). */
 export interface GameMapResponse {
   course: { slug: string; title: string }
   cities: GameMapCity[]
@@ -880,6 +884,8 @@ export interface GameMapResponse {
   daily?: GameMapDaily | null
   friends: GameMapFriend[]
   active_run: GameActiveRun | null
+  /** The card of the class caravan that is on; `null` or absent (an older server): none. */
+  class_caravan?: GameClassCard | null
   limits: GameLimits | null
 }
 
@@ -892,6 +898,8 @@ export type GameStartRequest =
   | { kind: 'stop'; course: string; lesson_id: number; replace_active?: boolean }
   /** The caravan of the day: the course is the active one, the server needs neither course nor lesson. */
   | { kind: 'daily'; replace_active?: boolean }
+  /** The boss of the class (docs/05 §5b.7): no course, no lesson. */
+  | GameClassBossStartRequest
 
 /** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */
 export interface PracticeLimitHit {

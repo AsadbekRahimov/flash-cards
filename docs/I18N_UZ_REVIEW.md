@@ -3212,3 +3212,50 @@
 |---|---|---|
 | `profile.caravan.title` | Mening karvonim | Мой караван |
 | `profile.caravan.open` | Karvonni ochish | Открыть караван |
+
+## Игра «Караван» 2026-11 · G2.9b (караван класса, TWA) — на проверку носителю
+
+### TWA: экран «Sinf karvoni» `/game/class/:id`, карточка на карте и на «Сегодня» (`docs/05` §5b.7; `resources/twa/src/i18n/uz.ts`, ключи `gameClass.*` и коды ошибок)
+
+> Что решить носителю: босс — «qo'riqchi» (как в `game.boss.*`); «забег» — «reys»; «класс» — «sinf». Время окончания собирается как «{день недели, время} gacha».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `error.code.class_caravan_not_found` | Bu sinf karvoni mavjud emas. | Этот караван класса недоступен. |
+| `error.code.class_boss_locked` | Sinf qo'riqchisi karvon maqsadga yetganda ochiladi. | Босс класса откроется, когда караван возьмёт цель. |
+| `error.code.class_boss_done` | Siz sinf qo'riqchisi bilan allaqachon jang qilgansiz. | Вы уже сражались с боссом класса. |
+| `gameClass.title` | Sinf karvoni | Караван класса |
+| `gameClass.card.text` | {stars} / {target} · {until} | {stars} / {target} · {until} |
+| `gameClass.card.aria` | Sinf karvoni: {target} yulduzdan {stars} tasi, {until} | Караван класса: звёзд {stars} из {target}, {until} |
+| `gameClass.subtitle` | {group} · {course} | {group} · {course} |
+| `gameClass.until` | {when} gacha | до {when} |
+| `gameClass.progress_aria` | Yig'ilgan yulduzlar: {target} dan {stars} | Собрано звёзд: {stars} из {target} |
+| `gameClass.target_reached` | Maqsadga erishildi! | Цель взята! |
+| `gameClass.stars_left` | Maqsadgacha yana {count} ta yulduz qoldi | До цели осталось звёзд: {count} |
+| `gameClass.my.title` | Mening hissam | Мой вклад |
+| `gameClass.my.stats` | Yulduzlar: {stars} · reyslar: {runs} · eng yaxshi hisob: {score} | Звёзды: {stars} · забеги: {runs} · лучший счёт: {score} |
+| `gameClass.my.none` | Siz hali o'ynamagansiz: xaritadagi har qanday reys karvon hisobiga o'tadi. | Вы ещё не играли: любой забег по карте идёт в зачёт каравана. |
+| `gameClass.members.title` | Ishtirokchilar | Участники |
+| `gameClass.members.me` | Siz | Вы |
+| `gameClass.members.stats` | Yulduzlar: {stars} · reyslar: {runs} | Звёзды: {stars} · забеги: {runs} |
+| `gameClass.members.boss_won` | qo'riqchini yengdi | победил босса |
+| `gameClass.members.empty` | Hozircha hech kim o'ynamagan. | Пока никто не играл. |
+| `gameClass.boss.title` | Sinf qo'riqchisi | Босс класса |
+| `gameClass.boss.locked` | Karvon maqsadga yetganda ochiladi. | Откроется, когда караван возьмёт цель. |
+| `gameClass.boss.ready` | Maqsadga erishildi — qo'riqchi kutmoqda. Jang har kimga bitta, uni takrorlab bo'lmaydi. | Цель взята — босс ждёт. Бой один на каждого, повторить его нельзя. |
+| `gameClass.boss.go` | Jangga | Сразиться |
+| `gameClass.boss.won` | Siz sinf qo'riqchisini yengdingiz. | Вы победили босса класса. |
+| `gameClass.boss.lost` | Qo'riqchi kuchliroq chiqdi. Jang bitta edi — uni takrorlab bo'lmaydi. | Босс оказался сильнее. Бой был один — повторить его нельзя. |
+| `gameClass.boss.defeated` | Sinf qo'riqchini yengdi | Класс победил босса |
+| `gameClass.boss.missed` | Sinf qo'riqchisi yengilmadi. | Босс класса не побеждён. |
+| `gameClass.finished.title` | Karvon haftasi tugadi | Неделя каравана окончена |
+| `gameClass.finished.target_reached` | Maqsadga erishildi | Цель взята |
+| `gameClass.finished.target_missed` | Maqsadga erishilmadi | Цель не взята |
+| `gameClass.finished.boss_defeated` | Qo'riqchi yengildi | Босс побеждён |
+| `gameClass.finished.boss_not_defeated` | Qo'riqchi yengilmadi | Босс не побеждён |
+| `gameClass.finished.at` | {date} da tugagan | Закончился {date} |
+| `gameClass.canceled.title` | Karvon bekor qilindi | Караван отменён |
+| `gameClass.canceled.text` | O'qituvchi bu karvonni bekor qildi. | Учитель отменил этот караван. |
+| `gameClass.not_found.title` | Karvon mavjud emas | Караван недоступен |
+| `gameClass.not_found.text` | U bekor qilingan yoki bu sizning sinfingiz emas. | Он отменён, или это не ваш класс. |
+| `gameClass.to_map` | Xaritaga | К карте |

@@ -67,6 +67,7 @@ import type {
   GameHintResponse,
   GameRunView,
 } from './gameRunTypes'
+import type { GameClass, GameClassList } from './gameClassTypes'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
 
 /**
@@ -287,6 +288,12 @@ export const api = {
     map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
     /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
     startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
+  },
+  gameClass: {
+    /** The caravans of the learner's classes as short rows. 403 `game_unavailable`. */
+    list: () => client().get<GameClassList>('/game/class'),
+    /** One caravan with the table of contributions. 404 `class_caravan_not_found`, 403 `game_unavailable`. */
+    show: (id: number) => client().get<GameClass>(`/game/class/${id}`),
   },
   gameShop: {
     /** The coins, the tickets and the last entries of the ledger. 403 `game_unavailable`. */
