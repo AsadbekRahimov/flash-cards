@@ -30,11 +30,11 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2, and what the friends wear, G2.6: one statement, only when the friends are not cached) - and it must not grow with the lessons and the friends. */
-const BUDGET_MAP = 12;
+/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2, what the friends wear, G2.6: one statement, only when the friends are not cached, and the card of the class caravan, G2.9b: one) - and it must not grow with the lessons and the friends. */
+const BUDGET_MAP = 13;
 
 /** The same with the friends cache warm: the camels are in it, so the statement of G2.6 is not there. */
-const BUDGET_MAP_WARM = 10;
+const BUDGET_MAP_WARM = 11;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');

@@ -25,8 +25,12 @@ return [
             "/start_training — treningni boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yakunlash\n".
+            ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             '/help — ushbu yordam',
+        // The lines of `:caravan` in `group`: shown while the game is open (GAME_ACCESS is not off), G2.9b.
+        'group_caravan' => "/start_caravan — sinf karvonini boshlash\n".
+            "/cancel_caravan — sinf karvonini bekor qilish\n",
     ],
 
     'group' => [

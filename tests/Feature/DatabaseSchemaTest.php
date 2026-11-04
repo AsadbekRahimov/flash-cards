@@ -1936,7 +1936,8 @@ it('rolls back the foreign key game_runs.class_caravan_id with the caravans, kee
     $caravan = ClassCaravan::factory()->create();
     $run = GameRun::factory()->create(['class_caravan_id' => $caravan->id]);
 
-    $this->artisan('migrate:rollback', ['--step' => 1])->assertSuccessful();
+    // Back to (and including) the caravans migration, whatever came after it (G2.9b added an index migration on top).
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_05_100005_create_class_caravans_tables')])->assertSuccessful();
     expect(Schema::hasTable('class_caravans'))->toBeFalse()
         ->and(Schema::hasColumn('game_runs', 'class_caravan_id'))->toBeTrue()
         ->and(GameRun::query()->whereKey($run->id)->exists())->toBeTrue()

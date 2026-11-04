@@ -9,6 +9,7 @@ use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\ClassCaravan;
+use App\Models\ClassCaravanMember;
 use App\Models\GameInventoryItem;
 use App\Models\GameItem;
 use App\Models\GameProfile;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Tests\Support\Game\ClassKit;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -488,4 +490,60 @@ it('does not read more for a bigger city: the statements of the boss are those o
     $measured = gameBossMeasure(8);
 
     expect($measured['start'])->toBeLessThanOrEqual(BUDGET_BOSS_START)->and($measured['finish'])->toBeLessThanOrEqual(BUDGET_BOSS_FINISH);
+});
+
+/**
+ * Statements of the caravans of the class (G2.9b), `TwaAuth` 1 included. The list: the caravans 1, their groups and courses 2, the learner's
+ * fights with the bosses 1 - fixed, however many caravans there are. One caravan: the caravan 1,
+ * its group and course 2, the table of the class 1 (the pure cache holds it 60 s while the caravan is active), the boss fight 1.
+ */
+const BUDGET_GAME_CLASS_LIST = 5;
+
+const BUDGET_GAME_CLASS_SHOW = 6;
+
+it('keeps the caravans of the class within their budgets, and the list does not grow with the number of caravans and members', function (): void {
+    $world = ClassKit::world(3);
+    $me = $world['learners'][0];
+    $headers = PracticeKit::headers($me);
+    $measure = function (string $path) use ($headers): int {
+        Cache::flush();
+        PureCache::store()->flush();
+
+        return count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/class'.$path)->assertOk()));
+    };
+    ClassCaravan::factory()->create(['telegram_group_id' => $world['group']->id, 'course_id' => $world['course']->id]);
+    $smallList = $measure('');
+
+    // five groups of the learner, each with a finished and an active caravan, a class of 30 with a table
+    foreach (range(1, 4) as $i) {
+        $other = ClassKit::world(0, chatId: -5000 - $i, teacherTelegramId: null);
+        GroupMember::factory()->create(['telegram_group_id' => $other['group']->id, 'learner_id' => $me->id]);
+        ClassCaravan::factory()->create(['telegram_group_id' => $other['group']->id, 'course_id' => $other['course']->id]);
+        ClassCaravan::factory()->finished()->create(['telegram_group_id' => $other['group']->id, 'course_id' => $other['course']->id]);
+    }
+    $caravan = ClassCaravan::query()->where('telegram_group_id', $world['group']->id)->firstOrFail();
+    foreach (Learner::factory()->count(27)->create() as $learner) {
+        GroupMember::factory()->create(['telegram_group_id' => $world['group']->id, 'learner_id' => $learner->id]);
+        ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $learner->id, 'stars' => 2, 'runs' => 1]);
+    }
+    $bigList = $measure('');
+    $show = $measure("/{$caravan->id}");
+    $showFinished = $measure('/'.ClassCaravan::query()->where('status', 'finished')->firstOrFail()->id);
+
+    expect($smallList)->toBeLessThanOrEqual(BUDGET_GAME_CLASS_LIST)->and($bigList)->toBe($smallList)
+        ->and($show)->toBeLessThanOrEqual(BUDGET_GAME_CLASS_SHOW)->and($showFinished)->toBe($show);
+});
+
+it('serves the table of an active caravan from the pure cache for a minute: a warm read costs one statement less', function (): void {
+    config(['cache.pure_store' => 'array']);
+    $world = ClassKit::world(3);
+    $me = $world['learners'][0];
+    $caravan = ClassCaravan::factory()->create(['telegram_group_id' => $world['group']->id, 'course_id' => $world['course']->id]);
+    $headers = PracticeKit::headers($me);
+    PureCache::store()->flush();
+
+    $cold = count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson("/api/twa/game/class/{$caravan->id}")->assertOk()));
+    $warm = count(QueryLog::during(fn () => test()->withHeaders($headers)->getJson("/api/twa/game/class/{$caravan->id}")->assertOk()));
+
+    expect($warm)->toBe($cold - 1);
 });

@@ -25,8 +25,12 @@ return [
             "/start_training — запустить тренировку\n".
             "/start_exam — запустить экзамен\n".
             "/close_exam — завершить экзамен\n".
+            ':caravan'.
             "/stats — личный отчёт в чате с ботом\n".
             '/help — эта справка',
+        // The lines of `:caravan` in `group`: shown while the game is open (GAME_ACCESS is not off), G2.9b.
+        'group_caravan' => "/start_caravan — запустить караван класса\n".
+            "/cancel_caravan — отменить караван класса\n",
     ],
 
     'group' => [

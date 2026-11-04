@@ -10,6 +10,7 @@ use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Game\DTO\GameMapView;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Support\BossReadiness;
 use App\Domain\Game\Support\CityNames;
@@ -49,6 +50,7 @@ final class MapService
         private readonly LearnerStatsService $stats,
         private readonly DailyCaravanService $daily,
         private readonly GameLimits $limits,
+        private readonly ClassCaravanService $classCaravans,
         private readonly FriendCosmetics $cosmetics,
     ) {}
 
@@ -74,6 +76,7 @@ final class MapService
             me: $this->me($learner),
             friends: $this->friends($learner, $course),
             activeRun: $day['active_run'],
+            classCaravan: $this->classCaravans->activeCardFor($learner, $now),
             limits: $this->limits->state($learner, $this->entitlements->for($learner, $now), $now)->toArray(),
         );
     }

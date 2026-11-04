@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
@@ -24,6 +25,7 @@ use App\Domain\Telegram\Handlers\ProCommandHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
 use App\Domain\Telegram\Handlers\RefundedPaymentHandler;
 use App\Domain\Telegram\Handlers\SettingsCommandHandler;
+use App\Domain\Telegram\Handlers\StartCaravanHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
@@ -54,6 +56,8 @@ final class TelegramDispatcher
         StartTrainingCallbackHandler $startTrainingCallback,
         StartExamHandler $startExam,
         CloseExamHandler $closeExam,
+        StartCaravanHandler $startCaravan,
+        CancelCaravanHandler $cancelCaravan,
         StatsCommandHandler $stats,
         PromoCommandHandler $promo,
         ProCommandHandler $pro,
@@ -86,6 +90,8 @@ final class TelegramDispatcher
             $startTraining,
             $startExam,
             $closeExam,
+            $startCaravan,
+            $cancelCaravan,
             $stats,
             $promo,
             $pro,

@@ -10,6 +10,8 @@ use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\Tasks\TaskHandler;
 use App\Domain\Game\Services\Tasks\WordTaskHandler;
 use App\Domain\Practice\DTO\SnapshotElement;
+use App\Models\ClassCaravan;
+use App\Models\ClassCaravanMember;
 use App\Models\GameInventoryItem;
 use App\Models\GameItem;
 use App\Models\GameRun;
@@ -24,6 +26,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Game\ClassKit;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 
@@ -366,6 +369,50 @@ it('keeps the exact shape of the wallet, the shop, the profile, the purchase and
         ->assertExactJsonStructure(['error' => ['code', 'message']]);
     test()->withHeaders($headers)->postJson('/api/twa/game/profile/equip', ['slot' => 'tent', 'item_key' => 'tent_silk'])->assertStatus(404)
         ->assertExactJsonStructure(['error' => ['code', 'message']]);
+});
+
+it('keeps the exact shape of the caravans of the class, of their card on the map and on /today, and of their errors; no id of a classmate, no secret of the boss (G2.9b)', function (): void {
+    $world = ClassKit::world(2);
+    [$me, $mate] = $world['learners'];
+    $mate->forceFill(['username' => 'mate_nick'])->save();
+    $caravan = ClassCaravan::factory()->create(['telegram_group_id' => $world['group']->id, 'course_id' => $world['course']->id, 'boss_snapshot_words' => [101, 102, 103], 'boss_unlocked_at' => now()]);
+    $finished = ClassCaravan::factory()->finished()->create(['telegram_group_id' => $world['group']->id, 'course_id' => $world['course']->id, 'boss_snapshot_words' => [101, 102, 103]]);
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $me->id, 'stars' => 3, 'runs' => 1]);
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $mate->id, 'stars' => 2, 'runs' => 1]);
+    $headers = PracticeKit::headers($me);
+    $row = ['id', 'group_title', 'course' => ['slug', 'title'], 'status', 'starts_at', 'ends_at', 'stars_total', 'target_stars', 'runs_total', 'boss' => ['unlocked', 'defeated', 'my_attempt']];
+    $card = ['id', 'stars_total', 'target_stars', 'ends_at'];
+    $leaks = ['learner_id', 'telegram_user_id', 'username', 'boss_snapshot_words', 'group_id', 'telegram_group_id', 'organization_id', 'course_id', 'meta', 'started_by_user_id', ...CONTRACT_FORBIDDEN_GAME_KEYS];
+
+    $list = test()->withHeaders($headers)->getJson('/api/twa/game/class')->assertOk()->assertExactJsonStructure(['caravans' => ['*' => $row]]);
+    $active = test()->withHeaders($headers)->getJson("/api/twa/game/class/{$caravan->id}")->assertOk()->assertExactJsonStructure([
+        ...$row,
+        'members' => ['*' => ['name', 'stars', 'runs', 'best_score', 'boss_won', 'is_me']],
+        'my' => ['stars', 'runs', 'best_score', 'boss_won'],
+        'summary',
+    ]);
+    $over = test()->withHeaders($headers)->getJson("/api/twa/game/class/{$finished->id}")->assertOk()->assertExactJsonStructure([
+        ...$row,
+        'members',
+        'my',
+        'summary' => ['target_reached', 'boss_defeated', 'finished_at'],
+    ]);
+    PracticeKit::course('silk');
+    $mapJson = test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk()->assertJsonStructure(['class_caravan' => $card]);
+    $today = test()->withHeaders($headers)->getJson('/api/twa/today')->assertOk()->assertJsonStructure(['game' => ['daily_available', 'active_run', 'class_caravan' => $card]]);
+
+    foreach ([$list, $active, $over, $mapJson, $today] as $response) {
+        expect(array_values(array_intersect(gameContractKeys($response->json()), $leaks)))->toBe([]);
+    }
+    expect($mapJson->json('class_caravan'))->toHaveCount(4)->and($today->json('game.class_caravan'))->toHaveCount(4)
+        ->and($active->json('boss.unlocked'))->toBeTrue()->and($active->json('members.0.stars'))->toBeInt()
+        ->and($active->json('starts_at'))->toBe('2026-11-05T10:00:00.000Z')
+        ->and(json_encode($active->json()))->not->toContain('mate_nick');
+
+    test()->withHeaders(PracticeKit::headers(Learner::factory()->create()))->getJson("/api/twa/game/class/{$caravan->id}")->assertNotFound()
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+    config(['game.access' => 'off']);
+    test()->withHeaders($headers)->getJson('/api/twa/game/class')->assertForbidden()->assertExactJsonStructure(['error' => ['code', 'message']]);
 });
 
 it('keeps the exact shape of the booster, of the boosters block of a run, and of the limits of the map and of the start (G2.5b part 2)', function (): void {
