@@ -51,7 +51,7 @@ final class ClassCaravanMessenger
             url: "{$base}/twa/game/class/{$caravan->id}",
             failureText: __('game.class.not_delivered', [], $locale),
             cancel: function () use ($caravan, $by): void {
-                $this->caravans->cancel($caravan, $by);
+                $this->caravans->cancel($caravan, $by, reason: ClassCaravanService::CANCELED_NOT_DELIVERED);
             },
         );
     }
@@ -85,7 +85,7 @@ final class ClassCaravanMessenger
                 default => __('game.class.not_teacher', [], $locale),
             },
             GameException::CLASS_CARAVAN_ACTIVE => $this->alreadyActive($group, $locale),
-            default => __('errors.exam.failed', [], $locale),
+            default => __('game.class.failed', [], $locale),
         };
     }
 

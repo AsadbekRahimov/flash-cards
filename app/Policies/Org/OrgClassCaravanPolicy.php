@@ -69,6 +69,6 @@ final class OrgClassCaravanPolicy
 
     private function open(): bool
     {
-        return ! app(GameAccess::class)->isOff();
+        return app(GameAccess::class)->classCaravanOpen();
     }
 }

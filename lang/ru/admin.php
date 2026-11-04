@@ -1309,6 +1309,7 @@ return [
                 'words_1000' => '1000 слов',
                 'league_top1' => 'Первое место в лиге',
                 'first_friend' => 'Первый друг',
+                'game_first_boss' => 'Хранитель побеждён',
             ],
         ],
         'caravans' => [
@@ -1446,6 +1447,7 @@ return [
                     'verdict' => 'Вердикт',
                     'is_first' => 'С первой попытки',
                     'time' => 'Время',
+                    'time_unit' => ' мс',
                     'accepted_at' => 'Принят',
                 ],
             ],

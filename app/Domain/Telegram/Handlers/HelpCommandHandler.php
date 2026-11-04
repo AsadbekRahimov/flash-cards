@@ -45,12 +45,12 @@ final class HelpCommandHandler implements UpdateHandler
             // Anyone may ask for help in a DM: follow their Telegram language.
             $languageCode = $message['from']['language_code'] ?? null;
             $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
-            $text = __('bot.help.private', [], $locale);
+            $text = __('bot.help.private', ['caravan' => $this->game->classCaravanOpen() ? __('bot.help.private_caravan', [], $locale) : ''], $locale);
         } else {
             $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
-            // The caravan commands are listed only while the game is open (G2.9b): GAME_ACCESS=off hides them everywhere.
-            $caravan = $this->game->isOff() ? '' : __('bot.help.group_caravan', [], $locale);
+            // The caravan commands are listed only with GAME_ACCESS=all (G2.9b, G2.13): off and pilot hide them everywhere.
+            $caravan = ! $this->game->classCaravanOpen() ? '' : __('bot.help.group_caravan', [], $locale);
             $text = __('bot.help.group', ['caravan' => $caravan], $locale);
         }
 

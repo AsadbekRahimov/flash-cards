@@ -88,7 +88,10 @@ final class GameLimits
 
     /**
      * The limits and the balances of the learner in ONE statement (the block `limits` of `/me.game` and the balances next to it,
-     * docs/04 A.2). No lock. The caller has checked that the game is open to the learner.
+     * docs/04 A.2). No lock. The caller has checked that the game is open to the learner. The learner's live run that is past its time
+     * without an answer - not closed yet by the scheduler or a read - is counted the way its close will leave it, as the courtesy check
+     * of a start counts it (G2.13, docs/18 §12.7.2): no place taken, and its ticket back when a ticket paid for it; otherwise the block
+     * would say "0 of 1" and show a paywall while a start would pass.
      */
     public function state(Learner $learner, ?Entitlement $entitlement = null, ?CarbonImmutable $now = null): GameLimitState
     {
@@ -98,17 +101,14 @@ final class GameLimits
         $today = $this->clock->today($learner, $now);
         $weekStart = GameWeek::start($today);
 
+        [$countersSql, $countersBindings] = $this->countersSql((int) $learner->id, $window, $this->closingSql($now, false));
         $row = DB::selectOne(
-            'select'
-            .' (select count(*) from game_runs where learner_id = ? and kind in (?, ?) and started_at >= ? and started_at < ?'
-            .' and (finish_reason is null or finish_reason not in (?, ?) or answered > 0)) as runs_used,'
+            "select {$countersSql},"
             .' (select count(*) from game_booster_uses where learner_id = ? and week_start = ?) as boosters_used,'
-            .' (select tickets from game_profiles where learner_id = ?) as tickets,'
             .' (select balance from game_wallets where learner_id = ?) as coins',
             [
-                $learner->id, ...self::countedKindValues(), self::sql($window->startUtc), self::sql($window->endUtc), ...self::unspentReasonValues(),
+                ...$countersBindings,
                 $learner->id, StoredDate::of($weekStart->toDateString()),
-                $learner->id,
                 $learner->id,
             ],
         );
@@ -224,12 +224,16 @@ final class GameLimits
      * The learner may use one more booster this week. Call under the lock of the run (the runs of a learner are serialised, so the count
      * is final there); the courtesy reading is the same call without the lock.
      *
-     * @throws GameException booster_limit_reached {limit, used, resets_at} (409)
+     * The refusal says whether Pro would help (`upsell`: the learner has no `game.boosters_plus`); a Pro learner at the Pro limit gets
+     * `upsell: false` and no paywall (G2.13).
+     *
+     * @throws GameException booster_limit_reached {limit, used, resets_at, upsell} (409)
      */
     public function assertBoosterAllowed(Learner $learner, ?CarbonImmutable $now = null): void
     {
         $now ??= CarbonImmutable::now();
-        $limit = $this->boostersLimit($this->entitlements->for($learner, $now));
+        $entitlement = $this->entitlements->for($learner, $now);
+        $limit = $this->boostersLimit($entitlement);
         if ($limit === null) {
             return;
         }
@@ -245,7 +249,7 @@ final class GameLimits
 
         $this->recordLimitReached($learner, self::KIND_BOOSTERS, $limit);
 
-        throw GameException::boosterLimitReached($limit, $used, IsoTime::format(GameWeek::end($today)->utc()));
+        throw GameException::boosterLimitReached($limit, $used, IsoTime::format(GameWeek::end($today)->utc()), upsell: ! $entitlement->can(self::FEATURE_BOOSTERS_PLUS));
     }
 
     // ------------------------------------------------------------------ the limits of the plan
@@ -336,11 +340,25 @@ final class GameLimits
      */
     private function usedAndTickets(int $learnerId, DayBounds $window, ?array $closing = null): array
     {
+        [$sql, $bindings] = $this->countersSql($learnerId, $window, $closing);
+        $row = DB::selectOne("select {$sql}", $bindings);
+
+        return [(int) ($row->runs_used ?? 0), (int) ($row->tickets ?? 0)];
+    }
+
+    /**
+     * The two select expressions `runs_used` and `tickets` of {@see usedAndTickets()} with their bindings - shared with {@see state()},
+     * which adds the boosters and the coins to the same statement.
+     *
+     * @param  array{0: string, 1: list<string>}|null  $closing
+     * @return array{0: string, 1: list<int|string>}
+     */
+    private function countersSql(int $learnerId, DayBounds $window, ?array $closing): array
+    {
         [$closingSql, $closingBindings] = $closing ?? ['1 = 0', []];
 
-        $row = DB::selectOne(
-            'select'
-            .' (select count(*) from game_runs where learner_id = ? and kind in (?, ?) and started_at >= ? and started_at < ?'
+        return [
+            '(select count(*) from game_runs where learner_id = ? and kind in (?, ?) and started_at >= ? and started_at < ?'
             ." and (finish_reason is null or finish_reason not in (?, ?) or answered > 0) and not ({$closingSql})) as runs_used,"
             .' coalesce((select tickets from game_profiles where learner_id = ?), 0)'
             ." + (select count(*) from game_runs where active_learner_id = ? and free_slot = ? and ({$closingSql})) as tickets",
@@ -349,9 +367,7 @@ final class GameLimits
                 $learnerId,
                 $learnerId, FreeSlot::Ticket->value, ...$closingBindings,
             ],
-        );
-
-        return [(int) ($row->runs_used ?? 0), (int) ($row->tickets ?? 0)];
+        ];
     }
 
     /** After the commit (at once outside a transaction), like every event of the limits. */

@@ -8,6 +8,7 @@ use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameCardSender;
 use App\Domain\Game\Services\Runs\BossService;
 use App\Domain\Game\Services\Runs\RunService;
@@ -35,6 +36,7 @@ use App\Models\Stage;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -522,6 +524,63 @@ it('is the same fight for the service as for the route', function (): void {
     $run = app(BossService::class)->start($learner, $course->slug, $stage->id);
 
     expect($run->kind)->toBe(RunKind::Boss)->and($run->total)->toBe(12);
+});
+
+it('builds the view of the winning answer after the commit: the invite code of the share link is written to learners outside the transaction of the answer (G2.13, rule 24)', function (): void {
+    Queue::fake();
+    [$learner, $course, $stage] = bossWorld();
+    $run = bossStart($learner, $course, $stage);
+    $runs = app(RunService::class);
+    for ($i = 0; $i < 11; $i++) { // eleven right, the last one is sent below
+        $element = GameKit::current($run->refresh());
+        $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], GameKit::rightAnswers($element)[0]);
+    }
+    expect($run->refresh()->isActive())->toBeTrue()->and($run->answered)->toBe(11)->and($learner->fresh()?->referral_code)->toBeNull();
+    $element = GameKit::current($run);
+
+    // Every statement with the depth of the transaction it ran in (relative to the one the test runs in): the answer's own transaction
+    // is depth 1; a write of `learners` at depth 2 would be the savepoint of the invite code INSIDE it (the deadlock of the review); at
+    // depth 1, after the UPDATE of the run that ends the answer, it is a transaction of its own, after the commit.
+    $base = DB::transactionLevel();
+    $seen = [];
+    DB::listen(function (QueryExecuted $query) use (&$seen, $base): void {
+        $seen[] = [$query->sql, DB::transactionLevel() - $base];
+    });
+    $outcome = $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], GameKit::rightAnswers($element)[0]);
+
+    $learnersWrites = array_values(array_filter($seen, fn (array $q): bool => str_contains($q[0], 'update "learners"') && str_contains($q[0], 'referral_code')));
+    $runUpdates = array_values(array_filter($seen, fn (array $q): bool => str_starts_with($q[0], 'update "game_runs"')));
+    $code = $learner->fresh()?->referral_code;
+    expect($learnersWrites)->toHaveCount(1)
+        ->and($learnersWrites[0][1])->toBe(1)
+        ->and($runUpdates)->not->toBe([])
+        ->and(array_unique(array_column($runUpdates, 1)))->toBe([1])
+        ->and(array_search($learnersWrites[0], $seen, true))->toBeGreaterThan(max(array_keys(array_filter($seen, fn (array $q): bool => str_starts_with($q[0], 'update "game_runs"')))))
+        ->and($code)->not->toBeNull()
+        ->and($outcome->run->summary['boss']['share']['link'] ?? null)->toBe('https://t.me/LexiFlowBot?start=ref_'.$code)
+        ->and($outcome->run->status->value)->toBe('finished')
+        ->and($outcome->run->summary['coins'])->toBe(50);
+    Queue::assertPushed(SendGameCardJob::class, 1);
+});
+
+it('hands back the fight another tab has just started when the limit is read a moment later (the one-shot re-read on game_limit_reached), and keeps the refusal for "once more"', function (): void {
+    [$learner, $course, $stage] = bossWorld();
+    GameKit::limits(1, 1);
+    // The other tab's fight (with its first answer in) lands while this start reads the readiness of the city - after the read of the
+    // live run (none) and before the courtesy count of the limit: the place of the day is taken, there is no ticket.
+    $other = null;
+    DB::listen(function (QueryExecuted $query) use (&$other, $learner, $course, $stage): void {
+        if ($other === null && str_contains($query->sql, 'from "lessons"') && str_contains($query->sql, 'game_city_progress')) {
+            $other = GameRun::factory()->boss()->create(['learner_id' => $learner->id, 'course_id' => $course->id, 'stage_id' => $stage->id, 'free_slot' => 'daily', 'answered' => 1, 'correct' => 1]);
+        }
+    });
+
+    $started = app(BossService::class)->start($learner, $course->slug, $stage->id);
+    expect($other)->not->toBeNull()->and($started->id)->toBe($other?->id)
+        ->and(bossEvents('game.limit_reached'))->toBe(1); // the stray event of the window - accepted (docs/18 §12.7.2)
+    // With `replace_active` the learner asked for a fresh fight, not the one that is on; it has an answer, so its place stays taken: 403.
+    expect(fn () => app(BossService::class)->start($learner, $course->slug, $stage->id, true))->toThrow(fn (GameException $e) => $e->errorCode === 'game_limit_reached');
+    expect(GameRun::query()->where('learner_id', $learner->id)->count())->toBe(1)->and($other?->fresh()?->isActive())->toBeTrue();
 });
 
 // ---------------------------------------------------------------------------------------------------------------------------

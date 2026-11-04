@@ -9,6 +9,7 @@ use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\TicketSource;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Models\GameBoosterUse;
@@ -289,6 +290,43 @@ it('gives the place back for a run abandoned or run out without a single answer,
     gameLimitsStart($learner, $course->slug, $lesson->id)->assertForbidden()->assertJsonPath('error.details.used', 1);
 });
 
+it('does not count a live run past its time without an answer in /me.game.limits before anybody closes it, and shows its ticket as back (G2.13)', function (): void {
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $runs = app(RunService::class);
+
+    // The free run of the day, untouched, past its time - the scheduler has not come: the block says the day is free, as a start would find it.
+    $stale = $runs->start($learner, $course->slug, $lesson->id);
+    expect(gameLimitsMe($learner)['runs'])->toBe(gameLimitsBlock(1, 1, LIMITS_DAY_END));
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+    CarbonImmutable::setTestNow($later);
+    expect($stale->refresh()->isActive())->toBeTrue()
+        ->and(gameLimitsMe($learner)['runs'])->toBe(gameLimitsBlock(1, 0, LIMITS_DAY_END));
+    gameLimitsStart($learner, $course->slug, $lesson->id)->assertCreated(); // and the start passes: it closes the stale run on its way
+    expect($stale->refresh()->finish_reason)->toBe(RunFinishReason::Expired);
+
+    // A run paid with a ticket, untouched, past its time: the place of the day is taken by the played run, the ticket is counted as back.
+    GameKit::play($runs, $runs->activeFor($learner, $later) ?? throw new RuntimeException('No run.'), $learner, now: $later);
+    app(TicketService::class)->grantForStreak($learner, 7, '2026-11-05');
+    $paid = $runs->start($learner, $course->slug, $lesson->id, now: $later);
+    expect($paid->free_slot)->toBe(FreeSlot::Ticket)
+        ->and(gameLimitsMe($learner)['tickets'])->toBe(['balance' => 0, 'max' => 10]);
+    CarbonImmutable::setTestNow($later->addMinutes(31));
+    $me = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/me')->assertOk();
+    expect($paid->refresh()->isActive())->toBeTrue()
+        ->and($me->json('game.limits.runs'))->toBe(gameLimitsBlock(1, 1, LIMITS_DAY_END))
+        ->and($me->json('game.limits.tickets'))->toBe(['balance' => 1, 'max' => 10])
+        ->and($me->json('game.tickets'))->toBe(1);
+
+    // With an answer the stale run keeps its place and its ticket, whatever the clock says.
+    $answered = $runs->start($learner, $course->slug, $lesson->id, now: $later->addMinutes(31));
+    expect($answered->free_slot)->toBe(FreeSlot::Ticket)->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(0);
+    $element = GameKit::current($answered);
+    $runs->answer($answered, $learner, (string) Str::uuid(), $element['id'], GameKit::wrongAnswer($element), null, $later->addMinutes(31));
+    CarbonImmutable::setTestNow($later->addMinutes(62));
+    expect($answered->refresh()->isActive())->toBeTrue()
+        ->and(gameLimitsMe($learner))->toMatchArray(['runs' => gameLimitsBlock(1, 2, LIMITS_DAY_END), 'tickets' => ['balance' => 0, 'max' => 10]]);
+});
+
 it('returns the active run of the same stop to a second tab even at the limit, and refuses a replacement without a ticket after the first answer', function (): void {
     [$learner, $course, $lesson] = GameKit::stop(8);
     $runs = app(RunService::class);
@@ -398,7 +436,7 @@ it('allows boosters_per_week uses in the local week from Monday, then 409 booste
     expect(fn () => $limits->assertBoosterAllowed($learner))->toThrow(function (GameException $e): void {
         expect($e->errorCode)->toBe('booster_limit_reached')
             ->and($e->httpStatus())->toBe(409)
-            ->and($e->details)->toBe(['limit' => 1, 'used' => 1, 'resets_at' => LIMITS_WEEK_END]);
+            ->and($e->details)->toBe(['limit' => 1, 'used' => 1, 'resets_at' => LIMITS_WEEK_END, 'upsell' => true]);
     });
     expect(gameLimitsEvents('game.limit_reached'))->toBe([['kind' => 'boosters', 'limit' => 1]]);
 

@@ -68,8 +68,9 @@ const BUDGET_BOSS_START = 17;
  * table is touched cold, the first activity of the day): `TwaAuth`, the run, the journal and the attempt 4, the city 3 (+ its UPDATE),
  * the wallet and its entry 6, the profile 2, the day 4, the run 1 - 21 in the transaction; after the commit the two events of the finish 2,
  * the streak 3, the league 10, the achievements of the day (streak, words) 3 + `game.boss_defeated` 1 and `game_first_boss` (the insert,
- * the row, `achievement.unlocked`) 3, and the pair to share on the card of the first win (G2.7b: the invite code of a learner who has none - read, written once - and the locale) 1-3. The queued card DM is a job of its own. None of them runs per word or per stop of the city. That is 43 + the share on SQLite; PostgreSQL
- * spends two more (the placement in the league), hence the ceiling.
+ * the row, `achievement.unlocked`) 3, and the pair to share on the card of the first win (G2.7b: the invite code of a learner who has none - read, written once - and the locale) 1-3 - since G2.13
+ * made AFTER the commit, in a transaction of its own (docs/18 §12.5.1 rule 24; the view of the run is built outside the answer's transaction). The queued card DM is a job of its
+ * own. None of them runs per word or per stop of the city. That is 43 + the share on SQLite (44 measured, G2.13); PostgreSQL spends two more (the placement in the league: 46), hence the ceiling.
  */
 const BUDGET_BOSS_FINISH = 48;
 

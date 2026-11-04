@@ -2,18 +2,28 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\BoosterEffect;
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Services\Class\ClassBossService;
+use App\Domain\Game\Services\Class\ClassCaravanService;
+use App\Domain\Game\Services\Runs\BossService;
+use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\Achievement;
 use App\Models\AssignmentResult;
 use App\Models\Battle;
 use App\Models\Challenge;
+use App\Models\ClassCaravan;
 use App\Models\Course;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
 use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameRunAttempt;
 use App\Models\GameWallet;
+use App\Models\GroupMember;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -23,6 +33,7 @@ use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\Referral;
 use App\Models\Stage;
+use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\Word;
@@ -34,6 +45,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tests\Support\FakeTelegramClient;
+use Tests\Support\Game\ClassKit;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\DictationKit;
 use Tests\Support\Practice\PracticeKit;
@@ -76,13 +89,22 @@ beforeEach(function (): void {
     GameKit::openAccess();
     GameKit::noEvents();
     Storage::fake('practice_audio');
+    Storage::fake('public');
+    config(['game.class.centers_only' => false, 'telegram.bot_username' => 'LexiFlowBot']);
+    app()->instance(TelegramClient::class, new FakeTelegramClient); // the card "I got to ..." after the first boss
 });
 
 /** The events a run may write (docs/18 §12.8), and no other - plus those of the engagement hooks after the commit (docs/18 §12.6, G2.10). */
-const GAME_ISOLATION_EVENTS = ['game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent', 'game.coins_earned', 'streak.extended', 'league.placed', 'achievement.unlocked'];
+const GAME_ISOLATION_EVENTS = [
+    'game.run_started', 'game.run_finished', 'game.not_enough_material', 'game.coins_spent', 'game.coins_earned', 'game.booster_used', 'game.boss_defeated',
+    'game.daily_completed', 'game.class_started', 'streak.extended', 'league.placed', 'achievement.unlocked',
+];
 
 /** The tables the engagement hooks after the commit of a finish may write (docs/18 §12.6): the streak projection, the league, the achievements. */
 const GAME_ISOLATION_ENGAGEMENT_WRITTEN = ['learners', 'league_weeks', 'league_groups', 'league_members', 'achievements'];
+
+/** The mark "sent once" of the card "I got to ..." after the first boss of a city (`GameCardSender`, G2.7b): a `game_card` row of `notifications_log`. */
+const GAME_ISOLATION_CARD_WRITTEN = ['notifications_log'];
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
@@ -122,7 +144,9 @@ function gameIsolationChecksums(): array
 {
     $sums = [];
     foreach (GAME_ISOLATION_TABLES as $table) {
-        $sums[$table] = md5(json_encode(DB::table($table)->orderBy('id')->get(), JSON_THROW_ON_ERROR));
+        // The one row the game may add to the achievements: `game_first_boss` (G2.4), through the achievement service after the commit.
+        $rows = DB::table($table)->when($table === 'achievements', fn ($query) => $query->where('key', '<>', 'game_first_boss'));
+        $sums[$table] = md5(json_encode($rows->orderBy('id')->get(), JSON_THROW_ON_ERROR));
     }
 
     // The game moves `next_review_at` / `is_hard` / `updated_at` of the words it was wrong about (docs/18 §12.4); nothing else.
@@ -297,12 +321,24 @@ function gameIsolationStop(Learner $learner): array
     DictationKit::phrase($lesson, $learner, 'Phrase of the caravan');
     GameWallet::factory()->withBalance(30)->create(['learner_id' => $learner->id]);
 
+    // The three boosters of the shop, one of each in the bag.
+    foreach ([BoosterEffect::Hint, BoosterEffect::ExtraFlask, BoosterEffect::SecondChance] as $effect) {
+        $item = GameItem::factory()->booster($effect)->create(['key' => 'booster_'.$effect->value]);
+        GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $item->id, 'qty' => 1]);
+    }
+
+    // The class of the learner with a caravan on its way: the runs of the stop count for it, its boss is played below.
+    $group = TelegramGroup::factory()->create(['course_id' => $course->id, 'status' => 'active', 'chat_id' => -1009001]);
+    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
+    app(ClassCaravanService::class)->start($group, ClassKit::teacher($group, 4242));
+
     return [$course, $lesson];
 }
 
 /**
- * Every way a run of a stop can go, on the real handlers: completed without a mistake, failed on three mistakes (with a hint of the bazaar
- * on the way), abandoned, expired by the scheduler, and one more completed with a mistake on every kind of task.
+ * Every way a run can go, on the real handlers: of a stop - completed without a mistake, failed on three mistakes (with a hint of the bazaar
+ * on the way), abandoned, expired by the scheduler, completed with a mistake on every kind of task, with the three boosters - then the
+ * boss of the city (lost and won), the caravan of the day and the boss of the class.
  *
  * @return list<int> the ids of the runs
  */
@@ -339,6 +375,43 @@ function gameIsolationPlayEverything(Learner $learner, Course $course, Lesson $l
     expect($mistakes->finish_reason)->toBe(RunFinishReason::Completed)->and($mistakes->stars)->toBe(1);
     $ids[] = $mistakes->id;
 
+    // The three boosters in one run: the extra flask and the second chance at the start, the hint on the first element that has one.
+    $boosted = $runs->start($learner, $course->slug, $lesson->id);
+    $runs->booster($boosted, $learner, (string) Str::uuid(), 'booster_extra_flask');
+    $runs->booster($boosted, $learner, (string) Str::uuid(), 'booster_second_chance');
+    $hinted = null;
+    foreach ($boosted->snapshot['elements'] as $index => $element) {
+        if (in_array($element['kind'], ['translate_fwd', 'translate_back', 'spell', 'gap'], true)) {
+            $hinted = $index;
+            break;
+        }
+    }
+    expect($hinted)->not->toBeNull();
+    $boosted->forceFill(['state' => [...$boosted->state, 'current' => $hinted]])->save(); // the elements before it stay unplayed, as in GameBoosterTest
+    $runs->booster($boosted, $learner, (string) Str::uuid(), 'booster_hint', $boosted->snapshot['elements'][$hinted]['id']);
+    $boosted = GameKit::play($runs, $boosted, $learner, wrongAt: [$hinted + 1]);
+    expect($boosted->finish_reason)->toBe(RunFinishReason::Completed)->and(DB::table('game_booster_uses')->where('run_id', $boosted->id)->count())->toBe(3);
+    $ids[] = $boosted->id;
+
+    // The boss of the city: lost (every answer wrong), then won with a mistake; the daily caravan; the boss of the class.
+    $boss = app(BossService::class);
+    $lost = GameKit::play($runs, $boss->start($learner, $course->slug, (int) $lesson->stage_id), $learner, wrongAt: range(0, 11));
+    expect($lost->status->value)->toBe('finished')->and($lost->coins_awarded)->toBe(0);
+    $ids[] = $lost->id;
+    $won = GameKit::play($runs, $boss->start($learner, $course->slug, (int) $lesson->stage_id), $learner, wrongAt: [3]);
+    expect($won->status->value)->toBe('finished')->and($won->coins_awarded)->toBeGreaterThan(0);
+    $ids[] = $won->id;
+
+    $daily = GameKit::play($runs, app(DailyCaravanService::class)->start($learner), $learner);
+    expect($daily->finish_reason)->toBe(RunFinishReason::Completed);
+    $ids[] = $daily->id;
+
+    $caravan = ClassCaravan::query()->sole();
+    $caravan->forceFill(['boss_unlocked_at' => now()])->save();
+    $classBoss = GameKit::play($runs, app(ClassBossService::class)->start($learner, $caravan->id), $learner, wrongAt: [2]);
+    expect($classBoss->status->value)->toBe('finished')->and($classBoss->class_caravan_id)->toBe($caravan->id);
+    $ids[] = $classBoss->id;
+
     return $ids;
 }
 
@@ -357,12 +430,17 @@ it('leaves the learning of the learner exactly as it was after runs of every out
     $fresh = Learner::query()->findOrFail($learner->id);
     expect([$fresh->streak_current, $fresh->streak_best, $fresh->streak_last_date?->toDateString(), $fresh->streak_freezes, $fresh->daily_goal])->toBe([5, 9, '2026-11-05', 2, 35])
         ->and(array_diff_key($after, ['learners' => true]))->toBe(array_diff_key($before, ['learners' => true]))
-        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, ...GAME_ISOLATION_ENGAGEMENT_WRITTEN, 'word_repetitions', 'learner_daily_stats']))->toBe([]);
+        ->and(array_diff(gameIsolationWrittenTables($queries), [...GAME_ISOLATION_WRITTEN, ...GAME_ISOLATION_ENGAGEMENT_WRITTEN, ...GAME_ISOLATION_CARD_WRITTEN, 'word_repetitions', 'learner_daily_stats']))->toBe([]);
 
-    // The only statements against `learners`: the optimistic projection of the streak (StreakService), nothing of the settings or the plan.
+    // The first win over the boss of a city is the one thing added to the achievements - once.
+    expect(Achievement::query()->where('learner_id', $learner->id)->where('key', 'game_first_boss')->count())->toBe(1);
+
+    // The only statements against `learners`: the optimistic projection of the streak (StreakService), nothing of the settings or the plan,
     $learnerWrites = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]learners["`]/i');
-    expect($learnerWrites)->toHaveCount(1)
-        ->and($learnerWrites[0])->toMatch('/^update ["`]learners["`] set ["`]streak_current["`] = \?, ["`]streak_best["`] = \?, ["`]streak_last_date["`] = \?, ["`]updated_at["`] = \? where/');
+    // and the lazy referral code of the link in the card "I got to ..." (the first boss of a city, G2.7b), once, only when it is still empty.
+    expect($learnerWrites)->toHaveCount(2)
+        ->and($learnerWrites[0])->toMatch('/^update ["`]learners["`] set ["`]streak_current["`] = \?, ["`]streak_best["`] = \?, ["`]streak_last_date["`] = \?, ["`]updated_at["`] = \? where/')
+        ->and($learnerWrites[1])->toMatch('/^update ["`]learners["`] set ["`]referral_code["`] = \?, ["`]updated_at["`] = \? where ["`]learners["`]\.["`]id["`] = \? and ["`]referral_code["`] is null$/');
 
     // The one statement the game may issue against `word_repetitions`: the conditional UPDATE of the three columns (docs/18 §12.4).
     $writes = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]word_repetitions["`]/i');
@@ -376,7 +454,7 @@ it('leaves the learning of the learner exactly as it was after runs of every out
     $days = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]learner_daily_stats["`]/i');
     expect($days)->not->toBe([]);
     foreach ($days as $sql) {
-        expect($sql)->toMatch('/^(insert (or ignore )?into ["`]learner_daily_stats["`] \(|update ["`]learner_daily_stats["`] set ["`]game_runs_count["`] = \?, ["`]game_points["`] = \?(, ["`]game_held_at["`] = \?)?, ["`]updated_at["`] = \? where ["`]id["`] = \?$)/i');
+        expect($sql)->toMatch('/^(insert (or ignore )?into ["`]learner_daily_stats["`] \(|update ["`]learner_daily_stats["`] set ["`]game_runs_count["`] = \?(, ["`]game_points["`] = \?)?(, ["`]game_held_at["`] = \?)?, ["`]updated_at["`] = \? where ["`]id["`] = \?$)/i');
     }
 
     // Every kind of task was played at least once.
@@ -420,13 +498,17 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
 
     $events = ProductEvent::query()->orderBy('id')->get();
     // `streak.extended` once: the first finished run held the day (G2.10); the learner graded today already (no seat to take) and holds streak_7.
-    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent', 'game.coins_earned', 'streak.extended'])
+    expect(array_values(array_unique($events->pluck('name')->all())))->toEqualCanonicalizing(['game.run_started', 'game.run_finished', 'game.coins_spent', 'game.coins_earned', 'game.booster_used', 'game.boss_defeated', 'game.daily_completed', 'achievement.unlocked', 'streak.extended'])
         ->and(array_diff($events->pluck('name')->unique()->all(), GAME_ISOLATION_EVENTS))->toBe([])
         ->and($events->where('name', 'streak.extended')->count())->toBe(1)
         ->and($events->where('name', 'daily_goal.met')->count())->toBe(0)
-        ->and($events->where('name', 'game.run_started')->count())->toBe(5)
-        ->and($events->where('name', 'game.run_finished')->count())->toBe(5)
-        ->and($events->where('name', 'game.run_finished')->pluck('props.finish_reason')->sort()->values()->all())->toBe(['abandoned', 'completed', 'completed', 'expired', 'failed']);
+        ->and($events->where('name', 'game.run_started')->count())->toBe(10)
+        ->and($events->where('name', 'game.run_finished')->count())->toBe(10)
+        ->and($events->where('name', 'game.run_finished')->pluck('props.kind')->sort()->values()->all())->toBe(['boss', 'boss', 'class_boss', 'daily', 'stop', 'stop', 'stop', 'stop', 'stop', 'stop'])
+        ->and($events->where('name', 'game.run_finished')->pluck('props.finish_reason')->sort()->values()->all())->toBe(['abandoned', 'completed', 'completed', 'completed', 'completed', 'completed', 'completed', 'completed', 'expired', 'failed'])
+        ->and($events->where('name', 'game.booster_used')->count())->toBe(3)
+        ->and($events->where('name', 'game.boss_defeated')->count())->toBe(1)
+        ->and($events->where('name', 'game.daily_completed')->count())->toBe(1);
 
     foreach ($events as $event) {
         expect($event->learner_id)->toBe($learner->id);
@@ -435,9 +517,13 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
             'game.run_started' => ['run_id', 'kind', 'course_id', 'stage_id', 'lesson_id', 'total', 'free_slot', 'scope_widened'],
             'game.run_finished' => ['run_id', 'kind', 'finish_reason', 'total', 'answered', 'correct', 'typos', 'wrong', 'hints', 'stars', 'score', 'coins', 'league_points', 'srs_pulled', 'duration_ms', 'event'],
             'streak.extended' => ['current', 'best'],
+            'game.booster_used' => ['run_id', 'effect'],
+            'game.boss_defeated', 'game.daily_completed', 'achievement.unlocked' => null,
             default => ['amount', 'kind', 'ref_type', 'ref_id', 'balance'],
         };
-        expect(array_keys($props))->toEqualCanonicalizing($expected);
+        if ($expected !== null) {
+            expect(array_keys($props))->toEqualCanonicalizing($expected);
+        }
         foreach ($props as $value) {
             expect(is_scalar($value) || $value === null)->toBeTrue();
         }

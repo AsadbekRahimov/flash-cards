@@ -6,22 +6,30 @@ use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Services\Economy\TicketService;
+use App\Domain\Game\Services\GameCardSender;
+use App\Domain\Game\Services\Runs\BossService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Services\PracticeSessionService;
+use App\Models\Achievement;
+use App\Models\GameCityProgress;
 use App\Models\GameCoinLedgerEntry;
 use App\Models\GameProfile;
 use App\Models\GameRun;
 use App\Models\GameRunAttempt;
+use App\Models\GameStopProgress;
 use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use App\Models\Lesson;
+use App\Models\NotificationLog;
 use App\Models\PracticeSession;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Game\GameRace;
@@ -503,4 +511,93 @@ it('gives the daily caravan of the day to one of two tabs at once: one row with 
         ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(1)
         ->and(array_values(array_filter($results, static fn (array $r): bool => ! $r['ok']))[0]['details'])->toBe(['resets_at' => '2026-11-06T00:00:00.000Z'])
         ->and(gameRaceEvents('game.run_started'))->toHaveCount(1);
+});
+
+// ---------------------------------------------------------------- the view after the commit (G2.13, docs/18 §12.5.1 rule 24)
+
+/**
+ * A Free learner (limit 1) without an invite code, one ticket in the ledger, a city of two cleared stops, and the fight with its boss on
+ * the free run of the day - played to its last element, every answer right, the last one NOT sent.
+ *
+ * @return array{learnerId: int, slug: string, lessonId: int, stageId: int, runId: int, elementId: string, answer: array<string, mixed>}
+ */
+function gameRaceFirstBossWin(): array
+{
+    GameKit::limits(1); // every boss open to Free (boss_stages null), one map run a day
+    config(['telegram.bot_username' => 'LexiFlowBot']);
+    Storage::fake('public');
+    [$learner, $course, $first] = GameKit::stop(0);
+    $stage = $first->stage ?? throw new RuntimeException('No stage.');
+    $lessons = [$first, Lesson::factory()->for($stage)->create(['number' => 2])];
+    foreach ($lessons as $l => $lesson) {
+        foreach (range(1, 6) as $i) {
+            GameKit::word($lesson, $learner, "bossrace{$l}x{$i}", "перевод {$l}.{$i}");
+        }
+        GameStopProgress::factory()->cleared(1)->create(['learner_id' => $learner->id, 'lesson_id' => $lesson->id]);
+    }
+    expect($learner->referral_code)->toBeNull();
+    app(TicketService::class)->grantForStreak($learner, 7, '2026-11-05');
+
+    $runs = app(RunService::class);
+    $run = app(BossService::class)->start($learner, $course->slug, $stage->id);
+    expect($run->free_slot)->toBe(FreeSlot::Daily)->and($run->total)->toBe(12);
+    for ($i = 0; $i < $run->total - 1; $i++) {
+        $element = GameKit::current($run);
+        $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], GameKit::rightAnswers($element)[0]);
+    }
+    $last = GameKit::current($run);
+
+    return ['learnerId' => $learner->id, 'slug' => $course->slug, 'lessonId' => $first->id, 'stageId' => $stage->id, 'runId' => $run->id, 'elementId' => $last['id'], 'answer' => GameKit::rightAnswers($last)[0]];
+}
+
+it('does not deadlock the first win over a boss of a learner without an invite code against a Free start that replaces the fight and a grant of the streak: the view is built after the commit', function (): void {
+    ['learnerId' => $learnerId, 'slug' => $slug, 'lessonId' => $lessonId, 'stageId' => $stageId, 'runId' => $runId, 'elementId' => $elementId, 'answer' => $answer] = gameRaceFirstBossWin();
+
+    // Before G2.13 the answer built its RunView inside the transaction: `summary.boss.share` made the invite code with an UPDATE of
+    // `learners` while the run, the city, the wallet, the profile and the day were held - the inverse of rule 18. The start holds
+    // `learners` and waits for the run's row; the grant holds `learners` and waits for the profile: a cycle. Now the answer holds no
+    // row of the learner, the start and the grant go one after the other on `learners`, and whoever locks the run first decides.
+    $results = gameRace([
+        fn (): string => app(RunService::class)->answer($runId, gameRaceLearner($learnerId), (string) Str::uuid(), $elementId, $answer)->run->summary['boss']['share']['link'] ?? 'no-share',
+        fn (): int => app(RunService::class)->start(gameRaceLearner($learnerId), $slug, $lessonId, true)->id,
+        fn (): ?int => app(TicketService::class)->grantForStreak(gameRaceLearner($learnerId), 14, '2026-11-12')?->balance,
+    ]);
+
+    $boss = GameRun::query()->findOrFail($runId);
+    $learner = Learner::query()->findOrFail($learnerId);
+    $city = GameCityProgress::query()->where('learner_id', $learnerId)->where('stage_id', $stageId)->first();
+    $cards = NotificationLog::query()->where('learner_id', $learnerId)->where('type', GameCardSender::NOTIFICATION_TYPE)->count();
+    expect(gameRaceCrashes($results))->toBe([])
+        ->and(gameRaceOutcomes($results))->toBeIn([['ok', 'ok', 'ok'], ['game_run_closed', 'ok', 'ok']], (string) json_encode($results))
+        ->and($boss->finish_reason)->toBeIn([RunFinishReason::Completed, RunFinishReason::Abandoned])
+        // the fight had its answers: the start closes it without a refund and pays the fresh run with the ticket; the grant adds one
+        ->and(GameRun::query()->where('learner_id', $learnerId)->count())->toBe(2)
+        ->and(GameRun::query()->where('active_learner_id', $learnerId)->where('kind', 'stop')->where('free_slot', 'ticket')->count())->toBe(1)
+        ->and(gameRaceTickets($learnerId))->toBe([1, 1, 1, 0])
+        ->and(gameRaceEvents('game.ticket_spent'))->toHaveCount(1)
+        ->and(gameRaceEvents('game.ticket_granted'))->toHaveCount(2);
+
+    if ($boss->finish_reason === RunFinishReason::Completed) {
+        // The answer first: the win is paid and recorded in the database, the card is sent once, and the code the share link carries is
+        // the one made AFTER the commit - the same the learner has now.
+        expect($results[0]['value'])->toBe('https://t.me/LexiFlowBot?start=ref_'.$learner->referral_code)
+            ->and($learner->referral_code)->not->toBeNull()
+            ->and($boss->coins_awarded)->toBe(50)->and($boss->stars)->toBe(3)->and((bool) ($boss->state['boss_first'] ?? false))->toBeTrue()
+            ->and($city?->boss_defeated_at)->not->toBeNull()->and($city?->boss_wins)->toBe(1)
+            ->and(GameWallet::query()->where('learner_id', $learnerId)->value('balance'))->toBe(50)
+            ->and(GameCoinLedgerEntry::query()->where('idempotency_key', "run:{$runId}:reward")->count())->toBe(1)
+            ->and(Achievement::query()->where('learner_id', $learnerId)->where('key', 'game_first_boss')->count())->toBe(1)
+            ->and(gameRaceEvents('game.boss_defeated'))->toHaveCount(1)
+            ->and($cards)->toBe(1);
+    } else {
+        // The start first: the fight is abandoned with its answers, nothing is paid, no card, no code was made for anybody.
+        expect($results[0]['code'] ?? null)->toBe('game_run_closed')
+            ->and($learner->referral_code)->toBeNull()
+            ->and($boss->coins_awarded)->toBe(0)->and($boss->stars)->toBeNull()
+            ->and($city)->toBeNull()
+            ->and(GameWallet::query()->where('learner_id', $learnerId)->exists())->toBeFalse()
+            ->and(Achievement::query()->where('learner_id', $learnerId)->where('key', 'game_first_boss')->count())->toBe(0)
+            ->and(gameRaceEvents('game.boss_defeated'))->toHaveCount(0)
+            ->and($cards)->toBe(0);
+    }
 });

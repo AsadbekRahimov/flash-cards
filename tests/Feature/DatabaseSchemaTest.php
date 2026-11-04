@@ -1932,6 +1932,16 @@ it('rolls back and re-applies the game migrations (G2.1) in FK order', function 
     expectConstraintViolation(fn () => GameRun::factory()->create(['class_caravan_id' => 987_654]));
 });
 
+it('indexes game_runs by (started_at, learner_id) for the activity widget and the date filter, and drops it on rollback', function (): void {
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_08_100000_add_started_at_index_to_game_runs_table')])->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeFalse();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+});
+
 it('rolls back the foreign key game_runs.class_caravan_id with the caravans, keeps the runs and clears their link', function (): void {
     $caravan = ClassCaravan::factory()->create();
     $run = GameRun::factory()->create(['class_caravan_id' => $caravan->id]);
@@ -2112,10 +2122,14 @@ it('has the CHECK constraints of the game tables (PostgreSQL)', function (): voi
     expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['daily_key' => '1:2026-11-05'])));
     expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss'])));
     expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['class_boss_key' => '1:1'])));
+    // G2.13: a fight with the boss of a class lets go of its key only when it is finished without a single answer.
+    expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'status' => 'finished', 'active_learner_id' => null, 'finish_reason' => 'abandoned', 'answered' => 1, 'flasks' => 0, 'flasks_max' => 0])));
     expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['flasks' => 4])));
     expectConstraintViolation(fn () => DB::table('game_runs')->insert(gameRawRun(['flasks' => -1])));
     DB::table('game_runs')->insert(gameRawRun());
     DB::table('game_runs')->insert(gameRawRun(['status' => 'finished', 'active_learner_id' => null, 'kind' => 'boss', 'flasks' => 0, 'flasks_max' => 0]));
+    DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'status' => 'finished', 'active_learner_id' => null, 'finish_reason' => 'abandoned', 'answered' => 0, 'flasks' => 0, 'flasks_max' => 0]));
+    DB::table('game_runs')->insert(gameRawRun(['kind' => 'class_boss', 'class_boss_key' => '1:1', 'flasks' => 0, 'flasks_max' => 0]));
 
     $runId = (int) DB::table('game_runs')->value('id');
     $learnerId = (int) DB::table('game_runs')->value('learner_id');

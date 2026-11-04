@@ -158,7 +158,7 @@ it('tells the fight of the learner with the boss of the class: not yet, lost, wo
     $run = GameRun::factory()->classBoss($caravan)->create(['learner_id' => $me->id, 'course_id' => $w['course']->id, 'correct' => 3, 'total' => 12]);
     expect($attempt()['my_attempt'])->toBeNull(); // still going on
 
-    $run->forceFill(['status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null])->save();
+    $run->forceFill(['status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null, 'finish_reason' => 'completed'])->save();
     expect($attempt()['my_attempt'])->toBe('lost');
 
     $run->forceFill(['correct' => 10])->save();
@@ -168,6 +168,19 @@ it('tells the fight of the learner with the boss of the class: not yet, lost, wo
     expect($attempt()['defeated'])->toBeTrue()
         ->and(classApiGet($me)->json('caravans.0.boss.my_attempt'))->toBe('won');
 });
+
+it('never calls an abandoned or expired boss fight won, whatever its accuracy', function (string $reason): void {
+    $w = ClassKit::world(1);
+    $me = $w['learners'][0];
+    $caravan = classApiCaravan($w, ['boss_unlocked_at' => now(), 'boss_defeated_at' => null]);
+
+    GameRun::factory()->classBoss($caravan)->create([
+        'learner_id' => $me->id, 'course_id' => $w['course']->id, 'correct' => 10, 'total' => 12,
+        'status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null, 'finish_reason' => $reason,
+    ]);
+
+    expect(classApiGet($me, "/{$caravan->id}")->assertOk()->json('boss.my_attempt'))->toBe('lost');
+})->with(['abandoned', 'expired']);
 
 it('carries the summary of a finished caravan', function (): void {
     $w = ClassKit::world(1);
@@ -250,6 +263,27 @@ it('keeps the card of the caravan off /today and the map while the game is close
 
     expect(QueryLog::matching($queries, '/class_caravans/'))->toBe([]);
     test()->withHeaders(PracticeKit::headers($me))->getJson('/api/twa/game/map?course=silk')->assertForbidden();
+});
+
+it('shows no card of the caravan on the map and on /today in the pilot mode: the caravan is for the whole group', function (): void {
+    $w = classApiMapWorld();
+    $me = $w['learners'][0];
+    $me->forceFill(['practice_pilot_at' => now()])->save();
+    classApiCaravan($w, ['stars_total' => 7]);
+    config(['game.access' => 'pilot']);
+    $headers = PracticeKit::headers($me);
+
+    $map = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk()->assertJsonPath('class_caravan', null));
+    $today = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/today')->assertOk()->assertJsonPath('game.class_caravan', null));
+
+    expect(QueryLog::matching($map, '/from ["`]class_caravans["`]/'))->toBe([])
+        ->and(QueryLog::matching($today, '/from ["`]class_caravans["`]/'))->toBe([]);
+});
+
+it('answers 401 without Telegram initData: the caravans of the class and the share of a city', function (): void {
+    test()->getJson('/api/twa/game/class')->assertUnauthorized();
+    test()->getJson('/api/twa/game/class/1')->assertUnauthorized();
+    test()->postJson('/api/twa/game/cities/1/shared', [])->assertUnauthorized();
 });
 
 it('reads the card in one statement on the map and on /today', function (): void {

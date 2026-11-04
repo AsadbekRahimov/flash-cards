@@ -18,9 +18,23 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\Achievement;
 use App\Models\AuditLog;
 use App\Models\Challenge;
+use App\Models\ClassCaravan;
+use App\Models\ClassCaravanMember;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\Friendship;
+use App\Models\GameBoosterUse;
+use App\Models\GameCityProgress;
+use App\Models\GameCoinLedgerEntry;
+use App\Models\GameInventoryItem;
+use App\Models\GameItem;
+use App\Models\GameProfile;
+use App\Models\GameRun;
+use App\Models\GameRunAttempt;
+use App\Models\GameStopProgress;
+use App\Models\GameTicketLedgerEntry;
+use App\Models\GameWallet;
+use App\Models\GameWordMiss;
 use App\Models\GroupMember;
 use App\Models\LeagueMember;
 use App\Models\Learner;
@@ -42,6 +56,8 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Tests\Support\FakeBillingProvider;
 use Tests\Support\FakeTelegramClient;
 
@@ -72,6 +88,31 @@ function purgeSoftDelete(Learner $learner, int $daysAgo): void
 {
     $learner->delete();
     Learner::withTrashed()->whereKey($learner->id)->update(['deleted_at' => CarbonImmutable::now()->subDays($daysAgo)]);
+}
+
+/**
+ * The game "Caravan" of the learner (docs/18 §12.2): a run with its attempt and a booster use, the wallet and its ledger, the profile
+ * and the ticket ledger (bound to the run), the progress of a stop and of a city, a missed word, the bag, a member row of a class caravan
+ * and a run of that caravan.
+ */
+function purgeGameRows(Learner $learner, TelegramGroup $group): void
+{
+    $run = GameRun::factory()->finished()->create(['learner_id' => $learner->id]);
+    GameRunAttempt::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id]);
+    $booster = GameItem::factory()->booster()->create();
+    GameBoosterUse::factory()->create(['run_id' => $run->id, 'learner_id' => $learner->id, 'item_id' => $booster->id]);
+    GameInventoryItem::factory()->create(['learner_id' => $learner->id, 'item_id' => $booster->id, 'qty' => 2]);
+    GameWallet::factory()->withBalance(40)->create(['learner_id' => $learner->id]);
+    GameCoinLedgerEntry::factory()->create(['learner_id' => $learner->id, 'amount' => 40, 'balance_after' => 40]);
+    GameProfile::factory()->withTickets(2)->create(['learner_id' => $learner->id]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'run_id' => $run->id]);
+    GameStopProgress::factory()->cleared(3)->create(['learner_id' => $learner->id]);
+    GameCityProgress::factory()->create(['learner_id' => $learner->id]);
+    GameWordMiss::factory()->create(['learner_id' => $learner->id, 'misses' => 3]);
+
+    $caravan = ClassCaravan::factory()->create(['telegram_group_id' => $group->id]);
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $learner->id, 'runs' => 2, 'stars' => 5]);
+    GameRun::factory()->finished()->create(['learner_id' => $learner->id, 'class_caravan_id' => $caravan->id]);
 }
 
 /**
@@ -113,6 +154,7 @@ function purgeFixture(): array
     ExamAnswer::factory()->create(['learner_id' => $learner->id]);
     ExamResult::factory()->create(['learner_id' => $learner->id]);
     app(ProductEventRecorder::class)->record(ProductEventName::OnboardingStarted, [], $learner);
+    purgeGameRows($learner, $group);
 
     $order = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
     $payment = app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
@@ -150,6 +192,13 @@ it('deletes a learner due for purge with all personal and learning data and keep
     foreach ([GroupMember::class, OrganizationMember::class, WordRepetition::class, TrainingReview::class, LearnerDailyStats::class, Achievement::class, LeagueMember::class, PracticeSession::class, Offer::class, PromoRedemption::class, NotificationLog::class] as $model) {
         expect($model::query()->where('learner_id', $id)->count())->toBe(0, $model);
     }
+    // The game: every row of the learner goes; the caravan of the class and the items of the shop stay.
+    foreach ([GameRun::class, GameRunAttempt::class, GameBoosterUse::class, GameInventoryItem::class, GameWallet::class, GameCoinLedgerEntry::class, GameProfile::class, GameTicketLedgerEntry::class, GameStopProgress::class, GameCityProgress::class, GameWordMiss::class, ClassCaravanMember::class] as $model) {
+        expect($model::query()->where('learner_id', $id)->count())->toBe(0, $model);
+    }
+    expect(ClassCaravan::query()->count())->toBe(1)
+        ->and(GameItem::query()->count())->toBe(1)
+        ->and(DB::table('game_runs')->count())->toBe(0);
     expect(Friendship::query()->where('learner_id', $id)->orWhere('friend_id', $id)->count())->toBe(0)
         ->and(Challenge::query()->where('challenger_id', $id)->orWhere('opponent_id', $id)->count())->toBe(0)
         ->and(Referral::query()->where('referrer_learner_id', $id)->orWhere('referee_learner_id', $id)->count())->toBe(0);
@@ -197,6 +246,24 @@ it('deletes a learner due for purge with all personal and learning data and keep
     // Caches: the league standings of the group and the seat summary of the organization are dropped.
     expect(PureCache::store()->get(LeagueService::CACHE_PREFIX.$groupId))->toBeNull()
         ->and((int) Cache::get(OrgOverviewService::versionKey($organization->id)))->toBe(4);
+});
+
+it('has a row of the learner in every game table that refers to learners, so the purge of them is really tested', function (): void {
+    ['learner' => $learner] = purgeFixture();
+
+    $missing = [];
+    foreach (Schema::getTableListing(schemaQualified: false) as $table) {
+        if (! str_starts_with($table, 'game_') && ! str_starts_with($table, 'class_caravan')) {
+            continue;
+        }
+        foreach (Schema::getForeignKeys($table) as $foreignKey) {
+            if ($foreignKey['foreign_table'] === 'learners' && DB::table($table)->where($foreignKey['columns'][0], $learner->id)->doesntExist()) {
+                $missing[] = "{$table}.{$foreignKey['columns'][0]}";
+            }
+        }
+    }
+
+    expect($missing)->toBe([]);
 });
 
 it('deletes nothing before the retention period and the learner can still come back', function (): void {

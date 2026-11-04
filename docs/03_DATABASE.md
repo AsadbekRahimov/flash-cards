@@ -1155,7 +1155,7 @@ CHECK не создаются — инвариант дублируют серв
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | стоянка (`stop`) |
 | class_caravan_id | bigint nullable FK → class_caravans, ON DELETE SET NULL | забег шёл во время активного каравана группы; у `class_boss` обязателен. FK добавляет миграция `class_caravans` (на SQLite — пересборкой таблицы) |
 | daily_key | varchar(32) nullable **unique** | `"{learner_id}:{local_date}"` у `daily`: один ежедневный караван в локальный день |
-| class_boss_key | varchar(40) nullable **unique** | `"{class_caravan_id}:{learner_id}"` у `class_boss`: одна попытка |
+| class_boss_key | varchar(40) nullable **unique** | `"{class_caravan_id}:{learner_id}"` у `class_boss`: одна попытка; бой, закрытый без единого ответа, отдаёт ключ (`NULL`) и попыткой не считается (G2.13, docs/18 §12.11) |
 | local_date | date NOT NULL | локальный день ученика в момент старта (лимиты дня, строка `learner_daily_stats`) |
 | status | varchar(10) default 'active' | `active` / `finished` |
 | finish_reason | varchar(12) nullable | `completed` / `failed` / `expired` / `abandoned` |
@@ -1176,8 +1176,8 @@ CHECK не создаются — инвариант дублируют серв
 | started_at, finished_at | timestamp (finished_at nullable) | |
 | created_at, updated_at | | |
 
-**Индексы:** `active_learner_id`, `daily_key`, `class_boss_key` — unique; `(learner_id, status, started_at)`; `(learner_id, kind, local_date)`; `(status, expires_at)`; `(class_caravan_id, status)`; `(course_id, kind, finished_at)`.
-**PostgreSQL CHECK:** `game_runs_kind_check`, `game_runs_status_check`, `game_runs_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `game_runs_active_owner_check`, `game_runs_daily_shape_check ((kind = 'daily') = (daily_key IS NOT NULL))`, `game_runs_class_boss_shape_check ((kind = 'class_boss') = (class_boss_key IS NOT NULL))`, `game_runs_flasks_check (flasks BETWEEN 0 AND flasks_max)`.
+**Индексы:** `active_learner_id`, `daily_key`, `class_boss_key` — unique; `(learner_id, status, started_at)`; `(learner_id, kind, local_date)`; `(status, expires_at)`; `(class_caravan_id, status)`; `(course_id, kind, finished_at)`; `(started_at, learner_id)` (миграция 66).
+**PostgreSQL CHECK:** `game_runs_kind_check`, `game_runs_status_check`, `game_runs_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `game_runs_active_owner_check`, `game_runs_daily_shape_check ((kind = 'daily') = (daily_key IS NOT NULL))`, `game_runs_class_boss_shape_check ((class_boss_key IS NULL OR kind = 'class_boss') AND (kind <> 'class_boss' OR class_boss_key IS NOT NULL OR (status = 'finished' AND answered = 0)))` (с G2.13, миграция 67; до неё — `(kind = 'class_boss') = (class_boss_key IS NOT NULL)`), `game_runs_flasks_check (flasks BETWEEN 0 AND flasks_max)`.
 
 ### 2.49 `game_run_attempts` — журнал принятых запросов забега *(G2.1)*
 Копия `practice_attempts` (§2.44): `run_id` FK → `game_runs` CASCADE, `learner_id` FK CASCADE, `request_id` uuid, `element_id` varchar(16), `kind` varchar(8) (`answer` / `pair` / `skip` / `hint` / `booster`), `payload` jsonb, `verdict` varchar(8) nullable (`correct` / `typo` / `wrong` / `skipped`; `NULL` у `hint` и `booster`), `is_first` boolean default true, `result` jsonb, `time_spent_ms` int nullable, `accepted_at` timestamp, `created_at` (без `updated_at`). **Индексы:** unique `(run_id, request_id)`; `(run_id, element_id)`; `(learner_id, accepted_at)`.
@@ -1324,6 +1324,8 @@ CHECK не создаются — инвариант дублируют серв
 63. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
 64. `2026_11_06_100000_add_organization_index_to_class_caravans_table` — индекс `class_caravans (organization_id, starts_at)` для страницы «Караваны» в `/org` *(G2.9b)*
 65. `2026_11_07_100000_add_refund_to_game_ticket_ledger_source_check` — PG CHECK `game_ticket_ledger.source` += `refund` (только pgsql; `down()` возвращает прежний список и требует отсутствия строк `refund`) *(G2.8b, §2.58)*
+66. `2026_11_08_100000_add_started_at_index_to_game_runs_table` — индекс `game_runs (started_at, learner_id)` для `GameActivityStats` и фильтра дат `GameRunResource` *(G2.13)*
+67. `2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key` — PG CHECK `game_runs_class_boss_shape_check` допускает `class_boss_key IS NULL` у завершённого без ответа боя с боссом класса (только pgsql; `down()` возвращает прежний CHECK как `NOT VALID` — отданные ключи не восстановить) *(G2.13, §2.48)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

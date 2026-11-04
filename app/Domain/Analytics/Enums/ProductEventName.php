@@ -136,6 +136,8 @@ enum ProductEventName: string
     case GameTicketRefunded = 'game.ticket_refunded';
     /** A grant of tickets was cut by the cap of the balance, wholly or in part (props: source, lost). */
     case GameTicketCapped = 'game.ticket_capped';
+    /** An administrator changed a learner's coins (props: amount - signed, audit_log_id); actor - the user, the learner. */
+    case GameCoinsAdjusted = 'game.coins_adjusted';
     /** An administrator changed a learner's tickets (props: amount, audit_log_id); actor - the user, the learner. */
     case GameTicketsAdjusted = 'game.tickets_adjusted';
     /** A teacher (or an admin) started the caravan of a class (props: class_caravan_id, group_id, members, target - docs/18 §12.11); actor - the user, the group. */

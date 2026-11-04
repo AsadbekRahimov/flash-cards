@@ -296,6 +296,23 @@ it('lists the accepted friends with the progress on this course, the most advanc
     ]);
 });
 
+it('does not list a friend whose account is deleted (soft delete, before the purge)', function (): void {
+    [$course, $lessons] = mapCourse(1, 1);
+    $learner = Learner::factory()->create();
+    $kept = Learner::factory()->create(['first_name' => 'Dilnoza']);
+    $gone = Learner::factory()->create(['first_name' => 'Aziz']);
+    $keptFriendship = Friendship::factory()->between($learner, $kept)->create();
+    Friendship::factory()->between($gone, $learner)->create();
+    foreach ([$kept, $gone] as $who) {
+        GameStopProgress::factory()->cleared(2)->create(['learner_id' => $who->id, 'lesson_id' => $lessons[0][0]->id]);
+    }
+    $gone->delete();
+
+    expect(mapGet($learner)->assertOk()->json('friends'))->toBe([
+        ['friendship_id' => $keptFriendship->id, 'name' => 'Dilnoza', 'city_number' => 1, 'stops_cleared' => 1, 'camel_asset' => null],
+    ]);
+});
+
 it('shows at most friends_max friends', function (): void {
     [, $lessons] = mapCourse(1, 1);
     config(['game.map.friends_max' => 3]);

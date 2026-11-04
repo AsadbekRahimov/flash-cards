@@ -253,11 +253,11 @@ final class MapService
             return [];
         }
 
-        $names = DB::table('learners')->whereIn('id', array_column($onCourse, 'learner_id'))->pluck('first_name', 'id');
+        $names = DB::table('learners')->whereNull('deleted_at')->whereIn('id', array_column($onCourse, 'learner_id'))->pluck('first_name', 'id');
 
         $friends = [];
         foreach ($onCourse as $friend) {
-            // a friend who deleted their profile is not listed
+            // a friend who deleted their profile (until the purge too) is not listed
             if (! $names->has($friend['learner_id'])) {
                 continue;
             }

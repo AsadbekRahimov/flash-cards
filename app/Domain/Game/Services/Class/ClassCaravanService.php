@@ -9,9 +9,11 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Game\DTO\ClassCaravanCancellation;
 use App\Domain\Game\DTO\ClassContribution;
 use App\Domain\Game\Enums\ClassCaravanStatus;
 use App\Domain\Game\Enums\RunKind;
+use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Game\Support\BossWordPicker;
@@ -62,6 +64,9 @@ final class ClassCaravanService
 
     public const CANCELED_BY_ADMIN = 'admin';
 
+    /** Telegram did not take the message about the start: nobody in the chat could see the caravan, so it was withdrawn at once. */
+    public const CANCELED_NOT_DELIVERED = 'not_delivered';
+
     public const SUMMARY_SKIPPED_GROUP_INACTIVE = 'group_inactive';
 
     public function __construct(
@@ -83,6 +88,9 @@ final class ClassCaravanService
     public function start(TelegramGroup $group, User $by, ?CarbonImmutable $now = null): ClassCaravan
     {
         $now ??= CarbonImmutable::now();
+        if (! $this->access->classCaravanOpen()) {
+            throw GameException::unavailable(); // GAME_ACCESS other than `all` (the commands and the page are shut too; this is the last word)
+        }
         $this->assertMayRun($group, $by);
         if ($group->status !== 'active') {
             throw GameException::classCaravanForbidden(GameException::REASON_GROUP_INACTIVE);
@@ -134,22 +142,23 @@ final class ClassCaravanService
 
     /**
      * Cancels the caravan (docs/18 §12.11): no summary, the runs of the members stay their own. A caravan that is not active any more is
-     * returned as it is (a second `/cancel_caravan`, the scheduler that closed it a moment ago).
+     * returned as it is (a second `/cancel_caravan`, the scheduler that closed it a moment ago) with `canceledNow = false`: only the call
+     * that did cancel it announces the cancellation. `$reason` is `canceled_reason` (default: who canceled - teacher / admin).
      *
      * @throws GameException class_caravan_forbidden {reason: not_teacher}
      */
-    public function cancel(ClassCaravan $caravan, User $by, ?CarbonImmutable $now = null): ClassCaravan
+    public function cancel(ClassCaravan $caravan, User $by, ?CarbonImmutable $now = null, ?string $reason = null): ClassCaravanCancellation
     {
         $now ??= CarbonImmutable::now();
         $group = $caravan->group ?? throw GameException::classCaravanNotFound();
         $this->assertMayRun($group, $by);
-        $reason = $this->authority->canTeach($by, $group) ? self::CANCELED_BY_TEACHER : self::CANCELED_BY_ADMIN;
+        $reason ??= $this->authority->canTeach($by, $group) ? self::CANCELED_BY_TEACHER : self::CANCELED_BY_ADMIN;
 
-        $outcome = DB::transaction(function () use ($caravan, $by, $reason, $now): ClassCaravan {
+        return DB::transaction(function () use ($caravan, $by, $reason, $now): ClassCaravanCancellation {
             /** @var ClassCaravan $locked */
             $locked = ClassCaravan::query()->whereKey($caravan->id)->lockForUpdate()->firstOrFail();
             if (! $locked->isActive()) {
-                return $locked;
+                return new ClassCaravanCancellation($locked, false);
             }
 
             $locked->forceFill([
@@ -165,10 +174,8 @@ final class ClassCaravanService
 
             DB::afterCommit(fn () => $this->forgetStandings($locked->id));
 
-            return $locked;
+            return new ClassCaravanCancellation($locked, true);
         });
-
-        return $outcome;
     }
 
     /** The active caravan of the group, if any (`/cancel_caravan`, the `/org` page, the courtesy check of the start). */
@@ -182,10 +189,18 @@ final class ClassCaravanService
 
     // ------------------------------------------------------------------ the scheduler
 
+    /** How long after its close a finished caravan without a summary is queued again by the sweep (the `retryUntil` of the job). */
+    public const SUMMARY_REQUEUE_HOURS = 6;
+
     /**
      * `game:class-caravans-close` (every 15 minutes): every active caravan past its `ends_at` becomes `finished` in a transaction of its
      * own (the row FOR UPDATE, read again), and its summary is queued after the commit. A caravan that fails is reported and the sweep
      * goes on (docs/18 §12.5.1 rule 23).
+     *
+     * The summary is not lost with its first queueing (G2.13, docs/18 §12.11): a caravan that is `finished` within the last
+     * {@see SUMMARY_REQUEUE_HOURS} hours and has no `summary_posted_at` yet - the dispatch after the commit failed, the queue lost the job,
+     * the job gave up - is queued again by every sweep until the marker is set; the job is idempotent (the marker before, the cache lock,
+     * the marker again under it), so a second delivery posts nothing. The caravans this very sweep closed are not queued twice.
      *
      * @return int caravans closed by this call
      */
@@ -213,7 +228,42 @@ final class ClassCaravanService
             }
         }
 
+        $this->requeueSummaries($now, $ids);
+
         return $closed;
+    }
+
+    /**
+     * Queues the summary again for the caravans finished recently that have none (see {@see closeDue()}); `$except` are the ones closed
+     * by this sweep, whose summary was queued with their commit. A failure to queue one is reported and the others are still queued.
+     *
+     * @param  list<int>  $except
+     * @return int caravans queued again
+     */
+    public function requeueSummaries(CarbonImmutable $now, array $except = []): int
+    {
+        /** @var list<int> $ids */
+        $ids = ClassCaravan::query()
+            ->where('status', ClassCaravanStatus::Finished->value)
+            ->whereNull('summary_posted_at')
+            ->where('finished_at', '>', $now->subHours(self::SUMMARY_REQUEUE_HOURS))
+            ->when($except !== [], fn ($query) => $query->whereNotIn('id', $except))
+            ->orderBy('id')
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
+
+        $queued = 0;
+        foreach ($ids as $id) {
+            try {
+                PostClassCaravanSummaryJob::dispatch($id);
+                $queued++;
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
+        return $queued;
     }
 
     /** One caravan: `finished` under its lock; the cache, the event and the summary job after the commit. True when this call closed it. */
@@ -270,6 +320,10 @@ final class ClassCaravanService
      */
     public function activeCardFor(Learner $learner, CarbonImmutable $now): ?array
     {
+        if (! $this->access->classCaravanOpen()) {
+            return null; // the card is for GAME_ACCESS=all only, and costs no statement otherwise
+        }
+
         $row = $this->activeCaravansOf($learner->id, $now)->orderBy('cc.starts_at')->orderBy('cc.id')->first(['cc.id', 'cc.stars_total', 'cc.target_stars', 'cc.ends_at']);
 
         return $row === null ? null : [
@@ -374,11 +428,13 @@ final class ClassCaravanService
 
     /**
      * May the learner fight the boss of the class now (docs/18 §12.11): the caravan is active and inside its window and the learner a
-     * member of its group (else 404), the boss is open, the learner has not fought yet, the snapshot has enough words.
+     * member of its group (else 404), the boss is open, the learner has not fought yet, the snapshot has enough words. "Fought" is a run
+     * that holds the key: a fight closed without a single answer let go of it (G2.13) and was no attempt; with `$replaceActive` the
+     * learner's live fight without an answer does not count either - the start is about to close it, and the close frees the key.
      *
      * @throws GameException game_unavailable | class_caravan_not_found | class_boss_locked | class_boss_done | game_not_enough_material
      */
-    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now): void
+    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now, bool $replaceActive = false): void
     {
         $this->access->assertAvailable($learner);
         if (! $caravan->isActive() || $caravan->starts_at->gt($now) || $caravan->ends_at->lte($now) || ! $this->isVisibleTo($caravan, $learner)) {
@@ -387,7 +443,11 @@ final class ClassCaravanService
         if ($caravan->boss_unlocked_at === null) {
             throw GameException::classBossLocked();
         }
-        if (GameRun::query()->where('class_boss_key', self::classBossKey($caravan, $learner))->exists()) {
+        $fought = GameRun::query()
+            ->where('class_boss_key', self::classBossKey($caravan, $learner))
+            ->when($replaceActive, fn ($query) => $query->where(fn ($q) => $q->where('status', RunStatus::Finished->value)->orWhere('answered', '>', 0)))
+            ->exists();
+        if ($fought) {
             throw GameException::classBossDone();
         }
         $required = max(1, (int) config('game.boss.min_words', 8));
@@ -476,10 +536,11 @@ final class ClassCaravanService
             ->orderByDesc('m.stars')
             ->orderByDesc('m.runs')
             ->orderBy('m.id')
-            ->get(['m.learner_id', 'l.first_name', 'm.stars', 'm.runs', 'm.best_score', 'm.boss_won_at'])
+            ->get(['m.learner_id', 'l.first_name', 'l.deleted_at', 'm.stars', 'm.runs', 'm.best_score', 'm.boss_won_at'])
             ->map(static fn (object $row): array => [
                 'learner_id' => (int) $row->learner_id,
-                'name' => is_string($row->first_name) && $row->first_name !== '' ? $row->first_name : '—',
+                // a deleted account (soft delete, until the purge) stays in the totals but is not named
+                'name' => $row->deleted_at === null && is_string($row->first_name) && $row->first_name !== '' ? $row->first_name : '—',
                 'stars' => (int) $row->stars,
                 'runs' => (int) $row->runs,
                 'best_score' => (int) $row->best_score,
@@ -527,11 +588,15 @@ final class ClassCaravanService
     /** @return list<int> */
     private function activeMemberIds(int $groupId): array
     {
-        return array_values(DB::table('group_members')
-            ->where('telegram_group_id', $groupId)
-            ->where('status', 'active')
-            ->orderBy('learner_id')
-            ->pluck('learner_id')
+        // a deleted or blocked account is not a member of the class for the target and the boss
+        return array_values(DB::table('group_members as gm')
+            ->join('learners as l', 'l.id', '=', 'gm.learner_id')
+            ->where('gm.telegram_group_id', $groupId)
+            ->where('gm.status', 'active')
+            ->whereNull('l.deleted_at')
+            ->whereNull('l.blocked_at')
+            ->orderBy('gm.learner_id')
+            ->pluck('gm.learner_id')
             ->map(static fn (mixed $id): int => (int) $id)
             ->all());
     }

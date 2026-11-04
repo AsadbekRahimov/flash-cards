@@ -99,6 +99,7 @@ return [
         'not_teacher' => "Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin.",
         'group_inactive' => "Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi.",
         'centers_only' => "Sinf karvoni — markazlar uchun: guruhni amaldagi obunali o'quv markaziga ulang.",
+        'failed' => "Karvon buyrug'ini bajarib bo'lmadi. Keyinroq qayta urinib ko'ring.",
         'not_delivered' => "Chatga xabar yuborib bo'lmadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshirib, qayta urinib ko'ring.",
         'summary' => [
             'title' => '🏁 «:group» sinf karvoni haftani yakunladi!',

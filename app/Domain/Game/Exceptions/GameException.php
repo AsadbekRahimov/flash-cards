@@ -228,9 +228,10 @@ final class GameException extends RuntimeException
         return new self(self::COINS_INSUFFICIENT, 'Not enough coins.', ['balance' => $balance, 'price' => $price]);
     }
 
-    public static function boosterLimitReached(int $limit, int $used, string $resetsAt): self
+    /** `$upsell`: Pro would lift this limit (the learner has no `game.boosters_plus`) - the Mini App shows the paywall only then (G2.13). */
+    public static function boosterLimitReached(int $limit, int $used, string $resetsAt, bool $upsell): self
     {
-        return new self(self::BOOSTER_LIMIT_REACHED, 'The limit of boosters of the week is used up.', ['limit' => $limit, 'used' => $used, 'resets_at' => $resetsAt]);
+        return new self(self::BOOSTER_LIMIT_REACHED, 'The limit of boosters of the week is used up.', ['limit' => $limit, 'used' => $used, 'resets_at' => $resetsAt, 'upsell' => $upsell]);
     }
 
     public static function boosterNotOwned(): self

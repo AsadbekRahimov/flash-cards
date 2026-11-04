@@ -74,6 +74,9 @@ final class BossWordPicker
             ->join('group_members as gm', function (JoinClause $join) use ($groupId): void {
                 $join->on('gm.learner_id', '=', 'wr.learner_id')->where('gm.telegram_group_id', '=', $groupId)->where('gm.status', '=', 'active');
             })
+            ->join('learners as lr', function (JoinClause $join): void {
+                $join->on('lr.id', '=', 'wr.learner_id')->whereNull('lr.deleted_at')->whereNull('lr.blocked_at');
+            })
             ->leftJoin('game_word_misses as m', function (JoinClause $join): void {
                 $join->on('m.learner_id', '=', 'wr.learner_id')->on('m.word_id', '=', 'wr.word_id');
             })
