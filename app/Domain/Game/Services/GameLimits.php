@@ -11,6 +11,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Game\DTO\GameLimitState;
 use App\Domain\Game\DTO\PendingRunClaim;
 use App\Domain\Game\DTO\RunClaim;
+use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Exceptions\GameException;
@@ -30,7 +31,8 @@ use Illuminate\Support\Facades\DB;
  *   - RUNS: at most `game.free_limits.runs_per_day` map runs (`stop` + `boss`) per local day (the window of LearnerClock::limitWindowUtc,
  *     the one of the practice and of the quota of new words); beyond it a run costs a ticket (`game_profiles.tickets`), and without
  *     a ticket it is refused - 403 `game_limit_reached`. A run that was abandoned or ran out WITHOUT a single answer gives its place
- *     back; an active run holds one. The feature `game.unlimited_runs` lifts it (no lock, no ticket);
+ *     back - and its ticket, when a ticket paid for it (G2.8b, `TicketService::refundForRun`); an active run holds one. The feature
+ *     `game.unlimited_runs` lifts it (no lock, no ticket);
  *   - BOSSES: only the bosses of the first `boss_stages` cities (by `stages.number`) - 403 `game_pro_required {kind: boss, stage_number}`;
  *     the feature `game.all_bosses` lifts it. The fight itself costs a run of the day or a ticket, like a stop;
  *   - BOOSTERS: at most `boosters_per_week` uses per local week (Monday-based, GameWeek); Pro with `game.boosters_plus` has
@@ -40,7 +42,8 @@ use Illuminate\Support\Facades\DB;
  * class have no limit here (one per day / per caravan is a fact of the database).
  *
  * The RUNS limit is read twice, in the order of docs/16 §3.2: the courtesy check (`assertRunAllowed`) before the material is read -
- * no lock, a learner at the limit without a ticket is refused before the snapshot is built; and the claim INSIDE the transaction of
+ * no lock, a learner at the limit without a ticket is refused before the snapshot is built (the live run the start will close is
+ * counted as closed: no place and its ticket back when it has no answer); and the claim INSIDE the transaction of
  * the start, in two phases: `lockForRun()` - the learner's row FOR NO KEY UPDATE, the FIRST statement of the transaction (docs/18
  * §12.5.1 rule 18: the lock of CardPicker, PracticeLimits and the grants of tickets; nothing holding a row of the game ever waits
  * for it, so no cycle); then the caller handles the active run (the same stop in a second tab is returned as it is; one closed
@@ -138,11 +141,13 @@ final class GameLimits
 
     /**
      * The courtesy check of a map run before the material is read (no lock): the runs of the day are used up and there is no ticket.
-     * `daily` and `class_boss` pass.
+     * `daily` and `class_boss` pass. The live run the start is about to close - any with `$replaceActive`, one past its time without -
+     * is counted the way the close under the lock will leave it (docs/18 §12.7.2, G2.8b): with no answer it is not a place and, paid
+     * with a ticket, its ticket is back; with an answer it keeps its place and its ticket is spent. So the check predicts the claim.
      *
      * @throws GameException game_limit_reached (403)
      */
-    public function assertRunAllowed(Learner $learner, RunKind $kind, ?CarbonImmutable $now = null): void
+    public function assertRunAllowed(Learner $learner, RunKind $kind, ?CarbonImmutable $now = null, bool $replaceActive = false): void
     {
         $now ??= CarbonImmutable::now();
         $limit = $this->limitFor($learner, $kind, $now);
@@ -150,7 +155,7 @@ final class GameLimits
             return;
         }
 
-        $refusal = $this->runRefusal($learner, $limit, $this->clock->limitWindowUtc($learner, $now));
+        $refusal = $this->runRefusal($learner, $limit, $this->clock->limitWindowUtc($learner, $now), $now, $replaceActive);
         if ($refusal !== null) {
             throw $refusal;
         }
@@ -284,14 +289,27 @@ final class GameLimits
         return $this->runsLimit($this->entitlements->for($learner, $now));
     }
 
-    private function runRefusal(Learner $learner, int $limit, DayBounds $window): ?GameException
+    private function runRefusal(Learner $learner, int $limit, DayBounds $window, CarbonImmutable $now, bool $replaceActive): ?GameException
     {
-        [$used, $tickets] = $this->usedAndTickets((int) $learner->id, $window);
+        [$used, $tickets] = $this->usedAndTickets((int) $learner->id, $window, $this->closingSql($now, $replaceActive));
         if ($used < $limit || $tickets > 0) {
             return null;
         }
 
         return $this->refuseRuns($learner, $limit, $used, $window);
+    }
+
+    /**
+     * The condition and the bindings that pick the learner's live run a start is about to close without a reward: any live run when
+     * the start replaces it, else one past its time. Its place and its ticket come back under the lock when it has no answer.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private function closingSql(CarbonImmutable $now, bool $replaceActive): array
+    {
+        return $replaceActive
+            ? ['active_learner_id is not null and answered = 0', []]
+            : ['active_learner_id is not null and answered = 0 and expires_at <= ?', [self::sql($now)]];
     }
 
     private function refuseRuns(Learner $learner, int $limit, int $used, DayBounds $window): GameException
@@ -309,18 +327,28 @@ final class GameLimits
 
     /**
      * The map runs of the window that hold a place, and the tickets, in one statement. The index `game_runs (learner_id, status,
-     * started_at)` bounds the scan to the learner's own rows.
+     * started_at)` bounds the scan to the learner's own rows. With `$closing` (the courtesy check: a condition on the learner's live
+     * run, see {@see closingSql()}), the live run that matches it is left out of the places and, when a ticket paid for it, its ticket
+     * is counted as there - the state the close under the lock will leave (the unique `active_learner_id` finds it at once).
      *
+     * @param  array{0: string, 1: list<string>}|null  $closing
      * @return array{0: int, 1: int}
      */
-    private function usedAndTickets(int $learnerId, DayBounds $window): array
+    private function usedAndTickets(int $learnerId, DayBounds $window, ?array $closing = null): array
     {
+        [$closingSql, $closingBindings] = $closing ?? ['1 = 0', []];
+
         $row = DB::selectOne(
             'select'
             .' (select count(*) from game_runs where learner_id = ? and kind in (?, ?) and started_at >= ? and started_at < ?'
-            .' and (finish_reason is null or finish_reason not in (?, ?) or answered > 0)) as runs_used,'
-            .' (select tickets from game_profiles where learner_id = ?) as tickets',
-            [$learnerId, ...self::countedKindValues(), self::sql($window->startUtc), self::sql($window->endUtc), ...self::unspentReasonValues(), $learnerId],
+            ." and (finish_reason is null or finish_reason not in (?, ?) or answered > 0) and not ({$closingSql})) as runs_used,"
+            .' coalesce((select tickets from game_profiles where learner_id = ?), 0)'
+            ." + (select count(*) from game_runs where active_learner_id = ? and free_slot = ? and ({$closingSql})) as tickets",
+            [
+                $learnerId, ...self::countedKindValues(), self::sql($window->startUtc), self::sql($window->endUtc), ...self::unspentReasonValues(), ...$closingBindings,
+                $learnerId,
+                $learnerId, FreeSlot::Ticket->value, ...$closingBindings,
+            ],
         );
 
         return [(int) ($row->runs_used ?? 0), (int) ($row->tickets ?? 0)];

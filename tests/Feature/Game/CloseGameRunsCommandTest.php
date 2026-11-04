@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunStatus;
+use App\Domain\Game\Enums\TicketSource;
 use App\Models\GameCoinLedgerEntry;
+use App\Models\GameProfile;
 use App\Models\GameRun;
+use App\Models\GameTicketLedgerEntry;
+use App\Models\Learner;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
@@ -13,8 +18,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /*
  * docs/18 §12.2.1, §12.5.1: `game:close-expired` (every 15 minutes) closes the runs past `expires_at` as finished / expired, lets the
- * learner go of the "one active run", raises `game.run_finished` once and pays nothing. The concurrency with an answer is
- * GameRunConcurrencyTest's.
+ * learner go of the "one active run", raises `game.run_finished` once and pays nothing - but gives the ticket of a run that had no
+ * answer back (G2.8b, docs/18 §12.7.3). The concurrency with an answer and with a second close is GameRunConcurrencyTest's.
  */
 
 uses(RefreshDatabase::class);
@@ -68,6 +73,42 @@ it('does nothing the second time and closes nothing when there is nothing to clo
     $this->artisan('game:close-expired')->expectsOutput('Game runs closed: 0')->assertSuccessful();
 
     expect(ProductEvent::query()->where('name', 'game.run_finished')->count())->toBe(1);
+});
+
+it('gives the ticket back for a run paid with a ticket that ran out without an answer, in the transaction of the close, and keeps it for one with an answer', function (): void {
+    $learner = Learner::factory()->create();
+    GameProfile::factory()->create(['learner_id' => $learner->id, 'tickets' => 0, 'tickets_earned_total' => 1]);
+    $untouched = GameRun::factory()->expired()->create(['learner_id' => $learner->id, 'free_slot' => FreeSlot::Ticket]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'delta' => 1, 'source' => TicketSource::Streak]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $learner->id, 'delta' => -1, 'source' => TicketSource::Spend, 'idempotency_key' => "spend:run:{$untouched->id}", 'run_id' => $untouched->id]);
+
+    $other = Learner::factory()->create();
+    GameProfile::factory()->create(['learner_id' => $other->id, 'tickets' => 0, 'tickets_earned_total' => 1]);
+    $played = GameRun::factory()->expired()->create(['learner_id' => $other->id, 'free_slot' => FreeSlot::Ticket, 'answered' => 1, 'wrong' => 1]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $other->id, 'delta' => 1, 'source' => TicketSource::Streak]);
+    GameTicketLedgerEntry::factory()->create(['learner_id' => $other->id, 'delta' => -1, 'source' => TicketSource::Spend, 'idempotency_key' => "spend:run:{$played->id}", 'run_id' => $played->id]);
+
+    $this->artisan('game:close-expired')->expectsOutput('Game runs closed: 2')->assertSuccessful();
+
+    $refund = GameTicketLedgerEntry::query()->where('source', TicketSource::Refund->value)->sole();
+    expect($untouched->fresh()?->finish_reason)->toBe(RunFinishReason::Expired)
+        ->and($played->fresh()?->finish_reason)->toBe(RunFinishReason::Expired)
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets'))->toBe(1)
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->value('tickets_earned_total'))->toBe(1)
+        ->and(GameProfile::query()->where('learner_id', $other->id)->value('tickets'))->toBe(0)
+        ->and($refund->learner_id)->toBe($learner->id)
+        ->and($refund->delta)->toBe(1)
+        ->and($refund->idempotency_key)->toBe("refund:run:{$untouched->id}")
+        ->and($refund->run_id)->toBe($untouched->id)
+        ->and((int) GameTicketLedgerEntry::query()->where('learner_id', $learner->id)->sum('delta'))->toBe(1)
+        ->and((int) GameTicketLedgerEntry::query()->where('learner_id', $other->id)->sum('delta'))->toBe(0)
+        ->and(ProductEvent::query()->where('name', 'game.ticket_refunded')->get()->map(fn (ProductEvent $e): array => [$e->learner_id, (array) $e->props])->all())
+        ->toEqual([[$learner->id, ['run_id' => $untouched->id, 'reason' => 'expired']]])
+        ->and(ProductEvent::query()->where('name', 'game.run_finished')->count())->toBe(2);
+
+    // The second pass has nothing to close and nothing to give back.
+    $this->artisan('game:close-expired')->expectsOutput('Game runs closed: 0')->assertSuccessful();
+    expect(GameTicketLedgerEntry::query()->where('source', TicketSource::Refund->value)->count())->toBe(1);
 });
 
 it('lets the learner start again once the old run is closed by the scheduler', function (): void {

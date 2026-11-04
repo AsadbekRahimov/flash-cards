@@ -8,6 +8,8 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Game\DTO\TicketGrant;
+use App\Domain\Game\Enums\FreeSlot;
+use App\Domain\Game\Enums\TicketRefundReason;
 use App\Domain\Game\Enums\TicketSource;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Learners\Support\LearnerRowLock;
@@ -30,11 +32,16 @@ use RuntimeException;
  * cuts off is not written (the event `game.ticket_capped` says so). Tickets do not expire and are kept through Pro.
  *
  * Every grant is one short transaction of its own, run AFTER the commit of its source (the streak, the referral, the audit entry):
- * `learners` (FOR NO KEY UPDATE, the lock of the Free limits - docs/18 §12.5.1 rule 18) -> `game_profiles` (made lazily) -> the check of
- * the key -> `game_ticket_ledger` INSERT -> UPDATE `game_profiles`. The spend runs inside the transaction of the start, under the same
- * lock, after the INSERT of the run (`game_runs` < `game_profiles`: the order of the finish). Because every change of `tickets` goes
- * through this class under that lock, `SUM(game_ticket_ledger.delta) = game_profiles.tickets` holds (the free run of the day is not
- * a ticket and is not in the ledger).
+ * `learners` (FOR NO KEY UPDATE, the lock of the Free limits - docs/18 §12.5.1 rule 18) -> `game_profiles` (FOR UPDATE, made lazily)
+ * -> the check of the key -> `game_ticket_ledger` INSERT -> UPDATE `game_profiles`. The spend runs inside the transaction of the start,
+ * under the same lock, after the INSERT of the run (`game_runs` < `game_profiles`: the order of the finish). The REFUND (G2.8b,
+ * docs/18 §12.7.3) runs inside the transaction that closes a run paid with a ticket and left without a single answer, under the lock
+ * of the run's row - NOT under `learners`: a close happens where the run is (an exit, an answer past the time, the scheduler), and
+ * nothing holding a row of the game may wait for `learners` (rule 18). That is safe because the only move that takes a ticket away,
+ * the spend, stays under `learners`: "there is a ticket" read under that lock cannot be undone by a refund, and the refund's own
+ * `tickets + 1` is relative. The grant reads the profile FOR UPDATE for the same reason - a refund landing between its read and its
+ * write would otherwise be lost. Every change of `tickets` is a ledger entry in the same transaction, so
+ * `SUM(game_ticket_ledger.delta) = game_profiles.tickets` holds (the free run of the day is not a ticket and is not in the ledger).
  *
  * A key written before answers `applied = false` with the balance after the first write: `referrals:recover`, a retried job and a
  * second tab are safe.
@@ -147,6 +154,49 @@ final class TicketService
         return new TicketGrant($balance, -1, 0, true);
     }
 
+    /**
+     * The ticket of a run that ends WITHOUT A SINGLE ANSWER comes back (docs/18 §12.7.3, G2.8b): "a run without an answer costs
+     * nothing", the rule the free run of the day follows already. Called by RunService on every close that pays nothing (`abandoned` /
+     * `expired`), inside the transaction of the close, with the run's row locked (or just closed by the conditional UPDATE whose WHERE
+     * checked `answered = 0`): `false` without a query unless `free_slot = ticket` and `answered = 0`. One relative UPDATE of the
+     * profile and the entry `refund:run:{run_id}` (unique: the close moves the run to `finished` once, the key is the safety net - a
+     * second call would be a bug and surfaces as a unique violation, never as a second ticket).
+     *
+     * The refund is NOT capped by `game.tickets.max`: it is not a grant but the learner's own ticket given back, so the balance may
+     * stand at `max + 1` after it - and no higher: a refund needs a spent run of its own that is still open, and a learner has one
+     * open run at a time. `tickets_earned_total` does not move (nothing was earned). The event `game.ticket_refunded {run_id, reason}`
+     * follows the commit; a run of the free slot, of Pro, of the daily caravan or of a class boss has no ticket and gets nothing.
+     */
+    public function refundForRun(GameRun $run, TicketRefundReason $reason, ?Learner $learner = null, ?CarbonImmutable $now = null): bool
+    {
+        if ($run->free_slot !== FreeSlot::Ticket || $run->answered > 0) {
+            return false;
+        }
+        if (DB::transactionLevel() === 0) {
+            throw new LogicException('A ticket is refunded inside the transaction that closes the run, under the lock of its row.');
+        }
+        $now ??= CarbonImmutable::now();
+
+        $credited = GameProfile::query()
+            ->where('learner_id', $run->learner_id)
+            ->increment('tickets', 1, ['updated_at' => $now]);
+        if ($credited !== 1) {
+            throw new LogicException("Learner {$run->learner_id} has no profile to refund the ticket of run {$run->id} to: the spend made one.");
+        }
+
+        GameTicketLedgerEntry::query()->create([
+            'learner_id' => $run->learner_id,
+            'delta' => 1,
+            'source' => TicketSource::Refund,
+            'idempotency_key' => "refund:run:{$run->id}",
+            'run_id' => $run->id,
+        ]);
+
+        DB::afterCommit(fn () => $this->events->record(ProductEventName::GameTicketRefunded, ['run_id' => $run->id, 'reason' => $reason->value], learner: $learner));
+
+        return true;
+    }
+
     /** The balance without a lock (0 for a learner who has no profile yet). */
     public function balance(int $learnerId): int
     {
@@ -208,12 +258,14 @@ final class TicketService
     }
 
     /**
-     * The learner's profile, made when it is missing - `insertOrIgnore` and the read again. Under the learner's lock no second writer
-     * of this learner's profile exists (the finish touches it after `game_runs`, with one UPDATE that is fine with an existing row).
+     * The learner's profile FOR UPDATE, made when it is missing - `insertOrIgnore` and the read again. Under the learner's lock no
+     * other grant or spend runs; the row lock is against the writers that hold a run instead (the refund of a ticket, the counters of
+     * the finish - both relative UPDATEs that take the row after `game_runs`, never waiting for `learners`): the grant writes the
+     * balance it read, so it reads it under the row's lock.
      */
     private function lockedProfile(int $learnerId, CarbonImmutable $now): GameProfile
     {
-        $profile = GameProfile::query()->where('learner_id', $learnerId)->first();
+        $profile = GameProfile::query()->where('learner_id', $learnerId)->lockForUpdate()->first();
         if ($profile !== null) {
             return $profile;
         }
@@ -229,7 +281,7 @@ final class TicketService
             'updated_at' => $now,
         ]);
 
-        return GameProfile::query()->where('learner_id', $learnerId)->first()
+        return GameProfile::query()->where('learner_id', $learnerId)->lockForUpdate()->first()
             ?? throw new RuntimeException("The profile of learner {$learnerId} vanished after its insert.");
     }
 }

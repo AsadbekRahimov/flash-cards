@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Game\Enums\FreeSlot;
+use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\Enums\TicketRefundReason;
 use App\Domain\Game\Enums\TicketSource;
+use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Learners\Services\DailyStatsService;
@@ -21,6 +24,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -28,8 +32,10 @@ use Tests\Support\QueryLog;
 /*
  * docs/18 §12.7.3 (G2.8): the tickets of the Free runs. +1 every 7 days of the streak (once per day), +3 to the inviter for a rewarded
  * referral (once per referral, through ReferralService::reward; a flagged one gives nothing), the cap of the balance and the event
- * `game.ticket_capped`, the grant of an administrator with its audit entry, the spend at the start of a run; and the invariant
- * `SUM(game_ticket_ledger.delta) = game_profiles.tickets` after every move. The race for the last ticket is GameRunConcurrencyTest's.
+ * `game.ticket_capped`, the grant of an administrator with its audit entry, the spend at the start of a run, the refund of a run that
+ * ended without a single answer (G2.8b: replaced, left, run out - every way; nothing for a run of the free slot or of Pro; not capped);
+ * and the invariant `SUM(game_ticket_ledger.delta) = game_profiles.tickets` after every move. The races for the last ticket and for a
+ * refund against a first answer, a second close, a spend and a grant are GameRunConcurrencyTest's.
  */
 
 uses(RefreshDatabase::class);
@@ -282,7 +288,7 @@ it('refuses a key that belongs to another learner instead of answering "already 
     expect(fn () => gameTickets()->grantForReferral($referral))->toThrow(LogicException::class);
 });
 
-it('keeps SUM(ledger) = tickets through a mix of grants, cuts, takes and spends', function (): void {
+it('keeps SUM(ledger) = tickets through a mix of grants, cuts, takes, spends and refunds', function (): void {
     GameKit::limits(0);
     [$learner, $course, $lesson] = GameKit::stop(8);
     $admin = User::factory()->create();
@@ -290,12 +296,246 @@ it('keeps SUM(ledger) = tickets through a mix of grants, cuts, takes and spends'
 
     gameTickets()->grantByAdmin($learner, 8, $admin);
     gameTickets()->grantForReferral(Referral::factory()->rewarded()->create(['referrer_learner_id' => $learner->id])); // +2, 1 lost to the cap (the service would make the inviter Pro)
-    $runs->abandon($runs->start($learner, $course->slug, $lesson->id), $learner); // -1 (limit 0: every run is a ticket)
+    $runs->abandon($runs->start($learner, $course->slug, $lesson->id), $learner); // -1 (limit 0: every run is a ticket), +1 back: left without an answer
     gameTickets()->grantByAdmin($learner, -3, $admin);     // -3
     gameTickets()->grantForStreak($learner, 7, '2026-11-05'); // +1
     GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner); // -1
+    $left = $runs->start($learner, $course->slug, $lesson->id); // -1
+    $runs->answer($left, $learner, (string) Str::uuid(), GameKit::current($left)['id'], GameKit::wrongAnswer(GameKit::current($left)));
+    $runs->abandon($left, $learner); // answered: nothing back
 
     expect(gameTickets()->balance($learner->id))->toBe(6)
-        ->and(GameRun::query()->where('learner_id', $learner->id)->where('free_slot', FreeSlot::Ticket->value)->count())->toBe(2);
+        ->and(GameRun::query()->where('learner_id', $learner->id)->where('free_slot', FreeSlot::Ticket->value)->count())->toBe(3)
+        ->and(GameTicketLedgerEntry::query()->where('source', TicketSource::Refund->value)->count())->toBe(1);
     expectGameTicketInvariant($learner);
+});
+
+// ---------------------------------------------------------------- the refund (G2.8b, docs/18 §12.7.3)
+
+/**
+ * A Free learner with the free run of the day played and `$tickets` tickets in the ledger: the next map run costs a ticket.
+ *
+ * @return array{0: Learner, 1: string, 2: int, 3: RunService}
+ */
+function gameTicketDaySpent(int $tickets = 1): array
+{
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    for ($i = 1; $i <= $tickets; $i++) {
+        gameTickets()->grantForStreak($learner, 7 * $i, CarbonImmutable::parse('2026-10-01')->addDays($i)->toDateString());
+    }
+    $runs = app(RunService::class);
+    GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+    expect(gameTicketEvents('game.ticket_refunded'))->toBe([]);
+
+    return [$learner, $course->slug, $lesson->id, $runs];
+}
+
+/** @return list<array{delta: int, source: string}> the ledger of the learner without the keys */
+function gameTicketMoves(Learner $learner): array
+{
+    return array_map(static fn (array $row): array => ['delta' => $row['delta'], 'source' => $row['source']], gameTicketLedger($learner));
+}
+
+/** The code of the refusal the call ends with. */
+function gameTicketRefusal(Closure $call): string
+{
+    try {
+        $call();
+    } catch (GameException $e) {
+        return $e->errorCode;
+    }
+
+    throw new RuntimeException('The call was not refused.');
+}
+
+it('gives the ticket back when "once more" replaces a ticket run that has no answer - and spends a ticket for the fresh run; after one answer the ticket stays spent', function (): void {
+    [$learner, $slug, $lessonId, $runs] = gameTicketDaySpent(1);
+
+    $paid = $runs->start($learner, $slug, $lessonId);
+    expect($paid->free_slot)->toBe(FreeSlot::Ticket)->and(gameTickets()->balance($learner->id))->toBe(0);
+
+    // A second tab starts over: the untouched run is abandoned, its ticket comes back and pays for the new one.
+    $fresh = $runs->start($learner, $slug, $lessonId, replaceActive: true);
+    $refund = GameTicketLedgerEntry::query()->where('idempotency_key', "refund:run:{$paid->id}")->sole();
+    expect($fresh->id)->not->toBe($paid->id)
+        ->and($paid->refresh()->finish_reason)->toBe(RunFinishReason::Abandoned)
+        ->and($fresh->free_slot)->toBe(FreeSlot::Ticket)
+        ->and(gameTickets()->balance($learner->id))->toBe(0)
+        ->and($refund->delta)->toBe(1)
+        ->and($refund->source)->toBe(TicketSource::Refund)
+        ->and($refund->run_id)->toBe($paid->id)
+        ->and(gameTicketMoves($learner))->toBe([
+            ['delta' => 1, 'source' => 'streak'], ['delta' => -1, 'source' => 'spend'], ['delta' => 1, 'source' => 'refund'], ['delta' => -1, 'source' => 'spend'],
+        ])
+        ->and(gameTicketEvents('game.ticket_refunded'))->toEqual([['run_id' => $paid->id, 'reason' => 'replaced']])
+        ->and(gameTicketEvents('game.ticket_spent'))->toEqual([['run_id' => $paid->id], ['run_id' => $fresh->id]])
+        ->and(gameTicketEvents('game.ticket_capped'))->toBe([])
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->sole()->tickets_earned_total)->toBe(1); // a refund is not earned
+    expectGameTicketInvariant($learner);
+
+    // One answer, then "once more": the run holds its place and its ticket, there is no other - the limit refuses before anything moves.
+    $element = GameKit::current($fresh);
+    $runs->answer($fresh, $learner, (string) Str::uuid(), $element['id'], GameKit::wrongAnswer($element));
+    expect(gameTicketRefusal(fn () => $runs->start($learner, $slug, $lessonId, replaceActive: true)))->toBe('game_limit_reached')
+        ->and($fresh->refresh()->isActive())->toBeTrue()
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(4)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toHaveCount(1);
+    expectGameTicketInvariant($learner);
+});
+
+it('gives the ticket back when the learner leaves a ticket run without an answer, keeps it spent after the first answer, and leaves a closed run alone', function (): void {
+    [$learner, $slug, $lessonId, $runs] = gameTicketDaySpent(2);
+
+    $left = $runs->start($learner, $slug, $lessonId);
+    expect(gameTickets()->balance($learner->id))->toBe(1);
+    $runs->abandon($left, $learner);
+    expect($left->refresh()->finish_reason)->toBe(RunFinishReason::Abandoned)
+        ->and(gameTickets()->balance($learner->id))->toBe(2)
+        ->and(gameTicketLedger($learner)[3])->toBe(['delta' => 1, 'source' => 'refund', 'key' => "refund:run:{$left->id}"])
+        ->and(gameTicketEvents('game.ticket_refunded'))->toEqual([['run_id' => $left->id, 'reason' => 'exited']]);
+
+    // Leaving it again (a second tap, a stale tab): nothing happens twice.
+    $runs->abandon($left, $learner);
+    expect(GameTicketLedgerEntry::query()->count())->toBe(4);
+
+    // One answer, then the exit: the ticket is spent for good.
+    $played = $runs->start($learner, $slug, $lessonId);
+    $element = GameKit::current($played);
+    $runs->answer($played, $learner, (string) Str::uuid(), $element['id'], GameKit::rightAnswers($element)[0]);
+    $runs->abandon($played, $learner);
+    expect($played->refresh()->answered)->toBe(1)
+        ->and($played->finish_reason)->toBe(RunFinishReason::Abandoned)
+        ->and(gameTickets()->balance($learner->id))->toBe(1)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(5)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toHaveCount(1);
+    expectGameTicketInvariant($learner);
+});
+
+it('gives the ticket back on every way a ticket run runs out of time without an answer, once, and not after an answer', function (string $closer, int $tickets, int $ticketsAfter, int $entries): void {
+    [$learner, $slug, $lessonId, $runs] = gameTicketDaySpent($tickets);
+    $run = $runs->start($learner, $slug, $lessonId);
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+    CarbonImmutable::setTestNow($later);
+
+    match ($closer) {
+        'scheduler' => expect($runs->closeExpired($later))->toBe(1),
+        'read' => expect($runs->find($learner, $run->id, $later)->finish_reason)->toBe(RunFinishReason::Expired),
+        'answer' => expect(gameTicketRefusal(fn () => $runs->answer($run, $learner, (string) Str::uuid(), GameKit::current($run)['id'], GameKit::rightAnswers(GameKit::current($run))[0], null, $later)))
+            ->toBe('game_run_closed'),
+        'exit' => expect($runs->abandon($run, $learner, $later)->finish_reason)->toBe(RunFinishReason::Expired),
+        // A start that finds the dead run closes it, gets the ticket back - and spends a ticket on the new run in the same transaction.
+        // (The courtesy check before the transaction still counts the dead run as a place taken, so it needs a second ticket to pass.)
+        'start' => expect($runs->start($learner, $slug, $lessonId, now: $later)->free_slot)->toBe(FreeSlot::Ticket),
+    };
+
+    expect($run->refresh()->finish_reason)->toBe(RunFinishReason::Expired)
+        ->and($run->answered)->toBe(0)
+        ->and(gameTickets()->balance($learner->id))->toBe($ticketsAfter)
+        ->and(GameTicketLedgerEntry::query()->where('idempotency_key', "refund:run:{$run->id}")->sole()->run_id)->toBe($run->id)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe($entries)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toEqual([['run_id' => $run->id, 'reason' => 'expired']])
+        ->and(gameTicketEvents('game.run_finished'))->toHaveCount(2);
+    expectGameTicketInvariant($learner);
+
+    // The scheduler and a read come by later: the run is closed already, nothing moves twice.
+    expect($runs->closeExpired($later->addMinute()))->toBe(0)
+        ->and($runs->find($learner, $run->id, $later->addMinute())->finish_reason)->toBe(RunFinishReason::Expired)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe($entries)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toHaveCount(1);
+})->with([
+    'the scheduler (game:close-expired)' => ['scheduler', 1, 1, 3],
+    'a lazy close on a read' => ['read', 1, 1, 3],
+    'an answer past the time (410)' => ['answer', 1, 1, 3],
+    'an exit past the time' => ['exit', 1, 1, 3],
+    'a start that finds the run dead' => ['start', 2, 1, 5],
+]);
+
+it('keeps the ticket of a run that ran out of time after an answer', function (): void {
+    [$learner, $slug, $lessonId, $runs] = gameTicketDaySpent(1);
+    $run = $runs->start($learner, $slug, $lessonId);
+    $element = GameKit::current($run);
+    $runs->answer($run, $learner, (string) Str::uuid(), $element['id'], GameKit::wrongAnswer($element));
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+
+    expect($runs->closeExpired($later))->toBe(1)
+        ->and($run->refresh()->finish_reason)->toBe(RunFinishReason::Expired)
+        ->and(gameTickets()->balance($learner->id))->toBe(0)
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(2)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toBe([]);
+    expectGameTicketInvariant($learner);
+});
+
+it('refunds nothing for a run of the free slot of the day, of Pro, or of a Free learner without a limit - there is no ticket to give back', function (): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    gameTickets()->grantForStreak($learner, 7, '2026-11-05');
+    $runs = app(RunService::class);
+
+    // The free run of the day, left at once: its place comes back (GameLimitsTest), no ledger entry.
+    $daily = $runs->start($learner, $course->slug, $lesson->id);
+    expect($daily->free_slot)->toBe(FreeSlot::Daily);
+    $runs->abandon($daily, $learner);
+
+    // Pro: no slot, no ticket, nothing back - replaced, left, run out.
+    PracticeKit::pro($learner);
+    $pro = $runs->start($learner, $course->slug, $lesson->id);
+    expect($pro->free_slot)->toBeNull();
+    $runs->start($learner, $course->slug, $lesson->id, replaceActive: true);
+    $runs->abandon($runs->activeFor($learner) ?? throw new RuntimeException('no run'), $learner);
+    $expired = $runs->start($learner, $course->slug, $lesson->id);
+    expect($runs->closeExpired(CarbonImmutable::parse('2026-11-05 10:31:00')))->toBe(1)
+        ->and($expired->refresh()->finish_reason)->toBe(RunFinishReason::Expired);
+
+    // No limit at all (an empty config value): the same.
+    GameKit::limits(null);
+    $runs->abandon($runs->start($learner, $course->slug, $lesson->id), $learner);
+
+    expect(GameRun::query()->where('learner_id', $learner->id)->count())->toBe(5)
+        ->and(GameRun::query()->where('learner_id', $learner->id)->whereNotNull('free_slot')->count())->toBe(1)
+        ->and(gameTicketLedger($learner))->toBe([['delta' => 1, 'source' => 'streak', 'key' => "streak:{$learner->id}:2026-11-05"]])
+        ->and(gameTickets()->balance($learner->id))->toBe(1)
+        ->and(gameTicketEvents('game.ticket_refunded'))->toBe([]);
+    expectGameTicketInvariant($learner);
+});
+
+it('does not cap the refund: a balance at the cap that spent a ticket and earned one stands at max + 1 after the refund - and never higher', function (): void {
+    GameKit::limits(1);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $runs = app(RunService::class);
+    gameTickets()->grantByAdmin($learner, 10, User::factory()->create());
+    GameKit::play($runs, $runs->start($learner, $course->slug, $lesson->id), $learner);
+
+    $paid = $runs->start($learner, $course->slug, $lesson->id);                  // 9
+    gameTickets()->grantForStreak($learner, 7, '2026-11-05');                      // 10 again (the room the spend made)
+    $runs->abandon($paid, $learner);                                                // 11: the learner's own ticket, not a grant
+    expect(gameTickets()->balance($learner->id))->toBe(11)
+        ->and(gameTicketEvents('game.ticket_capped'))->toBe([])
+        ->and(GameProfile::query()->where('learner_id', $learner->id)->sole()->tickets_earned_total)->toBe(11);
+    expectGameTicketInvariant($learner);
+
+    // Over the cap by one, the block of /me says so: the balance is shown as it is.
+    $me = test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/me')->assertOk();
+    expect($me->json('game.limits.tickets'))->toBe(['balance' => 11, 'max' => 10])
+        ->and($me->json('game.tickets'))->toBe(11);
+
+    // No higher: a refund needs an open ticket run of its own, and there is one at a time; a grant at or over the cap is cut as always.
+    $again = $runs->start($learner, $course->slug, $lesson->id);                  // 10
+    expect(gameTickets()->grantForStreak($learner, 14, '2026-11-12')?->lost)->toBe(1); // cut: 10 is the cap
+    $runs->abandon($again, $learner);                                               // 11
+    expect(gameTickets()->balance($learner->id))->toBe(11)
+        ->and(gameTicketEvents('game.ticket_capped'))->toEqual([['source' => 'streak', 'lost' => 1]])
+        ->and(gameTicketEvents('game.ticket_refunded'))->toEqual([['run_id' => $paid->id, 'reason' => 'exited'], ['run_id' => $again->id, 'reason' => 'exited']]);
+    expectGameTicketInvariant($learner);
+});
+
+it('answers false without a query for a run that has no ticket to give back: the free slot, or a ticket run with an answer', function (): void {
+    [$learner, $slug, $lessonId, $runs] = gameTicketDaySpent(1);
+    $paid = $runs->start($learner, $slug, $lessonId);
+    $daily = GameRun::query()->where('learner_id', $learner->id)->where('free_slot', FreeSlot::Daily->value)->sole();
+
+    expect(QueryLog::during(fn () => expect(gameTickets()->refundForRun($daily, TicketRefundReason::Exited, $learner))->toBeFalse()))->toBe([]);
+    $paid->answered = 1;
+    expect(QueryLog::during(fn () => expect(gameTickets()->refundForRun($paid, TicketRefundReason::Exited, $learner))->toBeFalse()))->toBe([])
+        ->and(GameTicketLedgerEntry::query()->count())->toBe(2);
 });
