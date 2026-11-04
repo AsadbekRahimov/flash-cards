@@ -226,7 +226,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'onboarding_completed',
             'league',
             'timezone',
-            'game' => ['daily_available', 'active_run'],
+            'game' => ['daily_available', 'active_run', 'class_caravan'],
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -243,7 +243,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run'],
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)

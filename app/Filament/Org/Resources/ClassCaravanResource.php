@@ -93,7 +93,6 @@ class ClassCaravanResource extends OrgResource
     public static function table(Table $table): Table
     {
         $timezone = static::tenant()->timezone;
-        $catalog = app(CourseCatalogService::class);
 
         // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
         return AdminTable::bounded($table)
@@ -101,7 +100,7 @@ class ClassCaravanResource extends OrgResource
                 Tables\Columns\TextColumn::make('group.title')->label(__('org.caravans.columns.group'))->limit(32),
                 Tables\Columns\TextColumn::make('course')
                     ->label(__('org.caravans.columns.course'))
-                    ->state(fn (ClassCaravan $record): string => $catalog->title($record->course, app()->getLocale()))
+                    ->state(fn (ClassCaravan $record): string => static::courseTitle($record))
                     ->limit(32),
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('org.caravans.columns.status'))
@@ -183,7 +182,7 @@ class ClassCaravanResource extends OrgResource
             Infolists\Components\TextEntry::make('group.title')->label(__('org.caravans.columns.group')),
             Infolists\Components\TextEntry::make('course')
                 ->label(__('org.caravans.columns.course'))
-                ->state(fn (ClassCaravan $record): string => app(CourseCatalogService::class)->title($record->course, app()->getLocale())),
+                ->state(fn (ClassCaravan $record): string => static::courseTitle($record)),
             Infolists\Components\TextEntry::make('status')
                 ->label(__('org.caravans.columns.status'))
                 ->badge()
@@ -216,6 +215,14 @@ class ClassCaravanResource extends OrgResource
                 ])
                 ->columns(5),
         ]);
+    }
+
+    /** The title of the course of the caravan in the language of the cabinet (the course is loaded with the list: no query). */
+    public static function courseTitle(ClassCaravan $caravan): string
+    {
+        $course = $caravan->course;
+
+        return $course === null ? '' : app(CourseCatalogService::class)->title($course, app()->getLocale());
     }
 
     /** `defeated` / `ready` (the target is reached, the class may fight it) / `locked`. */

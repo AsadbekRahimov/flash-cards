@@ -50,7 +50,9 @@ final class ClassCaravanMessenger
             buttonText: __('game.class.open_button', [], $locale),
             url: "{$base}/twa/game/class/{$caravan->id}",
             failureText: __('game.class.not_delivered', [], $locale),
-            cancel: fn () => $this->caravans->cancel($caravan, $by),
+            cancel: function () use ($caravan, $by): void {
+                $this->caravans->cancel($caravan, $by);
+            },
         );
     }
 

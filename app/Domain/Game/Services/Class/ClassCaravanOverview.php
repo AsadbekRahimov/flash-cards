@@ -13,6 +13,7 @@ use App\Domain\Game\Support\RunScoring;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\ClassCaravan;
 use App\Models\Learner;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -41,11 +42,12 @@ final class ClassCaravanOverview
             return [];
         }
 
-        $caravans->load(['group:id,title', 'course']);
-        $attempts = $this->attempts($learner, $caravans->all());
+        $rows = array_values($caravans->all());
+        (new EloquentCollection($rows))->load(['group:id,title', 'course']);
+        $attempts = $this->attempts($learner, $rows);
         $locale = $this->locales->forLearner($learner);
 
-        return $caravans->map(fn (ClassCaravan $caravan): ClassCaravanView => $this->row($caravan, $attempts[ClassCaravanService::classBossKey($caravan, $learner)] ?? null, $locale))->values()->all();
+        return array_map(fn (ClassCaravan $caravan): ClassCaravanView => $this->row($caravan, $attempts[ClassCaravanService::classBossKey($caravan, $learner)] ?? null, $locale), $rows);
     }
 
     /**
@@ -94,10 +96,12 @@ final class ClassCaravanOverview
     /** @param 'won'|'lost'|null $attempt */
     private function row(ClassCaravan $caravan, ?string $attempt, string $locale): ClassCaravanView
     {
+        $course = $caravan->course; // never null (a NOT NULL foreign key)
+
         return new ClassCaravanView(
             id: $caravan->id,
             groupTitle: $caravan->group->title ?? '',
-            course: ['slug' => $caravan->course->slug, 'title' => $this->catalog->title($caravan->course, $locale)],
+            course: $course === null ? ['slug' => '', 'title' => ''] : ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale)],
             status: $caravan->status === ClassCaravanStatus::Finished ? 'finished' : 'active',
             startsAt: $caravan->starts_at->utc()->toIso8601ZuluString('millisecond'),
             endsAt: $caravan->ends_at->utc()->toIso8601ZuluString('millisecond'),
