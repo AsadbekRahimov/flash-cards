@@ -187,6 +187,8 @@ export interface FriendItem {
   streak: number
   words_learned: number
   since: string | null
+  /** The asset of the camel the friend wears; the key is there only while the game is open to the learner (docs/05 §5b.6). */
+  camel_asset?: string | null
 }
 
 export interface FriendRequestItem {

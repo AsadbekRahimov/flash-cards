@@ -91,6 +91,22 @@ export const useGameShopStore = defineStore('gameShop', {
       }
     },
 
+    /**
+     * Only what the learner wears (the card on the profile, docs/05 §5b.6): `GET /game/profile`, nothing else is read and the status of
+     * the screen of the caravan is not touched. `true` once the profile is in the store; any failure (403 included) leaves it as it was.
+     */
+    async loadProfile(): Promise<boolean> {
+      const seq = this.seq
+      try {
+        const profile = await api.gameShop.profile()
+        if (seq !== this.seq) return false
+        this.profile = profile
+        return true
+      } catch {
+        return false
+      }
+    },
+
     /** The catalogue again (after `item_not_found`, a purchase that the server says is not needed): quietly, the screen stays. */
     async reloadShop(): Promise<void> {
       try {

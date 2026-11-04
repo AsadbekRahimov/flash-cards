@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import GameItemImage from '@/components/game/GameItemImage.vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -11,6 +12,7 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
+import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
@@ -423,7 +425,11 @@ onMounted(() => {
           <div v-for="friend in friends.friends" :key="friend.id" class="list-row flex-wrap gap-y-3" data-testid="friend-row">
             <InitialAvatar :name="personName(friend)" />
             <div class="min-w-0 flex-1">
-              <div class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</div>
+              <div class="flex items-center gap-1.5">
+                <span class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</span>
+                <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
+                <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
+              </div>
               <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
               <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
               <button

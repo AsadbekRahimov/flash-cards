@@ -355,7 +355,7 @@ final class FriendshipService
             }
 
             if ($row->status === FriendshipStatus::Accepted->value) {
-                $friends[] = new FriendEntry($row->id, $other->first_name, $this->visibleStreak($other, $now), $words[$other->id] ?? 0, $row->accepted_at);
+                $friends[] = new FriendEntry($row->id, $other->first_name, $this->visibleStreak($other, $now), $words[$other->id] ?? 0, $row->accepted_at, $other->id);
             } elseif ($row->requested_by_learner_id === $learner->id) {
                 $outgoing[] = new FriendRequestEntry($row->id, $other->first_name, $row->created_at);
             } else {

@@ -224,6 +224,18 @@ describe('GameMapView: the course', () => {
 })
 
 describe('GameMapView: friends and bosses', () => {
+  it('draws the camel the friends wear in their city, the base one for null (docs/05 §5b.6)', async () => {
+    const friends = [
+      { friendship_id: 1, name: 'Anna', city_number: 1, stops_cleared: 3, camel_asset: 'camel_golden' },
+      { friendship_id: 2, name: 'Bek', city_number: 1, stops_cleared: 2, camel_asset: null },
+    ]
+    const { wrapper } = await render(gameMap({ friends }))
+
+    const camels = testid(wrapper, 'city-1').findAll('[data-testid=friend-camel]')
+    expect(camels.map((c) => c.attributes('data-asset'))).toEqual(['camel_golden', 'camel_dromedary'])
+    expect(testid(wrapper, 'city-2').find('[data-testid=friend-camel]').exists()).toBe(false)
+  })
+
   it('marks the friends at their city, three names and "+N"', async () => {
     const friends = ['Anna', 'Bek', 'Cem', 'Dil', 'Eva'].map((name, i) => ({ friendship_id: i + 1, name, city_number: 1, stops_cleared: 3, camel_asset: null }))
     const { wrapper } = await render(gameMap({ friends }))

@@ -975,6 +975,22 @@ it('GET /friends keeps its exact JSON shape (docs/04 A.13)', function (): void {
         ->assertJsonPath('invite_link', 'https://t.me/LexiFlowBot?start=f_CONTRACT');
 });
 
+it('GET /friends adds only camel_asset to every friend while the game is open (docs/04 A.14)', function (): void {
+    config(['game.access' => 'all']);
+    $me = Learner::factory()->create();
+    Friendship::factory()->between($me, Learner::factory()->create())->create();
+
+    $this->withHeaders(contractHeaders($me))
+        ->getJson('/api/twa/friends')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'invite_link', 'limit',
+            'friends' => [['id', 'first_name', 'streak', 'words_learned', 'since', 'camel_asset']],
+            'incoming', 'outgoing',
+        ])
+        ->assertJsonPath('friends.0.camel_asset', null);
+});
+
 it('GET /challenges and the challenge actions keep their exact JSON shape (docs/04 A.13)', function (): void {
     $me = Learner::factory()->create();
     $friend = Learner::factory()->create();
