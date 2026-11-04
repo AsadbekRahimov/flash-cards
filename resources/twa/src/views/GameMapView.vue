@@ -324,7 +324,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page" data-testid="game-map-view">
-    <PageHeader :title="t('game.title')" :subtitle="subtitle" />
+    <PageHeader :title="t('game.title')" :subtitle="subtitle">
+      <template v-if="map !== null && (view === 'ready' || view === 'empty')" #trailing>
+        <button type="button" class="btn btn-tinted btn-sm min-h-11" data-testid="caravan-btn" @click="router.push({ name: 'game-caravan' })">
+          {{ t('gameCaravan.open') }}
+        </button>
+      </template>
+    </PageHeader>
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 

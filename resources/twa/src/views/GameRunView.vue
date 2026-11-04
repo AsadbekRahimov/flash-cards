@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClosedState from '@/components/ClosedState.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
+import BoosterRow from '@/components/game/BoosterRow.vue'
 import EventBanner from '@/components/game/EventBanner.vue'
 import GameReveal from '@/components/game/GameReveal.vue'
 import RunHeader from '@/components/game/RunHeader.vue'
@@ -22,6 +24,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useGameRunStore } from '@/stores/gameRun'
 import { useI18n } from '@/i18n'
 import type { GameAnswerPayload } from '@/api/gameRunTypes'
+import type { GameBoosterEffect } from '@/api/gameShopTypes'
 
 /**
  * A run of "Karvon" (docs/05 §5b.3, docs/18 §12.9): an immersive column without the tab bar - the header (✕, "3 / 10", the flasks, the
@@ -57,7 +60,7 @@ const audio = usePracticeAudio({ fetchBlob: (url, signal) => api.gameRuns.audioB
 const { haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
-const { status, run, errorMessage, actionError, outcome, elementSeq, element, coins, closedReason } = storeToRefs(game)
+const { status, run, errorMessage, actionError, outcome, elementSeq, element, coins, closedReason, boosterLimit } = storeToRefs(game)
 
 // ---- the way out ----
 
@@ -193,6 +196,29 @@ function onHint(): void {
   void game.hint()
 }
 
+/** A booster of the row (G2.5b, docs/05 §5b.5); the hint it gives lands on `current.element.hint`, drawn as the bazaar's. */
+function onBooster(key: string, effect: GameBoosterEffect): void {
+  haptic('light')
+  void game.useBooster(key, effect)
+}
+
+/** The element on screen has a hint (the bazaar's or a booster's). */
+const hinted = computed(() => {
+  const current = task.value
+  return current !== null && 'hint' in current && current.hint !== undefined
+})
+
+/** The free boosters of the week are used up: the paywall of the game, with the numbers of the refusal. */
+const paywallOpen = ref(false)
+watch(boosterLimit, (hit) => {
+  if (hit !== null) paywallOpen.value = true
+})
+
+function closePaywall(): void {
+  paywallOpen.value = false
+  game.clearBoosterLimit()
+}
+
 function onContinue(): void {
   hideErrorToast()
   game.continueAfterReveal()
@@ -305,6 +331,9 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
       <GameReveal v-else-if="status === 'reveal' && outcome" :outcome="outcome" :last="lastElement" @continue="onContinue" />
 
       <template v-else-if="task">
+        <!-- The boosters of the learner's stock: not drawn while there are none. -->
+        <BoosterRow v-if="run.boosters.available.length > 0" :boosters="run.boosters" :element-id="task.id" :hinted="hinted" :disabled="busy" @use="onBooster" />
+
         <!-- The bazaar: a hint for coins; the balance is shown once the server has told it. -->
         <div v-if="hintOffer" class="flex items-center justify-center gap-3 px-4 pt-3" data-testid="hint-offer">
           <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
@@ -323,6 +352,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
         />
       </template>
     </template>
+
+    <PaywallSheet v-if="paywallOpen" reason="game" :booster-hit="boosterLimit" @close="closePaywall" @review="reviewFromPaywall" />
 
     <BottomSheet v-if="exitOpen" :label="t('gameRun.exit.title')" @close="exitOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="exit-sheet">

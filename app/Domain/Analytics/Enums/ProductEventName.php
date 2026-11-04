@@ -134,4 +134,10 @@ enum ProductEventName: string
     case GameTicketCapped = 'game.ticket_capped';
     /** An administrator changed a learner's tickets (props: amount, audit_log_id); actor - the user, the learner. */
     case GameTicketsAdjusted = 'game.tickets_adjusted';
+    /** A teacher (or an admin) started the caravan of a class (props: class_caravan_id, group_id, members, target - docs/18 §12.11); actor - the user, the group. */
+    case GameClassStarted = 'game.class_started';
+    /** The week of a class caravan ended by the clock (props: class_caravan_id, group_id, stars_total, runs_total, boss_defeated); actor - the group. */
+    case GameClassFinished = 'game.class_finished';
+    /** The summary of a class caravan went to the group chat, once (props: class_caravan_id); actor - the group. */
+    case GameClassSummaryPosted = 'game.class_summary_posted';
 }

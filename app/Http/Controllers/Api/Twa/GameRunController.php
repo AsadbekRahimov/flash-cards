@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Game\DTO\RunSnapshot;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassBossService;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Services\Runs\BossService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
@@ -38,11 +39,12 @@ final class GameRunController
         private readonly RunService $runs,
         private readonly DailyCaravanService $daily,
         private readonly BossService $bosses,
+        private readonly ClassBossService $classBosses,
         private readonly PracticeAudioService $audio,
         private readonly GameLimits $limits,
     ) {}
 
-    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop); `kind = daily`: the day's caravan; `kind = boss`: the fight with the boss of a city. */
+    /** POST /api/twa/game/runs - 201 with the run (or the one a parallel tab has just started on the same stop); `kind = daily`: the day's caravan; `kind = boss`: the fight with the boss of a city; `kind = class_boss`: the fight with the boss of the class (G2.9a). */
     public function store(StartGameRunRequest $request): JsonResponse
     {
         $learner = $this->learner($request);
@@ -51,6 +53,7 @@ final class GameRunController
             $run = match (true) {
                 $request->isDaily() => $this->daily->start($learner, $request->replaceActive()),
                 $request->isBoss() => $this->bosses->start($learner, $request->course(), $request->stageId(), $request->replaceActive()),
+                $request->isClassBoss() => $this->classBosses->start($learner, $request->classCaravanId(), $request->replaceActive()),
                 default => $this->runs->start($learner, $request->course(), $request->lessonId(), $request->replaceActive()),
             };
 

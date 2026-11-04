@@ -67,6 +67,7 @@ import type {
   GameHintResponse,
   GameRunView,
 } from './gameRunTypes'
+import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
 
 /**
  * How long a READ of a battle (the poll, the battle, a round, the list, the options) may take: past it the request is given up like a
@@ -255,6 +256,8 @@ export const api = {
     answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }),
     /** The hint of the bazaar: coins for options taken away or the first letters. */
     hint: (id: number, body: GameHintRequest) => client().post<GameHintResponse>(`/game/runs/${id}/hint`, { ...body }),
+    /** A booster of the stock on the run (`hint`: the current element; the others: the whole run). The reply is the run; a repeat with the same `request_id` costs nothing. */
+    booster: (id: number, body: GameBoosterRequest) => client().post<GameRunView>(`/game/runs/${id}/booster`, { ...body }),
     /** "Leave the run": it does not count (finished / abandoned). */
     abandon: (id: number) => client().post<GameRunView>(`/game/runs/${id}/abandon`, { confirm: true }),
     /** The clip of an element (`audio_url` of its projection): fetched with the token, played from a blob. */
@@ -284,6 +287,18 @@ export const api = {
     map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
     /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
     startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
+  },
+  gameShop: {
+    /** The coins, the tickets and the last entries of the ledger. 403 `game_unavailable`. */
+    wallet: () => client().get<GameWallet>('/game/wallet'),
+    /** The catalogue with what the learner owns, has in stock and wears, and the balance. */
+    shop: () => client().get<GameShop>('/game/shop'),
+    /** Buys an item (the reply is the wallet after it); a repeat with the same `request_id` charges once. 404 `item_not_found`, 409 `item_not_purchasable` / `item_already_owned` / `coins_insufficient`. */
+    buy: (key: string, body: GameBuyRequest) => client().post<GameWallet>(`/game/shop/${encodeURIComponent(key)}/buy`, { ...body }),
+    /** What the learner wears and how far they have come. */
+    profile: () => client().get<GameProfile>('/game/profile'),
+    /** Puts an item on (`item_key`) or takes the slot's item off (`null`); the reply is the profile. 404 `item_not_found`. */
+    equip: (body: GameEquipRequest) => client().post<GameProfile>('/game/profile/equip', { ...body }),
   },
   battles: {
     options: (friendshipId: number, course: string, lessonId: number | null = null) =>

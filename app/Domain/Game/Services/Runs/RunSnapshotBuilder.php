@@ -149,6 +149,48 @@ final class RunSnapshotBuilder
     }
 
     /**
+     * The snapshot of the boss of a class (docs/18 §12.11, G2.9a): the same fight as {@see forBoss()} - the kinds in a circle, no pairs,
+     * no authored tasks, no events, no flasks - on the words fixed in `class_caravans.boss_snapshot_words` at the start of the caravan.
+     * There is no city: the boss of a class stands for the whole course of the group.
+     *
+     * @param  list<int>  $wordIds  the snapshot of the caravan (`BossWordPicker::pickForGroup`)
+     *
+     * @throws GameException game_not_enough_material
+     */
+    public function forClassBoss(Course $course, array $wordIds, LocaleSet $locales, ?string $seed = null): RunSnapshot
+    {
+        $seed ??= SeededShuffle::newSeed();
+        $limits = RunLimits::for(RunKind::ClassBoss);
+
+        $words = $this->wordsByIds($wordIds, $locales);
+        $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+
+        $composition = RunComposer::compose($pool, $seed, $limits);
+        if ($composition->count() < $limits->minElements) {
+            throw GameException::notEnoughMaterial($composition->count(), $limits->minElements, 'no_words');
+        }
+
+        $courseTitle = [];
+        foreach ($locales->locales as $locale) {
+            $courseTitle[$locale] = $this->catalog->title($course, $locale);
+        }
+
+        $snapshot = new RunSnapshot(
+            kind: RunKind::ClassBoss,
+            locales: $locales->locales,
+            elements: $composition->elements,
+            events: [],
+            courseSlug: $course->slug,
+            courseTitle: $courseTitle,
+            flasksMax: $limits->flasks,
+        );
+        $snapshot->assertFits();
+
+        return $snapshot;
+    }
+
+    /**
      * The snapshot of the boss of a city (docs/18 §12.3.1, §12.3.4): tasks made of the hardest words `$wordIds` of the city (the kinds in
      * a circle), no authored tasks, no pairs, no events, no flasks. The set of words is fixed here - nothing the learner does in the
      * cards later changes this fight. The distractors are the course's and the public ones.

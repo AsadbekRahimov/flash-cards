@@ -112,6 +112,13 @@ const routes: RouteRecordRaw[] = [
       stop: queryId(route.query.stop),
     }),
   },
+  // "My caravan" (docs/05 §5b.5): the wallet, the shop, what is worn. Back leads to the map.
+  {
+    path: '/game/caravan',
+    name: 'game-caravan',
+    component: () => import('@/views/GameCaravanView.vue'),
+    meta: { tab: 'courses' },
+  },
   {
     // The caravan of the day (docs/05 §5b.4): `?course=` is the course (from the map), else the active one.
     path: '/game/daily',

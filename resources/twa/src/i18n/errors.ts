@@ -130,6 +130,14 @@ export const KNOWN_ERROR_CODES = [
   'game_not_enough_material',
   'stage_not_found',
   'stage_not_in_course',
+  // The shop and the boosters of a run (docs/18 §12.8, docs/05 §5b.5); `coins_insufficient`, `hint_not_available`, `request_id_reused` are above.
+  'item_not_found',
+  'item_already_owned',
+  'item_not_purchasable',
+  'booster_not_owned',
+  'booster_limit_reached',
+  'booster_already_used',
+  'booster_not_applicable',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]

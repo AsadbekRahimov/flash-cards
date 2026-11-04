@@ -56,6 +56,12 @@ Schedule::command('game:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// The class caravans whose week has ended become finished and their summary is queued (docs/18 §12.11): one transaction per caravan,
+// read again under its lock, the summary posted exactly once by the job - a repeated or parallel run changes nothing.
+Schedule::command('game:class-caravans-close')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')

@@ -14,7 +14,7 @@ use RuntimeException;
  * `ApiErrorResource::respond($e->httpStatus(), $e->errorCode, $e->getMessage(), $e->details)`.
  *
  *   403  game_unavailable (the game is off / the learner is not in the pilot: one code, no hint) · game_limit_reached {kind, limit, used, tickets, resets_at}
- *        · game_pro_required {kind, stage_number}
+ *        · game_pro_required {kind, stage_number} · class_caravan_forbidden {reason: not_teacher | group_inactive | centers_only}
  *   404  game_run_not_found (a stranger's run looks the same) · course_not_found · lesson_not_found · stage_not_found · item_not_found · class_caravan_not_found
  *   409  game_run_active {run_id, kind, progress} · game_daily_done {resets_at} · boss_not_ready {introduced, required, cleared_stops, required_stops}
  *        · stop_locked · element_not_current {current} · answer_already_accepted {verdict} · pair_already_matched · request_id_reused · hint_not_available
@@ -30,6 +30,8 @@ final class GameException extends RuntimeException
     public const LIMIT_REACHED = 'game_limit_reached';
 
     public const PRO_REQUIRED = 'game_pro_required';
+
+    public const CLASS_CARAVAN_FORBIDDEN = 'class_caravan_forbidden';
 
     public const RUN_NOT_FOUND = 'game_run_not_found';
 
@@ -102,6 +104,13 @@ final class GameException extends RuntimeException
 
     public const KIND_BOOSTERS = 'boosters';
 
+    /** `details.reason` of `class_caravan_forbidden` (docs/18 §12.11). */
+    public const REASON_NOT_TEACHER = 'not_teacher';
+
+    public const REASON_GROUP_INACTIVE = 'group_inactive';
+
+    public const REASON_CENTERS_ONLY = 'centers_only';
+
     /** @param array<string, mixed> $details */
     public function __construct(
         public readonly string $errorCode,
@@ -125,6 +134,12 @@ final class GameException extends RuntimeException
     public static function proRequired(string $kind, ?int $stageNumber = null): self
     {
         return new self(self::PRO_REQUIRED, 'This part of the game is a Pro feature.', ['kind' => $kind, 'stage_number' => $stageNumber]);
+    }
+
+    /** @param self::REASON_* $reason */
+    public static function classCaravanForbidden(string $reason): self
+    {
+        return new self(self::CLASS_CARAVAN_FORBIDDEN, 'The caravan of the class cannot be run by this user or in this group.', ['reason' => $reason]);
     }
 
     public static function runNotFound(): self
@@ -298,7 +313,7 @@ final class GameException extends RuntimeException
     public function httpStatus(): int
     {
         return match ($this->errorCode) {
-            self::UNAVAILABLE, self::LIMIT_REACHED, self::PRO_REQUIRED => 403,
+            self::UNAVAILABLE, self::LIMIT_REACHED, self::PRO_REQUIRED, self::CLASS_CARAVAN_FORBIDDEN => 403,
             self::RUN_NOT_FOUND, self::COURSE_NOT_FOUND, self::LESSON_NOT_FOUND, self::STAGE_NOT_FOUND, self::ITEM_NOT_FOUND, self::CLASS_CARAVAN_NOT_FOUND => 404,
             self::RUN_CLOSED => 410,
             self::NOT_ENOUGH_MATERIAL, self::INVALID_ANSWER_SHAPE, self::UNKNOWN_ELEMENT_ID, self::UNKNOWN_OPTION_ID, self::LESSON_NOT_IN_COURSE, self::STAGE_NOT_IN_COURSE => 422,

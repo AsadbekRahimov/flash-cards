@@ -332,3 +332,39 @@ describe('the caravan of the day', () => {
     expect(daily).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
   })
 })
+
+/** "My caravan" and the boosters (docs/05 §5b.5): every control is 44 px at least on a 320 px screen. Sources are read (no layout in tests). */
+describe('My caravan and the boosters: touch targets', () => {
+  const view = sources.get('views/GameCaravanView.vue') ?? ''
+  const card = sources.get('components/game/ShopItemCard.vue') ?? ''
+  const row = sources.get('components/game/BoosterRow.vue') ?? ''
+
+  it('reads the screen and its components', () => {
+    expect(view).toContain('data-testid="game-caravan-view"')
+    expect(card).toContain('data-testid')
+    expect(row).toContain('data-testid="boosters"')
+  })
+
+  it('makes the category buttons and the ledger rows 44 px high', () => {
+    expect(view).toMatch(/<button[^>]*role="tab"[^>]*class="[^"]*\bmin-h-11\b/s)
+    expect(view).toMatch(/class="list-row[^"]*\bmin-h-11\b/)
+  })
+
+  it('makes every button of the card 44 px high (btn-sm is 36 px, min-h-11 lifts it)', () => {
+    const buttons = card.match(/<button\b[^>]*>/g) ?? []
+    expect(buttons.length).toBe(4)
+    for (const button of buttons) expect(button).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('makes the booster button 48 px and the "My caravan" button of the map 44 px', () => {
+    expect(row).toMatch(/<button[^>]*class="[^"]*\bsize-12\b/s)
+    expect(sources.get('views/GameMapView.vue')).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*data-testid="caravan-btn"/s)
+  })
+
+  it('has no fixed width that would break 320 px, and no control under 44 px on the screen', () => {
+    for (const code of [view, card, row]) {
+      expect(code).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+    }
+    for (const button of view.match(/<button\b[^>]*>/g) ?? []) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+  })
+})

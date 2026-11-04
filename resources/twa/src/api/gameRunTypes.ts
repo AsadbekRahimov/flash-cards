@@ -8,6 +8,7 @@ import type {
   PracticeVerdict,
   SentenceElement,
 } from './types'
+import type { GameRunBoosters } from './gameShopTypes'
 
 /**
  * A run of "Karvon" (docs/18 §12.8, docs/04 A.18 "Run"). The four kinds of the practice (pairs, collocation, sentence, dictation)
@@ -129,8 +130,8 @@ export interface GameRunView {
   score: number
   /** null once the run is over. */
   current: GameCurrent | null
-  /** Empty until G2.5b. */
-  boosters: { available: unknown[]; used: unknown[] }
+  /** The stock of boosters and what this run has used (G2.5b). */
+  boosters: GameRunBoosters
   /** `available`: the bazaar is on the element and a hint can be bought. */
   hint: { price: number; available: boolean }
   summary: GameSummary | null

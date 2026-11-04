@@ -2802,6 +2802,82 @@
 | `game.ledger.admin_revoke` | Qo'llab-quvvatlash yechgan | Списание поддержкой |
 | `game.ledger.refund` | Qaytarish | Возврат |
 
+## Игра «Караван» 2026-11 · G2.7c (мой караван, TWA) — на проверку носителю
+
+### TWA: «Караван» - «Мой караван» и бустеры в забеге (G2.7c, `docs/05` §5b.5; `resources/twa/src/i18n/uz.ts`, ключи `gameCaravan.*`, `paywall.lead_game_boosters*` и коды лавки)
+
+> Что решить носителю:
+> - **Лавка** — «Do'kon»; **кошелёк** — «Hamyon»; **бустеры** — «kuchaytirgichlar» (усилители); **«Надеть / Надето»** — «Kiyish / Kiyilgan» (предметы: верблюд, ковёр, шатёр, рамка).
+> - «Фляга» — «mesh», как в `gameRun.*`; «стоянка» — «bekat», «босс» — «qo'riqchi», как на карте.
+> - «Pro bilan ochish» — кнопка у предмета только для Pro.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameCaravan.title` | Mening karvonim | Мой караван |
+| `gameCaravan.open` | Mening karvonim | Мой караван |
+| `gameCaravan.tabs_aria` | Karvon bo'limi | Раздел каравана |
+| `gameCaravan.tab.wallet` | Hamyon | Кошелёк |
+| `gameCaravan.tab.shop` | Do'kon | Лавка |
+| `gameCaravan.cats_aria` | Do'kon bo'limi | Раздел лавки |
+| `gameCaravan.cat.camel` | Tuyalar | Верблюды |
+| `gameCaravan.cat.carpet` | Gilamlar | Ковры |
+| `gameCaravan.cat.tent` | Chodirlar | Шатры |
+| `gameCaravan.cat.frame` | Ramkalar | Рамки |
+| `gameCaravan.cat.booster` | Kuchaytirgichlar | Бустеры |
+| `gameCaravan.cat_empty` | Bu yerda hozircha hech narsa yo'q. | Здесь пока ничего нет. |
+| `gameCaravan.profile.title` | Kiyilgan | Надето |
+| `gameCaravan.profile.none` | kiyilmagan | не надето |
+| `gameCaravan.profile.stops` | O'tilgan bekatlar: {count} | Пройдено стоянок: {count} |
+| `gameCaravan.profile.cities` | O'tilgan shaharlar: {count} | Пройдено городов: {count} |
+| `gameCaravan.slot.camel` | Tuya | Верблюд |
+| `gameCaravan.slot.carpet` | Gilam | Ковёр |
+| `gameCaravan.slot.tent` | Chodir | Шатёр |
+| `gameCaravan.slot.frame` | Ramka | Рамка |
+| `gameCaravan.wallet.balance` | Tangalar | Монеты |
+| `gameCaravan.wallet.tickets` | Chiptalar | Билеты |
+| `gameCaravan.wallet.tickets_value` | {balance} / {max} | {balance} из {max} |
+| `gameCaravan.wallet.earned` | Topilgan | Заработано |
+| `gameCaravan.wallet.spent` | Sarflangan | Потрачено |
+| `gameCaravan.wallet.hint` | Tangalar yurishlar va qo'riqchilar uchun beriladi. | Монеты — за забеги и боссов. |
+| `gameCaravan.wallet.ledger` | Oxirgi amallar | Последние операции |
+| `gameCaravan.wallet.ledger_empty` | Hozircha amallar yo'q. | Операций пока нет. |
+| `gameCaravan.wallet.plus` | +{count} | +{count} |
+| `gameCaravan.wallet.minus` | −{count} | −{count} |
+| `gameCaravan.item.buy` | Sotib olish | Купить |
+| `gameCaravan.item.equip` | Kiyish | Надеть |
+| `gameCaravan.item.equipped` | Kiyilgan | Надето |
+| `gameCaravan.item.stock` | Zaxirada: {count} | В запасе: {count} |
+| `gameCaravan.item.pro` | Pro | Pro |
+| `gameCaravan.item.pro_open` | Pro bilan ochish | Открыть с Pro |
+| `gameCaravan.item.achievement` | Yutuq uchun mukofot | Награда за достижение |
+| `gameCaravan.buy.title` | {price} tangaga sotib olasizmi? | Купить за {price}? |
+| `gameCaravan.buy.balance` | Sizda {balance} | У вас {balance} |
+| `gameCaravan.buy.confirm` | Sotib olish | Купить |
+| `gameCaravan.buy.cancel` | Bekor qilish | Отмена |
+| `gameCaravan.buy.coins_insufficient` | Tangalar yetmaydi. Tangalar yurishlar va qo'riqchilar uchun beriladi. | Не хватает монет. Монеты — за забеги и боссов. |
+| `gameCaravan.buy.done` | Sotib olindi: {title} | Куплено: {title} |
+| `gameCaravan.buy.not_purchasable.achievement` | Bu buyum yutuq uchun mukofot. | Этот предмет — награда за достижение. |
+| `gameCaravan.buy.not_purchasable.not_for_sale` | Bu buyum hozir sotilmaydi. | Этот предмет сейчас не продаётся. |
+| `gameCaravan.unavailable_title` | Karvon hozircha mavjud emas | Караван пока недоступен |
+| `gameCaravan.unavailable_text` | U keyinroq ochiladi. | Он откроется позже. |
+| `gameCaravan.to_map` | Xaritaga | На карту |
+| `gameCaravan.booster.row_aria` | Kuchaytirgichlar | Бустеры |
+| `gameCaravan.booster.effect.hint` | Maslahat | Подсказка |
+| `gameCaravan.booster.effect.extra_flask` | Zaxira mesh | Запасная фляга |
+| `gameCaravan.booster.effect.second_chance` | Ikkinchi imkon | Второй шанс |
+| `gameCaravan.booster.aria` | {name}, {qty} ta qoldi | {name}, осталось {qty} |
+| `gameCaravan.booster.aria_used` | {name}, allaqachon ishlatilgan | {name}, уже использовано |
+| `gameCaravan.booster.qty` | ×{qty} | ×{qty} |
+| `paywall.lead_game_boosters` | Bu haftaga bepul kuchaytirgichlar tugadi ({limit} / {limit}). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные бустеры на эту неделю закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
+| `paywall.lead_game_boosters_soon` | Bu haftaga bepul kuchaytirgichlar tugadi ({limit} / {limit}). Yangilari — {when}. | Бесплатные бустеры на эту неделю закончились ({limit} из {limit}). Новые — {when}. |
+| `error.code.item_not_found` | Bunday buyum yo'q. | Такого предмета нет. |
+| `error.code.item_already_owned` | Bu buyum sizda allaqachon bor. | Этот предмет у вас уже есть. |
+| `error.code.item_not_purchasable` | Bu buyumni sotib olib bo'lmaydi. | Этот предмет нельзя купить. |
+| `error.code.booster_not_owned` | Bu kuchaytirgich zaxirada yo'q. | Этого бустера нет в запасе. |
+| `error.code.booster_limit_reached` | Haftalik bepul kuchaytirgichlar tugadi. | Бесплатные бустеры на неделю закончились. |
+| `error.code.booster_already_used` | Bu kuchaytirgich allaqachon ishlatilgan. | Этот бустер уже использован. |
+| `error.code.booster_not_applicable` | Bu yerda bu kuchaytirgich ishlamaydi. | Здесь этот бустер не работает. |
+
 ## Удаление аккаунта (кнопка у ученика, команда `/delete_account`) — на проверку носителю
 
 > Проверить: «Akkauntni o'chirish» (Удалить аккаунт), «Xavfli hudud» (Опасная зона), «qonunga ko'ra saqlanadi» (хранятся по закону), «Pro obuna to'xtatiladi» (подписка Pro прекращается). В двух старых строках исправлены значения: `bot.help.private` (добавлена строка `/delete_account`) и `legal.privacy.sections.6.text` (кнопка вместо «пока нет»; исходные строки выше обновлены).
@@ -3056,3 +3132,19 @@
 | `game.cities_gen.23` | Loyan | Лояна |
 | `game.cities_gen.24` | Chang'an | Чанъани |
 | `game.city_fallback_gen` | :number-shahar | города :number |
+
+## Игра «Караван» 2026-11 · G2.9a (караван класса — итоги недели в чат) — на проверку носителю
+
+### Сервер, итоги недели каравана класса (`lang/uz/game.php`, ключи `class.summary.*`; HTML, в чат группы)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `game.class.summary.title` | 🏁 «:group» sinf karvoni haftani yakunladi! | 🏁 Караван класса «:group» завершил неделю! |
+| `game.class.summary.stars` | ⭐ Yig'ilgan yulduzlar: :stars / :target | ⭐ Звёзд собрано: :stars из :target |
+| `game.class.summary.runs` | 🐪 Yurishlar: :runs | 🐪 Забегов: :runs |
+| `game.class.summary.boss_defeated` | 👹 Sinf bossi yengildi! | 👹 Босс класса побеждён! |
+| `game.class.summary.boss_survived` | 👹 Sinf bossi bardosh berdi — keyingi safar chiqadi. | 👹 Босс класса устоял — в следующий раз получится. |
+| `game.class.summary.boss_locked` | 👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi. | 👹 До босса класса не дошли — цель недели не взята. |
+| `game.class.summary.top` | Eng yaxshi karvonchilar: | Лучшие караванщики: |
+| `game.class.summary.row` | :place :name — :stars ⭐ (yurishlar: :runs) | :place :name — :stars ⭐ (забегов: :runs) |
+| `game.class.summary.nobody` | Bu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz! | На этой неделе никто не вышел в путь. Попробуем снова! |

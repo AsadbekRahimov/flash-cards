@@ -22,6 +22,7 @@ use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Enums\TaskKind;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameAccess;
@@ -83,6 +84,7 @@ final class RunService
         private readonly GameLimits $limits,
         private readonly TicketService $tickets,
         private readonly BoosterService $boosters,
+        private readonly ClassCaravanService $caravans,
     ) {}
 
     /**
@@ -166,6 +168,28 @@ final class RunService
     }
 
     /**
+     * The same courtesy check for the boss of a class (G2.9a): the learner's own unfinished fight with the boss of THIS caravan is the
+     * answer; any other live run is 409 `game_run_active` - unless `$replaceActive`.
+     *
+     * @throws GameException game_run_active
+     */
+    public function busyForClassBoss(Learner $learner, string $classBossKey, bool $replaceActive, CarbonImmutable $now): ?GameRun
+    {
+        if ($replaceActive) {
+            return null;
+        }
+        $busy = $this->activeOf($learner);
+        if ($busy === null || ! $busy->expires_at->gt($now)) {
+            return null;
+        }
+        if ($busy->kind === RunKind::ClassBoss && $busy->class_boss_key === $classBossKey) {
+            return $busy;
+        }
+
+        throw GameException::runActive($this->activeDetails($busy));
+    }
+
+    /**
      * Opens a run from a built snapshot: the transaction of the start (docs/18 §12.5.1). The daily caravan (G2.3) and the bosses (G2.4)
      * build their snapshots and call this with their `daily_key` / `class_boss_key` in `$attributes`; what pays for the run
      * (`free_slot`) is decided HERE by the Free limits - a map run (`stop` / `boss`) of a Free learner takes the free run of the day or
@@ -184,7 +208,9 @@ final class RunService
             'course_id' => $attributes['course_id'] ?? throw new LogicException('A run needs its course.'),
             'stage_id' => $attributes['stage_id'] ?? null,
             'lesson_id' => $attributes['lesson_id'] ?? null,
-            'class_caravan_id' => $attributes['class_caravan_id'] ?? null,
+            // The caravan of the class the run joins (G2.9a, docs/18 §12.5.3 step 6): read once, without a lock, at the start; the
+            // finish reads it again under its lock. A `class_boss` run brings its own.
+            'class_caravan_id' => $attributes['class_caravan_id'] ?? $this->caravans->activeIdFor($learner, $now),
             'daily_key' => $attributes['daily_key'] ?? null,
             'class_boss_key' => $attributes['class_boss_key'] ?? null,
             'local_date' => $this->clock->localDate($learner, $now),
