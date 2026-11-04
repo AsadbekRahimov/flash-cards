@@ -62,8 +62,12 @@ final class PracticeAudioService
     /** `{audio_key}.mp3` of the version on the audio disk (under `practice.audio.dir`); null while it has no key. */
     public function pathFor(PracticeItemVersion $version): ?string
     {
-        $key = $version->audio_key;
+        return $this->pathForKey($version->audio_key);
+    }
 
+    /** The same for a bare `audio_key` (the availability reads rows, not models). */
+    public function pathForKey(?string $key): ?string
+    {
         return is_string($key) && $key !== '' ? $this->pathOfKey($key) : null;
     }
 
