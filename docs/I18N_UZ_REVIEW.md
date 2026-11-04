@@ -3178,9 +3178,11 @@
 | `game.class.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |
 | `game.class.centers_only` | Sinf karvoni — markazlar uchun: guruhni amaldagi obunali o'quv markaziga ulang. | Караван класса — для центров: подключите группу к учебному центру с действующей подпиской. |
 | `game.class.not_delivered` | Chatga xabar yuborib bo'lmadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshirib, qayta urinib ko'ring. | Не удалось отправить сообщение в чат, поэтому караван не запущен. Проверьте, что бот может писать в группу, и повторите. |
+| `game.class.failed` | Karvon buyrug'ini bajarib bo'lmadi. Keyinroq qayta urinib ko'ring. | Не удалось выполнить команду с караваном. Попробуйте ещё раз позже. |
 | `commands.group.start_caravan` | Sinf karvonini boshlash | Запустить караван класса |
 | `commands.group.cancel_caravan` | Sinf karvonini bekor qilish | Отменить караван класса |
 | `bot.help.group_caravan` | /start_caravan — sinf karvonini boshlash<br>/cancel_caravan — sinf karvonini bekor qilish<br> | /start_caravan — запустить караван класса<br>/cancel_caravan — отменить караван класса<br> |
+| `bot.help.private_caravan` | • Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.<br> | • Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.<br> |
 | `org.nav.caravans` | Karvonlar | Караваны |
 | `org.caravans.singular` | Karvon | Караван |
 | `org.caravans.plural` | Karvonlar | Караваны |
@@ -3217,6 +3219,12 @@
 | `org.caravans.notifications.started_not_delivered` | Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring. | Сообщение не дошло до чата, поэтому караван не запущен. Проверьте, что бот может писать в группу. |
 | `org.caravans.notifications.canceled` | Karvon bekor qilindi. | Караван отменён. |
 | `org.caravans.errors.foreign_group` | Bu guruh mavjud emas. | Эта группа недоступна. |
+| `org.caravans.errors.not_teacher` | Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin. | Запускать и отменять караван может только учитель этой группы. |
+| `org.caravans.errors.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |
+| `org.caravans.errors.centers_only` | Sinf karvoni — markazlar uchun: markazning amaldagi obunasi bo'lishi kerak. | Караван класса — для центров: у центра должна быть действующая подписка. |
+| `org.caravans.errors.already_active` | Bu guruhning karvoni allaqachon yo'lda. | Караван этой группы уже в пути. |
+| `org.caravans.errors.closed` | Sinf karvoni hozir mavjud emas. | Караван класса сейчас недоступен. |
+| `org.caravans.errors.failed` | Karvon bilan amalni bajarib bo'lmadi. Sahifani yangilab, qayta urinib ko'ring. | Не удалось выполнить действие с караваном. Обновите страницу и попробуйте ещё раз. |
 
 ## Игра «Караван» 2026-11 · G2.6 (косметика в профиле и у друзей) — на проверку носителю
 
