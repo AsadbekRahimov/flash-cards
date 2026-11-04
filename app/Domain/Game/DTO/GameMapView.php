@@ -6,8 +6,10 @@ namespace App\Domain\Game\DTO;
 
 /**
  * The map of a course for a learner (docs/18 §12.8, docs/04 A.18): what `GameMapResource` draws. The cities and the stops are
- * derived from the course, the rest is the learner's own. `class_caravan` and `limits` are `null` until G2.9 / G2.8 and are the
- * resource's business.
+ * derived from the course, the rest is the learner's own. `class_caravan` is `null` until G2.9 and is the resource's
+ * business; `limits` is the block of `/me.game.limits` (G2.8).
+ *
+ * @phpstan-import-type LimitsBlock from GameLimitState
  *
  * @phpstan-type Stop array{lesson_id: int, number: int, title: string|null, unlocked: bool, stars: int, best_score: int, runs: int}
  * @phpstan-type Boss array{state: string, defeated_at: string|null, introduced: int, required: int, cleared_stops: int, required_stops: int}
@@ -26,6 +28,7 @@ final readonly class GameMapView
      * @param  Me  $me
      * @param  list<Friend>  $friends
      * @param  ActiveRun|null  $activeRun
+     * @param  LimitsBlock  $limits
      */
     public function __construct(
         public array $course,
@@ -34,5 +37,6 @@ final readonly class GameMapView
         public array $me,
         public array $friends,
         public ?array $activeRun,
+        public array $limits,
     ) {}
 }

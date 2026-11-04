@@ -617,6 +617,42 @@ Changes apply within seconds.
 
 ---
 
+## Caravan game (docs/18 §12.10)
+
+The game «Караван» has its own group in the left menu, **Караван** (Караван), and a tab on the learner's page. All of it is **admin only**
+(a teacher gets 403; the cabinet of a center has none of it). The caravans of classes (`ClassCaravanResource`) come after G2.9a.
+
+**Items — Предметы** (`/admin/game-items`). The catalogue of the shop: cosmetics (a *slot*: camel, carpet, tent, frame) and boosters (an *effect*:
+hint, extra flask, second chance). The list shows kind, slot, effect, price, availability, status and order; filters by kind, status and availability.
+
+- **Create / edit.** *Key* — lower-case latin letters, digits and `_`, up to 48 characters, the first one a letter or a digit; it is set once and then
+  read-only. Title (ru, uz) is required, description is optional. *Image* is chosen from the list of the Mini App images (a link is refused).
+  A cosmetic needs a slot, a booster an effect; the availability *За достижение* needs the achievement. A new item is a **draft**.
+- **Опубликовать / В архив** (row buttons, confirmation). Only published items are in the shop. Nothing is deleted: an archived item leaves the
+  shelf and stays with those who already have it. Every save moves the version of the cached catalogue on, so the shop shows the change at once.
+- **Warning.** A cosmetic with availability *Базовый* and price 0 is given to **every** learner by default. Giving such an item a price (or another
+  availability) takes it out of everybody's wardrobe: the price field says so and the save is followed by a warning.
+
+**Runs — Забеги** (`/admin/game-runs`). Read-only. Filters: kind, status, course, learner (by id), dates of the start. The page of a run shows the
+learner, kind, course, result, **the composition by kind of task** («Перевод на английский × 3, …»), the answers of the journal (verdict, first try,
+time), the rewards (*coins awarded*, *league points*) and *words pulled into repetition* (`srs_pulled`). The snapshot of the run is **never shown**: it
+holds the expected answers.
+
+**The «Караван» tab of a learner** (Learners → open a learner). The balance, the coins earned and spent, the tickets and the last 50 entries of the
+ledger. Buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required) and **Выдать билеты**.
+
+- Each move first writes the **audit record** `game.coins_adjusted` (who, which learner, amount, reason) and then the entry of the ledger with the key
+  `admin:{audit record id}` — so every manual entry has its record. The entry is *Начисление от поддержки* / *Списание поддержкой*.
+- A debit **never takes the balance below zero**: the admin sees «У ученика N монет…», nothing is written to the ledger, and the audit record stays,
+  marked `rejected: coins_insufficient`.
+- **Выдать билеты** (tickets; a number from -100 to 100 without 0, and a reason): a positive number grants, a negative one takes (never below 0). The balance
+  stops at the cap (`tickets.max`, 10): if some tickets did not fit, a notice says how many. The audit record `game.tickets_adjusted` is written first.
+
+**Widget «Караван — 7 дней»** (dashboard, admin only): runs started in 7 days (all kinds, abandoned ones included), learners who played, and their
+share among the learners active in 7 days. Cached for 5 minutes (a figure past its time is shown once while it is recomputed); no polling.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |
@@ -632,6 +668,7 @@ Changes apply within seconds.
 | SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
+| Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`). Cached for 5 minutes; see *Caravan game* above |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

@@ -18,7 +18,7 @@ use RuntimeException;
  *   404  game_run_not_found (a stranger's run looks the same) · course_not_found · lesson_not_found · stage_not_found · item_not_found · class_caravan_not_found
  *   409  game_run_active {run_id, kind, progress} · game_daily_done {resets_at} · boss_not_ready {introduced, required, cleared_stops, required_stops}
  *        · stop_locked · element_not_current {current} · answer_already_accepted {verdict} · pair_already_matched · request_id_reused · hint_not_available
- *        · coins_insufficient {balance, price} · booster_limit_reached {limit, used, resets_at} · booster_not_owned · item_not_purchasable {reason}
+ *        · coins_insufficient {balance, price} · booster_limit_reached {limit, used, resets_at} · booster_not_owned · booster_already_used · booster_not_applicable · item_not_purchasable {reason}
  *        · item_already_owned · class_caravan_active · class_boss_done · class_boss_locked
  *   410  game_run_closed {finish_reason}
  *   422  game_not_enough_material {available, required, reason} · invalid_answer_shape · unknown_element_id · unknown_option_id · lesson_not_in_course · stage_not_in_course
@@ -66,6 +66,10 @@ final class GameException extends RuntimeException
     public const BOOSTER_LIMIT_REACHED = 'booster_limit_reached';
 
     public const BOOSTER_NOT_OWNED = 'booster_not_owned';
+
+    public const BOOSTER_ALREADY_USED = 'booster_already_used';
+
+    public const BOOSTER_NOT_APPLICABLE = 'booster_not_applicable';
 
     public const ITEM_NOT_PURCHASABLE = 'item_not_purchasable';
 
@@ -217,6 +221,18 @@ final class GameException extends RuntimeException
     public static function boosterNotOwned(): self
     {
         return new self(self::BOOSTER_NOT_OWNED, 'The learner does not own this booster.');
+    }
+
+    /** A booster of this kind is already on the element (`hint`) or in the run (`extra_flask`, `second_chance`). */
+    public static function boosterAlreadyUsed(): self
+    {
+        return new self(self::BOOSTER_ALREADY_USED, 'This booster is already used here.');
+    }
+
+    /** The booster has nothing to do in this run (a flask or a second chance in a run without flasks). */
+    public static function boosterNotApplicable(): self
+    {
+        return new self(self::BOOSTER_NOT_APPLICABLE, 'This booster does nothing in this run.');
     }
 
     public static function itemNotPurchasable(string $reason): self

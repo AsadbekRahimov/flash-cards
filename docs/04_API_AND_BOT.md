@@ -97,7 +97,9 @@
   },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
                 "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
-  "game": { "available": true, "limits": null, "pro_promise": "full", "coins": 35, "tickets": 2 }
+  "game": { "available": true, "pro_promise": "full", "coins": 35, "tickets": 2,
+            "limits": { "runs": { "limit": 1, "used": 1, "remaining": 0, "resets_at": "2026-10-30T19:00:00.000Z" }, "tickets": { "balance": 2, "max": 10 },
+                        "boosters": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-01T19:00:00.000Z" }, "boss_stages": 1 } }
 }
 ```
 
@@ -133,8 +135,8 @@
   `null` — лимитов нет: Pro (фича `practice.unlimited`, в том числе спонсорский Pro центра), лимиты не заданы (пустые `PRACTICE_FREE_*`), либо практика ученику закрыта (`available = false` или `pro_required = true`). Вид без лимита — `null` внутри блока. Лимит `0` — вид только для Pro (`remaining: 0`). TWA показывает остаток и пейвол `practice_limit` при `remaining = 0`.
   Цена: у Free с открытой практикой `/me` стоит **на один SQL больше** (оба счётчика одним запросом); у Pro и при закрытой практике — ничего.
 - `game` (docs/18 §12.7–§12.8, G2.1) — доступ к игре «Караван»; блок **всегда** есть в ответе и в других ответах формы `/me` (`MePayloadBuilder` → `GameAccess::describe`). `available` — входы в игру можно показывать: `GAME_ACCESS=all`, либо `pilot` и ученик в пилоте (флаг пилота практики `learners.practice_pilot_at` — одна аудитория); иначе `false`, TWA входов не рисует, а эндпоинты игры отвечают 403 `game_unavailable` (один код для «выключено» и «не в пилоте»). Режима «только Pro» у игры нет: бесплатная часть — продуктовое решение, лимиты Free — `limits`.
-  `limits` — лимиты Free на сегодня (docs/18 §12.7.2: `runs`, `tickets`, `boosters`, `boss_stages`); **до G2.8 всегда `null`**, потом `null` и при закрытой игре. `pro_promise` — `full` | `none`: что о игре может сказать этому ученику список «что даёт Pro» («Караван без лимита забегов и все боссы»); `full`, пока игра открыта читающему (`available`) и у Free есть лимит, который снимает Pro (`GAME_FREE_RUNS_PER_DAY`, `GAME_FREE_BOSS_STAGES` или `GAME_FREE_BOOSTERS_PER_WEEK` не пусто; `0` — лимит есть), иначе `none` (`ProPromises::game`; TWA ничего не выводит сам, пока `/me` не пришёл — `none`).
-  `coins` — баланс монет (`game_wallets.balance`), `tickets` — билеты (`game_profiles.tickets`); `0`, пока игра закрыта или ученик не играл (строки создаются лениво). Цена: пока игра открыта, `/me` стоит **на один SQL больше** (обе суммы одним запросом); при закрытой игре — ничего.
+  `limits` (G2.8, docs/18 §12.7.2) — `null`, пока игра закрыта ученику; иначе объект: `runs` — забеги по карте (`stop` + `boss`) за локальный день (`limit`, `used`, `remaining`, `resets_at` — конец окна `LearnerClock::limitWindowUtc`, то же, что у практики), `null` у Pro (`game.unlimited_runs`) и при пустом `GAME_FREE_RUNS_PER_DAY`; `tickets` — `{balance, max}` (всегда; билеты копятся и у Pro); `boosters` — использования бустеров за локальную неделю с понедельника (`resets_at` — следующий понедельник; лимит плана: Free `GAME_FREE_BOOSTERS_PER_WEEK`, Pro `GAME_PRO_BOOSTERS_PER_WEEK`), `null` при пустом лимите; `boss_stages` — число первых городов, чьи боссы открыты Free, `null` у Pro (`game.all_bosses`) и при пустом лимите. Сверх дневного лимита забег стоит билет (`tickets.balance − 1`); без билета сервер отвечает 403 `game_limit_reached` (A.18), TWA показывает пейвол `game`. Ключи блока `game` в этом порядке: `available`, `limits`, `pro_promise`, `coins`, `tickets`. `pro_promise` — `full` | `none`: что о игре может сказать этому ученику список «что даёт Pro» («Караван без лимита забегов и все боссы»); `full`, пока игра открыта читающему (`available`) и у Free есть лимит, который снимает Pro (`GAME_FREE_RUNS_PER_DAY`, `GAME_FREE_BOSS_STAGES` или `GAME_FREE_BOOSTERS_PER_WEEK` не пусто; `0` — лимит есть), иначе `none` (`ProPromises::game`; TWA ничего не выводит сам, пока `/me` не пришёл — `none`).
+  `coins` — баланс монет (`game_wallets.balance`), `tickets` — билеты (`game_profiles.tickets`); `0`, пока игра закрыта или ученик не играл (строки создаются лениво). Цена: пока игра открыта, `/me` стоит **на один SQL больше** (балансы и счётчики лимитов одним запросом, `GameLimits::state`); при закрытой игре — ничего.
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
 
 ### A.2a `GET /api/twa/today`
@@ -1434,7 +1436,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   "friends": [{"friendship_id": 11, "name": "Dilnoza", "city_number": 2, "stops_cleared": 7, "camel_asset": null}],
   "active_run": {"id": 9, "kind": "stop", "progress": {"answered": 3, "total": 9}},
   "class_caravan": null,
-  "limits": null
+  "limits": {"runs": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-05T19:00:00.000Z"}, "tickets": {"balance": 0, "max": 10}, "boosters": {"limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-08T19:00:00.000Z"}, "boss_stages": 1}
 }
 ```
 
@@ -1445,7 +1447,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - **`me`**: из `game_profiles` и `game_wallets` (нули, пока строк нет).
 - **`friends[]`**: принятые друзья с прогрессом по этому курсу (`game_stop_progress`, ≥ 1 звезда), по убыванию `stops_cleared`, не больше `game.map.friends_max` (20); `city_number` — самый дальний город, где друг очистил стоянку; `camel_asset` — `null` до G2.6. Прогресс друзей может отставать до 5 минут (кэш `game:friends`, docs/19 §2.2).
 - **`active_run`**: идущий и не просроченный забег ученика (`progress {answered, total}`) или `null`.
-- **`class_caravan`** — `null` до G2.9, **`limits`** — `null` до G2.8.
+- **`class_caravan`** — `null` до G2.9. **`limits`** (G2.5b ч.2) — тот же блок, что `/me.game.limits` (`GameLimits::describe`, один запрос; форма — A.2): забеги дня, билеты, бустеры недели, `boss_stages`. Карта открыта только ученику, которому игра доступна, поэтому здесь это всегда объект; тот же блок приходит и в 201 `POST /game/runs` (ключ `limits` рядом с полями забега) — клиент видит остаток дня и недели сразу после старта.
 
 #### Забег (G2.2b + G2.2c)
 
@@ -1453,10 +1455,11 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 
 | Маршрут | Лимитер | Тело → ответ |
 |---|---|---|
-| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). Другие `kind` (`boss`, `class_boss`) — **422** валидации до G2.4 / G2.9. Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится |
+| `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). `{kind: "boss", course, stage_id, replace_active?}` (G2.4) → бой с боссом города (12 самых трудных слов ученика в городе, набор фиксируется в снимке; бой без фляг; забег дня / билет стоит так же, как стоянка). `class_boss` — **422** валидации до G2.9. Ошибки босса: 404 `course_not_found` / `stage_not_found`, 422 `stage_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `boss_not_ready {introduced, required, cleared_stops, required_stops}` (тот же расчёт, что `boss.state` на карте; у побеждённого босса готовность не проверяется — повторный бой всегда доступен). Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится; **403 `game_limit_reached {kind: "runs", limit, used, tickets: 0, resets_at}`** (G2.8) — Free сыграл забеги дня и билетов нет: пейвол `game`, лид по `kind`; с билетом забег стартует и стоит билет (`free_slot = ticket` в событии `game.run_started`, `tickets` в `/me` на один меньше). Активный забег той же стоянки (вторая вкладка) возвращается как есть и лимитом не проверяется. Босс города дальше `GAME_FREE_BOSS_STAGES` у Free — 403 `game_pro_required {kind: "boss", stage_number}` (G2.4) |
 | `GET /game/runs/{id}` | `twa-api` | забег |
 | `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
+| `POST /game/runs/{id}/booster` | `twa-game-answer` | `{request_id (uuid), item_key, element_id?}` → забег (`GameRunResource`, как `GET`). Бустер из инвентаря ученика: `hint` (подсказка текущего элемента в форме вида; `element_id` необязателен, по умолчанию текущий; результат в `current.element` — убранные варианты / `prefix`), `extra_flask` (+1 фляга, `flasks_max` растёт до `game.run.flasks_max_with_booster`), `second_chance` (первая ошибка забега не стоит фляги). Ошибки: 404 `item_not_found` (нет такого предмета или он не бустер); 409 `booster_not_owned` (`qty = 0`), `booster_limit_reached {limit, used, resets_at}`, `booster_already_used` (этот вид уже применён к элементу / в забеге), `booster_not_applicable` (`extra_flask` / `second_chance` в забеге без фляг — босс), `hint_not_available` (у вида или у элемента подсказка уже есть), `element_not_current {current}`, `answer_already_accepted {verdict}`, `request_id_reused`; 410 `game_run_closed` |
 | `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
 | `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store`; элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
 
@@ -1471,7 +1474,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   "city": "Самарканд", "stage_number": 1, "lesson_number": 1, "lesson_title": "Фрукты", "scope_widened": false,
   "total": 9, "position": 3, "flasks": 3, "flasks_max": 3, "combo": 2, "score": 40,
   "current": {"element": {"id": "e3k9", "kind": "translate_fwd", "prompt": "apple", "audio": true, "audio_url": "/api/twa/game/runs/9/audio/e3k9", "options": [{"id": "o1a2", "text": "яблоко"}]}, "event": "bazaar"},
-  "boosters": {"available": [], "used": []},
+  "boosters": {"available": [{"key": "booster_hint", "effect": "hint", "qty": 2}], "used": [{"key": "booster_extra_flask", "effect": "extra_flask", "element_id": null}]},
   "hint": {"price": 5, "available": true},
   "summary": null,
   "server_now": "2026-11-05T10:00:00.000Z"
@@ -1480,14 +1483,16 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 
 - `course {slug}` и `lesson_id` (G2.7b): куда вернуться с итога — курс забега (`snapshot.course_slug`; для `daily` это курс записи, активный курс ученика) и урок стоянки (`game_runs.lesson_id`; у `daily` и боссов — `null`). По ним «Ещё раз» и «На карту» собирают адрес без query. `course` — `null`, только если снимок не помнит slug.
 - `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`.
-- `boosters` — пустые списки до G2.5b (контракт потом не меняется). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict}, boss}`.
+- `boosters` (G2.5b ч.2): `available[] {key, effect, qty}` — бустеры инвентаря ученика с `qty > 0` (только пока забег идёт; у закончившегося `[]`), `used[] {key, effect, element_id}` — применённые в этом забеге (`element_id` — только у `hint`, иначе `null`; хранятся в `state`, без запроса). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict}, boss}`. `summary.boss` — `null`, кроме забегов `boss` / `class_boss`; у них `{accuracy (0..100, round(100 × correct / total)), won (accuracy ≥ 80 %, `typo` не считается), first (эта победа — первая над боссом города; у `class_boss` всегда false)}`; `stars` босса — 3 за победу, иначе 0.
 - Повтор того же `request_id` (ответ и подсказка) возвращает тот же `verdict` / `hint` и актуальный `run`; другой `request_id` на уже отвеченный элемент — 409 `answer_already_accepted {verdict}`; тот же `request_id` с другим элементом — 409 `request_id_reused`; не текущий элемент — 409 `element_not_current {current}`.
 - Просроченный забег (`expires_at`) закрывается лениво любым обращением (`finished/expired`) и командой `game:close-expired` (каждые 15 минут, `withoutOverlapping`).
-- События: `game.run_started` пишет `RunService` при старте (после commit); `game.run_finished` и награды — G2.5a.
+- События: `game.run_started` пишет `RunService` при старте (после commit); `game.run_finished` и награды — G2.5a; `game.limit_reached {kind, limit}` при каждом отказе лимита (вежливом и под замком), `game.ticket_spent {run_id}` при старте по билету (G2.8).
+- Бустер (G2.5b ч.2): под замком забега и с идемпотентностью по `request_id` (повтор — тот же забег, второго списания нет). Порядок проверок: предмет (404) → `booster_not_owned` → один бустер вида на элемент / на забег → лимит недели (`GameLimits::assertBoosterAllowed`, 409 `booster_limit_reached`) → атомарный расход `qty` → запись `game_booster_uses` (`week_start`) и попытки `kind = booster`. Лимит недели считается по использованиям, а не по покупкам. Подсказка бустером не списывает монет; подсказка базара (`POST …/hint`) по-прежнему только за монеты. Событие `game.booster_used {run_id, effect}` после commit.
+- Лимит дня (G2.8, docs/18 §12.7.2): считаются забеги `stop` / `boss`, начатые в окне локального дня, кроме брошенных или просроченных **без единого ответа** (место возвращается); активный забег место занимает, пока не закрыт. Pro с `game.unlimited_runs` не считается и билетов не тратит.
 
 #### Кошелёк, лавка, профиль (G2.5b, часть 1)
 
-Четыре группы маршрутов в `/api/twa/game/*`: `TwaAuth` + `SetTwaLocale` + `throttle:twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`. Бустеры **в забеге** (`POST /game/runs/{id}/booster`, `boosters.available` у забега) — часть 2 (после G2.8): здесь бустер только покупается и лежит в инвентаре.
+Четыре группы маршрутов в `/api/twa/game/*`: `TwaAuth` + `SetTwaLocale` + `throttle:twa-api`. Игра выключена / ученик вне пилота — **403** `game_unavailable`. Бустеры **в забеге** (`POST /game/runs/{id}/booster`, `boosters` у забега) — часть 2, см. «Забег» выше: здесь бустер покупается и лежит в инвентаре.
 
 | Маршрут | Тело → ответ |
 |---|---|

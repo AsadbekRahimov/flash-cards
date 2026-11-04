@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Game\DTO\GameLimitState;
 use App\Domain\Game\DTO\GameMapView;
 use Illuminate\Http\Request;
 
 /**
- * GET /api/twa/game/map (docs/18 §12.8, docs/04 A.18). `class_caravan` (G2.9) and `limits` (G2.8) are `null` until those tasks.
+ * GET /api/twa/game/map (docs/18 §12.8, docs/04 A.18). `class_caravan` (G2.9) is `null` until that task; `limits` is the block of `/me.game.limits` (G2.8).
  *
  * @property GameMapView $resource
  *
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
  * @phpstan-import-type Me from GameMapView
  * @phpstan-import-type Friend from GameMapView
  * @phpstan-import-type ActiveRun from GameMapView
+ * @phpstan-import-type LimitsBlock from GameLimitState
  */
 final class GameMapResource extends TwaResource
 {
@@ -29,7 +31,7 @@ final class GameMapResource extends TwaResource
      *   friends: list<Friend>,
      *   active_run: ActiveRun|null,
      *   class_caravan: null,
-     *   limits: null
+     *   limits: LimitsBlock
      * }
      */
     public function toArray(Request $request): array
@@ -44,7 +46,7 @@ final class GameMapResource extends TwaResource
             'friends' => $map->friends,
             'active_run' => $map->activeRun,
             'class_caravan' => null,
-            'limits' => null,
+            'limits' => $map->limits,
         ];
     }
 }

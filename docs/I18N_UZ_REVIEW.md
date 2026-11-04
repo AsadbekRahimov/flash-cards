@@ -2998,3 +2998,43 @@
 | `error.code.unknown_option_id` | Topshiriqda bunday variant yo'q. Ekranni yangilang. | Такого варианта в задании нет. Обновите экран. |
 | `error.code.hint_not_available` | Bu topshiriq uchun maslahat yo'q. | Подсказки для этого задания нет. |
 | `error.code.coins_insufficient` | Maslahat uchun tanga yetmaydi. Tangalar yurishlar uchun beriladi. | Не хватает монет на подсказку. Монеты дают за забеги. |
+
+### Karta «Я дошёл до …» va yutuq «Хранитель побеждён» (G2.4, `lang/uz/game.php` `card.*`, `lang/uz/achievements.php`)
+
+> Birinchi marta shahar bossini yengganda botdan keladigan rasm-karta va uning sarlavhasi. Uzbekcha shahar nomi o'zgarmaydi (rus tilidagi kabi bosh kelishikda emas, «Men yetib keldim: Samarqand» shaklida).
+
+| Kalit | uz | ru |
+|---|---|---|
+| `game.card.title` | Men yetib keldim: :city | Я дошёл до :city |
+| `game.card.description` | "Karvon" o'yinida darvoza qo'riqchisini yengdim | Победил(а) хранителя ворот в игре «Караван» |
+| `game.card.caption` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
+| `game.card.share_button` | Ulashish | Поделиться |
+| `achievements.items.game_first_boss.title` | Qo'riqchi yengildi | Хранитель побеждён |
+| `achievements.items.game_first_boss.description` | "Karvon" o'yinida shahar bossi ustidan birinchi g'alaba | Первая победа над боссом города в игре «Караван» |
+| `game.card.caption_no_link` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
+| `game.card.share_text` | Men "Karvon" o'yinida yetib keldim: :city - LexiFlow! Telegramda ingliz tili. | Я дошёл до :city в игре «Караван» — LexiFlow! Учим английский в Telegram. |
+| `game.cities_gen.1` | Toshkent | Ташкента |
+| `game.cities_gen.2` | Qo'qon | Коканда |
+| `game.cities_gen.3` | Samarqand | Самарканда |
+| `game.cities_gen.4` | Buxoro | Бухары |
+| `game.cities_gen.5` | Xiva | Хивы |
+| `game.cities_gen.6` | Shahrisabz | Шахрисабза |
+| `game.cities_gen.7` | Termiz | Термеза |
+| `game.cities_gen.8` | Balx | Балха |
+| `game.cities_gen.9` | Marv | Мерва |
+| `game.cities_gen.10` | Nishopur | Нишапура |
+| `game.cities_gen.11` | Tus | Туса |
+| `game.cities_gen.12` | Ray | Рея |
+| `game.cities_gen.13` | Hamadon | Хамадана |
+| `game.cities_gen.14` | Bag'dod | Багдада |
+| `game.cities_gen.15` | Damashq | Дамаска |
+| `game.cities_gen.16` | Halab | Алеппо |
+| `game.cities_gen.17` | Antioxiya | Антиохии |
+| `game.cities_gen.18` | Konstantinopol | Константинополя |
+| `game.cities_gen.19` | Qashqar | Кашгара |
+| `game.cities_gen.20` | Xo'tan | Хотана |
+| `game.cities_gen.21` | Dunxuan | Дуньхуана |
+| `game.cities_gen.22` | Turfon | Турфана |
+| `game.cities_gen.23` | Loyan | Лояна |
+| `game.cities_gen.24` | Chang'an | Чанъани |
+| `game.city_fallback_gen` | :number-shahar | города :number |

@@ -19,6 +19,7 @@ enum AchievementKey: string
     case Words1000 = 'words_1000';
     case LeagueTop1 = 'league_top1';
     case FirstFriend = 'first_friend';
+    case GameFirstBoss = 'game_first_boss';
 
     /** `streak` / `words` have a threshold and a progress; the others are one-off events. */
     public function family(): string
@@ -29,6 +30,7 @@ enum AchievementKey: string
             self::FirstSession => 'session',
             self::LeagueTop1 => 'league',
             self::FirstFriend => 'friend',
+            self::GameFirstBoss => 'game',
         };
     }
 
@@ -59,6 +61,7 @@ enum AchievementKey: string
             self::Words1000 => '1000',
             self::LeagueTop1 => '#1',
             self::FirstFriend => '+1',
+            self::GameFirstBoss => 'BOSS',
         };
     }
 
