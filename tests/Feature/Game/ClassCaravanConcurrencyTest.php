@@ -202,20 +202,26 @@ it('lets a member fight again when the untouched fight is closed and started ove
     $results = GameRace::run($pair === 'an exit and a start over' ? [$exit, $over] : [$over, $over]);
 
     // G2.13 (docs/18 §12.11): a fight without an answer was no attempt. The exit frees the key under the run's row; the start over
-    // either closes the fight itself (and frees the key in the same UPDATE, before its INSERT) or finds it closed; two starts over meet
-    // on the unique key, and the loser gets the fight the winner has just started - never "class_boss_done".
+    // either closes the fight itself (and frees the key in the same UPDATE, before its INSERT) or finds it closed. Two starts over
+    // either meet on the unique key - the loser gets the fight the winner has just started, never "class_boss_done" - or go one after
+    // the other, and the second replaces the first's fresh, untouched fight as well (the cascade of `replace_active`, as with a stop):
+    // three fights then, every closed one without an answer and without its key, exactly one on and holding the key.
     $old = GameRun::query()->findOrFail($firstId);
-    $live = GameRun::query()->where('active_learner_id', $learnerId)->first();
+    $fights = GameRun::query()->where('kind', 'class_boss')->where('learner_id', $learnerId)->get();
+    $live = $fights->firstWhere('active_learner_id', $learnerId);
+    $closed = $fights->where('active_learner_id', null);
     expect(GameRace::crashes($results))->toBe([])
         ->and(GameRace::outcomes($results))->toBe(['ok', 'ok'], (string) json_encode($results))
         ->and($old->finish_reason?->value)->toBe('abandoned')
         ->and($old->class_boss_key)->toBeNull()
-        ->and($old->answered)->toBe(0)
-        ->and($live?->kind->value)->toBe('class_boss')
         ->and($live?->class_boss_key)->toBe($key)
-        ->and(GameRun::query()->where('kind', 'class_boss')->where('learner_id', $learnerId)->count())->toBe(2)
+        ->and($live?->answered)->toBe(0)
+        ->and($closed->every(fn (GameRun $run): bool => $run->finish_reason?->value === 'abandoned' && $run->class_boss_key === null && $run->answered === 0))->toBeTrue()
+        ->and($fights->count())->toBeIn($pair === 'two starts over' ? [2, 3] : [2])
         ->and(GameRun::query()->where('class_boss_key', $key)->count())->toBe(1);
     if ($pair === 'two starts over') {
-        expect(array_unique(array_column($results, 'value')))->toHaveCount(1);
+        // the same fight for both (the race met on the key), or one each (the cascade) - and the live one is the last of them
+        expect(count(array_unique(array_column($results, 'value'))))->toBe($fights->count() - 1)
+            ->and(max(array_column($results, 'value')))->toBe($live?->id);
     }
 })->with(['an exit and a start over', 'two starts over']);
