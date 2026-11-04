@@ -2,7 +2,7 @@
 // stop, a run to the summary, "Again"), `game:daily` (the caravan of the day from "Today", the second start), `game:reload` (a reload in
 // the middle of a run, the way out). The pictures are in game-shots.mjs.
 import { E2EError, until } from './kit.mjs'
-import { GAME_TASK, TYPED_OR_CHOICE, currentElement, isWordKind, playRun, readSummary, runRow, runStatus, waitStatus } from './game-play.mjs'
+import { GAME_TASK, TYPED_OR_CHOICE, currentElement, isWordKind, playRun, playRunViaApi, readSummary, runRow, runStatus, waitStatus } from './game-play.mjs'
 
 /**
  * Calls of the API that end without a good status and are not faults: the second start of the caravan of a day (409), the hint the
@@ -23,6 +23,7 @@ export function gameScenarios(env) {
     { name: 'game:stop', body: (s) => gameStop(env, s) },
     { name: 'game:daily', body: (s) => gameDaily(env, s) },
     { name: 'game:reload', body: (s) => gameReload(env, s) },
+    { name: 'game:boss', body: (s) => gameBoss(env, s) },
   ]
 }
 
@@ -30,6 +31,12 @@ export function gameScenarios(env) {
 export async function finish(s) {
   await s.noPageErrors()
   await s.noUnexpectedStatuses(GAME_EXPECTED_STATUSES)
+}
+
+/** The map the page has read since `since`: the call is waited for (the screen may be drawn before its body is recorded). */
+async function mapJson(p, since) {
+  await p.waitCall('/api/twa/game/map', { since, status: 200 })
+  return p.lastJson('/api/twa/game/map', { since })
 }
 
 const path = (p) => new URL(p.page.url()).pathname + new URL(p.page.url()).search
@@ -61,7 +68,7 @@ async function gameStop(env, s) {
   await p.waitFor('game-btn')
   await p.click('game-btn')
   await p.waitFor('road')
-  const map = p.lastJson('/api/twa/game/map', { since: mark })
+  const map = await mapJson(p, mark)
   await s.check(map !== null && map.course.slug === 'default', 'the map of the course is read', { players: [p], since: mark })
   for (const city of map.cities) {
     await s.check((await p.text(`city-${city.number}`)).includes(city.city), `the city ${city.number} is "${city.city}" on the road`, { players: [p] })
@@ -177,7 +184,7 @@ async function gameStop(env, s) {
   await p.waitFor('stop-sheet')
   await s.check(path(p) === '/twa/game?course=default&stop=2', '"Ещё раз" leads to the stop of the course by the run itself', { ...opts, actual: path(p) })
   await s.check((await p.text('stop-sheet')).includes('Стоянка 2') && (await p.text('stop-best')).includes('Лучший счёт'), 'the map opens the sheet of stop 2 with the best score', { ...opts, actual: await p.text('stop-sheet') })
-  const best = p.lastJson('/api/twa/game/map')
+  const best = await mapJson(p, 0)
   const stop2 = best.cities.flatMap((city) => city.stops).find((stop) => stop.lesson_id === 2)
   await s.check(stop2.runs >= 2 && stop2.stars >= stars, 'the map counts both runs of the stop and keeps the best stars', { ...opts, actual: JSON.stringify(stop2) })
   await finish(s)
@@ -199,7 +206,7 @@ async function gameDaily(env, s) {
   await p.click('game-entry')
   await p.waitFor('game-daily-view')
   await p.waitFor('ready')
-  const map = p.lastJson('/api/twa/game/map', { since: mark })
+  const map = await mapJson(p, mark)
   await s.check(path(p) === '/twa/game/daily', 'the entry leads to /game/daily', { ...opts, actual: path(p) })
   await s.check(map?.daily?.available === true && map.daily.due_count === today.due_count, 'the map and /today agree on the words that are due', { ...opts, since: mark, actual: `map ${map?.daily?.due_count}, today ${today.due_count}` })
   await s.check((await p.text('ready-text')).includes(String(map.daily.due_count)) && (await p.text('ready-text')).includes('разминка'), 'the screen says how many words are due', { ...opts, actual: await p.text('ready-text') })
@@ -231,7 +238,7 @@ async function gameDaily(env, s) {
   await p.waitFor('road')
   await s.check(path(p) === '/twa/game?course=default', '"На карту" leads to the map of the run\'s course, no query was given', { ...opts, actual: path(p) })
   await s.check((await p.data('daily-card', 'state')) === 'done' && (await p.text('daily-text')) === 'Сыграно, завтра снова', 'the card of the caravan of the day: "Сыграно, завтра снова"', { ...opts, actual: await p.text('daily-card') })
-  const done = p.lastJson('/api/twa/game/map', { since: mark })
+  const done = await mapJson(p, mark)
   await s.check(done.daily.done_today === true && done.daily.available === false, 'the map: played today, not available', { ...opts, since: mark, actual: JSON.stringify(done.daily) })
 
   s.step('the card -> the screen "done", then the usual review in the cards')
@@ -348,5 +355,144 @@ async function gameReload(env, s) {
   await p.go(`/game/runs/${started.id}`)
   await until(async () => (await runStatus(p)) === 'closed', { label: 'the run is closed' })
   await s.check((await p.say()).includes('Забег закончился') && (await p.has('map-btn')), 'the closed run says so and leads to the map', { ...opts, actual: await p.say() })
+  await finish(s)
+}
+
+// ----------------------------------------------------------------------------------------- the boss
+
+/** What the share dialog of Telegram was asked to open: the page is outside Telegram, so the calls that would open it are recorded. */
+async function recordShares(p) {
+  await p.page.evaluate(() => {
+    window.__e2eShares = []
+    const web = window.Telegram?.WebApp
+    if (web) web.openTelegramLink = (url) => window.__e2eShares.push(url)
+    window.open = (url) => {
+      window.__e2eShares.push(String(url))
+      return null
+    }
+  })
+}
+
+const sharesOf = (p) => p.page.evaluate(() => window.__e2eShares ?? [])
+
+const cityOf = (env, stageId) => env.oracle.get('SELECT * FROM game_city_progress WHERE stage_id = ? ORDER BY id DESC LIMIT 1', stageId)
+
+async function gameBoss(env, s) {
+  const p = await env.newPlayer(s, 'd')
+  const api = env.api('d')
+  const opts = { players: [p] }
+
+  s.step('the map: the boss of the first city is not ready; its chip leads to the screen that says what is missing')
+  let mark = p.mark()
+  await p.open('/twa/game?course=default')
+  await p.waitFor('road')
+  const map = await mapJson(p, mark)
+  const city = map.cities[0]
+  await s.check(city.boss.state === 'not_ready' && city.boss.cleared_stops === 0, 'the map says the boss is not ready: no stop cleared', { ...opts, since: mark, actual: JSON.stringify(city.boss) })
+  await s.check((await p.text(`boss-not_ready`)) === 'ещё 3 стоянки', 'the chip says "ещё 3 стоянки"', { ...opts, actual: await p.text('city-1') })
+  await p.click(`boss-open-${city.stage_id}`)
+  await p.waitFor('not-ready')
+  await s.check(path(p) === `/twa/game/boss/${city.stage_id}?course=default`, 'the chip leads to /game/boss/:stageId with the course', { ...opts, actual: path(p) })
+  await s.check((await p.text('not-ready-text')) === 'Хранитель ещё не ждёт: ещё 3 стоянки.', 'the screen says what is missing', { ...opts, actual: await p.text('not-ready-text') })
+  await s.check(!(await p.has('start-btn')), 'there is no way to start a boss that is not ready', opts)
+
+  s.step('the three stops are cleared through the API; the chip says the boss waits')
+  for (const stop of city.stops) {
+    await env.rest('d', 20)
+    const created = await api.post('/game/runs', { kind: 'stop', course: 'default', lesson_id: stop.lesson_id, replace_active: true })
+    if (created.status !== 201) throw new E2EError(`the run of lesson ${stop.lesson_id} was not started: ${created.status} ${created.text.slice(0, 160)}`)
+    await playRunViaApi(env, 'd', created.json.id)
+  }
+  mark = p.mark()
+  await p.go('/game?course=default')
+  await p.waitFor('road')
+  const ready = await mapJson(p, mark)
+  await s.check(ready.cities[0].boss.state === 'ready', 'the map: the boss is ready', { ...opts, since: mark, actual: JSON.stringify(ready.cities[0].boss) })
+  await s.check((await p.text('boss-ready')) === 'Босс ждёт', 'the chip says "Босс ждёт"', opts)
+  await p.click(`boss-open-${city.stage_id}`)
+  await p.waitFor('intro')
+  await s.check((await p.text('keeper')) === 'Хранитель ворот' && (await p.text('city-name')) === city.city, 'the intro: the keeper and the city of the map', { ...opts, actual: await p.text('intro') })
+  await s.check((await p.text('rules')).includes('12 слов') && (await p.text('rules')).includes('80%'), 'the intro says 12 words and 80 %', { ...opts, actual: await p.text('rules') })
+  await s.check((await p.text('start-btn')) === 'Бросить вызов', '"Бросить вызов"', opts)
+
+  await env.rest('d', 35)
+  s.step('the fight that is lost: 3 mistakes of 12 are 75 %')
+  mark = p.mark()
+  await p.click('start-btn')
+  const created = await p.waitCall(/\/game\/runs$/, { method: 'POST', since: mark, status: 201 })
+  const lostRun = JSON.parse(created.body)
+  await p.waitFor('game-run-view')
+  await s.check(created.req === JSON.stringify({ kind: 'boss', course: 'default', stage_id: city.stage_id }), 'the start names the boss of the city of the map', { ...opts, since: mark, actual: created.req })
+  await s.check(lostRun.kind === 'boss' && lostRun.total === 12 && lostRun.flasks_max === 0, 'a boss: 12 tasks, no flasks', { ...opts, actual: `${lostRun.kind} ${lostRun.total} ${lostRun.flasks_max}` })
+  await s.check(path(p) === `/twa/game/runs/${lostRun.id}?course=default&boss=${city.stage_id}`, 'the run\'s address carries the course and the boss', { ...opts, actual: path(p) })
+  const lost = await playRun(env, s, p, lostRun.id, { plan: (index) => (index < 3 ? 'wrong' : 'right') })
+  await waitStatus(p, ['summary'])
+  const lostShown = await readSummary(p)
+  const lostApi = lost.last.run.summary
+  await s.check(lostApi.boss.won === false && lostApi.boss.accuracy === 75 && lostApi.boss.share === null, 'the API: lost, 75 %, no card', { ...opts, actual: JSON.stringify(lostApi.boss) })
+  await s.check(lostShown.title === 'Хранитель устоял', 'the summary says "Хранитель устоял"', { ...opts, actual: lostShown.title })
+  await s.check((await p.text('boss-lost-hint')) === 'Точность 75% — вернитесь после повторения', 'and "Точность 75% — вернитесь после повторения"', { ...opts, actual: await p.text('boss-lost-hint') })
+  await s.check(!(await p.has('city-card')) && !(await p.has('again-btn')) && lostShown.review, 'no card, no "Ещё раз", "Повторить в карточках" is there', { ...opts, actual: `again ${lostShown.again} review ${lostShown.review}` })
+  const afterLost = cityOf(env, city.stage_id)
+  await s.check(afterLost.boss_attempts === 1 && afterLost.boss_defeated_at === null && afterLost.shared_at === null, 'the database: one attempt, not defeated, not shared', { ...opts, actual: JSON.stringify(afterLost) })
+  await s.check(runRow(env.oracle, lostRun.id).correct === 9, 'the database: 9 of 12', opts)
+
+  await env.rest('d', 40)
+  s.step('the fight that is won: the card of the city')
+  await p.click('map-btn')
+  await p.waitFor('road')
+  await s.check(path(p) === '/twa/game?course=default', '"На карту" leads to the map of the course', { ...opts, actual: path(p) })
+  await p.click(`boss-open-${city.stage_id}`)
+  await p.waitFor('intro')
+  mark = p.mark()
+  await p.click('start-btn')
+  const wonCreated = await p.waitCall(/\/game\/runs$/, { method: 'POST', since: mark, status: 201 })
+  const wonRun = JSON.parse(wonCreated.body)
+  await p.waitFor('game-run-view')
+  const won = await playRun(env, s, p, wonRun.id, { plan: () => 'right' })
+  await waitStatus(p, ['summary'])
+  const wonShown = await readSummary(p)
+  const wonApi = won.last.run.summary
+  const share = wonApi.boss.share
+  await s.check(wonApi.boss.won === true && wonApi.boss.first === true && wonApi.boss.accuracy === 100, 'the API: won, the first win, 100 %', { ...opts, actual: JSON.stringify(wonApi.boss) })
+  await s.check(share !== null && share.link.startsWith('https://t.me/LexiFlowE2EBot?start=ref_') && share.title.startsWith('Я дошёл до ') && share.text.includes('LexiFlow'), 'the API gives the pair to share and the heading of the card', { ...opts, actual: JSON.stringify(share) })
+  await s.check(wonShown.title === 'Ворота открыты' && (await p.text('boss')).includes('Точность 100%'), 'the summary: "Ворота открыты", "Точность 100%"', { ...opts, actual: wonShown.title })
+  await s.check((await p.text('city-card-title')) === share.title, 'the card of the city says what the server wrote', { ...opts, expected: share.title, actual: await p.text('city-card-title') })
+  await s.check(!wonShown.again, 'no "Ещё раз" after a boss', opts)
+  await s.check(cityOf(env, city.stage_id).boss_defeated_at !== null && cityOf(env, city.stage_id).shared_at === null, 'the database: defeated, not shared yet', opts)
+
+  await env.rest('d', 35)
+  s.step('"Поделиться": the dialog of Telegram with the link and the text, then the mark; once')
+  await recordShares(p)
+  mark = p.mark()
+  await p.click('share-btn')
+  const marked = await p.waitCall(/\/game\/cities\/\d+\/shared$/, { method: 'POST', since: mark, status: 200 })
+  const opened = await sharesOf(p)
+  const wanted = `https://t.me/share/url?${new URLSearchParams({ url: share.link, text: share.text }).toString()}`
+  await s.check(opened.length === 1 && opened[0] === wanted, 'the dialog of Telegram is asked for the link and the text of the server', { ...opts, expected: wanted, actual: opened.join(' | ') })
+  await s.check(JSON.parse(marked.body).stage_id === city.stage_id && JSON.parse(marked.body).shared_at !== null, 'the mark answers the city and the time', { ...opts, since: mark, actual: marked.body })
+  const sharedAt = cityOf(env, city.stage_id).shared_at
+  await s.check(sharedAt !== null && env.oracle.get("SELECT COUNT(*) AS n FROM product_events WHERE name = 'game.city_shared'").n === 1, 'the database: shared_at is set, one event game.city_shared', { ...opts, actual: String(sharedAt) })
+  await p.click('share-btn')
+  await s.check((await sharesOf(p)).length === 2 && p.calls(/\/game\/cities\/\d+\/shared$/, { since: mark }).length === 1, 'a second tap opens the dialog again and does not ask for the mark again', { ...opts, actual: `${(await sharesOf(p)).length} dialogs, ${p.calls(/\/shared$/, { since: mark }).length} marks` })
+
+  s.step('a reload: the card is still there (it is the run\'s own summary), the mark is asked once more and changes nothing')
+  await p.page.reload({ waitUntil: 'domcontentloaded' })
+  await p.waitFor('city-card')
+  await recordShares(p)
+  mark = p.mark()
+  await p.click('share-btn')
+  const again = await p.waitCall(/\/game\/cities\/\d+\/shared$/, { method: 'POST', since: mark, status: 200 })
+  await s.check(JSON.parse(again.body).shared_at === JSON.parse(marked.body).shared_at, 'the repeat of the mark answers the same time', { ...opts, actual: again.body })
+  await s.check(env.oracle.get("SELECT COUNT(*) AS n FROM product_events WHERE name = 'game.city_shared'").n === 1, 'and writes no second event', opts)
+
+  await env.rest('d', 35)
+  s.step('the map after the win: the boss is beaten, and may be fought again')
+  await p.click('map-btn')
+  await p.waitFor('road')
+  await s.check((await p.text('boss-defeated')) === 'Босс побеждён', 'the chip says "Босс побеждён"', opts)
+  await p.click(`boss-open-${city.stage_id}`)
+  await p.waitFor('beaten')
+  await s.check((await p.text('start-btn')) === 'Сразиться ещё раз', 'the screen of a beaten boss: "Сразиться ещё раз"', { ...opts, actual: await p.text('intro') })
   await finish(s)
 }

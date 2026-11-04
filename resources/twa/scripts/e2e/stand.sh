@@ -40,6 +40,7 @@ stand_env() {
   export QUEUE_CONNECTION=sync CACHE_STORE=file CACHE_LIMITER_STORE=file SESSION_DRIVER=file
   export TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-123456:e2e-test-token}"
   export APP_URL="http://127.0.0.1:$PORT"
+  export TELEGRAM_BOT_USERNAME="${TELEGRAM_BOT_USERNAME:-LexiFlowE2EBot}" # the card of a won boss has a link to share only with a username
   export TWA_JWT_SECRET="$(secret jwt 48)"
   export APP_KEY="base64:$(secret appkey 32)"
   if [ -n "${E2E_GRACE:-}" ]; then export PRACTICE_BATTLE_PRESENCE_GRACE="$E2E_GRACE"; fi
