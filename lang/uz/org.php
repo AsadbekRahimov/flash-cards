@@ -253,6 +253,7 @@ return [
             'started' => 'Karvon yo\'lga chiqdi.',
             'started_not_delivered' => 'Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring.',
             'canceled' => 'Karvon bekor qilindi.',
+            'already_over' => 'Karvon allaqachon yakunlangan yoki bekor qilingan — hech narsa o\'zgarmadi.',
         ],
         'errors' => [
             'foreign_group' => 'Bu guruh mavjud emas.',

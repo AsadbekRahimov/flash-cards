@@ -493,6 +493,31 @@ describe('gameRun store — the hint of the bazaar', () => {
     expect(store.coins).toBe(3)
   })
 
+  it('a hint whose reply was lost is shown after the run is read again (the server applied and charged it)', async () => {
+    const store = await started(bazaarRun())
+    vi.mocked(api.gameRuns.hint).mockRejectedValueOnce(offline())
+    vi.mocked(api.gameRuns.get).mockResolvedValue(runView({ hint: { price: 5, available: false } }, translateFwd({ hint: { options_removed: ['o3', 'o4'] } }), 'bazaar'))
+
+    await store.hint()
+
+    expect(api.gameRuns.get).toHaveBeenLastCalledWith(9)
+    expect(store.status).toBe('playing')
+    expect((store.element as { hint?: unknown }).hint).toEqual({ options_removed: ['o3', 'o4'] })
+    expect(store.hintOffer).toBeNull()
+  })
+
+  it('a hint whose reply was lost and a run that cannot be read either: the error stays, the offer stays, the repeat works', async () => {
+    const store = await started(bazaarRun())
+    vi.mocked(api.gameRuns.hint).mockRejectedValueOnce(offline())
+    vi.mocked(api.gameRuns.get).mockRejectedValue(offline())
+
+    await store.hint()
+
+    expect(store.status).toBe('playing')
+    expect(store.actionError).not.toBe('')
+    expect(store.hintOffer).toEqual({ price: 5 })
+  })
+
   it('coins_insufficient: a toast, the balance from the refusal, the offer stays', async () => {
     const store = await started(bazaarRun())
     vi.mocked(api.gameRuns.hint).mockRejectedValue(apiError('conflict', 409, 'coins_insufficient', { balance: 2, price: 5 }))

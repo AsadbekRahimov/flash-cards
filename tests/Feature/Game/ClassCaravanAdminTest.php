@@ -13,6 +13,7 @@ use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
+use Filament\Notifications\NotificationMailbox;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
@@ -175,7 +176,9 @@ it('says nothing to the chat when the sweep has closed the caravan under the pag
     ClassCaravan::query()->whereKey($c->id)->update(['status' => 'finished', 'active_group_id' => null, 'finished_at' => now()]);
 
     ClassCaravanResource::cancel($stale);
-    expect($c->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([]);
+    app(NotificationMailbox::class)->flush();
+    expect($c->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([])
+        ->and(array_column(app(NotificationMailbox::class)->pull(), 'title'))->toBe([__('admin.game.caravans.notifications.already_over')]);
 
     $second = cca_caravan(ClassKit::world(1, chatId: -2002, teacherTelegramId: null));
     ClassCaravanResource::cancel($second);

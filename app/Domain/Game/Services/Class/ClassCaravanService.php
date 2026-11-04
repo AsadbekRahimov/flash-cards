@@ -302,10 +302,14 @@ final class ClassCaravanService
 
     /**
      * The caravan a run of the learner joins at its start (docs/18 §12.5.3 step 6): the active caravan of an active group the learner is
-     * an active member of, inside its window - one read, no lock. A learner in two such groups joins the caravan that started first.
+     * an active member of, inside its window - one read, no lock; none (and no read) unless `GAME_ACCESS=all`. A learner in two such groups joins the caravan that started first.
      */
     public function activeIdFor(Learner $learner, CarbonImmutable $now): ?int
     {
+        if (! $this->access->classCaravanOpen()) {
+            return null; // no caravan outside GAME_ACCESS=all, and no statement on the start of a run
+        }
+
         $id = $this->activeCaravansOf($learner->id, $now)->orderBy('cc.starts_at')->orderBy('cc.id')->value('cc.id');
 
         return $id === null ? null : (int) $id;
@@ -429,12 +433,14 @@ final class ClassCaravanService
     /**
      * May the learner fight the boss of the class now (docs/18 §12.11): the caravan is active and inside its window and the learner a
      * member of its group (else 404), the boss is open, the learner has not fought yet, the snapshot has enough words. "Fought" is a run
-     * that holds the key: a fight closed without a single answer let go of it (G2.13) and was no attempt; with `$replaceActive` the
-     * learner's live fight without an answer does not count either - the start is about to close it, and the close frees the key.
+     * that holds the key AND is finished or has an answer: a fight closed without a single answer let go of it (G2.13) and was no attempt, and
+     * a live one without an answer (also an expired one the sweeper has not closed yet: `RunService::open()` closes it and frees the key)
+     * does not count either; a live fight of the learner is returned by `busyForClassBoss` before this check, and in a race `open()`
+     * returns it (`isSameRun`).
      *
      * @throws GameException game_unavailable | class_caravan_not_found | class_boss_locked | class_boss_done | game_not_enough_material
      */
-    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now, bool $replaceActive = false): void
+    public function assertClassBossAllowed(ClassCaravan $caravan, Learner $learner, CarbonImmutable $now): void
     {
         $this->access->assertAvailable($learner);
         if (! $caravan->isActive() || $caravan->starts_at->gt($now) || $caravan->ends_at->lte($now) || ! $this->isVisibleTo($caravan, $learner)) {
@@ -445,7 +451,7 @@ final class ClassCaravanService
         }
         $fought = GameRun::query()
             ->where('class_boss_key', self::classBossKey($caravan, $learner))
-            ->when($replaceActive, fn ($query) => $query->where(fn ($q) => $q->where('status', RunStatus::Finished->value)->orWhere('answered', '>', 0)))
+            ->where(fn ($q) => $q->where('status', RunStatus::Finished->value)->orWhere('answered', '>', 0))
             ->exists();
         if ($fought) {
             throw GameException::classBossDone();

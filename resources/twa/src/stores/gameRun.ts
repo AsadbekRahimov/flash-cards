@@ -440,6 +440,14 @@ export const useGameRunStore = defineStore('gameRun', {
         if (isUncertain(err)) {
           this.status = 'playing'
           this.actionError = errorMessage(err, 'game')
+          // The server may have applied (and charged) the hint before the reply was lost: read the run again before the learner
+          // answers, so a hint that is there is shown. The request stays pending: a repeat carries the same id.
+          try {
+            const fresh = await api.gameRuns.get(run.id)
+            if (generation === this.generation && this.status === 'playing') this.applyRun(fresh)
+          } catch {
+            // the connection is still down: the learner sees the error above and may repeat the hint
+          }
           return
         }
         this.pendingHint = null

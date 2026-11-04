@@ -315,7 +315,9 @@ it('does not count a live run past its time without an answer in /me.game.limits
     expect($paid->refresh()->isActive())->toBeTrue()
         ->and($me->json('game.limits.runs'))->toBe(gameLimitsBlock(1, 1, LIMITS_DAY_END))
         ->and($me->json('game.limits.tickets'))->toBe(['balance' => 1, 'max' => 10])
-        ->and($me->json('game.tickets'))->toBe(1);
+        ->and($me->json('game.tickets'))->toBe(1)
+        // the map says the same number in `me` as in its own `limits` (no extra statement: it is the same block)
+        ->and(test()->withHeaders(PracticeKit::headers($learner))->getJson('/api/twa/game/map?course='.$course->slug)->assertOk()->json('me.tickets'))->toBe(1);
 
     // With an answer the stale run keeps its place and its ticket, whatever the clock says.
     $answered = $runs->start($learner, $course->slug, $lesson->id, now: $later->addMinutes(31));

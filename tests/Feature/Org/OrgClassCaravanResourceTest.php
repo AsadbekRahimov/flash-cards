@@ -21,6 +21,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Facades\Filament;
+use Filament\Notifications\NotificationMailbox;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Testing\TestResponse;
@@ -365,8 +366,10 @@ it('stays silent for the chat when the sweep closed the caravan under the page',
     ClassCaravan::query()->whereKey($this->c1->id)->update(['status' => 'finished', 'active_group_id' => null, 'finished_at' => now()]);
 
     ClassCaravanResource::cancel($stale);
+    app(NotificationMailbox::class)->flush();
 
-    expect($this->c1->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([]);
+    expect($this->c1->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([])
+        ->and(array_column(app(NotificationMailbox::class)->pull(), 'title'))->toBe([__('org.caravans.notifications.already_over')]);
 });
 
 it('words the refusals in the language of the cabinet, not of the chat of the group and not as the exception', function (): void {

@@ -96,13 +96,19 @@ function goTo(location: RouteLocationRaw): void {
   if (!left) void router.replace(location)
 }
 
+/** Where ✕ and "Back" lead from here: after a fight with the boss of a class, the class screen (as the main button of its summary); else the map. */
+function leaveLocation(): RouteLocationRaw {
+  const caravanId = run.value?.kind === 'class_boss' ? (run.value.class_caravan_id ?? null) : null
+  return caravanId !== null ? `/game/class/${caravanId}` : mapLocation()
+}
+
 const exitOpen = ref(false)
 
 /** ✕ and "Back": a run that is on asks first; one that is over (or not read) just leaves. */
 function requestLeave(): void {
   const live = status.value === 'event' || status.value === 'playing' || status.value === 'submitting' || status.value === 'reveal'
   if (live) exitOpen.value = true
-  else goTo(mapLocation())
+  else goTo(leaveLocation())
 }
 
 useBackButton(requestLeave)
@@ -110,7 +116,7 @@ useBackButton(requestLeave)
 async function confirmLeave(): Promise<void> {
   if (await game.abandon()) {
     exitOpen.value = false
-    goTo(mapLocation())
+    goTo(leaveLocation())
   } else {
     exitOpen.value = false
   }
@@ -383,7 +389,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
             @use="onBooster"
           />
           <div v-if="hintOffer" class="flex items-center gap-3" data-testid="hint-offer">
-            <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
+            <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ hintOffer.price === 0 ? t('gameRun.hint.free') : t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
             <span v-if="coins !== null" class="text-[15px] leading-5 text-tg-subtitle tabular-nums" data-testid="hint-coins">{{ t('gameRun.hint.coins', { coins }) }}</span>
           </div>
         </div>

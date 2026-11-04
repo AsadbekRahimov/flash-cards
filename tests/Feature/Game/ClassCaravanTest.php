@@ -376,6 +376,19 @@ it('puts the caravan on the runs of its members at the start - a stop and the da
     expect(app(RunService::class)->start($a, $w['course']->slug, $w['lesson']->id)->class_caravan_id)->toBeNull();
 });
 
+it('puts no caravan on the run of a learner outside GAME_ACCESS=all, and reads no caravan table for it', function (): void {
+    $w = classWorld(1);
+    [$a] = $w['learners'];
+    $a->forceFill(['practice_pilot_at' => now()])->save();
+    classService()->start($w['group'], $w['teacher']);
+    config(['game.access' => 'pilot']);
+
+    $queries = QueryLog::during(fn () => expect(classService()->activeIdFor($a, CarbonImmutable::now()))->toBeNull());
+    $run = classPlay($a, $w['course'], $w['lesson']);
+
+    expect($queries)->toBe([])->and($run->class_caravan_id)->toBeNull();
+});
+
 it('joins no caravan outside its window or after its end, and - in two groups with caravans - the one that started first', function (): void {
     $w = classWorld(1);
     $a = $w['learners'][0];
@@ -942,6 +955,22 @@ it('starts the fight with the boss of the class over the API: 12 tasks of the wo
     $post($a, $caravan->id)->assertStatus(409)->assertJsonPath('error.code', 'class_boss_done');
     $post($b, $caravan->id)->assertCreated()->assertJsonPath('kind', 'class_boss');
     expect(GameRun::query()->where('kind', 'class_boss')->count())->toBe(2);
+});
+
+it('lets a plain start over an expired unanswered class-boss fight through before the sweeper comes: a new fight, the old one expired and without the key', function (): void {
+    $w = classWorld(1, words: 14);
+    [$a] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    $caravan->update(['boss_unlocked_at' => now()]);
+    $boss = app(ClassBossService::class);
+    $old = $boss->start($a, $caravan->id);
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+    CarbonImmutable::setTestNow($later);
+
+    $fresh = $boss->start($a, $caravan->id, now: $later); // no replace_active, the sweeper has not run
+
+    expect($fresh->id)->not->toBe($old->id)->and($fresh->isActive())->toBeTrue()->and($fresh->class_boss_key)->toBe(ClassCaravanService::classBossKey($caravan, $a))
+        ->and($old->refresh()->finish_reason)->toBe(RunFinishReason::Expired)->and($old->class_boss_key)->toBeNull();
 });
 
 it('does not count a fight closed without a single answer as the member\'s attempt: the key is let go of on an exit, on running out and on "once more"; one answer keeps it (G2.13)', function (): void {

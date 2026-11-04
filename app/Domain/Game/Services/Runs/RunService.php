@@ -748,6 +748,8 @@ final class RunService
                     $moved = $this->srs->pull($learner->id, $wordIds, $now);
                     if ($moved > 0) {
                         GameRun::query()->whereKey($run->id)->increment('srs_pulled', $moved);
+                        // the view of this very answer is built after the commit from this model: keep it as the row is
+                        $run->setAttribute('srs_pulled', $run->srs_pulled + $moved)->syncOriginalAttribute('srs_pulled');
                     }
                 } catch (Throwable $e) {
                     report($e);
@@ -1082,9 +1084,10 @@ final class RunService
     }
 
     /**
-     * The DM card of the same first win is sent after the commit on its own copy of the learner and makes the invite code a moment
-     * before this view is built: read the stored code into this copy, so `share()` does not issue a second (no-op) write to `learners`.
-     * One read, and only for a learner whose copy has no code yet (the first win of a learner who never shared an invite).
+     * Reads the stored invite code into this copy of the learner, so `share()` does not write it again. The DM card of the same first win
+     * makes the code before this view is built ONLY with QUEUE_CONNECTION=sync (the tests); in production the DM job runs later, this
+     * SELECT returns NULL and `codeFor()` writes the code from the view, after the commit (still outside the locks of the run). One
+     * read, and only for a learner whose copy has no code yet (the first win of a learner who never shared an invite).
      */
     private function withStoredReferralCode(Learner $learner): Learner
     {

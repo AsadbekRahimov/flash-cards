@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\DB;
  * that; it becomes: a key only on a `class_boss` run, and a `class_boss` run without its key only when it is `finished` with
  * `answered = 0`. A live fight always carries its key (the unique index still makes "one fight at a time, one that counts" a fact).
  *
- * PostgreSQL only (SQLite carries no CHECKs of the game). `down()` restores the former CHECK as NOT VALID: the keys the freed fights let
- * go of cannot be made up again (a later fight may hold the same key), so the old shape is enforced for new rows and the freed rows stay.
+ * PostgreSQL only (SQLite carries no CHECKs of the game). `down()` gives the freed fights a unique stub key (`freed:{id}`: it fits the
+ * column and cannot clash with a real `{caravan}:{learner}`; the real keys cannot be made up again, a later fight may hold the same one)
+ * and then restores the former CHECK, validated. A CHECK left NOT VALID would still be checked on every UPDATE of an old row, and the
+ * `down()` of the caravans migration (`UPDATE game_runs SET class_caravan_id = NULL`) and the `nullOnDelete` of that FK would fail.
  */
 return new class extends Migration
 {
@@ -40,7 +42,8 @@ return new class extends Migration
             return;
         }
 
+        DB::statement("UPDATE game_runs SET class_boss_key = 'freed:' || id WHERE kind = 'class_boss' AND class_boss_key IS NULL");
         DB::statement('ALTER TABLE game_runs DROP CONSTRAINT IF EXISTS '.self::NAME);
-        DB::statement('ALTER TABLE game_runs ADD CONSTRAINT '.self::NAME.' CHECK ('.self::BEFORE.') NOT VALID');
+        DB::statement('ALTER TABLE game_runs ADD CONSTRAINT '.self::NAME.' CHECK ('.self::BEFORE.')');
     }
 };

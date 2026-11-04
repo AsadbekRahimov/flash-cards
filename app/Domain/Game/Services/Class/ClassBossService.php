@@ -52,7 +52,7 @@ final class ClassBossService
             return $busy;
         }
 
-        $this->caravans->assertClassBossAllowed($caravan, $learner, $now, $replaceActive);
+        $this->caravans->assertClassBossAllowed($caravan, $learner, $now);
 
         $course = $caravan->course ?? throw GameException::classCaravanNotFound();
         $locales = new LocaleSet([$this->locales->forLearner($learner)]);
