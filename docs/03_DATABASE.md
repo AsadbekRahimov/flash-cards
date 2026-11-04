@@ -1219,7 +1219,7 @@ CHECK не создаются — инвариант дублируют серв
 `learner_id` FK CASCADE **unique**, `equipped` jsonb default '{}' (`{slot: item_id}`), `tickets` smallint NOT NULL default 0 (PostgreSQL CHECK `tickets >= 0`; меняется под замком `learners`), `tickets_earned_total` int default 0, `stops_cleared` smallint default 0, `cities_cleared` smallint default 0, `last_run_at` timestamp nullable, `created_at`, `updated_at`.
 
 ### 2.58 `game_ticket_ledger` — леджер билетов, только добавление *(G2.1)*
-`learner_id` FK CASCADE, `delta` smallint, `source` varchar(12) (`streak` / `referral` / `admin` / `spend`), `idempotency_key` varchar(96) **unique** (`streak:{learner_id}:{local_date}`, `referral:{referral_id}`, `spend:run:{run_id}`, `admin:{audit_log_id}`), `run_id` bigint nullable FK → game_runs ON DELETE SET NULL, `created_at` (без `updated_at`). **Индексы:** unique ключ; `(learner_id, created_at)`.
+`learner_id` FK CASCADE, `delta` smallint, `source` varchar(12) (`streak` / `referral` / `admin` / `spend` / `refund` — G2.8b, возврат билета забега без ответа), `idempotency_key` varchar(96) **unique** (`streak:{learner_id}:{local_date}`, `referral:{referral_id}`, `spend:run:{run_id}`, `refund:run:{run_id}`, `admin:{audit_log_id}`), `run_id` bigint nullable FK → game_runs ON DELETE SET NULL, `created_at` (без `updated_at`). **Индексы:** unique ключ; `(learner_id, created_at)`. **PostgreSQL CHECK** `game_ticket_ledger_source_check` — список расширен миграцией 65.
 
 ### 2.59 `game_booster_uses` — расход бустеров *(G2.1)*
 `learner_id` FK CASCADE, `run_id` FK → game_runs CASCADE, `item_id` FK → game_items, `element_id` varchar(16) nullable, `used_at` timestamp, `week_start` date (понедельник локальной недели ученика), `created_at`, `updated_at`. **Индексы:** `(learner_id, week_start)`; unique `(run_id, item_id, element_id)` (при `element_id = NULL` unique ничего не держит — «один на забег» обеспечивает сервис под замком забега).
@@ -1322,6 +1322,8 @@ CHECK не создаются — инвариант дублируют серв
 61. `2026_11_05_100003_create_game_economy_tables` — `game_wallets`, `game_coin_ledger`, `game_items`, `game_inventory`, `game_profiles`, `game_ticket_ledger`, `game_booster_uses`; CHECK — только pgsql *(G2.1, §2.53–§2.59)*
 62. `2026_11_05_100004_add_game_columns_to_learner_daily_stats_table` — `game_runs_count`, `game_points`, `game_held_at` (§2.22) *(G2.1)*
 63. `2026_11_05_100005_create_class_caravans_tables` — `class_caravans`, `class_caravan_members`; FK `game_runs.class_caravan_id` (на SQLite — пересборкой таблицы) *(G2.1, §2.60–§2.61)*
+64. `2026_11_06_100000_add_organization_index_to_class_caravans_table` — индекс `class_caravans (organization_id, starts_at)` для страницы «Караваны» в `/org` *(G2.9b)*
+65. `2026_11_07_100000_add_refund_to_game_ticket_ledger_source_check` — PG CHECK `game_ticket_ledger.source` += `refund` (только pgsql; `down()` возвращает прежний список и требует отсутствия строк `refund`) *(G2.8b, §2.58)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

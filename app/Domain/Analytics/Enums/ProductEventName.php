@@ -130,6 +130,8 @@ enum ProductEventName: string
     case GameTicketGranted = 'game.ticket_granted';
     /** A ticket paid for a map run beyond the free run of the day (props: run_id). */
     case GameTicketSpent = 'game.ticket_spent';
+    /** The ticket of a run that ended without a single answer came back (props: run_id, reason - replaced / exited / expired; docs/18 §12.7.3). */
+    case GameTicketRefunded = 'game.ticket_refunded';
     /** A grant of tickets was cut by the cap of the balance, wholly or in part (props: source, lost). */
     case GameTicketCapped = 'game.ticket_capped';
     /** An administrator changed a learner's tickets (props: amount, audit_log_id); actor - the user, the learner. */
