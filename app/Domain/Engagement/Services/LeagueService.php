@@ -79,6 +79,15 @@ final class LeagueService
      */
     public const CACHE_PREFIX = 'league:standings:v2:';
 
+    /**
+     * `league:member:v1:{learner}:{monday}` - the facts of the learner's placement in the week that starts on `monday`
+     * (docs/19 K9): `{week_id, member_id, group_id, tier}`. Immutable for the week (a member never moves between groups,
+     * the tier is fixed at placement), so the Today line needs no statement once it is there; the Monday in the key
+     * keeps a new week from reading the old one. Written only when the learner IS placed: "not placed" is never cached
+     * (the first grade of the week places, and a cached "no" could outlive it); it lives in the evicting store.
+     */
+    public const MEMBER_PREFIX = 'league:member:v1:';
+
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly AchievementService $achievements,
@@ -90,6 +99,12 @@ final class LeagueService
     }
 
     public function timezone(): DateTimeZone
+    {
+        return self::leagueZone();
+    }
+
+    /** The league zone of the configuration (`leagues.timezone`), Tashkent when it is not a zone. */
+    public static function leagueZone(): DateTimeZone
     {
         try {
             return new DateTimeZone((string) config('leagues.timezone', 'Asia/Tashkent'));
@@ -323,27 +338,101 @@ final class LeagueService
         return collect(array_map(LeagueStanding::fromArray(...), $rows));
     }
 
-    /** The "Today" line: the learner's place this week, or null when not placed (or leagues off). */
+    /**
+     * The "Today" line: the learner's place this week, or null when not placed (or leagues off). From the cache when the
+     * learner is placed (the facts of the placement, {@see MEMBER_PREFIX}, and the standings of the group): no statement;
+     * else the week and the membership are read (two statements) and, once placed, the facts are cached for the week.
+     */
     public function todayLine(Learner $learner, CarbonImmutable $now): ?TodayLeague
     {
         if (! $this->enabled()) {
             return null;
         }
 
-        $week = $this->findWeek($now);
-        $member = $week === null ? null : $this->membership($learner, $week);
-        $group = $member?->group;
-        if ($member === null || $group === null) {
+        [$facts, $group] = $this->memberFacts($learner, $now);
+        if ($facts === null) {
             return null;
         }
 
-        $standings = $this->standings($group, $now);
-        $mine = $standings->first(static fn (LeagueStanding $s): bool => $s->memberId === $member->id);
+        $standings = $this->standingsOfGroup($facts['group_id'], $now, $group);
+        $mine = $standings->first(static fn (LeagueStanding $s): bool => $s->memberId === $facts['member_id']);
         if ($mine === null) {
             return null;
         }
 
-        return new TodayLeague($group->tier, $this->tierKey($group->tier), $mine->rank, $mine->points, $standings->count());
+        return new TodayLeague($facts['tier'], $this->tierKey($facts['tier']), $mine->rank, $mine->points, $standings->count());
+    }
+
+    /** The key of the learner's placement facts for the week that contains `$now` ({@see MEMBER_PREFIX}). */
+    public static function memberKey(int $learnerId, CarbonImmutable $now): string
+    {
+        return self::MEMBER_PREFIX.$learnerId.':'.$now->setTimezone(self::leagueZone())->startOfWeek(CarbonInterface::MONDAY)->toDateString();
+    }
+
+    /**
+     * The placement facts of the learner in the current week - from the cache, else from `league_weeks` + `league_members`
+     * (the week, the membership, its group), cached until the week is over once the learner is placed. Null = not placed
+     * (never cached).
+     *
+     * @return array{0: array{week_id: int, member_id: int, group_id: int, tier: int}|null, 1: LeagueGroup|null} the facts and the
+     *                                                                                                           group, when it was read here
+     */
+    private function memberFacts(Learner $learner, CarbonImmutable $now): array
+    {
+        $key = self::memberKey((int) $learner->id, $now);
+
+        $cached = PureCache::store()->get($key);
+        if (is_array($cached) && isset($cached['week_id'], $cached['member_id'], $cached['group_id'], $cached['tier'])) {
+            return [[
+                'week_id' => (int) $cached['week_id'],
+                'member_id' => (int) $cached['member_id'],
+                'group_id' => (int) $cached['group_id'],
+                'tier' => (int) $cached['tier'],
+            ], null];
+        }
+
+        $week = $this->findWeek($now);
+        $member = $week === null ? null : $this->membership($learner, $week);
+        $group = $member?->group;
+        if ($member === null || $group === null) {
+            return [null, null];
+        }
+        $group->setRelation('week', $week);
+
+        $facts = [
+            'week_id' => (int) $week->id,
+            'member_id' => (int) $member->id,
+            'group_id' => (int) $group->id,
+            'tier' => (int) $group->tier,
+        ];
+        // Until an hour past the next Monday 00:00 of the league zone: the facts cannot change before, and the key of the
+        // next week is another one.
+        $ttl = $this->weekStart($now)->addWeek()->addHour()->getTimestamp() - $now->getTimestamp();
+        PureCache::store()->put($key, $facts, max(60, $ttl));
+
+        return [$facts, $group];
+    }
+
+    /**
+     * The standings of a group of the CURRENT week by its id: the cached rows when there are any (no statement), else the
+     * group is read and {@see standings()} computes and caches them. The week of the facts is the one that contains
+     * `$now`, and a group of a week that has not ended is never finalised ({@see closeGroup()} requires {@see hasEnded()}),
+     * so the cached rows are the live standings, as {@see standings()} would return them.
+     *
+     * @return Collection<int, LeagueStanding>
+     */
+    private function standingsOfGroup(int $groupId, CarbonImmutable $now, ?LeagueGroup $group): Collection
+    {
+        $rows = PureCache::store()->get(self::CACHE_PREFIX.$groupId);
+        if (is_array($rows)) {
+            /** @var list<LeagueStandingArray> $rows */
+            return collect(array_map(LeagueStanding::fromArray(...), $rows));
+        }
+
+        /** @var LeagueGroup|null $group */
+        $group ??= LeagueGroup::query()->find($groupId);
+
+        return $group === null ? new Collection : $this->standings($group, $now);
     }
 
     /** What `GET /api/twa/league` shows. */
@@ -354,6 +443,9 @@ final class LeagueService
         $week = $enabled ? $this->findWeek($now) : null;
         $member = $week === null ? null : $this->membership($learner, $week);
         $group = $member?->group;
+        if ($group !== null) {
+            $group->setRelation('week', $week); // the week is in hand: standings() would read it again
+        }
 
         return new LeagueOverview(
             enabled: $enabled,
@@ -396,6 +488,8 @@ final class LeagueService
 
             $this->finalise($locked, $week, $now);
             $group->setRawAttributes($locked->getAttributes(), true);
+            // The cached live standings (at most `standings_cache_seconds` old) give way to the final ones at once.
+            DB::afterCommit(static fn () => PureCache::forgetMany([self::CACHE_PREFIX.$locked->id]));
 
             return true;
         });
