@@ -8,6 +8,7 @@ import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
+import { profile as gameProfile } from '@/api/__tests__/gameShopFixtures'
 import type { Entitlement, MeResponse } from '@/api/types'
 
 const mocks = vi.hoisted(() => ({
@@ -17,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   showBack: vi.fn(),
 }))
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, gameShop: { profile: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({
@@ -41,14 +42,16 @@ const me = (entitlement: Partial<Entitlement> = {}, contact: string | null = '@l
   settings: settingsFixture(),
 })
 
+const gameOpen = (): MeResponse => ({ ...me(), game: { available: true, limits: null, pro_promise: 'none', coins: 0, tickets: 0 } })
+
 const PRO = { plan: 'pro', source: 'subscription', new_words_per_day: null } as const
 
 async function render() {
   const stub = { template: '<div />' }
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: ['profile', 'billing', 'settings', 'referrals', 'achievements', 'friends'].map((name) => ({
-      path: `/${name}`,
+    routes: ['profile', 'billing', 'settings', 'referrals', 'achievements', 'friends', 'game-caravan'].map((name) => ({
+      path: name === 'game-caravan' ? '/game/caravan' : `/${name}`,
       name,
       component: stub,
     })),
@@ -425,6 +428,71 @@ describe('ProfileView', () => {
       const w = await render()
 
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Pro 1-dekabr, 2026 gacha')
+    })
+  })
+
+  describe('My caravan card (docs/05 §5b.6)', () => {
+    it('asks for nothing and shows no card while the game is closed', async () => {
+      const w = await render()
+
+      expect(api.gameShop.profile).not.toHaveBeenCalled()
+      expect(w.find('[data-testid=profile-caravan]').exists()).toBe(false)
+    })
+
+    it('shows what is worn - frame round the avatar, camel, carpet, tent - and leads to the caravan', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(gameOpen())
+      vi.mocked(api.gameShop.profile).mockResolvedValue(
+        gameProfile({
+          equipped: {
+            camel: { key: 'camel_golden', asset: 'camel_golden' },
+            tent: { key: 'tent_silk', asset: 'tent_silk' },
+            frame: { key: 'frame_ornament', asset: 'frame_ornament' },
+          },
+        }),
+      )
+
+      const w = await render()
+
+      expect(api.gameShop.profile).toHaveBeenCalledTimes(1)
+      expect(w.get('[data-testid=profile-caravan]').text()).toContain('Мой караван')
+      expect(w.get('[data-testid=caravan-frame-image]').attributes('data-asset')).toBe('frame_ornament')
+      expect(w.get('[data-testid=caravan-camel] img').attributes('data-asset')).toBe('camel_golden')
+      expect(w.get('[data-testid=caravan-tent] img').attributes('data-asset')).toBe('tent_silk')
+      // a slot that is empty draws no picture and says so to a screen reader
+      expect(w.find('[data-testid=caravan-carpet] img').exists()).toBe(false)
+      expect(w.get('[data-testid=caravan-carpet]').text()).toContain('не надето')
+      expect(w.get('[data-testid=profile-caravan-open]').attributes('href')).toBe('/game/caravan')
+    })
+
+    it('draws no frame when none is worn', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(gameOpen())
+      vi.mocked(api.gameShop.profile).mockResolvedValue(gameProfile({ equipped: {} }))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-caravan]').exists()).toBe(true)
+      expect(w.find('[data-testid=caravan-frame-image]').exists()).toBe(false)
+    })
+
+    it('hides the card when the profile cannot be read, and the profile still works', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(gameOpen())
+      vi.mocked(api.gameShop.profile).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-caravan]').exists()).toBe(false)
+      expect(w.get('[data-testid=profile-name]').text()).toBe('Асадбек')
+    })
+
+    it('has Uzbek words', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue(gameOpen())
+      vi.mocked(api.gameShop.profile).mockResolvedValue(gameProfile())
+
+      const w = await render()
+
+      expect(w.get('[data-testid=profile-caravan]').text()).toContain('Mening karvonim')
+      expect(w.get('[data-testid=profile-caravan-open]').text()).toBe('Karvonni ochish')
     })
   })
 })

@@ -21,3 +21,6 @@ const FALLBACK_URL: string = FILES[`./${FALLBACK}.svg`] ?? ''
 export function gameAssetUrl(name: string | null | undefined): string {
   return (name ? GAME_ASSETS[name] : undefined) ?? FALLBACK_URL
 }
+
+/** The asset of the camel every learner has: what is drawn where a friend wears none (`camel_asset: null`, docs/05 §5b.6). */
+export const BASE_CAMEL_ASSET = 'camel_dromedary'

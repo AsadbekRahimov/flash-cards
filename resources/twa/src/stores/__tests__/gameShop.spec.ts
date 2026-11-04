@@ -266,3 +266,25 @@ describe('gameShop store - wearing', () => {
     expect(booster().kind).toBe('booster')
   })
 })
+
+describe('gameShop store - only the profile (the card on /profile, docs/05 §5b.6)', () => {
+  it('reads GET /game/profile alone and leaves the status of the caravan screen as it was', async () => {
+    vi.mocked(api.gameShop.profile).mockResolvedValue(profile())
+    const store = useGameShopStore()
+
+    expect(await store.loadProfile()).toBe(true)
+
+    expect(store.profile?.equipped.camel?.key).toBe('camel_dromedary')
+    expect(store.status).toBe('idle')
+    expect(api.gameShop.wallet).not.toHaveBeenCalled()
+    expect(api.gameShop.shop).not.toHaveBeenCalled()
+  })
+
+  it('says false and keeps what it had when the read fails (403 included)', async () => {
+    vi.mocked(api.gameShop.profile).mockRejectedValue(apiError('forbidden', 403, 'game_unavailable'))
+    const store = useGameShopStore()
+
+    expect(await store.loadProfile()).toBe(false)
+    expect(store.profile).toBeNull()
+  })
+})

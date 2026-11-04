@@ -3114,3 +3114,14 @@
 | `game.cities_gen.23` | Loyan | Лояна |
 | `game.cities_gen.24` | Chang'an | Чанъани |
 | `game.city_fallback_gen` | :number-shahar | города :number |
+
+## Игра «Караван» 2026-11 · G2.6 (косметика в профиле и у друзей) — на проверку носителю
+
+### TWA: карточка «Мой караван» на экране профиля (G2.6, `docs/05` §5b.6; `resources/twa/src/i18n/uz.ts`)
+
+> Что решить носителю: «Мой караван» — «Mening karvonim», как на экране каравана (`gameCaravan.title`); подписи слотов — те же `gameCaravan.slot.*`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `profile.caravan.title` | Mening karvonim | Мой караван |
+| `profile.caravan.open` | Karvonni ochish | Открыть караван |
