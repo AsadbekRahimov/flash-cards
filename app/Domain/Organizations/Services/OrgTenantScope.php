@@ -7,6 +7,7 @@ namespace App\Domain\Organizations\Services;
 use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Models\Assignment;
+use App\Models\ClassCaravan;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -16,6 +17,7 @@ use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * What a staff user sees inside ONE organization of the `/org` cabinet (docs/13 §6.3).
@@ -216,6 +218,57 @@ final class OrgTenantScope
         }
 
         return in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Class caravans (docs/18 §12.10, G2.9b) of the organization visible to the user: the caravans of the groups they see - owner: every
+     * linked group of the center; teacher: their own groups (`teacher_groups`). A group unlinked or moved to another center since the
+     * caravan started is not ours any more.
+     *
+     * @return Builder<ClassCaravan>
+     */
+    public function classCaravans(User $user, Organization $organization): Builder
+    {
+        return ClassCaravan::query()
+            ->where('class_caravans.organization_id', $organization->id)
+            ->whereIn('class_caravans.telegram_group_id', $this->teacherGroupIds($user, $organization));
+    }
+
+    /** Whether the user may see this caravan (same rule as classCaravans()); no query of its own. */
+    public function canSeeClassCaravan(User $user, Organization $organization, ClassCaravan $caravan): bool
+    {
+        return $caravan->organization_id === $organization->id
+            && in_array($caravan->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Ids of the groups the user may start and cancel a class caravan in: the groups they see AND teach (`teacher_groups`) - the rule of
+     * `ClassCaravanService` (a teacher of the group or an admin of the platform). For a teacher of the center that is all of their groups;
+     * an owner who is not assigned to a group sees its caravans and cannot run them. One query per request (OrgRequestMemo).
+     *
+     * @return list<int>
+     */
+    public function caravanGroupIds(User $user, Organization $organization): array
+    {
+        $visible = $this->teacherGroupIds($user, $organization);
+
+        if ($visible === [] || ! $user->is_active) {
+            return [];
+        }
+
+        return $this->memo->remember("caravan_groups:{$user->id}:{$organization->id}", function () use ($user, $visible): array {
+            /** @var list<int> $ids */
+            $ids = DB::table('teacher_groups')
+                ->where('user_id', $user->id)
+                ->whereIn('telegram_group_id', $visible)
+                ->orderBy('telegram_group_id')
+                ->pluck('telegram_group_id')
+                ->map(fn ($id): int => (int) $id)
+                ->values()
+                ->all();
+
+            return $ids;
+        });
     }
 
     /** Whether the user may see this group (same rule as groups()). */

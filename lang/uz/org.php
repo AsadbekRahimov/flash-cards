@@ -14,6 +14,7 @@ return [
         'invites' => 'Takliflar',
         'teachers' => 'O\'qituvchilar',
         'assignments' => 'Vazifalar',
+        'caravans' => 'Karvonlar',
         'reports' => 'Hisobotlar',
         'billing' => 'To\'lov',
         'settings' => 'Markaz sozlamalari',
@@ -201,6 +202,60 @@ return [
         'fields' => [
             'telegram_user_id' => 'Mening Telegram ID m',
             'telegram_user_id_help' => 'Telegram akkauntingizning raqamli ID si (bot uni /stats bo\'yicha ko\'rsatadi). Guruhlardagi o\'qituvchi buyruqlari va guruhlarni bog\'lash uchun kerak.',
+        ],
+    ],
+
+    'caravans' => [
+        'singular' => 'Karvon',
+        'plural' => 'Karvonlar',
+        'columns' => [
+            'group' => 'Guruh',
+            'course' => 'Kurs',
+            'status' => 'Holat',
+            'progress' => 'Yulduzlar',
+            'window' => 'Hafta',
+            'boss' => 'Sinf bossi',
+            'members' => 'Hissa qo\'shgan ishtirokchilar',
+        ],
+        'status' => [
+            'active' => 'Yo\'lda',
+            'finished' => 'Yakunlangan',
+            'canceled' => 'Bekor qilingan',
+        ],
+        'boss' => [
+            'locked' => 'Yopiq',
+            'ready' => 'Ochiq',
+            'defeated' => 'Yengilgan',
+        ],
+        'progress_of' => ':stars / :target',
+        'actions' => [
+            'start' => 'Karvonni ishga tushirish',
+            'start_help' => 'Karvon bir hafta yuradi: guruh o\'quvchilarining har bir yurishi yulduz qo\'shadi. Guruh chatiga «Karvon yo\'lga chiqdi» xabari yuboriladi.',
+            'cancel' => 'Bekor qilish',
+            'cancel_confirm' => 'Karvon bekor qilinadi, hafta yakunlari chatga yuborilmaydi. O\'quvchilarning yurishlari o\'zlarida qoladi.',
+        ],
+        'fields' => [
+            'group' => 'Guruh',
+            'group_help' => 'Faqat markazdagi o\'zingizning guruhlaringiz. Kurs — guruhning kursi.',
+        ],
+        'members' => [
+            'heading' => 'Ishtirokchilar hissasi',
+            'empty' => 'Hozircha hech kim yo\'lga chiqmagan.',
+            'name' => 'O\'quvchi',
+            'stars' => 'Yulduzlar',
+            'runs' => 'Yurishlar',
+            'best_score' => 'Eng yaxshi hisob',
+            'boss_won' => 'Boss yengildi',
+            'yes' => 'Ha',
+            'no' => 'Yo\'q',
+        ],
+        'notifications' => [
+            'started' => 'Karvon yo\'lga chiqdi.',
+            'started_not_delivered' => 'Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring.',
+            'canceled' => 'Karvon bekor qilindi.',
+        ],
+        'errors' => [
+            'foreign_group' => 'Bu guruh mavjud emas.',
         ],
     ],
 
