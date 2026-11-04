@@ -100,7 +100,7 @@ class ClassCaravanResource extends Resource
                 ->label(__('admin.game.caravans.fields.standings'))
                 ->placeholder(__('admin.game.caravans.standings_empty'))
                 ->columnSpanFull()
-                ->state(fn (ClassCaravan $record): array => app(ClassCaravanService::class)->standings($record))
+                ->state(fn (?ClassCaravan $record): array => $record === null ? [] : app(ClassCaravanService::class)->standings($record))
                 ->schema([
                     TextEntry::make('name')->label(__('admin.game.caravans.standings_columns.name')),
                     TextEntry::make('stars')->label(__('admin.game.caravans.standings_columns.stars')),
@@ -194,8 +194,8 @@ class ClassCaravanResource extends Resource
 
         try {
             $canceled = app(ClassCaravanService::class)->cancel($caravan, $user);
-        } catch (GameException $e) {
-            Notification::make()->title($e->getMessage())->danger()->send();
+        } catch (GameException) {
+            Notification::make()->title(__('admin.game.caravans.notifications.cancel_failed'))->danger()->send();
 
             return;
         }

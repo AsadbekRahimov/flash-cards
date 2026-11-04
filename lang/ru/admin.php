@@ -455,6 +455,7 @@ return [
             'group' => 'Группа',
             'lesson' => 'Урок',
             'status' => 'Статус',
+            'started_by' => 'Запустил',
             'started_at' => 'Начало',
             'ends_at' => 'Окончание',
             'closed_at' => 'Закрыт',
@@ -1357,6 +1358,7 @@ return [
             ],
             'notifications' => [
                 'canceled' => 'Караван отменён',
+                'cancel_failed' => 'Не удалось отменить караван: нет прав на эту группу.',
             ],
         ],
         'runs' => [
