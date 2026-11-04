@@ -90,7 +90,10 @@ export interface GameMistake {
   kind: GameElementKind
   label: string
   your_answer: string | null
-  verdict: 'typo' | 'wrong' | 'skipped'
+  /** `correct`: a right answer after a hint - listed because the hint was used, not because it was wrong. */
+  verdict: 'typo' | 'wrong' | 'skipped' | 'correct'
+  /** The learner took a hint on this element (G2.13); absent on an older server. */
+  hinted?: boolean
 }
 
 /**
@@ -113,9 +116,9 @@ export interface GameSummary {
   srs_pulled: number
   mistakes: GameMistake[]
   boss: GameBossSummary | null
-  /** Not sent yet (the streak is G2.10): shown only when it is true. */
+  /** The run held the day of the streak (G2.10): the line is shown only when it is true. */
   streak_held?: boolean
-  /** Not sent yet: the stars that were not there before this run. */
+  /** The stars that were not there before this run: the line is shown only when it is above 0. */
   new_stars?: number
 }
 
@@ -127,6 +130,10 @@ export interface GameRunView {
   /** Where the run belongs, so that "Again" / "To the map" need no query (G2.7b); `daily` has no lesson. */
   course?: { slug: string } | null
   lesson_id?: number | null
+  /** The stage of a boss run (G2.13), `null` for the others: the mark of the card of the city needs no query. */
+  stage_id?: number | null
+  /** The caravan of a class-boss run, `null` for the others: the way back to the screen of the class. */
+  class_caravan_id?: number | null
   city: string | null
   stage_number: number | null
   lesson_number: number | null

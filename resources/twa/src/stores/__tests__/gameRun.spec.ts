@@ -500,7 +500,7 @@ describe('gameRun store — the hint of the bazaar', () => {
     await store.hint()
 
     expect(store.status).toBe('playing')
-    expect(store.actionError).toBe('Не хватает монет на подсказку. Монеты дают за забеги.')
+    expect(store.actionError).toBe('Не хватает монет. Монеты дают за забеги и боссов.')
     expect(store.coins).toBe(2)
     expect(store.hintOffer).toEqual({ price: 5 })
   })

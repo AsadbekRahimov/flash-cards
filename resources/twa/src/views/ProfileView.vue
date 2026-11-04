@@ -174,7 +174,7 @@ onMounted(() => {
             </li>
           </ul>
         </div>
-        <RouterLink :to="{ name: 'game-caravan' }" class="btn btn-tinted btn-block" data-testid="profile-caravan-open">
+        <RouterLink :to="{ name: 'game-caravan', query: { from: 'profile' } }" class="btn btn-tinted btn-block" data-testid="profile-caravan-open">
           {{ t('profile.caravan.open') }}
         </RouterLink>
       </section>

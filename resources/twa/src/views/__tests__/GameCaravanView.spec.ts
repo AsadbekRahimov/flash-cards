@@ -37,17 +37,17 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
 const apiError = (kind: ConstructorParameters<typeof ApiClientError>[0], status: number, code: string, details: Record<string, unknown> | null = null) =>
   new ApiClientError(kind, status, code, 'English message', undefined, details)
 
-async function render(catalogue: GameShop = shop(), coins = 200) {
+async function render(catalogue: GameShop = shop(), coins = 200, path = '/game/caravan') {
   vi.mocked(api.gameShop.wallet).mockResolvedValue(wallet({ balance: coins }))
   vi.mocked(api.gameShop.shop).mockResolvedValue(catalogue)
   vi.mocked(api.gameShop.profile).mockResolvedValue(profile())
-  return mountView()
+  return mountView(path)
 }
 
-async function mountView() {
+async function mountView(path = '/game/caravan') {
   const stub = { template: '<div />' }
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/game', name: 'game', component: stub }, { path: '/game/caravan', name: 'game-caravan', component: stub }] })
-  await router.push({ name: 'game-caravan' })
+  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/game', name: 'game', component: stub }, { path: '/profile', name: 'profile', component: stub }, { path: '/game/caravan', name: 'game-caravan', component: stub }] })
+  await router.push(path)
   const wrapper = mount(GameCaravanView, { global: { plugins: [router] }, attachTo: document.body })
   await flushPromises()
   return wrapper
@@ -111,9 +111,19 @@ describe('GameCaravanView - states', () => {
     w.unmount()
   })
 
-  it('sends Telegram Back to the map', async () => {
-    const w = await render()
+  it('sends Telegram Back to the map, and to the course the map put in the address (the store of the map is reset when it is left)', async () => {
+    const plain = await render()
     expect(back.target).toEqual({ name: 'game' })
+    plain.unmount()
+
+    const withCourse = await render(shop(), 200, '/game/caravan?course=english-a1')
+    expect(back.target).toEqual({ name: 'game', query: { course: 'english-a1' } })
+    withCourse.unmount()
+  })
+
+  it('sends Telegram Back to the profile when the learner came from it', async () => {
+    const w = await render(shop(), 200, '/game/caravan?from=profile')
+    expect(back.target).toEqual({ name: 'profile' })
     w.unmount()
   })
 })

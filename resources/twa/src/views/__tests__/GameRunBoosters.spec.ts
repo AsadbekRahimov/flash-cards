@@ -7,8 +7,9 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
-import { runView, translateFwd } from '@/api/__tests__/gameRunFixtures'
-import type { GameRunView as RunView } from '@/api/gameRunTypes'
+import { useTodayStore } from '@/stores/today'
+import { pairs, runView, translateFwd } from '@/api/__tests__/gameRunFixtures'
+import type { GameElement, GameRunView as RunView } from '@/api/gameRunTypes'
 
 vi.mock('@/api', () => ({
   api: { gameRuns: { get: vi.fn(), answer: vi.fn(), hint: vi.fn(), abandon: vi.fn(), audioBlob: vi.fn(), booster: vi.fn() }, practice: { audioBlob: vi.fn() } },
@@ -38,7 +39,7 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
 const apiError = (kind: ConstructorParameters<typeof ApiClientError>[0], status: number, code: string, details: Record<string, unknown> | null = null) =>
   new ApiClientError(kind, status, code, 'English message', undefined, details)
 
-const stock = (over: Partial<RunView['boosters']> = {}, element = translateFwd()): RunView =>
+const stock = (over: Partial<RunView['boosters']> = {}, element: GameElement = translateFwd()): RunView =>
   runView(
     {
       boosters: {
@@ -156,6 +157,69 @@ describe('GameRunView - the row of boosters', () => {
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
     expect(w.find('[data-testid=choice-task]').exists()).toBe(true)
     w.unmount()
+  })
+
+  it('a Pro learner at the limit of the week (upsell: false) gets the date of the new boosters in a toast, never the paywall "buy Pro"', async () => {
+    // The week ends at the local midnight of the learner: 19:00 UTC is the 10th in Tashkent.
+    useTodayStore().data = { timezone: 'Asia/Tashkent' } as never
+    const w = await render(stock())
+    vi.mocked(api.gameRuns.booster).mockRejectedValue(
+      apiError('conflict', 409, 'booster_limit_reached', { limit: 5, used: 5, resets_at: '2026-11-09T19:00:00.000Z', upsell: false }),
+    )
+
+    await btn(w, 'hint').trigger('click')
+    await flushPromises()
+
+    expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(showErrorToast).mock.calls[0]![0]).toMatch(/^Бустеры этой недели закончились\. Новые — 10 ноября\.$/)
+    expect(w.find('[data-testid=choice-task]').exists()).toBe(true)
+    w.unmount()
+  })
+
+  it('a refusal that does not say `upsell` still sells (an older server)', async () => {
+    const w = await render(stock())
+    vi.mocked(api.gameRuns.booster).mockRejectedValue(apiError('conflict', 409, 'booster_limit_reached', { limit: 1, used: 1, resets_at: '2026-11-09T19:00:00.000Z', upsell: true }))
+
+    await btn(w, 'hint').trigger('click')
+    await flushPromises()
+
+    expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+    w.unmount()
+  })
+
+  it('makes a booster inactive where it cannot work: a hint on pairs, a flask or a second chance in a fight without flasks', async () => {
+    const onPairs = await render(stock({}, pairs()))
+    expect(disabled(onPairs, 'hint')).toBe(true)
+    expect(btn(onPairs, 'hint').attributes('aria-label')).toBe('Подсказка: здесь не сработает')
+    expect(disabled(onPairs, 'extra_flask')).toBe(false)
+    onPairs.unmount()
+
+    const boss = await render({ ...stock(), flasks_max: 0, flasks: 0 })
+    expect(disabled(boss, 'extra_flask')).toBe(true)
+    expect(disabled(boss, 'second_chance')).toBe(true)
+    expect(disabled(boss, 'hint')).toBe(false)
+    boss.unmount()
+  })
+
+  it('names an effect it does not know "Бустер", never the key of the dictionary, and does not offer it', async () => {
+    const odd = { key: 'booster_odd', effect: 'time_stop', qty: 1 } as unknown as RunView['boosters']['available'][number]
+    const w = await render(stock({ available: [odd] }))
+
+    expect(btn(w, 'time_stop').attributes('aria-label')).toBe('Бустер: здесь не сработает')
+    expect(disabled(w, 'time_stop')).toBe(true)
+    expect(w.html()).not.toContain('gameCaravan.booster.effect')
+    w.unmount()
+  })
+
+  it('has no flasks drawn in a fight without them (nothing to read as "0 of 0")', async () => {
+    const w = await render({ ...stock(), flasks_max: 0, flasks: 0 })
+    expect(w.find('[data-testid=flasks]').exists()).toBe(false)
+    w.unmount()
+
+    const stop = await render(stock())
+    expect(stop.find('[data-testid=flasks]').exists()).toBe(true)
+    stop.unmount()
   })
 
   it('any other refusal is a toast', async () => {

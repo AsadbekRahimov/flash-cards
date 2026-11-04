@@ -46,6 +46,14 @@ export function verdictLabel(kind: PracticeElementKind, verdict: PracticeVerdict
   return t(`practice.verdict.${verdict}`)
 }
 
+/**
+ * The verdict of a run of the game (docs/05 §5b.3): the words of `verdictLabel`, but "I don't know" is "Didn't know" as on the summary, not
+ * "Hint" (a practice word for something else: the hint of the answer).
+ */
+export function gameVerdictLabel(verdict: PracticeVerdict): string {
+  return verdict === 'skipped' ? t('gameRun.summary.verdict.skipped') : verdictLabel('collocation', verdict)
+}
+
 /** Whole minutes for "≈ 2 min": never less than one. */
 export const estimateMinutes = (seconds: number): number => Math.max(1, Math.round(seconds / 60))
 

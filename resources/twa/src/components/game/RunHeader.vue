@@ -51,7 +51,9 @@ const percent = computed((): number => (props.total > 0 ? Math.min(100, Math.max
     </div>
 
     <div class="mt-1 flex items-center justify-between gap-2">
-      <FlaskIcons :flasks="flasks" :max="flasksMax" />
+      <!-- A fight with a boss has no flasks: nothing to draw (and nothing for a screen reader to read as "0 of 0"). -->
+      <FlaskIcons v-if="flasksMax > 0" :flasks="flasks" :max="flasksMax" />
+      <span v-else />
       <span v-if="combo >= 3" class="chip chip-warning" data-testid="combo">{{ t('gameRun.combo', { count: combo }) }}</span>
       <span class="text-[15px] leading-5 font-semibold tabular-nums" :aria-label="`${t('gameRun.score')}: ${score}`" data-testid="score">{{ score }}</span>
     </div>

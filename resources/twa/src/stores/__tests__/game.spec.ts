@@ -4,7 +4,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
-import { useGameStore } from '@/stores/game'
+import { activeRunFrom, useGameStore } from '@/stores/game'
 import { gameLimits, gameMap } from '@/api/__tests__/gameMapFixtures'
 
 vi.mock('@/api', () => ({ api: { game: { map: vi.fn(), startRun: vi.fn(), cityShared: vi.fn() }, me: { get: vi.fn() } } }))
@@ -203,6 +203,37 @@ describe('game store: the caravan of the day', () => {
     created({ id: 3 })
     expect(await first).toEqual({ ok: true, id: 3 })
     expect(api.game.startRun).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('game store: what a start tells', () => {
+  it('reads the run that is on from the 409 in one place: the details, else the fallback; the kind the server did not say is the caller\'s', () => {
+    const failure = (details: Record<string, unknown> | null) => ({ code: 'game_run_active', kind: 'conflict' as const, details, message: '' })
+    const fallback = { id: 1, kind: 'stop', progress: { answered: 0, total: 9 } }
+
+    expect(activeRunFrom(failure({ run_id: 9, kind: 'boss', progress: { answered: 2, total: 12 } }))).toEqual({ id: 9, kind: 'boss', progress: { answered: 2, total: 12 } })
+    expect(activeRunFrom(failure({ run_id: 9 }), null, 'daily')).toEqual({ id: 9, kind: 'daily', progress: { answered: 0, total: 0 } })
+    expect(activeRunFrom(failure(null), fallback)).toBe(fallback)
+    expect(activeRunFrom(failure({ run_id: 'x' }))).toBeNull()
+  })
+
+  it('takes the limits of the 201 into the billing store: what is left after this start', async () => {
+    vi.mocked(api.game.startRun).mockResolvedValue({ id: 9, limits: gameLimits({ tickets: { balance: 1, max: 5 } }) })
+    const game = useGameStore()
+
+    await game.startStop(11).catch(() => undefined)
+    await game.startDaily()
+
+    expect(useBillingStore().gameLimits?.tickets.balance).toBe(1)
+  })
+
+  it('leaves the limits as they were when the 201 says nothing of them', async () => {
+    useBillingStore().setGameLimits(gameLimits())
+    vi.mocked(api.game.startRun).mockResolvedValue({ id: 9 })
+
+    await useGameStore().startDaily()
+
+    expect(useBillingStore().gameLimits?.tickets.balance).toBe(2)
   })
 })
 

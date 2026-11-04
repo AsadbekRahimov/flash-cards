@@ -254,13 +254,13 @@ export const api = {
     /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */
     get: (id: number) => client().get<GameRunView>(`/game/runs/${id}`),
     /** One answer; a repeat with the same `request_id` returns the first result. */
-    answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }),
+    answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }, ACT),
     /** The hint of the bazaar: coins for options taken away or the first letters. */
-    hint: (id: number, body: GameHintRequest) => client().post<GameHintResponse>(`/game/runs/${id}/hint`, { ...body }),
+    hint: (id: number, body: GameHintRequest) => client().post<GameHintResponse>(`/game/runs/${id}/hint`, { ...body }, ACT),
     /** A booster of the stock on the run (`hint`: the current element; the others: the whole run). The reply is the run; a repeat with the same `request_id` costs nothing. */
-    booster: (id: number, body: GameBoosterRequest) => client().post<GameRunView>(`/game/runs/${id}/booster`, { ...body }),
+    booster: (id: number, body: GameBoosterRequest) => client().post<GameRunView>(`/game/runs/${id}/booster`, { ...body }, ACT),
     /** "Leave the run": it does not count (finished / abandoned). */
-    abandon: (id: number) => client().post<GameRunView>(`/game/runs/${id}/abandon`, { confirm: true }),
+    abandon: (id: number) => client().post<GameRunView>(`/game/runs/${id}/abandon`, { confirm: true }, ACT),
     /** The clip of an element (`audio_url` of its projection): fetched with the token, played from a blob. */
     audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
   },
@@ -287,7 +287,7 @@ export const api = {
     /** The map of a course: cities (modules), stops (lessons), bosses, friends, the unfinished run. 404 `course_not_found`, 403 `game_unavailable`. */
     map: (course?: string) => client().get<GameMapResponse>('/game/map', course ? { course } : undefined),
     /** Starts a run of a stop (201). 409 `game_run_active` carries the unfinished run in `details`. */
-    startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }),
+    startRun: (body: GameStartRequest) => client().post<GameRunStarted>('/game/runs', { ...body }, ACT),
     /** The card of a city that was reached was shared (docs/04 A.18): once, a repeat answers the same. 404 `stage_not_found`. */
     cityShared: (stageId: number) => client().post<{ stage_id: number; shared_at: string | null }>(`/game/cities/${stageId}/shared`),
   },

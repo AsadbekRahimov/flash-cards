@@ -361,6 +361,20 @@ describe('GameMapView: the sheet of a stop', () => {
     expect(wrapper.find('[data-testid=stop-limit]').exists()).toBe(false)
   })
 
+  it('keeps the tickets on the line when Free has no free run at all (a limit of 0): the tickets are the way in', async () => {
+    const { wrapper } = await render(gameMap({ limits: gameLimits({ runs: { limit: 0, used: 0, remaining: 0, resets_at: '2999-01-01T19:00:00.000Z' } }) }))
+    await testid(wrapper, 'stop-11').trigger('click')
+
+    expect(testid(wrapper, 'stop-limit').text()).toBe('Билеты на забеги: 2')
+  })
+
+  it('says nothing of limits for Pro (no limit of runs)', async () => {
+    const { wrapper } = await render(gameMap({ limits: gameLimits({ runs: null }) }))
+    await testid(wrapper, 'stop-11').trigger('click')
+
+    expect(wrapper.find('[data-testid=stop-limit]').exists()).toBe(false)
+  })
+
   it('shows the Free line when the server told the limits: free runs and tickets', async () => {
     const { wrapper } = await render(gameMap({ limits: gameLimits() }))
     await testid(wrapper, 'stop-11').trigger('click')

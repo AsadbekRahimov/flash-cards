@@ -41,9 +41,10 @@ export interface GameShopItem {
   equipped: boolean
   locked_reason: GameItemLock | null
   title: string
-  description: string
-  /** The name of the picture (`assets/game`), not a URL. */
-  asset: string
+  /** `null` for an item with no text of its own (the server's column is nullable). */
+  description: string | null
+  /** The name of the picture (`assets/game`), not a URL; `null` for an item with no picture. */
+  asset: string | null
 }
 
 export interface GameShop {
@@ -53,7 +54,7 @@ export interface GameShop {
 
 export interface GameEquippedItem {
   key: string
-  asset: string
+  asset: string | null
 }
 
 /** `equipped` is `{}` until something is worn. */
@@ -95,4 +96,6 @@ export interface GameBoosterLimitHit {
   limit: number
   used: number
   resets_at: string
+  /** `false` for a Pro learner (G2.13): the paywall "buy Pro" is not shown, a toast with the date is; absent on an older server = sell. */
+  upsell?: boolean
 }

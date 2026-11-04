@@ -14,7 +14,7 @@ import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useGameClassStore } from '@/stores/gameClass'
-import { useGameStore, type GameStartError } from '@/stores/game'
+import { activeRunFrom, useGameStore } from '@/stores/game'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { GameActiveRun } from '@/api/types'
@@ -117,14 +117,6 @@ function openRun(id: number): Promise<unknown> {
 }
 
 /** The run that is on, from the 409's `details`. */
-function activeFrom(failure: GameStartError): GameActiveRun | null {
-  const details = failure.details
-  const id = details?.run_id
-  if (typeof id !== 'number') return null
-  const progress = details?.progress as GameActiveRun['progress'] | undefined
-  return { id, kind: typeof details?.kind === 'string' ? details.kind : 'stop', progress: progress ?? { answered: 0, total: 0 } }
-}
-
 async function fight(replaceActive: boolean): Promise<void> {
   if (starting.value) return
   haptic('light')
@@ -140,7 +132,7 @@ async function fight(replaceActive: boolean): Promise<void> {
     case 'busy':
       break
     case 'game_run_active':
-      conflict.value = activeFrom(failure)
+      conflict.value = activeRunFrom(failure, null, 'stop')
       if (conflict.value === null) showErrorToast(failure.message)
       break
     case 'game_unavailable':
