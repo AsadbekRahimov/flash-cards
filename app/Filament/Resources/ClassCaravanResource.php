@@ -71,8 +71,7 @@ class ClassCaravanResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return ClassCaravan::query()
-            ->with(['group', 'organization:id,name', 'course:id,slug'])
-            ->withCount('members as members_count');
+            ->with(['group', 'organization:id,name', 'course:id,slug']);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -186,14 +185,13 @@ class ClassCaravanResource extends Resource
     public static function cancel(ClassCaravan $caravan): void
     {
         $user = Auth::user();
-        $wasActive = $caravan->isActive();
 
         if (! $user instanceof User) {
             abort(403);
         }
 
         try {
-            $canceled = app(ClassCaravanService::class)->cancel($caravan, $user);
+            $cancellation = app(ClassCaravanService::class)->cancel($caravan, $user);
         } catch (GameException) {
             Notification::make()->title(__('admin.game.caravans.notifications.cancel_failed'))->danger()->send();
 
@@ -201,7 +199,7 @@ class ClassCaravanResource extends Resource
         }
 
         $group = $caravan->group;
-        if ($wasActive && $canceled->status === ClassCaravanStatus::Canceled && $group instanceof TelegramGroup) {
+        if ($cancellation->canceledNow && $group instanceof TelegramGroup) {
             app(ClassCaravanMessenger::class)->announceCanceled($group);
         }
 

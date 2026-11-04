@@ -40,6 +40,7 @@ use Livewire\Livewire;
 
 use function Pest\Livewire\livewire;
 
+use Illuminate\Support\Facades\Lang;
 use Tests\Support\FilamentQueryBudget;
 use Tests\Support\QueryLog;
 
@@ -149,6 +150,12 @@ it('needs a slot for a cosmetic, an effect for a booster and an achievement for 
 
     livewire(CreateGameItem::class)->fillForm(gat_form(['availability' => 'achievement', 'achievement_key' => 'streak_7']))->call('create')->assertHasNoFormErrors();
     expect(GameItem::query()->where('key', 'camel_desert')->value('achievement_key'))->toBe('streak_7');
+});
+
+it('words every achievement key of the item form in Russian, the game boss included', function (): void {
+    foreach (\App\Domain\Engagement\Enums\AchievementKey::cases() as $key) {
+        expect(Lang::has("admin.game.items.achievement.{$key->value}", 'ru'))->toBeTrue("no label for {$key->value}");
+    }
 });
 
 it('keeps the key as it was when an item is edited, and moves the catalogue version on', function (): void {

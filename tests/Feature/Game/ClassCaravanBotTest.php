@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Game\Enums\ClassCaravanStatus;
+use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\BotMenuBuilder;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -166,6 +167,7 @@ it('withdraws the caravan when Telegram refuses the message, so that a retry wor
     $caravan = ClassCaravan::query()->sole();
     expect($caravan->status)->toBe(ClassCaravanStatus::Canceled)
         ->and($caravan->active_group_id)->toBeNull()
+        ->and($caravan->meta['canceled_reason'])->toBe('not_delivered')
         ->and($this->tg->sent[0]['text'])->toBe(__('game.class.not_delivered', [], 'ru'));
 
     caravanSays('/start_caravan');
@@ -186,6 +188,46 @@ it('cancels the caravan on /cancel_caravan and says so; there are no summary and
         ->and($caravan->meta['canceled_by_user_id'])->toBe($w['teacher']->id)
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['text'])->toContain('Караван класса отменён');
+});
+
+it('keeps the cancellation when Telegram refuses the message "canceled", and says it once when it is accepted', function (): void {
+    ClassKit::world(2);
+    caravanSays('/start_caravan');
+    $this->tg->sent = [];
+    $this->tg->failSends = 1;
+
+    caravanSays('/cancel_caravan');
+
+    expect(ClassCaravan::query()->sole()->status)->toBe(ClassCaravanStatus::Canceled)
+        ->and($this->tg->sent)->toBe([]);
+
+    caravanSays('/cancel_caravan');
+
+    expect($this->tg->sent)->toHaveCount(1)->and($this->tg->sent[0]['text'])->toBe(__('game.class.no_active', [], 'ru'));
+});
+
+it('does not say "canceled" when the scheduler has closed the caravan under the command, nor on a repeated cancel', function (): void {
+    $w = ClassKit::world(2);
+    caravanSays('/start_caravan');
+    $caravan = ClassCaravan::query()->sole();
+    $this->tg->sent = [];
+
+    // the handler read the caravan as active; the sweep finished it before the cancel took its lock
+    $stale = $caravan->fresh();
+    ClassCaravan::query()->whereKey($caravan->id)->update(['status' => 'finished', 'active_group_id' => null, 'finished_at' => now()]);
+    $first = app(ClassCaravanService::class)->cancel($stale, $w['teacher']);
+
+    expect($first->canceledNow)->toBeFalse()
+        ->and($first->caravan->status)->toBe(ClassCaravanStatus::Finished);
+
+    // two cancels one after another: only the first one has canceled
+    caravanSays('/start_caravan');
+    $second = ClassCaravan::query()->where('status', 'active')->sole();
+    $one = app(ClassCaravanService::class)->cancel($second, $w['teacher']);
+    $two = app(ClassCaravanService::class)->cancel($second, $w['teacher']);
+
+    expect([$one->canceledNow, $two->canceledNow])->toBe([true, false])
+        ->and($this->tg->sent)->toHaveCount(1); // only the new "has set off"
 });
 
 it('answers "no caravan on its way" to /cancel_caravan of a group without one', function (): void {
@@ -231,14 +273,27 @@ it('does not exist while GAME_ACCESS is off: no answer, no caravan, not a query 
     expect(ClassCaravan::query()->count())->toBe(0);
 });
 
-it('works in the pilot mode and in the open mode', function (string $mode): void {
+it('works only in the open mode (GAME_ACCESS=all)', function (): void {
     ClassKit::world(2);
-    config(['game.access' => $mode]);
+    config(['game.access' => 'all']);
 
     caravanSays('/start_caravan');
 
     expect(ClassCaravan::query()->count())->toBe(1);
-})->with(['pilot', 'all']);
+});
+
+it('keeps silent in the pilot mode, as it does while the game is off: the caravan is for the whole group', function (string $command): void {
+    $w = ClassKit::world(2);
+    $w['learners'][0]->forceFill(['practice_pilot_at' => now()])->save();
+    $active = ClassCaravan::factory()->create(['telegram_group_id' => $w['group']->id, 'organization_id' => $w['organization']->id, 'course_id' => $w['course']->id, 'active_group_id' => $w['group']->id]);
+    config(['game.access' => 'pilot']);
+
+    caravanSays($command);
+
+    expect($this->tg->sent)->toBe([])
+        ->and(ClassCaravan::query()->count())->toBe(1)
+        ->and($active->fresh()?->status)->toBe(ClassCaravanStatus::Active);
+})->with(['/start_caravan', '/cancel_caravan']);
 
 // ---------------------------------------------------------------------- the menu and /help
 
@@ -267,13 +322,24 @@ it('does not list the caravan commands in the menu while GAME_ACCESS is off', fu
     }
 });
 
-it('lists the caravan commands in /help of a group only while the game is open', function (): void {
+it('does not list the caravan commands in the menu in the pilot mode either', function (): void {
+    config(['game.access' => 'pilot']);
+
+    foreach (app(BotMenuBuilder::class)->commandSets() as $set) {
+        expect(array_column($set['commands'], 'command'))->not->toContain('start_caravan')->not->toContain('cancel_caravan');
+    }
+});
+
+it('lists the caravan commands in /help of a group only with GAME_ACCESS=all', function (): void {
     ClassKit::world(2);
 
     caravanSays('/help');
     config(['game.access' => 'off']);
     caravanSays('/help');
+    config(['game.access' => 'pilot']);
+    caravanSays('/help');
 
     expect($this->tg->sent[0]['text'])->toContain('/start_caravan')->toContain('/cancel_caravan')
-        ->and($this->tg->sent[1]['text'])->not->toContain('caravan')->not->toContain(':caravan');
+        ->and($this->tg->sent[1]['text'])->not->toContain('caravan')->not->toContain(':caravan')
+        ->and($this->tg->sent[2]['text'])->not->toContain('caravan')->not->toContain(':caravan');
 });

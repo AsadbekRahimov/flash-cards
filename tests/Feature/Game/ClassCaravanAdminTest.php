@@ -160,6 +160,30 @@ it('cancels from the page of a caravan, and hides the cancel of one that is over
     expect($this->tg->sent)->toHaveCount(1);
 });
 
+it('keeps the cancellation when the chat does not take the message "canceled"', function (): void {
+    $c = cca_caravan(ClassKit::world(1));
+    $this->tg->failSends = 1;
+
+    livewire(ListClassCaravans::class)->callTableAction('cancel', $c)->assertNotified(__('admin.game.caravans.notifications.canceled'));
+
+    expect($c->fresh()->status)->toBe(ClassCaravanStatus::Canceled)->and($this->tg->sent)->toBe([]);
+});
+
+it('says nothing to the chat when the sweep has closed the caravan under the page, or another cancel came first', function (): void {
+    $c = cca_caravan(ClassKit::world(1));
+    $stale = $c->fresh();
+    ClassCaravan::query()->whereKey($c->id)->update(['status' => 'finished', 'active_group_id' => null, 'finished_at' => now()]);
+
+    ClassCaravanResource::cancel($stale);
+    expect($c->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([]);
+
+    $second = cca_caravan(ClassKit::world(1, chatId: -2002, teacherTelegramId: null));
+    ClassCaravanResource::cancel($second);
+    ClassCaravanResource::cancel($second);
+
+    expect($this->tg->sent)->toHaveCount(1);
+});
+
 it('records "teacher" when the admin who cancels teaches the group', function (): void {
     $w = ClassKit::world(1);
     $c = cca_caravan($w);

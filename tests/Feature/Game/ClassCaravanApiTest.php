@@ -265,6 +265,27 @@ it('keeps the card of the caravan off /today and the map while the game is close
     test()->withHeaders(PracticeKit::headers($me))->getJson('/api/twa/game/map?course=silk')->assertForbidden();
 });
 
+it('shows no card of the caravan on the map and on /today in the pilot mode: the caravan is for the whole group', function (): void {
+    $w = classApiMapWorld();
+    $me = $w['learners'][0];
+    $me->forceFill(['practice_pilot_at' => now()])->save();
+    classApiCaravan($w, ['stars_total' => 7]);
+    config(['game.access' => 'pilot']);
+    $headers = PracticeKit::headers($me);
+
+    $map = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk()->assertJsonPath('class_caravan', null));
+    $today = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/today')->assertOk()->assertJsonPath('game.class_caravan', null));
+
+    expect(QueryLog::matching($map, '/from ["`]class_caravans["`]/'))->toBe([])
+        ->and(QueryLog::matching($today, '/from ["`]class_caravans["`]/'))->toBe([]);
+});
+
+it('answers 401 without Telegram initData: the caravans of the class and the share of a city', function (): void {
+    test()->getJson('/api/twa/game/class')->assertUnauthorized();
+    test()->getJson('/api/twa/game/class/1')->assertUnauthorized();
+    test()->postJson('/api/twa/game/cities/1/shared', [])->assertUnauthorized();
+});
+
 it('reads the card in one statement on the map and on /today', function (): void {
     $w = classApiMapWorld();
     $me = $w['learners'][0];

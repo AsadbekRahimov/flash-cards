@@ -59,7 +59,7 @@ class ClassCaravanResource extends OrgResource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return ! app(GameAccess::class)->isOff() && parent::shouldRegisterNavigation();
+        return app(GameAccess::class)->classCaravanOpen() && parent::shouldRegisterNavigation();
     }
 
     /** @return Builder<ClassCaravan> */
@@ -256,7 +256,7 @@ class ClassCaravanResource extends OrgResource
         try {
             $caravan = app(ClassCaravanService::class)->start($group, $user);
         } catch (GameException $e) {
-            Notification::make()->title($messenger->refusalText($e, $group))->danger()->send();
+            Notification::make()->title(static::refusalText($e))->danger()->send();
 
             return;
         }
@@ -271,23 +271,35 @@ class ClassCaravanResource extends OrgResource
     /** Cancels a caravan on its way; the chat of the group is told (no summary follows). */
     public static function cancel(ClassCaravan $caravan): void
     {
-        $wasActive = $caravan->isActive();
-        $messenger = app(ClassCaravanMessenger::class);
-
         try {
-            $canceled = app(ClassCaravanService::class)->cancel($caravan, static::user());
+            $cancellation = app(ClassCaravanService::class)->cancel($caravan, static::user());
         } catch (GameException $e) {
-            $group = $caravan->group;
-            Notification::make()->title($group instanceof TelegramGroup ? $messenger->refusalText($e, $group) : $e->getMessage())->danger()->send();
+            Notification::make()->title(static::refusalText($e))->danger()->send();
 
             return;
         }
 
-        if ($wasActive && $canceled->status === ClassCaravanStatus::Canceled && $caravan->group instanceof TelegramGroup) {
-            $messenger->announceCanceled($caravan->group);
+        // only the call that did cancel it tells the chat (not after the scheduler's summary, not twice)
+        if ($cancellation->canceledNow && $caravan->group instanceof TelegramGroup) {
+            app(ClassCaravanMessenger::class)->announceCanceled($caravan->group);
         }
 
         Notification::make()->title(__('org.caravans.notifications.canceled'))->success()->send();
+    }
+
+    /** The refusal of the service in the language of the cabinet (not of the chat of the group, not the text of the exception). */
+    private static function refusalText(GameException $e): string
+    {
+        return match ($e->errorCode) {
+            GameException::CLASS_CARAVAN_FORBIDDEN => match ($e->details['reason'] ?? null) {
+                GameException::REASON_GROUP_INACTIVE => __('org.caravans.errors.group_inactive'),
+                GameException::REASON_CENTERS_ONLY => __('org.caravans.errors.centers_only'),
+                default => __('org.caravans.errors.not_teacher'),
+            },
+            GameException::CLASS_CARAVAN_ACTIVE => __('org.caravans.errors.already_active'),
+            GameException::UNAVAILABLE => __('org.caravans.errors.closed'),
+            default => __('org.caravans.errors.failed'),
+        };
     }
 
     /** @return array<string, PageRegistration> */

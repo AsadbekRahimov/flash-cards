@@ -465,6 +465,7 @@ it('limits the start to 10 a minute per learner and puts the routes behind the l
         ->and($limiters('twa.game.runs.show'))->toBe(['throttle:twa-api'])
         ->and($limiters('twa.game.runs.answer'))->toBe(['throttle:twa-api', 'throttle:twa-game-answer'])
         ->and($limiters('twa.game.runs.hint'))->toBe(['throttle:twa-api', 'throttle:twa-game-answer'])
+        ->and($limiters('twa.game.runs.booster'))->toBe(['throttle:twa-api', 'throttle:twa-game-answer'])
         ->and($limiters('twa.game.runs.abandon'))->toBe(['throttle:twa-api'])
         ->and($limiters('twa.game.runs.audio'))->toBe(['throttle:twa-practice-audio'])
         ->and(route('twa.game.runs.audio', ['run' => 9, 'element' => 'eAbc'], false))->toBe('/api/twa/game/runs/9/audio/eAbc');

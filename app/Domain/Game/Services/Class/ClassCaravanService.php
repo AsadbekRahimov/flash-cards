@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Game\DTO\ClassCaravanCancellation;
 use App\Domain\Game\DTO\ClassContribution;
 use App\Domain\Game\Enums\ClassCaravanStatus;
 use App\Domain\Game\Enums\RunKind;
@@ -62,6 +63,9 @@ final class ClassCaravanService
 
     public const CANCELED_BY_ADMIN = 'admin';
 
+    /** Telegram did not take the message about the start: nobody in the chat could see the caravan, so it was withdrawn at once. */
+    public const CANCELED_NOT_DELIVERED = 'not_delivered';
+
     public const SUMMARY_SKIPPED_GROUP_INACTIVE = 'group_inactive';
 
     public function __construct(
@@ -83,6 +87,9 @@ final class ClassCaravanService
     public function start(TelegramGroup $group, User $by, ?CarbonImmutable $now = null): ClassCaravan
     {
         $now ??= CarbonImmutable::now();
+        if (! $this->access->classCaravanOpen()) {
+            throw GameException::unavailable(); // GAME_ACCESS other than `all` (the commands and the page are shut too; this is the last word)
+        }
         $this->assertMayRun($group, $by);
         if ($group->status !== 'active') {
             throw GameException::classCaravanForbidden(GameException::REASON_GROUP_INACTIVE);
@@ -134,22 +141,23 @@ final class ClassCaravanService
 
     /**
      * Cancels the caravan (docs/18 §12.11): no summary, the runs of the members stay their own. A caravan that is not active any more is
-     * returned as it is (a second `/cancel_caravan`, the scheduler that closed it a moment ago).
+     * returned as it is (a second `/cancel_caravan`, the scheduler that closed it a moment ago) with `canceledNow = false`: only the call
+     * that did cancel it announces the cancellation. `$reason` is `canceled_reason` (default: who canceled - teacher / admin).
      *
      * @throws GameException class_caravan_forbidden {reason: not_teacher}
      */
-    public function cancel(ClassCaravan $caravan, User $by, ?CarbonImmutable $now = null): ClassCaravan
+    public function cancel(ClassCaravan $caravan, User $by, ?CarbonImmutable $now = null, ?string $reason = null): ClassCaravanCancellation
     {
         $now ??= CarbonImmutable::now();
         $group = $caravan->group ?? throw GameException::classCaravanNotFound();
         $this->assertMayRun($group, $by);
-        $reason = $this->authority->canTeach($by, $group) ? self::CANCELED_BY_TEACHER : self::CANCELED_BY_ADMIN;
+        $reason ??= $this->authority->canTeach($by, $group) ? self::CANCELED_BY_TEACHER : self::CANCELED_BY_ADMIN;
 
-        $outcome = DB::transaction(function () use ($caravan, $by, $reason, $now): ClassCaravan {
+        return DB::transaction(function () use ($caravan, $by, $reason, $now): ClassCaravanCancellation {
             /** @var ClassCaravan $locked */
             $locked = ClassCaravan::query()->whereKey($caravan->id)->lockForUpdate()->firstOrFail();
             if (! $locked->isActive()) {
-                return $locked;
+                return new ClassCaravanCancellation($locked, false);
             }
 
             $locked->forceFill([
@@ -165,10 +173,8 @@ final class ClassCaravanService
 
             DB::afterCommit(fn () => $this->forgetStandings($locked->id));
 
-            return $locked;
+            return new ClassCaravanCancellation($locked, true);
         });
-
-        return $outcome;
     }
 
     /** The active caravan of the group, if any (`/cancel_caravan`, the `/org` page, the courtesy check of the start). */
@@ -270,6 +276,10 @@ final class ClassCaravanService
      */
     public function activeCardFor(Learner $learner, CarbonImmutable $now): ?array
     {
+        if (! $this->access->classCaravanOpen()) {
+            return null; // the card is for GAME_ACCESS=all only, and costs no statement otherwise
+        }
+
         $row = $this->activeCaravansOf($learner->id, $now)->orderBy('cc.starts_at')->orderBy('cc.id')->first(['cc.id', 'cc.stars_total', 'cc.target_stars', 'cc.ends_at']);
 
         return $row === null ? null : [

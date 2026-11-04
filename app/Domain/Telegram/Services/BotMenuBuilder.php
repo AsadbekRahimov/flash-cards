@@ -58,7 +58,7 @@ final class BotMenuBuilder
         $sets = [];
 
         foreach (self::SCOPES as $type => [$group, $commands]) {
-            if ($type === 'all_chat_administrators' && ! $this->game->isOff()) {
+            if ($type === 'all_chat_administrators' && $this->game->classCaravanOpen()) {
                 array_splice($commands, -1, 0, self::CARAVAN_COMMANDS); // before `help`
             }
 

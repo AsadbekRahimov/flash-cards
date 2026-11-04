@@ -157,8 +157,24 @@ it('is closed while the game is off: no page, no menu item', function (): void {
     crvEnter($this->ownerA, $this->a);
     expect(ClassCaravanResource::shouldRegisterNavigation())->toBeFalse();
 
-    config(['game.access' => 'pilot']);
+    config(['game.access' => 'all']);
     expect(ClassCaravanResource::shouldRegisterNavigation())->toBeTrue();
+});
+
+it('is closed in the pilot mode too: the caravan is for the whole group, so no page, no menu item, no start', function (): void {
+    config(['game.access' => 'pilot']);
+    $this->c1->forceFill(['status' => ClassCaravanStatus::Finished, 'active_group_id' => null])->save();
+
+    crvVisit($this->ownerA, '/org/center-a/class-caravans')->assertForbidden();
+    crvVisit($this->teacherA, "/org/center-a/class-caravans/{$this->c1->id}")->assertForbidden();
+
+    crvEnter($this->teacherA, $this->a);
+    expect(ClassCaravanResource::shouldRegisterNavigation())->toBeFalse();
+
+    ClassCaravanResource::start($this->g1->id);
+
+    expect(ClassCaravan::query()->where('telegram_group_id', $this->g1->id)->where('status', 'active')->count())->toBe(0)
+        ->and($this->tg->sent)->toBe([]);
 });
 
 // ---------------------------------------------------------------------- the list
@@ -195,6 +211,16 @@ it('shows the contributions of the members on the view page', function (): void 
     crvEnter($this->teacherA, $this->a);
 
     Livewire::test(ViewClassCaravan::class, ['record' => $this->c1->id])->assertSee('Anna')->assertSee('80');
+});
+
+it('keeps a deleted account in the contributions without his name', function (): void {
+    $gone = Learner::factory()->create(['first_name' => 'Zafar']);
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $this->c1->id, 'learner_id' => $gone->id, 'stars' => 9, 'runs' => 3, 'best_score' => 77]);
+    ClassCaravanMember::factory()->create(['class_caravan_id' => $this->c1->id, 'learner_id' => Learner::factory()->create(['first_name' => 'Anna']), 'stars' => 2, 'runs' => 1, 'best_score' => 50]);
+    $gone->delete();
+    crvEnter($this->teacherA, $this->a);
+
+    Livewire::test(ViewClassCaravan::class, ['record' => $this->c1->id])->assertSee('Anna')->assertSee('77')->assertDontSee('Zafar');
 });
 
 // ---------------------------------------------------------------------- start
@@ -265,7 +291,7 @@ it('answers that the caravan of the group is on its way, and starts no second on
 
     Livewire::test(ListClassCaravans::class)
         ->callTableAction('start', data: ['telegram_group_id' => $this->g1->id])
-        ->assertNotified('Караван этой группы уже в пути — до 12.11 15:00.');
+        ->assertNotified(__('org.caravans.errors.already_active'));
 
     expect(ClassCaravan::query()->where('telegram_group_id', $this->g1->id)->count())->toBe(1)->and($this->tg->sent)->toBe([]);
 });
@@ -277,7 +303,7 @@ it('refuses a group of a center without a live subscription: the caravan is for 
 
     Livewire::test(ListClassCaravans::class)
         ->callTableAction('start', data: ['telegram_group_id' => $this->g1->id])
-        ->assertNotified(__('game.class.centers_only', [], 'ru'));
+        ->assertNotified(__('org.caravans.errors.centers_only'));
 
     expect(ClassCaravan::query()->where('telegram_group_id', $this->g1->id)->where('status', 'active')->count())->toBe(0);
 });
@@ -322,6 +348,38 @@ it('does not let a teacher cancel the caravan of another group, and hides the ca
     Livewire::test(ListClassCaravans::class)->assertTableActionHidden('cancel', $over);
 
     expect($this->c2->fresh()->status)->toBe(ClassCaravanStatus::Active)->and($this->tg->sent)->toBe([]);
+});
+
+it('keeps the cancellation when the chat does not take the message "canceled"', function (): void {
+    crvEnter($this->teacherA, $this->a);
+    $this->tg->failSends = 1;
+
+    Livewire::test(ListClassCaravans::class)->callTableAction('cancel', $this->c1)->assertNotified(__('org.caravans.notifications.canceled'));
+
+    expect($this->c1->fresh()->status)->toBe(ClassCaravanStatus::Canceled)->and($this->tg->sent)->toBe([]);
+});
+
+it('stays silent for the chat when the sweep closed the caravan under the page', function (): void {
+    crvEnter($this->teacherA, $this->a);
+    $stale = $this->c1->fresh();
+    ClassCaravan::query()->whereKey($this->c1->id)->update(['status' => 'finished', 'active_group_id' => null, 'finished_at' => now()]);
+
+    ClassCaravanResource::cancel($stale);
+
+    expect($this->c1->fresh()->status)->toBe(ClassCaravanStatus::Finished)->and($this->tg->sent)->toBe([]);
+});
+
+it('words the refusals in the language of the cabinet, not of the chat of the group and not as the exception', function (): void {
+    $this->g1->forceFill(['meta' => ['locale' => 'uz']])->save();
+    $this->c1->forceFill(['status' => ClassCaravanStatus::Finished, 'active_group_id' => null])->save();
+    Subscription::query()->where('subscriber_type', 'organization')->where('subscriber_id', $this->a->id)->update(['status' => 'canceled', 'current_period_ends_at' => now()->subDay()]);
+    crvEnter($this->teacherA, $this->a);
+
+    Livewire::test(ListClassCaravans::class)
+        ->callTableAction('start', data: ['telegram_group_id' => $this->g1->id])
+        ->assertNotified(__('org.caravans.errors.centers_only'));
+
+    expect(__('org.caravans.errors.centers_only'))->toMatch('/[а-я]/u')->and(__('org.caravans.errors.failed'))->toMatch('/[а-я]/u');
 });
 
 // ---------------------------------------------------------------------- the scope

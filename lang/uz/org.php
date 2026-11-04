@@ -256,6 +256,12 @@ return [
         ],
         'errors' => [
             'foreign_group' => 'Bu guruh mavjud emas.',
+            'not_teacher' => 'Karvonni faqat shu guruhning o\'qituvchisi ishga tushirishi va bekor qilishi mumkin.',
+            'group_inactive' => 'Guruh faollashtirilmagan — karvonni ishga tushirib bo\'lmaydi.',
+            'centers_only' => 'Sinf karvoni — markazlar uchun: markazning amaldagi obunasi bo\'lishi kerak.',
+            'already_active' => 'Bu guruhning karvoni allaqachon yo\'lda.',
+            'closed' => 'Sinf karvoni hozir mavjud emas.',
+            'failed' => 'Karvon bilan amalni bajarib bo\'lmadi. Sahifani yangilab, qayta urinib ko\'ring.',
         ],
     ],
 

@@ -716,8 +716,10 @@ it('cancels the caravan by the teacher or an admin with the reason kept, posts n
     expect(fn () => classService()->cancel($caravan, $stranger))->toThrow(fn (GameException $e) => $e->errorCode === 'class_caravan_forbidden' && $e->details === ['reason' => 'not_teacher']);
 
     CarbonImmutable::setTestNow('2026-11-06 10:00:00');
-    $canceled = classService()->cancel($caravan, $w['teacher']);
-    expect($canceled->status)->toBe(ClassCaravanStatus::Canceled)
+    $cancellation = classService()->cancel($caravan, $w['teacher']);
+    $canceled = $cancellation->caravan;
+    expect($cancellation->canceledNow)->toBeTrue()
+        ->and($canceled->status)->toBe(ClassCaravanStatus::Canceled)
         ->and($canceled->active_group_id)->toBeNull()
         ->and($canceled->finished_at?->toDateTimeString())->toBe('2026-11-06 10:00:00')
         ->and($canceled->meta)->toEqualCanonicalizing(['members_at_start' => 1, 'canceled_reason' => 'teacher', 'canceled_by_user_id' => $w['teacher']->id])
@@ -731,12 +733,19 @@ it('cancels the caravan by the teacher or an admin with the reason kept, posts n
 
     // Canceled again, or by an admin after the fact: nothing changes.
     $admin = classAdmin();
-    expect(classService()->cancel($caravan->fresh() ?? $caravan, $admin)->meta['canceled_by_user_id'])->toBe($w['teacher']->id);
+    $again = classService()->cancel($caravan->fresh() ?? $caravan, $admin);
+    expect($again->canceledNow)->toBeFalse()->and($again->caravan->meta['canceled_by_user_id'])->toBe($w['teacher']->id);
 
     $second = classService()->start($w['group'], $w['teacher']);
-    expect(classService()->cancel($second, $admin)->meta['canceled_reason'])->toBe('admin');
+    expect(classService()->cancel($second, $admin)->caravan->meta['canceled_reason'])->toBe('admin');
     $finished = ClassCaravan::factory()->finished()->create(['telegram_group_id' => $w['group']->id]);
-    expect(classService()->cancel($finished, $admin)->status)->toBe(ClassCaravanStatus::Finished);
+    $over = classService()->cancel($finished, $admin);
+    expect($over->caravan->status)->toBe(ClassCaravanStatus::Finished)->and($over->canceledNow)->toBeFalse();
+
+    // withdrawn because Telegram did not take the message: its own reason
+    $third = classService()->start($w['group'], $w['teacher']);
+    expect(classService()->cancel($third, $w['teacher'], reason: ClassCaravanService::CANCELED_NOT_DELIVERED)->caravan->meta)
+        ->toMatchArray(['canceled_reason' => 'not_delivered', 'canceled_by_user_id' => $w['teacher']->id]);
 });
 
 // ---------------------------------------------------------------------- what a learner sees
