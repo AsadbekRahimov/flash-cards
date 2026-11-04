@@ -59,6 +59,7 @@ async function render(map: GameMapResponse | Promise<GameMapResponse> | Error = 
       { path: '/courses', name: 'courses', component: stub },
       { path: '/courses/:slug', name: 'course', component: stub },
       { path: '/game', name: 'game', component: stub },
+      { path: '/game/caravan', name: 'game-caravan', component: stub },
       { path: '/game/runs/:id(\\d+)', name: 'game-run', component: stub },
     ],
   })
@@ -82,6 +83,22 @@ beforeEach(() => {
   back.target = null
   setLocale('ru')
   document.body.innerHTML = ''
+})
+
+describe('GameMapView: the way to "My caravan"', () => {
+  it('has the button in the header of a map that is there, and it leads to /game/caravan', async () => {
+    const { wrapper, router } = await render()
+
+    expect(testid(wrapper, 'caravan-btn').text()).toBe('Мой караван')
+    await testid(wrapper, 'caravan-btn').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('game-caravan')
+  })
+
+  it('has none while the map is not there (loading, unavailable)', async () => {
+    const { wrapper } = await render(new Promise<GameMapResponse>(() => {}))
+    expect(testid(wrapper, 'caravan-btn').exists()).toBe(false)
+  })
 })
 
 describe('GameMapView: states', () => {

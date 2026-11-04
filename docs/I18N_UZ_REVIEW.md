@@ -2839,11 +2839,9 @@
 | `gameCaravan.wallet.ledger_empty` | Hozircha amallar yo'q. | Операций пока нет. |
 | `gameCaravan.wallet.plus` | +{count} | +{count} |
 | `gameCaravan.wallet.minus` | −{count} | −{count} |
-| `gameCaravan.item.price` | Narxi: {price} | Цена: {price} |
 | `gameCaravan.item.buy` | Sotib olish | Купить |
 | `gameCaravan.item.equip` | Kiyish | Надеть |
 | `gameCaravan.item.equipped` | Kiyilgan | Надето |
-| `gameCaravan.item.owned` | Sotib olingan | Куплено |
 | `gameCaravan.item.stock` | Zaxirada: {count} | В запасе: {count} |
 | `gameCaravan.item.pro` | Pro | Pro |
 | `gameCaravan.item.pro_open` | Pro bilan ochish | Открыть с Pro |

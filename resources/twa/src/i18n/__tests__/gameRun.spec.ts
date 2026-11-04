@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale, t } from '../index'
 import { ru } from '../ru'
@@ -57,6 +59,52 @@ describe('i18n: a run of "Karvon" (docs/05 §5b.3)', () => {
     ] as const) {
       expect(key in ru, key).toBe(true)
       expect(key in uz, key).toBe(true)
+    }
+  })
+})
+
+const SHOP_CODES = [
+  'item_not_found',
+  'item_already_owned',
+  'item_not_purchasable',
+  'booster_not_owned',
+  'booster_limit_reached',
+  'booster_already_used',
+  'booster_not_applicable',
+] as const
+
+describe('i18n: "My caravan" and the boosters (docs/05 §5b.5)', () => {
+  it('knows every error code of the shop and of the boosters, in both languages, with its own text', () => {
+    for (const locale of ['ru', 'uz'] as const) {
+      setLocale(locale)
+      for (const code of SHOP_CODES) {
+        expect(KNOWN_ERROR_CODES, code).toContain(code)
+        const text = errorMessage(new ApiClientError('conflict', 409, code, 'English message'), 'game')
+        expect(text, `${locale}:${code}`).toBe(t(`error.code.${code}`))
+        expect(text, `${locale}:${code}`).not.toMatch(/^error\./)
+      }
+    }
+  })
+
+  it('has the same gameCaravan.* keys in ru and uz, none of them empty, and the same placeholders', () => {
+    const keys = (dictionary: Record<string, unknown>) => Object.keys(dictionary).filter((key) => key.startsWith('gameCaravan.')).sort()
+    const ruDict = ru as unknown as Record<string, string>
+    const uzDict = uz as unknown as Record<string, string>
+
+    expect(keys(ru)).toEqual(keys(uz))
+    expect(keys(ru).length).toBeGreaterThan(40)
+    for (const key of [...keys(ru), 'paywall.lead_game_boosters', 'paywall.lead_game_boosters_soon']) {
+      expect(ruDict[key], key).toBeTruthy()
+      expect(uzDict[key], key).toBeTruthy()
+      const slots = (text: string) => [...(text.match(/\{\w+\}/g) ?? [])].sort()
+      expect(slots(uzDict[key]!), key).toEqual(slots(ruDict[key]!))
+    }
+  })
+
+  it('lists every new uz key in the review document', () => {
+    const doc = readFileSync(join(process.cwd(), '..', '..', 'docs', 'I18N_UZ_REVIEW.md'), 'utf8')
+    for (const key of Object.keys(uz).filter((k) => k.startsWith('gameCaravan.') || k.startsWith('paywall.lead_game_boosters'))) {
+      expect(doc, key).toContain(`| \`${key}\` |`)
     }
   })
 })

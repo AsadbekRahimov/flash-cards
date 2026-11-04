@@ -112,6 +112,13 @@ const routes: RouteRecordRaw[] = [
       stop: queryId(route.query.stop),
     }),
   },
+  // "My caravan" (docs/05 §5b.5): the wallet, the shop, what is worn. Back leads to the map.
+  {
+    path: '/game/caravan',
+    name: 'game-caravan',
+    component: () => import('@/views/GameCaravanView.vue'),
+    meta: { tab: 'courses' },
+  },
   {
     // A run of "Karvon" (docs/05 §5b.3): immersive, no tab. `course` / `stop` (query) tell the summary where "Again" / "To the map" lead.
     path: '/game/runs/:id(\\d+)',
