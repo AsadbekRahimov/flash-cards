@@ -14,6 +14,7 @@ import type {
   GameRunView,
   GameSummary,
 } from '@/api/gameRunTypes'
+import type { GameBoosterLimitHit } from '@/api/gameShopTypes'
 import type { PracticeVerdict } from '@/api/types'
 
 /**
@@ -79,6 +80,10 @@ interface GameRunState {
   pendingPairs: { elementId: string; ids: Record<string, string> } | null
   /** The hint that is on its way or got no reply: its own id, apart from the answer's. */
   pendingHint: { elementId: string; requestId: string } | null
+  /** The booster that is on its way or got no reply: its own id (one per booster and element), apart from the answer's. */
+  pendingBooster: { key: string; elementId: string; requestId: string } | null
+  /** 409 `booster_limit_reached`: the numbers for the paywall; the screen shows it and clears it. */
+  boosterLimit: GameBoosterLimitHit | null
   abandoning: boolean
   /** Counts the runs the store has been reset for: a reply that comes back for an earlier one is dropped. */
   generation: number
@@ -136,6 +141,8 @@ export const useGameRunStore = defineStore('gameRun', {
     pendingAnswer: null,
     pendingPairs: null,
     pendingHint: null,
+    pendingBooster: null,
+    boosterLimit: null,
     abandoning: false,
     generation: 0,
     elementSeq: 0,
@@ -189,6 +196,8 @@ export const useGameRunStore = defineStore('gameRun', {
       this.abandoning = false
       this.clearPending()
       this.pendingHint = null
+      this.pendingBooster = null
+      this.boosterLimit = null
       this.elementShownAt = 0
     },
 
@@ -452,6 +461,69 @@ export const useGameRunStore = defineStore('gameRun', {
         }
         this.handleError(err)
       }
+    },
+
+    // ----------------------------------------------------------- booster
+
+    /**
+     * A booster of the learner's stock (docs/18 §12.8): `hint` for the current element, `extra_flask` / `second_chance` for the whole run.
+     * The reply is the run; the element stays as it is (the task keeps what was typed). A lost reply is repeated under the same id.
+     * 409 `booster_limit_reached` leaves `boosterLimit` for the paywall; the other refusals are a toast, and a conflict that says the row was
+     * out of date reads the run again.
+     */
+    async useBooster(key: string, effect: string): Promise<void> {
+      const run = this.run
+      const element = run?.current?.element ?? null
+      if (this.status !== 'playing' || run === null || element === null) return
+
+      const generation = this.generation
+      const pending = this.pendingBooster?.key === key && this.pendingBooster.elementId === element.id ? this.pendingBooster : { key, elementId: element.id, requestId: newRequestId() }
+      this.pendingBooster = pending
+      this.status = 'submitting'
+      this.actionError = ''
+      try {
+        const res = await api.gameRuns.booster(run.id, {
+          request_id: pending.requestId,
+          item_key: key,
+          ...(effect === 'hint' ? { element_id: element.id } : {}),
+        })
+        if (generation !== this.generation) return
+        this.pendingBooster = null
+        this.applyRun(res)
+      } catch (err) {
+        if (generation !== this.generation) return
+        if (isUncertain(err)) {
+          this.status = 'playing'
+          this.actionError = errorMessage(err, 'practice')
+          return
+        }
+        this.pendingBooster = null
+        if (err instanceof ApiClientError) {
+          if (err.code === 'booster_limit_reached') {
+            const { limit, used, resets_at: resetsAt } = err.details ?? {}
+            this.status = 'playing'
+            if (typeof limit === 'number' && typeof used === 'number' && typeof resetsAt === 'string') this.boosterLimit = { limit, used, resets_at: resetsAt }
+            else this.actionError = errorMessage(err, 'practice')
+            return
+          }
+          if (['booster_not_owned', 'booster_already_used', 'booster_not_applicable', 'hint_not_available', 'element_not_current', 'answer_already_accepted'].includes(err.code)) {
+            this.actionError = errorMessage(err, 'practice')
+            const fresh = await this.reread(generation)
+            if (fresh !== null) this.applyRun(fresh)
+            return
+          }
+          if (err.kind === 'validation' || err.kind === 'conflict' || err.kind === 'not_found') {
+            this.status = 'playing'
+            this.actionError = errorMessage(err, 'practice')
+            return
+          }
+        }
+        this.handleError(err)
+      }
+    },
+
+    clearBoosterLimit(): void {
+      this.boosterLimit = null
     },
 
     // ------------------------------------------------------------- leave

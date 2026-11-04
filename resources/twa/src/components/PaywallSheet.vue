@@ -13,6 +13,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
+import type { GameBoosterLimitHit } from '@/api/gameShopTypes'
 import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
 export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit' | 'game'
@@ -61,11 +62,15 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null; limitHit?: PracticeLimitHit | null }>(), {
-  reason: 'info',
-  deckLimits: null,
-  limitHit: null,
-})
+const props = withDefaults(
+  defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null; limitHit?: PracticeLimitHit | null; boosterHit?: GameBoosterLimitHit | null }>(),
+  {
+    reason: 'info',
+    deckLimits: null,
+    limitHit: null,
+    boosterHit: null,
+  },
+)
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t, tn, locale } = useI18n()
@@ -141,7 +146,18 @@ const limitLead = computed((): string => {
   })
 })
 
+/** `game` + `boosterHit`: the week's free boosters are used up (docs/05 §5b.5): "(1 of 1). New ones - on 9 November". */
+const boosterLead = computed((): string => {
+  const hit = props.boosterHit
+  if (hit === null) return t('paywall.lead_game')
+  return t(purchaseMode.value ? 'paywall.lead_game_boosters' : 'paywall.lead_game_boosters_soon', {
+    limit: hit.limit,
+    when: formatDate(hit.resets_at, 'dayMonth', locale.value, today.data?.timezone),
+  })
+})
+
 const reasonLead = computed((): string => {
+  if (props.reason === 'game') return boosterLead.value
   if (props.reason === 'practice_limit') return limitLead.value
   if (props.reason === 'practice') return practiceLead.value
   if (props.reason === 'decks') {
