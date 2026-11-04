@@ -1325,7 +1325,7 @@ CHECK не создаются — инвариант дублируют серв
 64. `2026_11_06_100000_add_organization_index_to_class_caravans_table` — индекс `class_caravans (organization_id, starts_at)` для страницы «Караваны» в `/org` *(G2.9b)*
 65. `2026_11_07_100000_add_refund_to_game_ticket_ledger_source_check` — PG CHECK `game_ticket_ledger.source` += `refund` (только pgsql; `down()` возвращает прежний список и требует отсутствия строк `refund`) *(G2.8b, §2.58)*
 66. `2026_11_08_100000_add_started_at_index_to_game_runs_table` — индекс `game_runs (started_at, learner_id)` для `GameActivityStats` и фильтра дат `GameRunResource` *(G2.13)*
-67. `2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key` — PG CHECK `game_runs_class_boss_shape_check` допускает `class_boss_key IS NULL` у завершённого без ответа боя с боссом класса (только pgsql; `down()` возвращает прежний CHECK как `NOT VALID` — отданные ключи не восстановить) *(G2.13, §2.48)*
+67. `2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key` — PG CHECK `game_runs_class_boss_shape_check` допускает `class_boss_key IS NULL` у завершённого без ответа боя с боссом класса (только pgsql; `down()` даёт отданным ключам заглушку `freed:{id}` и возвращает прежний CHECK проверенным — настоящие ключи не восстановить) *(G2.13, §2.48)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

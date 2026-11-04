@@ -1957,6 +1957,21 @@ it('rolls back the foreign key game_runs.class_caravan_id with the caravans, kee
     expect(Schema::hasTable('class_caravans'))->toBeTrue();
 });
 
+it('rolls back the class-boss key CHECK with a freed fight in the table, and on through the caravans migration (the freed row takes a stub key)', function (): void {
+    $caravan = ClassCaravan::factory()->create();
+    $freed = GameRun::factory()->finished(RunFinishReason::Abandoned)->classBoss($caravan)->create(['class_boss_key' => null, 'answered' => 0]);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key')])->assertSuccessful();
+    expect($freed->fresh()?->class_boss_key)->toBe(DB::getDriverName() === 'pgsql' ? "freed:{$freed->id}" : null);
+
+    // further back: the UPDATE of the caravans migration touches the old row, the validated CHECK holds
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_05_100005_create_class_caravans_tables') - migrationStepsBackTo('2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key')])->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeFalse()->and($freed->fresh()?->class_caravan_id)->toBeNull();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('class_caravans'))->toBeTrue()->and(GameRun::query()->whereKey($freed->id)->exists())->toBeTrue();
+});
+
 it('adds the game columns of learner_daily_stats with their defaults', function (): void {
     $row = LearnerDailyStats::factory()->create();
 
