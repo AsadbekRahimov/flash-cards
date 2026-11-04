@@ -991,6 +991,7 @@ export const uz: Translations = {
   'gameRun.spell.letters': 'Harflar: {count}',
   'gameRun.gap.placeholder': "Tushib qolgan so'z",
   'gameRun.hint.buy': '{price} tangaga maslahat',
+  'gameRun.hint.free': 'Maslahat bepul',
   'gameRun.hint.coins': 'Sizda {coins}',
   'gameRun.hint.prefix': '«{prefix}» bilan boshlanadi',
   'gameRun.hint.wait': 'Maslahat olinmoqda…',

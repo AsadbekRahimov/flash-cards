@@ -1043,6 +1043,7 @@ export const ru = {
   'gameRun.spell.letters': 'Букв: {count}',
   'gameRun.gap.placeholder': 'Пропущенное слово',
   'gameRun.hint.buy': 'Подсказка за {price}',
+  'gameRun.hint.free': 'Подсказка бесплатно',
   'gameRun.hint.coins': 'У вас {coins}',
   'gameRun.hint.prefix': 'Начинается на «{prefix}»',
   'gameRun.hint.wait': 'Покупаем подсказку…',

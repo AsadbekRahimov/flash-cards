@@ -3054,6 +3054,7 @@
 | `gameRun.spell.letters` | Harflar: {count} | Букв: {count} |
 | `gameRun.gap.placeholder` | Tushib qolgan so'z | Пропущенное слово |
 | `gameRun.hint.buy` | {price} tangaga maslahat | Подсказка за {price} |
+| `gameRun.hint.free` | Maslahat bepul | Подсказка бесплатно |
 | `gameRun.hint.coins` | Sizda {coins} | У вас {coins} |
 | `gameRun.hint.prefix` | «{prefix}» bilan boshlanadi | Начинается на «{prefix}» |
 | `gameRun.hint.wait` | Maslahat olinmoqda… | Покупаем подсказку… |

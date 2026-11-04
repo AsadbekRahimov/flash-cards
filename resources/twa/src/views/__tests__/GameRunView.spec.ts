@@ -335,6 +335,13 @@ describe('GameRunView — the hint of the bazaar', () => {
     wrapper.unmount()
   })
 
+  it('says the hint is free when the price is 0 (bazaar_hint_coins = 0)', async () => {
+    const wrapper = await atBazaar(bazaar({ price: 0, available: true }))
+
+    expect(wrapper.get('[data-testid=hint-btn]').text()).toBe('Подсказка бесплатно')
+    wrapper.unmount()
+  })
+
   it('buys the hint: the options it took away are dimmed, the balance is shown next to the price, the button is gone', async () => {
     const wrapper = await atBazaar()
     vi.mocked(api.gameRuns.hint).mockResolvedValue({
@@ -481,6 +488,21 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
     await click(r, 'share-btn')
 
     expect(api.game.cityShared).toHaveBeenCalledWith(7)
+    r.wrapper.unmount()
+  })
+
+  it('after a fight of a class ✕ and "Back" on the summary lead to the class screen, as the main button does', async () => {
+    const r = await render(
+      finishedRun('completed', { kind: 'class_boss', class_caravan_id: 4, lesson_id: null }, { boss: { accuracy: 50, won: false, first: false, share: null } }),
+      { course: 'english-a1' },
+    )
+    r.router.addRoute({ path: '/game/class/:id(\\d+)', name: 'game-class', component: { template: '<div />' } })
+
+    tg.backHandler?.()
+    await flushPromises()
+
+    expect(has(r, 'exit-sheet')).toBe(false)
+    expect(r.router.currentRoute.value.fullPath).toBe('/game/class/4')
     r.wrapper.unmount()
   })
 
