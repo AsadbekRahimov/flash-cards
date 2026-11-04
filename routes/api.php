@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
+use App\Http\Controllers\Api\Twa\GameCityController;
 use App\Http\Controllers\Api\Twa\GameMapController;
 use App\Http\Controllers\Api\Twa\GameProfileController;
 use App\Http\Controllers\Api\Twa\GameRunController;
@@ -153,6 +154,9 @@ Route::prefix('twa')->group(function (): void {
             ->name('twa.game.shop.buy');
         Route::get('/game/profile', [GameProfileController::class, 'show'])->name('twa.game.profile');
         Route::post('/game/profile/equip', [GameProfileController::class, 'equip'])->name('twa.game.profile.equip');
+
+        // The card of a city that the learner has reached (docs/18 §12.9, G2.7b): the mark "shared".
+        Route::post('/game/cities/{stage}/shared', [GameCityController::class, 'shared'])->where('stage', '[0-9]{1,18}')->name('twa.game.cities.shared');
 
         // The caravans of the learner's classes (docs/18 §12.8, G2.9b): the list and one caravan with its table; under `twa-api`.
         Route::get('/game/class', [ClassCaravanController::class, 'index'])->name('twa.game.class.index');

@@ -521,6 +521,7 @@ it('keeps the shape of the start of a boss, of its run without flasks and of the
         GameStopProgress::factory()->cleared(1)->create(['learner_id' => $learner->id, 'lesson_id' => $lesson->id]);
     }
     test()->withHeaders($headers)->postJson('/api/twa/game/runs', [...$body, 'stage_id' => 999999])->assertStatus(404)->assertExactJsonStructure(['error' => ['code', 'message']]);
+    config(['telegram.bot_username' => 'LexiFlowBot']); // the card of the first win has a link to share
 
     // the start: a run as any other, with no flasks, and no summary yet
     $started = test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated();
@@ -536,14 +537,14 @@ it('keeps the shape of the start of a boss, of its run without flasks and of the
         $last = gameContractAnswer($learner, $id, $element['id'], GameKit::rightAnswers($element)[0])->assertOk();
         Cache::flush();
     }
-    $summary = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes', 'boss' => ['accuracy', 'won', 'first']];
+    $summary = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes', 'boss' => ['accuracy', 'won', 'first', 'share' => ['link', 'text', 'title']]];
     $last->assertExactJsonStructure(['verdict', 'points', 'reveal', 'flask_lost', 'combo', 'event_applied', 'run' => [...array_slice(gameContractRun(null), 0, -1), 'summary' => $summary]]);
     $done = gameContractGet($learner, $id)->assertOk();
-    expect($done->json('summary.boss'))->toBe(['accuracy' => 100, 'won' => true, 'first' => true])
+    expect($done->json('summary.boss'))->toBe(['accuracy' => 100, 'won' => true, 'first' => true, 'share' => $done->json('summary.boss.share')])->and($done->json('summary.boss.share'))->toHaveKeys(['link', 'text', 'title'])
         ->and($done->json('summary.stars'))->toBe(3)->and($done->json('summary.coins'))->toBe(50)->and($done->json('flasks'))->toBe(0);
 
     // abandoned: the same shape, never won
     $again = test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');
     test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$again}/abandon", ['confirm' => true])->assertOk()
-        ->assertJsonPath('summary.boss', ['accuracy' => 0, 'won' => false, 'first' => false]);
+        ->assertJsonPath('summary.boss', ['accuracy' => 0, 'won' => false, 'first' => false, 'share' => null]);
 });

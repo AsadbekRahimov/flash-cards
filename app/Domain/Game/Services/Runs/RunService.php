@@ -26,6 +26,7 @@ use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\Economy\WalletService;
 use App\Domain\Game\Services\GameAccess;
+use App\Domain\Game\Services\GameCardSender;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Services\Tasks\PracticeTaskAdapter;
 use App\Domain\Game\Services\Tasks\TaskRegistry;
@@ -85,6 +86,7 @@ final class RunService
         private readonly TicketService $tickets,
         private readonly BoosterService $boosters,
         private readonly ClassCaravanService $caravans,
+        private readonly GameCardSender $cards,
     ) {}
 
     /**
@@ -386,7 +388,7 @@ final class RunService
             current: $current,
             hint: ['price' => $this->hintPrice(), 'available' => $hintAvailable],
             boosters: ['available' => $run->isActive() ? $this->boosters->available($learner->id) : [], 'used' => $state->boostersUsed],
-            summary: $run->isActive() ? null : $this->summary($run, $snapshot, $state),
+            summary: $run->isActive() ? null : $this->summary($run, $snapshot, $state, $learner),
             serverNow: $now->toIso8601ZuluString('millisecond'),
         );
     }
@@ -911,7 +913,7 @@ final class RunService
      *
      * @return array<string, mixed>
      */
-    private function summary(GameRun $run, RunSnapshot $snapshot, RunState $state): array
+    private function summary(GameRun $run, RunSnapshot $snapshot, RunState $state, Learner $learner): array
     {
         $mistakes = [];
         foreach ($snapshot->elements as $element) {
@@ -947,27 +949,33 @@ final class RunService
             'league_points' => $run->league_points,
             'srs_pulled' => $run->srs_pulled,
             'mistakes' => $mistakes,
-            'boss' => $this->bossSummary($run),
+            'boss' => $this->bossSummary($run, $snapshot, $learner),
         ];
     }
 
     /**
      * `summary.boss` of the fight with a boss (docs/18 §12.8): the accuracy in whole per cent, whether the fight is won, whether it was
-     * the first win over the city's boss (kept in the state by the finisher). A fight left unfinished (abandoned, expired) is never won.
+     * the first win over the city's boss (kept in the state by the finisher), and - for that first win only - `share {link, text, title}` of the
+     * card of the city (the pair of the DM card, {@see GameCardSender::share()}; `null` without a link). A fight left unfinished (abandoned,
+     * expired) is never won.
      * `null` for any other run.
      *
-     * @return array{accuracy: int, won: bool, first: bool}|null
+     * @return array{accuracy: int, won: bool, first: bool, share: array{link: string, text: string, title: string}|null}|null
      */
-    private function bossSummary(GameRun $run): ?array
+    private function bossSummary(GameRun $run, RunSnapshot $snapshot, Learner $learner): ?array
     {
         if ($run->kind !== RunKind::Boss && $run->kind !== RunKind::ClassBoss) {
             return null;
         }
 
+        $won = $run->finish_reason === RunFinishReason::Completed && RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8));
+        $first = $run->kind === RunKind::Boss && (bool) ($run->state['boss_first'] ?? false);
+
         return [
             'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
-            'won' => $run->finish_reason === RunFinishReason::Completed && RunScoring::bossWon($run->correct, $run->total, (float) config('game.boss.required_accuracy', 0.8)),
-            'first' => $run->kind === RunKind::Boss && (bool) ($run->state['boss_first'] ?? false),
+            'won' => $won,
+            'first' => $first,
+            'share' => $won && $first && $snapshot->stageNumber !== null ? $this->cards->share($learner, $snapshot->stageNumber) : null,
         ];
     }
 
