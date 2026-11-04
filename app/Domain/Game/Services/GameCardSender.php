@@ -72,7 +72,6 @@ final class GameCardSender
             description: __('game.card.description', [], $locale),
         ), $locale);
         $share = $this->share($learner, $stage->number);
-        $link = $share['link'] ?? null;
 
         $log = NotificationLog::query()->create([
             'learner_id' => $learner->id,
@@ -85,10 +84,10 @@ final class GameCardSender
             $this->telegram->sendPhoto(
                 chatId: $learner->telegram_user_id,
                 photoPath: $path,
-                caption: __($link === null ? 'game.card.caption_no_link' : 'game.card.caption', $params, $locale),
-                replyMarkup: $link === null ? null : ['inline_keyboard' => [[[
+                caption: __($share === null ? 'game.card.caption_no_link' : 'game.card.caption', $params, $locale),
+                replyMarkup: $share === null ? null : ['inline_keyboard' => [[[
                     'text' => __('game.card.share_button', [], $locale),
-                    'url' => $this->achievements->shareUrl($link, $share['text']),
+                    'url' => $this->achievements->shareUrl($share['link'], $share['text']),
                 ]]]],
             );
         } catch (TelegramForbiddenException $e) {
