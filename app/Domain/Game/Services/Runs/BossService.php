@@ -81,7 +81,26 @@ final class BossService
         }
 
         // The runs of the day used up and no ticket (403 game_limit_reached), before the material is read.
-        $this->limits->assertRunAllowed($learner, RunKind::Boss, $now, $replaceActive);
+        try {
+            $this->limits->assertRunAllowed($learner, RunKind::Boss, $now, $replaceActive);
+        } catch (GameException $e) {
+            // The limit was read a moment after another tab started this very fight (the run `busyForBoss` saw none of now holds the
+            // place of the day): the fight that is on is the answer, whatever the limit says - the one-shot re-read of RunService::start()
+            // (docs/18 §12.7.2), on this refusal only. Any other live run, or none, keeps the refusal.
+            if ($e->errorCode !== GameException::LIMIT_REACHED || $replaceActive) {
+                throw $e;
+            }
+            try {
+                $busy = $this->runs->busyForBoss($learner, $stage->id, false, $now);
+            } catch (GameException) {
+                throw $e;
+            }
+            if ($busy !== null) {
+                return $busy;
+            }
+
+            throw $e;
+        }
 
         $limits = RunLimits::for(RunKind::Boss);
         $wordIds = $this->picker->pick($learner->id, $stage->id, $limits->sizeMax);

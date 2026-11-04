@@ -33,7 +33,7 @@ function gameErrorCases(): array
         'request_id_reused' => [GameException::requestIdReused(), 409, []],
         'hint_not_available' => [GameException::hintNotAvailable(), 409, []],
         'coins_insufficient' => [GameException::coinsInsufficient(3, 5), 409, ['balance' => 3, 'price' => 5]],
-        'booster_limit_reached' => [GameException::boosterLimitReached(1, 1, '2026-11-09T19:00:00.000Z'), 409, ['limit' => 1, 'used' => 1, 'resets_at' => '2026-11-09T19:00:00.000Z']],
+        'booster_limit_reached' => [GameException::boosterLimitReached(1, 1, '2026-11-09T19:00:00.000Z', true), 409, ['limit' => 1, 'used' => 1, 'resets_at' => '2026-11-09T19:00:00.000Z', 'upsell' => true]],
         'booster_not_owned' => [GameException::boosterNotOwned(), 409, []],
         'booster_already_used' => [GameException::boosterAlreadyUsed(), 409, []],
         'booster_not_applicable' => [GameException::boosterNotApplicable(), 409, []],

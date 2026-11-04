@@ -14,6 +14,7 @@ use App\Domain\Learners\Services\StreakService;
 use App\Models\Achievement;
 use App\Models\Course;
 use App\Models\GameRun;
+use App\Models\GameStopProgress;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -128,6 +129,40 @@ it('holds the day with a completed run and counts it +1 like a goal day: no dail
         ->and(glsEvents(ProductEventName::DailyGoalMet))->toBe(0)
         ->and(glsEvents(ProductEventName::StreakExtended))->toBe(1)
         ->and(ProductEvent::query()->where('name', ProductEventName::StreakExtended->value)->firstOrFail()->props)->toMatchArray(['current' => 2, 'best' => 2]);
+});
+
+it('tells the summary whether this finish held the day of the streak and how many stars the stop gained (G2.13): the first run of a day, a day the goal held first, a second run, a run without a finish', function (): void {
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $learner->update(['timezone' => 'UTC']);
+    $runs = app(RunService::class);
+    $summary = fn (GameRun $run): array => $runs->view($run->refresh(), $learner)->summary ?? [];
+
+    // The first run of the day holds it (StreakService::apply(Game) is called on exactly this) and clears the stop: three new stars.
+    $first = glsRun($learner, $course, $lesson);
+    expect($summary($first))->toMatchArray(['streak_held' => true, 'new_stars' => 3, 'stars' => 3])
+        ->and($first->state['streak_held'])->toBeTrue()->and($first->state['new_stars'])->toBe(3)
+        ->and(glsStreak($learner))->toBe([1, 1, '2026-11-05']);
+
+    // A second run of the same day: the day is held already, the stop has its three stars - nothing new.
+    $second = glsRun($learner, $course, $lesson, fail: true);
+    expect($summary($second))->toMatchArray(['streak_held' => false, 'new_stars' => 0, 'stars' => 0]);
+
+    // The next day the goal comes first: the run held nothing (the goal's own hook counted the day), and one star over yesterday's... none.
+    CarbonImmutable::setTestNow('2026-11-06 10:00:00');
+    glsMeetGoal($learner);
+    $afterGoal = glsRun($learner, $course, $lesson);
+    expect($summary($afterGoal))->toMatchArray(['streak_held' => false, 'new_stars' => 0])->and(glsStreak($learner))->toBe([2, 2, '2026-11-06']);
+
+    // A run that gained one star over a best of one: `new_stars` is the difference, not the stars.
+    GameStopProgress::query()->where('learner_id', $learner->id)->update(['stars' => 1]);
+    CarbonImmutable::setTestNow('2026-11-07 10:00:00');
+    $better = glsRun($learner, $course, $lesson, fail: false);
+    expect($summary($better))->toMatchArray(['streak_held' => true, 'new_stars' => 2, 'stars' => 3]);
+
+    // A run closed without a finish (abandoned) held no day and gained nothing - and says so, as its summary is read from the state.
+    $left = $runs->start($learner, $course->slug, $lesson->id);
+    $runs->abandon($left, $learner);
+    expect($summary($left))->toMatchArray(['streak_held' => false, 'new_stars' => 0, 'stars' => null]);
 });
 
 it('holds the day with a failed run as well (the owner\'s decision В1): +1, like the completed one', function (): void {

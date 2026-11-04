@@ -68,6 +68,12 @@ use Throwable;
  * (`TicketService::refundForRun`, docs/18 §12.7.3): every close goes through {@see close()} (the row locked) or {@see claimExpired()}
  * (the conditional UPDATE), and those two are where the refund is decided.
  *
+ * The view of the run (`RunView`: the boosters of the inventory, the summary, the pair to share after a first win over a boss - which
+ * makes the learner's invite code in `learners` when there is none) is built AFTER the commit of the answer, the hint and the booster
+ * (docs/18 §12.5.1 rule 24): the transaction of an answer holds the run, the map, the wallet, the profile and the day, and a write of
+ * `learners` under them inverts rule 18 (`learners` first) against a Free start and a grant of tickets - a deadlock whose victim, inside
+ * a swallowed savepoint, would turn the COMMIT of the answer into a silent rollback with the hooks still running.
+ *
  * Idempotency: `(run_id, request_id)` is unique in `game_run_attempts`; a repeat answers the stored `result` and the view of now.
  */
 final class RunService
@@ -316,14 +322,15 @@ final class RunService
                 if (($row['daily_key'] ?? null) !== null && GameRun::query()->where('daily_key', $row['daily_key'])->exists()) {
                     throw GameException::dailyDone($this->clock->limitWindowUtc($learner, $now)->endUtc->toIso8601ZuluString('millisecond'));
                 }
-                if (($row['class_boss_key'] ?? null) !== null && GameRun::query()->where('class_boss_key', $row['class_boss_key'])->exists()) {
-                    throw GameException::classBossDone();
-                }
 
-                // Two tabs at once: the other one has just started a run for this learner.
+                // Two tabs at once: the other one has just started a run for this learner - the very same one is the answer (the fight
+                // with the boss of a class included: the loser of that race gets the fight that is on, docs/18 §12.11, not "done").
                 $winner = $this->activeOf($learner);
                 if ($winner !== null && $this->isSameRun($winner, $row)) {
                     return $winner;
+                }
+                if (($row['class_boss_key'] ?? null) !== null && GameRun::query()->where('class_boss_key', $row['class_boss_key'])->exists()) {
+                    throw GameException::classBossDone(); // a fight that holds the key and is over: the member's one attempt is spent
                 }
                 if ($winner !== null && ! $replaceActive) {
                     throw GameException::runActive($this->activeDetails($winner));
@@ -392,6 +399,8 @@ final class RunService
             finishReason: $run->finish_reason,
             courseSlug: $snapshot->courseSlug === '' ? null : $snapshot->courseSlug,
             lessonId: $run->lesson_id,
+            stageId: $run->kind === RunKind::Boss ? $run->stage_id : null,
+            classCaravanId: $run->kind === RunKind::ClassBoss ? $run->class_caravan_id : null,
             city: $snapshot->stageNumber === null ? null : CityNames::name($snapshot->stageNumber, $locale),
             stageNumber: $snapshot->stageNumber,
             lessonNumber: $snapshot->lessonNumber,
@@ -427,7 +436,8 @@ final class RunService
         $requestId = strtolower($requestId);
         $runId = $run instanceof GameRun ? $run->id : $run;
 
-        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now): RunAnswerOutcome|GameException {
+        /** @var array{0: array<string, mixed>, 1: GameRun}|GameException $outcome */
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now): array|GameException {
             $locked = $this->lock($runId, $learner);
             if ($locked === null) {
                 return GameException::runNotFound();
@@ -437,7 +447,7 @@ final class RunService
             if ($prior !== null) {
                 return $prior->kind === AttemptKind::Hint || $prior->kind === AttemptKind::Booster
                     ? GameException::requestIdReused()
-                    : new RunAnswerOutcome($prior->result, $this->view($locked, $learner, $now));
+                    : [$prior->result, $locked];
             }
 
             $closed = $this->refuseClosed($locked, $learner, $now);
@@ -445,15 +455,18 @@ final class RunService
                 return $closed;
             }
 
-            return $this->accept($locked, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now);
+            return [$this->accept($locked, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now), $locked];
         });
 
         // An error raised AFTER the commit, so that the closing of an expired run is kept.
         if ($outcome instanceof GameException) {
             throw $outcome;
         }
+        [$body, $run] = $outcome;
 
-        return $outcome;
+        // The view AFTER the commit (docs/18 §12.5.1 rule 24): it reads the inventory and, for a first win over a boss, makes the
+        // learner's invite code (`learners`) - nothing of that belongs under the locks of the run, the map, the wallet, the profile and the day.
+        return new RunAnswerOutcome($body, $this->view($run, $learner, $now));
     }
 
     /**
@@ -471,7 +484,8 @@ final class RunService
         $requestId = strtolower($requestId);
         $runId = $run instanceof GameRun ? $run->id : $run;
 
-        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $now): HintOutcome|GameException {
+        /** @var array{0: array<string, mixed>, 1: GameRun}|GameException $outcome */
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $elementId, $now): array|GameException {
             $locked = $this->lock($runId, $learner);
             if ($locked === null) {
                 return GameException::runNotFound();
@@ -480,7 +494,7 @@ final class RunService
             $prior = $this->attemptOf($locked, $requestId);
             if ($prior !== null) {
                 return $prior->kind === AttemptKind::Hint
-                    ? new HintOutcome($prior->result, $this->view($locked, $learner, $now))
+                    ? [$prior->result, $locked]
                     : GameException::requestIdReused();
             }
 
@@ -489,14 +503,17 @@ final class RunService
                 return $closed;
             }
 
-            return $this->giveHint($locked, $learner, $requestId, $elementId, $now);
+            $body = $this->giveHint($locked, $learner, $requestId, $elementId, $now);
+
+            return $body instanceof GameException ? $body : [$body, $locked];
         });
 
         if ($outcome instanceof GameException) {
             throw $outcome;
         }
+        [$body, $run] = $outcome;
 
-        return $outcome;
+        return new HintOutcome($body, $this->view($run, $learner, $now)); // the view after the commit (rule 24)
     }
 
     /**
@@ -515,7 +532,7 @@ final class RunService
         $requestId = strtolower($requestId);
         $runId = $run instanceof GameRun ? $run->id : $run;
 
-        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $itemKey, $elementId, $now): RunView|GameException {
+        $outcome = DB::transaction(function () use ($runId, $learner, $requestId, $itemKey, $elementId, $now): GameRun|GameException {
             $locked = $this->lock($runId, $learner);
             if ($locked === null) {
                 return GameException::runNotFound();
@@ -523,7 +540,7 @@ final class RunService
 
             $prior = $this->attemptOf($locked, $requestId);
             if ($prior !== null) {
-                return $prior->kind === AttemptKind::Booster ? $this->view($locked, $learner, $now) : GameException::requestIdReused();
+                return $prior->kind === AttemptKind::Booster ? $locked : GameException::requestIdReused();
             }
 
             $closed = $this->refuseClosed($locked, $learner, $now);
@@ -537,14 +554,14 @@ final class RunService
                 return $e;
             }
 
-            return $this->view($locked, $learner, $now);
+            return $locked;
         });
 
         if ($outcome instanceof GameException) {
             throw $outcome;
         }
 
-        return $outcome;
+        return $this->view($outcome, $learner, $now); // the view after the commit (rule 24)
     }
 
     /**
@@ -612,11 +629,13 @@ final class RunService
     // ------------------------------------------------------------------ under the lock
 
     /**
-     * The body of {@see answer()} under the lock of the run.
+     * The body of {@see answer()} under the lock of the run: the stored `result` of the attempt. The run leaves saved; its view is the
+     * caller's, after the commit.
      *
      * @param  array<string, mixed>  $answer
+     * @return array<string, mixed>
      */
-    private function accept(GameRun $run, Learner $learner, string $requestId, string $elementId, array $answer, ?int $timeSpentMs, CarbonImmutable $now): RunAnswerOutcome
+    private function accept(GameRun $run, Learner $learner, string $requestId, string $elementId, array $answer, ?int $timeSpentMs, CarbonImmutable $now): array
     {
         $snapshot = RunSnapshot::fromArray($run->snapshot);
         $state = RunState::fromArray($run->state);
@@ -736,11 +755,15 @@ final class RunService
             });
         }
 
-        return new RunAnswerOutcome($body, $this->view($run, $learner, $now));
+        return $body;
     }
 
-    /** The body of {@see hint()} under the lock of the run. */
-    private function giveHint(GameRun $run, Learner $learner, string $requestId, string $elementId, CarbonImmutable $now): HintOutcome|GameException
+    /**
+     * The body of {@see hint()} under the lock of the run: `{hint, coins: {balance}}`, or the refusal.
+     *
+     * @return array<string, mixed>|GameException
+     */
+    private function giveHint(GameRun $run, Learner $learner, string $requestId, string $elementId, CarbonImmutable $now): array|GameException
     {
         $snapshot = RunSnapshot::fromArray($run->snapshot);
         $state = RunState::fromArray($run->state);
@@ -763,7 +786,7 @@ final class RunService
             $body = JsonbKeyOrder::object(['hint' => $given, 'coins' => ['balance' => $this->wallet->balance($learner->id)]]);
             $this->journalHint($run, $learner, $requestId, $element, $body, $now);
 
-            return new HintOutcome($body, $this->view($run, $learner, $now));
+            return $body;
         }
 
         if ($snapshot->eventAt($state->current) !== RunEvent::Bazaar) {
@@ -793,7 +816,7 @@ final class RunService
             ], learner: $learner));
         }
 
-        return new HintOutcome($body, $this->view($run, $learner, $now));
+        return $body;
     }
 
     /** @param array<string, mixed> $body */
@@ -817,7 +840,8 @@ final class RunService
     /**
      * Closes a run that pays nothing (`expired` / `abandoned`) under the lock of its row - the row is exact, so `answered` decides the
      * refund of a ticket here and now (docs/18 §12.7.3): `game_runs` -> `game_profiles` -> `game_ticket_ledger`, the order of the start
-     * and of the finish.
+     * and of the finish. A fight with the boss of a class closed without a single answer lets go of its `class_boss_key` in the same
+     * UPDATE (G2.13, docs/18 §12.11): it was no attempt, the member may fight.
      */
     private function close(GameRun $run, RunFinishReason $reason, CarbonImmutable $now, ?Learner $learner, TicketRefundReason $refund): void
     {
@@ -826,6 +850,7 @@ final class RunService
             'finish_reason' => $reason,
             'finished_at' => $now,
             'active_learner_id' => null,
+            'class_boss_key' => self::keepsClassBossKey($run) ? $run->class_boss_key : null,
         ])->save();
 
         $this->tickets->refundForRun($run, $refund, $learner, $now); // nothing unless free_slot = ticket and no answer
@@ -917,20 +942,22 @@ final class RunService
 
     /**
      * Closes one expired run by a conditional UPDATE, no lock taken in advance; true when this call is the one that did. `$run` was read
-     * WITHOUT a lock, so its `answered` may be behind an answer that landed since (a run paid with a ticket is otherwise exact:
-     * `free_slot` never changes, `answered` never falls). Such a run, seen without an answer, is closed in a transaction with the refund
-     * of its ticket, and the UPDATE that closes it checks `answered = 0` itself on the row of now: when it matches, the run is closed and
-     * the ticket comes back; when it does not, either an answer landed (the ticket stays spent - the plain UPDATE closes the run) or
-     * somebody else closed the run (nothing to do). Never both an answer and a refund.
+     * WITHOUT a lock, so its `answered` may be behind an answer that landed since (`free_slot` and `kind` never change, `answered` never
+     * falls). A run whose close without an answer gives something back - the ticket that paid for it, the `class_boss_key` of a fight
+     * with the boss of a class (G2.13) - and that was seen without an answer is closed by an UPDATE that checks `answered = 0` itself on
+     * the row of now: when it matches, the run is closed, the key is let go of and the ticket comes back (in one transaction); when it
+     * does not, either an answer landed (the ticket stays spent, the key stays - the plain UPDATE closes the run) or somebody else closed
+     * the run (nothing to do). Never both an answer and a refund.
      */
     private function claimExpired(GameRun $run, CarbonImmutable $now, ?Learner $learner): bool
     {
-        if ($run->free_slot !== FreeSlot::Ticket || $run->answered > 0) {
+        if ($run->answered > 0 || ($run->free_slot !== FreeSlot::Ticket && $run->kind !== RunKind::ClassBoss)) {
             return $this->expireRow($run->id, $now, unanswered: false);
         }
 
         return DB::transaction(function () use ($run, $now, $learner): bool {
             if ($this->expireRow($run->id, $now, unanswered: true)) {
+                $run->forceFill(['class_boss_key' => null]); // the row has let go of it (a run of another kind had none)
                 $this->tickets->refundForRun($run, TicketRefundReason::Expired, $learner, $now);
 
                 return true;
@@ -940,7 +967,10 @@ final class RunService
         });
     }
 
-    /** The conditional UPDATE itself: `status = active AND expires_at <= now` (and `answered = 0` when `$unanswered`); true for one row. */
+    /**
+     * The conditional UPDATE itself: `status = active AND expires_at <= now` (and `answered = 0` when `$unanswered` - then the row also lets
+     * go of its `class_boss_key`, which only a fight with the boss of a class has); true for one row.
+     */
     private function expireRow(int $id, CarbonImmutable $now, bool $unanswered): bool
     {
         return GameRun::query()
@@ -954,7 +984,17 @@ final class RunService
                 'finished_at' => $now,
                 'active_learner_id' => null,
                 'updated_at' => $now,
+                ...($unanswered ? ['class_boss_key' => null] : []),
             ]) === 1;
+    }
+
+    /**
+     * A fight with the boss of a class keeps its `class_boss_key` - the member's one attempt - only once it has an answer (G2.13, docs/18
+     * §12.11); any other run has no key to speak of and keeps its NULL.
+     */
+    private static function keepsClassBossKey(GameRun $run): bool
+    {
+        return $run->kind !== RunKind::ClassBoss || $run->answered > 0;
     }
 
     /** `game.run_finished` of a run closed without a reward (`expired` / `abandoned`); a played run's event is RunFinisher's. */
@@ -986,6 +1026,8 @@ final class RunService
                 continue;
             }
 
+            // `hinted` tells a row that is here for the hint alone (a right answer after a hint is a mistake for the SRS, docs/18 §12.4)
+            // from a wrong or skipped one; `verdict` stays what the answer was.
             foreach ($handler->mistakeLabel($element, $state, $run->locale) as $row) {
                 $mistakes[] = [
                     'element_id' => $element->id,
@@ -993,10 +1035,13 @@ final class RunService
                     'label' => $row['label'],
                     'your_answer' => $row['your_answer'],
                     'verdict' => $element->isPairsRound() ? Verdict::Wrong->value : (string) $verdict?->value,
+                    'hinted' => (bool) ($entry['hinted'] ?? false),
                 ];
             }
         }
 
+        // `streak_held` and `new_stars` are what the finish wrote into the state (RunFinisher step 1, G2.13): a run closed without a
+        // finish (abandoned, expired) held no day and gained no star.
         return [
             'stars' => $run->stars,
             'score' => $run->score,
@@ -1004,6 +1049,8 @@ final class RunService
             'league_points' => $run->league_points,
             'srs_pulled' => $run->srs_pulled,
             'mistakes' => $mistakes,
+            'streak_held' => (bool) ($run->state['streak_held'] ?? false),
+            'new_stars' => (int) ($run->state['new_stars'] ?? 0),
             'boss' => $this->bossSummary($run, $snapshot, $learner),
         ];
     }
@@ -1030,8 +1077,25 @@ final class RunService
             'accuracy' => RunScoring::bossAccuracy($run->correct, $run->total),
             'won' => $won,
             'first' => $first,
-            'share' => $won && $first && $snapshot->stageNumber !== null ? $this->cards->share($learner, $snapshot->stageNumber) : null,
+            'share' => $won && $first && $snapshot->stageNumber !== null ? $this->cards->share($this->withStoredReferralCode($learner), $snapshot->stageNumber) : null,
         ];
+    }
+
+    /**
+     * The DM card of the same first win is sent after the commit on its own copy of the learner and makes the invite code a moment
+     * before this view is built: read the stored code into this copy, so `share()` does not issue a second (no-op) write to `learners`.
+     * One read, and only for a learner whose copy has no code yet (the first win of a learner who never shared an invite).
+     */
+    private function withStoredReferralCode(Learner $learner): Learner
+    {
+        if ($learner->referral_code === null) {
+            $code = Learner::withTrashed()->whereKey($learner->id)->value('referral_code');
+            if (is_string($code) && $code !== '') {
+                $learner->forceFill(['referral_code' => $code])->syncOriginalAttributes(['referral_code']);
+            }
+        }
+
+        return $learner;
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Domain\Game\DTO\TicketGrant;
 use App\Domain\Game\Enums\FreeSlot;
 use App\Domain\Game\Enums\TicketRefundReason;
 use App\Domain\Game\Enums\TicketSource;
+use App\Domain\Game\Services\GameAccess;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Learners\Support\LearnerRowLock;
 use App\Models\AuditLog;
@@ -45,6 +46,10 @@ use RuntimeException;
  *
  * A key written before answers `applied = false` with the balance after the first write: `referrals:recover`, a retried job and a
  * second tab are safe.
+ *
+ * While the game is closed to the learner (`GameAccess`: `off`, or `pilot` without the learner - G2.13, docs/18 §12.7.3) the streak and
+ * the referrals grant nothing and touch no `game_*` table: a hidden feature writes no rows and no events, and nobody piles up tickets
+ * before the launch. The administrator's grant is an explicit act and stays.
  */
 final class TicketService
 {
@@ -52,18 +57,19 @@ final class TicketService
 
     public function __construct(
         private readonly ProductEventRecorder $events,
+        private readonly GameAccess $access,
     ) {}
 
     /**
      * The streak just reached `$streakCurrent` days on `$localDate` (`Y-m-d`): every 7th day gives `game.tickets.per_streak_week`
      * tickets, once per day (key `streak:{learner_id}:{local_date}`). Called by StreakService::project() after the commit of the fact
-     * (the day of a goal or of a run); everybody, Pro included (the tickets wait for the end of the subscription). Any other day is
-     * `null` without a query - the hook runs on every held day.
+     * (the day of a goal or of a run); everybody, Pro included (the tickets wait for the end of the subscription). Any other day, and
+     * a learner the game is closed to, is `null` without a query - the hook runs on every held day.
      */
     public function grantForStreak(Learner $learner, int $streakCurrent, string $localDate, ?CarbonImmutable $now = null): ?TicketGrant
     {
         $perWeek = max(0, (int) config('game.tickets.per_streak_week', 1));
-        if ($streakCurrent <= 0 || $streakCurrent % 7 !== 0 || $perWeek === 0) {
+        if ($streakCurrent <= 0 || $streakCurrent % 7 !== 0 || $perWeek === 0 || ! $this->access->state($learner)->isAvailable()) {
             return null;
         }
 
@@ -72,8 +78,8 @@ final class TicketService
 
     /**
      * A referral was rewarded (both sides, `ReferralService::reward`): the inviter gets `game.tickets.per_referral` tickets, once per
-     * referral (key `referral:{id}`). A flagged referral, one that is not `rewarded`, a deleted or blocked inviter: nothing. The invited
-     * learner gets no tickets (they have their days of Pro).
+     * referral (key `referral:{id}`). A flagged referral, one that is not `rewarded`, a deleted or blocked inviter, an inviter the game is
+     * closed to: nothing. The invited learner gets no tickets (they have their days of Pro).
      */
     public function grantForReferral(Referral $referral, ?CarbonImmutable $now = null): ?TicketGrant
     {
@@ -84,7 +90,7 @@ final class TicketService
 
         /** @var Learner|null $inviter */
         $inviter = Learner::query()->find($referral->referrer_learner_id);
-        if ($inviter === null || $inviter->blocked_at !== null) {
+        if ($inviter === null || $inviter->blocked_at !== null || ! $this->access->state($inviter)->isAvailable()) {
             return null;
         }
 

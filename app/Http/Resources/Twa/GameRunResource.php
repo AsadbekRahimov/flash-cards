@@ -38,6 +38,8 @@ final class GameRunResource extends TwaResource
             'finish_reason' => $view->finishReason?->value,
             'course' => $view->courseSlug === null ? null : ['slug' => $view->courseSlug],
             'lesson_id' => $view->lessonId,
+            'stage_id' => $view->stageId,
+            'class_caravan_id' => $view->classCaravanId,
             'city' => $view->city,
             'stage_number' => $view->stageNumber,
             'lesson_number' => $view->lessonNumber,

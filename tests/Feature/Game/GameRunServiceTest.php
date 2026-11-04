@@ -21,7 +21,6 @@ use App\Models\Stage;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use LogicException;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 
@@ -354,6 +353,15 @@ it('sells the hint of the bazaar once per element: the coins go once, a second r
     expect(fn () => runService()->hint($run, $learner, (string) Str::uuid(), $next['id']))
         ->toThrow(fn (GameException $e) => expect($e->errorCode)->toBe('coins_insufficient')->and($e->details)->toBe(['balance' => 2, 'price' => 5]));
     expect(GameCoinLedgerEntry::query()->count())->toBe(1)->and(GameRunAttempt::query()->where('kind', 'hint')->count())->toBe(3);
+
+    // In the summary the hinted element is a row of the mistakes with its honest verdict and `hinted: true` (G2.13); a wrong answer
+    // without a hint is `hinted: false`.
+    runService()->answer($run, $learner, (string) Str::uuid(), $next['id'], GameKit::wrongAnswer($next));
+    $played = GameKit::play(runService(), $run, $learner);
+    $rows = collect(runService()->view($played, $learner)->summary['mistakes'] ?? [])->keyBy('element_id');
+    expect($rows->get($element['id']))->toMatchArray(['verdict' => 'correct', 'hinted' => true])
+        ->and($rows->get($next['id']))->toMatchArray(['verdict' => 'wrong', 'hinted' => false])
+        ->and($rows->pluck('hinted')->filter()->count())->toBe(1);
 });
 
 it('gives the hint of the bazaar for free when bazaar_hint_coins is 0: no debit, no entry, no event, no error', function (): void {

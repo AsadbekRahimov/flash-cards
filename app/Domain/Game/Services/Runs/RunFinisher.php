@@ -88,12 +88,14 @@ final class RunFinisher
         $city = null;
         $firstClear = false;
         $bossFirst = false;
+        $newStars = 0;
         $kind = LedgerKind::RunReward;
         $amount = 0;
         switch ($run->kind) {
             case RunKind::Stop:
                 $stop = $this->lockedStop($run, $now);
                 $firstClear = $stop->first_cleared_at === null && $stars >= 1;
+                $newStars = max(0, $stars - $stop->stars); // over the best so far, read under the lock (the summary's `new_stars`)
                 $amount = $this->stopReward($reason, $stars, $stop);
                 break;
             case RunKind::Boss:
@@ -157,11 +159,17 @@ final class RunFinisher
         //    inside its window), the member's row, the totals - nothing when the run is in no caravan or the caravan is over.
         $this->caravans->contribute($run, $stars, $bossWon, $now);
 
-        // 1. The run: the one UPDATE, with the attributes of the answer that arrived unsaved. The first win over the boss of the city is
-        // kept in the state (a finished run's `summary.boss.first` is read from it; the map row only says WHEN the city fell).
-        if ($bossFirst) {
-            $run->forceFill(['state' => [...$run->state, 'boss_first' => true]]);
-        }
+        // 1. The run: the one UPDATE, with the attributes of the answer that arrived unsaved. What the summary says of THIS finish and
+        // cannot be told from the rows later is kept in the state (G2.13, docs/18 §12.9): the first win over the boss of the city
+        // (`summary.boss.first`; the map row only says WHEN the city fell), the day of the streak held by this run (`summary.streak_held`:
+        // the finish set `game_held_at` and the goal had not held the day - the streak hook of step 7 is called on exactly this), the
+        // stars gained over the stop's best so far (`summary.new_stars`; 0 for any other kind).
+        $run->forceFill(['state' => [
+            ...$run->state,
+            ...($bossFirst ? ['boss_first' => true] : []),
+            'streak_held' => $heldDay && ! $goalMetBefore,
+            'new_stars' => $newStars,
+        ]]);
         $run->forceFill([
             'status' => RunStatus::Finished,
             'finish_reason' => $reason,

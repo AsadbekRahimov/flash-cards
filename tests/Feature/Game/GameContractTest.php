@@ -101,11 +101,11 @@ function gameContractRun(?string $kind, bool $summary = false): array
 {
     // A key that is null is listed as a plain name: an empty structure for a null would be compared with the parent.
     $run = [
-        'id', 'kind', 'status', 'finish_reason', 'course' => ['slug'], 'lesson_id', 'city', 'stage_number', 'lesson_number', 'lesson_title', 'scope_widened', 'total', 'position',
+        'id', 'kind', 'status', 'finish_reason', 'course' => ['slug'], 'lesson_id', 'stage_id', 'class_caravan_id', 'city', 'stage_number', 'lesson_number', 'lesson_title', 'scope_widened', 'total', 'position',
         'flasks', 'flasks_max', 'combo', 'score', 'boosters' => ['available', 'used'], 'hint' => ['price', 'available'], 'server_now',
     ];
     $kind === null ? $run[] = 'current' : $run['current'] = ['element' => gameContractElement($kind), 'event'];
-    $summary ? $run['summary'] = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes' => ['*' => ['element_id', 'kind', 'label', 'your_answer', 'verdict']], 'boss'] : $run[] = 'summary';
+    $summary ? $run['summary'] = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes' => ['*' => ['element_id', 'kind', 'label', 'your_answer', 'verdict', 'hinted']], 'streak_held', 'new_stars', 'boss'] : $run[] = 'summary';
 
     return $run;
 }
@@ -471,7 +471,7 @@ it('keeps the exact shape of the booster, of the boosters block of a run, and of
     $run->forceFill(['state' => $state])->save();
     Cache::flush();
     test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_hint'])->assertStatus(409)
-        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['limit', 'used', 'resets_at']]]);
+        ->assertExactJsonStructure(['error' => ['code', 'message', 'details' => ['limit', 'used', 'resets_at', 'upsell']]]);
     test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/booster", ['request_id' => (string) Str::uuid(), 'item_key' => 'booster_nothing'])->assertStatus(404)
         ->assertExactJsonStructure(['error' => ['code', 'message']]);
 
@@ -528,6 +528,7 @@ it('keeps the shape of the start of a boss, of its run without flasks and of the
     $kind = GameKit::current(GameRun::query()->findOrFail($started->json('id')))['kind'];
     $started->assertExactJsonStructure([...gameContractRun($kind), 'limits' => gameContractLimits()]);
     expect($started->json('kind'))->toBe('boss')->and($started->json('flasks_max'))->toBe(0)->and($started->json('total'))->toBe(12)
+        ->and($started->json('stage_id'))->toBe($first->stage_id)->and($started->json('class_caravan_id'))->toBeNull() // G2.13: the city of the fight, for the share mark
         ->and(gameContractLeaks($started->json()))->toBe([]);
     $id = $started->json('id');
 
@@ -537,11 +538,12 @@ it('keeps the shape of the start of a boss, of its run without flasks and of the
         $last = gameContractAnswer($learner, $id, $element['id'], GameKit::rightAnswers($element)[0])->assertOk();
         Cache::flush();
     }
-    $summary = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes', 'boss' => ['accuracy', 'won', 'first', 'share' => ['link', 'text', 'title']]];
+    $summary = ['stars', 'score', 'coins', 'league_points', 'srs_pulled', 'mistakes', 'streak_held', 'new_stars', 'boss' => ['accuracy', 'won', 'first', 'share' => ['link', 'text', 'title']]];
     $last->assertExactJsonStructure(['verdict', 'points', 'reveal', 'flask_lost', 'combo', 'event_applied', 'run' => [...array_slice(gameContractRun(null), 0, -1), 'summary' => $summary]]);
     $done = gameContractGet($learner, $id)->assertOk();
     expect($done->json('summary.boss'))->toBe(['accuracy' => 100, 'won' => true, 'first' => true, 'share' => $done->json('summary.boss.share')])->and($done->json('summary.boss.share'))->toHaveKeys(['link', 'text', 'title'])
-        ->and($done->json('summary.stars'))->toBe(3)->and($done->json('summary.coins'))->toBe(50)->and($done->json('flasks'))->toBe(0);
+        ->and($done->json('summary.stars'))->toBe(3)->and($done->json('summary.coins'))->toBe(50)->and($done->json('flasks'))->toBe(0)
+        ->and($done->json('summary.streak_held'))->toBeTrue()->and($done->json('summary.new_stars'))->toBe(0); // the first run of the day holds it; a boss has no stop to gain stars on
 
     // abandoned: the same shape, never won
     $again = test()->withHeaders($headers)->postJson('/api/twa/game/runs', $body)->assertCreated()->json('id');

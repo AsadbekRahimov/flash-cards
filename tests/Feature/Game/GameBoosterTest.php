@@ -308,20 +308,20 @@ it("does not use another learner's booster, run or inventory", function (): void
 
 // ---------------------------------------------------------------- the limit of the week
 
-it('stops a Free learner at boosters_per_week with 409 booster_limit_reached {limit, used, resets_at} and the event; the booster is kept', function (): void {
+it('stops a Free learner at boosters_per_week with 409 booster_limit_reached {limit, used, resets_at, upsell: true} and the event; the booster is kept', function (): void {
     GameKit::limits(null, null, 1);
     [$learner, $run, $items] = boosterWorld(2);
 
     boosterPost($learner, $run->id, 'booster_extra_flask')->assertOk();
     boosterPost($learner, $run->id, 'booster_second_chance')->assertConflict()
         ->assertJsonPath('error.code', 'booster_limit_reached')
-        ->assertJsonPath('error.details', ['limit' => 1, 'used' => 1, 'resets_at' => BOOSTER_WEEK_END]);
+        ->assertJsonPath('error.details', ['limit' => 1, 'used' => 1, 'resets_at' => BOOSTER_WEEK_END, 'upsell' => true]);
 
     expect(boosterQty($learner, $items['second_chance']))->toBe(2)->and(GameBoosterUse::query()->count())->toBe(1)
         ->and(boosterEvents('game.limit_reached'))->toEqual([['kind' => 'boosters', 'limit' => 1]]);
 });
 
-it('lets Pro with boosters_plus use pro_limits.boosters_per_week, then stops it', function (): void {
+it('lets Pro with boosters_plus use pro_limits.boosters_per_week, then stops it - without an upsell: Pro would not help', function (): void {
     GameKit::limits(null, null, 1);
     config(['game.pro_limits.boosters_per_week' => 2]);
     [$learner, $run] = boosterWorld(2);
@@ -330,7 +330,8 @@ it('lets Pro with boosters_plus use pro_limits.boosters_per_week, then stops it'
     boosterPost($learner, $run->id, 'booster_extra_flask')->assertOk();
     boosterPost($learner, $run->id, 'booster_second_chance')->assertOk();
     boosterPost($learner, $run->id, 'booster_hint')->assertConflict()
-        ->assertJsonPath('error.code', 'booster_limit_reached')->assertJsonPath('error.details.limit', 2)->assertJsonPath('error.details.used', 2);
+        ->assertJsonPath('error.code', 'booster_limit_reached')->assertJsonPath('error.details.limit', 2)->assertJsonPath('error.details.used', 2)
+        ->assertJsonPath('error.details.upsell', false);
 });
 
 it('has no limit when the config leaves it empty, and "0" means only Pro', function (): void {
