@@ -381,7 +381,9 @@ server {
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
+    server_tokens off;
     add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;   # only nginx sets HSTS/nosniff: PHP locations hide the copies from Laravel
 
     root /var/www/lexiflow/public;
     index index.php;
@@ -437,6 +439,9 @@ server {
         alias /var/www/lexiflow/storage/app/public/audio/;
         gzip off;
         add_header Cache-Control "public, max-age=2592000, immutable";
+        # add_header here drops the server-level ones: repeat HSTS and nosniff.
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
 
         # `^~` skips the server-level dotfile rule: deny `.tmp/` (half-written files) explicitly.
         location ~ /\. {
@@ -452,6 +457,8 @@ server {
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -466,6 +473,8 @@ server {
         # Update the socket path to match your installed PHP version
         # (php8.5-fpm.sock for PHP 8.5, php8.6-fpm.sock for 8.6, ...). Verify with: ls /run/php/
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+        fastcgi_hide_header Strict-Transport-Security;
+        fastcgi_hide_header X-Content-Type-Options;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
