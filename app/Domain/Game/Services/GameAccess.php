@@ -64,6 +64,16 @@ final class GameAccess
     }
 
     /**
+     * The class caravan is for the whole group, so it opens only with `GAME_ACCESS=all`: in the pilot the game is seen by single learners,
+     * and a caravan of a class with half of it outside the game would be a broken promise (decided in G2.13). `off` and `pilot`: no
+     * `/start_caravan` and `/cancel_caravan` (silence, not in the menu and the help), no page in `/org`, no start, no cards.
+     */
+    public function classCaravanOpen(): bool
+    {
+        return strtolower(trim((string) config('game.access', 'off'))) === 'all';
+    }
+
+    /**
      * The block `game` of `GET /me` (docs/18 §12.8, docs/04 A.2), always there. `available`: the entries may be shown; `limits`: the
      * Free limits of the day and the week ({@see GameLimits}, docs/18 §12.7.2) - `null` while the game is closed; `pro_promise`: what
      * the "what Pro gives" list may say about the game to this learner - `none` | `full` ({@see ProPromises::game()}); `coins` and

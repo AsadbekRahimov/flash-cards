@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Economy;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Game\DTO\WalletEntry;
 use App\Domain\Game\Enums\LedgerKind;
 use App\Domain\Game\Exceptions\GameException;
@@ -27,7 +29,7 @@ final class WalletAdjustmentService
 
     public const MAX_REASON = 200;
 
-    public function __construct(private readonly WalletService $wallet) {}
+    public function __construct(private readonly WalletService $wallet, private readonly ProductEventRecorder $events) {}
 
     /**
      * @param  int  $amount  coins, positive; `$credit` says the direction
@@ -50,7 +52,7 @@ final class WalletAdjustmentService
         $meta = ['audit_log_id' => $audit->id, 'reason' => $reason];
 
         try {
-            return DB::transaction(fn (): WalletEntry => $credit
+            $entry = DB::transaction(fn (): WalletEntry => $credit
                 ? $this->wallet->credit($learner->id, $amount, LedgerKind::AdminGrant, $key, 'audit_log', $audit->id, $meta)
                 : $this->wallet->debit($learner->id, $amount, LedgerKind::AdminRevoke, $key, 'audit_log', $audit->id, $meta));
         } catch (GameException $e) {
@@ -58,5 +60,12 @@ final class WalletAdjustmentService
 
             throw $e;
         }
+
+        // after the entry is committed (an entry that was already there is no new move); the amount is signed (docs/18 §12.8)
+        if ($entry->applied) {
+            $this->events->record(ProductEventName::GameCoinsAdjusted, ['amount' => $credit ? $amount : -$amount, 'audit_log_id' => $audit->id], learner: $learner, user: $actor);
+        }
+
+        return $entry;
     }
 }

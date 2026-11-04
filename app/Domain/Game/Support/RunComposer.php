@@ -226,8 +226,8 @@ final class RunComposer
 
     /**
      * The one event of the run, by the seed: whether there is one (`events.chance`), and which. A sandstorm needs a task to translate on
-     * a word with a recording (the element is rebuilt as `listen` with `event: sandstorm`); an oasis or a bazaar sits on the element in
-     * the middle. When the seed asks for an event the run cannot have, the next one in the row is taken.
+     * a word with a recording (the element is rebuilt as `listen` with `event: sandstorm`); an oasis sits on the element in the middle, a bazaar
+     * too if it can give a hint. When the seed asks for an event the run cannot have, the next one in the row is taken.
      *
      * @param  list<SnapshotElement>  $ordered  changed in place for a sandstorm
      * @param  list<string>  $taken
@@ -257,11 +257,23 @@ final class RunComposer
             if ($type === RunEvent::Oasis && $limits->flasks <= 0) {
                 continue;
             }
+            // a bazaar sells a hint: the element in the middle must have one (a round of pairs, a sentence, a dictation have none)
+            if ($type === RunEvent::Bazaar && ! self::hasHint($ordered[$middle])) {
+                continue;
+            }
 
             return [['at' => $middle, 'type' => $type->value]];
         }
 
         return [];
+    }
+
+    /** The kinds that can give a hint (docs/18 §12.3.2): the tasks of words and the collocation. */
+    private static function hasHint(SnapshotElement $element): bool
+    {
+        $kind = TaskKind::tryFrom($element->kind);
+
+        return $kind !== null && ($kind->isWordTask() || $kind === TaskKind::Collocation);
     }
 
     /**

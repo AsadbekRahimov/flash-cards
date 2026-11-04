@@ -57,7 +57,7 @@ class AttemptsRelationManager extends RelationManager
                     ->formatStateUsing(fn (?Verdict $state): string => AdminLabels::value('game.runs.verdict', $state?->value))
                     ->placeholder('—'),
                 Tables\Columns\IconColumn::make('is_first')->label(__('admin.game.runs.attempts.columns.is_first'))->boolean(),
-                Tables\Columns\TextColumn::make('time_spent_ms')->label(__('admin.game.runs.attempts.columns.time'))->suffix(' мс')->placeholder('—'),
+                Tables\Columns\TextColumn::make('time_spent_ms')->label(__('admin.game.runs.attempts.columns.time'))->suffix(__('admin.game.runs.attempts.columns.time_unit'))->placeholder('—'),
                 Tables\Columns\TextColumn::make('accepted_at')->label(__('admin.game.runs.attempts.columns.accepted_at'))->dateTime(),
             ])
             ->paginated(false)

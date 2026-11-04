@@ -20,6 +20,7 @@ return [
             "O'qituvchilar uchun:\n".
             "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
             "• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
+            ':caravan'.
             '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
         'group' => "LexiFlow guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — treningni boshlash\n".
@@ -28,7 +29,9 @@ return [
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             '/help — ushbu yordam',
-        // The lines of `:caravan` in `group`: shown while the game is open (GAME_ACCESS is not off), G2.9b.
+        // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
+        'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
+        // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
         'group_caravan' => "/start_caravan — sinf karvonini boshlash\n".
             "/cancel_caravan — sinf karvonini bekor qilish\n",
     ],

@@ -53,7 +53,7 @@ final class StartCaravanHandler implements UpdateHandler
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {
-        if ($this->access->isOff()) {
+        if (! $this->access->classCaravanOpen()) {
             return;
         }
 

@@ -1932,6 +1932,16 @@ it('rolls back and re-applies the game migrations (G2.1) in FK order', function 
     expectConstraintViolation(fn () => GameRun::factory()->create(['class_caravan_id' => 987_654]));
 });
 
+it('indexes game_runs by (started_at, learner_id) for the activity widget and the date filter, and drops it on rollback', function (): void {
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_08_100000_add_started_at_index_to_game_runs_table')])->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeFalse();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasIndex('game_runs', ['started_at', 'learner_id']))->toBeTrue();
+});
+
 it('rolls back the foreign key game_runs.class_caravan_id with the caravans, keeps the runs and clears their link', function (): void {
     $caravan = ClassCaravan::factory()->create();
     $run = GameRun::factory()->create(['class_caravan_id' => $caravan->id]);

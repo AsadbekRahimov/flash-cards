@@ -52,7 +52,7 @@ final class CancelCaravanHandler implements UpdateHandler
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {
-        if ($this->access->isOff()) {
+        if (! $this->access->classCaravanOpen()) {
             return;
         }
 
@@ -87,13 +87,16 @@ final class CancelCaravanHandler implements UpdateHandler
         }
 
         try {
-            $this->caravans->cancel($caravan, $teacher);
+            $cancellation = $this->caravans->cancel($caravan, $teacher);
         } catch (GameException $e) {
             $this->messenger->refuse($e, $group);
 
             return;
         }
 
-        $this->messenger->announceCanceled($group);
+        // the scheduler may have closed it, or another cancel won: "canceled" would be a lie (or a repeat)
+        if ($cancellation->canceledNow) {
+            $this->messenger->announceCanceled($group);
+        }
     }
 }

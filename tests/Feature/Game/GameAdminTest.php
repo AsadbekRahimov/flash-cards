@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\WidgetCache;
+use App\Domain\Engagement\Enums\AchievementKey;
 use App\Domain\Game\Enums\ItemAvailability;
 use App\Domain\Game\Enums\ItemStatus;
 use App\Domain\Game\Enums\LedgerKind;
@@ -29,12 +30,14 @@ use App\Models\GameRunAttempt;
 use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use App\Models\ProductEvent;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 use Livewire\Livewire;
 
 use function Pest\Livewire\livewire;
@@ -148,6 +151,12 @@ it('needs a slot for a cosmetic, an effect for a booster and an achievement for 
 
     livewire(CreateGameItem::class)->fillForm(gat_form(['availability' => 'achievement', 'achievement_key' => 'streak_7']))->call('create')->assertHasNoFormErrors();
     expect(GameItem::query()->where('key', 'camel_desert')->value('achievement_key'))->toBe('streak_7');
+});
+
+it('words every achievement key of the item form in Russian, the game boss included', function (): void {
+    foreach (AchievementKey::cases() as $key) {
+        expect(Lang::has("admin.game.items.achievement.{$key->value}", 'ru'))->toBeTrue("no label for {$key->value}");
+    }
 });
 
 it('keeps the key as it was when an item is edited, and moves the catalogue version on', function (): void {
@@ -308,6 +317,11 @@ it('grants coins under an audit record written first and the key admin:{audit id
         ->and($entry->meta)->toMatchArray(['audit_log_id' => $audit->id])
         ->and(GameWallet::query()->where('learner_id', $learner->id)->value('balance'))->toBe(25)
         ->and((int) GameCoinLedgerEntry::query()->where('learner_id', $learner->id)->sum('amount'))->toBe(25);
+
+    $event = ProductEvent::query()->where('name', 'game.coins_adjusted')->sole();
+    expect($event->props)->toEqual(['amount' => 25, 'audit_log_id' => $audit->id])
+        ->and($event->user_id)->toBe($this->admin->id)
+        ->and($event->learner_id)->toBe($learner->id);
 });
 
 it('revokes coins, and refuses to go below zero with a notification and the record marked rejected', function (): void {
@@ -324,6 +338,10 @@ it('revokes coins, and refuses to go below zero with a notification and the reco
         ->and(GameCoinLedgerEntry::query()->where('learner_id', $learner->id)->count())->toBe(2)
         ->and(AuditLog::query()->where('action', 'game.coins_adjusted')->count())->toBe(2)
         ->and(AuditLog::query()->where('action', 'game.coins_adjusted')->orderByDesc('id')->first()?->meta)->toMatchArray(['rejected' => 'coins_insufficient']);
+
+    // the event only for the applied move, signed
+    $events = ProductEvent::query()->where('name', 'game.coins_adjusted')->get();
+    expect($events)->toHaveCount(1)->and($events[0]->props['amount'])->toBe(-20);
 });
 
 it('validates the amount and the reason of a manual move', function (): void {
