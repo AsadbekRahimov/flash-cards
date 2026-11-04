@@ -203,7 +203,9 @@ class ClassCaravanResource extends Resource
             app(ClassCaravanMessenger::class)->announceCanceled($group);
         }
 
-        Notification::make()->title(__('admin.game.caravans.notifications.canceled'))->success()->send();
+        $cancellation->canceledNow
+            ? Notification::make()->title(__('admin.game.caravans.notifications.canceled'))->success()->send()
+            : Notification::make()->title(__('admin.game.caravans.notifications.already_over'))->warning()->send();
     }
 
     /** `defeated` / `ready` (the target is reached) / `locked`. */

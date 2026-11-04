@@ -3229,6 +3229,7 @@
 | `org.caravans.notifications.started` | Karvon yo'lga chiqdi. | Караван отправился. |
 | `org.caravans.notifications.started_not_delivered` | Xabar chatga yetib bormadi, shuning uchun karvon ishga tushmadi. Bot guruhga yoza olishini tekshiring. | Сообщение не дошло до чата, поэтому караван не запущен. Проверьте, что бот может писать в группу. |
 | `org.caravans.notifications.canceled` | Karvon bekor qilindi. | Караван отменён. |
+| `org.caravans.notifications.already_over` | Karvon allaqachon yakunlangan yoki bekor qilingan — hech narsa o'zgarmadi. | Караван уже завершён или отменён — ничего не изменилось. |
 | `org.caravans.errors.foreign_group` | Bu guruh mavjud emas. | Эта группа недоступна. |
 | `org.caravans.errors.not_teacher` | Karvonni faqat shu guruhning o'qituvchisi ishga tushirishi va bekor qilishi mumkin. | Запускать и отменять караван может только учитель этой группы. |
 | `org.caravans.errors.group_inactive` | Guruh faollashtirilmagan — karvonni ishga tushirib bo'lmaydi. | Группа не активирована — караван запустить нельзя. |

@@ -284,7 +284,9 @@ class ClassCaravanResource extends OrgResource
             app(ClassCaravanMessenger::class)->announceCanceled($caravan->group);
         }
 
-        Notification::make()->title(__('org.caravans.notifications.canceled'))->success()->send();
+        $cancellation->canceledNow
+            ? Notification::make()->title(__('org.caravans.notifications.canceled'))->success()->send()
+            : Notification::make()->title(__('org.caravans.notifications.already_over'))->warning()->send();
     }
 
     /** The refusal of the service in the language of the cabinet (not of the chat of the group, not the text of the exception). */
