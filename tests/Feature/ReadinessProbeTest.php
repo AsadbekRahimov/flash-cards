@@ -239,11 +239,15 @@ it('answers 503 with a failed redis check, not 500, when Redis is unreachable', 
     Config::set('cache.default', 'redis');
     Config::set('cache.limiter', 'redis');
     Config::set('queue.default', 'redis');
-    foreach (['default', 'cache', 'locks'] as $connection) {
+    // Every Redis connection (cache, queue, locks, ...), and those resolved before the change (a real Redis in CI) are dropped.
+    $connections = array_keys(array_filter((array) config('database.redis'), 'is_array'));
+    foreach ($connections as $connection) {
         Config::set("database.redis.{$connection}.host", '127.0.0.1');
         Config::set("database.redis.{$connection}.port", '1');
         Config::set("database.redis.{$connection}.max_retries", 0);
+        app('redis')->purge($connection);
     }
+    app('cache')->forgetDriver(['redis']);
 
     // AppServiceProvider registers the named limiters at boot, which builds the RateLimiter on the test store.
     app()->forgetInstance(RateLimiter::class);
