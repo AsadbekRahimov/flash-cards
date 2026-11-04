@@ -79,14 +79,14 @@ foreach (Word::query()->whereIn('lesson_id', $lessons)->where('is_active', true)
     }
 }
 
-// One booster of a hint for every demo learner: the row of boosters is over the task in the runs, and at 320 x 568 it must not push the
+// Two boosters of a hint for every demo learner (the second one meets the free limit of the week): the row of boosters is over the task in the runs, and at 320 x 568 it must not push the
 // task under the bar (game:* and shots check that). The shop's own price is not the point here, so the item is put in the inventory.
 $hint = GameItem::query()->where('key', 'booster_hint')->first();
 if ($hint !== null) {
     foreach (Learner::query()->whereBetween('telegram_user_id', [200_000_001, 200_000_005])->get() as $learner) {
         GameInventoryItem::query()->updateOrCreate(
             ['learner_id' => $learner->id, 'item_id' => $hint->id],
-            ['qty' => 1, 'acquired_at' => now(), 'source' => InventorySource::Admin],
+            ['qty' => 2, 'acquired_at' => now(), 'source' => InventorySource::Admin],
         );
     }
 }

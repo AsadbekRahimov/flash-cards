@@ -11,6 +11,7 @@ import { GAME_TASK, TYPED_OR_CHOICE, currentElement, isWordKind, playRun, playRu
 export const GAME_EXPECTED_STATUSES = [
   { method: 'POST', path: /\/game\/runs$/, status: 409 },
   { method: 'POST', path: /\/game\/runs\/\d+\/hint$/, status: 409 },
+  { method: 'POST', path: /\/game\/runs\/\d+\/booster$/, status: 409 },
   { method: 'GET', path: /\/game\/runs\/\d+$/, status: 410 },
   { method: 'POST', path: /\/answer$/, status: 0 },
   { method: 'GET', path: /\/audio\//, status: 0 },
@@ -89,6 +90,7 @@ async function gameStop(env, s) {
   const created = await p.waitCall(/\/game\/runs$/, { method: 'POST', since: mark, status: 201 })
   const started = JSON.parse(created.body)
   await p.waitFor('game-run-view')
+  await s.check(started.stage_id === null && started.class_caravan_id === null, 'a run of a stop has no stage_id and no class_caravan_id', { players: [p], since: mark, actual: `${started.stage_id} ${started.class_caravan_id}` })
   await s.check(started.kind === 'stop' && started.lesson_id === 2 && started.course?.slug === 'default', 'the new run knows its course and its stop (G2.7a seam)', { players: [p], since: mark, actual: `${started.kind} lesson ${started.lesson_id} course ${started.course?.slug}` })
   await s.check(created.req === JSON.stringify({ kind: 'stop', course: 'default', lesson_id: 2 }), 'the start asks for the stop of the course and nothing else', { players: [p], since: mark, actual: created.req })
   await s.check(path(p) === `/twa/game/runs/${started.id}`, 'the run has an address without a query', { players: [p], actual: path(p) })
@@ -100,6 +102,8 @@ async function gameStop(env, s) {
   const skipAt = run.snapshot.elements.findIndex((element, index) => index > wrongAt && TYPED_OR_CHOICE.includes(element.kind))
   let hinted = false
   let listened = false
+  let boostedAt = null
+  let limitMet = false
   const events = []
   const { answers, last } = await playRun(env, s, p, started.id, {
     plan: (index) => (index === wrongAt ? 'wrong' : index === skipAt ? 'skip' : 'right'),
@@ -120,6 +124,28 @@ async function gameStop(env, s) {
           await s.check((await p.text('toast')).includes('монет'), 'the toast tells the coins are short', { players: [p], actual: await p.text('toast') })
           await s.check(await p.visible(GAME_TASK[element.kind]), 'the task stays after the refusal', { players: [p] })
         }
+        // A hint of the stock (the learner has two): the first is used, the second meets the free limit of the week - 409 with `upsell`.
+        const canHint = ['translate_fwd', 'translate_back', 'listen', 'spell', 'gap'].includes(element.kind) && index >= 1 && index !== wrongAt && index !== skipAt && !bazaar
+        if (canHint && boostedAt === null) {
+          boostedAt = index
+          s.step('a hint of the stock: the first booster of the week')
+          const before = p.mark()
+          await p.click('booster-hint')
+          const call = await p.waitCall(/\/booster$/, { method: 'POST', since: before, status: 200 })
+          await s.check(JSON.parse(call.body).boosters.used.some((used) => used.effect === 'hint' && used.element_id === element.id), 'the run says the hint of this element is used', { players: [p], since: before, actual: call.body.slice(0, 200) })
+          await s.check(await p.has('hint-prefix') || (await p.page.evaluate(() => document.querySelector('[data-removed="true"]') !== null)), 'the hint is drawn on the task (options taken away or the first letters)', { players: [p] })
+        } else if (canHint && boostedAt !== null && boostedAt !== index && !limitMet) {
+          limitMet = true
+          s.step('the second hint of the week: the free limit is met')
+          const before = p.mark()
+          await p.click('booster-hint')
+          const call = await p.waitCall(/\/booster$/, { method: 'POST', since: before, status: 409 })
+          const refused = JSON.parse(call.body).error
+          await s.check(refused.code === 'booster_limit_reached' && refused.details.upsell === true && typeof refused.details.resets_at === 'string', 'the real 409 carries `upsell: true` for a Free learner', { players: [p], since: before, actual: call.body })
+          await p.waitFor('paywall')
+          await s.check(true, 'the paywall of the game opens for Free', { players: [p] })
+          await p.click('paywall-x')
+        }
         if (element.kind === 'listen' && !listened) {
           listened = true
           await until(() => p.calls(/\/audio\//).some((call) => call.path.includes(element.id) && call.status === 200), { label: 'the clip of the listen task is fetched', timeout: 8000 })
@@ -138,17 +164,20 @@ async function gameStop(env, s) {
   const summary = last.run.summary
   const row = runRow(env.oracle, started.id)
   const mistakes = answers.filter((answer) => answer.intent !== 'right')
+  // The list of the summary: the mistakes and the right answers that came after a hint (`hinted`), in the order of the run.
+  const listed = answers.filter((answer) => answer.intent !== 'right' || answer.index === boostedAt)
   const opts = { players: [p] }
   await s.check(summary !== null && last.run.status === 'finished', 'the last answer carries the summary of a finished run', { ...opts, actual: `${last.run.status}` })
   await s.check(shown.outcome === 'completed' && shown.title === 'Забег пройден', 'the run was completed', { ...opts, actual: `${shown.outcome} ${shown.title}` })
   await s.check(shown.score === summary.score && shown.stars === summary.stars, 'the screen shows the score and the stars of the API', { ...opts, expected: `${summary.score}, ${summary.stars} stars`, actual: `${shown.score}, ${shown.stars} stars` })
   await s.check(summary.stars >= 1 && summary.stars <= 3, 'a completed run has 1-3 stars', { ...opts, actual: summary.stars })
-  await s.check(shown.mistakes.length === mistakes.length && summary.mistakes.length === mistakes.length, `the summary lists exactly the ${mistakes.length} mistakes made`, { ...opts, expected: mistakes.length, actual: `screen ${shown.mistakes.length}, API ${summary.mistakes.length}` })
+  await s.check(shown.mistakes.length === listed.length && summary.mistakes.length === listed.length, `the summary lists exactly the ${listed.length} mistakes and hinted answers`, { ...opts, expected: listed.length, actual: `screen ${shown.mistakes.length}, API ${summary.mistakes.length}` })
   for (const [index, mistake] of shown.mistakes.entries()) {
     const wanted = summary.mistakes[index]
     await s.check(wanted && mistake.label === wanted.label, `mistake ${index + 1} names the word of the API ("${wanted?.label}")`, { ...opts, actual: mistake.label })
   }
-  await s.check(shown.mistakes.map((mistake) => mistake.verdict).join() === mistakes.map((mistake) => (mistake.intent === 'skip' ? 'Не знали' : 'Неверно')).join(), 'the verdicts of the mistakes are in words ("Неверно", "Не знали")', { ...opts, actual: shown.mistakes.map((mistake) => mistake.verdict).join() })
+  await s.check(summary.mistakes.filter((mistake) => mistake.hinted === true).length === (boostedAt === null ? 0 : 1) && summary.mistakes.every((mistake) => typeof mistake.hinted === 'boolean'), 'the real summary says `hinted` for every row, true for the hint of the stock', { ...opts, actual: JSON.stringify(summary.mistakes.map((mistake) => [mistake.verdict, mistake.hinted])) })
+  await s.check(shown.mistakes.map((mistake) => mistake.verdict).join() === listed.map((mistake) => (mistake.intent === 'skip' ? 'Не знали' : mistake.intent === 'right' ? 'С подсказкой' : 'Неверно')).join(), 'the verdicts are in words ("Неверно", "Не знали", "С подсказкой" for a right answer after a hint)', { ...opts, actual: shown.mistakes.map((mistake) => mistake.verdict).join() })
   await s.check(shown.again === true, 'a run of a stop offers "Ещё раз"', opts)
   await s.check(row.status === 'finished' && row.finish_reason === 'completed' && row.answered === run.total, 'the row of the run in the database: finished, completed, all answered', { ...opts, actual: `${row.status}/${row.finish_reason} answered ${row.answered}` })
   await s.check(row.score === summary.score && row.stars === summary.stars && row.wrong + row.typos >= 1, 'the row has the score and the stars of the summary and the mistakes', { ...opts, actual: `score ${row.score} stars ${row.stars} wrong ${row.wrong}` })
@@ -423,6 +452,7 @@ async function gameBoss(env, s) {
   const lostRun = JSON.parse(created.body)
   await p.waitFor('game-run-view')
   await s.check(created.req === JSON.stringify({ kind: 'boss', course: 'default', stage_id: city.stage_id }), 'the start names the boss of the city of the map', { ...opts, since: mark, actual: created.req })
+  await s.check(lostRun.stage_id === city.stage_id && lostRun.class_caravan_id === null, 'the real boss run carries stage_id of its city', { ...opts, since: mark, actual: `${lostRun.stage_id} ${lostRun.class_caravan_id}` })
   await s.check(lostRun.kind === 'boss' && lostRun.total === 12 && lostRun.flasks_max === 0, 'a boss: 12 tasks, no flasks', { ...opts, actual: `${lostRun.kind} ${lostRun.total} ${lostRun.flasks_max}` })
   await s.check(path(p) === `/twa/game/runs/${lostRun.id}?course=default&boss=${city.stage_id}`, 'the run\'s address carries the course and the boss', { ...opts, actual: path(p) })
   const lost = await playRun(env, s, p, lostRun.id, { plan: (index) => (index < 3 ? 'wrong' : 'right') })
