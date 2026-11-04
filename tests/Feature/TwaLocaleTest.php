@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
+use Illuminate\Foundation\Events\LocaleUpdated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
@@ -65,4 +68,27 @@ it('uses the default locale for /auth without Accept-Language', function (): voi
     $this->postJson('/api/twa/auth', [])
         ->assertStatus(422)
         ->assertJsonPath('errors.init_data.0', 'Поле initData обязательно для заполнения.');
+});
+
+it('does not re-dispatch LocaleUpdated when the locale is already current, and switches ru -> uz -> ru in one process', function (): void {
+    $dispatched = 0;
+    Event::listen(LocaleUpdated::class, function () use (&$dispatched): void {
+        $dispatched++;
+    });
+    app()->setLocale('ru');
+    $dispatched = 0;
+
+    $ru = Learner::factory()->create(['interface_locale' => 'ru']);
+    $uz = Learner::factory()->create(['interface_locale' => 'uz']);
+
+    expect(patchInvalidGoal($ru)->json('errors.daily_goal.0'))->toBe('Поле дневная цель должно быть целым числом.')
+        ->and($dispatched)->toBe(0);
+
+    expect(patchInvalidGoal($uz)->json('errors.daily_goal.0'))->toBe('kunlik maqsad maydoni butun son bo\'lishi kerak.')
+        ->and($dispatched)->toBe(1)
+        ->and(Carbon::now()->locale)->toBe('uz');
+
+    expect(patchInvalidGoal($ru)->json('errors.daily_goal.0'))->toBe('Поле дневная цель должно быть целым числом.')
+        ->and($dispatched)->toBe(2)
+        ->and(Carbon::now()->locale)->toBe('ru');
 });

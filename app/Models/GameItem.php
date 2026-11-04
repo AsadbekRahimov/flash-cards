@@ -9,8 +9,10 @@ use App\Domain\Game\Enums\ItemAvailability;
 use App\Domain\Game\Enums\ItemKind;
 use App\Domain\Game\Enums\ItemSlot;
 use App\Domain\Game\Enums\ItemStatus;
+use App\Observers\GameItemObserver;
 use Carbon\CarbonImmutable;
 use Database\Factories\GameItemFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
+#[ObservedBy(GameItemObserver::class)]
 class GameItem extends Model
 {
     /** @use HasFactory<GameItemFactory> */

@@ -27,31 +27,23 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
-use App\Models\GameItem;
+use App\Http\Middleware\PublishNotificationsOutsideApi;
 use App\Models\Learner;
-use App\Models\Lesson;
 use App\Models\Organization;
-use App\Models\OrganizationUser;
 use App\Models\Payment;
-use App\Models\ProviderTransaction;
-use App\Models\Stage;
-use App\Models\TelegramGroup;
-use App\Models\WordTranslation;
-use App\Observers\CourseTreeObserver;
-use App\Observers\GameItemObserver;
-use App\Observers\MoneyWidgetsObserver;
-use App\Observers\OrganizationObserver;
-use App\Observers\OrganizationUserObserver;
 use App\Observers\TelegramGroupObserver;
 use App\Observers\WordTranslationObserver;
 use App\Policies\Org\OrgPolicyResolver;
+use Filament\Notifications\Http\Middleware\PublishNotifications;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Foundation\Http\Kernel as FoundationKernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -188,28 +180,12 @@ class AppServiceProvider extends ServiceProvider
         // `subscriptions.subscriber_type` stores 'learner' / 'organization' (docs/12 §1.9).
         Relation::morphMap(['learner' => Learner::class, 'organization' => Organization::class]);
 
-        // Entitlement cache invalidation on the inputs that live outside the
-        // billing services: a group's organization link / status and an
-        // organization's status (docs/12 §5.2).
-        TelegramGroup::observe(TelegramGroupObserver::class);
-        Organization::observe(OrganizationObserver::class);
-        GameItem::observe(GameItemObserver::class);
-
-        // The money widgets of the admin dashboard are cached; a payment, a refund or a provider's cancel drops them (docs/19 K1).
-        Payment::observe(MoneyWidgetsObserver::class);
-        ProviderTransaction::observe(MoneyWidgetsObserver::class);
-
-        // Content caches (docs/19 K3, K4): the tree of a course follows its modules and lessons, the translation rows of a word
-        // follow its `word_translations`; the words of a course and the statuses are dropped by CoursePublisher::recount()/transition().
-        Stage::observe(CourseTreeObserver::class);
-        Lesson::observe(CourseTreeObserver::class);
-        WordTranslation::observe(WordTranslationObserver::class);
+        // The model observers (entitlement caches, money widgets, course tree, word translations, the org staff memory) are not
+        // registered here: they hang on their models as #[ObservedBy], so a request loads only the models it really uses
+        // (registering them all here cost ~2.5 ms of class loading on every request). The scoped bindings above stay.
 
         // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
         OrgPolicyResolver::register();
-
-        // A staff row written in this request changes the role its policies see: drop the per-request memory.
-        OrganizationUser::observe(OrganizationUserObserver::class);
 
         // A process that handles many requests without Octane (the test suite) would carry the memories of the
         // panels from one request into the next; FPM and Octane do not need this, it costs them nothing.
@@ -220,6 +196,9 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+
+        // Filament puts PublishNotifications into the global middleware, where it also wraps API calls and webhooks.
+        $this->swapNotificationsMiddleware();
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
@@ -374,6 +353,38 @@ class AppServiceProvider extends ServiceProvider
 
                 return Limit::perMinute($perMinute)->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
             });
+        }
+    }
+
+    /**
+     * Replaces Filament's global `PublishNotifications` with the variant that steps aside for `/api/*` and the webhooks
+     * (the mailbox is not even built there). The panels keep the original behaviour. If Filament has not registered the
+     * middleware (or a version changes how), nothing is replaced and the original keeps working.
+     */
+    private function swapNotificationsMiddleware(): void
+    {
+        $swap = static function (HttpKernel $kernel): void {
+            if (! $kernel instanceof FoundationKernel) {
+                return;
+            }
+
+            $global = $kernel->getGlobalMiddleware();
+            if (! in_array(PublishNotifications::class, $global, true)) {
+                return;
+            }
+
+            $kernel->setGlobalMiddleware(array_map(
+                static fn (mixed $middleware): mixed => $middleware === PublishNotifications::class ? PublishNotificationsOutsideApi::class : $middleware,
+                $global,
+            ));
+        };
+
+        // HTTP: the kernel is already built and Filament has already prepended its middleware. Console: the kernel is built
+        // later (if ever); Filament's own callback was registered before this one.
+        if ($this->app->resolved(HttpKernel::class)) {
+            $swap($this->app->make(HttpKernel::class));
+        } else {
+            $this->app->afterResolving(HttpKernel::class, $swap);
         }
     }
 }

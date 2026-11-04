@@ -28,9 +28,15 @@ final class SetTwaLocale
     {
         $learner = $request->attributes->get('learner');
 
-        App::setLocale($learner instanceof Learner
+        $locale = $learner instanceof Learner
             ? $this->locales->forLearner($learner)
-            : $this->locales->fromAcceptLanguage($request->getLanguages()));
+            : $this->locales->fromAcceptLanguage($request->getLanguages());
+
+        // setLocale() writes the config, the translator and dispatches LocaleUpdated (Carbon re-reads its translator
+        // on it): ~0.2-4 ms per request. When the locale is already current there is nothing to switch.
+        if (App::getLocale() !== $locale) {
+            App::setLocale($locale);
+        }
 
         return $next($request);
     }

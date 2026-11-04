@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\MoneyWidgetsObserver;
 use Database\Factories\PaymentFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,6 +39,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $payer_name
  * @property string|null $payer_username
  */
+#[ObservedBy(MoneyWidgetsObserver::class)]
 class Payment extends Model
 {
     /** @use HasFactory<PaymentFactory> */
