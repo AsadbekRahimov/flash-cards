@@ -657,7 +657,11 @@ ledger. Buttons — **Начислить монеты** / **Списать мо�
   stops at the cap (`tickets.max`, 10): if some tickets did not fit, a notice says how many. The audit record `game.tickets_adjusted` is written first.
 
 **Widget «Караван — 7 дней»** (dashboard, admin only): runs started in 7 days (all kinds, abandoned ones included), learners who played, and their
-share among the learners active in 7 days. Cached for 5 minutes (a figure past its time is shown once while it is recomputed); no polling.
+share among the learners active in 7 days. Three pilot numbers follow (docs/18 §10): **runs per player a day** (runs that ended completed or failed,
+divided by the learners who started a run and by 7, one decimal); **from the game paywall to payment** («N из M (x %)»: M = learners refused by a Free limit
+in 7 days, N = those of them with a payment after the first refusal); **right answers in cards** (share of grades 3+ in the training of the last 7 days,
+for the players, i.e. at least one completed or failed run in the week, and for the other active learners; «—» when there are no answers). Cached for
+5 minutes (a figure past its time is shown once while it is recomputed); no polling. Retention D7/D30 by A/B group is not here: it is counted once the group exists.
 
 ---
 
@@ -676,7 +680,7 @@ share among the learners active in 7 days. Cached for 5 minutes (a figure past i
 | SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
-| Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`). Cached for 5 minutes; see *Caravan game* above |
+| Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`), plus runs per player a day, paywall-to-payment conversion and right answers in cards (players vs others). Cached for 5 minutes; see *Caravan game* above |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

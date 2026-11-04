@@ -36,6 +36,9 @@ final class WidgetCache
     /** Shape of the cached arrays: raise it when a widget changes what it stores, the old keys then just expire. */
     public const VERSION = 'v1';
 
+    /** A widget whose cached shape changed has its own version (the old keys just expire). */
+    public const WIDGET_VERSIONS = ['game_activity' => 'v2'];
+
     /** The data version of the money widgets, on the non-evicting default store. */
     public const MONEY_VERSION_KEY = 'admin:widget:money:ver';
 
@@ -88,6 +91,6 @@ final class WidgetCache
 
     public static function key(string $widget, string $scope, string $params = ''): string
     {
-        return "admin:widget:{$widget}:".self::VERSION.":{$scope}".($params === '' ? '' : ":{$params}");
+        return "admin:widget:{$widget}:".(self::WIDGET_VERSIONS[$widget] ?? self::VERSION).":{$scope}".($params === '' ? '' : ":{$params}");
     }
 }
