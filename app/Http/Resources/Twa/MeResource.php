@@ -9,9 +9,7 @@ use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Twa\Services\MePayloadBuilder;
 use App\Models\Learner;
-use App\Models\TelegramGroup;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 /**
  * GET /api/twa/me
@@ -20,7 +18,7 @@ use Illuminate\Support\Collection;
  * @phpstan-import-type PracticeBlock from MePayloadBuilder
  * @phpstan-import-type GameBlock from MePayloadBuilder
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock} $resource
+ * @property array{learner: Learner, groups: list<array{id: int, title: string}>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -50,11 +48,7 @@ final class MeResource extends TwaResource
                 'locale' => $learner->interface_locale,
                 'onboarding_completed' => $learner->onboarding_state === 'done',
             ],
-            'groups' => array_values(
-                $this->resource['groups']
-                    ->map(fn (TelegramGroup $group): array => ['id' => $group->id, 'title' => $group->title])
-                    ->all(),
-            ),
+            'groups' => $this->resource['groups'],
             'stats' => [
                 'words_learned' => $stats->wordsLearned,
                 'words_due_today' => $stats->wordsDueToday,

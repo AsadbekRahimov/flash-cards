@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
@@ -57,20 +58,32 @@ final class TodayService
         $now ??= CarbonImmutable::now();
 
         $today = $this->clock->today($learner, $now);
-        // Today's row is read once for the whole screen: the settle of the weekly freeze and the goal / streak block share it.
-        $stats = $this->dailyStats->today($learner, $now);
+        $todayDate = $today->toDateString();
+        // Today's and yesterday's rows in one statement: the settle of the weekly freeze, the goal / streak block and the
+        // "frozen yesterday" of the series share them.
+        $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
+        $stats = $rows[$todayDate] ?? null;
+        // The plan is resolved once for the whole screen (the entitlement block, the quota, the freezes) - docs/19 K9.
+        $entitlement = $this->entitlements->for($learner, $now);
 
-        $this->handOutWeeklyFreeze($learner, $today, $stats, $now);
+        // A settle may freeze yesterday: the goal / streak block then reads yesterday again rather than the rows above.
+        $settled = $this->handOutWeeklyFreeze($learner, $today, $stats, $now, $entitlement, $rows);
 
-        $dueCount = $this->stats->dueCount($learner, $now);
+        // The due cards and the cards served today (the Free quota) in one statement; a plan without a limit counts nothing.
+        $queries = ['due' => $this->stats->dueQuery($learner, $now)];
+        if ($entitlement->newWordsPerDay !== null) {
+            $queries['served'] = $this->quota->servedTodayQuery($learner, $now);
+        }
+        $counts = $this->stats->counts($queries);
+        $dueCount = $counts['due'];
 
         return new TodaySummary(
             dueCount: $dueCount,
-            newWordsRemaining: $this->quota->remaining($learner, $now),
-            progress: $this->progressOn($learner, $today, $stats, $now),
+            newWordsRemaining: $this->quota->remaining($learner, $now, $entitlement, $counts['served'] ?? null),
+            progress: $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows),
             activeCourse: $this->activeCourse($learner),
             openSessionId: $this->openDailySessionId($learner, $now),
-            entitlement: $this->entitlements->for($learner, $now),
+            entitlement: $entitlement,
             onboardingCompleted: $learner->onboarding_state === 'done',
             // The zone the clock really counted the day in (an unknown stored value falls back there): the TWA dates its header by it.
             timezone: $this->clock->timezone($learner)->getName(),
@@ -85,10 +98,15 @@ final class TodayService
      */
     public function progress(Learner $learner, ?CarbonImmutable $now = null): DailyProgress
     {
-        return $this->progressOn($learner, $this->clock->today($learner, $now), $this->dailyStats->today($learner, $now), $now);
+        $today = $this->clock->today($learner, $now);
+        $todayDate = $today->toDateString();
+        $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
+
+        return $this->progressOn($learner, $today, $rows[$todayDate] ?? null, $now, null, $rows);
     }
 
-    private function progressOn(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, ?CarbonImmutable $now): DailyProgress
+    /** @param  array<string, LearnerDailyStats>|null  $dayRows  today's and yesterday's rows by `Y-m-d`, when read already */
+    private function progressOn(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, ?CarbonImmutable $now, ?Entitlement $entitlement, ?array $dayRows): DailyProgress
     {
         return new DailyProgress(
             new DailyGoal(
@@ -96,7 +114,7 @@ final class TodayService
                 done: $stats->reviews_count ?? 0,
                 met: $stats?->goal_met_at !== null,
             ),
-            $this->streaks->current($learner, $today, $stats, $now),
+            $this->streaks->current($learner, $today, $stats, $now, $entitlement, $dayRows),
         );
     }
 
@@ -105,22 +123,27 @@ final class TodayService
      * has freezes: for any other learner refill() does nothing, so there is nothing to settle ahead of it either
      * (the goal / streak block settles the series, once). `streak_freezes_refilled_on` only ever moves forward, so
      * a model that already shows this week cannot be behind the database and no statement is spent on it.
+     * Returns true when the series was settled here (yesterday may have been frozen by it).
+     *
+     * @param  array<string, LearnerDailyStats>  $dayRows  today's and yesterday's rows by `Y-m-d`
      */
-    private function handOutWeeklyFreeze(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, CarbonImmutable $now): void
+    private function handOutWeeklyFreeze(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, CarbonImmutable $now, Entitlement $entitlement, array $dayRows): bool
     {
-        if (! $this->freezes->enabled($learner, $now)) {
-            return;
+        if (! $this->freezes->enabled($learner, $now, $entitlement)) {
+            return false;
         }
 
         $weekStart = $today->startOfWeek(CarbonInterface::MONDAY)->toDateString();
         if ($learner->streak_freezes_refilled_on !== null && $learner->streak_freezes_refilled_on->toDateString() >= $weekStart) {
-            return;
+            return false;
         }
 
         // A series that the stock could not cover BEFORE this refill is already burnt (docs/13 §12 q.16):
         // settle it first, so the freeze handed out below cannot save it retroactively.
-        $this->streaks->current($learner, $today, $stats, $now);
+        $this->streaks->current($learner, $today, $stats, $now, $entitlement, $dayRows);
         $this->freezes->refill($learner, $today, $now);
+
+        return true;
     }
 
     /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */

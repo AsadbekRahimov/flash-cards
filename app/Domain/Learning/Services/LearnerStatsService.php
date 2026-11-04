@@ -9,6 +9,9 @@ use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Models\Learner;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 final class LearnerStatsService
 {
@@ -23,14 +26,56 @@ final class LearnerStatsService
      * (re)learning cards abandoned long enough ago. Rows in `new` state and
      * fresh minute steps inside a session are not "due today".
      */
-    public function forLearner(Learner $learner): LearnerStats
+    public function forLearner(Learner $learner, ?CarbonImmutable $now = null): LearnerStats
     {
-        $wordsLearned = WordRepetition::query()
-            ->where('learner_id', $learner->id)
-            ->where('repetitions', '>=', 1)
-            ->count();
+        // Both counts of the learner's rows in ONE statement (two scalar subqueries, each on its own index) - docs/19 K9.
+        $counts = $this->counts([
+            'learned' => WordRepetition::query()->where('learner_id', $learner->id)->where('repetitions', '>=', 1),
+            'due' => $this->dueQuery($learner, $now),
+        ]);
 
-        return new LearnerStats($wordsLearned, $this->dueCount($learner));
+        return new LearnerStats($counts['learned'], $counts['due']);
+    }
+
+    /**
+     * `count(*)` of every query in ONE statement: `select (select count(*) ...) as a, (select count(*) ...) as b`. For the
+     * counters of a screen that are read together (the Today screen: the due cards and the cards served today).
+     *
+     * @param  array<string, Builder<WordRepetition>>  $queries  alias => the rows to count (the alias is a plain identifier)
+     * @return array<string, int> the same aliases
+     */
+    public function counts(array $queries): array
+    {
+        if ($queries === []) {
+            return [];
+        }
+
+        $statement = DB::query();
+        foreach ($queries as $alias => $query) {
+            if (preg_match('/^[a-z_]+$/', $alias) !== 1) {
+                throw new InvalidArgumentException("Count alias '{$alias}' is not a plain identifier.");
+            }
+            $statement->selectSub($query->toBase()->selectRaw('count(*)'), $alias);
+        }
+
+        /** @var object|null $row */
+        $row = $statement->first();
+        $counts = [];
+        foreach (array_keys($queries) as $alias) {
+            $counts[$alias] = (int) ($row->{$alias} ?? 0);
+        }
+
+        return $counts;
+    }
+
+    /**
+     * The due cards of the learner (the rule of {@see dueCount()}) as a query, for {@see counts()}.
+     *
+     * @return Builder<WordRepetition>
+     */
+    public function dueQuery(Learner $learner, ?CarbonImmutable $now = null): Builder
+    {
+        return $this->due->apply(WordRepetition::query()->where('learner_id', $learner->id), $now);
     }
 
     /**
@@ -81,9 +126,6 @@ final class LearnerStatsService
      */
     public function dueCount(Learner $learner, ?CarbonImmutable $now = null): int
     {
-        return $this->due->apply(
-            WordRepetition::query()->where('learner_id', $learner->id),
-            $now,
-        )->count();
+        return $this->dueQuery($learner, $now)->count();
     }
 }

@@ -1106,6 +1106,8 @@ final class SubscriptionService
             $markers[] = $marker;
             $meta[self::META_RENEWAL_REMINDERS] = $markers;
             $s->fill(['meta' => $meta])->save();
+            // `reminder_sent` of `/me` lives in the profile snapshot (docs/19 K9): the marker moves the learner's version.
+            $this->forgetAfterCommit($s);
 
             $event = new SubscriptionRenewalDue($s->id, $s->subscriber_type, $s->subscriber_id, $s->provider, $daysLeft, $ends);
             DB::afterCommit(static function () use ($event): void {

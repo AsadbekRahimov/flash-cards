@@ -27,6 +27,7 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
+use App\Http\Middleware\AtomicThrottle;
 use App\Http\Middleware\PublishNotificationsOutsideApi;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Foundation\Http\Kernel as FoundationKernel;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -57,6 +59,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // `throttle:*` (the alias of the kernel points at ThrottleRequests): the check, the hit and the remaining count in one Redis
+        // command per limiter instead of five (docs/19 §5.1, R12i); on a non-Redis limiter store the parent does the work.
+        $this->app->bind(ThrottleRequests::class, AtomicThrottle::class);
+
         $this->app->singleton(IrazasyedTelegramClient::class, function (): IrazasyedTelegramClient {
             return new IrazasyedTelegramClient(
                 new Api((string) config('telegram.bot_token')),

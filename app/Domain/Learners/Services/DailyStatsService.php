@@ -186,6 +186,28 @@ class DailyStatsService
     }
 
     /**
+     * The rows of several local days of the learner in ONE statement, keyed by `Y-m-d` (a day without a row is absent) -
+     * the Today screen reads today and yesterday together (docs/19 K9).
+     *
+     * @param  list<string>  $localDates  `Y-m-d`
+     * @return array<string, LearnerDailyStats>
+     */
+    public function forDates(Learner $learner, array $localDates): array
+    {
+        if ($localDates === []) {
+            return [];
+        }
+
+        $rows = [];
+        /** @var LearnerDailyStats $row */
+        foreach (LearnerDailyStats::query()->where('learner_id', $learner->id)->whereIn('date', array_map(StoredDate::of(...), $localDates))->get() as $row) {
+            $rows[$row->date->toDateString()] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
      * The learner's row of the day, locked, together with the goal in force — created first when the day has no row yet.
      *
      * @return array{0: LearnerDailyStats, 1: int} the locked row and `max(1, daily_goal)`
