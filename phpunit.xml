@@ -31,6 +31,10 @@
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="DB_URL" value=""/>
+        <!-- Never persistent PDO handles in the tests (CI runs them on pgsql): the race tests pcntl_fork() the process, and a
+             child would inherit the parent's socket - two processes on one PostgreSQL session interleave their replies.
+             PersistentPgsqlConnectionTest opens its own persistent connection on purpose and kills it afterwards. -->
+        <env name="DB_PERSISTENT" value="false"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

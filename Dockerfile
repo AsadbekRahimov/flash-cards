@@ -48,6 +48,13 @@ RUN set -eu; \
         php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }; \
     done
 RUN pg_dump --version | grep -q ' 18\.' || { echo "pg_dump must be 18.x, got: $(pg_dump --version)" >&2; exit 1; }
+# pdo_pgsql must be built against libpq >= 17: it then closes a named prepared statement with the protocol Close message
+# (PQclosePrepared) that pgbouncer understands, instead of an SQL `DEALLOCATE` that pgbouncer forwards to a server
+# connection which never prepared that name - an error, and inside a transaction an aborted one. The application sends
+# unnamed statements by default (DB_DISABLE_PREPARES=true, config/database.php); this keeps the other setting safe too.
+RUN set -eu; \
+    libpq="$(php -i | sed -nE 's/^PostgreSQL\(libpq\) Version => ([0-9]+).*/\1/p' | head -n 1)"; \
+    [ "${libpq:-0}" -ge 17 ] || { echo "pdo_pgsql must be built against libpq >= 17 (pgbouncer closes prepared statements by protocol), got libpq '${libpq:-?}'" >&2; exit 1; }
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php/zz-lexiflow.ini /usr/local/etc/php/conf.d/zz-lexiflow.ini
@@ -110,6 +117,38 @@ CMD ["php-fpm"]
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=6 \
     CMD php-fpm -t || exit 1
+
+# pgbouncer in front of PostgreSQL (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»):
+# the same publisher as the other images (Alpine), the package of the distribution. postgresql18-client: pg_isready for the
+# healthcheck and psql for the console (SHOW POOLS). Configuration is generated at start from the environment.
+FROM alpine:3.24 AS pgbouncer
+
+RUN apk add --no-cache pgbouncer postgresql18-client \
+    && rm -rf /var/cache/apk/*
+
+# Protocol-level prepared statements in transaction mode need pgbouncer >= 1.21: a too old package breaks the build.
+RUN set -eu; \
+    v="$(pgbouncer --version | sed -nE 's/.* ([0-9]+)\.([0-9]+)(\.[0-9]+)?.*/\1 \2/p')"; \
+    set -- $v; \
+    { [ "${1:-0}" -gt 1 ] || { [ "${1:-0}" -eq 1 ] && [ "${2:-0}" -ge 21 ]; }; } \
+        || { echo "pgbouncer >= 1.21 is required, got: $(pgbouncer --version)" >&2; exit 1; }
+
+COPY docker/pgbouncer/entrypoint.sh /usr/local/bin/lexiflow-pgbouncer-entrypoint
+RUN chmod +x /usr/local/bin/lexiflow-pgbouncer-entrypoint \
+    && (getent passwd pgbouncer >/dev/null || adduser -S -D -H -s /sbin/nologin pgbouncer) \
+    && mkdir -p /etc/pgbouncer \
+    && chown pgbouncer /etc/pgbouncer \
+    && chmod 700 /etc/pgbouncer
+
+USER pgbouncer
+
+EXPOSE 5432
+
+ENTRYPOINT ["/usr/local/bin/lexiflow-pgbouncer-entrypoint"]
+CMD ["pgbouncer", "/etc/pgbouncer/pgbouncer.ini"]
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
+    CMD pg_isready -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" -d "$DB_DATABASE" || exit 1
 
 FROM nginx:1.30-alpine AS nginx
 

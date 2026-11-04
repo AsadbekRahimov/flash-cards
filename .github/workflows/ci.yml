@@ -194,6 +194,7 @@ jobs:
               run: |
                   docker build --target app --tag lexiflow/app:ci .
                   docker build --target nginx --tag lexiflow/nginx:ci .
+                  docker build --target pgbouncer --tag lexiflow/pgbouncer:ci .
 
             - name: Build dev Docker image
               # Dockerfile.dev is what `docker compose up` builds locally (docker-compose.override.yml): it must not rot unnoticed.

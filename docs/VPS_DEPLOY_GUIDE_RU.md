@@ -300,6 +300,9 @@ effective_cache_size = 3GB
 work_mem = 16MB
 maintenance_work_mem = 256MB
 max_connections = 100
+# Сессия, молчащая минуту с открытой транзакцией, закрывается (транзакция откатывается): страховка от утёкшей транзакции
+# при постоянных соединениях php-fpm (DB_PERSISTENT=true, §10 «Значения на запуск»; DEVOPS_GUIDE §0). Docker-стек задаёт то же.
+idle_in_transaction_session_timeout = 60s
 ```
 
 ```bash
@@ -639,9 +642,18 @@ PAYME_KEY=                                  # пусто, пока PAYME_ENABLED
 PAYME_TEST_KEY=
 PAYME_ALLOW_TEST_KEY=false                  # тестовый ключ Payme в проде не принимается
 CLICK_SECRET_KEY=
+
+# --- База: pgbouncer и постоянные соединения (R12d, решение владельца 04.11.2026; DEVOPS_GUIDE §0) ---
+DB_HOST=pgbouncer                           # Docker-стек: приложение и воркеры ходят через pgbouncer (transaction mode, порт 5432);
+                                            # голый сервер без pgbouncer - DB_HOST=127.0.0.1 как в §9, остальное ниже действует так же
+DB_PERSISTENT=true                          # одно соединение на воркер php-fpm между запросами: -29 мс CPU на запрос, p95 при 100 VU 514 -> 107 мс
+DB_DISABLE_PREPARES=true                    # умолчание; запросы безымянными statement'ами, без PREPARE/DEALLOCATE на каждый запрос
+# DB_DIRECT_HOST / DB_DIRECT_PORT (postgres:5432 - миграции и pg_dump мимо pgbouncer) compose подставляет контейнерам сам.
+# Размер пула - PGBOUNCER_POOL_SIZE / PGBOUNCER_RESERVE_POOL_SIZE / PGBOUNCER_MAX_CLIENT_CONN: умолчания 20 / 4 / 200, бюджет в DEVOPS_GUIDE §0.
 ```
 
 Что важно:
+- **pgbouncer.** `deploy.sh` собирает образ `lexiflow/pgbouncer` (стадия `pgbouncer` в `Dockerfile`) и поднимает его вместе с `postgres`; приложение ждёт его healthcheck. Выключить — `DB_HOST=postgres` в `.env` и `deploy.sh`; тогда с `DB_PERSISTENT=true` каждый воркер php-fpm держит свой backend PostgreSQL, и Σ `PHP_FPM_MAX_CHILDREN` + воркеры очередей + команды планировщика должны оставаться заметно ниже `max_connections` (100). На голом сервере без pgbouncer — та же арифметика; `idle_in_transaction_session_timeout = 60s` в `conf.d/lexiflow.conf` (§4.3) в обоих случаях.
 - **Только Stars.** Цены в сумах остаются в `.env`, но пока `PAYME_ENABLED=false` и `CLICK_ENABLED=false`, ученику предлагается лишь оплата Stars
   (Mini App, `/pro`, лендинг показывают цену только в Stars). Покупка Pro за сумы возвращает `provider_disabled`.
   В `/org` → «Биллинг» без Payme и Click онлайн-оплаты нет; владелец центра видит «Запросить счёт», если задан `BILLING_INVOICE_REQUEST_EMAIL` (или `SITE_LEGAL_EMAIL`).
