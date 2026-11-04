@@ -944,6 +944,22 @@ it('starts the fight with the boss of the class over the API: 12 tasks of the wo
     expect(GameRun::query()->where('kind', 'class_boss')->count())->toBe(2);
 });
 
+it('lets a plain start over an expired unanswered class-boss fight through before the sweeper comes: a new fight, the old one expired and without the key', function (): void {
+    $w = classWorld(1, words: 14);
+    [$a] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    $caravan->update(['boss_unlocked_at' => now()]);
+    $boss = app(ClassBossService::class);
+    $old = $boss->start($a, $caravan->id);
+    $later = CarbonImmutable::parse('2026-11-05 10:31:00');
+    CarbonImmutable::setTestNow($later);
+
+    $fresh = $boss->start($a, $caravan->id, now: $later); // no replace_active, the sweeper has not run
+
+    expect($fresh->id)->not->toBe($old->id)->and($fresh->isActive())->toBeTrue()->and($fresh->class_boss_key)->toBe(ClassCaravanService::classBossKey($caravan, $a))
+        ->and($old->refresh()->finish_reason)->toBe(RunFinishReason::Expired)->and($old->class_boss_key)->toBeNull();
+});
+
 it('does not count a fight closed without a single answer as the member\'s attempt: the key is let go of on an exit, on running out and on "once more"; one answer keeps it (G2.13)', function (): void {
     $w = classWorld(2, words: 14);
     [$a, $b] = $w['learners'];
