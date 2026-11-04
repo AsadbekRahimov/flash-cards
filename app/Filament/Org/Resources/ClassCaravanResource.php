@@ -288,7 +288,7 @@ class ClassCaravanResource extends OrgResource
     }
 
     /** The refusal of the service in the language of the cabinet (not of the chat of the group, not the text of the exception). */
-    private static function refusalText(GameException $e): string
+    protected static function refusalText(GameException $e): string
     {
         return match ($e->errorCode) {
             GameException::CLASS_CARAVAN_FORBIDDEN => match ($e->details['reason'] ?? null) {
