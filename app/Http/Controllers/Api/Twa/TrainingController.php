@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
@@ -20,7 +21,6 @@ use App\Http\Resources\Twa\SessionSummaryResource;
 use App\Http\Resources\Twa\TrainingNextResource;
 use App\Http\Resources\Twa\TrainingStartResource;
 use App\Models\Learner;
-use App\Models\Lesson;
 use App\Models\TrainingSession;
 use App\Policies\TrainingSessionPolicy;
 use Carbon\CarbonImmutable;
@@ -37,6 +37,7 @@ final class TrainingController
         private readonly TodayService $today,
         private readonly ReferralService $referrals,
         private readonly PracticeEntryResolver $practiceEntries,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /**
@@ -48,9 +49,11 @@ final class TrainingController
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
 
+        // The lesson with its stage and course in one read: the availability check of openPersonal() and the
+        // start payload both need them, and neither reads them again.
         $lesson = null;
         if ($request->lessonId() !== null) {
-            $lesson = Lesson::query()->find($request->lessonId());
+            $lesson = $this->catalog->lessonWithContext((int) $request->lessonId());
             if ($lesson === null) {
                 return $this->lessonNotFound();
             }
@@ -81,7 +84,7 @@ final class TrainingController
             learner: $learner,
         );
 
-        $start = $this->flow->start($session, $learner);
+        $start = $this->flow->start($session, $learner, $lesson);
         if ($start === null) {
             return $this->lessonNotFound();
         }

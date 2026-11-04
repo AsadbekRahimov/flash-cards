@@ -9,12 +9,13 @@ use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
+use App\Domain\Learning\Support\RepetitionWithWord;
 use App\Domain\Learning\Support\TrainingScope;
+use App\Models\TrainingReview;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -44,6 +45,10 @@ use Illuminate\Support\Facades\DB;
  *
  * Words with `is_active = false` are never served (new, due or ahead).
  *
+ * Steps 1 and 3 read the repetition and its word in ONE statement ({@see RepetitionWithWord}): the join carries the
+ * scope (active words, the lesson), and the planner walks `word_repetitions_next_card_idx` exactly as it did for the
+ * `whereHas` form (docs/06 §4.2; verified with EXPLAIN on the 200k-learner set).
+ *
  * `ahead` is true only for step 3: that is the only path that serves a card
  * with a live ticket (a card that later became due is served as due, `ahead`
  * false, even if a stale ticket is still stamped on its row).
@@ -67,16 +72,16 @@ final class CardPicker
         $budget ??= NewCardBudget::unlimited();
 
         /** @var WordRepetition|null $due */
-        $due = $this->scopedRepetitions($learnerId, $scope)
-            ->where('next_review_at', '<=', $now)
-            ->orderByDesc('is_hard')
-            ->orderBy('next_review_at')
-            ->orderBy('id')
-            ->with('word')
+        $due = RepetitionWithWord::query($learnerId, $scope)
+            ->where('word_repetitions.next_review_at', '<=', $now)
+            ->orderByDesc('word_repetitions.is_hard')
+            ->orderBy('word_repetitions.next_review_at')
+            ->orderBy('word_repetitions.id')
             ->first();
 
-        if ($due !== null && $due->word !== null) {
-            return CardPick::card($due, $due->word, self::kindOf($due));
+        $word = $due === null ? null : RepetitionWithWord::hydrate($due);
+        if ($due !== null && $word !== null) {
+            return CardPick::card($due, $word, self::kindOf($due));
         }
 
         [$new, $quotaBlocked] = $this->pickNewInTransaction($learnerId, $scope, $budget, $now);
@@ -126,7 +131,8 @@ final class CardPicker
                 return [null, false];
             }
 
-            $remaining = $budget->remaining($learnerId, $now);
+            // The decision, under the lock and never from memory (docs/19 §3 rule 9).
+            $remaining = $budget->check($learnerId, $now);
             if ($remaining !== null && $remaining <= 0) {
                 return [null, true];
             }
@@ -147,6 +153,7 @@ final class CardPicker
                 'lapses' => 0,
                 'meta' => [],
             ]);
+            $budget->spend();
 
             return [CardPick::card($rep, $new, 'new'), false];
         });
@@ -163,15 +170,14 @@ final class CardPicker
         }
 
         /** @var WordRepetition|null $ahead */
-        $ahead = $this->scopedRepetitions($learnerId, $scope)
-            ->whereIn('state', [RepetitionState::Learning->value, RepetitionState::Relearning->value])
-            ->where('next_review_at', '<=', $now->addMinutes($this->policy->learnAheadMinutes))
-            ->orderBy('next_review_at')
-            ->orderBy('id')
-            ->with('word')
+        $ahead = RepetitionWithWord::query($learnerId, $scope)
+            ->whereIn('word_repetitions.state', [RepetitionState::Learning->value, RepetitionState::Relearning->value])
+            ->where('word_repetitions.next_review_at', '<=', $now->addMinutes($this->policy->learnAheadMinutes))
+            ->orderBy('word_repetitions.next_review_at')
+            ->orderBy('word_repetitions.id')
             ->first();
 
-        $word = $ahead?->word;
+        $word = $ahead === null ? null : RepetitionWithWord::hydrate($ahead);
         if ($ahead === null || $word === null) {
             return null;
         }
@@ -223,16 +229,6 @@ final class CardPicker
     }
 
     /**
-     * @return Builder<WordRepetition>
-     */
-    private function scopedRepetitions(int $learnerId, TrainingScope $scope): Builder
-    {
-        return $scope->constrainRepetitions(
-            WordRepetition::query()->where('learner_id', $learnerId),
-        );
-    }
-
-    /**
      * @return 'due'|'new'|'learning'
      */
     public static function kindOf(WordRepetition $rep): string
@@ -258,11 +254,59 @@ final class CardPicker
             ->where('is_active', true)
             ->count();
 
-        $done = TrainingScope::lesson($lessonId)
-            ->constrainRepetitions(WordRepetition::query()->where('learner_id', $learnerId))
-            ->where('repetitions', '>=', 1)
-            ->count();
+        return ['done' => $this->stepCounts($learnerId, null, $lessonId)['done'] ?? 0, 'total' => $total];
+    }
 
-        return ['done' => $done, 'total' => $total];
+    /**
+     * What every step of a session counts, in ONE statement: the grades given in the session (the per-session cap,
+     * `twa.training.max_cards_per_session`) and, for a lesson scope, the graduated active words of the lesson
+     * (`progress.done`). Two scalar subqueries, no FROM — one round trip instead of two.
+     *
+     * @param  int|null  $sessionId  null: the session count is not needed (`reviews` = 0)
+     * @param  int|null  $lessonId  null: a daily scope, `done` is null
+     * @return array{reviews:int, done:int|null}
+     */
+    public function stepCounts(int $learnerId, ?int $sessionId, ?int $lessonId): array
+    {
+        $query = DB::query();
+
+        if ($sessionId !== null) {
+            $query->selectSub(
+                TrainingReview::query()
+                    ->selectRaw('count(*)')
+                    ->where('training_session_id', $sessionId)
+                    ->where('learner_id', $learnerId)
+                    ->toBase(),
+                'reviews',
+            );
+        }
+
+        if ($lessonId !== null) {
+            $query->selectSub(
+                WordRepetition::query()
+                    ->selectRaw('count(*)')
+                    ->join('words', function ($join) use ($lessonId): void {
+                        $join->on('words.id', '=', 'word_repetitions.word_id')
+                            ->where('words.is_active', true)
+                            ->where('words.lesson_id', $lessonId);
+                    })
+                    ->where('word_repetitions.learner_id', $learnerId)
+                    ->where('word_repetitions.repetitions', '>=', 1)
+                    ->toBase(),
+                'done',
+            );
+        }
+
+        if ($sessionId === null && $lessonId === null) {
+            return ['reviews' => 0, 'done' => null];
+        }
+
+        /** @var object{reviews?: int|string, done?: int|string}|null $row */
+        $row = $query->first();
+
+        return [
+            'reviews' => (int) ($row->reviews ?? 0),
+            'done' => $lessonId === null ? null : (int) ($row->done ?? 0),
+        ];
     }
 }

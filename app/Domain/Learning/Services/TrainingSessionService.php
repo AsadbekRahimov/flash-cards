@@ -499,6 +499,10 @@ final class TrainingSessionService
         return $query;
     }
 
+    /**
+     * The three numbers of the summary in ONE statement: the grades and the correct ones as conditional aggregates,
+     * the new words as a scalar subquery (bindings only, no values in the SQL).
+     */
     private function summarise(TrainingSession $session, bool $wasOpen): SessionSummary
     {
         $reviews = DB::table('training_reviews')
@@ -507,22 +511,31 @@ final class TrainingSessionService
             $reviews->where('training_reviews.learner_id', $session->learner_id);
         }
 
-        $reviewed = (clone $reviews)->count();
-        $correct = (clone $reviews)->where('training_reviews.quality', '>=', 3)->count();
-
         // Words whose progress row was born during this session = first served here. An
         // approximation: a word first served to the learner in another tab while this session was
         // open is counted here too, as long as it was graded in this session.
         $newWords = (clone $reviews)
+            ->selectRaw('count(distinct "training_reviews"."word_id")')
             ->join('word_repetitions', function ($join): void {
                 $join->on('word_repetitions.word_id', '=', 'training_reviews.word_id')
                     ->on('word_repetitions.learner_id', '=', 'training_reviews.learner_id');
             })
-            ->where('word_repetitions.created_at', '>=', $session->started_at)
-            ->distinct()
-            ->count('training_reviews.word_id');
+            ->where('word_repetitions.created_at', '>=', $session->started_at);
 
-        return new SessionSummary($session, $reviewed, $correct, $newWords, $wasOpen);
+        /** @var object{reviewed: int|string, correct: int|string|null, new_words: int|string}|null $row */
+        $row = $reviews
+            ->selectRaw('count(*) as reviewed')
+            ->selectRaw('coalesce(sum(case when "training_reviews"."quality" >= ? then 1 else 0 end), 0) as correct', [3])
+            ->selectSub($newWords, 'new_words')
+            ->first();
+
+        return new SessionSummary(
+            $session,
+            (int) ($row->reviewed ?? 0),
+            (int) ($row->correct ?? 0),
+            (int) ($row->new_words ?? 0),
+            $wasOpen,
+        );
     }
 
     private function sessionTtlHours(): int
