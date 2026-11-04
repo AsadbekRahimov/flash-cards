@@ -638,6 +638,13 @@ learner, kind, course, result, **the composition by kind of task** («Перев
 time), the rewards (*coins awarded*, *league points*) and *words pulled into repetition* (`srs_pulled`). The snapshot of the run is **never shown**: it
 holds the expected answers.
 
+**Class caravans — Караваны классов** (`/admin/class-caravans`). Read-only list of the week-long caravans of the classes (docs/18 §12.11) of every center:
+group, center, course, status (*В пути* / *Завершён* / *Отменён*), stars against the target, the week, the state of the class boss (*Закрыт* / *Открыт* /
+*Побеждён*) and when the summary went to the chat (`summary_posted_at`; empty — not sent yet or skipped because the group is inactive). Filters: status,
+center. The page of a caravan shows the contributions of the members (first names only). The only action is **Отменить** (confirmation): the caravan stops,
+no summary is sent, the runs of the members stay theirs, and the group chat gets «Караван класса отменён». The cancel is recorded in the caravan
+(`meta.canceled_reason`: `admin`, or `teacher` if you are also a teacher of that group). Caravans are started by teachers (`/start_caravan`, `/org`).
+
 **The «Караван» tab of a learner** (Learners → open a learner). The balance, the coins earned and spent, the tickets and the last 50 entries of the
 ledger. Buttons — **Начислить монеты** / **Списать монеты** (amount 1–100 000 and a reason up to 200 characters; confirmation required) and **Выдать билеты**.
 

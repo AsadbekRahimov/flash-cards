@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Pages\ImportLesson;
+use App\Filament\Resources\ClassCaravanResource;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
 use App\Filament\Resources\ExamSessionResource;
@@ -52,6 +53,7 @@ use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
+use App\Models\ClassCaravan;
 use App\Models\Course;
 use App\Models\ExamSession;
 use App\Models\GameItem;
@@ -183,6 +185,7 @@ function loc_records(User $admin): array
         UserResource::class => $admin,
         GameItemResource::class => GameItem::factory()->create(),
         GameRunResource::class => GameRun::factory()->create(),
+        ClassCaravanResource::class => ClassCaravan::factory()->create(),
     ];
 }
 
