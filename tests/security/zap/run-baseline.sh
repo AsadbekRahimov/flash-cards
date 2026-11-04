@@ -8,6 +8,7 @@
 #   BASE_URL       required, no trailing slash
 #   TARGETS        paths to scan, space separated (default: the list below)
 #   ZAP_IMAGE      image with a pinned tag (default below); change the tag on purpose, not by "stable"
+#   ZAP_NET        Docker network of the ZAP container (e.g. host: a staging on this very machine, Linux); default: Docker's own
 #   ZAP_OUT        directory for the reports (default tests/security/zap/reports, git-ignored)
 #   ZAP_MINUTES    spider time per target, minutes (default 2)
 #   STRICT_MEDIUM  1: exit 2 when Medium alerts exist (default: only listed for the manual review)
@@ -41,7 +42,7 @@ for target in $TARGETS; do
   slug="${slug:-root}"
   echo "=== ZAP baseline: $BASE_URL$target"
 
-  docker run --rm -t -v "$ZAP_OUT:/zap/wrk:rw" "$ZAP_IMAGE" \
+  docker run --rm -t ${ZAP_NET:+--network "$ZAP_NET"} -v "$ZAP_OUT:/zap/wrk:rw" "$ZAP_IMAGE" \
     zap-baseline.py -t "$BASE_URL$target" -c zap-baseline.conf -m "$ZAP_MINUTES" \
     -r "zap-$slug.html" -J "zap-$slug.json" -w "zap-$slug.md"
   code=$?

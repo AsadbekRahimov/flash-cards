@@ -510,6 +510,7 @@
       Файлы: `tests/security/zap/run-baseline.sh` (запуск `ghcr.io/zaproxy/zaproxy:2.16.1` по целям; тег меняется переменной `ZAP_IMAGE`, `ZAP_MINUTES` — время паука на цель),
       `tests/security/zap/zap-baseline.conf` (правила: `IGNORE` с причиной — шум SPA и вендорных бандлов; `FAIL` — свои заголовки и cookie: HSTS, `Secure`, `nosniff`, утечка версий; остальные `WARN`),
       `tests/security/zap/check_reports.py` (разбирает JSON-отчёты). Нужны Docker и `python3` на машине запуска.
+      Staging на этой же машине или с непубличным именем: `ZAP_NET=host` (контейнер ZAP ходит в сеть хоста), например `make zap-baseline BASE_URL=https://localhost ZAP_NET=host`.
       Код выхода: `0` — High нет; `1` — есть High (или сработало правило `FAIL`); `2` — есть Medium при `STRICT_MEDIUM=1`; `3` — ошибка инструмента.
       Отчёты — `tests/security/zap/reports/zap-<цель>.html|json|md` (каталог в `.gitignore`). Смотреть: итог `check_reports.py` в конце вывода (High/Medium по именам и правилам), затем HTML нужных целей.
       Критерий допуска (решение владельца 03.11.2026): ни одной находки High; каждая Medium разобрана — исправлена или записана с причиной (в §9.3 журнал расхождений: правило, URL, причина). Новое правило в `IGNORE` — только с причиной в комментарии.
@@ -542,6 +543,7 @@ TELEGRAM_URL_SECRET=... TELEGRAM_HEADER_SECRET=... make load-test-webhook BASE_U
 ```
 
 Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 23 запроса при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~90 запросов в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~56/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
+Самоподписанный или частный сертификат staging: `K6_INSECURE_SKIP_TLS_VERIFY=true` (например `make load-test BASE_URL=https://localhost K6_NET=host K6_INSECURE_SKIP_TLS_VERIFY=true`); k6 тогда не проверяет сертификат. На staging с публичным сертификатом переменную не задавать.
 Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_ENABLED` (на staging на время прогона выключить); фикстура — `/start_training` из незарегистрированной супергруппы, обработчик молча отбрасывает её (Group Lock), в Telegram ничего не уходит.
 
 Что смотреть в отчёте k6 (конец вывода и `tests/load/k6/results/*-summary.json`): блок `thresholds` — каждая строка с галочкой; `http_req_duration{endpoint:…}` p(95) по `me`, `today`, `courses`, `practice_hub`, `billing_catalog`, `training_open`, `training_next`, `training_review`, `training_finish`;
