@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -395,6 +396,9 @@ onBeforeUnmount(() => {
         </span>
         <span class="text-[15px] font-semibold text-accent-ink">{{ t('game.map.continue') }}</span>
       </button>
+
+      <!-- The caravan of the class that is on (docs/05 §5b.7): from the answer of the map, nothing is read for it. -->
+      <ClassCaravanCard v-if="map.class_caravan" :caravan="map.class_caravan" :timezone="today.data?.timezone" class="mb-4" />
 
       <!-- The caravan of the day (docs/05 §5b.4): what is due today, in one tap. -->
       <button
