@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Learners\DTO\StreakState;
@@ -143,17 +144,21 @@ class StreakService
      *                                              today but not yet projected onto `learners` be repaired here,
      *                                              and names what held it (`held_by`)
      * @param  CarbonImmutable|null  $now  the instant (entitlement, `frozen_at`); defaults to the real clock
+     * @param  Entitlement|null  $entitlement  the plan the caller already resolved for this request (the freezes are a
+     *                                         Pro feature); else the cached one is read
+     * @param  array<string, LearnerDailyStats>|null  $dayRows  the rows of today and yesterday the caller already read, by
+     *                                                          `Y-m-d` (a day without a row is absent); null = read yesterday here
      */
-    public function current(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $todayStats = null, ?CarbonImmutable $now = null): StreakState
+    public function current(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $todayStats = null, ?CarbonImmutable $now = null, ?Entitlement $entitlement = null, ?array $dayRows = null): StreakState
     {
         $now ??= CarbonImmutable::now();
         $todayDate = $today->toDateString();
         $yesterday = $today->subDay()->toDateString();
         $last = $learner->streak_last_date?->toDateString();
 
-        $yesterdayRow = $this->heldRow($learner->id, $yesterday);
+        $yesterdayRow = $dayRows === null ? $this->heldRow($learner->id, $yesterday) : $this->heldOf($dayRows[$yesterday] ?? null);
         $frozenYesterday = $yesterdayRow?->frozen_at !== null;
-        $freezesAvailable = $this->freezes->available($learner, $now);
+        $freezesAvailable = $this->freezes->available($learner, $now, $entitlement);
         $mayHaveRaced = false;
         $heldToday = $todayStats === null ? null : StreakHeldBy::fromRow($todayStats);
 
@@ -175,7 +180,7 @@ class StreakService
 
         // Only the stock of a plan WITH freezes is ever shown or spent (available() is 0 without the feature,
         // whatever is stored), so for any other learner re-reading `streak_freezes` would report nothing.
-        if (($mayHaveRaced || ($frozenYesterday && $freezesAvailable > 0)) && $this->freezes->enabled($learner, $now)) {
+        if (($mayHaveRaced || ($frozenYesterday && $freezesAvailable > 0)) && $this->freezes->enabled($learner, $now, $entitlement)) {
             // A freeze (or a burn) may have been done by a concurrent request after this model was loaded —
             // also when we lost the race and our own attempt did nothing: report what is stored now.
             $this->freezes->refresh($learner);
@@ -192,7 +197,7 @@ class StreakService
             best: max((int) $learner->streak_best, $current),
             metToday: $metToday,
             atRisk: $current > 0 && ! $metToday,
-            freezes: $this->freezes->available($learner, $now),
+            freezes: $this->freezes->available($learner, $now, $entitlement),
             frozenYesterday: $frozenYesterday,
             // Named only once the projection counts today: while it lags (a contended UPDATE) both fields say "not yet".
             heldBy: $metToday ? $heldToday : null,
@@ -453,6 +458,12 @@ class StreakService
         $rows = $this->heldRowsBetween($learner->id, CarbonImmutable::parse($last)->addDay()->toDateString(), $previous);
 
         return $rows->count() === $gap && $rows->every(fn (LearnerDailyStats $row): bool => ! (StreakHeldBy::fromRow($row)?->counts() ?? false));
+    }
+
+    /** The row when it is a held day (the goal, the game or a freeze), as {@see heldRow()} would return it; else null. */
+    private function heldOf(?LearnerDailyStats $row): ?LearnerDailyStats
+    {
+        return $row !== null && StreakHeldBy::fromRow($row) !== null ? $row : null;
     }
 
     /** The row of a held local day (goal met, game held or frozen), or null when the day is not held. */

@@ -169,32 +169,34 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
 
     // Before: 15, 13 and 17 statements - the screen settled the series for a refill that Free never gets, and
     // then read the same rows again for the goal / streak block. The `lapsed` figure is the burnt series' steady
-    // state (its range read of held days stays).
+    // state (its range read of held days stays). R12i: 11 / 11 / 12 -> 5 / 5 / 6 - the plan is read once (from the cache),
+    // today and yesterday in one statement, the due cards and the quota in one statement.
+    // R12i: today and yesterday come in ONE statement (`date in (?, ?)`); yesterday is not read on its own any more.
     expect(count($queries))->toBeLessThanOrEqual($budget)
-        ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
-        ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
 })->with([
-    'never studied' => ['never studied', 11],
-    'living series' => ['living series', 11],
-    'lapsed series' => ['lapsed series', 12],
+    'never studied' => ['never studied', 5],
+    'living series' => ['living series', 5],
+    'lapsed series' => ['lapsed series', 6],
 ]);
 
 it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (): void {
     $handled = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
     $steady = todayStreakStatements($this, $handled);
 
-    // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing.
-    expect(count($steady))->toBeLessThanOrEqual(10)
+    // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing; R12i: 10 -> 5.
+    expect(count($steady))->toBeLessThanOrEqual(5)
         ->and(QueryLog::matching($steady, '/^(insert|update|delete)/'))->toBe([])
         ->and(QueryLog::matching($steady, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1);
 
     $monday = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-12');
     $first = todayStreakStatements($this, $monday, fn (Learner $l) => $l->forceFill(['streak_freezes' => 1, 'streak_freezes_refilled_on' => '2026-10-12'])->save());
 
-    // Before: 14 statements - today's row was read for the settle and again for the goal block.
-    expect(count($first))->toBeLessThanOrEqual(13)
+    // Before: 14 statements - today's row was read for the settle and again for the goal block; R12i: 13 -> 8.
+    expect(count($first))->toBeLessThanOrEqual(8)
         ->and(QueryLog::matching($first, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
         ->and(QueryLog::matching($first, '/^update ["`]learners["`] set ["`]streak_freezes["`] = ["`]streak_freezes["`] \+ 1/'))->toHaveCount(1)
         ->and(todayStreakStored($monday)['freezes'])->toBe(2);

@@ -6,6 +6,7 @@ namespace App\Domain\Engagement\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Engagement\Exceptions\FreezeNotApplied;
 use App\Domain\Learners\Support\StoredDate;
@@ -48,16 +49,19 @@ final class StreakFreezeService
         private readonly ProductEventRecorder $events,
     ) {}
 
-    /** The learner's plan includes freezes (Pro feature); config max 0 switches them off for everyone. */
-    public function enabled(Learner $learner, CarbonImmutable $now): bool
+    /**
+     * The learner's plan includes freezes (Pro feature); config max 0 switches them off for everyone. `$entitlement` - the plan
+     * the caller already resolved for this request (the Today screen reads it once for the whole screen), else the cached one.
+     */
+    public function enabled(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): bool
     {
-        return $this->max() > 0 && $this->entitlements->for($learner, $now)->can(self::FEATURE);
+        return $this->max() > 0 && ($entitlement ?? $this->entitlements->for($learner, $now))->can(self::FEATURE);
     }
 
     /** Freezes the learner can spend right now: 0 without the feature, whatever is stored otherwise. */
-    public function available(Learner $learner, CarbonImmutable $now): int
+    public function available(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): int
     {
-        return $this->enabled($learner, $now) ? max(0, (int) $learner->streak_freezes) : 0;
+        return $this->enabled($learner, $now, $entitlement) ? max(0, (int) $learner->streak_freezes) : 0;
     }
 
     /** Re-reads the stored inventory onto the model (a concurrent request may have spent or refilled it). */
