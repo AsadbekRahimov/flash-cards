@@ -16,7 +16,7 @@ resources/twa/scripts/e2e/stand.sh status | sweep | down
 ```
 
 `up` works from scratch and edits nothing: the settings go through the environment (`APP_ENV=local`, `DB_CONNECTION=sqlite`,
-`PRACTICE_ACCESS=pilot`, `GAME_ACCESS=all`, `QUEUE_CONNECTION=sync`, `CACHE_STORE=file`, `CACHE_LIMITER_STORE=file`, a bot token, a JWT secret and an app key made for the stand).
+`PRACTICE_ACCESS=pilot`, `GAME_ACCESS=all`, `GAME_FREE_RUNS_PER_DAY=1000`, `QUEUE_CONNECTION=sync`, `CACHE_STORE=file`, `CACHE_LIMITER_STORE=file`, a bot token, a JWT secret and an app key made for the stand).
 It seeds the pilot package (90 tasks in lessons 2-4 of the demo course, the clips voiced by ffmpeg), puts the demo learners into the
 pilot, and makes Alice and Bob, Charlie and Diana friends. `game-seed.php` then gives the words of the first four lessons an example
 and a recording (ffmpeg again), because the game's tasks `gap` and `listen` need both and the demo words have neither; the clips it

@@ -35,6 +35,8 @@ stand_env() {
   export APP_ENV=local APP_DEBUG=false LOG_CHANNEL=single
   export DB_CONNECTION=sqlite DB_DATABASE="$DIR/e2e.sqlite"
   export PRACTICE_ACCESS=pilot GAME_ACCESS=all
+  # The scenarios and the pictures play many runs of a stop a day (Free has one, docs/18 §3): the limits of the game are not what is tested here.
+  export GAME_FREE_RUNS_PER_DAY=1000
   export QUEUE_CONNECTION=sync CACHE_STORE=file CACHE_LIMITER_STORE=file SESSION_DRIVER=file
   export TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-123456:e2e-test-token}"
   export APP_URL="http://127.0.0.1:$PORT"
