@@ -431,8 +431,8 @@ it('keeps the figures in the cache entry of the widget for 300 seconds, polls no
     livewire(GameActivityWidget::class)->assertOk();
 
     $key = WidgetCache::key('game_activity', 'all');
-    expect($key)->toBe('admin:widget:game_activity:v1:all')
-        ->and(PureCache::store()->get($key))->toBe(['runs' => 1, 'players' => 1, 'active' => 1, 'share' => 100])
+    expect($key)->toBe('admin:widget:game_activity:v2:all')
+        ->and(PureCache::store()->get($key))->toMatchArray(['runs' => 1, 'players' => 1, 'active' => 1, 'share' => 100])
         ->and(GameActivityWidget::FRESH_SECONDS)->toBe(300)
         ->and((new ReflectionProperty(GameActivityWidget::class, 'pollingInterval'))->getDefaultValue())->toBeNull();
 
