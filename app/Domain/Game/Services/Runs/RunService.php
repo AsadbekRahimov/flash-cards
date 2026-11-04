@@ -12,6 +12,7 @@ use App\Domain\Game\DTO\RunAnswerOutcome;
 use App\Domain\Game\DTO\RunSnapshot;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\DTO\RunView;
+use App\Domain\Game\DTO\WalletEntry;
 use App\Domain\Game\DTO\ScoreOutcome;
 use App\Domain\Game\DTO\ScoringRules;
 use App\Domain\Game\Enums\AttemptKind;
@@ -774,7 +775,8 @@ final class RunService
         }
 
         try {
-            $debit = $this->wallet->debit($learner->id, $price, LedgerKind::BazaarHint, "run:{$run->id}:hint:{$element->id}", 'game_run', $run->id, ['element_id' => $element->id]);
+            // a free hint (`bazaar_hint_coins = 0`) is no entry: the wallet refuses a debit of nothing
+            $debit = $price === 0 ? new WalletEntry($this->wallet->balance($learner->id), false) : $this->wallet->debit($learner->id, $price, LedgerKind::BazaarHint, "run:{$run->id}:hint:{$element->id}", 'game_run', $run->id, ['element_id' => $element->id]);
         } catch (GameException $e) {
             return $e;
         }

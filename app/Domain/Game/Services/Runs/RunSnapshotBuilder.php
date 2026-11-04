@@ -33,6 +33,7 @@ use App\Models\PracticeItemVersion;
 use App\Models\Stage;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use LogicException;
 
 /**
@@ -315,7 +316,7 @@ final class RunSnapshotBuilder
 
         $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
 
-        return new RunPool($locales, $poolWords, $authored, $this->distractors($course, $words, $locales), $widened);
+        return new RunPool($locales, $poolWords, $authored, $this->distractors($course, $words, $locales, $lesson->id), $widened);
     }
 
     /**
@@ -372,10 +373,15 @@ final class RunSnapshotBuilder
      * The distractors in one query (docs/18 §12.3.1): the course's words outside the pool (tier 1) and the words of the public courses
      * of the platform (tier 2), `distractor_pool` of each, with their translations.
      *
+     * The words of the course are the nearest to the lesson of the run (`$anchorLessonId`, by default the lesson of the middle word of the
+     * pool) in the order of the course - by `stages.number`, then `lessons.number`, both sides - and not the first of the course by id:
+     * in a late lesson the first words of the course are not what the learner has just met. The set is a function of the pool and the
+     * course, so the composition stays a pure function of the pool and the seed.
+     *
      * @param  list<MaterialWord>  $pool
      * @return list<RunPoolWord>
      */
-    private function distractors(Course $course, array $pool, LocaleSet $locales): array
+    private function distractors(Course $course, array $pool, LocaleSet $locales, ?int $anchorLessonId = null): array
     {
         $limit = max(0, (int) config('game.run.distractor_pool', 40));
         if ($limit === 0) {
@@ -384,6 +390,14 @@ final class RunSnapshotBuilder
         $poolIds = array_map(static fn (MaterialWord $w): int => $w->id, $pool);
 
         $ownCourse = $this->distractorQuery()->where('stages.course_id', $course->id)->whereNotIn('words.id', $poolIds)->limit($limit);
+        $anchorLessonId ??= $pool === [] ? null : $pool[intdiv(count($pool), 2)]->lessonId;
+        if ($anchorLessonId !== null) {
+            $ownCourse->reorder()
+                ->join('lessons as anchor_lessons', fn (JoinClause $join) => $join->where('anchor_lessons.id', '=', $anchorLessonId))
+                ->join('stages as anchor_stages', 'anchor_stages.id', '=', 'anchor_lessons.stage_id')
+                ->orderByRaw('ABS((stages.number - anchor_stages.number) * 100000 + (lessons.number - anchor_lessons.number)) asc')
+                ->orderBy('words.id');
+        }
         $public = $this->distractorQuery()
             ->whereIn('stages.course_id', Course::query()->publicPlatform()->where('courses.id', '<>', $course->id)->select('courses.id'))
             ->limit($limit);

@@ -216,6 +216,25 @@ it('never sets the target below the minimum: one member gets 12, not 6; a left m
     expect($caravan->target_stars)->toBe(12)->and($caravan->meta['members_at_start'])->toBe(1);
 });
 
+it('counts neither a deleted nor a blocked account in the members at the start, the target and the boss words', function (): void {
+    $w = classWorld(14, words: 14);
+    [$a, $b, $c] = $w['learners'];
+    classFlat($w['learners']);
+    $words = $w['words'];
+    WordRepetition::query()->where('word_id', $words[0]->id)->where('learner_id', $a->id)->update(['is_hard' => true]);
+    WordRepetition::query()->where('word_id', $words[1]->id)->where('learner_id', $b->id)->update(['is_hard' => true, 'lapses' => 9]);
+    WordRepetition::query()->where('word_id', $words[2]->id)->where('learner_id', $c->id)->update(['is_hard' => true, 'lapses' => 9]);
+    $b->delete(); // soft delete: the row stays until the purge
+    $c->forceFill(['blocked_at' => now()])->save();
+
+    $caravan = classService()->start($w['group'], $w['teacher']);
+
+    expect($caravan->meta['members_at_start'])->toBe(12)
+        ->and($caravan->target_stars)->toBe(72) // 12 x 6
+        // the rows of the deleted and the blocked (hard, 9 lapses) would be first, but they are not counted
+        ->and($caravan->boss_snapshot_words[0])->toBe($words[0]->id);
+});
+
 it('takes the default course for a group without one', function (): void {
     $w = classWorld(1);
     $w['group']->update(['course_id' => null]);
@@ -782,6 +801,37 @@ it('gives the standings best first as arrays, from the cache while the caravan i
     expect(PureCache::store()->has(ClassCaravanService::standingsKey($caravan->id)))->toBeFalse()
         ->and(count(QueryLog::during(fn () => classService()->standings($over))))->toBe(1)
         ->and(PureCache::store()->has(ClassCaravanService::standingsKey($caravan->id)))->toBeFalse();
+});
+
+it('keeps a deleted account in the totals of the standings without his name', function (): void {
+    $w = classWorld(2);
+    [$a, $b] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    classPlay($a, $w['course'], $w['lesson'], wrongAt: [0]);
+    classPlay($b, $w['course'], $w['lesson']);
+    $b->delete();
+
+    $standings = classService()->standings($caravan);
+
+    expect(array_column($standings, 'name'))->toBe(['—', 'Ученик 0'])
+        ->and(array_sum(array_column($standings, 'stars')))->toBe($caravan->fresh()?->stars_total);
+});
+
+it('does not name a deleted account in the summary of the week in the chat', function (): void {
+    $telegram = classTelegram();
+    $w = classWorld(2);
+    [$a, $b] = $w['learners'];
+    $caravan = classService()->start($w['group'], $w['teacher']);
+    classPlay($a, $w['course'], $w['lesson'], wrongAt: [0]);
+    classPlay($b, $w['course'], $w['lesson']);
+    $b->delete();
+    CarbonImmutable::setTestNow('2026-11-12 10:00:00');
+    classService()->closeDue();
+
+    classRunJob($caravan->id);
+
+    expect($telegram->sent)->toHaveCount(1)
+        ->and($telegram->sent[0]['text'])->toContain('🥇 — — <b>3</b>')->toContain('Ученик 0')->not->toContain('Ученик 1');
 });
 
 // ---------------------------------------------------------------------- the fight with the boss of the class (G2.4 + G2.9a)

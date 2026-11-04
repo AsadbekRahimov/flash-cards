@@ -7,6 +7,7 @@ namespace App\Domain\Game\Services\Class;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Game\DTO\ClassCaravanView;
 use App\Domain\Game\Enums\ClassCaravanStatus;
+use App\Domain\Game\Enums\RunFinishReason;
 use App\Domain\Game\Enums\RunStatus;
 use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Support\RunScoring;
@@ -118,7 +119,7 @@ final class ClassCaravanOverview
 
     /**
      * The learner's fight with the boss of each caravan, from ONE statement over `game_runs.class_boss_key`: `won` / `lost` once the run is
-     * finished (the same rule as `RunFinisher`), nothing while it is still going on.
+     * finished (the same rule as `RunFinisher`: only a fight played to the end, `completed`, can be won - an abandoned or expired one is lost), nothing while it is still going on.
      *
      * @param  list<ClassCaravan>  $caravans
      * @return array<string, 'won'|'lost'>
@@ -133,9 +134,9 @@ final class ClassCaravanOverview
             ->where('learner_id', $learner->id)
             ->whereIn('class_boss_key', $keys)
             ->where('status', RunStatus::Finished->value)
-            ->get(['class_boss_key', 'correct', 'total']);
+            ->get(['class_boss_key', 'correct', 'total', 'finish_reason']);
         foreach ($runs as $run) {
-            $attempts[(string) $run->class_boss_key] = RunScoring::bossWon((int) $run->correct, (int) $run->total, $required) ? 'won' : 'lost';
+            $attempts[(string) $run->class_boss_key] = $run->finish_reason === RunFinishReason::Completed->value && RunScoring::bossWon((int) $run->correct, (int) $run->total, $required) ? 'won' : 'lost';
         }
 
         return $attempts;

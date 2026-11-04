@@ -158,7 +158,7 @@ it('tells the fight of the learner with the boss of the class: not yet, lost, wo
     $run = GameRun::factory()->classBoss($caravan)->create(['learner_id' => $me->id, 'course_id' => $w['course']->id, 'correct' => 3, 'total' => 12]);
     expect($attempt()['my_attempt'])->toBeNull(); // still going on
 
-    $run->forceFill(['status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null])->save();
+    $run->forceFill(['status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null, 'finish_reason' => 'completed'])->save();
     expect($attempt()['my_attempt'])->toBe('lost');
 
     $run->forceFill(['correct' => 10])->save();
@@ -168,6 +168,19 @@ it('tells the fight of the learner with the boss of the class: not yet, lost, wo
     expect($attempt()['defeated'])->toBeTrue()
         ->and(classApiGet($me)->json('caravans.0.boss.my_attempt'))->toBe('won');
 });
+
+it('never calls an abandoned or expired boss fight won, whatever its accuracy', function (string $reason): void {
+    $w = ClassKit::world(1);
+    $me = $w['learners'][0];
+    $caravan = classApiCaravan($w, ['boss_unlocked_at' => now(), 'boss_defeated_at' => null]);
+
+    GameRun::factory()->classBoss($caravan)->create([
+        'learner_id' => $me->id, 'course_id' => $w['course']->id, 'correct' => 10, 'total' => 12,
+        'status' => 'finished', 'finished_at' => now(), 'active_learner_id' => null, 'finish_reason' => $reason,
+    ]);
+
+    expect(classApiGet($me, "/{$caravan->id}")->assertOk()->json('boss.my_attempt'))->toBe('lost');
+})->with(['abandoned', 'expired']);
 
 it('carries the summary of a finished caravan', function (): void {
     $w = ClassKit::world(1);

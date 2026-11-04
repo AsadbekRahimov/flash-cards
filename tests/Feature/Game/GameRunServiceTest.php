@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use App\Domain\Game\Enums\RunEvent;
 use App\Domain\Game\Enums\RunFinishReason;
+use App\Domain\Game\DTO\RunLimits;
+use App\Domain\Game\Enums\RunKind;
 use App\Domain\Game\Exceptions\GameException;
+use App\Domain\Game\Services\Runs\RunSnapshotBuilder;
+use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Game\Services\Runs\RunService;
 use App\Models\GameCoinLedgerEntry;
 use App\Models\GameRun;
@@ -17,6 +21,7 @@ use App\Models\Stage;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use LogicException;
 use Tests\Support\Game\GameKit;
 use Tests\Support\Practice\PracticeKit;
 
@@ -349,6 +354,52 @@ it('sells the hint of the bazaar once per element: the coins go once, a second r
     expect(fn () => runService()->hint($run, $learner, (string) Str::uuid(), $next['id']))
         ->toThrow(fn (GameException $e) => expect($e->errorCode)->toBe('coins_insufficient')->and($e->details)->toBe(['balance' => 2, 'price' => 5]));
     expect(GameCoinLedgerEntry::query()->count())->toBe(1)->and(GameRunAttempt::query()->where('kind', 'hint')->count())->toBe(3);
+});
+
+it('gives the hint of the bazaar for free when bazaar_hint_coins is 0: no debit, no entry, no event, no error', function (): void {
+    config(['game.events.bazaar_hint_coins' => 0]);
+    [$learner, $course, $lesson] = GameKit::stop(8);
+    $run = runService()->start($learner, $course->slug, $lesson->id);
+    $element = GameKit::current($run);
+    $run->forceFill(['snapshot' => [...$run->snapshot, 'events' => [['at' => 0, 'type' => RunEvent::Bazaar->value]]]])->save();
+
+    $first = runService()->hint($run, $learner, (string) Str::uuid(), $element['id']);
+    $again = runService()->hint($run, $learner, (string) Str::uuid(), $element['id']);
+
+    expect($first->body['hint'])->not->toBeEmpty()
+        ->and($first->body['coins'])->toBe(['balance' => 0])
+        ->and($again->body)->toBe($first->body)
+        ->and($first->run->hint['price'])->toBe(0)
+        ->and(GameCoinLedgerEntry::query()->count())->toBe(0)
+        ->and(runEvents('game.coins_spent'))->toHaveCount(0)
+        ->and(GameRunAttempt::query()->where('kind', 'hint')->count())->toBe(2);
+});
+
+it('takes the distractors of the course from the lessons nearest to the lesson of the run, both sides, not the first words of the course', function (): void {
+    config(['game.run.distractor_pool' => 10]);
+    $learner = Learner::factory()->create();
+    [$course, $first] = PracticeKit::course();
+    $stage = $first->stage ?? throw new LogicException('no stage');
+    $lessons = [1 => $first];
+    for ($n = 2; $n <= 8; $n++) {
+        $lessons[$n] = Lesson::factory()->for($stage)->create(['number' => $n]);
+    }
+    foreach ($lessons as $n => $lesson) {
+        PracticeKit::words($lesson, 10, $n === 6 ? $learner : null, state: 'review'); // only lesson 6 is played
+    }
+    $distractorLessons = function () use ($learner, $course, $lessons, $stage): array {
+        $pool = app(RunSnapshotBuilder::class)->poolForStop($learner, $course, $lessons[6], $stage, new LocaleSet(['ru']), 'seed', RunLimits::for(RunKind::Stop));
+        $numbers = Lesson::query()->pluck('number', 'id');
+
+        return array_map(static fn ($d) => $numbers[$d->word->lessonId], $pool->distractors);
+    };
+
+    $near = $distractorLessons();
+
+    // 10 words from the lessons next to 6: all of lesson 5 or lesson 7 (distance 1), none from the start of the course
+    expect($near)->toHaveCount(10)
+        ->and(array_unique($near))->each->toBeIn([5, 7])
+        ->and($distractorLessons())->toBe($near); // a pure function of the pool
 });
 
 it('gives the oasis flask back after the element in the middle and keeps the snapshot fixed under a reload', function (): void {

@@ -29,6 +29,7 @@ use App\Models\GameRunAttempt;
 use App\Models\GameTicketLedgerEntry;
 use App\Models\GameWallet;
 use App\Models\Learner;
+use App\Models\ProductEvent;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Actions\Testing\TestAction;
@@ -308,6 +309,11 @@ it('grants coins under an audit record written first and the key admin:{audit id
         ->and($entry->meta)->toMatchArray(['audit_log_id' => $audit->id])
         ->and(GameWallet::query()->where('learner_id', $learner->id)->value('balance'))->toBe(25)
         ->and((int) GameCoinLedgerEntry::query()->where('learner_id', $learner->id)->sum('amount'))->toBe(25);
+
+    $event = ProductEvent::query()->where('name', 'game.coins_adjusted')->sole();
+    expect($event->props)->toEqual(['amount' => 25, 'audit_log_id' => $audit->id])
+        ->and($event->user_id)->toBe($this->admin->id)
+        ->and($event->learner_id)->toBe($learner->id);
 });
 
 it('revokes coins, and refuses to go below zero with a notification and the record marked rejected', function (): void {
@@ -324,6 +330,10 @@ it('revokes coins, and refuses to go below zero with a notification and the reco
         ->and(GameCoinLedgerEntry::query()->where('learner_id', $learner->id)->count())->toBe(2)
         ->and(AuditLog::query()->where('action', 'game.coins_adjusted')->count())->toBe(2)
         ->and(AuditLog::query()->where('action', 'game.coins_adjusted')->orderByDesc('id')->first()?->meta)->toMatchArray(['rejected' => 'coins_insufficient']);
+
+    // the event only for the applied move, signed
+    $events = ProductEvent::query()->where('name', 'game.coins_adjusted')->get();
+    expect($events)->toHaveCount(1)->and($events[0]->props['amount'])->toBe(-20);
 });
 
 it('validates the amount and the reason of a manual move', function (): void {

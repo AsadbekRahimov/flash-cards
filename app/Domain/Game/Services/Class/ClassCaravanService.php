@@ -476,10 +476,11 @@ final class ClassCaravanService
             ->orderByDesc('m.stars')
             ->orderByDesc('m.runs')
             ->orderBy('m.id')
-            ->get(['m.learner_id', 'l.first_name', 'm.stars', 'm.runs', 'm.best_score', 'm.boss_won_at'])
+            ->get(['m.learner_id', 'l.first_name', 'l.deleted_at', 'm.stars', 'm.runs', 'm.best_score', 'm.boss_won_at'])
             ->map(static fn (object $row): array => [
                 'learner_id' => (int) $row->learner_id,
-                'name' => is_string($row->first_name) && $row->first_name !== '' ? $row->first_name : '—',
+                // a deleted account (soft delete, until the purge) stays in the totals but is not named
+                'name' => $row->deleted_at === null && is_string($row->first_name) && $row->first_name !== '' ? $row->first_name : '—',
                 'stars' => (int) $row->stars,
                 'runs' => (int) $row->runs,
                 'best_score' => (int) $row->best_score,
@@ -527,11 +528,15 @@ final class ClassCaravanService
     /** @return list<int> */
     private function activeMemberIds(int $groupId): array
     {
-        return array_values(DB::table('group_members')
-            ->where('telegram_group_id', $groupId)
-            ->where('status', 'active')
-            ->orderBy('learner_id')
-            ->pluck('learner_id')
+        // a deleted or blocked account is not a member of the class for the target and the boss
+        return array_values(DB::table('group_members as gm')
+            ->join('learners as l', 'l.id', '=', 'gm.learner_id')
+            ->where('gm.telegram_group_id', $groupId)
+            ->where('gm.status', 'active')
+            ->whereNull('l.deleted_at')
+            ->whereNull('l.blocked_at')
+            ->orderBy('gm.learner_id')
+            ->pluck('gm.learner_id')
             ->map(static fn (mixed $id): int => (int) $id)
             ->all());
     }

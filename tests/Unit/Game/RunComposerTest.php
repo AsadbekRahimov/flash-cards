@@ -262,6 +262,28 @@ it('fixes at most one event by the seed: none at chance 0, one at chance 1; a sa
     }
 });
 
+it('puts a bazaar only on an element that can give a hint: a round of pairs, a sentence or a dictation in the middle gets the next event or none', function (): void {
+    $authored = [authoredCandidate(1, [901], PracticeItemType::Sentence), authoredCandidate(2, [902], PracticeItemType::Dictation), authoredCandidate(3, [903])];
+    $pool = new RunPool(composerLocales(), poolWords(13), $authored);
+
+    $bazaars = 0;
+    $hintlessMiddle = 0;
+    for ($i = 0; $i < 120; $i++) {
+        $composition = RunComposer::compose($pool, "bazaar-seed-{$i}", stopLimits(1.0));
+        $middle = $composition->elements[intdiv($composition->count(), 2)];
+        $hintless = $middle->isPairsRound() || in_array($middle->kind, ['sentence', 'dictation'], true);
+        $hintlessMiddle += $hintless ? 1 : 0;
+        foreach ($composition->events as $event) {
+            if ($event['type'] === 'bazaar') {
+                $bazaars++;
+                expect($hintless)->toBeFalse("seed {$i}: the bazaar sits on a {$middle->kind}");
+            }
+        }
+    }
+
+    expect($bazaars)->toBeGreaterThan(0)->and($hintlessMiddle)->toBeGreaterThan(0);
+});
+
 it('composes a boss without pairs, authored tasks, events or flasks: twelve tasks of words', function (): void {
     $limits = RunLimits::for(RunKind::Boss);
     expect($limits->flasks)->toBe(0)->and($limits->withPairs)->toBeFalse()->and($limits->withAuthored)->toBeFalse()->and($limits->withEvents)->toBeFalse()->and($limits->sizeMax)->toBe(12);
