@@ -518,12 +518,12 @@ it('writes only the events of docs/18 §12.8, with the props the document lists 
             'game.run_finished' => ['run_id', 'kind', 'finish_reason', 'total', 'answered', 'correct', 'typos', 'wrong', 'hints', 'stars', 'score', 'coins', 'league_points', 'srs_pulled', 'duration_ms', 'event'],
             'streak.extended' => ['current', 'best'],
             'game.booster_used' => ['run_id', 'effect'],
-            'game.boss_defeated', 'game.daily_completed', 'achievement.unlocked' => null,
+            'game.boss_defeated' => ['run_id', 'stage_id', 'accuracy', 'first'],
+            'game.daily_completed' => ['run_id', 'due_count', 'correct'],
+            'achievement.unlocked' => ['key'],
             default => ['amount', 'kind', 'ref_type', 'ref_id', 'balance'],
         };
-        if ($expected !== null) {
-            expect(array_keys($props))->toEqualCanonicalizing($expected);
-        }
+        expect(array_keys($props))->toEqualCanonicalizing($expected);
         foreach ($props as $value) {
             expect(is_scalar($value) || $value === null)->toBeTrue();
         }

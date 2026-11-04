@@ -69,15 +69,19 @@ final class MapService
         // One definition of the day's caravan for the map and for `/today`: DailyCaravanService.
         $day = $this->daily->state($learner, $now, $this->stats->dueCount($learner, $now));
 
+        // The tickets of `me` are the ones of the limits block (it counts the refund of an expired run without an answer that the
+        // scheduler has not closed yet), so the two numbers of one response agree; no statement is added.
+        $limits = $this->limits->state($learner, $this->entitlements->for($learner, $now), $now);
+
         return new GameMapView(
             course: ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale)],
             cities: $this->cities($course, $learner, $locale),
             daily: $day['daily'],
-            me: $this->me($learner),
+            me: [...$this->me($learner), 'tickets' => $limits->tickets],
             friends: $this->friends($learner, $course),
             activeRun: $day['active_run'],
             classCaravan: $this->classCaravans->activeCardFor($learner, $now),
-            limits: $this->limits->state($learner, $this->entitlements->for($learner, $now), $now)->toArray(),
+            limits: $limits->toArray(),
         );
     }
 
