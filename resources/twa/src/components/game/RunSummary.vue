@@ -14,17 +14,20 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import { useI18n } from '@/i18n'
 import type { GameSummary } from '@/api/gameRunTypes'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   summary: GameSummary
   /** `failed`: the flasks ran out. Anything else is a finished run. */
   failed: boolean
   busy?: boolean
-}>()
+  /** The caravan of the day is one a day: `false` leaves "Again" out. */
+  canAgain?: boolean
+}>(), { canAgain: true })
 
 defineEmits<{ review: []; again: []; map: [] }>()
 
 const { t } = useI18n()
 
+const again = computed((): boolean => props.canAgain)
 const stars = computed((): number => Math.min(3, Math.max(0, props.summary.stars)))
 const canReview = computed((): boolean => props.failed && (props.summary.mistakes.length > 0 || props.summary.srs_pulled > 0))
 
@@ -95,10 +98,18 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
       <button v-if="canReview" type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy" data-testid="review-btn" @click="$emit('review')">
         {{ t('gameRun.summary.review') }}
       </button>
-      <button type="button" class="btn btn-block" :class="canReview ? 'btn-tinted' : 'btn-primary btn-lg'" data-testid="again-btn" @click="$emit('again')">
+      <button v-if="again" type="button" class="btn btn-block" :class="canReview ? 'btn-tinted' : 'btn-primary btn-lg'" data-testid="again-btn" @click="$emit('again')">
         {{ t('gameRun.summary.again') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" data-testid="map-btn" @click="$emit('map')">{{ t('gameRun.to_map') }}</button>
+      <button
+        type="button"
+        class="btn btn-block"
+        :class="canReview || again ? 'btn-plain' : 'btn-primary btn-lg'"
+        data-testid="map-btn"
+        @click="$emit('map')"
+      >
+        {{ t('gameRun.to_map') }}
+      </button>
     </StickyActions>
   </div>
 </template>

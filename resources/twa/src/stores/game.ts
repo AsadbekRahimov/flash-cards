@@ -3,7 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import { useBillingStore } from '@/stores/billing'
-import type { GameMapResponse } from '@/api/types'
+import type { GameMapResponse, GameStartRequest } from '@/api/types'
 
 /** idle → loading (the map is being read) → ready; unavailable (403 `game_unavailable`) and error end it. */
 export type GameMapStatus = 'idle' | 'loading' | 'ready' | 'unavailable' | 'error'
@@ -17,6 +17,8 @@ export interface GameStartError {
 }
 
 export type GameStartResult = { ok: true; id: number } | { ok: false; error: GameStartError }
+
+const busy = (): GameStartResult => ({ ok: false, error: { code: 'busy', kind: 'unexpected', details: null, message: '' } })
 
 interface GameState {
   /** The map being shown and the slug it was read for. */
@@ -78,10 +80,25 @@ export const useGameStore = defineStore('game', {
      */
     async startStop(lessonId: number, replaceActive = false): Promise<GameStartResult> {
       const course = this.map?.course.slug ?? this.course
-      if (this.starting || course === null) return { ok: false, error: { code: 'busy', kind: 'unexpected', details: null, message: '' } }
+      if (course === null) return busy()
+      return this.start({ kind: 'stop', course, lesson_id: lessonId, ...(replaceActive ? { replace_active: true } : {}) })
+    },
+
+    /**
+     * Starts the caravan of the day (docs/05 §5b.4): `POST /game/runs {kind: 'daily'}`, the course is the active one on the server. The
+     * refusals are typed like a stop's; two matter here: 409 `game_daily_done {resets_at}` (the day is spent, whoever spent it) and
+     * 422 `game_not_enough_material`.
+     */
+    async startDaily(replaceActive = false): Promise<GameStartResult> {
+      return this.start({ kind: 'daily', ...(replaceActive ? { replace_active: true } : {}) })
+    },
+
+    /** One start at a time: a second press waits. */
+    async start(body: GameStartRequest): Promise<GameStartResult> {
+      if (this.starting) return busy()
       this.starting = true
       try {
-        const run = await api.game.startRun({ kind: 'stop', course, lesson_id: lessonId, ...(replaceActive ? { replace_active: true } : {}) })
+        const run = await api.game.startRun(body)
         return { ok: true, id: run.id }
       } catch (err) {
         const message = errorMessage(err, 'game')

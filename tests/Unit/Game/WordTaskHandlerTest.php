@@ -333,6 +333,19 @@ it('labels a mistake with the word and its translation and the answer the learne
         ->and(wthHandler()->mistakeLabel($spell, wthState(), 'ru'))->toBe([['label' => 'apple — яблоко', 'your_answer' => null]]);
 });
 
+it('keeps a label whole when the translation ends in a letter whose last byte is a byte of the dash (мир)', function (): void {
+    $taken = [];
+    $world = WordTaskHandler::buildSpell(wthWord(1, 'world', 'мир', 'dunyo'), wthLocales(), $taken);
+    $state = wthState();
+    $state->markAnswered($world->id, Verdict::Wrong, true, 0, true, ['text' => 'word'], '2026-11-05T10:00:00.000Z');
+
+    $label = wthHandler()->mistakeLabel($world, $state, 'ru')[0]['label'];
+
+    expect($label)->toBe('world — мир')->and(mb_check_encoding($label, 'UTF-8'))->toBeTrue()
+        // the dash of a word that has no translation is still cut off
+        ->and(wthHandler()->mistakeLabel(WordTaskHandler::buildSpell(wthWord(2, 'sun', '', ''), wthLocales(), $taken), wthState(), 'ru')[0]['label'])->toBe('sun');
+});
+
 it('says which words an element is about, and plays only the five kinds', function (): void {
     expect(wthHandler()->wordIds(wthSpell()))->toBe([1])
         ->and(wthHandler()->kinds())->toBe([TaskKind::TranslateFwd, TaskKind::TranslateBack, TaskKind::Listen, TaskKind::Spell, TaskKind::Gap])

@@ -112,7 +112,8 @@ function dailyError(TestResponse $response, int $status, string $code): array
 it('starts the caravan of the day from the due words only: tasks of words, no pairs, no authored, no free slot, the day key', function (): void {
     [$learner, $course, , $due] = dailyWorld(8, 4);
 
-    $id = dailyPost($learner)->assertCreated()->assertJsonPath('kind', 'daily')->assertJsonPath('status', 'active')->json('id');
+    $id = dailyPost($learner)->assertCreated()->assertJsonPath('kind', 'daily')->assertJsonPath('status', 'active')
+        ->assertJsonPath('course.slug', $course->slug)->assertJsonPath('lesson_id', null)->json('id');
 
     $run = GameRun::query()->findOrFail($id);
     expect(dailyWordIds($run))->toBe(dailyIds($due))

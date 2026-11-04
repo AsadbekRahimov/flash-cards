@@ -9,7 +9,7 @@ import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
-import { gameLimits, gameMap, mapBoss, mapCity, mapStop } from '@/api/__tests__/gameMapFixtures'
+import { gameLimits, gameMap, mapBoss, mapCity, mapDaily, mapStop } from '@/api/__tests__/gameMapFixtures'
 import type { GameMapResponse, TodayResponse } from '@/api/types'
 
 vi.mock('@/api', () => ({
@@ -220,6 +220,59 @@ describe('GameMapView: the course', () => {
     await flushPromises()
 
     expect(api.me.get).not.toHaveBeenCalled()
+  })
+})
+
+describe('GameMapView: the caravan of the day', () => {
+  it.each([
+    ['waiting', { daily: mapDaily() }, 'ready', 'К повторению 14 слов'],
+    ['played', { daily: mapDaily({ available: false, done_today: true }) }, 'done', 'Сыграно, завтра снова'],
+    ['nothing due', { daily: mapDaily({ available: false, due_count: 0 }) }, 'empty', 'Пока нечего повторять'],
+    [
+      'on',
+      { daily: mapDaily({ available: false }), active_run: { id: 9, kind: 'daily', progress: { answered: 3, total: 9 } } },
+      'running',
+      'Идёт забег — продолжить',
+    ],
+    [
+      'waiting while a stop run is on (the banner above is for that run)',
+      { daily: mapDaily({ available: false }), active_run: { id: 9, kind: 'stop', progress: { answered: 3, total: 9 } } },
+      'ready',
+      'К повторению 14 слов',
+    ],
+  ] as const)('is a card above the road when the caravan is %s', async (_name, overrides, dailyState, text) => {
+    const { wrapper } = await render(gameMap(overrides))
+
+    const card = testid(wrapper, 'daily-card')
+    expect(card.attributes('data-state')).toBe(dailyState)
+    expect(card.get('[data-testid=daily-text]').text()).toBe(text)
+    expect(card.text()).toContain('Караван дня')
+    // above the road
+    expect(wrapper.html().indexOf('data-testid="daily-card"')).toBeLessThan(wrapper.html().indexOf('data-testid="road"'))
+  })
+
+  it('leads to /game/daily with the course', async () => {
+    const { wrapper, router } = await render(gameMap({ daily: mapDaily() }))
+    router.addRoute({ path: '/game/daily', name: 'game-daily', component: { template: '<div />' } })
+
+    await testid(wrapper, 'daily-card').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.fullPath).toBe('/game/daily?course=english-a1')
+  })
+
+  it('stands over the empty state too (the words can be due before any stop is open)', async () => {
+    const { wrapper } = await render(
+      gameMap({ daily: mapDaily(), cities: [mapCity({ stops: [mapStop({ unlocked: false })] })] }),
+    )
+
+    expect(testid(wrapper, 'empty').exists()).toBe(true)
+    expect(testid(wrapper, 'daily-card').exists()).toBe(true)
+  })
+
+  it('is not drawn when the map has no daily block', async () => {
+    const { wrapper } = await render(gameMap())
+    expect(testid(wrapper, 'daily-card').exists()).toBe(false)
   })
 })
 

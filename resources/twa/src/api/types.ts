@@ -405,6 +405,11 @@ export interface Streak {
   freezes: number
   /** Yesterday was missed and held by a freeze. */
   frozen_yesterday: boolean
+  /**
+   * What held today (docs/04 A.2a): `goal`, `game` (only a run of Karvon - "Streak held by a run"), `freeze`; null while `met_today` is false.
+   * Absent on an older server.
+   */
+  held_by?: 'goal' | 'game' | 'freeze' | null
 }
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
@@ -453,6 +458,13 @@ export interface TodayResponse {
    * header of Home dates itself by it, not by the device (docs/04 A.2a). Always a non-empty string.
    */
   timezone: string
+  /** The entry of Karvon (docs/04 A.2a, G2.3): always there; a closed game says `{daily_available: false, active_run: null}`. */
+  game?: TodayGame
+}
+
+export interface TodayGame {
+  daily_available: boolean
+  active_run: GameActiveRun | null
 }
 
 export interface TodayLeague {
@@ -850,11 +862,22 @@ export interface GameActiveRun {
   progress: { answered: number; total: number }
 }
 
-/** GET /game/map (docs/04 A.18). `daily` and `class_caravan` belong to later screens and are not typed here. */
+/** The caravan of the day on the map (docs/04 A.18): `available` = not played, no run on, something due. */
+export interface GameMapDaily {
+  available: boolean
+  done_today: boolean
+  due_count: number
+  /** The start of the learner's next local day. */
+  resets_at: string
+}
+
+/** GET /game/map (docs/04 A.18). `class_caravan` belongs to a later screen and is not typed here. */
 export interface GameMapResponse {
   course: { slug: string; title: string }
   cities: GameMapCity[]
   me: { stops_cleared: number; cities_cleared: number; coins: number; tickets: number }
+  /** The caravan of the day; absent on an older server. */
+  daily?: GameMapDaily | null
   friends: GameMapFriend[]
   active_run: GameActiveRun | null
   limits: GameLimits | null
@@ -865,12 +888,10 @@ export interface GameRunStarted {
   id: number
 }
 
-export interface GameStartRequest {
-  kind: 'stop'
-  course: string
-  lesson_id: number
-  replace_active?: boolean
-}
+export type GameStartRequest =
+  | { kind: 'stop'; course: string; lesson_id: number; replace_active?: boolean }
+  /** The caravan of the day: the course is the active one, the server needs neither course nor lesson. */
+  | { kind: 'daily'; replace_active?: boolean }
 
 /** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */
 export interface PracticeLimitHit {

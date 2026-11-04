@@ -442,6 +442,18 @@ describe('FinishedView', () => {
       expect(bar.classes()).toContain('progress-success')
     })
 
+    it('says "the streak is held by a run" only when the day was held by a run of Karvon (docs/05 §5b.4)', () => {
+      const held = (by: 'goal' | 'game' | 'freeze' | null) => ({ current: 4, best: 4, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false, held_by: by })
+
+      useTrainingStore().summary = summary({ streak: held('game') })
+      expect(render(5, 1).get('[data-testid=streak-held-by-game]').text()).toBe('Серия удержана забегом')
+
+      for (const by of ['goal', 'freeze', null] as const) {
+        useTrainingStore().summary = summary({ streak: held(by) })
+        expect(render(5, 1).find('[data-testid=streak-held-by-game]').exists(), String(by)).toBe(false)
+      }
+    })
+
     it('has no streak line while the series is zero', () => {
       useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } })
 

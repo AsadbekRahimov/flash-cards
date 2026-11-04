@@ -7,6 +7,7 @@
 #   resources/twa/scripts/e2e/stand.sh sweep    # one run of the janitor of the battles (what the scheduler does every minute in production)
 #   resources/twa/scripts/e2e/stand.sh down     # stops the server, removes what `up` made
 #
+# The game of the caravan (docs/05 §5b.4) is open to everybody on the stand (GAME_ACCESS=all); the practice is in its pilot.
 # Settings (environment, all optional): E2E_DIR (stand directory, default $TMPDIR/lexiflow-e2e), E2E_PORT (8010),
 # E2E_GRACE (PRACTICE_BATTLE_PRESENCE_GRACE, seconds; the server default 30 is kept when empty).
 # Nothing in .env is edited: the settings go through the environment of the commands below, which beats what .env says (the stand
@@ -20,6 +21,8 @@ PID_FILE="$DIR/server.pid"
 BUILT_MARK="$DIR/twa-built-by-stand"
 AUDIO_MARK="$DIR/audio-made-by-stand"
 AUDIO_DIR="$ROOT/storage/app/practice-audio"
+WORD_AUDIO_LIST="$DIR/word-audio.list"
+WORD_AUDIO_DIR="$ROOT/storage/app/public"
 
 # One random secret per stand directory: the JWT secret (the one of .env may be empty or short) and the key of the app.
 secret() { # secret <name> <bytes>
@@ -31,8 +34,10 @@ secret() { # secret <name> <bytes>
 stand_env() {
   export APP_ENV=local APP_DEBUG=false LOG_CHANNEL=single
   export DB_CONNECTION=sqlite DB_DATABASE="$DIR/e2e.sqlite"
-  export PRACTICE_ACCESS=pilot
-  export QUEUE_CONNECTION=sync CACHE_STORE=file SESSION_DRIVER=file
+  export PRACTICE_ACCESS=pilot GAME_ACCESS=all
+  # The scenarios and the pictures play many runs of a stop a day (Free has one, docs/18 §3): the limits of the game are not what is tested here.
+  export GAME_FREE_RUNS_PER_DAY=1000
+  export QUEUE_CONNECTION=sync CACHE_STORE=file CACHE_LIMITER_STORE=file SESSION_DRIVER=file
   export TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-123456:e2e-test-token}"
   export APP_URL="http://127.0.0.1:$PORT"
   export TWA_JWT_SECRET="$(secret jwt 48)"
@@ -61,6 +66,8 @@ up() {
   echo "== friends (Alice and Bob; Charlie and Diana for the pictures that run two by two)"
   php resources/twa/scripts/e2e/befriend.php 200000001 200000002
   php resources/twa/scripts/e2e/befriend.php 200000003 200000004
+  echo "== examples and recordings of the words (the gap and listen tasks of the game)"
+  php resources/twa/scripts/e2e/game-seed.php "$WORD_AUDIO_LIST"
 
   if [ ! -f public/twa/index.html ] || [ -f "$BUILT_MARK" ]; then
     echo "== build of the TWA into public/twa"
@@ -90,6 +97,9 @@ down() {
   rm -f "$PID_FILE" "$DIR/e2e.sqlite" "$DIR/e2e.sqlite-journal" "$DIR/e2e.sqlite-wal" "$DIR/e2e.sqlite-shm"
   if [ -f "$BUILT_MARK" ]; then rm -rf "$ROOT/public/twa" "$BUILT_MARK" && echo "public/twa removed"; fi
   if [ -f "$AUDIO_MARK" ]; then rm -f "$AUDIO_DIR"/*.mp3 "$AUDIO_MARK" && echo "audio of the seed removed"; fi
+  # The recordings of the words that game-seed.php made (and only those).
+  if [ -s "$WORD_AUDIO_LIST" ]; then while IFS= read -r clip; do rm -f "$WORD_AUDIO_DIR/$clip"; done < "$WORD_AUDIO_LIST"; echo "recordings of the words removed"; fi
+  rm -f "$WORD_AUDIO_LIST"
 }
 
 # The stand has no scheduler (it would run every command of the project): the one run of the janitor that the scenarios need.

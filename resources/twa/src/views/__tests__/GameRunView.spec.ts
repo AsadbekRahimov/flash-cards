@@ -473,6 +473,35 @@ describe('GameRunView — the summary', () => {
     r.wrapper.unmount()
   })
 
+  it('takes the course and the stop from the run itself, with no query; the run wins over a stale query', async () => {
+    const r = await render(finishedRun('completed', { course: { slug: 'ielts' }, lesson_id: 77 }))
+    await click(r, 'again-btn')
+    expect(r.router.currentRoute.value.fullPath).toBe('/game?course=ielts&stop=77')
+    r.wrapper.unmount()
+
+    const other = await render(finishedRun('completed', { course: { slug: 'ielts' }, lesson_id: 77 }), { course: 'english-a1', stop: 41 })
+    await click(other, 'map-btn')
+    expect(other.router.currentRoute.value.fullPath).toBe('/game?course=ielts')
+    other.wrapper.unmount()
+  })
+
+  it('the caravan of the day has no "Again" (one a day): the map is the way on, and the course comes from the run', async () => {
+    const r = await render(finishedRun('completed', { kind: 'daily', course: { slug: 'ielts' }, lesson_id: null }))
+
+    expect(has(r, 'again-btn')).toBe(false)
+    expect(tid(r, 'map-btn').classes()).toContain('btn-primary')
+    await click(r, 'map-btn')
+    expect(r.router.currentRoute.value.fullPath).toBe('/game?course=ielts')
+    r.wrapper.unmount()
+  })
+
+  it('a run that is closed (410) has no body to tell the course: the query is the way back', async () => {
+    const r = await render(apiError('gone', 410, 'game_run_closed', { finish_reason: 'expired' }), { course: 'english-a1', stop: 41 })
+    await click(r, 'map-btn')
+    expect(r.router.currentRoute.value.fullPath).toBe('/game?course=english-a1')
+    r.wrapper.unmount()
+  })
+
   it('a run opened without the course leads to the map of the active one', async () => {
     const r = await render(finishedRun('completed'))
     await click(r, 'again-btn')

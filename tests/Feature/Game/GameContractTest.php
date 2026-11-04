@@ -101,7 +101,7 @@ function gameContractRun(?string $kind, bool $summary = false): array
 {
     // A key that is null is listed as a plain name: an empty structure for a null would be compared with the parent.
     $run = [
-        'id', 'kind', 'status', 'finish_reason', 'city', 'stage_number', 'lesson_number', 'lesson_title', 'scope_widened', 'total', 'position',
+        'id', 'kind', 'status', 'finish_reason', 'course' => ['slug'], 'lesson_id', 'city', 'stage_number', 'lesson_number', 'lesson_title', 'scope_widened', 'total', 'position',
         'flasks', 'flasks_max', 'combo', 'score', 'boosters' => ['available', 'used'], 'hint' => ['price', 'available'], 'server_now',
     ];
     $kind === null ? $run[] = 'current' : $run['current'] = ['element' => gameContractElement($kind), 'event'];
@@ -181,6 +181,19 @@ it('keeps the exact shape of a run and of an answer for each of the nine kinds o
     }
 
     expect(array_values(array_diff(CONTRACT_ALL_KINDS, array_keys($seen))))->toBe([]);
+});
+
+it('tells the course and the lesson of a stop run, so that the client needs no query to go back to its map', function (): void {
+    [$learner, $course, $lesson] = GameKit::richStop();
+    $headers = PracticeKit::headers($learner);
+
+    $id = test()->withHeaders($headers)->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id])
+        ->assertCreated()->assertJsonPath('course.slug', $course->slug)->assertJsonPath('lesson_id', $lesson->id)->json('id');
+
+    test()->withHeaders($headers)->getJson("/api/twa/game/runs/{$id}")->assertOk()
+        ->assertJsonPath('course.slug', $course->slug)->assertJsonPath('lesson_id', $lesson->id);
+    test()->withHeaders($headers)->postJson("/api/twa/game/runs/{$id}/abandon", ['confirm' => true])->assertOk()
+        ->assertJsonPath('course.slug', $course->slug)->assertJsonPath('lesson_id', $lesson->id);
 });
 
 it('keeps the exact shape of the review of an answer for the five kinds made of words, the right answer in it', function (): void {

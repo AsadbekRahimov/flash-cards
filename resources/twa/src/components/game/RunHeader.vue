@@ -56,6 +56,6 @@ const percent = computed((): number => (props.total > 0 ? Math.min(100, Math.max
       <span class="text-[15px] leading-5 font-semibold tabular-nums" :aria-label="`${t('gameRun.score')}: ${score}`" data-testid="score">{{ score }}</span>
     </div>
 
-    <p v-if="caption" class="mt-1 text-center text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="caption">{{ caption }}</p>
+    <p v-if="caption" class="mt-1 text-center short:hidden text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="caption">{{ caption }}</p>
   </header>
 </template>

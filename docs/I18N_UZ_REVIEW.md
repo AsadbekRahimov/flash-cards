@@ -367,6 +367,10 @@
 | `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
 | `today.streak.at_risk` | Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring | Выполните цель до полуночи, чтобы не потерять серию |
 | `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
+| `today.streak.held_by_game` | Seriya reys bilan saqlandi | Серия удержана забегом |
+| `today.game.title` | Karvon | Караван |
+| `today.game.daily` | Kunlik karvon kutmoqda | Караван дня ждёт |
+| `today.game.continue` | Reysni davom ettirish | Продолжить забег |
 | `today.streak.best` | Rekord: {best} | Рекорд: {best} |
 | `today.review.due.one` | Takrorlash uchun {count} ta so'z | {count} слово к повторению |
 | `today.review.due.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова к повторению |
@@ -2973,6 +2977,20 @@
 | `game.map.unavailable_text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishingiz mumkin. | Он откроется позже. А заниматься по курсу можно как обычно. |
 | `game.map.unavailable_title` | Karvon hozircha mavjud emas | Караван пока недоступен |
 | `game.material.text` | Bu bekat uchun ko'proq so'z kerak. Kartochkalarda yana o'rganing — bekat ochiladi. | Для этой стоянки нужно больше слов. Выучите ещё в карточках — и она откроется. |
+| `game.daily.title` | Kunlik karvon | Караван дня |
+| `game.daily.card.ready` | Takrorlash uchun {count} ta so'z | К повторению {count} слово |
+| `game.daily.card.done` | O'ynaldi, ertaga yana | Сыграно, завтра снова |
+| `game.daily.card.empty` | Hozircha takrorlaydigan narsa yo'q | Пока нечего повторять |
+| `game.daily.card.running` | Reys davom etmoqda — davom eting | Идёт забег — продолжить |
+| `game.daily.ready_text` | Takrorlash uchun {count} ta so'z — 8–10 topshiriqlik mashq. | К повторению {count} слово — разминка на 8–10 заданий. |
+| `game.daily.go` | Yo'lga chiqish | В путь |
+| `game.daily.running_title` | Reys davom etmoqda | Идёт забег |
+| `game.daily.done_title` | Kunlik karvon o'ynaldi | Караван дня сыгран |
+| `game.daily.done_text` | Keyingisi — ertaga. Oddiy takrorlash — kartochkalarda. | Следующий — завтра. Обычное повторение — в карточках. |
+| `game.daily.review` | Kartochkalarda takrorlash | Повторять в карточках |
+| `game.daily.empty_title` | Hozircha takrorlaydigan narsa yo'q | Пока нечего повторять |
+| `game.daily.empty_text` | So'zlar takrorlashga yetib kelganda, kunlik karvon shu yerda sizni kutadi. | Когда слова подойдут к повторению, караван дня будет ждать вас здесь. |
+| `game.daily.to_map` | Xaritaga | К карте |
 | `game.material.title` | So'zlar hozircha kam | Слов пока мало |
 | `game.stop.best` | Eng yaxshi hisob: {score} | Лучший счёт: {score} |
 | `game.stop.free_today` | Bugun bepul: {limit} tadan {remaining} ta | Сегодня бесплатно: {remaining} из {limit} |

@@ -120,6 +120,14 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'courses' },
   },
   {
+    // The caravan of the day (docs/05 §5b.4): `?course=` is the course (from the map), else the active one.
+    path: '/game/daily',
+    name: 'game-daily',
+    component: () => import('@/views/GameDailyView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null }),
+  },
+  {
     // A run of "Karvon" (docs/05 §5b.3): immersive, no tab. `course` / `stop` (query) tell the summary where "Again" / "To the map" lead.
     path: '/game/runs/:id(\\d+)',
     name: 'game-run',

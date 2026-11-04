@@ -156,6 +156,9 @@ onBeforeUnmount(() => {
             <p v-if="streak.current > 0" class="text-[15px] leading-[30px] font-semibold" data-testid="streak">
               {{ tn('today.streak.in_row', streak.current) }}
             </p>
+            <p v-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" class="text-[13px] leading-[18px] text-tg-subtitle" data-testid="streak-held-by-game">
+              {{ t('today.streak.held_by_game') }}
+            </p>
             <p v-if="streak.at_risk" class="text-[15px] leading-5 text-warning-ink" data-testid="streak-at-risk">
               {{ t('today.streak.at_risk') }}
             </p>

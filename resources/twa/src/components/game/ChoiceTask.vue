@@ -102,8 +102,8 @@ function listen(): void {
 
 <template>
   <div class="flex flex-1 flex-col" :data-kind="element.kind" data-testid="choice-task">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4 short:gap-3 short:pt-3">
+      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center short:py-4">
         <p class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
 
         <h2 v-if="element.kind === 'translate_fwd'" class="text-[28px] leading-8 font-bold break-words" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
@@ -111,7 +111,7 @@ function listen(): void {
         <button
           v-else
           type="button"
-          class="flex size-20 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] duration-150 active:scale-95 disabled:opacity-60"
+          class="flex size-20 short:size-16 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] duration-150 active:scale-95 disabled:opacity-60"
           :class="[failed ? 'bg-warning-soft text-warning-ink' : 'bg-accent text-tg-button-text', playing ? 'shadow-[0_0_0_6px_var(--app-accent-soft)]' : '']"
           :disabled="loading"
           :aria-label="listenLabel"
@@ -135,7 +135,7 @@ function listen(): void {
           v-for="(option, index) in element.options"
           :key="option.id"
           type="button"
-          class="option"
+          class="option short:min-h-12"
           :class="{ 'opacity-60': (locked && stateOf(option) === 'idle') || removed.has(option.id) }"
           :data-state="stateOf(option)"
           :data-removed="removed.has(option.id) ? 'true' : undefined"

@@ -115,7 +115,7 @@ describe('the run of Karvon: touch targets and fields', () => {
   })
 
   it('draws the answer options with .option, which is at least 56 px high', () => {
-    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option"/)
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option(?: short:min-h-12)?"/)
     expect(rulesOf('.option').some((body) => /@apply[^;]*\bmin-h-14\b/.test(body))).toBe(true)
   })
 
@@ -304,6 +304,32 @@ describe('the Karvon map', () => {
 
   it('has no fixed width that would break 320 px', () => {
     expect(view).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
+  })
+})
+
+/** The caravan of the day and its entries (docs/05 §5b.4): every target is 44 px, nothing is a fixed width. */
+describe('the caravan of the day', () => {
+  const daily = sources.get('views/GameDailyView.vue') ?? ''
+  const map = sources.get('views/GameMapView.vue') ?? ''
+  const todayView = sources.get('views/TodayView.vue') ?? ''
+
+  it('reads the screen', () => {
+    expect(daily).toContain('data-testid="game-daily-view"')
+  })
+
+  it('has no button under 44 px and no fixed size on a button', () => {
+    const buttons = daily.match(/<button\b[^>]*>/g) ?? []
+    expect(buttons.length).toBeGreaterThanOrEqual(4)
+    for (const button of buttons) expect(button).not.toMatch(/\b(?:size|h|min-h)-(?:[1-9]|10)\b/)
+  })
+
+  it('makes the card on the map and the entry on "Today" 44 px high', () => {
+    expect(/<button[^>]*data-testid="daily-card"[^>]*>/s.exec(map)?.[0]).toMatch(/\bmin-h-11\b/)
+    expect(/<RouterLink[^>]*data-testid="game-entry"[^>]*>/s.exec(todayView)?.[0]).toMatch(/\bmin-h-11\b/)
+  })
+
+  it('has no fixed width that would break 320 px', () => {
+    expect(daily).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
   })
 })
 

@@ -1471,6 +1471,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 ```json
 {
   "id": 9, "kind": "stop", "status": "active", "finish_reason": null,
+  "course": {"slug": "english-a1"}, "lesson_id": 11,
   "city": "Самарканд", "stage_number": 1, "lesson_number": 1, "lesson_title": "Фрукты", "scope_widened": false,
   "total": 9, "position": 3, "flasks": 3, "flasks_max": 3, "combo": 2, "score": 40,
   "current": {"element": {"id": "e3k9", "kind": "translate_fwd", "prompt": "apple", "audio": true, "audio_url": "/api/twa/game/runs/9/audio/e3k9", "options": [{"id": "o1a2", "text": "яблоко"}]}, "event": "bazaar"},
@@ -1481,6 +1482,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 }
 ```
 
+- `course {slug}` и `lesson_id` (G2.7b): куда вернуться с итога — курс забега (`snapshot.course_slug`; для `daily` это курс записи, активный курс ученика) и урок стоянки (`game_runs.lesson_id`; у `daily` и боссов — `null`). По ним «Ещё раз» и «На карту» собирают адрес без query. `course` — `null`, только если снимок не помнит slug.
 - `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`.
 - `boosters` (G2.5b ч.2): `available[] {key, effect, qty}` — бустеры инвентаря ученика с `qty > 0` (только пока забег идёт; у закончившегося `[]`), `used[] {key, effect, element_id}` — применённые в этом забеге (`element_id` — только у `hint`, иначе `null`; хранятся в `state`, без запроса). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict}, boss}`. `summary.boss` — `null`, кроме забегов `boss` / `class_boss`; у них `{accuracy (0..100, round(100 × correct / total)), won (accuracy ≥ 80 %, `typo` не считается), first (эта победа — первая над боссом города; у `class_boss` всегда false)}`; `stars` босса — 3 за победу, иначе 0.
 - Повтор того же `request_id` (ответ и подсказка) возвращает тот же `verdict` / `hint` и актуальный `run`; другой `request_id` на уже отвеченный элемент — 409 `answer_already_accepted {verdict}`; тот же `request_id` с другим элементом — 409 `request_id_reused`; не текущий элемент — 409 `element_not_current {current}`.

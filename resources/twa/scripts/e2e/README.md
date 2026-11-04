@@ -1,4 +1,4 @@
-# Browser e2e of the practice and the battle (docs/16 §14.4)
+# Browser e2e of the practice, the battle and the game "Karvon" (docs/16 §14.4, docs/05 §5b.4)
 
 The TWA in Chromium, launched the way Telegram launches a Mini App (initData signed with the bot token, the theme in the
 `#tgWebApp…` fragment), against the **real** local API with the demo seed. Nothing is mocked. No packages are added: Playwright is the
@@ -16,9 +16,11 @@ resources/twa/scripts/e2e/stand.sh status | sweep | down
 ```
 
 `up` works from scratch and edits nothing: the settings go through the environment (`APP_ENV=local`, `DB_CONNECTION=sqlite`,
-`PRACTICE_ACCESS=pilot`, `QUEUE_CONNECTION=sync`, `CACHE_STORE=file`, a bot token, a JWT secret and an app key made for the stand).
+`PRACTICE_ACCESS=pilot`, `GAME_ACCESS=all`, `GAME_FREE_RUNS_PER_DAY=1000`, `QUEUE_CONNECTION=sync`, `CACHE_STORE=file`, `CACHE_LIMITER_STORE=file`, a bot token, a JWT secret and an app key made for the stand).
 It seeds the pilot package (90 tasks in lessons 2-4 of the demo course, the clips voiced by ffmpeg), puts the demo learners into the
-pilot, and makes Alice and Bob, Charlie and Diana friends. The TWA and the API are one origin: `php -S` with `server.php`, which does
+pilot, and makes Alice and Bob, Charlie and Diana friends. `game-seed.php` then gives the words of the first four lessons an example
+and a recording (ffmpeg again), because the game's tasks `gap` and `listen` need both and the demo words have neither; the clips it
+made are listed in `$E2E_DIR/word-audio.list` and `down` removes exactly those. The TWA and the API are one origin: `php -S` with `server.php`, which does
 what nginx does (`/twa/*` falls back to `index.html`; `php artisan serve` does not, and it drops the environment of the stand).
 `down` stops the server and removes `public/twa` (if `up` built it), the database and the clips of the seed.
 
@@ -46,13 +48,35 @@ The exit code is 1 on any FAIL.
 | `battle:absent-lazy` | the same without the janitor: the first one to come back closes the match by their own request - `closed / both_absent`, no winner, the mark of nobody renewed; the other reads the same later |
 | `shots` | 390 and 320 px x light and dark: the screens of each mode (task, review) and of a battle (room, round, review, result); nothing may stick out of the window sideways |
 
+## The game "Karvon" (`game.mjs`)
+
+```bash
+node resources/twa/scripts/e2e/game.mjs --db $E2E_DIR/e2e.sqlite --base http://127.0.0.1:$E2E_PORT --out $E2E_DIR/shots
+```
+
+The same stand, the same kit, `--only game:stop,shots,...`. **The API never sends the right answers**, so the script reads the snapshot of
+the run (`game_runs.snapshot`, `state.current`), read only; what the screens and the API say is judged separately. Every scenario has
+its own learner, because the caravan of the day is one a day for a person and the API allows 60 calls a minute (`game:stop` Alice,
+`game:daily` Bob and Diana, `game:reload` Charlie, the pictures Alice, Charlie, Eve and, for "played", Bob; `--a` ... `--e` name the demo
+learners as in `practice.mjs`). Run it on a fresh stand: a day that has been played stays played.
+
+| Scenario | What it does |
+|---|---|
+| `game:stop` | "Today" with the entry "Караван дня ждёт" (against `/today.game`), the course, "Караван", the map against `GET /game/map` (cities, open and closed stops, the Pro chip of a boss, the card of the day), the sheet of stop 2, "В путь" (`POST /game/runs`: the body, `course.slug` and `lesson_id` in the reply), the run to the summary: the header at every element, the kind drawn, the verdict of the screen against the API and the intent, the score; a mistake and a "Не знаю" on purpose; the bazaar hint without coins (409 `coins_insufficient`, a toast, the task stays); the clip of a `listen` task; the summary against the API and the row of the database; "Today" after it: `streak.held_by = game` and "Серия удержана забегом"; a second run and "Ещё раз" (the address by the run itself, no query: `/game?course=&stop=` with the sheet and the best score) |
+| `game:daily` | "Today" -> "Караван дня ждёт" -> `/game/daily` (the words due as the map and `/today` say), "В путь" (`{kind: daily}` only), a caravan of words to the summary (no "Ещё раз"), the map card "Сыграно, завтра снова", the screen `done` with `resets_at`, "Повторять в карточках" opens a review; the second start through the API is 409 `game_daily_done {resets_at}`; a lost race: the day is spent by another device while the screen says "ready", the press is 409 and the screen turns to `done` without a toast, "Today" has no entry |
+| `game:reload` | `?stop=` opens the sheet; a reload before the third element: the same element, place and score; an answer and a reload after it: the next element, counted once; ✕ -> "Выйти" abandons the run and leads to the map of the run's own course; the address of the abandoned run says "Забег закончился" |
+| `shots` | 390 and 320 px x light and dark (two learners at a time): "Today", the map, the caravan of the day (waiting, running, played), the sheet of a stop (also with the best score), runs of the stops until all nine kinds of tasks have been drawn and explained (and the banners of the events), the summary (completed, lost), the sheet "Выйти", the map with an unfinished run, the question "continue or start this one", the caravan of the day to its summary (320 dark); nothing may stick out of the window sideways |
+
+Files: `game.mjs` (the entry), `game-scenarios.mjs`, `game-play.mjs` (what a learner does in a run: answers every kind of element on the
+screen, checks the verdict and the score), `game-shots.mjs`, `game-seed.php`.
+
 ## In CI
 
 `.github/workflows/e2e.yml` runs the whole thing every night (02:37 UTC) and by hand (Actions -> "E2E Mini App" -> Run workflow); not on
 push or pull request. The job sets up PHP 8.5 and Node 22 (`node:sqlite` needs 22.13+), installs `ffmpeg` from apt (the workflow
 checks that it has the `flite` filter), Playwright pinned in the workflow (`PLAYWRIGHT_VERSION`, installed globally: nothing in
-`package.json`) with `npx playwright install --with-deps chromium`, then `stand.sh up`, `practice.mjs`, `stand.sh down` (also when the run fails).
-The artifact `e2e-report` (14 days) holds `report.txt` (the output of the script: PASS/FAIL lines and the findings), the pictures
+`package.json`) with `npx playwright install --with-deps chromium`, then `stand.sh up`, `practice.mjs`, a minute of rest (the API allows 60 calls a minute), `game.mjs`, `stand.sh down` (also when the run fails).
+The artifact `e2e-report` (14 days) holds `report.txt` and `report-game.txt` (the output of the scripts: PASS/FAIL lines and the findings), the pictures
 (`shots/`) and `storage/logs/`. A red night is a failed run of the workflow; to reproduce, run the same commands as in "The stand" and "The run".
 When Playwright is updated, change the version in the workflow and look at the pictures once.
 
