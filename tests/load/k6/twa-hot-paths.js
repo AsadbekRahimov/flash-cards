@@ -10,13 +10,14 @@
 // Run: `make load-test` (see docs/STAGING_PHASE2_CHECKLIST.md §7.3).
 import { fail } from 'k6';
 // `server_errors` and `rate_limited` (lib.js) are counted by get()/post() and checked in the thresholds below.
-import { BASE_URL, get, post, ok, think, json, learnerFor, loadTokenFile, sharedLearners } from './lib.js';
+import { BASE_URL, get, post, ok, think, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '1250', 10);
 const HOLD = __ENV.HOLD || '10m';
 const CARDS_PER_SESSION = parseInt(__ENV.CARDS_PER_SESSION || '8', 10);
 
 const learners = sharedLearners('learners');
+const tokenFileMeta = sharedTokenFileMeta('token-file-meta');
 
 const HOT = ['me', 'today', 'courses', 'practice_hub', 'billing_catalog', 'training_open', 'training_next', 'training_review'];
 
@@ -53,7 +54,7 @@ export const options = {
 };
 
 export function setup() {
-  const file = loadTokenFile();
+  const file = tokenFileMeta[0];
 
   if (learners.length < TARGET_VUS) {
     fail(`The token file holds ${learners.length} learners, TARGET_VUS is ${TARGET_VUS}: run \`load:tokens --count=${TARGET_VUS}\`.`);
