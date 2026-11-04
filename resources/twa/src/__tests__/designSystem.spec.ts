@@ -115,7 +115,7 @@ describe('the run of Karvon: touch targets and fields', () => {
   })
 
   it('draws the answer options with .option, which is at least 56 px high', () => {
-    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option"/)
+    expect(sources.get('components/game/ChoiceTask.vue')).toMatch(/class="option(?: short:min-h-12)?"/)
     expect(rulesOf('.option').some((body) => /@apply[^;]*\bmin-h-14\b/.test(body))).toBe(true)
   })
 

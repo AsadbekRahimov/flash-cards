@@ -57,6 +57,34 @@ async function look(s, p, label) {
   if (cut.clipped.length > 0) s.note(`${label}: text a box does not show whole: ${cut.clipped.join(' | ')}`)
 }
 
+/**
+ * At 320 x 568 what the learner touches first is in the window and above the bar of the buttons, with no scrolling (the rule of the
+ * practice, 18.12b; the header of a run takes room of its own, so the caption goes and the choice task is tighter in a short window).
+ */
+async function taskInSight(s, p, kind) {
+  const seen = await p.page.evaluate((name) => {
+    const all = (selector) => [...document.querySelectorAll(selector)]
+    const targets = {
+      choice: all('[data-testid="choice-task"] button[data-testid^="option-"]'),
+      typed: all('[data-testid="answer-input"]'),
+      pairs: all('button[data-card]'),
+      collocation: all('[data-testid="collocation-choice"] button[data-testid^="option-"]'),
+      sentence: all('[data-testid="sentence-bank"] button[data-testid^="fragment-"]').slice(0, 1),
+      dictation: all('[data-testid="dictation-text"]'),
+    }[name]
+    const bar = document.querySelector('[data-testid="actions"]')?.getBoundingClientRect().top ?? innerHeight
+    return { limit: Math.round(Math.min(bar, innerHeight)), bottoms: targets.map((element) => Math.round(element.getBoundingClientRect().bottom)) }
+  }, kind)
+  const lowest = Math.max(...seen.bottoms)
+  await s.check(seen.bottoms.length > 0 && lowest <= seen.limit, `${kind} (${p.width} x ${p.height} px, ${p.theme}): the task is above the buttons and inside the window, no scrolling needed`, {
+    players: [p],
+    expected: `the lowest edge <= ${seen.limit}`,
+    actual: seen.bottoms.join(', '),
+  })
+}
+
+const SIGHT = { translate_fwd: 'choice', translate_back: 'choice', listen: 'choice', spell: 'typed', gap: 'typed', pairs_round: 'pairs', collocation: 'collocation', sentence: 'sentence', dictation: 'dictation' }
+
 /** A run of a stop through the API, opened in the browser the way a tap on the map would. */
 async function openRun(env, p, lesson) {
   await env.rest(p.who, 30)
@@ -124,6 +152,7 @@ async function screens(env, s, p, config, options) {
           if (seenTask.has(element.kind)) return
           seenTask.add(element.kind)
           await look(s, p, `task-${element.kind}`)
+          if (p.width <= 320) await taskInSight(s, p, SIGHT[element.kind])
         },
         reveal: async (element, index, intent) => {
           const label = intent === 'right' ? `reveal-${element.kind}` : `reveal-${element.kind}-${intent}`

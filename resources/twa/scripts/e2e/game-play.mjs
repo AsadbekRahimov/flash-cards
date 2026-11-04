@@ -112,7 +112,11 @@ async function doPairs(p, element, intent) {
   const replies = []
   if (intent === 'wrong') {
     const wrongRight = Object.values(element.pairs).find((right) => right !== element.pairs[lefts[0].id])
-    replies.push((await matchPair(p, lefts[0].id, wrongRight)).json)
+    const miss = (await matchPair(p, lefts[0].id, wrongRight, { last: true })).json
+    replies.push(miss)
+    // The last flask can go on this mismatch: the run is over, there is no board to go on with.
+    if (miss?.run?.status !== 'active') return replies
+    await until(async () => (await p.data(`left-${lefts[0].id}`, 'state')) !== 'selected', { label: 'the verdict of the mismatch on the card' })
   }
   for (const [index, card] of lefts.entries()) replies.push((await matchPair(p, card.id, element.pairs[card.id], { last: index === lefts.length - 1 })).json)
   return replies
