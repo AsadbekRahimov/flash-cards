@@ -27,7 +27,7 @@ const percent = computed((): number => (props.total > 0 ? Math.min(100, Math.max
 </script>
 
 <template>
-  <header class="px-4 pt-3" data-testid="run-header">
+  <header class="px-4 pt-3 short:pt-2" data-testid="run-header">
     <div class="flex items-center gap-2">
       <button type="button" class="-ml-1 flex size-11 shrink-0 items-center justify-center" :aria-label="t('common.close')" data-testid="close-btn" @click="$emit('close')">
         <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle">

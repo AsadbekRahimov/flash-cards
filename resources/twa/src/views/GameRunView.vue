@@ -371,7 +371,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
         <!-- The boosters of the learner's stock: not drawn while there are none. -->
         <!-- The bazaar: a hint for coins; the balance is shown once the server has told it. Both in one line: in a short window (320 x 568) two
              rows of 60 px would push the last option under the bar. -->
-        <div v-if="run.boosters.available.length > 0 || hintOffer" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-3 short:pt-1.5" data-testid="task-tools">
+        <div v-if="run.boosters.available.length > 0 || hintOffer" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-3 short:pt-0.5" data-testid="task-tools">
           <BoosterRow
             v-if="run.boosters.available.length > 0"
             :boosters="run.boosters"

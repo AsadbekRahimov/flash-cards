@@ -12,7 +12,8 @@ import type { GameBoosterEffect, GameRunBoosters } from '@/api/gameShopTypes'
  * Inactive (and said so for a screen reader): a booster that this run has used already (`extra_flask` / `second_chance` are for the whole
  * run, a `hint` for the element - `elementId`), a hint on an element that has one (`hinted`), a booster that cannot work here (a hint on a
  * task that has none: pairs, a sentence, a dictation; a flask or a second chance in a fight without flasks: `flasksMax` 0), an effect this
- * client does not know, and everything while an answer is on its way (`disabled`). A button is 44 px at least. The row has no padding of its
+ * client does not know, and everything while an answer is on its way (`disabled`). A button is 44 px at least. In a short window (320 x 568)
+ * the ones that cannot work here are not drawn at all: a row of dead buttons would take the room of the task. The row has no padding of its
  * own: the screen puts it beside the hint of the bazaar (one line in a short window).
  */
 const props = defineProps<{
@@ -52,6 +53,7 @@ const items = computed(() =>
     return {
       ...booster,
       spent,
+      useless,
       name,
       label: used ? t('gameCaravan.booster.aria_used', { name }) : useless ? t('gameCaravan.booster.aria_useless', { name }) : t('gameCaravan.booster.aria', { name, qty: booster.qty }),
     }
@@ -60,13 +62,13 @@ const items = computed(() =>
 </script>
 
 <template>
-  <div v-if="items.length > 0" class="flex items-center justify-center gap-2" role="group" :aria-label="t('gameCaravan.booster.row_aria')" data-testid="boosters">
+  <div v-if="items.length > 0" class="flex items-center justify-center gap-2" :class="{ 'short:hidden': items.every((item) => item.useless) }" role="group" :aria-label="t('gameCaravan.booster.row_aria')" data-testid="boosters">
     <button
       v-for="item in items"
       :key="item.key"
       type="button"
       class="relative flex size-12 items-center justify-center rounded-xl bg-fill transition-opacity active:scale-95 short:size-11"
-      :class="{ 'opacity-40': item.spent }"
+      :class="{ 'opacity-40': item.spent, 'short:hidden': item.useless }"
       :disabled="disabled || item.spent"
       :aria-label="item.label"
       :data-testid="`booster-${item.effect}`"
