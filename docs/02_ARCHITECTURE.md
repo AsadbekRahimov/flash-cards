@@ -65,6 +65,8 @@ flowchart LR
 
 Зачем монолит: команда маленькая, домены сильно связаны (одна БД, одна модель данных). Если когда-нибудь TWA вырастет в отдельное приложение — выделить его в Nuxt/SPA на поддомене не проблема.
 
+**Две поверхности одного образа (R13).** В проде монолит запущен двумя php-fpm контейнерами: `app` (`APP_SURFACE=full` — панели, сайт, вебхуки, 2FA) и `app-api` (`APP_SURFACE=api` — только `/api/*`, `/up`, `/health/ready`). На поверхности `api` не регистрируются ни панели Filament, ни пакеты админки (Filament, Livewire, Blade-иконки и т.п.): `App\Support\Surface` + `SurfacePackageManifest` фильтруют провайдеры в рантайме, `bootstrap/app.php` не грузит `routes/web.php`. Код один, домены те же; поверхность — свойство процесса (переменная окружения), поэтому перевод `app-api` на Octane — смена команды контейнера. Подробно: `docs/DEVOPS_GUIDE.md` §0 «Две поверхности приложения».
+
 ### 2.2 PostgreSQL 16
 Основное хранилище. Используем:
 - JSONB для `meta` полей (расширяемость).
@@ -278,7 +280,8 @@ app/
 ## 7. Deployment (Docker Compose)
 
 Сервисы:
-- `app` — PHP-FPM 8.2 + Laravel.
+- `app` — PHP-FPM + Laravel, поверхность `full` (панели, сайт, вебхуки, `/health/ready`).
+- `app-api` — тот же образ, поверхность `api` (`APP_SURFACE=api`): только `/api/*` TWA; nginx шлёт туда `location ^~ /api/`.
 - `nginx` — reverse proxy + static TWA.
 - `postgres` — БД.
 - `redis` — cache + queue.

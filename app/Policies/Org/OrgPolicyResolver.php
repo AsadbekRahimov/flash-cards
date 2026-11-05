@@ -13,6 +13,7 @@ use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
 use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
+use App\Support\Surface;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Access\Gate;
 
@@ -85,6 +86,13 @@ final class OrgPolicyResolver
 
     public static function inOrgPanel(): bool
     {
+        // The `api` surface (the `app-api` container) registers no Filament at all: there is no panel to be in, and the
+        // facade must not be touched (its binding does not exist there). The TWA never asks the Gate today; this keeps a
+        // future `can()` on the API from resolving Filament by accident.
+        if (Surface::isApi()) {
+            return false;
+        }
+
         return Filament::getCurrentPanel()?->getId() === self::PANEL_ID;
     }
 }

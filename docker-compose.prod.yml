@@ -10,6 +10,11 @@
 #     queue-default (`default`) and queue-low (`low`). A worker takes queues in strict priority order, so a shared
 #     `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
 #     limit of 25/s keeps it busy for minutes): the `low` heartbeat then goes stale and /health/ready fails on `queue`.
+#   - Two php-fpm containers of the same image (docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения: app и app-api»):
+#     `app` (APP_SURFACE=full: /admin, /org, the public site, the Telegram and payment webhooks, /2fa, /up, /health/ready)
+#     and `app-api` (APP_SURFACE=api: /api/* of the TWA Mini App only - no Filament / Livewire registered, no web routes;
+#     also answers /up and /health/ready). nginx sends `/api/` to app-api and everything else to app. Each has a php-fpm
+#     pool of its own (PHP_FPM_* and PHP_FPM_API_* in .env; defaults below). The queue workers and the scheduler are full.
 #   - All services restart unless explicitly stopped.
 #   - `pgbouncer` (transaction pooling, image built from the Dockerfile stage `pgbouncer`) between the application and
 #     PostgreSQL: .env says DB_HOST=pgbouncer, the application keeps one persistent PDO connection per php-fpm worker
@@ -32,6 +37,10 @@
 # database and /health/ready says `degraded`. Waiting for `healthy` would tie the whole application to a disposable
 # component; `redis` (queues, sessions, locks) stays `service_healthy`.
 x-lru-env: &lru-env
+    # The surface of the process (App\Support\Surface): every service of the image is `full` unless its own `environment:`
+    # says otherwise (only `app-api` does). Set here, above `env_file`, so an APP_SURFACE line in .env can never turn the
+    # panels, the webhooks, the queue workers or the scheduler into api-only processes.
+    APP_SURFACE: full
     REDIS_LRU_HOST: redis-cache
     REDIS_LRU_PORT: "6379"
     REDIS_LRU_PASSWORD: ${REDIS_CACHE_PASSWORD:?REDIS_CACHE_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
@@ -64,9 +73,51 @@ services:
         env_file: .env
         environment:
             <<: *lru-env
+            # The php-fpm pool of the full surface: panels, webhooks and the public site - a few people and the bots, while the
+            # learners are on app-api. 6 of the 18 workers of a 4 vCPU host (docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»); a PHP_FPM_*
+            # line in .env still overrides (compose interpolates .env), and the image default of 16 applies only outside compose.
+            PHP_FPM_MAX_CHILDREN: ${PHP_FPM_MAX_CHILDREN:-6}
+            PHP_FPM_START_SERVERS: ${PHP_FPM_START_SERVERS:-2}
+            PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_MIN_SPARE_SERVERS:-1}
+            PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_MAX_SPARE_SERVERS:-3}
         volumes:
             - app_storage:/var/www/html/storage
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
+            - app_audio:/var/www/html/storage/app/public/audio
+
+    # The TWA API on its own php-fpm pool (App\Support\Surface, docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения»): the
+    # same image, APP_SURFACE=api - only routes/api.php, /up and /health/ready are loaded, the panel providers and the
+    # packages of the admin UI (Filament, Livewire, Blade icons, ...) are not registered, so a learner's request pays for
+    # none of them and this process carries none of that code. nginx routes `/api/` here. Its caches (config, routes,
+    # events) are built at start by the entrypoint with this surface; `view:cache` and `filament:optimize` are skipped.
+    # The next step for this container is Octane (FrankenPHP): a different `command:`, nothing else changes.
+    app-api:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-app-api
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+            pgbouncer:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            redis-cache:
+                condition: service_started
+        env_file: .env
+        environment:
+            <<: *lru-env
+            APP_SURFACE: api
+            # Learner traffic is most of the requests: 12 of the 18 workers of a 4 vCPU host (2-4 per core all in all,
+            # docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»). Override with PHP_FPM_API_* in .env; pm.max_requests is PHP_FPM_MAX_REQUESTS.
+            PHP_FPM_MAX_CHILDREN: ${PHP_FPM_API_MAX_CHILDREN:-12}
+            PHP_FPM_START_SERVERS: ${PHP_FPM_API_START_SERVERS:-3}
+            PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_API_MIN_SPARE_SERVERS:-2}
+            PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_API_MAX_SPARE_SERVERS:-4}
+        volumes:
+            # The same storage volume as `app`: logs, the file markers of the cache circuit breaker, compiled Blade (the api
+            # surface compiles only the framework's error pages, on first use - identical sources give identical files).
+            - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
 
     # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
@@ -156,8 +207,11 @@ services:
         image: lexiflow/nginx:${IMAGE_TAG:-latest}
         container_name: lexiflow-nginx
         restart: unless-stopped
+        # Both upstreams: nginx resolves `app:9000` and `app-api:9000` when it loads its configuration.
         depends_on:
             app:
+                condition: service_healthy
+            app-api:
                 condition: service_healthy
         ports:
             - "80:80"
@@ -230,8 +284,8 @@ services:
             retries: 5
 
     # Connection pooler in front of postgres (docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»). Transaction
-    # mode: a server connection serves a client only for the length of a transaction, so 16 php-fpm workers + the queue
-    # workers share PGBOUNCER_POOL_SIZE (20) + PGBOUNCER_RESERVE_POOL_SIZE (4) PostgreSQL backends - well inside
+    # mode: a server connection serves a client only for the length of a transaction, so the 18 php-fpm workers (app 6 +
+    # app-api 12) + the queue workers share PGBOUNCER_POOL_SIZE (20) + PGBOUNCER_RESERVE_POOL_SIZE (4) PostgreSQL backends - well inside
     # max_connections = 100 - and the persistent client connections cost PostgreSQL nothing while they idle. It listens on
     # 5432 like postgres, so switching the application is DB_HOST alone. The auth file is written at start from DB_USERNAME /
     # DB_PASSWORD (mode 0600, never in the image); the password is in the container environment as it is for `postgres`.

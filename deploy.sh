@@ -201,8 +201,18 @@ fi
 echo "==> Starting / updating the production stack"
 $COMPOSE up -d --remove-orphans
 
-echo "==> Verifying the application container"
+echo "==> Verifying the application containers"
 $COMPOSE exec -T app php artisan about --only=environment
+# The api container (APP_SURFACE=api, docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения») must carry no panel routes and
+# must have the TWA ones: a wrong APP_SURFACE would silently serve the full application to the learners.
+API_ROUTES="$($COMPOSE exec -T app-api php artisan route:list --json)"
+case "$API_ROUTES" in
+    *'"api/twa/me"'*) ;;
+    *) echo "ERROR: app-api has no route api/twa/me; its route list: ${API_ROUTES}" >&2; exit 1 ;;
+esac
+case "$API_ROUTES" in
+    *'"filament.'*|*'"admin"'*|*'"admin/'*) echo "ERROR: app-api serves panel routes - APP_SURFACE of the app-api service is not 'api'" >&2; exit 1 ;;
+esac
 
 DOMAIN="$($COMPOSE run --rm --no-deps --entrypoint sh certbot -c 'printf "%s" "$APP_DOMAIN"')"
 BASE="https://${DOMAIN}"
@@ -216,6 +226,15 @@ smoke_fail() {
 
 echo "==> Running HTTPS smoke check"
 $CURL "${BASE}/up" >/dev/null || smoke_fail "${BASE}/up"
+# Through nginx to app-api: an unauthenticated TWA call is a 401 JSON from Laravel (anything else - 502 with app-api down,
+# 404 from the wrong upstream, 500 - fails). `--retry-all-errors` does not retry a 401, so the loop is explicit.
+API_CODE=''
+for _ in $(seq 1 10); do
+    API_CODE="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "${BASE}/api/twa/me" || true)"
+    [ "$API_CODE" = "401" ] && break
+    sleep 2
+done
+[ "$API_CODE" = "401" ] || smoke_fail "${BASE}/api/twa/me answered ${API_CODE:-nothing}, expected 401 from the app-api container"
 
 # /health/ready needs the scheduler and worker heartbeats (written once a minute), so give them time
 # to appear after the containers restart: up to ~5 minutes.

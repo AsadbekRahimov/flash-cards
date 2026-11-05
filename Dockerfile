@@ -77,10 +77,15 @@ ENV PHP_FPM_MAX_CHILDREN=16 \
     PHP_FPM_MIN_SPARE_SERVERS=2 \
     PHP_FPM_MAX_SPARE_SERVERS=6 \
     PHP_FPM_MAX_REQUESTS=500
+# The surface of the application (App\Support\Surface, docs/DEVOPS_GUIDE.md «Две поверхности приложения»): `full` for every
+# container of this image unless compose says otherwise - only the `app-api` service sets APP_SURFACE=api (TWA API alone,
+# no Filament). Read from the process environment at bootstrap, so it is an ENV and not a config value; php-fpm passes it to
+# its workers (the image sets `clear_env = no`), and `composer install` below runs full, as it must.
+ENV APP_SURFACE=full
 # A pool file that is not picked up must break the build, not production.
 RUN set -eu; \
     conf="$(php-fpm -tt 2>&1)"; \
-    for setting in 'pm = dynamic' 'pm.max_children = 16' 'pm.start_servers = 4' 'pm.min_spare_servers = 2' 'pm.max_spare_servers = 6' 'pm.max_requests = 500'; do \
+    for setting in 'clear_env = no' 'pm = dynamic' 'pm.max_children = 16' 'pm.start_servers = 4' 'pm.min_spare_servers = 2' 'pm.max_spare_servers = 6' 'pm.max_requests = 500'; do \
         printf '%s\n' "$conf" | grep -q "$setting\$" || { echo "php-fpm pool setting not applied: $setting" >&2; exit 1; }; \
     done
 
