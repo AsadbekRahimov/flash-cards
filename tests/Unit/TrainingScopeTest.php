@@ -74,9 +74,51 @@ it('models the new-card budget: unlimited, fixed and lazily resolved', function 
     });
 
     expect($lazy->isUnlimited())->toBeFalse()
-        ->and($lazy->remaining(42, $now))->toBeNull()
-        ->and($lazy->remaining(7, $now))->toBe(5)
+        ->and($lazy->check(42, $now))->toBeNull()
+        ->and($lazy->check(7, $now))->toBe(5)
         ->and($seen)->toBe([[42, $now], [7, $now]]);
+});
+
+it('shows the number of the last check less what was spent, and resolves once when nothing was checked', function (): void {
+    $now = CarbonImmutable::parse('2026-10-18 10:00:00');
+    $calls = 0;
+    $budget = NewCardBudget::lazy(function () use (&$calls): int {
+        $calls++;
+
+        return 2;
+    });
+
+    // Display without a check: one resolve, then from memory.
+    expect($budget->remaining(1, $now))->toBe(2)
+        ->and($budget->remaining(1, $now))->toBe(2)
+        ->and($calls)->toBe(1);
+
+    // The decision always resolves afresh; a card issued against it lowers the display, never below zero.
+    expect($budget->check(1, $now))->toBe(2)->and($calls)->toBe(2);
+    $budget->spend();
+    expect($budget->remaining(1, $now))->toBe(1)->and($calls)->toBe(2);
+    $budget->spend();
+    $budget->spend();
+    expect($budget->remaining(1, $now))->toBe(0)
+        ->and($budget->check(1, $now))->toBe(2) // the resolver's number, spent reset
+        ->and($budget->remaining(1, $now))->toBe(2)
+        ->and($calls)->toBe(3);
+
+    // Unlimited answers null everywhere and never spends.
+    $unlimited = NewCardBudget::unlimited();
+    $unlimited->spend();
+    expect($unlimited->check(1, $now))->toBeNull()->and($unlimited->remaining(1, $now))->toBeNull();
+
+    // A resolver that answers "unlimited" is asked once for the display too.
+    $asked = 0;
+    $nullable = NewCardBudget::lazy(function () use (&$asked): ?int {
+        $asked++;
+
+        return null;
+    });
+    expect($nullable->remaining(1, $now))->toBeNull()
+        ->and($nullable->remaining(1, $now))->toBeNull()
+        ->and($asked)->toBe(1);
 });
 
 // --- mode_shape invariant (service-side mirror of the PG CHECK) ---------------

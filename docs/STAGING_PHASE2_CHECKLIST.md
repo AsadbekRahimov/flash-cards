@@ -37,7 +37,7 @@
 Список — всё, что добавлено в `.env.example` после коммита `12a881e` (`git diff 12a881e HEAD -- .env.example`).
 «Обяз.» — нужна для проверяемой функции; «Опц.» — есть рабочий дефолт. Секреты — только в `.env` (`chmod 600`/`640`), не в git,
 чате и тикетах (`docs/DEVOPS_GUIDE.md` §17.1). После правки `.env`: `php artisan config:cache` и рестарт воркеров
-(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue-high queue-default scheduler app`).
+(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue-high queue-default queue-low scheduler app`).
 
 **Telegram / обучение**
 
@@ -133,7 +133,7 @@
 ### 1.3 Планировщик и очереди
 
 - [ ] Cron `* * * * * … php artisan schedule:run` (bare-метал, DEVOPS §11) или контейнер `scheduler` (`schedule:work`, docker-compose.prod.yml).
-- [ ] Воркеры слушают `--queue=high,default,low` (supervisor / сервис `queue`); `php artisan queue:work` не падает.
+- [ ] Воркеры слушают три отдельных пула `--queue=high`, `--queue=default`, `--queue=low` (supervisor / сервисы `queue-high`, `queue-default`, `queue-low`; общий `default,low` голодает `low` и роняет `queue` в `/health/ready`); `php artisan queue:work` не падает.
 - [ ] `php artisan schedule:list` показывает все команды из `routes/console.php`:
 
 | Команда | Расписание | Что делает |
@@ -510,12 +510,14 @@
       Файлы: `tests/security/zap/run-baseline.sh` (запуск `ghcr.io/zaproxy/zaproxy:2.16.1` по целям; тег меняется переменной `ZAP_IMAGE`, `ZAP_MINUTES` — время паука на цель),
       `tests/security/zap/zap-baseline.conf` (правила: `IGNORE` с причиной — шум SPA и вендорных бандлов; `FAIL` — свои заголовки и cookie: HSTS, `Secure`, `nosniff`, утечка версий; остальные `WARN`),
       `tests/security/zap/check_reports.py` (разбирает JSON-отчёты). Нужны Docker и `python3` на машине запуска.
+      Staging на этой же машине или с непубличным именем: `ZAP_NET=host` (контейнер ZAP ходит в сеть хоста), например `make zap-baseline BASE_URL=https://localhost ZAP_NET=host`.
       Код выхода: `0` — High нет; `1` — есть High (или сработало правило `FAIL`); `2` — есть Medium при `STRICT_MEDIUM=1`; `3` — ошибка инструмента.
       Отчёты — `tests/security/zap/reports/zap-<цель>.html|json|md` (каталог в `.gitignore`). Смотреть: итог `check_reports.py` в конце вывода (High/Medium по именам и правилам), затем HTML нужных целей.
       Критерий допуска (решение владельца 03.11.2026): ни одной находки High; каждая Medium разобрана — исправлена или записана с причиной (в §9.3 журнал расхождений: правило, URL, причина). Новое правило в `IGNORE` — только с причиной в комментарии.
 - [ ] Принятая Medium ZAP ("CSP: script-src unsafe-inline", "CSP: script-src unsafe-eval") на `/admin/login`, `/org/login`, `/2fa/*`: CSP панелей и страниц 2FA
       содержит `'unsafe-inline' 'unsafe-eval'`, потому что Filament (Livewire) и Alpine.js без них не работают (`app/Http/Middleware/SecurityHeaders.php`, `contentSecurityPolicy()`).
       Допускается только на этих адресах (вход требует пароля и 2FA); внести в §9.3 с этой причиной. Публичные страницы (`/`, `/offer`, `/privacy`, `/billing/return`) и TWA (`/twa/`) отдаются со строгим `script-src` (`'none'` / `'self' https://telegram.org`, без `unsafe-inline` и `unsafe-eval`; `style-src 'unsafe-inline'` остаётся): Medium про `script-src` на них — находка.
+- [x] Локальная репетиция 04.11.2026: High 0, правила `FAIL` (10035, 10036, 10021 и др.) закрыты задачей R12c (nginx: `server_tokens off`, HSTS и nosniff одним источником; CSP: `base-uri`, `form-action`, `object-src`, строгая политика на страницах ошибок).
 - [ ] Ручные пункты пен-теста Фазы 2 (docs/13 §10): вебхук Payme с чужим ключом → `-32504`; `PerformTransaction` дважды → один платёж; Click с неверной подписью → `-1`;
       чужой `GET /billing/orders/{token}` → 404; пользователь организации A на URL организации B → 404; `answer` для flash-карточки → 422; 31-й по инвайту Tutor → `waitlisted`.
 - [ ] Подмена `initData` → 401; токен заблокированного learner'а → 401 `learner_blocked` (docs/07 §14).
@@ -527,7 +529,7 @@
 
 Фокус — горячие эндпоинты (docs/11 O4). Пороги (решение владельца 03.11.2026) заданы в `options.thresholds` сценариев: p95 < 300 мс на горячих эндпоинтах при 1 250 активных учениках (NFR-03), ни одного ответа 5xx (счётчик `server_errors`, порог `count==0`); webhook Telegram p95 < 300 мс (NFR-01).
 Лимитеры: `twa-api` — 60 запросов в минуту на learner'а на ВСЕ маршруты API, `twa-review` — 60, `twa-session-create` — 10, `billing-webhook` — 120 в минуту на IP (поэтому Payme/Click под k6 не гоняются: нагрузка с одного IP упрётся в 429).
-Поэтому у каждого виртуального ученика свой JWT, а итерация сценария идёт с паузами «чтения» (23 запроса за ~30–65 секунд пауз, худший случай ~45 в минуту при THINK_SCALE=1). Любой 429 — это ошибка сценария, а не сервера: порог `rate_limited` (`count==0`).
+Поэтому у каждого виртуального ученика свой JWT, а итерация сценария идёт с паузами «чтения» (16 запросов за ~30–65 секунд пауз, худший случай ~31 в минуту при THINK_SCALE=1; как в Mini App, `GET /next` только за первой карточкой сессии, дальше карточка берётся из ответа `POST /review`). Любой 429 — это ошибка сценария, а не сервера: порог `rate_limited` (`count==0`).
 
 Файлы: `tests/load/k6/twa-hot-paths.js` (ученик), `tests/load/k6/telegram-webhook.js` (вебхук), `tests/load/k6/lib.js` (общее), `tests/load/k6/fixtures/telegram-update.json` (апдейт).
 Токены: `php artisan load:tokens` (`app/Console/Commands/LoadTestTokens.php`) создаёт (или берёт те же) тестовых учеников `telegram_user_id = 8 000 000 000 + N`, помечает их `meta.load_test`, глушит ЛС (`dm_blocked_at`), привязывает к первому опубликованному курсу (или `--course=<slug>`) и пишет JWT; работает только в `local`, `testing`, `staging`; найденного по ID ученика без метки не трогает (отказ); `--output` — внутри `storage/` или `-`.
@@ -541,7 +543,8 @@ make load-test BASE_URL=https://<staging>        # рампа 8 мин до 1 25
 TELEGRAM_URL_SECRET=... TELEGRAM_HEADER_SECRET=... make load-test-webhook BASE_URL=https://<staging>   # WEBHOOK_RPS=50 по умолчанию
 ```
 
-Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 23 запроса при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~90 запросов в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~56/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
+Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 16 запросов при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~63 запроса в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~39/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
+Самоподписанный или частный сертификат staging: `K6_INSECURE_SKIP_TLS_VERIFY=true` (например `make load-test BASE_URL=https://localhost K6_NET=host K6_INSECURE_SKIP_TLS_VERIFY=true`); k6 тогда не проверяет сертификат. На staging с публичным сертификатом переменную не задавать.
 Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_ENABLED` (на staging на время прогона выключить); фикстура — `/start_training` из незарегистрированной супергруппы, обработчик молча отбрасывает её (Group Lock), в Telegram ничего не уходит.
 
 Что смотреть в отчёте k6 (конец вывода и `tests/load/k6/results/*-summary.json`): блок `thresholds` — каждая строка с галочкой; `http_req_duration{endpoint:…}` p(95) по `me`, `today`, `courses`, `practice_hub`, `billing_catalog`, `training_open`, `training_next`, `training_review`, `training_finish`;
@@ -628,4 +631,8 @@ Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_
 
 | № | Раздел | Ожидали | Увидели | Решение / ссылка на задачу |
 |---|---|---|---|---|
-| 1 | | | | |
+| 1 | §7.2 ZAP, 10055 / CSP `script-src` | Строгий `script-src` везде | `'unsafe-inline' 'unsafe-eval'` на `/admin*`, `/org*`, `/2fa*` | Принято: Filament, Livewire и Alpine.js без них не работают (`SecurityHeaders::contentSecurityPolicy()`). Только на этих адресах: вход требует пароля и 2FA. Страницы ошибок (>= 400), публичные страницы и `/twa/` строгие |
+| 2 | §7.2 ZAP, 10055 / CSP `style-src` | Без `'unsafe-inline'` | `style-src 'self' 'unsafe-inline'` на `/`, `/offer`, `/privacy`, `/billing/return` | Принято: страницы используют inline-стили; скриптов на этих страницах нет (`script-src 'none'`), риск ограничен стилями |
+| 3 | §7.2 ZAP, 10010 / cookie без HttpOnly | Все cookie с HttpOnly | `XSRF-TOKEN` без HttpOnly на `/admin/login`, `/org/login` | Принято: Livewire и Axios читают её из JS и шлют как `X-XSRF-TOKEN`. Сессионная cookie HttpOnly; `XSRF-TOKEN` не даёт доступа к сессии |
+| 4 | §7.2 ZAP, 10044 / Big Redirect | Редирект без тела | Редирект `/admin`, `/org` на логин с телом страницы | Принято (шум): тело — стандартный ответ Laravel `RedirectResponse` с meta refresh, секретов в нём нет |
+| 5 | §7.2 ZAP, 10017 / cross-domain JS | Скрипты только со своего домена | `https://telegram.org/js/telegram-web-app.js` на `/twa/` | Принято: SDK Mini App от Telegram, обязателен для запуска; разрешён CSP (`script-src 'self' https://telegram.org`) |

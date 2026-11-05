@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\CourseTreeObserver;
 use Database\Factories\StageFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $title
  * @property string|null $title_uz
  */
+#[ObservedBy(CourseTreeObserver::class)]
 class Stage extends Model
 {
     /** @use HasFactory<StageFactory> */

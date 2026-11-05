@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Services;
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\NewCardBudget;
@@ -11,6 +12,7 @@ use App\Models\Learner;
 use App\Models\TrainingSession;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * The daily limit of NEW cards (first serve of a word) by plan (docs/12 §5.3).
@@ -39,9 +41,9 @@ final class NewWordQuota implements NewCardBudgetResolver
         private readonly LearnerClock $clock,
     ) {}
 
-    public function budgetFor(Learner $learner, CarbonImmutable $now): NewCardBudget
+    public function budgetFor(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): NewCardBudget
     {
-        $limit = $this->entitlements->for($learner, $now)->newWordsPerDay;
+        $limit = ($entitlement ?? $this->entitlements->for($learner, $now))->newWordsPerDay;
         if ($limit === null) {
             return NewCardBudget::unlimited();
         }
@@ -51,12 +53,37 @@ final class NewWordQuota implements NewCardBudgetResolver
         );
     }
 
-    /** New cards the learner may still receive today; null = unlimited. Read-only, takes no locks. */
-    public function remaining(Learner $learner, ?CarbonImmutable $now = null): ?int
+    /**
+     * New cards the learner may still receive today; null = unlimited. Read-only, takes no locks. `$entitlement` - the plan
+     * the caller already resolved for this request; `$servedToday` - the count of {@see servedTodayQuery()} the caller
+     * already has (the Today screen counts it in the same statement as the due cards), else it is counted here.
+     */
+    public function remaining(Learner $learner, ?CarbonImmutable $now = null, ?Entitlement $entitlement = null, ?int $servedToday = null): ?int
     {
         $now ??= CarbonImmutable::now();
+        $limit = ($entitlement ?? $this->entitlements->for($learner, $now))->newWordsPerDay;
+        if ($limit === null) {
+            return null;
+        }
 
-        return $this->budgetFor($learner, $now)->remaining((int) $learner->id, $now);
+        return max(0, $limit - ($servedToday ?? $this->servedToday($learner, (int) $learner->id, $now)));
+    }
+
+    /**
+     * The repetitions that count against today's quota (the words first served inside the learner's limit window,
+     * group lessons apart) - for a caller that counts them together with other counts of the learner in one statement.
+     *
+     * @return Builder<WordRepetition>
+     */
+    public function servedTodayQuery(Learner $learner, CarbonImmutable $now): Builder
+    {
+        $window = $this->clock->limitWindowUtc($learner, $now);
+
+        return WordRepetition::query()
+            ->where('learner_id', (int) $learner->id)
+            ->where('created_at', '>=', $window->startUtc)
+            ->where('created_at', '<', $window->endUtc)
+            ->where('introduced_mode', '!=', TrainingSession::MODE_GROUP_LESSON);
     }
 
     private function servedToday(Learner $learner, int $learnerId, CarbonImmutable $now): int

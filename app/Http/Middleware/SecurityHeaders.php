@@ -29,7 +29,12 @@ final class SecurityHeaders
 
         $contentType = (string) $response->headers->get('Content-Type', '');
         if (str_contains($contentType, 'text/html') && ! $response->headers->has('Content-Security-Policy')) {
-            $response->headers->set('Content-Security-Policy', self::contentSecurityPolicy());
+            // Error pages (404, 403, 500, ...) run no JavaScript: they get the strict policy, not the panels' one.
+            // Debug mode keeps the full policy: the framework's exception renderer needs its inline scripts.
+            $scriptSrc = $response->getStatusCode() >= 400 && ! config('app.debug')
+                ? "'none'"
+                : "'self' 'unsafe-inline' 'unsafe-eval'";
+            $response->headers->set('Content-Security-Policy', self::contentSecurityPolicy($scriptSrc));
         }
 
         return $response;
@@ -47,6 +52,11 @@ final class SecurityHeaders
             ."img-src 'self' data: blob:; "
             ."font-src 'self' data:; "
             ."connect-src 'self'; "
+            ."object-src 'none'; "
+            ."base-uri 'self'; "
+            // Forms post to the same origin only (2FA, Filament logout). Billing redirects to Payme / Click
+            // are Livewire JS navigations, not form submissions, so no external host is needed.
+            ."form-action 'self'; "
             ."frame-ancestors 'self';";
     }
 }

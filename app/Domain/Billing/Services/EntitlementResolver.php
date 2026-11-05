@@ -9,6 +9,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Operations\Support\PureCache;
+use App\Domain\Twa\Services\MeProfileCache;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -47,6 +48,12 @@ use Illuminate\Support\Facades\DB;
  * version key has no TTL and lives on the default, non-evicting store: were it
  * evicted, readers would fall back to v0 and could serve a stale snapshot (Pro
  * after a refund) for up to one TTL, so it must never be on the evicting instance.
+ *
+ * The version is the learner's cache version at large: the `/me` profile snapshot
+ * ({@see MeProfileCache}, docs/19 K9) keys itself by it too,
+ * so a forget*() here invalidates that snapshot as well, and a write that changes what
+ * `/me` shows of the subscription (the renewal reminder marker) calls forget() even
+ * though the plan itself does not change.
  *
  * A cached snapshot whose own end has passed is recomputed on read, so a plan
  * never outlives its subscription even if the scheduler is late. Every write

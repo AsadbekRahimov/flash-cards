@@ -112,6 +112,9 @@ final class LearnerSettingsService
     /** `learners.meta` key: the learner picked the interface language (settings / onboarding) — Telegram's `language_code` stops deciding it. */
     public const LOCALE_CHOSEN = 'locale_chosen';
 
+    /** @var list<string>|null */
+    private ?array $knownTimezones = null;
+
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
@@ -213,9 +216,13 @@ final class LearnerSettingsService
      * labelled in the learner's language. A time zone / reminder time the learner already has but
      * the lists do not offer (set through the API) is added to the list, so the picker can show it.
      *
+     * `$activeCourse` - the `active_course` block when the caller already has it (the `/me` snapshot, docs/19 K9): the
+     * course is not read then. Pass `null` only through the snapshot; without the argument the course is read here.
+     *
+     * @param  array{slug: string, title: string}|null  $activeCourse
      * @return SettingsPayload
      */
-    public function describe(Learner $learner): array
+    public function describe(Learner $learner, array|null|false $activeCourse = false): array
     {
         $locale = $this->locales->forLearner($learner);
         $reminder = $this->shortTime($learner->reminder_time);
@@ -241,7 +248,7 @@ final class LearnerSettingsService
             'leagues_opt_out' => (bool) (($learner->meta ?? [])[LeagueService::OPT_OUT_META] ?? false),
             'timezone_change_available_at' => $this->timezoneChangeAvailableAt($learner)?->utc()->toIso8601String(),
             'timezone_undo_available_until' => $this->timezoneUndoAvailableUntil($learner)?->toIso8601String(),
-            'active_course' => $this->activeCourse($learner, $locale),
+            'active_course' => $activeCourse === false ? $this->activeCourseBlock($learner, $locale) : $activeCourse,
             'exercises' => LearnerExerciseSettings::fromLearner($learner)->toArray(),
             'options' => [
                 'locales' => array_map(
@@ -277,7 +284,8 @@ final class LearnerSettingsService
     /** @return list<string> every time zone id a learner may set (IANA ids and their legacy aliases) */
     public function knownTimezones(): array
     {
-        return DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC);
+        // ~600 ids, read by the pickers, the validation and the undo snapshot of one request: listed once per instance.
+        return $this->knownTimezones ??= DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC);
     }
 
     /** @return list<int> */
@@ -517,8 +525,13 @@ final class LearnerSettingsService
             : Carbon::instance($this->clock->nextOccurrenceUtc($learner, $time, CarbonImmutable::now()));
     }
 
-    /** @return array{slug: string, title: string}|null null while the learner has no course or it is no longer available */
-    private function activeCourse(Learner $learner, string $locale): ?array
+    /**
+     * The `active_course` block of the settings: null while the learner has no course or it is no longer available. One
+     * read of the course (`/me` keeps it in its snapshot).
+     *
+     * @return array{slug: string, title: string}|null
+     */
+    public function activeCourseBlock(Learner $learner, string $locale): ?array
     {
         if ($learner->active_course_id === null) {
             return null;

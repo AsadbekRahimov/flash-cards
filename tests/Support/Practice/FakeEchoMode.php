@@ -224,7 +224,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
         return [$this->element((int) $candidate['item_id'], $taken), array_values($pool)];
     }
 
-    /** What a real handler asks the material service for: the words (pairs, dictation) and the tasks of its type. */
+    /** What a real handler asks the material service for to COUNT: the words (pairs, dictation) and the rows of the tasks of its type. */
     private function readMaterial(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): void
     {
         $material = app(PracticeMaterialService::class);
@@ -233,7 +233,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
             $material->introducedWords($scope, $learner, $locales);
         }
         if ($this->mode->itemType() !== null) {
-            $material->eligibleItems($scope, $this->mode->itemType(), $learner);
+            $material->eligibleRows($scope, $this->mode->itemType(), $learner);
         }
     }
 

@@ -28,6 +28,18 @@ export function sharedLearners(name) {
   return new SharedArray(name, () => loadTokenFile().learners);
 }
 
+/**
+ * Course slug and expiry of the token file, for setup(): `open()` is init-context only, so the file is read here once and
+ * shared (not the learners again: 1 250 tokens per VU would be hundreds of MB).
+ */
+export function sharedTokenFileMeta(name) {
+  return new SharedArray(name, () => {
+    const file = loadTokenFile();
+
+    return [{ course: file.course, expires_at: file.expires_at }];
+  });
+}
+
 /** Token of virtual user `vu` (1-based): one learner per VU, so the per-learner limiters see realistic traffic. */
 export function learnerFor(learners, vu) {
   return learners[(vu - 1) % learners.length];

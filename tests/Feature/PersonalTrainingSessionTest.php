@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
@@ -539,7 +540,7 @@ it('lets a bound NewCardBudgetResolver (task 1.4b) drive done_reason through the
 
     $this->app->bind(NewCardBudgetResolver::class, fn () => new class implements NewCardBudgetResolver
     {
-        public function budgetFor(Learner $learner, CarbonImmutable $now): NewCardBudget
+        public function budgetFor(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): NewCardBudget
         {
             return NewCardBudget::of(0);
         }

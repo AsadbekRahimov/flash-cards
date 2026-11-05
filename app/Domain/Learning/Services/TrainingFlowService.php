@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
@@ -23,7 +24,7 @@ use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
-use App\Models\TrainingReview;
+use App\Models\Lesson;
 use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
@@ -44,6 +45,11 @@ use Illuminate\Support\Facades\Cache;
  * first time per local day a step ends with `done_reason = new_quota_exhausted`
  * (docs/12 §5.4): the client has no event channel, so "ran into the limit" stands
  * for "saw the paywall". Done after the pick, outside any transaction.
+ *
+ * One request, one read of everything it needs twice (R12g): the learner's plan is resolved once per request and
+ * handed to the grade, the budget and the exercise selector; the session's counters come in one statement
+ * ({@see CardPicker::stepCounts()}); the quota shown after a pick is the number the picker checked under the lock,
+ * less the card it issued ({@see NewCardBudget}), not a second count.
  */
 final class TrainingFlowService
 {
@@ -67,9 +73,11 @@ final class TrainingFlowService
     ) {}
 
     /**
+     * @param  Lesson|null  $lesson  the session's lesson with `stage.course` loaded, when the caller has it already
+     *                               ({@see CourseCatalogService::lessonWithContext()}); read here otherwise
      * @return TrainingStart|null null when a lesson-mode session's lesson no longer exists
      */
-    public function start(TrainingSession $session, Learner $learner): ?TrainingStart
+    public function start(TrainingSession $session, Learner $learner, ?Lesson $lesson = null): ?TrainingStart
     {
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
             $goal = $this->dailyGoal($learner);
@@ -79,7 +87,9 @@ final class TrainingFlowService
 
         // The lesson with its stage and the access facts of its course in ONE query (not lesson, stage, course
         // one after another): what the response shows (stage number, lesson, own-deck title) and nothing more.
-        $lesson = $this->catalog->lessonWithContext((int) $session->lesson_id);
+        if ($lesson === null || (int) $lesson->id !== (int) $session->lesson_id || ! $lesson->relationLoaded('stage')) {
+            $lesson = $this->catalog->lessonWithContext((int) $session->lesson_id);
+        }
         if ($lesson === null) {
             return null;
         }
@@ -99,24 +109,25 @@ final class TrainingFlowService
     /**
      * @param  int|null  $totalWords  lesson scope: active words of the lesson, when the caller already has them
      *                                (cached {@see LearningCache::lessonWordCount()} otherwise); daily: ignored
+     * @param  Entitlement|null  $entitlement  the learner's plan when the caller resolved it in this request already
      */
-    public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null): TrainingStep
+    public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null, ?Entitlement $entitlement = null): TrainingStep
     {
         $now = CarbonImmutable::now();
         $scope = TrainingScope::forSession($session);
+        $entitlement ??= $this->entitlements->for($learner, $now);
 
-        $reviewCount = TrainingReview::query()
-            ->where('training_session_id', $session->id)
-            ->where('learner_id', $learner->id)
-            ->count();
+        // The session's grades (the cap) and the lesson's graduated words (the progress) in one statement.
+        $counts = $this->picker->stepCounts((int) $learner->id, (int) $session->id, $scope->isLesson() ? (int) $scope->lessonId : null);
+        $reviewCount = $counts['reviews'];
 
         $progress = $scope->isDaily()
             ? ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)]
-            : $this->picker->progress((int) $learner->id, (int) $scope->lessonId, $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId));
+            : ['done' => (int) $counts['done'], 'total' => $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId)];
 
         // Group lessons are outside the Free quota (docs/12 §5.3); same lock order either way —
         // the budget is resolved before the picker's transaction.
-        $budget = $scope->isGroupLesson() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now);
+        $budget = $scope->isGroupLesson() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now, $entitlement);
 
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
             return TrainingStep::done(DoneReason::SessionCap, $progress, $budget->remaining((int) $learner->id, $now));
@@ -124,8 +135,9 @@ final class TrainingFlowService
 
         $pick = $this->picker->pickNext((int) $learner->id, $scope, $budget, $now);
 
-        // What is left of today's new-card budget AFTER this pick (a freshly served new card is already
-        // spent). A plain read outside the picker's transaction: it is only for display (docs/12 §5.3).
+        // What is left of today's new-card budget AFTER this pick: the number the picker checked under the learner
+        // lock less the card it just issued (one count a request), or one plain read when the picker never got
+        // to the new-card step. Only for display (docs/12 §5.3).
         $remaining = $budget->remaining((int) $learner->id, $now);
 
         if ($pick->word === null || $pick->repetition === null || $pick->doneReason !== null) {
@@ -146,7 +158,7 @@ final class TrainingFlowService
         $exercise = $this->selector->select(
             $pick->repetition,
             $pick->word,
-            $this->entitlements->for($learner, $now),
+            $entitlement,
             LearnerExerciseSettings::fromLearner($learner),
             $session->mode,
         );
@@ -212,9 +224,12 @@ final class TrainingFlowService
         int $timeSpentMs,
         ?string $serveToken = null,
     ): ReviewOutcome {
-        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken);
+        $now = CarbonImmutable::now();
+        $entitlement = $this->entitlements->for($learner, $now);
 
-        return new ReviewOutcome($repetition, $this->nextStep($session, $learner));
+        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement);
+
+        return new ReviewOutcome($repetition, $this->nextStep($session, $learner, null, $entitlement));
     }
 
     /**
@@ -231,8 +246,11 @@ final class TrainingFlowService
         int $timeSpentMs,
         ?string $serveToken = null,
     ): ReviewOutcome {
-        $accepted = $this->reviews->submitAnswer($session, $learner, $wordId, $answer, $timeSpentMs, $serveToken);
+        $now = CarbonImmutable::now();
+        $entitlement = $this->entitlements->for($learner, $now);
 
-        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner), $accepted->verdict);
+        $accepted = $this->reviews->submitAnswer($session, $learner, $wordId, $answer, $timeSpentMs, $serveToken, $now, $entitlement);
+
+        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner, null, $entitlement), $accepted->verdict);
     }
 }

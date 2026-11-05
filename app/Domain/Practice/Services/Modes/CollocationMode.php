@@ -62,7 +62,7 @@ final class CollocationMode implements PracticeModeHandler
 
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
-        $available = count($this->playable($scope, $learner));
+        $available = $this->playableCount($scope, $learner);
         $required = $learner === null ? max(1, (int) config('practice.battle.rounds')) : $this->material->minItems($scope);
 
         return $available >= $required
@@ -170,6 +170,27 @@ final class CollocationMode implements PracticeModeHandler
             'translation' => $this->textIn($element->get('translation'), $locale),
             'explanation' => $this->textIn($element->get('explanation'), $locale),
         ];
+    }
+
+    /**
+     * How many tasks can be played, for the availability: the rows of the versions, not the models (nothing is hydrated). The very
+     * test of {@see playable()}: {@see parse()}.
+     */
+    private function playableCount(MaterialScope $scope, ?Learner $learner): int
+    {
+        return $scope->remember('collocation:count:'.($learner->id ?? 0), function () use ($scope, $learner): int {
+            $count = 0;
+            foreach ($this->material->eligibleRows($scope, PracticeItemType::Collocation, $learner) as $row) {
+                if (self::parse($row['content']) !== null) {
+                    $count++;
+
+                    continue;
+                }
+                Log::warning('practice.collocation_content_unplayable', ['item_id' => $row['item_id'], 'version_id' => $row['id']]);
+            }
+
+            return $count;
+        });
     }
 
     /**

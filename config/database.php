@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use Pdo\Pgsql;
 
 return [
 
@@ -99,6 +100,45 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Driver options (docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»).
+            //   DB_PERSISTENT      - PDO::ATTR_PERSISTENT: a php-fpm worker keeps its connection between requests instead of
+            //                        opening one per request (fork + SCRAM + catalog warm-up on every request). Off by default:
+            //                        dev, the tests and the race tests that pcntl_fork() must not inherit a shared socket.
+            //                        PHP rolls an open transaction back when the PDO object is freed at the end of a request
+            //                        (ext/pdo/pdo_dbh.c, pdo_dbh_free_storage), so a crashed request cannot leak one.
+            //   DB_DISABLE_PREPARES - Pdo\Pgsql::ATTR_DISABLE_PREPARES: send each query as an unnamed statement
+            //                        (PQexecParams) instead of a named server-side prepared statement that is used once and
+            //                        then closed (Laravel never re-executes a PDOStatement, so PREPARE + EXECUTE + CLOSE is a
+            //                        round trip more for nothing), and nothing is left on the server; required for pgbouncer in
+            //                        transaction mode when libpq < 17 (its `DEALLOCATE` would abort the transaction). Values
+            //                        still travel as bound parameters ($1, $2 ...), never interpolated into SQL.
+            'options' => extension_loaded('pdo_pgsql') ? [
+                PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
+                Pgsql::ATTR_DISABLE_PREPARES => (bool) env('DB_DISABLE_PREPARES', true),
+            ] : [],
+        ],
+
+        // The same database bypassing pgbouncer: what needs a whole session or runs for long goes here - migrations
+        // (deploy.sh: `migrate --database=pgsql_direct`) and the pg_dump of spatie/laravel-backup (config/backup.php).
+        // DB_DIRECT_HOST/DB_DIRECT_PORT default to DB_HOST/DB_PORT, so without a pooler it is the `pgsql` connection
+        // again; docker-compose.prod.yml sets them to the postgres service. Its own `DB_DIRECT_URL`, not `DB_URL`: a URL
+        // overrides host and port, and the direct connection would follow the application into pgbouncer. Never persistent: these are one-off processes.
+        'pgsql_direct' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_DIRECT_URL'),
+            'host' => env('DB_DIRECT_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_DIRECT_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'options' => extension_loaded('pdo_pgsql') ? [
+                Pgsql::ATTR_DISABLE_PREPARES => (bool) env('DB_DISABLE_PREPARES', true),
+            ] : [],
         ],
 
         'sqlsrv' => [

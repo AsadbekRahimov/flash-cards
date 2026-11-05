@@ -22,7 +22,6 @@ use App\Domain\Practice\Support\OpaqueId;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
-use App\Models\PracticeItemVersion;
 
 /**
  * "Listen and write" (docs/16 §4.3, §5.2, §7.2, §10): the learner hears a word or a phrase, writes it, and the server tells
@@ -81,7 +80,7 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
     {
         $required = $learner === null ? max(1, (int) config('practice.battle.rounds')) : $this->material->minItems($scope);
 
-        $phrases = count($this->phraseCandidates($scope, $learner, $locales));
+        $phrases = $this->phraseCount($scope, $learner, $locales);
         $introduced = $learner === null ? 0 : count($this->material->introducedWords($scope, $learner, $locales));
         $voiced = $learner === null ? 0 : count($this->wordCandidates($scope, $learner, $locales));
         $pending = $this->material->pendingAudioItems($scope, $learner);
@@ -282,19 +281,46 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
     private function phraseCandidates(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): array
     {
         return $scope->remember('dictation:phrases:'.($learner->id ?? 0).':'.implode(',', $locales->locales), function () use ($scope, $learner, $locales): array {
-            $candidates = [];
-            $seen = [];
+            $rows = [];
             foreach ($this->material->eligibleItems($scope, PracticeItemType::Dictation, $learner) as $version) {
-                $data = $this->phraseData($version, $locales);
-                if ($data === null || isset($seen[$this->textKey($data)])) {
-                    continue;
-                }
-                $seen[$this->textKey($data)] = true;
-                $candidates[] = $data;
+                $rows[] = ['id' => $version->id, 'item_id' => $version->item_id, 'audio_key' => $version->audio_key, 'content' => $version->content];
             }
 
-            return $candidates;
+            return $this->distinctPhrases($rows, $locales);
         });
+    }
+
+    /**
+     * How many phrases the dictation has, for the availability: the rows of the versions, not the models (nothing is hydrated).
+     * The very test of {@see phraseCandidates()}: {@see distinctPhrases()}.
+     */
+    private function phraseCount(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): int
+    {
+        return $scope->remember('dictation:phrase_count:'.($learner->id ?? 0).':'.implode(',', $locales->locales), fn (): int => count(
+            $this->distinctPhrases($this->material->eligibleRows($scope, PracticeItemType::Dictation, $learner), $locales),
+        ));
+    }
+
+    /**
+     * The phrases of the versions that can be dictated, the same text only once.
+     *
+     * @param  list<array{id: int, item_id: int, audio_key: string|null, content: array<array-key, mixed>}>  $rows
+     * @return list<array<string, mixed>>
+     */
+    private function distinctPhrases(array $rows, LocaleSet $locales): array
+    {
+        $candidates = [];
+        $seen = [];
+        foreach ($rows as $row) {
+            $data = $this->phraseData($row, $locales);
+            if ($data === null || isset($seen[$this->textKey($data)])) {
+                continue;
+            }
+            $seen[$this->textKey($data)] = true;
+            $candidates[] = $data;
+        }
+
+        return $candidates;
     }
 
     /**
@@ -325,12 +351,15 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         });
     }
 
-    /** @return array<string, mixed>|null null: the content has no usable text or the version has no file name */
-    private function phraseData(PracticeItemVersion $version, LocaleSet $locales): ?array
+    /**
+     * @param  array{id: int, item_id: int, audio_key: string|null, content: array<array-key, mixed>}  $version
+     * @return array<string, mixed>|null null: the content has no usable text or the version has no file name
+     */
+    private function phraseData(array $version, LocaleSet $locales): ?array
     {
-        $content = $version->content;
+        $content = $version['content'];
         $text = is_string($content['text'] ?? null) ? trim($content['text']) : '';
-        $path = $this->audio->pathFor($version);
+        $path = $this->audio->pathForKey($version['audio_key']);
         if ($text === '' || $path === null) {
             return null;
         }
@@ -348,8 +377,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
 
         return [
             'source' => self::SOURCE_PHRASE,
-            'item_id' => $version->item_id,
-            'version_id' => $version->id,
+            'item_id' => $version['item_id'],
+            'version_id' => $version['id'],
             'word_id' => null,
             'audio_disk' => $this->audio->diskName(),
             'audio_path' => $path,

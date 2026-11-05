@@ -99,7 +99,9 @@ return [
              * For a complete list of available customization options, see https://github.com/spatie/db-dumper
              */
             'databases' => [
-                env('DB_CONNECTION', 'mysql'),
+                // pg_dump bypasses pgbouncer (config/database.php `pgsql_direct`: the same database, DB_DIRECT_HOST);
+                // without a pooler the two connections are identical. The dump file is still named after the database.
+                env('DB_CONNECTION', 'mysql') === 'pgsql' ? 'pgsql_direct' : env('DB_CONNECTION', 'mysql'),
             ],
         ],
 

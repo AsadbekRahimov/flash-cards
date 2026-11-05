@@ -165,12 +165,12 @@ for name in REDIS_PASSWORD REDIS_CACHE_PASSWORD; do
     esac
 done
 
-echo "==> Building immutable application and nginx images"
-$COMPOSE build --pull app nginx
+echo "==> Building immutable application, nginx and pgbouncer images"
+$COMPOSE build --pull app nginx pgbouncer
 
-echo "==> Starting database and both Redis instances"
+echo "==> Starting database, pgbouncer and both Redis instances"
 STACK_TOUCHED=1
-$COMPOSE up -d postgres redis redis-cache
+$COMPOSE up -d postgres pgbouncer redis redis-cache
 
 echo "==> Checking the TLS certificate"
 if ! $COMPOSE run --rm --no-deps --entrypoint sh certbot -c \
@@ -182,8 +182,11 @@ if ! $COMPOSE run --rm --no-deps --entrypoint sh certbot -c \
 fi
 
 if [ "$SKIP_MIGRATE" -eq 0 ]; then
+    # Straight to PostgreSQL, past pgbouncer (connection pgsql_direct = DB_DIRECT_HOST, config/database.php): a migration
+    # may hold locks, run for minutes and need one session for all of it; the migrator makes that connection the default
+    # while each migration runs, so Schema:: and DB:: inside migrations go there too.
     echo "==> Running migrations before switching application containers"
-    $COMPOSE run --rm app php artisan migrate --force
+    $COMPOSE run --rm app php artisan migrate --force --database=pgsql_direct
 fi
 
 # courses.words_count is the `total` of GET /courses: bring it in line with the active words (idempotent and fast, it

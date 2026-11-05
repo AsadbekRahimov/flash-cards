@@ -14,10 +14,10 @@ use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Learning\Support\RepetitionWithWord;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
-use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
@@ -53,6 +53,12 @@ use Illuminate\Support\Facades\DB;
  * (spelling / gap-fill) takes `answer`, grades it with SpellingGrader and refuses `quality`
  * (422 `quality_not_accepted`). The plan and the settings are read BEFORE the transaction: the
  * review transaction holds `training_sessions → word_repetitions → learner_daily_stats` only.
+ *
+ * Statements of the transaction (R12g): the session row `FOR UPDATE` (status and expiry only - the mode and the
+ * lesson of a session never change, the model in hand has them), the repetition WITH its word in one joined read
+ * locked `FOR UPDATE OF word_repetitions` ({@see RepetitionWithWord}: the `words` row is shared by every learner
+ * and must not be locked), the scheduler's UPDATE, the `training_reviews` INSERT (a plain insert: the row is not
+ * read back), then DailyStatsService. Nothing of the SRS itself changed.
  */
 final class ReviewSubmissionService
 {
@@ -74,6 +80,8 @@ final class ReviewSubmissionService
      * A self-graded (flash) or client-graded (reverse / audio) card.
      *
      * @param  string|null  $serveToken  `card.serve_token` echoed by the client; ignored for due cards
+     * @param  Entitlement|null  $entitlement  the learner's plan when the caller read it already (TrainingFlowService
+     *                                         reads it once per request for the grade and the next card)
      *
      * @throws ReviewSubmissionException
      */
@@ -85,8 +93,9 @@ final class ReviewSubmissionService
         int $timeSpentMs,
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
+        ?Entitlement $entitlement = null,
     ): WordRepetition {
-        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now)->repetition;
+        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement)->repetition;
     }
 
     /**
@@ -102,8 +111,9 @@ final class ReviewSubmissionService
         int $timeSpentMs,
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
+        ?Entitlement $entitlement = null,
     ): AcceptedReview {
-        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now);
+        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now, $entitlement);
     }
 
     /**
@@ -120,12 +130,14 @@ final class ReviewSubmissionService
         int $timeSpentMs,
         ?string $serveToken,
         ?CarbonImmutable $now,
+        ?Entitlement $entitlement,
     ): AcceptedReview {
         $now ??= CarbonImmutable::now();
-        $entitlement = $this->entitlements->for($learner, $now);
+        $entitlement ??= $this->entitlements->for($learner, $now);
         $settings = LearnerExerciseSettings::fromLearner($learner);
         // The learner's arm of the SRS A/B (docs/13 §8.3) — decided from the row already in hand, outside the transaction.
         $scheduler = $this->schedulers->for($learner);
+        $scope = TrainingScope::forSession($session);
 
         /** @var ConnectionInterface $db */
         $db = DB::connection();
@@ -142,9 +154,14 @@ final class ReviewSubmissionService
             $entitlement,
             $settings,
             $scheduler,
+            $scope,
         ): AcceptedReview {
+            // The lock on the session row orders this grade against `/finish` (docs/06 §5.1): what is read under it
+            // is only what can change - the status and the expiry. Mode and lesson are fixed at creation; the
+            // course_id of a daily_review session may change (openPersonal), but neither the scope nor the exercise pick reads it.
             /** @var TrainingSession|null $lockedSession */
             $lockedSession = TrainingSession::query()
+                ->select(['id', 'status', 'expires_at'])
                 ->lockForUpdate()
                 ->find($session->id);
 
@@ -156,15 +173,20 @@ final class ReviewSubmissionService
                 );
             }
 
+            // The repetition and its word in one statement; the word rides along unfiltered (the scope check below
+            // tells `out_of_scope` from `card_not_started`), the lock covers the repetition row alone.
             /** @var WordRepetition|null $repetition */
-            $repetition = WordRepetition::query()
-                ->where('learner_id', $learner->id)
-                ->where('word_id', $wordId)
-                ->with('word')
-                ->lockForUpdate()
-                ->first();
+            $repetition = RepetitionWithWord::lockRepetition(
+                RepetitionWithWord::withWord(
+                    WordRepetition::query()
+                        ->where('word_repetitions.learner_id', $learner->id)
+                        ->where('word_repetitions.word_id', $wordId),
+                ),
+            )->first();
 
-            if ($repetition === null || $repetition->word === null) {
+            $word = $repetition === null ? null : RepetitionWithWord::hydrate($repetition);
+
+            if ($repetition === null || $word === null) {
                 throw new ReviewSubmissionException(
                     409,
                     'card_not_started',
@@ -172,9 +194,7 @@ final class ReviewSubmissionService
                 );
             }
 
-            $word = $repetition->word;
-
-            if (! TrainingScope::forSession($lockedSession)->contains($word)) {
+            if (! $scope->contains($word)) {
                 throw new ReviewSubmissionException(
                     422,
                     'out_of_scope',
@@ -193,9 +213,9 @@ final class ReviewSubmissionService
             // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2).
             // A reverse / audio pick without enough distractors was shown as flash — record what the client saw.
             $exercise = $this->prompts->effectiveType(
-                $this->selector->select($repetition, $word, $entitlement, $settings, $lockedSession->mode),
+                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode),
                 $word,
-                $this->locales->forTrainingSession($lockedSession, $learner),
+                $this->locales->forTrainingSession($session, $learner),
                 crc32($repetition->repetitions.':'.$word->id),
             );
             $verdict = null;
@@ -217,12 +237,12 @@ final class ReviewSubmissionService
 
             $scheduler->schedule($repetition, (int) $quality, $now);
 
-            TrainingReview::query()->create([
+            DB::table('training_reviews')->insert([
                 'training_session_id' => $session->id,
                 'learner_id' => $learner->id,
                 'word_id' => $wordId,
                 'quality' => $quality,
-                'exercise' => $exercise,
+                'exercise' => $exercise->value,
                 'answer_text' => $answer === null ? null : mb_substr($answer, 0, self::ANSWER_MAX_LENGTH),
                 'scheduler' => $scheduler->key()->value,
                 'interval_before_days' => $intervalBefore,

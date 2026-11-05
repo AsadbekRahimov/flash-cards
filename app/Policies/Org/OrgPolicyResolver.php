@@ -14,7 +14,7 @@ use App\Models\OrganizationMember;
 use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Contracts\Auth\Access\Gate;
 
 /**
  * Second line of tenant isolation in the `/org` cabinet (docs/13 §6.3, §10): while the `org`
@@ -52,7 +52,16 @@ final class OrgPolicyResolver
 
     public static function register(): void
     {
-        Gate::guessPolicyNamesUsing(fn (string $modelClass): array => self::candidates($modelClass));
+        // Lazily: a request that never asks the Gate (the TWA API) does not even build it just for this callback.
+        $install = static function (Gate $gate): void {
+            $gate->guessPolicyNamesUsing(fn (string $modelClass): array => self::candidates($modelClass));
+        };
+
+        if (app()->resolved(Gate::class)) {
+            $install(app(Gate::class));
+        } else {
+            app()->afterResolving(Gate::class, $install);
+        }
     }
 
     /**

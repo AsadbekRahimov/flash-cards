@@ -26,10 +26,13 @@ use Throwable;
  * they may share a UTC date.
  *
  * Concurrency (two tabs grading at the same instant):
- *  1. `INSERT ... ON CONFLICT DO NOTHING` makes sure the `(learner_id, date)`
- *     row exists — a loser of the race simply does nothing;
- *  2. `SELECT ... FOR UPDATE` on that row serialises the increments; the
- *     winner's row is what the second transaction reads once it unblocks;
+ *  1. `SELECT ... FOR UPDATE` on the `(learner_id, date)` row serialises the increments; the
+ *     winner's row is what the second transaction reads once it unblocks. The learner's
+ *     `daily_goal` rides along as a scalar subquery of the same statement (a fresh read, not
+ *     the model's; sub-SELECTs are never locked, so `learners` stays untouched);
+ *  2. only when there is no row yet (the first grade of the day): `INSERT ... ON CONFLICT DO
+ *     NOTHING` creates it — a loser of the race simply does nothing — and the locked read is
+ *     repeated. Every later grade of the day costs the read and the UPDATE, nothing else;
  *  3. counters are rewritten from the locked values (no raw SQL expressions);
  *  4. `goal_met_at` is set only while it is NULL under that same lock, so the
  *     goal is "met" exactly once per day and StreakService hears about it once.
@@ -62,13 +65,9 @@ class DailyStatsService
         CarbonImmutable $now,
     ): LearnerDailyStats {
         $today = $this->clock->today($learner, $now);
-        $row = $this->lockedRow($learner->id, $today->toDateString(), $now);
+        [$row, $goal] = $this->lockedRow($learner, $today->toDateString(), $now);
 
         $reviews = $row->reviews_count + 1;
-        // A fresh plain read, not `$learner->daily_goal`: the model is as old as the request and a
-        // goal lowered meanwhile (PATCH /me/settings) would be missed. No lock and no write on
-        // `learners`, so the lock order of docs/06 §4.2 holds.
-        $goal = max(1, (int) (Learner::query()->whereKey($learner->id)->value('daily_goal') ?? $learner->daily_goal));
         $goalJustMet = $row->goal_met_at === null && $reviews >= $goal;
 
         $row->forceFill([
@@ -108,14 +107,17 @@ class DailyStatsService
             });
         }
 
-        // Achievements (docs/13 §7.4), after commit and never a failed grade. The very first graded card
-        // unlocks `first_session` (one conditional insert); the counting keys (streak, learned words) are
+        // Achievements (docs/13 §7.4), after commit and never a failed grade. The very first graded card ever
+        // unlocks `first_session`; it is necessarily the first grade of its local day, so the check (one
+        // indexed read) runs once a day, not on every new card. The counting keys (streak, learned words) are
         // looked at once a day, when the goal is met — the streak projection is committed by its own
         // earlier hook by then.
-        if ($isNewCard || $goalJustMet) {
-            DB::afterCommit(function () use ($learner, $now, $goalJustMet): void {
+        if ($reviews === 1 || $goalJustMet) {
+            DB::afterCommit(function () use ($learner, $now, $reviews, $goalJustMet): void {
                 try {
-                    $this->achievements->onFirstReview($learner, $now);
+                    if ($reviews === 1) {
+                        $this->achievements->onFirstReview($learner, $now);
+                    }
                     if ($goalJustMet) {
                         $this->achievements->evaluate($learner, $now);
                     }
@@ -183,32 +185,81 @@ class DailyStatsService
         return $row;
     }
 
-    private function lockedRow(int $learnerId, string $date, CarbonImmutable $now): LearnerDailyStats
+    /**
+     * The rows of several local days of the learner in ONE statement, keyed by `Y-m-d` (a day without a row is absent) -
+     * the Today screen reads today and yesterday together (docs/19 K9).
+     *
+     * @param  list<string>  $localDates  `Y-m-d`
+     * @return array<string, LearnerDailyStats>
+     */
+    public function forDates(Learner $learner, array $localDates): array
+    {
+        if ($localDates === []) {
+            return [];
+        }
+
+        $rows = [];
+        /** @var LearnerDailyStats $row */
+        foreach (LearnerDailyStats::query()->where('learner_id', $learner->id)->whereIn('date', array_map(StoredDate::of(...), $localDates))->get() as $row) {
+            $rows[$row->date->toDateString()] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The learner's row of the day, locked, together with the goal in force — created first when the day has no row yet.
+     *
+     * @return array{0: LearnerDailyStats, 1: int} the locked row and `max(1, daily_goal)`
+     */
+    private function lockedRow(Learner $learner, string $date, CarbonImmutable $now): array
     {
         $stored = StoredDate::of($date);
 
-        LearnerDailyStats::query()->insertOrIgnore([
-            'learner_id' => $learnerId,
-            'date' => $stored,
-            'reviews_count' => 0,
-            'new_words_count' => 0,
-            'correct_count' => 0,
-            'time_spent_ms' => 0,
-            'goal_met_at' => null,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        /** @var LearnerDailyStats|null $row */
-        $row = LearnerDailyStats::query()
-            ->where('learner_id', $learnerId)
-            ->where('date', $stored)
-            ->lockForUpdate()
-            ->first();
+        $row = $this->readLocked($learner->id, $stored);
 
         if ($row === null) {
-            throw new RuntimeException("learner_daily_stats row for learner {$learnerId} on {$date} vanished after upsert.");
+            LearnerDailyStats::query()->insertOrIgnore([
+                'learner_id' => $learner->id,
+                'date' => $stored,
+                'reviews_count' => 0,
+                'new_words_count' => 0,
+                'correct_count' => 0,
+                'time_spent_ms' => 0,
+                'goal_met_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            $row = $this->readLocked($learner->id, $stored);
         }
+
+        if ($row === null) {
+            throw new RuntimeException("learner_daily_stats row for learner {$learner->id} on {$date} vanished after upsert.");
+        }
+
+        // A fresh plain read of the goal, not `$learner->daily_goal`: the model is as old as the request and a goal
+        // lowered meanwhile (PATCH /me/settings) would be missed. It travels in the locked read as a scalar subquery:
+        // sub-SELECTs are not locked, so no lock and no write on `learners` — the lock order of docs/06 §4.2 holds.
+        $attributes = $row->getAttributes();
+        $goal = max(1, (int) ($attributes['learner_daily_goal'] ?? $learner->daily_goal));
+        unset($attributes['learner_daily_goal']);
+        $row->setRawAttributes($attributes, true);
+
+        return [$row, $goal];
+    }
+
+    /** @param  string  $storedDate  {@see StoredDate::of()} */
+    private function readLocked(int $learnerId, string $storedDate): ?LearnerDailyStats
+    {
+        /** @var LearnerDailyStats|null $row */
+        $row = LearnerDailyStats::query()
+            ->select('learner_daily_stats.*')
+            ->selectSub(Learner::query()->whereKey($learnerId)->select('daily_goal')->toBase(), 'learner_daily_goal')
+            ->where('learner_id', $learnerId)
+            ->where('date', $storedDate)
+            ->lockForUpdate()
+            ->first();
 
         return $row;
     }

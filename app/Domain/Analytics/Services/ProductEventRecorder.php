@@ -58,10 +58,16 @@ class ProductEventRecorder
                 'occurred_at' => now(),
             ];
 
-            // Savepoint: a failed insert must not poison an outer (Postgres) transaction.
-            DB::transaction(static function () use ($attributes): void {
+            // Inside a caller's transaction a savepoint keeps a failed insert from poisoning it (Postgres aborts the
+            // whole transaction otherwise). Outside one, the insert is its own statement: wrapping it in
+            // BEGIN / COMMIT would only add two round trips to every event of a plain request.
+            if (DB::transactionLevel() > 0) {
+                DB::transaction(static function () use ($attributes): void {
+                    ProductEvent::query()->create($attributes);
+                });
+            } else {
                 ProductEvent::query()->create($attributes);
-            });
+            }
         } catch (\Throwable $e) {
             Log::warning('product_event.record_failed', [
                 'event' => $name->value,

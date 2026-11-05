@@ -611,7 +611,9 @@ it('finalises only the learner\'s own group when the first grade of the week com
         ->and(lgService()->overview($learners[2][5], $monday)->lastResult?->result)->toBe('demoted')
         ->and(lgService()->standings($groups[2]->fresh() ?? $groups[2], $monday)->map(fn ($s): array => [$s->rank, $s->points])->all())->toBe([[1, 60], [2, 50], [3, 40], [4, 30], [5, 20], [6, 10]])
         ->and(PureCache::store()->has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
-    Queue::assertNothingPushed();
+    // No league DM: the week is not closed. (The first grade of the day of a learner without achievements also
+    // unlocks `first_session` and queues its card - DailyStatsService checks it on the first grade of a day, R12g.)
+    Queue::assertNotPushed(SendLeagueResultsJob::class);
 
     // The demoted one is placed one tier lower without a second finalisation; points that land late do not move the verdict.
     LearnerDailyStats::query()->where('learner_id', $learners[2][5]->id)->update(['reviews_count' => 999]);

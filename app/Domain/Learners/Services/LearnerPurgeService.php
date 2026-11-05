@@ -259,8 +259,10 @@ final class LearnerPurgeService
             OrgOverviewService::forget($organizationId);
         }
 
-        if ($leagueGroupIds !== []) {
-            PureCache::forgetMany(array_map(static fn (int $groupId): string => LeagueService::CACHE_PREFIX.$groupId, $leagueGroupIds));
-        }
+        // The standings of the groups and the facts of this week's placement (docs/19 K9) - a token still in flight reads nothing of them.
+        PureCache::forgetMany([
+            ...array_map(static fn (int $groupId): string => LeagueService::CACHE_PREFIX.$groupId, $leagueGroupIds),
+            LeagueService::memberKey($learnerId, CarbonImmutable::now()),
+        ]);
     }
 }

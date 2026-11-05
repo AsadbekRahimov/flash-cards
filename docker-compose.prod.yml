@@ -6,8 +6,16 @@
 #   - Two Redis instances: `redis` (queues, sessions, locks, limits; noeviction + AOF) and `redis-cache` (the pure
 #     cache store `lru`; volatile-lru, no persistence) - docs/19_REDIS_CACHE_PLAN.md §4. Both require a password.
 #   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
-#   - Dedicated queue worker containers: queue-high and queue-default (separate from php-fpm).
+#   - Dedicated queue worker containers (separate from php-fpm), one pool per queue: queue-high (`high`),
+#     queue-default (`default`) and queue-low (`low`). A worker takes queues in strict priority order, so a shared
+#     `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
+#     limit of 25/s keeps it busy for minutes): the `low` heartbeat then goes stale and /health/ready fails on `queue`.
 #   - All services restart unless explicitly stopped.
+#   - `pgbouncer` (transaction pooling, image built from the Dockerfile stage `pgbouncer`) between the application and
+#     PostgreSQL: .env says DB_HOST=pgbouncer, the application keeps one persistent PDO connection per php-fpm worker
+#     (DB_PERSISTENT=true), while migrations (deploy.sh) and pg_dump go straight to `postgres` through the Laravel connection
+#     `pgsql_direct` (DB_DIRECT_HOST, set below). To run without the pooler: DB_HOST=postgres in .env, nothing else.
+#     docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения».
 #
 # Required env vars (populate via .env on the host, chmod 600):
 #   APP_DOMAIN, APP_KEY, DB_PASSWORD, REDIS_PASSWORD, REDIS_CACHE_PASSWORD, TELEGRAM_BOT_TOKEN,
@@ -27,6 +35,10 @@ x-lru-env: &lru-env
     REDIS_LRU_HOST: redis-cache
     REDIS_LRU_PORT: "6379"
     REDIS_LRU_PASSWORD: ${REDIS_CACHE_PASSWORD:?REDIS_CACHE_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
+    # PostgreSQL itself, past the pooler (Laravel connection `pgsql_direct`: migrations, pg_dump). The service names are
+    # facts of this file, so they are set here and not in .env; a bare server would set DB_DIRECT_HOST in .env instead.
+    DB_DIRECT_HOST: ${DB_DIRECT_HOST:-postgres}
+    DB_DIRECT_PORT: ${DB_DIRECT_PORT:-5432}
 
 services:
     app:
@@ -43,6 +55,8 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+            pgbouncer:
+                condition: service_healthy
             redis:
                 condition: service_healthy
             redis-cache:
@@ -55,7 +69,8 @@ services:
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
             - app_audio:/var/www/html/storage/app/public/audio
 
-    # Two worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low.
+    # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
+    # and `low` (long TTS jobs) is never starved by a steady stream of `default`.
     queue-high:
         image: lexiflow/app:${IMAGE_TAG:-latest}
         container_name: lexiflow-queue-high
@@ -92,7 +107,27 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
-        command: ["php", "artisan", "queue:work", "redis", "--queue=default,low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+        command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+
+    # TTS (PregenerateWordAudioJob, GeneratePracticeAudioJob): long jobs on their own pool.
+    queue-low:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-queue-low
+        restart: unless-stopped
+        depends_on:
+            app:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            redis-cache:
+                condition: service_started
+        env_file: .env
+        environment:
+            <<: *lru-env
+        volumes:
+            - app_storage:/var/www/html/storage
+            - app_audio:/var/www/html/storage/app/public/audio
+        command: ["php", "artisan", "queue:work", "redis", "--queue=low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     scheduler:
         image: lexiflow/app:${IMAGE_TAG:-latest}
@@ -162,7 +197,12 @@ services:
         # `entrypoint:` discards the image's CMD, hence the explicit `command`; run through `sh` so the bind-mounted
         # file needs no execute bit on the host.
         entrypoint: ["/bin/sh", "/usr/local/bin/lexiflow-entrypoint-guard.sh"]
-        command: ["postgres"]
+        # idle_in_transaction_session_timeout: a session that sits in an open transaction without sending anything for a
+        # minute is closed (the transaction rolled back). Normal paths never idle that long (a request computes between
+        # queries for microseconds, pg_dump and the migrations are active, not idle); it is the safety net for a leaked
+        # transaction - a hung worker, an operator's psql left in BEGIN - which with pgbouncer would also pin a pooled server
+        # connection for good. Set here, on the server, so it holds for every client, pooled or direct.
+        command: ["postgres", "-c", "idle_in_transaction_session_timeout=60s"]
         environment:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_USER: ${DB_USERNAME}
@@ -185,6 +225,42 @@ services:
             - ./docker/postgres/entrypoint-guard.sh:/usr/local/bin/lexiflow-entrypoint-guard.sh:ro
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    # Connection pooler in front of postgres (docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»). Transaction
+    # mode: a server connection serves a client only for the length of a transaction, so 16 php-fpm workers + the queue
+    # workers share PGBOUNCER_POOL_SIZE (20) + PGBOUNCER_RESERVE_POOL_SIZE (4) PostgreSQL backends - well inside
+    # max_connections = 100 - and the persistent client connections cost PostgreSQL nothing while they idle. It listens on
+    # 5432 like postgres, so switching the application is DB_HOST alone. The auth file is written at start from DB_USERNAME /
+    # DB_PASSWORD (mode 0600, never in the image); the password is in the container environment as it is for `postgres`.
+    # Console: docker compose exec pgbouncer psql -h 127.0.0.1 -U $DB_USERNAME pgbouncer -c 'SHOW POOLS'.
+    pgbouncer:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: pgbouncer
+        image: lexiflow/pgbouncer:${IMAGE_TAG:-latest}
+        container_name: lexiflow-pgbouncer
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+        environment:
+            DB_DATABASE: ${DB_DATABASE}
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            PGBOUNCER_DB_HOST: postgres
+            PGBOUNCER_DB_PORT: "5432"
+            PGBOUNCER_POOL_SIZE: ${PGBOUNCER_POOL_SIZE:-20}
+            PGBOUNCER_RESERVE_POOL_SIZE: ${PGBOUNCER_RESERVE_POOL_SIZE:-4}
+            PGBOUNCER_MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN:-200}
+            PGBOUNCER_QUERY_WAIT_TIMEOUT: ${PGBOUNCER_QUERY_WAIT_TIMEOUT:-30}
+        healthcheck:
+            # pg_isready through pgbouncer: it answers the startup packet with an authentication request, which is "accepting
+            # connections" - pgbouncer is up and routes the database. PGPASSWORD is not needed for that.
+            test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U ${DB_USERNAME} -d ${DB_DATABASE}"]
             interval: 10s
             timeout: 5s
             retries: 5

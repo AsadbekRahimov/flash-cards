@@ -305,7 +305,7 @@ final class BattleReader
 
         $viewerLocale = $this->locales->forLearner($viewer);
         $locales = new LocaleSet([$viewerLocale, $this->locales->forLearner($friend)]);
-        $availability = $this->material->availability(new MaterialScope($course, $lesson), null, $locales);
+        $availability = $this->material->availability(MaterialScope::forCount($course, $lesson), null, $locales);
 
         $modes = [];
         foreach (PracticeMode::cases() as $mode) {
