@@ -41,8 +41,7 @@ final class Surface
      * surface skips. Admin UI: Livewire, the Blade icon sets, the capture directive and the power joins Filament's tables
      * use (the application itself calls no joinRelationship()); every `filament/*` package is matched by
      * API_EXCLUDED_PREFIXES. Console or panels only: tinker, the backup with its signal-aware commands, the Laravel wrapper
-     * of Google2FA (the 2FA pages; the service uses the bare library, which needs no provider) and the auditing package,
-     * which nothing in the application uses.
+     * of Google2FA (the 2FA pages; the service uses the bare library, which needs no provider).
      *
      * Kept on `api` on purpose: sentry (both providers), the Telegram SDK (the Stars invoices of /api/twa/billing go through
      * its Api class), carbon (the locale of dates in API responses follows the app locale), termwind (the artisan output of
@@ -57,7 +56,6 @@ final class Surface
         'kirschbaum-development/eloquent-power-joins',
         'laravel/tinker',
         'livewire/livewire',
-        'owen-it/laravel-auditing',
         'pragmarx/google2fa-laravel',
         'ryangjchandler/blade-capture-directive',
         'spatie/laravel-backup',

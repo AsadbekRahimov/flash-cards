@@ -27,6 +27,7 @@ APP_DEBUG=false
 DB_HOST=pgbouncer
 DB_PERSISTENT=true
 DB_DISABLE_PREPARES=true
+# Redis: постоянные сокеты phpredis у app и app-api задаёт compose (REDIS_PERSISTENT=true); в .env не трогать.
 
 # APP_SURFACE в .env НЕ задавать: compose сам даёт app-api значение api, всем остальным — full.
 
@@ -173,7 +174,7 @@ make load-test BASE_URL=https://<домен> TARGET_VUS=300 HOLD=5m
    пересоздаст `app-api` и nginx. Если подсеть существующей сети не равна `COMPOSE_SUBNET` (первый деплой R13, откат на коммит без `ipam`),
    `deploy.sh` пишет `compose network subnet changes: stopping the stack` и делает `docker compose down` (без `-v`, тома целы)
    перед `up` — стек стоит всё время деплоя (лучше в тихое время).
-3. Проверки: в выводе деплоя `Octane server is running.`, `config:show trustedproxy` содержит адрес nginx (проверяет `deploy.sh`, иначе STOP), smoke `POST /api/twa/auth` → 401/422 (429 — только
+3. Проверки: в выводе деплоя `Octane server is running.`, в `docker compose exec nginx nginx -T | grep -A3 'upstream lexiflow_api_octane'` — `keepalive 32`, `config:show trustedproxy` содержит адрес nginx (проверяет `deploy.sh`, иначе STOP), smoke `POST /api/twa/auth` → 401/422 (429 — только
    при уже насыщенном лимитере), `/api/twa/me` → 401;
    `docker stats lexiflow-app-api` (память стоит, 6 воркеров ≈ 0,3–0,55 ГБ + Caddy), `make prod-logs-api` без ошибок;
    в TWA: тренировка, аудио практики и игры (потоковые ответы), оплата. `https://<домен>/admin/login` — assets по `https://`.

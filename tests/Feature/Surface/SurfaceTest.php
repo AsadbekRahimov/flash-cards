@@ -101,7 +101,6 @@ describe('Surface', function (): void {
             ->and(Surface::excludesPackageOnApi('filament/tables'))->toBeTrue()
             ->and(Surface::excludesPackageOnApi('livewire/livewire'))->toBeTrue()
             ->and(Surface::excludesPackageOnApi('blade-ui-kit/blade-icons'))->toBeTrue()
-            ->and(Surface::excludesPackageOnApi('owen-it/laravel-auditing'))->toBeTrue()
             ->and(Surface::excludesPackageOnApi('spatie/laravel-backup'))->toBeTrue()
             ->and(Surface::excludesPackageOnApi('sentry/sentry-laravel'))->toBeFalse()
             ->and(Surface::excludesPackageOnApi('irazasyed/telegram-bot-sdk'))->toBeFalse()

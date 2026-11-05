@@ -80,6 +80,9 @@ services:
             # The php-fpm pool of the full surface: panels, webhooks and the public site - a few people and the bots, while the
             # learners are on app-api. 6 of the 18 workers of a 4 vCPU host (docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»); a PHP_FPM_*
             # line in .env still overrides (compose interpolates .env), and the image default of 16 applies only outside compose.
+            # Persistent phpredis sockets per php-fpm worker (config/database.php `redis.options.persistent`): no TCP connect
+            # and AUTH per request. Only the two web containers: the queue workers hold one process anyway.
+            REDIS_PERSISTENT: ${REDIS_PERSISTENT:-true}
             PHP_FPM_MAX_CHILDREN: ${PHP_FPM_MAX_CHILDREN:-6}
             PHP_FPM_START_SERVERS: ${PHP_FPM_START_SERVERS:-2}
             PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_MIN_SPARE_SERVERS:-1}
@@ -122,6 +125,7 @@ services:
         environment:
             <<: *lru-env
             APP_SURFACE: api
+            REDIS_PERSISTENT: ${REDIS_PERSISTENT:-true}
             # Livewire is not registered here: Sentry's Livewire breadcrumbs and tracing would hook an auto-built manager.
             SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
             SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
