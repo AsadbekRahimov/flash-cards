@@ -7,8 +7,9 @@ namespace App\Octane\Support;
 /**
  * The transaction level of every open database connection at the moment a request reached the worker
  * (RememberTransactionLevels), kept in the sandbox of that request so RollBackLeakedTransactions can tell a transaction
- * the request left open from one that was open before it started. In production that level is 0 for every connection;
- * in the test-suite RefreshDatabase wraps each test in a transaction of its own, which the listener must not touch.
+ * the request left open from one that was open before it started. Outside the test-suite that level is 0 for every
+ * connection - RememberTransactionLevels rolls back and reports a transaction it finds open on entry; in the test-suite
+ * RefreshDatabase wraps each test in a transaction of its own, which the listeners must not touch.
  */
 final class TransactionBaseline
 {

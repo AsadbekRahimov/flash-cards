@@ -31,6 +31,8 @@ final class ShareRequestMemosWithSandbox
     public function handle(RequestReceived $event): void
     {
         foreach (self::MEMOS as $memo) {
+            // Insurance: when the previous request died in terminate() its FlushTemporaryContainerInstances never ran.
+            $event->app->forgetInstance($memo);
             $event->sandbox->instance($memo, $event->app->make($memo));
         }
     }

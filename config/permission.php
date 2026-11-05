@@ -129,8 +129,9 @@ return [
      * NOTE: This should not be needed in most cases, but an Octane/Vapor combination benefited from it.
      *
      * On: the api container runs on Octane (docs/21 §2.2 №27) and the registrar's in-memory permission collection
-     * must not outlive a request, as it does not under php-fpm. The package registers the listener only when Octane is
-     * installed, so php-fpm and the queue workers see no difference.
+     * must not outlive a request, as it does not under php-fpm. laravel/octane is installed everywhere (one
+     * composer.lock for both images), so the package registers the listener under php-fpm and in the queue workers as
+     * well; it only reacts to Octane's OperationTerminated, which nothing dispatches there - no difference for them.
      */
     'register_octane_reset_listener' => true,
 

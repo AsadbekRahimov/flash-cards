@@ -14,17 +14,52 @@ use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
 use App\Octane\LeakedTransactionException;
+use App\Octane\Listeners\RememberTransactionLevels;
+use App\Octane\Support\TransactionBaseline;
+use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\SQLiteConnection;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Route;
+use Laravel\Octane\Events\RequestReceived;
 use Tests\Support\Octane\MemoProbeEvent;
 use Tests\Support\Octane\MemoProbeListener;
 use Tests\Support\OctaneHarness;
 
 uses(RefreshDatabase::class);
+
+/**
+ * A RequestReceived as a production worker dispatches it, for RememberTransactionLevels alone: the base application is
+ * NOT running the test-suite (`runningUnitTests()` false - what makes the listener treat an open transaction as a leak),
+ * the sandbox hands out the given DatabaseManager and receives the baseline, which is captured into `$baseline`. The
+ * worker harness cannot stage this: its application IS the test's (env testing), and a listener that rolled everything
+ * back to 0 there would kill RefreshDatabase's own transaction.
+ */
+function productionRequestReceived(DatabaseManager $db, Request $request, ?TransactionBaseline &$baseline): RequestReceived
+{
+    $app = Mockery::mock(Application::class);
+    $app->shouldReceive('runningUnitTests')->andReturn(false);
+
+    $sandbox = Mockery::mock(Application::class);
+    $sandbox->shouldReceive('make')->with(DatabaseManager::class)->andReturn($db);
+    $sandbox->shouldReceive('instance')->once()->withArgs(function (string $abstract, TransactionBaseline $given) use (&$baseline): bool {
+        $baseline = $given;
+
+        return $abstract === TransactionBaseline::class;
+    });
+
+    return new RequestReceived($app, $sandbox, $request);
+}
+
+/** A sqlite connection of its own for the leak tests: the test's connection (RefreshDatabase's transaction) stays out. */
+function leakConnectionConfig(): void
+{
+    config()->set('database.connections.leak', ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
+}
 
 it('serves each learner in the locale of that learner and restores the default locale after the request', function (): void {
     $octane = OctaneHarness::boot($this->app);
@@ -162,9 +197,73 @@ it('rolls back a transaction a request left open, reports it, and the next reque
         ->and(Learner::query()->whereKey($id)->exists())->toBeTrue()
         ->and(DB::transactionLevel())->toBe($baseline);
 
-    // A request without a transaction of its own reports nothing.
+    // A request without a transaction of its own reports nothing. No "found on entry" report either: under the
+    // test-suite RefreshDatabase's transaction (level 1) is the baseline, not a leak.
     $octane->handle(OctaneHarness::request('POST', '/__octane/write'));
     Exceptions::assertReportedCount(3); // the two leaks + the RuntimeException of /leak-throw
+});
+
+it('rolls back and reports a transaction found open on entry to a request, outside the test-suite', function (): void {
+    Exceptions::fake();
+    leakConnectionConfig();
+
+    // The previous request of this worker died in terminate(): OperationTerminated never ran, the PDO handle still holds
+    // the transaction of that request.
+    $db = new DatabaseManager($this->app, $this->app->make('db.factory'));
+    $db->connection('leak')->beginTransaction();
+    expect($db->connection('leak')->transactionLevel())->toBe(1);
+
+    $baseline = null;
+    (new RememberTransactionLevels)->handle(productionRequestReceived($db, Request::create('/api/twa/me'), $baseline));
+
+    // Rolled back to 0 and the baseline is 0: the next end-of-request check compares against a clean connection, and
+    // the DB::transaction() of this request is a real transaction, not a savepoint inside the leaked one.
+    expect($db->connection('leak')->transactionLevel())->toBe(0)
+        ->and($db->connection('leak')->getRawPdo()?->inTransaction())->toBeFalse()
+        ->and($baseline)->toBeInstanceOf(TransactionBaseline::class)
+        ->and($baseline?->levelOf('leak'))->toBe(0);
+    Exceptions::assertReported(fn (LeakedTransactionException $e): bool => str_contains($e->getMessage(), 'on entry to GET /api/twa/me')
+        && str_contains($e->getMessage(), '"leak"')
+        && str_contains($e->getMessage(), 'rolled back by the Octane worker')
+        && $e->getPrevious() === null);
+    Exceptions::assertReportedCount(1);
+
+    // A clean connection on entry: nothing to roll back, nothing reported, baseline 0.
+    $again = null;
+    (new RememberTransactionLevels)->handle(productionRequestReceived($db, Request::create('/api/twa/today'), $again));
+
+    expect($again?->levelOf('leak'))->toBe(0);
+    Exceptions::assertReportedCount(1);
+});
+
+it('drops the connection when the rollback of a transaction found open on entry fails', function (): void {
+    Exceptions::fake();
+    leakConnectionConfig();
+
+    $pdo = new class('sqlite::memory:') extends PDO
+    {
+        public function rollBack(): bool
+        {
+            throw new PDOException('the test refuses to roll back');
+        }
+    };
+    $db = new DatabaseManager($this->app, $this->app->make('db.factory'));
+    $db->extend('leak', fn (array $config): SQLiteConnection => new SQLiteConnection($pdo, ':memory:', '', $config));
+    $connection = $db->connection('leak');
+    $connection->beginTransaction();
+    expect($pdo->inTransaction())->toBeTrue();
+
+    $baseline = null;
+    (new RememberTransactionLevels)->handle(productionRequestReceived($db, Request::create('/api/twa/today', 'POST'), $baseline));
+
+    // disconnect(): the PDO handle is dropped (the server ends the transaction with the session), the counter is 0, the
+    // next use of the connection reconnects.
+    expect($connection->transactionLevel())->toBe(0)
+        ->and($connection->getRawPdo())->toBeNull()
+        ->and($baseline?->levelOf('leak'))->toBe(0);
+    Exceptions::assertReported(fn (LeakedTransactionException $e): bool => str_contains($e->getMessage(), 'on entry to POST /api/twa/today')
+        && str_contains($e->getMessage(), 'the connection was dropped')
+        && $e->getPrevious() instanceof PDOException);
 });
 
 it('believes X-Forwarded-* only from the proxies of TRUSTED_PROXIES, and never X-Forwarded-Prefix', function (): void {
@@ -184,14 +283,22 @@ it('believes X-Forwarded-* only from the proxies of TRUSTED_PROXIES, and never X
         $octane->handle(Request::create('/__octane/ip', 'GET', [], [], [], ['REMOTE_ADDR' => $remoteAddr] + $forwarded)),
     );
 
-    // The compose subnet is the proxy; the config is read on every request (TrustProxies::setTrustedProxyIpAddresses).
+    // A CIDR is honoured; the config is read on every request (TrustProxies::setTrustedProxyIpAddresses).
     config()->set('trustedproxy.proxies', ['172.28.0.0/16']);
 
     expect($probe('203.0.113.9'))->toBe(['ip' => '203.0.113.9', 'secure' => false, 'base_url' => ''])
         ->and($probe('172.28.0.3'))->toBe(['ip' => '1.2.3.4', 'secure' => true, 'base_url' => '']);
 
-    // Empty (php-fpm, the default of .env.example): nobody, not even the compose subnet.
+    // Production (docker-compose.prod.yml): the ONE pinned address of nginx (NGINX_IPV4), not the subnet. Under php-fpm
+    // REMOTE_ADDR is the client as nginx saw it, and a client that reached nginx through docker-proxy (IPv6, hairpin from
+    // the host) is seen as the network gateway 172.28.0.1 - inside the subnet, so a subnet would let it forge X-Forwarded-*.
+    config()->set('trustedproxy.proxies', ['172.28.0.10']);
+
+    expect($probe('172.28.0.10'))->toBe(['ip' => '1.2.3.4', 'secure' => true, 'base_url' => ''])
+        ->and($probe('172.28.0.1'))->toBe(['ip' => '172.28.0.1', 'secure' => false, 'base_url' => '']);
+
+    // Empty (`app`, the queue workers: compose hands them an empty TRUSTED_PROXIES): nobody, not even nginx.
     config()->set('trustedproxy.proxies', []);
 
-    expect($probe('172.28.0.3'))->toBe(['ip' => '172.28.0.3', 'secure' => false, 'base_url' => '']);
+    expect($probe('172.28.0.10'))->toBe(['ip' => '172.28.0.10', 'secure' => false, 'base_url' => '']);
 });
