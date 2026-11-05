@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Domain\Practice\DTO\PracticeImportReport;
 use App\Domain\Practice\Services\PracticeImporter;
+use App\Support\LocalPath;
 use Illuminate\Console\Command;
 
 /**
@@ -28,7 +29,7 @@ final class ImportPracticeItems extends Command
     public function handle(PracticeImporter $importer): int
     {
         $path = $this->argument('file');
-        $file = str_starts_with($path, '/') ? $path : base_path($path);
+        $file = LocalPath::fromProject($path);
 
         if ($path === '' || ! is_file($file) || ! is_readable($file)) {
             $this->error("File not found or not readable: {$path}");

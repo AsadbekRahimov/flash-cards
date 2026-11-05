@@ -64,6 +64,32 @@ it('lets admin finish 2FA setup with a valid TOTP code', function (): void {
     $this->get(route('2fa.recovery-codes'))->assertRedirect('/admin');
 });
 
+it('cannot replace 2FA enrollment from a stale setup session', function (): void {
+    $user = adminUser();
+    $this->actingAs($user)->get(route('2fa.setup'))->assertOk();
+
+    $g2fa = app(Google2FA::class);
+    $pending = (string) session('2fa.web.pending_secret');
+    $confirmed = $g2fa->generateSecretKey();
+    $user->fresh()->forceFill([
+        'two_factor_secret' => $confirmed,
+        'two_factor_recovery_codes' => ['existing-recovery-code'],
+        'two_factor_confirmed_at' => now(),
+    ])->save();
+
+    // The guard still has the pre-enrollment model, as it would in a concurrent request.
+    expect($user->hasTwoFactorEnabled())->toBeFalse();
+    $this->post(route('2fa.confirm'), ['code' => $g2fa->getCurrentOtp($pending)])
+        ->assertRedirect(route('2fa.challenge', ['guard' => 'web']))
+        ->assertSessionMissing('2fa.web.pending_secret')
+        ->assertSessionMissing('2fa.web.passed_at')
+        ->assertSessionMissing('2fa.web.show_recovery_codes');
+
+    $user->refresh();
+    expect($user->two_factor_secret)->toBe($confirmed)
+        ->and($user->two_factor_recovery_codes)->toBe(['existing-recovery-code']);
+});
+
 it('renders the recovery-code intro escaped, with markup only from the template', function (string $locale): void {
     app('translator')->addLines([
         'twofactor.recovery.intro' => 'Intro <script>alert(1)</script> :emphasis & more',

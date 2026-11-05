@@ -17,6 +17,8 @@ interface AuthState {
   restoredShown: boolean
 }
 
+const pendingLogins = new WeakMap<object, Promise<void>>()
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     token: '',
@@ -35,6 +37,10 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async login(context?: AuthContext | null): Promise<void> {
+      if (context !== undefined) this.context = context
+      const pending = pendingLogins.get(this)
+      if (pending) return pending
+
       const { initData } = useTelegram()
       const payload = initData()
       if (!payload) {
@@ -44,22 +50,32 @@ export const useAuthStore = defineStore('auth', {
 
       this.loading = true
       this.error = null
-      const resolvedContext = context === undefined ? this.context : context
-      this.context = resolvedContext
-      try {
-        const res = await api.auth.authenticate(payload, resolvedContext)
-        this.token = res.token
-        this.expiresAt = Date.now() + res.expires_in * 1000
-        this.learner = res.learner
-        if (res.account_restored && !this.restoredShown) this.accountRestored = res.account_restored
-        // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
-        if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
-      } catch (err: unknown) {
-        this.error = (err as { code?: string })?.code ?? 'auth_failed'
-        throw err
-      } finally {
-        this.loading = false
-      }
+      const attempt: Promise<void> = api.auth.authenticate(payload, this.context)
+        .then((res) => {
+          if (pendingLogins.get(this) !== attempt) throw new Error('auth_cancelled')
+          this.token = res.token
+          this.expiresAt = Date.now() + res.expires_in * 1000
+          this.learner = res.learner
+          if (res.account_restored && !this.restoredShown) this.accountRestored = res.account_restored
+          // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
+          if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
+        })
+        .catch((err: unknown) => {
+          if (pendingLogins.get(this) === attempt) {
+            this.token = ''
+            this.expiresAt = 0
+            this.error = (err as { code?: string })?.code ?? 'auth_failed'
+          }
+          throw err
+        })
+        .finally(() => {
+          if (pendingLogins.get(this) === attempt) {
+            pendingLogins.delete(this)
+            this.loading = false
+          }
+        })
+      pendingLogins.set(this, attempt)
+      return attempt
     },
 
     async ensure(context?: AuthContext): Promise<void> {
@@ -88,6 +104,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     logout(): void {
+      pendingLogins.delete(this)
+      this.loading = false
       this.token = ''
       this.expiresAt = 0
       this.learner = null

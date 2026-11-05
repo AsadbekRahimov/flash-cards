@@ -262,8 +262,8 @@ export interface Entitlement {
    */
   renewal?: Renewal | null
   /**
-   * "Pro ended" (docs/04 A.2, `/me` only): the learner is on Free and their own paid subscription expired
-   * lately; null = nothing to offer. Absent in the entitlement of `/today` and in the auth answer.
+   * "Pro ended" (docs/04 A.2–A.2a): the learner is on Free and their own paid subscription expired
+   * lately; null = nothing to offer. Absent in the auth answer.
    */
   lapsed?: Lapsed | null
 }
@@ -451,7 +451,7 @@ export interface TodayResponse {
   active_course: TodayCourse | null
   /** Open, unexpired daily review to continue. */
   open_session_id: number | null
-  entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
+  entitlement: Pick<Entitlement, 'plan' | 'source' | 'until' | 'lapsed'>
   onboarding_completed: boolean
   /** The learner's place in this week's league group (docs/13 §7.3); null while not placed. */
   league: TodayLeague | null

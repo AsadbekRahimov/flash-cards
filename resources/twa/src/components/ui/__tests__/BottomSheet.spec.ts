@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import BottomSheet from '../BottomSheet.vue'
@@ -92,6 +92,32 @@ describe('BottomSheet', () => {
     open.value = false
     await nextTick()
     expect(document.activeElement).toBe(opener)
+    wrapper.unmount()
+  })
+
+  it('keeps Tab and Shift+Tab inside the sheet', async () => {
+    const wrapper = render({ label: 'x' })
+    const close = wrapper.get<HTMLButtonElement>('[data-testid=sheet-x]').element
+    const action = wrapper.get<HTMLButtonElement>('[data-testid=inner]').element
+    // Happy DOM has no layout, so give both rendered buttons a client rect.
+    for (const button of [close, action]) {
+      button.style.visibility = 'visible'
+      vi.spyOn(button, 'getClientRects').mockReturnValue([new DOMRect(0, 0, 44, 44)] as unknown as DOMRectList)
+    }
+    await nextTick()
+
+    function tab(shiftKey: boolean): void {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, cancelable: true })
+      document.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(true)
+    }
+
+    tab(false)
+    expect(document.activeElement).toBe(close)
+    tab(true)
+    expect(document.activeElement).toBe(action)
+    tab(false)
+    expect(document.activeElement).toBe(close)
     wrapper.unmount()
   })
 

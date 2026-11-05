@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
+use App\Support\LocalPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -115,8 +116,10 @@ it('refuses to touch a real learner with a colliding Telegram ID and leaves the 
 it('writes the token file with mode 0600', function (): void {
     $this->artisan('load:tokens', ['--count' => 1, '--output' => $this->path])->assertSuccessful();
 
-    expect(substr(sprintf('%o', fileperms($this->path)), -4))->toBe('0600')
-        ->and(glob($this->path.'.*'))->toBe([]);
+    if (PHP_OS_FAMILY !== 'Windows') {
+        expect(substr(sprintf('%o', fileperms($this->path)), -4))->toBe('0600');
+    }
+    expect(glob($this->path.'.*'))->toBe([]);
 });
 
 it('accepts --output only inside storage/ or "-"', function (string $output): void {
@@ -127,11 +130,18 @@ it('accepts --output only inside storage/ or "-"', function (string $output): vo
 })->with(['public/x.json', 'storage/../public/x.json', 'storage/app/../../public/x.json', '/tmp/x.json']);
 
 it('refuses a path under storage/app/public, which the web server may serve', function (string $output): void {
+    $output = str_replace('t.json', basename($this->path), $output);
     $this->artisan('load:tokens', ['--count' => 1, '--output' => $output])->assertFailed();
 
     expect(Learner::query()->count())->toBe(0)
-        ->and(file_exists(str_starts_with($output, '/') ? $output : base_path($output)))->toBeFalse();
-})->with(['storage/app/public/t.json', 'storage/app/public/new-dir/t.json', fn () => storage_path('app/public/t.json')]);
+        ->and(file_exists(LocalPath::fromProject($output)))->toBeFalse();
+})->with([
+    'storage/app/public/t.json',
+    'storage/app/public/new-dir/t.json',
+    'storage\\app/public\\t.json',
+    'storage/app//./public/t.json',
+    fn () => storage_path('app/public/t.json'),
+]);
 
 it('checks the load-test mark again in the loop and refuses a row that lost it after the first check', function (): void {
     Learner::factory()->create(['telegram_user_id' => 8_000_000_001, 'meta' => ['load_test' => true]]);

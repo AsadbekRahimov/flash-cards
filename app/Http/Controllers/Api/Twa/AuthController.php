@@ -56,9 +56,14 @@ final class AuthController
 
         [$learner, $contextGroup] = $this->learners->resolve(
             $parsed['user'],
+            $parsed['auth_date'],
             isset($data['context']['type']) ? (string) $data['context']['type'] : null,
             isset($data['context']['session_id']) ? (int) $data['context']['session_id'] : null,
         );
+
+        if ($learner === null) {
+            return ApiErrorResource::respond(401, 'learner_not_found', 'Unauthorized');
+        }
 
         if ($learner->blocked_at !== null) {
             return ApiErrorResource::respond(401, 'learner_blocked', 'Unauthorized');

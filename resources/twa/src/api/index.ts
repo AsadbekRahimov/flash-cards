@@ -97,9 +97,6 @@ function client() {
       try {
         await auth.login()
       } catch {
-        // Drop the dead token so the next call starts a fresh login.
-        auth.token = ''
-        auth.expiresAt = 0
         return ''
       }
       return auth.token

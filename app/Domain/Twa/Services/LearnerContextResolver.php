@@ -26,17 +26,19 @@ final class LearnerContextResolver
     ) {}
 
     /**
-     * Logging in is the person's own action: it revives a soft-deleted learner and
-     * bumps `last_seen_at` (docs/07 §10).
+     * A signed Mini App launch can revive a soft-deleted learner only if it started after deletion.
      *
      * @param  array<string, mixed>  $tgUser  `user` object of the validated initData
      * @param  string|null  $contextType  `training` | `exam` (analytics hint only)
-     * @return array{0: Learner, 1: TelegramGroup|null} the learner and the group of the opened
-     *                                                  session — only when the learner is its active member
+     * @return array{0: Learner|null, 1: TelegramGroup|null} the learner and the group of the opened
+     *                                                       session — only when the learner is its active member
      */
-    public function resolve(array $tgUser, ?string $contextType, ?int $sessionId): array
+    public function resolve(array $tgUser, int $authDate, ?string $contextType, ?int $sessionId): array
     {
-        $learner = $this->registrar->fromTelegramUser($tgUser);
+        $learner = $this->registrar->fromMiniApp($tgUser, $authDate);
+        if ($learner === null) {
+            return [null, null];
+        }
 
         // `context` is client-supplied: it feeds analytics only for a group the learner really belongs to.
         $group = $this->contextGroup($contextType, $sessionId);

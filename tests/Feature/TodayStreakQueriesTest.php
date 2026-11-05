@@ -172,15 +172,16 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
     // state (its range read of held days stays). R12i: 11 / 11 / 12 -> 5 / 5 / 6 - the plan is read once (from the cache),
     // today and yesterday in one statement, the due cards and the quota in one statement.
     // R12i: today and yesterday come in ONE statement (`date in (?, ?)`); yesterday is not read on its own any more.
+    // The Free lapse lookup costs one statement and replaces the separate /me request from the home screen.
     expect(count($queries))->toBeLessThanOrEqual($budget)
         ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
 })->with([
-    'never studied' => ['never studied', 5],
-    'living series' => ['living series', 5],
-    'lapsed series' => ['lapsed series', 6],
+    'never studied' => ['never studied', 6],
+    'living series' => ['living series', 6],
+    'lapsed series' => ['lapsed series', 7],
 ]);
 
 it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (): void {

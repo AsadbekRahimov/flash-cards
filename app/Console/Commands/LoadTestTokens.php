@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Domain\Operations\Services\LoadTestTokenIssuer;
+use App\Support\LocalPath;
 use Illuminate\Console\Command;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -63,8 +64,7 @@ final class LoadTestTokens extends Command
             return self::FAILURE;
         }
 
-        // The file is born 0600 (never world-readable, even for a moment): written under a restrictive umask to a temp
-        // file next to the target, then renamed over it.
+        // POSIX: 0600 from creation, even before the rename. On Windows the file inherits the directory ACL.
         $tmp = $path.'.'.bin2hex(random_bytes(4)).'.tmp';
         $umask = umask(0o077);
         try {
@@ -72,7 +72,7 @@ final class LoadTestTokens extends Command
         } finally {
             umask($umask);
         }
-        if ($written === false || ! chmod($tmp, 0o600) || ! rename($tmp, $path)) {
+        if ($written === false || (PHP_OS_FAMILY !== 'Windows' && ! chmod($tmp, 0o600)) || ! rename($tmp, $path)) {
             @unlink($tmp);
             $this->components->error('Cannot write '.$path.'.');
 
@@ -87,30 +87,43 @@ final class LoadTestTokens extends Command
     /** Absolute path inside storage/ (no `..`, symlinks of existing parents resolved), or null. */
     private function resolvePath(string $output): ?string
     {
-        if ($output === '' || str_contains($output, "\0") || in_array('..', explode('/', str_replace('\\', '/', $output)), true)) {
+        $output = str_replace('\\', '/', $output);
+        if ($output === '' || str_contains($output, "\0") || in_array('..', explode('/', $output), true)) {
             return null;
         }
 
-        $path = str_starts_with($output, '/') ? $output : base_path($output);
-        $storage = realpath(storage_path()) ?: storage_path();
+        // Win32 trims trailing dots/spaces and treats colons after the drive prefix as alternate streams.
+        if (PHP_OS_FAMILY === 'Windows' && preg_match('~[^/][. ](?:/|$)|:~', preg_replace('~^[a-z]:/~i', '/', $output) ?? $output) === 1) {
+            return null;
+        }
+
+        $path = str_replace('\\', '/', LocalPath::fromProject($output));
+        $storage = $this->comparisonPath(realpath(storage_path()) ?: storage_path());
 
         $dir = dirname($path);
         while (! file_exists($dir) && $dir !== dirname($dir)) {
             $dir = dirname($dir);
         }
         $real = realpath($dir);
-
-        if ($real === false || ($real !== $storage && ! str_starts_with($real, $storage.DIRECTORY_SEPARATOR))) {
+        if ($real === false) {
             return null;
         }
 
-        // storage/app/public is what the web server may hand out as /storage/...: live tokens never go there.
-        $public = (realpath(storage_path('app/public')) ?: storage_path('app/public')).DIRECTORY_SEPARATOR;
-        $target = $real.substr($path, strlen($dir));
-        if (str_starts_with($target.DIRECTORY_SEPARATOR, $public)) {
+        $target = $this->comparisonPath($real.substr($path, strlen($dir))).'/';
+        $public = $this->comparisonPath(realpath(storage_path('app/public')) ?: storage_path('app/public')).'/';
+        if (! str_starts_with($target, $storage.'/') || str_starts_with($target, $public)) {
             return null;
         }
 
         return $path;
+    }
+
+    private function comparisonPath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $path = preg_replace('~/+~', '/', $path) ?? $path;
+        $path = preg_replace('~/(?:\./)+~', '/', $path) ?? $path;
+
+        return PHP_OS_FAMILY === 'Windows' ? mb_strtolower($path) : $path;
     }
 }

@@ -26,7 +26,7 @@ final class TodayResource extends TwaResource
      *     next_lesson: array{id: int, stage: int|null, lesson: int, title: string|null}|null
      *   }|null,
      *   open_session_id: int|null,
-     *   entitlement: array{plan: string, source: string, until: string|null},
+     *   entitlement: array{plan: string, source: string, until: string|null, lapsed: array{provider: string, ended_at: string}|null},
      *   onboarding_completed: bool,
      *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
      *   timezone: string,
@@ -61,6 +61,7 @@ final class TodayResource extends TwaResource
                 'plan' => $summary->entitlement->plan->value,
                 'source' => $summary->entitlement->source,
                 'until' => $summary->entitlement->until?->toIso8601String(),
+                'lapsed' => $summary->lapsed,
             ],
             'onboarding_completed' => $summary->onboardingCompleted,
             'league' => $summary->league?->toArray(),

@@ -155,7 +155,7 @@
     "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food" }
   },
   "open_session_id": 918,
-  "entitlement": { "plan": "free", "source": "free", "until": null },
+  "entitlement": { "plan": "free", "source": "free", "until": null, "lapsed": null },
   "onboarding_completed": true,
   "timezone": "Asia/Tashkent",
   "game": { "daily_available": true, "active_run": null, "class_caravan": null }
@@ -168,7 +168,7 @@
 - `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
-- `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
+- `entitlement` — `plan`, `source`, `until` и `lapsed` с теми же правилами, что в `/me` (A.2). Баннер «Pro закончился» использует этот ответ, поэтому отдельный запрос профиля при открытии «Сегодня» не нужен.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
 - `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — два запроса: к `game_runs` (`due_count` берётся из уже посчитанного) и карточка каравана класса `class_caravan` (G2.9b; `{id, stars_total, target_stars, ends_at}` или `null`; `{daily_available: false, active_run: null, class_caravan: null}` при закрытой игре).
@@ -181,8 +181,8 @@
 (`LearnerDeletionService::delete`, решение владельца 03.11.2026): `learners.deleted_at`, аудит `learner.deleted {by: self}` (без PII), у Stars сразу
 снимается автопродление (best-effort; оплаченный период и платежи не трогаются). Ответ `200` (`AccountDeletedResource`):
 `{deleted: true, restorable_until}` — ISO-8601, `deleted_at + learners.purge.after_days` (30). Токен перестаёт работать сразу: любой следующий запрос с ним —
-`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться можно собственным `/start` в боте (или `/auth` из Mini App) до `restorable_until` (вернувшемуся один раз скажут «Аккаунт восстановлен», `/auth.account_restored`, A.2d);
-после — `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
+`401 learner_not_found` (`TwaAuth`), повторное удаление — тоже. Вернуться до `restorable_until` можно через `/start` в боте или новый запуск Mini App. Для восстановления через `/auth` подписанный Telegram `auth_date` должен быть позже `deleted_at`, чтобы фоновое обновление токена из уже открытого приложения не отменило удаление. Вернувшемуся один раз покажут «Аккаунт восстановлен» (`/auth.account_restored`, A.2d).
+Когда срок восстановления истекает, `learners:purge-deleted` стирает данные окончательно (docs/03 §8 п. 2). Ограничение — `throttle:twa-api`.
 
 ### A.2d `POST /api/twa/me/account-restored/seen` — «аккаунт восстановлен» показан
 

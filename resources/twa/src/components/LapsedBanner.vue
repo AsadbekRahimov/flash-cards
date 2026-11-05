@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { Lapsed } from '@/api/types'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatDate } from '@/composables/format'
 import { useBillingStore } from '@/stores/billing'
@@ -7,16 +8,16 @@ import { useI18n } from '@/i18n'
 
 /**
  * "Pro ended — renew" (docs/13 §4.4, 2A.6): shown to a Free learner whose own paid subscription
- * expired lately (`/me.entitlement.lapsed`, a server decision — nothing is derived here). The dismissal
+ * expired lately (the server's `entitlement.lapsed`). The dismissal
  * is remembered on the device per `ended_at`, so a later lapse shows the banner again.
  *
- * `preloaded`: the screen has already loaded `/me` into the billing store (BillingView); otherwise the
- * banner asks for it once on mount and stays hidden until the answer is in, so a stale store never flashes.
+ * Today passes `lapsed` (including null). BillingView already loaded `/me` and passes `preloaded`.
+ * With an older Today response, the banner loads `/me` itself and waits for fresh data.
  *
  * `renewable` (default true): there is something to buy. A screen that knows nothing is for sale (BillingView while
  * payment is not open) sets it to false: the banner still says Pro ended, but has no "Renew" button that does nothing.
  */
-const props = withDefaults(defineProps<{ preloaded?: boolean; renewable?: boolean }>(), { preloaded: false, renewable: true })
+const props = withDefaults(defineProps<{ lapsed?: Lapsed | null; preloaded?: boolean; renewable?: boolean }>(), { preloaded: false, renewable: true })
 const emit = defineEmits<{ renew: [] }>()
 
 const DISMISSED_KEY = 'lexiflow:lapsed-dismissed'
@@ -35,8 +36,10 @@ function readDismissed(): string | null {
 const ready = ref(props.preloaded === true)
 const dismissedAt = ref(readDismissed())
 
-const lapsed = computed(() => (billing.entitlement?.plan === 'free' ? (billing.entitlement.lapsed ?? null) : null))
-const visible = computed(() => ready.value && lapsed.value !== null && lapsed.value.ended_at !== dismissedAt.value)
+const lapsed = computed(() => props.lapsed !== undefined
+  ? props.lapsed
+  : (billing.entitlement?.plan === 'free' ? (billing.entitlement.lapsed ?? null) : null))
+const visible = computed(() => (props.lapsed !== undefined || ready.value) && lapsed.value !== null && lapsed.value.ended_at !== dismissedAt.value)
 
 const dateText = computed(() => (lapsed.value ? formatDate(lapsed.value.ended_at, 'dayMonth', locale.value) : ''))
 
@@ -51,7 +54,7 @@ function dismiss(): void {
 }
 
 onMounted(async () => {
-  if (props.preloaded) return
+  if (props.lapsed !== undefined || props.preloaded) return
   await billing.load()
   ready.value = true
 })

@@ -87,7 +87,7 @@ Octane: контейнер `app-api` может работать на FrankenPHP
 |---|---|---|
 | Стадия Dockerfile / образ `app-api` | `app-fpm` (алиас `app`, тот же слой) / `lexiflow/app-fpm:<tag>` | `app-octane` (`dunglas/frankenphp:1-php8.5-alpine`, ZTS) / `lexiflow/app-octane:<tag>` |
 | Процесс | php-fpm, пул `PHP_FPM_API_*` | `docker/octane-start.sh` → `php artisan octane:frankenphp`, `OCTANE_WORKERS` (6 на 4 vCPU), `OCTANE_MAX_REQUESTS` (500), `OCTANE_LOG_LEVEL` (WARN) |
-| nginx `/api/` | `docker/nginx/snippets/api-fpm.conf` (`fastcgi_pass app-api:9000`) | `snippets/api-octane.conf` (`proxy_pass http://lexiflow_api_octane` — upstream `app-api:8000` в `prod.conf` с пулом keep-alive 32 соединений, `Connection ""`, `X-Forwarded-*`) |
+| nginx `/api/` | `docker/nginx/snippets/api-fpm.conf` (upstream `lexiflow_api_fpm` → `app-api:9000`) | `snippets/api-octane.conf` (upstream `lexiflow_api_octane` → `app-api:8000`, пул keep-alive 32 соединения, `Connection ""`, `X-Forwarded-*`) |
 | Healthcheck | `php-fpm -t` | `curl -fsS http://127.0.0.1:8000/up` |
 | `TRUSTED_PROXIES` (только у `app-api`; у `app`, очередей и планировщика compose задаёт пусто) | по умолчанию `NGINX_IPV4` (`172.28.0.10`) в обоих режимах; под fpm безвредно | то же: один адрес nginx, не подсеть |
 | `REDIS_PERSISTENT` у `app` и `app-api` | `true` (compose): постоянные сокеты phpredis на воркер php-fpm, по одному `persistent_id` на каждое соединение (`config/database.php`) | `true`: воркер Octane живёт долго, сокеты и так переживают запрос; разницы нет |

@@ -113,6 +113,8 @@ const dateLine = computed(() =>
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+const needsCourseToStart = computed(() => data.value !== null &&
+  data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
 
 /** What the second line of the session card says about new words; the quota is the server's (`null` = no limit). */
 const newWordsText = computed(() => {
@@ -208,7 +210,7 @@ onBeforeUnmount(() => training.clearOpenError())
         </template>
       </PageHeader>
 
-      <LapsedBanner v-if="data.entitlement.plan === 'free'" @renew="router.push({ name: 'billing' })" />
+      <LapsedBanner v-if="data.entitlement.plan === 'free'" :lapsed="data.entitlement.lapsed" @renew="router.push({ name: 'billing' })" />
 
       <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
@@ -250,7 +252,7 @@ onBeforeUnmount(() => training.clearOpenError())
               {{ data.due_count > 0 ? tn('today.review.due', data.due_count) : t('today.review.none') }}
             </span>
           </li>
-          <li>
+          <li v-if="!needsCourseToStart">
             <RouterLink
               v-if="!data.active_course"
               :to="{ name: 'courses' }"
@@ -272,7 +274,17 @@ onBeforeUnmount(() => training.clearOpenError())
           </li>
         </ul>
 
+        <RouterLink
+          v-if="needsCourseToStart"
+          :to="{ name: 'courses' }"
+          class="btn btn-primary btn-lg btn-block mt-3"
+          data-testid="start-choose-course"
+        >
+          <AppIcon name="academic-cap" :size="20" />
+          {{ t('today.course.choose') }}
+        </RouterLink>
         <button
+          v-else
           type="button"
           class="btn btn-primary btn-lg btn-block mt-3"
           :disabled="opening"
@@ -286,7 +298,7 @@ onBeforeUnmount(() => training.clearOpenError())
         <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
 
         <p class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
-          {{ t('today.session.hint') }}
+          {{ t(needsCourseToStart ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
         <button

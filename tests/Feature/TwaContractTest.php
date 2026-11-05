@@ -222,7 +222,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
                 'next_lesson' => ['id', 'stage', 'lesson', 'title'],
             ],
             'open_session_id',
-            'entitlement' => ['plan', 'source', 'until'],
+            'entitlement' => ['plan', 'source', 'until', 'lapsed'],
             'onboarding_completed',
             'league',
             'timezone',
@@ -233,7 +233,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
-        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null])
+        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null, 'lapsed' => null])
         // the IANA id of the learner's zone: the TWA dates the header of the screen by it
         ->and($response->json('timezone'))->toBe($learner->timezone);
 
@@ -243,7 +243,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)

@@ -80,15 +80,33 @@ final class BattleReader
      */
     public function find(Learner $viewer, int $id): Battle
     {
+        return $this->findWithColumns($viewer, $id, ['*']);
+    }
+
+    /** @param list<string> $columns */
+    private function findWithColumns(Learner $viewer, int $id, array $columns): Battle
+    {
         $this->access->assertCanPractice($viewer);
 
         /** @var Battle|null $battle */
-        $battle = Battle::query()->with('participants')->whereKey($id)->first();
+        $battle = Battle::query()->with('participants')->whereKey($id)->first($columns);
         if ($battle === null || ! $battle->involves($viewer->id)) {
             throw BattleException::notFound();
         }
 
         return $battle;
+    }
+
+    /** A heartbeat needs only the clock and score state. A due transition reloads the battle under its row lock. */
+    public function pollFor(Learner $viewer, int $id, CarbonImmutable $now): BattlePollView
+    {
+        $battle = $this->findWithColumns($viewer, $id, [
+            'id', 'challenger_id', 'opponent_id', 'status', 'end_reason', 'state_version',
+            'invite_expires_at', 'room_expires_at', 'accepted_at', 'starts_at',
+            'current_round', 'phase', 'round_deadline_at', 'phase_ends_at', 'meta',
+        ]);
+
+        return $this->poll($battle, $viewer, $now);
     }
 
     /** The full view of docs/16 §7.4 (`GET /practice/battles/{id}` and the answer of every action). */

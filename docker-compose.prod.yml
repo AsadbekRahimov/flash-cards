@@ -247,7 +247,7 @@ services:
         image: lexiflow/nginx:${IMAGE_TAG:-latest}
         container_name: lexiflow-nginx
         restart: unless-stopped
-        # Both upstreams: nginx resolves `app:9000` and `app-api:9000` when it loads its configuration.
+        # Wait for both upstreams on initial startup. nginx follows address changes via Docker DNS.
         depends_on:
             app:
                 condition: service_healthy

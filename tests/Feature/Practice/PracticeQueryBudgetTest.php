@@ -305,9 +305,7 @@ function budgetBattle(PracticeMode $mode = PracticeMode::Collocation): array
 
 function budgetPoll(Learner $viewer, int $battleId): BattlePollView
 {
-    $reader = app(BattleReader::class);
-
-    return $reader->poll($reader->find($viewer, $battleId), $viewer, CarbonImmutable::now());
+    return app(BattleReader::class)->pollFor($viewer, $battleId, CarbonImmutable::now());
 }
 
 /** Two friends (ru / uz) besides the world's, with their accepted friendship. @return array{0: Learner, 1: Learner, 2: Friendship} */
@@ -327,6 +325,7 @@ it('polls a live battle in at most 3 statements without a transition (the presen
     $quiet = QueryLog::during(fn () => budgetPoll($me, $battle->id));
     expect(count($quiet))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL - 1, implode("\n", $quiet))
         ->and(budgetReads($quiet, 'battles'))->toBe(1)
+        ->and(QueryLog::matching($quiet, '/^select (?:\*|.*"snapshot".*) from "battles"/i'))->toBe([])
         ->and(budgetReads($quiet, 'battle_participants'))->toBe(1)
         ->and(budgetReads($quiet, 'battle_answers'))->toBe(0);
 

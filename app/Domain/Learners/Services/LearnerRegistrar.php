@@ -20,7 +20,7 @@ use stdClass;
  * chat_member) into a `learners` row: one learner per `telegram_user_id`.
  *
  * Two kinds of contact (docs/07 §10):
- *  - the person's own action (`/auth` in the TWA, `/start` in DM) — `fromTelegramUser()`:
+ *  - the person's own action (opening the Mini App or `/start` in DM):
  *    revives a soft-deleted learner and bumps `last_seen_at`;
  *  - a passive event about them (someone else added them, their group status changed) —
  *    `observeTelegramUser()`: never revives, never bumps `last_seen_at`.
@@ -56,6 +56,12 @@ final class LearnerRegistrar
         assert($learner !== null);
 
         return $learner;
+    }
+
+    /** @param array<string, mixed> $tgUser */
+    public function fromMiniApp(array $tgUser, int $authDate): ?Learner
+    {
+        return $this->register($tgUser, null, null, selfInitiated: true, authDate: $authDate);
     }
 
     /**
@@ -129,7 +135,7 @@ final class LearnerRegistrar
     /**
      * @param  array<string, mixed>  $tgUser
      */
-    private function register(array $tgUser, ?string $source, ?string $startPayload, bool $selfInitiated): ?Learner
+    private function register(array $tgUser, ?string $source, ?string $startPayload, bool $selfInitiated, ?int $authDate = null): ?Learner
     {
         $telegramUserId = (int) ($tgUser['id'] ?? 0);
         if ($telegramUserId <= 0) {
@@ -147,10 +153,10 @@ final class LearnerRegistrar
         }
 
         try {
-            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated);
+            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
         } catch (UniqueConstraintViolationException) {
             // Lost a creation race with a parallel request (e.g. /auth and a chat update): reuse its row.
-            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated);
+            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
         }
     }
 
@@ -158,7 +164,7 @@ final class LearnerRegistrar
      * @param  array<string, string|null>  $profile  `language_code` only when present
      * @param  bool  $retrying  second pass after the soft-deleted row vanished under us (purged): no third one
      */
-    private function upsert(int $telegramUserId, array $profile, ?string $source, ?string $startPayload, bool $selfInitiated, bool $retrying = false): ?Learner
+    private function upsert(int $telegramUserId, array $profile, ?string $source, ?string $startPayload, bool $selfInitiated, ?int $authDate, bool $retrying = false): ?Learner
     {
         /** @var Learner|null $learner */
         $learner = Learner::withTrashed()->where('telegram_user_id', $telegramUserId)->first();
@@ -207,14 +213,22 @@ final class LearnerRegistrar
             // The unique telegram_user_id still points at the soft-deleted row; coming back revives it. A conditional
             // UPDATE, not restore(): the final deletion (LearnerPurgeService, docs/03 §8 rule 2) may have removed the row
             // between our read and now — then there is nothing to revive and the person starts afresh with a new row.
-            $revived = Learner::withTrashed()->whereKey($learner->id)->whereNotNull('deleted_at')->update(['deleted_at' => null]);
+            $deleted = Learner::withTrashed()->whereKey($learner->id)->whereNotNull('deleted_at');
+            if ($authDate !== null) {
+                // An automatic JWT refresh from an already open Mini App must not undo a deletion.
+                if ($learner->deleted_at?->timestamp >= $authDate) {
+                    return null;
+                }
+                $deleted->where('deleted_at', '<', CarbonImmutable::createFromTimestampUTC($authDate));
+            }
+            $revived = $deleted->update(['deleted_at' => null]);
 
             if ($revived !== 1) {
                 if ($retrying) {
                     return null;
                 }
 
-                return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, retrying: true);
+                return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate, retrying: true);
             }
 
             $learner->setAttribute('deleted_at', null);

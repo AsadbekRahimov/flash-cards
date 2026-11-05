@@ -69,6 +69,37 @@ describe('auth store — one learner for every session', () => {
     expect(api.auth.authenticate).toHaveBeenCalledTimes(2)
   })
 
+  it('shares the same refresh between concurrent screens and a 401 retry', async () => {
+    const auth = useAuthStore()
+    await auth.login()
+    auth.expiresAt = Date.now() + 30_000
+    vi.mocked(api.auth.authenticate).mockResolvedValue({ token: 'jwt-2', expires_in: 900, learner })
+
+    await Promise.all([
+      auth.ensure(),
+      auth.ensure({ type: 'exam', sessionId: 9 }),
+      auth.login(),
+    ])
+
+    expect(api.auth.authenticate).toHaveBeenCalledTimes(2)
+    expect(auth.token).toBe('jwt-2')
+    expect(auth.context).toEqual({ type: 'exam', sessionId: 9 })
+  })
+
+  it('does not sign back in when an old request finishes after logout', async () => {
+    const auth = useAuthStore()
+    const login = auth.login()
+    auth.logout()
+
+    await expect(login).rejects.toThrow('auth_cancelled')
+    expect(auth.token).toBe('')
+    expect(auth.learner).toBeNull()
+    expect(auth.loading).toBe(false)
+
+    await auth.ensure()
+    expect(auth.token).toBe('jwt-1')
+  })
+
   it('keeps the current context when an expired token is refreshed by a screen without one', async () => {
     const auth = useAuthStore()
     await auth.ensure({ type: 'training', sessionId: 7 })

@@ -117,7 +117,7 @@ function restoreAuth(Learner $learner): TestResponse
 }
 
 it('POST /auth revives the learner and carries account_restored; seen then /auth gives null; seen is idempotent', function (): void {
-    $learner = deletedLearner(881_006);
+    $learner = $this->travelTo(now()->subMinute(), fn () => deletedLearner(881_006));
 
     restoreAuth($learner)->assertOk()->assertJsonPath('account_restored', ['pro_can_resume' => false]);
 
@@ -132,7 +132,7 @@ it('POST /auth revives the learner and carries account_restored; seen then /auth
 });
 
 it('POST /auth tells whether the Pro auto-renewal can be switched on again', function (): void {
-    $learner = deletedLearner(881_007);
+    $learner = $this->travelTo(now()->subMinute(), fn () => deletedLearner(881_007));
     Subscription::factory()->create(['subscriber_id' => $learner->id, 'status' => 'canceled', 'provider' => 'telegram_stars']);
 
     restoreAuth($learner)->assertOk()->assertJsonPath('account_restored.pro_can_resume', true);
@@ -158,6 +158,7 @@ it('POST /auth spends no extra query on the notice while there is none', functio
     DB::flushQueryLog();
 
     $pending = deletedLearner(881_022);
+    $pending->forceFill(['deleted_at' => now()->subMinute()])->save();
     restoreAuth($pending)->assertOk()->assertJsonPath('account_restored.pro_can_resume', false);
     restoreAuth($pending)->assertOk();
     DB::flushQueryLog();

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useDialogFocus } from '@/composables/useDialogFocus'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -80,7 +81,6 @@ const today = useTodayStore()
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
 const purchaseError = ref<InstanceType<typeof InlineAlert> | null>(null)
-let opener: HTMLElement | null = null
 
 const dueCount = computed(() => today.data?.due_count ?? 0)
 
@@ -280,24 +280,17 @@ watch(
   },
 )
 
-function onKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Escape') emit('close')
-}
+useDialogFocus(sheet, () => emit('close'))
 
 onMounted(() => {
   void billing.load().then(() => {
     if (billing.paywall?.mode === 'purchase') void billing.loadCatalog()
   })
-  opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-  document.addEventListener('keydown', onKeydown)
-  void nextTick(() => sheet.value?.focus())
 })
 
 onBeforeUnmount(() => {
   // Closing the sheet stops the wait; a payment already made still arrives through the webhook.
   billing.resetPurchase()
-  document.removeEventListener('keydown', onKeydown)
-  opener?.focus()
 })
 </script>
 

@@ -21,7 +21,7 @@ beforeEach(function (): void {
     Config::set('telegram.bot_token', 'test-bot-token-1234567890');
 });
 
-function signedInitData(int $telegramUserId, string $firstName = 'Alex', ?string $username = null, string $languageCode = 'ru'): string
+function signedInitData(int $telegramUserId, string $firstName = 'Alex', ?string $username = null, string $languageCode = 'ru', ?int $authDate = null): string
 {
     return InitDataValidator::sign('test-bot-token-1234567890', [
         'query_id' => 'AAHdF6IQAAAAAN0XohDhrOrc',
@@ -31,7 +31,7 @@ function signedInitData(int $telegramUserId, string $firstName = 'Alex', ?string
             'username' => $username,
             'language_code' => $languageCode,
         ])),
-        'auth_date' => (string) time(),
+        'auth_date' => (string) ($authDate ?? time()),
     ]);
 }
 
@@ -146,7 +146,7 @@ it('does not overwrite the acquisition source of an existing learner', function 
 
 it('revives a soft-deleted learner instead of violating the unique telegram_user_id', function (): void {
     $learner = Learner::factory()->create(['telegram_user_id' => 555]);
-    $learner->delete();
+    $this->travelTo(now()->subMinute(), fn () => $learner->delete());
 
     $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])
         ->assertOk()
@@ -158,12 +158,25 @@ it('revives a soft-deleted learner instead of violating the unique telegram_user
 it('bumps last_seen_at of a soft-deleted learner only through its own /auth', function (): void {
     $old = now()->subDays(20)->startOfSecond();
     $learner = Learner::factory()->create(['telegram_user_id' => 555, 'last_seen_at' => $old]);
-    $learner->delete();
+    $this->travelTo(now()->subMinute(), fn () => $learner->delete());
 
     $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])->assertOk();
 
     expect($learner->fresh()->trashed())->toBeFalse()
         ->and($learner->fresh()->last_seen_at?->isToday())->toBeTrue();
+});
+
+it('does not restore a deleted account when an already open Mini App refreshes its token', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 555]);
+    $initData = signedInitData(555, authDate: time() - 10);
+    $this->postJson('/api/twa/auth', ['init_data' => $initData])->assertOk();
+
+    $learner->delete();
+    $this->postJson('/api/twa/auth', ['init_data' => $initData])
+        ->assertUnauthorized()
+        ->assertJsonPath('error.code', 'learner_not_found');
+
+    expect($learner->fresh()->trashed())->toBeTrue();
 });
 
 it('records the group of the session context in twa.authenticated only for an active member', function (): void {

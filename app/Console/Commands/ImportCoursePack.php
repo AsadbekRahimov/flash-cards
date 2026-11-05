@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Domain\Content\DTO\CoursePackReport;
 use App\Domain\Content\Services\CoursePackImporter;
+use App\Support\LocalPath;
 use Illuminate\Console\Command;
 
 /**
@@ -27,7 +28,7 @@ final class ImportCoursePack extends Command
     public function handle(CoursePackImporter $importer): int
     {
         $path = (string) $this->argument('dir');
-        $dir = str_starts_with($path, '/') ? $path : base_path($path);
+        $dir = LocalPath::fromProject($path);
 
         if ($path === '' || ! is_dir($dir)) {
             $this->error("Directory not found: {$path}");

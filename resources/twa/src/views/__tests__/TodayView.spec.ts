@@ -280,6 +280,16 @@ describe('TodayView', () => {
       expect(text(w, 'review-btn')).toBe('Начать занятие')
     })
 
+    it('makes choosing a course the primary action when there is nothing to review or resume', async () => {
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      const choose = w.get('[data-testid=start-choose-course]')
+      expect(choose.text()).toBe('Выбрать курс')
+      expect(choose.attributes('href')).toBe('/courses')
+      expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+      expect(api.training.open).not.toHaveBeenCalled()
+    })
+
     it('shows the paywall entry only to a Free learner, as a tertiary button with its reason', async () => {
       const w = await render(today({ new_words_remaining: 12 }))
       expect(w.get('[data-testid=paywall-open]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
@@ -425,6 +435,17 @@ describe('TodayView', () => {
 
     describe('"Pro ended" (2A.6)', () => {
       beforeEach(() => window.localStorage.clear())
+
+      it('uses the Today payload for the lapse banner without a profile request', async () => {
+        const initial = today()
+        const w = await render(today({ entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
+
+        expect(text(w, 'lapsed-title')).toBe('Pro закончился')
+        expect(api.me.get).not.toHaveBeenCalled()
+
+        await render(today({ entitlement: { ...initial.entitlement, lapsed: null } }))
+        expect(api.me.get).not.toHaveBeenCalled()
+      })
 
       it('offers renewal to a Free learner whose Pro lapsed and leads to the subscription screen', async () => {
         vi.mocked(api.me.get).mockResolvedValue(lapsedMe(true))

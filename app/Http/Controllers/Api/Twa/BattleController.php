@@ -107,7 +107,7 @@ final class BattleController
         $learner = $this->learner($request);
 
         try {
-            $poll = $this->reader->poll($this->reader->find($learner, $battle), $learner, CarbonImmutable::now());
+            $poll = $this->reader->pollFor($learner, $battle, CarbonImmutable::now());
         } catch (BattleException|PracticeException $e) {
             return $this->error($e);
         }

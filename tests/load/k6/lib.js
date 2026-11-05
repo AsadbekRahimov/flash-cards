@@ -65,6 +65,16 @@ export function get(path, token, name) {
   return track(http.get(`${BASE_URL}${path}`, { headers: authHeaders(token), tags: { endpoint: name, name } }));
 }
 
+/** Parallel GETs from one screen, with the same tags and error counters as get(). */
+export function getBatch(requests, token) {
+  const headers = authHeaders(token);
+  return http.batch(requests.map(([path, name]) => ({
+    method: 'GET',
+    url: `${BASE_URL}${path}`,
+    params: { headers, tags: { endpoint: name, name } },
+  }))).map(track);
+}
+
 export function post(path, body, token, name) {
   return track(
     http.post(`${BASE_URL}${path}`, JSON.stringify(body), { headers: authHeaders(token), tags: { endpoint: name, name } }),

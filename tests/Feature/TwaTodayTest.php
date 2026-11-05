@@ -96,7 +96,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null],
         'active_course' => null,
         'open_session_id' => null,
-        'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null],
+        'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null, 'lapsed' => null],
         'onboarding_completed' => false,
         'league' => null,
         'timezone' => $learner->timezone,
@@ -119,6 +119,21 @@ it('reports onboarding_completed and the Pro entitlement with its end', function
         ->assertJsonPath('onboarding_completed', true)
         ->assertJsonPath('entitlement.plan', 'pro')
         ->assertJsonPath('entitlement.until', $until->toIso8601String());
+});
+
+it('includes the recent lapse of a personal subscription in Today', function (): void {
+    $learner = Learner::factory()->onboarded()->create();
+    $ended = now()->subDay()->startOfSecond();
+    Subscription::factory()->expired()->create([
+        'subscriber_id' => $learner->id,
+        'provider' => 'telegram_stars',
+        'ended_at' => $ended,
+    ]);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('entitlement.lapsed', [
+        'provider' => 'telegram_stars',
+        'ended_at' => $ended->toIso8601String(),
+    ]);
 });
 
 // --- goal and streak through the real grading path ---------------------------------------

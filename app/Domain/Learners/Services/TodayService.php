@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\LearnerBillingService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
@@ -51,6 +52,7 @@ final class TodayService
         private readonly LeagueService $leagues,
         private readonly DeckTitles $deckTitles,
         private readonly DailyCaravanService $caravan,
+        private readonly LearnerBillingService $billing,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -84,6 +86,7 @@ final class TodayService
             activeCourse: $this->activeCourse($learner),
             openSessionId: $this->openDailySessionId($learner, $now),
             entitlement: $entitlement,
+            lapsed: $this->billing->lapsed($learner, $entitlement, $now),
             onboardingCompleted: $learner->onboarding_state === 'done',
             // The zone the clock really counted the day in (an unknown stored value falls back there): the TWA dates its header by it.
             timezone: $this->clock->timezone($learner)->getName(),

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import AppIcon from './AppIcon.vue'
+import { useDialogFocus } from '@/composables/useDialogFocus'
 import { useI18n } from '@/i18n'
 
 /**
@@ -12,7 +13,7 @@ import { useI18n } from '@/i18n'
  * - `dismissible` — a tap on the dimmed page, the Escape key and the ✕ close it (`close`); default `true`. Switch it off
  *   for a question that must be answered with one of its buttons.
  *
- * a11y (minimal, like the paywall): the focus moves into the dialog on open and returns to the opener on close.
+ * Focus stays in the dialog while open and returns to the opener on close.
  * `data-testid`, `class` and other attributes go to the dialog (`<section role="dialog">`), not to the dimmed page.
  *
  * @example
@@ -28,26 +29,12 @@ const emit = defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
 const dialog = ref<HTMLElement | null>(null)
-let opener: HTMLElement | null = null
 
 function dismiss(): void {
   if (props.dismissible) emit('close')
 }
 
-function onKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Escape') dismiss()
-}
-
-onMounted(() => {
-  opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-  document.addEventListener('keydown', onKeydown)
-  void nextTick(() => dialog.value?.focus())
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onKeydown)
-  opener?.focus()
-})
+useDialogFocus(dialog, dismiss)
 </script>
 
 <template>
