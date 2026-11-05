@@ -32,6 +32,15 @@ it('caches the Filament components in the entrypoint, in production only and aft
 
     // Outside the production block nothing runs filament:optimize (the cache would hide new resources in development).
     expect(substr_count($entrypoint, 'filament:optimize'))->toBe(1);
+
+    // The api surface (the app-api container) registers no Filament: both Blade-related caches are skipped there, inside
+    // the production block, and nothing else of the block is.
+    expect(preg_match('/if \[ "\$SURFACE" != "api" \]; then(.*?)\n\s*fi\n/s', $block[1], $apiSkipped))->toBe(1);
+    expect($apiSkipped[1])->toContain('php artisan view:cache --no-interaction')
+        ->and($apiSkipped[1])->toContain('php artisan filament:optimize --no-interaction')
+        ->and($apiSkipped[1])->not->toContain('config:cache')
+        ->and($apiSkipped[1])->not->toContain('route:cache')
+        ->and($apiSkipped[1])->not->toContain('event:cache');
 });
 
 it('clears the Filament cache with the development cache target', function (): void {

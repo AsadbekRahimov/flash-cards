@@ -22,9 +22,9 @@ if [ "${APP_ENV:-production}" = "production" ]; then
     if [ "$SURFACE" != "api" ]; then
         # Not on the api surface: Blade resolves `<x-filament::...>` tags to classes when it COMPILES a template, so
         # resources/views/filament/** cannot be compiled where Filament is not registered - and the api surface renders no
-        # Blade of its own (JSON; the framework's error pages compile on first use). `filament:optimize` is a command of
-        # Filament: cached panel components and Blade icons (docs/20 §1.12). Production only - in development the cache
-        # would hide new resources/widgets; `make cache-clear` drops it.
+        # Blade of its own (JSON; the framework's error pages compile on first use). The Filament optimize command is
+        # Filament's own: cached panel components and Blade icons (docs/20 §1.12). Production only - in development the
+        # cache would hide new resources/widgets; `make cache-clear` drops it.
         php artisan view:cache --no-interaction
         php artisan filament:optimize --no-interaction
     fi
