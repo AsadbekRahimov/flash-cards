@@ -38,8 +38,8 @@
 # component; `redis` (queues, sessions, locks) stays `service_healthy`.
 x-lru-env: &lru-env
     # The surface of the process (App\Support\Surface): every service of the image is `full` unless its own `environment:`
-    # says otherwise (only `app-api` does). Set here, above `env_file`, so an APP_SURFACE line in .env can never turn the
-    # panels, the webhooks, the queue workers or the scheduler into api-only processes.
+    # says otherwise (only `app-api` does). `environment:` always wins over `env_file`, so an APP_SURFACE line in .env can
+    # never turn the panels, the webhooks, the queue workers or the scheduler into api-only processes.
     APP_SURFACE: full
     REDIS_LRU_HOST: redis-cache
     REDIS_LRU_PORT: "6379"
@@ -108,6 +108,9 @@ services:
         environment:
             <<: *lru-env
             APP_SURFACE: api
+            # Livewire is not registered here: Sentry's Livewire breadcrumbs and tracing would hook an auto-built manager.
+            SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
+            SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
             # Learner traffic is most of the requests: 12 of the 18 workers of a 4 vCPU host (2-4 per core all in all,
             # docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»). Override with PHP_FPM_API_* in .env; pm.max_requests is PHP_FPM_MAX_REQUESTS.
             PHP_FPM_MAX_CHILDREN: ${PHP_FPM_API_MAX_CHILDREN:-12}

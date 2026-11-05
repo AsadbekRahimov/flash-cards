@@ -204,24 +204,32 @@ $COMPOSE up -d --remove-orphans
 echo "==> Verifying the application containers"
 $COMPOSE exec -T app php artisan about --only=environment
 # The api container (APP_SURFACE=api, docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения») must carry no panel routes and
-# must have the TWA ones: a wrong APP_SURFACE would silently serve the full application to the learners.
-API_ROUTES="$($COMPOSE exec -T app-api php artisan route:list --json)"
-case "$API_ROUTES" in
-    *'"api/twa/me"'*) ;;
-    *) echo "ERROR: app-api has no route api/twa/me; its route list: ${API_ROUTES}" >&2; exit 1 ;;
-esac
-case "$API_ROUTES" in
-    *'"filament.'*|*'"admin"'*|*'"admin/'*) echo "ERROR: app-api serves panel routes - APP_SURFACE of the app-api service is not 'api'" >&2; exit 1 ;;
-esac
+# must have the TWA ones: a wrong APP_SURFACE would silently serve the full application to the learners. The JSON is read by
+# docker/check-api-surface.php (plain PHP): `route:list --json` escapes slashes, a shell pattern on the text is not reliable.
+$COMPOSE exec -T app-api sh -c 'php artisan route:list --json | php docker/check-api-surface.php'
 
 # Informational: the PostgreSQL settings the server really runs with (docker-compose.prod.yml, PG_* in .env). Never fails the deploy.
 echo "==> PostgreSQL settings in effect"
 $COMPOSE exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' <<'SQL' \
     || echo "WARNING: could not read the PostgreSQL settings (informational only)" >&2
-SELECT name || '=' || setting || coalesce(unit, '') FROM pg_settings
+SELECT name || '=' || current_setting(name) FROM pg_settings
 WHERE name IN ('shared_buffers', 'effective_cache_size', 'work_mem', 'jit', 'random_page_cost', 'max_wal_size', 'synchronous_commit')
 ORDER BY name;
 SQL
+# shared_buffers above ~30 % of the host's RAM means the PG_* defaults (sized for 8 GB, docs/DEVOPS_GUIDE.md §0 «PostgreSQL:
+# настройки под сервер») were left on a smaller server: two Redis and the php-fpm pools live here too. A warning, not a stop.
+SHARED_BUFFERS_BYTES="$($COMPOSE exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' <<'SQL' 2>/dev/null | tr -d '[:space:]' || true
+SELECT pg_size_bytes(current_setting('shared_buffers'));
+SQL
+)"
+MEM_TOTAL_KB="$(awk '/^MemTotal:/ { print $2 }' /proc/meminfo 2>/dev/null || true)"
+case "$SHARED_BUFFERS_BYTES$MEM_TOTAL_KB" in
+    *[!0-9]*|'') ;;
+    *)
+        if [ "$SHARED_BUFFERS_BYTES" -gt $((MEM_TOTAL_KB * 1024 * 3 / 10)) ]; then
+            echo "WARNING: shared_buffers is $((SHARED_BUFFERS_BYTES / 1024 / 1024)) MB on a host with $((MEM_TOTAL_KB / 1024)) MB of RAM (> 30 %): set PG_SHARED_BUFFERS / PG_EFFECTIVE_CACHE_SIZE in .env for this server size (docs/DEVOPS_GUIDE.md §0)" >&2
+        fi ;;
+esac
 
 DOMAIN="$($COMPOSE run --rm --no-deps --entrypoint sh certbot -c 'printf "%s" "$APP_DOMAIN"')"
 BASE="https://${DOMAIN}"

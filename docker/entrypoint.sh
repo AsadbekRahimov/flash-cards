@@ -12,7 +12,9 @@ mkdir -p \
 # APP_SURFACE (App\Support\Surface): `full` (default, the Dockerfile ENV) or `api` - the `app-api` container, which serves
 # /api/* only and registers no Filament. The caches below are built in THIS container with its surface, so the api container
 # gets api-only route and provider caches; bootstrap/cache is not a volume, nothing is shared between the two.
-SURFACE="${APP_SURFACE:-full}"
+# Normalised the way Surface::current() reads it (trimmed, lower case), so `API` means the same here and in PHP.
+SURFACE="$(printf '%s' "${APP_SURFACE:-full}" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+SURFACE="${SURFACE:-full}"
 
 if [ "${APP_ENV:-production}" = "production" ]; then
     php artisan config:cache --no-interaction
