@@ -12,6 +12,7 @@
         "firebase/php-jwt": "^7.2",
         "irazasyed/telegram-bot-sdk": "^3.16",
         "laravel/framework": "^13.39",
+        "laravel/octane": "^2.23",
         "laravel/tinker": "^3.0",
         "owen-it/laravel-auditing": "^14.0.6",
         "pragmarx/google2fa-laravel": "^3.0.1",
