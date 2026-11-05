@@ -1,4 +1,4 @@
-.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-test load-test-webhook zap-baseline
+.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-test load-test-webhook zap-baseline
 
 DC      ?= docker compose
 APP     ?= $(DC) exec app
@@ -55,8 +55,17 @@ pg-upgrade: ## Move dev PostgreSQL data from the 16 volume into the 18+ layout (
 # -----------------------------------------------------------------------------
 PROD_DC ?= docker compose -f docker-compose.prod.yml --env-file .env
 
-prod-build: ## Build production app and nginx images
-	$(PROD_DC) build --pull app nginx
+prod-build: ## Build production app, app-api (stage of APP_SERVER: fpm|octane, see .env) and nginx images
+	$(PROD_DC) build --pull app app-api nginx
+
+prod-build-octane: ## Build the Octane (FrankenPHP) image of app-api regardless of .env
+	APP_SERVER=octane $(PROD_DC) build --pull app-api
+
+prod-logs-api: ## Follow the logs of the app-api container
+	$(PROD_DC) logs -f --tail=100 app-api
+
+prod-shell-api: ## Shell in the app-api container
+	$(PROD_DC) exec app-api sh
 
 prod-up: ## Start production stack
 	$(PROD_DC) up -d

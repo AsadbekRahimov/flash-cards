@@ -90,9 +90,19 @@ services:
     # packages of the admin UI (Filament, Livewire, Blade icons, ...) are not registered, so a learner's request pays for
     # none of them and this process carries none of that code. nginx routes `/api/` here. Its caches (config, routes,
     # events) are built at start by the entrypoint with this surface; `view:cache` and `filament:optimize` are skipped.
-    # The next step for this container is Octane (FrankenPHP): a different `command:`, nothing else changes.
+    # The server inside is chosen by APP_SERVER in .env (docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): `fpm` (default
+    # and when unset) - the stage `app-fpm`, the very image of `app`, php-fpm on :9000; `octane` - the stage `app-octane`,
+    # Laravel Octane on FrankenPHP on :8000 (docs/21_OCTANE_READINESS.md). nginx follows the same variable. Switching back
+    # is `APP_SERVER=fpm` + `up -d app-api nginx`: deploy.sh always builds the fpm image, so no build is needed.
     app-api:
-        image: lexiflow/app:${IMAGE_TAG:-latest}
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: app-${APP_SERVER:-fpm}
+            args:
+                UID: ${UID:-1000}
+                GID: ${GID:-1000}
+        image: lexiflow/app-${APP_SERVER:-fpm}:${IMAGE_TAG:-latest}
         container_name: lexiflow-app-api
         restart: unless-stopped
         depends_on:
@@ -117,6 +127,18 @@ services:
             PHP_FPM_START_SERVERS: ${PHP_FPM_API_START_SERVERS:-3}
             PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_API_MIN_SPARE_SERVERS:-2}
             PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_API_MAX_SPARE_SERVERS:-4}
+            # Octane mode only (ignored by php-fpm): 6 workers on 4 vCPU, a worker restarts after OCTANE_MAX_REQUESTS requests.
+            OCTANE_WORKERS: ${OCTANE_WORKERS:-6}
+            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
+            # Always behind nginx with TLS, whatever the mode: the scheme of the application is https (config/octane.php reads
+            # it under Octane only, so under php-fpm the line is harmless).
+            OCTANE_HTTPS: "true"
+            # Proxies whose X-Forwarded-* the application believes (config/trustedproxy.php): EMPTY by default (php-fpm sees the
+            # real client in REMOTE_ADDR). For Octane set the compose subnet (COMPOSE_SUBNET below), never `*`: per-IP limits and
+            # the webhook allowlists read the client address from it. docs/07_SECURITY.md «Доверенные прокси».
+            TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+        # Octane finishes the requests in flight on SIGTERM.
+        stop_grace_period: 30s
         volumes:
             # The same storage volume as `app`: logs, the file markers of the cache circuit breaker, compiled Blade (the api
             # surface compiles only the framework's error pages, on first use - identical sources give identical files).
@@ -221,14 +243,18 @@ services:
             - "443:443"
         environment:
             APP_DOMAIN: ${APP_DOMAIN}
+            # Picks the /api/ snippet (docker/nginx/snippets/api-fpm.conf | api-octane.conf), the same variable as app-api.
+            APP_SERVER: ${APP_SERVER:-fpm}
         volumes:
             - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
+            # Included by prod.conf as they are (not rendered): the way to app-api for each APP_SERVER mode.
+            - ./docker/nginx/snippets:/etc/nginx/snippets:ro
             # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) is served straight from its own volume;
             # the rest of storage (logs, sessions, private files) is deliberately NOT visible to nginx.
             - app_audio:/var/www/html/storage/app/public/audio:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
-        # The image entrypoint substitutes only APP_DOMAIN and periodically reloads renewed certificates.
+        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER and periodically reloads renewed certificates.
 
     certbot:
         image: certbot/certbot:latest
@@ -425,6 +451,15 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+
+# The compose network gets a fixed subnet: in Octane mode the application trusts the X-Forwarded-* of nginx, whose address is
+# in it (TRUSTED_PROXIES=<this subnet>). Docker would otherwise pick one on its own at every `down`/`up`. If it overlaps a
+# network of the host, change COMPOSE_SUBNET in .env (and TRUSTED_PROXIES with it), then `down` and `up -d`.
+networks:
+    default:
+        ipam:
+            config:
+                - subnet: ${COMPOSE_SUBNET:-172.28.0.0/16}
 
 volumes:
     postgresql:

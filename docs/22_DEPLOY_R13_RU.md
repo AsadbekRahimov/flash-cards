@@ -2,7 +2,7 @@
 
 Пошаговая инструкция к ветке R13 (`PROGRESS.md`, строка R13). Что изменилось в стеке: контейнер `app-api` только для `/api/*`
 без Filament (`docs/DEVOPS_GUIDE.md` §0 «Две поверхности приложения»), PostgreSQL прода с настройками под сервер
-(§0 «PostgreSQL: настройки под сервер»), поле `surface` в `/health/ready`. Octane в этом релизе **нет** — это шаг 2 (§7).
+(§0 «PostgreSQL: настройки под сервер»), поле `surface` в `/health/ready`. Octane — шаг 2, включается отдельно (§7).
 
 ## 1. Что нужно до деплоя
 
@@ -147,25 +147,30 @@ make load-test BASE_URL=https://<домен> TARGET_VUS=300 HOLD=5m
 - Sentry: ошибки на `app-api` с упоминанием Filament/Livewire — код, достижимый из TWA, трогает панели (не должно быть; тест
   `SurfaceTest` и ревью такого не нашли).
 
-## 7. Шаг 2 — Octane для `app-api` (решение владельца)
+## 7. Шаг 2 — Octane для `app-api`: как включить
 
-Проект и аудит — `docs/21_OCTANE_READINESS.md`; ожидание — ещё ×1,5–2 к ёмкости `app-api` (CPU PHP на запрос ~11–14 мс вместо
-~17–20 после R13), дальше упираемся в PostgreSQL и Redis на той же машине.
+Реализовано (проект — `docs/21_OCTANE_READINESS.md`, режимы — `docs/DEVOPS_GUIDE.md` §0 «Режим контейнера `app-api`»).
+`laravel/octane` уже в `composer.json`/`composer.lock`, ставить ничего не нужно. Ожидание — ещё ×1,5–2 к ёмкости `app-api`
+(CPU PHP на запрос ~11–14 мс вместо ~17–20 после R13), дальше упираемся в PostgreSQL и Redis на той же машине.
+По умолчанию (`APP_SERVER` не задан) ничего не меняется: php-fpm, те же образы.
 
-Нужна новая зависимость `laravel/octane` — по правилам проекта только с согласия владельца, и `composer.lock` обновляется
-там, где есть composer и сеть (на сервере сборки это не делается). Порядок:
+**Сначала замер в php-fpm** (раздел 5), чтобы было с чем сравнивать. Затем:
 
-```bash
-# на машине разработчика, в ветке claude/twa-capacity-r13 или новой от master
-composer require laravel/octane --with-all-dependencies
-php artisan octane:install --server=frankenphp     # бинарник frankenphp, если скачался в корень, НЕ коммитить
-git add composer.json composer.lock config/octane.php
-git commit -m "Add laravel/octane (FrankenPHP) for the app-api container"
-git push
-```
-
-После этого выполняется `docs/21` §4: `config/trustedproxy.php` + `TRUSTED_PROXIES`, слушатели
-`ShareRequestMemosWithSandbox` и `RollBackLeakedTransactions`, `permission.register_octane_reset_listener`, стадия образа
-`app-octane` (`dunglas/frankenphp:1-php8.5-alpine`), `docker/octane-start.sh`, `docker/healthcheck.sh`, сниппет nginx
-`proxy_pass http://app-api:8000`, `APP_SERVER=octane` для `app-api`, тесты изоляции воркера, и затем §5 этой инструкции заново
-в обоих режимах на одном наборе данных. Откат — `APP_SERVER=fpm` и `docker compose up -d app-api nginx`, без сборки.
+1. `.env` на сервере:
+   ```
+   APP_SERVER=octane
+   TRUSTED_PROXIES=172.28.0.0/16     # = COMPOSE_SUBNET; если эта подсеть занята на хосте — задайте COMPOSE_SUBNET и тут то же
+   # необязательно: OCTANE_WORKERS=6 (4 vCPU), OCTANE_MAX_REQUESTS=500
+   ```
+   `TRUSTED_PROXIES=*` нельзя (docs/07 §6).
+2. `bash deploy.sh <sha>`. Он соберёт `app-octane` (первая сборка дольше: другой базовый образ, расширения собираются заново),
+   пересоздаст `app-api` и nginx. При первом деплое с закреплённой подсетью compose пересоздаёт сеть — все контейнеры
+   перезапустятся (короткий простой, лучше в тихое время).
+3. Проверки: в выводе деплоя `Octane server is running.`, smoke `POST /api/twa/auth` → 401/422 (не 429), `/api/twa/me` → 401;
+   `docker stats lexiflow-app-api` (память стоит, 6 воркеров ≈ 0,3–0,55 ГБ + Caddy), `make prod-logs-api` без ошибок;
+   в TWA: тренировка, аудио практики и игры (потоковые ответы), оплата. `https://<домен>/admin/login` — assets по `https://`.
+4. k6 в обоих режимах на одном стенде и одном наборе `perf:seed` (раздел 5, `make load-test`): CPU на запрос, p95 по
+   эндпоинтам; числа — в `docs/19` §8. Расхождение с ожиданием больше 1,3 раза — повод вернуться к `docs/21` §3.1/§3.4.
+5. **Откат:** в `.env` `APP_SERVER=fpm` (или удалить строку), затем
+   `docker compose -f docker-compose.prod.yml --env-file .env up -d app-api nginx`. Сборки не нужно: образ `app-fpm` собирается
+   при каждом деплое. `TRUSTED_PROXIES` можно оставить.

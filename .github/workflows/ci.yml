@@ -193,6 +193,7 @@ jobs:
             - name: Build production Docker targets
               run: |
                   docker build --target app --tag lexiflow/app:ci .
+                  docker build --target app-octane --tag lexiflow/app-octane:ci .
                   docker build --target nginx --tag lexiflow/nginx:ci .
                   docker build --target pgbouncer --tag lexiflow/pgbouncer:ci .
 

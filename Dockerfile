@@ -123,6 +123,85 @@ CMD ["php-fpm"]
 HEALTHCHECK --interval=10s --timeout=5s --retries=6 \
     CMD php-fpm -t || exit 1
 
+# The `app-api` container in php-fpm mode (APP_SERVER=fpm, the default): the very image of `app`, an alias stage with no layers
+# of its own. It exists so that compose can name the stage after the mode (`target: app-${APP_SERVER:-fpm}`,
+# `image: lexiflow/app-${APP_SERVER:-fpm}`); deploy.sh builds it always, so going back from Octane needs no build.
+FROM app AS app-fpm
+
+# The `app-api` container in Octane mode (APP_SERVER=octane; docs/21_OCTANE_READINESS.md §3.2, docs/DEVOPS_GUIDE.md §0): the
+# same application on FrankenPHP (worker mode), api surface only - this image never serves the panels. The PHP extensions are
+# built the way the `app` stage builds them (keep both in step); the code and vendor/ come from `app` (composer runs once).
+# FrankenPHP's PHP is ZTS, hence its own build of the extensions; PHP 8.5 in both images.
+FROM dunglas/frankenphp:1-php8.5-alpine AS app-octane
+
+ARG UID=1000
+ARG PHPREDIS_VERSION=6.3.0
+ARG GID=1000
+
+RUN apk add --no-cache \
+        bash curl icu-dev libzip-dev postgresql-dev postgresql18-client \
+        freetype-dev libpng-dev \
+        linux-headers autoconf g++ make \
+    && docker-php-ext-configure gd --with-freetype \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_pgsql bcmath intl pcntl zip gd \
+    # PECL occasionally answers "No releases available": retry before failing the build.
+    && for attempt in 1 2 3 4; do pecl install -f redis-${PHPREDIS_VERSION} && break; [ "$attempt" = 4 ] && exit 1; sleep $((attempt * 15)); done \
+    && docker-php-ext-enable redis \
+    && apk del autoconf g++ make linux-headers \
+    && rm -rf /tmp/* /var/cache/apk/*
+
+RUN set -eu; \
+    for ext in pdo_pgsql bcmath intl mbstring pcntl zip gd redis 'Zend OPcache'; do \
+        php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }; \
+    done; \
+    test -x "$(command -v frankenphp)" || { echo "frankenphp binary not found" >&2; exit 1; }
+RUN pg_dump --version | grep -q ' 18\.' || { echo "pg_dump must be 18.x, got: $(pg_dump --version)" >&2; exit 1; }
+RUN set -eu; \
+    libpq="$(php -i | sed -nE 's/^PostgreSQL\(libpq\) Version => ([0-9]+).*/\1/p' | head -n 1)"; \
+    [ "${libpq:-0}" -ge 17 ] || { echo "pdo_pgsql must be built against libpq >= 17 (pgbouncer closes prepared statements by protocol), got libpq '${libpq:-?}'" >&2; exit 1; }
+
+COPY docker/php/zz-lexiflow.ini /usr/local/etc/php/conf.d/zz-lexiflow.ini
+COPY docker/php/opcache-prod.ini /usr/local/etc/php/conf.d/zz-opcache-prod.ini
+RUN set -eu; \
+    info="$(php -i)"; \
+    for setting in 'opcache.enable => On' 'opcache.validate_timestamps => Off' 'opcache.save_comments => On'; do \
+        printf '%s\n' "$info" | grep -q "^$setting" || { echo "OPcache setting not applied: $setting" >&2; exit 1; }; \
+    done
+
+# This image is the api surface alone (no php-fpm, no pool file). Read from the process environment at bootstrap, like in `app`.
+ENV APP_SURFACE=api
+
+RUN addgroup -g "${GID}" app \
+    && adduser -D -u "${UID}" -G app -s /bin/bash app
+
+# Caddy inside FrankenPHP writes its autosaved config and data under XDG_*; the image default (/config, /data) belongs to root.
+ENV HOME=/home/app \
+    XDG_CONFIG_HOME=/home/app/.config \
+    XDG_DATA_HOME=/home/app/.local/share
+RUN mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" && chown -R app:app /home/app
+
+WORKDIR /var/www/html
+
+COPY --from=app --chown=app:app /var/www/html /var/www/html
+
+USER app
+
+# Octane writes public/frankenphp-worker.php at start when it is missing (the stub that requires vendor/laravel/octane's
+# worker); laid down here, the start does not depend on a writable code tree. It is not tracked by git and nginx never serves it.
+RUN cp vendor/laravel/octane/src/Commands/stubs/frankenphp-worker.php public/frankenphp-worker.php \
+    && chmod +x docker/entrypoint.sh docker/octane-start.sh
+
+ENTRYPOINT ["docker/entrypoint.sh"]
+CMD ["docker/octane-start.sh"]
+
+# Behind nginx only: TLS and compression are nginx's, the port is not published.
+EXPOSE 8000
+
+# /up answers from a live worker, not only from a live process.
+HEALTHCHECK --interval=10s --timeout=5s --retries=6 \
+    CMD curl -fsS http://127.0.0.1:8000/up >/dev/null || exit 1
+
 # pgbouncer in front of PostgreSQL (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»):
 # the same publisher as the other images (Alpine), the package of the distribution. postgresql18-client: pg_isready for the
 # healthcheck and psql for the console (SHOW POOLS). Configuration is generated at start from the environment.

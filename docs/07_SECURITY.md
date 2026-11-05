@@ -225,6 +225,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | `POST /billing/webhook/*` (Payme, Click) | 120/min per IP (`throttle:billing-webhook`) + allowlist IP по желанию | Провайдер повторяет вызов при не-200; тело ≤ 64 КБ |
 | `GET /billing/return` | 30/min per IP (`throttle:billing-return`) | Публичная страница статуса заказа по токену |
 
+**Доверенные прокси (Octane, R13).** Лимиты «per IP» и allowlist вебхуков платёжных провайдеров читают `$request->ip()`. За nginx это адрес клиента только если Laravel верит `X-Forwarded-For` от nginx: `config/trustedproxy.php`, `TRUSTED_PROXIES` — **подсеть compose-сети** (закреплена в `docker-compose.prod.yml`, `COMPOSE_SUBNET`). `*` запрещён: любой, кто достучится до порта приложения, подделал бы свой IP и обошёл лимиты и allowlist. nginx заменяет `X-Forwarded-For` на `$remote_addr`, а не дописывает клиентский. Пустой список (php-fpm, умолчание) — заголовкам не верим, адрес берётся из `REMOTE_ADDR` FastCGI. Неверная настройка: лимиты схлопываются в одно ведро (429 на каждом) или allowlist отдаёт 403 — `deploy.sh` ловит первое smoke-запросом `POST /api/twa/auth`.
+
 Реализация через `Route::middleware('throttle:...')`. `TwaAuth` стоит в списке приоритетов middleware **перед** `ThrottleRequests` (`bootstrap/app.php`), иначе лимитеры не видели бы `learner_id` и считали всех по IP.
 
 ## 7. Секреты и конфигурация

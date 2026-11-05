@@ -56,7 +56,7 @@ fi
 printf 'pid=%s started=%s command=deploy.sh %s\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&9
 
 # The running containers belong to the commit checked out now: docker-compose.prod.yml bind-mounts files of the working
-# tree into them (docker/postgres/entrypoint-guard.sh into postgres, docker/nginx/prod.conf into nginx), and a restart of a
+# tree into them (docker/postgres/entrypoint-guard.sh into postgres, docker/nginx/prod.conf and docker/nginx/snippets into nginx), and a restart of a
 # container re-resolves those mounts. A deploy that stops after its checkout but before it touched the stack - a STOP of
 # one of the checks below, a failed build - would leave a tree the containers do not fit; a rollback to a commit without
 # the guard file would make every restart of postgres 18 fail (the mount source gone, Docker creates a directory there).
@@ -165,8 +165,25 @@ for name in REDIS_PASSWORD REDIS_CACHE_PASSWORD; do
     esac
 done
 
+# The server of the app-api container (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): fpm (the
+# default, also when unset) or octane. Read the way compose reads it (shell environment, then .env); anything else stops here.
+APP_SERVER_MODE="$(redis_password_of APP_SERVER | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+APP_SERVER_MODE="${APP_SERVER_MODE:-fpm}"
+case "$APP_SERVER_MODE" in
+    fpm|octane) ;;
+    *)
+        echo "STOP: APP_SERVER is '${APP_SERVER_MODE}' (shell environment or .env); it must be fpm or octane." >&2
+        exit 1 ;;
+esac
+echo "==> app-api runs on: ${APP_SERVER_MODE}"
+
 echo "==> Building immutable application, nginx and pgbouncer images"
-$COMPOSE build --pull app nginx pgbouncer
+# app-api builds the stage of its mode (target app-${APP_SERVER}); in Octane mode the php-fpm image of the same commit is
+# built too (the same layers as `app`, nothing new to compile): it is the way back, APP_SERVER=fpm needs no build.
+$COMPOSE build --pull app nginx pgbouncer app-api
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    APP_SERVER=fpm $COMPOSE build app-api
+fi
 
 echo "==> Starting database, pgbouncer and both Redis instances"
 STACK_TOUCHED=1
@@ -207,6 +224,11 @@ $COMPOSE exec -T app php artisan about --only=environment
 # must have the TWA ones: a wrong APP_SURFACE would silently serve the full application to the learners. The JSON is read by
 # docker/check-api-surface.php (plain PHP): `route:list --json` escapes slashes, a shell pattern on the text is not reliable.
 $COMPOSE exec -T app-api sh -c 'php artisan route:list --json | php docker/check-api-surface.php'
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    # Octane's own view of the server (its state file): running, or a non-zero exit. The container healthcheck (curl /up) has
+    # already gated nginx, this one names the server in the log.
+    $COMPOSE exec -T app-api php artisan octane:status --server=frankenphp
+fi
 
 # Informational: the PostgreSQL settings the server really runs with (docker-compose.prod.yml, PG_* in .env). Never fails the deploy.
 echo "==> PostgreSQL settings in effect"
@@ -252,6 +274,14 @@ for _ in $(seq 1 10); do
     sleep 2
 done
 [ "$API_CODE" = "401" ] || smoke_fail "${BASE}/api/twa/me answered ${API_CODE:-nothing}, expected 401 from the app-api container"
+# An empty body to the auth endpoint: 422 (no init_data) or 401, never 429 and never a 5xx. A 429 on the very first call means the
+# per-IP limits see one address for everybody - app-api does not trust the X-Forwarded-For of nginx (TRUSTED_PROXIES is not the
+# compose subnet, docs/07_SECURITY.md «Доверенные прокси»), the limiter keys collapse into the nginx container address.
+AUTH_CODE="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data '{}' "${BASE}/api/twa/auth" || true)"
+case "$AUTH_CODE" in
+    401|422) ;;
+    *) smoke_fail "POST ${BASE}/api/twa/auth with an empty body answered ${AUTH_CODE:-nothing}, expected 401 or 422 (429 = the proxy headers are not trusted, check TRUSTED_PROXIES)" ;;
+esac
 
 # /health/ready needs the scheduler and worker heartbeats (written once a minute), so give them time
 # to appear after the containers restart: up to ~5 minutes.

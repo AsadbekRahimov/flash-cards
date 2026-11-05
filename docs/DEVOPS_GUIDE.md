@@ -77,7 +77,29 @@ docker compose -f docker-compose.prod.yml --env-file .env exec app     php artis
 curl -s -o /dev/null -w '%{http_code}\n' https://$APP_DOMAIN/api/twa/me   # 401
 ```
 
-Octane (следующий шаг, не сейчас). Поверхность — свойство процесса, а не запроса; под Octane/FrankenPHP воркер стартует один раз с тем же окружением, так что перевод `app-api` на Octane — другая `command:` сервиса (и `fastcgi_pass` → `proxy_pass` в nginx), без переделки.
+Octane: контейнер `app-api` может работать на FrankenPHP — «Режим контейнера `app-api`» ниже. Поверхность — свойство процесса, а не запроса; под Octane воркер стартует один раз с тем же окружением (`APP_SURFACE=api` из `environment:`/`ENV` образа).
+
+### Режим контейнера `app-api`: `APP_SERVER=fpm|octane`
+
+Одна переменная в `.env` (R13 шаг 2, `docs/21_OCTANE_READINESS.md`); умолчание и отсутствие переменной — `fpm`, всё как до Octane. Режим касается **только** `app-api`: `app` (панели, вебхуки), очереди и планировщик остаются на `lexiflow/app` (php-fpm / CLI).
+
+| | `fpm` (умолчание) | `octane` |
+|---|---|---|
+| Стадия Dockerfile / образ `app-api` | `app-fpm` (алиас `app`, тот же слой) / `lexiflow/app-fpm:<tag>` | `app-octane` (`dunglas/frankenphp:1-php8.5-alpine`, ZTS) / `lexiflow/app-octane:<tag>` |
+| Процесс | php-fpm, пул `PHP_FPM_API_*` | `docker/octane-start.sh` → `php artisan octane:frankenphp`, `OCTANE_WORKERS` (6 на 4 vCPU), `OCTANE_MAX_REQUESTS` (500), `OCTANE_LOG_LEVEL` (WARN) |
+| nginx `/api/` | `docker/nginx/snippets/api-fpm.conf` (`fastcgi_pass app-api:9000`) | `snippets/api-octane.conf` (`proxy_pass http://app-api:8000`, `X-Forwarded-*`) |
+| Healthcheck | `php-fpm -t` | `curl -fsS http://127.0.0.1:8000/up` |
+| `TRUSTED_PROXIES` | пусто | подсеть compose-сети (`COMPOSE_SUBNET`, по умолчанию `172.28.0.0/16`) |
+
+Переключение fpm → octane: в `.env` `APP_SERVER=octane` и `TRUSTED_PROXIES=<COMPOSE_SUBNET>`, затем `bash deploy.sh <sha>` (собирает `app-octane` и, на всякий случай, `app-fpm`). **Откат:** `APP_SERVER=fpm` (или удалить строку) и `docker compose -f docker-compose.prod.yml --env-file .env up -d app-api nginx` — без сборки: `deploy.sh` всегда собирает `app-fpm`; nginx при старте перечитывает сниппет по `APP_SERVER`. `TRUSTED_PROXIES` можно оставить: под fpm `REMOTE_ADDR` вне подсети, заголовки не учитываются.
+
+Воркеры. `OCTANE_WORKERS=6` на 4 vCPU: запрос в основном CPU, но ждёт PostgreSQL/Redis, а рядом живут PostgreSQL, Redis ×2, pgbouncer, nginx и `app`; больше 2 на ядро не нужно. Память — ~50–90 МБ на воркер без Filament (6 воркеров ≈ 0,3–0,55 ГБ + процесс Caddy). `OCTANE_MAX_REQUESTS=500`: воркер пересоздаётся после N запросов — страховка от медленных утечек вендорных пакетов; рестарты видны в логе контейнера. Лимит запроса — `octane.max_execution_time`, `stop_grace_period: 30s` (по SIGTERM Octane дожидается запросов в полёте).
+
+Что смотреть: `docker stats lexiflow-app-api` (RSS растёт не ступенями до рестарта по `max-requests`, а стоит), `docker compose ... logs app-api` (падения воркеров, `WARN`+), `docker compose ... exec app-api php artisan octane:status --server=frankenphp` (его же вызывает `deploy.sh`), `make prod-logs-api`, `make prod-shell-api`.
+
+Доверенные прокси и подсеть. За nginx приложение видит адрес контейнера nginx, а не ученика; настоящий адрес — в `X-Forwarded-For`, который nginx **заменяет** (`$remote_addr`, клиентский заголовок не дописывается). Laravel верит этим заголовкам только от `TRUSTED_PROXIES` (`config/trustedproxy.php`) — подсети compose-сети, закреплённой в `docker-compose.prod.yml` (`networks.default.ipam`, `COMPOSE_SUBNET`). Значение `*` запрещено. Если подсеть пересекается с сетью хоста — поменять `COMPOSE_SUBNET` и `TRUSTED_PROXIES` вместе. При первом деплое с закреплённой подсетью compose пересоздаёт сеть: контейнеры перезапускаются, это короткий простой. Неверная настройка видна сразу: smoke `POST /api/twa/auth` в `deploy.sh` получает 429 (лимиты per IP схлопнулись в одно ведро). `OCTANE_HTTPS=true` задан в compose всегда (схема приложения — https, TLS на nginx).
+
+Сборка. `app-octane` повторяет установку расширений стадии `app` (держать в согласии), код и `vendor/` берёт из `app` (composer один раз); `public/frankenphp-worker.php` кладётся на сборке; Caddyfile — стандартный стаб Octane (его `encode` не срабатывает: nginx шлёт `Accept-Encoding: ""`, сжимает только nginx — BREACH-исключения панелей сохраняются). Порт 8000 наружу не публикуется, Caddy-admin слушает `127.0.0.1:2019` внутри контейнера.
 
 Что ещё НЕ поделено: `storage` — общий volume (логи, маркеры circuit breaker кэша, скомпилированные Blade); `bootstrap/cache` — свой у каждого контейнера (не volume), поэтому кэши маршрутов и провайдеров у них разные, и это правильно.
 
