@@ -48,6 +48,10 @@ x-lru-env: &lru-env
     # facts of this file, so they are set here and not in .env; a bare server would set DB_DIRECT_HOST in .env instead.
     DB_DIRECT_HOST: ${DB_DIRECT_HOST:-postgres}
     DB_DIRECT_PORT: ${DB_DIRECT_PORT:-5432}
+    # Nobody is a trusted proxy by default: `app`, the queue workers and the scheduler read the whole .env (env_file), and
+    # a TRUSTED_PROXIES line there must not make them believe a client's X-Forwarded-For (php-fpm passes the client's
+    # HTTP_X_FORWARDED_* through FastCGI). Only `app-api` in Octane mode trusts the one address of nginx (below).
+    TRUSTED_PROXIES: ""
 
 services:
     app:
@@ -133,10 +137,17 @@ services:
             # Always behind nginx with TLS, whatever the mode: the scheme of the application is https (config/octane.php reads
             # it under Octane only, so under php-fpm the line is harmless).
             OCTANE_HTTPS: "true"
-            # Proxies whose X-Forwarded-* the application believes (config/trustedproxy.php): EMPTY by default (php-fpm sees the
-            # real client in REMOTE_ADDR). For Octane set the compose subnet (COMPOSE_SUBNET below), never `*`: per-IP limits and
-            # the webhook allowlists read the client address from it. docs/07_SECURITY.md «Доверенные прокси».
-            TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+            # Proxies whose X-Forwarded-* the application believes (config/trustedproxy.php): the ONE address of nginx, never a
+            # subnet. Connections that reach nginx through docker-proxy (IPv6 clients on [::]:443, hairpin from the host) come
+            # from the network gateway (172.28.0.1), which is inside the subnet: trusting the subnet would make php-fpm believe
+            # a forged X-Forwarded-For (limits, Telegram/Payme/Click allowlists). Under php-fpm REMOTE_ADDR over FastCGI is never
+            # the address of nginx, so trusting it is harmless there. It is the address `nginx` is pinned to below (NGINX_IPV4);
+            # if you set TRUSTED_PROXIES in .env, it must stay one address (or a short list), never `*` and never a /16.
+            # docs/07_SECURITY.md «Доверенные прокси».
+            TRUSTED_PROXIES: ${TRUSTED_PROXIES:-${NGINX_IPV4:-172.28.0.10}}
+            # php-fpm: the persistent PDO connection per worker (default). Octane: one worker = one connection, and a persistent
+            # PDO gets in the way of disconnect() after a leaked transaction - set APP_API_DB_PERSISTENT=false with APP_SERVER=octane.
+            DB_PERSISTENT: ${APP_API_DB_PERSISTENT:-true}
         # Octane finishes the requests in flight on SIGTERM.
         stop_grace_period: 30s
         volumes:
@@ -241,6 +252,11 @@ services:
         ports:
             - "80:80"
             - "443:443"
+        # A pinned address (outside the ip_range of the network, so Docker never hands it to another container): app-api
+        # trusts X-Forwarded-* from this one address only (TRUSTED_PROXIES). Change together with COMPOSE_SUBNET.
+        networks:
+            default:
+                ipv4_address: ${NGINX_IPV4:-172.28.0.10}
         environment:
             APP_DOMAIN: ${APP_DOMAIN}
             # Picks the /api/ snippet (docker/nginx/snippets/api-fpm.conf | api-octane.conf), the same variable as app-api.
@@ -458,14 +474,18 @@ services:
             timeout: 5s
             retries: 5
 
-# The compose network gets a fixed subnet: in Octane mode the application trusts the X-Forwarded-* of nginx, whose address is
-# in it (TRUSTED_PROXIES=<this subnet>). Docker would otherwise pick one on its own at every `down`/`up`. If it overlaps a
-# network of the host, change COMPOSE_SUBNET in .env (and TRUSTED_PROXIES with it), then `down` and `up -d`.
+# The compose network gets a fixed subnet and a pinned address for nginx: in Octane mode app-api trusts the X-Forwarded-* of
+# that ONE address (TRUSTED_PROXIES, see app-api). Docker would otherwise pick a subnet at every `down`/`up`.
+# `ip_range` is where Docker hands out addresses to containers (172.28.1.0/24); the pinned nginx address (172.28.0.10) and the
+# gateway (172.28.0.1) lie outside it, so they can never collide. If the subnet overlaps a network of the host, change
+# COMPOSE_SUBNET, COMPOSE_IP_RANGE and NGINX_IPV4 together in .env (all three inside one subnet, NGINX_IPV4 outside the range),
+# then `down` and `up -d` (deploy.sh does the `down` itself when it sees the subnet change). Never use a /16 as TRUSTED_PROXIES.
 networks:
     default:
         ipam:
             config:
                 - subnet: ${COMPOSE_SUBNET:-172.28.0.0/16}
+                  ip_range: ${COMPOSE_IP_RANGE:-172.28.1.0/24}
 
 volumes:
     postgresql:

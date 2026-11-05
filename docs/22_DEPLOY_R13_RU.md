@@ -10,7 +10,7 @@
 |---|---|
 | Сервер | эталон — 4 vCPU / 8 ГБ, SSD. Меньше RAM → задать `PG_*` в `.env` (§2), иначе `deploy.sh` напишет `WARNING: shared_buffers … > 30 %` |
 | Docker | Docker Engine + `docker compose` v2, `flock` (util-linux) |
-| Образы | собираются на сервере `deploy.sh` (`lexiflow/app`, `lexiflow/nginx`, `lexiflow/pgbouncer`) |
+| Образы | собираются на сервере `deploy.sh` (`lexiflow/app`, `lexiflow/app-fpm`, `lexiflow/app-octane`, `lexiflow/nginx`, `lexiflow/pgbouncer`) |
 | Порты | 80/443 наружу; 5432/6379/9000/8000 — только внутри compose-сети |
 | CI | `master` зелёный: pint, phpstan level 8, Pest на PG 18 + Redis 8 |
 | Cloudflare | по желанию (CDN для статики Mini App и аудио, WAF): настройка и переменные `CLOUDFLARE_PROXY` / `CLOUDFLARE_ONLY` — `docs/23_CLOUDFLARE_RU.md`. Нагрузочный тест §5 при этом гонять мимо Cloudflare (docs/23 §8) |
@@ -162,18 +162,23 @@ make load-test BASE_URL=https://<домен> TARGET_VUS=300 HOLD=5m
 1. `.env` на сервере:
    ```
    APP_SERVER=octane
-   TRUSTED_PROXIES=172.28.0.0/16     # = COMPOSE_SUBNET; если эта подсеть занята на хосте — задайте COMPOSE_SUBNET и тут то же
+   APP_API_DB_PERSISTENT=false       # Octane: один воркер — одно соединение; при true deploy.sh предупредит
    # необязательно: OCTANE_WORKERS=6 (4 vCPU), OCTANE_MAX_REQUESTS=500
    ```
-   `TRUSTED_PROXIES=*` нельзя (docs/07 §6).
+   `TRUSTED_PROXIES` задавать не нужно: `app-api` по умолчанию доверяет одному адресу nginx (`NGINX_IPV4`, `172.28.0.10`), остальные
+   контейнеры — никому. Подсеть (`172.28.0.0/16`) и `/16` в `TRUSTED_PROXIES` нельзя: соединения через docker-proxy (IPv6, hairpin)
+   приходят с шлюза `172.28.0.1`, он внутри подсети (docs/07 §6). `*` тоже нельзя. Если подсеть занята на хосте — `COMPOSE_SUBNET`,
+   `COMPOSE_IP_RANGE`, `NGINX_IPV4` вместе (`.env.example`).
 2. `bash deploy.sh <sha>`. Он соберёт `app-octane` (первая сборка дольше: другой базовый образ, расширения собираются заново),
-   пересоздаст `app-api` и nginx. При первом деплое с закреплённой подсетью compose пересоздаёт сеть — все контейнеры
-   перезапустятся (короткий простой, лучше в тихое время).
-3. Проверки: в выводе деплоя `Octane server is running.`, smoke `POST /api/twa/auth` → 401/422 (не 429), `/api/twa/me` → 401;
+   пересоздаст `app-api` и nginx. Если подсеть существующей сети не равна `COMPOSE_SUBNET` (первый деплой R13, откат на коммит без `ipam`),
+   `deploy.sh` пишет `compose network subnet changes: stopping the stack` и делает `docker compose down` (без `-v`, тома целы)
+   перед `up` — стек стоит всё время деплоя (лучше в тихое время).
+3. Проверки: в выводе деплоя `Octane server is running.`, `config:show trustedproxy` содержит адрес nginx (проверяет `deploy.sh`, иначе STOP), smoke `POST /api/twa/auth` → 401/422 (429 — только
+   при уже насыщенном лимитере), `/api/twa/me` → 401;
    `docker stats lexiflow-app-api` (память стоит, 6 воркеров ≈ 0,3–0,55 ГБ + Caddy), `make prod-logs-api` без ошибок;
    в TWA: тренировка, аудио практики и игры (потоковые ответы), оплата. `https://<домен>/admin/login` — assets по `https://`.
 4. k6 в обоих режимах на одном стенде и одном наборе `perf:seed` (раздел 5, `make load-test`): CPU на запрос, p95 по
    эндпоинтам; числа — в `docs/19` §8. Расхождение с ожиданием больше 1,3 раза — повод вернуться к `docs/21` §3.1/§3.4.
 5. **Откат:** в `.env` `APP_SERVER=fpm` (или удалить строку), затем
    `docker compose -f docker-compose.prod.yml --env-file .env up -d app-api nginx`. Сборки не нужно: образ `app-fpm` собирается
-   при каждом деплое. `TRUSTED_PROXIES` можно оставить.
+   при каждом деплое. `TRUSTED_PROXIES` и `NGINX_IPV4` можно оставить: под fpm доверие адресу nginx безвредно. Откат на коммит без `ipam` пересоздаст сеть (см. выше, `down`).

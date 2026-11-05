@@ -38,10 +38,13 @@ cf_clean() {
     tr -d '\r' | sed 's/#.*//; s/[[:space:]]//g' | grep -v '^$' || true
 }
 
-# A list is acceptable if it is not empty and EVERY line is an IPv4 or IPv6 CIDR (nothing else reaches the nginx config).
+# A list is acceptable if it is not empty, EVERY line is an IPv4 or IPv6 CIDR (nothing else reaches the nginx config) and no
+# prefix is too wide: IPv4 shorter than /12, IPv6 shorter than /29 (Cloudflare's widest are /13 and /29). A hijacked or broken
+# list with 0.0.0.0/0 would turn "only Cloudflare" into "everybody" and let anyone forge CF-Connecting-IP.
 cf_valid() {
     [ -s "$1" ] || return 1
-    ! grep -qvE '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$|^[0-9a-fA-F:]*:[0-9a-fA-F:]*/[0-9]{1,3}$' "$1"
+    ! grep -qvE '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$|^[0-9a-fA-F:]*:[0-9a-fA-F:]*/[0-9]{1,3}$' "$1" || return 1
+    awk -F/ '{ if (index($1, ":") ? ($2 + 0 < 29 || $2 + 0 > 128) : ($2 + 0 < 12 || $2 + 0 > 32)) bad = 1 } END { exit bad }' "$1"
 }
 
 # Prints the ranges to stdout: the live lists from Cloudflare, else the committed file. Exit 1 if neither is usable.

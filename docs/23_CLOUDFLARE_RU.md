@@ -13,7 +13,11 @@ Cloudflare) и по желанию закрывать порт 443 для все
 ## 1. DNS
 
 1. Добавьте домен в Cloudflare, на регистраторе смените NS на выданные Cloudflare.
-2. DNS → записи `A` (IPv4 сервера) и `AAAA` (если есть IPv6) для `<домен>` (и `www`, если используется).
+2. DNS → запись `A` (IPv4 сервера) для `<домен>` (и `www`, если используется). **`AAAA` НЕ создавайте**, пока compose-сеть только IPv4
+   (так и есть: `enable_ipv6` не включён). Иначе IPv6-клиенты (и Cloudflare по IPv6 к origin) приходят через docker-proxy на `[::]:443`,
+   и nginx видит адрес шлюза сети `172.28.0.1`, а не Cloudflare: `set_real_ip_from` не срабатывает (адрес клиента теряется), а при
+   `CLOUDFLARE_ONLY=true` порт 443 отвечает 403. IPv6 до origin — отдельная задача (`enable_ipv6` у сети compose, `ip6tables`,
+   проверка realip и TRUSTED_PROXIES), в этот объём не входит.
 3. **Первый выпуск сертификата Let's Encrypt делайте с серым облаком** (DNS only): `deploy.sh` / certbot получает
    сертификат по HTTP-01 напрямую на сервер, без неожиданностей.
 4. Когда `https://<домен>` открывается с валидным сертификатом — включите оранжевое облако (Proxied) для этих записей.
@@ -170,8 +174,9 @@ curl -sI https://<домен>/twa/index.html | grep -iE 'cf-cache-status|cache-c
 curl -sI https://<домен>/api/twa/me | grep -i cf-cache-status                           # DYNAMIC или BYPASS
 # 3. Аудио
 curl -sI https://<домен>/storage/audio/<файл>.mp3 | grep -iE 'cf-cache-status|cache-control'
-# 4. Реальные адреса в логах nginx (не 104.x / 172.64–71.x / 162.158.x)
-$C logs --tail 20 nginx
+# 4. Реальные адреса в логах nginx (не 104.x / 172.64–71.x / 162.158.x) и нет шлюза сети 172.28.0.1
+$C logs --tail 50 nginx
+$C logs --tail 500 nginx | grep -c '172\.28\.0\.1[^0-9]'     # 0: адрес шлюза = клиент пришёл через docker-proxy (проверьте, что нет записи AAAA)
 # 5. Приложение
 curl -s -o /dev/null -w '%{http_code}\n' https://<домен>/health/ready     # 200
 curl -s https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo | jq '.result | {url, last_error_date, last_error_message, pending_update_count}'   # без ошибок

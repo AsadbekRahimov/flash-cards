@@ -167,15 +167,22 @@ done
 
 # The server of the app-api container (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): fpm (the
 # default, also when unset) or octane. Read the way compose reads it (shell environment, then .env); anything else stops here.
-APP_SERVER_MODE="$(redis_password_of APP_SERVER | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+APP_SERVER_MODE="$(redis_password_of APP_SERVER | tr -d '[:space:]')"
 APP_SERVER_MODE="${APP_SERVER_MODE:-fpm}"
+# Only the canonical lower case: compose (image tag, build target) and the nginx entrypoint do not fold the case.
 case "$APP_SERVER_MODE" in
     fpm|octane) ;;
     *)
-        echo "STOP: APP_SERVER is '${APP_SERVER_MODE}' (shell environment or .env); it must be fpm or octane." >&2
+        echo "STOP: APP_SERVER is '${APP_SERVER_MODE}' (shell environment or .env); it must be exactly fpm or octane (lower case)." >&2
         exit 1 ;;
 esac
 echo "==> app-api runs on: ${APP_SERVER_MODE}"
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    APP_API_DB_PERSISTENT_VALUE="$(redis_password_of APP_API_DB_PERSISTENT | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+    if [ "$APP_API_DB_PERSISTENT_VALUE" != "false" ]; then
+        echo "WARNING: APP_SERVER=octane with APP_API_DB_PERSISTENT='${APP_API_DB_PERSISTENT_VALUE:-unset, true}': one Octane worker holds one connection anyway, and a persistent PDO gets in the way of disconnect() after a leaked transaction. Set APP_API_DB_PERSISTENT=false in .env (docs/22_DEPLOY_R13_RU.md §7)." >&2
+    fi
+fi
 
 echo "==> Building immutable application, nginx and pgbouncer images"
 # app-api builds the stage of its mode (target app-${APP_SERVER}); in Octane mode the php-fpm image of the same commit is
@@ -183,6 +190,24 @@ echo "==> Building immutable application, nginx and pgbouncer images"
 $COMPOSE build --pull app nginx pgbouncer app-api
 if [ "$APP_SERVER_MODE" = "octane" ]; then
     APP_SERVER=fpm $COMPOSE build app-api
+fi
+
+# The compose network has a fixed subnet (COMPOSE_SUBNET, docker-compose.prod.yml). Docker cannot change the subnet of an existing
+# network under `up`: the old network has another one (the first R13 deploy, a rollback to a commit without `ipam`, a changed
+# COMPOSE_SUBNET) and nginx could not get its pinned address. Then the stack is stopped (`down`, never `-v`: volumes stay) and
+# `up` recreates the network - downtime for the length of the deploy.
+WANT_SUBNET="$(redis_password_of COMPOSE_SUBNET | tr -d '[:space:]')"
+WANT_SUBNET="${WANT_SUBNET:-172.28.0.0/16}"
+COMPOSE_PROJECT="$($COMPOSE config 2>/dev/null | sed -n 's/^name:[[:space:]]*//p' | head -n 1 | tr -d "\"'[:space:]")"
+if [ -n "$COMPOSE_PROJECT" ]; then
+    HAVE_SUBNET="$(docker network inspect "${COMPOSE_PROJECT}_default" --format '{{(index .IPAM.Config 0).Subnet}}' 2>/dev/null || true)"
+    if [ -n "$HAVE_SUBNET" ] && [ "$HAVE_SUBNET" != "$WANT_SUBNET" ]; then
+        echo "==> compose network subnet changes: stopping the stack (${HAVE_SUBNET} -> ${WANT_SUBNET}; volumes are kept)"
+        STACK_TOUCHED=1
+        $COMPOSE down
+    fi
+else
+    echo "WARNING: could not read the compose project name; the subnet of the compose network was not compared with COMPOSE_SUBNET" >&2
 fi
 
 echo "==> Starting database, pgbouncer and both Redis instances"
@@ -228,6 +253,19 @@ if [ "$APP_SERVER_MODE" = "octane" ]; then
     # Octane's own view of the server (its state file): running, or a non-zero exit. The container healthcheck (curl /up) has
     # already gated nginx, this one names the server in the log.
     $COMPOSE exec -T app-api php artisan octane:status --server=frankenphp
+    # The deterministic check of the trust (the smoke call below only shows a 429 when the limiter is already saturated):
+    # the proxy list the application really runs with (the config cache of this very container) holds the address nginx is
+    # pinned to. Without it every client would share the address of nginx in the per-IP limits and the webhook allowlists.
+    NGINX_IP="$(redis_password_of NGINX_IPV4 | tr -d '[:space:]')"
+    NGINX_IP="${NGINX_IP:-172.28.0.10}"
+    TRUSTED_SHOWN="$($COMPOSE exec -T app-api php artisan config:show trustedproxy)"
+    if ! printf '%s\n' "$TRUSTED_SHOWN" | grep -Eq "(^|[^0-9.])$(printf '%s' "$NGINX_IP" | sed 's/\./\\./g')([^0-9.]|\$)"; then
+        echo "STOP: trustedproxy.proxies of app-api does not contain the address of nginx (${NGINX_IP}):" >&2
+        printf '%s\n' "$TRUSTED_SHOWN" >&2
+        echo "      Octane behind nginx needs TRUSTED_PROXIES to hold NGINX_IPV4 (the default); check TRUSTED_PROXIES / NGINX_IPV4 in .env" >&2
+        echo "      (docs/07_SECURITY.md «Доверенные прокси»). Roll back: ./deploy.sh --rollback <previous-sha>" >&2
+        exit 1
+    fi
 fi
 
 # Informational: the PostgreSQL settings the server really runs with (docker-compose.prod.yml, PG_* in .env). Never fails the deploy.
@@ -274,13 +312,13 @@ for _ in $(seq 1 10); do
     sleep 2
 done
 [ "$API_CODE" = "401" ] || smoke_fail "${BASE}/api/twa/me answered ${API_CODE:-nothing}, expected 401 from the app-api container"
-# An empty body to the auth endpoint: 422 (no init_data) or 401, never 429 and never a 5xx. A 429 on the very first call means the
-# per-IP limits see one address for everybody - app-api does not trust the X-Forwarded-For of nginx (TRUSTED_PROXIES is not the
-# compose subnet, docs/07_SECURITY.md «Доверенные прокси»), the limiter keys collapse into the nginx container address.
+# An empty body to the auth endpoint: 422 (no init_data) or 401, never a 5xx. This is NOT a proof of the trust: a 429 appears
+# only when the limiter is already saturated (every client sharing the nginx address would fill it under real traffic, not on
+# one call). The deterministic check is the `config:show trustedproxy` above (Octane); here it is a cheap extra signal.
 AUTH_CODE="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data '{}' "${BASE}/api/twa/auth" || true)"
 case "$AUTH_CODE" in
     401|422) ;;
-    *) smoke_fail "POST ${BASE}/api/twa/auth with an empty body answered ${AUTH_CODE:-nothing}, expected 401 or 422 (429 = the proxy headers are not trusted, check TRUSTED_PROXIES)" ;;
+    *) smoke_fail "POST ${BASE}/api/twa/auth with an empty body answered ${AUTH_CODE:-nothing}, expected 401 or 422 (429 = the per-IP limiter is saturated; with Octane check TRUSTED_PROXIES / NGINX_IPV4)" ;;
 esac
 
 # /health/ready needs the scheduler and worker heartbeats (written once a minute), so give them time
