@@ -6,6 +6,8 @@
 
 ## 1. Что нужно до деплоя
 
+> Новый сервер с нуля — `docs/24_VPS_DOCKER_RU.md` (система, Docker, DNS, `.env`, первый деплой, затем этот документ и docs/23).
+
 | | |
 |---|---|
 | Сервер | эталон — 4 vCPU / 8 ГБ, SSD. Меньше RAM → задать `PG_*` в `.env` (§2), иначе `deploy.sh` напишет `WARNING: shared_buffers … > 30 %` |
@@ -65,7 +67,8 @@ bash deploy.sh <sha>        # SHA зелёного коммита master; без
 
 1. Берёт лок `.deploy.lock`, проверяет том PostgreSQL (`docker/postgres/upgrade.sh --check`), делает checkout SHA.
 2. Проверяет `.env`: пароли Redis не пустые и не `null`.
-3. Собирает образы `app`, `nginx`, `pgbouncer` (`docker build` — 5–10 минут на первом деплое, дальше кэш).
+3. Собирает образы `app`, `app-api` (стадия `app-fpm`; под `APP_SERVER=octane` — ещё и `app-octane`), `nginx`, `pgbouncer`
+   (`docker build` — 10–15 минут на первом деплое, дальше кэш).
 4. Миграции через `pgsql_direct` (мимо pgbouncer); `--skip-migrate` их пропускает.
 5. `docker compose up -d --remove-orphans` — пересоздаёт изменившиеся контейнеры. **В первом деплое R13 пересоздаётся
    `postgres`** (новый `command` и `shm_size`): 5–15 секунд база недоступна, запросы в полёте получают ошибки,

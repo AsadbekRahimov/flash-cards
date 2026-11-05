@@ -3,7 +3,9 @@
 Пошаговое руководство: от чистого сервера до работающего бота, мини-приложения (TWA) и админки.
 Ориентир — **Ubuntu 24.04 LTS**; на Debian 12 команды те же, кроме подключения репозитория PHP (см. §2).
 
-> Вариант с Docker (`docker-compose.prod.yml` + `deploy.sh`) описан в `README.md` и `docs/DEVOPS_GUIDE.md` §0.
+> Вариант с Docker (`docker-compose.prod.yml` + `deploy.sh`) описан в `README.md` и `docs/DEVOPS_GUIDE.md` §0; сквозной порядок для
+> нового сервера — `docs/24_VPS_DOCKER_RU.md`. **Всё из R13 (два контейнера `app`/`app-api`, Octane на FrankenPHP, Cloudflare с
+> восстановлением IP, тюнинг PostgreSQL через `PG_*`) есть только в Docker-пути** — для нового сервера используйте его, а не это руководство.
 > Здесь — «голый» сервер: всё ставится пакетами. Подробности по отдельным темам (оплата, мониторинг,
 > переменные Фазы 2) — в `docs/DEVOPS_GUIDE.md`; приёмка Фазы 2 — `docs/STAGING_PHASE2_CHECKLIST.md`.
 
