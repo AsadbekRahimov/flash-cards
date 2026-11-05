@@ -180,6 +180,21 @@ docker compose -f docker-compose.prod.yml --env-file .env exec postgres sh -c 'p
 
 **Применение.** Флаги читаются при старте сервера: `docker compose -f docker-compose.prod.yml --env-file .env up -d postgres` пересоздаёт контейнер (изменился `command`/`shm_size`) — это несколько секунд простоя БД. pgbouncer переподключится сам (`server_login_retry = 2` с; `server_lifetime = 3600` с касается только возраста соединений, не рестарта), но запросы в полёте и всё, что придёт за эти секунды, получат ошибки соединения (500, `/health/ready` — 503), транзакция в полёте теряется. Делайте в тихий час. Обычный `deploy.sh` делает то же самое, если `command` в compose изменился.
 
+### Cloudflare перед nginx
+
+Решение владельца 05.11.2026: статика Mini App и аудио отдаются с CDN. Пошагово (DNS, Cache Rules, безопасность) — `docs/23_CLOUDFLARE_RU.md`; здесь — что делает стек.
+
+| Переменная `.env` | Умолчание | Что делает |
+|---|---|---|
+| `CLOUDFLARE_PROXY` | `false` | `true` — `docker/nginx-entrypoint.sh` пишет `conf.d/00-cloudflare-real-ip.conf`: `set_real_ip_from` для каждого диапазона Cloudflare (IPv4+IPv6), `real_ip_header CF-Connecting-IP`, `real_ip_recursive on`. Дальше `$remote_addr` — адрес ученика: его видят `X-Forwarded-For` (Octane), FastCGI `REMOTE_ADDR` (fpm), лимиты per IP, `TelegramIpAllowlist`, `BillingIpAllowlist`. |
+| `CLOUDFLARE_ONLY` | `false` | `true` — origin lock: порт 443 отвечает 403 всем, чей TCP-адрес не из диапазонов Cloudflare (`geo $realip_remote_addr`; `$realip_remote_addr` — адрес ДО подмены). Требует `CLOUDFLARE_PROXY=true`, иначе nginx не стартует. Порт 80 (ACME) не закрывается. |
+
+Безопасность real_ip: заголовку `CF-Connecting-IP` верим только если TCP-соединение пришло из диапазона Cloudflare. Прямой клиент с поддельным заголовком в диапазон не попадает, его `$remote_addr` не меняется. Без `CLOUDFLARE_PROXY=true` заголовок игнорируется целиком.
+
+Диапазоны: при старте и раз в сутки (каждый 4-й тик 6-часового цикла) entrypoint скачивает `https://www.cloudflare.com/ips-v4` и `ips-v6` (`wget`, таймаут 10 с); каждая строка обязана быть CIDR, иначе скачанное отбрасывается. Запасной вариант — закоммиченный `docker/nginx/cloudflare-ips.txt` (дата и источник в шапке; освежать раз в полгода). Если новый конфиг не проходит `nginx -t`, остаются прежние диапазоны. Если нет ни скачанного, ни годного файла, контейнер не стартует с понятным сообщением. Включение: `.env` → `docker compose -f docker-compose.prod.yml --env-file .env up -d nginx` (контейнер пересоздаётся, образ не пересобирается).
+
+Smoke в `deploy.sh` ходит на домен по DNS, то есть через Cloudflare, поэтому проходит и при `CLOUDFLARE_ONLY=true`; `curl` по IP сервера получит 403 — так и задумано.
+
 ### Откат
 
 Откатываем код на предыдущий проверенный SHA (смотрите `git log` или предыдущий успешный запуск Actions):

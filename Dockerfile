@@ -239,6 +239,7 @@ FROM nginx:1.30-alpine AS nginx
 COPY --from=app /var/www/html/public /var/www/html/public
 COPY docker/nginx-entrypoint.sh /usr/local/bin/lexiflow-nginx-entrypoint
 
-RUN chmod +x /usr/local/bin/lexiflow-nginx-entrypoint
+# snippets-generated: written by the entrypoint (root) at start, included by prod.conf (not a bind mount: snippets/ is read-only).
+RUN chmod +x /usr/local/bin/lexiflow-nginx-entrypoint && mkdir -p /etc/nginx/snippets-generated
 
 ENTRYPOINT ["/usr/local/bin/lexiflow-nginx-entrypoint"]

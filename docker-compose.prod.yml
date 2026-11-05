@@ -245,16 +245,22 @@ services:
             APP_DOMAIN: ${APP_DOMAIN}
             # Picks the /api/ snippet (docker/nginx/snippets/api-fpm.conf | api-octane.conf), the same variable as app-api.
             APP_SERVER: ${APP_SERVER:-fpm}
+            # Cloudflare in front (docs/23_CLOUDFLARE_RU.md): PROXY - take the client address from CF-Connecting-IP (only from
+            # Cloudflare's ranges); ONLY - port 443 answers 403 to everyone else. Both false = nothing changes.
+            CLOUDFLARE_PROXY: ${CLOUDFLARE_PROXY:-false}
+            CLOUDFLARE_ONLY: ${CLOUDFLARE_ONLY:-false}
         volumes:
             - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
             # Included by prod.conf as they are (not rendered): the way to app-api for each APP_SERVER mode.
             - ./docker/nginx/snippets:/etc/nginx/snippets:ro
+            # Fallback list of Cloudflare ranges, used when the entrypoint cannot download the live ones.
+            - ./docker/nginx/cloudflare-ips.txt:/etc/nginx/cloudflare-ips.txt:ro
             # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) is served straight from its own volume;
             # the rest of storage (logs, sessions, private files) is deliberately NOT visible to nginx.
             - app_audio:/var/www/html/storage/app/public/audio:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
-        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER and periodically reloads renewed certificates.
+        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER, generates the Cloudflare files and periodically reloads renewed certificates.
 
     certbot:
         image: certbot/certbot:latest

@@ -13,6 +13,7 @@
 | Образы | собираются на сервере `deploy.sh` (`lexiflow/app`, `lexiflow/nginx`, `lexiflow/pgbouncer`) |
 | Порты | 80/443 наружу; 5432/6379/9000/8000 — только внутри compose-сети |
 | CI | `master` зелёный: pint, phpstan level 8, Pest на PG 18 + Redis 8 |
+| Cloudflare | по желанию (CDN для статики Mini App и аудио, WAF): настройка и переменные `CLOUDFLARE_PROXY` / `CLOUDFLARE_ONLY` — `docs/23_CLOUDFLARE_RU.md`. Нагрузочный тест §5 при этом гонять мимо Cloudflare (docs/23 §8) |
 
 ## 2. `.env` на сервере — что проверить
 
@@ -91,6 +92,8 @@ $C exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SHOW shar
 $C logs --since 10m app-api | grep -i "max_children"    # пусто; иначе поднять PHP_FPM_API_MAX_CHILDREN
 docker stats --no-stream                                # app-api ≈ 12 × 40–60 МБ, postgres ≈ shared_buffers + немного
 ```
+
+Cloudflare включён (`docs/23_CLOUDFLARE_RU.md`): дополнительно `$C logs --tail 20 nginx` — в access-логе адреса учеников, а не Cloudflare (`104.x`, `172.64–71.x`); `curl -sI https://<домен>/twa/assets/<файл> | grep -i cf-cache-status` — `HIT` со второго запроса.
 
 Откат: `bash deploy.sh --rollback <предыдущий-sha>` — старый compose без `app-api`, `--remove-orphans` удалит контейнер,
 nginx старого коммита не знает `location /api/` и снова шлёт всё в `app`; `postgres` пересоздастся ещё раз со старым `command`.
