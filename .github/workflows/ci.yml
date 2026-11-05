@@ -193,8 +193,35 @@ jobs:
             - name: Build production Docker targets
               run: |
                   docker build --target app --tag lexiflow/app:ci .
+                  docker build --target app-octane --tag lexiflow/app-octane:ci .
                   docker build --target nginx --tag lexiflow/nginx:ci .
                   docker build --target pgbouncer --tag lexiflow/pgbouncer:ci .
+
+            - name: Smoke the Octane image (api surface, /up)
+              # The app-octane stage must start and answer, not only build: the entrypoint caches config/routes/events in
+              # production (no database or Redis needed for that nor for /up), FrankenPHP starts the workers. Same
+              # variables as phpunit.xml for what the application demands at boot (APP_KEY, bot token, JWT secret).
+              run: |
+                  SMOKE_ENV="-e APP_ENV=production -e APP_KEY=base64:6rTr6BRIarODejQZcX5sJEhDjwcX3BsTKQKxD3zghK4= -e APP_SURFACE=api
+                      -e DB_CONNECTION=sqlite -e DB_DATABASE=/tmp/smoke.sqlite -e CACHE_STORE=array -e CACHE_LIMITER_STORE=array
+                      -e CACHE_PURE_STORE=array -e SESSION_DRIVER=array -e QUEUE_CONNECTION=sync -e LOG_CHANNEL=stderr
+                      -e TELEGRAM_BOT_TOKEN=test-bot-token-1234567890 -e TWA_JWT_SECRET=test-jwt-secret-at-least-32-chars-long-abcdef
+                      -e OCTANE_WORKERS=2 -e OCTANE_HTTPS=true"
+                  # The image carries the api surface only: no panel routes, the TWA ones present.
+                  docker run --rm $SMOKE_ENV lexiflow/app-octane:ci sh -c 'php artisan route:list --json | php docker/check-api-surface.php'
+                  docker run -d --name octane-smoke -p 8000:8000 $SMOKE_ENV lexiflow/app-octane:ci
+                  ok=0
+                  for _ in $(seq 1 60); do
+                      if curl -fsS http://127.0.0.1:8000/up > /dev/null 2>&1; then ok=1; break; fi
+                      sleep 1
+                  done
+                  if [ "$ok" -ne 1 ]; then
+                      docker logs octane-smoke
+                      docker rm -f octane-smoke
+                      echo "The Octane image did not answer /up within 60 s" >&2
+                      exit 1
+                  fi
+                  docker rm -f octane-smoke
 
             - name: Build dev Docker image
               # Dockerfile.dev is what `docker compose up` builds locally (docker-compose.override.yml): it must not rot unnoticed.

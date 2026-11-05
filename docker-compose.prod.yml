@@ -10,6 +10,11 @@
 #     queue-default (`default`) and queue-low (`low`). A worker takes queues in strict priority order, so a shared
 #     `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
 #     limit of 25/s keeps it busy for minutes): the `low` heartbeat then goes stale and /health/ready fails on `queue`.
+#   - Two php-fpm containers of the same image (docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения: app и app-api»):
+#     `app` (APP_SURFACE=full: /admin, /org, the public site, the Telegram and payment webhooks, /2fa, /up, /health/ready)
+#     and `app-api` (APP_SURFACE=api: /api/* of the TWA Mini App only - no Filament / Livewire registered, no web routes;
+#     also answers /up and /health/ready). nginx sends `/api/` to app-api and everything else to app. Each has a php-fpm
+#     pool of its own (PHP_FPM_* and PHP_FPM_API_* in .env; defaults below). The queue workers and the scheduler are full.
 #   - All services restart unless explicitly stopped.
 #   - `pgbouncer` (transaction pooling, image built from the Dockerfile stage `pgbouncer`) between the application and
 #     PostgreSQL: .env says DB_HOST=pgbouncer, the application keeps one persistent PDO connection per php-fpm worker
@@ -32,6 +37,10 @@
 # database and /health/ready says `degraded`. Waiting for `healthy` would tie the whole application to a disposable
 # component; `redis` (queues, sessions, locks) stays `service_healthy`.
 x-lru-env: &lru-env
+    # The surface of the process (App\Support\Surface): every service of the image is `full` unless its own `environment:`
+    # says otherwise (only `app-api` does). `environment:` always wins over `env_file`, so an APP_SURFACE line in .env can
+    # never turn the panels, the webhooks, the queue workers or the scheduler into api-only processes.
+    APP_SURFACE: full
     REDIS_LRU_HOST: redis-cache
     REDIS_LRU_PORT: "6379"
     REDIS_LRU_PASSWORD: ${REDIS_CACHE_PASSWORD:?REDIS_CACHE_PASSWORD is required in production - set it in .env (openssl rand -hex 32)}
@@ -39,6 +48,10 @@ x-lru-env: &lru-env
     # facts of this file, so they are set here and not in .env; a bare server would set DB_DIRECT_HOST in .env instead.
     DB_DIRECT_HOST: ${DB_DIRECT_HOST:-postgres}
     DB_DIRECT_PORT: ${DB_DIRECT_PORT:-5432}
+    # Nobody is a trusted proxy by default: `app`, the queue workers and the scheduler read the whole .env (env_file), and
+    # a TRUSTED_PROXIES line there must not make them believe a client's X-Forwarded-For (php-fpm passes the client's
+    # HTTP_X_FORWARDED_* through FastCGI). Only `app-api` in Octane mode trusts the one address of nginx (below).
+    TRUSTED_PROXIES: ""
 
 services:
     app:
@@ -64,9 +77,87 @@ services:
         env_file: .env
         environment:
             <<: *lru-env
+            # The php-fpm pool of the full surface: panels, webhooks and the public site - a few people and the bots, while the
+            # learners are on app-api. 6 of the 18 workers of a 4 vCPU host (docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»); a PHP_FPM_*
+            # line in .env still overrides (compose interpolates .env), and the image default of 16 applies only outside compose.
+            # Persistent phpredis sockets per php-fpm worker (config/database.php `redis.options.persistent`): no TCP connect
+            # and AUTH per request. Only the two web containers: the queue workers hold one process anyway.
+            REDIS_PERSISTENT: ${REDIS_PERSISTENT:-true}
+            PHP_FPM_MAX_CHILDREN: ${PHP_FPM_MAX_CHILDREN:-6}
+            PHP_FPM_START_SERVERS: ${PHP_FPM_START_SERVERS:-2}
+            PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_MIN_SPARE_SERVERS:-1}
+            PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_MAX_SPARE_SERVERS:-3}
         volumes:
             - app_storage:/var/www/html/storage
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
+            - app_audio:/var/www/html/storage/app/public/audio
+
+    # The TWA API on its own php-fpm pool (App\Support\Surface, docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения»): the
+    # same image, APP_SURFACE=api - only routes/api.php, /up and /health/ready are loaded, the panel providers and the
+    # packages of the admin UI (Filament, Livewire, Blade icons, ...) are not registered, so a learner's request pays for
+    # none of them and this process carries none of that code. nginx routes `/api/` here. Its caches (config, routes,
+    # events) are built at start by the entrypoint with this surface; `view:cache` and `filament:optimize` are skipped.
+    # The server inside is chosen by APP_SERVER in .env (docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): `fpm` (default
+    # and when unset) - the stage `app-fpm`, the very image of `app`, php-fpm on :9000; `octane` - the stage `app-octane`,
+    # Laravel Octane on FrankenPHP on :8000 (docs/21_OCTANE_READINESS.md). nginx follows the same variable. Switching back
+    # is `APP_SERVER=fpm` + `up -d app-api nginx`: deploy.sh always builds the fpm image, so no build is needed.
+    app-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: app-${APP_SERVER:-fpm}
+            args:
+                UID: ${UID:-1000}
+                GID: ${GID:-1000}
+        image: lexiflow/app-${APP_SERVER:-fpm}:${IMAGE_TAG:-latest}
+        container_name: lexiflow-app-api
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+            pgbouncer:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            redis-cache:
+                condition: service_started
+        env_file: .env
+        environment:
+            <<: *lru-env
+            APP_SURFACE: api
+            REDIS_PERSISTENT: ${REDIS_PERSISTENT:-true}
+            # Livewire is not registered here: Sentry's Livewire breadcrumbs and tracing would hook an auto-built manager.
+            SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
+            SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
+            # Learner traffic is most of the requests: 12 of the 18 workers of a 4 vCPU host (2-4 per core all in all,
+            # docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»). Override with PHP_FPM_API_* in .env; pm.max_requests is PHP_FPM_MAX_REQUESTS.
+            PHP_FPM_MAX_CHILDREN: ${PHP_FPM_API_MAX_CHILDREN:-12}
+            PHP_FPM_START_SERVERS: ${PHP_FPM_API_START_SERVERS:-3}
+            PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_API_MIN_SPARE_SERVERS:-2}
+            PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_API_MAX_SPARE_SERVERS:-4}
+            # Octane mode only (ignored by php-fpm): 6 workers on 4 vCPU, a worker restarts after OCTANE_MAX_REQUESTS requests.
+            OCTANE_WORKERS: ${OCTANE_WORKERS:-6}
+            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
+            # Always behind nginx with TLS, whatever the mode: the scheme of the application is https (config/octane.php reads
+            # it under Octane only, so under php-fpm the line is harmless).
+            OCTANE_HTTPS: "true"
+            # Proxies whose X-Forwarded-* the application believes (config/trustedproxy.php): the ONE address of nginx, never a
+            # subnet. Connections that reach nginx through docker-proxy (IPv6 clients on [::]:443, hairpin from the host) come
+            # from the network gateway (172.28.0.1), which is inside the subnet: trusting the subnet would make php-fpm believe
+            # a forged X-Forwarded-For (limits, Telegram/Payme/Click allowlists). Under php-fpm REMOTE_ADDR over FastCGI is never
+            # the address of nginx, so trusting it is harmless there. It is the address `nginx` is pinned to below (NGINX_IPV4);
+            # if you set TRUSTED_PROXIES in .env, it must stay one address (or a short list), never `*` and never a /16.
+            # docs/07_SECURITY.md «Доверенные прокси».
+            TRUSTED_PROXIES: ${TRUSTED_PROXIES:-${NGINX_IPV4:-172.28.0.10}}
+            # php-fpm: the persistent PDO connection per worker (default). Octane: one worker = one connection, and a persistent
+            # PDO gets in the way of disconnect() after a leaked transaction - set APP_API_DB_PERSISTENT=false with APP_SERVER=octane.
+            DB_PERSISTENT: ${APP_API_DB_PERSISTENT:-true}
+        # Octane finishes the requests in flight on SIGTERM.
+        stop_grace_period: 30s
+        volumes:
+            # The same storage volume as `app`: logs, the file markers of the cache circuit breaker, compiled Blade (the api
+            # surface compiles only the framework's error pages, on first use - identical sources give identical files).
+            - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
 
     # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
@@ -156,22 +247,40 @@ services:
         image: lexiflow/nginx:${IMAGE_TAG:-latest}
         container_name: lexiflow-nginx
         restart: unless-stopped
+        # Both upstreams: nginx resolves `app:9000` and `app-api:9000` when it loads its configuration.
         depends_on:
             app:
+                condition: service_healthy
+            app-api:
                 condition: service_healthy
         ports:
             - "80:80"
             - "443:443"
+        # A pinned address (outside the ip_range of the network, so Docker never hands it to another container): app-api
+        # trusts X-Forwarded-* from this one address only (TRUSTED_PROXIES). Change together with COMPOSE_SUBNET.
+        networks:
+            default:
+                ipv4_address: ${NGINX_IPV4:-172.28.0.10}
         environment:
             APP_DOMAIN: ${APP_DOMAIN}
+            # Picks the /api/ snippet (docker/nginx/snippets/api-fpm.conf | api-octane.conf), the same variable as app-api.
+            APP_SERVER: ${APP_SERVER:-fpm}
+            # Cloudflare in front (docs/23_CLOUDFLARE_RU.md): PROXY - take the client address from CF-Connecting-IP (only from
+            # Cloudflare's ranges); ONLY - port 443 answers 403 to everyone else. Both false = nothing changes.
+            CLOUDFLARE_PROXY: ${CLOUDFLARE_PROXY:-false}
+            CLOUDFLARE_ONLY: ${CLOUDFLARE_ONLY:-false}
         volumes:
             - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
+            # Included by prod.conf as they are (not rendered): the way to app-api for each APP_SERVER mode.
+            - ./docker/nginx/snippets:/etc/nginx/snippets:ro
+            # Fallback list of Cloudflare ranges, used when the entrypoint cannot download the live ones.
+            - ./docker/nginx/cloudflare-ips.txt:/etc/nginx/cloudflare-ips.txt:ro
             # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) is served straight from its own volume;
             # the rest of storage (logs, sessions, private files) is deliberately NOT visible to nginx.
             - app_audio:/var/www/html/storage/app/public/audio:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
-        # The image entrypoint substitutes only APP_DOMAIN and periodically reloads renewed certificates.
+        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER, generates the Cloudflare files and periodically reloads renewed certificates.
 
     certbot:
         image: certbot/certbot:latest
@@ -202,7 +311,49 @@ services:
         # queries for microseconds, pg_dump and the migrations are active, not idle); it is the safety net for a leaked
         # transaction - a hung worker, an operator's psql left in BEGIN - which with pgbouncer would also pin a pooled server
         # connection for good. Set here, on the server, so it holds for every client, pooled or direct.
-        command: ["postgres", "-c", "idle_in_transaction_session_timeout=60s"]
+        # Server tuning (docs/DEVOPS_GUIDE.md §0 «PostgreSQL: настройки под сервер»): the stock settings are made for a
+        # laptop (shared_buffers 128MB, random_page_cost 4, JIT on). Defaults here are for the reference 4 vCPU / 8 GB
+        # host; every value can be overridden in .env (PG_*), applied with `docker compose up -d postgres`.
+        command:
+            - postgres
+            # idle_in_transaction_session_timeout: see above.
+            - -c
+            - idle_in_transaction_session_timeout=60s
+            # shared_buffers: PostgreSQL's own page cache, ~25% of RAM.
+            - -c
+            - shared_buffers=${PG_SHARED_BUFFERS:-2GB}
+            # effective_cache_size: planner hint only (allocates nothing) - shared_buffers + the OS page cache, ~60% of RAM
+            # because Redis x2, php-fpm, pgbouncer and nginx live on the same host.
+            - -c
+            - effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-5GB}
+            # work_mem: per sort/hash node of a query; at most ~24 backends (pgbouncer pool + reserve) x a few nodes x 16MB fits.
+            - -c
+            - work_mem=${PG_WORK_MEM:-16MB}
+            # maintenance_work_mem: VACUUM, CREATE INDEX (migrations); a handful of sessions at a time.
+            - -c
+            - maintenance_work_mem=${PG_MAINTENANCE_WORK_MEM:-256MB}
+            # random_page_cost: 4 is for spinning disks; on SSD an index scan is nearly as cheap as a sequential one.
+            - -c
+            - random_page_cost=${PG_RANDOM_PAGE_COST:-1.1}
+            # effective_io_concurrency: prefetch depth of bitmap scans on SSD / NVMe.
+            - -c
+            - effective_io_concurrency=${PG_EFFECTIVE_IO_CONCURRENCY:-200}
+            # jit: short OLTP queries only pay for JIT planning and compilation.
+            - -c
+            - jit=${PG_JIT:-off}
+            # max_wal_size: fewer forced checkpoints under a write burst (review answers).
+            - -c
+            - max_wal_size=${PG_MAX_WAL_SIZE:-2GB}
+            # synchronous_commit: on = a commit is on disk before the client is answered. `off` is the owner's decision
+            # (DEVOPS_GUIDE «PostgreSQL: настройки под сервер»): it can lose the last ~0.6 s of commits on a crash.
+            - -c
+            - synchronous_commit=${PG_SYNCHRONOUS_COMMIT:-on}
+            # log_min_duration_statement (ms): statements slower than this go to `docker compose logs postgres`.
+            - -c
+            - log_min_duration_statement=${PG_LOG_MIN_DURATION_STATEMENT:-500}
+        # Docker gives /dev/shm 64MB; parallel query workers of PostgreSQL (dynamic_shared_memory_type=posix) fail with
+        # "could not resize shared memory segment" once a plan needs more.
+        shm_size: ${PG_SHM_SIZE:-256m}
         environment:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_USER: ${DB_USERNAME}
@@ -230,8 +381,8 @@ services:
             retries: 5
 
     # Connection pooler in front of postgres (docs/DEVOPS_GUIDE.md §0 «pgbouncer и постоянные соединения»). Transaction
-    # mode: a server connection serves a client only for the length of a transaction, so 16 php-fpm workers + the queue
-    # workers share PGBOUNCER_POOL_SIZE (20) + PGBOUNCER_RESERVE_POOL_SIZE (4) PostgreSQL backends - well inside
+    # mode: a server connection serves a client only for the length of a transaction, so the 18 php-fpm workers (app 6 +
+    # app-api 12) + the queue workers share PGBOUNCER_POOL_SIZE (20) + PGBOUNCER_RESERVE_POOL_SIZE (4) PostgreSQL backends - well inside
     # max_connections = 100 - and the persistent client connections cost PostgreSQL nothing while they idle. It listens on
     # 5432 like postgres, so switching the application is DB_HOST alone. The auth file is written at start from DB_USERNAME /
     # DB_PASSWORD (mode 0600, never in the image); the password is in the container environment as it is for `postgres`.
@@ -326,6 +477,19 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+
+# The compose network gets a fixed subnet and a pinned address for nginx: in Octane mode app-api trusts the X-Forwarded-* of
+# that ONE address (TRUSTED_PROXIES, see app-api). Docker would otherwise pick a subnet at every `down`/`up`.
+# `ip_range` is where Docker hands out addresses to containers (172.28.1.0/24); the pinned nginx address (172.28.0.10) and the
+# gateway (172.28.0.1) lie outside it, so they can never collide. If the subnet overlaps a network of the host, change
+# COMPOSE_SUBNET, COMPOSE_IP_RANGE and NGINX_IPV4 together in .env (all three inside one subnet, NGINX_IPV4 outside the range),
+# then `down` and `up -d` (deploy.sh does the `down` itself when it sees the subnet change). Never use a /16 as TRUSTED_PROXIES.
+networks:
+    default:
+        ipam:
+            config:
+                - subnet: ${COMPOSE_SUBNET:-172.28.0.0/16}
+                  ip_range: ${COMPOSE_IP_RANGE:-172.28.1.0/24}
 
 volumes:
     postgresql:

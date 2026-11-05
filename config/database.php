@@ -192,6 +192,11 @@ return [
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
             'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            // Persistent phpredis sockets (REDIS_PERSISTENT=true in the prod containers `app` and `app-api`, compose): one
+            // TCP connect + AUTH per worker instead of per request. Every connection below carries its own `persistent_id`:
+            // phpredis pools persistent sockets by host:port:id, and without distinct ids two connections on the same
+            // instance (`default` db 0, `cache` db 1, ...) could hand each other a socket with the other's SELECTed database.
+            // Off in dev and in the tests (the race tests fork, and a forked process must not share a socket).
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -202,6 +207,7 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
+            'persistent_id' => 'default',
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
@@ -215,6 +221,7 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
+            'persistent_id' => 'cache',
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
@@ -228,6 +235,7 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_QUEUE_DB', '2'),
+            'persistent_id' => 'queue',
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
@@ -241,6 +249,7 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_SESSION_DB', '3'),
+            'persistent_id' => 'session',
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
@@ -254,6 +263,7 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_LOCK_DB', '4'),
+            'persistent_id' => 'locks',
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
@@ -269,6 +279,7 @@ return [
             'password' => env('REDIS_LRU_PASSWORD'),
             'port' => env('REDIS_LRU_PORT', '6380'),
             'database' => env('REDIS_LRU_DB', '0'),
+            'persistent_id' => 'lru',
             // A dead or HUNG cache must fail fast and be stepped over (the store `lru` is a failover chain with a circuit
             // breaker, config/cache.php): short connect and read timeouts and no client-side retries. 0.25 s is ~100x the
             // worst healthy call - a same-host round trip takes well under a millisecond, a 130 KB value about one, and this

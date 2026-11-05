@@ -15,6 +15,10 @@
 /.zed
 /auth.json
 /node_modules
+# Octane / FrankenPHP: the worker script octane:frankenphp copies into public/, the binary octane:install may download, Caddy's data dir
+/public/frankenphp-worker.php
+/frankenphp
+/caddy
 /public/build
 /public/hot
 /public/storage

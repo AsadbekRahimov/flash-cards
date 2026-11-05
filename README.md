@@ -62,6 +62,8 @@ docker compose exec app php artisan migrate --seed
 
 ### Первичный setup на сервере
 
+Полный порядок для нового сервера (система, Docker, DNS, `.env`, первый деплой, Octane, Cloudflare) — `docs/24_VPS_DOCKER_RU.md`.
+
 ```bash
 # 1. Склонировать репозиторий и подготовить .env
 git clone <repo> /opt/lexiflow && cd /opt/lexiflow

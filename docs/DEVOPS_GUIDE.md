@@ -40,12 +40,74 @@ bash deploy.sh
 
 - **Кэши при старте.** `docker/entrypoint.sh` при `APP_ENV=production` на каждом старте контейнера собирает `config:cache`, `route:cache`, `view:cache`, **`filament:optimize`** (кэш компонентов панелей `/admin` и `/org` и Blade-иконок Filament, `docs/20` §1.12) и `event:cache`. В dev-контейнере (`APP_ENV=local`) ничего из этого не запускается: кэш компонентов скрыл бы новый ресурс или виджет. Новый ресурс в проде появляется вместе с новым контейнером: `filament:optimize` выполняется заново. Сбросить все кэши в dev — `make cache-clear` (`optimize:clear` и `filament:optimize-clear`).
 - **OPcache.** `docker/php/opcache-prod.ini` копируется **только** в прод-образ (`Dockerfile`, стадия `app`; `Dockerfile.dev` его не получает): `opcache.enable=1`, `opcache.validate_timestamps=0`, `opcache.save_comments=1`, `memory_consumption=256`, `interned_strings_buffer=64`, `max_accelerated_files=32531`. Размер взят по `find vendor app -name '*.php' | wc -l` = 16 899 файлов (дерево разработки; в `--no-dev` образе меньше) плюс около 250 скомпилированных Blade-шаблонов; PHP округляет значение до простого числа из своего списка (16229, 32531, 65407), так что запас — примерно вдвое. Сборка образа падает, если `php -i` не показывает `opcache.validate_timestamps => Off`, `opcache.save_comments => On` и `opcache.enable => On`.
-- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `queue-high`, `queue-default`, `queue-low`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app`). Так не делаем: любая правка идёт через коммит и деплой.
-- **Пул php-fpm.** Образ `php:8.5-fpm-alpine` по умолчанию держит `pm.max_children = 5`: под нагрузкой в логе `server reached pm.max_children (5)`, запросы встают в очередь. Прод-образ кладёт `docker/php/zz-lexiflow-pool.conf` в `php-fpm.d/` (грузится после `zz-docker.conf`): `pm = dynamic`, значения берутся из окружения контейнера — `PHP_FPM_MAX_CHILDREN`, `PHP_FPM_START_SERVERS`, `PHP_FPM_MIN_SPARE_SERVERS`, `PHP_FPM_MAX_SPARE_SERVERS`, `PHP_FPM_MAX_REQUESTS`. Умолчания в `Dockerfile` (`ENV`): 16 / 4 / 2 / 6 / 500; сборка падает, если `php-fpm -tt` их не видит. Переопределение — строка в `.env` хоста (compose подключает его как `env_file`) и `docker compose up -d app`; пустое значение недопустимо (php-fpm не стартует) — не нужно, закомментируйте строку.
-  - *Как подобрать `PHP_FPM_MAX_CHILDREN`.* Один воркер с этим приложением занимает примерно 40–60 МБ RSS (OPcache общий и в это не входит). Верхняя граница по памяти: `(RAM под php-fpm) / 50 МБ`, где «RAM под php-fpm» = RAM хоста минус PostgreSQL, Redis, воркеры очередей, nginx и запас ~20 %. Запросы почти целиком CPU-bound (БД и Redis на той же машине, внешних долгих вызовов в веб-пути нет), поэтому смысла выше 2–4 воркеров на ядро нет: больше процессов только делят то же время CPU. Берите меньшее из двух. Для 2 vCPU / 4 ГБ — 8–16 (умолчание 16), для 4 vCPU / 8 ГБ — 16–32.
-  - *Остальные значения.* `start_servers` ≈ четверть `max_children`, `min_spare` — половина `start_servers`, `max_spare` — не больше трети `max_children`; `max_requests=500` перезапускает воркер и ограничивает утечки памяти. Проверка: `docker compose exec app php-fpm -tt 2>&1 | grep pm`; насыщение — строки `server reached pm.max_children` в `docker compose logs app`.
+- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `app-api`, `queue-high`, `queue-default`, `queue-low`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app app-api`). Так не делаем: любая правка идёт через коммит и деплой.
+- **Пул php-fpm.** Образ `php:8.5-fpm-alpine` по умолчанию держит `pm.max_children = 5`: под нагрузкой в логе `server reached pm.max_children (5)`, запросы встают в очередь. Прод-образ кладёт `docker/php/zz-lexiflow-pool.conf` в `php-fpm.d/` (грузится после `zz-docker.conf`): `pm = dynamic`, значения берутся из окружения контейнера — `PHP_FPM_MAX_CHILDREN`, `PHP_FPM_START_SERVERS`, `PHP_FPM_MIN_SPARE_SERVERS`, `PHP_FPM_MAX_SPARE_SERVERS`, `PHP_FPM_MAX_REQUESTS`. Умолчания в `Dockerfile` (`ENV`): 16 / 4 / 2 / 6 / 500; сборка падает, если `php-fpm -tt` их не видит. В `docker-compose.prod.yml` два контейнера php-fpm делят пул (см. «Две поверхности приложения»): `app` — `PHP_FPM_*` с умолчаниями compose 6 / 2 / 1 / 3, `app-api` — `PHP_FPM_API_*` с умолчаниями 12 / 3 / 2 / 4 (ученики — большая часть запросов; панели, вебхуки и сайт — несколько человек и боты), `PHP_FPM_MAX_REQUESTS` общий. Переопределение — строка в `.env` хоста (compose интерполирует его) и `docker compose up -d app app-api`; пустое значение недопустимо (php-fpm не стартует) — не нужно, закомментируйте строку.
+  - *Как подобрать `PHP_FPM_MAX_CHILDREN`.* Один воркер с этим приложением занимает примерно 40–60 МБ RSS (OPcache общий и в это не входит). Верхняя граница по памяти: `(RAM под php-fpm) / 50 МБ`, где «RAM под php-fpm» = RAM хоста минус PostgreSQL, Redis, воркеры очередей, nginx и запас ~20 %. Запросы почти целиком CPU-bound (БД и Redis на той же машине, внешних долгих вызовов в веб-пути нет), поэтому смысла выше 2–4 воркеров на ядро нет: больше процессов только делят то же время CPU. Берите меньшее из двух. Для 2 vCPU / 4 ГБ — 8–16, для 4 vCPU / 8 ГБ — 16–32 — это сумма по `app` + `app-api` (умолчания compose 6 + 12 = 18).
+  - *Остальные значения.* `start_servers` ≈ четверть `max_children`, `min_spare` — половина `start_servers`, `max_spare` — не больше трети `max_children`; `max_requests=500` перезапускает воркер и ограничивает утечки памяти. Проверка: `docker compose exec app php-fpm -tt 2>&1 | grep pm` (и так же `app-api`); насыщение — строки `server reached pm.max_children` в `docker compose logs app` / `logs app-api`.
 - **Хватает ли памяти.** Статус общего кэша FPM (`opcache_get_status()`: `memory_usage`, `interned_strings_usage`, `opcache_statistics.num_cached_keys` против `max_cached_keys`, `oom_restarts`, `hash_restarts`) виден только из запроса, обработанного самим FPM: у CLI свой кэш, и `docker compose exec app php -r …` покажет не то. Норма: свободно не меньше ~20 % `memory_consumption`, `oom_restarts = 0`, `hash_restarts = 0`, `num_cached_keys` заметно ниже `max_cached_keys`. Снять эти числа под реальным трафиком — задача C8 (`docs/19`); поднять `memory_consumption` / `max_accelerated_files` в `docker/php/opcache-prod.ini` и пересобрать образ, если запас меньше нормы.
 - **Bare-сервер (без Docker).** Этот ini там не применяется. Если выставить `validate_timestamps=0` и на bare-сервере, после каждого деплоя нужен `systemctl reload php8.5-fpm` (сбрасывает кэш), иначе FPM продолжит исполнять старый код.
+
+### Две поверхности приложения: `app` и `app-api`
+
+Один образ `lexiflow/app`, два контейнера php-fpm; что из них запущено — переменная окружения `APP_SURFACE` (`App\Support\Surface`):
+
+| | `app` (`APP_SURFACE=full`, умолчание образа) | `app-api` (`APP_SURFACE=api`) |
+|---|---|---|
+| Маршруты | всё: `/admin`, `/org`, сайт `/`, `/telegram/webhook/*`, `/billing/webhook/*`, `/billing/return`, `/2fa/*`, `/up`, `/health/ready`, `/api/*` | только `routes/api.php` (`/api/twa/*`), `/up` и `/health/ready` (`routes/health.php`); `routes/web.php` не загружается |
+| Провайдеры проекта (`bootstrap/providers.php`) | `AppServiceProvider` + панели Filament (`FilamentDefaultsProvider`, `AdminPanelProvider`, `OrgPanelProvider`) | только `AppServiceProvider` |
+| Пакеты с автообнаружением (`bootstrap/cache/packages.php`) | все | без `filament/*`, `livewire/livewire`, `blade-ui-kit/*`, `ryangjchandler/blade-capture-directive`, `kirschbaum-development/eloquent-power-joins`, `laravel/tinker`, `spatie/laravel-backup`, `spatie/laravel-signal-aware-command`, `pragmarx/google2fa-laravel` (список — `Surface::API_EXCLUDED_PACKAGES`; `owen-it/laravel-auditing` удалён из composer в R13 — ничем не использовался); остаются sentry, telegram-bot-sdk, carbon, termwind, spatie/laravel-permission |
+| Кэши при старте (`docker/entrypoint.sh`) | `config`, `route`, `view`, `filament:optimize`, `event` | `config`, `route`, `event` — без `view:cache` (Blade при компиляции `<x-filament::…>` ищет класс компонента, без Filament это ошибка; API не рендерит свои Blade, страницы ошибок фреймворка компилируются при первом обращении) и без `filament:optimize` (команды нет) |
+| Пул php-fpm (4 vCPU) | `PHP_FPM_*`: 6 / 2 / 1 / 3 | `PHP_FPM_API_*`: 12 / 3 / 2 / 4 |
+
+Зачем. Из ~28 мс CPU запроса TWA под php-fpm около 20 мс — загрузка фреймворка, и заметная часть — регистрация Filament, Livewire и Blade-компонентов, которые ученику не нужны. На поверхности `api` их нет: ни классов в процессе, ни их маршрутов, ни `PublishNotifications` в глобальных middleware. Процесс, принимающий трафик учеников, не несёт Livewire и панелей вовсе. Поведение самого API одинаково на обеих поверхностях (тесты идут на `full`).
+
+Как это устроено. `APP_SURFACE` читается из окружения процесса (`$_SERVER`/`getenv`), не из конфига: решение нужно до того, как конфиг существует, а `config:cache` заморозил бы его. В compose это `environment:` сервиса `app-api`; php-fpm отдаёт окружение воркерам (официальный образ ставит `clear_env = no`); `Dockerfile` задаёт `ENV APP_SURFACE=full`, поэтому воркеры очередей и планировщик — полные. Строка в `.env` тоже работает (все три вопроса — `bootstrap/providers.php`, файлы маршрутов, манифест пакетов — задаются после загрузки `.env`). Неизвестное значение — исключение при первом же `artisan` (контейнер не стартует), а не тихий полный процесс под видом api. Манифест пакетов один на образ (`package:discover` при `composer install`), поэтому фильтр — в рантайме: `App\Support\SurfacePackageManifest` подменяет `PackageManifest` в `bootstrap/app.php`. `OrgPolicyResolver::inOrgPanel()` на `api` отвечает `false`, не трогая фасад Filament.
+
+nginx (`docker/nginx/prod.conf`): `location ^~ /api/ { fastcgi_pass app-api:9000; }` — префикс `^~` побеждает регулярные location, так что каждый `/api/*` (в том числе mp3 практики и игры `/api/twa/…/audio/…`; `audio/mpeg` не в `gzip_types`, сжатия нет, как и раньше) идёт в `app-api`; всё остальное — в `app`. nginx ждёт `service_healthy` обоих. Если `app-api` лежит — 502 только на `/api/*`, панели и вебхуки живут.
+
+`deploy.sh` после `up` проверяет в контейнере `app-api`, что `route:list --json` содержит `api/twa/me` и не содержит `filament.`/`admin`, а в smoke — что `GET /api/twa/me` через nginx отвечает 401 (JSON Laravel из `app-api`).
+
+Проверка руками:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env exec app-api php artisan about | grep -i -E 'filament|livewire'   # пусто
+docker compose -f docker-compose.prod.yml --env-file .env exec app-api php artisan route:list | grep -c 'filament\.'      # 0
+docker compose -f docker-compose.prod.yml --env-file .env exec app-api php artisan route:list | grep -E 'api/twa/me|health/ready'
+docker compose -f docker-compose.prod.yml --env-file .env exec app     php artisan route:list | grep -c 'filament\.'      # > 0
+curl -s -o /dev/null -w '%{http_code}\n' https://$APP_DOMAIN/api/twa/me   # 401
+```
+
+Octane: контейнер `app-api` может работать на FrankenPHP — «Режим контейнера `app-api`» ниже. Поверхность — свойство процесса, а не запроса; под Octane воркер стартует один раз с тем же окружением (`APP_SURFACE=api` из `environment:`/`ENV` образа).
+
+### Режим контейнера `app-api`: `APP_SERVER=fpm|octane`
+
+Одна переменная в `.env` (R13 шаг 2, `docs/21_OCTANE_READINESS.md`); умолчание и отсутствие переменной — `fpm`, всё как до Octane. Режим касается **только** `app-api`: `app` (панели, вебхуки), очереди и планировщик остаются на `lexiflow/app` (php-fpm / CLI).
+
+| | `fpm` (умолчание) | `octane` |
+|---|---|---|
+| Стадия Dockerfile / образ `app-api` | `app-fpm` (алиас `app`, тот же слой) / `lexiflow/app-fpm:<tag>` | `app-octane` (`dunglas/frankenphp:1-php8.5-alpine`, ZTS) / `lexiflow/app-octane:<tag>` |
+| Процесс | php-fpm, пул `PHP_FPM_API_*` | `docker/octane-start.sh` → `php artisan octane:frankenphp`, `OCTANE_WORKERS` (6 на 4 vCPU), `OCTANE_MAX_REQUESTS` (500), `OCTANE_LOG_LEVEL` (WARN) |
+| nginx `/api/` | `docker/nginx/snippets/api-fpm.conf` (`fastcgi_pass app-api:9000`) | `snippets/api-octane.conf` (`proxy_pass http://lexiflow_api_octane` — upstream `app-api:8000` в `prod.conf` с пулом keep-alive 32 соединений, `Connection ""`, `X-Forwarded-*`) |
+| Healthcheck | `php-fpm -t` | `curl -fsS http://127.0.0.1:8000/up` |
+| `TRUSTED_PROXIES` (только у `app-api`; у `app`, очередей и планировщика compose задаёт пусто) | по умолчанию `NGINX_IPV4` (`172.28.0.10`) в обоих режимах; под fpm безвредно | то же: один адрес nginx, не подсеть |
+| `REDIS_PERSISTENT` у `app` и `app-api` | `true` (compose): постоянные сокеты phpredis на воркер php-fpm, по одному `persistent_id` на каждое соединение (`config/database.php`) | `true`: воркер Octane живёт долго, сокеты и так переживают запрос; разницы нет |
+| `DB_PERSISTENT` у `app-api` | `APP_API_DB_PERSISTENT`, по умолчанию `true` | рекомендуется `APP_API_DB_PERSISTENT=false`: один воркер — одно соединение, persistent мешает `disconnect()` при утёкшей транзакции (`deploy.sh` предупреждает) |
+
+Переключение fpm → octane: в `.env` `APP_SERVER=octane` (и `APP_API_DB_PERSISTENT=false`; `TRUSTED_PROXIES` задавать не нужно), затем `bash deploy.sh <sha>` (собирает `app-octane` и, на всякий случай, `app-fpm`). **Откат:** `APP_SERVER=fpm` (или удалить строку) и `docker compose -f docker-compose.prod.yml --env-file .env up -d app-api nginx` — без сборки: `deploy.sh` всегда собирает `app-fpm`; nginx при старте перечитывает сниппет по `APP_SERVER`. Доверие адресу nginx под fpm безвредно: по FastCGI `REMOTE_ADDR` — это адрес клиента (или шлюза docker-proxy), и он никогда не равен адресу nginx.
+
+Воркеры. `OCTANE_WORKERS=6` на 4 vCPU: запрос в основном CPU, но ждёт PostgreSQL/Redis, а рядом живут PostgreSQL, Redis ×2, pgbouncer, nginx и `app`; больше 2 на ядро не нужно. Память — ~50–90 МБ на воркер без Filament (6 воркеров ≈ 0,3–0,55 ГБ + процесс Caddy). `OCTANE_MAX_REQUESTS=500`: воркер пересоздаётся после N запросов — страховка от медленных утечек вендорных пакетов; рестарты видны в логе контейнера. Лимит запроса — `octane.max_execution_time`, `stop_grace_period: 30s` (по SIGTERM Octane дожидается запросов в полёте).
+
+Что смотреть: `docker stats lexiflow-app-api` (RSS растёт не ступенями до рестарта по `max-requests`, а стоит), `docker compose ... logs app-api` (падения воркеров, `WARN`+), `docker compose ... exec app-api php artisan octane:status --server=frankenphp` (его же вызывает `deploy.sh`), `make prod-logs-api`, `make prod-shell-api`.
+
+Доверенные прокси: один адрес nginx. За nginx приложение видит адрес контейнера nginx, а не ученика; настоящий адрес — в `X-Forwarded-For`, который nginx **заменяет** (`$remote_addr`, клиентский заголовок не дописывается; `Forwarded` и `X-Forwarded-Prefix` гасятся). Laravel верит этим заголовкам только от `TRUSTED_PROXIES` (`config/trustedproxy.php`) — **одного закреплённого адреса nginx** `NGINX_IPV4` (`172.28.0.10`, `networks.default.ipv4_address` у `nginx`), а не подсети. Причина: соединения, пришедшие через docker-proxy (IPv6-клиенты на `[::]:443`, hairpin с хоста), приходят в nginx с `REMOTE_ADDR` = шлюз сети `172.28.0.1`, а он внутри `172.28.0.0/16`. Доверие подсети дало бы `app` (php-fpm читает `.env` целиком, FastCGI передаёт клиентские `HTTP_X_FORWARDED_*`) веру подделанному `X-Forwarded-For` — обход лимитов login/2FA/вебхуков и allowlist'ов Telegram/Payme/Click. Поэтому: (а) в `x-lru-env` compose задаёт `TRUSTED_PROXIES: ""` — `app`, очереди и планировщик не доверяют никому, что бы ни было в `.env`; (б) только `app-api` получает `TRUSTED_PROXIES=${TRUSTED_PROXIES:-${NGINX_IPV4:-172.28.0.10}}`; (в) адрес nginx вне `ip_range` сети (`COMPOSE_IP_RANGE`, `172.28.1.0/24`, оттуда Docker раздаёт адреса остальным контейнерам), коллизия исключена. `/16` и `*` в `TRUSTED_PROXIES` запрещены. Если подсеть пересекается с сетью хоста — поменять `COMPOSE_SUBNET`, `COMPOSE_IP_RANGE` и `NGINX_IPV4` вместе (`.env.example`). `OCTANE_HTTPS=true` задан в compose всегда (схема приложения — https, TLS на nginx).
+
+Проверка доверия. После `octane:status` `deploy.sh` выполняет `exec app-api php artisan config:show trustedproxy` и ищет в выводе `NGINX_IPV4` (из `.env`, по умолчанию `172.28.0.10`); не нашёл — STOP с подсказкой. Smoke `POST /api/twa/auth` оставлен как дополнительный сигнал, но 429 даёт только насыщенный лимитер, а не одна проверка.
+
+Смена подсети. Docker не меняет подсеть существующей сети при `up`. Перед первым `up` `deploy.sh` сравнивает подсеть сети `<проект>_default` (`docker network inspect`) с `COMPOSE_SUBNET` (умолчание `172.28.0.0/16`); при расхождении пишет `==> compose network subnet changes: stopping the stack` и делает `docker compose down` (без `-v`, тома целы) — простой стека на время деплоя. Так бывает при первом деплое R13 (сеть создана Docker'ом без `ipam`) и при откате на коммит без `ipam` (там Docker снова выберет подсеть сам; `TRUSTED_PROXIES` под fpm не нужен).
+
+Сборка. `app-octane` повторяет установку расширений стадии `app` (держать в согласии), код и `vendor/` берёт из `app` (composer один раз); `public/frankenphp-worker.php` кладётся на сборке; Caddyfile — стандартный стаб Octane (его `encode` не срабатывает: nginx шлёт `Accept-Encoding: ""`, сжимает только nginx — BREACH-исключения панелей сохраняются). Порт 8000 наружу не публикуется, Caddy-admin слушает `127.0.0.1:2019` внутри контейнера.
+
+Что ещё НЕ поделено: `storage` — общий volume (логи, маркеры circuit breaker кэша, скомпилированные Blade); `bootstrap/cache` — свой у каждого контейнера (не volume), поэтому кэши маршрутов и провайдеров у них разные, и это правильно.
 
 ### pgbouncer и постоянные соединения (R12d, решение владельца 04.11.2026)
 
@@ -77,7 +139,7 @@ migrate (deploy.sh), pg_dump (backup:run)  ────────────�
 | `superuser_reserved_connections` PostgreSQL | 3 |
 | **Итого** | **≈ 32 из 100** |
 
-Клиентская сторона pgbouncer: `PGBOUNCER_MAX_CLIENT_CONN` ≥ Σ `PHP_FPM_MAX_CHILDREN` по контейнерам `app` + воркеры очередей (3) + `scheduler` с его командами (≈ 5) + healthcheck и консоль; 200 при умолчаниях 16 воркеров FPM — с большим запасом, клиентское соединение pgbouncer стоит ~2 КБ. Серверная сторона: `PGBOUNCER_POOL_SIZE` — это сколько транзакций PostgreSQL выполняет одновременно; для OLTP правило 2–4 × vCPU (4 vCPU → 8–16, умолчание 20 с запасом на ожидание диска); больше — не быстрее, а очередь перед PostgreSQL. При `PGBOUNCER_QUERY_WAIT_TIMEOUT` (30 с) ожидания свободного серверного соединения клиент получает ошибку (запрос — 500), а не висит. **Без pgbouncer** (`DB_HOST=postgres`, `DB_PERSISTENT=true`) формула другая: Σ `PHP_FPM_MAX_CHILDREN` + воркеры очередей + команды планировщика + запас < `max_connections`, потому что каждый воркер FPM держит backend даже простаивая: 16 + 3 + 5 + 10 = 34 — тоже укладывается в 100, но при росте `PHP_FPM_MAX_CHILDREN` или втором контейнере `app` считать заново.
+Клиентская сторона pgbouncer: `PGBOUNCER_MAX_CLIENT_CONN` ≥ Σ `PHP_FPM_MAX_CHILDREN` по контейнерам `app` (6) + `app-api` (12) + воркеры очередей (3) + `scheduler` с его командами (≈ 5) + healthcheck и консоль; 200 при умолчаниях 18 воркеров FPM — с большим запасом, клиентское соединение pgbouncer стоит ~2 КБ. Серверная сторона: `PGBOUNCER_POOL_SIZE` — это сколько транзакций PostgreSQL выполняет одновременно; для OLTP правило 2–4 × vCPU (4 vCPU → 8–16, умолчание 20 с запасом на ожидание диска); больше — не быстрее, а очередь перед PostgreSQL. При `PGBOUNCER_QUERY_WAIT_TIMEOUT` (30 с) ожидания свободного серверного соединения клиент получает ошибку (запрос — 500), а не висит. **Без pgbouncer** (`DB_HOST=postgres`, `DB_PERSISTENT=true`) формула другая: Σ `PHP_FPM_MAX_CHILDREN` + воркеры очередей + команды планировщика + запас < `max_connections`, потому что каждый воркер FPM держит backend даже простаивая: 16 + 3 + 5 + 10 = 34 — тоже укладывается в 100, но при росте `PHP_FPM_MAX_CHILDREN` или втором контейнере `app` считать заново.
 
 **Как смотреть.** Консоль pgbouncer (пользователь `DB_USERNAME` — только `stats_users`: `SHOW`, без `SHUTDOWN`/`PAUSE`/`KILL`; администратор появляется, только если в `.env` заданы `PGBOUNCER_ADMIN_USER` и `PGBOUNCER_ADMIN_PASSWORD`, и заходить надо под ним):
 
@@ -92,6 +154,52 @@ docker compose -f docker-compose.prod.yml --env-file .env exec pgbouncer psql -h
 **Рестарты.** PostgreSQL перезапустился — pgbouncer теряет серверные соединения, запросы, бывшие в полёте, падают (внутри транзакции — 500 без повтора), простаивавшие клиенты ничего не замечают; новые серверные соединения pgbouncer открывает через `server_login_retry = 2` с. pgbouncer перезапустился (`docker compose restart pgbouncer`, ~1 с) — каждый воркер FPM на следующем запросе находит свой handle мёртвым и пересоздаёт его сам (проверено на стенде R12d: 551 «запросов» подряд с двумя рестартами, 11 ошибок — ровно те, что пришлись на секунду недоступности, после них всё само восстановилось). `/health/ready` ходит в базу через то же соединение приложения, то есть через pgbouncer: лежит pgbouncer — проверка `db` даёт `fail` и `503`, что и нужно (§15.2).
 
 **Как отключить pgbouncer.** В `.env` прода `DB_HOST=postgres` и обычный `deploy.sh` (или `docker compose up -d app queue-high queue-default queue-low scheduler`): приложение, воркеры и `pgsql_direct` идут в PostgreSQL напрямую, контейнер `pgbouncer` остаётся запущенным, но без клиентов. `DB_PERSISTENT=true` можно оставить — тогда действует бюджет «без pgbouncer» выше; `DB_PERSISTENT=false` возвращает соединение на запрос. Та же пара переменных — путь отката, если pgbouncer ведёт себя неожиданно.
+
+### PostgreSQL: настройки под сервер
+
+Официальный образ стартует со стоковыми настройками, рассчитанными на ноутбук: `shared_buffers` 128 МБ, `random_page_cost` 4, `jit` включён. `docker-compose.prod.yml` (сервис `postgres`) передаёт серверу флаги `-c` из переменных `PG_*` в `.env`; умолчания — под эталонный сервер 4 vCPU / 8 ГБ (тот же, на который считан «Пул php-fpm»). Переменная не задана — действует умолчание; `.env.example` содержит закомментированный блок со всеми.
+
+| Параметр (`PG_*`) | Умолчание | Формула | Зачем |
+|---|---|---|---|
+| `shared_buffers` (`PG_SHARED_BUFFERS`) | 2GB | ~25 % RAM | собственный кэш страниц PostgreSQL: горячие карточки, прогресс, индексы |
+| `effective_cache_size` (`PG_EFFECTIVE_CACHE_SIZE`) | 5GB | ~60 % RAM | подсказка планировщику (памяти не выделяет): `shared_buffers` + кэш страниц ОС; не 75 %, потому что рядом Redis ×2, php-fpm (18 воркеров), pgbouncer, nginx |
+| `work_mem` (`PG_WORK_MEM`) | 16MB | ≤ 24 backend'ов × несколько узлов сортировки × `work_mem` << свободной RAM | сортировки и хеши без сброса на диск; лимит на узел плана, не на запрос |
+| `maintenance_work_mem` (`PG_MAINTENANCE_WORK_MEM`) | 256MB | 3–6 % RAM | VACUUM, `CREATE INDEX` в миграциях |
+| `random_page_cost` (`PG_RANDOM_PAGE_COST`) | 1.1 | 4 на HDD, 1.1 на SSD | на SSD индексный доступ почти так же дёшев, как последовательный; при 4 планировщик зря выбирает seq scan |
+| `effective_io_concurrency` (`PG_EFFECTIVE_IO_CONCURRENCY`) | 200 | SSD/NVMe 200, HDD 2 | глубина упреждающего чтения bitmap-сканов |
+| `jit` (`PG_JIT`) | off | — | запросы приложения короткие (OLTP): JIT тратит CPU на планирование и ничего не даёт |
+| `max_wal_size` (`PG_MAX_WAL_SIZE`) | 2GB | — | реже принудительные checkpoint'ы при всплеске записи (`review`) |
+| `synchronous_commit` (`PG_SYNCHRONOUS_COMMIT`) | on | — | см. ниже; `on` — подтверждённый коммит уже на диске |
+| `log_min_duration_statement` (`PG_LOG_MIN_DURATION_STATEMENT`) | 500 | мс; -1 — выключить | запросы медленнее порога попадают в `docker compose logs postgres` |
+| `idle_in_transaction_session_timeout` | 60s | не параметризуется | см. выше |
+| `shm_size` (`PG_SHM_SIZE`) | 256m | — | Docker даёт `/dev/shm` 64 МБ, а параллельные воркеры PostgreSQL (`dynamic_shared_memory_type=posix`) падают с «could not resize shared memory segment» |
+
+**Как проверить.** `deploy.sh` после запуска печатает основные значения (блок «PostgreSQL settings in effect», только информация, деплой не останавливает). Вручную:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SHOW shared_buffers" -c "SHOW work_mem" -c "SHOW jit"'
+```
+
+**Другой сервер.** 2 vCPU / 4 ГБ: `PG_SHARED_BUFFERS=1GB`, `PG_EFFECTIVE_CACHE_SIZE=2500MB`, `PG_WORK_MEM=8MB`, `PG_MAINTENANCE_WORK_MEM=128MB` (остальное без изменений). 8 vCPU / 16 ГБ: `PG_SHARED_BUFFERS=4GB`, `PG_EFFECTIVE_CACHE_SIZE=10GB`, `PG_WORK_MEM=32MB`, `PG_MAINTENANCE_WORK_MEM=512MB`, `PG_MAX_WAL_SIZE=4GB`, и вместе с ними растят `PGBOUNCER_POOL_SIZE` (правило 2–4 × vCPU, §0 «pgbouncer»). `work_mem` проверяйте арифметикой: `PGBOUNCER_POOL_SIZE` + reserve × `work_mem` × 2–3 узла плана должны с запасом укладываться в RAM, оставшуюся после `shared_buffers` и остальных контейнеров.
+
+**`synchronous_commit=off` — решение владельца, по умолчанию не включено.** Коммит подтверждается клиенту до записи WAL на диск (запись — в фоне, примерно раз в 3 × `wal_writer_delay` = 0,6 с). Выигрыш — латентность записи: ответ `review` не ждёт fsync. Цена: при аварийном выключении сервера (питание, kernel panic; остановка или падение контейнера PostgreSQL сюда не относится — WAL сбрасывается на диск при завершении процесса) теряются последние ~0,6 с уже подтверждённых транзакций, то есть несколько ответов учеников; база при этом НЕ портится (в отличие от `fsync=off`, который включать нельзя), она просто откатывается на согласованное состояние чуть раньше. Платежи и Stars-транзакции тоже попадают под эту потерю, поэтому включать стоит, только приняв это явно: `PG_SYNCHRONOUS_COMMIT=off` в `.env`. Точечная альтернатива без глобальной потери — `SET LOCAL synchronous_commit = off` в конкретных транзакциях кода (сейчас не используется).
+
+**Применение.** Флаги читаются при старте сервера: `docker compose -f docker-compose.prod.yml --env-file .env up -d postgres` пересоздаёт контейнер (изменился `command`/`shm_size`) — это несколько секунд простоя БД. pgbouncer переподключится сам (`server_login_retry = 2` с; `server_lifetime = 3600` с касается только возраста соединений, не рестарта), но запросы в полёте и всё, что придёт за эти секунды, получат ошибки соединения (500, `/health/ready` — 503), транзакция в полёте теряется. Делайте в тихий час. Обычный `deploy.sh` делает то же самое, если `command` в compose изменился.
+
+### Cloudflare перед nginx
+
+Решение владельца 05.11.2026: статика Mini App и аудио отдаются с CDN. Пошагово (DNS, Cache Rules, безопасность) — `docs/23_CLOUDFLARE_RU.md`; здесь — что делает стек.
+
+| Переменная `.env` | Умолчание | Что делает |
+|---|---|---|
+| `CLOUDFLARE_PROXY` | `false` | `true` — `docker/nginx-entrypoint.sh` пишет `conf.d/00-cloudflare-real-ip.conf`: `set_real_ip_from` для каждого диапазона Cloudflare (IPv4+IPv6), `real_ip_header CF-Connecting-IP`, `real_ip_recursive on`. Дальше `$remote_addr` — адрес ученика: его видят `X-Forwarded-For` (Octane), FastCGI `REMOTE_ADDR` (fpm), лимиты per IP, `TelegramIpAllowlist`, `BillingIpAllowlist`. |
+| `CLOUDFLARE_ONLY` | `false` | `true` — origin lock: порт 443 отвечает 403 всем, чей TCP-адрес не из диапазонов Cloudflare (`geo $realip_remote_addr`; `$realip_remote_addr` — адрес ДО подмены). Требует `CLOUDFLARE_PROXY=true`, иначе nginx не стартует. Порт 80 (ACME) не закрывается. |
+
+Безопасность real_ip: заголовку `CF-Connecting-IP` верим только если TCP-соединение пришло из диапазона Cloudflare. Прямой клиент с поддельным заголовком в диапазон не попадает, его `$remote_addr` не меняется. Без `CLOUDFLARE_PROXY=true` заголовок игнорируется целиком.
+
+Диапазоны: при старте и раз в сутки (каждый 4-й тик 6-часового цикла) entrypoint скачивает `https://www.cloudflare.com/ips-v4` и `ips-v6` (`wget`, таймаут 10 с); каждая строка обязана быть CIDR, иначе скачанное отбрасывается. Запасной вариант — закоммиченный `docker/nginx/cloudflare-ips.txt` (дата и источник в шапке; освежать раз в полгода). Если новый конфиг не проходит `nginx -t`, остаются прежние диапазоны. Если нет ни скачанного, ни годного файла, контейнер не стартует с понятным сообщением. Включение: `.env` → `docker compose -f docker-compose.prod.yml --env-file .env up -d nginx` (контейнер пересоздаётся, образ не пересобирается).
+
+Smoke в `deploy.sh` ходит на домен по DNS, то есть через Cloudflare, поэтому проходит и при `CLOUDFLARE_ONLY=true`; `curl` по IP сервера получит 403 — так и задумано.
 
 ### Откат
 
@@ -763,6 +871,10 @@ curl -sf https://yourdomain.com/health/ready && echo "READY"
 # 2. Admin panel accessible
 curl -sI https://yourdomain.com/admin | grep "HTTP/"
 
+# 2a. TWA API is served by the api container (401 JSON from Laravel, not 502/404), and that container has no panels
+curl -s -o /dev/null -w '%{http_code}\n' https://yourdomain.com/api/twa/me        # -> 401
+docker compose -f docker-compose.prod.yml --env-file .env exec app-api php artisan about | grep -i filament   # -> nothing
+
 # 3. Migrations applied
 php artisan migrate:status
 
@@ -976,6 +1088,8 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 | `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails → the value is `degraded`, not `fail`, as long as the pure store has a fallback: the chain goes on to the array store and the application serves from the database (`docs/19` §4.1). With a pure store on Redis alone (`CACHE_PURE_STORE=lru_redis`) every cache call would throw, so the value is `fail`. Only reported when `CACHE_PURE_STORE` is (a failover chain over) a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
 | `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
+
+Every response also carries a top-level `surface` (`full` | `api`, `App\Support\Surface::current()`): which php-fpm container answered (`app` or `app-api`, §0 «Две поверхности приложения»).
 
 Response: `200 {"status":"ok","checks":{"db":"ok",...}}`, `200 {"status":"degraded","checks":{...,"redis_cache":"degraded"}}` (a dependency the application works without is down; `deploy.sh` and uptime monitors accept it, a lasting `degraded` is an alert of its own in §15.3) or `503 {"status":"fail","checks":{"db":"fail",...}}`.
 Only `ok`/`degraded`/`fail` is returned; error details, hosts and versions are written to the application log

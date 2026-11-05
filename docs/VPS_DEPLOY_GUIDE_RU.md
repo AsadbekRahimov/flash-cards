@@ -3,7 +3,9 @@
 Пошаговое руководство: от чистого сервера до работающего бота, мини-приложения (TWA) и админки.
 Ориентир — **Ubuntu 24.04 LTS**; на Debian 12 команды те же, кроме подключения репозитория PHP (см. §2).
 
-> Вариант с Docker (`docker-compose.prod.yml` + `deploy.sh`) описан в `README.md` и `docs/DEVOPS_GUIDE.md` §0.
+> Вариант с Docker (`docker-compose.prod.yml` + `deploy.sh`) описан в `README.md` и `docs/DEVOPS_GUIDE.md` §0; сквозной порядок для
+> нового сервера — `docs/24_VPS_DOCKER_RU.md`. **Всё из R13 (два контейнера `app`/`app-api`, Octane на FrankenPHP, Cloudflare с
+> восстановлением IP, тюнинг PostgreSQL через `PG_*`) есть только в Docker-пути** — для нового сервера используйте его, а не это руководство.
 > Здесь — «голый» сервер: всё ставится пакетами. Подробности по отдельным темам (оплата, мониторинг,
 > переменные Фазы 2) — в `docs/DEVOPS_GUIDE.md`; приёмка Фазы 2 — `docs/STAGING_PHASE2_CHECKLIST.md`.
 
@@ -300,6 +302,12 @@ effective_cache_size = 3GB
 work_mem = 16MB
 maintenance_work_mem = 256MB
 max_connections = 100
+random_page_cost = 1.1                 # SSD (на HDD оставьте 4)
+effective_io_concurrency = 200         # SSD / NVMe
+jit = off                              # короткие OLTP-запросы: JIT только тратит CPU
+max_wal_size = 2GB                     # реже checkpoint'ы
+synchronous_commit = on                # off - решение владельца (DEVOPS_GUIDE §0 «PostgreSQL: настройки под сервер»)
+log_min_duration_statement = 500       # мс; медленные запросы в журнал
 # Сессия, молчащая минуту с открытой транзакцией, закрывается (транзакция откатывается): страховка от утёкшей транзакции
 # при постоянных соединениях php-fpm (DB_PERSISTENT=true, §10 «Значения на запуск»; DEVOPS_GUIDE §0). Docker-стек задаёт то же.
 idle_in_transaction_session_timeout = 60s

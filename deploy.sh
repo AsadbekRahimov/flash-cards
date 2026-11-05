@@ -56,7 +56,7 @@ fi
 printf 'pid=%s started=%s command=deploy.sh %s\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&9
 
 # The running containers belong to the commit checked out now: docker-compose.prod.yml bind-mounts files of the working
-# tree into them (docker/postgres/entrypoint-guard.sh into postgres, docker/nginx/prod.conf into nginx), and a restart of a
+# tree into them (docker/postgres/entrypoint-guard.sh into postgres, docker/nginx/prod.conf and docker/nginx/snippets into nginx), and a restart of a
 # container re-resolves those mounts. A deploy that stops after its checkout but before it touched the stack - a STOP of
 # one of the checks below, a failed build - would leave a tree the containers do not fit; a rollback to a commit without
 # the guard file would make every restart of postgres 18 fail (the mount source gone, Docker creates a directory there).
@@ -165,8 +165,50 @@ for name in REDIS_PASSWORD REDIS_CACHE_PASSWORD; do
     esac
 done
 
+# The server of the app-api container (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): fpm (the
+# default, also when unset) or octane. Read the way compose reads it (shell environment, then .env); anything else stops here.
+APP_SERVER_MODE="$(redis_password_of APP_SERVER | tr -d '[:space:]')"
+APP_SERVER_MODE="${APP_SERVER_MODE:-fpm}"
+# Only the canonical lower case: compose (image tag, build target) and the nginx entrypoint do not fold the case.
+case "$APP_SERVER_MODE" in
+    fpm|octane) ;;
+    *)
+        echo "STOP: APP_SERVER is '${APP_SERVER_MODE}' (shell environment or .env); it must be exactly fpm or octane (lower case)." >&2
+        exit 1 ;;
+esac
+echo "==> app-api runs on: ${APP_SERVER_MODE}"
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    APP_API_DB_PERSISTENT_VALUE="$(redis_password_of APP_API_DB_PERSISTENT | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+    if [ "$APP_API_DB_PERSISTENT_VALUE" != "false" ]; then
+        echo "WARNING: APP_SERVER=octane with APP_API_DB_PERSISTENT='${APP_API_DB_PERSISTENT_VALUE:-unset, true}': one Octane worker holds one connection anyway, and a persistent PDO gets in the way of disconnect() after a leaked transaction. Set APP_API_DB_PERSISTENT=false in .env (docs/22_DEPLOY_R13_RU.md §7)." >&2
+    fi
+fi
+
 echo "==> Building immutable application, nginx and pgbouncer images"
-$COMPOSE build --pull app nginx pgbouncer
+# app-api builds the stage of its mode (target app-${APP_SERVER}); in Octane mode the php-fpm image of the same commit is
+# built too (the same layers as `app`, nothing new to compile): it is the way back, APP_SERVER=fpm needs no build.
+$COMPOSE build --pull app nginx pgbouncer app-api
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    APP_SERVER=fpm $COMPOSE build app-api
+fi
+
+# The compose network has a fixed subnet (COMPOSE_SUBNET, docker-compose.prod.yml). Docker cannot change the subnet of an existing
+# network under `up`: the old network has another one (the first R13 deploy, a rollback to a commit without `ipam`, a changed
+# COMPOSE_SUBNET) and nginx could not get its pinned address. Then the stack is stopped (`down`, never `-v`: volumes stay) and
+# `up` recreates the network - downtime for the length of the deploy.
+WANT_SUBNET="$(redis_password_of COMPOSE_SUBNET | tr -d '[:space:]')"
+WANT_SUBNET="${WANT_SUBNET:-172.28.0.0/16}"
+COMPOSE_PROJECT="$($COMPOSE config 2>/dev/null | sed -n 's/^name:[[:space:]]*//p' | head -n 1 | tr -d "\"'[:space:]")"
+if [ -n "$COMPOSE_PROJECT" ]; then
+    HAVE_SUBNET="$(docker network inspect "${COMPOSE_PROJECT}_default" --format '{{(index .IPAM.Config 0).Subnet}}' 2>/dev/null || true)"
+    if [ -n "$HAVE_SUBNET" ] && [ "$HAVE_SUBNET" != "$WANT_SUBNET" ]; then
+        echo "==> compose network subnet changes: stopping the stack (${HAVE_SUBNET} -> ${WANT_SUBNET}; volumes are kept)"
+        STACK_TOUCHED=1
+        $COMPOSE down
+    fi
+else
+    echo "WARNING: could not read the compose project name; the subnet of the compose network was not compared with COMPOSE_SUBNET" >&2
+fi
 
 echo "==> Starting database, pgbouncer and both Redis instances"
 STACK_TOUCHED=1
@@ -201,8 +243,53 @@ fi
 echo "==> Starting / updating the production stack"
 $COMPOSE up -d --remove-orphans
 
-echo "==> Verifying the application container"
+echo "==> Verifying the application containers"
 $COMPOSE exec -T app php artisan about --only=environment
+# The api container (APP_SURFACE=api, docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения») must carry no panel routes and
+# must have the TWA ones: a wrong APP_SURFACE would silently serve the full application to the learners. The JSON is read by
+# docker/check-api-surface.php (plain PHP): `route:list --json` escapes slashes, a shell pattern on the text is not reliable.
+$COMPOSE exec -T app-api sh -c 'php artisan route:list --json | php docker/check-api-surface.php'
+if [ "$APP_SERVER_MODE" = "octane" ]; then
+    # Octane's own view of the server (its state file): running, or a non-zero exit. The container healthcheck (curl /up) has
+    # already gated nginx, this one names the server in the log.
+    $COMPOSE exec -T app-api php artisan octane:status --server=frankenphp
+    # The deterministic check of the trust (the smoke call below only shows a 429 when the limiter is already saturated):
+    # the proxy list the application really runs with (the config cache of this very container) holds the address nginx is
+    # pinned to. Without it every client would share the address of nginx in the per-IP limits and the webhook allowlists.
+    NGINX_IP="$(redis_password_of NGINX_IPV4 | tr -d '[:space:]')"
+    NGINX_IP="${NGINX_IP:-172.28.0.10}"
+    TRUSTED_SHOWN="$($COMPOSE exec -T app-api php artisan config:show trustedproxy)"
+    if ! printf '%s\n' "$TRUSTED_SHOWN" | grep -Eq "(^|[^0-9.])$(printf '%s' "$NGINX_IP" | sed 's/\./\\./g')([^0-9.]|\$)"; then
+        echo "STOP: trustedproxy.proxies of app-api does not contain the address of nginx (${NGINX_IP}):" >&2
+        printf '%s\n' "$TRUSTED_SHOWN" >&2
+        echo "      Octane behind nginx needs TRUSTED_PROXIES to hold NGINX_IPV4 (the default); check TRUSTED_PROXIES / NGINX_IPV4 in .env" >&2
+        echo "      (docs/07_SECURITY.md «Доверенные прокси»). Roll back: ./deploy.sh --rollback <previous-sha>" >&2
+        exit 1
+    fi
+fi
+
+# Informational: the PostgreSQL settings the server really runs with (docker-compose.prod.yml, PG_* in .env). Never fails the deploy.
+echo "==> PostgreSQL settings in effect"
+$COMPOSE exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' <<'SQL' \
+    || echo "WARNING: could not read the PostgreSQL settings (informational only)" >&2
+SELECT name || '=' || current_setting(name) FROM pg_settings
+WHERE name IN ('shared_buffers', 'effective_cache_size', 'work_mem', 'jit', 'random_page_cost', 'max_wal_size', 'synchronous_commit')
+ORDER BY name;
+SQL
+# shared_buffers above ~30 % of the host's RAM means the PG_* defaults (sized for 8 GB, docs/DEVOPS_GUIDE.md §0 «PostgreSQL:
+# настройки под сервер») were left on a smaller server: two Redis and the php-fpm pools live here too. A warning, not a stop.
+SHARED_BUFFERS_BYTES="$($COMPOSE exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' <<'SQL' 2>/dev/null | tr -d '[:space:]' || true
+SELECT pg_size_bytes(current_setting('shared_buffers'));
+SQL
+)"
+MEM_TOTAL_KB="$(awk '/^MemTotal:/ { print $2 }' /proc/meminfo 2>/dev/null || true)"
+case "$SHARED_BUFFERS_BYTES$MEM_TOTAL_KB" in
+    *[!0-9]*|'') ;;
+    *)
+        if [ "$SHARED_BUFFERS_BYTES" -gt $((MEM_TOTAL_KB * 1024 * 3 / 10)) ]; then
+            echo "WARNING: shared_buffers is $((SHARED_BUFFERS_BYTES / 1024 / 1024)) MB on a host with $((MEM_TOTAL_KB / 1024)) MB of RAM (> 30 %): set PG_SHARED_BUFFERS / PG_EFFECTIVE_CACHE_SIZE in .env for this server size (docs/DEVOPS_GUIDE.md §0)" >&2
+        fi ;;
+esac
 
 DOMAIN="$($COMPOSE run --rm --no-deps --entrypoint sh certbot -c 'printf "%s" "$APP_DOMAIN"')"
 BASE="https://${DOMAIN}"
@@ -216,6 +303,23 @@ smoke_fail() {
 
 echo "==> Running HTTPS smoke check"
 $CURL "${BASE}/up" >/dev/null || smoke_fail "${BASE}/up"
+# Through nginx to app-api: an unauthenticated TWA call is a 401 JSON from Laravel (anything else - 502 with app-api down,
+# 404 from the wrong upstream, 500 - fails). `--retry-all-errors` does not retry a 401, so the loop is explicit.
+API_CODE=''
+for _ in $(seq 1 10); do
+    API_CODE="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "${BASE}/api/twa/me" || true)"
+    [ "$API_CODE" = "401" ] && break
+    sleep 2
+done
+[ "$API_CODE" = "401" ] || smoke_fail "${BASE}/api/twa/me answered ${API_CODE:-nothing}, expected 401 from the app-api container"
+# An empty body to the auth endpoint: 422 (no init_data) or 401, never a 5xx. This is NOT a proof of the trust: a 429 appears
+# only when the limiter is already saturated (every client sharing the nginx address would fill it under real traffic, not on
+# one call). The deterministic check is the `config:show trustedproxy` above (Octane); here it is a cheap extra signal.
+AUTH_CODE="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' --data '{}' "${BASE}/api/twa/auth" || true)"
+case "$AUTH_CODE" in
+    401|422) ;;
+    *) smoke_fail "POST ${BASE}/api/twa/auth with an empty body answered ${AUTH_CODE:-nothing}, expected 401 or 422 (429 = the per-IP limiter is saturated; with Octane check TRUSTED_PROXIES / NGINX_IPV4)" ;;
+esac
 
 # /health/ready needs the scheduler and worker heartbeats (written once a minute), so give them time
 # to appear after the containers restart: up to ~5 minutes.
