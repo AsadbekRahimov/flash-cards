@@ -256,7 +256,49 @@ services:
         # queries for microseconds, pg_dump and the migrations are active, not idle); it is the safety net for a leaked
         # transaction - a hung worker, an operator's psql left in BEGIN - which with pgbouncer would also pin a pooled server
         # connection for good. Set here, on the server, so it holds for every client, pooled or direct.
-        command: ["postgres", "-c", "idle_in_transaction_session_timeout=60s"]
+        # Server tuning (docs/DEVOPS_GUIDE.md §0 «PostgreSQL: настройки под сервер»): the stock settings are made for a
+        # laptop (shared_buffers 128MB, random_page_cost 4, JIT on). Defaults here are for the reference 4 vCPU / 8 GB
+        # host; every value can be overridden in .env (PG_*), applied with `docker compose up -d postgres`.
+        command:
+            - postgres
+            # idle_in_transaction_session_timeout: see above.
+            - -c
+            - idle_in_transaction_session_timeout=60s
+            # shared_buffers: PostgreSQL's own page cache, ~25% of RAM.
+            - -c
+            - shared_buffers=${PG_SHARED_BUFFERS:-2GB}
+            # effective_cache_size: planner hint only (allocates nothing) - shared_buffers + the OS page cache, ~60% of RAM
+            # because Redis x2, php-fpm, pgbouncer and nginx live on the same host.
+            - -c
+            - effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-5GB}
+            # work_mem: per sort/hash node of a query; at most ~24 backends (pgbouncer pool + reserve) x a few nodes x 16MB fits.
+            - -c
+            - work_mem=${PG_WORK_MEM:-16MB}
+            # maintenance_work_mem: VACUUM, CREATE INDEX (migrations); a handful of sessions at a time.
+            - -c
+            - maintenance_work_mem=${PG_MAINTENANCE_WORK_MEM:-256MB}
+            # random_page_cost: 4 is for spinning disks; on SSD an index scan is nearly as cheap as a sequential one.
+            - -c
+            - random_page_cost=${PG_RANDOM_PAGE_COST:-1.1}
+            # effective_io_concurrency: prefetch depth of bitmap scans on SSD / NVMe.
+            - -c
+            - effective_io_concurrency=${PG_EFFECTIVE_IO_CONCURRENCY:-200}
+            # jit: short OLTP queries only pay for JIT planning and compilation.
+            - -c
+            - jit=${PG_JIT:-off}
+            # max_wal_size: fewer forced checkpoints under a write burst (review answers).
+            - -c
+            - max_wal_size=${PG_MAX_WAL_SIZE:-2GB}
+            # synchronous_commit: on = a commit is on disk before the client is answered. `off` is the owner's decision
+            # (DEVOPS_GUIDE «PostgreSQL: настройки под сервер»): it can lose the last ~0.6 s of commits on a crash.
+            - -c
+            - synchronous_commit=${PG_SYNCHRONOUS_COMMIT:-on}
+            # log_min_duration_statement (ms): statements slower than this go to `docker compose logs postgres`.
+            - -c
+            - log_min_duration_statement=${PG_LOG_MIN_DURATION_STATEMENT:-500}
+        # Docker gives /dev/shm 64MB; parallel query workers of PostgreSQL (dynamic_shared_memory_type=posix) fail with
+        # "could not resize shared memory segment" once a plan needs more.
+        shm_size: ${PG_SHM_SIZE:-256m}
         environment:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_USER: ${DB_USERNAME}

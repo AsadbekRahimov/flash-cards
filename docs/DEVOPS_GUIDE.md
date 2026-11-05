@@ -127,6 +127,37 @@ docker compose -f docker-compose.prod.yml --env-file .env exec pgbouncer psql -h
 
 **Как отключить pgbouncer.** В `.env` прода `DB_HOST=postgres` и обычный `deploy.sh` (или `docker compose up -d app queue-high queue-default queue-low scheduler`): приложение, воркеры и `pgsql_direct` идут в PostgreSQL напрямую, контейнер `pgbouncer` остаётся запущенным, но без клиентов. `DB_PERSISTENT=true` можно оставить — тогда действует бюджет «без pgbouncer» выше; `DB_PERSISTENT=false` возвращает соединение на запрос. Та же пара переменных — путь отката, если pgbouncer ведёт себя неожиданно.
 
+### PostgreSQL: настройки под сервер
+
+Официальный образ стартует со стоковыми настройками, рассчитанными на ноутбук: `shared_buffers` 128 МБ, `random_page_cost` 4, `jit` включён. `docker-compose.prod.yml` (сервис `postgres`) передаёт серверу флаги `-c` из переменных `PG_*` в `.env`; умолчания — под эталонный сервер 4 vCPU / 8 ГБ (тот же, на который считан «Пул php-fpm»). Переменная не задана — действует умолчание; `.env.example` содержит закомментированный блок со всеми.
+
+| Параметр (`PG_*`) | Умолчание | Формула | Зачем |
+|---|---|---|---|
+| `shared_buffers` (`PG_SHARED_BUFFERS`) | 2GB | ~25 % RAM | собственный кэш страниц PostgreSQL: горячие карточки, прогресс, индексы |
+| `effective_cache_size` (`PG_EFFECTIVE_CACHE_SIZE`) | 5GB | ~60 % RAM | подсказка планировщику (памяти не выделяет): `shared_buffers` + кэш страниц ОС; не 75 %, потому что рядом Redis ×2, php-fpm (18 воркеров), pgbouncer, nginx |
+| `work_mem` (`PG_WORK_MEM`) | 16MB | ≤ 24 backend'ов × несколько узлов сортировки × `work_mem` << свободной RAM | сортировки и хеши без сброса на диск; лимит на узел плана, не на запрос |
+| `maintenance_work_mem` (`PG_MAINTENANCE_WORK_MEM`) | 256MB | 3–6 % RAM | VACUUM, `CREATE INDEX` в миграциях |
+| `random_page_cost` (`PG_RANDOM_PAGE_COST`) | 1.1 | 4 на HDD, 1.1 на SSD | на SSD индексный доступ почти так же дёшев, как последовательный; при 4 планировщик зря выбирает seq scan |
+| `effective_io_concurrency` (`PG_EFFECTIVE_IO_CONCURRENCY`) | 200 | SSD/NVMe 200, HDD 2 | глубина упреждающего чтения bitmap-сканов |
+| `jit` (`PG_JIT`) | off | — | запросы приложения короткие (OLTP): JIT тратит CPU на планирование и ничего не даёт |
+| `max_wal_size` (`PG_MAX_WAL_SIZE`) | 2GB | — | реже принудительные checkpoint'ы при всплеске записи (`review`) |
+| `synchronous_commit` (`PG_SYNCHRONOUS_COMMIT`) | on | — | см. ниже; `on` — подтверждённый коммит уже на диске |
+| `log_min_duration_statement` (`PG_LOG_MIN_DURATION_STATEMENT`) | 500 | мс; -1 — выключить | запросы медленнее порога попадают в `docker compose logs postgres` |
+| `idle_in_transaction_session_timeout` | 60s | не параметризуется | см. выше |
+| `shm_size` (`PG_SHM_SIZE`) | 256m | — | Docker даёт `/dev/shm` 64 МБ, а параллельные воркеры PostgreSQL (`dynamic_shared_memory_type=posix`) падают с «could not resize shared memory segment» |
+
+**Как проверить.** `deploy.sh` после запуска печатает основные значения (блок «PostgreSQL settings in effect», только информация, деплой не останавливает). Вручную:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SHOW shared_buffers" -c "SHOW work_mem" -c "SHOW jit"'
+```
+
+**Другой сервер.** 2 vCPU / 4 ГБ: `PG_SHARED_BUFFERS=1GB`, `PG_EFFECTIVE_CACHE_SIZE=2500MB`, `PG_WORK_MEM=8MB`, `PG_MAINTENANCE_WORK_MEM=128MB` (остальное без изменений). 8 vCPU / 16 ГБ: `PG_SHARED_BUFFERS=4GB`, `PG_EFFECTIVE_CACHE_SIZE=10GB`, `PG_WORK_MEM=32MB`, `PG_MAINTENANCE_WORK_MEM=512MB`, `PG_MAX_WAL_SIZE=4GB`, и вместе с ними растят `PGBOUNCER_POOL_SIZE` (правило 2–4 × vCPU, §0 «pgbouncer»). `work_mem` проверяйте арифметикой: `PGBOUNCER_POOL_SIZE` + reserve × `work_mem` × 2–3 узла плана должны с запасом укладываться в RAM, оставшуюся после `shared_buffers` и остальных контейнеров.
+
+**`synchronous_commit=off` — решение владельца, по умолчанию не включено.** Коммит подтверждается клиенту до записи WAL на диск (запись — в фоне, примерно раз в 3 × `wal_writer_delay` = 0,6 с). Выигрыш — латентность записи: ответ `review` не ждёт fsync. Цена: при аварийном выключении сервера (питание, kernel panic; остановка или падение контейнера PostgreSQL сюда не относится — WAL сбрасывается на диск при завершении процесса) теряются последние ~0,6 с уже подтверждённых транзакций, то есть несколько ответов учеников; база при этом НЕ портится (в отличие от `fsync=off`, который включать нельзя), она просто откатывается на согласованное состояние чуть раньше. Платежи и Stars-транзакции тоже попадают под эту потерю, поэтому включать стоит, только приняв это явно: `PG_SYNCHRONOUS_COMMIT=off` в `.env`. Точечная альтернатива без глобальной потери — `SET LOCAL synchronous_commit = off` в конкретных транзакциях кода (сейчас не используется).
+
+**Применение.** Флаги читаются при старте сервера: `docker compose -f docker-compose.prod.yml --env-file .env up -d postgres` пересоздаёт контейнер (изменился `command`/`shm_size`) — это несколько секунд простоя БД. pgbouncer переподключится сам (`server_login_retry = 2` с; `server_lifetime = 3600` с касается только возраста соединений, не рестарта), но запросы в полёте и всё, что придёт за эти секунды, получат ошибки соединения (500, `/health/ready` — 503), транзакция в полёте теряется. Делайте в тихий час. Обычный `deploy.sh` делает то же самое, если `command` в compose изменился.
+
 ### Откат
 
 Откатываем код на предыдущий проверенный SHA (смотрите `git log` или предыдущий успешный запуск Actions):
@@ -1014,6 +1045,8 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 | `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails → the value is `degraded`, not `fail`, as long as the pure store has a fallback: the chain goes on to the array store and the application serves from the database (`docs/19` §4.1). With a pure store on Redis alone (`CACHE_PURE_STORE=lru_redis`) every cache call would throw, so the value is `fail`. Only reported when `CACHE_PURE_STORE` is (a failover chain over) a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
 | `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
+
+Every response also carries a top-level `surface` (`full` | `api`, `App\Support\Surface::current()`): which php-fpm container answered (`app` or `app-api`, §0 «Две поверхности приложения»).
 
 Response: `200 {"status":"ok","checks":{"db":"ok",...}}`, `200 {"status":"degraded","checks":{...,"redis_cache":"degraded"}}` (a dependency the application works without is down; `deploy.sh` and uptime monitors accept it, a lasting `degraded` is an alert of its own in §15.3) or `503 {"status":"fail","checks":{"db":"fail",...}}`.
 Only `ok`/`degraded`/`fail` is returned; error details, hosts and versions are written to the application log

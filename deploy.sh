@@ -214,6 +214,15 @@ case "$API_ROUTES" in
     *'"filament.'*|*'"admin"'*|*'"admin/'*) echo "ERROR: app-api serves panel routes - APP_SURFACE of the app-api service is not 'api'" >&2; exit 1 ;;
 esac
 
+# Informational: the PostgreSQL settings the server really runs with (docker-compose.prod.yml, PG_* in .env). Never fails the deploy.
+echo "==> PostgreSQL settings in effect"
+$COMPOSE exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA' <<'SQL' \
+    || echo "WARNING: could not read the PostgreSQL settings (informational only)" >&2
+SELECT name || '=' || setting || coalesce(unit, '') FROM pg_settings
+WHERE name IN ('shared_buffers', 'effective_cache_size', 'work_mem', 'jit', 'random_page_cost', 'max_wal_size', 'synchronous_commit')
+ORDER BY name;
+SQL
+
 DOMAIN="$($COMPOSE run --rm --no-deps --entrypoint sh certbot -c 'printf "%s" "$APP_DOMAIN"')"
 BASE="https://${DOMAIN}"
 CURL="curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-errors"

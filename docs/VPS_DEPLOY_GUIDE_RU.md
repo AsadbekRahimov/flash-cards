@@ -300,6 +300,12 @@ effective_cache_size = 3GB
 work_mem = 16MB
 maintenance_work_mem = 256MB
 max_connections = 100
+random_page_cost = 1.1                 # SSD (на HDD оставьте 4)
+effective_io_concurrency = 200         # SSD / NVMe
+jit = off                              # короткие OLTP-запросы: JIT только тратит CPU
+max_wal_size = 2GB                     # реже checkpoint'ы
+synchronous_commit = on                # off - решение владельца (DEVOPS_GUIDE §0 «PostgreSQL: настройки под сервер»)
+log_min_duration_statement = 500       # мс; медленные запросы в журнал
 # Сессия, молчащая минуту с открытой транзакцией, закрывается (транзакция откатывается): страховка от утёкшей транзакции
 # при постоянных соединениях php-fpm (DB_PERSISTENT=true, §10 «Значения на запуск»; DEVOPS_GUIDE §0). Docker-стек задаёт то же.
 idle_in_transaction_session_timeout = 60s

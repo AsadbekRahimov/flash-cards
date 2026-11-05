@@ -6,6 +6,7 @@ use App\Domain\Operations\Services\QueueHeartbeat;
 use App\Domain\Operations\Services\SchedulerHeartbeat;
 use App\Domain\Operations\Support\PureCache;
 use App\Jobs\QueueHeartbeatJob;
+use App\Support\Surface;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -33,11 +34,31 @@ it('returns 200 with ok checks when dependencies are healthy', function (): void
         ->assertOk()
         ->assertExactJson([
             'status' => 'ok',
+            'surface' => 'full',
             'checks' => ['db' => 'ok', 'scheduler' => 'ok', 'queue' => 'ok']
                 + (config('cache.stores.'.config('cache.default').'.driver') === 'redis' ? ['redis' => 'ok'] : [])
                 // CI runs the pure cache on the second Redis instance (CACHE_PURE_STORE=lru): a check of its own.
                 + (PureCache::redisConnection() !== null && PureCache::redisConnection() !== config('cache.stores.'.config('cache.default').'.connection') ? ['redis_cache' => 'ok'] : []),
         ]);
+});
+
+it('reports the surface that answered', function (): void {
+    $previous = $_SERVER[Surface::ENV] ?? null;
+    $_SERVER[Surface::ENV] = 'api';
+
+    try {
+        app(SchedulerHeartbeat::class)->beat();
+
+        $this->getJson('/health/ready')
+            ->assertOk()
+            ->assertJsonPath('surface', 'api');
+    } finally {
+        if ($previous === null) {
+            unset($_SERVER[Surface::ENV]);
+        } else {
+            $_SERVER[Surface::ENV] = $previous;
+        }
+    }
 });
 
 it('keeps the framework /up endpoint working', function (): void {
