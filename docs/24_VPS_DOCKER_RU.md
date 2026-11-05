@@ -69,7 +69,8 @@ Docker пишет свои правила в iptables **мимо ufw**, но т�
 ## 3. Код и `.env`
 
 ```bash
-git clone <repo> /opt/lexiflow && cd /opt/lexiflow      # сервер деплоит с master: deploy.sh делает fetch + checkout SHA
+sudo mkdir -p /var/www && sudo chown deploy:deploy /var/www
+git clone <repo> /var/www/lexiflow && cd /var/www/lexiflow   # ровно этот путь ждёт job deploy в CI (ci.yml: cd /var/www/lexiflow)
 cp .env.example .env && chmod 600 .env
 ```
 
@@ -134,7 +135,7 @@ BACKUP_ARCHIVE_PASSWORD=<openssl rand -base64 48>
 ## 4. Первый деплой
 
 ```bash
-cd /opt/lexiflow
+cd /var/www/lexiflow
 git fetch origin master
 bash deploy.sh $(git rev-parse origin/master)     # SHA зелёного коммита master
 ```
@@ -219,12 +220,18 @@ IP на 443 станет 403; `origin.<домен>` для k6 и аварийн�
 ## 8. Каждый следующий деплой
 
 ```bash
-cd /opt/lexiflow && git fetch origin master && bash deploy.sh <sha-зелёного-коммита>
+cd /var/www/lexiflow && git fetch origin master && bash deploy.sh <sha-зелёного-коммита>
 ```
 
 Откат — `bash deploy.sh --rollback <предыдущий-sha>` (DEVOPS_GUIDE §0 «Откат»). Правка `.env` без смены кода —
-тот же `deploy.sh` (он пересоздаёт контейнеры с изменившимся окружением). Деплой из CI (секреты `SSH_HOST`, `SSH_USER`,
-`SSH_PRIVATE_KEY` в окружении GitHub `LexiFlow`) — DEVOPS_GUIDE §0; пока их нет, job `deploy` пропускается, деплой руками.
+тот же `deploy.sh` (он пересоздаёт контейнеры с изменившимся окружением).
+
+**Авто-деплой из CI** (DEVOPS_GUIDE §0): job `deploy` на каждом зелёном push в `master` заходит по SSH и выполняет
+`cd /var/www/lexiflow && bash deploy.sh <sha>`. Включается тремя секретами окружения GitHub `LexiFlow`: `SSH_HOST`, `SSH_USER`,
+`SSH_PRIVATE_KEY` — **все три или ни одного**: с одним-двумя job падает красным («Deploy secrets incomplete»), без всех трёх —
+пропускается с предупреждением. Добавлять их только когда §1–§4 выполнены: с момента добавления каждый merge в `master`
+уходит на сервер автоматически. `SSH_USER` — пользователь `deploy` из §1 (в группе `docker`, владелец `/var/www/lexiflow`), ключ —
+отдельная пара только для CI (`ssh-keygen -t ed25519 -C ci-deploy`, публичный в `~deploy/.ssh/authorized_keys`, приватный — в секрет).
 
 ---
 

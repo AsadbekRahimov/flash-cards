@@ -58,7 +58,7 @@ DB_DISABLE_PREPARES=true
 **Вручную на сервере:**
 
 ```bash
-cd /opt/lexiflow            # каталог с клоном и .env (chmod 600 .env)
+cd /var/www/lexiflow        # каталог с клоном и .env (chmod 600 .env); тот же путь использует job deploy в CI
 git fetch origin master
 bash deploy.sh <sha>        # SHA зелёного коммита master; без SHA — tip origin/master с предупреждением
 ```
