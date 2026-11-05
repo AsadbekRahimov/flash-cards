@@ -6,6 +6,7 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwaAuth;
 use App\Support\Surface;
 use App\Support\SurfacePackageManifest;
+use App\Support\TrustedProxies;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -41,6 +42,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(SecurityHeaders::class);
+
+        // Behind nginx as an HTTP proxy (the Octane mode of app-api) the client address and scheme arrive in X-Forwarded-*.
+        // The proxies that may send them come from config/trustedproxy.php (TRUSTED_PROXIES), which the global TrustProxies
+        // middleware reads on every request when none are named here; the header mask has no config key, so it is set
+        // here - without X-Forwarded-Prefix, which nginx hands through from the client (App\Support\TrustedProxies).
+        $middleware->trustProxies(headers: TrustedProxies::HEADERS);
 
         // Laravel's priority list runs `throttle:*` before any middleware it does not
         // know, so the TWA limiters would see no `twa` attribute and key every learner

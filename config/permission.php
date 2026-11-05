@@ -127,8 +127,12 @@ return [
      * When set to true, Laravel\Octane\Events\OperationTerminated event listener will be registered
      * this will refresh permissions on every TickTerminated, TaskTerminated and RequestTerminated
      * NOTE: This should not be needed in most cases, but an Octane/Vapor combination benefited from it.
+     *
+     * On: the api container runs on Octane (docs/21 §2.2 №27) and the registrar's in-memory permission collection
+     * must not outlive a request, as it does not under php-fpm. The package registers the listener only when Octane is
+     * installed, so php-fpm and the queue workers see no difference.
      */
-    'register_octane_reset_listener' => false,
+    'register_octane_reset_listener' => true,
 
     /*
      * Events will fire when a role or permission is assigned/unassigned:
