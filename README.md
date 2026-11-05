@@ -66,7 +66,7 @@ docker compose exec app php artisan migrate --seed
 
 ```bash
 # 1. Склонировать репозиторий и подготовить .env
-git clone <repo> /opt/lexiflow && cd /opt/lexiflow
+git clone <repo> /var/www/lexiflow && cd /var/www/lexiflow   # путь, в который деплоит CI (.github/workflows/ci.yml, job deploy)
 cp .env.example .env
 # — отредактировать .env: APP_ENV=production, APP_DEBUG=false, APP_DOMAIN,
 #   CERTBOT_EMAIL, APP_KEY, DB_PASSWORD, TELEGRAM_*, TWA_JWT_SECRET,
