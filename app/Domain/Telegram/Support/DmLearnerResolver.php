@@ -35,6 +35,12 @@ final class DmLearnerResolver
             return null;
         }
 
+        return $this->registerLearner($from);
+    }
+
+    /** @param array<string, mixed> $from a sender whose Telegram id was already checked against teachers */
+    public function registerLearner(array $from): Learner
+    {
         $learner = $this->registrar->fromTelegramUser($from);
 
         if ($learner->dm_blocked_at !== null) {

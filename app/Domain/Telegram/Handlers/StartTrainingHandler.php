@@ -12,7 +12,7 @@ use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
@@ -31,7 +31,7 @@ use App\Models\User;
  *   4. Delegate to TrainingSessionService::open() (idempotent).
  *   5. Post a group message with a WebApp inline button pointing to the TWA SPA.
  */
-final class StartTrainingHandler implements UpdateHandler
+final class StartTrainingHandler implements GroupUpdateHandler
 {
     /** Max lessons shown in the picker keyboard. */
     private const MAX_PICKER_ROWS = 20;
@@ -70,7 +70,7 @@ final class StartTrainingHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
@@ -83,7 +83,7 @@ final class StartTrainingHandler implements UpdateHandler
         }
 
         /** @var TelegramGroup|null $group */
-        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
             return;
         }

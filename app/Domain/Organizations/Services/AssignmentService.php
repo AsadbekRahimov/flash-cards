@@ -6,6 +6,7 @@ namespace App\Domain\Organizations\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\DTO\AssignmentProgress;
@@ -30,6 +31,7 @@ use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -65,6 +67,7 @@ final class AssignmentService
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
         private readonly TelegramMessageRateLimiter $outbound,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /**
@@ -398,7 +401,7 @@ final class AssignmentService
         $now ??= CarbonImmutable::now();
 
         $assignments = Assignment::query()
-            ->with(['lesson.stage.course:id,owner_type', 'group'])
+            ->with('group')
             ->where('status', Assignment::STATUS_ACTIVE)
             ->ofActiveOrganization()
             ->inLinkedGroup()
@@ -417,18 +420,18 @@ final class AssignmentService
 
         /** @var list<int> $lessonIds */
         $lessonIds = $assignments->pluck('lesson_id')->unique()->values()->all();
-        $totals = $this->activeWordTotals($lessonIds);
-        $repeated = $this->repeatedCounts($lessonIds, [$learner->id]);
+        $lessons = $this->catalog->lessonsWithContext($lessonIds);
+        $counts = $this->learnerLessonCounts($lessonIds, $learner->id);
         $existing = $this->snapshots($assignments->modelKeys(), [$learner->id]);
 
         /** @var list<AssignmentProgress> $rows */
         $rows = $assignments
-            ->map(fn (Assignment $assignment): AssignmentProgress => $this->progressOf(
-                $assignment,
-                $learner->id,
-                $totals[$assignment->lesson_id] ?? 0,
-                $repeated[$assignment->lesson_id][$learner->id] ?? 0,
-            ))
+            ->map(function (Assignment $assignment) use ($learner, $lessons, $counts): AssignmentProgress {
+                $assignment->setRelation('lesson', $lessons->get($assignment->lesson_id));
+                $count = $counts[$assignment->lesson_id] ?? ['total' => 0, 'repeated' => 0];
+
+                return $this->progressOf($assignment, $learner->id, $count['total'], $count['repeated']);
+            })
             ->values()
             ->all();
 
@@ -451,6 +454,31 @@ final class AssignmentService
             ),
             $rows,
         );
+    }
+
+    /**
+     * @param  list<int>  $lessonIds
+     * @return array<int, array{total: int, repeated: int}>
+     */
+    private function learnerLessonCounts(array $lessonIds, int $learnerId): array
+    {
+        $rows = DB::table('words')
+            ->leftJoin('word_repetitions as reps', fn (JoinClause $join): JoinClause => $join
+                ->on('reps.word_id', '=', 'words.id')
+                ->where('reps.learner_id', $learnerId)
+                ->where('reps.repetitions', '>=', 1))
+            ->whereIn('words.lesson_id', $lessonIds)
+            ->where('words.is_active', true)
+            ->groupBy('words.lesson_id')
+            ->selectRaw('words.lesson_id, count(*) as total, count(reps.id) as repeated')
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row->lesson_id] = ['total' => (int) $row->total, 'repeated' => (int) $row->repeated];
+        }
+
+        return $counts;
     }
 
     /**

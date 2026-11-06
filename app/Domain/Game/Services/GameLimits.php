@@ -59,6 +59,8 @@ use Illuminate\Support\Facades\DB;
  */
 final class GameLimits
 {
+    private const PROFILE_SCOPE = ' from learners left join game_profiles on game_profiles.learner_id = learners.id where learners.id = ?';
+
     public const KIND_RUNS = GameException::KIND_RUNS;
 
     public const KIND_BOSS = GameException::KIND_BOSS;
@@ -105,11 +107,12 @@ final class GameLimits
         $row = DB::selectOne(
             "select {$countersSql},"
             .' (select count(*) from game_booster_uses where learner_id = ? and week_start = ?) as boosters_used,'
-            .' (select balance from game_wallets where learner_id = ?) as coins',
+            .' (select balance from game_wallets where learner_id = ?) as coins,'
+            .' game_profiles.stops_cleared, game_profiles.cities_cleared'.self::PROFILE_SCOPE,
             [
                 ...$countersBindings,
                 $learner->id, StoredDate::of($weekStart->toDateString()),
-                $learner->id,
+                $learner->id, $learner->id,
             ],
         );
 
@@ -124,6 +127,8 @@ final class GameLimits
             boostersResetAt: GameWeek::end($today)->utc(),
             bossStages: $this->bossStages($entitlement),
             coins: (int) ($row->coins ?? 0),
+            stopsCleared: (int) ($row->stops_cleared ?? 0),
+            citiesCleared: (int) ($row->cities_cleared ?? 0),
         );
     }
 
@@ -341,7 +346,7 @@ final class GameLimits
     private function usedAndTickets(int $learnerId, DayBounds $window, ?array $closing = null): array
     {
         [$sql, $bindings] = $this->countersSql($learnerId, $window, $closing);
-        $row = DB::selectOne("select {$sql}", $bindings);
+        $row = DB::selectOne("select {$sql}".self::PROFILE_SCOPE, [...$bindings, $learnerId]);
 
         return [(int) ($row->runs_used ?? 0), (int) ($row->tickets ?? 0)];
     }
@@ -360,11 +365,10 @@ final class GameLimits
         return [
             '(select count(*) from game_runs where learner_id = ? and kind in (?, ?) and started_at >= ? and started_at < ?'
             ." and (finish_reason is null or finish_reason not in (?, ?) or answered > 0) and not ({$closingSql})) as runs_used,"
-            .' coalesce((select tickets from game_profiles where learner_id = ?), 0)'
+            .' coalesce(game_profiles.tickets, 0)'
             ." + (select count(*) from game_runs where active_learner_id = ? and free_slot = ? and ({$closingSql})) as tickets",
             [
                 $learnerId, ...self::countedKindValues(), self::sql($window->startUtc), self::sql($window->endUtc), ...self::unspentReasonValues(), ...$closingBindings,
-                $learnerId,
                 $learnerId, FreeSlot::Ticket->value, ...$closingBindings,
             ],
         ];

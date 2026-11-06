@@ -7,10 +7,10 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Models\TelegramGroup;
 
-final class HelpCommandHandler implements UpdateHandler
+final class HelpCommandHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -34,7 +34,7 @@ final class HelpCommandHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
@@ -47,7 +47,7 @@ final class HelpCommandHandler implements UpdateHandler
             $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
             $text = __('bot.help.private', ['caravan' => $this->game->classCaravanOpen() ? __('bot.help.private_caravan', [], $locale) : ''], $locale);
         } else {
-            $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+            $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
             // The caravan commands are listed only with GAME_ACCESS=all (G2.9b, G2.13): off and pilot hide them everywhere.
             $caravan = ! $this->game->classCaravanOpen() ? '' : __('bot.help.group_caravan', [], $locale);

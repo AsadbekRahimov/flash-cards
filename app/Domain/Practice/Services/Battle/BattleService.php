@@ -144,7 +144,9 @@ final class BattleService
             ? $this->scopeOf($courseSlug, $lessonId)
             : $this->scopeOfRematch($source);
 
-        $locales = new LocaleSet([$this->locales->forLearner($by), $this->locales->forLearner($friend)]);
+        $challengerLocale = $this->locales->forLearner($by);
+        $opponentLocale = $this->locales->forLearner($friend);
+        $locales = new LocaleSet([$challengerLocale, $opponentLocale]);
         $snapshot = $this->snapshot($by, $mode, new MaterialScope($course, $lesson), $locales);
 
         $attributes = [
@@ -165,9 +167,6 @@ final class BattleService
             'state_version' => 0,
             'meta' => [],
         ];
-        $challengerLocale = $this->locales->forLearner($by);
-        $opponentLocale = $this->locales->forLearner($friend);
-
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
                 return $this->transact(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source, $now): Battle|PracticeException {
@@ -290,12 +289,14 @@ final class BattleService
 
                     // The unique index decides: a violation (busy with another match) leaves the transaction and is a 409 below.
                     $me = $battle->participant($by->id);
-                    BattleParticipant::query()->whereKey($me->id)->update(['active_learner_id' => $by->id, 'last_seen_at' => $now, 'updated_at' => $now]);
+                    $challenger = $battle->participant($battle->challenger_id);
+                    DB::update(
+                        'update battle_participants set active_learner_id = case when id = ? then ? else active_learner_id end,'
+                        .' last_seen_at = ?, updated_at = ? where id in (?, ?)',
+                        [$me->id, $by->id, $now, $now, $me->id, $challenger->id],
+                    );
                     $me->active_learner_id = $by->id;
                     $me->last_seen_at = $now;
-
-                    $challenger = $battle->participant($battle->challenger_id);
-                    BattleParticipant::query()->whereKey($challenger->id)->update(['last_seen_at' => $now, 'updated_at' => $now]);
                     $challenger->last_seen_at = $now;
 
                     $battle->forceFill([

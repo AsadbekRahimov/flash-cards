@@ -80,9 +80,14 @@ final class LeaderboardBuilder
      */
     private function assignRanks(ExamSession $session, Collection $rows): Collection
     {
-        $results = collect();
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        $results = [];
         $lastKey = null;
         $lastRank = 0;
+        $now = now();
 
         foreach ($rows as $index => $row) {
             $tieKey = "{$row['total_score']}|{$row['correct_count']}|{$row['time_spent_ms']}";
@@ -94,18 +99,26 @@ final class LeaderboardBuilder
                 $lastKey = $tieKey;
             }
 
-            $result = ExamResult::query()->create([
+            $results[] = [
                 'exam_session_id' => $session->id,
                 'learner_id' => $row['learner_id'],
                 'total_score' => $row['total_score'],
                 'correct_count' => $row['correct_count'],
                 'total_count' => $row['total_count'],
                 'rank' => $rank,
-            ]);
-
-            $results->push($result);
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
         }
 
-        return $results;
+        if (count($results) === 1) {
+            return collect([ExamResult::query()->create($results[0])]);
+        }
+
+        foreach (array_chunk($results, 500) as $batch) {
+            ExamResult::query()->insert($batch);
+        }
+
+        return ExamResult::query()->where('exam_session_id', $session->id)->orderBy('rank')->orderBy('id')->get();
     }
 }

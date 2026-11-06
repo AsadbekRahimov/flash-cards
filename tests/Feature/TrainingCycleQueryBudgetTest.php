@@ -70,29 +70,28 @@ it('keeps every step of the training cycle inside its statement budget', functio
     $card = $opened['card'];
 
     // open: learner (auth), the lesson with its stage and course in ONE read, the session lock + insert, the event,
-    // the counters, the due pick, then the new-card transaction (learner lock, candidates, quota, insert): 11.
-    expect(count($open))->toBeLessThanOrEqual(11)
+    // the counters, the due pick, then the new-card transaction (learner lock, candidates with quota, insert): 10.
+    expect(count($open))->toBeLessThanOrEqual(10)
         ->and(QueryLog::matching($open, '/from ["`]lessons["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($open, '/from ["`]subscriptions["`]/'))->toBe([]);
 
-    // next, with the just served card due: learner, session, the access check, the counters, the due pick with its
-    // word, the quota for display: 6.
+    // next, with the card already due: learner, session with access context, counters, due pick, displayed quota.
     $next = QueryLog::during(function () use (&$card, $base, $h): void {
         $card = trainingCall($this, $h, 'GET', "{$base}/next")['card'];
     });
-    expect(count($next))->toBeLessThanOrEqual(6)
+    expect(count($next))->toBeLessThanOrEqual(5)
         ->and(QueryLog::matching($next, '/from ["`]words["`] where/'))->toBe([]); // the word rides with the repetition
 
     // The first grade of the day also places the learner in the league and checks the first achievement: not measured.
     $card = trainingCall($this, $h, 'POST', "{$base}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 100, 'serve_token' => $card['serve_token']])['card'];
 
-    // review of a new card, the next card new too: learner, session, access check | session lock, repetition+word,
+    // review of a new card, the next card new too: learner, session with access context | session lock, repetition+word,
     // UPDATE, INSERT review, day row (locked, with the goal), UPDATE day row | counters, due pick, learner lock,
-    // candidates, quota, INSERT repetition, the translation of a word nobody saw yet: 16.
+    // candidates with quota, INSERT repetition, translation of a word nobody saw yet: at most 14.
     $review = QueryLog::during(function () use (&$card, $base, $h): void {
         $card = trainingCall($this, $h, 'POST', "{$base}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 100, 'serve_token' => $card['serve_token']])['card'];
     });
-    expect(count($review))->toBeLessThanOrEqual(16)
+    expect(count($review))->toBeLessThanOrEqual(14)
         ->and(QueryLog::matching($review, '/from ["`]subscriptions["`]/'))->toBe([])
         ->and(QueryLog::matching($review, '/from ["`]achievements["`]/'))->toBe([])
         ->and(QueryLog::matching($review, '/insert into ["`]learner_daily_stats["`]/'))->toBe([])
@@ -118,7 +117,7 @@ it('keeps every step of the training cycle inside its statement budget', functio
     });
     expect($card['card_kind'])->toBe('learning')
         ->and($card['serve_token'])->not->toBeNull()
-        ->and(count($ahead))->toBeLessThanOrEqual(16);
+        ->and(count($ahead))->toBeLessThanOrEqual(14);
 
     // finish: learner, session, the lock + UPDATE, the summary in ONE statement, the event, the referral, today: 9.
     $finish = QueryLog::during(function () use ($base, $h): void {

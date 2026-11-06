@@ -29,6 +29,8 @@ final readonly class GameLimitState
         public CarbonImmutable $boostersResetAt,
         public ?int $bossStages,
         public int $coins,
+        public int $stopsCleared = 0,
+        public int $citiesCleared = 0,
     ) {}
 
     public function runsRemaining(): int

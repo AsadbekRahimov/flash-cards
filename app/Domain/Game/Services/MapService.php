@@ -69,15 +69,19 @@ final class MapService
         // One definition of the day's caravan for the map and for `/today`: DailyCaravanService.
         $day = $this->daily->state($learner, $now, $this->stats->dueCount($learner, $now));
 
-        // The tickets of `me` are the ones of the limits block (it counts the refund of an expired run without an answer that the
-        // scheduler has not closed yet), so the two numbers of one response agree; no statement is added.
+        // Read the profile and limits together so both blocks show the same balance, including pending refunds.
         $limits = $this->limits->state($learner, $this->entitlements->for($learner, $now), $now);
 
         return new GameMapView(
             course: ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale)],
-            cities: $this->cities($course, $learner, $locale),
+            cities: $this->cities($course, $learner, $locale, $limits->bossStages),
             daily: $day['daily'],
-            me: [...$this->me($learner), 'tickets' => $limits->tickets],
+            me: [
+                'stops_cleared' => $limits->stopsCleared,
+                'cities_cleared' => $limits->citiesCleared,
+                'coins' => $limits->coins,
+                'tickets' => $limits->tickets,
+            ],
             friends: $this->friends($learner, $course),
             activeRun: $day['active_run'],
             classCaravan: $this->classCaravans->activeCardFor($learner, $now),
@@ -91,7 +95,7 @@ final class MapService
      *
      * @return list<array{stage_id: int, number: int, city: string, title: string|null, unlocked: bool, stops: list<array{lesson_id: int, number: int, title: string|null, unlocked: bool, stars: int, best_score: int, runs: int}>, boss: array{state: string, defeated_at: string|null, introduced: int, required: int, cleared_stops: int, required_stops: int}}>
      */
-    private function cities(Course $course, Learner $learner, string $locale): array
+    private function cities(Course $course, Learner $learner, string $locale, ?int $bossStages): array
     {
         $rows = DB::table('lessons')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
@@ -153,7 +157,6 @@ final class MapService
             ];
         }
 
-        $planLocks = $this->bossPlanLock($learner);
         $cities = [];
         foreach ($stages as $stage) {
             $cleared = count(array_filter($stage['stops'], static fn (array $stop): bool => $stop['stars'] >= 1));
@@ -161,7 +164,7 @@ final class MapService
 
             $state = match (true) {
                 $stage['defeated_at'] !== null => 'defeated',
-                $planLocks($stage['number']) => 'locked_by_plan',
+                $bossStages !== null && $stage['number'] > $bossStages => 'locked_by_plan',
                 $readiness->isReady() => 'ready',
                 default => 'not_ready',
             };
@@ -185,54 +188,6 @@ final class MapService
         }
 
         return $cities;
-    }
-
-    /**
-     * Whether the boss of the city `$number` is behind the plan for this learner (docs/18 §12.7.2): Free, past the first
-     * `free_limits.boss_stages` cities, without the feature `game.all_bosses`. An empty limit is none; `0` is Pro only. The plan is
-     * read when a city past the limit asks, and once.
-     *
-     * @return callable(int): bool
-     */
-    private function bossPlanLock(Learner $learner): callable
-    {
-        $limit = config('game.free_limits.boss_stages');
-        $free = null;
-
-        return function (int $number) use ($learner, $limit, &$free): bool {
-            if ($limit === null || $limit === '' || $number <= (int) $limit) {
-                return false;
-            }
-            $free ??= ! $this->entitlements->for($learner)->can('game.all_bosses');
-
-            return $free;
-        };
-    }
-
-    /**
-     * The coins, the tickets and the totals of the learner in one statement (the rows are created lazily: a missing one is 0).
-     *
-     * @return array{stops_cleared: int, cities_cleared: int, coins: int, tickets: int}
-     */
-    private function me(Learner $learner): array
-    {
-        $row = DB::table('learners')
-            ->leftJoin('game_wallets', 'game_wallets.learner_id', '=', 'learners.id')
-            ->leftJoin('game_profiles', 'game_profiles.learner_id', '=', 'learners.id')
-            ->where('learners.id', $learner->id)
-            ->first([
-                'game_wallets.balance as coins',
-                'game_profiles.tickets as tickets',
-                'game_profiles.stops_cleared as stops_cleared',
-                'game_profiles.cities_cleared as cities_cleared',
-            ]);
-
-        return [
-            'stops_cleared' => (int) ($row->stops_cleared ?? 0),
-            'cities_cleared' => (int) ($row->cities_cleared ?? 0),
-            'coins' => (int) ($row->coins ?? 0),
-            'tickets' => (int) ($row->tickets ?? 0),
-        ];
     }
 
     /**

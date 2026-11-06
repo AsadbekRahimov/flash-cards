@@ -113,16 +113,15 @@ it('costs the same number of queries for 1 and 20 assignments — cold, after a 
     // The same for 1 and for 20 assignments: nothing here is per assignment.
     expect($measured[20])->toBe($measured[1]);
 
-    // Upper bounds (SQLite and PostgreSQL alike): auth + assignments (with lesson, stage, course, group) + totals
-    // + repeated + snapshot rows = 9 on a warm call; a cold call or one after a session adds the single
+    // Auth, assignments, groups, lesson context, live counts and snapshots: 6 on a warm call. A cold call adds the single
     // upsert and one re-read.
     [$coldQueries, $coldWrites] = $measured[20]['cold'];
     [$warmQueries, $warmWrites] = $measured[20]['warm'];
     [$afterQueries, $afterWrites] = $measured[20]['after_session'];
 
-    expect($coldQueries)->toBeLessThanOrEqual(11)->and($coldWrites)->toBe(1)
-        ->and($afterQueries)->toBeLessThanOrEqual(11)->and($afterWrites)->toBe(1)
-        ->and($warmQueries)->toBeLessThanOrEqual(9)->and($warmWrites)->toBe(0)
+    expect($coldQueries)->toBeLessThanOrEqual(8)->and($coldWrites)->toBe(1)
+        ->and($afterQueries)->toBeLessThanOrEqual(8)->and($afterWrites)->toBe(1)
+        ->and($warmQueries)->toBeLessThanOrEqual(6)->and($warmWrites)->toBe(0)
         ->and($measured[20]['warm_again'])->toBe($measured[20]['warm']);
 });
 

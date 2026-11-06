@@ -47,19 +47,27 @@ final class LearnerDeckService
         private readonly CoursePublisher $publisher,
         private readonly DeckImportParser $parser,
         private readonly LearningCache $cache,
+        private readonly WordTranslationResolver $translations,
     ) {}
 
-    public function limits(Learner $learner): DeckLimits
+    public function limits(Learner $learner, ?int $usedDecks = null): DeckLimits
+    {
+        $limits = $this->planLimits($learner);
+
+        return new DeckLimits($limits['decks'], $limits['deck_words'], $usedDecks ?? $this->decksQuery($learner)->count());
+    }
+
+    /** @return array{decks: int, deck_words: int} */
+    private function planLimits(Learner $learner): array
     {
         $plan = $this->entitlements->for($learner)->plan->value;
         /** @var array{decks?: mixed, deck_words?: mixed} $limits */
         $limits = config("decks.limits.{$plan}") ?? config('decks.limits.free');
 
-        return new DeckLimits(
-            max(0, (int) ($limits['decks'] ?? 0)),
-            max(0, (int) ($limits['deck_words'] ?? 0)),
-            $this->decksQuery($learner)->count(),
-        );
+        return [
+            'decks' => max(0, (int) ($limits['decks'] ?? 0)),
+            'deck_words' => max(0, (int) ($limits['deck_words'] ?? 0)),
+        ];
     }
 
     /** @return Collection<int, Course> the learner's non-archived decks, oldest first */
@@ -148,17 +156,21 @@ final class LearnerDeckService
     public function addWords(Learner $learner, Course $deck, array $rows, array $rejected = []): DeckImportReport
     {
         $this->assertOwned($learner, $deck);
-        $limit = $this->limits($learner)->deckWords;
+        $limit = $this->planLimits($learner)['deck_words'];
 
-        return DB::transaction(function () use ($deck, $rows, $rejected, $limit): DeckImportReport {
+        return DB::transaction(function () use ($learner, $deck, $rows, $rejected, $limit): DeckImportReport {
             // Serialises parallel imports into one deck: the active count below cannot be overtaken.
-            Course::query()->whereKey($deck->id)->lockForUpdate()->firstOrFail();
+            $locked = Course::query()->whereKey($deck->id)->lockForUpdate()->first();
+            if ($locked === null) {
+                throw DeckException::notFound();
+            }
+            $this->assertOwned($learner, $locked);
 
             $stage = Stage::query()->where('course_id', $deck->id)->orderBy('number')->firstOrFail();
             /** @var Collection<int, Lesson> $lessons */
             $lessons = Lesson::query()->where('stage_id', $stage->id)->orderBy('number')->get();
 
-            $existing = Word::query()->whereIn('lesson_id', $lessons->modelKeys())->get()
+            $existing = Word::query()->whereIn('lesson_id', $lessons->modelKeys())->get(['id', 'lesson_id', 'word', 'is_active'])
                 ->keyBy(fn (Word $word): string => mb_strtolower($word->word));
 
             $fresh = [];
@@ -181,9 +193,21 @@ final class LearnerDeckService
                 throw DeckException::wordsLimit($limit, $room);
             }
 
+            $changed = [];
+            $updates = [];
             foreach ($revived as [$word, $row]) {
-                $word->forceFill(['is_active' => true, 'translation' => $row->translation, 'example' => $row->example])->save();
-                $this->writeTranslations($word, $row);
+                $changed[(int) $word->id] = $row;
+                $updates[] = [
+                    'id' => $word->id,
+                    'lesson_id' => $word->lesson_id,
+                    'word' => $word->word,
+                    'is_active' => true,
+                    'translation' => $row->translation,
+                    'example' => $row->example,
+                ];
+            }
+            if ($updates !== []) {
+                Word::query()->upsert($updates, ['id'], ['is_active', 'translation', 'example']);
             }
 
             $counts = [];
@@ -191,12 +215,16 @@ final class LearnerDeckService
                 $counts[$word->lesson_id] = ($counts[$word->lesson_id] ?? 0) + 1;
             }
 
-            $touched = $this->place($stage, $lessons, $counts, $fresh);
+            [$added, $touched] = $this->place($stage, $lessons, $counts, $fresh);
+            $changed += $added;
+            $this->writeTranslations($changed);
 
             $this->publisher->recount($deck);
 
             $lessonsToForget = $lessons->merge($touched)->unique('id')->values()->all();
-            DB::afterCommit(function () use ($lessonsToForget): void {
+            DB::afterCommit(function () use ($lessonsToForget, $changed): void {
+                // Bulk upserts skip WordTranslationObserver.
+                rescue(fn () => $this->translations->forget(array_keys($changed)));
                 foreach ($lessonsToForget as $lesson) {
                     $this->cache->forgetLesson($lesson);
                 }
@@ -300,55 +328,92 @@ final class LearnerDeckService
      * @param  Collection<int, Lesson>  $lessons  existing lessons in order
      * @param  array<int, int>  $counts  lesson id => number of words (active or not) already in it
      * @param  list<DeckRow>  $rows
-     * @return list<Lesson> the lessons that received words
+     * @return array{array<int, DeckRow>, list<Lesson>} the new words by id and the lessons that received them
      */
     private function place(Stage $stage, Collection $lessons, array $counts, array $rows): array
     {
-        $size = max(1, (int) config('decks.lesson_size', 50));
+        if ($rows === []) {
+            return [[], []];
+        }
 
-        /** @var array<int, Lesson> $byId */
-        $byId = [];
-        $currentId = null;
-        $number = 0;
-        foreach ($lessons as $lesson) {
-            $byId[$lesson->id] = $lesson;
-            $currentId = $lesson->id;
-            $number = $lesson->number;
+        $size = max(1, (int) config('decks.lesson_size', 50));
+        $last = $lessons->last();
+        $number = $last === null ? 1 : $last->number;
+        $used = $last === null ? 0 : ($counts[$last->id] ?? 0);
+        $parts = [];
+        foreach ($rows as $row) {
+            if ($used >= $size) {
+                $number++;
+                $used = 0;
+            }
+            $parts[$number][] = $row;
+            $used++;
+        }
+
+        $now = now();
+        $byNumber = $lessons->keyBy('number');
+        $missing = array_diff(array_keys($parts), $byNumber->keys()->all());
+        if ($missing !== []) {
+            Lesson::query()->insert(array_map(static fn (int $part): array => [
+                'stage_id' => $stage->id,
+                'number' => $part,
+                'title' => 'Часть '.$part,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], array_values($missing)));
+            foreach (Lesson::query()->where('stage_id', $stage->id)->whereIn('number', $missing)->get() as $lesson) {
+                $byNumber->put($lesson->number, $lesson);
+            }
         }
 
         $touched = [];
-        foreach ($rows as $row) {
-            if ($currentId === null || ($counts[$currentId] ?? 0) >= $size) {
-                $number++;
-                $created = Lesson::query()->create(['stage_id' => $stage->id, 'number' => $number, 'title' => 'Часть '.$number]);
-                $byId[$created->id] = $created;
-                $currentId = $created->id;
+        $inserts = [];
+        $byText = [];
+        foreach ($parts as $part => $words) {
+            $lesson = $byNumber->get($part) ?? throw DeckException::notFound();
+            $touched[$lesson->id] = $lesson;
+            foreach ($words as $row) {
+                $inserts[] = [
+                    'lesson_id' => $lesson->id,
+                    'word' => $row->word,
+                    'translation' => $row->translation,
+                    'example' => $row->example,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+                $byText[$row->word] = $row;
             }
-
-            $word = Word::query()->create([
-                'lesson_id' => $currentId,
-                'word' => $row->word,
-                'translation' => $row->translation,
-                'example' => $row->example,
-            ]);
-            $this->writeTranslations($word, $row);
-
-            $counts[$currentId] = ($counts[$currentId] ?? 0) + 1;
-            $touched[$currentId] = $byId[$currentId];
         }
 
-        return array_values($touched);
+        Word::query()->insert($inserts);
+        $ids = Word::query()->whereIn('lesson_id', array_keys($touched))
+            ->whereIn('word', array_column($inserts, 'word'))->pluck('id', 'word');
+        $added = [];
+        foreach ($ids as $text => $id) {
+            $added[(int) $id] = $byText[$text];
+        }
+
+        return [$added, array_values($touched)];
     }
 
-    private function writeTranslations(Word $word, DeckRow $row): void
+    /** @param array<int, DeckRow> $changed */
+    private function writeTranslations(array $changed): void
     {
-        $texts = array_filter(['ru' => $row->translation, 'uz' => $row->translationUz]);
+        $translations = [];
+        foreach ($changed as $wordId => $row) {
+            foreach (array_filter(['ru' => $row->translation, 'uz' => $row->translationUz]) as $locale => $text) {
+                $translations[] = [
+                    'word_id' => $wordId,
+                    'locale' => $locale,
+                    'translation' => $text,
+                    'source' => 'learner',
+                    'reviewed_at' => null,
+                ];
+            }
+        }
 
-        foreach ($texts as $locale => $text) {
-            WordTranslation::query()->updateOrCreate(
-                ['word_id' => $word->id, 'locale' => $locale],
-                ['translation' => $text, 'source' => 'learner', 'reviewed_at' => null],
-            );
+        if ($translations !== []) {
+            WordTranslation::query()->upsert($translations, ['word_id', 'locale'], ['translation', 'source', 'reviewed_at']);
         }
     }
 

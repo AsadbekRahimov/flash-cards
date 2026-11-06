@@ -78,7 +78,7 @@ final class StartCommandHandler implements UpdateHandler
         $tgUserId = isset($from['id']) ? (int) $from['id'] : 0;
         $chatId = (int) $message['chat']['id'];
 
-        if ($tgUserId === 0) {
+        if ($tgUserId <= 0) {
             return;
         }
 
@@ -95,10 +95,7 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
-        $learner = $this->learners->resolve($from);
-        if ($learner === null) {
-            return;
-        }
+        $learner = $this->learners->registerLearner($from);
 
         // A blocked learner is told so and nothing else is recorded about them.
         if ($learner->blocked_at !== null) {

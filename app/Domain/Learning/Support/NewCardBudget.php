@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Support;
 
 use Carbon\CarbonImmutable;
 use Closure;
+use Illuminate\Database\Query\Builder;
 
 /**
  * How many NEW cards (first serve of a word) the learner may still receive today
@@ -14,7 +15,7 @@ use Closure;
  * Two readings of the same number (docs/06 §4.2):
  *
  *   - {@see check()} is the DECISION. CardPicker calls it INSIDE the new-card transaction, after the learner row
- *     has been locked; it always runs the resolver (one plain COUNT for `NewWordQuota`), so it sees every card a
+ *     has been locked. It uses a fresh count projected on the candidate query when available, so it sees every card a
  *     concurrent tab already issued and two tabs cannot jointly exceed the limit. Never served from memory.
  *   - {@see remaining()} is the DISPLAY (`quota.new_words_remaining`). It reuses the number of the last check of
  *     this request, less the cards {@see spend()} recorded since, and only asks the resolver when nothing was
@@ -33,8 +34,13 @@ final class NewCardBudget
 
     /**
      * @param  Closure(int, CarbonImmutable): ?int|null  $resolver  (learnerId, now) => remaining; null = unlimited
+     * @param  Closure(int, CarbonImmutable): Builder|null  $usage  query for cards counted against the limit
      */
-    private function __construct(private readonly ?Closure $resolver) {}
+    private function __construct(
+        private readonly ?Closure $resolver,
+        private readonly ?Closure $usage = null,
+        private readonly int $limit = 0,
+    ) {}
 
     public static function unlimited(): self
     {
@@ -57,6 +63,17 @@ final class NewCardBudget
         return new self($resolver);
     }
 
+    /** @param Closure(int, CarbonImmutable): Builder $usage */
+    public static function counted(int $limit, Closure $usage): self
+    {
+        return new self(fn (int $learnerId, CarbonImmutable $now): int => $limit - $usage($learnerId, $now)->count(), $usage, $limit);
+    }
+
+    public function usageCount(int $learnerId, CarbonImmutable $now): ?Builder
+    {
+        return $this->usage === null ? null : ($this->usage)($learnerId, $now)->selectRaw('count(*)');
+    }
+
     public function isUnlimited(): bool
     {
         return $this->resolver === null;
@@ -68,13 +85,13 @@ final class NewCardBudget
      *
      * @return int|null remaining new cards for today; null = unlimited
      */
-    public function check(int $learnerId, CarbonImmutable $now): ?int
+    public function check(int $learnerId, CarbonImmutable $now, ?int $projectedUsage = null): ?int
     {
         if ($this->resolver === null) {
             return null;
         }
 
-        $remaining = ($this->resolver)($learnerId, $now);
+        $remaining = $projectedUsage === null ? ($this->resolver)($learnerId, $now) : $this->limit - $projectedUsage;
         $this->hasChecked = true;
         $this->checked = $remaining === null ? null : max(0, $remaining);
         $this->spent = 0;

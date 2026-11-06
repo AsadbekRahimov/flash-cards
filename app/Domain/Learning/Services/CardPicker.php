@@ -125,6 +125,11 @@ final class CardPicker
             $lock = DB::table('learners')->where('id', $learnerId);
             (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->value('id');
 
+            $usage = $budget->usageCount($learnerId, $now);
+            if ($usage !== null) {
+                $candidates->addSelect(['quota_used' => $usage]);
+            }
+
             /** @var Word|null $new */
             $new = $candidates->first();
             if ($new === null) {
@@ -132,7 +137,7 @@ final class CardPicker
             }
 
             // The decision, under the lock and never from memory (docs/19 §3 rule 9).
-            $remaining = $budget->check($learnerId, $now);
+            $remaining = $budget->check($learnerId, $now, $usage === null ? null : (int) $new->getAttribute('quota_used'));
             if ($remaining !== null && $remaining <= 0) {
                 return [null, true];
             }

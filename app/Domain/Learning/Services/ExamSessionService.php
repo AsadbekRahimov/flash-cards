@@ -73,19 +73,14 @@ final class ExamSessionService
         $totalQuestions ??= self::DEFAULT_QUESTIONS;
         $secondsPerQuestion ??= self::DEFAULT_SECONDS_PER_QUESTION;
 
-        $stage = $this->catalog->findStage($this->catalog->courseForGroup($group), $stageNumber);
-        if ($stage === null) {
-            throw ExamSessionException::stageNotFound($stageNumber);
-        }
-
-        $lesson = $this->catalog->findLesson($stage, $lessonNumber);
+        $course = $this->catalog->courseForGroup($group);
+        $lesson = $this->catalog->numberedLesson($course, $stageNumber, $lessonNumber);
         if ($lesson === null) {
-            throw ExamSessionException::lessonNotFound($stageNumber, $lessonNumber);
-        }
+            if ($this->catalog->findStage($course, $stageNumber) === null) {
+                throw ExamSessionException::stageNotFound($stageNumber);
+            }
 
-        $wordCount = $lesson->words()->where('is_active', true)->count();
-        if ($wordCount < ExamQuestionBuilder::MIN_QUESTIONS) {
-            throw ExamSessionException::notEnoughWords($wordCount, ExamQuestionBuilder::MIN_QUESTIONS);
+            throw ExamSessionException::lessonNotFound($stageNumber, $lessonNumber);
         }
 
         $now ??= CarbonImmutable::now();
@@ -102,6 +97,11 @@ final class ExamSessionService
                 $secondsPerQuestion,
                 $now,
             ): ExamSession {
+                $wordPool = $this->questionBuilder->sampleLessonWords($lesson);
+                if (count($wordPool) < ExamQuestionBuilder::MIN_QUESTIONS) {
+                    throw ExamSessionException::notEnoughWords(count($wordPool), ExamQuestionBuilder::MIN_QUESTIONS);
+                }
+
                 $openExists = ExamSession::query()
                     ->where('telegram_group_id', $group->id)
                     ->where('status', 'open')
@@ -112,13 +112,7 @@ final class ExamSessionService
                     throw ExamSessionException::alreadyOpen();
                 }
 
-                $questions = $this->questionBuilder->build($lesson, $totalQuestions, $locale);
-                if (count($questions) < ExamQuestionBuilder::MIN_QUESTIONS) {
-                    throw ExamSessionException::notEnoughWords(
-                        count($questions),
-                        ExamQuestionBuilder::MIN_QUESTIONS,
-                    );
-                }
+                $questions = $this->questionBuilder->forLessonWords($lesson, $wordPool, $totalQuestions, $locale);
 
                 return ExamSession::query()->create([
                     'telegram_group_id' => $group->id,
@@ -156,12 +150,18 @@ final class ExamSessionService
 
         $now ??= CarbonImmutable::now();
 
-        $session->update([
+        $attributes = [
             'status' => 'closed',
             'closed_at' => $now,
-        ]);
+            'updated_at' => $session->freshTimestamp(),
+        ];
+        $closed = ExamSession::query()->whereKey($session->id)->where('status', $session->status)->update($attributes);
 
-        return $session->fresh() ?? $session;
+        if ($closed === 0) {
+            return $session->fresh() ?? $session;
+        }
+
+        return $session->forceFill($attributes)->syncOriginal();
     }
 
     /**

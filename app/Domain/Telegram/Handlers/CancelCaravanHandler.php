@@ -9,7 +9,7 @@ use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\ClassCaravanMessenger;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -19,7 +19,7 @@ use App\Models\User;
  * No summary follows a cancellation (decided in G2.9a); the runs of the members stay their own. Same silence as {@see StartCaravanHandler}
  * while the game is closed.
  */
-final class CancelCaravanHandler implements UpdateHandler
+final class CancelCaravanHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -50,7 +50,7 @@ final class CancelCaravanHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         if (! $this->access->classCaravanOpen()) {
             return;
@@ -66,7 +66,7 @@ final class CancelCaravanHandler implements UpdateHandler
         }
 
         /** @var TelegramGroup|null $group */
-        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
             return;
         }

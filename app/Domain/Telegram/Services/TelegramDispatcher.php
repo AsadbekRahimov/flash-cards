@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
@@ -147,19 +148,22 @@ final class TelegramDispatcher
             // Group Lock (FR-BOT-01): handlers that require an active group are
             // dropped silently when the update comes from a group chat that is
             // not whitelisted/active. Private chats and lifecycle updates pass.
-            if ($handler->requiresActiveGroup()
-                && $this->isFromGroupChat($update)
-                && ! $this->isActiveGroup($update)
-            ) {
-                // No chat message is sent (the group stays silent), but a tapped
-                // inline button must still be acknowledged so the user's client
-                // dismisses its loading spinner instead of hanging until timeout.
-                $this->acknowledgeCallback($update);
+            $group = null;
+            if ($handler->requiresActiveGroup() && $this->isFromGroupChat($update)) {
+                $group = $this->activeGroup($update);
+                if ($group === null) {
+                    // Acknowledge inline buttons even when the group stays silent.
+                    $this->acknowledgeCallback($update);
 
-                return;
+                    return;
+                }
             }
 
-            $handler->handle($update);
+            if ($handler instanceof GroupUpdateHandler) {
+                $handler->handle($update, $group);
+            } else {
+                $handler->handle($update);
+            }
 
             return;
         }
@@ -215,18 +219,18 @@ final class TelegramDispatcher
     }
 
     /** @param array<string, mixed> $update */
-    private function isActiveGroup(array $update): bool
+    private function activeGroup(array $update): ?TelegramGroup
     {
         $chatId = $this->chatId($update);
 
         if ($chatId === null) {
-            return false;
+            return null;
         }
 
         return TelegramGroup::query()
             ->where('chat_id', $chatId)
             ->where('status', 'active')
-            ->exists();
+            ->first();
     }
 
     /** @param array<string, mixed> $update */

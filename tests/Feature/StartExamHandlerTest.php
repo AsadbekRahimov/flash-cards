@@ -16,6 +16,7 @@ use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -68,19 +69,21 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
                 && $parseMode === 'HTML';
         });
 
-    app(TelegramDispatcher::class)->dispatch([
+    $queries = QueryLog::during(fn () => app(TelegramDispatcher::class)->dispatch([
         'message' => [
             'chat' => ['id' => -1001, 'type' => 'supergroup'],
             'from' => ['id' => 777],
             'text' => '/start_exam 1 1 2',
         ],
-    ]);
+    ]));
 
     $session = ExamSession::query()->first();
     expect($session)->not->toBeNull()
         ->and($session->status)->toBe('open')
         ->and($session->config['duration_minutes'])->toBe(2)
         ->and($session->config['total_questions'])->toBeGreaterThanOrEqual(4);
+    expect(count($queries))->toBeLessThanOrEqual(14)
+        ->and(QueryLog::matching($queries, '/from ["`]telegram_groups["`]/'))->toHaveCount(1);
 
     // ends_at ≈ started_at + 2 min
     $diffSec = (int) abs($session->started_at->diffInSeconds($session->ends_at));

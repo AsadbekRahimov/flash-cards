@@ -83,27 +83,39 @@ final class ExamQuestionBuilder
      */
     public function build(Lesson $lesson, int $totalQuestions, string $locale): array
     {
-        $totalQuestions = max(self::MIN_QUESTIONS, min(self::MAX_QUESTIONS, $totalQuestions));
+        return $this->forLessonWords($lesson, $this->sampleLessonWords($lesson), $totalQuestions, $locale);
+    }
 
-        /** @var list<Word> $words */
-        $words = Word::query()
+    /** @return list<Word> */
+    public function sampleLessonWords(Lesson $lesson): array
+    {
+        return array_values(Word::query()
             ->where('lesson_id', $lesson->id)
             ->where('is_active', true)
             ->inRandomOrder()
-            ->limit($totalQuestions)
-            ->get()
-            ->all();
+            ->limit(self::MAX_QUESTIONS)
+            ->get(['id', 'word', 'translation', 'part_of_speech'])
+            ->all());
+    }
 
-        if (count($words) < self::MIN_QUESTIONS) {
+    /**
+     * @param  list<Word>  $wordPool  active words sampled from this lesson
+     * @return list<array{word_id:int, word:string, correct_translation:string, options:list<string>}>
+     */
+    public function forLessonWords(Lesson $lesson, array $wordPool, int $totalQuestions, string $locale): array
+    {
+        if (count($wordPool) < self::MIN_QUESTIONS) {
             return [];
         }
 
-        $layers = $this->loadDistractorLayers($lesson, count($words), $locale);
-        $correct = $this->translations->resolveMany($words, $locale);
+        $words = array_slice($wordPool, 0, max(self::MIN_QUESTIONS, min(self::MAX_QUESTIONS, $totalQuestions)));
+        $resolved = $this->translations->resolveMany($wordPool, $locale);
+        $sameLesson = $this->candidateTexts($wordPool, $resolved);
+        $layers = $this->loadDistractorLayers($lesson, count($words), $locale, $sameLesson);
 
         $questions = [];
         foreach ($words as $word) {
-            $questions[] = $this->buildQuestion($word, $correct[(int) $word->id], $layers);
+            $questions[] = $this->buildQuestion($word, $resolved[(int) $word->id], $layers);
         }
 
         return $questions;
@@ -177,9 +189,10 @@ final class ExamQuestionBuilder
     /**
      * Loads candidate pools, most preferred layer first.
      *
+     * @param  list<array{translation:string, part_of_speech:string|null, locale:string}>  $sameLesson
      * @return list<list<array{translation:string, part_of_speech:string|null, locale:string}>>
      */
-    private function loadDistractorLayers(Lesson $lesson, int $wordCount, string $locale): array
+    private function loadDistractorLayers(Lesson $lesson, int $wordCount, string $locale, array $sameLesson): array
     {
         // Enough variety to avoid repeating the same distractors across the exam.
         $needed = max(40, $wordCount * 6);
@@ -193,7 +206,7 @@ final class ExamQuestionBuilder
             $locale,
         );
 
-        $courseId = $lesson->stage()->value('course_id');
+        $courseId = $lesson->relationLoaded('stage') ? $lesson->stage?->course_id : $lesson->stage()->value('course_id');
 
         $sameCourse = $this->uniqueInLocale($sameStage, $locale) >= $needed
             ? []
@@ -206,12 +219,6 @@ final class ExamQuestionBuilder
                 $needed,
                 $locale,
             );
-
-        $sameLesson = $this->candidates(
-            Word::query()->where('is_active', true)->where('lesson_id', $lesson->id),
-            self::MAX_QUESTIONS,
-            $locale,
-        );
 
         // Last resort: public published courses of the platform, only when the own course cannot supply
         // enough unique candidates in the answer language.
@@ -292,8 +299,16 @@ final class ExamQuestionBuilder
             ->limit($limit)
             ->get(['id', 'translation', 'part_of_speech']);
 
-        $resolved = $this->translations->resolveMany($rows, $locale);
+        return $this->candidateTexts($rows, $this->translations->resolveMany($rows, $locale));
+    }
 
+    /**
+     * @param  iterable<Word>  $rows
+     * @param  array<int, ResolvedTranslation>  $resolved
+     * @return list<array{translation:string, part_of_speech:string|null, locale:string}>
+     */
+    private function candidateTexts(iterable $rows, array $resolved): array
+    {
         $out = [];
         foreach ($rows as $row) {
             $translation = $resolved[(int) $row->id];

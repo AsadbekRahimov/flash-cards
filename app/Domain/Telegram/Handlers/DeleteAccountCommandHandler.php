@@ -6,7 +6,7 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\AccountDeletionMessenger;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
@@ -17,7 +17,7 @@ use App\Models\TelegramGroup;
  * a non-active group stays silent (Group Lock). The learner is looked up WITHOUT reviving: someone whose account is
  * already deleted is told how to return, not brought back by asking to delete it.
  */
-final class DeleteAccountCommandHandler implements UpdateHandler
+final class DeleteAccountCommandHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -43,14 +43,14 @@ final class DeleteAccountCommandHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
         $chatId = (int) $message['chat']['id'];
 
         if (($message['chat']['type'] ?? '') !== 'private') {
-            $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+            $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
             $this->telegram->sendMessage($chatId, __('bot.delete_account.use_private', [], $locale));
 

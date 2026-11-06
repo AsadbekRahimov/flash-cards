@@ -12,7 +12,7 @@ use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -21,7 +21,7 @@ use App\Models\User;
  * Handles `/close_exam` in a group — a teacher manually finalizes the
  * currently-open exam and triggers immediate leaderboard announcement.
  */
-final class CloseExamHandler implements UpdateHandler
+final class CloseExamHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -53,7 +53,7 @@ final class CloseExamHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
@@ -65,7 +65,7 @@ final class CloseExamHandler implements UpdateHandler
         }
 
         /** @var TelegramGroup|null $group */
-        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
             return;
         }

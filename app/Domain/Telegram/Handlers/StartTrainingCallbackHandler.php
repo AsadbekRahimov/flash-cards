@@ -10,7 +10,7 @@ use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Models\TelegramGroup;
@@ -23,7 +23,7 @@ use App\Models\User;
  *
  * Callback data format: `tstart:{stage}:{lesson}`  (e.g. `tstart:2:4`)
  */
-final class StartTrainingCallbackHandler implements UpdateHandler
+final class StartTrainingCallbackHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -48,7 +48,7 @@ final class StartTrainingCallbackHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $cq */
         $cq = $update['callback_query'];
@@ -75,7 +75,7 @@ final class StartTrainingCallbackHandler implements UpdateHandler
         $lessonNumber = (int) $parts[1];
 
         /** @var TelegramGroup|null $group */
-        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
             return;
         }

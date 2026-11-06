@@ -109,10 +109,10 @@ final class ExamAnswerService
                 $selectedIndex,
                 $now,
             ): array {
-                /** @var ExamSession|null $lockedSession */
-                $lockedSession = ExamSession::query()
-                    ->lockForUpdate()
-                    ->find($session->id);
+                // Different learners can answer together. Closing the exam still waits on this shared lock,
+                // and the individual attempt below serializes two submissions of the same answer.
+                $sessionLock = ExamSession::query();
+                $lockedSession = ($session->isPersonalMock() ? $sessionLock->lockForUpdate() : $sessionLock->sharedLock())->find($session->id);
 
                 if (
                     $lockedSession === null
@@ -124,6 +124,10 @@ final class ExamAnswerService
 
                 /** @var ExamQuestionAttempt|null $attempt */
                 $attempt = ExamQuestionAttempt::query()
+                    ->addSelect(['word_is_hard' => WordRepetition::query()
+                        ->where('learner_id', $learner->id)
+                        ->where('word_id', $question['word_id'])
+                        ->select('is_hard')])
                     ->where('exam_session_id', $session->id)
                     ->where('learner_id', $learner->id)
                     ->where('question_index', $questionIndex)
@@ -154,10 +158,7 @@ final class ExamAnswerService
                     && isset($options[$selectedIndex])
                     && $selectedIndex === $question['correct_index'];
 
-                $isHard = (bool) WordRepetition::query()
-                    ->where('learner_id', $learner->id)
-                    ->where('word_id', $question['word_id'])
-                    ->value('is_hard');
+                $isHard = (bool) $attempt->getAttribute('word_is_hard');
 
                 $score = $this->computeScore($isCorrect, $timeSpentMs, $lockedSession, $isHard);
 

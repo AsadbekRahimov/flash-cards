@@ -43,7 +43,7 @@ function inv(object $test, string $label, Closure $fn): mixed
         Event::listen($event, $cb);
     }
     Redis::enableEvents();
-    foreach (Redis::connections() as $connection) {
+    foreach (Redis::connections() ?? [] as $connection) {
         $connection->setEventDispatcher(app('events'));
     }
 

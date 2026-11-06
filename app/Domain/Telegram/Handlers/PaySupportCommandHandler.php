@@ -7,7 +7,7 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Site\Services\SiteLinks;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 
@@ -16,7 +16,7 @@ use App\Models\TelegramGroup;
  * sells with Stars (docs/13 §4.1). Plain text: the support contact (`BILLING_SUPPORT_CONTACT`) and the
  * refund rule (only through support, each request examined individually; the details are in the public offer). Answers in a DM and in an active group (Group Lock).
  */
-final class PaySupportCommandHandler implements UpdateHandler
+final class PaySupportCommandHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -42,13 +42,13 @@ final class PaySupportCommandHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
         $chatId = (int) $message['chat']['id'];
 
-        $locale = $this->localeOf($message, $chatId);
+        $locale = $this->localeOf($message, $chatId, $group);
         $contact = $this->links->supportContact();
         $offer = $this->links->pageUrl('offer', $locale);
 
@@ -58,10 +58,10 @@ final class PaySupportCommandHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $message */
-    private function localeOf(array $message, int $chatId): string
+    private function localeOf(array $message, int $chatId, ?TelegramGroup $group): string
     {
         if (($message['chat']['type'] ?? '') !== 'private') {
-            $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+            $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
 
             return $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
         }

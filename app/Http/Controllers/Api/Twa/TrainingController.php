@@ -251,8 +251,7 @@ final class TrainingController
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
 
-        /** @var TrainingSession|null $session */
-        $session = TrainingSession::query()->find($sessionId);
+        $session = $this->sessions->findForStep($sessionId);
 
         if ($session === null) {
             return [null, ApiErrorResource::respond(404, 'session_not_found', 'Training session not found.')];

@@ -465,6 +465,8 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
 **Доступ к экзамену** (все маршруты `/exam/sessions/{id}/*`): активное членство в активной группе сессии (`ExamSessionPolicy`).
 Ошибки: 403 `not_a_member` (бывш. `forbidden`), 403 `group_inactive`, 410 `session_closed` (join/question/answer после конца), 409 `exam_still_open` (`/result` до закрытия).
 Один learner в двух группах участвует в экзаменах каждой группы независимо (ответы и результаты привязаны к `(exam_session_id, learner_id)`).
+При записи ответа группового экзамена PostgreSQL берёт `FOR SHARE` на строке сессии и `FOR UPDATE` на попытке ученика.
+Разные ученики могут отвечать одновременно. Закрытие сессии ждёт принятых ответов, а таблица результатов записывается пакетами.
 
 #### `POST /api/twa/exam/sessions/{session_id}/join`
 **Response:**

@@ -29,8 +29,7 @@ use Illuminate\Database\Eloquent\Builder;
  * learner's personal sessions.
  *
  * `budgetFor()` resolves the plan once, outside the picker's transaction (a cache miss may read
- * subscriptions), and hands CardPicker a lazy budget whose closure runs UNDER the learner-row lock
- * and does one plain COUNT, no locks of its own (docs/06 §4.2: under the learner lock only reads).
+ * subscriptions). CardPicker reads the count under the learner-row lock alongside the candidate word.
  * `remaining()` is the same number for display (`/today`, `quota` of the training answers) without
  * any lock. `learner_daily_stats.new_words_count` is deliberately not used (docs/12 §1.6).
  */
@@ -48,8 +47,9 @@ final class NewWordQuota implements NewCardBudgetResolver
             return NewCardBudget::unlimited();
         }
 
-        return NewCardBudget::lazy(
-            fn (int $learnerId, CarbonImmutable $at): int => max(0, $limit - $this->servedToday($learner, $learnerId, $at)),
+        return NewCardBudget::counted(
+            $limit,
+            fn (int $learnerId, CarbonImmutable $at) => $this->servedTodayQuery($learner, $at, $learnerId)->toBase(),
         );
     }
 
@@ -66,7 +66,7 @@ final class NewWordQuota implements NewCardBudgetResolver
             return null;
         }
 
-        return max(0, $limit - ($servedToday ?? $this->servedToday($learner, (int) $learner->id, $now)));
+        return max(0, $limit - ($servedToday ?? $this->servedTodayQuery($learner, $now)->count()));
     }
 
     /**
@@ -75,26 +75,14 @@ final class NewWordQuota implements NewCardBudgetResolver
      *
      * @return Builder<WordRepetition>
      */
-    public function servedTodayQuery(Learner $learner, CarbonImmutable $now): Builder
+    public function servedTodayQuery(Learner $learner, CarbonImmutable $now, ?int $learnerId = null): Builder
     {
         $window = $this->clock->limitWindowUtc($learner, $now);
 
         return WordRepetition::query()
-            ->where('learner_id', (int) $learner->id)
+            ->where('learner_id', $learnerId ?? (int) $learner->id)
             ->where('created_at', '>=', $window->startUtc)
             ->where('created_at', '<', $window->endUtc)
             ->where('introduced_mode', '!=', TrainingSession::MODE_GROUP_LESSON);
-    }
-
-    private function servedToday(Learner $learner, int $learnerId, CarbonImmutable $now): int
-    {
-        $window = $this->clock->limitWindowUtc($learner, $now);
-
-        return WordRepetition::query()
-            ->where('learner_id', $learnerId)
-            ->where('created_at', '>=', $window->startUtc)
-            ->where('created_at', '<', $window->endUtc)
-            ->where('introduced_mode', '!=', TrainingSession::MODE_GROUP_LESSON)
-            ->count();
     }
 }

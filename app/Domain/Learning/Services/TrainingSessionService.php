@@ -17,6 +17,7 @@ use App\Models\TrainingSession;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use LogicException;
@@ -65,13 +66,13 @@ final class TrainingSessionService
     ): TrainingSession {
         $this->assertCanOpen($group, $teacher);
 
-        $stage = $this->catalog->findStage($this->catalog->courseForGroup($group), $stageNumber);
-        if ($stage === null) {
-            throw TrainingSessionException::stageNotFound($stageNumber);
-        }
-
-        $lesson = $this->catalog->findLesson($stage, $lessonNumber);
+        $course = $this->catalog->courseForGroup($group);
+        $lesson = $this->catalog->numberedLesson($course, $stageNumber, $lessonNumber);
         if ($lesson === null) {
+            if ($this->catalog->findStage($course, $stageNumber) === null) {
+                throw TrainingSessionException::stageNotFound($stageNumber);
+            }
+
             throw TrainingSessionException::lessonNotFound($stageNumber, $lessonNumber);
         }
 
@@ -337,14 +338,19 @@ final class TrainingSessionService
         throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
     }
 
+    public function findForStep(int $sessionId): ?TrainingSession
+    {
+        return TrainingSession::query()->addSelect([
+            'center_private_lesson_id' => $this->privateCenterLessons()
+                ->select('lessons.id')
+                ->whereColumn('lessons.id', 'training_sessions.lesson_id')
+                ->where('training_sessions.mode', TrainingSession::MODE_LESSON),
+        ])->find($sessionId);
+    }
+
     /**
-     * A running lesson session of a center's private course is re-checked on every step: after the
-     * learner left the group or the assignment closed, the session is closed (`expired`) instead of
-     * living to its TTL. Other sessions are not re-checked.
-     *
-     * This runs on EVERY /start, /next and /review of a lesson session, and nearly always the answer is
-     * "nothing to judge" - so that costs one query (lesson -> stage -> course joined, nothing loaded);
-     * the lesson and its course are read only for the rare private course of a center.
+     * Re-check access to a running private center lesson on each step. The session lookup can
+     * identify these lessons in the same statement; the assignment is checked against live data.
      *
      * @return bool false when the session was closed because the lesson is no longer available
      */
@@ -354,11 +360,16 @@ final class TrainingSessionService
             return true;
         }
 
-        if (! $this->isInCentersPrivateCourse((int) $session->lesson_id)) {
+        $attributes = $session->getAttributes();
+        $privateCenterLesson = array_key_exists('center_private_lesson_id', $attributes)
+            ? $attributes['center_private_lesson_id'] !== null
+            : $this->privateCenterLessons()->where('lessons.id', $session->lesson_id)->exists();
+
+        if (! $privateCenterLesson) {
             return true;
         }
 
-        $lesson = Lesson::query()->with('stage.course')->find($session->lesson_id);
+        $lesson = $this->catalog->lessonWithContext((int) $session->lesson_id);
         if ($lesson === null) {
             return true;
         }
@@ -378,15 +389,13 @@ final class TrainingSessionService
      * The lesson is in a private course that is NOT a learner's own deck - the only kind whose running
      * sessions ensureStillAvailable() judges again. A missing lesson / stage / course is "no".
      */
-    private function isInCentersPrivateCourse(int $lessonId): bool
+    private function privateCenterLessons(): QueryBuilder
     {
         return DB::table('lessons')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->join('courses', 'courses.id', '=', 'stages.course_id')
-            ->where('lessons.id', $lessonId)
             ->where('courses.visibility', 'private')
-            ->where('courses.owner_type', '!=', 'learner')
-            ->exists();
+            ->where('courses.owner_type', '!=', 'learner');
     }
 
     /** An active assignment of this lesson in a group of an active center where the learner is an active member. */

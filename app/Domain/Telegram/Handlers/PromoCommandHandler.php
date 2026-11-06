@@ -9,7 +9,7 @@ use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\RateLimiter;
  * works in a DM only; in an active group the bot just points to the DM (a code typed
  * there is visible to everybody) and a non-active group stays silent (Group Lock).
  */
-final class PromoCommandHandler implements UpdateHandler
+final class PromoCommandHandler implements GroupUpdateHandler
 {
     /** Same cap as the TWA endpoint (`twa-promo`): code guessing is throttled per Telegram user. */
     private const ATTEMPTS_PER_MINUTE = 5;
@@ -48,14 +48,14 @@ final class PromoCommandHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
         $chatId = (int) $message['chat']['id'];
 
         if (($message['chat']['type'] ?? '') !== 'private') {
-            $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+            $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
             $this->telegram->sendMessage($chatId, __('bot.promo.use_private', [], $locale));
 

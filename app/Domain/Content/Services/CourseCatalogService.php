@@ -16,6 +16,7 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
@@ -65,7 +66,7 @@ final class CourseCatalogService
      */
     public function defaultCourse(): Course
     {
-        return Course::query()->createOrFirst(
+        return Course::query()->firstOrCreate(
             ['slug' => (string) config('content.default_course_slug')],
             [
                 'owner_type' => 'platform',
@@ -154,17 +155,44 @@ final class CourseCatalogService
      */
     public function lessonWithContext(int $lessonId): ?Lesson
     {
-        /** @var Lesson|null $lesson */
-        $lesson = Lesson::query()
+        $lesson = $this->lessonContextQuery()->where('lessons.id', $lessonId)->first();
+
+        return $lesson === null ? null : $this->withJoinedRelations($lesson);
+    }
+
+    /**
+     * @param  list<int>  $lessonIds
+     * @return Collection<int, Lesson> indexed by lesson id
+     */
+    public function lessonsWithContext(array $lessonIds): Collection
+    {
+        return $this->lessonContextQuery()
+            ->whereIn('lessons.id', $lessonIds)
+            ->get()
+            ->map($this->withJoinedRelations(...))
+            ->keyBy('id');
+    }
+
+    public function numberedLesson(Course $course, int $stageNumber, int $lessonNumber): ?Lesson
+    {
+        $lesson = $this->lessonContextQuery()
+            ->where('stages.course_id', $course->id)
+            ->where('stages.number', $stageNumber)
+            ->where('lessons.number', $lessonNumber)
+            ->first();
+
+        return $lesson === null ? null : $this->withJoinedRelations($lesson);
+    }
+
+    /** @return Builder<Lesson> */
+    private function lessonContextQuery(): Builder
+    {
+        return Lesson::query()
             ->select('lessons.*')
             ->addSelect(self::stageColumns())
             ->addSelect(self::courseColumns())
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->join('courses', 'courses.id', '=', 'stages.course_id')
-            ->where('lessons.id', $lessonId)
-            ->first();
-
-        return $lesson === null ? null : $this->withJoinedRelations($lesson);
+            ->join('courses', 'courses.id', '=', 'stages.course_id');
     }
 
     /**
@@ -175,19 +203,16 @@ final class CourseCatalogService
      */
     public function lessons(Course $course, ?int $limit = null): Collection
     {
-        $query = Lesson::query()
-            ->select('lessons.*')
-            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+        $query = $this->lessonContextQuery()
             ->where('stages.course_id', $course->id)
             ->orderBy('stages.number')
-            ->orderBy('lessons.number')
-            ->with('stage');
+            ->orderBy('lessons.number');
 
         if ($limit !== null) {
             $query->limit($limit);
         }
 
-        return $query->get();
+        return $query->get()->map($this->withJoinedRelations(...));
     }
 
     /**

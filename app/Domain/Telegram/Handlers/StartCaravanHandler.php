@@ -9,7 +9,7 @@ use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
-use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\ClassCaravanMessenger;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -20,7 +20,7 @@ use App\Models\User;
  * this handler turns the answer into a message ({@see ClassCaravanMessenger}). While the game is closed (`GAME_ACCESS=off`) the command
  * does not exist: no answer and no query at all.
  */
-final class StartCaravanHandler implements UpdateHandler
+final class StartCaravanHandler implements GroupUpdateHandler
 {
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -51,7 +51,7 @@ final class StartCaravanHandler implements UpdateHandler
     }
 
     /** @param array<string, mixed> $update */
-    public function handle(array $update): void
+    public function handle(array $update, ?TelegramGroup $group = null): void
     {
         if (! $this->access->classCaravanOpen()) {
             return;
@@ -67,7 +67,7 @@ final class StartCaravanHandler implements UpdateHandler
         }
 
         /** @var TelegramGroup|null $group */
-        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
             return;
         }

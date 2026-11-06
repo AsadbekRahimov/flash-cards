@@ -19,6 +19,7 @@ use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -146,9 +147,17 @@ it('LeaderboardBuilder ranks learners correctly and stores exam_results', functi
         ['exam_session_id' => $session->id, 'learner_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 2000, 'answered_at' => now()],
     ]);
 
-    $built = app(LeaderboardBuilder::class)->build($session);
+    $others = Learner::factory()->count(47)->memberOf($s['group'])->create();
+    ExamAnswer::query()->insert($others->map(fn (Learner $learner): array => [
+        'exam_session_id' => $session->id, 'learner_id' => $learner->id, 'word_id' => $s['correct']->id,
+        'selected_translation' => 'a', 'is_correct' => false, 'score' => 0, 'time_spent_ms' => 3000, 'answered_at' => now(),
+    ])->all());
 
-    expect(ExamResult::query()->where('exam_session_id', $session->id)->count())->toBe(3);
+    $queries = QueryLog::during(fn () => expect(app(LeaderboardBuilder::class)->build($session))->toHaveCount(50));
+
+    expect($queries)->toHaveCount(5)
+        ->and(QueryLog::matching($queries, '/^insert into ["`]exam_results["`]/'))->toHaveCount(1)
+        ->and(ExamResult::query()->where('exam_session_id', $session->id)->count())->toBe(50);
 
     $results = ExamResult::query()->where('exam_session_id', $session->id)->orderBy('rank')->get();
     expect($results[0]->learner_id)->toBe($alice->id)

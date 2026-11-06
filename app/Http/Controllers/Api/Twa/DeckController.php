@@ -31,10 +31,11 @@ final class DeckController
     public function index(Request $request): JsonResponse
     {
         $learner = $this->learner($request);
+        $decks = $this->decks->decks($learner);
 
         return (new DeckListResource([
-            'decks' => $this->catalog->listings($this->decks->decks($learner), $learner),
-            'limits' => $this->decks->limits($learner),
+            'decks' => $this->catalog->listings($decks, $learner),
+            'limits' => $this->decks->limits($learner, $decks->count()),
         ]))->response();
     }
 

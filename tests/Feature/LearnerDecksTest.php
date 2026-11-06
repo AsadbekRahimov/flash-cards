@@ -27,6 +27,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -409,9 +410,15 @@ it('stops at 500 lines and reports the rest as over_limit', function (): void {
     $learner = dkPro(dkLearner());
     $slug = dkCreate($this, $learner);
 
-    $response = dkImport($this, $learner, $slug, dkList(520))->assertOk()->assertJsonPath('added', 500);
+    $response = null;
+    $queries = QueryLog::during(function () use ($learner, $slug, &$response): void {
+        $response = dkImport($this, $learner, $slug, dkList(520))->assertOk()->assertJsonPath('added', 500);
+    });
 
-    expect($response->json('rejected'))->toHaveCount(20)
+    expect(count($queries))->toBeLessThanOrEqual(20)
+        ->and(QueryLog::matching($queries, '/^insert into ["`]words["`]/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^insert into ["`]word_translations["`]/'))->toHaveCount(1)
+        ->and($response->json('rejected'))->toHaveCount(20)
         ->and($response->json('rejected.0'))->toBe(['line' => 501, 'reason' => 'over_limit']);
 });
 
