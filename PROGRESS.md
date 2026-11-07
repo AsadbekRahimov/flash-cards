@@ -1,5 +1,10 @@
 # Progress Log
 
+## Coolify: запуск Octane без токена бота и справочные данные при деплое ✅ код (2026-11-07)
+
+- **Octane без `TELEGRAM_BOT_TOKEN`.** `TelegramClient` и `BillingProviderRegistry` (провайдер Stars берёт клиент в конструкторе) в `config/octane.php` → `warm` только при непустом токене: пустой токен заставлял SDK бросать исключение при загрузке воркера, FrankenPHP падал («has not reached frankenphp_handle_request()»), и весь `/api` был недоступен из-за необязательной интеграции. С токеном клиент по-прежнему прогрет (`docs/21` №5). Тесты: `tests/Feature/Octane/WarmTelegramClientTest.php`.
+- **Справочные данные на каждом деплое.** `ReferenceDataSeeder` (роли `admin`/`teacher` + товары магазина игры, идемпотентно, без демо-данных) запускается в `lf-migrate` (Coolify) и в `deploy.sh` (кроме `--rollback`) после миграций; `DatabaseSeeder` вызывает его вместо двух сидеров. Тесты: `tests/Feature/ReferenceDataSeederTest.php`.
+
 ## Релиз — план (решения владельца 03.11.2026)
 
 **Решения владельца (03.11.2026, опрос в чате):**

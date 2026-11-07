@@ -27,7 +27,7 @@ x-app: &app
 
 services:
   # One-shot: migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
-  # deploy.sh. Every other application service starts only after it exited with 0.
+  # deploy.sh, then the reference data (roles, shop items: idempotent, never demo data). Every other application service starts only after it exited with 0.
   lf-migrate:
     <<: *app
     restart: "no"
@@ -35,7 +35,7 @@ services:
     command:
       - sh
       - -c
-      - php artisan migrate --force --database=pgsql_direct && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed')
+      - php artisan migrate --force --database=pgsql_direct && php artisan db:seed --class=ReferenceDataSeeder --force && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed')
 
   # php-fpm: Filament (/admin, /org), 2FA, Livewire, Telegram webhook, billing return.
   lf-app:

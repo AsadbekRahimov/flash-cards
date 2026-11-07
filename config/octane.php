@@ -124,14 +124,21 @@ return [
     | configuration alone and hold nothing of a request. The Gate gets the sandbox as its container on every request
     | (GiveNewApplicationInstanceToAuthorizationGate). LearningPolicy and FsrsParameters are resolved in
     | AppServiceProvider::boot already.
+    |
+    | TelegramClient - and BillingProviderRegistry, whose Telegram Stars provider takes the client in its constructor - are
+    | warmed only when TELEGRAM_BOT_TOKEN is set: with an empty token the SDK throws ("Required token not supplied")
+    | while the worker boots, the worker never reaches its request loop and the whole API is down because of one
+    | optional integration. With a token they stay warmed - the Guzzle client of the Bot API is built once per worker
+    | and reuses connections (docs/21 №5); without it they are resolved lazily, as before.
     */
     'warm' => [
         ...Octane::defaultServicesToWarm(),
         Gate::class,
-        TelegramClient::class,
         JwtService::class,
         InitDataValidator::class,
-        BillingProviderRegistry::class,
+        ...(is_string(env('TELEGRAM_BOT_TOKEN')) && trim((string) env('TELEGRAM_BOT_TOKEN')) !== ''
+            ? [TelegramClient::class, BillingProviderRegistry::class]
+            : []),
     ],
 
     /*
