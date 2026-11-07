@@ -151,7 +151,8 @@ PostgreSQL), HTTPS-smoke (`/up`, `/api/twa/me` → 401, `/health/ready` — жд
 ```bash
 C="docker compose -f docker-compose.prod.yml --env-file .env"
 $C ps                                                      # все healthy
-$C exec -T app php artisan db:seed --class=RolePermissionSeeder
+# роли и товары магазина уже созданы: deploy.sh запускает ReferenceDataSeeder после миграций; вручную (необязательно):
+$C exec -T app php artisan db:seed --class=ReferenceDataSeeder --force
 $C exec -T app php artisan tinker                          # первый администратор:
 # >>> \App\Models\User::create(['name' => 'Admin', 'email' => 'admin@<домен>', 'password' => bcrypt('<пароль>')])->assignRole('admin');
 $C exec -T app php artisan telegram:set-webhook            # https://<домен>/telegram/webhook/<URL_SECRET>, секрет заголовка — HEADER_SECRET

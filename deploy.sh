@@ -229,6 +229,13 @@ if [ "$SKIP_MIGRATE" -eq 0 ]; then
     # while each migration runs, so Schema:: and DB:: inside migrations go there too.
     echo "==> Running migrations before switching application containers"
     $COMPOSE run --rm app php artisan migrate --force --database=pgsql_direct
+
+    # Reference data (roles, shop items): idempotent, never demo data. Required, so a failure stops the deploy. Not on a
+    # rollback - the older code has no ReferenceDataSeeder.
+    if [ "$ROLLBACK" != "1" ]; then
+        echo "==> Seeding the reference data (roles, shop items)"
+        $COMPOSE run --rm app php artisan db:seed --class=ReferenceDataSeeder --force
+    fi
 fi
 
 # courses.words_count is the `total` of GET /courses: bring it in line with the active words (idempotent and fast, it
