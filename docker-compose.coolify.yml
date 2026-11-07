@@ -1,4 +1,4 @@
-# LexiFlow on Coolify (lexiflow.digitalized.uz). PostgreSQL, pgbouncer and Redis are NOT here: they live in the separate
+# LexiFlow on Coolify. PostgreSQL, pgbouncer and Redis are NOT here: they live in the separate
 # server-infra resource and are reached over the shared `coolify` network (Advanced -> "Connect To Predefined Network").
 # docker-compose.prod.yml + deploy.sh stay as they are for the plain-VPS deploy.
 #
@@ -17,7 +17,10 @@ x-app: &app
     dockerfile: Dockerfile
     target: app
   restart: unless-stopped
-  env_file: .env
+  env_file:
+    # required: false - the build step of Coolify runs without this file; at runtime Coolify writes it.
+    - path: .env
+      required: false
   volumes:
     - app_storage:/var/www/html/storage
     - app_audio:/var/www/html/storage/app/public/audio
@@ -109,7 +112,8 @@ services:
     command: ["php", "artisan", "schedule:work"]
     mem_limit: 384m
 
-  # The only public service: the domain https://lexiflow.digitalized.uz is assigned to it in Coolify (port 80 inside).
+  # The only public service: its domain is assigned in Coolify -> Domains (port 80 inside). Nothing here depends on
+  # the domain (coolify.conf has server_name _), so a test domain now and the real one later need no code change.
   lf-nginx:
     image: lexiflow/nginx-coolify:coolify
     build:
@@ -123,7 +127,6 @@ services:
       lf-api:
         condition: service_healthy
     environment:
-      APP_DOMAIN: ${APP_DOMAIN:?}
       APP_SERVER: octane
       # The real client address is resolved by coolify.conf (X-Forwarded-For from Traefik), not by the
       # Cloudflare generator of nginx-entrypoint.sh: behind Traefik nginx never sees a Cloudflare address directly.
