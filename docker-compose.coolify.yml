@@ -17,7 +17,10 @@ x-app: &app
     dockerfile: Dockerfile
     target: app
   restart: unless-stopped
-  env_file: .env
+  env_file:
+    # required: false - the build step of Coolify runs without this file; at runtime Coolify writes it.
+    - path: .env
+      required: false
   volumes:
     - app_storage:/var/www/html/storage
     - app_audio:/var/www/html/storage/app/public/audio
@@ -123,7 +126,9 @@ services:
       lf-api:
         condition: service_healthy
     environment:
-      APP_DOMAIN: ${APP_DOMAIN:?}
+      # A default, not a required variable: Coolify interpolates the compose file for `build` with build-time variables
+      # only, and a required variable without one fails the build. One server block, so nginx answers any Host anyway.
+      APP_DOMAIN: ${APP_DOMAIN:-lexiflow.digitalized.uz}
       APP_SERVER: octane
       # The real client address is resolved by coolify.conf (X-Forwarded-For from Traefik), not by the
       # Cloudflare generator of nginx-entrypoint.sh: behind Traefik nginx never sees a Cloudflare address directly.
