@@ -688,8 +688,10 @@ DB_DISABLE_PREPARES=true                    # умолчание; запросы
 ```bash
 cd /var/www/lexiflow
 php artisan migrate --force
-php artisan db:seed --class=RolePermissionSeeder --force
+php artisan db:seed --class=ReferenceDataSeeder --force   # роли admin/teacher и товары магазина игры; идемпотентно
 ```
+
+> `deploy.sh` выполняет `ReferenceDataSeeder` сам после миграций, вручную команду нужно запускать только при ручной установке (как здесь). Роли отдельно: `php artisan db:seed --class=RolePermissionSeeder --force` (необязательно).
 
 > **Не запускайте `php artisan db:seed` без `--class` в продакшене** — он создаёт демо-данные
 > (демо-админ `admin@local`, учителя, группы, учеников).
