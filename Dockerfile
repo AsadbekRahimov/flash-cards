@@ -243,3 +243,11 @@ COPY docker/nginx-entrypoint.sh /usr/local/bin/lexiflow-nginx-entrypoint
 RUN chmod +x /usr/local/bin/lexiflow-nginx-entrypoint && mkdir -p /etc/nginx/snippets-generated
 
 ENTRYPOINT ["/usr/local/bin/lexiflow-nginx-entrypoint"]
+
+# Coolify (docker-compose.coolify.yml): nginx behind Traefik (coolify-proxy terminates TLS), config baked into the image
+# instead of bind-mounted. The entrypoint renders /etc/nginx/prod.conf.template, so coolify.conf goes there.
+FROM nginx AS nginx-coolify
+
+COPY docker/nginx/coolify.conf /etc/nginx/prod.conf.template
+COPY docker/nginx/snippets /etc/nginx/snippets
+COPY docker/nginx/cloudflare-ips.txt /etc/nginx/cloudflare-ips.txt
