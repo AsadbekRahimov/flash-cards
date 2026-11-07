@@ -1,0 +1,138 @@
+# LexiFlow on Coolify (lexiflow.digitalized.uz). PostgreSQL, pgbouncer and Redis are NOT here: they live in the separate
+# server-infra resource and are reached over the shared `coolify` network (Advanced -> "Connect To Predefined Network").
+# docker-compose.prod.yml + deploy.sh stay as they are for the plain-VPS deploy.
+#
+# Application variables are set in Coolify -> Environment Variables; Coolify writes them to the .env next to this file
+# (env_file below). Hosts: DB_HOST = pgbouncer, DB_DIRECT_HOST = postgres (migrations, pg_dump), REDIS_HOST = redis,
+# REDIS_LRU_HOST = redis-cache; REDIS_PREFIX must start with `lexiflow-` (Redis ACL of the shared instance).
+#
+# Service names carry the lf- prefix: every resource that joins the shared `coolify` network brings its names along,
+# and the other application has an `app` too. No `ports:` anywhere - the domain is assigned to lf-nginx in Coolify,
+# and Traefik terminates TLS.
+
+x-app: &app
+  image: lexiflow/app:coolify
+  build:
+    context: .
+    dockerfile: Dockerfile
+    target: app
+  restart: unless-stopped
+  env_file: .env
+  volumes:
+    - app_storage:/var/www/html/storage
+    - app_audio:/var/www/html/storage/app/public/audio
+
+services:
+  # One-shot: migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
+  # deploy.sh. Every other application service starts only after it exited with 0.
+  lf-migrate:
+    <<: *app
+    restart: "no"
+    exclude_from_hc: true
+    command:
+      - sh
+      - -c
+      - php artisan migrate --force --database=pgsql_direct && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed')
+
+  # php-fpm: Filament (/admin, /org), 2FA, Livewire, Telegram webhook, billing return.
+  lf-app:
+    <<: *app
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    environment:
+      APP_SURFACE: full
+      # php-fpm: REMOTE_ADDR is already the client (nginx realip), nobody is a proxy here.
+      TRUSTED_PROXIES: ""
+      DB_PERSISTENT: "true"
+      PHP_FPM_MAX_CHILDREN: "6"
+      PHP_FPM_START_SERVERS: "2"
+      PHP_FPM_MIN_SPARE_SERVERS: "1"
+      PHP_FPM_MAX_SPARE_SERVERS: "3"
+    mem_limit: 768m
+
+  # Octane (FrankenPHP) for /api/*.
+  lf-api:
+    <<: *app
+    image: lexiflow/app-octane:coolify
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app-octane
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    environment:
+      APP_SURFACE: api
+      DB_PERSISTENT: "false"
+      OCTANE_WORKERS: "4"
+      OCTANE_MAX_REQUESTS: "500"
+      OCTANE_HTTPS: "true"
+      # Behind nginx REMOTE_ADDR is the nginx container. Coolify assigns the network subnets itself, so the Docker
+      # private ranges are trusted (not a catch-all: App\Support\TrustedProxies rejects those). The container publishes
+      # no port, only containers on its networks can reach it.
+      TRUSTED_PROXIES: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+      SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
+      SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
+    stop_grace_period: 30s
+    mem_limit: 896m
+
+  lf-queue-high:
+    <<: *app
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    command: ["php", "artisan", "queue:work", "redis", "--queue=high", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+    mem_limit: 320m
+
+  lf-queue-default:
+    <<: *app
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+    mem_limit: 320m
+
+  lf-queue-low:
+    <<: *app
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    command: ["php", "artisan", "queue:work", "redis", "--queue=low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+    mem_limit: 320m
+
+  lf-scheduler:
+    <<: *app
+    depends_on:
+      lf-migrate:
+        condition: service_completed_successfully
+    command: ["php", "artisan", "schedule:work"]
+    mem_limit: 384m
+
+  # The only public service: the domain https://lexiflow.digitalized.uz is assigned to it in Coolify (port 80 inside).
+  lf-nginx:
+    image: lexiflow/nginx-coolify:coolify
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx-coolify
+    restart: unless-stopped
+    depends_on:
+      lf-app:
+        condition: service_healthy
+      lf-api:
+        condition: service_healthy
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?}
+      APP_SERVER: octane
+      # The real client address is resolved by coolify.conf (X-Forwarded-For from Traefik), not by the
+      # Cloudflare generator of nginx-entrypoint.sh: behind Traefik nginx never sees a Cloudflare address directly.
+      CLOUDFLARE_PROXY: "false"
+      CLOUDFLARE_ONLY: "false"
+    volumes:
+      - app_audio:/var/www/html/storage/app/public/audio:ro
+    mem_limit: 128m
+
+volumes:
+  app_storage:
+  app_audio:
