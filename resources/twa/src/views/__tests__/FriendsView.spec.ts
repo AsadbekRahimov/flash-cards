@@ -410,8 +410,8 @@ describe('FriendsView', () => {
       const { wrapper } = await render()
 
       const row = wrapper.get('[data-testid=friend-row]')
-      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqa tashlash: Dilnoza')
-      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlikdan chiqarish: Dilnoza")
+      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqaga chaqirish: Dilnoza')
+      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlardan o'chirish: Dilnoza")
     })
 
     it('removes a friend only after the confirmation, then reloads the challenges', async () => {
@@ -1152,7 +1152,7 @@ describe('FriendsView', () => {
         setLocale('uz')
         const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
 
-        expect(line(wrapper).text()).toBe('Bugungi bellashuvlar: 1 tadan 1 tasi qoldi')
+        expect(line(wrapper).text()).toBe('Bugun 1 ta bepul bellashuvdan 1 tasi qoldi')
       })
 
       it.each<[string, PracticeAccess['limits']]>([

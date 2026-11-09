@@ -77,7 +77,7 @@ const lead = (w: Awaited<ReturnType<typeof render>>) => w.get('[data-testid=payw
 const SOON_RU = 'Pro скоро откроется.'
 const SALE_RU = 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
 const SOON_UZ = 'Pro tez orada ochiladi.'
-const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, ketma-ketlik uchun zaxira va sinov imtihonlari."
+const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, o'z to'plamlaringiz, zaxira kunlar va sinov imtihonlari."
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -105,7 +105,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render()
 
-    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. ${SOON_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. ${SOON_UZ}`)
   })
 
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
@@ -118,7 +118,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render({}, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
   })
 
   it('quotes the limit of the refusal twice, never "3 of 2": a limit that was lowered meanwhile is still a limit', async () => {
@@ -146,7 +146,7 @@ describe('PaywallSheet — the end of the free battles', () => {
     setLocale('uz')
     const w = await render({ limitHit: BATTLES })
 
-    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da. ${SOON_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1/1). Yana ertaga soat 00:00 da o'ynashingiz mumkin. ${SOON_UZ}`)
   })
 
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
@@ -159,7 +159,7 @@ describe('PaywallSheet — the end of the free battles', () => {
     setLocale('uz')
     const w = await render({ limitHit: BATTLES }, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1/1). Yana ertaga soat 00:00 da yoki darhol Pro bilan o'ynashingiz mumkin. ${SALE_UZ}`)
   })
 
   it('calls them battles, never "challenges": that word is the weekly challenge of a friend, and the Uzbek one is "bellashuv" everywhere', async () => {
@@ -185,7 +185,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
   const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
   const SOLO_UZ = "So'zlarni mustahkamlash mashqlari Pro'da bor."
   const BATTLES_RU = 'Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.'
-  const BATTLES_UZ = "Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin."
+  const BATTLES_UZ = "Do'stni bellashuvga chaqirish Pro'da bor. Do'stingiz chaqirsa, istalgan vaqtda qabul qilishingiz mumkin."
 
   // The sessions of practice are for Pro only. What else Pro opens depends on the battles: the sentence names them only when they are for Pro only
   // too (their limit is 0 as well) - not when Free gets them (a limit of 1 or more, or none) and not when they are switched off.

@@ -335,7 +335,7 @@ describe('CoursesView', () => {
     expect(wrapper.get('[data-testid=hint]').text()).toBe("Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi")
     const first = wrapper.get('[data-testid=course-english-a1]')
     expect(chips(first.get('[data-testid=meta]')).map((c) => c.text)).toEqual(['A1', 'Umumiy ingliz tili', "5 ta so'z"])
-    expect(first.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
+    expect(first.get('[data-testid=progress-text]').text()).toBe("2/5 so'z o'rganildi")
     expect(first.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=course-a] [data-testid=active-badge]').text()).toBe('Asosiy kurs')
   })

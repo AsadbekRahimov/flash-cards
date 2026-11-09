@@ -652,7 +652,7 @@ describe('BattleSetupView — the Free limit of battles', () => {
     serve({ limits: freeLimits(0, 0) })
     const r = await render()
 
-    expect(line(r).text()).toBe('Bugungi bellashuvlar: 1 tadan 1 tasi qoldi')
+    expect(line(r).text()).toBe('Bugun 1 ta bepul bellashuvdan 1 tasi qoldi')
   })
 
   it('Pro sees nothing', async () => {

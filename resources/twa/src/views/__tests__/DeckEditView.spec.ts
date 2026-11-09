@@ -500,7 +500,7 @@ describe('DeckEditView', () => {
 
         const { wrapper } = await addTooMany(PRO_LIMITS)
 
-        expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("to'plamda 2000 tagacha so'z")
+        expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("bitta to'plamga 2000 tagacha so'z sig'adi")
       })
 
       it('drops the refusal when the learner leaves with the paywall open: it must not pop up on "My decks"', async () => {

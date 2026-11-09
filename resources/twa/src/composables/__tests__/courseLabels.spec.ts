@@ -113,7 +113,7 @@ describe('progressText', () => {
   it('is the caption "Learned N of M" in both languages', () => {
     expect(progressText({ done: 184, total: 900 })).toBe('Изучено 184 из 900')
     setLocale('uz')
-    expect(progressText({ done: 184, total: 900 })).toBe("900 tadan 184 tasi o'rganildi")
+    expect(progressText({ done: 184, total: 900 })).toBe("184/900 so'z o'rganildi")
   })
 })
 

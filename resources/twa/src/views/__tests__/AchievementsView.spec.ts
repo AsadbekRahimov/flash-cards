@@ -287,9 +287,9 @@ describe('AchievementsView', () => {
     const { wrapper } = await render()
 
     expect(wrapper.get('h1').text()).toBe('Yutuqlar')
-    expect(text(wrapper, 'summary')).toBe('4 tadan 2 tasi olindi')
+    expect(text(wrapper, 'summary')).toBe('4 ta yutuqdan 2 tasi olindi')
     expect(card(wrapper, 'first_session').get('[data-testid=share-btn]').text()).toBe('Ulashish')
-    expect(card(wrapper, 'words_100').get('[data-testid=progress]').text()).toBe('100 tadan 40 tasi')
+    expect(card(wrapper, 'words_100').get('[data-testid=progress]').text()).toBe('40/100')
     expect(card(wrapper, 'league_top1').get('[data-testid=locked]').text()).toBe('Hali olinmagan')
     expect(card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()).toMatch(/da olindi$/)
   })

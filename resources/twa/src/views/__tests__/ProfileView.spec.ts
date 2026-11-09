@@ -418,7 +418,7 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-friends]').text()).toBe("Do'stlar va musobaqalar")
       expect(w.get('[data-testid=row-billing]').text()).toBe('ObunaFree')
       expect(w.get('[data-testid=row-settings]').text()).toBe('Sozlamalar')
-      expect(w.get('[data-testid=profile-support]').text()).toBe('Savolingiz bormi? Bizga yozing @lexiflow_help')
+      expect(w.get('[data-testid=profile-support]').text()).toBe('Savolingiz bormi? Bizga yozing: @lexiflow_help')
     })
 
     it('puts the Uzbek date in the Pro line', async () => {

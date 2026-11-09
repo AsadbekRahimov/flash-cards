@@ -70,7 +70,7 @@ describe('PaywallSheet', () => {
       setLocale('uz')
       const w = await render(me({ limit: 1 }))
 
-      expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda Free tarif: kuniga 1 ta yangi so'z, takrorlash cheklovsiz.")
+      expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda bepul tarif: kuniga 1 ta yangi so'z, takrorlash cheklovsiz.")
     })
 
     it('does not tell a Pro learner they are on Free: no limit is not an unknown limit', async () => {
@@ -87,7 +87,7 @@ describe('PaywallSheet', () => {
       const w = await render(me({ plan: 'pro' }), { reason: 'decks' })
 
       expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
-      expect(w.text()).not.toContain('Free tarif: kuniga')
+      expect(w.text()).not.toContain('sizda bepul tarif: kuniga')
     })
   })
 
@@ -113,7 +113,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        "Bepul tarifda 1 ta to'plam ochishingiz mumkin, har biriga 50 tagacha so'z sig'adi. Pro'da har biriga 2000 tagacha so'z sig'adigan 20 tagacha to'plam. Pro tez orada ochiladi.",
+        "Bepul tarifda 1 ta to'plam yaratish mumkin, har birida 50 tagacha so'z. Pro'da 20 tagacha to'plam, har birida 2000 tagacha so'z. Pro tez orada ochiladi.",
       )
     })
 
@@ -462,8 +462,8 @@ describe('PaywallSheet', () => {
     const w = await render(me({ contact: '@lexiflow_help' }), { reason: 'quota' })
 
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro tez orada')
-    expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda Free tarif: kuniga 20 ta yangi so'z, takrorlash cheklovsiz.")
-    expect(w.get('[data-testid=paywall-contact]').text()).toContain("Markazda o'qiysizmi?")
+    expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda bepul tarif: kuniga 20 ta yangi so'z, takrorlash cheklovsiz.")
+    expect(w.get('[data-testid=paywall-contact]').text()).toContain("O'quv markazida o'qiysizmi?")
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Tushunarli')
   })
 })

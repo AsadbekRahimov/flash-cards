@@ -53,7 +53,7 @@ describe('t', () => {
     expect(t('result.rank', { rank: 1, total: 7 })).toBe('Место 1 из 7')
     setLocale('uz')
     expect(t('training.lesson_header', { stage: 2, lesson: 5 })).toBe('2-modul · 5-dars')
-    expect(t('result.rank', { rank: 1, total: 7 })).toBe("7 ishtirokchi orasida 1-o'rin")
+    expect(t('result.rank', { rank: 1, total: 7 })).toBe("7 kishidan 1-o'rin")
   })
 })
 
@@ -88,7 +88,7 @@ describe('tn (plural forms)', () => {
 
   it.each([1, 2, 5, 11, 21, 22, 25])('uz %i has no noun inflection', (count) => {
     setLocale('uz')
-    expect(tn('finished.reviewed', count)).toBe(`Siz ${count} ta so'zni takrorladingiz.`)
+    expect(tn('finished.reviewed', count)).toBe(`${count} ta so'zni takrorladingiz.`)
     expect(tn('finished.next_in_days', count)).toBe(`${count} kundan keyin`)
   })
 })

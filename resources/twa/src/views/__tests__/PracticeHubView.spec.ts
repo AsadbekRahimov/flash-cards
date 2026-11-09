@@ -1157,7 +1157,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
     setLocale('uz')
     const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0) }))
 
-    expect(line(wrapper).text()).toBe('Bugun bepul: 2 tadan 1 tasi qoldi')
+    expect(line(wrapper).text()).toBe('Bugun 2 ta bepul mashqdan 1 tasi qoldi')
     wrapper.unmount()
   })
 

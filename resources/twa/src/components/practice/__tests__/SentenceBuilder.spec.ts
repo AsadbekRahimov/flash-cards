@@ -529,7 +529,7 @@ describe('SentenceBuilder — an answer that got no reply (solo)', () => {
 
     const w = await lostReply()
 
-    expect(w.get('[data-testid=sentence-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
+    expect(w.get('[data-testid=sentence-resend-note]').text()).toBe("Server javob bermadi. Javobingizni endi o'zgartirib bo'lmaydi, uni qayta yuboring.")
   })
 
   it('in a battle the line is handed back as before: the battle screen has its own retry panel', async () => {
@@ -831,7 +831,7 @@ describe('SentenceBuilder — Uzbek', () => {
     const w = mountBuilder()
     await put(w, ['fW2', 'fT5'])
 
-    expect(w.get('[data-testid=sentence-progress]').text()).toBe("5 tadan 2 tasi yig'ildi")
+    expect(w.get('[data-testid=sentence-progress]').text()).toBe("So'zlar: 2/5")
     expect(resetButton(w).text()).toBe('Qaytadan boshlash')
     expect(checkButton(w).text()).toBe('Tekshirish')
     expect(skipButton(w).text()).toBe('Bilmayman')

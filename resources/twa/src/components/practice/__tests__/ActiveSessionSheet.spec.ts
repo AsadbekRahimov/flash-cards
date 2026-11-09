@@ -63,8 +63,8 @@ describe('ActiveSessionSheet — "Unfinished practice"', () => {
 
     const wrapper = render({ session: activeSession({ mode: 'pairs', progress: { done: 1, total: 3 } }) })
 
-    expect(wrapper.get('[data-testid=active-title]').text()).toBe("Tugallanmagan mashg'ulot")
-    expect(wrapper.get('[data-testid=active-text]').text()).toContain('Juftlarni toping: 3 tadan 1 tasi bajarildi.')
+    expect(wrapper.get('[data-testid=active-title]').text()).toBe('Tugallanmagan mashq')
+    expect(wrapper.get('[data-testid=active-text]').text()).toContain('Juftlarni toping: 1/3 bajarildi.')
     wrapper.unmount()
   })
 })

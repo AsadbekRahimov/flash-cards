@@ -576,7 +576,7 @@ describe('BillingView', () => {
       setLocale('uz')
       const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
 
-      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain("Telegram yangilash uchun Stars'ni yecha olmadi.")
+      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain('Telegram obunani uzaytirish uchun Stars yecha olmadi.')
     })
 
     it('is not shown for a running renewal, which has its own card', async () => {
@@ -796,14 +796,14 @@ describe('BillingView', () => {
     expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Pro nima beradi')
     expect(wrapper.get('[data-testid=buy]').text()).toBe("Pro'ni sotib olish")
     expect(wrapper.get('[data-testid=promo-card] h2').text()).toBe('Promokod')
-    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Savolingiz bormi? Bizga yozing @lexiflow_support')
+    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Savolingiz bormi? Bizga yozing: @lexiflow_support')
   })
 
   it('speaks Uzbek to a Pro learner too', async () => {
     setLocale('uz')
     const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
 
-    expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Sizning imkoniyatlaringiz')
+    expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Imkoniyatlaringiz')
     expect(wrapper.get('[data-testid=plan-provider]').text()).toBe('To\'lov: Telegram Stars.')
     expect(wrapper.get('[data-testid=cancel-renewal]').text()).toBe("Avtoyangilashni o'chirish")
   })

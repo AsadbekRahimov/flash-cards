@@ -128,7 +128,7 @@ describe('useDeckLimit', () => {
     refuse(store, 'decks', PRO)
 
     expect(limit.proNotice.value).toBe(
-      "Bu Pro tarifingizdagi chegara: 20 ta to'plam. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi.",
+      "Pro tarifida eng ko'pi 20 ta to'plam. Yangi to'plam yaratish uchun keraksizini o'chiring: so'zlar arxivga o'tadi, natijalaringiz saqlanadi.",
     )
   })
 

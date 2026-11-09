@@ -72,7 +72,7 @@ describe('FinishedView', () => {
   it('renders Uzbek without noun inflection', () => {
     setLocale('uz')
     const w = render(5, 3)
-    expect(w.get('[data-testid=reviewed]').text()).toBe("Siz 5 ta so'zni takrorladingiz.")
+    expect(w.get('[data-testid=reviewed]').text()).toBe("5 ta so'zni takrorladingiz.")
     expect(w.get('[data-testid=next-label]').text()).toBe('3 kundan keyin')
     expect(w.get('[data-testid=close-btn]').text()).toBe('Yopish')
     expect(render(3, 0).get('[data-testid=next-label]').text()).toBe('Bugun')
@@ -102,7 +102,7 @@ describe('FinishedView', () => {
   it('renders the reason in Uzbek', () => {
     setLocale('uz')
     expect(render(3, 1, 'new_quota_exhausted').get('[data-testid=reason]').text())
-      .toBe("Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.")
+      .toBe("Bugungi yangi so'zlar tugadi. Yangilari ertaga ochiladi.")
   })
 
   describe('look and buttons', () => {
@@ -474,7 +474,7 @@ describe('FinishedView', () => {
       useTrainingStore().summary = summary()
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 12/20')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
       expect(w.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
     })

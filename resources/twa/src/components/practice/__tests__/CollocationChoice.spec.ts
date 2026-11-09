@@ -305,7 +305,7 @@ describe('CollocationChoice — a pick whose request got no reply (solo)', () =>
     const wrapper = await lostReply()
 
     expect(wrapper.get('[data-testid=resend-btn]').text()).toBe("Qayta urinib ko'rish")
-    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
+    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe("Server javob bermadi. Javobingizni endi o'zgartirib bo'lmaydi, uni qayta yuboring.")
   })
 
   it('in a battle there is no such thing: the battle screen has its own retry, and the component stays as the final answer', async () => {

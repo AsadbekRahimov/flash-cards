@@ -790,7 +790,7 @@ describe('TodayView', () => {
 
     expect(w.get('h1').text()).toBe('Salom, Asadbek!')
     expect(w.get('header p').text()).toBe('chorshanba, 28-oktabr')
-    expect(text(w, 'goal-text')).toBe('20 tadan 8 tasi')
+    expect(text(w, 'goal-text')).toBe('8/20')
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
     expect(text(w, 'session-hint')).toBe("Avval oldingi so'zlarni takrorlaysiz, keyin yangilarini o'rganasiz")
     expect(text(w, 'streak-current')).toBe('5 kun ketma-ket')
@@ -800,6 +800,6 @@ describe('TodayView', () => {
     expect(w.get('[data-testid=assignment]').text()).toContain('2-modul, 4-dars')
     expect(text(w, 'next-lesson-btn')).toBe("Darsni boshlash")
     expect(text(w, 'league-line')).toContain('Liga · Kumush')
-    expect(text(w, 'league-line')).toContain("30 ishtirokchi orasida 4-o'rin · 312 ochko")
+    expect(text(w, 'league-line')).toContain("30 kishidan 4-o'rin · 312 ball")
   })
 })

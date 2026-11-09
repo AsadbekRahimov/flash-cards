@@ -227,8 +227,8 @@ describe('ExamResultView', () => {
     })
 
     expect(wrapper.get('[data-testid=result-title]').text()).toBe('Sinov imtihoni natijasi')
-    expect(wrapper.get('[data-testid=mock-score]').text()).toBe('40 tadan 10 ta · 25%')
+    expect(wrapper.get('[data-testid=mock-score]').text()).toBe('10/40 · 25%')
     expect(wrapper.get('[data-testid=mock-percentile]').text()).toContain('13%')
-    expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Sizning natijangiz')
+    expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Natijangiz')
   })
 })

@@ -275,7 +275,7 @@ describe('MyDecksView', () => {
 
       await submit(wrapper)
 
-      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("Bu Pro tarifingizdagi chegara: 20 ta to'plam.")
+      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("Pro tarifida eng ko'pi 20 ta to'plam.")
     })
 
     it('does not open a refusal that was left over from the other deck screen', async () => {
@@ -491,7 +491,7 @@ describe('MyDecksView', () => {
     expect(wrapper.get('h1').text()).toBe('Kurslar')
     expect(wrapper.get('[data-testid=seg-decks]').text()).toBe("Mening to'plamlarim")
     expect(wrapper.get('[data-testid=create-btn]').text()).toBe('Yaratish')
-    expect(wrapper.get('[data-testid=limits]').text()).toBe("To'plamlar: 1 tadan 1 tasi · to'plamda 50 tagacha so'z")
+    expect(wrapper.get('[data-testid=limits]').text()).toBe("To'plamlar: 1/1 · har birida 50 tagacha so'z")
     expect(wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=deck-main] [data-testid=active-badge]').text()).toBe("Asosiy to'plam")
   })

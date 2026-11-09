@@ -54,7 +54,7 @@ describe('LapsedBanner', () => {
     setLocale('uz')
     const w = await render(me(lapsed()))
 
-    expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro tugadi')
+    expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro muddati tugadi')
     expect(w.get('[data-testid=lapsed-renew]').text()).toBe("Pro'ni uzaytirish")
     expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Obuna 18-oktabr kuni tugadi\./)
   })

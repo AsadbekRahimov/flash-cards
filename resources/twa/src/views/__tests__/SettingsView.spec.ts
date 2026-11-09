@@ -165,7 +165,7 @@ describe('SettingsView', () => {
     it('says the same in Uzbek', async () => {
       const w = await render(settingsFixture({ interface_locale: 'uz' }))
 
-      expect(w.text()).toContain("Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.")
+      expect(w.text()).toContain("Ligalardan keyingi haftadan chiqasiz, joriy hafta o'zgarmaydi. Ligalarni istalgan vaqtda qayta yoqishingiz mumkin.")
       expect(w.text()).not.toContain('joylashtirish')
     })
 
@@ -820,7 +820,7 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture({ interface_locale: 'uz', active_course: null }))
 
       expect(w.get('h1').text()).toBe('Sozlamalar')
-      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar', 'Xavfli hudud'])
+      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar', "Ehtiyot bo'ling"])
       expect(w.text()).toContain('kuniga nechta kartochka')
       expect(w.text()).toContain('Asosiy kurs')
       expect(w.get('[data-testid=course-title]').text()).toBe('Tanlanmagan')

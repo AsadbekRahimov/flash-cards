@@ -619,6 +619,6 @@ describe('gameRun store — texts', () => {
     vi.mocked(api.gameRuns.answer).mockRejectedValue(apiError('not_found', 404, 'game_run_not_found'))
     await store.answer({ option_id: 'o1' })
     expect(store.status).toBe('error')
-    expect(store.errorMessage).toBe('Yurish topilmadi.')
+    expect(store.errorMessage).toBe('Safar topilmadi.')
   })
 })

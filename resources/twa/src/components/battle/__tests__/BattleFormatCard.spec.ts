@@ -112,6 +112,6 @@ describe('BattleFormatCard — a format that cannot be played', () => {
     const w = render(option({ state: 'not_enough', available: 14, required: 20, reason: 'no_words' }))
 
     expect(w.get('[data-testid=format-seconds]').text()).toBe('Har bir raundga 45 soniya')
-    expect(w.get('[data-testid=format-reason]').text()).toContain('20 tadan 14 tasi')
+    expect(w.get('[data-testid=format-reason]').text()).toContain('20 ta kerak, 14 ta bor')
   })
 })

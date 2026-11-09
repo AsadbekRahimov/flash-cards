@@ -178,7 +178,7 @@ describe('training store — localized errors', () => {
 
     setLocale('uz')
     await store.start(1)
-    expect(store.errorMessage).toBe("Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.")
+    expect(store.errorMessage).toBe("Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki vaqti tugagan.")
   })
 
   it('explains API error codes in the active language instead of the English server message', async () => {
@@ -194,7 +194,7 @@ describe('training store — localized errors', () => {
 
     setLocale('uz')
     await store.start(1)
-    expect(store.errorMessage).toBe("Sessiya topilmadi. O'qituvchidan uni qaytadan boshlashini so'rang.")
+    expect(store.errorMessage).toBe("Mashg'ulot topilmadi. O'qituvchidan uni qaytadan boshlashini so'rang.")
   })
 
   it('shows a localized network error and a generic fallback for unexpected errors', async () => {

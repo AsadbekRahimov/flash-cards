@@ -668,7 +668,7 @@ describe('DictationInput — an answer that got no reply (solo)', () => {
 
     const wrapper = await lostReply()
 
-    expect(wrapper.get('[data-testid=dictation-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
+    expect(wrapper.get('[data-testid=dictation-resend-note]').text()).toBe("Server javob bermadi. Javobingizni endi o'zgartirib bo'lmaydi, uni qayta yuboring.")
     wrapper.unmount()
   })
 

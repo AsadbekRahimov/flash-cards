@@ -813,15 +813,15 @@ describe('CourseView', () => {
     expect(wrapper.get('[data-testid=lesson-11]').text()).toContain('1-dars · Greetings')
     expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 2 tasi")
     expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 0 tasi")
-    expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
+    expect(wrapper.get('[data-testid=progress-text]').text()).toBe("2/5 so'z o'rganildi")
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
-    expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi")
+    expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kunlik mashg'ulotdagi yangi so'zlar shu kursdan olinadi")
     expect(wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').text()).toBe("O'rganish")
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts', is_active: true }))
     const main = await render()
     expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov imtihoni')
-    expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Testni boshlash')
+    expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Imtihonni boshlash')
     expect(main.wrapper.get('[data-testid=active-badge]').text()).toBe('Asosiy kurs')
     expect(main.wrapper.get('[data-testid=continue-btn]').text()).toBe('Davom etish: 1-modul, 1-dars')
 

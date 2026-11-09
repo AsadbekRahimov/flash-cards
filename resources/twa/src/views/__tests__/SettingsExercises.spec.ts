@@ -179,6 +179,6 @@ describe('SettingsView — exercises', () => {
     expect(w.get('[data-testid=exercises-card]').text()).toContain("So'zni yozish")
     expect(w.get('[data-testid=exercises-card]').text()).toContain("«So'z → tarjima» kartochkalari doim yoqilgan")
     expect(w.get('[data-testid=exercise-row-reverse]').text()).toBe("Tarjima → so'z")
-    expect(w.get('[data-testid=exercise-row-audio]').text()).toBe('Eshitib')
+    expect(w.get('[data-testid=exercise-row-audio]').text()).toBe('Eshitib topish')
   })
 })

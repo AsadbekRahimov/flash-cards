@@ -121,7 +121,7 @@ describe('BattleResult — why it ended (end_reason), in words', () => {
     expect(w.get('[data-testid=result-reason]').text()).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
     expect(w.get('[data-testid=battle-result]').attributes('data-reason')).toBe('voided')
     setLocale('uz')
-    expect(render(closedBattle('voided', { mode: 'dictation' })).get('[data-testid=result-reason]').text()).toBe('Bellashuv bekor qilindi: yozuv mavjud emas. Ochkolar hisoblanmaydi.')
+    expect(render(closedBattle('voided', { mode: 'dictation' })).get('[data-testid=result-reason]').text()).toBe("Bellashuv bekor qilindi: ovozli yozuv yo'q. Ballar hisobga olinmaydi.")
   })
 
   it('the other formats have no recording to lack: the plain word', () => {

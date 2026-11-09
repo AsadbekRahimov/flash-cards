@@ -161,7 +161,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe("Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. Pro tez orada ochiladi.")
+    expect(lead(wrapper)).toBe("Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. Pro tez orada ochiladi.")
   })
 
   it('the setup of a battle: "Invite" meets the sheet about the battles', async () => {
@@ -234,7 +234,7 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
     await wrapper.get('[data-testid=battle-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toContain('Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.')
+    expect(lead(wrapper)).toContain("Bugungi bepul bellashuvlar tugadi (1/1). Yana ertaga soat 00:00 da yoki darhol Pro bilan o'ynashingiz mumkin.")
     expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
   })
 })
@@ -247,7 +247,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
   const NO_BOTH: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 0, MIDNIGHT) }
   const SALE_RU =
     'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
-  const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, ketma-ketlik uchun zaxira va sinov imtihonlari."
+  const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, o'z to'plamlaringiz, zaxira kunlar va sinov imtihonlari."
   const COMBINED_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
   const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
   const COMBINED_UZ = "So'zlarni mashqlar bilan mustahkamlash va do'stlar bilan bellashish Pro'da bor."
@@ -324,7 +324,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     await wrapper.get('[data-testid=battle-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe("Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. Pro tez orada ochiladi.")
+    expect(lead(wrapper)).toBe("Do'stni bellashuvga chaqirish Pro'da bor. Do'stingiz chaqirsa, istalgan vaqtda qabul qilishingiz mumkin. Pro tez orada ochiladi.")
     expect(lead(wrapper)).not.toMatch(/tugadi|ertaga|0 tadan/)
   })
 
