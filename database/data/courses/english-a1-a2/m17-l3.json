@@ -22,7 +22,7 @@
       "example": "Keep the receipt for the new shoes.",
       "example_translations": {
         "ru": "Сохрани чек на новые туфли.",
-        "uz": "Yangi poyabzal uchun chekni saqlab qo'y."
+        "uz": "Yangi poyabzalning chekini saqlab qo'ying."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "распродажа",
       "translations": {
         "ru": "распродажа",
-        "uz": "chegirmalar"
+        "uz": "chegirmali savdo"
       },
       "example": "The winter sale starts next week.",
       "example_translations": {
         "ru": "Зимняя распродажа начинается на следующей неделе.",
-        "uz": "Qishki chegirmalar kelasi hafta boshlanadi."
+        "uz": "Qishki chegirmalar kelasi haftadan boshlanadi."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "I want a refund for this shirt.",
       "example_translations": {
         "ru": "Я хочу вернуть деньги за эту рубашку.",
-        "uz": "Men bu ko'ylak uchun pulni qaytarib olmoqchiman."
+        "uz": "Bu ko'ylakning pulini qaytarib olmoqchiman."
       }
     },
     {

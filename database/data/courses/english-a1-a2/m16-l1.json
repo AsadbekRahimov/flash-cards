@@ -101,12 +101,12 @@
       "translation": "забор",
       "translations": {
         "ru": "забор",
-        "uz": "to'siq"
+        "uz": "panjara, devor"
       },
       "example": "A white fence is around the garden.",
       "example_translations": {
         "ru": "Вокруг сада стоит белый забор.",
-        "uz": "Bog' atrofida oq to'siq bor."
+        "uz": "Bog' atrofi oq panjara bilan o'ralgan."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "прихожая, коридор",
       "translations": {
         "ru": "прихожая, коридор",
-        "uz": "yo'lak"
+        "uz": "dahliz, yo'lak"
       },
       "example": "Leave your shoes in the hall.",
       "example_translations": {
         "ru": "Оставь обувь в прихожей.",
-        "uz": "Poyabzalingni yo'lakda qoldir."
+        "uz": "Oyoq kiyimingizni dahlizda qoldiring."
       }
     },
     {

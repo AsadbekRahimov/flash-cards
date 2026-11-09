@@ -309,7 +309,7 @@ describe('DictationInput — the empty tiles', () => {
     const wrapper = await render({ element: dictationElement({ words: 3 }) })
 
     expect(wrapper.get('[data-testid=word-count]').text()).toBe("3 ta so'z")
-    expect(wrapper.get('[data-testid=dictation-title]').text()).toBe('Eshiting va yozing')
+    expect(wrapper.get('[data-testid=dictation-title]').text()).toBe('Tinglang va yozing')
     expect(field(wrapper).attributes('placeholder')).toBe('Eshitganingizni yozing')
     expect(check(wrapper).text()).toBe('Tekshirish')
     expect(skip(wrapper).text()).toBe('Bilmayman')
@@ -668,7 +668,7 @@ describe('DictationInput — an answer that got no reply (solo)', () => {
 
     const wrapper = await lostReply()
 
-    expect(wrapper.get('[data-testid=dictation-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+    expect(wrapper.get('[data-testid=dictation-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
     wrapper.unmount()
   })
 

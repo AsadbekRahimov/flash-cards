@@ -12,9 +12,9 @@ return [
     'lesson_not_found' => 'Dars topilmadi.',
 
     'training' => [
-        'not_teacher' => "Treningni faqat shu guruhning o'qituvchisi boshlay oladi.",
-        'failed' => "Treningni boshlab bo'lmadi.",
-        'not_delivered' => "Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang.",
+        'not_teacher' => "Guruh mashg'ulotini faqat shu guruhning o'qituvchisi boshlay oladi.",
+        'failed' => "Guruh mashg'ulotini boshlab bo'lmadi.",
+        'not_delivered' => "Tugma yuborilmadi, guruh mashg'uloti bekor qilindi. Bot guruhga qo'shilganini va xabar yoza olishini tekshirib, buyruqni qayta yuboring.",
     ],
 
     'exam' => [

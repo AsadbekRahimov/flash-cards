@@ -353,11 +353,11 @@
       ],
       "translation": {
         "ru": "Эти туфли не того размера.",
-        "uz": "Bu tuflining o'lchami to'g'ri kelmaydi."
+        "uz": "Bu tuflining o'lchami mos kelmaydi."
       },
       "explanation": {
         "ru": "Размер одежды и обуви — size: the wrong size (не тот размер). Number о размере не говорят, хотя по-русски бывает «номер обуви»; measure — «мерить, мера».",
-        "uz": "Kiyim va poyabzal o'lchami — size: the wrong size (mos kelmaydigan o'lcham). Number o'lcham haqida ishlatilmaydi, measure esa «o'lchamoq» degani."
+        "uz": "Size — kiyim yoki poyabzal o'lchami. The wrong size — mos kelmaydigan o'lcham."
       }
     },
     {
@@ -973,11 +973,11 @@
       ],
       "translation": {
         "ru": "Мы учимся на своих ошибках.",
-        "uz": "Biz xatolarimizdan o'rganamiz."
+        "uz": "Xatolarimizdan saboq olamiz."
       },
       "explanation": {
         "ru": "Учиться на ошибках — learn from mistakes. По-русски «на», но on здесь не подходит; at тоже.",
-        "uz": "Xatolardan o'rganmoq — learn from mistakes, o'zbekchadagi -dan kabi. On va at bu yerda to'g'ri kelmaydi."
+        "uz": "Learn from mistakes — xatolardan saboq olmoq. From nimadan saboq olayotganimizni bildiradi."
       }
     },
     {
@@ -1089,11 +1089,11 @@
       ],
       "translation": {
         "ru": "Папа всегда помогает мне с домашним заданием.",
-        "uz": "Dadam doim menga uy vazifamni bajarishga yordam beradi."
+        "uz": "Dadam uy vazifamni bajarishimga doim yordam beradi."
       },
       "explanation": {
         "ru": "Помочь с чем-то — help with: help me with my homework. In и for здесь не подходят.",
-        "uz": "Biror narsada yordam bermoq — help with: help me with my homework. In va for bu yerda to'g'ri kelmaydi."
+        "uz": "Help someone with something — birovga biror ishda yordam bermoq: help me with my homework."
       }
     },
     {
@@ -1365,7 +1365,7 @@
       ],
       "prompt": {
         "ru": "По выходным мы отдыхаем дома.",
-        "uz": "Dam olish kunlari biz uyda hordiq chiqaramiz."
+        "uz": "Dam olish kunlari uyda dam olamiz."
       },
       "fragments": [
         "we",
@@ -1396,7 +1396,7 @@
       "display": "We relax at home on weekends.",
       "explanation": {
         "ru": "Дома — at home, без the. По выходным — on weekends (так говорят в США); эту часть можно поставить и в начало.",
-        "uz": "Uyda — at home, the siz. Dam olish kunlari — on weekends (AQShda shunday deyiladi); bu qismni boshiga ham qo'yish mumkin."
+        "uz": "Uyda — at home. Dam olish kunlari — amerikacha inglizchada on weekends."
       }
     },
     {
@@ -1505,11 +1505,11 @@
       ],
       "translation": {
         "ru": "Мне скучно. Давайте сыграем партию в шахматы.",
-        "uz": "Zerikib qoldim. Keling, bir partiya shaxmat o'ynaylik."
+        "uz": "Zerikdim. Keling, shaxmat o'ynaylik."
       },
       "explanation": {
         "ru": "Играть в игру — play a game: play a game of chess. Make a game — «создать игру», а do с game не употребляют.",
-        "uz": "O'yin o'ynamoq — play a game: play a game of chess. Make a game — «o'yin yaratmoq», do esa game bilan ishlatilmaydi."
+        "uz": "Play a game of chess — bir partiya shaxmat o'ynamoq."
       }
     },
     {
@@ -1563,11 +1563,11 @@
       ],
       "translation": {
         "ru": "Вы слишком много работаете. Вам нужно отдохнуть.",
-        "uz": "Siz juda ko'p ishlaysiz. Sizga dam olish kerak."
+        "uz": "Juda ko'p ishlayapsiz. Biroz dam olishingiz kerak."
       },
       "explanation": {
         "ru": "После some нужно существительное: some rest — немного отдыха. Relax — глагол (relax after work), rested — «отдохнувший».",
-        "uz": "Some dan keyin ot keladi: some rest — biroz dam olish. Relax — fe'l (relax after work), rested — «dam olgan»."
+        "uz": "You need some rest — biroz dam olishingiz kerak. Bu gapda rest ot. Relax esa fe'l: Relax after work."
       }
     },
     {
@@ -1592,11 +1592,11 @@
       ],
       "translation": {
         "ru": "Папа каждый вечер читает мне сказку на ночь.",
-        "uz": "Dadam har kuni kechasi menga uxlashdan oldin ertak o'qib beradi."
+        "uz": "Har kuni uxlashimdan oldin dadam menga ertak o'qib beradi."
       },
       "explanation": {
         "ru": "Сказка на ночь — a bedtime story (bedtime — время ложиться спать). Sleep story и night story так не говорят.",
-        "uz": "Uxlash oldidan o'qiladigan ertak — a bedtime story (bedtime — uxlash vaqti). Sleep story va night story deyilmaydi."
+        "uz": "A bedtime story — uxlashdan oldin o'qib yoki aytib beriladigan ertak."
       }
     },
     {
@@ -2015,11 +2015,11 @@
       ],
       "translation": {
         "ru": "У меня болит зуб. Мне нужно к стоматологу.",
-        "uz": "Tishim og'riyapti. Tish shifokoriga borishim kerak."
+        "uz": "Bir tishim og'riyapti. Tish shifokoriga ko'rinishim kerak."
       },
       "explanation": {
         "ru": "Больной зуб — a bad tooth. Sick говорят о человеке (I am sick), а pain — существительное «боль»: a pain in my tooth.",
-        "uz": "Og'riyotgan tish — a bad tooth. Sick odam haqida aytiladi (I am sick), pain esa ot — «og'riq»: a pain in my tooth."
+        "uz": "Bu gapda a bad tooth — og'riyotgan yoki kasallangan tish. See a dentist — tish shifokoriga ko'rinmoq."
       }
     },
     {
@@ -2044,11 +2044,11 @@
       ],
       "translation": {
         "ru": "Вчера я ушиб колено.",
-        "uz": "Kecha tizzamni urib oldim."
+        "uz": "Kecha tizzamni shikastlab oldim."
       },
       "explanation": {
         "ru": "Hurt — неправильный глагол: в прошедшем времени тоже hurt, формы hurted нет. Pain — существительное «боль», а не глагол.",
-        "uz": "Hurt — noto'g'ri fe'l: o'tgan zamonda ham hurt, hurted shakli yo'q. Pain — ot («og'riq»), fe'l emas."
+        "uz": "Hurt — shikastlamoq. Hozirgi va o'tgan zamonda shakli bir xil: I hurt my knee yesterday."
       }
     },
     {
@@ -2359,7 +2359,7 @@
       "display": "The children go back to school in autumn.",
       "explanation": {
         "ru": "Вернуться — go back: go back to school (school без the). In autumn — в конце или в начале; в США чаще говорят in the fall.",
-        "uz": "Qaytmoq — go back: go back to school (school the siz). In autumn — oxirida yoki boshida; AQShda ko'pincha in the fall deyiladi."
+        "uz": "Go back to school — maktabga qaytmoq. Kuzda — in autumn, amerikacha inglizchada in the fall ham deyiladi."
       }
     },
     {
@@ -2476,11 +2476,11 @@
       ],
       "translation": {
         "ru": "Езжайте медленно! Сегодня густой туман.",
-        "uz": "Sekin haydang! Bugun quyuq tuman bor."
+        "uz": "Sekin haydang! Bugun tuman quyuq."
       },
       "explanation": {
         "ru": "Густой туман — thick fog (можно и heavy fog). Strong говорят о ветре, а fat — о людях и животных.",
-        "uz": "Quyuq tuman — thick fog (heavy fog ham deyiladi). Strong shamol haqida aytiladi, fat esa odam va hayvon haqida."
+        "uz": "Quyuq tuman — thick fog yoki heavy fog."
       }
     },
     {
@@ -2592,11 +2592,11 @@
       ],
       "translation": {
         "ru": "Наши куры каждый день несут яйца.",
-        "uz": "Tovuqlarimiz har kuni tuxum qo'yadi."
+        "uz": "Tovuqlarimiz har kuni tuxum qiladi."
       },
       "explanation": {
         "ru": "Нести яйца — lay eggs. Put — «класть», make — «делать»: с eggs в этом значении они не употребляются.",
-        "uz": "Tuxum qo'ymoq — lay eggs. O'zbekchada «qo'ymoq» desak ham, put ishlatilmaydi; make ham to'g'ri kelmaydi."
+        "uz": "Tovuq tuxum qo'yishi haqida inglizchada lay eggs deyiladi."
       }
     },
     {

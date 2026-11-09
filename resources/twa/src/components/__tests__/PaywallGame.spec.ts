@@ -58,6 +58,6 @@ describe('PaywallSheet: reason "game" (docs/05 §5b.1)', () => {
     setLocale('uz')
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Karvon: kuniga bitta bepul reys')
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Karvonda kuniga bitta bepul safar bor')
   })
 })

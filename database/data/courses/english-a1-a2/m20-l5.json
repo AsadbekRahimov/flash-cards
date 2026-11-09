@@ -106,7 +106,7 @@
       "example": "The flag of my country is green.",
       "example_translations": {
         "ru": "Флаг моей страны зелёный.",
-        "uz": "Mening mamlakatim bayrog'i yashil."
+        "uz": "Mamlakatimning bayrog'i yashil."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "нация",
       "translations": {
         "ru": "нация",
-        "uz": "millat"
+        "uz": "xalq, millat"
       },
       "example": "The whole nation watches the game.",
       "example_translations": {
         "ru": "Вся нация смотрит матч.",
-        "uz": "Butun millat o'yinni tomosha qiladi."
+        "uz": "Butun mamlakat o'yinni tomosha qiladi."
       }
     }
   ]

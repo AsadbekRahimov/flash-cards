@@ -22,7 +22,7 @@
       "example": "My name is Ali.",
       "example_translations": {
         "ru": "Меня зовут Али.",
-        "uz": "Mening ismim Ali."
+        "uz": "Ismim Ali."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "My birthday is in May.",
       "example_translations": {
         "ru": "Мой день рождения в мае.",
-        "uz": "Mening tug'ilgan kunim may oyida."
+        "uz": "Tug'ilgan kunim may oyida."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "звать, называть",
       "translations": {
         "ru": "звать, называть",
-        "uz": "chaqirmoq"
+        "uz": "deb atamoq"
       },
       "example": "Everyone calls him Bobby.",
       "example_translations": {
         "ru": "Все зовут его Бобби.",
-        "uz": "Hamma uni Bobbi deb chaqiradi."
+        "uz": "Hamma uni Bobbi deb ataydi."
       }
     },
     {
@@ -143,7 +143,7 @@
       "translation": "встречать, знакомиться",
       "translations": {
         "ru": "встречать, знакомиться",
-        "uz": "uchrashmoq, tanishmoq"
+        "uz": "tanishmoq, uchrashmoq"
       },
       "example": "Nice to meet you!",
       "example_translations": {

@@ -944,7 +944,7 @@ describe('PairsBoard — a battle round: the round is in the header of the scree
     await match(w, 'lF2', 'rW4')
     await match(w, 'lS3', 'rT1')
 
-    expect(w.get('[data-testid=pairs-status]').text()).toBe("Oxirgi juft o'zi tanlandi. Hammasini tekshirib chiqing va «Tekshirish» tugmasini bosing.")
+    expect(w.get('[data-testid=pairs-status]').text()).toBe("Oxirgi juftlik avtomatik tanlandi. Javoblarni ko'rib chiqib, «Tekshirish»ni bosing.")
   })
 })
 
@@ -957,7 +957,7 @@ describe('PairsBoard — Uzbek', () => {
     expect(w.get('[data-testid=pairs-count]').text()).toBe('4 ta juft qoldi')
     expect(w.get('[data-testid=pairs-left]').attributes('aria-label')).toBe("So'zlar")
     expect(w.get('[data-testid=pairs-right]').attributes('aria-label')).toBe('Tarjimalar')
-    expect(status(w).text()).toBe("So'zni, keyin uning tarjimasini bosing — yoki teskarisi.")
+    expect(status(w).text()).toBe("So'zni tanlab, tarjimasini bosing. Tarjimadan boshlasangiz ham bo'ladi.")
 
     await card(w, 'lM1').trigger('click')
     expect(status(w).text()).toBe("Endi «mother» so'zining tarjimasini tanlang")

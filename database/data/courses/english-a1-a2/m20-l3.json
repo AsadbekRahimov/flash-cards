@@ -22,7 +22,7 @@
       "example": "Society changes very fast today.",
       "example_translations": {
         "ru": "Общество сегодня меняется очень быстро.",
-        "uz": "Jamiyat bugun juda tez o'zgaryapti."
+        "uz": "Hozir jamiyat juda tez o'zgaryapti."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "Poverty is a problem in many countries.",
       "example_translations": {
         "ru": "Бедность — проблема во многих странах.",
-        "uz": "Qashshoqlik ko'p mamlakatlarda muammo."
+        "uz": "Ko'p mamlakatlarda qashshoqlik muammo bo'lib qolmoqda."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "сообщество",
       "translations": {
         "ru": "сообщество",
-        "uz": "jamoa"
+        "uz": "hamjamiyat, mahalliy jamoa"
       },
       "example": "Our community helps old people.",
       "example_translations": {
         "ru": "Наше сообщество помогает пожилым людям.",
-        "uz": "Jamoamiz keksalarga yordam beradi."
+        "uz": "Mahallamizdagilar keksalarga yordam berishadi."
       }
     },
     {

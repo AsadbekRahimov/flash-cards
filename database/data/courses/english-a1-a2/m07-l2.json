@@ -8,7 +8,7 @@
   "lesson": {
     "number": 2,
     "title": "Рабочие дела",
-    "title_uz": "Ish vazifalari"
+    "title_uz": "Ishdagi vazifalar"
   },
   "words": [
     {
@@ -31,12 +31,12 @@
       "translation": "срок сдачи",
       "translations": {
         "ru": "срок сдачи",
-        "uz": "muddat"
+        "uz": "oxirgi muddat"
       },
       "example": "The deadline is on Friday.",
       "example_translations": {
         "ru": "Срок сдачи — в пятницу.",
-        "uz": "Muddat juma kuni."
+        "uz": "Oxirgi muddat — juma kuni."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "My computer is old.",
       "example_translations": {
         "ru": "Мой компьютер старый.",
-        "uz": "Mening kompyuterim eski."
+        "uz": "Kompyuterim eski."
       }
     },
     {
@@ -115,7 +115,7 @@
       "translation": "получать",
       "translations": {
         "ru": "получать",
-        "uz": "qabul qilmoq, olmoq"
+        "uz": "olmoq, qabul qilmoq"
       },
       "example": "We receive the money on Friday.",
       "example_translations": {

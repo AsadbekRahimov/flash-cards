@@ -31,12 +31,12 @@
       "translation": "бегать трусцой",
       "translations": {
         "ru": "бегать трусцой",
-        "uz": "yengil yugurmoq"
+        "uz": "yugurib mashq qilmoq"
       },
       "example": "I jog in the park every morning.",
       "example_translations": {
         "ru": "Я бегаю трусцой в парке каждое утро.",
-        "uz": "Men har kuni ertalab parkda yengil yuguraman."
+        "uz": "Har kuni ertalab parkda yuguraman."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "растягиваться",
       "translations": {
         "ru": "растягиваться",
-        "uz": "cho'zilmoq"
+        "uz": "cho'zmoq"
       },
       "example": "Stretch your legs before you run.",
       "example_translations": {
         "ru": "Разомни ноги перед бегом.",
-        "uz": "Yugurishdan oldin oyoqlaringni cho'z."
+        "uz": "Yugurishdan oldin oyoq mushaklaringizni cho'zing."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "My leg muscles are very tired.",
       "example_translations": {
         "ru": "Мои мышцы ног очень устали.",
-        "uz": "Oyoq mushaklarim juda charchagan."
+        "uz": "Oyog'imning mushaklari juda charchab qoldi."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "тренировка",
       "translations": {
         "ru": "тренировка",
-        "uz": "mashg'ulot"
+        "uz": "jismoniy mashg'ulot"
       },
       "example": "My workout takes about an hour.",
       "example_translations": {
         "ru": "Моя тренировка длится около часа.",
-        "uz": "Mening mashg'ulotim taxminan bir soat davom etadi."
+        "uz": "Mashg'ulotim bir soatcha davom etadi."
       }
     }
   ]

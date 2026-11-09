@@ -529,7 +529,7 @@ describe('SentenceBuilder — an answer that got no reply (solo)', () => {
 
     const w = await lostReply()
 
-    expect(w.get('[data-testid=sentence-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+    expect(w.get('[data-testid=sentence-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
   })
 
   it('in a battle the line is handed back as before: the battle screen has its own retry panel', async () => {
@@ -837,11 +837,11 @@ describe('SentenceBuilder — Uzbek', () => {
     expect(skipButton(w).text()).toBe('Bilmayman')
     expect(bankButton(w, 'fQ1').attributes('aria-label')).toBe("Qo'shish: teacher")
     expect(lineButton(w, 'fT5').attributes('aria-label')).toBe('Olib tashlash: mother')
-    expect(w.get('[data-testid=sentence-answer]').attributes('aria-label')).toBe('Sizning gapingiz')
-    expect(w.get('[data-testid=sentence-bank]').attributes('aria-label')).toBe("Gap uchun so'zlar")
+    expect(w.get('[data-testid=sentence-answer]').attributes('aria-label')).toBe('Tuzgan gapingiz')
+    expect(w.get('[data-testid=sentence-bank]').attributes('aria-label')).toBe("Tanlash uchun so'zlar")
 
     await resetButton(w).trigger('click')
-    expect(w.get('[data-testid=sentence-empty]').text()).toBe("Quyidagi so'zlarni tartib bilan bosing")
+    expect(w.get('[data-testid=sentence-empty]').text()).toBe("Gap tuzish uchun so'zlarni to'g'ri tartibda bosing")
   })
 })
 

@@ -59,12 +59,12 @@
       "translation": "заём",
       "translations": {
         "ru": "заём",
-        "uz": "qarz"
+        "uz": "qarz, kredit"
       },
       "example": "He takes a loan from the bank.",
       "example_translations": {
         "ru": "Он берёт заём в банке.",
-        "uz": "U bankdan qarz oladi."
+        "uz": "U bankdan kredit oladi."
       }
     },
     {

@@ -8,7 +8,7 @@
   "lesson": {
     "number": 4,
     "title": "Аксессуары и товары",
-    "title_uz": "Aksessuarlar va tovarlar"
+    "title_uz": "Taqinchoq va aksessuarlar"
   },
   "words": [
     {
@@ -92,7 +92,7 @@
       "example": "This belt is too long for me.",
       "example_translations": {
         "ru": "Этот ремень слишком длинный для меня.",
-        "uz": "Bu kamar men uchun juda uzun."
+        "uz": "Bu kamar menga uzunlik qilyapti."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "I buy perfume for my wife.",
       "example_translations": {
         "ru": "Я покупаю духи для жены.",
-        "uz": "Men xotinim uchun atir sotib olaman."
+        "uz": "Xotinimga atir olaman."
       }
     },
     {

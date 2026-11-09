@@ -36,7 +36,7 @@
       "example": "Our guide speaks three languages.",
       "example_translations": {
         "ru": "Наш гид говорит на трёх языках.",
-        "uz": "Bizning gidimiz uch tilda gapiradi."
+        "uz": "Gidimiz uch tilda gapiradi."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "сувенир",
       "translations": {
         "ru": "сувенир",
-        "uz": "esdalik sovg'a"
+        "uz": "esdalik sovg'asi"
       },
       "example": "I buy a souvenir for my mother.",
       "example_translations": {
         "ru": "Я покупаю сувенир для мамы.",
-        "uz": "Men onam uchun esdalik sovg'a sotib olaman."
+        "uz": "Onamga esdalik sovg'asi olaman."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "открытка",
       "translations": {
         "ru": "открытка",
-        "uz": "otkritka"
+        "uz": "otkritka, pochta kartochkasi"
       },
       "example": "I send a postcard to my friend.",
       "example_translations": {
         "ru": "Я отправляю открытку другу.",
-        "uz": "Men do'stimga otkritka yuboraman."
+        "uz": "Do'stimga otkritka jo'nataman."
       }
     }
   ]

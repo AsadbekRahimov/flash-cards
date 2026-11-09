@@ -22,7 +22,7 @@
       "example": "Our school is near the park.",
       "example_translations": {
         "ru": "Наша школа рядом с парком.",
-        "uz": "Bizning maktabimiz park yaqinida."
+        "uz": "Maktabimiz park yonida."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "Our teacher is very kind.",
       "example_translations": {
         "ru": "Наш учитель очень добрый.",
-        "uz": "Bizning o'qituvchimiz juda mehribon."
+        "uz": "O'qituvchimiz juda mehribon."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "I study English in the evening.",
       "example_translations": {
         "ru": "Вечером я изучаю английский.",
-        "uz": "Men kechqurun ingliz tilini o'qiyman."
+        "uz": "Kechqurun ingliz tili bilan shug'ullanaman."
       }
     },
     {

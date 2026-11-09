@@ -133,7 +133,7 @@ describe('AudioCard', () => {
     setLocale('uz')
     const w = mount(AudioCard, { props: { card } })
     expect(w.text()).toContain('Nimani eshitdingiz?')
-    expect(w.get('[data-testid=replay-hint]').text()).toBe('Yana tinglash uchun bosing')
+    expect(w.get('[data-testid=replay-hint]').text()).toBe('Qayta tinglash uchun bosing')
     await w.get('[data-testid=option-0]').trigger('click')
     expect(w.get('[data-testid=continue-btn]').text()).toBe('Keyingisi')
   })

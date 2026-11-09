@@ -281,7 +281,7 @@ describe('ExamView', () => {
       setLocale('uz')
       const { wrapper } = await render({ mode: 'mock' })
 
-      expect(wrapper.get('[data-testid=mock-header]').text()).toBe('Sinov testi')
+      expect(wrapper.get('[data-testid=mock-header]').text()).toBe('Sinov imtihoni')
     })
   })
 
@@ -325,7 +325,7 @@ describe('ExamView', () => {
     it('says so in Uzbek', async () => {
       setLocale('uz')
       vi.mocked(api.exam.join).mockRejectedValue(gone())
-      expect((await render()).wrapper.get('[data-testid=closed]').text()).toContain("Imtihon o'qituvchi tomonidan yakunlandi")
+      expect((await render()).wrapper.get('[data-testid=closed]').text()).toContain("O'qituvchi imtihonni yakunladi")
       expect((await render({ mode: 'mock' })).wrapper.get('[data-testid=closed]').text()).toContain('Vaqt tugadi')
     })
   })

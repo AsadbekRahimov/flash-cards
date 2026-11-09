@@ -22,7 +22,7 @@
       "example": "I sweep the floor every morning.",
       "example_translations": {
         "ru": "Я подметаю пол каждое утро.",
-        "uz": "Men har kuni ertalab polni supuraman."
+        "uz": "Har kuni ertalab polni supuraman."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "мыть пол шваброй",
       "translations": {
         "ru": "мыть пол шваброй",
-        "uz": "artmoq"
+        "uz": "ho'l latta bilan artmoq"
       },
       "example": "He mops the kitchen floor twice a week.",
       "example_translations": {
         "ru": "Он моет пол на кухне два раза в неделю.",
-        "uz": "U oshxona polini haftasiga ikki marta artadi."
+        "uz": "Oshxonaning polini haftasiga ikki marta ho'l latta bilan artadi."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Cooking is my favorite chore.",
       "example_translations": {
         "ru": "Готовка — моя любимая домашняя обязанность.",
-        "uz": "Ovqat pishirish mening sevimli uy yumushim."
+        "uz": "Uy yumushlaridan ovqat pishirishni eng yaxshi ko'raman."
       }
     }
   ]

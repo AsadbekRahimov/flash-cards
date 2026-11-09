@@ -69,7 +69,7 @@ describe('ModeCard — a card that can be played', () => {
 
     const wrapper = render({ info: info('collocation') })
 
-    expect(wrapper.get('[data-testid=mode-title]').text()).toBe("So'z birikmasini tanlang")
+    expect(wrapper.get('[data-testid=mode-title]').text()).toBe("Birikmani to'ldiring")
     expect(wrapper.get('[data-testid=mode-estimate]').text()).toBe('≈ 2 daq.')
   })
 })
@@ -166,7 +166,7 @@ describe('ModeCard — short of material', () => {
       expect(none.get('[data-testid=mode-reason]').text()).toBe("Bu mavzu bo'yicha topshiriqlar hozircha yo'q.")
       expect(none.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
       expect(locked.get('[data-testid=mode-reason]').text()).toBe("Dars so'zlarini o'rganing — topshiriqlar ochiladi.")
-      expect(locked.get('[data-testid=mode-learn-collocation]').text()).toBe("Darsni o'rganish")
+      expect(locked.get('[data-testid=mode-learn-collocation]').text()).toBe("Darsga o'tish")
     })
   })
 
@@ -229,7 +229,7 @@ describe('ModeCard — short of material', () => {
       setLocale('uz')
       const wrapper = render({ info: info('collocation', { state: 'not_enough', available: 2, required: 3, reason: 'no_items' }), learn: 'lesson' })
 
-      expect(wrapper.get('[data-testid=mode-reason]').text()).toBe('Topshiriqlar hozircha kam: 3 tadan 2 tasi.')
+      expect(wrapper.get('[data-testid=mode-reason]').text()).toBe('Mashq uchun 3 ta topshiriq kerak. Hozircha 2 ta bor.')
       expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
     })
   })

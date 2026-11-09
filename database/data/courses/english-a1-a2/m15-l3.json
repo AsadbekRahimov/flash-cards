@@ -8,7 +8,7 @@
   "lesson": {
     "number": 3,
     "title": "Как мы учимся",
-    "title_uz": "Qanday o'qiymiz"
+    "title_uz": "O'qish va imtihonlar"
   },
   "words": [
     {
@@ -50,7 +50,7 @@
       "example": "I memorize ten new words daily.",
       "example_translations": {
         "ru": "Я запоминаю десять новых слов ежедневно.",
-        "uz": "Men har kuni o'nta yangi so'zni yodlayman."
+        "uz": "Har kuni o'nta yangi so'z yodlayman."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "сдавать успешно",
       "translations": {
         "ru": "сдавать успешно",
-        "uz": "topshirmoq"
+        "uz": "muvaffaqiyatli topshirmoq, o'tmoq"
       },
       "example": "She passed the test with no problems.",
       "example_translations": {
         "ru": "Она без проблем сдала тест.",
-        "uz": "U testni muammosiz topshirdi."
+        "uz": "U testdan qiynalmay o'tdi."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "провалить",
       "translations": {
         "ru": "провалить",
-        "uz": "yiqilmoq"
+        "uz": "o'tolmaslik, yiqilmoq"
       },
       "example": "He failed the driving test twice.",
       "example_translations": {
         "ru": "Он дважды провалил экзамен по вождению.",
-        "uz": "U haydovchilik imtihonidan ikki marta yiqildi."
+        "uz": "U haydovchilik imtihonidan ikki marta o'tolmagan."
       }
     },
     {

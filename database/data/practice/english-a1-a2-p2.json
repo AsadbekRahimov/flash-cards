@@ -257,7 +257,7 @@
       "display": "Did you enjoy the picnic?",
       "explanation": {
         "ru": "Вопрос о прошлом: Did + you + глагол без -ed (enjoy). После enjoy сразу идёт то, что понравилось: enjoy the picnic.",
-        "uz": "O'tgan zamon haqida savol: Did + you + -ed siz fe'l (enjoy). Enjoy dan keyin darhol yoqqan narsa keladi: enjoy the picnic."
+        "uz": "O'tgan zamonda savol did bilan tuziladi. Fe'l asosiy shaklda qoladi: Did you enjoy the picnic?"
       }
     },
     {
@@ -367,7 +367,7 @@
       ],
       "prompt": {
         "ru": "Какая ваша любимая песня?",
-        "uz": "Sizning sevimli qo'shig'ingiz qaysi?"
+        "uz": "Qaysi qo'shiq sizga eng ko'p yoqadi?"
       },
       "fragments": [
         "what",
@@ -388,7 +388,7 @@
       "display": "What is your favorite song?",
       "explanation": {
         "ru": "Вопрос с what: сначала what, потом is: What is…? Favorite — американское написание (британское — favourite).",
-        "uz": "What bilan savol: avval what, keyin is: What is…? Favorite — amerikacha yozilishi (britancha — favourite)."
+        "uz": "My favorite song — menga eng yoqadigan qo'shiq. Britancha yozilishi: favourite."
       }
     },
     {
@@ -579,11 +579,11 @@
       ],
       "translation": {
         "ru": "Нам было очень весело на вечеринке.",
-        "uz": "Ziyofatda juda maroqli vaqt o'tkazdik."
+        "uz": "Ziyofatda rosa maza qildik."
       },
       "explanation": {
         "ru": "Веселиться — have fun (в прошедшем времени — had fun). Make fun of значит «высмеивать кого-то», а do fun не говорят.",
-        "uz": "Maroqli vaqt o'tkazmoq — have fun (o'tgan zamonda — had fun). Make fun of — «kimnidir masxara qilmoq», do fun esa ishlatilmaydi."
+        "uz": "Have fun — maza qilmoq, vaqtni maroqli o'tkazmoq. O'tgan zamonda had fun deyiladi."
       }
     },
     {
@@ -608,11 +608,11 @@
       ],
       "translation": {
         "ru": "На следующей неделе мы отправляемся в поездку в Самарканд.",
-        "uz": "Kelasi hafta Samarqandga sayohatga jo'naymiz."
+        "uz": "Kelasi hafta Samarqandga sayohatga boramiz."
       },
       "explanation": {
         "ru": "Отправиться в поездку — go on a trip. To ставят перед местом: go to Samarkand, а не перед trip.",
-        "uz": "Sayohatga chiqmoq — go on a trip. To esa joy nomidan oldin keladi: go to Samarkand, trip dan oldin emas."
+        "uz": "Go on a trip — sayohatga chiqmoq. Manzil to bilan aytiladi: a trip to Samarkand."
       }
     },
     {
@@ -725,11 +725,11 @@
       ],
       "translation": {
         "ru": "Я не люблю крепкий кофе.",
-        "uz": "Men quyuq qahvani yoqtirmayman."
+        "uz": "Kuchli damlangan qahvani yoqtirmayman."
       },
       "explanation": {
         "ru": "Крепкий кофе или чай — strong coffee, strong tea. Powerful и hard про кофе не говорят.",
-        "uz": "Quyuq qahva yoki choy — strong coffee, strong tea. Powerful va hard qahva haqida aytilmaydi."
+        "uz": "Kuchli damlangan qahva yoki choy — strong coffee, strong tea."
       }
     },
     {
@@ -1015,7 +1015,7 @@
       "display": "Wash your hands before dinner.",
       "explanation": {
         "ru": "Просьба или совет начинается с глагола: Wash… По-английски перед hands нужно your: wash your hands. Before dinner можно поставить и в начало.",
-        "uz": "Iltimos yoki maslahat fe'ldan boshlanadi: Wash… Inglizchada hands dan oldin your kerak: wash your hands. Before dinner ni boshiga ham qo'yish mumkin."
+        "uz": "Ko'rsatma fe'lning asosiy shaklidan boshlanadi: Wash your hands. Before dinner — kechki ovqatdan oldin."
       }
     },
     {
@@ -1482,11 +1482,11 @@
       ],
       "translation": {
         "ru": "Вам нужно принимать по одной таблетке каждое утро.",
-        "uz": "Har kuni ertalab bitta tabletka ichishingiz kerak."
+        "uz": "Har kuni ertalab bittadan tabletka ichishingiz kerak."
       },
       "explanation": {
         "ru": "Принимать таблетки, лекарство — take: take a pill, take medicine. По-русски «пить таблетки», но drink здесь не подходит.",
-        "uz": "Tabletka yoki dori ichmoq — take: take a pill, take medicine. O'zbekchada «ichmoq» deymiz, lekin inglizchada drink emas, take."
+        "uz": "Dori yoki tabletka ichmoq — take medicine, take a pill."
       }
     },
     {
@@ -1515,7 +1515,7 @@
       },
       "explanation": {
         "ru": "Высокая температура, жар — a high fever. Big и strong с fever не сочетаются.",
-        "uz": "Baland isitma — a high fever. Big va strong fever bilan ishlatilmaydi."
+        "uz": "Isitma yuqori bo'lsa, a high fever deyiladi: My son has a high fever."
       }
     },
     {
@@ -2221,7 +2221,7 @@
       "display": "Horses can run very fast.",
       "explanation": {
         "ru": "Can + глагол без to: can run. Fast здесь — наречие «быстро», оно стоит после глагола.",
-        "uz": "Can + to siz fe'l: can run. Fast bu yerda — «tez» ravishi, fe'ldan keyin keladi."
+        "uz": "Can run — yugura olmoq. Can dan keyin to ishlatilmaydi. Very fast — juda tez."
       }
     },
     {
@@ -2262,7 +2262,7 @@
       "display": "Bears sleep in winter.",
       "explanation": {
         "ru": "О медведях вообще — множественное число без the: bears. In winter — в конце или в начале.",
-        "uz": "Umuman ayiqlar haqida — ko'plik, the siz: bears. In winter — oxirida yoki boshida."
+        "uz": "Gap umuman ayiqlar haqida, shuning uchun bears oldidan artikl qo'yilmaydi. In winter — qishda."
       }
     },
     {
@@ -2468,7 +2468,7 @@
       },
       "explanation": {
         "ru": "Подняться на гору — climb a mountain, без предлога. Rise — «подниматься» самому (the sun rises), raise — «поднимать» что-то.",
-        "uz": "Tog'ga chiqmoq — climb a mountain, predlogsiz. Rise — o'zi ko'tarilmoq (the sun rises), raise — biror narsani ko'tarmoq."
+        "uz": "Climb a mountain — tog'ga chiqmoq. Climb bu gapda yuqoriga ko'tarilishni bildiradi."
       }
     },
     {
@@ -3179,7 +3179,7 @@
       "display": "We will return home next week.",
       "explanation": {
         "ru": "Вернуться домой — return home, без to (home здесь значит «домой»). Next week — без предлога, в конце или в начале.",
-        "uz": "Uyga qaytmoq — return home, to siz (home bu yerda «uyga» ma'nosida). Next week predlogsiz, oxirida yoki boshida keladi."
+        "uz": "Return home — uyga qaytmoq. Bu iborada home oldidan to qo'yilmaydi. Next week — kelasi hafta."
       }
     },
     {
@@ -3233,11 +3233,11 @@
       ],
       "translation": {
         "ru": "Вы уже собрали чемодан?",
-        "uz": "Chamadoningizni yig'ib bo'ldingizmi?"
+        "uz": "Narsalaringizni chamadonga joylab bo'ldingizmi?"
       },
       "explanation": {
         "ru": "Собрать чемодан — pack a suitcase. После put нужно сказать, куда положить (put it in the car), а fold — «складывать» одежду.",
-        "uz": "Chamadonni yig'moq — pack a suitcase. Put dan keyin qayerga qo'yish aytiladi (put it in the car), fold esa — kiyimni taxlamoq."
+        "uz": "Pack a suitcase — narsalarni chamadonga joylamoq. Pack a bag ham shu qolipda ishlatiladi."
       }
     },
     {
@@ -3350,7 +3350,7 @@
       ],
       "translation": {
         "ru": "Мы бы хотели номер с видом на море.",
-        "uz": "Dengiz manzarasi ko'rinadigan xona olmoqchi edik."
+        "uz": "Dengizga qaragan xona olmoqchi edik."
       },
       "explanation": {
         "ru": "Номер с видом — a room with a view. А «вид на» — a view of: a view of the sea.",
@@ -3380,11 +3380,11 @@
       ],
       "translation": {
         "ru": "Вчера мы ходили на экскурсию по старому замку.",
-        "uz": "Kecha eski qal'a bo'ylab ekskursiyaga bordik."
+        "uz": "Kecha eski qal'ani ekskursiyada aylanib chiqdik."
       },
       "explanation": {
         "ru": "Пойти на экскурсию — go on a tour (как go on a trip). In и to перед a tour не ставят.",
-        "uz": "Ekskursiyaga bormoq — go on a tour (go on a trip kabi). A tour dan oldin in va to qo'yilmaydi."
+        "uz": "Go on a tour — ekskursiyaga chiqmoq. A tour of the castle — qal'a bo'ylab ekskursiya."
       }
     },
     {
@@ -3438,11 +3438,11 @@
       ],
       "translation": {
         "ru": "Кажется, мы идём не в ту сторону.",
-        "uz": "Menimcha, biz noto'g'ri yo'nalishda ketyapmiz."
+        "uz": "Menimcha, noto'g'ri tomonga ketyapmiz."
       },
       "explanation": {
         "ru": "В каком-то направлении — in: in the wrong direction. To ставят перед местом: go to the station.",
-        "uz": "Qaysidir yo'nalishda — in: in the wrong direction. To esa joydan oldin qo'yiladi: go to the station."
+        "uz": "In the wrong direction — kerakli tomonga ketmayotganingizni bildiradi. In the right direction — to'g'ri tomonga."
       }
     },
     {

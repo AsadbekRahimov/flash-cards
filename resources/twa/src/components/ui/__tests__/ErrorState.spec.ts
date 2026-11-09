@@ -54,8 +54,8 @@ describe('ErrorState', () => {
     setLocale('uz')
     const w = mount(ErrorState, { props: { message: 'm' } })
 
-    expect(w.get('h2').text()).toBe('Xatolik')
-    expect(w.get('[data-testid=retry-btn]').text()).toBe('Qayta urinish')
+    expect(w.get('h2').text()).toBe('Xato yuz berdi')
+    expect(w.get('[data-testid=retry-btn]').text()).toBe("Qayta urinib ko'rish")
   })
 
   it('lets a screen replace the root test id but keeps the retry one', () => {

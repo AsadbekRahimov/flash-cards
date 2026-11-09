@@ -45,12 +45,12 @@
       "translation": "марка",
       "translations": {
         "ru": "марка",
-        "uz": "marka"
+        "uz": "pochta markasi"
       },
       "example": "I need a stamp for this letter.",
       "example_translations": {
         "ru": "Мне нужна марка для этого письма.",
-        "uz": "Menga bu xat uchun marka kerak."
+        "uz": "Bu xatga pochta markasi kerak."
       }
     },
     {

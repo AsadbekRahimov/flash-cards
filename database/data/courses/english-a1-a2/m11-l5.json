@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Маршрут и ориентация",
-    "title_uz": "Marshrut va yo'nalish"
+    "title_uz": "Yo'l va manzil"
   },
   "words": [
     {
@@ -64,7 +64,7 @@
       "example": "Our destination is a small village.",
       "example_translations": {
         "ru": "Наш пункт назначения — маленькая деревня.",
-        "uz": "Bizning manzilimiz kichik qishloq."
+        "uz": "Kichik bir qishloqqa ketyapmiz."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "исследовать",
       "translations": {
         "ru": "исследовать",
-        "uz": "kashf etmoq"
+        "uz": "kezib chiqmoq, o'rganmoq"
       },
       "example": "We explore the old town on foot.",
       "example_translations": {
         "ru": "Мы исследуем старый город пешком.",
-        "uz": "Biz eski shaharni piyoda kashf etamiz."
+        "uz": "Eski shaharni piyoda aylanib chiqamiz."
       }
     },
     {

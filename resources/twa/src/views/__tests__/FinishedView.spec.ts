@@ -251,10 +251,10 @@ describe('FinishedView', () => {
     it('speaks Uzbek', () => {
       setLocale('uz')
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
-      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe('Dars amaliyoti')
+      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("Dars bo'yicha mashqlar")
 
       useTrainingStore().summary = summary({ practice_entry: entry(null) })
-      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe('Kurs amaliyoti')
+      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("Kurs bo'yicha mashqlar")
     })
   })
 

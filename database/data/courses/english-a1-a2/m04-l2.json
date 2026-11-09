@@ -8,7 +8,7 @@
   "lesson": {
     "number": 2,
     "title": "Время суток",
-    "title_uz": "Kun vaqtlari"
+    "title_uz": "Kunning qismlari"
   },
   "words": [
     {
@@ -17,7 +17,7 @@
       "translation": "утро",
       "translations": {
         "ru": "утро",
-        "uz": "tong, ertalab"
+        "uz": "ertalab, tong"
       },
       "example": "Good morning, Mr. Brown.",
       "example_translations": {
@@ -45,12 +45,12 @@
       "translation": "вечер",
       "translations": {
         "ru": "вечер",
-        "uz": "kech, oqshom"
+        "uz": "kechqurun, oqshom"
       },
       "example": "We walk in the evening.",
       "example_translations": {
         "ru": "Вечером мы гуляем.",
-        "uz": "Kechqurun biz sayr qilamiz."
+        "uz": "Kechqurun sayr qilamiz."
       }
     },
     {

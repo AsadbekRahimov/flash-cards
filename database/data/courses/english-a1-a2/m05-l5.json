@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Движение",
-    "title_uz": "Harakat"
+    "title_uz": "Yo'lda"
   },
   "words": [
     {
@@ -143,12 +143,12 @@
       "translation": "ездить, кататься",
       "translations": {
         "ru": "ездить, кататься",
-        "uz": "minib yurmoq"
+        "uz": "minmoq"
       },
       "example": "I ride a bike in the park.",
       "example_translations": {
         "ru": "Я катаюсь на велосипеде в парке.",
-        "uz": "Men parkda velosiped minaman."
+        "uz": "Parkda velosiped minaman."
       }
     }
   ]

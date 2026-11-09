@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Большие числа и порядок",
-    "title_uz": "Katta sonlar va tartib"
+    "title_uz": "Katta sonlar va tartib sonlar"
   },
   "words": [
     {
@@ -22,7 +22,7 @@
       "example": "There are twenty students in my class.",
       "example_translations": {
         "ru": "В моём классе двадцать учеников.",
-        "uz": "Mening sinfimda yigirma o'quvchi bor."
+        "uz": "Sinfimda yigirmata o'quvchi bor."
       }
     },
     {

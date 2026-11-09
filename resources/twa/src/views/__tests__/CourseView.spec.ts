@@ -820,7 +820,7 @@ describe('CourseView', () => {
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts', is_active: true }))
     const main = await render()
-    expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov testi')
+    expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov imtihoni')
     expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Testni boshlash')
     expect(main.wrapper.get('[data-testid=active-badge]').text()).toBe('Asosiy kurs')
     expect(main.wrapper.get('[data-testid=continue-btn]').text()).toBe('Davom etish: 1-modul, 1-dars')

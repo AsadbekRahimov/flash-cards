@@ -16,7 +16,7 @@ describe('practiceLabels', () => {
   it('names a mode in the language of the learner', () => {
     expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Найди пары', 'Подбери сочетание', 'Собери предложение', 'Слушай и пиши'])
     setLocale('uz')
-    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Juftlarni toping', "So'z birikmasini tanlang", 'Gap tuzing', 'Eshiting va yozing'])
+    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Juftlarni toping', "Birikmani to'ldiring", 'Gap tuzing', 'Tinglang va yozing'])
   })
 
   it('says where a lesson is, with its name when it has one', () => {

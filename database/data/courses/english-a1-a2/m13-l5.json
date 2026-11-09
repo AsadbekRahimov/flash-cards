@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Настроение и качества",
-    "title_uz": "Kayfiyat va sifatlar"
+    "title_uz": "Kayfiyat va odamni tasvirlash"
   },
   "words": [
     {
@@ -87,12 +87,12 @@
       "translation": "отвратительный",
       "translations": {
         "ru": "отвратительный",
-        "uz": "jirkanch"
+        "uz": "juda yomon, rasvo"
       },
       "example": "This coffee tastes really awful.",
       "example_translations": {
         "ru": "Этот кофе на вкус просто ужасный.",
-        "uz": "Bu qahva haqiqatan jirkanch ta'mga ega."
+        "uz": "Bu qahvaning ta'mi juda yomon ekan."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Your teacher looks very serious today.",
       "example_translations": {
         "ru": "Твой учитель сегодня выглядит очень серьёзным.",
-        "uz": "Sening o'qituvching bugun juda jiddiy ko'rinadi."
+        "uz": "Bugun o'qituvchingiz juda jiddiy ko'rinyapti."
       }
     },
     {

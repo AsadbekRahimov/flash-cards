@@ -17,12 +17,12 @@
       "translation": "наука, естествознание",
       "translations": {
         "ru": "наука, естествознание",
-        "uz": "fan"
+        "uz": "tabiiy fan"
       },
       "example": "We have science on Tuesday morning.",
       "example_translations": {
         "ru": "У нас естествознание во вторник утром.",
-        "uz": "Bizda seshanba kuni ertalab tabiiy fan bor."
+        "uz": "Seshanba kuni ertalab tabiiy fan darsimiz bor."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "Math is my favorite subject.",
       "example_translations": {
         "ru": "Математика — мой любимый предмет.",
-        "uz": "Matematika mening sevimli faning."
+        "uz": "Eng yaxshi ko'rgan fanim — matematika."
       }
     },
     {

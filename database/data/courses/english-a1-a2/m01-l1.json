@@ -22,7 +22,7 @@
       "example": "Hello, my name is Anna.",
       "example_translations": {
         "ru": "Привет, меня зовут Анна.",
-        "uz": "Salom, mening ismim Anna."
+        "uz": "Salom, ismim Anna."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "Bye, see you tomorrow!",
       "example_translations": {
         "ru": "Пока, увидимся завтра!",
-        "uz": "Ko'rishguncha, ertaga ko'rishamiz!"
+        "uz": "Xayr, ertaga ko'rishamiz!"
       }
     },
     {

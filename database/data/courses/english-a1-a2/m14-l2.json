@@ -22,7 +22,7 @@
       "example": "My desk is near the window.",
       "example_translations": {
         "ru": "Мой рабочий стол у окна.",
-        "uz": "Mening ish stolim deraza yonida."
+        "uz": "Ish stolim deraza yonida."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "встреча по записи",
       "translations": {
         "ru": "встреча по записи",
-        "uz": "uchrashuv"
+        "uz": "belgilangan uchrashuv"
       },
       "example": "I have an appointment at three.",
       "example_translations": {
         "ru": "У меня встреча в три часа.",
-        "uz": "Mening soat uchda uchrashuvim bor."
+        "uz": "Soat uchda uchrashuvim bor."
       }
     },
     {

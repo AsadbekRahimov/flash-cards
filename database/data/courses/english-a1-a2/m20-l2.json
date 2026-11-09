@@ -73,12 +73,12 @@
       "translation": "картина",
       "translations": {
         "ru": "картина",
-        "uz": "rasm"
+        "uz": "chizilgan rasm, kartina"
       },
       "example": "This painting is over a hundred years old.",
       "example_translations": {
         "ru": "Этой картине больше ста лет.",
-        "uz": "Bu rasm yuz yildan ortiq vaqtga ega."
+        "uz": "Bu rasm chizilganiga yuz yildan oshgan."
       }
     },
     {

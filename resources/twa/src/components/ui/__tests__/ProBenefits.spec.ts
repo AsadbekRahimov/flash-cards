@@ -163,9 +163,9 @@ describe('ProBenefits', () => {
     const w = mount(ProBenefits)
 
     expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
-    expect(w.text()).toContain("Yangi so'zlar kunlik limitsiz")
-    expect(w.text()).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
-    expect(w.text()).toContain('IELTS va SAT sinov testlari')
+    expect(w.text()).toContain("Kuniga istagancha yangi so'z")
+    expect(w.text()).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+    expect(w.text()).toContain('IELTS va SAT sinov imtihonlari')
   })
 
   it('speaks Uzbek: the practice alone for solo, and no practice line for none', () => {
@@ -174,7 +174,7 @@ describe('ProBenefits', () => {
     const solo = mount(ProBenefits)
 
     expect(solo.findAll('[data-testid=benefit]')).toHaveLength(6)
-    expect(solo.text()).toContain('Amaliyot kunlik limitsiz')
+    expect(solo.text()).toContain('Mustahkamlash mashqlari cheklovsiz')
     expect(solo.text()).not.toContain('bellashuv')
 
     know(NONE)
@@ -182,6 +182,6 @@ describe('ProBenefits', () => {
 
     expect(none.findAll('[data-testid=benefit]')).toHaveLength(5)
     expect(none.text()).not.toContain('bellashuv')
-    expect(none.text()).not.toContain('Amaliyot')
+    expect(none.text()).not.toContain('Mashqlar')
   })
 })

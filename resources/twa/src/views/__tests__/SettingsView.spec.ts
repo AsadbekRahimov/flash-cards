@@ -799,7 +799,7 @@ describe('SettingsView', () => {
       await tap(w, 'locale-uz')
 
       expect(w.get('[data-testid=orgs-card]').text()).toContain('Mening markazlarim')
-      expect(w.get('[data-testid=org-state]').text()).toBe('Markaz bergan Pro')
+      expect(w.get('[data-testid=org-state]').text()).toBe("Pro'ni markazingiz ulagan")
     })
 
     it('does not hide the settings when the list cannot be loaded', async () => {

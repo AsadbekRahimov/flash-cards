@@ -22,7 +22,7 @@
       "example": "My laptop is on the desk.",
       "example_translations": {
         "ru": "Мой ноутбук лежит на столе.",
-        "uz": "Mening noutbukim stolda."
+        "uz": "Noutbukim stol ustida."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "зарядное устройство",
       "translations": {
         "ru": "зарядное устройство",
-        "uz": "zaryadlagich"
+        "uz": "quvvatlagich"
       },
       "example": "I forgot my charger at the office.",
       "example_translations": {
         "ru": "Я забыл зарядку в офисе.",
-        "uz": "Zaryadlagichni ofisda unutib qoldirdim."
+        "uz": "Quvvatlagichim ofisda qolib ketibdi."
       }
     },
     {

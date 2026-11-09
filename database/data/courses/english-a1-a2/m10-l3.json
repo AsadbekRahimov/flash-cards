@@ -115,12 +115,12 @@
       "translation": "прогноз",
       "translations": {
         "ru": "прогноз",
-        "uz": "bashorat"
+        "uz": "ob-havo prognozi"
       },
       "example": "The forecast says rain tomorrow.",
       "example_translations": {
         "ru": "Прогноз обещает завтра дождь.",
-        "uz": "Bashoratga ko'ra, ertaga yomg'ir yog'adi."
+        "uz": "Ob-havo prognoziga ko'ra, ertaga yomg'ir yog'adi."
       }
     },
     {

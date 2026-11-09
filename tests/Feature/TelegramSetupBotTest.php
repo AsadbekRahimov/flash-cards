@@ -233,18 +233,17 @@ it('ends an exam with one verb in /close_exam: the menu, both /help texts and ev
     'uz' => ['uz', 'yakunla', 'yop'],
 ]);
 
-it('calls the group training «trening» in uz: «mashg\'ulot» of the same /help is the daily session of /today', function (): void {
+it("distinguishes the group training from today's session in Uzbek", function (): void {
     $help = __('bot.help.private', [], 'uz');
 
-    // One word for both made "/today — bugungi mashg'ulot" and "/start_training — mashg'ulot" read like the same thing.
-    expect($help)->toContain("/today — bugungi mashg'ulot")
-        ->and($help)->toContain('/start_training — trening,')
-        ->and(__('bot.help.group', [], 'uz'))->toContain('/start_training — treningni boshlash')
-        ->and(__('commands.group.start_training', [], 'uz'))->toBe('Treningni boshlash');
+    expect($help)->toContain("Bugungi mashg'ulot uchun")
+        ->and($help)->toContain("/start_training — guruh mashg'ulotini boshlash")
+        ->and(__('bot.help.group', [], 'uz'))->toContain("/start_training — guruh mashg'ulotini boshlash")
+        ->and(__('commands.group.start_training', [], 'uz'))->toBe("Guruh mashg'ulotini boshlash");
 
     // The whole flow of /start_training speaks the same way: the menu, the lesson picker, the message in the group, the refusals.
     foreach (['commands.group.start_training', 'training.picker.prompt', 'training.started', 'training.open_button', 'errors.training.not_teacher', 'errors.training.failed', 'errors.training.not_delivered', 'landing.pricing.centers.features.2'] as $key) {
-        expect(mb_strtolower(__($key, [], 'uz')))->toContain('trening')->not->toContain("mashg'ulot");
+        expect(mb_strtolower(__($key, [], 'uz')))->toContain("guruh mashg'ulot");
     }
 });
 

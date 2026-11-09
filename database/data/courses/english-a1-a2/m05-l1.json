@@ -31,12 +31,12 @@
       "translation": "городок",
       "translations": {
         "ru": "городок",
-        "uz": "shaharcha"
+        "uz": "kichik shahar"
       },
       "example": "My town is small and quiet.",
       "example_translations": {
         "ru": "Мой городок маленький и тихий.",
-        "uz": "Mening shaharchamiz kichik va sokin."
+        "uz": "Men yashaydigan shahar kichik va tinch."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "Our house is on this street.",
       "example_translations": {
         "ru": "Наш дом на этой улице.",
-        "uz": "Bizning uyimiz shu ko'chada."
+        "uz": "Uyimiz shu ko'chada."
       }
     },
     {

@@ -73,12 +73,12 @@
       "translation": "двоюродный брат, двоюродная сестра",
       "translations": {
         "ru": "двоюродный брат, двоюродная сестра",
-        "uz": "amakivachcha, xolavachcha"
+        "uz": "amakivachcha, ammavachcha, tog'avachcha, xolavachcha"
       },
       "example": "My cousin and I are friends.",
       "example_translations": {
         "ru": "Мы с двоюродным братом друзья.",
-        "uz": "Amakivachcham bilan biz do'stmiz."
+        "uz": "Amakivachcham bilan do'stmiz."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "любовь",
       "translations": {
         "ru": "любовь",
-        "uz": "sevgi, muhabbat"
+        "uz": "mehr, sevgi"
       },
       "example": "Family is love and care.",
       "example_translations": {
         "ru": "Семья — это любовь и забота.",
-        "uz": "Oila — bu sevgi va g'amxo'rlik."
+        "uz": "Oila degani mehr va g'amxo'rlik."
       }
     },
     {

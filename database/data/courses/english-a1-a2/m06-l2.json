@@ -31,12 +31,12 @@
       "translation": "платье",
       "translations": {
         "ru": "платье",
-        "uz": "libos"
+        "uz": "ayollar ko'ylagi"
       },
       "example": "She has a long blue dress.",
       "example_translations": {
         "ru": "У неё длинное синее платье.",
-        "uz": "Uning uzun ko'k libosi bor."
+        "uz": "Uning uzun ko'k ko'ylagi bor."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "туфля, ботинок",
       "translations": {
         "ru": "туфля, ботинок",
-        "uz": "tufli, poyabzal"
+        "uz": "oyoq kiyim, tufli"
       },
       "example": "These shoes are too small.",
       "example_translations": {
         "ru": "Эти ботинки слишком малы.",
-        "uz": "Bu tuflilar juda kichik."
+        "uz": "Bu tufli oyog'imga kichiklik qilyapti."
       }
     },
     {

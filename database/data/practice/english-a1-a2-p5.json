@@ -453,11 +453,11 @@
       ],
       "translation": {
         "ru": "Очень мило с вашей стороны",
-        "uz": "Siz juda mehribonsiz"
+        "uz": "Juda mehribon ekansiz."
       },
       "explanation": {
         "ru": "kind of you — мило с вашей стороны: после kind здесь нужен of, хотя в речи он звучит очень коротко. That's = that is.",
-        "uz": "kind of you — Sizning mehribonligingiz: kind dan keyin bu yerda of keladi, garchi u juda qisqa eshitilsa ham. That's = that is."
+        "uz": "That's very kind of you — birovning yaxshiligiga javoban aytiladi. That's — that is ning qisqa shakli."
       }
     },
     {
@@ -635,7 +635,7 @@
       "display": "I can see the garden from my window.",
       "explanation": {
         "ru": "По-русски «из окна видно сад» — без «я», а по-английски нужен тот, кто видит: I can see… Место можно поставить и в начало: From my window I can see the garden.",
-        "uz": "O'zbekchada «derazamdan bog' ko'rinadi» deyiladi, inglizchada esa kim ko'rayotgani aytiladi: I can see… Joyni boshiga ham qo'yish mumkin: From my window I can see the garden."
+        "uz": "I can see the garden — bog'ni ko'ryapman. From my window qayerdan ko'rayotganingizni bildiradi: derazamdan."
       }
     },
     {
@@ -1504,7 +1504,7 @@
       "display": "Grapes grow well in Uzbekistan.",
       "explanation": {
         "ru": "По-русски «виноград» — в единственном числе, а по-английски обычно grapes (ягоды), поэтому grow без -s. Well — после глагола; in Uzbekistan можно поставить и в начало.",
-        "uz": "O'zbekchada «uzum» birlikda, inglizchada esa odatda grapes — ko'plikda, shuning uchun grow -s siz. Well fe'ldan keyin keladi; in Uzbekistan ni boshiga ham qo'yish mumkin."
+        "uz": "Bu gapda grapes ko'plikda kelgani uchun grow ishlatilgan. Grow well — yaxshi o'smoq."
       }
     },
     {
@@ -2046,7 +2046,7 @@
       "display": "My little brother can count to ten.",
       "explanation": {
         "ru": "can + глагол без to: can count. «До десяти» — to ten.",
-        "uz": "can + to siz fe'l: can count. «O'ngacha» — to ten."
+        "uz": "Can count — sanay olmoq. «O'ngacha» qismida to ishlatiladi: count to ten."
       }
     },
     {
@@ -2062,7 +2062,7 @@
       ],
       "prompt": {
         "ru": "Для торта нам нужно шесть яиц.",
-        "uz": "Tort uchun bizga oltita tuxum kerak."
+        "uz": "Tortga oltita tuxum kerak."
       },
       "fragments": [
         "we",
@@ -2096,7 +2096,7 @@
       "display": "We need six eggs for the cake.",
       "explanation": {
         "ru": "По-русски «нам нужно», а по-английски «мы нуждаемся»: we need. После six — множественное число: eggs. For the cake можно поставить и в начало.",
-        "uz": "«Bizga kerak» inglizchada we need («biz muhtojmiz») deyiladi. Six dan keyin ko'plik: eggs. For the cake ni boshiga ham qo'yish mumkin."
+        "uz": "We need — bizga kerak. Six dan keyin ot ko'plikda keladi: six eggs."
       }
     },
     {
@@ -2989,11 +2989,11 @@
       ],
       "translation": {
         "ru": "Остановка прямо за углом.",
-        "uz": "Bekat shundoqqina muyulishda."
+        "uz": "Bekat burilishdan o'tishingiz bilan ko'rinadi."
       },
       "explanation": {
         "ru": "around the corner — за углом, совсем рядом. По-русски «за», но behind the corner так не говорят; after тоже не подходит.",
-        "uz": "around the corner — muyulishda, juda yaqinda. Behind the corner va after the corner deyilmaydi."
+        "uz": "Just around the corner — burilishdan keyin, shundoqqina yaqinda."
       }
     },
     {

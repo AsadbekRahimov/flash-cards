@@ -31,7 +31,7 @@
       "translation": "работа, должность",
       "translations": {
         "ru": "работа, должность",
-        "uz": "ish, kasb"
+        "uz": "ish"
       },
       "example": "He has a good job.",
       "example_translations": {
@@ -50,7 +50,7 @@
       "example": "My office is near the station.",
       "example_translations": {
         "ru": "Мой офис рядом с вокзалом.",
-        "uz": "Mening ofisim vokzal yaqinida."
+        "uz": "Ofisim vokzal yonida."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Our team is small but strong.",
       "example_translations": {
         "ru": "Наша команда маленькая, но сильная.",
-        "uz": "Bizning jamoamiz kichik, lekin kuchli."
+        "uz": "Jamoamiz kichik, lekin kuchli."
       }
     },
     {

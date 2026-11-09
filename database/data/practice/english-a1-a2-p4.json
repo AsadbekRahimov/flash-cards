@@ -97,7 +97,7 @@
       ],
       "prompt": {
         "ru": "Положите, пожалуйста, яйца в холодильник.",
-        "uz": "Iltimos, tuxumlarni muzlatgichga qo'ying."
+        "uz": "Iltimos, tuxumlarni sovitkichga qo'ying."
       },
       "fragments": [
         "put",
@@ -131,7 +131,7 @@
       "display": "Put the eggs in the fridge, please.",
       "explanation": {
         "ru": "Просьба начинается с глагола: Put the eggs… Please ставят в конце или в начале.",
-        "uz": "Iltimos qilinganda gap fe'l bilan boshlanadi: Put the eggs… Please oxirida yoki boshida keladi."
+        "uz": "Put the eggs in the fridge — tuxumlarni sovitkichga qo'ying. Please gap boshida ham, oxirida ham kelishi mumkin."
       }
     },
     {
@@ -606,7 +606,7 @@
       ],
       "translation": {
         "ru": "Вы не могли бы вынести мусор?",
-        "uz": "Iltimos, axlatni chiqarib tashlay olasizmi?"
+        "uz": "Iltimos, chiqindini olib chiqib tashlaysizmi?"
       },
       "explanation": {
         "ru": "take out the trash — вынести мусор. Take off — снимать (одежду), take up — занимать (место или время).",
@@ -666,11 +666,11 @@
       ],
       "translation": {
         "ru": "Мы пожаловались хозяину квартиры на отопление.",
-        "uz": "Biz uy egasiga isitishdan shikoyat qildik."
+        "uz": "Uy egasiga isitish tizimidan shikoyat qildik."
       },
       "explanation": {
         "ru": "complain to — жаловаться кому-то, а «на что» — about: complained to the landlord about the heating. On и for здесь не подходят.",
-        "uz": "complain to — kimgadir shikoyat qilmoq, «nimadan» esa — about: complained to the landlord about the heating. On va for bu yerda mos emas."
+        "uz": "Complain to someone about something — biror masala yuzasidan birovga shikoyat qilmoq. To kimga, about nima haqida ekanini bildiradi."
       }
     },
     {
@@ -725,11 +725,11 @@
       ],
       "translation": {
         "ru": "Ударьте по гвоздю молотком.",
-        "uz": "Mixga bolg'a bilan uring."
+        "uz": "Mixni bolg'a bilan qoqing."
       },
       "explanation": {
         "ru": "Инструмент, которым что-то делают, — с предлогом with: with a hammer, with a knife. By говорят о транспорте: by bus.",
-        "uz": "Ish bajariladigan asbob with bilan keladi: with a hammer, with a knife. By esa transport haqida: by bus."
+        "uz": "Hit the nail with a hammer — mixni bolg'a bilan urmoq. With qaysi asbob ishlatilganini bildiradi."
       }
     },
     {
@@ -1014,7 +1014,7 @@
       "display": "Where can I exchange money?",
       "explanation": {
         "ru": "В вопросе can ставится перед подлежащим: Where can I…? Глагол после can — без to: can I exchange.",
-        "uz": "Savolda can egadan oldin keladi: Where can I…? Can dan keyin fe'l to siz keladi: can I exchange."
+        "uz": "Qayerda ekanini so'rash uchun Where can I…? deb boshlang: Where can I exchange money?"
       }
     },
     {
@@ -1129,7 +1129,7 @@
       ],
       "prompt": {
         "ru": "Я потерял чек за эту рубашку.",
-        "uz": "Bu ko'ylakning chekini yo'qotib qo'ydim."
+        "uz": "Shu ko'ylakning chekini yo'qotib qo'ydim."
       },
       "fragments": [
         "I",
@@ -1154,7 +1154,7 @@
       "display": "I lost the receipt for this shirt.",
       "explanation": {
         "ru": "lost — прошедшее время от lose (неправильный глагол). Чек за покупку — receipt for: the receipt for this shirt.",
-        "uz": "lost — lose fe'lining o'tgan zamon shakli (noto'g'ri fe'l). Xarid cheki — receipt for: the receipt for this shirt."
+        "uz": "Lost — lose fe'lining o'tgan zamon shakli. The receipt for this shirt — shu ko'ylakning cheki."
       }
     },
     {
@@ -1376,11 +1376,11 @@
       ],
       "translation": {
         "ru": "Вы будете платить картой или наличными?",
-        "uz": "Karta orqali to'laysizmi yoki naqd pul bilan?"
+        "uz": "Karta bilan to'laysizmi yoki naqdmi?"
       },
       "explanation": {
         "ru": "pay by card — платить картой, а pay in cash — наличными: предлоги разные. Pay for — платить за что-то: pay for the shoes.",
-        "uz": "pay by card — karta orqali to'lamoq, pay in cash esa — naqd pul bilan: predloglar har xil. Pay for — biror narsa uchun to'lamoq: pay for the shoes."
+        "uz": "Karta bilan to'lash — pay by card. Naqd to'lash — pay in cash."
       }
     },
     {
@@ -1493,11 +1493,11 @@
       ],
       "translation": {
         "ru": "Давайте сходим за покупками в субботу.",
-        "uz": "Keling, shanba kuni xarid qilgani boraylik."
+        "uz": "Shanba kuni bozorga chiqaylik."
       },
       "explanation": {
         "ru": "go shopping — ходить за покупками, без предлога (как go swimming). Go to — только перед местом: go to the supermarket.",
-        "uz": "go shopping — xarid qilgani bormoq, predlogsiz (go swimming kabi). Go to — faqat joydan oldin: go to the supermarket."
+        "uz": "Go shopping — xarid qilish uchun do'kon yoki bozorga bormoq."
       }
     },
     {
@@ -1609,11 +1609,11 @@
       ],
       "translation": {
         "ru": "Сейчас я не могу позволить себе новый телефон.",
-        "uz": "Hozir yangi telefon olishga qurbim yetmaydi."
+        "uz": "Hozir yangi telefon olishga pulim yetmaydi."
       },
       "explanation": {
         "ru": "can't afford — не могу позволить себе (не хватает денег). Allow — разрешать кому-то, а pay требует for: pay for a phone.",
-        "uz": "can't afford — qurbi yetmaydi (pul yetmaydi). Allow — kimgadir ruxsat bermoq, pay esa for bilan keladi: pay for a phone."
+        "uz": "Can't afford something — biror narsani olishga puli yetmaslik."
       }
     },
     {
@@ -1639,11 +1639,11 @@
       ],
       "translation": {
         "ru": "Эти джинсы мне не подходят — они слишком маленькие.",
-        "uz": "Bu jinsi shim o'lchamimga to'g'ri kelmaydi — juda kichik."
+        "uz": "Bu jinsi shim menga kichik ekan."
       },
       "explanation": {
         "ru": "fit — подходить по размеру. Suit — идти, быть к лицу (цвет, фасон), match — сочетаться с другой вещью.",
-        "uz": "fit — o'lchamiga mos kelmoq. Suit — yarashmoq (rang, fason), match — boshqa narsaga mos tushmoq."
+        "uz": "Fit — o'lchami mos kelmoq. These jeans don't fit me — bu jinsi shim menga o'lchami jihatidan mos emas."
       }
     },
     {
@@ -2397,7 +2397,7 @@
       ],
       "translation": {
         "ru": "Врач хочет, чтобы я сдал анализ крови.",
-        "uz": "Shifokor qon tahlili topshirishimni xohlaydi."
+        "uz": "Shifokor qon tahlili topshirishimni aytdi."
       },
       "explanation": {
         "ru": "have a blood test — сдать анализ крови (можно и take или get). Make так не говорят, а pass a test — это «сдать экзамен».",
@@ -2426,11 +2426,11 @@
       ],
       "translation": {
         "ru": "Я на диете, так что мне без торта, спасибо.",
-        "uz": "Men parhezdaman, shuning uchun menga tort kerak emas, rahmat."
+        "uz": "Rahmat, tort yemayman. Parhezdaman."
       },
       "explanation": {
         "ru": "be on a diet — сидеть на диете. Предлог on, как русское «на»; in и at здесь не подходят.",
-        "uz": "be on a diet — parhezda bo'lmoq. Predlog — on; in va at bu yerda mos emas."
+        "uz": "Be on a diet — parhez tutmoq. «Parhezdaman» — I'm on a diet."
       }
     },
     {
@@ -2572,11 +2572,11 @@
       ],
       "translation": {
         "ru": "Он испытывает сильный стресс на работе.",
-        "uz": "U ishda kuchli stress ostida."
+        "uz": "U ishda juda ko'p stressga duch keladi."
       },
       "explanation": {
         "ru": "be under stress — быть в стрессе, под давлением. По-английски — under, а не in.",
-        "uz": "be under stress — stress ostida bo'lmoq. Inglizchada under ishlatiladi, in emas."
+        "uz": "Be under a lot of stress — kuchli zo'riqish ostida bo'lmoq."
       }
     },
     {
@@ -2978,7 +2978,7 @@
       ],
       "prompt": {
         "ru": "Посадите семена в хорошую почву.",
-        "uz": "Urug'larni yaxshi tuproqqa eking."
+        "uz": "Urug'larni unumdor tuproqqa eking."
       },
       "fragments": [
         "plant",
@@ -3001,7 +3001,7 @@
       "display": "Plant the seeds in good soil.",
       "explanation": {
         "ru": "Совет или просьба начинается с глагола: Plant the seeds… Soil — неисчисляемое, поэтому без a: in good soil.",
-        "uz": "Maslahat yoki iltimos fe'l bilan boshlanadi: Plant the seeds… Soil — sanalmaydigan ot, shuning uchun a siz: in good soil."
+        "uz": "Buyruq gap fe'ldan boshlanadi: Plant the seeds. Tuproq sanalmaydi, shuning uchun in good soil iborasida a ishlatilmaydi."
       }
     },
     {
@@ -3119,7 +3119,7 @@
       "display": "We must take care of our planet.",
       "explanation": {
         "ru": "must + глагол без to — «должны»: must take. Take care of — заботиться, беречь.",
-        "uz": "must + to siz fe'l — «kerak, shart»: must take. Take care of — g'amxo'rlik qilmoq, asramoq."
+        "uz": "Must take care of our planet — sayyoramizni asrashimiz kerak. Must dan keyin fe'lning asosiy shakli keladi."
       }
     },
     {
@@ -3320,7 +3320,7 @@
       ],
       "translation": {
         "ru": "Синий кит — самое большое животное на Земле.",
-        "uz": "Ko'k kit — Yer yuzidagi eng katta hayvon."
+        "uz": "Moviy kit — Yer yuzidagi eng katta hayvon."
       },
       "explanation": {
         "ru": "on Earth — на Земле, на планете (как on the planet). In и at здесь не подходят.",
@@ -4275,11 +4275,11 @@
       ],
       "translation": {
         "ru": "Студенты продавали пирожные, чтобы собрать деньги на благотворительность.",
-        "uz": "Talabalar xayriya uchun pul yig'ish maqsadida pishiriqlar sotishdi."
+        "uz": "Talabalar xayriya uchun pul yig'ish maqsadida pishiriq sotishdi."
       },
       "explanation": {
         "ru": "raise money for — собирать деньги на что-то: raise money for charity. Но give money to charity — отдавать деньги на благотворительность.",
-        "uz": "raise money for — biror narsa uchun pul yig'moq: raise money for charity. Lekin give money to charity — xayriyaga pul bermoq."
+        "uz": "Raise money for charity — xayriya uchun pul yig'moq."
       }
     },
     {

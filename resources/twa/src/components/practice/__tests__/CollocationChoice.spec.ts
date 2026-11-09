@@ -103,9 +103,9 @@ describe('CollocationChoice — the phrase and the options', () => {
 
     const wrapper = render()
 
-    expect(wrapper.get('[data-testid=collocation-instruction]').text()).toBe("Bo'sh joyga mos so'zni tanlang")
+    expect(wrapper.get('[data-testid=collocation-instruction]').text()).toBe("Gapdagi bo'sh joyga mos javobni tanlang")
     expect(wrapper.get('[data-testid=collocation-blank] .sr-only').text()).toBe("bo'sh joy")
-    expect(wrapper.get('[data-testid=collocation-footnote]').text()).toBe('Javob bosilganda darhol tekshiriladi.')
+    expect(wrapper.get('[data-testid=collocation-footnote]').text()).toBe('Variantni tanlashingiz bilan javob tekshiriladi.')
   })
 })
 
@@ -304,8 +304,8 @@ describe('CollocationChoice — a pick whose request got no reply (solo)', () =>
 
     const wrapper = await lostReply()
 
-    expect(wrapper.get('[data-testid=resend-btn]').text()).toBe('Qayta urinish')
-    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+    expect(wrapper.get('[data-testid=resend-btn]').text()).toBe("Qayta urinib ko'rish")
+    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe('Server javob bermadi. Avvalgi javobingizni qayta yuboring.')
   })
 
   it('in a battle there is no such thing: the battle screen has its own retry, and the component stays as the final answer', async () => {

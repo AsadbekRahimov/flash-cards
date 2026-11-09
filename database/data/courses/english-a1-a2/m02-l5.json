@@ -143,12 +143,12 @@
       "translation": "делить, делиться",
       "translations": {
         "ru": "делить, делиться",
-        "uz": "bo'lishmoq"
+        "uz": "birga foydalanmoq, bo'lishmoq"
       },
       "example": "I share a room with my brother.",
       "example_translations": {
         "ru": "Я делю комнату с братом.",
-        "uz": "Men xonani akam bilan bo'lishaman."
+        "uz": "Akam bilan bir xonada turamiz."
       }
     }
   ]

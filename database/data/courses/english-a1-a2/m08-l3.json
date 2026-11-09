@@ -31,12 +31,12 @@
       "translation": "вечеринка",
       "translations": {
         "ru": "вечеринка",
-        "uz": "ziyofat"
+        "uz": "ziyofat, bazm"
       },
       "example": "We have a party tonight.",
       "example_translations": {
         "ru": "Сегодня вечером у нас вечеринка.",
-        "uz": "Bugun kechqurun bizda ziyofat bor."
+        "uz": "Bugun kechqurun bizda ziyofat bo'ladi."
       }
     },
     {
@@ -73,7 +73,7 @@
       "translation": "посещать, навещать",
       "translations": {
         "ru": "посещать, навещать",
-        "uz": "tashrif buyurmoq, borib kelmoq"
+        "uz": "bormoq, tashrif buyurmoq"
       },
       "example": "I want to visit the museum.",
       "example_translations": {
@@ -129,12 +129,12 @@
       "translation": "наслаждаться",
       "translations": {
         "ru": "наслаждаться",
-        "uz": "rohatlanmoq"
+        "uz": "zavqlanmoq"
       },
       "example": "Enjoy the music.",
       "example_translations": {
         "ru": "Наслаждайся музыкой.",
-        "uz": "Musiqadan rohatlan."
+        "uz": "Musiqadan zavqlaning."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "веселье",
       "translations": {
         "ru": "веселье",
-        "uz": "quvnoq vaqt"
+        "uz": "maza, zavq"
       },
       "example": "We have fun together.",
       "example_translations": {
         "ru": "Нам вместе весело.",
-        "uz": "Biz birga quvnoq vaqt o'tkazamiz."
+        "uz": "Birga vaqtimiz chog' o'tadi."
       }
     }
   ]

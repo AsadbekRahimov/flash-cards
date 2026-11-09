@@ -77,7 +77,7 @@ const lead = (w: Awaited<ReturnType<typeof render>>) => w.get('[data-testid=payw
 const SOON_RU = 'Pro скоро откроется.'
 const SALE_RU = 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
 const SOON_UZ = 'Pro tez orada ochiladi.'
-const SALE_UZ = "Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari."
+const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, ketma-ketlik uchun zaxira va sinov imtihonlari."
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -105,7 +105,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render()
 
-    expect(lead(w)).toBe(`Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangisi — ertaga soat 00:00 da. ${SOON_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. ${SOON_UZ}`)
   })
 
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
@@ -118,7 +118,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render({}, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul amaliyot tugadi (2 tadan 2 tasi). Yangisi — ertaga soat 00:00 da yoki darhol Pro bilan. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
   })
 
   it('quotes the limit of the refusal twice, never "3 of 2": a limit that was lowered meanwhile is still a limit', async () => {
@@ -181,9 +181,9 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
 
   // The word on the practice: with the battles in it (`paywall.lead_practice`) and about the practice alone (`paywall.lead_practice_solo`).
   const PRACTICE_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
-  const PRACTICE_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud."
+  const PRACTICE_UZ = "So'zlarni mashqlar bilan mustahkamlash va do'stlar bilan bellashish Pro'da bor."
   const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
-  const SOLO_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud."
+  const SOLO_UZ = "So'zlarni mustahkamlash mashqlari Pro'da bor."
   const BATTLES_RU = 'Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.'
   const BATTLES_UZ = "Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin."
 
@@ -423,7 +423,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
 
     expect(w.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
     setLocale('uz')
-    expect((await render()).findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
+    expect((await render()).findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
   })
 
   it('offers "Repeat words" when cards are due: reviews are never limited, the wall is not a dead end', async () => {
@@ -519,12 +519,12 @@ describe('PaywallSheet — without the numbers of a refusal', () => {
     setActivePinia(createPinia())
     knowZone('Asia/Tashkent')
     const uz = await render({ reason: 'practice' }, me('coming_soon', 'free', false))
-    expect(lead(uz)).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud. ${SOON_UZ}`)
+    expect(lead(uz)).toBe(`So'zlarni mustahkamlash mashqlari Pro'da bor. ${SOON_UZ}`)
     expect(lead(uz)).not.toMatch(/bellashuv/i)
 
     setActivePinia(createPinia())
     knowZone('Asia/Tashkent')
-    expect(lead(await render({ reason: 'practice' }))).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. ${SOON_UZ}`)
+    expect(lead(await render({ reason: 'practice' }))).toBe(`So'zlarni mashqlar bilan mustahkamlash va do'stlar bilan bellashish Pro'da bor. ${SOON_UZ}`)
   })
 
   it('the other reasons ignore the numbers they are given', async () => {

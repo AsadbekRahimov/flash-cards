@@ -45,12 +45,12 @@
       "translation": "пахнуть",
       "translations": {
         "ru": "пахнуть",
-        "uz": "hid taratmoq, hidlamoq"
+        "uz": "hidi kelmoq, hidlamoq"
       },
       "example": "The soup smells delicious.",
       "example_translations": {
         "ru": "Суп вкусно пахнет.",
-        "uz": "Sho'rva mazali hid taratadi."
+        "uz": "Sho'rvadan ishtahani ochadigan hid kelyapti."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "нести",
       "translations": {
         "ru": "нести",
-        "uz": "ko'tarib yurmoq"
+        "uz": "olib yurmoq, ko'tarib bormoq"
       },
       "example": "I carry a heavy bag.",
       "example_translations": {
         "ru": "Я несу тяжёлую сумку.",
-        "uz": "Men og'ir sumka ko'taraman."
+        "uz": "Og'ir sumka ko'tarib ketyapman."
       }
     },
     {

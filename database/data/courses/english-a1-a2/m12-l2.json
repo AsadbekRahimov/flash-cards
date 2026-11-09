@@ -115,12 +115,12 @@
       "translation": "вайфай",
       "translations": {
         "ru": "вайфай",
-        "uz": "vayfay"
+        "uz": "Wi-Fi"
       },
       "example": "Is there free wifi in the cafe?",
       "example_translations": {
         "ru": "В кафе есть бесплатный вайфай?",
-        "uz": "Kafeda bepul vayfay bormi?"
+        "uz": "Kafeda bepul Wi-Fi bormi?"
       }
     },
     {

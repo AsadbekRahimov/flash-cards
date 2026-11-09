@@ -17,12 +17,12 @@
       "translation": "сердитый",
       "translations": {
         "ru": "сердитый",
-        "uz": "jahldor"
+        "uz": "jahli chiqqan"
       },
       "example": "My father is angry about the noise.",
       "example_translations": {
         "ru": "Мой отец сердит из-за шума.",
-        "uz": "Dadam shovqinga jahli chiqqan."
+        "uz": "Shovqindan dadamning jahli chiqdi."
       }
     },
     {
@@ -31,12 +31,12 @@
       "translation": "испуганный",
       "translations": {
         "ru": "испуганный",
-        "uz": "qo'rqqan"
+        "uz": "qo'rqqan, qo'rqadigan"
       },
       "example": "Are you afraid of dogs?",
       "example_translations": {
         "ru": "Ты боишься собак?",
-        "uz": "Sen itlardan qo'rqasanmi?"
+        "uz": "Itlardan qo'rqasizmi?"
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "нервничающий",
       "translations": {
         "ru": "нервничающий",
-        "uz": "asabiy"
+        "uz": "bezovta, asabiylashgan"
       },
       "example": "I am nervous before every exam.",
       "example_translations": {
         "ru": "Я нервничаю перед каждым экзаменом.",
-        "uz": "Men har bir imtihondan oldin asabiylashaman."
+        "uz": "Imtihon oldidan doim bezovta bo'laman."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "взволнованный",
       "translations": {
         "ru": "взволнованный",
-        "uz": "hayajonlangan"
+        "uz": "hayajonlangan, intiq"
       },
       "example": "The kids are excited about the trip.",
       "example_translations": {
         "ru": "Дети взволнованы поездкой.",
-        "uz": "Bolalar safardan hayajonlangan."
+        "uz": "Bolalar safarga borishni intizorlik bilan kutishyapti."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "обеспокоенный",
       "translations": {
         "ru": "обеспокоенный",
-        "uz": "xavotirli"
+        "uz": "xavotirda, tashvishlangan"
       },
       "example": "She is worried about her brother.",
       "example_translations": {
         "ru": "Она беспокоится о своём брате.",
-        "uz": "U akasi haqida xavotirda."
+        "uz": "U akasidan xavotir olyapti."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "гордый",
       "translations": {
         "ru": "гордый",
-        "uz": "g'ururli"
+        "uz": "faxrlanadigan"
       },
       "example": "We are proud of our team.",
       "example_translations": {
         "ru": "Мы гордимся нашей командой.",
-        "uz": "Biz jamoamizdan faxrlanamiz."
+        "uz": "Jamoamiz bilan faxrlanamiz."
       }
     },
     {

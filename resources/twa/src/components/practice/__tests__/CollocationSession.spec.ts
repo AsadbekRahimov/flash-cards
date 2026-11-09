@@ -257,7 +257,7 @@ describe('a session of collocations — the verdict', () => {
     await flushPromises()
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
-    expect(revealOption(wrapper, 'oA1').text()).toContain('sizning javobingiz')
+    expect(revealOption(wrapper, 'oA1').text()).toContain('javobingiz')
     expect(revealOption(wrapper, 'oB2').text()).toContain("to'g'ri javob")
     wrapper.unmount()
   })

@@ -249,7 +249,7 @@ describe('BillingView', () => {
       setLocale('uz')
       const { wrapper } = await render(me({ practice: PRACTICE }), catalog())
 
-      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
+      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
     })
 
     it('promises no statistics: there is no such feature', async () => {
@@ -796,7 +796,7 @@ describe('BillingView', () => {
     expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Pro nima beradi')
     expect(wrapper.get('[data-testid=buy]').text()).toBe("Pro'ni sotib olish")
     expect(wrapper.get('[data-testid=promo-card] h2').text()).toBe('Promokod')
-    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Yordam kerakmi? Yozing: @lexiflow_support')
+    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Savolingiz bormi? Bizga yozing @lexiflow_support')
   })
 
   it('speaks Uzbek to a Pro learner too', async () => {

@@ -113,7 +113,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. Pro tez orada ochiladi.",
+        "Bepul tarifda 1 ta to'plam ochishingiz mumkin, har biriga 50 tagacha so'z sig'adi. Pro'da har biriga 2000 tagacha so'z sig'adigan 20 tagacha to'plam. Pro tez orada ochiladi.",
       )
     })
 
@@ -270,7 +270,7 @@ describe('PaywallSheet', () => {
         setLocale('uz')
         const w = await render(me({ practice: practice() }), { reason: 'quota' })
 
-        expect(benefits(w)).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
+        expect(benefits(w)).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
       })
     })
 

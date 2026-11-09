@@ -36,7 +36,7 @@
       "example": "I need a nail for this picture.",
       "example_translations": {
         "ru": "Мне нужен гвоздь для этой картины.",
-        "uz": "Bu rasm uchun menga mix kerak."
+        "uz": "Bu rasmni ilish uchun mix kerak."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "вилка, розетка",
       "translations": {
         "ru": "вилка, розетка",
-        "uz": "vilka"
+        "uz": "elektr vilkasi"
       },
       "example": "Pull the plug out of the wall.",
       "example_translations": {
         "ru": "Выдерни вилку из розетки.",
-        "uz": "Vilkani devordan sug'ir."
+        "uz": "Vilkani rozetkadan chiqaring."
       }
     },
     {

@@ -103,6 +103,6 @@ describe('TodayView: the entry of Karvon', () => {
   it('speaks Uzbek', async () => {
     setLocale('uz')
     const { wrapper } = await render(today({ game: { daily_available: true, active_run: null } }))
-    expect(wrapper.get('[data-testid=game-entry-text]').text()).toBe('Kunlik karvon kutmoqda')
+    expect(wrapper.get('[data-testid=game-entry-text]').text()).toBe('Bugungi karvon safarini boshlang')
   })
 })

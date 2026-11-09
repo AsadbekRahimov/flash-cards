@@ -17,12 +17,12 @@
       "translation": "словарный запас",
       "translations": {
         "ru": "словарный запас",
-        "uz": "lug'at boyligi"
+        "uz": "so'z boyligi"
       },
       "example": "Reading books builds your vocabulary.",
       "example_translations": {
         "ru": "Чтение книг расширяет словарный запас.",
-        "uz": "Kitob o'qish lug'at boyligingizni oshiradi."
+        "uz": "Kitob o'qisangiz, so'z boyligingiz oshadi."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "Her pronunciation is very clear.",
       "example_translations": {
         "ru": "У неё очень чёткое произношение.",
-        "uz": "Uning talaffuzi juda aniq."
+        "uz": "U so'zlarni juda aniq talaffuz qiladi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Knowledge of English opens many doors.",
       "example_translations": {
         "ru": "Знание английского открывает много дверей.",
-        "uz": "Ingliz tili bilimi ko'p eshiklarni ochadi."
+        "uz": "Ingliz tilini bilish ko'p imkoniyat yaratadi."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "новичок",
       "translations": {
         "ru": "новичок",
-        "uz": "boshlovchi"
+        "uz": "endi o'rganayotgan kishi"
       },
       "example": "This class is for beginners only.",
       "example_translations": {
         "ru": "Этот класс только для начинающих.",
-        "uz": "Bu sinf faqat boshlovchilar uchun."
+        "uz": "Bu dars endi boshlayotganlar uchun."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "продвинутый",
       "translations": {
         "ru": "продвинутый",
-        "uz": "ilg'or"
+        "uz": "yuqori darajadagi"
       },
       "example": "She is in the advanced group.",
       "example_translations": {
         "ru": "Она в продвинутой группе.",
-        "uz": "U ilg'or guruhda."
+        "uz": "U yuqori darajadagi guruhda o'qiydi."
       }
     }
   ]

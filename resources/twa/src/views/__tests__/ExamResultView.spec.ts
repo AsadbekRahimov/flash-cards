@@ -226,7 +226,7 @@ describe('ExamResultView', () => {
       mode: 'personal_mock', correct: 10, total: 40, answered: 40, percent: 25, percentile: 13, attempts: 8, course_id: 3,
     })
 
-    expect(wrapper.get('[data-testid=result-title]').text()).toBe('Sinov testi natijalari')
+    expect(wrapper.get('[data-testid=result-title]').text()).toBe('Sinov imtihoni natijasi')
     expect(wrapper.get('[data-testid=mock-score]').text()).toBe('40 tadan 10 ta · 25%')
     expect(wrapper.get('[data-testid=mock-percentile]').text()).toContain('13%')
     expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Sizning natijangiz')

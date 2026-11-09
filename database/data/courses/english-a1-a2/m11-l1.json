@@ -17,12 +17,12 @@
       "translation": "путешествие",
       "translations": {
         "ru": "путешествие",
-        "uz": "sayohat"
+        "uz": "safar, yo'l"
       },
       "example": "The journey to the coast takes three hours.",
       "example_translations": {
         "ru": "Поездка к побережью занимает три часа.",
-        "uz": "Qirg'oqqa sayohat uch soat davom etadi."
+        "uz": "Sohilgacha uch soat yo'l yuramiz."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "багаж",
       "translations": {
         "ru": "багаж",
-        "uz": "yuk"
+        "uz": "yuk, bagaj"
       },
       "example": "Our luggage is too heavy.",
       "example_translations": {
         "ru": "Наш багаж слишком тяжёлый.",
-        "uz": "Bizning yukimiz juda og'ir."
+        "uz": "Yukimiz juda og'ir ekan."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "бронь",
       "translations": {
         "ru": "бронь",
-        "uz": "bron"
+        "uz": "oldindan band qilingan joy, bron"
       },
       "example": "I have a reservation for two nights.",
       "example_translations": {
         "ru": "У меня бронь на две ночи.",
-        "uz": "Menda ikki kechaga bron bor."
+        "uz": "Ikki kechaga xona band qilganman."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "собирать вещи",
       "translations": {
         "ru": "собирать вещи",
-        "uz": "yig'moq"
+        "uz": "yig'ishtirmoq, joylamoq"
       },
       "example": "I must pack my bag tonight.",
       "example_translations": {
         "ru": "Мне нужно собрать сумку сегодня вечером.",
-        "uz": "Bugun kechqurun sumkamni yig'ishim kerak."
+        "uz": "Bugun kechqurun narsalarimni sumkaga joylashim kerak."
       }
     }
   ]

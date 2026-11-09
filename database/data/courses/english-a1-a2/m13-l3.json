@@ -31,12 +31,12 @@
       "translation": "спорить, ссориться",
       "translations": {
         "ru": "спорить, ссориться",
-        "uz": "janjallashmoq"
+        "uz": "bahslashmoq, tortishmoq"
       },
       "example": "My brothers argue about everything.",
       "example_translations": {
         "ru": "Мои братья спорят обо всём.",
-        "uz": "Akalarim hamma narsa haqida janjallashadi."
+        "uz": "Akalarim har narsada tortishaverishadi."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "I miss my family very much.",
       "example_translations": {
         "ru": "Я очень скучаю по семье.",
-        "uz": "Men oilamni juda sog'inaman."
+        "uz": "Oilamni juda sog'indim."
       }
     },
     {

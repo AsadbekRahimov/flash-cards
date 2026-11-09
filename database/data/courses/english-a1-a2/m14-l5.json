@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Рабочие действия",
-    "title_uz": "Ish harakatlari"
+    "title_uz": "Ishda nimalar qilamiz?"
   },
   "words": [
     {
@@ -50,7 +50,7 @@
       "example": "I prepare a report for the boss.",
       "example_translations": {
         "ru": "Я готовлю отчёт для начальника.",
-        "uz": "Men boshliq uchun hisobot tayyorlayman."
+        "uz": "Boshlig'imga hisobot tayyorlayapman."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "She designs clothes for children.",
       "example_translations": {
         "ru": "Она создаёт одежду для детей.",
-        "uz": "U bolalar uchun kiyim loyihalaydi."
+        "uz": "U bolalar kiyimlarini loyihalaydi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "He leads the project very well.",
       "example_translations": {
         "ru": "Он очень хорошо руководит проектом.",
-        "uz": "U loyihaga juda yaxshi rahbarlik qiladi."
+        "uz": "U loyihani juda yaxshi boshqaradi."
       }
     },
     {

@@ -59,12 +59,12 @@
       "translation": "бюджет",
       "translations": {
         "ru": "бюджет",
-        "uz": "byudjet"
+        "uz": "budjet"
       },
       "example": "Our budget for this month is low.",
       "example_translations": {
         "ru": "Наш бюджет на этот месяц небольшой.",
-        "uz": "Bu oy uchun byudjetimiz kam."
+        "uz": "Bu oyga ajratilgan pulimiz kam."
       }
     },
     {

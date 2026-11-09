@@ -8,7 +8,7 @@
   "lesson": {
     "number": 2,
     "title": "Тело",
-    "title_uz": "Tana"
+    "title_uz": "Tananing boshqa qismlari"
   },
   "words": [
     {
@@ -17,12 +17,12 @@
       "translation": "ступня",
       "translations": {
         "ru": "ступня",
-        "uz": "oyoq kafti"
+        "uz": "oyoq panjasi"
       },
       "example": "My left foot hurts.",
       "example_translations": {
         "ru": "У меня болит левая ступня.",
-        "uz": "Chap oyog'im kafti og'riyapti."
+        "uz": "Chap oyog'im og'riyapti."
       }
     },
     {
@@ -87,7 +87,7 @@
       "translation": "живот",
       "translations": {
         "ru": "живот",
-        "uz": "qorin, oshqozon"
+        "uz": "oshqozon, qorin"
       },
       "example": "My stomach hurts.",
       "example_translations": {
@@ -106,7 +106,7 @@
       "example": "His heart is strong.",
       "example_translations": {
         "ru": "У него крепкое сердце.",
-        "uz": "Uning yuragi baquvvat."
+        "uz": "Yuragi baquvvat."
       }
     },
     {

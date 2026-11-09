@@ -54,7 +54,7 @@
       ],
       "translation": {
         "ru": "У меня садится батарея. Можно одолжить вашу зарядку?",
-        "uz": "Batareyam tugab qolyapti. Zaryadlagichingizni olib tursam bo'ladimi?"
+        "uz": "Telefonimning quvvati tugayapti. Quvvatlagichingizni olib tursam bo'ladimi?"
       },
       "explanation": {
         "ru": "О заряде говорят low: the battery is low — «батарея почти разряжена». Short и little здесь не подходят.",
@@ -83,11 +83,11 @@
       ],
       "translation": {
         "ru": "Никогда ни с кем не делитесь своим паролем.",
-        "uz": "Parolingizni hech qachon hech kim bilan baham ko'rmang."
+        "uz": "Parolingizni hech kimga aytmang."
       },
       "explanation": {
         "ru": "share something with someone — делиться чем-то с кем-то. Tell и say не употребляются с with: tell someone your password.",
-        "uz": "share something with someone — biror narsani kim bilandir baham ko'rmoq. Tell va say with bilan ishlatilmaydi: tell someone your password."
+        "uz": "Share something with someone — biror narsani birov bilan bo'lishmoq. Parol haqida gap ketganda «birovga aytmoq» degan ma'noda keladi."
       }
     },
     {
@@ -172,11 +172,11 @@
       ],
       "translation": {
         "ru": "Почему вы не ответили на моё сообщение?",
-        "uz": "Nega xabarimga javob qaytarmadingiz?"
+        "uz": "Nega xabarimga javob bermadingiz?"
       },
       "explanation": {
         "ru": "reply to something — ответить на что-то: reply to a message, reply to an email.",
-        "uz": "reply to something — biror narsaga javob qaytarmoq: reply to a message, reply to an email."
+        "uz": "Reply to a message — xabarga javob bermoq. To nimaga javob berilganini bildiradi."
       }
     },
     {
@@ -236,7 +236,7 @@
       },
       "explanation": {
         "ru": "Программу устанавливают на устройство — on: install a program on a computer, on a phone.",
-        "uz": "Dastur qurilmaga o'rnatiladi — on: install a program on a computer, on a phone."
+        "uz": "Install a program on a computer — dasturni kompyuterga o'rnatmoq. Qurilma nomidan oldin on ishlatiladi."
       }
     },
     {
@@ -1007,7 +1007,7 @@
       },
       "explanation": {
         "ru": "be angry with someone — сердиться на кого-то (в американском английском часто angry at). On и to здесь не подходят.",
-        "uz": "be angry with someone — kimdandir jahli chiqmoq (Amerika inglizchasida ko'pincha angry at). On va to bu yerda to'g'ri kelmaydi."
+        "uz": "Be angry with someone — birovdan jahli chiqmoq. Sababni aytish uchun about ishlatilishi mumkin: angry about the noise."
       }
     },
     {
@@ -1032,11 +1032,11 @@
       ],
       "translation": {
         "ru": "Пожалуйста, будьте терпеливы с детьми.",
-        "uz": "Iltimos, bolalarga sabr qiling."
+        "uz": "Iltimos, bolalarga sabrliroq bo'ling."
       },
       "explanation": {
         "ru": "be patient with someone — быть терпеливым к кому-то.",
-        "uz": "be patient with someone — kimgadir sabr qilmoq, sabrli bo'lmoq."
+        "uz": "Be patient with someone — birovga sabr bilan munosabatda bo'lmoq."
       }
     },
     {
@@ -1148,11 +1148,11 @@
       ],
       "translation": {
         "ru": "У меня есть идея! Пойдём в парк.",
-        "uz": "Menda bir g'oya bor! Bog'ga boraylik."
+        "uz": "Bir fikr keldi! Bog'ga boraylik."
       },
       "explanation": {
         "ru": "have an idea — «есть идея». Make и do с idea не употребляются.",
-        "uz": "have an idea — «g'oya bor». Make va do idea bilan ishlatilmaydi."
+        "uz": "I have an idea! — bir fikr keldi! Inglizchada idea so'zidan oldin an keladi."
       }
     },
     {
@@ -1235,11 +1235,11 @@
       ],
       "translation": {
         "ru": "Осторожно с горячим супом!",
-        "uz": "Issiq sho'rva bilan ehtiyot bo'ling!"
+        "uz": "Ehtiyot bo'ling, sho'rva issiq!"
       },
       "explanation": {
         "ru": "be careful with something — осторожно обращаться с чем-то: be careful with the soup.",
-        "uz": "be careful with something — biror narsa bilan ehtiyot bo'lmoq: be careful with the soup."
+        "uz": "Be careful with something — biror narsani ishlatayotganda yoki ushlayotganda ehtiyot bo'lmoq."
       }
     },
     {
@@ -1578,7 +1578,7 @@
       ],
       "prompt": {
         "ru": "Мы чудесно провели время в Самарканде.",
-        "uz": "Samarqandda ajoyib vaqt o'tkazdik."
+        "uz": "Samarqandda vaqtimiz juda yaxshi o'tdi."
       },
       "fragments": [
         "we",
@@ -1612,7 +1612,7 @@
       "display": "We had a wonderful time in Samarkand.",
       "explanation": {
         "ru": "have a wonderful time — чудесно провести время; had — прошедшее время от have. In Samarkand можно поставить и в начало.",
-        "uz": "have a wonderful time — ajoyib vaqt o'tkazmoq; had — have ning o'tgan zamon shakli. In Samarkand ni boshiga ham qo'yish mumkin."
+        "uz": "Have a wonderful time — vaqtni juda yaxshi o'tkazmoq. O'tgan zamonda had a wonderful time deyiladi."
       }
     },
     {
@@ -1903,11 +1903,11 @@
       ],
       "translation": {
         "ru": "Летом многие студенты откликаются на вакансии.",
-        "uz": "Yozda ko'p talabalar ishga ariza topshiradi."
+        "uz": "Yozda ko'p talaba ishga kirish uchun ariza topshiradi."
       },
       "explanation": {
         "ru": "apply for a job — подать заявку на работу, откликнуться на вакансию.",
-        "uz": "apply for a job — ishga ariza bermoq."
+        "uz": "Apply for a job — ishga kirish uchun ariza topshirmoq. For nimaga ariza berayotganingizni bildiradi."
       }
     },
     {
@@ -1991,11 +1991,11 @@
       ],
       "translation": {
         "ru": "Завтра мне нужно провести презентацию для наших клиентов.",
-        "uz": "Ertaga mijozlarimizga taqdimot qilib berishim kerak."
+        "uz": "Ertaga mijozlarimizga taqdimot qilishim kerak."
       },
       "explanation": {
         "ru": "give a presentation — провести презентацию, выступить с ней. Say и tell с presentation не употребляются.",
-        "uz": "give a presentation — taqdimot qilmoq. Say va tell presentation bilan ishlatilmaydi."
+        "uz": "Give a presentation — taqdimot qilmoq. Kimga taqdim etilishini to bilan ayting: to our customers."
       }
     },
     {
@@ -2050,11 +2050,11 @@
       ],
       "translation": {
         "ru": "Мой сосед вложил все свои деньги в новый бизнес.",
-        "uz": "Qo'shnim bor pulini yangi biznesga kiritdi."
+        "uz": "Qo'shnim bor pulini yangi biznesga tikdi."
       },
       "explanation": {
         "ru": "invest in something — вкладывать деньги во что-то: invest in a business.",
-        "uz": "invest in something — biror narsaga sarmoya kiritmoq: invest in a business."
+        "uz": "Invest money in something — biror ishga sarmoya kiritmoq. Pul qayerga tikilganini in bildiradi."
       }
     },
     {
@@ -2230,7 +2230,7 @@
       ],
       "prompt": {
         "ru": "Она лучший кандидат на эту работу.",
-        "uz": "U bu ish uchun eng yaxshi nomzod."
+        "uz": "Bu ishga eng munosib nomzod — u."
       },
       "fragments": [
         "she",
@@ -2267,7 +2267,7 @@
       "display": "She is the best candidate for this job.",
       "explanation": {
         "ru": "the best — «самый лучший», всегда с the. Кандидат на работу — candidate for a job; for this job можно поставить и в начало.",
-        "uz": "the best — «eng yaxshi», doim the bilan. Ishga nomzod — candidate for a job; for this job ni boshiga ham qo'yish mumkin."
+        "uz": "The best candidate — eng yaxshi nomzod. For this job qaysi ishga nomzod ekani haqida ma'lumot beradi."
       }
     },
     {
@@ -2417,7 +2417,7 @@
       ],
       "prompt": {
         "ru": "Мы не можем потратить больше, чем позволяет наш бюджет.",
-        "uz": "Byudjetimizdan ortiq pul sarflay olmaymiz."
+        "uz": "Budjetimizdan ko'p pul sarflay olmaymiz."
       },
       "fragments": [
         "we",
@@ -2442,7 +2442,7 @@
       "display": "We can't spend more than our budget.",
       "explanation": {
         "ru": "more than — «больше, чем»: more than our budget. После can't глагол без to: can't spend.",
-        "uz": "more than — «…dan ko'proq»: more than our budget. Can't dan keyin fe'l to siz keladi: can't spend."
+        "uz": "More than our budget — budjetimizdan ko'p. Can't dan keyin to qo'yilmaydi: can't spend."
       }
     },
     {
@@ -2481,7 +2481,7 @@
       "display": "Why did you quit your job?",
       "explanation": {
         "ru": "quit — неправильный глагол: quit — quit — quit. В вопросе о прошлом: did + quit.",
-        "uz": "quit — noto'g'ri fe'l: quit — quit — quit. O'tgan zamon savolida: did + quit."
+        "uz": "O'tgan zamon savolida did ishlatiladi, quit esa asosiy shaklda qoladi: Why did you quit?"
       }
     },
     {
@@ -2873,11 +2873,11 @@
       ],
       "translation": {
         "ru": "Биология — это наука о живых организмах.",
-        "uz": "Biologiya — tirik organizmlarni o'rganadigan fan."
+        "uz": "Biologiya — tirik organizmlar haqidagi fan."
       },
       "explanation": {
         "ru": "the study of something — «наука о чём-то, изучение чего-то». После study здесь of.",
-        "uz": "the study of something — «biror narsani o'rganadigan fan». Bu yerda study dan keyin of keladi."
+        "uz": "The study of living things — tirik organizmlarni o'rganish. Of nimani o'rganish haqida gap ketayotganini bildiradi."
       }
     },
     {
@@ -3078,11 +3078,11 @@
       ],
       "translation": {
         "ru": "Моя цель — свободно говорить по-английски.",
-        "uz": "Maqsadim — ingliz tilida ravon gapirish."
+        "uz": "Maqsadim — inglizchada ravon gapirish."
       },
       "explanation": {
         "ru": "fluent in a language — «свободно владеющий языком»: fluent in English.",
-        "uz": "fluent in a language — «tilni ravon biladigan»: fluent in English."
+        "uz": "Be fluent in English — ingliz tilida ravon gapirmoq. Til nomidan oldin in ishlatiladi."
       }
     },
     {
@@ -3353,7 +3353,7 @@
       ],
       "prompt": {
         "ru": "Не могли бы вы повторить последнее слово?",
-        "uz": "Oxirgi so'zni takrorlay olasizmi?"
+        "uz": "Oxirgi so'zni yana bir marta aytasizmi?"
       },
       "fragments": [
         "could",
@@ -3376,7 +3376,7 @@
       "display": "Could you repeat the last word?",
       "explanation": {
         "ru": "Could you…? — вежливая просьба «Не могли бы вы…?». После could глагол без to.",
-        "uz": "Could you…? — xushmuomala iltimos. Could dan keyin fe'l to siz keladi."
+        "uz": "Could you repeat…? — takrorlashni iltimos qilishning muloyim usuli. Could dan keyin fe'lning asosiy shakli keladi."
       }
     },
     {

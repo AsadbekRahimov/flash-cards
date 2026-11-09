@@ -36,7 +36,7 @@
       "example": "Please close the curtains, it is bright.",
       "example_translations": {
         "ru": "Закрой шторы, слишком светло.",
-        "uz": "Pardalarni yoping, juda yorug'."
+        "uz": "Iltimos, pardalarni yoping. Xona juda yorug'."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "холодильник",
       "translations": {
         "ru": "холодильник",
-        "uz": "muzlatgich"
+        "uz": "sovitkich"
       },
       "example": "The milk is in the fridge.",
       "example_translations": {
         "ru": "Молоко в холодильнике.",
-        "uz": "Sut muzlatgichda."
+        "uz": "Sut sovitkichda."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "духовка",
       "translations": {
         "ru": "духовка",
-        "uz": "duxovka"
+        "uz": "pech, duxovka"
       },
       "example": "Put the bread in the hot oven.",
       "example_translations": {
         "ru": "Поставь хлеб в горячую духовку.",
-        "uz": "Nonni issiq duxovkaga qo'y."
+        "uz": "Nonni qizigan pechga qo'ying."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "обогреватель",
       "translations": {
         "ru": "обогреватель",
-        "uz": "isitgich"
+        "uz": "isitkich"
       },
       "example": "We use a heater in the bedroom.",
       "example_translations": {
         "ru": "Мы пользуемся обогревателем в спальне.",
-        "uz": "Biz yotoqxonada isitgichdan foydalanamiz."
+        "uz": "Yotoqxonada isitkich ishlatamiz."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "My keys are in the top drawer.",
       "example_translations": {
         "ru": "Мои ключи в верхнем ящике.",
-        "uz": "Kalitlarim yuqori tortmada."
+        "uz": "Kalitlarim tepadagi tortmada."
       }
     },
     {

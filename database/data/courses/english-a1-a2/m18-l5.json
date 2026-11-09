@@ -31,7 +31,7 @@
       "translation": "курить",
       "translations": {
         "ru": "курить",
-        "uz": "chekmoq"
+        "uz": "chekmoq, sigaret chekmoq"
       },
       "example": "My grandfather does not smoke anymore.",
       "example_translations": {
@@ -78,7 +78,7 @@
       "example": "They have a quiet and healthy lifestyle.",
       "example_translations": {
         "ru": "У них спокойный и здоровый образ жизни.",
-        "uz": "Ularning turmush tarzi tinch va sog'lom."
+        "uz": "Ular xotirjam va sog'lom hayot kechirishadi."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "избегать",
       "translations": {
         "ru": "избегать",
-        "uz": "qochmoq"
+        "uz": "o'zini tiymoq, chetlab o'tmoq"
       },
       "example": "Try to avoid sugar and fast food.",
       "example_translations": {
         "ru": "Старайся избегать сахара и фастфуда.",
-        "uz": "Shakar va tez ovqatdan qochishga harakat qil."
+        "uz": "Shakar va fastfud yemaslikka harakat qiling."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Smoking is harmful to your heart.",
       "example_translations": {
         "ru": "Курение вредно для сердца.",
-        "uz": "Chekish yurak uchun zararli."
+        "uz": "Sigaret chekish yurakka zarar."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Walking is good for mental health.",
       "example_translations": {
         "ru": "Ходьба полезна для психического здоровья.",
-        "uz": "Yurish ruhiy salomatlik uchun foydali."
+        "uz": "Piyoda yurish ruhiy salomatlikka foydali."
       }
     },
     {

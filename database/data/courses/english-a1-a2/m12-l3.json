@@ -45,12 +45,12 @@
       "translation": "мобильный",
       "translations": {
         "ru": "мобильный",
-        "uz": "mobil"
+        "uz": "mobil, uyali"
       },
       "example": "My mobile number is on the card.",
       "example_translations": {
         "ru": "Мой мобильный номер указан на карточке.",
-        "uz": "Mobil raqamim kartochkada yozilgan."
+        "uz": "Telefon raqamim tashrif qog'ozida yozilgan."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "контакт",
       "translations": {
         "ru": "контакт",
-        "uz": "kontakt"
+        "uz": "kontakt, aloqa ma'lumoti"
       },
       "example": "I save his contact in my phone.",
       "example_translations": {
         "ru": "Я сохраняю его контакт в телефоне.",
-        "uz": "Men uning kontaktini telefonimga saqlayman."
+        "uz": "Uning raqamini telefonimga yozib qo'yaman."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "переписываться",
       "translations": {
         "ru": "переписываться",
-        "uz": "chatlashmoq"
+        "uz": "suhbatlashmoq, yozishmoq"
       },
       "example": "We chat every evening after dinner.",
       "example_translations": {
         "ru": "Мы переписываемся каждый вечер после ужина.",
-        "uz": "Biz har kuni kechqurun ovqatdan keyin chatlashamiz."
+        "uz": "Har kuni kechki ovqatdan keyin gaplashamiz."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "отвечать",
       "translations": {
         "ru": "отвечать",
-        "uz": "javob qaytarmoq"
+        "uz": "javob bermoq"
       },
       "example": "Please reply to my email soon.",
       "example_translations": {
         "ru": "Пожалуйста, скоро ответь на моё письмо.",
-        "uz": "Iltimos, xatimga tezroq javob qaytar."
+        "uz": "Iltimos, elektron xatimga tezroq javob bering."
       }
     },
     {

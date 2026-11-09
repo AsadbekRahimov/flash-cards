@@ -228,7 +228,7 @@ describe('AnswerReveal — dictation', () => {
     const tokens = wrapper.findAll('[data-testid=diff-token]')
     expect(tokens.map((token) => token.attributes('data-ok'))).toEqual(['true', 'false', 'false'])
     expect(tokens.map((token) => token.get('.sr-only').text())).toEqual(["to'g'ri", 'xato', 'xato'])
-    expect(wrapper.get('[data-testid=diff-hint]').text()).toBe("Xato bor so'zlar belgilangan.")
+    expect(wrapper.get('[data-testid=diff-hint]').text()).toBe("Xato yozilgan so'zlar belgilandi.")
   })
 
   it('has no hint when nothing is marked, and falls back to the struck-out text when the server gave no comparison', () => {
@@ -361,7 +361,7 @@ describe('AnswerReveal — dictation: listen again', () => {
     const wrapper = render(answered())
     await flushPromises()
 
-    expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Yana eshitish')
+    expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Qayta tinglash')
   })
 })
 
@@ -547,7 +547,7 @@ describe('AnswerReveal — collocation', () => {
 
     const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
 
-    expect(wrapper.get('[data-testid=reveal-caption-oA1]').text()).toBe('sizning javobingiz')
+    expect(wrapper.get('[data-testid=reveal-caption-oA1]').text()).toBe('javobingiz')
     expect(wrapper.get('[data-testid=reveal-caption-oB2]').text()).toBe("to'g'ri javob")
     expect(wrapper.get('[data-testid=answer-reveal]').text()).toContain("To'g'ri javob")
   })

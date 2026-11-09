@@ -17,12 +17,12 @@
       "translation": "фармацевт",
       "translations": {
         "ru": "фармацевт",
-        "uz": "dorixonachi"
+        "uz": "farmatsevt, dorixona xodimi"
       },
       "example": "The pharmacist gives me the medicine.",
       "example_translations": {
         "ru": "Фармацевт даёт мне лекарство.",
-        "uz": "Dorixonachi menga dori beradi."
+        "uz": "Dorixonadagi farmatsevt menga dorini berdi."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "I need a prescription for this medicine.",
       "example_translations": {
         "ru": "Мне нужен рецепт на это лекарство.",
-        "uz": "Menga bu dori uchun retsept kerak."
+        "uz": "Bu dorini olish uchun retsept kerak."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "операция",
       "translations": {
         "ru": "операция",
-        "uz": "jarrohlik"
+        "uz": "operatsiya, jarrohlik amaliyoti"
       },
       "example": "My uncle has surgery next week.",
       "example_translations": {
         "ru": "У моего дяди операция на следующей неделе.",
-        "uz": "Amakimning kelasi hafta jarrohlik amaliyoti bor."
+        "uz": "Amakimni kelasi hafta operatsiya qilishadi."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "экстренный случай",
       "translations": {
         "ru": "экстренный случай",
-        "uz": "favqulodda holat"
+        "uz": "shoshilinch holat, favqulodda vaziyat"
       },
       "example": "Call this number in an emergency.",
       "example_translations": {
         "ru": "Звоните по этому номеру в экстренном случае.",
-        "uz": "Favqulodda holatda shu raqamga qo'ng'iroq qiling."
+        "uz": "Shoshilinch vaziyatda shu raqamga qo'ng'iroq qiling."
       }
     },
     {

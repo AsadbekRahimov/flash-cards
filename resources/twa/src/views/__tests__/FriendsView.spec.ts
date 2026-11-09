@@ -917,7 +917,7 @@ describe('FriendsView', () => {
         vi.mocked(api.battles.accept).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'battle_friend_no_access', 'x'))
         await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
         await flushPromises()
-        expect(useToast().toast.value?.text).toBe("Do'stingizda amaliyotga hali ruxsat yo'q.")
+        expect(useToast().toast.value?.text).toBe("Do'stingiz uchun mashqlar hali ochilmagan.")
       })
 
       it('none: no group at all', async () => {

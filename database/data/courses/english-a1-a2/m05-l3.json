@@ -129,12 +129,12 @@
       "translation": "дорожное движение",
       "translations": {
         "ru": "дорожное движение",
-        "uz": "yo'l harakati"
+        "uz": "yo'l harakati, qatnov"
       },
       "example": "There is a lot of traffic today.",
       "example_translations": {
         "ru": "Сегодня очень плотное движение.",
-        "uz": "Bugun yo'l harakati juda gavjum."
+        "uz": "Bugun yo'lda mashina ko'p."
       }
     },
     {

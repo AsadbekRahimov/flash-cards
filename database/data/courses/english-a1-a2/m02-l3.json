@@ -17,7 +17,7 @@
       "translation": "дом, здание",
       "translations": {
         "ru": "дом, здание",
-        "uz": "uy, imorat"
+        "uz": "uy"
       },
       "example": "They live in a small house.",
       "example_translations": {
@@ -64,7 +64,7 @@
       "example": "My bedroom is quiet.",
       "example_translations": {
         "ru": "Моя спальня тихая.",
-        "uz": "Mening yotoqxonam tinch."
+        "uz": "Yotoqxonam tinch."
       }
     },
     {

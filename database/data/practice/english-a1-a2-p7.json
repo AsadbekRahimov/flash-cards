@@ -54,11 +54,11 @@
       ],
       "translation": {
         "ru": "Посадка на наш рейс — у выхода 14.",
-        "uz": "Reysimiz 14-chiqish eshigidan jo'naydi."
+        "uz": "Reysimizga 14-darvozadan chiqiladi."
       },
       "explanation": {
         "ru": "Выход на посадку в аэропорту — gate: gate 14. Exit — выход из здания или зала (табличка EXIT), door — просто дверь.",
-        "uz": "Aeroportda samolyotga chiqish eshigi — gate: gate 14. Exit — bino yoki zaldan chiqish (EXIT yozuvi), door — oddiy eshik."
+        "uz": "Gate — aeroportda samolyotga chiqish joyi. Masalan, gate 14 — 14-darvoza."
       }
     },
     {
@@ -264,7 +264,7 @@
       ],
       "prompt": {
         "ru": "Вы можете оставить сумки на стойке регистрации.",
-        "uz": "Sumkalaringizni resepshnda qoldirishingiz mumkin."
+        "uz": "Sumkalaringizni qabulxonada qoldirsangiz bo'ladi."
       },
       "fragments": [
         "you",
@@ -298,7 +298,7 @@
       "display": "You can leave your bags at reception.",
       "explanation": {
         "ru": "can + глагол без to: can leave. Оставить что-то где-то — leave something at…: at reception. At reception можно поставить и в начало.",
-        "uz": "can + to siz fe'l: can leave. Biror narsani biror joyda qoldirmoq — leave something at…: at reception. At reception ni boshiga ham qo'yish mumkin."
+        "uz": "Can leave — qoldirish mumkin. At reception qayerda qoldirish mumkinligini bildiradi: qabulxonada."
       }
     },
     {
@@ -591,11 +591,11 @@
       ],
       "translation": {
         "ru": "Вы всё ещё поддерживаете с ним связь?",
-        "uz": "Hali ham u bilan aloqadamisiz?"
+        "uz": "U bilan hali ham gaplashib turasizmi?"
       },
       "explanation": {
         "ru": "be in contact with someone — поддерживать связь с кем-то: in contact with. At и on в этом выражении не употребляются.",
-        "uz": "be in contact with someone — kim bilandir aloqada bo'lmoq: in contact with. At va on bu iborada ishlatilmaydi."
+        "uz": "Be in contact with someone — birov bilan aloqada bo'lmoq."
       }
     },
     {
@@ -669,7 +669,7 @@
       ],
       "prompt": {
         "ru": "Куда вы положили мою зарядку?",
-        "uz": "Zaryadlagichimni qayerga qo'ydingiz?"
+        "uz": "Quvvatlagichimni qayerga qo'ydingiz?"
       },
       "fragments": [
         "where",
@@ -692,7 +692,7 @@
       "display": "Where did you put my charger?",
       "explanation": {
         "ru": "Вопрос о прошлом: Where + did + you + глагол в начальной форме. Put — неправильный глагол: put — put — put.",
-        "uz": "O'tgan zamon savoli: Where + did + you + fe'lning asosiy shakli. Put — noto'g'ri fe'l: put — put — put."
+        "uz": "O'tgan zamon savolida did dan keyin fe'l asosiy shaklda keladi: Where did you put my charger?"
       }
     },
     {
@@ -745,7 +745,7 @@
       "display": "I can't open this website on my phone.",
       "explanation": {
         "ru": "can't + глагол без to: can't open. «На телефоне» — on my phone; это можно поставить и в начало.",
-        "uz": "can't + to siz fe'l: can't open. «Telefonimda» — on my phone; buni boshiga ham qo'yish mumkin."
+        "uz": "Can't open — ocha olmayman. Telefonda — on my phone."
       }
     },
     {
@@ -1018,11 +1018,11 @@
       ],
       "translation": {
         "ru": "Будьте честны и скажите мне правду.",
-        "uz": "Rostgo'y bo'ling va menga haqiqatni ayting."
+        "uz": "Menga rostini ayting."
       },
       "explanation": {
         "ru": "Сказать правду — tell the truth; после tell сразу идёт, кому: tell me. Say и talk с the truth так не употребляются.",
-        "uz": "Haqiqatni aytmoq — tell the truth; tell dan keyin darhol kimga ekani keladi: tell me. Say va talk the truth bilan bunday ishlatilmaydi."
+        "uz": "Tell the truth — rostini aytmoq. Kimga aytayotganingiz tell dan keyin keladi: tell me the truth."
       }
     },
     {
@@ -1263,7 +1263,7 @@
       "display": "Can you imagine a world without phones?",
       "explanation": {
         "ru": "Вопрос с can: Can + you + глагол без to. Without — «без»: a world without phones.",
-        "uz": "can bilan savol: Can + you + to siz fe'l. Without — «…siz»: a world without phones."
+        "uz": "Savol Can you…? deb boshlanadi. A world without phones — telefonlarsiz dunyo."
       }
     },
     {
@@ -1539,7 +1539,7 @@
       ],
       "translation": {
         "ru": "Вам платят за сверхурочную работу?",
-        "uz": "Qo'shimcha ish vaqti uchun sizga haq to'lanadimi?"
+        "uz": "Ish vaqtidan tashqari ishlaganingiz uchun haq to'lashadimi?"
       },
       "explanation": {
         "ru": "Платить за что-то — pay for something: get paid for overtime. To и at здесь не подходят.",
@@ -1991,7 +1991,7 @@
       ],
       "translation": {
         "ru": "Ваш английский сильно улучшился.",
-        "uz": "Ingliz tilingiz ancha yaxshilandi."
+        "uz": "Inglizchangiz ancha yaxshilanibdi."
       },
       "explanation": {
         "ru": "«Сильно, намного» после глагола — a lot: has improved a lot. Many и much после a не ставят.",
@@ -2108,7 +2108,7 @@
       ],
       "prompt": {
         "ru": "Я оставил учебник в школе.",
-        "uz": "Darsligimni maktabda qoldirib ketdim."
+        "uz": "Darsligim maktabda qolib ketibdi."
       },
       "fragments": [
         "I",
@@ -2131,7 +2131,7 @@
       "display": "I left my textbook at school.",
       "explanation": {
         "ru": "leave — неправильный глагол: leave — left — left. «В школе» — at school, без the.",
-        "uz": "leave — noto'g'ri fe'l: leave — left — left. «Maktabda» — at school, the siz."
+        "uz": "Left — leave fe'lining o'tgan zamon shakli. At school — maktabda."
       }
     },
     {
@@ -2147,7 +2147,7 @@
       ],
       "prompt": {
         "ru": "Он провалил экзамен, потому что не готовился.",
-        "uz": "U imtihondan yiqildi, chunki tayyorlanmagan edi."
+        "uz": "U tayyorlanmagani uchun imtihondan o'tolmadi."
       },
       "fragments": [
         "he",
@@ -2184,7 +2184,7 @@
       "display": "He failed the exam because he didn't study.",
       "explanation": {
         "ru": "fail an exam — провалить экзамен, без предлога. Because — «потому что»; эту часть можно поставить и в начало.",
-        "uz": "fail an exam — imtihondan yiqilmoq, predlogsiz. Because — «chunki»; bu qismni boshiga ham qo'yish mumkin."
+        "uz": "Fail an exam — imtihondan o'tolmaslik. Because dan keyin sabab aytiladi: because he didn't study."
       }
     },
     {
@@ -2243,7 +2243,7 @@
       ],
       "prompt": {
         "ru": "Как мне пополнить словарный запас?",
-        "uz": "Lug'at boyligimni qanday oshirsam bo'ladi?"
+        "uz": "So'z boyligimni qanday oshirsam bo'ladi?"
       },
       "fragments": [
         "how",
@@ -2266,7 +2266,7 @@
       "display": "How can I improve my vocabulary?",
       "explanation": {
         "ru": "Вопрос с can: How + can + I + глагол без to. Vocabulary — словарный запас, а dictionary — словарь-книга.",
-        "uz": "can bilan savol: How + can + I + to siz fe'l. Vocabulary — lug'at boyligi, dictionary esa lug'at kitobi."
+        "uz": "Improve my vocabulary — so'z boyligimni oshirmoq. Qanday qilish mumkinligini How can I…? deb so'rang."
       }
     },
     {

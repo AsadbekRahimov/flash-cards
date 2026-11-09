@@ -17,12 +17,12 @@
       "translation": "стойка регистрации",
       "translations": {
         "ru": "стойка регистрации",
-        "uz": "resepshn"
+        "uz": "qabulxona"
       },
       "example": "Ask at reception for a map.",
       "example_translations": {
         "ru": "Спросите карту на стойке регистрации.",
-        "uz": "Xarita uchun resepshndan so'rang."
+        "uz": "Xaritani qabulxonadan so'rang."
       }
     },
     {
@@ -31,12 +31,12 @@
       "translation": "останавливаться, жить",
       "translations": {
         "ru": "останавливаться, жить",
-        "uz": "qolmoq"
+        "uz": "qolmoq, turmoq"
       },
       "example": "We stay at a small hotel.",
       "example_translations": {
         "ru": "Мы остановились в небольшом отеле.",
-        "uz": "Biz kichik mehmonxonada qolamiz."
+        "uz": "Biz kichik mehmonxonada turamiz."
       }
     },
     {

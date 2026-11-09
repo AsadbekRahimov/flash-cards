@@ -420,7 +420,7 @@
       },
       "explanation": {
         "ru": "welcome to + место — добро пожаловать куда-то: welcome to Uzbekistan, welcome to our home. In и at после welcome не ставят.",
-        "uz": "welcome to + joy — biror joyga xush kelibsiz: welcome to Uzbekistan, welcome to our home. Welcome dan keyin in va at ishlatilmaydi."
+        "uz": "Kutib olayotganda «xush kelibsiz» deyish uchun welcome to va joy nomini ayting: Welcome to Uzbekistan!"
       }
     },
     {
@@ -445,11 +445,11 @@
       ],
       "translation": {
         "ru": "Пожалуйста, передайте привет вашим родителям.",
-        "uz": "Iltimos, ota-onangizga salom ayting."
+        "uz": "Iltimos, ota-onangizga mendan salom ayting."
       },
       "explanation": {
         "ru": "say hello to someone — передать привет кому-то, поздороваться. После tell называют, кому говорят (tell me), а speak — «говорить, разговаривать».",
-        "uz": "say hello to someone — kimgadir salom aytmoq. Tell dan keyin kimga aytilishi keladi (tell me), speak esa «gapirmoq, gaplashmoq»."
+        "uz": "«Birovga salom aytmoq» — say hello to someone. Masalan: Say hello to your mom."
       }
     },
     {
@@ -478,7 +478,7 @@
       },
       "explanation": {
         "ru": "Nice to meet you — так говорят при знакомстве. После meet нужно you. Your — «ваш» перед существительным, yours — «ваш» без существительного (This is yours).",
-        "uz": "Nice to meet you — tanishganda aytiladi. Meet dan keyin you keladi. Your — «sizning» (otdan oldin), yours — «siznike» (This is yours)."
+        "uz": "Nice to meet you! — ilk bor tanishganda aytiladigan ibora."
       }
     },
     {
@@ -507,7 +507,7 @@
       },
       "explanation": {
         "ru": "listen to someone — слушать кого-то. Перед тем, кого или что слушают, нужен to: listen to me, listen to music. At и on здесь не подходят.",
-        "uz": "listen to someone — kimnidir tinglamoq. Kimni yoki nimani tinglashdan oldin to kerak: listen to me, listen to music. At va on bu yerda to'g'ri kelmaydi."
+        "uz": "Listen fe'lidan keyin kimni yoki nimani tinglayotganingizni aytish uchun to ishlatiladi: listen to me, listen to music."
       }
     },
     {
@@ -536,7 +536,7 @@
       },
       "explanation": {
         "ru": "be married to someone — быть женатым на ком-то или замужем за кем-то. Предлог — to; with и on здесь не подходят.",
-        "uz": "be married to someone — kimgadir uylangan yoki turmushga chiqqan bo'lmoq. Predlog — to; with va on bu yerda to'g'ri kelmaydi."
+        "uz": "Kim bilan oila qurganini aytish uchun be married to iborasidan foydalaning: She's married to a doctor."
       }
     },
     {
@@ -561,11 +561,11 @@
       ],
       "translation": {
         "ru": "Друзья зовут меня Алекс.",
-        "uz": "Do'stlarim meni Aleks deb chaqirishadi."
+        "uz": "Do'stlarim meni Aleks deb atashadi."
       },
       "explanation": {
         "ru": "call + кого-то + имя — называть кого-то каким-то именем: call me Alex. Say и tell так не употребляются.",
-        "uz": "call + kimni + ism — kimnidir biror ism bilan chaqirmoq: call me Alex. Say va tell bunday ishlatilmaydi."
+        "uz": "Call someone by a name — birovni ma'lum bir ism bilan atamoq. «Meni Aleks deb atang» — Call me Alex."
       }
     },
     {
@@ -619,11 +619,11 @@
       ],
       "translation": {
         "ru": "Я дружу со своим соседом.",
-        "uz": "Men qo'shnim bilan do'stman."
+        "uz": "Qo'shnim bilan do'stmiz."
       },
       "explanation": {
         "ru": "be friends with someone — дружить с кем-то. Обратите внимание: I am friends — friends во множественном числе. Предлог — with; to и for не подходят.",
-        "uz": "be friends with someone — kim bilandir do'st bo'lmoq. E'tibor bering: I am friends — friends ko'plikda. Predlog — with; to va for to'g'ri kelmaydi."
+        "uz": "«Birov bilan do'st bo'lmoq» — be friends with someone. Bitta do'st haqida aytsangiz ham, bu iborada friends ko'plikda keladi."
       }
     },
     {
@@ -1364,11 +1364,11 @@
       ],
       "translation": {
         "ru": "Каждое утро я покупаю свежий хлеб.",
-        "uz": "Har kuni ertalab yangi non olaman."
+        "uz": "Har kuni ertalab yangi yopilgan non olaman."
       },
       "explanation": {
         "ru": "fresh bread — свежий хлеб. New — новый, о вещах (a new phone), young — молодой, о людях. О еде говорят fresh.",
-        "uz": "fresh bread — yangi (yangi yopilgan) non. O'zbekchada «yangi non» deyiladi, lekin inglizchada new buyumlar haqida (a new phone), young — odamlar haqida. Ovqat haqida fresh deyiladi."
+        "uz": "Yangi yopilgan non — fresh bread. Fresh meva, sabzavot va boshqa oziq-ovqat haqida ham ishlatiladi: fresh fruit."
       }
     },
     {
@@ -1422,11 +1422,11 @@
       ],
       "translation": {
         "ru": "Я пью чай с лимоном.",
-        "uz": "Men choyni limon bilan ichaman."
+        "uz": "Choyni limon solib ichaman."
       },
       "explanation": {
         "ru": "«С чем-то» о еде и напитках — with: tea with lemon, coffee with milk. In и on здесь не подходят.",
-        "uz": "Ovqat va ichimliklarda «… bilan» — with: tea with lemon, coffee with milk. In va on bu yerda to'g'ri kelmaydi."
+        "uz": "Ichimlikka nima qo'shilganini aytish uchun with ishlatiladi: tea with lemon, coffee with milk."
       }
     },
     {
@@ -1451,11 +1451,11 @@
       ],
       "translation": {
         "ru": "Я люблю крепкий чай.",
-        "uz": "Men quyuq choyni yaxshi ko'raman."
+        "uz": "Quyuq damlangan choyni yaxshi ko'raman."
       },
       "explanation": {
         "ru": "strong tea, strong coffee — крепкий чай, крепкий кофе. Thick — густой (thick soup), powerful — мощный (a powerful car).",
-        "uz": "strong tea, strong coffee — quyuq choy, quyuq qahva. Thick — qovushqoq (thick soup), powerful — kuchli (a powerful car)."
+        "uz": "Choy yoki qahva kuchli damlangan bo'lsa, strong deyiladi: strong tea, strong coffee. Quyuq sho'rva haqida esa thick soup deyiladi."
       }
     },
     {
@@ -1484,7 +1484,7 @@
       },
       "explanation": {
         "ru": "a cup of coffee — чашка кофе, three cups of coffee — три чашки. Plates — тарелки, pieces — куски (a piece of cake).",
-        "uz": "a cup of coffee — bir piyola qahva, three cups of coffee — uch piyola. Plates — likopchalar, pieces — bo'laklar (a piece of cake)."
+        "uz": "Ichimlik miqdorini piyola bilan aytish uchun cup of ishlatiladi: a cup of coffee — bir piyola qahva, three cups of coffee — uch piyola qahva."
       }
     },
     {
@@ -1513,7 +1513,7 @@
       },
       "explanation": {
         "ru": "Чем что-то делают — with: eat with a spoon, cut with a knife. By и on здесь не подходят.",
-        "uz": "Nima bilan bajarilishi — with: eat with a spoon, cut with a knife. By va on bu yerda to'g'ri kelmaydi."
+        "uz": "Qaysi asbob bilan bajarayotganingizni with orqali ayting: with a spoon — qoshiq bilan, with a knife — pichoq bilan."
       }
     },
     {
@@ -1542,7 +1542,7 @@
       },
       "explanation": {
         "ru": "a bottle of water — бутылка воды. Plate и bowl — посуда для еды, воду в них в сумке не носят.",
-        "uz": "a bottle of water — bir shisha suv. Plate va bowl — ovqat idishlari, ularda sumkada suv olib yurilmaydi."
+        "uz": "A bottle of water — bir shisha suv. A bottle of milk — bir shisha sut."
       }
     },
     {
@@ -1600,7 +1600,7 @@
       },
       "explanation": {
         "ru": "taste + прилагательное — быть каким-то на вкус: tastes delicious. Eat и cook так не употребляются.",
-        "uz": "taste + sifat — ta'mi qandaydir bo'lmoq: tastes delicious. Eat va cook bunday ishlatilmaydi."
+        "uz": "Ta'mni tasvirlash uchun taste fe'lidan keyin sifat keladi: tastes delicious — juda mazali, tastes sweet — ta'mi shirin."
       }
     },
     {
@@ -1832,7 +1832,7 @@
       ],
       "prompt": {
         "ru": "В нашем городке есть большой парк.",
-        "uz": "Shaharchamizda katta park bor."
+        "uz": "Shahrimizda katta park bor."
       },
       "fragments": [
         "there",
@@ -1869,7 +1869,7 @@
       "display": "There is a big park in our town.",
       "explanation": {
         "ru": "There is + единственное число — «есть, находится». Место можно поставить и в начало: In our town there is a big park.",
-        "uz": "There is + birlik — «bor». Joyni boshiga ham qo'yish mumkin: In our town there is a big park."
+        "uz": "Biror joyda bitta narsa borligini there is bilan ayting: There is a big park."
       }
     },
     {
@@ -2329,11 +2329,11 @@
       ],
       "translation": {
         "ru": "Я встречу вас на вокзале.",
-        "uz": "Sizni vokzalda kutib olaman."
+        "uz": "Siz bilan vokzalda uchrashaman."
       },
       "explanation": {
         "ru": "Место встречи — at: at the station, at the airport. По-русски «на вокзале», но по-английски не on; to здесь тоже не подходит.",
-        "uz": "Uchrashuv joyi at bilan: at the station, at the airport. On va to bu yerda to'g'ri kelmaydi."
+        "uz": "Bu gapda at uchrashuv joyini bildiradi: at the station — vokzalda, at the airport — aeroportda."
       }
     },
     {
@@ -2358,11 +2358,11 @@
       ],
       "translation": {
         "ru": "Многие туристы посещают этот музей.",
-        "uz": "Ko'plab sayyohlar bu muzeyga tashrif buyurishadi."
+        "uz": "Bu muzeyga ko'p sayyoh keladi."
       },
       "explanation": {
         "ru": "visit + место — посещать что-то, без предлога. После go и come нужен to: go to the museum.",
-        "uz": "visit + joy — biror joyga tashrif buyurmoq, predlogsiz. Go va come dan keyin to kerak: go to the museum."
+        "uz": "Visit fe'lidan keyin boriladigan joy bevosita keladi: visit the museum. Go bilan esa to kerak: go to the museum."
       }
     },
     {
@@ -3168,11 +3168,11 @@
       ],
       "translation": {
         "ru": "Цена слишком высокая.",
-        "uz": "Narx haddan tashqari baland."
+        "uz": "Narxi haddan tashqari qimmat."
       },
       "explanation": {
         "ru": "О цене говорят high или low: a high price. Expensive — о самой вещи: The bag is expensive. Big с ценой не употребляют.",
-        "uz": "Narx haqida high yoki low deyiladi: a high price. Expensive — narsaning o'zi haqida: The bag is expensive. Big narx bilan ishlatilmaydi."
+        "uz": "Narxning o'zi high yoki low bo'ladi: a high price — qimmat narx. Buyum haqida esa expensive deyish mumkin: The bag is expensive."
       }
     },
     {
@@ -3255,11 +3255,11 @@
       ],
       "translation": {
         "ru": "Я хочу купить брюки.",
-        "uz": "Men bitta shim sotib olmoqchiman."
+        "uz": "Shim sotib olmoqchiman."
       },
       "explanation": {
         "ru": "Брюки, джинсы, носки — парные вещи: a pair of trousers (одни брюки). Couple — «два, несколько» отдельных предметов, piece — «кусок».",
-        "uz": "Shim, jinsi shim, paypoq — juft narsalar: a pair of trousers (bitta shim). Couple — ikki-uchta alohida narsa, piece — «bo'lak»."
+        "uz": "Inglizchada trousers ko'plik shaklida keladi. Bitta shim — a pair of trousers, ikkita shim — two pairs of trousers."
       }
     },
     {
@@ -3284,11 +3284,11 @@
       ],
       "translation": {
         "ru": "Женщина в красном — моя учительница.",
-        "uz": "Qizil kiyimdagi ayol — mening o'qituvchim."
+        "uz": "Qizil kiyim kiygan ayol mening o'qituvchim."
       },
       "explanation": {
         "ru": "in + цвет — в одежде этого цвета: the woman in red (в красном). On и with здесь не подходят.",
-        "uz": "in + rang — shu rangdagi kiyimda: the woman in red (qizil kiyimdagi). On va with bu yerda to'g'ri kelmaydi."
+        "uz": "Bu gapda in rang bilan birga kiyimni tasvirlaydi: the woman in red — qizil kiyim kiygan ayol."
       }
     },
     {
@@ -3314,11 +3314,11 @@
       ],
       "translation": {
         "ru": "Синий — мой любимый цвет.",
-        "uz": "Ko'k — mening sevimli rangim."
+        "uz": "Menga eng yoqadigan rang — ko'k."
       },
       "explanation": {
         "ru": "favorite — любимый: my favorite color (американское написание, британское — favourite). Loved и liked перед существительным так не употребляются.",
-        "uz": "favorite — sevimli: my favorite color (amerikacha yozilishi, britancha — favourite). Loved va liked otdan oldin bunday ishlatilmaydi."
+        "uz": "My favorite color — menga eng yoqadigan rang. Favorite amerikacha, favourite britancha yoziladi."
       }
     },
     {

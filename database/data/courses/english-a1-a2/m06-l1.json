@@ -101,7 +101,7 @@
       "translation": "стоить",
       "translations": {
         "ru": "стоить",
-        "uz": "turmoq"
+        "uz": "turmoq (narx haqida)"
       },
       "example": "How much does this bag cost?",
       "example_translations": {
@@ -148,7 +148,7 @@
       "example": "My bag is very heavy.",
       "example_translations": {
         "ru": "Моя сумка очень тяжёлая.",
-        "uz": "Mening sumkam juda og'ir."
+        "uz": "Sumkam juda og'ir."
       }
     }
   ]

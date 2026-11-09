@@ -194,7 +194,7 @@ describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
     setLocale('uz')
     const { wrapper } = await render(access())
 
-    expect(wrapper.get('[data-testid=practice-btn]').text()).toBe('Amaliyot')
+    expect(wrapper.get('[data-testid=practice-btn]').text()).toBe('Mashqlar')
     wrapper.unmount()
   })
 })
@@ -322,7 +322,7 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     setLocale('uz')
     const { wrapper } = await render(access(), lessons())
 
-    expect(rowButton(wrapper, 41).attributes('aria-label')).toBe('Amaliyot: 2-modul · 4-dars')
+    expect(rowButton(wrapper, 41).attributes('aria-label')).toBe("2-modul · 4-dars bo'yicha mashqlar")
     wrapper.unmount()
   })
 })

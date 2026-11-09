@@ -8,7 +8,7 @@
   "lesson": {
     "number": 1,
     "title": "Части тела",
-    "title_uz": "Tana a'zolari"
+    "title_uz": "Bosh va qo'l-oyoqlar"
   },
   "words": [
     {
@@ -50,7 +50,7 @@
       "example": "She has blue eyes.",
       "example_translations": {
         "ru": "У неё голубые глаза.",
-        "uz": "Uning ko'k ko'zlari bor."
+        "uz": "Uning ko'zi ko'k."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "His nose is red from the cold.",
       "example_translations": {
         "ru": "Его нос красный от холода.",
-        "uz": "Uning burni sovuqdan qizargan."
+        "uz": "Sovuqdan burni qizarib ketibdi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Her hair is long and black.",
       "example_translations": {
         "ru": "Её волосы длинные и чёрные.",
-        "uz": "Uning sochlari uzun va qora."
+        "uz": "Sochi uzun va qora."
       }
     },
     {
@@ -115,7 +115,7 @@
       "translation": "кисть руки, рука",
       "translations": {
         "ru": "кисть руки, рука",
-        "uz": "qo'l"
+        "uz": "qo'l panjasi, qo'l"
       },
       "example": "Give me your hand.",
       "example_translations": {
@@ -129,12 +129,12 @@
       "translation": "рука от плеча до кисти",
       "translations": {
         "ru": "рука от плеча до кисти",
-        "uz": "bilak, qo'l"
+        "uz": "qo'l (yelkadan kaftgacha)"
       },
       "example": "His arm hurts.",
       "example_translations": {
         "ru": "У него болит рука.",
-        "uz": "Uning qo'li og'riyapti."
+        "uz": "Qo'li og'riyapti."
       }
     },
     {

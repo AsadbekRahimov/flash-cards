@@ -101,12 +101,12 @@
       "translation": "чистить щёткой",
       "translations": {
         "ru": "чистить щёткой",
-        "uz": "cho'tkalamoq, tozalamoq"
+        "uz": "cho'tka bilan tozalamoq"
       },
       "example": "Brush your teeth twice a day.",
       "example_translations": {
         "ru": "Чисти зубы два раза в день.",
-        "uz": "Tishlaringni kuniga ikki marta tozala."
+        "uz": "Tishlaringizni kuniga ikki marta yuving."
       }
     },
     {

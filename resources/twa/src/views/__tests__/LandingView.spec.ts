@@ -63,16 +63,15 @@ describe('LandingView', () => {
     state.inTelegram = false
     setLocale('uz')
 
-    expect((await render()).text()).toContain('Bu sahifa faqat Telegram Web App ichida ishlaydi')
+    expect((await render()).text()).toContain('Bu sahifa faqat Telegram ichida ochiladi')
   })
 
-  it('calls the group training of a teacher "trening" in Uzbek, as the bot does ("mashg\'ulot" is the daily session)', async () => {
+  it('refers to the teacher’s group session in Uzbek, as the bot does', async () => {
     state.inTelegram = false
     setLocale('uz')
 
     const text = (await render()).text()
 
-    expect(text).toContain('trening havolasini guruhga yuborishini')
-    expect(text).not.toContain("mashg'ulot")
+    expect(text).toContain("guruh mashg'uloti havolasini yuborishini")
   })
 })

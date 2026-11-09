@@ -78,7 +78,7 @@ describe('AudioTrouble', () => {
 
     const wrapper = render({ replacementsLeft: 2 })
 
-    expect(wrapper.get('[data-testid=trouble-title]').text()).toBe('Ovoz mavjud emas')
+    expect(wrapper.get('[data-testid=trouble-title]').text()).toBe('Ovoz eshitilmadi')
     expect(wrapper.get('[data-testid=trouble-retry]').text()).toBe('Qayta yuklash')
     wrapper.unmount()
   })

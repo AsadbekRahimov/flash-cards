@@ -73,8 +73,8 @@ return [
         // Pro's practice tick: only while practice is open to everybody and Pro has something to lift there - a Free daily limit, or
         // practice that is Pro's as a whole (ProPromises, the rule of the Mini App too); the second sentence while the battles are switched
         // off (PRACTICE_BATTLE=false). The same two sentences as `benefits.practice*` of the Mini App.
-        'pro_practice' => 'Amaliyot va bellashuvlar kunlik limitsiz',
-        'pro_practice_solo' => 'Amaliyot kunlik limitsiz',
+        'pro_practice' => 'Mustahkamlash mashqlari va bellashuvlar cheklovsiz',
+        'pro_practice_solo' => 'Mustahkamlash mashqlari cheklovsiz',
         // One deck / many (a rule of the plan: `{1}` is exactly one, 21 is many).
         'decks' => '{1} Shaxsiy to\'plam: :deck_words tagacha so\'z|[2,*] Shaxsiy to\'plamlar: :deck_words tadan so\'zli :decks tagacha to\'plam',
     ],
@@ -106,7 +106,7 @@ return [
                 ':practice',
                 'Mashqlar: «So\'zni yozish» va «Misoldagi bo\'sh joy»',
                 ':decks',
-                'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',
+                "Bir kun shug'ullanmasangiz ham, ketma-ketlikni saqlab qolish",
                 'IELTS va SAT sinov testlari',
             ],
             'price' => 'Boshlang\'ich narx - oyiga :price',
@@ -120,7 +120,7 @@ return [
             'features' => [
                 'Markaz oyiga bir marta qat\'iy summa to\'laydi',
                 'Markaz o\'quvchilari markazda ekan, tarifdagi o\'rinlar doirasida Pro oladi',
-                'Telegramdagi guruhlar, o\'qituvchilar uchun trening va imtihonlar',
+                "Telegramda guruh mashg'ulotlari va imtihonlar",
             ],
             'contact' => 'Markazni ulash:',
         ],

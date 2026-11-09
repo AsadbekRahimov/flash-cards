@@ -74,7 +74,7 @@ describe('AnswerReveal — sentence', () => {
     setLocale('uz')
     const w = render('wrong')
 
-    expect(w.get('[data-testid=alternatives]').text()).toContain("Bunday ham bo'ladi")
+    expect(w.get('[data-testid=alternatives]').text()).toContain("Boshqa to'g'ri variantlar")
     expect(w.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri") // a sentence is final: "Tuzatish kerak" is the word of a dictation
   })
 

@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Оценка покупки",
-    "title_uz": "Xaridni baholash"
+    "title_uz": "Kiyim va narxni baholash"
   },
   "words": [
     {
@@ -59,12 +59,12 @@
       "translation": "модный",
       "translations": {
         "ru": "модный",
-        "uz": "zamonaviy"
+        "uz": "urfdagi, modadagi"
       },
       "example": "Her coat is very fashionable.",
       "example_translations": {
         "ru": "Её пальто очень модное.",
-        "uz": "Uning paltosi juda zamonaviy."
+        "uz": "Uning paltosi hozir urfda."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "These jeans are too tight for me.",
       "example_translations": {
         "ru": "Эти джинсы слишком тесные для меня.",
-        "uz": "Bu jinsi men uchun juda tor."
+        "uz": "Bu jinsi shim menga juda tor."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "разумный, приемлемый",
       "translations": {
         "ru": "разумный, приемлемый",
-        "uz": "o'rtacha"
+        "uz": "maqbul, o'rinli"
       },
       "example": "The price is quite reasonable.",
       "example_translations": {
         "ru": "Цена вполне приемлемая.",
-        "uz": "Narx ancha o'rtacha."
+        "uz": "Narxi ancha yaxshi ekan."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "выгодная покупка",
       "translations": {
         "ru": "выгодная покупка",
-        "uz": "arzon xarid"
+        "uz": "arzon va foydali xarid"
       },
       "example": "This jacket is a real bargain.",
       "example_translations": {
         "ru": "Эта куртка — настоящая выгодная покупка.",
-        "uz": "Bu kurtka haqiqiy arzon xarid."
+        "uz": "Bu kurtka yaxshi ekan, narxi ham juda arzon."
       }
     }
   ]

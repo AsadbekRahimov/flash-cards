@@ -149,7 +149,7 @@ describe('FlashCard', () => {
     const uz = mount(FlashCard, {
       props: { card: { ...card, translation_fallback: true }, showTranslation: true },
     })
-    expect(uz.get('[data-testid=translation-fallback]').text()).toBe("Mashg'ulot tilida tarjima hali yo'q")
+    expect(uz.get('[data-testid=translation-fallback]').text()).toBe("Bu so'z hali mashg'ulot tiliga tarjima qilinmagan")
 
     // Hidden translation: no note either.
     const hidden = mount(FlashCard, {
@@ -207,10 +207,10 @@ describe('FlashCard', () => {
     const revealed = mount(FlashCard, { props: { card, showTranslation: true } })
     expect(revealed.get('[data-testid=grade-prompt]').text()).toBe("So'zni qanchalik yaxshi eslaysiz?")
     expect(revealed.get('[data-testid=grade-hard]').text()).toContain('Eslay olmadim')
-    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('bugun takrorlaymiz')
+    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('bugun yana chiqadi')
     expect(revealed.get('[data-testid=grade-medium]').text()).toContain('Esladim')
-    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("jadval bo'yicha")
+    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("o'z vaqtida yana chiqadi")
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('Oson')
-    expect(revealed.get('[data-testid=grade-easy]').text()).toContain("kamroq ko'rsatamiz")
+    expect(revealed.get('[data-testid=grade-easy]').text()).toContain('keyinroq yana chiqadi')
   })
 })

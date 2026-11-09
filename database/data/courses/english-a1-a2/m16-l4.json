@@ -64,7 +64,7 @@
       "example": "We pay for electricity every month.",
       "example_translations": {
         "ru": "Мы платим за электричество каждый месяц.",
-        "uz": "Biz har oy elektr uchun to'laymiz."
+        "uz": "Elektr pulini har oy to'laymiz."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "отопление",
       "translations": {
         "ru": "отопление",
-        "uz": "isitish"
+        "uz": "isitish tizimi"
       },
       "example": "The heating works well in winter.",
       "example_translations": {
         "ru": "Зимой отопление работает хорошо.",
-        "uz": "Qishda isitish yaxshi ishlaydi."
+        "uz": "Qishda isitish tizimi yaxshi ishlaydi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "I paid a deposit for the apartment.",
       "example_translations": {
         "ru": "Я заплатил залог за квартиру.",
-        "uz": "Men kvartira uchun garov puli to'ladim."
+        "uz": "Kvartira uchun garov puli berdim."
       }
     },
     {

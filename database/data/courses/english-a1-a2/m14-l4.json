@@ -31,12 +31,12 @@
       "translation": "смена",
       "translations": {
         "ru": "смена",
-        "uz": "smena"
+        "uz": "smena, navbatchilik"
       },
       "example": "My night shift starts at ten.",
       "example_translations": {
         "ru": "Моя ночная смена начинается в десять.",
-        "uz": "Mening tungi smenam o'nda boshlanadi."
+        "uz": "Tungi smenam soat o'nda boshlanadi."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "повышение",
       "translations": {
         "ru": "повышение",
-        "uz": "lavozim ko'tarilishi"
+        "uz": "lavozimda ko'tarilish"
       },
       "example": "She got a promotion last month.",
       "example_translations": {
         "ru": "В прошлом месяце её повысили.",
-        "uz": "U o'tgan oy lavozimda ko'tarildi."
+        "uz": "O'tgan oy uning lavozimi ko'tarildi."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "стрессовый",
       "translations": {
         "ru": "стрессовый",
-        "uz": "stressli"
+        "uz": "asabni zo'riqtiradigan"
       },
       "example": "A stressful job is bad for health.",
       "example_translations": {
         "ru": "Стрессовая работа вредна для здоровья.",
-        "uz": "Stressli ish salomatlik uchun yomon."
+        "uz": "Asabni zo'riqtiradigan ish sog'liqqa zarar."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "пенсия",
       "translations": {
         "ru": "пенсия",
-        "uz": "nafaqa"
+        "uz": "pensiya"
       },
       "example": "My grandmother lives on a small pension.",
       "example_translations": {
         "ru": "Моя бабушка живёт на небольшую пенсию.",
-        "uz": "Buvim kichik nafaqa bilan yashaydi."
+        "uz": "Buvim ozgina pensiyasiga kun ko'radi."
       }
     }
   ]

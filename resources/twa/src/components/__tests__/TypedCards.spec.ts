@@ -107,7 +107,7 @@ describe('SpellingCard', () => {
     setLocale('uz')
     const w = mount(SpellingCard, { props: { card: spelling } })
     expect(w.text()).toContain("So'zni inglizcha yozing")
-    expect(w.get('[data-testid=answer-length]').text()).toBe('Harflar: 4')
+    expect(w.get('[data-testid=answer-length]').text()).toBe('4 ta harf')
   })
 })
 

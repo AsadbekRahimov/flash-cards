@@ -5,13 +5,13 @@ declare(strict_types=1);
 return [
 
     'start' => [
-        'greeting' => "Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help",
+        'greeting' => "Salom, :name! Siz LexiFlow'ga o'qituvchi sifatida kirdingiz. Guruh buyruqlarini ko'rish uchun /help yuboring.",
     ],
 
     'help' => [
-        'private' => "LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.\n\n".
+        'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Kartochkalardan talaffuzni eshitasiz, bot esa takrorlashni eslatadi.\n\n".
             "Qanday shug'ullanish kerak:\n".
-            "• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot\n".
+            "• Bugungi mashg'ulot uchun xabar yozish joyining yonidagi «LexiFlow» tugmasini bosing yoki /today yuboring.\n".
             "• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
             "• /invite — do'stingizni taklif qiling va birgalikda Pro oling\n".
             "• /pro — Pro obuna, /promo KOD — promokod\n".
@@ -19,16 +19,17 @@ return [
             "• /delete_account — akkauntni o'chirish\n\n".
             "O'qituvchilar uchun:\n".
             "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
-            "• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
+            "• /start_training — guruh mashg'ulotini boshlash\n".
+            "• /start_exam — imtihonni boshlash, /close_exam — yakunlash\n".
             ':caravan'.
             '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
-        'group' => "LexiFlow guruhda.\n\nO'qituvchi buyruqlari:\n".
-            "/start_training — treningni boshlash\n".
+        'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
+            "/start_training — guruh mashg'ulotini boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yakunlash\n".
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
-            '/help — ushbu yordam',
+            "/help — buyruqlar ro'yxatini ko'rish",
         // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
@@ -42,7 +43,7 @@ return [
     ],
 
     'stats' => [
-        'not_linked' => "Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.\nSizning Telegram ID'ngiz: :id",
+        'not_linked' => "Bu Telegram akkaunti LexiFlow'dagi o'qituvchi profiliga ulanmagan.\nTelegram ID raqamingiz: :id",
     ],
 
     'account' => [

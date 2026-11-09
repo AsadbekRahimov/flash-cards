@@ -5,12 +5,12 @@ declare(strict_types=1);
 return [
 
     'picker' => [
-        'prompt' => 'Trening uchun darsni tanlang:',
-        'empty' => "Tizimda hozircha darslar yo'q. Administratordan kontent yuklashini so'rang.",
+        'prompt' => "Guruh mashg'uloti uchun darsni tanlang:",
+        'empty' => "Hozircha darslar yo'q. Administratordan dars qo'shishini so'rang.",
         'button' => ':stage-modul · :lesson-dars',
     ],
 
-    'started' => '📚 Trening boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing.',
-    'open_button' => '🎯 Treningni ochish',
+    'started' => "📚 Guruh mashg'uloti boshlandi. :stage-modul, :lesson-dars. Qo'shilish uchun tugmani bosing.",
+    'open_button' => "🎯 Guruh mashg'ulotiga qo'shilish",
 
 ];

@@ -36,7 +36,7 @@
       "example": "I have an allergy to nuts.",
       "example_translations": {
         "ru": "У меня аллергия на орехи.",
-        "uz": "Mening yong'oqqa allergiyam bor."
+        "uz": "Yong'oqqa allergiyam bor."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "He has a serious knee injury.",
       "example_translations": {
         "ru": "У него серьёзная травма колена.",
-        "uz": "Uning tizzasida jiddiy jarohat bor."
+        "uz": "U tizzasidan jiddiy jarohat olgan."
       }
     },
     {

@@ -17,12 +17,12 @@
       "translation": "диета, рацион",
       "translations": {
         "ru": "диета, рацион",
-        "uz": "parhez"
+        "uz": "ovqatlanish tarzi, parhez"
       },
       "example": "A healthy diet includes many vegetables.",
       "example_translations": {
         "ru": "Здоровый рацион включает много овощей.",
-        "uz": "Sog'lom parhez ko'p sabzavotni o'z ichiga oladi."
+        "uz": "Sog'lom ovqatlanishda sabzavot ko'p bo'ladi."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "This cake has too many calories.",
       "example_translations": {
         "ru": "В этом торте слишком много калорий.",
-        "uz": "Bu tortda kaloriya juda ko'p."
+        "uz": "Bu tortning kaloriyasi juda ko'p."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "перекус",
       "translations": {
         "ru": "перекус",
-        "uz": "yengil tamaddi"
+        "uz": "yengil yegulik"
       },
       "example": "I eat a small snack at four.",
       "example_translations": {
         "ru": "Я перекусываю в четыре часа.",
-        "uz": "Men soat to'rtda yengil tamaddi qilaman."
+        "uz": "Soat to'rtda ozgina tamaddi qilaman."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "питание",
       "translations": {
         "ru": "питание",
-        "uz": "oziqlanish"
+        "uz": "ovqatlanish, oziqlanish"
       },
       "example": "Good nutrition is important for children.",
       "example_translations": {
         "ru": "Хорошее питание важно для детей.",
-        "uz": "Yaxshi oziqlanish bolalar uchun muhim."
+        "uz": "Bolalarning to'g'ri ovqatlanishi muhim."
       }
     }
   ]

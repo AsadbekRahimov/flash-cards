@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Какой человек",
-    "title_uz": "Odam qanday"
+    "title_uz": "Insonni tasvirlash"
   },
   "words": [
     {
@@ -22,7 +22,7 @@
       "example": "My teacher is young.",
       "example_translations": {
         "ru": "Мой учитель молодой.",
-        "uz": "Mening o'qituvchim yosh."
+        "uz": "O'qituvchim yosh."
       }
     },
     {
@@ -31,7 +31,7 @@
       "translation": "старый",
       "translations": {
         "ru": "старый",
-        "uz": "keksa, qari"
+        "uz": "keksa"
       },
       "example": "My grandfather is very old.",
       "example_translations": {
@@ -73,12 +73,12 @@
       "translation": "счастливый, радостный",
       "translations": {
         "ru": "счастливый, радостный",
-        "uz": "baxtli, xursand"
+        "uz": "xursand, baxtli"
       },
       "example": "She looks very happy today.",
       "example_translations": {
         "ru": "Сегодня она выглядит очень счастливой.",
-        "uz": "Bugun u juda xursand ko'rinadi."
+        "uz": "Bugun u juda xursandga o'xshaydi."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "приятный, милый",
       "translations": {
         "ru": "приятный, милый",
-        "uz": "yoqimli, yaxshi"
+        "uz": "yaxshi, yoqimli"
       },
       "example": "Your mother is a nice woman.",
       "example_translations": {
         "ru": "Твоя мама — милая женщина.",
-        "uz": "Onang yoqimli ayol."
+        "uz": "Onangiz yaxshi ayol."
       }
     },
     {

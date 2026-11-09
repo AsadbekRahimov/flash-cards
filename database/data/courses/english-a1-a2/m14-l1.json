@@ -31,12 +31,12 @@
       "translation": "подавать заявку",
       "translations": {
         "ru": "подавать заявку",
-        "uz": "ariza bermoq"
+        "uz": "ariza topshirmoq"
       },
       "example": "I apply for a job at the bank.",
       "example_translations": {
         "ru": "Я подаю заявку на работу в банке.",
-        "uz": "Men bankdagi ishga ariza beraman."
+        "uz": "Bankka ishga kirish uchun ariza topshiraman."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "собеседование",
       "translations": {
         "ru": "собеседование",
-        "uz": "suhbat"
+        "uz": "ishga kirish suhbati"
       },
       "example": "My interview is on Monday morning.",
       "example_translations": {
         "ru": "Моё собеседование в понедельник утром.",
-        "uz": "Mening suhbatim dushanba kuni ertalab."
+        "uz": "Ishga kirish suhbatim dushanba kuni ertalab."
       }
     },
     {

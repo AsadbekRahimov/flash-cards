@@ -53,7 +53,7 @@ describe('t', () => {
     expect(t('result.rank', { rank: 1, total: 7 })).toBe('Место 1 из 7')
     setLocale('uz')
     expect(t('training.lesson_header', { stage: 2, lesson: 5 })).toBe('2-modul · 5-dars')
-    expect(t('result.rank', { rank: 1, total: 7 })).toBe("7 ishtirokchi ichida 1-o'rin")
+    expect(t('result.rank', { rank: 1, total: 7 })).toBe("7 ishtirokchi orasida 1-o'rin")
   })
 })
 

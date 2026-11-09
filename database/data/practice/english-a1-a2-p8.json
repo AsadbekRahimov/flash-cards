@@ -265,7 +265,7 @@
       ],
       "translation": {
         "ru": "Здесь холодно. Включите, пожалуйста, обогреватель.",
-        "uz": "Bu yer sovuq. Iltimos, isitgichni yoqing."
+        "uz": "Bu yer sovuq ekan. Iltimos, isitkichni yoqing."
       },
       "explanation": {
         "ru": "Turn on — включить прибор или свет, turn off — выключить. Open — открыть (окно, дверь), light — зажечь огонь (light a candle).",
@@ -756,7 +756,7 @@
       ],
       "translation": {
         "ru": "Какую марку кофе вы обычно покупаете?",
-        "uz": "Odatda qaysi brenddagi kofeni sotib olasiz?"
+        "uz": "Odatda qaysi markadagi qahvani olasiz?"
       },
       "explanation": {
         "ru": "Марка товара — brand (кофе, одежды, телефона). Mark — знак, отметка или оценка, stamp — почтовая марка или печать.",
@@ -814,11 +814,11 @@
       ],
       "translation": {
         "ru": "В этом кафе хорошая еда по разумным ценам.",
-        "uz": "Bu kafeda maqbul narxlarda mazali taomlar bor."
+        "uz": "Bu kafening ovqati mazali, narxlari ham yaxshi."
       },
       "explanation": {
         "ru": "Reasonable price — разумная, приемлемая цена. Clever — умный (о человеке), logical — логичный (о мысли, решении); с ценами они не сочетаются.",
-        "uz": "Reasonable price — maqbul, o'rtacha narx. Clever — aqlli (odam haqida), logical — mantiqiy (fikr, qaror haqida); ular narx bilan ishlatilmaydi."
+        "uz": "At reasonable prices — maqbul narxlarda. «Narxi ancha yaxshi» — The price is quite reasonable."
       }
     },
     {
@@ -1238,11 +1238,11 @@
       ],
       "translation": {
         "ru": "Не ешьте сладкое перед ужином — перебьёте аппетит.",
-        "uz": "Kechki ovqatdan oldin shirinlik yemang, ishtahangiz bo'g'iladi."
+        "uz": "Kechki ovqatdan oldin shirinlik yemang, ishtahangiz qolmaydi."
       },
       "explanation": {
         "ru": "Spoil your appetite — перебить аппетит. Break — ломать, damage — повреждать; с appetite они не сочетаются.",
-        "uz": "Spoil your appetite — ishtahani bo'g'moq. Break — sindirmoq, damage — shikastlamoq; ular appetite bilan ishlatilmaydi."
+        "uz": "Spoil your appetite — ishtahani buzmoq. Masalan, ovqatdan oldin shirinlik yeb qo'ysangiz, asosiy ovqatni yegingiz kelmay qolishi mumkin."
       }
     },
     {
@@ -1267,7 +1267,7 @@
       ],
       "translation": {
         "ru": "Сегодня у меня была отличная тренировка в спортзале.",
-        "uz": "Bugun sport zalida ajoyib mashg'ulot bo'ldi."
+        "uz": "Bugun sport zalida maza qilib mashq qildim."
       },
       "explanation": {
         "ru": "Workout — одна тренировка: have a great workout. Exercise в значении «физическая нагрузка» с a не употребляется, sport — вид спорта.",
@@ -1296,11 +1296,11 @@
       ],
       "translation": {
         "ru": "Врач говорит, что мне стоит вести более здоровый образ жизни.",
-        "uz": "Shifokorimning aytishicha, men sog'lomroq turmush tarzida yashashim kerak."
+        "uz": "Shifokorim sog'lig'imga ko'proq e'tibor berib yashashim kerakligini aytdi."
       },
       "explanation": {
         "ru": "Lead a healthy lifestyle — вести здоровый образ жизни: lead здесь значит «вести». Do и make с lifestyle не сочетаются.",
-        "uz": "Lead a healthy lifestyle — sog'lom turmush tarzida yashamoq: lead bu yerda «olib bormoq» degani. Do va make lifestyle bilan ishlatilmaydi."
+        "uz": "Lead a healthy lifestyle — sog'lom turmush tarziga amal qilmoq."
       }
     },
     {
@@ -1663,7 +1663,7 @@
       ],
       "translation": {
         "ru": "Мы увидели в лесу стадо оленей.",
-        "uz": "O'rmonda bir poda kiyik ko'rdik."
+        "uz": "O'rmonda kiyiklar podasini ko'rdik."
       },
       "explanation": {
         "ru": "Об оленях говорят a herd — стадо (как о коровах). A flock — стая птиц или отара овец, a pack — стая волков или собак.",
@@ -1721,7 +1721,7 @@
       ],
       "translation": {
         "ru": "Этот автобус работает на электричестве, поэтому ему не нужно топливо.",
-        "uz": "Bu avtobus elektrda yuradi, shuning uchun unga yoqilg'i kerak emas."
+        "uz": "Bu avtobus elektrda yuradi, unga yonilg'i kerak emas."
       },
       "explanation": {
         "ru": "Run on — работать на каком-то топливе или энергии: runs on electricity, runs on gas. With и by здесь не подходят.",
@@ -1750,7 +1750,7 @@
       ],
       "translation": {
         "ru": "Мы увидели в небе вспышку молнии.",
-        "uz": "Osmonda chaqmoq chaqnaganini ko'rdik."
+        "uz": "Osmonda chaqmoq chaqdi."
       },
       "explanation": {
         "ru": "A flash of lightning — вспышка молнии. Гром (thunder) не видят, а слышат: a clap of thunder. Storm — гроза или буря целиком.",
@@ -1902,7 +1902,7 @@
       "display": "The government built a new hospital.",
       "explanation": {
         "ru": "Built — прошедшее время от build (неправильный глагол). Прилагательное new стоит между a и hospital: a new hospital.",
-        "uz": "Built — build ning o'tgan zamon shakli (noto'g'ri fe'l). new sifati a bilan hospital orasida turadi: a new hospital."
+        "uz": "Built — build fe'lining o'tgan zamon shakli. A new hospital — yangi kasalxona."
       }
     },
     {
@@ -2187,11 +2187,11 @@
       ],
       "translation": {
         "ru": "После того телешоу она стала настоящей знаменитостью.",
-        "uz": "O'sha teleshoudan keyin u haqiqiy mashhur shaxsga aylandi."
+        "uz": "O'sha teleko'rsatuvdan keyin u juda mashhur bo'lib ketdi."
       },
       "explanation": {
         "ru": "Become + существительное — стать кем-то: became a celebrity. Get бывает с прилагательным (got famous), turn — только turn into a celebrity.",
-        "uz": "Become + ot — kimdir bo'lib qolmoq: became a celebrity. Get sifat bilan keladi (got famous), turn esa faqat turn into a celebrity shaklida."
+        "uz": "Become a celebrity — elga tanilib, mashhur odam bo'lib ketmoq."
       }
     },
     {

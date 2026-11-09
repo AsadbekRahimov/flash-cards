@@ -8,7 +8,7 @@
   "lesson": {
     "number": 2,
     "title": "Школьная жизнь",
-    "title_uz": "Maktab hayoti"
+    "title_uz": "Ta'lim muassasalari va dars anjomlari"
   },
   "words": [
     {
@@ -22,7 +22,7 @@
       "example": "Which subject do you like best?",
       "example_translations": {
         "ru": "Какой предмет тебе нравится больше всего?",
-        "uz": "Qaysi fan senga eng ko'p yoqadi?"
+        "uz": "Qaysi fan sizga eng ko'p yoqadi?"
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "форма",
       "translations": {
         "ru": "форма",
-        "uz": "forma"
+        "uz": "maxsus kiyim, forma"
       },
       "example": "Our school uniform is dark blue.",
       "example_translations": {
         "ru": "Наша школьная форма тёмно-синяя.",
-        "uz": "Bizning maktab formamiz to'q ko'k."
+        "uz": "Maktab formamiz to'q ko'k."
       }
     }
   ]

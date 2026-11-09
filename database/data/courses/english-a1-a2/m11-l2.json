@@ -22,7 +22,7 @@
       "example": "Our flight leaves at six.",
       "example_translations": {
         "ru": "Наш рейс вылетает в шесть.",
-        "uz": "Bizning reysimiz oltida uchadi."
+        "uz": "Reysimiz soat oltida uchadi."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "выход на посадку",
       "translations": {
         "ru": "выход на посадку",
-        "uz": "chiqish eshigi"
+        "uz": "samolyotga chiqish darvozasi"
       },
       "example": "Go to gate twelve, please.",
       "example_translations": {
         "ru": "Пройдите к выходу двенадцать, пожалуйста.",
-        "uz": "O'n ikkinchi eshikka boring, iltimos."
+        "uz": "Iltimos, 12-darvoza tomon boring."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "My suitcase is blue and big.",
       "example_translations": {
         "ru": "Мой чемодан синий и большой.",
-        "uz": "Mening chamadonim ko'k va katta."
+        "uz": "Chamadonim katta va ko'k rangda."
       }
     },
     {

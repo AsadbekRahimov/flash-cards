@@ -37,7 +37,7 @@ beforeEach(function (): void {
 });
 
 /** The words that name practice and battles in each locale. */
-const PRO_PRACTICE_WORDS = ['ru' => ['практик', 'баттл'], 'uz' => ['amaliyot', 'bellashuv']];
+const PRO_PRACTICE_WORDS = ['ru' => ['практик', 'баттл'], 'uz' => ['mustahkamlash mashqlari', 'bellashuv']];
 
 /**
  * The rule for a reader to whom practice IS open, written out as a table: "<plan>:<battles>:<Free sessions>:<Free battles>". A Free
