@@ -131,7 +131,7 @@ it('walks a new learner through the five steps with five callbacks', function ()
     $last = end($this->tg->sent);
     expect($last['button'])->toBe("🎯 Birinchi mashg'ulotni boshlash")
         ->and($last['url'])->toBe('https://twa.test/twa/?from=onboarding')
-        ->and($last['text'])->toContain('Kurs ielts-academic');
+        ->and($last['text'])->toBe("Tayyor! Kursingiz: Kurs ielts-academic (5 ta so'z). Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.");
 
     // Every answered message lost its buttons, every query was answered.
     expect($this->tg->edits)->toHaveCount(5)
@@ -151,6 +151,21 @@ it('walks a new learner through the five steps with five callbacks', function ()
         ->and(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'direct'])
         ->and(ksorted(ProductEvent::query()->where('name', 'course.selected')->firstOrFail()->props))->toBe(['course_id' => $course->id, 'via' => 'onboarding']);
 });
+
+it('tells the size of the course in the last message with the Russian plural of the word', function (int $words, string $form): void {
+    onbCourse('ielts-academic', 'ielts', 'B1', words: $words);
+
+    onbSend(7090, '/start');
+    onbComplete(7090, 'ru');
+
+    expect(end($this->tg->sent)['text'])->toBe("Готово! Ваш курс: Курс ielts-academic ({$words} {$form}). Нажмите кнопку — первая тренировка займёт пару минут.");
+})->with([
+    'one' => [1, 'слово'],
+    'few' => [3, 'слова'],
+    'many' => [5, 'слов'],
+    'twenty-one' => [21, 'слово'],
+    'eleven' => [11, 'слов'],
+]);
 
 it('stores "I do not know" as A1 and switches reminders off; with no course with words the active course stays empty', function (): void {
     // An empty `default` course exists (groups and imports create it) but is not a choice for a learner.

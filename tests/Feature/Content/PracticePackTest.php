@@ -123,31 +123,6 @@ function ppk_texts(): array
 }
 
 /**
- * The forms of the informal «sen» in an uz text that their shape gives away: the pronoun and the verbs of the 2nd person singular
- * (-san, -yapsan, -gansan, -ding, -sang, -gin). The English words an explanation quotes (`building`, `reading`) are not Uzbek. The
- * bare imperative (`qil`, `yubor`) and the possessive in -ng (`otang`) look like other words: the packs were read for them by hand.
- *
- * @return list<string>
- */
-function ppk_uz_informal(string $text): array
-{
-    preg_match_all("/[a-z][a-z']*/i", $text, $matches);
-    $found = [];
-    foreach ($matches[0] as $word) {
-        $lower = strtolower(rtrim($word, "'"));
-        if (EnglishLexicon::isWord($lower)) {
-            continue;
-        }
-        if (preg_match('/\\A(?:sen|seni|senga|senda|sendan|sening|senlar)\\z/', $lower) === 1
-            || preg_match('/(?:[ay]san|yapsan|gansan|ding|sang)(?:mi|u|chi|ku)?\\z|gin\\z/', $lower) === 1) {
-            $found[] = $word;
-        }
-    }
-
-    return $found;
-}
-
-/**
  * The forms of the informal «ты» in a ru text: the pronoun with its possessive, a verb of the 2nd person singular, `давай`. A bare
  * imperative (`позвони`) looks like other words: the packs were read for it by hand.
  *
@@ -326,7 +301,7 @@ it('writes uz in Latin script with the ASCII apostrophe and addresses the learne
             if (preg_match('/[’ʻʼ‘`]|\p{Cyrillic}/u', $text) === 1) {
                 $offences[] = "{$where}: Cyrillic or a typographic apostrophe";
             }
-            foreach (ppk_uz_informal($text) as $word) {
+            foreach (uz_informal_forms($text) as $word) {
                 $offences[] = "{$where}: «{$word}»";
             }
         } elseif ($locale === 'ru') {
@@ -342,10 +317,10 @@ it('writes uz in Latin script with the ASCII apostrophe and addresses the learne
 });
 
 it('tells the informal address by its forms: «sen» in uz, «ты» in ru', function (): void {
-    expect(ppk_uz_informal("Senga keyinroq qo'ng'iroq qilaman"))->toBe(['Senga'])
-        ->and(ppk_uz_informal('Kechirasan, Xatimni oldingmi? Menga xat yubora olasanmi? Nima qilyapsan?'))->toBe(['Kechirasan', 'oldingmi', 'olasanmi', 'qilyapsan'])
-        ->and(ppk_uz_informal("Kechirasiz, xatimni oldingizmi? Menga xat yubora olasizmi? Siz ko'rgansiz."))->toBe([])
-        ->and(ppk_uz_informal('reading, a wedding, the building'))->toBe([])
+    expect(uz_informal_forms("Senga keyinroq qo'ng'iroq qilaman"))->toBe(['Senga'])
+        ->and(uz_informal_forms('Kechirasan, Xatimni oldingmi? Menga xat yubora olasanmi? Nima qilyapsan?'))->toBe(['Kechirasan', 'oldingmi', 'olasanmi', 'qilyapsan'])
+        ->and(uz_informal_forms("Kechirasiz, xatimni oldingizmi? Menga xat yubora olasizmi? Siz ko'rgansiz."))->toBe([])
+        ->and(uz_informal_forms('reading, a wedding, the building'))->toBe([])
         ->and(ppk_ru_informal('Ты получил моё письмо? Можешь прислать? Давай встретимся. Лишь бы успеть.'))->toBe(['ты', 'можешь', 'давай'])
         ->and(ppk_ru_informal('Вы получили моё письмо? Можете прислать? Давайте встретимся.'))->toBe([]);
 });

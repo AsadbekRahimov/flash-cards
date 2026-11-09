@@ -3323,3 +3323,4 @@
 | `finished.title_empty` | Hozircha shu | Пока всё |
 | `finished.title_ok` | Yaxshi harakat! | Хорошая работа! |
 | `league.alone` | Guruhda hozircha faqat siz. Raqiblar qo'shilgach, o'rinlar ko'rinadi. | В группе пока только вы. Места появятся, когда присоединятся соперники. |
+| `onboarding.done.text` | Tayyor! Kursingiz: :course (:words ta so'z). Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi. | Готово! Ваш курс: :course (:words слово / слова / слов). Нажмите кнопку — первая тренировка займёт пару минут. |

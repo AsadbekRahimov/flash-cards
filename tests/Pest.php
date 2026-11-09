@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Support\EnglishLexicon;
 use Tests\TestCase;
 
 // Fixed before any test file is loaded, so top-level date code does not depend on the host's TZ.
@@ -32,4 +33,29 @@ function ksorted(array $array): array
     }
 
     return $array;
+}
+
+/**
+ * The forms of the informal «sen» in an uz text that their shape gives away: the pronoun and the verbs of the 2nd person singular
+ * (-san, -yapsan, -gansan, -ding, -sang, -gin). The English words an explanation quotes (`building`, `reading`) are not Uzbek. The
+ * bare imperative (`qil`, `yubor`) and the possessive in -ng (`otang`) look like other words: the packs were read for them by hand.
+ *
+ * @return list<string>
+ */
+function uz_informal_forms(string $text): array
+{
+    preg_match_all("/[a-z][a-z']*/i", $text, $matches);
+    $found = [];
+    foreach ($matches[0] as $word) {
+        $lower = strtolower(rtrim($word, "'"));
+        if (EnglishLexicon::isWord($lower)) {
+            continue;
+        }
+        if (preg_match('/\\A(?:sen|seni|senga|senda|sendan|sening|senlar)\\z/', $lower) === 1
+            || preg_match('/(?:[ay]san|yapsan|gansan|ding|sang)(?:mi|u|chi|ku)?\\z|gin\\z/', $lower) === 1) {
+            $found[] = $word;
+        }
+    }
+
+    return $found;
 }

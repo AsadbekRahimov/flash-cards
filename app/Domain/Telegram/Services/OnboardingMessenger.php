@@ -62,7 +62,10 @@ final class OnboardingMessenger
                 chatId: $chatId,
                 text: $course === null
                     ? __('onboarding.done.text_plain', [], $locale)
-                    : __('onboarding.done.text', ['course' => $this->courseTitle($course, $locale)], $locale),
+                    : trans_choice('onboarding.done.text', $course->words_count, [
+                        'course' => $this->courseTitle($course, $locale),
+                        'words' => $course->words_count,
+                    ], $locale),
                 buttonText: __('onboarding.done.button', [], $locale),
                 url: rtrim((string) config('twa.base_url'), '/').'/twa/?from=onboarding',
             );

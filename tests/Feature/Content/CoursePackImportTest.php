@@ -121,6 +121,19 @@ it('gives every word a ru and uz translation, an example with both translations 
     }
 });
 
+it('writes the uz examples on «Siz», never on «sen» (the word translations are not checked: `you` is «siz, sen»)', function (): void {
+    $offences = [];
+    foreach (cpi_lesson_files() as $file) {
+        foreach (cpi_read($file)['words'] as $w) {
+            foreach (uz_informal_forms($w['example_translations']['uz']) as $form) {
+                $offences[] = basename($file, '.json').' / '.$w['word'].': «'.$w['example_translations']['uz'].'» has «'.$form.'»';
+            }
+        }
+    }
+
+    expect($offences)->toBe([]);
+});
+
 it('imports the whole pack: modules, lessons, words and both translations of every word', function (): void {
     cpi_import();
 

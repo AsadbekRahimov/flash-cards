@@ -46,7 +46,8 @@ return [
     ],
 
     'done' => [
-        'text' => "Tayyor! Kursingiz: :course. Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.",
+        // Uzbek does not inflect nouns after numerals: a single form for any count.
+        'text' => "Tayyor! Kursingiz: :course (:words ta so'z). Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.",
         'text_plain' => "Tayyor! Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.",
         'button' => "🎯 Birinchi mashg'ulotni boshlash",
     ],
