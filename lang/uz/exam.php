@@ -8,7 +8,7 @@ return [
     'open_button' => '🏁 Imtihonni ochish',
 
     'leaderboard' => [
-        'title' => "🏁 <b>Imtihon natijalari</b>\nDars :lesson",
+        'title' => "🏁 <b>Imtihon natijalari</b>\n:lesson-dars",
         'nobody' => 'Hech kim javob bermadi 😅',
     ],
 

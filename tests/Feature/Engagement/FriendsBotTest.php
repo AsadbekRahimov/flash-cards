@@ -108,7 +108,7 @@ it('sends the request on agreement: opener -> inviter, the inviter is DMed with 
         ->and($this->tg->edits[0]['message_id'])->toBe(55);
     $toInviter = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9001));
     expect($toInviter)->toHaveCount(1)
-        ->and($toInviter[0]['text'])->toBe("Ali sizni LexiFlow'da do'st sifatida qo'shmoqchi.")
+        ->and($toInviter[0]['text'])->toBe("Ali sizni LexiFlow'da do'stlariga qo'shmoqchi.")
         ->and($toInviter[0]['markup']['inline_keyboard'][0][0]['callback_data'])->toBe("fr1:acc:{$row->id}")
         ->and(end($this->tg->sent)['text'])->toContain('Запрос отправлен');
 
@@ -430,7 +430,7 @@ it('sends each side its own result, once, in its own language', function (): voi
         ->and($this->tg->sent[0]['chat_id'])->toBe(9201)
         ->and($this->tg->sent[0]['text'])->toBe('Вызов с Bek завершён: вы победили! Счёт 40 : 25.')
         ->and($this->tg->sent[1]['chat_id'])->toBe(9202)
-        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Qayta bellashuv — ilovada!");
+        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Ilovada yana kuch sinashing!");
 });
 
 it('sends nothing to a learner whose DM is closed or who is blocked', function (): void {

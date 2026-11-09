@@ -166,10 +166,10 @@ it('writes the confirmation in the learner\'s language', function (): void {
     orgbOnboarded(8003, 'uz');
 
     orgbSend(8003, '/start org_'.$invite->code);
-    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?");
+    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni LexiFlow'ga taklif qilyapti. Markazdan Pro olish uchun qo'shilasizmi?");
 
     orgbTap(8003, 'org1:join:'.$invite->code);
-    expect(end($this->tg->sent)['text'])->toBe("Siz «Bright Center» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning.");
+    expect(end($this->tg->sent)['text'])->toBe("Siz «Bright Center» markazidasiz. Pro yoqildi, endi cheklovsiz shug'ullaning.");
 });
 
 // --- a learner who has finished the onboarding -------------------------------
@@ -313,7 +313,7 @@ it('explains a refused code to a learner who has finished the onboarding, in the
     orgbSend(8011, '/start org_'.$invite->code);
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe("Markaz havolasining amal qilish muddati tugagan. Administratordan yangisini so'rang.");
+        ->and($this->tg->sent[0]['text'])->toBe("Markaz havolasining muddati tugagan. Administratordan yangisini so'rang.");
 });
 
 it('refuses at the tap when the code was used up after the offer', function (): void {

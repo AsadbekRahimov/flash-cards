@@ -271,7 +271,7 @@ it('/paysupport says refunds go only through support, each request individually'
 
 it('/paysupport follows the learner\'s locale, or the Telegram language of a stranger', function (): void {
     app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport', lang: 'uz'));
-    expect($this->sent[0]['text'])->toContain("LexiFlow to'lovlar bo'yicha yordam.")
+    expect($this->sent[0]['text'])->toContain("LexiFlow: to'lovlar bo'yicha yordam.")
         ->and($this->sent[0]['text'])->toContain('https://lexiflow.test/uz/offer');
 
     Learner::factory()->create(['telegram_user_id' => 555, 'interface_locale' => 'ru']);

@@ -13,9 +13,9 @@ return [
     ],
 
     'result' => [
-        'promoted' => "🏆 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:next_tier» ligasiga o'tdingiz! Tabriklaymiz!",
-        'stayed' => "🏅 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:tier» ligasida qolasiz. Bu hafta — yuqoriroq!",
-        'demoted' => "📉 «:tier» ligasida hafta yakuni: :rank-o'rin, :points ochko — bu hafta siz «:next_tier» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga qaytaradi.",
+        'promoted' => "🏆 «:tier» ligasida hafta yakunlandi: :points ball bilan :rank-o'rinni egalladingiz va «:next_tier» ligasiga chiqdingiz! Tabriklaymiz!",
+        'stayed' => "🏅 «:tier» ligasida hafta yakunlandi: :points ball bilan :rank-o'rinni egalladingiz va «:tier» ligasida qolasiz. Bu hafta yanada yuqoriga!",
+        'demoted' => "📉 «:tier» ligasida hafta yakunlandi: :rank-o'rin, :points ball. Bu hafta «:next_tier» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga olib chiqadi.",
     ],
 
     'open_button' => 'Ligani ochish',

@@ -9,18 +9,18 @@ return [
     ],
 
     'help' => [
-        'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Kartochkalardan talaffuzni eshitasiz, bot esa takrorlashni eslatadi.\n\n".
+        'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Har bir kartochkada talaffuz bor, bot esa takrorlash vaqtini eslatib turadi.\n\n".
             "Qanday shug'ullanish kerak:\n".
-            "• Bugungi mashg'ulot uchun xabar yozish joyining yonidagi «LexiFlow» tugmasini bosing yoki /today yuboring.\n".
+            "• Bugungi mashg'ulot uchun /today yuboring yoki xabar maydoni yonidagi «LexiFlow» tugmasini bosing.\n".
             "• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
-            "• /invite — do'stingizni taklif qiling va birgalikda Pro oling\n".
+            "• /invite — do'stingizni taklif qiling va birga Pro oling\n".
             "• /pro — Pro obuna, /promo KOD — promokod\n".
             "• /paysupport — to'lov bo'yicha savollar\n".
             "• /delete_account — akkauntni o'chirish\n\n".
             "O'qituvchilar uchun:\n".
             "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
             "• /start_training — guruh mashg'ulotini boshlash\n".
-            "• /start_exam — imtihonni boshlash, /close_exam — yakunlash\n".
+            "• /start_exam — imtihonni boshlash, /close_exam — imtihonni yakunlash\n".
             ':caravan'.
             '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
         'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
@@ -29,7 +29,7 @@ return [
             "/close_exam — imtihonni yakunlash\n".
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
-            "/help — buyruqlar ro'yxatini ko'rish",
+            "/help — buyruqlar ro'yxati",
         // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
@@ -47,36 +47,36 @@ return [
     ],
 
     'account' => [
-        'restored' => "Xush kelibsiz! Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
-        'restored_pro' => "Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
+        'restored' => "Yana xush kelibsiz! Akkauntingiz tiklandi: so'zlaringiz va natijalaringiz joyida.",
+        'restored_pro' => "Akkauntni o'chirganingizda Pro avtoyangilashi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
     ],
 
     'delete_account' => [
         'settings_button' => "Akkauntni o'chirish",
-        'confirm' => "LexiFlow akkauntini o'chirasizmi?\n\nMa'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi.",
+        'confirm' => "LexiFlow akkauntini o'chirasizmi?\n\nMa'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Shu muddat ichida qaytishingiz mumkin: botga /start yuborsangiz kifoya. To'lovlar tarixi qonunga ko'ra saqlanadi, Pro obunasi to'xtatiladi.",
         'yes_button' => "Ha, o'chirish",
         'no_button' => 'Bekor qilish',
         'canceled' => "Mayli, akkaunt o'chirilmadi.",
-        'done' => "Akkaunt o'chirildi. Ma'lumotlar :days kundan keyin butunlay o'chiriladi. Fikringiz o'zgarsa — /start yuboring, akkaunt qaytadi.",
+        'done' => "Akkaunt o'chirildi. Ma'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Fikringiz o'zgarsa, /start yuboring va akkaunt tiklanadi.",
         'none' => "Akkaunt yo'q yoki allaqachon o'chirilgan. Qaytish uchun /start yuboring.",
         'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
         'use_private' => "Akkaunt faqat shaxsiy chatda o'chiriladi. Bot bilan chatni oching va /delete_account yuboring.",
     ],
 
     'promo' => [
-        'usage' => 'Promokodni quyidagicha yuboring: /promo KOD',
-        'use_private' => "Promokodni guruhda ko'rsatmaslik yaxshi. Bot bilan shaxsiy chatni oching va /promo KOD yuboring.",
+        'usage' => 'Promokodni shunday yuboring: /promo KOD',
+        'use_private' => "Promokodni guruhda yozmagan ma'qul. Bot bilan shaxsiy chatni oching va /promo KOD yuboring.",
         'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
         'rate_limited' => "Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring.",
         'success_until' => 'Tayyor! LexiFlow Pro :date gacha faol.',
         'success_forever' => 'Tayyor! LexiFlow Pro muddatsiz faol.',
         'errors' => [
-            'promo_not_found' => 'Promokod topilmadi. Xato yozilmaganini tekshiring.',
-            'promo_expired' => 'Promokodning amal qilish muddati tugagan.',
+            'promo_not_found' => "Promokod topilmadi. To'g'ri yozilganini tekshiring.",
+            'promo_expired' => 'Promokod muddati tugagan.',
             'promo_exhausted' => 'Bu promokoddan foydalanish limiti tugagan.',
             'promo_already_redeemed' => 'Siz bu promokodni allaqachon faollashtirgansiz.',
             'promo_not_applicable' => 'Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.',
-            'plan_unknown' => "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
+            'plan_unknown' => "Bu promokod hozir ishlamaydi. Qo'llab-quvvatlash xizmatiga yozing.",
         ],
     ],
 

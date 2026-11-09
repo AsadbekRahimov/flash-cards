@@ -473,7 +473,7 @@ it('tells the learner in their language when /settings refuses a second time-zon
         ->and(onbLearner(7094)->timezone)->toBe('Europe/Moscow');
 })->with([
     'ru' => ['ru', 'Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после 20.10 13:00 (по вашему текущему времени).'],
-    'uz' => ['uz', "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — 20.10 13:00 dan keyin (joriy vaqtingiz bo'yicha)."],
+    'uz' => ['uz', "Vaqt mintaqasini kuniga faqat bir marta o'zgartirish mumkin. Keyingi safar 20.10 13:00 dan keyin mumkin (hozirgi vaqtingiz bo'yicha)."],
 ]);
 
 it('recomputes next_reminder_at through the /settings buttons', function (): void {
@@ -729,8 +729,8 @@ it('answers /today for a learner, in their language, also when nothing is due', 
     onbSend(7042, '/today');
     onbSend(7043, '/today@LexiFlowBot');
 
-    expect($this->tg->sent[0]['text'])->toBe("Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.")
-        ->and($this->tg->sent[1]['text'])->toBe("Bugun takrorlash uchun: 5 ta so'z.")
+    expect($this->tg->sent[0]['text'])->toBe("Bugun takrorlash uchun so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.")
+        ->and($this->tg->sent[1]['text'])->toBe("Bugun 5 ta so'zni takrorlash kerak.")
         ->and($this->tg->sent[1]['button'])->toBe("LexiFlow'ni ochish");
 });
 

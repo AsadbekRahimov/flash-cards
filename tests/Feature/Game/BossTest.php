@@ -474,7 +474,7 @@ it('speaks Uzbek on the card and names the city as it is', function (): void {
 
     expect(app(GameCardSender::class)->sendBossCard($learner->id, $stage->id))->toBe('sent');
 
-    expect($tg->photos[0]['caption'])->toContain('Men yetib keldim: Toshkent')
+    expect($tg->photos[0]['caption'])->toContain('Toshkentga yetib keldim')
         ->and($tg->photos[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('Ulashish')
         ->and(basename($tg->photos[0]['path']))->toStartWith('boss_1-uz-');
 });

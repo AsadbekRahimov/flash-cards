@@ -68,7 +68,7 @@ it('answers in the language of the learner', function (): void {
     $items = collect(twAch($learner)->assertOk()->json('items'))->keyBy('key');
 
     expect($items['words_100']['title'])->toBe("100 ta so'z")
-        ->and($items['streak_7']['description'])->toBe('Bir hafta tanaffussiz mashq');
+        ->and($items['streak_7']['description'])->toBe('Bir hafta kun qoldirmay');
 });
 
 it('has no share link while the bot username is not configured', function (): void {

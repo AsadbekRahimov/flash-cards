@@ -17,7 +17,7 @@ return [
     'challenge' => [
         'title' => 'Ikki bosqichli tekshiruv',
         'heading' => 'Kodni kiriting',
-        'intro' => 'Autentifikator ilovasini oching va 6 xonali kodni kiriting. Yoki tiklash kodidan foydalaning.',
+        'intro' => 'Autentifikator ilovasini oching va 6 xonali kodni kiriting yoki tiklash kodidan foydalaning.',
         'code_label' => 'Kod',
     ],
 
@@ -25,7 +25,7 @@ return [
         'title' => 'Tiklash kodlari',
         'heading' => "Tiklash kodlarini saqlab qo'ying",
         // `:emphasis` is replaced in the view by an escaped, <strong>-wrapped `intro_emphasis`.
-        'intro' => "Har bir kod :emphasis amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parollar menejerida saqlang.",
+        'intro' => "Har bir kod :emphasis amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parol menejerida saqlang.",
         'intro_emphasis' => 'faqat bir marta',
         'to_admin' => "→ Admin panelga o'tish",
         'to_org' => "→ Markaz kabinetiga o'tish",

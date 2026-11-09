@@ -271,7 +271,7 @@ it('shows the order status on the return page in the requested or the order lang
     // Otherwise the order's learner locale.
     $this->get('/billing/return?order='.$paid->token)->assertOk()->assertSee('<html lang="uz">', false)->assertSee("To'lov qabul qilindi");
     $this->get('/billing/return?order='.$pending->token)->assertOk()->assertSee('Ждём подтверждение оплаты')->assertSee('data-status="pending"', false);
-    $this->get('/billing/return?order='.$expired->token.'&lang=uz')->assertOk()->assertSee("Hisob muddati o'tdi");
+    $this->get('/billing/return?order='.$expired->token.'&lang=uz')->assertOk()->assertSee("To'lov hisobi muddati o'tdi");
     $this->get('/billing/return?order='.$canceled->token.'&lang=ru')->assertOk()->assertSee('Счёт отменён');
     $this->get('/billing/return?order='.$failed->token.'&lang=ru')->assertOk()->assertSee('data-status="unknown"', false);
 

@@ -167,7 +167,7 @@ it('speaks the learner\'s interface language', function (): void {
     $streak = rmLearner(['telegram_user_id' => 777004, 'interface_locale' => 'uz']);
     rmStreakAtRisk($streak, 7);
     rmSend($streak);
-    expect($this->tg->sent[1]['text'])->toBe("Ketma-ket 7 kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.");
+    expect($this->tg->sent[1]['text'])->toBe("7 kun ketma-ket shug'ullandingiz! Bugungi maqsadni bajaring, shunda ketma-ket kunlar uzilmaydi.");
 });
 
 it('reminds a learner who never finished the onboarding — the DM decides, not the state', function (): void {

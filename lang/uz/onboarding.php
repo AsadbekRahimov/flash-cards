@@ -10,8 +10,8 @@ return [
     'steps' => [
         'locale' => 'Interfeys tilini tanlang',
         'goal' => "Ingliz tilini nima uchun o'rganmoqchisiz?",
-        'level' => "Darajangiz qanday? O'zingizni baholang — keyinroq o'zgartirish mumkin.",
-        'timezone' => "Qaysi vaqt mintaqasida yashaysiz? Eslatmalar o'z vaqtida kelishi uchun.",
+        'level' => "Darajangiz qanday? Taxminan tanlang, keyin o'zgartirish mumkin.",
+        'timezone' => "Qaysi vaqt mintaqasidasiz? Shunda eslatmalar o'z vaqtida keladi.",
         'reminder' => "So'zlarni takrorlashni qachon eslatib turay?",
     ],
 
@@ -32,7 +32,7 @@ return [
         // City names; `:offset` is filled in from the current UTC offset of the zone.
         'timezone' => [
             'tashkent' => 'Toshkent (:offset)',
-            'almaty' => 'Almati (:offset)',
+            'almaty' => 'Olmaota (:offset)',
             'bishkek' => 'Bishkek (:offset)',
             'dushanbe' => 'Dushanbe (:offset)',
             'ashgabat' => 'Ashxobod (:offset)',
@@ -46,36 +46,36 @@ return [
     ],
 
     'done' => [
-        'text' => "Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.",
-        'text_plain' => "Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.",
+        'text' => "Tayyor! Kursingiz: :course. Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.",
+        'text_plain' => "Tayyor! Tugmani bosing, birinchi mashg'ulot bir-ikki daqiqa oladi.",
         'button' => "🎯 Birinchi mashg'ulotni boshlash",
     ],
 
     // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.
     'course_link' => [
-        'text' => "«:course» kursi LexiFlow'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi.",
+        'text' => "LexiFlow'da «:course» kursi bor. Uni pastdagi tugma orqali oching. Hozirgi kursingiz faqat o'zingiz tanlasangiz almashadi.",
         'button' => 'Kursni ochish',
     ],
 
     // Minimal "Today" in the bot; the full screen is in the app.
     'today' => [
         // Uzbek does not inflect nouns after numerals: a single form for any count.
-        'due' => "Bugun takrorlash uchun: :count ta so'z.",
-        'empty' => "Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.",
+        'due' => "Bugun :count ta so'zni takrorlash kerak.",
+        'empty' => "Bugun takrorlash uchun so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.",
         'button' => "LexiFlow'ni ochish",
     ],
 
     'menu' => [
-        'text' => "Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/promo KOD — Pro uchun promokod\n/help — yordam",
+        'text' => "Endi nima qilamiz?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/promo KOD — Pro uchun promokod\n/help — yordam",
     ],
 
     'settings' => [
         'menu' => "Nimani o'zgartirmoqchisiz?",
         'saved' => 'Saqlandi.',
-        'timezone_too_soon' => "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha).",
+        'timezone_too_soon' => "Vaqt mintaqasini kuniga faqat bir marta o'zgartirish mumkin. Keyingi safar :when dan keyin mumkin (hozirgi vaqtingiz bo'yicha).",
         'timezone_undo' => 'Bekor qilish',
-        'timezone_reverted' => 'Vaqt mintaqasi qaytarildi.',
-        'timezone_revert_unavailable' => "Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan.",
+        'timezone_reverted' => 'Avvalgi vaqt mintaqasi qaytarildi.',
+        'timezone_revert_unavailable' => "Endi bekor qilib bo'lmaydi: 10 daqiqadan ko'p vaqt o'tdi yoki o'zgarish allaqachon bekor qilingan.",
         'buttons' => [
             'locale' => 'Til',
             'goal' => 'Maqsad',

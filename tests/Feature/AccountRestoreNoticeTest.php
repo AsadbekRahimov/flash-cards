@@ -179,13 +179,13 @@ it('/start tells about the return once, in the learner language', function (stri
     $count = count($this->tg->sent);
     restoreStart(881_010, $lang);
 
-    expect($first[0])->toContain($needle)->not->toContain('Автопродление')->not->toContain('avtomatik uzaytirilishi')
+    expect($first[0])->toContain($needle)->not->toContain('Автопродление')->not->toContain('Pro avtoyangilashi')
         ->and(collect($this->tg->sent)->slice($count)->pluck('text')->implode("\n"))->not->toContain($needle)
         ->and(Learner::query()->findOrFail($learner->id)->meta)->not->toHaveKey('restored_notice_at')
         ->and(restoredNotices())->toBe(1);
 })->with([
     'ru' => ['ru', 'Аккаунт восстановлен'],
-    'uz' => ['uz', 'Hisobingiz tiklandi'],
+    'uz' => ['uz', 'Akkauntingiz tiklandi'],
 ]);
 
 it('/start adds the auto-renewal line only when it can be switched on again', function (): void {

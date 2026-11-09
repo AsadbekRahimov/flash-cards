@@ -87,7 +87,7 @@ it('refuses an expired order (even before the scheduler flips its status) on the
 
     expect($verdict->ok)->toBeFalse()
         ->and($verdict->reason)->toBe('order_expired')
-        ->and($verdict->errorMessage)->toBe('Hisob muddati tugagan. /pro ni oching va yangisini yarating.');
+        ->and($verdict->errorMessage)->toBe("To'lov hisobining muddati tugagan. /pro ni oching va yangisini yarating.");
 });
 
 it('refuses a paid, canceled or failed order', function (string $status): void {
@@ -179,7 +179,7 @@ it('answers ok=false with the localized reason for a foreign payer or a wrong am
         ->and($this->telegram->preCheckoutAnswers[0]['ok'])->toBeFalse()
         ->and($this->telegram->preCheckoutAnswers[0]['error_message'])->toBe('Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой.')
         ->and($this->telegram->preCheckoutAnswers[1]['ok'])->toBeFalse()
-        ->and($this->telegram->preCheckoutAnswers[1]['error_message'])->toBe('Hisob summasi buyurtma bilan mos kelmaydi. /pro ni oching va yangisini yarating.');
+        ->and($this->telegram->preCheckoutAnswers[1]['error_message'])->toBe("To'lov summasi buyurtmaga mos kelmaydi. /pro ni oching va yangisini yarating.");
 });
 
 it('still requires both webhook secrets for a pre_checkout_query', function (): void {

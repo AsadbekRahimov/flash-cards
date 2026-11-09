@@ -145,7 +145,7 @@ it('answers /help in the group language', function (?string $locale, string $nee
     expect($this->api->log)->toHaveCount(1)
         ->and($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz group' => ['uz', "O'qituvchi buyruqlari"],
+    'uz group' => ['uz', 'LexiFlow guruh buyruqlari'],
     'ru group' => ['ru', 'Команды учителя'],
     'no locale -> default' => [null, 'Команды учителя'],
     'unsupported locale -> default' => ['de', 'Команды учителя'],
@@ -196,8 +196,8 @@ it('translates errors for non-teachers and unknown accounts in a uz group', func
     locDispatch(['chat' => ['id' => -5005, 'type' => 'supergroup'], 'from' => ['id' => 99999], 'text' => '/start_exam']);
     locDispatch(['chat' => ['id' => -5005, 'type' => 'supergroup'], 'from' => ['id' => 99999], 'text' => '/close_exam']);
 
-    expect($this->api->log[0]['text'])->toBe("Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan.")
-        ->and($this->api->log[1]['text'])->toBe("Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan.");
+    expect($this->api->log[0]['text'])->toBe("Telegram akkauntingiz o'qituvchi profiliga ulanmagan.")
+        ->and($this->api->log[1]['text'])->toBe("Telegram akkauntingiz o'qituvchi profiliga ulanmagan.");
 });
 
 it('translates exam domain errors', function (): void {
@@ -208,7 +208,7 @@ it('translates exam domain errors', function (): void {
     locDispatch(['chat' => ['id' => -5006, 'type' => 'supergroup'], 'from' => ['id' => 704], 'text' => '/start_exam 9 9 5']);
     locDispatch(['chat' => ['id' => -5006, 'type' => 'supergroup'], 'from' => ['id' => 704], 'text' => '/close_exam']);
 
-    expect($this->api->log[0]['text'])->toBe("Ko'rsatilgan modul topilmadi.")
+    expect($this->api->log[0]['text'])->toBe('Bunday modul topilmadi.')
         ->and($this->api->log[1]['text'])->toBe("Hozir guruhda ochiq imtihon yo'q.");
 });
 
@@ -230,8 +230,8 @@ it('answers private /help by the sender language code', function (?string $langu
 
     expect($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz' => ['uz', "Telegramda inglizcha so'zlar"],
-    'uz-UZ' => ['uz-UZ', "Telegramda inglizcha so'zlar"],
+    'uz' => ['uz', "inglizcha so'zlarni Telegramda"],
+    'uz-UZ' => ['uz-UZ', "inglizcha so'zlarni Telegramda"],
     'ru' => ['ru', 'английские слова в Telegram'],
     'en -> default' => ['en', 'английские слова в Telegram'],
     'missing -> default' => [null, 'английские слова в Telegram'],
@@ -261,7 +261,7 @@ it('names LexiFlow without the word "Bot" in the group /help', function (string 
     expect(explode("\n", $this->api->log[0]['text'])[0])->toBe($firstLine);
 })->with([
     'ru' => ['ru', 'LexiFlow в группе.'],
-    'uz' => ['uz', 'LexiFlow guruhda.'],
+    'uz' => ['uz', 'LexiFlow guruh buyruqlari'],
 ]);
 
 it('greets a linked teacher in the default language regardless of Telegram language', function (): void {
@@ -288,7 +288,7 @@ it('reports /stats to a teacher in the default language and to unlinked users in
     locDispatch(['chat' => ['id' => 46, 'type' => 'private'], 'from' => ['id' => 46, 'language_code' => 'uz'], 'text' => '/stats']);
 
     expect($this->api->log[0]['text'])->toContain('У вас пока нет привязанных групп')
-        ->and($this->api->log[1]['text'])->toContain("o'qituvchisiga biriktirilmagan")->toContain('46');
+        ->and($this->api->log[1]['text'])->toContain("o'qituvchi profiliga ulanmagan")->toContain('46');
 });
 
 it('renders the teacher stats report from lang files', function (): void {
@@ -301,7 +301,7 @@ it('renders the teacher stats report from lang files', function (): void {
 
     expect($ru->build($teacher))->toContain('Статистика LexiFlow за 7 дней')->toContain('Групп: 1')
         ->and($ru->build($teacher, 'uz'))->toContain("LexiFlow statistikasi (so'nggi 7 kun)")->toContain('Guruhlar: 1')
-        ->toContain('Imtihonlardagi aniqlik: 0%');
+        ->toContain("Imtihonlardagi to'g'ri javoblar: 0%");
 });
 
 // --- review reminders (learner language) -----------------------------------

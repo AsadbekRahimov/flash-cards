@@ -223,7 +223,7 @@ it('picks the correct ru plural form for the Today screen in the bot', function 
 ]);
 
 it('does not inflect the noun on the Today screen in uz', function (int $count): void {
-    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'uz'))->toBe("Bugun takrorlash uchun: {$count} ta so'z.");
+    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'uz'))->toBe("Bugun {$count} ta so'zni takrorlash kerak.");
 })->with([1, 2, 5, 21]);
 
 it('has a caption in ru and uz for every onboarding step, option and settings button', function (): void {

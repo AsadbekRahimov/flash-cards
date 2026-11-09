@@ -86,7 +86,7 @@ it('words stayed and demoted results, in Uzbek too', function (): void {
     lrSend(lrMember($demoted, 3, 'demoted', rank: 28, points: 3));
 
     expect($this->tg->sent[0]['text'])->toBe('🏅 Итоги недели в лиге «Бронза»: вы заняли 7-е место с 40 очками и остаётесь в лиге «Бронза». На этой неделе — выше!')
-        ->and($this->tg->sent[1]['text'])->toBe("📉 «Platina» ligasida hafta yakuni: 28-o'rin, 3 ochko — bu hafta siz «Oltin» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga qaytaradi.")
+        ->and($this->tg->sent[1]['text'])->toBe("📉 «Platina» ligasida hafta yakunlandi: 28-o'rin, 3 ball. Bu hafta «Oltin» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga olib chiqadi.")
         ->and($this->tg->sent[1]['button'])->toBe('Ligani ochish');
 });
 

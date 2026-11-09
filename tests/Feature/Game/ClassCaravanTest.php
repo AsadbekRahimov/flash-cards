@@ -729,7 +729,7 @@ it('speaks the language of the group, says so when nobody ran, and tells a beate
     classRunJob($stood->id);
 
     expect($telegram->sent)->toHaveCount(3)
-        ->and($telegram->sent[0]['text'])->toBe("🏁 «Guruh» sinf karvoni haftani yakunladi!\n\n⭐ Yig'ilgan yulduzlar: <b>0</b> / 12\n🐪 Yurishlar: <b>0</b>\n👹 Sinf bossigacha yetib bormadik — hafta maqsadi olinmadi.\n\nBu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz!")
+        ->and($telegram->sent[0]['text'])->toBe("🏁 «Guruh» sinf karvoni haftani yakunladi!\n\n⭐ Yig'ilgan yulduzlar: <b>0</b> / 12\n🐪 Yurishlar: <b>0</b>\n👹 Sinf qo'riqchisigacha yetib bormadik: hafta maqsadi bajarilmadi.\n\nBu hafta hech kim yo'lga chiqmadi. Yana urinib ko'ramiz!")
         ->and($telegram->sent[1]['text'])->toContain('👹 Босс класса побеждён!')->and($telegram->sent[1]['text'])->toContain('<b>14</b> из 12')
         ->and($telegram->sent[2]['text'])->toContain('👹 Босс класса устоял');
 });

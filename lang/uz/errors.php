@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 return [
 
-    'teacher_not_linked' => "Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan.",
-    'teacher_not_linked_ask_admin' => "Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. Administratordan sizni qo'shishini so'rang.",
+    'teacher_not_linked' => "Telegram akkauntingiz o'qituvchi profiliga ulanmagan.",
+    'teacher_not_linked_ask_admin' => "Telegram akkauntingiz o'qituvchi profiliga ulanmagan. Administratordan sizni qo'shishini so'rang.",
 
     'group_inactive' => "Guruh faollashtirilmagan. Administratordan uni /admin orqali faollashtirishini so'rang.",
-    'stage_not_found' => "Ko'rsatilgan modul topilmadi.",
+    'stage_not_found' => 'Bunday modul topilmadi.',
     'lesson_not_found' => 'Dars topilmadi.',
 
     'training' => [
