@@ -3,7 +3,7 @@
   "stage": {
     "number": 13,
     "title": "Чувства и характер",
-    "title_uz": "His-tuyg'ular va xarakter"
+    "title_uz": "His-tuyg'ular va fe'l-atvor"
   },
   "lesson": {
     "number": 1,
@@ -50,7 +50,7 @@
       "example": "I am nervous before every exam.",
       "example_translations": {
         "ru": "Я нервничаю перед каждым экзаменом.",
-        "uz": "Imtihon oldidan doim bezovta bo'laman."
+        "uz": "Har imtihon oldidan asabiylashaman."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "The kids are excited about the trip.",
       "example_translations": {
         "ru": "Дети взволнованы поездкой.",
-        "uz": "Bolalar safarga borishni intizorlik bilan kutishyapti."
+        "uz": "Bolalar safarni intiqib kutishyapti."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "She is worried about her brother.",
       "example_translations": {
         "ru": "Она беспокоится о своём брате.",
-        "uz": "U akasidan xavotir olyapti."
+        "uz": "U akasi uchun xavotirda."
       }
     },
     {
@@ -87,7 +87,7 @@
       "translation": "гордый",
       "translations": {
         "ru": "гордый",
-        "uz": "faxrlanadigan"
+        "uz": "faxrlangan, g'ururli"
       },
       "example": "We are proud of our team.",
       "example_translations": {
@@ -134,7 +134,7 @@
       "example": "Stay calm and breathe slowly.",
       "example_translations": {
         "ru": "Сохраняй спокойствие и дыши медленно.",
-        "uz": "Xotirjam bo'l va sekin nafas ol."
+        "uz": "Xotirjam bo'ling, sekin nafas oling."
       }
     },
     {

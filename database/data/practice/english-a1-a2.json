@@ -47,7 +47,7 @@
       "display": "I work from Monday to Friday.",
       "explanation": {
         "ru": "from … to … — «с … по …». Срок можно поставить и в начало: From Monday to Friday I work.",
-        "uz": "From … to … vaqt oralig'ini bildiradi: from Monday to Friday — dushanbadan jumagacha."
+        "uz": "From … to … — «…dan …gacha»: from Monday to Friday — dushanbadan jumagacha. Bu qismni boshiga ham qo'yish mumkin: From Monday to Friday I work."
       }
     },
     {
@@ -122,7 +122,7 @@
       "display": "Yesterday was a very long day.",
       "explanation": {
         "ru": "В прошедшем времени is становится was. Прилагательное стоит перед существительным: a long day.",
-        "uz": "A long day — uzoq cho'zilgan kun. Kechagi kun haqida aytilgani uchun was ishlatilgan."
+        "uz": "O'tgan zamonda is o'rniga was keladi: Yesterday was… Sifat otdan oldin turadi: a long day."
       }
     },
     {
@@ -208,7 +208,7 @@
       "display": "We meet every Saturday.",
       "explanation": {
         "ru": "every + день недели — без предлога. Можно и в начале: Every Saturday we meet.",
-        "uz": "every + hafta kuni — predlogsiz. Boshida ham bo'ladi: Every Saturday we meet."
+        "uz": "every bilan hafta kuni oldidan on qo'yilmaydi: every Saturday. Gap boshida ham kelishi mumkin: Every Saturday we meet."
       }
     },
     {
@@ -252,7 +252,7 @@
       "display": "My birthday is next month.",
       "explanation": {
         "ru": "next month — в следующем месяце, без предлога. Можно и так: Next month is my birthday.",
-        "uz": "Kelasi oy — next month. Bu ibora oldidan in qo'yilmaydi."
+        "uz": "Kelasi oyda — next month, oldidan in qo'yilmaydi. Shunday ham deyish mumkin: Next month is my birthday."
       }
     },
     {
@@ -341,7 +341,7 @@
       "display": "The week starts on Monday.",
       "explanation": {
         "ru": "С днями недели — предлог on: on Monday (можно и в начало: On Monday the week starts). После the week глагол с -s: starts.",
-        "uz": "Hafta kuni oldidan on qo'yiladi: on Monday — dushanba kuni. The week birlikda, shuning uchun starts ishlatilgan."
+        "uz": "Hafta kunlari oldidan on qo'yiladi: on Monday — dushanba kuni (boshida ham bo'ladi: On Monday the week starts). The week birlikda, shuning uchun fe'lga -s qo'shiladi: starts."
       }
     },
     {
@@ -458,7 +458,7 @@
       },
       "explanation": {
         "ru": "С днями недели — on: on Monday, on Friday.",
-        "uz": "Hafta kunlari bilan on: on Monday, on Friday."
+        "uz": "Hafta kunlari bilan on ishlatiladi: on Monday, on Friday."
       }
     },
     {
@@ -487,7 +487,7 @@
       },
       "explanation": {
         "ru": "С частями дня — in: in the morning, in the evening.",
-        "uz": "Ertalab — in the morning, kechqurun — in the evening. Bu ikki iborada in ishlatiladi."
+        "uz": "Kun qismlari bilan in ishlatiladi: in the morning — ertalab, in the evening — kechqurun."
       }
     },
     {
@@ -575,7 +575,7 @@
       },
       "explanation": {
         "ru": "have time — иметь время: I don't have time — у меня нет времени.",
-        "uz": "have time — vaqti bor: I don't have time — vaqtim yo'q."
+        "uz": "have time — vaqti bo'lmoq: I don't have time — vaqtim yo'q."
       }
     },
     {
@@ -633,7 +633,7 @@
       },
       "explanation": {
         "ru": "С годами — in: in 2010.",
-        "uz": "Yillar bilan in: in 2010."
+        "uz": "Yillar bilan in ishlatiladi: in 2010."
       }
     },
     {
@@ -691,7 +691,7 @@
       },
       "explanation": {
         "ru": "С месяцами — in: in May, in June.",
-        "uz": "Oylar bilan in: in May, in June."
+        "uz": "Oylar bilan in ishlatiladi: in May, in June."
       }
     },
     {
@@ -846,7 +846,7 @@
       ],
       "translation": {
         "ru": "Это был долгий день",
-        "uz": "Kun uzoq cho'zildi."
+        "uz": "Kun uzoq cho'zildi"
       }
     },
     {
@@ -998,7 +998,7 @@
       "display": "I have two brothers.",
       "explanation": {
         "ru": "«У меня есть» — I have. После two — множественное число: brothers.",
-        "uz": "«Menda bor» — I have. Two dan keyin ko'plik shakli: brothers."
+        "uz": "«Mening … bor» — I have. Two dan keyin ot ko'plikda keladi: brothers."
       }
     },
     {
@@ -1113,7 +1113,7 @@
       "display": "Their son is five years old.",
       "explanation": {
         "ru": "Возраст: be + число + years old.",
-        "uz": "Yosh: be + raqam + years old."
+        "uz": "Yosh shunday aytiladi: be + son + years old — is five years old."
       }
     },
     {
@@ -1152,7 +1152,7 @@
       "display": "My sister and I are friends.",
       "explanation": {
         "ru": "О себе вместе с другим человеком говорят так: my sister and I — себя называют последним.",
-        "uz": "«Opam bilan men» — my sister and I. Inglizchada o'zingizni ikkinchi aytasiz."
+        "uz": "«Opam bilan men» — my sister and I. Inglizchada o'zingizni doim oxirida aytasiz."
       }
     },
     {
@@ -1196,7 +1196,7 @@
       "display": "The baby is sleeping now.",
       "explanation": {
         "ru": "Действие происходит сейчас: is + глагол с -ing (is sleeping). Now можно поставить в конец или в начало.",
-        "uz": "Chaqaloq hozir uxlayotgani uchun is sleeping ishlatilgan. Now vaqtni bildiradi va gap boshida yoki oxirida kelishi mumkin."
+        "uz": "Harakat hozir bo'lyapti: is + -ing (is sleeping). Now gap oxirida yoki boshida kelishi mumkin."
       }
     },
     {
@@ -1405,7 +1405,7 @@
       },
       "explanation": {
         "ru": "look after — присматривать за кем-то.",
-        "uz": "look after — kimgadir qarab turmoq."
+        "uz": "look after — kimgadir qaramoq, qarab turmoq: look after the children — bolalarga qaramoq."
       }
     },
     {
@@ -1492,7 +1492,7 @@
       },
       "explanation": {
         "ru": "be proud of — гордиться кем-то.",
-        "uz": "Be proud of — kim bilandir yoki biror yutuq bilan faxrlanmoq. Inglizchada of ishlatiladi: I'm proud of my daughter."
+        "uz": "Be proud of — kimdir yoki nimadir bilan faxrlanmoq. O'zbekchada «bilan» desak ham, inglizchada with emas, of keladi: proud of my daughter."
       }
     },
     {
@@ -1521,7 +1521,7 @@
       },
       "explanation": {
         "ru": "be good at — хорошо уметь что-то делать.",
-        "uz": "be good at — biror narsani yaxshi uddalamoq."
+        "uz": "be good at — biror ishni yaxshi qila olmoq: good at football. Bu iborada at ishlatiladi."
       }
     },
     {
@@ -1608,7 +1608,7 @@
       },
       "explanation": {
         "ru": "tell stories — рассказывать истории; tell кому-то — без предлога: tells us.",
-        "uz": "tell stories — hikoya aytib bermoq; tell kimgadir — predlogsiz: tells us."
+        "uz": "tell stories — hikoya aytib bermoq. Kimga aytilsa, u tell dan keyin predlogsiz keladi: tells us stories."
       }
     },
     {
@@ -1901,7 +1901,7 @@
       "display": "The meeting starts at ten.",
       "explanation": {
         "ru": "Время по часам — с предлогом at: at ten (можно и в начало: At ten the meeting starts). The meeting — оно (it), поэтому starts.",
-        "uz": "Soatni at bilan ayting: at ten — soat o'nda. The meeting birlikda, shuning uchun fe'l starts shaklida kelgan."
+        "uz": "Soat oldidan at qo'yiladi: at ten — soat o'nda (boshida ham bo'ladi: At ten the meeting starts). The meeting birlikda, shuning uchun starts."
       }
     },
     {
@@ -2169,7 +2169,7 @@
       ],
       "prompt": {
         "ru": "Срок сдачи — в следующую пятницу.",
-        "uz": "Ishni kelasi juma kuni topshirish kerak."
+        "uz": "Topshirish muddati — kelasi juma."
       },
       "fragments": [
         "the",
@@ -2197,7 +2197,7 @@
       "display": "The deadline is next Friday.",
       "explanation": {
         "ru": "next Friday — в следующую пятницу, без предлога. Можно и так: Next Friday is the deadline.",
-        "uz": "Next Friday — kelasi juma. Bu iboradan oldin on qo'yilmaydi."
+        "uz": "Next Friday — kelasi juma; oldidan on qo'yilmaydi. Shunday ham deyish mumkin: Next Friday is the deadline."
       }
     },
     {
@@ -2438,7 +2438,7 @@
       },
       "explanation": {
         "ru": "answer the phone — ответить на звонок, без предлога. Reply и respond говорят о сообщениях: reply to an email.",
-        "uz": "Answer the phone — telefonni ko'tarmoq. Xabarga javob berish haqida reply to ishlatilishi mumkin: reply to an email."
+        "uz": "Answer the phone — telefonni ko'tarmoq, predlogsiz. Reply va respond xabarga javob berish haqida aytiladi: reply to an email."
       }
     },
     {
@@ -2731,7 +2731,7 @@
       ],
       "translation": {
         "ru": "Наша команда много работает",
-        "uz": "Jamoamiz qattiq ishlaydi"
+        "uz": "Jamoamiz astoydil ishlaydi"
       }
     }
   ]

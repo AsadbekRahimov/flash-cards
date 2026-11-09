@@ -78,7 +78,7 @@
       "example": "English is easy for me.",
       "example_translations": {
         "ru": "Английский для меня лёгкий.",
-        "uz": "Ingliz tili men uchun oson."
+        "uz": "Ingliz tili menga oson."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "The bus is slow today.",
       "example_translations": {
         "ru": "Автобус сегодня медленный.",
-        "uz": "Avtobus bugun sekin."
+        "uz": "Bugun avtobus sekin yuryapti."
       }
     },
     {

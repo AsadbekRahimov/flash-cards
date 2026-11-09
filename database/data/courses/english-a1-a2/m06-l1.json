@@ -64,7 +64,7 @@
       "example": "The price is too high.",
       "example_translations": {
         "ru": "Цена слишком высокая.",
-        "uz": "Narx juda baland."
+        "uz": "Narxi juda baland."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "I pay for the tea.",
       "example_translations": {
         "ru": "Я плачу за чай.",
-        "uz": "Men choy uchun to'layman."
+        "uz": "Choyning pulini men to'layman."
       }
     },
     {

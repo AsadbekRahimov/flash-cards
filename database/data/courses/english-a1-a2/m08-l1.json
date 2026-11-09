@@ -22,7 +22,7 @@
       "example": "My hobby is music.",
       "example_translations": {
         "ru": "Моё хобби — музыка.",
-        "uz": "Bo'sh vaqtimda musiqa bilan shug'ullanaman."
+        "uz": "Sevimli mashg'ulotim — musiqa."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Show me your photo.",
       "example_translations": {
         "ru": "Покажи мне своё фото.",
-        "uz": "Menga suratingni ko'rsat."
+        "uz": "Menga suratingizni ko'rsating."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "He plays the guitar well.",
       "example_translations": {
         "ru": "Он хорошо играет на гитаре.",
-        "uz": "U gitarada yaxshi chaladi."
+        "uz": "U gitarani yaxshi chaladi."
       }
     },
     {
@@ -143,7 +143,7 @@
       "translation": "рисовать",
       "translations": {
         "ru": "рисовать",
-        "uz": "chizmoq"
+        "uz": "rasm chizmoq"
       },
       "example": "My daughter likes to draw.",
       "example_translations": {

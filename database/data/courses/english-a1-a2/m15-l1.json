@@ -106,7 +106,7 @@
       "example": "In biology we learn about plants.",
       "example_translations": {
         "ru": "На биологии мы изучаем растения.",
-        "uz": "Biologiyada biz o'simliklar haqida o'rganamiz."
+        "uz": "Biologiya darsida o'simliklarni o'rganamiz."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "искусство, рисование",
       "translations": {
         "ru": "искусство, рисование",
-        "uz": "san'at"
+        "uz": "san'at, tasviriy san'at"
       },
       "example": "We paint pictures in art class.",
       "example_translations": {
         "ru": "На уроке рисования мы рисуем картины.",
-        "uz": "San'at darsida biz rasm chizamiz."
+        "uz": "Tasviriy san'at darsida rasm chizamiz."
       }
     },
     {

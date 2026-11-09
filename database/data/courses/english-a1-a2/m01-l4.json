@@ -22,7 +22,7 @@
       "example": "That man is my uncle.",
       "example_translations": {
         "ru": "Тот мужчина — мой дядя.",
-        "uz": "U erkak mening amakim."
+        "uz": "Anavi erkak — mening amakim."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "The boy plays with a ball.",
       "example_translations": {
         "ru": "Мальчик играет с мячом.",
-        "uz": "O'g'il bola to'p bilan o'ynaydi."
+        "uz": "O'g'il bola to'p o'ynaydi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Do not talk to a stranger.",
       "example_translations": {
         "ru": "Не разговаривай с незнакомцем.",
-        "uz": "Notanish odam bilan gaplashma."
+        "uz": "Notanish odam bilan gaplashmang."
       }
     },
     {

@@ -45,7 +45,7 @@
       "translation": "любить, нравиться",
       "translations": {
         "ru": "любить, нравиться",
-        "uz": "yoqtirmoq"
+        "uz": "yoqtirmoq, yoqmoq"
       },
       "example": "I like this blue shirt.",
       "example_translations": {
@@ -64,7 +64,7 @@
       "example": "I take this one.",
       "example_translations": {
         "ru": "Я беру этот.",
-        "uz": "Men buni olaman."
+        "uz": "Shunisini olaman."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "She wears a green dress.",
       "example_translations": {
         "ru": "Она носит зелёное платье.",
-        "uz": "U yashil libos kiyadi."
+        "uz": "U yashil ko'ylak kiyib yuradi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "What size are your shoes?",
       "example_translations": {
         "ru": "Какой у тебя размер обуви?",
-        "uz": "Poyabzal o'lchamingiz qanday?"
+        "uz": "Poyabzalingiz o'lchami qancha?"
       }
     },
     {

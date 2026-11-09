@@ -36,7 +36,7 @@
       "example": "I want an orange, please.",
       "example_translations": {
         "ru": "Я хочу апельсин, пожалуйста.",
-        "uz": "Men apelsin xohlayman, iltimos."
+        "uz": "Menga bitta apelsin bering, iltimos."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Add a lemon to your tea.",
       "example_translations": {
         "ru": "Добавь лимон в свой чай.",
-        "uz": "Choyingga limon qo'sh."
+        "uz": "Choyingizga limon qo'shing."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Eat more vegetables, my son.",
       "example_translations": {
         "ru": "Ешь больше овощей, сынок.",
-        "uz": "Ko'proq sabzavot ye, o'g'lim."
+        "uz": "O'g'lim, ko'proq sabzavot yeng."
       }
     }
   ]

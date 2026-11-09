@@ -3,7 +3,7 @@
   "stage": {
     "number": 13,
     "title": "Чувства и характер",
-    "title_uz": "His-tuyg'ular va xarakter"
+    "title_uz": "His-tuyg'ular va fe'l-atvor"
   },
   "lesson": {
     "number": 3,
@@ -50,7 +50,7 @@
       "example": "Please forgive me for being late.",
       "example_translations": {
         "ru": "Пожалуйста, прости, что я опоздал.",
-        "uz": "Iltimos, kechikkanim uchun meni kechir."
+        "uz": "Iltimos, kechikkanim uchun meni kechiring."
       }
     },
     {

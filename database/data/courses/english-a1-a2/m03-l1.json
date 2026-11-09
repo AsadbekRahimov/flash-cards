@@ -92,7 +92,7 @@
       "example": "Do you like cheese?",
       "example_translations": {
         "ru": "Ты любишь сыр?",
-        "uz": "Pishloqni yoqtirasanmi?"
+        "uz": "Pishloqni yoqtirasizmi?"
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Put some butter on the bread.",
       "example_translations": {
         "ru": "Намажь немного масла на хлеб.",
-        "uz": "Nonga ozgina sariyog' surt."
+        "uz": "Nonga ozgina sariyog' surting."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "We have a salad for lunch.",
       "example_translations": {
         "ru": "У нас на обед салат.",
-        "uz": "Tushlikka bizda salat bor."
+        "uz": "Tushlikka salat yeymiz."
       }
     },
     {

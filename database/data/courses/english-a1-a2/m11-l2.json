@@ -36,7 +36,7 @@
       "example": "The departure time is ten thirty.",
       "example_translations": {
         "ru": "Время вылета — десять тридцать.",
-        "uz": "Jo'nash vaqti o'n o'ttiz."
+        "uz": "Jo'nash vaqti — soat o'n yarim."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "Go to gate twelve, please.",
       "example_translations": {
         "ru": "Пройдите к выходу двенадцать, пожалуйста.",
-        "uz": "Iltimos, 12-darvoza tomon boring."
+        "uz": "Iltimos, 12-darvozaga boring."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "There is a long delay today.",
       "example_translations": {
         "ru": "Сегодня большая задержка.",
-        "uz": "Bugun katta kechikish bor."
+        "uz": "Bugun reyslar ancha kechikyapti."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "They cancel many flights in winter.",
       "example_translations": {
         "ru": "Зимой они отменяют много рейсов.",
-        "uz": "Ular qishda ko'p reyslarni bekor qiladi."
+        "uz": "Qishda ko'p reyslarni bekor qilishadi."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "чемодан",
       "translations": {
         "ru": "чемодан",
-        "uz": "chamadon"
+        "uz": "jomadon"
       },
       "example": "My suitcase is blue and big.",
       "example_translations": {
         "ru": "Мой чемодан синий и большой.",
-        "uz": "Chamadonim katta va ko'k rangda."
+        "uz": "Jomadonim katta va ko'k rangda."
       }
     },
     {

@@ -64,7 +64,7 @@
       "example": "Find a balance between work and rest.",
       "example_translations": {
         "ru": "Найди баланс между работой и отдыхом.",
-        "uz": "Ish va dam olish o'rtasida muvozanat top."
+        "uz": "Ish bilan dam olish o'rtasida muvozanat toping."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "They have a quiet and healthy lifestyle.",
       "example_translations": {
         "ru": "У них спокойный и здоровый образ жизни.",
-        "uz": "Ular xotirjam va sog'lom hayot kechirishadi."
+        "uz": "Ularning turmush tarzi tinch va sog'lom."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Try to avoid sugar and fast food.",
       "example_translations": {
         "ru": "Старайся избегать сахара и фастфуда.",
-        "uz": "Shakar va fastfud yemaslikka harakat qiling."
+        "uz": "Shakar va fastfuddan o'zingizni tiyishga harakat qiling."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Smoking is harmful to your heart.",
       "example_translations": {
         "ru": "Курение вредно для сердца.",
-        "uz": "Sigaret chekish yurakka zarar."
+        "uz": "Chekish yurak uchun zararli."
       }
     },
     {

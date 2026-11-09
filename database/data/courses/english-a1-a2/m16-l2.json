@@ -3,7 +3,7 @@
   "stage": {
     "number": 16,
     "title": "Дом и быт",
-    "title_uz": "Uy va maishat"
+    "title_uz": "Uy-ro'zg'or"
   },
   "lesson": {
     "number": 2,
@@ -64,7 +64,7 @@
       "example": "It is cold, take another blanket.",
       "example_translations": {
         "ru": "Холодно, возьми ещё одно одеяло.",
-        "uz": "Sovuq, yana bitta ko'rpa ol."
+        "uz": "Sovuq, yana bitta ko'rpa oling."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "холодильник",
       "translations": {
         "ru": "холодильник",
-        "uz": "sovitkich"
+        "uz": "muzlatgich"
       },
       "example": "The milk is in the fridge.",
       "example_translations": {
         "ru": "Молоко в холодильнике.",
-        "uz": "Sut sovitkichda."
+        "uz": "Sut muzlatgichda."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "обогреватель",
       "translations": {
         "ru": "обогреватель",
-        "uz": "isitkich"
+        "uz": "isitgich"
       },
       "example": "We use a heater in the bedroom.",
       "example_translations": {
         "ru": "Мы пользуемся обогревателем в спальне.",
-        "uz": "Yotoqxonada isitkich ishlatamiz."
+        "uz": "Yotoqxonada isitgich ishlatamiz."
       }
     },
     {

@@ -3,7 +3,7 @@
   "stage": {
     "number": 13,
     "title": "Чувства и характер",
-    "title_uz": "His-tuyg'ular va xarakter"
+    "title_uz": "His-tuyg'ular va fe'l-atvor"
   },
   "lesson": {
     "number": 2,
@@ -64,7 +64,7 @@
       "example": "It is rude to shout at people.",
       "example_translations": {
         "ru": "Кричать на людей грубо.",
-        "uz": "Odamlarga qichqirish qo'pollik."
+        "uz": "Odamlarga baqirish — qo'pollik."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "I feel lazy on hot days.",
       "example_translations": {
         "ru": "В жаркие дни я чувствую лень.",
-        "uz": "Issiq kunlarda o'zimni dangasa his qilaman."
+        "uz": "Issiq kunlarda dangasa bo'lib qolaman."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Your daughter is a clever girl.",
       "example_translations": {
         "ru": "Ваша дочь — сообразительная девочка.",
-        "uz": "Qizingiz zehni o'tkir qiz."
+        "uz": "Qizingizning zehni o'tkir ekan."
       }
     },
     {

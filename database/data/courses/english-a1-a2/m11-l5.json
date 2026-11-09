@@ -50,7 +50,7 @@
       "example": "This route is shorter than that one.",
       "example_translations": {
         "ru": "Этот маршрут короче того.",
-        "uz": "Bu marshrut u marshrutdan qisqaroq."
+        "uz": "Bu marshrut unisidan qisqaroq."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Our destination is a small village.",
       "example_translations": {
         "ru": "Наш пункт назначения — маленькая деревня.",
-        "uz": "Kichik bir qishloqqa ketyapmiz."
+        "uz": "Manzilimiz — kichik bir qishloq."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "We explore the old town on foot.",
       "example_translations": {
         "ru": "Мы исследуем старый город пешком.",
-        "uz": "Eski shaharni piyoda aylanib chiqamiz."
+        "uz": "Eski shaharni piyoda kezib chiqamiz."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "What is the currency in Japan?",
       "example_translations": {
         "ru": "Какая валюта в Японии?",
-        "uz": "Yaponiyada valyuta nima?"
+        "uz": "Yaponiyada qaysi valyuta ishlatiladi?"
       }
     }
   ]

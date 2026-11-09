@@ -36,7 +36,7 @@
       "example": "He has a good job.",
       "example_translations": {
         "ru": "У него хорошая работа.",
-        "uz": "Uning yaxshi ishi bor."
+        "uz": "Uning ishi yaxshi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "We have a meeting at ten.",
       "example_translations": {
         "ru": "У нас совещание в десять.",
-        "uz": "Bizda soat o'nda yig'ilish bor."
+        "uz": "Soat o'nda yig'ilishimiz bor."
       }
     },
     {

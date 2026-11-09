@@ -50,7 +50,7 @@
       "example": "How do you spell your name?",
       "example_translations": {
         "ru": "Как пишется твоё имя по буквам?",
-        "uz": "Ismingni qanday harflab aytasan?"
+        "uz": "Ismingizni harflab ayta olasizmi?"
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Please translate this sentence into Russian.",
       "example_translations": {
         "ru": "Пожалуйста, переведи это предложение на русский.",
-        "uz": "Iltimos, bu gapni rus tiliga tarjima qil."
+        "uz": "Iltimos, bu gapni rus tiliga tarjima qiling."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "I look it up in the dictionary.",
       "example_translations": {
         "ru": "Я ищу это в словаре.",
-        "uz": "Men buni lug'atdan qidiraman."
+        "uz": "Buni lug'atdan qarab ko'raman."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "новичок",
       "translations": {
         "ru": "новичок",
-        "uz": "endi o'rganayotgan kishi"
+        "uz": "yangi boshlovchi"
       },
       "example": "This class is for beginners only.",
       "example_translations": {
         "ru": "Этот класс только для начинающих.",
-        "uz": "Bu dars endi boshlayotganlar uchun."
+        "uz": "Bu dars faqat yangi boshlovchilar uchun."
       }
     },
     {

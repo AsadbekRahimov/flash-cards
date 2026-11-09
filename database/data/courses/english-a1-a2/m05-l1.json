@@ -31,12 +31,12 @@
       "translation": "городок",
       "translations": {
         "ru": "городок",
-        "uz": "kichik shahar"
+        "uz": "shaharcha, kichik shahar"
       },
       "example": "My town is small and quiet.",
       "example_translations": {
         "ru": "Мой городок маленький и тихий.",
-        "uz": "Men yashaydigan shahar kichik va tinch."
+        "uz": "Men yashaydigan shaharcha kichik va tinch."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "That building is a school.",
       "example_translations": {
         "ru": "То здание — школа.",
-        "uz": "U bino — maktab."
+        "uz": "Anavi bino — maktab."
       }
     },
     {

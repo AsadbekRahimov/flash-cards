@@ -8,7 +8,7 @@
   "lesson": {
     "number": 2,
     "title": "Школьная жизнь",
-    "title_uz": "Ta'lim muassasalari va dars anjomlari"
+    "title_uz": "Maktab hayoti"
   },
   "words": [
     {
@@ -92,7 +92,7 @@
       "example": "Open your textbook at page ten.",
       "example_translations": {
         "ru": "Откройте учебник на десятой странице.",
-        "uz": "Darslikni o'ninchi sahifada oching."
+        "uz": "Darslikning o'ninchi sahifasini oching."
       }
     },
     {
@@ -143,7 +143,7 @@
       "translation": "форма",
       "translations": {
         "ru": "форма",
-        "uz": "maxsus kiyim, forma"
+        "uz": "forma, maxsus kiyim"
       },
       "example": "Our school uniform is dark blue.",
       "example_translations": {

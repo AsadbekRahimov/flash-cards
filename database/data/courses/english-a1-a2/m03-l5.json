@@ -22,7 +22,7 @@
       "example": "We eat at a restaurant on Sunday.",
       "example_translations": {
         "ru": "По воскресеньям мы ужинаем в ресторане.",
-        "uz": "Yakshanba kuni biz restoranda ovqatlanamiz."
+        "uz": "Yakshanba kunlari restoranda ovqatlanamiz."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "I want to order tea.",
       "example_translations": {
         "ru": "Я хочу заказать чай.",
-        "uz": "Men choy buyurtma bermoqchiman."
+        "uz": "Choyga buyurtma bermoqchiman."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "I am very hungry.",
       "example_translations": {
         "ru": "Я очень голоден.",
-        "uz": "Men juda ochman."
+        "uz": "Qornim juda och."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Are you thirsty?",
       "example_translations": {
         "ru": "Тебе хочется пить?",
-        "uz": "Chanqadingmi?"
+        "uz": "Chanqadingizmi?"
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "The tea is too sweet.",
       "example_translations": {
         "ru": "Чай слишком сладкий.",
-        "uz": "Choy juda shirin."
+        "uz": "Choy juda shirin bo'lib ketibdi."
       }
     },
     {

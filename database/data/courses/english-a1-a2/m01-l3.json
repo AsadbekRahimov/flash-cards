@@ -64,7 +64,7 @@
       "example": "English is a useful language.",
       "example_translations": {
         "ru": "Английский — полезный язык.",
-        "uz": "Ingliz tili foydali tildir."
+        "uz": "Ingliz tili — foydali til."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "не женат, не замужем",
       "translations": {
         "ru": "не женат, не замужем",
-        "uz": "turmush qurmagan"
+        "uz": "turmush qurmagan, bo'ydoq"
       },
       "example": "Is he married or single?",
       "example_translations": {
         "ru": "Он женат или нет?",
-        "uz": "U uylanganmi yoki yo'qmi?"
+        "uz": "U uylanganmi yoki bo'ydoqmi?"
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "звать, называть",
       "translations": {
         "ru": "звать, называть",
-        "uz": "deb atamoq"
+        "uz": "chaqirmoq, atamoq"
       },
       "example": "Everyone calls him Bobby.",
       "example_translations": {
         "ru": "Все зовут его Бобби.",
-        "uz": "Hamma uni Bobbi deb ataydi."
+        "uz": "Hamma uni Bobbi deb chaqiradi."
       }
     },
     {

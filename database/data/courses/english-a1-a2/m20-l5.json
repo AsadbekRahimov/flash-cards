@@ -78,7 +78,7 @@
       "example": "I congratulate you on your success.",
       "example_translations": {
         "ru": "Я поздравляю тебя с успехом.",
-        "uz": "Men seni muvaffaqiyating bilan tabriklayman."
+        "uz": "Sizni muvaffaqiyatingiz bilan tabriklayman."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "The whole nation watches the game.",
       "example_translations": {
         "ru": "Вся нация смотрит матч.",
-        "uz": "Butun mamlakat o'yinni tomosha qiladi."
+        "uz": "Butun xalq o'yinni tomosha qiladi."
       }
     }
   ]

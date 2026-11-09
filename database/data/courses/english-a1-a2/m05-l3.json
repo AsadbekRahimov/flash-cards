@@ -22,7 +22,7 @@
       "example": "The bus is late today.",
       "example_translations": {
         "ru": "Автобус сегодня опаздывает.",
-        "uz": "Avtobus bugun kechikdi."
+        "uz": "Bugun avtobus kechikyapti."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Let's take a taxi.",
       "example_translations": {
         "ru": "Давай возьмём такси.",
-        "uz": "Keling, taksi olaylik."
+        "uz": "Keling, taksida boraylik."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "дорожное движение",
       "translations": {
         "ru": "дорожное движение",
-        "uz": "yo'l harakati, qatnov"
+        "uz": "yo'l harakati, tirbandlik"
       },
       "example": "There is a lot of traffic today.",
       "example_translations": {
         "ru": "Сегодня очень плотное движение.",
-        "uz": "Bugun yo'lda mashina ko'p."
+        "uz": "Bugun yo'llarda tirbandlik."
       }
     },
     {

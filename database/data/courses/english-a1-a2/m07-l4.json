@@ -134,7 +134,7 @@
       "example": "I study English in the evening.",
       "example_translations": {
         "ru": "Вечером я изучаю английский.",
-        "uz": "Kechqurun ingliz tili bilan shug'ullanaman."
+        "uz": "Kechqurun ingliz tilini o'qiyman."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Can I use your pen?",
       "example_translations": {
         "ru": "Можно взять твою ручку?",
-        "uz": "Ruchkangdan foydalansam bo'ladimi?"
+        "uz": "Ruchkangizni olib tursam bo'ladimi?"
       }
     }
   ]

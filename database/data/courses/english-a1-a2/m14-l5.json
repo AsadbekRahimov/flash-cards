@@ -92,7 +92,7 @@
       "example": "They build a new school here.",
       "example_translations": {
         "ru": "Здесь они строят новую школу.",
-        "uz": "Ular bu yerda yangi maktab quradi."
+        "uz": "Bu yerda yangi maktab qurishyapti."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "проектировать",
       "translations": {
         "ru": "проектировать",
-        "uz": "loyihalashtirmoq"
+        "uz": "loyihalamoq, dizayn qilmoq"
       },
       "example": "She designs clothes for children.",
       "example_translations": {
         "ru": "Она создаёт одежду для детей.",
-        "uz": "U bolalar kiyimlarini loyihalaydi."
+        "uz": "U bolalar uchun kiyim dizayn qiladi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "He leads the project very well.",
       "example_translations": {
         "ru": "Он очень хорошо руководит проектом.",
-        "uz": "U loyihani juda yaxshi boshqaradi."
+        "uz": "U loyihaga juda yaxshi rahbarlik qiladi."
       }
     },
     {

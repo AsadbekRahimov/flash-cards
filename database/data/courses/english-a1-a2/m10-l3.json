@@ -50,7 +50,7 @@
       "example": "We swim in summer.",
       "example_translations": {
         "ru": "Летом мы плаваем.",
-        "uz": "Yozda biz suzamiz."
+        "uz": "Yozda cho'milamiz."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Winter is cold and white.",
       "example_translations": {
         "ru": "Зима холодная и белая.",
-        "uz": "Qish sovuq va oq."
+        "uz": "Qish sovuq va oppoq."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Take an umbrella, it rains.",
       "example_translations": {
         "ru": "Возьми зонт, идёт дождь.",
-        "uz": "Soyabon ol, yomg'ir yog'yapti."
+        "uz": "Soyabon oling, yomg'ir yog'yapti."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "The climate here is dry.",
       "example_translations": {
         "ru": "Климат здесь сухой.",
-        "uz": "Bu yerda iqlim quruq."
+        "uz": "Bu yerning iqlimi quruq."
       }
     }
   ]

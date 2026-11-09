@@ -64,7 +64,7 @@
       "example": "The evening is cool.",
       "example_translations": {
         "ru": "Вечер прохладный.",
-        "uz": "Kech salqin."
+        "uz": "Kechqurun havo salqin."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "My shoes are wet.",
       "example_translations": {
         "ru": "Мои туфли мокрые.",
-        "uz": "Tuflilarim ho'l."
+        "uz": "Tuflim ho'l."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "It is a sunny day.",
       "example_translations": {
         "ru": "Сегодня солнечный день.",
-        "uz": "Quyoshli kun."
+        "uz": "Bugun kun quyoshli."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Tomorrow will be rainy.",
       "example_translations": {
         "ru": "Завтра будет дождливо.",
-        "uz": "Ertaga yomg'irli bo'ladi."
+        "uz": "Ertaga havo yomg'irli bo'ladi."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "It is windy today.",
       "example_translations": {
         "ru": "Сегодня ветрено.",
-        "uz": "Bugun shamolli."
+        "uz": "Bugun havo shamolli."
       }
     }
   ]

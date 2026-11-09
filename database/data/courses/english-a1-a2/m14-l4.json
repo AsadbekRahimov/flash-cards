@@ -50,7 +50,7 @@
       "example": "I take my vacation in August.",
       "example_translations": {
         "ru": "Я беру отпуск в августе.",
-        "uz": "Men ta'tilimni avgustda olaman."
+        "uz": "Avgustda ta'tilga chiqaman."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "I have flexible working hours.",
       "example_translations": {
         "ru": "У меня гибкий рабочий график.",
-        "uz": "Mening ish soatlarim moslashuvchan."
+        "uz": "Ish vaqtim moslashuvchan."
       }
     },
     {
@@ -143,7 +143,7 @@
       "translation": "пенсия",
       "translations": {
         "ru": "пенсия",
-        "uz": "pensiya"
+        "uz": "pensiya, nafaqa"
       },
       "example": "My grandmother lives on a small pension.",
       "example_translations": {

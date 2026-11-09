@@ -36,7 +36,7 @@
       "example": "I cannot hear you.",
       "example_translations": {
         "ru": "Я тебя не слышу.",
-        "uz": "Seni eshitmayapman."
+        "uz": "Sizni eshitmayapman."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "The soup smells delicious.",
       "example_translations": {
         "ru": "Суп вкусно пахнет.",
-        "uz": "Sho'rvadan ishtahani ochadigan hid kelyapti."
+        "uz": "Sho'rvadan mazali hid kelyapti."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Do not touch the hot cup.",
       "example_translations": {
         "ru": "Не трогай горячую чашку.",
-        "uz": "Issiq piyolaga tegma."
+        "uz": "Issiq piyolaga tegmang."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Taste the soup, please.",
       "example_translations": {
         "ru": "Попробуй суп, пожалуйста.",
-        "uz": "Sho'rvani tatib ko'r, iltimos."
+        "uz": "Iltimos, sho'rvani tatib ko'ring."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Look at that bird!",
       "example_translations": {
         "ru": "Посмотри на ту птицу!",
-        "uz": "O'sha qushga qara!"
+        "uz": "Anavi qushga qarang!"
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Hold my hand.",
       "example_translations": {
         "ru": "Держи меня за руку.",
-        "uz": "Qo'limdan ushla."
+        "uz": "Qo'limdan ushlang."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "The baby cries at night.",
       "example_translations": {
         "ru": "Малыш плачет по ночам.",
-        "uz": "Chaqaloq tunda yig'laydi."
+        "uz": "Chaqaloq kechalari yig'laydi."
       }
     }
   ]

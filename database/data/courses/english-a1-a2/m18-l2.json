@@ -22,7 +22,7 @@
       "example": "The pharmacist gives me the medicine.",
       "example_translations": {
         "ru": "Фармацевт даёт мне лекарство.",
-        "uz": "Dorixonadagi farmatsevt menga dorini berdi."
+        "uz": "Farmatsevt menga dorini beradi."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "осматривать",
       "translations": {
         "ru": "осматривать",
-        "uz": "ko'rikdan o'tkazmoq"
+        "uz": "tekshirmoq, ko'rikdan o'tkazmoq"
       },
       "example": "The doctor examines my throat.",
       "example_translations": {
         "ru": "Врач осматривает моё горло.",
-        "uz": "Shifokor tomog'imni ko'rikdan o'tkazadi."
+        "uz": "Shifokor tomog'imni tekshiradi."
       }
     },
     {

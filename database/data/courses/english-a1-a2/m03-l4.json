@@ -64,7 +64,7 @@
       "example": "Put the bread on the plate.",
       "example_translations": {
         "ru": "Положи хлеб на тарелку.",
-        "uz": "Nonni likopchaga qo'y."
+        "uz": "Nonni likopchaga qo'ying."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Be careful with the knife.",
       "example_translations": {
         "ru": "Осторожно с ножом.",
-        "uz": "Pichoq bilan ehtiyot bo'l."
+        "uz": "Pichoqqa ehtiyot bo'ling."
       }
     },
     {
@@ -129,7 +129,7 @@
       "translation": "бутылка",
       "translations": {
         "ru": "бутылка",
-        "uz": "shisha idish, butilka"
+        "uz": "shisha, butilka"
       },
       "example": "He has a bottle of water.",
       "example_translations": {

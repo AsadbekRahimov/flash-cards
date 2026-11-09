@@ -3,7 +3,7 @@
   "stage": {
     "number": 13,
     "title": "Чувства и характер",
-    "title_uz": "His-tuyg'ular va xarakter"
+    "title_uz": "His-tuyg'ular va fe'l-atvor"
   },
   "lesson": {
     "number": 4,
@@ -22,7 +22,7 @@
       "example": "I think this movie is great.",
       "example_translations": {
         "ru": "Я думаю, этот фильм отличный.",
-        "uz": "Menimcha, bu film ajoyib."
+        "uz": "O'ylashimcha, bu film ajoyib."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "Do you believe his story?",
       "example_translations": {
         "ru": "Ты веришь его истории?",
-        "uz": "Sen uning hikoyasiga ishonasanmi?"
+        "uz": "Uning gaplariga ishonasizmi?"
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "I agree with you completely.",
       "example_translations": {
         "ru": "Я полностью с тобой согласен.",
-        "uz": "Men sen bilan to'liq roziman."
+        "uz": "Siz bilan to'liq roziman."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "In my opinion, the soup is too salty.",
       "example_translations": {
         "ru": "По-моему, суп слишком солёный.",
-        "uz": "Menimcha, sho'rva sho'rroq bo'libdi."
+        "uz": "Fikrimcha, sho'rva sho'r bo'lib ketibdi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Do you remember my phone number?",
       "example_translations": {
         "ru": "Ты помнишь мой номер телефона?",
-        "uz": "Telefon raqamimni eslaysanmi?"
+        "uz": "Telefon raqamimni eslaysizmi?"
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "I always forget his name.",
       "example_translations": {
         "ru": "Я всегда забываю его имя.",
-        "uz": "Men uning ismini doim unutaman."
+        "uz": "Uning ismini doim unutib qo'yaman."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Imagine a house on the beach.",
       "example_translations": {
         "ru": "Представь дом на пляже.",
-        "uz": "Plyajdagi uyni tasavvur qil."
+        "uz": "Plyajdagi uyni tasavvur qiling."
       }
     }
   ]

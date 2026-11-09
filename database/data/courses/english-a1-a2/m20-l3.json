@@ -64,7 +64,7 @@
       "example": "A rich man lives in that house.",
       "example_translations": {
         "ru": "В том доме живёт богатый человек.",
-        "uz": "U uyda boy odam yashaydi."
+        "uz": "Ana u uyda boy odam yashaydi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Everyone wants peace in the world.",
       "example_translations": {
         "ru": "Все хотят мира во всём мире.",
-        "uz": "Hamma dunyoda tinchlik istaydi."
+        "uz": "Hamma dunyoda tinchlik bo'lishini istaydi."
       }
     },
     {
@@ -129,7 +129,7 @@
       "translation": "сообщество",
       "translations": {
         "ru": "сообщество",
-        "uz": "hamjamiyat, mahalliy jamoa"
+        "uz": "jamoa, mahalla"
       },
       "example": "Our community helps old people.",
       "example_translations": {

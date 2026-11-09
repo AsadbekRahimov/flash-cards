@@ -78,7 +78,7 @@
       "example": "Put the apples in the basket.",
       "example_translations": {
         "ru": "Положи яблоки в корзину.",
-        "uz": "Olmalarni savatga sol."
+        "uz": "Olmalarni savatga soling."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Read the label before you buy it.",
       "example_translations": {
         "ru": "Прочитай этикетку, прежде чем купить.",
-        "uz": "Sotib olishdan oldin yorliqni o'qi."
+        "uz": "Sotib olishdan oldin yorliqni o'qing."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "We do our shopping on Saturday.",
       "example_translations": {
         "ru": "Мы делаем покупки по субботам.",
-        "uz": "Biz xaridni shanba kuni qilamiz."
+        "uz": "Shanba kunlari xarid qilamiz."
       }
     },
     {

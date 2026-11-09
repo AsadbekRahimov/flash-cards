@@ -36,7 +36,7 @@
       "example": "Please text me when you arrive.",
       "example_translations": {
         "ru": "Напиши мне, когда приедешь.",
-        "uz": "Yetib kelganingda menga xabar yoz."
+        "uz": "Yetib borganingizda menga xabar yozing."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "My mobile number is on the card.",
       "example_translations": {
         "ru": "Мой мобильный номер указан на карточке.",
-        "uz": "Telefon raqamim tashrif qog'ozida yozilgan."
+        "uz": "Mobil raqamim tashrif qog'ozida yozilgan."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "I save his contact in my phone.",
       "example_translations": {
         "ru": "Я сохраняю его контакт в телефоне.",
-        "uz": "Uning raqamini telefonimga yozib qo'yaman."
+        "uz": "Uning kontaktini telefonimga saqlab qo'yaman."
       }
     },
     {
@@ -101,7 +101,7 @@
       "translation": "переписываться",
       "translations": {
         "ru": "переписываться",
-        "uz": "suhbatlashmoq, yozishmoq"
+        "uz": "gaplashmoq, yozishmoq"
       },
       "example": "We chat every evening after dinner.",
       "example_translations": {
@@ -120,7 +120,7 @@
       "example": "Your phone rings in the bag.",
       "example_translations": {
         "ru": "Твой телефон звонит в сумке.",
-        "uz": "Telefoning sumkada jiringlayapti."
+        "uz": "Telefoningiz sumkada jiringlayapti."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "звук",
       "translations": {
         "ru": "звук",
-        "uz": "tovush"
+        "uz": "tovush, ovoz"
       },
       "example": "The sound on this video is bad.",
       "example_translations": {
         "ru": "Звук в этом видео плохой.",
-        "uz": "Bu videodagi tovush yomon."
+        "uz": "Bu videoning ovozi yomon."
       }
     }
   ]

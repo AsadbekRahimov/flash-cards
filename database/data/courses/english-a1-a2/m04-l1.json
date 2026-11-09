@@ -36,7 +36,7 @@
       "example": "We have English on Tuesday.",
       "example_translations": {
         "ru": "По вторникам у нас английский.",
-        "uz": "Seshanba kuni bizda ingliz tili bor."
+        "uz": "Seshanba kunlari ingliz tili darsimiz bor."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Friday is the last day of school.",
       "example_translations": {
         "ru": "Пятница — последний школьный день.",
-        "uz": "Juma — maktabdagi oxirgi kun."
+        "uz": "Juma — maktabda haftaning oxirgi kuni."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "We clean the house on Saturday.",
       "example_translations": {
         "ru": "Мы убираем дом в субботу.",
-        "uz": "Biz shanba kuni uyni tozalaymiz."
+        "uz": "Shanba kuni uyni yig'ishtiramiz."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "What do you do at the weekend?",
       "example_translations": {
         "ru": "Что ты делаешь в выходные?",
-        "uz": "Dam olish kunlari nima qilasan?"
+        "uz": "Dam olish kunlari nima qilasiz?"
       }
     }
   ]

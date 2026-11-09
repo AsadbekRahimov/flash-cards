@@ -50,7 +50,7 @@
       "example": "Oranges have a lot of vitamin C.",
       "example_translations": {
         "ru": "В апельсинах много витамина C.",
-        "uz": "Apelsinda S vitamini ko'p."
+        "uz": "Apelsinda C vitamini ko'p."
       }
     },
     {
@@ -73,7 +73,7 @@
       "translation": "перекус",
       "translations": {
         "ru": "перекус",
-        "uz": "yengil yegulik"
+        "uz": "tamaddi, yengil yegulik"
       },
       "example": "I eat a small snack at four.",
       "example_translations": {
@@ -92,7 +92,7 @@
       "example": "Dinner is my biggest meal of the day.",
       "example_translations": {
         "ru": "Ужин — мой самый плотный приём пищи за день.",
-        "uz": "Kechki ovqat kunning eng to'yimli ovqatim."
+        "uz": "Kechki ovqat — kunning eng to'yimli ovqati."
       }
     },
     {

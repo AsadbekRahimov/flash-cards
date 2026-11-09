@@ -36,7 +36,7 @@
       "example": "Come to my house on Sunday.",
       "example_translations": {
         "ru": "Приходи ко мне домой в воскресенье.",
-        "uz": "Yakshanba kuni uyimga kel."
+        "uz": "Yakshanba kuni uyimga keling."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Turn right at the corner.",
       "example_translations": {
         "ru": "На углу поверните направо.",
-        "uz": "Burchakdan o'ngga buring."
+        "uz": "Muyulishdan o'ngga buriling."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "переходить",
       "translations": {
         "ru": "переходить",
-        "uz": "kesib o'tmoq"
+        "uz": "o'tmoq, kesib o'tmoq"
       },
       "example": "Cross the road carefully.",
       "example_translations": {
         "ru": "Переходи дорогу осторожно.",
-        "uz": "Yo'lni ehtiyotkorlik bilan kesib o't."
+        "uz": "Yo'ldan ehtiyot bo'lib o'ting."
       }
     },
     {

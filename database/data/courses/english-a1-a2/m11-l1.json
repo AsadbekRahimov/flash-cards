@@ -36,7 +36,7 @@
       "example": "Do not forget your passport at home.",
       "example_translations": {
         "ru": "Не забудь паспорт дома.",
-        "uz": "Pasportingni uyda unutma."
+        "uz": "Pasportingizni uyda unutib qoldirmang."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Many tourists visit this old town.",
       "example_translations": {
         "ru": "Многие туристы посещают этот старый город.",
-        "uz": "Ko'p sayyohlar bu eski shaharga tashrif buyuradi."
+        "uz": "Bu eski shaharga sayyohlar ko'p keladi."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "They plan a trip to Turkey.",
       "example_translations": {
         "ru": "Они планируют поездку в Турцию.",
-        "uz": "Ular Turkiyaga safarni rejalashtiradi."
+        "uz": "Ular Turkiyaga safar qilishni rejalashtiryapti."
       }
     },
     {
@@ -115,7 +115,7 @@
       "translation": "бронь",
       "translations": {
         "ru": "бронь",
-        "uz": "oldindan band qilingan joy, bron"
+        "uz": "joy band qilish, bron"
       },
       "example": "I have a reservation for two nights.",
       "example_translations": {
@@ -143,7 +143,7 @@
       "translation": "собирать вещи",
       "translations": {
         "ru": "собирать вещи",
-        "uz": "yig'ishtirmoq, joylamoq"
+        "uz": "joylamoq, yig'moq"
       },
       "example": "I must pack my bag tonight.",
       "example_translations": {

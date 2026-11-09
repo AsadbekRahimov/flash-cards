@@ -3,7 +3,7 @@
   "stage": {
     "number": 16,
     "title": "Дом и быт",
-    "title_uz": "Uy va maishat"
+    "title_uz": "Uy-ro'zg'or"
   },
   "lesson": {
     "number": 3,
@@ -31,12 +31,12 @@
       "translation": "прибираться",
       "translations": {
         "ru": "прибираться",
-        "uz": "tartibga solmoq"
+        "uz": "yig'ishtirmoq, tartibga solmoq"
       },
       "example": "Please tidy your room before dinner.",
       "example_translations": {
         "ru": "Пожалуйста, прибери комнату до ужина.",
-        "uz": "Iltimos, kechki ovqatdan oldin xonangni tartibga sol."
+        "uz": "Iltimos, kechki ovqatdan oldin xonangizni yig'ishtiring."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "I do the laundry on Saturday.",
       "example_translations": {
         "ru": "Я стираю бельё в субботу.",
-        "uz": "Men kirni shanba kuni yuvaman."
+        "uz": "Shanba kuni kir yuvaman."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Take out the trash tonight.",
       "example_translations": {
         "ru": "Вынеси мусор сегодня вечером.",
-        "uz": "Axlatni bugun kechqurun chiqarib tashla."
+        "uz": "Bugun kechqurun axlatni chiqarib tashlang."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "мыть пол шваброй",
       "translations": {
         "ru": "мыть пол шваброй",
-        "uz": "ho'l latta bilan artmoq"
+        "uz": "pol artmoq"
       },
       "example": "He mops the kitchen floor twice a week.",
       "example_translations": {
         "ru": "Он моет пол на кухне два раза в неделю.",
-        "uz": "Oshxonaning polini haftasiga ikki marta ho'l latta bilan artadi."
+        "uz": "U oshxona polini haftasiga ikki marta artadi."
       }
     },
     {

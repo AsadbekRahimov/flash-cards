@@ -64,7 +64,7 @@
       "example": "The ticket costs one thousand soums.",
       "example_translations": {
         "ru": "Билет стоит тысячу сумов.",
-        "uz": "Chipta bir ming so'm turadi."
+        "uz": "Chipta ming so'm turadi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Give me half of the bread.",
       "example_translations": {
         "ru": "Дай мне половину хлеба.",
-        "uz": "Menga nonning yarmini ber."
+        "uz": "Menga nonning yarmini bering."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "What is the date today?",
       "example_translations": {
         "ru": "Какое сегодня число?",
-        "uz": "Bugun oyning nechanchisi?"
+        "uz": "Bugun nechanchi sana?"
       }
     }
   ]

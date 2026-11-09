@@ -31,7 +31,7 @@
       "translation": "посылка",
       "translations": {
         "ru": "посылка",
-        "uz": "posilka"
+        "uz": "posilka, jo'natma"
       },
       "example": "A parcel is waiting for you at the post office.",
       "example_translations": {
@@ -64,7 +64,7 @@
       "example": "Put the letter in the envelope.",
       "example_translations": {
         "ru": "Положи письмо в конверт.",
-        "uz": "Xatni konvertga sol."
+        "uz": "Xatni konvertga soling."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "The tailor makes me a new jacket.",
       "example_translations": {
         "ru": "Портной шьёт мне новый пиджак.",
-        "uz": "Tikuvchi menga yangi kurtka tikadi."
+        "uz": "Tikuvchi menga yangi pidjak tikib beradi."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "There is a long queue at the bank.",
       "example_translations": {
         "ru": "В банке длинная очередь.",
-        "uz": "Bankda uzun navbat bor."
+        "uz": "Bankda navbat uzun."
       }
     }
   ]

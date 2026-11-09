@@ -59,12 +59,12 @@
       "translation": "поездка",
       "translations": {
         "ru": "поездка",
-        "uz": "sayohat"
+        "uz": "safar, sayohat"
       },
       "example": "The trip to Bukhara is long.",
       "example_translations": {
         "ru": "Поездка в Бухару долгая.",
-        "uz": "Buxoroga sayohat uzoq."
+        "uz": "Buxoroga safar uzoq davom etadi."
       }
     },
     {
@@ -73,12 +73,12 @@
       "translation": "посещать, навещать",
       "translations": {
         "ru": "посещать, навещать",
-        "uz": "bormoq, tashrif buyurmoq"
+        "uz": "borib ko'rmoq, tashrif buyurmoq"
       },
       "example": "I want to visit the museum.",
       "example_translations": {
         "ru": "Я хочу посетить музей.",
-        "uz": "Men muzeyga bormoqchiman."
+        "uz": "Muzeyni borib ko'rmoqchiman."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "You need some rest.",
       "example_translations": {
         "ru": "Тебе нужен отдых.",
-        "uz": "Senga dam olish kerak."
+        "uz": "Sizga biroz dam olish kerak."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "I invite you to my party.",
       "example_translations": {
         "ru": "Я приглашаю тебя на вечеринку.",
-        "uz": "Seni ziyofatimga taklif qilaman."
+        "uz": "Sizni ziyofatimga taklif qilaman."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "We have fun together.",
       "example_translations": {
         "ru": "Нам вместе весело.",
-        "uz": "Birga vaqtimiz chog' o'tadi."
+        "uz": "Birga maza qilamiz."
       }
     }
   ]

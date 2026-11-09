@@ -36,7 +36,7 @@
       "example": "Wash your face.",
       "example_translations": {
         "ru": "Умой лицо.",
-        "uz": "Yuzingni yuv."
+        "uz": "Yuzingizni yuving."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "The baby has small ears.",
       "example_translations": {
         "ru": "У малыша маленькие уши.",
-        "uz": "Chaqaloqning kichkina quloqlari bor."
+        "uz": "Chaqaloqning quloqlari kichkina."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Give me your hand.",
       "example_translations": {
         "ru": "Дай мне руку.",
-        "uz": "Qo'lingni ber."
+        "uz": "Qo'lingizni bering."
       }
     },
     {

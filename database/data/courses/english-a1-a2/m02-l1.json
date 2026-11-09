@@ -31,7 +31,7 @@
       "translation": "отец, папа",
       "translations": {
         "ru": "отец, папа",
-        "uz": "ota"
+        "uz": "ota, dada"
       },
       "example": "My father drives a bus.",
       "example_translations": {
@@ -45,7 +45,7 @@
       "translation": "родитель",
       "translations": {
         "ru": "родитель",
-        "uz": "ota yoki ona"
+        "uz": "ota-ona"
       },
       "example": "Every parent loves a child.",
       "example_translations": {

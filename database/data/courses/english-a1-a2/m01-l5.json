@@ -78,7 +78,7 @@
       "example": "She looks very happy today.",
       "example_translations": {
         "ru": "Сегодня она выглядит очень счастливой.",
-        "uz": "Bugun u juda xursandga o'xshaydi."
+        "uz": "Bugun u juda xursand ko'rinadi."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Why are you sad?",
       "example_translations": {
         "ru": "Почему ты грустишь?",
-        "uz": "Nega xafasan?"
+        "uz": "Nega xafasiz?"
       }
     },
     {

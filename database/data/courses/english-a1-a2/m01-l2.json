@@ -17,12 +17,12 @@
       "translation": "ты, вы",
       "translations": {
         "ru": "ты, вы",
-        "uz": "sen, siz"
+        "uz": "siz, sen"
       },
       "example": "You are my best friend.",
       "example_translations": {
         "ru": "Ты мой лучший друг.",
-        "uz": "Sen mening eng yaxshi do'stimsan."
+        "uz": "Siz mening eng yaxshi do'stimsiz."
       }
     },
     {
@@ -129,7 +129,7 @@
       "translation": "твой, ваш",
       "translations": {
         "ru": "твой, ваш",
-        "uz": "sening, sizning"
+        "uz": "sizning, sening"
       },
       "example": "What is your name?",
       "example_translations": {

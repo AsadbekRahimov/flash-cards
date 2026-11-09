@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Стихийные явления",
-    "title_uz": "Tabiiy ofatlar va ob-havo hodisalari"
+    "title_uz": "Tabiat hodisalari"
   },
   "words": [
     {
@@ -64,7 +64,7 @@
       "example": "I hear thunder in the distance.",
       "example_translations": {
         "ru": "Я слышу гром вдали.",
-        "uz": "Men uzoqdan momaqaldiroqni eshityapman."
+        "uz": "Uzoqdan momaqaldiroq eshitilyapti."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Lightning hit the tall tree.",
       "example_translations": {
         "ru": "Молния ударила в высокое дерево.",
-        "uz": "Chaqmoq baland daraxtga urildi."
+        "uz": "Baland daraxtga chaqmoq tushdi."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Look, there is a rainbow over the hills!",
       "example_translations": {
         "ru": "Смотри, над холмами радуга!",
-        "uz": "Qara, tepaliklar ustida kamalak bor!"
+        "uz": "Qarang, tepaliklar ustida kamalak!"
       }
     },
     {

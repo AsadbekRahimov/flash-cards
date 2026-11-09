@@ -36,7 +36,7 @@
       "example": "I have ten fingers.",
       "example_translations": {
         "ru": "У меня десять пальцев.",
-        "uz": "Menda o'nta barmoq bor."
+        "uz": "Qo'limda o'nta barmoq bor."
       }
     },
     {
@@ -87,7 +87,7 @@
       "translation": "живот",
       "translations": {
         "ru": "живот",
-        "uz": "oshqozon, qorin"
+        "uz": "qorin, oshqozon"
       },
       "example": "My stomach hurts.",
       "example_translations": {

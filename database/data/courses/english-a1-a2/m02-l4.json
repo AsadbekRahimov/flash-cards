@@ -36,7 +36,7 @@
       "example": "Sit on this chair.",
       "example_translations": {
         "ru": "Садись на этот стул.",
-        "uz": "Shu stulga o'tir."
+        "uz": "Shu stulga o'tiring."
       }
     },
     {
@@ -45,12 +45,12 @@
       "translation": "кровать",
       "translations": {
         "ru": "кровать",
-        "uz": "krovat, to'shak"
+        "uz": "karavot"
       },
       "example": "The bed is very soft.",
       "example_translations": {
         "ru": "Кровать очень мягкая.",
-        "uz": "Krovat juda yumshoq."
+        "uz": "Karavot juda yumshoq."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Turn on the lamp.",
       "example_translations": {
         "ru": "Включи лампу.",
-        "uz": "Chiroqni yoq."
+        "uz": "Chiroqni yoqing."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "полка",
       "translations": {
         "ru": "полка",
-        "uz": "tokcha"
+        "uz": "javon, tokcha"
       },
       "example": "The books are on the shelf.",
       "example_translations": {
         "ru": "Книги стоят на полке.",
-        "uz": "Kitoblar tokchada turibdi."
+        "uz": "Kitoblar javonda turibdi."
       }
     },
     {

@@ -64,7 +64,7 @@
       "example": "You can ask me anything.",
       "example_translations": {
         "ru": "Ты можешь спросить меня о чём угодно.",
-        "uz": "Mendan xohlagan narsangni so'rashing mumkin."
+        "uz": "Mendan xohlagan narsangizni so'rashingiz mumkin."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Listen to the teacher.",
       "example_translations": {
         "ru": "Слушай учителя.",
-        "uz": "O'qituvchini tingla."
+        "uz": "O'qituvchini tinglang."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Do you speak English?",
       "example_translations": {
         "ru": "Ты говоришь по-английски?",
-        "uz": "Ingliz tilida gapirasanmi?"
+        "uz": "Ingliz tilida gapirasizmi?"
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "I do not understand this word.",
       "example_translations": {
         "ru": "Я не понимаю это слово.",
-        "uz": "Men bu so'zni tushunmayman."
+        "uz": "Bu so'zni tushunmayapman."
       }
     }
   ]

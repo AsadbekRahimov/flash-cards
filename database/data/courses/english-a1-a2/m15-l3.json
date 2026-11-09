@@ -64,7 +64,7 @@
       "example": "Can you explain this rule again?",
       "example_translations": {
         "ru": "Можешь объяснить это правило ещё раз?",
-        "uz": "Bu qoidani yana tushuntirib bera olasanmi?"
+        "uz": "Bu qoidani yana bir bor tushuntirib bera olasizmi?"
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "провалить",
       "translations": {
         "ru": "провалить",
-        "uz": "o'tolmaslik, yiqilmoq"
+        "uz": "yiqilmoq, o'tolmay qolmoq"
       },
       "example": "He failed the driving test twice.",
       "example_translations": {
         "ru": "Он дважды провалил экзамен по вождению.",
-        "uz": "U haydovchilik imtihonidan ikki marta o'tolmagan."
+        "uz": "U haydovchilik imtihonidan ikki marta yiqildi."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "I make the same mistake again.",
       "example_translations": {
         "ru": "Я снова делаю ту же ошибку.",
-        "uz": "Men yana o'sha xatoni qilaman."
+        "uz": "Yana o'sha xatoni qilyapman."
       }
     }
   ]

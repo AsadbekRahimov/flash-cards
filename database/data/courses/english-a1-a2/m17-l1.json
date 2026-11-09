@@ -106,7 +106,7 @@
       "example": "You can withdraw money at this machine.",
       "example_translations": {
         "ru": "Вы можете снять деньги в этом банкомате.",
-        "uz": "Bu apparatdan pul yechib olishingiz mumkin."
+        "uz": "Bu bankomatdan pul yechib olishingiz mumkin."
       }
     },
     {
@@ -115,12 +115,12 @@
       "translation": "занимать",
       "translations": {
         "ru": "занимать",
-        "uz": "qarz olmoq"
+        "uz": "qarz olmoq, olib turmoq"
       },
       "example": "Can I borrow your pen for a minute?",
       "example_translations": {
         "ru": "Можно взять твою ручку на минуту?",
-        "uz": "Qalamingni bir daqiqaga olib tursam bo'ladimi?"
+        "uz": "Ruchkangizni bir daqiqaga olib tursam bo'ladimi?"
       }
     },
     {

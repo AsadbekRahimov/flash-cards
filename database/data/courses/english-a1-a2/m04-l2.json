@@ -31,12 +31,12 @@
       "translation": "время после полудня",
       "translations": {
         "ru": "время после полудня",
-        "uz": "tushdan keyingi vaqt"
+        "uz": "tushdan keyin"
       },
       "example": "I rest in the afternoon.",
       "example_translations": {
         "ru": "Днём я отдыхаю.",
-        "uz": "Tushdan keyin men dam olaman."
+        "uz": "Tushdan keyin dam olaman."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "I am busy now.",
       "example_translations": {
         "ru": "Сейчас я занят.",
-        "uz": "Men hozir bandman."
+        "uz": "Hozir bandman."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "I will call you later.",
       "example_translations": {
         "ru": "Я позвоню тебе позже.",
-        "uz": "Senga keyinroq qo'ng'iroq qilaman."
+        "uz": "Sizga keyinroq qo'ng'iroq qilaman."
       }
     },
     {

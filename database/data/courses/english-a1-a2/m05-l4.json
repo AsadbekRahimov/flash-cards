@@ -64,7 +64,7 @@
       "example": "The park is near my house.",
       "example_translations": {
         "ru": "Парк рядом с моим домом.",
-        "uz": "Park mening uyim yaqinida."
+        "uz": "Park uyim yaqinida."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "угол",
       "translations": {
         "ru": "угол",
-        "uz": "burchak"
+        "uz": "burchak, muyulish"
       },
       "example": "The shop is on the corner.",
       "example_translations": {
         "ru": "Магазин на углу.",
-        "uz": "Do'kon burchakda."
+        "uz": "Do'kon muyulishda."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "Look at the map.",
       "example_translations": {
         "ru": "Посмотри на карту.",
-        "uz": "Xaritaga qara."
+        "uz": "Xaritaga qarang."
       }
     },
     {

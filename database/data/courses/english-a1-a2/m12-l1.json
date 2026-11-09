@@ -50,7 +50,7 @@
       "example": "This keyboard is very quiet.",
       "example_translations": {
         "ru": "Эта клавиатура очень тихая.",
-        "uz": "Bu klaviatura juda sokin."
+        "uz": "Bu klaviatura deyarli ovoz chiqarmaydi."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "зарядное устройство",
       "translations": {
         "ru": "зарядное устройство",
-        "uz": "quvvatlagich"
+        "uz": "zaryadlovchi, quvvatlagich"
       },
       "example": "I forgot my charger at the office.",
       "example_translations": {
         "ru": "Я забыл зарядку в офисе.",
-        "uz": "Quvvatlagichim ofisda qolib ketibdi."
+        "uz": "Zaryadlovchim ofisda qolib ketibdi."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "The battery is almost empty.",
       "example_translations": {
         "ru": "Батарея почти разряжена.",
-        "uz": "Batareya deyarli bo'sh."
+        "uz": "Batareya deyarli tugab qoldi."
       }
     },
     {
@@ -129,7 +129,7 @@
       "translation": "колонка",
       "translations": {
         "ru": "колонка",
-        "uz": "karnay"
+        "uz": "karnay, kolonka"
       },
       "example": "This speaker is small but loud.",
       "example_translations": {

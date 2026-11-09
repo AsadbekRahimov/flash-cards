@@ -64,7 +64,7 @@
       "example": "Put the photos in this folder.",
       "example_translations": {
         "ru": "Положи фотографии в эту папку.",
-        "uz": "Suratlarni shu papkaga qo'y."
+        "uz": "Suratlarni shu papkaga joylang."
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Save your work before you close it.",
       "example_translations": {
         "ru": "Сохрани работу, прежде чем закрыть.",
-        "uz": "Yopishdan oldin ishingni saqla."
+        "uz": "Yopishdan oldin ishingizni saqlang."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Do not delete this old photo.",
       "example_translations": {
         "ru": "Не удаляй эту старую фотографию.",
-        "uz": "Bu eski suratni o'chirma."
+        "uz": "Bu eski suratni o'chirmang."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Can you install this program for me?",
       "example_translations": {
         "ru": "Можешь установить для меня эту программу?",
-        "uz": "Bu dasturni men uchun o'rnata olasanmi?"
+        "uz": "Bu dasturni menga o'rnatib bera olasizmi?"
       }
     },
     {

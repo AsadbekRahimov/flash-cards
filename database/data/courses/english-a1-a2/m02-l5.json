@@ -17,12 +17,12 @@
       "translation": "убирать, чистить",
       "translations": {
         "ru": "убирать, чистить",
-        "uz": "tozalamoq"
+        "uz": "tozalamoq, yig'ishtirmoq"
       },
       "example": "I clean my room on Saturday.",
       "example_translations": {
         "ru": "Я убираю комнату по субботам.",
-        "uz": "Men shanba kuni xonamni tozalayman."
+        "uz": "Shanba kunlari xonamni yig'ishtiraman."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "Please wash your hands.",
       "example_translations": {
         "ru": "Пожалуйста, вымой руки.",
-        "uz": "Iltimos, qo'lingni yuv."
+        "uz": "Iltimos, qo'lingizni yuving."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Can you open the door?",
       "example_translations": {
         "ru": "Ты можешь открыть дверь?",
-        "uz": "Eshikni ocha olasanmi?"
+        "uz": "Eshikni ocha olasizmi?"
       }
     },
     {
@@ -78,7 +78,7 @@
       "example": "Close the window, it is cold.",
       "example_translations": {
         "ru": "Закрой окно, холодно.",
-        "uz": "Derazani yop, sovuq."
+        "uz": "Derazani yoping, havo sovuq."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Do not stand near the door.",
       "example_translations": {
         "ru": "Не стой у двери.",
-        "uz": "Eshik oldida turma."
+        "uz": "Eshik oldida turmang."
       }
     },
     {

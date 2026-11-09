@@ -36,7 +36,7 @@
       "example": "It is a tradition in our family.",
       "example_translations": {
         "ru": "Это традиция в нашей семье.",
-        "uz": "Bu bizning oilamizdagi an'ana."
+        "uz": "Bu oilamizning an'anasi."
       }
     },
     {
@@ -73,7 +73,7 @@
       "translation": "картина",
       "translations": {
         "ru": "картина",
-        "uz": "chizilgan rasm, kartina"
+        "uz": "rasm, kartina"
       },
       "example": "This painting is over a hundred years old.",
       "example_translations": {
@@ -148,7 +148,7 @@
       "example": "The orchestra plays at the theater tonight.",
       "example_translations": {
         "ru": "Оркестр играет в театре сегодня вечером.",
-        "uz": "Orkestr bugun kechqurun teatrda chaladi."
+        "uz": "Bugun kechqurun teatrda orkestr chiqish qiladi."
       }
     }
   ]

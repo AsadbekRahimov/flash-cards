@@ -120,7 +120,7 @@
       "example": "Drink a glass of water.",
       "example_translations": {
         "ru": "Выпей стакан воды.",
-        "uz": "Bir stakan suv ich."
+        "uz": "Bir stakan suv iching."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Give me a glass of milk.",
       "example_translations": {
         "ru": "Дай мне стакан молока.",
-        "uz": "Menga bir stakan sut ber."
+        "uz": "Menga bir stakan sut bering."
       }
     }
   ]

@@ -8,7 +8,7 @@
   "lesson": {
     "number": 5,
     "title": "Оценка покупки",
-    "title_uz": "Kiyim va narxni baholash"
+    "title_uz": "Xaridni baholash"
   },
   "words": [
     {
@@ -36,7 +36,7 @@
       "example": "Do you have enough money with you?",
       "example_translations": {
         "ru": "У тебя с собой достаточно денег?",
-        "uz": "Yoningda yetarlicha pul bormi?"
+        "uz": "Yoningizda yetarlicha pul bormi?"
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "подходить по размеру",
       "translations": {
         "ru": "подходить по размеру",
-        "uz": "mos kelmoq"
+        "uz": "to'g'ri kelmoq, mos kelmoq"
       },
       "example": "These shoes do not fit me.",
       "example_translations": {
         "ru": "Эти туфли мне не подходят по размеру.",
-        "uz": "Bu poyabzal menga mos kelmaydi."
+        "uz": "Bu poyabzal menga to'g'ri kelmaydi."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "That green shirt suits you.",
       "example_translations": {
         "ru": "Эта зелёная рубашка тебе идёт.",
-        "uz": "Bu yashil ko'ylak senga yarashadi."
+        "uz": "Bu yashil ko'ylak sizga yarashibdi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "The price is quite reasonable.",
       "example_translations": {
         "ru": "Цена вполне приемлемая.",
-        "uz": "Narxi ancha yaxshi ekan."
+        "uz": "Narxi ancha maqbul ekan."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "выгодная покупка",
       "translations": {
         "ru": "выгодная покупка",
-        "uz": "arzon va foydali xarid"
+        "uz": "foydali xarid"
       },
       "example": "This jacket is a real bargain.",
       "example_translations": {
         "ru": "Эта куртка — настоящая выгодная покупка.",
-        "uz": "Bu kurtka yaxshi ekan, narxi ham juda arzon."
+        "uz": "Bu kurtka haqiqatan ham foydali xarid."
       }
     }
   ]

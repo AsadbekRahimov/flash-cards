@@ -403,11 +403,11 @@
       ],
       "translation": {
         "ru": "Какой у вас адрес?",
-        "uz": "Manzilingiz qanday?"
+        "uz": "Manzilingiz qayer?"
       },
       "explanation": {
         "ru": "В address две d и две s. «Какой адрес?» спрашивают через what: What is your address?",
-        "uz": "address so'zida ikkita d va ikkita s bor. «Manzilingiz qanday?» deb so'rashda what ishlatiladi: What is your address?"
+        "uz": "address so'zida ikkita d va ikkita s bor. Manzil what bilan so'raladi: What is your address?"
       }
     },
     {
@@ -457,7 +457,7 @@
       },
       "explanation": {
         "ru": "kind of you — мило с вашей стороны: после kind здесь нужен of, хотя в речи он звучит очень коротко. That's = that is.",
-        "uz": "That's very kind of you — birovning yaxshiligiga javoban aytiladi. That's — that is ning qisqa shakli."
+        "uz": "kind of you — «juda mehribon ekansiz»: kind dan keyin of kerak, garchi u juda qisqa eshitilsa ham. That's = that is."
       }
     },
     {
@@ -635,7 +635,7 @@
       "display": "I can see the garden from my window.",
       "explanation": {
         "ru": "По-русски «из окна видно сад» — без «я», а по-английски нужен тот, кто видит: I can see… Место можно поставить и в начало: From my window I can see the garden.",
-        "uz": "I can see the garden — bog'ni ko'ryapman. From my window qayerdan ko'rayotganingizni bildiradi: derazamdan."
+        "uz": "O'zbekchada «bog' ko'rinadi» deymiz, inglizchada esa kim ko'rayotgani aytiladi: I can see… Joyni boshiga ham qo'yish mumkin: From my window I can see the garden."
       }
     },
     {
@@ -823,7 +823,7 @@
       ],
       "prompt": {
         "ru": "Вы можете помочь мне убрать кухню?",
-        "uz": "Oshxonani tozalashga yordam bera olasizmi?"
+        "uz": "Menga oshxonani tozalashga yordam bera olasizmi?"
       },
       "fragments": [
         "can",
@@ -1504,7 +1504,7 @@
       "display": "Grapes grow well in Uzbekistan.",
       "explanation": {
         "ru": "По-русски «виноград» — в единственном числе, а по-английски обычно grapes (ягоды), поэтому grow без -s. Well — после глагола; in Uzbekistan можно поставить и в начало.",
-        "uz": "Bu gapda grapes ko'plikda kelgani uchun grow ishlatilgan. Grow well — yaxshi o'smoq."
+        "uz": "O'zbekchada «uzum» birlikda, inglizchada esa odatda grapes (ko'plik), shuning uchun grow -s siz. Well fe'ldan keyin keladi; in Uzbekistan ni boshiga ham qo'yish mumkin."
       }
     },
     {
@@ -2046,7 +2046,7 @@
       "display": "My little brother can count to ten.",
       "explanation": {
         "ru": "can + глагол без to: can count. «До десяти» — to ten.",
-        "uz": "Can count — sanay olmoq. «O'ngacha» qismida to ishlatiladi: count to ten."
+        "uz": "can + to siz fe'l: can count — sanay oladi. «O'ngacha» — to ten."
       }
     },
     {
@@ -2096,7 +2096,7 @@
       "display": "We need six eggs for the cake.",
       "explanation": {
         "ru": "По-русски «нам нужно», а по-английски «мы нуждаемся»: we need. После six — множественное число: eggs. For the cake можно поставить и в начало.",
-        "uz": "We need — bizga kerak. Six dan keyin ot ko'plikda keladi: six eggs."
+        "uz": "O'zbekchada «bizga kerak», inglizchada esa gap «biz» bilan boshlanadi: we need. Six dan keyin ko'plik: eggs. For the cake ni boshiga ham qo'yish mumkin."
       }
     },
     {
@@ -2989,11 +2989,11 @@
       ],
       "translation": {
         "ru": "Остановка прямо за углом.",
-        "uz": "Bekat burilishdan o'tishingiz bilan ko'rinadi."
+        "uz": "Bekat muyulishdan keyin, juda yaqin."
       },
       "explanation": {
         "ru": "around the corner — за углом, совсем рядом. По-русски «за», но behind the corner так не говорят; after тоже не подходит.",
-        "uz": "Just around the corner — burilishdan keyin, shundoqqina yaqinda."
+        "uz": "around the corner — muyulishdan keyin, juda yaqin. Behind the corner deyilmaydi, after ham to'g'ri kelmaydi."
       }
     },
     {

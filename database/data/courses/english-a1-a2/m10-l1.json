@@ -36,7 +36,7 @@
       "example": "The sun is hot today.",
       "example_translations": {
         "ru": "Сегодня солнце жаркое.",
-        "uz": "Bugun quyosh issiq."
+        "uz": "Bugun quyosh qattiq qizdiryapti."
       }
     },
     {
@@ -106,7 +106,7 @@
       "example": "A storm is coming.",
       "example_translations": {
         "ru": "Приближается буря.",
-        "uz": "Bo'ron yaqinlashmoqda."
+        "uz": "Bo'ron kelyapti."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "I want water with ice.",
       "example_translations": {
         "ru": "Я хочу воды со льдом.",
-        "uz": "Men muzli suv xohlayman."
+        "uz": "Muzli suv ichmoqchiman."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "Look at the sky!",
       "example_translations": {
         "ru": "Посмотри на небо!",
-        "uz": "Osmonga qara!"
+        "uz": "Osmonga qarang!"
       }
     }
   ]

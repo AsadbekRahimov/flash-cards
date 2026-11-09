@@ -95,7 +95,7 @@
       ],
       "prompt": {
         "ru": "Вы можете помочь мне сложить чистую одежду?",
-        "uz": "Menga toza kiyimlarni buklashga yordam bera olasizmi?"
+        "uz": "Menga toza kiyimlarni taxlashga yordam bera olasizmi?"
       },
       "fragments": [
         "can",
@@ -122,7 +122,7 @@
       "display": "Can you help me fold the clean clothes?",
       "explanation": {
         "ru": "Просьба в форме вопроса: can стоит перед you. После help глагол можно ставить без to: help me fold.",
-        "uz": "Iltimos savol shaklida: can you dan oldin turadi. help dan keyin fe'l oldidan to qo'yilmasa ham bo'ladi: help me fold."
+        "uz": "Savol shaklidagi iltimos: can you dan oldin turadi. help dan keyin fe'l oldidan to qo'yilmasa ham bo'ladi: help me fold."
       }
     },
     {
@@ -236,7 +236,7 @@
       ],
       "translation": {
         "ru": "Потолок слишком низкий. Я могу дотронуться до него рукой.",
-        "uz": "Shift juda past. Unga qo'lim bilan tega olaman."
+        "uz": "Shift juda past. Qo'lim yetadi."
       },
       "explanation": {
         "ru": "О высоте потолка говорят high и low: a low ceiling — низкий потолок. Short — о длине и росте (short hair, a short man), small — о размере.",
@@ -265,7 +265,7 @@
       ],
       "translation": {
         "ru": "Здесь холодно. Включите, пожалуйста, обогреватель.",
-        "uz": "Bu yer sovuq ekan. Iltimos, isitkichni yoqing."
+        "uz": "Bu yer sovuq ekan. Iltimos, isitgichni yoqing."
       },
       "explanation": {
         "ru": "Turn on — включить прибор или свет, turn off — выключить. Open — открыть (окно, дверь), light — зажечь огонь (light a candle).",
@@ -294,7 +294,7 @@
       ],
       "translation": {
         "ru": "У вас в комнате беспорядок! Приберитесь в ней, пожалуйста.",
-        "uz": "Xonangiz tartibsiz! Iltimos, uni yig'ishtiring."
+        "uz": "Xonangiz ostin-ustun! Iltimos, yig'ishtirib qo'ying."
       },
       "explanation": {
         "ru": "Tidy up — прибраться, навести порядок. Местоимение it стоит между глаголом и up: tidy it up. On и off с tidy не употребляются.",
@@ -441,7 +441,7 @@
       ],
       "translation": {
         "ru": "Отопление не работает",
-        "uz": "Isitish ishlamayapti"
+        "uz": "Isitish tizimi ishlamayapti"
       }
     },
     {
@@ -478,7 +478,7 @@
       ],
       "prompt": {
         "ru": "Банк выдал нам заём.",
-        "uz": "Bank bizga qarz berdi."
+        "uz": "Bank bizga kredit berdi."
       },
       "fragments": [
         "the",
@@ -760,7 +760,7 @@
       },
       "explanation": {
         "ru": "Марка товара — brand (кофе, одежды, телефона). Mark — знак, отметка или оценка, stamp — почтовая марка или печать.",
-        "uz": "Tovar markasi — brand (kofe, kiyim, telefon). Mark — belgi yoki baho, stamp — pochta markasi yoki muhr."
+        "uz": "Tovar markasi — brand (qahva, kiyim, telefon). Mark — belgi yoki baho, stamp — pochta markasi yoki muhr."
       }
     },
     {
@@ -814,11 +814,11 @@
       ],
       "translation": {
         "ru": "В этом кафе хорошая еда по разумным ценам.",
-        "uz": "Bu kafening ovqati mazali, narxlari ham yaxshi."
+        "uz": "Bu kafeda ovqat mazali, narxlar ham hamyonbop."
       },
       "explanation": {
         "ru": "Reasonable price — разумная, приемлемая цена. Clever — умный (о человеке), logical — логичный (о мысли, решении); с ценами они не сочетаются.",
-        "uz": "At reasonable prices — maqbul narxlarda. «Narxi ancha yaxshi» — The price is quite reasonable."
+        "uz": "Reasonable price — maqbul, hamyonbop narx. Clever — aqlli (odam haqida), logical — mantiqiy (fikr, qaror haqida); ular narx bilan ishlatilmaydi."
       }
     },
     {
@@ -1242,7 +1242,7 @@
       },
       "explanation": {
         "ru": "Spoil your appetite — перебить аппетит. Break — ломать, damage — повреждать; с appetite они не сочетаются.",
-        "uz": "Spoil your appetite — ishtahani buzmoq. Masalan, ovqatdan oldin shirinlik yeb qo'ysangiz, asosiy ovqatni yegingiz kelmay qolishi mumkin."
+        "uz": "Spoil your appetite — ishtahani bo'g'moq. Break — sindirmoq, damage — shikastlamoq; ular appetite bilan ishlatilmaydi."
       }
     },
     {
@@ -1296,11 +1296,11 @@
       ],
       "translation": {
         "ru": "Врач говорит, что мне стоит вести более здоровый образ жизни.",
-        "uz": "Shifokorim sog'lig'imga ko'proq e'tibor berib yashashim kerakligini aytdi."
+        "uz": "Shifokorimning aytishicha, sog'lomroq turmush tarziga amal qilishim kerak."
       },
       "explanation": {
         "ru": "Lead a healthy lifestyle — вести здоровый образ жизни: lead здесь значит «вести». Do и make с lifestyle не сочетаются.",
-        "uz": "Lead a healthy lifestyle — sog'lom turmush tarziga amal qilmoq."
+        "uz": "Lead a healthy lifestyle — sog'lom turmush tarziga amal qilmoq: bu yerda lead — «olib bormoq». Do va make lifestyle bilan ishlatilmaydi."
       }
     },
     {
@@ -1663,7 +1663,7 @@
       ],
       "translation": {
         "ru": "Мы увидели в лесу стадо оленей.",
-        "uz": "O'rmonda kiyiklar podasini ko'rdik."
+        "uz": "O'rmonda bir poda kiyik ko'rdik."
       },
       "explanation": {
         "ru": "Об оленях говорят a herd — стадо (как о коровах). A flock — стая птиц или отара овец, a pack — стая волков или собак.",
@@ -1750,7 +1750,7 @@
       ],
       "translation": {
         "ru": "Мы увидели в небе вспышку молнии.",
-        "uz": "Osmonda chaqmoq chaqdi."
+        "uz": "Osmonda chaqmoq chaqqanini ko'rdik."
       },
       "explanation": {
         "ru": "A flash of lightning — вспышка молнии. Гром (thunder) не видят, а слышат: a clap of thunder. Storm — гроза или буря целиком.",
@@ -1818,7 +1818,7 @@
       ],
       "translation": {
         "ru": "Этот камень слишком тяжёлый, его не поднять",
-        "uz": "Bu tosh ko'tarish uchun juda og'ir"
+        "uz": "Bu tosh juda og'ir, uni ko'tarib bo'lmaydi"
       },
       "explanation": {
         "ru": "too (слишком) звучит как two (два) и to: too heavy — слишком тяжёлый, to lift — чтобы поднять.",
@@ -1902,7 +1902,7 @@
       "display": "The government built a new hospital.",
       "explanation": {
         "ru": "Built — прошедшее время от build (неправильный глагол). Прилагательное new стоит между a и hospital: a new hospital.",
-        "uz": "Built — build fe'lining o'tgan zamon shakli. A new hospital — yangi kasalxona."
+        "uz": "Built — build ning o'tgan zamon shakli (noto'g'ri fe'l). Sifat a bilan ot orasida turadi: a new hospital."
       }
     },
     {
@@ -2187,11 +2187,11 @@
       ],
       "translation": {
         "ru": "После того телешоу она стала настоящей знаменитостью.",
-        "uz": "O'sha teleko'rsatuvdan keyin u juda mashhur bo'lib ketdi."
+        "uz": "O'sha teleko'rsatuvdan keyin u haqiqiy yulduzga aylandi."
       },
       "explanation": {
         "ru": "Become + существительное — стать кем-то: became a celebrity. Get бывает с прилагательным (got famous), turn — только turn into a celebrity.",
-        "uz": "Become a celebrity — elga tanilib, mashhur odam bo'lib ketmoq."
+        "uz": "Become + ot — kimdir bo'lmoq: became a celebrity. Get sifat bilan keladi (got famous), turn esa faqat turn into a celebrity shaklida."
       }
     },
     {

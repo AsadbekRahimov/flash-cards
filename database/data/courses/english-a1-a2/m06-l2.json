@@ -22,7 +22,7 @@
       "example": "He wears a white shirt.",
       "example_translations": {
         "ru": "Он носит белую рубашку.",
-        "uz": "U oq ko'ylak kiyadi."
+        "uz": "U oq ko'ylak kiyib yuradi."
       }
     },
     {
@@ -50,7 +50,7 @@
       "example": "Take your jacket, it is cold.",
       "example_translations": {
         "ru": "Возьми куртку, холодно.",
-        "uz": "Kurtkangni ol, sovuq."
+        "uz": "Kurtkangizni oling, havo sovuq."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "шапка, шляпа",
       "translations": {
         "ru": "шапка, шляпа",
-        "uz": "qalpoq, shlyapa"
+        "uz": "qalpoq, telpak"
       },
       "example": "He wears a hat in winter.",
       "example_translations": {
         "ru": "Зимой он носит шапку.",
-        "uz": "U qishda qalpoq kiyadi."
+        "uz": "U qishda telpak kiyib yuradi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "These jeans are cheap.",
       "example_translations": {
         "ru": "Эти джинсы дешёвые.",
-        "uz": "Bu jinsi shimlar arzon."
+        "uz": "Bu jinsi shim arzon."
       }
     },
     {

@@ -3,12 +3,12 @@
   "stage": {
     "number": 13,
     "title": "Чувства и характер",
-    "title_uz": "His-tuyg'ular va xarakter"
+    "title_uz": "His-tuyg'ular va fe'l-atvor"
   },
   "lesson": {
     "number": 5,
     "title": "Настроение и качества",
-    "title_uz": "Kayfiyat va odamni tasvirlash"
+    "title_uz": "Kayfiyat va xislatlar"
   },
   "words": [
     {
@@ -36,7 +36,7 @@
       "example": "I have a strange feeling about this.",
       "example_translations": {
         "ru": "У меня странное чувство на этот счёт.",
-        "uz": "Bu haqda menda g'alati tuyg'u bor."
+        "uz": "Bu borada ichimda g'alati bir tuyg'u bor."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Be careful with that hot cup.",
       "example_translations": {
         "ru": "Осторожнее с этой горячей чашкой.",
-        "uz": "Bu issiq piyola bilan ehtiyot bo'ling."
+        "uz": "Issiq piyolaga ehtiyot bo'ling."
       }
     },
     {
@@ -148,7 +148,7 @@
       "example": "You are lucky to have a job.",
       "example_translations": {
         "ru": "Тебе повезло, что у тебя есть работа.",
-        "uz": "Sen ishing borligi bilan omadlisan."
+        "uz": "Ishingiz bor, siz omadli ekansiz."
       }
     }
   ]

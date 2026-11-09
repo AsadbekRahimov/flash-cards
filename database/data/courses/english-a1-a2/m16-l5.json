@@ -3,7 +3,7 @@
   "stage": {
     "number": 16,
     "title": "Дом и быт",
-    "title_uz": "Uy va maishat"
+    "title_uz": "Uy-ro'zg'or"
   },
   "lesson": {
     "number": 5,
@@ -134,7 +134,7 @@
       "example": "Fill the bucket with warm water.",
       "example_translations": {
         "ru": "Наполни ведро тёплой водой.",
-        "uz": "Chelakni iliq suv bilan to'ldir."
+        "uz": "Chelakni iliq suvga to'ldiring."
       }
     },
     {

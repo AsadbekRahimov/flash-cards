@@ -64,7 +64,7 @@
       "example": "Take your camera to the mountains.",
       "example_translations": {
         "ru": "Возьми фотоаппарат в горы.",
-        "uz": "Fotoapparatingni tog'larga ol."
+        "uz": "Toqqa fotoapparatingizni olib oling."
       }
     },
     {
@@ -143,7 +143,7 @@
       "translation": "открытка",
       "translations": {
         "ru": "открытка",
-        "uz": "otkritka, pochta kartochkasi"
+        "uz": "otkritka, ochiq xat"
       },
       "example": "I send a postcard to my friend.",
       "example_translations": {

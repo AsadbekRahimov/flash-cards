@@ -54,11 +54,11 @@
       ],
       "translation": {
         "ru": "Посадка на наш рейс — у выхода 14.",
-        "uz": "Reysimizga 14-darvozadan chiqiladi."
+        "uz": "Reysimiz 14-chiqish eshigidan jo'naydi."
       },
       "explanation": {
         "ru": "Выход на посадку в аэропорту — gate: gate 14. Exit — выход из здания или зала (табличка EXIT), door — просто дверь.",
-        "uz": "Gate — aeroportda samolyotga chiqish joyi. Masalan, gate 14 — 14-darvoza."
+        "uz": "Gate — aeroportda samolyotga chiqish eshigi: gate 14. Exit — bino yoki zaldan chiqish (EXIT yozuvi), door — oddiy eshik."
       }
     },
     {
@@ -298,7 +298,7 @@
       "display": "You can leave your bags at reception.",
       "explanation": {
         "ru": "can + глагол без to: can leave. Оставить что-то где-то — leave something at…: at reception. At reception можно поставить и в начало.",
-        "uz": "Can leave — qoldirish mumkin. At reception qayerda qoldirish mumkinligini bildiradi: qabulxonada."
+        "uz": "can dan keyin fe'l oldidan to qo'yilmaydi: can leave. Biror joyda qoldirmoq — leave something at…: at reception. At reception boshida ham kelishi mumkin."
       }
     },
     {
@@ -533,7 +533,7 @@
       ],
       "translation": {
         "ru": "Слишком громко. Можете убавить звук на колонке?",
-        "uz": "Juda baland. Karnay ovozini pasaytira olasizmi?"
+        "uz": "Ovoz juda baland. Karnay ovozini pasaytira olasizmi?"
       },
       "explanation": {
         "ru": "turn down — убавить громкость, turn up — прибавить. Раз слишком громко, нужно down. Turn out значит «оказаться».",
@@ -566,7 +566,7 @@
       },
       "explanation": {
         "ru": "В интернете — on the internet (как on TV, on the radio). In the internet — частая ошибка из-за русского «в».",
-        "uz": "Internetda — on the internet (on TV, on the radio kabi). In the internet — ko'p uchraydigan xato."
+        "uz": "Internetda — on the internet (on TV, on the radio kabi). O'zbekchadagi «-da» ga qarab in qo'yish — ko'p uchraydigan xato."
       }
     },
     {
@@ -595,7 +595,7 @@
       },
       "explanation": {
         "ru": "be in contact with someone — поддерживать связь с кем-то: in contact with. At и on в этом выражении не употребляются.",
-        "uz": "Be in contact with someone — birov bilan aloqada bo'lmoq."
+        "uz": "Be in contact with someone — kim bilandir aloqada bo'lmoq: in contact with. At va on bu iborada ishlatilmaydi."
       }
     },
     {
@@ -692,7 +692,7 @@
       "display": "Where did you put my charger?",
       "explanation": {
         "ru": "Вопрос о прошлом: Where + did + you + глагол в начальной форме. Put — неправильный глагол: put — put — put.",
-        "uz": "O'tgan zamon savolida did dan keyin fe'l asosiy shaklda keladi: Where did you put my charger?"
+        "uz": "O'tgan zamon savoli: Where + did + you + fe'lning asosiy shakli. Put — noto'g'ri fe'l, uchala shakli bir xil: put — put — put."
       }
     },
     {
@@ -745,7 +745,7 @@
       "display": "I can't open this website on my phone.",
       "explanation": {
         "ru": "can't + глагол без to: can't open. «На телефоне» — on my phone; это можно поставить и в начало.",
-        "uz": "Can't open — ocha olmayman. Telefonda — on my phone."
+        "uz": "can't dan keyin fe'l oldidan to qo'yilmaydi: can't open — ocha olmayman. «Telefonimda» — on my phone; bu qism boshida ham kelishi mumkin."
       }
     },
     {
@@ -761,7 +761,7 @@
       ],
       "prompt": {
         "ru": "С кем вы переписываетесь?",
-        "uz": "Kim bilan chatlashyapsiz?"
+        "uz": "Kim bilan yozishyapsiz?"
       },
       "fragments": [
         "who",
@@ -923,7 +923,7 @@
       ],
       "translation": {
         "ru": "Я люблю шум дождя",
-        "uz": "Yomg'ir tovushini yaxshi ko'raman"
+        "uz": "Yomg'ir ovozini yaxshi ko'raman"
       }
     },
     {
@@ -1018,11 +1018,11 @@
       ],
       "translation": {
         "ru": "Будьте честны и скажите мне правду.",
-        "uz": "Menga rostini ayting."
+        "uz": "Rostgo'y bo'ling, menga haqiqatni ayting."
       },
       "explanation": {
         "ru": "Сказать правду — tell the truth; после tell сразу идёт, кому: tell me. Say и talk с the truth так не употребляются.",
-        "uz": "Tell the truth — rostini aytmoq. Kimga aytayotganingiz tell dan keyin keladi: tell me the truth."
+        "uz": "Tell the truth — rostini aytmoq. Kimga aytilsa, u tell dan keyin keladi: tell me the truth. Say va talk the truth bilan bunday ishlatilmaydi."
       }
     },
     {
@@ -1105,7 +1105,7 @@
       ],
       "translation": {
         "ru": "Вы ужасно выглядите. Вы заболели?",
-        "uz": "Juda yomon ko'rinyapsiz. Kasal bo'lib qoldingizmi?"
+        "uz": "Rangingiz juda yomon. Kasal bo'lib qoldingizmi?"
       },
       "explanation": {
         "ru": "После look («выглядеть»), feel, smell, taste ставят прилагательное: look awful. Awfully и badly — наречия, здесь они не подходят.",
@@ -1263,7 +1263,7 @@
       "display": "Can you imagine a world without phones?",
       "explanation": {
         "ru": "Вопрос с can: Can + you + глагол без to. Without — «без»: a world without phones.",
-        "uz": "Savol Can you…? deb boshlanadi. A world without phones — telefonlarsiz dunyo."
+        "uz": "Savol: Can + you + fe'l (oldidan to qo'yilmaydi): Can you imagine…? Without — «…siz»: a world without phones — telefonlarsiz dunyo."
       }
     },
     {
@@ -1514,7 +1514,7 @@
       },
       "explanation": {
         "ru": "Специальное предложение (выгодная цена) — a special offer. Proposal — официальное предложение (план, проект), suggestion — совет, идея.",
-        "uz": "Maxsus taklif (arzon narx) — a special offer. Proposal — rasmiy taklif (reja, loyiha), suggestion — maslahat, g'oya."
+        "uz": "Maxsus taklif (qulay narx) — a special offer. Proposal — rasmiy taklif (reja, loyiha), suggestion — maslahat, g'oya."
       }
     },
     {
@@ -1812,7 +1812,7 @@
       ],
       "translation": {
         "ru": "Вакансия ещё открыта?",
-        "uz": "Bo'sh ish o'rni hali ham ochiqmi?"
+        "uz": "Bo'sh ish o'rni hali ham bormi?"
       },
       "explanation": {
         "ru": "vacancy пишется с двумя c: va-can-cy.",
@@ -1962,7 +1962,7 @@
       ],
       "translation": {
         "ru": "В этом году мы изучаем двенадцать предметов.",
-        "uz": "Bu yil o'n ikkita fanni o'qiymiz."
+        "uz": "Bu yil o'n ikkita fan o'qiymiz."
       },
       "explanation": {
         "ru": "Школьный предмет — subject. Object — предмет как вещь (a small object), item — пункт списка или товар.",
@@ -2108,7 +2108,7 @@
       ],
       "prompt": {
         "ru": "Я оставил учебник в школе.",
-        "uz": "Darsligim maktabda qolib ketibdi."
+        "uz": "Darsligimni maktabda qoldirib ketibman."
       },
       "fragments": [
         "I",
@@ -2131,7 +2131,7 @@
       "display": "I left my textbook at school.",
       "explanation": {
         "ru": "leave — неправильный глагол: leave — left — left. «В школе» — at school, без the.",
-        "uz": "Left — leave fe'lining o'tgan zamon shakli. At school — maktabda."
+        "uz": "leave — noto'g'ri fe'l: leave — left — left. «Maktabda» — at school, artiklsiz."
       }
     },
     {
@@ -2147,7 +2147,7 @@
       ],
       "prompt": {
         "ru": "Он провалил экзамен, потому что не готовился.",
-        "uz": "U tayyorlanmagani uchun imtihondan o'tolmadi."
+        "uz": "U tayyorlanmagani uchun imtihondan o'ta olmadi."
       },
       "fragments": [
         "he",
@@ -2184,7 +2184,7 @@
       "display": "He failed the exam because he didn't study.",
       "explanation": {
         "ru": "fail an exam — провалить экзамен, без предлога. Because — «потому что»; эту часть можно поставить и в начало.",
-        "uz": "Fail an exam — imtihondan o'tolmaslik. Because dan keyin sabab aytiladi: because he didn't study."
+        "uz": "Fail an exam — imtihondan o'ta olmaslik, predlogsiz. Because — «chunki»; bu qismni boshiga ham qo'yish mumkin."
       }
     },
     {
@@ -2266,7 +2266,7 @@
       "display": "How can I improve my vocabulary?",
       "explanation": {
         "ru": "Вопрос с can: How + can + I + глагол без to. Vocabulary — словарный запас, а dictionary — словарь-книга.",
-        "uz": "Improve my vocabulary — so'z boyligimni oshirmoq. Qanday qilish mumkinligini How can I…? deb so'rang."
+        "uz": "Savol: How + can + I + fe'l (oldidan to qo'yilmaydi). Vocabulary — so'z boyligi, dictionary esa lug'at kitobi."
       }
     },
     {

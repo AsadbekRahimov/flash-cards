@@ -106,7 +106,7 @@
       "example": "Our team wins today.",
       "example_translations": {
         "ru": "Сегодня наша команда выигрывает.",
-        "uz": "Bizning jamoamiz bugun yutadi."
+        "uz": "Bugun jamoamiz yutadi."
       }
     },
     {
@@ -129,7 +129,7 @@
       "translation": "матч",
       "translations": {
         "ru": "матч",
-        "uz": "sport o'yini, uchrashuv"
+        "uz": "o'yin, uchrashuv"
       },
       "example": "The match starts at seven.",
       "example_translations": {

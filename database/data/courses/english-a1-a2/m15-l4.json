@@ -22,7 +22,7 @@
       "example": "The lecture starts at eight thirty.",
       "example_translations": {
         "ru": "Лекция начинается в половине девятого.",
-        "uz": "Ma'ruza sakkiz o'ttizda boshlanadi."
+        "uz": "Ma'ruza soat sakkiz yarimda boshlanadi."
       }
     },
     {
@@ -36,7 +36,7 @@
       "example": "He received his diploma last June.",
       "example_translations": {
         "ru": "Он получил диплом в прошлом июне.",
-        "uz": "U diplomini o'tgan iyunda oldi."
+        "uz": "U diplomini o'tgan yili iyunda oldi."
       }
     },
     {
@@ -134,7 +134,7 @@
       "example": "Many students live in the dormitory.",
       "example_translations": {
         "ru": "Многие студенты живут в общежитии.",
-        "uz": "Ko'p talabalar yotoqxonada yashaydi."
+        "uz": "Talabalarning ko'pi yotoqxonada yashaydi."
       }
     },
     {

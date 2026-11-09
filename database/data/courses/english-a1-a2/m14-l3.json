@@ -50,7 +50,7 @@
       "example": "The shop makes a small profit.",
       "example_translations": {
         "ru": "Магазин получает небольшую прибыль.",
-        "uz": "Do'kon kichik foyda ko'radi."
+        "uz": "Do'kon ozgina foyda ko'radi."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "бюджет",
       "translations": {
         "ru": "бюджет",
-        "uz": "budjet"
+        "uz": "byudjet"
       },
       "example": "Our budget for this month is low.",
       "example_translations": {
         "ru": "Наш бюджет на этот месяц небольшой.",
-        "uz": "Bu oyga ajratilgan pulimiz kam."
+        "uz": "Bu oy uchun byudjetimiz kam."
       }
     },
     {
@@ -87,12 +87,12 @@
       "translation": "вести переговоры",
       "translations": {
         "ru": "вести переговоры",
-        "uz": "muzokara olib bormoq"
+        "uz": "muzokara olib bormoq, kelishmoq"
       },
       "example": "We negotiate the price with the seller.",
       "example_translations": {
         "ru": "Мы договариваемся о цене с продавцом.",
-        "uz": "Biz sotuvchi bilan narx haqida muzokara olib boramiz."
+        "uz": "Sotuvchi bilan narxni kelishib olamiz."
       }
     },
     {
