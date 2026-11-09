@@ -8,6 +8,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import { formatNumber } from '@/composables/format'
+import { realName } from '@/composables/practiceLabels'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
 import { useTelegram } from '@/composables/useTelegram'
@@ -112,7 +113,7 @@ function place(rank: number): string {
 
       <ListGroup v-if="!isMock && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
         <!-- Equal scores share a place (1, 2, 2, 4), and the API names no learner: a row is told by its position in the list. -->
-        <ListRow v-for="(row, index) in leaderboard" :key="index" :title="row.name" :data-testid="`leader-${index + 1}`">
+        <ListRow v-for="(row, index) in leaderboard" :key="index" :title="realName(row.name) || t('league.anonymous')" :data-testid="`leader-${index + 1}`">
           <template #leading>
             <span
               class="w-[30px] shrink-0 text-center"

@@ -124,6 +124,9 @@ export const ru = {
   'today.onboarding_hint': 'Чтобы завершить настройку, отправьте боту /start',
   'today.greeting': 'Привет, {name}!',
   'today.session.hint': 'Сначала повторение, потом новые слова из вашего курса',
+  'today.done.quota': 'На сегодня всё. Новые слова откроются завтра.',
+  'today.done.course': 'Вы прошли все слова курса. Мы напомним, когда придёт время повторить.',
+  'today.done.choose_course': 'Выбрать другой курс',
   'today.new.unlimited': 'Новые слова — без ограничений',
   'today.new.no_course': 'Выберите курс, чтобы учить новые слова',
   'today.streak.in_row': {
@@ -136,6 +139,7 @@ export const ru = {
   'today.course.choose': 'Выбрать курс',
   'today.league.title': 'Лига · {tier}',
   'today.league.subtitle': '{rank}-е место из {members} · {points}',
+  'today.league.alone': 'Ждём соперников · {points}',
   'today.league.join_title': 'Лига недели',
   'today.league.join_subtitle': 'Повторите карточки, чтобы попасть в группу',
 
@@ -210,6 +214,8 @@ export const ru = {
 
   // ---- finished (training) ----
   'finished.title': 'Отлично!',
+  'finished.title_empty': 'Пока всё',
+  'finished.title_ok': 'Хорошая работа!',
   'finished.reviewed': {
     one: 'Вы повторили {count} слово.',
     few: 'Вы повторили {count} слова.',
@@ -490,6 +496,7 @@ export const ru = {
   'league.opted_out': 'Вы вышли из лиг. Включить их снова можно в настройках.',
   'league.not_placed': 'На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге.',
   'league.my_place': '{rank}-е место из {members}',
+  'league.alone': 'В группе пока только вы. Места появятся, когда присоединятся соперники.',
   'league.zone.promotion': 'Зона повышения',
   'league.zone.safe': 'Безопасная зона',
   'league.zone.demotion': 'Зона понижения',

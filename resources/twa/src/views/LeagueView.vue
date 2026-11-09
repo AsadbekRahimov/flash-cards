@@ -13,6 +13,7 @@ import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import type { IconName } from '@/components/ui/icons'
 import { formatDate } from '@/composables/format'
 import { tierColor, tierLabelKey } from '@/composables/leagueTiers'
+import { realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
 import { useLeagueStore } from '@/stores/league'
@@ -69,6 +70,9 @@ const canPromote = computed(() => {
 const canDemote = computed(() => (membership.value?.tier ?? 0) > 0)
 const isTopTier = computed(() => membership.value !== null && !canPromote.value)
 
+/** A group of one: no place, no zone, nothing to catch up with - the card says so until rivals join (the group fills as the week starts). */
+const alone = computed(() => membership.value?.members_count === 1)
+
 /** The week as "26 Oct – 1 Nov" (calendar dates of the league's week). */
 const weekRange = computed(() => {
   const week = data.value?.week
@@ -90,7 +94,7 @@ const closesLine = computed(() => {
 function zoneOf(rank: number): LeagueZone {
   const m = membership.value
   const rules = data.value?.rules
-  if (!m || !rules) return 'safe'
+  if (!m || !rules || alone.value) return 'safe'
   if (canPromote.value && rank <= rules.promote) return 'promotion'
   if (canDemote.value && rank > m.members_count - rules.demote) return 'demotion'
   return 'safe'
@@ -102,7 +106,7 @@ const RANK_TONES: Record<LeagueZone, string> = {
   demotion: 'text-danger-ink',
 }
 
-const rowName = (row: LeagueStandingItem): string => row.name || t('league.anonymous')
+const rowName = (row: LeagueStandingItem): string => realName(row.name) || t('league.anonymous')
 
 async function load(): Promise<void> {
   failed.value = ''
@@ -154,7 +158,7 @@ onMounted(() => {
               <div class="text-[13px] leading-[18px] font-medium text-tg-hint" data-testid="tier-name">
                 {{ tierName(membership.tier_key) }}
               </div>
-              <div class="text-[26px] leading-8 font-bold tracking-tight" data-testid="my-place">
+              <div v-if="!alone" class="text-[26px] leading-8 font-bold tracking-tight" data-testid="my-place">
                 {{ t('league.my_place', { rank: membership.rank, members: membership.members_count }) }}
               </div>
               <div class="text-[15px] leading-5 text-tg-subtitle" data-testid="my-points">
@@ -163,7 +167,8 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="mt-3 flex flex-col items-start gap-2">
+          <p v-if="alone" class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="alone">{{ t('league.alone') }}</p>
+          <div v-else class="mt-3 flex flex-col items-start gap-2">
             <span class="chip" :class="zoneView.chip" data-testid="zone">
               <AppIcon v-if="zoneView.icon" :name="zoneView.icon" :size="14" />
               {{ t(zoneView.label) }}

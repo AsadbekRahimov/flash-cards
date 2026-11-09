@@ -182,6 +182,14 @@ describe('FriendsView', () => {
     expect(text(wrapper, 'challenges-empty')).toBe('Вызовов пока нет.')
   })
 
+  it('shows "Друг" for a friend whose name has no letter or digit', async () => {
+    const { wrapper } = await render(
+      friendsResponse({ friends: [{ id: 11, first_name: '.', streak: 4, words_learned: 3, since: null }] }),
+    )
+
+    expect(wrapper.get('[data-testid=friend-row]').text()).toContain('Друг')
+  })
+
   it.each([
     [1, '1 слово'],
     [2, '2 слова'],

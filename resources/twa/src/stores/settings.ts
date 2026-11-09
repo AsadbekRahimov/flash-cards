@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
 import { errorMessage } from '@/i18n/errors'
 import { getLocale, setLocale, SUPPORTED_LOCALES, t, type Locale } from '@/i18n'
+import { formatDate } from '@/composables/format'
 import { ApiClientError } from '@/api/client'
 import type { LearnerSettings, SettingsPatch } from '@/api/types'
 
@@ -20,16 +22,6 @@ interface SettingsState {
 
 function isLocale(value: string): value is Locale {
   return (SUPPORTED_LOCALES as readonly string[]).includes(value)
-}
-
-/** "20 октября, 15:00" in the given time zone (an id the browser does not know falls back to the device's). */
-function formatWhen(at: Date, timeZone: string | undefined): string {
-  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }
-  try {
-    return new Intl.DateTimeFormat(getLocale(), { ...options, timeZone }).format(at)
-  } catch {
-    return new Intl.DateTimeFormat(getLocale(), options).format(at)
-  }
 }
 
 export const useSettingsStore = defineStore('settings', {
@@ -53,7 +45,7 @@ export const useSettingsStore = defineStore('settings', {
       const at = new Date(iso)
       if (Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) return null
 
-      return t('settings.timezone.locked', { when: formatWhen(at, state.data?.timezone) })
+      return t('settings.timezone.locked', { when: formatDate(iso, 'dayMonthTime', getLocale(), state.data?.timezone) })
     },
   },
 
@@ -68,7 +60,10 @@ export const useSettingsStore = defineStore('settings', {
       this.status = this.data === null ? 'loading' : this.status
       this.errorMessage = ''
       try {
-        this.apply((await api.me.get()).settings)
+        const me = await api.me.get()
+        this.apply(me.settings)
+        // The same `/me` tells the plan: the Pro exercises of the screen are locked for Free without a second request.
+        useBillingStore().apply(me)
         this.status = 'ready'
       } catch (err) {
         this.status = 'error'

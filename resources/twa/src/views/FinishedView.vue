@@ -44,13 +44,22 @@ const reasonLabel = computed(() => {
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
+const reviewedCount = computed(() => summary.value?.reviewed ?? props.reviewed)
+
 /** An empty session that a reason already explains ("nothing is due") has no numbers worth showing. */
-const hasNumbers = computed(() => (summary.value?.reviewed ?? props.reviewed) > 0 || reasonLabel.value === null)
+const hasNumbers = computed(() => reviewedCount.value > 0 || reasonLabel.value === null)
 
 /** Share of right answers, whole percent; «—» while nothing was answered. */
 const correctPercent = computed(() => {
   const current = summary.value
   return current !== null && current.reviewed > 0 ? `${Math.round((current.correct / current.reviewed) * 100)}%` : '—'
+})
+
+/** The headline follows the result: nothing reviewed is not "Great!", and under 80% right is "Good work!"; a group session (no summary) has no share to judge by. */
+const title = computed(() => {
+  if (reviewedCount.value === 0) return t('finished.title_empty')
+  const current = summary.value
+  return current !== null && current.correct / current.reviewed < 0.8 ? t('finished.title_ok') : t('finished.title')
 })
 
 const goalPercent = computed(() => {
@@ -83,7 +92,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
   paywallOpen.value = false
 })
 
-notificationHaptic('success')
+if (reviewedCount.value > 0) notificationHaptic('success')
 
 // A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
 onBeforeUnmount(() => {
@@ -101,7 +110,7 @@ onBeforeUnmount(() => {
         >
           <AppIcon name="check-circle" solid :size="48" />
         </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ t('finished.title') }}</h1>
+        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ title }}</h1>
         <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
       </header>
 

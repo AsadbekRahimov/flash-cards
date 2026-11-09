@@ -9,6 +9,7 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
+import { realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
 import { useTelegram } from '@/composables/useTelegram'
@@ -151,12 +152,12 @@ onMounted(() => {
         <ListRow
           v-for="(item, index) in data.referrals"
           :key="index"
-          :title="item.first_name || t('referrals.list.anonymous')"
+          :title="realName(item.first_name) || t('referrals.list.anonymous')"
           :subtitle="formatDate(item.linked_at, 'dayMonthShort', locale)"
           data-testid="referral-row"
         >
           <template #leading>
-            <InitialAvatar :name="item.first_name || t('referrals.list.anonymous')" size="sm" />
+            <InitialAvatar :name="realName(item.first_name) || t('referrals.list.anonymous')" size="sm" />
           </template>
           <template #trailing>
             <span class="chip shrink-0" :class="STATUSES[item.status].chip" data-testid="referral-status">

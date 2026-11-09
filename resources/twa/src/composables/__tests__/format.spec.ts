@@ -31,19 +31,69 @@ describe('formatDate', () => {
     ['weekdayTime', 'ср 18:05'],
     ['weekdayDayMonth', 'среда, 28 октября'],
     ['time', '18:05'],
+    ['dayMonthTime', '28 октября в 18:05'],
   ])('ru %s', (style, expected) => {
     expect(plain(formatDate(EVENING, style, 'ru'))).toBe(expected)
   })
 
-  it.each<[DateStyle, string]>([
-    ['dayMonth', '28-oktabr'],
-    ['dayMonthYear', '28-oktabr, 2026'],
-    ['dayMonthShort', '28-okt'],
-    ['dayMonthShortTime', '28-okt, 18:05'],
-    ['weekdayDayMonth', 'chorshanba, 28-oktabr'],
-    ['time', '18:05'],
-  ])('uz (Latin) %s', (style, expected) => {
-    expect(plain(formatDate(EVENING, style, 'uz'))).toBe(expected)
+  describe('uz (Latin), put together without Uzbek data of Intl', () => {
+    // 2026-11-09 is a Monday; 07:05 in Tashkent is 02:05 UTC. The expectations are what ICU of Node gives for `uz-Latn`.
+    const MOMENT = '2026-11-09T02:05:00Z'
+    const ZONE = 'Asia/Tashkent'
+
+    const EXPECTED: Array<[DateStyle, string]> = [
+      ['dayMonth', '9-noyabr'],
+      ['dayMonthYear', '9-noyabr, 2026'],
+      ['dayMonthShort', '9-noy'],
+      ['dayMonthShortYear', '9-noy, 2026'],
+      ['dayMonthShortTime', '9-noy, 07:05'],
+      ['weekdayTime', 'Dush, 07:05'],
+      ['weekdayDayMonth', 'dushanba, 9-noyabr'],
+      ['time', '07:05'],
+      ['dayMonthTime', '9-noyabr, 07:05'],
+    ]
+
+    it.each(EXPECTED)('%s', (style, expected) => {
+      expect(formatDate(MOMENT, style, 'uz', ZONE)).toBe(expected)
+    })
+
+    it('names every month and every weekday', () => {
+      const months = [...Array(12).keys()].map((m) => formatDate(`2026-${String(m + 1).padStart(2, '0')}-15`, 'dayMonth', 'uz'))
+      expect(months).toEqual([
+        '15-yanvar', '15-fevral', '15-mart', '15-aprel', '15-may', '15-iyun',
+        '15-iyul', '15-avgust', '15-sentabr', '15-oktabr', '15-noyabr', '15-dekabr',
+      ])
+      const shortMonths = [...Array(12).keys()].map((m) => formatDate(`2026-${String(m + 1).padStart(2, '0')}-15`, 'dayMonthShort', 'uz'))
+      expect(shortMonths).toEqual(['15-yan', '15-fev', '15-mar', '15-apr', '15-may', '15-iyn', '15-iyl', '15-avg', '15-sen', '15-okt', '15-noy', '15-dek'])
+
+      // 2026-11-08 is a Sunday.
+      const days = [8, 9, 10, 11, 12, 13, 14].map((d) => formatDate(`2026-11-${String(d).padStart(2, '0')}`, 'weekdayDayMonth', 'uz').split(',')[0])
+      expect(days).toEqual(['yakshanba', 'dushanba', 'seshanba', 'chorshanba', 'payshanba', 'juma', 'shanba'])
+      const shortDays = [8, 9, 10, 11, 12, 13, 14].map((d) => formatDate(`2026-11-${String(d).padStart(2, '0')}T12:00:00`, 'weekdayTime', 'uz').split(',')[0])
+      expect(shortDays).toEqual(['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan'])
+    })
+
+    it('shows midnight as 00:00 and moves the day with the zone', () => {
+      // 19:00 UTC on the 8th is 00:00 on the 9th in Tashkent.
+      expect(formatDate('2026-11-08T19:00:00Z', 'dayMonthShortTime', 'uz', ZONE)).toBe('9-noy, 00:00')
+      expect(formatDate('2026-11-08T19:00:00Z', 'weekdayTime', 'uz', 'UTC')).toBe('Yak, 19:00')
+    })
+
+    it('stays Uzbek when the browser has no Uzbek data (Chrome in Telegram Web gives «M11 9, Mon»)', async () => {
+      vi.resetModules()
+      const requested: unknown[] = []
+      const Original = Intl.DateTimeFormat as new (...args: unknown[]) => unknown
+      vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (...args: unknown[]) {
+        requested.push(args[0])
+        // No `uz` data: such a browser answers with the root locale, whatever tag it is asked for.
+        const tag = String(args[0]).startsWith('uz') ? 'und' : args[0]
+        return new Original(tag, args[1]) as never
+      })
+      const fresh = await import('../format')
+
+      for (const [style, expected] of EXPECTED) expect(fresh.formatDate(MOMENT, style, 'uz', ZONE)).toBe(expected)
+      expect(requested.filter((tag) => String(tag).startsWith('uz'))).toEqual([])
+    })
   })
 
   it('formats Uzbek as Latin script, never Cyrillic', () => {
@@ -87,7 +137,7 @@ describe('formatDate', () => {
     expect(formatDate('not a date', 'dayMonthYear', 'uz')).toBe('')
   })
 
-  it('builds one Intl formatter per locale and style', async () => {
+  it('builds one Intl formatter per locale and style (Uzbek: one en-US parts formatter per zone)', async () => {
     vi.resetModules()
     const created = countConstructions('DateTimeFormat')
     const fresh = await import('../format')
@@ -97,7 +147,7 @@ describe('formatDate', () => {
     fresh.formatDate(NOON, 'dayMonth', 'uz')
     fresh.formatDate(NOON, 'dayMonth', 'uz')
 
-    expect(created).toEqual(['ru', 'ru', 'uz-Latn'])
+    expect(created).toEqual(['ru', 'ru', 'en-US'])
   })
 
   it('builds one Intl formatter per zone as well, also for a zone it does not know', async () => {

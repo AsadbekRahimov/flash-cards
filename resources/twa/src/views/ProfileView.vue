@@ -9,6 +9,7 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { formatDate } from '@/composables/format'
+import { realName } from '@/composables/practiceLabels'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
@@ -60,7 +61,7 @@ async function load(): Promise<void> {
   attempted.value = true
 }
 
-const name = computed(() => (auth.learner?.first_name ?? '').trim())
+const name = computed(() => realName(auth.learner?.first_name))
 /** First letter of the name (a whole code point, so an emoji is not cut in half). */
 const initial = computed(() => (Array.from(name.value)[0] ?? '').toUpperCase())
 

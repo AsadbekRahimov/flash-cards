@@ -6,7 +6,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import OpponentStatus from '@/components/battle/OpponentStatus.vue'
 import type { PlayerState } from '@/components/battle/OpponentStatus.vue'
 import { clockText, remainingMs, secondsLeft } from '@/composables/battleTime'
-import { MODE_LOOK, lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { MODE_LOOK, lessonHeader, modeTitle, realName } from '@/composables/practiceLabels'
 import { useNow } from '@/composables/useNow'
 import { useI18n } from '@/i18n'
 import type { BattleAction } from '@/stores/battle'
@@ -61,12 +61,12 @@ const phase = computed((): Phase => {
   return props.battle.role === 'challenger' ? 'invite_sent' : 'invite_received'
 })
 
-const opponentName = computed(() => props.battle.opponent.first_name?.trim() || t('battle.opponent'))
-const named = computed(() => Boolean(props.battle.opponent.first_name?.trim()))
+const opponentName = computed(() => realName(props.battle.opponent.first_name) || t('battle.opponent'))
+const named = computed(() => Boolean(realName(props.battle.opponent.first_name)))
 
 const title = computed((): string => {
   if (phase.value === 'room') return t('battle.room.title')
-  if (phase.value === 'invite_received') return t('practice.hub.battle.invited_by', { name: props.battle.opponent.first_name?.trim() || t('friends.list.anonymous') })
+  if (phase.value === 'invite_received') return t('practice.hub.battle.invited_by', { name: realName(props.battle.opponent.first_name) || t('friends.list.anonymous') })
   return named.value ? t('battle.invite.waiting', { name: opponentName.value }) : t('battle.invite.waiting_anon')
 })
 

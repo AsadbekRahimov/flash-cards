@@ -15,7 +15,7 @@ import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
-import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { lessonHeader, modeTitle, realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -127,7 +127,7 @@ const activeStatus = computed((): string => {
 const activeMeta = computed((): string => {
   const active = activeBattle.value
   if (active === null) return ''
-  return `${modeTitle(active.mode)} · ${active.opponent.first_name || t('friends.list.anonymous')}`
+  return `${modeTitle(active.mode)} · ${realName(active.opponent.first_name) || t('friends.list.anonymous')}`
 })
 
 function invitationMeta(invitation: BattleIncoming): string {
@@ -210,7 +210,7 @@ const withOpenChallenge = computed(
   () => new Set(openChallenges.value.map((c) => c.friendship_id).filter((id): id is number => id !== null)),
 )
 
-const personName = (person: FriendItem | FriendRequestItem): string => person.first_name || t('friends.list.anonymous')
+const personName = (person: FriendItem | FriendRequestItem): string => realName(person.first_name) || t('friends.list.anonymous')
 
 const friendSubtitle = (friend: FriendItem): string =>
   t('friends.list.subtitle', { streak: friend.streak, words: tn('friends.list.words', friend.words_learned) })
@@ -312,10 +312,10 @@ onMounted(() => {
       <ListGroup v-if="invitations.length > 0" :header="t('practice.hub.battle.invites')" data-testid="battle-invites">
         <div v-for="invitation in invitations" :key="invitation.id" class="list-row flex-wrap gap-y-3" data-testid="battle-invite-row">
           <div class="flex min-w-0 basis-full items-center gap-3">
-            <InitialAvatar :name="invitation.from.first_name || t('friends.list.anonymous')" />
+            <InitialAvatar :name="realName(invitation.from.first_name) || t('friends.list.anonymous')" />
             <div class="min-w-0 flex-1">
               <div class="truncate text-base leading-[22px] font-medium">
-                {{ t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') }) }}
+                {{ t('practice.hub.battle.invited_by', { name: realName(invitation.from.first_name) || t('friends.list.anonymous') }) }}
               </div>
               <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="battle-invite-meta">{{ invitationMeta(invitation) }}</div>
             </div>
@@ -521,7 +521,7 @@ onMounted(() => {
               <div class="min-w-0 flex-1">
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
                 <div class="truncate text-[13px] leading-[18px] text-tg-hint">
-                  {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
+                  {{ t('friends.challenge.with', { name: realName(c.friend_name) || t('friends.list.anonymous') }) }}
                 </div>
               </div>
               <span v-if="c.my_score !== null" class="shrink-0 text-[17px] leading-[22px] font-semibold tabular-nums" data-testid="challenge-score">
@@ -567,7 +567,7 @@ onMounted(() => {
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
                 <div class="mt-0.5 flex items-center gap-2">
                   <span class="min-w-0 truncate text-[13px] leading-[18px] text-tg-hint">
-                    {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
+                    {{ t('friends.challenge.with', { name: realName(c.friend_name) || t('friends.list.anonymous') }) }}
                   </span>
                   <span v-if="c.result" class="chip shrink-0" :class="RESULT_CHIPS[c.result].chip" data-testid="finished-result">
                     {{ t(RESULT_CHIPS[c.result].label) }}

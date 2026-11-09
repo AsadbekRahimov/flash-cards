@@ -124,6 +124,66 @@ describe('LeagueView', () => {
     expect(wrapper.get('[data-testid=settings-link]').attributes('href')).toBe('/settings')
   })
 
+  describe('a group of one', () => {
+    const alone = (overrides: Partial<LeagueMembership> = {}) =>
+      response({
+        membership: membership({
+          rank: 1, members_count: 1, points: 35, zone: 'promotion', points_to_promote: null, points_to_safety: null,
+          standings: [{ rank: 1, name: 'Aziz', points: 35, is_me: true }],
+          ...overrides,
+        }),
+      })
+
+    it('says the group is empty of rivals instead of a place, a zone and the hints', async () => {
+      const { wrapper } = await render(alone())
+
+      expect(text(wrapper, 'alone')).toBe('В группе пока только вы. Места появятся, когда присоединятся соперники.')
+      expect(text(wrapper, 'my-points')).toBe('35 очков')
+      expect(text(wrapper, 'tier-name')).toBe('Серебро')
+      for (const id of ['my-place', 'zone', 'to-promote', 'top-tier', 'to-safety']) {
+        expect(wrapper.find(`[data-testid=${id}]`).exists(), id).toBe(false)
+      }
+    })
+
+    it('keeps the standings (one row, mine, not painted as a zone), the rules and the settings link', async () => {
+      const { wrapper } = await render(alone())
+
+      expect(wrapper.findAll('[data-testid=row-me]')).toHaveLength(1)
+      expect(wrapper.get('[data-testid=rank]').attributes('data-zone')).toBe('safe')
+      expect(wrapper.find('[data-testid=rules]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=settings-link]').exists()).toBe(true)
+    })
+
+    it('says it in the top league too', async () => {
+      const { wrapper } = await render(alone({ tier: 4, tier_key: 'diamond' }))
+
+      expect(wrapper.find('[data-testid=alone]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=top-tier]').exists()).toBe(false)
+    })
+
+    it('speaks Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(alone())
+
+      expect(text(wrapper, 'alone')).toBe("Guruhda hozircha faqat siz. Raqiblar qo'shilgach, o'rinlar ko'rinadi.")
+    })
+
+    it('shows the place and the zone again with two in the group', async () => {
+      const { wrapper } = await render(
+        response({
+          membership: membership({
+            rank: 2, members_count: 2, zone: 'safe',
+            standings: [{ rank: 1, name: 'Bek', points: 50, is_me: false }, { rank: 2, name: 'Aziz', points: 41, is_me: true }],
+          }),
+        }),
+      )
+
+      expect(wrapper.find('[data-testid=alone]').exists()).toBe(false)
+      expect(text(wrapper, 'my-place')).toBe('2-е место из 2')
+      expect(wrapper.find('[data-testid=zone]').exists()).toBe(true)
+    })
+  })
+
   describe('the header', () => {
     it('is the "Rating" tab with a Лига | Друзья switch, League active', async () => {
       const { wrapper, router } = await render()
@@ -320,6 +380,13 @@ describe('LeagueView', () => {
       expect(rows[0]?.get('[aria-hidden=true]').text()).toBe('D')
       expect(rows[3]?.get('[aria-hidden=true]').text()).toBe('У')
     })
+  })
+
+  it('shows "Ученик" for a member whose name has no letter or digit', async () => {
+    const { wrapper } = await render(response({ membership: membership({ standings: [{ rank: 1, name: '.', points: 5, is_me: false }] }) }))
+
+    expect(wrapper.get('[data-testid=row]').text()).toContain('Ученик')
+    expect(wrapper.get('[data-testid=row]').text()).not.toContain('.')
   })
 
   describe('last week', () => {

@@ -10,6 +10,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
+import { realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
@@ -318,7 +319,7 @@ onBeforeUnmount(() => {
             <span class="w-6 shrink-0 text-center text-[15px] font-semibold text-tg-hint">{{ index + 1 }}</span>
             <span class="min-w-0 flex-1">
               <span class="block text-[15px] leading-5 font-medium break-words">
-                {{ member.name }}
+                {{ realName(member.name) || t('league.anonymous') }}
                 <span v-if="member.is_me" class="chip chip-accent ml-1" data-testid="member-me">{{ t('gameClass.members.me') }}</span>
               </span>
               <span class="block text-[13px] leading-[18px] text-tg-subtitle">

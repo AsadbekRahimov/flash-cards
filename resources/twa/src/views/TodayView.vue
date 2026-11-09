@@ -17,10 +17,12 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { tierLabelKey } from '@/composables/leagueTiers'
+import { realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
@@ -39,6 +41,7 @@ const auth = useAuthStore()
 const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
+const billing = useBillingStore()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
 
@@ -101,7 +104,7 @@ const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
   paywallOpen.value = false
 })
 
-const name = computed(() => auth.learner?.first_name?.trim() ?? '')
+const name = computed(() => realName(auth.learner?.first_name))
 const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name: name.value }) : t('today.title')))
 /**
  * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone that
@@ -111,10 +114,28 @@ const dateLine = computed(() =>
   formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),
 )
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
+/**
+ * "About Pro" under the session button: only where there is something to act on - a purchase that is open or a spent quota
+ * (the paywall of a closed purchase is a dead end). `/today` does not carry the paywall mode, so it is read from the billing store
+ * (`/me.paywall`): this screen does not request `/me` itself, an unknown mode counts as closed.
+ */
+const showProLink = computed(() => !isPro.value && (billing.paywall?.mode === 'purchase' || data.value?.new_words_remaining === 0))
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
+
+/**
+ * Whether there is anything to study right now: an open session, repetitions that are due, or a new lesson that the quota
+ * still allows (`new_words_remaining === null` = no limit). Otherwise the home screen says "that is all for today" instead of
+ * offering a session that would end at once with zero cards.
+ */
+const canStudy = computed(() => {
+  const d = data.value
+  if (d === null) return false
+  return d.open_session_id !== null || d.due_count > 0 ||
+    (d.active_course?.next_lesson != null && d.new_words_remaining !== 0)
+})
 
 /** What the second line of the session card says about new words; the quota is the server's (`null` = no limit). */
 const newWordsText = computed(() => {
@@ -168,11 +189,13 @@ const leagueRow = computed(() => {
 
   return {
     title: t('today.league.title', { tier: t(tierLabelKey(league.tier_key)) }),
-    subtitle: t('today.league.subtitle', {
-      rank: league.rank,
-      members: league.members_count,
-      points: tn('league.points', league.points),
-    }),
+    subtitle: league.members_count === 1
+      ? t('today.league.alone', { points: tn('league.points', league.points) })
+      : t('today.league.subtitle', {
+        rank: league.rank,
+        members: league.members_count,
+        points: tn('league.points', league.points),
+      }),
   }
 })
 
@@ -284,7 +307,7 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ t('today.course.choose') }}
         </RouterLink>
         <button
-          v-else
+          v-else-if="canStudy"
           type="button"
           class="btn btn-primary btn-lg btn-block mt-3"
           :disabled="opening"
@@ -294,15 +317,21 @@ onBeforeUnmount(() => training.clearOpenError())
           <AppIcon name="play" solid :size="20" />
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
+        <div v-else class="mt-3 space-y-3 text-center" data-testid="day-done">
+          <p class="text-[15px] leading-5">{{ t(data.new_words_remaining === 0 ? 'today.done.quota' : 'today.done.course') }}</p>
+          <RouterLink v-if="data.new_words_remaining !== 0" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="done-choose-course">
+            {{ t('today.done.choose_course') }}
+          </RouterLink>
+        </div>
 
         <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
 
-        <p class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
+        <p v-if="needsCourseToStart || canStudy" class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
           {{ t(needsCourseToStart ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
         <button
-          v-if="!isPro"
+          v-if="showProLink"
           type="button"
           class="btn btn-plain btn-block mt-1"
           data-testid="paywall-open"
@@ -430,7 +459,7 @@ onBeforeUnmount(() => training.clearOpenError())
             </button>
           </template>
           <p
-            v-else
+            v-else-if="data.active_course.progress.total > 0"
             class="flex items-center gap-2 border-t pt-3 text-[15px] leading-5 text-tg-subtitle"
             data-testid="course-completed"
           >

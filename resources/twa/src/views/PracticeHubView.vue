@@ -15,7 +15,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { MODE_LOOK, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
+import { MODE_LOOK, lessonHeader, lessonNumber, modeTitle, realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -307,7 +307,7 @@ onBeforeUnmount(() => {
           :to="{ name: 'battle', params: { id: invitation.id } }"
           icon="bolt"
           tile="orange"
-          :title="t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') })"
+          :title="t('practice.hub.battle.invited_by', { name: realName(invitation.from.first_name) || t('friends.list.anonymous') })"
           :subtitle="invitationMeta(invitation)"
           :data-testid="`invitation-${invitation.id}`"
         />

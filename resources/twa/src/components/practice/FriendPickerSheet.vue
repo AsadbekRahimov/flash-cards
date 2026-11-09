@@ -5,6 +5,7 @@ import BottomSheet from '@/components/ui/BottomSheet.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import { realName } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { FriendItem } from '@/api/types'
 
@@ -26,7 +27,7 @@ const emit = defineEmits<{ pick: [friend: FriendItem]; invite: []; retry: []; cl
 
 const { t, tn } = useI18n()
 
-const nameOf = (friend: FriendItem): string => friend.first_name || t('friends.list.anonymous')
+const nameOf = (friend: FriendItem): string => realName(friend.first_name) || t('friends.list.anonymous')
 const subtitleOf = (friend: FriendItem): string =>
   t('friends.list.subtitle', { streak: friend.streak, words: tn('friends.list.words', friend.words_learned) })
 </script>

@@ -13,6 +13,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useGameLimitLine } from '@/composables/gameLimitLine'
+import { realName } from '@/composables/practiceLabels'
 import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -119,7 +120,7 @@ const camelsAt = (city: GameMapCity): { id: number; asset: string }[] =>
 function friendsAt(city: GameMapCity): string {
   const here = friendsIn(city)
   if (here.length === 0) return ''
-  const names = here.slice(0, 3).map((friend) => friend.name).join(', ')
+  const names = here.slice(0, 3).map((friend) => realName(friend.name) || t('friends.list.anonymous')).join(', ')
   return t('game.map.friends', { names: here.length > 3 ? `${names} ${t('game.map.friends_more', { count: here.length - 3 })}` : names })
 }
 

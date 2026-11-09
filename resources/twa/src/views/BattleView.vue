@@ -22,7 +22,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { remainingMs, secondsLeft } from '@/composables/battleTime'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
-import { lessonHeader } from '@/composables/practiceLabels'
+import { lessonHeader, realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useBattleAudio } from '@/composables/useBattleAudio'
 import { useNow } from '@/composables/useNow'
@@ -162,7 +162,7 @@ const state = computed(() => store.roundState)
 const round = computed(() => store.currentRound)
 const phase = computed(() => state.value?.phase ?? null)
 const iAnswered = computed(() => state.value?.my_answered === true)
-const opponentName = computed(() => data.value?.opponent.first_name?.trim() || t('battle.opponent'))
+const opponentName = computed(() => realName(data.value?.opponent.first_name) || t('battle.opponent'))
 const roundsTotal = computed(() => data.value?.rounds_total ?? 5)
 const lastRound = computed(() => state.value !== null && state.value.no >= roundsTotal.value)
 

@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -13,8 +14,10 @@ import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedC
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
 import { useSettingsStore } from '@/stores/settings'
 import { useOrganizationsStore } from '@/stores/organizations'
 import { errorMessage } from '@/i18n/errors'
@@ -31,6 +34,7 @@ import type { ExerciseSettings, SettingsPatch } from '@/api/types'
  * "Account deleted" screen.
  */
 const auth = useAuthStore()
+const billing = useBillingStore()
 const settings = useSettingsStore()
 const organizations = useOrganizationsStore()
 const toast = useToast()
@@ -48,6 +52,12 @@ const MAX_SEGMENTS = 4
 const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['reverse', 'audio', 'spelling', 'gap_fill']
 /** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip. */
 const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fill']
+
+// The plan comes from the billing store (the Profile tab, the screen before this one, has loaded it; no request of its own).
+// A Free learner does not get typed answers, whatever the saved value: the row shows them off, not on, and a tap on it is the paywall.
+const paywallOpen = ref(false)
+const { reviewFromPaywall } = useReviewFromPaywall(() => (paywallOpen.value = false), { toastErrors: true })
+const isLocked = (key: keyof ExerciseSettings): boolean => billing.entitlement?.plan === 'free' && PRO_EXERCISES.includes(key)
 
 // The native selects work on a copy of the server's values. When a change is refused the copy is set back from the
 // data (through state: Vue then puts the select back), never by touching the DOM element.
@@ -154,6 +164,9 @@ const onTimezone = () => save({ timezone: draft.timezone })
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
 const onExercise = (key: keyof ExerciseSettings, enabled: boolean) => save({ exercises: { [key]: enabled } })
+const onExerciseRow = (key: keyof ExerciseSettings) => {
+  if (isLocked(key)) paywallOpen.value = true
+}
 
 onMounted(() => {
   tick = setInterval(() => (nowMs.value = Date.now()), 1000)
@@ -208,14 +221,15 @@ onBeforeUnmount(() => {
       </ListGroup>
 
       <ListGroup :header="t('settings.exercises')" :footer="t('settings.exercises.always')" data-testid="exercises-card">
-        <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`">
+        <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`" @click="onExerciseRow(key)">
           <span class="flex min-w-0 flex-1 items-center gap-2 text-base leading-[22px]">
             <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
             <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
           </span>
           <ToggleSwitch
-            :model-value="data.exercises[key]"
-            :disabled="saving"
+            :model-value="!isLocked(key) && data.exercises[key]"
+            :disabled="saving || isLocked(key)"
+            :class="{ 'pointer-events-none': isLocked(key) }"
             :label="t(`settings.exercises.${key}`)"
             :data-testid="`exercise-${key}`"
             @update:model-value="onExercise(key, $event)"
@@ -340,6 +354,8 @@ onBeforeUnmount(() => {
         </button>
       </ListGroup>
     </div>
+
+    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" @review="reviewFromPaywall" />
 
     <DeleteAccountSheet
       v-if="deleteOpen"

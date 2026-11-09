@@ -255,6 +255,14 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-name]').text()).toBe('Ученик')
     })
 
+    it('treats a name without a letter or a digit as no name', async () => {
+      mocks.learner = { id: 1, first_name: '.' }
+
+      const w = await render()
+
+      expect(w.get('[data-testid=profile-name]').text()).toBe('Ученик')
+    })
+
     it('copes with a missing learner', async () => {
       mocks.learner = null
 

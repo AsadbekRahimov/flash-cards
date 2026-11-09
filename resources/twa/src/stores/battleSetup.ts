@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { realName } from '@/composables/practiceLabels'
 import { limitHitFrom } from '@/composables/practiceLimits'
 import { incomingInvitation } from '@/stores/battle'
 import { useBillingStore } from '@/stores/billing'
@@ -95,10 +96,10 @@ export const useBattleSetupStore = defineStore('battleSetup', {
 
     /** The name of the friend, as far as it is known: the options carry it, the Friends list may have it earlier. */
     friendName(state): string | null {
-      const named = state.options?.friend.first_name
+      const named = realName(state.options?.friend.first_name)
       if (named) return named
       const friend = useFriendsStore().friends?.friends.find((item) => item.id === state.friendshipId)
-      return friend?.first_name || null
+      return realName(friend?.first_name) || null
     },
 
     selectedMode(state): BattleModeOption | null {

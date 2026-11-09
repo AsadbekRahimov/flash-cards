@@ -109,6 +109,9 @@ export const uz: Translations = {
   'today.onboarding_hint': 'Sozlashni tugatish uchun botga /start yuboring',
   'today.greeting': 'Salom, {name}!',
   'today.session.hint': "Avval oldingi so'zlarni takrorlaysiz, keyin yangilarini o'rganasiz",
+  'today.done.quota': "Bugungi reja bajarildi. Yangi so'zlar ertaga ochiladi.",
+  'today.done.course': "Kursdagi barcha so'zlarni ko'rib chiqdingiz. Takrorlash vaqti kelganda eslatamiz.",
+  'today.done.choose_course': 'Boshqa kursni tanlash',
   'today.new.unlimited': "Yangi so'zlar — cheklovsiz",
   'today.new.no_course': "Yangi so'zlarni o'rganish uchun kursni tanlang",
   'today.streak.in_row': {
@@ -119,6 +122,7 @@ export const uz: Translations = {
   'today.course.choose': 'Kursni tanlash',
   'today.league.title': 'Liga · {tier}',
   'today.league.subtitle': "{members} kishidan {rank}-o'rin · {points}",
+  'today.league.alone': 'Raqiblar kutilmoqda · {points}',
   'today.league.join_title': 'Haftalik liga',
   'today.league.join_subtitle': 'Guruhga kirish uchun kartochkalarni takrorlang',
 
@@ -191,6 +195,8 @@ export const uz: Translations = {
 
   // ---- finished (training) ----
   'finished.title': 'Ajoyib!',
+  'finished.title_empty': 'Hozircha shu',
+  'finished.title_ok': 'Yaxshi harakat!',
   'finished.reviewed': {
     one: "{count} ta so'zni takrorladingiz.",
     other: "{count} ta so'zni takrorladingiz.",
@@ -453,6 +459,7 @@ export const uz: Translations = {
   'league.opted_out': 'Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin.',
   'league.not_placed': "Bu hafta hali guruhda emassiz. Bir nechta kartochkani takrorlang va ligaga qo'shiling.",
   'league.my_place': "{members} kishidan {rank}-o'rin",
+  'league.alone': "Guruhda hozircha faqat siz. Raqiblar qo'shilgach, o'rinlar ko'rinadi.",
   'league.zone.promotion': 'Yuqori ligaga chiqadi',
   'league.zone.safe': 'Ligada qoladi',
   'league.zone.demotion': 'Quyi ligaga tushadi',

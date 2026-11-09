@@ -122,6 +122,46 @@ describe('FinishedView', () => {
       expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
     })
 
+    describe('the title follows the result', () => {
+      it('is "That is all for now" and silent when nothing was reviewed (summary or not)', () => {
+        const bare = render(0, 0, 'nothing_due')
+        expect(bare.get('h1').text()).toBe('Пока всё')
+        expect(telegram.notificationHaptic).not.toHaveBeenCalled()
+
+        useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0 })
+        const withSummary = render(0, 0)
+        expect(withSummary.get('h1').text()).toBe('Пока всё')
+        expect(telegram.notificationHaptic).not.toHaveBeenCalled()
+      })
+
+      it('is "Good work!" under 80% right, and still buzzes', () => {
+        useTrainingStore().summary = summary({ reviewed: 5, correct: 3 })
+
+        expect(render(5, 1).get('h1').text()).toBe('Хорошая работа!')
+        expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
+      })
+
+      it('is "Great!" from 80% right up', () => {
+        useTrainingStore().summary = summary({ reviewed: 5, correct: 4 })
+        expect(render(5, 1).get('h1').text()).toBe('Отлично!')
+
+        useTrainingStore().summary = summary({ reviewed: 5, correct: 5 })
+        expect(render(5, 1).get('h1').text()).toBe('Отлично!')
+      })
+
+      it('is "Great!" for a group session: no summary, nothing to judge by', () => {
+        expect(render(5, 1).get('h1').text()).toBe('Отлично!')
+      })
+
+      it('speaks Uzbek', () => {
+        setLocale('uz')
+        expect(render(0, 0).get('h1').text()).toBe('Hozircha shu')
+
+        useTrainingStore().summary = summary({ reviewed: 5, correct: 1 })
+        expect(render(5, 1).get('h1').text()).toBe('Yaxshi harakat!')
+      })
+    })
+
     it('leads home with the one primary button and closes the app with a quiet one', async () => {
       const w = render(5, 1)
       const home = w.get('[data-testid=home-btn]')

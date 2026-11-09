@@ -54,6 +54,12 @@ export function gameVerdictLabel(verdict: PracticeVerdict): string {
   return verdict === 'skipped' ? t('gameRun.summary.verdict.skipped') : verdictLabel('collocation', verdict)
 }
 
+/** A person's name as shown: trimmed; a name with no letter or digit (".", "-", an emoji only) is empty, i.e. "no name" - the caller falls back to its `*.anonymous` label. */
+export const realName = (name: string | null | undefined): string => {
+  const trimmed = name?.trim() ?? ''
+  return /[\p{L}\p{N}]/u.test(trimmed) ? trimmed : ''
+}
+
 /** Whole minutes for "≈ 2 min": never less than one. */
 export const estimateMinutes = (seconds: number): number => Math.max(1, Math.round(seconds / 60))
 

@@ -25,17 +25,18 @@ vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({ showBackButton: () => () => {} }),
 }))
 
-const me = (settings: LearnerSettings): MeResponse => ({
+const me = (settings: LearnerSettings, plan: 'free' | 'pro' = 'free'): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: settings.interface_locale, onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
-  entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+  entitlement: { plan, source: plan, until: null, new_words_per_day: 20 },
   paywall: { mode: 'coming_soon', contact: null },
   settings,
 })
 
-async function render(settings: LearnerSettings = settingsFixture()) {
-  vi.mocked(api.me.get).mockResolvedValue(me(settings))
+/** The plan comes with the `/me` the screen loads; Pro by default, so a switch works unless a test says Free. */
+async function render(settings: LearnerSettings = settingsFixture(), plan: 'free' | 'pro' = 'pro') {
+  vi.mocked(api.me.get).mockResolvedValue(me(settings, plan))
   vi.mocked(api.organizations.list).mockResolvedValue({ organizations: [] })
   const router = createRouter({
     history: createMemoryHistory(),
@@ -170,6 +171,70 @@ describe('SettingsView — exercises', () => {
 
     expect(api.me.updateSettings).toHaveBeenCalledTimes(1)
     expect(toggle(w, 'reverse').attributes('disabled')).toBeUndefined()
+  })
+
+  describe('Pro exercises (spelling, gap_fill)', () => {
+    const typed = settingsFixture({ exercises: { reverse: true, audio: true, spelling: true, gap_fill: true } })
+
+    it('shows them off and disabled to a Free learner, keeps the chip, leaves the other switches alone', async () => {
+      const w = await render(typed, 'free')
+
+      for (const key of ['spelling', 'gap_fill']) {
+        expect(isOn(w, key), key).toBe(false)
+        expect(toggle(w, key).attributes('disabled'), key).toBeDefined()
+        expect(w.get(`[data-testid=exercise-row-${key}]`).find('[data-testid=exercise-pro]').exists(), key).toBe(true)
+      }
+      for (const key of ['reverse', 'audio']) {
+        expect(isOn(w, key), key).toBe(true)
+        expect(toggle(w, key).attributes('disabled'), key).toBeUndefined()
+      }
+    })
+
+    it('opens the paywall on a tap on the row of a Free learner and saves nothing', async () => {
+      vi.mocked(api.me.get).mockClear()
+      const w = await render(typed, 'free')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+
+      await w.get('[data-testid=exercise-row-spelling]').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+      expect(api.me.updateSettings).not.toHaveBeenCalled()
+      expect(isOn(w, 'spelling')).toBe(false)
+
+      await w.get('[data-testid=paywall-x]').trigger('click')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      await w.get('[data-testid=exercise-row-gap_fill]').trigger('click')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+      expect(api.me.updateSettings).not.toHaveBeenCalled()
+    })
+
+    it('does not open the paywall from the free exercises', async () => {
+      vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ exercises: { reverse: true, audio: false, spelling: true, gap_fill: true } })))
+      const w = await render(typed, 'free')
+
+      await toggle(w, 'audio').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(api.me.updateSettings).toHaveBeenCalledWith({ exercises: { audio: false } })
+    })
+
+    it('leaves them as they were for a Pro learner: the saved value, a working switch, no paywall', async () => {
+      vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ exercises: { reverse: true, audio: true, spelling: false, gap_fill: true } }), 'pro'))
+      const w = await render(typed, 'pro')
+
+      expect(isOn(w, 'spelling')).toBe(true)
+      expect(toggle(w, 'spelling').attributes('disabled')).toBeUndefined()
+
+      await w.get('[data-testid=exercise-row-spelling]').trigger('click')
+      await toggle(w, 'spelling').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(api.me.updateSettings).toHaveBeenCalledWith({ exercises: { spelling: false } })
+      expect(isOn(w, 'spelling')).toBe(false)
+    })
   })
 
   it('renders in Uzbek', async () => {

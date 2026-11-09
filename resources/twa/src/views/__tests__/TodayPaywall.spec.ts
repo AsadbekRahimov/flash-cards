@@ -6,8 +6,10 @@ import TodayView from '../TodayView.vue'
 import { api } from '@/api'
 import type { MeResponse, TodayResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import { useBillingStore } from '@/stores/billing'
 
 // The paywall entry point of the Today screen (task 1.4b); the rest of the screen is in TodayView.spec.ts.
+// The link «About Pro» shows while a purchase is open (`/me.paywall.mode`, read from the billing store) or the quota is spent.
 
 vi.mock('@/api', () => ({
   api: {
@@ -39,12 +41,12 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
 
 const course = { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 120, total: 900 }, next_lesson: null }
 
-const me = (plan: 'free' | 'pro', contact: string | null = null): MeResponse => ({
+const me = (plan: 'free' | 'pro', contact: string | null = null, mode: 'coming_soon' | 'purchase' = 'coming_soon'): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
   entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'free' ? 20 : null },
-  paywall: { mode: 'coming_soon', contact },
+  paywall: { mode, contact },
   settings: settingsFixture(),
 })
 
@@ -75,19 +77,41 @@ describe('TodayView paywall entry', () => {
   })
 
   it('offers the paywall to a Free learner and opens it on tap', async () => {
-    const w = await render(today())
+    const w = await render(today({ new_words_remaining: 0 }))
 
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
     await w.get('[data-testid=paywall-open]').trigger('click')
     await flushPromises()
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Pro скоро откроется.')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
   })
 
+  it('hides the link while Pro is only coming and the quota is not spent', async () => {
+    useBillingStore().apply(me('free', null, 'coming_soon'))
+
+    expect((await render(today({ new_words_remaining: 12 }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+    expect((await render(today({ new_words_remaining: null }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+  })
+
+  it('shows the link when a purchase is open, whatever the quota says', async () => {
+    useBillingStore().apply(me('free', null, 'purchase'))
+
+    expect((await render(today({ new_words_remaining: 12 }))).find('[data-testid=paywall-open]').exists()).toBe(true)
+    expect((await render(today({ new_words_remaining: null }))).find('[data-testid=paywall-open]').exists()).toBe(true)
+  })
+
+  it('does not show the link to a Pro learner even when a purchase is open', async () => {
+    useBillingStore().apply(me('pro', null, 'purchase'))
+
+    const w = await render(today({ new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }))
+
+    expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+  })
+
   it('offers it as a quiet button under the session button, never as a second primary one', async () => {
-    const w = await render(today())
+    const w = await render(today({ new_words_remaining: 0 }))
 
     const open = w.get('[data-testid=paywall-open]')
     expect(open.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
@@ -118,7 +142,9 @@ describe('TodayView paywall entry', () => {
     vi.mocked(api.today.get).mockResolvedValue(
       today({ active_course: course, new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }),
     )
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    // Pro is only coming and the quota is not spent: no link, the sheet opens from the streak-freeze teaser.
+    expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
     await w.get('[data-testid=promo-toggle]').trigger('click')
     await w.get('[data-testid=promo-input]').setValue('PRO30')
     await w.get('form').trigger('submit')
@@ -132,7 +158,7 @@ describe('TodayView paywall entry', () => {
   })
 
   it('closes the sheet and stays on the Today screen', async () => {
-    const w = await render(today())
+    const w = await render(today({ new_words_remaining: 0 }))
     await w.get('[data-testid=paywall-open]').trigger('click')
     await w.get('[data-testid=paywall-close]').trigger('click')
 

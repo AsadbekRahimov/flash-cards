@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
+import { useBillingStore } from '@/stores/billing'
 import { useTrainingStore } from '@/stores/training'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
@@ -169,6 +170,16 @@ describe('TodayView', () => {
       expect((await render()).get('h1').text()).toBe('Сегодня')
     })
 
+    it('treats a name without a letter or a digit as no name: «Salom, .!» never shows', async () => {
+      for (const first_name of ['.', ' - ', '...']) {
+        state.learner = { first_name }
+        expect((await render()).get('h1').text()).toBe('Сегодня')
+      }
+
+      state.learner = { first_name: 'Ali2' }
+      expect((await render()).get('h1').text()).toBe('Привет, Ali2!')
+    })
+
     it('badges the plan with a chip that leads to the subscription', async () => {
       const free = await render()
       expect(text(free, 'plan-badge')).toBe('Free')
@@ -184,7 +195,8 @@ describe('TodayView', () => {
       const w = await render(today({ new_words_remaining: null, entitlement: { plan: 'free', source: 'free', until: null } }))
 
       expect(text(w, 'plan-badge')).toBe('Free')
-      expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+      // Pro is only coming and no quota is spent: nothing to offer under the session button.
+      expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
     })
 
     it('is a tab root: no system "Back" button', async () => {
@@ -290,19 +302,104 @@ describe('TodayView', () => {
       expect(api.training.open).not.toHaveBeenCalled()
     })
 
-    it('shows the paywall entry only to a Free learner, as a tertiary button with its reason', async () => {
-      const w = await render(today({ new_words_remaining: 12 }))
-      expect(w.get('[data-testid=paywall-open]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
-      expect(text(w, 'paywall-open')).toBe('Узнать о Pro')
+    describe('the one primary button follows what there is to study', () => {
+      const course = today().active_course!
 
-      await w.get('[data-testid=paywall-open]').trigger('click')
-      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Лимит новых слов')
+      it('is "Start" for due words even when the course is out of new words', async () => {
+        const w = await render(today({ due_count: 4, new_words_remaining: 0, active_course: { ...course, next_lesson: null } }))
 
-      const quota = await render(today({ new_words_remaining: 0 }))
-      await quota.get('[data-testid=paywall-open]').trigger('click')
-      expect(quota.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
+        expect(text(w, 'review-btn')).toBe('Начать занятие')
+        expect(w.find('[data-testid=session-hint]').exists()).toBe(true)
+        expect(w.find('[data-testid=day-done]').exists()).toBe(false)
+      })
 
-      expect((await render(today({ entitlement: PRO }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+      it('is "Continue" for an open session with nothing else to do', async () => {
+        const w = await render(today({ due_count: 0, open_session_id: 9, new_words_remaining: 0 }))
+
+        expect(text(w, 'review-btn')).toBe('Продолжить занятие')
+        expect(w.find('[data-testid=day-done]').exists()).toBe(false)
+      })
+
+      it('is "Start" for a new lesson when nothing is due: with the quota left and with no limit', async () => {
+        for (const new_words_remaining of [5, null]) {
+          const w = await render(today({ due_count: 0, new_words_remaining }))
+
+          expect(text(w, 'review-btn')).toBe('Начать занятие')
+          expect(w.find('[data-testid=day-done]').exists()).toBe(false)
+        }
+      })
+
+      it('is gone when the quota of the day is spent and nothing is due: «that is all for today», no way to a course', async () => {
+        const w = await render(today({ due_count: 0, new_words_remaining: 0 }))
+
+        expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+        expect(w.find('[data-testid=session-hint]').exists()).toBe(false)
+        expect(text(w, 'day-done')).toBe('На сегодня всё. Новые слова откроются завтра.')
+        expect(w.find('[data-testid=done-choose-course]').exists()).toBe(false)
+        // Free still hears about Pro, with the quota reason.
+        expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+      })
+
+      it('is gone when the whole course has been shown and nothing is due: a way to another course instead', async () => {
+        for (const new_words_remaining of [null, 7]) {
+          const w = await render(today({ due_count: 0, new_words_remaining, active_course: { ...course, next_lesson: null } }))
+
+          expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+          expect(text(w, 'day-done')).toContain('Вы прошли все слова курса.')
+          const choose = w.get('[data-testid=done-choose-course]')
+          expect(choose.text()).toBe('Выбрать другой курс')
+          expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+          expect(choose.attributes('href')).toBe('/courses')
+        }
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+
+        const w = await render(today({ due_count: 0, new_words_remaining: 0 }))
+
+        expect(text(w, 'day-done')).toBe("Bugungi reja bajarildi. Yangi so'zlar ertaga ochiladi.")
+      })
+    })
+
+    describe('the Pro link', () => {
+      const purchaseOpen = (): void => {
+        useBillingStore().apply({ entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 }, paywall: { mode: 'purchase', contact: null } })
+      }
+
+      it('is hidden while Pro is only coming and the quota of new words is not spent', async () => {
+        for (const new_words_remaining of [12, null]) {
+          expect((await render(today({ new_words_remaining }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+        }
+      })
+
+      it('shows for a Free learner with a spent quota, as a tertiary button that opens the paywall with the quota reason', async () => {
+        const w = await render(today({ new_words_remaining: 0 }))
+        expect(w.get('[data-testid=paywall-open]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
+        expect(text(w, 'paywall-open')).toBe('Узнать о Pro')
+
+        await w.get('[data-testid=paywall-open]').trigger('click')
+        expect(w.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
+      })
+
+      it('shows while a purchase is open, with the plain reason', async () => {
+        vi.spyOn(console, 'warn').mockImplementation(() => {})
+        purchaseOpen()
+
+        const w = await render(today({ new_words_remaining: 12 }))
+        expect(text(w, 'paywall-open')).toBe('Узнать о Pro')
+
+        await w.get('[data-testid=paywall-open]').trigger('click')
+        expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Лимит новых слов')
+      })
+
+      it('never shows for a Pro learner', async () => {
+        purchaseOpen()
+
+        for (const new_words_remaining of [0, null]) {
+          expect((await render(today({ new_words_remaining, entitlement: PRO }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+        }
+      })
     })
 
     it('puts a failed open under the button and scrolls it into view, wherever the learner pressed', async () => {
@@ -412,11 +509,12 @@ describe('TodayView', () => {
       await flushPromises()
       expect(w.get('[data-testid=paywall-lead]').text()).toContain('Заморозка серии — в Pro')
 
-      // The session card still opens the sheet with its own reason.
+      // The session card (here: a spent quota) still opens the sheet with its own reason.
       await w.get('[data-testid=paywall-close]').trigger('click')
-      await w.get('[data-testid=paywall-open]').trigger('click')
+      const quota = await render(today({ new_words_remaining: 0 }))
+      await quota.get('[data-testid=paywall-open]').trigger('click')
       await flushPromises()
-      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Заморозка серии')
+      expect(quota.get('[data-testid=paywall-lead]').text()).not.toContain('Заморозка серии')
     })
   })
 
@@ -689,6 +787,14 @@ describe('TodayView', () => {
       expect(text(untitled, 'next-lesson')).toBe('Урок 2')
     })
 
+    it('does not say the course is shown to the end when it has no words at all', async () => {
+      const course = today().active_course!
+      const w = await render(today({ active_course: { ...course, progress: { learned: 0, total: 0 }, next_lesson: null } }))
+
+      expect(w.find('[data-testid=course-completed]').exists()).toBe(false)
+      expect(text(w, 'course-title')).toBe('English A1')
+    })
+
     it('shows an empty state with a way to choose a course when there is none', async () => {
       const w = await render(today({ active_course: null }))
 
@@ -715,6 +821,25 @@ describe('TodayView', () => {
       expect(row.attributes('href')).toBe('/league')
       expect(row.get('.icon-tile').classes()).toContain('tile-yellow')
       expect(row.get('.icon-tile path').attributes('d')).toBe(ICONS.trophy.outline[0]?.d)
+    })
+
+    it('says it waits for rivals instead of «1 of 1» when the learner is alone in the group', async () => {
+      const w = await render(today({ league: { tier: 0, tier_key: 'bronze', rank: 1, points: 35, members_count: 1 } }))
+
+      const row = text(w, 'league-line')
+      expect(row).toContain('Лига · Бронза')
+      expect(row).toContain('Ждём соперников · 35 очков')
+      expect(row).not.toContain('место')
+
+      setLocale('uz')
+      const uz = await render(today({ league: { tier: 0, tier_key: 'bronze', rank: 1, points: 35, members_count: 1 } }))
+      expect(text(uz, 'league-line')).toContain('Raqiblar kutilmoqda · 35 ball')
+    })
+
+    it('shows the place again as soon as there are two in the group', async () => {
+      const w = await render(today({ league: { tier: 0, tier_key: 'bronze', rank: 2, points: 35, members_count: 2 } }))
+
+      expect(text(w, 'league-line')).toContain('2-е место из 2 · 35 очков')
     })
 
     it('falls back to the lowest tier for a tier this app does not know', async () => {

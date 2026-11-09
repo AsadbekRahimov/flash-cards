@@ -7,7 +7,7 @@ import type { IconName } from '@/components/ui/icons'
 import BattleScoreboard from '@/components/battle/BattleScoreboard.vue'
 import { resultTitleKey } from '@/components/battle/resultTitle'
 import { VERDICT_LOOK } from '@/components/battle/verdict'
-import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { lessonHeader, modeTitle, realName } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { BattleAction } from '@/stores/battle'
@@ -55,7 +55,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const opponentName = computed(() => props.battle.opponent.first_name?.trim() || t('battle.opponent'))
+const opponentName = computed(() => realName(props.battle.opponent.first_name) || t('battle.opponent'))
 
 interface Look {
   icon: IconName
