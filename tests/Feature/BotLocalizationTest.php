@@ -263,6 +263,14 @@ it('answers private /help of a learner in the language of the LexiFlow profile, 
     expect($this->api->log[0]['text'])->toBe(__('bot.help.private', [], 'uz'));
 });
 
+it('answers private /help of a soft-deleted learner in the language of Telegram', function (): void {
+    Learner::factory()->create(['telegram_user_id' => 47, 'interface_locale' => 'ru', 'language_code' => 'ru'])->delete();
+
+    locDispatch(['chat' => ['id' => 47, 'type' => 'private'], 'from' => ['id' => 47, 'language_code' => 'uz'], 'text' => '/help']);
+
+    expect($this->api->log[0]['text'])->toBe(__('bot.help.private', [], 'uz'));
+});
+
 it('answers private /help of an unregistered person in the language of Telegram', function (): void {
     locDispatch(['chat' => ['id' => 45, 'type' => 'private'], 'from' => ['id' => 45, 'language_code' => 'uz'], 'text' => '/help']);
 

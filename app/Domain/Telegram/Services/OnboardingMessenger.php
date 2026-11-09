@@ -83,12 +83,12 @@ final class OnboardingMessenger
     /**
      * `/start c_<slug>` of a learner who has finished the onboarding: a button that opens that
      * course in the app (`/twa/courses/<slug>`). Nothing when the link has no course or the
-     * course is not available (draft, private, archived, deleted).
+     * course is not available (draft, private, archived, deleted) or has no words.
      */
     public function sendCourseLink(Learner $learner, int|string $chatId, StartPayload $payload): void
     {
         $slug = $payload->courseSlug();
-        $course = $slug === null ? null : $this->catalog->findAvailable($slug);
+        $course = $slug === null ? null : $this->catalog->findLinkable($slug);
         if ($course === null) {
             return;
         }

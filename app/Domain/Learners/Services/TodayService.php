@@ -158,14 +158,12 @@ final class TodayService
 
         /** @var Course|null $course */
         $course = $learner->activeCourse;
-        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
+        // An empty course is "no course" (its progress total is `words_count`): no progress query for it.
+        if ($course === null || $course->words_count === 0 || ! $this->catalog->isAvailable($course, $learner)) {
             return null;
         }
 
         $listing = $this->catalog->listing($course, $learner);
-        if ($listing->progress->total === 0) {
-            return null;
-        }
 
         $lesson = $this->catalog->nextLessonWithNewWords($course, $learner);
 

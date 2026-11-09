@@ -284,11 +284,20 @@ final class CourseCatalogService
         return $query->first();
     }
 
+    /** A course a `c_<slug>` link can offer: available (never a private one) and with words. */
+    public function findLinkable(string $slug): ?Course
+    {
+        $course = $this->findAvailable($slug);
+
+        return $course !== null && $course->words_count > 0 ? $course : null;
+    }
+
     /**
      * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
      * public published courses with words and `exam_tag = goal`, the one of the same level first,
      * then featured ones, then catalog order. When none fits the goal (or there is no goal), the
-     * same preference over the whole catalog. Null only when the catalog is empty.
+     * same preference over the whole catalog, with general / untagged courses before those of other
+     * exams (a `sat` learner is not sent to an IELTS course). Null only when the catalog is empty.
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
@@ -301,9 +310,14 @@ final class CourseCatalogService
             $candidates = $catalog;
         }
 
+        $rank = fn (CatalogCourse $c): array => [
+            $level !== null && $c->level === $level,
+            $c->examTag === null || $c->examTag === 'general',
+            $c->isFeatured,
+        ];
+
         // usort is stable: equal candidates stay in catalog order (position, id).
-        usort($candidates, fn (CatalogCourse $a, CatalogCourse $b): int => [$b->level === $level && $level !== null, $b->isFeatured]
-            <=> [$a->level === $level && $level !== null, $a->isFeatured]);
+        usort($candidates, fn (CatalogCourse $a, CatalogCourse $b): int => $rank($b) <=> $rank($a));
 
         return $candidates === [] ? null : Course::query()->find($candidates[0]->id);
     }
@@ -322,7 +336,8 @@ final class CourseCatalogService
 
         if ($activeId !== null && collect($courses)->doesntContain(fn (CatalogCourse $c): bool => $c->id === $activeId)) {
             $active = Course::query()->availableTo($learner->id)->whereKey($activeId)->first();
-            if ($active !== null) {
+            // An empty active course stays out, as out of the catalog: the learner has "no course" (like /today).
+            if ($active !== null && $active->words_count > 0) {
                 $courses[] = $this->present($active, $locale);
             }
         }

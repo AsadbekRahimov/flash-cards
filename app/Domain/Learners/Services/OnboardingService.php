@@ -366,7 +366,7 @@ final class OnboardingService
 
     /**
      * Sets `active_course_id` as the onboarding ends: the course of a `c_<slug>` link when it is
-     * still available, else (unless the learner already picked one) the recommendation for the
+     * still available and has words, else (unless the learner already picked one) the recommendation for the
      * goal and level (a course with words; none when the catalog has no such course).
      *
      * @return array{0: Course|null, 1: string|null} the course chosen now and how (`deeplink` / `onboarding`)
@@ -378,7 +378,7 @@ final class OnboardingService
         unset($meta[self::PENDING_COURSE]);
         $learner->meta = $meta;
 
-        $linked = is_string($slug) ? $this->catalog->findAvailable($slug) : null;
+        $linked = is_string($slug) ? $this->catalog->findLinkable($slug) : null;
         if ($linked !== null) {
             $learner->active_course_id = $linked->id;
 

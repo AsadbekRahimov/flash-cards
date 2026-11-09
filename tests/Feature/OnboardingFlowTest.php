@@ -235,6 +235,15 @@ it('recommends by goal, then level, then featured, and ignores private, draft an
         ->and($plain->id)->not->toBe($featured->id);
 });
 
+it('falls back to a general course of the level before a featured course of another exam', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    onbCourse('ielts-featured', 'ielts', 'B1', featured: true);
+    $general = onbCourse('general-b1', 'general', 'B1');
+    onbCourse('toefl-b1', 'toefl', 'B1');
+
+    expect($catalog->recommend('sat', 'B1')?->id)->toBe($general->id);
+});
+
 // --- idempotency and untrusted callback_data ---------------------------------
 
 it('ignores a tap on an old button and a tap on a step that is not current', function (): void {
@@ -581,6 +590,7 @@ it('falls back to the recommendation when the linked course is not available', f
     match ($state) {
         'draft' => Course::factory()->create(['slug' => 'linked']),
         'private' => onbCourse('linked', 'general', visibility: 'private'),
+        'empty' => onbCourse('linked', 'general', words: 0),
         'missing' => null,
     };
 
@@ -588,7 +598,7 @@ it('falls back to the recommendation when the linked course is not available', f
     onbComplete(7024, 'ru', 'ielts');
 
     expect(onbLearner(7024)->active_course_id)->toBe($ielts->id);
-})->with(['draft', 'private', 'missing']);
+})->with(['draft', 'private', 'empty', 'missing']);
 
 it('records nothing for an invalid payload and runs the ordinary onboarding', function (string $payload): void {
     onbSend(7025, '/start '.$payload);
@@ -714,6 +724,7 @@ it('says nothing extra when a finished learner follows a link to an unavailable 
     match ($case) {
         'draft' => Course::factory()->create(['slug' => 'linked']),
         'private' => onbCourse('linked', 'general', visibility: 'private'),
+        'empty' => onbCourse('linked', 'general', words: 0),
         'missing' => null,
         'plain' => null,
     };
@@ -723,7 +734,7 @@ it('says nothing extra when a finished learner follows a link to an unavailable 
 
     expect($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=today');
-})->with(['draft', 'private', 'missing', 'plain']);
+})->with(['draft', 'private', 'empty', 'missing', 'plain']);
 
 // --- teachers, blocked learners, done learners --------------------------------
 

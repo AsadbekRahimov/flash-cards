@@ -190,12 +190,12 @@ it('does not list a published public course without words', function (): void {
     expect($slugs)->toBe(['filled']);
 });
 
-it('reports zero progress for a course without words that is still the active one', function (): void {
+it('does not add an empty active course to the list: the learner has no course, as on the home screen', function (): void {
     $empty = Course::factory()->published()->create(['slug' => 'empty']);
 
     $rows = $this->withHeaders(courseHeaders(Learner::factory()->create(['active_course_id' => $empty->id])))->getJson('/api/twa/courses')->json('courses');
 
-    expect($rows[0]['progress'])->toBe(['done' => 0, 'total' => 0]);
+    expect($rows)->toBe([]);
 });
 
 it('keeps one progress per learner no matter how many groups the learner studies in', function (): void {
