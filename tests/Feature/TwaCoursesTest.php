@@ -181,10 +181,19 @@ it('counts learned active words per course and ignores inactive words', function
     expect($row['progress'])->toBe(['done' => 1, 'total' => 4]);
 });
 
-it('reports zero progress for a course without words', function (): void {
+it('does not list a published public course without words', function (): void {
     Course::factory()->published()->create(['slug' => 'empty']);
+    catalogCourse(['slug' => 'filled']);
 
-    $rows = $this->withHeaders(courseHeaders(Learner::factory()->create()))->getJson('/api/twa/courses')->json('courses');
+    $slugs = array_column($this->withHeaders(courseHeaders(Learner::factory()->create()))->getJson('/api/twa/courses')->json('courses'), 'slug');
+
+    expect($slugs)->toBe(['filled']);
+});
+
+it('reports zero progress for a course without words that is still the active one', function (): void {
+    $empty = Course::factory()->published()->create(['slug' => 'empty']);
+
+    $rows = $this->withHeaders(courseHeaders(Learner::factory()->create(['active_course_id' => $empty->id])))->getJson('/api/twa/courses')->json('courses');
 
     expect($rows[0]['progress'])->toBe(['done' => 0, 'total' => 0]);
 });
@@ -381,6 +390,18 @@ it('refuses to choose an unavailable course with 404 and leaves the active cours
     'private' => ['published', 'private'],
 ]);
 
+it('refuses to choose a course without words with 404 and leaves the active course alone', function (): void {
+    $current = catalogCourse(['slug' => 'current'])['course'];
+    Course::factory()->published()->create(['slug' => 'empty']);
+    $learner = Learner::factory()->create(['active_course_id' => $current->id]);
+
+    $this->withHeaders(courseHeaders($learner))->postJson('/api/twa/me/course', ['slug' => 'empty'])
+        ->assertNotFound()
+        ->assertJsonPath('error.code', 'course_not_found');
+
+    expect($learner->fresh()->active_course_id)->toBe($current->id);
+});
+
 it('validates the request body', function (): void {
     $headers = courseHeaders(Learner::factory()->create());
 
@@ -412,6 +433,7 @@ it('caches the public list and serves new data after publication', function (): 
 
     expect($this->withHeaders($headers)->getJson('/api/twa/courses')->json('courses'))->toBe([]);
 
+    app(CoursePublisher::class)->recount($course); // the catalog lists courses with words, by the counter
     app(CoursePublisher::class)->transition($course, 'published', $admin);
     expect(array_column($this->withHeaders($headers)->getJson('/api/twa/courses')->json('courses'), 'slug'))->toBe(['soon']);
 
@@ -438,7 +460,8 @@ it('drops the cached list when words are recounted', function (): void {
     ['course' => $course] = catalogCourse(['slug' => 'counted', 'words_count' => 0], [3]);
     $catalog = app(CourseCatalogService::class);
 
-    expect($catalog->published('ru')[0]->wordsCount)->toBe(0);
+    // Without words the course is not listed at all.
+    expect($catalog->published('ru'))->toBe([]);
 
     app(CoursePublisher::class)->recount($course);
 

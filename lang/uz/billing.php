@@ -68,15 +68,15 @@ return [
             // Telegram limits: title ≤ 32, label ≤ 32, description ≤ 255 characters.
             'title' => 'LexiFlow Pro — :period',
             'label' => 'LexiFlow Pro, :period',
-            'description_month' => "LexiFlow Pro: yangi so'zlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzayadi, /pro orqali o'chirsa bo'ladi.",
+            'description_month' => "LexiFlow Pro: yangi so'zlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzaytiriladi, /pro orqali o'chirsa bo'ladi.",
             'description_year' => "LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Bir martalik to'lov, avtomatik uzaymaydi.",
             // The same two with the practice and battles of Pro, chosen by TelegramStarsProvider only while practice is open to everybody
             // (ProPromises::publicPractice()); the limit of Telegram is 255 characters, so the tail of the month text is shorter
             // and the year text does not repeat its length in days ("1 yilga" already says it).
-            'description_month_practice' => "LexiFlow Pro: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzayadi, o'chirish: /pro.",
+            'description_month_practice' => "LexiFlow Pro: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzaytiriladi, o'chirish: /pro.",
             'description_year_practice' => "LexiFlow Pro 1 yilga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Bir martalik to'lov, avtomatik uzaymaydi.",
             // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.
-            'description_month_practice_solo' => "LexiFlow Pro: yangi so'zlar va mustahkamlash mashqlari cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzayadi, o'chirish: /pro.",
+            'description_month_practice_solo' => "LexiFlow Pro: yangi so'zlar va mustahkamlash mashqlari cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Har 30 kunda avtomatik uzaytiriladi, o'chirish: /pro.",
             'description_year_practice_solo' => "LexiFlow Pro 1 yilga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz, yozma mashqlar, 20 tagacha o'z to'plamingiz (har biri 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov testlari. Bir martalik to'lov, avtomatik uzaymaydi.",
         ],
         'precheckout' => [

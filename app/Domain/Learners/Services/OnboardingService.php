@@ -367,7 +367,7 @@ final class OnboardingService
     /**
      * Sets `active_course_id` as the onboarding ends: the course of a `c_<slug>` link when it is
      * still available, else (unless the learner already picked one) the recommendation for the
-     * goal and level, else the default course.
+     * goal and level (a course with words; none when the catalog has no such course).
      *
      * @return array{0: Course|null, 1: string|null} the course chosen now and how (`deeplink` / `onboarding`)
      */
@@ -389,9 +389,7 @@ final class OnboardingService
             return [null, null];
         }
 
-        // The default course is a fallback only while it can be opened (published, not private).
-        $course = $this->catalog->recommend($learner->goal, $learner->level)
-            ?? $this->catalog->findAvailable($this->catalog->defaultCourse()->slug);
+        $course = $this->catalog->recommend($learner->goal, $learner->level);
         if ($course === null) {
             return [null, null];
         }

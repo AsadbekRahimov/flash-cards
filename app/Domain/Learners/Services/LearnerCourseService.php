@@ -13,7 +13,7 @@ use App\Models\Learner;
 /**
  * The learner's active course (`learners.active_course_id`, docs/12 §1.2): the course new words
  * come from. Only a course that is available to the learner — published and not private, or their own
- * deck — can be chosen; anything else behaves as if it did not exist.
+ * deck — can be chosen; anything else behaves as if it did not exist, and so does a course without words.
  */
 final class LearnerCourseService
 {
@@ -23,12 +23,12 @@ final class LearnerCourseService
     ) {}
 
     /**
-     * @return Course|null the chosen course, or null when no available course has this slug
+     * @return Course|null the chosen course, or null when no available course with words has this slug
      */
     public function select(Learner $learner, string $slug): ?Course
     {
         $course = $this->catalog->findAvailable($slug, $learner);
-        if ($course === null) {
+        if ($course === null || $course->words_count === 0) {
             return null;
         }
 

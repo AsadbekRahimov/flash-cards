@@ -54,7 +54,7 @@ function meCacheKey(Learner $learner, string $locale = 'ru'): string
 
 function meCacheCourse(string $slug, array $title): Course
 {
-    return Course::factory()->published()->create(['slug' => $slug, 'title' => $title]);
+    return Course::factory()->published()->create(['slug' => $slug, 'title' => $title, 'words_count' => 1]);
 }
 
 it('serves the second /me from the snapshot: the learner and one statement of counts, the same answer', function (): void {

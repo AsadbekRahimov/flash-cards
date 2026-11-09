@@ -203,7 +203,7 @@ it('GET /me carries the block `game` with the coins and the tickets once the gam
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
-    $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 1]))->create(['number' => 1]);
+    $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published()->state(['words_count' => 1]))->create(['number' => 1]))->create(['number' => 1]);
     Word::factory()->for($lesson)->create();
     $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lesson->stage?->course_id]);
     TrainingSession::factory()->personal($learner, 'daily_review')->create();

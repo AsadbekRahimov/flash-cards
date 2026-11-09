@@ -3310,3 +3310,16 @@
 | `gameClass.not_found.title` | Karvon mavjud emas | Караван недоступен |
 | `gameClass.not_found.text` | U bekor qilingan yoki bu sizning sinfingiz emas. | Он отменён, или это не ваш класс. |
 | `gameClass.to_map` | Xaritaga | К карте |
+
+## QA 2026-11-09 — новые строки (на проверку носителю)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private_teacher` | O'qituvchilar uchun: • Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang. • /start_training — guruh mashg'ulotini boshlash • /start_exam — imtihonni boshlash, /close_exam — imtihonni yakunlash :caravan • /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | Блок справки для учителей: группа, /start_training, /start_exam, /close_exam, /stats. Показывается только учителю |
+| `today.done.quota` | Bugungi reja bajarildi. Yangi so'zlar ertaga ochiladi. | На сегодня всё. Новые слова откроются завтра. |
+| `today.done.course` | Kursdagi barcha so'zlarni ko'rib chiqdingiz. Takrorlash vaqti kelganda eslatamiz. | Вы прошли все слова курса. Мы напомним, когда придёт время повторить. |
+| `today.done.choose_course` | Boshqa kursni tanlash | Выбрать другой курс |
+| `today.league.alone` | Raqiblar kutilmoqda · {points} | Ждём соперников · {points} |
+| `finished.title_empty` | Hozircha shu | Пока всё |
+| `finished.title_ok` | Yaxshi harakat! | Хорошая работа! |
+| `league.alone` | Guruhda hozircha faqat siz. Raqiblar qo'shilgach, o'rinlar ko'rinadi. | В группе пока только вы. Места появятся, когда присоединятся соперники. |

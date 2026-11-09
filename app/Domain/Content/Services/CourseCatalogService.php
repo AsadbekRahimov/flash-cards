@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseCatalogService
 {
-    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:v1:';
+    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:v2:';
 
     private const PUBLISHED_CACHE_TTL = 600;
 
@@ -216,8 +216,8 @@ final class CourseCatalogService
     }
 
     /**
-     * Public published courses in catalog order, localized for $locale (title / description fall
-     * back to ru). Cached for 10 minutes; {@see self::forgetPublished()} drops it whenever a
+     * Public published courses WITH words (`words_count > 0`: an empty course is no choice for a learner) in catalog
+     * order, localized for $locale (title / description fall back to ru). Cached for 10 minutes; {@see self::forgetPublished()} drops it whenever a
      * course changes (publication, archiving, editing, recount).
      *
      * @return list<CatalogCourse>
@@ -233,6 +233,7 @@ final class CourseCatalogService
             fn (): array => Course::query()
                 ->where('status', 'published')
                 ->where('visibility', 'public')
+                ->where('words_count', '>', 0)
                 ->orderBy('position')
                 ->orderBy('id')
                 ->get()
@@ -285,26 +286,26 @@ final class CourseCatalogService
 
     /**
      * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
-     * public published courses with `exam_tag = goal`, the one of the same level first, then
-     * featured ones, then catalog order. Null when no course fits the goal — the caller falls
-     * back to the default course.
+     * public published courses with words and `exam_tag = goal`, the one of the same level first,
+     * then featured ones, then catalog order. When none fits the goal (or there is no goal), the
+     * same preference over the whole catalog. Null only when the catalog is empty.
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
-        if ($goal === null || $goal === '') {
-            return null;
+        $catalog = $this->published($this->locales->default());
+
+        $candidates = $goal === null || $goal === ''
+            ? []
+            : array_values(array_filter($catalog, fn (CatalogCourse $c): bool => $c->examTag === $goal));
+        if ($candidates === []) {
+            $candidates = $catalog;
         }
 
-        $matching = array_values(array_filter(
-            $this->published($this->locales->default()),
-            fn (CatalogCourse $c): bool => $c->examTag === $goal,
-        ));
-
         // usort is stable: equal candidates stay in catalog order (position, id).
-        usort($matching, fn (CatalogCourse $a, CatalogCourse $b): int => [$b->level === $level && $level !== null, $b->isFeatured]
+        usort($candidates, fn (CatalogCourse $a, CatalogCourse $b): int => [$b->level === $level && $level !== null, $b->isFeatured]
             <=> [$a->level === $level && $level !== null, $a->isFeatured]);
 
-        return $matching === [] ? null : Course::query()->find($matching[0]->id);
+        return $candidates === [] ? null : Course::query()->find($candidates[0]->id);
     }
 
     /**

@@ -35,7 +35,7 @@ beforeEach(function (): void {
 /** A course in `$status` with $words words, all translated into ru + uz. */
 function adminCourse(string $status = 'draft', int $words = 4, int $withUz = 4): Course
 {
-    $course = Course::factory()->create(['status' => $status]);
+    $course = Course::factory()->create(['status' => $status, 'words_count' => $words]);
     $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
     foreach (Word::factory()->count($words)->for($lesson)->create() as $i => $word) {
         WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => 'ru']);

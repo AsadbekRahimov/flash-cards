@@ -133,7 +133,7 @@ it('serves the entitlement of a learner from the cache as the same plan', functi
 });
 
 it('serves the published course catalog and an exam leaderboard from the cache as the same rows', function (): void {
-    Course::factory()->published()->create(['visibility' => 'public', 'slug' => 'cache-probe']);
+    Course::factory()->published()->create(['visibility' => 'public', 'slug' => 'cache-probe', 'words_count' => 1]);
     $catalog = app(CourseCatalogService::class);
 
     $computed = $catalog->published('ru');

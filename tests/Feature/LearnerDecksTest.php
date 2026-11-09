@@ -788,7 +788,7 @@ it('shows the own-deck technical titles in the learner locale in /today and the 
 });
 
 it('keeps the own title of a regular course for an uz learner', function (): void {
-    $course = Course::factory()->published()->create();
+    $course = Course::factory()->published()->create(['words_count' => 2]);
     $stage = Stage::factory()->create(['course_id' => $course->id, 'number' => 1]);
     $lesson = Lesson::factory()->create(['stage_id' => $stage->id, 'number' => 1, 'title' => 'Basics']);
     Word::factory()->count(2)->for($lesson)->create();

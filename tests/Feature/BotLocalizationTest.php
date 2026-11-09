@@ -237,7 +237,9 @@ it('answers private /help by the sender language code', function (?string $langu
     'missing -> default' => [null, 'английские слова в Telegram'],
 ]);
 
-it('lists the learner commands first and the teacher ones after them in the private /help', function (string $languageCode, string $teacherHeading): void {
+it('lists the learner commands first and the teacher ones after them in the private /help of a teacher', function (string $languageCode, string $teacherHeading): void {
+    User::factory()->create(['telegram_user_id' => 43]);
+
     locDispatch(['chat' => ['id' => 43, 'type' => 'private'], 'from' => ['id' => 43, 'language_code' => $languageCode], 'text' => '/help']);
 
     [$learnerPart, $teacherPart] = explode($teacherHeading, $this->api->log[0]['text'], 2);
@@ -251,6 +253,42 @@ it('lists the learner commands first and the teacher ones after them in the priv
 })->with([
     'ru' => ['ru', 'Для учителей:'],
     'uz' => ['uz', "O'qituvchilar uchun:"],
+]);
+
+it('answers private /help of a learner in the language of the LexiFlow profile, not of Telegram', function (): void {
+    Learner::factory()->create(['telegram_user_id' => 44, 'interface_locale' => 'uz', 'language_code' => 'ru']);
+
+    locDispatch(['chat' => ['id' => 44, 'type' => 'private'], 'from' => ['id' => 44, 'language_code' => 'ru'], 'text' => '/help']);
+
+    expect($this->api->log[0]['text'])->toBe(__('bot.help.private', [], 'uz'));
+});
+
+it('answers private /help of an unregistered person in the language of Telegram', function (): void {
+    locDispatch(['chat' => ['id' => 45, 'type' => 'private'], 'from' => ['id' => 45, 'language_code' => 'uz'], 'text' => '/help']);
+
+    expect($this->api->log[0]['text'])->toBe(__('bot.help.private', [], 'uz'));
+});
+
+it('shows the teacher block of the private /help to an active teacher only', function (string $who, bool $sees): void {
+    match ($who) {
+        'learner' => Learner::factory()->create(['telegram_user_id' => 46, 'interface_locale' => 'ru']),
+        'teacher' => User::factory()->create(['telegram_user_id' => 46]),
+        'inactive teacher' => User::factory()->create(['telegram_user_id' => 46, 'is_active' => false]),
+        default => null,
+    };
+
+    locDispatch(['chat' => ['id' => 46, 'type' => 'private'], 'from' => ['id' => 46, 'language_code' => 'ru'], 'text' => '/help']);
+
+    $text = $this->api->log[0]['text'];
+    expect($text)->toContain(__('bot.help.private', [], 'ru'))
+        ->and(str_contains($text, 'Для учителей:'))->toBe($sees)
+        ->and(str_contains($text, '/start_training'))->toBe($sees)
+        ->and(str_contains($text, '/stats'))->toBe($sees);
+})->with([
+    'learner' => ['learner', false],
+    'stranger' => ['stranger', false],
+    'inactive teacher' => ['inactive teacher', false],
+    'teacher' => ['teacher', true],
 ]);
 
 it('names LexiFlow without the word "Bot" in the group /help', function (string $locale, string $firstLine): void {

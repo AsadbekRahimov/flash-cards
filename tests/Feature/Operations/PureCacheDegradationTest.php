@@ -60,7 +60,7 @@ it('keeps /me, the entitlement, the catalog and the platform stats working from 
         'subscriber_id' => $learner->id,
         'current_period_ends_at' => null,
     ]);
-    $course = Course::factory()->create(['status' => 'published', 'visibility' => 'public']);
+    $course = Course::factory()->create(['status' => 'published', 'visibility' => 'public', 'words_count' => 1]);
     $resolver = app(EntitlementResolver::class);
 
     // Reads compute from the database; the second read of a request is served by the array store of the chain.

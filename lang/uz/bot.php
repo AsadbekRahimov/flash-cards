@@ -11,13 +11,14 @@ return [
     'help' => [
         'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Har bir kartochkada talaffuz bor, bot esa takrorlash vaqtini eslatib turadi.\n\n".
             "Qanday shug'ullanish kerak:\n".
-            "• Bugungi mashg'ulot uchun /today yuboring yoki xabar maydoni yonidagi «LexiFlow» tugmasini bosing.\n".
+            "• Xabar maydoni yonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot\n".
             "• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
             "• /invite — do'stingizni taklif qiling va birga Pro oling\n".
             "• /pro — Pro obuna, /promo KOD — promokod\n".
             "• /paysupport — to'lov bo'yicha savollar\n".
-            "• /delete_account — akkauntni o'chirish\n\n".
-            "O'qituvchilar uchun:\n".
+            "• /delete_account — akkauntni o'chirish",
+        // Only for teachers (an active User with this Telegram id); the learner part is `private`.
+        'private_teacher' => "O'qituvchilar uchun:\n".
             "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
             "• /start_training — guruh mashg'ulotini boshlash\n".
             "• /start_exam — imtihonni boshlash, /close_exam — imtihonni yakunlash\n".
@@ -30,7 +31,7 @@ return [
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             "/help — buyruqlar ro'yxati",
-        // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
+        // The line of `:caravan` in `private_teacher` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
         'group_caravan' => "/start_caravan — sinf karvonini boshlash\n".

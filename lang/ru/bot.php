@@ -16,8 +16,9 @@ return [
             "• /invite — пригласить друга и вместе получить Pro\n".
             "• /pro — подписка Pro, /promo КОД — промокод\n".
             "• /paysupport — вопросы по оплате\n".
-            "• /delete_account — удалить аккаунт\n\n".
-            "Для учителей:\n".
+            '• /delete_account — удалить аккаунт',
+        // Only for teachers (an active User with this Telegram id); the learner part is `private`.
+        'private_teacher' => "Для учителей:\n".
             "• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.\n".
             "• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.\n".
             ':caravan'.
@@ -29,7 +30,7 @@ return [
             ':caravan'.
             "/stats — личный отчёт в чате с ботом\n".
             '/help — эта справка',
-        // The line of `:caravan` in `private` (the part «Для учителей»): shown only with GAME_ACCESS=all, like `group_caravan`.
+        // The line of `:caravan` in `private_teacher` (the part «Для учителей»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
         'group_caravan' => "/start_caravan — запустить караван класса\n".

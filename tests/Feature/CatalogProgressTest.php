@@ -90,7 +90,8 @@ function legacyProgressFor(Learner $learner, array $courseIds): array
 }
 
 it('counts done and total of every course of the list like the original catalog scan', function (): void {
-    // A: an inactive word, one served-only card, one learned card of a retired word. B: untouched. C: no words at all.
+    // A: an inactive word, one served-only card, one learned card of a retired word. B: untouched. C: no words at all - not in
+    // the catalog (an empty course is no choice for a learner, QA 2026-11-09 LF-CL-02).
     ['course' => $a, 'words' => $aw] = Fx::course([1 => [1 => 4, 2 => [3, 2]]], ['position' => 1]);
     ['course' => $b] = Fx::course([1 => [1 => 2], 2 => [1 => 5]], ['position' => 2]);
     $c = Course::factory()->published()->create(['position' => 3]);
@@ -104,7 +105,7 @@ it('counts done and total of every course of the list like the original catalog 
     Fx::learn($learner, $dw['1.1']['active']);                                         // course D completed
     Fx::learn($classmate, [...$aw['1.1']['active'], ...$aw['1.2']['active']]);         // somebody else's rows
 
-    $ids = [$a->id, $b->id, $c->id, $d->id];
+    $ids = [$a->id, $b->id, $d->id];
     $listings = app(CourseCatalogService::class)->forLearner($learner);
 
     expect(catalogProgressOf($listings))->toBe(legacyProgressFor($learner, $ids))
@@ -112,9 +113,9 @@ it('counts done and total of every course of the list like the original catalog 
         ->and(catalogProgressOf($listings))->toBe([
             $a->id => ['done' => 3, 'total' => 7],
             $b->id => ['done' => 0, 'total' => 7],
-            $c->id => ['done' => 0, 'total' => 0],
             $d->id => ['done' => 3, 'total' => 3],
-        ]);
+        ])
+        ->and(array_keys(catalogProgressOf($listings)))->not->toContain($c->id);
 });
 
 it('counts the same for a single listing, a list of decks and the learner\'s unlisted active course', function (): void {

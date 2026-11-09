@@ -67,7 +67,7 @@ function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', s
     onbTap($tgId, "onb1:reminder:{$reminder}", 5);
 }
 
-function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public'): Course
+function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public', int $words = 5): Course
 {
     return Course::factory()->published()->create([
         'slug' => $slug,
@@ -75,6 +75,7 @@ function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $feat
         'level' => $level,
         'is_featured' => $featured,
         'visibility' => $visibility,
+        'words_count' => $words,
         'title' => ['ru' => 'Курс '.$slug, 'uz' => 'Kurs '.$slug],
     ]);
 }
@@ -151,7 +152,10 @@ it('walks a new learner through the five steps with five callbacks', function ()
         ->and(ksorted(ProductEvent::query()->where('name', 'course.selected')->firstOrFail()->props))->toBe(['course_id' => $course->id, 'via' => 'onboarding']);
 });
 
-it('stores "I do not know" as A1, switches reminders off and falls back to the default course', function (): void {
+it('stores "I do not know" as A1 and switches reminders off; with no course with words the active course stays empty', function (): void {
+    // An empty `default` course exists (groups and imports create it) but is not a choice for a learner.
+    app(CourseCatalogService::class)->defaultCourse();
+
     onbSend(7002, '/start');
     onbComplete(7002, 'ru', 'general', 'unknown', 'Asia/Tashkent', 'off');
 
@@ -160,8 +164,20 @@ it('stores "I do not know" as A1, switches reminders off and falls back to the d
         ->and($learner->level)->toBe('A1')
         ->and($learner->reminder_time)->toBeNull()
         ->and($learner->next_reminder_at)->toBeNull()
-        ->and($learner->active_course_id)->toBe(app(CourseCatalogService::class)->defaultCourse()->id);
+        ->and($learner->active_course_id)->toBeNull()
+        ->and(onbEvents())->not->toContain('course.selected');
 });
+
+it('gives a goal without a course of its own the best course of the catalog, never an empty one', function (string $goal): void {
+    onbCourse('empty-first', 'general', 'A1', featured: true, words: 0);
+    $general = onbCourse('english-a1-a2', 'general', 'A1');
+    app(CourseCatalogService::class)->defaultCourse();
+
+    onbSend(7004, '/start');
+    onbComplete(7004, 'ru', $goal, 'A1');
+
+    expect(onbLearner(7004)->active_course_id)->toBe($general->id);
+})->with(['ielts', 'sat', 'school']);
 
 it('keeps a course the learner already picked instead of recommending one', function (): void {
     $picked = onbCourse('picked', 'school');
@@ -185,19 +201,22 @@ it('keeps every callback_data within the Telegram limit and the whitelists', fun
     }
 });
 
-it('recommends by goal, then level, then featured, and ignores private and draft courses', function (): void {
+it('recommends by goal, then level, then featured, and ignores private, draft and empty courses', function (): void {
     $catalog = app(CourseCatalogService::class);
     $plain = onbCourse('sat-plain', 'sat');
     $featured = onbCourse('sat-featured', 'sat', featured: true);
     $levelled = onbCourse('sat-b2', 'sat', 'B2');
     onbCourse('sat-private', 'sat', 'B1', true, 'private');
-    Course::factory()->create(['slug' => 'sat-draft', 'exam_tag' => 'sat', 'level' => 'B1']);
+    onbCourse('sat-empty', 'sat', 'A1', true, words: 0);
+    Course::factory()->create(['slug' => 'sat-draft', 'exam_tag' => 'sat', 'level' => 'B1', 'words_count' => 5]);
 
     expect($catalog->recommend('sat', 'B2')?->id)->toBe($levelled->id)
         ->and($catalog->recommend('sat', 'A1')?->id)->toBe($featured->id)
         ->and($catalog->recommend('sat', null)?->id)->toBe($featured->id)
-        ->and($catalog->recommend('ielts', 'B2'))->toBeNull()
-        ->and($catalog->recommend(null, 'B2'))->toBeNull()
+        // No course of the goal (or no goal): the same preference over the whole catalog.
+        ->and($catalog->recommend('ielts', 'B2')?->id)->toBe($levelled->id)
+        ->and($catalog->recommend(null, 'B2')?->id)->toBe($levelled->id)
+        ->and($catalog->recommend('', null)?->id)->toBe($featured->id)
         ->and($plain->id)->not->toBe($featured->id);
 });
 

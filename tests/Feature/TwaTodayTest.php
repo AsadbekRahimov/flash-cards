@@ -331,6 +331,13 @@ it('treats an active course that is no longer published as absent', function ():
     todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', null);
 });
 
+it('treats an active course without words as absent: the screen offers to choose a course', function (): void {
+    $course = Course::factory()->published()->create();
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', null);
+});
+
 it('treats a published but private active course as absent (the single availability rule)', function (): void {
     $lessons = todayCourse(1, 1);
     $learner = Learner::factory()->create(['active_course_id' => $lessons[0]->stage?->course_id]);

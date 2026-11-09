@@ -149,7 +149,7 @@ final class TodayService
         return true;
     }
 
-    /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */
+    /** Null when the learner has no active course, it is no longer available (CourseCatalogService::isAvailable) or it has no words (the screen then offers to choose a course). */
     private function activeCourse(Learner $learner): ?TodayCourse
     {
         if ($learner->active_course_id === null) {
@@ -163,6 +163,10 @@ final class TodayService
         }
 
         $listing = $this->catalog->listing($course, $learner);
+        if ($listing->progress->total === 0) {
+            return null;
+        }
+
         $lesson = $this->catalog->nextLessonWithNewWords($course, $learner);
 
         return new TodayCourse(
