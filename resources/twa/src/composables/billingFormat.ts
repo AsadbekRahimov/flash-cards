@@ -1,4 +1,4 @@
-import { formatDate } from '@/composables/format'
+import { formatDate, formatNumber } from '@/composables/format'
 import { t } from '@/i18n'
 import type { BillingCurrency, BillingProviderKey, CatalogItem, SubscriptionSummary } from '@/api/types'
 
@@ -17,9 +17,9 @@ export const PROVIDER_ORDER: readonly BillingProviderKey[] = ['telegram_stars', 
  * `UZS` (100 tiyin = 1 sum) — «150 ⭐», «29 000 so'm».
  */
 export function formatPrice(minorUnits: number, currency: BillingCurrency, locale: string): string {
-  if (currency === 'XTR') return `${new Intl.NumberFormat(locale).format(minorUnits)} ⭐`
+  if (currency === 'XTR') return `${formatNumber(minorUnits, locale)} ⭐`
 
-  const sum = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.round(minorUnits / 100))
+  const sum = formatNumber(Math.round(minorUnits / 100), locale)
   return `${sum} ${t('billing.sum')}`
 }
 

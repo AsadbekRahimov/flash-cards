@@ -56,8 +56,9 @@ const correctPercent = computed(() => {
 })
 
 /** The headline follows the result: nothing reviewed is not "Great!", and under 80% right is "Good work!"; a group session (no summary) has no share to judge by. */
+const noCards = computed(() => reviewedCount.value === 0)
 const title = computed(() => {
-  if (reviewedCount.value === 0) return t('finished.title_empty')
+  if (noCards.value) return t('finished.title_empty')
   const current = summary.value
   return current !== null && current.correct / current.reviewed < 0.8 ? t('finished.title_ok') : t('finished.title')
 })
@@ -105,10 +106,11 @@ onBeforeUnmount(() => {
     <div class="flex flex-1 flex-col justify-center gap-5 py-4">
       <header class="text-center">
         <span
-          class="mx-auto flex size-20 items-center justify-center rounded-full bg-success-soft text-success"
+          class="mx-auto flex size-20 items-center justify-center rounded-full"
+          :class="noCards ? 'bg-track text-tg-subtitle' : 'bg-success-soft text-success'"
           data-testid="finished-icon"
         >
-          <AppIcon name="check-circle" solid :size="48" />
+          <AppIcon :name="noCards ? 'information-circle' : 'check-circle'" solid :size="48" />
         </span>
         <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ title }}</h1>
         <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>

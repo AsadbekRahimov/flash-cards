@@ -53,8 +53,8 @@ const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['reverse', 'audio', 'spelling
 /** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip. */
 const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fill']
 
-// The plan comes from the billing store (the Profile tab, the screen before this one, has loaded it; no request of its own).
-// A Free learner does not get typed answers, whatever the saved value: the row shows them off, not on, and a tap on it is the paywall.
+// The plan comes from the billing store: the settings store applies the `/me` this screen loads (stores/settings.ts).
+// A Free learner does not get typed answers, whatever the saved value: the switch shows them off, and turning it on is the paywall (nothing is saved).
 const paywallOpen = ref(false)
 const { reviewFromPaywall } = useReviewFromPaywall(() => (paywallOpen.value = false), { toastErrors: true })
 const isLocked = (key: keyof ExerciseSettings): boolean => billing.entitlement?.plan === 'free' && PRO_EXERCISES.includes(key)
@@ -163,9 +163,9 @@ const onGoal = (value: string | number) => save({ daily_goal: Number(value) })
 const onTimezone = () => save({ timezone: draft.timezone })
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
-const onExercise = (key: keyof ExerciseSettings, enabled: boolean) => save({ exercises: { [key]: enabled } })
-const onExerciseRow = (key: keyof ExerciseSettings) => {
+const onExercise = (key: keyof ExerciseSettings, enabled: boolean) => {
   if (isLocked(key)) paywallOpen.value = true
+  else void save({ exercises: { [key]: enabled } })
 }
 
 onMounted(() => {
@@ -221,15 +221,14 @@ onBeforeUnmount(() => {
       </ListGroup>
 
       <ListGroup :header="t('settings.exercises')" :footer="t('settings.exercises.always')" data-testid="exercises-card">
-        <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`" @click="onExerciseRow(key)">
+        <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`">
           <span class="flex min-w-0 flex-1 items-center gap-2 text-base leading-[22px]">
             <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
             <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
           </span>
           <ToggleSwitch
             :model-value="!isLocked(key) && data.exercises[key]"
-            :disabled="saving || isLocked(key)"
-            :class="{ 'pointer-events-none': isLocked(key) }"
+            :disabled="saving"
             :label="t(`settings.exercises.${key}`)"
             :data-testid="`exercise-${key}`"
             @update:model-value="onExercise(key, $event)"

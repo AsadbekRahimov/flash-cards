@@ -15,9 +15,8 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { formatDate } from '@/composables/format'
+import { formatDate, realName } from '@/composables/format'
 import { tierLabelKey } from '@/composables/leagueTiers'
-import { realName } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAssignmentsStore } from '@/stores/assignments'
@@ -58,12 +57,15 @@ async function load(): Promise<void> {
   // The center's assignments are secondary: they load alongside Today, never blocking or breaking it.
   void assignments.load()
   await today.load()
+  // The Pro link reads the paywall mode, which `/today` does not carry: `/me` through the billing store (best effort, deduplicated, kept for `ME_FRESH_MS`).
+  if (today.data !== null && today.data.entitlement.plan !== 'pro') void billing.load()
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
-  // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
+  // review, if there is anything to study (otherwise the home screen says "that is all for today"). The marker is
+  // dropped from the URL first so a reload or "back" does not reopen it.
   if (route.query.from === 'reminder' && today.data !== null) {
     await router.replace({ name: 'today', query: {} })
-    await openSession({ mode: 'daily_review', source: 'reminder' })
+    if (canStudy.value) await openSession({ mode: 'daily_review', source: 'reminder' })
     return
   }
 
@@ -117,11 +119,13 @@ const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 /**
  * "About Pro" under the session button: only where there is something to act on - a purchase that is open or a spent quota
  * (the paywall of a closed purchase is a dead end). `/today` does not carry the paywall mode, so it is read from the billing store
- * (`/me.paywall`): this screen does not request `/me` itself, an unknown mode counts as closed.
+ * (`/me.paywall`, which `load()` asks for a Free learner): until it is there, the mode counts as closed.
  */
 const showProLink = computed(() => !isPro.value && (billing.paywall?.mode === 'purchase' || data.value?.new_words_remaining === 0))
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+/** The whole course has been shown (no next lesson): «that is all for today» is then about the course, not about the quota. */
+const courseShown = computed(() => data.value?.active_course?.next_lesson == null)
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
 
@@ -318,8 +322,8 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
         <div v-else class="mt-3 space-y-3 text-center" data-testid="day-done">
-          <p class="text-[15px] leading-5">{{ t(data.new_words_remaining === 0 ? 'today.done.quota' : 'today.done.course') }}</p>
-          <RouterLink v-if="data.new_words_remaining !== 0" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="done-choose-course">
+          <p class="text-[15px] leading-5">{{ t(courseShown ? 'today.done.course' : 'today.done.quota') }}</p>
+          <RouterLink v-if="courseShown" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="done-choose-course">
             {{ t('today.done.choose_course') }}
           </RouterLink>
         </div>

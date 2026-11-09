@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { setLocale } from '@/i18n'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '../billingFormat'
 import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
@@ -7,7 +7,10 @@ import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
 const plain = (text: string) => text.replace(/[\s  ]+/g, ' ')
 
 describe('billingFormat', () => {
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    vi.restoreAllMocks()
+    setLocale('ru')
+  })
 
   it('shows whole Stars as they are', () => {
     expect(plain(formatPrice(150, 'XTR', 'ru'))).toBe('150 ⭐')
@@ -19,6 +22,20 @@ describe('billingFormat', () => {
 
     setLocale('uz')
     expect(plain(formatPrice(24_900_000, 'UZS', 'uz'))).toBe("249 000 so'm")
+  })
+
+  it('groups Uzbek prices as «49 000 som» also where the browser has no Uzbek data', async () => {
+    vi.resetModules()
+    const Original = Intl.NumberFormat as new (...args: unknown[]) => unknown
+    vi.spyOn(Intl, 'NumberFormat').mockImplementation(function (...args: unknown[]) {
+      return new Original(String(args[0]).startsWith('uz') ? 'und' : args[0], args[1]) as never
+    })
+    const fresh = await import('../billingFormat')
+    const i18n = await import('@/i18n')
+    i18n.setLocale('uz') // the fresh module's own i18n, `billing.sum` comes from it
+
+    expect(plain(fresh.formatPrice(4_900_000, 'UZS', 'uz'))).toBe("49 000 so'm")
+    expect(plain(fresh.formatPrice(1300, 'XTR', 'uz'))).toBe('1 300 ⭐')
   })
 
   it('rounds a fraction of a sum away', () => {

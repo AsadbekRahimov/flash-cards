@@ -223,7 +223,7 @@ describe('formatNumber', () => {
     expect(formatNumber(0, 'ru')).toBe('0')
   })
 
-  it('builds one Intl formatter per locale', async () => {
+  it('builds one Intl formatter per tag, Uzbek shares the `ru` one', async () => {
     vi.resetModules()
     const created = countConstructions('NumberFormat')
     const fresh = await import('../format')
@@ -233,6 +233,21 @@ describe('formatNumber', () => {
     fresh.formatNumber(3, 'uz')
     fresh.formatNumber(4, 'uz')
 
-    expect(created).toEqual(['ru', 'uz-Latn'])
+    expect(created).toEqual(['ru'])
+  })
+
+  it('groups Uzbek as «1 300» when the browser has no Uzbek data (root locale groups «1,300»)', async () => {
+    vi.resetModules()
+    const requested: unknown[] = []
+    const Original = Intl.NumberFormat as new (...args: unknown[]) => unknown
+    vi.spyOn(Intl, 'NumberFormat').mockImplementation(function (...args: unknown[]) {
+      requested.push(args[0])
+      return new Original(String(args[0]).startsWith('uz') ? 'und' : args[0], args[1]) as never
+    })
+    const fresh = await import('../format')
+
+    expect(plain(fresh.formatNumber(1300, 'uz'))).toBe('1 300')
+    expect(plain(fresh.formatNumber(1234567, 'uz'))).toBe('1 234 567')
+    expect(requested.filter((tag) => String(tag).startsWith('uz'))).toEqual([])
   })
 })

@@ -218,7 +218,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           class="btn btn-primary btn-lg btn-block mt-4"
-          :disabled="selecting !== null"
+          :disabled="selecting !== null || detail.words_count === 0"
           data-testid="choose-btn"
           @click="catalog.select(detail.slug)"
         >

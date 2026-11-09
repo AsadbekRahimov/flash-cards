@@ -116,6 +116,15 @@ describe('FinishedView', () => {
       expect(w.find('[data-testid=tab-bar]').exists()).toBe(false)
     })
 
+    it('shows a neutral icon, not the success one, when nothing was reviewed', () => {
+      const icon = render(0, 0, 'nothing_due').get('[data-testid=finished-icon]')
+
+      expect(icon.classes()).toEqual(expect.arrayContaining(['bg-track', 'text-tg-subtitle']))
+      expect(icon.classes()).not.toContain('bg-success-soft')
+      expect(icon.classes()).not.toContain('text-success')
+      expect(icon.get('path').attributes('d')).toBe(ICONS['information-circle'].solid[0]?.d)
+    })
+
     it('buzzes the success haptic when it opens', () => {
       render(5, 1)
 

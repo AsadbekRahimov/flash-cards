@@ -5,7 +5,7 @@ import BottomSheet from '@/components/ui/BottomSheet.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
-import { realName } from '@/composables/practiceLabels'
+import { realName } from '@/composables/format'
 import { useI18n } from '@/i18n'
 import type { FriendItem } from '@/api/types'
 

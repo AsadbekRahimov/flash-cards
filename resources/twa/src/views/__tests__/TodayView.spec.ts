@@ -353,6 +353,14 @@ describe('TodayView', () => {
         }
       })
 
+      it('says «course shown», not «quota», when the course is out of lessons and the quota is spent too', async () => {
+        const w = await render(today({ due_count: 0, new_words_remaining: 0, active_course: { ...course, next_lesson: null } }))
+
+        expect(text(w, 'day-done')).toContain('Вы прошли все слова курса.')
+        expect(text(w, 'day-done')).not.toContain('Новые слова откроются завтра')
+        expect(w.get('[data-testid=done-choose-course]').attributes('href')).toBe('/courses')
+      })
+
       it('speaks Uzbek', async () => {
         setLocale('uz')
 
@@ -391,6 +399,22 @@ describe('TodayView', () => {
 
         await w.get('[data-testid=paywall-open]').trigger('click')
         expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Лимит новых слов')
+      })
+
+      it('learns the paywall mode on a cold start: Home asks `/me` itself for a Free learner, never for a Pro one', async () => {
+        vi.mocked(api.me.get).mockResolvedValue({
+          entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
+          paywall: { mode: 'purchase', contact: null },
+        } as never)
+
+        const w = await render(today({ new_words_remaining: 12 }))
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+        expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+
+        vi.mocked(api.me.get).mockClear()
+        setActivePinia(createPinia())
+        await render(today({ entitlement: PRO }))
+        expect(api.me.get).not.toHaveBeenCalled()
       })
 
       it('never shows for a Pro learner', async () => {
@@ -539,10 +563,11 @@ describe('TodayView', () => {
         const w = await render(today({ entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
 
         expect(text(w, 'lapsed-title')).toBe('Pro закончился')
-        expect(api.me.get).not.toHaveBeenCalled()
+        // The one `/me` is the billing store's (the paywall mode of the Pro link), kept for the next render: the banner has no request of its own.
+        expect(api.me.get).toHaveBeenCalledTimes(1)
 
         await render(today({ entitlement: { ...initial.entitlement, lapsed: null } }))
-        expect(api.me.get).not.toHaveBeenCalled()
+        expect(api.me.get).toHaveBeenCalledTimes(1)
       })
 
       it('offers renewal to a Free learner whose Pro lapsed and leads to the subscription screen', async () => {
@@ -619,6 +644,15 @@ describe('TodayView', () => {
       w.router.back()
       await flushPromises()
       expect(w.router.currentRoute.value.query.from).toBeUndefined()
+    })
+
+    it('opens nothing when there is nothing to study, only drops the marker: the screen says «that is all for today»', async () => {
+      const w = await renderAt('/today?from=reminder', today({ due_count: 0, new_words_remaining: 0 }))
+
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(w.router.currentRoute.value.name).toBe('today')
+      expect(w.router.currentRoute.value.query.from).toBeUndefined()
+      expect(w.find('[data-testid=day-done]').exists()).toBe(true)
     })
 
     it('stays on the screen with the error when the session cannot be opened', async () => {

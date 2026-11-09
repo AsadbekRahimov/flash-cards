@@ -176,12 +176,13 @@ describe('SettingsView — exercises', () => {
   describe('Pro exercises (spelling, gap_fill)', () => {
     const typed = settingsFixture({ exercises: { reverse: true, audio: true, spelling: true, gap_fill: true } })
 
-    it('shows them off and disabled to a Free learner, keeps the chip, leaves the other switches alone', async () => {
+    it('shows them off to a Free learner, as a switch that still works (a keyboard reaches the paywall), keeps the chip', async () => {
       const w = await render(typed, 'free')
 
       for (const key of ['spelling', 'gap_fill']) {
         expect(isOn(w, key), key).toBe(false)
-        expect(toggle(w, key).attributes('disabled'), key).toBeDefined()
+        expect(toggle(w, key).attributes('disabled'), key).toBeUndefined()
+        expect(toggle(w, key).classes(), key).not.toContain('pointer-events-none')
         expect(w.get(`[data-testid=exercise-row-${key}]`).find('[data-testid=exercise-pro]').exists(), key).toBe(true)
       }
       for (const key of ['reverse', 'audio']) {
@@ -190,12 +191,12 @@ describe('SettingsView — exercises', () => {
       }
     })
 
-    it('opens the paywall on a tap on the row of a Free learner and saves nothing', async () => {
+    it('opens the paywall on a press of the switch of a Free learner and saves nothing', async () => {
       vi.mocked(api.me.get).mockClear()
       const w = await render(typed, 'free')
       expect(w.find('[data-testid=paywall]').exists()).toBe(false)
 
-      await w.get('[data-testid=exercise-row-spelling]').trigger('click')
+      await toggle(w, 'spelling').trigger('click')
       await flushPromises()
 
       expect(w.find('[data-testid=paywall]').exists()).toBe(true)
@@ -204,7 +205,7 @@ describe('SettingsView — exercises', () => {
 
       await w.get('[data-testid=paywall-x]').trigger('click')
       expect(w.find('[data-testid=paywall]').exists()).toBe(false)
-      await w.get('[data-testid=exercise-row-gap_fill]').trigger('click')
+      await toggle(w, 'gap_fill').trigger('click')
       expect(w.find('[data-testid=paywall]').exists()).toBe(true)
       expect(api.me.updateSettings).not.toHaveBeenCalled()
     })
@@ -227,7 +228,6 @@ describe('SettingsView — exercises', () => {
       expect(isOn(w, 'spelling')).toBe(true)
       expect(toggle(w, 'spelling').attributes('disabled')).toBeUndefined()
 
-      await w.get('[data-testid=exercise-row-spelling]').trigger('click')
       await toggle(w, 'spelling').trigger('click')
       await flushPromises()
 

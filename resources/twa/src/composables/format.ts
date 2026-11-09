@@ -179,11 +179,19 @@ export function calendarDay(at: number | string | Date, timeZone?: string): stri
 
 /** `1300` -> «1 300» (grouping per locale, cached formatter). */
 export function formatNumber(value: number, locale: string): string {
-  const tag = intlTag(locale)
+  // ponytail: Uzbek numbers take the `ru` tag: a browser without `uz` ICU data (Chrome in Telegram Web) falls back to the root locale
+  // and groups «1,300»; `ru` and `uz-Latn` both give «1 300» (U+00A0) wherever the data is there. Dates need no such trick, they are ours (`formatUz`).
+  const tag = locale === 'uz' ? 'ru' : locale
   let formatter = numberFormatters.get(tag)
   if (!formatter) {
     formatter = new Intl.NumberFormat(tag)
     numberFormatters.set(tag, formatter)
   }
   return formatter.format(value)
+}
+
+/** A person's name as shown: trimmed; a name with no letter or digit (".", "-", an emoji only) is empty, i.e. "no name" - the caller falls back to its `*.anonymous` label. */
+export const realName = (name: string | null | undefined): string => {
+  const trimmed = name?.trim() ?? ''
+  return /[\p{L}\p{N}]/u.test(trimmed) ? trimmed : ''
 }

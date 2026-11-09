@@ -229,6 +229,17 @@ describe('CourseView', () => {
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
     })
 
+    it('disables the button of a course without words and says so (the server answers 404 to such a choice)', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ words_count: 0, stages: [] }))
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
+      expect(wrapper.get('[data-testid=no-lessons]').text()).toContain('В курсе пока нет уроков')
+      await wrapper.get('[data-testid=choose-btn]').trigger('click')
+      expect(api.courses.select).not.toHaveBeenCalled()
+    })
+
     it('explains in an alert why the course could not be made the main one', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.courses.select).mockRejectedValue(
