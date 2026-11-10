@@ -80,7 +80,7 @@ final class PaymeRpcException extends RuntimeException
         self::ORDER_BUSY => ['ru' => 'По этому заказу уже есть ожидающая оплаты транзакция.', 'uz' => "Bu buyurtma bo'yicha to'lov kutayotgan tranzaksiya mavjud.", 'en' => 'Another transaction is already pending for this order.'],
         self::TIER_CHANGED => ['ru' => 'Тариф центра изменился. Создайте новый заказ в кабинете.', 'uz' => "Markaz tarifi o'zgardi. Kabinetda yangi buyurtma yarating.", 'en' => 'The center\'s tariff has changed. Create a new order in the cabinet.'],
         self::ORGANIZATION_SUSPENDED => ['ru' => 'Центр приостановлен. Обратитесь в поддержку.', 'uz' => "Markaz to'xtatilgan. Qo'llab-quvvatlash xizmatiga murojaat qiling.", 'en' => 'The center is suspended. Contact support.'],
-        self::ALREADY_SUBSCRIBED => ['ru' => 'У вас включено автопродление Telegram Stars. Отключите его в боте (/pro) и создайте заказ заново.', 'uz' => "Sizda Telegram Stars avtoyangilash yoqilgan. Uni botda (/pro) o'chiring va buyurtmani qaytadan yarating.", 'en' => 'Telegram Stars auto-renewal is on. Turn it off in the bot (/pro) and create the order again.'],
+        self::ALREADY_SUBSCRIBED => ['ru' => 'У вас включено автопродление Telegram Stars. Отключите его в боте (/pro) и создайте заказ заново.', 'uz' => "Sizda Telegram Stars avtoyangilashi yoqilgan. Uni botda (/pro) o'chiring va buyurtmani qaytadan yarating.", 'en' => 'Telegram Stars auto-renewal is on. Turn it off in the bot (/pro) and create the order again.'],
     ];
 
     public function __construct(
