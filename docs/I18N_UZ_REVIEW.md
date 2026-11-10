@@ -3322,3 +3322,87 @@
 | `onboarding.invited_by_organization` | Sizni «:organization» markazi taklif qildi | Вас пригласил центр «:organization» |
 | `onboarding.invited_by_learner` | Sizni :name taklif qildi | Вас пригласил(а) :name |
 | `stats.accuracy_none` | Imtihonlardagi to'g'ri javoblar: — | Точность экзаменов: — |
+
+## Добавлено 10.11.2026 (аудит: лендинг, кабинет центра, мини-приложение)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.how.lead` | So'z birdan emas, asta-sekin unutiladi. LexiFlow uni unutilishidan oldin qaytaradi — har safar tanaffus uzayib boradi. | Слово забывается не сразу, а постепенно. LexiFlow возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее. |
+| `landing.how.timeline.word` | breakfast | breakfast |
+| `landing.how.timeline.points.0.when` | Bugun | Сегодня |
+| `landing.how.timeline.points.0.what` | Yangi so'z | Новое слово |
+| `landing.how.timeline.points.1.when` | Ertaga | Завтра |
+| `landing.how.timeline.points.1.what` | Birinchi takrorlash | Первое повторение |
+| `landing.how.timeline.points.2.when` | Bir haftadan so'ng | Через неделю |
+| `landing.how.timeline.points.2.what` | Ikkinchisi | Второе |
+| `landing.how.timeline.points.3.when` | Ikki haftadan so'ng | Через две недели |
+| `landing.how.timeline.points.3.what` | Uchinchisi | Третье |
+| `landing.how.timeline.points.4.when` | Bir oydan so'ng | Через месяц |
+| `landing.how.timeline.points.4.what` | So'z uzoq vaqt esda qoladi | Слово с вами надолго |
+| `landing.how.timeline.note` | Eslay olmasangiz — so'z ertaroq qaytadi. Oson eslasangiz — kechroq. | Не вспомнили — слово вернётся раньше. Вспомнили легко — позже. |
+| `landing.teachers.title` | O'qituvchilar va o'quv markazlari uchun | Учителям и учебным центрам |
+| `landing.teachers.lead` | Mashg'ulot va imtihonlar sinfning Telegram guruhida o'tadi, o'quvchilar faolligi esa markaz kabinetida ko'rinadi. | Тренировки и экзамены проходят прямо в Telegram-группе класса, а активность учеников видна в кабинете центра. |
+| `landing.teachers.steps.0.title` | Ariza qoldiring | Оставьте заявку |
+| `landing.teachers.steps.0.text` | Markaz kabinetini ochib beramiz va botni guruhga qanday qo'shishni tushuntiramiz. | Мы создадим кабинет центра и подскажем, как добавить бота в группу. |
+| `landing.teachers.steps.1.title` | Botni sinf guruhiga qo'shing | Добавьте бота в группу класса |
+| `landing.teachers.steps.1.text` | O'quvchilar mashg'ulotga bitta tugma bilan kiradi — hech narsa o'rnatish shart emas. | Ученики заходят на занятие одной кнопкой — ничего устанавливать не нужно. |
+| `landing.teachers.steps.2.title` | Mashg'ulot va imtihonlarni boshlang | Запускайте тренировки и экзамены |
+| `landing.teachers.steps.2.text` | Guruhda bitta buyruq bilan. Imtihon natijalarini botning o'zi e'lon qiladi. | Одной командой в группе. Итоги экзамена бот публикует сам. |
+| `landing.teachers.tiers_title` | Markazlar uchun tariflar | Тарифы для центров |
+| `landing.teachers.seats` | :count tagacha o'quvchi | до :count ученика\|до :count учеников\|до :count учеников |
+| `landing.teachers.seats_unlimited` | o'rinlar cheklanmagan | без ограничения мест |
+| `landing.teachers.seat_note` | O'rin — markaz hisobidan Pro oladigan bitta o'quvchi. | Место — это один ученик, который получает Pro за счёт центра. |
+| `landing.teachers.year_discount` | Yillik to'lovda — :percent% chegirma. | При оплате за год — скидка :percent%. |
+| `landing.teachers.cta` | Markazni ulash | Подключить центр |
+| `landing.teachers.login` | Kabinetga kirish | Войти в кабинет |
+| `org.groups.actions.course` | Guruh kursi | Курс группы |
+| `org.groups.actions.course_help` | Shu kurs darslari bo'yicha guruhga vazifa bera olasiz. | По урокам этого курса вы сможете ставить группе задания. |
+| `org.groups.fields.course` | Kurs | Курс |
+| `org.groups.errors.course_unavailable` | Bu kurs guruhlar uchun mavjud emas. Boshqasini tanlang. | Этот курс недоступен для групп. Выберите другой. |
+| `org.groups.notifications.linked_pending` | «:title» guruhi bog'landi. Keyingi qadam: guruh kursini tanlang va faollashtirishni kuting — shundan keyin Telegramda o'qituvchi buyruqlari ishlaydi. | Группа «:title» привязана. Дальше: выберите курс группы и дождитесь активации — после неё заработают команды учителя в Telegram. |
+| `org.groups.notifications.course_saved` | «:title» guruhining kursi saqlandi. | Курс группы «:title» сохранён. |
+| `org.assignments.fields.group_no_course` | Avval guruh uchun kurs tanlang: Guruhlar → «Guruh kursi». | Сначала выберите курс для группы: Группы → «Курс группы». |
+| `org.billing.seat_explainer` | O'rin — markaz hisobidan Pro olayotgan bitta o'quvchi. | Место — это один ученик, который получает Pro за счёт центра. |
+| `org.billing.choose.description_no_invoice` | To'lov joriy tarifni tanlangan muddatga uzaytiradi. Boshqa tarifga o'tish uchun qo'llab-quvvatlash xizmatiga yozing. | Оплата продлевает текущий тариф на выбранный срок. Чтобы перейти на другой тариф, напишите в поддержку. |
+| `twofactor.challenge.lost` | Telefon ham, kodlar ham yo'qoldimi? Qo'llab-quvvatlash xizmatiga yozing — tekshiruvdan so'ng kirish huquqini tiklaymiz. | Потеряли и телефон, и коды? Напишите в поддержку — восстановим доступ после проверки. |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `common.exit_app` | Telegramga qaytish | Выйти в Telegram |
+| `intro.title` | Bu qanday ishlaydi | Как это работает |
+| `intro.step1.title` | Siz so'zni ko'rasiz va tarjimasini eslaysiz | Вы видите слово и вспоминаете перевод |
+| `intro.step1.text` | So'ng javobni ochib, uni eslaganingizni halol belgilaysiz. | Потом открываете ответ и честно отмечаете, помните ли его. |
+| `intro.step2.title` | So'zlar o'zi qaytadi | Слова возвращаются сами |
+| `intro.step2.text` | Unutilgan so'zni tezroq, eslab qolganingizni keyinroq ko'rsatamiz. Shunda so'zlar xotirada qoladi. | Что забывается — покажем раньше, что помните — позже. Так слова остаются в памяти. |
+| `intro.step3.title` | Kuniga 10 daqiqa yetarli | Хватит 10 минут в день |
+| `intro.step3.text` | «Mashg'ulotni boshlash» tugmasini bosing — qolganini ilova o'zi qiladi. | Нажмите «Начать занятие» — остальное приложение сделает само. |
+| `intro.next` | Keyingi | Дальше |
+| `intro.start` | Boshlash | Начать |
+| `profile.how_it_works` | Bu qanday ishlaydi | Как это работает |
+| `benefits.game` | Karvon kunlik limitsiz | Караван без дневного лимита |
+| `today.goal.daily` | { | { |
+| `today.all_done` | Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga | На сегодня всё. Новые слова — завтра |
+| `today.onboarding_btn` | Sozlashni botda tugatish | Закончить настройку в боте |
+| `today.course.learn_hint` | Faqat shu darsning so'zlari, takrorlashsiz | Только слова этого урока, без повторений |
+| `card.grade_new.hard` | Hali eslamadim | Ещё не запомнил |
+| `card.grade_new.medium` | Esladim | Запомнил |
+| `card.grade_new.easy` | Avvaldan bilardim | Уже знал |
+| `card.grade_prompt_new` | Yangi so'z. Eslab qolishga harakat qiling | Новое слово. Постарайтесь запомнить |
+| `finished.title_empty` | Bugun uchun hammasi tayyor | На сегодня всё |
+| `decks.activate.title` | Kurs o'rniga shu to'plamni o'rganasizmi? | Учить эту колоду вместо курса? |
+| `decks.activate.text` | Kunlik mashg'ulotdagi yangi so'zlar kursdan emas, shu to'plamdan olinadi. Kursni «Kurslar» bo'limida qaytarishingiz mumkin. | Новые слова в ежедневном занятии будут из этой колоды, а не из курса. Вернуть курс можно во вкладке «Курсы». |
+| `decks.activate.no` | Bekor qilish | Отмена |
+| `friends.challenge.button` | Haftalik musobaqa | Вызов на неделю |
+| `friends.hint` | Bellashuv — hoziroq tez raundlar. Musobaqa — {days} kunda kim ko'proq o'rganadi. | Баттл — быстрые раунды прямо сейчас. Вызов — кто выучит больше за {days} дн. |
+| `friends.hint_challenge` | Musobaqa — {days} kunda kim ko'proq o'rganadi. | Вызов — кто выучит больше за {days} дн. |
+| `game.enter` | «Karvon» o'yini | Игра «Караван» |
+| `gameIntro.title` | «Karvon» o'yini qanday o'ynaladi | Как играть в «Караван» |
+| `gameIntro.p1` | Bu kursingizdagi so'zlar bo'yicha o'yin. Har bir dars — bekat, har bir modul — shahar. | Это игра по словам вашего курса. Каждый урок — стоянка, каждый модуль — город. |
+| `gameIntro.p2` | Safar — {min}–{max} ta topshiriq. Sizda {flasks} ta mesh bor: xato qilsangiz, bitta mesh kamayadi. | Забег — {min}–{max} заданий. У вас {flasks} фляги: ошибка — минус фляга. |
+| `gameIntro.p3` | Safarlar uchun yulduzlar va tangalar beriladi. Tangalar «Mening karvonim»da sarflanadi. | За забеги дают звёзды и монеты. Монеты тратятся в «Мой караван». |
+| `gameIntro.ok` | Tushunarli | Понятно |
+| `gameIntro.how` | Qanday o'ynash | Как играть |
+| `gameShop.wallet.tickets_hint` | Chipta — bepul safardan tashqari bitta qo'shimcha safar. Chiptalar ketma-ketlikning har bir haftasi va taklif qilingan do'stlar uchun beriladi. | Билет — один дополнительный забег сверх бесплатного. Билеты дают за каждую неделю серии и за приглашённых друзей. |
+| `gameShop.item.unequip` | Olib tashlash | Снять |

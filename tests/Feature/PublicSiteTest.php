@@ -250,7 +250,7 @@ it('hides the support contact when BILLING_SUPPORT_CONTACT is empty', function (
             ->assertDontSee(__('landing.footer.contact', [], str_contains($url, 'uz') ? 'uz' : 'ru'))
             ->assertDontSee('mailto:', false);
     }
-    $this->get('/ru')->assertDontSee(__('landing.pricing.centers.contact', [], 'ru'));
+    $this->get('/ru')->assertDontSee(__('landing.pricing.centers.contact', [], 'ru'))->assertDontSee('class="btn" href="mailto:', false);
 });
 
 it('shows the support contact in footer and pricing when configured', function (): void {
@@ -259,7 +259,8 @@ it('shows the support contact in footer and pricing when configured', function (
     $this->get('/ru')
         ->assertSee('href="mailto:help@example.com"', false)
         ->assertSee(__('landing.footer.contact', [], 'ru'))
-        ->assertSee(__('landing.pricing.centers.contact', [], 'ru'));
+        // The section for centers: a button to the contact.
+        ->assertSee(__('landing.teachers.cta', [], 'ru'));
     $this->get('/uz/offer')
         ->assertSee('href="mailto:help@example.com"', false)
         ->assertSee(__('landing.footer.contact', [], 'uz'));
