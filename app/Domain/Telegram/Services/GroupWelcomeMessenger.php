@@ -26,12 +26,19 @@ final class GroupWelcomeMessenger
         private readonly BotSupportContact $support,
     ) {}
 
-    /** Returns true when the message was sent. */
+    /**
+     * Returns true when the message was sent. A group that already belongs to a center is not welcomed: the link's own
+     * confirmation (`/start grp_…` of the cabinet's deep link) is the message, and the welcome would repeat it.
+     */
     public function send(TelegramGroup $group, ?int $botId = null): bool
     {
+        if ($group->organization_id !== null) {
+            return false;
+        }
+
         $locale = $this->locales->forGroup($group);
 
-        $text = __('bot.group.welcome', ['title' => e($group->title), 'chat_id' => $group->chat_id], $locale);
+        $text = __('bot.group.welcome', ['title' => e($group->title)], $locale);
         if ($this->botAccess->botIsAdmin($group, $botId) === false) {
             $text .= "\n\n".e(__('bot.group.bot_not_admin', [], $locale));
         }

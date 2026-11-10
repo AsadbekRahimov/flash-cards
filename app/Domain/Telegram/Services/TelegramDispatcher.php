@@ -12,6 +12,7 @@ use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
 use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
+use App\Domain\Telegram\Handlers\GroupLinkCommandHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\InviteCommandHandler;
 use App\Domain\Telegram\Handlers\LearnerDmHandler;
@@ -68,6 +69,7 @@ final class TelegramDispatcher
         InviteCommandHandler $invite,
         PaySupportCommandHandler $paySupport,
         OrgCommandHandler $org,
+        GroupLinkCommandHandler $groupLink,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
@@ -102,6 +104,8 @@ final class TelegramDispatcher
             $invite,
             $paySupport,
             $org,
+            // `/start grp_…` / `/link …` in a group: before the private-chat `/start` (which does not match groups anyway).
+            $groupLink,
             $start,
             $today,
             $settings,

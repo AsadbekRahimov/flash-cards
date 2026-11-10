@@ -69,7 +69,7 @@ function clarityBotAdded(int $chatId, array $overrides = []): void
 
 // ---------------------------------------------------------------- 1. silent group
 
-it('welcomes a group the bot was added to with one message: next steps and the group number', function (): void {
+it('welcomes a group the bot was added to with one message: next steps and how a center links it', function (): void {
     $this->tg->chatMemberStatus = 'administrator';
 
     clarityBotAdded(-100501);
@@ -77,7 +77,7 @@ it('welcomes a group the bot was added to with one message: next steps and the g
     expect($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(-100501)
         ->and($this->tg->sent[0]['text'])->toContain('LexiFlow добавлен в группу «Class 1»')
-        ->and($this->tg->sent[0]['text'])->toContain('<code>-100501</code>')
+        ->and($this->tg->sent[0]['text'])->toContain('Привяжите её из кабинета центра')->not->toContain('-100501')
         ->and($this->tg->sent[0]['text'])->not->toContain('Поддержка:');
 });
 
@@ -95,7 +95,7 @@ it('merges the admin warning into the welcome: no two messages in a row', functi
     clarityBotAdded(-100503);
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('<code>-100503</code>')
+        ->and($this->tg->sent[0]['text'])->toContain('Привяжите её из кабинета центра')
         ->and($this->tg->sent[0]['text'])->toContain('Группа → Управление → Администраторы');
 });
 
@@ -122,7 +122,7 @@ it('welcomes in the language of a pending group and does not welcome an active o
         ->and($this->tg->sent[0]['text'])->toContain("guruhiga qo'shildi");
 });
 
-it('answers a teacher command in a pending group once an hour and /help always, with the group number', function (): void {
+it('answers a teacher command in a pending group once an hour and /help always, pointing to the cabinet', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -100510, 'status' => 'pending']);
 
     clarityGroupText(-100510, 1, '/start_training');
@@ -136,8 +136,8 @@ it('answers a teacher command in a pending group once an hour and /help always, 
     clarityGroupText(-100510, 1, '/help@LexiBot');
 
     expect($this->tg->sent)->toHaveCount(3)
-        ->and($this->tg->sent[1]['text'])->toContain('<code>-100510</code>')
-        ->and($this->tg->sent[2]['text'])->toContain('<code>-100510</code>');
+        ->and($this->tg->sent[1]['text'])->toContain('Привяжите её из кабинета центра')
+        ->and($this->tg->sent[2]['text'])->toContain('Привяжите её из кабинета центра')->not->toContain('-100510');
 
     // The flag is per group and lives an hour.
     TelegramGroup::factory()->create(['chat_id' => -100511, 'status' => 'pending']);
@@ -172,11 +172,11 @@ it('adds the support contact to the pending-group answer when configured', funct
     expect($this->tg->sent[0]['text'])->toContain('Поддержка: help@lexiflow.test');
 });
 
-it('shows the group number in /help of an active group and ignores /helpme', function (): void {
+it('points /help of an active group to the cabinet for linking and ignores /helpme', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -100515, 'status' => 'active']);
 
     clarityGroupText(-100515, 1, '/help');
-    expect($this->tg->sent)->toHaveCount(1)->and($this->tg->sent[0]['text'])->toContain('<code>-100515</code>');
+    expect($this->tg->sent)->toHaveCount(1)->and($this->tg->sent[0]['text'])->toContain('Привяжите её из кабинета центра')->not->toContain('-100515');
 
     $handler = app(HelpCommandHandler::class);
     expect($handler->matches(['message' => ['text' => '/helpme']]))->toBeFalse()
@@ -365,14 +365,14 @@ it('answers a pending-group exam button tap with nothing', function (): void {
 
 // ---------------------------------------------------------------- 6/7. errors and /help
 
-it('tells a non-linked user in a group how to link and in DM how to find the Telegram ID', function (): void {
+it('tells a non-linked user in a group how to link and in DM how to connect Telegram', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -100700, 'status' => 'active']);
 
     clarityGroupText(-100700, 31, '/start_exam 1 1 5');
     expect($this->tg->sent[0]['text'])->toContain('Эта команда — для учителя группы')->toContain('Профиль')->not->toContain('/admin');
 
     clarityMessage(['chat' => ['id' => 31, 'type' => 'private'], 'from' => ['id' => 31, 'language_code' => 'ru'], 'text' => '/stats']);
-    expect($this->tg->sent[1]['text'])->toContain('Отчёт доступен учителям')->toContain('<code>31</code>')->toContain('/today');
+    expect($this->tg->sent[1]['text'])->toContain('Отчёт доступен учителям')->toContain('Подключить Telegram')->toContain('<code>31</code>')->toContain('/today');
     expect($group->exists)->toBeTrue();
 });
 

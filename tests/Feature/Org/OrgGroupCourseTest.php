@@ -14,6 +14,7 @@ use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
+use App\Models\TelegramLinkToken;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -145,15 +146,31 @@ it('tells the owner what to do when no group of the center has a course', functi
     Livewire::test(CreateAssignment::class)->assertDontSee('Сначала выберите курс для группы');
 });
 
-it('words the next step after linking: a pending group waits for the activation, an active one needs only a course', function (string $status, string $expected): void {
-    $this->tg->chatMemberStatus = 'creator';
-    $free = TelegramGroup::factory()->create(['organization_id' => null, 'status' => $status, 'title' => 'Free group']);
-    grpEnter($this->ownerA, $this->a);
+it('issues a one-time group link to a verified owner from «Привязать группу», and refuses an owner whose Telegram is not verified', function (): void {
+    $this->ownerA->forceFill(['telegram_verified_at' => now()])->save();
+    grpEnter($this->ownerA->fresh() ?? $this->ownerA, $this->a);
+
+    $component = Livewire::test(ListGroups::class)
+        ->mountTableAction('link')
+        ->assertTableActionMounted('link')
+        ->assertNotNotified(); // no toast: the link is on screen
+    $data = $component->instance()->mountedActions[0]['data'] ?? [];
+    expect((string) ($data['url'] ?? ''))->toStartWith('https://t.me/')->toContain('?startgroup=grp_')
+        ->and((string) ($data['command'] ?? ''))->toStartWith('/link ');
+
+    $token = TelegramLinkToken::query()->sole();
+    expect($token->kind)->toBe('group')
+        ->and($token->organization_id)->toBe($this->a->id)
+        ->and($token->user_id)->toBe($this->ownerA->id);
+
+    // A hand-typed id (the fixture's) proves nothing: the modal is refused with the reason.
+    $this->ownerA->forceFill(['telegram_verified_at' => null])->save();
+    grpEnter($this->ownerA->fresh() ?? $this->ownerA, $this->a);
 
     Livewire::test(ListGroups::class)
-        ->callTableAction('link', data: ['chat_id' => (string) $free->chat_id])
-        ->assertNotified($expected);
-})->with([
-    'pending' => ['pending', 'Группа «Free group» привязана. Дальше: выберите курс группы и дождитесь активации — после неё заработают команды учителя в Telegram.'],
-    'active' => ['active', 'Группа «Free group» привязана. Дальше: выберите курс группы (Группы → «Курс группы»).'],
-]);
+        ->mountTableAction('link')
+        ->assertTableActionNotMounted('link')
+        ->assertNotified('Сначала подключите свой Telegram через бота: Профиль → «Подключить Telegram». Без этого нельзя доказать, что группа ваша.');
+
+    expect(TelegramLinkToken::query()->count())->toBe(1);
+});

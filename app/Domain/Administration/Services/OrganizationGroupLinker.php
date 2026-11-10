@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Domain\Administration\Exceptions\OrganizationGroupLinkException;
+use App\Domain\Organizations\Services\OrgGroupLinkService;
 use App\Domain\Organizations\Services\TeacherGroupAssignments;
 use App\Models\AuditLog;
 use App\Models\Organization;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\DB;
  * OrgGroupLinkService (owner of the center, after the `getChatMember` check). The row is read
  * without global scopes: inside the `/org` panel Filament's tenancy scope would hide a group that
  * is not yet the tenant's — the whole point of linking it. Unlinking also takes the group away from the center's
- * staff (`teacher_groups`), in the same transaction.
+ * staff (`teacher_groups`), in the same transaction, and puts a group the center's link had activated back to `pending`.
  */
 final class OrganizationGroupLinker
 {
@@ -66,6 +67,18 @@ final class OrganizationGroupLinker
             }
 
             $current->organization_id = null;
+
+            // A group the center's link activated (OrgGroupLinkService) goes back behind the platform's activation: without
+            // the center nobody has vouched for it.
+            $meta = $current->meta ?? [];
+            if (($meta[OrgGroupLinkService::META_ACTIVATED_VIA] ?? null) === OrgGroupLinkService::ACTIVATED_VIA_ORG_LINK) {
+                unset($meta[OrgGroupLinkService::META_ACTIVATED_VIA]);
+                $current->meta = $meta;
+                if ($current->status === 'active') {
+                    $current->status = 'pending';
+                }
+            }
+
             $current->save();
 
             // The center's staff (the owner who linked the group included) stop teaching a group that left it.

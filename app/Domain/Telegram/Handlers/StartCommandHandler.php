@@ -12,10 +12,12 @@ use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Enums\AccountLinkResult;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
+use App\Domain\Telegram\Services\TelegramAccountLinkService;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
@@ -31,7 +33,8 @@ use Carbon\CarbonImmutable;
  * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
  * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
  * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
- * question after the last step (the code is remembered) for one who has not.
+ * question after the last step (the code is remembered) for one who has not. A `link_<token>` link (docs/13 §6.2) is not a
+ * learner's at all: it connects the sender's Telegram to the staff account that asked for it and creates no learner.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -46,6 +49,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly ReferralService $referrals,
         private readonly FriendsMessenger $friends,
         private readonly AccountRestoreNotice $restoreNotice,
+        private readonly TelegramAccountLinkService $accountLinks,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -79,6 +83,15 @@ final class StartCommandHandler implements UpdateHandler
         $chatId = (int) $message['chat']['id'];
 
         if ($tgUserId <= 0) {
+            return;
+        }
+
+        // `link_<token>` (docs/13 §6.2, audit H1): a staff user connecting their Telegram. Before anything else — no learner row is
+        // created for them, nothing is attributed, and the answer does not depend on whether they are a teacher already.
+        $linkToken = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')))->accountLinkToken();
+        if ($linkToken !== null) {
+            $this->linkAccount($linkToken, $from, $chatId);
+
             return;
         }
 
@@ -173,6 +186,28 @@ final class StartCommandHandler implements UpdateHandler
         if ($canResume) {
             $text .= "\n\n".__('bot.account.restored_pro', [], $locale);
         }
+
+        $this->telegram->sendMessage($chatId, $text);
+    }
+
+    /**
+     * `/start link_<token>`: connects the sender's Telegram to the staff account that asked for the link, and says so — in the
+     * sender's Telegram language (they are staff, not a learner with a chosen interface language). Refusals are explained to the
+     * sender only (they own the account in question); an unknown / dead token gets one answer.
+     *
+     * @param  array<string, mixed>  $from
+     */
+    private function linkAccount(string $token, array $from, int $chatId): void
+    {
+        $languageCode = $from['language_code'] ?? null;
+        $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
+        $outcome = $this->accountLinks->linkFromStart($token, $from);
+
+        $text = match ($outcome->result) {
+            AccountLinkResult::Linked, AccountLinkResult::AlreadyLinked => __('bot.link.account_linked', ['name' => $outcome->user !== null ? $outcome->user->name : ''], $locale),
+            AccountLinkResult::TelegramTaken => __('bot.link.account_taken', [], $locale),
+            AccountLinkResult::TokenInvalid => __('bot.link.account_refused', [], $locale),
+        };
 
         $this->telegram->sendMessage($chatId, $text);
     }

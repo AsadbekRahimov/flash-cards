@@ -21,6 +21,8 @@ use App\Domain\Learners\Enums\StartPayloadKind;
  *   c_<slug>          — course link, a lower-case course slug
  *   org_<code>        — centre invite (docs/13 §6.2)
  *   f_<code>          — "be my friend": the inviter's `learners.referral_code` (docs/13 §7.5)
+ *   link_<token>      — a staff user connects their Telegram account (docs/13 §6.2, audit 2026-11-10 H1): not a learner's
+ *                       deep link — nothing is attributed and no learner is created for it
  */
 final readonly class StartPayload
 {
@@ -59,6 +61,9 @@ final readonly class StartPayload
             [StartPayloadKind::Course, '/^c_([a-z0-9][a-z0-9_-]{0,'.(self::COURSE_SLUG_MAX - 1).'})$/'],
             [StartPayloadKind::Org, '/^org_([A-Za-z0-9_-]{1,32})$/'],
             [StartPayloadKind::Friend, '/^f_([A-Z0-9]{6,12})$/'],
+            // Any `link_…` is a staff link attempt, well-formed or not: a corrupted one must be refused as such, never turned into
+            // a learner onboarding of the staff member (TelegramLinkTokens::isWellFormed does the exact check).
+            [StartPayloadKind::AccountLink, '/^link_([A-Za-z0-9_-]{1,59})$/'],
         ];
 
         foreach ($patterns as [$kind, $pattern]) {
@@ -85,7 +90,14 @@ final readonly class StartPayload
             StartPayloadKind::Course => 'course:'.$this->value,
             StartPayloadKind::Org => 'org',
             StartPayloadKind::Friend => 'friend',
+            StartPayloadKind::AccountLink => null,
         };
+    }
+
+    /** The token of a `link_<token>` link (a staff user connecting their Telegram). */
+    public function accountLinkToken(): ?string
+    {
+        return $this->kind === StartPayloadKind::AccountLink ? $this->value : null;
     }
 
     /** The inviter's `referral_code` of a `ref_<code>` link. */

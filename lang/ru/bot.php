@@ -33,7 +33,7 @@ return [
             ':caravan'.
             "/stats — личный отчёт в чате с ботом\n".
             "/help — эта справка\n\n".
-            'Номер группы для кабинета центра: <code>:chat_id</code>',
+            'Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу».',
         // The line of `:caravan` in `private` (the part «Для учителей»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
@@ -52,17 +52,30 @@ return [
     'group' => [
         'untitled' => 'Группа без названия',
         // HTML. Sent once when the bot is added to a group that waits for activation (`:title` is escaped by the caller).
-        'welcome' => "👋 LexiFlow добавлен в группу «:title».\n\nЧто дальше:\n1. Сделайте бота администратором группы.\n2. Группа ждёт активации — после неё заработают команды учителя.\n\nНомер группы для кабинета центра: <code>:chat_id</code>",
+        'welcome' => "👋 LexiFlow добавлен в группу «:title».\n\nЧто дальше:\n1. Сделайте бота администратором группы.\n2. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу» — у центра с подпиской она заработает сразу.\n3. Иначе группа ждёт активации администратором LexiFlow — после неё заработают команды учителя.",
         // HTML. The answer to a teacher command in a group that is not active yet.
         'pending_command' => 'Группа ещё не активирована, поэтому команды пока не работают.',
-        'pending_help' => "Группа ещё не активирована, поэтому команды пока не работают.\n\nНомер группы для кабинета центра: <code>:chat_id</code>",
+        'pending_help' => "Группа ещё не активирована, поэтому команды пока не работают.\n\nГруппа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу».",
         'bot_not_admin' => '⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. '.
             'Группа → Управление → Администраторы → Добавить администратора.',
     ],
 
     'stats' => [
-        // HTML (`:id` in <code>).
-        'not_linked' => "Отчёт доступен учителям.\nВаш Telegram ID: <code>:id</code> — укажите его в кабинете центра: Профиль → «Мой Telegram ID».\nЕсли вы ученик — откройте /today.",
+        // HTML (`:id` in <code>): the id is still shown — a Phase-1 teacher without a cabinet passes it to the platform's administrator.
+        'not_linked' => "Отчёт доступен учителям.\nСотрудник центра: подключите Telegram в кабинете — Профиль → «Подключить Telegram». Учитель без кабинета: передайте администратору ваш Telegram ID <code>:id</code>.\nЕсли вы ученик — откройте /today.",
+    ],
+
+    // Deep links of the `/org` cabinet (docs/13 §6.2): `/start link_<token>` connects a staff user's Telegram (answered in the
+    // sender's Telegram language), `/start grp_<token>` / `/link <token>` in a group links it to the center (answered in the
+    // center's language; every refusal — one neutral text, the reason is shown in the cabinet).
+    'link' => [
+        'account_linked' => "✅ Telegram подключён к аккаунту :name.\n\nТеперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help.",
+        'account_taken' => 'Этот Telegram уже подключён к другому аккаунту кабинета. Сначала отключите его там (Профиль → «Отключить»), затем откройте ссылку снова.',
+        'account_refused' => 'Ссылка для подключения недействительна или устарела. Откройте кабинет центра → Профиль → «Подключить Telegram» и получите новую.',
+        'group_linked' => '✅ Группа «:title» привязана к центру «:organization».',
+        'group_next_active' => 'Группа активна: команды учителя работают. Дальше выберите курс группы в кабинете: Группы → «Курс группы».',
+        'group_next_pending' => 'Группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. Курс группы можно выбрать уже сейчас: кабинет → Группы → «Курс группы».',
+        'group_refused' => 'Не удалось привязать группу. Откройте кабинет центра → Группы → «Привязать группу»: там видна причина, и можно получить новую ссылку.',
     ],
 
     'account' => [

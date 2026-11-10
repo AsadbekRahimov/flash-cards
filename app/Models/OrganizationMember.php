@@ -26,8 +26,10 @@ use Illuminate\Support\Carbon;
  * @property int|null $invite_id
  * @property Carbon|null $seated_at
  * @property Carbon|null $waitlisted_at
- * @property Carbon $joined_at
+ * @property Carbon $joined_at for an `invited` row — the time of the offer (NOT NULL column); overwritten by the join
  * @property Carbon|null $left_at
+ * @property Carbon|null $invited_at
+ * @property int|null $invited_by_user_id
  * @property array<string, mixed> $meta
  * @property-read Organization $organization both FKs are NOT NULL with cascade: the parents of a membership always exist
  * @property-read Learner|null $learner the row exists, but a soft-deleted learner loads as null (SoftDeletes)
@@ -49,6 +51,8 @@ class OrganizationMember extends Model
         'waitlisted_at',
         'joined_at',
         'left_at',
+        'invited_at',
+        'invited_by_user_id',
         'meta',
     ];
 
@@ -63,6 +67,8 @@ class OrganizationMember extends Model
             'waitlisted_at' => 'datetime',
             'joined_at' => 'datetime',
             'left_at' => 'datetime',
+            'invited_at' => 'datetime',
+            'invited_by_user_id' => 'integer',
             'meta' => 'array',
         ];
     }
@@ -70,6 +76,12 @@ class OrganizationMember extends Model
     public function isActive(): bool
     {
         return $this->status === MemberStatus::Active->value;
+    }
+
+    /** A staff offer the learner has not answered yet (audit 2026-11-10 M2). */
+    public function isInvited(): bool
+    {
+        return $this->status === MemberStatus::Invited->value;
     }
 
     /** Holds a seat: active and seated. */

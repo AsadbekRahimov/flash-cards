@@ -23,10 +23,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Members (seats) of the organization (docs/13 §6.3): owner — all rows, "add" by Telegram
- * username / id and "remove"; teacher — the active members of their groups, read-only. No
- * Telegram ids, no settings, no personal sessions are shown (docs/12 §4.4 privacy).
- * Writes go through OrganizationMembershipService (row lock, FIFO reseat, audit, events).
+ * Members (seats) of the organization (docs/13 §6.3): owner — all rows, "invite" by Telegram username / id (an offer the learner
+ * accepts in the bot — audit 2026-11-10 M2; one neutral answer, found or not), "revoke" of an unanswered offer and "remove";
+ * teacher — the active members of their groups, read-only. No Telegram ids, no settings, no personal sessions are shown
+ * (docs/12 §4.4 privacy). Writes go through OrganizationMembershipService (row lock, FIFO reseat, audit, events).
  */
 class MemberResource extends OrgResource
 {
@@ -93,7 +93,11 @@ class MemberResource extends OrgResource
                     ->label(__('org.members.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => __('org.members.status.'.$state))
-                    ->color(fn (string $state): string => $state === MemberStatus::Active->value ? 'success' : 'gray'),
+                    ->color(fn (string $state): string => match ($state) {
+                        MemberStatus::Active->value => 'success',
+                        MemberStatus::Invited->value => 'warning',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('joined_via')
                     ->label(__('org.members.columns.joined_via'))
                     ->formatStateUsing(fn (string $state): string => __('org.members.via.'.$state))
@@ -112,10 +116,14 @@ class MemberResource extends OrgResource
                     ->label(__('org.members.columns.status'))
                     ->options([
                         MemberStatus::Active->value => __('org.members.status.active'),
+                        MemberStatus::Invited->value => __('org.members.status.invited'),
+                        MemberStatus::Declined->value => __('org.members.status.declined'),
                         MemberStatus::Left->value => __('org.members.status.left'),
                         MemberStatus::Removed->value => __('org.members.status.removed'),
                     ])
-                    ->default(MemberStatus::Active->value),
+                    // Offers waiting for the learner's answer are shown with the members by default, so the owner sees «Ожидает согласия».
+                    ->multiple()
+                    ->default([MemberStatus::Active->value, MemberStatus::Invited->value]),
                 Tables\Filters\SelectFilter::make('seat_state')
                     ->label(__('org.members.columns.seat'))
                     ->options([
@@ -124,6 +132,8 @@ class MemberResource extends OrgResource
                     ]),
             ])
             ->headerActions([
+                // An OFFER the learner answers in the bot (audit 2026-11-10 M2). ONE notification whatever happened — found or not,
+                // reachable or not, already a member or not: the answer must not say who uses LexiFlow.
                 Actions\Action::make('add')
                     ->label(__('org.members.actions.add'))
                     ->icon('heroicon-o-user-plus')
@@ -136,30 +146,38 @@ class MemberResource extends OrgResource
                             ->maxLength(64),
                     ])
                     ->action(function (array $data): void {
-                        $learner = self::findLearner((string) $data['telegram']);
-
-                        if ($learner === null) {
-                            Notification::make()->title(__('org.members.errors.learner_not_found'))->danger()->send();
-
-                            return;
-                        }
-
                         try {
-                            $member = app(OrganizationMembershipService::class)->joinByAdmin($learner, static::tenant(), static::user(), static::ip());
+                            app(OrganizationMembershipService::class)->inviteByStaff(static::tenant(), (string) $data['telegram'], static::user(), static::ip());
                         } catch (OrganizationMembershipException $e) {
                             Notification::make()->title(__('org.members.errors.'.$e->errorCode))->danger()->send();
 
                             return;
                         }
 
-                        Notification::make()
-                            ->title(__('org.members.notifications.added', ['seat' => __('org.members.seat.'.$member->seat_state)]))
-                            ->success()
-                            ->send();
+                        Notification::make()->title(__('org.members.notifications.invited'))->success()->send();
                     }),
             ])
             ->recordActions([
                 Actions\ViewAction::make(),
+                Actions\Action::make('revoke')
+                    ->label(__('org.members.actions.revoke'))
+                    ->icon('heroicon-o-x-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalDescription(__('org.members.actions.revoke_confirm'))
+                    ->visible(fn (OrganizationMember $record): bool => $record->isInvited())
+                    ->authorize(fn (OrganizationMember $record): bool => static::isOwner() && $record->isInvited())
+                    ->action(function (OrganizationMember $record): void {
+                        try {
+                            app(OrganizationMembershipService::class)->revokeInvite(static::tenant(), $record, static::user(), static::ip());
+                        } catch (OrganizationMembershipException $e) {
+                            Notification::make()->title(__('org.members.errors.'.$e->errorCode))->danger()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title(__('org.members.notifications.revoked'))->success()->send();
+                    }),
                 Actions\Action::make('remove')
                     ->label(__('org.members.actions.remove'))
                     ->icon('heroicon-o-user-minus')
@@ -230,33 +248,5 @@ class MemberResource extends OrgResource
         $name = trim(($learner->first_name ?? '').' '.($learner->last_name ?? ''));
 
         return $name !== '' ? $name : ($learner->username !== null ? '@'.$learner->username : '#'.$learner->id);
-    }
-
-    /** `@username` / `username` (case-insensitive) or a numeric Telegram user id — exact match only, no browsing of the platform's learners. */
-    private static function findLearner(string $input): ?Learner
-    {
-        $input = trim($input);
-
-        if ($input === '') {
-            return null;
-        }
-
-        if (ctype_digit($input)) {
-            /** @var Learner|null $learner */
-            $learner = Learner::query()->where('telegram_user_id', (int) $input)->first();
-
-            return $learner;
-        }
-
-        $username = ltrim($input, '@');
-
-        if (preg_match('/^[A-Za-z0-9_]{3,64}$/', $username) !== 1) {
-            return null;
-        }
-
-        /** @var Learner|null $learner */
-        $learner = Learner::query()->whereRaw('LOWER(username) = ?', [strtolower($username)])->first();
-
-        return $learner;
     }
 }

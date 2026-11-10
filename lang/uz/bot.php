@@ -33,7 +33,7 @@ return [
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             "/help — buyruqlar ro'yxatini ko'rish\n\n".
-            'Markaz kabineti uchun guruh raqami: <code>:chat_id</code>',
+            "O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash».",
         // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
@@ -52,17 +52,30 @@ return [
     'group' => [
         'untitled' => 'Nomsiz guruh',
         // HTML. Sent once when the bot is added to a group that waits for activation (`:title` is escaped by the caller).
-        'welcome' => "👋 LexiFlow «:title» guruhiga qo'shildi.\n\nKeyingi qadamlar:\n1. Botni guruh administratori qiling.\n2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.\n\nMarkaz kabineti uchun guruh raqami: <code>:chat_id</code>",
+        'welcome' => "👋 LexiFlow «:title» guruhiga qo'shildi.\n\nKeyingi qadamlar:\n1. Botni guruh administratori qiling.\n2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi.\n3. Aks holda guruh LexiFlow administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi.",
         // HTML. The answer to a teacher command in a group that is not active yet.
         'pending_command' => 'Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.',
-        'pending_help' => "Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.\n\nMarkaz kabineti uchun guruh raqami: <code>:chat_id</code>",
+        'pending_help' => "Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.\n\nO'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash».",
         'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. ".
             "Guruh → Boshqarish → Administratorlar → Administrator qo'shish.",
     ],
 
     'stats' => [
         // HTML (`:id` in <code>).
-        'not_linked' => "Hisobot o'qituvchilar uchun.\nTelegram ID raqamingiz: <code>:id</code> — uni markaz kabinetida kiriting: Profil → «Mening Telegram ID raqamim».\nAgar siz o'quvchi bo'lsangiz — /today ni oching.",
+        'not_linked' => "Hisobot o'qituvchilar uchun.\nMarkaz xodimi: Telegramni kabinetda ulang — Profil → «Telegramni ulash». Kabinetsiz o'qituvchi: administratorga Telegram ID raqamingizni bering: <code>:id</code>.\nAgar Siz o'quvchi bo'lsangiz — /today ni oching.",
+    ],
+
+    // Deep links of the `/org` cabinet (docs/13 §6.2): `/start link_<token>` connects a staff user's Telegram (answered in the
+    // sender's Telegram language), `/start grp_<token>` / `/link <token>` in a group links it to the center (answered in the
+    // center's language; every refusal — one neutral text, the reason is shown in the cabinet).
+    'link' => [
+        'account_linked' => "✅ Telegram :name akkauntiga ulandi.\n\nEndi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang.",
+        'account_taken' => "Bu Telegram kabinetning boshqa akkauntiga ulangan. Avval uni o'sha yerda uzing (Profil → «Uzish»), so'ng havolani qayta oching.",
+        'account_refused' => 'Ulash havolasi yaroqsiz yoki eskirgan. Markaz kabinetini oching → Profil → «Telegramni ulash» va yangi havola oling.',
+        'group_linked' => "✅ «:title» guruhi «:organization» markaziga bog'landi.",
+        'group_next_active' => "Guruh faol: o'qituvchi buyruqlari ishlaydi. Endi kabinetda guruh kursini tanlang: Guruhlar → «Guruh kursi».",
+        'group_next_pending' => "Guruh LexiFlow administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi».",
+        'group_refused' => "Guruhni bog'lab bo'lmadi. Markaz kabinetini oching → Guruhlar → «Guruhni bog'lash»: u yerda sababi ko'rinadi va yangi havola olish mumkin.",
     ],
 
     'account' => [

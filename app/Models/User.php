@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -29,6 +30,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $name
  * @property string $email
  * @property int|null $telegram_user_id
+ * @property Carbon|null $telegram_verified_at set only by the bot (`/start link_<token>`); a hand-typed id stays unverified
+ * @property string|null $telegram_username
+ * @property string|null $telegram_name
  * @property bool $is_active
  */
 class User extends Authenticatable implements FilamentUser, HasTenants
@@ -45,6 +49,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'email',
         'password',
         'telegram_user_id',
+        'telegram_verified_at',
+        'telegram_username',
+        'telegram_name',
         'is_active',
         'last_login_at',
         'two_factor_secret',
@@ -69,6 +76,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             'password' => 'hashed',
             'is_active' => 'boolean',
             'telegram_user_id' => 'integer',
+            'telegram_verified_at' => 'datetime',
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
             'two_factor_confirmed_at' => 'datetime',
@@ -78,6 +86,16 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function hasTwoFactorEnabled(): bool
     {
         return $this->two_factor_confirmed_at !== null;
+    }
+
+    /**
+     * The Telegram account was connected by the person themselves through the bot (docs/07 §5, audit 2026-11-10 H1).
+     * Only this proves the account is theirs; operations that rely on the id as proof of ownership (linking a group to
+     * a center) require it. A hand-typed id (legacy rows, `/admin`) still works for the teacher's group commands.
+     */
+    public function hasVerifiedTelegram(): bool
+    {
+        return $this->telegram_user_id !== null && $this->telegram_verified_at !== null;
     }
 
     /** @return BelongsToMany<TelegramGroup, $this> */

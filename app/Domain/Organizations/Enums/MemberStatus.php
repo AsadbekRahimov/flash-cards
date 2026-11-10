@@ -14,4 +14,19 @@ enum MemberStatus: string
 
     /** Removed by a teacher / owner / superadmin. */
     case Removed = 'removed';
+
+    /**
+     * Offered by the center's staff, waiting for the learner's "Join" in the bot (audit 2026-11-10 M2): no seat, no Pro,
+     * not a member for any list or policy; `invited_at` / `invited_by_user_id` carry the offer.
+     */
+    case Invited = 'invited';
+
+    /** The learner tapped "Decline" on a staff offer (`left_at` = the moment); a new offer is possible after a cooldown. */
+    case Declined = 'declined';
+
+    /** The states that end in the bot's hands (not active, not a past membership). */
+    public function isPendingOffer(): bool
+    {
+        return $this === self::Invited;
+    }
 }
