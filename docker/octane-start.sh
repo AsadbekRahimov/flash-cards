@@ -11,5 +11,5 @@ exec php artisan octane:frankenphp \
     --admin-host=127.0.0.1 \
     --admin-port=2019 \
     --workers="${OCTANE_WORKERS:-6}" \
-    --max-requests="${OCTANE_MAX_REQUESTS:-500}" \
+    --max-requests="${OCTANE_MAX_REQUESTS:-5000}" \
     --log-level="${OCTANE_LOG_LEVEL:-WARN}"

@@ -137,7 +137,7 @@ services:
             PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_API_MAX_SPARE_SERVERS:-4}
             # Octane mode only (ignored by php-fpm): 6 workers on 4 vCPU, a worker restarts after OCTANE_MAX_REQUESTS requests.
             OCTANE_WORKERS: ${OCTANE_WORKERS:-6}
-            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
+            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-5000}
             # Always behind nginx with TLS, whatever the mode: the scheme of the application is https (config/octane.php reads
             # it under Octane only, so under php-fpm the line is harmless).
             OCTANE_HTTPS: "true"

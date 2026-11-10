@@ -136,9 +136,43 @@ final class LearningCache
         return array_replace(array_fill_keys(array_keys($keys), 0), $counts);
     }
 
+    /**
+     * The first {@see ExercisePromptBuilder::POOL} + 1 active words of the lesson in `id` order, as plain rows (never models), for
+     * the distractors of reverse / audio cards: the card's own word is dropped by the caller. Dropped by {@see forgetLesson()}.
+     *
+     * @return list<array{id: int, word: string, translation: string}>
+     */
+    public function lessonDistractorPool(int $lessonId): array
+    {
+        /** @var list<array{id: int, word: string, translation: string}> $pool */
+        $pool = PureCache::store()->remember(
+            self::distractorsKey($lessonId),
+            self::LESSON_WORD_COUNT_TTL,
+            fn (): array => DB::table('words')
+                ->where('lesson_id', $lessonId)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->limit(ExercisePromptBuilder::POOL + 1)
+                ->get(['id', 'word', 'translation'])
+                ->map(static fn (object $row): array => [
+                    'id' => (int) $row->id,
+                    'word' => (string) $row->word,
+                    'translation' => (string) $row->translation,
+                ])
+                ->all(),
+        );
+
+        return $pool;
+    }
+
     public function forgetLesson(Lesson $lesson): void
     {
-        PureCache::store()->forget("lesson:{$lesson->id}:word_count");
+        PureCache::forgetMany(["lesson:{$lesson->id}:word_count", self::distractorsKey((int) $lesson->id)]);
+    }
+
+    private static function distractorsKey(int $lessonId): string
+    {
+        return "lesson:{$lessonId}:distractors:v1";
     }
 
     public function forgetExam(ExamSession $session): void

@@ -32,11 +32,12 @@ final class ExercisePromptBuilder
 {
     public const OPTIONS = 4;
 
-    private const POOL = 40;
+    public const POOL = 40;
 
     public function __construct(
         private readonly WordTranslationResolver $translations,
         private readonly GapFillBuilder $gapFill,
+        private readonly LearningCache $cache,
     ) {}
 
     /**
@@ -136,7 +137,7 @@ final class ExercisePromptBuilder
         $picked = [];
 
         foreach ($this->layers($word) as $layer) {
-            $candidates = $this->texts($type, $layer->get(), $locale);
+            $candidates = $this->texts($type, $layer instanceof Builder ? $layer->get() : $layer, $locale);
             usort($candidates, static fn (array $a, array $b): int => crc32($seed.':'.$a['id']) <=> crc32($seed.':'.$b['id']));
 
             foreach ($candidates as $candidate) {
@@ -185,11 +186,11 @@ final class ExercisePromptBuilder
     /**
      * Candidate queries, nearest first; each is evaluated only when the previous ones ran short.
      *
-     * @return iterable<Builder<Word>>
+     * @return iterable<Builder<Word>|list<Word>>
      */
     private function layers(Word $word): iterable
     {
-        yield $this->pool($word)->where('lesson_id', $word->lesson_id);
+        yield $this->lessonPool($word);
 
         $stageId = Lesson::query()->whereKey($word->lesson_id)->value('stage_id');
         $courseId = $stageId === null ? null : Stage::query()->whereKey($stageId)->value('course_id');
@@ -203,6 +204,28 @@ final class ExercisePromptBuilder
             ->whereIn('lesson_id', Lesson::query()->select('id')
                 ->whereIn('stage_id', Stage::query()->select('id')
                     ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
+    }
+
+    /**
+     * The first layer from the cached pool of the lesson (plain rows, no query on a hit): the same words as
+     * `pool()->where('lesson_id', ...)` - active, other than the card, by `id`, {@see POOL} of them.
+     *
+     * @return list<Word>
+     */
+    private function lessonPool(Word $word): array
+    {
+        $words = [];
+        foreach ($this->cache->lessonDistractorPool((int) $word->lesson_id) as $row) {
+            if ($row['id'] === (int) $word->id) {
+                continue;
+            }
+            $words[] = (new Word)->forceFill(['id' => $row['id'], 'word' => $row['word'], 'translation' => $row['translation']]);
+            if (count($words) >= self::POOL) {
+                break;
+            }
+        }
+
+        return $words;
     }
 
     /**

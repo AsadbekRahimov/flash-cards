@@ -68,8 +68,8 @@ services:
     environment:
       APP_SURFACE: api
       DB_PERSISTENT: "false"
-      OCTANE_WORKERS: "4"
-      OCTANE_MAX_REQUESTS: "500"
+      OCTANE_WORKERS: "${OCTANE_WORKERS:-4}"
+      OCTANE_MAX_REQUESTS: "${OCTANE_MAX_REQUESTS:-5000}"
       OCTANE_HTTPS: "true"
       # Behind nginx REMOTE_ADDR is the nginx container. Coolify assigns the network subnets itself, so the Docker
       # private ranges are trusted (not a catch-all: App\Support\TrustedProxies rejects those). The container publishes
@@ -78,7 +78,7 @@ services:
       SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
       SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
     stop_grace_period: 30s
-    mem_limit: 896m
+    mem_limit: ${API_MEM_LIMIT:-896m}
 
   lf-queue-high:
     <<: *app

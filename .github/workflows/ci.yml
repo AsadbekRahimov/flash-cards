@@ -6,6 +6,10 @@ on:
     pull_request:
         branches: [master, main, develop]
 
+# The default token is read-only; no job writes to the repository, packages or pull requests (deploy goes over SSH).
+permissions:
+    contents: read
+
 jobs:
     quality:
         name: Lint & Static analysis
