@@ -11,6 +11,8 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Content\Services\WordAudioService;
+use App\Domain\Content\Services\WordExamples;
+use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
@@ -19,7 +21,9 @@ use App\Domain\Learning\DTO\ReviewOutcome;
 use App\Domain\Learning\DTO\TrainingStart;
 use App\Domain\Learning\DTO\TrainingStep;
 use App\Domain\Learning\Enums\DoneReason;
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -70,6 +74,10 @@ final class TrainingFlowService
         private readonly WordAudioService $audio,
         private readonly DeckTitles $deckTitles,
         private readonly CourseCatalogService $catalog,
+        private readonly WordExamples $examples,
+        private readonly WordHookResolver $hooks,
+        private readonly LeechInsight $leeches,
+        private readonly LadderPolicy $ladder,
     ) {}
 
     /**
@@ -152,6 +160,8 @@ final class TrainingFlowService
         $locale = $this->locales->forTrainingSession($session, $learner);
         $translation = $this->translations->resolve($pick->word, $locale);
         $audioUrl = $this->audio->urlFor($pick->word);
+        // The example of this serve (docs/06 §12.4): the anchor until graduation, then the rotation.
+        $example = $this->examples->pick($pick->word, $pick->repetition);
 
         // The exercise of this serve (docs/13 §2.5): recomputed from the same inputs by
         // ReviewSubmissionService when the grade comes back — nothing is stored.
@@ -161,6 +171,7 @@ final class TrainingFlowService
             $entitlement,
             LearnerExerciseSettings::fromLearner($learner),
             $session->mode,
+            $example,
         );
         $prompt = $this->prompts->build(
             $exercise,
@@ -169,7 +180,15 @@ final class TrainingFlowService
             $locale,
             $audioUrl,
             crc32($pick->repetition->repetitions.':'.$pick->word->id),
+            $example,
         );
+
+        // The method (docs/06 §12.3, §12.6): the hooks are read only when this serve shows them — the first meeting, a
+        // failed card, a hard word — so the usual review costs no lookup; the confusable pair only for a hard word.
+        $isLeech = $this->ladder->isLeech($pick->repetition);
+        $isHard = (bool) $pick->repetition->is_hard;
+        $showsHook = $this->ladder->hooksEnabled
+            && ($isLeech || $isHard || $pick->repetition->state !== RepetitionState::Review);
 
         return new TrainingStep(
             $pick->word,
@@ -182,7 +201,20 @@ final class TrainingFlowService
             newWordsRemaining: $remaining,
             prompt: $prompt,
             audioUrl: $audioUrl,
+            example: $example,
+            isLeech: $isLeech,
+            isHard: $isHard,
+            hook: $showsHook ? $this->hooks->for($pick->word, $translation->locale) : null,
+            note: $this->ladder->hooksEnabled ? self::text($pick->repetition->note) : null,
+            confusedWith: $isLeech ? $this->leeches->confusedWith($pick->repetition, $pick->word) : null,
         );
+    }
+
+    private static function text(?string $raw): ?string
+    {
+        $text = trim((string) $raw);
+
+        return $text === '' ? null : $text;
     }
 
     private function dailyGoal(Learner $learner): int

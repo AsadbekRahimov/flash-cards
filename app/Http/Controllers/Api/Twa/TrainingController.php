@@ -189,14 +189,15 @@ final class TrainingController
             return $this->unauthorizedLearner();
         }
 
-        // `quality` (flash / reverse / audio) or `answer` (spelling / gap-fill), never both (docs/04 A.3).
-        // An `answer` key that is present but empty ("" → null) is an empty answer, graded as wrong.
+        // `quality` (flash) or `answer` (the picked option of reverse / audio / pretest, the typed text of spelling / gap-fill),
+        // never both (docs/04 A.3, docs/06 §12.2). An `answer` key that is present but empty ("" → null) is an empty answer, graded as wrong.
         $typed = $request->has('answer');
 
         $validated = $request->validate([
             'word_id' => ['required', 'integer'],
             'quality' => $typed ? ['prohibited'] : ['required', 'integer', 'min:0', 'max:5'],
-            'answer' => $typed ? ['nullable', 'string', 'max:200'] : ['prohibited'],
+            // A picked option is a translation of up to 500 characters (the import's cap).
+            'answer' => $typed ? ['nullable', 'string', 'max:500'] : ['prohibited'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
             'serve_token' => ['nullable', 'string', 'max:64'],
         ]);

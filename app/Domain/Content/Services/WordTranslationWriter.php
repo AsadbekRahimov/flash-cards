@@ -33,19 +33,22 @@ final class WordTranslationWriter
      *
      * @throws InvalidArgumentException for a locale outside `config('localization.supported')`
      */
-    public function save(Word $word, string $locale, string $translation, ?string $exampleTranslation = null): WordTranslation
+    public function save(Word $word, string $locale, string $translation, ?string $exampleTranslation = null, ?string $hook = null): WordTranslation
     {
         if (! $this->locales->isSupported($locale)) {
             throw new InvalidArgumentException("Unsupported locale '{$locale}'.");
         }
 
-        return DB::transaction(function () use ($word, $locale, $translation, $exampleTranslation): WordTranslation {
+        return DB::transaction(function () use ($word, $locale, $translation, $exampleTranslation, $hook): WordTranslation {
             $row = WordTranslation::query()->firstOrNew(['word_id' => $word->id, 'locale' => $locale]);
 
             $textChanged = ! $row->exists || $row->translation !== $translation;
 
             $row->translation = $translation;
             $row->example_translation = $exampleTranslation;
+            // The memory hook of this language (docs/06 §12.3); a blank clears it. Not a translation: no review mark reset.
+            $hook = trim((string) $hook);
+            $row->hook = $hook === '' ? null : $hook;
             if ($textChanged) {
                 $row->source = 'manual';
                 $row->reviewed_at = null;
@@ -76,7 +79,7 @@ final class WordTranslationWriter
             return;
         }
 
-        $this->save($word, $locale, (string) $word->translation, $row?->example_translation);
+        $this->save($word, $locale, (string) $word->translation, $row?->example_translation, $row?->hook);
     }
 
     public function markReviewed(WordTranslation $translation): void

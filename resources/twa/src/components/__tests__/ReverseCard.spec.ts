@@ -54,7 +54,7 @@ describe('ReverseCard', () => {
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     // The grade is final at the pick: it goes now, not after the pause.
-    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('grade')).toEqual([[4, 'resilient']])
     expect(w.emitted('advance')).toBeUndefined()
     // A right pick moves on by itself: there is nothing to press.
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
@@ -63,7 +63,7 @@ describe('ReverseCard', () => {
     expect(w.emitted('advance')).toBeUndefined()
     vi.advanceTimersByTime(1)
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('grade')).toEqual([[4, 'resilient']])
   })
 
   it('a wrong pick grades 2 at once, reveals the right option and the example and waits for "Next" (N6)', async () => {
@@ -74,7 +74,7 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     expect(speak).not.toHaveBeenCalled()
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Fragile']])
 
     // Reading takes as long as it takes: the next card does not come by itself.
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
@@ -86,7 +86,7 @@ describe('ReverseCard', () => {
     await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
     // "Next" only moves on: the grade has gone at the pick and is not sent a second time.
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Fragile']])
   })
 
   it('"Next" moves on once, however often it is pressed', async () => {
@@ -98,7 +98,7 @@ describe('ReverseCard', () => {
     await next.trigger('click')
 
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Brittle']])
   })
 
   it('accepts one pick only and none while disabled', async () => {
@@ -109,7 +109,7 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     await w.get('[data-testid=continue-btn]').trigger('click')
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Fragile']])
     expect(w.emitted('advance')).toHaveLength(1)
 
     const d = mount(ReverseCard, { props: { card, disabled: true } })
@@ -138,7 +138,7 @@ describe('ReverseCard', () => {
     // A second press while waiting changes nothing.
     await w.get('[data-testid=continue-btn]').trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Fragile']])
   })
 
   it('notes that the translation is a fallback only when the server says so', () => {

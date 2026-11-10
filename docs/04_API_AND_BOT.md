@@ -432,9 +432,22 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
 карточка ещё не due, а `serve_token` отсутствует, устарел или чужой — docs/06 §5.2; клиенту следует
 перезапросить `GET /next`), 422 `out_of_scope` (слово вне scope сессии: в `group_lesson`/`lesson` — слово другого урока,
 в любом режиме — неактивное слово `words.is_active = false`; бывш. `wrong_lesson`), 410 `session_closed`.
-Упражнения (422, после проверок выше, ничего не записано): `quality_not_accepted` — карточка `spelling`/`gap_fill`, нужен `answer`;
-`answer_not_accepted` — карточка `flash`/`reverse`/`audio`, нужен `quality`; `exercise_pro_required` — `answer` от плана без `exercise.spelling`/`exercise.gap_fill`
+Упражнения (422, после проверок выше, ничего не записано): `quality_not_accepted` — карточка `spelling`/`gap_fill`/`pretest`, нужен `answer`
+(а также `reverse`/`audio` после выключения `learning.objective_grading.accept_legacy_quality`, docs/06 §12.2);
+`answer_not_accepted` — карточка `flash`, нужен `quality`; `exercise_pro_required` — `answer` от плана без `exercise.spelling`/`exercise.gap_fill`
 (**paywall-reason**: у Free письменных упражнений нет). TWA на все три перезапрашивает `GET /next` (сервер отдаст карточку с актуальным упражнением).
+
+**Методика (docs/06 §12, 11.11.2026; только добавленные поля.)** `reverse`/`audio` присылают выбранный вариант как `answer`, сервер
+оценивает (4/2) и отвечает `graded` как для ввода; `quality` от старого клиента пока принимается и нормализуется до 4/2. Новый тип
+`prompt.type = pretest` (за флагом): `front` — слово, `options` — 4 перевода, `translation`/`example` в карточке пустые; `answer` — вариант
+или `''` («не знаю»); верно → `quality 5`, иначе `2`. В `card` добавлены: `is_leech` (трудное слово, `lapses ≥ 4`), `is_hard`, `hook`
+(авторский крючок на языке карточки; есть только у новых/проваленных/трудных), `note` («моя подсказка» ученика), `confused_with`
+(`{word, translation|null}` или `null`); у `spelling`/`gap_fill`/`pretest` эти три — `null`. `example` — пример этой выдачи (после выпуска
+карточки ротация по `word_examples`).
+
+`PUT /api/twa/words/{word}/note` `{note: string|null}` → `{word_id, note}` — своя подсказка к слову (простой текст, до 200 символов, сервер
+чистит и режет); 404 `card_not_started`, если слово ученику не выдавалось; `throttle:twa-word-notes` 30/мин.
+`PATCH /me/settings {retention_mode: calm|normal|intense}`; в `settings` — `scheduler` (`sm2`/`fsrs`), `retention_mode`, `options.retention_modes`.
 
 ### A.4 Exam mode
 

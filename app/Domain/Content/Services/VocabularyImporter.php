@@ -14,6 +14,7 @@ use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\WordExample;
 use App\Models\WordTranslation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,8 @@ final class VocabularyImporter
         'noun', 'verb', 'adjective', 'adverb',
         'pronoun', 'preposition', 'conjunction', 'interjection',
     ];
+
+    public const MAX_EXAMPLES = 10;
 
     public function __construct(
         private readonly LearningCache $cache,
@@ -46,6 +49,11 @@ final class VocabularyImporter
      *       - top-level `course`: slug of an EXISTING course (absent → the `default` course);
      *       - per word `translations`: {"ru": "...", "uz": "..."} and optional `example_translations`.
      *         `translation` stays the ru translation; `translations.ru` is its alias (both → must be equal).
+     *   The method (docs/06 §12, all optional, every key absent = unchanged):
+     *       - `hooks`: {"ru": "...", "uz": "..."} — the authored memory hook per locale (`word_translations.hook`);
+     *       - `examples`: [{"text": "...", "translations": {"ru": "...", "uz": "..."}}, ...] — ADDITIONAL examples
+     *         (`word_examples`, positions 1..; `example` stays the anchor). The list replaces the word's rows;
+     *       - `confusable_with`: ["father", ...] — words of the same course this one is mixed up with (`words.meta`).
      *
      * The ru text is always written to `words.translation` AND to `word_translations`. Re-importing a
      * file is idempotent: unchanged rows are skipped; a changed translation is overwritten and loses its
@@ -169,6 +177,8 @@ final class VocabularyImporter
                 ->groupBy('word_id')
                 ->map(fn (Collection $rows): Collection => $rows->keyBy('locale'));
 
+            $examplesChanged = [];
+
             foreach ($words as $w) {
                 $existing = $existingWords->get($w['word']);
 
@@ -180,14 +190,19 @@ final class VocabularyImporter
                 ];
 
                 if ($existing === null) {
-                    $word = Word::create(['lesson_id' => $lesson->id, 'word' => $w['word']] + $payload);
+                    $word = Word::create(['lesson_id' => $lesson->id, 'word' => $w['word']] + $payload + ['meta' => $this->metaWith([], $w)]);
                     $this->upsertTranslations($word, $w, new Collection, $report);
+                    if ($this->syncExamples($word, $w)) {
+                        $examplesChanged[] = (int) $word->id;
+                    }
                     $report->added++;
 
                     continue;
                 }
 
                 $existing->fill($payload);
+                $currentMeta = $existing->getAttribute('meta');
+                $existing->setAttribute('meta', $this->metaWith(is_array($currentMeta) ? $currentMeta : [], $w));
                 $changed = $existing->isDirty();
                 if ($changed) {
                     $existing->save();
@@ -200,11 +215,21 @@ final class VocabularyImporter
                     $report,
                 );
 
-                if ($changed || $translationsChanged) {
+                $rowsChanged = $this->syncExamples($existing, $w);
+                if ($rowsChanged) {
+                    $examplesChanged[] = (int) $existing->id;
+                }
+
+                if ($changed || $translationsChanged || $rowsChanged) {
                     $report->updated++;
                 } else {
                     $report->skipped++;
                 }
+            }
+
+            if ($examplesChanged !== []) {
+                // The cached examples of the words whose rows changed (docs/06 §12.4) — after the commit, like the lesson's keys.
+                DB::afterCommit(fn () => $this->cache->forgetWordExamples($examplesChanged));
             }
 
             $this->publisher->recount($course);
@@ -281,7 +306,7 @@ final class VocabularyImporter
      * and `translations.ru` must agree, only supported locales are allowed.
      *
      * @param  list<array<string, mixed>>  $words
-     * @return list<array{word:string, example:?string, part_of_speech:?string, transcription:?string, translations:array<string,string>, example_translations:array<string,string>}>
+     * @return list<array{word:string, example:?string, part_of_speech:?string, transcription:?string, translations:array<string,string>, example_translations:array<string,string>, hooks:array<string,string>, has_hooks:bool, examples:list<array{text:string, translations:array<string,string>}>, has_examples:bool, confusable_with:list<string>, has_confusable_with:bool}>
      */
     private function normalizeWords(array $words, ImportReport $report): array
     {
@@ -330,6 +355,55 @@ final class VocabularyImporter
                 }
             }
 
+            $hooks = $this->stringMap($w['hooks'] ?? null);
+            foreach (is_array($w['hooks'] ?? null) ? array_keys($w['hooks']) : [] as $locale) {
+                if (! in_array((string) $locale, $supported, true)) {
+                    $report->abort(
+                        ImportIssue::UNSUPPORTED_LOCALE,
+                        "{$label}: unsupported locale '{$locale}' in hooks (supported: ".implode(', ', $supported).').',
+                        ['word' => (string) $w['word'], 'position' => $i + 1, 'locale' => (string) $locale, 'field' => 'hooks', 'supported' => $supported],
+                    );
+                }
+            }
+            // A hook rides with the translation row of its locale (docs/06 §12.3): there must be one.
+            foreach (array_keys($hooks) as $locale) {
+                if (in_array($locale, $supported, true) && ($translations[$locale] ?? '') === '') {
+                    $report->abort(
+                        ImportIssue::EXAMPLE_TRANSLATION_ORPHAN,
+                        "{$label}: hooks '{$locale}' has no matching translations.{$locale}.",
+                        ['word' => (string) $w['word'], 'position' => $i + 1, 'locale' => $locale],
+                    );
+                }
+            }
+
+            $examples = [];
+            foreach (is_array($w['examples'] ?? null) ? $w['examples'] : [] as $example) {
+                if (! is_array($example)) {
+                    continue;
+                }
+                $text = isset($example['text']) && is_string($example['text']) ? trim($example['text']) : '';
+                if ($text === '') {
+                    continue;
+                }
+                foreach (is_array($example['translations'] ?? null) ? array_keys($example['translations']) : [] as $locale) {
+                    if (! in_array((string) $locale, $supported, true)) {
+                        $report->abort(
+                            ImportIssue::UNSUPPORTED_LOCALE,
+                            "{$label}: unsupported locale '{$locale}' in examples (supported: ".implode(', ', $supported).').',
+                            ['word' => (string) $w['word'], 'position' => $i + 1, 'locale' => (string) $locale, 'field' => 'examples', 'supported' => $supported],
+                        );
+                    }
+                }
+                $examples[] = ['text' => $text, 'translations' => $this->stringMap($example['translations'] ?? null)];
+            }
+
+            $confusable = [];
+            foreach (is_array($w['confusable_with'] ?? null) ? $w['confusable_with'] : [] as $other) {
+                if (is_string($other) && trim($other) !== '' && mb_strtolower(trim($other)) !== mb_strtolower(trim((string) $w['word']))) {
+                    $confusable[mb_strtolower(trim($other))] = true;
+                }
+            }
+
             $out[] = [
                 'word' => (string) $w['word'],
                 'example' => isset($w['example']) ? (string) $w['example'] : null,
@@ -337,10 +411,79 @@ final class VocabularyImporter
                 'transcription' => isset($w['transcription']) ? (string) $w['transcription'] : null,
                 'translations' => $translations,
                 'example_translations' => $exampleTranslations,
+                'hooks' => $hooks,
+                'has_hooks' => array_key_exists('hooks', $w),
+                'examples' => $examples,
+                'has_examples' => array_key_exists('examples', $w),
+                'confusable_with' => array_keys($confusable),
+                'has_confusable_with' => array_key_exists('confusable_with', $w),
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * `words.meta` after this file: `confusable_with` replaced when the key is present (an empty list removes the mark),
+     * every other key of the meta left alone.
+     *
+     * @param  array<mixed>  $meta
+     * @param  array{confusable_with: list<string>, has_confusable_with: bool}  $w
+     * @return array<mixed>
+     */
+    private function metaWith(array $meta, array $w): array
+    {
+        if (! $w['has_confusable_with']) {
+            return $meta;
+        }
+
+        if ($w['confusable_with'] === []) {
+            unset($meta['confusable_with']);
+
+            return $meta;
+        }
+
+        $meta['confusable_with'] = $w['confusable_with'];
+
+        return $meta;
+    }
+
+    /**
+     * The additional examples of the word (`word_examples`, docs/06 §12.4): the file's list replaces the rows when the key
+     * is present (an empty list removes them); a file without the key leaves them alone. Returns true when anything changed.
+     *
+     * @param  array{examples: list<array{text: string, translations: array<string, string>}>, has_examples: bool}  $w
+     */
+    private function syncExamples(Word $word, array $w): bool
+    {
+        if (! $w['has_examples']) {
+            return false;
+        }
+
+        $current = WordExample::query()
+            ->where('word_id', $word->id)
+            ->orderBy('position')
+            ->get()
+            ->map(static fn (WordExample $row): array => ['text' => $row->text, 'translations' => $row->translations ?? []])
+            ->values()
+            ->all();
+
+        $wanted = array_map(static fn (array $e): array => ['text' => $e['text'], 'translations' => $e['translations']], $w['examples']);
+        if ($current === $wanted) {
+            return false;
+        }
+
+        WordExample::query()->where('word_id', $word->id)->delete();
+        foreach ($wanted as $i => $example) {
+            WordExample::query()->create([
+                'word_id' => $word->id,
+                'position' => $i + 1,
+                'text' => $example['text'],
+                'translations' => $example['translations'] === [] ? null : $example['translations'],
+            ]);
+        }
+
+        return true;
     }
 
     /**
@@ -368,7 +511,11 @@ final class VocabularyImporter
      * Writes the `word_translations` rows of one word; returns true when anything changed.
      * A changed text is overwritten as an `import` row and loses `reviewed_at` (needs a new check).
      *
-     * @param  array{translations:array<string,string>, example_translations:array<string,string>}  $w
+     * The hook (docs/06 §12.3): written when the file has the `hooks` key — the locale's text, or NULL when the key is there
+     * and the locale is not (the mark is taken back); a file without `hooks` leaves it alone. A changed hook alone does not
+     * reset `reviewed_at`: it is not the translation.
+     *
+     * @param  array{translations:array<string,string>, example_translations:array<string,string>, hooks:array<string,string>, has_hooks:bool}  $w
      * @param  Collection<string, WordTranslation>  $existing  rows of this word by locale
      */
     private function upsertTranslations(Word $word, array $w, Collection $existing, ImportReport $report): bool
@@ -377,6 +524,7 @@ final class VocabularyImporter
 
         foreach ($w['translations'] as $locale => $text) {
             $example = $w['example_translations'][$locale] ?? null;
+            $hook = $w['hooks'][$locale] ?? null;
             $row = $existing->get($locale);
 
             if ($row === null) {
@@ -385,6 +533,7 @@ final class VocabularyImporter
                     'locale' => $locale,
                     'translation' => $text,
                     'example_translation' => $example,
+                    'hook' => $hook,
                     'source' => 'import',
                 ]);
                 $report->translationsAdded++;
@@ -393,13 +542,21 @@ final class VocabularyImporter
                 continue;
             }
 
+            $hookChanged = $w['has_hooks'] && $row->hook !== $hook;
             if ($row->translation === $text && ($example === null || $row->example_translation === $example)) {
+                if ($hookChanged) {
+                    $row->fill(['hook' => $hook])->save();
+                    $report->translationsUpdated++;
+                    $changed = true;
+                }
+
                 continue;
             }
 
             $row->fill([
                 'translation' => $text,
                 'example_translation' => $example ?? $row->example_translation,
+                'hook' => $w['has_hooks'] ? $hook : $row->hook,
                 'source' => 'import',
                 'reviewed_at' => null,
             ])->save();
@@ -467,6 +624,16 @@ final class VocabularyImporter
             'words.*.example_translations' => ['sometimes', 'nullable', 'array'],
             'words.*.example_translations.*' => ['nullable', 'string', 'max:2000'],
             'words.*.example' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            // The method (docs/06 §12): hooks per locale, additional examples, confusable words.
+            'words.*.hooks' => ['sometimes', 'nullable', 'array'],
+            'words.*.hooks.*' => ['nullable', 'string', 'max:500'],
+            'words.*.examples' => ['sometimes', 'nullable', 'array', 'max:'.self::MAX_EXAMPLES],
+            'words.*.examples.*' => ['required', 'array'],
+            'words.*.examples.*.text' => ['required', 'string', 'max:2000'],
+            'words.*.examples.*.translations' => ['sometimes', 'nullable', 'array'],
+            'words.*.examples.*.translations.*' => ['nullable', 'string', 'max:2000'],
+            'words.*.confusable_with' => ['sometimes', 'nullable', 'array', 'max:10'],
+            'words.*.confusable_with.*' => ['required', 'string', 'max:100'],
             'words.*.part_of_speech' => ['sometimes', 'nullable', 'string', 'in:'.implode(',', self::ALLOWED_POS)],
             'words.*.transcription' => ['sometimes', 'nullable', 'string', 'max:100'],
         ];

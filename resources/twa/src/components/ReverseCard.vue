@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Card, Quality } from '@/api/types'
+import CardHooks from '@/components/CardHooks.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import { useChoice } from '@/composables/useChoice'
@@ -21,7 +22,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'grade', quality: Quality): void
+  /** The pick is final: its grade as the screen reads it (4 / 2) and the picked option — the server grades the option (docs/06 §12.2). */
+  (e: 'grade', quality: Quality, picked: string): void
   (e: 'advance'): void
 }>()
 
@@ -36,7 +38,7 @@ const { picked, stateOf, isCorrect, awaitingConfirm, confirmed, pick, confirm } 
   options,
   computed(() => props.card.word),
   {
-    grade: (quality) => emit('grade', quality),
+    grade: (quality, picked) => emit('grade', quality, picked),
     advance: () => emit('advance'),
   },
 )
@@ -66,6 +68,7 @@ function onContinue(): void {
   <div class="flex flex-1 flex-col" data-testid="reverse-card">
     <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
       <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+        <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
         <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.reverse.title') }}</p>
         <h2 class="text-3xl leading-9 font-bold break-words" data-testid="front">{{ front }}</h2>
         <p v-if="card.translation_fallback" class="text-[13px] leading-[18px] text-tg-hint" data-testid="translation-fallback">
@@ -88,6 +91,8 @@ function onContinue(): void {
       <p v-if="picked !== null && card.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
         {{ card.example }}
       </p>
+      <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
+      <CardHooks v-if="picked !== null" :card="card" class="px-2" />
     </div>
 
     <StickyActions v-if="awaitingConfirm">

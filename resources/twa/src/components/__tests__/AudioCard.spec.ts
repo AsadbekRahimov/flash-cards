@@ -71,12 +71,12 @@ describe('AudioCard', () => {
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('correct')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
     // The grade is final at the pick: it goes now, not after the pause.
-    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('grade')).toEqual([[4, 'устойчивый']])
     expect(w.emitted('advance')).toBeUndefined()
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('grade')).toEqual([[4, 'устойчивый']])
   })
 
   it('a wrong pick grades 2 at once, reveals the right translation, the word and the example, and waits for "Next" (N6)', async () => {
@@ -87,7 +87,7 @@ describe('AudioCard', () => {
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
     expect(w.emitted('advance')).toBeUndefined()
@@ -98,7 +98,7 @@ describe('AudioCard', () => {
     await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
     // "Next" only moves on: the grade has gone at the pick and is not sent a second time.
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
   })
 
   it('lets "Next" be pressed while the grade is on its way, then waits for the server', async () => {
@@ -117,7 +117,7 @@ describe('AudioCard', () => {
 
     await w.get('[data-testid=continue-btn]').trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
   })
 
   it('does not take a pick while disabled', async () => {

@@ -178,6 +178,18 @@ export const ru = {
   'card.grade_new.medium': 'Запомнил',
   'card.grade_new.easy': 'Уже знал',
   'card.grade_prompt_new': 'Новое слово. Постарайтесь запомнить',
+  // The method (docs/06 §12): hard words, memory hooks, "my hint", "say it aloud".
+  'card.leech': 'Трудное слово',
+  'card.hook.title': 'Как запомнить',
+  'card.note.title': 'Моя подсказка',
+  'card.note.add': 'Добавить свою подсказку',
+  'card.note.edit': 'Изменить подсказку',
+  'card.note.placeholder': 'Ассоциация, похожее слово, разбор по частям…',
+  'card.note.save': 'Сохранить',
+  'card.note.clear': 'Удалить',
+  'card.note.hint': 'Видите только вы. До {max} символов.',
+  'card.confused_with': 'Не путайте с',
+  'card.say_aloud': 'Произнесите слово вслух',
 
   // ---- training ----
   'training.lesson_header': 'Модуль {stage} · Урок {lesson}',
@@ -202,6 +214,11 @@ export const ru = {
   'exercise.continue': 'Дальше',
   'exercise.audio.replay_hint': 'Нажмите, чтобы послушать ещё раз',
   'exercise.verdict.expected': 'Правильный ответ',
+  // The pretest of a new word (docs/06 §12.7).
+  'exercise.pretest.title': 'Знаете это слово?',
+  'exercise.pretest.skip': 'Не знаю',
+  'exercise.pretest.known': 'Вы уже знаете это слово — покажем его реже.',
+  'exercise.pretest.learn': 'Новое слово. Запомните его',
 
   // ---- exam ----
   'exam.closed_title': 'Экзамен завершён учителем',
@@ -469,6 +486,12 @@ export const ru = {
   'settings.exercises.spelling': 'Написание слова',
   'settings.exercises.gap_fill': 'Пропуск в примере',
   'settings.group.learning': 'Обучение',
+  'settings.say_aloud': 'Напоминать произносить слово вслух',
+  'settings.retention': 'Цель удержания',
+  'settings.retention.calm': 'Спокойно',
+  'settings.retention.normal': 'Обычно',
+  'settings.retention.intense': 'Интенсивно',
+  'settings.retention.hint': 'Сколько слов должно помниться к моменту повторения: спокойно — 85 %, обычно — 90 %, интенсивно — 93 %. Чем выше цель, тем чаще повторения.',
   'settings.group.reminders': 'Напоминания',
   'settings.group.region': 'Язык и регион',
   'settings.group.leagues': 'Лиги',

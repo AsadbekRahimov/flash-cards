@@ -72,6 +72,19 @@ final class FsrsScheduler implements SchedulerAlgorithm
         return SchedulerKind::Fsrs;
     }
 
+    /**
+     * The same scheduler with another desired retention (docs/06 §12.8: the learner's retention mode); the weights and the
+     * rollout stay. A value outside (0, 1) is refused by FsrsParameters.
+     */
+    public function withDesiredRetention(float $retention): self
+    {
+        if (abs($retention - $this->params->desiredRetention) < 1e-9) {
+            return $this;
+        }
+
+        return new self($this->policy, new FsrsParameters($this->params->weights, $retention, $this->params->rolloutPercent));
+    }
+
     public function schedule(WordRepetition $rep, int $quality, CarbonImmutable $now): void
     {
         SpacedRepetitionEngine::assertQuality($quality);

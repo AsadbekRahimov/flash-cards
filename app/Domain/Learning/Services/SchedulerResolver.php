@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Learning\Contracts\SchedulerAlgorithm;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Support\FsrsParameters;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Models\Learner;
 
 /**
@@ -24,11 +25,31 @@ final class SchedulerResolver
         private readonly Sm2Scheduler $sm2,
         private readonly FsrsScheduler $fsrs,
         private readonly FsrsParameters $params,
+        private readonly LadderPolicy $ladder = new LadderPolicy,
     ) {}
 
     public function for(Learner $learner): SchedulerAlgorithm
     {
-        return $this->algorithm($this->kindFor($learner));
+        $algorithm = $this->algorithm($this->kindFor($learner));
+
+        // The learner's retention mode (docs/06 §12.8) applies to FSRS only; SM-2 has no such dial.
+        if ($algorithm instanceof FsrsScheduler) {
+            $retention = $this->ladder->retentionFor(self::retentionMode($learner));
+            if ($retention !== null) {
+                return $algorithm->withDesiredRetention($retention);
+            }
+        }
+
+        return $algorithm;
+    }
+
+    /** `learners.meta.retention_mode` when it is one of the known modes; null otherwise (= the platform default). */
+    public static function retentionMode(Learner $learner): ?string
+    {
+        $meta = $learner->getAttribute('meta');
+        $mode = is_array($meta) ? ($meta[LadderPolicy::RETENTION_MODE_META] ?? null) : null;
+
+        return is_string($mode) && in_array($mode, LadderPolicy::RETENTION_MODES, true) ? $mode : null;
     }
 
     public function kindFor(Learner $learner): SchedulerKind

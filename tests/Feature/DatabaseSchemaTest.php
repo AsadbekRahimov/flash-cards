@@ -119,6 +119,8 @@ $expectedTables = [
     'offers', 'payment_orders', 'provider_transactions', 'payments',
     // Phase 2 (docs/13 §1.3): organizations — staff, invites, members / seats.
     'organization_users', 'organization_invites', 'organization_members',
+    // Audit 2026-11-10 H1 / P1: one-time deep-link tokens of the cabinet.
+    'telegram_link_tokens',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
     // Phase 2 (docs/13 §1.5): referrals, leagues.

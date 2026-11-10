@@ -165,6 +165,54 @@ final class LearningCache
         return $pool;
     }
 
+    /**
+     * The additional examples of a word (`word_examples`, docs/06 §12.4) as plain rows in `position` order; an empty list
+     * is an entry too (most words have none, and the card must not query for them on every serve). Dropped by
+     * {@see forgetWordExamples()} after whatever writes the rows (the importer, the admin panel).
+     *
+     * @return list<array{text: string, translations: array<string, string>}>
+     */
+    public function wordExamples(int $wordId): array
+    {
+        /** @var list<array{text: string, translations: array<string, string>}> $rows */
+        $rows = PureCache::store()->remember(
+            self::examplesKey($wordId),
+            self::LESSON_WORD_COUNT_TTL,
+            static fn (): array => DB::table('word_examples')
+                ->where('word_id', $wordId)
+                ->orderBy('position')
+                ->get(['text', 'translations'])
+                ->map(static function (object $row): array {
+                    $translations = is_string($row->translations) ? json_decode($row->translations, true) : $row->translations;
+                    $map = [];
+                    foreach (is_array($translations) ? $translations : [] as $locale => $text) {
+                        if (is_string($text) && $text !== '') {
+                            $map[(string) $locale] = $text;
+                        }
+                    }
+
+                    return ['text' => (string) $row->text, 'translations' => $map];
+                })
+                ->all(),
+        );
+
+        return $rows;
+    }
+
+    /** @param  list<int>  $wordIds */
+    public function forgetWordExamples(array $wordIds): void
+    {
+        $keys = array_map(static fn (int $id): string => self::examplesKey($id), array_values(array_unique($wordIds)));
+        if ($keys !== []) {
+            PureCache::forgetMany($keys);
+        }
+    }
+
+    private static function examplesKey(int $wordId): string
+    {
+        return "word:examples:v1:{$wordId}";
+    }
+
     public function forgetLesson(Lesson $lesson): void
     {
         $this->forgetLessonId((int) $lesson->id);

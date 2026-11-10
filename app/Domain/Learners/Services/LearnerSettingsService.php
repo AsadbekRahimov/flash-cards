@@ -12,6 +12,8 @@ use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
+use App\Domain\Learning\Services\SchedulerResolver;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -42,6 +44,8 @@ use Throwable;
  *  - `exercises`         `{reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
  *                        given change), stored in `learners.meta.exercises` (docs/13 §8.2); flash cards
  *                        cannot be switched off.
+ *  - `retention_mode`    `calm` / `normal` / `intense` — the FSRS target retention (docs/06 §12.8), kept in
+ *                        `learners.meta.retention_mode`; accepted for every learner, applied only to those scheduled by FSRS.
  * Values are checked here again whatever the caller validated: strict types, no coercion.
  *
  * `update()` locks the learner row, writes everything in one transaction and recomputes
@@ -82,11 +86,14 @@ use Throwable;
  *   timezone_undo_available_until: string|null,
  *   active_course: array{slug: string, title: string}|null,
  *   exercises: array{reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
+ *   scheduler: string,
+ *   retention_mode: string,
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
  *     timezones: list<array{id: string, label: string}>,
  *     reminder_times: list<string>,
- *     daily_goals: list<int>
+ *     daily_goals: list<int>,
+ *     retention_modes: list<string>
  *   }
  * }
  *
@@ -121,6 +128,7 @@ final class LearnerSettingsService
         private readonly DailyStatsService $stats,
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
+        private readonly SchedulerResolver $schedulers,
     ) {}
 
     /**
@@ -161,6 +169,7 @@ final class LearnerSettingsService
                 $current = match ($field) {
                     'reminder_time' => $this->shortTime($fresh->reminder_time),
                     'leagues_opt_out' => (bool) (($fresh->meta ?? [])[LeagueService::OPT_OUT_META] ?? false),
+                    'retention_mode' => SchedulerResolver::retentionMode($fresh) ?? 'normal',
                     default => $fresh->getAttribute($field),
                 };
                 if ($current !== $value) {
@@ -171,6 +180,11 @@ final class LearnerSettingsService
             if (array_key_exists('leagues_opt_out', $values)) {
                 $fresh->meta = [...($fresh->meta ?? []), LeagueService::OPT_OUT_META => (bool) $values['leagues_opt_out']];
                 unset($values['leagues_opt_out']);
+            }
+
+            if (is_string($values['retention_mode'] ?? null)) {
+                $fresh->meta = [...($fresh->meta ?? []), LadderPolicy::RETENTION_MODE_META => $values['retention_mode']];
+                unset($values['retention_mode']);
             }
 
             if (in_array('timezone', $changed, true)) {
@@ -250,6 +264,9 @@ final class LearnerSettingsService
             'timezone_undo_available_until' => $this->timezoneUndoAvailableUntil($learner)?->toIso8601String(),
             'active_course' => $activeCourse === false ? $this->activeCourseBlock($learner, $locale) : $activeCourse,
             'exercises' => LearnerExerciseSettings::fromLearner($learner)->toArray(),
+            // The SRS arm of the learner and the FSRS retention mode (docs/06 §12.8): the screen shows the dial on FSRS only.
+            'scheduler' => $this->schedulers->kindFor($learner)->value,
+            'retention_mode' => SchedulerResolver::retentionMode($learner) ?? 'normal',
             'options' => [
                 'locales' => array_map(
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
@@ -261,6 +278,7 @@ final class LearnerSettingsService
                 ),
                 'reminder_times' => $times,
                 'daily_goals' => $this->dailyGoals(),
+                'retention_modes' => LadderPolicy::RETENTION_MODES,
             ],
         ];
     }
@@ -453,6 +471,7 @@ final class LearnerSettingsService
                 'goal' => is_string($value) && in_array($value, OnboardingService::GOALS, true) ? $value : throw InvalidSettingException::invalid($field),
                 'level' => is_string($value) && in_array($value, OnboardingService::LEVELS, true) ? $value : throw InvalidSettingException::invalid($field),
                 'leagues_opt_out' => is_bool($value) ? $value : throw InvalidSettingException::invalid($field),
+                'retention_mode' => is_string($value) && in_array($value, LadderPolicy::RETENTION_MODES, true) ? $value : throw InvalidSettingException::invalid($field),
                 default => throw InvalidSettingException::unknown((string) $field),
             };
         }

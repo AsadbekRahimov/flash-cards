@@ -159,6 +159,18 @@ export const uz: Translations = {
   'card.grade_new.medium': 'Esladim',
   'card.grade_new.easy': 'Avvaldan bilardim',
   'card.grade_prompt_new': "Yangi so'z. Eslab qolishga harakat qiling",
+  // The method (docs/06 §12): hard words, memory hooks, "my hint", "say it aloud".
+  'card.leech': "Qiyin so'z",
+  'card.hook.title': 'Eslab qolish uchun',
+  'card.note.title': 'Mening eslatmam',
+  'card.note.add': "O'z eslatmangizni qo'shing",
+  'card.note.edit': "Eslatmani o'zgartirish",
+  'card.note.placeholder': "Assotsiatsiya, o'xshash so'z, qismlarga ajratish…",
+  'card.note.save': 'Saqlash',
+  'card.note.clear': "O'chirish",
+  'card.note.hint': "Faqat Siz ko'rasiz. {max} belgigacha.",
+  'card.confused_with': 'Adashtirmang',
+  'card.say_aloud': "So'zni ovoz chiqarib ayting",
 
   // ---- training ----
   'training.lesson_header': '{stage}-modul · {lesson}-dars',
@@ -183,6 +195,11 @@ export const uz: Translations = {
   'exercise.continue': 'Keyingisi',
   'exercise.audio.replay_hint': 'Qayta tinglash uchun bosing',
   'exercise.verdict.expected': "To'g'ri javob",
+  // The pretest of a new word (docs/06 §12.7).
+  'exercise.pretest.title': "Bu so'zni bilasizmi?",
+  'exercise.pretest.skip': 'Bilmayman',
+  'exercise.pretest.known': "Siz bu so'zni allaqachon bilasiz — uni kamroq ko'rsatamiz.",
+  'exercise.pretest.learn': "Yangi so'z. Uni eslab qoling",
 
   // ---- exam ----
   'exam.closed_title': "O'qituvchi imtihonni yakunladi",
@@ -432,6 +449,12 @@ export const uz: Translations = {
   'settings.exercises.spelling': "So'zni yozish",
   'settings.exercises.gap_fill': "Misoldagi bo'sh joy",
   'settings.group.learning': "O'rganish",
+  'settings.say_aloud': "So'zni ovoz chiqarib aytishni eslatish",
+  'settings.retention': 'Eslab qolish maqsadi',
+  'settings.retention.calm': 'Sokin',
+  'settings.retention.normal': 'Odatiy',
+  'settings.retention.intense': 'Jadal',
+  'settings.retention.hint': "Takrorlash vaqtida so'zlarning qancha qismi esda qolishi kerak: sokin — 85 %, odatiy — 90 %, jadal — 93 %. Maqsad qanchalik yuqori bo'lsa, takrorlashlar shuncha tez-tez bo'ladi.",
   'settings.group.reminders': 'Eslatmalar',
   'settings.group.region': 'Til va hudud',
   'settings.group.leagues': 'Ligalar',

@@ -77,8 +77,12 @@ interface TrainingState {
   lastIntervalDays: number
   status: TrainingStatus
   errorMessage: string
-  /** The server's grade of the last typed answer (spelling / gap_fill), shown before the next card. */
+  /** The server's grade of the last typed answer (spelling / gap_fill) or pretest pick, shown before the next card. */
   verdict: Graded | null
+  /** The exercise of the card the last answer was sent for: the verdict screen of a pretest differs from a typed one. */
+  lastExercise: ExerciseType | null
+  /** "My hint" is being saved (PUT /words/{id}/note). */
+  savingNote: boolean
   /**
    * The answer of the review that is held back: for a typed answer until the verdict is seen (`continueAfterVerdict()`),
    * for a four-choice card until the right answer is seen (`continueAfterChoice()`). `null` while nothing is held, and in
@@ -113,6 +117,8 @@ export const useTrainingStore = defineStore('training', {
     status: 'idle',
     errorMessage: '',
     verdict: null,
+    lastExercise: null,
+    savingNote: false,
     deferred: null,
     advanceWhenAnswered: false,
     generation: 0,
@@ -219,14 +225,17 @@ export const useTrainingStore = defineStore('training', {
     },
 
     /**
-     * A four-choice card (reverse / audio), graded by the client. The grade is final at the pick, so it goes to the
-     * server at once — it is saved even if the learner leaves the screen right away. The card the review answers with
-     * is held back (`continueAfterChoice()`) until the learner has seen the right answer.
+     * A four-choice card (reverse / audio): the picked option goes to the server as `answer` and the SERVER grades it
+     * (docs/06 §12.2) — the screen already knows whether the pick was right and colours it, the server's verdict is not
+     * shown again. The pick is final, so it is sent at once — it is saved even if the learner leaves the screen right away.
+     * The card the review answers with is held back (`continueAfterChoice()`) until the learner has seen the right answer.
+     *
+     * @param _quality the client's own reading of the pick (4 / 2), kept for the callers' contract; the server decides
      */
-    async submitChoice(quality: Quality): Promise<void> {
+    async submitChoice(_quality: Quality, picked: string): Promise<void> {
       await this.submit(
         (sessionId, wordId, timeSpent, serveToken) =>
-          api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+          api.training.answer(sessionId, wordId, picked, timeSpent, serveToken),
         true,
       )
     },
@@ -255,6 +264,7 @@ export const useTrainingStore = defineStore('training', {
       const serveToken = this.card.serve_token ?? null
       const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
       this.advanceWhenAnswered = false
+      this.lastExercise = this.exercise
       this.status = 'submitting'
       try {
         const res = await send(this.sessionId, wordId, timeSpent, serveToken)
@@ -265,7 +275,8 @@ export const useTrainingStore = defineStore('training', {
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
-          if (res.graded) {
+          // A four-choice card is graded by the server too, but its screen has shown the answer already: no verdict screen.
+          if (res.graded && !hold) {
             this.verdict = res.graded
             this.deferred = { card: res.card ?? null, doneReason }
             this.status = 'verdict'
@@ -300,6 +311,27 @@ export const useTrainingStore = defineStore('training', {
           return
         }
         this.handleApiError(err)
+      }
+    },
+
+    /**
+     * Saves (or clears, with an empty text) the learner's own memory hook of the card on screen (docs/06 §12.3). The card
+     * keeps the saved text; a failure leaves it as it was and tells the caller.
+     */
+    async saveNote(note: string): Promise<boolean> {
+      const card = this.card
+      if (card === null || this.savingNote) return false
+      const wordId = card.word_id
+      const generation = this.generation
+      this.savingNote = true
+      try {
+        const saved = await api.words.saveNote(wordId, note.trim() === '' ? null : note)
+        if (generation === this.generation && this.card?.word_id === wordId) this.card = { ...this.card, note: saved.note }
+        return true
+      } catch {
+        return false
+      } finally {
+        this.savingNote = false
       }
     },
 
@@ -374,6 +406,7 @@ export const useTrainingStore = defineStore('training', {
       this.lastIntervalDays = 0
       this.errorMessage = ''
       this.verdict = null
+      this.lastExercise = null
       this.deferred = null
       this.advanceWhenAnswered = false
     },

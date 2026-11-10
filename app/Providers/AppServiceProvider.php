@@ -14,6 +14,7 @@ use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\CacheCircuitBreaker;
@@ -144,6 +145,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
         $this->app->bind(ClickSignature::class, static fn (): ClickSignature => ClickSignature::fromConfig());
 
+        // The method settings (docs/06 §12) are read per request, not a singleton: a `config()` change in a test applies at once.
+        $this->app->bind(LadderPolicy::class, static fn (): LadderPolicy => LadderPolicy::fromConfig());
+
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */
             $config = (array) config('learning', []);
@@ -261,6 +265,15 @@ class AppServiceProvider extends ServiceProvider
             $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(30)->by('twa-decks|'.$key);
+        });
+
+        RateLimiter::for('twa-word-notes', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            // A note is typed by hand on a card (docs/06 §12.3): a few a minute; the cap stops scripts rewriting rows.
+            return Limit::perMinute(30)->by('twa-word-notes|'.$key);
         });
 
         RateLimiter::for('twa-deck-import', function (Request $request): Limit {

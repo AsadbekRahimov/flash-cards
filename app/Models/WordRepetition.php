@@ -33,7 +33,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float|null $difficulty FSRS difficulty 1..10; NULL until scheduled by FSRS
  * @property SchedulerKind $scheduler the algorithm that wrote the row last
  * @property int|null $scheduled_days the interval FSRS assigned (0 on a lapse)
- * @property array<mixed>|null $meta
+ * @property string|null $note the learner's own memory hook for the word, plain text (docs/06 §12.3)
+ * @property array<mixed>|null $meta `ladder_floor`, `last_exercise` (docs/06 §12.1)
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
@@ -63,6 +64,7 @@ class WordRepetition extends Model
         'difficulty',
         'scheduler',
         'scheduled_days',
+        'note',
         'meta',
     ];
 

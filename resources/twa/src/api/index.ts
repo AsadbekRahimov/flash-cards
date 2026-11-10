@@ -59,6 +59,7 @@ import type {
   SettingsPatch,
   TodayResponse,
   TrainingStartResponse,
+  WordNoteResponse,
 } from './types'
 import type {
   GameAnswerRequest,
@@ -124,6 +125,11 @@ export const api = {
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
+  },
+  words: {
+    /** The learner's own memory hook of a word they study (docs/06 §12.3); `null` clears it. */
+    saveNote: (wordId: number, note: string | null) =>
+      client().put<WordNoteResponse>(`/words/${wordId}/note`, { note }),
   },
   assignments: {
     list: () => client().get<AssignmentsResponse>('/assignments'),

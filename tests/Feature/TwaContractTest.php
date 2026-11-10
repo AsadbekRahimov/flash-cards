@@ -58,7 +58,8 @@ const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
+// The method (docs/06 §12): `is_leech`, `is_hard`, `hook`, `note`, `confused_with` were added to the card (fields only ever added).
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 // The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
@@ -148,11 +149,13 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
                 'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
+                'scheduler', 'retention_mode',
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],
                     'reminder_times',
                     'daily_goals',
+                    'retention_modes',
                 ],
             ],
             'practice' => CONTRACT_PRACTICE_ME,
@@ -390,7 +393,8 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         'settings' => [
             'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
             'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
-            'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
+            'scheduler', 'retention_mode',
+            'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals', 'retention_modes'],
         ],
         'practice' => CONTRACT_PRACTICE_ME,
         'game' => CONTRACT_GAME_ME,

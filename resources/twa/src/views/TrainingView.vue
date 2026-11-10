@@ -7,8 +7,11 @@ import AudioCard from '@/components/AudioCard.vue'
 import ClosedState from '@/components/ClosedState.vue'
 import FlashCard from '@/components/FlashCard.vue'
 import GapFillCard from '@/components/GapFillCard.vue'
+import PretestCard from '@/components/PretestCard.vue'
+import PretestReveal from '@/components/PretestReveal.vue'
 import ReverseCard from '@/components/ReverseCard.vue'
 import SpellingCard from '@/components/SpellingCard.vue'
+import WordNoteSheet from '@/components/WordNoteSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -47,10 +50,18 @@ const {
   verdict,
   opened,
   serveSeq,
+  lastExercise,
+  savingNote,
 } = storeToRefs(training)
 
 /** The text of the last typed answer, for the verdict screen. */
 const lastAnswer = ref('')
+
+/** "My hint" sheet (docs/06 §12.3) is open for the card on screen. */
+const noteOpen = ref(false)
+
+/** The limit of "my hint" (the server cuts to the same). */
+const NOTE_MAX = 200
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(
@@ -148,11 +159,22 @@ function onGrade(q: Quality): void {
 }
 
 /**
- * Reverse / audio: the grade goes to the server at the pick, so it is saved even if the learner leaves at once; the
- * card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
+ * Reverse / audio: the picked option goes to the server at the pick (it grades it, docs/06 §12.2), so it is saved even if
+ * the learner leaves at once; the card it answers with is held back until the learner has seen the right answer
+ * (`onChoiceAdvance`).
  */
-function onChoiceGrade(q: Quality): void {
-  void training.submitChoice(q)
+function onChoiceGrade(q: Quality, picked: string): void {
+  void training.submitChoice(q, picked)
+}
+
+/** The pretest pick (or "I don't know" = ''): the server grades, the reveal shows the meaning. */
+function onPretestAnswer(text: string): void {
+  lastAnswer.value = text
+  void training.submitAnswer(text)
+}
+
+async function onSaveNote(note: string): Promise<void> {
+  if (await training.saveNote(note)) noteOpen.value = false
 }
 
 /** The pause after a right pick is over, or "Next" was pressed after a wrong one: show the held card. */
@@ -261,6 +283,13 @@ async function onRestart(): Promise<void> {
 
       <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="onRetry" />
 
+      <PretestReveal
+        v-else-if="status === 'verdict' && verdict && lastExercise === 'pretest' && card"
+        :card="card"
+        :verdict="verdict"
+        @continue="onContinue"
+      />
+
       <AnswerVerdict v-else-if="status === 'verdict' && verdict" :verdict="verdict" :answer="lastAnswer" @continue="onContinue" />
 
       <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve. -->
@@ -283,15 +312,28 @@ async function onRestart(): Promise<void> {
         />
         <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
         <GapFillCard v-else-if="exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
+        <PretestCard v-else-if="exercise === 'pretest'" :key="`pretest-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onPretestAnswer" />
         <FlashCard
           v-else
+          :key="`flash-${serveSeq}`"
           :card="card"
           :show-translation="training.showTranslation"
           :disabled="isBusy"
           @reveal="training.reveal()"
           @grade="onGrade"
+          @edit-note="noteOpen = true"
         />
       </template>
+
+      <WordNoteSheet
+        v-if="noteOpen && card"
+        :word="card.word"
+        :note="card.note ?? null"
+        :saving="savingNote"
+        :max="NOTE_MAX"
+        @save="onSaveNote"
+        @close="noteOpen = false"
+      />
     </template>
   </section>
 </template>

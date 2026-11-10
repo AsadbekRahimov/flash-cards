@@ -46,7 +46,7 @@ final readonly class LearnerExerciseSettings
     public function allows(ExerciseType $type): bool
     {
         return match ($type) {
-            ExerciseType::Flash => true,
+            ExerciseType::Flash, ExerciseType::Pretest => true,
             ExerciseType::Reverse => $this->reverse,
             ExerciseType::Audio => $this->audio,
             ExerciseType::Spelling => $this->spelling,

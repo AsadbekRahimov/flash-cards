@@ -97,6 +97,101 @@ return [
          *   w17, w18 same-day (short-term) reviews — unused here: minute steps are shared with SM-2
          */
         'weights' => env('FSRS_WEIGHTS', '0.40255,1.18385,3.173,15.69105,7.1949,0.5345,1.4604,0.0046,1.54575,0.1192,1.01925,1.9395,0.11,0.29605,2.2698,0.2315,2.9898,0.51655,0.6621'),
+
+        /**
+         * The learner's choice of the target retention (docs/25 §3.7; docs/06 §12): `learners.meta.retention_mode`
+         * → desired retention. Applies only to learners scheduled by FSRS; `normal` (= `desired_retention`) when unset.
+         */
+        'retention_modes' => [
+            'calm' => 0.85,
+            'normal' => (float) env('FSRS_DESIRED_RETENTION', 0.9),
+            'intense' => 0.93,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Method: the exercise ladder, objective grading, leeches, hooks, examples,
+    | confusable words, the pretest (docs/25 §3; docs/06 §12)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * The ladder of exercises by the maturity of the card (docs/25 §3.1) instead of the hash rotation:
+     *   rung 0 — flash (self-graded): cards in minute steps and the first passes after graduation;
+     *   rung 1 — recognition with four options (reverse / audio, graded by the server from the pick);
+     *   rung 2 — typed recall (spelling / gap-fill) once the interval is long enough.
+     * A lapse of a `review` card lowers the ceiling by one rung (`word_repetitions.meta.ladder_floor`); the card climbs
+     * back with its interval. `enabled = false` restores the previous rotation (docs/06 §4.3).
+     */
+    'ladder' => [
+        'enabled' => (bool) env('LEARNING_LADDER_ENABLED', true),
+        /** From this many passes on (`repetitions`), a `review` card leaves the self-graded flash for the four options. */
+        'choice_from_repetitions' => (int) env('LEARNING_LADDER_CHOICE_FROM_REPETITIONS', 3),
+        /** From this interval (days) on, a `review` card is asked to be typed (spelling / gap-fill). */
+        'typed_from_interval_days' => (int) env('LEARNING_LADDER_TYPED_FROM_INTERVAL_DAYS', 21),
+        /**
+         * Whether a Free learner gets the typed rung. `false` (default): the typed exercises stay a Pro feature
+         * (`exercise.spelling` / `exercise.gap_fill` of config/billing.php) and a Free learner's ladder tops out at the four
+         * options. The owner's decision (docs/25 §3.2): `true` opens typed recall to everybody.
+         */
+        'typed_recall_in_free' => (bool) env('LEARNING_LADDER_TYPED_IN_FREE', false),
+    ],
+
+    /**
+     * Objective grading (docs/25 §3.2): a four-option card (reverse / audio) is graded by the SERVER from the picked
+     * option sent as `answer`, like the typed exercises; only the flash card takes the learner's own `quality`.
+     * `accept_legacy_quality`: a client that still sends `quality` for a four-option card is accepted while the new
+     * Mini App rolls out — the value is normalised to 4 (pass) / 2 (fail), never 5. Set to false afterwards:
+     * such a request is then refused with 422 `quality_not_accepted`.
+     */
+    'objective_grading' => [
+        'accept_legacy_quality' => (bool) env('LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY', true),
+    ],
+
+    /**
+     * Leeches (docs/25 §3.3): a card with at least this many lapses is a "hard word" — the card carries `is_leech`, the
+     * memory hook, the pair it is confused with, and the Mini App shows the chip. 0 = never.
+     */
+    'leech' => [
+        'threshold' => (int) env('LEARNING_LEECH_THRESHOLD', 4),
+    ],
+
+    /** Memory hooks (docs/25 §3.4): the authored hook per locale and the learner's own note on the card. */
+    'hooks' => [
+        'enabled' => (bool) env('LEARNING_HOOKS_ENABLED', true),
+        /** Characters of the learner's own note (`word_repetitions.note`); plain text. */
+        'note_max_length' => 200,
+    ],
+
+    /**
+     * Several examples per word (docs/25 §3.5): until the card graduates the anchor example (`words.example`) is the
+     * only one shown; after it the examples of `word_examples` rotate with the pass count. `false` — always the anchor.
+     */
+    'examples' => [
+        'rotate' => (bool) env('LEARNING_EXAMPLES_ROTATE', true),
+    ],
+
+    /**
+     * Confusable words (docs/25 §3.6): `words.meta.confusable_with` lists the words (of the same course) a word is mixed up
+     * with. CardPicker does not introduce a word while one of its pairs was introduced to the learner within `window_hours`;
+     * the word moves to the end of the portion / the next day. Group lessons are not affected.
+     */
+    'confusables' => [
+        'enabled' => (bool) env('LEARNING_CONFUSABLES_ENABLED', true),
+        'window_hours' => (int) env('LEARNING_CONFUSABLES_WINDOW_HOURS', 20),
+        /** How many candidates the picker looks ahead for an unblocked word before it serves the first one anyway. */
+        'lookahead' => 5,
+    ],
+
+    /**
+     * The pretest of a new word (docs/25 §3.12): before the first show, "Do you know this word?" with four meanings. A right
+     * pick graduates the card as "knew it" (quality 5); a wrong pick or "I don't know" starts the usual learning steps
+     * (quality 2) and the Mini App shows the word with its translation. Off by default: the Mini App has just switched to
+     * showing a new word with its translation at once.
+     */
+    'pretest' => [
+        'enabled' => (bool) env('LEARNING_PRETEST_ENABLED', false),
     ],
 
     /**

@@ -78,11 +78,15 @@ export interface LearnerSettings {
   active_course: { slug: string; title: string } | null
   /** Exercise types the learner has switched on (docs/13 §8.2); flash cards are always on. */
   exercises: ExerciseSettings
+  /** The SRS arm of the learner (docs/06 §9): the retention dial is shown for `fsrs` only. */
+  scheduler?: 'sm2' | 'fsrs'
+  retention_mode?: RetentionMode
   options: {
     locales: SettingsChoice[]
     timezones: SettingsChoice[]
     reminder_times: string[]
     daily_goals: number[]
+    retention_modes?: RetentionMode[]
   }
 }
 
@@ -246,8 +250,17 @@ export interface ExerciseSettings {
 
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
-  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out'>
+  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out' | 'retention_mode'>
 > & { exercises?: Partial<ExerciseSettings> }
+
+/** The FSRS target retention the learner picked (docs/06 §12.8); shown only to learners scheduled by FSRS. */
+export type RetentionMode = 'calm' | 'normal' | 'intense'
+
+/** PUT /words/{word}/note — the learner's own memory hook of a word (docs/06 §12.3). */
+export interface WordNoteResponse {
+  word_id: number
+  note: string | null
+}
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
 export interface Entitlement {
@@ -512,18 +525,19 @@ export interface AssignmentsResponse {
 export type CardKind = 'due' | 'new' | 'learning'
 
 /**
- * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3):
- * flash / reverse / audio → POST /review {quality}; spelling / gap_fill → POST /review {answer}.
+ * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3, docs/06 §12.2):
+ * flash → POST /review {quality}; reverse / audio / pretest → POST /review {answer: the picked option};
+ * spelling / gap_fill → POST /review {answer: the typed text}.
  */
-export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill'
+export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill' | 'pretest'
 
 export interface ExercisePrompt {
   type: ExerciseType
-  /** reverse / spelling / gap_fill: the translation; flash: the word; audio: '' (the word is only heard). */
+  /** reverse / spelling / gap_fill: the translation; flash / pretest: the word; audio: '' (the word is only heard). */
   front: string
   /** gap_fill: the example with the word's form replaced by `____`. */
   masked_example: string | null
-  /** reverse: four English words; audio: four translations (the right one among them). */
+  /** reverse: four English words; audio / pretest: four translations (the right one among them). */
   options: string[] | null
   /** spelling / gap_fill: length of the expected text. */
   answer_length: number | null
@@ -552,6 +566,16 @@ export interface Card {
   serve_token: string | null
   /** The exercise of this serve; absent/null = flash (older servers). */
   prompt?: ExercisePrompt | null
+  /** A "hard word" (docs/06 §12.6): failed `learning.leech.threshold` times as a graduated card. */
+  is_leech?: boolean
+  /** Failed and not yet passed a day-based review (docs/06 §3.5). */
+  is_hard?: boolean
+  /** The authored memory hook in the card's language; present on a new, failed or hard card only (docs/06 §12.3). */
+  hook?: string | null
+  /** The learner's own hook ("my hint"). */
+  note?: string | null
+  /** The word a hard word is mixed up with (docs/06 §12.6). */
+  confused_with?: { word: string; translation: string | null } | null
 }
 
 export interface NextCardResponse {

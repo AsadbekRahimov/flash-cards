@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Learning\DTO\CardPick;
 use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\RepetitionWithWord;
@@ -16,6 +17,7 @@ use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -60,7 +62,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class CardPicker
 {
-    public function __construct(private readonly LearningPolicy $policy) {}
+    public function __construct(
+        private readonly LearningPolicy $policy,
+        private readonly LadderPolicy $ladder,
+    ) {}
 
     public function pickNext(
         int $learnerId,
@@ -130,8 +135,7 @@ final class CardPicker
                 $candidates->addSelect(['quota_used' => $usage]);
             }
 
-            /** @var Word|null $new */
-            $new = $candidates->first();
+            $new = $this->firstUnblocked($learnerId, $scope, $candidates, $now);
             if ($new === null) {
                 return [null, false];
             }
@@ -162,6 +166,82 @@ final class CardPicker
 
             return [CardPick::card($rep, $new, 'new'), false];
         });
+    }
+
+    /**
+     * The first candidate that is not held back by a confusable word (docs/06 §12.5): a word whose `meta.confusable_with`
+     * names a word introduced to the learner within `confusables.window_hours`, or that is named by such a word, waits —
+     * the next candidate of the study order goes first (the lesson order is kept otherwise; the word comes the next day or
+     * at the end of the portion). The look-ahead is `confusables.lookahead` rows of the SAME statement that used to fetch
+     * one; the recent words are read only when a candidate carries a mark, so a course without marks costs nothing more.
+     * When every candidate in reach is held back, the first one is served anyway: a confusable pair is worse than nothing
+     * only for the same day, not for the lesson. Group lessons follow the teacher's lesson as it is.
+     *
+     * @param  Builder<Word>  $candidates
+     */
+    private function firstUnblocked(int $learnerId, TrainingScope $scope, Builder $candidates, CarbonImmutable $now): ?Word
+    {
+        if (! $this->ladder->confusablesEnabled || $scope->isGroupLesson()) {
+            /** @var Word|null $first */
+            $first = $candidates->first();
+
+            return $first;
+        }
+
+        /** @var list<Word> $rows */
+        $rows = $candidates->limit($this->ladder->confusablesLookahead)->get()->all();
+        if ($rows === []) {
+            return null;
+        }
+
+        $marked = false;
+        foreach ($rows as $row) {
+            if ($row->confusableWith() !== []) {
+                $marked = true;
+                break;
+            }
+        }
+        if (! $marked) {
+            return $rows[0];
+        }
+
+        // The words introduced lately, with their own marks (the pair may be marked on either side).
+        $recent = [];
+        $recentMarks = [];
+        $rowsRecent = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->where('word_repetitions.learner_id', $learnerId)
+            ->where('word_repetitions.created_at', '>=', $now->subHours($this->ladder->confusablesWindowHours))
+            ->get(['words.word', 'words.meta']);
+        foreach ($rowsRecent as $r) {
+            $text = mb_strtolower(trim((string) $r->word));
+            $recent[$text] = true;
+            $meta = is_string($r->meta) ? json_decode($r->meta, true) : $r->meta;
+            foreach (is_array($meta) && is_array($meta['confusable_with'] ?? null) ? $meta['confusable_with'] : [] as $other) {
+                if (is_string($other)) {
+                    $recentMarks[mb_strtolower(trim($other))] = true;
+                }
+            }
+        }
+
+        foreach ($rows as $row) {
+            $text = mb_strtolower(trim($row->word));
+            if (isset($recentMarks[$text])) {
+                continue;
+            }
+            $blocked = false;
+            foreach ($row->confusableWith() as $other) {
+                if (isset($recent[$other])) {
+                    $blocked = true;
+                    break;
+                }
+            }
+            if (! $blocked) {
+                return $row;
+            }
+        }
+
+        return $rows[0];
     }
 
     /**

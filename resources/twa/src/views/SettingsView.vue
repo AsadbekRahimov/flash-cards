@@ -13,13 +13,14 @@ import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedC
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
 import { useOrganizationsStore } from '@/stores/organizations'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
-import type { ExerciseSettings, SettingsPatch } from '@/api/types'
+import type { ExerciseSettings, LearnerSettings, SettingsPatch } from '@/api/types'
 
 /**
  * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Learning (daily goal, main course,
@@ -77,6 +78,22 @@ const goalOptions = computed<SegmentOption[]>(() =>
 )
 
 const goalAsSegments = computed(() => goalOptions.value.length <= MAX_SEGMENTS)
+
+/** The FSRS retention dial (docs/06 §12.8): calm / normal / intense — for learners scheduled by FSRS only. */
+const RETENTION_MODES = ['calm', 'normal', 'intense'] as const
+const retentionOptions = computed<SegmentOption[]>(() =>
+  (data.value?.options.retention_modes ?? RETENTION_MODES)
+    .filter((mode): mode is (typeof RETENTION_MODES)[number] => (RETENTION_MODES as readonly string[]).includes(mode))
+    .map((mode) => ({ value: mode, label: t(`settings.retention.${mode}`), testid: `retention-${mode}` })),
+)
+const showsRetention = computed(() => data.value?.scheduler === 'fsrs')
+
+/** "Say the word aloud" hint (docs/25 §3.11): kept on the device, nothing is sent to the server. */
+const sayAloud = ref(isSayAloudEnabled())
+function onSayAloud(on: boolean): void {
+  setSayAloudEnabled(on)
+  sayAloud.value = on
+}
 
 const localeOptions = computed<SegmentOption[]>(() =>
   (data.value?.options.locales ?? []).map((option) => ({ value: option.id, label: option.label, testid: `locale-${option.id}` })),
@@ -153,6 +170,7 @@ const onGoal = (value: string | number) => save({ daily_goal: Number(value) })
 const onTimezone = () => save({ timezone: draft.timezone })
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
+const onRetention = (value: string | number) => save({ retention_mode: String(value) as LearnerSettings['retention_mode'] })
 const onExercise = (key: keyof ExerciseSettings, enabled: boolean) => save({ exercises: { [key]: enabled } })
 
 onMounted(() => {
@@ -190,6 +208,24 @@ onBeforeUnmount(() => {
               <option v-for="option in goalOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
           </div>
+        </div>
+
+        <!-- The FSRS retention dial (docs/06 §12.8): only for a learner scheduled by FSRS; SM-2 has no such setting. -->
+        <div v-if="showsRetention" class="list-row flex-col items-stretch gap-2" data-testid="retention-row">
+          <span class="text-base leading-[22px]">{{ t('settings.retention') }}</span>
+          <SegmentedControl
+            :model-value="data.retention_mode ?? 'normal'"
+            :options="retentionOptions"
+            :disabled="saving"
+            :ariaLabel="t('settings.retention')"
+            @update:model-value="onRetention"
+          />
+          <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('settings.retention.hint') }}</p>
+        </div>
+
+        <div class="list-row" data-testid="say-aloud-row">
+          <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.say_aloud') }}</span>
+          <ToggleSwitch :model-value="sayAloud" :label="t('settings.say_aloud')" data-testid="say-aloud-toggle" @update:model-value="onSayAloud" />
         </div>
       </ListGroup>
 
