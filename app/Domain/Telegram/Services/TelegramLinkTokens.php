@@ -94,6 +94,22 @@ final class TelegramLinkTokens
         return false;
     }
 
+    /**
+     * Remembers WHO the bot asked "Connect this Telegram?" (W2): `from.id` of the account that opened the link. The answer "Yes"
+     * is accepted from that account alone; a later opening by another account re-binds the question to it.
+     */
+    public function markPrompted(TelegramLinkToken $token, int $telegramUserId, CarbonImmutable $now): void
+    {
+        TelegramLinkToken::query()->whereKey($token->id)->whereNull('used_at')->update([
+            'prompted_telegram_user_id' => $telegramUserId,
+            'last_result' => 'prompted',
+            'last_attempt_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $token->forceFill(['prompted_telegram_user_id' => $telegramUserId, 'last_result' => 'prompted', 'last_attempt_at' => $now])->syncOriginal();
+    }
+
     /** Remembers why the last attempt with this token was refused (shown to the staff member in the cabinet, never in the chat). */
     public function recordRefusal(TelegramLinkToken $token, string $result, CarbonImmutable $now): void
     {

@@ -34,7 +34,8 @@ use Carbon\CarbonImmutable;
  * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
  * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
  * question after the last step (the code is remembered) for one who has not. A `link_<token>` link (docs/13 §6.2) is not a
- * learner's at all: it connects the sender's Telegram to the staff account that asked for it and creates no learner.
+ * learner's at all: it asks the sender whether to connect their Telegram to the staff account that asked for it and creates no
+ * learner.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -95,14 +96,15 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
-        $user = User::where('telegram_user_id', $tgUserId)->first();
-
-        if ($user !== null) {
-            $user->update(['last_login_at' => now()]);
+        // Staff by the one rule of DmLearnerResolver (W1): a verified account, or a hand-typed id with no learner behind it.
+        if ($this->learners->isStaff($tgUserId)) {
+            /** @var User|null $user */
+            $user = User::query()->where('telegram_user_id', $tgUserId)->first();
+            $user?->update(['last_login_at' => now()]);
 
             $this->telegram->sendMessage(
                 $chatId,
-                __('bot.start.greeting', ['name' => $user->name], $this->locales->forTeacher()),
+                __('bot.start.greeting', ['name' => $user->name ?? ''], $this->locales->forTeacher()),
             );
 
             return;
@@ -191,9 +193,9 @@ final class StartCommandHandler implements UpdateHandler
     }
 
     /**
-     * `/start link_<token>`: connects the sender's Telegram to the staff account that asked for the link, and says so — in the
-     * sender's Telegram language (they are staff, not a learner with a chosen interface language). Refusals are explained to the
-     * sender only (they own the account in question); an unknown / dead token gets one answer.
+     * `/start link_<token>`: asks "Connect this Telegram to the cabinet of X?" with "Yes / No" (W2) — nothing is connected until
+     * "Yes" ({@see AccountLinkCallbackHandler}). In the sender's Telegram language (they are staff, not a learner with a chosen
+     * interface language). An unknown / dead token gets one answer.
      *
      * @param  array<string, mixed>  $from
      */
@@ -201,15 +203,26 @@ final class StartCommandHandler implements UpdateHandler
     {
         $languageCode = $from['language_code'] ?? null;
         $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
-        $outcome = $this->accountLinks->linkFromStart($token, $from);
+        $outcome = $this->accountLinks->prompt($token, $from);
 
-        $text = match ($outcome->result) {
-            AccountLinkResult::Linked, AccountLinkResult::AlreadyLinked => __('bot.link.account_linked', ['name' => $outcome->user !== null ? $outcome->user->name : ''], $locale),
-            AccountLinkResult::TelegramTaken => __('bot.link.account_taken', [], $locale),
-            AccountLinkResult::TokenInvalid => __('bot.link.account_refused', [], $locale),
-        };
+        if ($outcome->result !== AccountLinkResult::Prompted || $outcome->user === null) {
+            $this->telegram->sendMessage($chatId, __('bot.link.account_refused', [], $locale));
 
-        $this->telegram->sendMessage($chatId, $text);
+            return;
+        }
+
+        $this->telegram->sendMessage(
+            $chatId,
+            __('bot.link.account_prompt', [
+                'name' => $outcome->user->name,
+                'email' => AccountLinkCallbackHandler::maskEmail((string) $outcome->user->email),
+                'centers' => $outcome->organizations === [] ? __('bot.link.account_prompt_no_center', [], $locale) : '«'.implode('», «', $outcome->organizations).'»',
+            ], $locale),
+            replyMarkup: ['inline_keyboard' => [[
+                ['text' => __('bot.link.account_yes', [], $locale), 'callback_data' => AccountLinkCallbackHandler::PREFIX.':yes:'.$token],
+                ['text' => __('bot.link.account_no', [], $locale), 'callback_data' => AccountLinkCallbackHandler::PREFIX.':no:'.$token],
+            ]]],
+        );
     }
 
     /** The first word after `/start` (Telegram sends the deep-link parameter as `/start <parameter>`). */

@@ -362,7 +362,7 @@ it('creates the renamed learner indexes and none of the student ones', function 
     $expected = [
         'word_repetitions' => ['word_repetitions_next_card_idx'],
         'words' => ['words_inactive_idx'],
-        'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
+        'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx', 'training_reviews_learner_word_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
         'exam_results' => ['exam_results_session_learner_unique'],
         'exam_question_attempts' => ['exam_question_attempts_session_learner_index_unique'],

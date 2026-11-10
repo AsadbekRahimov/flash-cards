@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AudioCard from '../AudioCard.vue'
 import { CHOICE_FEEDBACK_MS } from '@/composables/useChoice'
-import type { Card } from '@/api/types'
+import type { Card, ChoiceResult } from '@/api/types'
 import { setLocale } from '@/i18n'
 
 vi.mock('@/composables/useTelegram', () => ({
@@ -11,17 +11,37 @@ vi.mock('@/composables/useTelegram', () => ({
 const { speak } = vi.hoisted(() => ({ speak: vi.fn().mockResolvedValue(undefined) }))
 vi.mock('@/composables/useTts', () => ({ useTts: () => ({ supported: false, speak }) }))
 
+// An audio card as the server sends it: without the translation (the right option) and the example; the word is only heard.
 const card: Card = {
   word_id: 1,
   word: 'Resilient',
-  translation: 'Устойчивый',
+  translation: '',
   translation_fallback: false,
-  example: 'She is a resilient girl.',
+  example: null,
   transcription: 'rɪˈzɪl.i.ənt',
   audio_url: null,
   card_kind: 'due',
   serve_token: null,
   prompt: { type: 'audio', front: '', masked_example: null, options: ['Хрупкий', 'Нежный', 'устойчивый', 'Ломкий'], answer_length: null },
+}
+
+/** The server's word on the pick, with what the card was sent without. */
+function answered(correct: boolean): ChoiceResult {
+  return {
+    correct,
+    right: 'устойчивый',
+    revealed: {
+      word: 'Resilient',
+      translation: 'устойчивый',
+      correct: 'устойчивый',
+      example: 'She is a resilient girl.',
+      transcription: 'rɪˈzɪl.i.ənt',
+      audio_url: null,
+      hook: null,
+      note: null,
+      confused_with: null,
+    },
+  }
 }
 
 describe('AudioCard', () => {
@@ -61,33 +81,44 @@ describe('AudioCard', () => {
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
   })
 
-  it('a right pick reveals the word, grades 4 at once, moves on after the pause and has no button to press', async () => {
+  it('sends the pick at once and keeps the word hidden and the options uncoloured until the server has answered', async () => {
     const w = mount(AudioCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
+
+    expect(w.emitted('pick')).toEqual([['устойчивый']])
+    expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('selected')
+    expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
+    expect(w.find('[data-testid=word]').exists()).toBe(false)
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 10)
+    expect(w.emitted('advance')).toBeUndefined()
+  })
+
+  it('a right verdict reveals the word, moves on after the pause and has no button to press', async () => {
+    const w = mount(AudioCard, { props: { card } })
+    await w.get('[data-testid=option-2]').trigger('click')
+    await w.setProps({ result: answered(true) })
 
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=transcription]').text()).toBe('rɪˈzɪl.i.ənt')
     expect(w.find('[data-testid=replay-hint]').exists()).toBe(false)
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('correct')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    // The grade is final at the pick: it goes now, not after the pause.
-    expect(w.emitted('grade')).toEqual([[4, 'устойчивый']])
     expect(w.emitted('advance')).toBeUndefined()
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[4, 'устойчивый']])
+    expect(w.emitted('pick')).toEqual([['устойчивый']])
   })
 
-  it('a wrong pick grades 2 at once, reveals the right translation, the word and the example, and waits for "Next" (N6)', async () => {
+  it('a wrong verdict reveals the right translation, the word and the example, and waits for "Next" (N6)', async () => {
     const w = mount(AudioCard, { props: { card } })
     await w.get('[data-testid=option-0]').trigger('click')
+    await w.setProps({ result: answered(false) })
 
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
-    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
     expect(w.emitted('advance')).toBeUndefined()
@@ -97,19 +128,16 @@ describe('AudioCard', () => {
     await next.trigger('click')
     await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
-    // "Next" only moves on: the grade has gone at the pick and is not sent a second time.
-    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
+    expect(w.emitted('pick')).toEqual([['Хрупкий']])
   })
 
-  it('lets "Next" be pressed while the grade is on its way, then waits for the server', async () => {
+  it('"Next" waits for the server while the next card is being fetched', async () => {
     const w = mount(AudioCard, { props: { card } })
     await w.get('[data-testid=option-0]').trigger('click')
+    await w.setProps({ result: answered(false) })
+    await w.get('[data-testid=continue-btn]').trigger('click')
     await w.setProps({ disabled: true })
-    const next = w.get('[data-testid=continue-btn]')
-    expect(next.attributes('disabled')).toBeUndefined()
-    expect(w.find('[data-testid=continue-waiting]').exists()).toBe(false)
 
-    await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
     expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeDefined()
     expect(w.get('[data-testid=continue-btn]').attributes('aria-busy')).toBe('true')
@@ -117,7 +145,6 @@ describe('AudioCard', () => {
 
     await w.get('[data-testid=continue-btn]').trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
-    expect(w.emitted('grade')).toEqual([[2, 'Хрупкий']])
   })
 
   it('does not take a pick while disabled', async () => {
@@ -126,7 +153,7 @@ describe('AudioCard', () => {
 
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    expect(w.emitted('grade')).toBeUndefined()
+    expect(w.emitted('pick')).toBeUndefined()
   })
 
   it('renders in Uzbek', async () => {
@@ -135,6 +162,7 @@ describe('AudioCard', () => {
     expect(w.text()).toContain('Nimani eshitdingiz?')
     expect(w.get('[data-testid=replay-hint]').text()).toBe('Qayta tinglash uchun bosing')
     await w.get('[data-testid=option-0]').trigger('click')
+    await w.setProps({ result: answered(false) })
     expect(w.get('[data-testid=continue-btn]').text()).toBe('Keyingisi')
   })
 })

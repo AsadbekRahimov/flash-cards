@@ -23,7 +23,8 @@ return [
             "• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.\n".
             ':caravan'.
             "• /stats — ваш отчёт за 7 дней\n".
-            '• /org — кабинет центра',
+            "• /org — кабинет центра\n".
+            '• /unlink — отключить этот Telegram от кабинета',
         // The last line of `private` for everybody who is not a linked teacher; left out without a support contact.
         'teacher_hint' => 'Вы учитель или владелец центра? Напишите нам: :contact',
         'group' => "LexiFlow в группе.\n\nКоманды учителя:\n".
@@ -69,9 +70,25 @@ return [
     // sender's Telegram language), `/start grp_<token>` / `/link <token>` in a group links it to the center (answered in the
     // center's language; every refusal — one neutral text, the reason is shown in the cabinet).
     'link' => [
-        'account_linked' => "✅ Telegram подключён к аккаунту :name.\n\nТеперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help.",
-        'account_taken' => 'Этот Telegram уже подключён к другому аккаунту кабинета. Сначала отключите его там (Профиль → «Отключить»), затем откройте ссылку снова.',
+        // The question before anything is connected (W2): the account is named by its masked e-mail, the cabinet by its centers.
+        'account_prompt' => "Подключить этот Telegram к кабинету центра :centers?\n\nАккаунт: :name (:email).\n\nПосле подключения бот будет считать вас сотрудником центра: в этом чате он перестанет отвечать вам как ученику. Отключить можно в любой момент командой /unlink.",
+        'account_prompt_no_center' => 'LexiFlow',
+        'account_yes' => 'Да, подключить',
+        'account_no' => 'Нет',
+        'account_declined' => 'Хорошо, ничего не подключено. Если передумаете — откройте ссылку из кабинета ещё раз.',
+        'account_linked' => "✅ Telegram подключён к аккаунту :name.\n\nТеперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help. Отключить: /unlink.",
+        'account_taken' => 'Этот Telegram уже подтверждён у другого аккаунта кабинета. Сначала отключите его там (Профиль → «Отключить» или /unlink здесь), затем откройте ссылку снова.',
         'account_refused' => 'Ссылка для подключения недействительна или устарела. Откройте кабинет центра → Профиль → «Подключить Telegram» и получите новую.',
+        // `/unlink`: the owner of the Telegram account disconnects it from the cabinet themselves.
+        'unlink_confirm' => 'Отключить этот Telegram от кабинета (аккаунт :name)? Бот перестанет узнавать вас как учителя и снова будет отвечать вам как ученику.',
+        'unlink_yes' => 'Да, отключить',
+        'unlink_no' => 'Нет',
+        'unlink_done' => 'Telegram отключён от аккаунта :name. Бот снова отвечает вам как ученику — отправьте /start.',
+        'unlink_none' => 'Этот Telegram не подключён ни к одному кабинету. Отключать нечего.',
+        'unlink_cancelled' => 'Хорошо, Telegram остаётся подключённым.',
+        // `/link` outside a group, and from an anonymous administrator.
+        'use_in_group' => 'Эту команду отправляют в группе, которую нужно привязать.',
+        'group_anonymous' => 'Отправьте команду от своего имени, не анонимно: бот должен узнать, кто её отправил.',
         'group_linked' => '✅ Группа «:title» привязана к центру «:organization».',
         'group_next_active' => 'Группа активна: команды учителя работают. Дальше выберите курс группы в кабинете: Группы → «Курс группы».',
         'group_next_pending' => 'Группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. Курс группы можно выбрать уже сейчас: кабинет → Группы → «Курс группы».',

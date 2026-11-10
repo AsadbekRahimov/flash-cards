@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Schema;
  *
  * Only the SHA-256 of the token is stored (a leaked table does not give usable links). `used_at` is set on success only;
  * refused attempts update `last_result` / `last_attempt_at` so the cabinet can tell the staff member why, while the bot's
- * answer in a group stays neutral (L8). Rows are small and short-lived; `telegram:purge-link-tokens` is not needed —
- * the issuing service deletes the user's expired rows of the same kind when it creates a new one.
+ * answer in a group stays neutral (L8). Rows are small and short-lived: the issuing service deletes the user's live rows of
+ * the same kind when it creates a new one, and `model:prune` (`TelegramLinkToken::prunable()`, daily in `routes/console.php`)
+ * deletes used and expired rows 30 days after they stopped being redeemable — a recent `last_result` is still shown to the
+ * owner in the cabinet until then.
  */
 return new class extends Migration
 {

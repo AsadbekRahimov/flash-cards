@@ -11,9 +11,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
 /**
- * DM "Center X invites you — Join / Decline" after the staff offered a membership (audit 2026-11-10 M2). Queued after commit; a
- * Telegram outage retries the job, a 403 marks the DM as closed and ends it. The offer is read again at send time: one that was
- * answered or revoked meanwhile is not sent. Auto-discovered (`app/Listeners`).
+ * DM "Center X invites you — Join / Decline" after the staff invited a learner (audit 2026-11-10 M2). Queued after commit; a
+ * Telegram outage retries the job, a 403 marks the DM as closed and ends it. The invitation is read again at send time: one
+ * that was answered or revoked meanwhile is not sent. Auto-discovered (`app/Listeners`).
  */
 final class SendMemberInviteMessage implements ShouldQueue
 {
@@ -47,6 +47,6 @@ final class SendMemberInviteMessage implements ShouldQueue
 
     public function handle(OrganizationMemberInvited $event): void
     {
-        $this->sendDm(fn () => $this->messenger->offerMembership($event->memberId));
+        $this->sendDm(fn () => $this->messenger->offerMembership($event->invitationId));
     }
 }

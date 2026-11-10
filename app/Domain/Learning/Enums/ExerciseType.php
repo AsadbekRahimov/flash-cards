@@ -52,6 +52,16 @@ enum ExerciseType: string
         return $this === self::Pretest;
     }
 
+    /**
+     * The card is sent without what gives the right option away (docs/06 §12.2): reverse — the word (the right option), its
+     * example, transcription, audio and hooks; audio — the translation, the example and the hooks. They come back with
+     * the verdict of `POST /review` (`revealed`).
+     */
+    public function hidesChoiceAnswer(): bool
+    {
+        return $this === self::Reverse || $this === self::Audio;
+    }
+
     /** Four options, one right: the pick is the answer (reverse, audio, pretest). */
     public function isChoice(): bool
     {

@@ -9,9 +9,9 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Services\BotSupportContact;
+use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
-use App\Models\User;
 
 final class HelpCommandHandler implements GroupUpdateHandler
 {
@@ -20,6 +20,7 @@ final class HelpCommandHandler implements GroupUpdateHandler
         private readonly LocaleResolver $locales,
         private readonly GameAccess $game,
         private readonly BotSupportContact $support,
+        private readonly DmLearnerResolver $learners,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -51,12 +52,12 @@ final class HelpCommandHandler implements GroupUpdateHandler
             $fromId = (int) ($message['from']['id'] ?? 0);
             $languageCode = $message['from']['language_code'] ?? null;
             // The language the learner has chosen; for anybody else (a teacher, a person who never started) the Telegram one.
-            // A teacher is anybody with a linked account, active or not: the rule of DmLearnerResolver, so /help and /today agree.
+            // Who is a teacher is the rule of DmLearnerResolver::isStaff(), so /help and /today agree.
             $learner = $fromId > 0 ? Learner::query()->where('telegram_user_id', $fromId)->first() : null;
             $locale = $learner !== null
                 ? $this->locales->forLearner($learner)
                 : $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
-            $text = $fromId > 0 && User::query()->where('telegram_user_id', $fromId)->exists()
+            $text = $this->learners->isStaff($fromId)
                 ? __('bot.help.private_teacher', ['caravan' => $this->caravan('bot.help.private_caravan', $locale)], $locale)
                 : $this->learnerHelp($locale);
         } else {

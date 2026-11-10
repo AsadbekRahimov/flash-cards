@@ -104,6 +104,7 @@ final class ReviewSubmissionService
      * @param  string|null  $serveToken  `card.serve_token` echoed by the client; ignored for due cards
      * @param  Entitlement|null  $entitlement  the learner's plan when the caller read it already (TrainingFlowService
      *                                         reads it once per request for the grade and the next card)
+     * @param  ExerciseType|null  $declared  the exercise the client showed; another one than the server's → 409 `exercise_mismatch`
      *
      * @throws ReviewSubmissionException
      */
@@ -116,8 +117,9 @@ final class ReviewSubmissionService
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
         ?Entitlement $entitlement = null,
+        ?ExerciseType $declared = null,
     ): WordRepetition {
-        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement)->repetition;
+        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement, $declared)->repetition;
     }
 
     /**
@@ -134,8 +136,9 @@ final class ReviewSubmissionService
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
         ?Entitlement $entitlement = null,
+        ?ExerciseType $declared = null,
     ): AcceptedReview {
-        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now, $entitlement);
+        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
     }
 
     /**
@@ -153,6 +156,7 @@ final class ReviewSubmissionService
         ?string $serveToken,
         ?CarbonImmutable $now,
         ?Entitlement $entitlement,
+        ?ExerciseType $declared = null,
     ): AcceptedReview {
         $now ??= CarbonImmutable::now();
         $entitlement ??= $this->entitlements->for($learner, $now);
@@ -179,6 +183,7 @@ final class ReviewSubmissionService
             $scheduler,
             $scope,
             $locale,
+            $declared,
         ): AcceptedReview {
             // The lock on the session row orders this grade against `/finish` (docs/06 §5.1): what is read under it
             // is only what can change - the status and the expiry. Mode and lesson are fixed at creation; the
@@ -245,6 +250,17 @@ final class ReviewSubmissionService
                 crc32($repetition->repetitions.':'.$word->id),
                 $example,
             );
+
+            // The client says which exercise it showed (`exercise` of POST /review): the plan may have changed since the serve
+            // (Pro -> Free), and a typed text must not be graded as the pick of four options, or the other way round.
+            if ($declared !== null && $declared !== $exercise) {
+                throw new ReviewSubmissionException(
+                    409,
+                    'exercise_mismatch',
+                    'The exercise of this card has changed; fetch the card again.',
+                );
+            }
+
             $verdict = null;
 
             if ($answer !== null) {
@@ -253,6 +269,11 @@ final class ReviewSubmissionService
             } else {
                 $quality = $this->acceptQuality($exercise, (int) $quality);
             }
+
+            // What the serve showed, read before the grade moves the card (a hook is shown on a new / failed / hard card).
+            $wasLeech = $this->ladder->isLeech($repetition);
+            $showsHook = $this->ladder->hooksEnabled
+                && ($wasLeech || (bool) $repetition->is_hard || $repetition->state !== RepetitionState::Review);
 
             // First grade of a card that was only served so far (docs/12 §3.3).
             $isNewCard = $repetition->state === RepetitionState::New;
@@ -287,7 +308,11 @@ final class ReviewSubmissionService
                 ], learner: $learner));
             }
 
-            return new AcceptedReview($repetition, $exercise, $verdict);
+            if (! $exercise->hidesChoiceAnswer()) {
+                return new AcceptedReview($repetition, $exercise, $verdict);
+            }
+
+            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech);
         });
     }
 

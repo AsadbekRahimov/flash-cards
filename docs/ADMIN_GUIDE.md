@@ -52,7 +52,11 @@ Navigate to **Users** (Сотрудники) in the left sidebar.
 > who owns the account, so the person cannot link a group to a center with it. The user confirms the account themselves with the
 > **Connect Telegram** (Подключить Telegram) button in their `/org` profile: they open the one-time link in Telegram and press
 > Start, the bot writes the ID of the account that opened it and marks it verified. The **Telegram verified** column of the user
-> list shows which accounts did that. Clearing or changing the ID here makes the account unverified again.
+> list shows which accounts did that. Clearing or changing the ID here makes the account unverified again. A typed ID never
+> switches a learner's bot off: if a learner uses that Telegram, the bot keeps treating them as a learner (the teacher's group
+> commands still work for the typed ID). When the real owner of the Telegram confirms it through the bot, the typed ID is taken
+> from this user (audit `user.telegram_superseded`; their profile says "Telegram отключён: аккаунт подтвердил другой
+> пользователь"). Only a verified Telegram gets the subscription-renewal DM; an unverified owner gets the e-mail only.
 
 ### Assign a teacher to a group
 1. Open the teacher's user record.
@@ -685,10 +689,12 @@ status change is written to the audit log (`organization.status_changed`). An or
 deleted (the Delete button explains why): revoke the subscription and unlink the groups, or just suspend it.
 Changes apply within seconds.
 
-**Members table statuses.** Besides `active`, `left` and `removed` the table shows `invited` (Ожидает согласия) and `declined`
-(Отклонил). A center's staff adds a learner by @username or Telegram ID as an *offer*: the learner gets a message in the bot and
-becomes a member only when they press **Join**. An offered or declined learner holds no seat, has no sponsored Pro and is not
-counted in "active members" or in the seats widget. The table shows `active` by default; pick the status in the filter to see offers.
+**Members table statuses.** The table lists memberships only: `active`, `left` and `removed` (`active` by default). A center's
+staff adds a learner by @username or Telegram ID as an *invitation* (`organization_member_invitations`, not a member row): the
+learner gets a message in the bot and becomes a member — a row here — only when they press **Join**. An invited learner holds no
+seat, has no sponsored Pro and is not counted anywhere; the center's cabinet sees only what its staff typed and "waiting / expired",
+never whether the learner exists or declined (the cabinet must not be an oracle of who uses LexiFlow). Invitations are not shown
+in `/admin`; the audit log keeps `organization.member_invited` / `organization.member_invite_revoked` with the handle.
 
 ---
 

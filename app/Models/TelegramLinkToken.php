@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $used_at
  * @property string|null $last_result
  * @property Carbon|null $last_attempt_at
+ * @property int|null $prompted_telegram_user_id the `from.id` the bot asked "Connect?" — "Yes" is accepted from it alone
  * @property-read User $user
  * @property-read Organization|null $organization
  */
@@ -52,6 +53,7 @@ class TelegramLinkToken extends Model
         'used_at',
         'last_result',
         'last_attempt_at',
+        'prompted_telegram_user_id',
     ];
 
     /** @return array<string, string> */
@@ -63,6 +65,7 @@ class TelegramLinkToken extends Model
             'expires_at' => 'datetime',
             'used_at' => 'datetime',
             'last_attempt_at' => 'datetime',
+            'prompted_telegram_user_id' => 'integer',
         ];
     }
 

@@ -9,6 +9,7 @@ use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\Subscription;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -16,8 +17,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 /*
- * Offers to learners (`invited`, `declined`) in `/admin` (audit 2026-11-10 M2): they have captions and a filter option, and are
- * not seats; and the Telegram verification of a user in the user list.
+ * Invitations of learners (audit 2026-11-10 M2, review finding B1) in `/admin`: they are not memberships — the members table
+ * lists present and past memberships only, the seats widget counts seats only — and the Telegram verification of a user in the
+ * user list.
  */
 
 uses(RefreshDatabase::class);
@@ -32,31 +34,24 @@ beforeEach(function (): void {
     Subscription::factory()->forOrganization($this->org)->create(['current_period_ends_at' => null, 'tier' => 'tutor', 'seats_limit' => 30]);
 });
 
-it('captions the offered and declined members and filters by them', function (): void {
-    $invited = OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create(['first_name' => 'Offered'])->id, 'status' => 'invited', 'seat_state' => 'none']);
-    $declined = OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create(['first_name' => 'Refused'])->id, 'status' => 'declined', 'seat_state' => 'none']);
+it('lists memberships only: an invitation is no row of the members table and no status of its filter', function (): void {
     $active = OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'active', 'seat_state' => 'seated']);
+    $left = OrganizationMember::factory()->left()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create(['first_name' => 'Gone'])->id]);
+    OrganizationMemberInvitation::factory()->create(['organization_id' => $this->org->id, 'invited_handle' => '@offered_one', 'learner_id' => Learner::factory()->create(['first_name' => 'Offered'])->id]);
 
     $manager = fn () => Livewire::test(MembersRelationManager::class, ['ownerRecord' => $this->org, 'pageClass' => EditOrganization::class]);
 
-    $manager()->assertCanSeeTableRecords([$active])->assertCanNotSeeTableRecords([$invited, $declined]);
+    $manager()->assertCanSeeTableRecords([$active])->assertCanNotSeeTableRecords([$left])->assertDontSee('Offered')->assertDontSee('@offered_one');
+    $manager()->filterTable('status', 'left')->assertCanSeeTableRecords([$left])->assertCanNotSeeTableRecords([$active])->assertSee('Вышел');
 
-    $manager()->filterTable('status', 'invited')
-        ->assertCanSeeTableRecords([$invited])->assertCanNotSeeTableRecords([$active, $declined])
-        ->assertSee('Ожидает согласия');
-
-    $manager()->filterTable('status', 'declined')
-        ->assertCanSeeTableRecords([$declined])->assertCanNotSeeTableRecords([$active, $invited])
-        ->assertSee('Отклонил');
+    expect(__('admin.organizations.members.status'))->toBe(['active' => 'Активен', 'left' => 'Вышел', 'removed' => 'Удалён']);
 });
 
-it('does not count an offered or declined learner as a seat or an active member of the center', function (): void {
+it('does not count an invited learner as a seat or an active member of the center', function (): void {
     OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'active', 'seat_state' => 'seated']);
-    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'invited', 'seat_state' => 'none']);
-    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'declined', 'seat_state' => 'none']);
+    OrganizationMemberInvitation::factory()->count(3)->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id]);
     // A forged combination: whatever `seat_state` says, only an active member holds a seat.
-    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'invited', 'seat_state' => 'seated']);
-    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'declined', 'seat_state' => 'waitlisted']);
+    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'left', 'seat_state' => 'seated']);
 
     $row = collect(app(AdminDashboardStats::class)->organizationSeats(1, 10))->firstWhere('id', $this->org->id);
 

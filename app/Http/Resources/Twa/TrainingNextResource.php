@@ -6,6 +6,7 @@ namespace App\Http\Resources\Twa;
 
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\DTO\TrainingStep;
+use App\Domain\Learning\Enums\ExerciseType;
 use Illuminate\Http\Request;
 
 /**
@@ -34,20 +35,25 @@ final class TrainingNextResource extends TwaResource
         $hidesWord = $prompt !== null && $prompt->type->hidesWord();
         // Pretest: the meaning is the answer — the translation, the example and the hooks wait for the verdict (docs/06 §12.7).
         $hidesTranslation = $prompt !== null && $prompt->type->hidesTranslation();
-        $hidden = $hidesWord || $hidesTranslation;
+        // Reverse / audio: the picked option is graded by the server, so the card carries nothing that gives the right option
+        // away — reverse: the word is the answer (and its example, transcription, audio), audio: the translation (and the example).
+        // Both come back as `revealed` in POST /review (docs/06 §12.2). The hooks and the note may name either, so they wait too.
+        $hidesChoice = $prompt !== null && $prompt->type->hidesChoiceAnswer();
+        $reverse = $prompt?->type === ExerciseType::Reverse;
+        $hidden = $hidesWord || $hidesTranslation || $hidesChoice;
 
         return [
             'card' => $word !== null ? [
                 'word_id' => (int) $word->id,
-                'word' => $hidesWord ? '' : $word->word,
-                'translation' => $hidesTranslation ? '' : ($translation->text ?? $word->translation),
+                'word' => $hidesWord || $reverse ? '' : $word->word,
+                'translation' => $hidesTranslation || ($hidesChoice && ! $reverse) ? '' : ($translation->text ?? $word->translation),
                 // true: the text is the ru fallback because the session's language has no translation yet.
                 'translation_fallback' => $translation->isFallback ?? false,
                 // The example of this serve (docs/06 §12.4): the anchor until graduation, then the rotation.
                 'example' => $hidden ? null : $this->resource->example,
-                'transcription' => $hidesWord ? null : $word->transcription,
+                'transcription' => $hidesWord || $reverse ? null : $word->transcription,
                 // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
-                'audio_url' => $hidesWord ? null : $this->resource->audioUrl,
+                'audio_url' => $hidesWord || $reverse ? null : $this->resource->audioUrl,
                 'card_kind' => (string) $this->resource->kind,
                 // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).
                 'serve_token' => $this->resource->serveToken,

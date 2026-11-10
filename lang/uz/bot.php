@@ -23,7 +23,8 @@ return [
             "• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
             ':caravan'.
             "• /stats — 7 kunlik hisobotingiz\n".
-            '• /org — markaz kabineti',
+            "• /org — markaz kabineti\n".
+            '• /unlink — bu Telegramni kabinetdan uzish',
         // The last line of `private` for everybody who is not a linked teacher; left out without a support contact.
         'teacher_hint' => "Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact",
         'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
@@ -69,13 +70,29 @@ return [
     // sender's Telegram language), `/start grp_<token>` / `/link <token>` in a group links it to the center (answered in the
     // center's language; every refusal — one neutral text, the reason is shown in the cabinet).
     'link' => [
-        'account_linked' => "✅ Telegram :name akkauntiga ulandi.\n\nEndi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang.",
-        'account_taken' => "Bu Telegram kabinetning boshqa akkauntiga ulangan. Avval uni o'sha yerda uzing (Profil → «Uzish»), so'ng havolani qayta oching.",
+        // The question before anything is connected (W2): the account is named by its masked e-mail, the cabinet by its centers.
+        'account_prompt' => "Bu Telegramni :centers markazi kabinetiga ulaysizmi?\n\nAkkaunt: :name (:email).\n\nUlangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin.",
+        'account_prompt_no_center' => 'LexiFlow',
+        'account_yes' => 'Ha, ulash',
+        'account_no' => "Yo'q",
+        'account_declined' => "Mayli, hech narsa ulanmadi. Fikringiz o'zgarsa — kabinetdagi havolani qayta oching.",
+        'account_linked' => "✅ Telegram :name akkauntiga ulandi.\n\nEndi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang. Uzish: /unlink.",
+        'account_taken' => "Bu Telegram kabinetning boshqa akkauntida tasdiqlangan. Avval uni o'sha yerda uzing (Profil → «Uzish» yoki shu yerda /unlink), so'ng havolani qayta oching.",
         'account_refused' => 'Ulash havolasi yaroqsiz yoki eskirgan. Markaz kabinetini oching → Profil → «Telegramni ulash» va yangi havola oling.',
         'group_linked' => "✅ «:title» guruhi «:organization» markaziga bog'landi.",
         'group_next_active' => "Guruh faol: o'qituvchi buyruqlari ishlaydi. Endi kabinetda guruh kursini tanlang: Guruhlar → «Guruh kursi».",
         'group_next_pending' => "Guruh LexiFlow administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi».",
         'group_refused' => "Guruhni bog'lab bo'lmadi. Markaz kabinetini oching → Guruhlar → «Guruhni bog'lash»: u yerda sababi ko'rinadi va yangi havola olish mumkin.",
+        // `/unlink`: the owner of the Telegram account disconnects it from the cabinet themselves.
+        'unlink_confirm' => "Bu Telegramni kabinetdan uzasizmi (akkaunt: :name)? Bot Sizni o'qituvchi sifatida tanimay qo'yadi va yana o'quvchi sifatida javob beradi.",
+        'unlink_yes' => 'Ha, uzish',
+        'unlink_no' => "Yo'q",
+        'unlink_done' => "Telegram :name akkauntidan uzildi. Bot yana Sizga o'quvchi sifatida javob beradi — /start yuboring.",
+        'unlink_none' => "Bu Telegram hech bir kabinetga ulanmagan. Uzadigan narsa yo'q.",
+        'unlink_cancelled' => 'Mayli, Telegram ulangan holda qoladi.',
+        // `/link` outside a group, and from an anonymous administrator.
+        'use_in_group' => "Bu buyruq bog'lanishi kerak bo'lgan guruhda yuboriladi.",
+        'group_anonymous' => "Buyruqni anonim emas, o'z nomingizdan yuboring: bot kim yuborganini bilishi kerak.",
     ],
 
     'account' => [

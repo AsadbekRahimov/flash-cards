@@ -662,6 +662,8 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'new_interval_days',
             'easiness_factor',
             'graded',
+            // null for a flash card; a reverse / audio card gets what it was sent without (docs/06 §12.2, LearningMethodTest).
+            'revealed',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',

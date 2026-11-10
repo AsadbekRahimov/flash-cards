@@ -47,6 +47,10 @@ const reviewed = (overrides: Partial<ReviewResponse> = {}): ReviewResponse => ({
   ...overrides,
 })
 
+/** The answer to the pick of a four-choice card: the server's verdict is always there (the card has no right option in it). */
+const choiceReviewed = (overrides: Partial<ReviewResponse> = {}): ReviewResponse =>
+  reviewed({ graded: { quality: 2, correct: false, expected: 'resilient' }, ...overrides })
+
 async function startWith(first: Card): Promise<ReturnType<typeof useTrainingStore>> {
   const store = useTrainingStore()
   vi.mocked(api.training.start).mockResolvedValue({
@@ -82,7 +86,7 @@ describe('training store — exercises', () => {
 
     await store.submitAnswer('resiliant')
 
-    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'resiliant', expect.any(Number), null)
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'resiliant', expect.any(Number), null, 'spelling')
     expect(api.training.review).not.toHaveBeenCalled()
     expect(store.status).toBe('verdict')
     expect(store.verdict).toEqual({ quality: 4, correct: true, expected: 'resilient' })
@@ -147,7 +151,7 @@ describe('training store — exercises', () => {
 
     await store.submitReview(4)
 
-    expect(api.training.review).toHaveBeenCalledWith(1, 7, 4, expect.any(Number), null)
+    expect(api.training.review).toHaveBeenCalledWith(1, 7, 4, expect.any(Number), null, 'reverse')
     expect(store.status).toBe('ready')
     expect(store.card?.word_id).toBe(8)
     expect(store.verdict).toBeNull()
@@ -235,12 +239,12 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
 
   it('sends the picked option at once (the server grades it), with the ticket of the card it was made on, and holds back the card of the answer', async () => {
     const store = await startWith(reverse)
-    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ new_interval_days: 0 }))
+    vi.mocked(api.training.answer).mockResolvedValueOnce(choiceReviewed({ new_interval_days: 0 }))
 
-    await store.submitChoice(2, 'c')
+    await store.submitChoice('c')
 
     expect(api.training.answer).toHaveBeenCalledTimes(1)
-    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'c', expect.any(Number), 'ticket-7')
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'c', expect.any(Number), 'ticket-7', 'reverse')
     expect(store.status).toBe('held')
     // Nothing new on screen yet: the learner is still looking at the right answer of this card.
     expect(store.card?.word_id).toBe(7)
@@ -254,8 +258,8 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
 
   it('continueAfterChoice shows the held card, sends nothing more, and a second call changes nothing', async () => {
     const store = await startWith(reverse)
-    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed())
-    await store.submitChoice(2, 'c')
+    vi.mocked(api.training.answer).mockResolvedValueOnce(choiceReviewed())
+    await store.submitChoice('c')
 
     store.continueAfterChoice()
 
@@ -274,7 +278,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('"Next" before the answer came back: the card is shown the moment the answer arrives, nothing is sent twice', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const sending = store.submitChoice(2, 'c')
+    const sending = store.submitChoice('c')
     expect(store.status).toBe('submitting')
 
     store.continueAfterChoice()
@@ -283,7 +287,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
     expect(store.status).toBe('submitting')
     expect(store.card?.word_id).toBe(7)
 
-    answer.resolve(reviewed())
+    answer.resolve(choiceReviewed())
     await sending
 
     expect(store.status).toBe('ready')
@@ -296,9 +300,9 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('without a "Next" the answer that comes back stays held', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const sending = store.submitChoice(4, 'resilient')
+    const sending = store.submitChoice('resilient')
 
-    answer.resolve(reviewed())
+    answer.resolve(choiceReviewed())
     await sending
 
     expect(store.status).toBe('held')
@@ -317,23 +321,23 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('does not send a second grade for a card whose grade is on its way or held', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const first = store.submitChoice(2, 'c')
+    const first = store.submitChoice('c')
 
-    await store.submitChoice(4, 'resilient')
+    await store.submitChoice('resilient')
     expect(api.training.answer).toHaveBeenCalledTimes(1)
 
-    answer.resolve(reviewed())
+    answer.resolve(choiceReviewed())
     await first
     expect(store.status).toBe('held')
 
-    await store.submitChoice(4, 'resilient')
+    await store.submitChoice('resilient')
     expect(api.training.answer).toHaveBeenCalledTimes(1)
   })
 
   it('ends the session after "Next" when the held answer had no card', async () => {
     const store = await startWith(reverse)
-    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ card: null, done_reason: 'lesson_complete' }))
-    await store.submitChoice(2, 'c')
+    vi.mocked(api.training.answer).mockResolvedValueOnce(choiceReviewed({ card: null, done_reason: 'lesson_complete' }))
+    await store.submitChoice('c')
 
     // The grade is saved, but the end of the session waits until the learner has read the answer.
     expect(store.status).toBe('held')
@@ -348,10 +352,10 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
 
   it('an older server that sends no card: "Next" asks /next for it', async () => {
     const store = await startWith(reverse)
-    const { card: _unused, ...withoutCard } = reviewed()
+    const { card: _unused, ...withoutCard } = choiceReviewed()
     vi.mocked(api.training.answer).mockResolvedValueOnce(withoutCard)
     vi.mocked(api.training.next).mockResolvedValueOnce({ card: card({ word_id: 9 }), progress: { done: 1, total: 3 } })
-    await store.submitChoice(4, 'resilient')
+    await store.submitChoice('resilient')
 
     expect(store.status).toBe('held')
     expect(store.deferred).toBeNull()
@@ -367,7 +371,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('a grade that fails goes the usual error way, and the held-back "Next" does not outlive it', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const sending = store.submitChoice(2, 'c')
+    const sending = store.submitChoice('c')
     store.continueAfterChoice()
 
     answer.reject(new ApiClientError('network', 0, 'unknown', 'fetch failed'))
@@ -381,8 +385,8 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
     vi.mocked(api.training.next).mockResolvedValueOnce({ card: reverse, progress: { done: 0, total: 3 } })
     await store.loadNext()
     expect(store.status).toBe('ready')
-    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed())
-    await store.submitChoice(4, 'resilient')
+    vi.mocked(api.training.answer).mockResolvedValueOnce(choiceReviewed())
+    await store.submitChoice('resilient')
     expect(store.status).toBe('held')
   })
 
@@ -391,7 +395,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
     vi.mocked(api.training.answer).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'card_not_due', 'Card is not due.'))
     vi.mocked(api.training.next).mockResolvedValueOnce({ card: card({ word_id: 8 }), progress: { done: 0, total: 3 } })
 
-    await store.submitChoice(4, 'resilient')
+    await store.submitChoice('resilient')
 
     expect(store.status).toBe('ready')
     expect(store.card?.word_id).toBe(8)
@@ -401,7 +405,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('drops an answer that comes back for an earlier session', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const sending = store.submitChoice(2, 'c')
+    const sending = store.submitChoice('c')
 
     // The learner left and started another session while the grade was on its way.
     vi.mocked(api.training.start).mockResolvedValueOnce({
@@ -415,7 +419,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
     await store.start(2)
     expect(store.status).toBe('ready')
 
-    answer.resolve(reviewed({ card: card({ word_id: 99 }), progress: { done: 5, total: 5 } }))
+    answer.resolve(choiceReviewed({ card: card({ word_id: 99 }), progress: { done: 5, total: 5 } }))
     await sending
 
     expect(store.sessionId).toBe(2)
@@ -429,7 +433,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
   it('drops a failure that comes back for an earlier session as well', async () => {
     const store = await startWith(reverse)
     const answer = pendingReview()
-    const sending = store.submitChoice(2, 'c')
+    const sending = store.submitChoice('c')
     vi.mocked(api.training.start).mockResolvedValueOnce({
       session_id: 2, mode: 'daily_review', lesson: null, total_words: 10, card: card({ word_id: 21 }), progress: { done: 0, total: 10 },
     })
@@ -444,8 +448,8 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
 
   it('forgets the held answer and a pending "Next" with the session', async () => {
     const store = await startWith(reverse)
-    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed())
-    await store.submitChoice(4, 'resilient')
+    vi.mocked(api.training.answer).mockResolvedValueOnce(choiceReviewed())
+    await store.submitChoice('resilient')
     expect(store.status).toBe('held')
 
     await store.start(2)
@@ -470,7 +474,7 @@ describe('training store — the method (docs/06 §12)', () => {
     const store = await startWith(reverse)
     vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ graded: { quality: 2, correct: false, expected: 'resilient' } }))
 
-    await store.submitChoice(2, 'c')
+    await store.submitChoice('c')
 
     expect(store.status).toBe('held')
     expect(store.verdict).toBeNull()
@@ -487,7 +491,7 @@ describe('training store — the method (docs/06 §12)', () => {
 
     await store.submitAnswer('Устойчивый')
 
-    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'Устойчивый', expect.any(Number), null)
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'Устойчивый', expect.any(Number), null, 'pretest')
     expect(store.status).toBe('verdict')
     expect(store.lastExercise).toBe('pretest')
     expect(store.verdict?.expected).toBe('Устойчивый')
@@ -526,3 +530,83 @@ describe('training store — the method (docs/06 §12)', () => {
   })
 })
 
+
+describe('training store — the answer to a four-choice card and the exercise the client shows', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  const audio = card({
+    word: 'resilient',
+    translation: '',
+    prompt: { type: 'audio', front: '', masked_example: null, options: ['a', 'Устойчивый', 'c', 'd'], answer_length: null },
+  })
+  const revealed = {
+    word: 'resilient', translation: 'Устойчивый', correct: 'Устойчивый', example: 'She is resilient.', transcription: null,
+    audio_url: null, hook: 'hint', note: null, confused_with: null,
+  }
+
+  it('keeps the verdict and what the card was sent without as `choiceResult` until the next card is shown', async () => {
+    const store = await startWith(audio)
+    vi.mocked(api.training.answer).mockResolvedValueOnce(
+      reviewed({ graded: { quality: 4, correct: true, expected: 'устойчивый' }, revealed }),
+    )
+
+    await store.submitChoice('Устойчивый')
+
+    expect(store.status).toBe('held')
+    // The exact text of the right option comes from `revealed`; `graded.expected` is normalised.
+    expect(store.choiceResult).toEqual({ correct: true, right: 'Устойчивый', revealed })
+
+    store.continueAfterChoice()
+    expect(store.choiceResult).toBeNull()
+    expect(store.card?.word_id).toBe(8)
+  })
+
+  it('takes the right option from `graded.expected` when the server sent no `revealed`', async () => {
+    const store = await startWith(audio)
+    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ graded: { quality: 2, correct: false, expected: 'устойчивый' } }))
+
+    await store.submitChoice('a')
+
+    expect(store.choiceResult).toEqual({ correct: false, right: 'устойчивый', revealed: null })
+  })
+
+  it('goes on to the next card at once when the answer carries no verdict (nothing to colour the options by)', async () => {
+    const store = await startWith(audio)
+    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ graded: null }))
+
+    await store.submitChoice('a')
+
+    expect(store.status).toBe('ready')
+    expect(store.choiceResult).toBeNull()
+    expect(store.card?.word_id).toBe(8)
+  })
+
+  it('tells the server which exercise was shown: the prompt type of the card, flash when there is none', async () => {
+    const store = await startWith(card({}))
+    vi.mocked(api.training.review).mockResolvedValueOnce(reviewed())
+    await store.submitReview(4)
+    expect(vi.mocked(api.training.review).mock.calls[0]?.[5]).toBe('flash')
+
+    store.applyCard(audio)
+    vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ graded: { quality: 2, correct: false, expected: 'x' } }))
+    await store.submitChoice('a')
+    expect(vi.mocked(api.training.answer).mock.calls[0]?.[5]).toBe('audio')
+  })
+
+  it('on 409 exercise_mismatch (the plan changed mid-session) fetches the card again, with no error', async () => {
+    const store = await startWith(spelling)
+    vi.mocked(api.training.answer).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'exercise_mismatch', 'x'))
+    vi.mocked(api.training.next).mockResolvedValueOnce({ card: audio, progress: { done: 0, total: 3 } })
+
+    await store.submitAnswer('resilient')
+
+    expect(api.training.next).toHaveBeenCalledTimes(1)
+    expect(store.status).toBe('ready')
+    expect(store.exercise).toBe('audio')
+    expect(store.errorMessage).toBe('')
+    expect(store.reviewedCount).toBe(0)
+  })
+})

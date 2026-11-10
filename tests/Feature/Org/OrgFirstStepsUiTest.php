@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Domain\Telegram\Services\TelegramAccountLinkService;
 use App\Filament\Org\Pages\Dashboard;
 use App\Filament\Org\Pages\OrgProfile;
 use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
@@ -137,18 +138,35 @@ it('renders the checklist on the dashboard and runs three queries for it', funct
 
 // --- the profile ------------------------------------------------------------------------------------
 
-it('polls the status block of the profile every 10 seconds only until Telegram is verified', function (): void {
+it('polls the status block of the profile every 10 seconds only while a live link waits for the bot, never forever', function (): void {
     $user = fsStaff($this->org, OrganizationRole::Owner, ['telegram_user_id' => 99, 'telegram_verified_at' => null]);
     fsEnter($user, $this->org);
 
-    $page = Livewire::test(OrgProfile::class)->assertSeeHtml('wire:poll.10s')->assertSee('не подтверждён');
+    // No link issued: nothing to wait for, no polling.
+    Livewire::test(OrgProfile::class)->assertDontSeeHtml('wire:poll')->assertSee('не подтверждён');
+
+    app(TelegramAccountLinkService::class)->issueLink($user);
+    $page = Livewire::test(OrgProfile::class)->assertSeeHtml('wire:poll.10s');
 
     // The bot confirms while the page is open: the next poll shows it and the poll is gone.
     User::query()->whereKey($user->id)->update(['telegram_verified_at' => now(), 'telegram_username' => 'sardor']);
     $page->call('$refresh')->assertSee('@sardor')->assertDontSeeHtml('wire:poll');
 
+    // A link that expired unspent: the poll stops too.
     fsEnter($this->owner, $this->org);
-    Livewire::test(OrgProfile::class)->assertSeeHtml('wire:poll.10s')->assertSee('Telegram не подключён');
+    app(TelegramAccountLinkService::class)->issueLink($this->owner);
+    $page = Livewire::test(OrgProfile::class)->assertSeeHtml('wire:poll.10s')->assertSee('Telegram не подключён');
+    $this->travel(16)->minutes();
+    $page->call('$refresh')->assertDontSeeHtml('wire:poll');
+});
+
+it('tells a user whose hand-typed id was confirmed by somebody else why Telegram is disconnected', function (): void {
+    $user = fsStaff($this->org, OrganizationRole::Owner, ['telegram_user_id' => null, 'telegram_superseded_at' => now()]);
+    fsEnter($user, $this->org);
+
+    Livewire::test(OrgProfile::class)
+        ->assertSee('Telegram отключён: этот аккаунт Telegram подтвердил другой пользователь.')
+        ->assertDontSeeHtml('wire:poll');
 });
 
 // Filament draws the body of a modal in the browser, so a component test checks the mounted action and its fields, and the

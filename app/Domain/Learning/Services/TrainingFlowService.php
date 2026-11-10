@@ -16,11 +16,14 @@ use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
+use App\Domain\Learning\DTO\AcceptedReview;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
+use App\Domain\Learning\DTO\RevealedCard;
 use App\Domain\Learning\DTO\ReviewOutcome;
 use App\Domain\Learning\DTO\TrainingStart;
 use App\Domain\Learning\DTO\TrainingStep;
 use App\Domain\Learning\Enums\DoneReason;
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LadderPolicy;
@@ -255,11 +258,12 @@ final class TrainingFlowService
         int $quality,
         int $timeSpentMs,
         ?string $serveToken = null,
+        ?ExerciseType $declared = null,
     ): ReviewOutcome {
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
-        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement);
+        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
 
         return new ReviewOutcome($repetition, $this->nextStep($session, $learner, null, $entitlement));
     }
@@ -277,12 +281,45 @@ final class TrainingFlowService
         string $answer,
         int $timeSpentMs,
         ?string $serveToken = null,
+        ?ExerciseType $declared = null,
     ): ReviewOutcome {
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
-        $accepted = $this->reviews->submitAnswer($session, $learner, $wordId, $answer, $timeSpentMs, $serveToken, $now, $entitlement);
+        $accepted = $this->reviews->submitAnswer($session, $learner, $wordId, $answer, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
 
-        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner, null, $entitlement), $accepted->verdict);
+        return new ReviewOutcome(
+            $accepted->repetition,
+            $this->nextStep($session, $learner, null, $entitlement),
+            $accepted->verdict,
+            $this->revealed($accepted),
+        );
+    }
+
+    /**
+     * What the answered reverse / audio card was sent without (docs/06 §12.2). Read after the grade is committed: the hook comes
+     * from the cache and the confusable pair from one indexed query, neither belongs under the row locks.
+     */
+    private function revealed(AcceptedReview $accepted): ?RevealedCard
+    {
+        $word = $accepted->word;
+        $translation = $accepted->translation;
+        if ($word === null || $translation === null) {
+            return null;
+        }
+
+        $reverse = $accepted->exercise === ExerciseType::Reverse;
+
+        return new RevealedCard(
+            word: $word->word,
+            translation: $translation->text,
+            correct: $reverse ? trim($word->word) : trim($translation->text),
+            example: $accepted->example,
+            transcription: $word->transcription,
+            audioUrl: $this->audio->urlFor($word),
+            hook: $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
+            note: $this->ladder->hooksEnabled ? self::text($accepted->repetition->note) : null,
+            confusedWith: $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
+        );
     }
 }

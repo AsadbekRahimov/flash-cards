@@ -361,16 +361,18 @@ it('reports a Telegram outage to the owner only and changes nothing; the token s
         ->and(TelegramLinkToken::query()->sole()->used_at)->toBeNull();
 });
 
-it('refuses /link in a private chat, /link with no code, and a forged payload with foreign characters — all neutrally or silently', function (): void {
+it('refuses /link in a private chat (and says where it goes), /link with no code, and a forged payload with foreign characters — neutrally', function (): void {
     $link = oglLink();
 
     app(TelegramDispatcher::class)->dispatch(['message' => [
         'chat' => ['id' => OGL_OWNER_TG, 'type' => 'private'],
-        'from' => ['id' => OGL_OWNER_TG],
+        'from' => ['id' => OGL_OWNER_TG, 'language_code' => 'ru'],
         'text' => '/link '.$link->code,
     ]]);
     expect($this->group->fresh()?->organization_id)->toBeNull()
-        ->and(TelegramLinkToken::query()->sole()->used_at)->toBeNull();
+        ->and(TelegramLinkToken::query()->sole()->used_at)->toBeNull()
+        ->and(oglLastText())->toBe('Эту команду отправляют в группе, которую нужно привязать.')
+        ->and(end($this->tg->sent)['chat_id'])->toBe(OGL_OWNER_TG);
 
     oglSend('/link');
     expect(oglLastText())->toBe(OGL_REFUSED);
@@ -393,6 +395,37 @@ it('drops attempts beyond the per-sender limit without an answer', function (): 
 
     expect(count($this->tg->sent))->toBe($before)
         ->and($this->group->fresh()?->organization_id)->toBeNull();
+});
+
+it('drops attempts beyond the per-chat limit too: several members cannot flood one group with the bot\'s answers', function (): void {
+    Config::set('organizations.telegram_link.attempts_per_minute', 2);
+    oglSend('/link', fromId: 41);
+    oglSend('/link', fromId: 42);
+    $before = count($this->tg->sent);
+
+    oglSend('/link', fromId: 43);
+    expect(count($this->tg->sent))->toBe($before);
+
+    // Another chat has its own bucket; the owner's real attempt there is answered.
+    oglSend('/link', fromId: 44, chatId: OGL_CHAT - 1);
+    expect(count($this->tg->sent))->toBe($before + 1);
+});
+
+it('asks an anonymous administrator to send the command as themselves, and says nothing about the token', function (): void {
+    $link = oglLink();
+
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'message_id' => 1,
+        'chat' => ['id' => OGL_CHAT, 'type' => 'supergroup', 'title' => 'Class 7B'],
+        'from' => ['id' => 1087968824, 'is_bot' => true, 'first_name' => 'Group', 'username' => 'GroupAnonymousBot'],
+        'sender_chat' => ['id' => OGL_CHAT, 'type' => 'supergroup', 'title' => 'Class 7B'],
+        'text' => '/link '.$link->code,
+    ]]);
+
+    expect(oglLastText())->toBe('Отправьте команду от своего имени, не анонимно: бот должен узнать, кто её отправил.')
+        ->and($this->group->fresh()?->organization_id)->toBeNull()
+        ->and(TelegramLinkToken::query()->sole()->used_at)->toBeNull()
+        ->and(TelegramLinkToken::query()->sole()->last_result)->toBeNull();
 });
 
 // --- races --------------------------------------------------------------------------------------------

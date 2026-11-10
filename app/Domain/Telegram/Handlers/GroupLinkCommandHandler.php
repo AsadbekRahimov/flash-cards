@@ -22,8 +22,11 @@ use Illuminate\Support\Facades\RateLimiter;
  * are {@see OrgGroupLinkService::linkFromChat()}; this class only parses, limits and answers.
  *
  * The answer to a refusal is ONE neutral text, whatever the reason: a stranger who found a code learns nothing about the chat, the
- * token or whose they are; the owner reads the reason in the cabinet. Attempts are limited per sender (beyond — silence), on top of
- * the dispatcher's inbound limit. Runs in groups that are not active yet (that is the point), so `requiresActiveGroup()` is false.
+ * token or whose they are; the owner reads the reason in the cabinet. Attempts are limited per sender AND per chat (beyond —
+ * silence: a group cannot be flooded with the bot's answers by its own members), on top of the dispatcher's inbound limit. An
+ * anonymous administrator (Telegram posts as `GroupAnonymousBot`, no `from.id` of a person) is asked to send the command as
+ * themselves — the sender must be matched to a staff account. `/link` in a private chat is told where the command goes. Runs in
+ * groups that are not active yet (that is the point), so `requiresActiveGroup()` is false.
  */
 final class GroupLinkCommandHandler implements UpdateHandler
 {
@@ -33,6 +36,9 @@ final class GroupLinkCommandHandler implements UpdateHandler
 
     /** `/link` with no / a malformed code: answered with the same neutral text, so the shape of a code is not confirmed either. */
     private const LINK_ANY = '~^/link(?:@\w+)?(\s|$)~';
+
+    /** The user id Telegram puts in `from` for an anonymous group administrator (and the channel-post sender). */
+    private const ANONYMOUS_ADMIN_ID = 1087968824;
 
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -48,11 +54,16 @@ final class GroupLinkCommandHandler implements UpdateHandler
             return false;
         }
 
-        if (! in_array($message['chat']['type'] ?? '', ['group', 'supergroup'], true)) {
-            return false;
+        $text = (string) ($message['text'] ?? '');
+        $chatType = (string) ($message['chat']['type'] ?? '');
+
+        if ($chatType === 'private') {
+            return preg_match(self::LINK_ANY, $text) === 1;
         }
 
-        $text = (string) ($message['text'] ?? '');
+        if (! in_array($chatType, ['group', 'supergroup'], true)) {
+            return false;
+        }
 
         return preg_match(self::START, $text) === 1 || preg_match(self::LINK_ANY, $text) === 1;
     }
@@ -78,7 +89,20 @@ final class GroupLinkCommandHandler implements UpdateHandler
             return;
         }
 
-        if (! $this->withinLimit($fromId)) {
+        if (! $this->withinLimit($fromId, $chatId)) {
+            return;
+        }
+
+        if (($chat['type'] ?? '') === 'private') {
+            $languageCode = $from['language_code'] ?? null;
+            $this->reply($chatId, __('bot.link.use_in_group', [], $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null)));
+
+            return;
+        }
+
+        if ($this->isAnonymousAdmin($message, $from)) {
+            $this->reply($chatId, __('bot.link.group_anonymous', [], $this->localeOf($chatId)));
+
             return;
         }
 
@@ -110,14 +134,38 @@ final class GroupLinkCommandHandler implements UpdateHandler
         return null;
     }
 
-    private function withinLimit(int $fromId): bool
+    /** Both buckets are spent by every attempt; the first one that is full silences the attempt. */
+    private function withinLimit(int $fromId, int $chatId): bool
     {
-        return RateLimiter::attempt(
-            'bot-link:'.$fromId,
-            max(1, (int) config('organizations.telegram_link.attempts_per_minute', 10)),
-            static fn (): bool => true,
-            60,
-        );
+        $max = max(1, (int) config('organizations.telegram_link.attempts_per_minute', 10));
+        $allowed = true;
+
+        foreach (['bot-link:'.$fromId, 'bot-link-chat:'.$chatId] as $key) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                $allowed = false;
+            }
+            RateLimiter::hit($key, 60);
+        }
+
+        return $allowed;
+    }
+
+    /**
+     * A command posted by an anonymous administrator: Telegram sends `from` = the `GroupAnonymousBot` service account and a
+     * `sender_chat` equal to the group. There is no person to match to a staff account — and the answer says only that.
+     *
+     * @param  array<string, mixed>  $message
+     * @param  array<string, mixed>  $from
+     */
+    private function isAnonymousAdmin(array $message, array $from): bool
+    {
+        if ((int) ($from['id'] ?? 0) === self::ANONYMOUS_ADMIN_ID || ($from['username'] ?? null) === 'GroupAnonymousBot') {
+            return true;
+        }
+
+        $senderChat = $message['sender_chat'] ?? null;
+
+        return is_array($senderChat) && (int) ($senderChat['id'] ?? 0) === (int) ($message['chat']['id'] ?? 0);
     }
 
     private function localeOf(int $chatId): string

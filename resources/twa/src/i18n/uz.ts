@@ -1159,6 +1159,7 @@ export const uz: Translations = {
   'error.code.out_of_scope': "Bu so'z ushbu mashg'ulotga tegishli emas.",
   'error.code.card_not_started': "Bu kartochka hali ko'rsatilmagan. Ilovani yoping va qayta oching.",
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
+  'error.code.exercise_mismatch': "Topshiriq yangilandi. Qayta urinib ko'ring.",
   'error.code.answer_not_accepted': 'Bu kartochka ekranda baholanadi. Ilovani yoping va qayta oching.',
   'error.code.quality_not_accepted': 'Bu kartochkani server tekshiradi. Ilovani yoping va qayta oching.',
   'error.code.exercise_pro_required': "Yozma mashqlar Pro'da mavjud.",

@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\PracticeEntryResolver;
@@ -26,6 +27,7 @@ use App\Policies\TrainingSessionPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 final class TrainingController
 {
@@ -200,8 +202,11 @@ final class TrainingController
             'answer' => $typed ? ['nullable', 'string', 'max:500'] : ['prohibited'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
             'serve_token' => ['nullable', 'string', 'max:64'],
+            // The exercise the client showed (`card.prompt.type`): another one than the server's now → 409 `exercise_mismatch`.
+            'exercise' => ['nullable', 'string', Rule::enum(ExerciseType::class)],
         ]);
 
+        $declared = isset($validated['exercise']) ? ExerciseType::from((string) $validated['exercise']) : null;
         $serveToken = isset($validated['serve_token']) ? (string) $validated['serve_token'] : null;
 
         try {
@@ -213,6 +218,7 @@ final class TrainingController
                     isset($validated['answer']) ? (string) $validated['answer'] : '',
                     (int) $validated['time_spent_ms'],
                     $serveToken,
+                    $declared,
                 )
                 : $this->flow->review(
                     $session,
@@ -221,6 +227,7 @@ final class TrainingController
                     (int) $validated['quality'],
                     (int) $validated['time_spent_ms'],
                     $serveToken,
+                    $declared,
                 );
         } catch (ReviewSubmissionException $e) {
             return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());

@@ -1251,6 +1251,7 @@ export const ru = {
   'error.code.out_of_scope': 'Это слово не относится к этому занятию.',
   'error.code.card_not_started': 'Эта карточка ещё не показывалась. Закройте приложение и откройте снова.',
   'error.code.card_not_due': 'Эта карточка уже повторена, её время ещё не пришло.',
+  'error.code.exercise_mismatch': 'Задание обновилось. Попробуйте ещё раз.',
   'error.code.answer_not_accepted': 'Эта карточка оценивается на экране. Закройте приложение и откройте снова.',
   'error.code.quality_not_accepted': 'Эту карточку проверяет сервер. Закройте приложение и откройте снова.',
   'error.code.exercise_pro_required': 'Письменные упражнения доступны в Pro.',

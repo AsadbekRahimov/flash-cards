@@ -7,6 +7,7 @@ namespace App\Filament\Org\Pages;
 use App\Domain\Telegram\Exceptions\TelegramLinkException;
 use App\Domain\Telegram\Services\TelegramAccountLinkService;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Forms;
@@ -48,17 +49,19 @@ class OrgProfile extends EditProfile
     }
 
     /**
-     * The status block. While the account is not verified it polls every 10 s (`wire:poll.10s` on this block only): the bot writes
-     * the confirmation while the page is open, and the re-render below re-reads the row (one lookup by primary key). Once verified,
-     * the block carries no `wire:poll` and polling stops.
+     * The status block. It polls every 10 s (`wire:poll.10s` on this block only) while — and only while — the account is not
+     * verified AND the person holds a live, unspent link: the bot writes the confirmation while the page is open, and the
+     * re-render below re-reads the row (one lookup by primary key, one by the newest token). Once verified, or once the link
+     * expired or was spent, the block carries no `wire:poll` and polling stops.
      */
     private function telegramStatusBlock(): HtmlString
     {
         $user = $this->staff();
         $user->refresh();
+        $verified = $user->hasVerifiedTelegram();
 
         return new HtmlString(view('filament.org.partials.telegram-status', [
-            'verified' => $user->hasVerifiedTelegram(),
+            'poll' => ! $verified && app(TelegramAccountLinkService::class)->latestToken($user)?->isLiveAt(CarbonImmutable::now()) === true,
             'text' => $this->telegramStatus($user),
         ])->render());
     }
@@ -67,7 +70,8 @@ class OrgProfile extends EditProfile
     private function telegramStatus(User $user): string
     {
         if ($user->telegram_user_id === null) {
-            return __('org.profile.telegram.none');
+            // W1: the hand-typed id was confirmed through the bot by somebody else — say so, instead of a plain "not connected".
+            return $user->telegram_superseded_at !== null ? __('org.profile.telegram.superseded') : __('org.profile.telegram.none');
         }
 
         if (! $user->hasVerifiedTelegram()) {

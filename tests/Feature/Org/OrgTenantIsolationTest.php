@@ -13,6 +13,7 @@ use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
 use App\Filament\Org\Resources\InviteResource\Pages\ListInvites;
 use App\Filament\Org\Resources\MemberResource\Pages\ListMembers;
 use App\Filament\Org\Resources\StaffResource\Pages\ListStaff;
+use App\Filament\Org\Widgets\MemberInvitationsWidget;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Mail\OrgStaffInvitationMail;
@@ -21,6 +22,7 @@ use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -254,7 +256,7 @@ it('renders the owner dashboard widgets with the seats of the tenant', function 
     Livewire::test(OrgActivityWidget::class)->assertOk();
 });
 
-it('removes members, and offers membership (invited, not active) through the membership service — one neutral answer, found or not', function (): void {
+it('removes members, and invites learners through the membership service — one neutral answer and one identical row, found or not', function (): void {
     isoEnter($this->ownerA, $this->a);
 
     Livewire::test(ListMembers::class)->callTableAction('remove', $this->memberA1)->assertNotified();
@@ -262,30 +264,41 @@ it('removes members, and offers membership (invited, not active) through the mem
         ->and(AuditLog::query()->where('action', 'organization.member_removed')->where('user_id', $this->ownerA->id)->exists())->toBeTrue();
 
     $newcomer = Learner::factory()->onboarded()->create(['username' => 'New_Comer', 'telegram_user_id' => 555_000_111]);
-    $neutral = 'Приглашение отправлено, если такой ученик есть в LexiFlow. Когда он согласится в боте, он появится в списке; до этого — со статусом «Ожидает согласия».';
+    $neutral = 'Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников.';
 
     Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@new_comer'])->assertNotified($neutral);
-    $offer = OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $newcomer->id)->sole();
-    expect($offer->status)->toBe('invited')
-        ->and($offer->seat_state)->toBe('none')
+    $invitation = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@new_comer')->sole();
+    expect(OrganizationMember::query()->where('learner_id', $newcomer->id)->exists())->toBeFalse()
         ->and(end($this->tg->sent)['chat_id'])->toBe(555_000_111);
 
-    // Unknown Telegram: nothing is created, no DM, and the SAME notification — the cabinet does not say who uses LexiFlow.
+    // Unknown Telegram: no DM, the SAME notification and a row that reads the same — the cabinet does not say who uses LexiFlow.
     $sent = count($this->tg->sent);
     Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@nobody_here'])->assertNotified($neutral);
-    expect(OrganizationMember::query()->where('organization_id', $this->a->id)->count())->toBe(3)
-        ->and(count($this->tg->sent))->toBe($sent);
+    $ghost = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@nobody_here')->sole();
+    expect(count($this->tg->sent))->toBe($sent)
+        ->and($ghost->state())->toBe($invitation->state())
+        ->and(abs($ghost->expires_at->diffInSeconds($invitation->expires_at)))->toBeLessThanOrEqual(5);
 
-    // A learner of center B can be offered A by exact Telegram id (a learner may belong to several centers); B is untouched.
+    // A malformed value is the one refusal of its own: a format check.
+    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => 'x!'])->assertNotified('Укажите @username или числовой Telegram ID ученика.');
+
+    // A learner of center B can be invited to A by exact Telegram id (a learner may belong to several centers); B is untouched.
     $this->learnerB->forceFill(['onboarding_state' => 'done'])->save();
     Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => (string) $this->learnerB->telegram_user_id])->assertNotified($neutral);
-    expect(OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $this->learnerB->id)->value('status'))->toBe('invited')
+    expect(OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', (string) $this->learnerB->telegram_user_id)->exists())->toBeTrue()
+        ->and(OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $this->learnerB->id)->exists())->toBeFalse()
         ->and($this->memberB->fresh()?->organization_id)->toBe($this->b->id);
 
-    // The owner takes an offer back; "revoke" is not offered for an active member.
-    Livewire::test(ListMembers::class)->assertCanSeeTableRecords([$offer, $this->memberA2])->callTableAction('revoke', $offer)->assertNotified('Приглашение отозвано.');
-    expect($offer->fresh())->toBeNull();
-    Livewire::test(ListMembers::class)->assertTableActionHidden('revoke', $this->memberA2);
+    // The owner takes an invitation back in the block under the list; an invitation of center B is out of reach.
+    Livewire::test(ListMembers::class)->assertCanSeeTableRecords([$this->memberA2])->assertCanNotSeeTableRecords([$this->memberA1]);
+    Livewire::test(MemberInvitationsWidget::class)
+        ->assertCanSeeTableRecords([$invitation, $ghost])
+        ->callTableAction('revoke', $invitation)
+        ->assertNotified('Приглашение отозвано.');
+    expect($invitation->fresh()?->revoked_at)->not->toBeNull();
+
+    $foreign = OrganizationMemberInvitation::factory()->create(['organization_id' => $this->b->id]);
+    Livewire::test(MemberInvitationsWidget::class)->assertCanNotSeeTableRecords([$foreign]);
 });
 
 it('creates and deactivates invites of the tenant only', function (): void {

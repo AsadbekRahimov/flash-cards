@@ -32,7 +32,8 @@ use Throwable;
  *  - learner: a DM with a button into the TWA `/billing`; `notifications_log.type = renewal_reminder`;
  *    skipped for a blocked learner or `dm_blocked_at`; a Telegram 403 sets `dm_blocked_at`;
  *  - organization: an e-mail to every active owner (`organization_users.role = owner`) in the owner's
- *    language, plus a DM to an owner who has a Telegram link (`users.telegram_user_id`); without the
+ *    language, plus a DM to an owner whose Telegram is VERIFIED (`users.telegram_verified_at`, review W1: a hand-typed id
+ *    may be somebody else's — that person gets no billing DM); without the
  *    link — e-mail only.
  *
  * The job is skipped when the subscription changed since the event (renewed, ended, not paid any more):
@@ -146,10 +147,12 @@ final class RenewalReminderSender
 
     private function notifyOwner(User $owner, Organization $organization, Subscription $subscription, int $daysLeft, CarbonImmutable $endsAt, string $key): int
     {
+        // Only a VERIFIED Telegram gets the DM (W1): an unverified id is a number somebody typed, not proof it is the owner's.
         // A learner row exists only when the owner wrote to the bot before the account was linked.
-        $learner = $owner->telegram_user_id === null
+        $chatId = $owner->hasVerifiedTelegram() ? $owner->telegram_user_id : null;
+        $learner = $chatId === null
             ? null
-            : Learner::query()->where('telegram_user_id', $owner->telegram_user_id)->first();
+            : Learner::query()->where('telegram_user_id', $chatId)->first();
 
         $locale = $learner !== null
             ? $this->locales->forLearner($learner)
@@ -166,7 +169,6 @@ final class RenewalReminderSender
             $failure = $e;
         }
 
-        $chatId = $owner->telegram_user_id;
         $reachable = $chatId !== null && ($learner === null || ($learner->blocked_at === null && $learner->dm_blocked_at === null));
 
         if ($reachable) {

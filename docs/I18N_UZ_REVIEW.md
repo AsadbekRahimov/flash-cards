@@ -1593,6 +1593,7 @@
 | `settings.exercises.audio` | Eshitib | На слух |
 | `settings.exercises.spelling` | So'zni yozish | Написание слова |
 | `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
+| `error.code.exercise_mismatch` | Topshiriq yangilandi. Qayta urinib ko'ring. | Задание обновилось. Попробуйте ещё раз. |
 | `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
 | `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
 | `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |
@@ -3584,3 +3585,50 @@
 | `org.hard_words.columns.learners` | Qiyin deb hisoblaydi | Считают трудным |
 | `org.hard_words.columns.confused_with` | Chalkashtiriladi | Путают с |
 | `org.hard_words.learners_of` | :total o'quvchidan :count tasi | :count из :total |
+
+## Ревью привязки Telegram и приглашений учеников (10.11.2026, B1 / W1 / W2) — на проверку носителю
+
+> Глоссарий как в разделе выше: подключить = ulash, отключить = uzish, приглашение = taklif, ожидает ответа = javob kutilmoqda, истекло = muddati tugagan. Изменились старые строки: `bot.help.private_teacher` (добавлена строка про `/unlink`), `bot.link.account_linked` (добавлено «Uzish: /unlink»), `bot.link.account_taken` («tasdiqlangan» вместо «ulangan»), `org.members.actions.revoke` / `revoke_confirm`, `org.members.errors.invite_not_pending`, `org.members.notifications.invited`; удалены `org.members.status.invited` / `declined`.
+
+### Бот (`lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private_teacher` (новая строка) | • /unlink — bu Telegramni kabinetdan uzish | • /unlink — отключить этот Telegram от кабинета |
+| `bot.link.account_prompt` | Bu Telegramni :centers markazi kabinetiga ulaysizmi? Akkaunt: :name (:email). Ulangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin. | Подключить этот Telegram к кабинету центра :centers? Аккаунт: :name (:email). После подключения бот будет считать вас сотрудником центра: в этом чате он перестанет отвечать вам как ученику. Отключить можно в любой момент командой /unlink. |
+| `bot.link.account_prompt_no_center` | LexiFlow | LexiFlow |
+| `bot.link.account_yes` | Ha, ulash | Да, подключить |
+| `bot.link.account_no` | Yo'q | Нет |
+| `bot.link.account_declined` | Mayli, hech narsa ulanmadi. Fikringiz o'zgarsa — kabinetdagi havolani qayta oching. | Хорошо, ничего не подключено. Если передумаете — откройте ссылку из кабинета ещё раз. |
+| `bot.link.account_linked` | ✅ Telegram :name akkauntiga ulandi. Endi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang. Uzish: /unlink. | ✅ Telegram подключён к аккаунту :name. Теперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help. Отключить: /unlink. |
+| `bot.link.account_taken` | Bu Telegram kabinetning boshqa akkauntida tasdiqlangan. Avval uni o'sha yerda uzing (Profil → «Uzish» yoki shu yerda /unlink), so'ng havolani qayta oching. | Этот Telegram уже подтверждён у другого аккаунта кабинета. Сначала отключите его там (Профиль → «Отключить» или /unlink здесь), затем откройте ссылку снова. |
+| `bot.link.unlink_confirm` | Bu Telegramni kabinetdan uzasizmi (akkaunt: :name)? Bot Sizni o'qituvchi sifatida tanimay qo'yadi va yana o'quvchi sifatida javob beradi. | Отключить этот Telegram от кабинета (аккаунт :name)? Бот перестанет узнавать вас как учителя и снова будет отвечать вам как ученику. |
+| `bot.link.unlink_yes` | Ha, uzish | Да, отключить |
+| `bot.link.unlink_no` | Yo'q | Нет |
+| `bot.link.unlink_done` | Telegram :name akkauntidan uzildi. Bot yana Sizga o'quvchi sifatida javob beradi — /start yuboring. | Telegram отключён от аккаунта :name. Бот снова отвечает вам как ученику — отправьте /start. |
+| `bot.link.unlink_none` | Bu Telegram hech bir kabinetga ulanmagan. Uzadigan narsa yo'q. | Этот Telegram не подключён ни к одному кабинету. Отключать нечего. |
+| `bot.link.unlink_cancelled` | Mayli, Telegram ulangan holda qoladi. | Хорошо, Telegram остаётся подключённым. |
+| `bot.link.use_in_group` | Bu buyruq bog'lanishi kerak bo'lgan guruhda yuboriladi. | Эту команду отправляют в группе, которую нужно привязать. |
+| `bot.link.group_anonymous` | Buyruqni anonim emas, o'z nomingizdan yuboring: bot kim yuborganini bilishi kerak. | Отправьте команду от своего имени, не анонимно: бот должен узнать, кто её отправил. |
+
+### Кабинет центра (`lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.members.actions.revoke` | Bekor qilish | Отозвать |
+| `org.members.actions.revoke_confirm` | Taklif amal qilmay qoladi. Istalgan vaqtda qayta taklif qilish mumkin. | Приглашение перестанет действовать. Пригласить снова можно в любой момент. |
+| `org.members.invitations.heading` | O'quvchilarga takliflar | Приглашения учеников |
+| `org.members.invitations.description` | Bu yerda faqat Siz kiritgan ma'lumot va javob muddati ko'rsatiladi. Kabinet bunday o'quvchi LexiFlow'da bor-yo'qligini va u nima deb javob berganini ko'rsatmaydi: taklifni qabul qilgan o'quvchi o'quvchilar ro'yxatida paydo bo'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi. | Здесь только то, что вы ввели, и срок ответа. Кабинет не показывает, есть ли такой ученик в LexiFlow и что он ответил: принявший приглашение появится в списке учеников, остальные приглашения истекают через 7 дней. |
+| `org.members.invitations.empty` | Hozircha takliflar yo'q. | Приглашений пока нет. |
+| `org.members.invitations.columns.handle` | Kim taklif qilindi | Кого пригласили |
+| `org.members.invitations.columns.sent_at` | Yuborilgan | Отправлено |
+| `org.members.invitations.columns.state` | Holat | Статус |
+| `org.members.invitations.columns.expires_at` | Amal qilish muddati | Действует до |
+| `org.members.invitations.state.pending` | Javob kutilmoqda | Ожидает ответа |
+| `org.members.invitations.state.expired` | Muddati tugagan | Истекло |
+| `org.members.invitations.state.accepted` | Qabul qilingan | Принято |
+| `org.members.invitations.state.revoked` | Bekor qilingan | Отозвано |
+| `org.members.errors.invite_not_pending` | Bu taklif endi javob kutmaydi: u qabul qilingan, muddati tugagan yoki bekor qilingan. | Это приглашение уже не ждёт ответа: оно принято, истекло или отозвано. |
+| `org.members.errors.telegram_invalid` | O'quvchining @username yoki raqamli Telegram ID'sini kiriting. | Укажите @username или числовой Telegram ID ученика. |
+| `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'yxatida paydo bo'ladi; o'quvchi botda rozi bo'lgach, u o'quvchilar orasida ko'rinadi. | Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников. |
+| `org.profile.telegram.superseded` | Telegram uzildi: bu Telegram akkauntini boshqa foydalanuvchi tasdiqladi. O'z Telegramingizni bot orqali ulang. | Telegram отключён: этот аккаунт Telegram подтвердил другой пользователь. Подключите свой Telegram через бота. |

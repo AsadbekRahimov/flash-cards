@@ -33,6 +33,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $telegram_verified_at set only by the bot (`/start link_<token>`); a hand-typed id stays unverified
  * @property string|null $telegram_username
  * @property string|null $telegram_name
+ * @property Carbon|null $telegram_superseded_at the unverified id was claimed through the bot by another user (W1); cleared by the next link / unlink
  * @property bool $is_active
  */
 class User extends Authenticatable implements FilamentUser, HasTenants
@@ -52,6 +53,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'telegram_verified_at',
         'telegram_username',
         'telegram_name',
+        'telegram_superseded_at',
         'is_active',
         'last_login_at',
         'two_factor_secret',
@@ -77,6 +79,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             'is_active' => 'boolean',
             'telegram_user_id' => 'integer',
             'telegram_verified_at' => 'datetime',
+            'telegram_superseded_at' => 'datetime',
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
             'two_factor_confirmed_at' => 'datetime',

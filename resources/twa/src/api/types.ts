@@ -603,12 +603,40 @@ export interface Graded {
   expected: string
 }
 
+/**
+ * A reverse / audio card is sent WITHOUT what gives the right option away (docs/06 §12.2): reverse — `word`, `example`,
+ * `transcription`, `audio_url`; audio — `translation`, `example`; both — `hook`, `note`, `confused_with`. The answer of
+ * POST /review brings them back here, for the screen after the pick.
+ */
+export interface Revealed {
+  word: string
+  translation: string
+  /** The right option exactly as it stands among the options (reverse: the word, audio: the translation). */
+  correct: string
+  example: string | null
+  transcription: string | null
+  audio_url: string | null
+  hook: string | null
+  note: string | null
+  confused_with: { word: string; translation: string | null } | null
+}
+
+/** What the server said about a pick of a reverse / audio card: the screen colours the options by it. */
+export interface ChoiceResult {
+  correct: boolean
+  /** The right option (`Revealed.correct`; `Graded.expected` when the server sent no `revealed`). */
+  right: string
+  revealed: Revealed | null
+}
+
 export interface ReviewResponse {
   next_review_at: string | null
   new_interval_days: number
   easiness_factor: number
   /** null when the client graded (quality was sent). */
   graded?: Graded | null
+  /** reverse / audio only: what the card was sent without (see {@link Revealed}); null otherwise. */
+  revealed?: Revealed | null
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null

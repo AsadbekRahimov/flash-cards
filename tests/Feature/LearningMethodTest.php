@@ -89,6 +89,18 @@ function lmCard(array $s): array
     return test()->withHeaders($s['headers'])->getJson("{$s['url']}/next")->assertOk()->json('card');
 }
 
+/**
+ * The right option of a reverse / audio card. The card itself does not carry it (docs/06 §12.2), so it is read from the word.
+ *
+ * @param  array<string, mixed>  $card
+ */
+function lmCorrect(array $card): string
+{
+    $word = Word::query()->findOrFail($card['word_id']);
+
+    return $card['prompt']['type'] === 'reverse' ? $word->word : $word->translation;
+}
+
 /** Makes the row of the word a due review card again with the given maturity (the test's own clock). */
 function lmReset(Learner $learner, int $wordId, int $repetitions, int $intervalDays, array $extra = []): void
 {
@@ -105,7 +117,7 @@ it('grades a four-option card from the picked option: the right one passes (4), 
     $card = lmCard($s);
     expect($card['prompt']['type'])->toBeIn(['reverse', 'audio']);
 
-    $correct = $card['prompt']['type'] === 'reverse' ? $card['word'] : $card['translation'];
+    $correct = lmCorrect($card);
     $wrong = collect($card['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
 
     $response = $this->withHeaders($s['headers'])
@@ -117,7 +129,7 @@ it('grades a four-option card from the picked option: the right one passes (4), 
         ->and(WordRepetition::query()->where('word_id', $card['word_id'])->sole()->repetitions)->toBe(4);
 
     $second = lmCard($s);
-    $correct2 = $second['prompt']['type'] === 'reverse' ? $second['word'] : $second['translation'];
+    $correct2 = lmCorrect($second);
     $wrong2 = collect($second['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct2));
     $response = $this->withHeaders($s['headers'])
         ->postJson("{$s['url']}/review", ['word_id' => $second['word_id'], 'answer' => $wrong2, 'time_spent_ms' => 900])
@@ -126,6 +138,112 @@ it('grades a four-option card from the picked option: the right one passes (4), 
         ->and(WordRepetition::query()->where('word_id', $second['word_id'])->sole()->state)->toBe(RepetitionState::Relearning)
         ->and(TrainingReview::query()->where('word_id', $second['word_id'])->sole()->answer_text)->toBe($wrong2);
     expect($wrong)->not->toBeNull();
+});
+
+/** The learner sees only the given type of the options exercises (the other is switched off, typed ones need Pro). */
+function lmOnly(array $s, string $type): void
+{
+    $off = ['reverse' => $type !== 'reverse', 'audio' => $type !== 'audio'];
+    $s['learner']->forceFill(['meta' => ['exercises' => ['reverse' => ! $off['reverse'], 'audio' => ! $off['audio'], 'spelling' => false, 'gap_fill' => false]]])->save();
+}
+
+/**
+ * Every string a card carries outside the options: none of them may be, or contain, the right option.
+ *
+ * @param  array<string, mixed>  $card
+ * @return list<string>
+ */
+function lmCardStrings(array $card): array
+{
+    unset($card['prompt']['options']);
+    $out = [];
+    array_walk_recursive($card, function (mixed $value) use (&$out): void {
+        if (is_string($value)) {
+            $out[] = $value;
+        }
+    });
+
+    return $out;
+}
+
+it('sends a reverse / audio card without anything that gives the right option away, and returns it with the verdict', function (string $type): void {
+    $s = lmScenario(5, 3, 15, rowAttributes: ['note' => 'word0 or перевод 0 - my hint', 'is_hard' => true]);
+    foreach ($s['words'] as $i => $word) {
+        $word->forceFill(['transcription' => "/wɜːd{$i}/"])->save();
+        WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => "перевод {$i}", 'hook' => "word{$i} = перевод {$i}", 'source' => 'import']);
+    }
+    lmOnly($s, $type);
+
+    $card = lmCard($s);
+    $correct = lmCorrect($card);
+    expect($card['prompt']['type'])->toBe($type)
+        ->and($card['prompt']['options'])->toContain($correct);
+
+    foreach (lmCardStrings($card) as $value) {
+        expect(mb_stripos($value, $correct))->toBeFalse("the card carries the right option in `{$value}`");
+    }
+    expect($card['hook'])->toBeNull()->and($card['note'])->toBeNull()->and($card['confused_with'])->toBeNull()->and($card['example'])->toBeNull();
+    if ($type === 'reverse') {
+        expect($card['word'])->toBe('')->and($card['transcription'])->toBeNull()->and($card['audio_url'])->toBeNull()
+            ->and($card['translation'])->not->toBe('');
+    } else {
+        expect($card['translation'])->toBe('')->and($card['word'])->not->toBe('');
+    }
+
+    $response = $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => $type, 'time_spent_ms' => 800])
+        ->assertOk();
+
+    $i = (int) mb_substr($correct, -1);
+    $revealed = $response->json('revealed');
+    expect(array_keys($revealed))->toBe(['word', 'translation', 'correct', 'example', 'transcription', 'audio_url', 'hook', 'note', 'confused_with'])
+        ->and($revealed['correct'])->toBe($correct)
+        ->and($revealed['word'])->toBe("word{$i}")
+        ->and($revealed['example'])->toBe("I like {$revealed['word']} a lot.")
+        ->and($revealed['transcription'])->toStartWith('/wɜːd')
+        ->and($revealed['hook'])->toBe("{$revealed['word']} = {$revealed['translation']}")
+        ->and($revealed['note'])->toBe("word{$i} or перевод {$i} - my hint")
+        ->and($response->json('graded.correct'))->toBeTrue();
+})->with(['reverse', 'audio']);
+
+it('has no `revealed` in the answer to a flash card or to a typed one', function (): void {
+    $s = lmScenario(3, 0, 0, rowAttributes: ['state' => 'new']);
+    $card = lmCard($s);
+    expect($card['prompt']['type'])->toBe('flash');
+
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 800])
+        ->assertOk()
+        ->assertJsonPath('revealed', null);
+});
+
+it('answers 409 exercise_mismatch when the client shows another exercise than the server now serves, and saves nothing', function (): void {
+    $s = lmScenario(5, 3, 15);
+    lmOnly($s, 'reverse');
+    $card = lmCard($s);
+    $correct = lmCorrect($card);
+
+    // A typed card of a Pro plan that has expired: the learner types, the server now serves the four options.
+    foreach (['spelling', 'gap_fill', 'flash'] as $shown) {
+        $this->withHeaders($s['headers'])
+            ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => $shown, 'time_spent_ms' => 800])
+            ->assertStatus(409)
+            ->assertJsonPath('error.code', 'exercise_mismatch');
+    }
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'exercise' => 'spelling', 'time_spent_ms' => 800])
+        ->assertStatus(409)->assertJsonPath('error.code', 'exercise_mismatch');
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => 'nonsense', 'time_spent_ms' => 800])
+        ->assertStatus(422);
+
+    expect(TrainingReview::query()->count())->toBe(0)
+        ->and(WordRepetition::query()->where('word_id', $card['word_id'])->sole()->repetitions)->toBe(3);
+
+    // The card is served again as it is now, and the same answer with the right exercise is graded.
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => 'reverse', 'time_spent_ms' => 800])
+        ->assertOk()->assertJsonPath('graded.correct', true);
 });
 
 it('normalises a legacy client quality on a four-option card to pass / fail while the transition flag is on, refuses it when off', function (): void {
@@ -160,7 +278,7 @@ it('refuses a client quality on a four-option card once the transition flag is o
     expect(TrainingReview::query()->count())->toBe(0);
 
     // The pick itself is still welcome.
-    $correct = $card['prompt']['type'] === 'reverse' ? $card['word'] : $card['translation'];
+    $correct = lmCorrect($card);
     $this->withHeaders($s['headers'])
         ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'time_spent_ms' => 100])
         ->assertOk()
@@ -194,7 +312,7 @@ it('records the self-grade mismatch once: "remember / easy" on flash followed by
     }
     $again = lmCard($s);
     expect($again['word_id'])->toBe($card['word_id'])->and($again['prompt']['type'])->toBeIn(['reverse', 'audio']);
-    $correct = $again['prompt']['type'] === 'reverse' ? $again['word'] : $again['translation'];
+    $correct = lmCorrect($again);
     $wrong = collect($again['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $again['word_id'], 'answer' => $wrong, 'time_spent_ms' => 100])->assertOk();
 
@@ -205,11 +323,11 @@ it('records the self-grade mismatch once: "remember / easy" on flash followed by
     // A wrong objective answer after an objective pass is not a self-grade mismatch.
     lmReset($s['learner'], (int) $card['word_id'], 3, 15);
     $third = lmCard($s);
-    $correct = $third['prompt']['type'] === 'reverse' ? $third['word'] : $third['translation'];
+    $correct = lmCorrect($third);
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $third['word_id'], 'answer' => $correct, 'time_spent_ms' => 100])->assertOk();
     lmReset($s['learner'], (int) $card['word_id'], 3, 15);
     $fourth = lmCard($s);
-    $correct = $fourth['prompt']['type'] === 'reverse' ? $fourth['word'] : $fourth['translation'];
+    $correct = lmCorrect($fourth);
     $wrong = collect($fourth['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $fourth['word_id'], 'answer' => $wrong, 'time_spent_ms' => 100])->assertOk();
     expect(ProductEvent::query()->where('name', ProductEventName::ReviewSelfGradeMismatch->value)->count())->toBe(1);
@@ -247,7 +365,7 @@ it('lowers the ceiling by one rung on a lapse of a review card and serves the re
     expect($again['prompt']['type'])->toBeIn(['reverse', 'audio']);
 
     // Failing at the options takes the floor away: next time it is a flash card.
-    $correct = $again['prompt']['type'] === 'reverse' ? $again['word'] : $again['translation'];
+    $correct = lmCorrect($again);
     $wrong = collect($again['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $again['word_id'], 'answer' => $wrong, 'time_spent_ms' => 100])->assertOk();
     expect($row()->meta)->not->toHaveKey(LadderPolicy::FLOOR_META);
@@ -312,6 +430,8 @@ it('never flags a leech when the threshold is 0', function (): void {
 
 it('shows the authored hook of the card\'s language on a new, failed or hard card only — never on a plain review', function (): void {
     $s = lmScenario(5, 3, 15);
+    // Flash cards only: the cards with options are sent without the hooks (they may name the answer).
+    $s['learner']->forceFill(['meta' => ['exercises' => ['reverse' => false, 'audio' => false, 'spelling' => false, 'gap_fill' => false]]])->save();
     $word = $s['words'][0];
     WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'hook' => 'word + 0', 'source' => 'import']);
     WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'uz', 'translation' => 'tarjima 0', 'hook' => "so'z + 0", 'source' => 'import']);

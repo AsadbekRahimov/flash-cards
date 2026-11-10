@@ -2,6 +2,7 @@ import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
   AchievementsResponse,
+  ExerciseType,
   GameMapResponse,
   GameRunStarted,
   GameStartRequest,
@@ -211,12 +212,15 @@ export const api = {
       quality: Quality,
       timeSpentMs: number,
       serveToken: string | null = null,
+      exercise: ExerciseType | null = null,
     ) =>
       client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
         word_id: wordId,
         quality,
         time_spent_ms: timeSpentMs,
         serve_token: serveToken,
+        // The exercise the card was shown with: the server answers 409 `exercise_mismatch` when it serves another one now.
+        exercise,
       }),
     /** A typed answer to a server-graded card (spelling / gap_fill): the server sets the quality. */
     answer: (
@@ -225,12 +229,14 @@ export const api = {
       answer: string,
       timeSpentMs: number,
       serveToken: string | null = null,
+      exercise: ExerciseType | null = null,
     ) =>
       client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
         word_id: wordId,
         answer,
         time_spent_ms: timeSpentMs,
         serve_token: serveToken,
+        exercise,
       }),
   },
   exam: {

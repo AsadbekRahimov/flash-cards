@@ -18,6 +18,8 @@ use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -34,8 +36,8 @@ use Illuminate\Support\Str;
  *   org1:list          — `/settings` -> "My centers";
  *   org1:leave:<id>    — ask "Leave the center?" (`<id>` = organization_members.id);
  *   org1:leaveyes:<id> — leave; org1:leaveno — change of mind;
- *   org1:accept:<id>   — "Join" on a membership offered by the center's staff (`<id>` = the `invited` organization_members row,
- *                        audit 2026-11-10 M2); org1:decline:<id> — "Decline".
+ *   org1:accept:<id>   — "Join" on an invitation by the center's staff (`<id>` = organization_member_invitations.id, audit
+ *                        2026-11-10 M2); org1:decline:<id> — "Decline".
  *
  * The confirmation after "Join" is not sent here: joining raises OrganizationMemberJoined and its
  * listener sends the DM ({@see self::notifyJoined()}), the same one an administrator's "add" gets.
@@ -262,18 +264,19 @@ final class OrganizationMessenger
     }
 
     /**
-     * DM "Center X invites you — Join / Decline" for an offer the staff made in the cabinet (sent by the OrganizationMemberInvited
-     * listener). The offer is read again: one answered or revoked meanwhile is not sent; a learner who cannot be reached is skipped.
+     * DM "Center X invites you — Join / Decline" for an invitation the staff sent from the cabinet (sent by the
+     * OrganizationMemberInvited listener). The invitation is read again: one the learner may not answer any more (accepted,
+     * declined, revoked, expired) is not sent; a learner who cannot be reached is skipped.
      */
-    public function offerMembership(int $memberId): void
+    public function offerMembership(int $invitationId): void
     {
-        /** @var OrganizationMember|null $member */
-        $member = OrganizationMember::query()->with('organization')->find($memberId);
-        if ($member === null || ! $member->isInvited()) {
+        /** @var OrganizationMemberInvitation|null $invitation */
+        $invitation = OrganizationMemberInvitation::query()->with('organization')->find($invitationId);
+        if ($invitation === null || $invitation->learner_id === null || ! $invitation->isAnswerableAt(CarbonImmutable::now())) {
             return;
         }
 
-        $learner = Learner::query()->find($member->learner_id);
+        $learner = Learner::query()->find($invitation->learner_id);
         if ($learner === null || $learner->blocked_at !== null || $learner->dm_blocked_at !== null) {
             return;
         }
@@ -282,33 +285,33 @@ final class OrganizationMessenger
 
         $this->deliver($learner, fn () => $this->telegram->sendMessage(
             $learner->telegram_user_id,
-            __('organizations.invite.text', ['organization' => $member->organization->name], $locale),
+            __('organizations.invite.text', ['organization' => $invitation->organization->name], $locale),
             replyMarkup: ['inline_keyboard' => [[
-                ['text' => __('organizations.invite.accept', [], $locale), 'callback_data' => self::PREFIX.':accept:'.$member->id],
-                ['text' => __('organizations.invite.decline', [], $locale), 'callback_data' => self::PREFIX.':decline:'.$member->id],
+                ['text' => __('organizations.invite.accept', [], $locale), 'callback_data' => self::PREFIX.':accept:'.$invitation->id],
+                ['text' => __('organizations.invite.decline', [], $locale), 'callback_data' => self::PREFIX.':decline:'.$invitation->id],
             ]]],
         ));
     }
 
-    /** "Join" tapped on a staff offer: the membership becomes active (the DM comes from OrganizationMemberJoined). */
-    public function acceptMembership(Learner $learner, int|string $chatId, int $messageId, int $memberId): void
+    /** "Join" tapped on a staff invitation: the membership becomes active (the DM comes from OrganizationMemberJoined). */
+    public function acceptMembership(Learner $learner, int|string $chatId, int $messageId, int $invitationId): void
     {
         $this->onboardingMessenger->clearKeyboard($chatId, $messageId);
 
         try {
-            $this->memberships->acceptInvite($learner, $memberId);
+            $this->memberships->acceptInvite($learner, $invitationId);
         } catch (OrganizationMembershipException $e) {
             $this->sendError($learner, $chatId, $e->errorCode);
         }
     }
 
-    /** "Decline" tapped: the offer is closed; the center sees the answer in its list. */
-    public function declineMembership(Learner $learner, int|string $chatId, int $messageId, int $memberId): void
+    /** "Decline" tapped: the invitation is closed for the learner; the center is not told (it reads like silence). */
+    public function declineMembership(Learner $learner, int|string $chatId, int $messageId, int $invitationId): void
     {
         $this->onboardingMessenger->clearKeyboard($chatId, $messageId);
 
         try {
-            $member = $this->memberships->declineInvite($learner, $memberId);
+            $invitation = $this->memberships->declineInvite($learner, $invitationId);
         } catch (OrganizationMembershipException $e) {
             $this->sendError($learner, $chatId, $e->errorCode);
 
@@ -317,7 +320,7 @@ final class OrganizationMessenger
 
         $this->telegram->sendMessage(
             $chatId,
-            __('organizations.invite.declined', ['organization' => $member->organization->name], $this->locales->forLearner($learner)),
+            __('organizations.invite.declined', ['organization' => $invitation->organization->name], $this->locales->forLearner($learner)),
         );
     }
 

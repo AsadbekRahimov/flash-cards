@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import type { Card, Quality } from '@/api/types'
+import { computed, onMounted, watch } from 'vue'
+import type { Card, ChoiceResult } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
@@ -13,20 +13,22 @@ import { useI18n } from '@/i18n'
 
 /**
  * Audio exercise (docs/13 §2.5): the word is only heard (`card.audio_url`, else the TTS fallback),
- * the learner picks its translation among four. The word itself is shown only after the pick.
- * Graded here — the right answer is `card.translation` — and the grade (`grade`: 4 right, 2 wrong) is emitted at the
- * pick, so it is saved even if the learner leaves at once. `advance` says when the next card may appear: a right pick
- * moves on by itself after a short pause; a wrong one stays on screen (the right option, the word and the example are
- * shown) until "Next" (docs/14 N6). If the grade has not come back from the server yet (`disabled`), "Next" waits for it.
+ * the learner picks its translation among four. The card carries no translation or example (they give the right option
+ * away, docs/06 §12.2): the pick is emitted (`pick`) and saved at once, the SERVER grades it, and `result` brings the verdict
+ * with the rest of the screen (`result.revealed`); the word is shown from then on. `advance` says when the next card may
+ * appear: a right pick moves on by itself after a short pause; a wrong one stays on screen (the right option, the word and
+ * the example are shown) until "Next" (docs/14 N6).
  */
 const props = defineProps<{
   card: Card
+  /** The server's word on the pick; null until it arrives. */
+  result?: ChoiceResult | null
   disabled?: boolean
 }>()
 
 const emit = defineEmits<{
-  /** The pick is final: its grade as the screen reads it (4 / 2) and the picked option — the server grades the option (docs/06 §12.2). */
-  (e: 'grade', quality: Quality, picked: string): void
+  /** The pick is final: the picked option, which the server grades (docs/06 §12.2). */
+  (e: 'pick', picked: string): void
   (e: 'advance'): void
 }>()
 
@@ -39,12 +41,29 @@ const options = computed((): string[] => props.card.prompt?.options ?? [])
 
 const { picked, stateOf, isCorrect, awaitingConfirm, confirmed, pick, confirm } = useChoice(
   options,
-  computed(() => props.card.translation),
+  computed(() => props.result ?? null),
   {
-    grade: (quality, picked) => emit('grade', quality, picked),
+    pick: (picked) => emit('pick', picked),
     advance: () => emit('advance'),
   },
 )
+
+/** The card as the screen after the answer shows it: what the server held back is in `result.revealed`. */
+const shown = computed((): Card => {
+  const r = props.result?.revealed
+  if (!r) return props.card
+  return {
+    ...props.card,
+    word: r.word,
+    translation: r.translation,
+    example: r.example,
+    transcription: r.transcription,
+    audio_url: r.audio_url ?? props.card.audio_url,
+    hook: r.hook,
+    note: r.note,
+    confused_with: r.confused_with,
+  }
+})
 
 /** "Next" was pressed while the grade is still on its way: the button waits for the server. */
 const waiting = computed((): boolean => confirmed.value && props.disabled === true)
@@ -61,9 +80,13 @@ function onPlay(): void {
 function onPick(index: number): void {
   if (props.disabled || picked.value !== null) return
   pick(index)
-  notificationHaptic(isCorrect.value ? 'success' : 'error')
   haptic('medium')
 }
+
+// The verdict arrives with the server's answer: the haptic follows it.
+watch(isCorrect, (right) => {
+  if (right !== null) notificationHaptic(right ? 'success' : 'error')
+})
 
 function onContinue(): void {
   haptic('light')
@@ -91,10 +114,10 @@ onMounted(play)
         </button>
         <!-- The slot keeps its height: the word that replaces the hint after the pick must not push the options down. -->
         <div class="flex min-h-[64px] flex-col items-center justify-center">
-          <template v-if="picked !== null">
-            <h2 class="text-3xl leading-9 font-bold break-words" data-testid="word">{{ card.word }}</h2>
-            <p v-if="card.transcription" class="mt-0.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
-              {{ card.transcription }}
+          <template v-if="isCorrect !== null">
+            <h2 class="text-3xl leading-9 font-bold break-words" data-testid="word">{{ shown.word }}</h2>
+            <p v-if="shown.transcription" class="mt-0.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
+              {{ shown.transcription }}
             </p>
           </template>
           <p v-else class="text-[13px] leading-[18px] text-tg-hint" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
@@ -114,11 +137,11 @@ onMounted(play)
         />
       </div>
 
-      <p v-if="picked !== null && card.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
-        {{ card.example }}
+      <p v-if="isCorrect !== null && shown.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
+        {{ shown.example }}
       </p>
       <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
-      <CardHooks v-if="picked !== null" :card="card" class="px-2" />
+      <CardHooks v-if="isCorrect !== null" :card="shown" class="px-2" />
     </div>
 
     <StickyActions v-if="awaitingConfirm">

@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
@@ -47,11 +48,11 @@ it('starts with nothing done and ticks the steps one by one; a hand-typed Telegr
     $group->update(['course_id' => Course::factory()->published()->create()->id]);
     expect($this->checklist->build($owner, $this->org)->courseChosen)->toBeTrue();
 
-    // An offer not yet accepted counts as "learners invited"; a left member does not.
+    // An invitation not yet accepted counts as "learners invited" (found learner or not); a left member does not.
     $left = Learner::factory()->create();
     OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => $left->id, 'status' => 'left', 'seat_state' => 'none']);
     expect($this->checklist->build($owner, $this->org)->learnersInvited)->toBeFalse();
-    OrganizationMember::factory()->create(['organization_id' => $this->org->id, 'learner_id' => Learner::factory()->create()->id, 'status' => 'invited', 'seat_state' => 'none']);
+    OrganizationMemberInvitation::factory()->create(['organization_id' => $this->org->id, 'invited_handle' => '@nobody_yet']);
     expect($this->checklist->build($owner, $this->org)->learnersInvited)->toBeTrue();
 
     // A personal session of a learner is not a group training; one in a group of another center neither.

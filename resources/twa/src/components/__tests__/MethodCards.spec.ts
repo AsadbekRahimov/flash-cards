@@ -100,12 +100,13 @@ describe('FlashCard — hard words and hooks', () => {
 })
 
 describe('ReverseCard — hard words and hooks', () => {
-  it('shows the chip at once and the hooks after the pick', async () => {
+  it('shows the chip at once and the hooks only when the server has answered (the card is sent without them)', async () => {
     const reverse: Card = {
       ...card,
+      word: '',
+      hook: null,
+      confused_with: null,
       is_leech: true,
-      hook: 'мать ~ mother',
-      confused_with: { word: 'father', translation: null },
       prompt: { type: 'reverse', front: 'мать', masked_example: null, options: ['father', 'mother', 'sister', 'brother'], answer_length: null },
     }
     const w = mount(ReverseCard, { props: { card: reverse } })
@@ -113,9 +114,22 @@ describe('ReverseCard — hard words and hooks', () => {
     expect(w.find('[data-testid=card-hooks]').exists()).toBe(false)
 
     await w.get('[data-testid=option-0]').trigger('click')
+    expect(w.emitted('pick')).toEqual([['father']])
+    // The pick is on its way: still nothing of the method on screen.
+    expect(w.find('[data-testid=card-hooks]').exists()).toBe(false)
+
+    await w.setProps({
+      result: {
+        correct: false,
+        right: 'mother',
+        revealed: {
+          word: 'mother', translation: 'мать', correct: 'mother', example: null, transcription: null, audio_url: null,
+          hook: 'мать ~ mother', note: null, confused_with: { word: 'father', translation: null },
+        },
+      },
+    })
     expect(w.get('[data-testid=hook]').text()).toContain('мать ~ mother')
     expect(w.get('[data-testid=confused-with]').text().replace(/\s+/g, ' ')).toBe('Не путайте с: father')
-    expect(w.emitted('grade')).toEqual([[2, 'father']])
   })
 })
 
@@ -138,6 +152,25 @@ describe('WordNoteSheet', () => {
 
     const fresh = mount(WordNoteSheet, { props: { word: 'mother', note: null } })
     expect(fresh.find('[data-testid=note-clear]').exists()).toBe(false)
+  })
+
+  it('labels the textarea for a screen reader and counts code points, not UTF-16 units', async () => {
+    const w = mount(WordNoteSheet, { props: { word: 'mother', note: null, max: 5 } })
+    expect(w.get('[data-testid=note-input]').attributes('aria-label')).toBe('Моя подсказка')
+    expect(w.get('[data-testid=note-counter]').text()).toBe('0 / 5')
+
+    // Three emoji are six UTF-16 units but three characters: they fit; the server counts them the same way.
+    await w.get('[data-testid=note-input]').setValue('😀😀😀')
+    expect(w.get('[data-testid=note-counter]').text()).toBe('3 / 5')
+    expect((w.get('[data-testid=note-input]').element as HTMLTextAreaElement).value).toBe('😀😀😀')
+
+    // Past the limit the text is cut at a character boundary, never inside an emoji.
+    await w.get('[data-testid=note-input]').setValue('😀😀😀😀😀😀😀')
+    expect(w.get('[data-testid=note-counter]').text()).toBe('5 / 5')
+    expect((w.get('[data-testid=note-input]').element as HTMLTextAreaElement).value).toBe('😀😀😀😀😀')
+
+    await w.get('[data-testid=note-save]').trigger('click')
+    expect(w.emitted('save')).toEqual([['😀😀😀😀😀']])
   })
 })
 

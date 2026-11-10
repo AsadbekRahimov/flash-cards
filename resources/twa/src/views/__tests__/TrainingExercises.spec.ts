@@ -118,6 +118,22 @@ describe('TrainingView — exercises', () => {
       ...overrides,
     })
 
+    /**
+     * The answer to the pick of a reverse / audio card: the verdict and what the card was sent without (the word of the
+     * reverse card, the translation of the audio one). The right option is `walk` / `идти`.
+     */
+    const choiceAnswer = (correct: boolean, exercise: 'reverse' | 'audio' = 'reverse', overrides: Partial<ReviewResponse> = {}): ReviewResponse => {
+      const right = exercise === 'reverse' ? 'walk' : 'идти'
+      return reviewAnswer({
+        graded: { quality: correct ? 4 : 2, correct, expected: right },
+        revealed: {
+          word: 'walk', translation: 'идти', correct: right, example: 'They walked home.', transcription: null,
+          audio_url: null, hook: null, note: null, confused_with: null,
+        },
+        ...overrides,
+      })
+    }
+
     /** A review whose answer the test sends by hand: it can come before or after the learner moves on. */
     function pendingReview() {
       let resolve: (value: ReviewResponse) => void = () => {}
@@ -135,13 +151,13 @@ describe('TrainingView — exercises', () => {
 
     it('a right reverse pick is sent at once; the next card follows after the feedback pause', async () => {
       vi.useFakeTimers()
-      vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer())
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(true))
       const { wrapper } = await render(card(prompts.reverse))
 
       await wrapper.get('[data-testid=option-1]').trigger('click')
-      // The grade is final at the pick: it goes now, not after the pause.
+      // The pick is final: it goes now, not after the pause.
       expect(api.training.answer).toHaveBeenCalledTimes(1)
-      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walk', expect.any(Number), null)
+      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walk', expect.any(Number), null, 'reverse')
 
       // The answer is back, but the learner still sees the coloured pick: the next card waits for the pause.
       await flushPromises()
@@ -158,7 +174,7 @@ describe('TrainingView — exercises', () => {
       expect(api.training.answer).toHaveBeenCalledTimes(1)
     })
 
-    it('a right pick whose answer comes after the pause shows the next card the moment it arrives', async () => {
+    it('a right pick whose answer is slow: nothing is coloured until the server answers, then the pause starts', async () => {
       vi.useFakeTimers()
       const answer = pendingReview()
       const { wrapper } = await render(card(prompts.reverse))
@@ -166,10 +182,16 @@ describe('TrainingView — exercises', () => {
       await wrapper.get('[data-testid=option-1]').trigger('click')
       vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 3)
       await flushPromises()
+      // The card carries no right option: the pick is only marked as made.
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('selected')
       expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(false)
 
-      answer.resolve(reviewAnswer())
+      answer.resolve(choiceAnswer(true))
+      await flushPromises()
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
+      expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(false)
+      vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
       await flushPromises()
       expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
       expect(api.training.answer).toHaveBeenCalledTimes(1)
@@ -177,12 +199,12 @@ describe('TrainingView — exercises', () => {
 
     it('a wrong reverse pick is sent at once and stays on screen until "Next", which sends nothing more (N6)', async () => {
       vi.useFakeTimers()
-      vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer({ new_interval_days: 0 }))
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false))
       const { wrapper } = await render(card(prompts.reverse))
 
       await wrapper.get('[data-testid=option-0]').trigger('click')
       expect(api.training.answer).toHaveBeenCalledTimes(1)
-      expect(api.training.answer).toHaveBeenCalledWith(1, 7, expect.any(String), expect.any(Number), null)
+      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'run', expect.any(Number), null, 'reverse')
       await flushPromises()
       expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
       expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
@@ -204,13 +226,13 @@ describe('TrainingView — exercises', () => {
     })
 
     it('a wrong audio pick is sent at once and waits for "Next" as well', async () => {
-      vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer({ new_interval_days: 0 }))
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false, 'audio'))
       const { wrapper } = await render(card(prompts.audio))
 
       await wrapper.get('[data-testid=option-0]').trigger('click')
       await flushPromises()
       expect(api.training.answer).toHaveBeenCalledTimes(1)
-      expect(api.training.answer).toHaveBeenCalledWith(1, 7, expect.any(String), expect.any(Number), null)
+      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'бежать', expect.any(Number), null, 'audio')
       expect(wrapper.find('[data-testid=audio-card]').exists()).toBe(true)
       expect(wrapper.get('[data-testid=word]').text()).toBe('walk')
 
@@ -221,7 +243,7 @@ describe('TrainingView — exercises', () => {
     })
 
     it('an option tapped twice, or another one after it, sends one grade', async () => {
-      vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer({ new_interval_days: 0 }))
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false))
       const { wrapper } = await render(card(prompts.reverse))
 
       const first = wrapper.get('[data-testid=option-0]')
@@ -232,11 +254,11 @@ describe('TrainingView — exercises', () => {
       await wrapper.get('[data-testid=option-1]').trigger('click')
 
       expect(api.training.answer).toHaveBeenCalledTimes(1)
-      expect(api.training.answer).toHaveBeenCalledWith(1, 7, expect.any(String), expect.any(Number), null)
+      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'run', expect.any(Number), null, 'reverse')
     })
 
     it('"Next" pressed twice moves on once and sends nothing', async () => {
-      vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer({ new_interval_days: 0 }))
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false))
       const { wrapper } = await render(card(prompts.reverse))
       await wrapper.get('[data-testid=option-3]').trigger('click')
       await flushPromises()
@@ -250,25 +272,21 @@ describe('TrainingView — exercises', () => {
       expect(useTrainingStore().card?.word_id).toBe(8)
     })
 
-    it('"Next" pressed before the answer is back: the button waits, the card follows the answer, one request in all', async () => {
+    it('there is no "Next" before the answer is back: the pick waits marked, the verdict and "Next" come with the answer', async () => {
       const answer = pendingReview()
       const { wrapper } = await render(card(prompts.reverse))
       await wrapper.get('[data-testid=option-0]').trigger('click')
-
-      // The grade is on its way, but "Next" can be asked for.
-      const next = wrapper.get('[data-testid=continue-btn]')
-      expect(next.attributes('disabled')).toBeUndefined()
-      await next.trigger('click')
       await flushPromises()
 
-      const waiting = wrapper.get('[data-testid=continue-btn]')
-      expect(waiting.attributes('disabled')).toBeDefined()
-      expect(waiting.attributes('aria-busy')).toBe('true')
-      expect(wrapper.find('[data-testid=continue-waiting]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(true)
-      await waiting.trigger('click')
+      expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('selected')
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('idle')
 
-      answer.resolve(reviewAnswer({ new_interval_days: 0 }))
+      answer.resolve(choiceAnswer(false))
+      await flushPromises()
+      expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
+      await wrapper.get('[data-testid=continue-btn]').trigger('click')
       await flushPromises()
 
       expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(false)
@@ -314,10 +332,11 @@ describe('TrainingView — exercises', () => {
         }],
       ])('after a wrong pick, by %s', async (_way, leave) => {
         vi.useFakeTimers()
-        vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer({ new_interval_days: 0 }))
+        vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false))
         const { wrapper, router } = await render(card(prompts.reverse))
 
         await wrapper.get('[data-testid=option-0]').trigger('click')
+        await flushPromises()
         expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(true)
         await leave(wrapper)
         await flushPromises()
@@ -325,7 +344,7 @@ describe('TrainingView — exercises', () => {
         await flushPromises()
 
         expect(api.training.answer).toHaveBeenCalledTimes(1)
-        expect(api.training.answer).toHaveBeenCalledWith(1, 7, expect.any(String), expect.any(Number), null)
+        expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'run', expect.any(Number), null, 'reverse')
         if (_way !== 'unmounting the screen') expect(router.currentRoute.value.name).toBe('today')
         expect(state.close).not.toHaveBeenCalled()
       })
@@ -342,7 +361,7 @@ describe('TrainingView — exercises', () => {
         }],
       ])('before the pause of a right pick is over, by %s', async (_way, leave) => {
         vi.useFakeTimers()
-        vi.mocked(api.training.answer).mockResolvedValue(reviewAnswer())
+        vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(true, 'audio'))
         const { wrapper } = await render(card(prompts.audio))
 
         await wrapper.get('[data-testid=option-1]').trigger('click')
@@ -352,14 +371,14 @@ describe('TrainingView — exercises', () => {
         await flushPromises()
 
         expect(api.training.answer).toHaveBeenCalledTimes(1)
-        expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'идти', expect.any(Number), null)
+        expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'идти', expect.any(Number), null, 'audio')
       })
     })
 
     it('the last card: a right pick leads to the finish screen after the pause, a wrong one after "Next"', async () => {
       vi.useFakeTimers()
       vi.mocked(api.training.answer).mockResolvedValue(
-        reviewAnswer({ card: null, done_reason: 'lesson_complete', progress: { done: 3, total: 3 }, new_interval_days: 6 }),
+        choiceAnswer(true, 'reverse', { card: null, done_reason: 'lesson_complete', progress: { done: 3, total: 3 }, new_interval_days: 6 }),
       )
       vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 3, correct: 2, new_words: 0 })
 
@@ -378,7 +397,7 @@ describe('TrainingView — exercises', () => {
 
       vi.clearAllMocks()
       vi.mocked(api.training.answer).mockResolvedValue(
-        reviewAnswer({ card: null, done_reason: 'lesson_complete', progress: { done: 3, total: 3 }, new_interval_days: 0 }),
+        choiceAnswer(false, 'reverse', { card: null, done_reason: 'lesson_complete', progress: { done: 3, total: 3 }, new_interval_days: 0 }),
       )
       vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 3, correct: 2, new_words: 0 })
       const wrong = await render(card(prompts.reverse))
@@ -404,15 +423,16 @@ describe('TrainingView — exercises', () => {
       next_review_at: null,
       new_interval_days: 0,
       easiness_factor: 2.5,
-      graded: null,
+      graded: { quality: 2, correct: false, expected: 'walk' },
       card: card(prompts.reverse, { serve_token: 'ticket-2', card_kind: 'learning' }),
       progress: { done: 1, total: 3 },
     })
     const { wrapper } = await render(card(prompts.reverse))
     await wrapper.get('[data-testid=option-2]').trigger('click')
+    await flushPromises()
     expect(wrapper.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
     // The first serve had no ticket; the picked option is what goes to the server (docs/06 §12.2).
-    expect(api.training.answer).toHaveBeenLastCalledWith(1, 7, 'sit', expect.any(Number), null)
+    expect(api.training.answer).toHaveBeenLastCalledWith(1, 7, 'sit', expect.any(Number), null, 'reverse')
 
     await wrapper.get('[data-testid=continue-btn]').trigger('click')
     await flushPromises()
@@ -426,11 +446,20 @@ describe('TrainingView — exercises', () => {
     expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
 
     vi.mocked(api.training.answer).mockClear()
+    vi.mocked(api.training.answer).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 1,
+      easiness_factor: 2.5,
+      graded: { quality: 4, correct: true, expected: 'walk' },
+      card: card(null, { word_id: 8 }),
+      progress: { done: 2, total: 3 },
+    })
     await wrapper.get('[data-testid=option-1]').trigger('click')
+    await flushPromises()
     expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
     // The grade of the second serve carries the ticket of the card the pick was made on.
     expect(api.training.answer).toHaveBeenCalledTimes(1)
-    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walk', expect.any(Number), 'ticket-2')
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walk', expect.any(Number), 'ticket-2', 'reverse')
   })
 
   it('a typed answer shows the verdict, then "Next" reveals the card the review answered with', async () => {
@@ -448,7 +477,7 @@ describe('TrainingView — exercises', () => {
     await wrapper.get('[data-testid=answer-form]').trigger('submit')
     await flushPromises()
 
-    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walks', expect.any(Number), null)
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walks', expect.any(Number), null, 'gap_fill')
     const verdict = wrapper.get('[data-testid=answer-verdict]')
     expect(verdict.attributes('data-kind')).toBe('wrong')
     expect(verdict.get('[data-testid=verdict-text]').text()).toBe('Неверно')

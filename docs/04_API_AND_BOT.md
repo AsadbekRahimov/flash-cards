@@ -301,6 +301,8 @@ Learner присоединяется к открытой тренировке. �
 }
 ```
 
+Для `prompt.type` = `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `transcription`, `audio_url` = `null`; `audio` — `translation` = `""`, `example` = `null`; у обоих `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
+
 Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `transcription`, `audio_url` = `null` (правильный ответ — в `graded.expected` ответа `/review`).
 
 `card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
@@ -409,6 +411,8 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   "serve_token": null       // optional, <= 64 символов: card.serve_token выданной карточки (обязателен для learn-ahead)
 }
 ```
+Необязательное `exercise` (`prompt.type` показанной карточки): если оно не совпадает с типом, который сервер пересчитал сейчас (план сменился
+Pro → Free посреди занятия), — 409 `exercise_mismatch`, ничего не записано, клиент перезапрашивает `GET /next`. Без `exercise` проверки нет (старый клиент).
 Ключ `answer` в теле (даже `null`) переключает запрос в режим ответа: `quality` тогда `prohibited`, без `answer` — `quality` `required` (422 валидации).
 Сервер **пересчитывает** упражнение карточки по тем же входам, что и `/next` (ничего не хранит, docs/13 §8.2), и для `spelling`/`gap_fill` ставит `quality`
 сам (`SpellingGrader`, docs/06 §4.3): точное совпадение → 5, в допуске → 4, иначе 1. В `training_reviews` пишутся `exercise` (всегда) и `answer_text`
@@ -421,6 +425,7 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
   "graded": { "quality": 4, "correct": true, "expected": "resilient" } | null, // вердикт сервера по answer; null при quality
+  "revealed": { "word", "translation", "correct", "example", "transcription", "audio_url", "hook", "note", "confused_with" } | null, // экран reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,

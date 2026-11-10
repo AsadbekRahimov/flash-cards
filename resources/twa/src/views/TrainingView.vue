@@ -52,6 +52,7 @@ const {
   serveSeq,
   lastExercise,
   savingNote,
+  choiceResult,
 } = storeToRefs(training)
 
 /** The text of the last typed answer, for the verdict screen. */
@@ -160,11 +161,11 @@ function onGrade(q: Quality): void {
 
 /**
  * Reverse / audio: the picked option goes to the server at the pick (it grades it, docs/06 §12.2), so it is saved even if
- * the learner leaves at once; the card it answers with is held back until the learner has seen the right answer
- * (`onChoiceAdvance`).
+ * the learner leaves at once; the card has no right option in it, the options are coloured by `choiceResult` when the
+ * server answers; the card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
  */
-function onChoiceGrade(q: Quality, picked: string): void {
-  void training.submitChoice(q, picked)
+function onChoicePick(picked: string): void {
+  void training.submitChoice(picked)
 }
 
 /** The pretest pick (or "I don't know" = ''): the server grades, the reveal shows the meaning. */
@@ -299,7 +300,8 @@ async function onRestart(): Promise<void> {
           :key="`reverse-${serveSeq}`"
           :card="card"
           :disabled="isBusy"
-          @grade="onChoiceGrade"
+          :result="choiceResult"
+          @pick="onChoicePick"
           @advance="onChoiceAdvance"
         />
         <AudioCard
@@ -307,7 +309,8 @@ async function onRestart(): Promise<void> {
           :key="`audio-${serveSeq}`"
           :card="card"
           :disabled="isBusy"
-          @grade="onChoiceGrade"
+          :result="choiceResult"
+          @pick="onChoicePick"
           @advance="onChoiceAdvance"
         />
         <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />

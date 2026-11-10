@@ -11,6 +11,7 @@ use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
 use App\Filament\Org\Resources\InviteResource\Pages\ListInvites;
 use App\Filament\Org\Resources\MemberResource\Pages\ListMembers;
 use App\Filament\Org\Resources\StaffResource\Pages\ListStaff;
+use App\Filament\Org\Widgets\MemberInvitationsWidget;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
@@ -22,6 +23,7 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\Stage;
 use App\Models\Subscription;
@@ -29,6 +31,7 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -159,6 +162,26 @@ it('lists the members of a center within budget, reading the role of the user on
     expect(roleLookups($queries[FilamentQueryBudget::LARGE]))->toBe(2)
         ->and(count($queries[FilamentQueryBudget::SMALL]))->toBe(count($queries[FilamentQueryBudget::LARGE]));
 })->with(['owner', 'teacher']);
+
+it('lists the invitations of a center within budget: the rows and nothing of the learners', function (): void {
+    $c = budgetCenter();
+    budgetEnter($c['owner'], $c['organization']);
+
+    // Every second invitation names a learner — the column list must not reach for them.
+    $fill = function (int $rows) use ($c): void {
+        $have = OrganizationMemberInvitation::query()->where('organization_id', $c['organization']->id)->count();
+        OrganizationMemberInvitation::factory()
+            ->count($rows - $have)
+            ->sequence(fn (Sequence $sequence): array => ['learner_id' => $sequence->index % 2 === 0 ? Learner::factory()->create()->id : null])
+            ->create(['organization_id' => $c['organization']->id]);
+    };
+
+    // Two renders of the widget (the mount and the change of the page size): the page query and its "one more row" each, plus the role.
+    $queries = FilamentQueryBudget::assert(MemberInvitationsWidget::class, $fill, ceiling: 8);
+
+    expect(count($queries[FilamentQueryBudget::SMALL]))->toBe(count($queries[FilamentQueryBudget::LARGE]))
+        ->and(implode(' ', $queries[FilamentQueryBudget::LARGE]))->not->toContain('from "learners"');
+});
 
 it('lists the groups of a center within budget', function (string $who): void {
     $c = budgetCenter();

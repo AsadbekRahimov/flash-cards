@@ -42,15 +42,20 @@ return [
     'auto_activate_linked_groups' => (bool) env('ORGANIZATIONS_AUTO_ACTIVATE_LINKED_GROUPS', true),
 
     /**
-     * "Add a learner" from the cabinet is an OFFER the learner accepts in the bot (audit 2026-11-10 M2). Limits are per hour
-     * and count every call, found learner or not (the answer to the staff is the same either way).
+     * "Add a learner" from the cabinet is an INVITATION the learner accepts in the bot (audit 2026-11-10 M2, review finding B1).
+     * Limits are per hour and count every call, found learner or not (the answer to the staff is the same either way).
      */
     'member_invite' => [
         'per_organization_per_hour' => (int) env('ORGANIZATIONS_MEMBER_INVITES_PER_ORG_PER_HOUR', 30),
         'per_staff_per_hour' => (int) env('ORGANIZATIONS_MEMBER_INVITES_PER_STAFF_PER_HOUR', 20),
-        /** An offer the learner has not answered expires after this many days; the staff may send a new one. */
+        /** An invitation reads "waiting" in the cabinet for this many days and "expired" after; a new one may then be sent. */
         'ttl_days' => 7,
-        /** A learner who declined is not offered again by the same center for this many days (the call is a silent no-op). */
+        /**
+         * W7: one center sends one "Join / Decline" DM to one learner at most once per this many days, whatever the staff do in
+         * between (revoke and invite again, let it expire and invite again). The cabinet shows every attempt the same way.
+         */
+        'dm_cooldown_days' => (int) env('ORGANIZATIONS_MEMBER_INVITE_DM_COOLDOWN_DAYS', 7),
+        /** A learner who declined gets no DM from the same center for this many days (the invitation row is still written). */
         'redecline_cooldown_days' => 7,
     ],
 

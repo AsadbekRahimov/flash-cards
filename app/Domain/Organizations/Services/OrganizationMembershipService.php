@@ -25,6 +25,7 @@ use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -164,10 +165,35 @@ final class OrganizationMembershipService
     /**
      * The learner a staff member named by `@username` / `username` (case-insensitive) or a numeric Telegram id — exact match
      * only, no browsing of the platform's learners. Null for anything else; the CALLER MUST NOT tell the staff whether it was
-     * null (audit 2026-11-10 M2: the answer would say who uses LexiFlow) — {@see inviteByStaff()} is written so one neutral
-     * notification fits every outcome.
+     * null (audit 2026-11-10 M2: the answer would say who uses LexiFlow).
      */
     public function findLearnerByTelegram(string $input): ?Learner
+    {
+        $handle = self::normalizeTelegramHandle($input);
+
+        if ($handle === null) {
+            return null;
+        }
+
+        if (ctype_digit($handle)) {
+            /** @var Learner|null $learner */
+            $learner = Learner::query()->where('telegram_user_id', (int) $handle)->first();
+
+            return $learner;
+        }
+
+        /** @var Learner|null $learner */
+        $learner = Learner::query()->whereRaw('LOWER(username) = ?', [substr($handle, 1)])->first();
+
+        return $learner;
+    }
+
+    /**
+     * What the staff typed, as the cabinet stores and shows it: `@username` in lower case (3–64 of `[A-Za-z0-9_]`, with or
+     * without the `@`) or the digits of a Telegram id (≤ 18). Null for anything else — a FORMAT check only, decided before any
+     * lookup, so the refusal says nothing about the platform's learners.
+     */
+    public static function normalizeTelegramHandle(string $input): ?string
     {
         $input = trim($input);
 
@@ -176,38 +202,31 @@ final class OrganizationMembershipService
         }
 
         if (ctype_digit($input)) {
-            /** @var Learner|null $learner */
-            $learner = strlen($input) <= 18 ? Learner::query()->where('telegram_user_id', (int) $input)->first() : null;
-
-            return $learner;
+            return strlen($input) <= 18 ? ltrim($input, '0') ?: null : null;
         }
 
         $username = ltrim($input, '@');
 
-        if (preg_match('/^[A-Za-z0-9_]{3,64}$/', $username) !== 1) {
-            return null;
-        }
-
-        /** @var Learner|null $learner */
-        $learner = Learner::query()->whereRaw('LOWER(username) = ?', [strtolower($username)])->first();
-
-        return $learner;
+        return preg_match('/^[A-Za-z0-9_]{3,64}$/', $username) === 1 ? '@'.strtolower($username) : null;
     }
 
     /**
-     * "Add a learner" from the `/org` cabinet (audit 2026-11-10 M2): an OFFER, not a membership. Writes a row `status = invited`
-     * (no seat, no Pro, in no list of a teacher) and raises {@see OrganizationMemberInvited} — the bot asks the learner "Join /
-     * Decline"; {@see acceptInvite()} makes it a membership (`joined_via = admin`).
+     * "Add a learner" from the `/org` cabinet (audit 2026-11-10 M2, review finding B1): an INVITATION, never a membership, and a
+     * row for EVERY attempt — found learner or not. The cabinet shows only the handle, the date and "waiting" / "expired"
+     * ({@see OrganizationMemberInvitation::state()}); nothing it can read differs between a handle that matched nobody, a learner
+     * who never answered, one who declined and one the bot could not reach. The returned row carries the internal `learner_id`:
+     * the caller must not pass it on.
      *
-     * Returns the offer row, or null when nothing was written: no such learner, a learner who is blocked / unreachable / still in
-     * the onboarding, an active member already, an offer already waiting, or a learner who declined within
-     * `organizations.member_invite.redecline_cooldown_days`. The cabinet shows ONE text in both cases ("the invitation was sent if
-     * such a learner is in LexiFlow"): the null tells the caller nothing it may pass on. The limits per organization and per staff
-     * member (`organizations.member_invite.*_per_hour`) count every call, found learner or not.
+     * A handle with an invitation still open in this organization gets no second row and no second DM — the open one comes
+     * back, whatever its internal state. Otherwise a row is written; the "Join / Decline" DM ({@see OrganizationMemberInvited})
+     * is reserved (`dm_sent_at`) only for a learner who exists, is onboarded, reachable, not blocked, not a member already and
+     * who got no DM from this center within `organizations.member_invite.dm_cooldown_days` and did not decline one within
+     * `redecline_cooldown_days` (W7: the invite → revoke → invite loop is not a channel for spam). The hourly limits per
+     * organization and per staff member count every call.
      *
-     * @throws OrganizationMembershipException rate_limited | organization_suspended
+     * @throws OrganizationMembershipException rate_limited | organization_suspended | telegram_invalid
      */
-    public function inviteByStaff(Organization $organization, string $telegram, User $by, ?string $ip = null, ?CarbonImmutable $now = null): ?OrganizationMember
+    public function inviteByStaff(Organization $organization, string $telegram, User $by, ?string $ip = null, ?CarbonImmutable $now = null): OrganizationMemberInvitation
     {
         $now ??= CarbonImmutable::now();
         $this->hitInviteLimits($organization, $by);
@@ -216,137 +235,103 @@ final class OrganizationMembershipService
             throw OrganizationMembershipException::organizationSuspended($organization->id);
         }
 
-        $learner = $this->findLearnerByTelegram($telegram);
+        $handle = self::normalizeTelegramHandle($telegram) ?? throw OrganizationMembershipException::telegramInvalid();
+        $learner = $this->findLearnerByTelegram($handle);
 
-        if ($learner === null || $learner->blocked_at !== null || $learner->dm_blocked_at !== null || $learner->onboarding_state !== OnboardingService::DONE) {
-            return null;
-        }
-
-        return DB::transaction(function () use ($organization, $learner, $by, $ip, $now): ?OrganizationMember {
+        return DB::transaction(function () use ($organization, $handle, $learner, $by, $ip, $now): OrganizationMemberInvitation {
             $locked = $this->lockOrganization($organization->id);
             if ($locked === null || ! $locked->isActive()) {
                 throw OrganizationMembershipException::organizationSuspended($organization->id);
             }
 
-            /** @var OrganizationMember|null $member */
-            $member = OrganizationMember::query()
-                ->where('organization_id', $locked->id)
-                ->where('learner_id', $learner->id)
-                ->first();
-
-            if ($member !== null) {
-                if ($member->isActive()) {
-                    return null;
-                }
-
-                if ($member->isInvited() && ! $this->offerExpired($member, $now)) {
-                    return null;
-                }
-
-                $cooldown = max(0, (int) config('organizations.member_invite.redecline_cooldown_days', 7));
-                if ($member->status === MemberStatus::Declined->value && $member->left_at !== null && $member->left_at->greaterThan($now->subDays($cooldown))) {
-                    return null;
-                }
+            /** @var OrganizationMemberInvitation|null $open */
+            $open = $this->openInvitations($locked->id, $now)->where('invited_handle', $handle)->orderByDesc('id')->first();
+            if ($open !== null) {
+                return $open;
             }
 
-            $attributes = [
-                'status' => MemberStatus::Invited->value,
-                'seat_state' => SeatState::None->value,
-                'joined_via' => JoinedVia::Admin->value,
-                'invite_id' => null,
-                'seated_at' => null,
-                'waitlisted_at' => null,
-                'joined_at' => $now,
-                'left_at' => null,
-                'invited_at' => $now,
+            // The learner the DM goes to now, or null: unknown handle, unreachable, a member already, or inside a cooldown.
+            $recipient = $learner !== null && $this->mayDm($locked->id, $learner, $now) ? $learner : null;
+
+            $invitation = OrganizationMemberInvitation::query()->create([
+                'organization_id' => $locked->id,
+                'invited_handle' => $handle,
+                'learner_id' => $learner?->id,
                 'invited_by_user_id' => $by->id,
-            ];
-
-            if ($member === null) {
-                $member = OrganizationMember::query()->create([
-                    'organization_id' => $locked->id,
-                    'learner_id' => $learner->id,
-                    'meta' => [],
-                    ...$attributes,
-                ]);
-            } else {
-                $member->update($attributes);
-            }
+                'expires_at' => $now->addDays(max(1, (int) config('organizations.member_invite.ttl_days', 7))),
+                'dm_sent_at' => $recipient === null ? null : $now,
+            ]);
 
             AuditLog::create([
                 'user_id' => $by->id,
                 'action' => self::AUDIT_MEMBER_INVITED,
-                'entity_type' => OrganizationMember::class,
-                'entity_id' => $member->id,
+                'entity_type' => OrganizationMemberInvitation::class,
+                'entity_id' => $invitation->id,
                 'ip' => $ip,
-                'meta' => ['organization_id' => $locked->id, 'learner_id' => $learner->id],
+                'meta' => ['organization_id' => $locked->id, 'handle' => $handle, 'learner_id' => $learner?->id, 'dm' => $recipient !== null],
             ]);
 
-            $event = new OrganizationMemberInvited($locked->id, $learner->id, $member->id);
+            if ($recipient !== null) {
+                $event = new OrganizationMemberInvited($locked->id, $invitation->id, $recipient->id);
 
-            DB::afterCommit(function () use ($event): void {
-                $reported = false;
-                $this->guard('organizations.membership_event_failed', $event->organizationId, $event->learnerId, function () use ($event): void {
-                    event($event);
-                }, $reported);
-            });
+                DB::afterCommit(function () use ($event): void {
+                    $reported = false;
+                    $this->guard('organizations.membership_event_failed', $event->organizationId, $event->learnerId, function () use ($event): void {
+                        event($event);
+                    }, $reported);
+                });
+            }
 
-            return $member;
+            return $invitation;
         });
     }
 
     /**
-     * The learner tapped "Join" on a staff offer: the `invited` row becomes an active membership (`joined_via = admin`), seated
-     * if a seat is free; the usual join event sends "You are in center X". The row must be the learner's own and still waiting.
+     * The learner tapped "Join" on a staff invitation: an active membership (`joined_via = admin`, seated if a seat is free; the
+     * usual join event sends "You are in center X"), the invitation — and every other open one of this learner here — is marked
+     * accepted. The row must be the learner's own and still answerable.
      *
      * @throws OrganizationMembershipException invite_not_pending | organization_suspended
      */
-    public function acceptInvite(Learner $learner, int $memberId, ?CarbonImmutable $now = null): OrganizationMember
+    public function acceptInvite(Learner $learner, int $invitationId, ?CarbonImmutable $now = null): OrganizationMember
     {
         $now ??= CarbonImmutable::now();
 
-        return DB::transaction(function () use ($learner, $memberId, $now): OrganizationMember {
-            $pending = $this->pendingOffer($learner, $memberId);
-            $organization = $this->lockOrganization($pending->organization_id) ?? throw OrganizationMembershipException::inviteNotPending($memberId);
+        return DB::transaction(function () use ($learner, $invitationId, $now): OrganizationMember {
+            $pending = $this->answerableInvitation($learner, $invitationId, $now);
+            $organization = $this->lockOrganization($pending->organization_id) ?? throw OrganizationMembershipException::inviteNotPending($invitationId);
 
             if (! $organization->isActive()) {
                 throw OrganizationMembershipException::organizationSuspended($organization->id);
             }
 
             // Re-read under the organization lock: a revoke or a parallel tap is serialized here.
-            $pending = $this->pendingOffer($learner, $memberId);
-            if ($this->offerExpired($pending, $now)) {
-                throw OrganizationMembershipException::inviteNotPending($memberId);
-            }
+            $this->answerableInvitation($learner, $invitationId, $now);
 
             return $this->activate($organization, $learner, JoinedVia::Admin, null, $now)['member'];
         });
     }
 
     /**
-     * "Decline": the offer is closed (`status = declined`, `left_at` = now); the center sees it in the list and may offer again
-     * after the cooldown. Nothing else changes.
+     * "Decline": the invitation is closed for the learner (`declined_at`) and stays "waiting" for the staff until it expires —
+     * a decline must read exactly like silence in the cabinet. Nothing else changes.
      *
      * @throws OrganizationMembershipException invite_not_pending
      */
-    public function declineInvite(Learner $learner, int $memberId, ?CarbonImmutable $now = null): OrganizationMember
+    public function declineInvite(Learner $learner, int $invitationId, ?CarbonImmutable $now = null): OrganizationMemberInvitation
     {
         $now ??= CarbonImmutable::now();
 
-        return DB::transaction(function () use ($learner, $memberId, $now): OrganizationMember {
-            $pending = $this->pendingOffer($learner, $memberId);
+        return DB::transaction(function () use ($learner, $invitationId, $now): OrganizationMemberInvitation {
+            $pending = $this->answerableInvitation($learner, $invitationId, $now);
             $this->lockOrganization($pending->organization_id);
-            $pending = $this->pendingOffer($learner, $memberId);
+            $pending = $this->answerableInvitation($learner, $invitationId, $now);
 
-            $pending->update([
-                'status' => MemberStatus::Declined->value,
-                'seat_state' => SeatState::None->value,
-                'left_at' => $now,
-            ]);
+            $pending->update(['declined_at' => $now]);
 
             $this->events->record(
                 ProductEventName::OrgMemberDeclined,
-                ['organization_id' => $pending->organization_id, 'member_id' => $pending->id],
+                ['organization_id' => $pending->organization_id, 'invitation_id' => $pending->id],
                 learner: $learner,
             );
 
@@ -355,51 +340,52 @@ final class OrganizationMembershipService
     }
 
     /**
-     * The staff takes an unanswered offer back: the row is deleted (a tap on the old buttons then says the offer is gone);
-     * audited. Only an `invited` row of this organization.
+     * The staff takes an open invitation back: marked `revoked_at` (the trace stays — W7: a revoked and re-sent invitation is
+     * still subject to the DM cooldown), audited; a tap on the old buttons then says the invitation is gone. Only an open row
+     * of this organization.
      *
      * @throws OrganizationMembershipException invite_not_pending
      */
-    public function revokeInvite(Organization $organization, OrganizationMember $member, User $by, ?string $ip = null): void
+    public function revokeInvite(Organization $organization, OrganizationMemberInvitation $invitation, User $by, ?string $ip = null, ?CarbonImmutable $now = null): void
     {
-        DB::transaction(function () use ($organization, $member, $by, $ip): void {
+        $now ??= CarbonImmutable::now();
+
+        DB::transaction(function () use ($organization, $invitation, $by, $ip, $now): void {
             $this->lockOrganization($organization->id);
 
-            /** @var OrganizationMember|null $current */
-            $current = OrganizationMember::query()->whereKey($member->id)->where('organization_id', $organization->id)->lockForUpdate()->first();
+            /** @var OrganizationMemberInvitation|null $current */
+            $current = OrganizationMemberInvitation::query()->whereKey($invitation->id)->where('organization_id', $organization->id)->lockForUpdate()->first();
 
-            if ($current === null || ! $current->isInvited()) {
-                throw OrganizationMembershipException::inviteNotPending($member->id);
+            if ($current === null || ! $current->isOpenAt($now)) {
+                throw OrganizationMembershipException::inviteNotPending($invitation->id);
             }
 
-            $learnerId = $current->learner_id;
-            $current->delete();
+            $current->update(['revoked_at' => $now]);
 
             AuditLog::create([
                 'user_id' => $by->id,
                 'action' => self::AUDIT_INVITE_REVOKED,
-                'entity_type' => OrganizationMember::class,
-                'entity_id' => $member->id,
+                'entity_type' => OrganizationMemberInvitation::class,
+                'entity_id' => $current->id,
                 'ip' => $ip,
-                'meta' => ['organization_id' => $organization->id, 'learner_id' => $learnerId],
+                'meta' => ['organization_id' => $organization->id, 'handle' => $current->invited_handle],
             ]);
         });
     }
 
-    /** The learner's own offer that still waits for an answer (for the bot: what "Join / Decline" act on), with its organization. */
-    public function pendingOfferOf(Learner $learner, int $memberId, ?CarbonImmutable $now = null): ?OrganizationMember
+    /** The learner's own invitation that they may still answer (for the bot: what "Join / Decline" act on), with its organization. */
+    public function pendingOfferOf(Learner $learner, int $invitationId, ?CarbonImmutable $now = null): ?OrganizationMemberInvitation
     {
         $now ??= CarbonImmutable::now();
 
-        /** @var OrganizationMember|null $member */
-        $member = OrganizationMember::query()
+        /** @var OrganizationMemberInvitation|null $invitation */
+        $invitation = OrganizationMemberInvitation::query()
             ->with('organization')
-            ->whereKey($memberId)
+            ->whereKey($invitationId)
             ->where('learner_id', $learner->id)
-            ->where('status', MemberStatus::Invited->value)
             ->first();
 
-        return $member === null || $this->offerExpired($member, $now) ? null : $member;
+        return $invitation === null || ! $invitation->isAnswerableAt($now) ? null : $invitation;
     }
 
     /**
@@ -721,6 +707,10 @@ final class OrganizationMembershipService
             $member->update($attributes);
         }
 
+        // Whatever brought the learner in (a staff invitation, a code, a group), the invitations of this center that still
+        // waited for them are answered: the cabinet shows "accepted" next to the ordinary member it now lists.
+        $this->openInvitations($organization->id, $now)->where('learner_id', $learner->id)->update(['accepted_at' => $now, 'updated_at' => $now]);
+
         $this->events->record(
             ProductEventName::OrgMemberJoined,
             ['organization_id' => $organization->id, 'via' => $via->value, 'seat_state' => $seat->value, 'invite_id' => $invite?->id],
@@ -824,30 +814,67 @@ final class OrganizationMembershipService
     }
 
     /**
-     * The learner's own `invited` row, under its row lock (the caller holds / takes the organization lock around it).
+     * The learner's own invitation they may still answer, under its row lock (the caller holds / takes the organization lock
+     * around it).
      *
      * @throws OrganizationMembershipException invite_not_pending
      */
-    private function pendingOffer(Learner $learner, int $memberId): OrganizationMember
+    private function answerableInvitation(Learner $learner, int $invitationId, CarbonImmutable $now): OrganizationMemberInvitation
     {
-        /** @var OrganizationMember|null $member */
-        $member = OrganizationMember::query()
-            ->whereKey($memberId)
+        /** @var OrganizationMemberInvitation|null $invitation */
+        $invitation = OrganizationMemberInvitation::query()
+            ->whereKey($invitationId)
             ->where('learner_id', $learner->id)
-            ->where('status', MemberStatus::Invited->value)
             ->lockForUpdate()
             ->first();
 
-        return $member ?? throw OrganizationMembershipException::inviteNotPending($memberId);
+        if ($invitation === null || ! $invitation->isAnswerableAt($now)) {
+            throw OrganizationMembershipException::inviteNotPending($invitationId);
+        }
+
+        return $invitation;
     }
 
-    /** An unanswered offer older than `organizations.member_invite.ttl_days` is dead: not accepted, and a new one may be sent. */
-    private function offerExpired(OrganizationMember $member, CarbonImmutable $now): bool
+    /**
+     * Invitations of the organization the staff still see as "waiting": not accepted, not revoked, not expired. A declined one
+     * is among them on purpose.
+     *
+     * @return Builder<OrganizationMemberInvitation>
+     */
+    private function openInvitations(int $organizationId, CarbonImmutable $now): Builder
     {
-        $ttl = max(1, (int) config('organizations.member_invite.ttl_days', 7));
-        $since = $member->invited_at ?? $member->joined_at;
+        return OrganizationMemberInvitation::query()
+            ->where('organization_id', $organizationId)
+            ->whereNull('accepted_at')
+            ->whereNull('revoked_at')
+            ->where('expires_at', '>', $now);
+    }
 
-        return $since->lessThanOrEqualTo($now->subDays($ttl));
+    /**
+     * Whether the "Join / Decline" DM goes to this learner now (W7): they can be reached, are not a member, got no DM from this
+     * center within `dm_cooldown_days` and declined none within `redecline_cooldown_days`. Read under the organization lock, so
+     * two parallel invitations cannot both reserve a DM.
+     */
+    private function mayDm(int $organizationId, Learner $learner, CarbonImmutable $now): bool
+    {
+        if ($learner->blocked_at !== null || $learner->dm_blocked_at !== null || $learner->onboarding_state !== OnboardingService::DONE) {
+            return false;
+        }
+
+        if ($this->activeRow($organizationId, $learner->id)->exists()) {
+            return false;
+        }
+
+        $dmWindow = max(0, (int) config('organizations.member_invite.dm_cooldown_days', 7));
+        $declineWindow = max(0, (int) config('organizations.member_invite.redecline_cooldown_days', 7));
+
+        return ! OrganizationMemberInvitation::query()
+            ->where('organization_id', $organizationId)
+            ->where('learner_id', $learner->id)
+            ->where(fn (Builder $q): Builder => $q
+                ->where('dm_sent_at', '>', $now->subDays($dmWindow))
+                ->orWhere('declined_at', '>', $now->subDays($declineWindow)))
+            ->exists();
     }
 
     /**

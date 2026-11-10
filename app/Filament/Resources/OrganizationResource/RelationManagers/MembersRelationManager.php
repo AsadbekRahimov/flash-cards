@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Gate;
 /**
  * Members and seats of an organization (docs/13 §1.3, §6.1). Add and remove go through
  * {@see OrganizationMembershipService} (`joinByAdmin` / `leave(..., 'removed')`: seat rules, the waiting list,
- * entitlement cache, audit) — never through the stock create / delete actions. Active members are shown by default.
+ * entitlement cache, audit) — never through the stock create / delete actions. Active members are shown by default. Invitations
+ * the center's staff sent are not memberships and are not listed here (`organization_member_invitations`, docs/13 §6.2).
  */
 class MembersRelationManager extends RelationManager
 {
@@ -68,11 +69,7 @@ class MembersRelationManager extends RelationManager
                     ->label(__('admin.organizations.members.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('organizations.members.status', $state))
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'invited' => 'warning',
-                        default => 'gray',
-                    })
+                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('joined_via')
                     ->label(__('admin.organizations.members.columns.joined_via'))
@@ -86,7 +83,7 @@ class MembersRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('admin.organizations.members.columns.status'))
-                    ->options(AdminLabels::options('organizations.members.status', ['active', 'invited', 'declined', 'left', 'removed']))
+                    ->options(AdminLabels::options('organizations.members.status', ['active', 'left', 'removed']))
                     ->default('active'),
                 SelectFilter::make('seat_state')
                     ->label(__('admin.organizations.members.columns.seat_state'))

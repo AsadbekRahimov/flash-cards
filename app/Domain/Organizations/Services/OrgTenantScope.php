@@ -14,6 +14,7 @@ use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -120,9 +121,9 @@ final class OrgTenantScope
     }
 
     /**
-     * Membership rows of the organization visible to the user: owner — every row (the resource
-     * filters by status itself); teacher — the active memberships of learners who are active in
-     * one of the teacher's groups.
+     * Membership rows of the organization visible to the user: owner — every row (present and past memberships; the resource
+     * filters by status itself); teacher — the active memberships of learners who are active in one of the teacher's groups.
+     * Invitations are not memberships and are never here ({@see self::memberInvitations()}).
      *
      * @return Builder<OrganizationMember>
      */
@@ -137,6 +138,19 @@ final class OrgTenantScope
                 ->whereIn('organization_members.learner_id', $this->groupLearnerIdsSubquery($user, $organization)),
             null => $query->whereKey([]),
         };
+    }
+
+    /**
+     * Invitations of learners by the staff (`organization_member_invitations`, review finding B1): owner only — a teacher invites
+     * nobody and sees no invitation. The rows carry what the staff typed and when; nothing about the learner.
+     *
+     * @return Builder<OrganizationMemberInvitation>
+     */
+    public function memberInvitations(User $user, Organization $organization): Builder
+    {
+        $query = OrganizationMemberInvitation::query()->where('organization_member_invitations.organization_id', $organization->id);
+
+        return $this->isOwner($user, $organization) ? $query : $query->whereKey([]);
     }
 
     /**

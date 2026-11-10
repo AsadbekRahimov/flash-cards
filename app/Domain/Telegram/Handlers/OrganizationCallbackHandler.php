@@ -12,11 +12,11 @@ use App\Domain\Telegram\Support\DmLearnerResolver;
 
 /**
  * Buttons about centers (`org1:…`, see {@see OrganizationMessenger}): "Join center X?" of an `org_<code>` link,
- * "Join / Decline" of a membership offered by the center's staff, and "My centers" / "Leave" of `/settings`.
+ * "Join / Decline" of an invitation by the center's staff, and "My centers" / "Leave" of `/settings`.
  *
  * `callback_data` is not signed, so it is matched strictly and nothing in it is trusted: a code is checked
- * by the membership service again, a membership id is looked up among the sender's OWN active memberships
- * (someone else's id is "not a member", never an action on it). The query is answered at once; a button of a
+ * by the membership service again, a membership / invitation id is looked up among the sender's OWN rows
+ * (someone else's id is "not a member" / "no longer valid", never an action on it). The query is answered at once; a button of a
  * message in any chat but the sender's own DM, or of a learner who has not finished the onboarding or is
  * blocked, is ignored.
  */
@@ -69,19 +69,19 @@ final class OrganizationCallbackHandler implements UpdateHandler
 
         $chatId = $fromId;
 
-        // Group 1: join + code; 3: skip | list | leaveno; 4: leave | leaveyes | accept | decline + membership id.
+        // Group 1: join + code; 3: skip | list | leaveno; 4: leave | leaveyes + membership id, accept | decline + invitation id.
         $action = $m[1] === 'join' ? 'join' : ($m[3] !== '' ? $m[3] : $m[4]);
 
-        $memberId = (int) ($m[5] ?? 0);
+        $rowId = (int) ($m[5] ?? 0);
 
         match ($action) {
             'join' => $this->messenger->join($learner, $chatId, $messageId, $m[2]),
             'skip' => $this->messenger->skip($learner, $chatId, $messageId),
             'list' => $this->messenger->sendList($learner, $chatId),
-            'leave' => $this->messenger->confirmLeave($learner, $chatId, $memberId),
-            'leaveyes' => $this->messenger->leave($learner, $chatId, $messageId, $memberId),
-            'accept' => $this->messenger->acceptMembership($learner, $chatId, $messageId, $memberId),
-            'decline' => $this->messenger->declineMembership($learner, $chatId, $messageId, $memberId),
+            'leave' => $this->messenger->confirmLeave($learner, $chatId, $rowId),
+            'leaveyes' => $this->messenger->leave($learner, $chatId, $messageId, $rowId),
+            'accept' => $this->messenger->acceptMembership($learner, $chatId, $messageId, $rowId),
+            'decline' => $this->messenger->declineMembership($learner, $chatId, $messageId, $rowId),
             default => $this->messenger->cancelLeave($learner, $chatId, $messageId),
         };
     }

@@ -9,6 +9,7 @@ use App\Domain\Organizations\Enums\SeatState;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Filament\Org\Resources\MemberResource\Pages;
+use App\Filament\Org\Widgets\MemberInvitationsWidget;
 use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\OrganizationMember;
@@ -21,12 +22,15 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 /**
- * Members (seats) of the organization (docs/13 §6.3): owner — all rows, "invite" by Telegram username / id (an offer the learner
- * accepts in the bot — audit 2026-11-10 M2; one neutral answer, found or not), "revoke" of an unanswered offer and "remove";
- * teacher — the active members of their groups, read-only. No Telegram ids, no settings, no personal sessions are shown
- * (docs/12 §4.4 privacy). Writes go through OrganizationMembershipService (row lock, FIFO reseat, audit, events).
+ * Members (seats) of the organization (docs/13 §6.3): owner — every present and past membership, "invite" by Telegram username /
+ * id (an invitation the learner accepts in the bot — audit 2026-11-10 M2; one neutral answer, found or not; the attempts
+ * themselves are listed by {@see MemberInvitationsWidget} under this table, never as rows here —
+ * review finding B1) and "remove"; teacher — the active members of their groups, read-only. No Telegram ids, no settings, no
+ * personal sessions are shown (docs/12 §4.4 privacy); the activity metrics are shown for ACTIVE members only — a former member's
+ * life after the center is not the center's. Writes go through OrganizationMembershipService (row lock, FIFO reseat, audit, events).
  */
 class MemberResource extends OrgResource
 {
@@ -93,11 +97,7 @@ class MemberResource extends OrgResource
                     ->label(__('org.members.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => __('org.members.status.'.$state))
-                    ->color(fn (string $state): string => match ($state) {
-                        MemberStatus::Active->value => 'success',
-                        MemberStatus::Invited->value => 'warning',
-                        default => 'gray',
-                    }),
+                    ->color(fn (string $state): string => $state === MemberStatus::Active->value ? 'success' : 'gray'),
                 Tables\Columns\TextColumn::make('joined_via')
                     ->label(__('org.members.columns.joined_via'))
                     ->formatStateUsing(fn (string $state): string => __('org.members.via.'.$state))
@@ -106,8 +106,9 @@ class MemberResource extends OrgResource
                     ->label(__('org.members.columns.joined_at'))
                     ->dateTime('d.m.Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('learner.last_seen_at')
+                Tables\Columns\TextColumn::make('last_seen_at')
                     ->label(__('org.members.columns.last_seen'))
+                    ->state(fn (OrganizationMember $record): ?Carbon => $record->isActive() ? $record->learner?->last_seen_at : null)
                     ->since()
                     ->placeholder('—'),
             ])
@@ -116,14 +117,11 @@ class MemberResource extends OrgResource
                     ->label(__('org.members.columns.status'))
                     ->options([
                         MemberStatus::Active->value => __('org.members.status.active'),
-                        MemberStatus::Invited->value => __('org.members.status.invited'),
-                        MemberStatus::Declined->value => __('org.members.status.declined'),
                         MemberStatus::Left->value => __('org.members.status.left'),
                         MemberStatus::Removed->value => __('org.members.status.removed'),
                     ])
-                    // Offers waiting for the learner's answer are shown with the members by default, so the owner sees «Ожидает согласия».
                     ->multiple()
-                    ->default([MemberStatus::Active->value, MemberStatus::Invited->value]),
+                    ->default([MemberStatus::Active->value]),
                 Tables\Filters\SelectFilter::make('seat_state')
                     ->label(__('org.members.columns.seat'))
                     ->options([
@@ -132,8 +130,9 @@ class MemberResource extends OrgResource
                     ]),
             ])
             ->headerActions([
-                // An OFFER the learner answers in the bot (audit 2026-11-10 M2). ONE notification whatever happened — found or not,
-                // reachable or not, already a member or not: the answer must not say who uses LexiFlow.
+                // An INVITATION the learner answers in the bot (audit 2026-11-10 M2). ONE notification whatever happened — found or not,
+                // reachable or not, already a member or not: the answer must not say who uses LexiFlow. The only refusal of its
+                // own is a malformed value (neither @username nor a number): a format check, decided before any lookup.
                 Actions\Action::make('add')
                     ->label(__('org.members.actions.add'))
                     ->icon('heroicon-o-user-plus')
@@ -159,25 +158,6 @@ class MemberResource extends OrgResource
             ])
             ->recordActions([
                 Actions\ViewAction::make(),
-                Actions\Action::make('revoke')
-                    ->label(__('org.members.actions.revoke'))
-                    ->icon('heroicon-o-x-circle')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalDescription(__('org.members.actions.revoke_confirm'))
-                    ->visible(fn (OrganizationMember $record): bool => $record->isInvited())
-                    ->authorize(fn (OrganizationMember $record): bool => static::isOwner() && $record->isInvited())
-                    ->action(function (OrganizationMember $record): void {
-                        try {
-                            app(OrganizationMembershipService::class)->revokeInvite(static::tenant(), $record, static::user(), static::ip());
-                        } catch (OrganizationMembershipException $e) {
-                            Notification::make()->title(__('org.members.errors.'.$e->errorCode))->danger()->send();
-
-                            return;
-                        }
-
-                        Notification::make()->title(__('org.members.notifications.revoked'))->success()->send();
-                    }),
                 Actions\Action::make('remove')
                     ->label(__('org.members.actions.remove'))
                     ->icon('heroicon-o-user-minus')
@@ -225,8 +205,16 @@ class MemberResource extends OrgResource
                 ->formatStateUsing(fn (string $state): string => __('org.members.via.'.$state)),
             Infolists\Components\TextEntry::make('joined_at')->label(__('org.members.columns.joined_at'))->dateTime('d.m.Y H:i'),
             Infolists\Components\TextEntry::make('seated_at')->label(__('org.members.columns.seated_at'))->dateTime('d.m.Y H:i')->placeholder('—'),
-            Infolists\Components\TextEntry::make('learner.streak_current')->label(__('org.members.columns.streak')),
-            Infolists\Components\TextEntry::make('learner.last_seen_at')->label(__('org.members.columns.last_seen'))->since()->placeholder('—'),
+            // The metrics of an active member only: a `left` / `removed` row names a former member, not what they do now.
+            Infolists\Components\TextEntry::make('streak_current')
+                ->label(__('org.members.columns.streak'))
+                ->state(fn (OrganizationMember $record): ?int => $record->isActive() ? $record->learner?->streak_current : null)
+                ->placeholder('—'),
+            Infolists\Components\TextEntry::make('last_seen_at')
+                ->label(__('org.members.columns.last_seen'))
+                ->state(fn (OrganizationMember $record): ?Carbon => $record->isActive() ? $record->learner?->last_seen_at : null)
+                ->since()
+                ->placeholder('—'),
         ]);
     }
 
