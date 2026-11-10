@@ -112,7 +112,7 @@ describe('GameClassView: active', () => {
   it('a member who won the boss has the mark', async () => {
     const r = await render(gameClass({ members: [classMember({ boss_won: true })] }))
 
-    expect(tid(r, 'member').text()).toContain('победил босса')
+    expect(tid(r, 'member').text()).toContain('победил хранителя')
   })
 })
 
@@ -139,8 +139,8 @@ describe('GameClassView: the boss of the class', () => {
   })
 
   it.each([
-    ['won', 'Вы победили босса класса.'],
-    ['lost', 'Босс оказался сильнее. Бой был один — повторить его нельзя.'],
+    ['won', 'Вы победили хранителя класса.'],
+    ['lost', 'Хранитель оказался сильнее. Бой был один — повторить его нельзя.'],
   ] as const)('my fight is over (%s): its result, no button', async (attempt, text) => {
     const r = await render(gameClass({ boss: { unlocked: true, defeated: false, my_attempt: attempt } }))
 
@@ -152,7 +152,7 @@ describe('GameClassView: the boss of the class', () => {
   it('a boss that the class defeated says so', async () => {
     const r = await render(gameClass({ boss: { unlocked: true, defeated: true, my_attempt: 'won' } }))
 
-    expect(tid(r, 'boss-defeated').text()).toBe('Класс победил босса')
+    expect(tid(r, 'boss-defeated').text()).toBe('Класс победил хранителя')
   })
 })
 
@@ -201,7 +201,7 @@ describe('GameClassView: the start is refused', () => {
 
     await tid(r, 'boss-go').trigger('click')
     await flushPromises()
-    expect(showErrorToast).toHaveBeenCalledWith('Вы уже сражались с боссом класса.')
+    expect(showErrorToast).toHaveBeenCalledWith('Вы уже сражались с хранителем класса.')
     expect(api.gameClass.show).toHaveBeenCalledTimes(2)
   })
 
@@ -246,7 +246,7 @@ describe('GameClassView: the other states', () => {
     expect(state(r)).toBe('finished')
     expect(tid(r, 'finished-title').text()).toBe('Неделя каравана окончена')
     expect(tid(r, 'summary-target').text()).toBe('Цель взята')
-    expect(tid(r, 'summary-boss').text()).toBe('Босс не побеждён')
+    expect(tid(r, 'summary-boss').text()).toBe('Хранитель не побеждён')
     expect(has(r, 'until')).toBe(false)
     expect(has(r, 'boss-go')).toBe(false)
     expect(r.wrapper.findAll('[data-testid=member]')).toHaveLength(2)
@@ -262,7 +262,7 @@ describe('GameClassView: the other states', () => {
     )
 
     expect(tid(r, 'summary-target').text()).toBe('Цель не взята')
-    expect(tid(r, 'summary-boss').text()).toBe('Босс побеждён')
+    expect(tid(r, 'summary-boss').text()).toBe('Хранитель побеждён')
     expect(has(r, 'finished-at')).toBe(false)
   })
 

@@ -157,6 +157,36 @@ describe('ProBenefits', () => {
     expect(compact.get('li span').classes()).toContain('text-sm')
   })
 
+  describe('the line about the game is the word of the server: game.pro_promise', () => {
+    const knowGame = (pro_promise: 'none' | 'full'): void => {
+      useBillingStore().apply({
+        entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+        paywall: { mode: 'coming_soon', contact: null },
+        practice: BOTH,
+        game: { available: pro_promise === 'full', limits: null, pro_promise, coins: 0, tickets: 0 },
+      })
+    }
+
+    it("'full': the Caravan without a daily limit, right after the practice", () => {
+      knowGame('full')
+
+      expect(texts(mount(ProBenefits))).toEqual([FIVE[0], 'Практика и баттлы без дневного лимита', 'Караван без дневного лимита', ...FIVE.slice(1)])
+    })
+
+    it("'none' (or no word of the game): no such line", () => {
+      knowGame('none')
+
+      expect(texts(mount(ProBenefits))).toEqual(SIX)
+    })
+
+    it('speaks Uzbek', () => {
+      setLocale('uz')
+      knowGame('full')
+
+      expect(mount(ProBenefits).text()).toContain('Karvon kunlik limitsiz')
+    })
+  })
+
   it('speaks Uzbek', () => {
     setLocale('uz')
     know(BOTH)

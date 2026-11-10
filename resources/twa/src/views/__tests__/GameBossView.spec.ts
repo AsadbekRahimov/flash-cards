@@ -232,7 +232,7 @@ describe('GameBossView: the start', () => {
 
     await press(r, 'start-btn')
 
-    expect(showErrorToast).toHaveBeenCalledWith('Босс пока не готов: пройдите больше стоянок.')
+    expect(showErrorToast).toHaveBeenCalledWith('Хранитель пока не готов: пройдите больше стоянок.')
     expect(api.game.map).toHaveBeenCalledTimes(2)
     expect(state(r)).toBe('not_ready')
   })

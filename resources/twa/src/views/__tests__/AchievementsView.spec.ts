@@ -291,7 +291,7 @@ describe('AchievementsView', () => {
     expect(card(wrapper, 'first_session').get('[data-testid=share-btn]').text()).toBe('Ulashish')
     expect(card(wrapper, 'words_100').get('[data-testid=progress]').text()).toBe('100 tadan 40 tasi')
     expect(card(wrapper, 'league_top1').get('[data-testid=locked]').text()).toBe('Hali olinmagan')
-    expect(card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()).toMatch(/da olindi$/)
+    expect(card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()).toMatch(/kuni olindi$/)
   })
 
   describe('the Back button', () => {

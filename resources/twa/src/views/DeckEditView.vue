@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ActivateDeckSheet from '@/components/ActivateDeckSheet.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -41,6 +42,8 @@ const format = ref<DeckImportFormat>('list')
 const text = ref('')
 const sizeError = ref('')
 const confirmDelete = ref(false)
+/** "Learn instead of the course" waits for the confirmation (it replaces the main course). */
+const activating = ref(false)
 
 useBackButton({ name: 'decks' })
 const { paywall, proNotice } = useDeckLimit()
@@ -55,6 +58,11 @@ const hint = computed(() => (format.value === 'csv' ? t('decks.edit.hint.csv') :
 
 /** Something went into the deck (a new word or a restored one); a report of only duplicates gets a neutral icon. */
 const importedAny = computed(() => (lastImport.value?.added ?? 0) + (lastImport.value?.reactivated ?? 0) > 0)
+
+async function confirmActivate(): Promise<void> {
+  await store.activate(props.slug)
+  activating.value = false
+}
 
 function setFormat(value: string | number): void {
   format.value = value === 'csv' ? 'csv' : 'list'
@@ -147,7 +155,7 @@ onMounted(() => {
           class="btn btn-primary btn-block mt-4"
           :disabled="busy || detail.words_count === 0"
           data-testid="choose-btn"
-          @click="store.activate(slug)"
+          @click="activating = true"
         >
           {{ t('decks.choose') }}
         </button>
@@ -274,6 +282,8 @@ onMounted(() => {
         </div>
       </div>
     </template>
+
+    <ActivateDeckSheet v-if="activating" :busy="busy" @confirm="confirmActivate" @close="activating = false" />
 
     <PaywallSheet v-if="paywall" reason="decks" :deck-limits="limits" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>

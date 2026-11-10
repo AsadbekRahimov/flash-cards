@@ -38,8 +38,8 @@ export function lessonHeader(lesson: LessonNames): string {
 }
 
 /**
- * The verdict in words. A dictation can still be written better, so its "wrong" is "Needs fixing"; a pick, a sentence and a pair
- * that are wrong are simply "Wrong" (docs/14 §6.2): the answer is final, there is nothing to fix, only "Next".
+ * The verdict in words: one word per verdict everywhere (docs/14 §8): "Right", "Typo", "Wrong", "Skipped". A dictation keeps its own key
+ * for a wrong answer (`wrong`, it can still be written better) and a pick, a sentence and a pair use `wrong_final`; both read "Wrong".
  */
 export function verdictLabel(kind: PracticeElementKind, verdict: PracticeVerdict): string {
   if (verdict === 'wrong' && kind !== 'dictation') return t('practice.verdict.wrong_final')
@@ -47,8 +47,7 @@ export function verdictLabel(kind: PracticeElementKind, verdict: PracticeVerdict
 }
 
 /**
- * The verdict of a run of the game (docs/05 §5b.3): the words of `verdictLabel`, but "I don't know" is "Didn't know" as on the summary, not
- * "Hint" (a practice word for something else: the hint of the answer).
+ * The verdict of a run of the game (docs/05 §5b.3): the words of `verdictLabel`; "I don't know" is "Skipped" there and on the summary.
  */
 export function gameVerdictLabel(verdict: PracticeVerdict): string {
   return verdict === 'skipped' ? t('gameRun.summary.verdict.skipped') : verdictLabel('collocation', verdict)

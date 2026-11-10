@@ -361,7 +361,7 @@ describe('BillingView', () => {
 
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=paywall-free]').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=paywall]').text()).not.toContain('тариф Free')
+      expect(wrapper.get('[data-testid=paywall]').text()).not.toContain('бесплатный тариф')
       expect(wrapper.find('[data-testid=pay-telegram_stars]').exists()).toBe(true) // the sheet still sells the renewal
     })
 
@@ -576,7 +576,7 @@ describe('BillingView', () => {
       setLocale('uz')
       const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
 
-      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain("Telegram yangilash uchun Stars'ni yecha olmadi.")
+      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain("Telegram obunani uzaytirish uchun Stars'ni yechib ola olmadi.")
     })
 
     it('is not shown for a running renewal, which has its own card', async () => {
@@ -796,7 +796,7 @@ describe('BillingView', () => {
     expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Pro nima beradi')
     expect(wrapper.get('[data-testid=buy]').text()).toBe("Pro'ni sotib olish")
     expect(wrapper.get('[data-testid=promo-card] h2').text()).toBe('Promokod')
-    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Savolingiz bormi? Bizga yozing @lexiflow_support')
+    expect(wrapper.get('[data-testid=billing-support]').text()).toBe('Savolingiz bormi? Bizga yozing: @lexiflow_support')
   })
 
   it('speaks Uzbek to a Pro learner too', async () => {

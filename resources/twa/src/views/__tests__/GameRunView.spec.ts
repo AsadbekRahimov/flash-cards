@@ -372,7 +372,7 @@ describe('GameRunView — the hint of the bazaar', () => {
     await wrapper.get('[data-testid=hint-btn]').trigger('click')
     await flushPromises()
 
-    expect(showErrorToast).toHaveBeenCalledWith('Не хватает монет. Монеты дают за забеги и боссов.')
+    expect(showErrorToast).toHaveBeenCalledWith('Не хватает монет. Монеты дают за забеги и хранителей.')
     expect(wrapper.get('[data-testid=hint-coins]').text()).toBe('У вас 2')
     expect(wrapper.find('[data-testid=hint-btn]').exists()).toBe(true)
     wrapper.unmount()
@@ -514,7 +514,7 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
     r.router.addRoute({ path: '/game/class/:id(\\d+)', name: 'game-class', component: { template: '<div />' } })
 
     expect(has(r, 'again-btn')).toBe(false)
-    expect(tid(r, 'summary-title').text()).toBe('Босс класса устоял')
+    expect(tid(r, 'summary-title').text()).toBe('Хранитель класса устоял')
     await click(r, 'class-btn')
 
     expect(r.router.currentRoute.value.fullPath).toBe('/game/class/4')

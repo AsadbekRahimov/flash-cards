@@ -484,7 +484,7 @@ describe('BattleSetupView — “Invite”', () => {
   it('tells where the friend will see the invitation, and does not promise a message of the bot that a friend who forbade it never gets', async () => {
     const r = await render()
 
-    expect(text(r, 'invite-hint')).toBe('Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил).')
+    expect(text(r, 'invite-hint')).toBe('Друг увидит приглашение в разделе «Рейтинг → Друзья» (и получит сообщение от бота, если разрешил).')
     expect(text(r, 'invite-hint')).not.toContain('Telegram')
   })
 
@@ -492,7 +492,7 @@ describe('BattleSetupView — “Invite”', () => {
     setLocale('uz')
     const r = await render()
 
-    expect(text(r, 'invite-hint')).toBe("Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi).")
+    expect(text(r, 'invite-hint')).toBe("Do'stingiz taklifni «Reyting → Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi).")
   })
 
   it('a battle of the learner’s own is in the way: told, with a way to it', async () => {
@@ -531,7 +531,7 @@ describe('BattleSetupView — “Invite”', () => {
 
     await click(r, 'invite-btn')
 
-    expect(text(r, 'invite-error')).toBe('Для баттла в этом формате не хватает материала. Выберите другой урок или формат.')
+    expect(text(r, 'invite-error')).toBe('Для баттла в этом режиме не хватает материала. Выберите другой урок или режим.')
     expect(get(r, 'format-pairs').attributes('data-state')).toBe('not_enough')
     expect(get(r, 'format-collocation').attributes('aria-checked')).toBe('true')
   })

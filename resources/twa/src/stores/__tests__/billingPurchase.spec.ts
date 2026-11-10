@@ -228,7 +228,7 @@ describe('billing store: catalog and purchase', () => {
     setLocale('uz')
     vi.mocked(api.billing.checkout).mockRejectedValue(new ApiClientError('rate_limited', 429, 'too_many_pending', 'English'))
     await billing.buy('month', 'payme')
-    expect(billing.purchase.error).toBe("Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.")
+    expect(billing.purchase.error).toBe("Sizda yakunlanmagan to'lovlar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.")
   })
 
   it('fails on a dead order and survives a network blip while polling', async () => {

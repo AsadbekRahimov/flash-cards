@@ -281,15 +281,15 @@ describe('PracticeSessionView — answering', () => {
     await flushPromises()
 
     expect(vi.mocked(api.practice.answer).mock.calls[0]![1].answer).toEqual({ skip: true })
-    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Подсказка')
+    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Пропущено')
     r.wrapper.unmount()
   })
 
   it.each([
     ['correct', 'Верно!', 'success'],
-    ['typo', 'Есть опечатка', 'warning'],
+    ['typo', 'Опечатка', 'warning'],
     ['wrong', 'Неверно', 'error'],
-    ['skipped', 'Подсказка', 'error'],
+    ['skipped', 'Пропущено', 'error'],
   ] as const)('%s: the words on screen, the same words to a screen reader, a tap of the right kind to the hand', async (verdict, words, haptic) => {
     vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict }))
     const r = await render()
@@ -432,7 +432,7 @@ describe('PracticeSessionView — an answer that did not get through', () => {
 
     await answerProbe(r)
 
-    expect(showErrorToast).toHaveBeenCalledWith('Не получилось отправить ответ. Обновите экран и попробуйте ещё раз.')
+    expect(showErrorToast).toHaveBeenCalledWith('Не получилось отправить ответ. Попробуйте ещё раз.')
     expect(probe(r).attributes('data-disabled')).toBe('false')
     r.wrapper.unmount()
   })

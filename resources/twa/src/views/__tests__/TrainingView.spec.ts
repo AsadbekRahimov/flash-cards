@@ -100,7 +100,7 @@ describe('TrainingView — closed session', () => {
 
     const { wrapper } = await render(5)
 
-    expect(wrapper.get('[data-testid=closed]').text()).toContain('Тренировка завершена')
+    expect(wrapper.get('[data-testid=closed]').text()).toContain('Занятие завершено')
     expect(wrapper.get('[data-testid=closed]').text()).not.toContain('учителем')
     // A lock icon in a circle, no emoji in the text.
     expect(wrapper.get('[data-testid=closed]').findComponent(AppIcon).props('name')).toBe('lock-closed')
@@ -403,7 +403,7 @@ describe('TrainingView — header and states', () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'daily_review'))
     const { wrapper } = await render(1)
 
-    expect(wrapper.get('[data-testid=daily-header]').text()).toBe('Повторение')
+    expect(wrapper.get('[data-testid=daily-header]').text()).toBe('Занятие')
     expect(wrapper.find('[data-testid=lesson-header]').exists()).toBe(false)
   })
 

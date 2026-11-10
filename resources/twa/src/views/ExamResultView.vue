@@ -139,7 +139,7 @@ function place(rank: number): string {
         {{ t('result.mock_again') }}
       </button>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="close-btn" @click="close()">
-        {{ t('common.close') }}
+        {{ t('common.exit_app') }}
       </button>
     </StickyActions>
   </section>

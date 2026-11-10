@@ -49,6 +49,7 @@ const routes = () => {
     { path: '/courses', name: 'courses', component: stub },
     { path: '/billing', name: 'billing', component: stub },
     { path: '/league', name: 'league', component: stub },
+    { path: '/settings', name: 'settings', component: stub },
     { path: '/game', name: 'game', component: stub },
     { path: '/game/caravan', name: 'game-caravan', component: stub },
     { path: '/game/daily', name: 'game-daily', component: stub },

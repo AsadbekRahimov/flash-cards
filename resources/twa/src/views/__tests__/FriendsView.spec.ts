@@ -410,8 +410,8 @@ describe('FriendsView', () => {
       const { wrapper } = await render()
 
       const row = wrapper.get('[data-testid=friend-row]')
-      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqa tashlash: Dilnoza')
-      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlikdan chiqarish: Dilnoza")
+      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqaga chaqirish: Dilnoza')
+      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlardan o'chirish: Dilnoza")
     })
 
     it('removes a friend only after the confirmation, then reloads the challenges', async () => {
@@ -899,7 +899,7 @@ describe('FriendsView', () => {
         await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
         await flushPromises()
 
-        expect(useToast().toast.value?.text).toBe('Этот формат сейчас выключен — принять приглашение нельзя.')
+        expect(useToast().toast.value?.text).toBe('Этот режим сейчас выключен — принять приглашение нельзя.')
         expect(router.currentRoute.value.name).toBe('friends')
         expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(2)
       })
@@ -911,7 +911,7 @@ describe('FriendsView', () => {
 
         await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
         await flushPromises()
-        expect(useToast().toast.value?.text).toBe("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+        expect(useToast().toast.value?.text).toBe("Bu rejim hozir o'chirilgan — taklifni qabul qila olmaysiz.")
 
         useToast().hide()
         vi.mocked(api.battles.accept).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'battle_friend_no_access', 'x'))
@@ -957,7 +957,7 @@ describe('FriendsView', () => {
         ['invited', 'Ждём ответа'],
         ['room', 'Комната'],
         ['countdown', 'Старт'],
-        ['playing', 'Игра'],
+        ['playing', 'В баттле'],
       ] as const)('%s: says “%s”', async (status, word) => {
         const { wrapper } = await renderBattles(BATTLES_ON, battleList({ active: activeOf(status) }))
 

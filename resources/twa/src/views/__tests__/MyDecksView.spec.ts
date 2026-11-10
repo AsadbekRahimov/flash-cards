@@ -219,8 +219,8 @@ describe('MyDecksView', () => {
 
       await submit(wrapper)
 
-      expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 3 колоды до 101 слова.')
-      expect(wrapper.get('[data-testid=paywall-free]').text()).toContain('Сейчас у вас тариф Free')
+      expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод бесплатного тарифа: 3 колоды до 101 слова.')
+      expect(wrapper.get('[data-testid=paywall-free]').text()).toContain('Сейчас у вас бесплатный тариф')
       expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
     })
 
@@ -239,7 +239,7 @@ describe('MyDecksView', () => {
       expect(notice.attributes('role')).toBe('status')
       expect(notice.classes()).toContain('text-warning-ink')
       expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
-      expect(wrapper.text()).not.toContain('тариф Free')
+      expect(wrapper.text()).not.toContain('бесплатный тариф')
     })
 
     it('takes the numbers of a Pro learner from the answer of GET /decks, even when the list on screen was loaded before', async () => {
@@ -369,11 +369,11 @@ describe('MyDecksView', () => {
       expect(wrapper.get('[data-testid=deck-zero] [data-testid=meta]').text()).toBe('0 слов')
     })
 
-    it('offers "Сделать основной" as a tinted block button and a chip for the main deck', async () => {
+    it('offers "Учить вместо курса" as a tinted block button and a chip for the main deck', async () => {
       const { wrapper } = await render(response([deck({ is_active: true }), deck({ slug: 'other', title: 'Другая' })]))
 
       const choose = wrapper.get('[data-testid=deck-other] [data-testid=choose-btn]')
-      expect(choose.text()).toBe('Сделать основной')
+      expect(choose.text()).toBe('Учить вместо курса')
       expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
 
       const active = wrapper.get('[data-testid="deck-deck-1-abc"]')
@@ -384,25 +384,42 @@ describe('MyDecksView', () => {
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
     })
 
-    it('chooses a deck as the main one; an empty deck cannot be chosen', async () => {
+    it('chooses a deck as the main one only after the confirmation; an empty deck cannot be chosen', async () => {
       vi.mocked(api.courses.select).mockResolvedValue(selected())
       const { wrapper } = await render(response([deck(), deck({ slug: 'empty', words_count: 0 })], 1))
 
       expect(wrapper.get('[data-testid="deck-empty"] [data-testid=choose-btn]').attributes('disabled')).toBeDefined()
 
       await wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').trigger('click')
+      expect(api.courses.select).not.toHaveBeenCalled()
+      expect(wrapper.get('[data-testid=activate-text]').text()).toBe(
+        'Новые слова в ежедневном занятии будут из этой колоды, а не из курса. Вернуть курс можно во вкладке «Курсы».',
+      )
+      await wrapper.get('[data-testid=activate-yes]').trigger('click')
       await flushPromises()
 
       expect(api.courses.select).toHaveBeenCalledWith('deck-1-abc')
       expect(wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=active-badge]').text()).toBe('Основная колода')
       expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=activate-sheet]').exists()).toBe(false)
+    })
+
+    it('changes nothing when the confirmation is cancelled', async () => {
+      const { wrapper } = await render(response([deck()], 1))
+
+      await wrapper.get('[data-testid=choose-btn]').trigger('click')
+      await wrapper.get('[data-testid=activate-no]').trigger('click')
+
+      expect(api.courses.select).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-testid=activate-sheet]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(true)
     })
 
     it('says why an empty deck cannot be made the main one, under its disabled button only', async () => {
       const { wrapper } = await render(response([deck(), deck({ slug: 'empty', title: 'Пустая', words_count: 0 })], 2))
 
       const hint = wrapper.get('[data-testid="deck-empty"] [data-testid=choose-hint]')
-      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы учить её вместо курса.')
       expect(hint.classes()).toContain('text-tg-hint')
       expect(wrapper.get('[data-testid="deck-empty"] [data-testid=choose-btn]').attributes('disabled')).toBeDefined()
       expect(wrapper.findAll('[data-testid=choose-hint]')).toHaveLength(1)
@@ -413,7 +430,7 @@ describe('MyDecksView', () => {
       setLocale('uz')
       const { wrapper } = await render(response([deck({ words_count: 0 })], 1))
 
-      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kurs o'rniga o'rganish uchun to'plamga kamida bitta so'z qo'shing.")
     })
 
     it('disables the choose buttons while a write is in flight', async () => {
@@ -423,6 +440,7 @@ describe('MyDecksView', () => {
       expect(buttons().map((b) => b.attributes('disabled'))).toEqual([undefined, undefined])
 
       await buttons()[0]?.trigger('click')
+      await wrapper.get('[data-testid=activate-yes]').trigger('click')
 
       expect(buttons().map((b) => b.attributes('disabled') !== undefined)).toEqual([true, true])
     })
@@ -492,7 +510,7 @@ describe('MyDecksView', () => {
     expect(wrapper.get('[data-testid=seg-decks]').text()).toBe("Mening to'plamlarim")
     expect(wrapper.get('[data-testid=create-btn]').text()).toBe('Yaratish')
     expect(wrapper.get('[data-testid=limits]').text()).toBe("To'plamlar: 1 tadan 1 tasi · to'plamda 50 tagacha so'z")
-    expect(wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').text()).toBe('Asosiy qilish')
+    expect(wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').text()).toBe("Kurs o'rniga o'rganish")
     expect(wrapper.get('[data-testid=deck-main] [data-testid=active-badge]').text()).toBe("Asosiy to'plam")
   })
 })

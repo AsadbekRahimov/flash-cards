@@ -30,6 +30,12 @@ vi.mock('@/stores/auth', () => ({
 
 vi.mock('@/composables/useBackButton', () => ({ useBackButton: state.useBackButton }))
 
+const telegram = vi.hoisted(() => ({ close: vi.fn() }))
+vi.mock('@/composables/useTelegram', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/composables/useTelegram')>()
+  return { ...actual, useTelegram: () => ({ ...actual.useTelegram(), close: telegram.close }) }
+})
+
 const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 23,
   new_words_remaining: null,
@@ -76,6 +82,8 @@ const makeRouter = () =>
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -199,14 +207,26 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(w.find('[data-testid=goal-card]').exists()).toBe(true)
-      expect(text(w, 'goal-text')).toBe('8 из 20')
-      expect(text(w, 'goal-left')).toBe('Осталось 12 карточек')
+      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
+      expect(text(w, 'goal-left')).toBe('Осталось 12 слов')
       expect(text(w, 'goal-done')).toBe('8')
       // 8/20 of the circumference is drawn: the dash offset is 60% of it.
       const arc = w.get('[data-testid=goal-ring-arc]')
       const circumference = Number(arc.attributes('stroke-dasharray'))
       expect(Number(arc.attributes('stroke-dashoffset'))).toBeCloseTo(circumference * 0.6, 3)
       expect(w.find('[data-testid=goal-met]').exists()).toBe(false)
+    })
+
+    it('says the unit of the goal under the ring ("words" - the same as the ring counts) and leads to the settings', async () => {
+      const w = await render()
+
+      const link = w.get('[data-testid=goal-setting]')
+      expect(link.text()).toBe('Цель: 20 слов в день')
+      expect(link.attributes('href')).toBe('/settings')
+      expect(text(await render(today({ goal: { target: 1, done: 0, met: false } })), 'goal-setting')).toBe('Цель: 1 слово в день')
+      expect(text(await render(today({ goal: { target: 5, done: 0, met: false } })), 'goal-setting')).toBe('Цель: 5 слов в день')
+      setLocale('uz')
+      expect(text(await render(), 'goal-setting')).toBe("Maqsad: kuniga 20 ta so'z")
     })
 
     it('shows a met goal with a full ring even past the target', async () => {
@@ -217,6 +237,83 @@ describe('TodayView', () => {
       expect(w.find('[data-testid=goal-left]').exists()).toBe(false)
       expect(Number(w.get('[data-testid=goal-ring-arc]').attributes('stroke-dashoffset'))).toBeCloseTo(0, 3)
       expect(w.get('[data-testid=goal-ring]').attributes('data-met')).toBe('true')
+    })
+
+    describe('nothing to do today (no review due, the quota of new words is used up)', () => {
+      const allDone = (overrides: Partial<TodayResponse> = {}) => today({ due_count: 0, new_words_remaining: 0, ...overrides })
+      const practiceMe = (overrides: Record<string, unknown> = {}) =>
+        ({
+          entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
+          paywall: { mode: 'coming_soon', contact: null },
+          practice: { available: true, pro_required: false, modes: ['pairs'], battle: false, pro_promise: 'none', ...overrides },
+        }) as never
+
+      it('says so calmly instead of the active "Start session", and drops the hint about the order of the session', async () => {
+        const w = await render(allDone())
+
+        expect(text(w, 'all-done')).toBe('На сегодня всё. Новые слова — завтра')
+        expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+        expect(w.find('[data-testid=session-hint]').exists()).toBe(false)
+        expect(w.findAll('.btn-primary')).toHaveLength(0)
+        // the lesson would open the same empty session: no button for it either
+        expect(w.find('[data-testid=next-lesson-btn]').exists()).toBe(false)
+        expect(text(w, 'next-lesson')).toBe('Урок 4 · Food')
+      })
+
+      it('offers the practice as a quiet button when /me says the learner has it, and leads to the hub of the course', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe())
+        const w = await render(allDone())
+
+        const button = w.get('[data-testid=practice-btn]')
+        expect(button.text()).toBe('Практика')
+        expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+        await button.trigger('click')
+        await flushPromises()
+
+        expect(w.router.currentRoute.value.name).toBe('practice-hub')
+        expect(w.router.currentRoute.value.params.slug).toBe('english-a1')
+      })
+
+      it('opens the paywall of the practice instead while the practice is behind Pro', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe({ pro_required: true }))
+        const w = await render(allDone())
+
+        await w.get('[data-testid=practice-btn]').trigger('click')
+        await flushPromises()
+
+        expect(w.router.currentRoute.value.name).not.toBe('practice-hub')
+        expect(w.find('[data-testid=paywall]').exists() || w.find('[data-testid=paywall-title]').exists()).toBe(true)
+      })
+
+      it('has no practice button for a learner without the practice', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe({ available: false, modes: [] }))
+        const w = await render(allDone())
+
+        expect(w.find('[data-testid=all-done]').exists()).toBe(true)
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+      })
+
+      it('is not the state of a learner with a review due, an open session, or no limit of new words', async () => {
+        for (const response of [today({ due_count: 4, new_words_remaining: 0 }), allDone({ open_session_id: 9 }), today({ due_count: 0, new_words_remaining: null }), today({ due_count: 0, new_words_remaining: 3 }), allDone({ active_course: null })]) {
+          const w = await render(response)
+          expect(w.find('[data-testid=all-done]').exists()).toBe(false)
+        }
+        expect((await render(today({ due_count: 4, new_words_remaining: 0 }))).find('[data-testid=review-btn]').exists()).toBe(true)
+      })
+
+      it('does not read /me for a learner who has something to do (Home asks it only for this state)', async () => {
+        vi.mocked(api.me.get).mockClear()
+        const w = await render(today({ entitlement: PRO }))
+
+        expect(w.find('[data-testid=all-done]').exists()).toBe(false)
+        expect(api.me.get).not.toHaveBeenCalled()
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+
+        expect(text(await render(allDone()), 'all-done')).toBe("Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga")
+      })
     })
 
     it('shows the due count with the right Russian form and an empty state', async () => {
@@ -474,8 +571,21 @@ describe('TodayView', () => {
       expect((await render()).find('[data-testid=onboarding-hint]').exists()).toBe(false)
 
       const w = await render(today({ onboarding_completed: false }))
-      expect(text(w, 'onboarding-hint')).toBe('Чтобы завершить настройку, отправьте боту /start')
+      expect(text(w, 'onboarding-hint')).toContain('Чтобы завершить настройку, отправьте боту /start')
       expect(w.get('[data-testid=onboarding-hint] path').attributes('d')).toBe(ICONS['information-circle'].outline[0]?.d)
+    })
+
+    it('offers a button that closes the Mini App to finish the onboarding in the bot', async () => {
+      expect((await render()).find('[data-testid=onboarding-btn]').exists()).toBe(false)
+
+      const w = await render(today({ onboarding_completed: false }))
+      const button = w.get('[data-testid=onboarding-btn]')
+      expect(button.text()).toBe('Закончить настройку в боте')
+      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+
+      await button.trigger('click')
+
+      expect(telegram.close).toHaveBeenCalledTimes(1)
     })
 
     it('keeps the screen and announces a failed reload as an alert with an icon', async () => {
@@ -492,7 +602,7 @@ describe('TodayView', () => {
       expect(alert.classes()).toContain('text-danger-ink')
       expect(alert.find('svg').exists()).toBe(true)
       expect(w.find('[data-testid=error]').exists()).toBe(false)
-      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20 слов')
     })
   })
 
@@ -531,7 +641,7 @@ describe('TodayView', () => {
       expect(w.router.currentRoute.value.name).toBe('today')
       expect(w.router.currentRoute.value.query.from).toBeUndefined()
       expect(text(w, 'open-error')).toBe('Слишком много запросов. Подождите немного и повторите.')
-      expect(text(w, 'goal-text')).toBe('8 из 20')
+      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
     })
 
     it('does not open anything when the Today data failed to load, nor for other sources', async () => {
@@ -591,7 +701,7 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
-      expect(text(w, 'goal-text')).toBe('8 из 20')
+      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
     })
 
     it('does not wait for slow assignments to show Today', async () => {
@@ -599,7 +709,7 @@ describe('TodayView', () => {
 
       const w = await render()
 
-      expect(text(w, 'goal-text')).toBe('8 из 20')
+      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
       expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
     })
 
@@ -669,8 +779,9 @@ describe('TodayView', () => {
       expect(text(w, 'next-lesson')).toBe('Урок 4 · Food')
       expect(w.get('[data-testid=course-card]').text()).toContain('Следующий урок')
 
+      expect(text(w, 'next-lesson-hint')).toBe('Только слова этого урока, без повторений')
       const button = w.get('[data-testid=next-lesson-btn]')
-      expect(button.text()).toBe('Учить урок')
+      expect(button.text()).toBe('Учить следующий урок')
       expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
       await button.trigger('click')
       await flushPromises()
@@ -729,12 +840,11 @@ describe('TodayView', () => {
       expect(text(w, 'league-line')).toContain('Лига · Бронза')
     })
 
-    it('invites the learner to the league while they are not placed', async () => {
-      const row = (await render(today({ league: null }))).get('[data-testid=league-line]')
+    it('has no league row while the server sends no league (off, opted out, not placed yet)', async () => {
+      const w = await render(today({ league: null }))
 
-      expect(row.text()).toContain('Лига недели')
-      expect(row.text()).toContain('Повторите карточки, чтобы попасть в группу')
-      expect(row.attributes('href')).toBe('/league')
+      expect(w.find('[data-testid=league-line]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Лига недели')
     })
   })
 
@@ -766,7 +876,7 @@ describe('TodayView', () => {
       await w.get('[data-testid=retry-btn]').trigger('click')
       await flushPromises()
       expect(w.find('[data-testid=error]').exists()).toBe(false)
-      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20 слов')
     })
 
     it('explains a failed authentication without calling the API', async () => {
@@ -790,7 +900,7 @@ describe('TodayView', () => {
 
     expect(w.get('h1').text()).toBe('Salom, Asadbek!')
     expect(w.get('header p').text()).toBe('chorshanba, 28-oktabr')
-    expect(text(w, 'goal-text')).toBe('20 tadan 8 tasi')
+    expect(text(w, 'goal-text')).toBe("20 ta so'zdan 8 tasi")
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
     expect(text(w, 'session-hint')).toBe("Avval oldingi so'zlarni takrorlaysiz, keyin yangilarini o'rganasiz")
     expect(text(w, 'streak-current')).toBe('5 kun ketma-ket')
@@ -798,7 +908,7 @@ describe('TodayView', () => {
     expect(text(w, 'due-count')).toBe("Takrorlash uchun 23 ta so'z")
     expect(text(w, 'new-remaining')).toBe("Bugun yana 12 ta yangi so'z o'rganishingiz mumkin")
     expect(w.get('[data-testid=assignment]').text()).toContain('2-modul, 4-dars')
-    expect(text(w, 'next-lesson-btn')).toBe("Darsni boshlash")
+    expect(text(w, 'next-lesson-btn')).toBe("Keyingi darsni o'rganish")
     expect(text(w, 'league-line')).toContain('Liga · Kumush')
     expect(text(w, 'league-line')).toContain("30 ishtirokchi orasida 4-o'rin · 312 ochko")
   })

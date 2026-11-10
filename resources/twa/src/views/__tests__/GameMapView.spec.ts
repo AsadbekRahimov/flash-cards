@@ -179,9 +179,12 @@ describe('GameMapView: states', () => {
     expect(router.currentRoute.value.fullPath).toBe('/game/runs/9')
   })
 
-  it('goes back to "Today" with the Telegram Back button', async () => {
-    await render()
+  it('goes back to the course it was entered from with the Telegram Back button, and to "Today" without one', async () => {
+    const fromCourse = await render()
+    expect(back.target).toEqual({ name: 'course', params: { slug: 'english-a1' } })
+    fromCourse.wrapper.unmount()
 
+    await render(undefined, { course: null })
     expect(back.target).toEqual({ name: 'today' })
   })
 })
@@ -299,8 +302,8 @@ describe('GameMapView: friends and bosses', () => {
   })
 
   it.each([
-    ['ready', {}, 'Босс ждёт'],
-    ['defeated', {}, 'Босс побеждён'],
+    ['ready', {}, 'Хранитель ворот ждёт'],
+    ['defeated', {}, 'Хранитель побеждён'],
     ['not_ready', { cleared_stops: 1, required_stops: 3 }, 'ещё 2 стоянки'],
     ['not_ready', { cleared_stops: 2, required_stops: 3 }, 'ещё 1 стоянка'],
     ['not_ready', { cleared_stops: 3, required_stops: 3, introduced: 6, required: 8 }, 'ещё 2 слова'],
@@ -342,7 +345,7 @@ describe('GameMapView: the sheet of a stop', () => {
 
     const sheet = testid(wrapper, 'stop-sheet')
     expect(sheet.text()).toContain('Стоянка 1 · Фрукты')
-    expect(testid(wrapper, 'stop-text').text()).toBe('8–10 заданий, 3 фляги')
+    expect(testid(wrapper, 'stop-text').text()).toBe('8–10 заданий. Фляга — это жизнь: 3 ошибки — и забег окончен')
     expect(testid(wrapper, 'stop-best').text()).toContain('Лучший счёт: 120')
   })
 

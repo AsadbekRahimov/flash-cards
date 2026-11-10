@@ -57,6 +57,7 @@ async function render(response: TodayResponse) {
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -81,7 +82,7 @@ describe('TodayView paywall entry', () => {
     await w.get('[data-testid=paywall-open]').trigger('click')
     await flushPromises()
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
+    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата откроется позже — мы сообщим в боте.')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
   })

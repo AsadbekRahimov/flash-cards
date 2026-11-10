@@ -53,7 +53,8 @@ const { t, tn } = useI18n()
 
 const { map, status, error, starting } = storeToRefs(game)
 
-useBackButton({ name: 'today' })
+// Usually entered from the course (`?course=`): "Back" leads there; without it (an entry of Home) to Home.
+useBackButton(props.course !== null ? { name: 'course', params: { slug: props.course } } : { name: 'today' })
 
 /** Set when the learner leaves: an answer that comes back after it must not carry them anywhere. */
 let left = false

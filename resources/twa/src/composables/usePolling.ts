@@ -3,8 +3,11 @@ import { getCurrentScope, onScopeDispose, watch, type Ref } from 'vue'
 export interface PollingOptions {
   /** Polling runs only while this is true (and the page is visible): the owner turns it off at a terminal state. */
   enabled: Ref<boolean>
-  /** The beat, in milliseconds (docs/16 §11.5: two seconds). */
-  intervalMs?: number
+  /**
+   * The beat, in milliseconds (docs/16 §11.5: two seconds). A function is read before every beat, so the beat can follow the state of
+   * the owner (a battle waits for an answer to its invitation slower than it plays); a change of it moves a pending beat at once.
+   */
+  intervalMs?: number | (() => number)
   /** The longest pause the backoff reaches after failures. */
   maxIntervalMs?: number
   /** Take the first reading as soon as polling is turned on, instead of after one beat. */
@@ -31,16 +34,20 @@ export interface Polling {
  * usePolling(() => battle.tick(), { enabled: computed(() => battle.polling) })
  */
 export function usePolling(tick: () => Promise<void>, options: PollingOptions): Polling {
-  const base = options.intervalMs ?? 2000
-  const ceiling = Math.max(base, options.maxIntervalMs ?? 10_000)
+  const interval = options.intervalMs
+  const base = (): number => (typeof interval === 'function' ? interval() : (interval ?? 2000))
+  const ceiling = (): number => Math.max(base(), options.maxIntervalMs ?? 10_000)
 
   let timer: ReturnType<typeof setTimeout> | null = null
   let inFlight = false
-  let pause = base
+  /** How many readings in a row failed: each one doubles the pause, up to the ceiling. */
+  let failures = 0
+  const pause = (): number => Math.min(ceiling(), base() * 2 ** failures)
   /** Bumped by every stop: a reading that comes back after it has nothing to schedule. */
   let epoch = 0
   let stopped = false
   let unwatch: (() => void) | null = null
+  let unwatchInterval: (() => void) | null = null
 
   const visible = (): boolean => typeof document === 'undefined' || document.visibilityState === 'visible'
   const shouldRun = (): boolean => !stopped && options.enabled.value && visible()
@@ -54,7 +61,7 @@ export function usePolling(tick: () => Promise<void>, options: PollingOptions): 
 
   function schedule(): void {
     clear()
-    if (shouldRun()) timer = setTimeout(() => void beat(), pause)
+    if (shouldRun()) timer = setTimeout(() => void beat(), pause())
   }
 
   async function beat(): Promise<void> {
@@ -69,9 +76,9 @@ export function usePolling(tick: () => Promise<void>, options: PollingOptions): 
     const mine = epoch
     try {
       await tick()
-      pause = base
+      failures = 0
     } catch {
-      pause = Math.min(ceiling, pause * 2)
+      failures += 1
     } finally {
       inFlight = false
     }
@@ -86,7 +93,7 @@ export function usePolling(tick: () => Promise<void>, options: PollingOptions): 
 
   function restart(immediate: boolean): void {
     halt()
-    pause = base
+    failures = 0
     if (!shouldRun()) return
     if (immediate) void beat()
     else schedule()
@@ -101,6 +108,7 @@ export function usePolling(tick: () => Promise<void>, options: PollingOptions): 
     stopped = true
     halt()
     unwatch?.()
+    unwatchInterval?.()
     if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisibilityChange)
   }
 
@@ -113,6 +121,13 @@ export function usePolling(tick: () => Promise<void>, options: PollingOptions): 
     },
     { immediate: true },
   )
+
+  // A new beat length moves the beat that is waiting (not a reading on its way: it schedules the next one by the new length itself).
+  if (typeof interval === 'function') {
+    unwatchInterval = watch(interval, () => {
+      if (timer !== null) schedule()
+    })
+  }
 
   if (getCurrentScope()) onScopeDispose(stop)
 

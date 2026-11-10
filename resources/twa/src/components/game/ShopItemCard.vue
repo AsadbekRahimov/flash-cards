@@ -5,13 +5,13 @@ import type { GameShopItem } from '@/api/gameShopTypes'
 
 /**
  * A card of the shop (docs/05 §5b.5): the picture, the name, the words, and one action by the state of the item.
- * - a cosmetic that is owned: "Wear" / "Worn" (inactive); not owned: "Buy" with the price;
+ * - a cosmetic that is owned: "Wear"; worn: the "Worn" chip and "Take off" (the slot goes empty); not owned: "Buy" with the price;
  * - a booster: "In stock: N" and "Buy" (boosters pile up);
  * - `locked_reason = pro`: the Pro chip and "Open with Pro" (the screen opens the paywall, no request); `achievement`: a prize, no button.
  * The buttons are 48 px high (`.btn`), `busy` switches them off while something is on its way.
  */
 const props = defineProps<{ item: GameShopItem; busy?: boolean }>()
-const emit = defineEmits<{ buy: [item: GameShopItem]; equip: [item: GameShopItem]; pro: [item: GameShopItem] }>()
+const emit = defineEmits<{ buy: [item: GameShopItem]; equip: [item: GameShopItem]; unequip: [item: GameShopItem]; pro: [item: GameShopItem] }>()
 
 const { t } = useI18n()
 </script>
@@ -37,7 +37,12 @@ const { t } = useI18n()
           {{ t('gameCaravan.item.pro_open') }}
         </button>
         <template v-else-if="item.kind === 'cosmetic' && item.owned">
-          <button v-if="item.equipped" type="button" class="btn btn-secondary btn-sm min-h-11" disabled data-testid="item-equipped">{{ t('gameCaravan.item.equipped') }}</button>
+          <div v-if="item.equipped" class="flex flex-wrap items-center gap-2">
+            <span class="chip chip-success" data-testid="item-equipped">{{ t('gameCaravan.item.equipped') }}</span>
+            <button type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-unequip" @click="emit('unequip', props.item)">
+              {{ t('gameShop.item.unequip') }}
+            </button>
+          </div>
           <button v-else type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-equip" @click="emit('equip', props.item)">
             {{ t('gameCaravan.item.equip') }}
           </button>

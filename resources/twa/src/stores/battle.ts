@@ -46,6 +46,12 @@ export interface PendingAnswer {
 /** The statuses in which the battle is alive: the poll runs only in them (docs/16 §11.4). */
 const LIVE: readonly BattleStatus[] = ['invited', 'room', 'countdown', 'playing']
 
+/**
+ * How often the poll reads a battle, by its status: an invitation waits for an answer of a person (5 s), the room for a tap on "Ready"
+ * (3 s), the countdown and the match move by the second (2 s; the screen is also woken at the deadlines, `wake`, so a round does not wait for a beat).
+ */
+export const POLL_INTERVAL_MS: Record<BattleStatus, number> = { invited: 5000, room: 3000, countdown: 2000, playing: 2000, finished: 2000, closed: 2000 }
+
 /** The order in which a battle goes through its statuses (the two end ones are equal): an older reading does not take a newer one back. */
 const STATUS_RANK: Record<BattleStatus, number> = { invited: 0, room: 1, countdown: 2, playing: 3, finished: 4, closed: 4 }
 
@@ -292,6 +298,9 @@ export const useBattleStore = defineStore('battle', {
 
     /** The battle I am in (a sent invitation, the room, the match). */
     active: (s): BattleListResponse['active'] => s.list?.active ?? null,
+
+    /** The beat of the poll for the status the battle is in now (`POLL_INTERVAL_MS`). */
+    pollIntervalMs: (s): number => (s.status === 'idle' ? POLL_INTERVAL_MS.playing : POLL_INTERVAL_MS[s.status]),
 
     /** The battle is over: it has a result (`finished`) or ended without one (`closed`). */
     isOver: (s): boolean => s.status === 'finished' || s.status === 'closed',

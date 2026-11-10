@@ -85,9 +85,9 @@ const collocation = (overrides: Partial<CollocationReveal> = {}): CollocationRev
 describe('AnswerReveal — the verdict is a symbol and words, never a colour alone', () => {
   it.each([
     ['correct', 'Верно!', 'success'],
-    ['typo', 'Есть опечатка', 'warning'],
-    ['wrong', 'Нужно исправить', 'danger'],
-    ['skipped', 'Подсказка', 'accent'],
+    ['typo', 'Опечатка', 'warning'],
+    ['wrong', 'Неверно', 'danger'],
+    ['skipped', 'Пропущено', 'accent'],
   ] as const)('%s: "%s" in a %s circle with its own symbol', (verdict, text, tone) => {
     const wrapper = render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict, reveal: dictation() }))
 
@@ -119,10 +119,10 @@ describe('AnswerReveal — the verdict is a symbol and words, never a colour alo
 
     const wrapper = render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation() }))
 
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Tuzatish kerak')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
   })
 
-  // docs/14 §6.2: "Неверно". "Нужно исправить" (docs/15) is a word for a text that can still be written better - the dictation's.
+  // docs/14 §8: one word for a wrong answer in every kind - "Неверно" (a dictation says it too, see below).
   it.each([
     ['a sentence', outcome({ verdict: 'wrong', reveal: sentence() })],
     ['a collocation', outcome({ element: collocationElement(), answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: { correct_option_ids: ['oB2'], full_text: "Let's have a meeting.", translation: null, explanation: null } })],
@@ -136,11 +136,11 @@ describe('AnswerReveal — the verdict is a symbol and words, never a colour alo
     expect(render(done).get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
   })
 
-  it('only a dictation says "Нужно исправить", and the other verdicts are the same for every kind', () => {
-    expect(render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation() })).get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+  it('says "Неверно" for a dictation too, and the other verdicts are the same for every kind', () => {
+    expect(render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation() })).get('[data-testid=reveal-text]').text()).toBe('Неверно')
     for (const element of [sentenceElement(), collocationElement()]) {
       const same = (verdict: 'correct' | 'typo' | 'skipped') => render(outcome({ element, answer: { skip: true }, verdict, reveal: null })).get('[data-testid=reveal-text]').text()
-      expect([same('correct'), same('typo'), same('skipped')]).toEqual(['Верно!', 'Есть опечатка', 'Подсказка'])
+      expect([same('correct'), same('typo'), same('skipped')]).toEqual(['Верно!', 'Опечатка', 'Пропущено'])
     }
   })
 })
@@ -668,10 +668,10 @@ describe('AnswerReveal — an answer that was counted earlier', () => {
     expect(wrapper.find('[data-testid=reveal-note]').exists()).toBe(false) // "Here is the right answer" would be untrue
   })
 
-  it('a dictation counted earlier says "Нужно исправить", as any dictation does', () => {
+  it('a dictation counted earlier says "Неверно", as any dictation does', () => {
     const wrapper = render(earlier({ verdict: 'wrong', element: dictationElement(), answer: { text: 'x' } }))
 
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(wrapper.find('[data-testid=reveal-earlier]').exists()).toBe(true)
   })
 

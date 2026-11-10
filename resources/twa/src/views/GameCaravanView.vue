@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import ShopItemCard from '@/components/game/ShopItemCard.vue'
@@ -37,6 +37,7 @@ type Category = (typeof CATEGORIES)[number]
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const today = useTodayStore()
 const store = useGameShopStore()
 const { haptic, notificationHaptic } = useTelegram()
@@ -48,7 +49,11 @@ const { wallet, shop, profile, status, error, buying } = storeToRefs(store)
 // map reads the active course when there was none). The address, not the store of the map: that one is reset when the map is left.
 const fromProfile = route.query.from === 'profile'
 const backCourse = typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null
-useBackButton(fromProfile ? { name: 'profile' } : { name: 'game', ...(backCourse ? { query: { course: backCourse } } : {}) })
+const backTarget: RouteLocationRaw = fromProfile ? { name: 'profile' } : { name: 'game', ...(backCourse ? { query: { course: backCourse } } : {}) }
+useBackButton(backTarget)
+
+/** "To the map" on the closed screen: the same place as the system "Back". */
+const toMap = (): void => void router.push(backTarget)
 
 let left = false
 
@@ -112,6 +117,14 @@ async function onEquip(item: GameShopItem): Promise<void> {
   if (item.slot === null) return
   haptic('light')
   const result = await store.equip(item.slot, item.key)
+  if (!result.ok && result.error.code !== 'busy') showErrorToast(result.error.message)
+}
+
+/** "Take off": the slot of the item goes empty (`item_key = null`, which the server accepts). */
+async function onUnequip(item: GameShopItem): Promise<void> {
+  if (item.slot === null) return
+  haptic('light')
+  const result = await store.equip(item.slot, null)
   if (!result.ok && result.error.code !== 'busy') showErrorToast(result.error.message)
 }
 
@@ -183,7 +196,11 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('gameCaravan.unavailable_title')" :text="t('gameCaravan.unavailable_text')" data-testid="unavailable" />
+    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('gameCaravan.unavailable_title')" :text="t('gameCaravan.unavailable_text')" data-testid="unavailable">
+      <template #action>
+        <button type="button" class="btn btn-tinted" data-testid="to-map" @click="toMap">{{ t('gameCaravan.to_map') }}</button>
+      </template>
+    </EmptyState>
 
     <ErrorState v-else-if="view === 'error'" :message="error" @retry="load" />
 
@@ -216,6 +233,7 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
             <div>
               <dt class="text-[13px] leading-[18px] text-tg-subtitle">{{ t('gameCaravan.wallet.tickets') }}</dt>
               <dd class="font-semibold tabular-nums" data-testid="wallet-tickets">{{ t('gameCaravan.wallet.tickets_value', { balance: wallet.tickets.balance, max: wallet.tickets.max }) }}</dd>
+              <dd class="mt-0.5 text-[13px] leading-[18px] text-tg-hint" data-testid="wallet-tickets-hint">{{ t('gameShop.wallet.tickets_hint') }}</dd>
             </div>
             <div>
               <dt class="text-[13px] leading-[18px] text-tg-subtitle">{{ t('gameCaravan.wallet.earned') }} / {{ t('gameCaravan.wallet.spent') }}</dt>
@@ -264,6 +282,7 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
             :busy="buying !== null || store.equipping"
             @buy="onBuy"
             @equip="onEquip"
+            @unequip="onUnequip"
             @pro="paywallOpen = true"
           />
         </ul>
