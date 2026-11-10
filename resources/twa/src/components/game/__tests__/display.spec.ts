@@ -109,6 +109,8 @@ describe('GameReveal — a task made of a word', () => {
     expect(wrapper.get('[data-testid=verdict-circle]').attributes('data-verdict')).toBe('correct')
     expect(wrapper.get('[data-testid=right-answer]').text()).toBe('яблоко')
     expect(wrapper.get('[data-testid=word]').text()).toBe('apple')
+    expect(wrapper.get('[data-testid=word-block]').text()).toContain('Слово')
+    expect(wrapper.get('[data-testid=translation-block]').text()).toContain('Перевод')
     expect(wrapper.get('[data-testid=chip-points]').text()).toBe('+10')
     expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=chip-flask]').exists()).toBe(false)
@@ -130,12 +132,13 @@ describe('GameReveal — a task made of a word', () => {
 
     expect(wrapper.get('[data-testid=your-answer]').text()).toContain('drinks')
     expect(wrapper.get('[data-testid=full-text]').text()).toBe('I drink tea every morning.')
+    expect(wrapper.get('[data-testid=full-text-block]').text()).toContain('Пример')
   })
 
   it('a hint ("I don\'t know") shows the answer without a reproach', () => {
     const wrapper = reveal(outcome({ element: spell(), verdict: 'skipped', points: 0, answer: { skip: true }, reveal: { correct_text: 'apple', translation: 'яблоко' } }))
 
-    expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Не знали')
+    expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Пропущено')
     expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
   })
 
@@ -222,7 +225,7 @@ describe('RunSummary', () => {
 
   it('shows the boss when the server sends one', () => {
     const wrapper = render(summary({ boss: { accuracy: 91.4, won: true, first: true } }))
-    expect(wrapper.get('[data-testid=boss]').text()).toContain('Босс побеждён')
+    expect(wrapper.get('[data-testid=boss]').text()).toContain('Хранитель побеждён')
     expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 91%')
   })
 
@@ -276,9 +279,9 @@ describe('RunSummary', () => {
       it('has its own words, not the gate of a city, and leads back to the screen of the class', async () => {
         const wrapper = classLost()
 
-        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Босс класса устоял')
+        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Хранитель класса устоял')
         expect(wrapper.get('[data-testid=boss-lost-hint]').text()).toBe('Точность 67% — у каждого ученика одна попытка, результат уже в таблице класса')
-        expect(wrapper.get('[data-testid=boss]').text()).toContain('Босс класса устоял')
+        expect(wrapper.get('[data-testid=boss]').text()).toContain('Хранитель класса устоял')
         expect(wrapper.find('[data-testid=map-btn]').exists()).toBe(false)
         expect(wrapper.get('[data-testid=class-btn]').text()).toBe('К экрану класса')
 
@@ -286,10 +289,10 @@ describe('RunSummary', () => {
         expect(wrapper.emitted('class')).toHaveLength(1)
       })
 
-      it('says "Босс класса побеждён" for a win and shows no card of a city', () => {
+      it('says "Хранитель класса побеждён" for a win and shows no card of a city', () => {
         const wrapper = mount(RunSummary, { props: { summary: summary({ boss: { accuracy: 92, won: true, first: false, share: null } }), failed: false, canAgain: false, kind: 'class_boss', classCaravanId: 4 } })
 
-        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Босс класса побеждён')
+        expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Хранитель класса побеждён')
         expect(wrapper.find('[data-testid=city-card]').exists()).toBe(false)
       })
 
@@ -355,7 +358,7 @@ describe('RunSummary', () => {
     expect(wrapper.get('[data-testid=mistake-0] [data-testid=mistake-yours]').text()).toBe('Вы ответили: appel')
     expect(wrapper.get('[data-testid=mistake-0] [data-testid=mistake-verdict]').text()).toBe('Опечатка')
     expect(wrapper.get('[data-testid=mistake-1] [data-testid=mistake-yours]').text()).toBe('Без ответа')
-    expect(wrapper.get('[data-testid=mistake-1] [data-testid=mistake-verdict]').text()).toBe('Не знали')
+    expect(wrapper.get('[data-testid=mistake-1] [data-testid=mistake-verdict]').text()).toBe('Пропущено')
     expect(wrapper.get('[data-testid=mistake-2] [data-testid=mistake-verdict]').text()).toBe('Неверно')
   })
 

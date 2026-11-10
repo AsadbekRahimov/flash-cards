@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Card, Quality } from '@/api/types'
+import CardHooks from '@/components/CardHooks.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import { useSayAloudHint } from '@/composables/useSayAloudHint'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -14,6 +16,16 @@ import { useI18n } from '@/i18n'
  * "I remember" / "Easy", each with a hint of what happens next. The hint is small (12 px), so it is not faded with
  * `opacity` (that was 2.4-3.5:1 in the light themes): it is the colour of its button mixed half and half with the text
  * colour of the theme, 4.8:1 and better on the soft backgrounds of the light and the dark Telegram themes (docs/14 §4.1).
+ *
+ * A `new` word has never been seen, so there is nothing to recall: the translation and the example are open at once
+ * ("Learn this word"), the same three grades are sent (2 / 4 / 5) under the labels "Not yet" / "Got it" / "Knew it", and the
+ * hints are left out: for a new word the engine puts 2 and 4 back within minutes and 5 after days (docs/06 §3.2), which
+ * the grown-up hints "today / on schedule / rarer" would not describe.
+ *
+ * The method (docs/06 §12): a hard word (`is_leech`) carries the "Hard word" chip and its hooks are open before the
+ * reveal — a cued recall is what a word that does not stick needs (docs/25 §3.3); otherwise the hooks (the authored one,
+ * "my hint", the confusable pair) come with the translation. "My hint" can be edited from the card (`edit-note`). On every
+ * third card a quiet "say the word aloud" line sits under the speaker (docs/25 §3.11), unless switched off in the settings.
  */
 const props = defineProps<{
   card: Card
@@ -24,11 +36,20 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'reveal'): void
   (e: 'grade', quality: Quality): void
+  (e: 'edit-note'): void
 }>()
 
 const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
 const { t } = useI18n()
+const { show: sayAloud } = useSayAloudHint()
+
+const isNew = computed(() => props.card.card_kind === 'new')
+/** A new word shows its translation at once. */
+const revealed = computed(() => props.showTranslation || isNew.value)
+const isLeech = computed(() => props.card.is_leech === true)
+/** The hooks: with the translation, or before it for a hard word. */
+const hooksOpen = computed(() => revealed.value || isLeech.value)
 
 const kind = computed(() => {
   switch (props.card.card_kind) {
@@ -42,11 +63,17 @@ const kind = computed(() => {
 })
 
 /** The three grades, left to right; the colours are the soft tokens of the design system. */
-const grades = computed(() => [
-  { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
-  { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
-  { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
-])
+const grades = computed(() => isNew.value
+  ? [
+      { quality: 2 as const, testid: 'grade-hard', label: t('card.grade_new.hard'), hint: '', tone: 'btn-danger' },
+      { quality: 4 as const, testid: 'grade-medium', label: t('card.grade_new.medium'), hint: '', tone: 'btn-tinted' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade_new.easy'), hint: '', tone: 'bg-success-soft text-success-ink' },
+    ]
+  : [
+      { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
+      { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
+    ])
 
 function onSpeak(): void {
   selectionHaptic()
@@ -69,8 +96,11 @@ function onGrade(q: Quality): void {
   <div class="flex flex-1 flex-col" data-testid="flashcard">
     <div class="flex flex-1 flex-col justify-center px-4 py-4">
       <article class="card flex flex-col gap-4 px-5 py-5">
-        <header class="flex items-center justify-between">
-          <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
+        <header class="flex items-center justify-between gap-2">
+          <span class="flex min-w-0 flex-wrap items-center gap-1.5">
+            <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
+            <span v-if="isLeech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
+          </span>
           <button
             type="button"
             class="btn btn-tinted size-11 min-h-0 shrink-0 rounded-full p-0"
@@ -87,9 +117,10 @@ function onGrade(q: Quality): void {
           <p v-if="card.transcription" class="mt-1.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
             {{ card.transcription }}
           </p>
+          <p v-if="sayAloud" class="mt-2 text-[13px] leading-[18px] text-tg-hint" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
         </div>
 
-        <template v-if="showTranslation">
+        <template v-if="revealed">
           <hr class="border-hairline" />
           <div class="px-1 pb-1 text-center">
             <p class="text-2xl leading-8 font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
@@ -105,12 +136,17 @@ function onGrade(q: Quality): void {
             </p>
           </div>
         </template>
+
+        <template v-if="hooksOpen">
+          <hr v-if="!revealed" class="border-hairline" />
+          <CardHooks :card="card" :editable="revealed" @edit-note="emit('edit-note')" />
+        </template>
       </article>
     </div>
 
     <StickyActions>
       <button
-        v-if="!showTranslation"
+        v-if="!revealed"
         type="button"
         class="btn btn-primary btn-lg btn-block"
         data-testid="reveal-btn"
@@ -121,7 +157,7 @@ function onGrade(q: Quality): void {
       </button>
 
       <template v-else>
-        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t('card.grade_prompt') }}</p>
+        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t(isNew ? 'card.grade_prompt_new' : 'card.grade_prompt') }}</p>
         <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
           <button
             v-for="grade in grades"
@@ -134,7 +170,7 @@ function onGrade(q: Quality): void {
             @click="onGrade(grade.quality)"
           >
             <span class="text-[15px] leading-5 font-semibold">{{ grade.label }}</span>
-            <span class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
+            <span v-if="grade.hint" class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
           </button>
         </div>
       </template>

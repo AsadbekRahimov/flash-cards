@@ -51,7 +51,7 @@ beforeEach(function (): void {
 
         public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
 
-        public function answerCallbackQuery(string $callbackQueryId): void {}
+        public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
@@ -145,7 +145,7 @@ it('answers /help in the group language', function (?string $locale, string $nee
     expect($this->api->log)->toHaveCount(1)
         ->and($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz group' => ['uz', "O'qituvchi buyruqlari"],
+    'uz group' => ['uz', "O'qituvchilar uchun"],
     'ru group' => ['ru', 'Команды учителя'],
     'no locale -> default' => [null, 'Команды учителя'],
     'unsupported locale -> default' => ['de', 'Команды учителя'],
@@ -159,7 +159,7 @@ it('posts the exam start message and button in uz for a uz group', function (): 
     locDispatch(['chat' => ['id' => -5002, 'type' => 'supergroup'], 'from' => ['id' => 701], 'text' => '/start_exam 1 1 5']);
 
     expect($this->api->log)->toHaveCount(1)
-        ->and($this->api->log[0]['text'])->toContain('Imtihon boshlandi')->toContain('1-modul · 1-dars · <b>5 daq</b>')
+        ->and($this->api->log[0]['text'])->toContain('Imtihon boshlandi')->toContain('1-modul · 1-dars · 5 daq')->toContain('10 soniya')
         ->and($this->api->log[0]['button'])->toBe('🏁 Imtihonni ochish')
         ->and($this->api->log[0]['parse_mode'])->toBe('HTML');
 });
@@ -175,8 +175,8 @@ it('posts the training start message in uz and ru', function (string $locale, st
         ->and($this->api->log[0]['text'])->toContain($text)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'uz' => ['uz', "Guruh mashg'uloti boshlandi. 1-modul, 1-dars", "🎯 Guruh mashg'ulotiga qo'shilish"],
-    'ru' => ['ru', 'Тренировка запущена: модуль 1, урок 1', '🎯 Открыть тренировку'],
+    'uz' => ['uz', "Guruh mashg'uloti: 1-modul, 1-dars", "🎯 Guruh mashg'ulotiga qo'shilish"],
+    'ru' => ['ru', 'Тренировка: модуль 1, урок 1', '🎯 Открыть тренировку'],
 ]);
 
 it('shows the lesson picker in the group language', function (): void {
@@ -196,8 +196,9 @@ it('translates errors for non-teachers and unknown accounts in a uz group', func
     locDispatch(['chat' => ['id' => -5005, 'type' => 'supergroup'], 'from' => ['id' => 99999], 'text' => '/start_exam']);
     locDispatch(['chat' => ['id' => -5005, 'type' => 'supergroup'], 'from' => ['id' => 99999], 'text' => '/close_exam']);
 
-    expect($this->api->log[0]['text'])->toBe("Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan.")
-        ->and($this->api->log[1]['text'])->toBe("Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan.");
+    expect($this->api->log[0]['text'])->toBe(__('errors.teacher_not_linked', [], 'uz'))
+        ->and($this->api->log[0]['text'])->toStartWith("Bu buyruq — guruh o'qituvchisi uchun.")
+        ->and($this->api->log[1]['text'])->toBe(__('errors.teacher_not_linked', [], 'uz'));
 });
 
 it('translates exam domain errors', function (): void {
@@ -230,27 +231,31 @@ it('answers private /help by the sender language code', function (?string $langu
 
     expect($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz' => ['uz', "Telegramda inglizcha so'zlar"],
-    'uz-UZ' => ['uz-UZ', "Telegramda inglizcha so'zlar"],
+    'uz' => ['uz', "inglizcha so'zlarni Telegramda"],
+    'uz-UZ' => ['uz-UZ', "inglizcha so'zlarni Telegramda"],
     'ru' => ['ru', 'английские слова в Telegram'],
     'en -> default' => ['en', 'английские слова в Telegram'],
     'missing -> default' => [null, 'английские слова в Telegram'],
 ]);
 
-it('lists the learner commands first and the teacher ones after them in the private /help', function (string $languageCode, string $teacherHeading): void {
+it('lists the learner commands for a learner and the teacher ones only for a linked teacher in the private /help', function (string $languageCode, string $learnerMark, string $teacherMark): void {
     locDispatch(['chat' => ['id' => 43, 'type' => 'private'], 'from' => ['id' => 43, 'language_code' => $languageCode], 'text' => '/help']);
+    $learnerText = $this->api->log[0]['text'];
 
-    [$learnerPart, $teacherPart] = explode($teacherHeading, $this->api->log[0]['text'], 2);
-
-    expect($learnerPart)->toContain('«LexiFlow»')->toContain('/today')->toContain('/settings')->toContain('/invite')
+    expect($learnerText)->toContain('«LexiFlow»')->toContain('/today')->toContain('/settings')->toContain('/invite')
         ->toContain('/pro —')->toContain('/promo')->toContain('/paysupport')
-        ->not->toContain('/start_training')->not->toContain('/stats')
-        ->and($teacherPart)->toContain('/start_training')->toContain('/start_exam')->toContain('/close_exam')->toContain('/stats')
+        ->not->toContain('/start_training')->not->toContain('/stats')->not->toContain($teacherMark)
         // Plain text: it goes out without a parse mode, so there is no markup in it.
         ->and($this->api->log[0]['parse_mode'])->toBeNull();
+
+    User::factory()->create(['telegram_user_id' => 44]);
+    locDispatch(['chat' => ['id' => 44, 'type' => 'private'], 'from' => ['id' => 44, 'language_code' => $languageCode], 'text' => '/help']);
+
+    expect($this->api->log[1]['text'])->toContain('/start_training')->toContain('/start_exam')->toContain('/close_exam')->toContain('/stats')->toContain('/org')
+        ->not->toContain('/today');
 })->with([
-    'ru' => ['ru', 'Для учителей:'],
-    'uz' => ['uz', "O'qituvchilar uchun:"],
+    'ru' => ['ru', 'Как заниматься', 'Для учителей'],
+    'uz' => ['uz', "Qanday shug'ullanish kerak", "O'qituvchilar uchun"],
 ]);
 
 it('names LexiFlow without the word "Bot" in the group /help', function (string $locale, string $firstLine): void {
@@ -261,7 +266,7 @@ it('names LexiFlow without the word "Bot" in the group /help', function (string 
     expect(explode("\n", $this->api->log[0]['text'])[0])->toBe($firstLine);
 })->with([
     'ru' => ['ru', 'LexiFlow в группе.'],
-    'uz' => ['uz', 'LexiFlow guruhda.'],
+    'uz' => ['uz', 'LexiFlow guruh buyruqlari'],
 ]);
 
 it('greets a linked teacher in the default language regardless of Telegram language', function (): void {
@@ -269,7 +274,7 @@ it('greets a linked teacher in the default language regardless of Telegram langu
 
     locDispatch(['chat' => ['id' => 43, 'type' => 'private'], 'from' => ['id' => 43, 'language_code' => 'uz'], 'text' => '/start']);
 
-    expect($this->api->log[0]['text'])->toContain('Привет, Aziz!');
+    expect($this->api->log[0]['text'])->toContain('Здравствуйте, Aziz!');
 });
 
 it('starts the onboarding of a /start sender in their Telegram language', function (string $languageCode, string $needle): void {
@@ -288,7 +293,7 @@ it('reports /stats to a teacher in the default language and to unlinked users in
     locDispatch(['chat' => ['id' => 46, 'type' => 'private'], 'from' => ['id' => 46, 'language_code' => 'uz'], 'text' => '/stats']);
 
     expect($this->api->log[0]['text'])->toContain('У вас пока нет привязанных групп')
-        ->and($this->api->log[1]['text'])->toContain("o'qituvchisiga biriktirilmagan")->toContain('46');
+        ->and($this->api->log[1]['text'])->toContain('Hisobot o\'qituvchilar uchun')->toContain('46');
 });
 
 it('renders the teacher stats report from lang files', function (): void {
@@ -301,7 +306,7 @@ it('renders the teacher stats report from lang files', function (): void {
 
     expect($ru->build($teacher))->toContain('Статистика LexiFlow за 7 дней')->toContain('Групп: 1')
         ->and($ru->build($teacher, 'uz'))->toContain("LexiFlow statistikasi (so'nggi 7 kun)")->toContain('Guruhlar: 1')
-        ->toContain('Imtihonlardagi aniqlik: 0%');
+        ->toContain("Imtihonlardagi to'g'ri javoblar: —");
 });
 
 // --- review reminders (learner language) -----------------------------------
@@ -330,16 +335,16 @@ it('sends the reminder in the learner interface language with correct number for
         ->and($this->api->log[0]['text'])->toBe($expected)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'ru 1' => ['ru', 1, 'Пора повторить 1 слово в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 2' => ['ru', 2, 'Пора повторить 2 слова в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 5' => ['ru', 5, 'Пора повторить 5 слов в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 11' => ['ru', 11, 'Пора повторить 11 слов в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 21' => ['ru', 21, 'Пора повторить 21 слово в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 22' => ['ru', 22, 'Пора повторить 22 слова в LexiFlow.', 'Открыть LexiFlow'],
-    'ru 25' => ['ru', 25, 'Пора повторить 25 слов в LexiFlow.', 'Открыть LexiFlow'],
-    'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.", "LexiFlow'ni ochish"],
-    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.", "LexiFlow'ni ochish"],
-    'unsupported locale -> default' => ['en', 2, 'Пора повторить 2 слова в LexiFlow.', 'Открыть LexiFlow'],
+    'ru 1' => ['ru', 1, "Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 2' => ['ru', 2, "Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 5' => ['ru', 5, "Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 11' => ['ru', 11, "Пора повторить 11 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 21' => ['ru', 21, "Пора повторить 21 слово в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 22' => ['ru', 22, "Пора повторить 22 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 25' => ['ru', 25, "Пора повторить 25 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings", "LexiFlow'ni ochish"],
+    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings", "LexiFlow'ni ochish"],
+    'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
 ]);
 
 it('falls back to the Telegram language when the stored interface locale is unsupported', function (): void {
@@ -350,7 +355,7 @@ it('falls back to the Telegram language when the stored interface locale is unsu
 
     locRunReminder($learner, 5);
 
-    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.");
+    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
 });
 
 // --- leaderboard (group language, HTML escaping preserved) -----------------

@@ -74,6 +74,11 @@ function rrOrganization(string $locale = 'ru'): array
 
 function rrStaff(Organization $organization, bool $owner = true, array $user = []): User
 {
+    // A Telegram id given here is a VERIFIED one unless the test says otherwise: only a verified account gets the DM (W1).
+    if (($user['telegram_user_id'] ?? null) !== null && ! array_key_exists('telegram_verified_at', $user)) {
+        $user['telegram_verified_at'] = now();
+    }
+
     $account = User::factory()->create($user);
     $row = OrganizationUser::factory()->create(['organization_id' => $organization->id, 'user_id' => $account->id]);
 
@@ -262,6 +267,16 @@ it('e-mails every active owner of an organization in its language and DMs the on
         ->and($this->tg->sent[0]['chat_id'])->toBe(880001)
         ->and($this->tg->sent[0]['text'])->toContain('«Best Center» markazining obunasi 3 kundan keyin tugaydi')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'])->toBe('https://lexi.test/org');
+});
+
+it('e-mails but does not DM an owner whose Telegram id is unverified (a hand-typed number may be somebody else\'s)', function (): void {
+    Mail::fake();
+    [$organization, $sub] = rrOrganization();
+    rrStaff($organization, user: ['email' => 'typed@center.test', 'telegram_user_id' => 880009, 'telegram_verified_at' => null]);
+
+    expect(rrSend($sub))->toBe(1); // e-mail only
+    Mail::assertSent(SubscriptionRenewalDueMail::class, 1);
+    expect($this->tg->sent)->toBe([]);
 });
 
 it('renders the e-mail with the center, the date and the contact', function (): void {

@@ -131,7 +131,7 @@ it('calls a challenger without a name "your friend" in the language of the recip
     $battle = BattleKit::invite($me, $friendship, PracticeMode::Dictation, $course);
     battleDm($battle->id);
 
-    expect($this->tg->sent[0]['text'])->toStartWith("Do'stingiz sizni bellashuvga chaqiryapti: Eshiting va yozing, Ingliz tili A1.");
+    expect($this->tg->sent[0]['text'])->toStartWith("Do'stingiz sizni bellashuvga chaqiryapti: Tinglang va yozing, Ingliz tili A1.");
 });
 
 it('builds the URL of the button from `twa.base_url` whatever slashes it ends with', function (): void {

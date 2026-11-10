@@ -80,7 +80,7 @@ describe('CourseView: the entry to the Karvon game (docs/05 §5b.1)', () => {
     const { wrapper, router } = await render(access())
 
     const button = wrapper.get('[data-testid=game-btn]')
-    expect(button.text()).toBe('Караван')
+    expect(button.text()).toBe('Игра «Караван»')
     expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
 
     await button.trigger('click')

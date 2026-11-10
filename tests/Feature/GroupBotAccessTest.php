@@ -46,7 +46,10 @@ it('does not warn when the bot is an administrator or the creator', function (st
 
     botAddedToGroup();
 
-    expect($this->tg->sent)->toBe([])
+    // Only the welcome of a group that waits for activation, without the admin warning.
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow добавлен в группу')
+        ->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'))
         ->and($this->tg->chatMemberLookups)->toBe([['chat_id' => -100777, 'user_id' => 777000111]])
         ->and(TelegramGroup::query()->where('chat_id', -100777)->value('status'))->toBe('pending');
 })->with(['administrator', 'creator']);
@@ -56,14 +59,16 @@ it('warns the group in Russian when the bot is only a member, and still register
 
     botAddedToGroup();
 
+    // One message: the welcome with the warning inside it.
     expect($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(-100777)
-        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'))
+        ->and($this->tg->sent[0]['text'])->toContain(__('bot.group.bot_not_admin', [], 'ru'))
         ->and($this->tg->sent[0]['text'])->toContain('администратором')
         ->and(TelegramGroup::query()->where('chat_id', -100777)->value('status'))->toBe('pending');
 })->with(['member', 'restricted', 'left']);
 
 it('writes the warning in the language of the group when the bot is re-added', function (): void {
+    // Not waiting for activation (disabled): the warning alone, as before.
     TelegramGroup::factory()->create(['chat_id' => -100778, 'status' => 'disabled', 'meta' => ['locale' => 'uz']]);
     $this->tg->chatMemberStatus = 'member';
 
@@ -88,7 +93,9 @@ it('registers the group and logs a warning without the token when the Bot API ca
 
     botAddedToGroup();
 
-    expect($this->tg->sent)->toBe([])
+    // The welcome still goes out (without the warning: the bot's status is unknown).
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'))
         ->and(TelegramGroup::query()->where('chat_id', -100777)->value('status'))->toBe('pending');
 
     Log::shouldHaveReceived('warning')->once()->withArgs(function (string $message, array $context): bool {
@@ -108,6 +115,20 @@ it('does not fail the registration when the warning itself cannot be sent', func
     expect($this->tg->sent)->toBe([])
         ->and(TelegramGroup::query()->where('chat_id', -100777)->value('status'))->toBe('pending');
 
+    Log::shouldHaveReceived('warning')->once()->withArgs(
+        fn (string $message): bool => $message === 'telegram.group_welcome_failed',
+    );
+});
+
+it('does not fail the registration when the warning to a re-added group cannot be sent', function (): void {
+    Log::spy();
+    TelegramGroup::factory()->create(['chat_id' => -100780, 'status' => 'disabled']);
+    $this->tg->chatMemberStatus = 'member';
+    $this->tg->failSends = 1;
+
+    botAddedToGroup(-100780);
+
+    expect($this->tg->sent)->toBe([]);
     Log::shouldHaveReceived('warning')->once()->withArgs(
         fn (string $message): bool => $message === 'telegram.group_bot_admin_warning_failed',
     );

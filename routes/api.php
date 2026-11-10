@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\TtsController;
+use App\Http\Controllers\Api\Twa\WordNoteController;
 use App\Http\Middleware\SetTwaLocale;
 use App\Http\Middleware\TwaAuth;
 use Illuminate\Support\Facades\Route;
@@ -120,6 +121,12 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/tts', TtsController::class)
             ->middleware('throttle:twa-tts')
             ->name('twa.tts');
+
+        // The learner's own memory hook of a word (docs/06 §12.3): one row of theirs, a write cap of its own.
+        Route::put('/words/{word}/note', [WordNoteController::class, 'update'])
+            ->whereNumber('word')
+            ->middleware('throttle:twa-word-notes')
+            ->name('twa.words.note');
 
         Route::post('/training/sessions', [TrainingController::class, 'open'])
             ->middleware('throttle:twa-session-create')

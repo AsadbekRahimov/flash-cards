@@ -1014,10 +1014,13 @@
 | `org.teachers.columns.name` | Ism | Имя |
 | `org.teachers.columns.email` | Email | Email |
 | `org.teachers.columns.role` | Rol | Роль |
-| `org.teachers.columns.telegram` | Telegram bog'langan | Telegram привязан |
+| `org.teachers.columns.telegram` | Telegram | Telegram |
 | `org.teachers.columns.groups` | Guruhlar | Групп |
 | `org.teachers.columns.last_login` | Oxirgi kirish | Последний вход |
 | `org.teachers.never_logged_in` | kirmagan | не входил |
+| `org.teachers.telegram.verified` | tasdiqlangan | подтверждён |
+| `org.teachers.telegram.unverified` | tasdiqlanmagan | не подтверждён |
+| `org.teachers.telegram.none` | ulanmagan | не подключён |
 | `org.teachers.role.owner` | Egasi | Владелец |
 | `org.teachers.role.teacher` | O'qituvchi | Учитель |
 | `org.teachers.actions.invite` | O'qituvchini taklif qilish | Пригласить учителя |
@@ -1590,6 +1593,7 @@
 | `settings.exercises.audio` | Eshitib | На слух |
 | `settings.exercises.spelling` | So'zni yozish | Написание слова |
 | `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
+| `error.code.exercise_mismatch` | Topshiriq yangilandi. Qayta urinib ko'ring. | Задание обновилось. Попробуйте ещё раз. |
 | `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
 | `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
 | `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |
@@ -3198,6 +3202,45 @@
 | `bot.help.group_caravan` | /start_caravan — sinf karvonini boshlash<br>/cancel_caravan — sinf karvonini bekor qilish<br> | /start_caravan — запустить караван класса<br>/cancel_caravan — отменить караван класса<br> |
 | `bot.help.private_caravan` | • Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.<br> | • Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.<br> |
 | `org.nav.caravans` | Karvonlar | Караваны |
+| `org.nav.exams` | Imtihonlar | Экзамены |
+| `org.exams.singular` | Imtihon | Экзамен |
+| `org.exams.plural` | Imtihonlar | Экзамены |
+| `org.exams.empty` | Hozircha imtihonlar yo'q | Экзаменов пока нет |
+| `org.exams.lesson_label` | :stage-modul · :lesson-dars | Модуль :stage · Урок :lesson |
+| `org.exams.minutes` | :value daq. | :value мин |
+| `org.exams.columns.group` | Guruh | Группа |
+| `org.exams.columns.lesson` | Modul · dars | Модуль · урок |
+| `org.exams.columns.date` | Sana | Дата |
+| `org.exams.columns.duration` | Davomiyligi | Длительность |
+| `org.exams.columns.participants` | Ishtirokchilar | Участников |
+| `org.exams.columns.average` | O'rtacha natija | Средний результат |
+| `org.exams.columns.status` | Holati | Статус |
+| `org.exams.status.open` | Ochiq | Открыт |
+| `org.exams.status.closed` | Yopilgan | Закрыт |
+| `org.exams.filters.period` | Davr | Период |
+| `org.exams.filters.from` | Dan | С |
+| `org.exams.filters.until` | Gacha | По |
+| `org.exams.results.heading` | O'quvchilar natijalari | Результаты учеников |
+| `org.exams.results.empty` | Hozircha natijalar yo'q | Результатов пока нет |
+| `org.exams.results.rank` | O'rin | Место |
+| `org.exams.results.learner` | O'quvchi | Ученик |
+| `org.exams.results.correct` | To'g'ri / jami | Верно / всего |
+| `org.exams.results.percent` | Natija | Результат |
+| `org.exams.absent.heading` | Ishtirok etmaganlar | Не участвовали |
+| `org.exams.absent.empty` | Hamma ishtirok etdi | Участвовали все |
+| `org.exams.words.heading` | So'zlar bo'yicha tahlil (avval eng qiyinlari) | Разбор по словам (сначала самые трудные) |
+| `org.exams.words.empty` | Hozircha javoblar yo'q | Ответов пока нет |
+| `org.exams.words.word` | So'z | Слово |
+| `org.exams.words.translation` | Tarjima | Перевод |
+| `org.exams.words.correct` | To'g'ri / jami | Верно / всего |
+| `org.exams.words.percent` | To'g'ri javoblar | Верных ответов |
+| `org.exams.actions.csv` | CSV yuklab olish | Скачать CSV |
+| `org.exams.csv.rank` | O'rin | Место |
+| `org.exams.csv.learner` | O'quvchi | Ученик |
+| `org.exams.csv.correct` | To'g'ri | Верно |
+| `org.exams.csv.total` | Jami | Всего |
+| `org.exams.csv.percent` | Natija, % | Результат, % |
+| `org.exams.csv.score` | Ball | Баллы |
 | `org.caravans.singular` | Karvon | Караван |
 | `org.caravans.plural` | Karvonlar | Караваны |
 | `org.caravans.columns.group` | Guruh | Группа |
@@ -3298,3 +3341,306 @@
 | `gameClass.not_found.title` | Karvon mavjud emas | Караван недоступен |
 | `gameClass.not_found.text` | U bekor qilingan yoki bu sizning sinfingiz emas. | Он отменён, или это не ваш класс. |
 | `gameClass.to_map` | Xaritaga | К карте |
+
+
+## Бот: понятность для обычного пользователя (аудит 2026-11-10)
+
+> Новые ключи. Изменённые значения старых ключей (`bot.start.greeting`, `bot.help.private` — теперь только команды ученика, `bot.help.group`, `bot.stats.not_linked`, `errors.*`, `exam.started`, `training.started`, `reminders.*`, `onboarding.blocked`, `stats.*`) исправлены в строках выше не были: актуальные значения — в lang/uz/*.php.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private_teacher` | LexiFlow — o'qituvchi buyruqlari.<br><br>• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.<br>• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>:caravan• /stats — 7 kunlik hisobotingiz<br>• /org — markaz kabineti | LexiFlow — команды учителя.<br><br>• Добавьте бота в группу и сделайте его администратором. Команды заработают после активации группы: если она ещё не активна, напишите в поддержку.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>:caravan• /stats — ваш отчёт за 7 дней<br>• /org — кабинет центра |
+| `bot.help.teacher_hint` | Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact | Вы учитель или владелец центра? Напишите нам: :contact |
+| `bot.support.line` | Qo'llab-quvvatlash xizmati: :contact | Поддержка: :contact |
+| `bot.teacher.learner_command` | Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help | Эта команда — для учеников. Ваши команды учителя: /help |
+| `bot.group.untitled` | Nomsiz guruh | Группа без названия |
+| `bot.group.welcome` | 👋 LexiFlow «:title» guruhiga qo'shildi.<br><br>Keyingi qadamlar:<br>1. Botni guruh administratori qiling.<br>2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | 👋 LexiFlow добавлен в группу «:title».<br><br>Что дальше:<br>1. Сделайте бота администратором группы.<br>2. Группа ждёт активации — после неё заработают команды учителя.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
+| `bot.group.pending_command` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi. | Группа ещё не активирована, поэтому команды пока не работают. |
+| `bot.group.pending_help` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | Группа ещё не активирована, поэтому команды пока не работают.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
+| `exam.picker.prompt` | Imtihon uchun darsni tanlang: | Выберите урок для экзамена: |
+| `exam.picker.duration_prompt` | :stage-modul · :lesson-dars. Imtihon necha daqiqa davom etadi? | Модуль :stage · Урок :lesson. Сколько минут будет идти экзамен? |
+| `exam.picker.minutes_button` | :minutes daq | :minutes мин |
+| `onboarding.welcome` | Salom! Men LexiFlow — kuniga 5–10 daqiqada inglizcha so'zlarni o'rganishga yordam beraman. Bir necha qisqa savol — va boshlaymiz. | 👋 Привет! Я LexiFlow — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём. |
+| `onboarding.step_counter` | :n/:total-qadam | Шаг :n из :total |
+| `onboarding.invited_by_organization` | Sizni «:organization» markazi taklif qildi | Вас пригласил центр «:organization» |
+| `onboarding.invited_by_learner` | Sizni :name taklif qildi | Вас пригласил(а) :name |
+| `stats.accuracy_none` | Imtihonlardagi to'g'ri javoblar: — | Точность экзаменов: — |
+
+## Добавлено 10.11.2026 (аудит: лендинг, кабинет центра, мини-приложение)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.how.lead` | So'z birdan emas, asta-sekin unutiladi. LexiFlow uni unutilishidan oldin qaytaradi — har safar tanaffus uzayib boradi. | Слово забывается не сразу, а постепенно. LexiFlow возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее. |
+| `landing.how.timeline.word` | breakfast | breakfast |
+| `landing.how.timeline.points.0.when` | Bugun | Сегодня |
+| `landing.how.timeline.points.0.what` | Yangi so'z | Новое слово |
+| `landing.how.timeline.points.1.when` | Ertaga | Завтра |
+| `landing.how.timeline.points.1.what` | Birinchi takrorlash | Первое повторение |
+| `landing.how.timeline.points.2.when` | Bir haftadan so'ng | Через неделю |
+| `landing.how.timeline.points.2.what` | Ikkinchisi | Второе |
+| `landing.how.timeline.points.3.when` | Ikki haftadan so'ng | Через две недели |
+| `landing.how.timeline.points.3.what` | Uchinchisi | Третье |
+| `landing.how.timeline.points.4.when` | Bir oydan so'ng | Через месяц |
+| `landing.how.timeline.points.4.what` | So'z uzoq vaqt esda qoladi | Слово с вами надолго |
+| `landing.how.timeline.note` | Eslay olmasangiz — so'z ertaroq qaytadi. Oson eslasangiz — kechroq. | Не вспомнили — слово вернётся раньше. Вспомнили легко — позже. |
+| `landing.teachers.title` | O'qituvchilar va o'quv markazlari uchun | Учителям и учебным центрам |
+| `landing.teachers.lead` | Mashg'ulot va imtihonlar sinfning Telegram guruhida o'tadi, o'quvchilar faolligi esa markaz kabinetida ko'rinadi. | Тренировки и экзамены проходят прямо в Telegram-группе класса, а активность учеников видна в кабинете центра. |
+| `landing.teachers.steps.0.title` | Ariza qoldiring | Оставьте заявку |
+| `landing.teachers.steps.0.text` | Markaz kabinetini ochib beramiz va botni guruhga qanday qo'shishni tushuntiramiz. | Мы создадим кабинет центра и подскажем, как добавить бота в группу. |
+| `landing.teachers.steps.1.title` | Botni sinf guruhiga qo'shing | Добавьте бота в группу класса |
+| `landing.teachers.steps.1.text` | O'quvchilar mashg'ulotga bitta tugma bilan kiradi — hech narsa o'rnatish shart emas. | Ученики заходят на занятие одной кнопкой — ничего устанавливать не нужно. |
+| `landing.teachers.steps.2.title` | Mashg'ulot va imtihonlarni boshlang | Запускайте тренировки и экзамены |
+| `landing.teachers.steps.2.text` | Guruhda bitta buyruq bilan. Imtihon natijalarini botning o'zi e'lon qiladi. | Одной командой в группе. Итоги экзамена бот публикует сам. |
+| `landing.teachers.tiers_title` | Markazlar uchun tariflar | Тарифы для центров |
+| `landing.teachers.seats` | :count tagacha o'quvchi | до :count ученика\|до :count учеников\|до :count учеников |
+| `landing.teachers.seats_unlimited` | o'rinlar cheklanmagan | без ограничения мест |
+| `landing.teachers.seat_note` | O'rin — markaz hisobidan Pro oladigan bitta o'quvchi. | Место — это один ученик, который получает Pro за счёт центра. |
+| `landing.teachers.year_discount` | Yillik to'lovda — :percent% chegirma. | При оплате за год — скидка :percent%. |
+| `landing.teachers.cta` | Markazni ulash | Подключить центр |
+| `landing.teachers.login` | Kabinetga kirish | Войти в кабинет |
+| `org.groups.actions.course` | Guruh kursi | Курс группы |
+| `org.groups.actions.course_help` | Shu kurs darslari bo'yicha guruhga vazifa bera olasiz. | По урокам этого курса вы сможете ставить группе задания. |
+| `org.groups.fields.course` | Kurs | Курс |
+| `org.groups.errors.course_unavailable` | Bu kurs guruhlar uchun mavjud emas. Boshqasini tanlang. | Этот курс недоступен для групп. Выберите другой. |
+| `org.groups.notifications.linked_pending` | «:title» guruhi bog'landi. Keyingi qadam: guruh kursini tanlang va faollashtirishni kuting — shundan keyin Telegramda o'qituvchi buyruqlari ishlaydi. | Группа «:title» привязана. Дальше: выберите курс группы и дождитесь активации — после неё заработают команды учителя в Telegram. |
+| `org.groups.notifications.course_saved` | «:title» guruhining kursi saqlandi. | Курс группы «:title» сохранён. |
+| `org.assignments.fields.group_no_course` | Avval guruh uchun kurs tanlang: Guruhlar → «Guruh kursi». | Сначала выберите курс для группы: Группы → «Курс группы». |
+| `org.billing.seat_explainer` | O'rin — markaz hisobidan Pro olayotgan bitta o'quvchi. | Место — это один ученик, который получает Pro за счёт центра. |
+| `org.billing.choose.description_no_invoice` | To'lov joriy tarifni tanlangan muddatga uzaytiradi. Boshqa tarifga o'tish uchun qo'llab-quvvatlash xizmatiga yozing. | Оплата продлевает текущий тариф на выбранный срок. Чтобы перейти на другой тариф, напишите в поддержку. |
+| `twofactor.challenge.lost` | Telefon ham, kodlar ham yo'qoldimi? Qo'llab-quvvatlash xizmatiga yozing — tekshiruvdan so'ng kirish huquqini tiklaymiz. | Потеряли и телефон, и коды? Напишите в поддержку — восстановим доступ после проверки. |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `common.exit_app` | Telegramga qaytish | Выйти в Telegram |
+| `intro.title` | Bu qanday ishlaydi | Как это работает |
+| `intro.step1.title` | Siz so'zni ko'rasiz va tarjimasini eslaysiz | Вы видите слово и вспоминаете перевод |
+| `intro.step1.text` | So'ng javobni ochib, uni eslaganingizni halol belgilaysiz. | Потом открываете ответ и честно отмечаете, помните ли его. |
+| `intro.step2.title` | So'zlar o'zi qaytadi | Слова возвращаются сами |
+| `intro.step2.text` | Unutilgan so'zni tezroq, eslab qolganingizni keyinroq ko'rsatamiz. Shunda so'zlar xotirada qoladi. | Что забывается — покажем раньше, что помните — позже. Так слова остаются в памяти. |
+| `intro.step3.title` | Topshiriqlar asta-sekin murakkablashadi | Задания становятся сложнее |
+| `intro.step3.text` | Avval so'zni taniysiz, keyin uni o'zingiz eslaysiz, so'ng yozasiz va gapga qo'yasiz — shunda so'z uzoq vaqt esda qoladi. | Сначала вы узнаёте слово, потом вспоминаете его сами, потом пишете и вставляете в предложение — так слово остаётся надолго. |
+| `intro.step4.title` | Kuniga 10 daqiqa yetarli | Хватит 10 минут в день |
+| `intro.step4.text` | «Mashg'ulotni boshlash» tugmasini bosing — qolganini ilova o'zi qiladi. | Нажмите «Начать занятие» — остальное приложение сделает само. |
+| `intro.next` | Keyingi | Дальше |
+| `intro.start` | Boshlash | Начать |
+| `profile.how_it_works` | Bu qanday ishlaydi | Как это работает |
+| `benefits.game` | Karvon kunlik limitsiz | Караван без дневного лимита |
+| `today.goal.daily` | { | { |
+| `today.all_done` | Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga | На сегодня всё. Новые слова — завтра |
+| `today.all_done.pro` | Ko'proq yangi so'zlar — Pro'da | Больше новых слов — в Pro |
+| `today.onboarding_btn` | Sozlashni botda tugatish | Закончить настройку в боте |
+| `today.course.learn_hint` | Faqat shu darsning so'zlari, takrorlashsiz | Только слова этого урока, без повторений |
+| `card.grade_new.hard` | Hali eslamadim | Ещё не запомнил |
+| `card.grade_new.medium` | Esladim | Запомнил |
+| `card.grade_new.easy` | Avvaldan bilardim | Уже знал |
+| `card.grade_prompt_new` | Yangi so'z. Eslab qolishga harakat qiling | Новое слово. Постарайтесь запомнить |
+| `finished.title_empty` | Bugun uchun hammasi tayyor | На сегодня всё |
+| `decks.activate.title` | Kurs o'rniga shu to'plamni o'rganasizmi? | Учить эту колоду вместо курса? |
+| `decks.activate.text` | Kunlik mashg'ulotdagi yangi so'zlar kursdan emas, shu to'plamdan olinadi. Kursni «Kurslar» bo'limida qaytarishingiz mumkin. | Новые слова в ежедневном занятии будут из этой колоды, а не из курса. Вернуть курс можно во вкладке «Курсы». |
+| `decks.activate.no` | Bekor qilish | Отмена |
+| `friends.challenge.button` | Haftalik musobaqa | Вызов на неделю |
+| `friends.hint` | Bellashuv — hoziroq tez raundlar. Musobaqa — {days} kunda kim ko'proq o'rganadi. | Баттл — быстрые раунды прямо сейчас. Вызов — кто выучит больше за {days} дн. |
+| `friends.hint_challenge` | Musobaqa — {days} kunda kim ko'proq o'rganadi. | Вызов — кто выучит больше за {days} дн. |
+| `game.enter` | «Karvon» o'yini | Игра «Караван» |
+| `gameIntro.title` | «Karvon» o'yini qanday o'ynaladi | Как играть в «Караван» |
+| `gameIntro.p1` | Bu kursingizdagi so'zlar bo'yicha o'yin. Har bir dars — bekat, har bir modul — shahar. | Это игра по словам вашего курса. Каждый урок — стоянка, каждый модуль — город. |
+| `gameIntro.p2` | Safar — {min}–{max} ta topshiriq. Sizda {flasks} ta mesh bor: xato qilsangiz, bitta mesh kamayadi. | Забег — {min}–{max} заданий. У вас {flasks} фляги: ошибка — минус фляга. |
+| `gameIntro.p3` | Safarlar uchun yulduzlar va tangalar beriladi. Tangalar «Mening karvonim»da sarflanadi. | За забеги дают звёзды и монеты. Монеты тратятся в «Мой караван». |
+| `gameIntro.ok` | Tushunarli | Понятно |
+| `gameIntro.how` | Qanday o'ynash | Как играть |
+| `gameShop.wallet.tickets_hint` | Chipta — bepul safardan tashqari bitta qo'shimcha safar. Chiptalar ketma-ketlikning har bir haftasi va taklif qilingan do'stlar uchun beriladi. | Билет — один дополнительный забег сверх бесплатного. Билеты дают за каждую неделю серии и за приглашённых друзей. |
+| `gameShop.item.unequip` | Olib tashlash | Снять |
+
+## Методика: лестница, трудные слова, подсказки (docs/06 §12, 11.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `card.leech` | Qiyin so'z | Трудное слово |
+| `card.hook.title` | Eslab qolish uchun | Как запомнить |
+| `card.note.title` | Mening eslatmam | Моя подсказка |
+| `card.note.add` | O'z eslatmangizni qo'shing | Добавить свою подсказку |
+| `card.note.edit` | Eslatmani o'zgartirish | Изменить подсказку |
+| `card.note.placeholder` | Assotsiatsiya, o'xshash so'z, qismlarga ajratish… | Ассоциация, похожее слово, разбор по частям… |
+| `card.note.save` | Saqlash | Сохранить |
+| `card.note.clear` | O'chirish | Удалить |
+| `card.note.hint` | Faqat Siz ko'rasiz. {max} belgigacha. | Видите только вы. До {max} символов. |
+| `card.confused_with` | Adashtirmang | Не путайте с |
+| `card.say_aloud` | So'zni ovoz chiqarib ayting | Произнесите слово вслух |
+| `exercise.pretest.title` | Bu so'zni bilasizmi? | Знаете это слово? |
+| `exercise.pretest.skip` | Bilmayman | Не знаю |
+| `exercise.pretest.known` | Siz bu so'zni allaqachon bilasiz — uni kamroq ko'rsatamiz. | Вы уже знаете это слово — покажем его реже. |
+| `exercise.pretest.learn` | Yangi so'z. Uni eslab qoling | Новое слово. Запомните его |
+| `settings.say_aloud` | So'zni ovoz chiqarib aytishni eslatish | Напоминать произносить слово вслух |
+| `settings.retention` | Eslab qolish maqsadi | Цель удержания |
+| `settings.retention.calm` | Sokin | Спокойно |
+| `settings.retention.normal` | Odatiy | Обычно |
+| `settings.retention.intense` | Jadal | Интенсивно |
+| `settings.retention.hint` | Takrorlash vaqtida so'zlarning qancha qismi esda qolishi kerak: sokin — 85 %, odatiy — 90 %, jadal — 93 %. Maqsad qanchalik yuqori bo'lsa, takrorlashlar shuncha tez-tez bo'ladi. | Сколько слов должно помниться к моменту повторения: спокойно — 85 %, обычно — 90 %, интенсивно — 93 %. Чем выше цель, тем чаще повторения. |
+
+## Привязка Telegram и групп через бота, согласие ученика 2026-11 (аудит 10.11 H1 / M2 / P1) — на проверку носителю
+
+> Глоссарий: центр = markaz, группа = guruh, ученик = o'quvchi, учитель = o'qituvchi, кабинет = kabinet, подключить = ulash, приглашение = taklif, отключить = uzish. «Siz» — с заглавной.
+> Изменились и старые строки: `bot.group.welcome`, `bot.group.pending_help`, `bot.help.group` (номера группы больше нет — вместо него путь в кабинет), `bot.stats.not_linked`, `org.bot.not_staff`, `org.members.actions.add`, `org.members.fields.telegram_help`, `org.members.via.admin`, `org.groups.actions.link_help`, `org.groups.actions.unlink_confirm`.
+
+### Бот (`lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.group.welcome` | 👋 LexiFlow «:title» guruhiga qo'shildi. Keyingi qadamlar: 1. Botni guruh administratori qiling. 2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi. 3. Aks holda guruh LexiFlow administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi. | 👋 LexiFlow добавлен в группу «:title». Что дальше: 1. Сделайте бота администратором группы. 2. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу» — у центра с подпиской она заработает сразу. 3. Иначе группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. |
+| `bot.group.pending_help` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash». | Группа ещё не активирована, поэтому команды пока не работают. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу». |
+| `bot.help.group` (последняя строка) | O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash». | Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу». |
+| `bot.stats.not_linked` | Hisobot o'qituvchilar uchun. Markaz xodimi: Telegramni kabinetda ulang — Profil → «Telegramni ulash». Kabinetsiz o'qituvchi: administratorga Telegram ID raqamingizni bering: :id. Agar Siz o'quvchi bo'lsangiz — /today ni oching. | Отчёт доступен учителям. Сотрудник центра: подключите Telegram в кабинете — Профиль → «Подключить Telegram». Учитель без кабинета: передайте администратору ваш Telegram ID :id. Если вы ученик — откройте /today. |
+| `bot.link.account_linked` | ✅ Telegram :name akkauntiga ulandi. Endi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang. | ✅ Telegram подключён к аккаунту :name. Теперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help. |
+| `bot.link.account_taken` | Bu Telegram kabinetning boshqa akkauntiga ulangan. Avval uni o'sha yerda uzing (Profil → «Uzish»), so'ng havolani qayta oching. | Этот Telegram уже подключён к другому аккаунту кабинета. Сначала отключите его там (Профиль → «Отключить»), затем откройте ссылку снова. |
+| `bot.link.account_refused` | Ulash havolasi yaroqsiz yoki eskirgan. Markaz kabinetini oching → Profil → «Telegramni ulash» va yangi havola oling. | Ссылка для подключения недействительна или устарела. Откройте кабинет центра → Профиль → «Подключить Telegram» и получите новую. |
+| `bot.link.group_linked` | ✅ «:title» guruhi «:organization» markaziga bog'landi. | ✅ Группа «:title» привязана к центру «:organization». |
+| `bot.link.group_next_active` | Guruh faol: o'qituvchi buyruqlari ishlaydi. Endi kabinetda guruh kursini tanlang: Guruhlar → «Guruh kursi». | Группа активна: команды учителя работают. Дальше выберите курс группы в кабинете: Группы → «Курс группы». |
+| `bot.link.group_next_pending` | Guruh LexiFlow administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi». | Группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. Курс группы можно выбрать уже сейчас: кабинет → Группы → «Курс группы». |
+| `bot.link.group_refused` | Guruhni bog'lab bo'lmadi. Markaz kabinetini oching → Guruhlar → «Guruhni bog'lash»: u yerda sababi ko'rinadi va yangi havola olish mumkin. | Не удалось привязать группу. Откройте кабинет центра → Группы → «Привязать группу»: там видна причина, и можно получить новую ссылку. |
+
+### Бот, предложение центра ученику (`lang/uz/organizations.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `organizations.invite.text` | «:organization» o'quv markazi Sizni qo'shilishga taklif qilmoqda. Qo'shilsangiz, markazda bo'sh o'rin bo'lsa, markaz bergan Pro'ni olasiz, markaz esa LexiFlow'dagi faolligingizni ko'radi. Qo'shilasizmi? | Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в LexiFlow. Вступить? |
+| `organizations.invite.accept` | Qo'shilish | Вступить |
+| `organizations.invite.decline` | Rad etish | Отклонить |
+| `organizations.invite.declined` | Mayli, Siz «:organization» markazining taklifini rad etdingiz. Hech narsa o'zgarmadi. | Хорошо, вы отклонили приглашение центра «:organization». Ничего не изменилось. |
+| `organizations.errors.invite_not_pending` | Bu taklif endi amal qilmaydi. | Это приглашение больше не действует. |
+
+### Кабинет центра (`lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.bot.not_staff` | /org buyrug'i o'quv markazlari xodimlari uchun. Telegramingiz hech bir kabinetga ulanmagan: kabinetda Profil → «Telegramni ulash» ni oching. | Команда /org — для сотрудников учебных центров. Ваш Telegram не подключён ни к одному кабинету: в кабинете откройте Профиль → «Подключить Telegram». |
+| `org.members.status.invited` | Rozilik kutilmoqda | Ожидает согласия |
+| `org.members.status.declined` | Taklifni rad etgan | Отклонил приглашение |
+| `org.members.via.admin` | Markaz taklifi bilan | По приглашению центра |
+| `org.members.actions.add` | O'quvchini taklif qilish | Пригласить ученика |
+| `org.members.actions.revoke` | Taklifni bekor qilish | Отозвать приглашение |
+| `org.members.actions.revoke_confirm` | O'quvchiga yuborilgan xabardagi tugmalar ishlamay qoladi. Istalgan vaqtda qayta taklif qilish mumkin. | Кнопки в сообщении ученика перестанут работать. Пригласить снова можно в любой момент. |
+| `org.members.fields.telegram_help` | O'quvchining @username yoki raqamli Telegram ID'si. Bot unga markazga qo'shilish taklifini yuboradi — o'quvchi rozi bo'lgach a'zo bo'ladi. | @username или числовой Telegram ID ученика. Бот отправит ему предложение вступить в центр — ученик станет участником, когда согласится. |
+| `org.members.errors.invite_not_pending` | Bu taklifga allaqachon javob berilgan yoki u bekor qilingan. | На это приглашение уже ответили, или оно отозвано. |
+| `org.members.errors.rate_limited` | Bir soatda juda ko'p taklif yuborildi. Keyinroq urinib ko'ring. | Слишком много приглашений за час. Попробуйте позже. |
+| `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U botda rozi bo'lgach ro'yxatda paydo bo'ladi; ungacha — «Rozilik kutilmoqda» holatida. | Приглашение отправлено, если такой ученик есть в LexiFlow. Когда он согласится в боте, он появится в списке; до этого — со статусом «Ожидает согласия». |
+| `org.members.notifications.revoked` | Taklif bekor qilindi. | Приглашение отозвано. |
+| `org.groups.actions.link_help` | «Telegramda ochish» tugmasini bosing — Telegram guruhni tanlashni taklif qiladi va botni unga qo'shadi, shundan so'ng guruh markazga bog'lanadi. Bot guruhda allaqachon bo'lsa, guruhda /link buyrug'ini quyidagi kod bilan yuboring. Faqat Siz yaratuvchi yoki administrator bo'lgan guruhni bog'lash mumkin. | Нажмите «Открыть в Telegram» — Telegram предложит выбрать группу и добавит в неё бота, после чего группа привяжется к центру. Если бот уже в группе, отправьте в ней команду /link с кодом ниже. Привязать можно только группу, где вы создатель или администратор. |
+| `org.groups.actions.unlink_confirm` | Markazga shu guruh orqali qo'shilgan o'quvchilar, boshqa guruhlarda bo'lmasa, o'rnini yo'qotadi. Bog'lashda faollashtirilgan guruh yana faollashtirishni kutadi. | Ученики этой группы, вступившие в центр через неё, потеряют место, если не состоят в других группах центра. Группа, активированная при привязке, снова будет ждать активации. |
+| `org.groups.fields.link_url` | Telegram uchun havola | Ссылка для Telegram |
+| `org.groups.fields.link_open` | Telegramda ochish | Открыть в Telegram |
+| `org.groups.fields.link_command` | Bot allaqachon bo'lgan guruh uchun buyruq | Команда для группы, где бот уже есть |
+| `org.groups.fields.link_expires` | Havola bir martalik, :time gacha amal qiladi. Bog'langan guruh ro'yxatda o'zi paydo bo'ladi. | Ссылка одноразовая, действует до :time. Привязанная группа появится в списке сама. |
+| `org.groups.fields.copied` | Nusxa olindi | Скопировано |
+| `org.groups.errors.not_owner` | Guruhlarni faqat markaz egasi bog'lay oladi. | Привязывать группы может только владелец центра. |
+| `org.groups.errors.owner_telegram_unverified` | Avval Telegramingizni bot orqali ulang: Profil → «Telegramni ulash». Usiz guruh Sizniki ekanini isbotlab bo'lmaydi. | Сначала подключите свой Telegram через бота: Профиль → «Подключить Telegram». Без этого нельзя доказать, что группа ваша. |
+| `org.groups.errors.rate_limited` | Qisqa vaqtda juda ko'p havola so'raldi. Bir necha daqiqadan so'ng urinib ko'ring. | Слишком много ссылок за короткое время. Попробуйте через несколько минут. |
+| `org.groups.link_result.title` | Oxirgi bog'lash urinishi | Последняя попытка привязки |
+| `org.groups.link_result.pending` | Havola hali ishlatilmagan. | Ссылка ещё не использована. |
+| `org.groups.link_result.expired` | Havola muddati tugagan — yangisini oling. | Срок ссылки истёк — получите новую. |
+| `org.groups.link_result.linked` | Guruh bog'landi. | Группа привязана. |
+| `org.groups.link_result.sender_mismatch` | Havolani boshqa Telegram akkaunti ochdi — profilingizga ulangani emas. | Ссылку открыл другой аккаунт Telegram — не тот, что подключён к вашему профилю. |
+| `org.groups.link_result.not_owner` | Siz endi markaz egasi emassiz yoki markaz to'xtatilgan. | Вы больше не владелец центра, или центр приостановлен. |
+| `org.groups.link_result.not_chat_admin` | Siz bu guruhning administratori emassiz. Faqat Siz yaratuvchi yoki administrator bo'lgan guruhni bog'lash mumkin. | Вы не администратор этой группы. Привязать можно только группу, где вы создатель или администратор. |
+| `org.groups.link_result.group_taken` | Guruh boshqa markazga bog'langan. | Группа уже привязана к другому центру. |
+| `org.groups.link_result.telegram_unavailable` | Telegram javob bermadi. Buyruqni guruhda qayta yuboring. | Telegram не ответил. Отправьте команду в группе ещё раз. |
+| `org.profile.telegram.title` | Telegram | Telegram |
+| `org.profile.telegram.connected` | Telegram ulangan: :account | Telegram подключён: :account |
+| `org.profile.telegram.connected_help` | Bot Sizni guruhlarda o'qituvchi sifatida taniydi; markaz egasi guruhlarni bog'lay oladi. | Бот узнаёт вас как учителя в группах; владелец может привязывать группы. |
+| `org.profile.telegram.unverified` | :id Telegram ID qo'lda kiritilgan va tasdiqlanmagan. Uni bot orqali tasdiqlang — aks holda guruhlarni bog'lab bo'lmaydi. | Telegram ID :id был указан вручную и не подтверждён. Подтвердите его через бота — иначе нельзя привязывать группы. |
+| `org.profile.telegram.none` | Telegram ulanmagan. Usiz guruhlardagi o'qituvchi buyruqlari Sizni tanimaydi, markaz egasi esa guruhlarni bog'lay olmaydi. | Telegram не подключён. Без него команды учителя в группах вас не узнают, а владелец не сможет привязать группы. |
+| `org.profile.telegram.connect` | Telegramni ulash | Подключить Telegram |
+| `org.profile.telegram.confirm` | Telegramni tasdiqlash | Подтвердить Telegram |
+| `org.profile.telegram.disconnect` | Uzish | Отключить |
+| `org.profile.telegram.disconnect_confirm` | Telegramni qayta ulamaguningizcha bot Sizni o'qituvchi sifatida tanimay qo'yadi. | Бот перестанет узнавать вас как учителя, пока вы не подключите Telegram снова. |
+| `org.profile.telegram.link_help` | Havolani Telegram o'rnatilgan qurilmada oching va «Start» tugmasini bosing. Havola bir martalik, :time gacha amal qiladi. Ulangach, sahifa tasdiqlashni o'zi ko'rsatadi. | Откройте ссылку там, где у вас Telegram, и нажмите «Start». Ссылка одноразовая и действует до :time. Страница сама покажет подтверждение. |
+| `org.profile.telegram.link_url` | Havola | Ссылка |
+| `org.profile.telegram.link_open` | Telegramda ochish | Открыть в Telegram |
+| `org.profile.telegram.copied` | Nusxa olindi | Скопировано |
+| `org.profile.telegram.disconnected` | Telegram uzildi. | Telegram отключён. |
+| `org.profile.telegram.errors.rate_limited` | Qisqa vaqtda juda ko'p havola so'raldi. Bir necha daqiqadan so'ng urinib ko'ring. | Слишком много ссылок за короткое время. Попробуйте через несколько минут. |
+| `org.profile.telegram.errors.not_linked` | Telegram allaqachon ulanmagan. | Telegram и так не подключён. |
+| `org.dashboard.checklist.title` | Birinchi qadamlar | Первые шаги |
+| `org.dashboard.checklist.progress` | :total tadan :done tasi bajarildi | Сделано :done из :total |
+| `org.dashboard.checklist.open` | Ochish | Открыть |
+| `org.dashboard.checklist.telegram` | Telegramingizni ulang | Подключите свой Telegram |
+| `org.dashboard.checklist.telegram_help` | Profil → «Telegramni ulash» | Профиль → «Подключить Telegram» |
+| `org.dashboard.checklist.group` | Guruhni bog'lang | Привяжите группу |
+| `org.dashboard.checklist.group_help` | Guruhlar → «Guruhni bog'lash» | Группы → «Привязать группу» |
+| `org.dashboard.checklist.course` | Guruh kursini tanlang | Выберите курс группы |
+| `org.dashboard.checklist.course_help` | Guruhlar → «Guruh kursi» | Группы → «Курс группы» |
+| `org.dashboard.checklist.learners` | O'quvchilarni taklif qiling | Пригласите учеников |
+| `org.dashboard.checklist.learners_help` | O'quvchilar → «O'quvchini taklif qilish» yoki «Takliflar»dagi havola | Ученики → «Пригласить ученика» или ссылка в «Приглашениях» |
+| `org.dashboard.checklist.training` | Birinchi mashg'ulotni boshlang | Запустите первую тренировку |
+| `org.dashboard.checklist.training_help` | Guruhda /start_training yuboring | В группе отправьте /start_training |
+| `org.nav.hard_words` | Qiyin so'zlar | Трудные слова |
+| `org.hard_words.heading` | Guruhdagi qiyin so'zlar | Трудные слова группы |
+| `org.hard_words.description` | Bir necha o'quvchi qayta-qayta xato qilayotgan so'zlar. Faqat o'quvchilar soni ko'rsatiladi, ismlar ko'rsatilmaydi. | Слова, на которых несколько учеников ошибаются снова и снова. Показано только число учеников, без имён. |
+| `org.hard_words.empty` | Hozircha qiyin so'zlar yo'q. | Трудных слов пока нет. |
+| `org.hard_words.columns.word` | So'z | Слово |
+| `org.hard_words.columns.translation` | Tarjima | Перевод |
+| `org.hard_words.columns.learners` | Qiyin deb hisoblaydi | Считают трудным |
+| `org.hard_words.columns.confused_with` | Chalkashtiriladi | Путают с |
+| `org.hard_words.learners_of` | :total o'quvchidan :count tasi | :count из :total |
+
+## Ревью привязки Telegram и приглашений учеников (10.11.2026, B1 / W1 / W2) — на проверку носителю
+
+> Глоссарий как в разделе выше: подключить = ulash, отключить = uzish, приглашение = taklif, ожидает ответа = javob kutilmoqda, истекло = muddati tugagan. Изменились старые строки: `bot.help.private_teacher` (добавлена строка про `/unlink`), `bot.link.account_linked` (добавлено «Uzish: /unlink»), `bot.link.account_taken` («tasdiqlangan» вместо «ulangan»), `org.members.actions.revoke` / `revoke_confirm`, `org.members.errors.invite_not_pending`, `org.members.notifications.invited`; удалены `org.members.status.invited` / `declined`.
+
+### Бот (`lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private_teacher` (новая строка) | • /unlink — bu Telegramni kabinetdan uzish | • /unlink — отключить этот Telegram от кабинета |
+| `bot.link.account_prompt` | Bu Telegramni :centers markazi kabinetiga ulaysizmi? Akkaunt: :name (:email). Ulangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin. | Подключить этот Telegram к кабинету центра :centers? Аккаунт: :name (:email). После подключения бот будет считать вас сотрудником центра: в этом чате он перестанет отвечать вам как ученику. Отключить можно в любой момент командой /unlink. |
+| `bot.link.account_prompt_no_center` | LexiFlow | LexiFlow |
+| `bot.link.account_yes` | Ha, ulash | Да, подключить |
+| `bot.link.account_no` | Yo'q | Нет |
+| `bot.link.account_declined` | Mayli, hech narsa ulanmadi. Fikringiz o'zgarsa — kabinetdagi havolani qayta oching. | Хорошо, ничего не подключено. Если передумаете — откройте ссылку из кабинета ещё раз. |
+| `bot.link.account_linked` | ✅ Telegram :name akkauntiga ulandi. Endi bot Sizni o'qituvchi sifatida taniydi: guruhlardagi buyruqlar Sizning nomingizdan ishlaydi, bu chatda esa bot Sizga o'qituvchi sifatida javob beradi — /help ga qarang. Uzish: /unlink. | ✅ Telegram подключён к аккаунту :name. Теперь бот узнаёт вас как учителя: команды в группах работают от вашего имени, а в этом чате бот отвечает вам как учителю — см. /help. Отключить: /unlink. |
+| `bot.link.account_taken` | Bu Telegram kabinetning boshqa akkauntida tasdiqlangan. Avval uni o'sha yerda uzing (Profil → «Uzish» yoki shu yerda /unlink), so'ng havolani qayta oching. | Этот Telegram уже подтверждён у другого аккаунта кабинета. Сначала отключите его там (Профиль → «Отключить» или /unlink здесь), затем откройте ссылку снова. |
+| `bot.link.unlink_confirm` | Bu Telegramni kabinetdan uzasizmi (akkaunt: :name)? Bot Sizni o'qituvchi sifatida tanimay qo'yadi va yana o'quvchi sifatida javob beradi. | Отключить этот Telegram от кабинета (аккаунт :name)? Бот перестанет узнавать вас как учителя и снова будет отвечать вам как ученику. |
+| `bot.link.unlink_yes` | Ha, uzish | Да, отключить |
+| `bot.link.unlink_no` | Yo'q | Нет |
+| `bot.link.unlink_done` | Telegram :name akkauntidan uzildi. Bot yana Sizga o'quvchi sifatida javob beradi — /start yuboring. | Telegram отключён от аккаунта :name. Бот снова отвечает вам как ученику — отправьте /start. |
+| `bot.link.unlink_none` | Bu Telegram hech bir kabinetga ulanmagan. Uzadigan narsa yo'q. | Этот Telegram не подключён ни к одному кабинету. Отключать нечего. |
+| `bot.link.unlink_cancelled` | Mayli, Telegram ulangan holda qoladi. | Хорошо, Telegram остаётся подключённым. |
+| `bot.link.use_in_group` | Bu buyruq bog'lanishi kerak bo'lgan guruhda yuboriladi. | Эту команду отправляют в группе, которую нужно привязать. |
+| `bot.link.group_anonymous` | Buyruqni anonim emas, o'z nomingizdan yuboring: bot kim yuborganini bilishi kerak. | Отправьте команду от своего имени, не анонимно: бот должен узнать, кто её отправил. |
+
+### Кабинет центра (`lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.members.actions.revoke` | Bekor qilish | Отозвать |
+| `org.members.actions.revoke_confirm` | Taklif amal qilmay qoladi. Istalgan vaqtda qayta taklif qilish mumkin. | Приглашение перестанет действовать. Пригласить снова можно в любой момент. |
+| `org.members.invitations.heading` | O'quvchilarga takliflar | Приглашения учеников |
+| `org.members.invitations.description` | Bu yerda faqat Siz kiritgan ma'lumot va javob muddati ko'rsatiladi. Kabinet bunday o'quvchi LexiFlow'da bor-yo'qligini va u nima deb javob berganini ko'rsatmaydi: taklifni qabul qilgan o'quvchi o'quvchilar ro'yxatida paydo bo'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi. | Здесь только то, что вы ввели, и срок ответа. Кабинет не показывает, есть ли такой ученик в LexiFlow и что он ответил: принявший приглашение появится в списке учеников, остальные приглашения истекают через 7 дней. |
+| `org.members.invitations.empty` | Hozircha takliflar yo'q. | Приглашений пока нет. |
+| `org.members.invitations.columns.handle` | Kim taklif qilindi | Кого пригласили |
+| `org.members.invitations.columns.sent_at` | Yuborilgan | Отправлено |
+| `org.members.invitations.columns.state` | Holat | Статус |
+| `org.members.invitations.columns.expires_at` | Amal qilish muddati | Действует до |
+| `org.members.invitations.state.pending` | Javob kutilmoqda | Ожидает ответа |
+| `org.members.invitations.state.expired` | Muddati tugagan | Истекло |
+| `org.members.invitations.state.accepted` | Qabul qilingan | Принято |
+| `org.members.invitations.state.revoked` | Bekor qilingan | Отозвано |
+| `org.members.errors.invite_not_pending` | Bu taklif endi javob kutmaydi: u qabul qilingan, muddati tugagan yoki bekor qilingan. | Это приглашение уже не ждёт ответа: оно принято, истекло или отозвано. |
+| `org.members.errors.telegram_invalid` | O'quvchining @username yoki raqamli Telegram ID'sini kiriting. | Укажите @username или числовой Telegram ID ученика. |
+| `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'yxatida paydo bo'ladi; o'quvchi botda rozi bo'lgach, u o'quvchilar orasida ko'rinadi. | Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников. |
+| `org.profile.telegram.superseded` | Telegram uzildi: bu Telegram akkauntini boshqa foydalanuvchi tasdiqladi. O'z Telegramingizni bot orqali ulang. | Telegram отключён: этот аккаунт Telegram подтвердил другой пользователь. Подключите свой Telegram через бота. |
+
+## Упражнение «выбор значения» (`meaning`, docs/06 §12.1) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.meaning.title` | Bu so'z nimani anglatadi? | Что значит это слово? |
+| `settings.exercises.meaning` | Ma'noni tanlash | Выбор значения |
+| `settings.exercises.meaning.hint` | So'z → to'rtta variantdan tarjima | Слово → перевод из четырёх вариантов |
+| `training.update.title` | Ilovani yangilang | Обновите приложение |
+| `training.update.text` | Bu topshiriq faqat yangi versiyada bor. Ilovani yopib, qayta oching — mashg'ulot shu joydan davom etadi. | Это задание есть только в новой версии. Закройте приложение и откройте его снова — занятие продолжится с этого места. |

@@ -95,6 +95,9 @@ describe('GameCaravanView - states', () => {
 
     expect(has(w, 'unavailable')).toBe(true)
     expect(has(w, 'wallet')).toBe(false)
+    expect(tid(w, 'to-map').text()).toBe('На карту')
+    await click(w, 'to-map')
+    expect(w.vm.$router.currentRoute.value.name).toBe('game')
     w.unmount()
   })
 
@@ -143,6 +146,7 @@ describe('GameCaravanView - the profile and the wallet', () => {
 
     expect(tid(w, 'wallet-balance').text()).toBe('200')
     expect(tid(w, 'wallet-tickets').text()).toBe('3 из 10')
+    expect(tid(w, 'wallet-tickets-hint').text()).toBe('Билет — один дополнительный забег сверх бесплатного. Билеты дают за каждую неделю серии и за приглашённых друзей.')
     expect(tid(w, 'wallet-totals').text()).toBe('260 / 60')
     w.unmount()
   })
@@ -181,7 +185,8 @@ describe('GameCaravanView - the shop', () => {
     const w = await render()
     await shopTab(w)
 
-    expect(tid(w, 'item-camel_dromedary').find('[data-testid=item-equipped]').attributes('disabled')).toBeDefined()
+    expect(tid(w, 'item-camel_dromedary').get('[data-testid=item-equipped]').text()).toBe('Надето')
+    expect(tid(w, 'item-camel_dromedary').get('[data-testid=item-unequip]').text()).toBe('Снять')
     expect(tid(w, 'item-camel_bactrian').get('[data-testid=item-buy]').text()).toContain('150')
     expect(tid(w, 'item-camel_golden').find('[data-testid=item-pro]').exists()).toBe(true)
     expect(tid(w, 'item-camel_golden').find('[data-testid=item-buy]').exists()).toBe(false)
@@ -262,7 +267,7 @@ describe('GameCaravanView - buying', () => {
     await click(w, 'buy-confirm')
 
     expect(has(w, 'buy-sheet')).toBe(true)
-    expect(tid(w, 'buy-short').text()).toContain('Монеты — за забеги и боссов')
+    expect(tid(w, 'buy-short').text()).toContain('Монеты — за забеги и хранителей')
     expect(showErrorToast).not.toHaveBeenCalled()
     w.unmount()
   })
@@ -342,6 +347,31 @@ describe('GameCaravanView - wearing', () => {
     expect(api.gameShop.equip).toHaveBeenCalledWith({ slot: 'camel', item_key: 'camel_bactrian' })
     expect(tid(w, 'worn-camel').find('img').attributes('data-asset')).toBe('camel_bactrian')
     expect(tid(w, 'item-camel_bactrian').find('[data-testid=item-equipped]').exists()).toBe(true)
+    w.unmount()
+  })
+
+  it('takes the worn item off at once (item_key = null), and the slot goes empty', async () => {
+    const w = await render(owned())
+    vi.mocked(api.gameShop.equip).mockReturnValue(new Promise(() => undefined))
+    await shopTab(w)
+    await click(w, 'item-unequip')
+
+    expect(api.gameShop.equip).toHaveBeenCalledWith({ slot: 'camel', item_key: null })
+    expect(tid(w, 'worn-camel').find('img').exists()).toBe(false)
+    expect(tid(w, 'item-camel_dromedary').find('[data-testid=item-equipped]').exists()).toBe(false)
+    expect(tid(w, 'item-camel_dromedary').find('[data-testid=item-equip]').exists()).toBe(true)
+    w.unmount()
+  })
+
+  it('puts the item back and says why when taking it off is refused', async () => {
+    const w = await render(owned())
+    vi.mocked(api.gameShop.equip).mockRejectedValue(apiError('server', 500, 'x'))
+    await shopTab(w)
+    await click(w, 'item-unequip')
+
+    expect(tid(w, 'worn-camel').find('img').attributes('data-asset')).toBe('camel_dromedary')
+    expect(tid(w, 'item-camel_dromedary').find('[data-testid=item-equipped]').exists()).toBe(true)
+    expect(showErrorToast).toHaveBeenCalled()
     w.unmount()
   })
 

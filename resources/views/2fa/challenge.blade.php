@@ -18,6 +18,8 @@
         @error('code')<div class="error">{{ $message }}</div>@enderror
         <button type="submit">{{ __('twofactor.confirm_button', [], $locale) }}</button>
     </form>
+
+    <p><small>{{ __('twofactor.challenge.lost', [], $locale) }}</small></p>
 </div>
 </body>
 </html>

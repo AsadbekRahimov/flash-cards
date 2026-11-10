@@ -325,6 +325,39 @@ describe('BattleView — entering', () => {
   })
 })
 
+describe('BattleView — the beat of the poll follows the status', () => {
+  it('an invitation is read every 5 s', async () => {
+    await render(invitedBattle({ role: 'challenger' }))
+    await pass(4900)
+    expect(api.battles.poll).not.toHaveBeenCalled()
+    await pass(100)
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+  })
+
+  it('the room: nothing before 3 s, a reading at 3 s, the next one 3 s later', async () => {
+    await render(roomBattle())
+    await pass(2900)
+    expect(api.battles.poll).not.toHaveBeenCalled()
+    await pass(100)
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    await pass(2900)
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    await pass(100)
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+  })
+
+  it('the match: every 2 s', async () => {
+    await render(battle())
+    vi.mocked(api.battles.poll).mockClear()
+    await pass(1900)
+    expect(api.battles.poll).not.toHaveBeenCalled()
+    await pass(100)
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    await pass(2000)
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+  })
+})
+
 describe('BattleView — the invitation', () => {
   it('sent by the learner: waits, shows how long it lasts, and the poll runs', async () => {
     const r = await render(invitedBattle({ role: 'challenger' }))
@@ -333,7 +366,7 @@ describe('BattleView — the invitation', () => {
     expect(text(r, 'room-expires')).toBe('Приглашение действует ещё 4:00')
     expect(api.battles.poll).not.toHaveBeenCalled()
 
-    await pass(2000)
+    await pass(5000)
     expect(api.battles.poll).toHaveBeenCalledWith(15)
   })
 
@@ -352,7 +385,7 @@ describe('BattleView — the invitation', () => {
     servePoll(() => pollOf(roomBattle()))
     serveBattle(() => roomBattle())
 
-    await pass(2000)
+    await pass(5000)
 
     expect(get(r, 'battle-view').attributes('data-status')).toBe('room')
     expect(text(r, 'room-title')).toBe('Комната готова')
@@ -363,7 +396,7 @@ describe('BattleView — the invitation', () => {
     servePoll(() => pollOf(closedBattle('declined')))
     serveBattle(() => closedBattle('declined'))
 
-    await pass(2000)
+    await pass(5000)
 
     expect(text(r, 'result-title')).toBe('Матч не состоялся')
     expect(text(r, 'result-reason')).toBe('Приглашение отклонено.')
@@ -399,7 +432,7 @@ describe('BattleView — the invitation', () => {
     expect(api.battles.accept).toHaveBeenCalledWith(15)
     expect(text(r, 'room-title')).toBe('Комната готова')
     vi.mocked(api.battles.poll).mockClear()
-    await pass(2000)
+    await pass(3000)
     expect(api.battles.poll).toHaveBeenCalled()
   })
 
@@ -422,7 +455,7 @@ describe('BattleView — the invitation', () => {
 
     await click(r, 'accept-btn')
 
-    expect(showErrorToast).toHaveBeenCalledWith('Этот формат сейчас выключен — принять приглашение нельзя.')
+    expect(showErrorToast).toHaveBeenCalledWith('Этот режим сейчас выключен — принять приглашение нельзя.')
     expect(showErrorToast).not.toHaveBeenCalledWith(expect.stringContaining('Выберите другой'))
     expect(has(r, 'accept-btn')).toBe(true)
     expect(has(r, 'decline-btn')).toBe(true)
@@ -435,7 +468,7 @@ describe('BattleView — the invitation', () => {
 
     await click(r, 'accept-btn')
 
-    expect(showErrorToast).toHaveBeenCalledWith("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+    expect(showErrorToast).toHaveBeenCalledWith("Bu rejim hozir o'chirilgan — taklifni qabul qila olmaysiz.")
   })
 
   it('the friend who invited has lost the access to practice: the words of the code stand, they suit the one who accepts', async () => {
@@ -645,7 +678,7 @@ describe('BattleView — the room', () => {
     const r = await render(room())
     servePoll(() => poll({ status: 'room', version: 3, ready: { me: false, opponent: true }, round: null, scores: { me: 0, opponent: 0 } }))
 
-    await pass(2000)
+    await pass(3000)
 
     expect(r.wrapper.findAll('[data-testid=player-chip]').map((chip) => chip.text())).toEqual(['не готов', 'готов'])
     expect(api.battles.get).toHaveBeenCalledTimes(1)
@@ -656,7 +689,7 @@ describe('BattleView — the room', () => {
     servePoll(() => pollOf(countdownBattle()))
     serveBattle(() => countdownBattle())
 
-    await pass(2000)
+    await pass(3000)
 
     expect(has(r, 'battle-countdown')).toBe(true)
     expect(has(r, 'battle-room')).toBe(false)
@@ -667,9 +700,9 @@ describe('BattleView — the room', () => {
     servePoll(() => pollOf(closedBattle('room_expired')))
     serveBattle(() => closedBattle('room_expired'))
 
-    await pass(2000)
+    await pass(3000)
 
-    expect(text(r, 'result-reason')).toBe('Комната закрыта: матч не начался вовремя.')
+    expect(text(r, 'result-reason')).toBe('Комната закрыта: баттл не начался вовремя.')
   })
 })
 
@@ -839,7 +872,7 @@ describe('BattleView — a round', () => {
 
     expect(has(r, 'battle-reveal')).toBe(false)
     expect(r.wrapper.text()).not.toContain('Верно')
-    expect(r.wrapper.text()).not.toContain('Ошибка')
+    expect(r.wrapper.text()).not.toContain('Неверно')
   })
 
   it('“I don’t know” is a final answer too: {skip: true}', async () => {
@@ -1032,7 +1065,7 @@ describe('BattleView — a round', () => {
     await click(r, 'clip-retry')
 
     expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
-    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(text(r, 'result-reason')).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
   })
 
   it('the server found the recording missing: the match is voided, and the result says so', async () => {
@@ -1041,7 +1074,7 @@ describe('BattleView — a round', () => {
     const r = await render(battle({ mode: 'dictation' }), { round: answeringRound({ element: dictationElement({ audio_url: CLIPS[1] }) }) })
 
     // a dictation voided after the start: the match was on, and was broken off; the recording is the reason
-    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(text(r, 'result-reason')).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
     expect(text(r, 'result-title')).toBe('Матч прерван')
   })
 
@@ -1073,7 +1106,7 @@ describe('BattleView — a round', () => {
     servePoll(() => pollOf(playing))
     serveBattle(() => playing)
     vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(answeringRound({ no: 1, element: dictationElement({ id: 'eDict00001', audio_url: CLIPS[0] }) }))))
-    await pass(2000)
+    await pass(3000)
     expect(probeClip.provided).toBe(true)
     expect(api.battles.audioBlob).not.toHaveBeenCalled() // the screen took the clip from the room, not from the network
 
@@ -1119,7 +1152,7 @@ describe('BattleView — the end of a round', () => {
     expect(text(r, 'reveal-correct')).toBe('My mother is a teacher.')
     expect(text(r, 'side-me')).toContain('Верно')
     expect(text(r, 'side-me')).toContain('+100')
-    expect(text(r, 'side-opponent')).toContain('Ошибка')
+    expect(text(r, 'side-opponent')).toContain('Неверно')
     expect(text(r, 'reveal-explanation')).toContain('Порядок слов')
     expect(text(r, 'reveal-next-text')).toBe('Следующий раунд через 3…')
     expect(text(r, 'score-me')).toBe('100')
@@ -1354,7 +1387,7 @@ describe('BattleView — trouble that does not end the match', () => {
 
       await pass(700) // 3.2 s: the wake-up at 3 s and its slack; the next beat is at 4 s
       expect(text(r, 'result-title')).toBe('Победа')
-      expect(text(r, 'result-reason')).toBe('Соперник вышел из матча и не вернулся — победа ваша.')
+      expect(text(r, 'result-reason')).toBe('Соперник вышел из баттла и не вернулся — победа ваша.')
       expect(has(r, 'absent-strip')).toBe(false)
     })
 
@@ -1430,9 +1463,9 @@ describe('BattleView — trouble that does not end the match', () => {
     const r = await render(roomBattle({ ready: { me: false, opponent: false } }))
     servePoll(() => poll({ status: 'room', version: 3, opponent_present: false, opponent_absent_since: at(-5), round: null }))
 
-    await pass(2000)
+    await pass(3000)
 
-    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 23 с, матч отменится.')
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 22 с, матч отменится.')
     expect(text(r, 'absent-text')).toBe('Соперник потерял связь.')
   })
 
@@ -1512,7 +1545,7 @@ describe('BattleView — the end', () => {
   it.each([
     ['completed', 'Сыграны все раунды.'],
     ['surrender', 'Вы сдались: победа засчитана сопернику.'],
-    ['absent', 'Вы пропали из матча: засчитано поражение.'],
+    ['absent', 'Вы не вернулись в баттл: засчитано поражение.'],
   ] as const)('a match lost by %s says so', async (reason, words) => {
     const r = await render(finishedBattle('lost', reason))
 
@@ -1522,9 +1555,9 @@ describe('BattleView — the end', () => {
   it.each([
     ['declined', 'Приглашение отклонено.'],
     ['invite_expired', 'Приглашение не приняли вовремя.'],
-    ['room_expired', 'Комната закрыта: матч не начался вовремя.'],
-    ['canceled', 'Матч отменили до начала.'],
-    ['voided', 'Матч аннулирован из-за технической проблемы. Очки не засчитаны.'],
+    ['room_expired', 'Комната закрыта: баттл не начался вовремя.'],
+    ['canceled', 'Баттл отменили до начала.'],
+    ['voided', 'Баттл аннулирован из-за технической проблемы. Очки не засчитаны.'],
   ] as const)('a battle that fell through (%s) says so', async (reason: BattleEndReason, words) => {
     const r = await render(closedBattle(reason))
 
@@ -1536,7 +1569,7 @@ describe('BattleView — the end', () => {
     const r = await render(closedBattle('both_absent', { starts_at: at(-60) }))
 
     expect(text(r, 'result-title')).toBe('Матч прерван')
-    expect(text(r, 'result-reason')).toBe('Оба игрока пропали — матч закрыт без победителя.')
+    expect(text(r, 'result-reason')).toBe('Оба игрока пропали — баттл закрыт без победителя.')
     expect(text(r, 'battle-live')).toBe('Матч прерван')
   })
 
@@ -1719,7 +1752,7 @@ describe('BattleView — the rematch', () => {
 
     await click(r, 'accept-rematch-btn')
 
-    expect(showErrorToast).toHaveBeenCalledWith('Этот формат сейчас выключен — принять приглашение нельзя.')
+    expect(showErrorToast).toHaveBeenCalledWith('Этот режим сейчас выключен — принять приглашение нельзя.')
     expect(has(r, 'rematch-offer')).toBe(true)
     expect(route(r).params.id).toBe('15')
   })
@@ -2038,7 +2071,7 @@ describe('BattleView — the question about leaving follows the battle (review �
     const countdown = countdownBattle({ version: 5 })
     servePoll(() => pollOf(countdown))
     serveBattle(() => countdown)
-    await pass(2000)
+    await pass(3000)
     expect(get(r, 'battle-view').attributes('data-status')).toBe('countdown')
     expect(has(r, 'leave-confirm')).toBe(true)
 
@@ -2065,7 +2098,7 @@ describe('BattleView — the question about leaving follows the battle (review �
 
     servePoll(() => pollOf(roomBattle()))
     serveBattle(() => roomBattle())
-    await pass(2000)
+    await pass(5000)
 
     expect(get(r, 'battle-view').attributes('data-status')).toBe('room')
     expect(has(r, 'leave-confirm')).toBe(true)
@@ -2097,7 +2130,7 @@ describe('BattleView — a recording the server does not have (review Ж5)', () 
     expect(api.battles.audioFailed).toHaveBeenCalledWith(15, { request_id: expect.any(String), element_id: ELEMENTS[2] })
     expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
     expect(text(r, 'result-title')).toBe('Матч не состоялся') // the room: the match did not begin
-    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(text(r, 'result-reason')).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
     expect(primaries(r)).toHaveLength(1)
   })
 
@@ -2158,7 +2191,7 @@ describe('BattleView — a recording the server does not have (review Ж5)', () 
     expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
     expect(api.battles.audioFailed).toHaveBeenLastCalledWith(15, { request_id: expect.any(String), element_id: ELEMENTS[2] })
     expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
-    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(text(r, 'result-reason')).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
   })
 
   it('and it is made again at every “Retry” until the server has heard it - not at every change of the list of clips', async () => {

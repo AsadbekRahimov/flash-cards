@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use Illuminate\Console\Command;
 
 class TelegramSetWebhook extends Command
@@ -34,15 +35,24 @@ class TelegramSetWebhook extends Command
 
         $fullUrl = "{$baseUrl}/telegram/webhook/{$urlSecret}";
 
-        $ok = $telegram->setWebhook($fullUrl, $headerSecret);
+        // The URL secret authenticates Telegram's calls and the deploy log is kept (Coolify): never print it.
+        $shownUrl = "{$baseUrl}/telegram/webhook/***";
+
+        try {
+            $ok = $telegram->setWebhook($fullUrl, $headerSecret);
+        } catch (TelegramApiException $e) {
+            $this->error('Failed to set webhook: '.str_replace([$urlSecret, $headerSecret], '***', $e->getMessage()));
+
+            return self::FAILURE;
+        }
 
         if ($ok) {
-            $this->info('Webhook set: '.$fullUrl);
+            $this->info('Webhook set: '.$shownUrl);
 
             return self::SUCCESS;
         }
 
-        $this->error('Failed to set webhook.');
+        $this->error("Failed to set webhook {$shownUrl}.");
 
         return self::FAILURE;
     }

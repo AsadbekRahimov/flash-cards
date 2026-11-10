@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Gate;
 /**
  * Members and seats of an organization (docs/13 §1.3, §6.1). Add and remove go through
  * {@see OrganizationMembershipService} (`joinByAdmin` / `leave(..., 'removed')`: seat rules, the waiting list,
- * entitlement cache, audit) — never through the stock create / delete actions. Active members are shown by default.
+ * entitlement cache, audit) — never through the stock create / delete actions. Active members are shown by default. Invitations
+ * the center's staff sent are not memberships and are not listed here (`organization_member_invitations`, docs/13 §6.2).
  */
 class MembersRelationManager extends RelationManager
 {

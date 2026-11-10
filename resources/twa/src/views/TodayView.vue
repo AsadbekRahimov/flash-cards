@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
+import IntroSheet from '@/components/IntroSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -16,11 +17,15 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
+import { hasLearnerProgress } from '@/composables/learnerProgress'
 import { tierLabelKey } from '@/composables/leagueTiers'
+import { hasSeen, markSeen } from '@/composables/seenFlag'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { useTelegram } from '@/composables/useTelegram'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
@@ -39,6 +44,8 @@ const auth = useAuthStore()
 const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
+const billing = useBillingStore()
+const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
 
@@ -87,6 +94,18 @@ function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
 }
 
+/** Whether the learner is past the first day (docs/14 §3): a newcomer's Home keeps only the greeting, the goal, the counters and the button. */
+const hasProgress = computed(() => data.value !== null && hasLearnerProgress(data.value))
+
+const INTRO_KEY = 'lexiflow:intro-seen'
+const introOpen = ref(false)
+// The first visit of a newcomer: the sheet "How it works" opens once (marked at the moment it opens), never for a learner with progress.
+watch(data, (current) => {
+  if (current === null || introOpen.value || hasLearnerProgress(current) || hasSeen(INTRO_KEY)) return
+  markSeen(INTRO_KEY)
+  introOpen.value = true
+})
+
 const paywallOpen = ref(false)
 /** Why the sheet was opened: the session card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
 const paywallReason = ref<PaywallReason>('info')
@@ -115,6 +134,30 @@ const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
+
+/**
+ * Nothing to do today: no review is due, no session is open and the free quota of new words is used up (the server says
+ * `0`, not `null`). The primary "Start session" would only open an empty session, so the card says so calmly instead.
+ */
+const allDone = computed(() => {
+  const current = data.value
+  return current !== null && current.active_course !== null && current.due_count === 0
+    && current.open_session_id === null && current.new_words_remaining === 0
+})
+
+const practice = computed(() => billing.practiceAccess)
+// `/me` tells whether the learner has the practice: asked only when the calm "all done" card needs it (Home reads no `/me` otherwise).
+// Best effort, it never throws; the practice button shows once the answer is there.
+watch(allDone, (done) => {
+  if (done) void billing.load()
+}, { immediate: true })
+/** Practice of the main course (docs/16 §11.1): the same rule as on the course screen - behind Pro it opens the paywall. */
+function openPractice(): void {
+  const slug = data.value?.active_course?.slug
+  if (!slug) return
+  if (practice.value.pro_required) openPaywall('practice')
+  else void router.push({ name: 'practice-hub', params: { slug } })
+}
 
 /** What the second line of the session card says about new words; the quota is the server's (`null` = no limit). */
 const newWordsText = computed(() => {
@@ -161,10 +204,11 @@ const courseProgressText = computed(() => {
   return progress ? t('catalog.progress', { done: progress.learned, total: progress.total }) : ''
 })
 
-/** The league row: the place of the week, or an invitation while the learner is not placed. */
+/** The league row: the place of the week; none without the league data. */
 const leagueRow = computed(() => {
   const league = data.value?.league
-  if (!league) return { title: t('today.league.join_title'), subtitle: t('today.league.join_subtitle') }
+  // The server sends null while the leagues are off, the learner opted out or is not placed yet: no row then.
+  if (!league) return null
 
   return {
     title: t('today.league.title', { tier: t(tierLabelKey(league.tier_key)) }),
@@ -216,7 +260,12 @@ onBeforeUnmount(() => training.clearOpenError())
 
       <div v-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
         <AppIcon name="information-circle" :size="22" class="mt-px text-accent" />
-        <p class="text-[15px] leading-5">{{ t('today.onboarding_hint') }}</p>
+        <div class="min-w-0 flex-1 space-y-3">
+          <p class="text-[15px] leading-5">{{ t('today.onboarding_hint') }}</p>
+          <button type="button" class="btn btn-tinted btn-block" data-testid="onboarding-btn" @click="close()">
+            {{ t('today.onboarding_btn') }}
+          </button>
+        </div>
       </div>
 
       <section class="card" data-testid="review-card">
@@ -239,7 +288,16 @@ onBeforeUnmount(() => training.clearOpenError())
           </div>
         </div>
 
-        <ul class="mt-4 border-t pt-2">
+        <RouterLink
+          :to="{ name: 'settings' }"
+          class="mt-3 flex min-h-11 items-center justify-between gap-2 text-[15px] leading-5 text-accent"
+          data-testid="goal-setting"
+        >
+          <span>{{ tn('today.goal.daily', data.goal.target) }}</span>
+          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+        </RouterLink>
+
+        <ul class="border-t pt-2">
           <li class="flex min-h-11 items-center gap-3">
             <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
               <AppIcon name="arrow-path" :size="18" />
@@ -283,6 +341,22 @@ onBeforeUnmount(() => training.clearOpenError())
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
         </RouterLink>
+        <div v-else-if="allDone" class="mt-3 space-y-2" data-testid="all-done">
+          <p class="flex items-center justify-center gap-2 text-center text-[17px] leading-[22px] font-semibold">
+            <AppIcon name="check-circle" solid :size="20" class="shrink-0 text-success" />
+            <span>{{ t('today.all_done') }}</span>
+          </p>
+          <!-- The quota of the free plan is what ended the day: one quiet way to Pro. Not for a newcomer, not for Pro. -->
+          <p v-if="!isPro && hasProgress" class="text-center text-[13px] leading-[18px]">
+            <button type="button" class="text-tg-link underline" data-testid="all-done-pro" @click="openPaywall('quota')">
+              {{ t('today.all_done.pro') }}
+            </button>
+          </p>
+          <button v-if="practice.available" type="button" class="btn btn-tinted btn-block" data-testid="practice-btn" @click="openPractice">
+            <AppIcon name="puzzle-piece" :size="20" />
+            {{ t('practice.hub.title') }}
+          </button>
+        </div>
         <button
           v-else
           type="button"
@@ -297,27 +371,18 @@ onBeforeUnmount(() => training.clearOpenError())
 
         <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
 
-        <p class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
+        <p v-if="!allDone" class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
           {{ t(needsCourseToStart ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
-        <button
-          v-if="!isPro"
-          type="button"
-          class="btn btn-plain btn-block mt-1"
-          data-testid="paywall-open"
-          @click="openPaywall(data.new_words_remaining === 0 ? 'quota' : 'info')"
-        >
-          {{ t('paywall.open') }}
-        </button>
       </section>
 
-      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. -->
+      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. The teacher starts it for the whole group, so a newcomer of the center is its addressee too. -->
       <ClassCaravanCard v-if="data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
 
       <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
       <RouterLink
-        v-if="gameEntry"
+        v-if="hasProgress && gameEntry"
         :to="gameEntry.to"
         class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
         :data-kind="gameEntry.kind"
@@ -373,14 +438,14 @@ onBeforeUnmount(() => training.clearOpenError())
           </div>
         </div>
 
-        <div class="mt-3 space-y-1 border-t pt-3">
+        <div v-if="streak.frozen_yesterday || isPro || streak.current > 0" class="mt-3 space-y-1 border-t pt-3">
           <p v-if="streak.frozen_yesterday" class="text-[15px] leading-5" data-testid="streak-frozen">
             {{ t('today.streak.frozen_yesterday') }}
           </p>
           <p v-if="isPro" class="text-[13px] leading-[18px] text-tg-hint" data-testid="streak-freezes">
             {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
           </p>
-          <div v-else class="flex justify-center">
+          <div v-else-if="streak.current > 0" class="flex justify-center">
             <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-teaser" @click="openPaywall('streak_freeze')">
               {{ t('today.streak.freeze_teaser') }}
             </button>
@@ -419,15 +484,19 @@ onBeforeUnmount(() => training.clearOpenError())
                 <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
               </div>
             </div>
-            <button
-              type="button"
-              class="btn btn-tinted btn-block"
-              :disabled="opening"
-              data-testid="next-lesson-btn"
-              @click="learnNext(data.active_course.next_lesson.id)"
-            >
-              {{ t('today.course.learn') }}
-            </button>
+            <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
+            <template v-if="!allDone">
+              <button
+                type="button"
+                class="btn btn-tinted btn-block"
+                :disabled="opening"
+                data-testid="next-lesson-btn"
+                @click="learnNext(data.active_course.next_lesson.id)"
+              >
+                {{ t('today.course.learn') }}
+              </button>
+              <p class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
+            </template>
           </template>
           <p
             v-else
@@ -450,7 +519,7 @@ onBeforeUnmount(() => training.clearOpenError())
         </div>
       </section>
 
-      <ListGroup>
+      <ListGroup v-if="hasProgress && leagueRow">
         <ListRow
           :to="{ name: 'league' }"
           icon="trophy"
@@ -461,6 +530,8 @@ onBeforeUnmount(() => training.clearOpenError())
         />
       </ListGroup>
     </div>
+
+    <IntroSheet v-if="introOpen" @close="introOpen = false" />
 
     <PaywallSheet
       v-if="paywallOpen"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Org\Pages;
 
 use App\Filament\Org\Widgets\OrgActivityWidget;
+use App\Filament\Org\Widgets\OrgChecklistWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
@@ -25,6 +26,7 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            OrgChecklistWidget::class,
             OrgSeatsWidget::class,
             OrgActivityWidget::class,
         ];

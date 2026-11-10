@@ -9,6 +9,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\ProScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Support\TeacherDmNotice;
 
 /**
  * `/pro` in a DM (docs/13 §5): the learner's plan, the auto-renewal and the ways to pay (or "Pro is
@@ -21,6 +22,7 @@ final class ProCommandHandler implements UpdateHandler
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly DmLearnerResolver $learners,
+        private readonly TeacherDmNotice $teacherNotice,
         private readonly ProScreen $screen,
     ) {}
 
@@ -51,6 +53,8 @@ final class ProCommandHandler implements UpdateHandler
 
         $learner = $this->learners->resolve(is_array($message['from'] ?? null) ? $message['from'] : []);
         if ($learner === null) {
+            $this->teacherNotice->send($chatId, $message);
+
             return;
         }
 

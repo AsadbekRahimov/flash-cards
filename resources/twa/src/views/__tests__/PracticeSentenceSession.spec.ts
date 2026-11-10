@@ -132,7 +132,7 @@ describe('"Build the sentence" on the screen of a session', () => {
     await flushPromises()
 
     expect(w.find('[data-testid=sentence-builder]').exists()).toBe(false)
-    expect(w.get('[data-testid=reveal-text]').text()).toBe('Неверно') // a sentence is final: "Нужно исправить" is the word of a dictation
+    expect(w.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(w.get('[data-testid=expected]').text()).toBe('I usually drink tea.')
     expect(w.get('[data-testid=alternatives]').text()).toContain('Можно и так')
     expect(w.get('[data-testid=alternatives]').text()).toContain('Usually I drink tea.')
@@ -230,7 +230,7 @@ describe('"Build the sentence" on the screen of a session', () => {
 
     expect(answerCalls().map((call) => call[1].answer)).toEqual([{ skip: true }, { skip: true }])
     expect(answerCalls()[1]![1].request_id).toBe(answerCalls()[0]![1].request_id)
-    expect(w.get('[data-testid=reveal-text]').text()).toBe('Подсказка')
+    expect(w.get('[data-testid=reveal-text]').text()).toBe('Пропущено')
     w.unmount()
   })
 

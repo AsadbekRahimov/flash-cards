@@ -139,7 +139,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00. Оплата откроется позже — мы сообщим в боте.')
     expect(api.practice.open).not.toHaveBeenCalled()
   })
 
@@ -150,7 +150,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Оплата откроется позже — мы сообщим в боте.')
   })
 
   it('the hub in Uzbek', async () => {
@@ -161,7 +161,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe("Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. Pro tez orada ochiladi.")
+    expect(lead(wrapper)).toBe("Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. To'lov keyinroq ochiladi — botda xabar beramiz.")
   })
 
   it('the setup of a battle: "Invite" meets the sheet about the battles', async () => {
@@ -179,7 +179,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=invite-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Оплата откроется позже — мы сообщим в боте.')
     expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
@@ -191,7 +191,7 @@ describe('the real paywall behind the free limits (Pro is only coming)', () => {
     await wrapper.get('[data-testid=battle-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00. Оплата откроется позже — мы сообщим в боте.')
   })
 
   it('says the time in the zone of the learner: the same moment is 19:00 for one in UTC', async () => {
@@ -247,7 +247,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
   const NO_BOTH: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 0, MIDNIGHT) }
   const SALE_RU =
     'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
-  const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, ketma-ketlik uchun zaxira va sinov imtihonlari."
+  const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, zaxira kunlar va sinov imtihonlari."
   const COMBINED_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
   const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
   const COMBINED_UZ = "So'zlarni mashqlar bilan mustahkamlash va do'stlar bilan bellashish Pro'da bor."
@@ -270,7 +270,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
 
     await pressPairs(wrapper)
 
-    expect(lead(wrapper)).toBe(`${SOLO_RU} Pro скоро откроется.`)
+    expect(lead(wrapper)).toBe(`${SOLO_RU} Оплата откроется позже — мы сообщим в боте.`)
     expect(lead(wrapper)).not.toMatch(/баттл/)
     expect(api.practice.open).not.toHaveBeenCalled()
   })
@@ -281,7 +281,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
 
     await pressPairs(wrapper)
 
-    expect(lead(wrapper)).toBe(`${COMBINED_RU} Pro скоро откроется.`)
+    expect(lead(wrapper)).toBe(`${COMBINED_RU} Оплата откроется позже — мы сообщим в боте.`)
   })
 
   it('the practice hub, "Play with a friend": calling a friend is in Pro, accepting is always possible', async () => {
@@ -291,7 +291,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Оплата откроется позже — мы сообщим в боте.')
     expect(lead(wrapper)).not.toMatch(/закончил|завтра|из 0/)
   })
 
@@ -310,7 +310,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     await wrapper.get('[data-testid=invite-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe('Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. Оплата откроется позже — мы сообщим в боте.')
     expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
@@ -324,7 +324,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     await wrapper.get('[data-testid=battle-btn]').trigger('click')
     await flushPromises()
 
-    expect(lead(wrapper)).toBe("Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. Pro tez orada ochiladi.")
+    expect(lead(wrapper)).toBe("Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. To'lov keyinroq ochiladi — botda xabar beramiz.")
     expect(lead(wrapper)).not.toMatch(/tugadi|ertaga|0 tadan/)
   })
 
@@ -333,7 +333,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     serve(NO_SESSIONS)
     const alone = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
     await pressPairs(alone)
-    expect(lead(alone)).toBe(`${SOLO_UZ} Pro tez orada ochiladi.`)
+    expect(lead(alone)).toBe(`${SOLO_UZ} To'lov keyinroq ochiladi — botda xabar beramiz.`)
     expect(lead(alone)).not.toMatch(/bellashuv/)
 
     setActivePinia(createPinia())
@@ -341,7 +341,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     serve(NO_BOTH)
     const both = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
     await pressPairs(both)
-    expect(lead(both)).toBe(`${COMBINED_UZ} Pro tez orada ochiladi.`)
+    expect(lead(both)).toBe(`${COMBINED_UZ} To'lov keyinroq ochiladi — botda xabar beramiz.`)
   })
 
   describe('while Pro is for sale', () => {

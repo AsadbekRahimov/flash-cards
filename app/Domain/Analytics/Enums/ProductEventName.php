@@ -31,6 +31,8 @@ enum ProductEventName: string
     case OrgMemberLeft = 'org.member_left';
     /** A waitlisted member got a seat (FIFO after a leave or a tariff upgrade). */
     case OrgMemberSeated = 'org.member_seated';
+    /** The learner declined a membership offered by the center's staff (props: organization_id, member_id — audit 2026-11-10 M2). */
+    case OrgMemberDeclined = 'org.member_declined';
     /** A center set a lesson for a group (props: assignment_id, lesson_id, organization_id — docs/13 §1.4). */
     case AssignmentCreated = 'assignment.created';
     /** A learner reached the threshold of an assignment, once per (assignment, learner) (props: assignment_id, late). */
@@ -146,4 +148,9 @@ enum ProductEventName: string
     case GameClassFinished = 'game.class_finished';
     /** The summary of a class caravan went to the group chat, once (props: class_caravan_id); actor - the group. */
     case GameClassSummaryPosted = 'game.class_summary_posted';
+    /**
+     * Honesty of the self-grade (docs/25 "metrics", docs/06 §12.2): a flash card graded "remember" / "easy" (quality >= 4) was
+     * followed, on the same word, by a WRONG objectively graded answer (props: word_id, exercise, previous_quality, interval_before_days).
+     */
+    case ReviewSelfGradeMismatch = 'review.self_grade_mismatch';
 }

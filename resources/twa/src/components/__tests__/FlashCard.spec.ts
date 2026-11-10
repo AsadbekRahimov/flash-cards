@@ -24,9 +24,11 @@ const card: Card = {
   translation_fallback: false,
   example: 'She is a resilient girl.',
   transcription: 'rɪˈzɪl.i.ənt',
-  card_kind: 'new',
+  card_kind: 'due',
   serve_token: null,
 }
+
+const newCard: Card = { ...card, card_kind: 'new' }
 
 describe('FlashCard', () => {
   afterEach(() => {
@@ -178,10 +180,53 @@ describe('FlashCard', () => {
 
     expect(chip('new')).toMatchObject({ text: 'Новое слово' })
     expect(chip('new').classes).toEqual(expect.arrayContaining(['chip', 'chip-accent']))
-    expect(chip('learning')).toMatchObject({ text: 'Закрепление' })
+    expect(chip('learning')).toMatchObject({ text: 'Учим' })
     expect(chip('learning').classes).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
     expect(chip('due')).toMatchObject({ text: 'Повторение' })
     expect(chip('due').classes).toEqual(expect.arrayContaining(['chip', 'chip-neutral']))
+  })
+
+  describe('a new word (never seen: nothing to recall)', () => {
+    it('shows the translation and the example at once, without the "show translation" step', () => {
+      const w = mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+
+      expect(w.get('[data-testid=translation]').text()).toBe('Устойчивый')
+      expect(w.get('[data-testid=example]').text()).toContain('resilient')
+      expect(w.find('[data-testid=reveal-btn]').exists()).toBe(false)
+      expect(w.get('[data-testid=grade-prompt]').text()).toBe('Новое слово. Постарайтесь запомнить')
+    })
+
+    it('labels the three grades "Not yet" / "Got it" / "Knew it" without hints, and sends the same 2 / 4 / 5', async () => {
+      const w = mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+
+      expect(w.get('[data-testid=grade-hard]').text()).toBe('Ещё не запомнил')
+      expect(w.get('[data-testid=grade-medium]').text()).toBe('Запомнил')
+      expect(w.get('[data-testid=grade-easy]').text()).toBe('Уже знал')
+      expect(w.find('[data-testid=grade-hint]').exists()).toBe(false)
+
+      await w.get('[data-testid=grade-hard]').trigger('click')
+      await w.get('[data-testid=grade-medium]').trigger('click')
+      await w.get('[data-testid=grade-easy]').trigger('click')
+      expect(w.emitted('grade')).toEqual([[2], [4], [5]])
+    })
+
+    it('says it in Uzbek too', () => {
+      setLocale('uz')
+      const w = mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+
+      expect(w.get('[data-testid=grade-prompt]').text()).toBe("Yangi so'z. Eslab qolishga harakat qiling")
+      expect(w.get('[data-testid=grade-hard]').text()).toBe('Hali eslamadim')
+      expect(w.get('[data-testid=grade-medium]').text()).toBe('Esladim')
+      expect(w.get('[data-testid=grade-easy]').text()).toBe('Avvaldan bilardim')
+    })
+
+    it('leaves the cards of the other kinds as they were: reveal first, the question about remembering, the hints', () => {
+      for (const card_kind of ['due', 'learning'] as const) {
+        const w = mount(FlashCard, { props: { card: { ...card, card_kind }, showTranslation: false } })
+        expect(w.find('[data-testid=reveal-btn]').exists()).toBe(true)
+        expect(w.find('[data-testid=translation]').exists()).toBe(false)
+      }
+    })
   })
 
   it('does not emit grade when disabled', async () => {
@@ -194,7 +239,7 @@ describe('FlashCard', () => {
     setLocale('uz')
     const kinds: [Card['card_kind'], string][] = [
       ['new', "Yangi so'z"],
-      ['learning', 'Mustahkamlash'],
+      ['learning', "O'rganamiz"],
       ['due', 'Takrorlash'],
     ]
     for (const [card_kind, label] of kinds) {

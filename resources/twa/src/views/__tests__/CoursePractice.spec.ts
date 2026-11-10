@@ -219,7 +219,7 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
   const rowButton = (wrapper: Awaited<ReturnType<typeof render>>['wrapper'], lessonId: number) =>
     wrapper.get(`[data-testid=lesson-${lessonId}] [data-testid=practice-lesson-btn]`)
 
-  it('puts a quiet icon button in every row, and nothing else changes in it', async () => {
+  it('puts a quiet captioned icon button in every row, and nothing else changes in it', async () => {
     const { wrapper } = await render(access(), lessons())
 
     const row = wrapper.get('[data-testid=lesson-41]')
@@ -227,8 +227,9 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     expect(row.findAll('button')).toHaveLength(2)
     expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-sm']))
     expect(button.classes()).not.toContain('btn-primary')
-    // an icon and no words: its name for a screen reader is the label
-    expect(button.text()).toBe('')
+    // an icon with a short visible caption; its name for a screen reader is the longer label that starts with it
+    expect(button.text()).toBe('Практика')
+    expect(button.attributes('aria-label')).toMatch(/^Практика: /)
     expect(button.find('svg').exists()).toBe(true)
     expect(button.get('path').attributes('d')).toBe(ICONS['puzzle-piece'].outline[0]?.d)
     // "Учить" is still the action of the row, with its text; the icon comes before it for the keyboard and the screen reader

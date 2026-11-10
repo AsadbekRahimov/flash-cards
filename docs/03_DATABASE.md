@@ -98,7 +98,10 @@ erDiagram
 | name | string(100) | ФИО |
 | email | string(150) unique | Логин |
 | password | string(255) | bcrypt |
-| telegram_user_id | bigint nullable unique | Для учителя — обязательно, получаем из `/start` в ЛС бота |
+| telegram_user_id | bigint nullable unique | Для учителя — обязательно. Пишет бот по `/start link_<token>` (`TelegramAccountLinkService`); суперадмин может ввести в `/admin` — тогда значение не подтверждено |
+| telegram_verified_at | timestamp nullable | Аудит 2026-11-10 H1: ставит только бот, когда владелец аккаунта сам открыл свою ссылку `link_<token>`; единственное доказательство владения id (нужно для выдачи ссылки на привязку группы). Ручная смена id в `/admin` обнуляет |
+| telegram_username, telegram_name | string(64) / string(129) nullable | Что бот увидел в `message.from` при подключении — показ «Telegram подключён: @username» в профиле кабинета |
+| telegram_superseded_at | timestamp nullable | Ревью 2026-11-10 W1: неподтверждённый id забрал пользователь, подтвердивший этот Telegram через бота (аудит `user.telegram_superseded`); профиль объясняет, почему Telegram отключён. Сбрасывается следующим подключением или отключением |
 | is_active | boolean default true | |
 | last_login_at | timestamp nullable | |
 | created_at, updated_at | | |
@@ -222,7 +225,8 @@ ru-дерево никогда не достаётся uz-ученику), «С�
 | difficulty | decimal(6,4) nullable | FSRS: сложность D, 1..10 *(2D.3)* |
 | scheduler | varchar(8) default 'sm2' | `sm2` / `fsrs` — кто писал строку последним *(2D.3)* |
 | scheduled_days | smallint nullable | интервал, назначенный FSRS (метрики); 0 при провале *(2D.3)* |
-| meta | jsonb default '{}' | |
+| note | string(200) nullable | «моя подсказка» ученика к слову, простой текст (docs/06 §12.3; `PUT /api/twa/words/{word}/note`) |
+| meta | jsonb default '{}' | `ladder_floor` (0..2 — потолок после провала, docs/06 §12.1), `last_exercise` (упражнение последней оценки) |
 
 Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions >= 1` → `review`;
 `repetitions = 0` и `last_quality` не null → `relearning` (в напоминания они возвращаются по правилу
@@ -254,7 +258,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   (1,98 / 0,058 / 0,064 мс с индексом, 2,19 / 0,050 / 0,068 мс без). Индекс стоил 36 МБ на этом объёме и запись в него при каждой оценке (`POST /review`
   двигает `next_review_at`). Единственное, что он ускорял бы, — запрос по **всем** learner'ам («у кого карточка наступит в ближайшие 15 минут»: 0,05 мс
   против 21 мс без него, `count(*)` «сколько всего просрочено»: 37 против 98 мс), но такого запроса нет; кто его добавит, вернёт индекс в том же изменении.
-- `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
+- `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3) и окно «недавно введённых» слов в `CardPicker::firstUnblocked` (`learner_id = ? AND created_at >= ?`, ревью: отдельный индекс не нужен).
 
 ### 2.9 `training_sessions`
 Одна таблица для групповых (`mode = group_lesson`, открывает учитель) и личных сессий (`lesson`, `daily_review` — открывает сам learner через `TrainingSessionService::openPersonal`, задача 1.3a).
@@ -301,6 +305,8 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 Дополнительно для нагрузки:
 - `(created_at, learner_id)` — отчёты по активности за период.
 - `(training_session_id, learner_id)` — прогресс ученика внутри занятия.
+- `(learner_id, word_id, id)` (`training_reviews_learner_word_idx`, миграция `2026_11_12_100001`) — `LeechInsight::confusedWith`: последние 5 неверных `reverse`-ответов пары (ученик, слово) `ORDER BY id DESC LIMIT 5`. PostgreSQL строит `CONCURRENTLY`. Это ещё один индекс на самой горячей таблице вставок — принято осознанно.
+- `(word_id, quality)` в запросах `app/` не читается, но это индекс внешнего ключа `word_id` (`ON DELETE RESTRICT`): PostgreSQL проверяет им каждое удаление слова. Не удалять без замены индексом `(word_id)`.
 
 ### 2.11 `exam_sessions`
 | Колонка | Тип |
@@ -608,11 +614,25 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | locale | string(5) NOT NULL (`ru` / `uz`) |
 | translation | string(500) NOT NULL |
 | example_translation | text nullable |
+| hook | string(500) nullable — авторский «крючок памяти» на этом языке (docs/06 §12.3); читается `WordHookResolver` (кэш `word:hook:v1:{word_id}`, сброс наблюдателем) |
 | source | string(16) default 'import' (`import` / `manual` / `ai`) |
 | reviewed_at | timestamp nullable (проверено носителем) |
 | created_at, updated_at | |
 
 **Индексы:** `(word_id, locale)` unique.
+
+### 2.21a `word_examples` — дополнительные примеры слова (docs/06 §12.4)
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| word_id | bigint FK → words, ON DELETE CASCADE |
+| position | smallint unsigned — 1.. (`words.example` — якорь, позиция 0) |
+| text | string(2000) — английское предложение |
+| translations | json nullable — `locale => перевод предложения` |
+| created_at, updated_at | |
+
+**Индексы:** `(word_id, position)` unique. Пишет импорт (`VocabularyImporter`, ключ `examples` заменяет набор целиком);
+читается только через кэш `LearningCache::wordExamples` (`word:examples:v1:{word_id}`, сброс `forgetWordExamples` после коммита).
 
 **Чтение** — только `WordTranslationResolver`: `word_translations[locale]` → `word_translations[ru]` →
 `words.translation`; пустая строка = нет перевода. Признак `is_fallback` = «показан не запрошенный язык»
@@ -829,9 +849,9 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | id | bigint PK | |
 | organization_id | bigint FK → organizations, ON DELETE CASCADE | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | |
-| status | string(12) | `active` / `left` (сам или вышел из всех групп организации) / `removed` (персонал/суперадмин) |
+| status | string(12) | `active` / `left` (сам или вышел из всех групп организации) / `removed` (персонал/суперадмин). Приглашение персонала — **не членство** и не строка здесь (§2.32b; ревью 2026-11-10 B1 убрало статусы `invited` / `declined`) |
 | seat_state | string(12) | `seated` / `waitlisted` (мест нет) / `none` (status ≠ active) |
-| joined_via | string(12) | `invite` / `group` / `admin`; `group` → `invite` при погашении кода уже участником группы |
+| joined_via | string(12) | `invite` / `group` / `admin`; `group` → `invite` при погашении кода уже участником группы; `admin` — предложение персонала из `/org` (после согласия) или прямое добавление суперадмином |
 | invite_id | bigint nullable FK → organization_invites, ON DELETE SET NULL | |
 | seated_at, waitlisted_at | timestamp nullable | `waitlisted_at` — порядок FIFO |
 | joined_at | timestamp NOT NULL | |
@@ -847,6 +867,40 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 `OrganizationMembershipService` под `organizations FOR UPDATE` (порядок блокировок docs/13 §3): вступление садит, если
 `seated < seats_limit` (NULL при live = без лимита; нет live-подписки = все `waitlisted`); освобождённое место отдаётся самому раннему
 `waitlisted` в той же транзакции; повышение тарифа — `reseat()` после commit подписки; понижение никого не снимает (виджет показывает превышение).
+
+### 2.32a `telegram_link_tokens` — одноразовые deep-link-токены кабинета *(аудит 2026-11-10 H1 / P1, docs/13 §6.2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| kind | string(8) | `account` — `t.me/<bot>?start=link_<token>` подключает Telegram сотрудника; `group` — `?startgroup=grp_<token>` / `/link <token>` привязывает группу |
+| token_hash | char(64) unique | SHA-256 токена (сам токен — 32 символа `[A-Za-z0-9_-]` из 24 байт CSPRNG — не хранится) |
+| user_id | bigint FK → users, ON DELETE CASCADE | кому выдан; гасится только им (`group`) / пишет его строку (`account`) |
+| organization_id | bigint nullable FK → organizations, ON DELETE CASCADE | для `group` — организация, к которой привязывают |
+| expires_at | timestamp | `account` — 15 мин, `group` — 30 мин (`organizations.telegram_link.*`) |
+| used_at | timestamp nullable | ставится только при успехе условным `UPDATE … WHERE used_at IS NULL` — гонка двух погашений невозможна |
+| last_result | string(32) nullable | причина последнего отказа (`GroupLinkResult` / `AccountLinkResult`) — показывается только владельцу токена в кабинете; в чате ответ нейтральный |
+| last_attempt_at | timestamp nullable | |
+| prompted_telegram_user_id | bigint nullable | Ревью W2 (`account`): `from.id` того, кому бот задал вопрос «Подключить?»; «Да» принимается только от него, повторное открытие ссылки перепривязывает вопрос |
+| created_at, updated_at | | |
+
+**Индексы:** `token_hash` unique; `(user_id, kind, created_at)`. Новая ссылка того же вида удаляет живые токены пользователя (для `group` — той же организации). Пишет только `TelegramLinkTokens`; использованные и просроченные строки чистит `model:prune` через 30 дней.
+
+### 2.32b `organization_member_invitations` — приглашения учеников персоналом *(аудит 2026-11-10 M2, ревью B1, docs/13 §6.2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| organization_id | bigint FK → organizations, ON DELETE CASCADE | |
+| invited_handle | string(65) | Что ввёл сотрудник, нормализованно: `@username` в нижнем регистре или цифры Telegram id. **Единственное, что кабинет показывает о получателе** |
+| learner_id | bigint nullable FK → learners, ON DELETE SET NULL | **Внутреннее**: ученик, которому соответствовал handle в момент попытки (NULL — никому). `$hidden`, ни одна колонка/экспорт не читает |
+| invited_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| expires_at | timestamp | `created_at + organizations.member_invite.ttl_days` (7): до него строка «ожидает ответа», после — «истекло» |
+| dm_sent_at | timestamp nullable | **Внутреннее**: момент резервирования ЛС «Вступить / Отклонить» (W7: не чаще раза в `dm_cooldown_days` на ученика и центр) |
+| accepted_at | timestamp nullable | ученик вступил (любым путём — кнопка, код, группа) |
+| declined_at | timestamp nullable | **Внутреннее**: ученик отклонил; для кабинета строка остаётся «ожидает» до `expires_at` |
+| revoked_at | timestamp nullable | сотрудник отозвал (след остаётся — W7) |
+| created_at, updated_at | | |
+
+**Индексы:** `(organization_id, created_at)`, `(organization_id, learner_id)`, `(organization_id, invited_handle)`. Видимое состояние — `OrganizationMemberInvitation::state()`: `accepted` / `revoked` / `pending` / `expired` и ничего больше. Пишет только `OrganizationMembershipService` под `organizations FOR UPDATE`. Миграция перенесла строки `organization_members` со статусами `invited` / `declined` сюда и удалила их оттуда.
 
 ### 2.33 `referrals` — «Пригласить друга» *(2C.1, docs/13 §1.5, §7.1)*
 | Колонка | Тип | Описание |
@@ -1326,6 +1380,13 @@ CHECK не создаются — инвариант дублируют серв
 65. `2026_11_07_100000_add_refund_to_game_ticket_ledger_source_check` — PG CHECK `game_ticket_ledger.source` += `refund` (только pgsql; `down()` возвращает прежний список и требует отсутствия строк `refund`) *(G2.8b, §2.58)*
 66. `2026_11_08_100000_add_started_at_index_to_game_runs_table` — индекс `game_runs (started_at, learner_id)` для `GameActivityStats` и фильтра дат `GameRunResource` *(G2.13)*
 67. `2026_11_08_100001_let_unanswered_class_boss_runs_free_their_key` — PG CHECK `game_runs_class_boss_shape_check` допускает `class_boss_key IS NULL` у завершённого без ответа боя с боссом класса (только pgsql; `down()` даёт отданным ключам заглушку `freed:{id}` и возвращает прежний CHECK проверенным — настоящие ключи не восстановить) *(G2.13, §2.48)*
+68. `2026_11_10_120000_add_telegram_verification_to_users_table` — `users.telegram_verified_at`, `telegram_username`, `telegram_name` *(аудит 2026-11-10 H1, §2.1)*
+69. `2026_11_10_120001_create_telegram_link_tokens_table` — одноразовые deep-link-токены кабинета *(аудит 2026-11-10 H1 / P1, §2.32a)*
+70. `2026_11_10_120002_add_invitation_columns_to_organization_members_table` — `organization_members.invited_at`, `invited_by_user_id` для статуса `invited` *(аудит 2026-11-10 M2, §2.32; снято миграцией 72)*
+71. `2026_11_10_130000_create_organization_member_invitations_table` — `organization_member_invitations`; переносит `invited` / `declined` строки `organization_members` и снимает `invited_at`, `invited_by_user_id` (`down()` возвращает колонки и открытые приглашения с `learner_id`) *(ревью 2026-11-10 B1, §2.32b)*
+72. `2026_11_10_130001_add_prompt_to_telegram_link_tokens_table` — `telegram_link_tokens.prompted_telegram_user_id` *(ревью W2, §2.32a)*
+73. `2026_11_10_130002_add_telegram_superseded_at_to_users_table` — `users.telegram_superseded_at` *(ревью W1, §2.1)*
+74. `2026_11_12_100001_add_training_reviews_learner_word_idx` — индекс `training_reviews (learner_id, word_id, id)` для `LeechInsight` (CONCURRENTLY на PostgreSQL) *(ревью, §2.10)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

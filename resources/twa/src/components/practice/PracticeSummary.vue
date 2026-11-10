@@ -124,7 +124,7 @@ function chipOf(mistake: PracticeMistake): Chip {
         {{ t('practice.summary.to_course') }}
       </button>
       <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="emit('close')">
-        {{ t('common.close') }}
+        {{ t('common.exit_app') }}
       </button>
     </StickyActions>
   </div>

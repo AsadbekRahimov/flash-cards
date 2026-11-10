@@ -419,6 +419,9 @@ onMounted(() => {
             {{ t('friends.list.count', { count: friends.friends.length, limit: friends.limit }) }}
           </span>
         </div>
+        <p v-if="friends.friends.length > 0" class="-mt-1 mb-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="friends-hint">
+          {{ t(battleOn ? 'friends.hint' : 'friends.hint_challenge', { days: challenges?.days ?? 7 }) }}
+        </p>
         <div class="list">
           <EmptyState v-if="friends.friends.length === 0" icon="users" :text="t('friends.list.empty')" data-testid="friends-empty" />
 
@@ -431,18 +434,31 @@ onMounted(() => {
                 <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
               </div>
               <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
-              <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
-              <button
-                v-if="battleOn && picking !== friend.id && removing !== friend.id"
-                type="button"
-                class="btn btn-tinted btn-sm mt-2"
-                :disabled="checking"
-                :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
-                data-testid="battle-btn"
-                @click="startBattle(friend.id)"
-              >
-                {{ t('battle.friends.button') }}
-              </button>
+              <!-- Two text actions, so the learner need not guess what a lightning icon does; wraps on a narrow screen. -->
+              <div v-if="picking !== friend.id && removing !== friend.id" class="mt-2 flex flex-wrap gap-2">
+                <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
+                <button
+                  v-if="battleOn"
+                  type="button"
+                  class="btn btn-tinted btn-sm"
+                  :disabled="checking"
+                  :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
+                  data-testid="battle-btn"
+                  @click="startBattle(friend.id)"
+                >
+                  {{ t('battle.friends.button') }}
+                </button>
+                <button
+                  v-if="!withOpenChallenge.has(friend.id)"
+                  type="button"
+                  class="btn btn-tinted btn-sm"
+                  :aria-label="t('friends.challenge.new', { name: personName(friend) })"
+                  data-testid="challenge-btn"
+                  @click="picking = friend.id"
+                >
+                  {{ t('friends.challenge.button') }}
+                </button>
+              </div>
             </div>
 
             <div v-if="picking === friend.id" class="w-full space-y-2" data-testid="metric-picker">
@@ -482,16 +498,6 @@ onMounted(() => {
             </div>
 
             <div v-else class="flex shrink-0 items-center gap-1">
-              <button
-                v-if="!withOpenChallenge.has(friend.id)"
-                type="button"
-                class="btn btn-tinted size-11 min-h-11 rounded-full p-0"
-                :aria-label="t('friends.challenge.new', { name: personName(friend) })"
-                data-testid="challenge-btn"
-                @click="picking = friend.id"
-              >
-                <AppIcon name="bolt" :size="20" />
-              </button>
               <button
                 type="button"
                 class="btn btn-plain size-11 min-h-11 rounded-full p-0 text-tg-hint"

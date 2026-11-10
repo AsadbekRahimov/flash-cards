@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ViewErrorBag;
 use PragmaRX\Google2FA\Google2FA;
 
 uses(RefreshDatabase::class);
@@ -110,6 +111,19 @@ it('keeps the real recovery-code intro readable in ru and uz', function (string 
     expect($html)->toContain("<strong>{$emphasis}</strong>")
         ->and($html)->not->toContain(':emphasis');
 })->with([['ru', 'один раз'], ['uz', 'faqat bir marta']]);
+
+it('words 2FA in plain language: the app, the spare codes, and where to turn when both are lost', function (string $locale, string $setupTitle, string $lost, string $spareTitle): void {
+    $challenge = view('2fa.challenge', ['guard' => 'web', 'locale' => $locale, 'errors' => new ViewErrorBag])->render();
+    $recovery = view('2fa.recovery-codes', ['codes' => ['aaaa-bbbb'], 'locale' => $locale, 'continueUrl' => '/admin'])->render();
+
+    expect(__('twofactor.setup.title', [], $locale))->toBe($setupTitle)
+        ->and($challenge)->toContain($lost)
+        ->and($recovery)->toContain($spareTitle)
+        ->and(__('twofactor.recovery.title', [], $locale).__('twofactor.recovery.heading', [], $locale).__('twofactor.errors.invalid_code_or_recovery', [], $locale))->not->toContain('ecovery');
+})->with([
+    ['ru', 'Защита входа кодом из приложения', 'Потеряли и телефон, и коды? Напишите в поддержку — восстановим доступ после проверки.', 'Запасные коды'],
+    ['uz', 'Kirishni ilovadagi kod bilan himoyalash', 'Qo&#039;llab-quvvatlash xizmatiga yozing', 'Zaxira kodlar'],
+]);
 
 it('never reveals existing recovery codes before the 2FA challenge', function (): void {
     $user = adminUser([

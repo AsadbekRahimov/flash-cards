@@ -548,8 +548,8 @@ it('has an errors block in lang/ru/admin.php for every screen that words a domai
         }
     }
 
-    // Guards the guard: the scan found the seven screens (the import pages word their issues through importIssue() / practiceImportIssue()), not nothing.
-    expect(array_keys($scopes))->toEqualCanonicalizing(['courses', 'subscriptions', 'payments', 'learners.offers', 'organizations.members', 'organizations.groups', 'practice_items']);
+    // Guards the guard: the scan found the eight screens (the import pages word their issues through importIssue() / practiceImportIssue()), not nothing.
+    expect(array_keys($scopes))->toEqualCanonicalizing(['courses', 'subscriptions', 'payments', 'learners.offers', 'organizations.members', 'organizations.groups', 'organizations.staff', 'practice_items']);
 
     foreach ($scopes as $scope => $file) {
         expect(Lang::has("admin.{$scope}.errors", 'ru', false))->toBeTrue("{$file} words errors of admin.{$scope}.errors");

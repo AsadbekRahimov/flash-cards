@@ -158,7 +158,7 @@ describe('a session of collocations — the verdict', () => {
 
     const verdict = wrapper.get('[data-testid=answer-reveal]')
     expect(verdict.attributes('data-verdict')).toBe('wrong')
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно') // a pick is final: "Needs fixing" is the word of a dictation
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(wrapper.get('[data-testid=reveal-icon]').findComponent(AppIcon).props('name')).toBe('x-mark')
     expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
 
@@ -335,7 +335,7 @@ describe('a session of collocations — when the request does not get through', 
     await option(wrapper, 0).trigger('click')
     await flushPromises()
 
-    expect(showErrorToast).toHaveBeenCalledWith('Ответ не относится к этому заданию. Обновите экран.')
+    expect(showErrorToast).toHaveBeenCalledWith('Ответ не относится к этому заданию. Закройте приложение и откройте снова.')
     expect(wrapper.find('[data-testid=collocation-resend-note]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=collocation-blank]').attributes('data-tone')).toBe('empty')

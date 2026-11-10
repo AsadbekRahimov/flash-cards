@@ -49,17 +49,17 @@ describe('PaywallSheet', () => {
   it('says Pro is coming and what Free gives, with the limit from the server', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
-    expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас тариф Free: 20 новых слов в день, повторения — без лимита.')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата откроется позже — мы сообщим в боте.')
+    expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас бесплатный тариф: 20 новых слов в день, повторения — без лимита.')
   })
 
   describe('what Free gives', () => {
     it.each([
-      [1, 'Сейчас у вас тариф Free: 1 новое слово в день, повторения — без лимита.'],
-      [2, 'Сейчас у вас тариф Free: 2 новых слова в день, повторения — без лимита.'],
-      [5, 'Сейчас у вас тариф Free: 5 новых слов в день, повторения — без лимита.'],
-      [21, 'Сейчас у вас тариф Free: 21 новое слово в день, повторения — без лимита.'],
+      [1, 'Сейчас у вас бесплатный тариф: 1 новое слово в день, повторения — без лимита.'],
+      [2, 'Сейчас у вас бесплатный тариф: 2 новых слова в день, повторения — без лимита.'],
+      [5, 'Сейчас у вас бесплатный тариф: 5 новых слов в день, повторения — без лимита.'],
+      [21, 'Сейчас у вас бесплатный тариф: 21 новое слово в день, повторения — без лимита.'],
     ])('inflects the word for a limit of %i', async (limit, text) => {
       const w = await render(me({ limit }))
 
@@ -70,14 +70,14 @@ describe('PaywallSheet', () => {
       setLocale('uz')
       const w = await render(me({ limit: 1 }))
 
-      expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda Free tarif: kuniga 1 ta yangi so'z, takrorlash cheklovsiz.")
+      expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda bepul tarif: kuniga 1 ta yangi so'z, takrorlash cheklovsiz.")
     })
 
     it('does not tell a Pro learner they are on Free: no limit is not an unknown limit', async () => {
       const w = await render(me({ plan: 'pro', until: '2026-12-31T12:00:00+00:00' }), { reason: 'info' })
 
       expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
-      expect(w.text()).not.toContain('Сейчас у вас тариф Free')
+      expect(w.text()).not.toContain('Сейчас у вас бесплатный тариф')
       expect(w.text()).not.toContain('ограничены дневным лимитом')
       expect(w.find('[data-testid=paywall-lead]').exists()).toBe(true)
     })
@@ -87,7 +87,7 @@ describe('PaywallSheet', () => {
       const w = await render(me({ plan: 'pro' }), { reason: 'decks' })
 
       expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
-      expect(w.text()).not.toContain('Free tarif: kuniga')
+      expect(w.text()).not.toContain('bepul tarif: kuniga')
     })
   })
 
@@ -96,7 +96,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+        'Лимит колод бесплатного тарифа: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. Оплата откроется позже — мы сообщим в боте.',
       )
     })
 
@@ -104,7 +104,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks', deckLimits: { decks: 3, deck_words: 101, used_decks: 3 } })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        'Лимит колод тарифа Free: 3 колоды до 101 слова. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+        'Лимит колод бесплатного тарифа: 3 колоды до 101 слова. В Pro — до 20 колод по 2000 слов. Оплата откроется позже — мы сообщим в боте.',
       )
     })
 
@@ -113,7 +113,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        "Bepul tarifda 1 ta to'plam ochishingiz mumkin, har biriga 50 tagacha so'z sig'adi. Pro'da har biriga 2000 tagacha so'z sig'adigan 20 tagacha to'plam. Pro tez orada ochiladi.",
+        "Bepul tarifda 1 ta to'plam ochishingiz mumkin, har biriga 50 tagacha so'z sig'adi. Pro'da har biriga 2000 tagacha so'z sig'adigan 20 tagacha to'plam. To'lov keyinroq ochiladi — botda xabar beramiz.",
       )
     })
 
@@ -121,7 +121,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'decks' })
 
       expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-        'Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+        'Вы достигли лимита колод бесплатного тарифа. В Pro — до 20 колод по 2000 слов. Оплата откроется позже — мы сообщим в боте.',
       )
     })
 
@@ -142,7 +142,7 @@ describe('PaywallSheet', () => {
     const w = await render(me(), { reason: 'quota' })
 
     expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-      'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Pro скоро откроется.',
+      'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Оплата откроется позже — мы сообщим в боте.',
     )
   })
 
@@ -205,7 +205,7 @@ describe('PaywallSheet', () => {
 
       const header = w.get('[data-testid=paywall] header')
       expect(header.find('svg').exists()).toBe(true)
-      expect(header.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+      expect(header.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
       expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
       expect(w.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
@@ -461,8 +461,8 @@ describe('PaywallSheet', () => {
     setLocale('uz')
     const w = await render(me({ contact: '@lexiflow_help' }), { reason: 'quota' })
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro tez orada')
-    expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda Free tarif: kuniga 20 ta yangi so'z, takrorlash cheklovsiz.")
+    expect(w.get('[data-testid=paywall-title]').text()).toBe("Pro'da nimalar bo'ladi")
+    expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda bepul tarif: kuniga 20 ta yangi so'z, takrorlash cheklovsiz.")
     expect(w.get('[data-testid=paywall-contact]').text()).toContain("Markazda o'qiysizmi?")
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Tushunarli')
   })

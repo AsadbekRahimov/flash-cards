@@ -67,12 +67,14 @@ it('speaks Uzbek to an uz learner and shows the code only while the bot username
         ->and($this->tg->sent[0]['markup'])->toBeNull();
 });
 
-it('stays silent for a teacher and in a group, and tells a blocked learner so', function (): void {
+it('points a teacher to their own commands, stays silent in a group, and tells a blocked learner so', function (): void {
     User::factory()->create(['telegram_user_id' => 8103]);
     inviteSend(8103);
     inviteSend(8104, '/invite', 'group');
-    expect($this->tg->sent)->toHaveCount(0)
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->toBe('Эта команда — для учеников. Ваши команды учителя: /help')
         ->and(Learner::query()->where('telegram_user_id', 8103)->exists())->toBeFalse();
+    $this->tg->sent = [];
 
     Learner::factory()->create(['telegram_user_id' => 8105, 'blocked_at' => now()]);
     inviteSend(8105);

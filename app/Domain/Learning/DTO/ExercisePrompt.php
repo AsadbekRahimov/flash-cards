@@ -12,10 +12,10 @@ use App\Domain\Learning\Enums\ExerciseType;
 final readonly class ExercisePrompt
 {
     /**
-     * @param  string  $front  flash: the word; reverse / spelling / gap_fill: the translation; audio: '' — the word is only heard
+     * @param  string  $front  flash / meaning / pretest: the word; reverse / spelling / gap_fill: the translation; audio: '' — the word is only heard
      * @param  string|null  $audioUrl  pre-generated mp3 of the word (the same as `card.audio_url`)
      * @param  string|null  $maskedExample  gap_fill: the example with the word's form replaced by `____`
-     * @param  list<string>|null  $options  reverse / audio: the four choices (the right one among them, in a stable order)
+     * @param  list<string>|null  $options  meaning / reverse / audio / pretest: the four choices (the right one among them, in a stable order)
      * @param  int|null  $answerLength  spelling / gap_fill: length of the expected text (a hint for the input)
      */
     public function __construct(

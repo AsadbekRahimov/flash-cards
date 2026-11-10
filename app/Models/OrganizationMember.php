@@ -14,7 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Membership of a learner in an organization and its seat (docs/13 §1.3).
+ * Membership of a learner in an organization and its seat (docs/13 §1.3) — a real one, present (`active`) or past
+ * (`left` / `removed`); an invitation by the staff is {@see OrganizationMemberInvitation}, never a row here.
  * Written only by OrganizationMembershipService (under the organization row lock).
  *
  * @property int $id

@@ -27,7 +27,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 3,
   new_words_remaining: 12,
   goal: { target: 20, done: 8, met: false },
-  streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
+  streak: { current: 3, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
   active_course: null,
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },
@@ -57,6 +57,7 @@ async function render(response: TodayResponse) {
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -78,35 +79,33 @@ describe('TodayView paywall entry', () => {
     const w = await render(today())
 
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
     await flushPromises()
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Оплата откроется позже — мы сообщим в боте.')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
   })
 
-  it('offers it as a quiet button under the session button, never as a second primary one', async () => {
+  it('has no "Learn about Pro" link in the session card: one main action there (the plan chip leads to the subscription)', async () => {
     const w = await render(today())
 
-    const open = w.get('[data-testid=paywall-open]')
-    expect(open.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
-    expect(open.classes()).not.toContain('btn-primary')
-    expect(w.get('[data-testid=review-card]').find('[data-testid=paywall-open]').exists()).toBe(true)
+    expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+    expect(w.get('[data-testid=review-card]').text()).not.toContain('Узнать о Pro')
+    expect(w.get('[data-testid=plan-badge]').attributes('href')).toBe('/billing')
   })
 
-  it('explains the exhausted quota when there are no new words left today', async () => {
-    const w = await render(today({ new_words_remaining: 0 }))
+  it('shows the streak-freeze teaser only to a Free learner who has a streak', async () => {
+    expect((await render(today())).find('[data-testid=streak-freeze-teaser]').exists()).toBe(true)
 
-    await w.get('[data-testid=paywall-open]').trigger('click')
-
-    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
+    const noStreak = await render(today({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+    expect(noStreak.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
   })
 
   it('does not show the entry point to a Pro learner', async () => {
     const w = await render(today({ new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }))
 
-    expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+    expect(w.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
   })
 
   it('refreshes the screen after a promo code: plan badge and quota follow the new plan', async () => {
@@ -118,7 +117,7 @@ describe('TodayView paywall entry', () => {
     vi.mocked(api.today.get).mockResolvedValue(
       today({ active_course: course, new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }),
     )
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
     await w.get('[data-testid=promo-toggle]').trigger('click')
     await w.get('[data-testid=promo-input]').setValue('PRO30')
     await w.get('form').trigger('submit')
@@ -128,12 +127,12 @@ describe('TodayView paywall entry', () => {
     expect(w.get('[data-testid=plan-badge]').text()).toBe('Pro')
     // The quota line follows the plan: no limit any more.
     expect(w.get('[data-testid=new-remaining]').text()).toBe('Новые слова — без ограничений')
-    expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+    expect(w.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
   })
 
   it('closes the sheet and stays on the Today screen', async () => {
     const w = await render(today())
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
     await w.get('[data-testid=paywall-close]').trigger('click')
 
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
@@ -143,7 +142,7 @@ describe('TodayView paywall entry', () => {
   it('"Repeat words" in the paywall opens a daily review and leaves for the training screen', async () => {
     vi.mocked(api.training.open).mockResolvedValue({ session_id: 918, mode: 'daily_review', lesson: null, total_words: 3 })
     const w = await render(today({ new_words_remaining: 0 }))
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
 
     await w.get('[data-testid=paywall-review]').trigger('click')
     await flushPromises()
@@ -154,7 +153,7 @@ describe('TodayView paywall entry', () => {
 
   it('does not offer "Repeat words" when nothing is due', async () => {
     const w = await render(today({ due_count: 0, new_words_remaining: 0 }))
-    await w.get('[data-testid=paywall-open]').trigger('click')
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
 
     expect(w.find('[data-testid=paywall-review]').exists()).toBe(false)
   })

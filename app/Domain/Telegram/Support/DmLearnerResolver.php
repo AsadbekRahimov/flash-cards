@@ -14,8 +14,8 @@ use App\Models\User;
  * ({@see LearnerRegistrar::fromTelegramUser()}), and `dm_blocked_at` is cleared — a person who
  * writes to the bot has evidently not blocked it (docs/12 §7.5).
  *
- * A linked teacher (`users.telegram_user_id`) is not a learner here: no learner row is created
- * for them and the learner-facing handlers stay silent, so they never end up in the onboarding.
+ * A staff member is not a learner here ({@see isStaff()}): no learner row is created for them and the learner-facing
+ * handlers stay silent, so they never end up in the onboarding.
  */
 final class DmLearnerResolver
 {
@@ -31,11 +31,35 @@ final class DmLearnerResolver
             return null;
         }
 
-        if (User::query()->where('telegram_user_id', (int) $from['id'])->exists()) {
+        if ($this->isStaff((int) $from['id'])) {
             return null;
         }
 
         return $this->registerLearner($from);
+    }
+
+    /**
+     * The ONE rule "this Telegram account belongs to a staff / admin user, not to a learner" for private chats (review W1 of the
+     * audit 2026-11-10): a `users.telegram_user_id` that was VERIFIED through the bot, or an unverified one (hand-typed in
+     * `/admin`, legacy) with NO learner row behind it — the teachers of Phase 1 who never wrote to the bot as learners keep their
+     * greeting. An unverified id that a learner also carries is the learner's: a typed number must not switch somebody's bot
+     * off. Group commands do not use this rule (`TeacherAuthority`: `teacher_groups` + `is_active`).
+     */
+    public function isStaff(int $telegramUserId): bool
+    {
+        if ($telegramUserId <= 0) {
+            return false;
+        }
+
+        $verifiedAt = User::query()->where('telegram_user_id', $telegramUserId)->value('telegram_verified_at');
+
+        if ($verifiedAt === null) {
+            // No user at all, or no proof: a staff member only when nobody is a learner under this id.
+            return User::query()->where('telegram_user_id', $telegramUserId)->exists()
+                && ! Learner::withTrashed()->where('telegram_user_id', $telegramUserId)->exists();
+        }
+
+        return true;
     }
 
     /** @param array<string, mixed> $from a sender whose Telegram id was already checked against teachers */

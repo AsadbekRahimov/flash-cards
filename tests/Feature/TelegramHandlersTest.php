@@ -27,6 +27,10 @@ beforeEach(function (): void {
 });
 
 it('creates a pending TelegramGroup on my_chat_member into a group', function (): void {
+    // The welcome of a group that waits for activation (the bot's own status is not in this update: no warning part).
+    $this->api->shouldReceive('sendMessage')->once()
+        ->with(-10012345, Mockery::pattern('/«Class 1».*Привяжите её из кабинета центра/su'), 'HTML');
+
     app(TelegramDispatcher::class)->dispatch([
         'my_chat_member' => [
             'chat' => ['id' => -10012345, 'type' => 'supergroup', 'title' => 'Class 1'],
@@ -385,7 +389,7 @@ it('applies chat_member and new_chat_members by their Telegram date, not by arri
 it('responds to /help in private chat', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(500, Mockery::pattern('/LexiFlow/'));
+        ->with(500, Mockery::pattern('/LexiFlow/'), null);
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -400,7 +404,7 @@ it('responds to /help in an active whitelisted group', function (): void {
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'));
+        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'), 'HTML');
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -410,10 +414,11 @@ it('responds to /help in an active whitelisted group', function (): void {
     ]);
 });
 
-it('stays silent on /help in an unknown or inactive group (group lock)', function (): void {
+it('answers /help in a pending group with the activation notice, never with the command list (group lock)', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -5002, 'status' => 'pending']);
 
-    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendMessage')->once()
+        ->with(-5002, Mockery::pattern('/ещё не активирована.*Привяжите её из кабинета центра/su'), 'HTML');
 
     // Inactive (pending) group.
     app(TelegramDispatcher::class)->dispatch([
@@ -423,10 +428,23 @@ it('stays silent on /help in an unknown or inactive group (group lock)', functio
         ],
     ]);
 
-    // Completely unknown group.
+    // Completely unknown group: silence.
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
             'chat' => ['id' => -9090, 'type' => 'supergroup'],
+            'text' => '/help',
+        ],
+    ]);
+});
+
+it('stays silent on /help in a disabled group', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -5003, 'status' => 'disabled']);
+
+    $this->api->shouldReceive('sendMessage')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -5003, 'type' => 'supergroup'],
             'text' => '/help',
         ],
     ]);
@@ -437,7 +455,7 @@ it('binds a teacher on /start in DM when telegram_user_id matches', function ():
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(12345, Mockery::pattern('/Привет/'));
+        ->with(12345, Mockery::pattern('/Здравствуйте/'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -518,7 +536,7 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
         public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
 
-        public function answerCallbackQuery(string $callbackQueryId): void {}
+        public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
@@ -578,5 +596,5 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
     expect($api->messages[0]['chat_id'])->toBe(54321);
     expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u')
         ->and($api->messages[0]['text'])->toContain('Повторений карточек: 3')
-        ->and($api->messages[0]['text'])->toContain('Активных студентов: 1');
+        ->and($api->messages[0]['text'])->toContain('Активных учеников: 1');
 });

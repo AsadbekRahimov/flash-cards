@@ -131,13 +131,17 @@ services:
             SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
             # Learner traffic is most of the requests: 12 of the 18 workers of a 4 vCPU host (2-4 per core all in all,
             # docs/DEVOPS_GUIDE.md §0 «Пул php-fpm»). Override with PHP_FPM_API_* in .env; pm.max_requests is PHP_FPM_MAX_REQUESTS.
+            # `static`: with a steady load of learners the workers are never idle long enough for `dynamic` to pay off, and the
+            # spawn/kill of it shows in the p99 (audit 2026-11-10 L7). PHP_FPM_API_PM=dynamic brings the old behaviour back; the
+            # memory is then taken up front (PHP_FPM_API_MAX_CHILDREN x ~50 MB), START/SPARE are ignored under static.
+            PHP_FPM_PM: ${PHP_FPM_API_PM:-static}
             PHP_FPM_MAX_CHILDREN: ${PHP_FPM_API_MAX_CHILDREN:-12}
             PHP_FPM_START_SERVERS: ${PHP_FPM_API_START_SERVERS:-3}
             PHP_FPM_MIN_SPARE_SERVERS: ${PHP_FPM_API_MIN_SPARE_SERVERS:-2}
             PHP_FPM_MAX_SPARE_SERVERS: ${PHP_FPM_API_MAX_SPARE_SERVERS:-4}
             # Octane mode only (ignored by php-fpm): 6 workers on 4 vCPU, a worker restarts after OCTANE_MAX_REQUESTS requests.
             OCTANE_WORKERS: ${OCTANE_WORKERS:-6}
-            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-500}
+            OCTANE_MAX_REQUESTS: ${OCTANE_MAX_REQUESTS:-5000}
             # Always behind nginx with TLS, whatever the mode: the scheme of the application is https (config/octane.php reads
             # it under Octane only, so under php-fpm the line is harmless).
             OCTANE_HTTPS: "true"

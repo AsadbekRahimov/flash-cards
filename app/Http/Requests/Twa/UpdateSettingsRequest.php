@@ -7,6 +7,7 @@ namespace App\Http\Requests\Twa;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,8 @@ final class UpdateSettingsRequest extends FormRequest
             // A partial object: only the exercise types given change (docs/13 §8.2).
             'exercises' => ['sometimes', Rule::array(LearnerExerciseSettings::KEYS)],
             'exercises.*' => ['boolean:strict'],
+            // The FSRS retention mode (docs/06 §12.8).
+            'retention_mode' => ['sometimes', 'string', Rule::in(LadderPolicy::RETENTION_MODES)],
         ];
     }
 }

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Turns the selected {@see ExerciseType} into what the client shows (docs/13 §2.5, docs/04 A.3).
  *
- * Reverse / audio need {@see OPTIONS} choices: the right one plus real distractors — active words
+ * Meaning / reverse / audio / pretest need {@see OPTIONS} choices: the right one plus real distractors — active words
  * of the same lesson, then of the same course, then of published public platform courses
  * ({@see Course::scopePublicPlatform()}, the same whitelist as the exam builder; private courses
  * of centers and learners never leak in).
@@ -25,37 +25,44 @@ use Illuminate\Database\Eloquent\Builder;
  * the same serve show the same screen. When there are not enough distractors the card falls back
  * to a flash prompt — the type in the prompt is what the client must follow.
  *
- * Spelling and gap-fill prompts never depend on the database beyond the word itself; their type
- * is what the server recomputes on `POST /review` (ExerciseSelector).
+ * Spelling and gap-fill prompts never depend on the database beyond the word and the example the card shows
+ * (docs/06 §12.4); their type is what the server recomputes on `POST /review` (ExerciseSelector).
  */
 final class ExercisePromptBuilder
 {
     public const OPTIONS = 4;
 
-    private const POOL = 40;
+    public const POOL = 40;
 
     public function __construct(
         private readonly WordTranslationResolver $translations,
         private readonly GapFillBuilder $gapFill,
+        private readonly LearningCache $cache,
     ) {}
 
     /**
-     * The type the card is actually shown with: reverse / audio without enough distractors (and a gap-fill
-     * whose example lost the word) fall back to flash. `POST /review` records this, not the selector's pick.
+     * The type the card is actually shown with: a four-option card without enough distractors (and a gap-fill
+     * whose example lost the word) falls back to flash. `POST /review` records this, not the selector's pick.
      */
-    public function effectiveType(ExerciseType $type, Word $word, string $locale, int $seed): ExerciseType
+    public function effectiveType(ExerciseType $type, Word $word, string $locale, int $seed, ?string $example = null): ExerciseType
     {
         return match ($type) {
-            ExerciseType::Reverse, ExerciseType::Audio => count($this->distractors(
+            ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => count($this->distractors(
                 $type,
                 $word,
-                $type === ExerciseType::Reverse ? trim($word->word) : trim($this->translations->resolve($word, $locale)->text),
+                $this->correctOption($type, $word, $this->translations->resolve($word, $locale)),
                 $locale,
                 $seed,
             )) < self::OPTIONS - 1 ? ExerciseType::Flash : $type,
-            ExerciseType::GapFill => $this->gapFill->build($word) === null ? ExerciseType::Flash : $type,
+            ExerciseType::GapFill => $this->gapFill->fromText($word->word, $example ?? $word->example) === null ? ExerciseType::Flash : $type,
             default => $type,
         };
+    }
+
+    /** The text the server compares a pick with (docs/06 §12.2): the English word for reverse, the translation otherwise. */
+    public function correctOption(ExerciseType $type, Word $word, ResolvedTranslation $translation): string
+    {
+        return $type === ExerciseType::Reverse ? trim($word->word) : trim($translation->text);
     }
 
     public function build(
@@ -65,24 +72,24 @@ final class ExercisePromptBuilder
         string $locale,
         ?string $audioUrl,
         int $seed,
+        ?string $example = null,
     ): ExercisePrompt {
         return match ($type) {
             ExerciseType::Flash => ExercisePrompt::flash($word->word, $audioUrl),
-            ExerciseType::Reverse => $this->choice($type, $word, $translation, $locale, $audioUrl, $seed),
-            ExerciseType::Audio => $this->choice($type, $word, $translation, $locale, $audioUrl, $seed),
+            ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => $this->choice($type, $word, $translation, $locale, $audioUrl, $seed),
             ExerciseType::Spelling => new ExercisePrompt(
                 $type,
                 $translation->text,
                 $audioUrl,
                 answerLength: mb_strlen(trim($word->word)),
             ),
-            ExerciseType::GapFill => $this->gapFillPrompt($word, $translation, $audioUrl),
+            ExerciseType::GapFill => $this->gapFillPrompt($word, $translation, $audioUrl, $example),
         };
     }
 
-    private function gapFillPrompt(Word $word, ResolvedTranslation $translation, ?string $audioUrl): ExercisePrompt
+    private function gapFillPrompt(Word $word, ResolvedTranslation $translation, ?string $audioUrl, ?string $example): ExercisePrompt
     {
-        $gap = $this->gapFill->build($word);
+        $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
         if ($gap === null) {
             // The selector only picks gap_fill when the example carries the word; a stale example is a flash card.
             return ExercisePrompt::flash($word->word, $audioUrl);
@@ -105,7 +112,7 @@ final class ExercisePromptBuilder
         ?string $audioUrl,
         int $seed,
     ): ExercisePrompt {
-        $correct = $type === ExerciseType::Reverse ? trim($word->word) : trim($translation->text);
+        $correct = $this->correctOption($type, $word, $translation);
         $distractors = $this->distractors($type, $word, $correct, $locale, $seed);
 
         if (count($distractors) < self::OPTIONS - 1) {
@@ -115,17 +122,23 @@ final class ExercisePromptBuilder
         $options = [$correct, ...$distractors];
         usort($options, static fn (string $a, string $b): int => crc32($seed.'|'.$a) <=> crc32($seed.'|'.$b));
 
+        // reverse: the translation is the question; meaning / pretest: the word is; audio: nothing — the word is only heard.
         return new ExercisePrompt(
             $type,
-            $type === ExerciseType::Reverse ? $translation->text : '',
+            match ($type) {
+                ExerciseType::Reverse => $translation->text,
+                ExerciseType::Meaning, ExerciseType::Pretest => $word->word,
+                default => '',
+            },
             $audioUrl,
             options: $options,
         );
     }
 
     /**
-     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for audio), distinct from the
-     * right answer and from each other case-insensitively, from the nearest layer that has enough of them.
+     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for meaning / audio / pretest), distinct
+     * from the right answer and from each other case-insensitively, from the nearest layer that has enough of them —
+     * so a second word with the same translation never yields a second right option.
      *
      * @return list<string>
      */
@@ -136,7 +149,7 @@ final class ExercisePromptBuilder
         $picked = [];
 
         foreach ($this->layers($word) as $layer) {
-            $candidates = $this->texts($type, $layer->get(), $locale);
+            $candidates = $this->texts($type, $layer instanceof Builder ? $layer->get() : $layer, $locale);
             usort($candidates, static fn (array $a, array $b): int => crc32($seed.':'.$a['id']) <=> crc32($seed.':'.$b['id']));
 
             foreach ($candidates as $candidate) {
@@ -185,11 +198,11 @@ final class ExercisePromptBuilder
     /**
      * Candidate queries, nearest first; each is evaluated only when the previous ones ran short.
      *
-     * @return iterable<Builder<Word>>
+     * @return iterable<Builder<Word>|list<Word>>
      */
     private function layers(Word $word): iterable
     {
-        yield $this->pool($word)->where('lesson_id', $word->lesson_id);
+        yield $this->lessonPool($word);
 
         $stageId = Lesson::query()->whereKey($word->lesson_id)->value('stage_id');
         $courseId = $stageId === null ? null : Stage::query()->whereKey($stageId)->value('course_id');
@@ -203,6 +216,28 @@ final class ExercisePromptBuilder
             ->whereIn('lesson_id', Lesson::query()->select('id')
                 ->whereIn('stage_id', Stage::query()->select('id')
                     ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
+    }
+
+    /**
+     * The first layer from the cached pool of the lesson (plain rows, no query on a hit): the same words as
+     * `pool()->where('lesson_id', ...)` - active, other than the card, by `id`, {@see POOL} of them.
+     *
+     * @return list<Word>
+     */
+    private function lessonPool(Word $word): array
+    {
+        $words = [];
+        foreach ($this->cache->lessonDistractorPool((int) $word->lesson_id) as $row) {
+            if ($row['id'] === (int) $word->id) {
+                continue;
+            }
+            $words[] = (new Word)->forceFill(['id' => $row['id'], 'word' => $row['word'], 'translation' => $row['translation']]);
+            if (count($words) >= self::POOL) {
+                break;
+            }
+        }
+
+        return $words;
     }
 
     /**

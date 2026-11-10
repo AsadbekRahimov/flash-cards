@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
+import { resetSeenSession } from '@/composables/seenFlag'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { gameLimits, gameMap, mapBoss, mapCity, mapDaily, mapStop } from '@/api/__tests__/gameMapFixtures'
@@ -84,6 +85,85 @@ beforeEach(() => {
   back.target = null
   setLocale('ru')
   document.body.innerHTML = ''
+  resetSeenSession()
+  // The rules sheet opens on the first visit: the specs of the map itself start after it was seen.
+  window.localStorage.setItem('lexiflow:game-intro-seen', '1')
+})
+
+describe('GameMapView: "How to play"', () => {
+  beforeEach(() => window.localStorage.clear())
+  afterEach(() => window.localStorage.clear())
+
+  it('opens the rules once on the first visit of the map, with the numbers of the rules constant', async () => {
+    const { wrapper } = await render()
+
+    const sheet = testid(wrapper, 'game-intro-sheet')
+    expect(sheet.exists()).toBe(true)
+    expect(sheet.text()).toContain('Как играть в «Караван»')
+    expect(testid(wrapper, 'game-intro-p1').text()).toBe('Это игра по словам вашего курса. Каждый урок — стоянка, каждый модуль — город.')
+    expect(testid(wrapper, 'game-intro-p2').text()).toBe('Забег — 8–10 заданий. У вас 3 фляги: ошибка — минус фляга.')
+    expect(testid(wrapper, 'game-intro-p3').text()).toBe('За забеги дают звёзды и монеты. Монеты тратятся в «Мой караван».')
+    expect(testid(wrapper, 'game-intro-ok').text()).toBe('Понятно')
+
+    await testid(wrapper, 'game-intro-ok').trigger('click')
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+
+    const again = await render()
+    expect(testid(again.wrapper, 'game-intro-sheet').exists()).toBe(false)
+  })
+
+  it('opens again from the "How to play" button', async () => {
+    window.localStorage.setItem('lexiflow:game-intro-seen', '1')
+    const { wrapper } = await render()
+
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+    expect(testid(wrapper, 'how-to-play').text()).toBe('Как играть')
+    await testid(wrapper, 'how-to-play').trigger('click')
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(true)
+  })
+
+  it('is not opened over the sheet of a stop that the link asked for, and is not marked as seen: it opens next time', async () => {
+    const first = await render(gameMap(), { stop: 11 }, '/game?course=english-a1&stop=11')
+
+    expect(testid(first.wrapper, 'stop-sheet').exists()).toBe(true)
+    expect(testid(first.wrapper, 'game-intro-sheet').exists()).toBe(false)
+    expect(window.localStorage.getItem('lexiflow:game-intro-seen')).toBeNull()
+
+    const next = await render()
+    expect(testid(next.wrapper, 'game-intro-sheet').exists()).toBe(true)
+  })
+
+  it('is not opened over the loading map or the error', async () => {
+    const { wrapper } = await render(new Promise<GameMapResponse>(() => {}))
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render()
+
+    expect(testid(wrapper, 'game-intro-sheet').text()).toContain("«Karvon» o'yini qanday o'ynaladi")
+    expect(testid(wrapper, 'game-intro-p2').text()).toBe('Safar — 8–10 ta topshiriq. Sizda 3 ta mesh bor: xato qilsangiz, bitta mesh kamayadi.')
+    expect(testid(wrapper, 'game-intro-ok').text()).toBe('Tushunarli')
+  })
+
+  it('does not break when the storage throws', async () => {
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
+    try {
+      const { wrapper } = await render()
+      expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(true)
+      await testid(wrapper, 'game-intro-ok').trigger('click')
+      expect(testid(wrapper, 'road').exists()).toBe(true)
+    } finally {
+      get.mockRestore()
+      set.mockRestore()
+    }
+  })
 })
 
 describe('GameMapView: the way to "My caravan"', () => {
@@ -179,9 +259,12 @@ describe('GameMapView: states', () => {
     expect(router.currentRoute.value.fullPath).toBe('/game/runs/9')
   })
 
-  it('goes back to "Today" with the Telegram Back button', async () => {
-    await render()
+  it('goes back to the course it was entered from with the Telegram Back button, and to "Today" without one', async () => {
+    const fromCourse = await render()
+    expect(back.target).toEqual({ name: 'course', params: { slug: 'english-a1' } })
+    fromCourse.wrapper.unmount()
 
+    await render(undefined, { course: null })
     expect(back.target).toEqual({ name: 'today' })
   })
 })
@@ -299,8 +382,8 @@ describe('GameMapView: friends and bosses', () => {
   })
 
   it.each([
-    ['ready', {}, 'Босс ждёт'],
-    ['defeated', {}, 'Босс побеждён'],
+    ['ready', {}, 'Хранитель ворот ждёт'],
+    ['defeated', {}, 'Хранитель побеждён'],
     ['not_ready', { cleared_stops: 1, required_stops: 3 }, 'ещё 2 стоянки'],
     ['not_ready', { cleared_stops: 2, required_stops: 3 }, 'ещё 1 стоянка'],
     ['not_ready', { cleared_stops: 3, required_stops: 3, introduced: 6, required: 8 }, 'ещё 2 слова'],
@@ -342,7 +425,7 @@ describe('GameMapView: the sheet of a stop', () => {
 
     const sheet = testid(wrapper, 'stop-sheet')
     expect(sheet.text()).toContain('Стоянка 1 · Фрукты')
-    expect(testid(wrapper, 'stop-text').text()).toBe('8–10 заданий, 3 фляги')
+    expect(testid(wrapper, 'stop-text').text()).toBe('8–10 заданий. Фляга — это жизнь: 3 ошибки — и забег окончен')
     expect(testid(wrapper, 'stop-best').text()).toContain('Лучший счёт: 120')
   })
 

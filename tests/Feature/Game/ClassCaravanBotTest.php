@@ -331,6 +331,9 @@ it('does not list the caravan commands in the menu in the pilot mode either', fu
 });
 
 it('lists the caravan commands in the private /help (for teachers) only with GAME_ACCESS=all', function (): void {
+    // The teacher block of the private /help is shown to a linked teacher only.
+    User::factory()->create(['telegram_user_id' => 777]);
+
     foreach (['all', 'pilot', 'off'] as $mode) {
         config(['game.access' => $mode]);
         caravanSays('/help', chatId: 555, type: 'private');

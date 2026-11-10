@@ -13,6 +13,14 @@ return [
 
     'already' => 'Siz allaqachon «:organization» markazidasiz.',
 
+    // A membership offered by the center's staff from the cabinet (audit 2026-11-10 M2): the learner decides in the bot.
+    'invite' => [
+        'text' => "«:organization» o'quv markazi Sizni qo'shilishga taklif qilmoqda. Qo'shilsangiz, markazda bo'sh o'rin bo'lsa, markaz bergan Pro'ni olasiz, markaz esa LexiFlow'dagi faolligingizni ko'radi. Qo'shilasizmi?",
+        'accept' => "Qo'shilish",
+        'decline' => 'Rad etish',
+        'declined' => "Mayli, Siz «:organization» markazining taklifini rad etdingiz. Hech narsa o'zgarmadi.",
+    ],
+
     'skipped' => "Mayli. Markaz havolasi orqali istalgan vaqtda qo'shilishingiz mumkin.",
 
     // DM after joining (invite / added by an administrator) and when a waiting place becomes free.
@@ -36,6 +44,7 @@ return [
         'not_a_member' => 'Siz endi bu markazda emassiz.',
         'membership_not_found' => 'Siz endi bu markazda emassiz.',
         'membership_via_group' => "Siz «:organization» markazidasiz — guruh orqali. Markazdan chiqish uchun Telegram'da markaz guruhini tark eting.",
+        'invite_not_pending' => 'Bu taklif endi amal qilmaydi.',
         'generic' => "Bajarilmadi. Keyinroq qayta urinib ko'ring.",
     ],
 

@@ -2,24 +2,29 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
-import type {
-  Card,
-  DoneReason,
-  ExerciseType,
-  Graded,
-  LessonHeader,
-  OpenSessionRequest,
-  Quality,
-  ReviewResponse,
-  SessionSummary,
-  TrainingMode,
-  TrainingStartResponse,
+import {
+  EXERCISE_TYPES,
+  type Card,
+  type ChoiceResult,
+  type DoneReason,
+  type ExerciseType,
+  type Graded,
+  type LessonHeader,
+  type OpenSessionRequest,
+  type Quality,
+  type ReviewResponse,
+  type SessionSummary,
+  type TrainingMode,
+  type TrainingStartResponse,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
 
-/** 422 codes meaning "the server expects the other kind of grade for this card" (docs/04 A.3). */
-const EXERCISE_MISMATCH_CODES = ['answer_not_accepted', 'quality_not_accepted', 'exercise_pro_required']
+/**
+ * Codes meaning "the server expects the other kind of grade for this card" (docs/04 A.3): 422 for an answer of the wrong
+ * kind, 409 `exercise_mismatch` when the exercise the card was shown with is not the one the server serves now (Pro -> Free).
+ */
+const EXERCISE_MISMATCH_CODES = ['answer_not_accepted', 'quality_not_accepted', 'exercise_pro_required', 'exercise_mismatch']
 
 /**
  * A daily review may go past its goal (`done` = grades in the session, `total` = daily goal),
@@ -77,8 +82,17 @@ interface TrainingState {
   lastIntervalDays: number
   status: TrainingStatus
   errorMessage: string
-  /** The server's grade of the last typed answer (spelling / gap_fill), shown before the next card. */
+  /** The server's grade of the last typed answer (spelling / gap_fill) or pretest pick, shown before the next card. */
   verdict: Graded | null
+  /** The exercise of the card the last answer was sent for: the verdict screen of a pretest differs from a typed one. */
+  lastExercise: ExerciseType | null
+  /**
+   * The server's word on the pick of a meaning / reverse / audio card (the card carries nothing that gives the right option away, so
+   * the screen colours the options only when this arrives); null before the answer and for the other exercises.
+   */
+  choiceResult: ChoiceResult | null
+  /** "My hint" is being saved (PUT /words/{id}/note). */
+  savingNote: boolean
   /**
    * The answer of the review that is held back: for a typed answer until the verdict is seen (`continueAfterVerdict()`),
    * for a four-choice card until the right answer is seen (`continueAfterChoice()`). `null` while nothing is held, and in
@@ -113,6 +127,9 @@ export const useTrainingStore = defineStore('training', {
     status: 'idle',
     errorMessage: '',
     verdict: null,
+    lastExercise: null,
+    savingNote: false,
+    choiceResult: null,
     deferred: null,
     advanceWhenAnswered: false,
     generation: 0,
@@ -121,6 +138,12 @@ export const useTrainingStore = defineStore('training', {
   getters: {
     /** The exercise the current card is served with; a card without `prompt` (older server) is a flash card. */
     exercise: (s): ExerciseType => s.card?.prompt?.type ?? 'flash',
+
+    /**
+     * The card on screen carries an exercise this build does not know (a newer server): it cannot be shown as anything —
+     * a flash card would have no answer to reveal (the server hides it) — so the screen asks to update the Mini App.
+     */
+    unsupportedExercise: (s): boolean => s.card?.prompt != null && !EXERCISE_TYPES.includes(s.card.prompt.type),
 
     /**
      * Request to open the same kind of session again after a 410, or null when this run did not
@@ -212,21 +235,23 @@ export const useTrainingStore = defineStore('training', {
     /** A self-graded (flash) card: the card the review answers with is shown at once. */
     async submitReview(quality: Quality): Promise<void> {
       await this.submit(
-        (sessionId, wordId, timeSpent, serveToken) =>
-          api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+        (sessionId, wordId, timeSpent, serveToken, exercise) =>
+          api.training.review(sessionId, wordId, quality, timeSpent, serveToken, exercise),
         false,
       )
     },
 
     /**
-     * A four-choice card (reverse / audio), graded by the client. The grade is final at the pick, so it goes to the
-     * server at once — it is saved even if the learner leaves the screen right away. The card the review answers with
-     * is held back (`continueAfterChoice()`) until the learner has seen the right answer.
+     * A four-choice card (meaning / reverse / audio): the picked option goes to the server as `answer` and the SERVER grades it
+     * (docs/06 §12.2) — the card carries nothing that gives the right option away, so the screen colours the options by
+     * `choiceResult` when the answer arrives. The pick is final, so it is sent at once — it is saved even if the learner
+     * leaves the screen right away. The card the review answers with is held back (`continueAfterChoice()`) until the
+     * learner has seen the right answer.
      */
-    async submitChoice(quality: Quality): Promise<void> {
+    async submitChoice(picked: string): Promise<void> {
       await this.submit(
-        (sessionId, wordId, timeSpent, serveToken) =>
-          api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+        (sessionId, wordId, timeSpent, serveToken, exercise) =>
+          api.training.answer(sessionId, wordId, picked, timeSpent, serveToken, exercise),
         true,
       )
     },
@@ -237,15 +262,21 @@ export const useTrainingStore = defineStore('training', {
      */
     async submitAnswer(answer: string): Promise<void> {
       await this.submit(
-        (sessionId, wordId, timeSpent, serveToken) =>
-          api.training.answer(sessionId, wordId, answer, timeSpent, serveToken),
+        (sessionId, wordId, timeSpent, serveToken, exercise) =>
+          api.training.answer(sessionId, wordId, answer, timeSpent, serveToken, exercise),
         false,
       )
     },
 
     /** @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card) */
     async submit(
-      send: (sessionId: number, wordId: number, timeSpent: number, serveToken: string | null) => Promise<ReviewResponse>,
+      send: (
+        sessionId: number,
+        wordId: number,
+        timeSpent: number,
+        serveToken: string | null,
+        exercise: ExerciseType,
+      ) => Promise<ReviewResponse>,
       hold: boolean,
     ): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
@@ -255,9 +286,13 @@ export const useTrainingStore = defineStore('training', {
       const serveToken = this.card.serve_token ?? null
       const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
       this.advanceWhenAnswered = false
+      // The exercise this card was shown with: the server refuses (409 `exercise_mismatch`) an answer of another kind.
+      const shown = this.exercise
+      this.lastExercise = shown
+      this.choiceResult = null
       this.status = 'submitting'
       try {
-        const res = await send(this.sessionId, wordId, timeSpent, serveToken)
+        const res = await send(this.sessionId, wordId, timeSpent, serveToken, shown)
         // The learner has moved on to another session while the answer was on its way: it is no use to this one.
         if (generation !== this.generation) return
         this.reviewedCount += 1
@@ -265,14 +300,27 @@ export const useTrainingStore = defineStore('training', {
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
-          if (res.graded) {
+          // A four-choice card is graded by the server too, but its screen has shown the answer already: no verdict screen.
+          if (res.graded && !hold) {
             this.verdict = res.graded
             this.deferred = { card: res.card ?? null, doneReason }
             this.status = 'verdict'
             return
           }
           if (hold) {
-            this.holdAnswer({ card: res.card ?? null, doneReason })
+            const deferred = { card: res.card ?? null, doneReason }
+            if (res.graded) {
+              this.choiceResult = {
+                correct: res.graded.correct,
+                right: res.revealed?.correct ?? res.graded.expected,
+                revealed: res.revealed ?? null,
+              }
+              this.holdAnswer(deferred)
+            } else {
+              // No verdict to show (not expected of a server that grades the pick): go on to what the answer brought.
+              this.deferred = deferred
+              this.applyDeferred()
+            }
             return
           }
           this.doneReason = doneReason
@@ -300,6 +348,27 @@ export const useTrainingStore = defineStore('training', {
           return
         }
         this.handleApiError(err)
+      }
+    },
+
+    /**
+     * Saves (or clears, with an empty text) the learner's own memory hook of the card on screen (docs/06 §12.3). The card
+     * keeps the saved text; a failure leaves it as it was and tells the caller.
+     */
+    async saveNote(note: string): Promise<boolean> {
+      const card = this.card
+      if (card === null || this.savingNote) return false
+      const wordId = card.word_id
+      const generation = this.generation
+      this.savingNote = true
+      try {
+        const saved = await api.words.saveNote(wordId, note.trim() === '' ? null : note)
+        if (generation === this.generation && this.card?.word_id === wordId) this.card = { ...this.card, note: saved.note }
+        return true
+      } catch {
+        return false
+      } finally {
+        this.savingNote = false
       }
     },
 
@@ -374,12 +443,15 @@ export const useTrainingStore = defineStore('training', {
       this.lastIntervalDays = 0
       this.errorMessage = ''
       this.verdict = null
+      this.lastExercise = null
+      this.choiceResult = null
       this.deferred = null
       this.advanceWhenAnswered = false
     },
 
     applyCard(card: Card | null): void {
       this.showTranslation = false
+      this.choiceResult = null
       if (card === null) {
         this.card = null
         this.status = 'finished'

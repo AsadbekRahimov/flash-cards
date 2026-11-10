@@ -14,15 +14,21 @@ use Filament\Forms;
 use Filament\Infolists;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\PageRegistration;
+use Filament\Schemas\Components\Html;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\HtmlString;
 
 /**
- * Telegram groups of the organization (docs/13 §6.2–6.3): the owner links a group by its chat id
- * (the bot must already be in it and the owner must be its creator / administrator — checked
- * with `getChatMember`) and unlinks it; a teacher sees only the groups they are assigned to.
+ * Telegram groups of the organization (docs/13 §6.2–6.3): the owner links a group through the bot — «Привязать группу» issues a
+ * one-time `t.me/<bot>?startgroup=grp_<token>` link (or `/link <code>` for a group where the bot already is); the bot links the group
+ * only when the sender is the owner's verified Telegram account AND creator / administrator of the chat (OrgGroupLinkService) — unlinks
+ * it, and picks its course (assignments need one); a teacher sees only the groups they are assigned to.
  */
 class GroupResource extends OrgResource
 {
@@ -80,32 +86,80 @@ class GroupResource extends OrgResource
                 Tables\Columns\TextColumn::make('created_at')->label(__('org.groups.columns.since'))->date('d.m.Y')->sortable(),
             ])
             ->headerActions([
+                // Issues the one-time link when the modal opens (that click IS the request) and keeps it in the mounted action's
+                // data: a re-render must not issue another link and invalidate the one on screen. The group appears in the list
+                // once the bot has linked it from the chat (OrgGroupLinkService::linkFromChat).
                 Actions\Action::make('link')
                     ->label(__('org.groups.actions.link'))
                     ->icon('heroicon-o-link')
                     ->authorize(fn (): bool => static::isOwner())
                     ->modalDescription(__('org.groups.actions.link_help'))
-                    ->schema([
-                        Forms\Components\TextInput::make('chat_id')
-                            ->label(__('org.groups.fields.chat_id'))
-                            ->helperText(__('org.groups.fields.chat_id_help'))
-                            ->required()
-                            ->regex('/^-?\d{1,20}$/'),
-                    ])
-                    ->action(function (array $data): void {
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel(__('filament::components/modal.actions.close.label'))
+                    ->mountUsing(function (Schema $schema, Actions\Action $action): void {
+                        // Read BEFORE issuing: a new link replaces the owner's live token, and with it the reason of the last refusal.
+                        $lastAttempt = self::lastAttemptText();
+
                         try {
-                            $group = app(OrgGroupLinkService::class)->link(static::tenant(), (int) $data['chat_id'], static::user(), static::ip());
+                            $link = app(OrgGroupLinkService::class)->issueLink(static::tenant(), static::user());
+                        } catch (OrgGroupLinkException $e) {
+                            Notification::make()->title(__('org.groups.errors.'.$e->errorCode))->danger()->send();
+                            $action->cancel();
+
+                            return;
+                        }
+
+                        $schema->fill([
+                            'url' => $link->url,
+                            'command' => $link->command(),
+                            'expires' => $link->expiresAt->setTimezone(static::tenant()->timezone)->format('H:i'),
+                            'last_attempt' => $lastAttempt,
+                        ]);
+                    })
+                    ->schema([
+                        Html::make(fn (Get $get): HtmlString => new HtmlString(view('filament.org.partials.open-telegram', [
+                            'url' => (string) $get('url'),
+                            'label' => __('org.groups.fields.link_open'),
+                        ])->render())),
+                        Forms\Components\TextInput::make('url')
+                            ->label(__('org.groups.fields.link_url'))
+                            ->readOnly()
+                            ->copyable(copyMessage: __('org.groups.fields.copied'))
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('command')
+                            ->label(__('org.groups.fields.link_command'))
+                            ->readOnly()
+                            ->copyable(copyMessage: __('org.groups.fields.copied'))
+                            ->dehydrated(false),
+                        Text::make(fn (Get $get): string => __('org.groups.fields.link_expires', ['time' => (string) $get('expires')])),
+                        Text::make(fn (Get $get): string => (string) $get('last_attempt')),
+                    ]),
+            ])
+            ->recordActions([
+                Actions\ViewAction::make(),
+                Actions\Action::make('course')
+                    ->label(__('org.groups.actions.course'))
+                    ->icon('heroicon-o-book-open')
+                    ->modalDescription(__('org.groups.actions.course_help'))
+                    ->authorize(fn (TelegramGroup $record): bool => static::canEdit($record))
+                    ->fillForm(fn (TelegramGroup $record): array => ['course_id' => $record->course_id])
+                    ->schema([
+                        Forms\Components\Select::make('course_id')
+                            ->label(__('org.groups.fields.course'))
+                            ->options(fn (): array => app(OrgGroupLinkService::class)->courseOptions(static::tenant()))
+                            ->required(),
+                    ])
+                    ->action(function (TelegramGroup $record, array $data): void {
+                        try {
+                            $group = app(OrgGroupLinkService::class)->setCourse(static::tenant(), $record, (int) $data['course_id'], static::user(), static::ip());
                         } catch (OrgGroupLinkException $e) {
                             Notification::make()->title(__('org.groups.errors.'.$e->errorCode))->danger()->send();
 
                             return;
                         }
 
-                        Notification::make()->title(__('org.groups.notifications.linked', ['title' => $group->title]))->success()->send();
+                        Notification::make()->title(__('org.groups.notifications.course_saved', ['title' => $group->title]))->success()->send();
                     }),
-            ])
-            ->recordActions([
-                Actions\ViewAction::make(),
                 Actions\Action::make('unlink')
                     ->label(__('org.groups.actions.unlink'))
                     ->icon('heroicon-o-x-mark')
@@ -152,5 +206,22 @@ class GroupResource extends OrgResource
             'index' => Pages\ListGroups::route('/'),
             'view' => Pages\ViewGroup::route('/{record}'),
         ];
+    }
+
+    /**
+     * What the owner's previous link attempt came to — the bot answers neutrally in the chat, the reason lives on the token row
+     * (`GroupLinkResult`). Read before the modal issues a new link (which replaces the live token).
+     */
+    private static function lastAttemptText(): string
+    {
+        $previous = app(OrgGroupLinkService::class)->lastAttempt(static::tenant(), static::user());
+
+        if ($previous === null || $previous->last_result === null) {
+            return '';
+        }
+
+        $key = 'org.groups.link_result.'.$previous->last_result;
+
+        return __('org.groups.link_result.title').': '.(Lang::has($key) ? __($key) : $previous->last_result);
     }
 }

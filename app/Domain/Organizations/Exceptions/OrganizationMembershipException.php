@@ -18,6 +18,9 @@ use RuntimeException;
  *   not_a_member            404  leave / remove of a learner without an active membership
  *   membership_not_found    404  "my centers" API: no such active membership of THIS learner
  *   membership_via_group    409  a `joined_via = group` membership cannot be left by the learner (it returns with the group)
+ *   invite_not_pending      410  "Join" / "Decline" / "revoke" of a staff invitation that is no longer waiting (answered, revoked, expired)
+ *   rate_limited            429  the center's staff sent too many invitations in an hour (`retryAfter` seconds)
+ *   telegram_invalid        422  "Add a learner" with something that is neither `@username` nor a Telegram id (a format check, no lookup)
  */
 final class OrganizationMembershipException extends RuntimeException
 {
@@ -35,11 +38,33 @@ final class OrganizationMembershipException extends RuntimeException
 
     public const MEMBERSHIP_VIA_GROUP = 'membership_via_group';
 
+    public const INVITE_NOT_PENDING = 'invite_not_pending';
+
+    public const RATE_LIMITED = 'rate_limited';
+
+    public const TELEGRAM_INVALID = 'telegram_invalid';
+
     public function __construct(
         public readonly string $errorCode,
         string $message,
+        public readonly int $retryAfter = 0,
     ) {
         parent::__construct($message);
+    }
+
+    public static function inviteNotPending(int $invitationId): self
+    {
+        return new self(self::INVITE_NOT_PENDING, "Membership invitation #{$invitationId} is not waiting for an answer.");
+    }
+
+    public static function telegramInvalid(): self
+    {
+        return new self(self::TELEGRAM_INVALID, 'Expected a Telegram @username or a numeric Telegram id.');
+    }
+
+    public static function rateLimited(int $retryAfter): self
+    {
+        return new self(self::RATE_LIMITED, 'Too many membership offers were sent; try again later.', max(1, $retryAfter));
     }
 
     public static function inviteInvalid(): self
@@ -81,7 +106,9 @@ final class OrganizationMembershipException extends RuntimeException
     {
         return match ($this->errorCode) {
             self::INVITE_INVALID, self::NOT_A_MEMBER, self::MEMBERSHIP_NOT_FOUND => 404,
-            self::INVITE_EXPIRED => 410,
+            self::INVITE_EXPIRED, self::INVITE_NOT_PENDING => 410,
+            self::RATE_LIMITED => 429,
+            self::TELEGRAM_INVALID => 422,
             default => 409,
         };
     }

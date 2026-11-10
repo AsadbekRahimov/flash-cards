@@ -148,7 +148,7 @@ describe('SettingsView', () => {
       const sections = w.findAll('h2.section-label').map((h) => h.text())
       expect(sections).toEqual(['Обучение', 'Упражнения', 'Напоминания', 'Язык и регион', 'Лиги', 'Мои центры', 'Опасная зона'])
       const text = w.text()
-      expect(text).toContain('карточек в день')
+      expect(text).toContain('слов в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
       expect(text).toContain('Время — по вашему часовому поясу.')
       expect(text).toContain('Выход из лиг действует со следующей недели')
@@ -197,7 +197,7 @@ describe('SettingsView', () => {
       expect(goal.classes()).toContain('field')
       expect((goal.element as HTMLSelectElement).value).toBe('30')
       expect(goal.findAll('option').map((o) => o.text())).toEqual(['10', '20', '30', '40', '50'])
-      expect(w.text()).toContain('карточек в день')
+      expect(w.text()).toContain('слов в день')
     })
 
     it('keeps four daily goals as segments', async () => {
@@ -369,7 +369,7 @@ describe('SettingsView', () => {
       expect(selectedSegment(w, 'locale-select')).toBe("🇺🇿 O'zbekcha")
       expect(labels(w, 'timezone-select')).toEqual(['Toshkent (UTC+5)', 'Moskva (UTC+3)'])
       expect(labels(w, 'reminder-select').at(-1)).toBe("O'chirilgan")
-      expect(w.text()).toContain('kuniga nechta kartochka')
+      expect(w.text()).toContain("kuniga nechta so'z")
       expect(toastText()).toBe('Saqlandi')
       // The learner kept in the auth store follows, so the next screens do not fall back to the old language.
       expect(useAuthStore().learner?.locale).toBe('uz')
@@ -799,7 +799,7 @@ describe('SettingsView', () => {
       await tap(w, 'locale-uz')
 
       expect(w.get('[data-testid=orgs-card]').text()).toContain('Mening markazlarim')
-      expect(w.get('[data-testid=org-state]').text()).toBe("Pro'ni markazingiz ulagan")
+      expect(w.get('[data-testid=org-state]').text()).toBe("Markaz bergan Pro")
     })
 
     it('does not hide the settings when the list cannot be loaded', async () => {
@@ -821,7 +821,7 @@ describe('SettingsView', () => {
 
       expect(w.get('h1').text()).toBe('Sozlamalar')
       expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar', 'Xavfli hudud'])
-      expect(w.text()).toContain('kuniga nechta kartochka')
+      expect(w.text()).toContain("kuniga nechta so'z")
       expect(w.text()).toContain('Asosiy kurs')
       expect(w.get('[data-testid=course-title]').text()).toBe('Tanlanmagan')
       expect(w.text()).toContain('Eslatma vaqti')

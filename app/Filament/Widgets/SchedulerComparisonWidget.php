@@ -8,6 +8,7 @@ use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerMetricsService;
+use App\Domain\Learning\Services\SelfGradeHonestyService;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
@@ -26,6 +27,11 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     public const WIDGET = 'scheduler_comparison';
 
     public const FRESH_SECONDS = 300;
+
+    /** The honesty of self-grading (docs/06 §12.2) is its own entry: `admin:widget:self_grade_honesty:v1:all`, ten minutes. */
+    public const HONESTY_WIDGET = 'self_grade_honesty';
+
+    public const HONESTY_FRESH_SECONDS = 600;
 
     public static function canView(): bool
     {
@@ -56,6 +62,15 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
         $sm2 = $metrics[SchedulerKind::Sm2->value];
         $fsrs = $metrics[SchedulerKind::Fsrs->value];
 
+        /** @var array{mismatches: int, wrong_objective: int} $honesty */
+        $honesty = app(WidgetCache::class)->remember(
+            self::HONESTY_WIDGET,
+            'all',
+            self::HONESTY_FRESH_SECONDS,
+            fn (): array => app(SelfGradeHonestyService::class)->window(),
+        );
+        $mismatchShare = $honesty['wrong_objective'] === 0 ? null : $honesty['mismatches'] / $honesty['wrong_objective'];
+
         return [
             Stat::make(__('admin.widgets.scheduler_comparison.pass_rate'), self::pair(self::percent($sm2->passRate()), self::percent($fsrs->passRate())))
                 ->description(__('admin.widgets.scheduler_comparison.pass_rate_help', ['pair' => self::pair("{$sm2->duePasses} / {$sm2->dueReviews}", "{$fsrs->duePasses} / {$fsrs->dueReviews}")]))
@@ -68,6 +83,10 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
             Stat::make(__('admin.widgets.scheduler_comparison.retention'), self::pair(self::percent($sm2->retentionD7()), self::percent($fsrs->retentionD7())))
                 ->description(__('admin.widgets.scheduler_comparison.retention_help', ['pair' => self::pair("{$sm2->retainedD7} / {$sm2->cohortLearners}", "{$fsrs->retainedD7} / {$fsrs->cohortLearners}")]))
                 ->icon('heroicon-o-user-group')
+                ->color('primary'),
+            Stat::make(__('admin.widgets.scheduler_comparison.self_grade'), self::percent($mismatchShare))
+                ->description(__('admin.widgets.scheduler_comparison.self_grade_help', ['mismatches' => $honesty['mismatches'], 'wrong' => $honesty['wrong_objective']]))
+                ->icon('heroicon-o-hand-raised')
                 ->color('primary'),
         ];
     }

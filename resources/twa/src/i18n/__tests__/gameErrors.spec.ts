@@ -39,6 +39,6 @@ describe('error codes of the game', () => {
     expect(errorMessage(new ApiClientError('gone', 410, 'x', 'm'), 'game')).toBe('Этот забег уже закрыт.')
     expect(errorMessage(new ApiClientError('forbidden', 403, 'forbidden', 'm'), 'game')).toBe('У вас нет доступа к каравану.')
     setLocale('uz')
-    expect(errorMessage(new ApiClientError('gone', 410, 'x', 'm'), 'game')).toBe('Bu safar allaqachon tugagan.')
+    expect(errorMessage(new ApiClientError('gone', 410, 'x', 'm'), 'game')).toBe('Bu karvon safari allaqachon tugagan.')
   })
 })

@@ -74,7 +74,8 @@ function dueRow(Learner $learner, Word $word, bool $hard = false, int $daysAgo =
         'learner_id' => $learner->id,
         'word_id' => $word->id,
         'state' => RepetitionState::Review->value,
-        'repetitions' => 2,
+        // One pass: a flash card on the ladder (docs/06 §12.1), graded with `quality` below.
+        'repetitions' => 1,
         'interval_days' => 6,
         'is_hard' => $hard,
         'next_review_at' => now()->subDays($daysAgo),

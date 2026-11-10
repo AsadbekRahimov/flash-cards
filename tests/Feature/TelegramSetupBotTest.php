@@ -202,7 +202,7 @@ it('hands Telegram valid lists: command names, description lengths, no duplicate
 });
 
 it('words the teacher commands the same in the menu and in the /help of the group, and /close_exam in both /help texts', function (string $locale): void {
-    $help = ['private' => __('bot.help.private', [], $locale), 'group' => __('bot.help.group', [], $locale)];
+    $help = ['private' => __('bot.help.private_teacher', [], $locale), 'group' => __('bot.help.group', [], $locale)];
 
     // «Завершить экзамен» in the menu, «закрыть экзамен» in the group /help made one command look like two.
     foreach (['start_training', 'start_exam', 'close_exam'] as $command) {
@@ -215,7 +215,7 @@ it('words the teacher commands the same in the menu and in the /help of the grou
 it('ends an exam with one verb in /close_exam: the menu, both /help texts and every message of the command', function (string $locale, string $stem, string $old): void {
     $texts = [
         'menu' => __('commands.group.close_exam', [], $locale),
-        'help (private chat)' => __('bot.help.private', [], $locale),
+        'help (private chat)' => __('bot.help.private_teacher', [], $locale),
         'help (group)' => __('bot.help.group', [], $locale),
         'already open' => __('errors.exam.already_open', [], $locale),
         'not a teacher' => __('errors.exam.close_not_teacher', [], $locale),
@@ -237,7 +237,7 @@ it("distinguishes the group training from today's session in Uzbek", function ()
     $help = __('bot.help.private', [], 'uz');
 
     expect($help)->toContain("Bugungi mashg'ulot uchun")
-        ->and($help)->toContain("/start_training — guruh mashg'ulotini boshlash")
+        ->and(__('bot.help.private_teacher', [], 'uz'))->toContain("/start_training — guruh mashg'uloti")
         ->and(__('bot.help.group', [], 'uz'))->toContain("/start_training — guruh mashg'ulotini boshlash")
         ->and(__('commands.group.start_training', [], 'uz'))->toBe("Guruh mashg'ulotini boshlash");
 
@@ -248,7 +248,8 @@ it("distinguishes the group training from today's session in Uzbek", function ()
 });
 
 it('keeps the menu and /help in step: every menu command is described in the /help of the same chat type', function (string $locale): void {
-    $help = ['private' => __('bot.help.private', [], $locale), 'group' => __('bot.help.group', [], $locale)];
+    // The private /help is two texts: the learner's and the linked teacher's.
+    $help = ['private' => __('bot.help.private', [], $locale)."\n".__('bot.help.private_teacher', [], $locale), 'group' => __('bot.help.group', [], $locale)];
 
     foreach (BotMenuBuilder::SCOPES as [$group, $commands]) {
         foreach ($commands as $command) {

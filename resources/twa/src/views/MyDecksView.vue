@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ActivateDeckSheet from '@/components/ActivateDeckSheet.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -56,6 +57,16 @@ async function create(): Promise<void> {
     title.value = ''
     void router.push({ name: 'deck', params: { slug: deck.slug } })
   }
+}
+
+/** The deck whose "Learn instead of the course" waits for the confirmation (it replaces the main course); null = none. */
+const activating = ref<string | null>(null)
+
+async function confirmActivate(): Promise<void> {
+  const slug = activating.value
+  if (slug === null) return
+  await store.activate(slug)
+  activating.value = null
 }
 
 onMounted(() => {
@@ -141,7 +152,7 @@ onMounted(() => {
               class="btn btn-tinted btn-block"
               :disabled="busy || deck.words_count === 0"
               data-testid="choose-btn"
-              @click="store.activate(deck.slug)"
+              @click="activating = deck.slug"
             >
               {{ t('decks.choose') }}
             </button>
@@ -153,6 +164,8 @@ onMounted(() => {
         </div>
       </article>
     </div>
+
+    <ActivateDeckSheet v-if="activating !== null" :busy="busy" @confirm="confirmActivate" @close="activating = null" />
 
     <PaywallSheet v-if="paywall" reason="decks" :deck-limits="limits" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>

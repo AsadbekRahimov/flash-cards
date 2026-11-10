@@ -37,6 +37,8 @@
             </div>
         </dl>
 
+        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ __('org.billing.seat_explainer') }}</p>
+
         @if ($page->overBy > 0)
             <p class="mt-4 text-sm text-danger-600 dark:text-danger-400" data-over-limit="{{ $page->overBy }}">
                 {{ __('org.billing.over_limit', ['seated' => $page->seats->seated, 'limit' => $page->seats->limit, 'over' => $page->overBy]) }}
@@ -49,7 +51,7 @@
     </x-filament::section>
 
     {{-- Tariff, period, ways to pay --}}
-    <x-filament::section :heading="__('org.billing.choose.heading')" :description="__('org.billing.choose.description')">
+    <x-filament::section :heading="__('org.billing.choose.heading')" :description="$page->canRequestInvoice ? __('org.billing.choose.description') : __('org.billing.choose.description_no_invoice')">
         <div class="grid gap-4 sm:grid-cols-2">
             <label class="block text-sm">
                 <span class="mb-1 block font-medium text-gray-950 dark:text-white">{{ __('org.billing.choose.tier') }}</span>

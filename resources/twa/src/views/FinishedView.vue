@@ -35,6 +35,9 @@ const summary = computed(() => training.summary)
 const goal = computed(() => summary.value?.goal ?? null)
 const streak = computed(() => summary.value?.streak ?? null)
 
+/** Nothing was reviewed: no praise, no "next review" (nothing was scheduled) and no paywall that pops up by itself. */
+const isEmpty = computed(() => (summary.value?.reviewed ?? props.reviewed) === 0)
+
 const nextLabel = computed(() =>
   props.nextInDays <= 0 ? t('finished.next_today') : tn('finished.next_in_days', props.nextInDays),
 )
@@ -76,7 +79,7 @@ const practiceLabel = computed(() => (practiceEntry.value?.lesson_id === null ? 
 
 // The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
 const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
-const paywallOpen = ref(quotaExhausted.value)
+const paywallOpen = ref(quotaExhausted.value && !isEmpty.value)
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
 const { reviewFromPaywall } = useReviewFromPaywall(() => {
@@ -101,7 +104,7 @@ onBeforeUnmount(() => {
         >
           <AppIcon name="check-circle" solid :size="48" />
         </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ t('finished.title') }}</h1>
+        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ isEmpty ? t('finished.title_empty') : t('finished.title') }}</h1>
         <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
       </header>
 
@@ -166,7 +169,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section class="card flex items-center gap-3">
+      <section v-if="!isEmpty" class="card flex items-center gap-3" data-testid="next">
         <span class="icon-tile tile-blue"><AppIcon name="clock" :size="18" /></span>
         <div>
           <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('finished.next_label') }}</p>
@@ -190,7 +193,7 @@ onBeforeUnmount(() => {
         {{ t('paywall.open') }}
       </button>
       <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="close()">
-        {{ t('common.close') }}
+        {{ t('common.exit_app') }}
       </button>
     </div>
 

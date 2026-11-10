@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Telegram\Handlers\AccountLinkCallbackHandler;
 use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
@@ -12,6 +13,7 @@ use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
 use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
+use App\Domain\Telegram\Handlers\GroupLinkCommandHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\InviteCommandHandler;
 use App\Domain\Telegram\Handlers\LearnerDmHandler;
@@ -28,12 +30,14 @@ use App\Domain\Telegram\Handlers\RefundedPaymentHandler;
 use App\Domain\Telegram\Handlers\SettingsCommandHandler;
 use App\Domain\Telegram\Handlers\StartCaravanHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
+use App\Domain\Telegram\Handlers\StartExamCallbackHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
 use App\Domain\Telegram\Handlers\SuccessfulPaymentHandler;
 use App\Domain\Telegram\Handlers\TodayCommandHandler;
+use App\Domain\Telegram\Handlers\UnlinkCommandHandler;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
@@ -50,12 +54,14 @@ final class TelegramDispatcher
     public function __construct(
         private readonly CallbackAcknowledger $acknowledger,
         private readonly DmLearnerResolver $dmLearners,
+        private readonly PendingGroupNotice $pendingNotice,
         SuccessfulPaymentHandler $successfulPayment,
         RefundedPaymentHandler $refundedPayment,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
         StartExamHandler $startExam,
+        StartExamCallbackHandler $startExamCallback,
         CloseExamHandler $closeExam,
         StartCaravanHandler $startCaravan,
         CancelCaravanHandler $cancelCaravan,
@@ -65,12 +71,14 @@ final class TelegramDispatcher
         InviteCommandHandler $invite,
         PaySupportCommandHandler $paySupport,
         OrgCommandHandler $org,
+        GroupLinkCommandHandler $groupLink,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
         ChatMemberHandler $chatMember,
         TodayCommandHandler $today,
         SettingsCommandHandler $settings,
+        UnlinkCommandHandler $unlink,
         DeleteAccountCommandHandler $deleteAccount,
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
@@ -78,6 +86,7 @@ final class TelegramDispatcher
         OrganizationCallbackHandler $organizationCallback,
         FriendsCallbackHandler $friendsCallback,
         DeleteAccountCallbackHandler $deleteAccountCallback,
+        AccountLinkCallbackHandler $accountLinkCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -99,9 +108,12 @@ final class TelegramDispatcher
             $invite,
             $paySupport,
             $org,
+            // `/start grp_…` / `/link …` in a group: before the private-chat `/start` (which does not match groups anyway).
+            $groupLink,
             $start,
             $today,
             $settings,
+            $unlink,
             $deleteAccount,
             $help,
             // Catch-all for the rest of a learner's DM: must stay last.
@@ -110,11 +122,13 @@ final class TelegramDispatcher
 
         $this->callbackHandlers = [
             $startTrainingCallback,
+            $startExamCallback,
             $onboardingCallback,
             $proCallback,
             $organizationCallback,
             $friendsCallback,
             $deleteAccountCallback,
+            $accountLinkCallback,
         ];
     }
 
@@ -152,6 +166,7 @@ final class TelegramDispatcher
             if ($handler->requiresActiveGroup() && $this->isFromGroupChat($update)) {
                 $group = $this->activeGroup($update);
                 if ($group === null) {
+                    $this->answerInactiveGroup($handler, $update);
                     // Acknowledge inline buttons even when the group stays silent.
                     $this->acknowledgeCallback($update);
 
@@ -166,6 +181,31 @@ final class TelegramDispatcher
             }
 
             return;
+        }
+    }
+
+    /**
+     * A teacher command in a group that waits for activation is answered (once an hour, see PendingGroupNotice) instead of
+     * being dropped without a word; everything else stays silent.
+     *
+     * @param  array<string, mixed>  $update
+     */
+    private function answerInactiveGroup(UpdateHandler $handler, array $update): void
+    {
+        $isHelp = $handler instanceof HelpCommandHandler;
+        $isTeacherCommand = $isHelp
+            || $handler instanceof StartTrainingHandler
+            || $handler instanceof StartExamHandler
+            || $handler instanceof CloseExamHandler;
+        $chatId = $this->chatId($update);
+
+        if (! $isTeacherCommand || $chatId === null || isset($update['callback_query'])) {
+            return;
+        }
+
+        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        if ($this->pendingNotice->appliesTo($group)) {
+            $this->pendingNotice->notify($chatId, $group, $isHelp);
         }
     }
 

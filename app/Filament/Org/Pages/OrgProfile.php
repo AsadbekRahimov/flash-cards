@@ -4,14 +4,27 @@ declare(strict_types=1);
 
 namespace App\Filament\Org\Pages;
 
+use App\Domain\Telegram\Exceptions\TelegramLinkException;
+use App\Domain\Telegram\Services\TelegramAccountLinkService;
+use App\Models\User;
+use Carbon\CarbonImmutable;
+use Filament\Actions\Action;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Forms;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Html;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 /**
- * Own profile of a staff user (`/org/profile`): name, email, password and the Telegram account
- * (`users.telegram_user_id`), which the bot's teacher commands and the owner's group linking need
- * (docs/13 §1.3, §6.2). Self-service on purpose: an owner never edits another account's identity —
+ * Own profile of a staff user (`/org/profile`): name, email, password and the Telegram account. Since the audit of 2026-11-10
+ * (H1) the Telegram id is never typed: "Connect Telegram" issues a one-time `t.me/<bot>?start=link_<token>` link and the bot writes
+ * `message.from.id` of whoever opens it ({@see TelegramAccountLinkService}); the page shows which account is connected and whether it
+ * was verified that way, and lets the person disconnect it. Self-service on purpose: an owner never edits another account's identity —
  * a user row may be staff of several centers.
  */
 class OrgProfile extends EditProfile
@@ -21,18 +34,129 @@ class OrgProfile extends EditProfile
         return $schema->components([
             $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
-            Forms\Components\TextInput::make('telegram_user_id')
-                ->label(__('org.profile.fields.telegram_user_id'))
-                ->helperText(__('org.profile.fields.telegram_user_id_help'))
-                ->numeric()
-                ->integer()
-                ->minValue(1)
-                ->maxValue(PHP_INT_MAX)
-                ->unique(ignoreRecord: true)
-                ->nullable(),
+            Section::make(__('org.profile.telegram.title'))
+                ->schema([
+                    Html::make(fn (): HtmlString => $this->telegramStatusBlock()),
+                    Actions::make([
+                        $this->connectTelegramAction(),
+                        $this->disconnectTelegramAction(),
+                    ])->key('telegramActions'),
+                ]),
             $this->getPasswordFormComponent(),
             $this->getPasswordConfirmationFormComponent(),
             $this->getCurrentPasswordFormComponent(),
         ]);
+    }
+
+    /**
+     * The status block. It polls every 10 s (`wire:poll.10s` on this block only) while — and only while — the account is not
+     * verified AND the person holds a live, unspent link: the bot writes the confirmation while the page is open, and the
+     * re-render below re-reads the row (one lookup by primary key, one by the newest token). Once verified, or once the link
+     * expired or was spent, the block carries no `wire:poll` and polling stops.
+     */
+    private function telegramStatusBlock(): HtmlString
+    {
+        $user = $this->staff();
+        $user->refresh();
+        $verified = $user->hasVerifiedTelegram();
+
+        return new HtmlString(view('filament.org.partials.telegram-status', [
+            'poll' => ! $verified && app(TelegramAccountLinkService::class)->latestToken($user)?->isLiveAt(CarbonImmutable::now()) === true,
+            'text' => $this->telegramStatus($user),
+        ])->render());
+    }
+
+    /** The state of the connection, from the freshly read row. */
+    private function telegramStatus(User $user): string
+    {
+        if ($user->telegram_user_id === null) {
+            // W1: the hand-typed id was confirmed through the bot by somebody else — say so, instead of a plain "not connected".
+            return $user->telegram_superseded_at !== null ? __('org.profile.telegram.superseded') : __('org.profile.telegram.none');
+        }
+
+        if (! $user->hasVerifiedTelegram()) {
+            return __('org.profile.telegram.unverified', ['id' => $user->telegram_user_id]);
+        }
+
+        $account = $user->telegram_username !== null ? '@'.$user->telegram_username : ($user->telegram_name ?? '#'.$user->telegram_user_id);
+
+        return __('org.profile.telegram.connected', ['account' => $account]).' '.__('org.profile.telegram.connected_help');
+    }
+
+    /**
+     * Issues the link when the modal opens (that click IS the request) and keeps it in the mounted action's data, so a re-render
+     * of the page does not issue another one and invalidate the shown link. Refusals (rate limit) close the modal with a notice.
+     */
+    private function connectTelegramAction(): Action
+    {
+        return Action::make('connectTelegram')
+            ->label(fn (): string => $this->staff()->telegram_user_id !== null && ! $this->staff()->hasVerifiedTelegram()
+                ? __('org.profile.telegram.confirm')
+                : __('org.profile.telegram.connect'))
+            ->icon('heroicon-o-paper-airplane')
+            ->color('primary')
+            ->modalHeading(fn (): string => __('org.profile.telegram.connect'))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('filament::components/modal.actions.close.label'))
+            ->mountUsing(function (Schema $schema, Action $action): void {
+                try {
+                    $link = app(TelegramAccountLinkService::class)->issueLink($this->staff());
+                } catch (TelegramLinkException $e) {
+                    Notification::make()->title(__('org.profile.telegram.errors.'.$e->errorCode))->danger()->send();
+                    $action->cancel();
+
+                    return;
+                }
+
+                $schema->fill([
+                    'url' => $link->url,
+                    'expires' => $link->expiresAt->setTimezone(config('app.timezone'))->format('H:i'),
+                ]);
+            })
+            ->schema([
+                Text::make(fn (Get $get): string => __('org.profile.telegram.link_help', ['time' => (string) $get('expires')])),
+                Html::make(fn (Get $get): HtmlString => new HtmlString(view('filament.org.partials.open-telegram', [
+                    'url' => (string) $get('url'),
+                    'label' => __('org.profile.telegram.link_open'),
+                ])->render())),
+                Forms\Components\TextInput::make('url')
+                    ->label(__('org.profile.telegram.link_url'))
+                    ->readOnly()
+                    ->copyable(copyMessage: __('org.profile.telegram.copied'))
+                    ->dehydrated(false),
+            ]);
+    }
+
+    private function disconnectTelegramAction(): Action
+    {
+        return Action::make('disconnectTelegram')
+            ->label(__('org.profile.telegram.disconnect'))
+            ->icon('heroicon-o-x-mark')
+            ->color('danger')
+            ->visible(fn (): bool => $this->staff()->telegram_user_id !== null)
+            ->requiresConfirmation()
+            ->modalDescription(__('org.profile.telegram.disconnect_confirm'))
+            ->action(function (): void {
+                try {
+                    app(TelegramAccountLinkService::class)->unlink($this->staff(), request()->ip());
+                } catch (TelegramLinkException $e) {
+                    Notification::make()->title(__('org.profile.telegram.errors.'.$e->errorCode))->danger()->send();
+
+                    return;
+                }
+
+                Notification::make()->title(__('org.profile.telegram.disconnected'))->success()->send();
+            });
+    }
+
+    private function staff(): User
+    {
+        $user = $this->getUser();
+
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        return $user;
     }
 }

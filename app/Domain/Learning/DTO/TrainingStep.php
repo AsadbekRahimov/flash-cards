@@ -27,6 +27,12 @@ final readonly class TrainingStep
      *                                       (Free quota, docs/12 §5.3); null = unlimited
      * @param  ExercisePrompt|null  $prompt  the exercise the card is served with (docs/13 §2.5); null exactly when $word is null
      * @param  string|null  $audioUrl  pre-generated mp3 of the word (task 1.2c); null → the client falls back to /tts
+     * @param  string|null  $example  the example this serve shows (docs/06 §12.4: the anchor, or a rotated one after graduation)
+     * @param  bool  $isLeech  a "hard word" — `lapses >= learning.leech.threshold` (docs/06 §12.6)
+     * @param  bool  $isHard  `word_repetitions.is_hard`: failed and not yet passed a day-based review (docs/06 §3.5)
+     * @param  string|null  $hook  the authored memory hook in the card's language, when this serve shows one (docs/06 §12.3)
+     * @param  string|null  $note  the learner's own hook for the word
+     * @param  array{word: string, translation: string|null}|null  $confusedWith  the word a leech is mixed up with
      */
     public function __construct(
         public ?Word $word,
@@ -38,6 +44,12 @@ final readonly class TrainingStep
         public ?int $newWordsRemaining = null,
         public ?ExercisePrompt $prompt = null,
         public ?string $audioUrl = null,
+        public ?string $example = null,
+        public bool $isLeech = false,
+        public bool $isHard = false,
+        public ?string $hook = null,
+        public ?string $note = null,
+        public ?array $confusedWith = null,
     ) {}
 
     /**

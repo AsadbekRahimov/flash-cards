@@ -210,9 +210,9 @@ describe('errorMessage', () => {
   })
 
   it('uses context-specific texts for gone / forbidden', () => {
-    expect(errorMessage(err('gone', 410, 'session_closed'), 'training')).toBe('Эта тренировка уже закрыта: она завершена или время сессии истекло.')
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'training')).toBe('Это занятие уже закрыто: оно завершено или время вышло.')
     expect(errorMessage(err('gone', 410, 'session_closed'), 'exam')).toBe('Экзамен был завершён учителем.')
-    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'training')).toBe('У вас нет доступа к этой тренировке.')
+    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'training')).toBe('У вас нет доступа к этому занятию.')
     expect(errorMessage(err('forbidden', 403, 'forbidden'), 'exam')).toBe('У вас нет доступа к этому экзамену.')
     setLocale('uz')
     expect(errorMessage(err('forbidden', 403, 'forbidden'), 'exam')).toBe("Sizda bu imtihonga kirish huquqi yo'q.")
@@ -220,13 +220,13 @@ describe('errorMessage', () => {
 
   it('calls the home screen by the name of its tab, in the closed / forbidden texts and on the way back to it', () => {
     expect(t('nav.today')).toBe('Главная')
-    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe('Экран «Главная» больше недоступен.')
-    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe('У вас нет доступа к экрану «Главная».')
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe('Не удалось открыть главный экран. Закройте приложение и откройте снова.')
+    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe('Не удалось открыть главный экран. Закройте приложение и откройте снова.')
 
     setLocale('uz')
     expect(t('nav.today')).toBe('Asosiy')
-    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe('Asosiy ekran endi mavjud emas.')
-    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe("Sizda asosiy ekranga kirish huquqi yo'q.")
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe("Asosiy ekranni ochib bo'lmadi. Ilovani yoping va qayta oching.")
+    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe("Asosiy ekranni ochib bo'lmadi. Ilovani yoping va qayta oching.")
     // The button back to it carries the word of the tab, not another name for the same screen.
     expect(t('finished.home')).toBe('Asosiy sahifaga')
     for (const text of [t('error.closed.today'), t('error.forbidden.today'), t('finished.home')]) {

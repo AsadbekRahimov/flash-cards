@@ -6,6 +6,7 @@ use App\Domain\Operations\Services\SchedulerHeartbeat;
 use App\Jobs\QueueHeartbeatJob;
 use App\Models\NotificationLog;
 use App\Models\ProductEvent;
+use App\Models\TelegramLinkToken;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -139,8 +140,9 @@ Schedule::command('reminders:dispatch')
     ->withoutOverlapping(10)
     ->runInBackground();
 
-// Retention of product_events and notifications_log (operations.*.retention_days).
-Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class]])->daily()->at('03:00');
+// Retention of product_events and notifications_log (operations.*.retention_days), and of the used / expired one-time
+// Telegram link tokens (30 days, TelegramLinkToken::RETENTION_DAYS).
+Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class, TelegramLinkToken::class]])->daily()->at('03:00');
 
 // Final deletion of learners soft-deleted more than `learners.purge.after_days` (30) days ago (docs/03 §8 rule 2,
 // docs/07 §10): personal and learning data go by FK cascade, payment records stay with the payer snapshot.

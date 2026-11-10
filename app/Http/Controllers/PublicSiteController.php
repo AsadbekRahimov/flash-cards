@@ -32,6 +32,7 @@ final class PublicSiteController extends Controller
     {
         return $this->page($request, 'home', 'site.landing', $locale, fn (string $resolved): array => [
             'pricing' => $this->pricing->forLocale($resolved),
+            'orgTiers' => $this->pricing->orgTiers($resolved),
         ]);
     }
 

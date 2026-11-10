@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\WordExamples;
+use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\DTO\AcceptedReview;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
@@ -13,6 +17,7 @@ use App\Domain\Learning\DTO\SpellingVerdict;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\RepetitionWithWord;
 use App\Domain\Learning\Support\TrainingScope;
@@ -44,15 +49,25 @@ use Illuminate\Support\Facades\DB;
  * even after the engine re-served the same card with a new ticket in the
  * same response — is rejected with 409 `card_not_due`.
  *
- * Exercises (docs/13 §2.5, §8.2; docs/06 §4.3): the exercise the card was served with is
- * recomputed here from the same inputs ExerciseSelector used for `/next` (the locked, not yet
- * graded repetition row, the word, the plan, the learner's settings, the session mode) — nothing
- * is remembered between the two requests. A client-graded exercise (flash / reverse / audio)
- * takes `quality` and refuses `answer` (422 `answer_not_accepted`; 422 `exercise_pro_required`
- * — a paywall reason — when the plan has no server-graded exercise at all); a server-graded one
- * (spelling / gap-fill) takes `answer`, grades it with SpellingGrader and refuses `quality`
- * (422 `quality_not_accepted`). The plan and the settings are read BEFORE the transaction: the
- * review transaction holds `training_sessions → word_repetitions → learner_daily_stats` only.
+ * Exercises (docs/13 §2.5, §8.2; docs/06 §4.3, §12): the exercise the card was served with is recomputed here from the
+ * same inputs ExerciseSelector used for `/next` (the locked, not yet graded repetition row, the word, the plan, the
+ * learner's settings, the session mode, the example of this serve) — nothing is remembered between the two requests.
+ * Who grades what (docs/06 §12.2):
+ *   - flash: the learner's own `quality`; `answer` is refused (422 `answer_not_accepted`, or 422 `exercise_pro_required`
+ *     — a paywall reason — when the plan has no typed exercise at all);
+ *   - meaning / reverse / audio / pretest: the picked option as `answer`, graded by the server against the right option
+ *     (4 / 2; the pretest 5 / 2). For reverse / audio a legacy `quality` is accepted while
+ *     `learning.objective_grading.accept_legacy_quality` is on, normalised to 4 (pass) / 2 (fail) — never the learner's 5;
+ *     off → 422 `quality_not_accepted`. Meaning (added after that transition) and the pretest never take a `quality`;
+ *   - spelling / gap-fill: `answer`, graded with SpellingGrader against the word or the form in the example of this
+ *     serve; `quality` is refused (422 `quality_not_accepted`).
+ * The plan and the settings are read BEFORE the transaction: the review transaction holds
+ * `training_sessions → word_repetitions → learner_daily_stats` only.
+ *
+ * The ladder (docs/06 §12.1): a lapse of a `review` card writes `meta.ladder_floor` = the rung below the one it failed at,
+ * a pass at the top clears it; `meta.last_exercise` remembers the exercise of this grade. Both ride in the scheduler's
+ * UPDATE — no extra statement. The self-grade mismatch metric (docs/25 "metrics"): a wrong objectively graded answer that
+ * follows a flash self-grade of 4 or 5 on the same word records `review.self_grade_mismatch` AFTER the commit.
  *
  * Statements of the transaction (R12g): the session row `FOR UPDATE` (status and expiry only - the mode and the
  * lesson of a session never change, the model in hand has them), the repetition WITH its word in one joined read
@@ -64,9 +79,14 @@ final class ReviewSubmissionService
 {
     public const ANSWER_MAX_LENGTH = 100;
 
+    public const CHOICE_PASS_QUALITY = 4;
+
+    public const CHOICE_FAIL_QUALITY = 2;
+
     public function __construct(
         private readonly SchedulerResolver $schedulers,
         private readonly LearningPolicy $policy,
+        private readonly LadderPolicy $ladder,
         private readonly DailyStatsService $dailyStats,
         private readonly EntitlementResolver $entitlements,
         private readonly ExerciseSelector $selector,
@@ -74,14 +94,18 @@ final class ReviewSubmissionService
         private readonly GapFillBuilder $gapFill,
         private readonly ExercisePromptBuilder $prompts,
         private readonly LocaleResolver $locales,
+        private readonly WordTranslationResolver $translations,
+        private readonly WordExamples $examples,
+        private readonly ProductEventRecorder $events,
     ) {}
 
     /**
-     * A self-graded (flash) or client-graded (reverse / audio) card.
+     * A self-graded (flash) card — or a legacy client's grade of a four-option card (docs/06 §12.2).
      *
      * @param  string|null  $serveToken  `card.serve_token` echoed by the client; ignored for due cards
      * @param  Entitlement|null  $entitlement  the learner's plan when the caller read it already (TrainingFlowService
      *                                         reads it once per request for the grade and the next card)
+     * @param  ExerciseType|null  $declared  the exercise the client showed; another one than the server's → 409 `exercise_mismatch`
      *
      * @throws ReviewSubmissionException
      */
@@ -94,12 +118,13 @@ final class ReviewSubmissionService
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
         ?Entitlement $entitlement = null,
+        ?ExerciseType $declared = null,
     ): WordRepetition {
-        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement)->repetition;
+        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement, $declared)->repetition;
     }
 
     /**
-     * A typed answer to a server-graded card (spelling / gap-fill): the server sets the quality.
+     * An answer the server grades: the typed text of spelling / gap-fill, or the picked option of meaning / reverse / audio / pretest.
      *
      * @throws ReviewSubmissionException
      */
@@ -112,8 +137,9 @@ final class ReviewSubmissionService
         ?string $serveToken = null,
         ?CarbonImmutable $now = null,
         ?Entitlement $entitlement = null,
+        ?ExerciseType $declared = null,
     ): AcceptedReview {
-        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now, $entitlement);
+        return $this->accept($session, $learner, $wordId, null, $answer, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
     }
 
     /**
@@ -131,6 +157,7 @@ final class ReviewSubmissionService
         ?string $serveToken,
         ?CarbonImmutable $now,
         ?Entitlement $entitlement,
+        ?ExerciseType $declared = null,
     ): AcceptedReview {
         $now ??= CarbonImmutable::now();
         $entitlement ??= $this->entitlements->for($learner, $now);
@@ -138,6 +165,7 @@ final class ReviewSubmissionService
         // The learner's arm of the SRS A/B (docs/13 §8.3) — decided from the row already in hand, outside the transaction.
         $scheduler = $this->schedulers->for($learner);
         $scope = TrainingScope::forSession($session);
+        $locale = $this->locales->forTrainingSession($session, $learner);
 
         /** @var ConnectionInterface $db */
         $db = DB::connection();
@@ -155,6 +183,8 @@ final class ReviewSubmissionService
             $settings,
             $scheduler,
             $scope,
+            $locale,
+            $declared,
         ): AcceptedReview {
             // The lock on the session row orders this grade against `/finish` (docs/06 §5.1): what is read under it
             // is only what can change - the status and the expiry. Mode and lesson are fixed at creation; the
@@ -210,32 +240,49 @@ final class ReviewSubmissionService
                 );
             }
 
-            // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2).
-            // A reverse / audio pick without enough distractors was shown as flash — record what the client saw.
+            // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2), with the example of this
+            // serve (docs/06 §12.4). A four-option pick without enough distractors was shown as flash — record what the client saw.
+            $example = $this->examples->pick($word, $repetition);
+            $translation = $this->translations->resolve($word, $locale);
             $exercise = $this->prompts->effectiveType(
-                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode),
+                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example),
                 $word,
-                $this->locales->forTrainingSession($session, $learner),
+                $locale,
                 crc32($repetition->repetitions.':'.$word->id),
+                $example,
             );
+
+            // The client says which exercise it showed (`exercise` of POST /review): the plan may have changed since the serve
+            // (Pro -> Free), and a typed text must not be graded as the pick of four options, or the other way round.
+            if ($declared !== null && $declared !== $exercise) {
+                throw new ReviewSubmissionException(
+                    409,
+                    'exercise_mismatch',
+                    'The exercise of this card has changed; fetch the card again.',
+                );
+            }
+
             $verdict = null;
 
             if ($answer !== null) {
-                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement);
+                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement, $example, $this->prompts->correctOption($exercise, $word, $translation));
                 $quality = $verdict->quality;
-            } elseif ($exercise->serverGraded()) {
-                throw new ReviewSubmissionException(
-                    422,
-                    'quality_not_accepted',
-                    'This card is graded by the server: send `answer`, not `quality`.',
-                );
+            } else {
+                $quality = $this->acceptQuality($exercise, (int) $quality);
             }
+
+            // What the serve showed, read before the grade moves the card (a hook is shown on a new / failed / hard card).
+            $wasLeech = $this->ladder->isLeech($repetition);
+            $showsHook = $this->ladder->hooksEnabled
+                && ($wasLeech || (bool) $repetition->is_hard || $repetition->state !== RepetitionState::Review);
 
             // First grade of a card that was only served so far (docs/12 §3.3).
             $isNewCard = $repetition->state === RepetitionState::New;
             $intervalBefore = (int) $repetition->interval_days;
 
-            $scheduler->schedule($repetition, (int) $quality, $now);
+            $mismatch = $this->stampLadder($repetition, $exercise, $quality);
+
+            $scheduler->schedule($repetition, $quality, $now);
 
             DB::table('training_reviews')->insert([
                 'training_session_id' => $session->id,
@@ -250,19 +297,58 @@ final class ReviewSubmissionService
                 'created_at' => $now,
             ]);
 
-            $this->dailyStats->recordReview($learner, (int) $quality, $timeSpentMs, $isNewCard, $now);
+            $this->dailyStats->recordReview($learner, $quality, $timeSpentMs, $isNewCard, $now);
 
-            return new AcceptedReview($repetition, $exercise, $verdict);
+            if ($mismatch !== null) {
+                // The metric of the self-grade's honesty (docs/25): one cheap insert, after the locks are released.
+                DB::afterCommit(fn () => $this->events->record(ProductEventName::ReviewSelfGradeMismatch, [
+                    'word_id' => $wordId,
+                    'exercise' => $exercise->value,
+                    'previous_quality' => $mismatch,
+                    'interval_before_days' => $intervalBefore,
+                ], learner: $learner));
+            }
+
+            if (! $exercise->hidesChoiceAnswer()) {
+                return new AcceptedReview($repetition, $exercise, $verdict);
+            }
+
+            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech);
         });
     }
 
     /**
-     * @throws ReviewSubmissionException when the card's exercise is not graded by the server
+     * The `quality` a client sent, as the method accepts it (docs/06 §12.2).
+     *
+     * @throws ReviewSubmissionException when the exercise is graded by the server
      */
-    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement): SpellingVerdict
+    private function acceptQuality(ExerciseType $exercise, int $quality): int
     {
-        if (! $exercise->serverGraded()) {
-            if (! $entitlement->can('exercise.spelling') && ! $entitlement->can('exercise.gap_fill')) {
+        if ($exercise->selfGraded()) {
+            return $quality;
+        }
+
+        if ($exercise->isChoice() && ! $exercise->serverGraded() && $this->ladder->acceptLegacyChoiceQuality) {
+            // An older Mini App graded the pick itself: a pass is a pass, a fail a fail — the learner's own "easy" is not.
+            return $quality >= SpacedRepetitionEngine::PASS_QUALITY ? self::CHOICE_PASS_QUALITY : self::CHOICE_FAIL_QUALITY;
+        }
+
+        throw new ReviewSubmissionException(
+            422,
+            'quality_not_accepted',
+            'This card is graded by the server: send `answer`, not `quality`.',
+        );
+    }
+
+    /**
+     * @param  string  $correctOption  the right option of a four-option card (reverse: the word; meaning / audio / pretest: the translation)
+     *
+     * @throws ReviewSubmissionException when the card's exercise is the learner's own grade
+     */
+    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement, ?string $example, string $correctOption): SpellingVerdict
+    {
+        if ($exercise->selfGraded()) {
+            if (! $this->selector->typedAvailableToPlan($entitlement)) {
                 throw new ReviewSubmissionException(
                     422,
                     'exercise_pro_required',
@@ -277,15 +363,65 @@ final class ReviewSubmissionService
             );
         }
 
+        if ($exercise->isChoice()) {
+            $expected = $this->grader->normalize($correctOption);
+            $picked = $this->grader->normalize($answer);
+            $right = $expected !== '' && $expected === $picked;
+            $pass = $exercise === ExerciseType::Pretest ? SpacedRepetitionEngine::EASY_QUALITY : self::CHOICE_PASS_QUALITY;
+
+            return new SpellingVerdict($right ? $pass : self::CHOICE_FAIL_QUALITY, $right ? 0 : 1, $expected, $picked);
+        }
+
         $expected = $word->word;
         if ($exercise === ExerciseType::GapFill) {
-            $gap = $this->gapFill->build($word);
+            $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
             if ($gap !== null) {
                 $expected = $gap->expected;
             }
         }
 
         return $this->grader->grade($expected, $answer);
+    }
+
+    /**
+     * The ladder marks of this grade on the row (docs/06 §12.1), set BEFORE the scheduler saves it so they ride in its UPDATE.
+     *
+     * @return int|null the previous self-grade when this grade is the mismatch the metric counts (docs/25), else null
+     */
+    private function stampLadder(WordRepetition $repetition, ExerciseType $exercise, int $quality): ?int
+    {
+        $meta = is_array($repetition->meta) ? $repetition->meta : [];
+        $previousExercise = $meta[LadderPolicy::LAST_EXERCISE_META] ?? null;
+        $previousQuality = $repetition->getAttribute('last_quality');
+        $failed = $quality < SpacedRepetitionEngine::PASS_QUALITY;
+
+        $mismatch = $failed
+            && ! $exercise->selfGraded()
+            && $previousExercise === ExerciseType::Flash->value
+            && is_numeric($previousQuality)
+            && (int) $previousQuality >= self::CHOICE_PASS_QUALITY
+            ? (int) $previousQuality
+            : null;
+
+        if ($repetition->state === RepetitionState::Review && $this->ladder->ladderEnabled) {
+            $rung = $exercise->rung();
+            if ($failed) {
+                $floor = max(LadderPolicy::RUNG_FLASH, $rung - 1);
+                if ($floor > LadderPolicy::RUNG_FLASH) {
+                    $meta[LadderPolicy::FLOOR_META] = $floor;
+                } else {
+                    unset($meta[LadderPolicy::FLOOR_META]);
+                }
+            } elseif (isset($meta[LadderPolicy::FLOOR_META]) && $this->ladder->maturityRung($repetition) >= $this->ladder->floorRung($repetition)) {
+                // The interval has caught up with the floor: nothing left to remember.
+                unset($meta[LadderPolicy::FLOOR_META]);
+            }
+        }
+
+        $meta[LadderPolicy::LAST_EXERCISE_META] = $exercise->value;
+        $repetition->meta = $meta;
+
+        return $mismatch;
     }
 
     private function isAcceptable(WordRepetition $repetition, ?string $serveToken, CarbonImmutable $now): bool

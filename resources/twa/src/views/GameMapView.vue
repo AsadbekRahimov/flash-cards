@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
+import GameIntroSheet from '@/components/game/GameIntroSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -13,6 +14,8 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useGameLimitLine } from '@/composables/gameLimitLine'
+import { GAME_RUN_RULES } from '@/composables/gameRunRules'
+import { hasSeen, markSeen } from '@/composables/seenFlag'
 import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -53,7 +56,8 @@ const { t, tn } = useI18n()
 
 const { map, status, error, starting } = storeToRefs(game)
 
-useBackButton({ name: 'today' })
+// Usually entered from the course (`?course=`): "Back" leads there; without it (an entry of Home) to Home.
+useBackButton(props.course !== null ? { name: 'course', params: { slug: props.course } } : { name: 'today' })
 
 /** Set when the learner leaves: an answer that comes back after it must not carry them anywhere. */
 let left = false
@@ -189,6 +193,19 @@ const sheetStop = computed((): { city: GameMapCity; stop: GameMapStop } | null =
 })
 
 const limitLine = useGameLimitLine()
+const stopRules = { min: GAME_RUN_RULES.tasksMin, max: GAME_RUN_RULES.tasksMax, flasks: GAME_RUN_RULES.flasks }
+
+// ---- "How to play" ----
+
+const INTRO_KEY = 'lexiflow:game-intro-seen'
+const introOpen = ref(false)
+// The first time the map is on the screen: the rules open once (marked when they open); "How to play" opens them again.
+// Not over the sheet of a stop that the link asked for (`?stop=`): two sheets at once; it is not marked as seen, so it opens next time.
+watch(view, (current) => {
+  if ((current !== 'ready' && current !== 'empty') || introOpen.value || sheetLesson.value !== null || props.stop !== null || hasSeen(INTRO_KEY)) return
+  markSeen(INTRO_KEY)
+  introOpen.value = true
+}, { immediate: true })
 
 function openStop(stop: GameMapStop): void {
   if (!stop.unlocked) return
@@ -367,6 +384,12 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
 
     <template v-else-if="map !== null">
+      <div class="-mt-2 mb-2 flex justify-end">
+        <button type="button" class="btn btn-plain btn-sm min-h-11" data-testid="how-to-play" @click="introOpen = true">
+          {{ t('gameIntro.how') }}
+        </button>
+      </div>
+
       <!-- The unfinished run: one tap back into it. -->
       <button
         v-if="map.active_run"
@@ -493,7 +516,7 @@ onBeforeUnmount(() => {
     <!-- The sheet of a stop. -->
     <BottomSheet v-if="sheetStop && !conflict && !material" :label="stopTitle(sheetStop.stop)" data-testid="stop-sheet" @close="closeSheet">
       <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ stopTitle(sheetStop.stop) }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="stop-text">{{ t('game.stop.text') }}</p>
+      <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="stop-text">{{ t('game.stop.text', stopRules) }}</p>
       <p v-if="sheetStop.stop.runs > 0" class="flex items-center gap-2 text-[15px] leading-5" data-testid="stop-best">
         <span class="flex gap-0.5" aria-hidden="true">
           <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= sheetStop.stop.stars" :size="12" :class="n <= sheetStop.stop.stars ? 'text-warning' : 'text-tg-hint'" />
@@ -523,6 +546,8 @@ onBeforeUnmount(() => {
       <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('game.material.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="material-learn" @click="learn">{{ t('game.map.learn') }}</button>
     </BottomSheet>
+
+    <GameIntroSheet v-if="introOpen" @close="introOpen = false" />
 
     <PaywallSheet v-if="paywall" reason="game" @close="paywall = false" @review="reviewFromPaywall" />
   </div>
