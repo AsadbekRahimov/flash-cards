@@ -346,6 +346,12 @@ onBeforeUnmount(() => training.clearOpenError())
             <AppIcon name="check-circle" solid :size="20" class="shrink-0 text-success" />
             <span>{{ t('today.all_done') }}</span>
           </p>
+          <!-- The quota of the free plan is what ended the day: one quiet way to Pro. Not for a newcomer, not for Pro. -->
+          <p v-if="!isPro && hasProgress" class="text-center text-[13px] leading-[18px]">
+            <button type="button" class="text-tg-link underline" data-testid="all-done-pro" @click="openPaywall('quota')">
+              {{ t('today.all_done.pro') }}
+            </button>
+          </p>
           <button v-if="practice.available" type="button" class="btn btn-tinted btn-block" data-testid="practice-btn" @click="openPractice">
             <AppIcon name="puzzle-piece" :size="20" />
             {{ t('practice.hub.title') }}
@@ -371,8 +377,8 @@ onBeforeUnmount(() => training.clearOpenError())
 
       </section>
 
-      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. -->
-      <ClassCaravanCard v-if="hasProgress && data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
+      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. The teacher starts it for the whole group, so a newcomer of the center is its addressee too. -->
+      <ClassCaravanCard v-if="data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
 
       <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
       <RouterLink

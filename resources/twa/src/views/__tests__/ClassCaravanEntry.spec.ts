@@ -125,6 +125,20 @@ describe('TodayView: the card of the class caravan', () => {
     expect(api.me.get).not.toHaveBeenCalled()
   })
 
+  it('shows the card to a newcomer with no progress yet: the teacher starts it for the whole group', async () => {
+    const { wrapper } = await renderToday(today({
+      due_count: 0,
+      goal: { target: 20, done: 0, met: false },
+      streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
+      active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null },
+      game: { daily_available: true, active_run: null, class_caravan: card },
+    }))
+
+    expect(wrapper.find('[data-testid=class-caravan-card]').exists()).toBe(true)
+    // the personal caravan of the day stays behind the progress
+    expect(wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
+  })
+
   it('stands beside the entry of the caravan of the day', async () => {
     const { wrapper } = await renderToday(today({ game: { daily_available: true, active_run: null, class_caravan: card } }))
 

@@ -53,19 +53,24 @@ final class StartExamCallbackHandler implements GroupUpdateHandler
         /** @var array<string, mixed> $cq */
         $cq = $update['callback_query'];
 
-        // Always answer immediately to dismiss the loading spinner (a refusal does not stop the work).
-        $this->acknowledger->acknowledge($update);
+        // The spinner is dismissed on every path, but a query is answered once: a tap of somebody who is not the teacher
+        // gets the refusal as an alert for them alone (a message into the group would be posted on every tap).
+        $ack = fn (?string $alert = null) => $this->acknowledger->acknowledge($update, $alert);
 
         $fromId = (int) ($cq['from']['id'] ?? 0);
         $chatId = (int) ($cq['message']['chat']['id'] ?? 0);
         $messageId = (int) ($cq['message']['message_id'] ?? 0);
 
         if ($fromId === 0 || $chatId === 0) {
+            $ack();
+
             return;
         }
 
         $parts = explode(':', substr((string) ($cq['data'] ?? ''), strlen(StartExamHandler::CALLBACK_PREFIX)));
         if (! in_array(count($parts), [2, 3], true) || array_filter($parts, fn (string $p): bool => ! ctype_digit($p)) !== []) {
+            $ack();
+
             return;
         }
 
@@ -75,6 +80,8 @@ final class StartExamCallbackHandler implements GroupUpdateHandler
         /** @var TelegramGroup|null $group */
         $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
         if ($group === null) {
+            $ack();
+
             return;
         }
 
@@ -83,16 +90,18 @@ final class StartExamCallbackHandler implements GroupUpdateHandler
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->telegram->sendMessage($chatId, __('errors.teacher_not_linked', [], $locale));
+            $ack(__('errors.teacher_not_linked', [], $locale));
 
             return;
         }
 
         if (! $this->authority->canTeach($teacher, $group)) {
-            $this->telegram->sendMessage($chatId, __('errors.exam.not_teacher', [], $locale));
+            $ack(__('errors.exam.not_teacher', [], $locale));
 
             return;
         }
+
+        $ack();
 
         if ($minutes === null) {
             $this->askDuration($chatId, $messageId, $stage, $lesson, $locale);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Services;
 
+use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Word;
 use App\Models\WordTranslation;
@@ -19,7 +20,10 @@ use InvalidArgumentException;
  */
 final class WordTranslationWriter
 {
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly LearningCache $cache,
+    ) {}
 
     /**
      * Creates or updates the translation of one locale.
@@ -50,6 +54,10 @@ final class WordTranslationWriter
 
             if ($locale === $this->locales->fallback() && $word->translation !== $translation) {
                 $word->forceFill(['translation' => $translation])->save();
+
+                // The pool of distractors of the lesson holds `words.translation`.
+                $lessonId = (int) $word->lesson_id;
+                DB::afterCommit(fn () => $this->cache->forgetLessonId($lessonId));
             }
 
             return $row;

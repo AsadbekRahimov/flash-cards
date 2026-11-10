@@ -255,7 +255,7 @@ describe('TodayView', () => {
       it('says so calmly instead of the active "Start session", and drops the hint about the order of the session', async () => {
         const w = await render(allDone())
 
-        expect(text(w, 'all-done')).toBe('На сегодня всё. Новые слова — завтра')
+        expect(text(w, 'all-done')).toContain('На сегодня всё. Новые слова — завтра')
         expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
         expect(w.find('[data-testid=session-hint]').exists()).toBe(false)
         expect(w.findAll('.btn-primary')).toHaveLength(0)
@@ -313,10 +313,35 @@ describe('TodayView', () => {
         expect(api.me.get).not.toHaveBeenCalled()
       })
 
+      it('offers a quiet way to Pro under the text when the free quota ended the day, and opens the paywall for quota', async () => {
+        const w = await render(allDone())
+
+        expect(text(w, 'all-done-pro')).toBe('Больше новых слов — в Pro')
+        await w.get('[data-testid=all-done-pro]').trigger('click')
+        await flushPromises()
+
+        expect(w.find('[data-testid=paywall]').exists() || w.find('[data-testid=paywall-title]').exists()).toBe(true)
+        expect(w.findComponent({ name: 'PaywallSheet' }).props('reason')).toBe('quota')
+      })
+
+      it('has no link to Pro for a Pro learner or for a newcomer without progress', async () => {
+        const pro = await render(allDone({ entitlement: PRO }))
+        expect(pro.find('[data-testid=all-done-pro]').exists()).toBe(false)
+
+        const newcomer = await render(allDone({
+          goal: { target: 20, done: 0, met: false },
+          streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
+          active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null },
+        }))
+        expect(newcomer.find('[data-testid=all-done]').exists()).toBe(true)
+        expect(newcomer.find('[data-testid=all-done-pro]').exists()).toBe(false)
+      })
+
       it('speaks Uzbek', async () => {
         setLocale('uz')
 
-        expect(text(await render(allDone()), 'all-done')).toBe("Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga")
+        expect(text(await render(allDone()), 'all-done')).toContain("Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga")
+        expect(text(await render(allDone()), 'all-done-pro')).toBe("Ko'proq yangi so'zlar — Pro'da")
       })
     })
 

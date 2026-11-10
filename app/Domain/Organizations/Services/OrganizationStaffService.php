@@ -51,7 +51,10 @@ final class OrganizationStaffService
 
     public const PASSWORD_BROKER = 'org';
 
-    public function __construct(private readonly OrgRequestMemo $memo) {}
+    public function __construct(
+        private readonly OrgRequestMemo $memo,
+        private readonly TeacherGroupAssignments $assignments,
+    ) {}
 
     /**
      * @throws OrganizationStaffException invalid_email | already_staff
@@ -229,26 +232,8 @@ final class OrganizationStaffService
             $toDetach = array_values(array_diff($current, $groupIds));
             $toAttach = array_values(array_diff($groupIds, $current));
 
-            if ($toDetach !== []) {
-                DB::table('teacher_groups')
-                    ->where('user_id', $staff->user_id)
-                    ->whereIn('telegram_group_id', $toDetach)
-                    ->delete();
-            }
-
-            if ($toAttach !== []) {
-                $hasAny = DB::table('teacher_groups')->where('user_id', $staff->user_id)->exists();
-                $now = now();
-
-                DB::table('teacher_groups')->insert(array_map(fn (int $groupId, int $i): array => [
-                    'user_id' => $staff->user_id,
-                    'telegram_group_id' => $groupId,
-                    // The first group a teacher ever gets is their primary one (Phase-1 semantics of the column).
-                    'is_primary' => ! $hasAny && $i === 0,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ], $toAttach, array_keys($toAttach)));
-            }
+            $this->assignments->detach((int) $staff->user_id, $toDetach);
+            $this->assignments->attach((int) $staff->user_id, $toAttach);
 
             if ($toDetach !== [] || $toAttach !== []) {
                 $this->audit(self::AUDIT_GROUPS_CHANGED, $organization, $staff, $by, $ip, [

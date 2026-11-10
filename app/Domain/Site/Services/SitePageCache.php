@@ -74,6 +74,7 @@ final class SitePageCache
         'app/Domain/Site/Services/SiteLinks.php',
         'app/Domain/Billing/Support/PriceFormatter.php',
         'app/Domain/Billing/Support/ProPromises.php',
+        'app/Domain/Billing/Support/OrgTiers.php',
         'app/Domain/Billing/Enums/ProPracticePromise.php',
         'app/Domain/Billing/Enums/Plan.php',
         'app/Domain/Billing/Enums/SubscriptionProvider.php',

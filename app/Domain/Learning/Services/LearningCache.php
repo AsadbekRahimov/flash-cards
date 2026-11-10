@@ -167,7 +167,12 @@ final class LearningCache
 
     public function forgetLesson(Lesson $lesson): void
     {
-        PureCache::forgetMany(["lesson:{$lesson->id}:word_count", self::distractorsKey((int) $lesson->id)]);
+        $this->forgetLessonId((int) $lesson->id);
+    }
+
+    public function forgetLessonId(int $lessonId): void
+    {
+        PureCache::forgetMany(["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId)]);
     }
 
     private static function distractorsKey(int $lessonId): string

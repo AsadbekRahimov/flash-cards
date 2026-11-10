@@ -25,19 +25,9 @@ class EditWord extends EditRecord
         /** @var Word $word */
         $word = $this->getRecord();
 
-        $textChanged = $word->wasChanged('word');
-        $activeChanged = $word->wasChanged('is_active');
+        // Audio, the lesson cache and (for `is_active`) the course counter follow the edit; read before the sync below.
+        app(LessonContentRefresher::class)->wordEdited($word);
 
         app(WordTranslationWriter::class)->syncDefaultFromWord($word);
-
-        // The pre-generated audio belongs to the old text: drop it and voice the new one.
-        if ($textChanged) {
-            app(LessonContentRefresher::class)->wordTextChanged($word);
-        }
-
-        // An inactive word leaves cards and exams, so the lesson cache and the course counter must follow.
-        if ($activeChanged) {
-            app(LessonContentRefresher::class)->wordChanged($word);
-        }
     }
 }

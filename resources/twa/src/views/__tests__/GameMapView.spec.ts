@@ -122,6 +122,17 @@ describe('GameMapView: "How to play"', () => {
     expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(true)
   })
 
+  it('is not opened over the sheet of a stop that the link asked for, and is not marked as seen: it opens next time', async () => {
+    const first = await render(gameMap(), { stop: 11 }, '/game?course=english-a1&stop=11')
+
+    expect(testid(first.wrapper, 'stop-sheet').exists()).toBe(true)
+    expect(testid(first.wrapper, 'game-intro-sheet').exists()).toBe(false)
+    expect(window.localStorage.getItem('lexiflow:game-intro-seen')).toBeNull()
+
+    const next = await render()
+    expect(testid(next.wrapper, 'game-intro-sheet').exists()).toBe(true)
+  })
+
   it('is not opened over the loading map or the error', async () => {
     const { wrapper } = await render(new Promise<GameMapResponse>(() => {}))
     expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)

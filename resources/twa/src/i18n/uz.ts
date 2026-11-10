@@ -108,6 +108,7 @@ export const uz: Translations = {
   'today.review.start': "Mashg'ulotni boshlash",
   'today.review.continue': "Mashg'ulotni davom ettirish",
   'today.all_done': "Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga",
+  'today.all_done.pro': "Ko'proq yangi so'zlar — Pro'da",
   'today.new.remaining': "Bugun yana {count} ta yangi so'z o'rganishingiz mumkin",
   'today.new.exhausted': "Bugun o'rganish mumkin bo'lgan yangi so'zlar tugadi",
   'today.course.title': 'Mening kursim',

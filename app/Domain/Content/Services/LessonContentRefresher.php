@@ -56,10 +56,28 @@ final class LessonContentRefresher
         });
     }
 
-    /** The English text of a word was edited in the admin panel: its pre-generated audio is stale. */
-    public function wordTextChanged(Word $word): void
+    /**
+     * A word was edited in the admin panel (call it right after the save, while `wasChanged()` still tells what moved):
+     * a new English text drops the pre-generated audio and voices the new one; a moved `word`, `translation` or `is_active`
+     * drops the lesson cache (its pool of distractors holds both texts) after the commit, and `is_active` also recounts
+     * the course ({@see wordChanged()}).
+     */
+    public function wordEdited(Word $word): void
     {
-        $this->audio->textChanged($word);
+        if ($word->wasChanged('word')) {
+            $this->audio->textChanged($word);
+        }
+
+        if ($word->wasChanged('is_active')) {
+            $this->wordChanged($word);
+
+            return;
+        }
+
+        if ($word->wasChanged(['word', 'translation'])) {
+            $lessonId = (int) $word->lesson_id;
+            DB::afterCommit(fn () => $this->cache->forgetLessonId($lessonId));
+        }
     }
 
     /**

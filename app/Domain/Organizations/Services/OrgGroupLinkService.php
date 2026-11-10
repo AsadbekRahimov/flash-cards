@@ -45,7 +45,7 @@ final class OrgGroupLinkService
         private readonly OrganizationGroupLinker $linker,
         private readonly GroupBotAccessChecker $botAccess,
         private readonly CourseCatalogService $courses,
-        private readonly OrgRequestMemo $memo,
+        private readonly TeacherGroupAssignments $assignments,
     ) {}
 
     /**
@@ -179,21 +179,6 @@ final class OrgGroupLinkService
     /** Idempotent: the owner teaches the group they have just linked (the first group of a teacher is their primary one). */
     private function assignTeacher(TelegramGroup $group, User $owner): void
     {
-        if (DB::table('teacher_groups')->where('user_id', $owner->id)->where('telegram_group_id', $group->id)->exists()) {
-            return;
-        }
-
-        $now = now();
-
-        DB::table('teacher_groups')->insert([
-            'user_id' => $owner->id,
-            'telegram_group_id' => $group->id,
-            'is_primary' => ! DB::table('teacher_groups')->where('user_id', $owner->id)->exists(),
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        // Written with the query builder (no model events): the per-request memory of the cabinet is dropped by hand.
-        $this->memo->flush();
+        $this->assignments->attach($owner->id, [$group->id]);
     }
 }

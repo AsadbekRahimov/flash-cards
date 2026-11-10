@@ -125,6 +125,7 @@ export const ru = {
   'today.review.start': 'Начать занятие',
   'today.review.continue': 'Продолжить занятие',
   'today.all_done': 'На сегодня всё. Новые слова — завтра',
+  'today.all_done.pro': 'Больше новых слов — в Pro',
   'today.new.remaining': 'Новых слов на сегодня: {count}',
   'today.new.exhausted': 'Новые слова на сегодня закончились',
   'today.course.title': 'Мой курс',

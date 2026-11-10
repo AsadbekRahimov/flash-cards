@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Domain\Administration\Exceptions\OrganizationGroupLinkException;
+use App\Domain\Organizations\Services\TeacherGroupAssignments;
 use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
@@ -19,13 +20,16 @@ use Illuminate\Support\Facades\DB;
  * Who may do it is decided by `OrganizationPolicy::update` at the call site (superadmin) or by
  * OrgGroupLinkService (owner of the center, after the `getChatMember` check). The row is read
  * without global scopes: inside the `/org` panel Filament's tenancy scope would hide a group that
- * is not yet the tenant's — the whole point of linking it.
+ * is not yet the tenant's — the whole point of linking it. Unlinking also takes the group away from the center's
+ * staff (`teacher_groups`), in the same transaction.
  */
 final class OrganizationGroupLinker
 {
     public const ACTION_LINKED = 'organization.linked_group';
 
     public const ACTION_UNLINKED = 'organization.unlinked_group';
+
+    public function __construct(private readonly TeacherGroupAssignments $assignments) {}
 
     /**
      * @throws OrganizationGroupLinkException the group already belongs to another organization (unlink it there first)
@@ -63,6 +67,9 @@ final class OrganizationGroupLinker
 
             $current->organization_id = null;
             $current->save();
+
+            // The center's staff (the owner who linked the group included) stop teaching a group that left it.
+            $this->assignments->detachStaffFromGroup($organization->id, $current->id);
 
             $this->audit(self::ACTION_UNLINKED, $organization, $current, $by, $ip);
         });

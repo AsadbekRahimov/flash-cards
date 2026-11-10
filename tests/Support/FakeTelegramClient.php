@@ -23,6 +23,9 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<string> */
     public array $answered = [];
 
+    /** @var array<string, array{text: string, show_alert: bool}> answers that carried a text, by callback query id */
+    public array $answeredTexts = [];
+
     /** @var list<array{chat_id:int|string, message_id:int, markup:array<string, mixed>|null}> */
     public array $edits = [];
 
@@ -121,13 +124,16 @@ final class FakeTelegramClient implements TelegramClient
         ];
     }
 
-    public function answerCallbackQuery(string $callbackQueryId): void
+    public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
     {
         if ($this->failAnswers) {
             throw new TelegramApiException('query is too old and response timeout expired');
         }
 
         $this->answered[] = $callbackQueryId;
+        if ($text !== null) {
+            $this->answeredTexts[$callbackQueryId] = ['text' => $text, 'show_alert' => $showAlert];
+        }
     }
 
     public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void

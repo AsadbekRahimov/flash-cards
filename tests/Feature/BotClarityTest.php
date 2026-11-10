@@ -414,6 +414,20 @@ it('shows /help in the language the learner chose and the teacher block only to 
     expect($this->tg->sent[2]['text'])->toContain('/start_training')->toContain('/org')->not->toContain('/today');
 });
 
+it('treats a deactivated teacher the same way in /help and /today: a teacher, not a learner', function (): void {
+    $teacher = clarityTeacher(55);
+    $teacher->forceFill(['is_active' => false])->save();
+
+    clarityDm(55, '/help', 'ru');
+    expect($this->tg->sent[0]['text'])->toContain('/start_training')->not->toContain('Как заниматься');
+
+    $before = count($this->tg->sent);
+    clarityDm(55, '/today', 'ru');
+    // /today does not make a learner of them either: the teacher notice, no learner row.
+    expect(count($this->tg->sent))->toBe($before + 1)
+        ->and(Learner::query()->where('telegram_user_id', 55)->exists())->toBeFalse();
+});
+
 it('leaves out the "write us" line of /help when no contact is configured', function (): void {
     clarityDm(54, '/help', 'ru');
 

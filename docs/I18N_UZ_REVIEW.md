@@ -3384,6 +3384,7 @@
 | `benefits.game` | Karvon kunlik limitsiz | Караван без дневного лимита |
 | `today.goal.daily` | { | { |
 | `today.all_done` | Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga | На сегодня всё. Новые слова — завтра |
+| `today.all_done.pro` | Ko'proq yangi so'zlar — Pro'da | Больше новых слов — в Pro |
 | `today.onboarding_btn` | Sozlashni botda tugatish | Закончить настройку в боте |
 | `today.course.learn_hint` | Faqat shu darsning so'zlari, takrorlashsiz | Только слова этого урока, без повторений |
 | `card.grade_new.hard` | Hali eslamadim | Ещё не запомнил |

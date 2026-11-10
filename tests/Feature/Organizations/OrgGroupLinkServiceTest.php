@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Administration\Services\OrganizationGroupLinker;
 use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Organizations\Exceptions\OrgGroupLinkException;
 use App\Domain\Organizations\Services\OrgGroupLinkService;
@@ -10,6 +11,7 @@ use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -132,4 +134,70 @@ it('does not make anybody a teacher when the link is refused', function (): void
 
     expect(fn () => $this->service->link($this->org, $this->group->chat_id, $this->owner))->toThrow(OrgGroupLinkException::class);
     expect(DB::table('teacher_groups')->count())->toBe(0);
+});
+
+it('takes the group from the center staff when it is unlinked, the owner who linked it included', function (): void {
+    OrganizationUser::factory()->create(['organization_id' => $this->org->id, 'user_id' => $this->owner->id]);
+    $teacher = User::factory()->create(['telegram_user_id' => 5151]);
+    OrganizationUser::factory()->teacher()->create(['organization_id' => $this->org->id, 'user_id' => $teacher->id]);
+    $outsider = User::factory()->create(['telegram_user_id' => 6161]);
+    $otherOrg = Organization::factory()->create();
+    $otherTeacher = User::factory()->create(['telegram_user_id' => 7171]);
+    OrganizationUser::factory()->teacher()->create(['organization_id' => $otherOrg->id, 'user_id' => $otherTeacher->id]);
+
+    $this->tg->chatMemberStatus = 'creator';
+    $this->service->link($this->org, $this->group->chat_id, $this->owner);
+    $otherGroup = TelegramGroup::factory()->create(['organization_id' => $this->org->id]);
+    DB::table('teacher_groups')->insert([
+        ['user_id' => $teacher->id, 'telegram_group_id' => $this->group->id, 'is_primary' => true, 'created_at' => now(), 'updated_at' => now()],
+        ['user_id' => $teacher->id, 'telegram_group_id' => $otherGroup->id, 'is_primary' => false, 'created_at' => now(), 'updated_at' => now()],
+        ['user_id' => $outsider->id, 'telegram_group_id' => $this->group->id, 'is_primary' => true, 'created_at' => now(), 'updated_at' => now()],
+        ['user_id' => $otherTeacher->id, 'telegram_group_id' => $this->group->id, 'is_primary' => true, 'created_at' => now(), 'updated_at' => now()],
+    ]);
+    $authority = app(TeacherAuthority::class);
+    expect($authority->canTeach($this->owner, $this->group))->toBeTrue();
+
+    $this->service->unlink($this->org, $this->group->fresh(), $this->owner);
+
+    $group = $this->group->fresh();
+    expect($authority->canTeach($this->owner->fresh(), $group))->toBeFalse()
+        ->and($authority->canTeach($teacher, $group))->toBeFalse()
+        // Their other group of the center stays.
+        ->and($authority->canTeach($teacher, $otherGroup))->toBeTrue()
+        // Not staff of this center / staff of another center: untouched.
+        ->and($authority->canTeach($outsider, $group))->toBeTrue()
+        ->and($authority->canTeach($otherTeacher, $group))->toBeTrue();
+});
+
+it('takes the group from the former owner when the superadmin unlinks it from the admin panel', function (): void {
+    OrganizationUser::factory()->create(['organization_id' => $this->org->id, 'user_id' => $this->owner->id]);
+    $this->tg->chatMemberStatus = 'administrator';
+    $this->service->link($this->org, $this->group->chat_id, $this->owner);
+
+    app(OrganizationGroupLinker::class)->unlink($this->org, $this->group, User::factory()->create());
+
+    expect(app(TeacherAuthority::class)->canTeach($this->owner, $this->group->fresh()))->toBeFalse()
+        ->and(DB::table('teacher_groups')->where('telegram_group_id', $this->group->id)->count())->toBe(0);
+});
+
+it('does not touch the teachers of a group that is not linked to the center on unlink', function (): void {
+    OrganizationUser::factory()->create(['organization_id' => $this->org->id, 'user_id' => $this->owner->id]);
+    DB::table('teacher_groups')->insert(['user_id' => $this->owner->id, 'telegram_group_id' => $this->group->id, 'is_primary' => true, 'created_at' => now(), 'updated_at' => now()]);
+
+    // The group belongs to nobody: the linker has nothing to unlink, the teacher row stays.
+    app(OrganizationGroupLinker::class)->unlink($this->org, $this->group, $this->owner);
+
+    expect(DB::table('teacher_groups')->where('telegram_group_id', $this->group->id)->count())->toBe(1);
+});
+
+it('keeps one primary group when the owner links several groups', function (): void {
+    OrganizationUser::factory()->create(['organization_id' => $this->org->id, 'user_id' => $this->owner->id]);
+    $second = TelegramGroup::factory()->create(['organization_id' => null, 'status' => 'active']);
+    $this->tg->chatMemberStatus = 'creator';
+
+    $this->service->link($this->org, $this->group->chat_id, $this->owner);
+    $this->service->link($this->org, $second->chat_id, $this->owner);
+
+    expect(DB::table('teacher_groups')->where('user_id', $this->owner->id)->count())->toBe(2)
+        ->and(DB::table('teacher_groups')->where('user_id', $this->owner->id)->where('is_primary', true)->count())->toBe(1);
 });

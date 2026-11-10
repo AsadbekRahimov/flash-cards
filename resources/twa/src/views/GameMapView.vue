@@ -200,8 +200,9 @@ const stopRules = { min: GAME_RUN_RULES.tasksMin, max: GAME_RUN_RULES.tasksMax, 
 const INTRO_KEY = 'lexiflow:game-intro-seen'
 const introOpen = ref(false)
 // The first time the map is on the screen: the rules open once (marked when they open); "How to play" opens them again.
+// Not over the sheet of a stop that the link asked for (`?stop=`): two sheets at once; it is not marked as seen, so it opens next time.
 watch(view, (current) => {
-  if ((current !== 'ready' && current !== 'empty') || introOpen.value || hasSeen(INTRO_KEY)) return
+  if ((current !== 'ready' && current !== 'empty') || introOpen.value || sheetLesson.value !== null || props.stop !== null || hasSeen(INTRO_KEY)) return
   markSeen(INTRO_KEY)
   introOpen.value = true
 }, { immediate: true })
