@@ -1,16 +1,18 @@
 /* LexiFlow public site (landing, offer, privacy). Static stylesheet: no build step, no external fonts or images. */
 :root {
     color-scheme: light dark;
-    --bg: #ffffff;
-    --bg-alt: #f4f4f5;
-    --card: #ffffff;
-    --text: #18181b;
-    --muted: #52525b;
-    --border: #e4e4e7;
-    --accent: #f59e0b;
-    --accent-hover: #d97706;
-    --accent-text: #000000;
-    --link: #b45309;
+    /* Paper and ink; saffron for the action, the blue of glazed tiles for links and marks. */
+    --bg: #faf7f0;
+    --bg-alt: #f2ecdf;
+    --card: #fffdf8;
+    --text: #1f1b16;
+    --muted: #645b4f;
+    --border: #e1d9c9;
+    --accent: #eaa21c;
+    --accent-hover: #d48e0d;
+    --accent-text: #1f1b16;
+    --link: #1c626e;
+    --serif: Georgia, "Noto Serif", "Times New Roman", serif;
     /* Soft tints (background + readable ink) of the app mock-up buttons and icon tiles: accent / success / danger. */
     --accent-soft: #fef3c7;
     --accent-ink: #92400e;
@@ -19,31 +21,31 @@
     --danger-soft: #fee2e2;
     --danger-ink: #991b1b;
     /* Phone mock-up: bezel, screen, shadow and the glow behind it. */
-    --device: #18181b;
+    --device: #1f1b16;
     --screen: var(--bg-alt);
-    --shadow: 0 1.5rem 3rem -1rem rgba(24, 24, 27, .35);
-    --glow: rgba(245, 158, 11, .28);
+    --shadow: 0 1.5rem 3rem -1rem rgba(31, 27, 22, .32);
+    --glow: rgba(234, 162, 28, .24);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #111113;
-        --bg-alt: #18181b;
-        --card: #1f1f23;
-        --text: #f4f4f5;
-        --muted: #a1a1aa;
-        --border: #3f3f46;
-        --link: #fbbf24;
+        --bg: #14120f;
+        --bg-alt: #1b1814;
+        --card: #231f1a;
+        --text: #f3eee4;
+        --muted: #a89f91;
+        --border: #3b352c;
+        --link: #82c8d3;
         --accent-soft: #3a2a0a;
         --accent-ink: #fcd34d;
         --success-soft: #11301c;
         --success-ink: #86efac;
         --danger-soft: #3b1717;
         --danger-ink: #fca5a5;
-        --device: #09090b;
+        --device: #0b0a08;
         --screen: var(--bg);
         --shadow: 0 1.5rem 3rem -1rem rgba(0, 0, 0, .75);
-        --glow: rgba(245, 158, 11, .18);
+        --glow: rgba(234, 162, 28, .16);
     }
 }
 
@@ -65,9 +67,11 @@ a:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent); outline-
 .wrap { width: 100%; max-width: 64rem; margin: 0 auto; padding: 0 1rem; }
 
 h1, h2, h3 { line-height: 1.2; margin: 0 0 .75rem; overflow-wrap: anywhere; text-wrap: balance; }
-h1 { font-size: clamp(1.75rem, 6vw, 2.75rem); }
-h2 { font-size: clamp(1.375rem, 4.5vw, 1.875rem); }
-h3 { font-size: 1.125rem; }
+h1, h2 { font-family: var(--serif); font-weight: 700; letter-spacing: -.01em; }
+h1 { font-size: clamp(2rem, 7vw, 3.25rem); line-height: 1.1; }
+h2 { font-size: clamp(1.5rem, 5vw, 2.125rem); }
+h3 { font-size: 1.0625rem; }
+.lead { font-size: 1.125rem; color: var(--muted); max-width: 40rem; text-wrap: pretty; }
 p { margin: 0 0 1rem; }
 ul, ol { margin: 0; padding: 0; }
 
@@ -90,8 +94,10 @@ ul, ol { margin: 0; padding: 0; }
     display: flex;
     align-items: center;
     min-height: 3.5rem;
+    font-family: var(--serif);
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: 1.375rem;
+    letter-spacing: -.01em;
     color: var(--text);
     text-decoration: none;
 }
@@ -105,7 +111,7 @@ ul, ol { margin: 0; padding: 0; }
     font-size: .875rem;
     font-weight: 600;
 }
-.langs a[aria-current] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.langs a[aria-current] { background: var(--text); border-color: var(--text); color: var(--bg); }
 .nav {
     grid-area: nav;
     display: flex;
@@ -129,15 +135,14 @@ ul, ol { margin: 0; padding: 0; }
 .nav a:hover { color: var(--link); }
 
 /* Hero: copy and the phone mock-up (stacked on a phone, side by side from 56.25rem) */
-.hero { padding: 2rem 0 2.5rem; background: var(--bg-alt); }
+.hero { padding: 2rem 0 2.5rem; }
 .hero-grid { display: grid; gap: 2.25rem; align-items: center; }
 .hero-copy { min-width: 0; }
-.hero .lead { font-size: 1.125rem; color: var(--muted); max-width: 40rem; }
 .btn {
     display: inline-block;
     padding: .8rem 1.5rem;
     margin: .5rem 0 1rem;
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--accent);
     color: var(--accent-text);
     font-weight: 600;
@@ -249,44 +254,83 @@ ul, ol { margin: 0; padding: 0; }
 .app-btn-easy { background: var(--success-soft); color: var(--success-ink); }
 
 /* Sections and cards */
-.section { padding: 2.5rem 0; }
+.section { padding: 2.75rem 0; }
 .section.alt { background: var(--bg-alt); }
-.grid { display: grid; gap: 1rem; list-style: none; margin-top: 1.25rem; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
 .card p:last-child { margin-bottom: 0; }
-.card p, .ticks li { text-wrap: pretty; }
+.card p, .ticks li, .step p, .feature p { text-wrap: pretty; }
 
-/* "How it works": the step number sits in a circle before the title */
-.step { display: grid; grid-template-columns: auto 1fr; align-items: center; align-content: start; gap: .65rem .85rem; }
-.step-num {
+/* "How it works": one word on its way through the reviews. A rail with a mark for every meeting; on a wide screen the
+   rail lies down and every next gap is longer than the one before, like the intervals. */
+.timeline { margin: 1.75rem 0 2.25rem; }
+.timeline-word { margin: 0 0 1rem; font-family: var(--serif); font-size: 1.75rem; font-style: italic; line-height: 1.1; }
+.timeline-points { list-style: none; margin: 0 0 1rem; }
+.timeline-points li {
+    position: relative;
     display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    gap: .1rem;
+    padding: 0 0 1.1rem 1.75rem;
+    border-left: 2px solid var(--border);
+    margin-left: .4rem;
+}
+.timeline-points li:last-child { padding-bottom: 0; border-left-color: transparent; }
+.timeline-points li:nth-child(2) { padding-bottom: 1.5rem; }
+.timeline-points li:nth-child(3) { padding-bottom: 2rem; }
+.timeline-points li:nth-child(4) { padding-bottom: 2.6rem; }
+.timeline-points li::before {
+    content: "";
+    position: absolute;
+    left: -.5rem;
+    top: .3rem;
+    width: .875rem;
+    height: .875rem;
     border-radius: 50%;
-    background: var(--accent);
-    color: var(--accent-text);
+    background: var(--bg);
+    border: 2px solid var(--link);
+}
+.timeline-points li:first-child::before { background: var(--accent); border-color: var(--accent); }
+.timeline-points li:last-child::before { background: var(--link); }
+.timeline-when { font-weight: 600; line-height: 1.3; }
+.timeline-what { color: var(--muted); font-size: .9375rem; line-height: 1.35; }
+
+/* The steps: a serif numeral and a hairline, no boxes. */
+.steps { display: grid; gap: 1.5rem; list-style: none; margin-top: 1.5rem; }
+.step { padding-top: .9rem; border-top: 1px solid var(--border); }
+.step-num {
+    display: block;
+    margin-bottom: .35rem;
+    font-family: var(--serif);
+    font-size: 1.75rem;
     font-weight: 700;
     line-height: 1;
+    color: var(--link);
 }
-.step h3 { margin: 0; }
-.step p { grid-column: 1 / -1; }
+.step h3 { margin-bottom: .35rem; }
+.step p { margin: 0; color: var(--muted); }
 
-/* "What's inside": an icon tile before the text */
-.feature { display: flex; gap: 1rem; align-items: flex-start; }
+/* "What's inside": a plain list in two columns, the icon in the margin. */
+.features { display: grid; gap: 1.5rem 2.5rem; list-style: none; margin-top: 1.5rem; }
+.feature { display: flex; gap: .9rem; align-items: flex-start; }
 .feature > div { min-width: 0; }
-.feature h3 { margin-bottom: .35rem; }
-.feature-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: .8rem;
-    background: var(--accent-soft);
-    color: var(--accent-ink);
-}
+.feature h3 { margin-bottom: .3rem; }
+.feature p { margin: 0; color: var(--muted); }
+.feature-icon { flex: none; margin-top: .1rem; color: var(--link); }
 .icon { display: block; width: 1.5rem; height: 1.5rem; }
+
+.plans { display: grid; gap: 1rem; margin-top: 1.5rem; }
+
+/* Teachers and centers: the steps on the left, the tiers on the right. */
+.teachers { display: grid; gap: 2rem; }
+.steps-stacked { gap: 1.1rem; }
+.centers h3 { font-family: var(--serif); font-size: 1.25rem; }
+.tiers { margin: 1rem 0 .75rem; }
+.tiers div { display: flex; justify-content: space-between; gap: 1rem; padding: .6rem 0; border-top: 1px solid var(--border); }
+.tiers div:last-child { border-bottom: 1px solid var(--border); }
+.tiers dt { font-weight: 600; }
+.tiers dd { margin: 0; color: var(--muted); text-align: right; }
+.centers-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; }
+.centers-actions .btn { margin: 0; }
+.link-quiet { font-weight: 600; }
 
 .badge {
     display: inline-block;
@@ -302,6 +346,7 @@ ul, ol { margin: 0; padding: 0; }
 
 /* Pricing: the Pro card once Pro is for sale */
 .plan-featured { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.plan h3 { font-family: var(--serif); font-size: 1.375rem; }
 .price { margin: .75rem 0 0; font-size: 1.375rem; font-weight: 700; line-height: 1.25; }
 .price-alt { margin: .15rem 0 0; font-size: .9375rem; }
 
@@ -335,15 +380,32 @@ ul, ol { margin: 0; padding: 0; }
     .hero { padding: 3.5rem 0; }
     .section { padding: 3.5rem 0; }
     .section[id] { scroll-margin-top: 3.5rem; }
-    .steps { grid-template-columns: repeat(3, 1fr); }
+    .steps { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .steps-stacked { grid-template-columns: 1fr; gap: 1.1rem; }
     .features { grid-template-columns: repeat(2, 1fr); }
-    .plans { grid-template-columns: repeat(3, 1fr); }
+    .plans { grid-template-columns: repeat(2, 1fr); }
+
+    /* The rail lies down: the marks sit on one line and every next gap is longer. */
+    .timeline-points { display: flex; }
+    .timeline-points li {
+        flex: 1 1 0;
+        margin: 0;
+        padding: 1.4rem 1rem 0 0;
+        border-left: 0;
+        border-top: 2px solid var(--border);
+    }
+    .timeline-points li:nth-child(2) { flex-grow: 1.35; padding-bottom: 0; }
+    .timeline-points li:nth-child(3) { flex-grow: 1.8; padding-bottom: 0; }
+    .timeline-points li:nth-child(4) { flex-grow: 2.4; padding-bottom: 0; }
+    .timeline-points li:last-child { flex: 0 1 11rem; border-top-color: transparent; }
+    .timeline-points li::before { left: 0; top: -.5rem; }
 }
 
 /* >= 56.25rem (900px): text on the left, the phone on the right */
 @media (min-width: 56.25rem) {
     .hero { padding: 4.5rem 0; }
     .hero-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 3rem; }
+    .teachers { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3.5rem; align-items: start; }
     .phone { width: min(100%, 18.5rem); }
     .phone-screen { min-height: 33rem; }
 }

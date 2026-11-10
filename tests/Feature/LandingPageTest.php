@@ -47,8 +47,8 @@ it('shows the app picture next to the headline, hidden from assistive technology
     // Decorative only: nothing to tab to, nothing to announce, no image.
     expect($xpath->query('.//a | .//button | .//input | .//select | .//textarea | .//img | .//*[@tabindex]', $art->item(0)))->toHaveCount(0);
 })->with([
-    'ru' => ['/ru', ['breakfast', '/ˈbrekfəst/', 'завтрак', 'I have breakfast at eight.', 'Новое слово', 'Не помню', 'Помню', 'Легко']],
-    'uz' => ['/uz', ['breakfast', '/ˈbrekfəst/', 'nonushta', 'I have breakfast at eight.', 'Yangi so\'z', 'Eslay olmadim', 'Esladim', 'Oson']],
+    'ru' => ['/ru', ['breakfast', '/ˈbrekfəst/', 'завтрак', 'I have breakfast at eight.', 'Повторение', 'Не помню', 'Помню', 'Легко']],
+    'uz' => ['/uz', ['breakfast', '/ˈbrekfəst/', 'nonushta', 'I have breakfast at eight.', 'Takrorlash', 'Eslay olmadim', 'Esladim', 'Oson']],
 ]);
 
 it('takes the picture texts from lang, in the language of the page', function (): void {
@@ -72,10 +72,10 @@ it('colours the three grades with danger, accent and success', function (): void
 
 // --- steps and icons -----------------------------------------------------------------
 
-it('numbers the three steps in circles', function (string $url): void {
+it('numbers the three steps of "how it works"', function (string $url): void {
     $xpath = landingXPath($this->get($url)->getContent());
 
-    $numbers = $xpath->query('//ol[contains(@class, "steps")]/li//span[contains(@class, "step-num")]');
+    $numbers = $xpath->query('//section[@id="how"]//ol[contains(@class, "steps")]/li//span[contains(@class, "step-num")]');
     expect($numbers)->toHaveCount(3);
 
     foreach ($numbers as $i => $number) {
@@ -158,3 +158,47 @@ it('uses the dark and light site tokens for the picture instead of fixed colours
         expect(substr_count($css, $token.':'))->toBe(2, "{$token} must be defined for the light and the dark scheme");
     }
 });
+
+// --- teachers and centers ------------------------------------------------------------
+
+it('has a section for teachers and centers with the tiers and their seats from config, linked from the header', function (string $url, string $locale): void {
+    Config::set('billing.org_tiers', [
+        'tutor' => ['seats' => 25, 'prices' => []],
+        'center_l' => ['seats' => null, 'prices' => []],
+    ]);
+    Config::set('billing.org_year_discount_percent', 10);
+
+    $html = $this->get($url)->assertOk()->getContent();
+    $xpath = landingXPath($html);
+
+    expect($xpath->query('//header//nav//a[@href="#teachers"]'))->toHaveCount(1)
+        ->and($xpath->query('//section[@id="teachers"]//dl[contains(@class, "tiers")]/div'))->toHaveCount(2)
+        ->and($xpath->query('//section[@id="teachers"]//a[@href="/org"]'))->toHaveCount(1);
+
+    $section = $xpath->query('//section[@id="teachers"]')->item(0)->textContent;
+
+    expect($section)
+        ->toContain(__('org.billing.tiers.tutor.name', [], $locale))
+        ->toContain(trans_choice('landing.teachers.seats', 25, ['count' => 25], $locale))
+        ->toContain(__('landing.teachers.seats_unlimited', [], $locale))
+        ->toContain(__('landing.teachers.year_discount', ['percent' => 10], $locale));
+})->with([
+    'ru' => ['/ru', 'ru'],
+    'uz' => ['/uz', 'uz'],
+]);
+
+it('says nothing about a year discount when there is none', function (): void {
+    Config::set('billing.org_year_discount_percent', 0);
+
+    expect($this->get('/ru')->assertOk()->getContent())->not->toContain('скидка');
+});
+
+it('draws one word on its way through the reviews', function (string $url, string $locale): void {
+    $xpath = landingXPath($this->get($url)->assertOk()->getContent());
+
+    expect($xpath->query('//section[@id="how"]//ol[contains(@class, "timeline-points")]/li'))
+        ->toHaveCount(count(__('landing.how.timeline.points', [], $locale)));
+})->with([
+    'ru' => ['/ru', 'ru'],
+    'uz' => ['/uz', 'uz'],
+]);

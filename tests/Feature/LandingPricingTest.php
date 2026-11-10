@@ -142,7 +142,7 @@ it('promises Pro to the students of a center within the seats of the tariff, not
         ->assertSee($promise)
         ->assertDontSee($oldPromise);
 })->with([
-    'ru' => ['/ru', 'ru', 'Студенты центра получают Pro в пределах мест тарифа', 'Все студенты центра получают полный Pro'],
+    'ru' => ['/ru', 'ru', 'Ученики центра получают Pro в пределах мест тарифа', 'Все студенты центра получают полный Pro'],
     'uz' => ['/uz', 'uz', "tarifdagi o'rinlar doirasida Pro oladi", "to'liq Pro oladi"],
 ]);
 
@@ -177,7 +177,7 @@ it('shows the price in Uzbek on /uz', function (): void {
     $this->get('/uz')
         ->assertDontSee('class="badge"', false)
         ->assertSee(__('landing.pricing.subtitle_open', [], 'uz'))
-        ->assertSee("Boshlang'ich narx - oyiga 29\u{00A0}000\u{00A0}so'm")
+        ->assertSee("Boshlang'ich narx — oyiga 29\u{00A0}000\u{00A0}so'm")
         ->assertDontSee(__('landing.pricing.soon', [], 'uz'));
 });
 
