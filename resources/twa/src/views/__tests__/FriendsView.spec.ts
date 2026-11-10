@@ -382,7 +382,7 @@ describe('FriendsView', () => {
       expect(wrapper.find('[data-testid=friend-row]').exists()).toBe(false)
     })
 
-    it('has icon buttons with names for assistive technology: challenge (bolt) and remove (trash)', async () => {
+    it('has a text button for the challenge (with the friend in its name) and a named icon button for removal (trash)', async () => {
       const { wrapper } = await render()
 
       const row = wrapper.get('[data-testid=friend-row]')
@@ -390,10 +390,15 @@ describe('FriendsView', () => {
       const removeBtn = row.get('[data-testid=remove-btn]')
       expect(challengeBtn.attributes('aria-label')).toBe('Бросить вызов: Dilnoza')
       expect(removeBtn.attributes('aria-label')).toBe('Удалить из друзей: Dilnoza')
-      expect(challengeBtn.find('svg').exists()).toBe(true)
+      expect(challengeBtn.find('svg').exists()).toBe(false)
+      expect(challengeBtn.text()).toBe('Вызов на неделю')
       expect(removeBtn.find('svg').exists()).toBe(true)
-      expect(challengeBtn.text()).toBe('')
       expect(removeBtn.text()).toBe('')
+    })
+
+    it('says nothing while there are no friends', async () => {
+      const { wrapper } = await render(friendsResponse({ friends: [] }))
+      expect(wrapper.find('[data-testid=friends-hint]').exists()).toBe(false)
     })
 
     it('names the icon buttons of every row after the friend: the rows are told apart', async () => {
@@ -744,13 +749,31 @@ describe('FriendsView', () => {
         expect(state.haptic).toHaveBeenCalledWith('light')
       })
 
+      it('explains "Battle" and "Challenge" in one line under the title, with the days of the server', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON)
+
+        expect(text(wrapper, 'friends-hint')).toBe('Баттл — быстрые раунды прямо сейчас. Вызов — кто выучит больше за 7 дн.')
+      })
+
+      it('has the line in Uzbek', async () => {
+        setLocale('uz')
+        const { wrapper } = await renderBattles(BATTLES_ON)
+
+        expect(text(wrapper, 'friends-hint')).toBe("Bellashuv — hoziroq tez raundlar. Musobaqa — 7 kunda kim ko'proq o'rganadi.")
+      })
+
+      it('explains only the challenge where there are no battles', async () => {
+        const { wrapper } = await renderBattles(undefined)
+        expect(text(wrapper, 'friends-hint')).toBe('Вызов — кто выучит больше за 7 дн.')
+      })
+
       it('is in the same row as the name, under the line of the streak, not beside the other buttons that would not fit at 320 px', async () => {
         const { wrapper } = await renderBattles(BATTLES_ON)
 
         const row = rowOf(wrapper, 'Dilnoza')
         const column = row.get('[data-testid=friend-subtitle]').element.parentElement!
         expect(column.contains(row.get('[data-testid=battle-btn]').element)).toBe(true)
-        expect(row.find('[data-testid=challenge-btn]').exists()).toBe(true)
+        expect(column.contains(row.get('[data-testid=challenge-btn]').element)).toBe(true)
         expect(row.find('[data-testid=remove-btn]').exists()).toBe(true)
       })
 

@@ -95,6 +95,14 @@ describe('GameRunView - the row of boosters', () => {
     w.unmount()
   })
 
+  it('writes the name under every icon, in one truncated line', async () => {
+    const w = await render(stock())
+
+    expect(w.findAll('[data-testid=booster-name]').map((n) => n.text())).toEqual(['Подсказка', 'Запасная фляга', 'Второй шанс'])
+    for (const name of w.findAll('[data-testid=booster-name]')) expect(name.classes()).toContain('truncate')
+    w.unmount()
+  })
+
   it('makes a booster that this run has used inactive: the whole-run kinds, and a hint of this element', async () => {
     const w = await render(
       stock({

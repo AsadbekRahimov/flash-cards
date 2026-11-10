@@ -89,6 +89,18 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Бесплатный тариф: 20 новых слов в день')
     })
 
+    it('opens the sheet "How it works" from its own row, and closes it', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)
+      expect(w.get('[data-testid=row-intro]').text()).toBe('Как это работает')
+      await w.get('[data-testid=row-intro]').trigger('click')
+      expect(w.get('[data-testid=intro-title]').text()).toBe('Вы видите слово и вспоминаете перевод')
+
+      await w.get('[data-testid=sheet-x]').trigger('click')
+      expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)
+    })
+
     it('has no spinner and no error once loaded', async () => {
       const w = await render()
 

@@ -14,6 +14,11 @@ import { useI18n } from '@/i18n'
  * "I remember" / "Easy", each with a hint of what happens next. The hint is small (12 px), so it is not faded with
  * `opacity` (that was 2.4-3.5:1 in the light themes): it is the colour of its button mixed half and half with the text
  * colour of the theme, 4.8:1 and better on the soft backgrounds of the light and the dark Telegram themes (docs/14 §4.1).
+ *
+ * A `new` word has never been seen, so there is nothing to recall: the translation and the example are open at once
+ * ("Learn this word"), the same three grades are sent (2 / 4 / 5) under the labels "Not yet" / "Got it" / "Knew it", and the
+ * hints are left out: for a new word the engine puts 2 and 4 back within minutes and 5 after days (docs/06 §3.2), which
+ * the grown-up hints "today / on schedule / rarer" would not describe.
  */
 const props = defineProps<{
   card: Card
@@ -30,6 +35,10 @@ const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
 const { t } = useI18n()
 
+const isNew = computed(() => props.card.card_kind === 'new')
+/** A new word shows its translation at once. */
+const revealed = computed(() => props.showTranslation || isNew.value)
+
 const kind = computed(() => {
   switch (props.card.card_kind) {
     case 'new':
@@ -42,11 +51,17 @@ const kind = computed(() => {
 })
 
 /** The three grades, left to right; the colours are the soft tokens of the design system. */
-const grades = computed(() => [
-  { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
-  { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
-  { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
-])
+const grades = computed(() => isNew.value
+  ? [
+      { quality: 2 as const, testid: 'grade-hard', label: t('card.grade_new.hard'), hint: '', tone: 'btn-danger' },
+      { quality: 4 as const, testid: 'grade-medium', label: t('card.grade_new.medium'), hint: '', tone: 'btn-tinted' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade_new.easy'), hint: '', tone: 'bg-success-soft text-success-ink' },
+    ]
+  : [
+      { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
+      { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
+    ])
 
 function onSpeak(): void {
   selectionHaptic()
@@ -89,7 +104,7 @@ function onGrade(q: Quality): void {
           </p>
         </div>
 
-        <template v-if="showTranslation">
+        <template v-if="revealed">
           <hr class="border-hairline" />
           <div class="px-1 pb-1 text-center">
             <p class="text-2xl leading-8 font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
@@ -110,7 +125,7 @@ function onGrade(q: Quality): void {
 
     <StickyActions>
       <button
-        v-if="!showTranslation"
+        v-if="!revealed"
         type="button"
         class="btn btn-primary btn-lg btn-block"
         data-testid="reveal-btn"
@@ -121,7 +136,7 @@ function onGrade(q: Quality): void {
       </button>
 
       <template v-else>
-        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t('card.grade_prompt') }}</p>
+        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t(isNew ? 'card.grade_prompt_new' : 'card.grade_prompt') }}</p>
         <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
           <button
             v-for="grade in grades"
@@ -134,7 +149,7 @@ function onGrade(q: Quality): void {
             @click="onGrade(grade.quality)"
           >
             <span class="text-[15px] leading-5 font-semibold">{{ grade.label }}</span>
-            <span class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
+            <span v-if="grade.hint" class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
           </button>
         </div>
       </template>

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import IntroSheet from '@/components/IntroSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -63,6 +64,9 @@ async function load(): Promise<void> {
 const name = computed(() => (auth.learner?.first_name ?? '').trim())
 /** First letter of the name (a whole code point, so an emoji is not cut in half). */
 const initial = computed(() => (Array.from(name.value)[0] ?? '').toUpperCase())
+
+/** The sheet "How it works" (the same one Home shows to a newcomer). */
+const introOpen = ref(false)
 
 const isPro = computed(() => entitlement.value?.plan === 'pro')
 
@@ -220,6 +224,13 @@ onMounted(() => {
           :title="t('settings.title')"
           data-testid="row-settings"
         />
+        <ListRow
+          icon="information-circle"
+          tile="teal"
+          :title="t('profile.how_it_works')"
+          data-testid="row-intro"
+          @click="introOpen = true"
+        />
       </ListGroup>
 
       <p v-if="support" class="px-4 pt-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="profile-support">
@@ -235,5 +246,7 @@ onMounted(() => {
         <span v-else class="font-semibold break-all" data-testid="profile-support-text">{{ support.label }}</span>
       </p>
     </div>
+
+    <IntroSheet v-if="introOpen" @close="introOpen = false" />
   </div>
 </template>

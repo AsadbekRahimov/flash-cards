@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
+import IntroSheet from '@/components/IntroSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -16,7 +17,9 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
+import { hasLearnerProgress } from '@/composables/learnerProgress'
 import { tierLabelKey } from '@/composables/leagueTiers'
+import { hasSeen, markSeen } from '@/composables/seenFlag'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -90,6 +93,18 @@ const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 
 function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
 }
+
+/** Whether the learner is past the first day (docs/14 §3): a newcomer's Home keeps only the greeting, the goal, the counters and the button. */
+const hasProgress = computed(() => data.value !== null && hasLearnerProgress(data.value))
+
+const INTRO_KEY = 'lexiflow:intro-seen'
+const introOpen = ref(false)
+// The first visit of a newcomer: the sheet "How it works" opens once (marked at the moment it opens), never for a learner with progress.
+watch(data, (current) => {
+  if (current === null || introOpen.value || hasLearnerProgress(current) || hasSeen(INTRO_KEY)) return
+  markSeen(INTRO_KEY)
+  introOpen.value = true
+})
 
 const paywallOpen = ref(false)
 /** Why the sheet was opened: the session card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
@@ -354,23 +369,14 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ t(needsCourseToStart ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
-        <button
-          v-if="!isPro"
-          type="button"
-          class="btn btn-plain btn-block mt-1"
-          data-testid="paywall-open"
-          @click="openPaywall(data.new_words_remaining === 0 ? 'quota' : 'info')"
-        >
-          {{ t('paywall.open') }}
-        </button>
       </section>
 
       <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. -->
-      <ClassCaravanCard v-if="data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
+      <ClassCaravanCard v-if="hasProgress && data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
 
       <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
       <RouterLink
-        v-if="gameEntry"
+        v-if="hasProgress && gameEntry"
         :to="gameEntry.to"
         class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
         :data-kind="gameEntry.kind"
@@ -426,14 +432,14 @@ onBeforeUnmount(() => training.clearOpenError())
           </div>
         </div>
 
-        <div class="mt-3 space-y-1 border-t pt-3">
+        <div v-if="streak.frozen_yesterday || isPro || streak.current > 0" class="mt-3 space-y-1 border-t pt-3">
           <p v-if="streak.frozen_yesterday" class="text-[15px] leading-5" data-testid="streak-frozen">
             {{ t('today.streak.frozen_yesterday') }}
           </p>
           <p v-if="isPro" class="text-[13px] leading-[18px] text-tg-hint" data-testid="streak-freezes">
             {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
           </p>
-          <div v-else class="flex justify-center">
+          <div v-else-if="streak.current > 0" class="flex justify-center">
             <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-teaser" @click="openPaywall('streak_freeze')">
               {{ t('today.streak.freeze_teaser') }}
             </button>
@@ -507,7 +513,7 @@ onBeforeUnmount(() => training.clearOpenError())
         </div>
       </section>
 
-      <ListGroup v-if="leagueRow">
+      <ListGroup v-if="hasProgress && leagueRow">
         <ListRow
           :to="{ name: 'league' }"
           icon="trophy"
@@ -518,6 +524,8 @@ onBeforeUnmount(() => training.clearOpenError())
         />
       </ListGroup>
     </div>
+
+    <IntroSheet v-if="introOpen" @close="introOpen = false" />
 
     <PaywallSheet
       v-if="paywallOpen"

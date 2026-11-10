@@ -67,17 +67,21 @@ const items = computed(() =>
       v-for="item in items"
       :key="item.key"
       type="button"
-      class="relative flex size-12 items-center justify-center rounded-xl bg-fill transition-opacity active:scale-95 short:size-11"
+      class="flex min-h-12 w-20 flex-col items-center gap-0.5 rounded-xl bg-fill px-1 py-1.5 transition-opacity active:scale-95 short:size-11 short:min-h-0 short:w-auto short:justify-center short:p-0"
       :class="{ 'opacity-40': item.spent, 'short:hidden': item.useless }"
       :disabled="disabled || item.spent"
       :aria-label="item.label"
       :data-testid="`booster-${item.effect}`"
       @click="emit('use', item.key, item.effect)"
     >
-      <GameItemImage :name="item.key" :size="32" />
-      <span class="absolute -right-1 -bottom-1 rounded-full bg-accent px-1.5 text-[11px] leading-4 font-semibold text-tg-button-text tabular-nums" data-testid="booster-qty">
-        {{ t('gameCaravan.booster.qty', { qty: item.qty }) }}
+      <span class="relative flex size-9 items-center justify-center short:size-11">
+        <GameItemImage :name="item.key" :size="32" />
+        <span class="absolute -right-1 -bottom-1 rounded-full bg-accent px-1.5 text-[11px] leading-4 font-semibold text-tg-button-text tabular-nums" data-testid="booster-qty">
+          {{ t('gameCaravan.booster.qty', { qty: item.qty }) }}
+        </span>
       </span>
+      <!-- The name is written under the icon (a short window has no room for it: the icon and the label of the button stay). -->
+      <span class="block w-full truncate text-center text-[11px] leading-4 text-tg-subtitle short:hidden" data-testid="booster-name">{{ item.name }}</span>
     </button>
   </div>
 </template>

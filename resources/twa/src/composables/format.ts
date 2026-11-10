@@ -39,6 +39,73 @@ function intlTag(locale: string): string {
   return locale === 'uz' ? 'uz-Latn' : locale
 }
 
+/**
+ * Uzbek by hand, for a WebView whose ICU has no Uzbek data: there `Intl` does not fail, it answers "M11 10, Tue" (seen in a
+ * headless Chromium, 2026-11). The layouts follow what a full ICU prints for `uz-Latn`.
+ */
+const UZ_MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr']
+const UZ_WEEKDAYS = ['yakshanba', 'dushanba', 'seshanba', 'chorshanba', 'payshanba', 'juma', 'shanba']
+const UZ_WEEKDAYS_SHORT = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan']
+const EN_WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+let uzbekKnown: boolean | null = null
+const handFormatters = new Map<string, Intl.DateTimeFormat>()
+
+/** Whether this browser can name Uzbek months itself (asked once). */
+function knowsUzbek(): boolean {
+  if (uzbekKnown === null) {
+    try {
+      uzbekKnown = new Intl.DateTimeFormat('uz-Latn', { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, 10, 10))).toLowerCase() === 'noyabr'
+    } catch {
+      uzbekKnown = false
+    }
+  }
+  return uzbekKnown
+}
+
+/** For the tests: forget what was learnt about the browser. */
+export function resetUzbekProbe(): void {
+  uzbekKnown = null
+}
+
+function formatUzbekByHand(date: Date, style: DateStyle, zone: string): string {
+  let formatter = handFormatters.get(zone)
+  if (!formatter) {
+    formatter = createDateFormatter(
+      'en-GB',
+      { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' },
+      zone,
+    )
+    handFormatters.set(zone, formatter)
+  }
+  const parts = formatter.formatToParts(date)
+  const part = (type: Intl.DateTimeFormatPartTypes): string => parts.find((item) => item.type === type)?.value ?? ''
+  const day = part('day')
+  const month = UZ_MONTHS[Number(part('month')) - 1] ?? ''
+  const short = month.slice(0, 3)
+  const weekday = Math.max(0, EN_WEEKDAYS.indexOf(part('weekday')))
+  const time = `${part('hour')}:${part('minute')}`
+
+  switch (style) {
+    case 'dayMonth':
+      return `${day}-${month}`
+    case 'dayMonthYear':
+      return `${day}-${month}, ${part('year')}`
+    case 'dayMonthShort':
+      return `${day}-${short}`
+    case 'dayMonthShortYear':
+      return `${day}-${short}, ${part('year')}`
+    case 'dayMonthShortTime':
+      return `${day}-${short}, ${time}`
+    case 'weekdayTime':
+      return `${UZ_WEEKDAYS_SHORT[weekday]} ${time}`
+    case 'weekdayDayMonth':
+      return `${UZ_WEEKDAYS[weekday]}, ${day}-${month}`
+    case 'time':
+      return time
+  }
+}
+
 const dateFormatters = new Map<string, Intl.DateTimeFormat>()
 
 /** A formatter for `zone` (an IANA id); '' or an id this browser does not know gives the device's zone. */
@@ -71,6 +138,7 @@ export function formatDate(iso: string, style: DateStyle, locale: string, timeZo
 
   const tag = intlTag(locale)
   const zone = calendarDate ? '' : (timeZone ?? '')
+  if (locale === 'uz' && !knowsUzbek()) return formatUzbekByHand(date, style, zone)
   const key = `${tag}|${style}|${zone}`
   let formatter = dateFormatters.get(key)
   if (!formatter) {

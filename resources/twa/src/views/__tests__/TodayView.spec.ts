@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
+import { resetSeenSession } from '@/composables/seenFlag'
 import { useTrainingStore } from '@/stores/training'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
@@ -83,6 +84,7 @@ const makeRouter = () =>
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/game/daily', name: 'game-daily', component: { template: '<div />' } },
       { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
@@ -104,6 +106,8 @@ describe('TodayView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    window.localStorage.clear()
+    resetSeenSession()
     state.ensure.mockResolvedValue(undefined)
     state.learner = null
     vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [] })
@@ -192,7 +196,7 @@ describe('TodayView', () => {
       const w = await render(today({ new_words_remaining: null, entitlement: { plan: 'free', source: 'free', until: null } }))
 
       expect(text(w, 'plan-badge')).toBe('Free')
-      expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+      expect(w.get('[data-testid=plan-badge] .chip').classes()).toContain('chip-neutral')
     })
 
     it('is a tab root: no system "Back" button', async () => {
@@ -387,19 +391,15 @@ describe('TodayView', () => {
       expect(api.training.open).not.toHaveBeenCalled()
     })
 
-    it('shows the paywall entry only to a Free learner, as a tertiary button with its reason', async () => {
+    it('has no "Learn about Pro" link in the card: the plan chip in the header is the way to Pro', async () => {
       const w = await render(today({ new_words_remaining: 12 }))
-      expect(w.get('[data-testid=paywall-open]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
-      expect(text(w, 'paywall-open')).toBe('Узнать о Pro')
 
-      await w.get('[data-testid=paywall-open]').trigger('click')
-      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Лимит новых слов')
+      expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+      expect(w.get('[data-testid=review-card]').text()).not.toContain('Узнать о Pro')
+      expect(w.get('[data-testid=plan-badge]').attributes('href')).toBe('/billing')
 
       const quota = await render(today({ new_words_remaining: 0 }))
-      await quota.get('[data-testid=paywall-open]').trigger('click')
-      expect(quota.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
-
-      expect((await render(today({ entitlement: PRO }))).find('[data-testid=paywall-open]').exists()).toBe(false)
+      expect(quota.find('[data-testid=paywall-open]').exists()).toBe(false)
     })
 
     it('puts a failed open under the button and scrolls it into view, wherever the learner pressed', async () => {
@@ -509,11 +509,116 @@ describe('TodayView', () => {
       await flushPromises()
       expect(w.get('[data-testid=paywall-lead]').text()).toContain('Заморозка серии — в Pro')
 
-      // The session card still opens the sheet with its own reason.
-      await w.get('[data-testid=paywall-close]').trigger('click')
-      await w.get('[data-testid=paywall-open]').trigger('click')
-      await flushPromises()
-      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Заморозка серии')
+    })
+
+    it('shows the teaser only to a learner who has a streak', async () => {
+      const none = await render(today({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+
+      expect(none.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
+      expect(none.find('[data-testid=streak-card]').exists()).toBe(true)
+    })
+  })
+
+  describe('a newcomer (no progress yet)', () => {
+    const newcomer = (overrides: Partial<TodayResponse> = {}): TodayResponse =>
+      today({
+        due_count: 0,
+        goal: { target: 20, done: 0, met: false },
+        streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
+        active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: { id: 41, stage: 1, lesson: 1, title: null } },
+        league: { tier: 0, tier_key: 'bronze', rank: 1, points: 0, members_count: 30 },
+        game: { daily_available: true, active_run: null },
+        ...overrides,
+      })
+
+    it('keeps the greeting, the goal, the counters and the button; no caravan of the day, no league, no Pro teasers', async () => {
+      const w = await render(newcomer())
+
+      expect(w.find('h1').exists()).toBe(true)
+      expect(w.find('[data-testid=goal-card]').exists()).toBe(true)
+      expect(w.find('[data-testid=due-count]').exists()).toBe(true)
+      expect(w.find('[data-testid=review-btn]').exists()).toBe(true)
+      expect(w.find('[data-testid=game-entry]').exists()).toBe(false)
+      expect(w.find('[data-testid=league-line]').exists()).toBe(false)
+      expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+      expect(w.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
+    })
+
+    it.each<[string, Partial<TodayResponse>]>([
+      ['a streak that was', { streak: { current: 0, best: 2, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }],
+      ['words done today', { goal: { target: 20, done: 3, met: false } }],
+      ['words waiting for review', { due_count: 4 }],
+      ['an unfinished session', { open_session_id: 77 }],
+      ['learned words in the course', { active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 5, total: 900 }, next_lesson: null } }],
+    ])('brings the caravan and the league back with %s, and no intro', async (_name, overrides) => {
+      const w = await render(newcomer(overrides))
+
+      expect(w.find('[data-testid=game-entry]').exists()).toBe(true)
+      expect(w.find('[data-testid=league-line]').exists()).toBe(true)
+      expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)
+    })
+
+    describe('the sheet "How it works"', () => {
+      it('opens once for a newcomer: three steps, "Next" / "Start"', async () => {
+        const w = await render(newcomer())
+
+        expect(w.find('[data-testid=intro-sheet]').exists()).toBe(true)
+        expect(text(w, 'intro-title')).toBe('Вы видите слово и вспоминаете перевод')
+        expect(text(w, 'intro-text')).toBe('Потом открываете ответ и честно отмечаете, помните ли его.')
+        expect(text(w, 'intro-next')).toBe('Дальше')
+
+        await w.get('[data-testid=intro-next]').trigger('click')
+        expect(text(w, 'intro-title')).toBe('Слова возвращаются сами')
+        await w.get('[data-testid=intro-next]').trigger('click')
+        expect(text(w, 'intro-title')).toBe('Хватит 10 минут в день')
+        expect(text(w, 'intro-text')).toBe('Нажмите «Начать занятие» — остальное приложение сделает само.')
+        expect(text(w, 'intro-next')).toBe('Начать')
+
+        await w.get('[data-testid=intro-next]').trigger('click')
+        expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)
+      })
+
+      it('does not come back on the next visit', async () => {
+        const first = await render(newcomer())
+        await first.get('[data-testid=sheet-x]').trigger('click')
+        expect(first.find('[data-testid=intro-sheet]').exists()).toBe(false)
+
+        const second = await render(newcomer())
+        expect(second.find('[data-testid=intro-sheet]').exists()).toBe(false)
+      })
+
+      it('does not open for a learner with progress', async () => {
+        expect((await render()).find('[data-testid=intro-sheet]').exists()).toBe(false)
+      })
+
+      it('speaks Uzbek too', async () => {
+        setLocale('uz')
+        const w = await render(newcomer())
+
+        expect(text(w, 'intro-title')).toBe("Siz so'zni ko'rasiz va tarjimasini eslaysiz")
+        expect(text(w, 'intro-next')).toBe('Keyingi')
+      })
+
+      it('does not break and does not come back within the session when the storage throws', async () => {
+        const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+          throw new Error('denied')
+        })
+        const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+          throw new Error('denied')
+        })
+        try {
+          const first = await render(newcomer())
+          expect(first.find('[data-testid=intro-sheet]').exists()).toBe(true)
+          await first.get('[data-testid=sheet-x]').trigger('click')
+
+          const second = await render(newcomer())
+          expect(second.find('[data-testid=review-btn]').exists()).toBe(true)
+          expect(second.find('[data-testid=intro-sheet]').exists()).toBe(false)
+        } finally {
+          get.mockRestore()
+          set.mockRestore()
+        }
+      })
     })
   })
 

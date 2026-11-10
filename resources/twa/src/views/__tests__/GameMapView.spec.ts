@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
+import { resetSeenSession } from '@/composables/seenFlag'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { gameLimits, gameMap, mapBoss, mapCity, mapDaily, mapStop } from '@/api/__tests__/gameMapFixtures'
@@ -84,6 +85,74 @@ beforeEach(() => {
   back.target = null
   setLocale('ru')
   document.body.innerHTML = ''
+  resetSeenSession()
+  // The rules sheet opens on the first visit: the specs of the map itself start after it was seen.
+  window.localStorage.setItem('lexiflow:game-intro-seen', '1')
+})
+
+describe('GameMapView: "How to play"', () => {
+  beforeEach(() => window.localStorage.clear())
+  afterEach(() => window.localStorage.clear())
+
+  it('opens the rules once on the first visit of the map, with the numbers of the rules constant', async () => {
+    const { wrapper } = await render()
+
+    const sheet = testid(wrapper, 'game-intro-sheet')
+    expect(sheet.exists()).toBe(true)
+    expect(sheet.text()).toContain('Как играть в «Караван»')
+    expect(testid(wrapper, 'game-intro-p1').text()).toBe('Это игра по словам вашего курса. Каждый урок — стоянка, каждый модуль — город.')
+    expect(testid(wrapper, 'game-intro-p2').text()).toBe('Забег — 8–10 заданий. У вас 3 фляги: ошибка — минус фляга.')
+    expect(testid(wrapper, 'game-intro-p3').text()).toBe('За забеги дают звёзды и монеты. Монеты тратятся в «Мой караван».')
+    expect(testid(wrapper, 'game-intro-ok').text()).toBe('Понятно')
+
+    await testid(wrapper, 'game-intro-ok').trigger('click')
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+
+    const again = await render()
+    expect(testid(again.wrapper, 'game-intro-sheet').exists()).toBe(false)
+  })
+
+  it('opens again from the "How to play" button', async () => {
+    window.localStorage.setItem('lexiflow:game-intro-seen', '1')
+    const { wrapper } = await render()
+
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+    expect(testid(wrapper, 'how-to-play').text()).toBe('Как играть')
+    await testid(wrapper, 'how-to-play').trigger('click')
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(true)
+  })
+
+  it('is not opened over the loading map or the error', async () => {
+    const { wrapper } = await render(new Promise<GameMapResponse>(() => {}))
+    expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(false)
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render()
+
+    expect(testid(wrapper, 'game-intro-sheet').text()).toContain("«Karvon» o'yini qanday o'ynaladi")
+    expect(testid(wrapper, 'game-intro-p2').text()).toBe('Safar — 8–10 ta topshiriq. Sizda 3 ta mesh bor: xato qilsangiz, bitta mesh kamayadi.')
+    expect(testid(wrapper, 'game-intro-ok').text()).toBe('Tushunarli')
+  })
+
+  it('does not break when the storage throws', async () => {
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
+    try {
+      const { wrapper } = await render()
+      expect(testid(wrapper, 'game-intro-sheet').exists()).toBe(true)
+      await testid(wrapper, 'game-intro-ok').trigger('click')
+      expect(testid(wrapper, 'road').exists()).toBe(true)
+    } finally {
+      get.mockRestore()
+      set.mockRestore()
+    }
+  })
 })
 
 describe('GameMapView: the way to "My caravan"', () => {

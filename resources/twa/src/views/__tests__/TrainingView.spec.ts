@@ -55,7 +55,7 @@ const card: Card = {
   translation_fallback: false,
   example: null,
   transcription: null,
-  card_kind: 'new',
+  card_kind: 'due',
   serve_token: null,
 }
 
@@ -111,6 +111,19 @@ describe('TrainingView — closed session', () => {
     expect(wrapper.find('[data-testid=progress]').exists()).toBe(false)
     await wrapper.get('[data-testid=close-btn]').trigger('click')
     expect(state.close).toHaveBeenCalled()
+  })
+
+  it('a new word is graded at once, without the reveal step: the same quality goes to the server', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({ ...started(1), card: { ...card, card_kind: 'new' }, progress: { done: 0, total: 3 } })
+    vi.mocked(api.training.review).mockRejectedValue(offline())
+    const { wrapper } = await render(1)
+
+    expect(wrapper.find('[data-testid=reveal-btn]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=translation]').text()).toBe('Устойчивый')
+    await wrapper.get('[data-testid=grade-medium]').trigger('click')
+    await flushPromises()
+
+    expect(vi.mocked(api.training.review).mock.calls[0]?.slice(0, 3)).toEqual([1, 7, 4])
   })
 
   describe('a personal session that closes under the learner', () => {
