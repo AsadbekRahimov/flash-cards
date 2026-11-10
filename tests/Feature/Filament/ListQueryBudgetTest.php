@@ -6,6 +6,7 @@ use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Filament\Org\Resources\AssignmentResource\Pages\ListAssignments;
 use App\Filament\Org\Resources\AssignmentResource\Pages\ViewAssignment;
 use App\Filament\Org\Resources\AssignmentResource\RelationManagers\ResultsRelationManager;
+use App\Filament\Org\Resources\ExamResource\Pages\ListExams;
 use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
 use App\Filament\Org\Resources\InviteResource\Pages\ListInvites;
 use App\Filament\Org\Resources\MemberResource\Pages\ListMembers;
@@ -14,6 +15,8 @@ use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Course;
+use App\Models\ExamResult;
+use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Organization;
@@ -288,3 +291,27 @@ it('fails the budget of a page whose statements grow with the rows', function ()
     expect(fn () => FilamentQueryBudget::assert(ListMembers::class, $fill, ceiling: 3))
         ->toThrow(ExpectationFailedException::class, 'against a budget of 3');
 });
+
+it('lists the exams of a center within budget: participants and the average ride in the page query', function (string $who): void {
+    $c = budgetCenter();
+    budgetEnter($c[$who], $c['organization']);
+
+    // Closed exams of the group, each with two results (the count and the sums of the page query, the title of the group and the stage).
+    $fill = function (int $rows) use ($c): void {
+        $have = ExamSession::query()->where('telegram_group_id', $c['group']->id)->count();
+        ExamSession::factory()
+            ->count($rows - $have)
+            ->create(['telegram_group_id' => $c['group']->id, 'lesson_id' => $c['lesson']->id, 'status' => 'closed', 'closed_at' => now()])
+            ->each(function (ExamSession $exam): void {
+                foreach ([1, 2] as $rank) {
+                    ExamResult::factory()->create(['exam_session_id' => $exam->id, 'rank' => $rank]);
+                }
+            });
+    };
+
+    // 8 statements per request (two requests are measured): the role, the groups of the user, the count, the page with the aggregates,
+    // the group / lesson / stage titles (one each), the options of the group filter.
+    $queries = FilamentQueryBudget::assert(ListExams::class, $fill, ceiling: 18);
+
+    expect(roleLookups($queries[FilamentQueryBudget::LARGE]))->toBe(2);
+})->with(['owner', 'teacher']);

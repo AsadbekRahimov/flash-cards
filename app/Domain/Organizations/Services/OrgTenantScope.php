@@ -8,6 +8,7 @@ use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Models\Assignment;
 use App\Models\ClassCaravan;
+use App\Models\ExamSession;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -218,6 +219,26 @@ final class OrgTenantScope
         }
 
         return in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Group exams (`exam_sessions`, mode `group_exam`) of the groups the user sees in the organization: owner - every linked group of the
+     * center, teacher - their own. A personal mock has no group and is never listed; a group unlinked or moved since is not ours any more.
+     *
+     * @return Builder<ExamSession>
+     */
+    public function exams(User $user, Organization $organization): Builder
+    {
+        return ExamSession::query()
+            ->where('exam_sessions.mode', ExamSession::MODE_GROUP_EXAM)
+            ->whereIn('exam_sessions.telegram_group_id', $this->teacherGroupIds($user, $organization));
+    }
+
+    /** Whether the user may see this exam (same rule as exams()); no query of its own. */
+    public function canSeeExam(User $user, Organization $organization, ExamSession $exam): bool
+    {
+        return $exam->mode === ExamSession::MODE_GROUP_EXAM
+            && in_array($exam->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
     }
 
     /**

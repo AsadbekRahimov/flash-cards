@@ -3198,6 +3198,45 @@
 | `bot.help.group_caravan` | /start_caravan — sinf karvonini boshlash<br>/cancel_caravan — sinf karvonini bekor qilish<br> | /start_caravan — запустить караван класса<br>/cancel_caravan — отменить караван класса<br> |
 | `bot.help.private_caravan` | • Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.<br> | • Караван класса: /start_caravan — запустить, /cancel_caravan — отменить.<br> |
 | `org.nav.caravans` | Karvonlar | Караваны |
+| `org.nav.exams` | Imtihonlar | Экзамены |
+| `org.exams.singular` | Imtihon | Экзамен |
+| `org.exams.plural` | Imtihonlar | Экзамены |
+| `org.exams.empty` | Hozircha imtihonlar yo'q | Экзаменов пока нет |
+| `org.exams.lesson_label` | :stage-modul · :lesson-dars | Модуль :stage · Урок :lesson |
+| `org.exams.minutes` | :value daq. | :value мин |
+| `org.exams.columns.group` | Guruh | Группа |
+| `org.exams.columns.lesson` | Modul · dars | Модуль · урок |
+| `org.exams.columns.date` | Sana | Дата |
+| `org.exams.columns.duration` | Davomiyligi | Длительность |
+| `org.exams.columns.participants` | Ishtirokchilar | Участников |
+| `org.exams.columns.average` | O'rtacha natija | Средний результат |
+| `org.exams.columns.status` | Holati | Статус |
+| `org.exams.status.open` | Ochiq | Открыт |
+| `org.exams.status.closed` | Yopilgan | Закрыт |
+| `org.exams.filters.period` | Davr | Период |
+| `org.exams.filters.from` | Dan | С |
+| `org.exams.filters.until` | Gacha | По |
+| `org.exams.results.heading` | O'quvchilar natijalari | Результаты учеников |
+| `org.exams.results.empty` | Hozircha natijalar yo'q | Результатов пока нет |
+| `org.exams.results.rank` | O'rin | Место |
+| `org.exams.results.learner` | O'quvchi | Ученик |
+| `org.exams.results.correct` | To'g'ri / jami | Верно / всего |
+| `org.exams.results.percent` | Natija | Результат |
+| `org.exams.absent.heading` | Ishtirok etmaganlar | Не участвовали |
+| `org.exams.absent.empty` | Hamma ishtirok etdi | Участвовали все |
+| `org.exams.words.heading` | So'zlar bo'yicha tahlil (avval eng qiyinlari) | Разбор по словам (сначала самые трудные) |
+| `org.exams.words.empty` | Hozircha javoblar yo'q | Ответов пока нет |
+| `org.exams.words.word` | So'z | Слово |
+| `org.exams.words.translation` | Tarjima | Перевод |
+| `org.exams.words.correct` | To'g'ri / jami | Верно / всего |
+| `org.exams.words.percent` | To'g'ri javoblar | Верных ответов |
+| `org.exams.actions.csv` | CSV yuklab olish | Скачать CSV |
+| `org.exams.csv.rank` | O'rin | Место |
+| `org.exams.csv.learner` | O'quvchi | Ученик |
+| `org.exams.csv.correct` | To'g'ri | Верно |
+| `org.exams.csv.total` | Jami | Всего |
+| `org.exams.csv.percent` | Natija, % | Результат, % |
+| `org.exams.csv.score` | Ball | Баллы |
 | `org.caravans.singular` | Karvon | Караван |
 | `org.caravans.plural` | Karvonlar | Караваны |
 | `org.caravans.columns.group` | Guruh | Группа |

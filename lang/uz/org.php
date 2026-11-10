@@ -15,6 +15,7 @@ return [
         'teachers' => 'O\'qituvchilar',
         'assignments' => 'Vazifalar',
         'caravans' => 'Karvonlar',
+        'exams' => 'Imtihonlar',
         'reports' => 'Hisobotlar',
         'billing' => 'To\'lov',
         'settings' => 'Markaz sozlamalari',
@@ -336,6 +337,63 @@ return [
         'notifications' => [
             'created' => 'Vazifa yaratildi. E\'lon guruhga yuboriladi.',
             'closed' => 'Vazifa yopildi.',
+        ],
+    ],
+
+    'exams' => [
+        'singular' => 'Imtihon',
+        'plural' => 'Imtihonlar',
+        'empty' => 'Hozircha imtihonlar yo\'q',
+        'lesson_label' => ':stage-modul · :lesson-dars',
+        'minutes' => ':value daq.',
+        'columns' => [
+            'group' => 'Guruh',
+            'lesson' => 'Modul · dars',
+            'date' => 'Sana',
+            'duration' => 'Davomiyligi',
+            'participants' => 'Ishtirokchilar',
+            'average' => 'O\'rtacha natija',
+            'status' => 'Holati',
+        ],
+        'status' => [
+            'open' => 'Ochiq',
+            'closed' => 'Yopilgan',
+        ],
+        'filters' => [
+            'period' => 'Davr',
+            'from' => 'Dan',
+            'until' => 'Gacha',
+        ],
+        'results' => [
+            'heading' => 'O\'quvchilar natijalari',
+            'empty' => 'Hozircha natijalar yo\'q',
+            'rank' => 'O\'rin',
+            'learner' => 'O\'quvchi',
+            'correct' => 'To\'g\'ri / jami',
+            'percent' => 'Natija',
+        ],
+        'absent' => [
+            'heading' => 'Ishtirok etmaganlar',
+            'empty' => 'Hamma ishtirok etdi',
+        ],
+        'words' => [
+            'heading' => 'So\'zlar bo\'yicha tahlil (avval eng qiyinlari)',
+            'empty' => 'Hozircha javoblar yo\'q',
+            'word' => 'So\'z',
+            'translation' => 'Tarjima',
+            'correct' => 'To\'g\'ri / jami',
+            'percent' => 'To\'g\'ri javoblar',
+        ],
+        'actions' => [
+            'csv' => 'CSV yuklab olish',
+        ],
+        'csv' => [
+            'rank' => 'O\'rin',
+            'learner' => 'O\'quvchi',
+            'correct' => 'To\'g\'ri',
+            'total' => 'Jami',
+            'percent' => 'Natija, %',
+            'score' => 'Ball',
         ],
     ],
 
