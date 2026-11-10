@@ -165,6 +165,30 @@ for name in REDIS_PASSWORD REDIS_CACHE_PASSWORD; do
     esac
 done
 
+# Production settings that are off by default (local development must keep working) and cost something real when forgotten.
+# Warnings only: the deploy goes on, the operator sees them before the build (docs/24_VPS_DOCKER_RU.md, the launch checklist).
+# The value is read the way compose reads it (shell environment, then .env); an unset line counts as the default.
+echo "==> Checking the production settings (warnings only)"
+warn_setting() { echo "WARNING: $1" >&2; }
+env_flag() { redis_password_of "$1" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]'; }
+[ "$(env_flag TELEGRAM_IP_ALLOWLIST_ENABLED)" = "true" ] \
+    || warn_setting "TELEGRAM_IP_ALLOWLIST_ENABLED is not true: the webhook accepts a request from any address that knows the URL secret and the header secret; set it to true in production (Telegram's ranges, docs/07_SECURITY.md)."
+[ "$(env_flag PAYME_ALLOW_TEST_KEY)" != "true" ] \
+    || warn_setting "PAYME_ALLOW_TEST_KEY=true: the Payme test key is accepted; it must be false in production."
+[ "$(env_flag APP_DEBUG)" != "true" ] \
+    || warn_setting "APP_DEBUG=true: error pages show code, paths and environment; set APP_DEBUG=false (the readiness probe reports it too)."
+[ -n "$(redis_password_of BACKUP_ARCHIVE_PASSWORD | tr -d '[:space:]')" ] \
+    || warn_setting "BACKUP_ARCHIVE_PASSWORD is empty: the database backups would not be encrypted (or the backup run fails); set it (openssl rand -base64 48)."
+BACKUP_DISKS_VALUE="$(env_flag BACKUP_DISKS)"
+case ",${BACKUP_DISKS_VALUE:-local}," in
+    *,local,*) case "$BACKUP_DISKS_VALUE" in *,*) ;; *) warn_setting "BACKUP_DISKS is '${BACKUP_DISKS_VALUE:-local}': the backups stay on the server's own disk; add an off-site disk (s3) so that a lost server does not take the backups with it." ;; esac ;;
+esac
+TRACES_RATE="$(redis_password_of SENTRY_TRACES_SAMPLE_RATE | tr -d '[:space:]')"
+case "${TRACES_RATE:-0}" in
+    0|0.0|0.00|0.0[0-1]|0.00[0-9]*|0.01) ;;
+    *) warn_setting "SENTRY_TRACES_SAMPLE_RATE is '${TRACES_RATE}': tracing every API request costs CPU on the hot path; 0 (or at most 0.01) in production." ;;
+esac
+
 # The server of the app-api container (docker-compose.prod.yml, docs/DEVOPS_GUIDE.md §0 «Режим контейнера app-api»): fpm (the
 # default, also when unset) or octane. Read the way compose reads it (shell environment, then .env); anything else stops here.
 APP_SERVER_MODE="$(redis_password_of APP_SERVER | tr -d '[:space:]')"
@@ -245,6 +269,16 @@ if [ "$ROLLBACK" != "1" ]; then
     echo "==> Recounting the words of the courses"
     $COMPOSE run --rm app php artisan courses:recount-words \
         || echo "WARNING: courses:recount-words failed; run it by hand: $COMPOSE exec app php artisan courses:recount-words" >&2
+fi
+
+# The Telegram side: the command menu, the Mini App button and the webhook (docker/telegram-setup.sh, shared with the Coolify
+# deploy). Idempotent; skipped with a warning when TELEGRAM_BOT_TOKEN / TELEGRAM_WEBHOOK_URL / the secrets are not set, and an
+# error of the Telegram API only warns - the database is migrated by now and the stack must come up. Not on a rollback: the older
+# code has no such commands (and `set -e` would stop the rollback on it).
+if [ "$ROLLBACK" != "1" ]; then
+    echo "==> Setting up the Telegram bot (menu, Mini App button, webhook)"
+    $COMPOSE run --rm app sh docker/telegram-setup.sh \
+        || echo "WARNING: docker/telegram-setup.sh failed; run it by hand: $COMPOSE exec app sh docker/telegram-setup.sh" >&2
 fi
 
 echo "==> Starting / updating the production stack"

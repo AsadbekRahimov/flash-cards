@@ -85,11 +85,16 @@ docker compose -f docker-compose.prod.yml exec -T app php artisan tinker
 # >>> \App\Models\User::create([...])->assignRole('admin');
 # Зайти в /admin/login и настроить 2FA.
 
-# 4. Webhook в Telegram
-docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:set-webhook
-# Меню команд по «/» (ru/uz) и постоянная кнопка «LexiFlow» с мини-приложением (нужен https в TWA_BASE_URL); можно повторять
-docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:setup-bot
+# 4. Webhook в Telegram, меню команд по «/» (ru/uz) и кнопка Mini App «LexiFlow» deploy.sh ставит сам
+#    (docker/telegram-setup.sh: telegram:setup-bot + telegram:set-webhook, идемпотентно). Нужны TELEGRAM_BOT_TOKEN,
+#    TELEGRAM_WEBHOOK_URL, TELEGRAM_URL_SECRET, TELEGRAM_HEADER_SECRET и https в TWA_BASE_URL; без них шаг пропускается с WARNING,
+#    ошибка Telegram API деплой не роняет. Повторить вручную:
+docker compose -f docker-compose.prod.yml exec -T app sh docker/telegram-setup.sh
 ```
+
+На Coolify то же делает `lf-migrate` (конец его команды в `docker-compose.coolify.yml`), сети и Traefik — `docs/22_DEPLOY_R13_RU.md` §8.
+Чек-лист настроек, выключенных по умолчанию (allowlist Telegram, `PAYME_ALLOW_TEST_KEY`, бэкапы, `APP_DEBUG`, Sentry), —
+`docs/24_VPS_DOCKER_RU.md` §10; `deploy.sh` печатает по ним предупреждения.
 
 ### Последующие deploy'и
 
