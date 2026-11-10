@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Learning\DTO;
 
 /**
- * What a reverse / audio card was sent without (it gives the right option away, docs/06 §12.2) and comes back with the
- * verdict of the answer: the card's screen after the pick.
+ * What a meaning / reverse / audio card was sent without (it gives the right option away, docs/06 §12.2) and comes back
+ * with the verdict of the answer: the card's screen after the pick.
  */
 final readonly class RevealedCard
 {
     /**
-     * @param  string  $correct  the right option exactly as it stands among the options (reverse: the word, audio: the translation)
+     * @param  string  $correct  the right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation)
      * @param  array{word: string, translation: string|null}|null  $confusedWith
      */
     public function __construct(

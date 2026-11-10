@@ -35,9 +35,10 @@ final class TrainingNextResource extends TwaResource
         $hidesWord = $prompt !== null && $prompt->type->hidesWord();
         // Pretest: the meaning is the answer — the translation, the example and the hooks wait for the verdict (docs/06 §12.7).
         $hidesTranslation = $prompt !== null && $prompt->type->hidesTranslation();
-        // Reverse / audio: the picked option is graded by the server, so the card carries nothing that gives the right option
-        // away — reverse: the word is the answer (and its example, transcription, audio), audio: the translation (and the example).
-        // Both come back as `revealed` in POST /review (docs/06 §12.2). The hooks and the note may name either, so they wait too.
+        // Meaning / reverse / audio: the picked option is graded by the server, so the card carries nothing that gives the right
+        // option away — reverse: the word is the answer (and its example, transcription, audio); meaning / audio: the translation
+        // (and the example). All come back as `revealed` in POST /review (docs/06 §12.2). The hooks and the note may name either,
+        // so they wait too.
         $hidesChoice = $prompt !== null && $prompt->type->hidesChoiceAnswer();
         $reverse = $prompt?->type === ExerciseType::Reverse;
         $hidden = $hidesWord || $hidesTranslation || $hidesChoice;

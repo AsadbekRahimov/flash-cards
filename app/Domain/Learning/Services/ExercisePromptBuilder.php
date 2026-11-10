@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Turns the selected {@see ExerciseType} into what the client shows (docs/13 §2.5, docs/04 A.3).
  *
- * Reverse / audio / pretest need {@see OPTIONS} choices: the right one plus real distractors — active words
+ * Meaning / reverse / audio / pretest need {@see OPTIONS} choices: the right one plus real distractors — active words
  * of the same lesson, then of the same course, then of published public platform courses
  * ({@see Course::scopePublicPlatform()}, the same whitelist as the exam builder; private courses
  * of centers and learners never leak in).
@@ -41,13 +41,13 @@ final class ExercisePromptBuilder
     ) {}
 
     /**
-     * The type the card is actually shown with: reverse / audio without enough distractors (and a gap-fill
-     * whose example lost the word) fall back to flash. `POST /review` records this, not the selector's pick.
+     * The type the card is actually shown with: a four-option card without enough distractors (and a gap-fill
+     * whose example lost the word) falls back to flash. `POST /review` records this, not the selector's pick.
      */
     public function effectiveType(ExerciseType $type, Word $word, string $locale, int $seed, ?string $example = null): ExerciseType
     {
         return match ($type) {
-            ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => count($this->distractors(
+            ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => count($this->distractors(
                 $type,
                 $word,
                 $this->correctOption($type, $word, $this->translations->resolve($word, $locale)),
@@ -76,7 +76,7 @@ final class ExercisePromptBuilder
     ): ExercisePrompt {
         return match ($type) {
             ExerciseType::Flash => ExercisePrompt::flash($word->word, $audioUrl),
-            ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => $this->choice($type, $word, $translation, $locale, $audioUrl, $seed),
+            ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => $this->choice($type, $word, $translation, $locale, $audioUrl, $seed),
             ExerciseType::Spelling => new ExercisePrompt(
                 $type,
                 $translation->text,
@@ -122,12 +122,12 @@ final class ExercisePromptBuilder
         $options = [$correct, ...$distractors];
         usort($options, static fn (string $a, string $b): int => crc32($seed.'|'.$a) <=> crc32($seed.'|'.$b));
 
-        // reverse: the translation is the question; pretest: the word is; audio: nothing — the word is only heard.
+        // reverse: the translation is the question; meaning / pretest: the word is; audio: nothing — the word is only heard.
         return new ExercisePrompt(
             $type,
             match ($type) {
                 ExerciseType::Reverse => $translation->text,
-                ExerciseType::Pretest => $word->word,
+                ExerciseType::Meaning, ExerciseType::Pretest => $word->word,
                 default => '',
             },
             $audioUrl,
@@ -136,8 +136,9 @@ final class ExercisePromptBuilder
     }
 
     /**
-     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for audio), distinct from the
-     * right answer and from each other case-insensitively, from the nearest layer that has enough of them.
+     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for meaning / audio / pretest), distinct
+     * from the right answer and from each other case-insensitively, from the nearest layer that has enough of them —
+     * so a second word with the same translation never yields a second right option.
      *
      * @return list<string>
      */

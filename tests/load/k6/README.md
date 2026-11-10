@@ -6,7 +6,7 @@
 | Файл | Что нагружает | Команда |
 |---|---|---|
 | `twa-hot-paths.js` | Главная, профиль, курсы, каталог, тренировка **со свежими** карточками (все flash) | `make load-test` |
-| `twa-training-mature.js` | тренировка со **зрелыми** карточками: reverse / audio (варианты с дистракторами строит сервер), у Pro — ввод (spelling / gap-fill) | `make load-test-mature` |
+| `twa-training-mature.js` | тренировка со **зрелыми** карточками: meaning / reverse / audio (варианты с дистракторами строит сервер; ответ — один из вариантов), у Pro — ввод (spelling / gap-fill) | `make load-test-mature` |
 | `game-caravan.js` | игра «Караван»: карта, старт забега, ответы до конца, итог | `make load-test-game` |
 | `practice-session.js` | практика: сессия одного режима (`PRACTICE_MODE`) от хаба до последнего ответа | `make load-test-practice` |
 | `battle.js` | баттл: пара учеников от приглашения до результата, опрос 5 с / 3 с / 2 с | `make load-test-battle` |

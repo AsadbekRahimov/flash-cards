@@ -56,6 +56,7 @@ const card = (prompt: ExercisePrompt | null, overrides: Partial<Card> = {}): Car
 })
 
 const prompts = {
+  meaning: { type: 'meaning', front: 'walk', masked_example: null, options: ['бежать', 'идти', 'сидеть', 'есть'], answer_length: null },
   reverse: { type: 'reverse', front: 'идти', masked_example: null, options: ['run', 'walk', 'sit', 'eat'], answer_length: null },
   audio: { type: 'audio', front: '', masked_example: null, options: ['бежать', 'идти', 'сидеть', 'есть'], answer_length: null },
   spelling: { type: 'spelling', front: 'идти', masked_example: null, options: null, answer_length: 4 },
@@ -101,6 +102,7 @@ describe('TrainingView — exercises', () => {
 
   it('renders the screen of prompt.type and a flash card without a prompt', async () => {
     expect((await render(card(null))).wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+    expect((await render(card(prompts.meaning, { translation: '' }))).wrapper.find('[data-testid=meaning-card]').exists()).toBe(true)
     expect((await render(card(prompts.reverse))).wrapper.find('[data-testid=reverse-card]').exists()).toBe(true)
     expect((await render(card(prompts.audio))).wrapper.find('[data-testid=audio-card]').exists()).toBe(true)
     expect((await render(card(prompts.spelling))).wrapper.find('[data-testid=spelling-card]').exists()).toBe(true)
@@ -122,7 +124,7 @@ describe('TrainingView — exercises', () => {
      * The answer to the pick of a reverse / audio card: the verdict and what the card was sent without (the word of the
      * reverse card, the translation of the audio one). The right option is `walk` / `идти`.
      */
-    const choiceAnswer = (correct: boolean, exercise: 'reverse' | 'audio' = 'reverse', overrides: Partial<ReviewResponse> = {}): ReviewResponse => {
+    const choiceAnswer = (correct: boolean, exercise: 'reverse' | 'audio' | 'meaning' = 'reverse', overrides: Partial<ReviewResponse> = {}): ReviewResponse => {
       const right = exercise === 'reverse' ? 'walk' : 'идти'
       return reviewAnswer({
         graded: { quality: correct ? 4 : 2, correct, expected: right },
@@ -237,6 +239,45 @@ describe('TrainingView — exercises', () => {
       expect(wrapper.get('[data-testid=word]').text()).toBe('walk')
 
       await wrapper.get('[data-testid=continue-btn]').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+      expect(api.training.answer).toHaveBeenCalledTimes(1)
+    })
+
+    it('a meaning pick is sent at once with its exercise; a wrong one reveals the translation and waits for "Next"', async () => {
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(false, 'meaning'))
+      const { wrapper } = await render(card(prompts.meaning, { translation: '', example: null }))
+      // The card carries no translation before the pick: nothing but the word, the question and the options.
+      expect(wrapper.get('[data-testid=word]').text()).toBe('walk')
+      expect(wrapper.find('[data-testid=example]').exists()).toBe(false)
+
+      await wrapper.get('[data-testid=option-0]').trigger('click')
+      await flushPromises()
+      expect(api.training.answer).toHaveBeenCalledTimes(1)
+      expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'бежать', expect.any(Number), null, 'meaning')
+      expect(api.training.review).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-testid=meaning-card]').exists()).toBe(true)
+      // The server's answer colours the options and brings the example.
+      expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
+      expect(wrapper.get('[data-testid=example]').text()).toBe('They walked home.')
+
+      await wrapper.get('[data-testid=continue-btn]').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+      expect(api.training.answer).toHaveBeenCalledTimes(1)
+    })
+
+    it('a right meaning pick moves on by itself after the pause', async () => {
+      vi.useFakeTimers()
+      vi.mocked(api.training.answer).mockResolvedValue(choiceAnswer(true, 'meaning'))
+      const { wrapper } = await render(card(prompts.meaning, { translation: '' }))
+
+      await wrapper.get('[data-testid=option-1]').trigger('click')
+      await flushPromises()
+      expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
+      expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
+      await vi.advanceTimersByTimeAsync(CHOICE_FEEDBACK_MS)
       await flushPromises()
       expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
       expect(api.training.answer).toHaveBeenCalledTimes(1)
@@ -514,5 +555,44 @@ describe('TrainingView — exercises', () => {
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('finished')
     expect(router.currentRoute.value.query).toMatchObject({ reviewed: '3', next: '6', reason: 'lesson_complete' })
+  })
+
+  describe('an exercise this build does not know (a newer server)', () => {
+    // A `prompt.type` outside EXERCISE_TYPES: the card hides its answer, so it must not be shown as a flash card.
+    const unknown = card({ ...prompts.reverse, type: 'sentence_build' as unknown as 'reverse' }, { word: '', translation: 'идти', example: null })
+
+    it('shows "update the app" with a close button instead of a card, and sends nothing', async () => {
+      const { wrapper } = await render(unknown)
+
+      const screen = wrapper.get('[data-testid=update-required]')
+      expect(screen.text()).toContain('Обновите приложение')
+      expect(screen.text()).toContain('Закройте приложение и откройте его снова')
+      expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(false)
+      expect(wrapper.findAll('button[data-testid^=option-]')).toHaveLength(0)
+      expect(wrapper.find('[data-testid=progress-bar]').exists()).toBe(true) // the header stays: the session is intact
+
+      const close = screen.get('[data-testid=update-close-btn]')
+      expect(close.text()).toBe('Выйти в Telegram')
+      await close.trigger('click')
+      expect(state.close).toHaveBeenCalledTimes(1)
+      expect(api.training.review).not.toHaveBeenCalled()
+      expect(api.training.answer).not.toHaveBeenCalled()
+    })
+
+    it('renders in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(unknown)
+      expect(wrapper.get('[data-testid=update-required]').text()).toContain('Ilovani yangilang')
+      expect(wrapper.get('[data-testid=update-close-btn]').text()).toBe('Telegramga qaytish')
+    })
+
+    it('a known exercise after an unknown one is shown as usual', async () => {
+      const { wrapper } = await render(unknown)
+      useTrainingStore().applyCard(card(prompts.meaning, { translation: '' }))
+      await flushPromises()
+      expect(wrapper.find('[data-testid=update-required]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=meaning-card]').exists()).toBe(true)
+    })
   })
 })

@@ -191,7 +191,7 @@ final class TrainingController
             return $this->unauthorizedLearner();
         }
 
-        // `quality` (flash) or `answer` (the picked option of reverse / audio / pretest, the typed text of spelling / gap-fill),
+        // `quality` (flash) or `answer` (the picked option of meaning / reverse / audio / pretest, the typed text of spelling / gap-fill),
         // never both (docs/04 A.3, docs/06 §12.2). An `answer` key that is present but empty ("" → null) is an empty answer, graded as wrong.
         $typed = $request->has('answer');
 

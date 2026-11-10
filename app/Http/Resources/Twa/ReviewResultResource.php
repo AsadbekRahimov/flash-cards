@@ -33,7 +33,7 @@ final class ReviewResultResource extends TwaResource
                 'correct' => $verdict->isCorrect(),
                 'expected' => $verdict->normalizedExpected,
             ],
-            // The reverse / audio card as it was sent without what gives the right option away (docs/06 §12.2); null otherwise.
+            // The meaning / reverse / audio card as it was sent without what gives the right option away (docs/06 §12.2); null otherwise.
             'revealed' => $revealed === null ? null : [
                 'word' => $revealed->word,
                 'translation' => $revealed->translation,

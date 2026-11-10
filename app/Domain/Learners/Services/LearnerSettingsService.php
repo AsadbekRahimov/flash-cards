@@ -41,7 +41,7 @@ use Throwable;
  *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
  *  - `goal`, `level`     the onboarding whitelists;
  *  - `leagues_opt_out`   bool, kept in `learners.meta` (docs/13 §7.3): `true` = not placed in league groups any more.
- *  - `exercises`         `{reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
+ *  - `exercises`         `{meaning, reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
  *                        given change), stored in `learners.meta.exercises` (docs/13 §8.2); flash cards
  *                        cannot be switched off.
  *  - `retention_mode`    `calm` / `normal` / `intense` — the FSRS target retention (docs/06 §12.8), kept in
@@ -85,7 +85,7 @@ use Throwable;
  *   timezone_change_available_at: string|null,
  *   timezone_undo_available_until: string|null,
  *   active_course: array{slug: string, title: string}|null,
- *   exercises: array{reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
+ *   exercises: array{meaning: bool, reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
  *   scheduler: string,
  *   retention_mode: string,
  *   options: array{

@@ -12,6 +12,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\ExercisePromptBuilder;
 use App\Domain\Learning\Services\ExerciseSelector;
 use App\Domain\Learning\Services\ReviewSubmissionService;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -109,7 +110,8 @@ describe('ExerciseSelector', function (): void {
         }
         expect($this->selector->select(exRepetition(0), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash)
             ->and($this->selector->select(exRepetition(1, intervalDays: 1), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash)
-            ->and($this->selector->select(exRepetition(2, intervalDays: 6), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash);
+            // The second pass asks for the meaning (docs/06 §12.1), the third for the word.
+            ->and($this->selector->select(exRepetition(2, intervalDays: 6), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Meaning);
     });
 
     it('is deterministic: the same inputs always give the same type, and the recognition rung alternates reverse / audio', function (): void {
@@ -124,11 +126,11 @@ describe('ExerciseSelector', function (): void {
         expect(array_keys($seen))->toEqualCanonicalizing(['reverse', 'audio']);
     });
 
-    it('never gives a server-graded exercise to Free, whatever the maturity (typed recall stays Pro by default)', function (): void {
+    it('never gives a typed exercise to Free, whatever the maturity (typed recall stays Pro by default)', function (): void {
         for ($reps = 2; $reps <= 12; $reps++) {
             for ($wordId = 1; $wordId <= 10; $wordId++) {
                 $type = $this->selector->select(exRepetition($reps, intervalDays: $reps * 10), exWord($wordId), Entitlement::free(), $this->all, 'daily_review');
-                expect($type->serverGraded())->toBeFalse();
+                expect($type->hidesWord())->toBeFalse()->and($type->rung())->toBeLessThan(LadderPolicy::RUNG_TYPED);
             }
         }
     });
@@ -153,9 +155,12 @@ describe('ExerciseSelector', function (): void {
         $noGap = new LearnerExerciseSettings(gapFill: false);
         expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord(2), proEntitlement(), $noGap, 'lesson'))->toBe(ExerciseType::Spelling);
 
-        $onlyFlash = new LearnerExerciseSettings(false, false, false, false);
+        // The options off: the rung below (the meaning) takes the card; that off too: flash.
+        $onlyMeaning = new LearnerExerciseSettings(false, false, false, false);
+        $onlyFlash = new LearnerExerciseSettings(false, false, false, false, false);
         for ($wordId = 1; $wordId <= 20; $wordId++) {
-            expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $onlyFlash, 'lesson'))->toBe(ExerciseType::Flash);
+            expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $onlyMeaning, 'lesson'))->toBe(ExerciseType::Meaning)
+                ->and($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $onlyFlash, 'lesson'))->toBe(ExerciseType::Flash);
         }
     });
 
@@ -465,15 +470,22 @@ it('exposes and updates the exercise settings through /me/settings (partial obje
     $headers = exHeaders($learner);
 
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => true]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => true]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['audio' => false]])->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => false, 'spelling' => true, 'gap_fill' => true]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => false, 'spelling' => true, 'gap_fill' => true]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['gap_fill' => false, 'audio' => true]])->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
 
     expect(LearnerExerciseSettings::fromLearner($learner->fresh() ?? $learner)->gapFill)->toBeFalse();
+
+    // The meaning exercise (docs/06 §12.1) is a switch like the others, on by default, for every plan.
+    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['meaning' => false]])->assertOk()
+        ->assertJsonPath('settings.exercises.meaning', false);
+    expect(LearnerExerciseSettings::fromLearner($learner->fresh() ?? $learner)->meaning)->toBeFalse();
+    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['meaning' => true]])->assertOk()
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['audio' => 'no']])->assertStatus(422);
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['flash' => false]])->assertStatus(422);

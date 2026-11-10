@@ -8,13 +8,13 @@
 // `rate_limited` threshold of the scenarios says when they do not.
 import { check, sleep } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
-import { get, post, ok, think, json, uuid, answerFor, getAudio } from './lib.js';
+import { get, post, ok, think, json, uuid, answerFor, getAudio, pick } from './lib.js';
 
 /** Flows that ended on a refusal or an unexpected answer of the API (limit reached, no material, 4xx): the run measured less than it should. */
 export const flowAborted = new Counter('flow_aborted');
 /** A flow that reached its natural end (a session finished, a run ended, a match closed): `rate>0.95` in the thresholds. */
 export const flowCompleted = new Rate('flow_completed');
-/** Mature training: how many of the served cards carry options (the reverse / audio path with the distractors). */
+/** Mature training: how many of the served cards carry options (the meaning / reverse / audio path with the distractors). */
 export const distractorCards = new Rate('training_distractor_cards');
 export const cardsServed = new Counter('training_cards_served');
 export const trainingCoverage = new Trend('training_review_coverage');
@@ -49,7 +49,7 @@ function elapsed(since) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 /**
- * A daily-review session over cards that are due and graduated (LoadScenarioSeeder): the exercise selector serves reverse / audio
+ * A daily-review session over cards that are due and graduated (LoadScenarioSeeder): the exercise selector serves meaning / reverse / audio
  * (and, for a Pro learner, spelling / gap-fill) cards, whose options are built by the server from a pool of distractors - the path
  * the fresh-card scenario never takes. open -> `cards` x review -> finish.
  */
@@ -81,10 +81,15 @@ export function matureTraining(token, cards) {
     distractorCards.add(Array.isArray(card.prompt?.options) && card.prompt.options.length > 0);
     think(3, 6);
 
+    // The kind of grade follows the exercise (docs/04 A.3): a typed card takes text, a four-option card (meaning / reverse / audio /
+    // pretest) takes one of its options - the server grades both and refuses a `quality` for them - and a flash card the learner's own grade.
     const typed = card.prompt && (card.prompt.type === 'spelling' || card.prompt.type === 'gap_fill');
-    const body = { word_id: card.word_id, time_spent_ms: 3000 + Math.floor(Math.random() * 3000), serve_token: card.serve_token };
+    const options = Array.isArray(card.prompt?.options) ? card.prompt.options : [];
+    const body = { word_id: card.word_id, time_spent_ms: 3000 + Math.floor(Math.random() * 3000), serve_token: card.serve_token, exercise: card.prompt?.type || 'flash' };
     if (typed) {
       body.answer = 'test';
+    } else if (options.length > 0) {
+      body.answer = pick(options);
     } else {
       body.quality = 3 + Math.floor(Math.random() * 3);
     }

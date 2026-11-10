@@ -90,7 +90,7 @@ function lmCard(array $s): array
 }
 
 /**
- * The right option of a reverse / audio card. The card itself does not carry it (docs/06 §12.2), so it is read from the word.
+ * The right option of a meaning / reverse / audio card. The card itself does not carry it (docs/06 §12.2), so it is read from the word.
  *
  * @param  array<string, mixed>  $card
  */
@@ -99,6 +99,14 @@ function lmCorrect(array $card): string
     $word = Word::query()->findOrFail($card['word_id']);
 
     return $card['prompt']['type'] === 'reverse' ? $word->word : $word->translation;
+}
+
+/** A wrong option of a four-option card. */
+function lmWrong(array $card): string
+{
+    $correct = lmCorrect($card);
+
+    return collect($card['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
 }
 
 /** Makes the row of the word a due review card again with the given maturity (the test's own clock). */
@@ -140,11 +148,12 @@ it('grades a four-option card from the picked option: the right one passes (4), 
     expect($wrong)->not->toBeNull();
 });
 
-/** The learner sees only the given type of the options exercises (the other is switched off, typed ones need Pro). */
+/** The learner sees only the given type of the four-option exercises (the others are switched off, typed ones need Pro). */
 function lmOnly(array $s, string $type): void
 {
-    $off = ['reverse' => $type !== 'reverse', 'audio' => $type !== 'audio'];
-    $s['learner']->forceFill(['meta' => ['exercises' => ['reverse' => ! $off['reverse'], 'audio' => ! $off['audio'], 'spelling' => false, 'gap_fill' => false]]])->save();
+    $s['learner']->forceFill(['meta' => ['exercises' => [
+        'meaning' => $type === 'meaning', 'reverse' => $type === 'reverse', 'audio' => $type === 'audio', 'spelling' => false, 'gap_fill' => false,
+    ]]])->save();
 }
 
 /**
@@ -166,8 +175,9 @@ function lmCardStrings(array $card): array
     return $out;
 }
 
-it('sends a reverse / audio card without anything that gives the right option away, and returns it with the verdict', function (string $type): void {
-    $s = lmScenario(5, 3, 15, rowAttributes: ['note' => 'word0 or перевод 0 - my hint', 'is_hard' => true]);
+it('sends a meaning / reverse / audio card without anything that gives the right option away, and returns it with the verdict', function (string $type): void {
+    // The meaning is asked on its own rung (two passes); the word on the next (three).
+    $s = lmScenario(5, $type === 'meaning' ? 2 : 3, $type === 'meaning' ? 6 : 15, rowAttributes: ['note' => 'word0 or перевод 0 - my hint', 'is_hard' => true]);
     foreach ($s['words'] as $i => $word) {
         $word->forceFill(['transcription' => "/wɜːd{$i}/"])->save();
         WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => "перевод {$i}", 'hook' => "word{$i} = перевод {$i}", 'source' => 'import']);
@@ -186,6 +196,10 @@ it('sends a reverse / audio card without anything that gives the right option aw
     if ($type === 'reverse') {
         expect($card['word'])->toBe('')->and($card['transcription'])->toBeNull()->and($card['audio_url'])->toBeNull()
             ->and($card['translation'])->not->toBe('');
+    } elseif ($type === 'meaning') {
+        // The word is the question: seen with its transcription (and heard), its meaning hidden.
+        expect($card['translation'])->toBe('')->and($card['word'])->toBe($card['prompt']['front'])->and($card['word'])->toStartWith('word')
+            ->and($card['transcription'])->toStartWith('/wɜːd');
     } else {
         expect($card['translation'])->toBe('')->and($card['word'])->not->toBe('');
     }
@@ -204,7 +218,148 @@ it('sends a reverse / audio card without anything that gives the right option aw
         ->and($revealed['hook'])->toBe("{$revealed['word']} = {$revealed['translation']}")
         ->and($revealed['note'])->toBe("word{$i} or перевод {$i} - my hint")
         ->and($response->json('graded.correct'))->toBeTrue();
-})->with(['reverse', 'audio']);
+})->with(['meaning', 'reverse', 'audio']);
+
+// --- the meaning exercise (docs/06 §12.1, rung 1) ---------------------------------------------
+
+it('asks for the meaning on the second pass: the word with four translations, graded 4 / 2 by the server, never by a client quality', function (): void {
+    $s = lmScenario(5, 2, 6);
+    $card = lmCard($s);
+    expect($card['prompt']['type'])->toBe('meaning')
+        ->and($card['prompt']['front'])->toBe($card['word'])
+        ->and($card['prompt']['options'])->toHaveCount(4)
+        ->and($card['translation'])->toBe('')
+        ->and($card['example'])->toBeNull();
+
+    // A self-grade is refused even while the legacy transition flag for reverse / audio is on (the default).
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 100])
+        ->assertStatus(422)->assertJsonPath('error.code', 'quality_not_accepted');
+    expect(TrainingReview::query()->count())->toBe(0);
+
+    $correct = lmCorrect($card);
+    $response = $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => mb_strtoupper($correct), 'exercise' => 'meaning', 'time_spent_ms' => 900])
+        ->assertOk();
+    expect($response->json('graded'))->toMatchArray(['quality' => 4, 'correct' => true])
+        ->and($response->json('revealed.correct'))->toBe($correct)
+        ->and($response->json('revealed.translation'))->toBe($correct)
+        ->and(TrainingReview::query()->sole()->exercise)->toBe(ExerciseType::Meaning)
+        ->and(TrainingReview::query()->sole()->quality)->toBe(4)
+        ->and(WordRepetition::query()->where('word_id', $card['word_id'])->sole()->meta)->toMatchArray([LadderPolicy::LAST_EXERCISE_META => 'meaning']);
+
+    $second = lmCard($s);
+    expect($second['prompt']['type'])->toBe('meaning');
+    $response = $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $second['word_id'], 'answer' => lmWrong($second), 'time_spent_ms' => 900])
+        ->assertOk();
+    expect($response->json('graded'))->toMatchArray(['quality' => 2, 'correct' => false])
+        ->and($response->json('revealed.correct'))->toBe(lmCorrect($second))
+        ->and(WordRepetition::query()->where('word_id', $second['word_id'])->sole()->state)->toBe(RepetitionState::Relearning)
+        // A lapse on the lowest objective rung leaves no floor: 0 is not stored.
+        ->and(WordRepetition::query()->where('word_id', $second['word_id'])->sole()->meta)->not->toHaveKey(LadderPolicy::FLOOR_META);
+});
+
+it('answers 409 exercise_mismatch to a client that showed a meaning card as something else — or something else as a meaning card', function (): void {
+    $s = lmScenario(5, 2, 6);
+    $card = lmCard($s);
+    expect($card['prompt']['type'])->toBe('meaning');
+    $correct = lmCorrect($card);
+
+    // An older Mini App that does not know the type would show it as flash and self-grade: refused, nothing written.
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'exercise' => 'flash', 'time_spent_ms' => 100])
+        ->assertStatus(409)->assertJsonPath('error.code', 'exercise_mismatch');
+    foreach (['reverse', 'audio', 'pretest'] as $shown) {
+        $this->withHeaders($s['headers'])
+            ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => $shown, 'time_spent_ms' => 100])
+            ->assertStatus(409)->assertJsonPath('error.code', 'exercise_mismatch');
+    }
+    expect(TrainingReview::query()->count())->toBe(0);
+
+    // The other way round: a meaning card on screen while the server serves the options (the setting changed meanwhile).
+    lmReset($s['learner'], (int) $card['word_id'], 3, 15);
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => $correct, 'exercise' => 'meaning', 'time_spent_ms' => 100])
+        ->assertStatus(409)->assertJsonPath('error.code', 'exercise_mismatch');
+    expect(TrainingReview::query()->count())->toBe(0);
+});
+
+it('offers the right meaning exactly once: a second word with the same translation never makes a second right option', function (): void {
+    $s = lmScenario(8, 2, 6);
+    // Three words of the lesson share the translation of the card's word, in different case and spacing; four distinct ones remain.
+    $word = $s['words'][0];
+    foreach ([1, 2, 3] as $i) {
+        $s['words'][$i]->forceFill(['translation' => $i === 1 ? mb_strtoupper($word->translation) : ' '.$word->translation.' '])->save();
+    }
+    app(LearningCache::class)->forgetLessonId((int) $s['lesson']->id);
+    foreach (array_slice($s['words'], 1) as $other) {
+        WordRepetition::query()->where('word_id', $other->id)->update(['next_review_at' => now()->addDay()]);
+    }
+
+    $card = lmCard($s);
+    expect($card['word_id'])->toBe($word->id)->and($card['prompt']['type'])->toBe('meaning');
+    $options = $card['prompt']['options'];
+    $keys = array_map(static fn (string $o): string => mb_strtolower(trim($o)), $options);
+    expect($options)->toHaveCount(4)
+        ->and(array_unique($keys))->toHaveCount(4)
+        ->and(array_count_values($keys)[mb_strtolower($word->translation)])->toBe(1);
+
+    // Two /next for the same serve show the same options in the same order; the server grades against the same text.
+    expect(lmCard($s)['prompt']['options'])->toBe($options);
+    $this->withHeaders($s['headers'])
+        ->postJson("{$s['url']}/review", ['word_id' => $word->id, 'answer' => $word->translation, 'exercise' => 'meaning', 'time_spent_ms' => 100])
+        ->assertOk()->assertJsonPath('graded.correct', true);
+});
+
+it('costs a meaning card no more statements than an audio card, on /next and on /review', function (): void {
+    $cost = function (string $type): array {
+        $s = lmScenario(5, 3, 15);
+        lmOnly($s, $type);
+        $card = lmCard($s); // warms the lesson's caches (the pool of distractors, the translations), as under load
+        expect($card['prompt']['type'])->toBe($type);
+        $next = QueryLog::during(function () use ($s): void {
+            lmCard($s);
+        });
+        $review = QueryLog::during(function () use ($s, $card): void {
+            $this->withHeaders($s['headers'])
+                ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => lmCorrect($card), 'exercise' => $card['prompt']['type'], 'time_spent_ms' => 100])
+                ->assertOk();
+        });
+
+        return ['next' => count($next), 'review' => count($review)];
+    };
+
+    $audio = $cost('audio');
+    $meaning = $cost('meaning');
+    expect($meaning['next'])->toBeLessThanOrEqual($audio['next'])
+        ->and($meaning['review'])->toBeLessThanOrEqual($audio['review']);
+});
+
+it('renumbers the stored ladder floor for the meaning rung and puts it back on rollback', function (): void {
+    $learner = Learner::factory()->create();
+    $rows = [];
+    foreach ([null, 1, 2, 'x'] as $i => $floor) {
+        $word = Word::factory()->create();
+        $meta = $floor === null ? ['last_exercise' => 'flash'] : [LadderPolicy::FLOOR_META => $floor, 'last_exercise' => 'reverse'];
+        $rows[$i] = WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id, 'meta' => $meta]);
+    }
+    $floorOf = fn (int $i): mixed => (WordRepetition::query()->findOrFail($rows[$i]->id)->meta ?? [])[LadderPolicy::FLOOR_META] ?? null;
+
+    $migration = require database_path('migrations/2026_11_12_100002_renumber_ladder_floor_for_meaning_rung.php');
+
+    // Already applied by RefreshDatabase: rolling it back moves 2 → 1, 3 → 2 and drops a floor at the new rung 1.
+    $migration->down();
+    expect($floorOf(0))->toBeNull()->and($floorOf(1))->toBeNull()->and($floorOf(2))->toBe(1)->and($floorOf(3))->toBe('x');
+
+    $migration->up();
+    expect($floorOf(0))->toBeNull()->and($floorOf(1))->toBeNull()->and($floorOf(2))->toBe(2)->and($floorOf(3))->toBe('x')
+        ->and(WordRepetition::query()->findOrFail($rows[2]->id)->meta)->toMatchArray(['last_exercise' => 'reverse']);
+
+    // The ladder reads the renumbered floor as the rung it meant: 2 = the options.
+    $policy = LadderPolicy::fromConfig();
+    expect($policy->floorRung(WordRepetition::query()->findOrFail($rows[2]->id)))->toBe(LadderPolicy::RUNG_CHOICE);
+});
 
 it('has no `revealed` in the answer to a flash card or to a typed one', function (): void {
     $s = lmScenario(3, 0, 0, rowAttributes: ['state' => 'new']);
@@ -298,7 +453,7 @@ it('still takes the learner\'s own quality on a flash card, with its full range'
 });
 
 it('records the self-grade mismatch once: "remember / easy" on flash followed by a wrong objective answer on the same word', function (): void {
-    $s = lmScenario(5, 2, 6);
+    $s = lmScenario(5, 1, 1);
     $card = lmCard($s);
     expect($card['prompt']['type'])->toBe('flash');
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'quality' => 5, 'time_spent_ms' => 100])->assertOk();
@@ -364,17 +519,26 @@ it('lowers the ceiling by one rung on a lapse of a review card and serves the re
     $again = lmCard($s);
     expect($again['prompt']['type'])->toBeIn(['reverse', 'audio']);
 
-    // Failing at the options takes the floor away: next time it is a flash card.
+    // Failing at the options lowers the floor one more rung: next time the meaning is asked, not the word.
     $correct = lmCorrect($again);
     $wrong = collect($again['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $again['word_id'], 'answer' => $wrong, 'time_spent_ms' => 100])->assertOk();
+    expect($row()->meta)->toMatchArray([LadderPolicy::FLOOR_META => LadderPolicy::RUNG_MEANING]);
+    lmReset($s['learner'], $wordId, 1, 1);
+    $meaning = lmCard($s);
+    expect($meaning['prompt']['type'])->toBe('meaning');
+
+    // Failing at the meaning takes the floor away (0 is not stored): next time it is a flash card.
+    $correct = lmCorrect($meaning);
+    $wrong = collect($meaning['prompt']['options'])->first(fn (string $o): bool => mb_strtolower($o) !== mb_strtolower($correct));
+    $this->withHeaders($s['headers'])->postJson("{$s['url']}/review", ['word_id' => $meaning['word_id'], 'answer' => $wrong, 'exercise' => 'meaning', 'time_spent_ms' => 100])->assertOk();
     expect($row()->meta)->not->toHaveKey(LadderPolicy::FLOOR_META);
     lmReset($s['learner'], $wordId, 1, 1);
     expect(lmCard($s)['prompt']['type'])->toBe('flash');
 });
 
 it('clears the floor once the interval has grown back to it', function (): void {
-    $s = lmScenario(1, 4, 37, pro: true, rowAttributes: ['meta' => [LadderPolicy::FLOOR_META => 1]]);
+    $s = lmScenario(1, 4, 37, pro: true, rowAttributes: ['meta' => [LadderPolicy::FLOOR_META => LadderPolicy::RUNG_CHOICE]]);
     $card = lmCard($s);
     expect($card['prompt']['type'])->toBeIn(['spelling', 'gap_fill']);
 
@@ -431,7 +595,7 @@ it('never flags a leech when the threshold is 0', function (): void {
 it('shows the authored hook of the card\'s language on a new, failed or hard card only — never on a plain review', function (): void {
     $s = lmScenario(5, 3, 15);
     // Flash cards only: the cards with options are sent without the hooks (they may name the answer).
-    $s['learner']->forceFill(['meta' => ['exercises' => ['reverse' => false, 'audio' => false, 'spelling' => false, 'gap_fill' => false]]])->save();
+    $s['learner']->forceFill(['meta' => ['exercises' => ['meaning' => false, 'reverse' => false, 'audio' => false, 'spelling' => false, 'gap_fill' => false]]])->save();
     $word = $s['words'][0];
     WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'hook' => 'word + 0', 'source' => 'import']);
     WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'uz', 'translation' => 'tarjima 0', 'hook' => "so'z + 0", 'source' => 'import']);

@@ -609,4 +609,40 @@ describe('training store — the answer to a four-choice card and the exercise t
     expect(store.errorMessage).toBe('')
     expect(store.reviewedCount).toBe(0)
   })
+
+  it('knows the meaning exercise as a four-choice card: the pick goes as `answer` with exercise "meaning" and the answer is held', async () => {
+    const meaning = card({
+      translation: '',
+      serve_token: 'ticket-3',
+      prompt: { type: 'meaning', front: 'resilient', masked_example: null, options: ['a', 'Устойчивый', 'c', 'd'], answer_length: null },
+    })
+    const store = await startWith(meaning)
+    expect(store.exercise).toBe('meaning')
+    expect(store.unsupportedExercise).toBe(false)
+    vi.mocked(api.training.answer).mockResolvedValueOnce(
+      reviewed({ graded: { quality: 4, correct: true, expected: 'устойчивый' }, revealed: { ...revealed, correct: 'Устойчивый' } }),
+    )
+
+    await store.submitChoice('Устойчивый')
+
+    expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'Устойчивый', expect.any(Number), 'ticket-3', 'meaning')
+    expect(store.status).toBe('held')
+    expect(store.choiceResult).toEqual({ correct: true, right: 'Устойчивый', revealed: { ...revealed, correct: 'Устойчивый' } })
+    store.continueAfterChoice()
+    expect(store.card?.word_id).toBe(8)
+  })
+
+  it('flags a card whose exercise this build does not know, and only that one', async () => {
+    const store = await startWith(card({}))
+    expect(store.unsupportedExercise).toBe(false)
+    for (const type of ['flash', 'meaning', 'reverse', 'audio', 'spelling', 'gap_fill', 'pretest'] as const) {
+      store.applyCard(card({ prompt: { type, front: '', masked_example: null, options: null, answer_length: null } }))
+      expect(store.unsupportedExercise, type).toBe(false)
+    }
+    store.applyCard(card({ prompt: { type: 'sentence_build' as unknown as 'flash', front: '', masked_example: null, options: null, answer_length: null } }))
+    expect(store.unsupportedExercise).toBe(true)
+    expect(store.status).toBe('ready')
+    store.applyCard(null)
+    expect(store.unsupportedExercise).toBe(false)
+  })
 })

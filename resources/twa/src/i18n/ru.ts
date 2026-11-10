@@ -198,9 +198,13 @@ export const ru = {
   'training.daily_header': 'Занятие',
   'training.closed_title': 'Занятие завершено',
   'training.restart': 'Начать заново',
+  // A card with an exercise this build does not know (a newer server): the answer is hidden, a flash card would be empty.
+  'training.update.title': 'Обновите приложение',
+  'training.update.text': 'Это задание есть только в новой версии. Закройте приложение и откройте его снова — занятие продолжится с этого места.',
   'training.lesson_header_no_stage': 'Урок {lesson}',
 
   // ---- exercises (docs/13 §2.5) ----
+  'exercise.meaning.title': 'Что значит это слово?',
   'exercise.reverse.title': 'Выберите английское слово',
   'exercise.audio.title': 'Что вы услышали?',
   'exercise.audio.play': 'Прослушать ещё раз',
@@ -483,6 +487,8 @@ export const ru = {
   'settings.course': 'Основной курс',
   'settings.course.none': 'Не выбран',
   'settings.exercises': 'Упражнения',
+  'settings.exercises.meaning': 'Выбор значения',
+  'settings.exercises.meaning.hint': 'Слово → перевод из четырёх вариантов',
   'settings.exercises.reverse': 'Перевод → слово',
   'settings.exercises.audio': 'На слух',
   'settings.exercises.spelling': 'Написание слова',

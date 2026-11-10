@@ -16,6 +16,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import MeaningCard from '@/components/MeaningCard.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
@@ -53,6 +54,7 @@ const {
   lastExercise,
   savingNote,
   choiceResult,
+  unsupportedExercise,
 } = storeToRefs(training)
 
 /** The text of the last typed answer, for the verdict screen. */
@@ -160,7 +162,7 @@ function onGrade(q: Quality): void {
 }
 
 /**
- * Reverse / audio: the picked option goes to the server at the pick (it grades it, docs/06 §12.2), so it is saved even if
+ * Meaning / reverse / audio: the picked option goes to the server at the pick (it grades it, docs/06 §12.2), so it is saved even if
  * the learner leaves at once; the card has no right option in it, the options are coloured by `choiceResult` when the
  * server answers; the card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
  */
@@ -293,10 +295,35 @@ async function onRestart(): Promise<void> {
 
       <AnswerVerdict v-else-if="status === 'verdict' && verdict" :verdict="verdict" :answer="lastAnswer" @continue="onContinue" />
 
+      <!--
+        An exercise this build does not know (a newer server): it cannot be shown as a flash card — the answer is not in the card —
+        so the learner is asked to reopen the Mini App, which loads the current build (the session keeps its place).
+      -->
+      <ClosedState
+        v-else-if="card && unsupportedExercise"
+        icon="arrow-path"
+        :title="t('training.update.title')"
+        :text="t('training.update.text')"
+        data-testid="update-required"
+      >
+        <button type="button" class="btn btn-primary btn-block" data-testid="update-close-btn" @click="close">
+          {{ t('common.exit_app') }}
+        </button>
+      </ClosedState>
+
       <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve. -->
       <template v-else-if="card">
+        <MeaningCard
+          v-if="exercise === 'meaning'"
+          :key="`meaning-${serveSeq}`"
+          :card="card"
+          :disabled="isBusy"
+          :result="choiceResult"
+          @pick="onChoicePick"
+          @advance="onChoiceAdvance"
+        />
         <ReverseCard
-          v-if="exercise === 'reverse'"
+          v-else-if="exercise === 'reverse'"
           :key="`reverse-${serveSeq}`"
           :card="card"
           :disabled="isBusy"

@@ -55,9 +55,10 @@ use Illuminate\Support\Facades\DB;
  * Who grades what (docs/06 §12.2):
  *   - flash: the learner's own `quality`; `answer` is refused (422 `answer_not_accepted`, or 422 `exercise_pro_required`
  *     — a paywall reason — when the plan has no typed exercise at all);
- *   - reverse / audio / pretest: the picked option as `answer`, graded by the server against the right option
- *     (4 / 2; the pretest 5 / 2). A legacy `quality` is accepted while `learning.objective_grading.accept_legacy_quality`
- *     is on, normalised to 4 (pass) / 2 (fail) — never the learner's 5; off → 422 `quality_not_accepted`;
+ *   - meaning / reverse / audio / pretest: the picked option as `answer`, graded by the server against the right option
+ *     (4 / 2; the pretest 5 / 2). For reverse / audio a legacy `quality` is accepted while
+ *     `learning.objective_grading.accept_legacy_quality` is on, normalised to 4 (pass) / 2 (fail) — never the learner's 5;
+ *     off → 422 `quality_not_accepted`. Meaning (added after that transition) and the pretest never take a `quality`;
  *   - spelling / gap-fill: `answer`, graded with SpellingGrader against the word or the form in the example of this
  *     serve; `quality` is refused (422 `quality_not_accepted`).
  * The plan and the settings are read BEFORE the transaction: the review transaction holds
@@ -123,7 +124,7 @@ final class ReviewSubmissionService
     }
 
     /**
-     * An answer the server grades: the typed text of spelling / gap-fill, or the picked option of reverse / audio / pretest.
+     * An answer the server grades: the typed text of spelling / gap-fill, or the picked option of meaning / reverse / audio / pretest.
      *
      * @throws ReviewSubmissionException
      */
@@ -340,7 +341,7 @@ final class ReviewSubmissionService
     }
 
     /**
-     * @param  string  $correctOption  the right option of a four-option card (reverse: the word; audio / pretest: the translation)
+     * @param  string  $correctOption  the right option of a four-option card (reverse: the word; meaning / audio / pretest: the translation)
      *
      * @throws ReviewSubmissionException when the card's exercise is the learner's own grade
      */

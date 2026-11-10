@@ -2,19 +2,20 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
-import type {
-  Card,
-  ChoiceResult,
-  DoneReason,
-  ExerciseType,
-  Graded,
-  LessonHeader,
-  OpenSessionRequest,
-  Quality,
-  ReviewResponse,
-  SessionSummary,
-  TrainingMode,
-  TrainingStartResponse,
+import {
+  EXERCISE_TYPES,
+  type Card,
+  type ChoiceResult,
+  type DoneReason,
+  type ExerciseType,
+  type Graded,
+  type LessonHeader,
+  type OpenSessionRequest,
+  type Quality,
+  type ReviewResponse,
+  type SessionSummary,
+  type TrainingMode,
+  type TrainingStartResponse,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
@@ -86,7 +87,7 @@ interface TrainingState {
   /** The exercise of the card the last answer was sent for: the verdict screen of a pretest differs from a typed one. */
   lastExercise: ExerciseType | null
   /**
-   * The server's word on the pick of a reverse / audio card (the card carries nothing that gives the right option away, so
+   * The server's word on the pick of a meaning / reverse / audio card (the card carries nothing that gives the right option away, so
    * the screen colours the options only when this arrives); null before the answer and for the other exercises.
    */
   choiceResult: ChoiceResult | null
@@ -137,6 +138,12 @@ export const useTrainingStore = defineStore('training', {
   getters: {
     /** The exercise the current card is served with; a card without `prompt` (older server) is a flash card. */
     exercise: (s): ExerciseType => s.card?.prompt?.type ?? 'flash',
+
+    /**
+     * The card on screen carries an exercise this build does not know (a newer server): it cannot be shown as anything —
+     * a flash card would have no answer to reveal (the server hides it) — so the screen asks to update the Mini App.
+     */
+    unsupportedExercise: (s): boolean => s.card?.prompt != null && !EXERCISE_TYPES.includes(s.card.prompt.type),
 
     /**
      * Request to open the same kind of session again after a 410, or null when this run did not
@@ -235,7 +242,7 @@ export const useTrainingStore = defineStore('training', {
     },
 
     /**
-     * A four-choice card (reverse / audio): the picked option goes to the server as `answer` and the SERVER grades it
+     * A four-choice card (meaning / reverse / audio): the picked option goes to the server as `answer` and the SERVER grades it
      * (docs/06 §12.2) — the card carries nothing that gives the right option away, so the screen colours the options by
      * `choiceResult` when the answer arrives. The pick is final, so it is sent at once — it is saved even if the learner
      * leaves the screen right away. The card the review answers with is held back (`continueAfterChoice()`) until the

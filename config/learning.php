@@ -119,14 +119,21 @@ return [
     /**
      * The ladder of exercises by the maturity of the card (docs/25 §3.1) instead of the hash rotation:
      *   rung 0 — flash (self-graded): cards in minute steps and the first passes after graduation;
-     *   rung 1 — recognition with four options (reverse / audio, graded by the server from the pick);
-     *   rung 2 — typed recall (spelling / gap-fill) once the interval is long enough.
+     *   rung 1 — recognition of the meaning: the word is seen, its translation picked among four (`meaning`, graded by
+     *            the server from the pick);
+     *   rung 2 — recognition of the form with four options (reverse / audio, graded by the server from the pick);
+     *   rung 3 — typed recall (spelling / gap-fill) once the interval is long enough.
+     * A rung whose exercise is off (config, the learner's setting, the plan, a group lesson) is served one rung lower.
      * A lapse of a `review` card lowers the ceiling by one rung (`word_repetitions.meta.ladder_floor`); the card climbs
-     * back with its interval. `enabled = false` restores the previous rotation (docs/06 §4.3).
+     * back with its interval. `enabled = false` restores the previous rotation (docs/06 §4.3), in which `meaning` takes no part.
      */
     'ladder' => [
         'enabled' => (bool) env('LEARNING_LADDER_ENABLED', true),
-        /** From this many passes on (`repetitions`), a `review` card leaves the self-graded flash for the four options. */
+        /** The meaning exercise (rung 1) at all; `false` serves that rung as flash and the floor after a lapse at the options as flash too. */
+        'meaning_enabled' => (bool) env('LEARNING_LADDER_MEANING_ENABLED', true),
+        /** From this many passes on (`repetitions`), a `review` card leaves the self-graded flash for the choice of the meaning. */
+        'meaning_from_repetitions' => (int) env('LEARNING_LADDER_MEANING_FROM_REPETITIONS', 2),
+        /** From this many passes on (`repetitions`), a `review` card is asked for the word: four English words or by ear. */
         'choice_from_repetitions' => (int) env('LEARNING_LADDER_CHOICE_FROM_REPETITIONS', 3),
         /** From this interval (days) on, a `review` card is asked to be typed (spelling / gap-fill). */
         'typed_from_interval_days' => (int) env('LEARNING_LADDER_TYPED_FROM_INTERVAL_DAYS', 21),

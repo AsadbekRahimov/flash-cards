@@ -20,6 +20,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useOrganizationsStore } from '@/stores/organizations'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
 import type { ExerciseSettings, LearnerSettings, SettingsPatch } from '@/api/types'
 
 /**
@@ -45,8 +46,10 @@ const { data, status, saving, deleting, errorMessage: message, timezoneLockMessa
 /** Up to this many daily goals fit side by side as a segmented control; more go to a select. */
 const MAX_SEGMENTS = 4
 
-/** The exercise types of the settings screen, in display order (docs/13 §8.2); flash is always on. */
-const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['reverse', 'audio', 'spelling', 'gap_fill']
+/** The exercise types of the settings screen, in the order of the ladder (docs/13 §8.2, docs/06 §12.1); flash is always on. */
+const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill']
+/** The rows with a line under the name: what the exercise asks (the names of the others say it themselves). */
+const EXERCISE_HINTS: Partial<Record<keyof ExerciseSettings, StringKey>> = { meaning: 'settings.exercises.meaning.hint' }
 /** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip. */
 const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fill']
 
@@ -245,9 +248,14 @@ onBeforeUnmount(() => {
 
       <ListGroup :header="t('settings.exercises')" :footer="t('settings.exercises.always')" data-testid="exercises-card">
         <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`">
-          <span class="flex min-w-0 flex-1 items-center gap-2 text-base leading-[22px]">
-            <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
-            <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
+          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span class="flex min-w-0 items-center gap-2 text-base leading-[22px]">
+              <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
+              <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
+            </span>
+            <span v-if="EXERCISE_HINTS[key]" class="text-[13px] leading-[18px] text-tg-hint" :data-testid="`exercise-hint-${key}`">
+              {{ t(EXERCISE_HINTS[key]) }}
+            </span>
           </span>
           <ToggleSwitch
             :model-value="data.exercises[key]"

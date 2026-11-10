@@ -297,8 +297,8 @@ final class TrainingFlowService
     }
 
     /**
-     * What the answered reverse / audio card was sent without (docs/06 §12.2). Read after the grade is committed: the hook comes
-     * from the cache and the confusable pair from one indexed query, neither belongs under the row locks.
+     * What the answered meaning / reverse / audio card was sent without (docs/06 §12.2). Read after the grade is committed: the
+     * hook comes from the cache and the confusable pair from one indexed query, neither belongs under the row locks.
      */
     private function revealed(AcceptedReview $accepted): ?RevealedCard
     {
@@ -313,6 +313,7 @@ final class TrainingFlowService
         return new RevealedCard(
             word: $word->word,
             translation: $translation->text,
+            // The right option exactly as it stands among the options: reverse — the word; meaning / audio — the translation.
             correct: $reverse ? trim($word->word) : trim($translation->text),
             example: $accepted->example,
             transcription: $word->transcription,

@@ -179,9 +179,12 @@ export const uz: Translations = {
   'training.daily_header': "Mashg'ulot",
   'training.closed_title': "Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
+  'training.update.title': 'Ilovani yangilang',
+  'training.update.text': "Bu topshiriq faqat yangi versiyada bor. Ilovani yopib, qayta oching — mashg'ulot shu joydan davom etadi.",
   'training.lesson_header_no_stage': '{lesson}-dars',
 
   // ---- exercises (docs/13 §2.5) ----
+  'exercise.meaning.title': "Bu so'z nimani anglatadi?",
   'exercise.reverse.title': "Inglizcha so'zni tanlang",
   'exercise.audio.title': 'Nimani eshitdingiz?',
   'exercise.audio.play': 'Qayta tinglash',
@@ -446,6 +449,8 @@ export const uz: Translations = {
   'settings.course': 'Asosiy kurs',
   'settings.course.none': 'Tanlanmagan',
   'settings.exercises': 'Mashqlar',
+  'settings.exercises.meaning': "Ma'noni tanlash",
+  'settings.exercises.meaning.hint': "So'z → to'rtta variantdan tarjima",
   'settings.exercises.reverse': "Tarjima → so'z",
   'settings.exercises.audio': 'Eshitib',
   'settings.exercises.spelling': "So'zni yozish",

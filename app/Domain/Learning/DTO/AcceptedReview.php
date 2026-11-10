@@ -14,7 +14,7 @@ use App\Models\WordRepetition;
  * What {@see ReviewSubmissionService} applied: the updated card, the
  * exercise the grade was recorded under and — for a typed answer — the server's verdict.
  *
- * For a reverse / audio card (the card was sent without what gives the right option away) it also carries what the serve
+ * For a meaning / reverse / audio card (the card was sent without what gives the right option away) it also carries what the serve
  * showed, to be sent back with the verdict: the word, its translation, the example of the serve, whether the serve would show
  * the hooks (decided before the grade moved the card's state) and whether the word was a leech.
  */

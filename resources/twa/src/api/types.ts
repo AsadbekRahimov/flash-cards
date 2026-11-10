@@ -240,6 +240,8 @@ export interface ChallengesResponse {
 }
 
 export interface ExerciseSettings {
+  /** The word is seen, its meaning picked among four (docs/06 §12.1, rung 1); every plan. */
+  meaning: boolean
   reverse: boolean
   audio: boolean
   /** Pro feature: typed answers are served only with `exercise.spelling`. */
@@ -526,18 +528,24 @@ export type CardKind = 'due' | 'new' | 'learning'
 
 /**
  * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3, docs/06 §12.2):
- * flash → POST /review {quality}; reverse / audio / pretest → POST /review {answer: the picked option};
+ * flash → POST /review {quality}; meaning / reverse / audio / pretest → POST /review {answer: the picked option};
  * spelling / gap_fill → POST /review {answer: the typed text}.
  */
-export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill' | 'pretest'
+export type ExerciseType = 'flash' | 'meaning' | 'reverse' | 'audio' | 'spelling' | 'gap_fill' | 'pretest'
+
+/**
+ * The exercises this build of the Mini App can show. A newer server may serve a `prompt.type` outside this list: such a
+ * card must not be shown as a flash card (its answer is hidden), the screen asks to update instead (TrainingView).
+ */
+export const EXERCISE_TYPES: readonly ExerciseType[] = ['flash', 'meaning', 'reverse', 'audio', 'spelling', 'gap_fill', 'pretest']
 
 export interface ExercisePrompt {
   type: ExerciseType
-  /** reverse / spelling / gap_fill: the translation; flash / pretest: the word; audio: '' (the word is only heard). */
+  /** reverse / spelling / gap_fill: the translation; flash / meaning / pretest: the word; audio: '' (the word is only heard). */
   front: string
   /** gap_fill: the example with the word's form replaced by `____`. */
   masked_example: string | null
-  /** reverse: four English words; audio / pretest: four translations (the right one among them). */
+  /** reverse: four English words; meaning / audio / pretest: four translations (the right one among them). */
   options: string[] | null
   /** spelling / gap_fill: length of the expected text. */
   answer_length: number | null
@@ -604,14 +612,14 @@ export interface Graded {
 }
 
 /**
- * A reverse / audio card is sent WITHOUT what gives the right option away (docs/06 §12.2): reverse — `word`, `example`,
- * `transcription`, `audio_url`; audio — `translation`, `example`; both — `hook`, `note`, `confused_with`. The answer of
- * POST /review brings them back here, for the screen after the pick.
+ * A meaning / reverse / audio card is sent WITHOUT what gives the right option away (docs/06 §12.2): reverse — `word`,
+ * `example`, `transcription`, `audio_url`; meaning / audio — `translation`, `example`; all — `hook`, `note`, `confused_with`.
+ * The answer of POST /review brings them back here, for the screen after the pick.
  */
 export interface Revealed {
   word: string
   translation: string
-  /** The right option exactly as it stands among the options (reverse: the word, audio: the translation). */
+  /** The right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation). */
   correct: string
   example: string | null
   transcription: string | null
@@ -621,7 +629,7 @@ export interface Revealed {
   confused_with: { word: string; translation: string | null } | null
 }
 
-/** What the server said about a pick of a reverse / audio card: the screen colours the options by it. */
+/** What the server said about a pick of a meaning / reverse / audio card: the screen colours the options by it. */
 export interface ChoiceResult {
   correct: boolean
   /** The right option (`Revealed.correct`; `Graded.expected` when the server sent no `revealed`). */
@@ -635,7 +643,7 @@ export interface ReviewResponse {
   easiness_factor: number
   /** null when the client graded (quality was sent). */
   graded?: Graded | null
-  /** reverse / audio only: what the card was sent without (see {@link Revealed}); null otherwise. */
+  /** meaning / reverse / audio only: what the card was sent without (see {@link Revealed}); null otherwise. */
   revealed?: Revealed | null
   card?: Card | null
   progress?: { done: number; total: number }

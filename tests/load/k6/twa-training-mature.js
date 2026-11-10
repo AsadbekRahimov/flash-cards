@@ -1,6 +1,6 @@
 // Training with MATURE cards (audit 2026-11-10 §2 item 3(a)): twa-hot-paths.js opens lessons with fresh cards, which are all flash
 // cards. Here every learner has graduated, due cards (`db:seed --class=LoadScenarioSeeder`), so a daily-review session serves
-// reverse and audio cards - their options are built by the server from a pool of distractors (ExercisePromptBuilder), the
+// meaning, reverse and audio cards - their options are built by the server from a pool of distractors (ExercisePromptBuilder), the
 // steady state of an SRS app and the heaviest `review` the server has - and, for Pro learners, spelling and gap-fill.
 //
 // Pacing and thresholds as in twa-hot-paths.js (p95 < 300 ms, no 5xx, no 429); `training_distractor_cards` (rate > 0.3) fails the

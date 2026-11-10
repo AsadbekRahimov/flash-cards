@@ -3632,3 +3632,15 @@
 | `org.members.errors.telegram_invalid` | O'quvchining @username yoki raqamli Telegram ID'sini kiriting. | Укажите @username или числовой Telegram ID ученика. |
 | `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'yxatida paydo bo'ladi; o'quvchi botda rozi bo'lgach, u o'quvchilar orasida ko'rinadi. | Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников. |
 | `org.profile.telegram.superseded` | Telegram uzildi: bu Telegram akkauntini boshqa foydalanuvchi tasdiqladi. O'z Telegramingizni bot orqali ulang. | Telegram отключён: этот аккаунт Telegram подтвердил другой пользователь. Подключите свой Telegram через бота. |
+
+## Упражнение «выбор значения» (`meaning`, docs/06 §12.1) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.meaning.title` | Bu so'z nimani anglatadi? | Что значит это слово? |
+| `settings.exercises.meaning` | Ma'noni tanlash | Выбор значения |
+| `settings.exercises.meaning.hint` | So'z → to'rtta variantdan tarjima | Слово → перевод из четырёх вариантов |
+| `training.update.title` | Ilovani yangilang | Обновите приложение |
+| `training.update.text` | Bu topshiriq faqat yangi versiyada bor. Ilovani yopib, qayta oching — mashg'ulot shu joydan davom etadi. | Это задание есть только в новой версии. Закройте приложение и откройте его снова — занятие продолжится с этого места. |
