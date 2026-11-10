@@ -6,15 +6,15 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
-use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
+use App\Domain\Telegram\Services\BotSupportContact;
 use App\Domain\Telegram\Services\GroupSessionAnnouncer;
-use App\Models\Lesson;
+use App\Domain\Telegram\Services\LessonPicker;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -33,9 +33,6 @@ use App\Models\User;
  */
 final class StartTrainingHandler implements GroupUpdateHandler
 {
-    /** Max lessons shown in the picker keyboard. */
-    private const MAX_PICKER_ROWS = 20;
-
     /** Callback data prefix shared with StartTrainingCallbackHandler. */
     public const CALLBACK_PREFIX = 'tstart:';
 
@@ -45,8 +42,9 @@ final class StartTrainingHandler implements GroupUpdateHandler
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
         private readonly GroupSessionAnnouncer $announcer,
-        private readonly CourseCatalogService $catalog,
+        private readonly LessonPicker $picker,
         private readonly TeacherAuthority $authority,
+        private readonly BotSupportContact $support,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -108,7 +106,7 @@ final class StartTrainingHandler implements GroupUpdateHandler
                 return;
             }
 
-            $this->sendLessonPicker($chatId, $group, $locale);
+            $this->picker->send($chatId, $group, $locale, self::CALLBACK_PREFIX, 'training.picker.prompt');
 
             return;
         }
@@ -155,40 +153,11 @@ final class StartTrainingHandler implements GroupUpdateHandler
         return null;
     }
 
-    private function sendLessonPicker(int $chatId, TelegramGroup $group, string $locale): void
-    {
-        // Only the lessons of the group's course: the buttons carry stage/lesson numbers,
-        // which are resolved in that same course when pressed.
-        $lessons = $this->catalog->lessons($this->catalog->courseForGroup($group), self::MAX_PICKER_ROWS);
-
-        if ($lessons->isEmpty()) {
-            $this->telegram->sendMessage($chatId, __('training.picker.empty', [], $locale));
-
-            return;
-        }
-
-        $rows = $lessons->map(function (Lesson $lesson) use ($locale): array {
-            $stageNum = $lesson->stage->number ?? '?';
-            $lessonNum = $lesson->number;
-
-            return [[
-                'text' => __('training.picker.button', ['stage' => $stageNum, 'lesson' => $lessonNum], $locale),
-                'callback_data' => self::CALLBACK_PREFIX."{$stageNum}:{$lessonNum}",
-            ]];
-        })->values()->all();
-
-        $this->telegram->sendMessage(
-            chatId: $chatId,
-            text: __('training.picker.prompt', [], $locale),
-            replyMarkup: ['inline_keyboard' => $rows],
-        );
-    }
-
     private function humanizeError(TrainingSessionException $e, string $locale): string
     {
         return match ($e->reason) {
             TrainingSessionException::REASON_NOT_TEACHER => __('errors.training.not_teacher', [], $locale),
-            TrainingSessionException::REASON_GROUP_INACTIVE => __('errors.group_inactive', [], $locale),
+            TrainingSessionException::REASON_GROUP_INACTIVE => $this->support->groupInactive($locale),
             TrainingSessionException::REASON_STAGE_NOT_FOUND => __('errors.stage_not_found', [], $locale),
             TrainingSessionException::REASON_LESSON_NOT_FOUND => __('errors.lesson_not_found', [], $locale),
             default => __('errors.training.failed', [], $locale),

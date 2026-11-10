@@ -424,7 +424,7 @@ it('answers the wallet: totals, tickets with their cap, the last 20 lines newest
 
     $uz = Learner::factory()->create(['interface_locale' => 'uz']);
     DB::transaction(fn () => app(WalletService::class)->credit($uz->id, 5, LedgerKind::BossReward, "test:{$uz->id}:1"));
-    test()->withHeaders(shopHeaders($uz))->getJson('/api/twa/game/wallet')->assertJsonPath('ledger.0.title', 'Boss uchun mukofot');
+    test()->withHeaders(shopHeaders($uz))->getJson('/api/twa/game/wallet')->assertJsonPath('ledger.0.title', "Qo'riqchi uchun mukofot");
 });
 
 it('answers an empty wallet and an empty profile for a learner the game has not seen yet, and makes no row', function (): void {

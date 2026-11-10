@@ -3298,3 +3298,27 @@
 | `gameClass.not_found.title` | Karvon mavjud emas | Караван недоступен |
 | `gameClass.not_found.text` | U bekor qilingan yoki bu sizning sinfingiz emas. | Он отменён, или это не ваш класс. |
 | `gameClass.to_map` | Xaritaga | К карте |
+
+
+## Бот: понятность для обычного пользователя (аудит 2026-11-10)
+
+> Новые ключи. Изменённые значения старых ключей (`bot.start.greeting`, `bot.help.private` — теперь только команды ученика, `bot.help.group`, `bot.stats.not_linked`, `errors.*`, `exam.started`, `training.started`, `reminders.*`, `onboarding.blocked`, `stats.*`) исправлены в строках выше не были: актуальные значения — в lang/uz/*.php.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private_teacher` | LexiFlow — o'qituvchi buyruqlari.<br><br>• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.<br>• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>:caravan• /stats — 7 kunlik hisobotingiz<br>• /org — markaz kabineti | LexiFlow — команды учителя.<br><br>• Добавьте бота в группу и сделайте его администратором. Команды заработают после активации группы: если она ещё не активна, напишите в поддержку.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>:caravan• /stats — ваш отчёт за 7 дней<br>• /org — кабинет центра |
+| `bot.help.teacher_hint` | Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact | Вы учитель или владелец центра? Напишите нам: :contact |
+| `bot.support.line` | Qo'llab-quvvatlash xizmati: :contact | Поддержка: :contact |
+| `bot.teacher.learner_command` | Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help | Эта команда — для учеников. Ваши команды учителя: /help |
+| `bot.group.untitled` | Nomsiz guruh | Группа без названия |
+| `bot.group.welcome` | 👋 LexiFlow «:title» guruhiga qo'shildi.<br><br>Keyingi qadamlar:<br>1. Botni guruh administratori qiling.<br>2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | 👋 LexiFlow добавлен в группу «:title».<br><br>Что дальше:<br>1. Сделайте бота администратором группы.<br>2. Группа ждёт активации — после неё заработают команды учителя.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
+| `bot.group.pending_command` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi. | Группа ещё не активирована, поэтому команды пока не работают. |
+| `bot.group.pending_help` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | Группа ещё не активирована, поэтому команды пока не работают.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
+| `exam.picker.prompt` | Imtihon uchun darsni tanlang: | Выберите урок для экзамена: |
+| `exam.picker.duration_prompt` | :stage-modul · :lesson-dars. Imtihon necha daqiqa davom etadi? | Модуль :stage · Урок :lesson. Сколько минут будет идти экзамен? |
+| `exam.picker.minutes_button` | :minutes daq | :minutes мин |
+| `onboarding.welcome` | Salom! Men LexiFlow — kuniga 5–10 daqiqada inglizcha so'zlarni o'rganishga yordam beraman. Bir necha qisqa savol — va boshlaymiz. | 👋 Привет! Я LexiFlow — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём. |
+| `onboarding.step_counter` | :n/:total-qadam | Шаг :n из :total |
+| `onboarding.invited_by_organization` | Sizni «:organization» markazi taklif qildi | Вас пригласил центр «:organization» |
+| `onboarding.invited_by_learner` | Sizni :name taklif qildi | Вас пригласил(а) :name |
+| `stats.accuracy_none` | Imtihonlardagi to'g'ri javoblar: — | Точность экзаменов: — |

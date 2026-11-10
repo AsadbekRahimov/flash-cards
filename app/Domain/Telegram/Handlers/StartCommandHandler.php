@@ -149,7 +149,7 @@ final class StartCommandHandler implements UpdateHandler
             $payload = StartPayload::none();
         }
 
-        $this->messenger->resume($learner, $chatId, $payload);
+        $this->messenger->resume($learner, $chatId, $payload, greet: true);
     }
 
     /**

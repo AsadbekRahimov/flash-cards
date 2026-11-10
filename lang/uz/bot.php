@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
 
     'start' => [
-        'greeting' => "Salom, :name! Siz LexiFlow'ga o'qituvchi sifatida kirdingiz. Guruh buyruqlarini ko'rish uchun /help yuboring.",
+        'greeting' => "Assalomu alaykum, :name! O'qituvchi akkauntingiz ulangan.\n\nKeyingi qadamlar:\n1. Botni sinf guruhiga qo'shing va administrator qiling.\n2. Guruhda /start_training — guruh mashg'uloti, /start_exam — imtihon yuboring.\n3. /stats — 7 kunlik hisobot, /org — markaz kabineti.",
     ],
 
     'help' => [
@@ -16,20 +16,24 @@ return [
             "• /invite — do'stingizni taklif qiling va birgalikda Pro oling\n".
             "• /pro — Pro obuna, /promo KOD — promokod\n".
             "• /paysupport — to'lov bo'yicha savollar\n".
-            "• /delete_account — akkauntni o'chirish\n\n".
-            "O'qituvchilar uchun:\n".
-            "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
-            "• /start_training — guruh mashg'ulotini boshlash\n".
-            "• /start_exam — imtihonni boshlash, /close_exam — yakunlash\n".
+            "• /delete_account — akkauntni o'chirish",
+        // Instead of `private` for a linked teacher (their DM has no learner commands). `:caravan` as in `group`.
+        'private_teacher' => "LexiFlow — o'qituvchi buyruqlari.\n\n".
+            "• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.\n".
+            "• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
             ':caravan'.
-            '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
+            "• /stats — 7 kunlik hisobotingiz\n".
+            '• /org — markaz kabineti',
+        // The last line of `private` for everybody who is not a linked teacher; left out without a support contact.
+        'teacher_hint' => "Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact",
         'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
             "/start_training — guruh mashg'ulotini boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yakunlash\n".
             ':caravan'.
             "/stats — bot bilan shaxsiy chatda hisobot\n".
-            "/help — buyruqlar ro'yxatini ko'rish",
+            "/help — buyruqlar ro'yxatini ko'rish\n\n".
+            'Markaz kabineti uchun guruh raqami: <code>:chat_id</code>',
         // The line of `:caravan` in `private` (the part «O'qituvchilar uchun»): shown only with GAME_ACCESS=all, like `group_caravan`.
         'private_caravan' => "• Sinf karvoni: /start_caravan — boshlash, /cancel_caravan — bekor qilish.\n",
         // The lines of `:caravan` in `group`: shown only with GAME_ACCESS=all (G2.9b, G2.13).
@@ -37,18 +41,33 @@ return [
             "/cancel_caravan — sinf karvonini bekor qilish\n",
     ],
 
+    'support' => [
+        'line' => "Qo'llab-quvvatlash xizmati: :contact",
+    ],
+
+    'teacher' => [
+        'learner_command' => "Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help",
+    ],
+
     'group' => [
+        'untitled' => 'Nomsiz guruh',
+        // HTML. Sent once when the bot is added to a group that waits for activation (`:title` is escaped by the caller).
+        'welcome' => "👋 LexiFlow «:title» guruhiga qo'shildi.\n\nKeyingi qadamlar:\n1. Botni guruh administratori qiling.\n2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.\n\nMarkaz kabineti uchun guruh raqami: <code>:chat_id</code>",
+        // HTML. The answer to a teacher command in a group that is not active yet.
+        'pending_command' => 'Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.',
+        'pending_help' => "Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.\n\nMarkaz kabineti uchun guruh raqami: <code>:chat_id</code>",
         'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. ".
             "Guruh → Boshqarish → Administratorlar → Administrator qo'shish.",
     ],
 
     'stats' => [
-        'not_linked' => "Bu Telegram akkaunti LexiFlow'dagi o'qituvchi profiliga ulanmagan.\nTelegram ID raqamingiz: :id",
+        // HTML (`:id` in <code>).
+        'not_linked' => "Hisobot o'qituvchilar uchun.\nTelegram ID raqamingiz: <code>:id</code> — uni markaz kabinetida kiriting: Profil → «Mening Telegram ID raqamim».\nAgar siz o'quvchi bo'lsangiz — /today ni oching.",
     ],
 
     'account' => [
-        'restored' => "Xush kelibsiz! Hisobingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
-        'restored_pro' => "Hisob o'chirilganda Pro avtomatik uzaytirilishi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
+        'restored' => "Qaytganingizdan xursandmiz! Akkauntingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
+        'restored_pro' => "Akkaunt o'chirilganda Pro avtoyangilashi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
     ],
 
     'delete_account' => [
@@ -59,14 +78,14 @@ return [
         'canceled' => "Mayli, akkaunt o'chirilmadi.",
         'done' => "Akkaunt o'chirildi. Ma'lumotlar :days kundan keyin butunlay o'chiriladi. Fikringiz o'zgarsa — /start yuboring, akkaunt qaytadi.",
         'none' => "Akkaunt yo'q yoki allaqachon o'chirilgan. Qaytish uchun /start yuboring.",
-        'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
+        'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport.",
         'use_private' => "Akkaunt faqat shaxsiy chatda o'chiriladi. Bot bilan chatni oching va /delete_account yuboring.",
     ],
 
     'promo' => [
         'usage' => 'Promokodni quyidagicha yuboring: /promo KOD',
-        'use_private' => "Promokodni guruhda ko'rsatmaslik yaxshi. Bot bilan shaxsiy chatni oching va /promo KOD yuboring.",
-        'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
+        'use_private' => "Promokodni guruhda ko'rsatmagan ma'qul. Bot bilan shaxsiy chatni oching va /promo KOD yuboring.",
+        'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport.",
         'rate_limited' => "Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring.",
         'success_until' => 'Tayyor! LexiFlow Pro :date gacha faol.',
         'success_forever' => 'Tayyor! LexiFlow Pro muddatsiz faol.',
@@ -76,7 +95,7 @@ return [
             'promo_exhausted' => 'Bu promokoddan foydalanish limiti tugagan.',
             'promo_already_redeemed' => 'Siz bu promokodni allaqachon faollashtirgansiz.',
             'promo_not_applicable' => 'Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.',
-            'plan_unknown' => "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
+            'plan_unknown' => "Bu promokod hozircha ishlamayapti. Qo'llab-quvvatlash xizmatiga yozing.",
         ],
     ],
 

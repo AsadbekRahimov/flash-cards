@@ -28,6 +28,7 @@ use App\Domain\Telegram\Handlers\RefundedPaymentHandler;
 use App\Domain\Telegram\Handlers\SettingsCommandHandler;
 use App\Domain\Telegram\Handlers\StartCaravanHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
+use App\Domain\Telegram\Handlers\StartExamCallbackHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
@@ -50,12 +51,14 @@ final class TelegramDispatcher
     public function __construct(
         private readonly CallbackAcknowledger $acknowledger,
         private readonly DmLearnerResolver $dmLearners,
+        private readonly PendingGroupNotice $pendingNotice,
         SuccessfulPaymentHandler $successfulPayment,
         RefundedPaymentHandler $refundedPayment,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
         StartExamHandler $startExam,
+        StartExamCallbackHandler $startExamCallback,
         CloseExamHandler $closeExam,
         StartCaravanHandler $startCaravan,
         CancelCaravanHandler $cancelCaravan,
@@ -110,6 +113,7 @@ final class TelegramDispatcher
 
         $this->callbackHandlers = [
             $startTrainingCallback,
+            $startExamCallback,
             $onboardingCallback,
             $proCallback,
             $organizationCallback,
@@ -152,6 +156,7 @@ final class TelegramDispatcher
             if ($handler->requiresActiveGroup() && $this->isFromGroupChat($update)) {
                 $group = $this->activeGroup($update);
                 if ($group === null) {
+                    $this->answerInactiveGroup($handler, $update);
                     // Acknowledge inline buttons even when the group stays silent.
                     $this->acknowledgeCallback($update);
 
@@ -166,6 +171,31 @@ final class TelegramDispatcher
             }
 
             return;
+        }
+    }
+
+    /**
+     * A teacher command in a group that waits for activation is answered (once an hour, see PendingGroupNotice) instead of
+     * being dropped without a word; everything else stays silent.
+     *
+     * @param  array<string, mixed>  $update
+     */
+    private function answerInactiveGroup(UpdateHandler $handler, array $update): void
+    {
+        $isHelp = $handler instanceof HelpCommandHandler;
+        $isTeacherCommand = $isHelp
+            || $handler instanceof StartTrainingHandler
+            || $handler instanceof StartExamHandler
+            || $handler instanceof CloseExamHandler;
+        $chatId = $this->chatId($update);
+
+        if (! $isTeacherCommand || $chatId === null || isset($update['callback_query'])) {
+            return;
+        }
+
+        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        if ($this->pendingNotice->appliesTo($group)) {
+            $this->pendingNotice->notify($chatId, $group, $isHelp);
         }
     }
 

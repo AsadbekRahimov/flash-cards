@@ -96,12 +96,12 @@ it('walks a new learner through the five steps with five callbacks', function ()
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('locale')
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe('Interfeys tilini tanlang')
+        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("1/5-qadam\nInterfeys tilini tanlang")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:locale:ru', 'onb1:locale:uz']);
 
     onbTap(7001, 'onb1:locale:uz', 1);
     expect(onbLearner(7001)->onboarding_state)->toBe('goal')
-        ->and(end($this->tg->sent)['text'])->toBe("Ingliz tilini nima uchun o'rganmoqchisiz?")
+        ->and(end($this->tg->sent)['text'])->toBe("2/5-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts', 'onb1:goal:sat', 'onb1:goal:school']);
 
     onbTap(7001, 'onb1:goal:ielts', 2);
@@ -291,7 +291,7 @@ it('keeps answering the callback when Telegram refuses the acknowledgement', fun
 
     expect(onbLearner(7018)->onboarding_state)->toBe('goal')
         ->and(onbLearner(7018)->interface_locale)->toBe('uz')
-        ->and(end($this->tg->sent)['text'])->toBe("Ingliz tilini nima uchun o'rganmoqchisiz?");
+        ->and(end($this->tg->sent)['text'])->toBe("2/5-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {
@@ -701,8 +701,11 @@ it('does not put a linked teacher into the onboarding', function (): void {
     onbSend(7040, '/today');
     onbSend(7040, '/settings');
 
-    expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Привет, Aziz!')
+    // The greeting, then a pointer to /help for each of the two learner commands (free text stays unanswered).
+    expect($this->tg->sent)->toHaveCount(3)
+        ->and($this->tg->sent[0]['text'])->toContain('Здравствуйте, Aziz!')
+        ->and($this->tg->sent[1]['text'])->toBe('Эта команда — для учеников. Ваши команды учителя: /help')
+        ->and($this->tg->sent[2]['text'])->toBe('Эта команда — для учеников. Ваши команды учителя: /help')
         ->and(Learner::query()->where('telegram_user_id', 7040)->exists())->toBeFalse()
         ->and(ProductEvent::query()->count())->toBe(0);
 });
@@ -753,7 +756,7 @@ it('tells a blocked learner that access is restricted and starts nothing', funct
     onbTap(7045, 'onb1:locale:uz');
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe('Доступ к аккаунту ограничен. Обратитесь в поддержку.')
+        ->and($this->tg->sent[0]['text'])->toBe('Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport.')
         ->and(onbLearner(7045)->onboarding_state)->toBe('new');
 });
 
@@ -813,7 +816,7 @@ it('calls /today the same in the short menu, in /help and in the "/" menu of the
     $term = mb_strtolower(__('commands.private.today', [], $locale));
 
     expect(__('onboarding.menu.text', [], $locale))->toContain("/today — {$term}")
-        ->and(__('bot.help.private', [], $locale))->toContain("/today — {$term}");
+        ->and(mb_strtolower(__('bot.help.private', [], $locale)))->toContain($term)->toContain('/today');
 })->with(['ru', 'uz']);
 
 it('keeps /help, /promo and group commands away from the catch-all', function (): void {
@@ -907,7 +910,7 @@ it('sends a learner who has not finished the onboarding back to it on /settings 
     onbSend(7062, '/start');
 
     onbSend(7062, '/settings');
-    expect(end($this->tg->sent)['text'])->toBe('Выберите язык интерфейса');
+    expect(end($this->tg->sent)['text'])->toBe("Шаг 1 из 5\nВыберите язык интерфейса");
 
     $sentBefore = count($this->tg->sent);
     onbTap(7062, 'set1:locale:uz');
@@ -1042,7 +1045,7 @@ it('leaves the active course empty when the default course cannot be opened', fu
     $last = end($this->tg->sent);
     expect(onbLearner(7086)->onboarding_state)->toBe('done')
         ->and(onbLearner(7086)->active_course_id)->toBeNull()
-        ->and($last['text'])->toBe('Готово! Нажмите кнопку — первая тренировка займёт пару минут.')
+        ->and($last['text'])->toBe('Готово! Нажмите кнопку — первое занятие займёт пару минут.')
         ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
 })->with(['draft', 'archived', 'private']);
 

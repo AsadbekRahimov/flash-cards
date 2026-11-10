@@ -129,7 +129,8 @@ it('knows a promotion to administrator at the next check, so a stale "member" ne
 it('knows a demotion at the next check and warns then', function (): void {
     $this->tg->chatMemberStatus = 'administrator';
     memberCacheBotUpdate('left', 'administrator');
-    expect($this->tg->sent)->toBe([]);
+    // Only the welcome of the new group, with no admin warning in it.
+    expect($this->tg->sent)->toHaveCount(1)->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'));
 
     $this->tg->chatMemberStatus = 'member';
     memberCacheBotUpdate('administrator', 'member');
@@ -137,8 +138,8 @@ it('knows a demotion at the next check and warns then', function (): void {
     memberCacheBotCheck();
 
     // Only the check warns (a demotion is not an "added" event): had the administrator status stayed in the cache, nobody would be told.
-    expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($this->tg->sent[1]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
 });
 
 it('drops the status when the bot is removed from the group, and when the update names no bot id', function (): void {
@@ -175,8 +176,10 @@ it('does not remember a failed call: the group is asked again', function (): voi
     memberCacheBotUpdate('left', 'member');
 
     $key = ChatMemberStatusCache::key(MEMBER_CACHE_CHAT, MEMBER_CACHE_BOT);
+    // The welcome still goes out, without the warning: the bot's status is unknown.
     expect(PureCache::store()->has($key))->toBeFalse()
-        ->and($this->tg->sent)->toBe([]);
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'));
 
     $this->tg->failChatMember = false;
     $this->tg->chatMemberStatus = 'administrator';
@@ -234,7 +237,7 @@ it('registers a group the bot was added to while the pure cache is down, and sti
     expect(TelegramGroup::query()->where('chat_id', MEMBER_CACHE_CHAT)->value('status'))->toBe('pending')
         ->and(memberCacheBotLookups($this->tg))->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
+        ->and($this->tg->sent[0]['text'])->toContain(__('bot.group.bot_not_admin', [], 'ru'));
     Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
 });
 

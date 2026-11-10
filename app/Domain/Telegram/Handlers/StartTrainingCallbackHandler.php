@@ -11,6 +11,7 @@ use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
+use App\Domain\Telegram\Services\BotSupportContact;
 use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Models\TelegramGroup;
@@ -32,6 +33,7 @@ final class StartTrainingCallbackHandler implements GroupUpdateHandler
         private readonly LocaleResolver $locales,
         private readonly GroupSessionAnnouncer $announcer,
         private readonly CallbackAcknowledger $acknowledger,
+        private readonly BotSupportContact $support,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -118,7 +120,7 @@ final class StartTrainingCallbackHandler implements GroupUpdateHandler
     {
         return match ($e->reason) {
             TrainingSessionException::REASON_NOT_TEACHER => __('errors.training.not_teacher', [], $locale),
-            TrainingSessionException::REASON_GROUP_INACTIVE => __('errors.group_inactive', [], $locale),
+            TrainingSessionException::REASON_GROUP_INACTIVE => $this->support->groupInactive($locale),
             TrainingSessionException::REASON_STAGE_NOT_FOUND => __('errors.stage_not_found', [], $locale),
             TrainingSessionException::REASON_LESSON_NOT_FOUND => __('errors.lesson_not_found', [], $locale),
             default => __('errors.training.failed', [], $locale),

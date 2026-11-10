@@ -62,8 +62,8 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
         ->once()
         ->withArgs(function (int $chatId, string $text, string $buttonText, string $url, ?string $parseMode): bool {
             return $chatId === -1001
-                && str_contains($text, 'Экзамен запущен')
-                && str_contains($text, 'Модуль 1 · Урок 1 · <b>2 мин</b>')
+                && str_contains($text, 'Экзамен начался')
+                && str_contains($text, 'Модуль 1 · Урок 1 · 2 мин')
                 && $buttonText === '🏁 Открыть экзамен'
                 && str_starts_with($url, 'https://twa.test/twa/exam/')
                 && $parseMode === 'HTML';
@@ -90,7 +90,26 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
     expect($diffSec)->toBeGreaterThanOrEqual(110)->toBeLessThanOrEqual(130);
 });
 
-it('defaults to stage=1 lesson=1 minutes=10 when no arguments', function (): void {
+it('shows the lesson picker instead of opening an exam when there are no arguments', function (): void {
+    seedLessonWithWords();
+    $this->api->shouldReceive('sendMessage')->once()
+        ->withArgs(fn (int $chatId, string $text, ?string $parseMode, ?array $markup): bool => $chatId === -1001
+            && $text === 'Выберите урок для экзамена:'
+            && $markup['inline_keyboard'][0][0]['callback_data'] === 'estart:1:1');
+    $this->api->shouldReceive('sendWebAppButton')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -1001, 'type' => 'supergroup'],
+            'from' => ['id' => 777],
+            'text' => '/start_exam',
+        ],
+    ]);
+
+    expect(ExamSession::query()->count())->toBe(0);
+});
+
+it('defaults to lesson=1 minutes=10 when only the module is given', function (): void {
     seedLessonWithWords();
     $this->api->shouldReceive('sendWebAppButton')->once();
 
@@ -98,7 +117,7 @@ it('defaults to stage=1 lesson=1 minutes=10 when no arguments', function (): voi
         'message' => [
             'chat' => ['id' => -1001, 'type' => 'supergroup'],
             'from' => ['id' => 777],
-            'text' => '/start_exam',
+            'text' => '/start_exam 1',
         ],
     ]);
 

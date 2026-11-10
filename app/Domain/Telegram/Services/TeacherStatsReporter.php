@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\DB;
 
 final class TeacherStatsReporter
 {
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly BotSupportContact $support,
+    ) {}
 
     public function build(User $teacher, ?string $locale = null): string
     {
@@ -27,7 +30,7 @@ final class TeacherStatsReporter
             ->all();
 
         if ($groupIds === []) {
-            return __('stats.no_groups', [], $locale);
+            return __('stats.no_groups', ['support' => $this->support->line($locale)], $locale);
         }
 
         $since = now()->subDays(7);
@@ -61,7 +64,10 @@ final class TeacherStatsReporter
             ->whereHas('session', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
             ->count();
 
-        $accuracy = $answers > 0 ? (int) round(($correct / $answers) * 100) : 0;
+        // Nobody has answered: 0% would read as "everything wrong".
+        $accuracy = $answers > 0
+            ? __('stats.accuracy', ['percent' => (int) round(($correct / $answers) * 100)], $locale)
+            : __('stats.accuracy_none', [], $locale);
 
         return implode("\n", [
             __('stats.title', [], $locale),
@@ -70,7 +76,7 @@ final class TeacherStatsReporter
             __('stats.learners', ['count' => $learners], $locale),
             __('stats.reviews', ['count' => $reviews], $locale),
             __('stats.exams', ['count' => $exams], $locale),
-            __('stats.accuracy', ['percent' => $accuracy], $locale),
+            $accuracy,
         ]);
     }
 }

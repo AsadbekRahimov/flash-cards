@@ -11,6 +11,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Support\TeacherDmNotice;
 
 /**
  * `/settings` in a DM — a menu that re-runs one onboarding step at a time (language, goal, level,
@@ -22,6 +23,7 @@ final class SettingsCommandHandler implements UpdateHandler
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly DmLearnerResolver $learners,
+        private readonly TeacherDmNotice $teacherNotice,
         private readonly OnboardingMessenger $messenger,
     ) {}
 
@@ -52,6 +54,8 @@ final class SettingsCommandHandler implements UpdateHandler
 
         $learner = $this->learners->resolve(is_array($message['from'] ?? null) ? $message['from'] : []);
         if ($learner === null) {
+            $this->teacherNotice->send($chatId, $message);
+
             return;
         }
 

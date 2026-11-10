@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 return [
 
-    'blocked' => "Akkauntingizga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
+    'blocked' => "Akkauntingizga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport.",
+
+    // The second paragraph of the bilingual welcome of a new person (the first one is `welcome` of lang/ru).
+    'welcome' => "Salom! Men LexiFlow — kuniga 5–10 daqiqada inglizcha so'zlarni o'rganishga yordam beraman. Bir necha qisqa savol — va boshlaymiz.",
+    'step_counter' => ':n/:total-qadam',
+    'invited_by_organization' => 'Sizni «:organization» markazi taklif qildi',
+    'invited_by_learner' => 'Sizni :name taklif qildi',
 
     // The five onboarding steps (docs/12 §7.1), one message each.
     'steps' => [
@@ -24,7 +30,7 @@ return [
         ],
         'level' => [
             'A1' => 'A1 — boshlayapman',
-            'A2' => 'A2 — elementar',
+            'A2' => 'A2 — boshlang\'ich',
             'B1' => "B1 — o'rta",
             'B2' => "B2 — o'rtadan yuqori",
             'unknown' => 'Bilmayman',

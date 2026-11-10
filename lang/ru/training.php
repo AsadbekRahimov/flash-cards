@@ -10,7 +10,7 @@ return [
         'button' => 'Модуль :stage · Урок :lesson',
     ],
 
-    'started' => '📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать.',
+    'started' => '📚 Тренировка: модуль :stage, урок :lesson. Нажмите кнопку — LexiFlow откроется прямо в Telegram.',
     'open_button' => '🎯 Открыть тренировку',
 
 ];

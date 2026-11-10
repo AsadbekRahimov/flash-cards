@@ -56,7 +56,7 @@ return [
                     TXT,
             ],
             [
-                'title' => 'Ro\'yxatdan o\'tish va hisob',
+                'title' => 'Ro\'yxatdan o\'tish va akkaunt',
                 'text' => <<<'TXT'
                     Alohida ro'yxatdan o'tish yo'q: hisob bot yoki Mini App birinchi marta ishga tushirilganda avtomatik yaratiladi va Telegram akkauntingizga bog'lanadi. Kirish Telegram vositalari orqali amalga oshadi. Telegram akkauntingiz xavfsizligi uchun Siz javobgarsiz.
 
@@ -166,9 +166,9 @@ return [
             [
                 'title' => 'Qayta ishlash maqsadlari va asoslari',
                 'text' => <<<'TXT'
-                    Ma'lumotlarni quyidagilar uchun qayta ishlaymiz: Xizmatni taqdim etish va natijangizni hisoblash; takrorlash haqida eslatmalar yuborish (ularni sozlamalarda o'chirish mumkin); to'lovni qabul qilish va Pro'ni berish; o'qituvchi va markazga o'z o'quvchilarining natijalarini ko'rsatish; xavfsizlikni ta'minlash va suiiste'molliklarga qarshi kurashish; xatolarni topish va tuzatish; shaxsiz statistika asosida Xizmatni yaxshilash.
+                    Ma'lumotlarni quyidagilar uchun qayta ishlaymiz: Xizmatni taqdim etish va natijangizni hisoblash; takrorlash haqida eslatmalar yuborish (ularni sozlamalarda o'chirish mumkin); to'lovni qabul qilish va Pro'ni berish; o'qituvchi va markazga o'z o'quvchilarining natijalarini ko'rsatish; xavfsizlikni ta'minlash va suiiste'molliklarga qarshi kurashish; xatolarni topish va tuzatish; shaxssizlantirilgan statistika asosida Xizmatni yaxshilash.
 
-                    Asos — Xizmatdan foydalanishni boshlash bilan bildirilgan Sizning rozilingiz va shartnoma (oferta) ijrosi [yurist uchun: qayta ishlash asoslarini tasdiqlang].
+                    Asos — Xizmatdan foydalanishni boshlash bilan bildirilgan Sizning roziligingiz va shartnoma (oferta) ijrosi [yurist uchun: qayta ishlash asoslarini tasdiqlang].
                     TXT,
             ],
             [
@@ -182,7 +182,7 @@ return [
 
                     Pochta xizmati — markaz xodimlariga xatlar (takliflar, bildirishnomalar, hisob-fakturalar) uchun [egasiga: pochta provayderini ko'rsating].
 
-                    Ovoz berish xizmati — amaliyotdagi diktant uchun so'zlar nutq sintezatori (edge-tts) bilan ovozlantiriladi, unga faqat ibora matni beriladi, foydalanuvchi ma'lumotlari berilmaydi.
+                    Ovozlashtirish xizmati — amaliyotdagi diktant uchun so'zlar nutq sintezatori (edge-tts) bilan ovozlantiriladi, unga faqat ibora matni beriladi, foydalanuvchi ma'lumotlari berilmaydi.
 
                     Xosting-provayder — ma'lumotlar uning serverlarida saqlanadi [egasiga: provayderni ko'rsating].
 
