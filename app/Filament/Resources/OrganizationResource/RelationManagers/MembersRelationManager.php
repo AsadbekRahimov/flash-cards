@@ -68,7 +68,11 @@ class MembersRelationManager extends RelationManager
                     ->label(__('admin.organizations.members.columns.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('organizations.members.status', $state))
-                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'invited' => 'warning',
+                        default => 'gray',
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('joined_via')
                     ->label(__('admin.organizations.members.columns.joined_via'))
@@ -82,7 +86,7 @@ class MembersRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('admin.organizations.members.columns.status'))
-                    ->options(AdminLabels::options('organizations.members.status', ['active', 'left', 'removed']))
+                    ->options(AdminLabels::options('organizations.members.status', ['active', 'invited', 'declined', 'left', 'removed']))
                     ->default('active'),
                 SelectFilter::make('seat_state')
                     ->label(__('admin.organizations.members.columns.seat_state'))

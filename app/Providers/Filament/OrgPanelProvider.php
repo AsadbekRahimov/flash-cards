@@ -9,6 +9,7 @@ use App\Filament\Org\Pages\OrgProfile;
 use App\Filament\Org\Pages\OrgRequestPasswordReset;
 use App\Filament\Org\Pages\OrgSettings;
 use App\Filament\Org\Widgets\OrgActivityWidget;
+use App\Filament\Org\Widgets\OrgChecklistWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Http\Controllers\Org\OrgInvoiceController;
 use App\Http\Middleware\RequireOrgTwoFactor;
@@ -75,6 +76,7 @@ class OrgPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->widgets([
+                OrgChecklistWidget::class,
                 OrgSeatsWidget::class,
                 OrgActivityWidget::class,
             ])

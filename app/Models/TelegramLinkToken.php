@@ -8,7 +8,9 @@ use App\Domain\Telegram\Enums\LinkTokenKind;
 use App\Domain\Telegram\Services\TelegramLinkTokens;
 use Carbon\CarbonImmutable;
 use Database\Factories\TelegramLinkTokenFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -35,6 +37,11 @@ class TelegramLinkToken extends Model
     /** @use HasFactory<TelegramLinkTokenFactory> */
     use HasFactory;
 
+    use MassPrunable;
+
+    /** Used and expired tokens are deleted by `model:prune` this many days after they stopped being redeemable. */
+    public const RETENTION_DAYS = 30;
+
     /** @var list<string> */
     protected $fillable = [
         'kind',
@@ -57,6 +64,21 @@ class TelegramLinkToken extends Model
             'used_at' => 'datetime',
             'last_attempt_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Tokens that are of no use any more: used, or expired, more than {@see self::RETENTION_DAYS} days ago. A live token, and a
+     * recent one (its `last_result` is still shown to the owner), stay. Deleted in chunks by `model:prune`.
+     *
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        $cutoff = now()->subDays(self::RETENTION_DAYS);
+
+        return static::query()->where(fn (Builder $q): Builder => $q
+            ->where('used_at', '<', $cutoff)
+            ->orWhere(fn (Builder $unused): Builder => $unused->whereNull('used_at')->where('expires_at', '<', $cutoff)));
     }
 
     public function kind(): ?LinkTokenKind

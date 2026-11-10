@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\WordResource\Pages;
 
 use App\Domain\Content\Services\LessonContentRefresher;
+use App\Domain\Content\Services\WordContentEditor;
 use App\Domain\Content\Services\WordTranslationWriter;
 use App\Filament\Resources\WordResource;
 use App\Models\Word;
@@ -29,5 +30,9 @@ class EditWord extends EditRecord
         app(LessonContentRefresher::class)->wordEdited($word);
 
         app(WordTranslationWriter::class)->syncDefaultFromWord($word);
+
+        // "Confused with" is not a column of the form: it goes into `words.meta` through the editor (docs/06 §12.5).
+        $tags = $this->data['confusable_with'] ?? [];
+        app(WordContentEditor::class)->saveConfusable($word, is_array($tags) ? $tags : []);
     }
 }

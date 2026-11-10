@@ -17,6 +17,7 @@ return [
         'caravans' => 'Караваны',
         'exams' => 'Экзамены',
         'reports' => 'Отчёты',
+        'hard_words' => 'Трудные слова',
         'billing' => 'Оплата',
         'settings' => 'Настройки центра',
     ],
@@ -109,6 +110,7 @@ return [
             'link_open' => 'Открыть в Telegram',
             'link_command' => 'Команда для группы, где бот уже есть',
             'link_expires' => 'Ссылка одноразовая, действует до :time. Привязанная группа появится в списке сама.',
+            'copied' => 'Скопировано',
         ],
         'errors' => [
             'not_owner' => 'Привязывать группы может только владелец центра.',
@@ -175,11 +177,17 @@ return [
             'name' => 'Имя',
             'email' => 'Email',
             'role' => 'Роль',
-            'telegram' => 'Telegram привязан',
+            'telegram' => 'Telegram',
             'groups' => 'Групп',
             'last_login' => 'Последний вход',
         ],
         'never_logged_in' => 'не входил',
+        // Telegram column of the staff list: the account is verified through the bot, typed by hand in `/admin`, or absent.
+        'telegram' => [
+            'verified' => 'подтверждён',
+            'unverified' => 'не подтверждён',
+            'none' => 'не подключён',
+        ],
         'role' => [
             'owner' => 'Владелец',
             'teacher' => 'Учитель',
@@ -234,9 +242,10 @@ return [
             'confirm' => 'Подтвердить Telegram',
             'disconnect' => 'Отключить',
             'disconnect_confirm' => 'Бот перестанет узнавать вас как учителя, пока вы не подключите Telegram снова.',
-            'link_help' => 'Откройте ссылку там, где у вас Telegram, и нажмите «Start». Ссылка одноразовая и действует до :time. После подключения обновите эту страницу.',
+            'link_help' => 'Откройте ссылку там, где у вас Telegram, и нажмите «Start». Ссылка одноразовая и действует до :time. Страница сама покажет подтверждение.',
             'link_url' => 'Ссылка',
             'link_open' => 'Открыть в Telegram',
+            'copied' => 'Скопировано',
             'disconnected' => 'Telegram отключён.',
             'errors' => [
                 'rate_limited' => 'Слишком много ссылок за короткое время. Попробуйте через несколько минут.',
@@ -428,6 +437,20 @@ return [
             'percent' => 'Результат, %',
             'score' => 'Баллы',
         ],
+    ],
+
+    // Трудные слова класса (docs/06 §12.6): сколько учеников группы ошибаются в слове снова и снова.
+    'hard_words' => [
+        'heading' => 'Трудные слова группы',
+        'description' => 'Слова, на которых несколько учеников ошибаются снова и снова. Показано только число учеников, без имён.',
+        'empty' => 'Трудных слов пока нет.',
+        'columns' => [
+            'word' => 'Слово',
+            'translation' => 'Перевод',
+            'learners' => 'Считают трудным',
+            'confused_with' => 'Путают с',
+        ],
+        'learners_of' => ':count из :total',
     ],
 
     'reports' => [
@@ -656,6 +679,7 @@ return [
         'checklist' => [
             'title' => 'Первые шаги',
             'progress' => 'Сделано :done из :total',
+            'open' => 'Открыть',
             'telegram' => 'Подключите свой Telegram',
             'telegram_help' => 'Профиль → «Подключить Telegram»',
             'group' => 'Привяжите группу',

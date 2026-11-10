@@ -29,7 +29,7 @@ beforeEach(function (): void {
 it('creates a pending TelegramGroup on my_chat_member into a group', function (): void {
     // The welcome of a group that waits for activation (the bot's own status is not in this update: no warning part).
     $this->api->shouldReceive('sendMessage')->once()
-        ->with(-10012345, Mockery::pattern('/«Class 1».*<code>-10012345<\/code>/su'), 'HTML');
+        ->with(-10012345, Mockery::pattern('/«Class 1».*Привяжите её из кабинета центра/su'), 'HTML');
 
     app(TelegramDispatcher::class)->dispatch([
         'my_chat_member' => [
@@ -418,7 +418,7 @@ it('answers /help in a pending group with the activation notice, never with the 
     TelegramGroup::factory()->create(['chat_id' => -5002, 'status' => 'pending']);
 
     $this->api->shouldReceive('sendMessage')->once()
-        ->with(-5002, Mockery::pattern('/ещё не активирована.*<code>-5002<\/code>/su'), 'HTML');
+        ->with(-5002, Mockery::pattern('/ещё не активирована.*Привяжите её из кабинета центра/su'), 'HTML');
 
     // Inactive (pending) group.
     app(TelegramDispatcher::class)->dispatch([

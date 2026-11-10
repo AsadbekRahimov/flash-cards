@@ -5,14 +5,14 @@ import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 
 /**
- * "How it works": three short steps in a bottom sheet (docs/14 §3, the product explains itself). Opened by Home on the
+ * "How it works": four short steps in a bottom sheet (docs/14 §3, the product explains itself). Opened by Home on the
  * first visit of a newcomer and by the "How it works" row of the profile. `close` comes from "Start", the ✕ or the dimmed page.
  */
 const emit = defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
 
-const STEPS = [1, 2, 3] as const
+const STEPS = [1, 2, 3, 4] as const
 const step = ref(0)
 const last = computed(() => step.value === STEPS.length - 1)
 

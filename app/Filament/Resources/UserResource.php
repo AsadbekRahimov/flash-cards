@@ -100,6 +100,12 @@ class UserResource extends Resource
                     ->label(__('admin.users.fields.telegram_user_id'))
                     ->placeholder('—')
                     ->toggleable(),
+                // Both columns of the row itself: no query per row (docs/20 §1.3).
+                Tables\Columns\IconColumn::make('telegram_verified_at')
+                    ->label(__('admin.users.fields.telegram_verified'))
+                    ->boolean()
+                    ->state(fn (User $record): bool => $record->hasVerifiedTelegram())
+                    ->toggleable(),
                 Tables\Columns\IconColumn::make('is_active')->label(__('admin.users.fields.is_active'))->boolean(),
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label(__('admin.users.fields.last_login_at'))

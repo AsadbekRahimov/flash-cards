@@ -17,6 +17,7 @@ return [
         'caravans' => 'Karvonlar',
         'exams' => 'Imtihonlar',
         'reports' => 'Hisobotlar',
+        'hard_words' => 'Qiyin so\'zlar',
         'billing' => 'To\'lov',
         'settings' => 'Markaz sozlamalari',
     ],
@@ -109,6 +110,7 @@ return [
             'link_open' => 'Telegramda ochish',
             'link_command' => 'Bot allaqachon bo\'lgan guruh uchun buyruq',
             'link_expires' => 'Havola bir martalik, :time gacha amal qiladi. Bog\'langan guruh ro\'yxatda o\'zi paydo bo\'ladi.',
+            'copied' => 'Nusxa olindi',
         ],
         'errors' => [
             'not_owner' => 'Guruhlarni faqat markaz egasi bog\'lay oladi.',
@@ -175,11 +177,16 @@ return [
             'name' => 'Ism',
             'email' => 'Email',
             'role' => 'Rol',
-            'telegram' => 'Telegram bog\'langan',
+            'telegram' => 'Telegram',
             'groups' => 'Guruhlar',
             'last_login' => 'Oxirgi kirish',
         ],
         'never_logged_in' => 'kirmagan',
+        'telegram' => [
+            'verified' => 'tasdiqlangan',
+            'unverified' => 'tasdiqlanmagan',
+            'none' => 'ulanmagan',
+        ],
         'role' => [
             'owner' => 'Ega',
             'teacher' => 'O\'qituvchi',
@@ -234,9 +241,10 @@ return [
             'confirm' => 'Telegramni tasdiqlash',
             'disconnect' => 'Uzish',
             'disconnect_confirm' => 'Telegramni qayta ulamaguningizcha bot Sizni o\'qituvchi sifatida tanimay qo\'yadi.',
-            'link_help' => 'Havolani Telegram o\'rnatilgan qurilmada oching va «Start» tugmasini bosing. Havola bir martalik, :time gacha amal qiladi. Ulangach, bu sahifani yangilang.',
+            'link_help' => 'Havolani Telegram o\'rnatilgan qurilmada oching va «Start» tugmasini bosing. Havola bir martalik, :time gacha amal qiladi. Ulangach, sahifa tasdiqlashni o\'zi ko\'rsatadi.',
             'link_url' => 'Havola',
             'link_open' => 'Telegramda ochish',
+            'copied' => 'Nusxa olindi',
             'disconnected' => 'Telegram uzildi.',
             'errors' => [
                 'rate_limited' => 'Qisqa vaqtda juda ko\'p havola so\'raldi. Bir necha daqiqadan so\'ng urinib ko\'ring.',
@@ -428,6 +436,20 @@ return [
             'percent' => 'Natija, %',
             'score' => 'Ball',
         ],
+    ],
+
+    // Guruhdagi qiyin so'zlar (docs/06 §12.6).
+    'hard_words' => [
+        'heading' => 'Guruhdagi qiyin so\'zlar',
+        'description' => 'Bir necha o\'quvchi qayta-qayta xato qilayotgan so\'zlar. Faqat o\'quvchilar soni ko\'rsatiladi, ismlar ko\'rsatilmaydi.',
+        'empty' => 'Hozircha qiyin so\'zlar yo\'q.',
+        'columns' => [
+            'word' => 'So\'z',
+            'translation' => 'Tarjima',
+            'learners' => 'Qiyin deb hisoblaydi',
+            'confused_with' => 'Chalkashtiriladi',
+        ],
+        'learners_of' => ':total o\'quvchidan :count tasi',
     ],
 
     'reports' => [
@@ -656,6 +678,7 @@ return [
         'checklist' => [
             'title' => 'Birinchi qadamlar',
             'progress' => ':total tadan :done tasi bajarildi',
+            'open' => 'Ochish',
             'telegram' => 'Telegramingizni ulang',
             'telegram_help' => 'Profil → «Telegramni ulash»',
             'group' => 'Guruhni bog\'lang',

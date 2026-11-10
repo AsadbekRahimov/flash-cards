@@ -584,7 +584,7 @@ describe('TodayView', () => {
     })
 
     describe('the sheet "How it works"', () => {
-      it('opens once for a newcomer: three steps, "Next" / "Start"', async () => {
+      it('opens once for a newcomer: four steps, "Next" / "Start"', async () => {
         const w = await render(newcomer())
 
         expect(w.find('[data-testid=intro-sheet]').exists()).toBe(true)
@@ -594,6 +594,8 @@ describe('TodayView', () => {
 
         await w.get('[data-testid=intro-next]').trigger('click')
         expect(text(w, 'intro-title')).toBe('Слова возвращаются сами')
+        await w.get('[data-testid=intro-next]').trigger('click')
+        expect(text(w, 'intro-title')).toBe('Задания становятся сложнее')
         await w.get('[data-testid=intro-next]').trigger('click')
         expect(text(w, 'intro-title')).toBe('Хватит 10 минут в день')
         expect(text(w, 'intro-text')).toBe('Нажмите «Начать занятие» — остальное приложение сделает само.')

@@ -48,6 +48,12 @@ Navigate to **Users** (Сотрудники) in the left sidebar.
 
 > The teacher's `telegram_user_id` must be correct — this is what links their Telegram identity to the platform.
 
+> **A Telegram ID typed here is not verified.** It still lets the bot recognise the teacher in groups, but it proves nothing about
+> who owns the account, so the person cannot link a group to a center with it. The user confirms the account themselves with the
+> **Connect Telegram** (Подключить Telegram) button in their `/org` profile: they open the one-time link in Telegram and press
+> Start, the bot writes the ID of the account that opened it and marks it verified. The **Telegram verified** column of the user
+> list shows which accounts did that. Clearing or changing the ID here makes the account unverified again.
+
 ### Assign a teacher to a group
 1. Open the teacher's user record.
 2. In the **Teacher Groups** relation tab, add the relevant groups.
@@ -74,6 +80,15 @@ New groups appear here automatically with status `pending` when the bot is added
 2. Set **Status** (Статус) = `active` (Активна).
 3. Link at least one teacher via the **Teacher Groups** tab.
 4. Save.
+
+### Groups linked by a center
+A center's owner links a group from `/org` (Groups → Link group): the bot must be added to the group (or already be there) and the
+owner must be an administrator of it and have a verified Telegram account. A group linked this way by a center **with a live
+subscription is activated at once** — no step in `/admin`. The switch is `ORGANIZATIONS_AUTO_ACTIVATE_LINKED_GROUPS` (default
+`true`; `false` returns to manual activation: such groups stay `pending` until you activate them). A group of a center without a
+live subscription stays `pending`; when the owner unlinks a group that was activated this way it goes back to `pending`.
+The chat only ever gets one neutral refusal when linking fails; the reason (not an administrator, unverified account, expired
+link…) is shown to the owner in the link window as «Последняя попытка привязки».
 
 ### Set the course of a group
 Open the group record and pick **Course** (empty = the `default` course). The teacher commands
@@ -223,7 +238,62 @@ The original PRD schema is also supported for compatibility (`course` may be add
 Cards play a pre-generated mp3 when the word has one; otherwise the app falls back to the browser voice / live TTS. After importing a lesson pack or publishing a course, ask the developer/DevOps to run `php artisan audio:pregenerate <course-slug>` (it only queues the words that do not have current audio yet; `--force` redoes all). It runs in the background — voiced words appear within minutes. Editing a word's English text clears its audio and queues a new voice-over automatically. Inactive words are skipped. Publishing does not start it automatically.
 
 ### Manual word editing
-Open any Stage → Lesson → click on a word to edit its translation, example, or transcription.
+Open any Stage → Lesson → click on a word to edit its translation, example, or transcription. The word screen also has:
+- **Путают с** (confusable words) — English words of the *same course* this word is mixed up with (up to 10; Enter adds a tag).
+  A word that is not in the course is refused. Marked words are not introduced to a learner on the same day, and a hard word is
+  shown with its pair.
+- the **Переводы** table: one row per language with its **Крючок памяти** (memory hook, see below);
+- the **Примеры** table: additional example sentences (text, ru / uz translation); the order is set by drag and drop. At most 10.
+
+### Content for the learning method (docs/06 §12)
+Three optional keys of a word in the import file feed the method. A key that is **absent** leaves the stored value alone; a key
+that is **present** replaces it (an empty value removes it).
+```json
+{
+  "word": "mother",
+  "translations": {"ru": "мать", "uz": "ona"},
+  "example": "My mother cooks dinner.",
+  "hooks": {"ru": "«мазер» — мама зовёт: «мазер, мазер»", "uz": "«mazer» — ona so'zining ohangi"},
+  "examples": [
+    {"text": "She is a good mother.", "translations": {"ru": "Она хорошая мать.", "uz": "U yaxshi ona."}},
+    {"text": "Mother is at home.", "translations": {"ru": "Мама дома."}}
+  ],
+  "confusable_with": ["father", "brother"]
+}
+```
+- `hooks` — a short memory hook per language (`ru`, `uz`), up to 500 characters: a sound association, a familiar word, a split
+  into parts. **No fallback between languages**: a Russian sound association means nothing to an Uzbek reader, so write it for
+  each language separately. The language must have a translation. It is shown on a new word, after a mistake and on a hard word.
+  Also editable in **Words → Translations → Крючок памяти**.
+- `examples` — ADDITIONAL examples (up to 10); `example` stays the first one. Until a word is learned the learner sees only `example`;
+  after that the sentences rotate, one per repetition, and a gap-fill exercise is cut from a sentence the learner did not just read.
+  The list replaces the stored ones; `[]` deletes them. Each sentence should contain the word itself (otherwise gap-fill falls
+  back to typing the word).
+- `confusable_with` — up to 10 English words of the same course that are easy to mix up with this one (matched by text, case
+  does not matter). Mark pairs in both directions or one — either is enough to keep them apart on one day.
+Rules: `hooks` ≤ 500 characters per language, example text ≤ 2000, translations only in the supported languages (`ru`, `uz`).
+Edits made in the panel and by import end in the same fields; both refresh the caches.
+
+### Learning method settings (`LEARNING_*`)
+Set in `.env` (defaults in `.env.example`, details in `docs/06_SPACED_REPETITION.md` §12). A change needs a config reload.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `LEARNING_LADDER_ENABLED` | `true` | The ladder of exercises by the maturity of a card; `false` brings back the old rotation |
+| `LEARNING_LADDER_CHOICE_FROM_REPETITIONS` | `3` | Passes after which a card gets four-option exercises instead of self-grading |
+| `LEARNING_LADDER_TYPED_FROM_INTERVAL_DAYS` | `21` | Interval (days) from which a word is typed / put into a sentence |
+| `LEARNING_LADDER_TYPED_IN_FREE` | `false` | `true` opens typed exercises to Free learners (otherwise they stay a Pro feature) |
+| `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY` | `true` | Accept a self-grade from an old Mini App on a four-option card (reduced to right/wrong); set `false` once the new Mini App is out |
+| `LEARNING_LEECH_THRESHOLD` | `4` | Failures after which a word is "hard" (chip, hook, pair; the teacher's «Трудные слова» page). `0` — off |
+| `LEARNING_HOOKS_ENABLED` | `true` | Show memory hooks and the learner's own note |
+| `LEARNING_EXAMPLES_ROTATE` | `true` | Rotate additional examples after a word is learned |
+| `LEARNING_CONFUSABLES_ENABLED` | `true` | Do not introduce confusable words on the same day |
+| `LEARNING_CONFUSABLES_WINDOW_HOURS` | `20` | The length of that "same day" |
+| `LEARNING_PRETEST_ENABLED` | `false` | Before the first show of a new word: "do you know it?" with four meanings |
+| `LEARNING_SESSION_TTL_HOURS` / `LEARNING_GROUP_SESSION_TTL_HOURS` | `12` / `24` | When a personal / a group session expires |
+
+`FSRS_DESIRED_RETENTION` (`0.9`) is the target retention of FSRS learners; a learner can pick a calmer or more intense mode in the
+Mini App settings. `FSRS_ROLLOUT_PERCENT` is not touched by the method.
 
 ---
 
@@ -615,6 +685,11 @@ status change is written to the audit log (`organization.status_changed`). An or
 deleted (the Delete button explains why): revoke the subscription and unlink the groups, or just suspend it.
 Changes apply within seconds.
 
+**Members table statuses.** Besides `active`, `left` and `removed` the table shows `invited` (Ожидает согласия) and `declined`
+(Отклонил). A center's staff adds a learner by @username or Telegram ID as an *offer*: the learner gets a message in the bot and
+becomes a member only when they press **Join**. An offered or declined learner holds no seat, has no sponsored Pro and is not
+counted in "active members" or in the seats widget. The table shows `active` by default; pick the status in the filter to see offers.
+
 ---
 
 ## Caravan game (docs/18 §12.10)
@@ -677,7 +752,7 @@ for the players, i.e. at least one completed or failed run in the week, and for 
 | Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days (Первичная настройка — 7 дней) | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats (Учебные центры — места и очередь) | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
-| SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
+| SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty. A fourth tile, *Honesty of self-grading* (Честность самооценки), is the share of wrong answers in four-option and typed exercises (last 28 days) that came right after the learner had rated the same word «Легко» (`review.self_grade_mismatch` events / wrong objective answers); a high share means learners overrate themselves. Cached for 10 minutes |
 | Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
 | Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`), plus runs per player a day, paywall-to-payment conversion and right answers in cards (players vs others). Cached for 5 minutes; see *Caravan game* above |

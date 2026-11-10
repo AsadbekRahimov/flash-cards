@@ -117,11 +117,20 @@ class GroupResource extends OrgResource
                         ]);
                     })
                     ->schema([
-                        Html::make(fn (Get $get): HtmlString => new HtmlString(
-                            '<a class="fi-link fi-color-primary" href="'.e((string) $get('url')).'" target="_blank" rel="noopener">'.e(__('org.groups.fields.link_open')).'</a>',
-                        )),
-                        Forms\Components\TextInput::make('url')->label(__('org.groups.fields.link_url'))->disabled()->dehydrated(false),
-                        Forms\Components\TextInput::make('command')->label(__('org.groups.fields.link_command'))->disabled()->dehydrated(false),
+                        Html::make(fn (Get $get): HtmlString => new HtmlString(view('filament.org.partials.open-telegram', [
+                            'url' => (string) $get('url'),
+                            'label' => __('org.groups.fields.link_open'),
+                        ])->render())),
+                        Forms\Components\TextInput::make('url')
+                            ->label(__('org.groups.fields.link_url'))
+                            ->readOnly()
+                            ->copyable(copyMessage: __('org.groups.fields.copied'))
+                            ->dehydrated(false),
+                        Forms\Components\TextInput::make('command')
+                            ->label(__('org.groups.fields.link_command'))
+                            ->readOnly()
+                            ->copyable(copyMessage: __('org.groups.fields.copied'))
+                            ->dehydrated(false),
                         Text::make(fn (Get $get): string => __('org.groups.fields.link_expires', ['time' => (string) $get('expires')])),
                         Text::make(fn (Get $get): string => (string) $get('last_attempt')),
                     ]),

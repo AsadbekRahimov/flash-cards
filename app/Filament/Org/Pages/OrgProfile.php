@@ -35,11 +35,11 @@ class OrgProfile extends EditProfile
             $this->getEmailFormComponent(),
             Section::make(__('org.profile.telegram.title'))
                 ->schema([
-                    Text::make(fn (): string => $this->telegramStatus()),
+                    Html::make(fn (): HtmlString => $this->telegramStatusBlock()),
                     Actions::make([
                         $this->connectTelegramAction(),
                         $this->disconnectTelegramAction(),
-                    ]),
+                    ])->key('telegramActions'),
                 ]),
             $this->getPasswordFormComponent(),
             $this->getPasswordConfirmationFormComponent(),
@@ -47,11 +47,25 @@ class OrgProfile extends EditProfile
         ]);
     }
 
-    /** The state of the connection, re-read from the row (the bot writes it while this page is open). */
-    private function telegramStatus(): string
+    /**
+     * The status block. While the account is not verified it polls every 10 s (`wire:poll.10s` on this block only): the bot writes
+     * the confirmation while the page is open, and the re-render below re-reads the row (one lookup by primary key). Once verified,
+     * the block carries no `wire:poll` and polling stops.
+     */
+    private function telegramStatusBlock(): HtmlString
     {
-        $user = $this->staff()->fresh() ?? $this->staff();
+        $user = $this->staff();
+        $user->refresh();
 
+        return new HtmlString(view('filament.org.partials.telegram-status', [
+            'verified' => $user->hasVerifiedTelegram(),
+            'text' => $this->telegramStatus($user),
+        ])->render());
+    }
+
+    /** The state of the connection, from the freshly read row. */
+    private function telegramStatus(User $user): string
+    {
         if ($user->telegram_user_id === null) {
             return __('org.profile.telegram.none');
         }
@@ -97,13 +111,15 @@ class OrgProfile extends EditProfile
             })
             ->schema([
                 Text::make(fn (Get $get): string => __('org.profile.telegram.link_help', ['time' => (string) $get('expires')])),
+                Html::make(fn (Get $get): HtmlString => new HtmlString(view('filament.org.partials.open-telegram', [
+                    'url' => (string) $get('url'),
+                    'label' => __('org.profile.telegram.link_open'),
+                ])->render())),
                 Forms\Components\TextInput::make('url')
                     ->label(__('org.profile.telegram.link_url'))
-                    ->disabled()
+                    ->readOnly()
+                    ->copyable(copyMessage: __('org.profile.telegram.copied'))
                     ->dehydrated(false),
-                Html::make(fn (Get $get): HtmlString => new HtmlString(
-                    '<a class="fi-link fi-color-primary" href="'.e((string) $get('url')).'" target="_blank" rel="noopener">'.e(__('org.profile.telegram.link_open')).'</a>',
-                )),
             ]);
     }
 
