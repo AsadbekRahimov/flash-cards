@@ -121,7 +121,8 @@ class AssignmentResource extends OrgResource
         return $schema->components([
             Forms\Components\Select::make('telegram_group_id')
                 ->label(__('org.assignments.fields.group'))
-                ->helperText(__('org.assignments.fields.group_help'))
+                // A silent empty list sends the owner away: say what is missing and where to fix it.
+                ->helperText(fn (): string => static::groupOptions() === [] ? __('org.assignments.fields.group_no_course') : __('org.assignments.fields.group_help'))
                 ->options(fn (): array => static::groupOptions())
                 ->required()
                 ->live()

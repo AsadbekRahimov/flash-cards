@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Telegram groups of the organization (docs/13 §6.2–6.3): the owner links a group by its chat id
  * (the bot must already be in it and the owner must be its creator / administrator — checked
- * with `getChatMember`) and unlinks it; a teacher sees only the groups they are assigned to.
+ * with `getChatMember`) and unlinks it, and picks its course (assignments need one); a teacher sees only the groups they are assigned to.
  */
 class GroupResource extends OrgResource
 {
@@ -101,11 +101,37 @@ class GroupResource extends OrgResource
                             return;
                         }
 
-                        Notification::make()->title(__('org.groups.notifications.linked', ['title' => $group->title]))->success()->send();
+                        // The next step differs: a pending group waits for the platform's activation, an active one only needs a course.
+                        $key = $group->status === 'active' ? 'linked' : 'linked_pending';
+
+                        Notification::make()->title(__('org.groups.notifications.'.$key, ['title' => $group->title]))->success()->send();
                     }),
             ])
             ->recordActions([
                 Actions\ViewAction::make(),
+                Actions\Action::make('course')
+                    ->label(__('org.groups.actions.course'))
+                    ->icon('heroicon-o-book-open')
+                    ->modalDescription(__('org.groups.actions.course_help'))
+                    ->authorize(fn (TelegramGroup $record): bool => static::canEdit($record))
+                    ->fillForm(fn (TelegramGroup $record): array => ['course_id' => $record->course_id])
+                    ->schema([
+                        Forms\Components\Select::make('course_id')
+                            ->label(__('org.groups.fields.course'))
+                            ->options(fn (): array => app(OrgGroupLinkService::class)->courseOptions(static::tenant()))
+                            ->required(),
+                    ])
+                    ->action(function (TelegramGroup $record, array $data): void {
+                        try {
+                            $group = app(OrgGroupLinkService::class)->setCourse(static::tenant(), $record, (int) $data['course_id'], static::user(), static::ip());
+                        } catch (OrgGroupLinkException $e) {
+                            Notification::make()->title(__('org.groups.errors.'.$e->errorCode))->danger()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title(__('org.groups.notifications.course_saved', ['title' => $group->title]))->success()->send();
+                    }),
                 Actions\Action::make('unlink')
                     ->label(__('org.groups.actions.unlink'))
                     ->icon('heroicon-o-x-mark')

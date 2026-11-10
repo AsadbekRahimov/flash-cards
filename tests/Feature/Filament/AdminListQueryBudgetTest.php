@@ -25,6 +25,7 @@ use App\Filament\Resources\OrganizationResource\Pages\ListOrganizations;
 use App\Filament\Resources\OrganizationResource\RelationManagers\GroupsRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\InvitesRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\MembersRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\StaffRelationManager;
 use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
 use App\Filament\Resources\PracticeItemResource\Pages\ListPracticeItems;
@@ -51,6 +52,7 @@ use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationUser;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\PracticeItem;
@@ -526,6 +528,14 @@ it('lists the invite links of an organization with the group they lead to', func
 
     FilamentQueryBudget::assert(InvitesRelationManager::class, function (int $rows) use ($organization, $group): void {
         OrganizationInvite::factory()->count($rows - OrganizationInvite::query()->where('organization_id', $organization->id)->count())->create(['organization_id' => $organization->id, 'telegram_group_id' => $group->id]);
+    }, ceiling: 9, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
+});
+
+it('lists the staff of an organization with the account loaded in one statement', function (): void {
+    $organization = Organization::factory()->create();
+
+    FilamentQueryBudget::assert(StaffRelationManager::class, function (int $rows) use ($organization): void {
+        OrganizationUser::factory()->count($rows - OrganizationUser::query()->where('organization_id', $organization->id)->count())->create(['organization_id' => $organization->id]);
     }, ceiling: 9, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
 });
 

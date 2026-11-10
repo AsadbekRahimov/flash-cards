@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Organizations\Exceptions\OrgGroupLinkException;
 use App\Domain\Organizations\Services\OrgGroupLinkService;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -13,6 +14,7 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\FakeTelegramClient;
 
 /*
@@ -104,4 +106,30 @@ it('unlinks only a group of the organization', function (): void {
     $this->service->unlink($this->org, $this->group, $this->owner, '10.0.0.1');
     expect($this->group->fresh()?->organization_id)->toBeNull()
         ->and(AuditLog::query()->where('action', 'organization.unlinked_group')->where('user_id', $this->owner->id)->exists())->toBeTrue();
+});
+
+it('makes the owner who linked the group its teacher at once, so the bot lets them run a training (idempotent, first group is primary)', function (): void {
+    $this->tg->chatMemberStatus = 'administrator';
+    $second = TelegramGroup::factory()->create(['organization_id' => null, 'status' => 'active']);
+
+    $this->service->link($this->org, $this->group->chat_id, $this->owner);
+    $this->service->link($this->org, $second->chat_id, $this->owner);
+
+    $rows = DB::table('teacher_groups')->where('user_id', $this->owner->id)->orderBy('telegram_group_id')->get();
+
+    expect($rows)->toHaveCount(2)
+        ->and((bool) $rows[0]->is_primary)->toBeTrue()
+        ->and((bool) $rows[1]->is_primary)->toBeFalse()
+        ->and(app(TeacherAuthority::class)->canTeach($this->owner, $this->group))->toBeTrue();
+
+    // Linked again: no second row.
+    $this->service->link($this->org, $this->group->chat_id, $this->owner);
+    expect(DB::table('teacher_groups')->where('user_id', $this->owner->id)->count())->toBe(2);
+});
+
+it('does not make anybody a teacher when the link is refused', function (): void {
+    $this->tg->chatMemberStatus = 'member';
+
+    expect(fn () => $this->service->link($this->org, $this->group->chat_id, $this->owner))->toThrow(OrgGroupLinkException::class);
+    expect(DB::table('teacher_groups')->count())->toBe(0);
 });

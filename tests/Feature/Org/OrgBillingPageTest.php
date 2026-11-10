@@ -81,6 +81,27 @@ it('shows the owner the billing page with the tariffs, prices and the pay button
         ->assertSee('по договорённости');
 });
 
+it('explains what a seat is and that a payment only renews the current tariff, in both languages', function (): void {
+    config()->set('billing.invoice.request_email', 'billing@example.com');
+    pbAs($this->owner);
+
+    $this->get('/org/bright/billing')->assertOk()
+        ->assertSee('Место — это один ученик, который получает Pro за счёт центра.')
+        ->assertSee('Оплата продлевает текущий тариф на выбранный срок.')
+        ->assertSee('нажмите «Запросить счёт»')
+        ->assertDontSee('Смена тарифа вступает в силу');
+
+    // No invoice address: the page must not point to a button that is not there.
+    config()->set('billing.invoice.request_email', '');
+    config()->set('site.legal.email', '');
+    $this->get('/org/bright/billing')->assertOk()
+        ->assertSee('Чтобы перейти на другой тариф, напишите в поддержку.')
+        ->assertDontSee('Запросить счёт');
+
+    expect(__('org.billing.choose.description', [], 'uz'))->toContain('«Hisob so\'rash»')
+        ->and(__('org.billing.seat_explainer', [], 'uz'))->toContain('O\'rin');
+});
+
 it('hides the pay buttons of a provider that is switched off', function (): void {
     config()->set('billing.providers.payme.enabled', false);
     pbAs($this->owner);

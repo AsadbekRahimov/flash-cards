@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Administration\Services\PendingGroupsBadge;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\TelegramGroupResource\Pages;
@@ -30,6 +31,31 @@ class TelegramGroupResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return __('admin.nav.administration');
+    }
+
+    /**
+     * Groups waiting for activation, for the admin only (a teacher sees nothing about groups that are not theirs). The menu is drawn
+     * on every page: the number comes from a 60-second cache, never from a query per page view.
+     */
+    public static function getNavigationBadge(): ?string
+    {
+        if (! app(PanelDataScope::class)->isAdmin()) {
+            return null;
+        }
+
+        $count = PendingGroupsBadge::count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return __('admin.telegram_groups.nav_badge_tooltip');
     }
 
     public static function getNavigationLabel(): string

@@ -15,7 +15,8 @@ use RuntimeException;
  *   owner_telegram_missing   409  the owner's account has no `telegram_user_id` (set it in the profile)
  *   not_chat_admin           403  the owner is not creator / administrator of the chat — somebody else's group
  *   telegram_unavailable     502  Telegram could not answer `getChatMember` (retry later)
- *   not_linked               404  unlink of a group that is not the organization's
+ *   not_linked               404  unlink / course change of a group that is not the organization's
+ *   course_unavailable       422  the course is not published, is private or does not exist (the single availability rule)
  */
 final class OrgGroupLinkException extends RuntimeException
 {
@@ -30,6 +31,8 @@ final class OrgGroupLinkException extends RuntimeException
     public const TELEGRAM_UNAVAILABLE = 'telegram_unavailable';
 
     public const NOT_LINKED = 'not_linked';
+
+    public const COURSE_UNAVAILABLE = 'course_unavailable';
 
     public function __construct(
         public readonly string $errorCode,
@@ -68,11 +71,17 @@ final class OrgGroupLinkException extends RuntimeException
         return new self(self::NOT_LINKED, "Group #{$groupId} is not linked to organization #{$organizationId}.");
     }
 
+    public static function courseUnavailable(int $courseId): self
+    {
+        return new self(self::COURSE_UNAVAILABLE, "Course #{$courseId} is not available to groups.");
+    }
+
     public function httpStatus(): int
     {
         return match ($this->errorCode) {
             self::GROUP_NOT_FOUND, self::NOT_LINKED => 404,
             self::NOT_CHAT_ADMIN => 403,
+            self::COURSE_UNAVAILABLE => 422,
             self::TELEGRAM_UNAVAILABLE => 502,
             default => 409,
         };
