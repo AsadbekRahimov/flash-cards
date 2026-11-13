@@ -16,6 +16,7 @@ use App\Domain\Practice\Services\Modes\ModeRegistry;
 use App\Domain\Practice\Services\Modes\ReplaceableElements;
 use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
+use Closure;
 use LogicException;
 
 /**
@@ -83,6 +84,29 @@ final class PracticeSnapshotBuilder
         $snapshot->assertFits();
 
         return $snapshot;
+    }
+
+    /**
+     * Runs `$attempt` (the availability check and the build of a session / a battle) on the scope; a scope that reads a SAMPLE of
+     * the words ({@see MaterialScope::forPlay()}) that came out short of material - `practice_not_enough_material` - is tried
+     * again on all the words (same seed), and the result is that of the whole material: the snapshot, or the refusal with its
+     * numbers and reason. The sample only makes the usual case fast; it never decides that a mode cannot be played.
+     *
+     * @param  Closure(MaterialScope): Snapshot  $attempt
+     *
+     * @throws PracticeException
+     */
+    public function withFullMaterialFallback(MaterialScope $scope, Closure $attempt): Snapshot
+    {
+        try {
+            return $attempt($scope);
+        } catch (PracticeException $e) {
+            if ($scope->playSeed === null || $e->errorCode !== PracticeException::NOT_ENOUGH_MATERIAL) {
+                throw $e;
+            }
+
+            return $attempt($scope->withoutPlaySample());
+        }
     }
 
     /**

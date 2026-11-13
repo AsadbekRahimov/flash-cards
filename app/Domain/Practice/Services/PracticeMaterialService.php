@@ -15,6 +15,7 @@ use App\Domain\Practice\Enums\PracticeItemStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Modes\ModeRegistry;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -130,6 +131,10 @@ final class PracticeMaterialService
      * sample ({@see MaterialScope::$wordSample}) gets the first `wordSample` of them by the id (one more is asked for to know there
      * are more) and remembers that the list was cut: whoever is short of material on it must ask again without the sample.
      *
+     * A scope a game is built from ({@see MaterialScope::forPlay()}) reads the ids of the introduced words first (no models, no
+     * translations); more than `playSample` of them are cut to a sample chosen by the seed of the scope, and only the words of the
+     * sample are loaded. Not more than that: the whole list, read as ever.
+     *
      * @return list<MaterialWord>
      */
     public function introducedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
@@ -157,7 +162,8 @@ final class PracticeMaterialService
     public function introducedVoicedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
     {
         $all = $this->introducedKey($learner, $locales);
-        if ($scope->has($all) && ! $scope->wasTruncated($all)) {
+        // A play scope's list may be a sample: the voiced words are chosen from all the voiced ones, not from it.
+        if ($scope->playSeed === null && $scope->has($all) && ! $scope->wasTruncated($all)) {
             return array_values(array_filter($this->introducedWords($scope, $learner, $locales), static fn (MaterialWord $word): bool => $word->audioPath !== null));
         }
 
@@ -168,7 +174,8 @@ final class PracticeMaterialService
      * Every active word of the scope (a battle: the progress of the players is not looked at). A scope counted over a sample reads
      * the words of the first lessons of the course (study order, from the cached tree) that make up more than the sample, the first
      * `wordSample` of them by the id, and remembers that the list was cut. A plain `order by id limit` over the whole course would
-     * walk the primary key of `words` through nearly the whole table on PostgreSQL.
+     * walk the primary key of `words` through nearly the whole table on PostgreSQL. A scope a battle is built from reads the ids of
+     * all the words of the course and loads only a sample of `playSample` of them chosen by its seed.
      *
      * @return list<MaterialWord>
      */
@@ -178,6 +185,11 @@ final class PracticeMaterialService
 
         return $this->noted($scope, $key, $scope->remember($key, function () use ($scope, $locales, $key): array {
             $query = $this->wordQuery($scope);
+            $played = $this->playRows($scope, $query, 'practice:play:all', true);
+            if ($played !== null) {
+                return $this->materialWords($played, $locales);
+            }
+
             $sample = $scope->wordSample;
             $lessonIds = $sample === null ? null : $this->lessonsOfSample($scope, $locales, $sample);
             if ($lessonIds !== null) {
@@ -402,12 +414,62 @@ final class PracticeMaterialService
         if ($voiced) {
             $query->whereNotNull('words.audio_path');
         }
+        $played = $this->playRows($scope, $query, $voiced ? 'practice:play:voiced' : 'practice:play:introduced', false);
+        if ($played !== null) {
+            return $this->materialWords($played, $locales);
+        }
+
         $sample = $scope->wordSample;
         if ($sample !== null) {
             $query->limit($sample + 1);
         }
 
         return $this->materialWords($this->cut($scope, $key, $query->get(), $sample), $locales);
+    }
+
+    /**
+     * The words a play scope reads: all of them when there are no more than `playSample` (ONE query, as before the sample existed:
+     * the rows are asked for with `limit playSample + 1` and are the answer), else a sample of that size chosen by the seed of the
+     * scope under the label of the list ({@see SeededShuffle::sample()}) - the probe, the ids of all the words, the chosen ones: three
+     * queries, models and translations only for the chosen. In the order of the id either way. Null: not a sampled play scope.
+     *
+     * `$courseWide`: the words of a whole course, not of one learner. `order by id limit` over those makes PostgreSQL walk the primary
+     * key of `words` through nearly the whole table for a course with high ids, so the probe sorts by `words.id + 0` (the lessons of the
+     * course are read by their index; the same rows in the same order).
+     *
+     * @param  Builder<Word>  $query  the words of the list, with the joins and the order
+     * @return Collection<int, Word>|null
+     */
+    private function playRows(MaterialScope $scope, Builder $query, string $label, bool $courseWide): ?Collection
+    {
+        $seed = $scope->playSeed;
+        $sample = $scope->playSample;
+        if ($seed === null || $sample === null) {
+            return null;
+        }
+
+        $probe = clone $query;
+        if ($courseWide) {
+            $probe->reorder()->orderByRaw('words.id + 0');
+        }
+        $rows = $probe->limit($sample + 1)->toBase()->get();
+        if ($rows->count() <= $sample) {
+            return $query->hydrate($rows->map(static fn (object $row): array => (array) $row)->all());
+        }
+
+        $ids = [];
+        // Through the query builder: Eloquent's pluck() makes a model of every value of a cast column (`id`), which for the ids
+        // of a whole course costs more than everything else here.
+        foreach ((clone $query)->select('words.id')->toBase()->pluck('words.id') as $id) {
+            $ids[] = (int) $id;
+        }
+        $picked = [];
+        foreach (SeededShuffle::sample($seed, $label, count($ids), $sample) as $index) {
+            $picked[] = $ids[$index];
+        }
+        sort($picked);
+
+        return (clone $query)->whereIn('words.id', $picked)->get();
     }
 
     /**

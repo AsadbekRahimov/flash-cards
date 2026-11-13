@@ -38,6 +38,8 @@ final class MaterialScope
         public readonly ?Stage $stage = null,
         public readonly bool $countOnly = false,
         public readonly ?int $wordSample = null,
+        public readonly ?string $playSeed = null,
+        public readonly ?int $playSample = null,
     ) {}
 
     /** The words and the tasks of every lesson of the stage (docs/18 §12.3.1: a stop widened to its city). */
@@ -57,6 +59,29 @@ final class MaterialScope
         $sample = max(0, (int) config('practice.count_sample'));
 
         return new self($course, $lesson, countOnly: true, wordSample: $lesson === null && $sample > 0 ? $sample : null);
+    }
+
+    /**
+     * A scope a session / a battle is BUILT from, with the seed of its snapshot. A whole course (no lesson, no stage, no retry) with
+     * `practice.play_sample` > 0 reads not every word of the learner but a sample of that size chosen by the seed
+     * ({@see PracticeMaterialService}): opening a session costs the same at 300 and at 8000 started words. Any other scope - a
+     * lesson, a module, a retry - is read whole, as before. Not the {@see $wordSample} of a counting scope: another path.
+     */
+    public static function forPlay(Course $course, ?Lesson $lesson, ?RetryMaterial $retry, string $seed): self
+    {
+        $sample = max(0, (int) config('practice.play_sample'));
+        $sampled = $lesson === null && $retry === null && $sample > 0;
+
+        return new self($course, $lesson, $retry, playSeed: $sampled ? $seed : null, playSample: $sampled ? $sample : null);
+    }
+
+    /**
+     * The same scope read over ALL the words (a fresh memo): what a play scope falls back to when the sample did not give a snapshot,
+     * so that "can it be built" and the refusal are those of the whole material.
+     */
+    public function withoutPlaySample(): self
+    {
+        return new self($this->course, $this->lesson, $this->retry, $this->stage);
     }
 
     /**

@@ -334,7 +334,12 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      */
     private function wordCandidates(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
     {
-        return $scope->remember('dictation:words:'.$learner->id.':'.implode(',', $locales->locales), fn (): array => $this->candidatesOf($this->material->introducedWords($scope, $learner, $locales), $locales));
+        // A play scope reads a sample of the words: of the voiced ones, so that it is not made of words that have no voice (the candidates
+        // are the same: a word without an audio file is never one).
+        return $scope->remember('dictation:words:'.$learner->id.':'.implode(',', $locales->locales), fn (): array => $this->candidatesOf(
+            $scope->playSeed === null ? $this->material->introducedWords($scope, $learner, $locales) : $this->material->introducedVoicedWords($scope, $learner, $locales),
+            $locales,
+        ));
     }
 
     /**

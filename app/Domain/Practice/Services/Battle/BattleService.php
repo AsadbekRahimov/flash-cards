@@ -31,6 +31,7 @@ use App\Domain\Practice\Services\PracticeAudioService;
 use App\Domain\Practice\Services\PracticeLimits;
 use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Services\PracticeSnapshotBuilder;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Jobs\SendBattleDmJob;
 use App\Models\Battle;
 use App\Models\BattleAnswer;
@@ -147,7 +148,9 @@ final class BattleService
         $challengerLocale = $this->locales->forLearner($by);
         $opponentLocale = $this->locales->forLearner($friend);
         $locales = new LocaleSet([$challengerLocale, $opponentLocale]);
-        $snapshot = $this->snapshot($by, $mode, new MaterialScope($course, $lesson), $locales);
+        // The seed exists before the material is read: a whole course is read over a sample chosen by it.
+        $seed = SeededShuffle::newSeed();
+        $snapshot = $this->snapshot($by, $mode, MaterialScope::forPlay($course, $lesson, null, $seed), $locales, $seed);
 
         $attributes = [
             'challenger_id' => $by->id,
@@ -769,17 +772,19 @@ final class BattleService
      * The snapshot of exactly `rounds` rounds for both languages. Too little material is 422 `battle_material_unavailable` with
      * the numbers (and the event `practice.not_enough_material` with `battle = true`).
      */
-    private function snapshot(Learner $by, PracticeMode $mode, MaterialScope $scope, LocaleSet $locales): Snapshot
+    private function snapshot(Learner $by, PracticeMode $mode, MaterialScope $scope, LocaleSet $locales, string $seed): Snapshot
     {
         $handler = $this->modes->for($mode);
 
         try {
-            $availability = $handler->availability($scope, null, $locales);
-            if (! $availability->isAvailable) {
-                throw PracticeException::notEnoughMaterial($mode, $availability, $scope->course->slug, $scope->lesson?->id);
-            }
+            return $this->snapshots->withFullMaterialFallback($scope, function (MaterialScope $scope) use ($handler, $mode, $locales, $seed): Snapshot {
+                $availability = $handler->availability($scope, null, $locales);
+                if (! $availability->isAvailable) {
+                    throw PracticeException::notEnoughMaterial($mode, $availability, $scope->course->slug, $scope->lesson?->id);
+                }
 
-            return $this->snapshots->build($mode, $scope, null, $locales, $this->settings->rounds(), strictSize: true);
+                return $this->snapshots->build($mode, $scope, null, $locales, $this->settings->rounds(), strictSize: true, seed: $seed);
+            });
         } catch (PracticeException $e) {
             if ($e->errorCode !== PracticeException::NOT_ENOUGH_MATERIAL) {
                 throw $e;
