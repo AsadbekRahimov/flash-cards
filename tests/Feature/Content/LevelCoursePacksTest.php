@@ -8,6 +8,7 @@ use App\Domain\Content\Services\CoursePackImporter;
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Domain\Learning\Services\GapFillBuilder;
+use App\Domain\Practice\Support\EnglishLexicon;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -160,6 +161,21 @@ it('shares no word between english-a1-a2, english-b1 and english-b2: 3 000 diffe
     }
 
     expect($all)->toHaveCount(3000);
+});
+
+it('has every word of the three packs in the lexicon of the dictation, so that writing one of them for another is a mistake', function (): void {
+    // No exceptions: every word of the packs is known to EnglishLexicon::isWord (add a missing one to resources/lexicon/en-common.txt).
+    $exceptions = [];
+    $unknown = [];
+    foreach ([LCP_A1_A2, 'english-b1', 'english-b2'] as $slug) {
+        foreach (lcp_words($slug) as $word) {
+            if (! in_array($word, $exceptions, true) && ! EnglishLexicon::isWord($word)) {
+                $unknown[] = "{$slug}: {$word}";
+            }
+        }
+    }
+
+    expect($unknown)->toBe([]);
 });
 
 it('imports the whole pack as a draft, and a second run adds nothing', function (string $slug, string $level, int $position): void {
