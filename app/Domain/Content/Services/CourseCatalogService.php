@@ -47,8 +47,8 @@ final class CourseCatalogService
 
     private const PUBLISHED_CACHE_TTL = 600;
 
-    /** `catalog:course:v1:{course id}:{locale}:n{data version}`: the tree of one course in one locale (docs/19 K3). */
-    private const COURSE_TREE_PREFIX = 'catalog:course:v1:';
+    /** `catalog:course:v2:{course id}:{locale}:n{data version}`: the tree of one course in one locale (docs/19 K3). */
+    private const COURSE_TREE_PREFIX = 'catalog:course:v2:';
 
     private const COURSE_TREE_TTL = 1800;
 
@@ -464,7 +464,15 @@ final class CourseCatalogService
      * is the same for everybody of that locale who may open the course and safe to share (docs/19 K3). A
      * learner's own deck is the exception: it is private, small and edited all the time, so it is read, never cached.
      *
-     * @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
+     * @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
+     */
+    public function tree(Course $course, string $locale): array
+    {
+        return $this->courseTree($course, $locale);
+    }
+
+    /**
+     * @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
      */
     private function courseTree(Course $course, string $locale): array
     {
@@ -473,7 +481,7 @@ final class CourseCatalogService
         }
 
         // The key (with the data version) is made BEFORE the rows are read.
-        /** @var list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+        /** @var list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
         return PureCache::store()->remember(
             self::courseTreeKey($course->id, $locale),
             self::COURSE_TREE_TTL,
@@ -481,7 +489,7 @@ final class CourseCatalogService
         );
     }
 
-    /** @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+    /** @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
     private function buildCourseTree(Course $course, string $locale): array
     {
         $rows = DB::table('lessons')
@@ -490,10 +498,10 @@ final class CourseCatalogService
                 $join->on('words.lesson_id', '=', 'lessons.id')->where('words.is_active', '=', true);
             })
             ->where('stages.course_id', $course->id)
-            ->groupBy('stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
+            ->groupBy('stages.id', 'stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
-            ->selectRaw('stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
+            ->selectRaw('stages.id as stage_id, stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
             ->get();
 
         $text = static fn (mixed $value): ?string => $value === null ? null : (string) $value;
@@ -502,6 +510,7 @@ final class CourseCatalogService
         $tree = [];
         foreach ($rows as $row) {
             $tree[] = [
+                'stage_id' => (int) $row->stage_id,
                 'stage_number' => (int) $row->stage_number,
                 'stage_title' => $this->deckTitles->stageIn($course, $locale, $text($row->stage_title), $text($row->stage_title_uz)),
                 'lesson_id' => (int) $row->lesson_id,
@@ -544,11 +553,12 @@ final class CourseCatalogService
 
     /**
      * Active words the learner has a row for (`started`) and has answered (`done`, `repetitions >= 1`) per lesson of the course -
-     * their own rows only, like {@see lessonsDone()}.
+     * their own rows only, like {@see lessonsDone()}. THE one query "the learner's progress over the lessons of a course": "Today"
+     * ({@see todayCourse()}) and the map of the game use it, each beside the cached {@see tree()}.
      *
      * @return array<int, array{started: int, done: int}> lesson id => counts
      */
-    private function lessonsStarted(Course $course, Learner $learner): array
+    public function lessonsStarted(Course $course, Learner $learner): array
     {
         $rows = DB::table('word_repetitions')
             ->join('words', 'words.id', '=', 'word_repetitions.word_id')

@@ -96,8 +96,8 @@ it('keeps one entry per course and locale, with the data version in the key, arr
     $keyUz = CourseCatalogService::courseTreeKey($id, 'uz');
 
     // The version is the number of times the course's data was changed (the fixture's own writes included).
-    expect($keyRu)->toStartWith("catalog:course:v1:{$id}:ru:n")
-        ->and($keyUz)->toStartWith("catalog:course:v1:{$id}:uz:n")
+    expect($keyRu)->toStartWith("catalog:course:v2:{$id}:ru:n")
+        ->and($keyUz)->toStartWith("catalog:course:v2:{$id}:uz:n")
         ->and(PureCache::store()->has($keyRu))->toBeTrue()
         ->and(PureCache::store()->has($keyUz))->toBeTrue()
         ->and(PureCache::store()->get($keyRu))->toBeArray()->each->toBeArray();

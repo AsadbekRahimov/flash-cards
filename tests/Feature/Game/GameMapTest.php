@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Friendship;
@@ -30,10 +31,15 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-/** Budget of the map in SQL statements, `TwaAuth` (1) included (and the count of the limits of the learner, G2.5b part 2, what the friends wear, G2.6: one statement, only when the friends are not cached, and the card of the class caravan, G2.9b: one) - and it must not grow with the lessons and the friends. */
-const BUDGET_MAP = 12;
+/**
+ * The statements of the map, COLD (no cache at all), `TwaAuth` (1) included: the tree of the course (1), the learner's word rows per lesson (1),
+ * the stop and the city progress (2), the friends (friendships, their progress, what they wear: 3), their names (1), the limits of the learner, the
+ * card of the class caravan, the daily caravan ... - and it must not grow with the lessons and the friends. Was 12 when the map was ONE heavy
+ * statement over all the words of the course; now the tree is cached and the rest follows the learner.
+ */
+const BUDGET_MAP = 15;
 
-/** The same with the friends cache warm: the camels are in it, so the statement of G2.6 is not there. */
+/** The same with the tree and the friends cache warm: the tree (1) and the friends' three statements are not there. */
 const BUDGET_MAP_WARM = 10;
 
 beforeEach(function (): void {
@@ -426,7 +432,7 @@ it('stays within the budget of statements, and the number does not grow with the
     GameRun::factory()->create(['learner_id' => $learner->id, 'course_id' => $course->id]);
     $big = mapStatements($learner);
 
-    expect($small)->toBeLessThanOrEqual(BUDGET_MAP)
+    expect($small)->toBe(BUDGET_MAP)
         ->and($big)->toBe($small);
 });
 
@@ -441,7 +447,7 @@ it('reads no more than the friends cache holds when it is warm', function (): vo
 
     $warm = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk());
 
-    expect(QueryLog::matching($warm, '/friendships/'))->toBe([])->and(count($warm))->toBeLessThanOrEqual(BUDGET_MAP_WARM);
+    expect(QueryLog::matching($warm, '/friendships/'))->toBe([])->and(count($warm))->toBe(BUDGET_MAP_WARM);
 });
 
 it('carries the limits of the learner (G2.8, G2.5b): the Free numbers with the runs and the boosters used, the tickets, null for what Pro does not have', function (): void {
@@ -465,4 +471,53 @@ it('carries the limits of the learner (G2.8, G2.5b): the Free numbers with the r
     PracticeKit::pro($learner);
     $pro = mapGet($learner)->assertOk()->json('limits');
     expect($pro['runs'])->toBeNull()->and($pro['boss_stages'])->toBeNull()->and($pro['boosters']['limit'])->toBe(5)->and($pro['tickets']['balance'])->toBe(3);
+});
+
+it('reads no lessons and no words once the tree of the course is cached: one grouped statement over the learner\'s word rows', function (): void {
+    [, $lessons] = mapCourse(2, 2);
+    $learner = Learner::factory()->create();
+    mapStart($learner, $lessons[0][0]);
+    mapGet($learner)->assertOk(); // warms the tree
+    $headers = PracticeKit::headers($learner);
+
+    $queries = QueryLog::during(fn () => test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk());
+
+    $reps = QueryLog::matching($queries, '/from ["`]word_repetitions["`] inner join ["`]words["`]/');
+    expect(QueryLog::matching($queries, '/^select (?:(?!\bfrom\b).)* from ["`](lessons|words)["`]/'))->toBe([])
+        ->and($reps)->toHaveCount(1)
+        ->and($reps[0])->toMatch('/group by ["`]words["`]\.["`]lesson_id["`]/');
+});
+
+it('shows the same map as the rows say: stops, stars, runs, the boss, in order; nothing from another learner', function (): void {
+    [$course, $lessons] = mapCourse(2, 4, 3);
+    // module 1: lesson 1 started + stars, lesson 2 without active words, lesson 3 with one inactive word, lesson 4 untouched
+    Word::query()->where('lesson_id', $lessons[0][1]->id)->update(['is_active' => false]);
+    $inactive = Word::query()->where('lesson_id', $lessons[0][2]->id)->orderBy('id')->firstOrFail();
+    $inactive->update(['is_active' => false]);
+    app(CourseCatalogService::class)->forgetCourseTree($course->id);
+
+    $learner = Learner::factory()->create();
+    $other = Learner::factory()->create();
+    mapStart($learner, $lessons[0][0], 2);
+    PracticeKit::introduce($learner, $inactive);
+    mapStart($other, $lessons[0][3], 3);
+    mapStart($other, $lessons[1][0], 3);
+    GameStopProgress::factory()->cleared(3, 210)->create(['learner_id' => $learner->id, 'lesson_id' => $lessons[0][0]->id, 'runs_count' => 5]);
+    GameStopProgress::factory()->cleared(1, 999)->create(['learner_id' => $other->id, 'lesson_id' => $lessons[0][3]->id, 'runs_count' => 9]);
+    GameCityProgress::factory()->defeated()->create(['learner_id' => $learner->id, 'stage_id' => $lessons[0][0]->stage_id, 'boss_defeated_at' => '2026-11-04 08:30:15']);
+    GameCityProgress::factory()->defeated()->create(['learner_id' => $other->id, 'stage_id' => $lessons[1][0]->stage_id, 'boss_defeated_at' => '2026-11-03 01:02:03']);
+
+    $cities = mapGet($learner)->assertOk()->json('cities');
+
+    expect(array_column($cities, 'number'))->toBe([1, 2])
+        ->and(array_column($cities[0]['stops'], 'lesson_id'))->toBe([$lessons[0][0]->id, $lessons[0][2]->id, $lessons[0][3]->id])
+        ->and(array_column($cities[0]['stops'], 'unlocked'))->toBe([true, false, false])
+        ->and(array_column($cities[0]['stops'], 'stars'))->toBe([3, 0, 0])
+        ->and(array_column($cities[0]['stops'], 'best_score'))->toBe([210, 0, 0])
+        ->and(array_column($cities[0]['stops'], 'runs'))->toBe([5, 0, 0])
+        ->and($cities[0]['unlocked'])->toBeTrue()
+        ->and($cities[0]['boss'])->toBe(['state' => 'defeated', 'defeated_at' => '2026-11-04T08:30:15.000Z', 'introduced' => 2, 'required' => 8, 'cleared_stops' => 1, 'required_stops' => 3])
+        ->and($cities[1]['unlocked'])->toBeFalse()
+        ->and(array_column($cities[1]['stops'], 'unlocked'))->toBe([false, false, false, false])
+        ->and($cities[1]['boss'])->toMatchArray(['state' => 'locked_by_plan', 'defeated_at' => null, 'introduced' => 0, 'cleared_stops' => 0]);
 });
