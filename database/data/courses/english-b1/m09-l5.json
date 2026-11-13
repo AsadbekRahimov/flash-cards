@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 9,
+    "title": "Учёба и знания",
+    "title_uz": "O'qish va bilim"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Навыки и методы",
+    "title_uz": "Ko'nikmalar va usullar"
+  },
+  "words": [
+    {
+      "word": "expert",
+      "part_of_speech": "noun",
+      "translation": "эксперт, специалист",
+      "translations": {
+        "ru": "эксперт, специалист",
+        "uz": "mutaxassis, ekspert"
+      },
+      "example": "She is an expert in teaching young children.",
+      "example_translations": {
+        "ru": "Она эксперт по обучению маленьких детей.",
+        "uz": "U yosh bolalarni o'qitish bo'yicha mutaxassis."
+      }
+    },
+    {
+      "word": "intermediate",
+      "part_of_speech": "adjective",
+      "translation": "средний, промежуточный",
+      "translations": {
+        "ru": "средний, промежуточный",
+        "uz": "o'rta, oraliq"
+      },
+      "example": "This course is perfect for intermediate students.",
+      "example_translations": {
+        "ru": "Этот курс идеально подходит студентам среднего уровня.",
+        "uz": "Bu kurs o'rta darajadagi talabalarga juda mos keladi."
+      }
+    },
+    {
+      "word": "motivation",
+      "part_of_speech": "noun",
+      "translation": "мотивация",
+      "translations": {
+        "ru": "мотивация",
+        "uz": "motivatsiya"
+      },
+      "example": "Without motivation, it is hard to learn a language.",
+      "example_translations": {
+        "ru": "Без мотивации трудно выучить язык.",
+        "uz": "Motivatsiyasiz til o'rganish qiyin."
+      }
+    },
+    {
+      "word": "effort",
+      "part_of_speech": "noun",
+      "translation": "усилие",
+      "translations": {
+        "ru": "усилие",
+        "uz": "sa'y-harakat"
+      },
+      "example": "Learning to play the piano takes a lot of effort.",
+      "example_translations": {
+        "ru": "Чтобы научиться играть на пианино, нужно много усилий.",
+        "uz": "Pianino chalishni o'rganish uchun ko'p sa'y-harakat kerak."
+      }
+    },
+    {
+      "word": "discipline",
+      "part_of_speech": "noun",
+      "translation": "дисциплина",
+      "translations": {
+        "ru": "дисциплина",
+        "uz": "intizom"
+      },
+      "example": "Athletes need discipline to train hard every day.",
+      "example_translations": {
+        "ru": "Спортсменам нужна дисциплина, чтобы усердно тренироваться каждый день.",
+        "uz": "Sportchilarga har kuni qattiq mashq qilish uchun intizom kerak."
+      }
+    },
+    {
+      "word": "method",
+      "part_of_speech": "noun",
+      "translation": "метод",
+      "translations": {
+        "ru": "метод",
+        "uz": "usul"
+      },
+      "example": "Our teacher uses a new method to teach reading.",
+      "example_translations": {
+        "ru": "Наш учитель использует новый метод обучения чтению.",
+        "uz": "O'qituvchimiz o'qishni o'rgatishda yangi usuldan foydalanadi."
+      }
+    },
+    {
+      "word": "technique",
+      "part_of_speech": "noun",
+      "translation": "техника, приём",
+      "translations": {
+        "ru": "техника, приём",
+        "uz": "texnika, uslub"
+      },
+      "example": "This breathing technique helps you relax before exams.",
+      "example_translations": {
+        "ru": "Эта дыхательная техника помогает расслабиться перед экзаменами.",
+        "uz": "Bu nafas olish texnikasi imtihonlar oldidan tinchlanishga yordam beradi."
+      }
+    },
+    {
+      "word": "summary",
+      "part_of_speech": "noun",
+      "translation": "краткое изложение",
+      "translations": {
+        "ru": "краткое изложение",
+        "uz": "qisqacha mazmun"
+      },
+      "example": "Please write a summary of the article at home.",
+      "example_translations": {
+        "ru": "Пожалуйста, напишите дома краткое изложение статьи.",
+        "uz": "Iltimos, uyda maqolaning qisqacha mazmunini yozing."
+      }
+    },
+    {
+      "word": "define",
+      "part_of_speech": "verb",
+      "translation": "давать определение",
+      "translations": {
+        "ru": "давать определение",
+        "uz": "ta'rif bermoq"
+      },
+      "example": "Can you define this word in simple English?",
+      "example_translations": {
+        "ru": "Вы можете дать определение этому слову на простом английском?",
+        "uz": "Bu so'zga sodda ingliz tilida ta'rif bera olasizmi?"
+      }
+    },
+    {
+      "word": "resource",
+      "part_of_speech": "noun",
+      "translation": "ресурс, источник",
+      "translations": {
+        "ru": "ресурс, источник",
+        "uz": "resurs, manba"
+      },
+      "example": "The library is a great resource for students.",
+      "example_translations": {
+        "ru": "Библиотека — отличный ресурс для студентов.",
+        "uz": "Kutubxona talabalar uchun ajoyib manba."
+      }
+    }
+  ]
+}

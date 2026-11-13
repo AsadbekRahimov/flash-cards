@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 3,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Налоги и торговля",
+    "title_uz": "Soliqlar va savdo"
+  },
+  "words": [
+    {
+      "word": "taxpayer",
+      "part_of_speech": "noun",
+      "translation": "налогоплательщик",
+      "translations": {
+        "ru": "налогоплательщик",
+        "uz": "soliq to'lovchi"
+      },
+      "example": "Every taxpayer must fill out this form.",
+      "example_translations": {
+        "ru": "Каждый налогоплательщик должен заполнить эту форму.",
+        "uz": "Har bir soliq to'lovchi ushbu shaklni to'ldirishi shart."
+      }
+    },
+    {
+      "word": "tariff",
+      "part_of_speech": "noun",
+      "translation": "пошлина, тариф",
+      "translations": {
+        "ru": "пошлина, тариф",
+        "uz": "boj, tarif"
+      },
+      "example": "The new tariff made imported cars more expensive.",
+      "example_translations": {
+        "ru": "Новая пошлина сделала импортные автомобили дороже.",
+        "uz": "Yangi boj import qilingan avtomobillarni qimmatlashtirdi."
+      }
+    },
+    {
+      "word": "taxation",
+      "part_of_speech": "noun",
+      "translation": "налогообложение",
+      "translations": {
+        "ru": "налогообложение",
+        "uz": "soliqqa tortish"
+      },
+      "example": "Fair taxation is important for small businesses.",
+      "example_translations": {
+        "ru": "Справедливое налогообложение важно для малого бизнеса.",
+        "uz": "Adolatli soliqqa tortish kichik biznes uchun muhim."
+      }
+    },
+    {
+      "word": "deduct",
+      "part_of_speech": "verb",
+      "translation": "удерживать, вычитать",
+      "translations": {
+        "ru": "удерживать, вычитать",
+        "uz": "ushlab qolmoq, chegirmoq"
+      },
+      "example": "The employer deducts tax from your monthly salary.",
+      "example_translations": {
+        "ru": "Работодатель удерживает налог из вашей месячной зарплаты.",
+        "uz": "Ish beruvchi oylik maoshingizdan soliqni ushlab qoladi."
+      }
+    },
+    {
+      "word": "exempt",
+      "part_of_speech": "adjective",
+      "translation": "освобождённый",
+      "translations": {
+        "ru": "освобождённый",
+        "uz": "ozod etilgan"
+      },
+      "example": "Books for schools are exempt from this tax.",
+      "example_translations": {
+        "ru": "Книги для школ освобождены от этого налога.",
+        "uz": "Maktablar uchun kitoblar bu soliqdan ozod etilgan."
+      }
+    },
+    {
+      "word": "audit",
+      "part_of_speech": "noun",
+      "translation": "аудит, ревизия",
+      "translations": {
+        "ru": "аудит, ревизия",
+        "uz": "audit, taftish"
+      },
+      "example": "The annual audit found no mistakes in the accounts.",
+      "example_translations": {
+        "ru": "Ежегодный аудит не выявил ошибок в отчётности.",
+        "uz": "Yillik audit hisobotlarda hech qanday xato topmadi."
+      }
+    },
+    {
+      "word": "invoice",
+      "part_of_speech": "noun",
+      "translation": "счёт-фактура",
+      "translations": {
+        "ru": "счёт-фактура",
+        "uz": "hisob-faktura"
+      },
+      "example": "Please send the invoice to our accountant.",
+      "example_translations": {
+        "ru": "Пожалуйста, отправьте счёт-фактуру нашему бухгалтеру.",
+        "uz": "Iltimos, hisob-fakturani buxgalterimizga yuboring."
+      }
+    },
+    {
+      "word": "wholesale",
+      "part_of_speech": "adjective",
+      "translation": "оптовый",
+      "translations": {
+        "ru": "оптовый",
+        "uz": "ulgurji"
+      },
+      "example": "Wholesale prices are lower than prices in stores.",
+      "example_translations": {
+        "ru": "Оптовые цены ниже, чем цены в магазинах.",
+        "uz": "Ulgurji narxlar do'konlardagi narxlardan past."
+      }
+    },
+    {
+      "word": "retail",
+      "part_of_speech": "noun",
+      "translation": "розничная торговля",
+      "translations": {
+        "ru": "розничная торговля",
+        "uz": "chakana savdo"
+      },
+      "example": "Tom works in retail, selling shoes to customers.",
+      "example_translations": {
+        "ru": "Том работает в розничной торговле — продаёт обувь покупателям.",
+        "uz": "Tom chakana savdoda ishlaydi, xaridorlarga poyabzal sotadi."
+      }
+    },
+    {
+      "word": "quota",
+      "part_of_speech": "noun",
+      "translation": "квота",
+      "translations": {
+        "ru": "квота",
+        "uz": "kvota"
+      },
+      "example": "The country set a quota on sugar imports.",
+      "example_translations": {
+        "ru": "Страна установила квоту на импорт сахара.",
+        "uz": "Mamlakat shakar importiga kvota belgiladi."
+      }
+    }
+  ]
+}

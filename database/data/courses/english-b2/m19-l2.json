@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 19,
+    "title": "Точные описания",
+    "title_uz": "Aniq tavsiflar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Наречия степени",
+    "title_uz": "Daraja ravishlari"
+  },
+  "words": [
+    {
+      "word": "approximately",
+      "part_of_speech": "adverb",
+      "translation": "приблизительно",
+      "translations": {
+        "ru": "приблизительно",
+        "uz": "taxminan"
+      },
+      "example": "The flight takes approximately three hours.",
+      "example_translations": {
+        "ru": "Полёт длится приблизительно три часа.",
+        "uz": "Parvoz taxminan uch soat davom etadi."
+      }
+    },
+    {
+      "word": "roughly",
+      "part_of_speech": "adverb",
+      "translation": "примерно",
+      "translations": {
+        "ru": "примерно",
+        "uz": "taxminan, chamasi"
+      },
+      "example": "Roughly half of the students passed the test.",
+      "example_translations": {
+        "ru": "Примерно половина студентов сдала тест.",
+        "uz": "Talabalarning taxminan yarmi testdan o'tdi."
+      }
+    },
+    {
+      "word": "thoroughly",
+      "part_of_speech": "adverb",
+      "translation": "тщательно",
+      "translations": {
+        "ru": "тщательно",
+        "uz": "sinchiklab, puxta"
+      },
+      "example": "Please read the contract thoroughly before you sign it.",
+      "example_translations": {
+        "ru": "Пожалуйста, тщательно прочитайте договор, прежде чем его подписывать.",
+        "uz": "Iltimos, imzolashdan oldin shartnomani sinchiklab o'qib chiqing."
+      }
+    },
+    {
+      "word": "relatively",
+      "part_of_speech": "adverb",
+      "translation": "относительно, сравнительно",
+      "translations": {
+        "ru": "относительно, сравнительно",
+        "uz": "nisbatan"
+      },
+      "example": "Housing is relatively cheap in small towns.",
+      "example_translations": {
+        "ru": "В небольших городах жильё относительно дешёвое.",
+        "uz": "Kichik shaharlarda uy-joy nisbatan arzon."
+      }
+    },
+    {
+      "word": "somewhat",
+      "part_of_speech": "adverb",
+      "translation": "несколько, отчасти",
+      "translations": {
+        "ru": "несколько, отчасти",
+        "uz": "bir qadar, biroz"
+      },
+      "example": "Prices are somewhat higher than last year.",
+      "example_translations": {
+        "ru": "Цены несколько выше, чем в прошлом году.",
+        "uz": "Narxlar o'tgan yilgidan bir qadar yuqori."
+      }
+    },
+    {
+      "word": "entirely",
+      "part_of_speech": "adverb",
+      "translation": "целиком, полностью",
+      "translations": {
+        "ru": "целиком, полностью",
+        "uz": "butunlay, to'liq"
+      },
+      "example": "Their house is built entirely of wood.",
+      "example_translations": {
+        "ru": "Их дом построен целиком из дерева.",
+        "uz": "Ularning uyi butunlay yog'ochdan qurilgan."
+      }
+    },
+    {
+      "word": "barely",
+      "part_of_speech": "adverb",
+      "translation": "едва, с трудом",
+      "translations": {
+        "ru": "едва, с трудом",
+        "uz": "zo'rg'a, arang"
+      },
+      "example": "We could barely hear the speaker at the back.",
+      "example_translations": {
+        "ru": "С задних рядов мы едва слышали выступающего.",
+        "uz": "Orqa qatorlarda biz notiqni zo'rg'a eshitdik."
+      }
+    },
+    {
+      "word": "merely",
+      "part_of_speech": "adverb",
+      "translation": "всего лишь, просто",
+      "translations": {
+        "ru": "всего лишь, просто",
+        "uz": "shunchaki, faqatgina"
+      },
+      "example": "It was merely a suggestion, not an order.",
+      "example_translations": {
+        "ru": "Это было всего лишь предложение, а не приказ.",
+        "uz": "Bu buyruq emas, shunchaki taklif edi."
+      }
+    },
+    {
+      "word": "largely",
+      "part_of_speech": "adverb",
+      "translation": "во многом, в основном",
+      "translations": {
+        "ru": "во многом, в основном",
+        "uz": "ko'p jihatdan, asosan"
+      },
+      "example": "Our success is largely due to good teamwork.",
+      "example_translations": {
+        "ru": "Наш успех во многом объясняется хорошей командной работой.",
+        "uz": "Muvaffaqiyatimiz ko'p jihatdan yaxshi jamoaviy ishga bog'liq."
+      }
+    },
+    {
+      "word": "primarily",
+      "part_of_speech": "adverb",
+      "translation": "в первую очередь, главным образом",
+      "translations": {
+        "ru": "в первую очередь, главным образом",
+        "uz": "birinchi navbatda, asosan"
+      },
+      "example": "This course is designed primarily for beginners.",
+      "example_translations": {
+        "ru": "Этот курс предназначен в первую очередь для начинающих.",
+        "uz": "Bu kurs birinchi navbatda yangi boshlayotganlar uchun mo'ljallangan."
+      }
+    }
+  ]
+}

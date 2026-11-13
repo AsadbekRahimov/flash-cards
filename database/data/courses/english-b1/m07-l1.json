@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 7,
+    "title": "Работа и профессии",
+    "title_uz": "Ish va kasblar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Профессии",
+    "title_uz": "Kasblar"
+  },
+  "words": [
+    {
+      "word": "profession",
+      "part_of_speech": "noun",
+      "translation": "профессия",
+      "translations": {
+        "ru": "профессия",
+        "uz": "kasb"
+      },
+      "example": "Teaching is a difficult but interesting profession.",
+      "example_translations": {
+        "ru": "Преподавание — трудная, но интересная профессия.",
+        "uz": "O'qituvchilik qiyin, lekin qiziqarli kasb."
+      }
+    },
+    {
+      "word": "lawyer",
+      "part_of_speech": "noun",
+      "translation": "юрист, адвокат",
+      "translations": {
+        "ru": "юрист, адвокат",
+        "uz": "huquqshunos, advokat"
+      },
+      "example": "A lawyer explained the contract to us.",
+      "example_translations": {
+        "ru": "Юрист объяснил нам договор.",
+        "uz": "Huquqshunos bizga shartnomani tushuntirib berdi."
+      }
+    },
+    {
+      "word": "accountant",
+      "part_of_speech": "noun",
+      "translation": "бухгалтер",
+      "translations": {
+        "ru": "бухгалтер",
+        "uz": "hisobchi"
+      },
+      "example": "Our accountant prepares a financial report every month.",
+      "example_translations": {
+        "ru": "Наш бухгалтер каждый месяц готовит финансовый отчёт.",
+        "uz": "Hisobchimiz har oy moliyaviy hisobot tayyorlaydi."
+      }
+    },
+    {
+      "word": "architect",
+      "part_of_speech": "noun",
+      "translation": "архитектор",
+      "translations": {
+        "ru": "архитектор",
+        "uz": "me'mor"
+      },
+      "example": "A young architect designed our new city library.",
+      "example_translations": {
+        "ru": "Молодой архитектор спроектировал нашу новую городскую библиотеку.",
+        "uz": "Yosh me'mor yangi shahar kutubxonamizni loyihaladi."
+      }
+    },
+    {
+      "word": "psychologist",
+      "part_of_speech": "noun",
+      "translation": "психолог",
+      "translations": {
+        "ru": "психолог",
+        "uz": "psixolog"
+      },
+      "example": "The school psychologist helps children with their problems.",
+      "example_translations": {
+        "ru": "Школьный психолог помогает детям справляться с их проблемами.",
+        "uz": "Maktab psixologi bolalarga muammolarini hal qilishda yordam beradi."
+      }
+    },
+    {
+      "word": "firefighter",
+      "part_of_speech": "noun",
+      "translation": "пожарный",
+      "translations": {
+        "ru": "пожарный",
+        "uz": "o't o'chiruvchi"
+      },
+      "example": "A firefighter saved the cat from the burning house.",
+      "example_translations": {
+        "ru": "Пожарный спас кошку из горящего дома.",
+        "uz": "O't o'chiruvchi mushukni yonayotgan uydan qutqardi."
+      }
+    },
+    {
+      "word": "soldier",
+      "part_of_speech": "noun",
+      "translation": "солдат",
+      "translations": {
+        "ru": "солдат",
+        "uz": "askar"
+      },
+      "example": "His brother is a soldier in the army.",
+      "example_translations": {
+        "ru": "Его брат служит солдатом в армии.",
+        "uz": "Uning akasi armiyada askar bo'lib xizmat qiladi."
+      }
+    },
+    {
+      "word": "carpenter",
+      "part_of_speech": "noun",
+      "translation": "плотник",
+      "translations": {
+        "ru": "плотник",
+        "uz": "duradgor"
+      },
+      "example": "The carpenter is making new wooden doors for us.",
+      "example_translations": {
+        "ru": "Плотник делает для нас новые деревянные двери.",
+        "uz": "Duradgor biz uchun yangi yog'och eshiklar yasayapti."
+      }
+    },
+    {
+      "word": "cashier",
+      "part_of_speech": "noun",
+      "translation": "кассир",
+      "translations": {
+        "ru": "кассир",
+        "uz": "kassir"
+      },
+      "example": "Did the cashier give you the right change?",
+      "example_translations": {
+        "ru": "Кассир дал вам правильную сдачу?",
+        "uz": "Kassir sizga qaytimni to'g'ri berdimi?"
+      }
+    },
+    {
+      "word": "consultant",
+      "part_of_speech": "noun",
+      "translation": "консультант",
+      "translations": {
+        "ru": "консультант",
+        "uz": "maslahatchi"
+      },
+      "example": "They hired a consultant to improve their sales.",
+      "example_translations": {
+        "ru": "Они наняли консультанта, чтобы увеличить продажи.",
+        "uz": "Ular savdoni oshirish uchun maslahatchi yollashdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 17,
+    "title": "Время, перемены и планы",
+    "title_uz": "Vaqt, o'zgarishlar va rejalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Перемены и развитие",
+    "title_uz": "O'zgarish va rivojlanish"
+  },
+  "words": [
+    {
+      "word": "major",
+      "part_of_speech": "adjective",
+      "translation": "значительный, крупный",
+      "translations": {
+        "ru": "значительный, крупный",
+        "uz": "katta, yirik"
+      },
+      "example": "Smartphones brought major changes to our lives.",
+      "example_translations": {
+        "ru": "Смартфоны принесли в нашу жизнь значительные перемены.",
+        "uz": "Smartfonlar hayotimizga katta o'zgarishlar olib keldi."
+      }
+    },
+    {
+      "word": "improvement",
+      "part_of_speech": "noun",
+      "translation": "улучшение",
+      "translations": {
+        "ru": "улучшение",
+        "uz": "yaxshilanish"
+      },
+      "example": "Anna's teacher noticed an improvement in her English.",
+      "example_translations": {
+        "ru": "Учитель Анны заметил улучшение в её английском.",
+        "uz": "Annaning o'qituvchisi uning ingliz tilidagi yaxshilanishni sezdi."
+      }
+    },
+    {
+      "word": "rise",
+      "part_of_speech": "noun",
+      "translation": "повышение, подъём",
+      "translations": {
+        "ru": "повышение, подъём",
+        "uz": "ko'tarilish, oshish"
+      },
+      "example": "People are worried about the rise in prices.",
+      "example_translations": {
+        "ru": "Люди обеспокоены повышением цен.",
+        "uz": "Odamlar narxlarning ko'tarilishidan xavotirda."
+      }
+    },
+    {
+      "word": "develop",
+      "part_of_speech": "verb",
+      "translation": "развивать",
+      "translations": {
+        "ru": "развивать",
+        "uz": "rivojlantirmoq"
+      },
+      "example": "Reading helps children develop their imagination.",
+      "example_translations": {
+        "ru": "Чтение помогает детям развивать воображение.",
+        "uz": "Kitob o'qish bolalarning tasavvurini rivojlantirishga yordam beradi."
+      }
+    },
+    {
+      "word": "increase",
+      "part_of_speech": "verb",
+      "translation": "увеличиваться",
+      "translations": {
+        "ru": "увеличиваться",
+        "uz": "oshmoq, ko'paymoq"
+      },
+      "example": "The number of tourists increases every summer.",
+      "example_translations": {
+        "ru": "Число туристов увеличивается каждое лето.",
+        "uz": "Sayyohlar soni har yozda oshadi."
+      }
+    },
+    {
+      "word": "decrease",
+      "part_of_speech": "verb",
+      "translation": "уменьшаться",
+      "translations": {
+        "ru": "уменьшаться",
+        "uz": "kamaymoq"
+      },
+      "example": "In winter the number of visitors decreased.",
+      "example_translations": {
+        "ru": "Зимой число посетителей уменьшилось.",
+        "uz": "Qishda tashrif buyuruvchilar soni kamaydi."
+      }
+    },
+    {
+      "word": "growth",
+      "part_of_speech": "noun",
+      "translation": "рост, увеличение",
+      "translations": {
+        "ru": "рост, увеличение",
+        "uz": "o'sish"
+      },
+      "example": "The growth of the city created many new jobs.",
+      "example_translations": {
+        "ru": "Рост города создал много новых рабочих мест.",
+        "uz": "Shaharning o'sishi ko'plab yangi ish o'rinlarini yaratdi."
+      }
+    },
+    {
+      "word": "remain",
+      "part_of_speech": "verb",
+      "translation": "оставаться",
+      "translations": {
+        "ru": "оставаться",
+        "uz": "qolmoq"
+      },
+      "example": "Prices remained the same for two years.",
+      "example_translations": {
+        "ru": "Цены оставались прежними два года.",
+        "uz": "Narxlar ikki yil davomida o'zgarishsiz qoldi."
+      }
+    },
+    {
+      "word": "trend",
+      "part_of_speech": "noun",
+      "translation": "тенденция",
+      "translations": {
+        "ru": "тенденция",
+        "uz": "tendensiya, yo'nalish"
+      },
+      "example": "Shopping online is a popular trend among young people.",
+      "example_translations": {
+        "ru": "Покупки в интернете — популярная тенденция среди молодёжи.",
+        "uz": "Internetda xarid qilish — yoshlar orasida ommabop tendensiya."
+      }
+    },
+    {
+      "word": "rapid",
+      "part_of_speech": "adjective",
+      "translation": "быстрый, стремительный",
+      "translations": {
+        "ru": "быстрый, стремительный",
+        "uz": "tez, jadal"
+      },
+      "example": "We live in a time of rapid change.",
+      "example_translations": {
+        "ru": "Мы живём во времена стремительных перемен.",
+        "uz": "Biz jadal o'zgarishlar davrida yashayapmiz."
+      }
+    }
+  ]
+}

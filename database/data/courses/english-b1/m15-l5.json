@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 15,
+    "title": "Общество и закон",
+    "title_uz": "Jamiyat va qonun"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Правила и обязанности",
+    "title_uz": "Qoidalar va majburiyatlar"
+  },
+  "words": [
+    {
+      "word": "obey",
+      "part_of_speech": "verb",
+      "translation": "соблюдать, подчиняться",
+      "translations": {
+        "ru": "соблюдать, подчиняться",
+        "uz": "rioya qilmoq, bo'ysunmoq"
+      },
+      "example": "All drivers must obey the traffic rules.",
+      "example_translations": {
+        "ru": "Все водители должны соблюдать правила дорожного движения.",
+        "uz": "Barcha haydovchilar yo'l harakati qoidalariga rioya qilishi kerak."
+      }
+    },
+    {
+      "word": "illegal",
+      "part_of_speech": "adjective",
+      "translation": "незаконный",
+      "translations": {
+        "ru": "незаконный",
+        "uz": "noqonuniy"
+      },
+      "example": "It is illegal to drive without a license.",
+      "example_translations": {
+        "ru": "Водить машину без прав незаконно.",
+        "uz": "Haydovchilik guvohnomasisiz mashina haydash noqonuniydir."
+      }
+    },
+    {
+      "word": "ban",
+      "part_of_speech": "verb",
+      "translation": "запрещать",
+      "translations": {
+        "ru": "запрещать",
+        "uz": "taqiqlamoq"
+      },
+      "example": "The city wants to ban cars in the center.",
+      "example_translations": {
+        "ru": "Город хочет запретить автомобили в центре.",
+        "uz": "Shahar markazda avtomobillarni taqiqlamoqchi."
+      }
+    },
+    {
+      "word": "permit",
+      "part_of_speech": "noun",
+      "translation": "официальное разрешение",
+      "translations": {
+        "ru": "официальное разрешение",
+        "uz": "ruxsatnoma"
+      },
+      "example": "You need a permit to fish in this lake.",
+      "example_translations": {
+        "ru": "Чтобы ловить рыбу в этом озере, вам нужно разрешение.",
+        "uz": "Bu ko'lda baliq ovlash uchun sizga ruxsatnoma kerak."
+      }
+    },
+    {
+      "word": "require",
+      "part_of_speech": "verb",
+      "translation": "требовать",
+      "translations": {
+        "ru": "требовать",
+        "uz": "talab qilmoq"
+      },
+      "example": "The school requires all students to wear a uniform.",
+      "example_translations": {
+        "ru": "Школа требует, чтобы все ученики носили форму.",
+        "uz": "Maktab barcha o'quvchilardan forma kiyishni talab qiladi."
+      }
+    },
+    {
+      "word": "penalty",
+      "part_of_speech": "noun",
+      "translation": "штраф, наказание",
+      "translations": {
+        "ru": "штраф, наказание",
+        "uz": "jarima, jazo"
+      },
+      "example": "The penalty for late payment is ten dollars.",
+      "example_translations": {
+        "ru": "Штраф за просрочку платежа — десять долларов.",
+        "uz": "To'lovni kechiktirganlik uchun jarima — o'n dollar."
+      }
+    },
+    {
+      "word": "valid",
+      "part_of_speech": "adjective",
+      "translation": "действительный",
+      "translations": {
+        "ru": "действительный",
+        "uz": "yaroqli, amaldagi"
+      },
+      "example": "Is your passport valid for six more months?",
+      "example_translations": {
+        "ru": "Ваш паспорт действителен ещё шесть месяцев?",
+        "uz": "Pasportingiz yana olti oy yaroqlimi?"
+      }
+    },
+    {
+      "word": "limit",
+      "part_of_speech": "noun",
+      "translation": "ограничение, предел",
+      "translations": {
+        "ru": "ограничение, предел",
+        "uz": "cheklov, chegara"
+      },
+      "example": "The speed limit here is sixty kilometers per hour.",
+      "example_translations": {
+        "ru": "Ограничение скорости здесь — шестьдесят километров в час.",
+        "uz": "Bu yerda tezlik cheklovi soatiga oltmish kilometr."
+      }
+    },
+    {
+      "word": "register",
+      "part_of_speech": "verb",
+      "translation": "регистрироваться",
+      "translations": {
+        "ru": "регистрироваться",
+        "uz": "ro'yxatdan o'tmoq"
+      },
+      "example": "You must register before the course starts.",
+      "example_translations": {
+        "ru": "Вы должны зарегистрироваться до начала курса.",
+        "uz": "Kurs boshlanishidan oldin ro'yxatdan o'tishingiz kerak."
+      }
+    },
+    {
+      "word": "participate",
+      "part_of_speech": "verb",
+      "translation": "участвовать",
+      "translations": {
+        "ru": "участвовать",
+        "uz": "ishtirok etmoq"
+      },
+      "example": "Everyone in the village participated in the meeting.",
+      "example_translations": {
+        "ru": "Все жители деревни участвовали в собрании.",
+        "uz": "Qishloqning barcha aholisi yig'ilishda ishtirok etdi."
+      }
+    }
+  ]
+}

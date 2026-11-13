@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 12,
+    "title": "Спорт и активный отдых",
+    "title_uz": "Sport va faol dam olish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Тренировки",
+    "title_uz": "Mashqlar"
+  },
+  "words": [
+    {
+      "word": "athlete",
+      "part_of_speech": "noun",
+      "translation": "спортсмен",
+      "translations": {
+        "ru": "спортсмен",
+        "uz": "sportchi"
+      },
+      "example": "A good athlete trains almost every day.",
+      "example_translations": {
+        "ru": "Хороший спортсмен тренируется почти каждый день.",
+        "uz": "Yaxshi sportchi deyarli har kuni mashq qiladi."
+      }
+    },
+    {
+      "word": "strength",
+      "part_of_speech": "noun",
+      "translation": "физическая сила",
+      "translations": {
+        "ru": "физическая сила",
+        "uz": "jismoniy kuch"
+      },
+      "example": "These exercises build strength in your legs.",
+      "example_translations": {
+        "ru": "Эти упражнения развивают силу ног.",
+        "uz": "Bu mashqlar oyoq kuchini oshiradi."
+      }
+    },
+    {
+      "word": "fitness",
+      "part_of_speech": "noun",
+      "translation": "физическая форма",
+      "translations": {
+        "ru": "физическая форма",
+        "uz": "jismoniy tayyorgarlik"
+      },
+      "example": "Swimming is a great way to improve your fitness.",
+      "example_translations": {
+        "ru": "Плавание — отличный способ улучшить физическую форму.",
+        "uz": "Suzish — jismoniy tayyorgarlikni yaxshilashning ajoyib usuli."
+      }
+    },
+    {
+      "word": "session",
+      "part_of_speech": "noun",
+      "translation": "занятие",
+      "translations": {
+        "ru": "занятие",
+        "uz": "mashg'ulot"
+      },
+      "example": "Our morning session starts with a short run.",
+      "example_translations": {
+        "ru": "Наше утреннее занятие начинается с короткой пробежки.",
+        "uz": "Ertalabki mashg'ulotimiz qisqa yugurish bilan boshlanadi."
+      }
+    },
+    {
+      "word": "instructor",
+      "part_of_speech": "noun",
+      "translation": "инструктор",
+      "translations": {
+        "ru": "инструктор",
+        "uz": "yo'riqchi, instruktor"
+      },
+      "example": "The instructor showed us how to use the machines.",
+      "example_translations": {
+        "ru": "Инструктор показал нам, как пользоваться тренажёрами.",
+        "uz": "Yo'riqchi bizga trenajyorlardan qanday foydalanishni ko'rsatdi."
+      }
+    },
+    {
+      "word": "amateur",
+      "part_of_speech": "noun",
+      "translation": "любитель",
+      "translations": {
+        "ru": "любитель",
+        "uz": "havaskor"
+      },
+      "example": "She is an amateur, not a professional player.",
+      "example_translations": {
+        "ru": "Она любитель, а не профессиональный игрок.",
+        "uz": "U professional o'yinchi emas, havaskor."
+      }
+    },
+    {
+      "word": "intense",
+      "part_of_speech": "adjective",
+      "translation": "интенсивный",
+      "translations": {
+        "ru": "интенсивный",
+        "uz": "jadal"
+      },
+      "example": "After an intense workout, I feel very tired.",
+      "example_translations": {
+        "ru": "После интенсивной тренировки я чувствую сильную усталость.",
+        "uz": "Jadal mashg'ulotdan keyin o'zimni juda charchagan his qilaman."
+      }
+    },
+    {
+      "word": "sprint",
+      "part_of_speech": "noun",
+      "translation": "спринт",
+      "translations": {
+        "ru": "спринт",
+        "uz": "sprint"
+      },
+      "example": "We finished the training with a hundred-meter sprint.",
+      "example_translations": {
+        "ru": "Мы закончили тренировку стометровым спринтом.",
+        "uz": "Mashg'ulotni yuz metrlik sprint bilan yakunladik."
+      }
+    },
+    {
+      "word": "kick",
+      "part_of_speech": "verb",
+      "translation": "бить ногой",
+      "translations": {
+        "ru": "бить ногой",
+        "uz": "tepmoq"
+      },
+      "example": "Kick the ball with your left foot!",
+      "example_translations": {
+        "ru": "Бейте по мячу левой ногой!",
+        "uz": "To'pni chap oyog'ingiz bilan teping!"
+      }
+    },
+    {
+      "word": "bounce",
+      "part_of_speech": "verb",
+      "translation": "отскакивать",
+      "translations": {
+        "ru": "отскакивать",
+        "uz": "sapchimoq"
+      },
+      "example": "The ball bounced twice and rolled away.",
+      "example_translations": {
+        "ru": "Мяч дважды отскочил и укатился.",
+        "uz": "To'p ikki marta sapchib, dumalab ketdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Выражение позиции",
+    "title_uz": "Fikrni bildirish"
+  },
+  "words": [
+    {
+      "word": "assert",
+      "part_of_speech": "verb",
+      "translation": "уверенно заявлять",
+      "translations": {
+        "ru": "уверенно заявлять",
+        "uz": "ishonch bilan aytmoq"
+      },
+      "example": "She asserted that the report was accurate.",
+      "example_translations": {
+        "ru": "Она уверенно заявила, что отчёт точен.",
+        "uz": "U hisobot to'g'ri ekanini ishonch bilan aytdi."
+      }
+    },
+    {
+      "word": "claim",
+      "part_of_speech": "verb",
+      "translation": "утверждать",
+      "translations": {
+        "ru": "утверждать",
+        "uz": "da'vo qilmoq"
+      },
+      "example": "The company claims its product saves energy.",
+      "example_translations": {
+        "ru": "Компания утверждает, что её продукт экономит энергию.",
+        "uz": "Kompaniya o'z mahsuloti energiyani tejaydi, deb da'vo qilmoqda."
+      }
+    },
+    {
+      "word": "advocate",
+      "part_of_speech": "verb",
+      "translation": "выступать за, отстаивать",
+      "translations": {
+        "ru": "выступать за, отстаивать",
+        "uz": "yoqlamoq, tarafdori bo'lmoq"
+      },
+      "example": "Many doctors advocate a diet rich in vegetables.",
+      "example_translations": {
+        "ru": "Многие врачи выступают за диету, богатую овощами.",
+        "uz": "Ko'plab shifokorlar sabzavotlarga boy parhezni yoqlaydi."
+      }
+    },
+    {
+      "word": "insist",
+      "part_of_speech": "verb",
+      "translation": "настаивать",
+      "translations": {
+        "ru": "настаивать",
+        "uz": "turib olmoq"
+      },
+      "example": "He insisted that his answer was correct.",
+      "example_translations": {
+        "ru": "Он настаивал на том, что его ответ верен.",
+        "uz": "U javobim to'g'ri, deb turib oldi."
+      }
+    },
+    {
+      "word": "underline",
+      "part_of_speech": "verb",
+      "translation": "подчёркивать",
+      "translations": {
+        "ru": "подчёркивать",
+        "uz": "ta'kidlamoq"
+      },
+      "example": "The speaker underlined the importance of clean water.",
+      "example_translations": {
+        "ru": "Докладчик подчеркнул важность чистой воды.",
+        "uz": "Ma'ruzachi toza suvning muhimligini ta'kidladi."
+      }
+    },
+    {
+      "word": "emphasize",
+      "part_of_speech": "verb",
+      "translation": "делать акцент, выделять",
+      "translations": {
+        "ru": "делать акцент, выделять",
+        "uz": "urg'u bermoq"
+      },
+      "example": "Our teacher always emphasizes the need for practice.",
+      "example_translations": {
+        "ru": "Наш учитель всегда делает акцент на необходимости практики.",
+        "uz": "O'qituvchimiz doim mashq qilish zarurligiga urg'u beradi."
+      }
+    },
+    {
+      "word": "acknowledge",
+      "part_of_speech": "verb",
+      "translation": "признавать",
+      "translations": {
+        "ru": "признавать",
+        "uz": "tan olmoq"
+      },
+      "example": "I acknowledge that your idea has some advantages.",
+      "example_translations": {
+        "ru": "Я признаю, что у вашей идеи есть определённые преимущества.",
+        "uz": "G'oyangizning ayrim afzalliklari borligini tan olaman."
+      }
+    },
+    {
+      "word": "stance",
+      "part_of_speech": "noun",
+      "translation": "позиция",
+      "translations": {
+        "ru": "позиция",
+        "uz": "pozitsiya"
+      },
+      "example": "What is your stance on school uniforms?",
+      "example_translations": {
+        "ru": "Какова ваша позиция по вопросу школьной формы?",
+        "uz": "Maktab formasi masalasida pozitsiyangiz qanday?"
+      }
+    },
+    {
+      "word": "viewpoint",
+      "part_of_speech": "noun",
+      "translation": "точка зрения",
+      "translations": {
+        "ru": "точка зрения",
+        "uz": "nuqtayi nazar, qarash"
+      },
+      "example": "Try to understand the viewpoint of other people.",
+      "example_translations": {
+        "ru": "Постарайтесь понять точку зрения других людей.",
+        "uz": "Boshqa odamlarning nuqtayi nazarini tushunishga harakat qiling."
+      }
+    },
+    {
+      "word": "firmly",
+      "part_of_speech": "adverb",
+      "translation": "твёрдо",
+      "translations": {
+        "ru": "твёрдо",
+        "uz": "qat'iy"
+      },
+      "example": "We firmly believe that education changes lives.",
+      "example_translations": {
+        "ru": "Мы твёрдо верим, что образование меняет жизнь.",
+        "uz": "Biz ta'lim hayotni o'zgartirishiga qat'iy ishonamiz."
+      }
+    }
+  ]
+}

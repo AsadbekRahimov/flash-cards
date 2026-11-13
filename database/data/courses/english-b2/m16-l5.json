@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 16,
+    "title": "Бизнес и маркетинг",
+    "title_uz": "Biznes va marketing"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Сделки и переговоры",
+    "title_uz": "Bitimlar va muzokaralar"
+  },
+  "words": [
+    {
+      "word": "bid",
+      "part_of_speech": "noun",
+      "translation": "ценовое предложение",
+      "translations": {
+        "ru": "ценовое предложение",
+        "uz": "narx taklifi"
+      },
+      "example": "Our company made the lowest bid for the contract.",
+      "example_translations": {
+        "ru": "Наша компания сделала самое низкое ценовое предложение по контракту.",
+        "uz": "Kompaniyamiz shartnoma uchun eng past narx taklifini berdi."
+      }
+    },
+    {
+      "word": "settlement",
+      "part_of_speech": "noun",
+      "translation": "соглашение, урегулирование",
+      "translations": {
+        "ru": "соглашение, урегулирование",
+        "uz": "kelishuv"
+      },
+      "example": "The settlement ended a long dispute between the firms.",
+      "example_translations": {
+        "ru": "Это соглашение положило конец долгому спору между фирмами.",
+        "uz": "Bu kelishuv firmalar o'rtasidagi uzoq nizoga chek qo'ydi."
+      }
+    },
+    {
+      "word": "terminate",
+      "part_of_speech": "verb",
+      "translation": "расторгать, прекращать",
+      "translations": {
+        "ru": "расторгать, прекращать",
+        "uz": "bekor qilmoq, to'xtatmoq"
+      },
+      "example": "The client decided to terminate the contract early.",
+      "example_translations": {
+        "ru": "Клиент решил досрочно расторгнуть контракт.",
+        "uz": "Mijoz shartnomani muddatidan oldin bekor qilishga qaror qildi."
+      }
+    },
+    {
+      "word": "clause",
+      "part_of_speech": "noun",
+      "translation": "пункт договора",
+      "translations": {
+        "ru": "пункт договора",
+        "uz": "shartnoma bandi"
+      },
+      "example": "Read every clause before you sign the contract.",
+      "example_translations": {
+        "ru": "Прочитайте каждый пункт договора, прежде чем его подписывать.",
+        "uz": "Shartnomani imzolashdan oldin uning har bir bandini o'qib chiqing."
+      }
+    },
+    {
+      "word": "compromise",
+      "part_of_speech": "noun",
+      "translation": "компромисс",
+      "translations": {
+        "ru": "компромисс",
+        "uz": "murosa"
+      },
+      "example": "After two hours, they finally reached a compromise.",
+      "example_translations": {
+        "ru": "Через два часа они наконец пришли к компромиссу.",
+        "uz": "Ikki soatdan so'ng ular nihoyat murosaga kelishdi."
+      }
+    },
+    {
+      "word": "mutual",
+      "part_of_speech": "adjective",
+      "translation": "взаимный",
+      "translations": {
+        "ru": "взаимный",
+        "uz": "o'zaro"
+      },
+      "example": "The deal is based on mutual trust and respect.",
+      "example_translations": {
+        "ru": "Сделка основана на взаимном доверии и уважении.",
+        "uz": "Bitim o'zaro ishonch va hurmatga asoslangan."
+      }
+    },
+    {
+      "word": "commission",
+      "part_of_speech": "noun",
+      "translation": "комиссионные",
+      "translations": {
+        "ru": "комиссионные",
+        "uz": "vositachilik haqi"
+      },
+      "example": "The agent earns a ten percent commission on sales.",
+      "example_translations": {
+        "ru": "Агент получает комиссионные в размере десяти процентов с продаж.",
+        "uz": "Agent sotuvdan o'n foiz vositachilik haqi oladi."
+      }
+    },
+    {
+      "word": "binding",
+      "part_of_speech": "adjective",
+      "translation": "обязательный к исполнению",
+      "translations": {
+        "ru": "обязательный к исполнению",
+        "uz": "majburiy kuchga ega"
+      },
+      "example": "A signed contract is binding for both sides.",
+      "example_translations": {
+        "ru": "Подписанный договор обязателен к исполнению для обеих сторон.",
+        "uz": "Imzolangan shartnoma ikkala tomon uchun majburiy kuchga ega."
+      }
+    },
+    {
+      "word": "finalize",
+      "part_of_speech": "verb",
+      "translation": "окончательно оформлять",
+      "translations": {
+        "ru": "окончательно оформлять",
+        "uz": "uzil-kesil rasmiylashtirmoq"
+      },
+      "example": "We hope to finalize the deal by Friday.",
+      "example_translations": {
+        "ru": "Мы надеемся окончательно оформить сделку к пятнице.",
+        "uz": "Bitimni juma kunigacha uzil-kesil rasmiylashtirishga umid qilamiz."
+      }
+    },
+    {
+      "word": "proposal",
+      "part_of_speech": "noun",
+      "translation": "предложение",
+      "translations": {
+        "ru": "предложение",
+        "uz": "taklif"
+      },
+      "example": "They sent us a written proposal for cooperation.",
+      "example_translations": {
+        "ru": "Они прислали нам письменное предложение о сотрудничестве.",
+        "uz": "Ular bizga hamkorlik to'g'risida yozma taklif yuborishdi."
+      }
+    }
+  ]
+}

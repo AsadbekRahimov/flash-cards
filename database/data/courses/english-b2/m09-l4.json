@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 9,
+    "title": "Право и безопасность",
+    "title_uz": "Huquq va xavfsizlik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Следствие и наказание",
+    "title_uz": "Tergov va jazo"
+  },
+  "words": [
+    {
+      "word": "accuse",
+      "part_of_speech": "verb",
+      "translation": "обвинять",
+      "translations": {
+        "ru": "обвинять",
+        "uz": "ayblamoq"
+      },
+      "example": "They accused him of stealing a laptop.",
+      "example_translations": {
+        "ru": "Его обвинили в краже ноутбука.",
+        "uz": "Uni noutbuk o'g'irlashda ayblashdi."
+      }
+    },
+    {
+      "word": "confess",
+      "part_of_speech": "verb",
+      "translation": "признаваться",
+      "translations": {
+        "ru": "признаваться",
+        "uz": "iqror bo'lmoq"
+      },
+      "example": "The young man confessed to taking the money.",
+      "example_translations": {
+        "ru": "Молодой человек признался, что взял деньги.",
+        "uz": "Yigit pulni olganiga iqror bo'ldi."
+      }
+    },
+    {
+      "word": "custody",
+      "part_of_speech": "noun",
+      "translation": "содержание под стражей",
+      "translations": {
+        "ru": "содержание под стражей",
+        "uz": "hibs"
+      },
+      "example": "The suspect remained in custody for two days.",
+      "example_translations": {
+        "ru": "Подозреваемый оставался под стражей два дня.",
+        "uz": "Gumonlanuvchi ikki kun hibsda qoldi."
+      }
+    },
+    {
+      "word": "imprison",
+      "part_of_speech": "verb",
+      "translation": "заключать в тюрьму",
+      "translations": {
+        "ru": "заключать в тюрьму",
+        "uz": "qamoqqa tashlamoq"
+      },
+      "example": "He was imprisoned for three years for theft.",
+      "example_translations": {
+        "ru": "Его заключили в тюрьму на три года за кражу.",
+        "uz": "U o'g'irlik uchun uch yilga qamoqqa tashlandi."
+      }
+    },
+    {
+      "word": "fingerprint",
+      "part_of_speech": "noun",
+      "translation": "отпечаток пальца",
+      "translations": {
+        "ru": "отпечаток пальца",
+        "uz": "barmoq izi"
+      },
+      "example": "Experts found a fingerprint on the door handle.",
+      "example_translations": {
+        "ru": "Эксперты нашли отпечаток пальца на дверной ручке.",
+        "uz": "Ekspertlar eshik tutqichidan barmoq izini topishdi."
+      }
+    },
+    {
+      "word": "convict",
+      "part_of_speech": "verb",
+      "translation": "признавать виновным",
+      "translations": {
+        "ru": "признавать виновным",
+        "uz": "aybdor deb topmoq"
+      },
+      "example": "The court convicted two men of fraud.",
+      "example_translations": {
+        "ru": "Суд признал двух мужчин виновными в мошенничестве.",
+        "uz": "Sud ikki erkakni firibgarlikda aybdor deb topdi."
+      }
+    },
+    {
+      "word": "alibi",
+      "part_of_speech": "noun",
+      "translation": "алиби",
+      "translations": {
+        "ru": "алиби",
+        "uz": "alibi"
+      },
+      "example": "Does she have an alibi for Friday evening?",
+      "example_translations": {
+        "ru": "У неё есть алиби на вечер пятницы?",
+        "uz": "Uning juma oqshomi uchun alibisi bormi?"
+      }
+    },
+    {
+      "word": "detain",
+      "part_of_speech": "verb",
+      "translation": "задерживать",
+      "translations": {
+        "ru": "задерживать",
+        "uz": "qo'lga olmoq, ushlamoq"
+      },
+      "example": "Officers detained a man near the station.",
+      "example_translations": {
+        "ru": "Сотрудники полиции задержали мужчину возле вокзала.",
+        "uz": "Politsiya xodimlari vokzal yaqinida bir erkakni qo'lga oldi."
+      }
+    },
+    {
+      "word": "inquiry",
+      "part_of_speech": "noun",
+      "translation": "расследование",
+      "translations": {
+        "ru": "расследование",
+        "uz": "tergov"
+      },
+      "example": "Police opened an inquiry into the missing money.",
+      "example_translations": {
+        "ru": "Полиция начала расследование по делу о пропавших деньгах.",
+        "uz": "Politsiya yo'qolgan pul yuzasidan tergov boshladi."
+      }
+    },
+    {
+      "word": "clue",
+      "part_of_speech": "noun",
+      "translation": "улика, зацепка",
+      "translations": {
+        "ru": "улика, зацепка",
+        "uz": "dalil, ip uchi"
+      },
+      "example": "Detectives searched the office for clues.",
+      "example_translations": {
+        "ru": "Детективы искали в офисе улики.",
+        "uz": "Izquvarlar ofisdan dalil qidirishdi."
+      }
+    }
+  ]
+}

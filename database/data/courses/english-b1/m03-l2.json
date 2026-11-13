@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 3,
+    "title": "Жильё и жизнь в городе",
+    "title_uz": "Uy-joy va shahar hayoti"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Интерьер и уют",
+    "title_uz": "Interyer va shinamlik"
+  },
+  "words": [
+    {
+      "word": "cozy",
+      "part_of_speech": "adjective",
+      "translation": "уютный",
+      "translations": {
+        "ru": "уютный",
+        "uz": "shinam"
+      },
+      "example": "Her small room looks warm and cozy.",
+      "example_translations": {
+        "ru": "Её маленькая комната выглядит тёплой и уютной.",
+        "uz": "Uning kichkina xonasi issiq va shinam ko'rinadi."
+      }
+    },
+    {
+      "word": "spacious",
+      "part_of_speech": "adjective",
+      "translation": "просторный",
+      "translations": {
+        "ru": "просторный",
+        "uz": "keng"
+      },
+      "example": "Our kitchen is spacious enough for a big table.",
+      "example_translations": {
+        "ru": "Наша кухня достаточно просторная для большого стола.",
+        "uz": "Oshxonamiz katta stol sig'adigan darajada keng."
+      }
+    },
+    {
+      "word": "decorate",
+      "part_of_speech": "verb",
+      "translation": "украшать",
+      "translations": {
+        "ru": "украшать",
+        "uz": "bezamoq"
+      },
+      "example": "We decorated the living room with fresh flowers.",
+      "example_translations": {
+        "ru": "Мы украсили гостиную свежими цветами.",
+        "uz": "Biz mehmonxonani yangi uzilgan gullar bilan bezadik."
+      }
+    },
+    {
+      "word": "cushion",
+      "part_of_speech": "noun",
+      "translation": "диванная подушка",
+      "translations": {
+        "ru": "диванная подушка",
+        "uz": "divan yostiqchasi"
+      },
+      "example": "Put a soft cushion behind your back.",
+      "example_translations": {
+        "ru": "Подложите под спину мягкую диванную подушку.",
+        "uz": "Orqangizga yumshoq divan yostiqchasini qo'yib oling."
+      }
+    },
+    {
+      "word": "rug",
+      "part_of_speech": "noun",
+      "translation": "коврик",
+      "translations": {
+        "ru": "коврик",
+        "uz": "gilamcha"
+      },
+      "example": "There is a round rug in front of the bed.",
+      "example_translations": {
+        "ru": "Перед кроватью лежит круглый коврик.",
+        "uz": "Karavot oldiga dumaloq gilamcha to'shalgan."
+      }
+    },
+    {
+      "word": "cupboard",
+      "part_of_speech": "noun",
+      "translation": "кухонный шкаф",
+      "translations": {
+        "ru": "кухонный шкаф",
+        "uz": "oshxona javoni"
+      },
+      "example": "Please put the clean plates in the cupboard.",
+      "example_translations": {
+        "ru": "Пожалуйста, поставьте чистые тарелки в кухонный шкаф.",
+        "uz": "Iltimos, toza likopchalarni oshxona javoniga qo'ying."
+      }
+    },
+    {
+      "word": "fireplace",
+      "part_of_speech": "noun",
+      "translation": "камин",
+      "translations": {
+        "ru": "камин",
+        "uz": "kamin"
+      },
+      "example": "We sat by the fireplace on cold evenings.",
+      "example_translations": {
+        "ru": "Холодными вечерами мы сидели у камина.",
+        "uz": "Sovuq oqshomlarda biz kamin yonida o'tirardik."
+      }
+    },
+    {
+      "word": "attic",
+      "part_of_speech": "noun",
+      "translation": "чердак",
+      "translations": {
+        "ru": "чердак",
+        "uz": "chordoq"
+      },
+      "example": "Old toys and books are kept in the attic.",
+      "example_translations": {
+        "ru": "Старые игрушки и книги хранятся на чердаке.",
+        "uz": "Eski o'yinchoqlar va kitoblar chordoqda saqlanadi."
+      }
+    },
+    {
+      "word": "entrance",
+      "part_of_speech": "noun",
+      "translation": "вход",
+      "translations": {
+        "ru": "вход",
+        "uz": "kirish joyi"
+      },
+      "example": "Wait for me at the entrance of the building.",
+      "example_translations": {
+        "ru": "Подождите меня у входа в здание.",
+        "uz": "Meni binoning kirish joyida kutib turing."
+      }
+    },
+    {
+      "word": "corridor",
+      "part_of_speech": "noun",
+      "translation": "коридор",
+      "translations": {
+        "ru": "коридор",
+        "uz": "yo'lak"
+      },
+      "example": "My room is at the end of the corridor.",
+      "example_translations": {
+        "ru": "Моя комната находится в конце коридора.",
+        "uz": "Mening xonam yo'lakning oxirida joylashgan."
+      }
+    }
+  ]
+}

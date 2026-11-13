@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 2,
+    "title": "Отношения и общение",
+    "title_uz": "Munosabatlar va muloqot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Споры и конфликты",
+    "title_uz": "Bahs va nizolar"
+  },
+  "words": [
+    {
+      "word": "conflict",
+      "part_of_speech": "noun",
+      "translation": "конфликт",
+      "translations": {
+        "ru": "конфликт",
+        "uz": "nizo"
+      },
+      "example": "They solved the conflict without angry words.",
+      "example_translations": {
+        "ru": "Они разрешили конфликт без резких слов.",
+        "uz": "Ular nizoni achchiq so'zlarsiz hal qilishdi."
+      }
+    },
+    {
+      "word": "blame",
+      "part_of_speech": "verb",
+      "translation": "винить, обвинять",
+      "translations": {
+        "ru": "винить, обвинять",
+        "uz": "ayblamoq"
+      },
+      "example": "Don't blame me for your own mistakes!",
+      "example_translations": {
+        "ru": "Не вините меня в своих собственных ошибках!",
+        "uz": "O'z xatolaringiz uchun meni ayblamang!"
+      }
+    },
+    {
+      "word": "complain",
+      "part_of_speech": "verb",
+      "translation": "жаловаться",
+      "translations": {
+        "ru": "жаловаться",
+        "uz": "shikoyat qilmoq"
+      },
+      "example": "The guests complained about the noise at night.",
+      "example_translations": {
+        "ru": "Гости пожаловались на шум ночью.",
+        "uz": "Mehmonlar tungi shovqindan shikoyat qilishdi."
+      }
+    },
+    {
+      "word": "offend",
+      "part_of_speech": "verb",
+      "translation": "обижать",
+      "translations": {
+        "ru": "обижать",
+        "uz": "xafa qilmoq"
+      },
+      "example": "I'm sorry, I didn't mean to offend you.",
+      "example_translations": {
+        "ru": "Простите, я не хотел вас обидеть.",
+        "uz": "Kechirasiz, men sizni xafa qilmoqchi emas edim."
+      }
+    },
+    {
+      "word": "argument",
+      "part_of_speech": "noun",
+      "translation": "спор",
+      "translations": {
+        "ru": "спор",
+        "uz": "bahs"
+      },
+      "example": "My parents had an argument about our vacation.",
+      "example_translations": {
+        "ru": "У моих родителей вышел спор из-за нашего отпуска.",
+        "uz": "Ota-onam o'rtasida ta'tilimiz haqida bahs bo'ldi."
+      }
+    },
+    {
+      "word": "fault",
+      "part_of_speech": "noun",
+      "translation": "вина",
+      "translations": {
+        "ru": "вина",
+        "uz": "ayb"
+      },
+      "example": "It was my fault that we were late.",
+      "example_translations": {
+        "ru": "Мы опоздали по моей вине.",
+        "uz": "Kechikkanimiz mening aybim edi."
+      }
+    },
+    {
+      "word": "criticize",
+      "part_of_speech": "verb",
+      "translation": "критиковать",
+      "translations": {
+        "ru": "критиковать",
+        "uz": "tanqid qilmoq"
+      },
+      "example": "He criticizes everyone but never listens to others.",
+      "example_translations": {
+        "ru": "Он критикует всех, но никогда не слушает других.",
+        "uz": "U hammani tanqid qiladi, lekin hech qachon boshqalarga quloq solmaydi."
+      }
+    },
+    {
+      "word": "admit",
+      "part_of_speech": "verb",
+      "translation": "признавать",
+      "translations": {
+        "ru": "признавать",
+        "uz": "tan olmoq"
+      },
+      "example": "My sister never admits her own mistakes.",
+      "example_translations": {
+        "ru": "Моя сестра никогда не признаёт своих ошибок.",
+        "uz": "Singlim hech qachon o'z xatolarini tan olmaydi."
+      }
+    },
+    {
+      "word": "deny",
+      "part_of_speech": "verb",
+      "translation": "отрицать",
+      "translations": {
+        "ru": "отрицать",
+        "uz": "inkor qilmoq"
+      },
+      "example": "The boy denied that he broke the window.",
+      "example_translations": {
+        "ru": "Мальчик отрицал, что разбил окно.",
+        "uz": "Bola derazani sindirganini inkor qildi."
+      }
+    },
+    {
+      "word": "disagree",
+      "part_of_speech": "verb",
+      "translation": "не соглашаться",
+      "translations": {
+        "ru": "не соглашаться",
+        "uz": "fikriga qo'shilmaslik, rozi bo'lmaslik"
+      },
+      "example": "We often disagree, but we are still friends.",
+      "example_translations": {
+        "ru": "Мы часто не соглашаемся друг с другом, но всё равно остаёмся друзьями.",
+        "uz": "Biz ko'pincha bir-birimizning fikriga qo'shilmaymiz, lekin baribir do'stmiz."
+      }
+    }
+  ]
+}

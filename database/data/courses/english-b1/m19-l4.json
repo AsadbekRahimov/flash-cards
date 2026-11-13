@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 19,
+    "title": "Действия и процессы",
+    "title_uz": "Harakatlar va jarayonlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Организация и контроль",
+    "title_uz": "Tashkil etish va nazorat"
+  },
+  "words": [
+    {
+      "word": "control",
+      "part_of_speech": "verb",
+      "translation": "контролировать",
+      "translations": {
+        "ru": "контролировать",
+        "uz": "nazorat qilmoq"
+      },
+      "example": "A computer controls the temperature in the building.",
+      "example_translations": {
+        "ru": "Компьютер контролирует температуру в здании.",
+        "uz": "Kompyuter binodagi haroratni nazorat qiladi."
+      }
+    },
+    {
+      "word": "handle",
+      "part_of_speech": "verb",
+      "translation": "справляться",
+      "translations": {
+        "ru": "справляться",
+        "uz": "uddalamoq"
+      },
+      "example": "Can you handle this task alone?",
+      "example_translations": {
+        "ru": "Вы справитесь с этой задачей в одиночку?",
+        "uz": "Bu vazifani bir o'zingiz uddalay olasizmi?"
+      }
+    },
+    {
+      "word": "operate",
+      "part_of_speech": "verb",
+      "translation": "управлять, приводить в действие",
+      "translations": {
+        "ru": "управлять, приводить в действие",
+        "uz": "boshqarmoq, ishlatmoq"
+      },
+      "example": "Do you know how to operate this machine?",
+      "example_translations": {
+        "ru": "Вы знаете, как управлять этим станком?",
+        "uz": "Bu dastgohni qanday boshqarishni bilasizmi?"
+      }
+    },
+    {
+      "word": "inspect",
+      "part_of_speech": "verb",
+      "translation": "осматривать, проверять",
+      "translations": {
+        "ru": "осматривать, проверять",
+        "uz": "ko'zdan kechirmoq, tekshirmoq"
+      },
+      "example": "An engineer inspects the elevators every month.",
+      "example_translations": {
+        "ru": "Инженер осматривает лифты каждый месяц.",
+        "uz": "Muhandis har oy liftlarni ko'zdan kechiradi."
+      }
+    },
+    {
+      "word": "confirm",
+      "part_of_speech": "verb",
+      "translation": "подтверждать",
+      "translations": {
+        "ru": "подтверждать",
+        "uz": "tasdiqlamoq"
+      },
+      "example": "Please confirm your order by email.",
+      "example_translations": {
+        "ru": "Пожалуйста, подтвердите заказ по электронной почте.",
+        "uz": "Iltimos, buyurtmangizni elektron pochta orqali tasdiqlang."
+      }
+    },
+    {
+      "word": "store",
+      "part_of_speech": "verb",
+      "translation": "хранить",
+      "translations": {
+        "ru": "хранить",
+        "uz": "saqlamoq"
+      },
+      "example": "We store old documents in the basement.",
+      "example_translations": {
+        "ru": "Мы храним старые документы в подвале.",
+        "uz": "Biz eski hujjatlarni yerto'lada saqlaymiz."
+      }
+    },
+    {
+      "word": "provide",
+      "part_of_speech": "verb",
+      "translation": "предоставлять, обеспечивать",
+      "translations": {
+        "ru": "предоставлять, обеспечивать",
+        "uz": "ta'minlamoq"
+      },
+      "example": "The hotel provides free breakfast for all guests.",
+      "example_translations": {
+        "ru": "Отель предоставляет бесплатный завтрак всем гостям.",
+        "uz": "Mehmonxona barcha mehmonlarni bepul nonushta bilan ta'minlaydi."
+      }
+    },
+    {
+      "word": "select",
+      "part_of_speech": "verb",
+      "translation": "отбирать, выбирать",
+      "translations": {
+        "ru": "отбирать, выбирать",
+        "uz": "tanlamoq, tanlab olmoq"
+      },
+      "example": "The coach selected eleven players for the game.",
+      "example_translations": {
+        "ru": "Тренер отобрал одиннадцать игроков на игру.",
+        "uz": "Murabbiy o'yin uchun o'n bir nafar o'yinchini tanlab oldi."
+      }
+    },
+    {
+      "word": "sort",
+      "part_of_speech": "verb",
+      "translation": "сортировать",
+      "translations": {
+        "ru": "сортировать",
+        "uz": "saralamoq"
+      },
+      "example": "Please sort these letters by date.",
+      "example_translations": {
+        "ru": "Пожалуйста, рассортируйте эти письма по дате.",
+        "uz": "Iltimos, bu xatlarni sanasi bo'yicha saralang."
+      }
+    },
+    {
+      "word": "gather",
+      "part_of_speech": "verb",
+      "translation": "собирать",
+      "translations": {
+        "ru": "собирать",
+        "uz": "to'plamoq, yig'moq"
+      },
+      "example": "We need to gather more information first.",
+      "example_translations": {
+        "ru": "Сначала нам нужно собрать больше информации.",
+        "uz": "Avval ko'proq ma'lumot to'plashimiz kerak."
+      }
+    }
+  ]
+}

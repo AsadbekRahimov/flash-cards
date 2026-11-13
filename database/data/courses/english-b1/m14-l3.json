@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 14,
+    "title": "Наука и открытия",
+    "title_uz": "Fan va kashfiyotlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Вещества и материалы",
+    "title_uz": "Moddalar va materiallar"
+  },
+  "words": [
+    {
+      "word": "pure",
+      "part_of_speech": "adjective",
+      "translation": "чистый, без примесей",
+      "translations": {
+        "ru": "чистый, без примесей",
+        "uz": "sof"
+      },
+      "example": "This ring is made of pure gold.",
+      "example_translations": {
+        "ru": "Это кольцо сделано из чистого золота.",
+        "uz": "Bu uzuk sof oltindan yasalgan."
+      }
+    },
+    {
+      "word": "material",
+      "part_of_speech": "noun",
+      "translation": "материал",
+      "translations": {
+        "ru": "материал",
+        "uz": "material"
+      },
+      "example": "Wood is a popular material for furniture.",
+      "example_translations": {
+        "ru": "Дерево — популярный материал для мебели.",
+        "uz": "Yog'och mebel uchun ommabop materialdir."
+      }
+    },
+    {
+      "word": "liquid",
+      "part_of_speech": "noun",
+      "translation": "жидкость",
+      "translations": {
+        "ru": "жидкость",
+        "uz": "suyuqlik"
+      },
+      "example": "Water is a liquid at room temperature.",
+      "example_translations": {
+        "ru": "При комнатной температуре вода — жидкость.",
+        "uz": "Xona haroratida suv suyuqlik bo'ladi."
+      }
+    },
+    {
+      "word": "solid",
+      "part_of_speech": "adjective",
+      "translation": "твёрдый",
+      "translations": {
+        "ru": "твёрдый",
+        "uz": "qattiq"
+      },
+      "example": "When water freezes, it becomes solid ice.",
+      "example_translations": {
+        "ru": "Когда вода замерзает, она превращается в твёрдый лёд.",
+        "uz": "Suv muzlaganda qattiq muzga aylanadi."
+      }
+    },
+    {
+      "word": "metal",
+      "part_of_speech": "noun",
+      "translation": "металл",
+      "translations": {
+        "ru": "металл",
+        "uz": "metall"
+      },
+      "example": "Iron is a strong and heavy metal.",
+      "example_translations": {
+        "ru": "Железо — прочный и тяжёлый металл.",
+        "uz": "Temir mustahkam va og'ir metalldir."
+      }
+    },
+    {
+      "word": "steel",
+      "part_of_speech": "noun",
+      "translation": "сталь",
+      "translations": {
+        "ru": "сталь",
+        "uz": "po'lat"
+      },
+      "example": "Builders used steel to make the bridge stronger.",
+      "example_translations": {
+        "ru": "Строители использовали сталь, чтобы сделать мост прочнее.",
+        "uz": "Quruvchilar ko'prikni mustahkamroq qilish uchun po'latdan foydalanishdi."
+      }
+    },
+    {
+      "word": "chemical",
+      "part_of_speech": "noun",
+      "translation": "химическое вещество",
+      "translations": {
+        "ru": "химическое вещество",
+        "uz": "kimyoviy modda"
+      },
+      "example": "Wear gloves when you work with this chemical.",
+      "example_translations": {
+        "ru": "Надевайте перчатки, когда работаете с этим химическим веществом.",
+        "uz": "Bu kimyoviy modda bilan ishlaganda qo'lqop kiying."
+      }
+    },
+    {
+      "word": "oxygen",
+      "part_of_speech": "noun",
+      "translation": "кислород",
+      "translations": {
+        "ru": "кислород",
+        "uz": "kislorod"
+      },
+      "example": "People and animals need oxygen to live.",
+      "example_translations": {
+        "ru": "Людям и животным для жизни нужен кислород.",
+        "uz": "Odamlar va hayvonlarga yashash uchun kislorod kerak."
+      }
+    },
+    {
+      "word": "mixture",
+      "part_of_speech": "noun",
+      "translation": "смесь",
+      "translations": {
+        "ru": "смесь",
+        "uz": "aralashma"
+      },
+      "example": "This drink is a mixture of juice and water.",
+      "example_translations": {
+        "ru": "Этот напиток — смесь сока и воды.",
+        "uz": "Bu ichimlik sharbat va suv aralashmasidir."
+      }
+    },
+    {
+      "word": "powder",
+      "part_of_speech": "noun",
+      "translation": "порошок",
+      "translations": {
+        "ru": "порошок",
+        "uz": "kukun"
+      },
+      "example": "Mix the white powder with a little water.",
+      "example_translations": {
+        "ru": "Смешайте белый порошок с небольшим количеством воды.",
+        "uz": "Oq kukunni ozgina suv bilan aralashtiring."
+      }
+    }
+  ]
+}

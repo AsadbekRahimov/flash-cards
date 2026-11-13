@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 6,
+    "title": "Здоровье и психология",
+    "title_uz": "Sog'liq va psixologiya"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Тяжёлые эмоции",
+    "title_uz": "Og'ir his-tuyg'ular"
+  },
+  "words": [
+    {
+      "word": "anxiety",
+      "part_of_speech": "noun",
+      "translation": "тревога",
+      "translations": {
+        "ru": "тревога",
+        "uz": "xavotir"
+      },
+      "example": "Deep breathing helps her control anxiety before exams.",
+      "example_translations": {
+        "ru": "Глубокое дыхание помогает ей справляться с тревогой перед экзаменами.",
+        "uz": "Chuqur nafas olish unga imtihon oldidan xavotirni yengishga yordam beradi."
+      }
+    },
+    {
+      "word": "depression",
+      "part_of_speech": "noun",
+      "translation": "депрессия",
+      "translations": {
+        "ru": "депрессия",
+        "uz": "depressiya"
+      },
+      "example": "Depression is an illness, and doctors can treat it.",
+      "example_translations": {
+        "ru": "Депрессия — это болезнь, и врачи умеют её лечить.",
+        "uz": "Depressiya — bu kasallik va shifokorlar uni davolay oladi."
+      }
+    },
+    {
+      "word": "trauma",
+      "part_of_speech": "noun",
+      "translation": "психологическая травма",
+      "translations": {
+        "ru": "психологическая травма",
+        "uz": "ruhiy jarohat"
+      },
+      "example": "Talking to a psychologist helped him overcome the trauma.",
+      "example_translations": {
+        "ru": "Разговоры с психологом помогли ему преодолеть психологическую травму.",
+        "uz": "Psixolog bilan suhbatlar unga ruhiy jarohatni yengishga yordam berdi."
+      }
+    },
+    {
+      "word": "phobia",
+      "part_of_speech": "noun",
+      "translation": "фобия",
+      "translations": {
+        "ru": "фобия",
+        "uz": "fobiya"
+      },
+      "example": "A phobia is a very strong fear of something.",
+      "example_translations": {
+        "ru": "Фобия — это очень сильный страх перед чем-либо.",
+        "uz": "Fobiya — biror narsadan juda kuchli qo'rqishdir."
+      }
+    },
+    {
+      "word": "distress",
+      "part_of_speech": "noun",
+      "translation": "страдание, душевная боль",
+      "translations": {
+        "ru": "страдание, душевная боль",
+        "uz": "iztirob"
+      },
+      "example": "Losing his job caused him great distress.",
+      "example_translations": {
+        "ru": "Потеря работы причинила ему сильные страдания.",
+        "uz": "Ishidan ayrilishi unga qattiq iztirob keltirdi."
+      }
+    },
+    {
+      "word": "grief",
+      "part_of_speech": "noun",
+      "translation": "горе, скорбь",
+      "translations": {
+        "ru": "горе, скорбь",
+        "uz": "qayg'u"
+      },
+      "example": "Time and good friends helped him with his grief.",
+      "example_translations": {
+        "ru": "Время и хорошие друзья помогли ему пережить горе.",
+        "uz": "Vaqt va yaxshi do'stlar unga qayg'uni yengishga yordam berdi."
+      }
+    },
+    {
+      "word": "frustration",
+      "part_of_speech": "noun",
+      "translation": "досада, разочарование",
+      "translations": {
+        "ru": "досада, разочарование",
+        "uz": "alam, hafsala pir bo'lishi"
+      },
+      "example": "She could not hide her frustration after failing again.",
+      "example_translations": {
+        "ru": "Она не могла скрыть досаду после очередной неудачи.",
+        "uz": "Yana muvaffaqiyatsizlikka uchragach, u alamini yashira olmadi."
+      }
+    },
+    {
+      "word": "guilt",
+      "part_of_speech": "noun",
+      "translation": "чувство вины",
+      "translations": {
+        "ru": "чувство вины",
+        "uz": "aybdorlik hissi"
+      },
+      "example": "He felt deep guilt after lying to his friend.",
+      "example_translations": {
+        "ru": "Он испытывал глубокое чувство вины после того, как солгал другу.",
+        "uz": "Do'stiga yolg'on gapirgach, u chuqur aybdorlik hissini tuydi."
+      }
+    },
+    {
+      "word": "shame",
+      "part_of_speech": "noun",
+      "translation": "стыд",
+      "translations": {
+        "ru": "стыд",
+        "uz": "uyat"
+      },
+      "example": "Her face turned red with shame.",
+      "example_translations": {
+        "ru": "Её лицо покраснело от стыда.",
+        "uz": "Uning yuzi uyatdan qizarib ketdi."
+      }
+    },
+    {
+      "word": "despair",
+      "part_of_speech": "noun",
+      "translation": "отчаяние",
+      "translations": {
+        "ru": "отчаяние",
+        "uz": "umidsizlik"
+      },
+      "example": "In despair, he called his oldest friend for advice.",
+      "example_translations": {
+        "ru": "В отчаянии он позвонил самому давнему другу за советом.",
+        "uz": "Umidsizlikka tushib, u eng eski do'stiga maslahat so'rab qo'ng'iroq qildi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 15,
+    "title": "Город и инфраструктура",
+    "title_uz": "Shahar va infratuzilma"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Строительство и жильё",
+    "title_uz": "Qurilish va uy-joy"
+  },
+  "words": [
+    {
+      "word": "construction",
+      "part_of_speech": "noun",
+      "translation": "строительство",
+      "translations": {
+        "ru": "строительство",
+        "uz": "qurilish"
+      },
+      "example": "Construction of the new school begins in May.",
+      "example_translations": {
+        "ru": "Строительство новой школы начинается в мае.",
+        "uz": "Yangi maktab qurilishi may oyida boshlanadi."
+      }
+    },
+    {
+      "word": "architecture",
+      "part_of_speech": "noun",
+      "translation": "архитектура",
+      "translations": {
+        "ru": "архитектура",
+        "uz": "me'morchilik"
+      },
+      "example": "Tourists admire the ancient architecture of Samarkand.",
+      "example_translations": {
+        "ru": "Туристы восхищаются древней архитектурой Самарканда.",
+        "uz": "Sayyohlar Samarqandning qadimiy me'morchiligiga qoyil qolishadi."
+      }
+    },
+    {
+      "word": "premises",
+      "part_of_speech": "noun",
+      "translation": "помещение",
+      "translations": {
+        "ru": "помещение",
+        "uz": "bino, xona"
+      },
+      "example": "The company moved to larger premises last year.",
+      "example_translations": {
+        "ru": "В прошлом году компания переехала в более просторное помещение.",
+        "uz": "O'tgan yili kompaniya kengroq binoga ko'chdi."
+      }
+    },
+    {
+      "word": "foundation",
+      "part_of_speech": "noun",
+      "translation": "фундамент",
+      "translations": {
+        "ru": "фундамент",
+        "uz": "poydevor"
+      },
+      "example": "Every tall building needs a strong foundation.",
+      "example_translations": {
+        "ru": "Каждому высокому зданию нужен прочный фундамент.",
+        "uz": "Har bir baland binoga mustahkam poydevor kerak."
+      }
+    },
+    {
+      "word": "housing",
+      "part_of_speech": "noun",
+      "translation": "жильё",
+      "translations": {
+        "ru": "жильё",
+        "uz": "uy-joy"
+      },
+      "example": "Housing is very expensive in the city center.",
+      "example_translations": {
+        "ru": "Жильё в центре города очень дорогое.",
+        "uz": "Shahar markazida uy-joy juda qimmat."
+      }
+    },
+    {
+      "word": "estate",
+      "part_of_speech": "noun",
+      "translation": "недвижимость",
+      "translations": {
+        "ru": "недвижимость",
+        "uz": "ko'chmas mulk"
+      },
+      "example": "She invested her savings in real estate.",
+      "example_translations": {
+        "ru": "Она вложила свои сбережения в недвижимость.",
+        "uz": "U jamg'argan pulini ko'chmas mulkka sarmoya qilib kiritdi."
+      }
+    },
+    {
+      "word": "contractor",
+      "part_of_speech": "noun",
+      "translation": "подрядчик",
+      "translations": {
+        "ru": "подрядчик",
+        "uz": "pudratchi"
+      },
+      "example": "We hired a contractor to repair the roof.",
+      "example_translations": {
+        "ru": "Мы наняли подрядчика для ремонта крыши.",
+        "uz": "Tomni ta'mirlash uchun pudratchi yolladik."
+      }
+    },
+    {
+      "word": "demolish",
+      "part_of_speech": "verb",
+      "translation": "сносить",
+      "translations": {
+        "ru": "сносить",
+        "uz": "buzib tashlamoq"
+      },
+      "example": "The city will demolish the old factory next month.",
+      "example_translations": {
+        "ru": "В следующем месяце город снесёт старый завод.",
+        "uz": "Kelasi oy shahar eski zavodni buzib tashlaydi."
+      }
+    },
+    {
+      "word": "lease",
+      "part_of_speech": "noun",
+      "translation": "договор аренды",
+      "translations": {
+        "ru": "договор аренды",
+        "uz": "ijara shartnomasi"
+      },
+      "example": "We signed a two-year lease for the apartment.",
+      "example_translations": {
+        "ru": "Мы подписали договор аренды квартиры на два года.",
+        "uz": "Biz kvartira uchun ikki yillik ijara shartnomasini imzoladik."
+      }
+    },
+    {
+      "word": "concrete",
+      "part_of_speech": "noun",
+      "translation": "бетон",
+      "translations": {
+        "ru": "бетон",
+        "uz": "beton"
+      },
+      "example": "Is the bridge made of concrete or steel?",
+      "example_translations": {
+        "ru": "Этот мост построен из бетона или из стали?",
+        "uz": "Bu ko'prik betondan qurilganmi yoki po'latdanmi?"
+      }
+    }
+  ]
+}

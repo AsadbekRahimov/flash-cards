@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 16,
+    "title": "Бизнес и маркетинг",
+    "title_uz": "Biznes va marketing"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Компании",
+    "title_uz": "Kompaniyalar"
+  },
+  "words": [
+    {
+      "word": "enterprise",
+      "part_of_speech": "noun",
+      "translation": "предприятие",
+      "translations": {
+        "ru": "предприятие",
+        "uz": "korxona"
+      },
+      "example": "This small enterprise employs only twelve people.",
+      "example_translations": {
+        "ru": "На этом небольшом предприятии работает всего двенадцать человек.",
+        "uz": "Bu kichik korxonada atigi o'n ikki kishi ishlaydi."
+      }
+    },
+    {
+      "word": "entrepreneur",
+      "part_of_speech": "noun",
+      "translation": "предприниматель",
+      "translations": {
+        "ru": "предприниматель",
+        "uz": "tadbirkor"
+      },
+      "example": "A young entrepreneur opened three cafes in town.",
+      "example_translations": {
+        "ru": "Молодой предприниматель открыл в городе три кафе.",
+        "uz": "Yosh tadbirkor shaharda uchta kafe ochdi."
+      }
+    },
+    {
+      "word": "corporation",
+      "part_of_speech": "noun",
+      "translation": "корпорация",
+      "translations": {
+        "ru": "корпорация",
+        "uz": "korporatsiya"
+      },
+      "example": "She works for a large international corporation.",
+      "example_translations": {
+        "ru": "Она работает в крупной международной корпорации.",
+        "uz": "U yirik xalqaro korporatsiyada ishlaydi."
+      }
+    },
+    {
+      "word": "startup",
+      "part_of_speech": "noun",
+      "translation": "стартап",
+      "translations": {
+        "ru": "стартап",
+        "uz": "startap"
+      },
+      "example": "His startup makes apps for language learners.",
+      "example_translations": {
+        "ru": "Его стартап создаёт приложения для изучающих языки.",
+        "uz": "Uning startapi til o'rganuvchilar uchun ilovalar yaratadi."
+      }
+    },
+    {
+      "word": "venture",
+      "part_of_speech": "noun",
+      "translation": "деловое начинание",
+      "translations": {
+        "ru": "деловое начинание",
+        "uz": "tadbirkorlik tashabbusi"
+      },
+      "example": "Her latest venture is an online flower shop.",
+      "example_translations": {
+        "ru": "Её новое деловое начинание — интернет-магазин цветов.",
+        "uz": "Uning eng yangi tadbirkorlik tashabbusi — onlayn gul do'koni."
+      }
+    },
+    {
+      "word": "franchise",
+      "part_of_speech": "noun",
+      "translation": "франшиза",
+      "translations": {
+        "ru": "франшиза",
+        "uz": "franshiza"
+      },
+      "example": "He bought a franchise and opened a pizza restaurant.",
+      "example_translations": {
+        "ru": "Он купил франшизу и открыл пиццерию.",
+        "uz": "U franshiza sotib olib, pitsa restorani ochdi."
+      }
+    },
+    {
+      "word": "merger",
+      "part_of_speech": "noun",
+      "translation": "слияние",
+      "translations": {
+        "ru": "слияние",
+        "uz": "birlashuv, qo'shilish"
+      },
+      "example": "After the merger, the two firms became one company.",
+      "example_translations": {
+        "ru": "После слияния две фирмы стали одной компанией.",
+        "uz": "Birlashuvdan keyin ikki firma bitta kompaniyaga aylandi."
+      }
+    },
+    {
+      "word": "partnership",
+      "part_of_speech": "noun",
+      "translation": "партнёрство",
+      "translations": {
+        "ru": "партнёрство",
+        "uz": "sheriklik"
+      },
+      "example": "The two designers formed a partnership last spring.",
+      "example_translations": {
+        "ru": "Прошлой весной два дизайнера создали партнёрство.",
+        "uz": "O'tgan bahorda ikki dizayner sheriklik tuzdi."
+      }
+    },
+    {
+      "word": "founder",
+      "part_of_speech": "noun",
+      "translation": "основатель",
+      "translations": {
+        "ru": "основатель",
+        "uz": "asoschi"
+      },
+      "example": "The founder started this company in a garage.",
+      "example_translations": {
+        "ru": "Основатель создал эту компанию в гараже.",
+        "uz": "Asoschi bu kompaniyani garajda tashkil etgan."
+      }
+    },
+    {
+      "word": "stakeholder",
+      "part_of_speech": "noun",
+      "translation": "заинтересованная сторона",
+      "translations": {
+        "ru": "заинтересованная сторона",
+        "uz": "manfaatdor tomon"
+      },
+      "example": "Employees and customers are important stakeholders in a company.",
+      "example_translations": {
+        "ru": "Сотрудники и клиенты — важные заинтересованные стороны компании.",
+        "uz": "Xodimlar va mijozlar kompaniyaning muhim manfaatdor tomonlaridir."
+      }
+    }
+  ]
+}

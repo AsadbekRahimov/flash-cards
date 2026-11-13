@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 15,
+    "title": "Город и инфраструктура",
+    "title_uz": "Shahar va infratuzilma"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Планировка города",
+    "title_uz": "Shahar tuzilishi"
+  },
+  "words": [
+    {
+      "word": "urbanization",
+      "part_of_speech": "noun",
+      "translation": "урбанизация",
+      "translations": {
+        "ru": "урбанизация",
+        "uz": "urbanizatsiya"
+      },
+      "example": "Urbanization brings millions of people to big cities.",
+      "example_translations": {
+        "ru": "Урбанизация приводит миллионы людей в большие города.",
+        "uz": "Urbanizatsiya millionlab odamlarni katta shaharlarga olib keladi."
+      }
+    },
+    {
+      "word": "vicinity",
+      "part_of_speech": "noun",
+      "translation": "окрестности",
+      "translations": {
+        "ru": "окрестности",
+        "uz": "yaqin atrof"
+      },
+      "example": "There are no hotels in the vicinity of the station.",
+      "example_translations": {
+        "ru": "В окрестностях вокзала нет гостиниц.",
+        "uz": "Vokzalning yaqin atrofida mehmonxonalar yo'q."
+      }
+    },
+    {
+      "word": "industrial",
+      "part_of_speech": "adjective",
+      "translation": "промышленный",
+      "translations": {
+        "ru": "промышленный",
+        "uz": "sanoat, sanoatga oid"
+      },
+      "example": "Most factories are in the industrial part of town.",
+      "example_translations": {
+        "ru": "Большинство заводов находится в промышленной части города.",
+        "uz": "Zavodlarning ko'pi shaharning sanoat qismida joylashgan."
+      }
+    },
+    {
+      "word": "metropolis",
+      "part_of_speech": "noun",
+      "translation": "мегаполис",
+      "translations": {
+        "ru": "мегаполис",
+        "uz": "megapolis"
+      },
+      "example": "The small port grew into a busy metropolis.",
+      "example_translations": {
+        "ru": "Маленький порт вырос в оживлённый мегаполис.",
+        "uz": "Kichik port gavjum megapolisga aylandi."
+      }
+    },
+    {
+      "word": "layout",
+      "part_of_speech": "noun",
+      "translation": "планировка",
+      "translations": {
+        "ru": "планировка",
+        "uz": "tuzilish"
+      },
+      "example": "The map shows the layout of the old city.",
+      "example_translations": {
+        "ru": "Карта показывает планировку старого города.",
+        "uz": "Xarita eski shaharning tuzilishini ko'rsatadi."
+      }
+    },
+    {
+      "word": "outskirts",
+      "part_of_speech": "noun",
+      "translation": "окраина",
+      "translations": {
+        "ru": "окраина",
+        "uz": "shahar chekkasi"
+      },
+      "example": "They bought a house on the outskirts of town.",
+      "example_translations": {
+        "ru": "Они купили дом на окраине города.",
+        "uz": "Ular shahar chekkasidan uy sotib olishdi."
+      }
+    },
+    {
+      "word": "zone",
+      "part_of_speech": "noun",
+      "translation": "зона",
+      "translations": {
+        "ru": "зона",
+        "uz": "zona, hudud"
+      },
+      "example": "Cars cannot enter the pedestrian zone downtown.",
+      "example_translations": {
+        "ru": "Машины не могут въезжать в пешеходную зону в центре города.",
+        "uz": "Mashinalar shahar markazidagi piyodalar zonasiga kira olmaydi."
+      }
+    },
+    {
+      "word": "infrastructure",
+      "part_of_speech": "noun",
+      "translation": "инфраструктура",
+      "translations": {
+        "ru": "инфраструктура",
+        "uz": "infratuzilma"
+      },
+      "example": "Good roads are part of a city's infrastructure.",
+      "example_translations": {
+        "ru": "Хорошие дороги — часть инфраструктуры города.",
+        "uz": "Yaxshi yo'llar shahar infratuzilmasining bir qismidir."
+      }
+    },
+    {
+      "word": "municipal",
+      "part_of_speech": "adjective",
+      "translation": "муниципальный",
+      "translations": {
+        "ru": "муниципальный",
+        "uz": "shaharga qarashli, munitsipal"
+      },
+      "example": "The municipal library is free for all residents.",
+      "example_translations": {
+        "ru": "Муниципальная библиотека бесплатна для всех жителей.",
+        "uz": "Shaharga qarashli kutubxona barcha aholi uchun bepul."
+      }
+    },
+    {
+      "word": "residential",
+      "part_of_speech": "adjective",
+      "translation": "жилой",
+      "translations": {
+        "ru": "жилой",
+        "uz": "turar joy"
+      },
+      "example": "We live in a quiet residential area.",
+      "example_translations": {
+        "ru": "Мы живём в тихом жилом районе.",
+        "uz": "Biz sokin turar joy hududida yashaymiz."
+      }
+    }
+  ]
+}

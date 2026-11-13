@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 4,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Открытия",
+    "title_uz": "Kashfiyotlar"
+  },
+  "words": [
+    {
+      "word": "discovery",
+      "part_of_speech": "noun",
+      "translation": "открытие",
+      "translations": {
+        "ru": "открытие",
+        "uz": "kashfiyot"
+      },
+      "example": "This discovery changed our view of the universe.",
+      "example_translations": {
+        "ru": "Это открытие изменило наш взгляд на Вселенную.",
+        "uz": "Bu kashfiyot koinot haqidagi tasavvurimizni o'zgartirdi."
+      }
+    },
+    {
+      "word": "breakthrough",
+      "part_of_speech": "noun",
+      "translation": "прорыв",
+      "translations": {
+        "ru": "прорыв",
+        "uz": "katta yutuq"
+      },
+      "example": "Doctors hope for a breakthrough in cancer research.",
+      "example_translations": {
+        "ru": "Врачи надеются на прорыв в исследованиях рака.",
+        "uz": "Shifokorlar saraton kasalligini o'rganishda katta yutuqqa umid qilmoqda."
+      }
+    },
+    {
+      "word": "finding",
+      "part_of_speech": "noun",
+      "translation": "вывод, результат исследования",
+      "translations": {
+        "ru": "вывод, результат исследования",
+        "uz": "xulosa, tadqiqot natijasi"
+      },
+      "example": "The main finding of the study surprised everyone.",
+      "example_translations": {
+        "ru": "Главный вывод исследования удивил всех.",
+        "uz": "Tadqiqotning asosiy xulosasi hammani hayratda qoldirdi."
+      }
+    },
+    {
+      "word": "pioneer",
+      "part_of_speech": "noun",
+      "translation": "пионер, первопроходец",
+      "translations": {
+        "ru": "пионер, первопроходец",
+        "uz": "kashshof"
+      },
+      "example": "He was a pioneer of modern computer science.",
+      "example_translations": {
+        "ru": "Он был пионером современной информатики.",
+        "uz": "U zamonaviy informatikaning kashshofi edi."
+      }
+    },
+    {
+      "word": "phenomenon",
+      "part_of_speech": "noun",
+      "translation": "явление, феномен",
+      "translations": {
+        "ru": "явление, феномен",
+        "uz": "hodisa, fenomen"
+      },
+      "example": "Scientists cannot fully explain this natural phenomenon.",
+      "example_translations": {
+        "ru": "Учёные не могут полностью объяснить это природное явление.",
+        "uz": "Olimlar bu tabiat hodisasini to'liq tushuntira olmaydi."
+      }
+    },
+    {
+      "word": "reveal",
+      "part_of_speech": "verb",
+      "translation": "раскрывать, показывать",
+      "translations": {
+        "ru": "раскрывать, показывать",
+        "uz": "ochib bermoq, ko'rsatmoq"
+      },
+      "example": "The study revealed a link between sleep and memory.",
+      "example_translations": {
+        "ru": "Исследование раскрыло связь между сном и памятью.",
+        "uz": "Tadqiqot uyqu va xotira o'rtasidagi bog'liqlikni ochib berdi."
+      }
+    },
+    {
+      "word": "detect",
+      "part_of_speech": "verb",
+      "translation": "улавливать, обнаруживать",
+      "translations": {
+        "ru": "улавливать, обнаруживать",
+        "uz": "sezmoq, aniqlamoq"
+      },
+      "example": "This device detects smoke within a few seconds.",
+      "example_translations": {
+        "ru": "Этот прибор улавливает дым за несколько секунд.",
+        "uz": "Bu asbob tutunni bir necha soniya ichida sezadi."
+      }
+    },
+    {
+      "word": "identify",
+      "part_of_speech": "verb",
+      "translation": "определять, устанавливать",
+      "translations": {
+        "ru": "определять, устанавливать",
+        "uz": "aniqlamoq"
+      },
+      "example": "Researchers quickly identified the cause of the disease.",
+      "example_translations": {
+        "ru": "Исследователи быстро установили причину болезни.",
+        "uz": "Tadqiqotchilar kasallik sababini tezda aniqladilar."
+      }
+    },
+    {
+      "word": "uncover",
+      "part_of_speech": "verb",
+      "translation": "обнаруживать, раскрывать",
+      "translations": {
+        "ru": "обнаруживать, раскрывать",
+        "uz": "topmoq, yuzaga chiqarmoq"
+      },
+      "example": "Archaeologists uncovered an ancient city under the sand.",
+      "example_translations": {
+        "ru": "Археологи обнаружили под песком древний город.",
+        "uz": "Arxeologlar qum ostidan qadimiy shaharni topdilar."
+      }
+    },
+    {
+      "word": "demonstrate",
+      "part_of_speech": "verb",
+      "translation": "демонстрировать, наглядно показывать",
+      "translations": {
+        "ru": "демонстрировать, наглядно показывать",
+        "uz": "namoyish etmoq, yaqqol ko'rsatmoq"
+      },
+      "example": "The experiment demonstrates how plants react to light.",
+      "example_translations": {
+        "ru": "Эксперимент демонстрирует, как растения реагируют на свет.",
+        "uz": "Tajriba o'simliklarning yorug'likka qanday javob berishini namoyish etadi."
+      }
+    }
+  ]
+}

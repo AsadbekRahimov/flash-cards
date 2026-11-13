@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 18,
+    "title": "Причины, следствия и изменения",
+    "title_uz": "Sabablar, oqibatlar va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Преобразования",
+    "title_uz": "O'zgartirishlar"
+  },
+  "words": [
+    {
+      "word": "transform",
+      "part_of_speech": "verb",
+      "translation": "преображать, преобразовывать",
+      "translations": {
+        "ru": "преображать, преобразовывать",
+        "uz": "tubdan o'zgartirmoq"
+      },
+      "example": "The internet has transformed the way we communicate.",
+      "example_translations": {
+        "ru": "Интернет преобразил то, как мы общаемся.",
+        "uz": "Internet muloqot qilish usulimizni tubdan o'zgartirdi."
+      }
+    },
+    {
+      "word": "transition",
+      "part_of_speech": "noun",
+      "translation": "переход",
+      "translations": {
+        "ru": "переход",
+        "uz": "o'tish"
+      },
+      "example": "The transition from school to university can be hard.",
+      "example_translations": {
+        "ru": "Переход из школы в университет может быть трудным.",
+        "uz": "Maktabdan universitetga o'tish qiyin bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "substitute",
+      "part_of_speech": "verb",
+      "translation": "заменять",
+      "translations": {
+        "ru": "заменять",
+        "uz": "almashtirmoq"
+      },
+      "example": "You can substitute honey for sugar in this recipe.",
+      "example_translations": {
+        "ru": "В этом рецепте сахар можно заменить мёдом.",
+        "uz": "Bu retseptda shakarni asal bilan almashtirish mumkin."
+      }
+    },
+    {
+      "word": "modify",
+      "part_of_speech": "verb",
+      "translation": "вносить изменения, видоизменять",
+      "translations": {
+        "ru": "вносить изменения, видоизменять",
+        "uz": "o'zgartirish kiritmoq"
+      },
+      "example": "We modified the design after the first test.",
+      "example_translations": {
+        "ru": "После первого испытания мы внесли изменения в дизайн.",
+        "uz": "Birinchi sinovdan so'ng dizaynga o'zgartirish kiritdik."
+      }
+    },
+    {
+      "word": "alter",
+      "part_of_speech": "verb",
+      "translation": "изменять",
+      "translations": {
+        "ru": "изменять",
+        "uz": "o'zgartirmoq"
+      },
+      "example": "Bad weather forced us to alter our plans.",
+      "example_translations": {
+        "ru": "Плохая погода вынудила нас изменить планы.",
+        "uz": "Yomon ob-havo bizni rejalarimizni o'zgartirishga majbur qildi."
+      }
+    },
+    {
+      "word": "adjust",
+      "part_of_speech": "verb",
+      "translation": "регулировать, настраивать",
+      "translations": {
+        "ru": "регулировать, настраивать",
+        "uz": "sozlamoq, to'g'rilamoq"
+      },
+      "example": "You can adjust the height of this chair.",
+      "example_translations": {
+        "ru": "Высоту этого стула можно регулировать.",
+        "uz": "Bu stulning balandligini sozlash mumkin."
+      }
+    },
+    {
+      "word": "adapt",
+      "part_of_speech": "verb",
+      "translation": "приспосабливаться, адаптироваться",
+      "translations": {
+        "ru": "приспосабливаться, адаптироваться",
+        "uz": "moslashmoq"
+      },
+      "example": "Children adapt quickly to a new school.",
+      "example_translations": {
+        "ru": "Дети быстро приспосабливаются к новой школе.",
+        "uz": "Bolalar yangi maktabga tez moslashadi."
+      }
+    },
+    {
+      "word": "evolve",
+      "part_of_speech": "verb",
+      "translation": "постепенно развиваться",
+      "translations": {
+        "ru": "постепенно развиваться",
+        "uz": "asta-sekin rivojlanmoq"
+      },
+      "example": "The small shop evolved into a large company.",
+      "example_translations": {
+        "ru": "Маленький магазин постепенно развился в крупную компанию.",
+        "uz": "Kichik do'kon asta-sekin rivojlanib, yirik kompaniyaga aylandi."
+      }
+    },
+    {
+      "word": "vary",
+      "part_of_speech": "verb",
+      "translation": "различаться",
+      "translations": {
+        "ru": "различаться",
+        "uz": "farq qilmoq"
+      },
+      "example": "Prices vary from one store to another.",
+      "example_translations": {
+        "ru": "Цены различаются от магазина к магазину.",
+        "uz": "Narxlar do'kondan do'konga farq qiladi."
+      }
+    },
+    {
+      "word": "reverse",
+      "part_of_speech": "verb",
+      "translation": "обращать вспять",
+      "translations": {
+        "ru": "обращать вспять",
+        "uz": "ortga qaytarmoq"
+      },
+      "example": "The city hopes to reverse the decline in tourism.",
+      "example_translations": {
+        "ru": "Город надеется обратить вспять спад туризма.",
+        "uz": "Shahar turizmdagi pasayishni ortga qaytarishga umid qilmoqda."
+      }
+    }
+  ]
+}

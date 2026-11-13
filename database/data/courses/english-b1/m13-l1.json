@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 13,
+    "title": "Природа и окружающая среда",
+    "title_uz": "Tabiat va atrof-muhit"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Мир животных",
+    "title_uz": "Hayvonot olami"
+  },
+  "words": [
+    {
+      "word": "wildlife",
+      "part_of_speech": "noun",
+      "translation": "дикая природа",
+      "translations": {
+        "ru": "дикая природа",
+        "uz": "yovvoyi tabiat"
+      },
+      "example": "Tourists come here to watch the local wildlife.",
+      "example_translations": {
+        "ru": "Туристы приезжают сюда наблюдать за местной дикой природой.",
+        "uz": "Sayyohlar bu yerga mahalliy yovvoyi tabiatni kuzatish uchun keladi."
+      }
+    },
+    {
+      "word": "species",
+      "part_of_speech": "noun",
+      "translation": "вид",
+      "translations": {
+        "ru": "вид",
+        "uz": "tur"
+      },
+      "example": "This species of bird lives only in Asia.",
+      "example_translations": {
+        "ru": "Этот вид птиц обитает только в Азии.",
+        "uz": "Qushlarning bu turi faqat Osiyoda yashaydi."
+      }
+    },
+    {
+      "word": "hunt",
+      "part_of_speech": "verb",
+      "translation": "охотиться",
+      "translations": {
+        "ru": "охотиться",
+        "uz": "ov qilmoq"
+      },
+      "example": "Lions usually hunt early in the morning.",
+      "example_translations": {
+        "ru": "Львы обычно охотятся рано утром.",
+        "uz": "Sherlar odatda erta tongda ov qiladi."
+      }
+    },
+    {
+      "word": "creature",
+      "part_of_speech": "noun",
+      "translation": "существо",
+      "translations": {
+        "ru": "существо",
+        "uz": "jonzot"
+      },
+      "example": "A small creature was hiding under the leaves.",
+      "example_translations": {
+        "ru": "Под листьями пряталось маленькое существо.",
+        "uz": "Barglar ostida kichkina jonzot yashirinib yotgan edi."
+      }
+    },
+    {
+      "word": "cage",
+      "part_of_speech": "noun",
+      "translation": "клетка",
+      "translations": {
+        "ru": "клетка",
+        "uz": "qafas"
+      },
+      "example": "Did you clean the rabbit's cage today?",
+      "example_translations": {
+        "ru": "Вы сегодня почистили клетку кролика?",
+        "uz": "Bugun quyonning qafasini tozaladingizmi?"
+      }
+    },
+    {
+      "word": "nest",
+      "part_of_speech": "noun",
+      "translation": "гнездо",
+      "translations": {
+        "ru": "гнездо",
+        "uz": "uya"
+      },
+      "example": "Two birds built a nest in our tree.",
+      "example_translations": {
+        "ru": "Две птицы свили гнездо на нашем дереве.",
+        "uz": "Ikki qush daraxtimizga uya qurdi."
+      }
+    },
+    {
+      "word": "wing",
+      "part_of_speech": "noun",
+      "translation": "крыло",
+      "translations": {
+        "ru": "крыло",
+        "uz": "qanot"
+      },
+      "example": "An eagle has long and strong wings.",
+      "example_translations": {
+        "ru": "У орла длинные и сильные крылья.",
+        "uz": "Burgutning qanotlari uzun va kuchli."
+      }
+    },
+    {
+      "word": "feather",
+      "part_of_speech": "noun",
+      "translation": "перо",
+      "translations": {
+        "ru": "перо",
+        "uz": "pat"
+      },
+      "example": "Aziz found a white feather on the grass.",
+      "example_translations": {
+        "ru": "Азиз нашёл на траве белое перо.",
+        "uz": "Aziz maysada oq pat topib oldi."
+      }
+    },
+    {
+      "word": "fur",
+      "part_of_speech": "noun",
+      "translation": "шерсть, мех",
+      "translations": {
+        "ru": "шерсть, мех",
+        "uz": "jun, mo'yna"
+      },
+      "example": "Our cat has soft gray fur.",
+      "example_translations": {
+        "ru": "У нашей кошки мягкая серая шерсть.",
+        "uz": "Mushugimizning juni yumshoq va kulrang."
+      }
+    },
+    {
+      "word": "tail",
+      "part_of_speech": "noun",
+      "translation": "хвост",
+      "translations": {
+        "ru": "хвост",
+        "uz": "dum"
+      },
+      "example": "Why does a fox have such a long tail?",
+      "example_translations": {
+        "ru": "Почему у лисы такой длинный хвост?",
+        "uz": "Nega tulkining dumi bunchalik uzun?"
+      }
+    }
+  ]
+}

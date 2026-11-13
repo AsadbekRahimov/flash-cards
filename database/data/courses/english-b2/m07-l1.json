@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 7,
+    "title": "Окружающая среда и климат",
+    "title_uz": "Atrof-muhit va iqlim"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Изменение климата",
+    "title_uz": "Iqlim o'zgarishi"
+  },
+  "words": [
+    {
+      "word": "emission",
+      "part_of_speech": "noun",
+      "translation": "выброс",
+      "translations": {
+        "ru": "выброс",
+        "uz": "tashlanma"
+      },
+      "example": "The factory must reduce its emissions this year.",
+      "example_translations": {
+        "ru": "Завод должен сократить выбросы в этом году.",
+        "uz": "Zavod bu yil tashlanmalarini kamaytirishi kerak."
+      }
+    },
+    {
+      "word": "greenhouse",
+      "part_of_speech": "noun",
+      "translation": "теплица",
+      "translations": {
+        "ru": "теплица",
+        "uz": "issiqxona"
+      },
+      "example": "Our planet is warming up like a greenhouse.",
+      "example_translations": {
+        "ru": "Наша планета нагревается, как теплица.",
+        "uz": "Sayyoramiz issiqxona kabi isib bormoqda."
+      }
+    },
+    {
+      "word": "absorb",
+      "part_of_speech": "verb",
+      "translation": "поглощать",
+      "translations": {
+        "ru": "поглощать",
+        "uz": "yutmoq"
+      },
+      "example": "Forests absorb carbon dioxide from the air.",
+      "example_translations": {
+        "ru": "Леса поглощают углекислый газ из воздуха.",
+        "uz": "O'rmonlar havodagi karbonat angidridni yutadi."
+      }
+    },
+    {
+      "word": "carbon",
+      "part_of_speech": "noun",
+      "translation": "углерод",
+      "translations": {
+        "ru": "углерод",
+        "uz": "uglerod"
+      },
+      "example": "Trees store carbon in their wood and leaves.",
+      "example_translations": {
+        "ru": "Деревья накапливают углерод в древесине и листьях.",
+        "uz": "Daraxtlar uglerodni yog'ochi va barglarida to'playdi."
+      }
+    },
+    {
+      "word": "glacier",
+      "part_of_speech": "noun",
+      "translation": "ледник",
+      "translations": {
+        "ru": "ледник",
+        "uz": "muzlik"
+      },
+      "example": "This glacier is melting faster every year.",
+      "example_translations": {
+        "ru": "Этот ледник с каждым годом тает всё быстрее.",
+        "uz": "Bu muzlik yildan yilga tezroq erimoqda."
+      }
+    },
+    {
+      "word": "methane",
+      "part_of_speech": "noun",
+      "translation": "метан",
+      "translations": {
+        "ru": "метан",
+        "uz": "metan"
+      },
+      "example": "Methane warms the planet faster than carbon dioxide.",
+      "example_translations": {
+        "ru": "Метан нагревает планету быстрее, чем углекислый газ.",
+        "uz": "Metan sayyorani karbonat angidriddan tezroq isitadi."
+      }
+    },
+    {
+      "word": "ozone",
+      "part_of_speech": "noun",
+      "translation": "озон",
+      "translations": {
+        "ru": "озон",
+        "uz": "ozon"
+      },
+      "example": "A layer of ozone protects life on Earth.",
+      "example_translations": {
+        "ru": "Слой озона защищает жизнь на Земле.",
+        "uz": "Ozon qatlami Yerdagi hayotni himoya qiladi."
+      }
+    },
+    {
+      "word": "fossil",
+      "part_of_speech": "adjective",
+      "translation": "ископаемый",
+      "translations": {
+        "ru": "ископаемый",
+        "uz": "qazilma"
+      },
+      "example": "Fossil fuels are the main cause of global warming.",
+      "example_translations": {
+        "ru": "Ископаемое топливо — главная причина глобального потепления.",
+        "uz": "Qazilma yoqilg'i global isishning asosiy sababidir."
+      }
+    },
+    {
+      "word": "footprint",
+      "part_of_speech": "noun",
+      "translation": "след",
+      "translations": {
+        "ru": "след",
+        "uz": "iz"
+      },
+      "example": "Cycling to work reduces your carbon footprint.",
+      "example_translations": {
+        "ru": "Поездки на работу на велосипеде уменьшают ваш углеродный след.",
+        "uz": "Ishga velosipedda qatnash uglerod izingizni kamaytiradi."
+      }
+    },
+    {
+      "word": "humidity",
+      "part_of_speech": "noun",
+      "translation": "влажность",
+      "translations": {
+        "ru": "влажность",
+        "uz": "namlik"
+      },
+      "example": "High humidity makes hot days feel worse.",
+      "example_translations": {
+        "ru": "Из-за высокой влажности жаркие дни переносятся тяжелее.",
+        "uz": "Yuqori namlik tufayli issiq kunlar og'irroq o'tadi."
+      }
+    }
+  ]
+}

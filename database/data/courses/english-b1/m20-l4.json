@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 20,
+    "title": "Слова-связки и абстрактные понятия",
+    "title_uz": "Bog'lovchi so'zlar va mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Степень и уверенность",
+    "title_uz": "Daraja va ishonch"
+  },
+  "words": [
+    {
+      "word": "especially",
+      "part_of_speech": "adverb",
+      "translation": "особенно",
+      "translations": {
+        "ru": "особенно",
+        "uz": "ayniqsa"
+      },
+      "example": "I love fruit, especially apples and pears.",
+      "example_translations": {
+        "ru": "Я люблю фрукты, особенно яблоки и груши.",
+        "uz": "Men mevalarni, ayniqsa olma va nokni yaxshi ko'raman."
+      }
+    },
+    {
+      "word": "mainly",
+      "part_of_speech": "adverb",
+      "translation": "в основном, главным образом",
+      "translations": {
+        "ru": "в основном, главным образом",
+        "uz": "asosan"
+      },
+      "example": "Our customers are mainly young people.",
+      "example_translations": {
+        "ru": "Наши клиенты — в основном молодые люди.",
+        "uz": "Mijozlarimiz asosan yoshlardir."
+      }
+    },
+    {
+      "word": "definitely",
+      "part_of_speech": "adverb",
+      "translation": "обязательно, определённо",
+      "translations": {
+        "ru": "обязательно, определённо",
+        "uz": "albatta, shubhasiz"
+      },
+      "example": "We will definitely come to your party.",
+      "example_translations": {
+        "ru": "Мы обязательно придём на вашу вечеринку.",
+        "uz": "Biz ziyofatingizga albatta kelamiz."
+      }
+    },
+    {
+      "word": "actually",
+      "part_of_speech": "adverb",
+      "translation": "на самом деле",
+      "translations": {
+        "ru": "на самом деле",
+        "uz": "aslida"
+      },
+      "example": "He looks young, but he is actually forty.",
+      "example_translations": {
+        "ru": "Он выглядит молодо, но на самом деле ему сорок.",
+        "uz": "U yosh ko'rinadi, lekin aslida qirq yoshda."
+      }
+    },
+    {
+      "word": "absolutely",
+      "part_of_speech": "adverb",
+      "translation": "совершенно, абсолютно",
+      "translations": {
+        "ru": "совершенно, абсолютно",
+        "uz": "mutlaqo"
+      },
+      "example": "You are absolutely right about this.",
+      "example_translations": {
+        "ru": "Вы совершенно правы насчёт этого.",
+        "uz": "Bu borada siz mutlaqo haqlisiz."
+      }
+    },
+    {
+      "word": "unfortunately",
+      "part_of_speech": "adverb",
+      "translation": "к сожалению",
+      "translations": {
+        "ru": "к сожалению",
+        "uz": "afsuski"
+      },
+      "example": "Unfortunately, the tickets are already sold out.",
+      "example_translations": {
+        "ru": "К сожалению, билеты уже распроданы.",
+        "uz": "Afsuski, chiptalar allaqachon sotib bo'lingan."
+      }
+    },
+    {
+      "word": "extremely",
+      "part_of_speech": "adverb",
+      "translation": "крайне, чрезвычайно",
+      "translations": {
+        "ru": "крайне, чрезвычайно",
+        "uz": "nihoyatda"
+      },
+      "example": "The exam was extremely difficult this year.",
+      "example_translations": {
+        "ru": "В этом году экзамен был крайне сложным.",
+        "uz": "Bu yil imtihon nihoyatda qiyin bo'ldi."
+      }
+    },
+    {
+      "word": "slightly",
+      "part_of_speech": "adverb",
+      "translation": "немного, слегка",
+      "translations": {
+        "ru": "немного, слегка",
+        "uz": "biroz, sal"
+      },
+      "example": "Today is slightly warmer than yesterday.",
+      "example_translations": {
+        "ru": "Сегодня немного теплее, чем вчера.",
+        "uz": "Bugun kechagidan biroz iliqroq."
+      }
+    },
+    {
+      "word": "hardly",
+      "part_of_speech": "adverb",
+      "translation": "едва, почти не",
+      "translations": {
+        "ru": "едва, почти не",
+        "uz": "zo'rg'a, arang"
+      },
+      "example": "I could hardly hear her on the phone.",
+      "example_translations": {
+        "ru": "Я едва слышал её по телефону.",
+        "uz": "Telefonda uning ovozini zo'rg'a eshitdim."
+      }
+    },
+    {
+      "word": "nearly",
+      "part_of_speech": "adverb",
+      "translation": "почти",
+      "translations": {
+        "ru": "почти",
+        "uz": "deyarli"
+      },
+      "example": "It took us nearly three hours to get home.",
+      "example_translations": {
+        "ru": "Дорога домой заняла у нас почти три часа.",
+        "uz": "Uyga yetib olishimizga deyarli uch soat ketdi."
+      }
+    }
+  ]
+}

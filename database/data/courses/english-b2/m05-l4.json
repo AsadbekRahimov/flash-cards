@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 5,
+    "title": "Технологии и инновации",
+    "title_uz": "Texnologiyalar va innovatsiyalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Кибербезопасность",
+    "title_uz": "Kiberxavfsizlik"
+  },
+  "words": [
+    {
+      "word": "unauthorized",
+      "part_of_speech": "adjective",
+      "translation": "несанкционированный",
+      "translations": {
+        "ru": "несанкционированный",
+        "uz": "ruxsatsiz"
+      },
+      "example": "The system blocks unauthorized access to your account.",
+      "example_translations": {
+        "ru": "Система блокирует несанкционированный доступ к вашей учётной записи.",
+        "uz": "Tizim hisobingizga ruxsatsiz kirishni bloklaydi."
+      }
+    },
+    {
+      "word": "intruder",
+      "part_of_speech": "noun",
+      "translation": "взломщик, нарушитель",
+      "translations": {
+        "ru": "взломщик, нарушитель",
+        "uz": "buzg'unchi"
+      },
+      "example": "An intruder got into the company network last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью в сеть компании проник взломщик.",
+        "uz": "Kecha tunda kompaniya tarmog'iga buzg'unchi kirdi."
+      }
+    },
+    {
+      "word": "malware",
+      "part_of_speech": "noun",
+      "translation": "вредоносная программа",
+      "translations": {
+        "ru": "вредоносная программа",
+        "uz": "zararli dastur"
+      },
+      "example": "Malware can damage the files on your computer.",
+      "example_translations": {
+        "ru": "Вредоносная программа может повредить файлы на вашем компьютере.",
+        "uz": "Zararli dastur kompyuteringizdagi fayllarga zarar yetkazishi mumkin."
+      }
+    },
+    {
+      "word": "breach",
+      "part_of_speech": "noun",
+      "translation": "нарушение безопасности",
+      "translations": {
+        "ru": "нарушение безопасности",
+        "uz": "xavfsizlik buzilishi"
+      },
+      "example": "After the security breach, everyone changed their passwords.",
+      "example_translations": {
+        "ru": "После нарушения безопасности все сменили пароли.",
+        "uz": "Xavfsizlik buzilishidan keyin hamma parolini o'zgartirdi."
+      }
+    },
+    {
+      "word": "encrypt",
+      "part_of_speech": "verb",
+      "translation": "шифровать",
+      "translations": {
+        "ru": "шифровать",
+        "uz": "shifrlamoq"
+      },
+      "example": "The app encrypts every message you send.",
+      "example_translations": {
+        "ru": "Приложение шифрует каждое сообщение, которое вы отправляете.",
+        "uz": "Ilova siz yuborgan har bir xabarni shifrlaydi."
+      }
+    },
+    {
+      "word": "firewall",
+      "part_of_speech": "noun",
+      "translation": "межсетевой экран, брандмауэр",
+      "translations": {
+        "ru": "межсетевой экран, брандмауэр",
+        "uz": "tarmoqlararo ekran"
+      },
+      "example": "A firewall protects the network from outside attacks.",
+      "example_translations": {
+        "ru": "Межсетевой экран защищает сеть от внешних атак.",
+        "uz": "Tarmoqlararo ekran tarmoqni tashqi hujumlardan himoya qiladi."
+      }
+    },
+    {
+      "word": "vulnerable",
+      "part_of_speech": "adjective",
+      "translation": "уязвимый",
+      "translations": {
+        "ru": "уязвимый",
+        "uz": "zaif, himoyasiz"
+      },
+      "example": "Old programs are vulnerable to new viruses.",
+      "example_translations": {
+        "ru": "Старые программы уязвимы для новых вирусов.",
+        "uz": "Eski dasturlar yangi viruslar oldida zaif bo'ladi."
+      }
+    },
+    {
+      "word": "anonymous",
+      "part_of_speech": "adjective",
+      "translation": "анонимный",
+      "translations": {
+        "ru": "анонимный",
+        "uz": "anonim"
+      },
+      "example": "Anonymous users cannot leave comments on this site.",
+      "example_translations": {
+        "ru": "Анонимные пользователи не могут оставлять комментарии на этом сайте.",
+        "uz": "Anonim foydalanuvchilar bu saytda izoh qoldira olmaydi."
+      }
+    },
+    {
+      "word": "confidential",
+      "part_of_speech": "adjective",
+      "translation": "конфиденциальный",
+      "translations": {
+        "ru": "конфиденциальный",
+        "uz": "maxfiy"
+      },
+      "example": "Never share confidential information by email.",
+      "example_translations": {
+        "ru": "Никогда не передавайте конфиденциальную информацию по электронной почте.",
+        "uz": "Maxfiy ma'lumotlarni hech qachon elektron pochta orqali yubormang."
+      }
+    },
+    {
+      "word": "phishing",
+      "part_of_speech": "noun",
+      "translation": "фишинг",
+      "translations": {
+        "ru": "фишинг",
+        "uz": "fishing"
+      },
+      "example": "Phishing is a trick to get your password.",
+      "example_translations": {
+        "ru": "Фишинг — это уловка, чтобы узнать ваш пароль.",
+        "uz": "Fishing — parolingizni bilib olish uchun qilinadigan hiyla."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 8,
+    "title": "Политика и государство",
+    "title_uz": "Siyosat va davlat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Политический процесс",
+    "title_uz": "Siyosiy jarayon"
+  },
+  "words": [
+    {
+      "word": "policy",
+      "part_of_speech": "noun",
+      "translation": "политика, курс",
+      "translations": {
+        "ru": "политика, курс",
+        "uz": "siyosat"
+      },
+      "example": "The government announced a new policy on housing.",
+      "example_translations": {
+        "ru": "Правительство объявило о новой политике в сфере жилья.",
+        "uz": "Hukumat uy-joy sohasidagi yangi siyosatni e'lon qildi."
+      }
+    },
+    {
+      "word": "reform",
+      "part_of_speech": "noun",
+      "translation": "реформа",
+      "translations": {
+        "ru": "реформа",
+        "uz": "islohot"
+      },
+      "example": "The reform of the school system starts next year.",
+      "example_translations": {
+        "ru": "Реформа школьной системы начнётся в следующем году.",
+        "uz": "Maktab tizimi islohoti kelasi yili boshlanadi."
+      }
+    },
+    {
+      "word": "senate",
+      "part_of_speech": "noun",
+      "translation": "сенат",
+      "translations": {
+        "ru": "сенат",
+        "uz": "senat"
+      },
+      "example": "The senate is the upper house of parliament.",
+      "example_translations": {
+        "ru": "Сенат — это верхняя палата парламента.",
+        "uz": "Senat — parlamentning yuqori palatasi."
+      }
+    },
+    {
+      "word": "decree",
+      "part_of_speech": "noun",
+      "translation": "указ",
+      "translations": {
+        "ru": "указ",
+        "uz": "farmon"
+      },
+      "example": "Yesterday the president signed a decree on school holidays.",
+      "example_translations": {
+        "ru": "Вчера президент подписал указ о школьных каникулах.",
+        "uz": "Kecha prezident maktab ta'tillari to'g'risidagi farmonni imzoladi."
+      }
+    },
+    {
+      "word": "amendment",
+      "part_of_speech": "noun",
+      "translation": "поправка",
+      "translations": {
+        "ru": "поправка",
+        "uz": "tuzatish"
+      },
+      "example": "Parliament added an amendment to the law.",
+      "example_translations": {
+        "ru": "Парламент внёс поправку в закон.",
+        "uz": "Parlament qonunga tuzatish kiritdi."
+      }
+    },
+    {
+      "word": "veto",
+      "part_of_speech": "noun",
+      "translation": "вето",
+      "translations": {
+        "ru": "вето",
+        "uz": "veto"
+      },
+      "example": "Can the president use a veto against this law?",
+      "example_translations": {
+        "ru": "Может ли президент наложить вето на этот закон?",
+        "uz": "Prezident bu qonunga veto qo'ya oladimi?"
+      }
+    },
+    {
+      "word": "mandate",
+      "part_of_speech": "noun",
+      "translation": "мандат, полномочия",
+      "translations": {
+        "ru": "мандат, полномочия",
+        "uz": "mandat, vakolat"
+      },
+      "example": "Voters gave the new government a clear mandate.",
+      "example_translations": {
+        "ru": "Избиратели дали новому правительству чёткий мандат.",
+        "uz": "Saylovchilar yangi hukumatga aniq mandat berdi."
+      }
+    },
+    {
+      "word": "abolish",
+      "part_of_speech": "verb",
+      "translation": "отменять, упразднять",
+      "translations": {
+        "ru": "отменять, упразднять",
+        "uz": "bekor qilmoq"
+      },
+      "example": "Last year the government abolished the old tax.",
+      "example_translations": {
+        "ru": "В прошлом году правительство отменило старый налог.",
+        "uz": "O'tgan yili hukumat eski soliqni bekor qildi."
+      }
+    },
+    {
+      "word": "petition",
+      "part_of_speech": "noun",
+      "translation": "петиция",
+      "translations": {
+        "ru": "петиция",
+        "uz": "petitsiya"
+      },
+      "example": "Thousands of people signed the petition for a new park.",
+      "example_translations": {
+        "ru": "Тысячи людей подписали петицию за новый парк.",
+        "uz": "Minglab odam yangi bog' barpo etish haqidagi petitsiyani imzoladi."
+      }
+    },
+    {
+      "word": "ideology",
+      "part_of_speech": "noun",
+      "translation": "идеология",
+      "translations": {
+        "ru": "идеология",
+        "uz": "mafkura"
+      },
+      "example": "Each party explained its ideology to the voters.",
+      "example_translations": {
+        "ru": "Каждая партия объяснила избирателям свою идеологию.",
+        "uz": "Har bir partiya saylovchilarga o'z mafkurasini tushuntirdi."
+      }
+    }
+  ]
+}

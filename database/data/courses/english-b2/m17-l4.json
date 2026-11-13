@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Ведение спора",
+    "title_uz": "Bahs yuritish"
+  },
+  "words": [
+    {
+      "word": "persuasive",
+      "part_of_speech": "adjective",
+      "translation": "умеющий убеждать",
+      "translations": {
+        "ru": "умеющий убеждать",
+        "uz": "ishontira oladigan"
+      },
+      "example": "A persuasive speaker can change people's minds.",
+      "example_translations": {
+        "ru": "Оратор, умеющий убеждать, способен изменить мнение людей.",
+        "uz": "Ishontira oladigan notiq odamlarning fikrini o'zgartira oladi."
+      }
+    },
+    {
+      "word": "constructive",
+      "part_of_speech": "adjective",
+      "translation": "конструктивный",
+      "translations": {
+        "ru": "конструктивный",
+        "uz": "konstruktiv, foydali"
+      },
+      "example": "Thank you for your constructive comments on my essay.",
+      "example_translations": {
+        "ru": "Спасибо за ваши конструктивные замечания к моему эссе.",
+        "uz": "Inshom bo'yicha konstruktiv fikrlaringiz uchun rahmat."
+      }
+    },
+    {
+      "word": "outweigh",
+      "part_of_speech": "verb",
+      "translation": "перевешивать",
+      "translations": {
+        "ru": "перевешивать",
+        "uz": "ustun kelmoq"
+      },
+      "example": "The benefits of the plan outweigh the risks.",
+      "example_translations": {
+        "ru": "Преимущества этого плана перевешивают риски.",
+        "uz": "Bu rejaning foydalari xatarlaridan ustun keladi."
+      }
+    },
+    {
+      "word": "debate",
+      "part_of_speech": "noun",
+      "translation": "дебаты, прения",
+      "translations": {
+        "ru": "дебаты, прения",
+        "uz": "munozara, bahs"
+      },
+      "example": "The students held a debate about social media.",
+      "example_translations": {
+        "ru": "Студенты провели дебаты о социальных сетях.",
+        "uz": "Talabalar ijtimoiy tarmoqlar haqida munozara o'tkazdilar."
+      }
+    },
+    {
+      "word": "controversy",
+      "part_of_speech": "noun",
+      "translation": "споры, полемика",
+      "translations": {
+        "ru": "споры, полемика",
+        "uz": "tortishuv, bahs-munozara"
+      },
+      "example": "The new rule caused a lot of controversy.",
+      "example_translations": {
+        "ru": "Новое правило вызвало много споров.",
+        "uz": "Yangi qoida ko'p tortishuvlarga sabab bo'ldi."
+      }
+    },
+    {
+      "word": "compelling",
+      "part_of_speech": "adjective",
+      "translation": "веский, убедительный",
+      "translations": {
+        "ru": "веский, убедительный",
+        "uz": "salmoqli, asosli"
+      },
+      "example": "There is compelling evidence that exercise improves memory.",
+      "example_translations": {
+        "ru": "Есть веские доказательства того, что физические упражнения улучшают память.",
+        "uz": "Jismoniy mashqlar xotirani yaxshilashiga salmoqli dalillar bor."
+      }
+    },
+    {
+      "word": "moderator",
+      "part_of_speech": "noun",
+      "translation": "модератор, ведущий дебатов",
+      "translations": {
+        "ru": "модератор, ведущий дебатов",
+        "uz": "moderator, bahs boshlovchisi"
+      },
+      "example": "The moderator gave each speaker two minutes.",
+      "example_translations": {
+        "ru": "Модератор дал каждому выступающему по две минуты.",
+        "uz": "Moderator har bir so'zlovchiga ikki daqiqadan vaqt berdi."
+      }
+    },
+    {
+      "word": "confront",
+      "part_of_speech": "verb",
+      "translation": "противостоять",
+      "translations": {
+        "ru": "противостоять",
+        "uz": "qarshi turmoq"
+      },
+      "example": "It takes courage to confront a difficult opponent.",
+      "example_translations": {
+        "ru": "Нужна смелость, чтобы противостоять трудному оппоненту.",
+        "uz": "Qiyin raqibga qarshi turish uchun jasorat kerak."
+      }
+    },
+    {
+      "word": "mediate",
+      "part_of_speech": "verb",
+      "translation": "выступать посредником",
+      "translations": {
+        "ru": "выступать посредником",
+        "uz": "vositachilik qilmoq"
+      },
+      "example": "A teacher mediated between the two angry students.",
+      "example_translations": {
+        "ru": "Учитель выступил посредником между двумя рассерженными учениками.",
+        "uz": "O'qituvchi jahli chiqqan ikki o'quvchi o'rtasida vositachilik qildi."
+      }
+    },
+    {
+      "word": "counterargument",
+      "part_of_speech": "noun",
+      "translation": "контраргумент",
+      "translations": {
+        "ru": "контраргумент",
+        "uz": "qarshi dalil"
+      },
+      "example": "Prepare a counterargument for every point they make.",
+      "example_translations": {
+        "ru": "Подготовьте контраргумент на каждый их довод.",
+        "uz": "Ularning har bir fikriga qarshi dalil tayyorlang."
+      }
+    }
+  ]
+}

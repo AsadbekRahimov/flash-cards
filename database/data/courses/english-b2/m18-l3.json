@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 18,
+    "title": "Причины, следствия и изменения",
+    "title_uz": "Sabablar, oqibatlar va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Рост и спад",
+    "title_uz": "O'sish va pasayish"
+  },
+  "words": [
+    {
+      "word": "lessen",
+      "part_of_speech": "verb",
+      "translation": "уменьшать, ослаблять",
+      "translations": {
+        "ru": "уменьшать, ослаблять",
+        "uz": "kamaytirmoq, susaytirmoq"
+      },
+      "example": "This medicine will lessen the pain quickly.",
+      "example_translations": {
+        "ru": "Это лекарство быстро уменьшит боль.",
+        "uz": "Bu dori og'riqni tezda kamaytiradi."
+      }
+    },
+    {
+      "word": "decline",
+      "part_of_speech": "verb",
+      "translation": "снижаться, сокращаться",
+      "translations": {
+        "ru": "снижаться, сокращаться",
+        "uz": "pasaymoq, kamaymoq"
+      },
+      "example": "The quality of service declined after the change.",
+      "example_translations": {
+        "ru": "После этой перемены качество обслуживания снизилось.",
+        "uz": "Bu o'zgarishdan keyin xizmat sifati pasaydi."
+      }
+    },
+    {
+      "word": "surge",
+      "part_of_speech": "verb",
+      "translation": "резко возрастать",
+      "translations": {
+        "ru": "резко возрастать",
+        "uz": "keskin oshmoq"
+      },
+      "example": "Demand for umbrellas surged during the rainy week.",
+      "example_translations": {
+        "ru": "В дождливую неделю спрос на зонты резко возрос.",
+        "uz": "Yomg'irli haftada soyabonlarga talab keskin oshdi."
+      }
+    },
+    {
+      "word": "soar",
+      "part_of_speech": "verb",
+      "translation": "взлетать, стремительно расти",
+      "translations": {
+        "ru": "взлетать, стремительно расти",
+        "uz": "shiddat bilan ko'tarilmoq"
+      },
+      "example": "House prices soared in the city last year.",
+      "example_translations": {
+        "ru": "В прошлом году цены на жильё в городе взлетели.",
+        "uz": "O'tgan yili shaharda uy-joy narxlari shiddat bilan ko'tarildi."
+      }
+    },
+    {
+      "word": "plunge",
+      "part_of_speech": "verb",
+      "translation": "резко падать",
+      "translations": {
+        "ru": "резко падать",
+        "uz": "keskin tushib ketmoq"
+      },
+      "example": "Temperatures plunged below zero during the night.",
+      "example_translations": {
+        "ru": "Ночью температура резко упала ниже нуля.",
+        "uz": "Tunda harorat noldan pastga keskin tushib ketdi."
+      }
+    },
+    {
+      "word": "diminish",
+      "part_of_speech": "verb",
+      "translation": "уменьшаться, ослабевать",
+      "translations": {
+        "ru": "уменьшаться, ослабевать",
+        "uz": "kamaymoq, susaymoq"
+      },
+      "example": "The noise diminished as the train moved away.",
+      "example_translations": {
+        "ru": "Шум ослабевал по мере того, как поезд удалялся.",
+        "uz": "Poyezd uzoqlashgani sari shovqin susayib bordi."
+      }
+    },
+    {
+      "word": "escalate",
+      "part_of_speech": "verb",
+      "translation": "обостряться",
+      "translations": {
+        "ru": "обостряться",
+        "uz": "keskinlashmoq"
+      },
+      "example": "The dispute escalated when neither side would listen.",
+      "example_translations": {
+        "ru": "Спор обострился, когда ни одна из сторон не захотела слушать.",
+        "uz": "Tomonlarning hech biri quloq solishni istamagach, nizo keskinlashdi."
+      }
+    },
+    {
+      "word": "intensify",
+      "part_of_speech": "verb",
+      "translation": "усиливаться",
+      "translations": {
+        "ru": "усиливаться",
+        "uz": "kuchaymoq"
+      },
+      "example": "The rain intensified, so we stayed inside.",
+      "example_translations": {
+        "ru": "Дождь усилился, поэтому мы остались в помещении.",
+        "uz": "Yomg'ir kuchaydi, shuning uchun biz ichkarida qoldik."
+      }
+    },
+    {
+      "word": "boost",
+      "part_of_speech": "verb",
+      "translation": "повышать, увеличивать",
+      "translations": {
+        "ru": "повышать, увеличивать",
+        "uz": "oshirmoq, ko'paytirmoq"
+      },
+      "example": "The discount boosted sales by ten percent.",
+      "example_translations": {
+        "ru": "Скидка повысила продажи на десять процентов.",
+        "uz": "Chegirma savdoni o'n foizga oshirdi."
+      }
+    },
+    {
+      "word": "fluctuate",
+      "part_of_speech": "verb",
+      "translation": "колебаться, изменяться",
+      "translations": {
+        "ru": "колебаться, изменяться",
+        "uz": "o'zgarib turmoq"
+      },
+      "example": "Vegetable prices fluctuate from season to season.",
+      "example_translations": {
+        "ru": "Цены на овощи колеблются от сезона к сезону.",
+        "uz": "Sabzavot narxlari mavsumdan mavsumga o'zgarib turadi."
+      }
+    }
+  ]
+}

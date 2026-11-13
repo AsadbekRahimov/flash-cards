@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 14,
+    "title": "Путешествия и культуры мира",
+    "title_uz": "Sayohat va dunyo madaniyatlari"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "География мира",
+    "title_uz": "Dunyo geografiyasi"
+  },
+  "words": [
+    {
+      "word": "polar",
+      "part_of_speech": "adjective",
+      "translation": "полярный",
+      "translations": {
+        "ru": "полярный",
+        "uz": "qutbiy"
+      },
+      "example": "Few plants can survive the polar winter.",
+      "example_translations": {
+        "ru": "Немногие растения способны пережить полярную зиму.",
+        "uz": "Qutbiy qishga kamdan-kam o'simlik bardosh bera oladi."
+      }
+    },
+    {
+      "word": "hemisphere",
+      "part_of_speech": "noun",
+      "translation": "полушарие",
+      "translations": {
+        "ru": "полушарие",
+        "uz": "yarim shar"
+      },
+      "example": "Summer starts in December in the southern hemisphere.",
+      "example_translations": {
+        "ru": "В Южном полушарии лето начинается в декабре.",
+        "uz": "Janubiy yarim sharda yoz dekabrda boshlanadi."
+      }
+    },
+    {
+      "word": "equator",
+      "part_of_speech": "noun",
+      "translation": "экватор",
+      "translations": {
+        "ru": "экватор",
+        "uz": "ekvator"
+      },
+      "example": "Countries near the equator are hot all year.",
+      "example_translations": {
+        "ru": "В странах у экватора жарко круглый год.",
+        "uz": "Ekvator yaqinidagi mamlakatlarda yil bo'yi issiq bo'ladi."
+      }
+    },
+    {
+      "word": "latitude",
+      "part_of_speech": "noun",
+      "translation": "широта",
+      "translations": {
+        "ru": "широта",
+        "uz": "geografik kenglik"
+      },
+      "example": "Cities at the same latitude often have similar weather.",
+      "example_translations": {
+        "ru": "В городах на одной широте погода часто похожа.",
+        "uz": "Bir xil geografik kenglikda joylashgan shaharlarning ob-havosi ko'pincha o'xshash bo'ladi."
+      }
+    },
+    {
+      "word": "peninsula",
+      "part_of_speech": "noun",
+      "translation": "полуостров",
+      "translations": {
+        "ru": "полуостров",
+        "uz": "yarim orol"
+      },
+      "example": "A peninsula has water on three sides.",
+      "example_translations": {
+        "ru": "Полуостров с трёх сторон окружён водой.",
+        "uz": "Yarim orol uch tomondan suv bilan o'ralgan."
+      }
+    },
+    {
+      "word": "longitude",
+      "part_of_speech": "noun",
+      "translation": "долгота",
+      "translations": {
+        "ru": "долгота",
+        "uz": "geografik uzunlik"
+      },
+      "example": "Longitude shows how far east or west you are.",
+      "example_translations": {
+        "ru": "Долгота показывает, насколько далеко на восток или запад вы находитесь.",
+        "uz": "Geografik uzunlik sharq yoki g'arbga qanchalik uzoqda ekaningizni ko'rsatadi."
+      }
+    },
+    {
+      "word": "terrain",
+      "part_of_speech": "noun",
+      "translation": "местность, рельеф",
+      "translations": {
+        "ru": "местность, рельеф",
+        "uz": "relyef, yer yuzasi"
+      },
+      "example": "The rocky terrain made cycling very difficult.",
+      "example_translations": {
+        "ru": "Каменистая местность очень затрудняла езду на велосипеде.",
+        "uz": "Toshloq relyef velosipedda yurishni juda qiyinlashtirdi."
+      }
+    },
+    {
+      "word": "plateau",
+      "part_of_speech": "noun",
+      "translation": "плато, плоскогорье",
+      "translations": {
+        "ru": "плато, плоскогорье",
+        "uz": "yassi tog'lik, plato"
+      },
+      "example": "From the plateau we could see the whole valley.",
+      "example_translations": {
+        "ru": "С плато нам была видна вся долина.",
+        "uz": "Yassi tog'likdan butun vodiy ko'rinib turardi."
+      }
+    },
+    {
+      "word": "canyon",
+      "part_of_speech": "noun",
+      "translation": "каньон",
+      "translations": {
+        "ru": "каньон",
+        "uz": "kanyon"
+      },
+      "example": "A river runs through the bottom of the canyon.",
+      "example_translations": {
+        "ru": "По дну каньона течёт река.",
+        "uz": "Kanyon tubidan daryo oqib o'tadi."
+      }
+    },
+    {
+      "word": "altitude",
+      "part_of_speech": "noun",
+      "translation": "высота над уровнем моря",
+      "translations": {
+        "ru": "высота над уровнем моря",
+        "uz": "dengiz sathidan balandlik"
+      },
+      "example": "At high altitude, the air is thin and cold.",
+      "example_translations": {
+        "ru": "На большой высоте воздух разрежённый и холодный.",
+        "uz": "Katta balandlikda havo siyrak va sovuq bo'ladi."
+      }
+    }
+  ]
+}

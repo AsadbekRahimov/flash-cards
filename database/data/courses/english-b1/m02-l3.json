@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 2,
+    "title": "Отношения и общение",
+    "title_uz": "Munosabatlar va muloqot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Разговор",
+    "title_uz": "Suhbat"
+  },
+  "words": [
+    {
+      "word": "conversation",
+      "part_of_speech": "noun",
+      "translation": "разговор, беседа",
+      "translations": {
+        "ru": "разговор, беседа",
+        "uz": "suhbat"
+      },
+      "example": "We had a long conversation about our plans.",
+      "example_translations": {
+        "ru": "У нас был долгий разговор о наших планах.",
+        "uz": "Biz rejalarimiz haqida uzoq suhbat qurdik."
+      }
+    },
+    {
+      "word": "mention",
+      "part_of_speech": "verb",
+      "translation": "упоминать",
+      "translations": {
+        "ru": "упоминать",
+        "uz": "tilga olmoq"
+      },
+      "example": "She mentioned your name during our talk.",
+      "example_translations": {
+        "ru": "Она упомянула ваше имя во время нашей беседы.",
+        "uz": "U suhbatimiz davomida sizning ismingizni tilga oldi."
+      }
+    },
+    {
+      "word": "interrupt",
+      "part_of_speech": "verb",
+      "translation": "перебивать",
+      "translations": {
+        "ru": "перебивать",
+        "uz": "gapni bo'lmoq"
+      },
+      "example": "Please don't interrupt me when I am speaking.",
+      "example_translations": {
+        "ru": "Пожалуйста, не перебивайте меня, когда я говорю.",
+        "uz": "Iltimos, men gapirayotganimda gapimni bo'lmang."
+      }
+    },
+    {
+      "word": "whisper",
+      "part_of_speech": "verb",
+      "translation": "шептать",
+      "translations": {
+        "ru": "шептать",
+        "uz": "shivirlamoq"
+      },
+      "example": "She whispered the answer in my ear.",
+      "example_translations": {
+        "ru": "Она прошептала ответ мне на ухо.",
+        "uz": "U javobni qulog'imga shivirladi."
+      }
+    },
+    {
+      "word": "inform",
+      "part_of_speech": "verb",
+      "translation": "сообщать",
+      "translations": {
+        "ru": "сообщать",
+        "uz": "xabar bermoq"
+      },
+      "example": "Please inform us about any changes.",
+      "example_translations": {
+        "ru": "Пожалуйста, сообщайте нам о любых изменениях.",
+        "uz": "Iltimos, har qanday o'zgarishlar haqida bizga xabar bering."
+      }
+    },
+    {
+      "word": "respond",
+      "part_of_speech": "verb",
+      "translation": "отвечать",
+      "translations": {
+        "ru": "отвечать",
+        "uz": "javob bermoq"
+      },
+      "example": "He did not respond to my message yesterday.",
+      "example_translations": {
+        "ru": "Вчера он не ответил на моё сообщение.",
+        "uz": "Kecha u xabarimga javob bermadi."
+      }
+    },
+    {
+      "word": "greet",
+      "part_of_speech": "verb",
+      "translation": "приветствовать, здороваться",
+      "translations": {
+        "ru": "приветствовать, здороваться",
+        "uz": "salomlashmoq"
+      },
+      "example": "Our neighbors always greet us with a smile.",
+      "example_translations": {
+        "ru": "Наши соседи всегда приветствуют нас с улыбкой.",
+        "uz": "Qo'shnilarimiz doim biz bilan jilmayib salomlashadi."
+      }
+    },
+    {
+      "word": "humor",
+      "part_of_speech": "noun",
+      "translation": "юмор",
+      "translations": {
+        "ru": "юмор",
+        "uz": "yumor"
+      },
+      "example": "Aziz has a great sense of humor.",
+      "example_translations": {
+        "ru": "У Азиза отличное чувство юмора.",
+        "uz": "Azizda ajoyib yumor hissi bor."
+      }
+    },
+    {
+      "word": "comment",
+      "part_of_speech": "noun",
+      "translation": "комментарий",
+      "translations": {
+        "ru": "комментарий",
+        "uz": "izoh"
+      },
+      "example": "Do you have any comments on my idea?",
+      "example_translations": {
+        "ru": "У вас есть комментарии к моей идее?",
+        "uz": "Mening g'oyam bo'yicha izohlaringiz bormi?"
+      }
+    },
+    {
+      "word": "silence",
+      "part_of_speech": "noun",
+      "translation": "молчание",
+      "translations": {
+        "ru": "молчание",
+        "uz": "sukut"
+      },
+      "example": "There was a long silence after his question.",
+      "example_translations": {
+        "ru": "После его вопроса наступило долгое молчание.",
+        "uz": "Uning savolidan keyin oraga uzoq sukut cho'kdi."
+      }
+    }
+  ]
+}

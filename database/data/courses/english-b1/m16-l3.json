@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 16,
+    "title": "Чувства и мнения",
+    "title_uz": "His-tuyg'ular va fikrlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Переживания и реакции",
+    "title_uz": "Kechinmalar va reaksiyalar"
+  },
+  "words": [
+    {
+      "word": "emotion",
+      "part_of_speech": "noun",
+      "translation": "эмоция",
+      "translations": {
+        "ru": "эмоция",
+        "uz": "his-tuyg'u"
+      },
+      "example": "It is hard for him to show his emotions.",
+      "example_translations": {
+        "ru": "Ему трудно показывать свои эмоции.",
+        "uz": "Unga his-tuyg'ularini ko'rsatish qiyin."
+      }
+    },
+    {
+      "word": "fear",
+      "part_of_speech": "noun",
+      "translation": "страх",
+      "translations": {
+        "ru": "страх",
+        "uz": "qo'rquv"
+      },
+      "example": "She could not move because of fear.",
+      "example_translations": {
+        "ru": "От страха она не могла пошевелиться.",
+        "uz": "Qo'rquvdan u qimirlay olmadi."
+      }
+    },
+    {
+      "word": "panic",
+      "part_of_speech": "noun",
+      "translation": "паника",
+      "translations": {
+        "ru": "паника",
+        "uz": "vahima"
+      },
+      "example": "There was panic when the lights went out.",
+      "example_translations": {
+        "ru": "Когда погас свет, началась паника.",
+        "uz": "Chiroqlar o'chganda vahima boshlandi."
+      }
+    },
+    {
+      "word": "shock",
+      "part_of_speech": "noun",
+      "translation": "шок, потрясение",
+      "translations": {
+        "ru": "шок, потрясение",
+        "uz": "shok"
+      },
+      "example": "His decision to leave was a shock to everyone.",
+      "example_translations": {
+        "ru": "Его решение уйти стало шоком для всех.",
+        "uz": "Uning ketish haqidagi qarori hamma uchun shok bo'ldi."
+      }
+    },
+    {
+      "word": "regret",
+      "part_of_speech": "verb",
+      "translation": "сожалеть",
+      "translations": {
+        "ru": "сожалеть",
+        "uz": "afsuslanmoq"
+      },
+      "example": "Do you regret selling your old house?",
+      "example_translations": {
+        "ru": "Вы сожалеете, что продали свой старый дом?",
+        "uz": "Eski uyingizni sotganingizdan afsuslanasizmi?"
+      }
+    },
+    {
+      "word": "sympathy",
+      "part_of_speech": "noun",
+      "translation": "сочувствие",
+      "translations": {
+        "ru": "сочувствие",
+        "uz": "hamdardlik"
+      },
+      "example": "Everyone showed sympathy when I lost my job.",
+      "example_translations": {
+        "ru": "Все проявили сочувствие, когда я потерял работу.",
+        "uz": "Men ishimdan ayrilganimda hamma hamdardlik bildirdi."
+      }
+    },
+    {
+      "word": "suffer",
+      "part_of_speech": "verb",
+      "translation": "страдать",
+      "translations": {
+        "ru": "страдать",
+        "uz": "azob chekmoq, qiynalmoq"
+      },
+      "example": "Lola suffered a lot when her best friend moved away.",
+      "example_translations": {
+        "ru": "Лола очень страдала, когда её лучшая подруга уехала.",
+        "uz": "Eng yaqin dugonasi ko'chib ketganida Lola juda qiynaldi."
+      }
+    },
+    {
+      "word": "anger",
+      "part_of_speech": "noun",
+      "translation": "гнев, злость",
+      "translations": {
+        "ru": "гнев, злость",
+        "uz": "g'azab, jahl"
+      },
+      "example": "His face turned red with anger.",
+      "example_translations": {
+        "ru": "Его лицо покраснело от гнева.",
+        "uz": "Uning yuzi g'azabdan qizarib ketdi."
+      }
+    },
+    {
+      "word": "react",
+      "part_of_speech": "verb",
+      "translation": "реагировать",
+      "translations": {
+        "ru": "реагировать",
+        "uz": "munosabat bildirmoq"
+      },
+      "example": "How did your parents react to the news?",
+      "example_translations": {
+        "ru": "Как ваши родители отреагировали на эту новость?",
+        "uz": "Ota-onangiz bu xabarga qanday munosabat bildirdi?"
+      }
+    },
+    {
+      "word": "express",
+      "part_of_speech": "verb",
+      "translation": "выражать",
+      "translations": {
+        "ru": "выражать",
+        "uz": "ifodalamoq"
+      },
+      "example": "Children often express their feelings through drawings.",
+      "example_translations": {
+        "ru": "Дети часто выражают свои чувства в рисунках.",
+        "uz": "Bolalar ko'pincha his-tuyg'ularini rasmlar orqali ifodalaydi."
+      }
+    }
+  ]
+}

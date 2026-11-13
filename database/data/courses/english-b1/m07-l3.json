@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 7,
+    "title": "Работа и профессии",
+    "title_uz": "Ish va kasblar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Рабочие обязанности",
+    "title_uz": "Ish vazifalari"
+  },
+  "words": [
+    {
+      "word": "duty",
+      "part_of_speech": "noun",
+      "translation": "обязанность",
+      "translations": {
+        "ru": "обязанность",
+        "uz": "vazifa"
+      },
+      "example": "Answering the phone is one of my duties.",
+      "example_translations": {
+        "ru": "Отвечать на телефонные звонки — одна из моих обязанностей.",
+        "uz": "Telefon qo'ng'iroqlariga javob berish — mening vazifalarimdan biri."
+      }
+    },
+    {
+      "word": "responsibility",
+      "part_of_speech": "noun",
+      "translation": "ответственность",
+      "translations": {
+        "ru": "ответственность",
+        "uz": "mas'uliyat"
+      },
+      "example": "The manager takes responsibility for the whole team.",
+      "example_translations": {
+        "ru": "Менеджер берёт на себя ответственность за всю команду.",
+        "uz": "Menejer butun jamoa uchun mas'uliyatni o'z zimmasiga oladi."
+      }
+    },
+    {
+      "word": "assignment",
+      "part_of_speech": "noun",
+      "translation": "задание, поручение",
+      "translations": {
+        "ru": "задание, поручение",
+        "uz": "topshiriq"
+      },
+      "example": "My boss gave me a difficult assignment yesterday.",
+      "example_translations": {
+        "ru": "Вчера начальник дал мне трудное задание.",
+        "uz": "Kecha boshlig'im menga qiyin topshiriq berdi."
+      }
+    },
+    {
+      "word": "attend",
+      "part_of_speech": "verb",
+      "translation": "присутствовать, посещать",
+      "translations": {
+        "ru": "присутствовать, посещать",
+        "uz": "qatnashmoq, ishtirok etmoq"
+      },
+      "example": "All managers must attend the meeting on Monday.",
+      "example_translations": {
+        "ru": "Все менеджеры должны присутствовать на собрании в понедельник.",
+        "uz": "Barcha menejerlar dushanba kungi yig'ilishda qatnashishi shart."
+      }
+    },
+    {
+      "word": "conference",
+      "part_of_speech": "noun",
+      "translation": "конференция",
+      "translations": {
+        "ru": "конференция",
+        "uz": "konferensiya"
+      },
+      "example": "Will you speak at the conference next week?",
+      "example_translations": {
+        "ru": "Вы будете выступать на конференции на следующей неделе?",
+        "uz": "Kelasi hafta konferensiyada so'zga chiqasizmi?"
+      }
+    },
+    {
+      "word": "routine",
+      "part_of_speech": "noun",
+      "translation": "распорядок",
+      "translations": {
+        "ru": "распорядок",
+        "uz": "kundalik tartib"
+      },
+      "example": "Morning meetings are part of our daily routine.",
+      "example_translations": {
+        "ru": "Утренние собрания — часть нашего ежедневного распорядка.",
+        "uz": "Ertalabki yig'ilishlar kundalik tartibimizning bir qismidir."
+      }
+    },
+    {
+      "word": "teamwork",
+      "part_of_speech": "noun",
+      "translation": "командная работа",
+      "translations": {
+        "ru": "командная работа",
+        "uz": "jamoaviy ish"
+      },
+      "example": "Good teamwork helped us finish the project early.",
+      "example_translations": {
+        "ru": "Хорошая командная работа помогла нам закончить проект раньше срока.",
+        "uz": "Yaxshi jamoaviy ish loyihani muddatidan oldin tugatishimizga yordam berdi."
+      }
+    },
+    {
+      "word": "approve",
+      "part_of_speech": "verb",
+      "translation": "одобрять, утверждать",
+      "translations": {
+        "ru": "одобрять, утверждать",
+        "uz": "ma'qullamoq, tasdiqlamoq"
+      },
+      "example": "The director approved our plan for next year.",
+      "example_translations": {
+        "ru": "Директор одобрил наш план на следующий год.",
+        "uz": "Direktor kelasi yil uchun rejamizni ma'qulladi."
+      }
+    },
+    {
+      "word": "priority",
+      "part_of_speech": "noun",
+      "translation": "приоритет",
+      "translations": {
+        "ru": "приоритет",
+        "uz": "ustuvor vazifa, ustuvorlik"
+      },
+      "example": "Finishing this report is my priority today.",
+      "example_translations": {
+        "ru": "Закончить этот отчёт — мой приоритет на сегодня.",
+        "uz": "Bu hisobotni tugatish — bugungi ustuvor vazifam."
+      }
+    },
+    {
+      "word": "efficient",
+      "part_of_speech": "adjective",
+      "translation": "эффективный",
+      "translations": {
+        "ru": "эффективный",
+        "uz": "samarali"
+      },
+      "example": "The new system is efficient and saves time.",
+      "example_translations": {
+        "ru": "Новая система эффективна и экономит время.",
+        "uz": "Yangi tizim samarali va vaqtni tejaydi."
+      }
+    }
+  ]
+}

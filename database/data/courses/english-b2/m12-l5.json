@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 12,
+    "title": "Образование и мышление",
+    "title_uz": "Ta'lim va tafakkur"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Навыки учёбы",
+    "title_uz": "O'qish ko'nikmalari"
+  },
+  "words": [
+    {
+      "word": "summarize",
+      "part_of_speech": "verb",
+      "translation": "кратко излагать",
+      "translations": {
+        "ru": "кратко излагать",
+        "uz": "qisqacha bayon qilmoq"
+      },
+      "example": "Please summarize the article in three sentences.",
+      "example_translations": {
+        "ru": "Пожалуйста, кратко изложите статью в трёх предложениях.",
+        "uz": "Iltimos, maqolani uchta gapda qisqacha bayon qiling."
+      }
+    },
+    {
+      "word": "paraphrase",
+      "part_of_speech": "verb",
+      "translation": "перефразировать",
+      "translations": {
+        "ru": "перефразировать",
+        "uz": "boshqa so'zlar bilan ifodalamoq"
+      },
+      "example": "Try to paraphrase the quote in simple language.",
+      "example_translations": {
+        "ru": "Попробуйте перефразировать цитату простым языком.",
+        "uz": "Iqtibosni sodda tilda, boshqa so'zlar bilan ifodalashga harakat qiling."
+      }
+    },
+    {
+      "word": "outline",
+      "part_of_speech": "verb",
+      "translation": "составлять план",
+      "translations": {
+        "ru": "составлять план",
+        "uz": "reja tuzmoq"
+      },
+      "example": "Outline your essay before you start writing.",
+      "example_translations": {
+        "ru": "Составьте план эссе, прежде чем начинать писать.",
+        "uz": "Yozishni boshlashdan oldin inshongizning rejasini tuzing."
+      }
+    },
+    {
+      "word": "draft",
+      "part_of_speech": "verb",
+      "translation": "писать черновик",
+      "translations": {
+        "ru": "писать черновик",
+        "uz": "qoralama yozmoq"
+      },
+      "example": "She drafted the report in one evening.",
+      "example_translations": {
+        "ru": "Она написала черновик отчёта за один вечер.",
+        "uz": "U hisobotning qoralamasini bir oqshomda yozdi."
+      }
+    },
+    {
+      "word": "proofread",
+      "part_of_speech": "verb",
+      "translation": "вычитывать",
+      "translations": {
+        "ru": "вычитывать",
+        "uz": "tekshirib o'qimoq"
+      },
+      "example": "A friend proofreads my essays and finds spelling mistakes.",
+      "example_translations": {
+        "ru": "Друг вычитывает мои эссе и находит орфографические ошибки.",
+        "uz": "Do'stim insholarimni tekshirib o'qiydi va imlo xatolarini topadi."
+      }
+    },
+    {
+      "word": "retain",
+      "part_of_speech": "verb",
+      "translation": "удерживать в памяти",
+      "translations": {
+        "ru": "удерживать в памяти",
+        "uz": "yodda saqlamoq"
+      },
+      "example": "You retain more information when you take notes.",
+      "example_translations": {
+        "ru": "Вы удерживаете в памяти больше информации, когда ведёте записи.",
+        "uz": "Qaydlar yozib borsangiz, ko'proq ma'lumotni yodda saqlaysiz."
+      }
+    },
+    {
+      "word": "brainstorm",
+      "part_of_speech": "verb",
+      "translation": "проводить мозговой штурм",
+      "translations": {
+        "ru": "проводить мозговой штурм",
+        "uz": "aqliy hujum o'tkazmoq"
+      },
+      "example": "Let's brainstorm ideas for our group project.",
+      "example_translations": {
+        "ru": "Давайте проведём мозговой штурм и найдём идеи для нашего группового проекта.",
+        "uz": "Keling, guruh loyihamizga g'oyalar topish uchun aqliy hujum o'tkazaylik."
+      }
+    },
+    {
+      "word": "skim",
+      "part_of_speech": "verb",
+      "translation": "бегло просматривать",
+      "translations": {
+        "ru": "бегло просматривать",
+        "uz": "ko'z yugurtirmoq"
+      },
+      "example": "Skim the chapter first to get the main idea.",
+      "example_translations": {
+        "ru": "Сначала бегло просмотрите главу, чтобы уловить основную мысль.",
+        "uz": "Asosiy g'oyani bilib olish uchun avval bobga ko'z yugurtiring."
+      }
+    },
+    {
+      "word": "compile",
+      "part_of_speech": "verb",
+      "translation": "составлять",
+      "translations": {
+        "ru": "составлять",
+        "uz": "tuzmoq"
+      },
+      "example": "We compiled a list of useful websites for students.",
+      "example_translations": {
+        "ru": "Мы составили список полезных сайтов для студентов.",
+        "uz": "Biz talabalar uchun foydali saytlar ro'yxatini tuzdik."
+      }
+    },
+    {
+      "word": "acquire",
+      "part_of_speech": "verb",
+      "translation": "овладевать, приобретать",
+      "translations": {
+        "ru": "овладевать, приобретать",
+        "uz": "egallamoq"
+      },
+      "example": "Children acquire language skills very quickly.",
+      "example_translations": {
+        "ru": "Дети очень быстро овладевают языковыми навыками.",
+        "uz": "Bolalar til ko'nikmalarini juda tez egallaydi."
+      }
+    }
+  ]
+}

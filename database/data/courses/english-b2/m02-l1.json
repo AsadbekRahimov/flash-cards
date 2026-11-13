@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 2,
+    "title": "Карьера и управление",
+    "title_uz": "Karyera va boshqaruv"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Наём и увольнение",
+    "title_uz": "Ishga olish va bo'shatish"
+  },
+  "words": [
+    {
+      "word": "recruit",
+      "part_of_speech": "verb",
+      "translation": "нанимать, набирать",
+      "translations": {
+        "ru": "нанимать, набирать",
+        "uz": "ishga olmoq, yollamoq"
+      },
+      "example": "We need to recruit twenty engineers this year.",
+      "example_translations": {
+        "ru": "В этом году нам нужно нанять двадцать инженеров.",
+        "uz": "Bu yil yigirmata muhandisni ishga olishimiz kerak."
+      }
+    },
+    {
+      "word": "applicant",
+      "part_of_speech": "noun",
+      "translation": "соискатель, кандидат",
+      "translations": {
+        "ru": "соискатель, кандидат",
+        "uz": "talabgor, nomzod"
+      },
+      "example": "More than fifty applicants want this one job.",
+      "example_translations": {
+        "ru": "На это одно место претендуют более пятидесяти соискателей.",
+        "uz": "Bu bitta ish o'rniga ellikdan ortiq talabgor bor."
+      }
+    },
+    {
+      "word": "apprenticeship",
+      "part_of_speech": "noun",
+      "translation": "ученичество, обучение ремеслу",
+      "translations": {
+        "ru": "ученичество, обучение ремеслу",
+        "uz": "shogirdlik"
+      },
+      "example": "After school, Aziz started an apprenticeship with a baker.",
+      "example_translations": {
+        "ru": "После школы Азиз начал обучение ремеслу у пекаря.",
+        "uz": "Maktabdan keyin Aziz novvoyga shogirdlikka tushdi."
+      }
+    },
+    {
+      "word": "probation",
+      "part_of_speech": "noun",
+      "translation": "испытательный срок",
+      "translations": {
+        "ru": "испытательный срок",
+        "uz": "sinov muddati"
+      },
+      "example": "New workers are on probation for three months.",
+      "example_translations": {
+        "ru": "Новые работники три месяца проходят испытательный срок.",
+        "uz": "Yangi xodimlar uch oy sinov muddatini o'taydi."
+      }
+    },
+    {
+      "word": "appoint",
+      "part_of_speech": "verb",
+      "translation": "назначать",
+      "translations": {
+        "ru": "назначать",
+        "uz": "tayinlamoq"
+      },
+      "example": "The board appointed Mr. Brown head of sales.",
+      "example_translations": {
+        "ru": "Совет директоров назначил мистера Брауна руководителем отдела продаж.",
+        "uz": "Direktorlar kengashi janob Braunni savdo bo'limi boshlig'i etib tayinladi."
+      }
+    },
+    {
+      "word": "resignation",
+      "part_of_speech": "noun",
+      "translation": "отставка, уход с должности",
+      "translations": {
+        "ru": "отставка, уход с должности",
+        "uz": "iste'fo"
+      },
+      "example": "The director announced her resignation at the meeting.",
+      "example_translations": {
+        "ru": "Директор объявила о своей отставке на собрании.",
+        "uz": "Direktor yig'ilishda iste'foga chiqishini e'lon qildi."
+      }
+    },
+    {
+      "word": "dismiss",
+      "part_of_speech": "verb",
+      "translation": "увольнять",
+      "translations": {
+        "ru": "увольнять",
+        "uz": "ishdan bo'shatmoq"
+      },
+      "example": "Why did the firm dismiss such a good worker?",
+      "example_translations": {
+        "ru": "Почему фирма уволила такого хорошего работника?",
+        "uz": "Nega firma shunday yaxshi ishchini ishdan bo'shatdi?"
+      }
+    },
+    {
+      "word": "layoff",
+      "part_of_speech": "noun",
+      "translation": "сокращение штата",
+      "translations": {
+        "ru": "сокращение штата",
+        "uz": "xodimlarni qisqartirish"
+      },
+      "example": "Falling sales led to layoffs at the factory.",
+      "example_translations": {
+        "ru": "Падение продаж привело к сокращению штата на заводе.",
+        "uz": "Savdo hajmining kamayishi zavodda xodimlarni qisqartirishga olib keldi."
+      }
+    },
+    {
+      "word": "personnel",
+      "part_of_speech": "noun",
+      "translation": "персонал, кадры",
+      "translations": {
+        "ru": "персонал, кадры",
+        "uz": "xodimlar, kadrlar"
+      },
+      "example": "Only trained personnel can use this machine.",
+      "example_translations": {
+        "ru": "Только обученный персонал может работать на этом станке.",
+        "uz": "Bu dastgohda faqat maxsus tayyorgarlikdan o'tgan xodimlar ishlay oladi."
+      }
+    },
+    {
+      "word": "shortlist",
+      "part_of_speech": "noun",
+      "translation": "список отобранных кандидатов",
+      "translations": {
+        "ru": "список отобранных кандидатов",
+        "uz": "saralangan nomzodlar ro'yxati"
+      },
+      "example": "Three candidates are on the shortlist for the job.",
+      "example_translations": {
+        "ru": "В списке отобранных кандидатов на эту должность три человека.",
+        "uz": "Bu ish o'rniga saralangan nomzodlar ro'yxatida uch kishi bor."
+      }
+    }
+  ]
+}

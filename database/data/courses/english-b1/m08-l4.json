@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 8,
+    "title": "Деньги и покупки",
+    "title_uz": "Pul va xaridlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Цены и скидки",
+    "title_uz": "Narxlar va chegirmalar"
+  },
+  "words": [
+    {
+      "word": "coupon",
+      "part_of_speech": "noun",
+      "translation": "купон",
+      "translations": {
+        "ru": "купон",
+        "uz": "kupon"
+      },
+      "example": "With this coupon, you get ten percent off.",
+      "example_translations": {
+        "ru": "С этим купоном вы получаете скидку десять процентов.",
+        "uz": "Bu kupon bilan siz o'n foiz chegirma olasiz."
+      }
+    },
+    {
+      "word": "reduce",
+      "part_of_speech": "verb",
+      "translation": "снижать, уменьшать",
+      "translations": {
+        "ru": "снижать, уменьшать",
+        "uz": "pasaytirmoq, kamaytirmoq"
+      },
+      "example": "The store reduced the price of winter coats.",
+      "example_translations": {
+        "ru": "Магазин снизил цену на зимние пальто.",
+        "uz": "Do'kon qishki paltolar narxini pasaytirdi."
+      }
+    },
+    {
+      "word": "affordable",
+      "part_of_speech": "adjective",
+      "translation": "доступный по цене",
+      "translations": {
+        "ru": "доступный по цене",
+        "uz": "hamyonbop"
+      },
+      "example": "This store sells good clothes at affordable prices.",
+      "example_translations": {
+        "ru": "Этот магазин продаёт хорошую одежду по доступным ценам.",
+        "uz": "Bu do'kon yaxshi kiyimlarni hamyonbop narxlarda sotadi."
+      }
+    },
+    {
+      "word": "luxury",
+      "part_of_speech": "noun",
+      "translation": "роскошь",
+      "translations": {
+        "ru": "роскошь",
+        "uz": "hashamat"
+      },
+      "example": "A new car is a luxury for our family.",
+      "example_translations": {
+        "ru": "Новая машина — роскошь для нашей семьи.",
+        "uz": "Yangi mashina oilamiz uchun hashamat hisoblanadi."
+      }
+    },
+    {
+      "word": "deal",
+      "part_of_speech": "noun",
+      "translation": "выгодное предложение, сделка",
+      "translations": {
+        "ru": "выгодное предложение, сделка",
+        "uz": "foydali taklif, bitim"
+      },
+      "example": "Two shirts for ten dollars is a great deal.",
+      "example_translations": {
+        "ru": "Две рубашки за десять долларов — очень выгодное предложение.",
+        "uz": "Ikkita ko'ylak o'n dollarga — juda foydali taklif."
+      }
+    },
+    {
+      "word": "guarantee",
+      "part_of_speech": "verb",
+      "translation": "гарантировать",
+      "translations": {
+        "ru": "гарантировать",
+        "uz": "kafolatlamoq"
+      },
+      "example": "We guarantee the lowest prices in the city.",
+      "example_translations": {
+        "ru": "Мы гарантируем самые низкие цены в городе.",
+        "uz": "Biz shahardagi eng past narxlarni kafolatlaymiz."
+      }
+    },
+    {
+      "word": "estimate",
+      "part_of_speech": "verb",
+      "translation": "приблизительно оценивать",
+      "translations": {
+        "ru": "приблизительно оценивать",
+        "uz": "chamalamoq"
+      },
+      "example": "Can you estimate the price of the repair?",
+      "example_translations": {
+        "ru": "Вы можете приблизительно оценить стоимость ремонта?",
+        "uz": "Ta'mirlash narxini chamalab bera olasizmi?"
+      }
+    },
+    {
+      "word": "total",
+      "part_of_speech": "noun",
+      "translation": "общая сумма, итог",
+      "translations": {
+        "ru": "общая сумма, итог",
+        "uz": "umumiy summa, jami"
+      },
+      "example": "The total at the bottom of the receipt was wrong.",
+      "example_translations": {
+        "ru": "Общая сумма внизу чека была неправильной.",
+        "uz": "Chekning pastidagi umumiy summa noto'g'ri edi."
+      }
+    },
+    {
+      "word": "range",
+      "part_of_speech": "noun",
+      "translation": "диапазон",
+      "translations": {
+        "ru": "диапазон",
+        "uz": "oraliq"
+      },
+      "example": "What is the price range for these laptops?",
+      "example_translations": {
+        "ru": "Какой диапазон цен на эти ноутбуки?",
+        "uz": "Bu noutbuklarning narx oralig'i qanday?"
+      }
+    },
+    {
+      "word": "compare",
+      "part_of_speech": "verb",
+      "translation": "сравнивать",
+      "translations": {
+        "ru": "сравнивать",
+        "uz": "solishtirmoq, taqqoslamoq"
+      },
+      "example": "I always compare prices before I buy something.",
+      "example_translations": {
+        "ru": "Я всегда сравниваю цены, прежде чем что-то купить.",
+        "uz": "Biror narsa sotib olishdan oldin doim narxlarni solishtiraman."
+      }
+    }
+  ]
+}

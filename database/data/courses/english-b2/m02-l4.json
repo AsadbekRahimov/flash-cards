@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 2,
+    "title": "Карьера и управление",
+    "title_uz": "Karyera va boshqaruv"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Рабочие процессы",
+    "title_uz": "Ish jarayonlari"
+  },
+  "words": [
+    {
+      "word": "procedure",
+      "part_of_speech": "noun",
+      "translation": "процедура, порядок",
+      "translations": {
+        "ru": "процедура, порядок",
+        "uz": "tartib, tartib-taomil"
+      },
+      "example": "What is the procedure for ordering new equipment?",
+      "example_translations": {
+        "ru": "Какова процедура заказа нового оборудования?",
+        "uz": "Yangi uskunaga buyurtma berish tartibi qanday?"
+      }
+    },
+    {
+      "word": "agenda",
+      "part_of_speech": "noun",
+      "translation": "повестка дня",
+      "translations": {
+        "ru": "повестка дня",
+        "uz": "kun tartibi"
+      },
+      "example": "The first item on the agenda is the budget.",
+      "example_translations": {
+        "ru": "Первый пункт повестки дня — бюджет.",
+        "uz": "Kun tartibidagi birinchi masala — budjet."
+      }
+    },
+    {
+      "word": "assign",
+      "part_of_speech": "verb",
+      "translation": "поручать",
+      "translations": {
+        "ru": "поручать",
+        "uz": "yuklamoq, topshiriq bermoq"
+      },
+      "example": "The manager assigned this difficult task to Anna.",
+      "example_translations": {
+        "ru": "Руководитель поручил эту трудную задачу Анне.",
+        "uz": "Rahbar bu qiyin vazifani Annaga yukladi."
+      }
+    },
+    {
+      "word": "allocate",
+      "part_of_speech": "verb",
+      "translation": "выделять, распределять",
+      "translations": {
+        "ru": "выделять, распределять",
+        "uz": "ajratmoq"
+      },
+      "example": "The company allocated extra funds for staff training.",
+      "example_translations": {
+        "ru": "Компания выделила дополнительные средства на обучение персонала.",
+        "uz": "Kompaniya xodimlarni o'qitish uchun qo'shimcha mablag' ajratdi."
+      }
+    },
+    {
+      "word": "implement",
+      "part_of_speech": "verb",
+      "translation": "внедрять, осуществлять",
+      "translations": {
+        "ru": "внедрять, осуществлять",
+        "uz": "joriy etmoq"
+      },
+      "example": "We will implement the new system next month.",
+      "example_translations": {
+        "ru": "Мы внедрим новую систему в следующем месяце.",
+        "uz": "Yangi tizimni kelasi oy joriy etamiz."
+      }
+    },
+    {
+      "word": "consult",
+      "part_of_speech": "verb",
+      "translation": "консультироваться, советоваться",
+      "translations": {
+        "ru": "консультироваться, советоваться",
+        "uz": "maslahatlashmoq"
+      },
+      "example": "Consult a lawyer before you sign the contract.",
+      "example_translations": {
+        "ru": "Проконсультируйтесь с юристом, прежде чем подписывать договор.",
+        "uz": "Shartnomani imzolashdan oldin huquqshunos bilan maslahatlashing."
+      }
+    },
+    {
+      "word": "collaborate",
+      "part_of_speech": "verb",
+      "translation": "сотрудничать",
+      "translations": {
+        "ru": "сотрудничать",
+        "uz": "hamkorlik qilmoq"
+      },
+      "example": "Our two teams collaborate on every big project.",
+      "example_translations": {
+        "ru": "Две наши команды сотрудничают в каждом крупном проекте.",
+        "uz": "Ikki jamoamiz har bir yirik loyihada hamkorlik qiladi."
+      }
+    },
+    {
+      "word": "submit",
+      "part_of_speech": "verb",
+      "translation": "сдавать, подавать",
+      "translations": {
+        "ru": "сдавать, подавать",
+        "uz": "topshirmoq, taqdim etmoq"
+      },
+      "example": "Each team leader submits a short report on Fridays.",
+      "example_translations": {
+        "ru": "Каждый руководитель группы по пятницам сдаёт короткий отчёт.",
+        "uz": "Har bir guruh rahbari juma kunlari qisqa hisobot topshiradi."
+      }
+    },
+    {
+      "word": "authorize",
+      "part_of_speech": "verb",
+      "translation": "официально разрешать",
+      "translations": {
+        "ru": "официально разрешать",
+        "uz": "rasman ruxsat bermoq"
+      },
+      "example": "Only the director can authorize such a large payment.",
+      "example_translations": {
+        "ru": "Только директор может официально разрешить такой крупный платёж.",
+        "uz": "Bunday katta to'lovga faqat direktor rasman ruxsat bera oladi."
+      }
+    },
+    {
+      "word": "prioritize",
+      "part_of_speech": "verb",
+      "translation": "расставлять приоритеты",
+      "translations": {
+        "ru": "расставлять приоритеты",
+        "uz": "ustuvorliklarni belgilamoq"
+      },
+      "example": "With so many tasks, you must learn to prioritize.",
+      "example_translations": {
+        "ru": "Когда задач так много, нужно научиться расставлять приоритеты.",
+        "uz": "Vazifalar shunchalik ko'p bo'lganda, ustuvorliklarni belgilashni o'rganish kerak."
+      }
+    }
+  ]
+}

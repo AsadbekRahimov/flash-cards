@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 13,
+    "title": "Общество и глобальные проблемы",
+    "title_uz": "Jamiyat va global muammolar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Глобальные кризисы",
+    "title_uz": "Global inqirozlar"
+  },
+  "words": [
+    {
+      "word": "globalization",
+      "part_of_speech": "noun",
+      "translation": "глобализация",
+      "translations": {
+        "ru": "глобализация",
+        "uz": "globallashuv"
+      },
+      "example": "Globalization connects markets all over the world.",
+      "example_translations": {
+        "ru": "Глобализация связывает рынки по всему миру.",
+        "uz": "Globallashuv butun dunyodagi bozorlarni bog'laydi."
+      }
+    },
+    {
+      "word": "famine",
+      "part_of_speech": "noun",
+      "translation": "массовый голод",
+      "translations": {
+        "ru": "массовый голод",
+        "uz": "ocharchilik"
+      },
+      "example": "Years without rain caused famine in the region.",
+      "example_translations": {
+        "ru": "Годы без дождей привели к массовому голоду в регионе.",
+        "uz": "Yomg'irsiz yillar mintaqada ocharchilikka sabab bo'ldi."
+      }
+    },
+    {
+      "word": "hunger",
+      "part_of_speech": "noun",
+      "translation": "голод",
+      "translations": {
+        "ru": "голод",
+        "uz": "ochlik"
+      },
+      "example": "Millions of people still suffer from hunger.",
+      "example_translations": {
+        "ru": "Миллионы людей до сих пор страдают от голода.",
+        "uz": "Millionlab odamlar hanuz ochlikdan aziyat chekmoqda."
+      }
+    },
+    {
+      "word": "pandemic",
+      "part_of_speech": "noun",
+      "translation": "пандемия",
+      "translations": {
+        "ru": "пандемия",
+        "uz": "pandemiya"
+      },
+      "example": "During the pandemic, many people worked from home.",
+      "example_translations": {
+        "ru": "Во время пандемии многие работали из дома.",
+        "uz": "Pandemiya davrida ko'pchilik uydan ishladi."
+      }
+    },
+    {
+      "word": "outbreak",
+      "part_of_speech": "noun",
+      "translation": "вспышка болезни",
+      "translations": {
+        "ru": "вспышка болезни",
+        "uz": "kasallikning avj olishi"
+      },
+      "example": "Doctors quickly stopped the outbreak of the disease.",
+      "example_translations": {
+        "ru": "Врачи быстро остановили вспышку болезни.",
+        "uz": "Shifokorlar kasallikning avj olishini tezda to'xtatishdi."
+      }
+    },
+    {
+      "word": "shortage",
+      "part_of_speech": "noun",
+      "translation": "нехватка, дефицит",
+      "translations": {
+        "ru": "нехватка, дефицит",
+        "uz": "tanqislik, yetishmovchilik"
+      },
+      "example": "The dry summer led to a water shortage.",
+      "example_translations": {
+        "ru": "Засушливое лето привело к нехватке воды.",
+        "uz": "Quruq kelgan yoz suv tanqisligiga olib keldi."
+      }
+    },
+    {
+      "word": "humanitarian",
+      "part_of_speech": "adjective",
+      "translation": "гуманитарный",
+      "translations": {
+        "ru": "гуманитарный",
+        "uz": "gumanitar"
+      },
+      "example": "Trucks carried humanitarian aid to the flooded villages.",
+      "example_translations": {
+        "ru": "Грузовики доставили гуманитарную помощь в затопленные сёла.",
+        "uz": "Yuk mashinalari suv bosgan qishloqlarga gumanitar yordam yetkazdi."
+      }
+    },
+    {
+      "word": "relief",
+      "part_of_speech": "noun",
+      "translation": "помощь пострадавшим",
+      "translations": {
+        "ru": "помощь пострадавшим",
+        "uz": "jabrlanganlarga yordam"
+      },
+      "example": "Relief arrived two days after the earthquake.",
+      "example_translations": {
+        "ru": "Помощь пострадавшим прибыла через два дня после землетрясения.",
+        "uz": "Jabrlanganlarga yordam zilziladan ikki kun o'tib yetib keldi."
+      }
+    },
+    {
+      "word": "malnutrition",
+      "part_of_speech": "noun",
+      "translation": "недоедание",
+      "translations": {
+        "ru": "недоедание",
+        "uz": "to'yib ovqatlanmaslik"
+      },
+      "example": "Malnutrition is dangerous for young children.",
+      "example_translations": {
+        "ru": "Недоедание опасно для маленьких детей.",
+        "uz": "To'yib ovqatlanmaslik yosh bolalar uchun xavfli."
+      }
+    },
+    {
+      "word": "sanitation",
+      "part_of_speech": "noun",
+      "translation": "санитария",
+      "translations": {
+        "ru": "санитария",
+        "uz": "sanitariya"
+      },
+      "example": "Clean water and good sanitation prevent many diseases.",
+      "example_translations": {
+        "ru": "Чистая вода и хорошая санитария предотвращают многие болезни.",
+        "uz": "Toza suv va yaxshi sanitariya ko'p kasalliklarning oldini oladi."
+      }
+    }
+  ]
+}

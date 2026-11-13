@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 15,
+    "title": "Общество и закон",
+    "title_uz": "Jamiyat va qonun"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Государство и власть",
+    "title_uz": "Davlat va hokimiyat"
+  },
+  "words": [
+    {
+      "word": "state",
+      "part_of_speech": "noun",
+      "translation": "государство",
+      "translations": {
+        "ru": "государство",
+        "uz": "davlat"
+      },
+      "example": "The state builds roads and schools for everyone.",
+      "example_translations": {
+        "ru": "Государство строит дороги и школы для всех.",
+        "uz": "Davlat hamma uchun yo'llar va maktablar quradi."
+      }
+    },
+    {
+      "word": "authority",
+      "part_of_speech": "noun",
+      "translation": "полномочия, власть",
+      "translations": {
+        "ru": "полномочия, власть",
+        "uz": "vakolat, hokimiyat"
+      },
+      "example": "Only the mayor has the authority to close roads.",
+      "example_translations": {
+        "ru": "Только у мэра есть полномочия перекрывать дороги.",
+        "uz": "Yo'llarni yopish vakolati faqat shahar hokimida bor."
+      }
+    },
+    {
+      "word": "official",
+      "part_of_speech": "noun",
+      "translation": "чиновник, должностное лицо",
+      "translations": {
+        "ru": "чиновник, должностное лицо",
+        "uz": "amaldor, mansabdor shaxs"
+      },
+      "example": "A city official answered all our questions.",
+      "example_translations": {
+        "ru": "Городской чиновник ответил на все наши вопросы.",
+        "uz": "Shahar amaldori barcha savollarimizga javob berdi."
+      }
+    },
+    {
+      "word": "minister",
+      "part_of_speech": "noun",
+      "translation": "министр",
+      "translations": {
+        "ru": "министр",
+        "uz": "vazir"
+      },
+      "example": "Last week the minister visited our school.",
+      "example_translations": {
+        "ru": "На прошлой неделе министр посетил нашу школу.",
+        "uz": "O'tgan hafta vazir maktabimizga tashrif buyurdi."
+      }
+    },
+    {
+      "word": "leader",
+      "part_of_speech": "noun",
+      "translation": "лидер, руководитель",
+      "translations": {
+        "ru": "лидер, руководитель",
+        "uz": "yetakchi, rahbar"
+      },
+      "example": "A good leader listens to other people.",
+      "example_translations": {
+        "ru": "Хороший лидер слушает других людей.",
+        "uz": "Yaxshi yetakchi boshqa odamlarni tinglaydi."
+      }
+    },
+    {
+      "word": "politics",
+      "part_of_speech": "noun",
+      "translation": "политика",
+      "translations": {
+        "ru": "политика",
+        "uz": "siyosat"
+      },
+      "example": "My grandfather likes to talk about politics.",
+      "example_translations": {
+        "ru": "Мой дедушка любит говорить о политике.",
+        "uz": "Bobom siyosat haqida gapirishni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "power",
+      "part_of_speech": "noun",
+      "translation": "власть",
+      "translations": {
+        "ru": "власть",
+        "uz": "hokimiyat"
+      },
+      "example": "In the past, a king had great power.",
+      "example_translations": {
+        "ru": "В прошлом король обладал большой властью.",
+        "uz": "O'tmishda qirol katta hokimiyatga ega edi."
+      }
+    },
+    {
+      "word": "region",
+      "part_of_speech": "noun",
+      "translation": "регион, область",
+      "translations": {
+        "ru": "регион, область",
+        "uz": "hudud, viloyat"
+      },
+      "example": "This region is famous for its sweet melons.",
+      "example_translations": {
+        "ru": "Этот регион славится сладкими дынями.",
+        "uz": "Bu hudud shirin qovunlari bilan mashhur."
+      }
+    },
+    {
+      "word": "embassy",
+      "part_of_speech": "noun",
+      "translation": "посольство",
+      "translations": {
+        "ru": "посольство",
+        "uz": "elchixona"
+      },
+      "example": "You can get a visa at the embassy.",
+      "example_translations": {
+        "ru": "Вы можете получить визу в посольстве.",
+        "uz": "Vizani elchixonadan olishingiz mumkin."
+      }
+    },
+    {
+      "word": "independence",
+      "part_of_speech": "noun",
+      "translation": "независимость",
+      "translations": {
+        "ru": "независимость",
+        "uz": "mustaqillik"
+      },
+      "example": "Every year the country celebrates its independence.",
+      "example_translations": {
+        "ru": "Каждый год страна празднует свою независимость.",
+        "uz": "Mamlakat har yili o'z mustaqilligini nishonlaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 2,
+    "title": "Карьера и управление",
+    "title_uz": "Karyera va boshqaruv"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Профессия и оплата",
+    "title_uz": "Kasb va ish haqi"
+  },
+  "words": [
+    {
+      "word": "expertise",
+      "part_of_speech": "noun",
+      "translation": "профессиональные знания, опыт",
+      "translations": {
+        "ru": "профессиональные знания, опыт",
+        "uz": "kasbiy bilim, tajriba"
+      },
+      "example": "We hired him for his expertise in marketing.",
+      "example_translations": {
+        "ru": "Мы наняли его за профессиональные знания в маркетинге.",
+        "uz": "Biz uni marketing sohasidagi kasbiy bilimi uchun ishga oldik."
+      }
+    },
+    {
+      "word": "vocation",
+      "part_of_speech": "noun",
+      "translation": "призвание",
+      "translations": {
+        "ru": "призвание",
+        "uz": "ko'ngil qo'ygan kasb"
+      },
+      "example": "For my aunt, teaching is a true vocation.",
+      "example_translations": {
+        "ru": "Для моей тёти преподавание — настоящее призвание.",
+        "uz": "Xolam uchun o'qituvchilik — chinakam ko'ngil qo'ygan kasb."
+      }
+    },
+    {
+      "word": "paycheck",
+      "part_of_speech": "noun",
+      "translation": "зарплата",
+      "translations": {
+        "ru": "зарплата",
+        "uz": "maosh, ish haqi"
+      },
+      "example": "Half of her paycheck goes to rent every month.",
+      "example_translations": {
+        "ru": "Половина её зарплаты каждый месяц уходит на аренду жилья.",
+        "uz": "Maoshining yarmi har oy ijara haqiga ketadi."
+      }
+    },
+    {
+      "word": "retirement",
+      "part_of_speech": "noun",
+      "translation": "выход на пенсию",
+      "translations": {
+        "ru": "выход на пенсию",
+        "uz": "nafaqaga chiqish"
+      },
+      "example": "After retirement, my father started growing roses.",
+      "example_translations": {
+        "ru": "После выхода на пенсию мой отец начал выращивать розы.",
+        "uz": "Nafaqaga chiqqach, otam atirgul o'stira boshladi."
+      }
+    },
+    {
+      "word": "allowance",
+      "part_of_speech": "noun",
+      "translation": "доплата, пособие",
+      "translations": {
+        "ru": "доплата, пособие",
+        "uz": "qo'shimcha to'lov, nafaqa"
+      },
+      "example": "She receives a housing allowance from her employer.",
+      "example_translations": {
+        "ru": "Она получает от работодателя доплату на жильё.",
+        "uz": "U ish beruvchidan uy-joy uchun qo'shimcha to'lov oladi."
+      }
+    },
+    {
+      "word": "compensation",
+      "part_of_speech": "noun",
+      "translation": "компенсация, возмещение",
+      "translations": {
+        "ru": "компенсация, возмещение",
+        "uz": "kompensatsiya, tovon"
+      },
+      "example": "Injured workers have the right to compensation.",
+      "example_translations": {
+        "ru": "Пострадавшие работники имеют право на компенсацию.",
+        "uz": "Jarohat olgan ishchilar kompensatsiya olish huquqiga ega."
+      }
+    },
+    {
+      "word": "relocate",
+      "part_of_speech": "verb",
+      "translation": "переезжать",
+      "translations": {
+        "ru": "переезжать",
+        "uz": "ko'chib o'tmoq"
+      },
+      "example": "She relocated to the capital for a better job.",
+      "example_translations": {
+        "ru": "Она переехала в столицу ради лучшей работы.",
+        "uz": "U yaxshiroq ish uchun poytaxtga ko'chib o'tdi."
+      }
+    },
+    {
+      "word": "workforce",
+      "part_of_speech": "noun",
+      "translation": "рабочая сила",
+      "translations": {
+        "ru": "рабочая сила",
+        "uz": "ishchi kuchi"
+      },
+      "example": "Women make up half of the workforce here.",
+      "example_translations": {
+        "ru": "Женщины составляют здесь половину рабочей силы.",
+        "uz": "Bu yerda ishchi kuchining yarmini ayollar tashkil etadi."
+      }
+    },
+    {
+      "word": "union",
+      "part_of_speech": "noun",
+      "translation": "профсоюз",
+      "translations": {
+        "ru": "профсоюз",
+        "uz": "kasaba uyushmasi"
+      },
+      "example": "The union demands higher pay for factory workers.",
+      "example_translations": {
+        "ru": "Профсоюз требует повышения зарплаты для рабочих завода.",
+        "uz": "Kasaba uyushmasi zavod ishchilarining maoshini oshirishni talab qilmoqda."
+      }
+    },
+    {
+      "word": "strike",
+      "part_of_speech": "noun",
+      "translation": "забастовка",
+      "translations": {
+        "ru": "забастовка",
+        "uz": "ish tashlash"
+      },
+      "example": "The bus drivers' strike lasted three days.",
+      "example_translations": {
+        "ru": "Забастовка водителей автобусов длилась три дня.",
+        "uz": "Avtobus haydovchilarining ish tashlashi uch kun davom etdi."
+      }
+    }
+  ]
+}

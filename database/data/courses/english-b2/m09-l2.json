@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 9,
+    "title": "Право и безопасность",
+    "title_uz": "Huquq va xavfsizlik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Преступления",
+    "title_uz": "Jinoyatlar"
+  },
+  "words": [
+    {
+      "word": "theft",
+      "part_of_speech": "noun",
+      "translation": "кража",
+      "translations": {
+        "ru": "кража",
+        "uz": "o'g'irlik"
+      },
+      "example": "Bike theft is a common problem in this city.",
+      "example_translations": {
+        "ru": "Кража велосипедов — частая проблема в этом городе.",
+        "uz": "Velosiped o'g'irligi — bu shaharda keng tarqalgan muammo."
+      }
+    },
+    {
+      "word": "forgery",
+      "part_of_speech": "noun",
+      "translation": "подделка",
+      "translations": {
+        "ru": "подделка",
+        "uz": "qalbakilashtirish"
+      },
+      "example": "He was charged with forgery of official documents.",
+      "example_translations": {
+        "ru": "Его обвинили в подделке официальных документов.",
+        "uz": "U rasmiy hujjatlarni qalbakilashtirishda ayblandi."
+      }
+    },
+    {
+      "word": "burglary",
+      "part_of_speech": "noun",
+      "translation": "кража со взломом",
+      "translations": {
+        "ru": "кража со взломом",
+        "uz": "uyga o'g'irlikka tushish"
+      },
+      "example": "There was a burglary at our neighbor's house last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью в доме нашего соседа произошла кража со взломом.",
+        "uz": "Kecha tunda qo'shnimizning uyiga o'g'irlikka tushishdi."
+      }
+    },
+    {
+      "word": "fraud",
+      "part_of_speech": "noun",
+      "translation": "мошенничество",
+      "translations": {
+        "ru": "мошенничество",
+        "uz": "firibgarlik"
+      },
+      "example": "Online fraud costs people a lot of money.",
+      "example_translations": {
+        "ru": "Из-за мошенничества в интернете люди теряют много денег.",
+        "uz": "Internetdagi firibgarlik tufayli odamlar ko'p pul yo'qotadi."
+      }
+    },
+    {
+      "word": "bribery",
+      "part_of_speech": "noun",
+      "translation": "взяточничество",
+      "translations": {
+        "ru": "взяточничество",
+        "uz": "poraxo'rlik"
+      },
+      "example": "The official lost his job because of bribery.",
+      "example_translations": {
+        "ru": "Чиновник потерял работу из-за взяточничества.",
+        "uz": "Amaldor poraxo'rlik tufayli ishidan ayrildi."
+      }
+    },
+    {
+      "word": "robbery",
+      "part_of_speech": "noun",
+      "translation": "ограбление",
+      "translations": {
+        "ru": "ограбление",
+        "uz": "talonchilik"
+      },
+      "example": "Cameras recorded the robbery at the jewelry store.",
+      "example_translations": {
+        "ru": "Камеры записали ограбление ювелирного магазина.",
+        "uz": "Kameralar zargarlik do'konidagi talonchilikni yozib oldi."
+      }
+    },
+    {
+      "word": "vandalism",
+      "part_of_speech": "noun",
+      "translation": "вандализм",
+      "translations": {
+        "ru": "вандализм",
+        "uz": "vandalizm"
+      },
+      "example": "Breaking park benches is an act of vandalism.",
+      "example_translations": {
+        "ru": "Ломать скамейки в парке — это акт вандализма.",
+        "uz": "Bog'dagi o'rindiqlarni sindirish vandalizm hisoblanadi."
+      }
+    },
+    {
+      "word": "corruption",
+      "part_of_speech": "noun",
+      "translation": "коррупция",
+      "translations": {
+        "ru": "коррупция",
+        "uz": "korrupsiya"
+      },
+      "example": "The new law helps to fight corruption.",
+      "example_translations": {
+        "ru": "Новый закон помогает бороться с коррупцией.",
+        "uz": "Yangi qonun korrupsiyaga qarshi kurashishga yordam beradi."
+      }
+    },
+    {
+      "word": "offense",
+      "part_of_speech": "noun",
+      "translation": "правонарушение",
+      "translations": {
+        "ru": "правонарушение",
+        "uz": "huquqbuzarlik"
+      },
+      "example": "Driving without a license is a serious offense.",
+      "example_translations": {
+        "ru": "Вождение без прав — серьёзное правонарушение.",
+        "uz": "Haydovchilik guvohnomasisiz mashina haydash — jiddiy huquqbuzarlik."
+      }
+    },
+    {
+      "word": "culprit",
+      "part_of_speech": "noun",
+      "translation": "виновник",
+      "translations": {
+        "ru": "виновник",
+        "uz": "aybdor"
+      },
+      "example": "Did the police ever find the culprit?",
+      "example_translations": {
+        "ru": "Полиция в итоге нашла виновника?",
+        "uz": "Politsiya oxir-oqibat aybdorni topdimi?"
+      }
+    }
+  ]
+}

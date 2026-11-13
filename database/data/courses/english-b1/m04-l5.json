@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 4,
+    "title": "Еда и кулинария",
+    "title_uz": "Taom va pazandachilik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "В ресторане",
+    "title_uz": "Restoranda"
+  },
+  "words": [
+    {
+      "word": "cuisine",
+      "part_of_speech": "noun",
+      "translation": "кухня, кулинария",
+      "translations": {
+        "ru": "кухня, кулинария",
+        "uz": "oshxona, pazandachilik"
+      },
+      "example": "Italian cuisine is popular all over the world.",
+      "example_translations": {
+        "ru": "Итальянская кухня популярна во всём мире.",
+        "uz": "Italyan oshxonasi butun dunyoda mashhur."
+      }
+    },
+    {
+      "word": "portion",
+      "part_of_speech": "noun",
+      "translation": "порция",
+      "translations": {
+        "ru": "порция",
+        "uz": "porsiya"
+      },
+      "example": "The portions in this cafe are really big.",
+      "example_translations": {
+        "ru": "Порции в этом кафе действительно большие.",
+        "uz": "Bu kafeda porsiyalar chindan ham katta."
+      }
+    },
+    {
+      "word": "vegan",
+      "part_of_speech": "noun",
+      "translation": "веган",
+      "translations": {
+        "ru": "веган",
+        "uz": "vegan"
+      },
+      "example": "A vegan does not eat meat, eggs, or cheese.",
+      "example_translations": {
+        "ru": "Веган не ест мясо, яйца и сыр.",
+        "uz": "Vegan go'sht, tuxum va pishloq yemaydi."
+      }
+    },
+    {
+      "word": "appetizer",
+      "part_of_speech": "noun",
+      "translation": "закуска",
+      "translations": {
+        "ru": "закуска",
+        "uz": "gazak"
+      },
+      "example": "We ordered a light appetizer before the main dish.",
+      "example_translations": {
+        "ru": "Перед основным блюдом мы заказали лёгкую закуску.",
+        "uz": "Asosiy taomdan oldin yengil gazak buyurtma qildik."
+      }
+    },
+    {
+      "word": "tip",
+      "part_of_speech": "noun",
+      "translation": "чаевые",
+      "translations": {
+        "ru": "чаевые",
+        "uz": "choychaqa"
+      },
+      "example": "We left a tip for the friendly waiter.",
+      "example_translations": {
+        "ru": "Мы оставили чаевые приветливому официанту.",
+        "uz": "Xushmuomala ofitsiantga choychaqa qoldirdik."
+      }
+    },
+    {
+      "word": "serve",
+      "part_of_speech": "verb",
+      "translation": "подавать",
+      "translations": {
+        "ru": "подавать",
+        "uz": "dasturxonga tortmoq"
+      },
+      "example": "The waiter served our soup in deep bowls.",
+      "example_translations": {
+        "ru": "Официант подал наш суп в глубоких мисках.",
+        "uz": "Ofitsiant sho'rvamizni chuqur kosalarda dasturxonga tortdi."
+      }
+    },
+    {
+      "word": "chef",
+      "part_of_speech": "noun",
+      "translation": "шеф-повар",
+      "translations": {
+        "ru": "шеф-повар",
+        "uz": "bosh oshpaz"
+      },
+      "example": "The chef of this restaurant cooks amazing fish dishes.",
+      "example_translations": {
+        "ru": "Шеф-повар этого ресторана готовит потрясающие рыбные блюда.",
+        "uz": "Bu restoranning bosh oshpazi ajoyib baliq taomlarini tayyorlaydi."
+      }
+    },
+    {
+      "word": "chew",
+      "part_of_speech": "verb",
+      "translation": "жевать",
+      "translations": {
+        "ru": "жевать",
+        "uz": "chaynamoq"
+      },
+      "example": "Eat slowly and chew your food well.",
+      "example_translations": {
+        "ru": "Ешьте медленно и хорошо жуйте пищу.",
+        "uz": "Sekin ovqatlaning va ovqatni yaxshilab chaynang."
+      }
+    },
+    {
+      "word": "swallow",
+      "part_of_speech": "verb",
+      "translation": "глотать",
+      "translations": {
+        "ru": "глотать",
+        "uz": "yutmoq"
+      },
+      "example": "Do not talk before you swallow your food.",
+      "example_translations": {
+        "ru": "Не разговаривайте, пока не проглотите еду.",
+        "uz": "Ovqatni yutmaguningizcha gapirmang."
+      }
+    },
+    {
+      "word": "buffet",
+      "part_of_speech": "noun",
+      "translation": "шведский стол",
+      "translations": {
+        "ru": "шведский стол",
+        "uz": "shved stoli"
+      },
+      "example": "At a buffet, you choose the food yourself.",
+      "example_translations": {
+        "ru": "На шведском столе вы сами выбираете еду.",
+        "uz": "Shved stolida taomni o'zingiz tanlaysiz."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 4,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Естественные науки",
+    "title_uz": "Tabiiy fanlar"
+  },
+  "words": [
+    {
+      "word": "molecule",
+      "part_of_speech": "noun",
+      "translation": "молекула",
+      "translations": {
+        "ru": "молекула",
+        "uz": "molekula"
+      },
+      "example": "A water molecule is too small to see.",
+      "example_translations": {
+        "ru": "Молекула воды слишком мала, чтобы её увидеть.",
+        "uz": "Suv molekulasi ko'rib bo'lmaydigan darajada kichik."
+      }
+    },
+    {
+      "word": "atom",
+      "part_of_speech": "noun",
+      "translation": "атом",
+      "translations": {
+        "ru": "атом",
+        "uz": "atom"
+      },
+      "example": "An atom is the smallest part of an element.",
+      "example_translations": {
+        "ru": "Атом — мельчайшая часть химического элемента.",
+        "uz": "Atom — kimyoviy elementning eng kichik qismi."
+      }
+    },
+    {
+      "word": "particle",
+      "part_of_speech": "noun",
+      "translation": "частица",
+      "translations": {
+        "ru": "частица",
+        "uz": "zarra"
+      },
+      "example": "Dust particles floated in the sunlight.",
+      "example_translations": {
+        "ru": "В солнечном свете плавали частицы пыли.",
+        "uz": "Quyosh nurida chang zarralari suzib yurardi."
+      }
+    },
+    {
+      "word": "nucleus",
+      "part_of_speech": "noun",
+      "translation": "ядро",
+      "translations": {
+        "ru": "ядро",
+        "uz": "yadro"
+      },
+      "example": "The nucleus is the center of an atom.",
+      "example_translations": {
+        "ru": "Ядро — это центр атома.",
+        "uz": "Yadro — atomning markazi."
+      }
+    },
+    {
+      "word": "gene",
+      "part_of_speech": "noun",
+      "translation": "ген",
+      "translations": {
+        "ru": "ген",
+        "uz": "gen"
+      },
+      "example": "This gene determines the color of your eyes.",
+      "example_translations": {
+        "ru": "Этот ген определяет цвет ваших глаз.",
+        "uz": "Bu gen ko'zingizning rangini belgilaydi."
+      }
+    },
+    {
+      "word": "organism",
+      "part_of_speech": "noun",
+      "translation": "организм",
+      "translations": {
+        "ru": "организм",
+        "uz": "organizm"
+      },
+      "example": "Every living organism needs water to survive.",
+      "example_translations": {
+        "ru": "Каждому живому организму для выживания нужна вода.",
+        "uz": "Har bir tirik organizm yashashi uchun suvga muhtoj."
+      }
+    },
+    {
+      "word": "gravity",
+      "part_of_speech": "noun",
+      "translation": "гравитация, сила тяжести",
+      "translations": {
+        "ru": "гравитация, сила тяжести",
+        "uz": "tortishish kuchi, gravitatsiya"
+      },
+      "example": "Gravity keeps the planets moving around the sun.",
+      "example_translations": {
+        "ru": "Гравитация удерживает планеты на орбите вокруг Солнца.",
+        "uz": "Tortishish kuchi sayyoralarni Quyosh atrofidagi orbitada ushlab turadi."
+      }
+    },
+    {
+      "word": "radiation",
+      "part_of_speech": "noun",
+      "translation": "излучение, радиация",
+      "translations": {
+        "ru": "излучение, радиация",
+        "uz": "nurlanish, radiatsiya"
+      },
+      "example": "Sunscreen protects your skin from harmful radiation.",
+      "example_translations": {
+        "ru": "Солнцезащитный крем защищает кожу от вредного излучения.",
+        "uz": "Quyoshdan himoyalovchi krem terini zararli nurlanishdan saqlaydi."
+      }
+    },
+    {
+      "word": "substance",
+      "part_of_speech": "noun",
+      "translation": "вещество",
+      "translations": {
+        "ru": "вещество",
+        "uz": "modda"
+      },
+      "example": "Ice, water and steam are the same substance.",
+      "example_translations": {
+        "ru": "Лёд, вода и пар — одно и то же вещество.",
+        "uz": "Muz, suv va bug' — aynan bitta modda."
+      }
+    },
+    {
+      "word": "hydrogen",
+      "part_of_speech": "noun",
+      "translation": "водород",
+      "translations": {
+        "ru": "водород",
+        "uz": "vodorod"
+      },
+      "example": "Hydrogen is the lightest gas in the universe.",
+      "example_translations": {
+        "ru": "Водород — самый лёгкий газ во Вселенной.",
+        "uz": "Vodorod — koinotdagi eng yengil gaz."
+      }
+    }
+  ]
+}

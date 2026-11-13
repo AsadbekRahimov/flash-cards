@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Согласие и возражение",
+    "title_uz": "Rozilik va e'tiroz"
+  },
+  "words": [
+    {
+      "word": "objection",
+      "part_of_speech": "noun",
+      "translation": "возражение",
+      "translations": {
+        "ru": "возражение",
+        "uz": "e'tiroz"
+      },
+      "example": "Does anyone have an objection to this plan?",
+      "example_translations": {
+        "ru": "У кого-нибудь есть возражения против этого плана?",
+        "uz": "Bu rejaga kimningdir e'tirozi bormi?"
+      }
+    },
+    {
+      "word": "oppose",
+      "part_of_speech": "verb",
+      "translation": "выступать против",
+      "translations": {
+        "ru": "выступать против",
+        "uz": "qarshi chiqmoq"
+      },
+      "example": "Most students oppose the idea of longer lessons.",
+      "example_translations": {
+        "ru": "Большинство учеников выступает против идеи более длинных уроков.",
+        "uz": "O'quvchilarning ko'pchiligi darslarni uzaytirish g'oyasiga qarshi chiqmoqda."
+      }
+    },
+    {
+      "word": "dispute",
+      "part_of_speech": "noun",
+      "translation": "спор, разногласие",
+      "translations": {
+        "ru": "спор, разногласие",
+        "uz": "nizo, kelishmovchilik"
+      },
+      "example": "The two neighbors finally settled their dispute.",
+      "example_translations": {
+        "ru": "Двое соседей наконец уладили свой спор.",
+        "uz": "Ikki qo'shni nihoyat o'z nizosini hal qildi."
+      }
+    },
+    {
+      "word": "contradict",
+      "part_of_speech": "verb",
+      "translation": "противоречить",
+      "translations": {
+        "ru": "противоречить",
+        "uz": "zid kelmoq"
+      },
+      "example": "The new results contradict the earlier study.",
+      "example_translations": {
+        "ru": "Новые результаты противоречат более раннему исследованию.",
+        "uz": "Yangi natijalar avvalgi tadqiqotga zid keladi."
+      }
+    },
+    {
+      "word": "endorse",
+      "part_of_speech": "verb",
+      "translation": "одобрять, поддерживать",
+      "translations": {
+        "ru": "одобрять, поддерживать",
+        "uz": "ma'qullamoq, qo'llab-quvvatlamoq"
+      },
+      "example": "The committee endorsed the proposal without changes.",
+      "example_translations": {
+        "ru": "Комитет одобрил предложение без изменений.",
+        "uz": "Qo'mita taklifni o'zgarishsiz ma'qulladi."
+      }
+    },
+    {
+      "word": "concede",
+      "part_of_speech": "verb",
+      "translation": "нехотя признавать, уступать",
+      "translations": {
+        "ru": "нехотя признавать, уступать",
+        "uz": "noiloj tan olmoq, yon bermoq"
+      },
+      "example": "Finally, Tom conceded that Anna was right.",
+      "example_translations": {
+        "ru": "В конце концов Том нехотя признал, что Анна права.",
+        "uz": "Nihoyat, Tom Anna haq ekanini noiloj tan oldi."
+      }
+    },
+    {
+      "word": "consensus",
+      "part_of_speech": "noun",
+      "translation": "консенсус, общее согласие",
+      "translations": {
+        "ru": "консенсус, общее согласие",
+        "uz": "umumiy kelishuv, yakdillik"
+      },
+      "example": "The group finally reached a consensus on the budget.",
+      "example_translations": {
+        "ru": "Группа наконец пришла к консенсусу по бюджету.",
+        "uz": "Guruh nihoyat budjet bo'yicha umumiy kelishuvga erishdi."
+      }
+    },
+    {
+      "word": "skeptical",
+      "part_of_speech": "adjective",
+      "translation": "скептический, недоверчивый",
+      "translations": {
+        "ru": "скептический, недоверчивый",
+        "uz": "shubha bilan qaraydigan"
+      },
+      "example": "Experts are skeptical about the new diet.",
+      "example_translations": {
+        "ru": "Эксперты скептически относятся к новой диете.",
+        "uz": "Mutaxassislar yangi parhezga shubha bilan qaraydi."
+      }
+    },
+    {
+      "word": "reject",
+      "part_of_speech": "verb",
+      "translation": "отвергать, отклонять",
+      "translations": {
+        "ru": "отвергать, отклонять",
+        "uz": "rad etmoq"
+      },
+      "example": "The manager rejected our idea without any explanation.",
+      "example_translations": {
+        "ru": "Менеджер отверг нашу идею без каких-либо объяснений.",
+        "uz": "Menejer g'oyamizni hech qanday izohsiz rad etdi."
+      }
+    },
+    {
+      "word": "disapprove",
+      "part_of_speech": "verb",
+      "translation": "не одобрять",
+      "translations": {
+        "ru": "не одобрять",
+        "uz": "noma'qul deb bilmoq"
+      },
+      "example": "Many teachers disapprove of homework during holidays.",
+      "example_translations": {
+        "ru": "Многие учителя не одобряют домашние задания на каникулах.",
+        "uz": "Ko'plab o'qituvchilar ta'til paytidagi uy vazifalarini noma'qul deb biladi."
+      }
+    }
+  ]
+}

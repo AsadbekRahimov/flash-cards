@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 11,
+    "title": "Искусство и литература",
+    "title_uz": "San'at va adabiyot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Язык произведения",
+    "title_uz": "Asar tili"
+  },
+  "words": [
+    {
+      "word": "storyline",
+      "part_of_speech": "noun",
+      "translation": "сюжетная линия",
+      "translations": {
+        "ru": "сюжетная линия",
+        "uz": "syujet chizig'i"
+      },
+      "example": "This film has a simple but exciting storyline.",
+      "example_translations": {
+        "ru": "У этого фильма простая, но захватывающая сюжетная линия.",
+        "uz": "Bu filmning syujet chizig'i oddiy, lekin hayajonli."
+      }
+    },
+    {
+      "word": "setting",
+      "part_of_speech": "noun",
+      "translation": "место действия",
+      "translations": {
+        "ru": "место действия",
+        "uz": "voqea joyi"
+      },
+      "example": "A small island is the setting of the novel.",
+      "example_translations": {
+        "ru": "Место действия романа — маленький остров.",
+        "uz": "Romandagi voqea joyi — kichik bir orol."
+      }
+    },
+    {
+      "word": "protagonist",
+      "part_of_speech": "noun",
+      "translation": "главный герой",
+      "translations": {
+        "ru": "главный герой",
+        "uz": "bosh qahramon"
+      },
+      "example": "The protagonist is a young doctor from a village.",
+      "example_translations": {
+        "ru": "Главный герой — молодой врач из деревни.",
+        "uz": "Bosh qahramon — qishloqdan chiqqan yosh shifokor."
+      }
+    },
+    {
+      "word": "theme",
+      "part_of_speech": "noun",
+      "translation": "тема",
+      "translations": {
+        "ru": "тема",
+        "uz": "mavzu"
+      },
+      "example": "Friendship is the main theme of this story.",
+      "example_translations": {
+        "ru": "Дружба — главная тема этого рассказа.",
+        "uz": "Do'stlik — bu hikoyaning asosiy mavzusi."
+      }
+    },
+    {
+      "word": "metaphor",
+      "part_of_speech": "noun",
+      "translation": "метафора",
+      "translations": {
+        "ru": "метафора",
+        "uz": "metafora, istiora"
+      },
+      "example": "The poet uses the sea as a metaphor for life.",
+      "example_translations": {
+        "ru": "Поэт использует море как метафору жизни.",
+        "uz": "Shoir dengizni hayot metaforasi sifatida qo'llaydi."
+      }
+    },
+    {
+      "word": "symbol",
+      "part_of_speech": "noun",
+      "translation": "символ",
+      "translations": {
+        "ru": "символ",
+        "uz": "ramz"
+      },
+      "example": "In many poems, the dove is a symbol of peace.",
+      "example_translations": {
+        "ru": "Во многих стихотворениях голубь — символ мира.",
+        "uz": "Ko'p she'rlarda kaptar — tinchlik ramzi."
+      }
+    },
+    {
+      "word": "irony",
+      "part_of_speech": "noun",
+      "translation": "ирония",
+      "translations": {
+        "ru": "ирония",
+        "uz": "kinoya"
+      },
+      "example": "Did you notice the irony in his last sentence?",
+      "example_translations": {
+        "ru": "Вы заметили иронию в его последней фразе?",
+        "uz": "Uning oxirgi jumlasidagi kinoyani payqadingizmi?"
+      }
+    },
+    {
+      "word": "rhyme",
+      "part_of_speech": "noun",
+      "translation": "рифма",
+      "translations": {
+        "ru": "рифма",
+        "uz": "qofiya"
+      },
+      "example": "Children remember poems with rhyme more easily.",
+      "example_translations": {
+        "ru": "Дети легче запоминают стихи с рифмой.",
+        "uz": "Bolalar qofiyali she'rlarni osonroq eslab qoladi."
+      }
+    },
+    {
+      "word": "verse",
+      "part_of_speech": "noun",
+      "translation": "стихи, стихотворная форма",
+      "translations": {
+        "ru": "стихи, стихотворная форма",
+        "uz": "nazm, she'riy shakl"
+      },
+      "example": "The whole play is written in verse, not prose.",
+      "example_translations": {
+        "ru": "Вся пьеса написана стихами, а не прозой.",
+        "uz": "Butun pyesa nasrda emas, nazmda yozilgan."
+      }
+    },
+    {
+      "word": "excerpt",
+      "part_of_speech": "noun",
+      "translation": "отрывок",
+      "translations": {
+        "ru": "отрывок",
+        "uz": "parcha"
+      },
+      "example": "Our teacher read an excerpt from her favorite novel.",
+      "example_translations": {
+        "ru": "Наша учительница прочитала отрывок из своего любимого романа.",
+        "uz": "O'qituvchimiz sevimli romanidan bir parcha o'qib berdi."
+      }
+    }
+  ]
+}

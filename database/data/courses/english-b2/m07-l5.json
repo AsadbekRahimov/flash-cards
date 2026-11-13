@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 7,
+    "title": "Окружающая среда и климат",
+    "title_uz": "Atrof-muhit va iqlim"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Стихийные бедствия",
+    "title_uz": "Tabiiy ofatlar"
+  },
+  "words": [
+    {
+      "word": "cyclone",
+      "part_of_speech": "noun",
+      "translation": "циклон",
+      "translations": {
+        "ru": "циклон",
+        "uz": "siklon"
+      },
+      "example": "The cyclone brought heavy rain to the coast.",
+      "example_translations": {
+        "ru": "Циклон принёс на побережье сильные дожди.",
+        "uz": "Siklon sohilga kuchli yomg'ir olib keldi."
+      }
+    },
+    {
+      "word": "tornado",
+      "part_of_speech": "noun",
+      "translation": "торнадо, смерч",
+      "translations": {
+        "ru": "торнадо, смерч",
+        "uz": "tornado, quyun"
+      },
+      "example": "A tornado destroyed several houses in minutes.",
+      "example_translations": {
+        "ru": "Торнадо разрушил несколько домов за считаные минуты.",
+        "uz": "Tornado sanoqli daqiqalarda bir nechta uyni vayron qildi."
+      }
+    },
+    {
+      "word": "tsunami",
+      "part_of_speech": "noun",
+      "translation": "цунами",
+      "translations": {
+        "ru": "цунами",
+        "uz": "sunami"
+      },
+      "example": "An earthquake under the sea caused the tsunami.",
+      "example_translations": {
+        "ru": "Землетрясение под морским дном вызвало цунами.",
+        "uz": "Dengiz ostidagi zilzila sunamini keltirib chiqardi."
+      }
+    },
+    {
+      "word": "landslide",
+      "part_of_speech": "noun",
+      "translation": "оползень",
+      "translations": {
+        "ru": "оползень",
+        "uz": "yer ko'chkisi"
+      },
+      "example": "After the rain, a landslide blocked the road.",
+      "example_translations": {
+        "ru": "После дождя оползень перекрыл дорогу.",
+        "uz": "Yomg'irdan keyin yer ko'chkisi yo'lni to'sib qo'ydi."
+      }
+    },
+    {
+      "word": "avalanche",
+      "part_of_speech": "noun",
+      "translation": "лавина",
+      "translations": {
+        "ru": "лавина",
+        "uz": "qor ko'chkisi"
+      },
+      "example": "Skiers were warned about the danger of an avalanche.",
+      "example_translations": {
+        "ru": "Лыжников предупредили об опасности лавины.",
+        "uz": "Chang'ichilar qor ko'chkisi xavfi haqida ogohlantirildi."
+      }
+    },
+    {
+      "word": "erosion",
+      "part_of_speech": "noun",
+      "translation": "эрозия",
+      "translations": {
+        "ru": "эрозия",
+        "uz": "eroziya"
+      },
+      "example": "Tree roots protect the soil from erosion.",
+      "example_translations": {
+        "ru": "Корни деревьев защищают почву от эрозии.",
+        "uz": "Daraxt ildizlari tuproqni eroziyadan himoya qiladi."
+      }
+    },
+    {
+      "word": "wildfire",
+      "part_of_speech": "noun",
+      "translation": "лесной пожар",
+      "translations": {
+        "ru": "лесной пожар",
+        "uz": "o'rmon yong'ini"
+      },
+      "example": "The wildfire spread quickly in the dry wind.",
+      "example_translations": {
+        "ru": "Лесной пожар быстро распространился из-за сухого ветра.",
+        "uz": "O'rmon yong'ini quruq shamolda tez tarqaldi."
+      }
+    },
+    {
+      "word": "eruption",
+      "part_of_speech": "noun",
+      "translation": "извержение",
+      "translations": {
+        "ru": "извержение",
+        "uz": "otilish"
+      },
+      "example": "The eruption of the volcano lasted three days.",
+      "example_translations": {
+        "ru": "Извержение вулкана длилось три дня.",
+        "uz": "Vulqonning otilishi uch kun davom etdi."
+      }
+    },
+    {
+      "word": "deforestation",
+      "part_of_speech": "noun",
+      "translation": "вырубка лесов",
+      "translations": {
+        "ru": "вырубка лесов",
+        "uz": "o'rmonlarni kesish"
+      },
+      "example": "Deforestation leaves many animals without a home.",
+      "example_translations": {
+        "ru": "Вырубка лесов оставляет многих животных без дома.",
+        "uz": "O'rmonlarni kesish ko'plab hayvonlarni boshpanasiz qoldiradi."
+      }
+    },
+    {
+      "word": "catastrophe",
+      "part_of_speech": "noun",
+      "translation": "катастрофа",
+      "translations": {
+        "ru": "катастрофа",
+        "uz": "falokat"
+      },
+      "example": "Was the flood a catastrophe for local farmers?",
+      "example_translations": {
+        "ru": "Стало ли наводнение катастрофой для местных фермеров?",
+        "uz": "Suv toshqini mahalliy fermerlar uchun falokat bo'ldimi?"
+      }
+    }
+  ]
+}

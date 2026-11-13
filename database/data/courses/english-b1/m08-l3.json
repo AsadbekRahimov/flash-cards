@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 8,
+    "title": "Деньги и покупки",
+    "title_uz": "Pul va xaridlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "В магазине",
+    "title_uz": "Do'konda"
+  },
+  "words": [
+    {
+      "word": "counter",
+      "part_of_speech": "noun",
+      "translation": "прилавок",
+      "translations": {
+        "ru": "прилавок",
+        "uz": "peshtaxta"
+      },
+      "example": "The seller put the cheese on the counter.",
+      "example_translations": {
+        "ru": "Продавец положил сыр на прилавок.",
+        "uz": "Sotuvchi pishloqni peshtaxtaga qo'ydi."
+      }
+    },
+    {
+      "word": "cart",
+      "part_of_speech": "noun",
+      "translation": "тележка",
+      "translations": {
+        "ru": "тележка",
+        "uz": "aravacha"
+      },
+      "example": "Our shopping cart was full of food.",
+      "example_translations": {
+        "ru": "Наша тележка для покупок была полна еды.",
+        "uz": "Xarid aravachamiz oziq-ovqatga to'la edi."
+      }
+    },
+    {
+      "word": "delivery",
+      "part_of_speech": "noun",
+      "translation": "доставка",
+      "translations": {
+        "ru": "доставка",
+        "uz": "yetkazib berish"
+      },
+      "example": "Delivery is free for orders over fifty dollars.",
+      "example_translations": {
+        "ru": "Доставка бесплатна для заказов свыше пятидесяти долларов.",
+        "uz": "Ellik dollardan ortiq buyurtmalar uchun yetkazib berish bepul."
+      }
+    },
+    {
+      "word": "item",
+      "part_of_speech": "noun",
+      "translation": "товар, предмет",
+      "translations": {
+        "ru": "товар, предмет",
+        "uz": "tovar, buyum"
+      },
+      "example": "You can return any item within two weeks.",
+      "example_translations": {
+        "ru": "Вы можете вернуть любой товар в течение двух недель.",
+        "uz": "Istalgan tovarni ikki hafta ichida qaytarishingiz mumkin."
+      }
+    },
+    {
+      "word": "purchase",
+      "part_of_speech": "noun",
+      "translation": "покупка",
+      "translations": {
+        "ru": "покупка",
+        "uz": "xarid"
+      },
+      "example": "Keep the receipt after every purchase.",
+      "example_translations": {
+        "ru": "Сохраняйте чек после каждой покупки.",
+        "uz": "Har bir xariddan keyin chekni saqlab qo'ying."
+      }
+    },
+    {
+      "word": "mall",
+      "part_of_speech": "noun",
+      "translation": "торговый центр",
+      "translations": {
+        "ru": "торговый центр",
+        "uz": "savdo markazi"
+      },
+      "example": "The new mall has over a hundred stores.",
+      "example_translations": {
+        "ru": "В новом торговом центре больше ста магазинов.",
+        "uz": "Yangi savdo markazida yuzdan ortiq do'kon bor."
+      }
+    },
+    {
+      "word": "grocery",
+      "part_of_speech": "noun",
+      "translation": "продуктовый магазин",
+      "translations": {
+        "ru": "продуктовый магазин",
+        "uz": "oziq-ovqat do'koni"
+      },
+      "example": "The grocery on our street sells fresh vegetables.",
+      "example_translations": {
+        "ru": "Продуктовый магазин на нашей улице продаёт свежие овощи.",
+        "uz": "Ko'chamizdagi oziq-ovqat do'koni yangi sabzavotlar sotadi."
+      }
+    },
+    {
+      "word": "bakery",
+      "part_of_speech": "noun",
+      "translation": "пекарня, булочная",
+      "translations": {
+        "ru": "пекарня, булочная",
+        "uz": "novvoyxona"
+      },
+      "example": "I buy fresh bread at the bakery every morning.",
+      "example_translations": {
+        "ru": "Каждое утро я покупаю свежий хлеб в пекарне.",
+        "uz": "Har kuni ertalab novvoyxonadan yangi non sotib olaman."
+      }
+    },
+    {
+      "word": "package",
+      "part_of_speech": "noun",
+      "translation": "упаковка",
+      "translations": {
+        "ru": "упаковка",
+        "uz": "qadoq, o'ram"
+      },
+      "example": "Read the information on the package before you buy.",
+      "example_translations": {
+        "ru": "Прочитайте информацию на упаковке перед покупкой.",
+        "uz": "Sotib olishdan oldin qadoqdagi ma'lumotni o'qing."
+      }
+    },
+    {
+      "word": "butcher",
+      "part_of_speech": "noun",
+      "translation": "мясник",
+      "translations": {
+        "ru": "мясник",
+        "uz": "qassob"
+      },
+      "example": "Ask the butcher for two kilos of beef.",
+      "example_translations": {
+        "ru": "Попросите у мясника два килограмма говядины.",
+        "uz": "Qassobdan ikki kilo mol go'shti so'rang."
+      }
+    }
+  ]
+}

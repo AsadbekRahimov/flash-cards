@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 13,
+    "title": "Общество и глобальные проблемы",
+    "title_uz": "Jamiyat va global muammolar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Гражданское общество",
+    "title_uz": "Fuqarolik jamiyati"
+  },
+  "words": [
+    {
+      "word": "activist",
+      "part_of_speech": "noun",
+      "translation": "активист",
+      "translations": {
+        "ru": "активист",
+        "uz": "faol"
+      },
+      "example": "The activist collected signatures to save the park.",
+      "example_translations": {
+        "ru": "Активист собрал подписи, чтобы спасти парк.",
+        "uz": "Faol bog'ni saqlab qolish uchun imzo to'pladi."
+      }
+    },
+    {
+      "word": "protest",
+      "part_of_speech": "noun",
+      "translation": "протест",
+      "translations": {
+        "ru": "протест",
+        "uz": "norozilik namoyishi"
+      },
+      "example": "Residents organized a peaceful protest against the noise.",
+      "example_translations": {
+        "ru": "Жители организовали мирный протест против шума.",
+        "uz": "Aholi shovqinga qarshi tinch norozilik namoyishi o'tkazdi."
+      }
+    },
+    {
+      "word": "solidarity",
+      "part_of_speech": "noun",
+      "translation": "солидарность",
+      "translations": {
+        "ru": "солидарность",
+        "uz": "birdamlik"
+      },
+      "example": "Neighbors showed solidarity by sharing food and clothes.",
+      "example_translations": {
+        "ru": "Соседи проявили солидарность, поделившись едой и одеждой.",
+        "uz": "Qo'shnilar oziq-ovqat va kiyim ulashib, birdamlik ko'rsatishdi."
+      }
+    },
+    {
+      "word": "engage",
+      "part_of_speech": "verb",
+      "translation": "вовлекать",
+      "translations": {
+        "ru": "вовлекать",
+        "uz": "jalb qilmoq"
+      },
+      "example": "The project engages young people in local decisions.",
+      "example_translations": {
+        "ru": "Проект вовлекает молодёжь в принятие местных решений.",
+        "uz": "Loyiha yoshlarni mahalliy qarorlar qabul qilishga jalb qiladi."
+      }
+    },
+    {
+      "word": "donation",
+      "part_of_speech": "noun",
+      "translation": "пожертвование",
+      "translations": {
+        "ru": "пожертвование",
+        "uz": "xayriya, ehson"
+      },
+      "example": "Her donation helped the library buy new books.",
+      "example_translations": {
+        "ru": "Её пожертвование помогло библиотеке купить новые книги.",
+        "uz": "Uning xayriyasi kutubxonaga yangi kitoblar sotib olishda yordam berdi."
+      }
+    },
+    {
+      "word": "movement",
+      "part_of_speech": "noun",
+      "translation": "общественное движение",
+      "translations": {
+        "ru": "общественное движение",
+        "uz": "ijtimoiy harakat"
+      },
+      "example": "She joined a movement for cleaner air.",
+      "example_translations": {
+        "ru": "Она присоединилась к общественному движению за чистый воздух.",
+        "uz": "U toza havo uchun ijtimoiy harakatga qo'shildi."
+      }
+    },
+    {
+      "word": "voluntary",
+      "part_of_speech": "adjective",
+      "translation": "добровольный",
+      "translations": {
+        "ru": "добровольный",
+        "uz": "ixtiyoriy"
+      },
+      "example": "Joining the club is voluntary, not required.",
+      "example_translations": {
+        "ru": "Вступление в клуб добровольное, а не обязательное.",
+        "uz": "Klubga a'zo bo'lish majburiy emas, ixtiyoriy."
+      }
+    },
+    {
+      "word": "civic",
+      "part_of_speech": "adjective",
+      "translation": "гражданский",
+      "translations": {
+        "ru": "гражданский",
+        "uz": "fuqarolik"
+      },
+      "example": "Voting is an important civic duty.",
+      "example_translations": {
+        "ru": "Голосование — важный гражданский долг.",
+        "uz": "Ovoz berish — muhim fuqarolik burchi."
+      }
+    },
+    {
+      "word": "participation",
+      "part_of_speech": "noun",
+      "translation": "участие",
+      "translations": {
+        "ru": "участие",
+        "uz": "ishtirok"
+      },
+      "example": "The festival depends on the participation of volunteers.",
+      "example_translations": {
+        "ru": "Фестиваль зависит от участия волонтёров.",
+        "uz": "Festival ko'ngillilarning ishtirokiga bog'liq."
+      }
+    },
+    {
+      "word": "empower",
+      "part_of_speech": "verb",
+      "translation": "расширять возможности",
+      "translations": {
+        "ru": "расширять возможности",
+        "uz": "imkoniyatlarini kengaytirmoq"
+      },
+      "example": "Education empowers young people in rural areas.",
+      "example_translations": {
+        "ru": "Образование расширяет возможности молодёжи в сельской местности.",
+        "uz": "Ta'lim qishloq joylardagi yoshlarning imkoniyatlarini kengaytiradi."
+      }
+    }
+  ]
+}

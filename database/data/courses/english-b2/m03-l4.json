@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 3,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Доходы и расходы",
+    "title_uz": "Daromad va xarajatlar"
+  },
+  "words": [
+    {
+      "word": "consumption",
+      "part_of_speech": "noun",
+      "translation": "потребление",
+      "translations": {
+        "ru": "потребление",
+        "uz": "iste'mol"
+      },
+      "example": "Household consumption fell when prices went up.",
+      "example_translations": {
+        "ru": "Потребление домохозяйств снизилось, когда цены выросли.",
+        "uz": "Narxlar oshganda uy xo'jaliklarining iste'moli kamaydi."
+      }
+    },
+    {
+      "word": "expenditure",
+      "part_of_speech": "noun",
+      "translation": "расходы, затраты",
+      "translations": {
+        "ru": "расходы, затраты",
+        "uz": "xarajatlar, sarf-xarajat"
+      },
+      "example": "The city cut its expenditure on new roads.",
+      "example_translations": {
+        "ru": "Город сократил расходы на новые дороги.",
+        "uz": "Shahar yangi yo'llar uchun xarajatlarni qisqartirdi."
+      }
+    },
+    {
+      "word": "costly",
+      "part_of_speech": "adjective",
+      "translation": "дорогостоящий",
+      "translations": {
+        "ru": "дорогостоящий",
+        "uz": "serxarajat, qimmatga tushadigan"
+      },
+      "example": "Repairing the old bridge proved too costly.",
+      "example_translations": {
+        "ru": "Ремонт старого моста оказался слишком дорогостоящим.",
+        "uz": "Eski ko'prikni ta'mirlash haddan tashqari serxarajat bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "revenue",
+      "part_of_speech": "noun",
+      "translation": "выручка",
+      "translations": {
+        "ru": "выручка",
+        "uz": "tushum"
+      },
+      "example": "The store's revenue doubled during the holidays.",
+      "example_translations": {
+        "ru": "За праздники выручка магазина удвоилась.",
+        "uz": "Bayram kunlarida do'konning tushumi ikki baravar oshdi."
+      }
+    },
+    {
+      "word": "earnings",
+      "part_of_speech": "noun",
+      "translation": "заработок, доход",
+      "translations": {
+        "ru": "заработок, доход",
+        "uz": "daromad, ish haqi"
+      },
+      "example": "Her monthly earnings are higher than mine.",
+      "example_translations": {
+        "ru": "Её месячный заработок выше моего.",
+        "uz": "Uning oylik daromadi menikidan yuqori."
+      }
+    },
+    {
+      "word": "wealth",
+      "part_of_speech": "noun",
+      "translation": "богатство",
+      "translations": {
+        "ru": "богатство",
+        "uz": "boylik"
+      },
+      "example": "He shared his wealth with schools and hospitals.",
+      "example_translations": {
+        "ru": "Он делился своим богатством со школами и больницами.",
+        "uz": "U o'z boyligini maktablar va shifoxonalar bilan baham ko'rdi."
+      }
+    },
+    {
+      "word": "funding",
+      "part_of_speech": "noun",
+      "translation": "финансирование",
+      "translations": {
+        "ru": "финансирование",
+        "uz": "moliyalashtirish"
+      },
+      "example": "The museum needs more funding to stay open.",
+      "example_translations": {
+        "ru": "Музею нужно дополнительное финансирование, чтобы продолжать работать.",
+        "uz": "Muzey ishlashda davom etishi uchun qo'shimcha moliyalashtirishga muhtoj."
+      }
+    },
+    {
+      "word": "economical",
+      "part_of_speech": "adjective",
+      "translation": "экономичный",
+      "translations": {
+        "ru": "экономичный",
+        "uz": "tejamkor"
+      },
+      "example": "A small car is more economical than a large one.",
+      "example_translations": {
+        "ru": "Маленький автомобиль экономичнее большого.",
+        "uz": "Kichik mashina kattasiga qaraganda tejamkorroq."
+      }
+    },
+    {
+      "word": "turnover",
+      "part_of_speech": "noun",
+      "translation": "оборот",
+      "translations": {
+        "ru": "оборот",
+        "uz": "aylanma"
+      },
+      "example": "Our annual turnover reached two million dollars.",
+      "example_translations": {
+        "ru": "Наш годовой оборот достиг двух миллионов долларов.",
+        "uz": "Yillik aylanmamiz ikki million dollarga yetdi."
+      }
+    },
+    {
+      "word": "profitable",
+      "part_of_speech": "adjective",
+      "translation": "прибыльный",
+      "translations": {
+        "ru": "прибыльный",
+        "uz": "foyda keltiradigan, serdaromad"
+      },
+      "example": "The cafe became profitable in its second year.",
+      "example_translations": {
+        "ru": "Кафе стало прибыльным на второй год работы.",
+        "uz": "Kafe ikkinchi yilida foyda keltiradigan bo'ldi."
+      }
+    }
+  ]
+}

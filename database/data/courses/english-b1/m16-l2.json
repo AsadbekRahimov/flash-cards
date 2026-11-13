@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 16,
+    "title": "Чувства и мнения",
+    "title_uz": "His-tuyg'ular va fikrlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Неприятные чувства",
+    "title_uz": "Noxush tuyg'ular"
+  },
+  "words": [
+    {
+      "word": "annoyed",
+      "part_of_speech": "adjective",
+      "translation": "раздражённый",
+      "translations": {
+        "ru": "раздражённый",
+        "uz": "g'ashi kelgan"
+      },
+      "example": "Dad was annoyed because the bus was late again.",
+      "example_translations": {
+        "ru": "Папа был раздражён, потому что автобус снова опоздал.",
+        "uz": "Avtobus yana kechikkani uchun dadamning g'ashi keldi."
+      }
+    },
+    {
+      "word": "negative",
+      "part_of_speech": "adjective",
+      "translation": "негативный, отрицательный",
+      "translations": {
+        "ru": "негативный, отрицательный",
+        "uz": "salbiy"
+      },
+      "example": "Negative thoughts kept him awake all night.",
+      "example_translations": {
+        "ru": "Негативные мысли не давали ему спать всю ночь.",
+        "uz": "Salbiy fikrlar unga tun bo'yi uyqu bermadi."
+      }
+    },
+    {
+      "word": "frustrated",
+      "part_of_speech": "adjective",
+      "translation": "раздосадованный",
+      "translations": {
+        "ru": "раздосадованный",
+        "uz": "xunob bo'lgan"
+      },
+      "example": "Tom felt frustrated because nobody listened to him.",
+      "example_translations": {
+        "ru": "Том был раздосадован, потому что его никто не слушал.",
+        "uz": "Hech kim uni tinglamagani uchun Tom xunob bo'ldi."
+      }
+    },
+    {
+      "word": "disappointed",
+      "part_of_speech": "adjective",
+      "translation": "разочарованный",
+      "translations": {
+        "ru": "разочарованный",
+        "uz": "hafsalasi pir bo'lgan"
+      },
+      "example": "We were disappointed with the food at the hotel.",
+      "example_translations": {
+        "ru": "Мы были разочарованы едой в отеле.",
+        "uz": "Mehmonxonadagi ovqatdan hafsalamiz pir bo'ldi."
+      }
+    },
+    {
+      "word": "miserable",
+      "part_of_speech": "adjective",
+      "translation": "несчастный",
+      "translations": {
+        "ru": "несчастный",
+        "uz": "baxtsiz"
+      },
+      "example": "She felt miserable and alone in the new city.",
+      "example_translations": {
+        "ru": "В новом городе она чувствовала себя несчастной и одинокой.",
+        "uz": "Yangi shaharda u o'zini baxtsiz va yolg'iz his qildi."
+      }
+    },
+    {
+      "word": "frightened",
+      "part_of_speech": "adjective",
+      "translation": "испуганный",
+      "translations": {
+        "ru": "испуганный",
+        "uz": "qo'rqib ketgan"
+      },
+      "example": "The frightened cat hid under the bed.",
+      "example_translations": {
+        "ru": "Испуганная кошка спряталась под кроватью.",
+        "uz": "Qo'rqib ketgan mushuk karavot ostiga yashirindi."
+      }
+    },
+    {
+      "word": "embarrassed",
+      "part_of_speech": "adjective",
+      "translation": "смущённый",
+      "translations": {
+        "ru": "смущённый",
+        "uz": "xijolat bo'lgan"
+      },
+      "example": "I was embarrassed when I forgot her name.",
+      "example_translations": {
+        "ru": "Я был смущён, когда забыл её имя.",
+        "uz": "Uning ismini unutib qo'yganimda xijolat bo'ldim."
+      }
+    },
+    {
+      "word": "ashamed",
+      "part_of_speech": "adjective",
+      "translation": "испытывающий стыд",
+      "translations": {
+        "ru": "испытывающий стыд",
+        "uz": "uyalgan"
+      },
+      "example": "He was ashamed of his rude words.",
+      "example_translations": {
+        "ru": "Он испытывал стыд за свои грубые слова.",
+        "uz": "U o'zining qo'pol so'zlaridan uyaldi."
+      }
+    },
+    {
+      "word": "confused",
+      "part_of_speech": "adjective",
+      "translation": "сбитый с толку, растерянный",
+      "translations": {
+        "ru": "сбитый с толку, растерянный",
+        "uz": "boshi qotgan, gangib qolgan"
+      },
+      "example": "The tourists were confused by the street signs.",
+      "example_translations": {
+        "ru": "Туристы были сбиты с толку уличными указателями.",
+        "uz": "Ko'cha belgilaridan sayyohlarning boshi qotdi."
+      }
+    },
+    {
+      "word": "uncomfortable",
+      "part_of_speech": "adjective",
+      "translation": "неловкий, неудобный",
+      "translations": {
+        "ru": "неловкий, неудобный",
+        "uz": "noqulay"
+      },
+      "example": "There was an uncomfortable silence in the room.",
+      "example_translations": {
+        "ru": "В комнате повисло неловкое молчание.",
+        "uz": "Xonaga noqulay sukunat cho'kdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 20,
+    "title": "Академические глаголы и понятия",
+    "title_uz": "Akademik fe'llar va tushunchalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Общие понятия",
+    "title_uz": "Umumiy tushunchalar"
+  },
+  "words": [
+    {
+      "word": "aspect",
+      "part_of_speech": "noun",
+      "translation": "аспект, сторона",
+      "translations": {
+        "ru": "аспект, сторона",
+        "uz": "jihat"
+      },
+      "example": "Money is only one aspect of the problem.",
+      "example_translations": {
+        "ru": "Деньги — лишь один аспект проблемы.",
+        "uz": "Pul muammoning faqat bir jihati, xolos."
+      }
+    },
+    {
+      "word": "element",
+      "part_of_speech": "noun",
+      "translation": "элемент, составная часть",
+      "translations": {
+        "ru": "элемент, составная часть",
+        "uz": "unsur, tarkibiy qism"
+      },
+      "example": "Trust is a key element of any friendship.",
+      "example_translations": {
+        "ru": "Доверие — ключевой элемент любой дружбы.",
+        "uz": "Ishonch har qanday do'stlikning asosiy unsuridir."
+      }
+    },
+    {
+      "word": "sequence",
+      "part_of_speech": "noun",
+      "translation": "последовательность",
+      "translations": {
+        "ru": "последовательность",
+        "uz": "ketma-ketlik"
+      },
+      "example": "Put the pictures in the correct sequence.",
+      "example_translations": {
+        "ru": "Расположите картинки в правильной последовательности.",
+        "uz": "Rasmlarni to'g'ri ketma-ketlikda joylashtiring."
+      }
+    },
+    {
+      "word": "function",
+      "part_of_speech": "noun",
+      "translation": "функция, назначение",
+      "translations": {
+        "ru": "функция, назначение",
+        "uz": "vazifa, funksiya"
+      },
+      "example": "The main function of the heart is to pump blood.",
+      "example_translations": {
+        "ru": "Главная функция сердца — перекачивать кровь.",
+        "uz": "Yurakning asosiy vazifasi — qon haydash."
+      }
+    },
+    {
+      "word": "category",
+      "part_of_speech": "noun",
+      "translation": "категория",
+      "translations": {
+        "ru": "категория",
+        "uz": "toifa, turkum"
+      },
+      "example": "The books are divided into three categories.",
+      "example_translations": {
+        "ru": "Книги разделены на три категории.",
+        "uz": "Kitoblar uchta toifaga bo'lingan."
+      }
+    },
+    {
+      "word": "instance",
+      "part_of_speech": "noun",
+      "translation": "случай",
+      "translations": {
+        "ru": "случай",
+        "uz": "hol, holat"
+      },
+      "example": "In most instances, the treatment works well.",
+      "example_translations": {
+        "ru": "В большинстве случаев лечение действует хорошо.",
+        "uz": "Aksariyat hollarda davolash yaxshi natija beradi."
+      }
+    },
+    {
+      "word": "scope",
+      "part_of_speech": "noun",
+      "translation": "рамки, охват",
+      "translations": {
+        "ru": "рамки, охват",
+        "uz": "doira, qamrov"
+      },
+      "example": "This question is beyond the scope of our study.",
+      "example_translations": {
+        "ru": "Этот вопрос выходит за рамки нашего исследования.",
+        "uz": "Bu savol tadqiqotimiz doirasidan tashqarida."
+      }
+    },
+    {
+      "word": "extent",
+      "part_of_speech": "noun",
+      "translation": "масштаб, степень",
+      "translations": {
+        "ru": "масштаб, степень",
+        "uz": "miqyos, daraja"
+      },
+      "example": "Nobody knew the full extent of the damage.",
+      "example_translations": {
+        "ru": "Никто не знал всего масштаба ущерба.",
+        "uz": "Zararning to'liq miqyosini hech kim bilmasdi."
+      }
+    },
+    {
+      "word": "dimension",
+      "part_of_speech": "noun",
+      "translation": "измерение, размер",
+      "translations": {
+        "ru": "измерение, размер",
+        "uz": "o'lchov, o'lcham"
+      },
+      "example": "Time is often called the fourth dimension.",
+      "example_translations": {
+        "ru": "Время часто называют четвёртым измерением.",
+        "uz": "Vaqtni ko'pincha to'rtinchi o'lchov deb atashadi."
+      }
+    },
+    {
+      "word": "circumstance",
+      "part_of_speech": "noun",
+      "translation": "обстоятельство",
+      "translations": {
+        "ru": "обстоятельство",
+        "uz": "vaziyat, sharoit"
+      },
+      "example": "Under normal circumstances, the trip takes two hours.",
+      "example_translations": {
+        "ru": "При обычных обстоятельствах поездка занимает два часа.",
+        "uz": "Odatiy sharoitda safar ikki soat davom etadi."
+      }
+    }
+  ]
+}

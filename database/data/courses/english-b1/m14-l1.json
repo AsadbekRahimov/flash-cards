@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 14,
+    "title": "Наука и открытия",
+    "title_uz": "Fan va kashfiyotlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Научный метод",
+    "title_uz": "Ilmiy usul"
+  },
+  "words": [
+    {
+      "word": "scientist",
+      "part_of_speech": "noun",
+      "translation": "учёный",
+      "translations": {
+        "ru": "учёный",
+        "uz": "olim"
+      },
+      "example": "A scientist asks questions and looks for answers.",
+      "example_translations": {
+        "ru": "Учёный задаёт вопросы и ищет ответы.",
+        "uz": "Olim savollar beradi va javob izlaydi."
+      }
+    },
+    {
+      "word": "laboratory",
+      "part_of_speech": "noun",
+      "translation": "лаборатория",
+      "translations": {
+        "ru": "лаборатория",
+        "uz": "laboratoriya"
+      },
+      "example": "Students wear white coats in the chemistry laboratory.",
+      "example_translations": {
+        "ru": "В химической лаборатории студенты носят белые халаты.",
+        "uz": "Kimyo laboratoriyasida talabalar oq xalat kiyadi."
+      }
+    },
+    {
+      "word": "experiment",
+      "part_of_speech": "noun",
+      "translation": "эксперимент, опыт",
+      "translations": {
+        "ru": "эксперимент, опыт",
+        "uz": "tajriba"
+      },
+      "example": "Our class did a simple experiment with water.",
+      "example_translations": {
+        "ru": "Наш класс провёл простой опыт с водой.",
+        "uz": "Sinfimiz suv bilan oddiy tajriba o'tkazdi."
+      }
+    },
+    {
+      "word": "theory",
+      "part_of_speech": "noun",
+      "translation": "теория",
+      "translations": {
+        "ru": "теория",
+        "uz": "nazariya"
+      },
+      "example": "His theory explains why the climate is changing.",
+      "example_translations": {
+        "ru": "Его теория объясняет, почему меняется климат.",
+        "uz": "Uning nazariyasi iqlim nima uchun o'zgarayotganini tushuntiradi."
+      }
+    },
+    {
+      "word": "evidence",
+      "part_of_speech": "noun",
+      "translation": "доказательство",
+      "translations": {
+        "ru": "доказательство",
+        "uz": "dalil"
+      },
+      "example": "Is there any evidence that this medicine works?",
+      "example_translations": {
+        "ru": "Есть ли доказательства, что это лекарство действует?",
+        "uz": "Bu dori ta'sir qilishiga biror dalil bormi?"
+      }
+    },
+    {
+      "word": "prove",
+      "part_of_speech": "verb",
+      "translation": "доказывать",
+      "translations": {
+        "ru": "доказывать",
+        "uz": "isbotlamoq"
+      },
+      "example": "The tests proved that the water was clean.",
+      "example_translations": {
+        "ru": "Анализы доказали, что вода была чистой.",
+        "uz": "Tahlillar suvning toza ekanini isbotladi."
+      }
+    },
+    {
+      "word": "researcher",
+      "part_of_speech": "noun",
+      "translation": "исследователь",
+      "translations": {
+        "ru": "исследователь",
+        "uz": "tadqiqotchi"
+      },
+      "example": "The researcher spent two years studying sea turtles.",
+      "example_translations": {
+        "ru": "Исследователь два года изучал морских черепах.",
+        "uz": "Tadqiqotchi ikki yil davomida dengiz toshbaqalarini o'rgandi."
+      }
+    },
+    {
+      "word": "conclusion",
+      "part_of_speech": "noun",
+      "translation": "вывод",
+      "translations": {
+        "ru": "вывод",
+        "uz": "xulosa"
+      },
+      "example": "What is the main conclusion of your report?",
+      "example_translations": {
+        "ru": "Каков главный вывод вашего доклада?",
+        "uz": "Ma'ruzangizning asosiy xulosasi nima?"
+      }
+    },
+    {
+      "word": "sample",
+      "part_of_speech": "noun",
+      "translation": "образец, проба",
+      "translations": {
+        "ru": "образец, проба",
+        "uz": "namuna"
+      },
+      "example": "She took a sample of water from the lake.",
+      "example_translations": {
+        "ru": "Она взяла образец воды из озера.",
+        "uz": "U ko'ldan suv namunasini oldi."
+      }
+    },
+    {
+      "word": "microscope",
+      "part_of_speech": "noun",
+      "translation": "микроскоп",
+      "translations": {
+        "ru": "микроскоп",
+        "uz": "mikroskop"
+      },
+      "example": "With a microscope, you can see very small things.",
+      "example_translations": {
+        "ru": "С помощью микроскопа можно увидеть очень маленькие предметы.",
+        "uz": "Mikroskop yordamida juda mayda narsalarni ko'rish mumkin."
+      }
+    }
+  ]
+}

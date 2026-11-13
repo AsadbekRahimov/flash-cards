@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 15,
+    "title": "Город и инфраструктура",
+    "title_uz": "Shahar va infratuzilma"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Коммунальные сети",
+    "title_uz": "Kommunal tarmoqlar"
+  },
+  "words": [
+    {
+      "word": "utility",
+      "part_of_speech": "noun",
+      "translation": "коммунальная услуга",
+      "translations": {
+        "ru": "коммунальная услуга",
+        "uz": "kommunal xizmat"
+      },
+      "example": "The rent includes utilities like water and gas.",
+      "example_translations": {
+        "ru": "В арендную плату входят коммунальные услуги — например, вода и газ.",
+        "uz": "Ijara haqiga suv va gaz kabi kommunal xizmatlar kiradi."
+      }
+    },
+    {
+      "word": "drainage",
+      "part_of_speech": "noun",
+      "translation": "водоотвод, дренаж",
+      "translations": {
+        "ru": "водоотвод, дренаж",
+        "uz": "drenaj, suv qochirish"
+      },
+      "example": "Poor drainage causes floods after heavy rain.",
+      "example_translations": {
+        "ru": "Плохой водоотвод приводит к затоплениям после сильного дождя.",
+        "uz": "Yomon drenaj kuchli yomg'irdan keyin suv bosishiga sabab bo'ladi."
+      }
+    },
+    {
+      "word": "pipeline",
+      "part_of_speech": "noun",
+      "translation": "трубопровод",
+      "translations": {
+        "ru": "трубопровод",
+        "uz": "quvur liniyasi"
+      },
+      "example": "A long pipeline brings gas to the city.",
+      "example_translations": {
+        "ru": "Длинный трубопровод доставляет газ в город.",
+        "uz": "Uzun quvur liniyasi shaharga gaz yetkazib beradi."
+      }
+    },
+    {
+      "word": "grid",
+      "part_of_speech": "noun",
+      "translation": "электросеть",
+      "translations": {
+        "ru": "электросеть",
+        "uz": "elektr tarmog'i"
+      },
+      "example": "The storm damaged the power grid in our region.",
+      "example_translations": {
+        "ru": "Буря повредила электросеть в нашем регионе.",
+        "uz": "Bo'ron hududimizdagi elektr tarmog'iga zarar yetkazdi."
+      }
+    },
+    {
+      "word": "insulation",
+      "part_of_speech": "noun",
+      "translation": "теплоизоляция",
+      "translations": {
+        "ru": "теплоизоляция",
+        "uz": "issiqlik izolyatsiyasi"
+      },
+      "example": "Good insulation keeps the house warm in winter.",
+      "example_translations": {
+        "ru": "Хорошая теплоизоляция сохраняет тепло в доме зимой.",
+        "uz": "Yaxshi issiqlik izolyatsiyasi qishda uyni issiq saqlaydi."
+      }
+    },
+    {
+      "word": "pump",
+      "part_of_speech": "noun",
+      "translation": "насос",
+      "translations": {
+        "ru": "насос",
+        "uz": "nasos"
+      },
+      "example": "This pump moves water up to the tank.",
+      "example_translations": {
+        "ru": "Этот насос подаёт воду наверх, в бак.",
+        "uz": "Bu nasos suvni yuqoridagi bakka haydab beradi."
+      }
+    },
+    {
+      "word": "outage",
+      "part_of_speech": "noun",
+      "translation": "отключение, перебой",
+      "translations": {
+        "ru": "отключение, перебой",
+        "uz": "uzilish"
+      },
+      "example": "Yesterday's power outage lasted for three hours.",
+      "example_translations": {
+        "ru": "Вчерашнее отключение электричества длилось три часа.",
+        "uz": "Kechagi elektr ta'minotidagi uzilish uch soat davom etdi."
+      }
+    },
+    {
+      "word": "facility",
+      "part_of_speech": "noun",
+      "translation": "сооружение, объект",
+      "translations": {
+        "ru": "сооружение, объект",
+        "uz": "inshoot, obyekt"
+      },
+      "example": "A new water treatment facility opened last week.",
+      "example_translations": {
+        "ru": "На прошлой неделе открылось новое водоочистное сооружение.",
+        "uz": "O'tgan hafta yangi suv tozalash inshooti ochildi."
+      }
+    },
+    {
+      "word": "amenity",
+      "part_of_speech": "noun",
+      "translation": "удобство",
+      "translations": {
+        "ru": "удобство",
+        "uz": "qulaylik"
+      },
+      "example": "Amenities such as parks make a neighborhood attractive.",
+      "example_translations": {
+        "ru": "Такие удобства, как парки, делают район привлекательным.",
+        "uz": "Bog'lar kabi qulayliklar mahallani jozibador qiladi."
+      }
+    },
+    {
+      "word": "ventilation",
+      "part_of_speech": "noun",
+      "translation": "вентиляция",
+      "translations": {
+        "ru": "вентиляция",
+        "uz": "ventilyatsiya, shamollatish"
+      },
+      "example": "Open windows provide natural ventilation in summer.",
+      "example_translations": {
+        "ru": "Открытые окна обеспечивают естественную вентиляцию летом.",
+        "uz": "Ochiq derazalar yozda tabiiy ventilyatsiyani ta'minlaydi."
+      }
+    }
+  ]
+}

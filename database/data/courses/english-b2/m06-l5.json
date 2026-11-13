@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 6,
+    "title": "Здоровье и психология",
+    "title_uz": "Sog'liq va psixologiya"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Здоровый организм",
+    "title_uz": "Sog'lom organizm"
+  },
+  "words": [
+    {
+      "word": "wellness",
+      "part_of_speech": "noun",
+      "translation": "здоровье, хорошее самочувствие",
+      "translations": {
+        "ru": "здоровье, хорошее самочувствие",
+        "uz": "salomatlik"
+      },
+      "example": "Many companies now care about their workers' wellness.",
+      "example_translations": {
+        "ru": "Многие компании теперь заботятся о здоровье своих сотрудников.",
+        "uz": "Hozir ko'p kompaniyalar xodimlarining salomatligi haqida qayg'uradi."
+      }
+    },
+    {
+      "word": "digestion",
+      "part_of_speech": "noun",
+      "translation": "пищеварение",
+      "translations": {
+        "ru": "пищеварение",
+        "uz": "ovqat hazm qilish"
+      },
+      "example": "Eating slowly is good for your digestion.",
+      "example_translations": {
+        "ru": "Есть не спеша полезно для пищеварения.",
+        "uz": "Shoshilmasdan yeyish ovqat hazm qilish uchun foydali."
+      }
+    },
+    {
+      "word": "nutrient",
+      "part_of_speech": "noun",
+      "translation": "питательное вещество",
+      "translations": {
+        "ru": "питательное вещество",
+        "uz": "oziq modda"
+      },
+      "example": "Vegetables contain many nutrients that your body needs.",
+      "example_translations": {
+        "ru": "Овощи содержат много питательных веществ, необходимых вашему организму.",
+        "uz": "Sabzavotlarda organizmingizga kerakli ko'plab oziq moddalar bor."
+      }
+    },
+    {
+      "word": "metabolism",
+      "part_of_speech": "noun",
+      "translation": "обмен веществ",
+      "translations": {
+        "ru": "обмен веществ",
+        "uz": "moddalar almashinuvi"
+      },
+      "example": "Regular exercise speeds up your metabolism.",
+      "example_translations": {
+        "ru": "Регулярные тренировки ускоряют обмен веществ.",
+        "uz": "Muntazam mashqlar moddalar almashinuvini tezlashtiradi."
+      }
+    },
+    {
+      "word": "immunity",
+      "part_of_speech": "noun",
+      "translation": "иммунитет",
+      "translations": {
+        "ru": "иммунитет",
+        "uz": "immunitet"
+      },
+      "example": "Fresh fruit and good sleep strengthen your immunity.",
+      "example_translations": {
+        "ru": "Свежие фрукты и хороший сон укрепляют иммунитет.",
+        "uz": "Yangi mevalar va yaxshi uyqu immunitetni mustahkamlaydi."
+      }
+    },
+    {
+      "word": "posture",
+      "part_of_speech": "noun",
+      "translation": "осанка",
+      "translations": {
+        "ru": "осанка",
+        "uz": "qomat"
+      },
+      "example": "Good posture protects your back from pain.",
+      "example_translations": {
+        "ru": "Правильная осанка защищает спину от боли.",
+        "uz": "Qomatni to'g'ri tutish belni og'riqdan asraydi."
+      }
+    },
+    {
+      "word": "stamina",
+      "part_of_speech": "noun",
+      "translation": "выносливость",
+      "translations": {
+        "ru": "выносливость",
+        "uz": "chidamlilik"
+      },
+      "example": "Long walks help you build stamina.",
+      "example_translations": {
+        "ru": "Долгие прогулки помогают развивать выносливость.",
+        "uz": "Uzoq sayrlar chidamlilikni oshirishga yordam beradi."
+      }
+    },
+    {
+      "word": "supplement",
+      "part_of_speech": "noun",
+      "translation": "пищевая добавка",
+      "translations": {
+        "ru": "пищевая добавка",
+        "uz": "oziq-ovqat qo'shimchasi"
+      },
+      "example": "My doctor suggested a vitamin supplement for winter.",
+      "example_translations": {
+        "ru": "Врач посоветовал мне на зиму пищевую добавку с витаминами.",
+        "uz": "Shifokorim qish uchun vitaminli oziq-ovqat qo'shimchasini tavsiya qildi."
+      }
+    },
+    {
+      "word": "meditation",
+      "part_of_speech": "noun",
+      "translation": "медитация",
+      "translations": {
+        "ru": "медитация",
+        "uz": "meditatsiya"
+      },
+      "example": "Ten minutes of meditation makes me feel calm.",
+      "example_translations": {
+        "ru": "После десяти минут медитации я чувствую себя спокойно.",
+        "uz": "O'n daqiqalik meditatsiya meni xotirjam qiladi."
+      }
+    },
+    {
+      "word": "lifespan",
+      "part_of_speech": "noun",
+      "translation": "продолжительность жизни",
+      "translations": {
+        "ru": "продолжительность жизни",
+        "uz": "umr davomiyligi"
+      },
+      "example": "A healthy diet can increase your lifespan.",
+      "example_translations": {
+        "ru": "Здоровое питание может увеличить продолжительность жизни.",
+        "uz": "Sog'lom ovqatlanish umr davomiyligini uzaytirishi mumkin."
+      }
+    }
+  ]
+}

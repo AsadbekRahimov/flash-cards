@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 13,
+    "title": "Общество и глобальные проблемы",
+    "title_uz": "Jamiyat va global muammolar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Неравенство",
+    "title_uz": "Tengsizlik"
+  },
+  "words": [
+    {
+      "word": "inequality",
+      "part_of_speech": "noun",
+      "translation": "неравенство",
+      "translations": {
+        "ru": "неравенство",
+        "uz": "tengsizlik"
+      },
+      "example": "Inequality between rich and poor is growing.",
+      "example_translations": {
+        "ru": "Неравенство между богатыми и бедными растёт.",
+        "uz": "Boylar va kambag'allar o'rtasidagi tengsizlik o'sib bormoqda."
+      }
+    },
+    {
+      "word": "barrier",
+      "part_of_speech": "noun",
+      "translation": "барьер, преграда",
+      "translations": {
+        "ru": "барьер, преграда",
+        "uz": "to'siq"
+      },
+      "example": "Language can be a barrier to finding work.",
+      "example_translations": {
+        "ru": "Язык может быть барьером при поиске работы.",
+        "uz": "Til ish topishda to'siq bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "discrimination",
+      "part_of_speech": "noun",
+      "translation": "дискриминация",
+      "translations": {
+        "ru": "дискриминация",
+        "uz": "kamsitish"
+      },
+      "example": "The law protects workers from discrimination.",
+      "example_translations": {
+        "ru": "Закон защищает работников от дискриминации.",
+        "uz": "Qonun ishchilarni kamsitishdan himoya qiladi."
+      }
+    },
+    {
+      "word": "prejudice",
+      "part_of_speech": "noun",
+      "translation": "предубеждение",
+      "translations": {
+        "ru": "предубеждение",
+        "uz": "noxolis qarash"
+      },
+      "example": "Prejudice often comes from a lack of knowledge.",
+      "example_translations": {
+        "ru": "Предубеждение часто возникает из-за недостатка знаний.",
+        "uz": "Noxolis qarash ko'pincha bilim yetishmasligidan kelib chiqadi."
+      }
+    },
+    {
+      "word": "privilege",
+      "part_of_speech": "noun",
+      "translation": "привилегия",
+      "translations": {
+        "ru": "привилегия",
+        "uz": "imtiyoz"
+      },
+      "example": "Education should be a right, not a privilege.",
+      "example_translations": {
+        "ru": "Образование должно быть правом, а не привилегией.",
+        "uz": "Ta'lim imtiyoz emas, balki huquq bo'lishi kerak."
+      }
+    },
+    {
+      "word": "injustice",
+      "part_of_speech": "noun",
+      "translation": "несправедливость",
+      "translations": {
+        "ru": "несправедливость",
+        "uz": "adolatsizlik"
+      },
+      "example": "She spoke out against injustice at work.",
+      "example_translations": {
+        "ru": "Она открыто выступила против несправедливости на работе.",
+        "uz": "U ishdagi adolatsizlikka qarshi ochiq gapirdi."
+      }
+    },
+    {
+      "word": "welfare",
+      "part_of_speech": "noun",
+      "translation": "благосостояние",
+      "translations": {
+        "ru": "благосостояние",
+        "uz": "turmush farovonligi"
+      },
+      "example": "The program improves the welfare of low-income families.",
+      "example_translations": {
+        "ru": "Программа повышает благосостояние малообеспеченных семей.",
+        "uz": "Dastur kam ta'minlangan oilalarning turmush farovonligini oshiradi."
+      }
+    },
+    {
+      "word": "hardship",
+      "part_of_speech": "noun",
+      "translation": "трудности, лишения",
+      "translations": {
+        "ru": "трудности, лишения",
+        "uz": "qiyinchilik, muhtojlik"
+      },
+      "example": "Many families faced hardship after the factory closed.",
+      "example_translations": {
+        "ru": "После закрытия завода многие семьи столкнулись с трудностями.",
+        "uz": "Zavod yopilgach, ko'p oilalar qiyinchilikka duch keldi."
+      }
+    },
+    {
+      "word": "disadvantage",
+      "part_of_speech": "noun",
+      "translation": "невыгодное положение",
+      "translations": {
+        "ru": "невыгодное положение",
+        "uz": "noqulay ahvol"
+      },
+      "example": "Children without internet are at a disadvantage.",
+      "example_translations": {
+        "ru": "Дети без интернета находятся в невыгодном положении.",
+        "uz": "Interneti yo'q bolalar noqulay ahvolda qoladi."
+      }
+    },
+    {
+      "word": "deprived",
+      "part_of_speech": "adjective",
+      "translation": "обездоленный, нуждающийся",
+      "translations": {
+        "ru": "обездоленный, нуждающийся",
+        "uz": "muhtoj, nochor"
+      },
+      "example": "The charity opened a school for deprived children.",
+      "example_translations": {
+        "ru": "Благотворительная организация открыла школу для обездоленных детей.",
+        "uz": "Xayriya tashkiloti muhtoj bolalar uchun maktab ochdi."
+      }
+    }
+  ]
+}

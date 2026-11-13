@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 20,
+    "title": "Слова-связки и абстрактные понятия",
+    "title_uz": "Bog'lovchi so'zlar va mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Причина и следствие",
+    "title_uz": "Sabab va oqibat"
+  },
+  "words": [
+    {
+      "word": "therefore",
+      "part_of_speech": "adverb",
+      "translation": "поэтому, следовательно",
+      "translations": {
+        "ru": "поэтому, следовательно",
+        "uz": "shuning uchun, demak"
+      },
+      "example": "He was sick and therefore stayed at home.",
+      "example_translations": {
+        "ru": "Он был болен и поэтому остался дома.",
+        "uz": "U kasal edi va shuning uchun uyda qoldi."
+      }
+    },
+    {
+      "word": "cause",
+      "part_of_speech": "verb",
+      "translation": "вызывать, быть причиной",
+      "translations": {
+        "ru": "вызывать, быть причиной",
+        "uz": "keltirib chiqarmoq, sabab bo'lmoq"
+      },
+      "example": "Heavy rain caused problems on the roads.",
+      "example_translations": {
+        "ru": "Сильный дождь вызвал проблемы на дорогах.",
+        "uz": "Kuchli yomg'ir yo'llarda muammolarni keltirib chiqardi."
+      }
+    },
+    {
+      "word": "effect",
+      "part_of_speech": "noun",
+      "translation": "эффект, действие",
+      "translations": {
+        "ru": "эффект, действие",
+        "uz": "samara, ta'sir"
+      },
+      "example": "The new medicine had a quick effect.",
+      "example_translations": {
+        "ru": "Новое лекарство дало быстрый эффект.",
+        "uz": "Yangi dori tez samara berdi."
+      }
+    },
+    {
+      "word": "reason",
+      "part_of_speech": "noun",
+      "translation": "причина",
+      "translations": {
+        "ru": "причина",
+        "uz": "sabab"
+      },
+      "example": "What was the reason for the delay?",
+      "example_translations": {
+        "ru": "Какова была причина задержки?",
+        "uz": "Kechikishning sababi nima edi?"
+      }
+    },
+    {
+      "word": "result",
+      "part_of_speech": "noun",
+      "translation": "результат",
+      "translations": {
+        "ru": "результат",
+        "uz": "natija"
+      },
+      "example": "Her good grades are the result of hard work.",
+      "example_translations": {
+        "ru": "Её хорошие оценки — результат упорного труда.",
+        "uz": "Uning yaxshi baholari qattiq mehnat natijasidir."
+      }
+    },
+    {
+      "word": "due",
+      "part_of_speech": "preposition",
+      "translation": "из-за, вследствие",
+      "translations": {
+        "ru": "из-за, вследствие",
+        "uz": "sababli, tufayli"
+      },
+      "example": "The game was canceled due to heavy rain.",
+      "example_translations": {
+        "ru": "Игру отменили из-за сильного дождя.",
+        "uz": "O'yin kuchli yomg'ir sababli bekor qilindi."
+      }
+    },
+    {
+      "word": "influence",
+      "part_of_speech": "noun",
+      "translation": "влияние",
+      "translations": {
+        "ru": "влияние",
+        "uz": "ta'sir"
+      },
+      "example": "My older brother was a good influence on me.",
+      "example_translations": {
+        "ru": "Старший брат оказывал на меня хорошее влияние.",
+        "uz": "Akam menga yaxshi ta'sir ko'rsatgan."
+      }
+    },
+    {
+      "word": "impact",
+      "part_of_speech": "noun",
+      "translation": "воздействие, сильное влияние",
+      "translations": {
+        "ru": "воздействие, сильное влияние",
+        "uz": "kuchli ta'sir"
+      },
+      "example": "The internet had a great impact on education.",
+      "example_translations": {
+        "ru": "Интернет оказал огромное воздействие на образование.",
+        "uz": "Internet ta'limga juda kuchli ta'sir ko'rsatdi."
+      }
+    },
+    {
+      "word": "affect",
+      "part_of_speech": "verb",
+      "translation": "влиять, воздействовать",
+      "translations": {
+        "ru": "влиять, воздействовать",
+        "uz": "ta'sir qilmoq"
+      },
+      "example": "Too little sleep affects your memory.",
+      "example_translations": {
+        "ru": "Недостаток сна влияет на вашу память.",
+        "uz": "Kam uxlash xotirangizga ta'sir qiladi."
+      }
+    },
+    {
+      "word": "explanation",
+      "part_of_speech": "noun",
+      "translation": "объяснение",
+      "translations": {
+        "ru": "объяснение",
+        "uz": "izoh, tushuntirish"
+      },
+      "example": "Is there an explanation for this strange noise?",
+      "example_translations": {
+        "ru": "Есть ли объяснение этому странному шуму?",
+        "uz": "Bu g'alati shovqinning izohi bormi?"
+      }
+    }
+  ]
+}

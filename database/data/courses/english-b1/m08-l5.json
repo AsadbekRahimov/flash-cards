@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 8,
+    "title": "Деньги и покупки",
+    "title_uz": "Pul va xaridlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Покупатель и сервис",
+    "title_uz": "Xaridor va xizmat"
+  },
+  "words": [
+    {
+      "word": "consumer",
+      "part_of_speech": "noun",
+      "translation": "потребитель",
+      "translations": {
+        "ru": "потребитель",
+        "uz": "iste'molchi"
+      },
+      "example": "The law protects consumers from dishonest sellers.",
+      "example_translations": {
+        "ru": "Закон защищает потребителей от нечестных продавцов.",
+        "uz": "Qonun iste'molchilarni insofsiz sotuvchilardan himoya qiladi."
+      }
+    },
+    {
+      "word": "satisfied",
+      "part_of_speech": "adjective",
+      "translation": "довольный",
+      "translations": {
+        "ru": "довольный",
+        "uz": "mamnun"
+      },
+      "example": "Are you satisfied with the service at our store?",
+      "example_translations": {
+        "ru": "Вы довольны обслуживанием в нашем магазине?",
+        "uz": "Do'konimizdagi xizmatdan mamnunmisiz?"
+      }
+    },
+    {
+      "word": "feedback",
+      "part_of_speech": "noun",
+      "translation": "обратная связь",
+      "translations": {
+        "ru": "обратная связь",
+        "uz": "fikr-mulohaza"
+      },
+      "example": "We always ask our customers for feedback.",
+      "example_translations": {
+        "ru": "Мы всегда просим наших клиентов дать обратную связь.",
+        "uz": "Biz doim mijozlarimizdan fikr-mulohaza bildirishlarini so'raymiz."
+      }
+    },
+    {
+      "word": "review",
+      "part_of_speech": "noun",
+      "translation": "отзыв",
+      "translations": {
+        "ru": "отзыв",
+        "uz": "sharh"
+      },
+      "example": "I read the reviews before buying this phone.",
+      "example_translations": {
+        "ru": "Я прочитал отзывы, прежде чем купить этот телефон.",
+        "uz": "Bu telefonni sotib olishdan oldin sharhlarni o'qib chiqdim."
+      }
+    },
+    {
+      "word": "shipping",
+      "part_of_speech": "noun",
+      "translation": "пересылка, доставка",
+      "translations": {
+        "ru": "пересылка, доставка",
+        "uz": "jo'natish"
+      },
+      "example": "Shipping to another country costs twenty dollars.",
+      "example_translations": {
+        "ru": "Пересылка в другую страну стоит двадцать долларов.",
+        "uz": "Boshqa mamlakatga jo'natish yigirma dollar turadi."
+      }
+    },
+    {
+      "word": "complaint",
+      "part_of_speech": "noun",
+      "translation": "жалоба",
+      "translations": {
+        "ru": "жалоба",
+        "uz": "shikoyat"
+      },
+      "example": "The manager answered my complaint the same day.",
+      "example_translations": {
+        "ru": "Менеджер ответил на мою жалобу в тот же день.",
+        "uz": "Menejer shikoyatimga o'sha kuniyoq javob berdi."
+      }
+    },
+    {
+      "word": "genuine",
+      "part_of_speech": "adjective",
+      "translation": "настоящий, подлинный",
+      "translations": {
+        "ru": "настоящий, подлинный",
+        "uz": "asl, haqiqiy"
+      },
+      "example": "Is this a genuine watch or a copy?",
+      "example_translations": {
+        "ru": "Это настоящие часы или копия?",
+        "uz": "Bu asl soatmi yoki nusxami?"
+      }
+    },
+    {
+      "word": "fake",
+      "part_of_speech": "adjective",
+      "translation": "поддельный",
+      "translations": {
+        "ru": "поддельный",
+        "uz": "soxta"
+      },
+      "example": "Many websites sell fake products at low prices.",
+      "example_translations": {
+        "ru": "Многие сайты продают поддельные товары по низким ценам.",
+        "uz": "Ko'p saytlar soxta mahsulotlarni arzon narxlarda sotadi."
+      }
+    },
+    {
+      "word": "warranty",
+      "part_of_speech": "noun",
+      "translation": "гарантия",
+      "translations": {
+        "ru": "гарантия",
+        "uz": "kafolat"
+      },
+      "example": "This washing machine has a two-year warranty.",
+      "example_translations": {
+        "ru": "У этой стиральной машины двухлетняя гарантия.",
+        "uz": "Bu kir yuvish mashinasining ikki yillik kafolati bor."
+      }
+    },
+    {
+      "word": "variety",
+      "part_of_speech": "noun",
+      "translation": "разнообразие",
+      "translations": {
+        "ru": "разнообразие",
+        "uz": "xilma-xillik"
+      },
+      "example": "This market has a wide variety of fruit.",
+      "example_translations": {
+        "ru": "На этом рынке большое разнообразие фруктов.",
+        "uz": "Bu bozorda mevalarning xilma-xilligi juda katta."
+      }
+    }
+  ]
+}

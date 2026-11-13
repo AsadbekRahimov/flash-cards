@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 1,
+    "title": "Личность и биография",
+    "title_uz": "Shaxs va tarjimayi hol"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Характер человека",
+    "title_uz": "Inson xarakteri"
+  },
+  "words": [
+    {
+      "word": "confident",
+      "part_of_speech": "adjective",
+      "translation": "уверенный в себе",
+      "translations": {
+        "ru": "уверенный в себе",
+        "uz": "o'ziga ishongan"
+      },
+      "example": "Aziz is a confident speaker and never gets nervous.",
+      "example_translations": {
+        "ru": "Азиз — уверенный в себе оратор и никогда не волнуется.",
+        "uz": "Aziz o'ziga ishongan notiq va hech qachon hayajonlanmaydi."
+      }
+    },
+    {
+      "word": "reliable",
+      "part_of_speech": "adjective",
+      "translation": "надёжный",
+      "translations": {
+        "ru": "надёжный",
+        "uz": "ishonchli"
+      },
+      "example": "Tom is reliable and always keeps his promises.",
+      "example_translations": {
+        "ru": "Том надёжный и всегда выполняет свои обещания.",
+        "uz": "Tom ishonchli va doim va'dasida turadi."
+      }
+    },
+    {
+      "word": "stubborn",
+      "part_of_speech": "adjective",
+      "translation": "упрямый",
+      "translations": {
+        "ru": "упрямый",
+        "uz": "qaysar"
+      },
+      "example": "My stubborn brother never listens to our advice.",
+      "example_translations": {
+        "ru": "Мой упрямый брат никогда не слушает наших советов.",
+        "uz": "Qaysar ukam hech qachon maslahatlarimizga quloq solmaydi."
+      }
+    },
+    {
+      "word": "ambitious",
+      "part_of_speech": "adjective",
+      "translation": "амбициозный, целеустремлённый",
+      "translations": {
+        "ru": "амбициозный, целеустремлённый",
+        "uz": "maqsadga intiluvchan"
+      },
+      "example": "Malika is ambitious and wants to become a director.",
+      "example_translations": {
+        "ru": "Малика амбициозна и хочет стать директором.",
+        "uz": "Malika maqsadga intiluvchan qiz, u direktor bo'lishni xohlaydi."
+      }
+    },
+    {
+      "word": "modest",
+      "part_of_speech": "adjective",
+      "translation": "скромный",
+      "translations": {
+        "ru": "скромный",
+        "uz": "kamtar"
+      },
+      "example": "He is modest and never talks about his success.",
+      "example_translations": {
+        "ru": "Он скромный и никогда не говорит о своих успехах.",
+        "uz": "U kamtar va hech qachon o'z yutuqlari haqida gapirmaydi."
+      }
+    },
+    {
+      "word": "curious",
+      "part_of_speech": "adjective",
+      "translation": "любознательный, любопытный",
+      "translations": {
+        "ru": "любознательный, любопытный",
+        "uz": "qiziquvchan"
+      },
+      "example": "Curious children ask a lot of questions.",
+      "example_translations": {
+        "ru": "Любознательные дети задают много вопросов.",
+        "uz": "Qiziquvchan bolalar ko'p savol beradi."
+      }
+    },
+    {
+      "word": "sensible",
+      "part_of_speech": "adjective",
+      "translation": "благоразумный",
+      "translations": {
+        "ru": "благоразумный",
+        "uz": "mulohazali"
+      },
+      "example": "Anna is sensible and never spends too much money.",
+      "example_translations": {
+        "ru": "Анна благоразумна и никогда не тратит слишком много денег.",
+        "uz": "Anna mulohazali va hech qachon ortiqcha pul sarflamaydi."
+      }
+    },
+    {
+      "word": "cheerful",
+      "part_of_speech": "adjective",
+      "translation": "жизнерадостный, весёлый",
+      "translations": {
+        "ru": "жизнерадостный, весёлый",
+        "uz": "quvnoq"
+      },
+      "example": "Our cheerful teacher always smiles in the morning.",
+      "example_translations": {
+        "ru": "Наша жизнерадостная учительница всегда улыбается по утрам.",
+        "uz": "Quvnoq o'qituvchimiz ertalab doim jilmayadi."
+      }
+    },
+    {
+      "word": "selfish",
+      "part_of_speech": "adjective",
+      "translation": "эгоистичный",
+      "translations": {
+        "ru": "эгоистичный",
+        "uz": "xudbin"
+      },
+      "example": "Don't be selfish, share the cake with your sister!",
+      "example_translations": {
+        "ru": "Не будь таким эгоистичным, поделись тортом с сестрой!",
+        "uz": "Xudbin bo'lma, tortni singling bilan baham ko'r!"
+      }
+    },
+    {
+      "word": "talkative",
+      "part_of_speech": "adjective",
+      "translation": "разговорчивый",
+      "translations": {
+        "ru": "разговорчивый",
+        "uz": "sergap"
+      },
+      "example": "My talkative aunt can speak for hours.",
+      "example_translations": {
+        "ru": "Моя разговорчивая тётя может говорить часами.",
+        "uz": "Sergap xolam soatlab gapira oladi."
+      }
+    }
+  ]
+}

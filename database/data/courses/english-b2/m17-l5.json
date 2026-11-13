@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Слова-связки",
+    "title_uz": "Bog'lovchi so'zlar"
+  },
+  "words": [
+    {
+      "word": "nevertheless",
+      "part_of_speech": "adverb",
+      "translation": "тем не менее",
+      "translations": {
+        "ru": "тем не менее",
+        "uz": "shunga qaramay"
+      },
+      "example": "She was tired but nevertheless finished the report.",
+      "example_translations": {
+        "ru": "Она устала, но тем не менее закончила отчёт.",
+        "uz": "U charchagan edi, lekin shunga qaramay hisobotni tugatdi."
+      }
+    },
+    {
+      "word": "moreover",
+      "part_of_speech": "adverb",
+      "translation": "более того",
+      "translations": {
+        "ru": "более того",
+        "uz": "buning ustiga"
+      },
+      "example": "The hotel is cheap and, moreover, very clean.",
+      "example_translations": {
+        "ru": "Отель недорогой и, более того, очень чистый.",
+        "uz": "Mehmonxona arzon va, buning ustiga, juda toza."
+      }
+    },
+    {
+      "word": "furthermore",
+      "part_of_speech": "adverb",
+      "translation": "кроме того",
+      "translations": {
+        "ru": "кроме того",
+        "uz": "bundan tashqari"
+      },
+      "example": "Furthermore, the new method saves time and money.",
+      "example_translations": {
+        "ru": "Кроме того, новый метод экономит время и деньги.",
+        "uz": "Bundan tashqari, yangi usul vaqt va pulni tejaydi."
+      }
+    },
+    {
+      "word": "whereas",
+      "part_of_speech": "conjunction",
+      "translation": "тогда как",
+      "translations": {
+        "ru": "тогда как",
+        "uz": "holbuki"
+      },
+      "example": "Tom loves the city, whereas his wife prefers villages.",
+      "example_translations": {
+        "ru": "Том любит город, тогда как его жена предпочитает деревню.",
+        "uz": "Tom shaharni yaxshi ko'radi, holbuki xotini qishloqni afzal ko'radi."
+      }
+    },
+    {
+      "word": "thus",
+      "part_of_speech": "adverb",
+      "translation": "таким образом",
+      "translations": {
+        "ru": "таким образом",
+        "uz": "shunday qilib"
+      },
+      "example": "He studied every day and thus passed the exam.",
+      "example_translations": {
+        "ru": "Он занимался каждый день и таким образом сдал экзамен.",
+        "uz": "U har kuni dars qildi va shunday qilib imtihondan o'tdi."
+      }
+    },
+    {
+      "word": "hence",
+      "part_of_speech": "adverb",
+      "translation": "следовательно, поэтому",
+      "translations": {
+        "ru": "следовательно, поэтому",
+        "uz": "shu sababli, demak"
+      },
+      "example": "Prices are rising; hence, people are buying less.",
+      "example_translations": {
+        "ru": "Цены растут; следовательно, люди покупают меньше.",
+        "uz": "Narxlar oshmoqda, shu sababli odamlar kamroq xarid qilmoqda."
+      }
+    },
+    {
+      "word": "indeed",
+      "part_of_speech": "adverb",
+      "translation": "действительно, в самом деле",
+      "translations": {
+        "ru": "действительно, в самом деле",
+        "uz": "haqiqatan ham"
+      },
+      "example": "The film was indeed as good as you said.",
+      "example_translations": {
+        "ru": "Фильм действительно оказался таким хорошим, как вы говорили.",
+        "uz": "Film haqiqatan ham siz aytganingizdek yaxshi ekan."
+      }
+    },
+    {
+      "word": "regardless",
+      "part_of_speech": "adverb",
+      "translation": "независимо от",
+      "translations": {
+        "ru": "независимо от",
+        "uz": "qat'i nazar"
+      },
+      "example": "Everyone can join the club, regardless of age.",
+      "example_translations": {
+        "ru": "В клуб может вступить любой, независимо от возраста.",
+        "uz": "Klubga yoshidan qat'i nazar har kim a'zo bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "similarly",
+      "part_of_speech": "adverb",
+      "translation": "подобным образом, аналогично",
+      "translations": {
+        "ru": "подобным образом, аналогично",
+        "uz": "xuddi shunday, shunga o'xshab"
+      },
+      "example": "Cars need fuel; similarly, people need food.",
+      "example_translations": {
+        "ru": "Машинам нужно топливо; подобным образом людям нужна еда.",
+        "uz": "Mashinalarga yoqilg'i kerak, xuddi shunday, odamlarga ovqat kerak."
+      }
+    },
+    {
+      "word": "alternatively",
+      "part_of_speech": "adverb",
+      "translation": "как вариант, или же",
+      "translations": {
+        "ru": "как вариант, или же",
+        "uz": "yoki bo'lmasa"
+      },
+      "example": "We can meet today or, alternatively, tomorrow morning.",
+      "example_translations": {
+        "ru": "Мы можем встретиться сегодня или, как вариант, завтра утром.",
+        "uz": "Bugun yoki bo'lmasa ertaga ertalab uchrashishimiz mumkin."
+      }
+    }
+  ]
+}

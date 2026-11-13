@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 13,
+    "title": "Природа и окружающая среда",
+    "title_uz": "Tabiat va atrof-muhit"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Звери, птицы, насекомые",
+    "title_uz": "Hayvonlar, qushlar, hasharotlar"
+  },
+  "words": [
+    {
+      "word": "penguin",
+      "part_of_speech": "noun",
+      "translation": "пингвин",
+      "translations": {
+        "ru": "пингвин",
+        "uz": "pingvin"
+      },
+      "example": "Penguins can swim fast, but they cannot fly.",
+      "example_translations": {
+        "ru": "Пингвины быстро плавают, но не умеют летать.",
+        "uz": "Pingvinlar tez suzadi, lekin ucha olmaydi."
+      }
+    },
+    {
+      "word": "shark",
+      "part_of_speech": "noun",
+      "translation": "акула",
+      "translations": {
+        "ru": "акула",
+        "uz": "akula"
+      },
+      "example": "A shark has several rows of sharp teeth.",
+      "example_translations": {
+        "ru": "У акулы несколько рядов острых зубов.",
+        "uz": "Akulaning bir necha qator o'tkir tishlari bor."
+      }
+    },
+    {
+      "word": "squirrel",
+      "part_of_speech": "noun",
+      "translation": "белка",
+      "translations": {
+        "ru": "белка",
+        "uz": "olmaxon"
+      },
+      "example": "Look, a squirrel is running up that tree!",
+      "example_translations": {
+        "ru": "Смотрите, белка взбирается на то дерево!",
+        "uz": "Qarang, olmaxon anavi daraxtga chiqib ketyapti!"
+      }
+    },
+    {
+      "word": "owl",
+      "part_of_speech": "noun",
+      "translation": "сова",
+      "translations": {
+        "ru": "сова",
+        "uz": "boyo'g'li, boyqush"
+      },
+      "example": "Owls sleep during the day and hunt at night.",
+      "example_translations": {
+        "ru": "Совы спят днём и охотятся ночью.",
+        "uz": "Boyo'g'lilar kunduzi uxlab, kechasi ov qiladi."
+      }
+    },
+    {
+      "word": "turtle",
+      "part_of_speech": "noun",
+      "translation": "черепаха",
+      "translations": {
+        "ru": "черепаха",
+        "uz": "toshbaqa"
+      },
+      "example": "This turtle is almost one hundred years old.",
+      "example_translations": {
+        "ru": "Этой черепахе почти сто лет.",
+        "uz": "Bu toshbaqa deyarli yuz yoshda."
+      }
+    },
+    {
+      "word": "camel",
+      "part_of_speech": "noun",
+      "translation": "верблюд",
+      "translations": {
+        "ru": "верблюд",
+        "uz": "tuya"
+      },
+      "example": "Camels can walk for days without water.",
+      "example_translations": {
+        "ru": "Верблюды могут идти несколько дней без воды.",
+        "uz": "Tuyalar suvsiz bir necha kun yura oladi."
+      }
+    },
+    {
+      "word": "goat",
+      "part_of_speech": "noun",
+      "translation": "коза",
+      "translations": {
+        "ru": "коза",
+        "uz": "echki"
+      },
+      "example": "My grandmother gets fresh milk from her goat.",
+      "example_translations": {
+        "ru": "Моя бабушка получает свежее молоко от своей козы.",
+        "uz": "Buvim o'z echkisidan yangi sut oladi."
+      }
+    },
+    {
+      "word": "parrot",
+      "part_of_speech": "noun",
+      "translation": "попугай",
+      "translations": {
+        "ru": "попугай",
+        "uz": "to'tiqush"
+      },
+      "example": "Can your parrot really say a few words?",
+      "example_translations": {
+        "ru": "Ваш попугай правда умеет произносить несколько слов?",
+        "uz": "To'tiqushingiz rostdan ham bir nechta so'z ayta oladimi?"
+      }
+    },
+    {
+      "word": "spider",
+      "part_of_speech": "noun",
+      "translation": "паук",
+      "translations": {
+        "ru": "паук",
+        "uz": "o'rgimchak"
+      },
+      "example": "Tom is afraid of spiders, even small ones.",
+      "example_translations": {
+        "ru": "Том боится пауков, даже маленьких.",
+        "uz": "Tom o'rgimchaklardan, hatto kichkinalaridan ham qo'rqadi."
+      }
+    },
+    {
+      "word": "mosquito",
+      "part_of_speech": "noun",
+      "translation": "комар",
+      "translations": {
+        "ru": "комар",
+        "uz": "chivin"
+      },
+      "example": "Close the window, or mosquitoes will come in.",
+      "example_translations": {
+        "ru": "Закройте окно, иначе залетят комары.",
+        "uz": "Derazani yoping, bo'lmasa chivinlar kirib keladi."
+      }
+    }
+  ]
+}

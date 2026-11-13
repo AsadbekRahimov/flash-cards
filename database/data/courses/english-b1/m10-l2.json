@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 10,
+    "title": "Технологии и интернет",
+    "title_uz": "Texnologiyalar va internet"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Работа за компьютером",
+    "title_uz": "Kompyuterda ishlash"
+  },
+  "words": [
+    {
+      "word": "upload",
+      "part_of_speech": "verb",
+      "translation": "загружать в сеть",
+      "translations": {
+        "ru": "загружать в сеть",
+        "uz": "tarmoqqa yuklamoq"
+      },
+      "example": "She uploads new photos to her blog every week.",
+      "example_translations": {
+        "ru": "Она каждую неделю загружает новые фотографии в свой блог.",
+        "uz": "U har hafta blogiga yangi suratlar yuklaydi."
+      }
+    },
+    {
+      "word": "backup",
+      "part_of_speech": "noun",
+      "translation": "резервная копия",
+      "translations": {
+        "ru": "резервная копия",
+        "uz": "zaxira nusxa"
+      },
+      "example": "Luckily, I had a backup of all my files.",
+      "example_translations": {
+        "ru": "К счастью, у меня была резервная копия всех файлов.",
+        "uz": "Baxtimga, barcha fayllarimning zaxira nusxasi bor edi."
+      }
+    },
+    {
+      "word": "paste",
+      "part_of_speech": "verb",
+      "translation": "вставлять",
+      "translations": {
+        "ru": "вставлять",
+        "uz": "qo'ymoq, joylashtirmoq"
+      },
+      "example": "Copy the address and paste it here.",
+      "example_translations": {
+        "ru": "Скопируйте адрес и вставьте его сюда.",
+        "uz": "Manzildan nusxa oling va uni shu yerga qo'ying."
+      }
+    },
+    {
+      "word": "attach",
+      "part_of_speech": "verb",
+      "translation": "прикреплять",
+      "translations": {
+        "ru": "прикреплять",
+        "uz": "biriktirmoq"
+      },
+      "example": "I forgot to attach the file to my email.",
+      "example_translations": {
+        "ru": "Я забыл прикрепить файл к электронному письму.",
+        "uz": "Men elektron xatimga faylni biriktirishni unutdim."
+      }
+    },
+    {
+      "word": "scroll",
+      "part_of_speech": "verb",
+      "translation": "прокручивать, листать",
+      "translations": {
+        "ru": "прокручивать, листать",
+        "uz": "varaqlamoq"
+      },
+      "example": "Scroll down to see the rest of the page.",
+      "example_translations": {
+        "ru": "Прокрутите вниз, чтобы увидеть остальную часть страницы.",
+        "uz": "Sahifaning qolgan qismini ko'rish uchun pastga varaqlang."
+      }
+    },
+    {
+      "word": "display",
+      "part_of_speech": "verb",
+      "translation": "показывать, отображать",
+      "translations": {
+        "ru": "показывать, отображать",
+        "uz": "ko'rsatmoq, aks ettirmoq"
+      },
+      "example": "The screen displays the time and the date.",
+      "example_translations": {
+        "ru": "Экран показывает время и дату.",
+        "uz": "Ekran vaqt va sanani ko'rsatadi."
+      }
+    },
+    {
+      "word": "desktop",
+      "part_of_speech": "noun",
+      "translation": "рабочий стол",
+      "translations": {
+        "ru": "рабочий стол",
+        "uz": "ish stoli"
+      },
+      "example": "There are too many files on my desktop.",
+      "example_translations": {
+        "ru": "На моём рабочем столе слишком много файлов.",
+        "uz": "Ish stolimda haddan tashqari ko'p fayl bor."
+      }
+    },
+    {
+      "word": "database",
+      "part_of_speech": "noun",
+      "translation": "база данных",
+      "translations": {
+        "ru": "база данных",
+        "uz": "ma'lumotlar bazasi"
+      },
+      "example": "The database contains the names of all our students.",
+      "example_translations": {
+        "ru": "База данных содержит имена всех наших студентов.",
+        "uz": "Ma'lumotlar bazasida barcha talabalarimizning ismlari bor."
+      }
+    },
+    {
+      "word": "icon",
+      "part_of_speech": "noun",
+      "translation": "значок, иконка",
+      "translations": {
+        "ru": "значок, иконка",
+        "uz": "belgicha, ikonka"
+      },
+      "example": "Click the printer icon to print the page.",
+      "example_translations": {
+        "ru": "Нажмите на значок принтера, чтобы распечатать страницу.",
+        "uz": "Sahifani chop etish uchun printer belgichasini bosing."
+      }
+    },
+    {
+      "word": "browser",
+      "part_of_speech": "noun",
+      "translation": "браузер",
+      "translations": {
+        "ru": "браузер",
+        "uz": "brauzer"
+      },
+      "example": "Which browser do you use on your phone?",
+      "example_translations": {
+        "ru": "Каким браузером вы пользуетесь на телефоне?",
+        "uz": "Telefoningizda qaysi brauzerdan foydalanasiz?"
+      }
+    }
+  ]
+}

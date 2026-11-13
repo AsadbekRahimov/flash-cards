@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 9,
+    "title": "Учёба и знания",
+    "title_uz": "O'qish va bilim"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Система образования",
+    "title_uz": "Ta'lim tizimi"
+  },
+  "words": [
+    {
+      "word": "education",
+      "part_of_speech": "noun",
+      "translation": "образование",
+      "translations": {
+        "ru": "образование",
+        "uz": "ta'lim"
+      },
+      "example": "A good education opens many doors in life.",
+      "example_translations": {
+        "ru": "Хорошее образование открывает в жизни многие двери.",
+        "uz": "Yaxshi ta'lim hayotda ko'p eshiklarni ochadi."
+      }
+    },
+    {
+      "word": "primary",
+      "part_of_speech": "adjective",
+      "translation": "начальный, первичный",
+      "translations": {
+        "ru": "начальный, первичный",
+        "uz": "boshlang'ich, birlamchi"
+      },
+      "example": "My little sister goes to primary school.",
+      "example_translations": {
+        "ru": "Моя младшая сестра ходит в начальную школу.",
+        "uz": "Singlim boshlang'ich maktabga qatnaydi."
+      }
+    },
+    {
+      "word": "secondary",
+      "part_of_speech": "adjective",
+      "translation": "средний, вторичный",
+      "translations": {
+        "ru": "средний, вторичный",
+        "uz": "o'rta, ikkilamchi"
+      },
+      "example": "After secondary school, Malika wants to study medicine.",
+      "example_translations": {
+        "ru": "После средней школы Малика хочет изучать медицину.",
+        "uz": "O'rta maktabdan keyin Malika tibbiyotni o'rganmoqchi."
+      }
+    },
+    {
+      "word": "compulsory",
+      "part_of_speech": "adjective",
+      "translation": "обязательный",
+      "translations": {
+        "ru": "обязательный",
+        "uz": "majburiy"
+      },
+      "example": "Is English a compulsory subject at your school?",
+      "example_translations": {
+        "ru": "Английский — обязательный предмет в вашей школе?",
+        "uz": "Maktabingizda ingliz tili majburiy fanmi?"
+      }
+    },
+    {
+      "word": "optional",
+      "part_of_speech": "adjective",
+      "translation": "необязательный, по желанию",
+      "translations": {
+        "ru": "необязательный, по желанию",
+        "uz": "ixtiyoriy"
+      },
+      "example": "Music lessons are optional, but many students take them.",
+      "example_translations": {
+        "ru": "Уроки музыки необязательные, но многие ученики на них ходят.",
+        "uz": "Musiqa darslari ixtiyoriy, lekin ko'p o'quvchilar ularga qatnaydi."
+      }
+    },
+    {
+      "word": "tuition",
+      "part_of_speech": "noun",
+      "translation": "плата за обучение",
+      "translations": {
+        "ru": "плата за обучение",
+        "uz": "o'qish to'lovi"
+      },
+      "example": "Tuition at this university is very expensive.",
+      "example_translations": {
+        "ru": "Плата за обучение в этом университете очень высокая.",
+        "uz": "Bu universitetda o'qish to'lovi juda yuqori."
+      }
+    },
+    {
+      "word": "elementary",
+      "part_of_speech": "adjective",
+      "translation": "начальный, элементарный",
+      "translations": {
+        "ru": "начальный, элементарный",
+        "uz": "boshlang'ich, elementar"
+      },
+      "example": "Tom started elementary school at the age of six.",
+      "example_translations": {
+        "ru": "Том пошёл в начальную школу в шесть лет.",
+        "uz": "Tom olti yoshida boshlang'ich maktabga bordi."
+      }
+    },
+    {
+      "word": "academic",
+      "part_of_speech": "adjective",
+      "translation": "учебный, академический",
+      "translations": {
+        "ru": "учебный, академический",
+        "uz": "o'quv, akademik"
+      },
+      "example": "The academic year starts in September.",
+      "example_translations": {
+        "ru": "Учебный год начинается в сентябре.",
+        "uz": "O'quv yili sentabrda boshlanadi."
+      }
+    },
+    {
+      "word": "certificate",
+      "part_of_speech": "noun",
+      "translation": "сертификат",
+      "translations": {
+        "ru": "сертификат",
+        "uz": "sertifikat"
+      },
+      "example": "She received a certificate after the language course.",
+      "example_translations": {
+        "ru": "После языковых курсов она получила сертификат.",
+        "uz": "Til kursidan keyin u sertifikat oldi."
+      }
+    },
+    {
+      "word": "private",
+      "part_of_speech": "adjective",
+      "translation": "частный",
+      "translations": {
+        "ru": "частный",
+        "uz": "xususiy"
+      },
+      "example": "Private schools usually have smaller classes.",
+      "example_translations": {
+        "ru": "В частных школах классы обычно меньше.",
+        "uz": "Xususiy maktablarda sinflar odatda kichikroq bo'ladi."
+      }
+    }
+  ]
+}

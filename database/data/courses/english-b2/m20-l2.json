@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 20,
+    "title": "Академические глаголы и понятия",
+    "title_uz": "Akademik fe'llar va tushunchalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Глаголы изложения",
+    "title_uz": "Bayon fe'llari"
+  },
+  "words": [
+    {
+      "word": "indicate",
+      "part_of_speech": "verb",
+      "translation": "указывать, свидетельствовать",
+      "translations": {
+        "ru": "указывать, свидетельствовать",
+        "uz": "ko'rsatmoq, dalolat bermoq"
+      },
+      "example": "The results indicate that the new method works.",
+      "example_translations": {
+        "ru": "Результаты указывают на то, что новый метод работает.",
+        "uz": "Natijalar yangi usul ish berayotganini ko'rsatadi."
+      }
+    },
+    {
+      "word": "illustrate",
+      "part_of_speech": "verb",
+      "translation": "иллюстрировать, пояснять примером",
+      "translations": {
+        "ru": "иллюстрировать, пояснять примером",
+        "uz": "misol bilan tushuntirmoq"
+      },
+      "example": "She illustrated her point with a simple example.",
+      "example_translations": {
+        "ru": "Она проиллюстрировала свою мысль простым примером.",
+        "uz": "U o'z fikrini oddiy misol bilan tushuntirdi."
+      }
+    },
+    {
+      "word": "refer",
+      "part_of_speech": "verb",
+      "translation": "ссылаться",
+      "translations": {
+        "ru": "ссылаться",
+        "uz": "havola qilmoq"
+      },
+      "example": "The author refers to several earlier studies.",
+      "example_translations": {
+        "ru": "Автор ссылается на несколько более ранних исследований.",
+        "uz": "Muallif avvalgi bir nechta tadqiqotga havola qiladi."
+      }
+    },
+    {
+      "word": "highlight",
+      "part_of_speech": "verb",
+      "translation": "особо отмечать, выделять",
+      "translations": {
+        "ru": "особо отмечать, выделять",
+        "uz": "alohida ta'kidlamoq"
+      },
+      "example": "Her speech highlighted the need for more teachers.",
+      "example_translations": {
+        "ru": "В своём выступлении она особо отметила, что нужно больше учителей.",
+        "uz": "U o'z nutqida ko'proq o'qituvchi kerakligini alohida ta'kidladi."
+      }
+    },
+    {
+      "word": "specify",
+      "part_of_speech": "verb",
+      "translation": "точно указывать, уточнять",
+      "translations": {
+        "ru": "точно указывать, уточнять",
+        "uz": "aniq ko'rsatmoq"
+      },
+      "example": "Please specify the size and color you need.",
+      "example_translations": {
+        "ru": "Пожалуйста, точно укажите нужный вам размер и цвет.",
+        "uz": "Iltimos, o'zingizga kerakli o'lcham va rangni aniq ko'rsating."
+      }
+    },
+    {
+      "word": "formulate",
+      "part_of_speech": "verb",
+      "translation": "формулировать",
+      "translations": {
+        "ru": "формулировать",
+        "uz": "ifodalamoq, shakllantirmoq"
+      },
+      "example": "Try to formulate your question more clearly.",
+      "example_translations": {
+        "ru": "Постарайтесь сформулировать свой вопрос яснее.",
+        "uz": "Savolingizni aniqroq ifodalashga harakat qiling."
+      }
+    },
+    {
+      "word": "reinforce",
+      "part_of_speech": "verb",
+      "translation": "подкреплять, усиливать",
+      "translations": {
+        "ru": "подкреплять, усиливать",
+        "uz": "mustahkamlamoq, kuchaytirmoq"
+      },
+      "example": "These examples reinforce the main idea of the text.",
+      "example_translations": {
+        "ru": "Эти примеры подкрепляют главную мысль текста.",
+        "uz": "Bu misollar matnning asosiy g'oyasini mustahkamlaydi."
+      }
+    },
+    {
+      "word": "represent",
+      "part_of_speech": "verb",
+      "translation": "обозначать, представлять",
+      "translations": {
+        "ru": "обозначать, представлять",
+        "uz": "bildirmoq, anglatmoq"
+      },
+      "example": "Each color on the chart represents a different country.",
+      "example_translations": {
+        "ru": "Каждый цвет на диаграмме обозначает отдельную страну.",
+        "uz": "Diagrammadagi har bir rang alohida mamlakatni bildiradi."
+      }
+    },
+    {
+      "word": "correspond",
+      "part_of_speech": "verb",
+      "translation": "соответствовать",
+      "translations": {
+        "ru": "соответствовать",
+        "uz": "mos kelmoq"
+      },
+      "example": "Do these numbers correspond to points on the map?",
+      "example_translations": {
+        "ru": "Соответствуют ли эти числа точкам на карте?",
+        "uz": "Bu raqamlar xaritadagi nuqtalarga mos keladimi?"
+      }
+    },
+    {
+      "word": "comprise",
+      "part_of_speech": "verb",
+      "translation": "включать в себя",
+      "translations": {
+        "ru": "включать в себя",
+        "uz": "o'z ichiga olmoq"
+      },
+      "example": "The course comprises ten modules and a final exam.",
+      "example_translations": {
+        "ru": "Курс включает в себя десять модулей и итоговый экзамен.",
+        "uz": "Kurs o'nta modul va yakuniy imtihonni o'z ichiga oladi."
+      }
+    }
+  ]
+}

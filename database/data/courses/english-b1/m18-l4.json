@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 18,
+    "title": "Описание вещей и мест",
+    "title_uz": "Narsa va joylar tasviri"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Места и расположение",
+    "title_uz": "Joy va joylashuv"
+  },
+  "words": [
+    {
+      "word": "location",
+      "part_of_speech": "noun",
+      "translation": "расположение, местоположение",
+      "translations": {
+        "ru": "расположение, местоположение",
+        "uz": "joylashuv"
+      },
+      "example": "Our hotel has a great location near the sea.",
+      "example_translations": {
+        "ru": "У нашего отеля отличное расположение рядом с морем.",
+        "uz": "Mehmonxonamizning joylashuvi ajoyib — dengiz yonida."
+      }
+    },
+    {
+      "word": "area",
+      "part_of_speech": "noun",
+      "translation": "район, территория",
+      "translations": {
+        "ru": "район, территория",
+        "uz": "hudud"
+      },
+      "example": "This is a quiet area with many parks.",
+      "example_translations": {
+        "ru": "Это тихий район со множеством парков.",
+        "uz": "Bu — bog'lari ko'p, sokin hudud."
+      }
+    },
+    {
+      "word": "spot",
+      "part_of_speech": "noun",
+      "translation": "место, местечко",
+      "translations": {
+        "ru": "место, местечко",
+        "uz": "joy"
+      },
+      "example": "We found a nice spot for a picnic.",
+      "example_translations": {
+        "ru": "Мы нашли хорошее место для пикника.",
+        "uz": "Biz piknik uchun yaxshi joy topdik."
+      }
+    },
+    {
+      "word": "edge",
+      "part_of_speech": "noun",
+      "translation": "край",
+      "translations": {
+        "ru": "край",
+        "uz": "chekka, chet"
+      },
+      "example": "Their house is at the edge of the village.",
+      "example_translations": {
+        "ru": "Их дом стоит на краю деревни.",
+        "uz": "Ularning uyi qishloqning chekkasida joylashgan."
+      }
+    },
+    {
+      "word": "bottom",
+      "part_of_speech": "noun",
+      "translation": "дно, низ",
+      "translations": {
+        "ru": "дно, низ",
+        "uz": "tub, pastki qism"
+      },
+      "example": "My keys were at the bottom of the bag.",
+      "example_translations": {
+        "ru": "Мои ключи были на дне сумки.",
+        "uz": "Kalitlarim sumkaning tubida edi."
+      }
+    },
+    {
+      "word": "opposite",
+      "part_of_speech": "preposition",
+      "translation": "напротив",
+      "translations": {
+        "ru": "напротив",
+        "uz": "ro'parasida, qarshisida"
+      },
+      "example": "The bank is opposite the post office.",
+      "example_translations": {
+        "ru": "Банк находится напротив почты.",
+        "uz": "Bank pochtaning ro'parasida joylashgan."
+      }
+    },
+    {
+      "word": "within",
+      "part_of_speech": "preposition",
+      "translation": "в пределах",
+      "translations": {
+        "ru": "в пределах",
+        "uz": "ichida, doirasida"
+      },
+      "example": "We live within two kilometers of the airport.",
+      "example_translations": {
+        "ru": "Мы живём в пределах двух километров от аэропорта.",
+        "uz": "Biz aeroportdan ikki kilometr masofa ichida yashaymiz."
+      }
+    },
+    {
+      "word": "among",
+      "part_of_speech": "preposition",
+      "translation": "среди",
+      "translations": {
+        "ru": "среди",
+        "uz": "orasida"
+      },
+      "example": "A small house stood among tall trees.",
+      "example_translations": {
+        "ru": "Маленький домик стоял среди высоких деревьев.",
+        "uz": "Kichkina uy baland daraxtlar orasida turardi."
+      }
+    },
+    {
+      "word": "surround",
+      "part_of_speech": "verb",
+      "translation": "окружать",
+      "translations": {
+        "ru": "окружать",
+        "uz": "o'rab turmoq"
+      },
+      "example": "High mountains surround the village on all sides.",
+      "example_translations": {
+        "ru": "Высокие горы окружают деревню со всех сторон.",
+        "uz": "Baland tog'lar qishloqni har tomondan o'rab turadi."
+      }
+    },
+    {
+      "word": "central",
+      "part_of_speech": "adjective",
+      "translation": "центральный",
+      "translations": {
+        "ru": "центральный",
+        "uz": "markaziy"
+      },
+      "example": "Tonight the central square is full of people.",
+      "example_translations": {
+        "ru": "Сегодня вечером на центральной площади полно людей.",
+        "uz": "Bugun kechqurun markaziy maydon odamlar bilan to'la."
+      }
+    }
+  ]
+}

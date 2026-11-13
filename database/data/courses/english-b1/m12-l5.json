@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 12,
+    "title": "Спорт и активный отдых",
+    "title_uz": "Sport va faol dam olish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Отдых на природе",
+    "title_uz": "Tabiat qo'ynida dam olish"
+  },
+  "words": [
+    {
+      "word": "outdoor",
+      "part_of_speech": "adjective",
+      "translation": "на открытом воздухе",
+      "translations": {
+        "ru": "на открытом воздухе",
+        "uz": "ochiq havodagi"
+      },
+      "example": "Fishing is his favorite outdoor activity.",
+      "example_translations": {
+        "ru": "Рыбалка — его любимое занятие на открытом воздухе.",
+        "uz": "Baliq ovi — uning ochiq havodagi sevimli mashg'uloti."
+      }
+    },
+    {
+      "word": "hike",
+      "part_of_speech": "noun",
+      "translation": "поход",
+      "translations": {
+        "ru": "поход",
+        "uz": "piyoda sayohat"
+      },
+      "example": "We went on a long hike in the mountains.",
+      "example_translations": {
+        "ru": "Мы ходили в долгий поход в горы.",
+        "uz": "Biz tog'larda uzoq piyoda sayohatga chiqdik."
+      }
+    },
+    {
+      "word": "rescue",
+      "part_of_speech": "verb",
+      "translation": "спасать",
+      "translations": {
+        "ru": "спасать",
+        "uz": "qutqarmoq"
+      },
+      "example": "The team rescued a lost tourist in the forest.",
+      "example_translations": {
+        "ru": "Команда спасла заблудившегося туриста в лесу.",
+        "uz": "Guruh o'rmonda adashib qolgan sayyohni qutqardi."
+      }
+    },
+    {
+      "word": "trail",
+      "part_of_speech": "noun",
+      "translation": "тропа",
+      "translations": {
+        "ru": "тропа",
+        "uz": "so'qmoq"
+      },
+      "example": "Follow this trail to reach the lake.",
+      "example_translations": {
+        "ru": "Идите по этой тропе, чтобы дойти до озера.",
+        "uz": "Ko'lga yetib borish uchun shu so'qmoqdan yuring."
+      }
+    },
+    {
+      "word": "peak",
+      "part_of_speech": "noun",
+      "translation": "вершина",
+      "translations": {
+        "ru": "вершина",
+        "uz": "cho'qqi"
+      },
+      "example": "Snow covers the peak of this mountain all year.",
+      "example_translations": {
+        "ru": "Снег покрывает вершину этой горы круглый год.",
+        "uz": "Bu tog'ning cho'qqisini yil bo'yi qor qoplab turadi."
+      }
+    },
+    {
+      "word": "slope",
+      "part_of_speech": "noun",
+      "translation": "склон",
+      "translations": {
+        "ru": "склон",
+        "uz": "yonbag'ir"
+      },
+      "example": "It is hard to walk up this slope.",
+      "example_translations": {
+        "ru": "По этому склону трудно подниматься.",
+        "uz": "Bu yonbag'irdan yuqoriga chiqish qiyin."
+      }
+    },
+    {
+      "word": "compass",
+      "part_of_speech": "noun",
+      "translation": "компас",
+      "translations": {
+        "ru": "компас",
+        "uz": "kompas"
+      },
+      "example": "A compass always shows where north is.",
+      "example_translations": {
+        "ru": "Компас всегда показывает, где север.",
+        "uz": "Kompas doim shimol qayerdaligini ko'rsatadi."
+      }
+    },
+    {
+      "word": "canoe",
+      "part_of_speech": "noun",
+      "translation": "каноэ",
+      "translations": {
+        "ru": "каноэ",
+        "uz": "kanoe"
+      },
+      "example": "Can we cross the river in a small canoe?",
+      "example_translations": {
+        "ru": "Мы сможем переплыть реку на маленьком каноэ?",
+        "uz": "Daryodan kichik kanoeda suzib o'ta olamizmi?"
+      }
+    },
+    {
+      "word": "bonfire",
+      "part_of_speech": "noun",
+      "translation": "костёр",
+      "translations": {
+        "ru": "костёр",
+        "uz": "gulxan"
+      },
+      "example": "We sat around the bonfire and sang songs.",
+      "example_translations": {
+        "ru": "Мы сидели вокруг костра и пели песни.",
+        "uz": "Biz gulxan atrofida o'tirib, qo'shiq kuyladik."
+      }
+    },
+    {
+      "word": "barbecue",
+      "part_of_speech": "noun",
+      "translation": "барбекю",
+      "translations": {
+        "ru": "барбекю",
+        "uz": "barbekyu"
+      },
+      "example": "They had a barbecue in the garden on Sunday.",
+      "example_translations": {
+        "ru": "В воскресенье они устроили барбекю в саду.",
+        "uz": "Yakshanba kuni ular bog'da barbekyu uyushtirishdi."
+      }
+    }
+  ]
+}

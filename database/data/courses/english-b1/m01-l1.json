@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 1,
+    "title": "Личность и биография",
+    "title_uz": "Shaxs va tarjimayi hol"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Личные данные",
+    "title_uz": "Shaxsiy ma'lumotlar"
+  },
+  "words": [
+    {
+      "word": "surname",
+      "part_of_speech": "noun",
+      "translation": "фамилия",
+      "translations": {
+        "ru": "фамилия",
+        "uz": "familiya"
+      },
+      "example": "Please write your surname in capital letters.",
+      "example_translations": {
+        "ru": "Пожалуйста, напишите свою фамилию заглавными буквами.",
+        "uz": "Iltimos, familiyangizni bosh harflar bilan yozing."
+      }
+    },
+    {
+      "word": "nickname",
+      "part_of_speech": "noun",
+      "translation": "прозвище",
+      "translations": {
+        "ru": "прозвище",
+        "uz": "laqab"
+      },
+      "example": "His friends gave him a funny nickname.",
+      "example_translations": {
+        "ru": "Друзья дали ему смешное прозвище.",
+        "uz": "Do'stlari unga kulgili laqab qo'yishdi."
+      }
+    },
+    {
+      "word": "gender",
+      "part_of_speech": "noun",
+      "translation": "пол",
+      "translations": {
+        "ru": "пол",
+        "uz": "jins"
+      },
+      "example": "The form asks for your age and gender.",
+      "example_translations": {
+        "ru": "В анкете нужно указать ваш возраст и пол.",
+        "uz": "Anketada yoshingiz va jinsingiz so'raladi."
+      }
+    },
+    {
+      "word": "nationality",
+      "part_of_speech": "noun",
+      "translation": "национальность",
+      "translations": {
+        "ru": "национальность",
+        "uz": "millat"
+      },
+      "example": "What nationality is your new neighbor?",
+      "example_translations": {
+        "ru": "Какой национальности ваш новый сосед?",
+        "uz": "Yangi qo'shningizning millati nima?"
+      }
+    },
+    {
+      "word": "birthplace",
+      "part_of_speech": "noun",
+      "translation": "место рождения",
+      "translations": {
+        "ru": "место рождения",
+        "uz": "tug'ilgan joy"
+      },
+      "example": "This small village is my grandfather's birthplace.",
+      "example_translations": {
+        "ru": "Эта маленькая деревня — место рождения моего дедушки.",
+        "uz": "Bu kichik qishloq bobomning tug'ilgan joyi."
+      }
+    },
+    {
+      "word": "signature",
+      "part_of_speech": "noun",
+      "translation": "подпись",
+      "translations": {
+        "ru": "подпись",
+        "uz": "imzo"
+      },
+      "example": "We need your signature on this document.",
+      "example_translations": {
+        "ru": "Нам нужна ваша подпись на этом документе.",
+        "uz": "Bu hujjatga sizning imzongiz kerak."
+      }
+    },
+    {
+      "word": "identity",
+      "part_of_speech": "noun",
+      "translation": "личность",
+      "translations": {
+        "ru": "личность",
+        "uz": "shaxs"
+      },
+      "example": "You need a passport to prove your identity.",
+      "example_translations": {
+        "ru": "Чтобы подтвердить свою личность, вам нужен паспорт.",
+        "uz": "Shaxsingizni tasdiqlash uchun sizga pasport kerak."
+      }
+    },
+    {
+      "word": "background",
+      "part_of_speech": "noun",
+      "translation": "происхождение",
+      "translations": {
+        "ru": "происхождение",
+        "uz": "kelib chiqish"
+      },
+      "example": "People from different backgrounds study at our school.",
+      "example_translations": {
+        "ru": "В нашей школе учатся люди разного происхождения.",
+        "uz": "Maktabimizda kelib chiqishi turlicha bo'lgan odamlar o'qiydi."
+      }
+    },
+    {
+      "word": "occupation",
+      "part_of_speech": "noun",
+      "translation": "профессия, род занятий",
+      "translations": {
+        "ru": "профессия, род занятий",
+        "uz": "kasb, mashg'ulot"
+      },
+      "example": "Write your occupation here, for example, doctor or driver.",
+      "example_translations": {
+        "ru": "Напишите здесь вашу профессию, например врач или водитель.",
+        "uz": "Bu yerga kasbingizni yozing, masalan, shifokor yoki haydovchi."
+      }
+    },
+    {
+      "word": "personal",
+      "part_of_speech": "adjective",
+      "translation": "личный",
+      "translations": {
+        "ru": "личный",
+        "uz": "shaxsiy"
+      },
+      "example": "Never share your personal information with strangers.",
+      "example_translations": {
+        "ru": "Никогда не сообщайте свою личную информацию незнакомым людям.",
+        "uz": "Shaxsiy ma'lumotlaringizni hech qachon notanish odamlarga bermang."
+      }
+    }
+  ]
+}

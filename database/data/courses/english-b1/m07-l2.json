@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 7,
+    "title": "Работа и профессии",
+    "title_uz": "Ish va kasblar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Приём на работу",
+    "title_uz": "Ishga qabul qilish"
+  },
+  "words": [
+    {
+      "word": "qualification",
+      "part_of_speech": "noun",
+      "translation": "квалификация",
+      "translations": {
+        "ru": "квалификация",
+        "uz": "malaka"
+      },
+      "example": "What qualifications do you need for this job?",
+      "example_translations": {
+        "ru": "Какая квалификация нужна для этой работы?",
+        "uz": "Bu ish uchun qanday malaka kerak?"
+      }
+    },
+    {
+      "word": "requirement",
+      "part_of_speech": "noun",
+      "translation": "требование",
+      "translations": {
+        "ru": "требование",
+        "uz": "talab"
+      },
+      "example": "Good English is the main requirement for this job.",
+      "example_translations": {
+        "ru": "Хороший английский — главное требование для этой работы.",
+        "uz": "Ingliz tilini yaxshi bilish — bu ish uchun asosiy talab."
+      }
+    },
+    {
+      "word": "position",
+      "part_of_speech": "noun",
+      "translation": "должность",
+      "translations": {
+        "ru": "должность",
+        "uz": "lavozim"
+      },
+      "example": "She applied for the position of sales manager.",
+      "example_translations": {
+        "ru": "Она подала заявление на должность менеджера по продажам.",
+        "uz": "U savdo menejeri lavozimiga ariza topshirdi."
+      }
+    },
+    {
+      "word": "permanent",
+      "part_of_speech": "adjective",
+      "translation": "постоянный",
+      "translations": {
+        "ru": "постоянный",
+        "uz": "doimiy"
+      },
+      "example": "After six months, he got a permanent job.",
+      "example_translations": {
+        "ru": "Через шесть месяцев он получил постоянную работу.",
+        "uz": "Olti oydan so'ng u doimiy ishga ega bo'ldi."
+      }
+    },
+    {
+      "word": "temporary",
+      "part_of_speech": "adjective",
+      "translation": "временный",
+      "translations": {
+        "ru": "временный",
+        "uz": "vaqtinchalik"
+      },
+      "example": "I am looking for temporary work this summer.",
+      "example_translations": {
+        "ru": "Этим летом я ищу временную работу.",
+        "uz": "Bu yozda men vaqtinchalik ish qidiryapman."
+      }
+    },
+    {
+      "word": "trainee",
+      "part_of_speech": "noun",
+      "translation": "стажёр",
+      "translations": {
+        "ru": "стажёр",
+        "uz": "stajyor"
+      },
+      "example": "The new trainee is learning how to serve customers.",
+      "example_translations": {
+        "ru": "Новый стажёр учится обслуживать клиентов.",
+        "uz": "Yangi stajyor mijozlarga xizmat ko'rsatishni o'rganyapti."
+      }
+    },
+    {
+      "word": "internship",
+      "part_of_speech": "noun",
+      "translation": "стажировка",
+      "translations": {
+        "ru": "стажировка",
+        "uz": "amaliyot, stajirovka"
+      },
+      "example": "Malika will do an internship at a bank this summer.",
+      "example_translations": {
+        "ru": "Этим летом Малика будет проходить стажировку в банке.",
+        "uz": "Bu yozda Malika bankda amaliyot o'taydi."
+      }
+    },
+    {
+      "word": "staff",
+      "part_of_speech": "noun",
+      "translation": "персонал, сотрудники",
+      "translations": {
+        "ru": "персонал, сотрудники",
+        "uz": "xodimlar"
+      },
+      "example": "The restaurant needs more staff for the summer.",
+      "example_translations": {
+        "ru": "Ресторану нужно больше сотрудников на лето.",
+        "uz": "Restoranga yoz mavsumi uchun ko'proq xodimlar kerak."
+      }
+    },
+    {
+      "word": "resign",
+      "part_of_speech": "verb",
+      "translation": "увольняться",
+      "translations": {
+        "ru": "увольняться",
+        "uz": "ishdan bo'shamoq"
+      },
+      "example": "He resigned because he found a better job.",
+      "example_translations": {
+        "ru": "Он уволился, потому что нашёл работу получше.",
+        "uz": "U yaxshiroq ish topgani uchun ishdan bo'shadi."
+      }
+    },
+    {
+      "word": "suitable",
+      "part_of_speech": "adjective",
+      "translation": "подходящий",
+      "translations": {
+        "ru": "подходящий",
+        "uz": "munosib, mos"
+      },
+      "example": "We are looking for a suitable person for this job.",
+      "example_translations": {
+        "ru": "Мы ищем подходящего человека для этой работы.",
+        "uz": "Biz bu ishga munosib odam qidiryapmiz."
+      }
+    }
+  ]
+}

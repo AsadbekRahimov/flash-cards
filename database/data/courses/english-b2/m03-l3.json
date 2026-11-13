@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 3,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Инвестиции",
+    "title_uz": "Investitsiyalar"
+  },
+  "words": [
+    {
+      "word": "bond",
+      "part_of_speech": "noun",
+      "translation": "облигация",
+      "translations": {
+        "ru": "облигация",
+        "uz": "obligatsiya"
+      },
+      "example": "Government bonds are a safe way to invest.",
+      "example_translations": {
+        "ru": "Государственные облигации — надёжный способ вложить деньги.",
+        "uz": "Davlat obligatsiyalari — sarmoya kiritishning ishonchli usuli."
+      }
+    },
+    {
+      "word": "stake",
+      "part_of_speech": "noun",
+      "translation": "доля",
+      "translations": {
+        "ru": "доля",
+        "uz": "ulush"
+      },
+      "example": "He owns a 20 percent stake in the company.",
+      "example_translations": {
+        "ru": "Ему принадлежит 20-процентная доля в компании.",
+        "uz": "U kompaniyaning 20 foizlik ulushiga ega."
+      }
+    },
+    {
+      "word": "shareholder",
+      "part_of_speech": "noun",
+      "translation": "акционер",
+      "translations": {
+        "ru": "акционер",
+        "uz": "aksiyador"
+      },
+      "example": "Every shareholder can vote at the annual meeting.",
+      "example_translations": {
+        "ru": "Каждый акционер может голосовать на ежегодном собрании.",
+        "uz": "Har bir aksiyador yillik yig'ilishda ovoz bera oladi."
+      }
+    },
+    {
+      "word": "stock",
+      "part_of_speech": "noun",
+      "translation": "акция",
+      "translations": {
+        "ru": "акция",
+        "uz": "aksiya"
+      },
+      "example": "The company's stock rose by five percent today.",
+      "example_translations": {
+        "ru": "Акции компании сегодня выросли на пять процентов.",
+        "uz": "Bugun kompaniya aksiyalari besh foizga ko'tarildi."
+      }
+    },
+    {
+      "word": "dividend",
+      "part_of_speech": "noun",
+      "translation": "дивиденд",
+      "translations": {
+        "ru": "дивиденд",
+        "uz": "dividend"
+      },
+      "example": "Does the firm pay a dividend every year?",
+      "example_translations": {
+        "ru": "Фирма выплачивает дивиденды каждый год?",
+        "uz": "Firma har yili dividend to'laydimi?"
+      }
+    },
+    {
+      "word": "asset",
+      "part_of_speech": "noun",
+      "translation": "актив",
+      "translations": {
+        "ru": "актив",
+        "uz": "aktiv"
+      },
+      "example": "Many investors see gold as a safe asset.",
+      "example_translations": {
+        "ru": "Многие инвесторы считают золото надёжным активом.",
+        "uz": "Ko'p investorlar oltinni ishonchli aktiv deb biladi."
+      }
+    },
+    {
+      "word": "portfolio",
+      "part_of_speech": "noun",
+      "translation": "инвестиционный портфель",
+      "translations": {
+        "ru": "инвестиционный портфель",
+        "uz": "investitsiya portfeli"
+      },
+      "example": "Her portfolio includes shares in ten companies.",
+      "example_translations": {
+        "ru": "В её инвестиционный портфель входят акции десяти компаний.",
+        "uz": "Uning investitsiya portfeliga o'nta kompaniyaning aksiyalari kiradi."
+      }
+    },
+    {
+      "word": "commodity",
+      "part_of_speech": "noun",
+      "translation": "сырьевой товар",
+      "translations": {
+        "ru": "сырьевой товар",
+        "uz": "xomashyo tovari"
+      },
+      "example": "Coffee is a commodity traded all over the world.",
+      "example_translations": {
+        "ru": "Кофе — сырьевой товар, которым торгуют по всему миру.",
+        "uz": "Qahva — butun dunyoda savdo qilinadigan xomashyo tovari."
+      }
+    },
+    {
+      "word": "broker",
+      "part_of_speech": "noun",
+      "translation": "брокер",
+      "translations": {
+        "ru": "брокер",
+        "uz": "broker"
+      },
+      "example": "A broker buys and sells shares for clients.",
+      "example_translations": {
+        "ru": "Брокер покупает и продаёт акции для клиентов.",
+        "uz": "Broker mijozlar uchun aksiyalarni sotib oladi va sotadi."
+      }
+    },
+    {
+      "word": "speculate",
+      "part_of_speech": "verb",
+      "translation": "спекулировать",
+      "translations": {
+        "ru": "спекулировать",
+        "uz": "spekulyatsiya qilmoq"
+      },
+      "example": "Some investors speculate on rising house prices.",
+      "example_translations": {
+        "ru": "Некоторые инвесторы спекулируют на росте цен на жильё.",
+        "uz": "Ba'zi investorlar uy-joy narxlarining o'sishidan foydalanib spekulyatsiya qiladi."
+      }
+    }
+  ]
+}

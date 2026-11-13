@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 10,
+    "title": "Технологии и интернет",
+    "title_uz": "Texnologiyalar va internet"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Гаджеты и оборудование",
+    "title_uz": "Gadjetlar va jihozlar"
+  },
+  "words": [
+    {
+      "word": "gadget",
+      "part_of_speech": "noun",
+      "translation": "гаджет",
+      "translations": {
+        "ru": "гаджет",
+        "uz": "gadjet"
+      },
+      "example": "This small gadget counts your steps every day.",
+      "example_translations": {
+        "ru": "Этот маленький гаджет каждый день считает ваши шаги.",
+        "uz": "Bu kichkina gadjet har kuni qadamlaringizni sanaydi."
+      }
+    },
+    {
+      "word": "projector",
+      "part_of_speech": "noun",
+      "translation": "проектор",
+      "translations": {
+        "ru": "проектор",
+        "uz": "proyektor"
+      },
+      "example": "Our teacher showed the photos with a projector.",
+      "example_translations": {
+        "ru": "Наш учитель показал фотографии с помощью проектора.",
+        "uz": "O'qituvchimiz suratlarni proyektor yordamida ko'rsatdi."
+      }
+    },
+    {
+      "word": "monitor",
+      "part_of_speech": "noun",
+      "translation": "монитор",
+      "translations": {
+        "ru": "монитор",
+        "uz": "monitor"
+      },
+      "example": "My eyes hurt because the monitor is too bright.",
+      "example_translations": {
+        "ru": "У меня болят глаза, потому что монитор слишком яркий.",
+        "uz": "Monitor haddan tashqari yorqin bo'lgani uchun ko'zlarim og'riyapti."
+      }
+    },
+    {
+      "word": "hardware",
+      "part_of_speech": "noun",
+      "translation": "аппаратное обеспечение",
+      "translations": {
+        "ru": "аппаратное обеспечение",
+        "uz": "apparat ta'minoti"
+      },
+      "example": "The keyboard and the mouse are computer hardware.",
+      "example_translations": {
+        "ru": "Клавиатура и мышь относятся к аппаратному обеспечению компьютера.",
+        "uz": "Klaviatura va sichqoncha kompyuterning apparat ta'minotiga kiradi."
+      }
+    },
+    {
+      "word": "software",
+      "part_of_speech": "noun",
+      "translation": "программное обеспечение",
+      "translations": {
+        "ru": "программное обеспечение",
+        "uz": "dasturiy ta'minot"
+      },
+      "example": "You should update the software on your phone.",
+      "example_translations": {
+        "ru": "Вам следует обновить программное обеспечение на телефоне.",
+        "uz": "Telefoningizdagi dasturiy ta'minotni yangilashingiz kerak."
+      }
+    },
+    {
+      "word": "microphone",
+      "part_of_speech": "noun",
+      "translation": "микрофон",
+      "translations": {
+        "ru": "микрофон",
+        "uz": "mikrofon"
+      },
+      "example": "Please speak into the microphone so everyone can hear.",
+      "example_translations": {
+        "ru": "Пожалуйста, говорите в микрофон, чтобы все слышали.",
+        "uz": "Iltimos, hamma eshitishi uchun mikrofonga gapiring."
+      }
+    },
+    {
+      "word": "wireless",
+      "part_of_speech": "adjective",
+      "translation": "беспроводной",
+      "translations": {
+        "ru": "беспроводной",
+        "uz": "simsiz"
+      },
+      "example": "Wireless headphones are comfortable for running.",
+      "example_translations": {
+        "ru": "Беспроводные наушники удобны для бега.",
+        "uz": "Simsiz quloqchinlar yugurish uchun qulay."
+      }
+    },
+    {
+      "word": "portable",
+      "part_of_speech": "adjective",
+      "translation": "портативный, переносной",
+      "translations": {
+        "ru": "портативный, переносной",
+        "uz": "ko'chma, portativ"
+      },
+      "example": "This portable computer weighs only one kilogram.",
+      "example_translations": {
+        "ru": "Этот портативный компьютер весит всего один килограмм.",
+        "uz": "Bu ko'chma kompyuter atigi bir kilogramm keladi."
+      }
+    },
+    {
+      "word": "equipment",
+      "part_of_speech": "noun",
+      "translation": "оборудование",
+      "translations": {
+        "ru": "оборудование",
+        "uz": "jihoz, uskuna"
+      },
+      "example": "The school bought new equipment for the chemistry lab.",
+      "example_translations": {
+        "ru": "Школа купила новое оборудование для химической лаборатории.",
+        "uz": "Maktab kimyo laboratoriyasi uchun yangi jihozlar sotib oldi."
+      }
+    },
+    {
+      "word": "button",
+      "part_of_speech": "noun",
+      "translation": "кнопка",
+      "translations": {
+        "ru": "кнопка",
+        "uz": "tugma"
+      },
+      "example": "Press this button to turn on the projector.",
+      "example_translations": {
+        "ru": "Нажмите эту кнопку, чтобы включить проектор.",
+        "uz": "Proyektorni yoqish uchun shu tugmani bosing."
+      }
+    }
+  ]
+}

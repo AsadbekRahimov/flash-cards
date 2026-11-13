@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 8,
+    "title": "Политика и государство",
+    "title_uz": "Siyosat va davlat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Выборы",
+    "title_uz": "Saylovlar"
+  },
+  "words": [
+    {
+      "word": "ballot",
+      "part_of_speech": "noun",
+      "translation": "избирательный бюллетень",
+      "translations": {
+        "ru": "избирательный бюллетень",
+        "uz": "saylov byulleteni"
+      },
+      "example": "Each voter puts a ballot into the box.",
+      "example_translations": {
+        "ru": "Каждый избиратель опускает избирательный бюллетень в урну.",
+        "uz": "Har bir saylovchi saylov byulletenini qutiga tashlaydi."
+      }
+    },
+    {
+      "word": "campaign",
+      "part_of_speech": "noun",
+      "translation": "кампания",
+      "translations": {
+        "ru": "кампания",
+        "uz": "kampaniya"
+      },
+      "example": "Her election campaign lasted for six weeks.",
+      "example_translations": {
+        "ru": "Её предвыборная кампания длилась шесть недель.",
+        "uz": "Uning saylov kampaniyasi olti hafta davom etdi."
+      }
+    },
+    {
+      "word": "electorate",
+      "part_of_speech": "noun",
+      "translation": "избиратели, электорат",
+      "translations": {
+        "ru": "избиратели, электорат",
+        "uz": "saylovchilar, elektorat"
+      },
+      "example": "Half of the electorate is under forty.",
+      "example_translations": {
+        "ru": "Половина избирателей моложе сорока лет.",
+        "uz": "Saylovchilarning yarmi qirq yoshdan kichik."
+      }
+    },
+    {
+      "word": "poll",
+      "part_of_speech": "noun",
+      "translation": "опрос",
+      "translations": {
+        "ru": "опрос",
+        "uz": "so'rov"
+      },
+      "example": "A recent poll shows what voters think.",
+      "example_translations": {
+        "ru": "Недавний опрос показывает, что думают избиратели.",
+        "uz": "Yaqinda o'tkazilgan so'rov saylovchilarning fikrini ko'rsatadi."
+      }
+    },
+    {
+      "word": "referendum",
+      "part_of_speech": "noun",
+      "translation": "референдум",
+      "translations": {
+        "ru": "референдум",
+        "uz": "referendum"
+      },
+      "example": "Citizens will vote on the question in a referendum.",
+      "example_translations": {
+        "ru": "Граждане проголосуют по этому вопросу на референдуме.",
+        "uz": "Fuqarolar bu masala bo'yicha referendumda ovoz beradi."
+      }
+    },
+    {
+      "word": "majority",
+      "part_of_speech": "noun",
+      "translation": "большинство",
+      "translations": {
+        "ru": "большинство",
+        "uz": "ko'pchilik"
+      },
+      "example": "Did the majority of voters support the proposal?",
+      "example_translations": {
+        "ru": "Поддержало ли большинство избирателей это предложение?",
+        "uz": "Saylovchilarning ko'pchiligi taklifni qo'llab-quvvatladimi?"
+      }
+    },
+    {
+      "word": "minority",
+      "part_of_speech": "noun",
+      "translation": "меньшинство",
+      "translations": {
+        "ru": "меньшинство",
+        "uz": "ozchilik"
+      },
+      "example": "Only a small minority voted against the plan.",
+      "example_translations": {
+        "ru": "Лишь небольшое меньшинство проголосовало против плана.",
+        "uz": "Faqat kichik bir ozchilik rejaga qarshi ovoz berdi."
+      }
+    },
+    {
+      "word": "turnout",
+      "part_of_speech": "noun",
+      "translation": "явка избирателей",
+      "translations": {
+        "ru": "явка избирателей",
+        "uz": "saylovchilar ishtiroki"
+      },
+      "example": "Turnout was high in every part of the country.",
+      "example_translations": {
+        "ru": "Явка избирателей была высокой во всех частях страны.",
+        "uz": "Mamlakatning barcha hududlarida saylovchilar ishtiroki yuqori bo'ldi."
+      }
+    },
+    {
+      "word": "nominate",
+      "part_of_speech": "verb",
+      "translation": "выдвигать кандидатом",
+      "translations": {
+        "ru": "выдвигать кандидатом",
+        "uz": "nomzod qilib ko'rsatmoq"
+      },
+      "example": "The party nominated her for president.",
+      "example_translations": {
+        "ru": "Партия выдвинула её кандидатом в президенты.",
+        "uz": "Partiya uni prezidentlikka nomzod qilib ko'rsatdi."
+      }
+    },
+    {
+      "word": "coalition",
+      "part_of_speech": "noun",
+      "translation": "коалиция",
+      "translations": {
+        "ru": "коалиция",
+        "uz": "koalitsiya"
+      },
+      "example": "Three parties formed a coalition after the election.",
+      "example_translations": {
+        "ru": "После выборов три партии сформировали коалицию.",
+        "uz": "Saylovdan keyin uchta partiya koalitsiya tuzdi."
+      }
+    }
+  ]
+}

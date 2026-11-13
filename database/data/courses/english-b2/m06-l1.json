@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 6,
+    "title": "Здоровье и психология",
+    "title_uz": "Sog'liq va psixologiya"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Болезни",
+    "title_uz": "Kasalliklar"
+  },
+  "words": [
+    {
+      "word": "disorder",
+      "part_of_speech": "noun",
+      "translation": "расстройство",
+      "translations": {
+        "ru": "расстройство",
+        "uz": "buzilish"
+      },
+      "example": "Doctors can treat this sleep disorder successfully.",
+      "example_translations": {
+        "ru": "Врачи умеют успешно лечить это расстройство сна.",
+        "uz": "Shifokorlar bu uyqu buzilishini muvaffaqiyatli davolay oladi."
+      }
+    },
+    {
+      "word": "diabetes",
+      "part_of_speech": "noun",
+      "translation": "сахарный диабет",
+      "translations": {
+        "ru": "сахарный диабет",
+        "uz": "qandli diabet"
+      },
+      "example": "People with diabetes must watch what they eat.",
+      "example_translations": {
+        "ru": "Людям с сахарным диабетом нужно следить за своим питанием.",
+        "uz": "Qandli diabeti bor odamlar ovqatlanishiga e'tibor berishi kerak."
+      }
+    },
+    {
+      "word": "obesity",
+      "part_of_speech": "noun",
+      "translation": "ожирение",
+      "translations": {
+        "ru": "ожирение",
+        "uz": "semizlik"
+      },
+      "example": "Obesity increases the risk of heart problems.",
+      "example_translations": {
+        "ru": "Ожирение повышает риск проблем с сердцем.",
+        "uz": "Semizlik yurak muammolari xavfini oshiradi."
+      }
+    },
+    {
+      "word": "epidemic",
+      "part_of_speech": "noun",
+      "translation": "эпидемия",
+      "translations": {
+        "ru": "эпидемия",
+        "uz": "epidemiya"
+      },
+      "example": "Schools closed for two weeks during the epidemic.",
+      "example_translations": {
+        "ru": "Во время эпидемии школы закрылись на две недели.",
+        "uz": "Epidemiya paytida maktablar ikki haftaga yopildi."
+      }
+    },
+    {
+      "word": "chronic",
+      "part_of_speech": "adjective",
+      "translation": "хронический",
+      "translations": {
+        "ru": "хронический",
+        "uz": "surunkali"
+      },
+      "example": "My grandfather has chronic back pain.",
+      "example_translations": {
+        "ru": "У моего дедушки хроническая боль в спине.",
+        "uz": "Bobomning belida surunkali og'riq bor."
+      }
+    },
+    {
+      "word": "contagious",
+      "part_of_speech": "adjective",
+      "translation": "заразный",
+      "translations": {
+        "ru": "заразный",
+        "uz": "yuqumli"
+      },
+      "example": "The flu is contagious, so stay at home.",
+      "example_translations": {
+        "ru": "Грипп заразен, поэтому оставайтесь дома.",
+        "uz": "Gripp yuqumli, shuning uchun uyda qoling."
+      }
+    },
+    {
+      "word": "asthma",
+      "part_of_speech": "noun",
+      "translation": "астма",
+      "translations": {
+        "ru": "астма",
+        "uz": "astma"
+      },
+      "example": "She has asthma and always carries an inhaler.",
+      "example_translations": {
+        "ru": "У неё астма, и она всегда носит с собой ингалятор.",
+        "uz": "Uning astmasi bor va u doim ingalyator olib yuradi."
+      }
+    },
+    {
+      "word": "stroke",
+      "part_of_speech": "noun",
+      "translation": "инсульт",
+      "translations": {
+        "ru": "инсульт",
+        "uz": "insult"
+      },
+      "example": "After the stroke, he learned to speak again.",
+      "example_translations": {
+        "ru": "После инсульта он заново научился говорить.",
+        "uz": "Insultdan keyin u gapirishni qaytadan o'rgandi."
+      }
+    },
+    {
+      "word": "fatigue",
+      "part_of_speech": "noun",
+      "translation": "сильная усталость",
+      "translations": {
+        "ru": "сильная усталость",
+        "uz": "kuchli charchoq"
+      },
+      "example": "Fatigue is common after a long illness.",
+      "example_translations": {
+        "ru": "После долгой болезни часто бывает сильная усталость.",
+        "uz": "Uzoq kasallikdan keyin kuchli charchoq tez-tez uchraydi."
+      }
+    },
+    {
+      "word": "insomnia",
+      "part_of_speech": "noun",
+      "translation": "бессонница",
+      "translations": {
+        "ru": "бессонница",
+        "uz": "uyqusizlik"
+      },
+      "example": "Stress and evening coffee can cause insomnia.",
+      "example_translations": {
+        "ru": "Стресс и кофе по вечерам могут вызвать бессонницу.",
+        "uz": "Stress va kechki qahva uyqusizlikka sabab bo'lishi mumkin."
+      }
+    }
+  ]
+}

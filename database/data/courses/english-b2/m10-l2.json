@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 10,
+    "title": "СМИ и коммуникация",
+    "title_uz": "OAV va muloqot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Достоверность информации",
+    "title_uz": "Axborot ishonchliligi"
+  },
+  "words": [
+    {
+      "word": "bias",
+      "part_of_speech": "noun",
+      "translation": "предвзятость",
+      "translations": {
+        "ru": "предвзятость",
+        "uz": "noxolislik, tarafkashlik"
+      },
+      "example": "Good reporters try to avoid bias.",
+      "example_translations": {
+        "ru": "Хорошие репортёры стараются избегать предвзятости.",
+        "uz": "Yaxshi muxbirlar noxolislikdan qochishga harakat qiladi."
+      }
+    },
+    {
+      "word": "credibility",
+      "part_of_speech": "noun",
+      "translation": "надёжность, достоверность",
+      "translations": {
+        "ru": "надёжность, достоверность",
+        "uz": "ishonchlilik"
+      },
+      "example": "Always check the credibility of a news source.",
+      "example_translations": {
+        "ru": "Всегда проверяйте надёжность источника новостей.",
+        "uz": "Yangilik manbasining ishonchliligini doim tekshiring."
+      }
+    },
+    {
+      "word": "misinformation",
+      "part_of_speech": "noun",
+      "translation": "недостоверная информация",
+      "translations": {
+        "ru": "недостоверная информация",
+        "uz": "noto'g'ri ma'lumot"
+      },
+      "example": "Misinformation spreads quickly on social media.",
+      "example_translations": {
+        "ru": "Недостоверная информация быстро распространяется в социальных сетях.",
+        "uz": "Noto'g'ri ma'lumot ijtimoiy tarmoqlarda tez tarqaladi."
+      }
+    },
+    {
+      "word": "hoax",
+      "part_of_speech": "noun",
+      "translation": "фальшивка, обман",
+      "translations": {
+        "ru": "фальшивка, обман",
+        "uz": "uydirma, aldov"
+      },
+      "example": "The story about the flying car was a hoax.",
+      "example_translations": {
+        "ru": "История о летающей машине оказалась фальшивкой.",
+        "uz": "Uchar mashina haqidagi xabar uydirma bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "propaganda",
+      "part_of_speech": "noun",
+      "translation": "пропаганда",
+      "translations": {
+        "ru": "пропаганда",
+        "uz": "tashviqot, propaganda"
+      },
+      "example": "The film was propaganda, not honest journalism.",
+      "example_translations": {
+        "ru": "Этот фильм был пропагандой, а не честной журналистикой.",
+        "uz": "Bu film halol jurnalistika emas, tashviqot edi."
+      }
+    },
+    {
+      "word": "censorship",
+      "part_of_speech": "noun",
+      "translation": "цензура",
+      "translations": {
+        "ru": "цензура",
+        "uz": "senzura"
+      },
+      "example": "Censorship limits what journalists can publish.",
+      "example_translations": {
+        "ru": "Цензура ограничивает то, что могут публиковать журналисты.",
+        "uz": "Senzura jurnalistlar chop eta oladigan narsalarni cheklaydi."
+      }
+    },
+    {
+      "word": "misleading",
+      "part_of_speech": "adjective",
+      "translation": "вводящий в заблуждение",
+      "translations": {
+        "ru": "вводящий в заблуждение",
+        "uz": "chalg'ituvchi"
+      },
+      "example": "The headline was misleading, so readers got confused.",
+      "example_translations": {
+        "ru": "Заголовок вводил в заблуждение, поэтому читатели запутались.",
+        "uz": "Sarlavha chalg'ituvchi edi, shuning uchun o'quvchilar adashdi."
+      }
+    },
+    {
+      "word": "distort",
+      "part_of_speech": "verb",
+      "translation": "искажать",
+      "translations": {
+        "ru": "искажать",
+        "uz": "buzib ko'rsatmoq"
+      },
+      "example": "Some websites distort the facts to get attention.",
+      "example_translations": {
+        "ru": "Некоторые сайты искажают факты, чтобы привлечь внимание.",
+        "uz": "Ba'zi saytlar e'tibor tortish uchun faktlarni buzib ko'rsatadi."
+      }
+    },
+    {
+      "word": "exaggerate",
+      "part_of_speech": "verb",
+      "translation": "преувеличивать",
+      "translations": {
+        "ru": "преувеличивать",
+        "uz": "bo'rttirmoq, oshirib ko'rsatmoq"
+      },
+      "example": "The article exaggerated the size of the crowd.",
+      "example_translations": {
+        "ru": "В статье преувеличили число собравшихся.",
+        "uz": "Maqolada yig'ilganlar soni bo'rttirib ko'rsatilgan."
+      }
+    },
+    {
+      "word": "impartial",
+      "part_of_speech": "adjective",
+      "translation": "беспристрастный",
+      "translations": {
+        "ru": "беспристрастный",
+        "uz": "xolis"
+      },
+      "example": "An impartial report shows both sides of a story.",
+      "example_translations": {
+        "ru": "Беспристрастный репортаж показывает обе стороны истории.",
+        "uz": "Xolis reportaj voqeaning ikkala tomonini ko'rsatadi."
+      }
+    }
+  ]
+}

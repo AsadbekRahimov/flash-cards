@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 1,
+    "title": "Характер и поведение",
+    "title_uz": "Xarakter va xulq-atvor"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Личность",
+    "title_uz": "Shaxsiyat"
+  },
+  "words": [
+    {
+      "word": "outlook",
+      "part_of_speech": "noun",
+      "translation": "взгляд на жизнь, мировоззрение",
+      "translations": {
+        "ru": "взгляд на жизнь, мировоззрение",
+        "uz": "hayotga qarash, dunyoqarash"
+      },
+      "example": "Two years abroad completely changed his outlook on life.",
+      "example_translations": {
+        "ru": "Два года за границей полностью изменили его взгляд на жизнь.",
+        "uz": "Chet eldagi ikki yil uning hayotga qarashini butunlay o'zgartirdi."
+      }
+    },
+    {
+      "word": "trait",
+      "part_of_speech": "noun",
+      "translation": "черта характера",
+      "translations": {
+        "ru": "черта характера",
+        "uz": "xislat"
+      },
+      "example": "Patience is the most useful trait for a teacher.",
+      "example_translations": {
+        "ru": "Терпение — самая полезная черта характера для учителя.",
+        "uz": "Sabr-toqat — o'qituvchi uchun eng foydali xislat."
+      }
+    },
+    {
+      "word": "temperament",
+      "part_of_speech": "noun",
+      "translation": "темперамент",
+      "translations": {
+        "ru": "темперамент",
+        "uz": "temperament"
+      },
+      "example": "The twins look alike but differ in temperament.",
+      "example_translations": {
+        "ru": "Близнецы внешне похожи, но отличаются темпераментом.",
+        "uz": "Egizaklar tashqi ko'rinishidan o'xshash, lekin temperamenti har xil."
+      }
+    },
+    {
+      "word": "dignity",
+      "part_of_speech": "noun",
+      "translation": "достоинство",
+      "translations": {
+        "ru": "достоинство",
+        "uz": "qadr-qimmat"
+      },
+      "example": "Malika lost the game but kept her dignity.",
+      "example_translations": {
+        "ru": "Малика проиграла игру, но сохранила достоинство.",
+        "uz": "Malika o'yinda yutqazdi, lekin qadr-qimmatini saqlab qoldi."
+      }
+    },
+    {
+      "word": "conscience",
+      "part_of_speech": "noun",
+      "translation": "совесть",
+      "translations": {
+        "ru": "совесть",
+        "uz": "vijdon"
+      },
+      "example": "My conscience did not let me lie to her.",
+      "example_translations": {
+        "ru": "Совесть не позволила мне солгать ей.",
+        "uz": "Vijdonim unga yolg'on gapirishimga yo'l qo'ymadi."
+      }
+    },
+    {
+      "word": "pride",
+      "part_of_speech": "noun",
+      "translation": "гордость",
+      "translations": {
+        "ru": "гордость",
+        "uz": "g'urur"
+      },
+      "example": "She looked at her son's diploma with pride.",
+      "example_translations": {
+        "ru": "Она с гордостью посмотрела на диплом сына.",
+        "uz": "U o'g'lining diplomiga g'urur bilan qaradi."
+      }
+    },
+    {
+      "word": "modesty",
+      "part_of_speech": "noun",
+      "translation": "скромность",
+      "translations": {
+        "ru": "скромность",
+        "uz": "kamtarlik"
+      },
+      "example": "The famous scientist is loved for his modesty.",
+      "example_translations": {
+        "ru": "Знаменитого учёного любят за его скромность.",
+        "uz": "Mashhur olimni kamtarligi uchun yaxshi ko'rishadi."
+      }
+    },
+    {
+      "word": "introvert",
+      "part_of_speech": "noun",
+      "translation": "интроверт",
+      "translations": {
+        "ru": "интроверт",
+        "uz": "introvert"
+      },
+      "example": "As an introvert, Tom prefers quiet evenings at home.",
+      "example_translations": {
+        "ru": "Будучи интровертом, Том предпочитает тихие вечера дома.",
+        "uz": "Introvert bo'lgani uchun Tom uydagi sokin oqshomlarni afzal ko'radi."
+      }
+    },
+    {
+      "word": "extrovert",
+      "part_of_speech": "noun",
+      "translation": "экстраверт",
+      "translations": {
+        "ru": "экстраверт",
+        "uz": "ekstravert"
+      },
+      "example": "My sister is an extrovert who loves big parties.",
+      "example_translations": {
+        "ru": "Моя сестра — экстраверт, она обожает большие вечеринки.",
+        "uz": "Singlim ekstravert, u katta bazmlarni juda yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "charisma",
+      "part_of_speech": "noun",
+      "translation": "харизма",
+      "translations": {
+        "ru": "харизма",
+        "uz": "xarizma"
+      },
+      "example": "The singer's charisma makes every audience love her.",
+      "example_translations": {
+        "ru": "Харизма певицы заставляет любую публику полюбить её.",
+        "uz": "Xonandaning xarizmasi har qanday tomoshabinni o'ziga rom qiladi."
+      }
+    }
+  ]
+}

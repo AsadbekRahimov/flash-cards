@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 12,
+    "title": "Образование и мышление",
+    "title_uz": "Ta'lim va tafakkur"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Университет",
+    "title_uz": "Universitet"
+  },
+  "words": [
+    {
+      "word": "curriculum",
+      "part_of_speech": "noun",
+      "translation": "учебный план",
+      "translations": {
+        "ru": "учебный план",
+        "uz": "o'quv rejasi"
+      },
+      "example": "The new curriculum includes two foreign languages.",
+      "example_translations": {
+        "ru": "Новый учебный план включает два иностранных языка.",
+        "uz": "Yangi o'quv rejasi ikkita chet tilini o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "syllabus",
+      "part_of_speech": "noun",
+      "translation": "программа курса",
+      "translations": {
+        "ru": "программа курса",
+        "uz": "fan dasturi"
+      },
+      "example": "Check the syllabus to see the topics for each week.",
+      "example_translations": {
+        "ru": "Посмотрите программу курса, чтобы узнать темы каждой недели.",
+        "uz": "Har haftaning mavzularini bilish uchun fan dasturiga qarang."
+      }
+    },
+    {
+      "word": "dean",
+      "part_of_speech": "noun",
+      "translation": "декан",
+      "translations": {
+        "ru": "декан",
+        "uz": "dekan"
+      },
+      "example": "The dean welcomed the new students on Monday.",
+      "example_translations": {
+        "ru": "В понедельник декан поприветствовал новых студентов.",
+        "uz": "Dushanba kuni dekan yangi talabalarni qutladi."
+      }
+    },
+    {
+      "word": "lecturer",
+      "part_of_speech": "noun",
+      "translation": "преподаватель вуза",
+      "translations": {
+        "ru": "преподаватель вуза",
+        "uz": "universitet o'qituvchisi"
+      },
+      "example": "She works as a lecturer at the state university.",
+      "example_translations": {
+        "ru": "Она работает преподавателем в государственном университете.",
+        "uz": "U davlat universitetida o'qituvchi bo'lib ishlaydi."
+      }
+    },
+    {
+      "word": "faculty",
+      "part_of_speech": "noun",
+      "translation": "факультет",
+      "translations": {
+        "ru": "факультет",
+        "uz": "fakultet"
+      },
+      "example": "Malika studies at the faculty of law.",
+      "example_translations": {
+        "ru": "Малика учится на юридическом факультете.",
+        "uz": "Malika yuridik fakultetda o'qiydi."
+      }
+    },
+    {
+      "word": "undergraduate",
+      "part_of_speech": "noun",
+      "translation": "студент бакалавриата",
+      "translations": {
+        "ru": "студент бакалавриата",
+        "uz": "bakalavriat talabasi"
+      },
+      "example": "As an undergraduate, Tom studied physics for four years.",
+      "example_translations": {
+        "ru": "Будучи студентом бакалавриата, Том четыре года изучал физику.",
+        "uz": "Bakalavriat talabasi bo'lgan paytida Tom to'rt yil fizika o'qigan."
+      }
+    },
+    {
+      "word": "postgraduate",
+      "part_of_speech": "noun",
+      "translation": "магистрант, аспирант",
+      "translations": {
+        "ru": "магистрант, аспирант",
+        "uz": "magistrant, aspirant"
+      },
+      "example": "Each postgraduate must write a long research paper.",
+      "example_translations": {
+        "ru": "Каждый магистрант должен написать большую исследовательскую работу.",
+        "uz": "Har bir magistrant katta ilmiy ish yozishi kerak."
+      }
+    },
+    {
+      "word": "tutorial",
+      "part_of_speech": "noun",
+      "translation": "занятие в малой группе",
+      "translations": {
+        "ru": "занятие в малой группе",
+        "uz": "kichik guruhdagi mashg'ulot"
+      },
+      "example": "In a tutorial, five students work with one teacher.",
+      "example_translations": {
+        "ru": "На занятии в малой группе пять студентов работают с одним преподавателем.",
+        "uz": "Kichik guruhdagi mashg'ulotda besh talaba bitta o'qituvchi bilan ishlaydi."
+      }
+    },
+    {
+      "word": "module",
+      "part_of_speech": "noun",
+      "translation": "учебный модуль",
+      "translations": {
+        "ru": "учебный модуль",
+        "uz": "o'quv moduli"
+      },
+      "example": "Our history course consists of six modules.",
+      "example_translations": {
+        "ru": "Наш курс истории состоит из шести учебных модулей.",
+        "uz": "Tarix kursimiz oltita o'quv modulidan iborat."
+      }
+    },
+    {
+      "word": "admission",
+      "part_of_speech": "noun",
+      "translation": "приём, зачисление",
+      "translations": {
+        "ru": "приём, зачисление",
+        "uz": "qabul"
+      },
+      "example": "Admission to this university depends on your exam results.",
+      "example_translations": {
+        "ru": "Приём в этот университет зависит от результатов ваших экзаменов.",
+        "uz": "Bu universitetga qabul imtihon natijalaringizga bog'liq."
+      }
+    }
+  ]
+}

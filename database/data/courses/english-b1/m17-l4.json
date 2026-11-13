@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 17,
+    "title": "Время, перемены и планы",
+    "title_uz": "Vaqt, o'zgarishlar va rejalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Планы и цели",
+    "title_uz": "Rejalar va maqsadlar"
+  },
+  "words": [
+    {
+      "word": "aim",
+      "part_of_speech": "noun",
+      "translation": "цель, намерение",
+      "translations": {
+        "ru": "цель, намерение",
+        "uz": "maqsad, niyat"
+      },
+      "example": "Her aim is to become a doctor.",
+      "example_translations": {
+        "ru": "Её цель — стать врачом.",
+        "uz": "Uning maqsadi — shifokor bo'lish."
+      }
+    },
+    {
+      "word": "purpose",
+      "part_of_speech": "noun",
+      "translation": "цель, назначение",
+      "translations": {
+        "ru": "цель, назначение",
+        "uz": "maqsad, vazifa"
+      },
+      "example": "What is the purpose of your visit?",
+      "example_translations": {
+        "ru": "Какова цель вашего визита?",
+        "uz": "Tashrifingizning maqsadi nima?"
+      }
+    },
+    {
+      "word": "arrange",
+      "part_of_speech": "verb",
+      "translation": "организовывать, устраивать",
+      "translations": {
+        "ru": "организовывать, устраивать",
+        "uz": "tashkil qilmoq"
+      },
+      "example": "Can you arrange a meeting for next Monday?",
+      "example_translations": {
+        "ru": "Вы можете организовать встречу на следующий понедельник?",
+        "uz": "Kelasi dushanbaga uchrashuv tashkil qila olasizmi?"
+      }
+    },
+    {
+      "word": "postpone",
+      "part_of_speech": "verb",
+      "translation": "откладывать, переносить",
+      "translations": {
+        "ru": "откладывать, переносить",
+        "uz": "keyinga qoldirmoq"
+      },
+      "example": "They postponed the picnic because of the rain.",
+      "example_translations": {
+        "ru": "Они отложили пикник из-за дождя.",
+        "uz": "Ular yomg'ir tufayli piknikni keyinga qoldirishdi."
+      }
+    },
+    {
+      "word": "predict",
+      "part_of_speech": "verb",
+      "translation": "предсказывать",
+      "translations": {
+        "ru": "предсказывать",
+        "uz": "bashorat qilmoq"
+      },
+      "example": "Nobody can predict the future exactly.",
+      "example_translations": {
+        "ru": "Никто не может точно предсказать будущее.",
+        "uz": "Hech kim kelajakni aniq bashorat qila olmaydi."
+      }
+    },
+    {
+      "word": "opportunity",
+      "part_of_speech": "noun",
+      "translation": "возможность, шанс",
+      "translations": {
+        "ru": "возможность, шанс",
+        "uz": "imkoniyat, fursat"
+      },
+      "example": "This job is a great opportunity for you.",
+      "example_translations": {
+        "ru": "Эта работа — отличная возможность для вас.",
+        "uz": "Bu ish siz uchun ajoyib imkoniyat."
+      }
+    },
+    {
+      "word": "possibility",
+      "part_of_speech": "noun",
+      "translation": "вероятность, возможность",
+      "translations": {
+        "ru": "вероятность, возможность",
+        "uz": "ehtimol"
+      },
+      "example": "There is a possibility that we will move abroad.",
+      "example_translations": {
+        "ru": "Есть вероятность, что мы переедем за границу.",
+        "uz": "Chet elga ko'chib ketishimiz ehtimoli bor."
+      }
+    },
+    {
+      "word": "alternative",
+      "part_of_speech": "noun",
+      "translation": "альтернатива",
+      "translations": {
+        "ru": "альтернатива",
+        "uz": "muqobil variant"
+      },
+      "example": "If the plan fails, we will need an alternative.",
+      "example_translations": {
+        "ru": "Если план не сработает, нам понадобится альтернатива.",
+        "uz": "Agar reja amalga oshmasa, bizga muqobil variant kerak bo'ladi."
+      }
+    },
+    {
+      "word": "propose",
+      "part_of_speech": "verb",
+      "translation": "предлагать, выдвигать",
+      "translations": {
+        "ru": "предлагать, выдвигать",
+        "uz": "ilgari surmoq, taklif kiritmoq"
+      },
+      "example": "Tom proposed a new plan at the meeting.",
+      "example_translations": {
+        "ru": "Том предложил на собрании новый план.",
+        "uz": "Tom yig'ilishda yangi rejani ilgari surdi."
+      }
+    },
+    {
+      "word": "likely",
+      "part_of_speech": "adjective",
+      "translation": "вероятный",
+      "translations": {
+        "ru": "вероятный",
+        "uz": "ehtimoli katta"
+      },
+      "example": "A delay is very likely in this weather.",
+      "example_translations": {
+        "ru": "В такую погоду задержка весьма вероятна.",
+        "uz": "Bunday ob-havoda kechikish ehtimoli katta."
+      }
+    }
+  ]
+}

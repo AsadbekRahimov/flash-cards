@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 15,
+    "title": "Общество и закон",
+    "title_uz": "Jamiyat va qonun"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Проблемы общества",
+    "title_uz": "Jamiyat muammolari"
+  },
+  "words": [
+    {
+      "word": "issue",
+      "part_of_speech": "noun",
+      "translation": "проблема, вопрос",
+      "translations": {
+        "ru": "проблема, вопрос",
+        "uz": "muammo, masala"
+      },
+      "example": "Housing is a serious issue for young families.",
+      "example_translations": {
+        "ru": "Жильё — серьёзная проблема для молодых семей.",
+        "uz": "Uy-joy yosh oilalar uchun jiddiy muammodir."
+      }
+    },
+    {
+      "word": "homeless",
+      "part_of_speech": "adjective",
+      "translation": "бездомный",
+      "translations": {
+        "ru": "бездомный",
+        "uz": "uysiz, boshpanasiz"
+      },
+      "example": "The city built new houses for homeless families.",
+      "example_translations": {
+        "ru": "Город построил новые дома для бездомных семей.",
+        "uz": "Shahar uysiz oilalar uchun yangi uylar qurdi."
+      }
+    },
+    {
+      "word": "equal",
+      "part_of_speech": "adjective",
+      "translation": "равный",
+      "translations": {
+        "ru": "равный",
+        "uz": "teng"
+      },
+      "example": "All people are equal before the law.",
+      "example_translations": {
+        "ru": "Все люди равны перед законом.",
+        "uz": "Qonun oldida barcha odamlar teng."
+      }
+    },
+    {
+      "word": "volunteer",
+      "part_of_speech": "noun",
+      "translation": "волонтёр, доброволец",
+      "translations": {
+        "ru": "волонтёр, доброволец",
+        "uz": "ko'ngilli"
+      },
+      "example": "My sister works as a volunteer at a hospital.",
+      "example_translations": {
+        "ru": "Моя сестра работает волонтёром в больнице.",
+        "uz": "Opam shifoxonada ko'ngilli bo'lib ishlaydi."
+      }
+    },
+    {
+      "word": "donate",
+      "part_of_speech": "verb",
+      "translation": "жертвовать",
+      "translations": {
+        "ru": "жертвовать",
+        "uz": "xayriya qilmoq"
+      },
+      "example": "We donated our old clothes to a children's home.",
+      "example_translations": {
+        "ru": "Мы пожертвовали свою старую одежду детскому дому.",
+        "uz": "Biz eski kiyimlarimizni bolalar uyiga xayriya qildik."
+      }
+    },
+    {
+      "word": "aid",
+      "part_of_speech": "noun",
+      "translation": "помощь",
+      "translations": {
+        "ru": "помощь",
+        "uz": "yordam"
+      },
+      "example": "Trucks brought food aid to the village.",
+      "example_translations": {
+        "ru": "Грузовики привезли в деревню продовольственную помощь.",
+        "uz": "Yuk mashinalari qishloqqa oziq-ovqat yordamini olib keldi."
+      }
+    },
+    {
+      "word": "shelter",
+      "part_of_speech": "noun",
+      "translation": "приют",
+      "translations": {
+        "ru": "приют",
+        "uz": "boshpana"
+      },
+      "example": "This shelter gives people a bed and hot food.",
+      "example_translations": {
+        "ru": "Этот приют даёт людям кровать и горячую еду.",
+        "uz": "Bu boshpana odamlarga yotoq va issiq ovqat beradi."
+      }
+    },
+    {
+      "word": "crisis",
+      "part_of_speech": "noun",
+      "translation": "кризис",
+      "translations": {
+        "ru": "кризис",
+        "uz": "inqiroz"
+      },
+      "example": "Many people lost their jobs during the crisis.",
+      "example_translations": {
+        "ru": "Во время кризиса многие люди потеряли работу.",
+        "uz": "Inqiroz davrida ko'p odamlar ishidan ayrildi."
+      }
+    },
+    {
+      "word": "fair",
+      "part_of_speech": "adjective",
+      "translation": "справедливый",
+      "translations": {
+        "ru": "справедливый",
+        "uz": "adolatli"
+      },
+      "example": "A fair teacher gives everyone the same chance.",
+      "example_translations": {
+        "ru": "Справедливый учитель даёт всем одинаковый шанс.",
+        "uz": "Adolatli o'qituvchi hammaga bir xil imkoniyat beradi."
+      }
+    },
+    {
+      "word": "disabled",
+      "part_of_speech": "adjective",
+      "translation": "с инвалидностью",
+      "translations": {
+        "ru": "с инвалидностью",
+        "uz": "nogironligi bo'lgan"
+      },
+      "example": "The new bus has space for disabled passengers.",
+      "example_translations": {
+        "ru": "В новом автобусе есть место для пассажиров с инвалидностью.",
+        "uz": "Yangi avtobusda nogironligi bo'lgan yo'lovchilar uchun joy bor."
+      }
+    }
+  ]
+}

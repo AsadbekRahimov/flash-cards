@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 19,
+    "title": "Действия и процессы",
+    "title_uz": "Harakatlar va jarayonlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Движение",
+    "title_uz": "Harakatlanish"
+  },
+  "words": [
+    {
+      "word": "approach",
+      "part_of_speech": "verb",
+      "translation": "приближаться",
+      "translations": {
+        "ru": "приближаться",
+        "uz": "yaqinlashmoq"
+      },
+      "example": "The train is approaching the station now.",
+      "example_translations": {
+        "ru": "Поезд сейчас приближается к станции.",
+        "uz": "Poyezd hozir bekatga yaqinlashmoqda."
+      }
+    },
+    {
+      "word": "enter",
+      "part_of_speech": "verb",
+      "translation": "входить",
+      "translations": {
+        "ru": "входить",
+        "uz": "kirmoq"
+      },
+      "example": "Please knock before you enter the room.",
+      "example_translations": {
+        "ru": "Пожалуйста, стучите, прежде чем входить в комнату.",
+        "uz": "Iltimos, xonaga kirishdan oldin eshikni taqillating."
+      }
+    },
+    {
+      "word": "exit",
+      "part_of_speech": "verb",
+      "translation": "выходить",
+      "translations": {
+        "ru": "выходить",
+        "uz": "chiqmoq"
+      },
+      "example": "Passengers exit the bus through the back door.",
+      "example_translations": {
+        "ru": "Пассажиры выходят из автобуса через заднюю дверь.",
+        "uz": "Yo'lovchilar avtobusdan orqa eshik orqali chiqadilar."
+      }
+    },
+    {
+      "word": "flow",
+      "part_of_speech": "verb",
+      "translation": "течь",
+      "translations": {
+        "ru": "течь",
+        "uz": "oqmoq"
+      },
+      "example": "This river flows through three countries.",
+      "example_translations": {
+        "ru": "Эта река течёт через три страны.",
+        "uz": "Bu daryo uchta mamlakatdan oqib o'tadi."
+      }
+    },
+    {
+      "word": "chase",
+      "part_of_speech": "verb",
+      "translation": "гнаться, преследовать",
+      "translations": {
+        "ru": "гнаться, преследовать",
+        "uz": "quvmoq"
+      },
+      "example": "The dog chased the cat across the yard.",
+      "example_translations": {
+        "ru": "Собака гналась за кошкой через весь двор.",
+        "uz": "It mushukni butun hovli bo'ylab quvdi."
+      }
+    },
+    {
+      "word": "escape",
+      "part_of_speech": "verb",
+      "translation": "сбегать, убегать",
+      "translations": {
+        "ru": "сбегать, убегать",
+        "uz": "qochmoq"
+      },
+      "example": "The parrot escaped from its cage yesterday.",
+      "example_translations": {
+        "ru": "Вчера попугай сбежал из клетки.",
+        "uz": "Kecha to'tiqush qafasidan qochib ketdi."
+      }
+    },
+    {
+      "word": "hurry",
+      "part_of_speech": "verb",
+      "translation": "спешить, торопиться",
+      "translations": {
+        "ru": "спешить, торопиться",
+        "uz": "shoshilmoq"
+      },
+      "example": "We must hurry, or we will be late.",
+      "example_translations": {
+        "ru": "Нам нужно спешить, иначе мы опоздаем.",
+        "uz": "Shoshilishimiz kerak, bo'lmasa kechikamiz."
+      }
+    },
+    {
+      "word": "crawl",
+      "part_of_speech": "verb",
+      "translation": "ползать",
+      "translations": {
+        "ru": "ползать",
+        "uz": "emaklamoq, o'rmalamoq"
+      },
+      "example": "The baby is learning to crawl.",
+      "example_translations": {
+        "ru": "Малыш учится ползать.",
+        "uz": "Chaqaloq emaklashni o'rganyapti."
+      }
+    },
+    {
+      "word": "roll",
+      "part_of_speech": "verb",
+      "translation": "катиться",
+      "translations": {
+        "ru": "катиться",
+        "uz": "dumalamoq"
+      },
+      "example": "The ball rolled under the sofa.",
+      "example_translations": {
+        "ru": "Мяч закатился под диван.",
+        "uz": "To'p divan tagiga dumalab ketdi."
+      }
+    },
+    {
+      "word": "float",
+      "part_of_speech": "verb",
+      "translation": "плавать на поверхности",
+      "translations": {
+        "ru": "плавать на поверхности",
+        "uz": "suv yuzida qalqimoq"
+      },
+      "example": "Wood is light, so it floats on water.",
+      "example_translations": {
+        "ru": "Дерево лёгкое, поэтому оно плавает на поверхности воды.",
+        "uz": "Yog'och yengil, shuning uchun u suv yuzida qalqib turadi."
+      }
+    }
+  ]
+}

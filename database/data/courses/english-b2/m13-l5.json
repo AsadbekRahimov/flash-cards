@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 13,
+    "title": "Общество и глобальные проблемы",
+    "title_uz": "Jamiyat va global muammolar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Ценности и нормы",
+    "title_uz": "Qadriyatlar va me'yorlar"
+  },
+  "words": [
+    {
+      "word": "norm",
+      "part_of_speech": "noun",
+      "translation": "норма",
+      "translations": {
+        "ru": "норма",
+        "uz": "me'yor"
+      },
+      "example": "Shaking hands is a social norm in many countries.",
+      "example_translations": {
+        "ru": "Рукопожатие — социальная норма во многих странах.",
+        "uz": "Qo'l berib ko'rishish ko'p mamlakatlarda ijtimoiy me'yor hisoblanadi."
+      }
+    },
+    {
+      "word": "ethics",
+      "part_of_speech": "noun",
+      "translation": "этика",
+      "translations": {
+        "ru": "этика",
+        "uz": "etika"
+      },
+      "example": "Doctors must follow strict rules of medical ethics.",
+      "example_translations": {
+        "ru": "Врачи должны соблюдать строгие правила медицинской этики.",
+        "uz": "Shifokorlar tibbiy etikaning qat'iy qoidalariga rioya qilishi kerak."
+      }
+    },
+    {
+      "word": "moral",
+      "part_of_speech": "adjective",
+      "translation": "нравственный, моральный",
+      "translations": {
+        "ru": "нравственный, моральный",
+        "uz": "axloqiy"
+      },
+      "example": "Parents teach children moral values at home.",
+      "example_translations": {
+        "ru": "Родители прививают детям нравственные ценности дома.",
+        "uz": "Ota-onalar bolalarga uyda axloqiy qadriyatlarni o'rgatadi."
+      }
+    },
+    {
+      "word": "stereotype",
+      "part_of_speech": "noun",
+      "translation": "стереотип",
+      "translations": {
+        "ru": "стереотип",
+        "uz": "stereotip"
+      },
+      "example": "It is a stereotype that boys dislike reading.",
+      "example_translations": {
+        "ru": "Это стереотип, что мальчики не любят читать.",
+        "uz": "O'g'il bolalar kitob o'qishni yoqtirmaydi degan fikr — stereotip."
+      }
+    },
+    {
+      "word": "taboo",
+      "part_of_speech": "noun",
+      "translation": "табу, запрет",
+      "translations": {
+        "ru": "табу, запрет",
+        "uz": "tabu, taqiq"
+      },
+      "example": "Talking about money is a taboo in some families.",
+      "example_translations": {
+        "ru": "В некоторых семьях разговоры о деньгах — табу.",
+        "uz": "Ba'zi oilalarda pul haqida gapirish tabu hisoblanadi."
+      }
+    },
+    {
+      "word": "convention",
+      "part_of_speech": "noun",
+      "translation": "общепринятое правило",
+      "translations": {
+        "ru": "общепринятое правило",
+        "uz": "umum qabul qilingan qoida"
+      },
+      "example": "Wearing a suit to interviews is just a convention.",
+      "example_translations": {
+        "ru": "Надевать костюм на собеседование — просто общепринятое правило.",
+        "uz": "Suhbatga kostyum kiyib borish — shunchaki umum qabul qilingan qoida."
+      }
+    },
+    {
+      "word": "conform",
+      "part_of_speech": "verb",
+      "translation": "подчиняться, следовать",
+      "translations": {
+        "ru": "подчиняться, следовать",
+        "uz": "bo'ysunmoq, amal qilmoq"
+      },
+      "example": "New members must conform to the club's rules.",
+      "example_translations": {
+        "ru": "Новые участники должны подчиняться правилам клуба.",
+        "uz": "Yangi a'zolar klub qoidalariga bo'ysunishi kerak."
+      }
+    },
+    {
+      "word": "status",
+      "part_of_speech": "noun",
+      "translation": "статус, положение",
+      "translations": {
+        "ru": "статус, положение",
+        "uz": "mavqe, maqom"
+      },
+      "example": "Teachers have a high status in this society.",
+      "example_translations": {
+        "ru": "Учителя имеют высокий статус в этом обществе.",
+        "uz": "Bu jamiyatda o'qituvchilar yuqori mavqega ega."
+      }
+    },
+    {
+      "word": "belief",
+      "part_of_speech": "noun",
+      "translation": "убеждение, вера",
+      "translations": {
+        "ru": "убеждение, вера",
+        "uz": "e'tiqod, ishonch"
+      },
+      "example": "We should respect the beliefs of other people.",
+      "example_translations": {
+        "ru": "Мы должны уважать убеждения других людей.",
+        "uz": "Biz boshqa odamlarning e'tiqodini hurmat qilishimiz kerak."
+      }
+    },
+    {
+      "word": "accountability",
+      "part_of_speech": "noun",
+      "translation": "подотчётность",
+      "translations": {
+        "ru": "подотчётность",
+        "uz": "hisobdorlik"
+      },
+      "example": "Citizens want more accountability from public officials.",
+      "example_translations": {
+        "ru": "Граждане хотят большей подотчётности от должностных лиц.",
+        "uz": "Fuqarolar mansabdor shaxslardan ko'proq hisobdorlik istaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 6,
+    "title": "Здоровье и психология",
+    "title_uz": "Sog'liq va psixologiya"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Лечение",
+    "title_uz": "Davolash"
+  },
+  "words": [
+    {
+      "word": "diagnose",
+      "part_of_speech": "verb",
+      "translation": "диагностировать, ставить диагноз",
+      "translations": {
+        "ru": "диагностировать, ставить диагноз",
+        "uz": "tashxis qo'ymoq"
+      },
+      "example": "Doctors diagnosed the illness at an early stage.",
+      "example_translations": {
+        "ru": "Врачи диагностировали болезнь на ранней стадии.",
+        "uz": "Shifokorlar kasallikka erta bosqichda tashxis qo'ydi."
+      }
+    },
+    {
+      "word": "rehabilitation",
+      "part_of_speech": "noun",
+      "translation": "реабилитация",
+      "translations": {
+        "ru": "реабилитация",
+        "uz": "reabilitatsiya"
+      },
+      "example": "After the operation, she needed months of rehabilitation.",
+      "example_translations": {
+        "ru": "После операции ей потребовались месяцы реабилитации.",
+        "uz": "Operatsiyadan keyin unga bir necha oylik reabilitatsiya kerak bo'ldi."
+      }
+    },
+    {
+      "word": "physician",
+      "part_of_speech": "noun",
+      "translation": "врач",
+      "translations": {
+        "ru": "врач",
+        "uz": "shifokor"
+      },
+      "example": "Ask your physician before you start this diet.",
+      "example_translations": {
+        "ru": "Посоветуйтесь со своим врачом, прежде чем начинать эту диету.",
+        "uz": "Bu parhezni boshlashdan oldin shifokoringiz bilan maslahatlashing."
+      }
+    },
+    {
+      "word": "transplant",
+      "part_of_speech": "noun",
+      "translation": "пересадка, трансплантация",
+      "translations": {
+        "ru": "пересадка, трансплантация",
+        "uz": "transplantatsiya, ko'chirib o'tkazish"
+      },
+      "example": "A kidney transplant gave her a healthy new life.",
+      "example_translations": {
+        "ru": "Пересадка почки подарила ей новую здоровую жизнь.",
+        "uz": "Buyrak transplantatsiyasi unga yangi, sog'lom hayot baxsh etdi."
+      }
+    },
+    {
+      "word": "medication",
+      "part_of_speech": "noun",
+      "translation": "лекарство",
+      "translations": {
+        "ru": "лекарство",
+        "uz": "dori"
+      },
+      "example": "Take this medication twice a day after meals.",
+      "example_translations": {
+        "ru": "Принимайте это лекарство два раза в день после еды.",
+        "uz": "Bu dorini kuniga ikki mahal ovqatdan keyin iching."
+      }
+    },
+    {
+      "word": "paramedic",
+      "part_of_speech": "noun",
+      "translation": "фельдшер скорой помощи",
+      "translations": {
+        "ru": "фельдшер скорой помощи",
+        "uz": "tez yordam feldsheri"
+      },
+      "example": "A paramedic arrived and helped the old man.",
+      "example_translations": {
+        "ru": "Приехал фельдшер скорой помощи и помог пожилому мужчине.",
+        "uz": "Tez yordam feldsheri yetib kelib, keksa kishiga yordam berdi."
+      }
+    },
+    {
+      "word": "remedy",
+      "part_of_speech": "noun",
+      "translation": "лечебное средство",
+      "translations": {
+        "ru": "лечебное средство",
+        "uz": "davo"
+      },
+      "example": "Honey tea is a popular remedy for a cold.",
+      "example_translations": {
+        "ru": "Чай с мёдом — популярное средство от простуды.",
+        "uz": "Asalli choy — shamollashga qarshi mashhur davo."
+      }
+    },
+    {
+      "word": "ward",
+      "part_of_speech": "noun",
+      "translation": "больничная палата",
+      "translations": {
+        "ru": "больничная палата",
+        "uz": "kasalxona palatasi"
+      },
+      "example": "The nurse checks every patient in the ward.",
+      "example_translations": {
+        "ru": "Медсестра проверяет каждого пациента в палате.",
+        "uz": "Hamshira palatadagi har bir bemordan xabar oladi."
+      }
+    },
+    {
+      "word": "prescribe",
+      "part_of_speech": "verb",
+      "translation": "прописывать, назначать",
+      "translations": {
+        "ru": "прописывать, назначать",
+        "uz": "tayinlamoq, buyurmoq"
+      },
+      "example": "The doctor prescribed drops for my eyes.",
+      "example_translations": {
+        "ru": "Врач прописал мне капли для глаз.",
+        "uz": "Shifokor menga ko'z tomchisi tayinladi."
+      }
+    },
+    {
+      "word": "antibiotic",
+      "part_of_speech": "noun",
+      "translation": "антибиотик",
+      "translations": {
+        "ru": "антибиотик",
+        "uz": "antibiotik"
+      },
+      "example": "Did the antibiotic help with your ear infection?",
+      "example_translations": {
+        "ru": "Антибиотик помог вам от ушной инфекции?",
+        "uz": "Antibiotik quloq infeksiyangizni davolashga yordam berdimi?"
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 13,
+    "title": "Природа и окружающая среда",
+    "title_uz": "Tabiat va atrof-muhit"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Экология",
+    "title_uz": "Ekologiya"
+  },
+  "words": [
+    {
+      "word": "environmental",
+      "part_of_speech": "adjective",
+      "translation": "экологический",
+      "translations": {
+        "ru": "экологический",
+        "uz": "ekologik"
+      },
+      "example": "Air pollution is a serious environmental problem.",
+      "example_translations": {
+        "ru": "Загрязнение воздуха — серьёзная экологическая проблема.",
+        "uz": "Havoning ifloslanishi jiddiy ekologik muammodir."
+      }
+    },
+    {
+      "word": "rainforest",
+      "part_of_speech": "noun",
+      "translation": "тропический лес",
+      "translations": {
+        "ru": "тропический лес",
+        "uz": "tropik o'rmon"
+      },
+      "example": "Thousands of animals live in the rainforest.",
+      "example_translations": {
+        "ru": "В тропическом лесу обитают тысячи животных.",
+        "uz": "Tropik o'rmonda minglab hayvonlar yashaydi."
+      }
+    },
+    {
+      "word": "solar",
+      "part_of_speech": "adjective",
+      "translation": "солнечный",
+      "translations": {
+        "ru": "солнечный",
+        "uz": "quyosh, quyoshga oid"
+      },
+      "example": "This small lamp works on solar energy.",
+      "example_translations": {
+        "ru": "Эта маленькая лампа работает на солнечной энергии.",
+        "uz": "Bu kichkina chiroq quyosh energiyasida ishlaydi."
+      }
+    },
+    {
+      "word": "global",
+      "part_of_speech": "adjective",
+      "translation": "глобальный",
+      "translations": {
+        "ru": "глобальный",
+        "uz": "global"
+      },
+      "example": "Global temperatures are rising every year.",
+      "example_translations": {
+        "ru": "Глобальная температура растёт с каждым годом.",
+        "uz": "Global harorat yil sayin ko'tarilmoqda."
+      }
+    },
+    {
+      "word": "preserve",
+      "part_of_speech": "verb",
+      "translation": "сохранять",
+      "translations": {
+        "ru": "сохранять",
+        "uz": "saqlab qolmoq"
+      },
+      "example": "We must preserve these forests for our children.",
+      "example_translations": {
+        "ru": "Мы должны сохранить эти леса для наших детей.",
+        "uz": "Biz bu o'rmonlarni farzandlarimiz uchun saqlab qolishimiz kerak."
+      }
+    },
+    {
+      "word": "toxic",
+      "part_of_speech": "adjective",
+      "translation": "токсичный, ядовитый",
+      "translations": {
+        "ru": "токсичный, ядовитый",
+        "uz": "zaharli"
+      },
+      "example": "Toxic smoke from the factory made people sick.",
+      "example_translations": {
+        "ru": "Из-за токсичного дыма с завода люди заболели.",
+        "uz": "Zavoddan chiqqan zaharli tutun tufayli odamlar kasal bo'ldi."
+      }
+    },
+    {
+      "word": "endangered",
+      "part_of_speech": "adjective",
+      "translation": "исчезающий, под угрозой исчезновения",
+      "translations": {
+        "ru": "исчезающий, под угрозой исчезновения",
+        "uz": "yo'qolib borayotgan"
+      },
+      "example": "The snow leopard is an endangered animal.",
+      "example_translations": {
+        "ru": "Снежный барс — исчезающее животное.",
+        "uz": "Qor qoploni yo'qolib borayotgan hayvondir."
+      }
+    },
+    {
+      "word": "extinct",
+      "part_of_speech": "adjective",
+      "translation": "вымерший",
+      "translations": {
+        "ru": "вымерший",
+        "uz": "qirilib ketgan"
+      },
+      "example": "Scientists found the bones of an extinct bird.",
+      "example_translations": {
+        "ru": "Учёные нашли кости вымершей птицы.",
+        "uz": "Olimlar qirilib ketgan qushning suyaklarini topishdi."
+      }
+    },
+    {
+      "word": "survive",
+      "part_of_speech": "verb",
+      "translation": "выживать",
+      "translations": {
+        "ru": "выживать",
+        "uz": "omon qolmoq"
+      },
+      "example": "Few plants can survive in the desert.",
+      "example_translations": {
+        "ru": "Немногие растения могут выжить в пустыне.",
+        "uz": "Cho'lda kamdan-kam o'simlik omon qola oladi."
+      }
+    },
+    {
+      "word": "destroy",
+      "part_of_speech": "verb",
+      "translation": "уничтожать, разрушать",
+      "translations": {
+        "ru": "уничтожать, разрушать",
+        "uz": "yo'q qilmoq, vayron qilmoq"
+      },
+      "example": "Fires destroy large areas of forest each summer.",
+      "example_translations": {
+        "ru": "Каждое лето пожары уничтожают большие участки леса.",
+        "uz": "Har yozda yong'inlar o'rmonning katta maydonlarini yo'q qiladi."
+      }
+    }
+  ]
+}

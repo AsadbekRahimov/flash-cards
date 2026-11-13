@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 6,
+    "title": "Здоровье и психология",
+    "title_uz": "Sog'liq va psixologiya"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Разум и сознание",
+    "title_uz": "Aql va ong"
+  },
+  "words": [
+    {
+      "word": "consciousness",
+      "part_of_speech": "noun",
+      "translation": "сознание",
+      "translations": {
+        "ru": "сознание",
+        "uz": "ong"
+      },
+      "example": "Scientists still cannot fully explain human consciousness.",
+      "example_translations": {
+        "ru": "Учёные до сих пор не могут полностью объяснить человеческое сознание.",
+        "uz": "Olimlar inson ongini haligacha to'liq tushuntira olmaydi."
+      }
+    },
+    {
+      "word": "perception",
+      "part_of_speech": "noun",
+      "translation": "восприятие",
+      "translations": {
+        "ru": "восприятие",
+        "uz": "idrok"
+      },
+      "example": "Colors can change our perception of a room.",
+      "example_translations": {
+        "ru": "Цвета могут менять наше восприятие комнаты.",
+        "uz": "Ranglar xonani idrok etishimizni o'zgartirishi mumkin."
+      }
+    },
+    {
+      "word": "cognitive",
+      "part_of_speech": "adjective",
+      "translation": "когнитивный, познавательный",
+      "translations": {
+        "ru": "когнитивный, познавательный",
+        "uz": "kognitiv, bilishga oid"
+      },
+      "example": "Puzzles improve children's cognitive skills.",
+      "example_translations": {
+        "ru": "Головоломки развивают когнитивные навыки детей.",
+        "uz": "Boshqotirmalar bolalarning kognitiv ko'nikmalarini rivojlantiradi."
+      }
+    },
+    {
+      "word": "mindset",
+      "part_of_speech": "noun",
+      "translation": "образ мышления",
+      "translations": {
+        "ru": "образ мышления",
+        "uz": "fikrlash tarzi"
+      },
+      "example": "A positive mindset helps you learn from mistakes.",
+      "example_translations": {
+        "ru": "Позитивный образ мышления помогает учиться на ошибках.",
+        "uz": "Ijobiy fikrlash tarzi xatolardan saboq olishga yordam beradi."
+      }
+    },
+    {
+      "word": "intuition",
+      "part_of_speech": "noun",
+      "translation": "интуиция",
+      "translations": {
+        "ru": "интуиция",
+        "uz": "ichki sezgi, intuitsiya"
+      },
+      "example": "My intuition told me to trust this person.",
+      "example_translations": {
+        "ru": "Интуиция подсказала мне, что этому человеку можно доверять.",
+        "uz": "Ichki sezgim bu odamga ishonish mumkinligini aytdi."
+      }
+    },
+    {
+      "word": "willpower",
+      "part_of_speech": "noun",
+      "translation": "сила воли",
+      "translations": {
+        "ru": "сила воли",
+        "uz": "iroda kuchi"
+      },
+      "example": "It takes willpower to give up sweets.",
+      "example_translations": {
+        "ru": "Чтобы отказаться от сладкого, нужна сила воли.",
+        "uz": "Shirinlikdan voz kechish uchun iroda kuchi kerak."
+      }
+    },
+    {
+      "word": "awareness",
+      "part_of_speech": "noun",
+      "translation": "осознание",
+      "translations": {
+        "ru": "осознание",
+        "uz": "anglash"
+      },
+      "example": "Awareness of your own feelings helps you stay calm.",
+      "example_translations": {
+        "ru": "Осознание собственных чувств помогает сохранять спокойствие.",
+        "uz": "O'z his-tuyg'ularingizni anglash xotirjam bo'lishga yordam beradi."
+      }
+    },
+    {
+      "word": "concentration",
+      "part_of_speech": "noun",
+      "translation": "концентрация, сосредоточенность",
+      "translations": {
+        "ru": "концентрация, сосредоточенность",
+        "uz": "diqqatni jamlash"
+      },
+      "example": "Loud music breaks my concentration when I study.",
+      "example_translations": {
+        "ru": "Громкая музыка нарушает мою концентрацию, когда я занимаюсь.",
+        "uz": "Baland musiqa dars qilayotganimda diqqatimni jamlashga xalaqit beradi."
+      }
+    },
+    {
+      "word": "reflex",
+      "part_of_speech": "noun",
+      "translation": "рефлекс",
+      "translations": {
+        "ru": "рефлекс",
+        "uz": "refleks"
+      },
+      "example": "Closing your eyes in bright light is a reflex.",
+      "example_translations": {
+        "ru": "Закрывать глаза при ярком свете — это рефлекс.",
+        "uz": "Yorqin nurda ko'zni yumish — bu refleks."
+      }
+    },
+    {
+      "word": "recall",
+      "part_of_speech": "verb",
+      "translation": "вспоминать",
+      "translations": {
+        "ru": "вспоминать",
+        "uz": "eslamoq"
+      },
+      "example": "Can you recall the name of your first teacher?",
+      "example_translations": {
+        "ru": "Вы можете вспомнить имя своего первого учителя?",
+        "uz": "Birinchi o'qituvchingizning ismini eslay olasizmi?"
+      }
+    }
+  ]
+}

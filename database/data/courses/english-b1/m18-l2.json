@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 18,
+    "title": "Описание вещей и мест",
+    "title_uz": "Narsa va joylar tasviri"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Материал и поверхность",
+    "title_uz": "Material va sirt"
+  },
+  "words": [
+    {
+      "word": "wooden",
+      "part_of_speech": "adjective",
+      "translation": "деревянный",
+      "translations": {
+        "ru": "деревянный",
+        "uz": "yog'och, yog'ochdan yasalgan"
+      },
+      "example": "My grandfather made this wooden chair himself.",
+      "example_translations": {
+        "ru": "Мой дедушка сам сделал этот деревянный стул.",
+        "uz": "Bobom bu yog'och stulni o'zi yasagan."
+      }
+    },
+    {
+      "word": "leather",
+      "part_of_speech": "noun",
+      "translation": "натуральная кожа",
+      "translations": {
+        "ru": "натуральная кожа",
+        "uz": "charm"
+      },
+      "example": "Is this bag made of real leather?",
+      "example_translations": {
+        "ru": "Эта сумка сделана из натуральной кожи?",
+        "uz": "Bu sumka tabiiy charmdan tikilganmi?"
+      }
+    },
+    {
+      "word": "cotton",
+      "part_of_speech": "noun",
+      "translation": "хлопок",
+      "translations": {
+        "ru": "хлопок",
+        "uz": "paxta"
+      },
+      "example": "This shirt is made of light cotton.",
+      "example_translations": {
+        "ru": "Эта рубашка сшита из лёгкого хлопка.",
+        "uz": "Bu ko'ylak yengil paxta matodan tikilgan."
+      }
+    },
+    {
+      "word": "wool",
+      "part_of_speech": "noun",
+      "translation": "шерсть",
+      "translations": {
+        "ru": "шерсть",
+        "uz": "jun"
+      },
+      "example": "Wool keeps you warm in cold weather.",
+      "example_translations": {
+        "ru": "Шерсть согревает в холодную погоду.",
+        "uz": "Jun sovuq havoda issiq tutadi."
+      }
+    },
+    {
+      "word": "rubber",
+      "part_of_speech": "noun",
+      "translation": "резина",
+      "translations": {
+        "ru": "резина",
+        "uz": "rezina"
+      },
+      "example": "Rubber is used to make car tires.",
+      "example_translations": {
+        "ru": "Резину используют для изготовления автомобильных шин.",
+        "uz": "Rezina avtomobil shinalarini tayyorlashda ishlatiladi."
+      }
+    },
+    {
+      "word": "brick",
+      "part_of_speech": "noun",
+      "translation": "кирпич",
+      "translations": {
+        "ru": "кирпич",
+        "uz": "g'isht"
+      },
+      "example": "The builders used red bricks for the wall.",
+      "example_translations": {
+        "ru": "Строители использовали для стены красный кирпич.",
+        "uz": "Quruvchilar devor uchun qizil g'isht ishlatishdi."
+      }
+    },
+    {
+      "word": "silk",
+      "part_of_speech": "noun",
+      "translation": "шёлк",
+      "translations": {
+        "ru": "шёлк",
+        "uz": "ipak"
+      },
+      "example": "Margilan is famous for its beautiful silk.",
+      "example_translations": {
+        "ru": "Маргилан славится своим красивым шёлком.",
+        "uz": "Marg'ilon o'zining chiroyli ipagi bilan mashhur."
+      }
+    },
+    {
+      "word": "smooth",
+      "part_of_speech": "adjective",
+      "translation": "гладкий",
+      "translations": {
+        "ru": "гладкий",
+        "uz": "silliq"
+      },
+      "example": "River stones are usually round and smooth.",
+      "example_translations": {
+        "ru": "Речные камни обычно круглые и гладкие.",
+        "uz": "Daryo toshlari odatda dumaloq va silliq."
+      }
+    },
+    {
+      "word": "rough",
+      "part_of_speech": "adjective",
+      "translation": "грубый, шершавый",
+      "translations": {
+        "ru": "грубый, шершавый",
+        "uz": "dag'al, g'adir-budur"
+      },
+      "example": "His hands are rough from hard work.",
+      "example_translations": {
+        "ru": "У него грубые руки от тяжёлой работы.",
+        "uz": "Og'ir mehnatdan uning qo'llari dag'al bo'lib qolgan."
+      }
+    },
+    {
+      "word": "shiny",
+      "part_of_speech": "adjective",
+      "translation": "блестящий",
+      "translations": {
+        "ru": "блестящий",
+        "uz": "yaltiroq"
+      },
+      "example": "She cleaned the spoons until they were shiny.",
+      "example_translations": {
+        "ru": "Она чистила ложки, пока они не стали блестящими.",
+        "uz": "U qoshiqlarni yaltiroq bo'lguncha tozaladi."
+      }
+    }
+  ]
+}

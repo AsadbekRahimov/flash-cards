@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 5,
+    "title": "Здоровье и медицина",
+    "title_uz": "Salomatlik va tibbiyot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Симптомы и болезни",
+    "title_uz": "Alomatlar va kasalliklar"
+  },
+  "words": [
+    {
+      "word": "disease",
+      "part_of_speech": "noun",
+      "translation": "заболевание",
+      "translations": {
+        "ru": "заболевание",
+        "uz": "kasallik"
+      },
+      "example": "Clean water protects people from many diseases.",
+      "example_translations": {
+        "ru": "Чистая вода защищает людей от многих заболеваний.",
+        "uz": "Toza suv odamlarni ko'p kasalliklardan himoya qiladi."
+      }
+    },
+    {
+      "word": "illness",
+      "part_of_speech": "noun",
+      "translation": "болезнь",
+      "translations": {
+        "ru": "болезнь",
+        "uz": "xastalik"
+      },
+      "example": "She missed school because of a long illness.",
+      "example_translations": {
+        "ru": "Она пропустила школу из-за долгой болезни.",
+        "uz": "U uzoq davom etgan xastalik tufayli maktabga bora olmadi."
+      }
+    },
+    {
+      "word": "sore",
+      "part_of_speech": "adjective",
+      "translation": "больной, воспалённый",
+      "translations": {
+        "ru": "больной, воспалённый",
+        "uz": "og'riyotgan, yallig'langan"
+      },
+      "example": "Warm tea is good for a sore throat.",
+      "example_translations": {
+        "ru": "Тёплый чай полезен при больном горле.",
+        "uz": "Iliq choy og'riyotgan tomoqqa foydali."
+      }
+    },
+    {
+      "word": "dizzy",
+      "part_of_speech": "adjective",
+      "translation": "чувствующий головокружение",
+      "translations": {
+        "ru": "чувствующий головокружение",
+        "uz": "boshi aylanayotgan"
+      },
+      "example": "Do you feel dizzy when you stand up?",
+      "example_translations": {
+        "ru": "Вы чувствуете головокружение, когда встаёте?",
+        "uz": "O'rningizdan turganingizda boshingiz aylanadimi?"
+      }
+    },
+    {
+      "word": "ache",
+      "part_of_speech": "verb",
+      "translation": "болеть, ныть",
+      "translations": {
+        "ru": "болеть, ныть",
+        "uz": "og'rimoq"
+      },
+      "example": "My back aches after a long day at work.",
+      "example_translations": {
+        "ru": "После долгого рабочего дня у меня болит спина.",
+        "uz": "Uzoq ish kunidan keyin belim og'riydi."
+      }
+    },
+    {
+      "word": "burn",
+      "part_of_speech": "verb",
+      "translation": "обжигать",
+      "translations": {
+        "ru": "обжигать",
+        "uz": "kuydirmoq"
+      },
+      "example": "She burned her hand on the hot pan.",
+      "example_translations": {
+        "ru": "Она обожгла руку о горячую сковороду.",
+        "uz": "U issiq tovada qo'lini kuydirib oldi."
+      }
+    },
+    {
+      "word": "injure",
+      "part_of_speech": "verb",
+      "translation": "травмировать",
+      "translations": {
+        "ru": "травмировать",
+        "uz": "jarohatlamoq"
+      },
+      "example": "He injured his knee while playing soccer.",
+      "example_translations": {
+        "ru": "Он травмировал колено, играя в футбол.",
+        "uz": "U futbol o'ynayotganda tizzasini jarohatlab oldi."
+      }
+    },
+    {
+      "word": "bruise",
+      "part_of_speech": "noun",
+      "translation": "синяк",
+      "translations": {
+        "ru": "синяк",
+        "uz": "mo'mataloq, ko'kargan joy"
+      },
+      "example": "How did you get that bruise on your arm?",
+      "example_translations": {
+        "ru": "Откуда у вас этот синяк на руке?",
+        "uz": "Qo'lingizdagi bu mo'mataloq qayerdan paydo bo'ldi?"
+      }
+    },
+    {
+      "word": "faint",
+      "part_of_speech": "verb",
+      "translation": "падать в обморок",
+      "translations": {
+        "ru": "падать в обморок",
+        "uz": "hushidan ketmoq"
+      },
+      "example": "She fainted because the room was too hot.",
+      "example_translations": {
+        "ru": "Она упала в обморок, потому что в комнате было слишком жарко.",
+        "uz": "Xona juda issiq bo'lgani uchun u hushidan ketdi."
+      }
+    },
+    {
+      "word": "virus",
+      "part_of_speech": "noun",
+      "translation": "вирус",
+      "translations": {
+        "ru": "вирус",
+        "uz": "virus"
+      },
+      "example": "This virus spreads quickly in cold weather.",
+      "example_translations": {
+        "ru": "Этот вирус быстро распространяется в холодную погоду.",
+        "uz": "Bu virus sovuq havoda tez tarqaladi."
+      }
+    }
+  ]
+}

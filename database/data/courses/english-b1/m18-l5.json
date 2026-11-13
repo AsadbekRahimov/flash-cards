@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 18,
+    "title": "Описание вещей и мест",
+    "title_uz": "Narsa va joylar tasviri"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Впечатление от места",
+    "title_uz": "Joydan taassurot"
+  },
+  "words": [
+    {
+      "word": "atmosphere",
+      "part_of_speech": "noun",
+      "translation": "атмосфера",
+      "translations": {
+        "ru": "атмосфера",
+        "uz": "muhit"
+      },
+      "example": "This cafe has a warm and friendly atmosphere.",
+      "example_translations": {
+        "ru": "В этом кафе тёплая и дружелюбная атмосфера.",
+        "uz": "Bu kafeda iliq va do'stona muhit hukm suradi."
+      }
+    },
+    {
+      "word": "stunning",
+      "part_of_speech": "adjective",
+      "translation": "потрясающий",
+      "translations": {
+        "ru": "потрясающий",
+        "uz": "hayratlanarli"
+      },
+      "example": "What a stunning view from the mountain!",
+      "example_translations": {
+        "ru": "Какой потрясающий вид с горы!",
+        "uz": "Tog'dan naqadar hayratlanarli manzara ochiladi!"
+      }
+    },
+    {
+      "word": "magnificent",
+      "part_of_speech": "adjective",
+      "translation": "великолепный",
+      "translations": {
+        "ru": "великолепный",
+        "uz": "muhtasham"
+      },
+      "example": "Tourists come to see this magnificent old palace.",
+      "example_translations": {
+        "ru": "Туристы приезжают посмотреть на этот великолепный старинный дворец.",
+        "uz": "Sayyohlar bu muhtasham qadimiy saroyni ko'rgani kelishadi."
+      }
+    },
+    {
+      "word": "charming",
+      "part_of_speech": "adjective",
+      "translation": "очаровательный",
+      "translations": {
+        "ru": "очаровательный",
+        "uz": "maftunkor"
+      },
+      "example": "It is a charming little town by the lake.",
+      "example_translations": {
+        "ru": "Это очаровательный городок у озера.",
+        "uz": "Bu ko'l bo'yidagi maftunkor shaharcha."
+      }
+    },
+    {
+      "word": "familiar",
+      "part_of_speech": "adjective",
+      "translation": "знакомый",
+      "translations": {
+        "ru": "знакомый",
+        "uz": "tanish"
+      },
+      "example": "Does this street look familiar to you?",
+      "example_translations": {
+        "ru": "Эта улица кажется вам знакомой?",
+        "uz": "Bu ko'cha sizga tanish ko'rinyaptimi?"
+      }
+    },
+    {
+      "word": "vivid",
+      "part_of_speech": "adjective",
+      "translation": "яркий",
+      "translations": {
+        "ru": "яркий",
+        "uz": "yorqin"
+      },
+      "example": "In spring the hills are full of vivid colors.",
+      "example_translations": {
+        "ru": "Весной холмы полны ярких красок.",
+        "uz": "Bahorda tepaliklar yorqin ranglarga to'ladi."
+      }
+    },
+    {
+      "word": "dull",
+      "part_of_speech": "adjective",
+      "translation": "скучный, унылый",
+      "translations": {
+        "ru": "скучный, унылый",
+        "uz": "zerikarli"
+      },
+      "example": "After the big city, our town seemed dull.",
+      "example_translations": {
+        "ru": "После большого города наш городок казался скучным.",
+        "uz": "Katta shahardan keyin shaharchamiz zerikarli tuyuldi."
+      }
+    },
+    {
+      "word": "peaceful",
+      "part_of_speech": "adjective",
+      "translation": "спокойный, мирный",
+      "translations": {
+        "ru": "спокойный, мирный",
+        "uz": "osoyishta, tinch"
+      },
+      "example": "It is a peaceful place far from city noise.",
+      "example_translations": {
+        "ru": "Это спокойное место вдали от городского шума.",
+        "uz": "Bu shahar shovqinidan uzoqdagi osoyishta joy."
+      }
+    },
+    {
+      "word": "historic",
+      "part_of_speech": "adjective",
+      "translation": "исторический",
+      "translations": {
+        "ru": "исторический",
+        "uz": "tarixiy"
+      },
+      "example": "Bukhara has many historic buildings and streets.",
+      "example_translations": {
+        "ru": "В Бухаре много исторических зданий и улиц.",
+        "uz": "Buxoroda tarixiy binolar va ko'chalar ko'p."
+      }
+    },
+    {
+      "word": "mysterious",
+      "part_of_speech": "adjective",
+      "translation": "таинственный, загадочный",
+      "translations": {
+        "ru": "таинственный, загадочный",
+        "uz": "sirli"
+      },
+      "example": "At night the old castle looks mysterious.",
+      "example_translations": {
+        "ru": "Ночью старый замок выглядит таинственным.",
+        "uz": "Tunda eski qal'a sirli ko'rinadi."
+      }
+    }
+  ]
+}

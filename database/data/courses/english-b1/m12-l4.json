@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 12,
+    "title": "Спорт и активный отдых",
+    "title_uz": "Sport va faol dam olish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Снаряжение и площадки",
+    "title_uz": "Anjomlar va maydonlar"
+  },
+  "words": [
+    {
+      "word": "gear",
+      "part_of_speech": "noun",
+      "translation": "снаряжение",
+      "translations": {
+        "ru": "снаряжение",
+        "uz": "anjom, jihoz"
+      },
+      "example": "Put your sports gear in this bag.",
+      "example_translations": {
+        "ru": "Положите спортивное снаряжение в эту сумку.",
+        "uz": "Sport anjomlaringizni shu sumkaga soling."
+      }
+    },
+    {
+      "word": "helmet",
+      "part_of_speech": "noun",
+      "translation": "шлем",
+      "translations": {
+        "ru": "шлем",
+        "uz": "shlem"
+      },
+      "example": "Always wear a helmet when you ride a bike.",
+      "example_translations": {
+        "ru": "Всегда надевайте шлем, когда едете на велосипеде.",
+        "uz": "Velosiped haydaganda doim shlem kiying."
+      }
+    },
+    {
+      "word": "racket",
+      "part_of_speech": "noun",
+      "translation": "ракетка",
+      "translations": {
+        "ru": "ракетка",
+        "uz": "raketka"
+      },
+      "example": "You hit the ball with a racket in tennis.",
+      "example_translations": {
+        "ru": "В теннисе по мячу бьют ракеткой.",
+        "uz": "Tennisda to'p raketka bilan uriladi."
+      }
+    },
+    {
+      "word": "net",
+      "part_of_speech": "noun",
+      "translation": "сетка",
+      "translations": {
+        "ru": "сетка",
+        "uz": "to'r"
+      },
+      "example": "The ball flew over the net.",
+      "example_translations": {
+        "ru": "Мяч перелетел через сетку.",
+        "uz": "To'p to'r ustidan uchib o'tdi."
+      }
+    },
+    {
+      "word": "whistle",
+      "part_of_speech": "noun",
+      "translation": "свисток",
+      "translations": {
+        "ru": "свисток",
+        "uz": "hushtak"
+      },
+      "example": "The referee blew his whistle to start the game.",
+      "example_translations": {
+        "ru": "Судья дунул в свисток, чтобы начать игру.",
+        "uz": "Hakam o'yinni boshlash uchun hushtak chaldi."
+      }
+    },
+    {
+      "word": "track",
+      "part_of_speech": "noun",
+      "translation": "беговая дорожка",
+      "translations": {
+        "ru": "беговая дорожка",
+        "uz": "yugurish yo'lakchasi"
+      },
+      "example": "Several runners are warming up on the track.",
+      "example_translations": {
+        "ru": "Несколько бегунов разминаются на беговой дорожке.",
+        "uz": "Bir necha yuguruvchi yugurish yo'lakchasida badan qizdirmoqda."
+      }
+    },
+    {
+      "word": "arena",
+      "part_of_speech": "noun",
+      "translation": "арена",
+      "translations": {
+        "ru": "арена",
+        "uz": "arena"
+      },
+      "example": "Was the arena full of fans last night?",
+      "example_translations": {
+        "ru": "Вчера вечером арена была полна болельщиков?",
+        "uz": "Kecha kechqurun arena muxlislar bilan to'la edimi?"
+      }
+    },
+    {
+      "word": "locker",
+      "part_of_speech": "noun",
+      "translation": "шкафчик",
+      "translations": {
+        "ru": "шкафчик",
+        "uz": "javoncha"
+      },
+      "example": "Leave your clothes and bag in the locker.",
+      "example_translations": {
+        "ru": "Оставьте одежду и сумку в шкафчике.",
+        "uz": "Kiyimingiz va sumkangizni javonchada qoldiring."
+      }
+    },
+    {
+      "word": "target",
+      "part_of_speech": "noun",
+      "translation": "мишень",
+      "translations": {
+        "ru": "мишень",
+        "uz": "nishon"
+      },
+      "example": "Her arrow hit the center of the target.",
+      "example_translations": {
+        "ru": "Её стрела попала в центр мишени.",
+        "uz": "Uning kamon o'qi nishonning markaziga tegdi."
+      }
+    },
+    {
+      "word": "mat",
+      "part_of_speech": "noun",
+      "translation": "спортивный коврик",
+      "translations": {
+        "ru": "спортивный коврик",
+        "uz": "sport gilamchasi"
+      },
+      "example": "Bring your own mat to the yoga class.",
+      "example_translations": {
+        "ru": "Приносите свой коврик на занятие йогой.",
+        "uz": "Yoga mashg'ulotiga o'z gilamchangizni olib keling."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 10,
+    "title": "Технологии и интернет",
+    "title_uz": "Texnologiyalar va internet"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Инновации",
+    "title_uz": "Innovatsiyalar"
+  },
+  "words": [
+    {
+      "word": "invention",
+      "part_of_speech": "noun",
+      "translation": "изобретение",
+      "translations": {
+        "ru": "изобретение",
+        "uz": "ixtiro"
+      },
+      "example": "The internet is the greatest invention of our time.",
+      "example_translations": {
+        "ru": "Интернет — величайшее изобретение нашего времени.",
+        "uz": "Internet — zamonamizning eng buyuk ixtirosi."
+      }
+    },
+    {
+      "word": "artificial",
+      "part_of_speech": "adjective",
+      "translation": "искусственный",
+      "translations": {
+        "ru": "искусственный",
+        "uz": "sun'iy"
+      },
+      "example": "Artificial intelligence can translate texts in seconds.",
+      "example_translations": {
+        "ru": "Искусственный интеллект может переводить тексты за секунды.",
+        "uz": "Sun'iy intellekt matnlarni soniyalar ichida tarjima qila oladi."
+      }
+    },
+    {
+      "word": "virtual",
+      "part_of_speech": "adjective",
+      "translation": "виртуальный",
+      "translations": {
+        "ru": "виртуальный",
+        "uz": "virtual"
+      },
+      "example": "We took a virtual tour of the museum online.",
+      "example_translations": {
+        "ru": "Мы совершили виртуальную экскурсию по музею онлайн.",
+        "uz": "Biz muzey bo'ylab onlayn virtual sayohat qildik."
+      }
+    },
+    {
+      "word": "automatic",
+      "part_of_speech": "adjective",
+      "translation": "автоматический",
+      "translations": {
+        "ru": "автоматический",
+        "uz": "avtomatik"
+      },
+      "example": "The automatic doors open when you come closer.",
+      "example_translations": {
+        "ru": "Автоматические двери открываются, когда вы подходите ближе.",
+        "uz": "Yaqinroq kelganingizda avtomatik eshiklar ochiladi."
+      }
+    },
+    {
+      "word": "technical",
+      "part_of_speech": "adjective",
+      "translation": "технический",
+      "translations": {
+        "ru": "технический",
+        "uz": "texnik"
+      },
+      "example": "Our website has a small technical problem today.",
+      "example_translations": {
+        "ru": "Сегодня на нашем сайте небольшая техническая проблема.",
+        "uz": "Bugun saytimizda kichik texnik muammo bor."
+      }
+    },
+    {
+      "word": "code",
+      "part_of_speech": "noun",
+      "translation": "программный код",
+      "translations": {
+        "ru": "программный код",
+        "uz": "dastur kodi"
+      },
+      "example": "Aziz writes code for mobile games.",
+      "example_translations": {
+        "ru": "Азиз пишет код для мобильных игр.",
+        "uz": "Aziz mobil o'yinlar uchun kod yozadi."
+      }
+    },
+    {
+      "word": "developer",
+      "part_of_speech": "noun",
+      "translation": "разработчик",
+      "translations": {
+        "ru": "разработчик",
+        "uz": "dasturchi, ishlab chiquvchi"
+      },
+      "example": "My sister works as a developer of mobile apps.",
+      "example_translations": {
+        "ru": "Моя сестра работает разработчиком мобильных приложений.",
+        "uz": "Opam mobil ilovalar dasturchisi bo'lib ishlaydi."
+      }
+    },
+    {
+      "word": "sensor",
+      "part_of_speech": "noun",
+      "translation": "датчик, сенсор",
+      "translations": {
+        "ru": "датчик, сенсор",
+        "uz": "sensor, datchik"
+      },
+      "example": "A sensor turns on the light when someone enters.",
+      "example_translations": {
+        "ru": "Датчик включает свет, когда кто-то входит.",
+        "uz": "Kimdir kirganda sensor chiroqni yoqadi."
+      }
+    },
+    {
+      "word": "upgrade",
+      "part_of_speech": "verb",
+      "translation": "обновлять, улучшать",
+      "translations": {
+        "ru": "обновлять, улучшать",
+        "uz": "yangilamoq, yaxshilamoq"
+      },
+      "example": "We need to upgrade our old computers this year.",
+      "example_translations": {
+        "ru": "В этом году нам нужно обновить наши старые компьютеры.",
+        "uz": "Bu yil eski kompyuterlarimizni yangilashimiz kerak."
+      }
+    },
+    {
+      "word": "feature",
+      "part_of_speech": "noun",
+      "translation": "функция, особенность",
+      "translations": {
+        "ru": "функция, особенность",
+        "uz": "funksiya, xususiyat"
+      },
+      "example": "My favorite feature of this phone is the camera.",
+      "example_translations": {
+        "ru": "Моя любимая функция этого телефона — камера.",
+        "uz": "Bu telefonning menga eng yoqadigan funksiyasi — kamera."
+      }
+    }
+  ]
+}

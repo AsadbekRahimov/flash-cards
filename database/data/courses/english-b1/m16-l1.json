@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 16,
+    "title": "Чувства и мнения",
+    "title_uz": "His-tuyg'ular va fikrlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Радость и удовольствие",
+    "title_uz": "Quvonch va zavq"
+  },
+  "words": [
+    {
+      "word": "delighted",
+      "part_of_speech": "adjective",
+      "translation": "очень рад",
+      "translations": {
+        "ru": "очень рад",
+        "uz": "juda xursand"
+      },
+      "example": "We were delighted to see our old friends.",
+      "example_translations": {
+        "ru": "Мы были очень рады увидеть старых друзей.",
+        "uz": "Eski do'stlarimizni ko'rib juda xursand bo'ldik."
+      }
+    },
+    {
+      "word": "impressed",
+      "part_of_speech": "adjective",
+      "translation": "впечатлённый",
+      "translations": {
+        "ru": "впечатлённый",
+        "uz": "qoyil qolgan"
+      },
+      "example": "The teacher was impressed by her project.",
+      "example_translations": {
+        "ru": "Учитель был впечатлён её проектом.",
+        "uz": "O'qituvchi uning loyihasiga qoyil qoldi."
+      }
+    },
+    {
+      "word": "positive",
+      "part_of_speech": "adjective",
+      "translation": "позитивный, положительный",
+      "translations": {
+        "ru": "позитивный, положительный",
+        "uz": "ijobiy"
+      },
+      "example": "She has a positive view of life.",
+      "example_translations": {
+        "ru": "У неё позитивный взгляд на жизнь.",
+        "uz": "Uning hayotga qarashi ijobiy."
+      }
+    },
+    {
+      "word": "grateful",
+      "part_of_speech": "adjective",
+      "translation": "благодарный",
+      "translations": {
+        "ru": "благодарный",
+        "uz": "minnatdor"
+      },
+      "example": "I am grateful for all your help.",
+      "example_translations": {
+        "ru": "Я благодарен вам за всю вашу помощь.",
+        "uz": "Barcha yordamingiz uchun sizdan minnatdorman."
+      }
+    },
+    {
+      "word": "relieved",
+      "part_of_speech": "adjective",
+      "translation": "почувствовавший облегчение",
+      "translations": {
+        "ru": "почувствовавший облегчение",
+        "uz": "yengil tortgan"
+      },
+      "example": "Mom was relieved when we got home safely.",
+      "example_translations": {
+        "ru": "Мама почувствовала облегчение, когда мы благополучно добрались домой.",
+        "uz": "Uyga eson-omon yetib kelganimizda onam yengil tortdi."
+      }
+    },
+    {
+      "word": "joy",
+      "part_of_speech": "noun",
+      "translation": "радость",
+      "translations": {
+        "ru": "радость",
+        "uz": "quvonch"
+      },
+      "example": "The children jumped for joy when they heard the news.",
+      "example_translations": {
+        "ru": "Дети запрыгали от радости, когда услышали новость.",
+        "uz": "Bolalar yangilikni eshitib, quvonchdan sakrab yuborishdi."
+      }
+    },
+    {
+      "word": "pleasure",
+      "part_of_speech": "noun",
+      "translation": "удовольствие",
+      "translations": {
+        "ru": "удовольствие",
+        "uz": "zavq"
+      },
+      "example": "Reading in the garden gives me great pleasure.",
+      "example_translations": {
+        "ru": "Чтение в саду доставляет мне большое удовольствие.",
+        "uz": "Bog'da kitob o'qish menga katta zavq beradi."
+      }
+    },
+    {
+      "word": "amazed",
+      "part_of_speech": "adjective",
+      "translation": "поражённый, изумлённый",
+      "translations": {
+        "ru": "поражённый, изумлённый",
+        "uz": "hayratda qolgan"
+      },
+      "example": "Everyone was amazed by the beauty of the lake.",
+      "example_translations": {
+        "ru": "Все были поражены красотой озера.",
+        "uz": "Hamma ko'lning go'zalligidan hayratda qoldi."
+      }
+    },
+    {
+      "word": "enthusiastic",
+      "part_of_speech": "adjective",
+      "translation": "полный энтузиазма",
+      "translations": {
+        "ru": "полный энтузиазма",
+        "uz": "g'ayratli, ishtiyoqli"
+      },
+      "example": "Our new coach is enthusiastic and loves his job.",
+      "example_translations": {
+        "ru": "Наш новый тренер полон энтузиазма и любит свою работу.",
+        "uz": "Yangi murabbiyimiz g'ayratli va o'z ishini yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "optimistic",
+      "part_of_speech": "adjective",
+      "translation": "оптимистичный",
+      "translations": {
+        "ru": "оптимистичный",
+        "uz": "nekbin, optimistik"
+      },
+      "example": "Anna is optimistic and always expects good news.",
+      "example_translations": {
+        "ru": "Анна оптимистична и всегда ждёт хороших новостей.",
+        "uz": "Anna nekbin va doim yaxshi xabar kutadi."
+      }
+    }
+  ]
+}

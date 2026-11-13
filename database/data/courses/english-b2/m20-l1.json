@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 20,
+    "title": "Академические глаголы и понятия",
+    "title_uz": "Akademik fe'llar va tushunchalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Глаголы анализа",
+    "title_uz": "Tahlil fe'llari"
+  },
+  "words": [
+    {
+      "word": "analyze",
+      "part_of_speech": "verb",
+      "translation": "анализировать",
+      "translations": {
+        "ru": "анализировать",
+        "uz": "tahlil qilmoq"
+      },
+      "example": "Scientists analyze the data before writing a report.",
+      "example_translations": {
+        "ru": "Учёные анализируют данные, прежде чем писать отчёт.",
+        "uz": "Olimlar hisobot yozishdan oldin ma'lumotlarni tahlil qiladi."
+      }
+    },
+    {
+      "word": "isolate",
+      "part_of_speech": "verb",
+      "translation": "выделять, вычленять",
+      "translations": {
+        "ru": "выделять, вычленять",
+        "uz": "ajratib olmoq"
+      },
+      "example": "The team isolated the main cause of the problem.",
+      "example_translations": {
+        "ru": "Команда выделила главную причину проблемы.",
+        "uz": "Jamoa muammoning asosiy sababini ajratib oldi."
+      }
+    },
+    {
+      "word": "classify",
+      "part_of_speech": "verb",
+      "translation": "классифицировать",
+      "translations": {
+        "ru": "классифицировать",
+        "uz": "tasniflamoq"
+      },
+      "example": "Librarians classify books by subject and author.",
+      "example_translations": {
+        "ru": "Библиотекари классифицируют книги по теме и автору.",
+        "uz": "Kutubxonachilar kitoblarni mavzu va muallif bo'yicha tasniflaydi."
+      }
+    },
+    {
+      "word": "conclude",
+      "part_of_speech": "verb",
+      "translation": "делать вывод, заключать",
+      "translations": {
+        "ru": "делать вывод, заключать",
+        "uz": "xulosa qilmoq"
+      },
+      "example": "The researchers concluded that exercise improves memory.",
+      "example_translations": {
+        "ru": "Исследователи сделали вывод, что физические упражнения улучшают память.",
+        "uz": "Tadqiqotchilar jismoniy mashqlar xotirani yaxshilaydi, deb xulosa qilishdi."
+      }
+    },
+    {
+      "word": "contrast",
+      "part_of_speech": "verb",
+      "translation": "противопоставлять",
+      "translations": {
+        "ru": "противопоставлять",
+        "uz": "qarama-qarshi qo'ymoq"
+      },
+      "example": "The essay contrasts city life with village life.",
+      "example_translations": {
+        "ru": "В эссе городская жизнь противопоставляется сельской.",
+        "uz": "Inshoda shahar hayoti qishloq hayotiga qarama-qarshi qo'yiladi."
+      }
+    },
+    {
+      "word": "distinguish",
+      "part_of_speech": "verb",
+      "translation": "отличать, различать",
+      "translations": {
+        "ru": "отличать, различать",
+        "uz": "farqlamoq, farqiga bormoq"
+      },
+      "example": "Can you distinguish a fact from an opinion?",
+      "example_translations": {
+        "ru": "Вы можете отличить факт от мнения?",
+        "uz": "Siz faktni fikrdan farqlay olasizmi?"
+      }
+    },
+    {
+      "word": "differentiate",
+      "part_of_speech": "verb",
+      "translation": "разграничивать, дифференцировать",
+      "translations": {
+        "ru": "разграничивать, дифференцировать",
+        "uz": "bir-biridan ajratmoq"
+      },
+      "example": "The report differentiates between short-term and long-term goals.",
+      "example_translations": {
+        "ru": "В отчёте разграничиваются краткосрочные и долгосрочные цели.",
+        "uz": "Hisobotda qisqa muddatli va uzoq muddatli maqsadlar bir-biridan ajratiladi."
+      }
+    },
+    {
+      "word": "interpret",
+      "part_of_speech": "verb",
+      "translation": "толковать, интерпретировать",
+      "translations": {
+        "ru": "толковать, интерпретировать",
+        "uz": "talqin qilmoq"
+      },
+      "example": "People interpret this poem in different ways.",
+      "example_translations": {
+        "ru": "Люди толкуют это стихотворение по-разному.",
+        "uz": "Odamlar bu she'rni turlicha talqin qiladi."
+      }
+    },
+    {
+      "word": "determine",
+      "part_of_speech": "verb",
+      "translation": "устанавливать, выяснять",
+      "translations": {
+        "ru": "устанавливать, выяснять",
+        "uz": "aniqlamoq, bilib olmoq"
+      },
+      "example": "Doctors must first determine the cause of the pain.",
+      "example_translations": {
+        "ru": "Врачи должны сначала установить причину боли.",
+        "uz": "Shifokorlar avval og'riq sababini aniqlashi kerak."
+      }
+    },
+    {
+      "word": "quantify",
+      "part_of_speech": "verb",
+      "translation": "выражать в цифрах",
+      "translations": {
+        "ru": "выражать в цифрах",
+        "uz": "raqamlarda ifodalamoq"
+      },
+      "example": "It is hard to quantify the benefits of education.",
+      "example_translations": {
+        "ru": "Пользу образования трудно выразить в цифрах.",
+        "uz": "Ta'limning foydasini raqamlarda ifodalash qiyin."
+      }
+    }
+  ]
+}

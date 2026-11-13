@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 9,
+    "title": "Учёба и знания",
+    "title_uz": "O'qish va bilim"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мышление",
+    "title_uz": "Tafakkur"
+  },
+  "words": [
+    {
+      "word": "concentrate",
+      "part_of_speech": "verb",
+      "translation": "сосредоточиваться",
+      "translations": {
+        "ru": "сосредоточиваться",
+        "uz": "diqqatni jamlamoq"
+      },
+      "example": "I can't concentrate when the music is loud.",
+      "example_translations": {
+        "ru": "Я не могу сосредоточиться, когда музыка громкая.",
+        "uz": "Musiqa baland bo'lsa, diqqatimni jamlay olmayman."
+      }
+    },
+    {
+      "word": "notice",
+      "part_of_speech": "verb",
+      "translation": "замечать",
+      "translations": {
+        "ru": "замечать",
+        "uz": "payqamoq, sezmoq"
+      },
+      "example": "Did you notice the mistake in the second line?",
+      "example_translations": {
+        "ru": "Вы заметили ошибку во второй строке?",
+        "uz": "Ikkinchi qatordagi xatoni payqadingizmi?"
+      }
+    },
+    {
+      "word": "memory",
+      "part_of_speech": "noun",
+      "translation": "память",
+      "translations": {
+        "ru": "память",
+        "uz": "xotira"
+      },
+      "example": "You need a good memory to learn new words.",
+      "example_translations": {
+        "ru": "Чтобы учить новые слова, нужна хорошая память.",
+        "uz": "Yangi so'zlarni o'rganish uchun yaxshi xotira kerak."
+      }
+    },
+    {
+      "word": "logic",
+      "part_of_speech": "noun",
+      "translation": "логика",
+      "translations": {
+        "ru": "логика",
+        "uz": "mantiq"
+      },
+      "example": "This puzzle is easy if you use logic.",
+      "example_translations": {
+        "ru": "Эта головоломка лёгкая, если использовать логику.",
+        "uz": "Mantiqni ishga solsangiz, bu boshqotirma oson."
+      }
+    },
+    {
+      "word": "recognize",
+      "part_of_speech": "verb",
+      "translation": "узнавать",
+      "translations": {
+        "ru": "узнавать",
+        "uz": "tanimoq"
+      },
+      "example": "I didn't recognize Anna with her new haircut.",
+      "example_translations": {
+        "ru": "Я не узнал Анну с её новой причёской.",
+        "uz": "Yangi soch turmagi bilan Annani tanimadim."
+      }
+    },
+    {
+      "word": "solve",
+      "part_of_speech": "verb",
+      "translation": "решать",
+      "translations": {
+        "ru": "решать",
+        "uz": "yechmoq"
+      },
+      "example": "Can you solve this math problem without a calculator?",
+      "example_translations": {
+        "ru": "Вы можете решить эту математическую задачу без калькулятора?",
+        "uz": "Bu matematik masalani kalkulyatorsiz yecha olasizmi?"
+      }
+    },
+    {
+      "word": "creative",
+      "part_of_speech": "adjective",
+      "translation": "творческий",
+      "translations": {
+        "ru": "творческий",
+        "uz": "ijodiy"
+      },
+      "example": "She found a creative solution to the problem.",
+      "example_translations": {
+        "ru": "Она нашла творческое решение проблемы.",
+        "uz": "U muammoga ijodiy yechim topdi."
+      }
+    },
+    {
+      "word": "intelligent",
+      "part_of_speech": "adjective",
+      "translation": "умный",
+      "translations": {
+        "ru": "умный",
+        "uz": "aqlli"
+      },
+      "example": "Dolphins are very intelligent animals.",
+      "example_translations": {
+        "ru": "Дельфины — очень умные животные.",
+        "uz": "Delfinlar juda aqlli hayvonlardir."
+      }
+    },
+    {
+      "word": "realize",
+      "part_of_speech": "verb",
+      "translation": "осознавать, понимать",
+      "translations": {
+        "ru": "осознавать, понимать",
+        "uz": "anglamoq, tushunib yetmoq"
+      },
+      "example": "Tom realized his mistake only after the exam.",
+      "example_translations": {
+        "ru": "Том осознал свою ошибку только после экзамена.",
+        "uz": "Tom o'z xatosini faqat imtihondan keyin angladi."
+      }
+    },
+    {
+      "word": "attention",
+      "part_of_speech": "noun",
+      "translation": "внимание",
+      "translations": {
+        "ru": "внимание",
+        "uz": "e'tibor"
+      },
+      "example": "Please pay attention to the last rule.",
+      "example_translations": {
+        "ru": "Пожалуйста, обратите внимание на последнее правило.",
+        "uz": "Iltimos, oxirgi qoidaga e'tibor bering."
+      }
+    }
+  ]
+}

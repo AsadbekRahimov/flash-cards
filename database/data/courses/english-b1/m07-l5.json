@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 7,
+    "title": "Работа и профессии",
+    "title_uz": "Ish va kasblar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Оплата и условия",
+    "title_uz": "Ish haqi va sharoitlar"
+  },
+  "words": [
+    {
+      "word": "wage",
+      "part_of_speech": "noun",
+      "translation": "заработная плата",
+      "translations": {
+        "ru": "заработная плата",
+        "uz": "ish haqi"
+      },
+      "example": "The workers asked for a higher wage.",
+      "example_translations": {
+        "ru": "Рабочие попросили более высокую заработную плату.",
+        "uz": "Ishchilar yuqoriroq ish haqi so'rashdi."
+      }
+    },
+    {
+      "word": "income",
+      "part_of_speech": "noun",
+      "translation": "доход",
+      "translations": {
+        "ru": "доход",
+        "uz": "daromad"
+      },
+      "example": "What is the average income in your city?",
+      "example_translations": {
+        "ru": "Какой средний доход в вашем городе?",
+        "uz": "Shahringizda o'rtacha daromad qancha?"
+      }
+    },
+    {
+      "word": "earn",
+      "part_of_speech": "verb",
+      "translation": "зарабатывать",
+      "translations": {
+        "ru": "зарабатывать",
+        "uz": "ishlab topmoq"
+      },
+      "example": "She earns enough money to support her family.",
+      "example_translations": {
+        "ru": "Она зарабатывает достаточно денег, чтобы содержать семью.",
+        "uz": "U oilasini boqish uchun yetarlicha pul ishlab topadi."
+      }
+    },
+    {
+      "word": "bonus",
+      "part_of_speech": "noun",
+      "translation": "премия, бонус",
+      "translations": {
+        "ru": "премия, бонус",
+        "uz": "mukofot puli, bonus"
+      },
+      "example": "Everyone got a bonus at the end of the year.",
+      "example_translations": {
+        "ru": "В конце года все получили премию.",
+        "uz": "Yil oxirida hamma mukofot puli oldi."
+      }
+    },
+    {
+      "word": "benefit",
+      "part_of_speech": "noun",
+      "translation": "льгота",
+      "translations": {
+        "ru": "льгота",
+        "uz": "imtiyoz"
+      },
+      "example": "The job has good benefits, like free lunches.",
+      "example_translations": {
+        "ru": "У этой работы хорошие льготы, например бесплатные обеды.",
+        "uz": "Bu ishning yaxshi imtiyozlari bor, masalan, bepul tushlik."
+      }
+    },
+    {
+      "word": "freelance",
+      "part_of_speech": "adjective",
+      "translation": "внештатный",
+      "translations": {
+        "ru": "внештатный",
+        "uz": "shtatdan tashqari"
+      },
+      "example": "A freelance journalist can write for several magazines.",
+      "example_translations": {
+        "ru": "Внештатный журналист может писать для нескольких журналов.",
+        "uz": "Shtatdan tashqari jurnalist bir nechta jurnal uchun yozishi mumkin."
+      }
+    },
+    {
+      "word": "reward",
+      "part_of_speech": "noun",
+      "translation": "вознаграждение, награда",
+      "translations": {
+        "ru": "вознаграждение, награда",
+        "uz": "mukofot, rag'bat"
+      },
+      "example": "Aziz received a reward for his excellent work.",
+      "example_translations": {
+        "ru": "Азиз получил награду за отличную работу.",
+        "uz": "Aziz a'lo ishi uchun mukofot oldi."
+      }
+    },
+    {
+      "word": "unemployed",
+      "part_of_speech": "adjective",
+      "translation": "безработный",
+      "translations": {
+        "ru": "безработный",
+        "uz": "ishsiz"
+      },
+      "example": "He was unemployed for a year after college.",
+      "example_translations": {
+        "ru": "После колледжа он год был безработным.",
+        "uz": "Kollejdan keyin u bir yil ishsiz yurdi."
+      }
+    },
+    {
+      "word": "workload",
+      "part_of_speech": "noun",
+      "translation": "рабочая нагрузка",
+      "translations": {
+        "ru": "рабочая нагрузка",
+        "uz": "ish yuklamasi"
+      },
+      "example": "My workload is too heavy this month.",
+      "example_translations": {
+        "ru": "В этом месяце у меня слишком большая рабочая нагрузка.",
+        "uz": "Bu oyda ish yuklamam haddan tashqari katta."
+      }
+    },
+    {
+      "word": "pressure",
+      "part_of_speech": "noun",
+      "translation": "давление",
+      "translations": {
+        "ru": "давление",
+        "uz": "bosim"
+      },
+      "example": "Doctors often work under a lot of pressure.",
+      "example_translations": {
+        "ru": "Врачи часто работают под сильным давлением.",
+        "uz": "Shifokorlar ko'pincha kuchli bosim ostida ishlaydi."
+      }
+    }
+  ]
+}

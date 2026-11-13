@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 13,
+    "title": "Природа и окружающая среда",
+    "title_uz": "Tabiat va atrof-muhit"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Рельеф и водоёмы",
+    "title_uz": "Relyef va suv havzalari"
+  },
+  "words": [
+    {
+      "word": "landscape",
+      "part_of_speech": "noun",
+      "translation": "пейзаж, ландшафт",
+      "translations": {
+        "ru": "пейзаж, ландшафт",
+        "uz": "manzara, landshaft"
+      },
+      "example": "We stopped to enjoy the beautiful mountain landscape.",
+      "example_translations": {
+        "ru": "Мы остановились, чтобы полюбоваться красивым горным пейзажем.",
+        "uz": "Biz go'zal tog' manzarasidan zavqlanish uchun to'xtadik."
+      }
+    },
+    {
+      "word": "stream",
+      "part_of_speech": "noun",
+      "translation": "ручей",
+      "translations": {
+        "ru": "ручей",
+        "uz": "jilg'a"
+      },
+      "example": "A cold, clear stream runs through the forest.",
+      "example_translations": {
+        "ru": "Через лес течёт холодный чистый ручей.",
+        "uz": "O'rmon ichidan sovuq va tiniq jilg'a oqib o'tadi."
+      }
+    },
+    {
+      "word": "pond",
+      "part_of_speech": "noun",
+      "translation": "пруд",
+      "translations": {
+        "ru": "пруд",
+        "uz": "hovuz"
+      },
+      "example": "Ducks swim in the pond near our school.",
+      "example_translations": {
+        "ru": "В пруду возле нашей школы плавают утки.",
+        "uz": "Maktabimiz yonidagi hovuzda o'rdaklar suzadi."
+      }
+    },
+    {
+      "word": "shore",
+      "part_of_speech": "noun",
+      "translation": "берег",
+      "translations": {
+        "ru": "берег",
+        "uz": "qirg'oq"
+      },
+      "example": "We walked along the shore of the lake.",
+      "example_translations": {
+        "ru": "Мы гуляли вдоль берега озера.",
+        "uz": "Biz ko'l qirg'og'i bo'ylab sayr qildik."
+      }
+    },
+    {
+      "word": "meadow",
+      "part_of_speech": "noun",
+      "translation": "луг",
+      "translations": {
+        "ru": "луг",
+        "uz": "o'tloq"
+      },
+      "example": "Wild flowers cover the meadow every spring.",
+      "example_translations": {
+        "ru": "Каждую весну луг покрывают полевые цветы.",
+        "uz": "Har bahorda o'tloqni dala gullari qoplaydi."
+      }
+    },
+    {
+      "word": "bay",
+      "part_of_speech": "noun",
+      "translation": "залив, бухта",
+      "translations": {
+        "ru": "залив, бухта",
+        "uz": "ko'rfaz, qo'ltiq"
+      },
+      "example": "Several small boats were sailing in the bay.",
+      "example_translations": {
+        "ru": "В заливе плавало несколько маленьких лодок.",
+        "uz": "Ko'rfazda bir nechta kichik qayiq suzib yurgan edi."
+      }
+    },
+    {
+      "word": "horizon",
+      "part_of_speech": "noun",
+      "translation": "горизонт",
+      "translations": {
+        "ru": "горизонт",
+        "uz": "ufq"
+      },
+      "example": "The sun slowly went down below the horizon.",
+      "example_translations": {
+        "ru": "Солнце медленно опустилось за горизонт.",
+        "uz": "Quyosh asta-sekin ufq ortiga botdi."
+      }
+    },
+    {
+      "word": "wave",
+      "part_of_speech": "noun",
+      "translation": "волна",
+      "translations": {
+        "ru": "волна",
+        "uz": "to'lqin"
+      },
+      "example": "Huge waves hit the rocks during the storm.",
+      "example_translations": {
+        "ru": "Во время шторма огромные волны бились о скалы.",
+        "uz": "Bo'ron paytida ulkan to'lqinlar qoyalarga urilardi."
+      }
+    },
+    {
+      "word": "continent",
+      "part_of_speech": "noun",
+      "translation": "континент, материк",
+      "translations": {
+        "ru": "континент, материк",
+        "uz": "qit'a"
+      },
+      "example": "Africa is the second largest continent.",
+      "example_translations": {
+        "ru": "Африка — второй по величине континент.",
+        "uz": "Afrika kattaligi bo'yicha ikkinchi qit'adir."
+      }
+    },
+    {
+      "word": "countryside",
+      "part_of_speech": "noun",
+      "translation": "сельская местность",
+      "translations": {
+        "ru": "сельская местность",
+        "uz": "qishloq joyi"
+      },
+      "example": "They moved from the city to the countryside.",
+      "example_translations": {
+        "ru": "Они переехали из города в сельскую местность.",
+        "uz": "Ular shahardan qishloq joyiga ko'chib o'tishdi."
+      }
+    }
+  ]
+}

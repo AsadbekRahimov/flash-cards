@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 20,
+    "title": "Слова-связки и абстрактные понятия",
+    "title_uz": "Bog'lovchi so'zlar va mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "words": [
+    {
+      "word": "standard",
+      "part_of_speech": "noun",
+      "translation": "стандарт, норма",
+      "translations": {
+        "ru": "стандарт, норма",
+        "uz": "standart, me'yor"
+      },
+      "example": "This hotel has a very high standard of service.",
+      "example_translations": {
+        "ru": "В этом отеле очень высокий стандарт обслуживания.",
+        "uz": "Bu mehmonxonada xizmat ko'rsatish standarti juda yuqori."
+      }
+    },
+    {
+      "word": "detail",
+      "part_of_speech": "noun",
+      "translation": "деталь, подробность",
+      "translations": {
+        "ru": "деталь, подробность",
+        "uz": "tafsilot"
+      },
+      "example": "She remembered every detail of that day.",
+      "example_translations": {
+        "ru": "Она помнила каждую деталь того дня.",
+        "uz": "U o'sha kunning har bir tafsilotini eslardi."
+      }
+    },
+    {
+      "word": "situation",
+      "part_of_speech": "noun",
+      "translation": "ситуация, положение",
+      "translations": {
+        "ru": "ситуация, положение",
+        "uz": "vaziyat"
+      },
+      "example": "He stayed calm in a difficult situation.",
+      "example_translations": {
+        "ru": "Он сохранял спокойствие в трудной ситуации.",
+        "uz": "U qiyin vaziyatda xotirjamlikni saqladi."
+      }
+    },
+    {
+      "word": "advantage",
+      "part_of_speech": "noun",
+      "translation": "преимущество",
+      "translations": {
+        "ru": "преимущество",
+        "uz": "afzallik, ustunlik"
+      },
+      "example": "Speaking two languages is a big advantage.",
+      "example_translations": {
+        "ru": "Владение двумя языками — большое преимущество.",
+        "uz": "Ikki tilni bilish — katta afzallik."
+      }
+    },
+    {
+      "word": "risk",
+      "part_of_speech": "noun",
+      "translation": "риск",
+      "translations": {
+        "ru": "риск",
+        "uz": "xavf, tavakkalchilik"
+      },
+      "example": "Driving fast on wet roads is a big risk.",
+      "example_translations": {
+        "ru": "Быстро ездить по мокрой дороге — большой риск.",
+        "uz": "Ho'l yo'lda tez haydash — katta xavf."
+      }
+    },
+    {
+      "word": "role",
+      "part_of_speech": "noun",
+      "translation": "роль",
+      "translations": {
+        "ru": "роль",
+        "uz": "rol"
+      },
+      "example": "Teachers play an important role in our lives.",
+      "example_translations": {
+        "ru": "Учителя играют важную роль в нашей жизни.",
+        "uz": "O'qituvchilar hayotimizda muhim rol o'ynaydi."
+      }
+    },
+    {
+      "word": "structure",
+      "part_of_speech": "noun",
+      "translation": "структура, строение",
+      "translations": {
+        "ru": "структура, строение",
+        "uz": "tuzilish, tuzilma"
+      },
+      "example": "The structure of this sentence is very simple.",
+      "example_translations": {
+        "ru": "Структура этого предложения очень простая.",
+        "uz": "Bu gapning tuzilishi juda oddiy."
+      }
+    },
+    {
+      "word": "system",
+      "part_of_speech": "noun",
+      "translation": "система",
+      "translations": {
+        "ru": "система",
+        "uz": "tizim"
+      },
+      "example": "The city has a modern transport system.",
+      "example_translations": {
+        "ru": "В городе современная транспортная система.",
+        "uz": "Shaharda zamonaviy transport tizimi bor."
+      }
+    },
+    {
+      "word": "truth",
+      "part_of_speech": "noun",
+      "translation": "правда, истина",
+      "translations": {
+        "ru": "правда, истина",
+        "uz": "haqiqat"
+      },
+      "example": "Children should always tell the truth.",
+      "example_translations": {
+        "ru": "Дети должны всегда говорить правду.",
+        "uz": "Bolalar doim haqiqatni aytishi kerak."
+      }
+    },
+    {
+      "word": "quantity",
+      "part_of_speech": "noun",
+      "translation": "количество",
+      "translations": {
+        "ru": "количество",
+        "uz": "miqdor, son"
+      },
+      "example": "Add a small quantity of salt to the soup.",
+      "example_translations": {
+        "ru": "Добавьте в суп небольшое количество соли.",
+        "uz": "Sho'rvaga oz miqdorda tuz qo'shing."
+      }
+    }
+  ]
+}

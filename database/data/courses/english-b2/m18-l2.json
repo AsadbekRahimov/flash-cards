@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 18,
+    "title": "Причины, следствия и изменения",
+    "title_uz": "Sabablar, oqibatlar va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Последствия",
+    "title_uz": "Oqibatlar"
+  },
+  "words": [
+    {
+      "word": "consequence",
+      "part_of_speech": "noun",
+      "translation": "последствие",
+      "translations": {
+        "ru": "последствие",
+        "uz": "oqibat"
+      },
+      "example": "Think about the consequences before you decide.",
+      "example_translations": {
+        "ru": "Подумайте о последствиях, прежде чем принять решение.",
+        "uz": "Qaror qabul qilishdan oldin oqibatlari haqida o'ylab ko'ring."
+      }
+    },
+    {
+      "word": "outcome",
+      "part_of_speech": "noun",
+      "translation": "исход, результат",
+      "translations": {
+        "ru": "исход, результат",
+        "uz": "natija, yakun"
+      },
+      "example": "Nobody could predict the outcome of the game.",
+      "example_translations": {
+        "ru": "Никто не мог предсказать исход игры.",
+        "uz": "O'yin natijasini hech kim oldindan ayta olmadi."
+      }
+    },
+    {
+      "word": "setback",
+      "part_of_speech": "noun",
+      "translation": "неудача, препятствие",
+      "translations": {
+        "ru": "неудача, препятствие",
+        "uz": "muvaffaqiyatsizlik, to'siq"
+      },
+      "example": "Despite an early setback, the project finished on time.",
+      "example_translations": {
+        "ru": "Несмотря на неудачу в начале, проект завершился вовремя.",
+        "uz": "Boshidagi muvaffaqiyatsizlikka qaramay, loyiha o'z vaqtida yakunlandi."
+      }
+    },
+    {
+      "word": "implication",
+      "part_of_speech": "noun",
+      "translation": "возможное последствие",
+      "translations": {
+        "ru": "возможное последствие",
+        "uz": "ehtimoliy oqibat"
+      },
+      "example": "What are the implications of this decision for us?",
+      "example_translations": {
+        "ru": "Каковы возможные последствия этого решения для нас?",
+        "uz": "Bu qarorning biz uchun ehtimoliy oqibatlari qanday?"
+      }
+    },
+    {
+      "word": "aftermath",
+      "part_of_speech": "noun",
+      "translation": "тяжёлые последствия",
+      "translations": {
+        "ru": "тяжёлые последствия",
+        "uz": "asorat"
+      },
+      "example": "The town is still dealing with the storm's aftermath.",
+      "example_translations": {
+        "ru": "Город всё ещё справляется с тяжёлыми последствиями бури.",
+        "uz": "Shahar hali ham bo'ron asoratlarini bartaraf etmoqda."
+      }
+    },
+    {
+      "word": "backfire",
+      "part_of_speech": "verb",
+      "translation": "приводить к обратному результату",
+      "translations": {
+        "ru": "приводить к обратному результату",
+        "uz": "teskari natija bermoq"
+      },
+      "example": "The plan backfired, and prices rose even higher.",
+      "example_translations": {
+        "ru": "План привёл к обратному результату, и цены выросли ещё больше.",
+        "uz": "Reja teskari natija berdi va narxlar yanada oshdi."
+      }
+    },
+    {
+      "word": "inevitable",
+      "part_of_speech": "adjective",
+      "translation": "неизбежный",
+      "translations": {
+        "ru": "неизбежный",
+        "uz": "muqarrar"
+      },
+      "example": "With so many mistakes, failure was inevitable.",
+      "example_translations": {
+        "ru": "При таком количестве ошибок провал был неизбежен.",
+        "uz": "Shuncha xato bilan muvaffaqiyatsizlik muqarrar edi."
+      }
+    },
+    {
+      "word": "ultimately",
+      "part_of_speech": "adverb",
+      "translation": "в конечном счёте",
+      "translations": {
+        "ru": "в конечном счёте",
+        "uz": "oxir-oqibat"
+      },
+      "example": "Ultimately, hard work led to her success.",
+      "example_translations": {
+        "ru": "В конечном счёте упорный труд привёл её к успеху.",
+        "uz": "Oxir-oqibat, tinimsiz mehnat uni muvaffaqiyatga olib keldi."
+      }
+    },
+    {
+      "word": "beneficial",
+      "part_of_speech": "adjective",
+      "translation": "полезный, благотворный",
+      "translations": {
+        "ru": "полезный, благотворный",
+        "uz": "foydali"
+      },
+      "example": "The changes were beneficial for the whole company.",
+      "example_translations": {
+        "ru": "Эти изменения были полезны для всей компании.",
+        "uz": "Bu o'zgarishlar butun kompaniya uchun foydali bo'ldi."
+      }
+    },
+    {
+      "word": "lasting",
+      "part_of_speech": "adjective",
+      "translation": "долговременный",
+      "translations": {
+        "ru": "долговременный",
+        "uz": "uzoq muddatli"
+      },
+      "example": "The reform had a lasting effect on education.",
+      "example_translations": {
+        "ru": "Реформа оказала долговременное влияние на образование.",
+        "uz": "Islohot ta'limga uzoq muddatli ta'sir ko'rsatdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 9,
+    "title": "Право и безопасность",
+    "title_uz": "Huquq va xavfsizlik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Законы и права",
+    "title_uz": "Qonunlar va huquqlar"
+  },
+  "words": [
+    {
+      "word": "legislation",
+      "part_of_speech": "noun",
+      "translation": "законодательство",
+      "translations": {
+        "ru": "законодательство",
+        "uz": "qonunchilik"
+      },
+      "example": "New legislation protects the rights of consumers.",
+      "example_translations": {
+        "ru": "Новое законодательство защищает права потребителей.",
+        "uz": "Yangi qonunchilik iste'molchilar huquqlarini himoya qiladi."
+      }
+    },
+    {
+      "word": "regulation",
+      "part_of_speech": "noun",
+      "translation": "правило, норма",
+      "translations": {
+        "ru": "правило, норма",
+        "uz": "qoida, me'yor"
+      },
+      "example": "Safety regulations require workers to wear helmets.",
+      "example_translations": {
+        "ru": "Правила безопасности требуют, чтобы рабочие носили каски.",
+        "uz": "Xavfsizlik qoidalari ishchilardan kaska kiyishni talab qiladi."
+      }
+    },
+    {
+      "word": "lawful",
+      "part_of_speech": "adjective",
+      "translation": "законный",
+      "translations": {
+        "ru": "законный",
+        "uz": "qonuniy"
+      },
+      "example": "Is it lawful to record a phone call?",
+      "example_translations": {
+        "ru": "Законно ли записывать телефонный разговор?",
+        "uz": "Telefon suhbatini yozib olish qonuniymi?"
+      }
+    },
+    {
+      "word": "legitimate",
+      "part_of_speech": "adjective",
+      "translation": "обоснованный, законный",
+      "translations": {
+        "ru": "обоснованный, законный",
+        "uz": "asosli, qonuniy"
+      },
+      "example": "Customers had a legitimate reason to complain.",
+      "example_translations": {
+        "ru": "У покупателей была обоснованная причина жаловаться.",
+        "uz": "Xaridorlarning shikoyat qilishga asosli sababi bor edi."
+      }
+    },
+    {
+      "word": "liberty",
+      "part_of_speech": "noun",
+      "translation": "свобода",
+      "translations": {
+        "ru": "свобода",
+        "uz": "erkinlik"
+      },
+      "example": "Every citizen has the right to liberty.",
+      "example_translations": {
+        "ru": "Каждый гражданин имеет право на свободу.",
+        "uz": "Har bir fuqaro erkinlik huquqiga ega."
+      }
+    },
+    {
+      "word": "obligation",
+      "part_of_speech": "noun",
+      "translation": "обязанность, обязательство",
+      "translations": {
+        "ru": "обязанность, обязательство",
+        "uz": "majburiyat"
+      },
+      "example": "Parents have a legal obligation to protect their children.",
+      "example_translations": {
+        "ru": "У родителей есть юридическая обязанность защищать своих детей.",
+        "uz": "Ota-onalarning o'z farzandlarini himoya qilish bo'yicha qonuniy majburiyati bor."
+      }
+    },
+    {
+      "word": "violation",
+      "part_of_speech": "noun",
+      "translation": "нарушение",
+      "translations": {
+        "ru": "нарушение",
+        "uz": "buzish, qoidabuzarlik"
+      },
+      "example": "This is a clear violation of the contract.",
+      "example_translations": {
+        "ru": "Это явное нарушение договора.",
+        "uz": "Bu shartnomani yaqqol buzishdir."
+      }
+    },
+    {
+      "word": "prohibit",
+      "part_of_speech": "verb",
+      "translation": "запрещать",
+      "translations": {
+        "ru": "запрещать",
+        "uz": "taqiqlamoq"
+      },
+      "example": "The law prohibits selling tickets without a license.",
+      "example_translations": {
+        "ru": "Закон запрещает продавать билеты без лицензии.",
+        "uz": "Qonun litsenziyasiz chipta sotishni taqiqlaydi."
+      }
+    },
+    {
+      "word": "enforce",
+      "part_of_speech": "verb",
+      "translation": "обеспечивать соблюдение",
+      "translations": {
+        "ru": "обеспечивать соблюдение",
+        "uz": "rioya etilishini ta'minlamoq"
+      },
+      "example": "Police officers enforce traffic laws in the city.",
+      "example_translations": {
+        "ru": "Полицейские обеспечивают соблюдение правил дорожного движения в городе.",
+        "uz": "Politsiya xodimlari shaharda yo'l harakati qoidalariga rioya etilishini ta'minlaydi."
+      }
+    },
+    {
+      "word": "comply",
+      "part_of_speech": "verb",
+      "translation": "соблюдать",
+      "translations": {
+        "ru": "соблюдать",
+        "uz": "rioya qilmoq"
+      },
+      "example": "All drivers must comply with the new rules.",
+      "example_translations": {
+        "ru": "Все водители должны соблюдать новые правила.",
+        "uz": "Barcha haydovchilar yangi qoidalarga rioya qilishi shart."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 3,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Кредиты и долги",
+    "title_uz": "Kreditlar va qarzlar"
+  },
+  "words": [
+    {
+      "word": "mortgage",
+      "part_of_speech": "noun",
+      "translation": "ипотека",
+      "translations": {
+        "ru": "ипотека",
+        "uz": "ipoteka"
+      },
+      "example": "They took out a mortgage to buy a house.",
+      "example_translations": {
+        "ru": "Они взяли ипотеку, чтобы купить дом.",
+        "uz": "Ular uy sotib olish uchun ipoteka krediti olishdi."
+      }
+    },
+    {
+      "word": "borrower",
+      "part_of_speech": "noun",
+      "translation": "заёмщик",
+      "translations": {
+        "ru": "заёмщик",
+        "uz": "qarz oluvchi"
+      },
+      "example": "Every borrower must show proof of regular income.",
+      "example_translations": {
+        "ru": "Каждый заёмщик должен подтвердить постоянный доход.",
+        "uz": "Har bir qarz oluvchi doimiy daromadini tasdiqlashi kerak."
+      }
+    },
+    {
+      "word": "creditor",
+      "part_of_speech": "noun",
+      "translation": "кредитор",
+      "translations": {
+        "ru": "кредитор",
+        "uz": "kreditor"
+      },
+      "example": "The company owes money to several creditors.",
+      "example_translations": {
+        "ru": "Компания должна деньги нескольким кредиторам.",
+        "uz": "Kompaniya bir nechta kreditordan qarzdor."
+      }
+    },
+    {
+      "word": "installment",
+      "part_of_speech": "noun",
+      "translation": "взнос, платёж в рассрочку",
+      "translations": {
+        "ru": "взнос, платёж в рассрочку",
+        "uz": "bo'lib to'lanadigan to'lov"
+      },
+      "example": "We pay for the car in twelve monthly installments.",
+      "example_translations": {
+        "ru": "Мы платим за машину двенадцатью ежемесячными взносами.",
+        "uz": "Mashina pulini o'n ikkita oylik to'lovga bo'lib to'laymiz."
+      }
+    },
+    {
+      "word": "transaction",
+      "part_of_speech": "noun",
+      "translation": "операция, транзакция",
+      "translations": {
+        "ru": "операция, транзакция",
+        "uz": "operatsiya, tranzaksiya"
+      },
+      "example": "The bank records every transaction on your account.",
+      "example_translations": {
+        "ru": "Банк фиксирует каждую операцию по вашему счёту.",
+        "uz": "Bank hisobingizdagi har bir operatsiyani qayd etadi."
+      }
+    },
+    {
+      "word": "bankruptcy",
+      "part_of_speech": "noun",
+      "translation": "банкротство",
+      "translations": {
+        "ru": "банкротство",
+        "uz": "bankrotlik"
+      },
+      "example": "After heavy losses, the airline declared bankruptcy.",
+      "example_translations": {
+        "ru": "После крупных убытков авиакомпания объявила о банкротстве.",
+        "uz": "Katta zararlardan so'ng aviakompaniya o'z bankrotligini e'lon qildi."
+      }
+    },
+    {
+      "word": "repay",
+      "part_of_speech": "verb",
+      "translation": "возвращать долг, погашать",
+      "translations": {
+        "ru": "возвращать долг, погашать",
+        "uz": "qarzni qaytarmoq"
+      },
+      "example": "When do you have to repay the loan?",
+      "example_translations": {
+        "ru": "Когда вам нужно погасить кредит?",
+        "uz": "Kreditni qachon qaytarishingiz kerak?"
+      }
+    },
+    {
+      "word": "lender",
+      "part_of_speech": "noun",
+      "translation": "заимодавец, кредитор",
+      "translations": {
+        "ru": "заимодавец, кредитор",
+        "uz": "qarz beruvchi"
+      },
+      "example": "The lender offered us a lower interest rate.",
+      "example_translations": {
+        "ru": "Заимодавец предложил нам более низкую процентную ставку.",
+        "uz": "Qarz beruvchi bizga pastroq foiz stavkasini taklif qildi."
+      }
+    },
+    {
+      "word": "overdue",
+      "part_of_speech": "adjective",
+      "translation": "просроченный",
+      "translations": {
+        "ru": "просроченный",
+        "uz": "muddati o'tgan"
+      },
+      "example": "The bank reminded him about the overdue payment.",
+      "example_translations": {
+        "ru": "Банк напомнил ему о просроченном платеже.",
+        "uz": "Bank unga muddati o'tgan to'lov haqida eslatdi."
+      }
+    },
+    {
+      "word": "overdraft",
+      "part_of_speech": "noun",
+      "translation": "овердрафт",
+      "translations": {
+        "ru": "овердрафт",
+        "uz": "overdraft"
+      },
+      "example": "An overdraft lets you spend more than you have.",
+      "example_translations": {
+        "ru": "Овердрафт позволяет потратить больше, чем у вас есть.",
+        "uz": "Overdraft o'zingizda bor puldan ko'proq sarflash imkonini beradi."
+      }
+    }
+  ]
+}

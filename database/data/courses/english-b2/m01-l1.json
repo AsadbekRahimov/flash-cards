@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 1,
+    "title": "Характер и поведение",
+    "title_uz": "Xarakter va xulq-atvor"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Сильные качества",
+    "title_uz": "Kuchli fazilatlar"
+  },
+  "words": [
+    {
+      "word": "diligent",
+      "part_of_speech": "adjective",
+      "translation": "прилежный, старательный",
+      "translations": {
+        "ru": "прилежный, старательный",
+        "uz": "tirishqoq"
+      },
+      "example": "Malika is a diligent student who always does her homework.",
+      "example_translations": {
+        "ru": "Малика — прилежная ученица, которая всегда делает домашние задания.",
+        "uz": "Malika doim uy vazifasini bajaradigan tirishqoq o'quvchi."
+      }
+    },
+    {
+      "word": "persistent",
+      "part_of_speech": "adjective",
+      "translation": "настойчивый",
+      "translations": {
+        "ru": "настойчивый",
+        "uz": "sabotli"
+      },
+      "example": "Persistent people keep trying after every failure.",
+      "example_translations": {
+        "ru": "Настойчивые люди продолжают пытаться после каждой неудачи.",
+        "uz": "Sabotli odamlar har bir muvaffaqiyatsizlikdan keyin ham urinishda davom etadi."
+      }
+    },
+    {
+      "word": "resilient",
+      "part_of_speech": "adjective",
+      "translation": "стойкий, жизнестойкий",
+      "translations": {
+        "ru": "стойкий, жизнестойкий",
+        "uz": "bardoshli"
+      },
+      "example": "Children are resilient and recover quickly from stress.",
+      "example_translations": {
+        "ru": "Дети стойкие и быстро восстанавливаются после стресса.",
+        "uz": "Bolalar bardoshli bo'ladi va stressdan tez o'ziga keladi."
+      }
+    },
+    {
+      "word": "decisive",
+      "part_of_speech": "adjective",
+      "translation": "решительный",
+      "translations": {
+        "ru": "решительный",
+        "uz": "qat'iyatli"
+      },
+      "example": "Be decisive: make your choice and act now.",
+      "example_translations": {
+        "ru": "Будьте решительны: сделайте выбор и действуйте сейчас.",
+        "uz": "Qat'iyatli bo'ling: tanlang va hoziroq harakat qiling."
+      }
+    },
+    {
+      "word": "disciplined",
+      "part_of_speech": "adjective",
+      "translation": "дисциплинированный",
+      "translations": {
+        "ru": "дисциплинированный",
+        "uz": "intizomli"
+      },
+      "example": "Disciplined athletes train every day, even in winter.",
+      "example_translations": {
+        "ru": "Дисциплинированные спортсмены тренируются каждый день, даже зимой.",
+        "uz": "Intizomli sportchilar har kuni, hatto qishda ham mashq qiladi."
+      }
+    },
+    {
+      "word": "trustworthy",
+      "part_of_speech": "adjective",
+      "translation": "надёжный, заслуживающий доверия",
+      "translations": {
+        "ru": "надёжный, заслуживающий доверия",
+        "uz": "ishonchli"
+      },
+      "example": "Aziz is trustworthy, so everyone tells him their secrets.",
+      "example_translations": {
+        "ru": "Азиз — надёжный человек, поэтому все доверяют ему свои секреты.",
+        "uz": "Aziz ishonchli odam, shuning uchun hamma unga sirini aytadi."
+      }
+    },
+    {
+      "word": "integrity",
+      "part_of_speech": "noun",
+      "translation": "честность, порядочность",
+      "translations": {
+        "ru": "честность, порядочность",
+        "uz": "halollik"
+      },
+      "example": "Everyone respects the judge for her integrity.",
+      "example_translations": {
+        "ru": "Все уважают судью за её честность.",
+        "uz": "Hamma sudyani halolligi uchun hurmat qiladi."
+      }
+    },
+    {
+      "word": "courage",
+      "part_of_speech": "noun",
+      "translation": "мужество, смелость",
+      "translations": {
+        "ru": "мужество, смелость",
+        "uz": "jasorat"
+      },
+      "example": "It takes courage to admit your mistakes.",
+      "example_translations": {
+        "ru": "Нужно мужество, чтобы признать свои ошибки.",
+        "uz": "O'z xatolarini tan olish uchun jasorat kerak."
+      }
+    },
+    {
+      "word": "dedication",
+      "part_of_speech": "noun",
+      "translation": "самоотдача, преданность делу",
+      "translations": {
+        "ru": "самоотдача, преданность делу",
+        "uz": "fidoyilik"
+      },
+      "example": "Her dedication to the job impressed everyone.",
+      "example_translations": {
+        "ru": "Её самоотдача в работе впечатлила всех.",
+        "uz": "Uning ishdagi fidoyiligi hammani qoyil qoldirdi."
+      }
+    },
+    {
+      "word": "committed",
+      "part_of_speech": "adjective",
+      "translation": "преданный делу",
+      "translations": {
+        "ru": "преданный делу",
+        "uz": "fidoyi"
+      },
+      "example": "A committed teacher gives extra time to weak students.",
+      "example_translations": {
+        "ru": "Преданный делу учитель уделяет дополнительное время слабым ученикам.",
+        "uz": "Fidoyi o'qituvchi bo'sh o'zlashtiruvchi o'quvchilarga qo'shimcha vaqt ajratadi."
+      }
+    }
+  ]
+}

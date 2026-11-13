@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 15,
+    "title": "Город и инфраструктура",
+    "title_uz": "Shahar va infratuzilma"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Городская жизнь",
+    "title_uz": "Shahar hayoti"
+  },
+  "words": [
+    {
+      "word": "overcrowded",
+      "part_of_speech": "adjective",
+      "translation": "переполненный",
+      "translations": {
+        "ru": "переполненный",
+        "uz": "tiqilinch, odamga to'la"
+      },
+      "example": "Overcrowded buses are a daily problem in our city.",
+      "example_translations": {
+        "ru": "Переполненные автобусы — ежедневная проблема нашего города.",
+        "uz": "Tiqilinch avtobuslar — shahrimizning har kungi muammosi."
+      }
+    },
+    {
+      "word": "bustling",
+      "part_of_speech": "adjective",
+      "translation": "оживлённый, шумный",
+      "translations": {
+        "ru": "оживлённый, шумный",
+        "uz": "gavjum, serharakat"
+      },
+      "example": "The bustling market is full of noise and color.",
+      "example_translations": {
+        "ru": "Оживлённый рынок полон шума и красок.",
+        "uz": "Gavjum bozor shovqin va ranglarga to'la."
+      }
+    },
+    {
+      "word": "vibrant",
+      "part_of_speech": "adjective",
+      "translation": "полный жизни, яркий",
+      "translations": {
+        "ru": "полный жизни, яркий",
+        "uz": "jo'shqin, hayotga to'la"
+      },
+      "example": "This vibrant city has music on every corner.",
+      "example_translations": {
+        "ru": "В этом полном жизни городе музыка звучит на каждом углу.",
+        "uz": "Bu jo'shqin shaharda har burchakda musiqa yangraydi."
+      }
+    },
+    {
+      "word": "hectic",
+      "part_of_speech": "adjective",
+      "translation": "суматошный",
+      "translations": {
+        "ru": "суматошный",
+        "uz": "besaranjom, tig'iz"
+      },
+      "example": "Life in the capital is hectic and tiring.",
+      "example_translations": {
+        "ru": "Жизнь в столице суматошная и утомительная.",
+        "uz": "Poytaxtda hayot besaranjom va odamni charchatadi."
+      }
+    },
+    {
+      "word": "deserted",
+      "part_of_speech": "adjective",
+      "translation": "безлюдный, пустынный",
+      "translations": {
+        "ru": "безлюдный, пустынный",
+        "uz": "kimsasiz, huvillagan"
+      },
+      "example": "At midnight the streets were dark and deserted.",
+      "example_translations": {
+        "ru": "В полночь улицы были тёмными и безлюдными.",
+        "uz": "Yarim tunda ko'chalar qorong'i va kimsasiz edi."
+      }
+    },
+    {
+      "word": "boulevard",
+      "part_of_speech": "noun",
+      "translation": "бульвар",
+      "translations": {
+        "ru": "бульвар",
+        "uz": "xiyobon"
+      },
+      "example": "We walked along a wide boulevard with tall trees.",
+      "example_translations": {
+        "ru": "Мы шли по широкому бульвару с высокими деревьями.",
+        "uz": "Biz baland daraxtli keng xiyobon bo'ylab yurdik."
+      }
+    },
+    {
+      "word": "plaza",
+      "part_of_speech": "noun",
+      "translation": "площадь",
+      "translations": {
+        "ru": "площадь",
+        "uz": "maydon"
+      },
+      "example": "People meet at the plaza near the fountain.",
+      "example_translations": {
+        "ru": "Люди встречаются на площади у фонтана.",
+        "uz": "Odamlar favvora yonidagi maydonda uchrashadi."
+      }
+    },
+    {
+      "word": "venue",
+      "part_of_speech": "noun",
+      "translation": "место проведения",
+      "translations": {
+        "ru": "место проведения",
+        "uz": "tadbir o'tkaziladigan joy"
+      },
+      "example": "The stadium is a popular venue for concerts.",
+      "example_translations": {
+        "ru": "Стадион — популярное место проведения концертов.",
+        "uz": "Stadion — konsertlar o'tkaziladigan mashhur joy."
+      }
+    },
+    {
+      "word": "skyline",
+      "part_of_speech": "noun",
+      "translation": "силуэт города",
+      "translations": {
+        "ru": "силуэт города",
+        "uz": "shaharning ufqdagi ko'rinishi"
+      },
+      "example": "Tall glass towers changed the skyline of the city.",
+      "example_translations": {
+        "ru": "Высокие стеклянные башни изменили силуэт города.",
+        "uz": "Baland shisha minoralar shaharning ufqdagi ko'rinishini o'zgartirdi."
+      }
+    },
+    {
+      "word": "hub",
+      "part_of_speech": "noun",
+      "translation": "центр, узел",
+      "translations": {
+        "ru": "центр, узел",
+        "uz": "markaz, tugun"
+      },
+      "example": "This district is the business hub of the city.",
+      "example_translations": {
+        "ru": "Этот район — деловой центр города.",
+        "uz": "Bu tuman shaharning ishbilarmonlik markazidir."
+      }
+    }
+  ]
+}

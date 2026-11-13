@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 14,
+    "title": "Путешествия и культуры мира",
+    "title_uz": "Sayohat va dunyo madaniyatlari"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Культурное наследие",
+    "title_uz": "Madaniy meros"
+  },
+  "words": [
+    {
+      "word": "heritage",
+      "part_of_speech": "noun",
+      "translation": "культурное наследие",
+      "translations": {
+        "ru": "культурное наследие",
+        "uz": "madaniy meros"
+      },
+      "example": "The old bridge is part of the city's heritage.",
+      "example_translations": {
+        "ru": "Старый мост — часть культурного наследия города.",
+        "uz": "Eski ko'prik shahar madaniy merosining bir qismidir."
+      }
+    },
+    {
+      "word": "civilization",
+      "part_of_speech": "noun",
+      "translation": "цивилизация",
+      "translations": {
+        "ru": "цивилизация",
+        "uz": "sivilizatsiya"
+      },
+      "example": "This ancient civilization built cities near the river.",
+      "example_translations": {
+        "ru": "Эта древняя цивилизация строила города у реки.",
+        "uz": "Bu qadimgi sivilizatsiya daryo bo'yida shaharlar qurgan."
+      }
+    },
+    {
+      "word": "archaeology",
+      "part_of_speech": "noun",
+      "translation": "археология",
+      "translations": {
+        "ru": "археология",
+        "uz": "arxeologiya"
+      },
+      "example": "Archaeology helps us understand how ancient people lived.",
+      "example_translations": {
+        "ru": "Археология помогает нам понять, как жили древние люди.",
+        "uz": "Arxeologiya qadimgi odamlar qanday yashaganini tushunishimizga yordam beradi."
+      }
+    },
+    {
+      "word": "sacred",
+      "part_of_speech": "adjective",
+      "translation": "священный",
+      "translations": {
+        "ru": "священный",
+        "uz": "muqaddas"
+      },
+      "example": "Visitors must be quiet in this sacred place.",
+      "example_translations": {
+        "ru": "Посетители должны соблюдать тишину в этом священном месте.",
+        "uz": "Tashrif buyuruvchilar bu muqaddas joyda sukut saqlashi kerak."
+      }
+    },
+    {
+      "word": "antique",
+      "part_of_speech": "adjective",
+      "translation": "старинный, антикварный",
+      "translations": {
+        "ru": "старинный, антикварный",
+        "uz": "ko'hna, qadimiy"
+      },
+      "example": "This antique clock is over two hundred years old.",
+      "example_translations": {
+        "ru": "Этим старинным часам больше двухсот лет.",
+        "uz": "Bu ko'hna soatning yoshi ikki yuz yildan oshgan."
+      }
+    },
+    {
+      "word": "legacy",
+      "part_of_speech": "noun",
+      "translation": "наследие",
+      "translations": {
+        "ru": "наследие",
+        "uz": "meros"
+      },
+      "example": "The poet's legacy lives on in his books.",
+      "example_translations": {
+        "ru": "Наследие поэта продолжает жить в его книгах.",
+        "uz": "Shoirning merosi uning kitoblarida yashab kelmoqda."
+      }
+    },
+    {
+      "word": "fortress",
+      "part_of_speech": "noun",
+      "translation": "крепость",
+      "translations": {
+        "ru": "крепость",
+        "uz": "qal'a"
+      },
+      "example": "A stone fortress once protected the whole town.",
+      "example_translations": {
+        "ru": "Каменная крепость когда-то защищала весь город.",
+        "uz": "Bir paytlar tosh qal'a butun shaharni himoya qilgan."
+      }
+    },
+    {
+      "word": "artifact",
+      "part_of_speech": "noun",
+      "translation": "артефакт",
+      "translations": {
+        "ru": "артефакт",
+        "uz": "artefakt, qadimiy buyum"
+      },
+      "example": "This artifact was made by hand centuries ago.",
+      "example_translations": {
+        "ru": "Этот артефакт был изготовлен вручную много веков назад.",
+        "uz": "Bu artefakt ko'p asrlar oldin qo'lda yasalgan."
+      }
+    },
+    {
+      "word": "dynasty",
+      "part_of_speech": "noun",
+      "translation": "династия",
+      "translations": {
+        "ru": "династия",
+        "uz": "sulola"
+      },
+      "example": "The dynasty ruled the region for three centuries.",
+      "example_translations": {
+        "ru": "Династия правила регионом три столетия.",
+        "uz": "Sulola mintaqada uch asr hukmronlik qilgan."
+      }
+    },
+    {
+      "word": "medieval",
+      "part_of_speech": "adjective",
+      "translation": "средневековый",
+      "translations": {
+        "ru": "средневековый",
+        "uz": "o'rta asrlarga oid"
+      },
+      "example": "The town still has its medieval walls and gates.",
+      "example_translations": {
+        "ru": "В городе до сих пор сохранились средневековые стены и ворота.",
+        "uz": "Shaharda o'rta asrlarga oid devor va darvozalar hanuz saqlanib qolgan."
+      }
+    }
+  ]
+}

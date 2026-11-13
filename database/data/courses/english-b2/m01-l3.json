@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 1,
+    "title": "Характер и поведение",
+    "title_uz": "Xarakter va xulq-atvor"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Отношение к людям",
+    "title_uz": "Odamlarga munosabat"
+  },
+  "words": [
+    {
+      "word": "considerate",
+      "part_of_speech": "adjective",
+      "translation": "внимательный к другим",
+      "translations": {
+        "ru": "внимательный к другим",
+        "uz": "boshqalarga e'tiborli"
+      },
+      "example": "Be considerate and turn the music down, please.",
+      "example_translations": {
+        "ru": "Будьте внимательны к другим и сделайте музыку потише, пожалуйста.",
+        "uz": "Boshqalarga e'tiborli bo'ling va musiqani pasaytiring, iltimos."
+      }
+    },
+    {
+      "word": "tolerant",
+      "part_of_speech": "adjective",
+      "translation": "терпимый, толерантный",
+      "translations": {
+        "ru": "терпимый, толерантный",
+        "uz": "bag'rikeng"
+      },
+      "example": "A tolerant society respects people with different opinions.",
+      "example_translations": {
+        "ru": "Терпимое общество уважает людей с разными взглядами.",
+        "uz": "Bag'rikeng jamiyat turli fikrdagi odamlarni hurmat qiladi."
+      }
+    },
+    {
+      "word": "sympathetic",
+      "part_of_speech": "adjective",
+      "translation": "участливый, сочувствующий",
+      "translations": {
+        "ru": "участливый, сочувствующий",
+        "uz": "hamdard"
+      },
+      "example": "The doctor was sympathetic and listened to my worries.",
+      "example_translations": {
+        "ru": "Врач был участлив и выслушал мои тревоги.",
+        "uz": "Shifokor hamdard bo'lib, tashvishlarimni tingladi."
+      }
+    },
+    {
+      "word": "sincere",
+      "part_of_speech": "adjective",
+      "translation": "искренний",
+      "translations": {
+        "ru": "искренний",
+        "uz": "samimiy"
+      },
+      "example": "Please accept my sincere apologies for the delay.",
+      "example_translations": {
+        "ru": "Пожалуйста, примите мои искренние извинения за задержку.",
+        "uz": "Kechikish uchun samimiy uzrimni qabul qiling, iltimos."
+      }
+    },
+    {
+      "word": "devoted",
+      "part_of_speech": "adjective",
+      "translation": "преданный",
+      "translations": {
+        "ru": "преданный",
+        "uz": "sadoqatli"
+      },
+      "example": "She is a devoted friend who always supports me.",
+      "example_translations": {
+        "ru": "Она преданная подруга, которая всегда меня поддерживает.",
+        "uz": "U meni doim qo'llab-quvvatlaydigan sadoqatli dugona."
+      }
+    },
+    {
+      "word": "humble",
+      "part_of_speech": "adjective",
+      "translation": "скромный",
+      "translations": {
+        "ru": "скромный",
+        "uz": "kamtar"
+      },
+      "example": "Despite his success, the champion remained humble.",
+      "example_translations": {
+        "ru": "Несмотря на успех, чемпион остался скромным.",
+        "uz": "Muvaffaqiyatiga qaramay, chempion kamtarligicha qoldi."
+      }
+    },
+    {
+      "word": "empathy",
+      "part_of_speech": "noun",
+      "translation": "эмпатия, сопереживание",
+      "translations": {
+        "ru": "эмпатия, сопереживание",
+        "uz": "empatiya, hamdardlik"
+      },
+      "example": "Empathy helps us understand how other people feel.",
+      "example_translations": {
+        "ru": "Эмпатия помогает нам понимать, что чувствуют другие люди.",
+        "uz": "Empatiya boshqa odamlarning his-tuyg'ularini tushunishimizga yordam beradi."
+      }
+    },
+    {
+      "word": "compassion",
+      "part_of_speech": "noun",
+      "translation": "сострадание",
+      "translations": {
+        "ru": "сострадание",
+        "uz": "rahm-shafqat"
+      },
+      "example": "The volunteers treated the homeless man with compassion.",
+      "example_translations": {
+        "ru": "Волонтёры отнеслись к бездомному с состраданием.",
+        "uz": "Ko'ngillilar uysiz odamga rahm-shafqat bilan munosabatda bo'ldi."
+      }
+    },
+    {
+      "word": "hostile",
+      "part_of_speech": "adjective",
+      "translation": "враждебный",
+      "translations": {
+        "ru": "враждебный",
+        "uz": "dushmanona"
+      },
+      "example": "At first, the neighbors were hostile to the new family.",
+      "example_translations": {
+        "ru": "Поначалу соседи были враждебны к новой семье.",
+        "uz": "Avvaliga qo'shnilar yangi oilaga dushmanona munosabatda bo'ldi."
+      }
+    },
+    {
+      "word": "indifferent",
+      "part_of_speech": "adjective",
+      "translation": "равнодушный, безразличный",
+      "translations": {
+        "ru": "равнодушный, безразличный",
+        "uz": "befarq"
+      },
+      "example": "How can you be indifferent to other people's problems?",
+      "example_translations": {
+        "ru": "Как вы можете быть равнодушным к проблемам других людей?",
+        "uz": "Qanday qilib boshqalarning muammolariga befarq bo'lishingiz mumkin?"
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 3,
+    "title": "Жильё и жизнь в городе",
+    "title_uz": "Uy-joy va shahar hayoti"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Городская жизнь",
+    "title_uz": "Shahardagi hayot"
+  },
+  "words": [
+    {
+      "word": "crowded",
+      "part_of_speech": "adjective",
+      "translation": "переполненный, людный",
+      "translations": {
+        "ru": "переполненный, людный",
+        "uz": "tirband"
+      },
+      "example": "Buses are always crowded in the morning.",
+      "example_translations": {
+        "ru": "По утрам автобусы всегда переполнены.",
+        "uz": "Ertalab avtobuslar doim tirband bo'ladi."
+      }
+    },
+    {
+      "word": "rush",
+      "part_of_speech": "verb",
+      "translation": "спешить, мчаться",
+      "translations": {
+        "ru": "спешить, мчаться",
+        "uz": "shoshilmoq, oshiqmoq"
+      },
+      "example": "Every morning, people rush to catch the subway.",
+      "example_translations": {
+        "ru": "Каждое утро люди спешат, чтобы успеть на метро.",
+        "uz": "Har kuni ertalab odamlar metroga ulgurish uchun shoshiladi."
+      }
+    },
+    {
+      "word": "lively",
+      "part_of_speech": "adjective",
+      "translation": "оживлённый",
+      "translations": {
+        "ru": "оживлённый",
+        "uz": "gavjum"
+      },
+      "example": "This street stays lively even late at night.",
+      "example_translations": {
+        "ru": "Эта улица остаётся оживлённой даже поздней ночью.",
+        "uz": "Bu ko'cha hatto kech tunda ham gavjum bo'ladi."
+      }
+    },
+    {
+      "word": "convenient",
+      "part_of_speech": "adjective",
+      "translation": "удобный",
+      "translations": {
+        "ru": "удобный",
+        "uz": "qulay"
+      },
+      "example": "The subway is the most convenient way to travel here.",
+      "example_translations": {
+        "ru": "Метро — самый удобный способ передвижения здесь.",
+        "uz": "Bu yerda metro harakatlanishning eng qulay usulidir."
+      }
+    },
+    {
+      "word": "litter",
+      "part_of_speech": "noun",
+      "translation": "мусор",
+      "translations": {
+        "ru": "мусор",
+        "uz": "axlat"
+      },
+      "example": "Please do not leave litter in the park.",
+      "example_translations": {
+        "ru": "Пожалуйста, не оставляйте мусор в парке.",
+        "uz": "Iltimos, parkda axlat qoldirmang."
+      }
+    },
+    {
+      "word": "public",
+      "part_of_speech": "adjective",
+      "translation": "общественный",
+      "translations": {
+        "ru": "общественный",
+        "uz": "jamoat, ommaviy"
+      },
+      "example": "Public transport in our city is cheap and fast.",
+      "example_translations": {
+        "ru": "Общественный транспорт в нашем городе дешёвый и быстрый.",
+        "uz": "Shahrimizda jamoat transporti arzon va tez."
+      }
+    },
+    {
+      "word": "local",
+      "part_of_speech": "adjective",
+      "translation": "местный",
+      "translations": {
+        "ru": "местный",
+        "uz": "mahalliy"
+      },
+      "example": "We buy fresh vegetables at the local market.",
+      "example_translations": {
+        "ru": "Мы покупаем свежие овощи на местном рынке.",
+        "uz": "Biz yangi sabzavotlarni mahalliy bozordan sotib olamiz."
+      }
+    },
+    {
+      "word": "resident",
+      "part_of_speech": "noun",
+      "translation": "житель",
+      "translations": {
+        "ru": "житель",
+        "uz": "yashovchi"
+      },
+      "example": "Every resident of this building has a parking space.",
+      "example_translations": {
+        "ru": "У каждого жителя этого дома есть парковочное место.",
+        "uz": "Bu binoning har bir yashovchisi uchun mashina qo'yish joyi bor."
+      }
+    },
+    {
+      "word": "mayor",
+      "part_of_speech": "noun",
+      "translation": "мэр",
+      "translations": {
+        "ru": "мэр",
+        "uz": "shahar hokimi"
+      },
+      "example": "Yesterday the mayor opened a new school.",
+      "example_translations": {
+        "ru": "Вчера мэр открыл новую школу.",
+        "uz": "Kecha shahar hokimi yangi maktabni ochdi."
+      }
+    },
+    {
+      "word": "commute",
+      "part_of_speech": "verb",
+      "translation": "ездить на работу",
+      "translations": {
+        "ru": "ездить на работу",
+        "uz": "ishga qatnamoq"
+      },
+      "example": "She commutes to the city by train every day.",
+      "example_translations": {
+        "ru": "Она каждый день ездит на работу в город на поезде.",
+        "uz": "U har kuni shaharga poyezdda ishga qatnaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 7,
+    "title": "Окружающая среда и климат",
+    "title_uz": "Atrof-muhit va iqlim"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Загрязнение и отходы",
+    "title_uz": "Ifloslanish va chiqindilar"
+  },
+  "words": [
+    {
+      "word": "pollutant",
+      "part_of_speech": "noun",
+      "translation": "загрязняющее вещество",
+      "translations": {
+        "ru": "загрязняющее вещество",
+        "uz": "ifloslantiruvchi modda"
+      },
+      "example": "This filter removes pollutants from the water.",
+      "example_translations": {
+        "ru": "Этот фильтр удаляет из воды загрязняющие вещества.",
+        "uz": "Bu filtr suvni ifloslantiruvchi moddalardan tozalaydi."
+      }
+    },
+    {
+      "word": "contaminate",
+      "part_of_speech": "verb",
+      "translation": "загрязнять",
+      "translations": {
+        "ru": "загрязнять",
+        "uz": "ifloslantirmoq"
+      },
+      "example": "Chemicals from the factory contaminated the river.",
+      "example_translations": {
+        "ru": "Химикаты с завода загрязнили реку.",
+        "uz": "Zavoddan chiqqan kimyoviy moddalar daryoni ifloslantirdi."
+      }
+    },
+    {
+      "word": "poisonous",
+      "part_of_speech": "adjective",
+      "translation": "ядовитый",
+      "translations": {
+        "ru": "ядовитый",
+        "uz": "zaharli"
+      },
+      "example": "Smoke from burning plastic is poisonous.",
+      "example_translations": {
+        "ru": "Дым от горящего пластика ядовит.",
+        "uz": "Yonayotgan plastik tutuni zaharli."
+      }
+    },
+    {
+      "word": "landfill",
+      "part_of_speech": "noun",
+      "translation": "свалка, мусорный полигон",
+      "translations": {
+        "ru": "свалка, мусорный полигон",
+        "uz": "chiqindixona"
+      },
+      "example": "Most of the city's trash goes to a landfill.",
+      "example_translations": {
+        "ru": "Большая часть городского мусора попадает на свалку.",
+        "uz": "Shahar axlatining katta qismi chiqindixonaga boradi."
+      }
+    },
+    {
+      "word": "sewage",
+      "part_of_speech": "noun",
+      "translation": "сточные воды",
+      "translations": {
+        "ru": "сточные воды",
+        "uz": "oqova suv"
+      },
+      "example": "The city cleans its sewage before it reaches the river.",
+      "example_translations": {
+        "ru": "Город очищает сточные воды до того, как они попадут в реку.",
+        "uz": "Shahar oqova suvlarni daryoga tushishidan oldin tozalaydi."
+      }
+    },
+    {
+      "word": "disposal",
+      "part_of_speech": "noun",
+      "translation": "утилизация",
+      "translations": {
+        "ru": "утилизация",
+        "uz": "utilizatsiya"
+      },
+      "example": "Safe disposal of old batteries is important.",
+      "example_translations": {
+        "ru": "Важна безопасная утилизация старых батареек.",
+        "uz": "Eski batareyalarni xavfsiz utilizatsiya qilish muhim."
+      }
+    },
+    {
+      "word": "exhaust",
+      "part_of_speech": "noun",
+      "translation": "выхлопные газы",
+      "translations": {
+        "ru": "выхлопные газы",
+        "uz": "chiqindi gaz"
+      },
+      "example": "Car exhaust makes the air in cities dirty.",
+      "example_translations": {
+        "ru": "Выхлопные газы машин загрязняют воздух в городах.",
+        "uz": "Avtomobillarning chiqindi gazlari shaharlar havosini ifloslantiradi."
+      }
+    },
+    {
+      "word": "pesticide",
+      "part_of_speech": "noun",
+      "translation": "пестицид",
+      "translations": {
+        "ru": "пестицид",
+        "uz": "pestitsid"
+      },
+      "example": "Farmers spray pesticides to protect their crops.",
+      "example_translations": {
+        "ru": "Фермеры распыляют пестициды, чтобы защитить урожай.",
+        "uz": "Fermerlar hosilni himoya qilish uchun pestitsid sepadi."
+      }
+    },
+    {
+      "word": "smog",
+      "part_of_speech": "noun",
+      "translation": "смог",
+      "translations": {
+        "ru": "смог",
+        "uz": "smog"
+      },
+      "example": "Thick smog covered the city this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром город накрыл густой смог.",
+        "uz": "Bugun ertalab shaharni quyuq smog qopladi."
+      }
+    },
+    {
+      "word": "dump",
+      "part_of_speech": "verb",
+      "translation": "сбрасывать, сваливать",
+      "translations": {
+        "ru": "сбрасывать, сваливать",
+        "uz": "tashlamoq, to'kmoq"
+      },
+      "example": "Some factories dump waste into the river.",
+      "example_translations": {
+        "ru": "Некоторые заводы сбрасывают отходы в реку.",
+        "uz": "Ba'zi zavodlar chiqindilarni daryoga tashlaydi."
+      }
+    }
+  ]
+}

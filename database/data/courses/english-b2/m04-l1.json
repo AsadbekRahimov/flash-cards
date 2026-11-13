@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 4,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Научный метод",
+    "title_uz": "Ilmiy usul"
+  },
+  "words": [
+    {
+      "word": "hypothesis",
+      "part_of_speech": "noun",
+      "translation": "гипотеза",
+      "translations": {
+        "ru": "гипотеза",
+        "uz": "gipoteza"
+      },
+      "example": "We need more data to test this hypothesis.",
+      "example_translations": {
+        "ru": "Нам нужно больше данных, чтобы проверить эту гипотезу.",
+        "uz": "Bu gipotezani tekshirish uchun bizga ko'proq ma'lumot kerak."
+      }
+    },
+    {
+      "word": "methodology",
+      "part_of_speech": "noun",
+      "translation": "методология",
+      "translations": {
+        "ru": "методология",
+        "uz": "metodologiya"
+      },
+      "example": "The article explains the methodology of the study.",
+      "example_translations": {
+        "ru": "В статье объясняется методология исследования.",
+        "uz": "Maqolada tadqiqot metodologiyasi tushuntirilgan."
+      }
+    },
+    {
+      "word": "observation",
+      "part_of_speech": "noun",
+      "translation": "наблюдение",
+      "translations": {
+        "ru": "наблюдение",
+        "uz": "kuzatish, kuzatuv"
+      },
+      "example": "Careful observation of birds takes many hours.",
+      "example_translations": {
+        "ru": "Тщательное наблюдение за птицами занимает много часов.",
+        "uz": "Qushlarni sinchiklab kuzatish soatlab vaqt oladi."
+      }
+    },
+    {
+      "word": "systematic",
+      "part_of_speech": "adjective",
+      "translation": "систематический",
+      "translations": {
+        "ru": "систематический",
+        "uz": "tizimli"
+      },
+      "example": "Science requires a systematic approach to every problem.",
+      "example_translations": {
+        "ru": "Наука требует систематического подхода к каждой проблеме.",
+        "uz": "Fan har bir muammoga tizimli yondashuvni talab qiladi."
+      }
+    },
+    {
+      "word": "variable",
+      "part_of_speech": "noun",
+      "translation": "переменная",
+      "translations": {
+        "ru": "переменная",
+        "uz": "o'zgaruvchi"
+      },
+      "example": "Temperature was the only variable in the experiment.",
+      "example_translations": {
+        "ru": "Температура была единственной переменной в эксперименте.",
+        "uz": "Harorat tajribadagi yagona o'zgaruvchi edi."
+      }
+    },
+    {
+      "word": "specimen",
+      "part_of_speech": "noun",
+      "translation": "образец",
+      "translations": {
+        "ru": "образец",
+        "uz": "namuna"
+      },
+      "example": "The scientist examined each specimen under a microscope.",
+      "example_translations": {
+        "ru": "Учёный изучил каждый образец под микроскопом.",
+        "uz": "Olim har bir namunani mikroskop ostida o'rgandi."
+      }
+    },
+    {
+      "word": "experimental",
+      "part_of_speech": "adjective",
+      "translation": "экспериментальный",
+      "translations": {
+        "ru": "экспериментальный",
+        "uz": "tajribaviy, eksperimental"
+      },
+      "example": "The experimental treatment helped most of the patients.",
+      "example_translations": {
+        "ru": "Экспериментальное лечение помогло большинству пациентов.",
+        "uz": "Tajribaviy davolash usuli bemorlarning ko'pchiligiga yordam berdi."
+      }
+    },
+    {
+      "word": "prediction",
+      "part_of_speech": "noun",
+      "translation": "прогноз, предсказание",
+      "translations": {
+        "ru": "прогноз, предсказание",
+        "uz": "bashorat, prognoz"
+      },
+      "example": "Her prediction about the results was correct.",
+      "example_translations": {
+        "ru": "Её прогноз относительно результатов оказался верным.",
+        "uz": "Uning natijalar haqidagi bashorati to'g'ri chiqdi."
+      }
+    },
+    {
+      "word": "empirical",
+      "part_of_speech": "adjective",
+      "translation": "эмпирический",
+      "translations": {
+        "ru": "эмпирический",
+        "uz": "empirik"
+      },
+      "example": "Empirical research is based on observation and experiments.",
+      "example_translations": {
+        "ru": "Эмпирическое исследование основано на наблюдении и экспериментах.",
+        "uz": "Empirik tadqiqot kuzatish va tajribalarga asoslanadi."
+      }
+    },
+    {
+      "word": "verify",
+      "part_of_speech": "verb",
+      "translation": "проверять, подтверждать",
+      "translations": {
+        "ru": "проверять, подтверждать",
+        "uz": "tekshirmoq, tasdiqlamoq"
+      },
+      "example": "Scientists repeat experiments to verify their results.",
+      "example_translations": {
+        "ru": "Учёные повторяют эксперименты, чтобы проверить свои результаты.",
+        "uz": "Olimlar o'z natijalarini tekshirish uchun tajribalarni takrorlaydi."
+      }
+    }
+  ]
+}

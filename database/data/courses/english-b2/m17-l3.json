@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Доказательства и логика",
+    "title_uz": "Dalillar va mantiq"
+  },
+  "words": [
+    {
+      "word": "proof",
+      "part_of_speech": "noun",
+      "translation": "доказательство",
+      "translations": {
+        "ru": "доказательство",
+        "uz": "isbot, dalil"
+      },
+      "example": "Do you have any proof that this method works?",
+      "example_translations": {
+        "ru": "У вас есть доказательства того, что этот метод работает?",
+        "uz": "Bu usul ish berishiga isbotingiz bormi?"
+      }
+    },
+    {
+      "word": "justify",
+      "part_of_speech": "verb",
+      "translation": "обосновывать, оправдывать",
+      "translations": {
+        "ru": "обосновывать, оправдывать",
+        "uz": "asoslamoq, oqlamoq"
+      },
+      "example": "How can you justify such a high price?",
+      "example_translations": {
+        "ru": "Чем вы можете обосновать такую высокую цену?",
+        "uz": "Bunday yuqori narxni qanday asoslay olasiz?"
+      }
+    },
+    {
+      "word": "plausible",
+      "part_of_speech": "adjective",
+      "translation": "правдоподобный",
+      "translations": {
+        "ru": "правдоподобный",
+        "uz": "haqiqatga yaqin"
+      },
+      "example": "Her explanation sounds plausible, but is it true?",
+      "example_translations": {
+        "ru": "Её объяснение звучит правдоподобно, но правда ли это?",
+        "uz": "Uning izohi haqiqatga yaqin tuyuladi, lekin u rostmi?"
+      }
+    },
+    {
+      "word": "consistent",
+      "part_of_speech": "adjective",
+      "translation": "последовательный",
+      "translations": {
+        "ru": "последовательный",
+        "uz": "izchil"
+      },
+      "example": "Your argument is not consistent: you contradict yourself.",
+      "example_translations": {
+        "ru": "Ваш аргумент непоследователен: вы сами себе противоречите.",
+        "uz": "Dalilingiz izchil emas: o'zingizga o'zingiz zid gapiryapsiz."
+      }
+    },
+    {
+      "word": "assumption",
+      "part_of_speech": "noun",
+      "translation": "предположение, допущение",
+      "translations": {
+        "ru": "предположение, допущение",
+        "uz": "taxmin, faraz"
+      },
+      "example": "This plan is based on a wrong assumption.",
+      "example_translations": {
+        "ru": "Этот план основан на неверном предположении.",
+        "uz": "Bu reja noto'g'ri taxminga asoslangan."
+      }
+    },
+    {
+      "word": "convincing",
+      "part_of_speech": "adjective",
+      "translation": "убедительный",
+      "translations": {
+        "ru": "убедительный",
+        "uz": "ishonarli"
+      },
+      "example": "Nobody found his excuse very convincing.",
+      "example_translations": {
+        "ru": "Никто не счёл его оправдание очень убедительным.",
+        "uz": "Hech kim uning bahonasini unchalik ishonarli deb topmadi."
+      }
+    },
+    {
+      "word": "factual",
+      "part_of_speech": "adjective",
+      "translation": "основанный на фактах",
+      "translations": {
+        "ru": "основанный на фактах",
+        "uz": "faktlarga asoslangan"
+      },
+      "example": "A news report should be factual, not emotional.",
+      "example_translations": {
+        "ru": "Новостное сообщение должно быть основано на фактах, а не на эмоциях.",
+        "uz": "Yangilik xabari hissiyotlarga emas, faktlarga asoslangan bo'lishi kerak."
+      }
+    },
+    {
+      "word": "coherent",
+      "part_of_speech": "adjective",
+      "translation": "связный, логичный",
+      "translations": {
+        "ru": "связный, логичный",
+        "uz": "bog'lanishli, mantiqli"
+      },
+      "example": "Her speech was short, clear and coherent.",
+      "example_translations": {
+        "ru": "Её речь была краткой, ясной и связной.",
+        "uz": "Uning nutqi qisqa, aniq va bog'lanishli edi."
+      }
+    },
+    {
+      "word": "flaw",
+      "part_of_speech": "noun",
+      "translation": "изъян, недостаток",
+      "translations": {
+        "ru": "изъян, недостаток",
+        "uz": "nuqson, kamchilik"
+      },
+      "example": "There is a serious flaw in your argument.",
+      "example_translations": {
+        "ru": "В вашем аргументе есть серьёзный изъян.",
+        "uz": "Dalilingizda jiddiy nuqson bor."
+      }
+    },
+    {
+      "word": "basis",
+      "part_of_speech": "noun",
+      "translation": "основание, основа",
+      "translations": {
+        "ru": "основание, основа",
+        "uz": "asos"
+      },
+      "example": "What is the basis for your conclusion?",
+      "example_translations": {
+        "ru": "Что служит основанием для вашего вывода?",
+        "uz": "Xulosangizning asosi nima?"
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 4,
+    "title": "Еда и кулинария",
+    "title_uz": "Taom va pazandachilik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Вкус и качество",
+    "title_uz": "Ta'm va sifat"
+  },
+  "words": [
+    {
+      "word": "flavor",
+      "part_of_speech": "noun",
+      "translation": "вкус",
+      "translations": {
+        "ru": "вкус",
+        "uz": "ta'm"
+      },
+      "example": "Which ice cream flavor do you like best?",
+      "example_translations": {
+        "ru": "Какой вкус мороженого вам нравится больше всего?",
+        "uz": "Muzqaymoqning qaysi ta'mi sizga eng ko'p yoqadi?"
+      }
+    },
+    {
+      "word": "bitter",
+      "part_of_speech": "adjective",
+      "translation": "горький",
+      "translations": {
+        "ru": "горький",
+        "uz": "achchiq, taxir"
+      },
+      "example": "Coffee without sugar is too bitter for me.",
+      "example_translations": {
+        "ru": "Кофе без сахара для меня слишком горький.",
+        "uz": "Shakarsiz qahva men uchun juda achchiq."
+      }
+    },
+    {
+      "word": "sour",
+      "part_of_speech": "adjective",
+      "translation": "кислый",
+      "translations": {
+        "ru": "кислый",
+        "uz": "nordon"
+      },
+      "example": "These green apples are very sour.",
+      "example_translations": {
+        "ru": "Эти зелёные яблоки очень кислые.",
+        "uz": "Bu yashil olmalar juda nordon."
+      }
+    },
+    {
+      "word": "homemade",
+      "part_of_speech": "adjective",
+      "translation": "домашний",
+      "translations": {
+        "ru": "домашний",
+        "uz": "uyda tayyorlangan"
+      },
+      "example": "Her homemade cookies are always soft and sweet.",
+      "example_translations": {
+        "ru": "Её домашнее печенье всегда мягкое и сладкое.",
+        "uz": "Uning uyda tayyorlangan pechenyesi doim yumshoq va shirin bo'ladi."
+      }
+    },
+    {
+      "word": "raw",
+      "part_of_speech": "adjective",
+      "translation": "сырой",
+      "translations": {
+        "ru": "сырой",
+        "uz": "xom"
+      },
+      "example": "You should not eat raw meat.",
+      "example_translations": {
+        "ru": "Не следует есть сырое мясо.",
+        "uz": "Xom go'shtni yemaslik kerak."
+      }
+    },
+    {
+      "word": "salty",
+      "part_of_speech": "adjective",
+      "translation": "солёный",
+      "translations": {
+        "ru": "солёный",
+        "uz": "sho'r"
+      },
+      "example": "The soup was so salty that nobody ate it.",
+      "example_translations": {
+        "ru": "Суп был такой солёный, что никто его не ел.",
+        "uz": "Sho'rva shunchalik sho'r ediki, uni hech kim yemadi."
+      }
+    },
+    {
+      "word": "crispy",
+      "part_of_speech": "adjective",
+      "translation": "хрустящий",
+      "translations": {
+        "ru": "хрустящий",
+        "uz": "qarsildoq"
+      },
+      "example": "These fried potatoes are hot and crispy.",
+      "example_translations": {
+        "ru": "Эта жареная картошка горячая и хрустящая.",
+        "uz": "Bu qovurilgan kartoshka issiq va qarsildoq."
+      }
+    },
+    {
+      "word": "rotten",
+      "part_of_speech": "adjective",
+      "translation": "гнилой",
+      "translations": {
+        "ru": "гнилой",
+        "uz": "chirigan"
+      },
+      "example": "There was a rotten apple in the bag.",
+      "example_translations": {
+        "ru": "В пакете было гнилое яблоко.",
+        "uz": "Xaltada chirigan olma bor edi."
+      }
+    },
+    {
+      "word": "ripe",
+      "part_of_speech": "adjective",
+      "translation": "спелый",
+      "translations": {
+        "ru": "спелый",
+        "uz": "pishgan"
+      },
+      "example": "Bananas are ripe when they turn yellow.",
+      "example_translations": {
+        "ru": "Бананы спелые, когда они становятся жёлтыми.",
+        "uz": "Bananlar sarg'ayganda pishgan bo'ladi."
+      }
+    },
+    {
+      "word": "frozen",
+      "part_of_speech": "adjective",
+      "translation": "замороженный",
+      "translations": {
+        "ru": "замороженный",
+        "uz": "muzlatilgan"
+      },
+      "example": "We keep frozen vegetables for the winter.",
+      "example_translations": {
+        "ru": "Мы храним замороженные овощи на зиму.",
+        "uz": "Biz qish uchun muzlatilgan sabzavotlarni saqlaymiz."
+      }
+    }
+  ]
+}

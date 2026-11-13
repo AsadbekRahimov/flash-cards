@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 11,
+    "title": "Искусство и литература",
+    "title_uz": "San'at va adabiyot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Сцена и кино",
+    "title_uz": "Sahna va kino"
+  },
+  "words": [
+    {
+      "word": "debut",
+      "part_of_speech": "noun",
+      "translation": "дебют",
+      "translations": {
+        "ru": "дебют",
+        "uz": "debyut, ilk chiqish"
+      },
+      "example": "She made her debut on stage at sixteen.",
+      "example_translations": {
+        "ru": "Её дебют на сцене состоялся в шестнадцать лет.",
+        "uz": "Uning sahnadagi debyuti o'n olti yoshida bo'lgan."
+      }
+    },
+    {
+      "word": "playwright",
+      "part_of_speech": "noun",
+      "translation": "драматург",
+      "translations": {
+        "ru": "драматург",
+        "uz": "dramaturg"
+      },
+      "example": "This playwright wrote more than thirty plays.",
+      "example_translations": {
+        "ru": "Этот драматург написал более тридцати пьес.",
+        "uz": "Bu dramaturg o'ttizdan ortiq pyesa yozgan."
+      }
+    },
+    {
+      "word": "screenplay",
+      "part_of_speech": "noun",
+      "translation": "сценарий",
+      "translations": {
+        "ru": "сценарий",
+        "uz": "ssenariy"
+      },
+      "example": "He spent two years writing the screenplay for the film.",
+      "example_translations": {
+        "ru": "Он два года писал сценарий к этому фильму.",
+        "uz": "U bu filmning ssenariysini ikki yil yozdi."
+      }
+    },
+    {
+      "word": "audition",
+      "part_of_speech": "noun",
+      "translation": "прослушивание, пробы",
+      "translations": {
+        "ru": "прослушивание, пробы",
+        "uz": "tinglov, kasting"
+      },
+      "example": "Tom has an audition for a role tomorrow morning.",
+      "example_translations": {
+        "ru": "Завтра утром у Тома прослушивание на роль.",
+        "uz": "Ertaga ertalab Tomning rol uchun tinglovi bor."
+      }
+    },
+    {
+      "word": "premiere",
+      "part_of_speech": "noun",
+      "translation": "премьера",
+      "translations": {
+        "ru": "премьера",
+        "uz": "premyera"
+      },
+      "example": "Hundreds of fans came to the premiere of the film.",
+      "example_translations": {
+        "ru": "На премьеру фильма пришли сотни поклонников.",
+        "uz": "Filmning premyerasiga yuzlab muxlislar keldi."
+      }
+    },
+    {
+      "word": "cast",
+      "part_of_speech": "noun",
+      "translation": "актёрский состав",
+      "translations": {
+        "ru": "актёрский состав",
+        "uz": "aktyorlar tarkibi"
+      },
+      "example": "The whole cast came out to greet the audience.",
+      "example_translations": {
+        "ru": "Весь актёрский состав вышел поприветствовать зрителей.",
+        "uz": "Butun aktyorlar tarkibi tomoshabinlar bilan salomlashgani chiqdi."
+      }
+    },
+    {
+      "word": "choreography",
+      "part_of_speech": "noun",
+      "translation": "хореография",
+      "translations": {
+        "ru": "хореография",
+        "uz": "xoreografiya"
+      },
+      "example": "Who created the choreography for this dance?",
+      "example_translations": {
+        "ru": "Кто создал хореографию этого танца?",
+        "uz": "Bu raqsning xoreografiyasini kim yaratgan?"
+      }
+    },
+    {
+      "word": "applause",
+      "part_of_speech": "noun",
+      "translation": "аплодисменты",
+      "translations": {
+        "ru": "аплодисменты",
+        "uz": "qarsaklar"
+      },
+      "example": "The singer left the stage to loud applause.",
+      "example_translations": {
+        "ru": "Певица ушла со сцены под громкие аплодисменты.",
+        "uz": "Xonanda sahnadan gulduros qarsaklar ostida chiqib ketdi."
+      }
+    },
+    {
+      "word": "soundtrack",
+      "part_of_speech": "noun",
+      "translation": "саундтрек",
+      "translations": {
+        "ru": "саундтрек",
+        "uz": "saundtrek, film musiqasi"
+      },
+      "example": "I often listen to the soundtrack of that movie.",
+      "example_translations": {
+        "ru": "Я часто слушаю саундтрек к тому фильму.",
+        "uz": "Men o'sha filmning saundtrekini tez-tez tinglayman."
+      }
+    },
+    {
+      "word": "sequel",
+      "part_of_speech": "noun",
+      "translation": "продолжение, сиквел",
+      "translations": {
+        "ru": "продолжение, сиквел",
+        "uz": "davomi"
+      },
+      "example": "Will there be a sequel to this adventure film?",
+      "example_translations": {
+        "ru": "Будет ли продолжение у этого приключенческого фильма?",
+        "uz": "Bu sarguzasht filmining davomi bo'ladimi?"
+      }
+    }
+  ]
+}

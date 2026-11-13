@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 8,
+    "title": "Деньги и покупки",
+    "title_uz": "Pul va xaridlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Личные финансы",
+    "title_uz": "Shaxsiy moliya"
+  },
+  "words": [
+    {
+      "word": "expense",
+      "part_of_speech": "noun",
+      "translation": "расход",
+      "translations": {
+        "ru": "расход",
+        "uz": "xarajat"
+      },
+      "example": "Rent is our biggest monthly expense.",
+      "example_translations": {
+        "ru": "Аренда — наш самый большой ежемесячный расход.",
+        "uz": "Ijara haqi — bizning eng katta oylik xarajatimiz."
+      }
+    },
+    {
+      "word": "debt",
+      "part_of_speech": "noun",
+      "translation": "долг",
+      "translations": {
+        "ru": "долг",
+        "uz": "qarz"
+      },
+      "example": "It took him two years to pay his debts.",
+      "example_translations": {
+        "ru": "Ему понадобилось два года, чтобы выплатить долги.",
+        "uz": "Qarzlarini to'lash uchun unga ikki yil kerak bo'ldi."
+      }
+    },
+    {
+      "word": "owe",
+      "part_of_speech": "verb",
+      "translation": "быть должным",
+      "translations": {
+        "ru": "быть должным",
+        "uz": "qarzdor bo'lmoq"
+      },
+      "example": "I owe my sister twenty dollars for the tickets.",
+      "example_translations": {
+        "ru": "Я должен сестре двадцать долларов за билеты.",
+        "uz": "Men opamdan chiptalar uchun yigirma dollar qarzdorman."
+      }
+    },
+    {
+      "word": "wealthy",
+      "part_of_speech": "adjective",
+      "translation": "состоятельный, богатый",
+      "translations": {
+        "ru": "состоятельный, богатый",
+        "uz": "badavlat, boy"
+      },
+      "example": "A wealthy businessman built a school in our village.",
+      "example_translations": {
+        "ru": "Состоятельный бизнесмен построил школу в нашей деревне.",
+        "uz": "Badavlat tadbirkor qishlog'imizda maktab qurib berdi."
+      }
+    },
+    {
+      "word": "fortune",
+      "part_of_speech": "noun",
+      "translation": "состояние, богатство",
+      "translations": {
+        "ru": "состояние, богатство",
+        "uz": "boylik"
+      },
+      "example": "She made a fortune selling clothes online.",
+      "example_translations": {
+        "ru": "Она заработала целое состояние, продавая одежду в интернете.",
+        "uz": "U internetda kiyim sotib, katta boylik orttirdi."
+      }
+    },
+    {
+      "word": "finance",
+      "part_of_speech": "noun",
+      "translation": "финансы",
+      "translations": {
+        "ru": "финансы",
+        "uz": "moliya"
+      },
+      "example": "He studied finance and now works at a bank.",
+      "example_translations": {
+        "ru": "Он изучал финансы и теперь работает в банке.",
+        "uz": "U moliya bo'yicha o'qigan, hozir esa bankda ishlaydi."
+      }
+    },
+    {
+      "word": "economy",
+      "part_of_speech": "noun",
+      "translation": "экономика",
+      "translations": {
+        "ru": "экономика",
+        "uz": "iqtisodiyot"
+      },
+      "example": "Tourism is important for the economy of our region.",
+      "example_translations": {
+        "ru": "Туризм важен для экономики нашего региона.",
+        "uz": "Turizm mintaqamiz iqtisodiyoti uchun muhim."
+      }
+    },
+    {
+      "word": "fund",
+      "part_of_speech": "noun",
+      "translation": "фонд",
+      "translations": {
+        "ru": "фонд",
+        "uz": "jamg'arma, fond"
+      },
+      "example": "They started a fund to help poor students.",
+      "example_translations": {
+        "ru": "Они создали фонд помощи бедным студентам.",
+        "uz": "Ular kambag'al talabalarga yordam berish uchun jamg'arma tashkil etishdi."
+      }
+    },
+    {
+      "word": "loss",
+      "part_of_speech": "noun",
+      "translation": "убыток",
+      "translations": {
+        "ru": "убыток",
+        "uz": "zarar"
+      },
+      "example": "The store had a big loss last year.",
+      "example_translations": {
+        "ru": "В прошлом году магазин понёс большой убыток.",
+        "uz": "O'tgan yili do'kon katta zarar ko'rdi."
+      }
+    },
+    {
+      "word": "value",
+      "part_of_speech": "noun",
+      "translation": "стоимость, ценность",
+      "translations": {
+        "ru": "стоимость, ценность",
+        "uz": "qiymat"
+      },
+      "example": "The value of our house has grown a lot.",
+      "example_translations": {
+        "ru": "Стоимость нашего дома сильно выросла.",
+        "uz": "Uyimizning qiymati ancha oshdi."
+      }
+    }
+  ]
+}

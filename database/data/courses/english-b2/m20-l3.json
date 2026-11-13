@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 20,
+    "title": "Академические глаголы и понятия",
+    "title_uz": "Akademik fe'llar va tushunchalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Глаголы действия",
+    "title_uz": "Harakat fe'llari"
+  },
+  "words": [
+    {
+      "word": "establish",
+      "part_of_speech": "verb",
+      "translation": "основывать, учреждать",
+      "translations": {
+        "ru": "основывать, учреждать",
+        "uz": "tashkil etmoq, asos solmoq"
+      },
+      "example": "The university was established over a century ago.",
+      "example_translations": {
+        "ru": "Университет был основан более века назад.",
+        "uz": "Universitet bir asrdan ko'proq vaqt oldin tashkil etilgan."
+      }
+    },
+    {
+      "word": "obtain",
+      "part_of_speech": "verb",
+      "translation": "получать, добывать",
+      "translations": {
+        "ru": "получать, добывать",
+        "uz": "olmoq, qo'lga kiritmoq"
+      },
+      "example": "You must obtain permission before taking photos here.",
+      "example_translations": {
+        "ru": "Прежде чем здесь фотографировать, вы должны получить разрешение.",
+        "uz": "Bu yerda suratga olishdan oldin ruxsat olishingiz kerak."
+      }
+    },
+    {
+      "word": "maintain",
+      "part_of_speech": "verb",
+      "translation": "поддерживать, сохранять",
+      "translations": {
+        "ru": "поддерживать, сохранять",
+        "uz": "saqlab turmoq"
+      },
+      "example": "It is important to maintain a healthy weight.",
+      "example_translations": {
+        "ru": "Важно поддерживать здоровый вес.",
+        "uz": "Sog'lom vaznni saqlab turish muhim."
+      }
+    },
+    {
+      "word": "pursue",
+      "part_of_speech": "verb",
+      "translation": "добиваться, стремиться",
+      "translations": {
+        "ru": "добиваться, стремиться",
+        "uz": "intilmoq"
+      },
+      "example": "Malika pursues her goals with great energy.",
+      "example_translations": {
+        "ru": "Малика с большой энергией добивается своих целей.",
+        "uz": "Malika o'z maqsadlariga katta g'ayrat bilan intiladi."
+      }
+    },
+    {
+      "word": "restrict",
+      "part_of_speech": "verb",
+      "translation": "ограничивать",
+      "translations": {
+        "ru": "ограничивать",
+        "uz": "cheklamoq"
+      },
+      "example": "New rules restrict parking in the city center.",
+      "example_translations": {
+        "ru": "Новые правила ограничивают парковку в центре города.",
+        "uz": "Yangi qoidalar shahar markazida avtomobil qo'yishni cheklaydi."
+      }
+    },
+    {
+      "word": "enable",
+      "part_of_speech": "verb",
+      "translation": "давать возможность, позволять",
+      "translations": {
+        "ru": "давать возможность, позволять",
+        "uz": "imkon bermoq"
+      },
+      "example": "Online courses enable people to study from home.",
+      "example_translations": {
+        "ru": "Онлайн-курсы дают людям возможность учиться из дома.",
+        "uz": "Onlayn kurslar odamlarga uyda turib o'qish imkonini beradi."
+      }
+    },
+    {
+      "word": "ensure",
+      "part_of_speech": "verb",
+      "translation": "обеспечивать, гарантировать",
+      "translations": {
+        "ru": "обеспечивать, гарантировать",
+        "uz": "ta'minlamoq, kafolatlamoq"
+      },
+      "example": "Regular checks ensure the safety of the passengers.",
+      "example_translations": {
+        "ru": "Регулярные проверки обеспечивают безопасность пассажиров.",
+        "uz": "Muntazam tekshiruvlar yo'lovchilar xavfsizligini ta'minlaydi."
+      }
+    },
+    {
+      "word": "generate",
+      "part_of_speech": "verb",
+      "translation": "вырабатывать, производить",
+      "translations": {
+        "ru": "вырабатывать, производить",
+        "uz": "ishlab chiqarmoq, hosil qilmoq"
+      },
+      "example": "Wind turbines generate electricity for the whole village.",
+      "example_translations": {
+        "ru": "Ветряные турбины вырабатывают электричество для всей деревни.",
+        "uz": "Shamol turbinalari butun qishloq uchun elektr energiyasi ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "incorporate",
+      "part_of_speech": "verb",
+      "translation": "включать, вносить",
+      "translations": {
+        "ru": "включать, вносить",
+        "uz": "kiritmoq, qo'shmoq"
+      },
+      "example": "We incorporated your suggestions into the final plan.",
+      "example_translations": {
+        "ru": "Мы включили ваши предложения в окончательный план.",
+        "uz": "Biz takliflaringizni yakuniy rejaga kiritdik."
+      }
+    },
+    {
+      "word": "eliminate",
+      "part_of_speech": "verb",
+      "translation": "устранять, ликвидировать",
+      "translations": {
+        "ru": "устранять, ликвидировать",
+        "uz": "bartaraf etmoq, yo'q qilmoq"
+      },
+      "example": "The new system eliminates the need for paper forms.",
+      "example_translations": {
+        "ru": "Новая система устраняет необходимость в бумажных бланках.",
+        "uz": "Yangi tizim qog'oz blankalarga bo'lgan ehtiyojni bartaraf etadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 15,
+    "title": "Общество и закон",
+    "title_uz": "Jamiyat va qonun"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Преступления и безопасность",
+    "title_uz": "Jinoyat va xavfsizlik"
+  },
+  "words": [
+    {
+      "word": "thief",
+      "part_of_speech": "noun",
+      "translation": "вор",
+      "translations": {
+        "ru": "вор",
+        "uz": "o'g'ri"
+      },
+      "example": "A thief took my bag on the bus.",
+      "example_translations": {
+        "ru": "В автобусе вор украл мою сумку.",
+        "uz": "Avtobusda o'g'ri sumkamni o'g'irlab ketdi."
+      }
+    },
+    {
+      "word": "rob",
+      "part_of_speech": "verb",
+      "translation": "грабить",
+      "translations": {
+        "ru": "грабить",
+        "uz": "talamoq"
+      },
+      "example": "Two men tried to rob a bank yesterday.",
+      "example_translations": {
+        "ru": "Вчера двое мужчин пытались ограбить банк.",
+        "uz": "Kecha ikki kishi bankni talamoqchi bo'ldi."
+      }
+    },
+    {
+      "word": "burglar",
+      "part_of_speech": "noun",
+      "translation": "вор-взломщик",
+      "translations": {
+        "ru": "вор-взломщик",
+        "uz": "uy o'g'risi"
+      },
+      "example": "A burglar got into the house through a window.",
+      "example_translations": {
+        "ru": "Вор-взломщик проник в дом через окно.",
+        "uz": "Uy o'g'risi xonadonga deraza orqali kirdi."
+      }
+    },
+    {
+      "word": "arrest",
+      "part_of_speech": "verb",
+      "translation": "арестовывать",
+      "translations": {
+        "ru": "арестовывать",
+        "uz": "hibsga olmoq"
+      },
+      "example": "The police arrested the thief near the station.",
+      "example_translations": {
+        "ru": "Полиция арестовала вора возле вокзала.",
+        "uz": "Politsiya o'g'rini vokzal yonida hibsga oldi."
+      }
+    },
+    {
+      "word": "suspect",
+      "part_of_speech": "noun",
+      "translation": "подозреваемый",
+      "translations": {
+        "ru": "подозреваемый",
+        "uz": "gumonlanuvchi"
+      },
+      "example": "The suspect said he was at home all evening.",
+      "example_translations": {
+        "ru": "Подозреваемый сказал, что весь вечер был дома.",
+        "uz": "Gumonlanuvchi butun oqshom uyda bo'lganini aytdi."
+      }
+    },
+    {
+      "word": "victim",
+      "part_of_speech": "noun",
+      "translation": "пострадавший, жертва",
+      "translations": {
+        "ru": "пострадавший, жертва",
+        "uz": "jabrlanuvchi, qurbon"
+      },
+      "example": "Doctors helped every victim of the accident.",
+      "example_translations": {
+        "ru": "Врачи помогли каждому пострадавшему в аварии.",
+        "uz": "Shifokorlar avariyadagi har bir jabrlanuvchiga yordam berishdi."
+      }
+    },
+    {
+      "word": "investigate",
+      "part_of_speech": "verb",
+      "translation": "расследовать",
+      "translations": {
+        "ru": "расследовать",
+        "uz": "tergov qilmoq"
+      },
+      "example": "Is anyone investigating the fire at the factory?",
+      "example_translations": {
+        "ru": "Кто-нибудь расследует пожар на фабрике?",
+        "uz": "Fabrikadagi yong'inni kimdir tergov qilyaptimi?"
+      }
+    },
+    {
+      "word": "detective",
+      "part_of_speech": "noun",
+      "translation": "детектив, сыщик",
+      "translations": {
+        "ru": "детектив, сыщик",
+        "uz": "izquvar, detektiv"
+      },
+      "example": "A detective asked the neighbors what they saw.",
+      "example_translations": {
+        "ru": "Детектив спросил соседей, что они видели.",
+        "uz": "Izquvar qo'shnilardan nima ko'rganlarini so'radi."
+      }
+    },
+    {
+      "word": "alarm",
+      "part_of_speech": "noun",
+      "translation": "сигнализация",
+      "translations": {
+        "ru": "сигнализация",
+        "uz": "signalizatsiya"
+      },
+      "example": "The alarm rang when someone opened the door.",
+      "example_translations": {
+        "ru": "Сигнализация сработала, когда кто-то открыл дверь.",
+        "uz": "Kimdir eshikni ochganida signalizatsiya ishga tushdi."
+      }
+    },
+    {
+      "word": "safety",
+      "part_of_speech": "noun",
+      "translation": "безопасность",
+      "translations": {
+        "ru": "безопасность",
+        "uz": "xavfsizlik"
+      },
+      "example": "Parents always think about their children's safety.",
+      "example_translations": {
+        "ru": "Родители всегда думают о безопасности своих детей.",
+        "uz": "Ota-onalar doim farzandlarining xavfsizligi haqida o'ylaydi."
+      }
+    }
+  ]
+}

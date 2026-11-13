@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 9,
+    "title": "Учёба и знания",
+    "title_uz": "O'qish va bilim"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Занятия",
+    "title_uz": "Dars mashg'ulotlari"
+  },
+  "words": [
+    {
+      "word": "topic",
+      "part_of_speech": "noun",
+      "translation": "тема",
+      "translations": {
+        "ru": "тема",
+        "uz": "mavzu"
+      },
+      "example": "What is the topic of today's lesson?",
+      "example_translations": {
+        "ru": "Какая тема сегодняшнего урока?",
+        "uz": "Bugungi darsning mavzusi nima?"
+      }
+    },
+    {
+      "word": "semester",
+      "part_of_speech": "noun",
+      "translation": "семестр",
+      "translations": {
+        "ru": "семестр",
+        "uz": "semestr"
+      },
+      "example": "We have five exams this semester.",
+      "example_translations": {
+        "ru": "В этом семестре у нас пять экзаменов.",
+        "uz": "Bu semestrda bizda beshta imtihon bor."
+      }
+    },
+    {
+      "word": "seminar",
+      "part_of_speech": "noun",
+      "translation": "семинар",
+      "translations": {
+        "ru": "семинар",
+        "uz": "seminar"
+      },
+      "example": "Every student gave a short talk at the seminar.",
+      "example_translations": {
+        "ru": "На семинаре каждый студент выступил с коротким докладом.",
+        "uz": "Seminarda har bir talaba qisqa ma'ruza qildi."
+      }
+    },
+    {
+      "word": "tutor",
+      "part_of_speech": "noun",
+      "translation": "репетитор",
+      "translations": {
+        "ru": "репетитор",
+        "uz": "repetitor"
+      },
+      "example": "I study math with a private tutor after school.",
+      "example_translations": {
+        "ru": "После школы я занимаюсь математикой с частным репетитором.",
+        "uz": "Maktabdan keyin xususiy repetitor bilan matematikani o'rganaman."
+      }
+    },
+    {
+      "word": "enroll",
+      "part_of_speech": "verb",
+      "translation": "записываться на курс",
+      "translations": {
+        "ru": "записываться на курс",
+        "uz": "kursga yozilmoq"
+      },
+      "example": "Aziz wants to enroll in a programming course.",
+      "example_translations": {
+        "ru": "Азиз хочет записаться на курс программирования.",
+        "uz": "Aziz dasturlash kursiga yozilmoqchi."
+      }
+    },
+    {
+      "word": "timetable",
+      "part_of_speech": "noun",
+      "translation": "расписание занятий",
+      "translations": {
+        "ru": "расписание занятий",
+        "uz": "dars jadvali"
+      },
+      "example": "Our new timetable has two English lessons on Monday.",
+      "example_translations": {
+        "ru": "В нашем новом расписании занятий в понедельник два урока английского.",
+        "uz": "Yangi dars jadvalimizda dushanba kuni ikkita ingliz tili darsi bor."
+      }
+    },
+    {
+      "word": "workshop",
+      "part_of_speech": "noun",
+      "translation": "мастер-класс",
+      "translations": {
+        "ru": "мастер-класс",
+        "uz": "mahorat darsi"
+      },
+      "example": "We learned to make short videos at the workshop.",
+      "example_translations": {
+        "ru": "На мастер-классе мы научились делать короткие видео.",
+        "uz": "Mahorat darsida biz qisqa videolar tayyorlashni o'rgandik."
+      }
+    },
+    {
+      "word": "absent",
+      "part_of_speech": "adjective",
+      "translation": "отсутствующий",
+      "translations": {
+        "ru": "отсутствующий",
+        "uz": "kelmagan, yo'q"
+      },
+      "example": "Two students are absent today because of illness.",
+      "example_translations": {
+        "ru": "Двое учеников сегодня отсутствуют из-за болезни.",
+        "uz": "Bugun ikki o'quvchi kasallik tufayli kelmagan."
+      }
+    },
+    {
+      "word": "chapter",
+      "part_of_speech": "noun",
+      "translation": "глава",
+      "translations": {
+        "ru": "глава",
+        "uz": "bob"
+      },
+      "example": "Please read the first chapter before Friday.",
+      "example_translations": {
+        "ru": "Пожалуйста, прочитайте первую главу до пятницы.",
+        "uz": "Iltimos, juma kunigacha birinchi bobni o'qib chiqing."
+      }
+    },
+    {
+      "word": "paragraph",
+      "part_of_speech": "noun",
+      "translation": "абзац",
+      "translations": {
+        "ru": "абзац",
+        "uz": "xatboshi"
+      },
+      "example": "Write one paragraph about your favorite teacher.",
+      "example_translations": {
+        "ru": "Напишите один абзац о своём любимом учителе.",
+        "uz": "Sevimli o'qituvchingiz haqida bitta xatboshi yozing."
+      }
+    }
+  ]
+}
