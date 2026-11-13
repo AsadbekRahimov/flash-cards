@@ -160,7 +160,9 @@ final class TrainingSessionService
                 if ($existing !== null) {
                     if ($existing->expires_at === null || $existing->expires_at->isAfter($now)) {
                         if ($mode === TrainingSession::MODE_DAILY_REVIEW) {
-                            $courseId = $this->dailyCourseId($learner);
+                            // The course read for $attributes a moment ago: nothing here locks `courses`, so asking again
+                            // inside the transaction would be the same statement twice, not a fresher answer.
+                            $courseId = $attributes['course_id'];
                             if ($existing->course_id !== $courseId) {
                                 $existing->update(['course_id' => $courseId]);
                             }

@@ -36,6 +36,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -143,6 +144,20 @@ it('opens ONE daily review per learner, snapshotting and refreshing the active c
     // No active course: a daily review still opens (due cards only).
     $noCourse = Learner::factory()->create(['active_course_id' => null]);
     expect($service->openPersonal($noCourse, 'daily_review')->course_id)->toBeNull();
+});
+
+it('asks whether the active course is available once per open of a daily review, also when the session is already there', function (): void {
+    $course = publishedCourse(1);
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    $service = app(TrainingSessionService::class);
+
+    $availability = '/from ["`]courses["`] where .*["`]status["`] = \?/';
+
+    $first = QueryLog::matching(QueryLog::during(fn () => $service->openPersonal($learner, 'daily_review')), $availability);
+    $again = QueryLog::matching(QueryLog::during(fn () => $service->openPersonal($learner, 'daily_review')), $availability);
+
+    expect($first)->toHaveCount(1)
+        ->and($again)->toHaveCount(1);
 });
 
 it('validates the personal mode, the lesson argument and the course status', function (): void {
