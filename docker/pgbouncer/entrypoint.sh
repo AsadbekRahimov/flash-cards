@@ -91,7 +91,9 @@ max_db_connections = ${MAX_DB_CONNECTIONS}
 query_wait_timeout = ${QUERY_WAIT_TIMEOUT}
 
 ; Protocol-level named prepared statements (pgbouncer >= 1.21): the application sends none by default
-; (DB_DISABLE_PREPARES=true, unnamed statements), the setting keeps DB_DISABLE_PREPARES=false workable.
+; (DB_DISABLE_PREPARES=true, unnamed statements), the setting keeps DB_DISABLE_PREPARES=false workable. Workable is not
+; advisable (measured 13.11.2026, docs/DEVOPS_GUIDE.md section 0): no CPU is saved, and after a migration that changes the
+; columns of a table the statements kept on the server connections fail until RECONNECT is run on this console.
 max_prepared_statements = 200
 
 ; Startup parameters pgbouncer must not reject ("options" is sent by some clients and is not used here). "search_path"
