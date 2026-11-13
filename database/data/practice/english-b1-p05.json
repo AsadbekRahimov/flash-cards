@@ -1,0 +1,2780 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m09-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "education"
+      ],
+      "text": "Every child has the right to ___ a good education.",
+      "options": [
+        "get",
+        "learn",
+        "study"
+      ],
+      "correct": [
+        "get"
+      ],
+      "translation": {
+        "ru": "Каждый ребёнок имеет право получить хорошее образование.",
+        "uz": "Har bir bola yaxshi ta'lim olish huquqiga ega."
+      },
+      "explanation": {
+        "ru": "get an education — получить образование (более официально — receive an education). Learn и study значат «учить, изучать» что-то: learn English, study history; «получить образование» ими не передают.",
+        "uz": "get an education — ta'lim olmoq (rasmiyroq — receive an education). Learn va study biror narsani «o'rganmoq, o'qimoq» degani: learn English, study history; «ta'lim olmoq» ma'nosida ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m09-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "tuition"
+      ],
+      "text": "He works in the evenings to ___ his tuition.",
+      "options": [
+        "pay",
+        "buy",
+        "spend"
+      ],
+      "correct": [
+        "pay"
+      ],
+      "translation": {
+        "ru": "Он работает по вечерам, чтобы платить за обучение.",
+        "uz": "U o'qish to'lovini to'lash uchun kechqurunlari ishlaydi."
+      },
+      "explanation": {
+        "ru": "pay tuition — платить за обучение. Tuition — это сама плата за учёбу, поэтому её pay (платят). Buy — покупать вещь, spend — тратить деньги или время: spend money on tuition.",
+        "uz": "pay tuition — o'qish to'lovini to'lamoq. Tuition — o'qish uchun to'lanadigan pul, shuning uchun u bilan pay ishlatiladi. Buy — narsa sotib olmoq, spend — pul yoki vaqt sarflamoq: spend money on tuition."
+      }
+    },
+    {
+      "key": "b1-m09-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "compulsory"
+      ],
+      "text": "Math is a compulsory ___ in all our schools.",
+      "options": [
+        "subject",
+        "object",
+        "article"
+      ],
+      "correct": [
+        "subject"
+      ],
+      "translation": {
+        "ru": "Математика — обязательный предмет во всех наших школах.",
+        "uz": "Matematika barcha maktablarimizda majburiy fan hisoblanadi."
+      },
+      "explanation": {
+        "ru": "compulsory subject — обязательный предмет. Школьный предмет по-английски — subject. Object — это предмет как вещь, а article — статья или отдельный предмет из набора (an article of clothing).",
+        "uz": "compulsory subject — majburiy fan. Maktab fani inglizcha subject deyiladi. Object — buyum, narsa, article esa — maqola yoki alohida buyum (an article of clothing)."
+      }
+    },
+    {
+      "key": "b1-m09-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "optional"
+      ],
+      "prompt": {
+        "ru": "Никто не сказал нам, что этот экзамен необязательный.",
+        "uz": "Hech kim bizga bu imtihon ixtiyoriy ekanini aytmadi."
+      },
+      "fragments": [
+        "nobody",
+        "told",
+        "us",
+        "this",
+        "exam",
+        "was",
+        "optional"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "told",
+          "us",
+          "this",
+          "exam",
+          "was",
+          "optional"
+        ]
+      ],
+      "display": "Nobody told us this exam was optional.",
+      "explanation": {
+        "ru": "optional — необязательный, по желанию. После прошедшего told в придаточном тоже прошедшее время: this exam was optional, хотя по-русски здесь настоящее.",
+        "uz": "optional — ixtiyoriy. O'tgan zamondagi told fe'lidan keyin ergash gapda ham o'tgan zamon keladi: this exam was optional."
+      }
+    },
+    {
+      "key": "b1-m09-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "private"
+      ],
+      "prompt": {
+        "ru": "Дорого ли учиться в частной школе?",
+        "uz": "Xususiy maktabda o'qish qimmatmi?"
+      },
+      "fragments": [
+        "is",
+        "it",
+        "expensive",
+        "to",
+        "study",
+        "at",
+        "a private school"
+      ],
+      "accepted": [
+        [
+          "is",
+          "it",
+          "expensive",
+          "to",
+          "study",
+          "at",
+          "a private school"
+        ]
+      ],
+      "display": "Is it expensive to study at a private school?",
+      "explanation": {
+        "ru": "It is + прилагательное + to + глагол: It is expensive to study… В вопросе is стоит первым: Is it expensive to …? Private school — частная школа.",
+        "uz": "It is + sifat + to + fe'l: It is expensive to study… Savolda is birinchi o'ringa chiqadi: Is it expensive to …? Private school — xususiy maktab."
+      }
+    },
+    {
+      "key": "b1-m09-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "primary"
+      ],
+      "prompt": {
+        "ru": "Их дочь только что начала учиться в начальной школе.",
+        "uz": "Ularning qizi endigina boshlang'ich maktabda o'qishni boshladi."
+      },
+      "fragments": [
+        "their",
+        "daughter",
+        "has",
+        "just",
+        "started",
+        "primary",
+        "school"
+      ],
+      "accepted": [
+        [
+          "their",
+          "daughter",
+          "has",
+          "just",
+          "started",
+          "primary",
+          "school"
+        ]
+      ],
+      "display": "Their daughter has just started primary school.",
+      "explanation": {
+        "ru": "start primary school — пойти в начальную школу, начать в ней учиться (без артикля). Just в Present Perfect стоит между has и глаголом: has just started.",
+        "uz": "start primary school — boshlang'ich maktabda o'qishni boshlamoq (artiklsiz). Present Perfect zamonida just has va fe'l orasida keladi: has just started."
+      }
+    },
+    {
+      "key": "b1-m09-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "certificate"
+      ],
+      "text": "Did you get your certificate?",
+      "accepted": [
+        "Did you get your certificate?"
+      ],
+      "translation": {
+        "ru": "Вы получили свой сертификат?",
+        "uz": "Sertifikatingizni oldingizmi?"
+      },
+      "explanation": {
+        "ru": "certificate: первая c читается как «с», вторая — как «к»; на конце пишется -ate, хотя гласный звучит неясно (c-e-r-t-i-f-i-c-a-t-e).",
+        "uz": "certificate: birinchi c «s» deb, ikkinchisi «k» deb o'qiladi; oxiri -ate deb yoziladi, garchi unli noaniq eshitilsa ham (c-e-r-t-i-f-i-c-a-t-e)."
+      }
+    },
+    {
+      "key": "b1-m09-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "academic"
+      ],
+      "text": "The academic year ends in summer",
+      "accepted": [
+        "The academic year ends in summer"
+      ],
+      "translation": {
+        "ru": "Учебный год заканчивается летом",
+        "uz": "O'quv yili yozda tugaydi"
+      }
+    },
+    {
+      "key": "b1-m09-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "elementary",
+        "secondary"
+      ],
+      "text": "She finished elementary and secondary school here",
+      "accepted": [
+        "She finished elementary and secondary school here"
+      ],
+      "translation": {
+        "ru": "Она окончила здесь начальную и среднюю школу",
+        "uz": "U boshlang'ich va o'rta maktabni shu yerda tugatgan"
+      },
+      "explanation": {
+        "ru": "elementary и secondary оканчиваются на -ary: element + ary, second + ary.",
+        "uz": "elementary va secondary so'zlari -ary bilan tugaydi: element + ary, second + ary."
+      }
+    },
+    {
+      "key": "b1-m09-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "enroll"
+      ],
+      "text": "We would like to enroll ___ your evening course.",
+      "options": [
+        "in",
+        "to",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мы хотели бы записаться на ваш вечерний курс.",
+        "uz": "Biz sizning kechki kursingizga yozilmoqchi edik."
+      },
+      "explanation": {
+        "ru": "enroll in a course — записаться на курс. После enroll нужен предлог in (в британском английском также on), но не to и не by.",
+        "uz": "enroll in a course — kursga yozilmoq. enroll fe'lidan keyin in predlogi keladi (Britaniya ingliz tilida on ham uchraydi), to yoki by emas."
+      }
+    },
+    {
+      "key": "b1-m09-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "absent"
+      ],
+      "text": "He was absent ___ school for a whole week.",
+      "options": [
+        "from",
+        "of",
+        "on"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Он целую неделю отсутствовал в школе.",
+        "uz": "U butun bir hafta maktabga kelmadi."
+      },
+      "explanation": {
+        "ru": "absent from school — отсутствовать в школе. После absent нужен предлог from: absent from work, absent from class.",
+        "uz": "absent from school — maktabga kelmaslik. absent so'zidan keyin from predlogi keladi: absent from work, absent from class."
+      }
+    },
+    {
+      "key": "b1-m09-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "chapter"
+      ],
+      "text": "You will find this rule ___ chapter three.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Вы найдёте это правило в третьей главе.",
+        "uz": "Bu qoidani uchinchi bobdan topasiz."
+      },
+      "explanation": {
+        "ru": "in chapter three — в третьей главе. О главе, абзаце и книге говорят in, а о странице — on: in chapter three, но on page ten.",
+        "uz": "in chapter three — uchinchi bobda. Bob, xatboshi va kitob haqida in, sahifa haqida esa on ishlatiladi: in chapter three, lekin on page ten."
+      }
+    },
+    {
+      "key": "b1-m09-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "topic",
+        "seminar"
+      ],
+      "prompt": {
+        "ru": "Какой была тема вашего семинара?",
+        "uz": "Seminaringizning mavzusi nima edi?"
+      },
+      "fragments": [
+        "what",
+        "was",
+        "the topic",
+        "of",
+        "your",
+        "seminar"
+      ],
+      "accepted": [
+        [
+          "what",
+          "was",
+          "the topic",
+          "of",
+          "your",
+          "seminar"
+        ]
+      ],
+      "display": "What was the topic of your seminar?",
+      "explanation": {
+        "ru": "the topic of + существительное — тема чего-то. В вопросе с глаголом be вспомогательный did не нужен: What was …?",
+        "uz": "the topic of + ot — biror narsaning mavzusi. be fe'li bilan tuzilgan savolda did yordamchi fe'li kerak emas: What was …?"
+      }
+    },
+    {
+      "key": "b1-m09-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "tutor"
+      ],
+      "prompt": {
+        "ru": "Мы ищем репетитора по математике.",
+        "uz": "Biz matematikadan repetitor qidiryapmiz."
+      },
+      "fragments": [
+        "we",
+        "are",
+        "looking",
+        "for",
+        "a",
+        "math",
+        "tutor"
+      ],
+      "accepted": [
+        [
+          "we",
+          "are",
+          "looking",
+          "for",
+          "a",
+          "math",
+          "tutor"
+        ]
+      ],
+      "display": "We are looking for a math tutor.",
+      "explanation": {
+        "ru": "look for — искать. A math tutor — репетитор по математике: название предмета стоит перед tutor без предлога.",
+        "uz": "look for — qidirmoq. A math tutor — matematika repetitori: fan nomi tutor so'zidan oldin predlogsiz keladi."
+      }
+    },
+    {
+      "key": "b1-m09-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "timetable"
+      ],
+      "prompt": {
+        "ru": "Вы видели наше новое расписание занятий?",
+        "uz": "Yangi dars jadvalimizni ko'rdingizmi?"
+      },
+      "fragments": [
+        "have",
+        "you",
+        "seen",
+        "our",
+        "new",
+        "timetable"
+      ],
+      "accepted": [
+        [
+          "have",
+          "you",
+          "seen",
+          "our",
+          "new",
+          "timetable"
+        ]
+      ],
+      "display": "Have you seen our new timetable?",
+      "explanation": {
+        "ru": "Present Perfect в вопросе: Have + подлежащее + третья форма глагола (see — saw — seen). Timetable пишется слитно.",
+        "uz": "Present Perfect zamonidagi savol: Have + ega + fe'lning uchinchi shakli (see — saw — seen). Timetable qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "b1-m09-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "semester"
+      ],
+      "text": "This semester was really hard",
+      "accepted": [
+        "This semester was really hard"
+      ],
+      "translation": {
+        "ru": "Этот семестр был действительно трудным",
+        "uz": "Bu semestr chindan ham qiyin bo'ldi"
+      }
+    },
+    {
+      "key": "b1-m09-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "workshop"
+      ],
+      "text": "The workshop starts after lunch",
+      "accepted": [
+        "The workshop starts after lunch"
+      ],
+      "translation": {
+        "ru": "Мастер-класс начинается после обеда",
+        "uz": "Mahorat darsi tushlikdan keyin boshlanadi"
+      },
+      "explanation": {
+        "ru": "workshop пишется слитно: work + shop.",
+        "uz": "workshop qo'shib yoziladi: work + shop."
+      }
+    },
+    {
+      "key": "b1-m09-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "paragraph"
+      ],
+      "text": "Read the last paragraph again",
+      "accepted": [
+        "Read the last paragraph again"
+      ],
+      "translation": {
+        "ru": "Прочитайте последний абзац ещё раз",
+        "uz": "Oxirgi xatboshini yana bir marta o'qing"
+      },
+      "explanation": {
+        "ru": "paragraph: звук «ф» на конце пишется ph, как в photo и graph (para + graph).",
+        "uz": "paragraph: oxiridagi «f» tovushi ph bilan yoziladi (photo va graph so'zlaridagi kabi): para + graph."
+      }
+    },
+    {
+      "key": "b1-m09-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "progress"
+      ],
+      "text": "You will ___ progress if you practice every day.",
+      "options": [
+        "make",
+        "do",
+        "take"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Вы добьётесь успехов, если будете заниматься каждый день.",
+        "uz": "Har kuni mashq qilsangiz, yutuqlarga erishasiz."
+      },
+      "explanation": {
+        "ru": "make progress — делать успехи, продвигаться вперёд. С progress говорят make, а не do или take. Progress — неисчисляемое: артикль a перед ним не ставят.",
+        "uz": "make progress — olg'a siljimoq, yutuqqa erishmoq. progress so'zi bilan make ishlatiladi, do yoki take emas. Progress sanalmaydigan ot: undan oldin a artikli qo'yilmaydi."
+      }
+    },
+    {
+      "key": "b1-m09-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "strict"
+      ],
+      "text": "Our new teacher is very strict ___ her students.",
+      "options": [
+        "with",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Наша новая учительница очень строга со своими учениками.",
+        "uz": "Yangi o'qituvchimiz o'quvchilariga nisbatan juda qattiqqo'l."
+      },
+      "explanation": {
+        "ru": "strict with somebody — строгий с кем-то. О людях после strict говорят with: strict with children. По-русски бывает «строг к», но to здесь не употребляют.",
+        "uz": "strict with somebody — kimgadir nisbatan qattiqqo'l. Odamlar haqida strict so'zidan keyin with keladi: strict with children. O'zbekchada «-ga qattiqqo'l» deyilsa ham, to ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m09-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "preparation"
+      ],
+      "text": "Preparation ___ the exam took her three months.",
+      "options": [
+        "for",
+        "to",
+        "on"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Подготовка к экзамену заняла у неё три месяца.",
+        "uz": "Imtihonga tayyorgarlik ko'rishga uning uch oyi ketdi."
+      },
+      "explanation": {
+        "ru": "preparation for — подготовка к чему-то. По-русски «подготовка к», но по-английски нужен for, а не to: preparation for the exam, prepare for the test.",
+        "uz": "preparation for — biror narsaga tayyorgarlik. O'zbekchada «-ga tayyorgarlik» deyiladi, lekin inglizchada to emas, for kerak: preparation for the exam, prepare for the test."
+      }
+    },
+    {
+      "key": "b1-m09-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "attempt"
+      ],
+      "prompt": {
+        "ru": "Её первая попытка не была успешной.",
+        "uz": "Uning birinchi urinishi muvaffaqiyatli bo'lmadi."
+      },
+      "fragments": [
+        "her",
+        "first",
+        "attempt",
+        "was",
+        "not",
+        "successful"
+      ],
+      "accepted": [
+        [
+          "her",
+          "first",
+          "attempt",
+          "was",
+          "not",
+          "successful"
+        ]
+      ],
+      "display": "Her first attempt was not successful.",
+      "explanation": {
+        "ru": "attempt — попытка: first attempt, second attempt. Отрицание not ставится после was: was not successful.",
+        "uz": "attempt — urinish: first attempt, second attempt. Inkor yuklamasi not was dan keyin keladi: was not successful."
+      }
+    },
+    {
+      "key": "b1-m09-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "cheat"
+      ],
+      "prompt": {
+        "ru": "Честные ученики никогда не списывают на экзаменах.",
+        "uz": "Halol o'quvchilar hech qachon imtihonlarda ko'chirmaydi."
+      },
+      "fragments": [
+        "honest",
+        "students",
+        "never",
+        "cheat",
+        "on",
+        "exams"
+      ],
+      "accepted": [
+        [
+          "honest",
+          "students",
+          "never",
+          "cheat",
+          "on",
+          "exams"
+        ]
+      ],
+      "display": "Honest students never cheat on exams.",
+      "explanation": {
+        "ru": "cheat on an exam — списывать на экзамене (в британском английском также cheat in an exam). Never стоит перед глаголом, и второе отрицание не нужно: never cheat.",
+        "uz": "cheat on an exam — imtihonda ko'chirmoq (Britaniya ingliz tilida cheat in an exam ham deyiladi). Never fe'ldan oldin keladi va ikkinchi inkor kerak emas: never cheat."
+      }
+    },
+    {
+      "key": "b1-m09-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "oral"
+      ],
+      "prompt": {
+        "ru": "Я боюсь устного экзамена.",
+        "uz": "Men og'zaki imtihondan qo'rqaman."
+      },
+      "fragments": [
+        "I",
+        "am",
+        "afraid",
+        "of",
+        "the",
+        "oral",
+        "exam"
+      ],
+      "accepted": [
+        [
+          "I",
+          "am",
+          "afraid",
+          "of",
+          "the",
+          "oral",
+          "exam"
+        ]
+      ],
+      "display": "I am afraid of the oral exam.",
+      "explanation": {
+        "ru": "be afraid of + существительное — бояться чего-то: после afraid нужен предлог of. Oral exam — устный экзамен.",
+        "uz": "be afraid of + ot — biror narsadan qo'rqmoq: afraid so'zidan keyin of predlogi keladi. Oral exam — og'zaki imtihon."
+      }
+    },
+    {
+      "key": "b1-m09-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "accurate"
+      ],
+      "text": "Is this information accurate?",
+      "accepted": [
+        "Is this information accurate?"
+      ],
+      "translation": {
+        "ru": "Эта информация точная?",
+        "uz": "Bu ma'lumot aniqmi?"
+      },
+      "explanation": {
+        "ru": "accurate: две c (a-c-c-u-r-a-t-e) и на конце -ate, хотя гласный звучит неясно.",
+        "uz": "accurate: ikkita c bilan yoziladi (a-c-c-u-r-a-t-e), oxiri -ate, garchi unli noaniq eshitilsa ham."
+      }
+    },
+    {
+      "key": "b1-m09-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "quiz",
+        "error"
+      ],
+      "text": "The teacher found an error in the quiz",
+      "accepted": [
+        "The teacher found an error in the quiz"
+      ],
+      "translation": {
+        "ru": "Учитель нашёл ошибку в коротком тесте",
+        "uz": "O'qituvchi qisqa testda xato topdi"
+      },
+      "explanation": {
+        "ru": "error: две r и на конце -or (e-r-r-o-r). quiz пишется с одной z, но во множественном числе — quizzes.",
+        "uz": "error: ikkita r va oxirida -or (e-r-r-o-r). quiz bitta z bilan yoziladi, lekin ko'plikda — quizzes."
+      }
+    },
+    {
+      "key": "b1-m09-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "correction"
+      ],
+      "text": "We made a few corrections",
+      "accepted": [
+        "We made a few corrections"
+      ],
+      "translation": {
+        "ru": "Мы внесли несколько исправлений",
+        "uz": "Biz bir nechta tuzatish kiritdik"
+      },
+      "explanation": {
+        "ru": "correction: две r и на конце -tion (correct + ion).",
+        "uz": "correction: ikkita r va oxirida -tion (correct + ion)."
+      }
+    },
+    {
+      "key": "b1-m09-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "attention"
+      ],
+      "text": "You should pay more attention ___ your spelling.",
+      "options": [
+        "to",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Вам следует уделять больше внимания орфографии.",
+        "uz": "Imloga ko'proq e'tibor berishingiz kerak."
+      },
+      "explanation": {
+        "ru": "pay attention to — обращать внимание на что-то. По-русски «на», но по-английски после attention нужен to, а не on или at. Глагол в этом выражении — pay.",
+        "uz": "pay attention to — biror narsaga e'tibor bermoq. attention so'zidan keyin to predlogi keladi, on yoki at emas. Bu iboraning fe'li — pay."
+      }
+    },
+    {
+      "key": "b1-m09-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "concentrate"
+      ],
+      "text": "It is hard to concentrate ___ a book in a noisy room.",
+      "options": [
+        "on",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "В шумной комнате трудно сосредоточиться на книге.",
+        "uz": "Shovqinli xonada diqqatni kitobga jamlash qiyin."
+      },
+      "explanation": {
+        "ru": "concentrate on — сосредоточиться на чём-то. После concentrate нужен предлог on: concentrate on your work, concentrate on driving.",
+        "uz": "concentrate on — diqqatni biror narsaga jamlamoq. O'zbekchada «-ga» deyilsa ham, inglizchada to emas, on keladi: concentrate on your work, concentrate on driving."
+      }
+    },
+    {
+      "key": "b1-m09-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "solve"
+      ],
+      "text": "We need to solve this ___ before the meeting.",
+      "options": [
+        "problem",
+        "decision",
+        "choice"
+      ],
+      "correct": [
+        "problem"
+      ],
+      "translation": {
+        "ru": "Нам нужно решить эту проблему до собрания.",
+        "uz": "Bu muammoni yig'ilishgacha yechishimiz kerak."
+      },
+      "explanation": {
+        "ru": "solve a problem — решить проблему. Solve говорят о проблеме, задаче, загадке. А «принять решение» — make a decision, «сделать выбор» — make a choice: solve с ними не сочетается.",
+        "uz": "solve a problem — muammoni yechmoq. Solve muammo, masala, jumboq haqida aytiladi. «Qaror qabul qilmoq» — make a decision, «tanlov qilmoq» — make a choice: solve ular bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m09-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "recognize"
+      ],
+      "prompt": {
+        "ru": "Мы с трудом узнали свою старую школу.",
+        "uz": "Biz eski maktabimizni zo'rg'a tanidik."
+      },
+      "fragments": [
+        "we",
+        "hardly",
+        "recognized",
+        "our",
+        "old",
+        "school"
+      ],
+      "accepted": [
+        [
+          "we",
+          "hardly",
+          "recognized",
+          "our",
+          "old",
+          "school"
+        ]
+      ],
+      "display": "We hardly recognized our old school.",
+      "explanation": {
+        "ru": "hardly — «едва, с трудом» (а не «усердно»: это hard). Hardly стоит перед смысловым глаголом: hardly recognized.",
+        "uz": "hardly — «zo'rg'a, arang» («qattiq, astoydil» emas: u hard bo'ladi). Hardly asosiy fe'ldan oldin keladi: hardly recognized."
+      }
+    },
+    {
+      "key": "b1-m09-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "realize"
+      ],
+      "prompt": {
+        "ru": "Она не осознавала, насколько было поздно.",
+        "uz": "U qanchalik kech bo'lganini anglamadi."
+      },
+      "fragments": [
+        "she",
+        "did",
+        "not",
+        "realize",
+        "how",
+        "late",
+        "it",
+        "was"
+      ],
+      "accepted": [
+        [
+          "she",
+          "did",
+          "not",
+          "realize",
+          "how",
+          "late",
+          "it",
+          "was"
+        ]
+      ],
+      "display": "She did not realize how late it was.",
+      "explanation": {
+        "ru": "realize + how / that … — осознавать, понимать. После how в придаточном порядок слов прямой: how late it was (а не how late was it).",
+        "uz": "realize + how / that … — anglamoq, tushunib yetmoq. Ergash gapda how dan keyin so'z tartibi darak gapdagidek bo'ladi: how late it was (how late was it emas)."
+      }
+    },
+    {
+      "key": "b1-m09-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "intelligent"
+      ],
+      "prompt": {
+        "ru": "Некоторые животные умнее, чем мы думаем.",
+        "uz": "Ba'zi hayvonlar biz o'ylagandan ko'ra aqlliroq."
+      },
+      "fragments": [
+        "some",
+        "animals",
+        "are",
+        "more",
+        "intelligent",
+        "than",
+        "we",
+        "think"
+      ],
+      "accepted": [
+        [
+          "some",
+          "animals",
+          "are",
+          "more",
+          "intelligent",
+          "than",
+          "we",
+          "think"
+        ]
+      ],
+      "display": "Some animals are more intelligent than we think.",
+      "explanation": {
+        "ru": "Сравнительная степень длинных прилагательных: more + прилагательное + than. More intelligent than we think — умнее, чем мы думаем.",
+        "uz": "Uzun sifatlarning qiyosiy darajasi: more + sifat + than. More intelligent than we think — biz o'ylagandan ko'ra aqlliroq."
+      }
+    },
+    {
+      "key": "b1-m09-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "notice"
+      ],
+      "text": "Did you notice anything strange?",
+      "accepted": [
+        "Did you notice anything strange?"
+      ],
+      "translation": {
+        "ru": "Вы заметили что-нибудь странное?",
+        "uz": "Biror g'alati narsani payqadingizmi?"
+      },
+      "explanation": {
+        "ru": "notice: на конце -ice, буква c читается как «с» (n-o-t-i-c-e).",
+        "uz": "notice: oxirida -ice yoziladi, c harfi «s» deb o'qiladi (n-o-t-i-c-e)."
+      }
+    },
+    {
+      "key": "b1-m09-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "memory",
+        "logic"
+      ],
+      "text": "This game trains memory and logic",
+      "accepted": [
+        "This game trains memory and logic"
+      ],
+      "translation": {
+        "ru": "Эта игра тренирует память и логику",
+        "uz": "Bu o'yin xotira va mantiqni chiniqtiradi"
+      }
+    },
+    {
+      "key": "b1-m09-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "creative"
+      ],
+      "text": "It is a very creative idea",
+      "accepted": [
+        "It is a very creative idea",
+        "It's a very creative idea"
+      ],
+      "translation": {
+        "ru": "Это очень творческая идея",
+        "uz": "Bu juda ijodiy g'oya"
+      }
+    },
+    {
+      "key": "b1-m09-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "effort"
+      ],
+      "text": "You must ___ an effort to speak English in class.",
+      "options": [
+        "make",
+        "do",
+        "pay"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Вы должны приложить усилие, чтобы говорить на уроке по-английски.",
+        "uz": "Darsda inglizcha gapirish uchun sa'y-harakat qilishingiz kerak."
+      },
+      "explanation": {
+        "ru": "make an effort — приложить усилие, постараться. С effort говорят make, а не do или pay. Ещё пример: She made an effort to come on time.",
+        "uz": "make an effort — sa'y-harakat qilmoq, harakat qilmoq. effort so'zi bilan make ishlatiladi, do yoki pay emas. Yana misol: She made an effort to come on time."
+      }
+    },
+    {
+      "key": "b1-m09-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "define"
+      ],
+      "text": "We can define a habit ___ something you do every day.",
+      "options": [
+        "as",
+        "like",
+        "for"
+      ],
+      "correct": [
+        "as"
+      ],
+      "translation": {
+        "ru": "Привычку можно определить как то, что вы делаете каждый день.",
+        "uz": "Odatni har kuni qiladigan ishingiz deb ta'riflash mumkin."
+      },
+      "explanation": {
+        "ru": "define something as — определять что-то как. Русское «как» здесь — as, а не like: like значит «похожий на». Ещё пример: We define success as reaching your goal.",
+        "uz": "define something as — biror narsani … deb ta'riflamoq. Bu yerda as kerak, like emas: like «o'xshash» degan ma'noni bildiradi. Yana misol: We define success as reaching your goal."
+      }
+    },
+    {
+      "key": "b1-m09-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "motivation"
+      ],
+      "text": "Many students ___ motivation after the first few months.",
+      "options": [
+        "lose",
+        "miss",
+        "forget"
+      ],
+      "correct": [
+        "lose"
+      ],
+      "translation": {
+        "ru": "Многие учащиеся теряют мотивацию после первых нескольких месяцев.",
+        "uz": "Ko'p o'quvchilar dastlabki bir necha oydan keyin motivatsiyani yo'qotadi."
+      },
+      "explanation": {
+        "ru": "lose motivation — терять мотивацию. Miss — скучать по кому-то или пропускать (урок, автобус), forget — забывать: здесь они не подходят.",
+        "uz": "lose motivation — motivatsiyani yo'qotmoq. Miss — sog'inmoq yoki o'tkazib yubormoq (darsni, avtobusni), forget — unutmoq: bu yerda ular to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m09-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "expert"
+      ],
+      "prompt": {
+        "ru": "Мы попросили совета у эксперта.",
+        "uz": "Biz mutaxassisdan maslahat so'radik."
+      },
+      "fragments": [
+        "we",
+        "asked",
+        "an",
+        "expert",
+        "for",
+        "advice"
+      ],
+      "accepted": [
+        [
+          "we",
+          "asked",
+          "an",
+          "expert",
+          "for",
+          "advice"
+        ]
+      ],
+      "display": "We asked an expert for advice.",
+      "explanation": {
+        "ru": "ask somebody for something — просить что-то у кого-то: ask an expert for advice. Advice — неисчисляемое, поэтому без артикля a.",
+        "uz": "ask somebody for something — kimdandir biror narsa so'ramoq: ask an expert for advice. Advice sanalmaydigan ot, shuning uchun a artiklisiz keladi."
+      }
+    },
+    {
+      "key": "b1-m09-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "summary"
+      ],
+      "prompt": {
+        "ru": "Вы можете написать краткое изложение этой главы?",
+        "uz": "Bu bobning qisqacha mazmunini yoza olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "write",
+        "a",
+        "summary",
+        "of",
+        "this",
+        "chapter"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "write",
+          "a",
+          "summary",
+          "of",
+          "this",
+          "chapter"
+        ]
+      ],
+      "display": "Can you write a summary of this chapter?",
+      "explanation": {
+        "ru": "a summary of + существительное — краткое изложение чего-то. После can глагол стоит без to: Can you write …?",
+        "uz": "a summary of + ot — biror narsaning qisqacha mazmuni. can dan keyin fe'l to so'zisiz keladi: Can you write …?"
+      }
+    },
+    {
+      "key": "b1-m09-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "method"
+      ],
+      "prompt": {
+        "ru": "Этот метод помогает мне запоминать новые слова.",
+        "uz": "Bu usul menga yangi so'zlarni eslab qolishga yordam beradi."
+      },
+      "fragments": [
+        "this",
+        "method",
+        "helps",
+        "me",
+        "remember",
+        "new",
+        "words"
+      ],
+      "accepted": [
+        [
+          "this",
+          "method",
+          "helps",
+          "me",
+          "remember",
+          "new",
+          "words"
+        ]
+      ],
+      "display": "This method helps me remember new words.",
+      "explanation": {
+        "ru": "help somebody + глагол: helps me remember — помогает мне запоминать. После help глагол можно ставить без to.",
+        "uz": "help somebody + fe'l: helps me remember — menga eslab qolishga yordam beradi. help dan keyin fe'lni to so'zisiz ishlatish mumkin."
+      }
+    },
+    {
+      "key": "b1-m09-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "intermediate"
+      ],
+      "text": "This book is for intermediate students",
+      "accepted": [
+        "This book is for intermediate students"
+      ],
+      "translation": {
+        "ru": "Эта книга для учащихся среднего уровня",
+        "uz": "Bu kitob o'rta darajadagi o'quvchilar uchun"
+      },
+      "explanation": {
+        "ru": "intermediate: inter + mediate; на конце -ate, хотя гласный звучит неясно.",
+        "uz": "intermediate: inter + mediate; oxiri -ate deb yoziladi, garchi unli noaniq eshitilsa ham."
+      }
+    },
+    {
+      "key": "b1-m09-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "discipline",
+        "technique"
+      ],
+      "text": "Discipline and good technique are important",
+      "accepted": [
+        "Discipline and good technique are important"
+      ],
+      "translation": {
+        "ru": "Дисциплина и хорошая техника важны",
+        "uz": "Intizom va yaxshi texnika muhim"
+      },
+      "explanation": {
+        "ru": "discipline: после s пишется c, которая отдельно не слышна (d-i-s-c-i-p-l-i-n-e). technique: звук «к» в середине пишется ch, а на конце — que.",
+        "uz": "discipline: s dan keyin c yoziladi, u alohida eshitilmaydi (d-i-s-c-i-p-l-i-n-e). technique: o'rtadagi «k» tovushi ch bilan, oxiridagisi esa que bilan yoziladi."
+      }
+    },
+    {
+      "key": "b1-m09-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "resource"
+      ],
+      "text": "This dictionary is a useful resource",
+      "accepted": [
+        "This dictionary is a useful resource"
+      ],
+      "translation": {
+        "ru": "Этот словарь — полезный ресурс",
+        "uz": "Bu lug'at foydali manba"
+      },
+      "explanation": {
+        "ru": "resource: в середине ou, а звук «с» в конце пишется буквой c: r-e-s-o-u-r-c-e.",
+        "uz": "resource: o'rtada ou yoziladi, oxiridagi «s» tovushi esa c harfi bilan beriladi: r-e-s-o-u-r-c-e."
+      }
+    },
+    {
+      "key": "b1-m10-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "software"
+      ],
+      "text": "You need to ___ this software on your laptop first.",
+      "options": [
+        "install",
+        "establish",
+        "settle"
+      ],
+      "correct": [
+        "install"
+      ],
+      "translation": {
+        "ru": "Сначала вам нужно установить это программное обеспечение на ноутбук.",
+        "uz": "Avval bu dasturiy ta'minotni noutbukingizga o'rnatishingiz kerak."
+      },
+      "explanation": {
+        "ru": "install software — установить программу. Русское «установить» здесь — install. Establish — основать, установить (связь, правило), settle — поселиться, уладить.",
+        "uz": "install software — dasturiy ta'minotni o'rnatmoq. O'zbekcha «o'rnatmoq» bu yerda install bo'ladi. Establish — asos solmoq, yo'lga qo'ymoq, settle — joylashmoq, hal qilmoq."
+      }
+    },
+    {
+      "key": "b1-m10-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "equipment"
+      ],
+      "text": "A microscope is an expensive ___ of equipment.",
+      "options": [
+        "piece",
+        "thing",
+        "slice"
+      ],
+      "correct": [
+        "piece"
+      ],
+      "translation": {
+        "ru": "Микроскоп — дорогое оборудование.",
+        "uz": "Mikroskop — qimmat uskuna."
+      },
+      "explanation": {
+        "ru": "a piece of equipment — один предмет оборудования. Equipment — неисчисляемое: нельзя сказать an equipment, говорят a piece of equipment. Thing и slice (ломтик: a slice of bread) так не употребляются.",
+        "uz": "a piece of equipment — bitta uskuna (jihoz). Equipment sanalmaydigan ot: an equipment deyilmaydi, a piece of equipment deyiladi. Thing va slice (bo'lak: a slice of bread) bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "button"
+      ],
+      "text": "To take a photo, ___ this button once.",
+      "options": [
+        "press",
+        "print",
+        "step"
+      ],
+      "correct": [
+        "press"
+      ],
+      "translation": {
+        "ru": "Чтобы сделать фото, нажмите эту кнопку один раз.",
+        "uz": "Suratga olish uchun bu tugmani bir marta bosing."
+      },
+      "explanation": {
+        "ru": "press a button — нажать кнопку (говорят также push a button). Print — печатать, step — шагать, наступать: к кнопке они не подходят.",
+        "uz": "press a button — tugmani bosmoq (push a button ham deyiladi). O'zbekcha «bosmoq» so'zining boshqa ma'nolari uchun boshqa fe'llar bor: print — chop etmoq, step — qadam bosmoq."
+      }
+    },
+    {
+      "key": "b1-m10-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "microphone"
+      ],
+      "prompt": {
+        "ru": "Почему мой микрофон не работает?",
+        "uz": "Nega mikrofonim ishlamayapti?"
+      },
+      "fragments": [
+        "why",
+        "is",
+        "my",
+        "microphone",
+        "not",
+        "working"
+      ],
+      "accepted": [
+        [
+          "why",
+          "is",
+          "my",
+          "microphone",
+          "not",
+          "working"
+        ]
+      ],
+      "display": "Why is my microphone not working?",
+      "explanation": {
+        "ru": "В вопросе с полной формой not стоит после подлежащего: Why is my microphone not working? С сокращением: Why isn't my microphone working?",
+        "uz": "Savolda to'liq shakldagi not egadan keyin keladi: Why is my microphone not working? Qisqartma bilan: Why isn't my microphone working?"
+      }
+    },
+    {
+      "key": "b1-m10-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "portable"
+      ],
+      "prompt": {
+        "ru": "Сколько стоит эта портативная колонка?",
+        "uz": "Bu portativ kolonka qancha turadi?"
+      },
+      "fragments": [
+        "how",
+        "much",
+        "does",
+        "this",
+        "portable",
+        "speaker",
+        "cost"
+      ],
+      "accepted": [
+        [
+          "how",
+          "much",
+          "does",
+          "this",
+          "portable",
+          "speaker",
+          "cost"
+        ]
+      ],
+      "display": "How much does this portable speaker cost?",
+      "explanation": {
+        "ru": "How much does … cost? — вопрос о цене; после does глагол стоит без -s: cost. Portable — портативный, тот, что легко носить с собой.",
+        "uz": "How much does … cost? — narx haqidagi savol; does dan keyin fe'l -s qo'shimchasisiz keladi: cost. Portable — portativ, ko'chma: o'zi bilan olib yurish oson bo'lgan."
+      }
+    },
+    {
+      "key": "b1-m10-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wireless"
+      ],
+      "prompt": {
+        "ru": "В этом отеле есть беспроводной интернет?",
+        "uz": "Bu mehmonxonada simsiz internet bormi?"
+      },
+      "fragments": [
+        "does",
+        "this",
+        "hotel",
+        "have",
+        "wireless",
+        "internet"
+      ],
+      "accepted": [
+        [
+          "does",
+          "this",
+          "hotel",
+          "have",
+          "wireless",
+          "internet"
+        ]
+      ],
+      "display": "Does this hotel have wireless internet?",
+      "explanation": {
+        "ru": "wireless — беспроводной: wire (провод) + less (без). В вопросе: Does + подлежащее + have (без -s).",
+        "uz": "wireless — simsiz: wire (sim) + less (-siz). Savolda: Does + ega + have (-s qo'shimchasisiz)."
+      }
+    },
+    {
+      "key": "b1-m10-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "hardware"
+      ],
+      "text": "Computer hardware is getting cheaper",
+      "accepted": [
+        "Computer hardware is getting cheaper"
+      ],
+      "translation": {
+        "ru": "Аппаратное обеспечение компьютеров дешевеет",
+        "uz": "Kompyuterning apparat ta'minoti arzonlashmoqda"
+      },
+      "explanation": {
+        "ru": "hardware пишется слитно: hard + ware (на конце -ware, как в software, а не wear).",
+        "uz": "hardware qo'shib yoziladi: hard + ware (oxiri software so'zidagi kabi -ware, wear emas)."
+      }
+    },
+    {
+      "key": "b1-m10-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "projector",
+        "monitor"
+      ],
+      "text": "The projector and the monitor are new",
+      "accepted": [
+        "The projector and the monitor are new"
+      ],
+      "translation": {
+        "ru": "Проектор и монитор новые",
+        "uz": "Proyektor va monitor yangi"
+      },
+      "explanation": {
+        "ru": "projector и monitor оканчиваются на -or, а не на -er.",
+        "uz": "projector va monitor so'zlari -er bilan emas, -or bilan tugaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "gadget"
+      ],
+      "text": "This gadget is very useful",
+      "accepted": [
+        "This gadget is very useful"
+      ],
+      "translation": {
+        "ru": "Этот гаджет очень полезный",
+        "uz": "Bu gadjet juda foydali"
+      },
+      "explanation": {
+        "ru": "gadget: звук «дж» в середине пишется dg (g-a-d-g-e-t).",
+        "uz": "gadget: o'rtadagi «j» tovushi dg bilan yoziladi (g-a-d-g-e-t)."
+      }
+    },
+    {
+      "key": "b1-m10-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "attach"
+      ],
+      "text": "She attached two photos ___ her last email.",
+      "options": [
+        "to",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Она прикрепила две фотографии к своему последнему письму.",
+        "uz": "U oxirgi xatiga ikkita rasm biriktirdi."
+      },
+      "explanation": {
+        "ru": "attach something to — прикрепить что-то к чему-то. После attach нужен предлог to: attach a file to an email. At и by здесь невозможны.",
+        "uz": "attach something to — biror narsani biror narsaga biriktirmoq. attach fe'lidan keyin to predlogi keladi: attach a file to an email. At va by bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "scroll"
+      ],
+      "text": "Scroll ___ to the bottom of the page.",
+      "options": [
+        "down",
+        "under",
+        "low"
+      ],
+      "correct": [
+        "down"
+      ],
+      "translation": {
+        "ru": "Прокрутите вниз до конца страницы.",
+        "uz": "Sahifaning oxirigacha pastga varaqlang."
+      },
+      "explanation": {
+        "ru": "scroll down — прокрутить вниз, scroll up — вверх. Under — предлог «под» (under the table), low — «низкий, низко»; направление со scroll обозначают down и up.",
+        "uz": "scroll down — pastga varaqlamoq, scroll up — yuqoriga. Under — «tagida» degan predlog (under the table), low — «past, pastda»; scroll fe'li bilan yo'nalishni down va up bildiradi."
+      }
+    },
+    {
+      "key": "b1-m10-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "desktop"
+      ],
+      "text": "You can find the folder ___ your desktop.",
+      "options": [
+        "on",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Эту папку можно найти на рабочем столе.",
+        "uz": "Bu papkani ish stolingizdan topishingiz mumkin."
+      },
+      "explanation": {
+        "ru": "on your desktop — на рабочем столе (компьютера). Как и по-русски, здесь on — «на»: файлы и значки лежат on the desktop, а не in или at.",
+        "uz": "on your desktop — (kompyuterning) ish stolida. O'zbekchada «-da» deyiladi, inglizchada esa on kerak: fayllar va belgichalar on the desktop turadi, in yoki at emas."
+      }
+    },
+    {
+      "key": "b1-m10-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "upload"
+      ],
+      "prompt": {
+        "ru": "Почему я не могу загрузить этот файл?",
+        "uz": "Nega bu faylni yuklay olmayapman?"
+      },
+      "fragments": [
+        "why",
+        "can't",
+        "I",
+        "upload",
+        "this",
+        "file"
+      ],
+      "accepted": [
+        [
+          "why",
+          "can't",
+          "I",
+          "upload",
+          "this",
+          "file"
+        ]
+      ],
+      "display": "Why can't I upload this file?",
+      "explanation": {
+        "ru": "upload — загружать в сеть, на сайт (а download — скачивать оттуда). В вопросе can't стоит перед подлежащим: Why can't I …?",
+        "uz": "upload — tarmoqqa, saytga yuklamoq (download esa — u yerdan yuklab olmoq). Savolda can't egadan oldin keladi: Why can't I …?"
+      }
+    },
+    {
+      "key": "b1-m10-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "browser"
+      ],
+      "prompt": {
+        "ru": "Закройте браузер и откройте его снова.",
+        "uz": "Brauzerni yoping va uni qayta oching."
+      },
+      "fragments": [
+        "close",
+        "the",
+        "browser",
+        "and",
+        "open",
+        "it",
+        "again"
+      ],
+      "accepted": [
+        [
+          "close",
+          "the",
+          "browser",
+          "and",
+          "open",
+          "it",
+          "again"
+        ]
+      ],
+      "display": "Close the browser and open it again.",
+      "explanation": {
+        "ru": "Повелительное наклонение — глагол без to и без подлежащего: close, open. It заменяет the browser, чтобы не повторять слово.",
+        "uz": "Buyruq mayli — fe'l to so'zisiz va egasiz keladi: close, open. It so'zi the browser o'rnida keladi, so'z takrorlanmasligi uchun."
+      }
+    },
+    {
+      "key": "b1-m10-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "database"
+      ],
+      "prompt": {
+        "ru": "Ваше имя есть в базе данных?",
+        "uz": "Ismingiz ma'lumotlar bazasida bormi?"
+      },
+      "fragments": [
+        "is",
+        "your",
+        "name",
+        "in",
+        "the database"
+      ],
+      "accepted": [
+        [
+          "is",
+          "your",
+          "name",
+          "in",
+          "the database"
+        ]
+      ],
+      "display": "Is your name in the database?",
+      "explanation": {
+        "ru": "В вопросе глагол is стоит первым: Is your name …? Database пишется слитно: data + base.",
+        "uz": "Savolda is fe'li birinchi o'rinda keladi: Is your name …? Database qo'shib yoziladi: data + base."
+      }
+    },
+    {
+      "key": "b1-m10-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "icon",
+        "paste"
+      ],
+      "text": "Click the icon and paste the text",
+      "accepted": [
+        "Click the icon and paste the text"
+      ],
+      "translation": {
+        "ru": "Нажмите на значок и вставьте текст",
+        "uz": "Belgichani bosing va matnni joylashtiring"
+      },
+      "explanation": {
+        "ru": "icon начинается с i и пишется через c, а не k. В paste на конце немая e.",
+        "uz": "icon i harfi bilan boshlanadi va k bilan emas, c bilan yoziladi. paste so'zining oxirida o'qilmaydigan e bor."
+      }
+    },
+    {
+      "key": "b1-m10-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "backup"
+      ],
+      "text": "Make a backup of your files",
+      "accepted": [
+        "Make a backup of your files",
+        "Make a back-up of your files"
+      ],
+      "translation": {
+        "ru": "Сделайте резервную копию своих файлов",
+        "uz": "Fayllaringizning zaxira nusxasini yarating"
+      },
+      "explanation": {
+        "ru": "Существительное backup пишется слитно, а глагол back up — раздельно: back up your files.",
+        "uz": "backup oti qo'shib yoziladi, back up fe'li esa ajratib yoziladi: back up your files."
+      }
+    },
+    {
+      "key": "b1-m10-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "display"
+      ],
+      "text": "This page displays all your messages",
+      "accepted": [
+        "This page displays all your messages"
+      ],
+      "translation": {
+        "ru": "Эта страница показывает все ваши сообщения",
+        "uz": "Bu sahifa barcha xabarlaringizni ko'rsatadi"
+      }
+    },
+    {
+      "key": "b1-m10-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "subscribe"
+      ],
+      "text": "Thousands of people have subscribed ___ her podcast.",
+      "options": [
+        "to",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "На её подкаст подписались тысячи людей.",
+        "uz": "Uning podkastiga minglab odamlar obuna bo'ldi."
+      },
+      "explanation": {
+        "ru": "subscribe to — подписаться на что-то. По-русски «на», но по-английски после subscribe нужен to, а не on: subscribe to a channel, subscribe to a magazine.",
+        "uz": "subscribe to — biror narsaga obuna bo'lmoq. subscribe fe'lidan keyin to predlogi keladi, on yoki at emas: subscribe to a channel, subscribe to a magazine."
+      }
+    },
+    {
+      "key": "b1-m10-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "notification"
+      ],
+      "text": "Turn ___ notifications if you want to sleep well.",
+      "options": [
+        "off",
+        "away",
+        "over"
+      ],
+      "correct": [
+        "off"
+      ],
+      "translation": {
+        "ru": "Отключите уведомления, если хотите хорошо спать.",
+        "uz": "Yaxshi uxlashni istasangiz, bildirishnomalarni o'chirib qo'ying."
+      },
+      "explanation": {
+        "ru": "turn off notifications — отключить уведомления; включить — turn on. Turn away (отвернуться, прогнать) и turn over (перевернуть) — другие фразовые глаголы, сюда они не подходят.",
+        "uz": "turn off notifications — bildirishnomalarni o'chirmoq; yoqmoq — turn on. Turn away (yuz o'girmoq, haydab yubormoq) va turn over (ag'darmoq) — boshqa iborali fe'llar, bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "post"
+      ],
+      "text": "She posts short videos ___ social media every day.",
+      "options": [
+        "on",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Она каждый день выкладывает короткие видео в социальных сетях.",
+        "uz": "U har kuni ijtimoiy tarmoqlarga qisqa videolar joylaydi."
+      },
+      "explanation": {
+        "ru": "post something on social media — выкладывать что-то в соцсетях. По-русски «в соцсетях», но по-английски on: on social media, on the internet. At и by здесь не говорят.",
+        "uz": "post something on social media — ijtimoiy tarmoqlarga biror narsa joylamoq. Inglizchada bu yerda on kerak: on social media, on the internet. At yoki by ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "offline"
+      ],
+      "prompt": {
+        "ru": "Почему вы всегда не в сети?",
+        "uz": "Nega siz doim oflayn bo'lasiz?"
+      },
+      "fragments": [
+        "why",
+        "are",
+        "you",
+        "always",
+        "offline"
+      ],
+      "accepted": [
+        [
+          "why",
+          "are",
+          "you",
+          "always",
+          "offline"
+        ]
+      ],
+      "display": "Why are you always offline?",
+      "explanation": {
+        "ru": "Always стоит после глагола be: are always. В вопросе are ставится перед подлежащим: Why are you …?",
+        "uz": "Always be fe'lidan keyin keladi: are always. Savolda are egadan oldin qo'yiladi: Why are you …?"
+      }
+    },
+    {
+      "key": "b1-m10-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "forum"
+      ],
+      "prompt": {
+        "ru": "Этот форум полон полезных советов.",
+        "uz": "Bu forum foydali maslahatlarga to'la."
+      },
+      "fragments": [
+        "this",
+        "forum",
+        "is",
+        "full",
+        "of",
+        "useful",
+        "advice"
+      ],
+      "accepted": [
+        [
+          "this",
+          "forum",
+          "is",
+          "full",
+          "of",
+          "useful",
+          "advice"
+        ]
+      ],
+      "display": "This forum is full of useful advice.",
+      "explanation": {
+        "ru": "be full of — быть полным чего-то: после full нужен of. Advice — неисчисляемое: без -s и без артикля a.",
+        "uz": "be full of — biror narsaga to'la bo'lmoq: full so'zidan keyin of keladi. Advice sanalmaydigan ot: -s qo'shimchasisiz va a artiklisiz ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m10-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "user"
+      ],
+      "prompt": {
+        "ru": "У этого сайта больше миллиона пользователей.",
+        "uz": "Bu saytning milliondan ortiq foydalanuvchisi bor."
+      },
+      "fragments": [
+        "this",
+        "site",
+        "has",
+        "more",
+        "than",
+        "a",
+        "million",
+        "users"
+      ],
+      "accepted": [
+        [
+          "this",
+          "site",
+          "has",
+          "more",
+          "than",
+          "a",
+          "million",
+          "users"
+        ]
+      ],
+      "display": "This site has more than a million users.",
+      "explanation": {
+        "ru": "more than — больше чем. После a million существительное стоит во множественном числе, а само million — без -s: a million users.",
+        "uz": "more than — …dan ortiq. a million dan keyin ot ko'plikda keladi, million so'zining o'ziga esa -s qo'shilmaydi: a million users."
+      }
+    },
+    {
+      "key": "b1-m10-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "podcast"
+      ],
+      "text": "I listen to this podcast at work",
+      "accepted": [
+        "I listen to this podcast at work"
+      ],
+      "translation": {
+        "ru": "Я слушаю этот подкаст на работе",
+        "uz": "Men bu podkastni ishda tinglayman"
+      },
+      "explanation": {
+        "ru": "podcast пишется слитно: pod + cast.",
+        "uz": "podcast qo'shib yoziladi: pod + cast."
+      }
+    },
+    {
+      "key": "b1-m10-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "follower",
+        "profile"
+      ],
+      "text": "Every follower can see her profile",
+      "accepted": [
+        "Every follower can see her profile"
+      ],
+      "translation": {
+        "ru": "Каждый подписчик может видеть её профиль",
+        "uz": "Har bir obunachi uning profilini ko'ra oladi"
+      },
+      "explanation": {
+        "ru": "follower: две l (follow + er). profile: на конце немая e.",
+        "uz": "follower: ikkita l bilan yoziladi (follow + er). profile: oxirida o'qilmaydigan e bor."
+      }
+    },
+    {
+      "key": "b1-m10-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "content"
+      ],
+      "text": "The content of this channel is useful",
+      "accepted": [
+        "The content of this channel is useful"
+      ],
+      "translation": {
+        "ru": "Контент этого канала полезный",
+        "uz": "Bu kanalning kontenti foydali"
+      }
+    },
+    {
+      "key": "b1-m10-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "access"
+      ],
+      "text": "Do you have access ___ the test results?",
+      "options": [
+        "to",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "У вас есть доступ к результатам теста?",
+        "uz": "Sizda test natijalariga kirish huquqi bormi?"
+      },
+      "explanation": {
+        "ru": "have access to — иметь доступ к чему-то. После существительного access нужен to: access to the internet, access to information.",
+        "uz": "have access to — biror narsaga kirish huquqiga ega bo'lmoq. access otidan keyin to predlogi keladi: access to the internet, access to information."
+      }
+    },
+    {
+      "key": "b1-m10-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "security"
+      ],
+      "text": "For security ___, do not share your password with anyone.",
+      "options": [
+        "reasons",
+        "causes",
+        "motives"
+      ],
+      "correct": [
+        "reasons"
+      ],
+      "translation": {
+        "ru": "В целях безопасности никому не сообщайте свой пароль.",
+        "uz": "Xavfsizlik maqsadida parolingizni hech kimga aytmang."
+      },
+      "explanation": {
+        "ru": "for security reasons — по соображениям безопасности. Это устойчивое выражение: в нём говорят reasons, а не causes (причины события) или motives (мотивы поступка).",
+        "uz": "for security reasons — xavfsizlik maqsadida, xavfsizlik sabablariga ko'ra. Bu turg'un ibora: unda aynan reasons keladi, causes (hodisa sabablari) yoki motives (xatti-harakat sabablari) emas."
+      }
+    },
+    {
+      "key": "b1-m10-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "warning"
+      ],
+      "text": "The site ___ me a warning about my weak password.",
+      "options": [
+        "gave",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Сайт выдал мне предупреждение о слабом пароле.",
+        "uz": "Sayt menga zaif parolim haqida ogohlantirish berdi."
+      },
+      "explanation": {
+        "ru": "give a warning — сделать (выдать) предупреждение. По-русски предупреждение «делают», но по-английски его give, а не make или do.",
+        "uz": "give a warning — ogohlantirish bermoq. O'zbekchadagi kabi inglizchada ham ogohlantirish «beriladi»: give ishlatiladi, make yoki do emas."
+      }
+    },
+    {
+      "key": "b1-m10-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "unknown"
+      ],
+      "prompt": {
+        "ru": "Никогда не открывайте письма от неизвестных людей.",
+        "uz": "Hech qachon noma'lum odamlardan kelgan xatlarni ochmang."
+      },
+      "fragments": [
+        "never",
+        "open",
+        "emails",
+        "from",
+        "unknown",
+        "people"
+      ],
+      "accepted": [
+        [
+          "never",
+          "open",
+          "emails",
+          "from",
+          "unknown",
+          "people"
+        ]
+      ],
+      "display": "Never open emails from unknown people.",
+      "explanation": {
+        "ru": "Совет-запрет: Never + глагол без to (don't уже не нужен). Unknown стоит перед существительным: unknown people — неизвестные люди.",
+        "uz": "Taqiqlovchi maslahat: Never + to so'zisiz fe'l (don't endi kerak emas). Unknown otdan oldin keladi: unknown people — noma'lum odamlar."
+      }
+    },
+    {
+      "key": "b1-m10-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "scam"
+      ],
+      "prompt": {
+        "ru": "Как мне распознать онлайн-мошенничество?",
+        "uz": "Onlayn firibgarlikni qanday tanib olsam bo'ladi?"
+      },
+      "fragments": [
+        "how",
+        "can",
+        "I",
+        "recognize",
+        "an",
+        "online",
+        "scam"
+      ],
+      "accepted": [
+        [
+          "how",
+          "can",
+          "I",
+          "recognize",
+          "an",
+          "online",
+          "scam"
+        ]
+      ],
+      "display": "How can I recognize an online scam?",
+      "explanation": {
+        "ru": "scam — мошенничество, обман ради денег; слово исчисляемое: an online scam. В вопросе can стоит перед подлежащим: How can I …?",
+        "uz": "scam — firibgarlik, pul uchun aldash; sanaladigan ot: an online scam. Savolda can egadan oldin keladi: How can I …?"
+      }
+    },
+    {
+      "key": "b1-m10-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "username"
+      ],
+      "prompt": {
+        "ru": "Вам нужно выбрать другое имя пользователя.",
+        "uz": "Siz boshqa foydalanuvchi nomini tanlashingiz kerak."
+      },
+      "fragments": [
+        "you",
+        "need",
+        "to",
+        "choose",
+        "another",
+        "username"
+      ],
+      "accepted": [
+        [
+          "you",
+          "need",
+          "to",
+          "choose",
+          "another",
+          "username"
+        ]
+      ],
+      "display": "You need to choose another username.",
+      "explanation": {
+        "ru": "need to + глагол — нужно что-то сделать. Another пишется слитно и стоит перед существительным в единственном числе. Username — тоже одно слово.",
+        "uz": "need to + fe'l — biror ish qilish kerak. Another qo'shib yoziladi va birlikdagi otdan oldin keladi. Username ham bitta so'z."
+      }
+    },
+    {
+      "key": "b1-m10-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "hacker",
+        "threat"
+      ],
+      "text": "Hackers are a threat to everyone",
+      "accepted": [
+        "Hackers are a threat to everyone"
+      ],
+      "translation": {
+        "ru": "Хакеры — угроза для всех",
+        "uz": "Xakerlar hamma uchun tahdid"
+      },
+      "explanation": {
+        "ru": "threat: краткий звук «е» пишется ea, как в head и bread. hacker: в середине ck.",
+        "uz": "threat: qisqa «e» tovushi ea bilan yoziladi (head va bread so'zlaridagi kabi). hacker: o'rtada ck yoziladi."
+      }
+    },
+    {
+      "key": "b1-m10-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "privacy"
+      ],
+      "text": "Protect your privacy online",
+      "accepted": [
+        "Protect your privacy online"
+      ],
+      "translation": {
+        "ru": "Защищайте свою конфиденциальность в интернете",
+        "uz": "Internetda maxfiyligingizni himoya qiling"
+      },
+      "explanation": {
+        "ru": "privacy: на конце -cy (private → privacy), буква c читается как «с».",
+        "uz": "privacy: oxirida -cy yoziladi (private → privacy), c harfi «s» deb o'qiladi."
+      }
+    },
+    {
+      "key": "b1-m10-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "spam"
+      ],
+      "text": "This message looks like spam",
+      "accepted": [
+        "This message looks like spam"
+      ],
+      "translation": {
+        "ru": "Это сообщение похоже на спам",
+        "uz": "Bu xabar spamga o'xshaydi"
+      }
+    },
+    {
+      "key": "b1-m10-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "artificial"
+      ],
+      "text": "Many apps now use artificial ___ to translate speech.",
+      "options": [
+        "intelligence",
+        "intellect",
+        "mind"
+      ],
+      "correct": [
+        "intelligence"
+      ],
+      "translation": {
+        "ru": "Многие приложения теперь используют искусственный интеллект для перевода речи.",
+        "uz": "Ko'p ilovalar endi nutqni tarjima qilish uchun sun'iy intellektdan foydalanadi."
+      },
+      "explanation": {
+        "ru": "artificial intelligence — искусственный интеллект. По-русски «интеллект», но английский термин — intelligence (сокращённо AI). Intellect и mind в этом выражении не употребляются.",
+        "uz": "artificial intelligence — sun'iy intellekt. O'zbekchada «intellekt» deyiladi, lekin inglizcha atama — intelligence (qisqacha AI). Intellect va mind bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "upgrade"
+      ],
+      "text": "You can upgrade ___ the new version for free.",
+      "options": [
+        "to",
+        "until",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Вы можете бесплатно обновиться до новой версии.",
+        "uz": "Yangi versiyaga bepul yangilashingiz mumkin."
+      },
+      "explanation": {
+        "ru": "upgrade to — обновиться до чего-то, перейти на более новую версию. Русское «до» здесь — to, а не until: until говорят о времени (until Monday).",
+        "uz": "upgrade to — biror narsaga yangilamoq, yangiroq versiyaga o'tmoq. Bu yerda to kerak: until vaqt haqida aytiladi (until Monday), at esa joy yoki vaqtni bildiradi."
+      }
+    },
+    {
+      "key": "b1-m10-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "technical"
+      ],
+      "text": "The lesson started late because of a technical ___.",
+      "options": [
+        "problem",
+        "trouble",
+        "damage"
+      ],
+      "correct": [
+        "problem"
+      ],
+      "translation": {
+        "ru": "Урок начался поздно из-за технической проблемы.",
+        "uz": "Dars texnik muammo tufayli kech boshlandi."
+      },
+      "explanation": {
+        "ru": "a technical problem — техническая проблема, неполадка. Problem — исчисляемое, поэтому a problem. Trouble и damage в этом значении неисчисляемые: a trouble, a damage не говорят.",
+        "uz": "a technical problem — texnik muammo, nosozlik. Problem sanaladigan ot, shuning uchun a problem. Trouble va damage bu ma'noda sanalmaydi: a trouble, a damage deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m10-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "invention"
+      ],
+      "prompt": {
+        "ru": "Это простое изобретение изменило жизнь людей.",
+        "uz": "Bu oddiy ixtiro odamlarning hayotini o'zgartirdi."
+      },
+      "fragments": [
+        "this",
+        "simple",
+        "invention",
+        "changed",
+        "people's",
+        "lives"
+      ],
+      "accepted": [
+        [
+          "this",
+          "simple",
+          "invention",
+          "changed",
+          "people's",
+          "lives"
+        ]
+      ],
+      "display": "This simple invention changed people's lives.",
+      "explanation": {
+        "ru": "people's lives — жизнь людей: к people добавляется 's, а life во множественном числе — lives.",
+        "uz": "people's lives — odamlarning hayoti: people so'ziga 's qo'shiladi, life ning ko'pligi esa — lives."
+      }
+    },
+    {
+      "key": "b1-m10-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "developer"
+      ],
+      "prompt": {
+        "ru": "Он хочет стать разработчиком игр.",
+        "uz": "U o'yin dasturchisi bo'lishni xohlaydi."
+      },
+      "fragments": [
+        "he",
+        "wants",
+        "to",
+        "become",
+        "a",
+        "game",
+        "developer"
+      ],
+      "accepted": [
+        [
+          "he",
+          "wants",
+          "to",
+          "become",
+          "a",
+          "game",
+          "developer"
+        ]
+      ],
+      "display": "He wants to become a game developer.",
+      "explanation": {
+        "ru": "want to + глагол — хотеть что-то сделать. A game developer — разработчик игр: game стоит перед developer без предлога, а с названием профессии нужен артикль a.",
+        "uz": "want to + fe'l — biror ish qilishni xohlamoq. A game developer — o'yin dasturchisi: game so'zi developer dan oldin predlogsiz keladi, kasb nomi bilan esa a artikli kerak."
+      }
+    },
+    {
+      "key": "b1-m10-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "feature"
+      ],
+      "prompt": {
+        "ru": "У этого телефона много полезных функций.",
+        "uz": "Bu telefonning foydali funksiyalari ko'p."
+      },
+      "fragments": [
+        "this",
+        "phone",
+        "has",
+        "many",
+        "useful",
+        "features"
+      ],
+      "accepted": [
+        [
+          "this",
+          "phone",
+          "has",
+          "many",
+          "useful",
+          "features"
+        ]
+      ],
+      "display": "This phone has many useful features.",
+      "explanation": {
+        "ru": "feature — функция, особенность устройства или программы. После many существительное стоит во множественном числе: many useful features.",
+        "uz": "feature — qurilma yoki dasturning funksiyasi, xususiyati. many dan keyin ot ko'plikda keladi: many useful features."
+      }
+    },
+    {
+      "key": "b1-m10-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "automatic",
+        "sensor"
+      ],
+      "text": "The automatic door has a sensor",
+      "accepted": [
+        "The automatic door has a sensor"
+      ],
+      "translation": {
+        "ru": "У автоматической двери есть датчик",
+        "uz": "Avtomatik eshikning sensori bor"
+      },
+      "explanation": {
+        "ru": "sensor пишется через s (от sense) и оканчивается на -or. В automatic первый звук «о» пишется au.",
+        "uz": "sensor s bilan yoziladi (sense so'zidan) va -or bilan tugaydi. automatic so'zining boshidagi «o» tovushi au bilan yoziladi."
+      }
+    },
+    {
+      "key": "b1-m10-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "virtual"
+      ],
+      "text": "The virtual lesson starts soon",
+      "accepted": [
+        "The virtual lesson starts soon"
+      ],
+      "translation": {
+        "ru": "Виртуальный урок скоро начнётся",
+        "uz": "Virtual dars tez orada boshlanadi"
+      },
+      "explanation": {
+        "ru": "virtual: звук «ч» пишется буквами tu (v-i-r-t-u-a-l), как в picture и future.",
+        "uz": "virtual: «ch» tovushi tu harflari bilan yoziladi (v-i-r-t-u-a-l), picture va future so'zlaridagi kabi."
+      }
+    },
+    {
+      "key": "b1-m10-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "code"
+      ],
+      "text": "Who wrote this code?",
+      "accepted": [
+        "Who wrote this code?"
+      ],
+      "translation": {
+        "ru": "Кто написал этот код?",
+        "uz": "Bu kodni kim yozgan?"
+      }
+    }
+  ]
+}

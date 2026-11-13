@@ -1,0 +1,2800 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m03-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "rural"
+      ],
+      "text": "Many young people leave rural ___ to find work in cities.",
+      "options": [
+        "areas",
+        "sides",
+        "squares"
+      ],
+      "correct": [
+        "areas"
+      ],
+      "translation": {
+        "ru": "Многие молодые люди уезжают из сельской местности, чтобы найти работу в городах.",
+        "uz": "Ko'plab yoshlar shaharlarda ish topish uchun qishloq joylaridan ketadi."
+      },
+      "explanation": {
+        "ru": "rural areas — сельская местность, сёла и деревни. Area — это территория, местность; square — городская площадь или квадрат, side — сторона, бок, поэтому здесь они не подходят.",
+        "uz": "rural areas — qishloq joylari, qishloq hududlari. Area — hudud, joy; square — shahar maydoni yoki kvadrat, side — tomon, yon, shuning uchun ular bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "property"
+      ],
+      "text": "Her parents invested their savings ___ property.",
+      "options": [
+        "in",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Её родители вложили свои сбережения в недвижимость.",
+        "uz": "Uning ota-onasi o'z jamg'armalarini ko'chmas mulkka sarmoya qilib kiritdi."
+      },
+      "explanation": {
+        "ru": "invest in property — вкладывать деньги в недвижимость. То, во что вкладывают, присоединяется предлогом in: invest in a business, invest in education. Предлоги on и to с invest так не употребляются.",
+        "uz": "invest in property — ko'chmas mulkka sarmoya kiritmoq. Nimaga sarmoya kiritilsa, o'sha so'z in predlogi bilan keladi: invest in a business, invest in education. On va to predloglari invest fe'li bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "suburb"
+      ],
+      "text": "They bought a house ___ the suburbs.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Они купили дом в пригороде.",
+        "uz": "Ular shahar atrofidan uy sotib olishdi."
+      },
+      "explanation": {
+        "ru": "in the suburbs — в пригороде: о жизни за городом обычно говорят во множественном числе, the suburbs. Предлог здесь in, как с районом или городом: in a suburb, in the city.",
+        "uz": "in the suburbs — shahar atrofida: shahar chetidagi hayot haqida odatda ko'plikda, the suburbs deyiladi. Bu yerda in predlogi kerak, tuman yoki shahar bilan bo'lgani kabi: in a suburb, in the city."
+      }
+    },
+    {
+      "key": "b1-m03-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "owner"
+      ],
+      "prompt": {
+        "ru": "Кто владелец этой машины?",
+        "uz": "Bu mashinaning egasi kim?"
+      },
+      "fragments": [
+        "who",
+        "is",
+        "the",
+        "owner",
+        "of",
+        "this",
+        "car"
+      ],
+      "accepted": [
+        [
+          "who",
+          "is",
+          "the",
+          "owner",
+          "of",
+          "this",
+          "car"
+        ]
+      ],
+      "display": "Who is the owner of this car?",
+      "explanation": {
+        "ru": "the owner of + существительное — владелец чего-то. Перед owner стоит the: у этой машины один определённый владелец.",
+        "uz": "the owner of + ot — biror narsaning egasi. Owner so'zi oldidan the keladi, chunki bu mashinaning egasi bitta va aniq."
+      }
+    },
+    {
+      "key": "b1-m03-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "district"
+      ],
+      "prompt": {
+        "ru": "Наш район славится своими парками.",
+        "uz": "Bizning tuman o'z parklari bilan mashhur."
+      },
+      "fragments": [
+        "our",
+        "district",
+        "is",
+        "famous",
+        "for",
+        "its",
+        "parks"
+      ],
+      "accepted": [
+        [
+          "our",
+          "district",
+          "is",
+          "famous",
+          "for",
+          "its",
+          "parks"
+        ]
+      ],
+      "display": "Our district is famous for its parks.",
+      "explanation": {
+        "ru": "be famous for + существительное — славиться чем-то, быть известным чем-то. Its — «его, свой» о предмете или месте (пишется без апострофа).",
+        "uz": "be famous for + ot — biror narsa bilan mashhur bo'lmoq. Its — narsa yoki joyga nisbatan «uning, o'zining» (apostrofsiz yoziladi)."
+      }
+    },
+    {
+      "key": "b1-m03-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "cottage"
+      ],
+      "prompt": {
+        "ru": "Этот загородный домик принадлежит нашей семье.",
+        "uz": "Bu dala hovli bizning oilamizga tegishli."
+      },
+      "fragments": [
+        "this",
+        "cottage",
+        "belongs",
+        "to",
+        "our",
+        "family"
+      ],
+      "accepted": [
+        [
+          "this",
+          "cottage",
+          "belongs",
+          "to",
+          "our",
+          "family"
+        ]
+      ],
+      "display": "This cottage belongs to our family.",
+      "explanation": {
+        "ru": "belong to + кому — принадлежать кому-то: перед тем, кому принадлежит вещь, нужен to. Этот глагол не употребляется в форме continuous: belongs, а не is belonging.",
+        "uz": "belong to + kimga — kimgadir tegishli bo'lmoq: narsa kimga tegishli bo'lsa, o'sha so'z oldidan to keladi. Bu fe'l continuous shaklida ishlatilmaydi: belongs deyiladi, is belonging emas."
+      }
+    },
+    {
+      "key": "b1-m03-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "accommodation"
+      ],
+      "text": "We are looking for cheap accommodation",
+      "accepted": [
+        "We are looking for cheap accommodation",
+        "We're looking for cheap accommodation"
+      ],
+      "translation": {
+        "ru": "Мы ищем недорогое жильё",
+        "uz": "Biz arzon turar joy qidiryapmiz"
+      },
+      "explanation": {
+        "ru": "accommodation: две c и две m — a-c-c-o-m-m-o-d-a-t-i-o-n.",
+        "uz": "accommodation: ikkita c va ikkita m bilan yoziladi — a-c-c-o-m-m-o-d-a-t-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m03-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "neighborhood",
+        "downtown"
+      ],
+      "text": "Our neighborhood is far from downtown",
+      "accepted": [
+        "Our neighborhood is far from downtown"
+      ],
+      "translation": {
+        "ru": "Наш квартал находится далеко от центра города",
+        "uz": "Bizning mahalla shahar markazidan uzoqda"
+      },
+      "explanation": {
+        "ru": "neighborhood: в начале neigh — буквы gh не читаются; слово пишется слитно: neighbor + hood. Downtown тоже пишется слитно.",
+        "uz": "neighborhood: boshida neigh — gh harflari o'qilmaydi; so'z qo'shib yoziladi: neighbor + hood. Downtown ham qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "b1-m03-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "urban"
+      ],
+      "text": "Urban life can be very expensive",
+      "accepted": [
+        "Urban life can be very expensive"
+      ],
+      "translation": {
+        "ru": "Городская жизнь бывает очень дорогой",
+        "uz": "Shahar hayoti juda qimmat bo'lishi mumkin"
+      }
+    },
+    {
+      "key": "b1-m03-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "decorate"
+      ],
+      "text": "They decorated the hall ___ balloons for the party.",
+      "options": [
+        "with",
+        "by",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Они украсили зал воздушными шарами к празднику.",
+        "uz": "Ular bayramga zalni havo sharlari bilan bezashdi."
+      },
+      "explanation": {
+        "ru": "decorate something with — украшать что-то чем-то. Русскому творительному падежу («шарами») здесь соответствует with, а не by: by называет того, кто выполняет действие.",
+        "uz": "decorate something with — biror narsani nima bilandir bezamoq. O'zbekcha «bilan» bu yerda with bo'ladi; by esa ish-harakatni kim bajarganini bildiradi, from — «-dan» degani."
+      }
+    },
+    {
+      "key": "b1-m03-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "attic"
+      ],
+      "text": "The children found an old lamp ___ the attic.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Дети нашли на чердаке старую лампу.",
+        "uz": "Bolalar chordoqdan eski chiroq topib olishdi."
+      },
+      "explanation": {
+        "ru": "in the attic — на чердаке. По-русски «на чердаке», но по-английски чердак — это помещение, внутри которого находятся: in the attic, как in the room, in the kitchen.",
+        "uz": "in the attic — chordoqda. Ingliz tilida chordoq xona kabi qaraladi: odam yoki narsa uning ichida bo'ladi, shuning uchun in ishlatiladi — in the attic, in the room, in the kitchen. On va at bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "entrance"
+      ],
+      "text": "The ___ entrance of the hotel is on the next street.",
+      "options": [
+        "main",
+        "basic",
+        "head"
+      ],
+      "correct": [
+        "main"
+      ],
+      "translation": {
+        "ru": "Главный вход в гостиницу находится на соседней улице.",
+        "uz": "Mehmonxonaning asosiy kirish joyi qo'shni ko'chada joylashgan."
+      },
+      "explanation": {
+        "ru": "the main entrance — главный вход. Main — «главный» о вещах и местах: main street, main door. Basic — базовый, простой (basic rules), head — «главный» о человеке или офисе (head teacher, head office).",
+        "uz": "the main entrance — asosiy kirish joyi. Main — narsa va joylarga nisbatan «asosiy, bosh»: main street, main door. Basic — eng oddiy, boshlang'ich (basic rules), head — odam yoki idoraga nisbatan «bosh» (head teacher, head office)."
+      }
+    },
+    {
+      "key": "b1-m03-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "spacious"
+      ],
+      "prompt": {
+        "ru": "Эта комната недостаточно просторная.",
+        "uz": "Bu xona yetarlicha keng emas."
+      },
+      "fragments": [
+        "this",
+        "room",
+        "is",
+        "not",
+        "spacious",
+        "enough"
+      ],
+      "accepted": [
+        [
+          "this",
+          "room",
+          "is",
+          "not",
+          "spacious",
+          "enough"
+        ]
+      ],
+      "display": "This room is not spacious enough.",
+      "explanation": {
+        "ru": "enough стоит после прилагательного: spacious enough — достаточно просторный, not spacious enough — недостаточно просторный.",
+        "uz": "enough sifatdan keyin keladi: spacious enough — yetarlicha keng, not spacious enough — yetarlicha keng emas."
+      }
+    },
+    {
+      "key": "b1-m03-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "cozy"
+      ],
+      "prompt": {
+        "ru": "Я хочу сделать эту комнату уютной.",
+        "uz": "Men bu xonani shinam qilmoqchiman."
+      },
+      "fragments": [
+        "I",
+        "want",
+        "to",
+        "make",
+        "this",
+        "room",
+        "cozy"
+      ],
+      "accepted": [
+        [
+          "I",
+          "want",
+          "to",
+          "make",
+          "this",
+          "room",
+          "cozy"
+        ]
+      ],
+      "display": "I want to make this room cozy.",
+      "explanation": {
+        "ru": "make + существительное + прилагательное — сделать что-то каким-то: make this room cozy. Прилагательное стоит после существительного.",
+        "uz": "make + ot + sifat — biror narsani qandaydir qilmoq: make this room cozy. Sifat otdan keyin keladi."
+      }
+    },
+    {
+      "key": "b1-m03-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "corridor"
+      ],
+      "prompt": {
+        "ru": "В этом длинном коридоре нет окон.",
+        "uz": "Bu uzun yo'lakda deraza yo'q."
+      },
+      "fragments": [
+        "this",
+        "long",
+        "corridor",
+        "has",
+        "no",
+        "windows"
+      ],
+      "accepted": [
+        [
+          "this",
+          "long",
+          "corridor",
+          "has",
+          "no",
+          "windows"
+        ]
+      ],
+      "display": "This long corridor has no windows.",
+      "explanation": {
+        "ru": "has no + существительное — «нет чего-то»: has no windows = does not have any windows. С no глагол стоит в утвердительной форме.",
+        "uz": "has no + ot — «biror narsa yo'q»: has no windows = does not have any windows. No bilan fe'l bo'lishli shaklda keladi."
+      }
+    },
+    {
+      "key": "b1-m03-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "cupboard"
+      ],
+      "text": "The cups are in the cupboard",
+      "accepted": [
+        "The cups are in the cupboard"
+      ],
+      "translation": {
+        "ru": "Чашки стоят в кухонном шкафу",
+        "uz": "Finjonlar oshxona javonida turibdi"
+      },
+      "explanation": {
+        "ru": "cupboard: пишется cup + board, но буква p не произносится.",
+        "uz": "cupboard: cup + board deb yoziladi, lekin p harfi talaffuz qilinmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "rug",
+        "fireplace"
+      ],
+      "text": "There is a soft rug by the fireplace",
+      "accepted": [
+        "There is a soft rug by the fireplace",
+        "There's a soft rug by the fireplace"
+      ],
+      "translation": {
+        "ru": "У камина лежит мягкий коврик",
+        "uz": "Kamin yonida yumshoq gilamcha bor"
+      },
+      "explanation": {
+        "ru": "fireplace пишется слитно: fire + place.",
+        "uz": "fireplace qo'shib yoziladi: fire + place."
+      }
+    },
+    {
+      "key": "b1-m03-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "cushion"
+      ],
+      "text": "This cushion is very soft",
+      "accepted": [
+        "This cushion is very soft"
+      ],
+      "translation": {
+        "ru": "Эта диванная подушка очень мягкая",
+        "uz": "Bu divan yostiqchasi juda yumshoq"
+      },
+      "explanation": {
+        "ru": "cushion: звук «ш» пишется sh, а конец слова — -ion: c-u-s-h-i-o-n.",
+        "uz": "cushion: «sh» tovushi sh bilan, so'z oxiri esa -ion deb yoziladi: c-u-s-h-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m03-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "replace"
+      ],
+      "text": "They replaced the broken window ___ a new one.",
+      "options": [
+        "with",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Они заменили разбитое окно на новое.",
+        "uz": "Ular singan derazani yangisiga almashtirishdi."
+      },
+      "explanation": {
+        "ru": "replace A with B — заменить A на B. По-русски «заменить на», но по-английски новое вводится предлогом with; on и to с replace так не употребляются.",
+        "uz": "replace A with B — A ni B ga almashtirmoq. O'zbekcha «-ga» qo'shimchasi bu yerda to bilan berilmaydi: yangi narsa with predlogi bilan keladi. On ham replace fe'li bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "storage"
+      ],
+      "text": "Our furniture is ___ storage until we find a new apartment.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Наша мебель находится на хранении, пока мы не найдём новую квартиру.",
+        "uz": "Yangi kvartira topgunimizcha mebelimiz omborda saqlanyapti."
+      },
+      "explanation": {
+        "ru": "in storage — на хранении, на складе. Это устойчивое сочетание без артикля; по-русски «на хранении», но предлог здесь in, а не on.",
+        "uz": "in storage — saqlashda, omborda. Bu artiklsiz turg'un birikma; predlogi in bo'ladi, on yoki at emas."
+      }
+    },
+    {
+      "key": "b1-m03-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "remove"
+      ],
+      "text": "Please remove your bags ___ the seat.",
+      "options": [
+        "from",
+        "of",
+        "out"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, уберите свои сумки с сиденья.",
+        "uz": "Iltimos, sumkalaringizni o'rindiqdan olib qo'ying."
+      },
+      "explanation": {
+        "ru": "remove something from — убрать, снять что-то откуда-то. И русское «с», и «из» здесь — from: remove the books from the table, remove the cake from the oven.",
+        "uz": "remove something from — biror narsani qayerdandir olib tashlamoq, olib qo'ymoq. O'zbekcha «-dan» bu yerda from bo'ladi: remove the books from the table. Of va out bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "fix"
+      ],
+      "prompt": {
+        "ru": "Кто может починить нашу стиральную машину?",
+        "uz": "Kir yuvish mashinamizni kim tuzata oladi?"
+      },
+      "fragments": [
+        "who",
+        "can",
+        "fix",
+        "our",
+        "washing machine"
+      ],
+      "accepted": [
+        [
+          "who",
+          "can",
+          "fix",
+          "our",
+          "washing machine"
+        ]
+      ],
+      "display": "Who can fix our washing machine?",
+      "explanation": {
+        "ru": "Who здесь подлежащее, поэтому порядок слов как в утверждении: Who can fix…? После can глагол стоит без to.",
+        "uz": "Who bu yerda ega, shuning uchun so'z tartibi darak gapdagidek: Who can fix…? Can fe'lidan keyin asosiy fe'l to so'zisiz keladi."
+      }
+    },
+    {
+      "key": "b1-m03-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "leak",
+        "pipe"
+      ],
+      "prompt": {
+        "ru": "Эта старая труба начала протекать.",
+        "uz": "Bu eski quvurdan suv sizib chiqa boshladi."
+      },
+      "fragments": [
+        "this",
+        "old",
+        "pipe",
+        "has",
+        "started",
+        "to",
+        "leak"
+      ],
+      "accepted": [
+        [
+          "this",
+          "old",
+          "pipe",
+          "has",
+          "started",
+          "to",
+          "leak"
+        ]
+      ],
+      "display": "This old pipe has started to leak.",
+      "explanation": {
+        "ru": "start to + глагол — начать что-то делать: has started to leak. Present Perfect показывает, что это случилось недавно и важно сейчас.",
+        "uz": "start to + fe'l — biror ishni boshlamoq: has started to leak. Present Perfect bu yaqinda sodir bo'lganini va hozir muhimligini bildiradi."
+      }
+    },
+    {
+      "key": "b1-m03-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "renovate"
+      ],
+      "prompt": {
+        "ru": "Мы хотим сделать ремонт в нашем старом доме.",
+        "uz": "Biz eski uyimizni ta'mirdan chiqarmoqchimiz."
+      },
+      "fragments": [
+        "we",
+        "want",
+        "to",
+        "renovate",
+        "our",
+        "old",
+        "house"
+      ],
+      "accepted": [
+        [
+          "we",
+          "want",
+          "to",
+          "renovate",
+          "our",
+          "old",
+          "house"
+        ]
+      ],
+      "display": "We want to renovate our old house.",
+      "explanation": {
+        "ru": "want to + глагол — хотеть что-то сделать. У renovate прямое дополнение без предлога: renovate a house — сделать ремонт в доме.",
+        "uz": "want to + fe'l — biror ish qilishni xohlamoq. Renovate fe'lidan keyin to'ldiruvchi predlogsiz keladi: renovate a house — uyni ta'mirdan chiqarmoq."
+      }
+    },
+    {
+      "key": "b1-m03-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "switch"
+      ],
+      "text": "The light switch is by the door",
+      "accepted": [
+        "The light switch is by the door"
+      ],
+      "translation": {
+        "ru": "Выключатель света находится у двери",
+        "uz": "Chiroq o'chirgichi eshik yonida"
+      },
+      "explanation": {
+        "ru": "switch: звук «ч» в конце пишется тремя буквами -tch, как в watch и match.",
+        "uz": "switch: oxiridagi «ch» tovushi uchta harf bilan, -tch deb yoziladi (watch va match so'zlaridagi kabi)."
+      }
+    },
+    {
+      "key": "b1-m03-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "unpack"
+      ],
+      "text": "Have you unpacked your bags?",
+      "accepted": [
+        "Have you unpacked your bags?"
+      ],
+      "translation": {
+        "ru": "Вы распаковали свои сумки?",
+        "uz": "Sumkalaringizni ochib bo'shatdingizmi?"
+      }
+    },
+    {
+      "key": "b1-m03-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "settle"
+      ],
+      "text": "They settled in a quiet village",
+      "accepted": [
+        "They settled in a quiet village"
+      ],
+      "translation": {
+        "ru": "Они поселились в тихой деревне",
+        "uz": "Ular tinch bir qishloqda o'rnashib olishdi"
+      },
+      "explanation": {
+        "ru": "settle: в середине две t, на конце -le: s-e-t-t-l-e.",
+        "uz": "settle: o'rtasida ikkita t, oxirida -le yoziladi: s-e-t-t-l-e."
+      }
+    },
+    {
+      "key": "b1-m03-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "pedestrian"
+      ],
+      "text": "Wait for the green light at the pedestrian ___.",
+      "options": [
+        "crossing",
+        "transition",
+        "passing"
+      ],
+      "correct": [
+        "crossing"
+      ],
+      "translation": {
+        "ru": "Дождитесь зелёного света на пешеходном переходе.",
+        "uz": "Piyodalar o'tish joyida yashil chiroqni kuting."
+      },
+      "explanation": {
+        "ru": "pedestrian crossing — пешеходный переход (в США чаще говорят crosswalk). Transition — переход в значении «изменение», passing — «прохождение мимо»: место перехода через дорогу так не называют.",
+        "uz": "pedestrian crossing — piyodalar o'tish joyi (AQShda ko'pincha crosswalk deyiladi). Transition — bir holatdan boshqasiga o'tish, passing — yonidan o'tib ketish: yo'lni kesib o'tish joyi bunday atalmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "tunnel"
+      ],
+      "text": "The train went ___ a long tunnel in the mountains.",
+      "options": [
+        "through",
+        "across",
+        "among"
+      ],
+      "correct": [
+        "through"
+      ],
+      "translation": {
+        "ru": "Поезд проехал через длинный туннель в горах.",
+        "uz": "Poyezd tog'lardagi uzun tunneldan o'tdi."
+      },
+      "explanation": {
+        "ru": "through a tunnel — через туннель, по туннелю. Through — «сквозь», внутри чего-то от начала до конца; across — «через» по поверхности (across the street, across the bridge), among — «среди».",
+        "uz": "through a tunnel — tunnel orqali, tunneldan. Through — biror narsaning ichidan o'tishni bildiradi; across — ustidan, bir tomondan ikkinchi tomonga (across the street, across the bridge), among — «orasida»."
+      }
+    },
+    {
+      "key": "b1-m03-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "statue"
+      ],
+      "text": "At the entrance there is a statue ___ a lion.",
+      "options": [
+        "of",
+        "from",
+        "about"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "У входа стоит статуя льва.",
+        "uz": "Kirish joyida sher haykali turibdi."
+      },
+      "explanation": {
+        "ru": "a statue of + кого — статуя кого-то. Русскому родительному падежу («статуя льва») соответствует of. From значит «из, от», about — «о»: о том, кого изображает статуя, так не говорят.",
+        "uz": "a statue of + kim yoki nima — kimningdir haykali. O'zbekcha «sher haykali» birikmasi of bilan beriladi. From — «-dan», about — «haqida»: haykal kimni tasvirlashi haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "playground"
+      ],
+      "prompt": {
+        "ru": "В этом парке есть детская площадка?",
+        "uz": "Bu parkda bolalar maydonchasi bormi?"
+      },
+      "fragments": [
+        "does",
+        "this",
+        "park",
+        "have",
+        "a",
+        "playground"
+      ],
+      "accepted": [
+        [
+          "does",
+          "this",
+          "park",
+          "have",
+          "a",
+          "playground"
+        ]
+      ],
+      "display": "Does this park have a playground?",
+      "explanation": {
+        "ru": "Вопрос в Present Simple об одном предмете (he / she / it): Does + подлежащее + глагол без -s: Does this park have…? (а не has).",
+        "uz": "Present Simple zamonida birlikdagi ega (he / she / it) haqida savol: Does + ega + -s qo'shimchasisiz fe'l: Does this park have…? (has emas)."
+      }
+    },
+    {
+      "key": "b1-m03-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "bench"
+      ],
+      "prompt": {
+        "ru": "Давайте сядем на ту скамейку.",
+        "uz": "Keling, anavi o'rindiqqa o'tiraylik."
+      },
+      "fragments": [
+        "let's",
+        "sit",
+        "on",
+        "that",
+        "bench"
+      ],
+      "accepted": [
+        [
+          "let's",
+          "sit",
+          "on",
+          "that",
+          "bench"
+        ]
+      ],
+      "display": "Let's sit on that bench.",
+      "explanation": {
+        "ru": "Let's + глагол без to — предложение сделать что-то вместе. Sit on a bench — сидеть (сесть) на скамейке: предлог on.",
+        "uz": "Let's + to so'zisiz fe'l — birga biror ish qilishni taklif etish. Sit on a bench — o'rindiqqa o'tirmoq: on predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m03-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "skyscraper"
+      ],
+      "prompt": {
+        "ru": "Мы никогда не были внутри небоскрёба.",
+        "uz": "Biz hech qachon osmono'par bino ichida bo'lmaganmiz."
+      },
+      "fragments": [
+        "we",
+        "have",
+        "never",
+        "been",
+        "inside",
+        "a",
+        "skyscraper"
+      ],
+      "accepted": [
+        [
+          "we",
+          "have",
+          "never",
+          "been",
+          "inside",
+          "a",
+          "skyscraper"
+        ],
+        [
+          "we",
+          "never",
+          "have",
+          "been",
+          "inside",
+          "a",
+          "skyscraper"
+        ],
+        [
+          "never",
+          "have",
+          "we",
+          "been",
+          "inside",
+          "a",
+          "skyscraper"
+        ]
+      ],
+      "display": "We have never been inside a skyscraper.",
+      "explanation": {
+        "ru": "Present Perfect с never — об опыте: have never been — никогда не были. Never обычно стоит между have и been; второе отрицание (not) не нужно.",
+        "uz": "never bilan Present Perfect tajribani bildiradi: have never been — hech qachon bo'lmaganmiz. Never odatda have va been orasida turadi; ikkinchi inkor (not) kerak emas."
+      }
+    },
+    {
+      "key": "b1-m03-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "intersection"
+      ],
+      "text": "Stop at the next intersection",
+      "accepted": [
+        "Stop at the next intersection"
+      ],
+      "translation": {
+        "ru": "Остановитесь на следующем перекрёстке",
+        "uz": "Keyingi chorrahada to'xtang"
+      },
+      "explanation": {
+        "ru": "intersection: inter + section; на конце -tion, как в station и question.",
+        "uz": "intersection: inter + section; oxiri -tion deb yoziladi (station va question so'zlaridagi kabi)."
+      }
+    },
+    {
+      "key": "b1-m03-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "fountain",
+        "avenue"
+      ],
+      "text": "There is a fountain on this avenue",
+      "accepted": [
+        "There is a fountain on this avenue",
+        "There's a fountain on this avenue"
+      ],
+      "translation": {
+        "ru": "На этом проспекте есть фонтан",
+        "uz": "Bu shohko'chada favvora bor"
+      },
+      "explanation": {
+        "ru": "fountain: на конце -ain, как в mountain. Avenue оканчивается на -ue: a-v-e-n-u-e.",
+        "uz": "fountain: oxiri -ain deb yoziladi (mountain so'zidagi kabi). Avenue so'zi -ue bilan tugaydi: a-v-e-n-u-e."
+      }
+    },
+    {
+      "key": "b1-m03-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sidewalk"
+      ],
+      "text": "Please stay on the sidewalk",
+      "accepted": [
+        "Please stay on the sidewalk"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, оставайтесь на тротуаре",
+        "uz": "Iltimos, yo'lkada qoling"
+      },
+      "explanation": {
+        "ru": "sidewalk пишется слитно: side + walk. Буква l в walk не произносится.",
+        "uz": "sidewalk qo'shib yoziladi: side + walk. Walk so'zidagi l harfi talaffuz qilinmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "public"
+      ],
+      "text": "I usually go to work by public ___.",
+      "options": [
+        "transport",
+        "traffic",
+        "movement"
+      ],
+      "correct": [
+        "transport"
+      ],
+      "translation": {
+        "ru": "Обычно я езжу на работу на общественном транспорте.",
+        "uz": "Men odatda ishga jamoat transportida boraman."
+      },
+      "explanation": {
+        "ru": "public transport — общественный транспорт (в США чаще public transportation). Traffic — это движение машин на дорогах (heavy traffic), movement — движение вообще; об автобусах и метро так не говорят.",
+        "uz": "public transport — jamoat transporti (AQShda ko'pincha public transportation). Traffic — yo'llardagi mashinalar harakati (heavy traffic), movement — umuman harakat; avtobus va metro haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "crowded"
+      ],
+      "text": "The main square was crowded ___ tourists.",
+      "options": [
+        "with",
+        "of",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Главная площадь была переполнена туристами.",
+        "uz": "Bosh maydon sayyohlar bilan tirband edi."
+      },
+      "explanation": {
+        "ru": "crowded with — переполненный кем-то, полный людей. После crowded нужен with; of употребляется с full: full of tourists.",
+        "uz": "crowded with — kim bilandir tirband, odamga to'la. Crowded so'zidan keyin with keladi; of esa full so'zi bilan ishlatiladi: full of tourists."
+      }
+    },
+    {
+      "key": "b1-m03-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "commute"
+      ],
+      "text": "Most of my colleagues commute ___ work by car.",
+      "options": [
+        "to",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Большинство моих коллег ездят на работу на машине.",
+        "uz": "Hamkasblarimning aksariyati ishga mashinada qatnaydi."
+      },
+      "explanation": {
+        "ru": "commute to work — регулярно ездить на работу и обратно. По-русски «на работу», но направление здесь выражает to, а не on. At work значит «на работе» — где, а не куда.",
+        "uz": "commute to work — ishga muntazam qatnamoq. Yo'nalishni to predlogi bildiradi: to work — ishga. At work — «ishda» (qayerda?), on esa bu yerda umuman ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m03-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "rush"
+      ],
+      "prompt": {
+        "ru": "Нет необходимости спешить.",
+        "uz": "Shoshilishga hojat yo'q."
+      },
+      "fragments": [
+        "there",
+        "is",
+        "no",
+        "need",
+        "to",
+        "rush"
+      ],
+      "accepted": [
+        [
+          "there",
+          "is",
+          "no",
+          "need",
+          "to",
+          "rush"
+        ]
+      ],
+      "display": "There is no need to rush.",
+      "explanation": {
+        "ru": "There is no need to + глагол — нет необходимости что-то делать, незачем. После need стоит to и глагол в начальной форме: to rush.",
+        "uz": "There is no need to + fe'l — biror ish qilishga hojat yo'q. Need so'zidan keyin to va fe'lning bosh shakli keladi: to rush."
+      }
+    },
+    {
+      "key": "b1-m03-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "convenient"
+      ],
+      "prompt": {
+        "ru": "Вам удобно это время?",
+        "uz": "Bu vaqt sizga qulaymi?"
+      },
+      "fragments": [
+        "is",
+        "this",
+        "time",
+        "convenient",
+        "for",
+        "you"
+      ],
+      "accepted": [
+        [
+          "is",
+          "this",
+          "time",
+          "convenient",
+          "for",
+          "you"
+        ]
+      ],
+      "display": "Is this time convenient for you?",
+      "explanation": {
+        "ru": "be convenient for somebody — быть удобным для кого-то. В вопросе is стоит перед подлежащим. О человеке так не говорят: не I am convenient, а It is convenient for me.",
+        "uz": "be convenient for somebody — kimgadir qulay bo'lmoq. Savolda is egadan oldin keladi. Odam haqida bunday deyilmaydi: I am convenient emas, It is convenient for me."
+      }
+    },
+    {
+      "key": "b1-m03-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "local",
+        "resident"
+      ],
+      "prompt": {
+        "ru": "Местные жители против новой дороги.",
+        "uz": "Mahalliy aholi yangi yo'lga qarshi."
+      },
+      "fragments": [
+        "local",
+        "residents",
+        "are",
+        "against",
+        "the",
+        "new",
+        "road"
+      ],
+      "accepted": [
+        [
+          "local",
+          "residents",
+          "are",
+          "against",
+          "the",
+          "new",
+          "road"
+        ]
+      ],
+      "display": "Local residents are against the new road.",
+      "explanation": {
+        "ru": "be against something — быть против чего-то. Local residents — местные жители: во множественном числе и без артикля, когда речь о жителях вообще.",
+        "uz": "be against something — biror narsaga qarshi bo'lmoq. Local residents — mahalliy aholi, shu yerda yashovchilar: umumiy ma'noda ko'plikda va artiklsiz keladi."
+      }
+    },
+    {
+      "key": "b1-m03-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "mayor"
+      ],
+      "text": "Our city has a new mayor",
+      "accepted": [
+        "Our city has a new mayor"
+      ],
+      "translation": {
+        "ru": "В нашем городе новый мэр",
+        "uz": "Shahrimizda yangi hokim bor"
+      },
+      "explanation": {
+        "ru": "mayor: пишется с буквой y в середине и с -or на конце: m-a-y-o-r.",
+        "uz": "mayor: o'rtasida y harfi, oxirida -or yoziladi: m-a-y-o-r."
+      }
+    },
+    {
+      "key": "b1-m03-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "litter"
+      ],
+      "text": "Please pick up your litter",
+      "accepted": [
+        "Please pick up your litter"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, уберите за собой мусор",
+        "uz": "Iltimos, axlatingizni yig'ishtirib oling"
+      },
+      "explanation": {
+        "ru": "litter: в середине две t — l-i-t-t-e-r.",
+        "uz": "litter: o'rtasida ikkita t yoziladi — l-i-t-t-e-r."
+      }
+    },
+    {
+      "key": "b1-m03-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "lively"
+      ],
+      "text": "The market is always lively",
+      "accepted": [
+        "The market is always lively"
+      ],
+      "translation": {
+        "ru": "На рынке всегда оживлённо",
+        "uz": "Bozor doim gavjum"
+      },
+      "explanation": {
+        "ru": "lively: live + -ly, буква e сохраняется: l-i-v-e-l-y.",
+        "uz": "lively: live + -ly, e harfi saqlanib qoladi: l-i-v-e-l-y."
+      }
+    },
+    {
+      "key": "b1-m04-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "ingredient"
+      ],
+      "text": "First, ___ all the ingredients in a large bowl.",
+      "options": [
+        "mix",
+        "confuse",
+        "disturb"
+      ],
+      "correct": [
+        "mix"
+      ],
+      "translation": {
+        "ru": "Сначала смешайте все ингредиенты в большой миске.",
+        "uz": "Avval barcha masalliqlarni katta kosada aralashtiring."
+      },
+      "explanation": {
+        "ru": "mix the ingredients — смешать ингредиенты. Confuse — «путать» одно с другим, disturb — «мешать» в значении «беспокоить»; о продуктах так не говорят.",
+        "uz": "mix the ingredients — masalliqlarni aralashtirmoq. Confuse — bir narsani boshqasi bilan adashtirmoq, disturb — bezovta qilmoq; mahsulotlar haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nut"
+      ],
+      "text": "I cannot eat this cake because I am allergic ___ nuts.",
+      "options": [
+        "to",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Я не могу есть этот торт, потому что у меня аллергия на орехи.",
+        "uz": "Men bu tortni yeya olmayman, chunki menda yong'oqqa allergiya bor."
+      },
+      "explanation": {
+        "ru": "be allergic to nuts — иметь аллергию на орехи. По-русски «аллергия на», но по-английски allergic to (и an allergy to): on и for здесь не употребляются.",
+        "uz": "be allergic to nuts — yong'oqqa allergiyasi bo'lmoq. Allergic so'zidan keyin to keladi (an allergy to ham shunday); on va for bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "herb"
+      ],
+      "text": "She cooks every dish with herbs and ___.",
+      "options": [
+        "spices",
+        "species",
+        "spikes"
+      ],
+      "correct": [
+        "spices"
+      ],
+      "translation": {
+        "ru": "Она готовит каждое блюдо с пряными травами и специями.",
+        "uz": "U har bir taomni ko'katlar va ziravorlar bilan pishiradi."
+      },
+      "explanation": {
+        "ru": "herbs and spices — травы и специи, устойчивая пара слов. На русское «специи» похоже species, но это «вид» животных или растений; spike — шип, остриё. Специи — spices.",
+        "uz": "herbs and spices — ko'katlar va ziravorlar, doim birga keladigan juftlik. Species — hayvon yoki o'simlik turi, spike esa tikan, o'tkir uch degani; ziravorlar — spices."
+      }
+    },
+    {
+      "key": "b1-m04-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "flour"
+      ],
+      "prompt": {
+        "ru": "У нас достаточно муки?",
+        "uz": "Bizda un yetarlimi?"
+      },
+      "fragments": [
+        "do",
+        "we",
+        "have",
+        "enough",
+        "flour"
+      ],
+      "accepted": [
+        [
+          "do",
+          "we",
+          "have",
+          "enough",
+          "flour"
+        ]
+      ],
+      "display": "Do we have enough flour?",
+      "explanation": {
+        "ru": "enough стоит перед существительным: enough flour — достаточно муки. Flour — неисчисляемое: без артикля и без -s.",
+        "uz": "enough otdan oldin keladi: enough flour — yetarlicha un. Flour — sanalmaydigan ot: artiklsiz va -s qo'shimchasisiz ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m04-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "garlic"
+      ],
+      "prompt": {
+        "ru": "Она никогда не добавляет чеснок в салаты.",
+        "uz": "U salatlarga hech qachon sarimsoqpiyoz qo'shmaydi."
+      },
+      "fragments": [
+        "she",
+        "never",
+        "adds",
+        "garlic",
+        "to",
+        "salads"
+      ],
+      "accepted": [
+        [
+          "she",
+          "never",
+          "adds",
+          "garlic",
+          "to",
+          "salads"
+        ]
+      ],
+      "display": "She never adds garlic to salads.",
+      "explanation": {
+        "ru": "add something to — добавлять что-то во что-то. Never стоит перед смысловым глаголом, и второе отрицание не нужно: she never adds.",
+        "uz": "add something to — biror narsani nimagadir qo'shmoq. Never asosiy fe'ldan oldin keladi va ikkinchi inkor kerak emas: she never adds."
+      }
+    },
+    {
+      "key": "b1-m04-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "honey"
+      ],
+      "prompt": {
+        "ru": "Мёд слаще сахара.",
+        "uz": "Asal shakardan shirinroq."
+      },
+      "fragments": [
+        "honey",
+        "is",
+        "sweeter",
+        "than",
+        "sugar"
+      ],
+      "accepted": [
+        [
+          "honey",
+          "is",
+          "sweeter",
+          "than",
+          "sugar"
+        ]
+      ],
+      "display": "Honey is sweeter than sugar.",
+      "explanation": {
+        "ru": "Сравнительная степень коротких прилагательных: sweet → sweeter. После неё ставится than: sweeter than sugar — слаще сахара (слаще, чем сахар).",
+        "uz": "Qisqa sifatlarning qiyosiy darajasi: sweet → sweeter. Undan keyin than keladi: sweeter than sugar — shakardan shirinroq."
+      }
+    },
+    {
+      "key": "b1-m04-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "sauce"
+      ],
+      "text": "The sauce needs more salt",
+      "accepted": [
+        "The sauce needs more salt"
+      ],
+      "translation": {
+        "ru": "Соусу не хватает соли",
+        "uz": "Sousga yana tuz kerak"
+      },
+      "explanation": {
+        "ru": "sauce: звук «о» пишется двумя буквами au, а на конце -ce: s-a-u-c-e.",
+        "uz": "sauce: «o» tovushi ikki harf bilan, au deb yoziladi, oxirida esa -ce: s-a-u-c-e."
+      }
+    },
+    {
+      "key": "b1-m04-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "seafood"
+      ],
+      "text": "They do not eat seafood",
+      "accepted": [
+        "They do not eat seafood",
+        "They don't eat seafood"
+      ],
+      "translation": {
+        "ru": "Они не едят морепродукты",
+        "uz": "Ular dengiz mahsulotlarini yemaydi"
+      },
+      "explanation": {
+        "ru": "seafood пишется слитно: sea + food.",
+        "uz": "seafood qo'shib yoziladi: sea + food."
+      }
+    },
+    {
+      "key": "b1-m04-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "cabbage",
+        "vinegar"
+      ],
+      "text": "We need cabbage and vinegar for this salad",
+      "accepted": [
+        "We need cabbage and vinegar for this salad"
+      ],
+      "translation": {
+        "ru": "Для этого салата нам нужны капуста и уксус",
+        "uz": "Bu salat uchun bizga karam va sirka kerak"
+      },
+      "explanation": {
+        "ru": "cabbage: две b и -age на конце. Vinegar оканчивается на -ar: v-i-n-e-g-a-r.",
+        "uz": "cabbage: ikkita b va oxirida -age yoziladi. Vinegar so'zi -ar bilan tugaydi: v-i-n-e-g-a-r."
+      }
+    },
+    {
+      "key": "b1-m04-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "chop"
+      ],
+      "text": "Chop the carrots ___ small pieces.",
+      "options": [
+        "into",
+        "on",
+        "by"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Нарежьте морковь на мелкие кусочки.",
+        "uz": "Sabzini mayda bo'laklarga to'g'rang."
+      },
+      "explanation": {
+        "ru": "chop something into pieces — нарезать что-то на кусочки. Русское «на» здесь — into (так же cut into, divide into), а не on; by тоже не подходит.",
+        "uz": "chop something into pieces — biror narsani bo'laklarga to'g'ramoq. O'zbekcha «-ga» bu yerda into bo'ladi (cut into, divide into ham shunday); on va by to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "fry"
+      ],
+      "text": "Fry the fish ___ hot oil until it is golden.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Жарьте рыбу в горячем масле до золотистого цвета.",
+        "uz": "Baliqni qizib turgan yog'da tillarang tusga kirguncha qovuring."
+      },
+      "explanation": {
+        "ru": "fry in oil — жарить на масле. По-русски часто говорят «на масле», но по-английски еда жарится «в» масле: in oil, in butter. On и at с oil так не употребляются.",
+        "uz": "fry in oil — yog'da qovurmoq. Ingliz tilida ovqat yog'ning «ichida» qovuriladi: in oil, in butter. On va at predloglari oil so'zi bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "stir"
+      ],
+      "text": "She stirred her coffee ___ a small spoon.",
+      "options": [
+        "with",
+        "by",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Она помешала кофе маленькой ложкой.",
+        "uz": "U qahvasini kichkina qoshiq bilan aralashtirdi."
+      },
+      "explanation": {
+        "ru": "stir with a spoon — мешать ложкой. Инструмент, которым что-то делают, вводится предлогом with: write with a pen, cut with a knife. By — о способе или транспорте: by hand, by bus.",
+        "uz": "stir with a spoon — qoshiq bilan aralashtirmoq. Ish quroli with bilan beriladi: write with a pen, cut with a knife. By — usul yoki transport haqida: by hand, by bus."
+      }
+    },
+    {
+      "key": "b1-m04-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "boil"
+      ],
+      "prompt": {
+        "ru": "Сколько времени мне варить яйца?",
+        "uz": "Tuxumlarni qancha vaqt qaynatishim kerak?"
+      },
+      "fragments": [
+        "how",
+        "long",
+        "should",
+        "I",
+        "boil",
+        "the",
+        "eggs"
+      ],
+      "accepted": [
+        [
+          "how",
+          "long",
+          "should",
+          "I",
+          "boil",
+          "the",
+          "eggs"
+        ]
+      ],
+      "display": "How long should I boil the eggs?",
+      "explanation": {
+        "ru": "How long…? — «сколько времени?», «как долго?». В вопросе should стоит перед подлежащим, а глагол после него — без to: should I boil.",
+        "uz": "How long…? — «qancha vaqt?». Savolda should egadan oldin turadi, undan keyingi fe'l esa to so'zisiz keladi: should I boil."
+      }
+    },
+    {
+      "key": "b1-m04-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "peel"
+      ],
+      "prompt": {
+        "ru": "Вам не нужно чистить эти яблоки от кожуры.",
+        "uz": "Bu olmalarning po'stini archishingiz shart emas."
+      },
+      "fragments": [
+        "you",
+        "don't",
+        "need",
+        "to",
+        "peel",
+        "these",
+        "apples"
+      ],
+      "accepted": [
+        [
+          "you",
+          "don't",
+          "need",
+          "to",
+          "peel",
+          "these",
+          "apples"
+        ]
+      ],
+      "display": "You don't need to peel these apples.",
+      "explanation": {
+        "ru": "don't need to + глагол — не нужно, необязательно что-то делать. Peel — чистить от кожуры: peel an apple, peel potatoes.",
+        "uz": "don't need to + fe'l — biror ishni qilish shart emas. Peel — po'stini archmoq: peel an apple, peel potatoes."
+      }
+    },
+    {
+      "key": "b1-m04-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "pour"
+      ],
+      "prompt": {
+        "ru": "Позвольте налить вам кофе.",
+        "uz": "Keling, sizga qahva quyib beray."
+      },
+      "fragments": [
+        "let",
+        "me",
+        "pour",
+        "you",
+        "some",
+        "coffee"
+      ],
+      "accepted": [
+        [
+          "let",
+          "me",
+          "pour",
+          "you",
+          "some",
+          "coffee"
+        ]
+      ],
+      "display": "Let me pour you some coffee.",
+      "explanation": {
+        "ru": "pour somebody something — налить кому-то что-то: сначала кому (you), потом что (some coffee), без предлога. Let me + глагол — «позвольте мне», «давайте я».",
+        "uz": "pour somebody something — kimgadir nimadir quyib bermoq: avval kimga (you), keyin nima (some coffee), predlogsiz. Let me + fe'l — «ijozat bering», «keling, men…»."
+      }
+    },
+    {
+      "key": "b1-m04-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "roast",
+        "grill"
+      ],
+      "text": "We can roast or grill the chicken",
+      "accepted": [
+        "We can roast or grill the chicken"
+      ],
+      "translation": {
+        "ru": "Мы можем запечь курицу или пожарить её на гриле",
+        "uz": "Biz tovuqni duxovkada yoki grilda pishirishimiz mumkin"
+      },
+      "explanation": {
+        "ru": "roast: звук «оу» пишется oa, как в coat и road. Grill: на конце две l.",
+        "uz": "roast: «ou» tovushi oa deb yoziladi (coat va road so'zlaridagi kabi). Grill: oxirida ikkita l yoziladi."
+      }
+    },
+    {
+      "key": "b1-m04-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "bake"
+      ],
+      "text": "She bakes a cake every weekend",
+      "accepted": [
+        "She bakes a cake every weekend"
+      ],
+      "translation": {
+        "ru": "Она печёт торт каждые выходные",
+        "uz": "U har dam olish kunlari tort pishiradi"
+      }
+    },
+    {
+      "key": "b1-m04-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "slice"
+      ],
+      "text": "Slice the lemon with a sharp knife",
+      "accepted": [
+        "Slice the lemon with a sharp knife"
+      ],
+      "translation": {
+        "ru": "Острым ножом нарежьте лимон на ломтики",
+        "uz": "Limonni o'tkir pichoq bilan tilimlab kesing"
+      },
+      "explanation": {
+        "ru": "slice: звук «с» на конце пишется -ce: s-l-i-c-e.",
+        "uz": "slice: oxiridagi «s» tovushi -ce deb yoziladi: s-l-i-c-e."
+      }
+    },
+    {
+      "key": "b1-m04-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "recipe"
+      ],
+      "text": "We ___ the recipe carefully, but the cake was dry.",
+      "options": [
+        "followed",
+        "chased",
+        "pursued"
+      ],
+      "correct": [
+        "followed"
+      ],
+      "translation": {
+        "ru": "Мы точно следовали рецепту, но торт получился сухим.",
+        "uz": "Biz retseptga aniq amal qildik, lekin tort quruq chiqdi."
+      },
+      "explanation": {
+        "ru": "follow a recipe — следовать рецепту, готовить по рецепту. Chase — гнаться за кем-то, pursue — преследовать, добиваться цели (pursue a career); с recipe они не употребляются.",
+        "uz": "follow a recipe — retseptga amal qilmoq, retsept bo'yicha tayyorlamoq. Chase — kimningdir ortidan quvmoq, pursue — maqsad sari intilmoq (pursue a career); recipe so'zi bilan ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "pot"
+      ],
+      "text": "After dinner he washed all the pots and ___.",
+      "options": [
+        "pans",
+        "pens",
+        "pins"
+      ],
+      "correct": [
+        "pans"
+      ],
+      "translation": {
+        "ru": "После ужина он вымыл все кастрюли и сковородки.",
+        "uz": "Kechki ovqatdan keyin u barcha kastryul va tovalarni yuvib qo'ydi."
+      },
+      "explanation": {
+        "ru": "pots and pans — кастрюли и сковородки, вся посуда для готовки: устойчивая пара. Pan — сковорода; не путайте с pen (ручка) и pin (булавка).",
+        "uz": "pots and pans — kastryul va tovalar, ovqat pishiriladigan barcha idishlar: turg'un juftlik. Pan — tova; uni pen (ruchka) va pin (to'g'nag'ich) bilan adashtirmang."
+      }
+    },
+    {
+      "key": "b1-m04-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "lid"
+      ],
+      "text": "She ___ the lid and smelled the soup.",
+      "options": [
+        "lifted",
+        "rose",
+        "climbed"
+      ],
+      "correct": [
+        "lifted"
+      ],
+      "translation": {
+        "ru": "Она подняла крышку и понюхала суп.",
+        "uz": "U qopqoqni ko'tarib, sho'rvani hidlab ko'rdi."
+      },
+      "explanation": {
+        "ru": "lift the lid — поднять крышку. Rise (rose) — «подниматься» самому, без дополнения: the sun rose. Climb — взбираться вверх по чему-то: climb the stairs.",
+        "uz": "lift the lid — qopqoqni ko'tarmoq. Rise (rose) — o'zi ko'tarilmoq, to'ldiruvchisiz keladi: the sun rose. Climb — biror narsaga tirmashib chiqmoq: climb the stairs."
+      }
+    },
+    {
+      "key": "b1-m04-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "freezer"
+      ],
+      "prompt": {
+        "ru": "В морозильнике есть мясо?",
+        "uz": "Muzlatish kamerasida go'sht bormi?"
+      },
+      "fragments": [
+        "is",
+        "there",
+        "any",
+        "meat",
+        "in",
+        "the",
+        "freezer"
+      ],
+      "accepted": [
+        [
+          "is",
+          "there",
+          "any",
+          "meat",
+          "in",
+          "the",
+          "freezer"
+        ]
+      ],
+      "display": "Is there any meat in the freezer?",
+      "explanation": {
+        "ru": "Is there any…? — вопрос «есть ли…?»; с неисчисляемым существительным: any meat. In the freezer — в морозильнике.",
+        "uz": "Is there any…? — «…bormi?» degan savol; sanalmaydigan ot bilan: any meat. In the freezer — muzlatish kamerasida."
+      }
+    },
+    {
+      "key": "b1-m04-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "microwave"
+      ],
+      "prompt": {
+        "ru": "Как работает эта микроволновая печь?",
+        "uz": "Bu mikroto'lqinli pech qanday ishlaydi?"
+      },
+      "fragments": [
+        "how",
+        "does",
+        "this",
+        "microwave",
+        "work"
+      ],
+      "accepted": [
+        [
+          "how",
+          "does",
+          "this",
+          "microwave",
+          "work"
+        ]
+      ],
+      "display": "How does this microwave work?",
+      "explanation": {
+        "ru": "Вопрос в Present Simple: How + does + подлежащее + глагол без -s. Work о приборе — «работать»: How does it work?",
+        "uz": "Present Simple zamonidagi savol: How + does + ega + -s qo'shimchasisiz fe'l. Work asbob haqida — «ishlamoq»: How does it work?"
+      }
+    },
+    {
+      "key": "b1-m04-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "jar"
+      ],
+      "prompt": {
+        "ru": "Не могли бы вы открыть для меня эту банку?",
+        "uz": "Menga bu bankani ochib bera olasizmi?"
+      },
+      "fragments": [
+        "could",
+        "you",
+        "open",
+        "this",
+        "jar",
+        "for",
+        "me"
+      ],
+      "accepted": [
+        [
+          "could",
+          "you",
+          "open",
+          "this",
+          "jar",
+          "for",
+          "me"
+        ]
+      ],
+      "display": "Could you open this jar for me?",
+      "explanation": {
+        "ru": "Could you…? — вежливая просьба: «не могли бы вы…?». После could you глагол стоит без to: open. For me — «для меня».",
+        "uz": "Could you…? — muloyim iltimos: «…bera olasizmi?». Could you birikmasidan keyin fe'l to so'zisiz keladi: open. For me — «men uchun, menga»."
+      }
+    },
+    {
+      "key": "b1-m04-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "saucepan",
+        "stove"
+      ],
+      "text": "Put the saucepan on the stove",
+      "accepted": [
+        "Put the saucepan on the stove"
+      ],
+      "translation": {
+        "ru": "Поставьте ковшик на плиту",
+        "uz": "Dastali kastryulchani plitaga qo'ying"
+      },
+      "explanation": {
+        "ru": "saucepan пишется слитно: sauce + pan.",
+        "uz": "saucepan qo'shib yoziladi: sauce + pan."
+      }
+    },
+    {
+      "key": "b1-m04-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "napkin"
+      ],
+      "text": "Could you bring me a clean napkin?",
+      "accepted": [
+        "Could you bring me a clean napkin?"
+      ],
+      "translation": {
+        "ru": "Не могли бы вы принести мне чистую салфетку?",
+        "uz": "Menga toza salfetka olib kela olasizmi?"
+      }
+    },
+    {
+      "key": "b1-m04-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "tray"
+      ],
+      "text": "She carried the tray to the kitchen",
+      "accepted": [
+        "She carried the tray to the kitchen"
+      ],
+      "translation": {
+        "ru": "Она отнесла поднос на кухню",
+        "uz": "U patnisni oshxonaga olib bordi"
+      }
+    },
+    {
+      "key": "b1-m04-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "flavor"
+      ],
+      "text": "This dark chocolate has a very ___ flavor.",
+      "options": [
+        "rich",
+        "wealthy",
+        "costly"
+      ],
+      "correct": [
+        "rich"
+      ],
+      "translation": {
+        "ru": "У этого тёмного шоколада очень насыщенный вкус.",
+        "uz": "Bu qora shokoladning ta'mi juda boy."
+      },
+      "explanation": {
+        "ru": "a rich flavor — насыщенный, «богатый» вкус. О вкусе, цвете и запахе говорят rich; wealthy — «богатый» только о тех, у кого много денег, costly — дорогостоящий.",
+        "uz": "a rich flavor — to'yingan, «boy» ta'm. Ta'm, rang va hid haqida rich deyiladi; wealthy — faqat puli ko'p odam yoki mamlakat haqida «boy», costly esa — qimmatga tushadigan."
+      }
+    },
+    {
+      "key": "b1-m04-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sour"
+      ],
+      "text": "We usually eat this soup with sour ___.",
+      "options": [
+        "cream",
+        "butter",
+        "oil"
+      ],
+      "correct": [
+        "cream"
+      ],
+      "translation": {
+        "ru": "Обычно мы едим этот суп со сметаной.",
+        "uz": "Biz bu sho'rvani odatda smetana bilan yeymiz."
+      },
+      "explanation": {
+        "ru": "sour cream — сметана (буквально «кислые сливки»). Это устойчивое название продукта: sour butter или sour oil не говорят.",
+        "uz": "sour cream — smetana (so'zma-so'z «nordon qaymoq»). Bu mahsulotning turg'un nomi: sour butter yoki sour oil deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "bitter"
+      ],
+      "text": "I do not like the bitter ___ of this medicine.",
+      "options": [
+        "taste",
+        "test",
+        "touch"
+      ],
+      "correct": [
+        "taste"
+      ],
+      "translation": {
+        "ru": "Мне не нравится горький вкус этого лекарства.",
+        "uz": "Menga bu dorining taxir ta'mi yoqmaydi."
+      },
+      "explanation": {
+        "ru": "a bitter taste — горький вкус. Не путайте taste (вкус) с test (тест, проверка): слова похожи, но пишутся и звучат по-разному. Touch — прикосновение.",
+        "uz": "a bitter taste — taxir, achchiq ta'm. Taste (ta'm) so'zini test (sinov, test) bilan adashtirmang: ular o'xshash, lekin yozilishi ham, talaffuzi ham boshqa. Touch — teginish."
+      }
+    },
+    {
+      "key": "b1-m04-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "ripe"
+      ],
+      "prompt": {
+        "ru": "Эта дыня не выглядит спелой.",
+        "uz": "Bu qovun pishganga o'xshamaydi."
+      },
+      "fragments": [
+        "this",
+        "melon",
+        "does",
+        "not",
+        "look",
+        "ripe"
+      ],
+      "accepted": [
+        [
+          "this",
+          "melon",
+          "does",
+          "not",
+          "look",
+          "ripe"
+        ]
+      ],
+      "display": "This melon does not look ripe.",
+      "explanation": {
+        "ru": "look + прилагательное — выглядеть каким-то: look ripe. После look здесь стоит прилагательное, а не наречие. Отрицание: does not look.",
+        "uz": "look + sifat — qandaydir ko'rinmoq: look ripe. Bu yerda look fe'lidan keyin ravish emas, sifat keladi. Inkor shakli: does not look."
+      }
+    },
+    {
+      "key": "b1-m04-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "salty"
+      ],
+      "prompt": {
+        "ru": "Почему этот суп такой солёный?",
+        "uz": "Nega bu sho'rva bunchalik sho'r?"
+      },
+      "fragments": [
+        "why",
+        "is",
+        "this",
+        "soup",
+        "so salty"
+      ],
+      "accepted": [
+        [
+          "why",
+          "is",
+          "this",
+          "soup",
+          "so salty"
+        ]
+      ],
+      "display": "Why is this soup so salty?",
+      "explanation": {
+        "ru": "so + прилагательное — «такой, настолько»: so salty. В вопросе с why глагол is стоит перед подлежащим: Why is this soup…?",
+        "uz": "so + sifat — «shunchalik, bunchalik»: so salty. Why bilan boshlangan savolda is egadan oldin keladi: Why is this soup…?"
+      }
+    },
+    {
+      "key": "b1-m04-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "raw"
+      ],
+      "prompt": {
+        "ru": "Безопасно ли есть сырые яйца?",
+        "uz": "Xom tuxum yeyish xavfsizmi?"
+      },
+      "fragments": [
+        "is",
+        "it",
+        "safe",
+        "to",
+        "eat",
+        "raw",
+        "eggs"
+      ],
+      "accepted": [
+        [
+          "is",
+          "it",
+          "safe",
+          "to",
+          "eat",
+          "raw",
+          "eggs"
+        ],
+        [
+          "is",
+          "it",
+          "safe",
+          "to",
+          "eat",
+          "eggs",
+          "raw"
+        ]
+      ],
+      "display": "Is it safe to eat raw eggs?",
+      "explanation": {
+        "ru": "Is it safe to + глагол? — «безопасно ли…?». It здесь формальное подлежащее. Raw обычно стоит перед существительным: raw eggs — сырые яйца; возможно и eat eggs raw — есть яйца сырыми.",
+        "uz": "Is it safe to + fe'l? — «…xavfsizmi?». It bu yerda rasmiy ega. Raw odatda otdan oldin keladi: raw eggs — xom tuxum; eat eggs raw (tuxumni xomligicha yemoq) deyish ham mumkin."
+      }
+    },
+    {
+      "key": "b1-m04-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "homemade",
+        "frozen"
+      ],
+      "text": "We bought frozen fish and homemade bread",
+      "accepted": [
+        "We bought frozen fish and homemade bread",
+        "We bought frozen fish and home-made bread"
+      ],
+      "translation": {
+        "ru": "Мы купили замороженную рыбу и домашний хлеб",
+        "uz": "Biz muzlatilgan baliq va uyda yopilgan non sotib oldik"
+      },
+      "explanation": {
+        "ru": "homemade пишется слитно: home + made.",
+        "uz": "homemade qo'shib yoziladi: home + made."
+      }
+    },
+    {
+      "key": "b1-m04-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "crispy"
+      ],
+      "text": "This fried chicken is very crispy",
+      "accepted": [
+        "This fried chicken is very crispy"
+      ],
+      "translation": {
+        "ru": "Эта жареная курица очень хрустящая",
+        "uz": "Bu qovurilgan tovuq juda qarsildoq"
+      }
+    },
+    {
+      "key": "b1-m04-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "rotten"
+      ],
+      "text": "Some of the apples were rotten",
+      "accepted": [
+        "Some of the apples were rotten"
+      ],
+      "translation": {
+        "ru": "Некоторые яблоки были гнилыми",
+        "uz": "Olmalarning ba'zilari chirigan edi"
+      },
+      "explanation": {
+        "ru": "rotten: в середине две t, на конце -en: r-o-t-t-e-n.",
+        "uz": "rotten: o'rtasida ikkita t, oxirida -en yoziladi: r-o-t-t-e-n."
+      }
+    },
+    {
+      "key": "b1-m04-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "tip"
+      ],
+      "text": "We always ___ a tip when the service is good.",
+      "options": [
+        "leave",
+        "make",
+        "do"
+      ],
+      "correct": [
+        "leave"
+      ],
+      "translation": {
+        "ru": "Мы всегда оставляем чаевые, когда обслуживание хорошее.",
+        "uz": "Xizmat yaxshi bo'lsa, biz doim choychaqa qoldiramiz."
+      },
+      "explanation": {
+        "ru": "leave a tip — оставить чаевые (говорят также give a tip — дать чаевые). Make и do с tip в этом значении не употребляются.",
+        "uz": "leave a tip — choychaqa qoldirmoq (give a tip — choychaqa bermoq ham deyiladi). Make va do fe'llari tip so'zi bilan bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "serve"
+      ],
+      "text": "The fish is served ___ rice and fresh vegetables.",
+      "options": [
+        "with",
+        "by",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Рыбу подают с рисом и свежими овощами.",
+        "uz": "Baliq guruch va yangi sabzavotlar bilan dasturxonga tortiladi."
+      },
+      "explanation": {
+        "ru": "be served with — подаваться с чем-то (с гарниром, соусом). By назвал бы того, кто подаёт: served by the waiter. From здесь не подходит.",
+        "uz": "be served with — nima bilandir birga tortilmoq (garnir, sous bilan). By taomni kim tortganini bildiradi: served by the waiter. From bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "chew"
+      ],
+      "text": "It is not polite to chew ___ during a lesson.",
+      "options": [
+        "gum",
+        "rubber",
+        "elastic"
+      ],
+      "correct": [
+        "gum"
+      ],
+      "translation": {
+        "ru": "Невежливо жевать жвачку во время урока.",
+        "uz": "Dars paytida saqich chaynash odobdan emas."
+      },
+      "explanation": {
+        "ru": "chew gum — жевать жвачку (chewing gum — жевательная резинка). Русское «резинка» здесь не rubber (резина, ластик) и не elastic (резинка для одежды).",
+        "uz": "chew gum — saqich chaynamoq (chewing gum — saqich). Rubber — rezina yoki o'chirg'ich, elastic — kiyimdagi rezinka; saqich ma'nosida ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m04-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "portion"
+      ],
+      "prompt": {
+        "ru": "Она не смогла доесть свою порцию.",
+        "uz": "U o'z porsiyasini yeb tugata olmadi."
+      },
+      "fragments": [
+        "she",
+        "could",
+        "not",
+        "finish",
+        "her",
+        "portion"
+      ],
+      "accepted": [
+        [
+          "she",
+          "could",
+          "not",
+          "finish",
+          "her",
+          "portion"
+        ]
+      ],
+      "display": "She could not finish her portion.",
+      "explanation": {
+        "ru": "could not + глагол без to — не смог(ла) что-то сделать. Finish о еде — доесть: finish your portion.",
+        "uz": "could not + to so'zisiz fe'l — biror ishni qila olmadi. Finish ovqat haqida — yeb tugatmoq: finish your portion."
+      }
+    },
+    {
+      "key": "b1-m04-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "vegan"
+      ],
+      "prompt": {
+        "ru": "У вас есть меню для веганов?",
+        "uz": "Sizda veganlar uchun menyu bormi?"
+      },
+      "fragments": [
+        "do",
+        "you",
+        "have",
+        "a",
+        "menu",
+        "for",
+        "vegans"
+      ],
+      "accepted": [
+        [
+          "do",
+          "you",
+          "have",
+          "a",
+          "menu",
+          "for",
+          "vegans"
+        ]
+      ],
+      "display": "Do you have a menu for vegans?",
+      "explanation": {
+        "ru": "Do you have…? — «у вас есть…?». For vegans — для веганов: во множественном числе без артикля, когда речь обо всех веганах.",
+        "uz": "Do you have…? — «sizda … bormi?». For vegans — veganlar uchun: barcha veganlar nazarda tutilganda ko'plikda va artiklsiz keladi."
+      }
+    },
+    {
+      "key": "b1-m04-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "swallow"
+      ],
+      "prompt": {
+        "ru": "Эти таблетки трудно глотать.",
+        "uz": "Bu tabletkalarni yutish qiyin."
+      },
+      "fragments": [
+        "it",
+        "is",
+        "hard",
+        "to",
+        "swallow",
+        "these",
+        "pills"
+      ],
+      "accepted": [
+        [
+          "it",
+          "is",
+          "hard",
+          "to",
+          "swallow",
+          "these",
+          "pills"
+        ]
+      ],
+      "display": "It is hard to swallow these pills.",
+      "explanation": {
+        "ru": "It is hard to + глагол — «трудно что-то делать»; it — формальное подлежащее. После swallow дополнение стоит без предлога: swallow these pills.",
+        "uz": "It is hard to + fe'l — «biror ishni qilish qiyin»; it — rasmiy ega. Swallow fe'lidan keyin to'ldiruvchi predlogsiz keladi: swallow these pills."
+      }
+    },
+    {
+      "key": "b1-m04-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "buffet",
+        "appetizer"
+      ],
+      "text": "The buffet has many cold appetizers",
+      "accepted": [
+        "The buffet has many cold appetizers"
+      ],
+      "translation": {
+        "ru": "На шведском столе много холодных закусок",
+        "uz": "Shved stolida sovuq gazaklar ko'p"
+      },
+      "explanation": {
+        "ru": "buffet: две f, а конечная t не произносится. Appetizer: две p и одна t.",
+        "uz": "buffet: ikkita f yoziladi, oxiridagi t esa talaffuz qilinmaydi. Appetizer: ikkita p va bitta t."
+      }
+    },
+    {
+      "key": "b1-m04-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "chef"
+      ],
+      "text": "The chef is very proud of this dish",
+      "accepted": [
+        "The chef is very proud of this dish"
+      ],
+      "translation": {
+        "ru": "Шеф-повар очень гордится этим блюдом",
+        "uz": "Bosh oshpaz bu taom bilan juda faxrlanadi"
+      },
+      "explanation": {
+        "ru": "chef: пишется ch, а читается «ш».",
+        "uz": "chef: ch deb yoziladi, lekin «sh» deb o'qiladi."
+      }
+    },
+    {
+      "key": "b1-m04-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "cuisine"
+      ],
+      "text": "I want to try the local cuisine",
+      "accepted": [
+        "I want to try the local cuisine"
+      ],
+      "translation": {
+        "ru": "Я хочу попробовать местную кухню",
+        "uz": "Men mahalliy oshxona taomlarini tatib ko'rmoqchiman"
+      },
+      "explanation": {
+        "ru": "cuisine: в начале cui- (читается «кви»), на конце немая e: c-u-i-s-i-n-e.",
+        "uz": "cuisine: boshida cui- yoziladi («kvi» deb o'qiladi), oxiridagi e o'qilmaydi: c-u-i-s-i-n-e."
+      }
+    }
+  ]
+}

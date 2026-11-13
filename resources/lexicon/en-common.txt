@@ -33,6 +33,7 @@ acclaim
 accommodation
 accompany
 accomplish
+according
 account
 accountability
 accountant
@@ -51,6 +52,7 @@ activist
 activity
 actor
 actress
+actual
 actually
 acute
 adapt
@@ -209,6 +211,7 @@ apparent
 appeal
 appear
 appearance
+appetiser
 appetite
 appetizer
 applause
@@ -256,6 +259,7 @@ arrive
 arrogant
 arrow
 art
+artefact
 article
 articulate
 artifact
@@ -902,6 +906,7 @@ communicate
 communication
 community
 commute
+commuter
 compact
 company
 compare
@@ -970,6 +975,7 @@ conserve
 consider
 considerable
 considerate
+consist
 consistent
 console
 consonant
@@ -994,6 +1000,7 @@ continue
 contract
 contractor
 contradict
+contrary
 contrast
 contribute
 control
@@ -1092,6 +1099,7 @@ crisps
 crispy
 criterion
 critic
+critical
 criticise
 criticism
 criticize
@@ -1117,6 +1125,7 @@ cucumber
 cuisine
 culprit
 cultivate
+cultural
 culture
 cup
 cupboard
@@ -1306,6 +1315,7 @@ dimension
 diminish
 dining
 dinner
+dinosaur
 diploma
 diplomacy
 direct
@@ -1347,6 +1357,7 @@ dispose
 dispute
 dissertation
 distance
+distant
 distinguish
 distort
 distress
@@ -1388,6 +1399,7 @@ door
 doors
 dormitory
 dose
+dot
 double
 doubt
 doughnut
@@ -1492,6 +1504,7 @@ eightieth
 eighty
 either
 elaborate
+elastic
 elbow
 elderly
 elect
@@ -1500,6 +1513,7 @@ electorate
 electric
 electrician
 electricity
+electron
 electronic
 elegant
 element
@@ -1561,7 +1575,10 @@ enhance
 enjoy
 enormous
 enough
+enrol
 enroll
+enrollment
+enrolment
 ensure
 enter
 enterprise
@@ -1806,6 +1823,7 @@ first
 firstly
 fiscal
 fish
+fisherman
 fishing
 fist
 fit
@@ -2011,6 +2029,7 @@ glance
 glass
 glasses
 global
+globalisation
 globalization
 globe
 glory
@@ -2060,6 +2079,7 @@ grant
 grape
 grapes
 graph
+graphic
 grasp
 grass
 grate
@@ -2104,6 +2124,7 @@ guilt
 guilty
 guitar
 gulf
+gum
 gun
 guy
 guys
@@ -2277,6 +2298,8 @@ hotel
 hour
 house
 housed
+household
+housework
 how
 how's
 however
@@ -2369,6 +2392,7 @@ independence
 index
 indicate
 indifferent
+individual
 indoors
 industrial
 industry
@@ -2403,6 +2427,7 @@ input
 inquiry
 insect
 insects
+insert
 inside
 insight
 insist
@@ -2413,6 +2438,7 @@ inspiration
 inspire
 install
 installment
+instalment
 instance
 instead
 instinct
@@ -2427,6 +2453,7 @@ insurance
 insure
 integrate
 integrity
+intellect
 intellectual
 intelligence
 intelligent
@@ -2464,6 +2491,7 @@ inventory
 invest
 investigate
 investment
+investor
 invitation
 invite
 invoice
@@ -2957,8 +2985,10 @@ moody
 moon
 mop
 moral
+morale
 moreover
 morning
+mortal
 mortgage
 mosaic
 mosque
@@ -3263,6 +3293,7 @@ overall
 overcoat
 overcome
 overcrowded
+overdo
 overdraft
 overdue
 overlook
@@ -3272,6 +3303,7 @@ oversee
 overtake
 overtime
 overtook
+overview
 overweight
 owe
 owl
@@ -3549,6 +3581,7 @@ pour
 poverty
 powder
 power
+powerful
 practical
 practice
 practise
@@ -3575,6 +3608,7 @@ prescription
 presence
 present
 presentation
+preservation
 preserve
 preside
 president
@@ -3585,6 +3619,7 @@ pretty
 prevail
 prevent
 prevention
+preview
 previous
 prey
 price
@@ -3622,6 +3657,7 @@ product
 productivity
 products
 profession
+professional
 professor
 proficiency
 profile
@@ -4141,6 +4177,7 @@ sequel
 sequence
 series
 serious
+servant
 serve
 server
 service
@@ -4158,6 +4195,7 @@ seventh
 seventieth
 seventy
 several
+severe
 sew
 sewage
 sewed
@@ -4208,6 +4246,7 @@ shops
 shore
 short
 shortage
+shorten
 shortlist
 shorts
 shots
@@ -4565,6 +4604,7 @@ suburb
 subway
 succeed
 success
+successful
 such
 suck
 sudden
@@ -4995,6 +5035,7 @@ ugly
 ultimately
 umbrella
 unable
+unauthorised
 unauthorized
 uncertainty
 uncle
@@ -5034,9 +5075,12 @@ unknown
 unless
 unlike
 unlikely
+unload
 unlock
 unlucky
+unnatural
 unpack
+untie
 until
 unusual
 up
@@ -5048,6 +5092,7 @@ upper
 upset
 upstairs
 urban
+urbanisation
 urbanization
 urge
 urgent
@@ -5117,6 +5162,7 @@ view
 viewer
 viewpoint
 village
+villager
 vine
 vinegar
 violate
@@ -5190,6 +5236,7 @@ waste
 watch
 water
 watercolor
+watercolour
 waterfall
 watermelon
 wave

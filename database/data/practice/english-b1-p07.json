@@ -1,0 +1,2789 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m13-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "hunt"
+      ],
+      "text": "Our cat goes out to hunt ___ mice every evening.",
+      "options": [
+        "for",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Каждый вечер наша кошка выходит охотиться на мышей.",
+        "uz": "Mushugimiz har oqshom sichqon ovlagani tashqariga chiqadi."
+      },
+      "explanation": {
+        "ru": "hunt for something — охотиться на кого-то, искать добычу. Можно и без предлога: hunt mice. Русское «охотиться на» не переводится через on.",
+        "uz": "hunt for something — biror jonivorni ovlamoq, o'lja izlamoq. Predlogsiz ham bo'ladi: hunt mice. Bu ma'noda hunt on yoki hunt to deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m13-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "fur"
+      ],
+      "text": "Bears have ___ fur that keeps them warm in winter.",
+      "options": [
+        "thick",
+        "fat",
+        "wide"
+      ],
+      "correct": [
+        "thick"
+      ],
+      "translation": {
+        "ru": "У медведей густой мех, который согревает их зимой.",
+        "uz": "Ayiqlarning juni qalin bo'lib, qishda ularni issiq saqlaydi."
+      },
+      "explanation": {
+        "ru": "thick fur — густой мех, густая шерсть. Thick — «толстый, густой» о слое или покрове; fat — «толстый, полный» о человеке или животном; wide — «широкий».",
+        "uz": "thick fur — qalin jun, qalin mo'yna. Thick — qatlam yoki qoplam haqida «qalin»; fat — odam yoki hayvon haqida «semiz»; wide — «keng»."
+      }
+    },
+    {
+      "key": "b1-m13-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "feather"
+      ],
+      "text": "My new jacket is as ___ as a feather.",
+      "options": [
+        "light",
+        "easy",
+        "simple"
+      ],
+      "correct": [
+        "light"
+      ],
+      "translation": {
+        "ru": "Моя новая куртка лёгкая как пёрышко.",
+        "uz": "Yangi kurtkam patdek yengil."
+      },
+      "explanation": {
+        "ru": "as light as a feather — лёгкий как пёрышко. Light — «лёгкий» по весу; easy и simple — «лёгкий, простой» о задаче или вопросе: an easy question.",
+        "uz": "as light as a feather — patdek yengil. Light — vazni «yengil»; easy va simple esa ish yoki savol haqida «oson, sodda»: an easy question."
+      }
+    },
+    {
+      "key": "b1-m13-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "species"
+      ],
+      "prompt": {
+        "ru": "Сколько видов птиц обитает в этом лесу?",
+        "uz": "Bu o'rmonda qushlarning nechta turi yashaydi?"
+      },
+      "fragments": [
+        "how",
+        "many",
+        "species",
+        "of",
+        "birds",
+        "live",
+        "in this forest"
+      ],
+      "accepted": [
+        [
+          "how",
+          "many",
+          "species",
+          "of",
+          "birds",
+          "live",
+          "in this forest"
+        ]
+      ],
+      "display": "How many species of birds live in this forest?",
+      "explanation": {
+        "ru": "У слова species одна форма для единственного и множественного числа: one species, many species. How many species … live — вопрос к подлежащему, поэтому do не нужен.",
+        "uz": "Species so'zining birlik va ko'plik shakli bir xil: one species, many species. How many species … live — egaga berilgan savol, shuning uchun do kerak emas."
+      }
+    },
+    {
+      "key": "b1-m13-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nest"
+      ],
+      "prompt": {
+        "ru": "Орёл вернулся в своё гнездо.",
+        "uz": "Burgut o'z uyasiga qaytdi."
+      },
+      "fragments": [
+        "the",
+        "eagle",
+        "returned",
+        "to",
+        "its",
+        "nest"
+      ],
+      "accepted": [
+        [
+          "the",
+          "eagle",
+          "returned",
+          "to",
+          "its",
+          "nest"
+        ]
+      ],
+      "display": "The eagle returned to its nest.",
+      "explanation": {
+        "ru": "return to + место — возвращаться куда-то. Its (без апострофа) — «его, своё» о животном или предмете; it's с апострофом — это it is.",
+        "uz": "return to + joy — biror joyga qaytmoq. Its (apostrofsiz) — hayvon yoki narsa haqida «uning, o'zining»; apostrofli it's esa it is degani."
+      }
+    },
+    {
+      "key": "b1-m13-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "tail"
+      ],
+      "prompt": {
+        "ru": "Не тяните кошку за хвост.",
+        "uz": "Mushukning dumidan tortmang."
+      },
+      "fragments": [
+        "do",
+        "not",
+        "pull",
+        "the",
+        "cat's",
+        "tail"
+      ],
+      "accepted": [
+        [
+          "do",
+          "not",
+          "pull",
+          "the",
+          "cat's",
+          "tail"
+        ]
+      ],
+      "display": "Do not pull the cat's tail.",
+      "explanation": {
+        "ru": "pull the cat's tail — тянуть кошку за хвост: по-английски «тянут хвост кошки», без предлога. 's показывает принадлежность: the cat's tail — хвост кошки.",
+        "uz": "pull the cat's tail — mushukning dumidan tortmoq: inglizchada bu yerda predlog kerak emas. 's egalikni bildiradi: the cat's tail — mushukning dumi."
+      }
+    },
+    {
+      "key": "b1-m13-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wing"
+      ],
+      "text": "This bird has a broken wing",
+      "accepted": [
+        "This bird has a broken wing"
+      ],
+      "translation": {
+        "ru": "У этой птицы сломано крыло",
+        "uz": "Bu qushning qanoti singan"
+      }
+    },
+    {
+      "key": "b1-m13-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wildlife"
+      ],
+      "text": "New roads are dangerous for wildlife",
+      "accepted": [
+        "New roads are dangerous for wildlife"
+      ],
+      "translation": {
+        "ru": "Новые дороги опасны для дикой природы",
+        "uz": "Yangi yo'llar yovvoyi tabiat uchun xavfli"
+      },
+      "explanation": {
+        "ru": "wildlife пишется слитно: wild + life.",
+        "uz": "wildlife qo'shib yoziladi: wild + life."
+      }
+    },
+    {
+      "key": "b1-m13-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "creature",
+        "cage"
+      ],
+      "text": "No creature should live in a cage",
+      "accepted": [
+        "No creature should live in a cage"
+      ],
+      "translation": {
+        "ru": "Ни одно существо не должно жить в клетке",
+        "uz": "Hech bir jonzot qafasda yashamasligi kerak"
+      },
+      "explanation": {
+        "ru": "creature: в середине ea, на конце -ture — c-r-e-a-t-u-r-e (от глагола create).",
+        "uz": "creature: o'rtada ea, oxirida -ture yoziladi — c-r-e-a-t-u-r-e (create fe'lidan yasalgan)."
+      }
+    },
+    {
+      "key": "b1-m13-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "mosquito"
+      ],
+      "text": "We always sleep under a mosquito ___ in summer.",
+      "options": [
+        "net",
+        "web",
+        "network"
+      ],
+      "correct": [
+        "net"
+      ],
+      "translation": {
+        "ru": "Летом мы всегда спим под москитной сеткой.",
+        "uz": "Yozda biz doim pashshaxona ichida uxlaymiz."
+      },
+      "explanation": {
+        "ru": "mosquito net — москитная сетка. Net — сетка, сеть для защиты или ловли; web — паутина; network — сеть дорог, компьютеров, связей.",
+        "uz": "mosquito net — pashshaxona, chivindan himoya qiladigan to'r. Net — himoya yoki ov uchun to'r; web — o'rgimchak to'ri; network — yo'llar, kompyuterlar, aloqalar tarmog'i."
+      }
+    },
+    {
+      "key": "b1-m13-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "spider"
+      ],
+      "text": "A fly was caught in the spider's ___.",
+      "options": [
+        "web",
+        "net",
+        "network"
+      ],
+      "correct": [
+        "web"
+      ],
+      "translation": {
+        "ru": "Муха попалась в паутину паука.",
+        "uz": "Pashsha o'rgimchak to'riga ilinib qoldi."
+      },
+      "explanation": {
+        "ru": "a spider's web — паутина. У паука по-английски web, а не net: net — это сетка, которую делает человек (a fishing net). Network — сеть дорог, компьютеров, связей.",
+        "uz": "a spider's web — o'rgimchak to'ri. Inglizchada o'rgimchakning to'ri web deyiladi, net emas: net — odam yasagan to'r (a fishing net). Network — yo'llar, kompyuterlar, aloqalar tarmog'i."
+      }
+    },
+    {
+      "key": "b1-m13-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "camel"
+      ],
+      "text": "Many tourists want to ___ a camel in the desert.",
+      "options": [
+        "ride",
+        "go",
+        "travel"
+      ],
+      "correct": [
+        "ride"
+      ],
+      "translation": {
+        "ru": "Многие туристы хотят покататься на верблюде в пустыне.",
+        "uz": "Ko'p sayyohlar cho'lda tuya minishni xohlaydi."
+      },
+      "explanation": {
+        "ru": "ride a camel — ездить, кататься на верблюде. О животных, велосипеде и мотоцикле говорят ride + существительное без предлога. Go и travel так не употребляются: нельзя сказать go a camel.",
+        "uz": "ride a camel — tuya minmoq. Hayvon, velosiped va mototsikl haqida ride + ot predlogsiz ishlatiladi. Go va travel bunday qo'llanmaydi: go a camel deb bo'lmaydi."
+      }
+    },
+    {
+      "key": "b1-m13-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "parrot"
+      ],
+      "prompt": {
+        "ru": "Она научила своего попугая петь.",
+        "uz": "U to'tiqushiga qo'shiq aytishni o'rgatdi."
+      },
+      "fragments": [
+        "she",
+        "taught",
+        "her",
+        "parrot",
+        "to",
+        "sing"
+      ],
+      "accepted": [
+        [
+          "she",
+          "taught",
+          "her",
+          "parrot",
+          "to",
+          "sing"
+        ]
+      ],
+      "display": "She taught her parrot to sing.",
+      "explanation": {
+        "ru": "teach somebody to do something — научить кого-то что-то делать. Taught — прошедшая форма глагола teach.",
+        "uz": "teach somebody to do something — kimgadir biror ishni o'rgatmoq. Taught — teach fe'lining o'tgan zamon shakli."
+      }
+    },
+    {
+      "key": "b1-m13-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "squirrel"
+      ],
+      "prompt": {
+        "ru": "Та белка не боится людей.",
+        "uz": "Anavi olmaxon odamlardan qo'rqmaydi."
+      },
+      "fragments": [
+        "that",
+        "squirrel",
+        "is",
+        "not",
+        "afraid",
+        "of",
+        "people"
+      ],
+      "accepted": [
+        [
+          "that",
+          "squirrel",
+          "is",
+          "not",
+          "afraid",
+          "of",
+          "people"
+        ]
+      ],
+      "display": "That squirrel is not afraid of people.",
+      "explanation": {
+        "ru": "be afraid of + существительное — бояться кого-то или чего-то. Not ставится после is: is not afraid.",
+        "uz": "be afraid of + ot — kimdandir yoki nimadandir qo'rqmoq. Not is dan keyin qo'yiladi: is not afraid."
+      }
+    },
+    {
+      "key": "b1-m13-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "shark"
+      ],
+      "prompt": {
+        "ru": "Вы когда-нибудь видели акулу?",
+        "uz": "Siz hech akula ko'rganmisiz?"
+      },
+      "fragments": [
+        "have",
+        "you",
+        "ever",
+        "seen",
+        "a",
+        "shark"
+      ],
+      "accepted": [
+        [
+          "have",
+          "you",
+          "ever",
+          "seen",
+          "a",
+          "shark"
+        ]
+      ],
+      "display": "Have you ever seen a shark?",
+      "explanation": {
+        "ru": "Have you ever + третья форма глагола — вопрос о жизненном опыте: see — saw — seen. Ever стоит между подлежащим и глаголом.",
+        "uz": "Have you ever + fe'lning uchinchi shakli — hayotiy tajriba haqidagi savol: see — saw — seen. Ever ega bilan fe'l orasida turadi."
+      }
+    },
+    {
+      "key": "b1-m13-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "penguin",
+        "turtle"
+      ],
+      "text": "Penguins and turtles swim very well",
+      "accepted": [
+        "Penguins and turtles swim very well"
+      ],
+      "translation": {
+        "ru": "Пингвины и черепахи очень хорошо плавают",
+        "uz": "Pingvinlar va toshbaqalar juda yaxshi suzadi"
+      },
+      "explanation": {
+        "ru": "penguin: после g пишется u — p-e-n-g-u-i-n. turtle: в середине ur, на конце -le.",
+        "uz": "penguin: g dan keyin u yoziladi — p-e-n-g-u-i-n. turtle: o'rtada ur, oxirida -le."
+      }
+    },
+    {
+      "key": "b1-m13-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "owl"
+      ],
+      "text": "An owl lives in that old tree",
+      "accepted": [
+        "An owl lives in that old tree"
+      ],
+      "translation": {
+        "ru": "На том старом дереве живёт сова",
+        "uz": "Anavi qari daraxtda boyo'g'li yashaydi"
+      }
+    },
+    {
+      "key": "b1-m13-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "goat"
+      ],
+      "text": "Our goat gives a lot of milk",
+      "accepted": [
+        "Our goat gives a lot of milk"
+      ],
+      "translation": {
+        "ru": "Наша коза даёт много молока",
+        "uz": "Echkimiz ko'p sut beradi"
+      },
+      "explanation": {
+        "ru": "goat: звук «оу» пишется oa, как в boat и coat.",
+        "uz": "goat: «ou» tovushi oa bilan yoziladi (boat va coat so'zlaridagi kabi)."
+      }
+    },
+    {
+      "key": "b1-m13-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "countryside"
+      ],
+      "text": "My grandparents have a small house ___ the countryside.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "У моих бабушки и дедушки есть небольшой дом в сельской местности.",
+        "uz": "Buvim va bobomning qishloq joyida kichkina uyi bor."
+      },
+      "explanation": {
+        "ru": "in the countryside — в сельской местности, за городом. Со словом countryside употребляется in: live in the countryside. On и at здесь не подходят.",
+        "uz": "in the countryside — qishloq joyida, shahardan tashqarida. Countryside so'zi bilan in ishlatiladi: live in the countryside. On va at bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m13-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "stream"
+      ],
+      "text": "A small stream ___ through the middle of our village.",
+      "options": [
+        "runs",
+        "leaks",
+        "walks"
+      ],
+      "correct": [
+        "runs"
+      ],
+      "translation": {
+        "ru": "Посреди нашей деревни протекает небольшой ручей.",
+        "uz": "Qishlog'imizning o'rtasidan kichik bir jilg'a oqib o'tadi."
+      },
+      "explanation": {
+        "ru": "a stream runs through … — ручей течёт через … О реке и ручье говорят run или flow. Leak — «течь, протекать» о кране или крыше; walk — ходить пешком.",
+        "uz": "a stream runs through … — jilg'a … orqali oqib o'tadi. Daryo va jilg'a haqida run yoki flow deyiladi. Leak — jo'mrak yoki tomdan suv sizib chiqishi; walk — piyoda yurmoq."
+      }
+    },
+    {
+      "key": "b1-m13-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "shore"
+      ],
+      "text": "After two hours our boat finally ___ the shore.",
+      "options": [
+        "reached",
+        "arrived",
+        "came"
+      ],
+      "correct": [
+        "reached"
+      ],
+      "translation": {
+        "ru": "Через два часа наша лодка наконец достигла берега.",
+        "uz": "Ikki soatdan keyin qayig'imiz nihoyat qirg'oqqa yetib bordi."
+      },
+      "explanation": {
+        "ru": "reach the shore — достичь берега, добраться до берега. После reach предлог не нужен. Arrive и come требуют предлога: arrive at the shore, come to the shore.",
+        "uz": "reach the shore — qirg'oqqa yetib bormoq. Reach fe'lidan keyin predlog kerak emas. Arrive va come esa predlog talab qiladi: arrive at the shore, come to the shore."
+      }
+    },
+    {
+      "key": "b1-m13-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "continent"
+      ],
+      "prompt": {
+        "ru": "Какой континент вы хотели бы посетить?",
+        "uz": "Qaysi qit'ani borib ko'rishni xohlar edingiz?"
+      },
+      "fragments": [
+        "which",
+        "continent",
+        "would",
+        "you",
+        "like",
+        "to",
+        "visit"
+      ],
+      "accepted": [
+        [
+          "which",
+          "continent",
+          "would",
+          "you",
+          "like",
+          "to",
+          "visit"
+        ]
+      ],
+      "display": "Which continent would you like to visit?",
+      "explanation": {
+        "ru": "would like to + глагол — вежливое «хотел бы». В вопросе would стоит перед подлежащим: Which continent would you like …?",
+        "uz": "would like to + fe'l — xushmuomala «xohlar edim». Savolda would egadan oldin turadi: Which continent would you like …?"
+      }
+    },
+    {
+      "key": "b1-m13-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "horizon"
+      ],
+      "prompt": {
+        "ru": "Вы видите тот корабль на горизонте?",
+        "uz": "Ufqdagi anavi kemani ko'ryapsizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "see",
+        "that",
+        "ship",
+        "on",
+        "the horizon"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "see",
+          "that",
+          "ship",
+          "on",
+          "the horizon"
+        ]
+      ],
+      "display": "Can you see that ship on the horizon?",
+      "explanation": {
+        "ru": "on the horizon — на горизонте (предлог on). С глаголами see и hear в английском часто стоит can: Can you see …? — Вы видите …?",
+        "uz": "on the horizon — ufqda (on predlogi bilan). See va hear fe'llari bilan inglizchada ko'pincha can keladi: Can you see …? — Ko'ryapsizmi?"
+      }
+    },
+    {
+      "key": "b1-m13-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "wave"
+      ],
+      "prompt": {
+        "ru": "Волны были слишком высокими для купания.",
+        "uz": "To'lqinlar cho'milish uchun haddan tashqari baland edi."
+      },
+      "fragments": [
+        "the",
+        "waves",
+        "were",
+        "too high",
+        "for",
+        "swimming"
+      ],
+      "accepted": [
+        [
+          "the",
+          "waves",
+          "were",
+          "too high",
+          "for",
+          "swimming"
+        ],
+        [
+          "for",
+          "swimming",
+          "the",
+          "waves",
+          "were",
+          "too high"
+        ]
+      ],
+      "display": "The waves were too high for swimming.",
+      "explanation": {
+        "ru": "too + прилагательное + for + существительное или глагол с -ing — слишком … для чего-то: too high for swimming.",
+        "uz": "too + sifat + for + ot yoki -ing shaklidagi fe'l — biror narsa uchun haddan tashqari …: too high for swimming."
+      }
+    },
+    {
+      "key": "b1-m13-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "bay"
+      ],
+      "text": "The hotel has a view of the bay",
+      "accepted": [
+        "The hotel has a view of the bay"
+      ],
+      "translation": {
+        "ru": "Из отеля открывается вид на залив",
+        "uz": "Mehmonxonadan ko'rfaz ko'rinib turadi"
+      }
+    },
+    {
+      "key": "b1-m13-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "pond",
+        "meadow"
+      ],
+      "text": "We found a small pond in the meadow",
+      "accepted": [
+        "We found a small pond in the meadow"
+      ],
+      "translation": {
+        "ru": "Мы нашли на лугу небольшой пруд",
+        "uz": "Biz o'tloqda kichik bir hovuz topdik"
+      },
+      "explanation": {
+        "ru": "meadow: краткий звук «э» пишется ea (как в bread и head), на конце -ow.",
+        "uz": "meadow: qisqa «e» tovushi ea bilan yoziladi (bread va head so'zlaridagi kabi), oxirida -ow."
+      }
+    },
+    {
+      "key": "b1-m13-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "landscape"
+      ],
+      "text": "This painting shows a winter landscape",
+      "accepted": [
+        "This painting shows a winter landscape"
+      ],
+      "translation": {
+        "ru": "На этой картине изображён зимний пейзаж",
+        "uz": "Bu rasmda qishki manzara tasvirlangan"
+      },
+      "explanation": {
+        "ru": "landscape пишется слитно: land + scape.",
+        "uz": "landscape qo'shib yoziladi: land + scape."
+      }
+    },
+    {
+      "key": "b1-m13-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "hurricane"
+      ],
+      "text": "The hurricane ___ the coast early in the morning.",
+      "options": [
+        "hit",
+        "kicked",
+        "knocked"
+      ],
+      "correct": [
+        "hit"
+      ],
+      "translation": {
+        "ru": "Ураган обрушился на побережье рано утром.",
+        "uz": "Dovul erta tongda sohilga yopirildi."
+      },
+      "explanation": {
+        "ru": "the hurricane hit the coast — ураган обрушился на побережье. О стихийных бедствиях говорят hit (или strike): a storm hit the city. Kick — бить ногой; knock — стучать.",
+        "uz": "the hurricane hit the coast — dovul sohilga yopirildi. Tabiiy ofatlar haqida hit (yoki strike) deyiladi: a storm hit the city. Kick — tepmoq; knock — taqillatmoq."
+      }
+    },
+    {
+      "key": "b1-m13-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "thunderstorm"
+      ],
+      "text": "We were ___ in a thunderstorm on our way home.",
+      "options": [
+        "caught",
+        "fallen",
+        "arrived"
+      ],
+      "correct": [
+        "caught"
+      ],
+      "translation": {
+        "ru": "По дороге домой мы попали в грозу.",
+        "uz": "Uyga qaytayotganimizda momaqaldiroqli yomg'irda qolib ketdik."
+      },
+      "explanation": {
+        "ru": "be caught in a thunderstorm — попасть в грозу (буквально «быть пойманным»). Так же: be caught in the rain. Fall и arrive в этом выражении не употребляются.",
+        "uz": "be caught in a thunderstorm — momaqaldiroqli yomg'irda qolmoq (so'zma-so'z «tutilmoq»). Xuddi shunday: be caught in the rain. Fall va arrive bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m13-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sunshine"
+      ],
+      "text": "My grandfather likes to sit ___ the sunshine.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мой дедушка любит сидеть на солнышке.",
+        "uz": "Bobom oftobda o'tirishni yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "in the sunshine — на солнце, на солнышке. По-русски «на солнце», а по-английски in: sit in the sunshine, in the sun. On и at здесь не употребляются.",
+        "uz": "in the sunshine — oftobda, quyosh nurida. Sunshine so'zi bilan in ishlatiladi: sit in the sunshine, in the sun. On va at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m13-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "mild"
+      ],
+      "prompt": {
+        "ru": "В этой стране мягкий климат.",
+        "uz": "Bu mamlakatning iqlimi mo'tadil."
+      },
+      "fragments": [
+        "this",
+        "country",
+        "has",
+        "a",
+        "mild",
+        "climate"
+      ],
+      "accepted": [
+        [
+          "this",
+          "country",
+          "has",
+          "a",
+          "mild",
+          "climate"
+        ]
+      ],
+      "display": "This country has a mild climate.",
+      "explanation": {
+        "ru": "a mild climate — мягкий климат (без сильной жары и морозов). Так же: a mild winter, mild weather. Артикль a стоит перед прилагательным: a mild climate.",
+        "uz": "a mild climate — mo'tadil iqlim (qattiq issiq va sovuqsiz). Xuddi shunday: a mild winter, mild weather. A artikli sifatdan oldin turadi: a mild climate."
+      }
+    },
+    {
+      "key": "b1-m13-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "tropical"
+      ],
+      "prompt": {
+        "ru": "Этим тропическим растениям нужно много воды.",
+        "uz": "Bu tropik o'simliklarga ko'p suv kerak."
+      },
+      "fragments": [
+        "these",
+        "tropical",
+        "plants",
+        "need",
+        "a lot of",
+        "water"
+      ],
+      "accepted": [
+        [
+          "these",
+          "tropical",
+          "plants",
+          "need",
+          "a lot of",
+          "water"
+        ]
+      ],
+      "display": "These tropical plants need a lot of water.",
+      "explanation": {
+        "ru": "a lot of + существительное — много: a lot of water. После these существительное стоит во множественном числе, а глагол — без -s: these plants need.",
+        "uz": "a lot of + ot — ko'p: a lot of water. These dan keyin ot ko'plikda, fe'l esa -s qo'shimchasisiz keladi: these plants need."
+      }
+    },
+    {
+      "key": "b1-m13-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "frost"
+      ],
+      "prompt": {
+        "ru": "Мороз погубил все наши цветы.",
+        "uz": "Sovuq barcha gullarimizni nobud qildi."
+      },
+      "fragments": [
+        "the",
+        "frost",
+        "killed",
+        "all",
+        "our",
+        "flowers"
+      ],
+      "accepted": [
+        [
+          "the",
+          "frost",
+          "killed",
+          "all",
+          "our",
+          "flowers"
+        ]
+      ],
+      "display": "The frost killed all our flowers.",
+      "explanation": {
+        "ru": "all our + существительное: all стоит перед притяжательным местоимением — all our flowers (а не our all flowers).",
+        "uz": "all our + ot: all egalik olmoshidan oldin turadi — all our flowers (our all flowers emas)."
+      }
+    },
+    {
+      "key": "b1-m13-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "humid"
+      ],
+      "text": "The air is very humid today",
+      "accepted": [
+        "The air is very humid today"
+      ],
+      "translation": {
+        "ru": "Сегодня воздух очень влажный",
+        "uz": "Bugun havo juda nam"
+      }
+    },
+    {
+      "key": "b1-m13-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "breeze",
+        "chilly"
+      ],
+      "text": "The breeze from the river was chilly",
+      "accepted": [
+        "The breeze from the river was chilly"
+      ],
+      "translation": {
+        "ru": "Ветерок с реки был прохладным",
+        "uz": "Daryodan esayotgan shabada salqin edi"
+      },
+      "explanation": {
+        "ru": "breeze: в середине ee, на конце -ze — b-r-e-e-z-e. chilly: две l — c-h-i-l-l-y.",
+        "uz": "breeze: o'rtada ee, oxirida -ze — b-r-e-e-z-e. chilly: ikkita l — c-h-i-l-l-y."
+      }
+    },
+    {
+      "key": "b1-m13-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "hail"
+      ],
+      "text": "The hail stopped after a few minutes",
+      "accepted": [
+        "The hail stopped after a few minutes"
+      ],
+      "translation": {
+        "ru": "Град прекратился через несколько минут",
+        "uz": "Do'l bir necha daqiqadan keyin to'xtadi"
+      },
+      "explanation": {
+        "ru": "hail: звук «эй» пишется ai, как в rain.",
+        "uz": "hail: «ey» tovushi ai bilan yoziladi (rain so'zidagi kabi)."
+      }
+    },
+    {
+      "key": "b1-m13-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "global"
+      ],
+      "text": "Scientists say global ___ is changing our weather.",
+      "options": [
+        "warming",
+        "warning",
+        "heater"
+      ],
+      "correct": [
+        "warming"
+      ],
+      "translation": {
+        "ru": "Учёные говорят, что глобальное потепление меняет нашу погоду.",
+        "uz": "Olimlarning aytishicha, global isish ob-havomizni o'zgartirmoqda."
+      },
+      "explanation": {
+        "ru": "global warming — глобальное потепление, устойчивое выражение. Warning — предупреждение (пишется через n); heater — обогреватель.",
+        "uz": "global warming — global isish, turg'un birikma. Warning — ogohlantirish (n bilan yoziladi); heater — isitkich."
+      }
+    },
+    {
+      "key": "b1-m13-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "solar"
+      ],
+      "text": "There are eight planets in our solar ___.",
+      "options": [
+        "system",
+        "structure",
+        "scheme"
+      ],
+      "correct": [
+        "system"
+      ],
+      "translation": {
+        "ru": "В нашей Солнечной системе восемь планет.",
+        "uz": "Bizning Quyosh sistemamizda sakkizta sayyora bor."
+      },
+      "explanation": {
+        "ru": "the solar system — Солнечная система. Structure — структура, строение; scheme — схема, план. С solar в этом значении говорят только system.",
+        "uz": "the solar system — Quyosh sistemasi. Structure — tuzilish; scheme — sxema, reja. Solar so'zi bilan bu ma'noda faqat system ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m13-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "endangered"
+      ],
+      "text": "This rare bird is now an endangered ___.",
+      "options": [
+        "species",
+        "kind",
+        "sort"
+      ],
+      "correct": [
+        "species"
+      ],
+      "translation": {
+        "ru": "Эта редкая птица теперь считается исчезающим видом.",
+        "uz": "Bu noyob qush endi yo'qolib borayotgan tur hisoblanadi."
+      },
+      "explanation": {
+        "ru": "an endangered species — исчезающий вид, вид под угрозой исчезновения. О биологическом виде говорят species; kind и sort — «вид, сорт» в обычном смысле: a kind of music.",
+        "uz": "an endangered species — yo'qolib borayotgan tur. Biologik tur haqida species deyiladi; kind va sort — oddiy ma'nodagi «tur, xil»: a kind of music."
+      }
+    },
+    {
+      "key": "b1-m13-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "survive"
+      ],
+      "prompt": {
+        "ru": "Как эти животные переживают зиму?",
+        "uz": "Bu hayvonlar qishdan qanday omon chiqadi?"
+      },
+      "fragments": [
+        "how",
+        "do",
+        "these",
+        "animals",
+        "survive",
+        "the",
+        "winter"
+      ],
+      "accepted": [
+        [
+          "how",
+          "do",
+          "these",
+          "animals",
+          "survive",
+          "the",
+          "winter"
+        ]
+      ],
+      "display": "How do these animals survive the winter?",
+      "explanation": {
+        "ru": "survive + существительное без предлога — пережить что-то, выжить: survive the winter. В вопросе Present Simple нужен do: How do … survive?",
+        "uz": "survive + ot (predlogsiz) — biror narsadan omon chiqmoq, omon qolmoq: survive the winter. Present Simple savolida do kerak: How do … survive?"
+      }
+    },
+    {
+      "key": "b1-m13-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "extinct"
+      ],
+      "prompt": {
+        "ru": "Почему вымерли динозавры?",
+        "uz": "Nega dinozavrlar qirilib ketgan?"
+      },
+      "fragments": [
+        "why",
+        "did",
+        "dinosaurs",
+        "become",
+        "extinct"
+      ],
+      "accepted": [
+        [
+          "why",
+          "did",
+          "dinosaurs",
+          "become",
+          "extinct"
+        ]
+      ],
+      "display": "Why did dinosaurs become extinct?",
+      "explanation": {
+        "ru": "become extinct — вымереть. После did глагол стоит в начальной форме: did … become (а не became).",
+        "uz": "become extinct — qirilib ketmoq. Did dan keyin fe'l asosiy shaklda keladi: did … become (became emas)."
+      }
+    },
+    {
+      "key": "b1-m13-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "destroy"
+      ],
+      "prompt": {
+        "ru": "Мы уничтожаем свою собственную планету.",
+        "uz": "Biz o'z sayyoramizni yo'q qilyapmiz."
+      },
+      "fragments": [
+        "we",
+        "are",
+        "destroying",
+        "our",
+        "own",
+        "planet"
+      ],
+      "accepted": [
+        [
+          "we",
+          "are",
+          "destroying",
+          "our",
+          "own",
+          "planet"
+        ]
+      ],
+      "display": "We are destroying our own planet.",
+      "explanation": {
+        "ru": "our own + существительное — «наш собственный»: own стоит после притяжательного местоимения. Are destroying — Present Continuous: это происходит сейчас.",
+        "uz": "our own + ot — «o'zimizning»: own egalik olmoshidan keyin turadi. Are destroying — Present Continuous: bu hozir sodir bo'lmoqda."
+      }
+    },
+    {
+      "key": "b1-m13-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "preserve",
+        "rainforest"
+      ],
+      "text": "We must preserve the rainforest",
+      "accepted": [
+        "We must preserve the rainforest",
+        "We must preserve the rain forest"
+      ],
+      "translation": {
+        "ru": "Мы должны сохранить тропический лес",
+        "uz": "Biz tropik o'rmonni saqlab qolishimiz kerak"
+      },
+      "explanation": {
+        "ru": "rainforest пишется слитно: rain + forest.",
+        "uz": "rainforest qo'shib yoziladi: rain + forest."
+      }
+    },
+    {
+      "key": "b1-m13-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "toxic"
+      ],
+      "text": "This paint is not toxic",
+      "accepted": [
+        "This paint is not toxic",
+        "This paint isn't toxic"
+      ],
+      "translation": {
+        "ru": "Эта краска не токсична",
+        "uz": "Bu bo'yoq zaharli emas"
+      }
+    },
+    {
+      "key": "b1-m13-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "environmental"
+      ],
+      "text": "We discussed environmental problems in class",
+      "accepted": [
+        "We discussed environmental problems in class"
+      ],
+      "translation": {
+        "ru": "На уроке мы обсуждали экологические проблемы",
+        "uz": "Darsda ekologik muammolarni muhokama qildik"
+      },
+      "explanation": {
+        "ru": "environmental: перед m пишется n, которую легко пропустить, — environ + ment + al.",
+        "uz": "environmental: m dan oldin n yoziladi, uni tushirib qoldirish oson — environ + ment + al."
+      }
+    },
+    {
+      "key": "b1-m14-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "conclusion"
+      ],
+      "text": "Both scientists ___ to the same conclusion.",
+      "options": [
+        "came",
+        "arrived",
+        "reached"
+      ],
+      "correct": [
+        "came"
+      ],
+      "translation": {
+        "ru": "Оба учёных пришли к одному и тому же выводу.",
+        "uz": "Ikkala olim ham bir xil xulosaga keldi."
+      },
+      "explanation": {
+        "ru": "come to a conclusion — прийти к выводу. С другими глаголами конструкция другая: arrive at a conclusion (предлог at), reach a conclusion (без предлога). Поэтому перед to здесь подходит только came.",
+        "uz": "come to a conclusion — xulosaga kelmoq. Boshqa fe'llar bilan qurilish boshqacha: arrive at a conclusion (at predlogi bilan), reach a conclusion (predlogsiz). Shuning uchun to predlogidan oldin faqat came mos keladi."
+      }
+    },
+    {
+      "key": "b1-m14-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "theory"
+      ],
+      "text": "It sounds easy ___ theory, but it is hard to do.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "В теории это звучит легко, но сделать это трудно.",
+        "uz": "Nazariyada bu oson tuyuladi, lekin buni bajarish qiyin."
+      },
+      "explanation": {
+        "ru": "in theory — в теории, теоретически. Устойчивое выражение без артикля; противоположное — in practice (на практике). On и at здесь не употребляются.",
+        "uz": "in theory — nazariyada, nazariy jihatdan. Artiklsiz turg'un ibora; teskarisi — in practice (amalda). On va at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m14-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "sample"
+      ],
+      "text": "The doctor wants to ___ a small sample of your blood.",
+      "options": [
+        "take",
+        "make",
+        "do"
+      ],
+      "correct": [
+        "take"
+      ],
+      "translation": {
+        "ru": "Врач хочет взять у вас небольшой образец крови.",
+        "uz": "Shifokor qoningizdan ozgina namuna olmoqchi."
+      },
+      "explanation": {
+        "ru": "take a sample — взять образец, пробу: take a blood sample. Как и в русском, образец «берут» (take); make и do со словом sample в этом значении не употребляются.",
+        "uz": "take a sample — namuna olmoq: take a blood sample. O'zbekchadagi kabi namuna «olinadi» (take); make va do bu ma'noda sample so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m14-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "evidence"
+      ],
+      "prompt": {
+        "ru": "У нас недостаточно доказательств.",
+        "uz": "Bizda yetarli dalil yo'q."
+      },
+      "fragments": [
+        "we",
+        "do",
+        "not",
+        "have",
+        "enough",
+        "evidence"
+      ],
+      "accepted": [
+        [
+          "we",
+          "do",
+          "not",
+          "have",
+          "enough",
+          "evidence"
+        ]
+      ],
+      "display": "We do not have enough evidence.",
+      "explanation": {
+        "ru": "evidence — неисчисляемое существительное: у него нет множественного числа и перед ним не ставят an. Говорят enough evidence, a lot of evidence, a piece of evidence.",
+        "uz": "evidence — sanalmaydigan ot: ko'plik shakli yo'q va oldiga an qo'yilmaydi. Enough evidence, a lot of evidence, a piece of evidence deyiladi."
+      }
+    },
+    {
+      "key": "b1-m14-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "prove"
+      ],
+      "prompt": {
+        "ru": "Вы можете доказать, что вы правы?",
+        "uz": "Haq ekaningizni isbotlay olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "prove",
+        "that",
+        "you",
+        "are",
+        "right"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "prove",
+          "that",
+          "you",
+          "are",
+          "right"
+        ]
+      ],
+      "display": "Can you prove that you are right?",
+      "explanation": {
+        "ru": "prove that + предложение — доказать, что … После can глагол стоит без to: can you prove.",
+        "uz": "prove that + gap — … ekanini isbotlamoq. Can dan keyin fe'l to yuklamasisiz keladi: can you prove."
+      }
+    },
+    {
+      "key": "b1-m14-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "experiment"
+      ],
+      "prompt": {
+        "ru": "Что показал этот эксперимент?",
+        "uz": "Bu tajriba nimani ko'rsatdi?"
+      },
+      "fragments": [
+        "what",
+        "did",
+        "this",
+        "experiment",
+        "show"
+      ],
+      "accepted": [
+        [
+          "what",
+          "did",
+          "this",
+          "experiment",
+          "show"
+        ]
+      ],
+      "display": "What did this experiment show?",
+      "explanation": {
+        "ru": "Вопрос в Past Simple: what + did + подлежащее + глагол в начальной форме — did … show (а не showed).",
+        "uz": "Past Simple savoli: what + did + ega + fe'lning asosiy shakli — did … show (showed emas)."
+      }
+    },
+    {
+      "key": "b1-m14-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "scientist",
+        "laboratory"
+      ],
+      "text": "The scientist works in a laboratory",
+      "accepted": [
+        "The scientist works in a laboratory"
+      ],
+      "translation": {
+        "ru": "Учёный работает в лаборатории",
+        "uz": "Olim laboratoriyada ishlaydi"
+      },
+      "explanation": {
+        "ru": "scientist начинается с sc (от science): s-c-i-e-n-t-i-s-t. В laboratory две o: l-a-b-o-r-a-t-o-r-y.",
+        "uz": "scientist sc bilan boshlanadi (science so'zidan): s-c-i-e-n-t-i-s-t. Laboratory so'zida ikkita o bor: l-a-b-o-r-a-t-o-r-y."
+      }
+    },
+    {
+      "key": "b1-m14-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "researcher"
+      ],
+      "text": "My sister works as a researcher",
+      "accepted": [
+        "My sister works as a researcher"
+      ],
+      "translation": {
+        "ru": "Моя сестра работает исследователем",
+        "uz": "Opam tadqiqotchi bo'lib ishlaydi"
+      },
+      "explanation": {
+        "ru": "researcher: в середине ear, как в search, — r-e-s-e-a-r-c-h-e-r.",
+        "uz": "researcher: o'rtada ear yoziladi (search so'zidagi kabi) — r-e-s-e-a-r-c-h-e-r."
+      }
+    },
+    {
+      "key": "b1-m14-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "microscope"
+      ],
+      "text": "Look at this leaf under the microscope",
+      "accepted": [
+        "Look at this leaf under the microscope"
+      ],
+      "translation": {
+        "ru": "Посмотрите на этот лист под микроскопом",
+        "uz": "Bu bargga mikroskop ostida qarang"
+      },
+      "explanation": {
+        "ru": "microscope: оба раза пишется c, а не k, и на конце немая e — m-i-c-r-o-s-c-o-p-e.",
+        "uz": "microscope: ikkala joyda ham k emas, c yoziladi, oxirida o'qilmaydigan e bor — m-i-c-r-o-s-c-o-p-e."
+      }
+    },
+    {
+      "key": "b1-m14-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "rocket"
+      ],
+      "text": "The rocket was ___ into space early this morning.",
+      "options": [
+        "launched",
+        "started",
+        "opened"
+      ],
+      "correct": [
+        "launched"
+      ],
+      "translation": {
+        "ru": "Ракету запустили в космос сегодня рано утром.",
+        "uz": "Raketa bugun erta tongda kosmosga uchirildi."
+      },
+      "explanation": {
+        "ru": "launch a rocket — запустить ракету. Start — начинать (start a lesson) или заводить (start a car); open — открывать. О ракетах и спутниках говорят launch.",
+        "uz": "launch a rocket — raketani uchirmoq. Start — boshlamoq (start a lesson) yoki o't oldirmoq (start a car); open — ochmoq. Raketa va sun'iy yo'ldoshlar haqida launch deyiladi."
+      }
+    },
+    {
+      "key": "b1-m14-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "mission"
+      ],
+      "text": "The astronauts were sent ___ a mission to another planet.",
+      "options": [
+        "on",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Космонавтов отправили с миссией на другую планету.",
+        "uz": "Kosmonavtlarni boshqa sayyoraga missiya bilan yuborishdi."
+      },
+      "explanation": {
+        "ru": "on a mission — с миссией, на задании: be on a mission, send somebody on a mission. Со словом mission употребляется on, а не in или at.",
+        "uz": "on a mission — missiya bilan, topshiriq bilan: be on a mission, send somebody on a mission. Mission so'zi bilan on ishlatiladi, in yoki at emas."
+      }
+    },
+    {
+      "key": "b1-m14-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "telescope"
+      ],
+      "text": "We looked at the moon ___ a telescope last night.",
+      "options": [
+        "through",
+        "across",
+        "along"
+      ],
+      "correct": [
+        "through"
+      ],
+      "translation": {
+        "ru": "Вчера вечером мы смотрели на Луну в телескоп.",
+        "uz": "Kecha kechqurun biz Oyga teleskop orqali qaradik."
+      },
+      "explanation": {
+        "ru": "look through a telescope — смотреть в телескоп (буквально «сквозь телескоп»). Across — через, на другую сторону (across the street); along — вдоль (along the river).",
+        "uz": "look through a telescope — teleskop orqali qaramoq. Across — narigi tomonga, kesib o'tib (across the street); along — bo'ylab (along the river)."
+      }
+    },
+    {
+      "key": "b1-m14-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "astronaut"
+      ],
+      "prompt": {
+        "ru": "Он мечтал стать космонавтом.",
+        "uz": "U kosmonavt bo'lishni orzu qilardi."
+      },
+      "fragments": [
+        "he",
+        "dreamed",
+        "of",
+        "becoming",
+        "an",
+        "astronaut"
+      ],
+      "accepted": [
+        [
+          "he",
+          "dreamed",
+          "of",
+          "becoming",
+          "an",
+          "astronaut"
+        ]
+      ],
+      "display": "He dreamed of becoming an astronaut.",
+      "explanation": {
+        "ru": "dream of + глагол с -ing — мечтать что-то сделать: dream of becoming. Перед гласным звуком артикль an: an astronaut.",
+        "uz": "dream of + -ing shaklidagi fe'l — biror ishni orzu qilmoq: dream of becoming. Unli tovushdan oldin an artikli keladi: an astronaut."
+      }
+    },
+    {
+      "key": "b1-m14-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "universe"
+      ],
+      "prompt": {
+        "ru": "Мы одни во Вселенной?",
+        "uz": "Biz koinotda yolg'izmizmi?"
+      },
+      "fragments": [
+        "are",
+        "we",
+        "alone",
+        "in",
+        "the",
+        "universe"
+      ],
+      "accepted": [
+        [
+          "are",
+          "we",
+          "alone",
+          "in",
+          "the",
+          "universe"
+        ]
+      ],
+      "display": "Are we alone in the universe?",
+      "explanation": {
+        "ru": "the universe — Вселенная: она одна, поэтому с the. В вопросе глагол are стоит перед подлежащим: Are we …?",
+        "uz": "the universe — koinot: u yagona, shuning uchun the bilan keladi. Savolda are egadan oldin turadi: Are we …?"
+      }
+    },
+    {
+      "key": "b1-m14-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "space"
+      ],
+      "prompt": {
+        "ru": "В космосе есть воздух?",
+        "uz": "Kosmosda havo bormi?"
+      },
+      "fragments": [
+        "is",
+        "there",
+        "any",
+        "air",
+        "in",
+        "space"
+      ],
+      "accepted": [
+        [
+          "is",
+          "there",
+          "any",
+          "air",
+          "in",
+          "space"
+        ],
+        [
+          "in",
+          "space",
+          "is",
+          "there",
+          "any",
+          "air"
+        ]
+      ],
+      "display": "Is there any air in space?",
+      "explanation": {
+        "ru": "in space — в космосе: space в значении «космос» употребляется без артикля. Is there any …? — вопрос о том, есть ли что-то; any стоит перед существительным.",
+        "uz": "in space — kosmosda: space so'zi «kosmos» ma'nosida artiklsiz ishlatiladi. Is there any …? — biror narsa bor-yo'qligi haqidagi savol; any otdan oldin turadi."
+      }
+    },
+    {
+      "key": "b1-m14-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "satellite",
+        "orbit"
+      ],
+      "text": "The satellite is still in orbit",
+      "accepted": [
+        "The satellite is still in orbit"
+      ],
+      "translation": {
+        "ru": "Спутник всё ещё находится на орбите",
+        "uz": "Sun'iy yo'ldosh hali ham orbitada"
+      },
+      "explanation": {
+        "ru": "satellite: после a одна t, затем две l — s-a-t-e-l-l-i-t-e.",
+        "uz": "satellite: a dan keyin bitta t, undan keyin ikkita l — s-a-t-e-l-l-i-t-e."
+      }
+    },
+    {
+      "key": "b1-m14-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "galaxy"
+      ],
+      "text": "How many stars are in our galaxy?",
+      "accepted": [
+        "How many stars are in our galaxy?"
+      ],
+      "translation": {
+        "ru": "Сколько звёзд в нашей галактике?",
+        "uz": "Bizning galaktikamizda nechta yulduz bor?"
+      },
+      "explanation": {
+        "ru": "galaxy: в середине x (в русском слове «кт»), на конце y — g-a-l-a-x-y.",
+        "uz": "galaxy: o'rtada x yoziladi (o'zbekcha so'zdagi «kt» o'rnida), oxirida y — g-a-l-a-x-y."
+      }
+    },
+    {
+      "key": "b1-m14-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "spaceship"
+      ],
+      "text": "The spaceship landed on the moon",
+      "accepted": [
+        "The spaceship landed on the moon"
+      ],
+      "translation": {
+        "ru": "Космический корабль сел на Луну",
+        "uz": "Kosmik kema Oyga qo'ndi"
+      },
+      "explanation": {
+        "ru": "spaceship пишется слитно: space + ship.",
+        "uz": "spaceship qo'shib yoziladi: space + ship."
+      }
+    },
+    {
+      "key": "b1-m14-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "mixture"
+      ],
+      "text": "The air we breathe is a mixture ___ different gases.",
+      "options": [
+        "of",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Воздух, которым мы дышим, — это смесь разных газов.",
+        "uz": "Biz nafas olayotgan havo turli gazlar aralashmasidir."
+      },
+      "explanation": {
+        "ru": "a mixture of … — смесь чего-то. После mixture ставится of: a mixture of sugar and water. Русское «смесь из …» не переводится через from.",
+        "uz": "a mixture of … — biror narsalarning aralashmasi. Mixture so'zidan keyin of keladi: a mixture of sugar and water. From va with bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m14-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "powder"
+      ],
+      "text": "Add some ___ powder to the flour and mix well.",
+      "options": [
+        "baking",
+        "frying",
+        "boiling"
+      ],
+      "correct": [
+        "baking"
+      ],
+      "translation": {
+        "ru": "Добавьте в муку немного разрыхлителя и хорошо перемешайте.",
+        "uz": "Un ichiga ozgina qabartma kukuni solib, yaxshilab aralashtiring."
+      },
+      "explanation": {
+        "ru": "baking powder — разрыхлитель для теста (буквально «порошок для выпечки»): bake — печь. Fry — жарить, boil — варить, кипятить; frying powder и boiling powder не говорят.",
+        "uz": "baking powder — qabartma kukuni, ya'ni xamirni ko'taradigan kukun: bake — non yoki pishiriq pishirmoq. Fry — qovurmoq, boil — qaynatmoq; frying powder yoki boiling powder deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m14-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "material"
+      ],
+      "text": "Cotton is the best material ___ summer clothes.",
+      "options": [
+        "for",
+        "to",
+        "by"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Хлопок — лучший материал для летней одежды.",
+        "uz": "Paxta — yozgi kiyim uchun eng yaxshi material."
+      },
+      "explanation": {
+        "ru": "material for + существительное — материал для чего-то: a good material for furniture. Русское «для» здесь — for; to и by после material в этом значении не употребляются.",
+        "uz": "material for + ot — biror narsa uchun material: a good material for furniture. O'zbekcha «uchun» bu yerda for bilan beriladi; to va by bu ma'noda material so'zidan keyin ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m14-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "pure"
+      ],
+      "prompt": {
+        "ru": "Её платье сшито из чистого шёлка.",
+        "uz": "Uning ko'ylagi sof ipakdan tikilgan."
+      },
+      "fragments": [
+        "her",
+        "dress",
+        "is",
+        "made",
+        "of",
+        "pure",
+        "silk"
+      ],
+      "accepted": [
+        [
+          "her",
+          "dress",
+          "is",
+          "made",
+          "of",
+          "pure",
+          "silk"
+        ]
+      ],
+      "display": "Her dress is made of pure silk.",
+      "explanation": {
+        "ru": "be made of + материал — быть сделанным из чего-то. Pure стоит перед существительным: pure silk, pure gold.",
+        "uz": "be made of + material — biror narsadan yasalgan (tikilgan) bo'lmoq. Pure otdan oldin turadi: pure silk, pure gold."
+      }
+    },
+    {
+      "key": "b1-m14-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "liquid"
+      ],
+      "prompt": {
+        "ru": "Эта жидкость используется для мытья окон.",
+        "uz": "Bu suyuqlik derazalarni tozalash uchun ishlatiladi."
+      },
+      "fragments": [
+        "this",
+        "liquid",
+        "is",
+        "used",
+        "to",
+        "clean",
+        "windows"
+      ],
+      "accepted": [
+        [
+          "this",
+          "liquid",
+          "is",
+          "used",
+          "to",
+          "clean",
+          "windows"
+        ]
+      ],
+      "display": "This liquid is used to clean windows.",
+      "explanation": {
+        "ru": "be used to + глагол — использоваться для чего-то: is used to clean. Это пассив глагола use; не путайте с used to («раньше делал»).",
+        "uz": "be used to + fe'l — biror ish uchun ishlatilmoq: is used to clean. Bu use fe'lining majhul nisbati; used to («ilgari qilar edi») bilan adashtirmang."
+      }
+    },
+    {
+      "key": "b1-m14-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "metal",
+        "steel"
+      ],
+      "prompt": {
+        "ru": "Этот металл легче стали.",
+        "uz": "Bu metall po'latdan yengilroq."
+      },
+      "fragments": [
+        "this",
+        "metal",
+        "is",
+        "lighter",
+        "than",
+        "steel"
+      ],
+      "accepted": [
+        [
+          "this",
+          "metal",
+          "is",
+          "lighter",
+          "than",
+          "steel"
+        ]
+      ],
+      "display": "This metal is lighter than steel.",
+      "explanation": {
+        "ru": "Сравнительная степень коротких прилагательных: прилагательное + -er + than — lighter than steel (легче, чем сталь).",
+        "uz": "Qisqa sifatlarning qiyosiy darajasi: sifat + -er + than — lighter than steel (po'latdan yengilroq)."
+      }
+    },
+    {
+      "key": "b1-m14-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "oxygen"
+      ],
+      "text": "Plants give us oxygen",
+      "accepted": [
+        "Plants give us oxygen"
+      ],
+      "translation": {
+        "ru": "Растения дают нам кислород",
+        "uz": "O'simliklar bizga kislorod beradi"
+      },
+      "explanation": {
+        "ru": "oxygen: после x пишется y, а g читается как «дж» — o-x-y-g-e-n.",
+        "uz": "oxygen: x dan keyin y yoziladi, g esa «j» deb o'qiladi — o-x-y-g-e-n."
+      }
+    },
+    {
+      "key": "b1-m14-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "chemical"
+      ],
+      "text": "Be careful with these chemicals",
+      "accepted": [
+        "Be careful with these chemicals"
+      ],
+      "translation": {
+        "ru": "Будьте осторожны с этими химическими веществами",
+        "uz": "Bu kimyoviy moddalar bilan ehtiyot bo'ling"
+      },
+      "explanation": {
+        "ru": "chemical: ch читается как «к» (как в school), на конце -cal.",
+        "uz": "chemical: ch «k» deb o'qiladi (school so'zidagi kabi), oxirida -cal yoziladi."
+      }
+    },
+    {
+      "key": "b1-m14-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "solid"
+      ],
+      "text": "Ice is water in solid form",
+      "accepted": [
+        "Ice is water in solid form"
+      ],
+      "translation": {
+        "ru": "Лёд — это вода в твёрдом состоянии",
+        "uz": "Muz — qattiq holatdagi suv"
+      }
+    },
+    {
+      "key": "b1-m14-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "multiply"
+      ],
+      "text": "To find the area, multiply the length ___ the width.",
+      "options": [
+        "by",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Чтобы найти площадь, умножьте длину на ширину.",
+        "uz": "Yuzani topish uchun uzunlikni enga ko'paytiring."
+      },
+      "explanation": {
+        "ru": "multiply by — умножать на. Русское «на» здесь передаётся предлогом by, а не on: multiply six by four. Так же с делением: divide by.",
+        "uz": "multiply by — biror songa ko'paytirmoq. O'zbekcha «-ga» bu yerda by bilan beriladi, to yoki on emas: multiply six by four. Bo'lishda ham shunday: divide by."
+      }
+    },
+    {
+      "key": "b1-m14-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "divide"
+      ],
+      "text": "The teacher divided the class ___ four groups.",
+      "options": [
+        "into",
+        "on",
+        "by"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Учитель разделил класс на четыре группы.",
+        "uz": "O'qituvchi sinfni to'rt guruhga bo'ldi."
+      },
+      "explanation": {
+        "ru": "divide into — делить на части или группы: divide the class into groups. Русское «на» здесь — into, а не on. Divide by — делить на число: divide ten by two.",
+        "uz": "divide into — qismlarga yoki guruhlarga bo'lmoq: divide the class into groups. O'zbekcha «-ga» bu yerda into bilan beriladi. Divide by — songa bo'lmoq: divide ten by two."
+      }
+    },
+    {
+      "key": "b1-m14-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "graph"
+      ],
+      "text": "Please ___ a graph to show these numbers.",
+      "options": [
+        "draw",
+        "paint",
+        "write"
+      ],
+      "correct": [
+        "draw"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, начертите график, чтобы показать эти цифры.",
+        "uz": "Iltimos, bu raqamlarni ko'rsatish uchun grafik chizing."
+      },
+      "explanation": {
+        "ru": "draw a graph — начертить, построить график. Paint — рисовать красками, write — писать слова. Графики, линии и схемы по-английски «чертят»: draw a graph, draw a line.",
+        "uz": "draw a graph — grafik chizmoq. Paint — bo'yoq bilan rasm solmoq, write — so'z yozmoq. Grafik, chiziq va sxemalar draw fe'li bilan aytiladi: draw a graph, draw a line."
+      }
+    },
+    {
+      "key": "b1-m14-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "calculate"
+      ],
+      "prompt": {
+        "ru": "Как вы вычислили это число?",
+        "uz": "Bu sonni qanday hisobladingiz?"
+      },
+      "fragments": [
+        "how",
+        "did",
+        "you",
+        "calculate",
+        "this",
+        "number"
+      ],
+      "accepted": [
+        [
+          "how",
+          "did",
+          "you",
+          "calculate",
+          "this",
+          "number"
+        ]
+      ],
+      "display": "How did you calculate this number?",
+      "explanation": {
+        "ru": "Вопрос в Past Simple: how + did + подлежащее + глагол в начальной форме — did you calculate (а не calculated).",
+        "uz": "Past Simple savoli: how + did + ega + fe'lning asosiy shakli — did you calculate (calculated emas)."
+      }
+    },
+    {
+      "key": "b1-m14-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "average"
+      ],
+      "prompt": {
+        "ru": "Каков средний возраст ваших учеников?",
+        "uz": "O'quvchilaringizning o'rtacha yoshi qancha?"
+      },
+      "fragments": [
+        "what",
+        "is",
+        "the",
+        "average",
+        "age",
+        "of",
+        "your",
+        "students"
+      ],
+      "accepted": [
+        [
+          "what",
+          "is",
+          "the",
+          "average",
+          "age",
+          "of",
+          "your",
+          "students"
+        ]
+      ],
+      "display": "What is the average age of your students?",
+      "explanation": {
+        "ru": "average + существительное — средний: the average age, the average temperature. Перед average здесь стоит the: речь о конкретной величине.",
+        "uz": "average + ot — o'rtacha: the average age, the average temperature. Bu yerda average dan oldin the keladi: gap aniq bir kattalik haqida."
+      }
+    },
+    {
+      "key": "b1-m14-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "measure",
+        "width"
+      ],
+      "prompt": {
+        "ru": "Вы можете измерить ширину этого стола?",
+        "uz": "Bu stolning enini o'lchay olasizmi?"
+      },
+      "fragments": [
+        "can",
+        "you",
+        "measure",
+        "the width",
+        "of",
+        "this",
+        "table"
+      ],
+      "accepted": [
+        [
+          "can",
+          "you",
+          "measure",
+          "the width",
+          "of",
+          "this",
+          "table"
+        ]
+      ],
+      "display": "Can you measure the width of this table?",
+      "explanation": {
+        "ru": "measure the width of + существительное — измерить ширину чего-то. Width образовано от wide (широкий), как length от long.",
+        "uz": "measure the width of + ot — biror narsaning enini o'lchamoq. Width so'zi wide (keng) dan yasalgan, length esa long dan."
+      }
+    },
+    {
+      "key": "b1-m14-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "length"
+      ],
+      "text": "What is the length of this river?",
+      "accepted": [
+        "What is the length of this river?",
+        "What's the length of this river?"
+      ],
+      "translation": {
+        "ru": "Какова длина этой реки?",
+        "uz": "Bu daryoning uzunligi qancha?"
+      },
+      "explanation": {
+        "ru": "length (от long): в середине ng, на конце th — l-e-n-g-t-h. Букву g легко пропустить.",
+        "uz": "length (long so'zidan): o'rtada ng, oxirida th — l-e-n-g-t-h. G harfini tushirib qoldirish oson."
+      }
+    },
+    {
+      "key": "b1-m14-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "depth"
+      ],
+      "text": "The depth of the lake is unknown",
+      "accepted": [
+        "The depth of the lake is unknown"
+      ],
+      "translation": {
+        "ru": "Глубина озера неизвестна",
+        "uz": "Ko'lning chuqurligi noma'lum"
+      },
+      "explanation": {
+        "ru": "depth (от deep): одна e и p перед th — d-e-p-t-h.",
+        "uz": "depth (deep so'zidan): bitta e va th dan oldin p — d-e-p-t-h."
+      }
+    },
+    {
+      "key": "b1-m14-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "distance"
+      ],
+      "text": "Keep a safe distance from other cars",
+      "accepted": [
+        "Keep a safe distance from other cars"
+      ],
+      "translation": {
+        "ru": "Держитесь на безопасном расстоянии от других машин",
+        "uz": "Boshqa mashinalardan xavfsiz masofa saqlang"
+      },
+      "explanation": {
+        "ru": "distance: на конце -ance (через a) — d-i-s-t-a-n-c-e.",
+        "uz": "distance: oxirida -ance (a bilan) yoziladi — d-i-s-t-a-n-c-e."
+      }
+    },
+    {
+      "key": "b1-m14-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "reaction"
+      ],
+      "text": "Heat can ___ a chemical reaction.",
+      "options": [
+        "cause",
+        "call",
+        "lead"
+      ],
+      "correct": [
+        "cause"
+      ],
+      "translation": {
+        "ru": "Тепло может вызвать химическую реакцию.",
+        "uz": "Issiqlik kimyoviy reaksiyani keltirib chiqarishi mumkin."
+      },
+      "explanation": {
+        "ru": "cause a reaction — вызвать реакцию. Русское «вызвать» здесь — cause (быть причиной), а не call (звать, звонить). Lead требует предлога: lead to a reaction — привести к реакции.",
+        "uz": "cause a reaction — reaksiyani keltirib chiqarmoq, ya'ni unga sabab bo'lmoq. Call — chaqirmoq, qo'ng'iroq qilmoq. Lead esa predlog talab qiladi: lead to a reaction — reaksiyaga olib kelmoq."
+      }
+    },
+    {
+      "key": "b1-m14-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "electric"
+      ],
+      "text": "Do not touch that wire, or you will get an electric ___.",
+      "options": [
+        "shock",
+        "hit",
+        "blow"
+      ],
+      "correct": [
+        "shock"
+      ],
+      "translation": {
+        "ru": "Не трогайте тот провод, иначе вас ударит током.",
+        "uz": "Anavi simga tegmang, aks holda sizni tok uradi."
+      },
+      "explanation": {
+        "ru": "an electric shock — удар током: get an electric shock. Русское «удар» здесь не hit и не blow, а shock.",
+        "uz": "an electric shock — tok urishi: get an electric shock. O'zbekcha «urish» bu yerda hit yoki blow emas, shock deb aytiladi."
+      }
+    },
+    {
+      "key": "b1-m14-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "process"
+      ],
+      "text": "We are ___ the process of moving to a new office.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мы сейчас в процессе переезда в новый офис.",
+        "uz": "Biz hozir yangi ofisga ko'chish jarayonidamiz."
+      },
+      "explanation": {
+        "ru": "in the process of + глагол с -ing — в процессе чего-то: in the process of moving. Здесь возможен только предлог in, а не on или at.",
+        "uz": "in the process of + -ing shaklidagi fe'l — biror ish jarayonida: in the process of moving. Bu yerda faqat in ishlatiladi, on yoki at emas."
+      }
+    },
+    {
+      "key": "b1-m14-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "discover"
+      ],
+      "prompt": {
+        "ru": "Учёные открыли новую планету.",
+        "uz": "Olimlar yangi sayyora kashf qilishdi."
+      },
+      "fragments": [
+        "scientists",
+        "have",
+        "discovered",
+        "a",
+        "new",
+        "planet"
+      ],
+      "accepted": [
+        [
+          "scientists",
+          "have",
+          "discovered",
+          "a",
+          "new",
+          "planet"
+        ]
+      ],
+      "display": "Scientists have discovered a new planet.",
+      "explanation": {
+        "ru": "Present Perfect: have + третья форма глагола — о новости, результат которой важен сейчас. Discover — правильный глагол: discovered.",
+        "uz": "Present Perfect: have + fe'lning uchinchi shakli — natijasi hozir muhim bo'lgan yangilik haqida. Discover — to'g'ri fe'l: discovered."
+      }
+    },
+    {
+      "key": "b1-m14-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "heat"
+      ],
+      "prompt": {
+        "ru": "Этот старый дом теряет много тепла.",
+        "uz": "Bu eski uy ko'p issiqlik yo'qotadi."
+      },
+      "fragments": [
+        "this",
+        "old",
+        "house",
+        "loses",
+        "a lot of",
+        "heat"
+      ],
+      "accepted": [
+        [
+          "this",
+          "old",
+          "house",
+          "loses",
+          "a lot of",
+          "heat"
+        ]
+      ],
+      "display": "This old house loses a lot of heat.",
+      "explanation": {
+        "ru": "heat — неисчисляемое существительное: a lot of heat. Lose (терять) пишется с одной o; loose с двумя o — «свободный, неплотный».",
+        "uz": "heat — sanalmaydigan ot: a lot of heat. Lose (yo'qotmoq) bitta o bilan yoziladi; ikkita o bilan yoziladigan loose — «bo'sh, keng»."
+      }
+    },
+    {
+      "key": "b1-m14-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "force"
+      ],
+      "prompt": {
+        "ru": "Какая сила притягивает предметы к земле?",
+        "uz": "Qaysi kuch jismlarni yerga tortadi?"
+      },
+      "fragments": [
+        "which",
+        "force",
+        "pulls",
+        "objects",
+        "to",
+        "the ground"
+      ],
+      "accepted": [
+        [
+          "which",
+          "force",
+          "pulls",
+          "objects",
+          "to",
+          "the ground"
+        ]
+      ],
+      "display": "Which force pulls objects to the ground?",
+      "explanation": {
+        "ru": "Вопрос к подлежащему с which + существительное: do / does не нужен, а глагол стоит с -s — Which force pulls …?",
+        "uz": "Egaga berilgan which + ot savoli: do / does kerak emas, fe'l esa -s bilan keladi — Which force pulls …?"
+      }
+    },
+    {
+      "key": "b1-m14-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "magnet",
+        "laser"
+      ],
+      "text": "Magnets and lasers are used in medicine",
+      "accepted": [
+        "Magnets and lasers are used in medicine"
+      ],
+      "translation": {
+        "ru": "Магниты и лазеры используются в медицине",
+        "uz": "Magnitlar va lazerlar tibbiyotda qo'llaniladi"
+      },
+      "explanation": {
+        "ru": "laser пишется через s, хотя слышится «з»: l-a-s-e-r.",
+        "uz": "laser so'zi s bilan yoziladi, garchi «z» eshitilsa ham: l-a-s-e-r."
+      }
+    },
+    {
+      "key": "b1-m14-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "motion"
+      ],
+      "text": "The train was already in motion",
+      "accepted": [
+        "The train was already in motion"
+      ],
+      "translation": {
+        "ru": "Поезд уже был в движении",
+        "uz": "Poyezd allaqachon harakatda edi"
+      },
+      "explanation": {
+        "ru": "motion: на конце -tion, которое читается «шн», — m-o-t-i-o-n.",
+        "uz": "motion: oxirida -tion yoziladi, u «shn» deb o'qiladi — m-o-t-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m14-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "cell"
+      ],
+      "text": "Every cell in your body needs oxygen",
+      "accepted": [
+        "Every cell in your body needs oxygen"
+      ],
+      "translation": {
+        "ru": "Каждой клетке вашего тела нужен кислород",
+        "uz": "Tanangizdagi har bir hujayraga kislorod kerak"
+      },
+      "explanation": {
+        "ru": "cell: первая буква c читается как «с», на конце две l. Не путайте с глаголом sell (продавать): он звучит так же.",
+        "uz": "cell: birinchi harf c «s» deb o'qiladi, oxirida ikkita l. Sell (sotmoq) fe'li bilan adashtirmang: u ham xuddi shunday eshitiladi."
+      }
+    }
+  ]
+}

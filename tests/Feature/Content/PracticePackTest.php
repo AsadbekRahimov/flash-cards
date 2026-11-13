@@ -36,7 +36,7 @@ uses(RefreshDatabase::class);
 
 /*
  * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2*.json, docs/CONTENT_A1_A2.md,
- * 936 tasks), each in files the importer takes whole (300 at most each). The files must keep: unique keys, at least three tasks of each
+ * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, at least three tasks of each
  * authored type in every one of the 100 lessons, target words of the task's own lesson only, the level of the module (1-10 A1,
  * 11-20 A2), uz in Latin script on «Siz» and ru on «вы», the writings of a dictation by the one rule of docs/16 §5.2, every
  * accepted writing and order graded `correct`, every word known to the lexicon of the dictation. Imported after the course: no
@@ -62,6 +62,20 @@ function ppk_courses(): array
             'level' => static fn (int $module): string => $module <= 10 ? 'A1' : 'A2',
             // Modules 2, 4 and 7 show the lessons the tasks of the old pack left: down to three tasks of a type there.
             'lesson' => static fn (int $module): int => in_array($module, [2, 4, 7], true) ? 1 : ($module - 1) % 5 + 1,
+        ],
+        'english-b1' => [
+            'dir' => 'database/data/courses/english-b1',
+            'glob' => 'database/data/practice/english-b1-p*.json',
+            'tasks' => 900,
+            'level' => static fn (int $module): string => 'B1',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
+        ],
+        'english-b2' => [
+            'dir' => 'database/data/courses/english-b2',
+            'glob' => 'database/data/practice/english-b2-p*.json',
+            'tasks' => 900,
+            'level' => static fn (int $module): string => 'B2',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
         ],
     ];
 }

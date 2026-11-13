@@ -1,0 +1,2766 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m11-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "rumor"
+      ],
+      "text": "It is wrong to ___ rumors about other people.",
+      "options": [
+        "spread",
+        "stretch",
+        "expand"
+      ],
+      "correct": [
+        "spread"
+      ],
+      "translation": {
+        "ru": "Нехорошо распространять слухи о других людях.",
+        "uz": "Boshqa odamlar haqida mish-mish tarqatish yaxshi emas."
+      },
+      "explanation": {
+        "ru": "spread a rumor / spread rumors — распространять слухи. Stretch — растягивать (верёвку, мышцы), expand — расширять (бизнес, знания): о слухах так не говорят.",
+        "uz": "spread a rumor / spread rumors — mish-mish tarqatmoq. Stretch — cho'zmoq (arqonni, mushaklarni), expand — kengaytirmoq (biznesni, bilimni): mish-mish haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "broadcast"
+      ],
+      "text": "The final game will be broadcast ___ on TV tonight.",
+      "options": [
+        "live",
+        "alive",
+        "lively"
+      ],
+      "correct": [
+        "live"
+      ],
+      "translation": {
+        "ru": "Финальную игру сегодня вечером будут транслировать по телевидению в прямом эфире.",
+        "uz": "Final o'yini bugun kechqurun televizorda to'g'ridan-to'g'ri efirga uzatiladi."
+      },
+      "explanation": {
+        "ru": "broadcast live — транслировать в прямом эфире. Здесь live — наречие (читается «лайв»). Alive — живой, не мёртвый; lively — оживлённый, весёлый: о трансляции так не говорят.",
+        "uz": "broadcast live — to'g'ridan-to'g'ri (jonli) efirga uzatmoq. Bu yerda live — ravish («layv» deb o'qiladi). Alive — tirik, lively — jonli, quvnoq: efirga uzatish haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "event"
+      ],
+      "text": "The event will take ___ in the city park on Sunday.",
+      "options": [
+        "place",
+        "part",
+        "seat"
+      ],
+      "correct": [
+        "place"
+      ],
+      "translation": {
+        "ru": "Мероприятие состоится в городском парке в воскресенье.",
+        "uz": "Tadbir yakshanba kuni shahar bog'ida bo'lib o'tadi."
+      },
+      "explanation": {
+        "ru": "take place — проходить, состояться (о событии, мероприятии): The event will take place… Take part (in) — участвовать: так говорят об участниках. Take a seat — сесть.",
+        "uz": "take place — bo'lib o'tmoq (voqea, tadbir haqida): The event will take place… Take part (in) — qatnashmoq: bu ishtirokchilar haqida aytiladi. Take a seat — o'tirmoq."
+      }
+    },
+    {
+      "key": "b1-m11-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "source"
+      ],
+      "prompt": {
+        "ru": "Вы доверяете этому источнику информации?",
+        "uz": "Siz bu axborot manbasiga ishonasizmi?"
+      },
+      "fragments": [
+        "do",
+        "you",
+        "trust",
+        "this",
+        "source",
+        "of",
+        "information"
+      ],
+      "accepted": [
+        [
+          "do",
+          "you",
+          "trust",
+          "this",
+          "source",
+          "of",
+          "information"
+        ]
+      ],
+      "display": "Do you trust this source of information?",
+      "explanation": {
+        "ru": "a source of information — источник информации. После trust предлог не нужен: trust this source. В вопросе в Present Simple нужен do.",
+        "uz": "a source of information — axborot manbasi. trust fe'lidan keyin predlog kerak emas: trust this source. Present Simple zamonidagi savolda do kerak."
+      }
+    },
+    {
+      "key": "b1-m11-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "publish"
+      ],
+      "prompt": {
+        "ru": "Этот журнал никогда не публиковал мои статьи.",
+        "uz": "Bu jurnal hech qachon mening maqolalarimni nashr etmagan."
+      },
+      "fragments": [
+        "this",
+        "magazine",
+        "has",
+        "never",
+        "published",
+        "my",
+        "articles"
+      ],
+      "accepted": [
+        [
+          "this",
+          "magazine",
+          "has",
+          "never",
+          "published",
+          "my",
+          "articles"
+        ]
+      ],
+      "display": "This magazine has never published my articles.",
+      "explanation": {
+        "ru": "publish — публиковать. В Present Perfect слово never стоит между has и третьей формой глагола: has never published. Второе отрицание не нужно.",
+        "uz": "publish — nashr etmoq. Present Perfect zamonida never so'zi has bilan fe'lning uchinchi shakli orasida turadi: has never published. Ikkinchi inkor kerak emas."
+      }
+    },
+    {
+      "key": "b1-m11-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "editor"
+      ],
+      "prompt": {
+        "ru": "Наш редактор попросил меня написать о спорте.",
+        "uz": "Muharririmiz mendan sport haqida yozishni so'radi."
+      },
+      "fragments": [
+        "our",
+        "editor",
+        "asked",
+        "me",
+        "to",
+        "write",
+        "about",
+        "sports"
+      ],
+      "accepted": [
+        [
+          "our",
+          "editor",
+          "asked",
+          "me",
+          "to",
+          "write",
+          "about",
+          "sports"
+        ]
+      ],
+      "display": "Our editor asked me to write about sports.",
+      "explanation": {
+        "ru": "ask somebody to do something — попросить кого-то что-то сделать: asked me to write. После ask идёт «кого» (me), затем to + глагол.",
+        "uz": "ask somebody to do something — kimdandir biror ish qilishni so'ramoq: asked me to write. ask fe'lidan keyin «kimdan» (me), so'ng to + fe'l keladi."
+      }
+    },
+    {
+      "key": "b1-m11-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "reporter",
+        "fact"
+      ],
+      "text": "The reporter checked every fact",
+      "accepted": [
+        "The reporter checked every fact"
+      ],
+      "translation": {
+        "ru": "Репортёр проверил каждый факт",
+        "uz": "Muxbir har bir faktni tekshirdi"
+      },
+      "explanation": {
+        "ru": "reporter пишется с -er на конце (а editor — с -or).",
+        "uz": "reporter so'zi oxirida -er yoziladi (editor so'zida esa -or)."
+      }
+    },
+    {
+      "key": "b1-m11-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "viewer"
+      ],
+      "text": "Many viewers watch this channel",
+      "accepted": [
+        "Many viewers watch this channel"
+      ],
+      "translation": {
+        "ru": "Многие зрители смотрят этот канал",
+        "uz": "Ko'plab tomoshabinlar bu kanalni ko'radi"
+      },
+      "explanation": {
+        "ru": "viewer = view + er. В корне пишется -iew: v-i-e-w-e-r.",
+        "uz": "viewer = view + er. O'zakda -iew yoziladi: v-i-e-w-e-r."
+      }
+    },
+    {
+      "key": "b1-m11-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "media"
+      ],
+      "text": "She works in the media",
+      "accepted": [
+        "She works in the media"
+      ],
+      "translation": {
+        "ru": "Она работает в СМИ",
+        "uz": "U ommaviy axborot vositalarida ishlaydi"
+      }
+    },
+    {
+      "key": "b1-m11-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "subtitle"
+      ],
+      "text": "I prefer to watch foreign movies ___ subtitles.",
+      "options": [
+        "with",
+        "by",
+        "at"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Я предпочитаю смотреть иностранные фильмы с субтитрами.",
+        "uz": "Men chet el filmlarini subtitrlar bilan ko'rishni afzal ko'raman."
+      },
+      "explanation": {
+        "ru": "with subtitles — с субтитрами: a movie with subtitles. Предлоги by и at здесь невозможны. Без субтитров — without subtitles.",
+        "uz": "with subtitles — subtitrlar bilan: a movie with subtitles. Bu yerda by va at predloglari ishlatilmaydi. Subtitrlarsiz — without subtitles."
+      }
+    },
+    {
+      "key": "b1-m11-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "character"
+      ],
+      "text": "The ___ character of the story is a young doctor.",
+      "options": [
+        "main",
+        "head",
+        "general"
+      ],
+      "correct": [
+        "main"
+      ],
+      "translation": {
+        "ru": "Главный герой этой истории — молодой врач.",
+        "uz": "Bu hikoyaning bosh qahramoni — yosh shifokor."
+      },
+      "explanation": {
+        "ru": "the main character — главный герой (книги, фильма). Head — главный в значении «руководитель» (head teacher), general — общий: о герое книги или фильма так не говорят.",
+        "uz": "the main character — bosh qahramon (kitob, film haqida). Head — «rahbar» ma'nosidagi bosh (head teacher), general — umumiy: kitob yoki film qahramoni haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "plot"
+      ],
+      "text": "The movie was so confusing that we could not ___ the plot.",
+      "options": [
+        "follow",
+        "chase",
+        "hunt"
+      ],
+      "correct": [
+        "follow"
+      ],
+      "translation": {
+        "ru": "Фильм был таким запутанным, что мы не могли уследить за сюжетом.",
+        "uz": "Film shunchalik chalkash ediki, biz syujetni kuzatib bora olmadik."
+      },
+      "explanation": {
+        "ru": "follow the plot — следить за сюжетом, понимать его. Chase — гнаться за кем-то, hunt — охотиться: о сюжете так не говорят.",
+        "uz": "follow the plot — syujetni kuzatib bormoq, tushunmoq. Chase — kimnidir quvmoq, hunt — ov qilmoq: syujet haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "genre"
+      ],
+      "prompt": {
+        "ru": "Какой жанр фильмов вам нравится?",
+        "uz": "Sizga filmlarning qaysi janri yoqadi?"
+      },
+      "fragments": [
+        "what",
+        "genre",
+        "of",
+        "movies",
+        "do",
+        "you",
+        "like"
+      ],
+      "accepted": [
+        [
+          "what",
+          "genre",
+          "of",
+          "movies",
+          "do",
+          "you",
+          "like"
+        ]
+      ],
+      "display": "What genre of movies do you like?",
+      "explanation": {
+        "ru": "What genre of … do you like? — так спрашивают о любимом жанре. После what genre of исчисляемое существительное стоит во множественном числе (movies, books), затем идёт do you like.",
+        "uz": "What genre of … do you like? — sevimli janr haqida shunday so'raladi. what genre of birikmasidan keyin sanaladigan ot ko'plikda turadi (movies, books), so'ng do you like keladi."
+      }
+    },
+    {
+      "key": "b1-m11-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "script"
+      ],
+      "prompt": {
+        "ru": "Кто написал сценарий к этому фильму?",
+        "uz": "Bu filmning ssenariysini kim yozgan?"
+      },
+      "fragments": [
+        "who",
+        "wrote",
+        "the",
+        "script",
+        "for",
+        "this movie"
+      ],
+      "accepted": [
+        [
+          "who",
+          "wrote",
+          "the",
+          "script",
+          "for",
+          "this movie"
+        ]
+      ],
+      "display": "Who wrote the script for this movie?",
+      "explanation": {
+        "ru": "the script for a movie — сценарий к фильму (предлог for). Who здесь подлежащее, поэтому did не нужен: Who wrote…?",
+        "uz": "the script for a movie — film ssenariysi (for predlogi bilan). Who bu yerda ega, shuning uchun did kerak emas: Who wrote…?"
+      }
+    },
+    {
+      "key": "b1-m11-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "episode",
+        "series"
+      ],
+      "prompt": {
+        "ru": "Мы посмотрели все серии этого сериала.",
+        "uz": "Biz bu serialning hamma qismlarini ko'rdik."
+      },
+      "fragments": [
+        "we",
+        "have",
+        "seen",
+        "every",
+        "episode",
+        "of this series"
+      ],
+      "accepted": [
+        [
+          "we",
+          "have",
+          "seen",
+          "every",
+          "episode",
+          "of this series"
+        ]
+      ],
+      "display": "We have seen every episode of this series.",
+      "explanation": {
+        "ru": "an episode of a series — серия сериала. После every существительное стоит в единственном числе: every episode. Series пишется одинаково в единственном и множественном числе.",
+        "uz": "an episode of a series — serialning qismi. every so'zidan keyin ot birlikda keladi: every episode. Series so'zi birlikda ham, ko'plikda ham bir xil yoziladi."
+      }
+    },
+    {
+      "key": "b1-m11-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "trailer"
+      ],
+      "text": "The trailer looks very interesting",
+      "accepted": [
+        "The trailer looks very interesting"
+      ],
+      "translation": {
+        "ru": "Трейлер выглядит очень интересным",
+        "uz": "Treyler juda qiziqarli ko'rinadi"
+      }
+    },
+    {
+      "key": "b1-m11-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "director"
+      ],
+      "text": "The director is looking for young actors",
+      "accepted": [
+        "The director is looking for young actors"
+      ],
+      "translation": {
+        "ru": "Режиссёр ищет молодых актёров",
+        "uz": "Rejissyor yosh aktyorlarni qidiryapti"
+      },
+      "explanation": {
+        "ru": "director пишется с -or на конце, как actor.",
+        "uz": "director so'zi oxirida -or yoziladi, xuddi actor kabi."
+      }
+    },
+    {
+      "key": "b1-m11-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "scene"
+      ],
+      "text": "I love the last scene of this movie",
+      "accepted": [
+        "I love the last scene of this movie"
+      ],
+      "translation": {
+        "ru": "Мне очень нравится последняя сцена этого фильма",
+        "uz": "Menga bu filmning oxirgi sahnasi juda yoqadi"
+      },
+      "explanation": {
+        "ru": "scene начинается с sc: буква c не читается, и слово звучит как seen.",
+        "uz": "scene so'zi sc bilan boshlanadi: c harfi o'qilmaydi, so'z seen kabi eshitiladi."
+      }
+    },
+    {
+      "key": "b1-m11-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "instrument"
+      ],
+      "text": "My brother is learning to ___ a new instrument.",
+      "options": [
+        "play",
+        "ring",
+        "clap"
+      ],
+      "correct": [
+        "play"
+      ],
+      "translation": {
+        "ru": "Мой брат учится играть на новом инструменте.",
+        "uz": "Akam yangi musiqa asbobini chalishni o'rganyapti."
+      },
+      "explanation": {
+        "ru": "play an instrument — играть на инструменте (без предлога: play the piano). Ring — звонить (в звонок, колокол), clap — хлопать в ладоши.",
+        "uz": "play an instrument — musiqa asbobini chalmoq (play the piano). O'zbekcha «chalmoq» turlicha tarjima qilinadi: qo'ng'iroq chalmoq — ring, qarsak chalmoq — clap, asbob chalmoq esa — play."
+      }
+    },
+    {
+      "key": "b1-m11-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rhythm"
+      ],
+      "text": "You need a good ___ of rhythm to play the drums.",
+      "options": [
+        "sense",
+        "feeling",
+        "taste"
+      ],
+      "correct": [
+        "sense"
+      ],
+      "translation": {
+        "ru": "Чтобы играть на барабанах, нужно хорошее чувство ритма.",
+        "uz": "Baraban chalish uchun yaxshi ritm hissi kerak."
+      },
+      "explanation": {
+        "ru": "a sense of rhythm — чувство ритма. Так же: a sense of humor — чувство юмора. Русское «чувство» здесь — sense, а не feeling; taste — это вкус.",
+        "uz": "a sense of rhythm — ritm hissi. Xuddi shunday: a sense of humor — yumor hissi. O'zbekcha «his» bu yerda sense bo'ladi, feeling emas; taste esa — did, ta'm."
+      }
+    },
+    {
+      "key": "b1-m11-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "stage"
+      ],
+      "text": "The band has been ___ stage for two hours.",
+      "options": [
+        "on",
+        "at",
+        "in"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Группа уже два часа на сцене.",
+        "uz": "Guruh ikki soatdan beri sahnada."
+      },
+      "explanation": {
+        "ru": "on stage — на сцене (без артикля): be on stage, go on stage. Предлоги at и in со словом stage в этом значении не употребляются.",
+        "uz": "on stage — sahnada (artiklsiz): be on stage, go on stage. Bu ma'noda stage so'zi bilan at va in predloglari ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "perform"
+      ],
+      "prompt": {
+        "ru": "Кто будет выступать на концерте?",
+        "uz": "Konsertda kim chiqish qiladi?"
+      },
+      "fragments": [
+        "who",
+        "will",
+        "perform",
+        "at",
+        "the",
+        "concert"
+      ],
+      "accepted": [
+        [
+          "who",
+          "will",
+          "perform",
+          "at",
+          "the",
+          "concert"
+        ]
+      ],
+      "display": "Who will perform at the concert?",
+      "explanation": {
+        "ru": "perform — выступать (перед публикой): perform at a concert, perform on stage. Who — подлежащее, поэтому порядок слов как в утверждении: Who will perform…?",
+        "uz": "perform — chiqish qilmoq (tomoshabinlar oldida): perform at a concert, perform on stage. Who — ega, shuning uchun so'z tartibi darak gapdagidek: Who will perform…?"
+      }
+    },
+    {
+      "key": "b1-m11-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "album"
+      ],
+      "prompt": {
+        "ru": "Вы слышали их новый альбом?",
+        "uz": "Ularning yangi albomini eshitdingizmi?"
+      },
+      "fragments": [
+        "have",
+        "you",
+        "heard",
+        "their",
+        "new",
+        "album"
+      ],
+      "accepted": [
+        [
+          "have",
+          "you",
+          "heard",
+          "their",
+          "new",
+          "album"
+        ]
+      ],
+      "display": "Have you heard their new album?",
+      "explanation": {
+        "ru": "Have you heard …? — Present Perfect: спрашиваем об опыте, время не важно. Порядок определений: their new album (сначала their, потом new).",
+        "uz": "Have you heard …? — Present Perfect: tajriba haqida so'raymiz, vaqti muhim emas. Aniqlovchilar tartibi: their new album (avval their, keyin new)."
+      }
+    },
+    {
+      "key": "b1-m11-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "musician"
+      ],
+      "prompt": {
+        "ru": "Она хочет стать профессиональным музыкантом.",
+        "uz": "U professional musiqachi bo'lishni xohlaydi."
+      },
+      "fragments": [
+        "she",
+        "wants",
+        "to",
+        "become",
+        "a",
+        "professional",
+        "musician"
+      ],
+      "accepted": [
+        [
+          "she",
+          "wants",
+          "to",
+          "become",
+          "a",
+          "professional",
+          "musician"
+        ]
+      ],
+      "display": "She wants to become a professional musician.",
+      "explanation": {
+        "ru": "want to + глагол: wants to become. Перед названием профессии в единственном числе нужен артикль: a professional musician.",
+        "uz": "want to + fe'l: wants to become. Birlikdagi kasb nomidan oldin artikl kerak: a professional musician."
+      }
+    },
+    {
+      "key": "b1-m11-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "composer",
+        "melody"
+      ],
+      "text": "The composer wrote a beautiful melody",
+      "accepted": [
+        "The composer wrote a beautiful melody"
+      ],
+      "translation": {
+        "ru": "Композитор написал красивую мелодию",
+        "uz": "Bastakor chiroyli ohang yozdi"
+      },
+      "explanation": {
+        "ru": "composer пишется с -er на конце, хотя в русском слове «композитор» — «-ор». В melody на конце пишется y.",
+        "uz": "composer so'zi oxirida -er yoziladi (-or emas). Melody so'zi oxirida y yoziladi."
+      }
+    },
+    {
+      "key": "b1-m11-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rehearsal"
+      ],
+      "text": "The rehearsal starts after lunch",
+      "accepted": [
+        "The rehearsal starts after lunch"
+      ],
+      "translation": {
+        "ru": "Репетиция начинается после обеда",
+        "uz": "Repetitsiya tushlikdan keyin boshlanadi"
+      },
+      "explanation": {
+        "ru": "rehearsal: в середине -hear- (как слово hear), на конце -sal: r-e-h-e-a-r-s-a-l.",
+        "uz": "rehearsal: o'rtasida -hear- (hear so'zi kabi), oxirida -sal yoziladi: r-e-h-e-a-r-s-a-l."
+      }
+    },
+    {
+      "key": "b1-m11-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "tune"
+      ],
+      "text": "Everybody knows this old tune",
+      "accepted": [
+        "Everybody knows this old tune"
+      ],
+      "translation": {
+        "ru": "Все знают этот старый мотив",
+        "uz": "Bu eski kuyni hamma biladi"
+      }
+    },
+    {
+      "key": "b1-m11-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "tale"
+      ],
+      "text": "The old man ___ us a tale about a kind king.",
+      "options": [
+        "told",
+        "said",
+        "spoke"
+      ],
+      "correct": [
+        "told"
+      ],
+      "translation": {
+        "ru": "Старик рассказал нам сказку о добром короле.",
+        "uz": "Qariya bizga mehribon shoh haqida ertak aytib berdi."
+      },
+      "explanation": {
+        "ru": "tell a tale — рассказать сказку: tell somebody a tale. После say и speak нельзя сразу поставить «кому» (us): говорят say something to somebody, speak to somebody.",
+        "uz": "tell a tale — ertak aytib bermoq: tell somebody a tale. say va speak fe'llaridan keyin darhol «kimga» (us) kelmaydi: say something to somebody, speak to somebody deyiladi."
+      }
+    },
+    {
+      "key": "b1-m11-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "fiction"
+      ],
+      "text": "My brother reads a lot of ___ fiction about space travel.",
+      "options": [
+        "science",
+        "scientist",
+        "knowledge"
+      ],
+      "correct": [
+        "science"
+      ],
+      "translation": {
+        "ru": "Мой брат читает много научной фантастики о космических путешествиях.",
+        "uz": "Akam kosmik sayohatlar haqidagi ilmiy fantastikani ko'p o'qiydi."
+      },
+      "explanation": {
+        "ru": "science fiction — научная фантастика: вид художественной литературы (fiction) о будущем, науке и космосе. В этом сочетании стоит существительное science, а не scientist (учёный) или knowledge (знания).",
+        "uz": "science fiction — ilmiy fantastika: kelajak, fan va koinot haqidagi badiiy adabiyot (fiction) turi. Bu birikmada science oti keladi, scientist (olim) yoki knowledge (bilim) emas."
+      }
+    },
+    {
+      "key": "b1-m11-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "portrait"
+      ],
+      "text": "The artist used only three colors to ___ this portrait.",
+      "options": [
+        "paint",
+        "write",
+        "dye"
+      ],
+      "correct": [
+        "paint"
+      ],
+      "translation": {
+        "ru": "Художник использовал всего три цвета, чтобы написать этот портрет.",
+        "uz": "Rassom bu portretni chizish uchun faqat uchta rangdan foydalandi."
+      },
+      "explanation": {
+        "ru": "paint a portrait — написать портрет (красками). По-русски портрет «пишут», но по-английски write о картинах не говорят. Dye — красить ткань или волосы.",
+        "uz": "paint a portrait — portret chizmoq (bo'yoqlar bilan). Write — yozmoq: rasm chizish haqida bu fe'l ishlatilmaydi. Dye — mato yoki sochni bo'yamoq."
+      }
+    },
+    {
+      "key": "b1-m11-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "legend"
+      ],
+      "prompt": {
+        "ru": "Вы знаете легенду об этом озере?",
+        "uz": "Bu ko'l haqidagi afsonani bilasizmi?"
+      },
+      "fragments": [
+        "do",
+        "you",
+        "know",
+        "the",
+        "legend",
+        "about",
+        "this lake"
+      ],
+      "accepted": [
+        [
+          "do",
+          "you",
+          "know",
+          "the",
+          "legend",
+          "about",
+          "this lake"
+        ]
+      ],
+      "display": "Do you know the legend about this lake?",
+      "explanation": {
+        "ru": "a legend about + существительное — легенда о чём-то. Know не употребляется в Continuous, поэтому вопрос строится с do: Do you know…?",
+        "uz": "a legend about + ot — biror narsa haqidagi afsona. Know fe'li Continuous zamonida ishlatilmaydi, shuning uchun savol do bilan tuziladi: Do you know…?"
+      }
+    },
+    {
+      "key": "b1-m11-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "gallery"
+      ],
+      "prompt": {
+        "ru": "Эта галерея принадлежит известному художнику.",
+        "uz": "Bu galereya mashhur rassomga tegishli."
+      },
+      "fragments": [
+        "this",
+        "gallery",
+        "belongs",
+        "to",
+        "a",
+        "famous",
+        "artist"
+      ],
+      "accepted": [
+        [
+          "this",
+          "gallery",
+          "belongs",
+          "to",
+          "a",
+          "famous",
+          "artist"
+        ]
+      ],
+      "display": "This gallery belongs to a famous artist.",
+      "explanation": {
+        "ru": "belong to + существительное — принадлежать кому-то. Глагол belong не употребляется в Continuous: говорят belongs, а не is belonging.",
+        "uz": "belong to + ot — kimgadir tegishli bo'lmoq. Belong fe'li Continuous zamonida ishlatilmaydi: belongs deyiladi, is belonging emas."
+      }
+    },
+    {
+      "key": "b1-m11-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "craft"
+      ],
+      "prompt": {
+        "ru": "Дедушка научил меня этому ремеслу.",
+        "uz": "Bobom menga bu hunarni o'rgatdi."
+      },
+      "fragments": [
+        "my",
+        "grandfather",
+        "taught",
+        "me",
+        "this",
+        "craft"
+      ],
+      "accepted": [
+        [
+          "my",
+          "grandfather",
+          "taught",
+          "me",
+          "this",
+          "craft"
+        ]
+      ],
+      "display": "My grandfather taught me this craft.",
+      "explanation": {
+        "ru": "teach somebody something — научить кого-то чему-то: без предлога, сначала «кого» (me), потом «чему» (this craft). Taught — прошедшая форма teach.",
+        "uz": "teach somebody something — kimgadir biror narsani o'rgatmoq: predlogsiz, avval «kimga» (me), keyin «nimani» (this craft). Taught — teach fe'lining o'tgan zamon shakli."
+      }
+    },
+    {
+      "key": "b1-m11-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sculpture",
+        "masterpiece"
+      ],
+      "text": "This sculpture is a real masterpiece",
+      "accepted": [
+        "This sculpture is a real masterpiece"
+      ],
+      "translation": {
+        "ru": "Эта скульптура — настоящий шедевр",
+        "uz": "Bu haykal — haqiqiy durdona"
+      },
+      "explanation": {
+        "ru": "masterpiece пишется слитно: master + piece (в piece — ie). В sculpture на конце -ture.",
+        "uz": "masterpiece qo'shib yoziladi: master + piece (piece so'zida — ie). Sculpture oxirida -ture yoziladi."
+      }
+    },
+    {
+      "key": "b1-m11-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "poetry"
+      ],
+      "text": "She writes poetry in her free time",
+      "accepted": [
+        "She writes poetry in her free time"
+      ],
+      "translation": {
+        "ru": "Она пишет стихи в свободное время",
+        "uz": "U bo'sh vaqtida she'r yozadi"
+      },
+      "explanation": {
+        "ru": "poetry: после p идут o и e — p-o-e-t-r-y.",
+        "uz": "poetry: p harfidan keyin o va e keladi — p-o-e-t-r-y."
+      }
+    },
+    {
+      "key": "b1-m11-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sketch"
+      ],
+      "text": "Can I see your sketch?",
+      "accepted": [
+        "Can I see your sketch?"
+      ],
+      "translation": {
+        "ru": "Можно посмотреть ваш набросок?",
+        "uz": "Xomaki rasmingizni ko'rsam maylimi?"
+      },
+      "explanation": {
+        "ru": "sketch: на конце -tch (t-c-h), буква t отдельно не слышна.",
+        "uz": "sketch: oxirida -tch (t-c-h) yoziladi, t harfi alohida eshitilmaydi."
+      }
+    },
+    {
+      "key": "b1-m11-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "puzzle"
+      ],
+      "text": "Can you help me ___ this puzzle?",
+      "options": [
+        "solve",
+        "decide",
+        "untie"
+      ],
+      "correct": [
+        "solve"
+      ],
+      "translation": {
+        "ru": "Вы можете помочь мне решить эту головоломку?",
+        "uz": "Menga bu boshqotirmani yechishga yordam bera olasizmi?"
+      },
+      "explanation": {
+        "ru": "solve a puzzle — решить головоломку (так же: solve a problem). Decide — решить в значении «принять решение», untie — развязать узел.",
+        "uz": "solve a puzzle — boshqotirmani yechmoq (xuddi shunday: solve a problem). Decide — qaror qilmoq, untie — tugunni yechmoq."
+      }
+    },
+    {
+      "key": "b1-m11-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "chess"
+      ],
+      "text": "We played one more ___ of chess before bed.",
+      "options": [
+        "game",
+        "party",
+        "piece"
+      ],
+      "correct": [
+        "game"
+      ],
+      "translation": {
+        "ru": "Перед сном мы сыграли ещё одну партию в шахматы.",
+        "uz": "Uxlashdan oldin yana bir partiya shaxmat o'ynadik."
+      },
+      "explanation": {
+        "ru": "a game of chess — партия в шахматы. Party — это вечеринка или политическая партия, а piece — шахматная фигура (a chess piece).",
+        "uz": "a game of chess — bir partiya shaxmat. Party — bazm yoki siyosiy partiya, piece esa — shaxmat donasi (a chess piece)."
+      }
+    },
+    {
+      "key": "b1-m11-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "magic"
+      ],
+      "text": "Many small children believe ___ magic.",
+      "options": [
+        "in",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Многие маленькие дети верят в волшебство.",
+        "uz": "Ko'p kichkina bolalar sehrga ishonadi."
+      },
+      "explanation": {
+        "ru": "believe in magic — верить в волшебство. believe in + существительное — верить в существование чего-то: believe in miracles. Предлоги to и at здесь не подходят.",
+        "uz": "believe in magic — sehrga ishonmoq. believe in + ot — biror narsaning borligiga ishonmoq: believe in miracles. O'zbekcha «-ga» bu yerda to emas, in bo'ladi."
+      }
+    },
+    {
+      "key": "b1-m11-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "amusing"
+      ],
+      "prompt": {
+        "ru": "Её бабушка всегда рассказывает забавные истории.",
+        "uz": "Uning buvisi doim kulgili hikoyalar aytib beradi."
+      },
+      "fragments": [
+        "her",
+        "grandmother",
+        "always",
+        "tells",
+        "amusing",
+        "stories"
+      ],
+      "accepted": [
+        [
+          "her",
+          "grandmother",
+          "always",
+          "tells",
+          "amusing",
+          "stories"
+        ]
+      ],
+      "display": "Her grandmother always tells amusing stories.",
+      "explanation": {
+        "ru": "amusing — забавный; стоит перед существительным: amusing stories. Always ставится перед смысловым глаголом, а глагол остаётся с -s: always tells.",
+        "uz": "amusing — kulgili; otdan oldin keladi: amusing stories. Always asosiy fe'ldan oldin turadi, fe'l esa -s bilan qoladi: always tells."
+      }
+    },
+    {
+      "key": "b1-m11-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "leisure"
+      ],
+      "prompt": {
+        "ru": "Как вы проводите свой досуг?",
+        "uz": "Bo'sh vaqtingizni qanday o'tkazasiz?"
+      },
+      "fragments": [
+        "how",
+        "do",
+        "you",
+        "spend",
+        "your",
+        "leisure",
+        "time"
+      ],
+      "accepted": [
+        [
+          "how",
+          "do",
+          "you",
+          "spend",
+          "your",
+          "leisure",
+          "time"
+        ]
+      ],
+      "display": "How do you spend your leisure time?",
+      "explanation": {
+        "ru": "leisure time — досуг, свободное время. spend time — проводить время. В вопросе: how + do + подлежащее + глагол.",
+        "uz": "leisure time — bo'sh vaqt, hordiq. spend time — vaqt o'tkazmoq. Savolda: how + do + ega + fe'l."
+      }
+    },
+    {
+      "key": "b1-m11-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "host"
+      ],
+      "prompt": {
+        "ru": "Ведущий шоу задал мне трудный вопрос.",
+        "uz": "Shou boshlovchisi menga qiyin savol berdi."
+      },
+      "fragments": [
+        "the host",
+        "of the show",
+        "asked",
+        "me",
+        "a",
+        "difficult",
+        "question"
+      ],
+      "accepted": [
+        [
+          "the host",
+          "of the show",
+          "asked",
+          "me",
+          "a",
+          "difficult",
+          "question"
+        ]
+      ],
+      "display": "The host of the show asked me a difficult question.",
+      "explanation": {
+        "ru": "the host of the show — ведущий шоу. ask somebody a question — задать кому-то вопрос: вопрос «задают» глаголом ask, а не give.",
+        "uz": "the host of the show — shou boshlovchisi. ask somebody a question — kimgadir savol bermoq: inglizchada savol give bilan emas, ask bilan «beriladi»."
+      }
+    },
+    {
+      "key": "b1-m11-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "entertainment"
+      ],
+      "text": "We need some entertainment for the children",
+      "accepted": [
+        "We need some entertainment for the children"
+      ],
+      "translation": {
+        "ru": "Нам нужно какое-нибудь развлечение для детей",
+        "uz": "Bizga bolalar uchun biror ko'ngilochar tadbir kerak"
+      },
+      "explanation": {
+        "ru": "entertainment = entertain + ment: в середине -tain- (t-a-i-n).",
+        "uz": "entertainment = entertain + ment: o'rtasida -tain- (t-a-i-n) yoziladi."
+      }
+    },
+    {
+      "key": "b1-m11-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "circus"
+      ],
+      "text": "The children want to go to the circus",
+      "accepted": [
+        "The children want to go to the circus"
+      ],
+      "translation": {
+        "ru": "Дети хотят пойти в цирк",
+        "uz": "Bolalar sirkka borishni xohlaydi"
+      },
+      "explanation": {
+        "ru": "circus: две буквы c читаются по-разному — первая как «с», вторая как «к»: c-i-r-c-u-s.",
+        "uz": "circus: ikkita c harfi turlicha o'qiladi — birinchisi «s», ikkinchisi «k» kabi: c-i-r-c-u-s."
+      }
+    },
+    {
+      "key": "b1-m11-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "carnival",
+        "parade"
+      ],
+      "text": "The carnival ends with a big parade",
+      "accepted": [
+        "The carnival ends with a big parade"
+      ],
+      "translation": {
+        "ru": "Карнавал заканчивается большим парадом",
+        "uz": "Karnaval katta parad bilan tugaydi"
+      }
+    },
+    {
+      "key": "b1-m12-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "gymnastics"
+      ],
+      "text": "My sister ___ gymnastics for five years at school.",
+      "options": [
+        "did",
+        "played",
+        "went"
+      ],
+      "correct": [
+        "did"
+      ],
+      "translation": {
+        "ru": "Моя сестра пять лет занималась гимнастикой в школе.",
+        "uz": "Opam maktabda besh yil gimnastika bilan shug'ullangan."
+      },
+      "explanation": {
+        "ru": "do gymnastics — заниматься гимнастикой. Play говорят об играх (play football, play tennis), go — с видами спорта на -ing (go swimming).",
+        "uz": "do gymnastics — gimnastika bilan shug'ullanmoq. Play o'yinlar haqida aytiladi (play football, play tennis), go esa -ing bilan tugaydigan sport turlari bilan keladi (go swimming)."
+      }
+    },
+    {
+      "key": "b1-m12-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "skating"
+      ],
+      "text": "We ___ skating on the lake every winter.",
+      "options": [
+        "go",
+        "play",
+        "make"
+      ],
+      "correct": [
+        "go"
+      ],
+      "translation": {
+        "ru": "Каждую зиму мы катаемся на коньках на озере.",
+        "uz": "Har qishda ko'lda konkida uchamiz."
+      },
+      "explanation": {
+        "ru": "go skating — кататься на коньках. go + -ing — о занятиях спортом и отдыхе: go swimming, go skiing, go fishing. Play и make так не употребляются.",
+        "uz": "go skating — konkida uchmoq. go + -ing — sport va dam olish mashg'ulotlari haqida: go swimming, go skiing, go fishing. Play va make bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "marathon"
+      ],
+      "text": "You must train for months to ___ a marathon.",
+      "options": [
+        "run",
+        "pass",
+        "go"
+      ],
+      "correct": [
+        "run"
+      ],
+      "translation": {
+        "ru": "Чтобы пробежать марафон, нужно тренироваться месяцами.",
+        "uz": "Marafonni yugurib o'tish uchun oylab mashq qilish kerak."
+      },
+      "explanation": {
+        "ru": "run a marathon — пробежать марафон (без предлога). Pass — сдать (экзамен) или пройти мимо, go требует предлога (go to…): о марафоне так не говорят.",
+        "uz": "run a marathon — marafonni yugurib o'tmoq (predlogsiz). Pass — (imtihon) topshirmoq yoki yonidan o'tmoq, go esa predlog talab qiladi (go to…): marafon haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "boxing"
+      ],
+      "prompt": {
+        "ru": "Почему вы выбрали бокс?",
+        "uz": "Nega boksni tanladingiz?"
+      },
+      "fragments": [
+        "why",
+        "did",
+        "you",
+        "choose",
+        "boxing"
+      ],
+      "accepted": [
+        [
+          "why",
+          "did",
+          "you",
+          "choose",
+          "boxing"
+        ]
+      ],
+      "display": "Why did you choose boxing?",
+      "explanation": {
+        "ru": "В вопросе о прошлом после did глагол стоит в начальной форме: did you choose (не chose). Boxing — название вида спорта, без артикля.",
+        "uz": "O'tgan zamon haqidagi savolda did so'zidan keyin fe'l bosh shaklda turadi: did you choose (chose emas). Boxing — sport turining nomi, artiklsiz ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m12-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "diving"
+      ],
+      "prompt": {
+        "ru": "Вам нельзя заниматься дайвингом в одиночку.",
+        "uz": "Sizga yolg'iz sho'ng'ish mumkin emas."
+      },
+      "fragments": [
+        "you",
+        "must",
+        "not",
+        "go",
+        "diving",
+        "alone"
+      ],
+      "accepted": [
+        [
+          "you",
+          "must",
+          "not",
+          "go",
+          "diving",
+          "alone"
+        ]
+      ],
+      "display": "You must not go diving alone.",
+      "explanation": {
+        "ru": "go diving — заниматься дайвингом, нырять. must not — строгий запрет: нельзя. После must глагол без to: must not go.",
+        "uz": "go diving — sho'ng'ish bilan shug'ullanmoq. must not — qat'iy taqiq: mumkin emas. must so'zidan keyin fe'l to yuklamasisiz keladi: must not go."
+      }
+    },
+    {
+      "key": "b1-m12-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "athletics"
+      ],
+      "prompt": {
+        "ru": "Он очень силён в лёгкой атлетике.",
+        "uz": "U yengil atletikada juda kuchli."
+      },
+      "fragments": [
+        "he",
+        "is",
+        "very",
+        "good",
+        "at",
+        "athletics"
+      ],
+      "accepted": [
+        [
+          "he",
+          "is",
+          "very",
+          "good",
+          "at",
+          "athletics"
+        ]
+      ],
+      "display": "He is very good at athletics.",
+      "explanation": {
+        "ru": "be good at + существительное — быть сильным в чём-то, хорошо что-то уметь: good at athletics. Athletics пишется с -s на конце, но это не множественное число.",
+        "uz": "be good at + ot — biror sohada kuchli bo'lmoq, uni yaxshi uddalamoq: good at athletics. Athletics so'zi oxirida -s bor, lekin bu ko'plik emas."
+      }
+    },
+    {
+      "key": "b1-m12-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "rowing",
+        "sailing"
+      ],
+      "text": "Rowing and sailing are water sports",
+      "accepted": [
+        "Rowing and sailing are water sports"
+      ],
+      "translation": {
+        "ru": "Гребля и парусный спорт — водные виды спорта",
+        "uz": "Eshkak eshish va yelkanli sport — suv sporti turlari"
+      }
+    },
+    {
+      "key": "b1-m12-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wrestling"
+      ],
+      "text": "Wrestling is popular in our country",
+      "accepted": [
+        "Wrestling is popular in our country"
+      ],
+      "translation": {
+        "ru": "Борьба популярна в нашей стране",
+        "uz": "Kurash mamlakatimizda mashhur"
+      },
+      "explanation": {
+        "ru": "wrestling: в начале пишется w, а в середине t, хотя они не произносятся: w-r-e-s-t-l-i-n-g.",
+        "uz": "wrestling: boshida w, o'rtasida t yoziladi, garchi ular talaffuz qilinmasa ham: w-r-e-s-t-l-i-n-g."
+      }
+    },
+    {
+      "key": "b1-m12-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "surfing"
+      ],
+      "text": "The waves are perfect for surfing",
+      "accepted": [
+        "The waves are perfect for surfing"
+      ],
+      "translation": {
+        "ru": "Волны идеальны для сёрфинга",
+        "uz": "To'lqinlar serfing uchun juda mos"
+      }
+    },
+    {
+      "key": "b1-m12-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "medal"
+      ],
+      "text": "Our best swimmer ___ a gold medal last year.",
+      "options": [
+        "won",
+        "beat",
+        "defeated"
+      ],
+      "correct": [
+        "won"
+      ],
+      "translation": {
+        "ru": "В прошлом году наш лучший пловец выиграл золотую медаль.",
+        "uz": "O'tgan yili eng yaxshi suzuvchimiz oltin medal yutdi."
+      },
+      "explanation": {
+        "ru": "win a medal — выиграть, завоевать медаль. Win — о призе, игре, соревновании. Beat и defeat — победить кого-то: beat an opponent, defeat a team.",
+        "uz": "win a medal — medal yutmoq. Win — sovrin, o'yin, musobaqa haqida. Beat va defeat — kimnidir yengmoq: beat an opponent, defeat a team."
+      }
+    },
+    {
+      "key": "b1-m12-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "opponent"
+      ],
+      "text": "She ___ her opponent easily in the first game.",
+      "options": [
+        "beat",
+        "won",
+        "gained"
+      ],
+      "correct": [
+        "beat"
+      ],
+      "translation": {
+        "ru": "В первой игре она легко победила свою соперницу.",
+        "uz": "Birinchi o'yinda u raqibini osongina yengdi."
+      },
+      "explanation": {
+        "ru": "beat an opponent — победить соперника. О человеке или команде говорят beat, а win — об игре или призе: win a game, win a prize. Gain — получать, приобретать (опыт, вес).",
+        "uz": "beat an opponent — raqibni yengmoq. Odam yoki jamoa haqida beat, o'yin yoki sovrin haqida esa win deyiladi: win a game, win a prize. Gain — ega bo'lmoq, orttirmoq (tajriba, vazn)."
+      }
+    },
+    {
+      "key": "b1-m12-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "victory"
+      ],
+      "text": "It was our first victory ___ the champions.",
+      "options": [
+        "over",
+        "above",
+        "on"
+      ],
+      "correct": [
+        "over"
+      ],
+      "translation": {
+        "ru": "Это была наша первая победа над чемпионами.",
+        "uz": "Bu chempionlar ustidan qozongan birinchi g'alabamiz edi."
+      },
+      "explanation": {
+        "ru": "a victory over somebody — победа над кем-то. Русское «над» здесь — over, а не above: above говорят о положении выше чего-то (above the door).",
+        "uz": "a victory over somebody — kimningdir ustidan g'alaba. O'zbekcha «ustidan» bu yerda over bo'ladi, above emas: above biror narsadan balandroq joyni bildiradi (above the door)."
+      }
+    },
+    {
+      "key": "b1-m12-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "score"
+      ],
+      "prompt": {
+        "ru": "Вы помните окончательный счёт?",
+        "uz": "Yakuniy hisobni eslaysizmi?"
+      },
+      "fragments": [
+        "do",
+        "you",
+        "remember",
+        "the",
+        "final",
+        "score"
+      ],
+      "accepted": [
+        [
+          "do",
+          "you",
+          "remember",
+          "the",
+          "final",
+          "score"
+        ]
+      ],
+      "display": "Do you remember the final score?",
+      "explanation": {
+        "ru": "the final score — окончательный счёт (в игре). Remember обычно не употребляется в Continuous, поэтому вопрос строится с do: Do you remember…?",
+        "uz": "the final score — yakuniy hisob (o'yinda). Remember odatda Continuous zamonida ishlatilmaydi, shuning uchun savol do bilan tuziladi: Do you remember…?"
+      }
+    },
+    {
+      "key": "b1-m12-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "coach"
+      ],
+      "prompt": {
+        "ru": "Наш тренер никогда на нас не кричит.",
+        "uz": "Murabbiyimiz bizga hech qachon baqirmaydi."
+      },
+      "fragments": [
+        "our",
+        "coach",
+        "never",
+        "shouts",
+        "at",
+        "us"
+      ],
+      "accepted": [
+        [
+          "our",
+          "coach",
+          "never",
+          "shouts",
+          "at",
+          "us"
+        ]
+      ],
+      "display": "Our coach never shouts at us.",
+      "explanation": {
+        "ru": "shout at somebody — кричать на кого-то. Never стоит перед смысловым глаголом; глагол остаётся с -s (shouts), второе отрицание не нужно.",
+        "uz": "shout at somebody — kimgadir baqirmoq. Never asosiy fe'ldan oldin turadi; fe'l -s bilan qoladi (shouts), ikkinchi inkor kerak emas."
+      }
+    },
+    {
+      "key": "b1-m12-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "defeat"
+      ],
+      "prompt": {
+        "ru": "Никто не ожидал такого тяжёлого поражения.",
+        "uz": "Hech kim bunday og'ir mag'lubiyatni kutmagan edi."
+      },
+      "fragments": [
+        "nobody",
+        "expected",
+        "such",
+        "a",
+        "heavy",
+        "defeat"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "expected",
+          "such",
+          "a",
+          "heavy",
+          "defeat"
+        ]
+      ],
+      "display": "Nobody expected such a heavy defeat.",
+      "explanation": {
+        "ru": "a heavy defeat — тяжёлое (крупное) поражение. such a + прилагательное + существительное: such a heavy defeat. После nobody глагол без not.",
+        "uz": "a heavy defeat — og'ir (yirik) mag'lubiyat. such a + sifat + ot: such a heavy defeat. Nobody so'zidan keyin fe'lga not qo'shilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "champion",
+        "tournament"
+      ],
+      "text": "The champion is ready for the tournament",
+      "accepted": [
+        "The champion is ready for the tournament"
+      ],
+      "translation": {
+        "ru": "Чемпион готов к турниру",
+        "uz": "Chempion turnirga tayyor"
+      },
+      "explanation": {
+        "ru": "tournament: в первом слоге пишется our — t-o-u-r-n-a-m-e-n-t.",
+        "uz": "tournament: birinchi bo'g'inda our yoziladi — t-o-u-r-n-a-m-e-n-t."
+      }
+    },
+    {
+      "key": "b1-m12-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "referee"
+      ],
+      "text": "The referee made a mistake",
+      "accepted": [
+        "The referee made a mistake"
+      ],
+      "translation": {
+        "ru": "Судья допустил ошибку",
+        "uz": "Hakam xato qildi"
+      },
+      "explanation": {
+        "ru": "referee: одна f и две e на конце — r-e-f-e-r-e-e.",
+        "uz": "referee: bitta f va oxirida ikkita e — r-e-f-e-r-e-e."
+      }
+    },
+    {
+      "key": "b1-m12-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "competition"
+      ],
+      "text": "The competition begins tomorrow morning",
+      "accepted": [
+        "The competition begins tomorrow morning"
+      ],
+      "translation": {
+        "ru": "Соревнование начинается завтра утром",
+        "uz": "Musobaqa ertaga ertalab boshlanadi"
+      },
+      "explanation": {
+        "ru": "competition: после p пишется e (как в compete), на конце -tion: c-o-m-p-e-t-i-t-i-o-n.",
+        "uz": "competition: p harfidan keyin e yoziladi (compete so'zidagi kabi), oxirida -tion: c-o-m-p-e-t-i-t-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m12-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "strength"
+      ],
+      "text": "He pushed the heavy door ___ all his strength.",
+      "options": [
+        "with",
+        "from",
+        "by"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Он изо всех сил толкнул тяжёлую дверь.",
+        "uz": "U og'ir eshikni bor kuchi bilan itardi."
+      },
+      "explanation": {
+        "ru": "with all your strength — изо всех сил. Русское «изо» здесь не from: по-английски говорят with all his strength. By тоже не подходит.",
+        "uz": "with all your strength — bor kuchi bilan. O'zbekcha «bilan» bu yerda with bo'ladi: with all his strength. From va by to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "fitness"
+      ],
+      "text": "She started running every morning to ___ her fitness.",
+      "options": [
+        "improve",
+        "repair",
+        "correct"
+      ],
+      "correct": [
+        "improve"
+      ],
+      "translation": {
+        "ru": "Она начала бегать каждое утро, чтобы улучшить свою физическую форму.",
+        "uz": "U jismoniy tayyorgarligini yaxshilash uchun har kuni ertalab yugurishni boshladi."
+      },
+      "explanation": {
+        "ru": "improve your fitness — улучшить физическую форму. Repair — чинить (машину, обувь), correct — исправлять (ошибку): о физической форме так не говорят.",
+        "uz": "improve your fitness — jismoniy tayyorgarlikni yaxshilamoq. Repair — tuzatmoq, ta'mirlamoq (mashina, poyabzal), correct — to'g'rilamoq (xatoni): jismoniy tayyorgarlik haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "bounce"
+      ],
+      "text": "The ball bounced up and ___ on the hard floor.",
+      "options": [
+        "down",
+        "below",
+        "under"
+      ],
+      "correct": [
+        "down"
+      ],
+      "translation": {
+        "ru": "Мяч скакал вверх-вниз по твёрдому полу.",
+        "uz": "To'p qattiq polda yuqoriga-pastga sapchidi."
+      },
+      "explanation": {
+        "ru": "bounce up and down — подпрыгивать, скакать вверх-вниз. up and down — устойчивая пара. Below (ниже) и under (под) в этой паре не употребляются.",
+        "uz": "bounce up and down — yuqoriga-pastga sapchimoq. up and down — turg'un juftlik. Below (pastda, quyida) va under (ostida) bu juftlikda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "kick"
+      ],
+      "prompt": {
+        "ru": "Не бейте по мячу так сильно.",
+        "uz": "To'pni bunchalik qattiq tepmang."
+      },
+      "fragments": [
+        "do",
+        "not",
+        "kick",
+        "the",
+        "ball",
+        "so hard"
+      ],
+      "accepted": [
+        [
+          "do",
+          "not",
+          "kick",
+          "the",
+          "ball",
+          "so hard"
+        ]
+      ],
+      "display": "Do not kick the ball so hard.",
+      "explanation": {
+        "ru": "kick the ball — бить по мячу (ногой): после kick предлог не нужен. so hard — так сильно; hard здесь наречие и стоит в конце.",
+        "uz": "kick the ball — to'pni tepmoq: kick fe'lidan keyin predlog kerak emas. so hard — bunchalik qattiq; hard bu yerda ravish va gap oxirida turadi."
+      }
+    },
+    {
+      "key": "b1-m12-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "intense"
+      ],
+      "prompt": {
+        "ru": "Почему тренировка была такой интенсивной?",
+        "uz": "Nega mashg'ulot bunchalik jadal bo'ldi?"
+      },
+      "fragments": [
+        "why",
+        "was",
+        "the",
+        "training",
+        "so intense"
+      ],
+      "accepted": [
+        [
+          "why",
+          "was",
+          "the",
+          "training",
+          "so intense"
+        ]
+      ],
+      "display": "Why was the training so intense?",
+      "explanation": {
+        "ru": "so + прилагательное — такой, настолько: so intense. В вопросе was стоит перед подлежащим: Why was the training…?",
+        "uz": "so + sifat — shunchalik, bunchalik: so intense. Savolda was egadan oldin turadi: Why was the training…?"
+      }
+    },
+    {
+      "key": "b1-m12-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "instructor"
+      ],
+      "prompt": {
+        "ru": "Инструктор велел нам носить удобную обувь.",
+        "uz": "Yo'riqchi bizga qulay poyabzal kiyishni aytdi."
+      },
+      "fragments": [
+        "the",
+        "instructor",
+        "told",
+        "us",
+        "to",
+        "wear",
+        "comfortable",
+        "shoes"
+      ],
+      "accepted": [
+        [
+          "the",
+          "instructor",
+          "told",
+          "us",
+          "to",
+          "wear",
+          "comfortable",
+          "shoes"
+        ]
+      ],
+      "display": "The instructor told us to wear comfortable shoes.",
+      "explanation": {
+        "ru": "tell somebody to do something — сказать, велеть кому-то что-то сделать: told us to wear. После tell сразу идёт «кому» (us), без предлога to.",
+        "uz": "tell somebody to do something — kimgadir biror ish qilishni aytmoq: told us to wear. tell fe'lidan keyin darhol «kimga» (us) keladi, to predlogisiz."
+      }
+    },
+    {
+      "key": "b1-m12-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "athlete",
+        "sprint"
+      ],
+      "text": "The athlete was tired after the sprint",
+      "accepted": [
+        "The athlete was tired after the sprint"
+      ],
+      "translation": {
+        "ru": "Спортсмен устал после спринта",
+        "uz": "Sportchi sprintdan keyin charchagan edi"
+      },
+      "explanation": {
+        "ru": "athlete: после th сразу идёт l, а на конце — немая e: a-t-h-l-e-t-e.",
+        "uz": "athlete: th harflaridan keyin darhol l keladi, oxirida esa o'qilmaydigan e bor: a-t-h-l-e-t-e."
+      }
+    },
+    {
+      "key": "b1-m12-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "amateur"
+      ],
+      "text": "He is an amateur but plays very well",
+      "accepted": [
+        "He is an amateur but plays very well",
+        "He's an amateur but plays very well"
+      ],
+      "translation": {
+        "ru": "Он любитель, но играет очень хорошо",
+        "uz": "U havaskor, lekin juda yaxshi o'ynaydi"
+      },
+      "explanation": {
+        "ru": "amateur: на конце -eur (e-u-r), слово пришло из французского: a-m-a-t-e-u-r.",
+        "uz": "amateur: oxirida -eur (e-u-r) yoziladi, so'z fransuz tilidan kirgan: a-m-a-t-e-u-r."
+      }
+    },
+    {
+      "key": "b1-m12-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "session"
+      ],
+      "text": "The training session lasts an hour",
+      "accepted": [
+        "The training session lasts an hour"
+      ],
+      "translation": {
+        "ru": "Тренировочное занятие длится час",
+        "uz": "Mashg'ulot bir soat davom etadi"
+      },
+      "explanation": {
+        "ru": "session: в середине две s — s-e-s-s-i-o-n.",
+        "uz": "session: o'rtasida ikkita s — s-e-s-s-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m12-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "helmet"
+      ],
+      "text": "Every player must ___ a helmet during the game.",
+      "options": [
+        "wear",
+        "dress",
+        "put"
+      ],
+      "correct": [
+        "wear"
+      ],
+      "translation": {
+        "ru": "Каждый игрок должен носить шлем во время игры.",
+        "uz": "Har bir o'yinchi o'yin paytida shlem kiyishi shart."
+      },
+      "explanation": {
+        "ru": "wear a helmet — носить шлем, быть в шлеме. Dress — одевать кого-то или одеваться (без названия вещи). Put в этом значении требует on: put on a helmet — надеть шлем.",
+        "uz": "wear a helmet — shlem kiymoq, shlemda bo'lmoq. Dress — kimnidir kiyintirmoq yoki kiyinmoq (kiyim nomisiz). Put fe'li bu ma'noda on bilan keladi: put on a helmet — shlemni kiyib olmoq."
+      }
+    },
+    {
+      "key": "b1-m12-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "whistle"
+      ],
+      "text": "The coach ___ his whistle, and everyone stopped running.",
+      "options": [
+        "blew",
+        "rang",
+        "breathed"
+      ],
+      "correct": [
+        "blew"
+      ],
+      "translation": {
+        "ru": "Тренер дунул в свисток, и все перестали бежать.",
+        "uz": "Murabbiy hushtak chaldi va hamma yugurishdan to'xtadi."
+      },
+      "explanation": {
+        "ru": "blow a whistle — дуть в свисток, свистеть (blow — blew — blown). Ring — звонить (в звонок), breathe — дышать: о свистке так не говорят.",
+        "uz": "blow a whistle — hushtak chalmoq (blow — blew — blown). O'zbekcha «chalmoq» bu yerda blow bo'ladi; ring — qo'ng'iroq chalmoq, breathe — nafas olmoq."
+      }
+    },
+    {
+      "key": "b1-m12-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "locker"
+      ],
+      "text": "The players are getting dressed in the locker ___.",
+      "options": [
+        "room",
+        "cabin",
+        "house"
+      ],
+      "correct": [
+        "room"
+      ],
+      "translation": {
+        "ru": "Игроки одеваются в раздевалке.",
+        "uz": "O'yinchilar kiyinish xonasida kiyinishyapti."
+      },
+      "explanation": {
+        "ru": "a locker room — раздевалка (комната со шкафчиками) в спортзале или на стадионе. Cabin — каюта или домик, house — дом: со словом locker они не сочетаются.",
+        "uz": "a locker room — sport zali yoki stadiondagi kiyinish xonasi (javonchalar turadigan xona). Cabin — kayuta yoki kulba, house — uy: locker so'zi bilan ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "target"
+      ],
+      "prompt": {
+        "ru": "Никто не смог попасть в мишень.",
+        "uz": "Hech kim nishonga tekkiza olmadi."
+      },
+      "fragments": [
+        "nobody",
+        "could",
+        "hit",
+        "the",
+        "target"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "could",
+          "hit",
+          "the",
+          "target"
+        ]
+      ],
+      "display": "Nobody could hit the target.",
+      "explanation": {
+        "ru": "hit the target — попасть в мишень (без предлога). После could глагол в начальной форме: could hit. С nobody not не нужен.",
+        "uz": "hit the target — nishonga tekkizmoq (predlogsiz). could so'zidan keyin fe'l bosh shaklda turadi: could hit. Nobody so'zi bilan not kerak emas."
+      }
+    },
+    {
+      "key": "b1-m12-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "gear"
+      ],
+      "prompt": {
+        "ru": "Нам нужно какое-нибудь специальное снаряжение?",
+        "uz": "Bizga biror maxsus anjom kerakmi?"
+      },
+      "fragments": [
+        "do",
+        "we",
+        "need",
+        "any",
+        "special",
+        "gear"
+      ],
+      "accepted": [
+        [
+          "do",
+          "we",
+          "need",
+          "any",
+          "special",
+          "gear"
+        ]
+      ],
+      "display": "Do we need any special gear?",
+      "explanation": {
+        "ru": "gear — снаряжение; в этом значении слово неисчисляемое: без артикля и без -s (special gear). В вопросе перед ним ставят any — «какое-нибудь».",
+        "uz": "gear — anjom, jihoz; bu ma'noda sanalmaydigan ot: artiklsiz va -s qo'shimchasisiz ishlatiladi (special gear). Savolda undan oldin any — «biror» keladi."
+      }
+    },
+    {
+      "key": "b1-m12-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "racket"
+      ],
+      "prompt": {
+        "ru": "Можно мне взять на время вашу теннисную ракетку?",
+        "uz": "Tennis raketkangizni olib tursam maylimi?"
+      },
+      "fragments": [
+        "can",
+        "I",
+        "borrow",
+        "your",
+        "tennis",
+        "racket"
+      ],
+      "accepted": [
+        [
+          "can",
+          "I",
+          "borrow",
+          "your",
+          "tennis",
+          "racket"
+        ]
+      ],
+      "display": "Can I borrow your tennis racket?",
+      "explanation": {
+        "ru": "borrow — взять на время, одолжить у кого-то (lend — дать на время). tennis racket — теннисная ракетка: существительное tennis стоит перед racket как определение.",
+        "uz": "borrow — vaqtincha olib turmoq (lend — vaqtincha berib turmoq). tennis racket — tennis raketkasi: tennis oti racket so'zidan oldin aniqlovchi bo'lib keladi."
+      }
+    },
+    {
+      "key": "b1-m12-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "net"
+      ],
+      "text": "The ball hit the net again",
+      "accepted": [
+        "The ball hit the net again"
+      ],
+      "translation": {
+        "ru": "Мяч снова попал в сетку",
+        "uz": "To'p yana to'rga tegdi"
+      }
+    },
+    {
+      "key": "b1-m12-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "arena",
+        "track"
+      ],
+      "text": "The arena has a new running track",
+      "accepted": [
+        "The arena has a new running track"
+      ],
+      "translation": {
+        "ru": "На арене новая беговая дорожка",
+        "uz": "Arenada yangi yugurish yo'lakchasi bor"
+      }
+    },
+    {
+      "key": "b1-m12-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "mat"
+      ],
+      "text": "Put your mat on the floor",
+      "accepted": [
+        "Put your mat on the floor"
+      ],
+      "translation": {
+        "ru": "Положите свой коврик на пол",
+        "uz": "Gilamchangizni polga qo'ying"
+      }
+    },
+    {
+      "key": "b1-m12-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "hike"
+      ],
+      "text": "Would you like to go ___ a hike this weekend?",
+      "options": [
+        "on",
+        "to",
+        "in"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Хотите пойти в поход в эти выходные?",
+        "uz": "Shu dam olish kunlari piyoda sayohatga chiqishni xohlaysizmi?"
+      },
+      "explanation": {
+        "ru": "go on a hike — пойти в поход (так же: go on a trip, go on a tour). Русское «в» здесь не to и не in.",
+        "uz": "go on a hike — piyoda sayohatga chiqmoq (xuddi shunday: go on a trip, go on a tour). O'zbekcha «-ga» bu yerda to bo'lmaydi; in ham ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m12-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "peak"
+      ],
+      "text": "We ___ the peak just before noon.",
+      "options": [
+        "reached",
+        "arrived",
+        "came"
+      ],
+      "correct": [
+        "reached"
+      ],
+      "translation": {
+        "ru": "Мы достигли вершины незадолго до полудня.",
+        "uz": "Biz cho'qqiga tushdan sal oldin yetib bordik."
+      },
+      "explanation": {
+        "ru": "reach the peak — достичь вершины, добраться до неё: после reach предлог не нужен. После arrive и come нужен предлог: arrive at the peak, come to the peak.",
+        "uz": "reach the peak — cho'qqiga yetib bormoq: reach fe'lidan keyin predlog kerak emas. arrive va come fe'llaridan keyin esa predlog kerak: arrive at the peak, come to the peak."
+      }
+    },
+    {
+      "key": "b1-m12-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "bonfire"
+      ],
+      "text": "It was getting dark, so we ___ a bonfire.",
+      "options": [
+        "lit",
+        "switched",
+        "turned"
+      ],
+      "correct": [
+        "lit"
+      ],
+      "translation": {
+        "ru": "Темнело, поэтому мы разожгли костёр.",
+        "uz": "Qorong'i tusha boshladi, shuning uchun gulxan yoqdik."
+      },
+      "explanation": {
+        "ru": "light a bonfire — разжечь костёр (light — lit — lit). Switch on и turn on — включить прибор или свет; огонь и костёр «зажигают» глаголом light.",
+        "uz": "light a bonfire — gulxan yoqmoq (light — lit — lit). O'zbekcha «yoqmoq» ikki xil tarjima qilinadi: chiroq yoki asbobni yoqmoq — switch on, turn on; olov va gulxanni yoqmoq — light."
+      }
+    },
+    {
+      "key": "b1-m12-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "rescue"
+      ],
+      "prompt": {
+        "ru": "Вертолёт отправили спасать туристов.",
+        "uz": "Sayyohlarni qutqarish uchun vertolyot yuborildi."
+      },
+      "fragments": [
+        "a helicopter",
+        "was",
+        "sent",
+        "to",
+        "rescue",
+        "the tourists"
+      ],
+      "accepted": [
+        [
+          "a helicopter",
+          "was",
+          "sent",
+          "to",
+          "rescue",
+          "the tourists"
+        ],
+        [
+          "to",
+          "rescue",
+          "the tourists",
+          "a helicopter",
+          "was",
+          "sent"
+        ]
+      ],
+      "display": "A helicopter was sent to rescue the tourists.",
+      "explanation": {
+        "ru": "rescue — спасать (от опасности). was sent — пассив: вертолёт отправили. to rescue — инфинитив цели: чтобы спасти.",
+        "uz": "rescue — qutqarmoq (xavfdan). was sent — majhul nisbat: vertolyot yuborildi. to rescue — maqsad infinitivi: qutqarish uchun."
+      }
+    },
+    {
+      "key": "b1-m12-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "outdoor"
+      ],
+      "prompt": {
+        "ru": "В этом отеле есть открытый бассейн?",
+        "uz": "Bu mehmonxonada ochiq hovuz bormi?"
+      },
+      "fragments": [
+        "does",
+        "this",
+        "hotel",
+        "have",
+        "an",
+        "outdoor",
+        "pool"
+      ],
+      "accepted": [
+        [
+          "does",
+          "this",
+          "hotel",
+          "have",
+          "an",
+          "outdoor",
+          "pool"
+        ]
+      ],
+      "display": "Does this hotel have an outdoor pool?",
+      "explanation": {
+        "ru": "outdoor — прилагательное «на открытом воздухе», стоит перед существительным: an outdoor pool. Не путайте с наречием outdoors: We ate outdoors.",
+        "uz": "outdoor — «ochiq havodagi» degan sifat, otdan oldin keladi: an outdoor pool. Uni outdoors ravishi bilan adashtirmang: We ate outdoors."
+      }
+    },
+    {
+      "key": "b1-m12-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "barbecue"
+      ],
+      "prompt": {
+        "ru": "Они пригласили нас на барбекю.",
+        "uz": "Ular bizni barbekyuga taklif qilishdi."
+      },
+      "fragments": [
+        "they",
+        "invited",
+        "us",
+        "to",
+        "a",
+        "barbecue"
+      ],
+      "accepted": [
+        [
+          "they",
+          "invited",
+          "us",
+          "to",
+          "a",
+          "barbecue"
+        ]
+      ],
+      "display": "They invited us to a barbecue.",
+      "explanation": {
+        "ru": "invite somebody to + событие — пригласить кого-то на что-то: invited us to a barbecue. Barbecue здесь — встреча на свежем воздухе, где еду готовят на огне.",
+        "uz": "invite somebody to + tadbir — kimnidir biror tadbirga taklif qilmoq: invited us to a barbecue. Barbecue bu yerda — ochiq havoda olovda taom pishiriladigan yig'in."
+      }
+    },
+    {
+      "key": "b1-m12-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "trail",
+        "slope"
+      ],
+      "text": "The trail goes up the slope to the lake",
+      "accepted": [
+        "The trail goes up the slope to the lake"
+      ],
+      "translation": {
+        "ru": "Тропа идёт вверх по склону к озеру",
+        "uz": "So'qmoq yonbag'ir bo'ylab yuqoriga, ko'lga olib boradi"
+      }
+    },
+    {
+      "key": "b1-m12-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "canoe"
+      ],
+      "text": "The canoe was full of water",
+      "accepted": [
+        "The canoe was full of water"
+      ],
+      "translation": {
+        "ru": "Каноэ было полно воды",
+        "uz": "Kanoe suvga to'la edi"
+      },
+      "explanation": {
+        "ru": "canoe: на конце -oe, хотя слышится «у»: c-a-n-o-e.",
+        "uz": "canoe: oxirida -oe yoziladi, garchi «u» eshitilsa ham: c-a-n-o-e."
+      }
+    },
+    {
+      "key": "b1-m12-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "compass"
+      ],
+      "text": "Do not forget your compass",
+      "accepted": [
+        "Do not forget your compass",
+        "Don't forget your compass"
+      ],
+      "translation": {
+        "ru": "Не забудьте свой компас",
+        "uz": "Kompasingizni unutmang"
+      },
+      "explanation": {
+        "ru": "compass: на конце две s — c-o-m-p-a-s-s.",
+        "uz": "compass: oxirida ikkita s — c-o-m-p-a-s-s."
+      }
+    }
+  ]
+}

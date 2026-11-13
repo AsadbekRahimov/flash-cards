@@ -1,0 +1,2816 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m09-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "verdict"
+      ],
+      "text": "After two days the jury finally ___ a verdict.",
+      "options": [
+        "reached",
+        "arrived",
+        "came"
+      ],
+      "correct": [
+        "reached"
+      ],
+      "translation": {
+        "ru": "Через два дня присяжные наконец вынесли вердикт.",
+        "uz": "Ikki kundan so'ng hakamlar hay'ati nihoyat hukm chiqardi."
+      },
+      "explanation": {
+        "ru": "reach a verdict — вынести вердикт, прийти к решению. После arrive и come нужен предлог: arrive at a verdict, come to a verdict, а reach употребляется без предлога.",
+        "uz": "reach a verdict — hukm chiqarmoq, bir qarorga kelmoq. Arrive va come fe'llaridan keyin predlog kerak: arrive at a verdict, come to a verdict, reach esa predlogsiz ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m09-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "oath"
+      ],
+      "text": "Witnesses in court answer all questions ___ oath.",
+      "options": [
+        "under",
+        "below",
+        "beneath"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Свидетели в суде отвечают на все вопросы под присягой.",
+        "uz": "Sudda guvohlar barcha savollarga qasam ichgan holda javob beradi."
+      },
+      "explanation": {
+        "ru": "under oath — под присягой, то есть пообещав суду говорить правду. Below и beneath тоже переводятся как «под», но с oath они не употребляются: говорят under oath.",
+        "uz": "under oath — qasam ichgan holda (so'zma-so'z «qasam ostida»), ya'ni sudga haqiqatni aytishga va'da berib. Below va beneath ham «ostida» deb tarjima qilinadi, lekin oath so'zi bilan ishlatilmaydi: under oath deyiladi."
+      }
+    },
+    {
+      "key": "b2-m09-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "lawsuit"
+      ],
+      "text": "The family decided to ___ a lawsuit against the company.",
+      "options": [
+        "file",
+        "give",
+        "put"
+      ],
+      "correct": [
+        "file"
+      ],
+      "translation": {
+        "ru": "Семья решила подать иск против этой компании.",
+        "uz": "Oila bu kompaniyaga qarshi sudga da'vo kiritishga qaror qildi."
+      },
+      "explanation": {
+        "ru": "file a lawsuit against — подать иск против кого-то. По-русски иск «подают», но по-английски не говорят give a lawsuit или put a lawsuit: нужен глагол file. Ещё говорят bring a lawsuit.",
+        "uz": "file a lawsuit against — kimgadir qarshi sudga da'vo kiritmoq. Inglizchada give a lawsuit yoki put a lawsuit deyilmaydi: file fe'li kerak. Bring a lawsuit ham deyiladi."
+      }
+    },
+    {
+      "key": "b2-m09-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "prosecutor"
+      ],
+      "prompt": {
+        "ru": "Прокурор должен доказать, что она виновна.",
+        "uz": "Prokuror uning aybdor ekanini isbotlashi kerak."
+      },
+      "fragments": [
+        "the",
+        "prosecutor",
+        "must",
+        "prove",
+        "that",
+        "she",
+        "is",
+        "guilty"
+      ],
+      "accepted": [
+        [
+          "the",
+          "prosecutor",
+          "must",
+          "prove",
+          "that",
+          "she",
+          "is",
+          "guilty"
+        ]
+      ],
+      "display": "The prosecutor must prove that she is guilty.",
+      "explanation": {
+        "ru": "prove that + предложение — доказать, что… После must глагол стоит без to: must prove. Guilty — виновный: she is guilty — она виновна.",
+        "uz": "prove that + gap — …ekanini isbotlamoq. Must dan keyin fe'l to so'zisiz keladi: must prove. Guilty — aybdor: she is guilty — u aybdor."
+      }
+    },
+    {
+      "key": "b2-m09-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "defendant",
+        "attorney"
+      ],
+      "prompt": {
+        "ru": "Каждый подсудимый имеет право на адвоката.",
+        "uz": "Har bir sudlanuvchi advokat yordamidan foydalanish huquqiga ega."
+      },
+      "fragments": [
+        "every",
+        "defendant",
+        "has",
+        "the right",
+        "to",
+        "an attorney"
+      ],
+      "accepted": [
+        [
+          "every",
+          "defendant",
+          "has",
+          "the right",
+          "to",
+          "an attorney"
+        ]
+      ],
+      "display": "Every defendant has the right to an attorney.",
+      "explanation": {
+        "ru": "the right to + существительное — право на что-то: the right to an attorney. После every существительное и глагол стоят в единственном числе: every defendant has.",
+        "uz": "the right to + ot — biror narsaga bo'lgan huquq: the right to an attorney. Every dan keyin ot ham, fe'l ham birlikda keladi: every defendant has."
+      }
+    },
+    {
+      "key": "b2-m09-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "jury"
+      ],
+      "prompt": {
+        "ru": "Присяжные не поверили свидетелю.",
+        "uz": "Hakamlar hay'ati guvohga ishonmadi."
+      },
+      "fragments": [
+        "the",
+        "jury",
+        "did",
+        "not",
+        "believe",
+        "the",
+        "witness"
+      ],
+      "accepted": [
+        [
+          "the",
+          "jury",
+          "did",
+          "not",
+          "believe",
+          "the",
+          "witness"
+        ]
+      ],
+      "display": "The jury did not believe the witness.",
+      "explanation": {
+        "ru": "jury — присяжные как одна группа: по-русски это множественное число, а по-английски одно слово в единственном числе — the jury. Отрицание в прошедшем времени: did not + глагол в начальной форме.",
+        "uz": "jury — hakamlar hay'ati, ya'ni bir guruh: inglizchada bu birlikdagi bitta so'z — the jury. O'tgan zamondagi inkor: did not + fe'lning bosh shakli."
+      }
+    },
+    {
+      "key": "b2-m09-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "courtroom"
+      ],
+      "text": "The courtroom was completely silent",
+      "accepted": [
+        "The courtroom was completely silent"
+      ],
+      "translation": {
+        "ru": "В зале суда стояла полная тишина",
+        "uz": "Sud zalida to'liq jimjitlik hukm surardi"
+      },
+      "explanation": {
+        "ru": "courtroom пишется слитно, в одно слово: court + room.",
+        "uz": "courtroom qo'shib, bitta so'z qilib yoziladi: court + room."
+      }
+    },
+    {
+      "key": "b2-m09-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "testimony"
+      ],
+      "text": "Her testimony changed everything",
+      "accepted": [
+        "Her testimony changed everything"
+      ],
+      "translation": {
+        "ru": "Её показания всё изменили",
+        "uz": "Uning guvohligi hammasini o'zgartirdi"
+      },
+      "explanation": {
+        "ru": "testimony: в середине пишется i, а на конце -mony, как в слове ceremony: t-e-s-t-i-m-o-n-y.",
+        "uz": "testimony: o'rtada i yoziladi, oxiri esa -mony, ceremony so'zidagi kabi: t-e-s-t-i-m-o-n-y."
+      }
+    },
+    {
+      "key": "b2-m09-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "appeal"
+      ],
+      "text": "The court rejected his appeal",
+      "accepted": [
+        "The court rejected his appeal"
+      ],
+      "translation": {
+        "ru": "Суд отклонил его апелляцию",
+        "uz": "Sud uning apellyatsiyasini rad etdi"
+      },
+      "explanation": {
+        "ru": "appeal: две p и сочетание ea: a-p-p-e-a-l.",
+        "uz": "appeal: ikkita p va ea birikmasi bilan yoziladi: a-p-p-e-a-l."
+      }
+    },
+    {
+      "key": "b2-m09-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "offense"
+      ],
+      "text": "He had never ___ an offense before that day.",
+      "options": [
+        "committed",
+        "made",
+        "done"
+      ],
+      "correct": [
+        "committed"
+      ],
+      "translation": {
+        "ru": "До того дня он ни разу не совершал правонарушений.",
+        "uz": "O'sha kungacha u hech qachon huquqbuzarlik sodir etmagan edi."
+      },
+      "explanation": {
+        "ru": "commit an offense — совершить правонарушение. С offense и crime употребляется глагол commit; make an offense и do an offense не говорят.",
+        "uz": "commit an offense — huquqbuzarlik sodir etmoq. Offense va crime so'zlari bilan commit fe'li ishlatiladi; make an offense yoki do an offense deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m09-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "theft"
+      ],
+      "text": "You should ___ the theft to the police at once.",
+      "options": [
+        "report",
+        "inform",
+        "tell"
+      ],
+      "correct": [
+        "report"
+      ],
+      "translation": {
+        "ru": "Вам следует сразу сообщить о краже в полицию.",
+        "uz": "O'g'irlik haqida darhol politsiyaga xabar berishingiz kerak."
+      },
+      "explanation": {
+        "ru": "report a theft to the police — сообщить о краже в полицию: после report дополнение идёт без предлога. Inform и tell строятся иначе: inform the police about the theft, tell the police about the theft.",
+        "uz": "report a theft to the police — o'g'irlik haqida politsiyaga xabar bermoq: report dan keyin to'ldiruvchi predlogsiz keladi. Inform va tell boshqacha quriladi: inform the police about the theft, tell the police about the theft."
+      }
+    },
+    {
+      "key": "b2-m09-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "corruption"
+      ],
+      "text": "The new mayor promised to ___ corruption in the city.",
+      "options": [
+        "fight",
+        "struggle",
+        "quarrel"
+      ],
+      "correct": [
+        "fight"
+      ],
+      "translation": {
+        "ru": "Новый мэр пообещал бороться с коррупцией в городе.",
+        "uz": "Yangi hokim shahardagi korrupsiyaga qarshi kurashishga va'da berdi."
+      },
+      "explanation": {
+        "ru": "fight corruption — бороться с коррупцией: после fight предлог не обязателен. Struggle и quarrel не принимают прямого дополнения; quarrel к тому же значит «ссориться».",
+        "uz": "fight corruption — korrupsiyaga qarshi kurashmoq: fight dan keyin predlog shart emas. Struggle va quarrel vositasiz to'ldiruvchi olmaydi; quarrel esa «janjallashmoq» degani."
+      }
+    },
+    {
+      "key": "b2-m09-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "culprit"
+      ],
+      "prompt": {
+        "ru": "Полиция не нашла виновника.",
+        "uz": "Politsiya aybdorni topgani yo'q."
+      },
+      "fragments": [
+        "the",
+        "police",
+        "have",
+        "not",
+        "found",
+        "the",
+        "culprit"
+      ],
+      "accepted": [
+        [
+          "the",
+          "police",
+          "have",
+          "not",
+          "found",
+          "the",
+          "culprit"
+        ]
+      ],
+      "display": "The police have not found the culprit.",
+      "explanation": {
+        "ru": "police — всегда множественное число: the police have (а не has). Culprit — виновник, тот, кто совершил проступок или преступление.",
+        "uz": "police — doim ko'plikda: the police have (has emas). Culprit — aybdor, ya'ni nojo'ya ish yoki jinoyatni sodir etgan kishi."
+      }
+    },
+    {
+      "key": "b2-m09-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "bribery"
+      ],
+      "prompt": {
+        "ru": "Двух чиновников обвинили во взяточничестве.",
+        "uz": "Ikki amaldor poraxo'rlikda ayblandi."
+      },
+      "fragments": [
+        "two",
+        "officials",
+        "were",
+        "accused",
+        "of",
+        "bribery"
+      ],
+      "accepted": [
+        [
+          "two",
+          "officials",
+          "were",
+          "accused",
+          "of",
+          "bribery"
+        ]
+      ],
+      "display": "Two officials were accused of bribery.",
+      "explanation": {
+        "ru": "be accused of + существительное — быть обвинённым в чём-то: предлог of, а не in. Пассив were accused — «(их) обвинили».",
+        "uz": "be accused of + ot — biror narsada ayblanmoq: predlog in emas, of. Were accused — majhul nisbat: «ayblandi»."
+      }
+    },
+    {
+      "key": "b2-m09-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "burglary"
+      ],
+      "prompt": {
+        "ru": "Как вы узнали о краже со взломом?",
+        "uz": "Uyga o'g'irlikka tushilganidan qanday xabar topdingiz?"
+      },
+      "fragments": [
+        "how",
+        "did",
+        "you",
+        "find out",
+        "about",
+        "the",
+        "burglary"
+      ],
+      "accepted": [
+        [
+          "how",
+          "did",
+          "you",
+          "find out",
+          "about",
+          "the",
+          "burglary"
+        ]
+      ],
+      "display": "How did you find out about the burglary?",
+      "explanation": {
+        "ru": "find out about — узнать о чём-то, получить сведения. В вопросе о прошлом нужен did, а глагол остаётся в начальной форме: did you find out.",
+        "uz": "find out about — biror narsa haqida bilib olmoq, xabar topmoq. O'tgan zamon savolida did kerak, fe'l esa bosh shaklda qoladi: did you find out."
+      }
+    },
+    {
+      "key": "b2-m09-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "forgery",
+        "fraud"
+      ],
+      "text": "Forgery and fraud are serious crimes",
+      "accepted": [
+        "Forgery and fraud are serious crimes"
+      ],
+      "translation": {
+        "ru": "Подделка и мошенничество — серьёзные преступления",
+        "uz": "Qalbakilashtirish va firibgarlik — jiddiy jinoyatlar"
+      },
+      "explanation": {
+        "ru": "fraud: долгий звук «о» пишется через au: f-r-a-u-d. В forgery после g стоит e: f-o-r-g-e-r-y.",
+        "uz": "fraud: cho'ziq «o» tovushi au bilan yoziladi: f-r-a-u-d. Forgery so'zida g dan keyin e keladi: f-o-r-g-e-r-y."
+      }
+    },
+    {
+      "key": "b2-m09-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "robbery"
+      ],
+      "text": "Nobody saw the robbery",
+      "accepted": [
+        "Nobody saw the robbery"
+      ],
+      "translation": {
+        "ru": "Никто не видел ограбления",
+        "uz": "Talonchilikni hech kim ko'rmadi"
+      },
+      "explanation": {
+        "ru": "robbery: две b, как в слове robber: r-o-b-b-e-r-y.",
+        "uz": "robbery: ikkita b bilan yoziladi, robber so'zidagi kabi: r-o-b-b-e-r-y."
+      }
+    },
+    {
+      "key": "b2-m09-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "vandalism"
+      ],
+      "text": "Vandalism costs the city a lot of money",
+      "accepted": [
+        "Vandalism costs the city a lot of money"
+      ],
+      "translation": {
+        "ru": "Вандализм обходится городу в большие деньги",
+        "uz": "Vandalizm shaharga juda qimmatga tushadi"
+      },
+      "explanation": {
+        "ru": "vandalism: окончание -ism пишется через s, хотя слышится «з» и по-русски пишется «з».",
+        "uz": "vandalism: -ism qo'shimchasi s bilan yoziladi, garchi «z» eshitilsa va o'zbekchada z yozilsa ham."
+      }
+    },
+    {
+      "key": "b2-m09-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "comply"
+      ],
+      "text": "The factory was closed because it did not comply ___ safety standards.",
+      "options": [
+        "with",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Завод закрыли, потому что он не соблюдал нормы безопасности.",
+        "uz": "Zavod xavfsizlik me'yorlariga rioya qilmagani uchun yopildi."
+      },
+      "explanation": {
+        "ru": "comply with — соблюдать правила, требования, нормы. Дополнение после comply вводится предлогом with, а не on или for: comply with the law, comply with the rules.",
+        "uz": "comply with — qoidalar, talablar, me'yorlarga rioya qilmoq. Comply dan keyin to'ldiruvchi on yoki for bilan emas, with predlogi bilan keladi: comply with the law, comply with the rules."
+      }
+    },
+    {
+      "key": "b2-m09-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "prohibit"
+      ],
+      "text": "School rules prohibit students ___ using phones in class.",
+      "options": [
+        "from",
+        "to",
+        "against"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Школьные правила запрещают ученикам пользоваться телефонами на уроке.",
+        "uz": "Maktab qoidalari o'quvchilarga darsda telefondan foydalanishni taqiqlaydi."
+      },
+      "explanation": {
+        "ru": "prohibit somebody from doing something — запрещать кому-то что-то делать. После prohibit нужен предлог from и глагол с -ing: prohibit students from using phones.",
+        "uz": "prohibit somebody from doing something — kimgadir biror ish qilishni taqiqlamoq. Prohibit dan keyin from predlogi va -ing shaklidagi fe'l keladi: prohibit students from using phones."
+      }
+    },
+    {
+      "key": "b2-m09-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "regulation"
+      ],
+      "text": "The restaurant was fined for ___ health regulations.",
+      "options": [
+        "breaking",
+        "spoiling",
+        "disturbing"
+      ],
+      "correct": [
+        "breaking"
+      ],
+      "translation": {
+        "ru": "Ресторан оштрафовали за нарушение санитарных норм.",
+        "uz": "Restoran sanitariya qoidalarini buzgani uchun jarimaga tortildi."
+      },
+      "explanation": {
+        "ru": "break regulations — нарушать правила, нормы (так же: break the law, break the rules). Spoil — портить (еду, отдых), disturb — беспокоить, мешать: с regulations эти глаголы не употребляются.",
+        "uz": "break regulations — qoidalarni, me'yorlarni buzmoq (xuddi shunday: break the law, break the rules). Spoil — aynitmoq, rasvo qilmoq (ovqatni, dam olishni), disturb — bezovta qilmoq: regulations so'zi bilan bu fe'llar ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m09-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "enforce"
+      ],
+      "prompt": {
+        "ru": "Кто будет обеспечивать соблюдение новых правил?",
+        "uz": "Yangi qoidalarga rioya etilishini kim ta'minlaydi?"
+      },
+      "fragments": [
+        "who",
+        "is",
+        "going to",
+        "enforce",
+        "the",
+        "new",
+        "rules"
+      ],
+      "accepted": [
+        [
+          "who",
+          "is",
+          "going to",
+          "enforce",
+          "the",
+          "new",
+          "rules"
+        ]
+      ],
+      "display": "Who is going to enforce the new rules?",
+      "explanation": {
+        "ru": "enforce rules, enforce a law — обеспечивать соблюдение правил, закона: следить, чтобы их выполняли. Be going to + глагол — о том, что будет; who здесь подлежащее.",
+        "uz": "enforce rules, enforce a law — qoidalarga, qonunga rioya etilishini ta'minlamoq. Be going to + fe'l — kelajakdagi ish haqida; who bu yerda ega."
+      }
+    },
+    {
+      "key": "b2-m09-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "obligation"
+      ],
+      "prompt": {
+        "ru": "Вы не обязаны отвечать на эти вопросы.",
+        "uz": "Siz bu savollarga javob berishga majbur emassiz."
+      },
+      "fragments": [
+        "you",
+        "have",
+        "no",
+        "obligation",
+        "to",
+        "answer",
+        "these",
+        "questions"
+      ],
+      "accepted": [
+        [
+          "you",
+          "have",
+          "no",
+          "obligation",
+          "to",
+          "answer",
+          "these",
+          "questions"
+        ]
+      ],
+      "display": "You have no obligation to answer these questions.",
+      "explanation": {
+        "ru": "have no obligation to + глагол — не иметь обязанности, не быть обязанным что-то делать. No перед существительным заменяет not … any: you have no obligation = you do not have any obligation.",
+        "uz": "have no obligation to + fe'l — biror ishni qilish majburiyati yo'q, majbur emas. Otdan oldin kelgan no so'zi not … any o'rnini bosadi: you have no obligation = you do not have any obligation."
+      }
+    },
+    {
+      "key": "b2-m09-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "legitimate"
+      ],
+      "prompt": {
+        "ru": "Их жалоба кажется вполне обоснованной.",
+        "uz": "Ularning shikoyati mutlaqo asosli ko'rinadi."
+      },
+      "fragments": [
+        "their",
+        "complaint",
+        "seems",
+        "perfectly",
+        "legitimate"
+      ],
+      "accepted": [
+        [
+          "their",
+          "complaint",
+          "seems",
+          "perfectly",
+          "legitimate"
+        ]
+      ],
+      "display": "Their complaint seems perfectly legitimate.",
+      "explanation": {
+        "ru": "legitimate — обоснованный, имеющий разумные причины: a legitimate complaint, a legitimate question. После seem стоит прилагательное: seems legitimate; perfectly («вполне») его усиливает.",
+        "uz": "legitimate — asosli, o'rinli sababga ega: a legitimate complaint, a legitimate question. Seem dan keyin sifat keladi: seems legitimate; perfectly («mutlaqo») uni kuchaytiradi."
+      }
+    },
+    {
+      "key": "b2-m09-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "legislation",
+        "liberty"
+      ],
+      "text": "New legislation will protect personal liberty",
+      "accepted": [
+        "New legislation will protect personal liberty"
+      ],
+      "translation": {
+        "ru": "Новое законодательство защитит личную свободу",
+        "uz": "Yangi qonunchilik shaxsiy erkinlikni himoya qiladi"
+      }
+    },
+    {
+      "key": "b2-m09-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "lawful"
+      ],
+      "text": "Everything we did was lawful",
+      "accepted": [
+        "Everything we did was lawful"
+      ],
+      "translation": {
+        "ru": "Всё, что мы делали, было законным",
+        "uz": "Biz qilgan hamma ish qonuniy edi"
+      },
+      "explanation": {
+        "ru": "lawful: суффикс -ful пишется с одной l (в отличие от слова full): law + ful.",
+        "uz": "lawful: -ful qo'shimchasi bitta l bilan yoziladi (full so'zidan farqli): law + ful."
+      }
+    },
+    {
+      "key": "b2-m09-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "violation"
+      ],
+      "text": "Any violation will be reported",
+      "accepted": [
+        "Any violation will be reported"
+      ],
+      "translation": {
+        "ru": "О любом нарушении будет сообщено",
+        "uz": "Har qanday qoidabuzarlik haqida xabar beriladi"
+      }
+    },
+    {
+      "key": "b2-m09-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "accuse"
+      ],
+      "text": "My neighbor accused me ___ breaking his fence.",
+      "options": [
+        "of",
+        "in",
+        "for"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Сосед обвинил меня в том, что я сломал его забор.",
+        "uz": "Qo'shnim meni to'sig'ini buzganlikda aybladi."
+      },
+      "explanation": {
+        "ru": "accuse somebody of (doing) something — обвинять кого-то в чём-то. Русское «в» здесь of, а не in; for тоже не подходит: accused me of breaking.",
+        "uz": "accuse somebody of (doing) something — kimnidir biror narsada ayblamoq. O'zbekcha «-da» bu yerda in emas, of bo'ladi; for ham to'g'ri kelmaydi: accused me of breaking."
+      }
+    },
+    {
+      "key": "b2-m09-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "confess"
+      ],
+      "text": "The boy finally confessed ___ eating all the cookies.",
+      "options": [
+        "to",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Мальчик наконец признался, что съел всё печенье.",
+        "uz": "Bola nihoyat hamma pechenyeni yeb qo'yganiga iqror bo'ldi."
+      },
+      "explanation": {
+        "ru": "confess to (doing) something — признаться в чём-то. После confess нужен предлог to, а не in (как русское «в») и не at; после этого to стоит форма с -ing: confessed to eating.",
+        "uz": "confess to (doing) something — biror ishni qilganiga iqror bo'lmoq. Confess dan keyin in yoki at emas, to keladi; bu to dan keyin fe'l -ing shaklida turadi: confessed to eating."
+      }
+    },
+    {
+      "key": "b2-m09-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "inquiry"
+      ],
+      "text": "There will be an official inquiry ___ the cause of the fire.",
+      "options": [
+        "into",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Будет проведено официальное расследование причины пожара.",
+        "uz": "Yong'in sababi yuzasidan rasmiy tergov o'tkaziladi."
+      },
+      "explanation": {
+        "ru": "an inquiry into something — расследование чего-то. После inquiry, как и после investigation, употребляется предлог into: an inquiry into the accident.",
+        "uz": "an inquiry into something — biror narsa yuzasidan tergov. Inquiry dan keyin, investigation so'zidan keyin bo'lgani kabi, into predlogi ishlatiladi: an inquiry into the accident."
+      }
+    },
+    {
+      "key": "b2-m09-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "alibi"
+      ],
+      "prompt": {
+        "ru": "Никто не смог подтвердить его алиби.",
+        "uz": "Hech kim uning alibisini tasdiqlay olmadi."
+      },
+      "fragments": [
+        "nobody",
+        "could",
+        "confirm",
+        "his",
+        "alibi"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "could",
+          "confirm",
+          "his",
+          "alibi"
+        ]
+      ],
+      "display": "Nobody could confirm his alibi.",
+      "explanation": {
+        "ru": "confirm an alibi — подтвердить алиби. С nobody глагол стоит без not: nobody could confirm (а не nobody could not confirm).",
+        "uz": "confirm an alibi — alibini tasdiqlamoq. Nobody bilan fe'lga not qo'shilmaydi: nobody could confirm (nobody could not confirm emas)."
+      }
+    },
+    {
+      "key": "b2-m09-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "convict"
+      ],
+      "prompt": {
+        "ru": "Её признали виновной в краже денег компании.",
+        "uz": "U kompaniya pulini o'g'irlashda aybdor deb topildi."
+      },
+      "fragments": [
+        "she",
+        "was",
+        "convicted",
+        "of",
+        "stealing",
+        "company",
+        "money"
+      ],
+      "accepted": [
+        [
+          "she",
+          "was",
+          "convicted",
+          "of",
+          "stealing",
+          "company",
+          "money"
+        ]
+      ],
+      "display": "She was convicted of stealing company money.",
+      "explanation": {
+        "ru": "be convicted of + существительное или глагол с -ing — быть признанным виновным в чём-то: предлог of, а не in. Was convicted — пассив: «(её) признали виновной».",
+        "uz": "be convicted of + ot yoki -ing shaklidagi fe'l — biror narsada aybdor deb topilmoq: predlog in emas, of. Was convicted — majhul nisbat: «aybdor deb topildi»."
+      }
+    },
+    {
+      "key": "b2-m09-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "detain"
+      ],
+      "prompt": {
+        "ru": "На какой срок полиция может задержать человека?",
+        "uz": "Politsiya odamni qancha vaqt ushlab turishi mumkin?"
+      },
+      "fragments": [
+        "how long",
+        "can",
+        "the police",
+        "detain",
+        "a person"
+      ],
+      "accepted": [
+        [
+          "how long",
+          "can",
+          "the police",
+          "detain",
+          "a person"
+        ]
+      ],
+      "display": "How long can the police detain a person?",
+      "explanation": {
+        "ru": "detain — задерживать, не отпускать (обычно о полиции). How long…? — «как долго?», «на какой срок?»; после can глагол стоит без to: can detain.",
+        "uz": "detain — ushlab turmoq, qo'yib yubormaslik (odatda politsiya haqida). How long…? — «qancha vaqt?»; can dan keyin fe'l to so'zisiz keladi: can detain."
+      }
+    },
+    {
+      "key": "b2-m09-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "fingerprint",
+        "clue"
+      ],
+      "text": "The fingerprint was an important clue",
+      "accepted": [
+        "The fingerprint was an important clue"
+      ],
+      "translation": {
+        "ru": "Отпечаток пальца был важной уликой",
+        "uz": "Barmoq izi muhim dalil edi"
+      },
+      "explanation": {
+        "ru": "fingerprint пишется слитно: finger + print. Clue оканчивается на -ue: c-l-u-e.",
+        "uz": "fingerprint qo'shib yoziladi: finger + print. Clue so'zi -ue bilan tugaydi: c-l-u-e."
+      }
+    },
+    {
+      "key": "b2-m09-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "custody"
+      ],
+      "text": "She is still in custody",
+      "accepted": [
+        "She is still in custody",
+        "She's still in custody"
+      ],
+      "translation": {
+        "ru": "Она всё ещё под стражей",
+        "uz": "U hali ham hibsda"
+      }
+    },
+    {
+      "key": "b2-m09-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "imprison"
+      ],
+      "text": "He was imprisoned for a serious crime",
+      "accepted": [
+        "He was imprisoned for a serious crime"
+      ],
+      "translation": {
+        "ru": "Его заключили в тюрьму за серьёзное преступление",
+        "uz": "U og'ir jinoyat uchun qamoqqa tashlandi"
+      },
+      "explanation": {
+        "ru": "imprison = im + prison: перед p пишется m, а не n (как в impossible, import).",
+        "uz": "imprison = im + prison: p dan oldin n emas, m yoziladi (impossible, import so'zlaridagi kabi)."
+      }
+    },
+    {
+      "key": "b2-m09-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "precaution"
+      ],
+      "text": "We always ___ precautions when we travel at night.",
+      "options": [
+        "take",
+        "make",
+        "do"
+      ],
+      "correct": [
+        "take"
+      ],
+      "translation": {
+        "ru": "Мы всегда принимаем меры предосторожности, когда путешествуем ночью.",
+        "uz": "Tunda sayohat qilganimizda doim ehtiyot choralarini ko'ramiz."
+      },
+      "explanation": {
+        "ru": "take precautions — принимать меры предосторожности. Как и в take measures, take steps, здесь нужен take, а не make или do.",
+        "uz": "take precautions — ehtiyot choralarini ko'rmoq. Take measures, take steps birikmalaridagi kabi bu yerda take kerak, make yoki do emas."
+      }
+    },
+    {
+      "key": "b2-m09-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "patrol"
+      ],
+      "text": "Two officers were ___ patrol near the park last night.",
+      "options": [
+        "on",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Прошлой ночью двое полицейских патрулировали возле парка.",
+        "uz": "Kecha tunda ikki politsiyachi park yaqinida patrul xizmatida edi."
+      },
+      "explanation": {
+        "ru": "on patrol — в патруле, на патрулировании. С patrol, как и с duty (on duty — на дежурстве), употребляется on, а не in или at.",
+        "uz": "on patrol — patrulda, patrul xizmatida. Patrol so'zi bilan, duty so'zidagi kabi (on duty — navbatchilikda), in yoki at emas, on ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m09-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "hazard"
+      ],
+      "text": "Broken glass on the beach ___ a hazard to children.",
+      "options": [
+        "poses",
+        "puts",
+        "gives"
+      ],
+      "correct": [
+        "poses"
+      ],
+      "translation": {
+        "ru": "Битое стекло на пляже представляет опасность для детей.",
+        "uz": "Plyajdagi singan shisha bolalar uchun xavf tug'diradi."
+      },
+      "explanation": {
+        "ru": "pose a hazard to — представлять опасность для кого-то. С hazard, danger, threat, risk употребляется глагол pose; put a hazard и give a hazard не говорят.",
+        "uz": "pose a hazard to — kimdir uchun xavf tug'dirmoq. Hazard, danger, threat, risk so'zlari bilan pose fe'li ishlatiladi; put a hazard yoki give a hazard deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m09-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "evacuate"
+      ],
+      "prompt": {
+        "ru": "Им пришлось эвакуировать всё здание.",
+        "uz": "Ular butun binoni evakuatsiya qilishga majbur bo'ldi."
+      },
+      "fragments": [
+        "they",
+        "had to",
+        "evacuate",
+        "the",
+        "whole",
+        "building"
+      ],
+      "accepted": [
+        [
+          "they",
+          "had to",
+          "evacuate",
+          "the",
+          "whole",
+          "building"
+        ]
+      ],
+      "display": "They had to evacuate the whole building.",
+      "explanation": {
+        "ru": "had to + глагол — «пришлось»: прошедшее время от must и have to. The whole building — всё здание целиком: whole стоит между the и существительным.",
+        "uz": "had to + fe'l — «majbur bo'ldi»: must va have to ning o'tgan zamoni. The whole building — butun bino: whole the bilan ot orasida turadi."
+      }
+    },
+    {
+      "key": "b2-m09-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "safeguard"
+      ],
+      "prompt": {
+        "ru": "Эти правила защищают права работников.",
+        "uz": "Bu qoidalar ishchilarning huquqlarini himoya qiladi."
+      },
+      "fragments": [
+        "these",
+        "rules",
+        "safeguard",
+        "the rights",
+        "of",
+        "workers"
+      ],
+      "accepted": [
+        [
+          "these",
+          "rules",
+          "safeguard",
+          "the rights",
+          "of",
+          "workers"
+        ]
+      ],
+      "display": "These rules safeguard the rights of workers.",
+      "explanation": {
+        "ru": "safeguard — защищать, охранять (права, интересы, данные); слово более официальное, чем protect. The rights of workers — права работников.",
+        "uz": "safeguard — himoya qilmoq, muhofaza qilmoq (huquqlarni, manfaatlarni, ma'lumotlarni); protect so'ziga qaraganda rasmiyroq. The rights of workers — ishchilarning huquqlari."
+      }
+    },
+    {
+      "key": "b2-m09-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "alert"
+      ],
+      "prompt": {
+        "ru": "Охранник был недостаточно бдителен, чтобы заметить нас.",
+        "uz": "Qo'riqchi bizni payqash uchun yetarlicha hushyor emas edi."
+      },
+      "fragments": [
+        "the",
+        "guard",
+        "was",
+        "not",
+        "alert",
+        "enough",
+        "to notice",
+        "us"
+      ],
+      "accepted": [
+        [
+          "the",
+          "guard",
+          "was",
+          "not",
+          "alert",
+          "enough",
+          "to notice",
+          "us"
+        ]
+      ],
+      "display": "The guard was not alert enough to notice us.",
+      "explanation": {
+        "ru": "прилагательное + enough + to + глагол — «достаточно …, чтобы»: enough стоит после прилагательного (alert enough), а не перед ним.",
+        "uz": "sifat + enough + to + fe'l — «biror ish qilish uchun yetarlicha …»: enough sifatdan oldin emas, keyin turadi (alert enough)."
+      }
+    },
+    {
+      "key": "b2-m09-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "surveillance"
+      ],
+      "text": "This area is under video surveillance",
+      "accepted": [
+        "This area is under video surveillance"
+      ],
+      "translation": {
+        "ru": "Эта территория находится под видеонаблюдением",
+        "uz": "Bu hudud videokuzatuv ostida"
+      },
+      "explanation": {
+        "ru": "surveillance: в середине -veill- (e-i и две l), на конце -ance: s-u-r-v-e-i-l-l-a-n-c-e.",
+        "uz": "surveillance: o'rtada -veill- (e-i va ikkita l), oxirida -ance yoziladi: s-u-r-v-e-i-l-l-a-n-c-e."
+      }
+    },
+    {
+      "key": "b2-m09-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "checkpoint"
+      ],
+      "text": "Show your passport at the checkpoint",
+      "accepted": [
+        "Show your passport at the checkpoint"
+      ],
+      "translation": {
+        "ru": "Покажите паспорт на контрольно-пропускном пункте",
+        "uz": "Nazorat-o'tkazish punktida pasportingizni ko'rsating"
+      },
+      "explanation": {
+        "ru": "checkpoint пишется слитно, в одно слово: check + point.",
+        "uz": "checkpoint qo'shib, bitta so'z qilib yoziladi: check + point."
+      }
+    },
+    {
+      "key": "b2-m09-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "inspection",
+        "prevention"
+      ],
+      "text": "Accident prevention starts with regular inspections",
+      "accepted": [
+        "Accident prevention starts with regular inspections"
+      ],
+      "translation": {
+        "ru": "Предотвращение аварий начинается с регулярных проверок",
+        "uz": "Avariyalarning oldini olish muntazam tekshiruvlardan boshlanadi"
+      }
+    },
+    {
+      "key": "b2-m10-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "coverage"
+      ],
+      "text": "The channel offers ___ coverage of every big match.",
+      "options": [
+        "live",
+        "alive",
+        "living"
+      ],
+      "correct": [
+        "live"
+      ],
+      "translation": {
+        "ru": "Канал освещает каждый важный матч в прямом эфире.",
+        "uz": "Kanal har bir muhim o'yinni jonli efirda yoritadi."
+      },
+      "explanation": {
+        "ru": "live coverage — освещение события в прямом эфире. В значении «в прямом эфире» перед существительным стоит live; alive («живой», только после глагола) и living («живущий») сюда не подходят.",
+        "uz": "live coverage — voqeani jonli efirda yoritish. «Jonli efir» ma'nosida otdan oldin live keladi; alive («tirik», faqat fe'ldan keyin) va living («yashayotgan») bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b2-m10-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "journalism"
+      ],
+      "text": "My daughter is planning a career ___ journalism.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Моя дочь планирует карьеру в журналистике.",
+        "uz": "Qizim jurnalistika sohasida karyera qilishni rejalashtirmoqda."
+      },
+      "explanation": {
+        "ru": "a career in journalism — карьера в журналистике. О сфере деятельности говорят in: a career in medicine, a job in education.",
+        "uz": "a career in journalism — jurnalistika sohasidagi karyera. Faoliyat sohasi haqida in ishlatiladi: a career in medicine, a job in education."
+      }
+    },
+    {
+      "key": "b2-m10-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "bulletin"
+      ],
+      "text": "The radio station ___ a short news bulletin every hour.",
+      "options": [
+        "broadcasts",
+        "transfers",
+        "passes"
+      ],
+      "correct": [
+        "broadcasts"
+      ],
+      "translation": {
+        "ru": "Радиостанция каждый час передаёт короткий выпуск новостей.",
+        "uz": "Radiostansiya har soatda qisqa yangiliklar dasturini efirga uzatadi."
+      },
+      "explanation": {
+        "ru": "broadcast a bulletin — передавать выпуск новостей в эфир. Русское «передавать» здесь не transfer (переводить, перемещать) и не pass (передавать из рук в руки), а broadcast.",
+        "uz": "broadcast a bulletin — yangiliklar dasturini efirga uzatmoq. O'zbekcha «uzatmoq» bu yerda transfer (ko'chirmoq, o'tkazmoq) yoki pass (qo'ldan qo'lga uzatmoq) emas, broadcast bo'ladi."
+      }
+    },
+    {
+      "key": "b2-m10-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "exclusive"
+      ],
+      "prompt": {
+        "ru": "Певица дала нам эксклюзивное интервью.",
+        "uz": "Xonanda bizga eksklyuziv intervyu berdi."
+      },
+      "fragments": [
+        "the singer",
+        "gave",
+        "us",
+        "an",
+        "exclusive",
+        "interview"
+      ],
+      "accepted": [
+        [
+          "the singer",
+          "gave",
+          "us",
+          "an",
+          "exclusive",
+          "interview"
+        ]
+      ],
+      "display": "The singer gave us an exclusive interview.",
+      "explanation": {
+        "ru": "an exclusive interview — эксклюзивное интервью, которое дали только одному изданию. Give somebody an interview: сначала кому (us), потом что. Перед гласным звуком — an.",
+        "uz": "an exclusive interview — faqat bitta nashrga berilgan eksklyuziv intervyu. Give somebody an interview: avval kimga (us), keyin nima. Unli tovushdan oldin an keladi."
+      }
+    },
+    {
+      "key": "b2-m10-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "columnist"
+      ],
+      "prompt": {
+        "ru": "Я никогда не соглашаюсь с этим колумнистом.",
+        "uz": "Men bu kolumnistning fikriga hech qachon qo'shilmayman."
+      },
+      "fragments": [
+        "I",
+        "never",
+        "agree",
+        "with",
+        "this",
+        "columnist"
+      ],
+      "accepted": [
+        [
+          "I",
+          "never",
+          "agree",
+          "with",
+          "this",
+          "columnist"
+        ]
+      ],
+      "display": "I never agree with this columnist.",
+      "explanation": {
+        "ru": "agree with somebody — соглашаться с кем-то. Never стоит перед смысловым глаголом и уже содержит отрицание: I never agree (без do not).",
+        "uz": "agree with somebody — kimningdir fikriga qo'shilmoq. Never asosiy fe'ldan oldin turadi va o'zi inkorni bildiradi: I never agree (do not kerak emas)."
+      }
+    },
+    {
+      "key": "b2-m10-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "publisher"
+      ],
+      "prompt": {
+        "ru": "Вы нашли издателя для своей книги?",
+        "uz": "Kitobingiz uchun noshir topdingizmi?"
+      },
+      "fragments": [
+        "have",
+        "you",
+        "found",
+        "a publisher",
+        "for",
+        "your",
+        "book"
+      ],
+      "accepted": [
+        [
+          "have",
+          "you",
+          "found",
+          "a publisher",
+          "for",
+          "your",
+          "book"
+        ]
+      ],
+      "display": "Have you found a publisher for your book?",
+      "explanation": {
+        "ru": "Present Perfect (have you found) — важен результат к настоящему моменту: есть издатель или нет. A publisher for your book — издатель для вашей книги.",
+        "uz": "Present Perfect (have you found) — hozirgi paytdagi natija muhim: noshir bormi yoki yo'qmi. A publisher for your book — kitobingiz uchun noshir."
+      }
+    },
+    {
+      "key": "b2-m10-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "newsroom"
+      ],
+      "text": "The newsroom is never quiet",
+      "accepted": [
+        "The newsroom is never quiet"
+      ],
+      "translation": {
+        "ru": "В редакции новостей никогда не бывает тихо",
+        "uz": "Yangiliklar tahririyatida hech qachon tinch bo'lmaydi"
+      },
+      "explanation": {
+        "ru": "newsroom пишется слитно, в одно слово: news + room.",
+        "uz": "newsroom qo'shib, bitta so'z qilib yoziladi: news + room."
+      }
+    },
+    {
+      "key": "b2-m10-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "tabloid",
+        "caption"
+      ],
+      "text": "Every photo in the tabloid has a caption",
+      "accepted": [
+        "Every photo in the tabloid has a caption"
+      ],
+      "translation": {
+        "ru": "У каждой фотографии в таблоиде есть подпись",
+        "uz": "Bulvar gazetasidagi har bir surat ostida yozuv bor"
+      }
+    },
+    {
+      "key": "b2-m10-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "editorial"
+      ],
+      "text": "The editorial was about local schools",
+      "accepted": [
+        "The editorial was about local schools"
+      ],
+      "translation": {
+        "ru": "Редакционная статья была о местных школах",
+        "uz": "Tahririyat maqolasi mahalliy maktablar haqida edi"
+      }
+    },
+    {
+      "key": "b2-m10-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "misinformation"
+      ],
+      "text": "People often ___ misinformation without checking the facts.",
+      "options": [
+        "spread",
+        "expand",
+        "stretch"
+      ],
+      "correct": [
+        "spread"
+      ],
+      "translation": {
+        "ru": "Люди часто распространяют недостоверную информацию, не проверив факты.",
+        "uz": "Odamlar ko'pincha faktlarni tekshirmasdan noto'g'ri ma'lumot tarqatadi."
+      },
+      "explanation": {
+        "ru": "spread misinformation — распространять недостоверную информацию (так же: spread news, spread rumors). Expand — расширять, stretch — растягивать: о сведениях так не говорят.",
+        "uz": "spread misinformation — noto'g'ri ma'lumot tarqatmoq (xuddi shunday: spread news, spread rumors). Expand — kengaytirmoq, stretch — cho'zmoq: ma'lumot haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m10-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "credibility"
+      ],
+      "text": "The newspaper ___ its credibility after publishing a false story.",
+      "options": [
+        "lost",
+        "missed",
+        "dropped"
+      ],
+      "correct": [
+        "lost"
+      ],
+      "translation": {
+        "ru": "Газета потеряла доверие после публикации ложной новости.",
+        "uz": "Gazeta yolg'on xabar chop etganidan keyin ishonchliligini yo'qotdi."
+      },
+      "explanation": {
+        "ru": "lose credibility — потерять доверие, перестать считаться надёжным источником. Miss — упустить, опоздать (miss a bus) или скучать; drop — уронить, бросить: с credibility говорят lose.",
+        "uz": "lose credibility — ishonchlilikni yo'qotmoq, ishonchli manba deb hisoblanmay qolmoq. Miss — o'tkazib yubormoq, kechikmoq (miss a bus) yoki sog'inmoq; drop — tushirib yubormoq, tashlamoq: credibility bilan lose ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m10-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "misleading"
+      ],
+      "text": "The headline gave a misleading ___ of what had happened.",
+      "options": [
+        "impression",
+        "expression",
+        "depression"
+      ],
+      "correct": [
+        "impression"
+      ],
+      "translation": {
+        "ru": "Заголовок создавал обманчивое впечатление о том, что произошло.",
+        "uz": "Sarlavha sodir bo'lgan voqea haqida chalg'ituvchi taassurot qoldirdi."
+      },
+      "explanation": {
+        "ru": "a misleading impression — обманчивое, вводящее в заблуждение впечатление; give a misleading impression of — создавать такое впечатление о чём-то. Expression — выражение, depression — депрессия, упадок.",
+        "uz": "a misleading impression — chalg'ituvchi taassurot; give a misleading impression of — biror narsa haqida shunday taassurot qoldirmoq. Expression — ifoda, ibora, depression — tushkunlik, depressiya."
+      }
+    },
+    {
+      "key": "b2-m10-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "exaggerate"
+      ],
+      "prompt": {
+        "ru": "Журналисты никогда не должны преувеличивать факты.",
+        "uz": "Jurnalistlar hech qachon faktlarni bo'rttirmasligi kerak."
+      },
+      "fragments": [
+        "journalists",
+        "should",
+        "never",
+        "exaggerate",
+        "the",
+        "facts"
+      ],
+      "accepted": [
+        [
+          "journalists",
+          "should",
+          "never",
+          "exaggerate",
+          "the",
+          "facts"
+        ],
+        [
+          "journalists",
+          "never",
+          "should",
+          "exaggerate",
+          "the",
+          "facts"
+        ],
+        [
+          "never",
+          "should",
+          "journalists",
+          "exaggerate",
+          "the",
+          "facts"
+        ]
+      ],
+      "display": "Journalists should never exaggerate the facts.",
+      "explanation": {
+        "ru": "should never + глагол — «никогда не следует»: обычное место never — между should и смысловым глаголом. Exaggerate the facts — преувеличивать факты.",
+        "uz": "should never + fe'l — «hech qachon …masligi kerak»: never odatda should bilan asosiy fe'l orasida turadi. Exaggerate the facts — faktlarni bo'rttirmoq."
+      }
+    },
+    {
+      "key": "b2-m10-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "impartial"
+      ],
+      "prompt": {
+        "ru": "Ожидается, что репортёры будут беспристрастными.",
+        "uz": "Muxbirlarning xolis bo'lishi kutiladi."
+      },
+      "fragments": [
+        "reporters",
+        "are",
+        "expected",
+        "to",
+        "be",
+        "impartial"
+      ],
+      "accepted": [
+        [
+          "reporters",
+          "are",
+          "expected",
+          "to",
+          "be",
+          "impartial"
+        ]
+      ],
+      "display": "Reporters are expected to be impartial.",
+      "explanation": {
+        "ru": "be expected to + глагол — «от кого-то ожидают, что он…»: пассив от expect somebody to do something. Impartial — беспристрастный, не принимающий ничью сторону.",
+        "uz": "be expected to + fe'l — «kimdandir … kutiladi»: expect somebody to do something qurilmasining majhul shakli. Impartial — xolis, hech kimning tarafini olmaydigan."
+      }
+    },
+    {
+      "key": "b2-m10-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "hoax"
+      ],
+      "prompt": {
+        "ru": "Вся история оказалась фальшивкой.",
+        "uz": "Butun hikoya uydirma bo'lib chiqdi."
+      },
+      "fragments": [
+        "the",
+        "whole",
+        "story",
+        "turned out",
+        "to be",
+        "a hoax"
+      ],
+      "accepted": [
+        [
+          "the",
+          "whole",
+          "story",
+          "turned out",
+          "to be",
+          "a hoax"
+        ]
+      ],
+      "display": "The whole story turned out to be a hoax.",
+      "explanation": {
+        "ru": "turn out to be — оказаться кем-то или чем-то. Hoax — фальшивка, выдумка, которую выдают за правду: The email was a hoax.",
+        "uz": "turn out to be — kimdir yoki nimadir bo'lib chiqmoq. Hoax — uydirma, haqiqat deb ko'rsatilgan yolg'on: The email was a hoax."
+      }
+    },
+    {
+      "key": "b2-m10-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "propaganda",
+        "censorship"
+      ],
+      "text": "Propaganda and censorship often go together",
+      "accepted": [
+        "Propaganda and censorship often go together"
+      ],
+      "translation": {
+        "ru": "Пропаганда и цензура часто идут рука об руку",
+        "uz": "Tashviqot va senzura ko'pincha yonma-yon yuradi"
+      },
+      "explanation": {
+        "ru": "censorship: в начале c, потом s: c-e-n-s-o-r + ship (хотя по-русски «цензура» пишется через «ц» и «з»).",
+        "uz": "censorship: boshida c, keyin s yoziladi: c-e-n-s-o-r + ship (o'zbekchada «senzura» s bilan boshlansa ham)."
+      }
+    },
+    {
+      "key": "b2-m10-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "bias"
+      ],
+      "text": "The report was free of bias",
+      "accepted": [
+        "The report was free of bias"
+      ],
+      "translation": {
+        "ru": "В отчёте не было предвзятости",
+        "uz": "Hisobot noxolislikdan xoli edi"
+      },
+      "explanation": {
+        "ru": "bias: b-i-a-s — читается «байэс», на конце одна s.",
+        "uz": "bias: b-i-a-s — «bayes» deb o'qiladi, oxirida bitta s yoziladi."
+      }
+    },
+    {
+      "key": "b2-m10-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "distort"
+      ],
+      "text": "Do not distort my words",
+      "accepted": [
+        "Do not distort my words",
+        "Don't distort my words"
+      ],
+      "translation": {
+        "ru": "Не искажайте мои слова",
+        "uz": "Mening so'zlarimni buzib ko'rsatmang"
+      }
+    },
+    {
+      "key": "b2-m10-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "viral"
+      ],
+      "text": "Her video of a dancing cat ___ viral in two days.",
+      "options": [
+        "went",
+        "came",
+        "ran"
+      ],
+      "correct": [
+        "went"
+      ],
+      "translation": {
+        "ru": "Её видео с танцующим котом стало вирусным за два дня.",
+        "uz": "Uning raqsga tushayotgan mushuk haqidagi videosi ikki kunda virusli bo'lib ketdi."
+      },
+      "explanation": {
+        "ru": "go viral — стать вирусным, быстро разойтись по интернету. Это устойчивое выражение с глаголом go (как go wrong, go crazy); came viral и ran viral не говорят.",
+        "uz": "go viral — virusli bo'lmoq, internetda juda tez tarqalib ketmoq. Bu go fe'li bilan keladigan turg'un birikma (go wrong, go crazy kabi); came viral yoki ran viral deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m10-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "newsletter"
+      ],
+      "text": "Thousands of people have subscribed ___ our weekly newsletter.",
+      "options": [
+        "to",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "На нашу еженедельную рассылку подписались тысячи людей.",
+        "uz": "Minglab odamlar haftalik xabarnomamizga obuna bo'ldi."
+      },
+      "explanation": {
+        "ru": "subscribe to a newsletter — подписаться на рассылку. После subscribe нужен предлог to, а не on (как русское «на») и не at: subscribe to a channel, subscribe to a magazine.",
+        "uz": "subscribe to a newsletter — xabarnomaga obuna bo'lmoq. Subscribe dan keyin on yoki at emas, to keladi: subscribe to a channel, subscribe to a magazine."
+      }
+    },
+    {
+      "key": "b2-m10-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "streaming"
+      ],
+      "text": "Which streaming ___ do you use to watch movies?",
+      "options": [
+        "service",
+        "servant",
+        "serving"
+      ],
+      "correct": [
+        "service"
+      ],
+      "translation": {
+        "ru": "Каким стриминговым сервисом вы пользуетесь, чтобы смотреть фильмы?",
+        "uz": "Filmlarni tomosha qilish uchun qaysi striming xizmatidan foydalanasiz?"
+      },
+      "explanation": {
+        "ru": "a streaming service — стриминговый сервис: сайт или приложение, где смотрят фильмы и слушают музыку онлайн. Servant — слуга, serving — порция еды.",
+        "uz": "a streaming service — striming xizmati: filmlarni onlayn tomosha qilish, musiqani onlayn tinglash mumkin bo'lgan sayt yoki ilova. Servant — xizmatkor, serving — bir kishilik ovqat ulushi."
+      }
+    },
+    {
+      "key": "b2-m10-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "footage"
+      ],
+      "prompt": {
+        "ru": "Эти кадры были сняты туристом.",
+        "uz": "Bu kadrlar bir sayyoh tomonidan suratga olingan."
+      },
+      "fragments": [
+        "this",
+        "footage",
+        "was",
+        "filmed",
+        "by",
+        "a",
+        "tourist"
+      ],
+      "accepted": [
+        [
+          "this",
+          "footage",
+          "was",
+          "filmed",
+          "by",
+          "a",
+          "tourist"
+        ]
+      ],
+      "display": "This footage was filmed by a tourist.",
+      "explanation": {
+        "ru": "footage — неисчисляемое существительное: this footage was (а не these footages were), хотя по-русски «кадры» — множественное число. Was filmed by — пассив: «было снято кем-то».",
+        "uz": "footage — sanalmaydigan ot: this footage was (these footages were emas), garchi o'zbekchada «kadrlar» ko'plikda bo'lsa ham. Was filmed by — majhul nisbat: «kimdir tomonidan suratga olingan»."
+      }
+    },
+    {
+      "key": "b2-m10-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "subscriber"
+      ],
+      "prompt": {
+        "ru": "Сколько подписчиков у вашего канала?",
+        "uz": "Kanalingizning nechta obunachisi bor?"
+      },
+      "fragments": [
+        "how many",
+        "subscribers",
+        "does",
+        "your",
+        "channel",
+        "have"
+      ],
+      "accepted": [
+        [
+          "how many",
+          "subscribers",
+          "does",
+          "your",
+          "channel",
+          "have"
+        ]
+      ],
+      "display": "How many subscribers does your channel have?",
+      "explanation": {
+        "ru": "How many + существительное во множественном числе. В вопросе нужен does, а глагол остаётся в начальной форме: does your channel have (а не has).",
+        "uz": "How many + ko'plikdagi ot. Savolda does kerak, fe'l esa bosh shaklda qoladi: does your channel have (has emas)."
+      }
+    },
+    {
+      "key": "b2-m10-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "interactive"
+      ],
+      "prompt": {
+        "ru": "Новый сайт гораздо интерактивнее.",
+        "uz": "Yangi sayt ancha interaktivroq."
+      },
+      "fragments": [
+        "the",
+        "new",
+        "website",
+        "is",
+        "much",
+        "more",
+        "interactive"
+      ],
+      "accepted": [
+        [
+          "the",
+          "new",
+          "website",
+          "is",
+          "much",
+          "more",
+          "interactive"
+        ]
+      ],
+      "display": "The new website is much more interactive.",
+      "explanation": {
+        "ru": "much more + прилагательное — «гораздо более»: much усиливает сравнительную степень. У длинных прилагательных она образуется с more: more interactive.",
+        "uz": "much more + sifat — «ancha …roq»: much qiyosiy darajani kuchaytiradi. Uzun sifatlarning qiyosiy darajasi more bilan yasaladi: more interactive."
+      }
+    },
+    {
+      "key": "b2-m10-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "hashtag"
+      ],
+      "text": "This hashtag is popular today",
+      "accepted": [
+        "This hashtag is popular today"
+      ],
+      "translation": {
+        "ru": "Этот хештег сегодня популярен",
+        "uz": "Bu heshteg bugun ommabop"
+      },
+      "explanation": {
+        "ru": "hashtag пишется слитно, в одно слово: hash + tag.",
+        "uz": "hashtag qo'shib, bitta so'z qilib yoziladi: hash + tag."
+      }
+    },
+    {
+      "key": "b2-m10-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "blogger",
+        "influencer"
+      ],
+      "text": "She is a blogger and an influencer",
+      "accepted": [
+        "She is a blogger and an influencer",
+        "She's a blogger and an influencer"
+      ],
+      "translation": {
+        "ru": "Она блогер и инфлюенсер",
+        "uz": "U bloger va influenser"
+      },
+      "explanation": {
+        "ru": "blogger: две g (blog — blogger). Influencer: после c стоит e: i-n-f-l-u-e-n-c-e-r.",
+        "uz": "blogger: ikkita g bilan yoziladi (blog — blogger). Influencer: c dan keyin e keladi: i-n-f-l-u-e-n-c-e-r."
+      }
+    },
+    {
+      "key": "b2-m10-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "multimedia"
+      ],
+      "text": "The course includes multimedia materials",
+      "accepted": [
+        "The course includes multimedia materials"
+      ],
+      "translation": {
+        "ru": "Курс включает мультимедийные материалы",
+        "uz": "Kurs multimedia materiallarini o'z ichiga oladi"
+      },
+      "explanation": {
+        "ru": "multimedia пишется слитно, в одно слово: multi + media.",
+        "uz": "multimedia qo'shib, bitta so'z qilib yoziladi: multi + media."
+      }
+    },
+    {
+      "key": "b2-m10-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "hint"
+      ],
+      "text": "She kept ___ hints about her birthday present.",
+      "options": [
+        "dropping",
+        "falling",
+        "spilling"
+      ],
+      "correct": [
+        "dropping"
+      ],
+      "translation": {
+        "ru": "Она то и дело намекала на подарок ко дню рождения.",
+        "uz": "U tug'ilgan kuniga sovg'a haqida qayta-qayta shama qilardi."
+      },
+      "explanation": {
+        "ru": "drop a hint — намекнуть, «обронить намёк»; keep dropping hints — намекать снова и снова. Fall — падать самому, spill — проливать: с hint говорят drop или give.",
+        "uz": "drop a hint — shama qilmoq; keep dropping hints — qayta-qayta shama qilmoq. Fall — o'zi yiqilmoq, tushmoq, spill — to'kib yubormoq: hint so'zi bilan drop yoki give ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m10-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "tone"
+      ],
+      "text": "Please do not use that tone of ___ with me.",
+      "options": [
+        "voice",
+        "sound",
+        "noise"
+      ],
+      "correct": [
+        "voice"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, не разговаривайте со мной таким тоном.",
+        "uz": "Iltimos, men bilan bunday ohangda gaplashmang."
+      },
+      "explanation": {
+        "ru": "tone of voice — тон, которым человек говорит: a friendly tone of voice. Это устойчивое сочетание: tone of sound и tone of noise не говорят.",
+        "uz": "tone of voice — odamning gapirish ohangi: a friendly tone of voice. Bu turg'un birikma: tone of sound yoki tone of noise deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m10-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "misunderstanding"
+      ],
+      "text": "One short phone call cleared ___ the misunderstanding.",
+      "options": [
+        "up",
+        "off",
+        "out"
+      ],
+      "correct": [
+        "up"
+      ],
+      "translation": {
+        "ru": "Один короткий телефонный звонок устранил недоразумение.",
+        "uz": "Bitta qisqa telefon qo'ng'irog'i tushunmovchilikni bartaraf etdi."
+      },
+      "explanation": {
+        "ru": "clear up a misunderstanding — устранить, разрешить недоразумение. Clear off — уходить прочь, clear out — освобождать (комнату, шкаф): с misunderstanding нужен clear up.",
+        "uz": "clear up a misunderstanding — tushunmovchilikni bartaraf etmoq. Clear off — jo'nab qolmoq, clear out — bo'shatmoq, tozalab chiqmoq (xonani, shkafni): misunderstanding bilan clear up ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m10-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "clarify"
+      ],
+      "prompt": {
+        "ru": "Она попросила меня уточнить мой ответ.",
+        "uz": "U mendan javobimni aniqlashtirishni so'radi."
+      },
+      "fragments": [
+        "she",
+        "asked",
+        "me",
+        "to",
+        "clarify",
+        "my",
+        "answer"
+      ],
+      "accepted": [
+        [
+          "she",
+          "asked",
+          "me",
+          "to",
+          "clarify",
+          "my",
+          "answer"
+        ]
+      ],
+      "display": "She asked me to clarify my answer.",
+      "explanation": {
+        "ru": "ask somebody to do something — попросить кого-то что-то сделать: после asked me стоит to + глагол. Clarify — уточнить, сделать понятнее.",
+        "uz": "ask somebody to do something — kimdandir biror ish qilishni so'ramoq: asked me dan keyin to + fe'l keladi. Clarify — aniqlashtirmoq, tushunarliroq qilmoq."
+      }
+    },
+    {
+      "key": "b2-m10-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "convey"
+      ],
+      "prompt": {
+        "ru": "Передайте мою благодарность вашим родителям.",
+        "uz": "Ota-onangizga minnatdorchiligimni yetkazing."
+      },
+      "fragments": [
+        "convey",
+        "my",
+        "thanks",
+        "to",
+        "your",
+        "parents"
+      ],
+      "accepted": [
+        [
+          "convey",
+          "my",
+          "thanks",
+          "to",
+          "your",
+          "parents"
+        ],
+        [
+          "convey",
+          "to",
+          "your",
+          "parents",
+          "my",
+          "thanks"
+        ]
+      ],
+      "display": "Convey my thanks to your parents.",
+      "explanation": {
+        "ru": "convey something to somebody — передать кому-то слова, чувства, благодарность (официальнее, чем tell). Сначала что (my thanks), потом кому (to your parents).",
+        "uz": "convey something to somebody — kimgadir so'z, his-tuyg'u, minnatdorchilikni yetkazmoq (tell so'ziga qaraganda rasmiyroq). Avval nima (my thanks), keyin kimga (to your parents)."
+      }
+    },
+    {
+      "key": "b2-m10-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "mumble"
+      ],
+      "prompt": {
+        "ru": "Она пробормотала что-то о том, что устала.",
+        "uz": "U charchagani haqida nimadir deb g'o'ldiradi."
+      },
+      "fragments": [
+        "she",
+        "mumbled",
+        "something",
+        "about",
+        "being",
+        "tired"
+      ],
+      "accepted": [
+        [
+          "she",
+          "mumbled",
+          "something",
+          "about",
+          "being",
+          "tired"
+        ]
+      ],
+      "display": "She mumbled something about being tired.",
+      "explanation": {
+        "ru": "mumble — бормотать, говорить тихо и неразборчиво. После предлога about глагол стоит в форме с -ing: about being tired.",
+        "uz": "mumble — g'o'ldiramoq, past ovozda va tushunarsiz gapirmoq. About predlogidan keyin fe'l -ing shaklida keladi: about being tired."
+      }
+    },
+    {
+      "key": "b2-m10-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "gesture",
+        "articulate"
+      ],
+      "text": "Gestures help people articulate ideas",
+      "accepted": [
+        "Gestures help people articulate ideas"
+      ],
+      "translation": {
+        "ru": "Жесты помогают людям чётко выражать мысли",
+        "uz": "Imo-ishoralar odamlarga fikrlarni aniq ifodalashga yordam beradi"
+      },
+      "explanation": {
+        "ru": "gesture начинается с буквы g (а не j) и оканчивается на -ture: g-e-s-t-u-r-e.",
+        "uz": "gesture g harfi bilan boshlanadi (j emas) va -ture bilan tugaydi: g-e-s-t-u-r-e."
+      }
+    },
+    {
+      "key": "b2-m10-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "verbal"
+      ],
+      "text": "A verbal warning is not enough",
+      "accepted": [
+        "A verbal warning is not enough",
+        "A verbal warning isn't enough"
+      ],
+      "translation": {
+        "ru": "Устного предупреждения недостаточно",
+        "uz": "Og'zaki ogohlantirish yetarli emas"
+      }
+    },
+    {
+      "key": "b2-m10-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "exclaim"
+      ],
+      "text": "They all exclaimed in surprise",
+      "accepted": [
+        "They all exclaimed in surprise"
+      ],
+      "translation": {
+        "ru": "Они все воскликнули от удивления",
+        "uz": "Ularning hammasi hayratdan xitob qildi"
+      },
+      "explanation": {
+        "ru": "exclaim: после ex пишется c, а звук «эй» передаётся буквами ai: e-x-c-l-a-i-m.",
+        "uz": "exclaim: ex dan keyin c yoziladi, «ey» tovushi esa ai harflari bilan beriladi: e-x-c-l-a-i-m."
+      }
+    },
+    {
+      "key": "b2-m10-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "statement"
+      ],
+      "text": "The director will ___ a statement to the press tomorrow.",
+      "options": [
+        "make",
+        "say",
+        "tell"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Завтра директор сделает заявление для прессы.",
+        "uz": "Ertaga direktor matbuot uchun bayonot beradi."
+      },
+      "explanation": {
+        "ru": "make a statement — сделать заявление. Say и tell с существительным statement не сочетаются; говорят также give a statement и issue a statement.",
+        "uz": "make a statement — bayonot bermoq. Say va tell fe'llari statement so'zi bilan birikmaydi; give a statement va issue a statement ham deyiladi."
+      }
+    },
+    {
+      "key": "b2-m10-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "briefing"
+      ],
+      "text": "The police will ___ a press briefing this afternoon.",
+      "options": [
+        "hold",
+        "spend",
+        "pass"
+      ],
+      "correct": [
+        "hold"
+      ],
+      "translation": {
+        "ru": "Сегодня днём полиция проведёт брифинг для прессы.",
+        "uz": "Bugun tushdan keyin politsiya matbuot uchun brifing o'tkazadi."
+      },
+      "explanation": {
+        "ru": "hold a briefing — провести брифинг (так же: hold a meeting, hold a conference). Русское «провести» здесь не spend (spend time — провести время) и не pass, а hold.",
+        "uz": "hold a briefing — brifing o'tkazmoq (xuddi shunday: hold a meeting, hold a conference). O'zbekcha «o'tkazmoq» bu yerda spend (spend time — vaqt o'tkazmoq) yoki pass emas, hold bo'ladi."
+      }
+    },
+    {
+      "key": "b2-m10-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "disclose"
+      ],
+      "text": "The bank cannot disclose your details ___ other companies.",
+      "options": [
+        "to",
+        "with",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Банк не может раскрывать ваши данные другим компаниям.",
+        "uz": "Bank sizning ma'lumotlaringizni boshqa kompaniyalarga oshkor qila olmaydi."
+      },
+      "explanation": {
+        "ru": "disclose something to somebody — раскрыть, сообщить что-то кому-то. После disclose нужен предлог to; with употребляется с глаголом share: share your details with other companies.",
+        "uz": "disclose something to somebody — biror narsani kimgadir oshkor qilmoq. Disclose dan keyin to predlogi keladi; with esa share fe'li bilan ishlatiladi: share your details with other companies."
+      }
+    },
+    {
+      "key": "b2-m10-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "spokesperson"
+      ],
+      "prompt": {
+        "ru": "Официальный представитель не подтвердил эту новость.",
+        "uz": "Rasmiy vakil bu xabarni tasdiqlamadi."
+      },
+      "fragments": [
+        "the",
+        "spokesperson",
+        "did",
+        "not",
+        "confirm",
+        "the",
+        "news"
+      ],
+      "accepted": [
+        [
+          "the",
+          "spokesperson",
+          "did",
+          "not",
+          "confirm",
+          "the",
+          "news"
+        ]
+      ],
+      "display": "The spokesperson did not confirm the news.",
+      "explanation": {
+        "ru": "spokesperson — официальный представитель, который говорит от имени организации. News — неисчисляемое существительное: the news, без a и без множественного числа.",
+        "uz": "spokesperson — tashkilot nomidan gapiradigan rasmiy vakil. News — sanalmaydigan ot: the news; a bilan ham, ko'plikda ham ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m10-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "declare"
+      ],
+      "prompt": {
+        "ru": "Она объявила, что никогда не вернётся.",
+        "uz": "U hech qachon qaytmasligini e'lon qildi."
+      },
+      "fragments": [
+        "she",
+        "declared",
+        "that",
+        "she",
+        "would",
+        "never",
+        "return"
+      ],
+      "accepted": [
+        [
+          "she",
+          "declared",
+          "that",
+          "she",
+          "would",
+          "never",
+          "return"
+        ],
+        [
+          "she",
+          "declared",
+          "that",
+          "she",
+          "never",
+          "would",
+          "return"
+        ],
+        [
+          "she",
+          "declared",
+          "that",
+          "never",
+          "would",
+          "she",
+          "return"
+        ]
+      ],
+      "display": "She declared that she would never return.",
+      "explanation": {
+        "ru": "declare that + предложение — объявить, заявить, что… После прошедшего времени declared вместо will стоит would: she would never return.",
+        "uz": "declare that + gap — …deb e'lon qilmoq, bayon qilmoq. O'tgan zamondagi declared dan keyin will o'rnida would keladi: she would never return."
+      }
+    },
+    {
+      "key": "b2-m10-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "transcript"
+      ],
+      "prompt": {
+        "ru": "Не могли бы вы прислать мне стенограмму интервью?",
+        "uz": "Menga intervyu stenogrammasini yubora olasizmi?"
+      },
+      "fragments": [
+        "could",
+        "you",
+        "send",
+        "me",
+        "a transcript",
+        "of",
+        "the interview"
+      ],
+      "accepted": [
+        [
+          "could",
+          "you",
+          "send",
+          "me",
+          "a transcript",
+          "of",
+          "the interview"
+        ]
+      ],
+      "display": "Could you send me a transcript of the interview?",
+      "explanation": {
+        "ru": "a transcript of — стенограмма, письменная запись того, что было сказано. Could you…? — вежливая просьба; send me a transcript: сначала кому, потом что.",
+        "uz": "a transcript of — stenogramma, aytilgan gaplarning yozma matni. Could you…? — muloyim iltimos; send me a transcript: avval kimga, keyin nima."
+      }
+    },
+    {
+      "key": "b2-m10-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "panel"
+      ],
+      "text": "The panel answered every question",
+      "accepted": [
+        "The panel answered every question"
+      ],
+      "translation": {
+        "ru": "Группа экспертов ответила на каждый вопрос",
+        "uz": "Ekspertlar guruhi har bir savolga javob berdi"
+      }
+    },
+    {
+      "key": "b2-m10-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "commentary",
+        "quotation"
+      ],
+      "text": "Her commentary included a famous quotation",
+      "accepted": [
+        "Her commentary included a famous quotation"
+      ],
+      "translation": {
+        "ru": "В её комментарии была известная цитата",
+        "uz": "Uning sharhida mashhur iqtibos bor edi"
+      },
+      "explanation": {
+        "ru": "commentary: две m и окончание -ary: c-o-m-m-e-n-t-a-r-y.",
+        "uz": "commentary: ikkita m va oxirida -ary yoziladi: c-o-m-m-e-n-t-a-r-y."
+      }
+    },
+    {
+      "key": "b2-m10-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "publicity"
+      ],
+      "text": "The festival needs more publicity",
+      "accepted": [
+        "The festival needs more publicity"
+      ],
+      "translation": {
+        "ru": "Фестивалю нужно больше внимания общественности",
+        "uz": "Festivalga jamoatchilikning ko'proq e'tibori kerak"
+      },
+      "explanation": {
+        "ru": "publicity образовано от public: звук «с» здесь пишется буквой c: p-u-b-l-i-c-i-t-y.",
+        "uz": "publicity so'zi public dan yasalgan: bu yerda «s» tovushi c harfi bilan yoziladi: p-u-b-l-i-c-i-t-y."
+      }
+    }
+  ]
+}
