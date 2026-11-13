@@ -194,7 +194,14 @@ final class ExercisePromptBuilder
         $stageId = Lesson::query()->whereKey($word->lesson_id)->value('stage_id');
         $courseId = $stageId === null ? null : Stage::query()->whereKey($stageId)->value('course_id');
         if ($courseId !== null) {
+            // `ORDER BY id LIMIT` makes the planner walk the words primary key and filter, which reads
+            // almost the whole table for a course with high ids (107 ms at 100k words vs 0.1 ms for
+            // course 1). `id + 0` cannot use that index: the course lessons are read by lesson_id and
+            // the same 40 lowest ids are taken (3-6 ms for any course). The platform layer below keeps
+            // the plain key walk: its matches start at the lowest ids (0.15 ms).
             yield $this->pool($word)
+                ->reorder()
+                ->orderByRaw('words.id + 0')
                 ->where('lesson_id', '<>', $word->lesson_id)
                 ->whereIn('lesson_id', Lesson::query()->select('id')->whereIn('stage_id', Stage::query()->select('id')->where('course_id', $courseId)));
         }
