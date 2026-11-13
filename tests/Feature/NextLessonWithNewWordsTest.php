@@ -3,14 +3,17 @@
 declare(strict_types=1);
 
 /*
- * CourseCatalogService::nextLessonWithNewWords() — the lesson `GET /today` offers next (docs/12 §7.3): the first
+ * CourseCatalogService::todayCourse()->nextLesson — the lesson `GET /today` offers next (docs/12 §7.3): the first
  * lesson of the course in study order (stage.number, lesson.number) that has an ACTIVE word the learner was never
  * served (no `word_repetitions` row at all, whatever its state).
  *
  * The answers are pinned against `legacyNextLessonId()`, the original correlated-EXISTS query, so the lookup can be
- * rewritten for speed without changing a single answer.
+ * rewritten for speed without changing a single answer. The same call carries the course progress, pinned against
+ * `listing()`. It is ONE query of the learner's rows beside the cached course tree.
  */
 
+use App\Domain\Content\DTO\LearnerProgress;
+use App\Domain\Content\DTO\NextLesson;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -49,9 +52,9 @@ function legacyNextLessonId(Course $course, Learner $learner): ?int
 /** "stage.lesson" of the answer, null when there is none. */
 function nextLessonKey(Course $course, Learner $learner): ?string
 {
-    $lesson = app(CourseCatalogService::class)->nextLessonWithNewWords($course, $learner);
+    $lesson = app(CourseCatalogService::class)->todayCourse($course, $learner)->nextLesson;
 
-    return $lesson === null ? null : $lesson->stage?->number.'.'.$lesson->number;
+    return $lesson === null ? null : $lesson->stageNumber.'.'.$lesson->number;
 }
 
 it('offers a newcomer the first lesson in study order, whatever the ids', function (): void {
@@ -106,6 +109,7 @@ it('does not count inactive words as new words', function (): void {
 
     // An inactive word that comes back makes its lesson a candidate again.
     DB::table('words')->where('id', $words['1.2']['inactive'][0])->update(['is_active' => true]);
+    app(CourseCatalogService::class)->forgetCourseTree($course->id); // what changing a word does after commit
     expect(nextLessonKey($course, $learner))->toBe('1.2');
 });
 
@@ -137,32 +141,26 @@ it('looks at this learner and this course only', function (): void {
         ->and(nextLessonKey($course, $classmate))->toBeNull();
 });
 
-it('returns the lesson with its stage loaded', function (): void {
-    ['course' => $course] = Fx::course([4 => [7 => 1]]);
+it('describes the lesson from the course tree: id, stage and lesson number, title in the learner\'s language', function (): void {
+    ['course' => $course, 'lessons' => $lessons] = Fx::course([4 => [7 => 1]]);
+    $lessons['4.7']->update(['title' => 'Приветствия', 'title_uz' => 'Salomlashish']);
 
-    $lesson = app(CourseCatalogService::class)->nextLessonWithNewWords($course, Learner::factory()->create());
+    $ru = app(CourseCatalogService::class)->todayCourse($course, Learner::factory()->create(['interface_locale' => 'ru']));
+    $uz = app(CourseCatalogService::class)->todayCourse($course, Learner::factory()->create(['interface_locale' => 'uz']));
 
-    expect($lesson)->not->toBeNull()
-        ->and($lesson?->relationLoaded('stage'))->toBeTrue()
-        ->and($lesson?->stage?->number)->toBe(4)
-        ->and($lesson?->number)->toBe(7)
-        ->and($lesson?->getAttributes())->toHaveKeys(['id', 'stage_id', 'number', 'title']);
+    expect($ru->nextLesson)->toEqual(new NextLesson($lessons['4.7']->id, 4, 7, 'Приветствия'))
+        ->and($uz->nextLesson?->title)->toBe('Salomlashish')
+        ->and($ru->progress)->toEqual(new LearnerProgress(0, 1));
 });
 
-it('returns the same lesson and stage models a plain find would, with nothing of the join left in their attributes', function (): void {
-    ['course' => $course, 'lessons' => $lessons] = Fx::course([4 => [7 => 1]]);
+it('reads the next lesson of a learner\'s own deck from its freshly built tree', function (): void {
+    $learner = Learner::factory()->create();
+    ['course' => $course, 'words' => $words] = Fx::course([1 => [1 => 1, 2 => 1]], ['owner_type' => 'learner', 'owner_id' => $learner->id, 'visibility' => 'private']);
 
-    $lesson = app(CourseCatalogService::class)->nextLessonWithNewWords($course, Learner::factory()->create());
-    $plain = Lesson::query()->with('stage')->findOrFail($lessons['4.7']->id);
+    expect(nextLessonKey($course, $learner))->toBe('1.1');
 
-    // The stage comes from the columns of the joined row: if `stages` ever gets a column, this fails until the select follows.
-    expect($lesson?->getAttributes())->toBe($plain->getAttributes())
-        ->and($lesson?->stage?->getAttributes())->toBe($plain->stage?->getAttributes())
-        ->and($lesson?->stage?->exists)->toBeTrue()
-        ->and($lesson?->stage?->is($plain->stage))->toBeTrue()
-        ->and(array_keys($lesson?->stage?->getAttributes() ?? []))->toBe(['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at', 'title_uz'])
-        ->and($lesson?->stage?->getDirty())->toBe([])
-        ->and($lesson?->isDirty())->toBeFalse();
+    Fx::learn($learner, $words['1.1']['active']);
+    expect(nextLessonKey($course, $learner))->toBe('1.2');
 });
 
 it('answers exactly like the original query on random courses and progress', function (): void {
@@ -193,9 +191,11 @@ it('answers exactly like the original query on random courses and progress', fun
             }
         }
 
-        $actual = app(CourseCatalogService::class)->nextLessonWithNewWords($course, $learner);
-        $answers[] = $actual === null ? 'none' : $actual->stage?->number.'.'.$actual->number;
-        if ($actual?->id !== legacyNextLessonId($course, $learner) || ($actual !== null && ! $actual->relationLoaded('stage'))) {
+        $catalog = app(CourseCatalogService::class);
+        $today = $catalog->todayCourse($course, $learner);
+        $actual = $today->nextLesson;
+        $answers[] = $actual === null ? 'none' : $actual->stageNumber.'.'.$actual->number;
+        if ($actual?->id !== legacyNextLessonId($course, $learner) || $today->progress != $catalog->listing($course, $learner)->progress) {
             $mismatches[] = $seed;
         }
     }
@@ -206,7 +206,7 @@ it('answers exactly like the original query on random courses and progress', fun
         ->and(count(array_unique($answers)))->toBeGreaterThanOrEqual(4);
 });
 
-it('runs ONE statement however many lessons the course has or cards the learner holds', function (): void {
+it('runs ONE statement of the learner\'s rows however many lessons the course has or cards the learner holds', function (): void {
     // Worst case for the lookup: every lesson but the last one is used up, so the answer is the last lesson.
     $run = function (int $lessons, bool $usedUp): array {
         ['course' => $course, 'words' => $words] = Fx::course([1 => array_fill(1, $lessons, 3)]);
@@ -215,6 +215,7 @@ it('runs ONE statement however many lessons the course has or cards the learner 
             array_pop($words);
             Fx::learn($learner, array_merge(...array_map(fn (array $lessonWords): array => $lessonWords['active'], array_values($words))));
         }
+        nextLessonKey($course, $learner); // warms the course tree
 
         $answer = null;
         $queries = QueryLog::during(function () use ($course, $learner, &$answer): void {
@@ -227,13 +228,12 @@ it('runs ONE statement however many lessons the course has or cards the learner 
     [$smallAnswer, $small] = $run(3, false);
     [$bigAnswer, $big] = $run(40, true);
 
-    // The lesson and its stage come from one row: no second statement for `stages`.
     expect($smallAnswer)->toBe('1.1')
         ->and($bigAnswer)->toBe('1.40')
         ->and($small)->toHaveCount(1)
         ->and($big)->toHaveCount(1);
 
-    // ONE statement over the words of the course: no correlated EXISTS per lesson any more.
-    expect(QueryLog::matching($big, '/^select .* from ["`]lessons["`] inner join ["`]stages["`] .* inner join ["`]words["`] .* not exists \(select \* from ["`]word_repetitions["`]/s'))->toHaveCount(1)
-        ->and(QueryLog::matching($big, '/exists \(select \* from ["`]words["`]/'))->toBe([]);
+    // The learner's own rows grouped by lesson: no anti-join over the words of the course, no read of lessons / stages.
+    expect(QueryLog::matching($big, '/^select .* from ["`]word_repetitions["`] inner join ["`]words["`] .* group by ["`]words["`]\.["`]lesson_id["`]/s'))->toHaveCount(1)
+        ->and(QueryLog::matching($big, '/not exists|from ["`]lessons["`]/'))->toBe([]);
 });

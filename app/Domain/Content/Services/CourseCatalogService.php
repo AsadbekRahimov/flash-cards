@@ -7,8 +7,10 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\DTO\CatalogCourse;
 use App\Domain\Content\DTO\CourseDetail;
 use App\Domain\Content\DTO\CourseListing;
+use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LessonProgress;
+use App\Domain\Content\DTO\NextLesson;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
@@ -18,7 +20,6 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -110,40 +111,6 @@ final class CourseCatalogService
             ->where('stage_id', $stage->id)
             ->where('number', $lessonNumber)
             ->first();
-    }
-
-    /**
-     * The first lesson of the course (in study order) that still has an active word the
-     * learner has never been served — where `daily_review` takes its new words from
-     * (docs/12 §7.3). Null when the learner has seen the whole course.
-     *
-     * Not used by the picker (it selects new words with one query); kept for task 1.3b
-     * (`TodayService`: `active_course.next_lesson`).
-     *
-     * One anti-join at the level of WORDS (never-served active words of the course, `LIMIT 1` in study
-     * order) instead of a correlated `EXISTS` per lesson: the lookup is one pass over the words of the
-     * course and the learner's rows, not lessons × the learner's cards. The lesson comes with its `stage`
-     * loaded from the very same row (the join is there anyway for the order), not by a second query.
-     */
-    public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
-    {
-        /** @var Lesson|null $lesson */
-        $lesson = Lesson::query()
-            ->select('lessons.*')
-            ->addSelect(self::stageColumns())
-            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->join('words', 'words.lesson_id', '=', 'lessons.id')
-            ->where('stages.course_id', $course->id)
-            ->where('words.is_active', true)
-            ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
-                ->from('word_repetitions')
-                ->whereColumn('word_repetitions.word_id', 'words.id')
-                ->where('word_repetitions.learner_id', $learner->id))
-            ->orderBy('stages.number')
-            ->orderBy('lessons.number')
-            ->first();
-
-        return $lesson === null ? null : $this->withJoinedRelations($lesson);
     }
 
     /**
@@ -408,6 +375,38 @@ final class CourseCatalogService
     }
 
     /**
+     * The active-course block of the "Today" screen in ONE query of the learner's own rows ({@see lessonsStarted()}) beside the cached
+     * {@see courseTree()}: `done` of the course is the sum over all their answered active words, `total` is `courses.words_count`, and the
+     * next lesson is the first lesson of the tree (study order) with more active words than the learner has rows for - a lesson with no
+     * active words never is. Its titles come from the tree row (already picked for the learner's locale). A word added since the tree was
+     * read is in the learner's counts but not yet in `total` for the moment before the tree is dropped ({@see forgetCourseTree()}).
+     */
+    public function todayCourse(Course $course, Learner $learner): CourseToday
+    {
+        $tree = $this->courseTree($course, $this->locales->forLearner($learner));
+        $lessons = $this->lessonsStarted($course, $learner);
+
+        $done = 0;
+        foreach ($lessons as $counts) {
+            $done += $counts['done'];
+        }
+
+        $next = null;
+        foreach ($tree as $row) {
+            if ($row['total'] > ($lessons[$row['lesson_id']]['started'] ?? 0)) {
+                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title']);
+                break;
+            }
+        }
+
+        return new CourseToday(
+            $this->present($course, $this->locales->forLearner($learner)),
+            new LearnerProgress($done, $course->words_count),
+            $next,
+        );
+    }
+
+    /**
      * Lessons of the course in study order with the learner's progress. Only active words count. Progress is the learner's
      * own (`word_repetitions` is per learner and word), so a word studied in two groups is counted once. The lessons and their
      * word totals are the cached {@see courseTree()}; `done` is the learner's one query ({@see lessonsDone()}).
@@ -541,6 +540,33 @@ final class CourseCatalogService
         }
 
         return $done;
+    }
+
+    /**
+     * Active words the learner has a row for (`started`) and has answered (`done`, `repetitions >= 1`) per lesson of the course -
+     * their own rows only, like {@see lessonsDone()}.
+     *
+     * @return array<int, array{started: int, done: int}> lesson id => counts
+     */
+    private function lessonsStarted(Course $course, Learner $learner): array
+    {
+        $rows = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
+            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->where('word_repetitions.learner_id', $learner->id)
+            ->where('words.is_active', true)
+            ->where('stages.course_id', $course->id)
+            ->groupBy('words.lesson_id')
+            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as started, SUM(CASE WHEN word_repetitions.repetitions >= 1 THEN 1 ELSE 0 END) as done')
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row->lesson_id] = ['started' => (int) $row->started, 'done' => (int) $row->done];
+        }
+
+        return $counts;
     }
 
     /**

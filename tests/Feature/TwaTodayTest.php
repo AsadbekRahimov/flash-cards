@@ -26,6 +26,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\HotPathFixtures as Fx;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -294,22 +296,45 @@ it('describes the active course with its progress and the next lesson with new w
         ->assertJsonPath('active_course.next_lesson.lesson', 2);
 });
 
-it('finds the next lesson and its stage in one statement: no separate read of `stages` on the Today screen', function (): void {
+it('reads the progress and the next lesson of the active course with ONE learner statement once the tree is warm', function (): void {
     $lessons = todayCourse(2, 2);
     $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
-    todayGet($this, $learner)->assertOk(); // warm the entitlement and catalog caches
+    todayGet($this, $learner)->assertOk(); // warm the entitlement and catalog caches, including the course tree
 
-    $queries = [];
-    DB::listen(function ($query) use (&$queries): void {
-        $queries[] = $query->sql;
-    });
-    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.next_lesson.stage', 1);
+    $queries = QueryLog::during(fn () => todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.next_lesson.stage', 1));
 
-    $matching = fn (string $pattern): array => array_values(array_filter($queries, fn (string $sql): bool => preg_match($pattern, $sql) === 1));
-    // The next lesson carries its stage from the joined row ...
-    expect($matching('/["`]stages["`]\.["`]number["`] as ["`]stage__number["`]/'))->toHaveCount(1)
-        // ... and the stage is not loaded again by an eager load after it.
-        ->and($matching('/^select \* from ["`]stages["`] where ["`]stages["`]\.["`]id["`] in/'))->toBe([]);
+    // ONE read of the learner's rows joined to the words of the course: the progress and the next lesson share it ...
+    expect(QueryLog::matching($queries, '/from ["`]word_repetitions["`] inner join ["`]words["`]/'))->toHaveCount(1)
+        // ... no anti-join over the lessons of the course, and no read of the lesson or its stage after it.
+        ->and(QueryLog::matching($queries, '/from ["`]lessons["`].* not exists/s'))->toBe([])
+        ->and(QueryLog::matching($queries, '/from ["`]lessons["`]/'))->toBe([])
+        ->and(QueryLog::matching($queries, '/from ["`]stages["`]/'))->toBe([]);
+});
+
+it('moves the next lesson on as the learner starts the words of a partly studied course, and ignores inactive and foreign rows', function (): void {
+    ['course' => $course, 'lessons' => $lessons, 'words' => $words] = Fx::course([1 => [1 => 2, 2 => [2, 1], 3 => 2]]);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $course->id]);
+    $other = Learner::factory()->create();
+
+    // 1.1 started in full (one answered, one only shown), 1.2 one of two active words; a foreign learner has done everything.
+    Fx::learn($learner, [$words['1.1']['active'][0], $words['1.2']['active'][0]]);
+    Fx::learn($learner, [$words['1.1']['active'][1]], repetitions: 0);
+    Fx::learn($learner, [$words['1.2']['inactive'][0]]); // inactive: counts nowhere
+    Fx::learn($other, [...$words['1.1']['active'], ...$words['1.2']['active'], ...$words['1.3']['active']]);
+
+    todayGet($this, $learner)->assertOk()
+        ->assertJsonPath('active_course.progress', ['learned' => 2, 'total' => 6])
+        ->assertJsonPath('active_course.next_lesson', ['id' => $lessons['1.2']->id, 'stage' => 1, 'lesson' => 2, 'title' => $lessons['1.2']->title]);
+
+    Fx::learn($learner, [$words['1.2']['active'][1]], repetitions: 0);
+    todayGet($this, $learner)->assertOk()
+        ->assertJsonPath('active_course.progress', ['learned' => 2, 'total' => 6])
+        ->assertJsonPath('active_course.next_lesson.id', $lessons['1.3']->id);
+
+    Fx::learn($learner, $words['1.3']['active']);
+    todayGet($this, $learner)->assertOk()
+        ->assertJsonPath('active_course.progress', ['learned' => 4, 'total' => 6])
+        ->assertJsonPath('active_course.next_lesson', null);
 });
 
 it('has no next lesson once every word of the course was served, and localizes the title', function (): void {

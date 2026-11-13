@@ -243,9 +243,6 @@ it('names the next lesson of Today and a lesson read with its context in the lea
         ->and(app(DeckTitles::class)->forLesson($lesson, $uz))->toBe('Salomlashish')
         ->and(app(DeckTitles::class)->forLesson($lesson, $ru))->toBe('Приветствия')
         ->and(app(DeckTitles::class)->stage($fx['course'], $uz, $lesson->stage))->toBe('Tanishuv');
-
-    $next = $catalog->nextLessonWithNewWords($fx['course'], $uz);
-    expect($next?->stage?->title_uz)->toBe('Tanishuv', 'the next lesson carries the module with its uz name too');
 });
 
 // --- the import -----------------------------------------------------------------------------------------------------

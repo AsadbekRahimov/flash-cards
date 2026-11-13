@@ -447,17 +447,18 @@ it('finds the next lesson with new words of a course for the learner', function 
     $learner = Learner::factory()->create();
     $catalog = app(CourseCatalogService::class);
 
-    expect($catalog->nextLessonWithNewWords($course, $learner)?->id)->toBe($l1->id);
+    expect($catalog->todayCourse($course, $learner)->nextLesson?->id)->toBe($l1->id);
 
     WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $l1->words()->firstOrFail()->id]);
-    expect($catalog->nextLessonWithNewWords($course, $learner)?->id)->toBe($l2->id);
+    expect($catalog->todayCourse($course, $learner)->nextLesson?->id)->toBe($l2->id);
 
     // An inactive word does not make a lesson "have new words".
     $l2->words()->update(['is_active' => false]);
-    expect($catalog->nextLessonWithNewWords($course, $learner)?->id)->toBe($l3->id);
+    $catalog->forgetCourseTree($course->id); // what changing a word does after commit
+    expect($catalog->todayCourse($course, $learner)->nextLesson?->id)->toBe($l3->id);
 
     WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $l3->words()->firstOrFail()->id]);
-    expect($catalog->nextLessonWithNewWords($course, $learner))->toBeNull();
+    expect($catalog->todayCourse($course, $learner)->nextLesson)->toBeNull();
 });
 
 // --- lesson scope: done reasons, budget, inactive words -----------------------------

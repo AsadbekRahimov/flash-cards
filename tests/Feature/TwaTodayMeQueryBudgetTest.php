@@ -54,14 +54,15 @@ it('answers the second /me with the learner and one statement of counts', functi
         ->and(QueryLog::matching($queries, '/from ["`](telegram_groups|subscriptions|courses)["`]/'))->toBe([]);
 });
 
-it('answers the second /today within eight statements, including the lapse banner that used to request /me', function (): void {
+it('answers the second /today within seven statements, including the lapse banner that used to request /me', function (): void {
     ['headers' => $h] = todayMeScenario($this);
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()
         ->assertJsonPath('league.rank', 1)->assertJsonPath('goal.done', 5)->assertJsonPath('new_words_remaining', 14)); // five graded, a sixth served
 
+    // The active course is one learner query beside the cached tree (was two: the progress and the next-lesson anti-join: 8 -> 7).
     // Before R12i: 13 - the plan six times (from its cache), two day rows, two counts, five league statements.
-    expect(count($queries))->toBeLessThanOrEqual(8)
+    expect(count($queries))->toBeLessThanOrEqual(7)
         ->and(QueryLog::matching($queries, '/from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]due["`], \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]served["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`](league_weeks|league_members|league_groups)["`]|from ["`]league_members["`] as/'))->toBe([])
