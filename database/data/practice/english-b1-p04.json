@@ -446,6 +446,15 @@
           "suitable",
           "for",
           "students"
+        ],
+        [
+          "for",
+          "students",
+          "this",
+          "job",
+          "is",
+          "not",
+          "suitable"
         ]
       ],
       "display": "This job is not suitable for students.",

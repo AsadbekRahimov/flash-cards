@@ -290,7 +290,7 @@
       "target_words": [
         "intelligence"
       ],
-      "text": "Many apps use ___ intelligence to translate texts.",
+      "text": "Doctors use ___ intelligence to read medical images.",
       "options": [
         "artificial",
         "fake",
@@ -300,8 +300,8 @@
         "artificial"
       ],
       "translation": {
-        "ru": "Многие приложения используют искусственный интеллект для перевода текстов.",
-        "uz": "Ko'pgina ilovalar matnlarni tarjima qilish uchun sun'iy intellektdan foydalanadi."
+        "ru": "Врачи используют искусственный интеллект для чтения медицинских снимков.",
+        "uz": "Shifokorlar tibbiy tasvirlarni o'qish uchun sun'iy intellektdan foydalanadi."
       },
       "explanation": {
         "ru": "artificial intelligence — искусственный интеллект, устойчивое сочетание. Fake — «поддельный», unnatural — «неестественный»: с intelligence так не говорят.",

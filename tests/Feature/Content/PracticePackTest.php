@@ -36,8 +36,9 @@ uses(RefreshDatabase::class);
 
 /*
  * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2*.json, docs/CONTENT_A1_A2.md,
- * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, at least three tasks of each
- * authored type in every one of the 100 lessons, target words of the task's own lesson only, the level of the module (1-10 A1,
+ * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, tasks of each authored type in every one of
+ * the 100 lessons (per_type of the course exactly, else at least three; targets: that many different target words over a lesson),
+ * every target word written in the English text of its task (the word or a regular form; `unwritten` lists the exceptions), target words of the task's own lesson only, the level of the module (1-10 A1,
  * 11-20 A2), uz in Latin script on «Siz» and ru on «вы», the writings of a dictation by the one rule of docs/16 §5.2, every
  * accepted writing and order graded `correct`, every word known to the lexicon of the dictation. Imported after the course: no
  * refusal, a second import changes nothing, `practice:import --publish` passes, and a lesson of every module opens a solo session
@@ -50,7 +51,11 @@ const PPK_TYPES = ['collocation', 'sentence', 'dictation'];
  * The courses with practice packs: add a course by adding a row here. Per course: the folder of its pack, the glob of its practice
  * files, the number of tasks, the level of a task by the number of its module, and the lesson of a module the session test opens.
  *
- * @return array<string, array{dir: string, glob: string, tasks: int, level: Closure(int): string, lesson: Closure(int): int}>
+ * `per_type`: exactly so many tasks of each type in each lesson (null: at least three). `targets`: at least so many different target
+ * words over the tasks of a lesson (null: not checked). `unwritten`: task key => why the target word is not in the English text of the
+ * task as a word or a regular form of it (an irregular form, a compound).
+ *
+ * @return array<string, array{dir: string, glob: string, tasks: int, per_type: ?int, targets: ?int, unwritten: array<string, string>, level: Closure(int): string, lesson: Closure(int): int}>
  */
 function ppk_courses(): array
 {
@@ -59,6 +64,24 @@ function ppk_courses(): array
             'dir' => 'database/data/courses/english-a1-a2',
             'glob' => 'database/data/practice/english-a1-a2*.json',
             'tasks' => 936,
+            'per_type' => null,
+            'targets' => null,
+            'unwritten' => [
+                'a1a2-m08-c04' => 'irregular past: won',
+                'a1a2-m09-s03' => 'irregular plural: teeth',
+                'a1a2-m10-c09' => 'irregular plural: mice',
+                'a1a2-m17-c02' => 'contrast pair: the text has lend, borrow is a wrong option and a target word only',
+                'a1a2-m19-c06' => 'irregular plural: leaves',
+                'a1a2-m17-c10' => 'contrast pair: the text has fit, suit is a wrong option and a target word only',
+                'a1a2-m01-d14' => 'irregular plural: men',
+                'a1a2-m02-d04' => 'irregular plural: shelves',
+                'a1a2-m08-d12' => 'irregular past: lost',
+                'a1a2-m19-d12' => 'irregular plural: wolves',
+                'a1a2-time-c07' => 'the target word year is not in the sentence (a number of a year: 2010)',
+                'a1a2-time-c08' => 'the target word now is not in the sentence (at the moment)',
+                'a1a2-time-c09' => 'the target word month is not in the sentence (the name of a month: May)',
+                'a1a2-family-c03' => 'irregular plural: children',
+            ],
             'level' => static fn (int $module): string => $module <= 10 ? 'A1' : 'A2',
             // Modules 2, 4 and 7 show the lessons the tasks of the old pack left: down to three tasks of a type there.
             'lesson' => static fn (int $module): int => in_array($module, [2, 4, 7], true) ? 1 : ($module - 1) % 5 + 1,
@@ -67,6 +90,9 @@ function ppk_courses(): array
             'dir' => 'database/data/courses/english-b1',
             'glob' => 'database/data/practice/english-b1-p*.json',
             'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
             'level' => static fn (int $module): string => 'B1',
             'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
         ],
@@ -74,6 +100,9 @@ function ppk_courses(): array
             'dir' => 'database/data/courses/english-b2',
             'glob' => 'database/data/practice/english-b2-p*.json',
             'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
             'level' => static fn (int $module): string => 'B2',
             'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
         ],
@@ -189,7 +218,7 @@ it('keeps the tasks of the course in files the importer takes whole: one course,
     expect($total)->toBe(ppk_courses()[$slug]['tasks']);
 })->with('ppk_courses');
 
-it('gives each of the 100 lessons of the course at least three tasks of each authored type', function (string $slug): void {
+it('gives each of the 100 lessons of the course the tasks of each authored type: exactly per_type of them, or at least three where the course has no per_type', function (string $slug): void {
     $count = [];
     foreach (array_unique(ppk_course_words($slug)) as $lesson) {
         foreach (PPK_TYPES as $type) {
@@ -200,10 +229,44 @@ it('gives each of the 100 lessons of the course at least three tasks of each aut
         $slot = ppk_lesson($task).' '.$task['type'];
         $count[$slot] = ($count[$slot] ?? 0) + 1;   // a lesson the course does not have adds a slot
     }
+    $exact = ppk_courses()[$slug]['per_type'];
 
     expect($count)->toHaveCount(300)
-        ->and(array_keys(array_filter($count, static fn (int $n): bool => $n < 3)))->toBe([]);
+        ->and(array_keys(array_filter($count, static fn (int $n): bool => $exact === null ? $n < 3 : $n !== $exact)))->toBe([]);
 })->with('ppk_courses');
+
+dataset('ppk_courses_with_targets', function (): array {
+    $rows = [];
+    foreach (ppk_courses() as $slug => $row) {
+        if ($row['targets'] !== null) {
+            $rows[$slug] = [$slug];
+        }
+    }
+
+    return $rows;
+});
+
+it('covers at least `targets` different words of its lesson with the tasks of every lesson', function (string $slug): void {
+    $need = (int) ppk_courses()[$slug]['targets'];
+    $covered = [];
+    foreach (array_unique(ppk_course_words($slug)) as $lesson) {
+        $covered[$lesson] = [];
+    }
+    foreach (ppk_tasks($slug) as $task) {
+        foreach ($task['target_words'] as $target) {
+            $covered[ppk_lesson($task)][mb_strtolower(trim($target))] = true;
+        }
+    }
+    $offences = [];
+    foreach ($covered as $lesson => $words) {
+        if (count($words) < $need) {
+            $offences[] = "lesson {$lesson}: ".count($words)." different target words, {$need} needed";
+        }
+    }
+
+    expect($covered)->toHaveCount(100)
+        ->and($offences)->toBe([]);
+})->with('ppk_courses_with_targets');
 
 it('takes every target word of a task from the lesson of the task', function (string $slug): void {
     $words = ppk_course_words($slug);
@@ -221,6 +284,45 @@ it('takes every target word of a task from the lesson of the task', function (st
     }
 
     expect($offences)->toBe([]);
+})->with('ppk_courses');
+
+it('writes every target word of a task in its English text: the word itself or a regular form of it', function (string $slug): void {
+    $unwritten = ppk_courses()[$slug]['unwritten'];
+    $offences = [];
+    $used = [];
+    foreach (ppk_tasks($slug) as $task) {
+        $text = match ($task['type']) {
+            'dictation' => $task['text'],
+            'sentence' => $task['display'],
+            default => str_replace('___', $task['correct'][0], $task['text']),
+        };
+        $tokens = PracticeTextNormalizer::tokens($text);
+        foreach ($task['target_words'] as $target) {
+            // A target of several words (`take off`) is written word by word.
+            foreach (PracticeTextNormalizer::tokens($target) as $word) {
+                $found = false;
+                foreach ($tokens as $token) {
+                    if ($token === $word || in_array($word, EnglishLexicon::lemmas($token), true)) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if ($found) {
+                    continue;
+                }
+                if (isset($unwritten[$task['key']])) {
+                    $used[$task['key']] = true;
+
+                    continue;
+                }
+                $offences[] = "{$task['key']}: «{$target}» is not in «{$text}»";
+            }
+        }
+    }
+
+    // An exception stays only while the task needs it.
+    expect($offences)->toBe([])
+        ->and(array_diff(array_keys($unwritten), array_keys($used)))->toBe([]);
 })->with('ppk_courses');
 
 it('sets the level of a task by its module (a1-a2: A1 in modules 1-10, A2 in modules 11-20)', function (string $slug): void {

@@ -1292,6 +1292,15 @@
           "his",
           "hard",
           "work"
+        ],
+        [
+          "for",
+          "his",
+          "hard",
+          "work",
+          "I",
+          "admire",
+          "him"
         ]
       ],
       "display": "I admire him for his hard work.",
@@ -1492,6 +1501,16 @@
           "with",
           "her",
           "parents"
+        ],
+        [
+          "with",
+          "her",
+          "parents",
+          "she",
+          "has",
+          "a",
+          "good",
+          "relationship"
         ]
       ],
       "display": "She has a good relationship with her parents.",

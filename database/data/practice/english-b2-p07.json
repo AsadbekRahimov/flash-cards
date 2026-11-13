@@ -1408,7 +1408,7 @@
       "text": "We ___ a detour to see the old castle.",
       "options": [
         "made",
-        "did",
+        "went",
         "put"
       ],
       "correct": [
@@ -1419,8 +1419,8 @@
         "uz": "Eski qasrni ko'rish uchun aylanma yo'ldan yurdik."
       },
       "explanation": {
-        "ru": "make a detour — сделать крюк, поехать в объезд (говорят также take a detour). Русское «сделать» здесь make, а не do; put с detour не употребляется.",
-        "uz": "make a detour — aylanib o'tmoq, aylanma yo'ldan yurmoq (take a detour ham deyiladi). Bu birikmada do emas, make ishlatiladi; put esa detour bilan qo'llanmaydi."
+        "ru": "make a detour — сделать крюк, поехать в объезд (говорят также take a detour). С detour нужен глагол make: went и put в этом выражении не употребляются.",
+        "uz": "make a detour — aylanib o'tmoq, aylanma yo'ldan yurmoq (take a detour ham deyiladi). Detour so'zi bilan make ishlatiladi; went va put bu birikmada qo'llanmaydi."
       }
     },
     {
