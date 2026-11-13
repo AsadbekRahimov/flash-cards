@@ -547,3 +547,36 @@ it('writes nothing when the pick fails', function (): void {
         ->and(nwfHint($learner, $course))->toBeNull()
         ->and(WordRepetition::query()->where('learner_id', $learner->id)->exists())->toBeFalse();
 });
+
+it('writes the hint only after the commit of a transaction that wraps the pick, and nothing when that one is rolled back', function (): void {
+    $fx = Fx::course([1 => [1 => 1, 2 => 2]]);
+    $course = $fx['course'];
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    [$first, $second] = nwfLessons($course);
+
+    // Rolled back: the word of lesson 1 the pick introduced is unseen again, so no hint may say "lesson 1 is behind".
+    try {
+        DB::transaction(function () use ($learner, $course): void {
+            nwfPick($learner, $course);
+            nwfPick($learner, $course);
+
+            throw new RuntimeException('the caller failed');
+        });
+    } catch (RuntimeException) {
+        // expected
+    }
+
+    expect(nwfHint($learner, $course))->toBeNull()
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->exists())->toBeFalse()
+        ->and(nwfPick($learner, $course)->word?->lesson_id)->toBe($first->id);
+
+    // Committed: the hints of the picks inside are written when the outer transaction commits, not before.
+    $inside = 'not read';
+    DB::transaction(function () use ($learner, $course, &$inside): void {
+        nwfPick($learner, $course);
+        $inside = nwfHint($learner, $course);
+    });
+
+    expect($inside)->toBe($first->id)
+        ->and(nwfHint($learner, $course))->toBe($second->id);
+});

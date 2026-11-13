@@ -971,6 +971,14 @@ to date (import, the decks of learners, a word switched off in the admin panel);
 that drifted anyway — a restored dump, hand-made SQL, a release that changes the rule — and `deploy.sh` runs it after the
 migrations (not on `--rollback`: the older code has no such command; a failure only prints a warning with the command).
 
+**After a restored dump or hand-made SQL also empty the pure cache** (`redis-cache`, the `lru` store: it holds nothing that
+cannot be computed again - `docker compose exec redis-cache sh -c 'REDISCLI_AUTH=$REDIS_CACHE_PASSWORD redis-cli FLUSHALL'`;
+bare server: the second instance, port 6380). The command above drops the tree of every platform course, but the frontier of
+new words (`learning:frontier:v1:*`, docs/06 §4.2, docs/19 §2.2) is exact only while the rows of `word_repetitions` never
+disappear and every change of words moves the version of the course: a dump brings older rows back, SQL by hand moves no
+version. Left alone a stale hint only costs the order of introduction for up to 30 minutes (5 for "nothing left"), so this is
+tidiness, not an emergency.
+
 ```bash
 php artisan courses:recount-words
 # course #5 (ielts-core): 480 -> 478

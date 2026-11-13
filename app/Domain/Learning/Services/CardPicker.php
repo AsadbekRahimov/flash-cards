@@ -115,7 +115,8 @@ final class CardPicker
      *
      * The frontier hint of a course scope is read BEFORE the transaction (no cache round trip under the learner lock;
      * its key carries the course's data version as it is now) and written back AFTER a committed transaction that ran
-     * the full query - never from inside it, and nothing when it threw. A failing cache leaves `$hint` null: the full
+     * the full query (`DB::afterCommit`: also after the commit of a transaction that wraps the pick) - never from inside
+     * it, and nothing when it threw or was rolled back. A failing cache leaves `$hint` null: the full
      * query, as before.
      *
      * @return array{0: CardPick|null, 1: bool} [pick, quotaBlocked]
@@ -205,8 +206,10 @@ final class CardPicker
         });
 
         if ($hint !== null && $frontier !== null) {
-            // Committed. A word found but held back by the quota names the right lesson too.
-            $this->frontier->write($hint, $frontier);
+            // A word found but held back by the quota names the right lesson too. Written once everything is committed:
+            // at once here (nobody wraps the pick today), and after the commit of a caller's transaction should one ever
+            // wrap it - a hint taken from rows that are then rolled back would hide the words they covered.
+            DB::afterCommit(fn () => $this->frontier->write($hint, $frontier));
         }
 
         /** @var array{0: CardPick|null, 1: bool} $result */
