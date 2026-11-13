@@ -66,6 +66,10 @@ return [
             'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth',
             'eightieth', 'ninetieth', 'hundredth', 'thousandth', 'millionth', 'half'],
     ],
+    // How many words (of a whole course) the hub and the options of a battle look at to tell a mode has material: the counts of
+    // `available` of an available mode are "at least" this much (a shortage is always counted over every word). Far above the
+    // biggest `required` of a mode (battle: rounds x pairs_per_round = 20; solo: 3 words, 5 tasks), so a sample of fit words is ample.
+    'count_sample' => 300,
     'import' => ['max_bytes' => 2 * 1024 * 1024, 'max_items' => 300],
     // config/filesystems.php: root storage/app/practice-audio, no url - the files are served only by the audio endpoint (docs/16 §10.5).
     'audio' => ['disk' => 'practice_audio', 'dir' => ''],

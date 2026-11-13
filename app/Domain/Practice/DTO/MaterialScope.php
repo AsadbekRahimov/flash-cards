@@ -25,12 +25,19 @@ final class MaterialScope
     /** @var array<string, mixed> */
     private array $memo = [];
 
+    /** @var array<string, true> the memo keys of the word lists that were cut at {@see} */
+    private array $truncated = [];
+
+    /** Whether a cut word list was read since the last {@see takeTruncatedRead()}. */
+    private bool $truncatedRead = false;
+
     public function __construct(
         public readonly Course $course,
         public readonly ?Lesson $lesson = null,
         public readonly ?RetryMaterial $retry = null,
         public readonly ?Stage $stage = null,
         public readonly bool $countOnly = false,
+        public readonly ?int $wordSample = null,
     ) {}
 
     /** The words and the tasks of every lesson of the stage (docs/18 §12.3.1: a stop widened to its city). */
@@ -46,7 +53,50 @@ final class MaterialScope
      */
     public static function forCount(Course $course, ?Lesson $lesson = null): self
     {
-        return new self($course, $lesson, countOnly: true);
+        // A lesson is small anyway; only the whole course (thousands of words) is counted over a sample.
+        $sample = max(0, (int) config('practice.count_sample'));
+
+        return new self($course, $lesson, countOnly: true, wordSample: $lesson === null && $sample > 0 ? $sample : null);
+    }
+
+    /**
+     * The same course / lesson for counting over ALL the words, with a memo of its own: the exact answer a counting scope falls back
+     * to when its sample was cut and the mode came out short.
+     */
+    public function withoutSample(): self
+    {
+        return new self($this->course, $this->lesson, $this->retry, $this->stage, countOnly: true);
+    }
+
+    /** The word list remembered under `$key` was cut at {@see $wordSample}: there are more words behind it. */
+    public function markTruncated(string $key): void
+    {
+        $this->truncated[$key] = true;
+    }
+
+    public function wasTruncated(string $key): bool
+    {
+        return isset($this->truncated[$key]);
+    }
+
+    public function has(string $key): bool
+    {
+        return array_key_exists($key, $this->memo);
+    }
+
+    /** A mode has just read a cut word list: if it is short of material, only the whole list can say so for sure. */
+    public function noteTruncatedRead(): void
+    {
+        $this->truncatedRead = true;
+    }
+
+    /** Whether a cut list was read since the last call (and forget it: one mode at a time). */
+    public function takeTruncatedRead(): bool
+    {
+        $read = $this->truncatedRead;
+        $this->truncatedRead = false;
+
+        return $read;
     }
 
     /**

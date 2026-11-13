@@ -75,14 +75,18 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      * phrases are there but their words are not learned yet), `no_audio_words` (the learner has words, none of them is voiced),
      * `no_words` (the words are fewer than the minimum: nothing was introduced, or there are voiced words that with the phrases are
      * still too few - one more learned word may open the mode, and the screen offers "Learn the lesson"), else `no_items`.
+     *
+     * A scope counted over a sample ({@see MaterialScope::$wordSample}) takes the voiced words from a read of their own, so the
+     * ones behind the first words of the learner are found too; the count is then "at least" and a cut read is made known to the scope.
+     * The voiced candidates of a sample are a part of those of all the words (the same test, the same unique texts): enough on the
+     * sample is enough on all of them.
      */
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
         $required = $learner === null ? max(1, (int) config('practice.battle.rounds')) : $this->material->minItems($scope);
 
         $phrases = $this->phraseCount($scope, $learner, $locales);
-        $introduced = $learner === null ? 0 : count($this->material->introducedWords($scope, $learner, $locales));
-        $voiced = $learner === null ? 0 : count($this->wordCandidates($scope, $learner, $locales));
+        $voiced = $learner === null ? 0 : count($scope->wordSample === null ? $this->wordCandidates($scope, $learner, $locales) : $this->voicedCandidates($scope, $learner, $locales));
         $pending = $this->material->pendingAudioItems($scope, $learner);
 
         $available = $phrases + $voiced;
@@ -95,8 +99,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
             $pending > 0 && $available + $pending >= $required => ModeAvailability::REASON_AUDIO_PENDING,
             $locked > 0 && $available + $locked >= $required => ModeAvailability::REASON_ITEMS_LOCKED,
             $learner === null => ModeAvailability::REASON_NO_ITEMS,
-            $introduced > 0 && $voiced === 0 => ModeAvailability::REASON_NO_AUDIO_WORDS,
-            // Without voiced words `$introduced` is 0 here: the arm above took every `$introduced > 0`.
+            $voiced === 0 && $this->material->hasIntroducedWords($scope, $learner, $locales) => ModeAvailability::REASON_NO_AUDIO_WORDS,
+            // Without voiced words nothing is introduced here: the arm above took every learner who has introduced words.
             $voiced > 0, $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
             default => ModeAvailability::REASON_NO_ITEMS,
         };
@@ -330,25 +334,43 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      */
     private function wordCandidates(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
     {
-        return $scope->remember('dictation:words:'.$learner->id.':'.implode(',', $locales->locales), function () use ($scope, $learner, $locales): array {
-            $candidates = [];
-            $seen = [];
-            foreach ($this->material->introducedWords($scope, $learner, $locales) as $word) {
-                $path = $this->wordAudio->pathFor($word->word);
-                // No voice yet, or the voice of an older text of the word: it is not this word's recording.
-                if ($path === null || $word->audioPath !== $path) {
-                    continue;
-                }
-                $data = $this->wordData($word, $path, $locales);
-                if ($data === null || isset($seen[$this->textKey($data)])) {
-                    continue;
-                }
-                $seen[$this->textKey($data)] = true;
-                $candidates[] = $data;
-            }
+        return $scope->remember('dictation:words:'.$learner->id.':'.implode(',', $locales->locales), fn (): array => $this->candidatesOf($this->material->introducedWords($scope, $learner, $locales), $locales));
+    }
 
-            return $candidates;
-        });
+    /**
+     * @param  list<MaterialWord>  $words
+     * @return list<array<string, mixed>>
+     */
+    private function candidatesOf(array $words, LocaleSet $locales): array
+    {
+        $candidates = [];
+        $seen = [];
+        foreach ($words as $word) {
+            $path = $this->wordAudio->pathFor($word->word);
+            // No voice yet, or the voice of an older text of the word: it is not this word's recording.
+            if ($path === null || $word->audioPath !== $path) {
+                continue;
+            }
+            $data = $this->wordData($word, $path, $locales);
+            if ($data === null || isset($seen[$this->textKey($data)])) {
+                continue;
+            }
+            $seen[$this->textKey($data)] = true;
+            $candidates[] = $data;
+        }
+
+        return $candidates;
+    }
+
+    /**
+     * The voiced words of the learner for a count over a sample: the same candidates as {@see wordCandidates()}, from the words
+     * that have an audio file ({@see PracticeMaterialService::introducedVoicedWords()}).
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function voicedCandidates(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
+    {
+        return $scope->remember('dictation:voiced:'.$learner->id.':'.implode(',', $locales->locales), fn (): array => $this->candidatesOf($this->material->introducedVoicedWords($scope, $learner, $locales), $locales));
     }
 
     /**
