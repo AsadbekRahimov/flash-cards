@@ -134,6 +134,30 @@ it('keeps the other rows when one row of the batch fails, warns, and does not to
     Log::shouldHaveReceived('warning')->once()->with('product_event.record_failed', Mockery::on(fn (array $c): bool => $c['event'] === 'game.item_bought'));
 });
 
+it('keeps the event of a committed transaction when the controller then throws (500) or aborts (403)', function (): void {
+    $learner = Learner::factory()->create();
+    $recorder = app(ProductEventRecorder::class);
+    // No withoutExceptionHandling(): under it the exception skips `terminate` in the test client, which production never does.
+    Route::middleware('api')->post('/api/__probe/throws', function () use ($recorder, $learner): never {
+        DB::transaction(fn () => $recorder->record(ProductEventName::GameCoinsSpent, ['amount' => 1], $learner));
+
+        throw new RuntimeException('boom');
+    });
+    Route::middleware('api')->post('/api/__probe/aborts', function () use ($recorder, $learner): never {
+        DB::transaction(fn () => $recorder->record(ProductEventName::GameItemBought, ['price' => 2], $learner));
+
+        abort(403);
+    });
+
+    $this->postJson('/api/__probe/throws')->assertStatus(500);
+    expect(ProductEvent::query()->pluck('name')->all())->toBe(['game.coins_spent'])
+        ->and(app(ProductEventBuffer::class)->isDeferring())->toBeFalse();
+
+    $this->postJson('/api/__probe/aborts')->assertForbidden();
+    expect(ProductEvent::query()->orderBy('id')->pluck('name')->all())->toBe(['game.coins_spent', 'game.item_bought'])
+        ->and(app(ProductEventBuffer::class)->isDeferring())->toBeFalse();
+});
+
 it('writes at once outside the API group: a web route, a direct call', function (): void {
     $learner = Learner::factory()->create();
     $recorder = app(ProductEventRecorder::class);

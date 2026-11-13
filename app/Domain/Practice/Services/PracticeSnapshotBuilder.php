@@ -88,8 +88,8 @@ final class PracticeSnapshotBuilder
 
     /**
      * Runs `$attempt` (the availability check and the build of a session / a battle) on the scope; a scope that reads a SAMPLE of
-     * the words ({@see MaterialScope::forPlay()}) that came out short of material - `practice_not_enough_material` - is tried
-     * again on all the words (same seed), and the result is that of the whole material: the snapshot, or the refusal with its
+     * the words ({@see MaterialScope::forPlay()}) that came out short of material - `practice_not_enough_material` - AFTER a
+     * word list was actually cut to a sample ({@see MaterialScope::wasPlaySampled()}) is tried again on all the words (same seed), and the result is that of the whole material: the snapshot, or the refusal with its
      * numbers and reason. The sample only makes the usual case fast; it never decides that a mode cannot be played.
      *
      * @param  Closure(MaterialScope): Snapshot  $attempt
@@ -101,7 +101,8 @@ final class PracticeSnapshotBuilder
         try {
             return $attempt($scope);
         } catch (PracticeException $e) {
-            if ($scope->playSeed === null || $e->errorCode !== PracticeException::NOT_ENOUGH_MATERIAL) {
+            // No list was cut (a small vocabulary, or a mode that reads no words): the whole material is what was read.
+            if ($scope->playSeed === null || $e->errorCode !== PracticeException::NOT_ENOUGH_MATERIAL || ! $scope->wasPlaySampled()) {
                 throw $e;
             }
 

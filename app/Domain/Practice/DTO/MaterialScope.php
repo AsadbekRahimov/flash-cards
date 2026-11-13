@@ -28,6 +28,9 @@ final class MaterialScope
     /** @var array<string, true> the memo keys of the word lists that were cut at {@see} */
     private array $truncated = [];
 
+    /** Whether a word list of a play scope was cut to a sample ({@see markPlaySampled()}). */
+    private bool $playSampled = false;
+
     /** Whether a cut word list was read since the last {@see takeTruncatedRead()}. */
     private bool $truncatedRead = false;
 
@@ -102,6 +105,17 @@ final class MaterialScope
     public function wasTruncated(string $key): bool
     {
         return isset($this->truncated[$key]);
+    }
+
+    /** A play scope has cut a word list to a sample: there are words the snapshot did not see. */
+    public function markPlaySampled(): void
+    {
+        $this->playSampled = true;
+    }
+
+    public function wasPlaySampled(): bool
+    {
+        return $this->playSampled;
     }
 
     public function has(string $key): bool

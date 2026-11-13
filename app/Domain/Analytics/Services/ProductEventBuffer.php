@@ -22,6 +22,9 @@ use Illuminate\Support\Str;
  * Analytics is best effort: the rows live only in this process between the response and `finish()`, so a crash of the
  * process in that window loses them. That is the accepted price of not delaying the learner's response.
  *
+ * Tests of an error response must not call `withoutExceptionHandling()`: under it the exception never reaches `terminate`
+ * in the test client (a test-client quirk; in production the middleware always terminates).
+ *
  * Never throws: a failed write is logged (`product_event.record_failed`) and swallowed, like ProductEventRecorder.
  */
 class ProductEventBuffer

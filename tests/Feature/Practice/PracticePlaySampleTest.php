@@ -337,3 +337,65 @@ it('reads a lesson, a module and a retry without a sample', function (): void {
     $queries = QueryLog::during(fn () => test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/practice/sessions', ['mode' => 'pairs', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated());
     expect(playIdQueries($queries))->toBe([]);
 });
+
+it('does not read the words twice when a refusal comes from a vocabulary the sample did not cut', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'ru']);
+    // Not more words than the sample (10), and none that fits a card: the sample is the whole list.
+    playWords($lesson, $learner, 8, fn (int $i): bool => false);
+
+    $response = null;
+    $queries = QueryLog::during(function () use (&$response, $course, $learner): void {
+        $response = test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/practice/sessions', ['mode' => 'pairs', 'course' => $course->slug]);
+    });
+
+    $response->assertStatus(422);
+    expect($response->json('error.code'))->toBe(PracticeException::NOT_ENOUGH_MATERIAL)
+        ->and(playRowQueries($queries))->toHaveCount(1)
+        ->and(playRowQueries($queries)[0])->toContain('limit');
+});
+
+it('refuses a task mode without tasks without reading the whole vocabulary', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'ru']);
+    playWords($lesson, $learner, 40);
+
+    foreach (['sentence', 'collocation'] as $mode) {
+        $response = null;
+        $queries = QueryLog::during(function () use (&$response, $course, $learner, $mode): void {
+            $response = test()->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/practice/sessions', ['mode' => $mode, 'course' => $course->slug]);
+        });
+
+        $response->assertStatus(422);
+        expect($response->json('error.code'))->toBe(PracticeException::NOT_ENOUGH_MATERIAL, $mode);
+        foreach (playRowQueries($queries) as $sql) {
+            expect(str_contains($sql, 'limit') || str_contains($sql, '"words"."id" in ('))->toBeTrue($mode);
+        }
+    }
+});
+
+it('gives the reason of a dictation without voiced words on a play scope as on the whole one', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    $locales = LocaleSet::of('ru');
+    $reason = static function (MaterialScope $scope) use ($learner, $locales): ?string {
+        return app(PracticeMaterialService::class)->availability($scope, $learner, $locales)[PracticeMode::Dictation->value]->reason;
+    };
+
+    // Nothing started.
+    $whole = $reason(new MaterialScope($course));
+    expect($reason(MaterialScope::forPlay($course, null, null, 'seed')))->toBe($whole);
+
+    // Started, none voiced - more of them than the sample.
+    for ($i = 1; $i <= 30; $i++) {
+        DictationKit::word($lesson, $learner, "plain{$i}", "tr{$i}", voiced: false);
+    }
+    $whole = $reason(new MaterialScope($course));
+    $played = $reason(MaterialScope::forPlay($course, null, null, 'seed'));
+    expect($played)->toBe($whole)->and($whole)->toBe('no_audio_words');
+
+    // On its own (the list of the started words not read yet) the question is one `exists`, no sample is loaded.
+    $queries = QueryLog::during(function () use (&$has, $course, $learner, $locales): void {
+        $has = app(PracticeMaterialService::class)->hasIntroducedWords(MaterialScope::forPlay($course, null, null, 'seed'), $learner, $locales);
+    });
+    expect($has)->toBeTrue()->and($queries)->toHaveCount(1)->and($queries[0])->toMatch('/exists/i');
+});

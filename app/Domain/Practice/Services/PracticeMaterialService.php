@@ -148,6 +148,11 @@ final class PracticeMaterialService
      */
     public function hasIntroducedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): bool
     {
+        // A play scope's list is a sample (up to 3 queries and the models): "is there any" is one `exists` unless the list is already read.
+        if ($scope->playSeed !== null && ! $scope->has($this->introducedKey($learner, $locales))) {
+            return $this->introducedQuery($scope, $learner, false)->exists();
+        }
+
         return $scope->remember($this->introducedKey($learner, $locales), fn (): array => $this->loadIntroduced($scope, $learner, $locales, false, $this->introducedKey($learner, $locales))) !== [];
     }
 
@@ -405,8 +410,8 @@ final class PracticeMaterialService
         return $this->noted($scope, $key, $scope->remember($key, fn (): array => $this->loadIntroduced($scope, $learner, $locales, $voiced, $key)));
     }
 
-    /** @return list<MaterialWord> */
-    private function loadIntroduced(MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $voiced, string $key): array
+    /** @return Builder<Word> the active words of the scope the learner has been introduced to */
+    private function introducedQuery(MaterialScope $scope, Learner $learner, bool $voiced): Builder
     {
         $query = $this->wordQuery($scope)
             ->join('word_repetitions', 'word_repetitions.word_id', '=', 'words.id')
@@ -414,6 +419,14 @@ final class PracticeMaterialService
         if ($voiced) {
             $query->whereNotNull('words.audio_path');
         }
+
+        return $query;
+    }
+
+    /** @return list<MaterialWord> */
+    private function loadIntroduced(MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $voiced, string $key): array
+    {
+        $query = $this->introducedQuery($scope, $learner, $voiced);
         $played = $this->playRows($scope, $query, $voiced ? 'practice:play:voiced' : 'practice:play:introduced', false);
         if ($played !== null) {
             return $this->materialWords($played, $locales);
@@ -457,6 +470,7 @@ final class PracticeMaterialService
             return $query->hydrate($rows->map(static fn (object $row): array => (array) $row)->all());
         }
 
+        $scope->markPlaySampled();
         $ids = [];
         // Through the query builder: Eloquent's pluck() makes a model of every value of a cast column (`id`), which for the ids
         // of a whole course costs more than everything else here.
