@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Friendship;
@@ -120,6 +121,22 @@ it('leaves out the lessons without active words and the lessons of other courses
     $stops = mapGet(Learner::factory()->create())->assertOk()->json('cities.0.stops');
 
     expect(array_column($stops, 'lesson_id'))->toBe([$lessons[0][0]->id]);
+});
+
+it('shows a stop the moment a word of its lesson is switched on in the panel, with no manual drop of the cached tree', function (): void {
+    [, $lessons] = mapCourse(1, 2);
+    $word = Word::query()->where('lesson_id', $lessons[0][1]->id)->orderBy('id')->firstOrFail();
+    Word::query()->where('lesson_id', $lessons[0][1]->id)->update(['is_active' => false]);
+    $word->refresh();
+    app(LessonContentRefresher::class)->wordChanged($word);
+    $learner = Learner::factory()->create();
+    expect(array_column(mapGet($learner)->assertOk()->json('cities.0.stops'), 'lesson_id'))->toBe([$lessons[0][0]->id]); // warm
+
+    // What EditWord does: the write, then the refresher.
+    $word->update(['is_active' => true]);
+    app(LessonContentRefresher::class)->wordChanged($word);
+
+    expect(array_column(mapGet($learner)->assertOk()->json('cities.0.stops'), 'lesson_id'))->toBe([$lessons[0][0]->id, $lessons[0][1]->id]);
 });
 
 it('gives the stars, the score and the runs of the stop from game_stop_progress, zeros before the first run', function (): void {

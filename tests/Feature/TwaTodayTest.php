@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Content\Services\CoursePublisher;
+use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;
@@ -335,6 +336,23 @@ it('moves the next lesson on as the learner starts the words of a partly studied
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('active_course.progress', ['learned' => 4, 'total' => 6])
         ->assertJsonPath('active_course.next_lesson', null);
+});
+
+it('moves the next lesson back to a lesson that got a new active word in the panel, with no manual drop of the cached tree', function (): void {
+    ['course' => $course, 'lessons' => $lessons, 'words' => $words] = Fx::course([1 => [1 => 2, 2 => [2, 1]]]);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $course->id]);
+    Fx::learn($learner, $words['1.1']['active']);
+
+    todayGet($this, $learner)->assertOk() // warms the tree
+        ->assertJsonPath('active_course.next_lesson.id', $lessons['1.2']->id);
+
+    // What EditWord does: the write, then the refresher.
+    $word = Word::query()->findOrFail($words['1.2']['inactive'][0]);
+    $word->update(['lesson_id' => $lessons['1.1']->id, 'is_active' => true]);
+    app(LessonContentRefresher::class)->wordChanged($word);
+
+    todayGet($this, $learner)->assertOk()
+        ->assertJsonPath('active_course.next_lesson.id', $lessons['1.1']->id);
 });
 
 it('has no next lesson once every word of the course was served, and localizes the title', function (): void {

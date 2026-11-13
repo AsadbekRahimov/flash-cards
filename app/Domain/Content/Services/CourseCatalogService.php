@@ -383,7 +383,8 @@ final class CourseCatalogService
      */
     public function todayCourse(Course $course, Learner $learner): CourseToday
     {
-        $tree = $this->courseTree($course, $this->locales->forLearner($learner));
+        $locale = $this->locales->forLearner($learner);
+        $tree = $this->courseTree($course, $locale);
         $lessons = $this->lessonsStarted($course, $learner);
 
         $done = 0;
@@ -400,7 +401,7 @@ final class CourseCatalogService
         }
 
         return new CourseToday(
-            $this->present($course, $this->locales->forLearner($learner)),
+            $this->present($course, $locale),
             new LearnerProgress($done, $course->words_count),
             $next,
         );
@@ -409,14 +410,14 @@ final class CourseCatalogService
     /**
      * Lessons of the course in study order with the learner's progress. Only active words count. Progress is the learner's
      * own (`word_repetitions` is per learner and word), so a word studied in two groups is counted once. The lessons and their
-     * word totals are the cached {@see courseTree()}; `done` is the learner's one query ({@see lessonsDone()}).
+     * word totals are the cached {@see courseTree()}; `done` is from the learner's one query ({@see lessonsStarted()}).
      *
      * @return list<LessonProgress>
      */
     public function lessonsWithProgress(Course $course, Learner $learner): array
     {
         $tree = $this->courseTree($course, $this->locales->forLearner($learner));
-        $done = $this->lessonsDone($course, $learner);
+        $done = $this->lessonsStarted($course, $learner);
 
         $lessons = [];
         foreach ($tree as $row) {
@@ -427,7 +428,7 @@ final class CourseCatalogService
                 $row['lesson_number'],
                 $row['lesson_title'],
                 // A word added since the tree was read is in `done` but not yet in `total` for the moment before its drop.
-                new LearnerProgress(min($done[$row['lesson_id']] ?? 0, $row['total']), $row['total']),
+                new LearnerProgress(min($done[$row['lesson_id']]['done'] ?? 0, $row['total']), $row['total']),
             );
         }
 
@@ -524,36 +525,8 @@ final class CourseCatalogService
     }
 
     /**
-     * Active words the learner has answered (`repetitions >= 1`) per lesson of the course - their own rows only, so the size of the
-     * query follows what they have studied, not the size of the course.
-     *
-     * @return array<int, int> lesson id => words learned
-     */
-    private function lessonsDone(Course $course, Learner $learner): array
-    {
-        $rows = DB::table('word_repetitions')
-            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
-            ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
-            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->where('word_repetitions.learner_id', $learner->id)
-            ->where('word_repetitions.repetitions', '>=', 1)
-            ->where('words.is_active', true)
-            ->where('stages.course_id', $course->id)
-            ->groupBy('words.lesson_id')
-            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as done')
-            ->get();
-
-        $done = [];
-        foreach ($rows as $row) {
-            $done[(int) $row->lesson_id] = (int) $row->done;
-        }
-
-        return $done;
-    }
-
-    /**
      * Active words the learner has a row for (`started`) and has answered (`done`, `repetitions >= 1`) per lesson of the course -
-     * their own rows only, like {@see lessonsDone()}. THE one query "the learner's progress over the lessons of a course": "Today"
+     * their own rows only. THE one query "the learner's progress over the lessons of a course": "Today"
      * ({@see todayCourse()}) and the map of the game use it, each beside the cached {@see tree()}.
      *
      * @return array<int, array{started: int, done: int}> lesson id => counts
