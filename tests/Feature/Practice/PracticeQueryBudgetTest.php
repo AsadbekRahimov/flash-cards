@@ -42,7 +42,7 @@ use Tests\Support\QueryLog;
 uses(RefreshDatabase::class);
 
 const BUDGET_HUB = 9;
-const BUDGET_OPEN = 12;
+const BUDGET_OPEN = 11;
 const BUDGET_SHOW = 3;
 const BUDGET_ANSWER = 6;
 /** The answer that ENDS a session carries the summary, and the summary asks whether the mistakes can be repeated: one statement more (docs/16 §13). */
@@ -158,7 +158,7 @@ it('reads the hub within the budget with an unfinished session - which costs it 
     expect(count($queries))->toBeLessThanOrEqual(BUDGET_HUB, implode("\n", $queries));
 });
 
-it('opens a session in at most 12 statements: a plain one, and one that replaces the unfinished one', function (): void {
+it('opens a session in at most 11 statements: a plain one, and one that replaces the unfinished one', function (): void {
     [$learner, $course, $lesson] = budgetWorld();
 
     $plain = QueryLog::during(fn () => budgetOpen($learner, $course, 'sentence', ['lesson_id' => $lesson->id])->assertCreated());
@@ -174,7 +174,7 @@ it('opens a session in at most 12 statements: a plain one, and one that replaces
         ->and(ProductEvent::query()->where('name', 'practice.session_started')->count())->toBe(2);
 });
 
-it('opens a session of the real pairs in at most 12 statements, and reads the words once for the availability and the build together', function (): void {
+it('opens a session of the real pairs in at most 11 statements, and reads the words once for the availability and the build together', function (): void {
     foreach (['ru', 'uz'] as $locale) {
         [$learner, $course, $lesson] = budgetWorld($locale);
 

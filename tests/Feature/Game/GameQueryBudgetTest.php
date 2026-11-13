@@ -70,9 +70,9 @@ const BUDGET_BOSS_START = 17;
  * the streak 3, the league 10, the achievements of the day (streak, words) 3 + `game.boss_defeated` 1 and `game_first_boss` (the insert,
  * the row, `achievement.unlocked`) 3, and the pair to share on the card of the first win (G2.7b: the invite code of a learner who has none - read, written once - and the locale) 1-3 - since G2.13
  * made AFTER the commit, in a transaction of its own (docs/18 §12.5.1 rule 24; the view of the run is built outside the answer's transaction). The queued card DM is a job of its
- * own. None of them runs per word or per stop of the city. That is 43 + the share on SQLite (44 measured, G2.13); PostgreSQL spends two more (the placement in the league: 46), hence the ceiling.
+ * own. None of them runs per word or per stop of the city. That is 39 + the share on SQLite (41 measured, G2.13; the events of the request are one INSERT after the response); PostgreSQL spends two more (the placement in the league: 43), hence the ceiling.
  */
-const BUDGET_BOSS_FINISH = 48;
+const BUDGET_BOSS_FINISH = 44;
 
 /** Statements of the read of a run: `TwaAuth`, the run itself - the snapshot is in its row - and, while the run is on, the boosters of the inventory (G2.5b part 2). */
 const BUDGET_GAME_READ = 3;
@@ -95,45 +95,45 @@ const BUDGET_GAME_HINT = 12;
  */
 const BUDGET_GAME_START_FREE = 26;
 
-const BUDGET_GAME_START_TICKET = 30;
+const BUDGET_GAME_START_TICKET = 29;
 
 /**
  * The refund of a ticket (G2.8b, docs/18 §12.7.3), measured over HTTP: the exit of a run (`POST /abandon`) is `TwaAuth` 1, the lock of
  * the run 1, its UPDATE 1 and the event `game.run_finished` after the commit 1 - a closed run reads no boosters; a run paid with a
  * ticket and left without an answer adds the UPDATE of the profile, the ledger entry `refund:run:{id}` and the event
- * `game.ticket_refunded` (3) - 4 and 7 measured. A start with `replace_active` over such a run pays the plain start by a ticket (28
- * measured), the UPDATE that closes the old run and its `game.run_finished` (2) and the same three of the refund - 33 measured.
+ * `game.ticket_refunded` (3) - 4 and 6 measured (the events of a request are written with ONE INSERT after the response, so the two of the refund cost one statement). A start with `replace_active` over such a run pays the plain start by a ticket (28
+ * measured), the UPDATE that closes the old run and its `game.run_finished` (1) and the same two of the refund - 30 measured.
  */
 const BUDGET_GAME_ABANDON = 4;
 
-const BUDGET_GAME_ABANDON_REFUND = 7;
+const BUDGET_GAME_ABANDON_REFUND = 6;
 
-const BUDGET_GAME_START_TICKET_REPLACE = 33;
+const BUDGET_GAME_START_TICKET_REPLACE = 30;
 
 /**
  * The last answer, with the finish (docs/18 §12.5.3, §12.6; measured over HTTP on the tree with G2.8 and G2.10): the answer's own
  * statements, the row of the stop (1), the wallet and its ledger (4), the stop and the profile (2), the day (2), the run (1), the
- * events (2) - 16 for the second run of a day (the learner's rows exist, the day is held already: no hook runs). The FIRST run of a
+ * events (2, one INSERT after the response) - 15 for the second run of a day (the learner's rows exist, the day is held already: no hook runs). The FIRST run of a
  * day adds the hooks after the commit: the streak (the read of the learner, the UPDATE, its event - and the rows of the held days
  * when the series is rebuilt), the ticket of the streak (none on an ordinary day: no query), the seat in the league (the week, the
- * membership), the achievements (the keys, the best streak, the learned words) - 26. The first run of a learner the game has never
+ * membership), the achievements (the keys, the best streak, the learned words) - 24. The first run of a learner the game has never
  * seen makes the stop, the wallet, the profile and the day on the way (`insertOrIgnore` + the read again) and the week and the group
- * of the league - 39 on SQLite, 41 on PostgreSQL (the group of the league is taken under an advisory lock and read again there).
+ * of the league - 37 on SQLite, 39 on PostgreSQL (the group of the league is taken under an advisory lock and read again there).
  */
-const BUDGET_GAME_FINISH = 16;
+const BUDGET_GAME_FINISH = 15;
 
-const BUDGET_GAME_FINISH_NEW_DAY = 26;
+const BUDGET_GAME_FINISH_NEW_DAY = 24;
 
-const BUDGET_GAME_FINISH_FIRST = 41;
+const BUDGET_GAME_FINISH_FIRST = 39;
 
 /**
  * The finish of a run that joined the caravan of its class (G2.9a, docs/18 §12.5.3 step 6), measured: the finish above plus the
  * caravan's row FOR UPDATE, the member's row and the totals (3); the first run of a member in the caravan makes the member's row
  * (`insertOrIgnore` after the UPDATE of nothing) - one more. Measured on the second run of a day of a learner the game has seen.
  */
-const BUDGET_GAME_FINISH_CLASS = 19;
+const BUDGET_GAME_FINISH_CLASS = 18;
 
-const BUDGET_GAME_FINISH_CLASS_FIRST_RUN = 20;
+const BUDGET_GAME_FINISH_CLASS_FIRST_RUN = 19;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');

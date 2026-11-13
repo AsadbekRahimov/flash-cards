@@ -432,6 +432,10 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 ### 2.16 `product_events` — продуктовые события
 Append-only журнал для продуктовой аналитики (не путать с Laravel events). Пишется только через
 `App\Domain\Analytics\Services\ProductEventRecorder`; сбой записи логируется warning'ом и не ломает основной поток.
+В HTTP-запросах группы `api` (TWA API) события не пишутся по одному: `ProductEventRecorder` отдаёт строки (после commit
+транзакции, в которой они записаны) в scoped-буфер `ProductEventBuffer`, а middleware `DeferProductEvents` после ответа
+(`terminate`) пишет их **одним** многострочным `INSERT` (сбой пачки — построчная запись с тем же warning'ом). Вебхуки, панели,
+консоль и очередь пишут сразу. Аналитика — best effort: падение процесса между ответом и записью теряет события запроса.
 
 | Колонка | Тип |
 |---------|-----|
