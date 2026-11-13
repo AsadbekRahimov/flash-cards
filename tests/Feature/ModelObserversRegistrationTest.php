@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Course;
 use App\Models\GameItem;
 use App\Models\Lesson;
 use App\Models\Organization;
@@ -33,6 +34,7 @@ dataset('observed models', [
     'ProviderTransaction' => [ProviderTransaction::class, MoneyWidgetsObserver::class],
     'Stage' => [Stage::class, CourseTreeObserver::class],
     'Lesson' => [Lesson::class, CourseTreeObserver::class],
+    'Course' => [Course::class, CourseTreeObserver::class],
     'WordTranslation' => [WordTranslation::class, WordTranslationObserver::class],
     'OrganizationUser' => [OrganizationUser::class, OrganizationUserObserver::class],
 ]);

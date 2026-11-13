@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +14,13 @@ use Illuminate\Support\Facades\DB;
  * The cached tree of a course (modules, lessons, their word totals; docs/19 K3) is made of `stages` and `lessons`: whatever
  * path creates, renames, moves or deletes one of them (the admin panel's forms, an import, a console command) drops the tree
  * of the course after the commit. The words of a course are the other half, and every path that changes them ends in
- * `CoursePublisher::recount()`, which drops it as well. Registered in AppServiceProvider for {@see Stage} and {@see Lesson};
- * query-builder updates bypass model events and must go through Eloquent (or call `forgetCourseTree()` themselves).
+ * `CoursePublisher::recount()`, which drops it as well. Attached with `#[ObservedBy]` to {@see Stage}, {@see Lesson} and
+ * {@see Course}; query-builder updates bypass model events and must go through Eloquent (or call `forgetCourseTree()` themselves).
+ *
+ * The data version the tree is keyed with ({@see CourseCatalogService::courseTreeVersionKey()}) also keys the new-word frontier
+ * of every learner of the course (`App\Domain\Learning\Services\NewWordFrontier`), which depends on the course being AVAILABLE
+ * to them as well: a saved {@see Course} whose `status`, `visibility` or owner changed moves the version on too (the status
+ * change of `CoursePublisher::transition()` does it itself; twice is harmless). A course that is only renamed does not.
  *
  * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded, it is the module
  * asked about, and it has its `course_id` - a module selected without that column does not count), and with one primary-key lookup
@@ -22,10 +28,21 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseTreeObserver
 {
+    /** The columns of `courses` the availability rule reads (`Course::scopeAvailableTo()`, `CourseCatalogService::isAvailable()`). */
+    private const AVAILABILITY_COLUMNS = ['status', 'visibility', 'owner_type', 'owner_id'];
+
     public function __construct(private readonly CourseCatalogService $catalog) {}
 
-    public function saved(Stage|Lesson $model): void
+    public function saved(Stage|Lesson|Course $model): void
     {
+        if ($model instanceof Course) {
+            if ($model->wasChanged(self::AVAILABILITY_COLUMNS)) {
+                $this->forgetAfterCommit([(int) $model->getKey()]);
+            }
+
+            return;
+        }
+
         $courseIds = [$this->courseOf($model, original: false)];
 
         // Moved to another module / course: the tree it left changes too.
@@ -36,8 +53,13 @@ final class CourseTreeObserver
         $this->forgetAfterCommit($courseIds);
     }
 
-    public function deleted(Stage|Lesson $model): void
+    public function deleted(Stage|Lesson|Course $model): void
     {
+        // A deleted course has no readers left; its entries expire by their TTL.
+        if ($model instanceof Course) {
+            return;
+        }
+
         $this->forgetAfterCommit([$this->courseOf($model, original: false)]);
     }
 

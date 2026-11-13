@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Support;
 
 use App\Domain\Learning\Enums\DoneReason;
+use App\Domain\Learning\Services\NewWordFrontier;
 use App\Models\Course;
 use App\Models\TrainingSession;
 use App\Models\Word;
@@ -126,6 +127,32 @@ final readonly class TrainingScope
                 $word->where('lesson_id', $this->lessonId);
             }
         });
+    }
+
+    /**
+     * The course whose new words are walked in study order - the one a frontier hint ({@see NewWordFrontier})
+     * is kept for. Null for a lesson scope (one lesson: nothing to narrow) and for a daily scope without a course.
+     */
+    public function frontierCourseId(): ?int
+    {
+        return $this->isDaily() ? $this->courseId : null;
+    }
+
+    /**
+     * The course candidates of {@see newWordCandidates()} restricted to ONE lesson: the same statement (the course, its
+     * availability, `is_active`, the anti-join, the order, whatever the caller added - the quota subquery) plus
+     * `lessons.id = ?`. A copy; the full builder is left as it is.
+     *
+     * @param  Builder<Word>  $candidates
+     * @return Builder<Word>
+     */
+    public function narrowCandidatesToLesson(Builder $candidates, int $lessonId): Builder
+    {
+        if ($this->isLesson()) {
+            throw new LogicException('A lesson scope has nothing to narrow.');
+        }
+
+        return (clone $candidates)->where('lessons.id', $lessonId);
     }
 
     /**
