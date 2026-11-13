@@ -19,8 +19,8 @@
 - `b1-m01-l2-d2` uz "Bu hayot va o'lim masalasi": the set idiom is "hayot-mamot masalasi". I kept the card's word o'lim.
 - `b1-m02-l1-d3` uz "O'g'il jiyanim va qiz jiyanim biz bilan yashaydi": heavy, but follows the cards.
 - `b1-m02-l4-s1` uz "taksida borishni" (my change): confirm it is preferred to "taksi olishni".
-- `b1-m01-l5-s3` ru «Я восхищаюсь им за его упорный труд»: slightly bookish. Also decide whether "For his hard work I admire him" should count as a second order; I treated the phrase as a complement of admire.
-- `b1-m02-l1-s1` uz "Uning ota-onasi bilan o'zaro munosabati yaxshi": is "o'zaro" natural here? Also decide whether "With her parents she has a good relationship" should count as a second order.
+- `b1-m01-l5-s3` ru «Я восхищаюсь им за его упорный труд»: slightly bookish. Also decide whether "For his hard work I admire him" should count as a second order; I treated the phrase as a complement of admire. *(Решено после ревью: этот порядок добавлен в `accepted`.)*
+- `b1-m02-l1-s1` uz "Uning ota-onasi bilan o'zaro munosabati yaxshi": is "o'zaro" natural here? Also decide whether "With her parents she has a good relationship" should count as a second order. *(Решено после ревью: этот порядок добавлен в `accepted`.)*
 - `b1-m01-l3-s3` uz "Kutib turganingiz mulohazali ish bo'ldi" and `b1-m01-l3-s1` uz "otasi" against "otalari" for "their father".
 - `b1-m01-l4-d2` uz "qora" for "dark" hair (ru has «тёмные»).
 
@@ -49,7 +49,7 @@
 
 ## B1, модули 7–8 — `english-b1-p04.json`
 
-- b1-m07-l2-s2: "For students this job is not suitable" is grammatical as a contrastive fronting; not listed, following the brief's rule for complement phrases. Decide whether to add it to `accepted`.
+- b1-m07-l2-s2: "For students this job is not suitable" is grammatical as a contrastive fronting; not listed, following the brief's rule for complement phrases. Decide whether to add it to `accepted`. *(Решено после ревью: этот порядок добавлен в `accepted`.)*
 - b1-m08-l4-s2: "The store has all its prices reduced" is grammatical (causative or stative), but a different meaning; not listed.
 - b1-m07-l2-c3: "is passing an internship" - the most plausible distractor in the file (ru/uz calque); I judge it wrong in standard English.
 - b1-m08-l5-c3: "made of genuine skin" - not said of a jacket, though "genuine snakeskin" exists.
@@ -87,7 +87,7 @@
 - `b1-m13-l2-c2`: is "the spider's net" wrong enough as a distractor?
 - `b1-m13-l5-c3`: "This rare bird is now an endangered kind / sort" — unidiomatic rather than ungrammatical. A safer set would be species / view / tour (view is the calque of «вид», tour sounds like Uzbek «tur»).
 - `b1-m13-l3-s3` and `b1-m14-l2-s3`: are the fronted orders I added acceptable ("For swimming the waves were too high", "In space is there any air")?
-- I did not list a fronted place phrase for the other questions (`b1-m13-l3-s2` "On the horizon can you see that ship?", `b1-m14-l2-s2`, `b1-m13-l1-s1`). The brief treats a question as blocking this, and their prompts do not invite it.
+- I did not list a fronted place phrase for the other questions (`b1-m13-l3-s2` "On the horizon can you see that ship?", `b1-m14-l2-s2`, `b1-m13-l1-s1`). The brief treats a question as blocking this, and their prompts do not invite it. *(После ревью: для `b1-m14-l2-s2` порядок «In the universe are we alone» добавлен в `accepted`; два других задания — как было.)*
 - `b1-m14-l3-s2`: "To clean windows this liquid is used" is not listed; I judged it too stilted to count.
 - `b1-m13-l4-c1` uz: «Dovul … sohilga yopirildi» for "hit the coast".
 - `b1-m14-l3-c2` uz: «qabartma kukuni» for baking powder.
@@ -195,7 +195,7 @@
 
 - `b2-m12-l1-c2`: confirm "visit one tutorial a week" is an error for a participant (the «посещать» calque). I judged it wrong enough, but "visit a class" exists for an observer.
 - `b2-m11-l5-s3`: confirm the added order "That these letters are authentic nobody doubts" is acceptable.
-- `b2-m12-l3-s2`: "From her silence what did you infer" is not listed; I judged the fronted complement of `infer` too marked.
+- `b2-m12-l3-s2`: "From her silence what did you infer" is not listed; I judged the fronted complement of `infer` too marked. *(Решено после ревью: этот порядок добавлен в `accepted`.)*
 - `b2-m12-l4-s2`: the topicalized "The notion that money solves everything I reject" is not listed (ordinary object fronting, as in any SVO sentence).
 - `b2-m12-l3-c3` uz: «Mulohazalaringiz yo'nalishini tushuna olmayapman» for "line of reasoning" is understandable, but a native may prefer another noun.
 - `b2-m11-l2-c1` uz: «masalning qissadan hissasi» — I believe it is idiomatic; confirm.
