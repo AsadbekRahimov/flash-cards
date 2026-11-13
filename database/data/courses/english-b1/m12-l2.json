@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 12,
+    "title": "Спорт и активный отдых",
+    "title_uz": "Sport va faol dam olish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Соревнования",
+    "title_uz": "Musobaqalar"
+  },
+  "words": [
+    {
+      "word": "competition",
+      "part_of_speech": "noun",
+      "translation": "соревнование",
+      "translations": {
+        "ru": "соревнование",
+        "uz": "musobaqa"
+      },
+      "example": "Twenty schools took part in the competition.",
+      "example_translations": {
+        "ru": "В соревновании приняли участие двадцать школ.",
+        "uz": "Musobaqada yigirmata maktab ishtirok etdi."
+      }
+    },
+    {
+      "word": "tournament",
+      "part_of_speech": "noun",
+      "translation": "турнир",
+      "translations": {
+        "ru": "турнир",
+        "uz": "turnir"
+      },
+      "example": "Our team reached the final of the tournament.",
+      "example_translations": {
+        "ru": "Наша команда вышла в финал турнира.",
+        "uz": "Jamoamiz turnir finaliga chiqdi."
+      }
+    },
+    {
+      "word": "champion",
+      "part_of_speech": "noun",
+      "translation": "чемпион",
+      "translations": {
+        "ru": "чемпион",
+        "uz": "chempion"
+      },
+      "example": "He became the world champion at nineteen.",
+      "example_translations": {
+        "ru": "Он стал чемпионом мира в девятнадцать лет.",
+        "uz": "U o'n to'qqiz yoshida jahon chempioni bo'ldi."
+      }
+    },
+    {
+      "word": "opponent",
+      "part_of_speech": "noun",
+      "translation": "соперник",
+      "translations": {
+        "ru": "соперник",
+        "uz": "raqib"
+      },
+      "example": "Aziz shook hands with his opponent after the match.",
+      "example_translations": {
+        "ru": "После матча Азиз пожал руку своему сопернику.",
+        "uz": "O'yindan keyin Aziz raqibi bilan qo'l berib ko'rishdi."
+      }
+    },
+    {
+      "word": "referee",
+      "part_of_speech": "noun",
+      "translation": "спортивный судья",
+      "translations": {
+        "ru": "спортивный судья",
+        "uz": "hakam"
+      },
+      "example": "The referee stopped the game for a minute.",
+      "example_translations": {
+        "ru": "Судья остановил игру на минуту.",
+        "uz": "Hakam o'yinni bir daqiqaga to'xtatdi."
+      }
+    },
+    {
+      "word": "coach",
+      "part_of_speech": "noun",
+      "translation": "тренер",
+      "translations": {
+        "ru": "тренер",
+        "uz": "murabbiy"
+      },
+      "example": "Our coach makes us run before every game.",
+      "example_translations": {
+        "ru": "Наш тренер заставляет нас бегать перед каждой игрой.",
+        "uz": "Murabbiyimiz har bir o'yin oldidan bizni yugurtiradi."
+      }
+    },
+    {
+      "word": "medal",
+      "part_of_speech": "noun",
+      "translation": "медаль",
+      "translations": {
+        "ru": "медаль",
+        "uz": "medal"
+      },
+      "example": "Malika won a silver medal in swimming.",
+      "example_translations": {
+        "ru": "Малика выиграла серебряную медаль по плаванию.",
+        "uz": "Malika suzish bo'yicha kumush medal yutdi."
+      }
+    },
+    {
+      "word": "victory",
+      "part_of_speech": "noun",
+      "translation": "победа",
+      "translations": {
+        "ru": "победа",
+        "uz": "g'alaba"
+      },
+      "example": "The whole city celebrated the team's victory.",
+      "example_translations": {
+        "ru": "Весь город праздновал победу команды.",
+        "uz": "Butun shahar jamoaning g'alabasini nishonladi."
+      }
+    },
+    {
+      "word": "defeat",
+      "part_of_speech": "noun",
+      "translation": "поражение",
+      "translations": {
+        "ru": "поражение",
+        "uz": "mag'lubiyat"
+      },
+      "example": "After five wins, this was our first defeat.",
+      "example_translations": {
+        "ru": "После пяти побед это было наше первое поражение.",
+        "uz": "Beshta g'alabadan keyin bu birinchi mag'lubiyatimiz bo'ldi."
+      }
+    },
+    {
+      "word": "score",
+      "part_of_speech": "noun",
+      "translation": "счёт",
+      "translations": {
+        "ru": "счёт",
+        "uz": "hisob"
+      },
+      "example": "What was the score at the end of the game?",
+      "example_translations": {
+        "ru": "Какой был счёт в конце игры?",
+        "uz": "O'yin oxirida hisob qanday bo'ldi?"
+      }
+    }
+  ]
+}

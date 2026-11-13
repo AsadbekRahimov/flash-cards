@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 3,
+    "title": "Жильё и жизнь в городе",
+    "title_uz": "Uy-joy va shahar hayoti"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Улицы города",
+    "title_uz": "Shahar ko'chalari"
+  },
+  "words": [
+    {
+      "word": "sidewalk",
+      "part_of_speech": "noun",
+      "translation": "тротуар",
+      "translations": {
+        "ru": "тротуар",
+        "uz": "yo'lka"
+      },
+      "example": "Please walk on the sidewalk, not on the road.",
+      "example_translations": {
+        "ru": "Пожалуйста, идите по тротуару, а не по дороге.",
+        "uz": "Iltimos, yo'ldan emas, yo'lkadan yuring."
+      }
+    },
+    {
+      "word": "pedestrian",
+      "part_of_speech": "noun",
+      "translation": "пешеход",
+      "translations": {
+        "ru": "пешеход",
+        "uz": "piyoda"
+      },
+      "example": "Drivers must stop for every pedestrian here.",
+      "example_translations": {
+        "ru": "Здесь водители должны пропускать каждого пешехода.",
+        "uz": "Bu yerda haydovchilar har bir piyodaga yo'l berishi kerak."
+      }
+    },
+    {
+      "word": "intersection",
+      "part_of_speech": "noun",
+      "translation": "перекрёсток",
+      "translations": {
+        "ru": "перекрёсток",
+        "uz": "chorraha"
+      },
+      "example": "Turn left at the next intersection.",
+      "example_translations": {
+        "ru": "На следующем перекрёстке поверните налево.",
+        "uz": "Keyingi chorrahada chapga buriling."
+      }
+    },
+    {
+      "word": "playground",
+      "part_of_speech": "noun",
+      "translation": "детская площадка",
+      "translations": {
+        "ru": "детская площадка",
+        "uz": "bolalar maydonchasi"
+      },
+      "example": "Our son plays at the playground every evening.",
+      "example_translations": {
+        "ru": "Наш сын каждый вечер играет на детской площадке.",
+        "uz": "O'g'limiz har kuni kechqurun bolalar maydonchasida o'ynaydi."
+      }
+    },
+    {
+      "word": "fountain",
+      "part_of_speech": "noun",
+      "translation": "фонтан",
+      "translations": {
+        "ru": "фонтан",
+        "uz": "favvora"
+      },
+      "example": "In summer, people like to sit near the fountain.",
+      "example_translations": {
+        "ru": "Летом люди любят сидеть возле фонтана.",
+        "uz": "Yozda odamlar favvora yonida o'tirishni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "avenue",
+      "part_of_speech": "noun",
+      "translation": "проспект",
+      "translations": {
+        "ru": "проспект",
+        "uz": "shohko'cha"
+      },
+      "example": "This avenue is the widest street in our city.",
+      "example_translations": {
+        "ru": "Этот проспект — самая широкая улица в нашем городе.",
+        "uz": "Bu shohko'cha shahrimizdagi eng keng ko'chadir."
+      }
+    },
+    {
+      "word": "tunnel",
+      "part_of_speech": "noun",
+      "translation": "туннель",
+      "translations": {
+        "ru": "туннель",
+        "uz": "tunnel"
+      },
+      "example": "Cars go under the river through a tunnel.",
+      "example_translations": {
+        "ru": "Машины проезжают под рекой по туннелю.",
+        "uz": "Mashinalar daryo ostidan tunnel orqali o'tadi."
+      }
+    },
+    {
+      "word": "bench",
+      "part_of_speech": "noun",
+      "translation": "скамейка",
+      "translations": {
+        "ru": "скамейка",
+        "uz": "o'rindiq"
+      },
+      "example": "An old man was reading on a park bench.",
+      "example_translations": {
+        "ru": "Пожилой мужчина читал на скамейке в парке.",
+        "uz": "Bir keksa kishi parkdagi o'rindiqda kitob o'qib o'tirardi."
+      }
+    },
+    {
+      "word": "skyscraper",
+      "part_of_speech": "noun",
+      "translation": "небоскрёб",
+      "translations": {
+        "ru": "небоскрёб",
+        "uz": "osmono'par bino"
+      },
+      "example": "That skyscraper has more than eighty floors.",
+      "example_translations": {
+        "ru": "В том небоскрёбе больше восьмидесяти этажей.",
+        "uz": "O'sha osmono'par binoda saksondan ortiq qavat bor."
+      }
+    },
+    {
+      "word": "statue",
+      "part_of_speech": "noun",
+      "translation": "статуя",
+      "translations": {
+        "ru": "статуя",
+        "uz": "haykal"
+      },
+      "example": "A statue of a famous poet stands in the square.",
+      "example_translations": {
+        "ru": "На площади стоит статуя знаменитого поэта.",
+        "uz": "Maydonda mashhur shoirning haykali turibdi."
+      }
+    }
+  ]
+}

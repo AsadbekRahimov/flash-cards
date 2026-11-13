@@ -66,6 +66,16 @@ return [
             'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth',
             'eightieth', 'ninetieth', 'hundredth', 'thousandth', 'millionth', 'half'],
     ],
+    // How many words (of a whole course) the hub and the options of a battle look at to tell a mode has material: the counts of
+    // `available` of an available mode are "at least" this much (a shortage is always counted over every word). Far above the
+    // biggest `required` of a mode (battle: rounds x pairs_per_round = 20; solo: 3 words, 5 tasks), so a sample of fit words is ample.
+    'count_sample' => 300,
+    // How many words a session / a battle on a WHOLE course is built from when the learner has started (a battle: the course has) more:
+    // a sample of this size chosen by the seed of the snapshot, so opening costs the same at 300 and at 8000 words (no lesson, module or
+    // retry: those are small and read whole). It covers the biggest session many times over: pairs 5 rounds x 4 = 20 words (solo 3 x 4 = 12),
+    // a dictation 5 elements + 8 spares = 13, tasks read no words. A session the sample cannot build is built again from all the words.
+    // 0 = off.
+    'play_sample' => 300,
     'import' => ['max_bytes' => 2 * 1024 * 1024, 'max_items' => 300],
     // config/filesystems.php: root storage/app/practice-audio, no url - the files are served only by the audio endpoint (docs/16 §10.5).
     'audio' => ['disk' => 'practice_audio', 'dir' => ''],

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 9,
+    "title": "Право и безопасность",
+    "title_uz": "Huquq va xavfsizlik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "В суде",
+    "title_uz": "Sudda"
+  },
+  "words": [
+    {
+      "word": "jury",
+      "part_of_speech": "noun",
+      "translation": "присяжные",
+      "translations": {
+        "ru": "присяжные",
+        "uz": "hakamlar hay'ati"
+      },
+      "example": "Members of the jury listened carefully to both sides.",
+      "example_translations": {
+        "ru": "Присяжные внимательно выслушали обе стороны.",
+        "uz": "Hakamlar hay'ati a'zolari ikkala tomonni diqqat bilan tingladi."
+      }
+    },
+    {
+      "word": "courtroom",
+      "part_of_speech": "noun",
+      "translation": "зал суда",
+      "translations": {
+        "ru": "зал суда",
+        "uz": "sud zali"
+      },
+      "example": "Everyone stood up when the judge entered the courtroom.",
+      "example_translations": {
+        "ru": "Все встали, когда судья вошёл в зал суда.",
+        "uz": "Sudya sud zaliga kirganda hamma o'rnidan turdi."
+      }
+    },
+    {
+      "word": "verdict",
+      "part_of_speech": "noun",
+      "translation": "вердикт",
+      "translations": {
+        "ru": "вердикт",
+        "uz": "hukm, verdikt"
+      },
+      "example": "Has the jury reached a verdict yet?",
+      "example_translations": {
+        "ru": "Присяжные уже вынесли вердикт?",
+        "uz": "Hakamlar hay'ati hukm chiqarib bo'ldimi?"
+      }
+    },
+    {
+      "word": "attorney",
+      "part_of_speech": "noun",
+      "translation": "адвокат",
+      "translations": {
+        "ru": "адвокат",
+        "uz": "advokat"
+      },
+      "example": "Her attorney advised her not to sign anything.",
+      "example_translations": {
+        "ru": "Её адвокат посоветовал ей ничего не подписывать.",
+        "uz": "Advokati unga hech narsaga imzo qo'ymaslikni maslahat berdi."
+      }
+    },
+    {
+      "word": "defendant",
+      "part_of_speech": "noun",
+      "translation": "подсудимый",
+      "translations": {
+        "ru": "подсудимый",
+        "uz": "sudlanuvchi"
+      },
+      "example": "The defendant said he was not guilty.",
+      "example_translations": {
+        "ru": "Подсудимый заявил, что он невиновен.",
+        "uz": "Sudlanuvchi o'zining aybsiz ekanini aytdi."
+      }
+    },
+    {
+      "word": "oath",
+      "part_of_speech": "noun",
+      "translation": "клятва, присяга",
+      "translations": {
+        "ru": "клятва, присяга",
+        "uz": "qasam"
+      },
+      "example": "Each witness takes an oath to tell the truth.",
+      "example_translations": {
+        "ru": "Каждый свидетель даёт клятву говорить правду.",
+        "uz": "Har bir guvoh haqiqatni aytishga qasam ichadi."
+      }
+    },
+    {
+      "word": "testimony",
+      "part_of_speech": "noun",
+      "translation": "показания",
+      "translations": {
+        "ru": "показания",
+        "uz": "guvohlik, ko'rsatuv"
+      },
+      "example": "Her testimony helped the court understand the case.",
+      "example_translations": {
+        "ru": "Её показания помогли суду разобраться в деле.",
+        "uz": "Uning ko'rsatuvlari sudga ishni tushunishda yordam berdi."
+      }
+    },
+    {
+      "word": "prosecutor",
+      "part_of_speech": "noun",
+      "translation": "прокурор",
+      "translations": {
+        "ru": "прокурор",
+        "uz": "prokuror"
+      },
+      "example": "The prosecutor asked the witness several questions.",
+      "example_translations": {
+        "ru": "Прокурор задал свидетелю несколько вопросов.",
+        "uz": "Prokuror guvohga bir nechta savol berdi."
+      }
+    },
+    {
+      "word": "lawsuit",
+      "part_of_speech": "noun",
+      "translation": "иск",
+      "translations": {
+        "ru": "иск",
+        "uz": "da'vo"
+      },
+      "example": "Two customers filed a lawsuit against the store.",
+      "example_translations": {
+        "ru": "Два покупателя подали иск против магазина.",
+        "uz": "Ikki xaridor do'konga qarshi sudga da'vo kiritdi."
+      }
+    },
+    {
+      "word": "appeal",
+      "part_of_speech": "noun",
+      "translation": "апелляция",
+      "translations": {
+        "ru": "апелляция",
+        "uz": "apellyatsiya"
+      },
+      "example": "The court will hear his appeal next month.",
+      "example_translations": {
+        "ru": "Суд рассмотрит его апелляцию в следующем месяце.",
+        "uz": "Sud uning apellyatsiyasini kelasi oy ko'rib chiqadi."
+      }
+    }
+  ]
+}

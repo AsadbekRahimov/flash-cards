@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Administration\Services\PanelRequestMemo;
+use App\Domain\Analytics\Services\ProductEventBuffer;
 use App\Domain\Billing\Providers\Click\ClickSignature;
 use App\Domain\Billing\Providers\ClickProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
@@ -130,6 +131,10 @@ class AppServiceProvider extends ServiceProvider
         // each job and by Octane between requests (docs/20 F4, A11).
         $this->app->scoped(OrgRequestMemo::class);
         $this->app->scoped(PanelRequestMemo::class);
+
+        // The product events of an API request, written with one INSERT after the response: the state of one request, so
+        // scoped; the recorder and the middleware take it from the current container (ProductEventBuffer, docs/21 §2.2 №11-12, 13a).
+        $this->app->scoped(ProductEventBuffer::class);
 
         // The words whose cached translations an open transaction has changed are gathered by the observer and dropped with ONE call
         // after the commit (docs/19 K4). Eloquent makes the observer anew for every event, so the rows of an import share the state

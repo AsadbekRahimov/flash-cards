@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 11,
+    "title": "СМИ и развлечения",
+    "title_uz": "OAV va ko'ngilochar tadbirlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Пресса и новости",
+    "title_uz": "Matbuot va yangiliklar"
+  },
+  "words": [
+    {
+      "word": "media",
+      "part_of_speech": "noun",
+      "translation": "СМИ",
+      "translations": {
+        "ru": "СМИ",
+        "uz": "ommaviy axborot vositalari"
+      },
+      "example": "The media talked about the storm all week.",
+      "example_translations": {
+        "ru": "СМИ всю неделю говорили о шторме.",
+        "uz": "Ommaviy axborot vositalari butun hafta bo'ron haqida gapirdi."
+      }
+    },
+    {
+      "word": "fact",
+      "part_of_speech": "noun",
+      "translation": "факт",
+      "translations": {
+        "ru": "факт",
+        "uz": "fakt"
+      },
+      "example": "Is this a fact or just an opinion?",
+      "example_translations": {
+        "ru": "Это факт или просто мнение?",
+        "uz": "Bu faktmi yoki shunchaki fikrmi?"
+      }
+    },
+    {
+      "word": "editor",
+      "part_of_speech": "noun",
+      "translation": "редактор",
+      "translations": {
+        "ru": "редактор",
+        "uz": "muharrir"
+      },
+      "example": "The editor changed the title of my article.",
+      "example_translations": {
+        "ru": "Редактор изменил заголовок моей статьи.",
+        "uz": "Muharrir maqolamning sarlavhasini o'zgartirdi."
+      }
+    },
+    {
+      "word": "reporter",
+      "part_of_speech": "noun",
+      "translation": "репортёр",
+      "translations": {
+        "ru": "репортёр",
+        "uz": "muxbir"
+      },
+      "example": "A reporter is asking people about the new park.",
+      "example_translations": {
+        "ru": "Репортёр расспрашивает людей о новом парке.",
+        "uz": "Muxbir odamlardan yangi bog' haqida so'rayapti."
+      }
+    },
+    {
+      "word": "broadcast",
+      "part_of_speech": "verb",
+      "translation": "транслировать",
+      "translations": {
+        "ru": "транслировать",
+        "uz": "efirga uzatmoq"
+      },
+      "example": "This channel broadcasts the news every evening.",
+      "example_translations": {
+        "ru": "Этот канал транслирует новости каждый вечер.",
+        "uz": "Bu kanal yangiliklarni har oqshom efirga uzatadi."
+      }
+    },
+    {
+      "word": "publish",
+      "part_of_speech": "verb",
+      "translation": "публиковать",
+      "translations": {
+        "ru": "публиковать",
+        "uz": "nashr etmoq"
+      },
+      "example": "The newspaper published her letter on Monday.",
+      "example_translations": {
+        "ru": "Газета опубликовала её письмо в понедельник.",
+        "uz": "Gazeta uning xatini dushanba kuni nashr etdi."
+      }
+    },
+    {
+      "word": "source",
+      "part_of_speech": "noun",
+      "translation": "источник",
+      "translations": {
+        "ru": "источник",
+        "uz": "manba"
+      },
+      "example": "What is the source of this news?",
+      "example_translations": {
+        "ru": "Каков источник этой новости?",
+        "uz": "Bu yangilikning manbasi nima?"
+      }
+    },
+    {
+      "word": "rumor",
+      "part_of_speech": "noun",
+      "translation": "слух",
+      "translations": {
+        "ru": "слух",
+        "uz": "mish-mish"
+      },
+      "example": "It was only a rumor, not real news.",
+      "example_translations": {
+        "ru": "Это был всего лишь слух, а не настоящая новость.",
+        "uz": "Bu haqiqiy yangilik emas, shunchaki mish-mish edi."
+      }
+    },
+    {
+      "word": "event",
+      "part_of_speech": "noun",
+      "translation": "событие",
+      "translations": {
+        "ru": "событие",
+        "uz": "voqea"
+      },
+      "example": "The festival was the main event of the week.",
+      "example_translations": {
+        "ru": "Фестиваль стал главным событием недели.",
+        "uz": "Festival haftaning asosiy voqeasi bo'ldi."
+      }
+    },
+    {
+      "word": "viewer",
+      "part_of_speech": "noun",
+      "translation": "зритель",
+      "translations": {
+        "ru": "зритель",
+        "uz": "tomoshabin"
+      },
+      "example": "Millions of viewers watched the game on TV.",
+      "example_translations": {
+        "ru": "Миллионы зрителей смотрели игру по телевизору.",
+        "uz": "Millionlab tomoshabin o'yinni televizorda tomosha qildi."
+      }
+    }
+  ]
+}

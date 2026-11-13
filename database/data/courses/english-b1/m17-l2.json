@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 17,
+    "title": "Время, перемены и планы",
+    "title_uz": "Vaqt, o'zgarishlar va rejalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Наречия времени",
+    "title_uz": "Payt ravishlari"
+  },
+  "words": [
+    {
+      "word": "recently",
+      "part_of_speech": "adverb",
+      "translation": "недавно",
+      "translations": {
+        "ru": "недавно",
+        "uz": "yaqinda"
+      },
+      "example": "They recently moved to a new apartment.",
+      "example_translations": {
+        "ru": "Они недавно переехали в новую квартиру.",
+        "uz": "Ular yaqinda yangi kvartiraga ko'chib o'tishdi."
+      }
+    },
+    {
+      "word": "nowadays",
+      "part_of_speech": "adverb",
+      "translation": "в наше время",
+      "translations": {
+        "ru": "в наше время",
+        "uz": "hozirgi kunda"
+      },
+      "example": "Nowadays most people read the news online.",
+      "example_translations": {
+        "ru": "В наше время большинство людей читает новости в интернете.",
+        "uz": "Hozirgi kunda ko'pchilik yangiliklarni internetda o'qiydi."
+      }
+    },
+    {
+      "word": "immediately",
+      "part_of_speech": "adverb",
+      "translation": "немедленно, сразу",
+      "translations": {
+        "ru": "немедленно, сразу",
+        "uz": "darhol"
+      },
+      "example": "Please call me immediately if anything changes.",
+      "example_translations": {
+        "ru": "Пожалуйста, сразу позвоните мне, если что-нибудь изменится.",
+        "uz": "Biror narsa o'zgarsa, iltimos, menga darhol qo'ng'iroq qiling."
+      }
+    },
+    {
+      "word": "suddenly",
+      "part_of_speech": "adverb",
+      "translation": "внезапно, вдруг",
+      "translations": {
+        "ru": "внезапно, вдруг",
+        "uz": "to'satdan"
+      },
+      "example": "Suddenly the lights went out in the room.",
+      "example_translations": {
+        "ru": "Внезапно в комнате погас свет.",
+        "uz": "To'satdan xonada chiroq o'chib qoldi."
+      }
+    },
+    {
+      "word": "forever",
+      "part_of_speech": "adverb",
+      "translation": "навсегда",
+      "translations": {
+        "ru": "навсегда",
+        "uz": "bir umrga, abadiy"
+      },
+      "example": "I will remember this day forever.",
+      "example_translations": {
+        "ru": "Я запомню этот день навсегда.",
+        "uz": "Men bu kunni bir umrga eslab qolaman."
+      }
+    },
+    {
+      "word": "eventually",
+      "part_of_speech": "adverb",
+      "translation": "в конце концов",
+      "translations": {
+        "ru": "в конце концов",
+        "uz": "oxir-oqibat"
+      },
+      "example": "Eventually we found the way to the hotel.",
+      "example_translations": {
+        "ru": "В конце концов мы нашли дорогу к гостинице.",
+        "uz": "Oxir-oqibat biz mehmonxonaga boradigan yo'lni topdik."
+      }
+    },
+    {
+      "word": "afterwards",
+      "part_of_speech": "adverb",
+      "translation": "потом, после этого",
+      "translations": {
+        "ru": "потом, после этого",
+        "uz": "keyin, shundan so'ng"
+      },
+      "example": "They had dinner and went for a walk afterwards.",
+      "example_translations": {
+        "ru": "Они поужинали, а потом пошли гулять.",
+        "uz": "Ular kechki ovqatni yeyishdi, keyin esa sayrga chiqishdi."
+      }
+    },
+    {
+      "word": "frequently",
+      "part_of_speech": "adverb",
+      "translation": "часто",
+      "translations": {
+        "ru": "часто",
+        "uz": "tez-tez"
+      },
+      "example": "Buses run frequently during the day.",
+      "example_translations": {
+        "ru": "Днём автобусы ходят часто.",
+        "uz": "Kunduzi avtobuslar tez-tez qatnaydi."
+      }
+    },
+    {
+      "word": "occasionally",
+      "part_of_speech": "adverb",
+      "translation": "время от времени",
+      "translations": {
+        "ru": "время от времени",
+        "uz": "vaqti-vaqti bilan"
+      },
+      "example": "Malika occasionally visits her aunt in the village.",
+      "example_translations": {
+        "ru": "Малика время от времени навещает тётю в деревне.",
+        "uz": "Malika vaqti-vaqti bilan qishloqdagi xolasini ko'rgani boradi."
+      }
+    },
+    {
+      "word": "rarely",
+      "part_of_speech": "adverb",
+      "translation": "редко",
+      "translations": {
+        "ru": "редко",
+        "uz": "kamdan-kam"
+      },
+      "example": "It rarely snows here in winter.",
+      "example_translations": {
+        "ru": "Зимой здесь редко идёт снег.",
+        "uz": "Qishda bu yerda kamdan-kam qor yog'adi."
+      }
+    }
+  ]
+}

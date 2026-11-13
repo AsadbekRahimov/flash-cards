@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 17,
+    "title": "Время, перемены и планы",
+    "title_uz": "Vaqt, o'zgarishlar va rejalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Периоды времени",
+    "title_uz": "Vaqt davrlari"
+  },
+  "words": [
+    {
+      "word": "period",
+      "part_of_speech": "noun",
+      "translation": "период",
+      "translations": {
+        "ru": "период",
+        "uz": "davr"
+      },
+      "example": "That was a difficult period in his life.",
+      "example_translations": {
+        "ru": "Это был трудный период в его жизни.",
+        "uz": "Bu uning hayotidagi qiyin davr edi."
+      }
+    },
+    {
+      "word": "decade",
+      "part_of_speech": "noun",
+      "translation": "десятилетие",
+      "translations": {
+        "ru": "десятилетие",
+        "uz": "o'n yillik"
+      },
+      "example": "Our city has changed a lot in the last decade.",
+      "example_translations": {
+        "ru": "За последнее десятилетие наш город сильно изменился.",
+        "uz": "So'nggi o'n yillikda shahrimiz ancha o'zgardi."
+      }
+    },
+    {
+      "word": "century",
+      "part_of_speech": "noun",
+      "translation": "век, столетие",
+      "translations": {
+        "ru": "век, столетие",
+        "uz": "asr"
+      },
+      "example": "This bridge was built two centuries ago.",
+      "example_translations": {
+        "ru": "Этот мост построили два века назад.",
+        "uz": "Bu ko'prik ikki asr oldin qurilgan."
+      }
+    },
+    {
+      "word": "noon",
+      "part_of_speech": "noun",
+      "translation": "полдень",
+      "translations": {
+        "ru": "полдень",
+        "uz": "tush payti"
+      },
+      "example": "At noon the sun is high in the sky.",
+      "example_translations": {
+        "ru": "В полдень солнце стоит высоко в небе.",
+        "uz": "Tush paytida quyosh osmonda baland turadi."
+      }
+    },
+    {
+      "word": "ancient",
+      "part_of_speech": "adjective",
+      "translation": "древний",
+      "translations": {
+        "ru": "древний",
+        "uz": "qadimiy"
+      },
+      "example": "Samarkand is an ancient city with a long history.",
+      "example_translations": {
+        "ru": "Самарканд — древний город с долгой историей.",
+        "uz": "Samarqand — uzoq tarixga ega qadimiy shahar."
+      }
+    },
+    {
+      "word": "midnight",
+      "part_of_speech": "noun",
+      "translation": "полночь",
+      "translations": {
+        "ru": "полночь",
+        "uz": "yarim tun"
+      },
+      "example": "The last train leaves at midnight.",
+      "example_translations": {
+        "ru": "Последний поезд уходит в полночь.",
+        "uz": "Oxirgi poyezd yarim tunda jo'naydi."
+      }
+    },
+    {
+      "word": "weekday",
+      "part_of_speech": "noun",
+      "translation": "будний день",
+      "translations": {
+        "ru": "будний день",
+        "uz": "ish kuni"
+      },
+      "example": "On weekdays Aziz gets up at six.",
+      "example_translations": {
+        "ru": "В будние дни Азиз встаёт в шесть.",
+        "uz": "Ish kunlari Aziz soat oltida turadi."
+      }
+    },
+    {
+      "word": "sunset",
+      "part_of_speech": "noun",
+      "translation": "закат",
+      "translations": {
+        "ru": "закат",
+        "uz": "quyosh botishi"
+      },
+      "example": "We watched the sunset from the beach.",
+      "example_translations": {
+        "ru": "Мы смотрели на закат с пляжа.",
+        "uz": "Biz sohildan quyosh botishini tomosha qildik."
+      }
+    },
+    {
+      "word": "dawn",
+      "part_of_speech": "noun",
+      "translation": "рассвет",
+      "translations": {
+        "ru": "рассвет",
+        "uz": "tong otishi"
+      },
+      "example": "Farmers often start work at dawn.",
+      "example_translations": {
+        "ru": "Фермеры часто начинают работу на рассвете.",
+        "uz": "Dehqonlar ko'pincha tong otishi bilan ish boshlaydi."
+      }
+    },
+    {
+      "word": "anniversary",
+      "part_of_speech": "noun",
+      "translation": "годовщина",
+      "translations": {
+        "ru": "годовщина",
+        "uz": "yillik sana, yillik"
+      },
+      "example": "Today is my parents' wedding anniversary.",
+      "example_translations": {
+        "ru": "Сегодня годовщина свадьбы моих родителей.",
+        "uz": "Bugun ota-onam to'yining yilligi."
+      }
+    }
+  ]
+}

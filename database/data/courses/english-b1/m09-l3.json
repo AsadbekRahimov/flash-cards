@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 9,
+    "title": "Учёба и знания",
+    "title_uz": "O'qish va bilim"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Экзамены и оценки",
+    "title_uz": "Imtihonlar va baholar"
+  },
+  "words": [
+    {
+      "word": "quiz",
+      "part_of_speech": "noun",
+      "translation": "короткий тест",
+      "translations": {
+        "ru": "короткий тест",
+        "uz": "qisqa test"
+      },
+      "example": "We have a vocabulary quiz every Friday morning.",
+      "example_translations": {
+        "ru": "Каждую пятницу утром у нас короткий тест по лексике.",
+        "uz": "Har juma kuni ertalab bizda lug'at bo'yicha qisqa test bo'ladi."
+      }
+    },
+    {
+      "word": "preparation",
+      "part_of_speech": "noun",
+      "translation": "подготовка",
+      "translations": {
+        "ru": "подготовка",
+        "uz": "tayyorgarlik"
+      },
+      "example": "Good preparation helped her pass the exam.",
+      "example_translations": {
+        "ru": "Хорошая подготовка помогла ей сдать экзамен.",
+        "uz": "Yaxshi tayyorgarlik unga imtihondan o'tishga yordam berdi."
+      }
+    },
+    {
+      "word": "attempt",
+      "part_of_speech": "noun",
+      "translation": "попытка",
+      "translations": {
+        "ru": "попытка",
+        "uz": "urinish"
+      },
+      "example": "He passed the driving test on his second attempt.",
+      "example_translations": {
+        "ru": "Он сдал экзамен по вождению со второй попытки.",
+        "uz": "U haydovchilik imtihonidan ikkinchi urinishda o'tdi."
+      }
+    },
+    {
+      "word": "cheat",
+      "part_of_speech": "verb",
+      "translation": "списывать, жульничать",
+      "translations": {
+        "ru": "списывать, жульничать",
+        "uz": "ko'chirmoq, g'irromlik qilmoq"
+      },
+      "example": "Students who cheat on the exam get zero points.",
+      "example_translations": {
+        "ru": "Студенты, которые списывают на экзамене, получают ноль баллов.",
+        "uz": "Imtihonda ko'chirgan talabalar nol ball oladi."
+      }
+    },
+    {
+      "word": "correction",
+      "part_of_speech": "noun",
+      "translation": "исправление",
+      "translations": {
+        "ru": "исправление",
+        "uz": "tuzatish"
+      },
+      "example": "The teacher wrote her corrections in red pen.",
+      "example_translations": {
+        "ru": "Учительница написала свои исправления красной ручкой.",
+        "uz": "O'qituvchi o'z tuzatishlarini qizil ruchka bilan yozdi."
+      }
+    },
+    {
+      "word": "oral",
+      "part_of_speech": "adjective",
+      "translation": "устный",
+      "translations": {
+        "ru": "устный",
+        "uz": "og'zaki"
+      },
+      "example": "The oral exam lasts only ten minutes.",
+      "example_translations": {
+        "ru": "Устный экзамен длится всего десять минут.",
+        "uz": "Og'zaki imtihon atigi o'n daqiqa davom etadi."
+      }
+    },
+    {
+      "word": "error",
+      "part_of_speech": "noun",
+      "translation": "ошибка",
+      "translations": {
+        "ru": "ошибка",
+        "uz": "xato"
+      },
+      "example": "There is one spelling error in your essay.",
+      "example_translations": {
+        "ru": "В вашем сочинении одна орфографическая ошибка.",
+        "uz": "Inshoingizda bitta imlo xatosi bor."
+      }
+    },
+    {
+      "word": "progress",
+      "part_of_speech": "noun",
+      "translation": "прогресс, успехи",
+      "translations": {
+        "ru": "прогресс, успехи",
+        "uz": "olg'a siljish, yutuqlar"
+      },
+      "example": "Malika has made great progress in English this year.",
+      "example_translations": {
+        "ru": "В этом году Малика добилась больших успехов в английском.",
+        "uz": "Bu yil Malika ingliz tilida katta yutuqlarga erishdi."
+      }
+    },
+    {
+      "word": "accurate",
+      "part_of_speech": "adjective",
+      "translation": "точный",
+      "translations": {
+        "ru": "точный",
+        "uz": "aniq"
+      },
+      "example": "Your answer must be accurate and complete.",
+      "example_translations": {
+        "ru": "Ваш ответ должен быть точным и полным.",
+        "uz": "Javobingiz aniq va to'liq bo'lishi kerak."
+      }
+    },
+    {
+      "word": "strict",
+      "part_of_speech": "adjective",
+      "translation": "строгий",
+      "translations": {
+        "ru": "строгий",
+        "uz": "qattiqqo'l"
+      },
+      "example": "Our math teacher is strict but very fair.",
+      "example_translations": {
+        "ru": "Наш учитель математики строгий, но очень справедливый.",
+        "uz": "Matematika o'qituvchimiz qattiqqo'l, lekin juda adolatli."
+      }
+    }
+  ]
+}

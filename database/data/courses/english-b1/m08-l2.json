@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 8,
+    "title": "Деньги и покупки",
+    "title_uz": "Pul va xaridlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "В банке",
+    "title_uz": "Bankda"
+  },
+  "words": [
+    {
+      "word": "transfer",
+      "part_of_speech": "verb",
+      "translation": "переводить деньги",
+      "translations": {
+        "ru": "переводить деньги",
+        "uz": "pul o'tkazmoq"
+      },
+      "example": "Can I transfer money to another account online?",
+      "example_translations": {
+        "ru": "Могу ли я перевести деньги на другой счёт онлайн?",
+        "uz": "Onlayn tarzda boshqa hisob raqamiga pul o'tkaza olamanmi?"
+      }
+    },
+    {
+      "word": "payment",
+      "part_of_speech": "noun",
+      "translation": "платёж, оплата",
+      "translations": {
+        "ru": "платёж, оплата",
+        "uz": "to'lov"
+      },
+      "example": "Your payment will arrive in two days.",
+      "example_translations": {
+        "ru": "Ваш платёж поступит через два дня.",
+        "uz": "To'lovingiz ikki kundan keyin kelib tushadi."
+      }
+    },
+    {
+      "word": "fee",
+      "part_of_speech": "noun",
+      "translation": "комиссия, плата",
+      "translations": {
+        "ru": "комиссия, плата",
+        "uz": "xizmat haqi"
+      },
+      "example": "There is a small fee for each transfer.",
+      "example_translations": {
+        "ru": "За каждый перевод берётся небольшая комиссия.",
+        "uz": "Har bir pul o'tkazmasi uchun oz miqdorda xizmat haqi olinadi."
+      }
+    },
+    {
+      "word": "charge",
+      "part_of_speech": "verb",
+      "translation": "взимать, брать плату",
+      "translations": {
+        "ru": "взимать, брать плату",
+        "uz": "haq olmoq"
+      },
+      "example": "The bank charges two dollars for this service.",
+      "example_translations": {
+        "ru": "Банк взимает за эту услугу два доллара.",
+        "uz": "Bank bu xizmat uchun ikki dollar haq oladi."
+      }
+    },
+    {
+      "word": "banknote",
+      "part_of_speech": "noun",
+      "translation": "банкнота, купюра",
+      "translations": {
+        "ru": "банкнота, купюра",
+        "uz": "qog'oz pul, banknot"
+      },
+      "example": "She put the banknotes and coins into her wallet.",
+      "example_translations": {
+        "ru": "Она положила банкноты и монеты в кошелёк.",
+        "uz": "U qog'oz pullar va tangalarni hamyoniga soldi."
+      }
+    },
+    {
+      "word": "rate",
+      "part_of_speech": "noun",
+      "translation": "курс, ставка",
+      "translations": {
+        "ru": "курс, ставка",
+        "uz": "kurs, stavka"
+      },
+      "example": "What is the exchange rate for the dollar today?",
+      "example_translations": {
+        "ru": "Какой сегодня курс доллара?",
+        "uz": "Bugun dollar kursi qancha?"
+      }
+    },
+    {
+      "word": "percent",
+      "part_of_speech": "noun",
+      "translation": "процент",
+      "translations": {
+        "ru": "процент",
+        "uz": "foiz"
+      },
+      "example": "This bank pays six percent on your savings.",
+      "example_translations": {
+        "ru": "Этот банк начисляет шесть процентов на ваши сбережения.",
+        "uz": "Bu bank jamg'armangiz uchun olti foiz to'laydi."
+      }
+    },
+    {
+      "word": "secure",
+      "part_of_speech": "adjective",
+      "translation": "безопасный, надёжный",
+      "translations": {
+        "ru": "безопасный, надёжный",
+        "uz": "xavfsiz, ishonchli"
+      },
+      "example": "We use a secure system for online payments.",
+      "example_translations": {
+        "ru": "Мы используем безопасную систему для онлайн-платежей.",
+        "uz": "Biz onlayn to'lovlar uchun xavfsiz tizimdan foydalanamiz."
+      }
+    },
+    {
+      "word": "amount",
+      "part_of_speech": "noun",
+      "translation": "сумма, количество",
+      "translations": {
+        "ru": "сумма, количество",
+        "uz": "miqdor, summa"
+      },
+      "example": "Please enter the amount you want to withdraw.",
+      "example_translations": {
+        "ru": "Пожалуйста, введите сумму, которую хотите снять.",
+        "uz": "Iltimos, yechib olmoqchi bo'lgan pul miqdorini kiriting."
+      }
+    },
+    {
+      "word": "sum",
+      "part_of_speech": "noun",
+      "translation": "сумма",
+      "translations": {
+        "ru": "сумма",
+        "uz": "summa"
+      },
+      "example": "Five hundred dollars is a large sum for me.",
+      "example_translations": {
+        "ru": "Пятьсот долларов — большая сумма для меня.",
+        "uz": "Besh yuz dollar men uchun katta summa."
+      }
+    }
+  ]
+}

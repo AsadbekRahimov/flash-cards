@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 13,
+    "title": "Общество и глобальные проблемы",
+    "title_uz": "Jamiyat va global muammolar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Миграция и население",
+    "title_uz": "Migratsiya va aholi"
+  },
+  "words": [
+    {
+      "word": "migration",
+      "part_of_speech": "noun",
+      "translation": "миграция",
+      "translations": {
+        "ru": "миграция",
+        "uz": "migratsiya"
+      },
+      "example": "Migration from villages to cities continues every year.",
+      "example_translations": {
+        "ru": "Миграция из сёл в города продолжается каждый год.",
+        "uz": "Qishloqlardan shaharlarga migratsiya har yili davom etmoqda."
+      }
+    },
+    {
+      "word": "immigrant",
+      "part_of_speech": "noun",
+      "translation": "иммигрант",
+      "translations": {
+        "ru": "иммигрант",
+        "uz": "immigrant"
+      },
+      "example": "Her grandfather was an immigrant who opened a bakery.",
+      "example_translations": {
+        "ru": "Её дедушка был иммигрантом и открыл пекарню.",
+        "uz": "Uning bobosi immigrant bo'lib, novvoyxona ochgan."
+      }
+    },
+    {
+      "word": "emigrate",
+      "part_of_speech": "verb",
+      "translation": "эмигрировать",
+      "translations": {
+        "ru": "эмигрировать",
+        "uz": "chet elga ko'chib ketmoq"
+      },
+      "example": "His family emigrated when he was a child.",
+      "example_translations": {
+        "ru": "Его семья эмигрировала, когда он был ребёнком.",
+        "uz": "U bolaligida oilasi chet elga ko'chib ketgan."
+      }
+    },
+    {
+      "word": "refugee",
+      "part_of_speech": "noun",
+      "translation": "беженец",
+      "translations": {
+        "ru": "беженец",
+        "uz": "qochqin"
+      },
+      "example": "Volunteers gave food and blankets to the refugees.",
+      "example_translations": {
+        "ru": "Волонтёры раздали беженцам еду и одеяла.",
+        "uz": "Ko'ngillilar qochqinlarga oziq-ovqat va adyol tarqatishdi."
+      }
+    },
+    {
+      "word": "asylum",
+      "part_of_speech": "noun",
+      "translation": "убежище",
+      "translations": {
+        "ru": "убежище",
+        "uz": "boshpana"
+      },
+      "example": "The family asked for asylum in a safe country.",
+      "example_translations": {
+        "ru": "Семья попросила убежища в безопасной стране.",
+        "uz": "Oila xavfsiz mamlakatdan boshpana so'radi."
+      }
+    },
+    {
+      "word": "multicultural",
+      "part_of_speech": "adjective",
+      "translation": "мультикультурный",
+      "translations": {
+        "ru": "мультикультурный",
+        "uz": "ko'p madaniyatli"
+      },
+      "example": "We live in a multicultural city with many languages.",
+      "example_translations": {
+        "ru": "Мы живём в мультикультурном городе, где говорят на многих языках.",
+        "uz": "Biz ko'p tillarda so'zlashiladigan ko'p madaniyatli shaharda yashaymiz."
+      }
+    },
+    {
+      "word": "inhabitant",
+      "part_of_speech": "noun",
+      "translation": "житель",
+      "translations": {
+        "ru": "житель",
+        "uz": "yashovchi"
+      },
+      "example": "The island has only two hundred inhabitants.",
+      "example_translations": {
+        "ru": "На острове всего двести жителей.",
+        "uz": "Orolda bor-yo'g'i ikki yuz nafar yashovchi bor."
+      }
+    },
+    {
+      "word": "census",
+      "part_of_speech": "noun",
+      "translation": "перепись населения",
+      "translations": {
+        "ru": "перепись населения",
+        "uz": "aholini ro'yxatga olish"
+      },
+      "example": "The census counts every person in the country.",
+      "example_translations": {
+        "ru": "Перепись населения учитывает каждого человека в стране.",
+        "uz": "Aholini ro'yxatga olish mamlakatdagi har bir kishini hisobga oladi."
+      }
+    },
+    {
+      "word": "integrate",
+      "part_of_speech": "verb",
+      "translation": "интегрироваться",
+      "translations": {
+        "ru": "интегрироваться",
+        "uz": "integratsiyalashmoq"
+      },
+      "example": "Language classes help newcomers integrate into society.",
+      "example_translations": {
+        "ru": "Языковые курсы помогают приезжим интегрироваться в общество.",
+        "uz": "Til kurslari yangi kelganlarga jamiyatga integratsiyalashishda yordam beradi."
+      }
+    },
+    {
+      "word": "diversity",
+      "part_of_speech": "noun",
+      "translation": "разнообразие",
+      "translations": {
+        "ru": "разнообразие",
+        "uz": "xilma-xillik"
+      },
+      "example": "Cultural diversity makes this city interesting.",
+      "example_translations": {
+        "ru": "Культурное разнообразие делает этот город интересным.",
+        "uz": "Madaniy xilma-xillik bu shaharni qiziqarli qiladi."
+      }
+    }
+  ]
+}

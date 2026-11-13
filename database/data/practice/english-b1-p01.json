@@ -1,0 +1,2767 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m01-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "identity"
+      ],
+      "text": "The bank asked me to ___ my identity.",
+      "options": [
+        "prove",
+        "approve",
+        "improve"
+      ],
+      "correct": [
+        "prove"
+      ],
+      "translation": {
+        "ru": "В банке меня попросили подтвердить свою личность.",
+        "uz": "Bankda mendan shaxsimni tasdiqlashni so'rashdi."
+      },
+      "explanation": {
+        "ru": "prove your identity — подтвердить (доказать) свою личность. Approve — одобрять (план, просьбу), improve — улучшать: эти глаголы похожи на prove, но значат другое.",
+        "uz": "prove your identity — shaxsini tasdiqlamoq (isbotlamoq). Approve — ma'qullamoq (rejani, iltimosni), improve — yaxshilamoq: bu fe'llar prove ga o'xshaydi, lekin ma'nosi boshqa."
+      }
+    },
+    {
+      "key": "b1-m01-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "personal"
+      ],
+      "text": "I know from personal ___ how hard this exam is.",
+      "options": [
+        "experience",
+        "experiment",
+        "skill"
+      ],
+      "correct": [
+        "experience"
+      ],
+      "translation": {
+        "ru": "Я по личному опыту знаю, какой это трудный экзамен.",
+        "uz": "Bu imtihon qanchalik qiyinligini shaxsiy tajribamdan bilaman."
+      },
+      "explanation": {
+        "ru": "personal experience — личный опыт; know from personal experience — знать по личному опыту. Experiment — это научный опыт, эксперимент, а skill — умение, навык.",
+        "uz": "personal experience — shaxsiy tajriba; know from personal experience — shaxsiy tajribadan bilmoq. Experiment — ilmiy tajriba, eksperiment, skill esa — mahorat, ko'nikma."
+      }
+    },
+    {
+      "key": "b1-m01-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nickname"
+      ],
+      "text": "Everyone at school calls him ___ his nickname.",
+      "options": [
+        "by",
+        "with",
+        "through"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "В школе все зовут его по прозвищу.",
+        "uz": "Maktabda hamma uni laqabi bilan chaqiradi."
+      },
+      "explanation": {
+        "ru": "call somebody by a nickname — звать кого-то по прозвищу. Так же говорят: call somebody by name. Здесь нужен предлог by, а не with или through.",
+        "uz": "call somebody by a nickname — kimnidir laqabi bilan chaqirmoq. Xuddi shunday: call somebody by name. O'zbekcha «bilan» bu yerda with yoki through emas, by bo'ladi."
+      }
+    },
+    {
+      "key": "b1-m01-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "surname"
+      ],
+      "prompt": {
+        "ru": "Как пишется ваша фамилия?",
+        "uz": "Familiyangiz qanday yoziladi?"
+      },
+      "fragments": [
+        "how",
+        "do",
+        "you",
+        "spell",
+        "your",
+        "surname"
+      ],
+      "accepted": [
+        [
+          "how",
+          "do",
+          "you",
+          "spell",
+          "your",
+          "surname"
+        ]
+      ],
+      "display": "How do you spell your surname?",
+      "explanation": {
+        "ru": "How do you spell …? — так спрашивают, как слово или имя пишется по буквам. В вопросе нужен вспомогательный глагол do: How do you spell your surname?",
+        "uz": "How do you spell …? — so'z yoki ism harfma-harf qanday yozilishini shunday so'rashadi. Savolda do yordamchi fe'li kerak: How do you spell your surname?"
+      }
+    },
+    {
+      "key": "b1-m01-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "background"
+      ],
+      "prompt": {
+        "ru": "Никто не спрашивал меня о моём происхождении.",
+        "uz": "Hech kim mendan kelib chiqishim haqida so'ramadi."
+      },
+      "fragments": [
+        "nobody",
+        "asked",
+        "me",
+        "about",
+        "my",
+        "background"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "asked",
+          "me",
+          "about",
+          "my",
+          "background"
+        ]
+      ],
+      "display": "Nobody asked me about my background.",
+      "explanation": {
+        "ru": "ask somebody about something — спрашивать кого-то о чём-то. С nobody глагол стоит без not: nobody asked (а не nobody didn't ask).",
+        "uz": "ask somebody about something — kimdandir biror narsa haqida so'ramoq. Nobody bilan fe'lga not qo'shilmaydi: nobody asked (nobody didn't ask emas)."
+      }
+    },
+    {
+      "key": "b1-m01-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nationality"
+      ],
+      "prompt": {
+        "ru": "Какой национальности ваш учитель?",
+        "uz": "O'qituvchingizning millati nima?"
+      },
+      "fragments": [
+        "what",
+        "is",
+        "your",
+        "teacher's",
+        "nationality"
+      ],
+      "accepted": [
+        [
+          "what",
+          "is",
+          "your",
+          "teacher's",
+          "nationality"
+        ]
+      ],
+      "display": "What is your teacher's nationality?",
+      "explanation": {
+        "ru": "What is somebody's nationality? — вопрос о национальности. 's показывает принадлежность: your teacher's nationality — национальность вашего учителя.",
+        "uz": "What is somebody's nationality? — millat haqidagi savol. 's egalikni bildiradi: your teacher's nationality — o'qituvchingizning millati."
+      }
+    },
+    {
+      "key": "b1-m01-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "birthplace",
+        "occupation"
+      ],
+      "text": "Write your birthplace and occupation here",
+      "accepted": [
+        "Write your birthplace and occupation here"
+      ],
+      "translation": {
+        "ru": "Напишите здесь своё место рождения и профессию",
+        "uz": "Bu yerga tug'ilgan joyingiz va kasbingizni yozing"
+      },
+      "explanation": {
+        "ru": "birthplace пишется слитно: birth + place. В occupation две c и одна p: o-c-c-u-p-a-t-i-o-n.",
+        "uz": "birthplace qo'shib yoziladi: birth + place. Occupation so'zida ikkita c va bitta p bor: o-c-c-u-p-a-t-i-o-n."
+      }
+    },
+    {
+      "key": "b1-m01-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "signature"
+      ],
+      "text": "Is this your signature?",
+      "accepted": [
+        "Is this your signature?"
+      ],
+      "translation": {
+        "ru": "Это ваша подпись?",
+        "uz": "Bu sizning imzongizmi?"
+      },
+      "explanation": {
+        "ru": "signature образовано от sign: в sign буква g не читается, а в signature она произносится. На конце пишется -ture.",
+        "uz": "signature so'zi sign dan yasalgan: sign da g harfi o'qilmaydi, signature da esa talaffuz qilinadi. Oxiri -ture deb yoziladi."
+      }
+    },
+    {
+      "key": "b1-m01-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "gender"
+      ],
+      "text": "Gender is not important for this job",
+      "accepted": [
+        "Gender is not important for this job",
+        "Gender isn't important for this job"
+      ],
+      "translation": {
+        "ru": "Для этой работы пол не важен",
+        "uz": "Bu ish uchun jins muhim emas"
+      }
+    },
+    {
+      "key": "b1-m01-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "birth"
+      ],
+      "text": "My sister ___ birth to a baby girl last week.",
+      "options": [
+        "gave",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе моя сестра родила девочку.",
+        "uz": "O'tgan hafta opam qiz farzand ko'rdi."
+      },
+      "explanation": {
+        "ru": "give birth to — родить (буквально «дать рождение»). Это устойчивое выражение: с birth говорят give, а не make или do.",
+        "uz": "give birth to — tug'moq, dunyoga keltirmoq (so'zma-so'z «tug'ilish bermoq»). Bu turg'un birikma: birth bilan give ishlatiladi, make yoki do emas."
+      }
+    },
+    {
+      "key": "b1-m01-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "childhood"
+      ],
+      "text": "This old song brings back happy childhood ___.",
+      "options": [
+        "memories",
+        "reminders",
+        "souvenirs"
+      ],
+      "correct": [
+        "memories"
+      ],
+      "translation": {
+        "ru": "Эта старая песня навевает счастливые воспоминания о детстве.",
+        "uz": "Bu eski qo'shiq baxtli bolalik xotiralarini esga soladi."
+      },
+      "explanation": {
+        "ru": "childhood memories — воспоминания о детстве. Reminder — напоминание (записка, сигнал), souvenir — сувенир, вещь на память.",
+        "uz": "childhood memories — bolalik xotiralari. Reminder — eslatma (yozuv, signal), souvenir — esdalik sovg'asi, suvenir."
+      }
+    },
+    {
+      "key": "b1-m01-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "mature"
+      ],
+      "text": "Their daughter is very mature ___ her age.",
+      "options": [
+        "for",
+        "to",
+        "by"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Их дочь очень зрелая для своего возраста.",
+        "uz": "Ularning qizi o'z yoshiga nisbatan juda yetuk."
+      },
+      "explanation": {
+        "ru": "mature for her age — зрелая для своего возраста. В значении «для своих лет» говорят for: tall for his age, clever for her age.",
+        "uz": "mature for her age — o'z yoshiga nisbatan yetuk. «Yoshiga nisbatan» ma'nosida for ishlatiladi: tall for his age, clever for her age."
+      }
+    },
+    {
+      "key": "b1-m01-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "generation"
+      ],
+      "prompt": {
+        "ru": "У каждого поколения своя музыка.",
+        "uz": "Har bir avlodning o'z musiqasi bor."
+      },
+      "fragments": [
+        "every",
+        "generation",
+        "has",
+        "its",
+        "own",
+        "music"
+      ],
+      "accepted": [
+        [
+          "every",
+          "generation",
+          "has",
+          "its",
+          "own",
+          "music"
+        ]
+      ],
+      "display": "Every generation has its own music.",
+      "explanation": {
+        "ru": "После every существительное и глагол стоят в единственном числе: every generation has. Its own — «свой собственный».",
+        "uz": "every dan keyin ot ham, fe'l ham birlikda keladi: every generation has. Its own — «o'zining»."
+      }
+    },
+    {
+      "key": "b1-m01-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "teenager"
+      ],
+      "prompt": {
+        "ru": "Быть подростком нелегко.",
+        "uz": "O'smir bo'lish oson emas."
+      },
+      "fragments": [
+        "being",
+        "a",
+        "teenager",
+        "is",
+        "not",
+        "easy"
+      ],
+      "accepted": [
+        [
+          "being",
+          "a",
+          "teenager",
+          "is",
+          "not",
+          "easy"
+        ]
+      ],
+      "display": "Being a teenager is not easy.",
+      "explanation": {
+        "ru": "Глагол с -ing в начале предложения — подлежащее: Being a teenager — «быть подростком». После него глагол стоит в единственном числе: is.",
+        "uz": "Gap boshidagi -ing shaklidagi fe'l — ega: Being a teenager — «o'smir bo'lish». Undan keyin fe'l birlikda keladi: is."
+      }
+    },
+    {
+      "key": "b1-m01-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "elderly"
+      ],
+      "prompt": {
+        "ru": "Нам следует уважать пожилых людей.",
+        "uz": "Biz keksa odamlarni hurmat qilishimiz kerak."
+      },
+      "fragments": [
+        "we",
+        "should",
+        "respect",
+        "elderly",
+        "people"
+      ],
+      "accepted": [
+        [
+          "we",
+          "should",
+          "respect",
+          "elderly",
+          "people"
+        ]
+      ],
+      "display": "We should respect elderly people.",
+      "explanation": {
+        "ru": "После should глагол стоит без to: should respect. Elderly — вежливое слово о людях в возрасте: elderly people.",
+        "uz": "should dan keyin fe'l to so'zisiz keladi: should respect. Elderly — keksa odamlar haqida hurmat bilan aytiladigan so'z: elderly people."
+      }
+    },
+    {
+      "key": "b1-m01-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "youth"
+      ],
+      "text": "She was a dancer in her youth",
+      "accepted": [
+        "She was a dancer in her youth"
+      ],
+      "translation": {
+        "ru": "В молодости она была танцовщицей",
+        "uz": "U yoshligida raqqosa bo'lgan"
+      },
+      "explanation": {
+        "ru": "youth: звук «у» пишется двумя буквами ou, как в you, а на конце стоит th.",
+        "uz": "youth: «u» tovushi ikki harf bilan, ou deb yoziladi (you so'zidagi kabi), oxirida th keladi."
+      }
+    },
+    {
+      "key": "b1-m01-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "death"
+      ],
+      "text": "It is a matter of life and death",
+      "accepted": [
+        "It is a matter of life and death",
+        "It's a matter of life and death"
+      ],
+      "translation": {
+        "ru": "Это вопрос жизни и смерти",
+        "uz": "Bu hayot va o'lim masalasi"
+      },
+      "explanation": {
+        "ru": "death: краткий звук «е» пишется здесь через ea, как в dead и head.",
+        "uz": "death: qisqa «e» tovushi bu yerda ea bilan yoziladi (dead va head so'zlaridagi kabi)."
+      }
+    },
+    {
+      "key": "b1-m01-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "senior",
+        "adult"
+      ],
+      "text": "Seniors pay less than other adults",
+      "accepted": [
+        "Seniors pay less than other adults"
+      ],
+      "translation": {
+        "ru": "Пожилые люди платят меньше, чем остальные взрослые",
+        "uz": "Keksa kishilar boshqa katta yoshli odamlardan kamroq to'laydi"
+      }
+    },
+    {
+      "key": "b1-m01-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "confident"
+      ],
+      "text": "You should be more confident ___ yourself.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Вам следует быть увереннее в себе.",
+        "uz": "Siz o'zingizga ko'proq ishonishingiz kerak."
+      },
+      "explanation": {
+        "ru": "be confident in yourself — быть уверенным в себе. Как и в русском «в себе», здесь нужен предлог in, а не on или at.",
+        "uz": "be confident in yourself — o'ziga ishonmoq. Confident dan keyin bu yerda in keladi, on yoki at emas."
+      }
+    },
+    {
+      "key": "b1-m01-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "curious"
+      ],
+      "text": "Small children are curious ___ everything around them.",
+      "options": [
+        "about",
+        "for",
+        "on"
+      ],
+      "correct": [
+        "about"
+      ],
+      "translation": {
+        "ru": "Маленьким детям любопытно всё, что их окружает.",
+        "uz": "Kichkina bolalar atrofidagi hamma narsaga qiziqadi."
+      },
+      "explanation": {
+        "ru": "be curious about something — проявлять любопытство, интерес к чему-то. После curious ставится about, а не for или on.",
+        "uz": "be curious about something — biror narsaga qiziqmoq. Curious dan keyin about keladi, for yoki on emas."
+      }
+    },
+    {
+      "key": "b1-m01-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "reliable"
+      ],
+      "text": "This website is a reliable ___ of information.",
+      "options": [
+        "source",
+        "spring",
+        "root"
+      ],
+      "correct": [
+        "source"
+      ],
+      "translation": {
+        "ru": "Этот сайт — надёжный источник информации.",
+        "uz": "Bu sayt — ishonchli axborot manbai."
+      },
+      "explanation": {
+        "ru": "a reliable source of information — надёжный источник информации. Spring — это источник воды, родник, а root — корень.",
+        "uz": "a reliable source of information — ishonchli axborot manbai. Spring — suv manbai, buloq, root esa — ildiz."
+      }
+    },
+    {
+      "key": "b1-m01-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "stubborn"
+      ],
+      "prompt": {
+        "ru": "Они такие же упрямые, как их отец.",
+        "uz": "Ular xuddi otasi kabi qaysar."
+      },
+      "fragments": [
+        "they",
+        "are",
+        "as",
+        "stubborn",
+        "as",
+        "their",
+        "father"
+      ],
+      "accepted": [
+        [
+          "they",
+          "are",
+          "as",
+          "stubborn",
+          "as",
+          "their",
+          "father"
+        ]
+      ],
+      "display": "They are as stubborn as their father.",
+      "explanation": {
+        "ru": "as + прилагательное + as — такой же …, как: as stubborn as their father. Прилагательное стоит между двумя as.",
+        "uz": "as + sifat + as — xuddi … kabi: as stubborn as their father. Sifat ikkita as ning orasida turadi."
+      }
+    },
+    {
+      "key": "b1-m01-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "ambitious"
+      ],
+      "prompt": {
+        "ru": "Мне нравится работать с целеустремлёнными людьми.",
+        "uz": "Menga maqsadga intiluvchan odamlar bilan ishlash yoqadi."
+      },
+      "fragments": [
+        "I",
+        "like",
+        "working",
+        "with",
+        "ambitious",
+        "people"
+      ],
+      "accepted": [
+        [
+          "I",
+          "like",
+          "working",
+          "with",
+          "ambitious",
+          "people"
+        ]
+      ],
+      "display": "I like working with ambitious people.",
+      "explanation": {
+        "ru": "like + глагол с -ing — нравится что-то делать: I like working. Прилагательное стоит перед существительным: ambitious people.",
+        "uz": "like + -ing shaklidagi fe'l — biror ish qilish yoqadi: I like working. Sifat otdan oldin turadi: ambitious people."
+      }
+    },
+    {
+      "key": "b1-m01-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "sensible"
+      ],
+      "prompt": {
+        "ru": "С вашей стороны было благоразумно подождать.",
+        "uz": "Kutib turganingiz mulohazali ish bo'ldi."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "sensible",
+        "of",
+        "you",
+        "to",
+        "wait"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "sensible",
+          "of",
+          "you",
+          "to",
+          "wait"
+        ]
+      ],
+      "display": "It was sensible of you to wait.",
+      "explanation": {
+        "ru": "It was sensible of you to … — с вашей стороны было благоразумно … После прилагательного, которое оценивает поступок, стоит of + человек: kind of you, sensible of you.",
+        "uz": "It was sensible of you to … — … qilganingiz mulohazali ish bo'ldi. Ishga baho beruvchi sifatdan keyin of + shaxs keladi: kind of you, sensible of you."
+      }
+    },
+    {
+      "key": "b1-m01-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "selfish"
+      ],
+      "text": "Selfish people think only about themselves",
+      "accepted": [
+        "Selfish people think only about themselves"
+      ],
+      "translation": {
+        "ru": "Эгоистичные люди думают только о себе",
+        "uz": "Xudbin odamlar faqat o'zini o'ylaydi"
+      }
+    },
+    {
+      "key": "b1-m01-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "modest"
+      ],
+      "text": "Great people are often modest",
+      "accepted": [
+        "Great people are often modest"
+      ],
+      "translation": {
+        "ru": "Великие люди часто скромны",
+        "uz": "Buyuk insonlar ko'pincha kamtar bo'ladi"
+      }
+    },
+    {
+      "key": "b1-m01-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "cheerful",
+        "talkative"
+      ],
+      "text": "The new girl is cheerful and talkative",
+      "accepted": [
+        "The new girl is cheerful and talkative"
+      ],
+      "translation": {
+        "ru": "Новая девочка жизнерадостная и разговорчивая",
+        "uz": "Yangi qiz quvnoq va sergap"
+      },
+      "explanation": {
+        "ru": "cheerful: на конце одна l (как в useful, careful). В talkative буква l не читается: talk + ative.",
+        "uz": "cheerful: oxirida bitta l yoziladi (useful, careful kabi). Talkative so'zida l harfi o'qilmaydi: talk + ative."
+      }
+    },
+    {
+      "key": "b1-m01-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "beard"
+      ],
+      "text": "My brother wants to ___ a beard this winter.",
+      "options": [
+        "grow",
+        "put",
+        "increase"
+      ],
+      "correct": [
+        "grow"
+      ],
+      "translation": {
+        "ru": "Этой зимой мой брат хочет отрастить бороду.",
+        "uz": "Akam bu qishda soqol qo'ymoqchi."
+      },
+      "explanation": {
+        "ru": "grow a beard — отрастить, отпустить бороду. Так же говорят о волосах: grow your hair. Put с beard не сочетается, а increase говорят о числе или количестве.",
+        "uz": "grow a beard — soqol qo'ymoq, soqol o'stirmoq. O'zbekcha «qo'ymoq» bu yerda put emas, grow bo'ladi; increase esa son yoki miqdor haqida aytiladi."
+      }
+    },
+    {
+      "key": "b1-m01-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "bald"
+      ],
+      "text": "My uncle started to ___ bald when he was young.",
+      "options": [
+        "go",
+        "come",
+        "make"
+      ],
+      "correct": [
+        "go"
+      ],
+      "translation": {
+        "ru": "Мой дядя начал лысеть ещё в молодости.",
+        "uz": "Amakim yoshligidayoq tepakal bo'la boshlagan."
+      },
+      "explanation": {
+        "ru": "go bald — лысеть. Глагол go часто означает переход в новое состояние: go bald, go gray. С bald говорят go, а не come или make.",
+        "uz": "go bald — tepakal bo'lmoq, sochi to'kilmoq. Go fe'li ko'pincha yangi holatga o'tishni bildiradi: go bald, go gray. Bald bilan come yoki make ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m01-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "appearance"
+      ],
+      "text": "The brothers are very similar ___ appearance.",
+      "options": [
+        "in",
+        "by",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Братья очень похожи внешне.",
+        "uz": "Aka-ukalar tashqi ko'rinishidan juda o'xshash."
+      },
+      "explanation": {
+        "ru": "similar in appearance — похожи внешне. In appearance — «по внешности, на вид»; by или on здесь не употребляются.",
+        "uz": "similar in appearance — tashqi ko'rinishidan o'xshash. In appearance — «tashqi ko'rinishiga ko'ra»; by yoki on bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m01-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "pale"
+      ],
+      "prompt": {
+        "ru": "Почему она побледнела?",
+        "uz": "Nega u oqarib ketdi?"
+      },
+      "fragments": [
+        "why",
+        "did",
+        "she",
+        "turn",
+        "pale"
+      ],
+      "accepted": [
+        [
+          "why",
+          "did",
+          "she",
+          "turn",
+          "pale"
+        ]
+      ],
+      "display": "Why did she turn pale?",
+      "explanation": {
+        "ru": "turn pale — побледнеть: turn + прилагательное означает «становиться каким-то». В вопросе о прошлом после did глагол стоит в начальной форме: did she turn.",
+        "uz": "turn pale — rangpar bo'lib qolmoq, oqarib ketmoq: turn + sifat «qandaydir bo'lib qolmoq» degani. O'tgan zamon haqidagi savolda did dan keyin fe'l asosiy shaklda keladi: did she turn."
+      }
+    },
+    {
+      "key": "b1-m01-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "elegant"
+      ],
+      "prompt": {
+        "ru": "Элегантная одежда не всегда дорогая.",
+        "uz": "Nafis kiyim har doim ham qimmat bo'lavermaydi."
+      },
+      "fragments": [
+        "elegant",
+        "clothes",
+        "are",
+        "not",
+        "always",
+        "expensive"
+      ],
+      "accepted": [
+        [
+          "elegant",
+          "clothes",
+          "are",
+          "not",
+          "always",
+          "expensive"
+        ]
+      ],
+      "display": "Elegant clothes are not always expensive.",
+      "explanation": {
+        "ru": "not always — «не всегда»: сначала not, потом always, и оба слова стоят после are. Clothes — всегда множественное число, поэтому are.",
+        "uz": "not always — «har doim ham emas»: avval not, keyin always, ikkalasi ham are dan keyin turadi. Clothes doim ko'plikda bo'ladi, shuning uchun are."
+      }
+    },
+    {
+      "key": "b1-m01-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "attractive"
+      ],
+      "prompt": {
+        "ru": "Все находят её очень привлекательной.",
+        "uz": "Hamma uni juda jozibali deb biladi."
+      },
+      "fragments": [
+        "everyone",
+        "finds",
+        "her",
+        "very",
+        "attractive"
+      ],
+      "accepted": [
+        [
+          "everyone",
+          "finds",
+          "her",
+          "very",
+          "attractive"
+        ]
+      ],
+      "display": "Everyone finds her very attractive.",
+      "explanation": {
+        "ru": "find somebody + прилагательное — находить, считать кого-то каким-то. После everyone глагол стоит в единственном числе: everyone finds.",
+        "uz": "find somebody + sifat — kimnidir qandaydir deb bilmoq. Everyone dan keyin fe'l birlikda keladi: everyone finds."
+      }
+    },
+    {
+      "key": "b1-m01-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "height"
+      ],
+      "text": "What is your height?",
+      "accepted": [
+        "What is your height?",
+        "What's your height?"
+      ],
+      "translation": {
+        "ru": "Какой у вас рост?",
+        "uz": "Bo'yingiz qancha?"
+      },
+      "explanation": {
+        "ru": "height: звук «ай» пишется через ei, а буквы gh не читаются: h-e-i-g-h-t.",
+        "uz": "height: «ay» tovushi ei bilan yoziladi, gh harflari esa o'qilmaydi: h-e-i-g-h-t."
+      }
+    },
+    {
+      "key": "b1-m01-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "handsome",
+        "curly"
+      ],
+      "text": "The handsome actor has dark curly hair",
+      "accepted": [
+        "The handsome actor has dark curly hair"
+      ],
+      "translation": {
+        "ru": "У красивого актёра тёмные кудрявые волосы",
+        "uz": "Kelishgan aktyorning sochi qora va jingalak"
+      },
+      "explanation": {
+        "ru": "handsome: hand + some; буква d в середине не произносится, но пишется.",
+        "uz": "handsome: hand + some; o'rtadagi d harfi talaffuz qilinmaydi, lekin yoziladi."
+      }
+    },
+    {
+      "key": "b1-m01-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "slim"
+      ],
+      "text": "She is slim because she swims a lot",
+      "accepted": [
+        "She is slim because she swims a lot",
+        "She's slim because she swims a lot"
+      ],
+      "translation": {
+        "ru": "Она стройная, потому что много плавает",
+        "uz": "U ko'p suzgani uchun xipcha"
+      }
+    },
+    {
+      "key": "b1-m01-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "goal"
+      ],
+      "text": "You should ___ a clear goal for this year.",
+      "options": [
+        "set",
+        "put",
+        "place"
+      ],
+      "correct": [
+        "set"
+      ],
+      "translation": {
+        "ru": "Вам следует поставить чёткую цель на этот год.",
+        "uz": "Bu yil uchun aniq maqsad qo'yishingiz kerak."
+      },
+      "explanation": {
+        "ru": "set a goal — поставить цель. По-русски цель «ставят», но по-английски говорят set a goal, а не put или place a goal.",
+        "uz": "set a goal — maqsad qo'ymoq. O'zbekchada maqsad «qo'yiladi», lekin inglizchada put yoki place emas, set a goal deyiladi."
+      }
+    },
+    {
+      "key": "b1-m01-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "success"
+      ],
+      "text": "We all ___ you success in your new job.",
+      "options": [
+        "wish",
+        "hope",
+        "want"
+      ],
+      "correct": [
+        "wish"
+      ],
+      "translation": {
+        "ru": "Мы все желаем вам успеха на новой работе.",
+        "uz": "Barchamiz sizga yangi ishingizda muvaffaqiyat tilaymiz."
+      },
+      "explanation": {
+        "ru": "wish somebody success — желать кому-то успеха. После hope и want нельзя поставить два дополнения (you + success); с hope говорят: I hope you succeed.",
+        "uz": "wish somebody success — kimgadir muvaffaqiyat tilamoq. Hope va want fe'llaridan keyin ikkita to'ldiruvchi (you + success) kelmaydi; hope bilan: I hope you succeed."
+      }
+    },
+    {
+      "key": "b1-m01-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "talent"
+      ],
+      "text": "My little brother has a natural talent ___ drawing.",
+      "options": [
+        "for",
+        "to",
+        "on"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "У моего младшего брата природный талант к рисованию.",
+        "uz": "Ukamda rasm chizishga tug'ma iste'dod bor."
+      },
+      "explanation": {
+        "ru": "a talent for something — талант к чему-то. Русское «к» здесь переводится for, а не to: a talent for music, a talent for languages.",
+        "uz": "a talent for something — biror narsaga iste'dod. O'zbekcha «-ga» bu yerda to emas, for bo'ladi: a talent for music, a talent for languages."
+      }
+    },
+    {
+      "key": "b1-m01-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "challenge"
+      ],
+      "prompt": {
+        "ru": "Я готов к новому испытанию.",
+        "uz": "Men yangi sinovga tayyorman."
+      },
+      "fragments": [
+        "I",
+        "am",
+        "ready",
+        "for",
+        "a",
+        "new",
+        "challenge"
+      ],
+      "accepted": [
+        [
+          "I",
+          "am",
+          "ready",
+          "for",
+          "a",
+          "new",
+          "challenge"
+        ]
+      ],
+      "display": "I am ready for a new challenge.",
+      "explanation": {
+        "ru": "be ready for something — быть готовым к чему-то. A new challenge — новое испытание, новая трудная задача.",
+        "uz": "be ready for something — biror narsaga tayyor bo'lmoq. A new challenge — yangi sinov, yangi qiyin vazifa."
+      }
+    },
+    {
+      "key": "b1-m01-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "inspire"
+      ],
+      "prompt": {
+        "ru": "Хорошие учителя вдохновляют своих учеников учиться.",
+        "uz": "Yaxshi o'qituvchilar o'quvchilarini o'qishga ilhomlantiradi."
+      },
+      "fragments": [
+        "good",
+        "teachers",
+        "inspire",
+        "their",
+        "students",
+        "to",
+        "learn"
+      ],
+      "accepted": [
+        [
+          "good",
+          "teachers",
+          "inspire",
+          "their",
+          "students",
+          "to",
+          "learn"
+        ]
+      ],
+      "display": "Good teachers inspire their students to learn.",
+      "explanation": {
+        "ru": "inspire somebody to do something — вдохновлять кого-то что-то делать: сначала кого (their students), потом to + глагол.",
+        "uz": "inspire somebody to do something — kimnidir biror ish qilishga ilhomlantirmoq: avval kimni (their students), keyin to + fe'l."
+      }
+    },
+    {
+      "key": "b1-m01-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "admire"
+      ],
+      "prompt": {
+        "ru": "Я восхищаюсь им за его упорный труд.",
+        "uz": "Men unga tinimsiz mehnati uchun qoyil qolaman."
+      },
+      "fragments": [
+        "I",
+        "admire",
+        "him",
+        "for",
+        "his",
+        "hard",
+        "work"
+      ],
+      "accepted": [
+        [
+          "I",
+          "admire",
+          "him",
+          "for",
+          "his",
+          "hard",
+          "work"
+        ],
+        [
+          "for",
+          "his",
+          "hard",
+          "work",
+          "I",
+          "admire",
+          "him"
+        ]
+      ],
+      "display": "I admire him for his hard work.",
+      "explanation": {
+        "ru": "admire somebody for something — восхищаться кем-то за что-то. После admire предлог не нужен: admire him (а не admire to him).",
+        "uz": "admire somebody for something — kimgadir biror narsasi uchun qoyil qolmoq. Admire dan keyin predlog qo'yilmaydi: admire him (admire to him emas)."
+      }
+    },
+    {
+      "key": "b1-m01-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "biography",
+        "hero"
+      ],
+      "text": "This is the biography of a real hero",
+      "accepted": [
+        "This is the biography of a real hero"
+      ],
+      "translation": {
+        "ru": "Это биография настоящего героя",
+        "uz": "Bu haqiqiy qahramonning tarjimayi holi"
+      },
+      "explanation": {
+        "ru": "biography: звук «ф» пишется двумя буквами ph — b-i-o-g-r-a-p-h-y.",
+        "uz": "biography: «f» tovushi ikki harf bilan, ph deb yoziladi — b-i-o-g-r-a-p-h-y."
+      }
+    },
+    {
+      "key": "b1-m01-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "ability"
+      ],
+      "text": "You must believe in your abilities",
+      "accepted": [
+        "You must believe in your abilities"
+      ],
+      "translation": {
+        "ru": "Вы должны верить в свои способности",
+        "uz": "Siz o'z qobiliyatlaringizga ishonishingiz kerak"
+      },
+      "explanation": {
+        "ru": "Во множественном числе y меняется на ies: ability — abilities.",
+        "uz": "Ko'plikda y harfi ies ga o'zgaradi: ability — abilities."
+      }
+    },
+    {
+      "key": "b1-m01-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "award"
+      ],
+      "text": "Who will get the award this year?",
+      "accepted": [
+        "Who will get the award this year?",
+        "Who'll get the award this year?"
+      ],
+      "translation": {
+        "ru": "Кто получит награду в этом году?",
+        "uz": "Bu yil mukofotni kim oladi?"
+      }
+    },
+    {
+      "key": "b1-m02-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "relative"
+      ],
+      "text": "During the holidays we often ___ our relatives in the village.",
+      "options": [
+        "visit",
+        "attend",
+        "enter"
+      ],
+      "correct": [
+        "visit"
+      ],
+      "translation": {
+        "ru": "Во время праздников мы часто навещаем родственников в деревне.",
+        "uz": "Bayram kunlari biz ko'pincha qishloqdagi qarindoshlarimizni ko'rgani boramiz."
+      },
+      "explanation": {
+        "ru": "visit relatives — навещать родственников. Attend — посещать занятия, собрания (attend a lesson), enter — входить куда-то; о людях говорят visit.",
+        "uz": "visit relatives — qarindoshlarni ko'rgani bormoq. Attend — darsda, yig'ilishda qatnashmoq (attend a lesson), enter — biror joyga kirmoq; odamlar haqida visit deyiladi."
+      }
+    },
+    {
+      "key": "b1-m02-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "engaged"
+      ],
+      "text": "My sister got engaged ___ a young doctor last spring.",
+      "options": [
+        "to",
+        "with",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Прошлой весной моя сестра помолвилась с молодым врачом.",
+        "uz": "O'tgan bahorda opam yosh shifokorga unashtirildi."
+      },
+      "explanation": {
+        "ru": "be / get engaged to somebody — быть помолвленным, помолвиться с кем-то. Русское «с» здесь — to, а не with: She is engaged to a doctor.",
+        "uz": "be / get engaged to somebody — kimgadir unashtirilmoq. O'zbekcha «-ga» kabi bu yerda to ishlatiladi, with yoki on emas: She is engaged to a doctor."
+      }
+    },
+    {
+      "key": "b1-m02-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "divorce"
+      ],
+      "text": "They were unhappy together and decided to ___ a divorce.",
+      "options": [
+        "get",
+        "take",
+        "make"
+      ],
+      "correct": [
+        "get"
+      ],
+      "translation": {
+        "ru": "Они были несчастливы вместе и решили оформить развод.",
+        "uz": "Ular birga baxtli emas edi va ajrashishga qaror qilishdi."
+      },
+      "explanation": {
+        "ru": "get a divorce — получить развод, развестись. С divorce говорят get, а не take или make.",
+        "uz": "get a divorce — ajrashmoq, ajrashishni rasmiylashtirmoq. Divorce bilan get ishlatiladi, take yoki make emas."
+      }
+    },
+    {
+      "key": "b1-m02-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "relationship"
+      ],
+      "prompt": {
+        "ru": "У неё хорошие отношения с родителями.",
+        "uz": "Uning ota-onasi bilan o'zaro munosabati yaxshi."
+      },
+      "fragments": [
+        "she",
+        "has",
+        "a",
+        "good",
+        "relationship",
+        "with",
+        "her",
+        "parents"
+      ],
+      "accepted": [
+        [
+          "she",
+          "has",
+          "a",
+          "good",
+          "relationship",
+          "with",
+          "her",
+          "parents"
+        ],
+        [
+          "with",
+          "her",
+          "parents",
+          "she",
+          "has",
+          "a",
+          "good",
+          "relationship"
+        ]
+      ],
+      "display": "She has a good relationship with her parents.",
+      "explanation": {
+        "ru": "a relationship with somebody — отношения с кем-то. В этом значении relationship исчисляемое, поэтому нужен артикль: a good relationship.",
+        "uz": "a relationship with somebody — kim bilandir o'zaro munosabat. Bu ma'noda relationship sanaladigan ot, shuning uchun artikl kerak: a good relationship."
+      }
+    },
+    {
+      "key": "b1-m02-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "couple"
+      ],
+      "prompt": {
+        "ru": "Молодая пара переедет в другой город.",
+        "uz": "Yosh juftlik boshqa shaharga ko'chib o'tadi."
+      },
+      "fragments": [
+        "the",
+        "young",
+        "couple",
+        "will",
+        "move",
+        "to",
+        "another",
+        "city"
+      ],
+      "accepted": [
+        [
+          "the",
+          "young",
+          "couple",
+          "will",
+          "move",
+          "to",
+          "another",
+          "city"
+        ]
+      ],
+      "display": "The young couple will move to another city.",
+      "explanation": {
+        "ru": "will + глагол без to — будущее время: will move. Move to — переезжать куда-то: move to another city.",
+        "uz": "will + fe'l (to so'zisiz) — kelasi zamon: will move. Move to — biror joyga ko'chib o'tmoq: move to another city."
+      }
+    },
+    {
+      "key": "b1-m02-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "partner"
+      ],
+      "prompt": {
+        "ru": "Её спутник жизни работает врачом.",
+        "uz": "Uning umr yo'ldoshi shifokor bo'lib ishlaydi."
+      },
+      "fragments": [
+        "her",
+        "partner",
+        "works",
+        "as",
+        "a",
+        "doctor"
+      ],
+      "accepted": [
+        [
+          "her",
+          "partner",
+          "works",
+          "as",
+          "a",
+          "doctor"
+        ]
+      ],
+      "display": "Her partner works as a doctor.",
+      "explanation": {
+        "ru": "work as + профессия — работать кем-то; перед названием профессии нужен артикль: works as a doctor.",
+        "uz": "work as + kasb — kim bo'lib ishlamoq; kasb nomidan oldin artikl kerak: works as a doctor."
+      }
+    },
+    {
+      "key": "b1-m02-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "twin"
+      ],
+      "text": "These girls are twins",
+      "accepted": [
+        "These girls are twins"
+      ],
+      "translation": {
+        "ru": "Эти девочки — близнецы",
+        "uz": "Bu qizlar egizak"
+      }
+    },
+    {
+      "key": "b1-m02-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "bride"
+      ],
+      "text": "The bride looked very happy",
+      "accepted": [
+        "The bride looked very happy"
+      ],
+      "translation": {
+        "ru": "Невеста выглядела очень счастливой",
+        "uz": "Kelin juda baxtli ko'rinardi"
+      }
+    },
+    {
+      "key": "b1-m02-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nephew",
+        "niece"
+      ],
+      "text": "My nephew and niece live with us",
+      "accepted": [
+        "My nephew and niece live with us"
+      ],
+      "translation": {
+        "ru": "Мои племянник и племянница живут с нами",
+        "uz": "O'g'il jiyanim va qiz jiyanim biz bilan yashaydi"
+      },
+      "explanation": {
+        "ru": "nephew: звук «ф» пишется двумя буквами ph. Niece: сначала i, потом e — n-i-e-c-e.",
+        "uz": "nephew: «f» tovushi ikki harf bilan, ph deb yoziladi. Niece: avval i, keyin e — n-i-e-c-e."
+      }
+    },
+    {
+      "key": "b1-m02-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "favor"
+      ],
+      "text": "My neighbor ___ me a big favor yesterday.",
+      "options": [
+        "did",
+        "made",
+        "gave"
+      ],
+      "correct": [
+        "did"
+      ],
+      "translation": {
+        "ru": "Вчера сосед сделал мне большое одолжение.",
+        "uz": "Kecha qo'shnim menga katta yaxshilik qildi."
+      },
+      "explanation": {
+        "ru": "do somebody a favor — сделать кому-то одолжение. По-русски одолжение «делают», но по-английски это do, а не make; give a favor тоже не говорят.",
+        "uz": "do somebody a favor — kimgadir yaxshilik qilmoq. Favor bilan do ishlatiladi: make a favor yoki give a favor deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m02-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "introduce"
+      ],
+      "text": "She introduced me ___ her parents last weekend.",
+      "options": [
+        "to",
+        "with",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "В прошлые выходные она познакомила меня со своими родителями.",
+        "uz": "O'tgan dam olish kunlari u meni ota-onasi bilan tanishtirdi."
+      },
+      "explanation": {
+        "ru": "introduce somebody to somebody — познакомить кого-то с кем-то. Русское «с» здесь переводится to, а не with.",
+        "uz": "introduce somebody to somebody — kimnidir kim bilandir tanishtirmoq. O'zbekcha «bilan» bu yerda with emas, to bo'ladi."
+      }
+    },
+    {
+      "key": "b1-m02-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "jealous"
+      ],
+      "text": "She is jealous ___ her sister's success.",
+      "options": [
+        "of",
+        "to",
+        "on"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Она завидует успеху своей сестры.",
+        "uz": "U opasining muvaffaqiyatiga hasad qiladi."
+      },
+      "explanation": {
+        "ru": "be jealous of — завидовать кому-то или чему-то. После jealous ставится of: He is jealous of his brother.",
+        "uz": "be jealous of — kimgadir yoki nimagadir hasad qilmoq. Jealous dan keyin of keladi: He is jealous of his brother."
+      }
+    },
+    {
+      "key": "b1-m02-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "secret"
+      ],
+      "prompt": {
+        "ru": "Я обещаю сохранить ваш секрет.",
+        "uz": "Siringizni saqlashga va'da beraman."
+      },
+      "fragments": [
+        "I",
+        "promise",
+        "to",
+        "keep",
+        "your",
+        "secret"
+      ],
+      "accepted": [
+        [
+          "I",
+          "promise",
+          "to",
+          "keep",
+          "your",
+          "secret"
+        ]
+      ],
+      "display": "I promise to keep your secret.",
+      "explanation": {
+        "ru": "keep a secret — хранить секрет. После promise идёт to + глагол: promise to keep.",
+        "uz": "keep a secret — sir saqlamoq. Promise dan keyin to + fe'l keladi: promise to keep."
+      }
+    },
+    {
+      "key": "b1-m02-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "quarrel"
+      ],
+      "prompt": {
+        "ru": "Я не хочу с вами ссориться.",
+        "uz": "Men siz bilan janjallashishni xohlamayman."
+      },
+      "fragments": [
+        "I",
+        "don't",
+        "want",
+        "to",
+        "quarrel",
+        "with",
+        "you"
+      ],
+      "accepted": [
+        [
+          "I",
+          "don't",
+          "want",
+          "to",
+          "quarrel",
+          "with",
+          "you"
+        ]
+      ],
+      "display": "I don't want to quarrel with you.",
+      "explanation": {
+        "ru": "quarrel with somebody — ссориться с кем-то. После want идёт to + глагол: want to quarrel.",
+        "uz": "quarrel with somebody — kim bilandir janjallashmoq. Want dan keyin to + fe'l keladi: want to quarrel."
+      }
+    },
+    {
+      "key": "b1-m02-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "friendship"
+      ],
+      "prompt": {
+        "ru": "Ничто не может разрушить нашу дружбу.",
+        "uz": "Hech narsa bizning do'stligimizni buza olmaydi."
+      },
+      "fragments": [
+        "nothing",
+        "can",
+        "destroy",
+        "our",
+        "friendship"
+      ],
+      "accepted": [
+        [
+          "nothing",
+          "can",
+          "destroy",
+          "our",
+          "friendship"
+        ]
+      ],
+      "display": "Nothing can destroy our friendship.",
+      "explanation": {
+        "ru": "С nothing глагол стоит без not: nothing can destroy (а не nothing can't destroy). После can глагол идёт без to.",
+        "uz": "Nothing bilan fe'lga not qo'shilmaydi: nothing can destroy (nothing can't destroy emas). Can dan keyin fe'l to so'zisiz keladi."
+      }
+    },
+    {
+      "key": "b1-m02-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "loyal"
+      ],
+      "text": "Dogs are loyal to their owners",
+      "accepted": [
+        "Dogs are loyal to their owners"
+      ],
+      "translation": {
+        "ru": "Собаки преданы своим хозяевам",
+        "uz": "Itlar o'z egalariga sodiq"
+      }
+    },
+    {
+      "key": "b1-m02-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "roommate",
+        "classmate"
+      ],
+      "text": "My roommate was my classmate at school",
+      "accepted": [
+        "My roommate was my classmate at school"
+      ],
+      "translation": {
+        "ru": "Мой сосед по комнате был моим одноклассником в школе",
+        "uz": "Xonadoshim maktabda sinfdoshim bo'lgan"
+      },
+      "explanation": {
+        "ru": "roommate = room + mate, поэтому в середине две m. Classmate = class + mate: две s. Оба слова пишутся слитно.",
+        "uz": "roommate = room + mate, shuning uchun o'rtada ikkita m bor. Classmate = class + mate: ikkita s. Ikkala so'z ham qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "b1-m02-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "gossip"
+      ],
+      "text": "Do not believe all the gossip",
+      "accepted": [
+        "Do not believe all the gossip",
+        "Don't believe all the gossip"
+      ],
+      "translation": {
+        "ru": "Не верьте всем сплетням",
+        "uz": "Barcha g'iybatlarga ishonmang"
+      },
+      "explanation": {
+        "ru": "gossip: в середине две s, на конце одна p — g-o-s-s-i-p.",
+        "uz": "gossip: o'rtada ikkita s, oxirida bitta p — g-o-s-s-i-p."
+      }
+    },
+    {
+      "key": "b1-m02-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "humor"
+      ],
+      "text": "My uncle has a wonderful ___ of humor.",
+      "options": [
+        "sense",
+        "feeling",
+        "emotion"
+      ],
+      "correct": [
+        "sense"
+      ],
+      "translation": {
+        "ru": "У моего дяди прекрасное чувство юмора.",
+        "uz": "Amakimda ajoyib yumor hissi bor."
+      },
+      "explanation": {
+        "ru": "sense of humor — чувство юмора. По-русски это «чувство», но по-английски в этом выражении говорят только sense, а не feeling или emotion.",
+        "uz": "sense of humor — yumor hissi. O'zbekchada «his», lekin inglizchada bu birikmada faqat sense ishlatiladi, feeling yoki emotion emas."
+      }
+    },
+    {
+      "key": "b1-m02-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "respond"
+      ],
+      "text": "The company quickly responded ___ our letter.",
+      "options": [
+        "to",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Компания быстро ответила на наше письмо.",
+        "uz": "Kompaniya xatimizga tezda javob berdi."
+      },
+      "explanation": {
+        "ru": "respond to something — отвечать на что-то. Русское «на» здесь — to, а не on: respond to a letter, respond to a question.",
+        "uz": "respond to something — biror narsaga javob bermoq. Respond dan keyin to keladi (on yoki at emas): respond to a letter, respond to a question."
+      }
+    },
+    {
+      "key": "b1-m02-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "comment"
+      ],
+      "text": "Our teacher ___ a few useful comments about my essay.",
+      "options": [
+        "made",
+        "did",
+        "told"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Наш учитель сделал несколько полезных комментариев к моему сочинению.",
+        "uz": "O'qituvchimiz inshom bo'yicha bir nechta foydali izoh berdi."
+      },
+      "explanation": {
+        "ru": "make a comment — сделать комментарий, высказать замечание. С comment употребляют make, а не do или tell.",
+        "uz": "make a comment — izoh bermoq, fikr bildirmoq. Comment bilan make ishlatiladi, do yoki tell emas."
+      }
+    },
+    {
+      "key": "b1-m02-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "mention"
+      ],
+      "prompt": {
+        "ru": "Она не упомянула о своей новой работе.",
+        "uz": "U yangi ishini tilga olmadi."
+      },
+      "fragments": [
+        "she",
+        "did",
+        "not",
+        "mention",
+        "her",
+        "new",
+        "job"
+      ],
+      "accepted": [
+        [
+          "she",
+          "did",
+          "not",
+          "mention",
+          "her",
+          "new",
+          "job"
+        ]
+      ],
+      "display": "She did not mention her new job.",
+      "explanation": {
+        "ru": "mention something — упоминать о чём-то: после mention предлог не нужен (не mention about). В отрицании: did not + глагол в начальной форме.",
+        "uz": "mention something — biror narsani tilga olmoq: mention dan keyin predlog kerak emas (mention about emas). Inkorda: did not + fe'lning asosiy shakli."
+      }
+    },
+    {
+      "key": "b1-m02-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "interrupt"
+      ],
+      "prompt": {
+        "ru": "Перебивать других людей невежливо.",
+        "uz": "Boshqa odamlarning gapini bo'lish odobsizlikdir."
+      },
+      "fragments": [
+        "it",
+        "is",
+        "rude",
+        "to",
+        "interrupt",
+        "other",
+        "people"
+      ],
+      "accepted": [
+        [
+          "it",
+          "is",
+          "rude",
+          "to",
+          "interrupt",
+          "other",
+          "people"
+        ]
+      ],
+      "display": "It is rude to interrupt other people.",
+      "explanation": {
+        "ru": "It is + прилагательное + to + глагол: It is rude to interrupt — «перебивать невежливо». Interrupt somebody — без предлога.",
+        "uz": "It is + sifat + to + fe'l: It is rude to interrupt — «gapni bo'lish odobsizlik». Interrupt somebody — predlogsiz."
+      }
+    },
+    {
+      "key": "b1-m02-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "inform"
+      ],
+      "prompt": {
+        "ru": "Мы сообщим вам о результатах.",
+        "uz": "Biz sizga natijalar haqida xabar beramiz."
+      },
+      "fragments": [
+        "we",
+        "will",
+        "inform",
+        "you",
+        "about",
+        "the",
+        "results"
+      ],
+      "accepted": [
+        [
+          "we",
+          "will",
+          "inform",
+          "you",
+          "about",
+          "the",
+          "results"
+        ]
+      ],
+      "display": "We will inform you about the results.",
+      "explanation": {
+        "ru": "inform somebody about something — сообщать кому-то о чём-то. После inform сразу идёт человек, без to: inform you (а не inform to you).",
+        "uz": "inform somebody about something — kimgadir biror narsa haqida xabar bermoq. Inform dan keyin darhol shaxs keladi, to predlogisiz: inform you (inform to you emas)."
+      }
+    },
+    {
+      "key": "b1-m02-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "whisper"
+      ],
+      "text": "Why are you whispering?",
+      "accepted": [
+        "Why are you whispering?"
+      ],
+      "translation": {
+        "ru": "Почему вы шепчете?",
+        "uz": "Nega shivirlayapsiz?"
+      },
+      "explanation": {
+        "ru": "whisper пишется с wh в начале, как what и when.",
+        "uz": "whisper so'zi boshida wh bilan yoziladi (what va when kabi)."
+      }
+    },
+    {
+      "key": "b1-m02-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "silence"
+      ],
+      "text": "Silence is golden",
+      "accepted": [
+        "Silence is golden"
+      ],
+      "translation": {
+        "ru": "Молчание — золото",
+        "uz": "Sukut — oltin"
+      },
+      "explanation": {
+        "ru": "silence: на конце пишется -ence (через c), а не -ense.",
+        "uz": "silence: oxirida -ence (c bilan) yoziladi, -ense emas."
+      }
+    },
+    {
+      "key": "b1-m02-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "greet",
+        "conversation"
+      ],
+      "text": "We greeted each other and started a conversation",
+      "accepted": [
+        "We greeted each other and started a conversation"
+      ],
+      "translation": {
+        "ru": "Мы поздоровались друг с другом и начали разговор",
+        "uz": "Biz bir-birimiz bilan salomlashib, suhbat boshladik"
+      }
+    },
+    {
+      "key": "b1-m02-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "request"
+      ],
+      "text": "May I ___ a small request?",
+      "options": [
+        "make",
+        "do",
+        "tell"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Можно обратиться к вам с небольшой просьбой?",
+        "uz": "Sizdan kichik bir iltimos qilsam maylimi?"
+      },
+      "explanation": {
+        "ru": "make a request — обратиться с просьбой, высказать просьбу. С request употребляют make, а не do или tell.",
+        "uz": "make a request — iltimos qilmoq. Request bilan make ishlatiladi, do yoki tell emas."
+      }
+    },
+    {
+      "key": "b1-m02-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "remind"
+      ],
+      "text": "This smell reminds me ___ my grandmother's kitchen.",
+      "options": [
+        "of",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Этот запах напоминает мне о бабушкиной кухне.",
+        "uz": "Bu hid menga buvimning oshxonasini eslatadi."
+      },
+      "explanation": {
+        "ru": "remind somebody of something — напоминать кому-то о чём-то, вызывать воспоминания. В этом значении после remind стоит of, а не on или for.",
+        "uz": "remind somebody of something — kimgadir biror narsani eslatmoq, yodiga solmoq. Bu ma'noda remind dan keyin of keladi, on yoki for emas."
+      }
+    },
+    {
+      "key": "b1-m02-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "permission"
+      ],
+      "text": "My boss ___ me permission to leave early today.",
+      "options": [
+        "gave",
+        "let",
+        "made"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Сегодня начальник дал мне разрешение уйти пораньше.",
+        "uz": "Bugun boshlig'im menga ertaroq ketishga ruxsat berdi."
+      },
+      "explanation": {
+        "ru": "give somebody permission — дать кому-то разрешение. Let тоже значит «разрешать», но после него идёт глагол: let me leave. Make permission не говорят.",
+        "uz": "give somebody permission — kimgadir ruxsat bermoq. Let ham «ruxsat bermoq» degani, lekin undan keyin fe'l keladi: let me leave. Make permission deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m02-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "suggest"
+      ],
+      "prompt": {
+        "ru": "Я предлагаю взять такси.",
+        "uz": "Men taksida borishni taklif qilaman."
+      },
+      "fragments": [
+        "I",
+        "suggest",
+        "taking",
+        "a",
+        "taxi"
+      ],
+      "accepted": [
+        [
+          "I",
+          "suggest",
+          "taking",
+          "a",
+          "taxi"
+        ]
+      ],
+      "display": "I suggest taking a taxi.",
+      "explanation": {
+        "ru": "suggest + глагол с -ing — предлагать что-то сделать: suggest taking (а не suggest to take).",
+        "uz": "suggest + -ing shaklidagi fe'l — biror ish qilishni taklif qilmoq: suggest taking (suggest to take emas)."
+      }
+    },
+    {
+      "key": "b1-m02-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "persuade"
+      ],
+      "prompt": {
+        "ru": "Мы уговорили его остаться дома.",
+        "uz": "Biz uni uyda qolishga ko'ndirdik."
+      },
+      "fragments": [
+        "we",
+        "persuaded",
+        "him",
+        "to",
+        "stay",
+        "at",
+        "home"
+      ],
+      "accepted": [
+        [
+          "we",
+          "persuaded",
+          "him",
+          "to",
+          "stay",
+          "at",
+          "home"
+        ]
+      ],
+      "display": "We persuaded him to stay at home.",
+      "explanation": {
+        "ru": "persuade somebody to do something — уговорить кого-то что-то сделать: сначала кого (him), потом to + глагол.",
+        "uz": "persuade somebody to do something — kimnidir biror ish qilishga ko'ndirmoq: avval kimni (him), keyin to + fe'l."
+      }
+    },
+    {
+      "key": "b1-m02-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "allow"
+      ],
+      "prompt": {
+        "ru": "Мои родители не разрешают мне водить машину.",
+        "uz": "Ota-onam menga mashina haydashga ruxsat bermaydi."
+      },
+      "fragments": [
+        "my",
+        "parents",
+        "don't",
+        "allow",
+        "me",
+        "to",
+        "drive"
+      ],
+      "accepted": [
+        [
+          "my",
+          "parents",
+          "don't",
+          "allow",
+          "me",
+          "to",
+          "drive"
+        ]
+      ],
+      "display": "My parents don't allow me to drive.",
+      "explanation": {
+        "ru": "allow somebody to do something — разрешать кому-то что-то делать: allow me to drive. Don't — отрицание в Present Simple.",
+        "uz": "allow somebody to do something — kimgadir biror ish qilishga ruxsat bermoq: allow me to drive. Don't — Present Simple dagi inkor."
+      }
+    },
+    {
+      "key": "b1-m02-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "refuse"
+      ],
+      "text": "I could not refuse his offer",
+      "accepted": [
+        "I could not refuse his offer",
+        "I couldn't refuse his offer"
+      ],
+      "translation": {
+        "ru": "Я не мог отказаться от его предложения",
+        "uz": "Men uning taklifini rad eta olmadim"
+      }
+    },
+    {
+      "key": "b1-m02-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "encourage"
+      ],
+      "text": "Her words encouraged me a lot",
+      "accepted": [
+        "Her words encouraged me a lot"
+      ],
+      "translation": {
+        "ru": "Её слова очень подбодрили меня",
+        "uz": "Uning so'zlari meni juda ruhlantirdi"
+      },
+      "explanation": {
+        "ru": "encourage: в середине пишется ou (как в courage), на конце -age: e-n-c-o-u-r-a-g-e.",
+        "uz": "encourage: o'rtada ou yoziladi (courage so'zidagi kabi), oxirida -age: e-n-c-o-u-r-a-g-e."
+      }
+    },
+    {
+      "key": "b1-m02-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "advise",
+        "accept"
+      ],
+      "text": "I advise you to accept their help",
+      "accepted": [
+        "I advise you to accept their help"
+      ],
+      "translation": {
+        "ru": "Советую вам принять их помощь",
+        "uz": "Sizga ularning yordamini qabul qilishni maslahat beraman"
+      },
+      "explanation": {
+        "ru": "advise — глагол, пишется через s; существительное advice («совет») — через c. В accept две c: a-c-c-e-p-t.",
+        "uz": "advise — fe'l, s bilan yoziladi; advice («maslahat») oti esa c bilan. Accept so'zida ikkita c bor: a-c-c-e-p-t."
+      }
+    },
+    {
+      "key": "b1-m02-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "blame"
+      ],
+      "text": "The coach blamed the players ___ the bad result.",
+      "options": [
+        "for",
+        "in",
+        "of"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Тренер обвинил игроков в плохом результате.",
+        "uz": "Murabbiy yomon natija uchun o'yinchilarni aybladi."
+      },
+      "explanation": {
+        "ru": "blame somebody for something — винить кого-то в чём-то. Русское «в» здесь — for, а не in; of употребляется с другим глаголом: accuse somebody of.",
+        "uz": "blame somebody for something — kimnidir biror narsa uchun ayblamoq. Blame bilan for ishlatiladi; of boshqa fe'l bilan keladi: accuse somebody of."
+      }
+    },
+    {
+      "key": "b1-m02-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "complain"
+      ],
+      "text": "My neighbors often complain ___ the loud music.",
+      "options": [
+        "about",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "about"
+      ],
+      "translation": {
+        "ru": "Мои соседи часто жалуются на громкую музыку.",
+        "uz": "Qo'shnilarim baland musiqadan tez-tez shikoyat qiladi."
+      },
+      "explanation": {
+        "ru": "complain about something — жаловаться на что-то. Русское «на» здесь — about, а не on: complain about the noise, complain about the service.",
+        "uz": "complain about something — biror narsadan shikoyat qilmoq. Complain dan keyin about keladi (on yoki for emas): complain about the noise."
+      }
+    },
+    {
+      "key": "b1-m02-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "argument"
+      ],
+      "text": "Last night I ___ an argument with my brother about money.",
+      "options": [
+        "had",
+        "did",
+        "led"
+      ],
+      "correct": [
+        "had"
+      ],
+      "translation": {
+        "ru": "Вчера вечером у меня с братом вышел спор из-за денег.",
+        "uz": "Kecha kechqurun akam bilan o'rtamizda pul masalasida bahs bo'ldi."
+      },
+      "explanation": {
+        "ru": "have an argument with somebody — поспорить, поссориться с кем-то. В этом значении с argument употребляют have, а не do или lead.",
+        "uz": "have an argument with somebody — kim bilandir bahslashmoq, tortishib qolmoq. Bu ma'noda argument bilan have ishlatiladi, do yoki lead emas."
+      }
+    },
+    {
+      "key": "b1-m02-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "admit",
+        "fault"
+      ],
+      "prompt": {
+        "ru": "Я признаю, что это была моя вина.",
+        "uz": "Bu mening aybim bo'lganini tan olaman."
+      },
+      "fragments": [
+        "I",
+        "admit",
+        "that",
+        "it",
+        "was",
+        "my",
+        "fault"
+      ],
+      "accepted": [
+        [
+          "I",
+          "admit",
+          "that",
+          "it",
+          "was",
+          "my",
+          "fault"
+        ]
+      ],
+      "display": "I admit that it was my fault.",
+      "explanation": {
+        "ru": "admit that … — признавать, что … It was my fault — «это была моя вина», то есть «виноват был я».",
+        "uz": "admit that … — … ekanini tan olmoq. It was my fault — «bu mening aybim edi», ya'ni «men aybdor edim»."
+      }
+    },
+    {
+      "key": "b1-m02-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "deny"
+      ],
+      "prompt": {
+        "ru": "Она отрицала, что съела торт.",
+        "uz": "U tortni yeganini inkor qildi."
+      },
+      "fragments": [
+        "she",
+        "denied",
+        "eating",
+        "the",
+        "cake"
+      ],
+      "accepted": [
+        [
+          "she",
+          "denied",
+          "eating",
+          "the",
+          "cake"
+        ]
+      ],
+      "display": "She denied eating the cake.",
+      "explanation": {
+        "ru": "deny + глагол с -ing — отрицать, что сделал что-то: denied eating (а не denied to eat).",
+        "uz": "deny + -ing shaklidagi fe'l — biror ish qilganini inkor qilmoq: denied eating (denied to eat emas)."
+      }
+    },
+    {
+      "key": "b1-m02-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "criticize"
+      ],
+      "prompt": {
+        "ru": "Никто не любит, когда его критикуют.",
+        "uz": "Tanqid qilinishni hech kim yoqtirmaydi."
+      },
+      "fragments": [
+        "nobody",
+        "likes",
+        "to",
+        "be",
+        "criticized"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "likes",
+          "to",
+          "be",
+          "criticized"
+        ]
+      ],
+      "display": "Nobody likes to be criticized.",
+      "explanation": {
+        "ru": "to be criticized — пассивная форма: «быть объектом критики». После nobody глагол стоит в единственном числе, с -s: nobody likes.",
+        "uz": "to be criticized — majhul shakl: «tanqid qilinmoq». Nobody dan keyin fe'l birlikda, -s bilan keladi: nobody likes."
+      }
+    },
+    {
+      "key": "b1-m02-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "disagree"
+      ],
+      "text": "I completely disagree with you",
+      "accepted": [
+        "I completely disagree with you"
+      ],
+      "translation": {
+        "ru": "Я с вами совершенно не согласен",
+        "uz": "Men sizning fikringizga mutlaqo qo'shilmayman"
+      }
+    },
+    {
+      "key": "b1-m02-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "offend"
+      ],
+      "text": "I did not want to offend anyone",
+      "accepted": [
+        "I did not want to offend anyone",
+        "I didn't want to offend anyone"
+      ],
+      "translation": {
+        "ru": "Я не хотел никого обидеть",
+        "uz": "Men hech kimni xafa qilmoqchi emas edim"
+      },
+      "explanation": {
+        "ru": "offend: в середине две f — o-f-f-e-n-d.",
+        "uz": "offend: o'rtada ikkita f yoziladi — o-f-f-e-n-d."
+      }
+    },
+    {
+      "key": "b1-m02-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "conflict"
+      ],
+      "text": "The conflict between them is over",
+      "accepted": [
+        "The conflict between them is over"
+      ],
+      "translation": {
+        "ru": "Конфликт между ними исчерпан",
+        "uz": "Ular o'rtasidagi nizo tugadi"
+      }
+    }
+  ]
+}

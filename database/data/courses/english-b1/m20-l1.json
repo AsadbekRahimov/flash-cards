@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 20,
+    "title": "Слова-связки и абстрактные понятия",
+    "title_uz": "Bog'lovchi so'zlar va mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Противопоставление",
+    "title_uz": "Qarama-qarshilik"
+  },
+  "words": [
+    {
+      "word": "although",
+      "part_of_speech": "conjunction",
+      "translation": "хотя",
+      "translations": {
+        "ru": "хотя",
+        "uz": "garchi"
+      },
+      "example": "Although it was raining, we went for a walk.",
+      "example_translations": {
+        "ru": "Хотя шёл дождь, мы пошли гулять.",
+        "uz": "Garchi yomg'ir yog'ayotgan bo'lsa ham, biz sayrga chiqdik."
+      }
+    },
+    {
+      "word": "though",
+      "part_of_speech": "conjunction",
+      "translation": "хоть, хотя",
+      "translations": {
+        "ru": "хоть, хотя",
+        "uz": "garchi, bo'lsa-da"
+      },
+      "example": "Though he is young, he works very hard.",
+      "example_translations": {
+        "ru": "Хоть он и молод, он работает очень усердно.",
+        "uz": "Garchi u yosh bo'lsa-da, juda tirishib ishlaydi."
+      }
+    },
+    {
+      "word": "despite",
+      "part_of_speech": "preposition",
+      "translation": "несмотря на",
+      "translations": {
+        "ru": "несмотря на",
+        "uz": "qaramay"
+      },
+      "example": "Despite the cold weather, the children played outside.",
+      "example_translations": {
+        "ru": "Несмотря на холодную погоду, дети играли на улице.",
+        "uz": "Sovuq havoga qaramay, bolalar ko'chada o'ynashdi."
+      }
+    },
+    {
+      "word": "however",
+      "part_of_speech": "adverb",
+      "translation": "однако",
+      "translations": {
+        "ru": "однако",
+        "uz": "biroq, ammo"
+      },
+      "example": "The room was small; however, it was very clean.",
+      "example_translations": {
+        "ru": "Комната была маленькой, однако очень чистой.",
+        "uz": "Xona kichkina edi, biroq juda toza edi."
+      }
+    },
+    {
+      "word": "rather",
+      "part_of_speech": "adverb",
+      "translation": "скорее",
+      "translations": {
+        "ru": "скорее",
+        "uz": "ko'proq, ko'ra"
+      },
+      "example": "It was a friendly talk rather than a lesson.",
+      "example_translations": {
+        "ru": "Это была скорее дружеская беседа, чем урок.",
+        "uz": "Bu darsdan ko'ra ko'proq do'stona suhbat edi."
+      }
+    },
+    {
+      "word": "yet",
+      "part_of_speech": "conjunction",
+      "translation": "и всё же, но",
+      "translations": {
+        "ru": "и всё же, но",
+        "uz": "shunday bo'lsa ham, lekin"
+      },
+      "example": "She is very busy, yet she always helps us.",
+      "example_translations": {
+        "ru": "Она очень занята, и всё же всегда нам помогает.",
+        "uz": "U juda band, shunday bo'lsa ham, bizga doim yordam beradi."
+      }
+    },
+    {
+      "word": "instead",
+      "part_of_speech": "adverb",
+      "translation": "вместо этого, взамен",
+      "translations": {
+        "ru": "вместо этого, взамен",
+        "uz": "o'rniga, buning o'rniga"
+      },
+      "example": "There was no coffee, so we drank tea instead.",
+      "example_translations": {
+        "ru": "Кофе не было, поэтому мы вместо этого выпили чай.",
+        "uz": "Qahva yo'q edi, shuning uchun uning o'rniga choy ichdik."
+      }
+    },
+    {
+      "word": "otherwise",
+      "part_of_speech": "adverb",
+      "translation": "иначе, в противном случае",
+      "translations": {
+        "ru": "иначе, в противном случае",
+        "uz": "aks holda"
+      },
+      "example": "Take an umbrella; otherwise, you will get wet.",
+      "example_translations": {
+        "ru": "Возьмите зонт, иначе вы промокнете.",
+        "uz": "Soyabon oling, aks holda ho'l bo'lasiz."
+      }
+    },
+    {
+      "word": "unlike",
+      "part_of_speech": "preposition",
+      "translation": "в отличие от",
+      "translations": {
+        "ru": "в отличие от",
+        "uz": "farqli o'laroq"
+      },
+      "example": "Unlike her sister, Anna enjoys cooking.",
+      "example_translations": {
+        "ru": "В отличие от сестры, Анна любит готовить.",
+        "uz": "Opasidan farqli o'laroq, Anna ovqat pishirishni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "except",
+      "part_of_speech": "preposition",
+      "translation": "кроме",
+      "translations": {
+        "ru": "кроме",
+        "uz": "tashqari"
+      },
+      "example": "The museum is open every day except Monday.",
+      "example_translations": {
+        "ru": "Музей открыт каждый день, кроме понедельника.",
+        "uz": "Muzey dushanbadan tashqari har kuni ochiq."
+      }
+    }
+  ]
+}

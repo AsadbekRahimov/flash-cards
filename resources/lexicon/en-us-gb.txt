@@ -21,6 +21,10 @@ apologiser apologizer
 apologisers apologizers
 apologises apologizes
 apologising apologizing
+appetiser appetizer
+appetisers appetizers
+artefact artifact
+artefacts artifacts
 authorisation authorization
 authorisations authorizations
 authorise authorize
@@ -109,6 +113,10 @@ energiser energizer
 energisers energizers
 energises energizes
 energising energizing
+enrol enroll
+enrolment enrollment
+enrolments enrollments
+enrols enrolls
 familiarisation familiarization
 familiarisations familiarizations
 familiarise familiarize
@@ -138,6 +146,7 @@ flavoured flavored
 flavours flavors
 fulfil fulfill
 fulfils fulfills
+globalisation globalization
 grey gray
 harbour harbor
 harbours harbors
@@ -154,6 +163,8 @@ honoured honored
 honours honors
 humour humor
 humours humors
+instalment installment
+instalments installments
 jeweller jeweler
 jewellery jewelry
 judgement judgment
@@ -331,6 +342,8 @@ travelled traveled
 traveller traveler
 travellers travelers
 travelling traveling
+unauthorised unauthorized
+urbanisation urbanization
 utilisation utilization
 utilisations utilizations
 utilise utilize
@@ -349,5 +362,7 @@ visualiser visualizer
 visualisers visualizers
 visualises visualizes
 visualising visualizing
+watercolour watercolor
+watercolours watercolors
 wilful willful
 woollen woolen

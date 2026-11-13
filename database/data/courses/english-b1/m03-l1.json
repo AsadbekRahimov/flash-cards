@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 3,
+    "title": "Жильё и жизнь в городе",
+    "title_uz": "Uy-joy va shahar hayoti"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Где мы живём",
+    "title_uz": "Qayerda yashaymiz"
+  },
+  "words": [
+    {
+      "word": "accommodation",
+      "part_of_speech": "noun",
+      "translation": "жильё",
+      "translations": {
+        "ru": "жильё",
+        "uz": "turar joy"
+      },
+      "example": "We found cheap accommodation near the station.",
+      "example_translations": {
+        "ru": "Мы нашли недорогое жильё рядом с вокзалом.",
+        "uz": "Biz vokzal yaqinidan arzon turar joy topdik."
+      }
+    },
+    {
+      "word": "cottage",
+      "part_of_speech": "noun",
+      "translation": "загородный домик",
+      "translations": {
+        "ru": "загородный домик",
+        "uz": "dala hovli"
+      },
+      "example": "We rented a cottage by the lake last summer.",
+      "example_translations": {
+        "ru": "Прошлым летом мы сняли загородный домик у озера.",
+        "uz": "O'tgan yozda ko'l bo'yidagi dala hovlini ijaraga oldik."
+      }
+    },
+    {
+      "word": "property",
+      "part_of_speech": "noun",
+      "translation": "недвижимость",
+      "translations": {
+        "ru": "недвижимость",
+        "uz": "ko'chmas mulk"
+      },
+      "example": "Property in the city center is very expensive.",
+      "example_translations": {
+        "ru": "Недвижимость в центре города очень дорогая.",
+        "uz": "Shahar markazida ko'chmas mulk juda qimmat."
+      }
+    },
+    {
+      "word": "owner",
+      "part_of_speech": "noun",
+      "translation": "владелец",
+      "translations": {
+        "ru": "владелец",
+        "uz": "ega"
+      },
+      "example": "The owner of the apartment lives next door.",
+      "example_translations": {
+        "ru": "Владелец квартиры живёт по соседству.",
+        "uz": "Kvartiraning egasi qo'shni xonadonda yashaydi."
+      }
+    },
+    {
+      "word": "suburb",
+      "part_of_speech": "noun",
+      "translation": "пригород",
+      "translations": {
+        "ru": "пригород",
+        "uz": "shahar atrofi"
+      },
+      "example": "He lives in a suburb but works in the city.",
+      "example_translations": {
+        "ru": "Он живёт в пригороде, но работает в городе.",
+        "uz": "U shahar atrofida yashaydi, lekin shaharda ishlaydi."
+      }
+    },
+    {
+      "word": "district",
+      "part_of_speech": "noun",
+      "translation": "район",
+      "translations": {
+        "ru": "район",
+        "uz": "tuman"
+      },
+      "example": "Which district of the city do you live in?",
+      "example_translations": {
+        "ru": "В каком районе города вы живёте?",
+        "uz": "Siz shaharning qaysi tumanida yashaysiz?"
+      }
+    },
+    {
+      "word": "neighborhood",
+      "part_of_speech": "noun",
+      "translation": "квартал, район",
+      "translations": {
+        "ru": "квартал, район",
+        "uz": "mahalla"
+      },
+      "example": "Everybody knows each other in our neighborhood.",
+      "example_translations": {
+        "ru": "В нашем квартале все друг друга знают.",
+        "uz": "Bizning mahallada hamma bir-birini taniydi."
+      }
+    },
+    {
+      "word": "downtown",
+      "part_of_speech": "noun",
+      "translation": "центр города",
+      "translations": {
+        "ru": "центр города",
+        "uz": "shahar markazi"
+      },
+      "example": "Downtown is always busy on Friday evenings.",
+      "example_translations": {
+        "ru": "По вечерам в пятницу в центре города всегда оживлённо.",
+        "uz": "Juma oqshomlari shahar markazi doim gavjum bo'ladi."
+      }
+    },
+    {
+      "word": "rural",
+      "part_of_speech": "adjective",
+      "translation": "сельский",
+      "translations": {
+        "ru": "сельский",
+        "uz": "qishloq, qishloqqa oid"
+      },
+      "example": "Life in rural areas is quiet and slow.",
+      "example_translations": {
+        "ru": "Жизнь в сельской местности тихая и неторопливая.",
+        "uz": "Qishloq joylarida hayot tinch va shoshilmasdan o'tadi."
+      }
+    },
+    {
+      "word": "urban",
+      "part_of_speech": "adjective",
+      "translation": "городской",
+      "translations": {
+        "ru": "городской",
+        "uz": "shahar, shaharga oid"
+      },
+      "example": "Urban life is fast and often noisy.",
+      "example_translations": {
+        "ru": "Городская жизнь быстрая и часто шумная.",
+        "uz": "Shahar hayoti shiddatli va ko'pincha shovqinli bo'ladi."
+      }
+    }
+  ]
+}

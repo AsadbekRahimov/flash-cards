@@ -96,8 +96,8 @@ it('keeps one entry per course and locale, with the data version in the key, arr
     $keyUz = CourseCatalogService::courseTreeKey($id, 'uz');
 
     // The version is the number of times the course's data was changed (the fixture's own writes included).
-    expect($keyRu)->toStartWith("catalog:course:v1:{$id}:ru:n")
-        ->and($keyUz)->toStartWith("catalog:course:v1:{$id}:uz:n")
+    expect($keyRu)->toStartWith("catalog:course:v2:{$id}:ru:n")
+        ->and($keyUz)->toStartWith("catalog:course:v2:{$id}:uz:n")
         ->and(PureCache::store()->has($keyRu))->toBeTrue()
         ->and(PureCache::store()->has($keyUz))->toBeTrue()
         ->and(PureCache::store()->get($keyRu))->toBeArray()->each->toBeArray();
@@ -149,6 +149,22 @@ it('drops the tree when the words of the course change: an import, a switched wo
     DB::table('words')->where('lesson_id', $fx['lessons']['1.1']->id)->update(['is_active' => true]);
     app(CoursePublisher::class)->recount($fx['course']);
     expect(coursePageRows($fx['course'], $learner))->toBe([[1, 1, 2, 0], [1, 2, 4, 0]]);
+});
+
+it('drops the tree of a platform course on the repair run even when its counter is right: words moved between lessons at the same total', function (): void {
+    $fx = Fx::course([1 => [1 => 2, 2 => [1, 1]]]);
+    $learner = Learner::factory()->create();
+    expect(coursePageRows($fx['course'], $learner))->toBe([[1, 1, 2, 0], [1, 2, 1, 0]]); // the tree is cached
+
+    // Hand-made SQL: a word leaves lesson 1.1, another one is switched on in 1.2; the total of the course stays 3.
+    DB::table('words')->where('id', $fx['words']['1.1']['active'][0])->update(['is_active' => false]);
+    DB::table('words')->where('id', $fx['words']['1.2']['inactive'][0])->update(['is_active' => true]);
+    expect(coursePageRows($fx['course'], $learner))->toBe([[1, 1, 2, 0], [1, 2, 1, 0]], 'nothing told the cache');
+
+    $report = app(LessonContentRefresher::class)->refreshAll();
+
+    expect($report->changes)->toBe([])
+        ->and(coursePageRows($fx['course'], $learner))->toBe([[1, 1, 1, 0], [1, 2, 2, 0]]);
 });
 
 it('drops the tree when a module or a lesson is created, renamed, moved or deleted', function (): void {

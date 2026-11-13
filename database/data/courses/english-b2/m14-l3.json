@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 14,
+    "title": "Путешествия и культуры мира",
+    "title_uz": "Sayohat va dunyo madaniyatlari"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Обычаи и этикет",
+    "title_uz": "Urf-odatlar va odob"
+  },
+  "words": [
+    {
+      "word": "etiquette",
+      "part_of_speech": "noun",
+      "translation": "этикет",
+      "translations": {
+        "ru": "этикет",
+        "uz": "odob qoidalari"
+      },
+      "example": "Table etiquette differs from culture to culture.",
+      "example_translations": {
+        "ru": "Застольный этикет различается в разных культурах.",
+        "uz": "Dasturxon atrofidagi odob qoidalari turli madaniyatlarda farq qiladi."
+      }
+    },
+    {
+      "word": "ritual",
+      "part_of_speech": "noun",
+      "translation": "обряд, ритуал",
+      "translations": {
+        "ru": "обряд, ритуал",
+        "uz": "marosim, udum"
+      },
+      "example": "Lighting candles is part of the wedding ritual.",
+      "example_translations": {
+        "ru": "Зажигание свечей — часть свадебного обряда.",
+        "uz": "Sham yoqish to'y marosimining bir qismidir."
+      }
+    },
+    {
+      "word": "hospitality",
+      "part_of_speech": "noun",
+      "translation": "гостеприимство",
+      "translations": {
+        "ru": "гостеприимство",
+        "uz": "mehmondo'stlik"
+      },
+      "example": "The villagers are famous for their warm hospitality.",
+      "example_translations": {
+        "ru": "Жители деревни славятся тёплым гостеприимством.",
+        "uz": "Qishloq ahli samimiy mehmondo'stligi bilan mashhur."
+      }
+    },
+    {
+      "word": "courtesy",
+      "part_of_speech": "noun",
+      "translation": "учтивость, вежливость",
+      "translations": {
+        "ru": "учтивость, вежливость",
+        "uz": "xushmuomalalik"
+      },
+      "example": "He always treats guests with great courtesy.",
+      "example_translations": {
+        "ru": "Он всегда относится к гостям с большой учтивостью.",
+        "uz": "U mehmonlarga doim katta xushmuomalalik bilan munosabatda bo'ladi."
+      }
+    },
+    {
+      "word": "superstition",
+      "part_of_speech": "noun",
+      "translation": "суеверие",
+      "translations": {
+        "ru": "суеверие",
+        "uz": "irim, xurofot"
+      },
+      "example": "According to superstition, breaking a mirror brings bad luck.",
+      "example_translations": {
+        "ru": "Согласно суеверию, разбитое зеркало приносит несчастье.",
+        "uz": "Irimga ko'ra, oynaning sinishi baxtsizlik keltiradi."
+      }
+    },
+    {
+      "word": "folklore",
+      "part_of_speech": "noun",
+      "translation": "фольклор",
+      "translations": {
+        "ru": "фольклор",
+        "uz": "xalq og'zaki ijodi, folklor"
+      },
+      "example": "Dragons appear in the folklore of many countries.",
+      "example_translations": {
+        "ru": "Драконы встречаются в фольклоре многих стран.",
+        "uz": "Ajdarlar ko'p mamlakatlarning xalq og'zaki ijodida uchraydi."
+      }
+    },
+    {
+      "word": "proverb",
+      "part_of_speech": "noun",
+      "translation": "пословица",
+      "translations": {
+        "ru": "пословица",
+        "uz": "maqol"
+      },
+      "example": "My grandfather often quotes an old proverb about patience.",
+      "example_translations": {
+        "ru": "Мой дедушка часто приводит старую пословицу о терпении.",
+        "uz": "Bobom sabr haqidagi qadimiy maqolni tez-tez aytib turadi."
+      }
+    },
+    {
+      "word": "delicacy",
+      "part_of_speech": "noun",
+      "translation": "деликатес",
+      "translations": {
+        "ru": "деликатес",
+        "uz": "tansiq taom"
+      },
+      "example": "This smoked fish is a local delicacy.",
+      "example_translations": {
+        "ru": "Эта копчёная рыба — местный деликатес.",
+        "uz": "Bu dudlangan baliq mahalliy tansiq taom hisoblanadi."
+      }
+    },
+    {
+      "word": "feast",
+      "part_of_speech": "noun",
+      "translation": "пир, застолье",
+      "translations": {
+        "ru": "пир, застолье",
+        "uz": "ziyofat, bazm"
+      },
+      "example": "After the harvest, the village holds a big feast.",
+      "example_translations": {
+        "ru": "После сбора урожая деревня устраивает большой пир.",
+        "uz": "Hosil yig'ib olingach, qishloqda katta ziyofat beriladi."
+      }
+    },
+    {
+      "word": "ancestor",
+      "part_of_speech": "noun",
+      "translation": "предок",
+      "translations": {
+        "ru": "предок",
+        "uz": "ajdod"
+      },
+      "example": "My ancestors came to this valley as farmers.",
+      "example_translations": {
+        "ru": "Мои предки пришли в эту долину земледельцами.",
+        "uz": "Ajdodlarim bu vodiyga dehqon bo'lib kelgan."
+      }
+    }
+  ]
+}

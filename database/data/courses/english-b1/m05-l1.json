@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 5,
+    "title": "Здоровье и медицина",
+    "title_uz": "Salomatlik va tibbiyot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Тело и органы",
+    "title_uz": "Tana va a'zolar"
+  },
+  "words": [
+    {
+      "word": "organ",
+      "part_of_speech": "noun",
+      "translation": "орган",
+      "translations": {
+        "ru": "орган",
+        "uz": "a'zo"
+      },
+      "example": "The heart is a very important organ.",
+      "example_translations": {
+        "ru": "Сердце — очень важный орган.",
+        "uz": "Yurak juda muhim a'zodir."
+      }
+    },
+    {
+      "word": "brain",
+      "part_of_speech": "noun",
+      "translation": "мозг",
+      "translations": {
+        "ru": "мозг",
+        "uz": "miya"
+      },
+      "example": "Your brain works even when you sleep.",
+      "example_translations": {
+        "ru": "Ваш мозг работает, даже когда вы спите.",
+        "uz": "Miyangiz siz uxlayotganingizda ham ishlaydi."
+      }
+    },
+    {
+      "word": "lung",
+      "part_of_speech": "noun",
+      "translation": "лёгкое",
+      "translations": {
+        "ru": "лёгкое",
+        "uz": "o'pka"
+      },
+      "example": "Fresh air is good for your lungs.",
+      "example_translations": {
+        "ru": "Свежий воздух полезен для ваших лёгких.",
+        "uz": "Toza havo o'pkangiz uchun foydali."
+      }
+    },
+    {
+      "word": "skin",
+      "part_of_speech": "noun",
+      "translation": "кожа",
+      "translations": {
+        "ru": "кожа",
+        "uz": "teri"
+      },
+      "example": "Babies have very soft skin.",
+      "example_translations": {
+        "ru": "У младенцев очень нежная кожа.",
+        "uz": "Chaqaloqlarning terisi juda mayin bo'ladi."
+      }
+    },
+    {
+      "word": "bone",
+      "part_of_speech": "noun",
+      "translation": "кость",
+      "translations": {
+        "ru": "кость",
+        "uz": "suyak"
+      },
+      "example": "Milk makes your bones strong.",
+      "example_translations": {
+        "ru": "Молоко делает ваши кости крепкими.",
+        "uz": "Sut suyaklaringizni mustahkam qiladi."
+      }
+    },
+    {
+      "word": "throat",
+      "part_of_speech": "noun",
+      "translation": "горло",
+      "translations": {
+        "ru": "горло",
+        "uz": "tomoq"
+      },
+      "example": "Does your throat hurt when you eat?",
+      "example_translations": {
+        "ru": "У вас болит горло, когда вы едите?",
+        "uz": "Ovqat yeganingizda tomog'ingiz og'riydimi?"
+      }
+    },
+    {
+      "word": "chest",
+      "part_of_speech": "noun",
+      "translation": "грудь, грудная клетка",
+      "translations": {
+        "ru": "грудь, грудная клетка",
+        "uz": "ko'krak, ko'krak qafasi"
+      },
+      "example": "He felt a sharp pain in his chest.",
+      "example_translations": {
+        "ru": "Он почувствовал острую боль в груди.",
+        "uz": "U ko'kragida o'tkir og'riq sezdi."
+      }
+    },
+    {
+      "word": "wrist",
+      "part_of_speech": "noun",
+      "translation": "запястье",
+      "translations": {
+        "ru": "запястье",
+        "uz": "bilak"
+      },
+      "example": "She wears a watch on her left wrist.",
+      "example_translations": {
+        "ru": "Она носит часы на левом запястье.",
+        "uz": "U chap bilagiga soat taqadi."
+      }
+    },
+    {
+      "word": "ankle",
+      "part_of_speech": "noun",
+      "translation": "лодыжка",
+      "translations": {
+        "ru": "лодыжка",
+        "uz": "to'piq"
+      },
+      "example": "I twisted my ankle on the stairs.",
+      "example_translations": {
+        "ru": "Я подвернул лодыжку на лестнице.",
+        "uz": "Zinada to'pig'im qayrilib ketdi."
+      }
+    },
+    {
+      "word": "elbow",
+      "part_of_speech": "noun",
+      "translation": "локоть",
+      "translations": {
+        "ru": "локоть",
+        "uz": "tirsak"
+      },
+      "example": "Please do not put your elbows on the table.",
+      "example_translations": {
+        "ru": "Пожалуйста, не кладите локти на стол.",
+        "uz": "Iltimos, tirsaklaringizni stolga qo'ymang."
+      }
+    }
+  ]
+}

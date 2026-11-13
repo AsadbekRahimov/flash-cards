@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 4,
+    "title": "Еда и кулинария",
+    "title_uz": "Taom va pazandachilik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "На кухне",
+    "title_uz": "Oshxonada"
+  },
+  "words": [
+    {
+      "word": "recipe",
+      "part_of_speech": "noun",
+      "translation": "рецепт",
+      "translations": {
+        "ru": "рецепт",
+        "uz": "retsept"
+      },
+      "example": "Can you give me the recipe for this cake?",
+      "example_translations": {
+        "ru": "Можете дать мне рецепт этого торта?",
+        "uz": "Menga bu tortning retseptini bera olasizmi?"
+      }
+    },
+    {
+      "word": "saucepan",
+      "part_of_speech": "noun",
+      "translation": "ковшик",
+      "translations": {
+        "ru": "ковшик",
+        "uz": "dastali kastryulcha"
+      },
+      "example": "Heat the milk in a small saucepan.",
+      "example_translations": {
+        "ru": "Подогрейте молоко в небольшом ковшике.",
+        "uz": "Sutni kichik dastali kastryulchada isiting."
+      }
+    },
+    {
+      "word": "pot",
+      "part_of_speech": "noun",
+      "translation": "кастрюля",
+      "translations": {
+        "ru": "кастрюля",
+        "uz": "kastryul, qozon"
+      },
+      "example": "A big pot of soup is enough for everyone.",
+      "example_translations": {
+        "ru": "Большой кастрюли супа хватит на всех.",
+        "uz": "Katta bir kastryul sho'rva hammaga yetadi."
+      }
+    },
+    {
+      "word": "lid",
+      "part_of_speech": "noun",
+      "translation": "крышка",
+      "translations": {
+        "ru": "крышка",
+        "uz": "qopqoq"
+      },
+      "example": "Put the lid on the pan and wait.",
+      "example_translations": {
+        "ru": "Накройте сковороду крышкой и подождите.",
+        "uz": "Tovani qopqoq bilan yoping va kutib turing."
+      }
+    },
+    {
+      "word": "tray",
+      "part_of_speech": "noun",
+      "translation": "поднос",
+      "translations": {
+        "ru": "поднос",
+        "uz": "patnis"
+      },
+      "example": "She brought tea and cookies on a tray.",
+      "example_translations": {
+        "ru": "Она принесла чай и печенье на подносе.",
+        "uz": "U patnisda choy va pechenye olib keldi."
+      }
+    },
+    {
+      "word": "jar",
+      "part_of_speech": "noun",
+      "translation": "банка",
+      "translations": {
+        "ru": "банка",
+        "uz": "banka"
+      },
+      "example": "There is a jar of jam in the fridge.",
+      "example_translations": {
+        "ru": "В холодильнике стоит банка варенья.",
+        "uz": "Sovitkichda bir banka murabbo bor."
+      }
+    },
+    {
+      "word": "napkin",
+      "part_of_speech": "noun",
+      "translation": "салфетка",
+      "translations": {
+        "ru": "салфетка",
+        "uz": "salfetka"
+      },
+      "example": "Wipe your hands with a paper napkin.",
+      "example_translations": {
+        "ru": "Вытрите руки бумажной салфеткой.",
+        "uz": "Qo'lingizni qog'oz salfetka bilan arting."
+      }
+    },
+    {
+      "word": "freezer",
+      "part_of_speech": "noun",
+      "translation": "морозильник",
+      "translations": {
+        "ru": "морозильник",
+        "uz": "muzlatish kamerasi"
+      },
+      "example": "Put the ice cream back in the freezer.",
+      "example_translations": {
+        "ru": "Положите мороженое обратно в морозильник.",
+        "uz": "Muzqaymoqni qaytarib muzlatish kamerasiga qo'ying."
+      }
+    },
+    {
+      "word": "microwave",
+      "part_of_speech": "noun",
+      "translation": "микроволновая печь",
+      "translations": {
+        "ru": "микроволновая печь",
+        "uz": "mikroto'lqinli pech"
+      },
+      "example": "You can warm your lunch in the microwave.",
+      "example_translations": {
+        "ru": "Вы можете разогреть свой обед в микроволновой печи.",
+        "uz": "Tushligingizni mikroto'lqinli pechda isitib olishingiz mumkin."
+      }
+    },
+    {
+      "word": "stove",
+      "part_of_speech": "noun",
+      "translation": "кухонная плита",
+      "translations": {
+        "ru": "кухонная плита",
+        "uz": "plita"
+      },
+      "example": "Be careful, the stove is still hot.",
+      "example_translations": {
+        "ru": "Осторожно, кухонная плита ещё горячая.",
+        "uz": "Ehtiyot bo'ling, plita hali issiq."
+      }
+    }
+  ]
+}

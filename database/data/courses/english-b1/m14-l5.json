@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 14,
+    "title": "Наука и открытия",
+    "title_uz": "Fan va kashfiyotlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Силы и открытия",
+    "title_uz": "Kuchlar va kashfiyotlar"
+  },
+  "words": [
+    {
+      "word": "discover",
+      "part_of_speech": "verb",
+      "translation": "открывать, обнаруживать",
+      "translations": {
+        "ru": "открывать, обнаруживать",
+        "uz": "kashf qilmoq"
+      },
+      "example": "She hopes to discover a new star someday.",
+      "example_translations": {
+        "ru": "Она надеется когда-нибудь открыть новую звезду.",
+        "uz": "U qachondir yangi yulduzni kashf qilishni umid qiladi."
+      }
+    },
+    {
+      "word": "process",
+      "part_of_speech": "noun",
+      "translation": "процесс",
+      "translations": {
+        "ru": "процесс",
+        "uz": "jarayon"
+      },
+      "example": "Making paper from wood is a long process.",
+      "example_translations": {
+        "ru": "Изготовление бумаги из древесины — долгий процесс.",
+        "uz": "Yog'ochdan qog'oz tayyorlash uzoq jarayondir."
+      }
+    },
+    {
+      "word": "force",
+      "part_of_speech": "noun",
+      "translation": "сила",
+      "translations": {
+        "ru": "сила",
+        "uz": "kuch"
+      },
+      "example": "The force of the wind moved the heavy boat.",
+      "example_translations": {
+        "ru": "Сила ветра сдвинула тяжёлую лодку.",
+        "uz": "Shamolning kuchi og'ir qayiqni joyidan siljitdi."
+      }
+    },
+    {
+      "word": "motion",
+      "part_of_speech": "noun",
+      "translation": "движение",
+      "translations": {
+        "ru": "движение",
+        "uz": "harakat"
+      },
+      "example": "Scientists study the motion of the planets.",
+      "example_translations": {
+        "ru": "Учёные изучают движение планет.",
+        "uz": "Olimlar sayyoralarning harakatini o'rganadi."
+      }
+    },
+    {
+      "word": "heat",
+      "part_of_speech": "noun",
+      "translation": "тепло",
+      "translations": {
+        "ru": "тепло",
+        "uz": "issiqlik"
+      },
+      "example": "The heat from the fire dried our wet clothes.",
+      "example_translations": {
+        "ru": "Тепло от огня высушило нашу мокрую одежду.",
+        "uz": "Olovdan chiqqan issiqlik ho'l kiyimlarimizni quritdi."
+      }
+    },
+    {
+      "word": "magnet",
+      "part_of_speech": "noun",
+      "translation": "магнит",
+      "translations": {
+        "ru": "магнит",
+        "uz": "magnit"
+      },
+      "example": "A magnet can pick up small metal objects.",
+      "example_translations": {
+        "ru": "Магнит может поднимать мелкие металлические предметы.",
+        "uz": "Magnit mayda metall buyumlarni ko'tara oladi."
+      }
+    },
+    {
+      "word": "laser",
+      "part_of_speech": "noun",
+      "translation": "лазер",
+      "translations": {
+        "ru": "лазер",
+        "uz": "lazer"
+      },
+      "example": "Doctors use a laser to treat eye problems.",
+      "example_translations": {
+        "ru": "Врачи используют лазер для лечения проблем с глазами.",
+        "uz": "Shifokorlar ko'z muammolarini davolash uchun lazerdan foydalanadi."
+      }
+    },
+    {
+      "word": "cell",
+      "part_of_speech": "noun",
+      "translation": "клетка организма",
+      "translations": {
+        "ru": "клетка организма",
+        "uz": "hujayra"
+      },
+      "example": "Every living thing is made of tiny cells.",
+      "example_translations": {
+        "ru": "Всё живое состоит из крошечных клеток.",
+        "uz": "Barcha tirik mavjudotlar mitti hujayralardan tashkil topgan."
+      }
+    },
+    {
+      "word": "reaction",
+      "part_of_speech": "noun",
+      "translation": "реакция",
+      "translations": {
+        "ru": "реакция",
+        "uz": "reaksiya"
+      },
+      "example": "Mixing these two liquids causes a strong reaction.",
+      "example_translations": {
+        "ru": "Смешивание этих двух жидкостей вызывает сильную реакцию.",
+        "uz": "Bu ikki suyuqlikni aralashtirish kuchli reaksiyani keltirib chiqaradi."
+      }
+    },
+    {
+      "word": "electric",
+      "part_of_speech": "adjective",
+      "translation": "электрический",
+      "translations": {
+        "ru": "электрический",
+        "uz": "elektr"
+      },
+      "example": "Be careful with that old electric heater.",
+      "example_translations": {
+        "ru": "Будьте осторожны с этим старым электрическим обогревателем.",
+        "uz": "O'sha eski elektr isitkich bilan ehtiyot bo'ling."
+      }
+    }
+  ]
+}

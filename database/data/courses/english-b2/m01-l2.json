@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 1,
+    "title": "Характер и поведение",
+    "title_uz": "Xarakter va xulq-atvor"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Недостатки",
+    "title_uz": "Kamchiliklar"
+  },
+  "words": [
+    {
+      "word": "arrogant",
+      "part_of_speech": "adjective",
+      "translation": "высокомерный",
+      "translations": {
+        "ru": "высокомерный",
+        "uz": "takabbur"
+      },
+      "example": "The arrogant actor refused to talk to his fans.",
+      "example_translations": {
+        "ru": "Высокомерный актёр отказался разговаривать со своими поклонниками.",
+        "uz": "Takabbur aktyor o'z muxlislari bilan gaplashishdan bosh tortdi."
+      }
+    },
+    {
+      "word": "ruthless",
+      "part_of_speech": "adjective",
+      "translation": "безжалостный",
+      "translations": {
+        "ru": "безжалостный",
+        "uz": "shafqatsiz"
+      },
+      "example": "He was ruthless in business and showed no pity.",
+      "example_translations": {
+        "ru": "В бизнесе он был безжалостен и никого не жалел.",
+        "uz": "U biznesda shafqatsiz edi va hech kimga rahm qilmasdi."
+      }
+    },
+    {
+      "word": "greedy",
+      "part_of_speech": "adjective",
+      "translation": "жадный",
+      "translations": {
+        "ru": "жадный",
+        "uz": "ochko'z"
+      },
+      "example": "Don't be greedy; share the cake with your sister.",
+      "example_translations": {
+        "ru": "Не будь жадным, поделись тортом с сестрой.",
+        "uz": "Ochko'z bo'lma, tortni singling bilan baham ko'r."
+      }
+    },
+    {
+      "word": "impulsive",
+      "part_of_speech": "adjective",
+      "translation": "импульсивный",
+      "translations": {
+        "ru": "импульсивный",
+        "uz": "o'ylamay ish qiladigan"
+      },
+      "example": "My impulsive brother bought a car without telling anyone.",
+      "example_translations": {
+        "ru": "Мой импульсивный брат купил машину, никому не сказав.",
+        "uz": "O'ylamay ish qiladigan akam hech kimga aytmay mashina sotib oldi."
+      }
+    },
+    {
+      "word": "reckless",
+      "part_of_speech": "adjective",
+      "translation": "безрассудный, неосторожный",
+      "translations": {
+        "ru": "безрассудный, неосторожный",
+        "uz": "ehtiyotsiz"
+      },
+      "example": "Reckless drivers put other people in danger.",
+      "example_translations": {
+        "ru": "Безрассудные водители подвергают опасности других людей.",
+        "uz": "Ehtiyotsiz haydovchilar boshqa odamlarni xavf ostiga qo'yadi."
+      }
+    },
+    {
+      "word": "naive",
+      "part_of_speech": "adjective",
+      "translation": "наивный",
+      "translations": {
+        "ru": "наивный",
+        "uz": "sodda, ishonuvchan"
+      },
+      "example": "I was naive to believe every word he said.",
+      "example_translations": {
+        "ru": "Я был наивен, раз верил каждому его слову.",
+        "uz": "Uning har bir so'ziga ishonadigan darajada sodda edim."
+      }
+    },
+    {
+      "word": "cynical",
+      "part_of_speech": "adjective",
+      "translation": "циничный",
+      "translations": {
+        "ru": "циничный",
+        "uz": "badgumon"
+      },
+      "example": "She has become cynical and trusts nobody now.",
+      "example_translations": {
+        "ru": "Она стала циничной и теперь никому не доверяет.",
+        "uz": "U badgumon bo'lib qoldi va endi hech kimga ishonmaydi."
+      }
+    },
+    {
+      "word": "immature",
+      "part_of_speech": "adjective",
+      "translation": "незрелый",
+      "translations": {
+        "ru": "незрелый",
+        "uz": "g'o'r, yetilmagan"
+      },
+      "example": "Tom is too immature to live alone.",
+      "example_translations": {
+        "ru": "Том слишком незрелый, чтобы жить одному.",
+        "uz": "Tom yolg'iz yashash uchun hali juda g'o'r."
+      }
+    },
+    {
+      "word": "pessimistic",
+      "part_of_speech": "adjective",
+      "translation": "пессимистичный",
+      "translations": {
+        "ru": "пессимистичный",
+        "uz": "umidsiz, badbin"
+      },
+      "example": "Why are you so pessimistic about the future?",
+      "example_translations": {
+        "ru": "Почему вы так пессимистичны в отношении будущего?",
+        "uz": "Nega kelajakka bunchalik umidsiz qaraysiz?"
+      }
+    },
+    {
+      "word": "envy",
+      "part_of_speech": "noun",
+      "translation": "зависть",
+      "translations": {
+        "ru": "зависть",
+        "uz": "hasad"
+      },
+      "example": "Her new car filled the neighbors with envy.",
+      "example_translations": {
+        "ru": "Её новая машина вызвала у соседей зависть.",
+        "uz": "Uning yangi mashinasi qo'shnilarda hasad uyg'otdi."
+      }
+    }
+  ]
+}

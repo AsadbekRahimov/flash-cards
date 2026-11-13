@@ -544,6 +544,15 @@ it('takes the American spelling for the British one the author wrote, and the ot
     ['realise', 'realize'], ['theatre', 'theater'], ['metre', 'meter'], ['neighbour', 'neighbor'], ['programme', 'program'],
 ]);
 
+it('takes the British writing for the American one of the words of the practice packs (b1, b2), and the other way round', function (string $british, string $american): void {
+    expect(dictationVerdict(["Is the {$american} here"], "is the {$british} here"))->toBe(Verdict::Correct)
+        ->and(dictationVerdict(["Is the {$british} here"], "is the {$american} here"))->toBe(Verdict::Correct)
+        ->and(SpellingVariants::other($british))->toBe($american);
+})->with([
+    ['appetisers', 'appetizers'], ['artefact', 'artifact'], ['enrol', 'enroll'], ['enrolment', 'enrollment'], ['globalisation', 'globalization'],
+    ['instalment', 'installment'], ['unauthorised', 'unauthorized'], ['urbanisation', 'urbanization'], ['watercolour', 'watercolor'],
+]);
+
 it('takes the spelling of a pair in a sentence with several, and in the review marks it as right', function (): void {
     $result = dictationGrader()->grade(['The neighbours organised a theatre trip'], 'the neighbors organized a theater trip');
     $diff = $result->reveal['diff'] ?? [];

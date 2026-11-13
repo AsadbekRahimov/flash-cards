@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 14,
+    "title": "Путешествия и культуры мира",
+    "title_uz": "Sayohat va dunyo madaniyatlari"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Маршрут и поездка",
+    "title_uz": "Yo'nalish va safar"
+  },
+  "words": [
+    {
+      "word": "itinerary",
+      "part_of_speech": "noun",
+      "translation": "маршрут поездки",
+      "translations": {
+        "ru": "маршрут поездки",
+        "uz": "sayohat yo'nalishi"
+      },
+      "example": "Our itinerary includes three cities in five days.",
+      "example_translations": {
+        "ru": "Наш маршрут поездки включает три города за пять дней.",
+        "uz": "Sayohat yo'nalishimiz besh kunda uchta shaharni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "stopover",
+      "part_of_speech": "noun",
+      "translation": "остановка в пути",
+      "translations": {
+        "ru": "остановка в пути",
+        "uz": "oraliq to'xtash"
+      },
+      "example": "We had a six-hour stopover on our flight.",
+      "example_translations": {
+        "ru": "Во время перелёта у нас была шестичасовая остановка в пути.",
+        "uz": "Parvozimiz davomida olti soatlik oraliq to'xtash bo'ldi."
+      }
+    },
+    {
+      "word": "outing",
+      "part_of_speech": "noun",
+      "translation": "короткая поездка, прогулка",
+      "translations": {
+        "ru": "короткая поездка, прогулка",
+        "uz": "qisqa sayohat, sayr"
+      },
+      "example": "The class went on an outing to the lake.",
+      "example_translations": {
+        "ru": "Класс отправился в короткую поездку на озеро.",
+        "uz": "Sinf ko'lga qisqa sayohatga bordi."
+      }
+    },
+    {
+      "word": "detour",
+      "part_of_speech": "noun",
+      "translation": "объезд, крюк",
+      "translations": {
+        "ru": "объезд, крюк",
+        "uz": "aylanib o'tish"
+      },
+      "example": "We made a detour to avoid the traffic.",
+      "example_translations": {
+        "ru": "Мы сделали крюк, чтобы объехать пробку.",
+        "uz": "Tirbandlikka tushmaslik uchun aylanib o'tdik."
+      }
+    },
+    {
+      "word": "voyage",
+      "part_of_speech": "noun",
+      "translation": "плавание, морское путешествие",
+      "translations": {
+        "ru": "плавание, морское путешествие",
+        "uz": "dengiz sayohati"
+      },
+      "example": "The voyage across the ocean took three weeks.",
+      "example_translations": {
+        "ru": "Плавание через океан заняло три недели.",
+        "uz": "Okean osha dengiz sayohati uch hafta davom etdi."
+      }
+    },
+    {
+      "word": "backpacker",
+      "part_of_speech": "noun",
+      "translation": "турист с рюкзаком",
+      "translations": {
+        "ru": "турист с рюкзаком",
+        "uz": "ryukzakli sayyoh"
+      },
+      "example": "The hostel was full of young backpackers.",
+      "example_translations": {
+        "ru": "Хостел был полон молодых туристов с рюкзаками.",
+        "uz": "Xostel ryukzakli yosh sayyohlar bilan to'la edi."
+      }
+    },
+    {
+      "word": "trek",
+      "part_of_speech": "noun",
+      "translation": "пеший поход",
+      "translations": {
+        "ru": "пеший поход",
+        "uz": "piyoda sayohat"
+      },
+      "example": "The trek to the mountain village took two days.",
+      "example_translations": {
+        "ru": "Пеший поход в горную деревню занял два дня.",
+        "uz": "Tog' qishlog'iga piyoda sayohat ikki kun davom etdi."
+      }
+    },
+    {
+      "word": "depart",
+      "part_of_speech": "verb",
+      "translation": "отправляться",
+      "translations": {
+        "ru": "отправляться",
+        "uz": "jo'nab ketmoq"
+      },
+      "example": "The train departs from platform two at noon.",
+      "example_translations": {
+        "ru": "Поезд отправляется со второй платформы в полдень.",
+        "uz": "Poyezd ikkinchi platformadan tush payti jo'nab ketadi."
+      }
+    },
+    {
+      "word": "embark",
+      "part_of_speech": "verb",
+      "translation": "садиться на борт",
+      "translations": {
+        "ru": "садиться на борт",
+        "uz": "bortga chiqmoq"
+      },
+      "example": "Passengers may embark an hour before the ship leaves.",
+      "example_translations": {
+        "ru": "Пассажиры могут садиться на борт за час до отплытия корабля.",
+        "uz": "Yo'lovchilar kema jo'nashidan bir soat oldin bortga chiqishi mumkin."
+      }
+    },
+    {
+      "word": "navigate",
+      "part_of_speech": "verb",
+      "translation": "ориентироваться, находить дорогу",
+      "translations": {
+        "ru": "ориентироваться, находить дорогу",
+        "uz": "yo'l topmoq, mo'ljal olmoq"
+      },
+      "example": "We used a paper map to navigate the old town.",
+      "example_translations": {
+        "ru": "Мы ориентировались в старом городе по бумажной карте.",
+        "uz": "Eski shaharda qog'oz xarita yordamida yo'l topdik."
+      }
+    }
+  ]
+}

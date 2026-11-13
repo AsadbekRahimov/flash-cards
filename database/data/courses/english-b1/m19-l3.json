@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 19,
+    "title": "Действия и процессы",
+    "title_uz": "Harakatlar va jarayonlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Создание и изменение",
+    "title_uz": "Yaratish va o'zgartirish"
+  },
+  "words": [
+    {
+      "word": "create",
+      "part_of_speech": "verb",
+      "translation": "создавать",
+      "translations": {
+        "ru": "создавать",
+        "uz": "yaratmoq"
+      },
+      "example": "The students created a website for their school.",
+      "example_translations": {
+        "ru": "Ученики создали сайт для своей школы.",
+        "uz": "O'quvchilar o'z maktabi uchun veb-sayt yaratdilar."
+      }
+    },
+    {
+      "word": "construct",
+      "part_of_speech": "verb",
+      "translation": "строить, сооружать",
+      "translations": {
+        "ru": "строить, сооружать",
+        "uz": "qurmoq, barpo etmoq"
+      },
+      "example": "Workers are constructing a new bridge here.",
+      "example_translations": {
+        "ru": "Рабочие строят здесь новый мост.",
+        "uz": "Ishchilar bu yerda yangi ko'prik qurmoqda."
+      }
+    },
+    {
+      "word": "mix",
+      "part_of_speech": "verb",
+      "translation": "смешивать",
+      "translations": {
+        "ru": "смешивать",
+        "uz": "aralashtirmoq, qorishtirmoq"
+      },
+      "example": "Mix the flour with two eggs and milk.",
+      "example_translations": {
+        "ru": "Смешайте муку с двумя яйцами и молоком.",
+        "uz": "Unni ikkita tuxum va sut bilan aralashtiring."
+      }
+    },
+    {
+      "word": "combine",
+      "part_of_speech": "verb",
+      "translation": "объединять, сочетать",
+      "translations": {
+        "ru": "объединять, сочетать",
+        "uz": "birlashtirmoq"
+      },
+      "example": "We combined our ideas into one plan.",
+      "example_translations": {
+        "ru": "Мы объединили наши идеи в один план.",
+        "uz": "Biz g'oyalarimizni bitta rejaga birlashtirdik."
+      }
+    },
+    {
+      "word": "separate",
+      "part_of_speech": "verb",
+      "translation": "отделять, разделять",
+      "translations": {
+        "ru": "отделять, разделять",
+        "uz": "ajratmoq"
+      },
+      "example": "Separate the white clothes from the dark ones.",
+      "example_translations": {
+        "ru": "Отделите белую одежду от тёмной.",
+        "uz": "Oq kiyimlarni to'q rangli kiyimlardan ajrating."
+      }
+    },
+    {
+      "word": "extend",
+      "part_of_speech": "verb",
+      "translation": "продлевать, удлинять",
+      "translations": {
+        "ru": "продлевать, удлинять",
+        "uz": "uzaytirmoq"
+      },
+      "example": "The library extended its opening hours this month.",
+      "example_translations": {
+        "ru": "В этом месяце библиотека продлила часы работы.",
+        "uz": "Bu oyda kutubxona ish vaqtini uzaytirdi."
+      }
+    },
+    {
+      "word": "restore",
+      "part_of_speech": "verb",
+      "translation": "восстанавливать",
+      "translations": {
+        "ru": "восстанавливать",
+        "uz": "qayta tiklamoq"
+      },
+      "example": "Workers restored the old theater last year.",
+      "example_translations": {
+        "ru": "В прошлом году рабочие восстановили старый театр.",
+        "uz": "O'tgan yili ishchilar eski teatrni qayta tikladilar."
+      }
+    },
+    {
+      "word": "ruin",
+      "part_of_speech": "verb",
+      "translation": "губить, разрушать",
+      "translations": {
+        "ru": "губить, разрушать",
+        "uz": "barbod qilmoq"
+      },
+      "example": "One mistake can ruin the whole plan.",
+      "example_translations": {
+        "ru": "Одна ошибка может погубить весь план.",
+        "uz": "Bitta xato butun rejani barbod qilishi mumkin."
+      }
+    },
+    {
+      "word": "spoil",
+      "part_of_speech": "verb",
+      "translation": "портить",
+      "translations": {
+        "ru": "портить",
+        "uz": "buzmoq"
+      },
+      "example": "The bad weather spoiled our vacation.",
+      "example_translations": {
+        "ru": "Плохая погода испортила нам отпуск.",
+        "uz": "Yomon ob-havo ta'tilimizni buzdi."
+      }
+    },
+    {
+      "word": "convert",
+      "part_of_speech": "verb",
+      "translation": "превращать, преобразовывать",
+      "translations": {
+        "ru": "превращать, преобразовывать",
+        "uz": "aylantirmoq"
+      },
+      "example": "They converted the old factory into a museum.",
+      "example_translations": {
+        "ru": "Они превратили старую фабрику в музей.",
+        "uz": "Ular eski fabrikani muzeyga aylantirdilar."
+      }
+    }
+  ]
+}

@@ -1,0 +1,2850 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m07-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "emission"
+      ],
+      "text": "Factories must ___ their emissions by half.",
+      "options": [
+        "cut",
+        "shorten",
+        "fall"
+      ],
+      "correct": [
+        "cut"
+      ],
+      "translation": {
+        "ru": "Заводы должны сократить выбросы вдвое.",
+        "uz": "Zavodlar tashlanmalarini ikki baravar kamaytirishi kerak."
+      },
+      "explanation": {
+        "ru": "cut emissions — сокращать выбросы (так же: reduce emissions). Shorten — делать короче по длине или по времени (shorten a text), а fall — «падать»: этот глагол не может иметь прямого дополнения.",
+        "uz": "cut emissions — tashlanmalarni kamaytirmoq (xuddi shunday: reduce emissions). Shorten — uzunligi yoki vaqtini qisqartirmoq (shorten a text), fall esa «tushmoq, pasaymoq» degani: bu fe'l vositasiz to'ldiruvchi olmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "ozone"
+      ],
+      "text": "The ozone ___ protects us from the sun's harmful rays.",
+      "options": [
+        "layer",
+        "coat",
+        "floor"
+      ],
+      "correct": [
+        "layer"
+      ],
+      "translation": {
+        "ru": "Озоновый слой защищает нас от вредных солнечных лучей.",
+        "uz": "Ozon qatlami bizni quyoshning zararli nurlaridan himoya qiladi."
+      },
+      "explanation": {
+        "ru": "the ozone layer — озоновый слой. Coat — слой краски или лака (a coat of paint), floor — пол или этаж; об атмосфере так не говорят.",
+        "uz": "the ozone layer — ozon qatlami. Coat — bo'yoq yoki lak qatlami (a coat of paint), floor — pol yoki qavat; atmosfera haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "humidity"
+      ],
+      "text": "The humidity here is very ___ in summer.",
+      "options": [
+        "high",
+        "big",
+        "tall"
+      ],
+      "correct": [
+        "high"
+      ],
+      "translation": {
+        "ru": "Летом здесь очень высокая влажность.",
+        "uz": "Yozda bu yerda namlik juda yuqori bo'ladi."
+      },
+      "explanation": {
+        "ru": "high humidity — высокая влажность. Об уровне, температуре, давлении и влажности говорят high / low, а не big или tall (tall — о росте людей, о высоких зданиях и деревьях).",
+        "uz": "high humidity — yuqori namlik. Daraja, harorat, bosim va namlik haqida high / low deyiladi, big yoki tall emas (tall — odamning bo'yi, baland bino va daraxtlar haqida)."
+      }
+    },
+    {
+      "key": "b2-m07-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "absorb"
+      ],
+      "prompt": {
+        "ru": "Почему тёмная одежда поглощает больше тепла?",
+        "uz": "Nega to'q rangli kiyim ko'proq issiqlik yutadi?"
+      },
+      "fragments": [
+        "why",
+        "do",
+        "dark",
+        "clothes",
+        "absorb",
+        "more",
+        "heat"
+      ],
+      "accepted": [
+        [
+          "why",
+          "do",
+          "dark",
+          "clothes",
+          "absorb",
+          "more",
+          "heat"
+        ],
+        [
+          "why",
+          "do",
+          "dark",
+          "clothes",
+          "absorb",
+          "heat",
+          "more"
+        ]
+      ],
+      "display": "Why do dark clothes absorb more heat?",
+      "explanation": {
+        "ru": "absorb heat — поглощать тепло. В вопросе после why идёт вспомогательный глагол: clothes — множественное число, поэтому do, а не does.",
+        "uz": "absorb heat — issiqlikni yutmoq. Savolda why so'zidan keyin yordamchi fe'l keladi: clothes ko'plikda, shuning uchun does emas, do ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "greenhouse"
+      ],
+      "prompt": {
+        "ru": "Что они выращивают в своей теплице?",
+        "uz": "Ular o'z issiqxonasida nima yetishtiradi?"
+      },
+      "fragments": [
+        "what",
+        "do",
+        "they",
+        "grow",
+        "in",
+        "their",
+        "greenhouse"
+      ],
+      "accepted": [
+        [
+          "what",
+          "do",
+          "they",
+          "grow",
+          "in",
+          "their",
+          "greenhouse"
+        ]
+      ],
+      "display": "What do they grow in their greenhouse?",
+      "explanation": {
+        "ru": "grow — выращивать (овощи, цветы). Greenhouse пишется слитно: green + house. В вопросе к дополнению нужен do: What do they grow…?",
+        "uz": "grow — yetishtirmoq (sabzavot, gul). Greenhouse qo'shib yoziladi: green + house. To'ldiruvchiga berilgan savolda do kerak: What do they grow…?"
+      }
+    },
+    {
+      "key": "b2-m07-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "carbon",
+        "footprint"
+      ],
+      "prompt": {
+        "ru": "Как мне уменьшить свой углеродный след?",
+        "uz": "Uglerod izimni qanday kamaytira olaman?"
+      },
+      "fragments": [
+        "how",
+        "can",
+        "I",
+        "reduce",
+        "my",
+        "carbon",
+        "footprint"
+      ],
+      "accepted": [
+        [
+          "how",
+          "can",
+          "I",
+          "reduce",
+          "my",
+          "carbon",
+          "footprint"
+        ]
+      ],
+      "display": "How can I reduce my carbon footprint?",
+      "explanation": {
+        "ru": "carbon footprint — углеродный след: количество углекислого газа, которое попадает в воздух из-за действий человека или компании. Reduce your carbon footprint — уменьшить его.",
+        "uz": "carbon footprint — uglerod izi: inson yoki kompaniya faoliyati tufayli havoga chiqadigan karbonat angidrid miqdori. Reduce your carbon footprint — uni kamaytirmoq."
+      }
+    },
+    {
+      "key": "b2-m07-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "glacier"
+      ],
+      "text": "The glacier moves a little each year",
+      "accepted": [
+        "The glacier moves a little each year"
+      ],
+      "translation": {
+        "ru": "Каждый год ледник немного сдвигается",
+        "uz": "Muzlik har yili biroz siljiydi"
+      },
+      "explanation": {
+        "ru": "glacier: в середине пишется ci, на конце -er: g-l-a-c-i-e-r. В американском произношении ci звучит как «ш».",
+        "uz": "glacier: o'rtada ci, oxirida -er yoziladi: g-l-a-c-i-e-r. Amerikacha talaffuzda ci «sh» kabi eshitiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "methane"
+      ],
+      "text": "Cows produce a lot of methane",
+      "accepted": [
+        "Cows produce a lot of methane"
+      ],
+      "translation": {
+        "ru": "Коровы выделяют много метана",
+        "uz": "Sigirlar ko'p metan chiqaradi"
+      },
+      "explanation": {
+        "ru": "methane: в середине th, на конце немая e: m-e-t-h-a-n-e.",
+        "uz": "methane: o'rtada th, oxirida o'qilmaydigan e yoziladi: m-e-t-h-a-n-e."
+      }
+    },
+    {
+      "key": "b2-m07-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "fossil"
+      ],
+      "text": "Most cars still run on fossil fuels",
+      "accepted": [
+        "Most cars still run on fossil fuels"
+      ],
+      "translation": {
+        "ru": "Большинство машин до сих пор работает на ископаемом топливе",
+        "uz": "Ko'pchilik mashinalar hali ham qazilma yoqilg'ida yuradi"
+      },
+      "explanation": {
+        "ru": "fossil: две s и на конце -il (гласный слышится нечётко): f-o-s-s-i-l.",
+        "uz": "fossil: ikkita s va oxirida -il yoziladi (unli aniq eshitilmaydi): f-o-s-s-i-l."
+      }
+    },
+    {
+      "key": "b2-m07-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "extinction"
+      ],
+      "text": "Scientists are trying to save this species ___ extinction.",
+      "options": [
+        "from",
+        "of",
+        "against"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Учёные пытаются спасти этот вид от вымирания.",
+        "uz": "Olimlar bu turni yo'qolib ketishdan saqlab qolishga harakat qilmoqda."
+      },
+      "explanation": {
+        "ru": "save something from extinction — спасти от вымирания. После save нужен предлог from: save from danger, save from extinction; of и against здесь невозможны.",
+        "uz": "save something from extinction — yo'qolib ketishdan saqlab qolmoq. Save fe'lidan keyin from predlogi keladi: save from danger, save from extinction; of va against bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "prey"
+      ],
+      "text": "An owl is a bird ___ prey that hunts at night.",
+      "options": [
+        "of",
+        "for",
+        "on"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Сова — хищная птица, которая охотится ночью.",
+        "uz": "Boyo'g'li — tunda ov qiladigan yirtqich qush."
+      },
+      "explanation": {
+        "ru": "a bird of prey — хищная птица (буквально «птица добычи»): орёл, сова, ястреб. Это устойчивое выражение, предлог в нём только of.",
+        "uz": "a bird of prey — yirtqich qush (so'zma-so'z «o'lja qushi»): burgut, boyo'g'li, qirg'iy. Bu turg'un birikma, unda faqat of predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "vegetation"
+      ],
+      "text": "The old path was hidden by ___ vegetation.",
+      "options": [
+        "thick",
+        "fat",
+        "tight"
+      ],
+      "correct": [
+        "thick"
+      ],
+      "translation": {
+        "ru": "Старая тропа была скрыта густой растительностью.",
+        "uz": "Eski so'qmoqni qalin o'simlik qoplami yashirib turardi."
+      },
+      "explanation": {
+        "ru": "thick vegetation — густая растительность (так же: thick forest, thick fog). Fat — толстый, полный (о людях и животных), tight — тесный, тугой: о растениях так не говорят.",
+        "uz": "thick vegetation — qalin (zich) o'simlik qoplami (xuddi shunday: thick forest, thick fog). Fat — semiz (odam va hayvonlar haqida), tight — tor, tarang: o'simliklar haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "mammal"
+      ],
+      "prompt": {
+        "ru": "Летучие мыши — единственные млекопитающие, которые умеют летать.",
+        "uz": "Ko'rshapalaklar — ucha oladigan yagona sutemizuvchilar."
+      },
+      "fragments": [
+        "bats",
+        "are",
+        "the",
+        "only",
+        "mammals",
+        "that",
+        "can",
+        "fly"
+      ],
+      "accepted": [
+        [
+          "bats",
+          "are",
+          "the",
+          "only",
+          "mammals",
+          "that",
+          "can",
+          "fly"
+        ],
+        [
+          "the",
+          "only",
+          "mammals",
+          "that",
+          "can",
+          "fly",
+          "are",
+          "bats"
+        ]
+      ],
+      "display": "Bats are the only mammals that can fly.",
+      "explanation": {
+        "ru": "the only + существительное + that… — «единственные, которые…». Перед only нужен артикль the. Можно начать и с другой части: The only mammals that can fly are bats.",
+        "uz": "the only + ot + that… — «…-digan yagona». Only so'zidan oldin the artikli kerak. Gapni boshqa qismidan boshlash ham mumkin: The only mammals that can fly are bats."
+      }
+    },
+    {
+      "key": "b2-m07-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "habitat"
+      ],
+      "prompt": {
+        "ru": "Эти птицы теряют свою естественную среду обитания.",
+        "uz": "Bu qushlar tabiiy yashash muhitini yo'qotmoqda."
+      },
+      "fragments": [
+        "these",
+        "birds",
+        "are",
+        "losing",
+        "their",
+        "natural",
+        "habitat"
+      ],
+      "accepted": [
+        [
+          "these",
+          "birds",
+          "are",
+          "losing",
+          "their",
+          "natural",
+          "habitat"
+        ]
+      ],
+      "display": "These birds are losing their natural habitat.",
+      "explanation": {
+        "ru": "natural habitat — естественная среда обитания. Are losing (Present Continuous) показывает, что процесс идёт сейчас.",
+        "uz": "natural habitat — tabiiy yashash muhiti. Are losing (Present Continuous) jarayon hozir davom etayotganini bildiradi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "predator"
+      ],
+      "prompt": {
+        "ru": "Молодые животные учатся прятаться от хищников.",
+        "uz": "Yosh hayvonlar yirtqichlardan yashirinishni o'rganadi."
+      },
+      "fragments": [
+        "young",
+        "animals",
+        "learn",
+        "to",
+        "hide",
+        "from",
+        "predators"
+      ],
+      "accepted": [
+        [
+          "young",
+          "animals",
+          "learn",
+          "to",
+          "hide",
+          "from",
+          "predators"
+        ]
+      ],
+      "display": "Young animals learn to hide from predators.",
+      "explanation": {
+        "ru": "hide from somebody — прятаться от кого-то. После learn глагол идёт с to: learn to hide.",
+        "uz": "hide from somebody — kimdandir yashirinmoq. Learn fe'lidan keyin fe'l to bilan keladi: learn to hide."
+      }
+    },
+    {
+      "key": "b2-m07-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "sanctuary"
+      ],
+      "text": "Hunting is forbidden in this sanctuary",
+      "accepted": [
+        "Hunting is forbidden in this sanctuary"
+      ],
+      "translation": {
+        "ru": "В этом заповеднике охота запрещена",
+        "uz": "Bu qo'riqxonada ov qilish taqiqlangan"
+      },
+      "explanation": {
+        "ru": "sanctuary: после n пишется ct, затем -uary: s-a-n-c-t-u-a-r-y.",
+        "uz": "sanctuary: n harfidan keyin ct, so'ng -uary yoziladi: s-a-n-c-t-u-a-r-y."
+      }
+    },
+    {
+      "key": "b2-m07-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "ecosystem",
+        "biodiversity"
+      ],
+      "text": "A healthy ecosystem needs rich biodiversity",
+      "accepted": [
+        "A healthy ecosystem needs rich biodiversity"
+      ],
+      "translation": {
+        "ru": "Здоровой экосистеме нужно богатое биоразнообразие",
+        "uz": "Sog'lom ekotizimga boy bioxilma-xillik kerak"
+      },
+      "explanation": {
+        "ru": "ecosystem и biodiversity пишутся слитно: eco + system, bio + diversity. В system после первой s стоит y.",
+        "uz": "ecosystem va biodiversity qo'shib yoziladi: eco + system, bio + diversity. System so'zida birinchi s harfidan keyin y keladi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "conservation"
+      ],
+      "text": "He wants to work in nature conservation",
+      "accepted": [
+        "He wants to work in nature conservation"
+      ],
+      "translation": {
+        "ru": "Он хочет работать в сфере охраны природы",
+        "uz": "U tabiatni muhofaza qilish sohasida ishlashni xohlaydi"
+      },
+      "explanation": {
+        "ru": "Не путайте conservation (охрана природы) с conversation (разговор): в conservation сначала идёт s, потом v.",
+        "uz": "conservation (tabiatni muhofaza qilish) so'zini conversation (suhbat) bilan adashtirmang: conservation so'zida avval s, keyin v keladi."
+      }
+    },
+    {
+      "key": "b2-m07-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "landfill"
+      ],
+      "text": "Most old phones end ___ in a landfill.",
+      "options": [
+        "up",
+        "out",
+        "off"
+      ],
+      "correct": [
+        "up"
+      ],
+      "translation": {
+        "ru": "Большинство старых телефонов в итоге оказывается на свалке.",
+        "uz": "Eski telefonlarning ko'pchiligi oxir-oqibat chiqindixonaga tushadi."
+      },
+      "explanation": {
+        "ru": "end up in a landfill — в итоге оказаться на свалке. End up — «оказаться где-то в конце концов»; end out и end off в этом значении не употребляются.",
+        "uz": "end up in a landfill — oxir-oqibat chiqindixonaga tushmoq. End up — «oxiri biror joyga borib qolmoq»; end out va end off bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "pesticide"
+      ],
+      "text": "Farmers ___ their fields with pesticides every spring.",
+      "options": [
+        "spray",
+        "pour",
+        "spill"
+      ],
+      "correct": [
+        "spray"
+      ],
+      "translation": {
+        "ru": "Каждую весну фермеры опрыскивают поля пестицидами.",
+        "uz": "Fermerlar har bahorda dalalariga pestitsid sepadi."
+      },
+      "explanation": {
+        "ru": "spray a field with pesticides — опрыскивать поле пестицидами. Pour и spill значат «лить» и «проливать» саму жидкость (pour water, spill milk), поэтому сказать pour / spill a field нельзя.",
+        "uz": "spray a field with pesticides — dalaga pestitsid sepmoq. Pour va spill suyuqlikning o'zini «quymoq» va «to'kib yubormoq» degani (pour water, spill milk), shuning uchun pour / spill a field deb bo'lmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "disposal"
+      ],
+      "text": "The factory pays for the disposal ___ its waste.",
+      "options": [
+        "of",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Завод платит за утилизацию своих отходов.",
+        "uz": "Zavod o'z chiqindilarini utilizatsiya qilish uchun pul to'laydi."
+      },
+      "explanation": {
+        "ru": "the disposal of waste — утилизация отходов. После disposal стоит of, как и после глагола dispose: dispose of waste.",
+        "uz": "the disposal of waste — chiqindilarni utilizatsiya qilish. Disposal so'zidan keyin of keladi, dispose fe'lidan keyin ham shunday: dispose of waste."
+      }
+    },
+    {
+      "key": "b2-m07-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "contaminate"
+      ],
+      "prompt": {
+        "ru": "Эти химикаты могут загрязнить питьевую воду.",
+        "uz": "Bu kimyoviy moddalar ichimlik suvini ifloslantirishi mumkin."
+      },
+      "fragments": [
+        "these",
+        "chemicals",
+        "can",
+        "contaminate",
+        "drinking",
+        "water"
+      ],
+      "accepted": [
+        [
+          "these",
+          "chemicals",
+          "can",
+          "contaminate",
+          "drinking",
+          "water"
+        ]
+      ],
+      "display": "These chemicals can contaminate drinking water.",
+      "explanation": {
+        "ru": "contaminate — загрязнять, делать опасным для здоровья (воду, пищу, почву). После can глагол стоит без to. Drinking water — питьевая вода.",
+        "uz": "contaminate — ifloslantirmoq, sog'liq uchun xavfli qilmoq (suvni, ovqatni, tuproqni). Can so'zidan keyin fe'l to yuklamasisiz keladi. Drinking water — ichimlik suvi."
+      }
+    },
+    {
+      "key": "b2-m07-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "dump"
+      ],
+      "prompt": {
+        "ru": "Заводы не должны сбрасывать отходы в реки.",
+        "uz": "Zavodlar chiqindilarni daryolarga tashlamasligi kerak."
+      },
+      "fragments": [
+        "factories",
+        "must",
+        "not",
+        "dump",
+        "waste",
+        "into",
+        "rivers"
+      ],
+      "accepted": [
+        [
+          "factories",
+          "must",
+          "not",
+          "dump",
+          "waste",
+          "into",
+          "rivers"
+        ]
+      ],
+      "display": "Factories must not dump waste into rivers.",
+      "explanation": {
+        "ru": "dump waste into a river — сбрасывать отходы в реку. Must not — строгий запрет: «нельзя, не должны».",
+        "uz": "dump waste into a river — chiqindini daryoga tashlamoq. Must not — qat'iy taqiq: «mumkin emas»."
+      }
+    },
+    {
+      "key": "b2-m07-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "poisonous"
+      ],
+      "prompt": {
+        "ru": "Откуда вы знаете, какие растения ядовиты?",
+        "uz": "Qaysi o'simliklar zaharli ekanini qayerdan bilasiz?"
+      },
+      "fragments": [
+        "how",
+        "do",
+        "you",
+        "know",
+        "which",
+        "plants",
+        "are",
+        "poisonous"
+      ],
+      "accepted": [
+        [
+          "how",
+          "do",
+          "you",
+          "know",
+          "which",
+          "plants",
+          "are",
+          "poisonous"
+        ],
+        [
+          "how",
+          "do",
+          "you",
+          "know",
+          "which",
+          "are",
+          "poisonous",
+          "plants"
+        ]
+      ],
+      "display": "How do you know which plants are poisonous?",
+      "explanation": {
+        "ru": "How do you know…? — «Откуда вы знаете…?». Poisonous — ядовитый: poisonous plants, poisonous mushrooms, poisonous snakes.",
+        "uz": "How do you know…? — «…qayerdan bilasiz?». Poisonous — zaharli: poisonous plants, poisonous mushrooms, poisonous snakes."
+      }
+    },
+    {
+      "key": "b2-m07-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "exhaust",
+        "smog"
+      ],
+      "text": "Car exhaust is the main cause of smog",
+      "accepted": [
+        "Car exhaust is the main cause of smog"
+      ],
+      "translation": {
+        "ru": "Выхлопные газы автомобилей — главная причина смога",
+        "uz": "Avtomobillarning chiqindi gazlari — smogning asosiy sababi"
+      },
+      "explanation": {
+        "ru": "exhaust: после x пишется немая h, затем au: e-x-h-a-u-s-t.",
+        "uz": "exhaust: x harfidan keyin o'qilmaydigan h, so'ng au yoziladi: e-x-h-a-u-s-t."
+      }
+    },
+    {
+      "key": "b2-m07-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "sewage"
+      ],
+      "text": "This pipe carries sewage out of the city",
+      "accepted": [
+        "This pipe carries sewage out of the city"
+      ],
+      "translation": {
+        "ru": "По этой трубе сточные воды выводятся из города",
+        "uz": "Bu quvur oqova suvni shahardan olib chiqadi"
+      },
+      "explanation": {
+        "ru": "sewage: звук «у» пишется ew, а конечное -age читается как «идж»: s-e-w-a-g-e.",
+        "uz": "sewage: «u» tovushi ew bilan yoziladi, oxiridagi -age esa «ij» kabi o'qiladi: s-e-w-a-g-e."
+      }
+    },
+    {
+      "key": "b2-m07-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "pollutant"
+      ],
+      "text": "This pollutant is dangerous for children",
+      "accepted": [
+        "This pollutant is dangerous for children"
+      ],
+      "translation": {
+        "ru": "Это загрязняющее вещество опасно для детей",
+        "uz": "Bu ifloslantiruvchi modda bolalar uchun xavfli"
+      },
+      "explanation": {
+        "ru": "pollutant: две l и на конце -ant (не -ent): p-o-l-l-u-t-a-n-t.",
+        "uz": "pollutant: ikkita l va oxirida -ant (-ent emas) yoziladi: p-o-l-l-u-t-a-n-t."
+      }
+    },
+    {
+      "key": "b2-m07-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "nuclear"
+      ],
+      "text": "The country is building a new nuclear power ___.",
+      "options": [
+        "plant",
+        "factory",
+        "fabric"
+      ],
+      "correct": [
+        "plant"
+      ],
+      "translation": {
+        "ru": "Страна строит новую атомную электростанцию.",
+        "uz": "Mamlakat yangi atom elektr stansiyasini qurmoqda."
+      },
+      "explanation": {
+        "ru": "nuclear power plant — атомная электростанция (в британском английском также power station). Factory — завод или фабрика, где делают товары, а fabric — это ткань, «ложный друг» слова «фабрика».",
+        "uz": "nuclear power plant — atom elektr stansiyasi (britancha inglizchada power station ham deyiladi). Factory — mahsulot ishlab chiqaradigan zavod yoki fabrika, fabric esa — mato, u «fabrika» degani emas."
+      }
+    },
+    {
+      "key": "b2-m07-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "coal"
+      ],
+      "text": "His grandfather worked in a coal ___ all his life.",
+      "options": [
+        "mine",
+        "cave",
+        "well"
+      ],
+      "correct": [
+        "mine"
+      ],
+      "translation": {
+        "ru": "Его дедушка всю жизнь проработал на угольной шахте.",
+        "uz": "Uning bobosi butun umr ko'mir konida ishlagan."
+      },
+      "explanation": {
+        "ru": "coal mine — угольная шахта. Cave — пещера, созданная природой, а well — колодец или скважина (oil well — нефтяная скважина); место, где добывают уголь, — это mine.",
+        "uz": "coal mine — ko'mir koni (shaxtasi). Cave — tabiiy g'or, well — quduq (oil well — neft qudug'i); ko'mir qazib olinadigan joy esa mine deyiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "renewable"
+      ],
+      "text": "The country gets most of its electricity from renewable ___.",
+      "options": [
+        "sources",
+        "origins",
+        "roots"
+      ],
+      "correct": [
+        "sources"
+      ],
+      "translation": {
+        "ru": "Страна получает большую часть электроэнергии из возобновляемых источников.",
+        "uz": "Mamlakat elektr energiyasining katta qismini qayta tiklanuvchi manbalardan oladi."
+      },
+      "explanation": {
+        "ru": "renewable sources — возобновляемые источники (энергии): солнце, ветер, вода. Origin — происхождение, root — корень; источник энергии — это source.",
+        "uz": "renewable sources — qayta tiklanuvchi (energiya) manbalari: quyosh, shamol, suv. Origin — kelib chiqish, root — ildiz; energiya manbai esa source deyiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "scarce"
+      ],
+      "prompt": {
+        "ru": "Воды слишком мало, чтобы тратить её впустую.",
+        "uz": "Suv shu qadar tanqiski, uni isrof qilib bo'lmaydi."
+      },
+      "fragments": [
+        "water",
+        "is",
+        "too scarce",
+        "to",
+        "waste"
+      ],
+      "accepted": [
+        [
+          "water",
+          "is",
+          "too scarce",
+          "to",
+          "waste"
+        ]
+      ],
+      "display": "Water is too scarce to waste.",
+      "explanation": {
+        "ru": "scarce — дефицитный: такой, которого мало и не хватает. Too + прилагательное + to + глагол — «слишком…, чтобы…»: too scarce to waste.",
+        "uz": "scarce — tanqis: kam va yetishmaydigan. Too + sifat + to + fe'l — «shu qadar …ki, …-ib bo'lmaydi»: too scarce to waste."
+      }
+    },
+    {
+      "key": "b2-m07-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "deplete"
+      ],
+      "prompt": {
+        "ru": "Мы истощаем ресурсы планеты.",
+        "uz": "Biz sayyora resurslarini tugatmoqdamiz."
+      },
+      "fragments": [
+        "we",
+        "are",
+        "depleting",
+        "the",
+        "planet's",
+        "resources"
+      ],
+      "accepted": [
+        [
+          "we",
+          "are",
+          "depleting",
+          "the",
+          "planet's",
+          "resources"
+        ]
+      ],
+      "display": "We are depleting the planet's resources.",
+      "explanation": {
+        "ru": "deplete resources — истощать ресурсы: расходовать их так, что почти ничего не остаётся. The planet's resources — ресурсы планеты: 's показывает принадлежность.",
+        "uz": "deplete resources — resurslarni tugatmoq: deyarli hech narsa qolmaydigan darajada sarflamoq. The planet's resources — sayyora resurslari: 's egalikni bildiradi."
+      }
+    },
+    {
+      "key": "b2-m07-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "sustainable"
+      ],
+      "prompt": {
+        "ru": "Нам нужен более устойчивый образ жизни.",
+        "uz": "Bizga barqarorroq turmush tarzi kerak."
+      },
+      "fragments": [
+        "we",
+        "need",
+        "a",
+        "more",
+        "sustainable",
+        "way",
+        "of",
+        "life"
+      ],
+      "accepted": [
+        [
+          "we",
+          "need",
+          "a",
+          "more",
+          "sustainable",
+          "way",
+          "of",
+          "life"
+        ]
+      ],
+      "display": "We need a more sustainable way of life.",
+      "explanation": {
+        "ru": "sustainable — устойчивый: такой, который не вредит природе и может продолжаться долго. Сравнительная степень длинных прилагательных образуется с more: more sustainable. Way of life — образ жизни.",
+        "uz": "sustainable — barqaror: tabiatga zarar yetkazmaydigan va uzoq davom eta oladigan. Uzun sifatlarning qiyosiy darajasi more bilan yasaladi: more sustainable. Way of life — turmush tarzi."
+      }
+    },
+    {
+      "key": "b2-m07-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "hydropower"
+      ],
+      "text": "Most of our electricity comes from hydropower",
+      "accepted": [
+        "Most of our electricity comes from hydropower"
+      ],
+      "translation": {
+        "ru": "Большую часть электроэнергии мы получаем за счёт гидроэнергии",
+        "uz": "Elektr energiyamizning katta qismi gidroenergiyadan olinadi"
+      },
+      "explanation": {
+        "ru": "hydropower пишется слитно: hydro + power. После h стоит y: h-y-d-r-o.",
+        "uz": "hydropower qo'shib yoziladi: hydro + power. H harfidan keyin y keladi: h-y-d-r-o."
+      }
+    },
+    {
+      "key": "b2-m07-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "reservoir",
+        "turbine"
+      ],
+      "text": "Water from the reservoir turns a huge turbine",
+      "accepted": [
+        "Water from the reservoir turns a huge turbine"
+      ],
+      "translation": {
+        "ru": "Вода из водохранилища вращает огромную турбину",
+        "uz": "Suv omboridan kelgan suv ulkan turbinani aylantiradi"
+      },
+      "explanation": {
+        "ru": "reservoir: на конце -voir (v-o-i-r), хотя слышится «вуар»: r-e-s-e-r-v-o-i-r. Turbine оканчивается на немую e.",
+        "uz": "reservoir: oxirida -voir (v-o-i-r) yoziladi, garchi «vuar» kabi eshitilsa ham: r-e-s-e-r-v-o-i-r. Turbine o'qilmaydigan e bilan tugaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "mineral"
+      ],
+      "text": "The country sells minerals to its neighbors",
+      "accepted": [
+        "The country sells minerals to its neighbors"
+      ],
+      "translation": {
+        "ru": "Страна продаёт полезные ископаемые своим соседям",
+        "uz": "Mamlakat foydali qazilmalarni qo'shnilariga sotadi"
+      }
+    },
+    {
+      "key": "b2-m07-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "wildfire"
+      ],
+      "text": "Firefighters worked all night to put ___ the wildfire.",
+      "options": [
+        "out",
+        "off",
+        "away"
+      ],
+      "correct": [
+        "out"
+      ],
+      "translation": {
+        "ru": "Пожарные всю ночь работали, чтобы потушить лесной пожар.",
+        "uz": "O't o'chiruvchilar o'rmon yong'inini o'chirish uchun tun bo'yi ishladi."
+      },
+      "explanation": {
+        "ru": "put out a fire — потушить пожар. Put off — откладывать (встречу, дело), put away — убирать на место: с fire и wildfire нужен put out.",
+        "uz": "put out a fire — yong'inni o'chirmoq. Put off — keyinga qoldirmoq (uchrashuvni, ishni), put away — joyiga olib qo'ymoq: fire va wildfire so'zlari bilan put out ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "catastrophe"
+      ],
+      "text": "Quick action helped to ___ a catastrophe.",
+      "options": [
+        "prevent",
+        "warn",
+        "forbid"
+      ],
+      "correct": [
+        "prevent"
+      ],
+      "translation": {
+        "ru": "Быстрые действия помогли предотвратить катастрофу.",
+        "uz": "Tezkor harakatlar falokatning oldini olishga yordam berdi."
+      },
+      "explanation": {
+        "ru": "prevent a catastrophe — предотвратить катастрофу. Warn — предупреждать человека об опасности (warn people about a storm), forbid — запрещать; с catastrophe они не сочетаются.",
+        "uz": "prevent a catastrophe — falokatning oldini olmoq. Warn — odamni xavf haqida ogohlantirmoq (warn people about a storm), forbid — taqiqlamoq; catastrophe so'zi bilan ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "tornado"
+      ],
+      "text": "A tornado ___ the town and damaged many roofs.",
+      "options": [
+        "hit",
+        "beat",
+        "knocked"
+      ],
+      "correct": [
+        "hit"
+      ],
+      "translation": {
+        "ru": "На город обрушился торнадо и повредил много крыш.",
+        "uz": "Shaharga tornado yopirilib, ko'plab tomlarga zarar yetkazdi."
+      },
+      "explanation": {
+        "ru": "a tornado hits a town — торнадо обрушивается на город. О стихийных бедствиях говорят hit или strike: The storm hit the coast. Beat (бить, побеждать) и knock (стучать) так не употребляются.",
+        "uz": "a tornado hits a town — tornado shaharga yopiriladi. Tabiiy ofatlar haqida hit yoki strike deyiladi: The storm hit the coast. Beat (urmoq, yengmoq) va knock (taqillatmoq) bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "deforestation"
+      ],
+      "prompt": {
+        "ru": "Какова главная причина вырубки лесов?",
+        "uz": "O'rmonlarni kesishning asosiy sababi nima?"
+      },
+      "fragments": [
+        "what",
+        "is",
+        "the",
+        "main",
+        "cause",
+        "of",
+        "deforestation"
+      ],
+      "accepted": [
+        [
+          "what",
+          "is",
+          "the",
+          "main",
+          "cause",
+          "of",
+          "deforestation"
+        ]
+      ],
+      "display": "What is the main cause of deforestation?",
+      "explanation": {
+        "ru": "the cause of something — причина чего-то (с предлогом of). Deforestation — неисчисляемое существительное, артикль перед ним не нужен.",
+        "uz": "the cause of something — biror narsaning sababi (of predlogi bilan). Deforestation — sanalmaydigan ot, undan oldin artikl kerak emas."
+      }
+    },
+    {
+      "key": "b2-m07-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "erosion"
+      ],
+      "prompt": {
+        "ru": "Эрозия разрушила часть дороги.",
+        "uz": "Eroziya yo'lning bir qismini vayron qildi."
+      },
+      "fragments": [
+        "erosion",
+        "has",
+        "destroyed",
+        "part",
+        "of",
+        "the",
+        "road"
+      ],
+      "accepted": [
+        [
+          "erosion",
+          "has",
+          "destroyed",
+          "part",
+          "of",
+          "the",
+          "road"
+        ]
+      ],
+      "display": "Erosion has destroyed part of the road.",
+      "explanation": {
+        "ru": "Present Perfect (has destroyed) показывает результат, который виден сейчас. Part of the road — часть дороги: перед part артикль обычно не ставят.",
+        "uz": "Present Perfect (has destroyed) hozir ko'rinib turgan natijani bildiradi. Part of the road — yo'lning bir qismi: part so'zidan oldin odatda artikl qo'yilmaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "eruption"
+      ],
+      "prompt": {
+        "ru": "Когда было последнее извержение вулкана?",
+        "uz": "Vulqonning oxirgi otilishi qachon bo'lgan?"
+      },
+      "fragments": [
+        "when",
+        "was",
+        "the",
+        "last",
+        "eruption",
+        "of",
+        "the",
+        "volcano"
+      ],
+      "accepted": [
+        [
+          "when",
+          "was",
+          "the",
+          "last",
+          "eruption",
+          "of",
+          "the",
+          "volcano"
+        ]
+      ],
+      "display": "When was the last eruption of the volcano?",
+      "explanation": {
+        "ru": "the eruption of a volcano — извержение вулкана (с предлогом of). Когда last значит «последний по счёту», перед ним стоит the: the last eruption.",
+        "uz": "the eruption of a volcano — vulqonning otilishi (of predlogi bilan). Last «eng so'nggi, oxirgi» ma'nosida kelganda undan oldin the artikli turadi: the last eruption."
+      }
+    },
+    {
+      "key": "b2-m07-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "tsunami"
+      ],
+      "text": "The tsunami reached the coast in an hour",
+      "accepted": [
+        "The tsunami reached the coast in an hour"
+      ],
+      "translation": {
+        "ru": "Цунами достигло побережья за час",
+        "uz": "Sunami qirg'oqqa bir soatda yetib bordi"
+      },
+      "explanation": {
+        "ru": "tsunami: слово начинается с ts. Многие произносят в начале только «с», но букву t писать нужно: t-s-u-n-a-m-i.",
+        "uz": "tsunami: so'z ts bilan boshlanadi. Ko'pchilik boshida faqat «s» tovushini aytadi, lekin t harfi albatta yoziladi: t-s-u-n-a-m-i."
+      }
+    },
+    {
+      "key": "b2-m07-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "landslide",
+        "avalanche"
+      ],
+      "text": "Landslides and avalanches are common in the mountains",
+      "accepted": [
+        "Landslides and avalanches are common in the mountains"
+      ],
+      "translation": {
+        "ru": "Оползни и лавины в горах — обычное явление",
+        "uz": "Tog'larda yer ko'chkilari va qor ko'chkilari tez-tez bo'lib turadi"
+      },
+      "explanation": {
+        "ru": "landslide пишется слитно: land + slide. Avalanche оканчивается на -che с немой e: a-v-a-l-a-n-c-h-e.",
+        "uz": "landslide qo'shib yoziladi: land + slide. Avalanche o'qilmaydigan e bilan, -che deb tugaydi: a-v-a-l-a-n-c-h-e."
+      }
+    },
+    {
+      "key": "b2-m07-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "cyclone"
+      ],
+      "text": "Schools are closed because of the cyclone",
+      "accepted": [
+        "Schools are closed because of the cyclone"
+      ],
+      "translation": {
+        "ru": "Школы закрыты из-за циклона",
+        "uz": "Siklon tufayli maktablar yopiq"
+      },
+      "explanation": {
+        "ru": "cyclone: первая c читается как «с», после неё стоит y; на конце немая e: c-y-c-l-o-n-e.",
+        "uz": "cyclone: birinchi c «s» kabi o'qiladi, undan keyin y keladi; oxirida o'qilmaydigan e bor: c-y-c-l-o-n-e."
+      }
+    },
+    {
+      "key": "b2-m08-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "constitution"
+      ],
+      "text": "All citizens have equal rights ___ the constitution.",
+      "options": [
+        "under",
+        "below",
+        "beneath"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "По конституции все граждане имеют равные права.",
+        "uz": "Konstitutsiyaga ko'ra barcha fuqarolar teng huquqlarga ega."
+      },
+      "explanation": {
+        "ru": "under the constitution — по конституции, согласно конституции. Так же: under the law — по закону. Below и beneath в этом значении не употребляются.",
+        "uz": "under the constitution — konstitutsiyaga ko'ra, konstitutsiya bo'yicha. Xuddi shunday: under the law — qonunga ko'ra. Below va beneath bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "parliament"
+      ],
+      "text": "Parliament ___ a new law on education last week.",
+      "options": [
+        "passed",
+        "took",
+        "received"
+      ],
+      "correct": [
+        "passed"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе парламент принял новый закон об образовании.",
+        "uz": "O'tgan hafta parlament ta'lim to'g'risida yangi qonun qabul qildi."
+      },
+      "explanation": {
+        "ru": "pass a law — принять закон (о парламенте). Русское «принять» здесь не take и не receive: Parliament passed the law.",
+        "uz": "pass a law — qonun qabul qilmoq (parlament haqida). O'zbekcha «qabul qilmoq» bu yerda take ham, receive ham emas: Parliament passed the law."
+      }
+    },
+    {
+      "key": "b2-m08-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "empire"
+      ],
+      "text": "The empire ___ after many years of economic problems.",
+      "options": [
+        "fell",
+        "dropped",
+        "slipped"
+      ],
+      "correct": [
+        "fell"
+      ],
+      "translation": {
+        "ru": "Империя пала после многих лет экономических проблем.",
+        "uz": "Imperiya ko'p yillik iqtisodiy muammolardan so'ng quladi."
+      },
+      "explanation": {
+        "ru": "an empire falls — империя гибнет, «падает» (существительное: the fall of the empire). Drop — ронять или резко снижаться (о ценах), slip — поскользнуться; о государстве так не говорят.",
+        "uz": "an empire falls — imperiya qulaydi (ot shakli: the fall of the empire). Drop — tushirib yubormoq yoki keskin pasaymoq (narxlar haqida), slip — sirpanib ketmoq; davlat haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "democracy"
+      ],
+      "prompt": {
+        "ru": "Построить демократию нелегко.",
+        "uz": "Demokratiya qurish oson emas."
+      },
+      "fragments": [
+        "it",
+        "is",
+        "not",
+        "easy",
+        "to",
+        "build",
+        "a",
+        "democracy"
+      ],
+      "accepted": [
+        [
+          "it",
+          "is",
+          "not",
+          "easy",
+          "to",
+          "build",
+          "a",
+          "democracy"
+        ]
+      ],
+      "display": "It is not easy to build a democracy.",
+      "explanation": {
+        "ru": "It is (not) easy to + глагол — «(не)легко что-то сделать»: в начале стоит формальное подлежащее it. A democracy — демократическое государство, поэтому слово стоит с артиклем.",
+        "uz": "It is (not) easy to + fe'l — «biror ishni qilish oson (emas)»: gap boshida rasmiy ega it turadi. A democracy — demokratik davlat, shuning uchun so'z artikl bilan keladi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "republic"
+      ],
+      "prompt": {
+        "ru": "Когда ваша страна стала республикой?",
+        "uz": "Mamlakatingiz qachon respublikaga aylangan?"
+      },
+      "fragments": [
+        "when",
+        "did",
+        "your",
+        "country",
+        "become",
+        "a",
+        "republic"
+      ],
+      "accepted": [
+        [
+          "when",
+          "did",
+          "your",
+          "country",
+          "become",
+          "a",
+          "republic"
+        ]
+      ],
+      "display": "When did your country become a republic?",
+      "explanation": {
+        "ru": "become a republic — стать республикой: перед republic нужен артикль a. В вопросе с did глагол стоит в начальной форме: become, а не became.",
+        "uz": "become a republic — respublikaga aylanmoq: republic so'zidan oldin a artikli kerak. Did ishtirok etgan savolda fe'l bosh shaklda turadi: became emas, become."
+      }
+    },
+    {
+      "key": "b2-m08-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "monarchy"
+      ],
+      "prompt": {
+        "ru": "Многие люди хотят сохранить монархию.",
+        "uz": "Ko'p odamlar monarxiyani saqlab qolishni xohlaydi."
+      },
+      "fragments": [
+        "many",
+        "people",
+        "want",
+        "to",
+        "keep",
+        "the",
+        "monarchy"
+      ],
+      "accepted": [
+        [
+          "many",
+          "people",
+          "want",
+          "to",
+          "keep",
+          "the",
+          "monarchy"
+        ]
+      ],
+      "display": "Many people want to keep the monarchy.",
+      "explanation": {
+        "ru": "keep the monarchy — сохранить монархию. После want глагол идёт с to: want to keep.",
+        "uz": "keep the monarchy — monarxiyani saqlab qolmoq. Want fe'lidan keyin fe'l to bilan keladi: want to keep."
+      }
+    },
+    {
+      "key": "b2-m08-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "sovereignty"
+      ],
+      "text": "Every nation values its sovereignty",
+      "accepted": [
+        "Every nation values its sovereignty"
+      ],
+      "translation": {
+        "ru": "Каждая страна дорожит своим суверенитетом",
+        "uz": "Har bir mamlakat o'z suverenitetini qadrlaydi"
+      },
+      "explanation": {
+        "ru": "sovereignty: в середине -eign- с немой g, как в foreign: s-o-v-e-r-e-i-g-n-t-y.",
+        "uz": "sovereignty: o'rtada -eign- yoziladi, g o'qilmaydi (foreign so'zidagi kabi): s-o-v-e-r-e-i-g-n-t-y."
+      }
+    },
+    {
+      "key": "b2-m08-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "federation",
+        "autonomy"
+      ],
+      "text": "Each region of the federation has autonomy",
+      "accepted": [
+        "Each region of the federation has autonomy"
+      ],
+      "translation": {
+        "ru": "У каждого региона федерации есть автономия",
+        "uz": "Federatsiyaning har bir hududi muxtoriyatga ega"
+      },
+      "explanation": {
+        "ru": "autonomy: в начале au, как в author: a-u-t-o-n-o-m-y.",
+        "uz": "autonomy: boshida au yoziladi (author so'zidagi kabi): a-u-t-o-n-o-m-y."
+      }
+    },
+    {
+      "key": "b2-m08-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "regime"
+      ],
+      "text": "The new regime changed many old laws",
+      "accepted": [
+        "The new regime changed many old laws"
+      ],
+      "translation": {
+        "ru": "Новый режим изменил многие старые законы",
+        "uz": "Yangi rejim ko'plab eski qonunlarni o'zgartirdi"
+      },
+      "explanation": {
+        "ru": "regime: g читается как «ж», на конце немая e: r-e-g-i-m-e.",
+        "uz": "regime: g «j» kabi o'qiladi, oxirida o'qilmaydigan e bor: r-e-g-i-m-e."
+      }
+    },
+    {
+      "key": "b2-m08-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "referendum"
+      ],
+      "text": "The government will ___ a referendum on this question next year.",
+      "options": [
+        "hold",
+        "keep",
+        "spend"
+      ],
+      "correct": [
+        "hold"
+      ],
+      "translation": {
+        "ru": "В следующем году правительство проведёт референдум по этому вопросу.",
+        "uz": "Kelasi yili hukumat bu masala bo'yicha referendum o'tkazadi."
+      },
+      "explanation": {
+        "ru": "hold a referendum — провести референдум (так же: hold an election, hold a meeting). Spend — проводить время или тратить деньги, keep — хранить, держать у себя.",
+        "uz": "hold a referendum — referendum o'tkazmoq (xuddi shunday: hold an election, hold a meeting). Spend — vaqt o'tkazmoq yoki pul sarflamoq, keep — saqlamoq, o'zida ushlab turmoq."
+      }
+    },
+    {
+      "key": "b2-m08-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "minority"
+      ],
+      "text": "People who want to change the rules are ___ the minority.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Те, кто хочет изменить правила, находятся в меньшинстве.",
+        "uz": "Qoidalarni o'zgartirishni xohlaydiganlar ozchilikni tashkil qiladi."
+      },
+      "explanation": {
+        "ru": "be in the minority — быть в меньшинстве; так же be in the majority — быть в большинстве. Предлог здесь только in.",
+        "uz": "be in the minority — ozchilikda bo'lmoq, ozchilikni tashkil qilmoq; xuddi shunday be in the majority — ko'pchilikda bo'lmoq. Bu yerda faqat in predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m08-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "coalition"
+      ],
+      "text": "The party now works in coalition ___ two smaller parties.",
+      "options": [
+        "with",
+        "to",
+        "by"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Сейчас партия работает в коалиции с двумя более мелкими партиями.",
+        "uz": "Hozir partiya ikkita kichikroq partiya bilan koalitsiyada ishlamoqda."
+      },
+      "explanation": {
+        "ru": "in coalition with — в коалиции с кем-то. Русскому «с» здесь соответствует with: form a coalition with another party.",
+        "uz": "in coalition with — kim bilandir koalitsiyada. O'zbekcha «bilan» bu yerda with bo'ladi: form a coalition with another party."
+      }
+    },
+    {
+      "key": "b2-m08-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "nominate"
+      ],
+      "prompt": {
+        "ru": "Кого партия выдвинет кандидатом в мэры?",
+        "uz": "Partiya kimni merlikka nomzod qilib ko'rsatadi?"
+      },
+      "fragments": [
+        "who",
+        "will",
+        "the",
+        "party",
+        "nominate",
+        "for",
+        "mayor"
+      ],
+      "accepted": [
+        [
+          "who",
+          "will",
+          "the",
+          "party",
+          "nominate",
+          "for",
+          "mayor"
+        ]
+      ],
+      "display": "Who will the party nominate for mayor?",
+      "explanation": {
+        "ru": "nominate somebody for + должность — выдвинуть кого-то кандидатом на должность: nominate her for mayor. В вопросе will стоит перед подлежащим: Who will the party nominate?",
+        "uz": "nominate somebody for + lavozim — kimnidir lavozimga nomzod qilib ko'rsatmoq: nominate her for mayor. Savolda will egadan oldin keladi: Who will the party nominate?"
+      }
+    },
+    {
+      "key": "b2-m08-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "majority"
+      ],
+      "prompt": {
+        "ru": "Какая партия получила большинство мест?",
+        "uz": "Qaysi partiya o'rinlarning ko'pchiligini qo'lga kiritdi?"
+      },
+      "fragments": [
+        "which",
+        "party",
+        "won",
+        "the",
+        "majority",
+        "of",
+        "seats"
+      ],
+      "accepted": [
+        [
+          "which",
+          "party",
+          "won",
+          "the",
+          "majority",
+          "of",
+          "seats"
+        ]
+      ],
+      "display": "Which party won the majority of seats?",
+      "explanation": {
+        "ru": "the majority of + существительное во множественном числе — большинство чего-то: the majority of seats. Which party — подлежащее, поэтому did не нужен.",
+        "uz": "the majority of + ko'plikdagi ot — biror narsaning ko'pchiligi: the majority of seats. Which party — ega, shuning uchun did kerak emas."
+      }
+    },
+    {
+      "key": "b2-m08-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "poll"
+      ],
+      "prompt": {
+        "ru": "Никто не верит результатам этого опроса.",
+        "uz": "Bu so'rov natijalariga hech kim ishonmaydi."
+      },
+      "fragments": [
+        "nobody",
+        "believes",
+        "the",
+        "results",
+        "of",
+        "this",
+        "poll"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "believes",
+          "the",
+          "results",
+          "of",
+          "this",
+          "poll"
+        ]
+      ],
+      "display": "Nobody believes the results of this poll.",
+      "explanation": {
+        "ru": "the results of a poll — результаты опроса. С nobody глагол стоит в единственном числе и без not: nobody believes.",
+        "uz": "the results of a poll — so'rov natijalari. Nobody bilan fe'l birlikda va not yuklamasisiz keladi: nobody believes."
+      }
+    },
+    {
+      "key": "b2-m08-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "campaign"
+      ],
+      "text": "His campaign was short but expensive",
+      "accepted": [
+        "His campaign was short but expensive"
+      ],
+      "translation": {
+        "ru": "Его кампания была короткой, но дорогой",
+        "uz": "Uning kampaniyasi qisqa bo'ldi, lekin qimmatga tushdi"
+      },
+      "explanation": {
+        "ru": "campaign: на конце -aign с немой g: c-a-m-p-a-i-g-n.",
+        "uz": "campaign: oxirida -aign yoziladi, g o'qilmaydi: c-a-m-p-a-i-g-n."
+      }
+    },
+    {
+      "key": "b2-m08-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "ballot"
+      ],
+      "text": "The ballot has the names of all candidates",
+      "accepted": [
+        "The ballot has the names of all candidates"
+      ],
+      "translation": {
+        "ru": "В бюллетене указаны имена всех кандидатов",
+        "uz": "Byulletenda barcha nomzodlarning ismlari yozilgan"
+      },
+      "explanation": {
+        "ru": "ballot: две l и одна t: b-a-l-l-o-t.",
+        "uz": "ballot: ikkita l va bitta t yoziladi: b-a-l-l-o-t."
+      }
+    },
+    {
+      "key": "b2-m08-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "turnout",
+        "electorate"
+      ],
+      "text": "Turnout shows the mood of the electorate",
+      "accepted": [
+        "Turnout shows the mood of the electorate"
+      ],
+      "translation": {
+        "ru": "Явка показывает настроение избирателей",
+        "uz": "Saylovchilar ishtiroki elektorat kayfiyatini ko'rsatadi"
+      },
+      "explanation": {
+        "ru": "turnout пишется слитно: turn + out. Electorate оканчивается на -ate: e-l-e-c-t-o-r-a-t-e.",
+        "uz": "turnout qo'shib yoziladi: turn + out. Electorate -ate bilan tugaydi: e-l-e-c-t-o-r-a-t-e."
+      }
+    },
+    {
+      "key": "b2-m08-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "committee"
+      ],
+      "text": "Parliament set ___ a committee to study the problem.",
+      "options": [
+        "up",
+        "out",
+        "off"
+      ],
+      "correct": [
+        "up"
+      ],
+      "translation": {
+        "ru": "Парламент создал комитет для изучения этой проблемы.",
+        "uz": "Parlament bu muammoni o'rganish uchun qo'mita tuzdi."
+      },
+      "explanation": {
+        "ru": "set up a committee — создать комитет. Set out и set off значат «отправиться в путь»; «создать, учредить» — это set up.",
+        "uz": "set up a committee — qo'mita tuzmoq. Set out va set off «yo'lga chiqmoq» degani; «tuzmoq, tashkil qilmoq» — set up."
+      }
+    },
+    {
+      "key": "b2-m08-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "governor"
+      ],
+      "text": "The president ___ a new governor for the region.",
+      "options": [
+        "appointed",
+        "pointed",
+        "prescribed"
+      ],
+      "correct": [
+        "appointed"
+      ],
+      "translation": {
+        "ru": "Президент назначил в регион нового губернатора.",
+        "uz": "Prezident hududga yangi gubernator tayinladi."
+      },
+      "explanation": {
+        "ru": "appoint a governor — назначить губернатора (на должность). Point — указывать (пальцем), prescribe — назначать лекарство или лечение: The doctor prescribed some pills.",
+        "uz": "appoint a governor — gubernator tayinlamoq (lavozimga). Point — (barmoq bilan) ko'rsatmoq, prescribe — dori yoki davolash tayinlamoq: The doctor prescribed some pills."
+      }
+    },
+    {
+      "key": "b2-m08-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "assembly"
+      ],
+      "text": "The national assembly is ___ session this week.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "На этой неделе национальное собрание заседает.",
+        "uz": "Bu hafta milliy majlisning sessiyasi bo'lib o'tmoqda."
+      },
+      "explanation": {
+        "ru": "be in session — заседать, проводить сессию (о парламенте, собрании, суде). Это устойчивое выражение: предлог in, артикля нет.",
+        "uz": "be in session — sessiya o'tkazmoq, yig'ilib ishlamoq (parlament, majlis, sud haqida). Bu turg'un birikma: in predlogi bilan, artiklsiz ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m08-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "council"
+      ],
+      "prompt": {
+        "ru": "Её избрали в городской совет.",
+        "uz": "U shahar kengashiga saylandi."
+      },
+      "fragments": [
+        "she",
+        "was",
+        "elected",
+        "to",
+        "the",
+        "town",
+        "council"
+      ],
+      "accepted": [
+        [
+          "she",
+          "was",
+          "elected",
+          "to",
+          "the",
+          "town",
+          "council"
+        ]
+      ],
+      "display": "She was elected to the town council.",
+      "explanation": {
+        "ru": "be elected to the council — быть избранным в совет (с предлогом to). Was elected — пассив: «её избрали».",
+        "uz": "be elected to the council — kengashga saylanmoq (to predlogi bilan). Was elected — majhul nisbat: «saylandi»."
+      }
+    },
+    {
+      "key": "b2-m08-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "ministry"
+      ],
+      "prompt": {
+        "ru": "Министерство не ответило на наше письмо.",
+        "uz": "Vazirlik xatimizga javob bermadi."
+      },
+      "fragments": [
+        "the",
+        "ministry",
+        "has",
+        "not",
+        "answered",
+        "our",
+        "letter"
+      ],
+      "accepted": [
+        [
+          "the",
+          "ministry",
+          "has",
+          "not",
+          "answered",
+          "our",
+          "letter"
+        ]
+      ],
+      "display": "The ministry has not answered our letter.",
+      "explanation": {
+        "ru": "answer a letter — ответить на письмо: после answer предлог не нужен. Has not answered — Present Perfect: ответа до сих пор нет.",
+        "uz": "answer a letter — xatga javob bermoq: answer fe'lidan keyin predlog kerak emas. Has not answered — Present Perfect: javob hali ham yo'q."
+      }
+    },
+    {
+      "key": "b2-m08-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "agency"
+      ],
+      "prompt": {
+        "ru": "Это агентство защищает права потребителей.",
+        "uz": "Bu agentlik iste'molchilar huquqlarini himoya qiladi."
+      },
+      "fragments": [
+        "this",
+        "agency",
+        "protects",
+        "the",
+        "rights",
+        "of",
+        "consumers"
+      ],
+      "accepted": [
+        [
+          "this",
+          "agency",
+          "protects",
+          "the",
+          "rights",
+          "of",
+          "consumers"
+        ]
+      ],
+      "display": "This agency protects the rights of consumers.",
+      "explanation": {
+        "ru": "protect the rights of somebody — защищать чьи-то права. This agency — единственное число, поэтому у глагола окончание -s: protects.",
+        "uz": "protect the rights of somebody — kimningdir huquqlarini himoya qilmoq. This agency birlikda, shuning uchun fe'lga -s qo'shiladi: protects."
+      }
+    },
+    {
+      "key": "b2-m08-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "bureaucracy"
+      ],
+      "text": "Nobody likes too much bureaucracy",
+      "accepted": [
+        "Nobody likes too much bureaucracy"
+      ],
+      "translation": {
+        "ru": "Никто не любит лишнюю бюрократию",
+        "uz": "Hech kim ortiqcha byurokratiyani yoqtirmaydi"
+      },
+      "explanation": {
+        "ru": "bureaucracy: начало как в слове bureau (b-u-r-e-a-u), затем -cracy: b-u-r-e-a-u-c-r-a-c-y.",
+        "uz": "bureaucracy: boshi bureau so'zidagi kabi (b-u-r-e-a-u), so'ng -cracy yoziladi: b-u-r-e-a-u-c-r-a-c-y."
+      }
+    },
+    {
+      "key": "b2-m08-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "deputy",
+        "administration"
+      ],
+      "text": "Ask the deputy head of the administration",
+      "accepted": [
+        "Ask the deputy head of the administration"
+      ],
+      "translation": {
+        "ru": "Спросите у заместителя главы администрации",
+        "uz": "Ma'muriyat rahbarining o'rinbosaridan so'rang"
+      }
+    },
+    {
+      "key": "b2-m08-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "cabinet"
+      ],
+      "text": "The new cabinet has fewer ministers",
+      "accepted": [
+        "The new cabinet has fewer ministers"
+      ],
+      "translation": {
+        "ru": "В новом кабинете меньше министров",
+        "uz": "Yangi vazirlar mahkamasida vazirlar kamroq"
+      }
+    },
+    {
+      "key": "b2-m08-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "reform"
+      ],
+      "text": "The government plans to ___ major reforms in health care.",
+      "options": [
+        "introduce",
+        "enter",
+        "insert"
+      ],
+      "correct": [
+        "introduce"
+      ],
+      "translation": {
+        "ru": "Правительство планирует провести крупные реформы в здравоохранении.",
+        "uz": "Hukumat sog'liqni saqlash sohasida yirik islohotlar o'tkazishni rejalashtirmoqda."
+      },
+      "explanation": {
+        "ru": "introduce reforms — вводить, проводить реформы. Enter — входить (в комнату) или вводить данные, insert — вставлять (карту, слово): с reform они не сочетаются.",
+        "uz": "introduce reforms — islohotlarni joriy etmoq, o'tkazmoq. Enter — (xonaga) kirmoq yoki ma'lumot kiritmoq, insert — (kartani, so'zni) joylashtirmoq, qo'shmoq: reform so'zi bilan ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "policy"
+      ],
+      "text": "The minister answered questions about the country's ___ policy.",
+      "options": [
+        "foreign",
+        "outer",
+        "outside"
+      ],
+      "correct": [
+        "foreign"
+      ],
+      "translation": {
+        "ru": "Министр ответил на вопросы о внешней политике страны.",
+        "uz": "Vazir mamlakatning tashqi siyosati haqidagi savollarga javob berdi."
+      },
+      "explanation": {
+        "ru": "foreign policy — внешняя политика (отношения с другими странами). Русское «внешний» здесь не outer и не outside: эти слова говорят о том, что находится снаружи.",
+        "uz": "foreign policy — tashqi siyosat (boshqa davlatlar bilan munosabatlar). O'zbekcha «tashqi» bu yerda outer ham, outside ham emas: bu so'zlar tashqarida joylashgan narsa haqida."
+      }
+    },
+    {
+      "key": "b2-m08-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "amendment"
+      ],
+      "text": "The senate voted for an amendment ___ the tax law.",
+      "options": [
+        "to",
+        "into",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Сенат проголосовал за поправку к налоговому закону.",
+        "uz": "Senat soliq qonuniga kiritiladigan tuzatishni yoqlab ovoz berdi."
+      },
+      "explanation": {
+        "ru": "an amendment to a law — поправка к закону. Русскому «к» здесь соответствует to: an amendment to the constitution.",
+        "uz": "an amendment to a law — qonunga tuzatish. O'zbekcha «-ga» qo'shimchasi bu yerda to bo'ladi: an amendment to the constitution."
+      }
+    },
+    {
+      "key": "b2-m08-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "abolish"
+      ],
+      "prompt": {
+        "ru": "Парламент проголосовал за отмену этого закона.",
+        "uz": "Parlament bu qonunni bekor qilishni yoqlab ovoz berdi."
+      },
+      "fragments": [
+        "parliament",
+        "voted",
+        "to",
+        "abolish",
+        "this",
+        "law"
+      ],
+      "accepted": [
+        [
+          "parliament",
+          "voted",
+          "to",
+          "abolish",
+          "this",
+          "law"
+        ]
+      ],
+      "display": "Parliament voted to abolish this law.",
+      "explanation": {
+        "ru": "abolish a law — отменить закон (официально и навсегда). Vote to + глагол — проголосовать за то, чтобы что-то сделать: voted to abolish.",
+        "uz": "abolish a law — qonunni bekor qilmoq (rasman va butunlay). Vote to + fe'l — biror ishni qilishni yoqlab ovoz bermoq: voted to abolish."
+      }
+    },
+    {
+      "key": "b2-m08-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "ideology"
+      ],
+      "prompt": {
+        "ru": "У этих партий совершенно разные идеологии.",
+        "uz": "Bu partiyalarning mafkuralari butunlay har xil."
+      },
+      "fragments": [
+        "these",
+        "parties",
+        "have",
+        "completely",
+        "different",
+        "ideologies"
+      ],
+      "accepted": [
+        [
+          "these",
+          "parties",
+          "have",
+          "completely",
+          "different",
+          "ideologies"
+        ]
+      ],
+      "display": "These parties have completely different ideologies.",
+      "explanation": {
+        "ru": "Множественное число слова ideology — ideologies (y меняется на ies). Completely different — «совершенно разные»: наречие стоит перед прилагательным.",
+        "uz": "ideology so'zining ko'pligi — ideologies (y harfi ies bilan almashadi). Completely different — «butunlay har xil»: ravish sifatdan oldin keladi."
+      }
+    },
+    {
+      "key": "b2-m08-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "petition"
+      ],
+      "prompt": {
+        "ru": "Сколько человек подписали петицию?",
+        "uz": "Petitsiyani necha kishi imzoladi?"
+      },
+      "fragments": [
+        "how",
+        "many",
+        "people",
+        "signed",
+        "the",
+        "petition"
+      ],
+      "accepted": [
+        [
+          "how",
+          "many",
+          "people",
+          "signed",
+          "the",
+          "petition"
+        ]
+      ],
+      "display": "How many people signed the petition?",
+      "explanation": {
+        "ru": "sign a petition — подписать петицию. How many people — подлежащее, поэтому вопрос строится без did: How many people signed…?",
+        "uz": "sign a petition — petitsiyani imzolamoq. How many people — ega, shuning uchun savol did yordamchi fe'lisiz tuziladi: How many people signed…?"
+      }
+    },
+    {
+      "key": "b2-m08-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "senate"
+      ],
+      "text": "The senate has not approved the budget",
+      "accepted": [
+        "The senate has not approved the budget",
+        "The senate hasn't approved the budget"
+      ],
+      "translation": {
+        "ru": "Сенат не утвердил бюджет",
+        "uz": "Senat byudjetni tasdiqlamadi"
+      },
+      "explanation": {
+        "ru": "senate: на конце -ate, хотя слышится «ит»: s-e-n-a-t-e.",
+        "uz": "senate: oxirida -ate yoziladi, garchi «it» kabi eshitilsa ham: s-e-n-a-t-e."
+      }
+    },
+    {
+      "key": "b2-m08-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "decree"
+      ],
+      "text": "The decree was published this morning",
+      "accepted": [
+        "The decree was published this morning"
+      ],
+      "translation": {
+        "ru": "Указ был опубликован сегодня утром",
+        "uz": "Farmon bugun ertalab e'lon qilindi"
+      },
+      "explanation": {
+        "ru": "decree: на конце две e: d-e-c-r-e-e.",
+        "uz": "decree: oxirida ikkita e yoziladi: d-e-c-r-e-e."
+      }
+    },
+    {
+      "key": "b2-m08-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "mandate",
+        "veto"
+      ],
+      "text": "The mandate gives him the power of veto",
+      "accepted": [
+        "The mandate gives him the power of veto"
+      ],
+      "translation": {
+        "ru": "Мандат даёт ему право вето",
+        "uz": "Mandat unga veto huquqini beradi"
+      }
+    },
+    {
+      "key": "b2-m08-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "alliance"
+      ],
+      "text": "Two more countries want to ___ the economic alliance.",
+      "options": [
+        "join",
+        "connect",
+        "attach"
+      ],
+      "correct": [
+        "join"
+      ],
+      "translation": {
+        "ru": "Ещё две страны хотят вступить в экономический союз.",
+        "uz": "Yana ikki mamlakat iqtisodiy ittifoqqa qo'shilmoqchi."
+      },
+      "explanation": {
+        "ru": "join an alliance — вступить в союз, присоединиться к союзу. После join предлог не нужен. Connect и attach — соединять, прикреплять предметы: connect a printer, attach a file.",
+        "uz": "join an alliance — ittifoqqa qo'shilmoq, a'zo bo'lmoq. Join fe'lidan keyin predlog kerak emas. Connect va attach — narsalarni ulamoq, biriktirmoq: connect a printer, attach a file."
+      }
+    },
+    {
+      "key": "b2-m08-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "summit"
+      ],
+      "text": "The leaders of twenty countries will ___ the summit.",
+      "options": [
+        "attend",
+        "participate",
+        "appear"
+      ],
+      "correct": [
+        "attend"
+      ],
+      "translation": {
+        "ru": "В саммите примут участие лидеры двадцати стран.",
+        "uz": "Sammitda yigirma mamlakat rahbarlari ishtirok etadi."
+      },
+      "explanation": {
+        "ru": "attend a summit — присутствовать на саммите, участвовать в нём: после attend предлог не нужен. Participate требует in (participate in the summit), appear — at (appear at the summit).",
+        "uz": "attend a summit — sammitda qatnashmoq, ishtirok etmoq: attend fe'lidan keyin predlog kerak emas. Participate fe'li in bilan (participate in the summit), appear esa at bilan (appear at the summit) keladi."
+      }
+    },
+    {
+      "key": "b2-m08-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "cooperation"
+      ],
+      "text": "The two universities work in ___ cooperation with each other.",
+      "options": [
+        "close",
+        "near",
+        "narrow"
+      ],
+      "correct": [
+        "close"
+      ],
+      "translation": {
+        "ru": "Два университета работают в тесном сотрудничестве друг с другом.",
+        "uz": "Ikki universitet bir-biri bilan yaqin hamkorlikda ishlaydi."
+      },
+      "explanation": {
+        "ru": "close cooperation — тесное сотрудничество. Close говорят и об отношениях: a close friend. Near — о расстоянии и времени, narrow — «узкий» (a narrow street).",
+        "uz": "close cooperation — yaqin, chambarchas hamkorlik. Close munosabatlar haqida ham ishlatiladi: a close friend. Near — masofa va vaqt haqida, narrow esa «tor» degani (a narrow street)."
+      }
+    },
+    {
+      "key": "b2-m08-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "treaty"
+      ],
+      "prompt": {
+        "ru": "Когда новый договор вступает в силу?",
+        "uz": "Yangi shartnoma qachon kuchga kiradi?"
+      },
+      "fragments": [
+        "when",
+        "does",
+        "the",
+        "new",
+        "treaty",
+        "come",
+        "into",
+        "force"
+      ],
+      "accepted": [
+        [
+          "when",
+          "does",
+          "the",
+          "new",
+          "treaty",
+          "come",
+          "into",
+          "force"
+        ]
+      ],
+      "display": "When does the new treaty come into force?",
+      "explanation": {
+        "ru": "come into force — вступать в силу (о законе, договоре). В вопросе с does глагол стоит без -s: does … come.",
+        "uz": "come into force — kuchga kirmoq (qonun, shartnoma haqida). Does ishtirok etgan savolda fe'l -s qo'shimchasisiz turadi: does … come."
+      }
+    },
+    {
+      "key": "b2-m08-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "neutral"
+      ],
+      "prompt": {
+        "ru": "Почему страна решила остаться нейтральной?",
+        "uz": "Nega mamlakat betaraf qolishga qaror qildi?"
+      },
+      "fragments": [
+        "why",
+        "did",
+        "the",
+        "country",
+        "decide",
+        "to",
+        "remain",
+        "neutral"
+      ],
+      "accepted": [
+        [
+          "why",
+          "did",
+          "the",
+          "country",
+          "decide",
+          "to",
+          "remain",
+          "neutral"
+        ]
+      ],
+      "display": "Why did the country decide to remain neutral?",
+      "explanation": {
+        "ru": "remain neutral — оставаться нейтральным (так же: stay neutral): после remain стоит прилагательное. Decide to + глагол — решить что-то сделать.",
+        "uz": "remain neutral — betaraf qolmoq (xuddi shunday: stay neutral): remain fe'lidan keyin sifat keladi. Decide to + fe'l — biror ishni qilishga qaror qilmoq."
+      }
+    },
+    {
+      "key": "b2-m08-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "negotiation"
+      ],
+      "prompt": {
+        "ru": "Переговоры длились дольше, чем мы ожидали.",
+        "uz": "Muzokaralar biz kutgandan uzoqroq davom etdi."
+      },
+      "fragments": [
+        "the",
+        "negotiations",
+        "lasted",
+        "longer",
+        "than",
+        "we",
+        "expected"
+      ],
+      "accepted": [
+        [
+          "the",
+          "negotiations",
+          "lasted",
+          "longer",
+          "than",
+          "we",
+          "expected"
+        ]
+      ],
+      "display": "The negotiations lasted longer than we expected.",
+      "explanation": {
+        "ru": "В значении «переговоры» слово обычно стоит во множественном числе: negotiations. Longer than we expected — дольше, чем мы ожидали.",
+        "uz": "«Muzokaralar» ma'nosida bu so'z odatda ko'plikda keladi: negotiations. Longer than we expected — biz kutgandan uzoqroq."
+      }
+    },
+    {
+      "key": "b2-m08-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "ambassador",
+        "diplomacy"
+      ],
+      "text": "A good ambassador believes in diplomacy",
+      "accepted": [
+        "A good ambassador believes in diplomacy"
+      ],
+      "translation": {
+        "ru": "Хороший посол верит в дипломатию",
+        "uz": "Yaxshi elchi diplomatiyaga ishonadi"
+      },
+      "explanation": {
+        "ru": "ambassador: две s и на конце -or: a-m-b-a-s-s-a-d-o-r. Diplomacy оканчивается на -cy.",
+        "uz": "ambassador: ikkita s va oxirida -or yoziladi: a-m-b-a-s-s-a-d-o-r. Diplomacy -cy bilan tugaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "consulate"
+      ],
+      "text": "The consulate is closed on public holidays",
+      "accepted": [
+        "The consulate is closed on public holidays"
+      ],
+      "translation": {
+        "ru": "В праздничные дни консульство закрыто",
+        "uz": "Konsulxona bayram kunlari yopiq bo'ladi"
+      },
+      "explanation": {
+        "ru": "consulate: на конце -ate: c-o-n-s-u-l-a-t-e.",
+        "uz": "consulate: oxirida -ate yoziladi: c-o-n-s-u-l-a-t-e."
+      }
+    },
+    {
+      "key": "b2-m08-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "territory"
+      ],
+      "text": "Most of this territory is covered with forest",
+      "accepted": [
+        "Most of this territory is covered with forest"
+      ],
+      "translation": {
+        "ru": "Большая часть этой территории покрыта лесом",
+        "uz": "Bu hududning katta qismi o'rmon bilan qoplangan"
+      },
+      "explanation": {
+        "ru": "territory: две r и на конце -ory: t-e-r-r-i-t-o-r-y.",
+        "uz": "territory: ikkita r va oxirida -ory yoziladi: t-e-r-r-i-t-o-r-y."
+      }
+    }
+  ]
+}

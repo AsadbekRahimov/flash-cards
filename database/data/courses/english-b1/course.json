@@ -1,0 +1,16 @@
+{
+  "slug": "english-b1",
+  "title": {
+    "ru": "Английский B1: средний уровень",
+    "uz": "Ingliz tili B1: o'rta daraja"
+  },
+  "description": {
+    "ru": "1 000 слов для уверенного общения после базового курса: 20 модулей по темам, у каждого слова пример и перевод на русский и узбекский.",
+    "uz": "Asosiy kursdan keyin erkin muloqot uchun 1 000 ta so'z: mavzular bo'yicha 20 ta modul, har bir so'zga misol va rus hamda o'zbek tilidagi tarjima berilgan."
+  },
+  "level": "B1",
+  "exam_tag": "general",
+  "visibility": "public",
+  "position": 20,
+  "is_featured": false
+}

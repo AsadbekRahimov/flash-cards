@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 15,
+    "title": "Общество и закон",
+    "title_uz": "Jamiyat va qonun"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Закон и суд",
+    "title_uz": "Qonun va sud"
+  },
+  "words": [
+    {
+      "word": "court",
+      "part_of_speech": "noun",
+      "translation": "суд",
+      "translations": {
+        "ru": "суд",
+        "uz": "sud"
+      },
+      "example": "The court will make its decision on Friday.",
+      "example_translations": {
+        "ru": "Суд примет решение в пятницу.",
+        "uz": "Sud juma kuni qaror qabul qiladi."
+      }
+    },
+    {
+      "word": "judge",
+      "part_of_speech": "noun",
+      "translation": "судья",
+      "translations": {
+        "ru": "судья",
+        "uz": "sudya"
+      },
+      "example": "A judge must listen carefully to both sides.",
+      "example_translations": {
+        "ru": "Судья должен внимательно выслушать обе стороны.",
+        "uz": "Sudya ikkala tomonni diqqat bilan tinglashi kerak."
+      }
+    },
+    {
+      "word": "trial",
+      "part_of_speech": "noun",
+      "translation": "судебный процесс",
+      "translations": {
+        "ru": "судебный процесс",
+        "uz": "sud jarayoni"
+      },
+      "example": "How long did the trial last?",
+      "example_translations": {
+        "ru": "Сколько длился судебный процесс?",
+        "uz": "Sud jarayoni qancha davom etdi?"
+      }
+    },
+    {
+      "word": "witness",
+      "part_of_speech": "noun",
+      "translation": "свидетель",
+      "translations": {
+        "ru": "свидетель",
+        "uz": "guvoh"
+      },
+      "example": "One witness told the court what he saw.",
+      "example_translations": {
+        "ru": "Один свидетель рассказал суду, что он видел.",
+        "uz": "Bir guvoh sudga nimani ko'rganini aytib berdi."
+      }
+    },
+    {
+      "word": "guilty",
+      "part_of_speech": "adjective",
+      "translation": "виновный",
+      "translations": {
+        "ru": "виновный",
+        "uz": "aybdor"
+      },
+      "example": "Nobody knew if the driver was guilty.",
+      "example_translations": {
+        "ru": "Никто не знал, виновен ли водитель.",
+        "uz": "Haydovchi aybdormi yoki yo'qmi, hech kim bilmasdi."
+      }
+    },
+    {
+      "word": "innocent",
+      "part_of_speech": "adjective",
+      "translation": "невиновный",
+      "translations": {
+        "ru": "невиновный",
+        "uz": "aybsiz"
+      },
+      "example": "Everybody believed that the young man was innocent.",
+      "example_translations": {
+        "ru": "Все верили, что молодой человек невиновен.",
+        "uz": "Hamma yigitning aybsiz ekaniga ishonardi."
+      }
+    },
+    {
+      "word": "legal",
+      "part_of_speech": "adjective",
+      "translation": "законный",
+      "translations": {
+        "ru": "законный",
+        "uz": "qonuniy"
+      },
+      "example": "Is it legal to park your car here?",
+      "example_translations": {
+        "ru": "Законно ли парковать здесь машину?",
+        "uz": "Bu yerda mashina qo'yish qonuniymi?"
+      }
+    },
+    {
+      "word": "justice",
+      "part_of_speech": "noun",
+      "translation": "справедливость, правосудие",
+      "translations": {
+        "ru": "справедливость, правосудие",
+        "uz": "adolat, odil sudlov"
+      },
+      "example": "People came to the court to ask for justice.",
+      "example_translations": {
+        "ru": "Люди пришли в суд просить справедливости.",
+        "uz": "Odamlar sudga adolat so'rab kelishdi."
+      }
+    },
+    {
+      "word": "punish",
+      "part_of_speech": "verb",
+      "translation": "наказывать",
+      "translations": {
+        "ru": "наказывать",
+        "uz": "jazolamoq"
+      },
+      "example": "The law punishes drivers who go too fast.",
+      "example_translations": {
+        "ru": "Закон наказывает водителей, которые ездят слишком быстро.",
+        "uz": "Qonun juda tez yuradigan haydovchilarni jazolaydi."
+      }
+    },
+    {
+      "word": "prison",
+      "part_of_speech": "noun",
+      "translation": "тюрьма",
+      "translations": {
+        "ru": "тюрьма",
+        "uz": "qamoqxona"
+      },
+      "example": "The court sent him to prison for two years.",
+      "example_translations": {
+        "ru": "Суд отправил его в тюрьму на два года.",
+        "uz": "Sud uni ikki yilga qamoqxonaga yubordi."
+      }
+    }
+  ]
+}

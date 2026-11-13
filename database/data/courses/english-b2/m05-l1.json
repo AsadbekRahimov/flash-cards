@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 5,
+    "title": "Технологии и инновации",
+    "title_uz": "Texnologiyalar va innovatsiyalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Программы и данные",
+    "title_uz": "Dasturlar va ma'lumotlar"
+  },
+  "words": [
+    {
+      "word": "compatible",
+      "part_of_speech": "adjective",
+      "translation": "совместимый",
+      "translations": {
+        "ru": "совместимый",
+        "uz": "mos keladigan"
+      },
+      "example": "Is this program compatible with my old laptop?",
+      "example_translations": {
+        "ru": "Эта программа совместима с моим старым ноутбуком?",
+        "uz": "Bu dastur mening eski noutbukimga mos keladimi?"
+      }
+    },
+    {
+      "word": "spreadsheet",
+      "part_of_speech": "noun",
+      "translation": "электронная таблица",
+      "translations": {
+        "ru": "электронная таблица",
+        "uz": "elektron jadval"
+      },
+      "example": "She keeps all her expenses in a spreadsheet.",
+      "example_translations": {
+        "ru": "Она ведёт все свои расходы в электронной таблице.",
+        "uz": "U barcha xarajatlarini elektron jadvalda yuritadi."
+      }
+    },
+    {
+      "word": "algorithm",
+      "part_of_speech": "noun",
+      "translation": "алгоритм",
+      "translations": {
+        "ru": "алгоритм",
+        "uz": "algoritm"
+      },
+      "example": "This algorithm sorts the names in alphabetical order.",
+      "example_translations": {
+        "ru": "Этот алгоритм сортирует имена в алфавитном порядке.",
+        "uz": "Bu algoritm ismlarni alifbo tartibida saralaydi."
+      }
+    },
+    {
+      "word": "template",
+      "part_of_speech": "noun",
+      "translation": "шаблон",
+      "translations": {
+        "ru": "шаблон",
+        "uz": "andoza"
+      },
+      "example": "Use this template to write your report faster.",
+      "example_translations": {
+        "ru": "Используйте этот шаблон, чтобы быстрее написать отчёт.",
+        "uz": "Hisobotni tezroq yozish uchun ushbu andozadan foydalaning."
+      }
+    },
+    {
+      "word": "server",
+      "part_of_speech": "noun",
+      "translation": "сервер",
+      "translations": {
+        "ru": "сервер",
+        "uz": "server"
+      },
+      "example": "All our files are stored on a server.",
+      "example_translations": {
+        "ru": "Все наши файлы хранятся на сервере.",
+        "uz": "Barcha fayllarimiz serverda saqlanadi."
+      }
+    },
+    {
+      "word": "interface",
+      "part_of_speech": "noun",
+      "translation": "интерфейс",
+      "translations": {
+        "ru": "интерфейс",
+        "uz": "interfeys"
+      },
+      "example": "The app has a simple, friendly interface.",
+      "example_translations": {
+        "ru": "У приложения простой и удобный интерфейс.",
+        "uz": "Ilovaning interfeysi sodda va qulay."
+      }
+    },
+    {
+      "word": "bug",
+      "part_of_speech": "noun",
+      "translation": "ошибка в программе",
+      "translations": {
+        "ru": "ошибка в программе",
+        "uz": "dasturdagi xato"
+      },
+      "example": "A bug in the program deleted my notes.",
+      "example_translations": {
+        "ru": "Ошибка в программе удалила мои заметки.",
+        "uz": "Dasturdagi xato qaydlarimni o'chirib yubordi."
+      }
+    },
+    {
+      "word": "archive",
+      "part_of_speech": "noun",
+      "translation": "архив",
+      "translations": {
+        "ru": "архив",
+        "uz": "arxiv"
+      },
+      "example": "I keep old project files in an archive.",
+      "example_translations": {
+        "ru": "Я храню старые файлы проектов в архиве.",
+        "uz": "Eski loyiha fayllarini arxivda saqlayman."
+      }
+    },
+    {
+      "word": "default",
+      "part_of_speech": "adjective",
+      "translation": "по умолчанию, стандартный",
+      "translations": {
+        "ru": "по умолчанию, стандартный",
+        "uz": "standart"
+      },
+      "example": "You can change the default settings at any time.",
+      "example_translations": {
+        "ru": "Вы можете в любой момент изменить настройки по умолчанию.",
+        "uz": "Standart sozlamalarni istalgan vaqtda o'zgartirishingiz mumkin."
+      }
+    },
+    {
+      "word": "format",
+      "part_of_speech": "noun",
+      "translation": "формат",
+      "translations": {
+        "ru": "формат",
+        "uz": "format"
+      },
+      "example": "Save the document in a format everyone can open.",
+      "example_translations": {
+        "ru": "Сохраните документ в формате, который смогут открыть все.",
+        "uz": "Hujjatni hamma ocha oladigan formatda saqlang."
+      }
+    }
+  ]
+}

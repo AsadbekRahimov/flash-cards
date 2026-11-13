@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 11,
+    "title": "Искусство и литература",
+    "title_uz": "San'at va adabiyot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Литературные жанры",
+    "title_uz": "Adabiy janrlar"
+  },
+  "words": [
+    {
+      "word": "trilogy",
+      "part_of_speech": "noun",
+      "translation": "трилогия",
+      "translations": {
+        "ru": "трилогия",
+        "uz": "trilogiya"
+      },
+      "example": "Have you read the last book of the trilogy?",
+      "example_translations": {
+        "ru": "Вы читали последнюю книгу трилогии?",
+        "uz": "Trilogiyaning oxirgi kitobini o'qidingizmi?"
+      }
+    },
+    {
+      "word": "narrative",
+      "part_of_speech": "noun",
+      "translation": "повествование",
+      "translations": {
+        "ru": "повествование",
+        "uz": "hikoya, bayon"
+      },
+      "example": "The narrative is told by a ten-year-old boy.",
+      "example_translations": {
+        "ru": "Повествование ведётся от лица десятилетнего мальчика.",
+        "uz": "Hikoya o'n yoshli bola tilidan bayon qilinadi."
+      }
+    },
+    {
+      "word": "prose",
+      "part_of_speech": "noun",
+      "translation": "проза",
+      "translations": {
+        "ru": "проза",
+        "uz": "nasr"
+      },
+      "example": "She writes both poetry and prose for children.",
+      "example_translations": {
+        "ru": "Она пишет для детей и стихи, и прозу.",
+        "uz": "U bolalar uchun ham she'r, ham nasr yozadi."
+      }
+    },
+    {
+      "word": "epic",
+      "part_of_speech": "noun",
+      "translation": "эпос",
+      "translations": {
+        "ru": "эпос",
+        "uz": "doston, epos"
+      },
+      "example": "This ancient epic tells of a brave hero.",
+      "example_translations": {
+        "ru": "Этот древний эпос повествует об отважном герое.",
+        "uz": "Bu qadimiy doston jasur qahramon haqida hikoya qiladi."
+      }
+    },
+    {
+      "word": "parody",
+      "part_of_speech": "noun",
+      "translation": "пародия",
+      "translations": {
+        "ru": "пародия",
+        "uz": "parodiya"
+      },
+      "example": "The show is a funny parody of detective films.",
+      "example_translations": {
+        "ru": "Это шоу — смешная пародия на детективные фильмы.",
+        "uz": "Bu ko'rsatuv — detektiv filmlarga qilingan kulgili parodiya."
+      }
+    },
+    {
+      "word": "memoir",
+      "part_of_speech": "noun",
+      "translation": "мемуары",
+      "translations": {
+        "ru": "мемуары",
+        "uz": "memuar, esdaliklar"
+      },
+      "example": "The actor describes his childhood in a new memoir.",
+      "example_translations": {
+        "ru": "Актёр описывает своё детство в новых мемуарах.",
+        "uz": "Aktyor yangi esdaliklarida bolaligini tasvirlaydi."
+      }
+    },
+    {
+      "word": "myth",
+      "part_of_speech": "noun",
+      "translation": "миф",
+      "translations": {
+        "ru": "миф",
+        "uz": "mif, asotir"
+      },
+      "example": "In the myth, a hero steals fire for people.",
+      "example_translations": {
+        "ru": "В этом мифе герой похищает огонь для людей.",
+        "uz": "Bu mifda qahramon odamlar uchun olovni o'g'irlaydi."
+      }
+    },
+    {
+      "word": "satire",
+      "part_of_speech": "noun",
+      "translation": "сатира",
+      "translations": {
+        "ru": "сатира",
+        "uz": "satira, hajv"
+      },
+      "example": "Her novel is a clever satire on office life.",
+      "example_translations": {
+        "ru": "Её роман — остроумная сатира на офисную жизнь.",
+        "uz": "Uning romani — idora hayoti haqidagi o'tkir satira."
+      }
+    },
+    {
+      "word": "tragedy",
+      "part_of_speech": "noun",
+      "translation": "трагедия",
+      "translations": {
+        "ru": "трагедия",
+        "uz": "tragediya, fojia"
+      },
+      "example": "The audience cried at the end of the tragedy.",
+      "example_translations": {
+        "ru": "В конце трагедии зрители плакали.",
+        "uz": "Tragediya oxirida tomoshabinlar yig'ladi."
+      }
+    },
+    {
+      "word": "fable",
+      "part_of_speech": "noun",
+      "translation": "басня",
+      "translations": {
+        "ru": "басня",
+        "uz": "masal"
+      },
+      "example": "Every fable teaches a simple lesson about life.",
+      "example_translations": {
+        "ru": "Каждая басня преподаёт простой урок о жизни.",
+        "uz": "Har bir masal hayot haqida oddiy saboq beradi."
+      }
+    }
+  ]
+}

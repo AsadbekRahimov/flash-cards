@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 1,
+    "title": "Личность и биография",
+    "title_uz": "Shaxs va tarjimayi hol"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Успех и талант",
+    "title_uz": "Muvaffaqiyat va iste'dod"
+  },
+  "words": [
+    {
+      "word": "biography",
+      "part_of_speech": "noun",
+      "translation": "биография",
+      "translations": {
+        "ru": "биография",
+        "uz": "tarjimayi hol"
+      },
+      "example": "I am reading a biography of a famous scientist.",
+      "example_translations": {
+        "ru": "Я читаю биографию известного учёного.",
+        "uz": "Men mashhur olimning tarjimayi holini o'qiyapman."
+      }
+    },
+    {
+      "word": "success",
+      "part_of_speech": "noun",
+      "translation": "успех",
+      "translations": {
+        "ru": "успех",
+        "uz": "muvaffaqiyat"
+      },
+      "example": "Hard work is the key to success.",
+      "example_translations": {
+        "ru": "Упорный труд — ключ к успеху.",
+        "uz": "Tinimsiz mehnat — muvaffaqiyat kaliti."
+      }
+    },
+    {
+      "word": "talent",
+      "part_of_speech": "noun",
+      "translation": "талант",
+      "translations": {
+        "ru": "талант",
+        "uz": "iste'dod"
+      },
+      "example": "Malika has a real talent for music.",
+      "example_translations": {
+        "ru": "У Малики настоящий талант к музыке.",
+        "uz": "Malikada musiqaga haqiqiy iste'dod bor."
+      }
+    },
+    {
+      "word": "ability",
+      "part_of_speech": "noun",
+      "translation": "способность",
+      "translations": {
+        "ru": "способность",
+        "uz": "qobiliyat"
+      },
+      "example": "He has the ability to learn languages quickly.",
+      "example_translations": {
+        "ru": "У него есть способность быстро учить языки.",
+        "uz": "Unda tillarni tez o'rganish qobiliyati bor."
+      }
+    },
+    {
+      "word": "goal",
+      "part_of_speech": "noun",
+      "translation": "цель",
+      "translations": {
+        "ru": "цель",
+        "uz": "maqsad"
+      },
+      "example": "My goal is to enter a good university.",
+      "example_translations": {
+        "ru": "Моя цель — поступить в хороший университет.",
+        "uz": "Mening maqsadim — yaxshi universitetga kirish."
+      }
+    },
+    {
+      "word": "award",
+      "part_of_speech": "noun",
+      "translation": "награда",
+      "translations": {
+        "ru": "награда",
+        "uz": "mukofot"
+      },
+      "example": "The young writer won an award for her book.",
+      "example_translations": {
+        "ru": "Молодая писательница получила награду за свою книгу.",
+        "uz": "Yosh yozuvchi o'z kitobi uchun mukofot oldi."
+      }
+    },
+    {
+      "word": "challenge",
+      "part_of_speech": "noun",
+      "translation": "трудная задача, испытание",
+      "translations": {
+        "ru": "трудная задача, испытание",
+        "uz": "qiyin vazifa, sinov"
+      },
+      "example": "Learning a new language is a real challenge.",
+      "example_translations": {
+        "ru": "Выучить новый язык — по-настоящему трудная задача.",
+        "uz": "Yangi tilni o'rganish — chinakam qiyin vazifa."
+      }
+    },
+    {
+      "word": "inspire",
+      "part_of_speech": "verb",
+      "translation": "вдохновлять",
+      "translations": {
+        "ru": "вдохновлять",
+        "uz": "ilhomlantirmoq"
+      },
+      "example": "Her story inspires young people to study science.",
+      "example_translations": {
+        "ru": "Её история вдохновляет молодых людей заниматься наукой.",
+        "uz": "Uning hikoyasi yoshlarni fan bilan shug'ullanishga ilhomlantiradi."
+      }
+    },
+    {
+      "word": "admire",
+      "part_of_speech": "verb",
+      "translation": "восхищаться",
+      "translations": {
+        "ru": "восхищаться",
+        "uz": "qoyil qolmoq"
+      },
+      "example": "I admire people who never give up.",
+      "example_translations": {
+        "ru": "Я восхищаюсь людьми, которые никогда не сдаются.",
+        "uz": "Men hech qachon taslim bo'lmaydigan odamlarga qoyil qolaman."
+      }
+    },
+    {
+      "word": "hero",
+      "part_of_speech": "noun",
+      "translation": "герой",
+      "translations": {
+        "ru": "герой",
+        "uz": "qahramon"
+      },
+      "example": "The brave firefighter became a hero in our town.",
+      "example_translations": {
+        "ru": "Храбрый пожарный стал героем в нашем городе.",
+        "uz": "Jasur o't o'chiruvchi shahrimizda qahramon bo'ldi."
+      }
+    }
+  ]
+}

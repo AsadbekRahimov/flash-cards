@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 20,
+    "title": "Академические глаголы и понятия",
+    "title_uz": "Akademik fe'llar va tushunchalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Свойства и состояния",
+    "title_uz": "Xususiyat va holatlar"
+  },
+  "words": [
+    {
+      "word": "capacity",
+      "part_of_speech": "noun",
+      "translation": "вместимость, ёмкость",
+      "translations": {
+        "ru": "вместимость, ёмкость",
+        "uz": "sig'im"
+      },
+      "example": "The stadium has a capacity of forty thousand people.",
+      "example_translations": {
+        "ru": "Вместимость стадиона — сорок тысяч человек.",
+        "uz": "Stadionning sig'imi qirq ming kishi."
+      }
+    },
+    {
+      "word": "capability",
+      "part_of_speech": "noun",
+      "translation": "способность, возможность",
+      "translations": {
+        "ru": "способность, возможность",
+        "uz": "qobiliyat, imkoniyat"
+      },
+      "example": "Does this phone have the capability to translate speech?",
+      "example_translations": {
+        "ru": "Есть ли у этого телефона возможность переводить речь?",
+        "uz": "Bu telefon nutqni tarjima qilish imkoniyatiga egami?"
+      }
+    },
+    {
+      "word": "potential",
+      "part_of_speech": "noun",
+      "translation": "потенциал",
+      "translations": {
+        "ru": "потенциал",
+        "uz": "salohiyat"
+      },
+      "example": "The coach saw great potential in the young player.",
+      "example_translations": {
+        "ru": "Тренер увидел в молодом игроке большой потенциал.",
+        "uz": "Murabbiy yosh o'yinchida katta salohiyatni ko'rdi."
+      }
+    },
+    {
+      "word": "necessity",
+      "part_of_speech": "noun",
+      "translation": "необходимость",
+      "translations": {
+        "ru": "необходимость",
+        "uz": "zarurat"
+      },
+      "example": "Sleep is a necessity, not a luxury.",
+      "example_translations": {
+        "ru": "Сон — это необходимость, а не роскошь.",
+        "uz": "Uyqu hashamat emas, balki zaruratdir."
+      }
+    },
+    {
+      "word": "existence",
+      "part_of_speech": "noun",
+      "translation": "существование",
+      "translations": {
+        "ru": "существование",
+        "uz": "mavjudlik"
+      },
+      "example": "Scientists proved the existence of water on Mars.",
+      "example_translations": {
+        "ru": "Учёные доказали существование воды на Марсе.",
+        "uz": "Olimlar Marsda suv mavjudligini isbotladilar."
+      }
+    },
+    {
+      "word": "frequency",
+      "part_of_speech": "noun",
+      "translation": "частота",
+      "translations": {
+        "ru": "частота",
+        "uz": "chastota, tez-tezlik"
+      },
+      "example": "In recent years, the frequency of storms has increased.",
+      "example_translations": {
+        "ru": "В последние годы частота штормов возросла.",
+        "uz": "So'nggi yillarda bo'ronlarning takrorlanish chastotasi oshdi."
+      }
+    },
+    {
+      "word": "uncertainty",
+      "part_of_speech": "noun",
+      "translation": "неопределённость",
+      "translations": {
+        "ru": "неопределённость",
+        "uz": "noaniqlik"
+      },
+      "example": "There is still uncertainty about the date of the exam.",
+      "example_translations": {
+        "ru": "По поводу даты экзамена всё ещё сохраняется неопределённость.",
+        "uz": "Imtihon sanasi borasida hali ham noaniqlik bor."
+      }
+    },
+    {
+      "word": "absence",
+      "part_of_speech": "noun",
+      "translation": "отсутствие",
+      "translations": {
+        "ru": "отсутствие",
+        "uz": "yo'qlik, mavjud emaslik"
+      },
+      "example": "A long absence of rain damaged this year's harvest.",
+      "example_translations": {
+        "ru": "Долгое отсутствие дождей повредило урожаю этого года.",
+        "uz": "Uzoq vaqt yomg'ir yo'qligi bu yilgi hosilga zarar yetkazdi."
+      }
+    },
+    {
+      "word": "correlation",
+      "part_of_speech": "noun",
+      "translation": "взаимосвязь, корреляция",
+      "translations": {
+        "ru": "взаимосвязь, корреляция",
+        "uz": "o'zaro bog'liqlik, korrelyatsiya"
+      },
+      "example": "Studies show a strong correlation between diet and health.",
+      "example_translations": {
+        "ru": "Исследования показывают тесную взаимосвязь между питанием и здоровьем.",
+        "uz": "Tadqiqotlar ovqatlanish va salomatlik o'rtasida kuchli o'zaro bog'liqlik borligini ko'rsatadi."
+      }
+    },
+    {
+      "word": "likelihood",
+      "part_of_speech": "noun",
+      "translation": "вероятность, возможность",
+      "translations": {
+        "ru": "вероятность, возможность",
+        "uz": "ehtimol, ehtimollik"
+      },
+      "example": "Wearing a seat belt reduces the likelihood of injury.",
+      "example_translations": {
+        "ru": "Использование ремня безопасности снижает вероятность травмы.",
+        "uz": "Xavfsizlik kamarini taqish jarohat olish ehtimolini kamaytiradi."
+      }
+    }
+  ]
+}

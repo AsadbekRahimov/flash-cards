@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 10,
+    "title": "Технологии и интернет",
+    "title_uz": "Texnologiyalar va internet"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Безопасность в сети",
+    "title_uz": "Internetda xavfsizlik"
+  },
+  "words": [
+    {
+      "word": "security",
+      "part_of_speech": "noun",
+      "translation": "безопасность, защита",
+      "translations": {
+        "ru": "безопасность, защита",
+        "uz": "xavfsizlik, himoya"
+      },
+      "example": "Strong passwords are important for your online security.",
+      "example_translations": {
+        "ru": "Надёжные пароли важны для вашей безопасности в интернете.",
+        "uz": "Ishonchli parollar internetdagi xavfsizligingiz uchun muhim."
+      }
+    },
+    {
+      "word": "privacy",
+      "part_of_speech": "noun",
+      "translation": "конфиденциальность, приватность",
+      "translations": {
+        "ru": "конфиденциальность, приватность",
+        "uz": "maxfiylik"
+      },
+      "example": "Check the privacy settings on your account.",
+      "example_translations": {
+        "ru": "Проверьте настройки конфиденциальности в своём аккаунте.",
+        "uz": "Akkauntingizdagi maxfiylik sozlamalarini tekshiring."
+      }
+    },
+    {
+      "word": "hacker",
+      "part_of_speech": "noun",
+      "translation": "хакер",
+      "translations": {
+        "ru": "хакер",
+        "uz": "xaker"
+      },
+      "example": "A hacker stole the passwords of many users.",
+      "example_translations": {
+        "ru": "Хакер украл пароли многих пользователей.",
+        "uz": "Xaker ko'plab foydalanuvchilarning parollarini o'g'irladi."
+      }
+    },
+    {
+      "word": "scam",
+      "part_of_speech": "noun",
+      "translation": "мошенничество",
+      "translations": {
+        "ru": "мошенничество",
+        "uz": "firibgarlik"
+      },
+      "example": "This email about a free prize is a scam.",
+      "example_translations": {
+        "ru": "Это письмо о бесплатном призе — мошенничество.",
+        "uz": "Bepul sovrin haqidagi bu xat — firibgarlik."
+      }
+    },
+    {
+      "word": "spam",
+      "part_of_speech": "noun",
+      "translation": "спам",
+      "translations": {
+        "ru": "спам",
+        "uz": "spam"
+      },
+      "example": "I get a lot of spam in my inbox.",
+      "example_translations": {
+        "ru": "В мой почтовый ящик приходит много спама.",
+        "uz": "Pochta qutimga juda ko'p spam keladi."
+      }
+    },
+    {
+      "word": "access",
+      "part_of_speech": "noun",
+      "translation": "доступ",
+      "translations": {
+        "ru": "доступ",
+        "uz": "kirish huquqi"
+      },
+      "example": "Only teachers have access to these files.",
+      "example_translations": {
+        "ru": "Доступ к этим файлам есть только у учителей.",
+        "uz": "Bu fayllarga kirish huquqi faqat o'qituvchilarda bor."
+      }
+    },
+    {
+      "word": "username",
+      "part_of_speech": "noun",
+      "translation": "имя пользователя",
+      "translations": {
+        "ru": "имя пользователя",
+        "uz": "foydalanuvchi nomi"
+      },
+      "example": "Enter your username and password to log in.",
+      "example_translations": {
+        "ru": "Введите имя пользователя и пароль, чтобы войти.",
+        "uz": "Tizimga kirish uchun foydalanuvchi nomi va parolni kiriting."
+      }
+    },
+    {
+      "word": "unknown",
+      "part_of_speech": "adjective",
+      "translation": "неизвестный",
+      "translations": {
+        "ru": "неизвестный",
+        "uz": "noma'lum"
+      },
+      "example": "Don't answer calls from unknown numbers.",
+      "example_translations": {
+        "ru": "Не отвечайте на звонки с неизвестных номеров.",
+        "uz": "Noma'lum raqamlardan kelgan qo'ng'iroqlarga javob bermang."
+      }
+    },
+    {
+      "word": "warning",
+      "part_of_speech": "noun",
+      "translation": "предупреждение",
+      "translations": {
+        "ru": "предупреждение",
+        "uz": "ogohlantirish"
+      },
+      "example": "The browser showed a warning about a dangerous website.",
+      "example_translations": {
+        "ru": "Браузер показал предупреждение об опасном сайте.",
+        "uz": "Brauzer xavfli sayt haqida ogohlantirish ko'rsatdi."
+      }
+    },
+    {
+      "word": "threat",
+      "part_of_speech": "noun",
+      "translation": "угроза",
+      "translations": {
+        "ru": "угроза",
+        "uz": "tahdid"
+      },
+      "example": "Viruses are a serious threat to your computer.",
+      "example_translations": {
+        "ru": "Вирусы — серьёзная угроза для вашего компьютера.",
+        "uz": "Viruslar kompyuteringiz uchun jiddiy tahdiddir."
+      }
+    }
+  ]
+}

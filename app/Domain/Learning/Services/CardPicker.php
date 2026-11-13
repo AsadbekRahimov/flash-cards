@@ -49,6 +49,14 @@ use Illuminate\Support\Facades\DB;
  * scope (active words, the lesson), and the planner walks `word_repetitions_next_card_idx` exactly as it did for the
  * `whereHas` form (docs/06 §4.2; verified with EXPLAIN on the 200k-learner set).
  *
+ * Step 2 of a daily scope with a course starts from the learner's frontier ({@see NewWordFrontier}): the lesson where
+ * the full candidate query last found the first unseen word, cached per (learner, course, data version of the course).
+ * The hint narrows the candidate query to that lesson - it does not replace it: the narrowed statement runs under the
+ * same learner lock with the same quota subquery, and the database still decides that the word is unseen and active,
+ * the course available and the quota not spent (docs/19 §3 rule 9; the cached thing is where to look, not what to
+ * serve). An empty narrowed result - the lesson is finished, gone or someone else's - falls back to the full query,
+ * whose finding is written back after the commit. A cached "nothing left" skips the transaction altogether.
+ *
  * `ahead` is true only for step 3: that is the only path that serves a card
  * with a live ticket (a card that later became due is served as due, `ahead`
  * false, even if a stale ticket is still stamped on its row).
@@ -60,7 +68,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class CardPicker
 {
-    public function __construct(private readonly LearningPolicy $policy) {}
+    public function __construct(
+        private readonly LearningPolicy $policy,
+        private readonly NewWordFrontier $frontier,
+    ) {}
 
     public function pickNext(
         int $learnerId,
@@ -102,6 +113,12 @@ final class CardPicker
      * sqlite locks the whole database) orders concurrent tabs, so the second one sees
      * the row the first inserted and the budget it consumed before choosing a word.
      *
+     * The frontier hint of a course scope is read BEFORE the transaction (no cache round trip under the learner lock;
+     * its key carries the course's data version as it is now) and written back AFTER a committed transaction that ran
+     * the full query (`DB::afterCommit`: also after the commit of a transaction that wraps the pick) - never from inside
+     * it, and nothing when it threw or was rolled back. A failing cache leaves `$hint` null: the full
+     * query, as before.
+     *
      * @return array{0: CardPick|null, 1: bool} [pick, quotaBlocked]
      */
     private function pickNewInTransaction(
@@ -115,10 +132,22 @@ final class CardPicker
             return [null, false];
         }
 
+        $courseId = $scope->frontierCourseId();
+        $hint = $courseId === null ? null : $this->frontier->read($learnerId, $courseId);
+        if ($hint?->isExhausted() === true) {
+            // The same answer the full query gave within the TTL and at this data version: no new word, whatever the
+            // quota (`$new === null` below returns the same pair), so neither the lock nor the statements are needed.
+            return [null, false];
+        }
+
         /** @var ConnectionInterface $db */
         $db = DB::connection();
 
-        return $db->transaction(function () use ($learnerId, $scope, $candidates, $budget, $now): array {
+        // What the FULL query found, when it ran: the lesson of the word, or 0 for none. Null: it did not run (the
+        // narrowed statement of the hint found the word), nothing to write back.
+        $frontier = null;
+
+        $result = $db->transaction(function () use ($learnerId, $scope, $candidates, $budget, $now, $hint, &$frontier): array {
             // Serialises the learner's tabs. On PostgreSQL `FOR NO KEY UPDATE`, not `FOR UPDATE`: it
             // conflicts with itself but not with the `FOR KEY SHARE` that every FK insert referencing
             // learners (word_repetitions, training_reviews, ...) takes, so those never wait for us.
@@ -130,8 +159,21 @@ final class CardPicker
                 $candidates->addSelect(['quota_used' => $usage]);
             }
 
-            /** @var Word|null $new */
-            $new = $candidates->first();
+            $new = null;
+            $lesson = $hint?->lesson();
+            if ($lesson !== null) {
+                /** @var Word|null $new */
+                $new = $scope->narrowCandidatesToLesson($candidates, $lesson)->first();
+            }
+
+            if ($new === null) {
+                // No hint, or the hinted lesson has nothing left for this learner (finished, deactivated, moved,
+                // deleted - or the hint was stale): the full walk, as before, and its finding is the next hint.
+                /** @var Word|null $new */
+                $new = $candidates->first();
+                $frontier = $new === null ? NewWordFrontier::NONE_LEFT : (int) $new->lesson_id;
+            }
+
             if ($new === null) {
                 return [null, false];
             }
@@ -162,6 +204,16 @@ final class CardPicker
 
             return [CardPick::card($rep, $new, 'new'), false];
         });
+
+        if ($hint !== null && $frontier !== null) {
+            // A word found but held back by the quota names the right lesson too. Written once everything is committed:
+            // at once here (nobody wraps the pick today), and after the commit of a caller's transaction should one ever
+            // wrap it - a hint taken from rows that are then rolled back would hide the words they covered.
+            DB::afterCommit(fn () => $this->frontier->write($hint, $frontier));
+        }
+
+        /** @var array{0: CardPick|null, 1: bool} $result */
+        return $result;
     }
 
     /**

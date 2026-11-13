@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 10,
+    "title": "Технологии и интернет",
+    "title_uz": "Texnologiyalar va internet"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Соцсети и контент",
+    "title_uz": "Ijtimoiy tarmoqlar va kontent"
+  },
+  "words": [
+    {
+      "word": "offline",
+      "part_of_speech": "adjective",
+      "translation": "офлайн, не в сети",
+      "translations": {
+        "ru": "офлайн, не в сети",
+        "uz": "oflayn, tarmoqdan tashqari"
+      },
+      "example": "Sorry, I was offline during the whole trip.",
+      "example_translations": {
+        "ru": "Извините, всю поездку я был не в сети.",
+        "uz": "Kechirasiz, butun safar davomida oflayn edim."
+      }
+    },
+    {
+      "word": "podcast",
+      "part_of_speech": "noun",
+      "translation": "подкаст",
+      "translations": {
+        "ru": "подкаст",
+        "uz": "podkast"
+      },
+      "example": "I listen to a science podcast on the bus.",
+      "example_translations": {
+        "ru": "В автобусе я слушаю научный подкаст.",
+        "uz": "Avtobusda ilmiy podkast tinglayman."
+      }
+    },
+    {
+      "word": "post",
+      "part_of_speech": "verb",
+      "translation": "публиковать, выкладывать",
+      "translations": {
+        "ru": "публиковать, выкладывать",
+        "uz": "joylamoq, e'lon qilmoq"
+      },
+      "example": "Malika posts photos of her trips every week.",
+      "example_translations": {
+        "ru": "Малика каждую неделю публикует фотографии из своих поездок.",
+        "uz": "Malika har hafta sayohatlaridan suratlar joylaydi."
+      }
+    },
+    {
+      "word": "follower",
+      "part_of_speech": "noun",
+      "translation": "подписчик",
+      "translations": {
+        "ru": "подписчик",
+        "uz": "obunachi"
+      },
+      "example": "The young singer has two million followers online.",
+      "example_translations": {
+        "ru": "У молодого певца два миллиона подписчиков в интернете.",
+        "uz": "Yosh xonandaning internetda ikki million obunachisi bor."
+      }
+    },
+    {
+      "word": "subscribe",
+      "part_of_speech": "verb",
+      "translation": "подписываться",
+      "translations": {
+        "ru": "подписываться",
+        "uz": "obuna bo'lmoq"
+      },
+      "example": "My brother subscribed to a channel about cooking.",
+      "example_translations": {
+        "ru": "Мой брат подписался на канал о кулинарии.",
+        "uz": "Akam pazandachilik haqidagi kanalga obuna bo'ldi."
+      }
+    },
+    {
+      "word": "profile",
+      "part_of_speech": "noun",
+      "translation": "профиль",
+      "translations": {
+        "ru": "профиль",
+        "uz": "profil"
+      },
+      "example": "Anna changed the photo on her profile yesterday.",
+      "example_translations": {
+        "ru": "Вчера Анна поменяла фотографию в своём профиле.",
+        "uz": "Kecha Anna profilidagi suratni almashtirdi."
+      }
+    },
+    {
+      "word": "notification",
+      "part_of_speech": "noun",
+      "translation": "уведомление",
+      "translations": {
+        "ru": "уведомление",
+        "uz": "bildirishnoma"
+      },
+      "example": "My phone shows a notification for every message.",
+      "example_translations": {
+        "ru": "Мой телефон показывает уведомление о каждом сообщении.",
+        "uz": "Telefonim har bir xabar haqida bildirishnoma ko'rsatadi."
+      }
+    },
+    {
+      "word": "forum",
+      "part_of_speech": "noun",
+      "translation": "форум",
+      "translations": {
+        "ru": "форум",
+        "uz": "forum"
+      },
+      "example": "People share travel advice on this forum.",
+      "example_translations": {
+        "ru": "На этом форуме люди делятся советами о путешествиях.",
+        "uz": "Bu forumda odamlar sayohat bo'yicha maslahatlar bilan o'rtoqlashadi."
+      }
+    },
+    {
+      "word": "content",
+      "part_of_speech": "noun",
+      "translation": "контент",
+      "translations": {
+        "ru": "контент",
+        "uz": "kontent"
+      },
+      "example": "This channel makes useful content for language learners.",
+      "example_translations": {
+        "ru": "Этот канал делает полезный контент для изучающих языки.",
+        "uz": "Bu kanal til o'rganuvchilar uchun foydali kontent tayyorlaydi."
+      }
+    },
+    {
+      "word": "user",
+      "part_of_speech": "noun",
+      "translation": "пользователь",
+      "translations": {
+        "ru": "пользователь",
+        "uz": "foydalanuvchi"
+      },
+      "example": "Every user must choose a strong password.",
+      "example_translations": {
+        "ru": "Каждый пользователь должен выбрать надёжный пароль.",
+        "uz": "Har bir foydalanuvchi ishonchli parol tanlashi kerak."
+      }
+    }
+  ]
+}

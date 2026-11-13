@@ -9,7 +9,6 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\LearnerBillingService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
-use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
@@ -50,7 +49,6 @@ final class TodayService
         private readonly NewWordQuota $quota,
         private readonly StreakFreezeService $freezes,
         private readonly LeagueService $leagues,
-        private readonly DeckTitles $deckTitles,
         private readonly DailyCaravanService $caravan,
         private readonly LearnerBillingService $billing,
     ) {}
@@ -162,21 +160,16 @@ final class TodayService
             return null;
         }
 
-        $listing = $this->catalog->listing($course, $learner);
-        $lesson = $this->catalog->nextLessonWithNewWords($course, $learner);
+        $today = $this->catalog->todayCourse($course, $learner);
+        $next = $today->nextLesson;
 
         return new TodayCourse(
             id: $course->id,
             slug: $course->slug,
-            title: $listing->course->title,
-            learned: $listing->progress->done,
-            total: $listing->progress->total,
-            nextLesson: $lesson === null ? null : new TodayLesson(
-                $lesson->id,
-                $lesson->stage?->number,
-                $lesson->number,
-                $this->deckTitles->lesson($course, $learner, $lesson),
-            ),
+            title: $today->course->title,
+            learned: $today->progress->done,
+            total: $today->progress->total,
+            nextLesson: $next === null ? null : new TodayLesson($next->id, $next->stageNumber, $next->number, $next->title),
         );
     }
 

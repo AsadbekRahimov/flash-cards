@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 6,
+    "title": "Путешествия и транспорт",
+    "title_uz": "Sayohat va transport"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Приключения",
+    "title_uz": "Sarguzashtlar"
+  },
+  "words": [
+    {
+      "word": "adventure",
+      "part_of_speech": "noun",
+      "translation": "приключение",
+      "translations": {
+        "ru": "приключение",
+        "uz": "sarguzasht"
+      },
+      "example": "Our trip to the jungle was a real adventure.",
+      "example_translations": {
+        "ru": "Наша поездка в джунгли была настоящим приключением.",
+        "uz": "Tropik o'rmonga safarimiz haqiqiy sarguzasht bo'ldi."
+      }
+    },
+    {
+      "word": "landmark",
+      "part_of_speech": "noun",
+      "translation": "достопримечательность",
+      "translations": {
+        "ru": "достопримечательность",
+        "uz": "diqqatga sazovor joy"
+      },
+      "example": "This old tower is the city's most famous landmark.",
+      "example_translations": {
+        "ru": "Эта старая башня — самая известная достопримечательность города.",
+        "uz": "Bu eski minora shaharning eng mashhur diqqatga sazovor joyidir."
+      }
+    },
+    {
+      "word": "scenery",
+      "part_of_speech": "noun",
+      "translation": "пейзаж",
+      "translations": {
+        "ru": "пейзаж",
+        "uz": "manzara"
+      },
+      "example": "The mountain scenery here is amazing in spring.",
+      "example_translations": {
+        "ru": "Горный пейзаж здесь весной потрясающий.",
+        "uz": "Bu yerda tog' manzarasi bahorda ajoyib bo'ladi."
+      }
+    },
+    {
+      "word": "foreign",
+      "part_of_speech": "adjective",
+      "translation": "иностранный",
+      "translations": {
+        "ru": "иностранный",
+        "uz": "xorijiy"
+      },
+      "example": "Many foreign tourists visit our city in summer.",
+      "example_translations": {
+        "ru": "Летом наш город посещает много иностранных туристов.",
+        "uz": "Yozda shahrimizga ko'plab xorijiy sayyohlar keladi."
+      }
+    },
+    {
+      "word": "wander",
+      "part_of_speech": "verb",
+      "translation": "бродить",
+      "translations": {
+        "ru": "бродить",
+        "uz": "kezmoq, aylanib yurmoq"
+      },
+      "example": "They wandered around the old town for hours.",
+      "example_translations": {
+        "ru": "Они часами бродили по старому городу.",
+        "uz": "Ular eski shaharni soatlab kezdi."
+      }
+    },
+    {
+      "word": "homesick",
+      "part_of_speech": "adjective",
+      "translation": "тоскующий по дому",
+      "translations": {
+        "ru": "тоскующий по дому",
+        "uz": "uyini sog'ingan"
+      },
+      "example": "Anna felt homesick during her first month abroad.",
+      "example_translations": {
+        "ru": "В первый месяц за границей Анна тосковала по дому.",
+        "uz": "Chet eldagi birinchi oyida Anna uyini sog'indi."
+      }
+    },
+    {
+      "word": "expedition",
+      "part_of_speech": "noun",
+      "translation": "экспедиция",
+      "translations": {
+        "ru": "экспедиция",
+        "uz": "ekspeditsiya"
+      },
+      "example": "The expedition reached the top of the mountain.",
+      "example_translations": {
+        "ru": "Экспедиция достигла вершины горы.",
+        "uz": "Ekspeditsiya tog' cho'qqisiga yetib bordi."
+      }
+    },
+    {
+      "word": "remote",
+      "part_of_speech": "adjective",
+      "translation": "отдалённый",
+      "translations": {
+        "ru": "отдалённый",
+        "uz": "olis, chekka"
+      },
+      "example": "My grandparents live in a remote mountain village.",
+      "example_translations": {
+        "ru": "Мои бабушка и дедушка живут в отдалённой горной деревне.",
+        "uz": "Buvim va bobom olis tog' qishlog'ida yashaydi."
+      }
+    },
+    {
+      "word": "exotic",
+      "part_of_speech": "adjective",
+      "translation": "экзотический",
+      "translations": {
+        "ru": "экзотический",
+        "uz": "ekzotik"
+      },
+      "example": "This market sells exotic fruit from Asia.",
+      "example_translations": {
+        "ru": "На этом рынке продают экзотические фрукты из Азии.",
+        "uz": "Bu bozorda Osiyodan keltirilgan ekzotik mevalar sotiladi."
+      }
+    },
+    {
+      "word": "memorable",
+      "part_of_speech": "adjective",
+      "translation": "запоминающийся",
+      "translations": {
+        "ru": "запоминающийся",
+        "uz": "esda qolarli"
+      },
+      "example": "It was the most memorable day of our vacation.",
+      "example_translations": {
+        "ru": "Это был самый запоминающийся день нашего отпуска.",
+        "uz": "Bu ta'tilimizning eng esda qolarli kuni edi."
+      }
+    }
+  ]
+}

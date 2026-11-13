@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 6,
+    "title": "Путешествия и транспорт",
+    "title_uz": "Sayohat va transport"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Билеты и перелёт",
+    "title_uz": "Chipta va parvoz"
+  },
+  "words": [
+    {
+      "word": "fare",
+      "part_of_speech": "noun",
+      "translation": "плата за проезд, стоимость проезда",
+      "translations": {
+        "ru": "плата за проезд, стоимость проезда",
+        "uz": "yo'l haqi"
+      },
+      "example": "How much is the fare to the airport?",
+      "example_translations": {
+        "ru": "Какова стоимость проезда до аэропорта?",
+        "uz": "Aeroportgacha yo'l haqi qancha?"
+      }
+    },
+    {
+      "word": "direct",
+      "part_of_speech": "adjective",
+      "translation": "прямой",
+      "translations": {
+        "ru": "прямой",
+        "uz": "to'g'ridan-to'g'ri"
+      },
+      "example": "Is there a direct flight to Tashkent?",
+      "example_translations": {
+        "ru": "Есть ли прямой рейс в Ташкент?",
+        "uz": "Toshkentga to'g'ridan-to'g'ri reys bormi?"
+      }
+    },
+    {
+      "word": "terminal",
+      "part_of_speech": "noun",
+      "translation": "терминал",
+      "translations": {
+        "ru": "терминал",
+        "uz": "terminal"
+      },
+      "example": "Our flight leaves from the new terminal.",
+      "example_translations": {
+        "ru": "Наш рейс вылетает из нового терминала.",
+        "uz": "Reysimiz yangi terminaldan uchadi."
+      }
+    },
+    {
+      "word": "aisle",
+      "part_of_speech": "noun",
+      "translation": "проход между рядами",
+      "translations": {
+        "ru": "проход между рядами",
+        "uz": "qatorlar orasidagi yo'lak"
+      },
+      "example": "I prefer a seat next to the aisle.",
+      "example_translations": {
+        "ru": "Я предпочитаю место у прохода.",
+        "uz": "Men yo'lak yonidagi o'rindiqni afzal ko'raman."
+      }
+    },
+    {
+      "word": "crew",
+      "part_of_speech": "noun",
+      "translation": "экипаж",
+      "translations": {
+        "ru": "экипаж",
+        "uz": "ekipaj"
+      },
+      "example": "The crew welcomed us onto the plane.",
+      "example_translations": {
+        "ru": "Экипаж приветствовал нас на борту самолёта.",
+        "uz": "Ekipaj bizni samolyot bortida kutib oldi."
+      }
+    },
+    {
+      "word": "baggage",
+      "part_of_speech": "noun",
+      "translation": "багаж",
+      "translations": {
+        "ru": "багаж",
+        "uz": "yuk, bagaj"
+      },
+      "example": "You can pick up your baggage over there.",
+      "example_translations": {
+        "ru": "Вы можете забрать свой багаж вон там.",
+        "uz": "Yukingizni ana u yerdan olishingiz mumkin."
+      }
+    },
+    {
+      "word": "cabin",
+      "part_of_speech": "noun",
+      "translation": "салон самолёта",
+      "translations": {
+        "ru": "салон самолёта",
+        "uz": "samolyot saloni"
+      },
+      "example": "The cabin was quiet during the night flight.",
+      "example_translations": {
+        "ru": "Во время ночного рейса в салоне самолёта было тихо.",
+        "uz": "Tungi reys paytida samolyot saloni tinch edi."
+      }
+    },
+    {
+      "word": "airline",
+      "part_of_speech": "noun",
+      "translation": "авиакомпания",
+      "translations": {
+        "ru": "авиакомпания",
+        "uz": "aviakompaniya"
+      },
+      "example": "Which airline has the cheapest tickets?",
+      "example_translations": {
+        "ru": "У какой авиакомпании самые дешёвые билеты?",
+        "uz": "Qaysi aviakompaniyaning chiptalari eng arzon?"
+      }
+    },
+    {
+      "word": "arrival",
+      "part_of_speech": "noun",
+      "translation": "прибытие",
+      "translations": {
+        "ru": "прибытие",
+        "uz": "yetib kelish"
+      },
+      "example": "The screen shows the arrival time of each flight.",
+      "example_translations": {
+        "ru": "На экране показано время прибытия каждого рейса.",
+        "uz": "Ekranda har bir reysning yetib kelish vaqti ko'rsatilgan."
+      }
+    },
+    {
+      "word": "announce",
+      "part_of_speech": "verb",
+      "translation": "объявлять",
+      "translations": {
+        "ru": "объявлять",
+        "uz": "e'lon qilmoq"
+      },
+      "example": "They announced that our flight was late.",
+      "example_translations": {
+        "ru": "Объявили, что наш рейс задерживается.",
+        "uz": "Reysimiz kechikayotgani e'lon qilindi."
+      }
+    }
+  ]
+}

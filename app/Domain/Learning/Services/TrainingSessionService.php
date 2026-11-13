@@ -160,7 +160,9 @@ final class TrainingSessionService
                 if ($existing !== null) {
                     if ($existing->expires_at === null || $existing->expires_at->isAfter($now)) {
                         if ($mode === TrainingSession::MODE_DAILY_REVIEW) {
-                            $courseId = $this->dailyCourseId($learner);
+                            // The snapshot was taken a moment ago; re-reading after the lock wait would narrow the race only
+                            // by the wait itself, and the snapshot is refreshed on every open anyway.
+                            $courseId = $attributes['course_id'];
                             if ($existing->course_id !== $courseId) {
                                 $existing->update(['course_id' => $courseId]);
                             }

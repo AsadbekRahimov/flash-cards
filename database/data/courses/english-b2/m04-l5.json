@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 4,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Научная среда",
+    "title_uz": "Ilmiy muhit"
+  },
+  "words": [
+    {
+      "word": "doctorate",
+      "part_of_speech": "noun",
+      "translation": "докторская степень",
+      "translations": {
+        "ru": "докторская степень",
+        "uz": "doktorlik darajasi"
+      },
+      "example": "She earned her doctorate in physics at thirty.",
+      "example_translations": {
+        "ru": "Она получила докторскую степень по физике в тридцать лет.",
+        "uz": "U o'ttiz yoshida fizika bo'yicha doktorlik darajasini oldi."
+      }
+    },
+    {
+      "word": "scholar",
+      "part_of_speech": "noun",
+      "translation": "учёный",
+      "translations": {
+        "ru": "учёный",
+        "uz": "olim"
+      },
+      "example": "The scholar spent years studying ancient texts.",
+      "example_translations": {
+        "ru": "Учёный годами изучал древние тексты.",
+        "uz": "Olim yillar davomida qadimiy matnlarni o'rgandi."
+      }
+    },
+    {
+      "word": "academy",
+      "part_of_speech": "noun",
+      "translation": "академия",
+      "translations": {
+        "ru": "академия",
+        "uz": "akademiya"
+      },
+      "example": "The academy of sciences supports young researchers.",
+      "example_translations": {
+        "ru": "Академия наук поддерживает молодых исследователей.",
+        "uz": "Fanlar akademiyasi yosh tadqiqotchilarni qo'llab-quvvatlaydi."
+      }
+    },
+    {
+      "word": "journal",
+      "part_of_speech": "noun",
+      "translation": "научный журнал",
+      "translations": {
+        "ru": "научный журнал",
+        "uz": "ilmiy jurnal"
+      },
+      "example": "Her article appeared in a well-known medical journal.",
+      "example_translations": {
+        "ru": "Её статья вышла в известном медицинском журнале.",
+        "uz": "Uning maqolasi taniqli tibbiyot jurnalida chop etildi."
+      }
+    },
+    {
+      "word": "dissertation",
+      "part_of_speech": "noun",
+      "translation": "диссертация",
+      "translations": {
+        "ru": "диссертация",
+        "uz": "dissertatsiya"
+      },
+      "example": "He defended his dissertation in front of five professors.",
+      "example_translations": {
+        "ru": "Он защитил диссертацию перед пятью профессорами.",
+        "uz": "U dissertatsiyasini besh nafar professor oldida himoya qildi."
+      }
+    },
+    {
+      "word": "thesis",
+      "part_of_speech": "noun",
+      "translation": "дипломная работа, диссертация",
+      "translations": {
+        "ru": "дипломная работа, диссертация",
+        "uz": "diplom ishi, dissertatsiya"
+      },
+      "example": "Anna finished her thesis a month before graduation.",
+      "example_translations": {
+        "ru": "Анна закончила дипломную работу за месяц до выпуска.",
+        "uz": "Anna diplom ishini bitiruvdan bir oy oldin tugatdi."
+      }
+    },
+    {
+      "word": "citation",
+      "part_of_speech": "noun",
+      "translation": "ссылка на источник",
+      "translations": {
+        "ru": "ссылка на источник",
+        "uz": "manbaga havola"
+      },
+      "example": "Every citation must include the author's name.",
+      "example_translations": {
+        "ru": "Каждая ссылка на источник должна содержать имя автора.",
+        "uz": "Manbaga berilgan har bir havolada muallifning ismi ko'rsatilishi kerak."
+      }
+    },
+    {
+      "word": "grant",
+      "part_of_speech": "noun",
+      "translation": "грант",
+      "translations": {
+        "ru": "грант",
+        "uz": "grant"
+      },
+      "example": "The team won a grant to study ocean pollution.",
+      "example_translations": {
+        "ru": "Команда выиграла грант на изучение загрязнения океана.",
+        "uz": "Jamoa okean ifloslanishini o'rganish uchun grant yutib oldi."
+      }
+    },
+    {
+      "word": "institute",
+      "part_of_speech": "noun",
+      "translation": "институт",
+      "translations": {
+        "ru": "институт",
+        "uz": "institut"
+      },
+      "example": "The institute trains young scientists from many countries.",
+      "example_translations": {
+        "ru": "Институт готовит молодых учёных из многих стран.",
+        "uz": "Institut ko'plab mamlakatlardan kelgan yosh olimlarni tayyorlaydi."
+      }
+    },
+    {
+      "word": "peer",
+      "part_of_speech": "noun",
+      "translation": "коллега, равный по статусу",
+      "translations": {
+        "ru": "коллега, равный по статусу",
+        "uz": "hamkasb, maqomi teng kishi"
+      },
+      "example": "Her peers checked the article before publication.",
+      "example_translations": {
+        "ru": "Перед публикацией статью проверили её коллеги.",
+        "uz": "Nashrdan oldin maqolani uning hamkasblari tekshirib chiqdi."
+      }
+    }
+  ]
+}

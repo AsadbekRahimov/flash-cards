@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 20,
+    "title": "Слова-связки и абстрактные понятия",
+    "title_uz": "Bog'lovchi so'zlar va mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Условие и дополнение",
+    "title_uz": "Shart va qo'shimcha"
+  },
+  "words": [
+    {
+      "word": "unless",
+      "part_of_speech": "conjunction",
+      "translation": "если не",
+      "translations": {
+        "ru": "если не",
+        "uz": "agar ... -masa"
+      },
+      "example": "We will be late unless we leave now.",
+      "example_translations": {
+        "ru": "Мы опоздаем, если не выйдем сейчас.",
+        "uz": "Agar hozir yo'lga chiqmasak, kechikamiz."
+      }
+    },
+    {
+      "word": "whether",
+      "part_of_speech": "conjunction",
+      "translation": "ли",
+      "translations": {
+        "ru": "ли",
+        "uz": "-mi yoki yo'qmi"
+      },
+      "example": "I don't know whether she will come.",
+      "example_translations": {
+        "ru": "Я не знаю, придёт ли она.",
+        "uz": "U keladimi yoki yo'qmi, bilmayman."
+      }
+    },
+    {
+      "word": "whatever",
+      "part_of_speech": "pronoun",
+      "translation": "что бы ни",
+      "translations": {
+        "ru": "что бы ни",
+        "uz": "nima bo'lsa ham"
+      },
+      "example": "Whatever happens, we will finish the project.",
+      "example_translations": {
+        "ru": "Что бы ни случилось, мы закончим проект.",
+        "uz": "Nima bo'lsa ham, biz loyihani tugatamiz."
+      }
+    },
+    {
+      "word": "addition",
+      "part_of_speech": "noun",
+      "translation": "дополнение",
+      "translations": {
+        "ru": "дополнение",
+        "uz": "qo'shimcha"
+      },
+      "example": "In addition to English, Malika speaks French.",
+      "example_translations": {
+        "ru": "В дополнение к английскому Малика говорит по-французски.",
+        "uz": "Ingliz tiliga qo'shimcha ravishda, Malika fransuz tilida ham gapiradi."
+      }
+    },
+    {
+      "word": "besides",
+      "part_of_speech": "adverb",
+      "translation": "кроме того",
+      "translations": {
+        "ru": "кроме того",
+        "uz": "bundan tashqari"
+      },
+      "example": "I'm not hungry, and besides, I don't like fish.",
+      "example_translations": {
+        "ru": "Я не голоден, а кроме того, я не люблю рыбу.",
+        "uz": "Qornim och emas, bundan tashqari, baliqni yoqtirmayman."
+      }
+    },
+    {
+      "word": "meanwhile",
+      "part_of_speech": "adverb",
+      "translation": "тем временем",
+      "translations": {
+        "ru": "тем временем",
+        "uz": "bu orada"
+      },
+      "example": "Dad cooked dinner, and meanwhile we cleaned the house.",
+      "example_translations": {
+        "ru": "Папа готовил ужин, а мы тем временем убирали дом.",
+        "uz": "Dadam kechki ovqat pishirdi, biz esa bu orada uyni tozaladik."
+      }
+    },
+    {
+      "word": "whenever",
+      "part_of_speech": "conjunction",
+      "translation": "всякий раз, когда",
+      "translations": {
+        "ru": "всякий раз, когда",
+        "uz": "har safar, har gal"
+      },
+      "example": "Whenever I visit Grandma, she bakes a cake.",
+      "example_translations": {
+        "ru": "Всякий раз, когда я приезжаю к бабушке, она печёт торт.",
+        "uz": "Har safar buvimnikiga borganimda, u tort pishiradi."
+      }
+    },
+    {
+      "word": "wherever",
+      "part_of_speech": "conjunction",
+      "translation": "куда бы ни, где бы ни",
+      "translations": {
+        "ru": "куда бы ни, где бы ни",
+        "uz": "qayerga bo'lsa ham, qayerda bo'lsa ham"
+      },
+      "example": "My dog follows me wherever I go.",
+      "example_translations": {
+        "ru": "Моя собака идёт за мной, куда бы я ни пошёл.",
+        "uz": "Qayerga borsam ham, itim ortimdan ergashadi."
+      }
+    },
+    {
+      "word": "anyway",
+      "part_of_speech": "adverb",
+      "translation": "всё равно, в любом случае",
+      "translations": {
+        "ru": "всё равно, в любом случае",
+        "uz": "baribir"
+      },
+      "example": "It was raining, but we went out anyway.",
+      "example_translations": {
+        "ru": "Шёл дождь, но мы всё равно вышли на улицу.",
+        "uz": "Yomg'ir yog'ayotgan edi, lekin biz baribir ko'chaga chiqdik."
+      }
+    },
+    {
+      "word": "overall",
+      "part_of_speech": "adverb",
+      "translation": "в целом",
+      "translations": {
+        "ru": "в целом",
+        "uz": "umuman olganda"
+      },
+      "example": "Overall, the trip was a great success.",
+      "example_translations": {
+        "ru": "В целом поездка прошла очень успешно.",
+        "uz": "Umuman olganda, sayohat juda muvaffaqiyatli o'tdi."
+      }
+    }
+  ]
+}

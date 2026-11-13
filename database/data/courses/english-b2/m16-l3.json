@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 16,
+    "title": "Бизнес и маркетинг",
+    "title_uz": "Biznes va marketing"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Продажи и поставки",
+    "title_uz": "Sotuv va yetkazib berish"
+  },
+  "words": [
+    {
+      "word": "inventory",
+      "part_of_speech": "noun",
+      "translation": "товарные запасы",
+      "translations": {
+        "ru": "товарные запасы",
+        "uz": "tovar zaxirasi"
+      },
+      "example": "The store counts its inventory once a month.",
+      "example_translations": {
+        "ru": "Магазин пересчитывает свои товарные запасы раз в месяц.",
+        "uz": "Do'kon tovar zaxirasini oyda bir marta sanab chiqadi."
+      }
+    },
+    {
+      "word": "outlet",
+      "part_of_speech": "noun",
+      "translation": "торговая точка",
+      "translations": {
+        "ru": "торговая точка",
+        "uz": "savdo shoxobchasi"
+      },
+      "example": "This outlet sells shoes at very low prices.",
+      "example_translations": {
+        "ru": "Эта торговая точка продаёт обувь по очень низким ценам.",
+        "uz": "Bu savdo shoxobchasi poyabzalni juda arzon narxlarda sotadi."
+      }
+    },
+    {
+      "word": "vendor",
+      "part_of_speech": "noun",
+      "translation": "торговец, продавец",
+      "translations": {
+        "ru": "торговец, продавец",
+        "uz": "sotuvchi, savdogar"
+      },
+      "example": "A street vendor sells fresh corn near the park.",
+      "example_translations": {
+        "ru": "Уличный торговец продаёт свежую кукурузу возле парка.",
+        "uz": "Ko'cha sotuvchisi park yaqinida yangi makkajo'xori sotadi."
+      }
+    },
+    {
+      "word": "supplier",
+      "part_of_speech": "noun",
+      "translation": "поставщик",
+      "translations": {
+        "ru": "поставщик",
+        "uz": "yetkazib beruvchi"
+      },
+      "example": "Our supplier delivers fresh milk every morning.",
+      "example_translations": {
+        "ru": "Наш поставщик привозит свежее молоко каждое утро.",
+        "uz": "Yetkazib beruvchimiz har kuni ertalab yangi sut olib keladi."
+      }
+    },
+    {
+      "word": "distributor",
+      "part_of_speech": "noun",
+      "translation": "дистрибьютор",
+      "translations": {
+        "ru": "дистрибьютор",
+        "uz": "distribyutor"
+      },
+      "example": "The distributor sends our books to hundreds of stores.",
+      "example_translations": {
+        "ru": "Дистрибьютор отправляет наши книги в сотни магазинов.",
+        "uz": "Distribyutor kitoblarimizni yuzlab do'konlarga jo'natadi."
+      }
+    },
+    {
+      "word": "demand",
+      "part_of_speech": "noun",
+      "translation": "спрос",
+      "translations": {
+        "ru": "спрос",
+        "uz": "talab"
+      },
+      "example": "Demand for electric cars is growing fast.",
+      "example_translations": {
+        "ru": "Спрос на электромобили быстро растёт.",
+        "uz": "Elektromobillarga talab tez o'smoqda."
+      }
+    },
+    {
+      "word": "satisfaction",
+      "part_of_speech": "noun",
+      "translation": "удовлетворённость",
+      "translations": {
+        "ru": "удовлетворённость",
+        "uz": "mamnunlik, qoniqish"
+      },
+      "example": "Customer satisfaction is our most important goal.",
+      "example_translations": {
+        "ru": "Удовлетворённость клиентов — наша самая важная цель.",
+        "uz": "Mijozlarning mamnunligi — bizning eng muhim maqsadimiz."
+      }
+    },
+    {
+      "word": "warehouse",
+      "part_of_speech": "noun",
+      "translation": "склад",
+      "translations": {
+        "ru": "склад",
+        "uz": "ombor"
+      },
+      "example": "All the goods are stored in a large warehouse.",
+      "example_translations": {
+        "ru": "Все товары хранятся на большом складе.",
+        "uz": "Barcha tovarlar katta omborda saqlanadi."
+      }
+    },
+    {
+      "word": "merchandise",
+      "part_of_speech": "noun",
+      "translation": "товар",
+      "translations": {
+        "ru": "товар",
+        "uz": "tovar, mol"
+      },
+      "example": "You can return damaged merchandise within two weeks.",
+      "example_translations": {
+        "ru": "Повреждённый товар можно вернуть в течение двух недель.",
+        "uz": "Shikastlangan tovarni ikki hafta ichida qaytarishingiz mumkin."
+      }
+    },
+    {
+      "word": "shipment",
+      "part_of_speech": "noun",
+      "translation": "партия товара",
+      "translations": {
+        "ru": "партия товара",
+        "uz": "tovar partiyasi"
+      },
+      "example": "When will the first shipment of phones arrive?",
+      "example_translations": {
+        "ru": "Когда прибудет первая партия телефонов?",
+        "uz": "Telefonlarning birinchi partiyasi qachon yetib keladi?"
+      }
+    }
+  ]
+}

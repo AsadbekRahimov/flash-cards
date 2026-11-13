@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 4,
+    "title": "Еда и кулинария",
+    "title_uz": "Taom va pazandachilik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Продукты и приправы",
+    "title_uz": "Mahsulotlar va ziravorlar"
+  },
+  "words": [
+    {
+      "word": "ingredient",
+      "part_of_speech": "noun",
+      "translation": "ингредиент",
+      "translations": {
+        "ru": "ингредиент",
+        "uz": "masalliq"
+      },
+      "example": "Rice is the main ingredient of this dish.",
+      "example_translations": {
+        "ru": "Рис — главный ингредиент этого блюда.",
+        "uz": "Guruch bu taomning asosiy masallig'idir."
+      }
+    },
+    {
+      "word": "flour",
+      "part_of_speech": "noun",
+      "translation": "мука",
+      "translations": {
+        "ru": "мука",
+        "uz": "un"
+      },
+      "example": "You need flour and eggs to make pancakes.",
+      "example_translations": {
+        "ru": "Чтобы приготовить блины, нужны мука и яйца.",
+        "uz": "Quymoq tayyorlash uchun un va tuxum kerak."
+      }
+    },
+    {
+      "word": "honey",
+      "part_of_speech": "noun",
+      "translation": "мёд",
+      "translations": {
+        "ru": "мёд",
+        "uz": "asal"
+      },
+      "example": "I like tea with honey instead of sugar.",
+      "example_translations": {
+        "ru": "Я люблю чай с мёдом вместо сахара.",
+        "uz": "Men choyni shakar o'rniga asal bilan ichishni yaxshi ko'raman."
+      }
+    },
+    {
+      "word": "garlic",
+      "part_of_speech": "noun",
+      "translation": "чеснок",
+      "translations": {
+        "ru": "чеснок",
+        "uz": "sarimsoqpiyoz"
+      },
+      "example": "Add some garlic to the soup for a stronger taste.",
+      "example_translations": {
+        "ru": "Добавьте в суп немного чеснока, чтобы вкус был насыщеннее.",
+        "uz": "Ta'mi o'tkirroq bo'lishi uchun sho'rvaga ozgina sarimsoqpiyoz qo'shing."
+      }
+    },
+    {
+      "word": "herb",
+      "part_of_speech": "noun",
+      "translation": "пряная трава, зелень",
+      "translations": {
+        "ru": "пряная трава, зелень",
+        "uz": "ko'kat"
+      },
+      "example": "Fresh herbs make any salad taste better.",
+      "example_translations": {
+        "ru": "Свежая зелень делает любой салат вкуснее.",
+        "uz": "Yangi ko'katlar har qanday salatni mazaliroq qiladi."
+      }
+    },
+    {
+      "word": "sauce",
+      "part_of_speech": "noun",
+      "translation": "соус",
+      "translations": {
+        "ru": "соус",
+        "uz": "sous"
+      },
+      "example": "This pasta comes with a spicy tomato sauce.",
+      "example_translations": {
+        "ru": "Эту пасту подают с острым томатным соусом.",
+        "uz": "Bu makaron achchiq pomidor sousi bilan beriladi."
+      }
+    },
+    {
+      "word": "vinegar",
+      "part_of_speech": "noun",
+      "translation": "уксус",
+      "translations": {
+        "ru": "уксус",
+        "uz": "sirka"
+      },
+      "example": "Vinegar gives the salad a slightly sour taste.",
+      "example_translations": {
+        "ru": "Уксус придаёт салату слегка кислый вкус.",
+        "uz": "Sirka salatga biroz nordon ta'm beradi."
+      }
+    },
+    {
+      "word": "seafood",
+      "part_of_speech": "noun",
+      "translation": "морепродукты",
+      "translations": {
+        "ru": "морепродукты",
+        "uz": "dengiz mahsulotlari"
+      },
+      "example": "We ate fresh seafood at a restaurant by the sea.",
+      "example_translations": {
+        "ru": "Мы ели свежие морепродукты в ресторане у моря.",
+        "uz": "Biz dengiz bo'yidagi restoranda yangi dengiz mahsulotlarini yedik."
+      }
+    },
+    {
+      "word": "cabbage",
+      "part_of_speech": "noun",
+      "translation": "капуста",
+      "translations": {
+        "ru": "капуста",
+        "uz": "karam"
+      },
+      "example": "Grandma is making a salad with cabbage and carrots.",
+      "example_translations": {
+        "ru": "Бабушка готовит салат из капусты и моркови.",
+        "uz": "Buvim karam va sabzidan salat tayyorlayapti."
+      }
+    },
+    {
+      "word": "nut",
+      "part_of_speech": "noun",
+      "translation": "орех",
+      "translations": {
+        "ru": "орех",
+        "uz": "yong'oq"
+      },
+      "example": "Nuts and dried fruit are a healthy snack.",
+      "example_translations": {
+        "ru": "Орехи и сухофрукты — полезный перекус.",
+        "uz": "Yong'oq va quritilgan mevalar foydali yengil yegulik hisoblanadi."
+      }
+    }
+  ]
+}

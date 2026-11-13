@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 11,
+    "title": "СМИ и развлечения",
+    "title_uz": "OAV va ko'ngilochar tadbirlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Книги и искусство",
+    "title_uz": "Kitoblar va san'at"
+  },
+  "words": [
+    {
+      "word": "fiction",
+      "part_of_speech": "noun",
+      "translation": "художественная литература",
+      "translations": {
+        "ru": "художественная литература",
+        "uz": "badiiy adabiyot"
+      },
+      "example": "I prefer fiction to books about real events.",
+      "example_translations": {
+        "ru": "Я предпочитаю художественную литературу книгам о реальных событиях.",
+        "uz": "Men haqiqiy voqealar haqidagi kitoblardan ko'ra badiiy adabiyotni afzal ko'raman."
+      }
+    },
+    {
+      "word": "poetry",
+      "part_of_speech": "noun",
+      "translation": "поэзия",
+      "translations": {
+        "ru": "поэзия",
+        "uz": "she'riyat"
+      },
+      "example": "This book of poetry has fifty short poems.",
+      "example_translations": {
+        "ru": "В этом сборнике поэзии пятьдесят коротких стихотворений.",
+        "uz": "Bu she'riyat to'plamida ellikta qisqa she'r bor."
+      }
+    },
+    {
+      "word": "tale",
+      "part_of_speech": "noun",
+      "translation": "сказка",
+      "translations": {
+        "ru": "сказка",
+        "uz": "ertak"
+      },
+      "example": "Grandma told us a tale about a brave prince.",
+      "example_translations": {
+        "ru": "Бабушка рассказала нам сказку о храбром принце.",
+        "uz": "Buvim bizga jasur shahzoda haqida ertak aytib berdi."
+      }
+    },
+    {
+      "word": "legend",
+      "part_of_speech": "noun",
+      "translation": "легенда",
+      "translations": {
+        "ru": "легенда",
+        "uz": "afsona"
+      },
+      "example": "An old legend says a dragon lived here.",
+      "example_translations": {
+        "ru": "Старая легенда гласит, что здесь жил дракон.",
+        "uz": "Qadimiy afsonaga ko'ra, bu yerda ajdaho yashagan."
+      }
+    },
+    {
+      "word": "masterpiece",
+      "part_of_speech": "noun",
+      "translation": "шедевр",
+      "translations": {
+        "ru": "шедевр",
+        "uz": "durdona, shoh asar"
+      },
+      "example": "This painting is a masterpiece of world art.",
+      "example_translations": {
+        "ru": "Эта картина — шедевр мирового искусства.",
+        "uz": "Bu rasm — jahon san'atining durdonasi."
+      }
+    },
+    {
+      "word": "sculpture",
+      "part_of_speech": "noun",
+      "translation": "скульптура",
+      "translations": {
+        "ru": "скульптура",
+        "uz": "haykal, skulptura"
+      },
+      "example": "There is a stone sculpture in the garden.",
+      "example_translations": {
+        "ru": "В саду стоит каменная скульптура.",
+        "uz": "Bog'da toshdan yasalgan haykal bor."
+      }
+    },
+    {
+      "word": "gallery",
+      "part_of_speech": "noun",
+      "translation": "галерея",
+      "translations": {
+        "ru": "галерея",
+        "uz": "galereya"
+      },
+      "example": "Does the gallery show paintings by young artists?",
+      "example_translations": {
+        "ru": "В галерее выставляют картины молодых художников?",
+        "uz": "Galereyada yosh rassomlarning rasmlari namoyish etiladimi?"
+      }
+    },
+    {
+      "word": "portrait",
+      "part_of_speech": "noun",
+      "translation": "портрет",
+      "translations": {
+        "ru": "портрет",
+        "uz": "portret"
+      },
+      "example": "The artist painted a portrait of my mother.",
+      "example_translations": {
+        "ru": "Художник написал портрет моей мамы.",
+        "uz": "Rassom onamning portretini chizdi."
+      }
+    },
+    {
+      "word": "sketch",
+      "part_of_speech": "noun",
+      "translation": "набросок, эскиз",
+      "translations": {
+        "ru": "набросок, эскиз",
+        "uz": "xomaki rasm, eskiz"
+      },
+      "example": "He made a quick sketch with a pencil.",
+      "example_translations": {
+        "ru": "Он сделал быстрый набросок карандашом.",
+        "uz": "U qalamda tezgina xomaki rasm chizdi."
+      }
+    },
+    {
+      "word": "craft",
+      "part_of_speech": "noun",
+      "translation": "ремесло",
+      "translations": {
+        "ru": "ремесло",
+        "uz": "hunar"
+      },
+      "example": "Making carpets by hand is an old craft.",
+      "example_translations": {
+        "ru": "Ткать ковры вручную — старинное ремесло.",
+        "uz": "Qo'lda gilam to'qish — qadimiy hunar."
+      }
+    }
+  ]
+}

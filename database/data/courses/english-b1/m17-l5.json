@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 17,
+    "title": "Время, перемены и планы",
+    "title_uz": "Vaqt, o'zgarishlar va rejalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Начало и завершение",
+    "title_uz": "Boshlanish va yakun"
+  },
+  "words": [
+    {
+      "word": "original",
+      "part_of_speech": "adjective",
+      "translation": "первоначальный",
+      "translations": {
+        "ru": "первоначальный",
+        "uz": "dastlabki"
+      },
+      "example": "We went back to our original plan.",
+      "example_translations": {
+        "ru": "Мы вернулись к нашему первоначальному плану.",
+        "uz": "Biz dastlabki rejamizga qaytdik."
+      }
+    },
+    {
+      "word": "current",
+      "part_of_speech": "adjective",
+      "translation": "нынешний, текущий",
+      "translations": {
+        "ru": "нынешний, текущий",
+        "uz": "hozirgi, joriy"
+      },
+      "example": "Do you like your current job?",
+      "example_translations": {
+        "ru": "Вам нравится ваша нынешняя работа?",
+        "uz": "Hozirgi ishingiz sizga yoqadimi?"
+      }
+    },
+    {
+      "word": "continue",
+      "part_of_speech": "verb",
+      "translation": "продолжать",
+      "translations": {
+        "ru": "продолжать",
+        "uz": "davom ettirmoq"
+      },
+      "example": "Let's continue the lesson after a short break.",
+      "example_translations": {
+        "ru": "Давайте продолжим урок после короткого перерыва.",
+        "uz": "Qisqa tanaffusdan keyin darsni davom ettiraylik."
+      }
+    },
+    {
+      "word": "pause",
+      "part_of_speech": "noun",
+      "translation": "пауза",
+      "translations": {
+        "ru": "пауза",
+        "uz": "pauza"
+      },
+      "example": "After a short pause, the speaker answered the question.",
+      "example_translations": {
+        "ru": "После короткой паузы докладчик ответил на вопрос.",
+        "uz": "Qisqa pauzadan so'ng ma'ruzachi savolga javob berdi."
+      }
+    },
+    {
+      "word": "complete",
+      "part_of_speech": "verb",
+      "translation": "завершать, заканчивать",
+      "translations": {
+        "ru": "завершать, заканчивать",
+        "uz": "tugatmoq, yakunlamoq"
+      },
+      "example": "She completed the course in three months.",
+      "example_translations": {
+        "ru": "Она завершила курс за три месяца.",
+        "uz": "U kursni uch oyda tugatdi."
+      }
+    },
+    {
+      "word": "final",
+      "part_of_speech": "adjective",
+      "translation": "заключительный, последний",
+      "translations": {
+        "ru": "заключительный, последний",
+        "uz": "yakuniy, oxirgi"
+      },
+      "example": "Anna missed the final part of the concert.",
+      "example_translations": {
+        "ru": "Анна пропустила заключительную часть концерта.",
+        "uz": "Anna konsertning yakuniy qismini o'tkazib yubordi."
+      }
+    },
+    {
+      "word": "previous",
+      "part_of_speech": "adjective",
+      "translation": "предыдущий",
+      "translations": {
+        "ru": "предыдущий",
+        "uz": "oldingi"
+      },
+      "example": "Our previous teacher moved to another city.",
+      "example_translations": {
+        "ru": "Наш предыдущий учитель переехал в другой город.",
+        "uz": "Oldingi o'qituvchimiz boshqa shaharga ko'chib ketdi."
+      }
+    },
+    {
+      "word": "following",
+      "part_of_speech": "adjective",
+      "translation": "следующий",
+      "translations": {
+        "ru": "следующий",
+        "uz": "keyingi"
+      },
+      "example": "He arrived on Monday and left the following day.",
+      "example_translations": {
+        "ru": "Он приехал в понедельник и уехал на следующий день.",
+        "uz": "U dushanba kuni keldi va keyingi kuni jo'nab ketdi."
+      }
+    },
+    {
+      "word": "punctual",
+      "part_of_speech": "adjective",
+      "translation": "пунктуальный",
+      "translations": {
+        "ru": "пунктуальный",
+        "uz": "vaqtga rioya qiladigan"
+      },
+      "example": "Aziz is punctual and never comes late.",
+      "example_translations": {
+        "ru": "Азиз пунктуален и никогда не опаздывает.",
+        "uz": "Aziz vaqtga rioya qiladi va hech qachon kechikmaydi."
+      }
+    },
+    {
+      "word": "brief",
+      "part_of_speech": "adjective",
+      "translation": "краткий, короткий",
+      "translations": {
+        "ru": "краткий, короткий",
+        "uz": "qisqa"
+      },
+      "example": "Her speech was brief, only two minutes long.",
+      "example_translations": {
+        "ru": "Её речь была краткой, всего две минуты.",
+        "uz": "Uning nutqi qisqa bo'ldi, bor-yo'g'i ikki daqiqa."
+      }
+    }
+  ]
+}

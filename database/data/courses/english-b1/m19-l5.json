@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 19,
+    "title": "Действия и процессы",
+    "title_uz": "Harakatlar va jarayonlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Состояния и связи",
+    "title_uz": "Holatlar va bog'liqliklar"
+  },
+  "words": [
+    {
+      "word": "exist",
+      "part_of_speech": "verb",
+      "translation": "существовать",
+      "translations": {
+        "ru": "существовать",
+        "uz": "mavjud bo'lmoq"
+      },
+      "example": "Do you think life exists on other planets?",
+      "example_translations": {
+        "ru": "Как вы думаете, существует ли жизнь на других планетах?",
+        "uz": "Sizningcha, boshqa sayyoralarda hayot mavjudmi?"
+      }
+    },
+    {
+      "word": "occur",
+      "part_of_speech": "verb",
+      "translation": "происходить, случаться",
+      "translations": {
+        "ru": "происходить, случаться",
+        "uz": "sodir bo'lmoq, yuz bermoq"
+      },
+      "example": "Most mistakes occur when people are tired.",
+      "example_translations": {
+        "ru": "Большинство ошибок случается, когда люди устали.",
+        "uz": "Xatolarning ko'pi odamlar charchaganda yuz beradi."
+      }
+    },
+    {
+      "word": "appear",
+      "part_of_speech": "verb",
+      "translation": "появляться",
+      "translations": {
+        "ru": "появляться",
+        "uz": "paydo bo'lmoq"
+      },
+      "example": "A rainbow appeared in the sky after the rain.",
+      "example_translations": {
+        "ru": "После дождя на небе появилась радуга.",
+        "uz": "Yomg'irdan keyin osmonda kamalak paydo bo'ldi."
+      }
+    },
+    {
+      "word": "disappear",
+      "part_of_speech": "verb",
+      "translation": "исчезать",
+      "translations": {
+        "ru": "исчезать",
+        "uz": "g'oyib bo'lmoq"
+      },
+      "example": "My keys disappeared from the table again!",
+      "example_translations": {
+        "ru": "Мои ключи опять исчезли со стола!",
+        "uz": "Kalitlarim yana stoldan g'oyib bo'ldi!"
+      }
+    },
+    {
+      "word": "belong",
+      "part_of_speech": "verb",
+      "translation": "принадлежать",
+      "translations": {
+        "ru": "принадлежать",
+        "uz": "tegishli bo'lmoq"
+      },
+      "example": "This bicycle belongs to my neighbor.",
+      "example_translations": {
+        "ru": "Этот велосипед принадлежит моему соседу.",
+        "uz": "Bu velosiped qo'shnimga tegishli."
+      }
+    },
+    {
+      "word": "depend",
+      "part_of_speech": "verb",
+      "translation": "зависеть",
+      "translations": {
+        "ru": "зависеть",
+        "uz": "bog'liq bo'lmoq"
+      },
+      "example": "Our plans for tomorrow depend on the weather.",
+      "example_translations": {
+        "ru": "Наши планы на завтра зависят от погоды.",
+        "uz": "Ertangi rejalarimiz ob-havoga bog'liq."
+      }
+    },
+    {
+      "word": "contain",
+      "part_of_speech": "verb",
+      "translation": "содержать",
+      "translations": {
+        "ru": "содержать",
+        "uz": "tarkibida bo'lmoq"
+      },
+      "example": "This juice contains a lot of sugar.",
+      "example_translations": {
+        "ru": "Этот сок содержит много сахара.",
+        "uz": "Bu sharbat tarkibida ko'p shakar bor."
+      }
+    },
+    {
+      "word": "include",
+      "part_of_speech": "verb",
+      "translation": "включать в себя",
+      "translations": {
+        "ru": "включать в себя",
+        "uz": "o'z ichiga olmoq"
+      },
+      "example": "The price includes breakfast and dinner.",
+      "example_translations": {
+        "ru": "Цена включает завтрак и ужин.",
+        "uz": "Narx nonushta va kechki ovqatni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "involve",
+      "part_of_speech": "verb",
+      "translation": "предполагать, требовать",
+      "translations": {
+        "ru": "предполагать, требовать",
+        "uz": "taqozo qilmoq, talab qilmoq"
+      },
+      "example": "My new job involves a lot of travel.",
+      "example_translations": {
+        "ru": "Моя новая работа предполагает много поездок.",
+        "uz": "Yangi ishim ko'p safar qilishni taqozo qiladi."
+      }
+    },
+    {
+      "word": "seem",
+      "part_of_speech": "verb",
+      "translation": "казаться",
+      "translations": {
+        "ru": "казаться",
+        "uz": "ko'rinmoq, tuyulmoq"
+      },
+      "example": "The new teacher seems very kind.",
+      "example_translations": {
+        "ru": "Новый учитель кажется очень добрым.",
+        "uz": "Yangi o'qituvchi juda mehribon ko'rinadi."
+      }
+    }
+  ]
+}

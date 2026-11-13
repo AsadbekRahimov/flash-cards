@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 11,
+    "title": "Искусство и литература",
+    "title_uz": "San'at va adabiyot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Оценка искусства",
+    "title_uz": "San'atni baholash"
+  },
+  "words": [
+    {
+      "word": "aesthetic",
+      "part_of_speech": "adjective",
+      "translation": "эстетический",
+      "translations": {
+        "ru": "эстетический",
+        "uz": "estetik"
+      },
+      "example": "The building has no practical use, only aesthetic value.",
+      "example_translations": {
+        "ru": "У этого здания нет практической пользы, только эстетическая ценность.",
+        "uz": "Bu binoning amaliy foydasi yo'q, faqat estetik qiymati bor."
+      }
+    },
+    {
+      "word": "critic",
+      "part_of_speech": "noun",
+      "translation": "критик",
+      "translations": {
+        "ru": "критик",
+        "uz": "tanqidchi"
+      },
+      "example": "Every critic praised the young director's first film.",
+      "example_translations": {
+        "ru": "Каждый критик похвалил первый фильм молодого режиссёра.",
+        "uz": "Har bir tanqidchi yosh rejissyorning birinchi filmini maqtadi."
+      }
+    },
+    {
+      "word": "acclaim",
+      "part_of_speech": "noun",
+      "translation": "признание",
+      "translations": {
+        "ru": "признание",
+        "uz": "e'tirof"
+      },
+      "example": "Her first novel won acclaim around the world.",
+      "example_translations": {
+        "ru": "Её первый роман получил признание во всём мире.",
+        "uz": "Uning birinchi romani butun dunyoda e'tirofga sazovor bo'ldi."
+      }
+    },
+    {
+      "word": "inspiration",
+      "part_of_speech": "noun",
+      "translation": "вдохновение",
+      "translations": {
+        "ru": "вдохновение",
+        "uz": "ilhom"
+      },
+      "example": "Nature gives the painter inspiration for his work.",
+      "example_translations": {
+        "ru": "Природа даёт художнику вдохновение для работы.",
+        "uz": "Tabiat rassomga ijodi uchun ilhom beradi."
+      }
+    },
+    {
+      "word": "creativity",
+      "part_of_speech": "noun",
+      "translation": "творческие способности",
+      "translations": {
+        "ru": "творческие способности",
+        "uz": "ijodkorlik"
+      },
+      "example": "Art lessons help children develop their creativity.",
+      "example_translations": {
+        "ru": "Уроки искусства помогают детям развивать творческие способности.",
+        "uz": "San'at darslari bolalarga ijodkorligini rivojlantirishga yordam beradi."
+      }
+    },
+    {
+      "word": "authentic",
+      "part_of_speech": "adjective",
+      "translation": "подлинный",
+      "translations": {
+        "ru": "подлинный",
+        "uz": "asl, haqiqiy"
+      },
+      "example": "Experts confirmed that the painting is authentic.",
+      "example_translations": {
+        "ru": "Эксперты подтвердили, что картина подлинная.",
+        "uz": "Mutaxassislar rasmning asl ekanini tasdiqlashdi."
+      }
+    },
+    {
+      "word": "striking",
+      "part_of_speech": "adjective",
+      "translation": "поразительный",
+      "translations": {
+        "ru": "поразительный",
+        "uz": "hayratlanarli"
+      },
+      "example": "The painting is famous for its striking use of light.",
+      "example_translations": {
+        "ru": "Картина знаменита поразительным использованием света.",
+        "uz": "Bu rasm yorug'likdan hayratlanarli darajada foydalanilgani bilan mashhur."
+      }
+    },
+    {
+      "word": "depict",
+      "part_of_speech": "verb",
+      "translation": "изображать",
+      "translations": {
+        "ru": "изображать",
+        "uz": "tasvirlamoq"
+      },
+      "example": "These paintings depict everyday life in a mountain village.",
+      "example_translations": {
+        "ru": "Эти картины изображают повседневную жизнь горной деревни.",
+        "uz": "Bu rasmlar tog' qishlog'idagi kundalik hayotni tasvirlaydi."
+      }
+    },
+    {
+      "word": "graceful",
+      "part_of_speech": "adjective",
+      "translation": "грациозный, изящный",
+      "translations": {
+        "ru": "грациозный, изящный",
+        "uz": "nafis, latofatli"
+      },
+      "example": "We admired the graceful movements of the dancers.",
+      "example_translations": {
+        "ru": "Мы любовались грациозными движениями танцоров.",
+        "uz": "Biz raqqoslarning nafis harakatlaridan zavqlandik."
+      }
+    },
+    {
+      "word": "harmony",
+      "part_of_speech": "noun",
+      "translation": "гармония",
+      "translations": {
+        "ru": "гармония",
+        "uz": "uyg'unlik"
+      },
+      "example": "The colors in this painting are in perfect harmony.",
+      "example_translations": {
+        "ru": "Цвета на этой картине находятся в полной гармонии.",
+        "uz": "Bu rasmdagi ranglar mukammal uyg'unlikda."
+      }
+    }
+  ]
+}

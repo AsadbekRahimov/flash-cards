@@ -26,6 +26,7 @@ use App\Domain\Practice\Services\Modes\PracticeModeHandler;
 use App\Domain\Practice\Services\Modes\ReplaceableElements;
 use App\Domain\Practice\Support\IsoTime;
 use App\Domain\Practice\Support\JsonbKeyOrder;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
 use App\Models\PracticeAttempt;
 use App\Models\PracticeSession;
@@ -131,7 +132,9 @@ final class PracticeSessionService
 
         $locale = $this->locales->forLearner($learner);
         $locales = new LocaleSet([$locale]);
-        $scope = new MaterialScope($course, $lesson, $retryMaterial);
+        // The seed exists before the material is read: a whole course is read over a sample chosen by it.
+        $seed = SeededShuffle::newSeed();
+        $scope = MaterialScope::forPlay($course, $lesson, $retryMaterial, $seed);
 
         if (! $replaceActive) {
             $busy = $this->activeOf($learner);
@@ -140,7 +143,7 @@ final class PracticeSessionService
             }
         }
 
-        $snapshot = $this->buildSnapshot($mode, $scope, $learner, $locales, $retrySource !== null);
+        $snapshot = $this->buildSnapshot($mode, $scope, $learner, $locales, $retrySource !== null, $seed);
 
         $attributes = [
             'learner_id' => $learner->id,
@@ -563,21 +566,23 @@ final class PracticeSessionService
      * The snapshot; a mode that cannot be played (or that has too little material) is a 422 with the numbers - and the event.
      * For a retry the same lack is `retry_not_available`.
      */
-    private function buildSnapshot(PracticeMode $mode, MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $retry): Snapshot
+    private function buildSnapshot(PracticeMode $mode, MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $retry, string $seed): Snapshot
     {
         $handler = $this->modes->for($mode);
 
         try {
-            $availability = $handler->availability($scope, $learner, $locales);
-            if (! $availability->isAvailable) {
-                throw PracticeException::notEnoughMaterial($mode, $availability, $scope->course->slug, $scope->lesson?->id);
-            }
+            return $this->snapshots->withFullMaterialFallback($scope, function (MaterialScope $scope) use ($handler, $mode, $learner, $locales, $seed): Snapshot {
+                $availability = $handler->availability($scope, $learner, $locales);
+                if (! $availability->isAvailable) {
+                    throw PracticeException::notEnoughMaterial($mode, $availability, $scope->course->slug, $scope->lesson?->id);
+                }
 
-            $size = $mode === PracticeMode::Pairs
-                ? max(1, (int) config('practice.solo.pairs.rounds'))
-                : max(1, (int) config('practice.solo.items.size'));
+                $size = $mode === PracticeMode::Pairs
+                    ? max(1, (int) config('practice.solo.pairs.rounds'))
+                    : max(1, (int) config('practice.solo.items.size'));
 
-            return $this->snapshots->build($mode, $scope, $learner, $locales, $size, strictSize: false);
+                return $this->snapshots->build($mode, $scope, $learner, $locales, $size, strictSize: false, seed: $seed);
+            });
         } catch (PracticeException $e) {
             if ($e->errorCode !== PracticeException::NOT_ENOUGH_MATERIAL) {
                 throw $e;

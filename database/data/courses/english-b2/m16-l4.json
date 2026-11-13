@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 16,
+    "title": "Бизнес и маркетинг",
+    "title_uz": "Biznes va marketing"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Стратегия и конкуренция",
+    "title_uz": "Strategiya va raqobat"
+  },
+  "words": [
+    {
+      "word": "strategy",
+      "part_of_speech": "noun",
+      "translation": "стратегия",
+      "translations": {
+        "ru": "стратегия",
+        "uz": "strategiya"
+      },
+      "example": "Our strategy is to sell online first.",
+      "example_translations": {
+        "ru": "Наша стратегия — сначала продавать через интернет.",
+        "uz": "Bizning strategiyamiz — avval internet orqali sotish."
+      }
+    },
+    {
+      "word": "competitive",
+      "part_of_speech": "adjective",
+      "translation": "конкурентоспособный",
+      "translations": {
+        "ru": "конкурентоспособный",
+        "uz": "raqobatbardosh"
+      },
+      "example": "Low prices keep our products competitive.",
+      "example_translations": {
+        "ru": "Благодаря низким ценам наши товары остаются конкурентоспособными.",
+        "uz": "Past narxlar tufayli mahsulotlarimiz raqobatbardosh bo'lib qolmoqda."
+      }
+    },
+    {
+      "word": "expansion",
+      "part_of_speech": "noun",
+      "translation": "расширение",
+      "translations": {
+        "ru": "расширение",
+        "uz": "kengayish"
+      },
+      "example": "The expansion of the factory created new jobs.",
+      "example_translations": {
+        "ru": "Расширение завода создало новые рабочие места.",
+        "uz": "Zavodning kengayishi yangi ish o'rinlarini yaratdi."
+      }
+    },
+    {
+      "word": "rival",
+      "part_of_speech": "noun",
+      "translation": "конкурент, соперник",
+      "translations": {
+        "ru": "конкурент, соперник",
+        "uz": "raqib"
+      },
+      "example": "Our main rival opened a store across the street.",
+      "example_translations": {
+        "ru": "Наш главный конкурент открыл магазин через дорогу.",
+        "uz": "Asosiy raqibimiz ko'chaning narigi tomonida do'kon ochdi."
+      }
+    },
+    {
+      "word": "tactic",
+      "part_of_speech": "noun",
+      "translation": "тактика, приём",
+      "translations": {
+        "ru": "тактика, приём",
+        "uz": "taktika, usul"
+      },
+      "example": "Free samples are a common sales tactic.",
+      "example_translations": {
+        "ru": "Бесплатные образцы — распространённая тактика продаж.",
+        "uz": "Bepul namunalar — keng tarqalgan savdo taktikasi."
+      }
+    },
+    {
+      "word": "feasible",
+      "part_of_speech": "adjective",
+      "translation": "осуществимый",
+      "translations": {
+        "ru": "осуществимый",
+        "uz": "amalga oshirib bo'ladigan"
+      },
+      "example": "Is this plan feasible with our small budget?",
+      "example_translations": {
+        "ru": "Осуществим ли этот план при нашем небольшом бюджете?",
+        "uz": "Bu rejani kichik budjetimiz bilan amalga oshirib bo'ladimi?"
+      }
+    },
+    {
+      "word": "outsource",
+      "part_of_speech": "verb",
+      "translation": "передавать на аутсорсинг",
+      "translations": {
+        "ru": "передавать на аутсорсинг",
+        "uz": "autsorsingga bermoq"
+      },
+      "example": "Many firms outsource their customer service to save money.",
+      "example_translations": {
+        "ru": "Многие фирмы передают обслуживание клиентов на аутсорсинг ради экономии.",
+        "uz": "Ko'p firmalar pulni tejash uchun mijozlarga xizmat ko'rsatishni autsorsingga beradi."
+      }
+    },
+    {
+      "word": "takeover",
+      "part_of_speech": "noun",
+      "translation": "поглощение",
+      "translations": {
+        "ru": "поглощение",
+        "uz": "qo'shib olish"
+      },
+      "example": "After the takeover, the smaller firm lost its name.",
+      "example_translations": {
+        "ru": "После поглощения меньшая фирма лишилась своего названия.",
+        "uz": "Qo'shib olishdan so'ng kichikroq firma o'z nomini yo'qotdi."
+      }
+    },
+    {
+      "word": "dominate",
+      "part_of_speech": "verb",
+      "translation": "доминировать",
+      "translations": {
+        "ru": "доминировать",
+        "uz": "hukmronlik qilmoq"
+      },
+      "example": "Two large companies dominate the phone market.",
+      "example_translations": {
+        "ru": "На рынке телефонов доминируют две крупные компании.",
+        "uz": "Telefon bozorida ikkita yirik kompaniya hukmronlik qiladi."
+      }
+    },
+    {
+      "word": "monopoly",
+      "part_of_speech": "noun",
+      "translation": "монополия",
+      "translations": {
+        "ru": "монополия",
+        "uz": "monopoliya"
+      },
+      "example": "The company has a monopoly on water supply here.",
+      "example_translations": {
+        "ru": "У этой компании здесь монополия на водоснабжение.",
+        "uz": "Bu kompaniya bu yerda suv ta'minoti bo'yicha monopoliyaga ega."
+      }
+    }
+  ]
+}

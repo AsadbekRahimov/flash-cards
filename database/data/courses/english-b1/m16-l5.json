@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 16,
+    "title": "Чувства и мнения",
+    "title_uz": "His-tuyg'ular va fikrlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Желания и отношение",
+    "title_uz": "Istaklar va munosabat"
+  },
+  "words": [
+    {
+      "word": "desire",
+      "part_of_speech": "noun",
+      "translation": "желание",
+      "translations": {
+        "ru": "желание",
+        "uz": "istak, xohish"
+      },
+      "example": "He has a strong desire to see the world.",
+      "example_translations": {
+        "ru": "У него сильное желание увидеть мир.",
+        "uz": "Unda dunyoni ko'rishga kuchli istak bor."
+      }
+    },
+    {
+      "word": "intend",
+      "part_of_speech": "verb",
+      "translation": "намереваться",
+      "translations": {
+        "ru": "намереваться",
+        "uz": "niyat qilmoq"
+      },
+      "example": "We intend to finish the work by Friday.",
+      "example_translations": {
+        "ru": "Мы намереваемся закончить работу к пятнице.",
+        "uz": "Biz ishni juma kunigacha tugatishni niyat qilganmiz."
+      }
+    },
+    {
+      "word": "willing",
+      "part_of_speech": "adjective",
+      "translation": "готовый, согласный",
+      "translations": {
+        "ru": "готовый, согласный",
+        "uz": "tayyor, rozi"
+      },
+      "example": "She is always willing to help her neighbors.",
+      "example_translations": {
+        "ru": "Она всегда готова помочь соседям.",
+        "uz": "U doim qo'shnilariga yordam berishga tayyor."
+      }
+    },
+    {
+      "word": "bother",
+      "part_of_speech": "verb",
+      "translation": "беспокоить",
+      "translations": {
+        "ru": "беспокоить",
+        "uz": "bezovta qilmoq"
+      },
+      "example": "Does the noise from the street bother you?",
+      "example_translations": {
+        "ru": "Вас беспокоит шум с улицы?",
+        "uz": "Ko'chadagi shovqin sizni bezovta qiladimi?"
+      }
+    },
+    {
+      "word": "determined",
+      "part_of_speech": "adjective",
+      "translation": "полный решимости",
+      "translations": {
+        "ru": "полный решимости",
+        "uz": "qat'iy ahd qilgan"
+      },
+      "example": "Malika is determined to win the competition.",
+      "example_translations": {
+        "ru": "Малика полна решимости выиграть соревнование.",
+        "uz": "Malika musobaqada g'olib bo'lishga qat'iy ahd qilgan."
+      }
+    },
+    {
+      "word": "expect",
+      "part_of_speech": "verb",
+      "translation": "ожидать",
+      "translations": {
+        "ru": "ожидать",
+        "uz": "kutmoq"
+      },
+      "example": "They expect about fifty guests at the wedding.",
+      "example_translations": {
+        "ru": "Они ожидают на свадьбе около пятидесяти гостей.",
+        "uz": "Ular to'yga ellikka yaqin mehmon kutishyapti."
+      }
+    },
+    {
+      "word": "deserve",
+      "part_of_speech": "verb",
+      "translation": "заслуживать",
+      "translations": {
+        "ru": "заслуживать",
+        "uz": "loyiq bo'lmoq"
+      },
+      "example": "Your team worked hard and deserves this prize.",
+      "example_translations": {
+        "ru": "Ваша команда много работала и заслуживает этого приза.",
+        "uz": "Jamoangiz ko'p mehnat qildi va bu sovringa loyiq."
+      }
+    },
+    {
+      "word": "appreciate",
+      "part_of_speech": "verb",
+      "translation": "ценить",
+      "translations": {
+        "ru": "ценить",
+        "uz": "qadrlamoq"
+      },
+      "example": "I really appreciate everything you do for us.",
+      "example_translations": {
+        "ru": "Я очень ценю всё, что вы для нас делаете.",
+        "uz": "Biz uchun qilayotgan barcha ishlaringizni juda qadrlayman."
+      }
+    },
+    {
+      "word": "dislike",
+      "part_of_speech": "verb",
+      "translation": "не любить",
+      "translations": {
+        "ru": "не любить",
+        "uz": "yoqtirmaslik"
+      },
+      "example": "My brother dislikes getting up early.",
+      "example_translations": {
+        "ru": "Мой брат не любит рано вставать.",
+        "uz": "Akam erta turishni yoqtirmaydi."
+      }
+    },
+    {
+      "word": "hesitate",
+      "part_of_speech": "verb",
+      "translation": "колебаться",
+      "translations": {
+        "ru": "колебаться",
+        "uz": "ikkilanmoq"
+      },
+      "example": "She hesitated before she opened the letter.",
+      "example_translations": {
+        "ru": "Она колебалась, прежде чем открыть письмо.",
+        "uz": "U xatni ochishdan oldin ikkilanib qoldi."
+      }
+    }
+  ]
+}

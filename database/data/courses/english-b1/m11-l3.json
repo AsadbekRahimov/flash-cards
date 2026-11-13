@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 11,
+    "title": "СМИ и развлечения",
+    "title_uz": "OAV va ko'ngilochar tadbirlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Музыка и сцена",
+    "title_uz": "Musiqa va sahna"
+  },
+  "words": [
+    {
+      "word": "tune",
+      "part_of_speech": "noun",
+      "translation": "мотив, напев",
+      "translations": {
+        "ru": "мотив, напев",
+        "uz": "kuy"
+      },
+      "example": "I know this tune, but I forgot the words.",
+      "example_translations": {
+        "ru": "Я знаю этот мотив, но забыл слова.",
+        "uz": "Men bu kuyni bilaman, lekin so'zlarini unutdim."
+      }
+    },
+    {
+      "word": "musician",
+      "part_of_speech": "noun",
+      "translation": "музыкант",
+      "translations": {
+        "ru": "музыкант",
+        "uz": "musiqachi"
+      },
+      "example": "The musician played the guitar for two hours.",
+      "example_translations": {
+        "ru": "Музыкант играл на гитаре два часа.",
+        "uz": "Musiqachi ikki soat gitara chaldi."
+      }
+    },
+    {
+      "word": "composer",
+      "part_of_speech": "noun",
+      "translation": "композитор",
+      "translations": {
+        "ru": "композитор",
+        "uz": "bastakor"
+      },
+      "example": "A famous composer wrote this music for a movie.",
+      "example_translations": {
+        "ru": "Известный композитор написал эту музыку для фильма.",
+        "uz": "Mashhur bastakor bu musiqani film uchun yozgan."
+      }
+    },
+    {
+      "word": "instrument",
+      "part_of_speech": "noun",
+      "translation": "музыкальный инструмент",
+      "translations": {
+        "ru": "музыкальный инструмент",
+        "uz": "musiqa asbobi"
+      },
+      "example": "Can you play any musical instrument?",
+      "example_translations": {
+        "ru": "Вы умеете играть на каком-нибудь музыкальном инструменте?",
+        "uz": "Biror musiqa asbobini chala olasizmi?"
+      }
+    },
+    {
+      "word": "melody",
+      "part_of_speech": "noun",
+      "translation": "мелодия",
+      "translations": {
+        "ru": "мелодия",
+        "uz": "ohang"
+      },
+      "example": "This song has a simple, beautiful melody.",
+      "example_translations": {
+        "ru": "У этой песни простая и красивая мелодия.",
+        "uz": "Bu qo'shiqning ohangi sodda va chiroyli."
+      }
+    },
+    {
+      "word": "rhythm",
+      "part_of_speech": "noun",
+      "translation": "ритм",
+      "translations": {
+        "ru": "ритм",
+        "uz": "ritm"
+      },
+      "example": "The children clapped to the rhythm of the song.",
+      "example_translations": {
+        "ru": "Дети хлопали в ритм песни.",
+        "uz": "Bolalar qo'shiq ritmiga mos qarsak chaldi."
+      }
+    },
+    {
+      "word": "album",
+      "part_of_speech": "noun",
+      "translation": "альбом",
+      "translations": {
+        "ru": "альбом",
+        "uz": "albom"
+      },
+      "example": "Their new album has twelve songs.",
+      "example_translations": {
+        "ru": "В их новом альбоме двенадцать песен.",
+        "uz": "Ularning yangi albomida o'n ikkita qo'shiq bor."
+      }
+    },
+    {
+      "word": "perform",
+      "part_of_speech": "verb",
+      "translation": "выступать",
+      "translations": {
+        "ru": "выступать",
+        "uz": "chiqish qilmoq"
+      },
+      "example": "Our school band performed at the city festival.",
+      "example_translations": {
+        "ru": "Наша школьная группа выступила на городском фестивале.",
+        "uz": "Maktabimiz guruhi shahar festivalida chiqish qildi."
+      }
+    },
+    {
+      "word": "stage",
+      "part_of_speech": "noun",
+      "translation": "сцена",
+      "translations": {
+        "ru": "сцена",
+        "uz": "sahna"
+      },
+      "example": "The singer walked onto the stage and smiled.",
+      "example_translations": {
+        "ru": "Певец вышел на сцену и улыбнулся.",
+        "uz": "Xonanda sahnaga chiqib, jilmaydi."
+      }
+    },
+    {
+      "word": "rehearsal",
+      "part_of_speech": "noun",
+      "translation": "репетиция",
+      "translations": {
+        "ru": "репетиция",
+        "uz": "repetitsiya"
+      },
+      "example": "We have a rehearsal before the concert tomorrow.",
+      "example_translations": {
+        "ru": "Завтра перед концертом у нас репетиция.",
+        "uz": "Ertaga konsert oldidan repetitsiyamiz bor."
+      }
+    }
+  ]
+}

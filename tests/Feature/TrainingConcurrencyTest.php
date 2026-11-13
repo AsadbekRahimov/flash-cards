@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Services\CardPicker;
+use App\Domain\Learning\Services\NewWordFrontier;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
@@ -21,6 +22,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ForkSafe;
+use Tests\Support\HotPathFixtures as Fx;
 
 /*
  * Real races: several OS processes, each with its own PostgreSQL connection, hit the
@@ -189,6 +191,42 @@ it('introduces each new word once when four tabs of one learner pick at the same
         ->and($rows->pluck('word_id')->sort()->values()->all())->toBe(collect($served)->unique()->sort()->values()->all())
         ->and($rows->count())->toBeLessThanOrEqual(4)
         ->and($rows->pluck('word_id')->unique())->toHaveCount($rows->count());
+});
+
+it('introduces each daily-review word once when four tabs start from a frontier hint at a lesson boundary', function (): void {
+    // Lesson 1 has one word, lesson 2 four (one per tab: a tab that saw no due card before the others committed must
+    // still find a word of its own). The learner has taken the word of lesson 1, so the cached hint names a lesson with
+    // nothing left: every tab's narrowed statement finds nothing and all of them fall back to the full walk under the
+    // learner lock - serialised, each seeing the rows of the tabs before it.
+    $fx = Fx::course([1 => [1 => 1, 2 => 4]]);
+    $course = $fx['course'];
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    $learnerId = (int) $learner->id;
+    $courseId = (int) $course->id;
+
+    $first = app(CardPicker::class)->pickNext($learnerId, TrainingScope::daily($courseId));
+    expect($first->word?->id)->toBe($fx['words']['1.1']['active'][0])
+        ->and(app(NewWordFrontier::class)->read($learnerId, $courseId)?->lessonId)->toBe((int) $fx['lessons']['1.1']->id);
+    WordRepetition::query()->where('learner_id', $learnerId)->update(['next_review_at' => now()->addDay()]);
+
+    $results = runConcurrently(array_fill(0, 4, function () use ($learnerId, $courseId): ?int {
+        $pick = app(CardPicker::class)->pickNext($learnerId, TrainingScope::daily($courseId));
+
+        return $pick->word?->id === null ? null : (int) $pick->word->id;
+    }));
+
+    expect(array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error'))->toBe([]);
+
+    $served = array_column($results, 'result');
+    $rows = WordRepetition::query()->where('learner_id', $learnerId)->whereIn('word_id', $fx['words']['1.2']['active'])->get();
+
+    // As in the lesson scope: every tab got a card, a later tab may get an earlier tab's ungraded `new` card as due,
+    // but every word of lesson 2 was introduced at most once, in study order, and nothing of lesson 1 twice.
+    expect($served)->each->not->toBeNull()
+        ->and($rows->pluck('word_id')->sort()->values()->all())->toBe(collect($served)->unique()->sort()->values()->all())
+        ->and($rows->pluck('word_id')->unique())->toHaveCount($rows->count())
+        ->and($rows->pluck('word_id')->sort()->values()->all())->toBe(array_slice($fx['words']['1.2']['active'], 0, $rows->count()))
+        ->and(WordRepetition::query()->where('learner_id', $learnerId)->count())->toBe(1 + $rows->count());
 });
 
 it('does not let four tabs jointly exceed a budget of two new cards', function (): void {

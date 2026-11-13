@@ -61,6 +61,10 @@ use Illuminate\Support\Facades\Log;
  * subscription row is locked and re-checked. None of these paths ever touches
  * `payment_orders` (rule 1 of docs/13 §3).
  *
+ * Note: in a request of the `api` group a product event goes to the buffer and is inserted after the
+ * response (ProductEventBuffer), so such a transaction inserts nothing into `product_events`; outside
+ * a request (webhooks, console, queue) the event is inserted inside the transaction, as described above.
+ *
  * Every transition writes an audit record (when a human did it), a product
  * event and schedules the entitlement cache invalidation after commit.
  */
@@ -1013,7 +1017,7 @@ final class SubscriptionService
      * One due row in its own transaction. Lock order: subject row (a missing
      * subject is not an error — the row is expired all the same) -> subscription
      * (re-checked: it may have been extended or already expired since the
-     * candidate list was built) -> `product_events` insert.
+     * candidate list was built) -> `product_events` insert (outside the `api` group, which buffers it until after commit).
      */
     private function expireOne(int $id, CarbonImmutable $now): bool
     {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\DeferProductEvents;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwaAuth;
 use App\Support\Surface;
@@ -42,6 +43,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(SecurityHeaders::class);
+
+        // Product events of API requests are written in one INSERT after the response (webhooks, panels, console, queue - at once).
+        $middleware->api(append: [DeferProductEvents::class]);
 
         // Behind nginx as an HTTP proxy (the Octane mode of app-api) the client address and scheme arrive in X-Forwarded-*.
         // The proxies that may send them come from config/trustedproxy.php (TRUSTED_PROXIES), which the global TrustProxies

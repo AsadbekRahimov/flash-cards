@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 10,
+    "title": "СМИ и коммуникация",
+    "title_uz": "OAV va muloqot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Журналистика",
+    "title_uz": "Jurnalistika"
+  },
+  "words": [
+    {
+      "word": "editorial",
+      "part_of_speech": "noun",
+      "translation": "редакционная статья",
+      "translations": {
+        "ru": "редакционная статья",
+        "uz": "tahririyat maqolasi"
+      },
+      "example": "Today's editorial criticizes the new parking rules.",
+      "example_translations": {
+        "ru": "Сегодняшняя редакционная статья критикует новые правила парковки.",
+        "uz": "Bugungi tahririyat maqolasi yangi avtoturargoh qoidalarini tanqid qiladi."
+      }
+    },
+    {
+      "word": "exclusive",
+      "part_of_speech": "adjective",
+      "translation": "эксклюзивный",
+      "translations": {
+        "ru": "эксклюзивный",
+        "uz": "eksklyuziv"
+      },
+      "example": "The magazine published an exclusive interview with the singer.",
+      "example_translations": {
+        "ru": "Журнал опубликовал эксклюзивное интервью с певицей.",
+        "uz": "Jurnal xonanda bilan eksklyuziv intervyuni chop etdi."
+      }
+    },
+    {
+      "word": "caption",
+      "part_of_speech": "noun",
+      "translation": "подпись под фото",
+      "translations": {
+        "ru": "подпись под фото",
+        "uz": "rasm ostidagi yozuv"
+      },
+      "example": "The caption under the photo explains the event.",
+      "example_translations": {
+        "ru": "Подпись под фото поясняет, что это за событие.",
+        "uz": "Rasm ostidagi yozuv voqeani tushuntiradi."
+      }
+    },
+    {
+      "word": "coverage",
+      "part_of_speech": "noun",
+      "translation": "освещение событий",
+      "translations": {
+        "ru": "освещение событий",
+        "uz": "voqealarning yoritilishi"
+      },
+      "example": "The newspaper's coverage of the flood was detailed.",
+      "example_translations": {
+        "ru": "Освещение наводнения в газете было подробным.",
+        "uz": "Gazetada suv toshqinining yoritilishi batafsil edi."
+      }
+    },
+    {
+      "word": "newsroom",
+      "part_of_speech": "noun",
+      "translation": "редакция новостей",
+      "translations": {
+        "ru": "редакция новостей",
+        "uz": "yangiliklar tahririyati"
+      },
+      "example": "Twenty reporters work in the busy newsroom.",
+      "example_translations": {
+        "ru": "В оживлённой редакции новостей работают двадцать репортёров.",
+        "uz": "Gavjum yangiliklar tahririyatida yigirma nafar muxbir ishlaydi."
+      }
+    },
+    {
+      "word": "journalism",
+      "part_of_speech": "noun",
+      "translation": "журналистика",
+      "translations": {
+        "ru": "журналистика",
+        "uz": "jurnalistika"
+      },
+      "example": "Malika studies journalism at the university.",
+      "example_translations": {
+        "ru": "Малика изучает журналистику в университете.",
+        "uz": "Malika universitetda jurnalistikani o'rganadi."
+      }
+    },
+    {
+      "word": "tabloid",
+      "part_of_speech": "noun",
+      "translation": "бульварная газета, таблоид",
+      "translations": {
+        "ru": "бульварная газета, таблоид",
+        "uz": "bulvar gazetasi"
+      },
+      "example": "That tabloid prints mostly stories about celebrities.",
+      "example_translations": {
+        "ru": "Эта бульварная газета печатает в основном истории о знаменитостях.",
+        "uz": "O'sha bulvar gazetasi asosan mashhurlar haqidagi xabarlarni chop etadi."
+      }
+    },
+    {
+      "word": "columnist",
+      "part_of_speech": "noun",
+      "translation": "колумнист",
+      "translations": {
+        "ru": "колумнист",
+        "uz": "kolumnist, rukn muallifi"
+      },
+      "example": "Our favorite columnist writes about city life.",
+      "example_translations": {
+        "ru": "Наш любимый колумнист пишет о городской жизни.",
+        "uz": "Sevimli kolumnistimiz shahar hayoti haqida yozadi."
+      }
+    },
+    {
+      "word": "bulletin",
+      "part_of_speech": "noun",
+      "translation": "выпуск новостей",
+      "translations": {
+        "ru": "выпуск новостей",
+        "uz": "yangiliklar dasturi"
+      },
+      "example": "The evening news bulletin begins at eight.",
+      "example_translations": {
+        "ru": "Вечерний выпуск новостей начинается в восемь.",
+        "uz": "Kechki yangiliklar dasturi soat sakkizda boshlanadi."
+      }
+    },
+    {
+      "word": "publisher",
+      "part_of_speech": "noun",
+      "translation": "издатель",
+      "translations": {
+        "ru": "издатель",
+        "uz": "noshir"
+      },
+      "example": "Which publisher printed your first book?",
+      "example_translations": {
+        "ru": "Какой издатель напечатал вашу первую книгу?",
+        "uz": "Birinchi kitobingizni qaysi noshir chop etgan?"
+      }
+    }
+  ]
+}

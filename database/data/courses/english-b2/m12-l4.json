@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 12,
+    "title": "Образование и мышление",
+    "title_uz": "Ta'lim va tafakkur"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Знание и понимание",
+    "title_uz": "Bilim va tushunish"
+  },
+  "words": [
+    {
+      "word": "concept",
+      "part_of_speech": "noun",
+      "translation": "понятие",
+      "translations": {
+        "ru": "понятие",
+        "uz": "tushuncha"
+      },
+      "example": "Time is a difficult concept for small children.",
+      "example_translations": {
+        "ru": "Время — трудное понятие для маленьких детей.",
+        "uz": "Vaqt — kichkina bolalar uchun qiyin tushuncha."
+      }
+    },
+    {
+      "word": "notion",
+      "part_of_speech": "noun",
+      "translation": "представление",
+      "translations": {
+        "ru": "представление",
+        "uz": "tasavvur"
+      },
+      "example": "The notion that learning ends at school is old-fashioned.",
+      "example_translations": {
+        "ru": "Представление о том, что учёба заканчивается в школе, устарело.",
+        "uz": "O'qish maktabda tugaydi degan tasavvur eskirgan."
+      }
+    },
+    {
+      "word": "principle",
+      "part_of_speech": "noun",
+      "translation": "принцип",
+      "translations": {
+        "ru": "принцип",
+        "uz": "tamoyil"
+      },
+      "example": "The course explains the basic principles of economics.",
+      "example_translations": {
+        "ru": "Курс объясняет основные принципы экономики.",
+        "uz": "Kurs iqtisodiyotning asosiy tamoyillarini tushuntiradi."
+      }
+    },
+    {
+      "word": "comprehension",
+      "part_of_speech": "noun",
+      "translation": "понимание",
+      "translations": {
+        "ru": "понимание",
+        "uz": "tushunish"
+      },
+      "example": "Reading every day improves your comprehension of English texts.",
+      "example_translations": {
+        "ru": "Ежедневное чтение улучшает ваше понимание английских текстов.",
+        "uz": "Har kuni o'qish ingliz tilidagi matnlarni tushunishingizni yaxshilaydi."
+      }
+    },
+    {
+      "word": "framework",
+      "part_of_speech": "noun",
+      "translation": "основа, структура",
+      "translations": {
+        "ru": "основа, структура",
+        "uz": "asos, tuzilma"
+      },
+      "example": "The theory gives us a useful framework for research.",
+      "example_translations": {
+        "ru": "Эта теория даёт нам полезную основу для исследований.",
+        "uz": "Bu nazariya bizga tadqiqot uchun foydali asos beradi."
+      }
+    },
+    {
+      "word": "perspective",
+      "part_of_speech": "noun",
+      "translation": "угол зрения",
+      "translations": {
+        "ru": "угол зрения",
+        "uz": "nuqtayi nazar"
+      },
+      "example": "Try to see the problem from a different perspective.",
+      "example_translations": {
+        "ru": "Попробуйте посмотреть на проблему под другим углом зрения.",
+        "uz": "Muammoga boshqa nuqtayi nazardan qarashga harakat qiling."
+      }
+    },
+    {
+      "word": "context",
+      "part_of_speech": "noun",
+      "translation": "контекст",
+      "translations": {
+        "ru": "контекст",
+        "uz": "kontekst"
+      },
+      "example": "You can guess the meaning of the word from context.",
+      "example_translations": {
+        "ru": "О значении слова можно догадаться по контексту.",
+        "uz": "So'zning ma'nosini kontekstdan taxmin qilish mumkin."
+      }
+    },
+    {
+      "word": "insight",
+      "part_of_speech": "noun",
+      "translation": "глубокое понимание",
+      "translations": {
+        "ru": "глубокое понимание",
+        "uz": "chuqur anglash"
+      },
+      "example": "The book gives a deep insight into student life.",
+      "example_translations": {
+        "ru": "Книга даёт глубокое понимание студенческой жизни.",
+        "uz": "Kitob talabalar hayotini chuqur anglash imkonini beradi."
+      }
+    },
+    {
+      "word": "misconception",
+      "part_of_speech": "noun",
+      "translation": "заблуждение",
+      "translations": {
+        "ru": "заблуждение",
+        "uz": "yanglish tushuncha"
+      },
+      "example": "It is a common misconception that bats are blind.",
+      "example_translations": {
+        "ru": "Распространено заблуждение, что летучие мыши слепые.",
+        "uz": "Ko'rshapalaklar ko'r degan fikr — keng tarqalgan yanglish tushuncha."
+      }
+    },
+    {
+      "word": "ignorance",
+      "part_of_speech": "noun",
+      "translation": "невежество, незнание",
+      "translations": {
+        "ru": "невежество, незнание",
+        "uz": "bilimsizlik, jaholat"
+      },
+      "example": "Fear of new things often comes from ignorance.",
+      "example_translations": {
+        "ru": "Страх перед новым часто происходит от невежества.",
+        "uz": "Yangilikdan qo'rqish ko'pincha bilimsizlikdan kelib chiqadi."
+      }
+    }
+  ]
+}

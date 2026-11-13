@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 18,
+    "title": "Описание вещей и мест",
+    "title_uz": "Narsa va joylar tasviri"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Состояние и качество",
+    "title_uz": "Holat va sifat"
+  },
+  "words": [
+    {
+      "word": "condition",
+      "part_of_speech": "noun",
+      "translation": "состояние",
+      "translations": {
+        "ru": "состояние",
+        "uz": "holat"
+      },
+      "example": "Tom's car is old but in good condition.",
+      "example_translations": {
+        "ru": "Машина Тома старая, но в хорошем состоянии.",
+        "uz": "Tomning mashinasi eski, lekin yaxshi holatda."
+      }
+    },
+    {
+      "word": "common",
+      "part_of_speech": "adjective",
+      "translation": "распространённый",
+      "translations": {
+        "ru": "распространённый",
+        "uz": "keng tarqalgan"
+      },
+      "example": "Ali is a very common name here.",
+      "example_translations": {
+        "ru": "Али — очень распространённое здесь имя.",
+        "uz": "Ali — bu yerda juda keng tarqalgan ism."
+      }
+    },
+    {
+      "word": "basic",
+      "part_of_speech": "adjective",
+      "translation": "базовый, основной",
+      "translations": {
+        "ru": "базовый, основной",
+        "uz": "asosiy"
+      },
+      "example": "This phone has only basic functions.",
+      "example_translations": {
+        "ru": "У этого телефона только базовые функции.",
+        "uz": "Bu telefonda faqat asosiy funksiyalar bor."
+      }
+    },
+    {
+      "word": "messy",
+      "part_of_speech": "adjective",
+      "translation": "неубранный, неряшливый",
+      "translations": {
+        "ru": "неубранный, неряшливый",
+        "uz": "tartibsiz"
+      },
+      "example": "I can't work in such a messy room.",
+      "example_translations": {
+        "ru": "Я не могу работать в такой неубранной комнате.",
+        "uz": "Men bunday tartibsiz xonada ishlay olmayman."
+      }
+    },
+    {
+      "word": "neat",
+      "part_of_speech": "adjective",
+      "translation": "опрятный, аккуратный",
+      "translations": {
+        "ru": "опрятный, аккуратный",
+        "uz": "saranjom, tartibli"
+      },
+      "example": "Her room is always neat and clean.",
+      "example_translations": {
+        "ru": "Её комната всегда опрятная и чистая.",
+        "uz": "Uning xonasi doim saranjom va toza."
+      }
+    },
+    {
+      "word": "ordinary",
+      "part_of_speech": "adjective",
+      "translation": "обычный",
+      "translations": {
+        "ru": "обычный",
+        "uz": "oddiy"
+      },
+      "example": "It was an ordinary day, nothing special happened.",
+      "example_translations": {
+        "ru": "Это был обычный день, ничего особенного не произошло.",
+        "uz": "Bu oddiy kun edi, hech qanday alohida narsa bo'lmadi."
+      }
+    },
+    {
+      "word": "unique",
+      "part_of_speech": "adjective",
+      "translation": "уникальный",
+      "translations": {
+        "ru": "уникальный",
+        "uz": "betakror, noyob"
+      },
+      "example": "Each handmade carpet has a unique pattern.",
+      "example_translations": {
+        "ru": "У каждого ковра ручной работы уникальный узор.",
+        "uz": "Qo'lda to'qilgan har bir gilamning naqshi betakror."
+      }
+    },
+    {
+      "word": "practical",
+      "part_of_speech": "adjective",
+      "translation": "практичный",
+      "translations": {
+        "ru": "практичный",
+        "uz": "amaliy, qulay"
+      },
+      "example": "A small car is practical in a big city.",
+      "example_translations": {
+        "ru": "Маленькая машина практична в большом городе.",
+        "uz": "Katta shaharda kichik mashina amaliy jihatdan qulay."
+      }
+    },
+    {
+      "word": "typical",
+      "part_of_speech": "adjective",
+      "translation": "типичный",
+      "translations": {
+        "ru": "типичный",
+        "uz": "odatiy, tipik"
+      },
+      "example": "Rain is typical for this time of year.",
+      "example_translations": {
+        "ru": "Дождь типичен для этого времени года.",
+        "uz": "Yilning bu faslida yomg'ir yog'ishi odatiy hol."
+      }
+    },
+    {
+      "word": "similar",
+      "part_of_speech": "adjective",
+      "translation": "похожий",
+      "translations": {
+        "ru": "похожий",
+        "uz": "o'xshash"
+      },
+      "example": "Your bag is similar to mine.",
+      "example_translations": {
+        "ru": "Ваша сумка похожа на мою.",
+        "uz": "Sizning sumkangiz menikiga o'xshash."
+      }
+    }
+  ]
+}

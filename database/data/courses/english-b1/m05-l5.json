@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 5,
+    "title": "Здоровье и медицина",
+    "title_uz": "Salomatlik va tibbiyot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Самочувствие",
+    "title_uz": "Sog'liq holati"
+  },
+  "words": [
+    {
+      "word": "hygiene",
+      "part_of_speech": "noun",
+      "translation": "гигиена",
+      "translations": {
+        "ru": "гигиена",
+        "uz": "gigiyena"
+      },
+      "example": "Brushing your teeth is part of daily hygiene.",
+      "example_translations": {
+        "ru": "Чистка зубов — часть ежедневной гигиены.",
+        "uz": "Tish tozalash kundalik gigiyenaning bir qismidir."
+      }
+    },
+    {
+      "word": "exhausted",
+      "part_of_speech": "adjective",
+      "translation": "измученный, обессиленный",
+      "translations": {
+        "ru": "измученный, обессиленный",
+        "uz": "holdan toygan"
+      },
+      "example": "We were exhausted after the ten-hour trip.",
+      "example_translations": {
+        "ru": "Мы были измучены после десятичасовой поездки.",
+        "uz": "O'n soatlik safardan keyin holdan toygan edik."
+      }
+    },
+    {
+      "word": "overweight",
+      "part_of_speech": "adjective",
+      "translation": "с лишним весом",
+      "translations": {
+        "ru": "с лишним весом",
+        "uz": "ortiqcha vaznli"
+      },
+      "example": "My cat is overweight because she eats too much.",
+      "example_translations": {
+        "ru": "У моей кошки лишний вес, потому что она слишком много ест.",
+        "uz": "Mushugim ortiqcha vaznli, chunki u juda ko'p yeydi."
+      }
+    },
+    {
+      "word": "awake",
+      "part_of_speech": "adjective",
+      "translation": "бодрствующий, не спящий",
+      "translations": {
+        "ru": "бодрствующий, не спящий",
+        "uz": "uyg'oq"
+      },
+      "example": "The baby was awake all night.",
+      "example_translations": {
+        "ru": "Малыш всю ночь не спал.",
+        "uz": "Chaqaloq tun bo'yi uyg'oq edi."
+      }
+    },
+    {
+      "word": "nap",
+      "part_of_speech": "noun",
+      "translation": "короткий сон",
+      "translations": {
+        "ru": "короткий сон",
+        "uz": "qisqa uyqu"
+      },
+      "example": "A nap after lunch gives me more energy.",
+      "example_translations": {
+        "ru": "Короткий сон после обеда придаёт мне сил.",
+        "uz": "Tushlikdan keyingi qisqa uyqu menga kuch beradi."
+      }
+    },
+    {
+      "word": "anxious",
+      "part_of_speech": "adjective",
+      "translation": "встревоженный",
+      "translations": {
+        "ru": "встревоженный",
+        "uz": "bezovta, xavotirga tushgan"
+      },
+      "example": "Malika is anxious about tomorrow's exam.",
+      "example_translations": {
+        "ru": "Малика встревожена из-за завтрашнего экзамена.",
+        "uz": "Malika ertangi imtihon tufayli bezovta."
+      }
+    },
+    {
+      "word": "depressed",
+      "part_of_speech": "adjective",
+      "translation": "подавленный",
+      "translations": {
+        "ru": "подавленный",
+        "uz": "tushkun"
+      },
+      "example": "He felt depressed after losing his job.",
+      "example_translations": {
+        "ru": "Он чувствовал себя подавленным после потери работы.",
+        "uz": "Ishidan ayrilgach, u o'zini tushkun his qildi."
+      }
+    },
+    {
+      "word": "breath",
+      "part_of_speech": "noun",
+      "translation": "вдох, дыхание",
+      "translations": {
+        "ru": "вдох, дыхание",
+        "uz": "nafas"
+      },
+      "example": "Take a deep breath and try to relax.",
+      "example_translations": {
+        "ru": "Сделайте глубокий вдох и постарайтесь расслабиться.",
+        "uz": "Chuqur nafas oling va bo'shashishga harakat qiling."
+      }
+    },
+    {
+      "word": "sweat",
+      "part_of_speech": "verb",
+      "translation": "потеть",
+      "translations": {
+        "ru": "потеть",
+        "uz": "terlamoq"
+      },
+      "example": "Do you sweat a lot when you exercise?",
+      "example_translations": {
+        "ru": "Вы сильно потеете, когда тренируетесь?",
+        "uz": "Mashq qilganingizda ko'p terlaysizmi?"
+      }
+    },
+    {
+      "word": "yawn",
+      "part_of_speech": "verb",
+      "translation": "зевать",
+      "translations": {
+        "ru": "зевать",
+        "uz": "esnamoq"
+      },
+      "example": "The tired students yawned during the long lesson.",
+      "example_translations": {
+        "ru": "Уставшие ученики зевали во время длинного урока.",
+        "uz": "Charchagan o'quvchilar uzoq dars paytida esnadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 1,
+    "title": "Личность и биография",
+    "title_uz": "Shaxs va tarjimayi hol"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Внешность",
+    "title_uz": "Tashqi ko'rinish"
+  },
+  "words": [
+    {
+      "word": "appearance",
+      "part_of_speech": "noun",
+      "translation": "внешность",
+      "translations": {
+        "ru": "внешность",
+        "uz": "tashqi ko'rinish"
+      },
+      "example": "She changed her appearance with a new haircut.",
+      "example_translations": {
+        "ru": "Она изменила внешность с помощью новой стрижки.",
+        "uz": "U yangi soch turmagi bilan tashqi ko'rinishini o'zgartirdi."
+      }
+    },
+    {
+      "word": "slim",
+      "part_of_speech": "adjective",
+      "translation": "стройный",
+      "translations": {
+        "ru": "стройный",
+        "uz": "xipcha"
+      },
+      "example": "My sister is tall and slim like a dancer.",
+      "example_translations": {
+        "ru": "Моя сестра высокая и стройная, как танцовщица.",
+        "uz": "Opam raqqosa kabi baland bo'yli va xipcha."
+      }
+    },
+    {
+      "word": "handsome",
+      "part_of_speech": "adjective",
+      "translation": "красивый, статный",
+      "translations": {
+        "ru": "красивый, статный",
+        "uz": "kelishgan"
+      },
+      "example": "The actor in this movie is very handsome.",
+      "example_translations": {
+        "ru": "Актёр в этом фильме очень красивый.",
+        "uz": "Bu filmdagi aktyor juda kelishgan."
+      }
+    },
+    {
+      "word": "attractive",
+      "part_of_speech": "adjective",
+      "translation": "привлекательный",
+      "translations": {
+        "ru": "привлекательный",
+        "uz": "jozibali"
+      },
+      "example": "She has an attractive smile and kind eyes.",
+      "example_translations": {
+        "ru": "У неё привлекательная улыбка и добрые глаза.",
+        "uz": "Uning jozibali tabassumi va mehribon ko'zlari bor."
+      }
+    },
+    {
+      "word": "beard",
+      "part_of_speech": "noun",
+      "translation": "борода",
+      "translations": {
+        "ru": "борода",
+        "uz": "soqol"
+      },
+      "example": "My uncle has a long gray beard.",
+      "example_translations": {
+        "ru": "У моего дяди длинная седая борода.",
+        "uz": "Amakimning uzun, oqargan soqoli bor."
+      }
+    },
+    {
+      "word": "curly",
+      "part_of_speech": "adjective",
+      "translation": "кудрявый",
+      "translations": {
+        "ru": "кудрявый",
+        "uz": "jingalak"
+      },
+      "example": "The baby has curly hair like her mother.",
+      "example_translations": {
+        "ru": "У малышки кудрявые волосы, как у мамы.",
+        "uz": "Chaqaloqning sochi onasinikiga o'xshab jingalak."
+      }
+    },
+    {
+      "word": "bald",
+      "part_of_speech": "adjective",
+      "translation": "лысый",
+      "translations": {
+        "ru": "лысый",
+        "uz": "tepakal"
+      },
+      "example": "My grandfather is bald and always wears a hat.",
+      "example_translations": {
+        "ru": "Мой дедушка лысый и всегда носит шляпу.",
+        "uz": "Bobom tepakal, u doim shlyapa kiyib yuradi."
+      }
+    },
+    {
+      "word": "pale",
+      "part_of_speech": "adjective",
+      "translation": "бледный",
+      "translations": {
+        "ru": "бледный",
+        "uz": "rangpar"
+      },
+      "example": "Anna looked pale and tired after the long flight.",
+      "example_translations": {
+        "ru": "После долгого перелёта Анна выглядела бледной и уставшей.",
+        "uz": "Uzoq parvozdan keyin Anna rangpar va charchagan ko'rinardi."
+      }
+    },
+    {
+      "word": "elegant",
+      "part_of_speech": "adjective",
+      "translation": "элегантный",
+      "translations": {
+        "ru": "элегантный",
+        "uz": "nafis"
+      },
+      "example": "She wore an elegant black dress to the party.",
+      "example_translations": {
+        "ru": "На вечеринку она надела элегантное чёрное платье.",
+        "uz": "U bazmga nafis qora ko'ylak kiyib bordi."
+      }
+    },
+    {
+      "word": "height",
+      "part_of_speech": "noun",
+      "translation": "рост, высота",
+      "translations": {
+        "ru": "рост, высота",
+        "uz": "bo'y, balandlik"
+      },
+      "example": "My brother and I are the same height.",
+      "example_translations": {
+        "ru": "Мы с братом одного роста.",
+        "uz": "Akam bilan bo'yimiz bir xil."
+      }
+    }
+  ]
+}

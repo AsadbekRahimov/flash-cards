@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 19,
+    "title": "Точные описания",
+    "title_uz": "Aniq tavsiflar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Важность и сложность",
+    "title_uz": "Muhimlik va murakkablik"
+  },
+  "words": [
+    {
+      "word": "complex",
+      "part_of_speech": "adjective",
+      "translation": "сложный",
+      "translations": {
+        "ru": "сложный",
+        "uz": "murakkab"
+      },
+      "example": "The human brain is a very complex organ.",
+      "example_translations": {
+        "ru": "Человеческий мозг — очень сложный орган.",
+        "uz": "Inson miyasi juda murakkab a'zodir."
+      }
+    },
+    {
+      "word": "sophisticated",
+      "part_of_speech": "adjective",
+      "translation": "усовершенствованный, сложный",
+      "translations": {
+        "ru": "усовершенствованный, сложный",
+        "uz": "takomillashgan, murakkab"
+      },
+      "example": "The lab uses sophisticated equipment to test water.",
+      "example_translations": {
+        "ru": "Лаборатория проверяет воду с помощью усовершенствованного оборудования.",
+        "uz": "Laboratoriya suvni takomillashgan uskunalar yordamida tekshiradi."
+      }
+    },
+    {
+      "word": "vital",
+      "part_of_speech": "adjective",
+      "translation": "жизненно важный",
+      "translations": {
+        "ru": "жизненно важный",
+        "uz": "hayotiy muhim"
+      },
+      "example": "Clean water is vital for every living thing.",
+      "example_translations": {
+        "ru": "Чистая вода жизненно важна для всего живого.",
+        "uz": "Toza suv har bir tirik mavjudot uchun hayotiy muhimdir."
+      }
+    },
+    {
+      "word": "elaborate",
+      "part_of_speech": "adjective",
+      "translation": "тщательно продуманный, детальный",
+      "translations": {
+        "ru": "тщательно продуманный, детальный",
+        "uz": "puxta o'ylangan, batafsil"
+      },
+      "example": "They made elaborate plans for the wedding.",
+      "example_translations": {
+        "ru": "Они составили тщательно продуманные планы свадьбы.",
+        "uz": "Ular to'y uchun puxta o'ylangan rejalar tuzishdi."
+      }
+    },
+    {
+      "word": "fundamental",
+      "part_of_speech": "adjective",
+      "translation": "основополагающий, фундаментальный",
+      "translations": {
+        "ru": "основополагающий, фундаментальный",
+        "uz": "asosiy, tub"
+      },
+      "example": "Reading is a fundamental skill for every child.",
+      "example_translations": {
+        "ru": "Чтение — основополагающий навык для каждого ребёнка.",
+        "uz": "O'qish har bir bola uchun asosiy ko'nikmadir."
+      }
+    },
+    {
+      "word": "crucial",
+      "part_of_speech": "adjective",
+      "translation": "решающий, крайне важный",
+      "translations": {
+        "ru": "решающий, крайне важный",
+        "uz": "hal qiluvchi, o'ta muhim"
+      },
+      "example": "The next few days are crucial for the project.",
+      "example_translations": {
+        "ru": "Ближайшие несколько дней — решающие для проекта.",
+        "uz": "Keyingi bir necha kun loyiha uchun hal qiluvchi ahamiyatga ega."
+      }
+    },
+    {
+      "word": "trivial",
+      "part_of_speech": "adjective",
+      "translation": "пустяковый, незначительный",
+      "translations": {
+        "ru": "пустяковый, незначительный",
+        "uz": "arzimas, mayda"
+      },
+      "example": "Don't waste time on trivial details.",
+      "example_translations": {
+        "ru": "Не тратьте время на пустяковые детали.",
+        "uz": "Arzimas tafsilotlarga vaqt sarflamang."
+      }
+    },
+    {
+      "word": "relevant",
+      "part_of_speech": "adjective",
+      "translation": "относящийся к делу, уместный",
+      "translations": {
+        "ru": "относящийся к делу, уместный",
+        "uz": "tegishli, aloqador"
+      },
+      "example": "Please include only information relevant to the topic.",
+      "example_translations": {
+        "ru": "Пожалуйста, включайте только информацию, относящуюся к теме.",
+        "uz": "Iltimos, faqat mavzuga tegishli ma'lumotni kiriting."
+      }
+    },
+    {
+      "word": "widespread",
+      "part_of_speech": "adjective",
+      "translation": "широко распространённый",
+      "translations": {
+        "ru": "широко распространённый",
+        "uz": "keng tarqalgan"
+      },
+      "example": "Flu is widespread at this time of year.",
+      "example_translations": {
+        "ru": "В это время года грипп широко распространён.",
+        "uz": "Yilning shu paytida gripp keng tarqalgan."
+      }
+    },
+    {
+      "word": "abundant",
+      "part_of_speech": "adjective",
+      "translation": "обильный",
+      "translations": {
+        "ru": "обильный",
+        "uz": "mo'l, serob"
+      },
+      "example": "Abundant rainfall keeps the valley green all year.",
+      "example_translations": {
+        "ru": "Обильные дожди круглый год сохраняют долину зелёной.",
+        "uz": "Mo'l yog'ingarchilik vodiyni yil bo'yi yam-yashil saqlaydi."
+      }
+    }
+  ]
+}

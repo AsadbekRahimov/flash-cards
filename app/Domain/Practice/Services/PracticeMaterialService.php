@@ -15,12 +15,14 @@ use App\Domain\Practice\Enums\PracticeItemStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Modes\ModeRegistry;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItemVersion;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -125,35 +127,83 @@ final class PracticeMaterialService
     }
 
     /**
-     * The words the learner has been introduced to, in the scope, with the translations for the locales.
+     * The words the learner has been introduced to, in the scope, with the translations for the locales. A scope counted over a
+     * sample ({@see MaterialScope::$wordSample}) gets the first `wordSample` of them by the id (one more is asked for to know there
+     * are more) and remembers that the list was cut: whoever is short of material on it must ask again without the sample.
+     *
+     * A scope a game is built from ({@see MaterialScope::forPlay()}) reads the ids of the introduced words first (no models, no
+     * translations); more than `playSample` of them are cut to a sample chosen by the seed of the scope, and only the words of the
+     * sample are loaded. Not more than that: the whole list, read as ever.
      *
      * @return list<MaterialWord>
      */
     public function introducedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
     {
-        return $scope->remember(
-            "words:introduced:{$learner->id}:".implode(',', $locales->locales),
-            fn (): array => $this->materialWords(
-                $this->wordQuery($scope)
-                    ->join('word_repetitions', 'word_repetitions.word_id', '=', 'words.id')
-                    ->where('word_repetitions.learner_id', $learner->id)
-                    ->get(),
-                $locales,
-            ),
-        );
+        return $this->introduced($scope, $learner, $locales, false);
     }
 
     /**
-     * Every active word of the scope (a battle: the progress of the players is not looked at).
+     * Whether the learner has any introduced word in the scope: a cut list says so as well as the whole one, so it is not "read
+     * from a cut list" ({@see MaterialScope::noteTruncatedRead()}).
+     */
+    public function hasIntroducedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): bool
+    {
+        // A play scope's list is a sample (up to 3 queries and the models): "is there any" is one `exists` unless the list is already read.
+        if ($scope->playSeed !== null && ! $scope->has($this->introducedKey($learner, $locales))) {
+            return $this->introducedQuery($scope, $learner, false)->exists();
+        }
+
+        return $scope->remember($this->introducedKey($learner, $locales), fn (): array => $this->loadIntroduced($scope, $learner, $locales, false, $this->introducedKey($learner, $locales))) !== [];
+    }
+
+    /**
+     * The introduced words that have an audio file (`audio_path` is set; whether it is the file of the CURRENT text is the mode's
+     * business). For a scope counted over a sample the voiced words are asked for apart: the first `wordSample` words of the learner
+     * may have none while the next ones do, so counting the voiced among them would be wrong. Costs no query when the whole list of the
+     * introduced words is already there and was not cut.
+     *
+     * @return list<MaterialWord>
+     */
+    public function introducedVoicedWords(MaterialScope $scope, Learner $learner, LocaleSet $locales): array
+    {
+        $all = $this->introducedKey($learner, $locales);
+        // A play scope's list may be a sample: the voiced words are chosen from all the voiced ones, not from it.
+        if ($scope->playSeed === null && $scope->has($all) && ! $scope->wasTruncated($all)) {
+            return array_values(array_filter($this->introducedWords($scope, $learner, $locales), static fn (MaterialWord $word): bool => $word->audioPath !== null));
+        }
+
+        return $this->introduced($scope, $learner, $locales, true);
+    }
+
+    /**
+     * Every active word of the scope (a battle: the progress of the players is not looked at). A scope counted over a sample reads
+     * the words of the first lessons of the course (study order, from the cached tree) that make up more than the sample, the first
+     * `wordSample` of them by the id, and remembers that the list was cut. A plain `order by id limit` over the whole course would
+     * walk the primary key of `words` through nearly the whole table on PostgreSQL. A scope a battle is built from reads the ids of
+     * all the words of the course and loads only a sample of `playSample` of them chosen by its seed.
      *
      * @return list<MaterialWord>
      */
     public function allWords(MaterialScope $scope, LocaleSet $locales): array
     {
-        return $scope->remember(
-            'words:all:'.implode(',', $locales->locales),
-            fn (): array => $this->materialWords($this->wordQuery($scope)->get(), $locales),
-        );
+        $key = 'words:all:'.implode(',', $locales->locales);
+
+        return $this->noted($scope, $key, $scope->remember($key, function () use ($scope, $locales, $key): array {
+            $query = $this->wordQuery($scope);
+            $played = $this->playRows($scope, $query, 'practice:play:all', true);
+            if ($played !== null) {
+                return $this->materialWords($played, $locales);
+            }
+
+            $sample = $scope->wordSample;
+            $lessonIds = $sample === null ? null : $this->lessonsOfSample($scope, $locales, $sample);
+            if ($lessonIds !== null) {
+                $query->whereIn('words.lesson_id', $lessonIds);
+                $scope->markTruncated($key); // the lessons behind them are not read
+            }
+
+            return $this->materialWords($this->cut($scope, $key, $query->get(), $sample), $locales);
+        }));
     }
 
     /**
@@ -318,16 +368,177 @@ final class PracticeMaterialService
      * How much material each mode has in the scope: the hub and the options of a battle. The handlers report; they read the
      * material through this service, so the whole answer costs the queries of the words and of the tasks - once.
      *
+     * A scope made by {@see MaterialScope::forCount()} for a whole course counts over a sample of its words
+     * (`practice.count_sample`): a mode that is available on the sample is available on all the words (the words of the sample are
+     * among them; see the modes), and its `available` is "at least" - the count of the sample. A mode that is short on a CUT list is
+     * counted again over every word, so `state`, `reason` and the numbers of a shortage are exact. Modes of tasks read no words: no
+     * cut list, no second count.
+     *
      * @return array<string, ModeAvailability> mode value => availability, in the order of the modes
      */
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): array
     {
         $report = [];
+        $full = null;
         foreach ($this->modes->all() as $handler) {
-            $report[$handler->mode()->value] = $handler->availability($scope, $learner, $locales);
+            $scope->takeTruncatedRead();
+            $mode = $handler->availability($scope, $learner, $locales);
+
+            // Counted over a sample: an available mode is available (the sample is a part of the words), a short one is short only if
+            // the handler read no cut list - else the exact answer comes from the whole material (one scope for all such modes).
+            if (! $mode->isAvailable && $scope->takeTruncatedRead()) {
+                $full ??= $scope->withoutSample();
+                $mode = $handler->availability($full, $learner, $locales);
+            }
+
+            $report[$handler->mode()->value] = $mode;
         }
 
         return $report;
+    }
+
+    private function introducedKey(Learner $learner, LocaleSet $locales): string
+    {
+        return "words:introduced:{$learner->id}:".implode(',', $locales->locales);
+    }
+
+    /** @return list<MaterialWord> */
+    private function introduced(MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $voiced): array
+    {
+        $key = $voiced ? "words:voiced:{$learner->id}:".implode(',', $locales->locales) : $this->introducedKey($learner, $locales);
+
+        return $this->noted($scope, $key, $scope->remember($key, fn (): array => $this->loadIntroduced($scope, $learner, $locales, $voiced, $key)));
+    }
+
+    /** @return Builder<Word> the active words of the scope the learner has been introduced to */
+    private function introducedQuery(MaterialScope $scope, Learner $learner, bool $voiced): Builder
+    {
+        $query = $this->wordQuery($scope)
+            ->join('word_repetitions', 'word_repetitions.word_id', '=', 'words.id')
+            ->where('word_repetitions.learner_id', $learner->id);
+        if ($voiced) {
+            $query->whereNotNull('words.audio_path');
+        }
+
+        return $query;
+    }
+
+    /** @return list<MaterialWord> */
+    private function loadIntroduced(MaterialScope $scope, Learner $learner, LocaleSet $locales, bool $voiced, string $key): array
+    {
+        $query = $this->introducedQuery($scope, $learner, $voiced);
+        $played = $this->playRows($scope, $query, $voiced ? 'practice:play:voiced' : 'practice:play:introduced', false);
+        if ($played !== null) {
+            return $this->materialWords($played, $locales);
+        }
+
+        $sample = $scope->wordSample;
+        if ($sample !== null) {
+            $query->limit($sample + 1);
+        }
+
+        return $this->materialWords($this->cut($scope, $key, $query->get(), $sample), $locales);
+    }
+
+    /**
+     * The words a play scope reads: all of them when there are no more than `playSample` (ONE query, as before the sample existed:
+     * the rows are asked for with `limit playSample + 1` and are the answer), else a sample of that size chosen by the seed of the
+     * scope under the label of the list ({@see SeededShuffle::sample()}) - the probe, the ids of all the words, the chosen ones: three
+     * queries, models and translations only for the chosen. In the order of the id either way. Null: not a sampled play scope.
+     *
+     * `$courseWide`: the words of a whole course, not of one learner. `order by id limit` over those makes PostgreSQL walk the primary
+     * key of `words` through nearly the whole table for a course with high ids, so the probe sorts by `words.id + 0` (the lessons of the
+     * course are read by their index; the same rows in the same order).
+     *
+     * @param  Builder<Word>  $query  the words of the list, with the joins and the order
+     * @return Collection<int, Word>|null
+     */
+    private function playRows(MaterialScope $scope, Builder $query, string $label, bool $courseWide): ?Collection
+    {
+        $seed = $scope->playSeed;
+        $sample = $scope->playSample;
+        if ($seed === null || $sample === null) {
+            return null;
+        }
+
+        $probe = clone $query;
+        if ($courseWide) {
+            $probe->reorder()->orderByRaw('words.id + 0');
+        }
+        $rows = $probe->limit($sample + 1)->toBase()->get();
+        if ($rows->count() <= $sample) {
+            return $query->hydrate($rows->map(static fn (object $row): array => (array) $row)->all());
+        }
+
+        $scope->markPlaySampled();
+        $ids = [];
+        // Through the query builder: Eloquent's pluck() makes a model of every value of a cast column (`id`), which for the ids
+        // of a whole course costs more than everything else here.
+        foreach ((clone $query)->select('words.id')->toBase()->pluck('words.id') as $id) {
+            $ids[] = (int) $id;
+        }
+        $picked = [];
+        foreach (SeededShuffle::sample($seed, $label, count($ids), $sample) as $index) {
+            $picked[] = $ids[$index];
+        }
+        sort($picked);
+
+        return (clone $query)->whereIn('words.id', $picked)->get();
+    }
+
+    /**
+     * The rows without the one that only proved there are more than `$sample` (that one makes the list "cut").
+     *
+     * @param  Collection<int, Word>  $rows
+     * @return Collection<int, Word>
+     */
+    private function cut(MaterialScope $scope, string $key, Collection $rows, ?int $sample): Collection
+    {
+        if ($sample === null || $rows->count() <= $sample) {
+            return $rows;
+        }
+        $scope->markTruncated($key);
+
+        return $rows->take($sample);
+    }
+
+    /**
+     * The lessons whose words make up the sample of a whole course: the first ones in study order, until their active words are more
+     * than the sample. Null: the whole course is not bigger than the sample (or the tree is empty) - nothing to cut.
+     *
+     * @return list<int>|null
+     */
+    private function lessonsOfSample(MaterialScope $scope, LocaleSet $locales, int $sample): ?array
+    {
+        $ids = [];
+        $sum = 0;
+        foreach ($this->catalog->tree($scope->course, $locales->locales[0] ?? 'ru') as $lesson) {
+            if ($lesson['total'] < 1) {
+                continue;
+            }
+            $ids[] = $lesson['lesson_id'];
+            $sum += $lesson['total'];
+            if ($sum > $sample) {
+                return $ids;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Makes a read of a cut list known to the scope (the mode that read it may then have to be counted over every word).
+     *
+     * @param  list<MaterialWord>  $words
+     * @return list<MaterialWord>
+     */
+    private function noted(MaterialScope $scope, string $key, array $words): array
+    {
+        if ($scope->wasTruncated($key)) {
+            $scope->noteTruncatedRead();
+        }
+
+        return $words;
     }
 
     /** @return Builder<Word> the active words of the scope: only the columns the modes use */

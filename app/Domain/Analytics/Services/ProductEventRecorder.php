@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
  * Writes append-only product analytics events (`product_events`).
  *
  * Guarantees:
+ *  - in an API request the rows are gathered and written once after the response (ProductEventBuffer);
  *  - never throws: a failed write is logged as a warning and swallowed, so
  *    analytics can never break the user-facing flow;
  *  - props are scalars only, capped in count / key length / string length,
@@ -57,6 +58,19 @@ class ProductEventRecorder
                 'props' => $this->sanitize($props),
                 'occurred_at' => now(),
             ];
+
+            // In an API request the row waits in the buffer and is written with the others after the response. It is handed
+            // over after the commit: an event recorded inside a transaction lives only if the transaction does, as with
+            // the savepoint below. The buffer is taken from the current container (see ProductEventBuffer).
+            $buffer = app(ProductEventBuffer::class);
+            if ($buffer->isDeferring()) {
+                $row = (new ProductEvent($attributes))->getAttributes();
+                DB::afterCommit(static function () use ($buffer, $row): void {
+                    $buffer->add($row);
+                });
+
+                return;
+            }
 
             // Inside a caller's transaction a savepoint keeps a failed insert from poisoning it (Postgres aborts the
             // whole transaction otherwise). Outside one, the insert is its own statement: wrapping it in

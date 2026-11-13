@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 2,
+    "title": "Отношения и общение",
+    "title_uz": "Munosabatlar va muloqot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Просьбы и советы",
+    "title_uz": "Iltimos va maslahatlar"
+  },
+  "words": [
+    {
+      "word": "request",
+      "part_of_speech": "noun",
+      "translation": "просьба",
+      "translations": {
+        "ru": "просьба",
+        "uz": "iltimos"
+      },
+      "example": "I have a small request for you.",
+      "example_translations": {
+        "ru": "У меня к вам небольшая просьба.",
+        "uz": "Sizga kichik bir iltimosim bor."
+      }
+    },
+    {
+      "word": "permission",
+      "part_of_speech": "noun",
+      "translation": "разрешение",
+      "translations": {
+        "ru": "разрешение",
+        "uz": "ruxsat"
+      },
+      "example": "Students must ask permission to leave the classroom.",
+      "example_translations": {
+        "ru": "Ученики должны спрашивать разрешения, чтобы выйти из класса.",
+        "uz": "O'quvchilar sinfdan chiqish uchun ruxsat so'rashi kerak."
+      }
+    },
+    {
+      "word": "allow",
+      "part_of_speech": "verb",
+      "translation": "разрешать, позволять",
+      "translations": {
+        "ru": "разрешать, позволять",
+        "uz": "ruxsat bermoq"
+      },
+      "example": "Our teacher allows us to use dictionaries.",
+      "example_translations": {
+        "ru": "Наш учитель разрешает нам пользоваться словарями.",
+        "uz": "O'qituvchimiz bizga lug'atdan foydalanishga ruxsat beradi."
+      }
+    },
+    {
+      "word": "refuse",
+      "part_of_speech": "verb",
+      "translation": "отказываться",
+      "translations": {
+        "ru": "отказываться",
+        "uz": "bosh tortmoq, rad etmoq"
+      },
+      "example": "She refused to lend me her bike.",
+      "example_translations": {
+        "ru": "Она отказалась одолжить мне свой велосипед.",
+        "uz": "U menga velosipedini berib turishdan bosh tortdi."
+      }
+    },
+    {
+      "word": "accept",
+      "part_of_speech": "verb",
+      "translation": "принимать",
+      "translations": {
+        "ru": "принимать",
+        "uz": "qabul qilmoq"
+      },
+      "example": "Tom accepted my advice and called his mother.",
+      "example_translations": {
+        "ru": "Том принял мой совет и позвонил маме.",
+        "uz": "Tom maslahatimni qabul qildi va onasiga qo'ng'iroq qildi."
+      }
+    },
+    {
+      "word": "suggest",
+      "part_of_speech": "verb",
+      "translation": "предлагать, советовать",
+      "translations": {
+        "ru": "предлагать, советовать",
+        "uz": "taklif qilmoq, tavsiya qilmoq"
+      },
+      "example": "I suggest going to the park after lunch.",
+      "example_translations": {
+        "ru": "Я предлагаю пойти в парк после обеда.",
+        "uz": "Men tushlikdan keyin parkka borishni taklif qilaman."
+      }
+    },
+    {
+      "word": "advise",
+      "part_of_speech": "verb",
+      "translation": "советовать",
+      "translations": {
+        "ru": "советовать",
+        "uz": "maslahat bermoq"
+      },
+      "example": "The doctor advised him to sleep more.",
+      "example_translations": {
+        "ru": "Врач посоветовал ему больше спать.",
+        "uz": "Shifokor unga ko'proq uxlashni maslahat berdi."
+      }
+    },
+    {
+      "word": "encourage",
+      "part_of_speech": "verb",
+      "translation": "поощрять, подбадривать",
+      "translations": {
+        "ru": "поощрять, подбадривать",
+        "uz": "rag'batlantirmoq, ruhlantirmoq"
+      },
+      "example": "My parents always encourage me to try new things.",
+      "example_translations": {
+        "ru": "Родители всегда поощряют меня пробовать новое.",
+        "uz": "Ota-onam meni doim yangi narsalarni sinab ko'rishga rag'batlantiradi."
+      }
+    },
+    {
+      "word": "remind",
+      "part_of_speech": "verb",
+      "translation": "напоминать",
+      "translations": {
+        "ru": "напоминать",
+        "uz": "eslatmoq"
+      },
+      "example": "Please remind me to call the dentist tomorrow.",
+      "example_translations": {
+        "ru": "Пожалуйста, напомните мне завтра позвонить стоматологу.",
+        "uz": "Iltimos, ertaga tish shifokoriga qo'ng'iroq qilishimni eslating."
+      }
+    },
+    {
+      "word": "persuade",
+      "part_of_speech": "verb",
+      "translation": "уговаривать, убеждать",
+      "translations": {
+        "ru": "уговаривать, убеждать",
+        "uz": "ko'ndirmoq"
+      },
+      "example": "Malika persuaded her father to buy a puppy.",
+      "example_translations": {
+        "ru": "Малика уговорила отца купить щенка.",
+        "uz": "Malika otasini kuchukcha sotib olishga ko'ndirdi."
+      }
+    }
+  ]
+}

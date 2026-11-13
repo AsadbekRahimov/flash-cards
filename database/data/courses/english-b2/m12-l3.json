@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 12,
+    "title": "Образование и мышление",
+    "title_uz": "Ta'lim va tafakkur"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Мышление",
+    "title_uz": "Tafakkur"
+  },
+  "words": [
+    {
+      "word": "reasoning",
+      "part_of_speech": "noun",
+      "translation": "рассуждение",
+      "translations": {
+        "ru": "рассуждение",
+        "uz": "mulohaza, fikrlash"
+      },
+      "example": "Can you explain the reasoning behind your answer?",
+      "example_translations": {
+        "ru": "Можете объяснить рассуждения, которые привели вас к этому ответу?",
+        "uz": "Sizni shu javobga olib kelgan mulohazani tushuntirib bera olasizmi?"
+      }
+    },
+    {
+      "word": "logical",
+      "part_of_speech": "adjective",
+      "translation": "логический",
+      "translations": {
+        "ru": "логический",
+        "uz": "mantiqiy"
+      },
+      "example": "There must be a logical explanation for this mistake.",
+      "example_translations": {
+        "ru": "У этой ошибки должно быть логическое объяснение.",
+        "uz": "Bu xatoning mantiqiy izohi bo'lishi kerak."
+      }
+    },
+    {
+      "word": "rational",
+      "part_of_speech": "adjective",
+      "translation": "рациональный, разумный",
+      "translations": {
+        "ru": "рациональный, разумный",
+        "uz": "oqilona"
+      },
+      "example": "Try to make a rational decision, not an emotional one.",
+      "example_translations": {
+        "ru": "Постарайтесь принять рациональное решение, а не эмоциональное.",
+        "uz": "Hissiy emas, oqilona qaror qabul qilishga harakat qiling."
+      }
+    },
+    {
+      "word": "intellectual",
+      "part_of_speech": "adjective",
+      "translation": "интеллектуальный, умственный",
+      "translations": {
+        "ru": "интеллектуальный, умственный",
+        "uz": "aqliy, intellektual"
+      },
+      "example": "Chess is a game that requires intellectual effort.",
+      "example_translations": {
+        "ru": "Шахматы — игра, которая требует интеллектуальных усилий.",
+        "uz": "Shaxmat — aqliy kuch talab qiladigan o'yin."
+      }
+    },
+    {
+      "word": "reflect",
+      "part_of_speech": "verb",
+      "translation": "размышлять",
+      "translations": {
+        "ru": "размышлять",
+        "uz": "fikr yuritmoq"
+      },
+      "example": "After the exam, take time to reflect on your mistakes.",
+      "example_translations": {
+        "ru": "После экзамена найдите время поразмышлять над своими ошибками.",
+        "uz": "Imtihondan keyin xatolaringiz ustida fikr yuritishga vaqt ajrating."
+      }
+    },
+    {
+      "word": "wisdom",
+      "part_of_speech": "noun",
+      "translation": "мудрость",
+      "translations": {
+        "ru": "мудрость",
+        "uz": "donolik"
+      },
+      "example": "People respect the old teacher for his wisdom.",
+      "example_translations": {
+        "ru": "Люди уважают старого учителя за его мудрость.",
+        "uz": "Odamlar keksa ustozni donoligi uchun hurmat qiladi."
+      }
+    },
+    {
+      "word": "curiosity",
+      "part_of_speech": "noun",
+      "translation": "любознательность, любопытство",
+      "translations": {
+        "ru": "любознательность, любопытство",
+        "uz": "qiziquvchanlik"
+      },
+      "example": "Good teachers encourage curiosity in their students.",
+      "example_translations": {
+        "ru": "Хорошие учителя поощряют любознательность в своих учениках.",
+        "uz": "Yaxshi o'qituvchilar o'quvchilarida qiziquvchanlikni rag'batlantiradi."
+      }
+    },
+    {
+      "word": "infer",
+      "part_of_speech": "verb",
+      "translation": "делать вывод",
+      "translations": {
+        "ru": "делать вывод",
+        "uz": "xulosa chiqarmoq"
+      },
+      "example": "What can we infer from these two facts?",
+      "example_translations": {
+        "ru": "Какой вывод мы можем сделать из этих двух фактов?",
+        "uz": "Bu ikki faktdan qanday xulosa chiqarishimiz mumkin?"
+      }
+    },
+    {
+      "word": "grasp",
+      "part_of_speech": "verb",
+      "translation": "схватывать, понимать",
+      "translations": {
+        "ru": "схватывать, понимать",
+        "uz": "anglab olmoq"
+      },
+      "example": "Some students grasp new ideas faster than others.",
+      "example_translations": {
+        "ru": "Некоторые студенты схватывают новые идеи быстрее других.",
+        "uz": "Ba'zi talabalar yangi g'oyalarni boshqalardan tezroq anglab oladi."
+      }
+    },
+    {
+      "word": "judgment",
+      "part_of_speech": "noun",
+      "translation": "суждение",
+      "translations": {
+        "ru": "суждение",
+        "uz": "hukm, fikr"
+      },
+      "example": "Do not make a judgment before you hear both sides.",
+      "example_translations": {
+        "ru": "Не выносите суждение, пока не выслушаете обе стороны.",
+        "uz": "Ikkala tomonni eshitmaguncha hukm chiqarmang."
+      }
+    }
+  ]
+}

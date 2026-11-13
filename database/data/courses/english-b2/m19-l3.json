@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 19,
+    "title": "Точные описания",
+    "title_uz": "Aniq tavsiflar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Оценка качества",
+    "title_uz": "Sifatni baholash"
+  },
+  "words": [
+    {
+      "word": "adequate",
+      "part_of_speech": "adjective",
+      "translation": "приемлемый, достаточный",
+      "translations": {
+        "ru": "приемлемый, достаточный",
+        "uz": "qoniqarli, yetarli"
+      },
+      "example": "His English is adequate for everyday work.",
+      "example_translations": {
+        "ru": "Его уровень английского приемлем для повседневной работы.",
+        "uz": "Uning ingliz tili kundalik ish uchun qoniqarli."
+      }
+    },
+    {
+      "word": "sufficient",
+      "part_of_speech": "adjective",
+      "translation": "достаточный",
+      "translations": {
+        "ru": "достаточный",
+        "uz": "yetarli"
+      },
+      "example": "Do we have sufficient food for the whole trip?",
+      "example_translations": {
+        "ru": "У нас достаточный запас еды на всю поездку?",
+        "uz": "Butun safarga yetarli oziq-ovqatimiz bormi?"
+      }
+    },
+    {
+      "word": "superior",
+      "part_of_speech": "adjective",
+      "translation": "более качественный, лучший",
+      "translations": {
+        "ru": "более качественный, лучший",
+        "uz": "sifatliroq, ustun"
+      },
+      "example": "This fabric is superior to the cheaper one.",
+      "example_translations": {
+        "ru": "Эта ткань более качественная, чем та, что дешевле.",
+        "uz": "Bu mato arzonrog'idan sifatliroq."
+      }
+    },
+    {
+      "word": "inferior",
+      "part_of_speech": "adjective",
+      "translation": "низкосортный, худший",
+      "translations": {
+        "ru": "низкосортный, худший",
+        "uz": "past sifatli, yomonroq"
+      },
+      "example": "They refused to sell inferior products to customers.",
+      "example_translations": {
+        "ru": "Они отказались продавать покупателям низкосортные товары.",
+        "uz": "Ular xaridorlarga past sifatli mahsulotlarni sotishdan bosh tortishdi."
+      }
+    },
+    {
+      "word": "outstanding",
+      "part_of_speech": "adjective",
+      "translation": "выдающийся",
+      "translations": {
+        "ru": "выдающийся",
+        "uz": "a'lo darajadagi, yuksak"
+      },
+      "example": "Her outstanding research won a national prize.",
+      "example_translations": {
+        "ru": "Её выдающееся исследование получило национальную премию.",
+        "uz": "Uning a'lo darajadagi tadqiqoti milliy mukofotga sazovor bo'ldi."
+      }
+    },
+    {
+      "word": "remarkable",
+      "part_of_speech": "adjective",
+      "translation": "поразительный, замечательный",
+      "translations": {
+        "ru": "поразительный, замечательный",
+        "uz": "hayratlanarli, diqqatga sazovor"
+      },
+      "example": "Aziz made remarkable progress in only three months.",
+      "example_translations": {
+        "ru": "Азиз добился поразительных успехов всего за три месяца.",
+        "uz": "Aziz atigi uch oyda hayratlanarli yutuqlarga erishdi."
+      }
+    },
+    {
+      "word": "exceptional",
+      "part_of_speech": "adjective",
+      "translation": "исключительный",
+      "translations": {
+        "ru": "исключительный",
+        "uz": "noyob, favqulodda"
+      },
+      "example": "The young pianist has an exceptional talent.",
+      "example_translations": {
+        "ru": "У юной пианистки исключительный талант.",
+        "uz": "Yosh pianinochida noyob iste'dod bor."
+      }
+    },
+    {
+      "word": "decent",
+      "part_of_speech": "adjective",
+      "translation": "приличный, достойный",
+      "translations": {
+        "ru": "приличный, достойный",
+        "uz": "durustgina, yaxshigina"
+      },
+      "example": "It is hard to find a decent apartment downtown.",
+      "example_translations": {
+        "ru": "В центре города трудно найти приличную квартиру.",
+        "uz": "Shahar markazida durustgina kvartira topish qiyin."
+      }
+    },
+    {
+      "word": "superb",
+      "part_of_speech": "adjective",
+      "translation": "великолепный, превосходный",
+      "translations": {
+        "ru": "великолепный, превосходный",
+        "uz": "ajoyib, juda zo'r"
+      },
+      "example": "The chef prepared a superb dinner for the guests.",
+      "example_translations": {
+        "ru": "Шеф-повар приготовил для гостей великолепный ужин.",
+        "uz": "Bosh oshpaz mehmonlarga ajoyib kechki ovqat tayyorladi."
+      }
+    },
+    {
+      "word": "worthwhile",
+      "part_of_speech": "adjective",
+      "translation": "стоящий, полезный",
+      "translations": {
+        "ru": "стоящий, полезный",
+        "uz": "arzigulik, foydali"
+      },
+      "example": "It was a worthwhile experience for every student.",
+      "example_translations": {
+        "ru": "Это был стоящий опыт для каждого студента.",
+        "uz": "Bu har bir talaba uchun arzigulik tajriba bo'ldi."
+      }
+    }
+  ]
+}

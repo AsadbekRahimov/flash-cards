@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 8,
+    "title": "Политика и государство",
+    "title_uz": "Siyosat va davlat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Органы власти",
+    "title_uz": "Hokimiyat organlari"
+  },
+  "words": [
+    {
+      "word": "ministry",
+      "part_of_speech": "noun",
+      "translation": "министерство",
+      "translations": {
+        "ru": "министерство",
+        "uz": "vazirlik"
+      },
+      "example": "Which ministry is responsible for public schools?",
+      "example_translations": {
+        "ru": "Какое министерство отвечает за государственные школы?",
+        "uz": "Davlat maktablari uchun qaysi vazirlik javob beradi?"
+      }
+    },
+    {
+      "word": "administration",
+      "part_of_speech": "noun",
+      "translation": "администрация",
+      "translations": {
+        "ru": "администрация",
+        "uz": "ma'muriyat"
+      },
+      "example": "Our city administration repaired the old bridge.",
+      "example_translations": {
+        "ru": "Администрация нашего города отремонтировала старый мост.",
+        "uz": "Shahrimiz ma'muriyati eski ko'prikni ta'mirladi."
+      }
+    },
+    {
+      "word": "cabinet",
+      "part_of_speech": "noun",
+      "translation": "кабинет министров",
+      "translations": {
+        "ru": "кабинет министров",
+        "uz": "vazirlar mahkamasi"
+      },
+      "example": "The prime minister presented the new cabinet today.",
+      "example_translations": {
+        "ru": "Сегодня премьер-министр представил новый кабинет министров.",
+        "uz": "Bugun bosh vazir yangi vazirlar mahkamasini taqdim etdi."
+      }
+    },
+    {
+      "word": "council",
+      "part_of_speech": "noun",
+      "translation": "совет",
+      "translations": {
+        "ru": "совет",
+        "uz": "kengash"
+      },
+      "example": "Last week the town council decided to build a library.",
+      "example_translations": {
+        "ru": "На прошлой неделе городской совет решил построить библиотеку.",
+        "uz": "O'tgan hafta shahar kengashi kutubxona qurishga qaror qildi."
+      }
+    },
+    {
+      "word": "assembly",
+      "part_of_speech": "noun",
+      "translation": "собрание, ассамблея",
+      "translations": {
+        "ru": "собрание, ассамблея",
+        "uz": "majlis, assambleya"
+      },
+      "example": "The national assembly passed the law yesterday.",
+      "example_translations": {
+        "ru": "Национальное собрание вчера приняло этот закон.",
+        "uz": "Milliy majlis kecha bu qonunni qabul qildi."
+      }
+    },
+    {
+      "word": "governor",
+      "part_of_speech": "noun",
+      "translation": "губернатор",
+      "translations": {
+        "ru": "губернатор",
+        "uz": "gubernator"
+      },
+      "example": "The governor signed the region's budget for next year.",
+      "example_translations": {
+        "ru": "Губернатор подписал бюджет региона на следующий год.",
+        "uz": "Gubernator hududning kelasi yilgi budjetini imzoladi."
+      }
+    },
+    {
+      "word": "committee",
+      "part_of_speech": "noun",
+      "translation": "комитет",
+      "translations": {
+        "ru": "комитет",
+        "uz": "qo'mita"
+      },
+      "example": "The committee discussed the report for two hours.",
+      "example_translations": {
+        "ru": "Комитет обсуждал доклад два часа.",
+        "uz": "Qo'mita hisobotni ikki soat muhokama qildi."
+      }
+    },
+    {
+      "word": "bureaucracy",
+      "part_of_speech": "noun",
+      "translation": "бюрократия",
+      "translations": {
+        "ru": "бюрократия",
+        "uz": "byurokratiya"
+      },
+      "example": "Online services help to reduce bureaucracy for citizens.",
+      "example_translations": {
+        "ru": "Онлайн-услуги помогают сократить бюрократию для граждан.",
+        "uz": "Onlayn xizmatlar fuqarolar uchun byurokratiyani kamaytirishga yordam beradi."
+      }
+    },
+    {
+      "word": "agency",
+      "part_of_speech": "noun",
+      "translation": "агентство",
+      "translations": {
+        "ru": "агентство",
+        "uz": "agentlik"
+      },
+      "example": "A government agency checks the quality of food.",
+      "example_translations": {
+        "ru": "Государственное агентство проверяет качество продуктов питания.",
+        "uz": "Davlat agentligi oziq-ovqat sifatini tekshiradi."
+      }
+    },
+    {
+      "word": "deputy",
+      "part_of_speech": "noun",
+      "translation": "заместитель",
+      "translations": {
+        "ru": "заместитель",
+        "uz": "o'rinbosar"
+      },
+      "example": "The minister's deputy answered the journalists' questions.",
+      "example_translations": {
+        "ru": "Заместитель министра ответил на вопросы журналистов.",
+        "uz": "Vazir o'rinbosari jurnalistlarning savollariga javob berdi."
+      }
+    }
+  ]
+}

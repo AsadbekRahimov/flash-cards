@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 5,
+    "title": "Технологии и инновации",
+    "title_uz": "Texnologiyalar va innovatsiyalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Искусственный интеллект",
+    "title_uz": "Sun'iy intellekt"
+  },
+  "words": [
+    {
+      "word": "chatbot",
+      "part_of_speech": "noun",
+      "translation": "чат-бот",
+      "translations": {
+        "ru": "чат-бот",
+        "uz": "chat-bot"
+      },
+      "example": "A chatbot answered my question in a few seconds.",
+      "example_translations": {
+        "ru": "Чат-бот ответил на мой вопрос за несколько секунд.",
+        "uz": "Chat-bot savolimga bir necha soniyada javob berdi."
+      }
+    },
+    {
+      "word": "intelligence",
+      "part_of_speech": "noun",
+      "translation": "интеллект",
+      "translations": {
+        "ru": "интеллект",
+        "uz": "intellekt"
+      },
+      "example": "Artificial intelligence can now translate whole books.",
+      "example_translations": {
+        "ru": "Искусственный интеллект теперь может переводить целые книги.",
+        "uz": "Sun'iy intellekt endi butun kitoblarni tarjima qila oladi."
+      }
+    },
+    {
+      "word": "automation",
+      "part_of_speech": "noun",
+      "translation": "автоматизация",
+      "translations": {
+        "ru": "автоматизация",
+        "uz": "avtomatlashtirish"
+      },
+      "example": "Automation has made work at the factory much faster.",
+      "example_translations": {
+        "ru": "Автоматизация намного ускорила работу на заводе.",
+        "uz": "Avtomatlashtirish zavoddagi ishni ancha tezlashtirdi."
+      }
+    },
+    {
+      "word": "neural",
+      "part_of_speech": "adjective",
+      "translation": "нейронный",
+      "translations": {
+        "ru": "нейронный",
+        "uz": "neyron"
+      },
+      "example": "A neural network learns from thousands of examples.",
+      "example_translations": {
+        "ru": "Нейронная сеть учится на тысячах примеров.",
+        "uz": "Neyron tarmoq minglab misollar asosida o'rganadi."
+      }
+    },
+    {
+      "word": "simulation",
+      "part_of_speech": "noun",
+      "translation": "симуляция, моделирование",
+      "translations": {
+        "ru": "симуляция, моделирование",
+        "uz": "simulyatsiya, modellashtirish"
+      },
+      "example": "Pilots practice landing in a computer simulation.",
+      "example_translations": {
+        "ru": "Пилоты отрабатывают посадку в компьютерной симуляции.",
+        "uz": "Uchuvchilar qo'nishni kompyuter simulyatsiyasida mashq qiladi."
+      }
+    },
+    {
+      "word": "mimic",
+      "part_of_speech": "verb",
+      "translation": "имитировать, подражать",
+      "translations": {
+        "ru": "имитировать, подражать",
+        "uz": "o'xshatib takrorlamoq"
+      },
+      "example": "This robot can mimic human movements.",
+      "example_translations": {
+        "ru": "Этот робот умеет имитировать движения человека.",
+        "uz": "Bu robot inson harakatlarini o'xshatib takrorlay oladi."
+      }
+    },
+    {
+      "word": "recognition",
+      "part_of_speech": "noun",
+      "translation": "распознавание",
+      "translations": {
+        "ru": "распознавание",
+        "uz": "tanib olish"
+      },
+      "example": "My phone uses face recognition to unlock the screen.",
+      "example_translations": {
+        "ru": "Мой телефон использует распознавание лица для разблокировки экрана.",
+        "uz": "Telefonim ekran qulfini ochish uchun yuzni tanib olishdan foydalanadi."
+      }
+    },
+    {
+      "word": "robotics",
+      "part_of_speech": "noun",
+      "translation": "робототехника",
+      "translations": {
+        "ru": "робототехника",
+        "uz": "robototexnika"
+      },
+      "example": "She studies robotics at a technical university.",
+      "example_translations": {
+        "ru": "Она изучает робототехнику в техническом университете.",
+        "uz": "U texnika universitetida robototexnikani o'rganadi."
+      }
+    },
+    {
+      "word": "drone",
+      "part_of_speech": "noun",
+      "translation": "дрон, беспилотник",
+      "translations": {
+        "ru": "дрон, беспилотник",
+        "uz": "dron"
+      },
+      "example": "We filmed the mountains from above with a drone.",
+      "example_translations": {
+        "ru": "Мы сняли горы с высоты с помощью дрона.",
+        "uz": "Biz dron yordamida tog'larni yuqoridan tasvirga oldik."
+      }
+    },
+    {
+      "word": "processor",
+      "part_of_speech": "noun",
+      "translation": "процессор",
+      "translations": {
+        "ru": "процессор",
+        "uz": "protsessor"
+      },
+      "example": "A faster processor makes the computer work better.",
+      "example_translations": {
+        "ru": "С более быстрым процессором компьютер работает лучше.",
+        "uz": "Tezroq protsessor bilan kompyuter yaxshiroq ishlaydi."
+      }
+    }
+  ]
+}

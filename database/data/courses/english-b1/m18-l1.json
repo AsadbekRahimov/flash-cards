@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 18,
+    "title": "Описание вещей и мест",
+    "title_uz": "Narsa va joylar tasviri"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Форма и размер",
+    "title_uz": "Shakl va o'lcham"
+  },
+  "words": [
+    {
+      "word": "shape",
+      "part_of_speech": "noun",
+      "translation": "форма",
+      "translations": {
+        "ru": "форма",
+        "uz": "shakl"
+      },
+      "example": "What shape is the table in your kitchen?",
+      "example_translations": {
+        "ru": "Какой формы стол у вас на кухне?",
+        "uz": "Oshxonangizdagi stol qanday shaklda?"
+      }
+    },
+    {
+      "word": "circle",
+      "part_of_speech": "noun",
+      "translation": "круг",
+      "translations": {
+        "ru": "круг",
+        "uz": "doira"
+      },
+      "example": "Draw a circle and color it red.",
+      "example_translations": {
+        "ru": "Нарисуйте круг и раскрасьте его красным.",
+        "uz": "Doira chizing va uni qizil rangga bo'yang."
+      }
+    },
+    {
+      "word": "flat",
+      "part_of_speech": "adjective",
+      "translation": "плоский, ровный",
+      "translations": {
+        "ru": "плоский, ровный",
+        "uz": "yassi, tekis"
+      },
+      "example": "The land here is flat, without any hills.",
+      "example_translations": {
+        "ru": "Местность здесь ровная, без холмов.",
+        "uz": "Bu yerda yer tekis, hech qanday tepalik yo'q."
+      }
+    },
+    {
+      "word": "sharp",
+      "part_of_speech": "adjective",
+      "translation": "острый",
+      "translations": {
+        "ru": "острый",
+        "uz": "o'tkir"
+      },
+      "example": "Be careful, this knife is very sharp.",
+      "example_translations": {
+        "ru": "Осторожно, этот нож очень острый.",
+        "uz": "Ehtiyot bo'ling, bu pichoq juda o'tkir."
+      }
+    },
+    {
+      "word": "narrow",
+      "part_of_speech": "adjective",
+      "translation": "узкий",
+      "translations": {
+        "ru": "узкий",
+        "uz": "tor"
+      },
+      "example": "This street is too narrow for buses.",
+      "example_translations": {
+        "ru": "Эта улица слишком узкая для автобусов.",
+        "uz": "Bu ko'cha avtobuslar uchun haddan tashqari tor."
+      }
+    },
+    {
+      "word": "medium",
+      "part_of_speech": "adjective",
+      "translation": "средний по размеру",
+      "translations": {
+        "ru": "средний по размеру",
+        "uz": "o'rta o'lchamli"
+      },
+      "example": "Do you have this shirt in a medium size?",
+      "example_translations": {
+        "ru": "У вас есть эта рубашка среднего размера?",
+        "uz": "Sizda bu ko'ylakning o'rta o'lchami bormi?"
+      }
+    },
+    {
+      "word": "enormous",
+      "part_of_speech": "adjective",
+      "translation": "огромный",
+      "translations": {
+        "ru": "огромный",
+        "uz": "ulkan"
+      },
+      "example": "An enormous tree grows near our school.",
+      "example_translations": {
+        "ru": "Возле нашей школы растёт огромное дерево.",
+        "uz": "Maktabimiz yonida ulkan daraxt o'sadi."
+      }
+    },
+    {
+      "word": "tiny",
+      "part_of_speech": "adjective",
+      "translation": "крошечный",
+      "translations": {
+        "ru": "крошечный",
+        "uz": "mitti"
+      },
+      "example": "Babies have tiny hands and feet.",
+      "example_translations": {
+        "ru": "У младенцев крошечные ручки и ножки.",
+        "uz": "Chaqaloqlarning qo'llari va oyoqlari mittigina."
+      }
+    },
+    {
+      "word": "shallow",
+      "part_of_speech": "adjective",
+      "translation": "мелкий, неглубокий",
+      "translations": {
+        "ru": "мелкий, неглубокий",
+        "uz": "sayoz"
+      },
+      "example": "The river is shallow, so we can walk across.",
+      "example_translations": {
+        "ru": "Река мелкая, поэтому мы можем перейти её вброд.",
+        "uz": "Daryo sayoz, shuning uchun uni kechib o'tishimiz mumkin."
+      }
+    },
+    {
+      "word": "steep",
+      "part_of_speech": "adjective",
+      "translation": "крутой",
+      "translations": {
+        "ru": "крутой",
+        "uz": "tik"
+      },
+      "example": "Walk slowly because the path is very steep.",
+      "example_translations": {
+        "ru": "Идите медленно, потому что тропа очень крутая.",
+        "uz": "Sekin yuring, chunki so'qmoq juda tik."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 14,
+    "title": "Наука и открытия",
+    "title_uz": "Fan va kashfiyotlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Измерения и расчёты",
+    "title_uz": "O'lchovlar va hisob-kitoblar"
+  },
+  "words": [
+    {
+      "word": "length",
+      "part_of_speech": "noun",
+      "translation": "длина",
+      "translations": {
+        "ru": "длина",
+        "uz": "uzunlik"
+      },
+      "example": "Do you know the length of this bridge?",
+      "example_translations": {
+        "ru": "Вы знаете длину этого моста?",
+        "uz": "Bu ko'prikning uzunligini bilasizmi?"
+      }
+    },
+    {
+      "word": "width",
+      "part_of_speech": "noun",
+      "translation": "ширина",
+      "translations": {
+        "ru": "ширина",
+        "uz": "en, kenglik"
+      },
+      "example": "The width of the room is four meters.",
+      "example_translations": {
+        "ru": "Ширина комнаты — четыре метра.",
+        "uz": "Xonaning eni to'rt metr."
+      }
+    },
+    {
+      "word": "depth",
+      "part_of_speech": "noun",
+      "translation": "глубина",
+      "translations": {
+        "ru": "глубина",
+        "uz": "chuqurlik"
+      },
+      "example": "At this depth, the sea is completely dark.",
+      "example_translations": {
+        "ru": "На такой глубине в море совершенно темно.",
+        "uz": "Bunday chuqurlikda dengiz butunlay qorong'i bo'ladi."
+      }
+    },
+    {
+      "word": "distance",
+      "part_of_speech": "noun",
+      "translation": "расстояние",
+      "translations": {
+        "ru": "расстояние",
+        "uz": "masofa"
+      },
+      "example": "The distance between the two villages is ten kilometers.",
+      "example_translations": {
+        "ru": "Расстояние между двумя деревнями — десять километров.",
+        "uz": "Ikki qishloq orasidagi masofa o'n kilometr."
+      }
+    },
+    {
+      "word": "measure",
+      "part_of_speech": "verb",
+      "translation": "измерять",
+      "translations": {
+        "ru": "измерять",
+        "uz": "o'lchamoq"
+      },
+      "example": "Tom measured the window before buying curtains.",
+      "example_translations": {
+        "ru": "Том измерил окно перед покупкой штор.",
+        "uz": "Tom parda sotib olishdan oldin derazani o'lchadi."
+      }
+    },
+    {
+      "word": "calculate",
+      "part_of_speech": "verb",
+      "translation": "вычислять, рассчитывать",
+      "translations": {
+        "ru": "вычислять, рассчитывать",
+        "uz": "hisoblamoq"
+      },
+      "example": "Let's calculate how much paint we need.",
+      "example_translations": {
+        "ru": "Давайте рассчитаем, сколько краски нам нужно.",
+        "uz": "Keling, bizga qancha bo'yoq kerakligini hisoblaylik."
+      }
+    },
+    {
+      "word": "multiply",
+      "part_of_speech": "verb",
+      "translation": "умножать",
+      "translations": {
+        "ru": "умножать",
+        "uz": "ko'paytirmoq"
+      },
+      "example": "Multiply the number by three, then add five.",
+      "example_translations": {
+        "ru": "Умножьте число на три, затем прибавьте пять.",
+        "uz": "Sonni uchga ko'paytiring, keyin beshni qo'shing."
+      }
+    },
+    {
+      "word": "divide",
+      "part_of_speech": "verb",
+      "translation": "делить",
+      "translations": {
+        "ru": "делить",
+        "uz": "bo'lmoq"
+      },
+      "example": "If you divide twenty by four, you get five.",
+      "example_translations": {
+        "ru": "Если разделить двадцать на четыре, получится пять.",
+        "uz": "Yigirmani to'rtga bo'lsangiz, besh chiqadi."
+      }
+    },
+    {
+      "word": "average",
+      "part_of_speech": "adjective",
+      "translation": "средний, усреднённый",
+      "translations": {
+        "ru": "средний, усреднённый",
+        "uz": "o'rtacha"
+      },
+      "example": "The average temperature in July is thirty degrees.",
+      "example_translations": {
+        "ru": "Средняя температура в июле — тридцать градусов.",
+        "uz": "Iyulda o'rtacha harorat o'ttiz daraja bo'ladi."
+      }
+    },
+    {
+      "word": "graph",
+      "part_of_speech": "noun",
+      "translation": "график",
+      "translations": {
+        "ru": "график",
+        "uz": "grafik"
+      },
+      "example": "This graph shows how prices changed last year.",
+      "example_translations": {
+        "ru": "Этот график показывает, как менялись цены в прошлом году.",
+        "uz": "Bu grafik o'tgan yili narxlar qanday o'zgarganini ko'rsatadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 1,
+    "title": "Личность и биография",
+    "title_uz": "Shaxs va tarjimayi hol"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Этапы жизни",
+    "title_uz": "Hayot bosqichlari"
+  },
+  "words": [
+    {
+      "word": "childhood",
+      "part_of_speech": "noun",
+      "translation": "детство",
+      "translations": {
+        "ru": "детство",
+        "uz": "bolalik"
+      },
+      "example": "She spent her childhood in a mountain village.",
+      "example_translations": {
+        "ru": "Она провела детство в горной деревне.",
+        "uz": "U bolaligini tog' qishlog'ida o'tkazgan."
+      }
+    },
+    {
+      "word": "teenager",
+      "part_of_speech": "noun",
+      "translation": "подросток",
+      "translations": {
+        "ru": "подросток",
+        "uz": "o'smir"
+      },
+      "example": "As a teenager, Tom played guitar in a band.",
+      "example_translations": {
+        "ru": "Подростком Том играл на гитаре в группе.",
+        "uz": "Tom o'smirligida guruhda gitara chalgan."
+      }
+    },
+    {
+      "word": "adult",
+      "part_of_speech": "noun",
+      "translation": "взрослый",
+      "translations": {
+        "ru": "взрослый",
+        "uz": "katta yoshli odam"
+      },
+      "example": "Children must visit the pool with an adult.",
+      "example_translations": {
+        "ru": "Дети должны посещать бассейн со взрослым.",
+        "uz": "Bolalar hovuzga katta yoshli odam bilan borishi kerak."
+      }
+    },
+    {
+      "word": "youth",
+      "part_of_speech": "noun",
+      "translation": "молодость",
+      "translations": {
+        "ru": "молодость",
+        "uz": "yoshlik"
+      },
+      "example": "In his youth, my grandfather was a good runner.",
+      "example_translations": {
+        "ru": "В молодости мой дедушка хорошо бегал.",
+        "uz": "Bobom yoshligida yaxshi yugurgan."
+      }
+    },
+    {
+      "word": "generation",
+      "part_of_speech": "noun",
+      "translation": "поколение",
+      "translations": {
+        "ru": "поколение",
+        "uz": "avlod"
+      },
+      "example": "Our generation grew up with the internet.",
+      "example_translations": {
+        "ru": "Наше поколение выросло с интернетом.",
+        "uz": "Bizning avlod internet bilan katta bo'ldi."
+      }
+    },
+    {
+      "word": "birth",
+      "part_of_speech": "noun",
+      "translation": "рождение",
+      "translations": {
+        "ru": "рождение",
+        "uz": "tug'ilish"
+      },
+      "example": "The birth of their son made them happy.",
+      "example_translations": {
+        "ru": "Рождение сына сделало их счастливыми.",
+        "uz": "O'g'illarining tug'ilishi ularni baxtli qildi."
+      }
+    },
+    {
+      "word": "death",
+      "part_of_speech": "noun",
+      "translation": "смерть",
+      "translations": {
+        "ru": "смерть",
+        "uz": "o'lim"
+      },
+      "example": "After his death, the writer became very famous.",
+      "example_translations": {
+        "ru": "После смерти писатель стал очень знаменитым.",
+        "uz": "O'limidan keyin yozuvchi juda mashhur bo'ldi."
+      }
+    },
+    {
+      "word": "elderly",
+      "part_of_speech": "adjective",
+      "translation": "пожилой",
+      "translations": {
+        "ru": "пожилой",
+        "uz": "keksa"
+      },
+      "example": "Aziz often helps his elderly neighbor with shopping.",
+      "example_translations": {
+        "ru": "Азиз часто помогает пожилому соседу с покупками.",
+        "uz": "Aziz ko'pincha keksa qo'shnisiga xarid qilishda yordam beradi."
+      }
+    },
+    {
+      "word": "mature",
+      "part_of_speech": "adjective",
+      "translation": "зрелый",
+      "translations": {
+        "ru": "зрелый",
+        "uz": "yetuk"
+      },
+      "example": "Malika is only sixteen, but she is very mature.",
+      "example_translations": {
+        "ru": "Малике всего шестнадцать, но она очень зрелая.",
+        "uz": "Malika endigina o'n olti yoshda, lekin u juda yetuk."
+      }
+    },
+    {
+      "word": "senior",
+      "part_of_speech": "noun",
+      "translation": "пожилой человек",
+      "translations": {
+        "ru": "пожилой человек",
+        "uz": "keksa kishi"
+      },
+      "example": "Seniors pay less for tickets at this museum.",
+      "example_translations": {
+        "ru": "Пожилые люди платят за билеты в этом музее меньше.",
+        "uz": "Keksa kishilar bu muzeyda chiptaga kamroq to'laydi."
+      }
+    }
+  ]
+}

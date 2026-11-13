@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 1,
+    "title": "Характер и поведение",
+    "title_uz": "Xarakter va xulq-atvor"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Поведение",
+    "title_uz": "Xulq-atvor"
+  },
+  "words": [
+    {
+      "word": "conduct",
+      "part_of_speech": "noun",
+      "translation": "поведение",
+      "translations": {
+        "ru": "поведение",
+        "uz": "xulq-atvor"
+      },
+      "example": "The student was praised for his good conduct.",
+      "example_translations": {
+        "ru": "Ученика похвалили за хорошее поведение.",
+        "uz": "O'quvchi yaxshi xulq-atvori uchun maqtaldi."
+      }
+    },
+    {
+      "word": "tendency",
+      "part_of_speech": "noun",
+      "translation": "склонность",
+      "translations": {
+        "ru": "склонность",
+        "uz": "moyillik"
+      },
+      "example": "Anna has a tendency to worry about small things.",
+      "example_translations": {
+        "ru": "У Анны есть склонность переживать из-за мелочей.",
+        "uz": "Annada mayda narsalardan xavotirlanishga moyillik bor."
+      }
+    },
+    {
+      "word": "misbehave",
+      "part_of_speech": "verb",
+      "translation": "плохо себя вести",
+      "translations": {
+        "ru": "плохо себя вести",
+        "uz": "o'zini yomon tutmoq"
+      },
+      "example": "Students who misbehave must stay after class.",
+      "example_translations": {
+        "ru": "Ученики, которые плохо себя ведут, должны остаться после уроков.",
+        "uz": "O'zini yomon tutgan o'quvchilar darsdan keyin qolishi kerak."
+      }
+    },
+    {
+      "word": "instinct",
+      "part_of_speech": "noun",
+      "translation": "инстинкт",
+      "translations": {
+        "ru": "инстинкт",
+        "uz": "instinkt"
+      },
+      "example": "A mother's instinct is to protect her child.",
+      "example_translations": {
+        "ru": "Материнский инстинкт — защищать своего ребёнка.",
+        "uz": "Onalik instinkti — o'z bolasini himoya qilish."
+      }
+    },
+    {
+      "word": "imitate",
+      "part_of_speech": "verb",
+      "translation": "подражать",
+      "translations": {
+        "ru": "подражать",
+        "uz": "taqlid qilmoq"
+      },
+      "example": "Small children imitate everything their parents do.",
+      "example_translations": {
+        "ru": "Маленькие дети подражают всему, что делают их родители.",
+        "uz": "Kichkina bolalar ota-onasi qilgan hamma narsaga taqlid qiladi."
+      }
+    },
+    {
+      "word": "provoke",
+      "part_of_speech": "verb",
+      "translation": "провоцировать",
+      "translations": {
+        "ru": "провоцировать",
+        "uz": "jig'iga tegmoq"
+      },
+      "example": "He tried to provoke me, but I stayed calm.",
+      "example_translations": {
+        "ru": "Он пытался меня спровоцировать, но я остался спокойным.",
+        "uz": "U jig'imga tegmoqchi bo'ldi, lekin men xotirjam qoldim."
+      }
+    },
+    {
+      "word": "flatter",
+      "part_of_speech": "verb",
+      "translation": "льстить",
+      "translations": {
+        "ru": "льстить",
+        "uz": "xushomad qilmoq"
+      },
+      "example": "Some people flatter the boss to get a promotion.",
+      "example_translations": {
+        "ru": "Некоторые льстят начальнику, чтобы получить повышение.",
+        "uz": "Ba'zilar lavozimi ko'tarilishi uchun boshliqqa xushomad qiladi."
+      }
+    },
+    {
+      "word": "deceive",
+      "part_of_speech": "verb",
+      "translation": "обманывать",
+      "translations": {
+        "ru": "обманывать",
+        "uz": "aldamoq"
+      },
+      "example": "The seller deceived us about the quality of the phone.",
+      "example_translations": {
+        "ru": "Продавец обманул нас насчёт качества телефона.",
+        "uz": "Sotuvchi telefonning sifati haqida bizni aldadi."
+      }
+    },
+    {
+      "word": "boast",
+      "part_of_speech": "verb",
+      "translation": "хвастаться",
+      "translations": {
+        "ru": "хвастаться",
+        "uz": "maqtanmoq"
+      },
+      "example": "Winners should not boast about their success.",
+      "example_translations": {
+        "ru": "Победителям не следует хвастаться своим успехом.",
+        "uz": "G'oliblar o'z muvaffaqiyati bilan maqtanmasligi kerak."
+      }
+    },
+    {
+      "word": "interfere",
+      "part_of_speech": "verb",
+      "translation": "вмешиваться",
+      "translations": {
+        "ru": "вмешиваться",
+        "uz": "aralashmoq"
+      },
+      "example": "Please don't interfere in my personal life.",
+      "example_translations": {
+        "ru": "Пожалуйста, не вмешивайтесь в мою личную жизнь.",
+        "uz": "Iltimos, shaxsiy hayotimga aralashmang."
+      }
+    }
+  ]
+}

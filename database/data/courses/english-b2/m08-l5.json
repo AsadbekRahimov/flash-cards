@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 8,
+    "title": "Политика и государство",
+    "title_uz": "Siyosat va davlat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Международные отношения",
+    "title_uz": "Xalqaro munosabatlar"
+  },
+  "words": [
+    {
+      "word": "diplomacy",
+      "part_of_speech": "noun",
+      "translation": "дипломатия",
+      "translations": {
+        "ru": "дипломатия",
+        "uz": "diplomatiya"
+      },
+      "example": "The two countries solved the problem through diplomacy.",
+      "example_translations": {
+        "ru": "Две страны решили проблему с помощью дипломатии.",
+        "uz": "Ikki mamlakat muammoni diplomatiya yo'li bilan hal qildi."
+      }
+    },
+    {
+      "word": "ambassador",
+      "part_of_speech": "noun",
+      "translation": "посол",
+      "translations": {
+        "ru": "посол",
+        "uz": "elchi"
+      },
+      "example": "An ambassador represents his or her country abroad.",
+      "example_translations": {
+        "ru": "Посол представляет свою страну за рубежом.",
+        "uz": "Elchi xorijda o'z mamlakati nomidan vakillik qiladi."
+      }
+    },
+    {
+      "word": "negotiation",
+      "part_of_speech": "noun",
+      "translation": "переговоры",
+      "translations": {
+        "ru": "переговоры",
+        "uz": "muzokara"
+      },
+      "example": "After a long negotiation, both sides agreed.",
+      "example_translations": {
+        "ru": "После долгих переговоров обе стороны пришли к согласию.",
+        "uz": "Uzoq muzokaralardan so'ng ikkala tomon kelishib oldi."
+      }
+    },
+    {
+      "word": "treaty",
+      "part_of_speech": "noun",
+      "translation": "договор",
+      "translations": {
+        "ru": "договор",
+        "uz": "shartnoma"
+      },
+      "example": "Both governments signed a treaty on trade.",
+      "example_translations": {
+        "ru": "Оба правительства подписали договор о торговле.",
+        "uz": "Ikkala hukumat savdo to'g'risidagi shartnomani imzoladi."
+      }
+    },
+    {
+      "word": "alliance",
+      "part_of_speech": "noun",
+      "translation": "союз, альянс",
+      "translations": {
+        "ru": "союз, альянс",
+        "uz": "ittifoq"
+      },
+      "example": "Several neighboring countries formed an economic alliance.",
+      "example_translations": {
+        "ru": "Несколько соседних стран образовали экономический союз.",
+        "uz": "Bir nechta qo'shni mamlakat iqtisodiy ittifoq tuzdi."
+      }
+    },
+    {
+      "word": "summit",
+      "part_of_speech": "noun",
+      "translation": "саммит",
+      "translations": {
+        "ru": "саммит",
+        "uz": "sammit"
+      },
+      "example": "Leaders of many countries met at the summit.",
+      "example_translations": {
+        "ru": "Лидеры многих стран встретились на саммите.",
+        "uz": "Ko'plab mamlakatlar rahbarlari sammitda uchrashdi."
+      }
+    },
+    {
+      "word": "neutral",
+      "part_of_speech": "adjective",
+      "translation": "нейтральный",
+      "translations": {
+        "ru": "нейтральный",
+        "uz": "betaraf"
+      },
+      "example": "The country stayed neutral during the trade dispute.",
+      "example_translations": {
+        "ru": "Во время торгового спора страна оставалась нейтральной.",
+        "uz": "Savdo nizosi davomida mamlakat betaraf qoldi."
+      }
+    },
+    {
+      "word": "cooperation",
+      "part_of_speech": "noun",
+      "translation": "сотрудничество",
+      "translations": {
+        "ru": "сотрудничество",
+        "uz": "hamkorlik"
+      },
+      "example": "Cooperation between the two countries is growing.",
+      "example_translations": {
+        "ru": "Сотрудничество между двумя странами расширяется.",
+        "uz": "Ikki mamlakat o'rtasidagi hamkorlik kengaymoqda."
+      }
+    },
+    {
+      "word": "consulate",
+      "part_of_speech": "noun",
+      "translation": "консульство",
+      "translations": {
+        "ru": "консульство",
+        "uz": "konsulxona"
+      },
+      "example": "You can get a visa at the consulate.",
+      "example_translations": {
+        "ru": "Вы можете получить визу в консульстве.",
+        "uz": "Vizani konsulxonada olishingiz mumkin."
+      }
+    },
+    {
+      "word": "territory",
+      "part_of_speech": "noun",
+      "translation": "территория",
+      "translations": {
+        "ru": "территория",
+        "uz": "hudud"
+      },
+      "example": "Mountains cover most of the country's territory.",
+      "example_translations": {
+        "ru": "Горы занимают большую часть территории страны.",
+        "uz": "Tog'lar mamlakat hududining katta qismini egallaydi."
+      }
+    }
+  ]
+}

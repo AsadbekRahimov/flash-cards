@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 7,
+    "title": "Работа и профессии",
+    "title_uz": "Ish va kasblar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Компания и рынок",
+    "title_uz": "Kompaniya va bozor"
+  },
+  "words": [
+    {
+      "word": "firm",
+      "part_of_speech": "noun",
+      "translation": "фирма",
+      "translations": {
+        "ru": "фирма",
+        "uz": "firma"
+      },
+      "example": "My uncle works for a small construction firm.",
+      "example_translations": {
+        "ru": "Мой дядя работает в небольшой строительной фирме.",
+        "uz": "Amakim kichik qurilish firmasida ishlaydi."
+      }
+    },
+    {
+      "word": "marketing",
+      "part_of_speech": "noun",
+      "translation": "маркетинг",
+      "translations": {
+        "ru": "маркетинг",
+        "uz": "marketing"
+      },
+      "example": "Good marketing helps a company find new customers.",
+      "example_translations": {
+        "ru": "Хороший маркетинг помогает компании находить новых клиентов.",
+        "uz": "Yaxshi marketing kompaniyaga yangi mijozlar topishga yordam beradi."
+      }
+    },
+    {
+      "word": "competitor",
+      "part_of_speech": "noun",
+      "translation": "конкурент",
+      "translations": {
+        "ru": "конкурент",
+        "uz": "raqobatchi"
+      },
+      "example": "Our main competitor sells the same product cheaper.",
+      "example_translations": {
+        "ru": "Наш главный конкурент продаёт тот же товар дешевле.",
+        "uz": "Asosiy raqobatchimiz xuddi shu mahsulotni arzonroq sotadi."
+      }
+    },
+    {
+      "word": "supply",
+      "part_of_speech": "verb",
+      "translation": "поставлять, снабжать",
+      "translations": {
+        "ru": "поставлять, снабжать",
+        "uz": "yetkazib bermoq, ta'minlamoq"
+      },
+      "example": "This farm supplies fresh milk to local shops.",
+      "example_translations": {
+        "ru": "Эта ферма поставляет свежее молоко в местные магазины.",
+        "uz": "Bu ferma mahalliy do'konlarga yangi sut yetkazib beradi."
+      }
+    },
+    {
+      "word": "expand",
+      "part_of_speech": "verb",
+      "translation": "расширять",
+      "translations": {
+        "ru": "расширять",
+        "uz": "kengaytirmoq"
+      },
+      "example": "They want to expand their business to other cities.",
+      "example_translations": {
+        "ru": "Они хотят расширить свой бизнес на другие города.",
+        "uz": "Ular o'z biznesini boshqa shaharlarga ham kengaytirmoqchi."
+      }
+    },
+    {
+      "word": "launch",
+      "part_of_speech": "verb",
+      "translation": "запускать, выпускать на рынок",
+      "translations": {
+        "ru": "запускать, выпускать на рынок",
+        "uz": "ishga tushirmoq, bozorga chiqarmoq"
+      },
+      "example": "The company will launch a new phone in May.",
+      "example_translations": {
+        "ru": "В мае компания выпустит на рынок новый телефон.",
+        "uz": "Kompaniya may oyida yangi telefonni bozorga chiqaradi."
+      }
+    },
+    {
+      "word": "industry",
+      "part_of_speech": "noun",
+      "translation": "промышленность, отрасль",
+      "translations": {
+        "ru": "промышленность, отрасль",
+        "uz": "sanoat, tarmoq"
+      },
+      "example": "The car industry gives jobs to many people.",
+      "example_translations": {
+        "ru": "Автомобильная промышленность даёт работу многим людям.",
+        "uz": "Avtomobil sanoati ko'p odamlarni ish bilan ta'minlaydi."
+      }
+    },
+    {
+      "word": "factory",
+      "part_of_speech": "noun",
+      "translation": "фабрика, завод",
+      "translations": {
+        "ru": "фабрика, завод",
+        "uz": "fabrika, zavod"
+      },
+      "example": "Hundreds of people work at the shoe factory.",
+      "example_translations": {
+        "ru": "На обувной фабрике работают сотни людей.",
+        "uz": "Poyabzal fabrikasida yuzlab odamlar ishlaydi."
+      }
+    },
+    {
+      "word": "export",
+      "part_of_speech": "verb",
+      "translation": "экспортировать",
+      "translations": {
+        "ru": "экспортировать",
+        "uz": "eksport qilmoq"
+      },
+      "example": "This company exports dried fruit to Europe.",
+      "example_translations": {
+        "ru": "Эта компания экспортирует сухофрукты в Европу.",
+        "uz": "Bu kompaniya quruq mevalarni Yevropaga eksport qiladi."
+      }
+    },
+    {
+      "word": "import",
+      "part_of_speech": "verb",
+      "translation": "импортировать",
+      "translations": {
+        "ru": "импортировать",
+        "uz": "import qilmoq"
+      },
+      "example": "Many countries import coffee because they cannot grow it.",
+      "example_translations": {
+        "ru": "Многие страны импортируют кофе, потому что не могут его выращивать.",
+        "uz": "Ko'p mamlakatlar qahvani import qiladi, chunki uni yetishtira olmaydi."
+      }
+    }
+  ]
+}

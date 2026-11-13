@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 19,
+    "title": "Действия и процессы",
+    "title_uz": "Harakatlar va jarayonlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Действия с предметами",
+    "title_uz": "Buyumlar bilan amallar"
+  },
+  "words": [
+    {
+      "word": "grab",
+      "part_of_speech": "verb",
+      "translation": "хватать",
+      "translations": {
+        "ru": "хватать",
+        "uz": "ushlab olmoq, changallamoq"
+      },
+      "example": "He tried to grab the ball with both hands.",
+      "example_translations": {
+        "ru": "Он попытался схватить мяч обеими руками.",
+        "uz": "U to'pni ikki qo'li bilan ushlab olishga urindi."
+      }
+    },
+    {
+      "word": "drag",
+      "part_of_speech": "verb",
+      "translation": "тащить, волочить",
+      "translations": {
+        "ru": "тащить, волочить",
+        "uz": "sudramoq"
+      },
+      "example": "We had to drag the heavy box upstairs.",
+      "example_translations": {
+        "ru": "Нам пришлось тащить тяжёлую коробку наверх.",
+        "uz": "Og'ir qutini yuqoriga sudrab chiqishimizga to'g'ri keldi."
+      }
+    },
+    {
+      "word": "press",
+      "part_of_speech": "verb",
+      "translation": "нажимать",
+      "translations": {
+        "ru": "нажимать",
+        "uz": "bosmoq"
+      },
+      "example": "Press the green button to open the door.",
+      "example_translations": {
+        "ru": "Нажмите зелёную кнопку, чтобы открыть дверь.",
+        "uz": "Eshikni ochish uchun yashil tugmani bosing."
+      }
+    },
+    {
+      "word": "squeeze",
+      "part_of_speech": "verb",
+      "translation": "сжимать, выжимать",
+      "translations": {
+        "ru": "сжимать, выжимать",
+        "uz": "siqmoq"
+      },
+      "example": "Squeeze half a lemon into your tea.",
+      "example_translations": {
+        "ru": "Выжмите половину лимона в чай.",
+        "uz": "Choyingizga yarimta limon siqing."
+      }
+    },
+    {
+      "word": "cover",
+      "part_of_speech": "verb",
+      "translation": "накрывать, покрывать",
+      "translations": {
+        "ru": "накрывать, покрывать",
+        "uz": "ustini yopmoq, qoplamoq"
+      },
+      "example": "Cover the pot and cook for ten minutes.",
+      "example_translations": {
+        "ru": "Накройте кастрюлю и варите десять минут.",
+        "uz": "Qozonning ustini yoping va o'n daqiqa pishiring."
+      }
+    },
+    {
+      "word": "wrap",
+      "part_of_speech": "verb",
+      "translation": "заворачивать",
+      "translations": {
+        "ru": "заворачивать",
+        "uz": "o'ramoq"
+      },
+      "example": "Can you wrap this gift in bright paper?",
+      "example_translations": {
+        "ru": "Вы можете завернуть этот подарок в яркую бумагу?",
+        "uz": "Bu sovg'ani yorqin qog'ozga o'rab bera olasizmi?"
+      }
+    },
+    {
+      "word": "raise",
+      "part_of_speech": "verb",
+      "translation": "поднимать",
+      "translations": {
+        "ru": "поднимать",
+        "uz": "ko'tarmoq"
+      },
+      "example": "Raise your hand if you know the answer.",
+      "example_translations": {
+        "ru": "Поднимите руку, если знаете ответ.",
+        "uz": "Javobni bilsangiz, qo'lingizni ko'taring."
+      }
+    },
+    {
+      "word": "spill",
+      "part_of_speech": "verb",
+      "translation": "проливать",
+      "translations": {
+        "ru": "проливать",
+        "uz": "to'kmoq"
+      },
+      "example": "Be careful not to spill the hot soup.",
+      "example_translations": {
+        "ru": "Осторожно, не пролейте горячий суп.",
+        "uz": "Ehtiyot bo'ling, issiq sho'rvani to'kib yubormang."
+      }
+    },
+    {
+      "word": "wipe",
+      "part_of_speech": "verb",
+      "translation": "вытирать",
+      "translations": {
+        "ru": "вытирать",
+        "uz": "artmoq"
+      },
+      "example": "Could you wipe the table after dinner?",
+      "example_translations": {
+        "ru": "Не могли бы вы вытереть стол после ужина?",
+        "uz": "Kechki ovqatdan keyin stolni artib qo'ya olasizmi?"
+      }
+    },
+    {
+      "word": "fasten",
+      "part_of_speech": "verb",
+      "translation": "пристёгивать, застёгивать",
+      "translations": {
+        "ru": "пристёгивать, застёгивать",
+        "uz": "taqmoq, mahkamlamoq"
+      },
+      "example": "Please fasten your seat belt before we leave.",
+      "example_translations": {
+        "ru": "Пожалуйста, пристегните ремень безопасности, прежде чем мы поедем.",
+        "uz": "Iltimos, yo'lga chiqishimizdan oldin xavfsizlik kamarini taqing."
+      }
+    }
+  ]
+}

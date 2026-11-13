@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 15,
+    "title": "Город и инфраструктура",
+    "title_uz": "Shahar va infratuzilma"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Транспортная система",
+    "title_uz": "Transport tizimi"
+  },
+  "words": [
+    {
+      "word": "commuter",
+      "part_of_speech": "noun",
+      "translation": "пассажир, ездящий на работу",
+      "translations": {
+        "ru": "пассажир, ездящий на работу",
+        "uz": "ishga qatnovchi yo'lovchi"
+      },
+      "example": "Commuters fill the trains early every morning.",
+      "example_translations": {
+        "ru": "Каждое утро поезда заполняют пассажиры, ездящие на работу.",
+        "uz": "Har kuni erta tongda poyezdlar ishga qatnovchi yo'lovchilar bilan to'ladi."
+      }
+    },
+    {
+      "word": "congestion",
+      "part_of_speech": "noun",
+      "translation": "затор, пробка",
+      "translations": {
+        "ru": "затор, пробка",
+        "uz": "tirbandlik"
+      },
+      "example": "Traffic congestion makes my trip twice as long.",
+      "example_translations": {
+        "ru": "Из-за заторов на дорогах моя поездка длится вдвое дольше.",
+        "uz": "Yo'llardagi tirbandlik tufayli safarim ikki baravar uzoq davom etadi."
+      }
+    },
+    {
+      "word": "crosswalk",
+      "part_of_speech": "noun",
+      "translation": "пешеходный переход",
+      "translations": {
+        "ru": "пешеходный переход",
+        "uz": "piyodalar o'tish joyi"
+      },
+      "example": "Always use the crosswalk to cross this street.",
+      "example_translations": {
+        "ru": "Всегда переходите эту улицу по пешеходному переходу.",
+        "uz": "Bu ko'chani doim piyodalar o'tish joyidan kesib o'ting."
+      }
+    },
+    {
+      "word": "bypass",
+      "part_of_speech": "noun",
+      "translation": "объездная дорога",
+      "translations": {
+        "ru": "объездная дорога",
+        "uz": "aylanma yo'l"
+      },
+      "example": "The new bypass takes trucks around the city.",
+      "example_translations": {
+        "ru": "Новая объездная дорога направляет грузовики в обход города.",
+        "uz": "Yangi aylanma yo'l yuk mashinalarini shahar tashqarisidan olib o'tadi."
+      }
+    },
+    {
+      "word": "junction",
+      "part_of_speech": "noun",
+      "translation": "пересечение дорог",
+      "translations": {
+        "ru": "пересечение дорог",
+        "uz": "yo'llar kesishmasi"
+      },
+      "example": "Turn left at the junction of the two highways.",
+      "example_translations": {
+        "ru": "Поверните налево на пересечении двух шоссе.",
+        "uz": "Ikki magistral yo'l kesishmasida chapga buriling."
+      }
+    },
+    {
+      "word": "fleet",
+      "part_of_speech": "noun",
+      "translation": "автопарк",
+      "translations": {
+        "ru": "автопарк",
+        "uz": "avtopark"
+      },
+      "example": "The city added fifty electric buses to its fleet.",
+      "example_translations": {
+        "ru": "Город пополнил свой автопарк пятьюдесятью электробусами.",
+        "uz": "Shahar o'z avtoparkini ellikta elektrobus bilan to'ldirdi."
+      }
+    },
+    {
+      "word": "toll",
+      "part_of_speech": "noun",
+      "translation": "плата за проезд",
+      "translations": {
+        "ru": "плата за проезд",
+        "uz": "yo'l to'lovi"
+      },
+      "example": "Do drivers pay a toll to use this bridge?",
+      "example_translations": {
+        "ru": "Взимается ли с водителей плата за проезд по этому мосту?",
+        "uz": "Haydovchilar bu ko'prikdan o'tish uchun yo'l to'lovi to'laydimi?"
+      }
+    },
+    {
+      "word": "shuttle",
+      "part_of_speech": "noun",
+      "translation": "шаттл, челночный автобус",
+      "translations": {
+        "ru": "шаттл, челночный автобус",
+        "uz": "qatnov avtobusi"
+      },
+      "example": "A free shuttle runs between the hotel and airport.",
+      "example_translations": {
+        "ru": "Между отелем и аэропортом ходит бесплатный шаттл.",
+        "uz": "Mehmonxona va aeroport o'rtasida bepul qatnov avtobusi yuradi."
+      }
+    },
+    {
+      "word": "freight",
+      "part_of_speech": "noun",
+      "translation": "перевозимый груз",
+      "translations": {
+        "ru": "перевозимый груз",
+        "uz": "tashiladigan yuk"
+      },
+      "example": "Most freight in this country travels by rail.",
+      "example_translations": {
+        "ru": "Большая часть перевозимых грузов в этой стране идёт по железной дороге.",
+        "uz": "Bu mamlakatda tashiladigan yuklarning ko'p qismi temir yo'l orqali jo'natiladi."
+      }
+    },
+    {
+      "word": "cargo",
+      "part_of_speech": "noun",
+      "translation": "груз",
+      "translations": {
+        "ru": "груз",
+        "uz": "yuk"
+      },
+      "example": "The ship carries a cargo of fresh fruit.",
+      "example_translations": {
+        "ru": "Судно перевозит груз свежих фруктов.",
+        "uz": "Kema yangi meva yukini tashiydi."
+      }
+    }
+  ]
+}

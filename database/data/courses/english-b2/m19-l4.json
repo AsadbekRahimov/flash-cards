@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 19,
+    "title": "Точные описания",
+    "title_uz": "Aniq tavsiflar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Точность и ясность",
+    "title_uz": "Aniqlik va ravshanlik"
+  },
+  "words": [
+    {
+      "word": "precise",
+      "part_of_speech": "adjective",
+      "translation": "точный",
+      "translations": {
+        "ru": "точный",
+        "uz": "aniq"
+      },
+      "example": "Can you give me the precise time of arrival?",
+      "example_translations": {
+        "ru": "Можете назвать мне точное время прибытия?",
+        "uz": "Menga yetib kelishning aniq vaqtini ayta olasizmi?"
+      }
+    },
+    {
+      "word": "definite",
+      "part_of_speech": "adjective",
+      "translation": "определённый, твёрдый",
+      "translations": {
+        "ru": "определённый, твёрдый",
+        "uz": "qat'iy, uzil-kesil"
+      },
+      "example": "We need a definite answer by Friday.",
+      "example_translations": {
+        "ru": "Нам нужен определённый ответ к пятнице.",
+        "uz": "Bizga juma kunigacha qat'iy javob kerak."
+      }
+    },
+    {
+      "word": "specific",
+      "part_of_speech": "adjective",
+      "translation": "конкретный",
+      "translations": {
+        "ru": "конкретный",
+        "uz": "muayyan, aniq bir"
+      },
+      "example": "Do you have a specific date in mind?",
+      "example_translations": {
+        "ru": "Вы имеете в виду какую-то конкретную дату?",
+        "uz": "Siz biror muayyan sanani nazarda tutyapsizmi?"
+      }
+    },
+    {
+      "word": "explicit",
+      "part_of_speech": "adjective",
+      "translation": "чёткий, недвусмысленный",
+      "translations": {
+        "ru": "чёткий, недвусмысленный",
+        "uz": "aniq-ravshan, ochiq-oydin"
+      },
+      "example": "The teacher gave explicit instructions for the project.",
+      "example_translations": {
+        "ru": "Учитель дал чёткие указания по проекту.",
+        "uz": "O'qituvchi loyiha bo'yicha aniq-ravshan ko'rsatmalar berdi."
+      }
+    },
+    {
+      "word": "vague",
+      "part_of_speech": "adjective",
+      "translation": "расплывчатый, неясный",
+      "translations": {
+        "ru": "расплывчатый, неясный",
+        "uz": "mujmal, noaniq"
+      },
+      "example": "His answer was too vague to be useful.",
+      "example_translations": {
+        "ru": "Его ответ был слишком расплывчатым, чтобы быть полезным.",
+        "uz": "Uning javobi foydali bo'lishi uchun haddan tashqari mujmal edi."
+      }
+    },
+    {
+      "word": "ambiguous",
+      "part_of_speech": "adjective",
+      "translation": "двусмысленный",
+      "translations": {
+        "ru": "двусмысленный",
+        "uz": "ikki ma'noli"
+      },
+      "example": "The last sentence of the contract is ambiguous.",
+      "example_translations": {
+        "ru": "Последнее предложение договора двусмысленно.",
+        "uz": "Shartnomaning oxirgi jumlasi ikki ma'noli."
+      }
+    },
+    {
+      "word": "straightforward",
+      "part_of_speech": "adjective",
+      "translation": "простой, несложный",
+      "translations": {
+        "ru": "простой, несложный",
+        "uz": "sodda, oson"
+      },
+      "example": "Installing the program is quick and straightforward.",
+      "example_translations": {
+        "ru": "Установка программы быстрая и простая.",
+        "uz": "Dasturni o'rnatish tez va sodda."
+      }
+    },
+    {
+      "word": "apparent",
+      "part_of_speech": "adjective",
+      "translation": "очевидный, явный",
+      "translations": {
+        "ru": "очевидный, явный",
+        "uz": "ayon, yaqqol"
+      },
+      "example": "It soon became apparent that she was right.",
+      "example_translations": {
+        "ru": "Вскоре стало очевидно, что она права.",
+        "uz": "Tez orada uning haq ekani ayon bo'ldi."
+      }
+    },
+    {
+      "word": "subtle",
+      "part_of_speech": "adjective",
+      "translation": "тонкий, едва уловимый",
+      "translations": {
+        "ru": "тонкий, едва уловимый",
+        "uz": "nozik, ilg'ash qiyin"
+      },
+      "example": "There is a subtle difference between these two colors.",
+      "example_translations": {
+        "ru": "Между этими двумя цветами есть едва уловимая разница.",
+        "uz": "Bu ikki rang o'rtasida nozik farq bor."
+      }
+    },
+    {
+      "word": "concise",
+      "part_of_speech": "adjective",
+      "translation": "краткий, сжатый",
+      "translations": {
+        "ru": "краткий, сжатый",
+        "uz": "lo'nda, qisqa"
+      },
+      "example": "Please keep your report clear and concise.",
+      "example_translations": {
+        "ru": "Пожалуйста, сделайте свой отчёт ясным и кратким.",
+        "uz": "Iltimos, hisobotingiz aniq va lo'nda bo'lsin."
+      }
+    }
+  ]
+}

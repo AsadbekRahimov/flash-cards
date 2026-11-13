@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 3,
+    "title": "Жильё и жизнь в городе",
+    "title_uz": "Uy-joy va shahar hayoti"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Переезд и ремонт",
+    "title_uz": "Ko'chish va ta'mirlash"
+  },
+  "words": [
+    {
+      "word": "renovate",
+      "part_of_speech": "verb",
+      "translation": "делать ремонт",
+      "translations": {
+        "ru": "делать ремонт",
+        "uz": "ta'mirdan chiqarmoq"
+      },
+      "example": "They plan to renovate the old kitchen next year.",
+      "example_translations": {
+        "ru": "В следующем году они планируют сделать ремонт на старой кухне.",
+        "uz": "Ular kelasi yili eski oshxonani ta'mirdan chiqarishni rejalashtirmoqda."
+      }
+    },
+    {
+      "word": "fix",
+      "part_of_speech": "verb",
+      "translation": "чинить",
+      "translations": {
+        "ru": "чинить",
+        "uz": "tuzatmoq"
+      },
+      "example": "Can you fix the broken door handle?",
+      "example_translations": {
+        "ru": "Вы можете починить сломанную дверную ручку?",
+        "uz": "Singan eshik tutqichini tuzata olasizmi?"
+      }
+    },
+    {
+      "word": "replace",
+      "part_of_speech": "verb",
+      "translation": "заменять",
+      "translations": {
+        "ru": "заменять",
+        "uz": "almashtirmoq"
+      },
+      "example": "We need to replace the old windows this spring.",
+      "example_translations": {
+        "ru": "Этой весной нам нужно заменить старые окна.",
+        "uz": "Bu bahorda eski derazalarni almashtirishimiz kerak."
+      }
+    },
+    {
+      "word": "remove",
+      "part_of_speech": "verb",
+      "translation": "снимать, убирать",
+      "translations": {
+        "ru": "снимать, убирать",
+        "uz": "olib tashlamoq"
+      },
+      "example": "First, we removed the old wallpaper from the walls.",
+      "example_translations": {
+        "ru": "Сначала мы сняли со стен старые обои.",
+        "uz": "Avval devorlardan eski gulqog'ozlarni olib tashladik."
+      }
+    },
+    {
+      "word": "leak",
+      "part_of_speech": "verb",
+      "translation": "протекать",
+      "translations": {
+        "ru": "протекать",
+        "uz": "suv o'tkazmoq"
+      },
+      "example": "The old roof leaks every time it rains.",
+      "example_translations": {
+        "ru": "Старая крыша протекает каждый раз, когда идёт дождь.",
+        "uz": "Eski tom har safar yomg'ir yoqqanda suv o'tkazadi."
+      }
+    },
+    {
+      "word": "settle",
+      "part_of_speech": "verb",
+      "translation": "обосноваться, поселиться",
+      "translations": {
+        "ru": "обосноваться, поселиться",
+        "uz": "o'rnashmoq, joylashmoq"
+      },
+      "example": "After the move, we quickly settled in the new town.",
+      "example_translations": {
+        "ru": "После переезда мы быстро обосновались в новом городе.",
+        "uz": "Ko'chib o'tgach, biz yangi shaharda tezda o'rnashib oldik."
+      }
+    },
+    {
+      "word": "unpack",
+      "part_of_speech": "verb",
+      "translation": "распаковывать",
+      "translations": {
+        "ru": "распаковывать",
+        "uz": "ochib bo'shatmoq"
+      },
+      "example": "It took us two days to unpack all the boxes.",
+      "example_translations": {
+        "ru": "Нам понадобилось два дня, чтобы распаковать все коробки.",
+        "uz": "Barcha qutilarni ochib bo'shatishga ikki kun vaqtimiz ketdi."
+      }
+    },
+    {
+      "word": "storage",
+      "part_of_speech": "noun",
+      "translation": "хранение",
+      "translations": {
+        "ru": "хранение",
+        "uz": "saqlash"
+      },
+      "example": "This small room under the stairs is used for storage.",
+      "example_translations": {
+        "ru": "Эта комнатка под лестницей используется для хранения вещей.",
+        "uz": "Zina ostidagi bu kichik xona narsalarni saqlash uchun ishlatiladi."
+      }
+    },
+    {
+      "word": "switch",
+      "part_of_speech": "noun",
+      "translation": "выключатель",
+      "translations": {
+        "ru": "выключатель",
+        "uz": "o'chirgich"
+      },
+      "example": "Where is the light switch in this room?",
+      "example_translations": {
+        "ru": "Где в этой комнате выключатель света?",
+        "uz": "Bu xonada chiroq o'chirgichi qayerda?"
+      }
+    },
+    {
+      "word": "pipe",
+      "part_of_speech": "noun",
+      "translation": "труба",
+      "translations": {
+        "ru": "труба",
+        "uz": "quvur"
+      },
+      "example": "Hot water runs through this pipe.",
+      "example_translations": {
+        "ru": "По этой трубе течёт горячая вода.",
+        "uz": "Bu quvur orqali issiq suv oqadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 10,
+    "title": "СМИ и коммуникация",
+    "title_uz": "OAV va muloqot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Устная речь",
+    "title_uz": "Og'zaki nutq"
+  },
+  "words": [
+    {
+      "word": "gesture",
+      "part_of_speech": "noun",
+      "translation": "жест",
+      "translations": {
+        "ru": "жест",
+        "uz": "imo-ishora"
+      },
+      "example": "He made a gesture to ask for silence.",
+      "example_translations": {
+        "ru": "Он жестом попросил тишины.",
+        "uz": "U imo-ishora bilan jim bo'lishni so'radi."
+      }
+    },
+    {
+      "word": "convey",
+      "part_of_speech": "verb",
+      "translation": "передавать, выражать",
+      "translations": {
+        "ru": "передавать, выражать",
+        "uz": "yetkazmoq, ifodalamoq"
+      },
+      "example": "A smile can convey more than words.",
+      "example_translations": {
+        "ru": "Улыбка может передать больше, чем слова.",
+        "uz": "Tabassum so'zlardan ko'ra ko'proq narsani yetkazishi mumkin."
+      }
+    },
+    {
+      "word": "articulate",
+      "part_of_speech": "verb",
+      "translation": "чётко выражать",
+      "translations": {
+        "ru": "чётко выражать",
+        "uz": "aniq ifodalamoq"
+      },
+      "example": "It was hard for him to articulate his feelings.",
+      "example_translations": {
+        "ru": "Ему было трудно чётко выразить свои чувства.",
+        "uz": "Unga his-tuyg'ularini aniq ifodalash qiyin edi."
+      }
+    },
+    {
+      "word": "clarify",
+      "part_of_speech": "verb",
+      "translation": "уточнять, прояснять",
+      "translations": {
+        "ru": "уточнять, прояснять",
+        "uz": "aniqlashtirmoq, oydinlashtirmoq"
+      },
+      "example": "Could you clarify what you mean by that?",
+      "example_translations": {
+        "ru": "Не могли бы вы уточнить, что вы имеете в виду?",
+        "uz": "Bu bilan nimani nazarda tutayotganingizni aniqlashtirib bera olasizmi?"
+      }
+    },
+    {
+      "word": "tone",
+      "part_of_speech": "noun",
+      "translation": "тон",
+      "translations": {
+        "ru": "тон",
+        "uz": "ohang"
+      },
+      "example": "Her friendly tone made everyone feel relaxed.",
+      "example_translations": {
+        "ru": "Её дружелюбный тон помог всем расслабиться.",
+        "uz": "Uning do'stona ohangi hammani xotirjam qildi."
+      }
+    },
+    {
+      "word": "hint",
+      "part_of_speech": "noun",
+      "translation": "намёк",
+      "translations": {
+        "ru": "намёк",
+        "uz": "shama, ishora"
+      },
+      "example": "Tom didn't take the hint and kept talking.",
+      "example_translations": {
+        "ru": "Том не понял намёка и продолжал говорить.",
+        "uz": "Tom shamani tushunmadi va gapirishda davom etdi."
+      }
+    },
+    {
+      "word": "mumble",
+      "part_of_speech": "verb",
+      "translation": "бормотать",
+      "translations": {
+        "ru": "бормотать",
+        "uz": "g'o'ldiramoq"
+      },
+      "example": "Please don't mumble; I can't hear you.",
+      "example_translations": {
+        "ru": "Пожалуйста, не бормочите, я вас не слышу.",
+        "uz": "Iltimos, g'o'ldiramang, sizni eshitmayapman."
+      }
+    },
+    {
+      "word": "exclaim",
+      "part_of_speech": "verb",
+      "translation": "восклицать",
+      "translations": {
+        "ru": "восклицать",
+        "uz": "xitob qilmoq"
+      },
+      "example": "She exclaimed that the view was beautiful.",
+      "example_translations": {
+        "ru": "Она воскликнула, что вид прекрасен.",
+        "uz": "U manzara go'zal ekan, deb xitob qildi."
+      }
+    },
+    {
+      "word": "verbal",
+      "part_of_speech": "adjective",
+      "translation": "устный",
+      "translations": {
+        "ru": "устный",
+        "uz": "og'zaki"
+      },
+      "example": "They had only a verbal agreement, nothing written.",
+      "example_translations": {
+        "ru": "У них была только устная договорённость, ничего письменного.",
+        "uz": "Ularda faqat og'zaki kelishuv bor edi, yozma hech narsa yo'q edi."
+      }
+    },
+    {
+      "word": "misunderstanding",
+      "part_of_speech": "noun",
+      "translation": "недоразумение",
+      "translations": {
+        "ru": "недоразумение",
+        "uz": "tushunmovchilik"
+      },
+      "example": "A simple misunderstanding caused the whole argument.",
+      "example_translations": {
+        "ru": "Простое недоразумение стало причиной всего спора.",
+        "uz": "Oddiy tushunmovchilik butun bahsga sabab bo'ldi."
+      }
+    }
+  ]
+}

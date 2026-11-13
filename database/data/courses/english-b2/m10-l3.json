@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 10,
+    "title": "СМИ и коммуникация",
+    "title_uz": "OAV va muloqot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Онлайн-медиа",
+    "title_uz": "Onlayn media"
+  },
+  "words": [
+    {
+      "word": "newsletter",
+      "part_of_speech": "noun",
+      "translation": "рассылка",
+      "translations": {
+        "ru": "рассылка",
+        "uz": "xabarnoma"
+      },
+      "example": "I get a weekly newsletter about new books.",
+      "example_translations": {
+        "ru": "Я получаю еженедельную рассылку о новых книгах.",
+        "uz": "Men yangi kitoblar haqida haftalik xabarnoma olaman."
+      }
+    },
+    {
+      "word": "subscriber",
+      "part_of_speech": "noun",
+      "translation": "подписчик",
+      "translations": {
+        "ru": "подписчик",
+        "uz": "obunachi"
+      },
+      "example": "The channel has over two million subscribers.",
+      "example_translations": {
+        "ru": "У канала более двух миллионов подписчиков.",
+        "uz": "Kanalning ikki milliondan ortiq obunachisi bor."
+      }
+    },
+    {
+      "word": "interactive",
+      "part_of_speech": "adjective",
+      "translation": "интерактивный",
+      "translations": {
+        "ru": "интерактивный",
+        "uz": "interaktiv"
+      },
+      "example": "The website has an interactive map of the city.",
+      "example_translations": {
+        "ru": "На сайте есть интерактивная карта города.",
+        "uz": "Saytda shaharning interaktiv xaritasi bor."
+      }
+    },
+    {
+      "word": "viral",
+      "part_of_speech": "adjective",
+      "translation": "вирусный",
+      "translations": {
+        "ru": "вирусный",
+        "uz": "virusli, tez tarqaladigan"
+      },
+      "example": "A viral video can reach millions of people.",
+      "example_translations": {
+        "ru": "Вирусное видео может охватить миллионы людей.",
+        "uz": "Virusli video millionlab odamlarga yetib borishi mumkin."
+      }
+    },
+    {
+      "word": "multimedia",
+      "part_of_speech": "noun",
+      "translation": "мультимедиа",
+      "translations": {
+        "ru": "мультимедиа",
+        "uz": "multimedia"
+      },
+      "example": "The article uses multimedia: video, sound and photos.",
+      "example_translations": {
+        "ru": "В статье используется мультимедиа: видео, звук и фото.",
+        "uz": "Maqolada multimedia qo'llangan: video, ovoz va suratlar."
+      }
+    },
+    {
+      "word": "influencer",
+      "part_of_speech": "noun",
+      "translation": "инфлюенсер",
+      "translations": {
+        "ru": "инфлюенсер",
+        "uz": "influenser"
+      },
+      "example": "The influencer shares travel tips with her followers.",
+      "example_translations": {
+        "ru": "Инфлюенсер делится советами о путешествиях со своими подписчиками.",
+        "uz": "Influenser obunachilari bilan sayohat bo'yicha maslahatlarni ulashadi."
+      }
+    },
+    {
+      "word": "blogger",
+      "part_of_speech": "noun",
+      "translation": "блогер",
+      "translations": {
+        "ru": "блогер",
+        "uz": "bloger"
+      },
+      "example": "A local blogger wrote about the new cafe.",
+      "example_translations": {
+        "ru": "Местный блогер написал о новом кафе.",
+        "uz": "Mahalliy bloger yangi kafe haqida yozdi."
+      }
+    },
+    {
+      "word": "streaming",
+      "part_of_speech": "noun",
+      "translation": "стриминг",
+      "translations": {
+        "ru": "стриминг",
+        "uz": "striming"
+      },
+      "example": "Streaming lets you watch movies without downloading them.",
+      "example_translations": {
+        "ru": "Стриминг позволяет смотреть фильмы, не скачивая их.",
+        "uz": "Striming filmlarni yuklab olmasdan tomosha qilish imkonini beradi."
+      }
+    },
+    {
+      "word": "hashtag",
+      "part_of_speech": "noun",
+      "translation": "хештег",
+      "translations": {
+        "ru": "хештег",
+        "uz": "heshteg"
+      },
+      "example": "Add a hashtag so people can find your post.",
+      "example_translations": {
+        "ru": "Добавьте хештег, чтобы люди могли найти ваш пост.",
+        "uz": "Odamlar postingizni topa olishi uchun heshteg qo'shing."
+      }
+    },
+    {
+      "word": "footage",
+      "part_of_speech": "noun",
+      "translation": "видеозапись, кадры",
+      "translations": {
+        "ru": "видеозапись, кадры",
+        "uz": "videotasvir, kadrlar"
+      },
+      "example": "The website showed footage of the storm.",
+      "example_translations": {
+        "ru": "На сайте показали кадры шторма.",
+        "uz": "Saytda bo'ron kadrlari ko'rsatildi."
+      }
+    }
+  ]
+}

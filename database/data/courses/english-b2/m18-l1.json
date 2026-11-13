@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 18,
+    "title": "Причины, следствия и изменения",
+    "title_uz": "Sabablar, oqibatlar va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Причины",
+    "title_uz": "Sabablar"
+  },
+  "words": [
+    {
+      "word": "factor",
+      "part_of_speech": "noun",
+      "translation": "фактор",
+      "translations": {
+        "ru": "фактор",
+        "uz": "omil"
+      },
+      "example": "Price is an important factor in our decision.",
+      "example_translations": {
+        "ru": "Цена — важный фактор в нашем решении.",
+        "uz": "Narx qarorimizda muhim omil hisoblanadi."
+      }
+    },
+    {
+      "word": "origin",
+      "part_of_speech": "noun",
+      "translation": "происхождение",
+      "translations": {
+        "ru": "происхождение",
+        "uz": "kelib chiqish"
+      },
+      "example": "Nobody knows the exact origin of this tradition.",
+      "example_translations": {
+        "ru": "Никто не знает точного происхождения этой традиции.",
+        "uz": "Bu an'ananing aniq kelib chiqishini hech kim bilmaydi."
+      }
+    },
+    {
+      "word": "motive",
+      "part_of_speech": "noun",
+      "translation": "мотив, побуждение",
+      "translations": {
+        "ru": "мотив, побуждение",
+        "uz": "motiv, undovchi sabab"
+      },
+      "example": "Money was his only motive for taking the job.",
+      "example_translations": {
+        "ru": "Деньги были его единственным мотивом согласиться на эту работу.",
+        "uz": "Bu ishni qabul qilishining yagona motivi pul edi."
+      }
+    },
+    {
+      "word": "prompt",
+      "part_of_speech": "verb",
+      "translation": "побуждать",
+      "translations": {
+        "ru": "побуждать",
+        "uz": "undamoq"
+      },
+      "example": "What prompted you to change your job?",
+      "example_translations": {
+        "ru": "Что побудило вас сменить работу?",
+        "uz": "Sizni ishingizni o'zgartirishga nima undadi?"
+      }
+    },
+    {
+      "word": "trigger",
+      "part_of_speech": "verb",
+      "translation": "вызывать, провоцировать",
+      "translations": {
+        "ru": "вызывать, провоцировать",
+        "uz": "qo'zg'atmoq, keltirib chiqarmoq"
+      },
+      "example": "Dust can trigger an allergy in some people.",
+      "example_translations": {
+        "ru": "У некоторых людей пыль может вызвать аллергию.",
+        "uz": "Chang ba'zi odamlarda allergiyani qo'zg'atishi mumkin."
+      }
+    },
+    {
+      "word": "contribute",
+      "part_of_speech": "verb",
+      "translation": "способствовать",
+      "translations": {
+        "ru": "способствовать",
+        "uz": "hissa qo'shmoq"
+      },
+      "example": "Good teamwork contributed to the project's success.",
+      "example_translations": {
+        "ru": "Успеху проекта способствовала хорошая командная работа.",
+        "uz": "Yaxshi jamoaviy ish loyiha muvaffaqiyatiga hissa qo'shdi."
+      }
+    },
+    {
+      "word": "attribute",
+      "part_of_speech": "verb",
+      "translation": "объяснять чем-либо, приписывать",
+      "translations": {
+        "ru": "объяснять чем-либо, приписывать",
+        "uz": "bog'lamoq, sabab deb bilmoq"
+      },
+      "example": "Experts attribute the rise to higher demand.",
+      "example_translations": {
+        "ru": "Эксперты объясняют рост повышенным спросом.",
+        "uz": "Mutaxassislar o'sishni talabning ortishi bilan bog'lamoqda."
+      }
+    },
+    {
+      "word": "derive",
+      "part_of_speech": "verb",
+      "translation": "происходить",
+      "translations": {
+        "ru": "происходить",
+        "uz": "kelib chiqmoq"
+      },
+      "example": "Many English words derive from Latin.",
+      "example_translations": {
+        "ru": "Многие английские слова происходят из латыни.",
+        "uz": "Ko'plab inglizcha so'zlar lotin tilidan kelib chiqqan."
+      }
+    },
+    {
+      "word": "underlying",
+      "part_of_speech": "adjective",
+      "translation": "глубинный, лежащий в основе",
+      "translations": {
+        "ru": "глубинный, лежащий в основе",
+        "uz": "tub, asl"
+      },
+      "example": "What is the underlying cause of the problem?",
+      "example_translations": {
+        "ru": "В чём глубинная причина этой проблемы?",
+        "uz": "Bu muammoning tub sababi nimada?"
+      }
+    },
+    {
+      "word": "stimulate",
+      "part_of_speech": "verb",
+      "translation": "стимулировать",
+      "translations": {
+        "ru": "стимулировать",
+        "uz": "rag'batlantirmoq"
+      },
+      "example": "Lower prices stimulate demand for new cars.",
+      "example_translations": {
+        "ru": "Более низкие цены стимулируют спрос на новые автомобили.",
+        "uz": "Pastroq narxlar yangi avtomobillarga talabni rag'batlantiradi."
+      }
+    }
+  ]
+}

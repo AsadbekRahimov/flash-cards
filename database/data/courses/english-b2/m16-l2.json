@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 16,
+    "title": "Бизнес и маркетинг",
+    "title_uz": "Biznes va marketing"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Реклама и бренд",
+    "title_uz": "Reklama va brend"
+  },
+  "words": [
+    {
+      "word": "packaging",
+      "part_of_speech": "noun",
+      "translation": "упаковка",
+      "translations": {
+        "ru": "упаковка",
+        "uz": "qadoq"
+      },
+      "example": "The company uses paper packaging instead of plastic.",
+      "example_translations": {
+        "ru": "Компания использует бумажную упаковку вместо пластиковой.",
+        "uz": "Kompaniya plastik o'rniga qog'oz qadoqdan foydalanadi."
+      }
+    },
+    {
+      "word": "slogan",
+      "part_of_speech": "noun",
+      "translation": "слоган",
+      "translations": {
+        "ru": "слоган",
+        "uz": "shior"
+      },
+      "example": "A good slogan is short and easy to remember.",
+      "example_translations": {
+        "ru": "Хороший слоган короткий и легко запоминается.",
+        "uz": "Yaxshi shior qisqa bo'ladi va oson eslab qolinadi."
+      }
+    },
+    {
+      "word": "logo",
+      "part_of_speech": "noun",
+      "translation": "логотип",
+      "translations": {
+        "ru": "логотип",
+        "uz": "logotip"
+      },
+      "example": "Can you draw the logo of your favorite team?",
+      "example_translations": {
+        "ru": "Вы можете нарисовать логотип своей любимой команды?",
+        "uz": "Sevimli jamoangizning logotipini chiza olasizmi?"
+      }
+    },
+    {
+      "word": "commercial",
+      "part_of_speech": "noun",
+      "translation": "рекламный ролик",
+      "translations": {
+        "ru": "рекламный ролик",
+        "uz": "reklama roligi"
+      },
+      "example": "That funny commercial is on TV every evening.",
+      "example_translations": {
+        "ru": "Этот смешной рекламный ролик показывают по телевизору каждый вечер.",
+        "uz": "O'sha kulgili reklama roligi har oqshom televizorda ko'rsatiladi."
+      }
+    },
+    {
+      "word": "sponsor",
+      "part_of_speech": "noun",
+      "translation": "спонсор",
+      "translations": {
+        "ru": "спонсор",
+        "uz": "homiy"
+      },
+      "example": "A local bank is the sponsor of our team.",
+      "example_translations": {
+        "ru": "Местный банк — спонсор нашей команды.",
+        "uz": "Mahalliy bank jamoamizning homiysidir."
+      }
+    },
+    {
+      "word": "billboard",
+      "part_of_speech": "noun",
+      "translation": "рекламный щит",
+      "translations": {
+        "ru": "рекламный щит",
+        "uz": "reklama taxtasi"
+      },
+      "example": "A huge billboard stands beside the main road.",
+      "example_translations": {
+        "ru": "У главной дороги стоит огромный рекламный щит.",
+        "uz": "Asosiy yo'l yonida ulkan reklama taxtasi turibdi."
+      }
+    },
+    {
+      "word": "leaflet",
+      "part_of_speech": "noun",
+      "translation": "листовка",
+      "translations": {
+        "ru": "листовка",
+        "uz": "varaqa"
+      },
+      "example": "A student handed me a leaflet about the sale.",
+      "example_translations": {
+        "ru": "Студент вручил мне листовку о распродаже.",
+        "uz": "Bir talaba menga chegirmali savdo haqidagi varaqa berdi."
+      }
+    },
+    {
+      "word": "niche",
+      "part_of_speech": "noun",
+      "translation": "рыночная ниша",
+      "translations": {
+        "ru": "рыночная ниша",
+        "uz": "bozor nishasi"
+      },
+      "example": "They found a niche selling tea to offices.",
+      "example_translations": {
+        "ru": "Они нашли свою рыночную нишу — продажу чая офисам.",
+        "uz": "Ular ofislarga choy sotish orqali o'z bozor nishasini topishdi."
+      }
+    },
+    {
+      "word": "promote",
+      "part_of_speech": "verb",
+      "translation": "рекламировать, продвигать",
+      "translations": {
+        "ru": "рекламировать, продвигать",
+        "uz": "reklama qilmoq, targ'ib qilmoq"
+      },
+      "example": "Famous athletes promote these shoes in magazines.",
+      "example_translations": {
+        "ru": "Известные спортсмены рекламируют эту обувь в журналах.",
+        "uz": "Mashhur sportchilar bu poyabzalni jurnallarda reklama qilishadi."
+      }
+    },
+    {
+      "word": "trademark",
+      "part_of_speech": "noun",
+      "translation": "товарный знак",
+      "translations": {
+        "ru": "товарный знак",
+        "uz": "tovar belgisi"
+      },
+      "example": "Nobody else can use our registered trademark.",
+      "example_translations": {
+        "ru": "Никто другой не может использовать наш зарегистрированный товарный знак.",
+        "uz": "Ro'yxatdan o'tgan tovar belgimizdan boshqa hech kim foydalana olmaydi."
+      }
+    }
+  ]
+}

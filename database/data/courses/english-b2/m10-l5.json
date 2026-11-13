@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 10,
+    "title": "СМИ и коммуникация",
+    "title_uz": "OAV va muloqot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Публичные заявления",
+    "title_uz": "Ommaviy bayonotlar"
+  },
+  "words": [
+    {
+      "word": "panel",
+      "part_of_speech": "noun",
+      "translation": "группа экспертов",
+      "translations": {
+        "ru": "группа экспертов",
+        "uz": "ekspertlar guruhi"
+      },
+      "example": "The panel discussed the future of local news.",
+      "example_translations": {
+        "ru": "Группа экспертов обсудила будущее местных новостей.",
+        "uz": "Ekspertlar guruhi mahalliy yangiliklarning kelajagini muhokama qildi."
+      }
+    },
+    {
+      "word": "statement",
+      "part_of_speech": "noun",
+      "translation": "заявление",
+      "translations": {
+        "ru": "заявление",
+        "uz": "bayonot"
+      },
+      "example": "The mayor made a short statement to reporters.",
+      "example_translations": {
+        "ru": "Мэр сделал короткое заявление для журналистов.",
+        "uz": "Shahar hokimi jurnalistlar uchun qisqa bayonot berdi."
+      }
+    },
+    {
+      "word": "spokesperson",
+      "part_of_speech": "noun",
+      "translation": "официальный представитель",
+      "translations": {
+        "ru": "официальный представитель",
+        "uz": "rasmiy vakil"
+      },
+      "example": "A company spokesperson answered all the questions.",
+      "example_translations": {
+        "ru": "Официальный представитель компании ответил на все вопросы.",
+        "uz": "Kompaniyaning rasmiy vakili barcha savollarga javob berdi."
+      }
+    },
+    {
+      "word": "disclose",
+      "part_of_speech": "verb",
+      "translation": "раскрывать, разглашать",
+      "translations": {
+        "ru": "раскрывать, разглашать",
+        "uz": "oshkor qilmoq"
+      },
+      "example": "She refused to disclose the name of her source.",
+      "example_translations": {
+        "ru": "Она отказалась раскрыть имя своего источника.",
+        "uz": "U o'z manbasining ismini oshkor qilishdan bosh tortdi."
+      }
+    },
+    {
+      "word": "briefing",
+      "part_of_speech": "noun",
+      "translation": "брифинг",
+      "translations": {
+        "ru": "брифинг",
+        "uz": "brifing"
+      },
+      "example": "Reporters arrived early for the morning briefing.",
+      "example_translations": {
+        "ru": "Журналисты пришли пораньше на утренний брифинг.",
+        "uz": "Jurnalistlar ertalabki brifingga barvaqt kelishdi."
+      }
+    },
+    {
+      "word": "declare",
+      "part_of_speech": "verb",
+      "translation": "объявлять",
+      "translations": {
+        "ru": "объявлять",
+        "uz": "e'lon qilmoq"
+      },
+      "example": "The judges declared her the winner of the contest.",
+      "example_translations": {
+        "ru": "Судьи объявили её победительницей конкурса.",
+        "uz": "Hakamlar uni tanlov g'olibi deb e'lon qildi."
+      }
+    },
+    {
+      "word": "commentary",
+      "part_of_speech": "noun",
+      "translation": "комментарий",
+      "translations": {
+        "ru": "комментарий",
+        "uz": "sharh"
+      },
+      "example": "His commentary made the match more exciting.",
+      "example_translations": {
+        "ru": "Его комментарий сделал матч более захватывающим.",
+        "uz": "Uning sharhi o'yinni yanada qiziqarli qildi."
+      }
+    },
+    {
+      "word": "publicity",
+      "part_of_speech": "noun",
+      "translation": "внимание общественности, огласка",
+      "translations": {
+        "ru": "внимание общественности, огласка",
+        "uz": "jamoatchilik e'tibori"
+      },
+      "example": "The new film received a lot of publicity.",
+      "example_translations": {
+        "ru": "Новый фильм привлёк большое внимание общественности.",
+        "uz": "Yangi film jamoatchilikning katta e'tiborini tortdi."
+      }
+    },
+    {
+      "word": "quotation",
+      "part_of_speech": "noun",
+      "translation": "цитата",
+      "translations": {
+        "ru": "цитата",
+        "uz": "iqtibos"
+      },
+      "example": "The speech began with a quotation from a poet.",
+      "example_translations": {
+        "ru": "Речь началась с цитаты одного поэта.",
+        "uz": "Nutq bir shoirdan olingan iqtibos bilan boshlandi."
+      }
+    },
+    {
+      "word": "transcript",
+      "part_of_speech": "noun",
+      "translation": "стенограмма",
+      "translations": {
+        "ru": "стенограмма",
+        "uz": "stenogramma"
+      },
+      "example": "A full transcript of the speech is available online.",
+      "example_translations": {
+        "ru": "Полная стенограмма выступления доступна в интернете.",
+        "uz": "Nutqning to'liq stenogrammasi internetda mavjud."
+      }
+    }
+  ]
+}

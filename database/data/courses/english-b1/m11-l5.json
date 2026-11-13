@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 11,
+    "title": "СМИ и развлечения",
+    "title_uz": "OAV va ko'ngilochar tadbirlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Досуг и зрелища",
+    "title_uz": "Hordiq va tomoshalar"
+  },
+  "words": [
+    {
+      "word": "entertainment",
+      "part_of_speech": "noun",
+      "translation": "развлечение",
+      "translations": {
+        "ru": "развлечение",
+        "uz": "ko'ngilochar tadbir"
+      },
+      "example": "The hotel offers entertainment for children every evening.",
+      "example_translations": {
+        "ru": "Отель каждый вечер предлагает развлечения для детей.",
+        "uz": "Mehmonxonada har oqshom bolalar uchun ko'ngilochar tadbirlar o'tkaziladi."
+      }
+    },
+    {
+      "word": "leisure",
+      "part_of_speech": "noun",
+      "translation": "досуг",
+      "translations": {
+        "ru": "досуг",
+        "uz": "hordiq, bo'sh vaqt"
+      },
+      "example": "She has little time for leisure these days.",
+      "example_translations": {
+        "ru": "В последнее время у неё мало времени на досуг.",
+        "uz": "Keyingi paytlarda uning hordiq chiqarishga vaqti kam."
+      }
+    },
+    {
+      "word": "amusing",
+      "part_of_speech": "adjective",
+      "translation": "забавный",
+      "translations": {
+        "ru": "забавный",
+        "uz": "kulgili, qiziq"
+      },
+      "example": "Tom told us an amusing story about his cat.",
+      "example_translations": {
+        "ru": "Том рассказал нам забавную историю о своём коте.",
+        "uz": "Tom bizga mushugi haqida kulgili voqeani aytib berdi."
+      }
+    },
+    {
+      "word": "circus",
+      "part_of_speech": "noun",
+      "translation": "цирк",
+      "translations": {
+        "ru": "цирк",
+        "uz": "sirk"
+      },
+      "example": "We saw clowns and acrobats at the circus.",
+      "example_translations": {
+        "ru": "В цирке мы видели клоунов и акробатов.",
+        "uz": "Biz sirkda masxarabozlar va akrobatlarni ko'rdik."
+      }
+    },
+    {
+      "word": "parade",
+      "part_of_speech": "noun",
+      "translation": "парад",
+      "translations": {
+        "ru": "парад",
+        "uz": "parad"
+      },
+      "example": "A colorful parade moved slowly down the street.",
+      "example_translations": {
+        "ru": "Красочный парад медленно двигался по улице.",
+        "uz": "Rang-barang parad ko'cha bo'ylab sekin o'tib borardi."
+      }
+    },
+    {
+      "word": "magic",
+      "part_of_speech": "noun",
+      "translation": "волшебство",
+      "translations": {
+        "ru": "волшебство",
+        "uz": "sehr"
+      },
+      "example": "The children thought the trick was real magic.",
+      "example_translations": {
+        "ru": "Дети думали, что этот фокус — настоящее волшебство.",
+        "uz": "Bolalar bu fokusni haqiqiy sehr deb o'ylashdi."
+      }
+    },
+    {
+      "word": "puzzle",
+      "part_of_speech": "noun",
+      "translation": "головоломка",
+      "translations": {
+        "ru": "головоломка",
+        "uz": "boshqotirma"
+      },
+      "example": "It took me an hour to solve the puzzle.",
+      "example_translations": {
+        "ru": "Мне понадобился час, чтобы решить головоломку.",
+        "uz": "Boshqotirmani yechishga bir soat vaqtim ketdi."
+      }
+    },
+    {
+      "word": "chess",
+      "part_of_speech": "noun",
+      "translation": "шахматы",
+      "translations": {
+        "ru": "шахматы",
+        "uz": "shaxmat"
+      },
+      "example": "My uncle taught me to play chess.",
+      "example_translations": {
+        "ru": "Дядя научил меня играть в шахматы.",
+        "uz": "Amakim menga shaxmat o'ynashni o'rgatdi."
+      }
+    },
+    {
+      "word": "carnival",
+      "part_of_speech": "noun",
+      "translation": "карнавал",
+      "translations": {
+        "ru": "карнавал",
+        "uz": "karnaval"
+      },
+      "example": "People wear bright costumes at the carnival.",
+      "example_translations": {
+        "ru": "На карнавале люди носят яркие костюмы.",
+        "uz": "Karnavalda odamlar yorqin liboslar kiyadi."
+      }
+    },
+    {
+      "word": "host",
+      "part_of_speech": "noun",
+      "translation": "ведущий",
+      "translations": {
+        "ru": "ведущий",
+        "uz": "boshlovchi"
+      },
+      "example": "The host of the show introduced the first guest.",
+      "example_translations": {
+        "ru": "Ведущий шоу представил первого гостя.",
+        "uz": "Shou boshlovchisi birinchi mehmonni tanishtirdi."
+      }
+    }
+  ]
+}

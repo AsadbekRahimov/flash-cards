@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 11,
+    "title": "Искусство и литература",
+    "title_uz": "San'at va adabiyot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Изобразительное искусство",
+    "title_uz": "Tasviriy san'at"
+  },
+  "words": [
+    {
+      "word": "carving",
+      "part_of_speech": "noun",
+      "translation": "резьба",
+      "translations": {
+        "ru": "резьба",
+        "uz": "o'ymakorlik"
+      },
+      "example": "Wood carving is a traditional art in our region.",
+      "example_translations": {
+        "ru": "Резьба по дереву — традиционное искусство нашего края.",
+        "uz": "Yog'och o'ymakorligi — o'lkamizning an'anaviy san'ati."
+      }
+    },
+    {
+      "word": "abstract",
+      "part_of_speech": "adjective",
+      "translation": "абстрактный",
+      "translations": {
+        "ru": "абстрактный",
+        "uz": "abstrakt"
+      },
+      "example": "Abstract paintings show shapes and colors, not real things.",
+      "example_translations": {
+        "ru": "Абстрактные картины изображают формы и цвета, а не реальные предметы.",
+        "uz": "Abstrakt rasmlarda haqiqiy narsalar emas, shakl va ranglar tasvirlanadi."
+      }
+    },
+    {
+      "word": "watercolor",
+      "part_of_speech": "noun",
+      "translation": "акварель",
+      "translations": {
+        "ru": "акварель",
+        "uz": "akvarel"
+      },
+      "example": "Malika painted this landscape in watercolor.",
+      "example_translations": {
+        "ru": "Малика написала этот пейзаж акварелью.",
+        "uz": "Malika bu manzarani akvarel bilan chizgan."
+      }
+    },
+    {
+      "word": "canvas",
+      "part_of_speech": "noun",
+      "translation": "холст",
+      "translations": {
+        "ru": "холст",
+        "uz": "rassomlik matosi"
+      },
+      "example": "She prefers painting on canvas to drawing on paper.",
+      "example_translations": {
+        "ru": "Она предпочитает писать на холсте, а не рисовать на бумаге.",
+        "uz": "U qog'ozga chizishdan ko'ra rassomlik matosiga rasm ishlashni afzal ko'radi."
+      }
+    },
+    {
+      "word": "artwork",
+      "part_of_speech": "noun",
+      "translation": "произведение искусства",
+      "translations": {
+        "ru": "произведение искусства",
+        "uz": "san'at asari"
+      },
+      "example": "The gallery sells artwork by local students.",
+      "example_translations": {
+        "ru": "Галерея продаёт произведения искусства местных студентов.",
+        "uz": "Galereya mahalliy talabalarning san'at asarlarini sotadi."
+      }
+    },
+    {
+      "word": "mosaic",
+      "part_of_speech": "noun",
+      "translation": "мозаика",
+      "translations": {
+        "ru": "мозаика",
+        "uz": "mozaika"
+      },
+      "example": "A colorful mosaic covers the floor of the hall.",
+      "example_translations": {
+        "ru": "Пол зала покрыт красочной мозаикой.",
+        "uz": "Zalning poli rang-barang mozaika bilan qoplangan."
+      }
+    },
+    {
+      "word": "calligraphy",
+      "part_of_speech": "noun",
+      "translation": "каллиграфия",
+      "translations": {
+        "ru": "каллиграфия",
+        "uz": "xattotlik"
+      },
+      "example": "Aziz studies Arabic calligraphy with an old master.",
+      "example_translations": {
+        "ru": "Азиз изучает арабскую каллиграфию у старого мастера.",
+        "uz": "Aziz keksa ustadan arab xattotligini o'rganadi."
+      }
+    },
+    {
+      "word": "pottery",
+      "part_of_speech": "noun",
+      "translation": "гончарное дело",
+      "translations": {
+        "ru": "гончарное дело",
+        "uz": "kulolchilik"
+      },
+      "example": "My grandfather taught me pottery when I was ten.",
+      "example_translations": {
+        "ru": "Дедушка научил меня гончарному делу, когда мне было десять лет.",
+        "uz": "Bobom menga o'n yoshimda kulolchilikni o'rgatgan."
+      }
+    },
+    {
+      "word": "mural",
+      "part_of_speech": "noun",
+      "translation": "настенная роспись",
+      "translations": {
+        "ru": "настенная роспись",
+        "uz": "devoriy rasm"
+      },
+      "example": "A huge mural of the sea decorates our school.",
+      "example_translations": {
+        "ru": "Нашу школу украшает огромная настенная роспись с изображением моря.",
+        "uz": "Maktabimizni dengiz tasvirlangan ulkan devoriy rasm bezab turadi."
+      }
+    },
+    {
+      "word": "curator",
+      "part_of_speech": "noun",
+      "translation": "куратор",
+      "translations": {
+        "ru": "куратор",
+        "uz": "kurator"
+      },
+      "example": "The curator chose fifty paintings for the exhibition.",
+      "example_translations": {
+        "ru": "Куратор отобрал для выставки пятьдесят картин.",
+        "uz": "Kurator ko'rgazma uchun ellikta rasm tanladi."
+      }
+    }
+  ]
+}

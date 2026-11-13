@@ -1,0 +1,2795 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m07-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "profession"
+      ],
+      "text": "My father is a doctor ___ profession.",
+      "options": [
+        "by",
+        "on",
+        "with"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Мой отец по профессии врач.",
+        "uz": "Otam kasbi bo'yicha shifokor."
+      },
+      "explanation": {
+        "ru": "by profession — по профессии: She is a lawyer by profession. Русское «по» здесь передаётся предлогом by, а не on или with.",
+        "uz": "by profession — kasbi bo'yicha: She is a lawyer by profession. Bu iborada on yoki with emas, by predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m07-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "psychologist"
+      ],
+      "text": "She decided to ___ a psychologist about her fears.",
+      "options": [
+        "see",
+        "look",
+        "watch"
+      ],
+      "correct": [
+        "see"
+      ],
+      "translation": {
+        "ru": "Она решила обратиться к психологу по поводу своих страхов.",
+        "uz": "U qo'rquvlari yuzasidan psixologga murojaat qilishga qaror qildi."
+      },
+      "explanation": {
+        "ru": "see a psychologist — обратиться к психологу, пойти к нему на приём. Так же говорят see a doctor, see a lawyer. Look и watch значат «смотреть», «наблюдать» и здесь не подходят.",
+        "uz": "see a psychologist — psixologga murojaat qilmoq, uning qabuliga bormoq. Xuddi shunday: see a doctor, see a lawyer. Look va watch «qaramoq», «kuzatmoq» degani, bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "firefighter"
+      ],
+      "text": "The firefighters put ___ the fire in an hour.",
+      "options": [
+        "out",
+        "off",
+        "away"
+      ],
+      "correct": [
+        "out"
+      ],
+      "translation": {
+        "ru": "Пожарные потушили пожар за час.",
+        "uz": "O't o'chiruvchilar yong'inni bir soatda o'chirishdi."
+      },
+      "explanation": {
+        "ru": "put out a fire — потушить огонь, пожар. Put off — откладывать (встречу, дело), put away — убирать на место.",
+        "uz": "put out a fire — olovni, yong'inni o'chirmoq. Put off — keyinga qoldirmoq (uchrashuvni, ishni), put away — joyiga olib qo'ymoq."
+      }
+    },
+    {
+      "key": "b1-m07-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "lawyer"
+      ],
+      "prompt": {
+        "ru": "Моя сестра хочет стать юристом.",
+        "uz": "Singlim huquqshunos bo'lmoqchi."
+      },
+      "fragments": [
+        "my",
+        "sister",
+        "wants",
+        "to",
+        "become",
+        "a",
+        "lawyer"
+      ],
+      "accepted": [
+        [
+          "my",
+          "sister",
+          "wants",
+          "to",
+          "become",
+          "a",
+          "lawyer"
+        ]
+      ],
+      "display": "My sister wants to become a lawyer.",
+      "explanation": {
+        "ru": "want to + глагол — хотеть что-то сделать: wants to become. Перед названием профессии нужен артикль a: become a lawyer.",
+        "uz": "want to + fe'l — biror ish qilishni xohlamoq: wants to become. Kasb nomidan oldin a artikli kerak: become a lawyer."
+      }
+    },
+    {
+      "key": "b1-m07-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "architect"
+      ],
+      "prompt": {
+        "ru": "Кто был архитектором этого моста?",
+        "uz": "Bu ko'prikning me'mori kim bo'lgan?"
+      },
+      "fragments": [
+        "who",
+        "was",
+        "the",
+        "architect",
+        "of",
+        "this",
+        "bridge"
+      ],
+      "accepted": [
+        [
+          "who",
+          "was",
+          "the",
+          "architect",
+          "of",
+          "this",
+          "bridge"
+        ]
+      ],
+      "display": "Who was the architect of this bridge?",
+      "explanation": {
+        "ru": "the architect of + сооружение — архитектор чего-то: the architect of this bridge. Вопрос с who и глаголом be строится просто: Who was …?",
+        "uz": "the architect of + inshoot — biror narsaning me'mori: the architect of this bridge. Who va be fe'li bilan savol oddiy tuziladi: Who was …?"
+      }
+    },
+    {
+      "key": "b1-m07-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "carpenter"
+      ],
+      "prompt": {
+        "ru": "Мой дедушка работал плотником.",
+        "uz": "Bobom duradgor bo'lib ishlagan."
+      },
+      "fragments": [
+        "my",
+        "grandfather",
+        "worked",
+        "as",
+        "a",
+        "carpenter"
+      ],
+      "accepted": [
+        [
+          "my",
+          "grandfather",
+          "worked",
+          "as",
+          "a",
+          "carpenter"
+        ]
+      ],
+      "display": "My grandfather worked as a carpenter.",
+      "explanation": {
+        "ru": "work as + a + профессия — работать кем-то: worked as a carpenter. Здесь нужен as, а не like: like значит «как, подобно».",
+        "uz": "work as + a + kasb — kim bo'lib ishlamoq: worked as a carpenter. Bu yerda like emas, as kerak: like «kabi, o'xshab» degani."
+      }
+    },
+    {
+      "key": "b1-m07-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "soldier"
+      ],
+      "text": "The young soldier misses his family",
+      "accepted": [
+        "The young soldier misses his family"
+      ],
+      "translation": {
+        "ru": "Молодой солдат скучает по своей семье",
+        "uz": "Yosh askar oilasini sog'inmoqda"
+      },
+      "explanation": {
+        "ru": "soldier: после l пишется di, хотя слышится «дж»: s-o-l-d-i-e-r.",
+        "uz": "soldier: l dan keyin di yoziladi, garchi «j» eshitilsa ham: s-o-l-d-i-e-r."
+      }
+    },
+    {
+      "key": "b1-m07-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "cashier"
+      ],
+      "text": "Ask the cashier for a paper bag",
+      "accepted": [
+        "Ask the cashier for a paper bag"
+      ],
+      "translation": {
+        "ru": "Попросите у кассира бумажный пакет",
+        "uz": "Kassirdan qog'oz xalta so'rang"
+      },
+      "explanation": {
+        "ru": "cashier: звук «ш» пишется sh, а конец слова — -ier: c-a-s-h-i-e-r.",
+        "uz": "cashier: «sh» tovushi sh bilan, so'z oxiri esa -ier deb yoziladi: c-a-s-h-i-e-r."
+      }
+    },
+    {
+      "key": "b1-m07-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "accountant",
+        "consultant"
+      ],
+      "text": "We need an accountant and a consultant",
+      "accepted": [
+        "We need an accountant and a consultant"
+      ],
+      "translation": {
+        "ru": "Нам нужны бухгалтер и консультант",
+        "uz": "Bizga hisobchi va maslahatchi kerak"
+      },
+      "explanation": {
+        "ru": "accountant: две c и окончание -ant. Consultant тоже оканчивается на -ant, а не на -ent.",
+        "uz": "accountant: ikkita c va oxirida -ant yoziladi. Consultant ham -ent emas, -ant bilan tugaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "requirement"
+      ],
+      "text": "He did not ___ the requirements for the job.",
+      "options": [
+        "meet",
+        "correspond",
+        "reply"
+      ],
+      "correct": [
+        "meet"
+      ],
+      "translation": {
+        "ru": "Он не соответствовал требованиям этой работы.",
+        "uz": "U bu ish talablariga javob bermadi."
+      },
+      "explanation": {
+        "ru": "meet the requirements — соответствовать требованиям, отвечать им. Русское «соответствовать» хочется перевести как correspond, а «отвечать» — как reply, но с requirements говорят meet (или satisfy).",
+        "uz": "meet the requirements — talablarga javob bermoq, mos kelmoq. «Javob bermoq»ni reply, «mos kelmoq»ni correspond deb tarjima qilgingiz kelishi mumkin, lekin requirements so'zi bilan meet (yoki satisfy) ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "resign"
+      ],
+      "text": "She resigned ___ her job to start a business.",
+      "options": [
+        "from",
+        "of",
+        "off"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Она уволилась с работы, чтобы открыть своё дело.",
+        "uz": "U o'z biznesini boshlash uchun ishdan bo'shadi."
+      },
+      "explanation": {
+        "ru": "resign from + работа, должность — уволиться с работы, уйти с должности: resign from a job. Предлоги of и off здесь не употребляются.",
+        "uz": "resign from + ish, lavozim — ishdan bo'shamoq, lavozimdan ketmoq: resign from a job. Bu yerda of va off predloglari ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "internship"
+      ],
+      "text": "Our daughter is ___ an internship at a big hotel.",
+      "options": [
+        "doing",
+        "passing",
+        "making"
+      ],
+      "correct": [
+        "doing"
+      ],
+      "translation": {
+        "ru": "Наша дочь проходит стажировку в большой гостинице.",
+        "uz": "Qizimiz katta mehmonxonada amaliyot o'tamoqda."
+      },
+      "explanation": {
+        "ru": "do an internship — проходить стажировку. По-русски стажировку «проходят», но по-английски говорят do (здесь — is doing), а не pass или make.",
+        "uz": "do an internship — amaliyot o'tamoq. O'zbekchada amaliyot «o'taladi», lekin inglizchada pass yoki make emas, do ishlatiladi (bu yerda — is doing)."
+      }
+    },
+    {
+      "key": "b1-m07-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "position"
+      ],
+      "prompt": {
+        "ru": "Они предложили мне должность в своей компании.",
+        "uz": "Ular menga o'z kompaniyalarida lavozim taklif qilishdi."
+      },
+      "fragments": [
+        "they",
+        "offered",
+        "me",
+        "a",
+        "position",
+        "in",
+        "their",
+        "company"
+      ],
+      "accepted": [
+        [
+          "they",
+          "offered",
+          "me",
+          "a",
+          "position",
+          "in",
+          "their",
+          "company"
+        ]
+      ],
+      "display": "They offered me a position in their company.",
+      "explanation": {
+        "ru": "offer somebody something — предложить кому-то что-то: сначала кому (me), потом что (a position). Position — должность, место в компании.",
+        "uz": "offer somebody something — kimgadir nimadir taklif qilmoq: avval kimga (me), keyin nima (a position). Position — lavozim, kompaniyadagi o'rin."
+      }
+    },
+    {
+      "key": "b1-m07-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "suitable"
+      ],
+      "prompt": {
+        "ru": "Эта работа не подходит для студентов.",
+        "uz": "Bu ish talabalar uchun mos emas."
+      },
+      "fragments": [
+        "this",
+        "job",
+        "is",
+        "not",
+        "suitable",
+        "for",
+        "students"
+      ],
+      "accepted": [
+        [
+          "this",
+          "job",
+          "is",
+          "not",
+          "suitable",
+          "for",
+          "students"
+        ],
+        [
+          "for",
+          "students",
+          "this",
+          "job",
+          "is",
+          "not",
+          "suitable"
+        ]
+      ],
+      "display": "This job is not suitable for students.",
+      "explanation": {
+        "ru": "suitable for + кто/что — подходящий для кого-то, чего-то. Not стоит после is: is not suitable.",
+        "uz": "suitable for + kim/nima — kimgadir, nimagadir mos, munosib. Not so'zi is dan keyin keladi: is not suitable."
+      }
+    },
+    {
+      "key": "b1-m07-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "staff"
+      ],
+      "prompt": {
+        "ru": "Наш менеджер поблагодарил сотрудников за их работу.",
+        "uz": "Menejerimiz xodimlarga ishlari uchun minnatdorchilik bildirdi."
+      },
+      "fragments": [
+        "our",
+        "manager",
+        "thanked",
+        "the",
+        "staff",
+        "for",
+        "their",
+        "work"
+      ],
+      "accepted": [
+        [
+          "our",
+          "manager",
+          "thanked",
+          "the",
+          "staff",
+          "for",
+          "their",
+          "work"
+        ]
+      ],
+      "display": "Our manager thanked the staff for their work.",
+      "explanation": {
+        "ru": "thank somebody for something — благодарить кого-то за что-то. Staff — это все сотрудники вместе (не один человек), поэтому дальше their work.",
+        "uz": "thank somebody for something — kimgadir biror narsa uchun minnatdorchilik bildirmoq. Staff — barcha xodimlar birgalikda (bir kishi emas), shuning uchun their work deyiladi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "trainee"
+      ],
+      "text": "The trainee asked a lot of questions",
+      "accepted": [
+        "The trainee asked a lot of questions"
+      ],
+      "translation": {
+        "ru": "Стажёр задал много вопросов",
+        "uz": "Stajyor ko'p savol berdi"
+      },
+      "explanation": {
+        "ru": "trainee: в конце две e (-ee), как в employee.",
+        "uz": "trainee: oxirida ikkita e (-ee) yoziladi, employee so'zidagi kabi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "permanent",
+        "temporary"
+      ],
+      "text": "Is this job permanent or temporary?",
+      "accepted": [
+        "Is this job permanent or temporary?"
+      ],
+      "translation": {
+        "ru": "Эта работа постоянная или временная?",
+        "uz": "Bu ish doimiymi yoki vaqtinchalikmi?"
+      },
+      "explanation": {
+        "ru": "permanent: после m пишется a, в конце -ent. Temporary: в середине -or-, в конце -ary.",
+        "uz": "permanent: m dan keyin a, oxirida -ent yoziladi. Temporary: o'rtasida -or-, oxirida -ary keladi."
+      }
+    },
+    {
+      "key": "b1-m07-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "qualification"
+      ],
+      "text": "Tell me about your qualifications",
+      "accepted": [
+        "Tell me about your qualifications"
+      ],
+      "translation": {
+        "ru": "Расскажите мне о своей квалификации",
+        "uz": "Menga malakangiz haqida gapirib bering"
+      },
+      "explanation": {
+        "ru": "qualification: звук «кв» пишется qu, в конце -tion.",
+        "uz": "qualification: «kv» tovushi qu bilan yoziladi, oxirida -tion keladi."
+      }
+    },
+    {
+      "key": "b1-m07-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "responsibility"
+      ],
+      "text": "She ___ full responsibility for the mistake in the report.",
+      "options": [
+        "took",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "took"
+      ],
+      "translation": {
+        "ru": "Она взяла на себя полную ответственность за ошибку в отчёте.",
+        "uz": "U hisobotdagi xato uchun to'liq mas'uliyatni o'z zimmasiga oldi."
+      },
+      "explanation": {
+        "ru": "take responsibility for — брать на себя ответственность за что-то. С responsibility говорят take (или accept), а не make или do.",
+        "uz": "take responsibility for — biror narsa uchun mas'uliyatni o'z zimmasiga olmoq. Responsibility so'zi bilan take (yoki accept) ishlatiladi, make yoki do emas."
+      }
+    },
+    {
+      "key": "b1-m07-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "conference"
+      ],
+      "text": "Our university will ___ a conference on education in May.",
+      "options": [
+        "hold",
+        "spend",
+        "pass"
+      ],
+      "correct": [
+        "hold"
+      ],
+      "translation": {
+        "ru": "Наш университет проведёт в мае конференцию по образованию.",
+        "uz": "Universitetimiz may oyida ta'lim bo'yicha konferensiya o'tkazadi."
+      },
+      "explanation": {
+        "ru": "hold a conference — проводить конференцию. По-русски «проводят» и время, и мероприятия, но spend говорят о времени и деньгах (spend a week, spend money), а pass здесь не подходит.",
+        "uz": "hold a conference — konferensiya o'tkazmoq. O'zbekchada vaqt ham, tadbir ham «o'tkaziladi», lekin spend vaqt va pul haqida aytiladi (spend a week, spend money), pass esa bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "priority"
+      ],
+      "text": "Customer safety is our ___ priority.",
+      "options": [
+        "top",
+        "tall",
+        "upper"
+      ],
+      "correct": [
+        "top"
+      ],
+      "translation": {
+        "ru": "Безопасность клиентов — наш главный приоритет.",
+        "uz": "Mijozlar xavfsizligi — bizning eng ustuvor vazifamiz."
+      },
+      "explanation": {
+        "ru": "top priority — главный, первоочередной приоритет. Так же говорят high priority. Tall говорят о росте и высоте (a tall man), а upper значит «верхний» (the upper floor).",
+        "uz": "top priority — eng ustuvor vazifa. High priority ham deyiladi. Tall bo'y va balandlik haqida aytiladi (a tall man), upper esa «yuqoridagi» degani (the upper floor)."
+      }
+    },
+    {
+      "key": "b1-m07-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "attend"
+      ],
+      "prompt": {
+        "ru": "Мы не смогли присутствовать на вашей свадьбе.",
+        "uz": "Biz to'yingizda ishtirok eta olmadik."
+      },
+      "fragments": [
+        "we",
+        "could",
+        "not",
+        "attend",
+        "your",
+        "wedding"
+      ],
+      "accepted": [
+        [
+          "we",
+          "could",
+          "not",
+          "attend",
+          "your",
+          "wedding"
+        ]
+      ],
+      "display": "We could not attend your wedding.",
+      "explanation": {
+        "ru": "attend употребляется без предлога: attend a wedding, attend a meeting — присутствовать на свадьбе, на собрании. После could not глагол стоит без to.",
+        "uz": "attend predlogsiz ishlatiladi: attend a wedding, attend a meeting — to'yda, yig'ilishda qatnashmoq. Could not dan keyin fe'l to yuklamasisiz keladi."
+      }
+    },
+    {
+      "key": "b1-m07-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "approve"
+      ],
+      "prompt": {
+        "ru": "Директор одобрил вашу просьбу.",
+        "uz": "Direktor iltimosingizni ma'qulladi."
+      },
+      "fragments": [
+        "the",
+        "director",
+        "has",
+        "approved",
+        "your",
+        "request"
+      ],
+      "accepted": [
+        [
+          "the",
+          "director",
+          "has",
+          "approved",
+          "your",
+          "request"
+        ]
+      ],
+      "display": "The director has approved your request.",
+      "explanation": {
+        "ru": "approve + существительное — официально одобрить, утвердить: approve a request, approve a plan. Has approved — Present Perfect: решение уже принято.",
+        "uz": "approve + ot — rasman ma'qullamoq, tasdiqlamoq: approve a request, approve a plan. Has approved — Present Perfect: qaror allaqachon qabul qilingan."
+      }
+    },
+    {
+      "key": "b1-m07-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "duty"
+      ],
+      "prompt": {
+        "ru": "Каковы ваши основные обязанности?",
+        "uz": "Sizning asosiy vazifalaringiz nimalardan iborat?"
+      },
+      "fragments": [
+        "what",
+        "are",
+        "your",
+        "main",
+        "duties"
+      ],
+      "accepted": [
+        [
+          "what",
+          "are",
+          "your",
+          "main",
+          "duties"
+        ]
+      ],
+      "display": "What are your main duties?",
+      "explanation": {
+        "ru": "duty — обязанность; о рабочих обязанностях обычно говорят во множественном числе: duties. Y после согласной меняется на ies: duty — duties.",
+        "uz": "duty — vazifa; ishdagi vazifalar haqida odatda ko'plikda aytiladi: duties. Undoshdan keyingi y ko'plikda ies ga aylanadi: duty — duties."
+      }
+    },
+    {
+      "key": "b1-m07-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "routine"
+      ],
+      "text": "I want to change my daily routine",
+      "accepted": [
+        "I want to change my daily routine"
+      ],
+      "translation": {
+        "ru": "Я хочу изменить свой распорядок дня",
+        "uz": "Men kundalik tartibimni o'zgartirmoqchiman"
+      },
+      "explanation": {
+        "ru": "routine: звук «у» пишется ou, а в конце -ine, хотя слышится долгое «и»: r-o-u-t-i-n-e.",
+        "uz": "routine: «u» tovushi ou bilan, oxiri esa -ine deb yoziladi, garchi cho'ziq «i» eshitilsa ham: r-o-u-t-i-n-e."
+      }
+    },
+    {
+      "key": "b1-m07-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "teamwork",
+        "efficient"
+      ],
+      "text": "Good teamwork makes us more efficient",
+      "accepted": [
+        "Good teamwork makes us more efficient"
+      ],
+      "translation": {
+        "ru": "Хорошая командная работа делает нас эффективнее",
+        "uz": "Yaxshi jamoaviy ish bizni samaraliroq qiladi"
+      },
+      "explanation": {
+        "ru": "teamwork пишется слитно: team + work. В efficient две f, а звук «ш» передаётся буквами ci: e-f-f-i-c-i-e-n-t.",
+        "uz": "teamwork qo'shib yoziladi: team + work. Efficient so'zida ikkita f bor, «sh» tovushi esa ci harflari bilan beriladi: e-f-f-i-c-i-e-n-t."
+      }
+    },
+    {
+      "key": "b1-m07-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "assignment"
+      ],
+      "text": "Did you finish the assignment on time?",
+      "accepted": [
+        "Did you finish the assignment on time?"
+      ],
+      "translation": {
+        "ru": "Вы выполнили задание вовремя?",
+        "uz": "Topshiriqni o'z vaqtida bajardingizmi?"
+      },
+      "explanation": {
+        "ru": "assignment: две s и непроизносимая g перед n — как в sign: a-s-s-i-g-n-m-e-n-t.",
+        "uz": "assignment: ikkita s va n dan oldin o'qilmaydigan g bor — sign so'zidagi kabi: a-s-s-i-g-n-m-e-n-t."
+      }
+    },
+    {
+      "key": "b1-m07-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "supply"
+      ],
+      "text": "A local company supplies the school ___ fresh bread.",
+      "options": [
+        "with",
+        "by",
+        "of"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Местная компания снабжает школу свежим хлебом.",
+        "uz": "Mahalliy kompaniya maktabni yangi non bilan ta'minlaydi."
+      },
+      "explanation": {
+        "ru": "supply somebody with something — снабжать кого-то чем-то. Русский творительный падеж («хлебом») здесь передаётся предлогом with, а не by.",
+        "uz": "supply somebody with something — kimnidir biror narsa bilan ta'minlamoq. O'zbekcha «bilan» bu yerda by emas, with bo'ladi."
+      }
+    },
+    {
+      "key": "b1-m07-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "competitor"
+      ],
+      "text": "We work hard to stay ahead ___ our competitors.",
+      "options": [
+        "of",
+        "from",
+        "than"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Мы много работаем, чтобы оставаться впереди конкурентов.",
+        "uz": "Raqobatchilarimizdan oldinda bo'lish uchun qattiq ishlaymiz."
+      },
+      "explanation": {
+        "ru": "stay ahead of your competitors — оставаться впереди конкурентов, опережать их. Перед существительным ahead требует of: ahead of, а не ahead from или ahead than.",
+        "uz": "stay ahead of your competitors — raqobatchilardan oldinda bo'lmoq. Otdan oldin ahead so'zi of bilan keladi: ahead of; ahead from yoki ahead than deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "marketing"
+      ],
+      "text": "She works in the marketing ___ of a big bank.",
+      "options": [
+        "department",
+        "apartment",
+        "appointment"
+      ],
+      "correct": [
+        "department"
+      ],
+      "translation": {
+        "ru": "Она работает в отделе маркетинга крупного банка.",
+        "uz": "U yirik bankning marketing bo'limida ishlaydi."
+      },
+      "explanation": {
+        "ru": "marketing department — отдел маркетинга. Department — отдел, apartment — квартира, appointment — назначенная встреча, приём: слова похожи, но значения разные.",
+        "uz": "marketing department — marketing bo'limi. Department — bo'lim, apartment — kvartira, appointment — belgilangan uchrashuv, qabul: so'zlar o'xshash, lekin ma'nosi boshqa."
+      }
+    },
+    {
+      "key": "b1-m07-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "expand"
+      ],
+      "prompt": {
+        "ru": "Наша компания планирует расширить свой бизнес.",
+        "uz": "Kompaniyamiz o'z biznesini kengaytirishni rejalashtirmoqda."
+      },
+      "fragments": [
+        "our",
+        "company",
+        "plans",
+        "to",
+        "expand",
+        "its",
+        "business"
+      ],
+      "accepted": [
+        [
+          "our",
+          "company",
+          "plans",
+          "to",
+          "expand",
+          "its",
+          "business"
+        ]
+      ],
+      "display": "Our company plans to expand its business.",
+      "explanation": {
+        "ru": "plan to + глагол — планировать что-то сделать: plans to expand. Its — «его, её, свой» о компании, пишется без апострофа.",
+        "uz": "plan to + fe'l — biror ish qilishni rejalashtirmoq: plans to expand. Its — kompaniya haqida «uning, o'z» degani, apostrofsiz yoziladi."
+      }
+    },
+    {
+      "key": "b1-m07-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "launch"
+      ],
+      "prompt": {
+        "ru": "Когда они выпустят на рынок новую модель?",
+        "uz": "Ular yangi modelni qachon bozorga chiqaradi?"
+      },
+      "fragments": [
+        "when",
+        "will",
+        "they",
+        "launch",
+        "the",
+        "new",
+        "model"
+      ],
+      "accepted": [
+        [
+          "when",
+          "will",
+          "they",
+          "launch",
+          "the",
+          "new",
+          "model"
+        ]
+      ],
+      "display": "When will they launch the new model?",
+      "explanation": {
+        "ru": "launch a product — выпустить товар на рынок, запустить его в продажу. В вопросе о будущем will стоит перед подлежащим: When will they launch …?",
+        "uz": "launch a product — mahsulotni bozorga chiqarmoq, sotuvga qo'ymoq. Kelasi zamon savolida will egadan oldin keladi: When will they launch …?"
+      }
+    },
+    {
+      "key": "b1-m07-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "industry"
+      ],
+      "prompt": {
+        "ru": "Этой отрасли нужно больше молодых работников.",
+        "uz": "Bu tarmoqqa ko'proq yosh ishchilar kerak."
+      },
+      "fragments": [
+        "this",
+        "industry",
+        "needs",
+        "more",
+        "young",
+        "workers"
+      ],
+      "accepted": [
+        [
+          "this",
+          "industry",
+          "needs",
+          "more",
+          "young",
+          "workers"
+        ]
+      ],
+      "display": "This industry needs more young workers.",
+      "explanation": {
+        "ru": "industry — отрасль, промышленность. После this industry глагол стоит в единственном числе: needs. More + существительное — «больше»: more young workers.",
+        "uz": "industry — tarmoq, sanoat. This industry dan keyin fe'l birlikda keladi: needs. More + ot — «ko'proq»: more young workers."
+      }
+    },
+    {
+      "key": "b1-m07-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "import",
+        "export"
+      ],
+      "text": "They import cars and export fruit",
+      "accepted": [
+        "They import cars and export fruit"
+      ],
+      "translation": {
+        "ru": "Они импортируют автомобили и экспортируют фрукты",
+        "uz": "Ular avtomobil import qilib, meva eksport qiladi"
+      }
+    },
+    {
+      "key": "b1-m07-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "factory"
+      ],
+      "text": "The old factory is near the river",
+      "accepted": [
+        "The old factory is near the river"
+      ],
+      "translation": {
+        "ru": "Старая фабрика находится возле реки",
+        "uz": "Eski fabrika daryo yaqinida joylashgan"
+      }
+    },
+    {
+      "key": "b1-m07-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "firm"
+      ],
+      "text": "She started her own firm last year",
+      "accepted": [
+        "She started her own firm last year"
+      ],
+      "translation": {
+        "ru": "В прошлом году она открыла собственную фирму",
+        "uz": "U o'tgan yili o'z firmasini ochdi"
+      }
+    },
+    {
+      "key": "b1-m07-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "income"
+      ],
+      "text": "Farming is the only ___ of income in this village.",
+      "options": [
+        "source",
+        "spring",
+        "root"
+      ],
+      "correct": [
+        "source"
+      ],
+      "translation": {
+        "ru": "Сельское хозяйство — единственный источник дохода в этой деревне.",
+        "uz": "Dehqonchilik — bu qishloqdagi yagona daromad manbai."
+      },
+      "explanation": {
+        "ru": "source of income — источник дохода. Spring — тоже «источник», но только родник с водой; root — корень.",
+        "uz": "source of income — daromad manbai. Spring — «buloq», ya'ni yerdan suv chiqadigan joy; root — ildiz."
+      }
+    },
+    {
+      "key": "b1-m07-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "earn"
+      ],
+      "text": "He earns his ___ as a taxi driver.",
+      "options": [
+        "living",
+        "life",
+        "lives"
+      ],
+      "correct": [
+        "living"
+      ],
+      "translation": {
+        "ru": "Он зарабатывает на жизнь, работая таксистом.",
+        "uz": "U taksi haydovchisi bo'lib tirikchilik qiladi."
+      },
+      "explanation": {
+        "ru": "earn a living (earn your living) — зарабатывать на жизнь. Нужно именно слово living; earn his life не говорят.",
+        "uz": "earn a living (earn your living) — tirikchilik qilmoq, kun kechirish uchun pul topmoq. Aynan living so'zi kerak; earn his life deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "workload"
+      ],
+      "text": "Nurses in this hospital have a very ___ workload.",
+      "options": [
+        "heavy",
+        "strong",
+        "thick"
+      ],
+      "correct": [
+        "heavy"
+      ],
+      "translation": {
+        "ru": "У медсестёр в этой больнице очень большая рабочая нагрузка.",
+        "uz": "Bu shifoxonadagi hamshiralarning ish yuklamasi juda og'ir."
+      },
+      "explanation": {
+        "ru": "a heavy workload — большая рабочая нагрузка (буквально «тяжёлая»). Strong и thick со словом workload не сочетаются.",
+        "uz": "a heavy workload — og'ir ish yuklamasi. Strong va thick so'zlari workload bilan birikmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "freelance"
+      ],
+      "prompt": {
+        "ru": "Внештатная работа даёт мне больше свободы.",
+        "uz": "Shtatdan tashqari ish menga ko'proq erkinlik beradi."
+      },
+      "fragments": [
+        "freelance",
+        "work",
+        "gives",
+        "me",
+        "more",
+        "freedom"
+      ],
+      "accepted": [
+        [
+          "freelance",
+          "work",
+          "gives",
+          "me",
+          "more",
+          "freedom"
+        ]
+      ],
+      "display": "Freelance work gives me more freedom.",
+      "explanation": {
+        "ru": "freelance стоит перед существительным: freelance work, a freelance designer. Give somebody something — сначала кому (me), потом что (more freedom).",
+        "uz": "freelance otdan oldin keladi: freelance work, a freelance designer. Give somebody something — avval kimga (me), keyin nima (more freedom)."
+      }
+    },
+    {
+      "key": "b1-m07-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "unemployed"
+      ],
+      "prompt": {
+        "ru": "Как давно вы без работы?",
+        "uz": "Qanchadan beri ishsizsiz?"
+      },
+      "fragments": [
+        "how",
+        "long",
+        "have",
+        "you",
+        "been",
+        "unemployed"
+      ],
+      "accepted": [
+        [
+          "how",
+          "long",
+          "have",
+          "you",
+          "been",
+          "unemployed"
+        ]
+      ],
+      "display": "How long have you been unemployed?",
+      "explanation": {
+        "ru": "unemployed — безработный, без работы. How long have you been …? — вопрос о том, сколько времени длится состояние до сих пор (Present Perfect).",
+        "uz": "unemployed — ishsiz. How long have you been …? — holat hozirgacha qancha vaqtdan beri davom etayotgani haqidagi savol (Present Perfect)."
+      }
+    },
+    {
+      "key": "b1-m07-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "pressure"
+      ],
+      "prompt": {
+        "ru": "Она находится под большим давлением.",
+        "uz": "U katta bosim ostida."
+      },
+      "fragments": [
+        "she",
+        "is",
+        "under",
+        "a",
+        "lot",
+        "of",
+        "pressure"
+      ],
+      "accepted": [
+        [
+          "she",
+          "is",
+          "under",
+          "a",
+          "lot",
+          "of",
+          "pressure"
+        ]
+      ],
+      "display": "She is under a lot of pressure.",
+      "explanation": {
+        "ru": "be under pressure — находиться под давлением, испытывать сильное напряжение. Pressure здесь неисчисляемое, поэтому a lot of pressure, без -s.",
+        "uz": "be under pressure — bosim ostida bo'lmoq. Pressure bu yerda sanalmaydigan ot, shuning uchun a lot of pressure deyiladi, -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "b1-m07-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "bonus",
+        "reward"
+      ],
+      "text": "The bonus was a reward for hard work",
+      "accepted": [
+        "The bonus was a reward for hard work"
+      ],
+      "translation": {
+        "ru": "Премия была наградой за усердную работу",
+        "uz": "Mukofot puli mashaqqatli mehnat uchun rag'bat edi"
+      },
+      "explanation": {
+        "ru": "reward: после w пишется ar, хотя слышится «о»: r-e-w-a-r-d.",
+        "uz": "reward: w dan keyin ar yoziladi, garchi «o» eshitilsa ham: r-e-w-a-r-d."
+      }
+    },
+    {
+      "key": "b1-m07-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "benefit"
+      ],
+      "text": "This job has good benefits",
+      "accepted": [
+        "This job has good benefits"
+      ],
+      "translation": {
+        "ru": "На этой работе хорошие льготы",
+        "uz": "Bu ishning imtiyozlari yaxshi"
+      },
+      "explanation": {
+        "ru": "benefit: после n пишется e, а в конце одна t: b-e-n-e-f-i-t.",
+        "uz": "benefit: n dan keyin e, oxirida esa bitta t yoziladi: b-e-n-e-f-i-t."
+      }
+    },
+    {
+      "key": "b1-m07-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "wage"
+      ],
+      "text": "The factory pays a good wage",
+      "accepted": [
+        "The factory pays a good wage"
+      ],
+      "translation": {
+        "ru": "Фабрика платит хорошую зарплату",
+        "uz": "Fabrika yaxshi ish haqi to'laydi"
+      }
+    },
+    {
+      "key": "b1-m08-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "fortune"
+      ],
+      "text": "Her grandfather ___ a fortune in the hotel business.",
+      "options": [
+        "made",
+        "did",
+        "worked"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Её дедушка нажил состояние в гостиничном бизнесе.",
+        "uz": "Uning bobosi mehmonxona biznesida katta boylik orttirgan."
+      },
+      "explanation": {
+        "ru": "make a fortune — нажить состояние, разбогатеть. С fortune говорят make, а не do; work a fortune тоже не говорят.",
+        "uz": "make a fortune — katta boylik orttirmoq, boyib ketmoq. Fortune so'zi bilan make ishlatiladi, do emas; work a fortune ham deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "owe"
+      ],
+      "text": "He still owes a lot of money ___ the bank.",
+      "options": [
+        "to",
+        "from",
+        "by"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Он всё ещё должен банку много денег.",
+        "uz": "U hali ham bankdan ko'p pul qarzdor."
+      },
+      "explanation": {
+        "ru": "owe something to somebody — быть должным что-то кому-то. Тот, кому должны, вводится предлогом to, а не from или by: owe money to the bank.",
+        "uz": "owe something to somebody — kimdandir biror narsa qarzdor bo'lmoq. Qarz bergan tomon to bilan keladi: owe money to the bank. O'zbekcha «-dan» bu yerda from emas, to bo'ladi; by ham ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "value"
+      ],
+      "text": "Old coins often increase ___ value over time.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Старые монеты со временем часто растут в цене.",
+        "uz": "Eski tangalarning qiymati vaqt o'tishi bilan ko'pincha oshadi."
+      },
+      "explanation": {
+        "ru": "increase in value — расти в цене, дорожать. Так же: rise in value, fall in value. Предлоги on и at здесь не употребляются.",
+        "uz": "increase in value — qiymati oshmoq, qimmatlashmoq. Xuddi shunday: rise in value, fall in value. Bu yerda on va at predloglari ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wealthy"
+      ],
+      "prompt": {
+        "ru": "Он из состоятельной семьи.",
+        "uz": "U badavlat oiladan chiqqan."
+      },
+      "fragments": [
+        "he",
+        "comes",
+        "from",
+        "a",
+        "wealthy",
+        "family"
+      ],
+      "accepted": [
+        [
+          "he",
+          "comes",
+          "from",
+          "a",
+          "wealthy",
+          "family"
+        ]
+      ],
+      "display": "He comes from a wealthy family.",
+      "explanation": {
+        "ru": "come from a … family — быть из какой-то семьи, происходить из неё. Wealthy — состоятельный, богатый; слово чуть более книжное, чем rich.",
+        "uz": "come from a … family — qandaydir oiladan chiqqan bo'lmoq. Wealthy — badavlat, boy; rich so'ziga qaraganda biroz kitobiyroq."
+      }
+    },
+    {
+      "key": "b1-m08-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "economy"
+      ],
+      "prompt": {
+        "ru": "Сильная экономика создаёт новые рабочие места.",
+        "uz": "Kuchli iqtisodiyot yangi ish o'rinlarini yaratadi."
+      },
+      "fragments": [
+        "a",
+        "strong",
+        "economy",
+        "creates",
+        "new",
+        "jobs"
+      ],
+      "accepted": [
+        [
+          "a",
+          "strong",
+          "economy",
+          "creates",
+          "new",
+          "jobs"
+        ]
+      ],
+      "display": "A strong economy creates new jobs.",
+      "explanation": {
+        "ru": "economy — экономика страны или региона. После a strong economy глагол стоит в единственном числе: creates. Не путайте с economics — это экономика как наука.",
+        "uz": "economy — mamlakat yoki hudud iqtisodiyoti. A strong economy dan keyin fe'l birlikda keladi: creates. Economics bilan adashtirmang — u iqtisodiyot fani."
+      }
+    },
+    {
+      "key": "b1-m08-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "fund"
+      ],
+      "prompt": {
+        "ru": "Фонд помогает студентам из бедных семей.",
+        "uz": "Jamg'arma kambag'al oilalardan chiqqan talabalarga yordam beradi."
+      },
+      "fragments": [
+        "the",
+        "fund",
+        "helps",
+        "students",
+        "from",
+        "poor",
+        "families"
+      ],
+      "accepted": [
+        [
+          "the",
+          "fund",
+          "helps",
+          "students",
+          "from",
+          "poor",
+          "families"
+        ]
+      ],
+      "display": "The fund helps students from poor families.",
+      "explanation": {
+        "ru": "fund — фонд, организация, которая собирает деньги на какую-то цель. Help + кто, без предлога: helps students.",
+        "uz": "fund — jamg'arma, biror maqsad uchun pul yig'adigan tashkilot. Help dan keyin kim predlogsiz keladi: helps students."
+      }
+    },
+    {
+      "key": "b1-m08-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "debt",
+        "loss"
+      ],
+      "text": "The company has big debts and losses",
+      "accepted": [
+        "The company has big debts and losses"
+      ],
+      "translation": {
+        "ru": "У компании большие долги и убытки",
+        "uz": "Kompaniyaning katta qarzlari va zararlari bor"
+      },
+      "explanation": {
+        "ru": "debt: буква b не произносится, но пишется: d-e-b-t. В loss на конце две s.",
+        "uz": "debt: b harfi o'qilmaydi, lekin yoziladi: d-e-b-t. Loss so'zi oxirida ikkita s bor."
+      }
+    },
+    {
+      "key": "b1-m08-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "expense"
+      ],
+      "text": "We must cut our expenses this year",
+      "accepted": [
+        "We must cut our expenses this year"
+      ],
+      "translation": {
+        "ru": "В этом году мы должны сократить свои расходы",
+        "uz": "Bu yil xarajatlarimizni qisqartirishimiz kerak"
+      },
+      "explanation": {
+        "ru": "expense: после x идёт p, а в конце -se, не -ce: e-x-p-e-n-s-e.",
+        "uz": "expense: x dan keyin p keladi, oxiri esa -ce emas, -se: e-x-p-e-n-s-e."
+      }
+    },
+    {
+      "key": "b1-m08-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "finance"
+      ],
+      "text": "She wants to study finance",
+      "accepted": [
+        "She wants to study finance"
+      ],
+      "translation": {
+        "ru": "Она хочет изучать финансы",
+        "uz": "U moliyani o'rganmoqchi"
+      }
+    },
+    {
+      "key": "b1-m08-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "payment"
+      ],
+      "text": "The hotel asks for payment ___ advance.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Гостиница просит внести оплату заранее.",
+        "uz": "Mehmonxona oldindan to'lov qilishni so'raydi."
+      },
+      "explanation": {
+        "ru": "payment in advance — предоплата, оплата вперёд. In advance — заранее: pay in advance, book in advance. В этом выражении нужен предлог in, а не on или at.",
+        "uz": "payment in advance — oldindan to'lov. In advance — oldindan: pay in advance, book in advance. Bu iborada on yoki at emas, in predlogi kerak."
+      }
+    },
+    {
+      "key": "b1-m08-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "fee"
+      ],
+      "text": "Does the school ___ a fee for the exam?",
+      "options": [
+        "charge",
+        "cost",
+        "price"
+      ],
+      "correct": [
+        "charge"
+      ],
+      "translation": {
+        "ru": "Школа берёт плату за экзамен?",
+        "uz": "Maktab imtihon uchun haq oladimi?"
+      },
+      "explanation": {
+        "ru": "charge a fee — брать плату, взимать сбор. Cost говорят о самой вещи или услуге (The exam costs ten dollars), а price как глагол значит «назначать цену товару».",
+        "uz": "charge a fee — haq olmoq, to'lov undirmoq. Cost narsa yoki xizmatning o'zi haqida aytiladi (The exam costs ten dollars), price esa fe'l sifatida «tovarga narx qo'ymoq» degani."
+      }
+    },
+    {
+      "key": "b1-m08-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "percent"
+      ],
+      "text": "Food prices have gone up ___ ten percent this year.",
+      "options": [
+        "by",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "В этом году цены на продукты выросли на десять процентов.",
+        "uz": "Bu yil oziq-ovqat narxlari o'n foizga oshdi."
+      },
+      "explanation": {
+        "ru": "go up by ten percent — вырасти на десять процентов. Русское «на» здесь передаётся предлогом by, а не on: rise by, fall by, reduce by.",
+        "uz": "go up by ten percent — o'n foizga oshmoq. O'zbekcha «-ga» qo'shimchasi bu yerda by bilan beriladi: rise by, fall by, reduce by. On va for ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "transfer"
+      ],
+      "prompt": {
+        "ru": "Я переведу деньги на ваш счёт.",
+        "uz": "Men pulni hisobingizga o'tkazaman."
+      },
+      "fragments": [
+        "I",
+        "will",
+        "transfer",
+        "the",
+        "money",
+        "to",
+        "your",
+        "account"
+      ],
+      "accepted": [
+        [
+          "I",
+          "will",
+          "transfer",
+          "the",
+          "money",
+          "to",
+          "your",
+          "account"
+        ]
+      ],
+      "display": "I will transfer the money to your account.",
+      "explanation": {
+        "ru": "transfer money to an account — перевести деньги на счёт: сначала что (the money), потом куда (to your account). Will + глагол — будущее время: I will transfer.",
+        "uz": "transfer money to an account — pulni hisobga o'tkazmoq: avval nima (the money), keyin qayerga (to your account). Will kelasi zamonni bildiradi: I will transfer."
+      }
+    },
+    {
+      "key": "b1-m08-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "charge"
+      ],
+      "prompt": {
+        "ru": "Вы берёте плату за эту услугу?",
+        "uz": "Bu xizmat uchun haq olasizmi?"
+      },
+      "fragments": [
+        "do",
+        "you",
+        "charge",
+        "for",
+        "this",
+        "service"
+      ],
+      "accepted": [
+        [
+          "do",
+          "you",
+          "charge",
+          "for",
+          "this",
+          "service"
+        ]
+      ],
+      "display": "Do you charge for this service?",
+      "explanation": {
+        "ru": "charge for something — брать плату за что-то. В вопросе в Present Simple нужен do: Do you charge …?",
+        "uz": "charge for something — biror narsa uchun haq olmoq. Present Simple savolida do kerak: Do you charge …?"
+      }
+    },
+    {
+      "key": "b1-m08-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "sum"
+      ],
+      "prompt": {
+        "ru": "Это большая сумма денег.",
+        "uz": "Bu katta pul summasi."
+      },
+      "fragments": [
+        "that",
+        "is",
+        "a",
+        "large",
+        "sum",
+        "of",
+        "money"
+      ],
+      "accepted": [
+        [
+          "that",
+          "is",
+          "a",
+          "large",
+          "sum",
+          "of",
+          "money"
+        ]
+      ],
+      "display": "That is a large sum of money.",
+      "explanation": {
+        "ru": "a sum of money — сумма денег; о большой сумме говорят a large sum. Sum звучит так же, как some, но пишется через u.",
+        "uz": "a sum of money — pul summasi; katta summa haqida a large sum deyiladi. Sum so'zi some kabi eshitiladi, lekin u harfi bilan yoziladi."
+      }
+    },
+    {
+      "key": "b1-m08-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "banknote",
+        "amount"
+      ],
+      "text": "Count the banknotes and check the amount",
+      "accepted": [
+        "Count the banknotes and check the amount"
+      ],
+      "translation": {
+        "ru": "Пересчитайте купюры и проверьте сумму",
+        "uz": "Qog'oz pullarni sanang va summani tekshiring"
+      },
+      "explanation": {
+        "ru": "banknote пишется слитно: bank + note. В amount одна m, а звук «ау» пишется ou.",
+        "uz": "banknote qo'shib yoziladi: bank + note. Amount so'zida bitta m bor, «au» tovushi esa ou bilan yoziladi."
+      }
+    },
+    {
+      "key": "b1-m08-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "rate"
+      ],
+      "text": "The exchange rate changes every day",
+      "accepted": [
+        "The exchange rate changes every day"
+      ],
+      "translation": {
+        "ru": "Обменный курс меняется каждый день",
+        "uz": "Valyuta kursi har kuni o'zgaradi"
+      }
+    },
+    {
+      "key": "b1-m08-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "secure"
+      ],
+      "text": "This website is not secure",
+      "accepted": [
+        "This website is not secure",
+        "This website isn't secure"
+      ],
+      "translation": {
+        "ru": "Этот сайт небезопасен",
+        "uz": "Bu sayt xavfsiz emas"
+      }
+    },
+    {
+      "key": "b1-m08-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "counter"
+      ],
+      "text": "The man ___ the counter helped me choose a cake.",
+      "options": [
+        "behind",
+        "after",
+        "between"
+      ],
+      "correct": [
+        "behind"
+      ],
+      "translation": {
+        "ru": "Мужчина за прилавком помог мне выбрать торт.",
+        "uz": "Peshtaxta ortidagi kishi menga tort tanlashda yordam berdi."
+      },
+      "explanation": {
+        "ru": "behind the counter — за прилавком (там, где стоит продавец). Русское «за» здесь — behind; after значит «после», а between — «между».",
+        "uz": "behind the counter — peshtaxta ortida (sotuvchi turadigan joyda). After «keyin» degani, between esa «orasida»; bu yerda behind kerak."
+      }
+    },
+    {
+      "key": "b1-m08-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "purchase"
+      ],
+      "text": "You can ___ a purchase on our website in a minute.",
+      "options": [
+        "make",
+        "do",
+        "put"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "На нашем сайте можно сделать покупку за минуту.",
+        "uz": "Saytimizda bir daqiqada xarid qilish mumkin."
+      },
+      "explanation": {
+        "ru": "make a purchase — сделать покупку. По-русски покупку «делают», но в английском здесь нужен make, а не do; put тоже не подходит.",
+        "uz": "make a purchase — xarid qilmoq. O'zbekcha «qilmoq» bu yerda do emas, make bo'ladi; put ham to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "item"
+      ],
+      "text": "Sorry, this item is out ___ stock right now.",
+      "options": [
+        "of",
+        "from",
+        "off"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "К сожалению, этого товара сейчас нет в наличии.",
+        "uz": "Kechirasiz, bu tovar hozir sotuvda yo'q."
+      },
+      "explanation": {
+        "ru": "an item is out of stock — товара нет в наличии. Out of — «вне, без»: out of stock, out of order. Обратное — in stock, «в наличии».",
+        "uz": "an item is out of stock — tovar sotuvda yo'q, tugagan. Out of: out of stock, out of order. Aksi — in stock, «sotuvda bor»."
+      }
+    },
+    {
+      "key": "b1-m08-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "delivery"
+      ],
+      "prompt": {
+        "ru": "Доставка включена в цену?",
+        "uz": "Yetkazib berish narxga kiradimi?"
+      },
+      "fragments": [
+        "is",
+        "delivery",
+        "included",
+        "in",
+        "the",
+        "price"
+      ],
+      "accepted": [
+        [
+          "is",
+          "delivery",
+          "included",
+          "in",
+          "the",
+          "price"
+        ]
+      ],
+      "display": "Is delivery included in the price?",
+      "explanation": {
+        "ru": "be included in the price — быть включённым в цену, входить в неё. Delivery здесь без артикля: речь о доставке как услуге.",
+        "uz": "be included in the price — narxga kirmoq. Delivery bu yerda artiklsiz: gap xizmat sifatidagi yetkazib berish haqida."
+      }
+    },
+    {
+      "key": "b1-m08-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "cart"
+      ],
+      "prompt": {
+        "ru": "У этой тележки сломано колесо.",
+        "uz": "Bu aravachaning g'ildiragi singan."
+      },
+      "fragments": [
+        "this",
+        "cart",
+        "has",
+        "a",
+        "broken",
+        "wheel"
+      ],
+      "accepted": [
+        [
+          "this",
+          "cart",
+          "has",
+          "a",
+          "broken",
+          "wheel"
+        ]
+      ],
+      "display": "This cart has a broken wheel.",
+      "explanation": {
+        "ru": "cart — тележка в магазине. По-английски говорят «у тележки есть сломанное колесо»: has a broken wheel; broken стоит перед существительным.",
+        "uz": "cart — do'kondagi aravacha. Inglizchada «aravachaning singan g'ildiragi bor» deyiladi: has a broken wheel; broken otdan oldin keladi."
+      }
+    },
+    {
+      "key": "b1-m08-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "package"
+      ],
+      "prompt": {
+        "ru": "Что написано на упаковке?",
+        "uz": "Qadoqda nima yozilgan?"
+      },
+      "fragments": [
+        "what",
+        "is",
+        "written",
+        "on",
+        "the",
+        "package"
+      ],
+      "accepted": [
+        [
+          "what",
+          "is",
+          "written",
+          "on",
+          "the",
+          "package"
+        ]
+      ],
+      "display": "What is written on the package?",
+      "explanation": {
+        "ru": "on the package — на упаковке. Is written — пассив: «написано». What здесь подлежащее, поэтому порядок слов как в утверждении.",
+        "uz": "on the package — qadoqda, o'ramda. Is written — majhul nisbat: «yozilgan». What bu yerda ega, shuning uchun so'z tartibi darak gapdagidek."
+      }
+    },
+    {
+      "key": "b1-m08-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "mall"
+      ],
+      "text": "They built a new mall last year",
+      "accepted": [
+        "They built a new mall last year"
+      ],
+      "translation": {
+        "ru": "В прошлом году построили новый торговый центр",
+        "uz": "O'tgan yili yangi savdo markazi qurishdi"
+      },
+      "explanation": {
+        "ru": "mall: на конце две l, а звук «о» пишется буквой a — как в ball и wall.",
+        "uz": "mall: oxirida ikkita l, «o» tovushi esa a harfi bilan yoziladi — ball va wall so'zlaridagi kabi."
+      }
+    },
+    {
+      "key": "b1-m08-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "bakery",
+        "grocery"
+      ],
+      "text": "The bakery is next to the grocery",
+      "accepted": [
+        "The bakery is next to the grocery"
+      ],
+      "translation": {
+        "ru": "Пекарня находится рядом с продуктовым магазином",
+        "uz": "Novvoyxona oziq-ovqat do'koni yonida joylashgan"
+      },
+      "explanation": {
+        "ru": "grocery: в середине пишется c, а не s: g-r-o-c-e-r-y. Bakery — от bake, на конце тоже -ery.",
+        "uz": "grocery: o'rtasida s emas, c yoziladi: g-r-o-c-e-r-y. Bakery — bake so'zidan, oxiri ham -ery."
+      }
+    },
+    {
+      "key": "b1-m08-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "butcher"
+      ],
+      "text": "The butcher opens his shop very early",
+      "accepted": [
+        "The butcher opens his shop very early"
+      ],
+      "translation": {
+        "ru": "Мясник открывает свою лавку очень рано",
+        "uz": "Qassob do'konini juda erta ochadi"
+      },
+      "explanation": {
+        "ru": "butcher: звук «ч» пишется tch (как в kitchen), а гласная — u: b-u-t-c-h-e-r.",
+        "uz": "butcher: «ch» tovushi tch bilan yoziladi (kitchen so'zidagi kabi), unli esa u: b-u-t-c-h-e-r."
+      }
+    },
+    {
+      "key": "b1-m08-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "estimate"
+      ],
+      "text": "The value of the painting is estimated ___ a million dollars.",
+      "options": [
+        "at",
+        "in",
+        "on"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Стоимость картины оценивается в миллион долларов.",
+        "uz": "Rasmning qiymati taxminan million dollar deb baholanmoqda."
+      },
+      "explanation": {
+        "ru": "be estimated at + сумма — оцениваться в какую-то сумму. Русское «в» здесь передаётся предлогом at, а не in.",
+        "uz": "be estimated at + summa — taxminan shuncha deb baholanmoq. Summa oldidan in yoki on emas, at predlogi qo'yiladi."
+      }
+    },
+    {
+      "key": "b1-m08-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "luxury"
+      ],
+      "text": "The family lived ___ luxury in a huge house by the sea.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Семья жила в роскоши в огромном доме у моря.",
+        "uz": "Oila dengiz bo'yidagi ulkan uyda hashamat ichida yashardi."
+      },
+      "explanation": {
+        "ru": "live in luxury — жить в роскоши. Luxury здесь без артикля; предлог in, как и русское «в».",
+        "uz": "live in luxury — hashamat ichida yashamoq. Luxury bu yerda artiklsiz keladi, predlogi esa in."
+      }
+    },
+    {
+      "key": "b1-m08-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "compare"
+      ],
+      "text": "Compare our prices ___ the prices in other stores.",
+      "options": [
+        "with",
+        "from",
+        "than"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Сравните наши цены с ценами в других магазинах.",
+        "uz": "Narxlarimizni boshqa do'konlardagi narxlar bilan solishtiring."
+      },
+      "explanation": {
+        "ru": "compare A with B — сравнивать одно с другим (можно и compare to). Than употребляется после сравнительной степени: cheaper than; from здесь не подходит.",
+        "uz": "compare A with B — bir narsani boshqasi bilan solishtirmoq (compare to ham mumkin). Than qiyosiy darajadan keyin keladi: cheaper than; from bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "deal"
+      ],
+      "prompt": {
+        "ru": "Где я могу найти самые выгодные предложения?",
+        "uz": "Eng foydali takliflarni qayerdan topishim mumkin?"
+      },
+      "fragments": [
+        "where",
+        "can",
+        "I",
+        "find",
+        "the",
+        "best",
+        "deals"
+      ],
+      "accepted": [
+        [
+          "where",
+          "can",
+          "I",
+          "find",
+          "the",
+          "best",
+          "deals"
+        ]
+      ],
+      "display": "Where can I find the best deals?",
+      "explanation": {
+        "ru": "deal — выгодное предложение, выгодная покупка; the best deals — самые выгодные предложения. В вопросе can стоит перед подлежащим: Where can I find …?",
+        "uz": "deal — foydali taklif, foydali xarid; the best deals — eng foydali takliflar. Savolda can egadan oldin keladi: Where can I find …?"
+      }
+    },
+    {
+      "key": "b1-m08-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "reduce"
+      ],
+      "prompt": {
+        "ru": "Магазин снизил все свои цены.",
+        "uz": "Do'kon barcha narxlarini pasaytirdi."
+      },
+      "fragments": [
+        "the",
+        "store",
+        "has",
+        "reduced",
+        "all",
+        "its",
+        "prices"
+      ],
+      "accepted": [
+        [
+          "the",
+          "store",
+          "has",
+          "reduced",
+          "all",
+          "its",
+          "prices"
+        ]
+      ],
+      "display": "The store has reduced all its prices.",
+      "explanation": {
+        "ru": "reduce prices — снижать цены. Has reduced — Present Perfect: цены уже снижены. All стоит перед its: all its prices.",
+        "uz": "reduce prices — narxlarni pasaytirmoq. Has reduced — Present Perfect: narxlar allaqachon pasaytirilgan. All so'zi its dan oldin keladi: all its prices."
+      }
+    },
+    {
+      "key": "b1-m08-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "range"
+      ],
+      "prompt": {
+        "ru": "Этот ноутбук выходит за пределы моего ценового диапазона.",
+        "uz": "Bu noutbuk mening narx oralig'imdan tashqarida."
+      },
+      "fragments": [
+        "this",
+        "laptop",
+        "is",
+        "out",
+        "of",
+        "my",
+        "price",
+        "range"
+      ],
+      "accepted": [
+        [
+          "this",
+          "laptop",
+          "is",
+          "out",
+          "of",
+          "my",
+          "price",
+          "range"
+        ]
+      ],
+      "display": "This laptop is out of my price range.",
+      "explanation": {
+        "ru": "price range — ценовой диапазон: то, сколько вы готовы заплатить. Out of my price range — «слишком дорого для меня».",
+        "uz": "price range — narx oralig'i, ya'ni siz to'lashga tayyor bo'lgan miqdor. Out of my price range — «men uchun juda qimmat»."
+      }
+    },
+    {
+      "key": "b1-m08-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "coupon",
+        "total"
+      ],
+      "text": "Use the coupon to lower the total",
+      "accepted": [
+        "Use the coupon to lower the total"
+      ],
+      "translation": {
+        "ru": "Используйте купон, чтобы уменьшить общую сумму",
+        "uz": "Umumiy summani kamaytirish uchun kupondan foydalaning"
+      },
+      "explanation": {
+        "ru": "coupon: звук «у» пишется ou, как в group и soup: c-o-u-p-o-n.",
+        "uz": "coupon: «u» tovushi ou bilan yoziladi, group va soup so'zlaridagi kabi: c-o-u-p-o-n."
+      }
+    },
+    {
+      "key": "b1-m08-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "guarantee"
+      ],
+      "text": "Can you guarantee the quality?",
+      "accepted": [
+        "Can you guarantee the quality?"
+      ],
+      "translation": {
+        "ru": "Вы можете гарантировать качество?",
+        "uz": "Sifatni kafolatlay olasizmi?"
+      },
+      "explanation": {
+        "ru": "guarantee: после g пишется непроизносимая u, а на конце две e: g-u-a-r-a-n-t-e-e.",
+        "uz": "guarantee: g dan keyin o'qilmaydigan u yoziladi, oxirida esa ikkita e: g-u-a-r-a-n-t-e-e."
+      }
+    },
+    {
+      "key": "b1-m08-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "affordable"
+      ],
+      "text": "This hotel is clean and affordable",
+      "accepted": [
+        "This hotel is clean and affordable"
+      ],
+      "translation": {
+        "ru": "Эта гостиница чистая и доступная по цене",
+        "uz": "Bu mehmonxona toza va hamyonbop"
+      },
+      "explanation": {
+        "ru": "affordable: две f и окончание -able: a-f-f-o-r-d-a-b-l-e.",
+        "uz": "affordable: ikkita f va oxirida -able yoziladi: a-f-f-o-r-d-a-b-l-e."
+      }
+    },
+    {
+      "key": "b1-m08-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "satisfied"
+      ],
+      "text": "We were not satisfied ___ the quality of the food.",
+      "options": [
+        "with",
+        "from",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Мы остались недовольны качеством еды.",
+        "uz": "Biz ovqat sifatidan mamnun bo'lmadik."
+      },
+      "explanation": {
+        "ru": "satisfied with — довольный чем-то. Русский творительный падеж («качеством») здесь передаётся предлогом with; satisfied from и satisfied on не говорят.",
+        "uz": "satisfied with — biror narsadan mamnun. O'zbekcha «-dan» bu yerda from emas, with bo'ladi: satisfied with the service. Satisfied on ham deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m08-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "complaint"
+      ],
+      "text": "We would like to ___ a complaint about the noise.",
+      "options": [
+        "make",
+        "do",
+        "say"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Мы хотели бы подать жалобу на шум.",
+        "uz": "Biz shovqin yuzasidan shikoyat qilmoqchimiz."
+      },
+      "explanation": {
+        "ru": "make a complaint — подать жалобу, пожаловаться. С complaint говорят make (в официальной речи также file), а не do или say.",
+        "uz": "make a complaint — shikoyat qilmoq, shikoyat bermoq. Complaint so'zi bilan make (rasmiy nutqda file ham) ishlatiladi, do yoki say emas."
+      }
+    },
+    {
+      "key": "b1-m08-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "genuine"
+      ],
+      "text": "This jacket is made of genuine ___.",
+      "options": [
+        "leather",
+        "skin",
+        "peel"
+      ],
+      "correct": [
+        "leather"
+      ],
+      "translation": {
+        "ru": "Эта куртка сделана из натуральной кожи.",
+        "uz": "Bu kurtka asl charmdan tikilgan."
+      },
+      "explanation": {
+        "ru": "genuine leather — натуральная (настоящая) кожа. Leather — кожа как материал; skin — кожа человека или животного, peel — кожура фрукта.",
+        "uz": "genuine leather — asl (haqiqiy) charm. Leather — material sifatidagi charm; skin — odam yoki hayvon terisi, peel — meva po'sti."
+      }
+    },
+    {
+      "key": "b1-m08-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "consumer"
+      ],
+      "prompt": {
+        "ru": "Большинство потребителей предпочитают делать покупки онлайн.",
+        "uz": "Ko'pchilik iste'molchilar onlayn xarid qilishni afzal ko'radi."
+      },
+      "fragments": [
+        "most",
+        "consumers",
+        "prefer",
+        "to",
+        "shop",
+        "online"
+      ],
+      "accepted": [
+        [
+          "most",
+          "consumers",
+          "prefer",
+          "to",
+          "shop",
+          "online"
+        ]
+      ],
+      "display": "Most consumers prefer to shop online.",
+      "explanation": {
+        "ru": "prefer to + глагол — предпочитать что-то делать: prefer to shop. Most consumers — «большинство потребителей», без of и без артикля.",
+        "uz": "prefer to + fe'l — biror ish qilishni afzal ko'rmoq: prefer to shop. Most consumers — «ko'pchilik iste'molchilar», of predlogisiz va artiklsiz."
+      }
+    },
+    {
+      "key": "b1-m08-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "warranty"
+      ],
+      "prompt": {
+        "ru": "У этого телефона есть гарантия?",
+        "uz": "Bu telefonning kafolati bormi?"
+      },
+      "fragments": [
+        "does",
+        "this",
+        "phone",
+        "have",
+        "a",
+        "warranty"
+      ],
+      "accepted": [
+        [
+          "does",
+          "this",
+          "phone",
+          "have",
+          "a",
+          "warranty"
+        ]
+      ],
+      "display": "Does this phone have a warranty?",
+      "explanation": {
+        "ru": "warranty — гарантия на товар: срок, в течение которого его бесплатно починят или заменят. В вопросе с does глагол стоит без -s: Does … have?",
+        "uz": "warranty — tovarga beriladigan kafolat: kafolat muddati ichida uni bepul tuzatishadi yoki almashtirishadi. Does bilan savolda fe'l -s qo'shimchasisiz keladi: Does … have?"
+      }
+    },
+    {
+      "key": "b1-m08-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "feedback"
+      ],
+      "prompt": {
+        "ru": "Ваша обратная связь помогает нам улучшать наш сервис.",
+        "uz": "Fikr-mulohazalaringiz bizga xizmatimizni yaxshilashga yordam beradi."
+      },
+      "fragments": [
+        "your",
+        "feedback",
+        "helps",
+        "us",
+        "improve",
+        "our",
+        "service"
+      ],
+      "accepted": [
+        [
+          "your",
+          "feedback",
+          "helps",
+          "us",
+          "improve",
+          "our",
+          "service"
+        ]
+      ],
+      "display": "Your feedback helps us improve our service.",
+      "explanation": {
+        "ru": "feedback — неисчисляемое: формы feedbacks нет, и глагол стоит в единственном числе — helps. Help somebody do something: helps us improve.",
+        "uz": "feedback sanalmaydigan ot: feedbacks shakli yo'q, fe'l esa birlikda keladi — helps. Help somebody do something: helps us improve."
+      }
+    },
+    {
+      "key": "b1-m08-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "shipping"
+      ],
+      "text": "Shipping is free for large orders",
+      "accepted": [
+        "Shipping is free for large orders"
+      ],
+      "translation": {
+        "ru": "Доставка бесплатна для крупных заказов",
+        "uz": "Katta buyurtmalar uchun jo'natish bepul"
+      },
+      "explanation": {
+        "ru": "shipping: от ship; перед -ing буква p удваивается: s-h-i-p-p-i-n-g.",
+        "uz": "shipping: ship so'zidan; -ing dan oldin p harfi ikkilanadi: s-h-i-p-p-i-n-g."
+      }
+    },
+    {
+      "key": "b1-m08-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "fake",
+        "review"
+      ],
+      "text": "Do not trust fake reviews",
+      "accepted": [
+        "Do not trust fake reviews",
+        "Don't trust fake reviews"
+      ],
+      "translation": {
+        "ru": "Не доверяйте поддельным отзывам",
+        "uz": "Soxta sharhlarga ishonmang"
+      },
+      "explanation": {
+        "ru": "review: после v пишется ie, а на конце w: r-e-v-i-e-w.",
+        "uz": "review: v dan keyin ie, oxirida esa w yoziladi: r-e-v-i-e-w."
+      }
+    },
+    {
+      "key": "b1-m08-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "variety"
+      ],
+      "text": "The menu has a great variety of dishes",
+      "accepted": [
+        "The menu has a great variety of dishes"
+      ],
+      "translation": {
+        "ru": "В меню большое разнообразие блюд",
+        "uz": "Menyuda taomlarning xilma-xilligi juda katta"
+      },
+      "explanation": {
+        "ru": "variety: после r пишется ie, на конце -ty: v-a-r-i-e-t-y.",
+        "uz": "variety: r dan keyin ie, oxirida -ty yoziladi: v-a-r-i-e-t-y."
+      }
+    }
+  ]
+}

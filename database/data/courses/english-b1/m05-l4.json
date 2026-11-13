@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 5,
+    "title": "Здоровье и медицина",
+    "title_uz": "Salomatlik va tibbiyot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "В больнице",
+    "title_uz": "Kasalxonada"
+  },
+  "words": [
+    {
+      "word": "medical",
+      "part_of_speech": "adjective",
+      "translation": "медицинский",
+      "translations": {
+        "ru": "медицинский",
+        "uz": "tibbiy"
+      },
+      "example": "All students get free medical care here.",
+      "example_translations": {
+        "ru": "Все студенты получают здесь бесплатную медицинскую помощь.",
+        "uz": "Bu yerda barcha talabalar bepul tibbiy yordam oladi."
+      }
+    },
+    {
+      "word": "surgeon",
+      "part_of_speech": "noun",
+      "translation": "хирург",
+      "translations": {
+        "ru": "хирург",
+        "uz": "jarroh"
+      },
+      "example": "The surgeon explained the operation to the family.",
+      "example_translations": {
+        "ru": "Хирург объяснил семье, как пройдёт операция.",
+        "uz": "Jarroh oila a'zolariga operatsiyani tushuntirib berdi."
+      }
+    },
+    {
+      "word": "specialist",
+      "part_of_speech": "noun",
+      "translation": "специалист",
+      "translations": {
+        "ru": "специалист",
+        "uz": "mutaxassis"
+      },
+      "example": "My doctor sent me to a heart specialist.",
+      "example_translations": {
+        "ru": "Мой врач направил меня к специалисту по сердцу.",
+        "uz": "Shifokorim meni yurak mutaxassisiga yubordi."
+      }
+    },
+    {
+      "word": "wheelchair",
+      "part_of_speech": "noun",
+      "translation": "инвалидная коляска",
+      "translations": {
+        "ru": "инвалидная коляска",
+        "uz": "nogironlar aravachasi"
+      },
+      "example": "A nurse pushed the wheelchair down the hall.",
+      "example_translations": {
+        "ru": "Медсестра катила инвалидную коляску по коридору.",
+        "uz": "Hamshira nogironlar aravachasini yo'lak bo'ylab itarib bordi."
+      }
+    },
+    {
+      "word": "insurance",
+      "part_of_speech": "noun",
+      "translation": "страховка",
+      "translations": {
+        "ru": "страховка",
+        "uz": "sug'urta"
+      },
+      "example": "Does your insurance pay for hospital visits?",
+      "example_translations": {
+        "ru": "Ваша страховка оплачивает посещения больницы?",
+        "uz": "Sug'urtangiz kasalxonaga borish xarajatlarini qoplaydimi?"
+      }
+    },
+    {
+      "word": "urgent",
+      "part_of_speech": "adjective",
+      "translation": "срочный",
+      "translations": {
+        "ru": "срочный",
+        "uz": "shoshilinch"
+      },
+      "example": "This patient needs urgent help from a doctor.",
+      "example_translations": {
+        "ru": "Этому пациенту нужна срочная помощь врача.",
+        "uz": "Bu bemorga shifokorning shoshilinch yordami kerak."
+      }
+    },
+    {
+      "word": "visitor",
+      "part_of_speech": "noun",
+      "translation": "посетитель",
+      "translations": {
+        "ru": "посетитель",
+        "uz": "tashrif buyuruvchi"
+      },
+      "example": "Visitors may see patients after two o'clock.",
+      "example_translations": {
+        "ru": "Посетители могут навещать пациентов после двух часов.",
+        "uz": "Tashrif buyuruvchilar bemorlarni soat ikkidan keyin ko'rishi mumkin."
+      }
+    },
+    {
+      "word": "checkup",
+      "part_of_speech": "noun",
+      "translation": "медосмотр",
+      "translations": {
+        "ru": "медосмотр",
+        "uz": "tibbiy ko'rik"
+      },
+      "example": "My parents go for a checkup every year.",
+      "example_translations": {
+        "ru": "Мои родители каждый год проходят медосмотр.",
+        "uz": "Ota-onam har yili tibbiy ko'rikdan o'tadi."
+      }
+    },
+    {
+      "word": "pulse",
+      "part_of_speech": "noun",
+      "translation": "пульс",
+      "translations": {
+        "ru": "пульс",
+        "uz": "puls, tomir urishi"
+      },
+      "example": "Your pulse gets faster when you run.",
+      "example_translations": {
+        "ru": "Ваш пульс учащается, когда вы бегаете.",
+        "uz": "Yugurganingizda pulsingiz tezlashadi."
+      }
+    },
+    {
+      "word": "thermometer",
+      "part_of_speech": "noun",
+      "translation": "термометр, градусник",
+      "translations": {
+        "ru": "термометр, градусник",
+        "uz": "termometr"
+      },
+      "example": "Put the thermometer under your arm, please.",
+      "example_translations": {
+        "ru": "Поставьте, пожалуйста, градусник под мышку.",
+        "uz": "Iltimos, termometrni qo'ltig'ingiz ostiga qo'ying."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 14,
+    "title": "Путешествия и культуры мира",
+    "title_uz": "Sayohat va dunyo madaniyatlari"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Впечатления путешественника",
+    "title_uz": "Sayohatchi taassurotlari"
+  },
+  "words": [
+    {
+      "word": "spectacular",
+      "part_of_speech": "adjective",
+      "translation": "впечатляющий, великолепный",
+      "translations": {
+        "ru": "впечатляющий, великолепный",
+        "uz": "muhtasham, ajoyib"
+      },
+      "example": "The fireworks over the harbor were spectacular.",
+      "example_translations": {
+        "ru": "Фейерверк над гаванью был впечатляющим.",
+        "uz": "Bandargoh uzra mushakbozlik muhtasham bo'ldi."
+      }
+    },
+    {
+      "word": "picturesque",
+      "part_of_speech": "adjective",
+      "translation": "живописный",
+      "translations": {
+        "ru": "живописный",
+        "uz": "xushmanzara"
+      },
+      "example": "We stayed in a picturesque village by the sea.",
+      "example_translations": {
+        "ru": "Мы остановились в живописной деревне у моря.",
+        "uz": "Biz dengiz bo'yidagi xushmanzara qishloqda to'xtadik."
+      }
+    },
+    {
+      "word": "breathtaking",
+      "part_of_speech": "adjective",
+      "translation": "захватывающий дух",
+      "translations": {
+        "ru": "захватывающий дух",
+        "uz": "lol qoldiradigan, hayratomuz"
+      },
+      "example": "The view from the top was breathtaking.",
+      "example_translations": {
+        "ru": "С вершины открывался захватывающий дух вид.",
+        "uz": "Cho'qqidan ko'rinadigan manzara kishini lol qoldirardi."
+      }
+    },
+    {
+      "word": "scenic",
+      "part_of_speech": "adjective",
+      "translation": "с красивыми видами",
+      "translations": {
+        "ru": "с красивыми видами",
+        "uz": "manzarali"
+      },
+      "example": "We took the scenic road along the coast.",
+      "example_translations": {
+        "ru": "Мы поехали вдоль побережья по дороге с красивыми видами.",
+        "uz": "Biz sohil bo'ylab manzarali yo'ldan yurdik."
+      }
+    },
+    {
+      "word": "cosmopolitan",
+      "part_of_speech": "adjective",
+      "translation": "космополитичный, многонациональный",
+      "translations": {
+        "ru": "космополитичный, многонациональный",
+        "uz": "ko'p millatli"
+      },
+      "example": "People from many countries live in this cosmopolitan city.",
+      "example_translations": {
+        "ru": "В этом космополитичном городе живут люди из многих стран.",
+        "uz": "Bu ko'p millatli shaharda ko'plab mamlakatlardan kelgan odamlar yashaydi."
+      }
+    },
+    {
+      "word": "nomad",
+      "part_of_speech": "noun",
+      "translation": "кочевник",
+      "translations": {
+        "ru": "кочевник",
+        "uz": "ko'chmanchi"
+      },
+      "example": "Nomads move with their animals from place to place.",
+      "example_translations": {
+        "ru": "Кочевники перемещаются со своим скотом с места на место.",
+        "uz": "Ko'chmanchilar chorvasi bilan bir joydan boshqa joyga ko'chib yuradi."
+      }
+    },
+    {
+      "word": "stroll",
+      "part_of_speech": "verb",
+      "translation": "прогуливаться, гулять",
+      "translations": {
+        "ru": "прогуливаться, гулять",
+        "uz": "sayr qilmoq"
+      },
+      "example": "We strolled along the river after dinner.",
+      "example_translations": {
+        "ru": "После ужина мы прогуливались вдоль реки.",
+        "uz": "Kechki ovqatdan keyin daryo bo'yida sayr qildik."
+      }
+    },
+    {
+      "word": "encounter",
+      "part_of_speech": "verb",
+      "translation": "встречать, сталкиваться",
+      "translations": {
+        "ru": "встречать, сталкиваться",
+        "uz": "uchratmoq, duch kelmoq"
+      },
+      "example": "We encountered friendly people in every village.",
+      "example_translations": {
+        "ru": "В каждой деревне мы встречали приветливых людей.",
+        "uz": "Har bir qishloqda samimiy odamlarni uchratdik."
+      }
+    },
+    {
+      "word": "nostalgia",
+      "part_of_speech": "noun",
+      "translation": "ностальгия",
+      "translations": {
+        "ru": "ностальгия",
+        "uz": "nostalgiya, sog'inch"
+      },
+      "example": "Old photos of the trip fill me with nostalgia.",
+      "example_translations": {
+        "ru": "Старые фотографии из поездки наполняют меня ностальгией.",
+        "uz": "Sayohatdan qolgan eski suratlar menda sog'inch uyg'otadi."
+      }
+    },
+    {
+      "word": "dialect",
+      "part_of_speech": "noun",
+      "translation": "диалект",
+      "translations": {
+        "ru": "диалект",
+        "uz": "sheva"
+      },
+      "example": "People in the mountains speak a different dialect.",
+      "example_translations": {
+        "ru": "Жители гор говорят на другом диалекте.",
+        "uz": "Tog'da yashovchilar boshqa shevada so'zlashadi."
+      }
+    }
+  ]
+}

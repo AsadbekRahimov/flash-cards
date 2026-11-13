@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 11,
+    "title": "СМИ и развлечения",
+    "title_uz": "OAV va ko'ngilochar tadbirlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Кино и сериалы",
+    "title_uz": "Kino va seriallar"
+  },
+  "words": [
+    {
+      "word": "series",
+      "part_of_speech": "noun",
+      "translation": "сериал",
+      "translations": {
+        "ru": "сериал",
+        "uz": "serial"
+      },
+      "example": "My sister is watching a new series about doctors.",
+      "example_translations": {
+        "ru": "Моя сестра смотрит новый сериал о врачах.",
+        "uz": "Singlim shifokorlar haqidagi yangi serialni tomosha qilyapti."
+      }
+    },
+    {
+      "word": "episode",
+      "part_of_speech": "noun",
+      "translation": "серия",
+      "translations": {
+        "ru": "серия",
+        "uz": "qism"
+      },
+      "example": "The last episode ended with a big surprise.",
+      "example_translations": {
+        "ru": "Последняя серия закончилась большим сюрпризом.",
+        "uz": "Oxirgi qism katta syurpriz bilan tugadi."
+      }
+    },
+    {
+      "word": "scene",
+      "part_of_speech": "noun",
+      "translation": "сцена, эпизод",
+      "translations": {
+        "ru": "сцена, эпизод",
+        "uz": "sahna, lavha"
+      },
+      "example": "The first scene of the movie is very funny.",
+      "example_translations": {
+        "ru": "Первая сцена фильма очень смешная.",
+        "uz": "Filmning birinchi sahnasi juda kulgili."
+      }
+    },
+    {
+      "word": "plot",
+      "part_of_speech": "noun",
+      "translation": "сюжет",
+      "translations": {
+        "ru": "сюжет",
+        "uz": "syujet"
+      },
+      "example": "The plot of this movie is hard to follow.",
+      "example_translations": {
+        "ru": "За сюжетом этого фильма трудно следить.",
+        "uz": "Bu filmning syujetini kuzatib borish qiyin."
+      }
+    },
+    {
+      "word": "character",
+      "part_of_speech": "noun",
+      "translation": "персонаж, герой",
+      "translations": {
+        "ru": "персонаж, герой",
+        "uz": "qahramon, personaj"
+      },
+      "example": "My favorite character is the old detective.",
+      "example_translations": {
+        "ru": "Мой любимый персонаж — старый детектив.",
+        "uz": "Mening sevimli qahramonim — keksa izquvar."
+      }
+    },
+    {
+      "word": "genre",
+      "part_of_speech": "noun",
+      "translation": "жанр",
+      "translations": {
+        "ru": "жанр",
+        "uz": "janr"
+      },
+      "example": "Comedy is my favorite movie genre.",
+      "example_translations": {
+        "ru": "Комедия — мой любимый жанр кино.",
+        "uz": "Komediya — mening sevimli kino janrim."
+      }
+    },
+    {
+      "word": "director",
+      "part_of_speech": "noun",
+      "translation": "режиссёр",
+      "translations": {
+        "ru": "режиссёр",
+        "uz": "rejissyor"
+      },
+      "example": "The director told the actors where to stand.",
+      "example_translations": {
+        "ru": "Режиссёр сказал актёрам, где встать.",
+        "uz": "Rejissyor aktyorlarga qayerda turishni aytdi."
+      }
+    },
+    {
+      "word": "script",
+      "part_of_speech": "noun",
+      "translation": "сценарий",
+      "translations": {
+        "ru": "сценарий",
+        "uz": "ssenariy"
+      },
+      "example": "All the actors read the script before filming.",
+      "example_translations": {
+        "ru": "Все актёры прочитали сценарий перед съёмками.",
+        "uz": "Barcha aktyorlar suratga olish oldidan ssenariyni o'qib chiqdi."
+      }
+    },
+    {
+      "word": "trailer",
+      "part_of_speech": "noun",
+      "translation": "трейлер",
+      "translations": {
+        "ru": "трейлер",
+        "uz": "treyler"
+      },
+      "example": "Have you seen the trailer for the new movie?",
+      "example_translations": {
+        "ru": "Вы видели трейлер нового фильма?",
+        "uz": "Yangi filmning treylerini ko'rdingizmi?"
+      }
+    },
+    {
+      "word": "subtitle",
+      "part_of_speech": "noun",
+      "translation": "субтитр",
+      "translations": {
+        "ru": "субтитр",
+        "uz": "subtitr"
+      },
+      "example": "I watch movies in English with subtitles.",
+      "example_translations": {
+        "ru": "Я смотрю фильмы на английском с субтитрами.",
+        "uz": "Men ingliz tilidagi filmlarni subtitrlar bilan ko'raman."
+      }
+    }
+  ]
+}

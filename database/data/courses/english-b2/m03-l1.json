@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 3,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Экономика страны",
+    "title_uz": "Mamlakat iqtisodiyoti"
+  },
+  "words": [
+    {
+      "word": "boom",
+      "part_of_speech": "noun",
+      "translation": "бум, подъём",
+      "translations": {
+        "ru": "бум, подъём",
+        "uz": "yuksalish, jadal o'sish"
+      },
+      "example": "An economic boom created thousands of new jobs.",
+      "example_translations": {
+        "ru": "Экономический бум создал тысячи новых рабочих мест.",
+        "uz": "Iqtisodiy yuksalish minglab yangi ish o'rinlarini yaratdi."
+      }
+    },
+    {
+      "word": "inflation",
+      "part_of_speech": "noun",
+      "translation": "инфляция",
+      "translations": {
+        "ru": "инфляция",
+        "uz": "inflyatsiya"
+      },
+      "example": "Inflation makes food more expensive every year.",
+      "example_translations": {
+        "ru": "Из-за инфляции продукты дорожают с каждым годом.",
+        "uz": "Inflyatsiya tufayli oziq-ovqat yildan yilga qimmatlashmoqda."
+      }
+    },
+    {
+      "word": "recession",
+      "part_of_speech": "noun",
+      "translation": "рецессия",
+      "translations": {
+        "ru": "рецессия",
+        "uz": "retsessiya"
+      },
+      "example": "Many companies closed during the last recession.",
+      "example_translations": {
+        "ru": "Во время последней рецессии закрылись многие компании.",
+        "uz": "So'nggi retsessiya davrida ko'plab kompaniyalar yopildi."
+      }
+    },
+    {
+      "word": "unemployment",
+      "part_of_speech": "noun",
+      "translation": "безработица",
+      "translations": {
+        "ru": "безработица",
+        "uz": "ishsizlik"
+      },
+      "example": "Unemployment is high among young people here.",
+      "example_translations": {
+        "ru": "Здесь высокая безработица среди молодёжи.",
+        "uz": "Bu yerda yoshlar orasida ishsizlik yuqori."
+      }
+    },
+    {
+      "word": "prosperity",
+      "part_of_speech": "noun",
+      "translation": "процветание",
+      "translations": {
+        "ru": "процветание",
+        "uz": "farovonlik"
+      },
+      "example": "Trade brought prosperity to the whole region.",
+      "example_translations": {
+        "ru": "Торговля принесла процветание всему региону.",
+        "uz": "Savdo butun mintaqaga farovonlik olib keldi."
+      }
+    },
+    {
+      "word": "deficit",
+      "part_of_speech": "noun",
+      "translation": "дефицит",
+      "translations": {
+        "ru": "дефицит",
+        "uz": "taqchillik"
+      },
+      "example": "How can the government reduce the budget deficit?",
+      "example_translations": {
+        "ru": "Как правительство может сократить дефицит бюджета?",
+        "uz": "Hukumat budjet taqchilligini qanday kamaytirishi mumkin?"
+      }
+    },
+    {
+      "word": "surplus",
+      "part_of_speech": "noun",
+      "translation": "профицит",
+      "translations": {
+        "ru": "профицит",
+        "uz": "profitsit"
+      },
+      "example": "Last year the city budget had a small surplus.",
+      "example_translations": {
+        "ru": "В прошлом году в городском бюджете был небольшой профицит.",
+        "uz": "O'tgan yili shahar budjetida kichik profitsit bo'ldi."
+      }
+    },
+    {
+      "word": "sector",
+      "part_of_speech": "noun",
+      "translation": "сектор, отрасль",
+      "translations": {
+        "ru": "сектор, отрасль",
+        "uz": "sektor, tarmoq"
+      },
+      "example": "Tourism is the fastest-growing sector of our economy.",
+      "example_translations": {
+        "ru": "Туризм — самый быстрорастущий сектор нашей экономики.",
+        "uz": "Turizm — iqtisodiyotimizning eng tez o'sayotgan tarmog'i."
+      }
+    },
+    {
+      "word": "subsidy",
+      "part_of_speech": "noun",
+      "translation": "субсидия",
+      "translations": {
+        "ru": "субсидия",
+        "uz": "subsidiya"
+      },
+      "example": "Farmers receive a subsidy from the state.",
+      "example_translations": {
+        "ru": "Фермеры получают субсидию от государства.",
+        "uz": "Fermerlar davlatdan subsidiya oladi."
+      }
+    },
+    {
+      "word": "downturn",
+      "part_of_speech": "noun",
+      "translation": "спад",
+      "translations": {
+        "ru": "спад",
+        "uz": "pasayish, tanazzul"
+      },
+      "example": "Sales fell sharply during the economic downturn.",
+      "example_translations": {
+        "ru": "Во время экономического спада продажи резко упали.",
+        "uz": "Iqtisodiy pasayish davrida savdo hajmi keskin kamaydi."
+      }
+    }
+  ]
+}

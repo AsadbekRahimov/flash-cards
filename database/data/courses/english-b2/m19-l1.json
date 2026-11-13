@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 19,
+    "title": "Точные описания",
+    "title_uz": "Aniq tavsiflar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Степень и размер",
+    "title_uz": "Daraja va hajm"
+  },
+  "words": [
+    {
+      "word": "considerable",
+      "part_of_speech": "adjective",
+      "translation": "значительный, немалый",
+      "translations": {
+        "ru": "значительный, немалый",
+        "uz": "anchagina, talaygina"
+      },
+      "example": "The repairs took a considerable amount of time.",
+      "example_translations": {
+        "ru": "На ремонт ушло значительное количество времени.",
+        "uz": "Ta'mirlash anchagina vaqt oldi."
+      }
+    },
+    {
+      "word": "substantial",
+      "part_of_speech": "adjective",
+      "translation": "солидный, весомый",
+      "translations": {
+        "ru": "солидный, весомый",
+        "uz": "salmoqli, katta"
+      },
+      "example": "She received a substantial pay raise last year.",
+      "example_translations": {
+        "ru": "В прошлом году она получила солидную прибавку к зарплате.",
+        "uz": "O'tgan yili u maoshiga salmoqli ustama oldi."
+      }
+    },
+    {
+      "word": "significant",
+      "part_of_speech": "adjective",
+      "translation": "существенный, значимый",
+      "translations": {
+        "ru": "существенный, значимый",
+        "uz": "sezilarli, ahamiyatli"
+      },
+      "example": "There is a significant difference between the two results.",
+      "example_translations": {
+        "ru": "Между двумя результатами есть существенная разница.",
+        "uz": "Ikki natija o'rtasida sezilarli farq bor."
+      }
+    },
+    {
+      "word": "slight",
+      "part_of_speech": "adjective",
+      "translation": "небольшой, лёгкий",
+      "translations": {
+        "ru": "небольшой, лёгкий",
+        "uz": "ozgina, yengil"
+      },
+      "example": "We arrived after a slight delay at the airport.",
+      "example_translations": {
+        "ru": "Мы прибыли после небольшой задержки в аэропорту.",
+        "uz": "Biz aeroportdagi ozgina kechikishdan so'ng yetib keldik."
+      }
+    },
+    {
+      "word": "moderate",
+      "part_of_speech": "adjective",
+      "translation": "умеренный",
+      "translations": {
+        "ru": "умеренный",
+        "uz": "o'rtacha, me'yoridagi"
+      },
+      "example": "Moderate exercise is good for your heart.",
+      "example_translations": {
+        "ru": "Умеренные физические нагрузки полезны для сердца.",
+        "uz": "Me'yoridagi jismoniy mashqlar yurak uchun foydali."
+      }
+    },
+    {
+      "word": "tremendous",
+      "part_of_speech": "adjective",
+      "translation": "колоссальный, огромный",
+      "translations": {
+        "ru": "колоссальный, огромный",
+        "uz": "ulkan, g'oyat katta"
+      },
+      "example": "Winning the final was a tremendous success for us.",
+      "example_translations": {
+        "ru": "Победа в финале стала для нас колоссальным успехом.",
+        "uz": "Finaldagi g'alaba biz uchun ulkan muvaffaqiyat bo'ldi."
+      }
+    },
+    {
+      "word": "immense",
+      "part_of_speech": "adjective",
+      "translation": "громадный, безмерный",
+      "translations": {
+        "ru": "громадный, безмерный",
+        "uz": "beqiyos, behad katta"
+      },
+      "example": "Teachers have an immense influence on young children.",
+      "example_translations": {
+        "ru": "Учителя оказывают громадное влияние на маленьких детей.",
+        "uz": "O'qituvchilar yosh bolalarga beqiyos ta'sir ko'rsatadi."
+      }
+    },
+    {
+      "word": "vast",
+      "part_of_speech": "adjective",
+      "translation": "обширный, бескрайний",
+      "translations": {
+        "ru": "обширный, бескрайний",
+        "uz": "bepoyon, juda keng"
+      },
+      "example": "A vast desert covers the south of the country.",
+      "example_translations": {
+        "ru": "Юг страны занимает обширная пустыня.",
+        "uz": "Mamlakat janubini bepoyon cho'l egallagan."
+      }
+    },
+    {
+      "word": "minimal",
+      "part_of_speech": "adjective",
+      "translation": "минимальный",
+      "translations": {
+        "ru": "минимальный",
+        "uz": "minimal, eng kam"
+      },
+      "example": "The storm caused only minimal damage to the village.",
+      "example_translations": {
+        "ru": "Буря нанесла деревне лишь минимальный ущерб.",
+        "uz": "Bo'ron qishloqqa faqat minimal zarar yetkazdi."
+      }
+    },
+    {
+      "word": "excessive",
+      "part_of_speech": "adjective",
+      "translation": "чрезмерный",
+      "translations": {
+        "ru": "чрезмерный",
+        "uz": "haddan tashqari, ortiqcha"
+      },
+      "example": "Excessive noise makes it hard to concentrate.",
+      "example_translations": {
+        "ru": "Чрезмерный шум мешает сосредоточиться.",
+        "uz": "Haddan tashqari shovqin diqqatni jamlashga xalaqit beradi."
+      }
+    }
+  ]
+}

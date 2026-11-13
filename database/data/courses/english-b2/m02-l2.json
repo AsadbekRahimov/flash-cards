@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 2,
+    "title": "Карьера и управление",
+    "title_uz": "Karyera va boshqaruv"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Руководство",
+    "title_uz": "Rahbarlik"
+  },
+  "words": [
+    {
+      "word": "leadership",
+      "part_of_speech": "noun",
+      "translation": "руководство, лидерство",
+      "translations": {
+        "ru": "руководство, лидерство",
+        "uz": "rahbarlik, yetakchilik"
+      },
+      "example": "Under her leadership, the team doubled its sales.",
+      "example_translations": {
+        "ru": "Под её руководством команда удвоила продажи.",
+        "uz": "Uning rahbarligida jamoa savdo hajmini ikki baravar oshirdi."
+      }
+    },
+    {
+      "word": "executive",
+      "part_of_speech": "noun",
+      "translation": "руководитель высшего звена",
+      "translations": {
+        "ru": "руководитель высшего звена",
+        "uz": "rahbar xodim"
+      },
+      "example": "The executives decide how the company spends its money.",
+      "example_translations": {
+        "ru": "Руководители высшего звена решают, как компания тратит свои деньги.",
+        "uz": "Rahbar xodimlar kompaniya pulini qanday sarflashni hal qiladi."
+      }
+    },
+    {
+      "word": "guidance",
+      "part_of_speech": "noun",
+      "translation": "наставление, совет",
+      "translations": {
+        "ru": "наставление, совет",
+        "uz": "yo'l-yo'riq"
+      },
+      "example": "New employees need clear guidance from their manager.",
+      "example_translations": {
+        "ru": "Новым сотрудникам нужны чёткие наставления от руководителя.",
+        "uz": "Yangi xodimlarga rahbarning aniq yo'l-yo'rig'i kerak."
+      }
+    },
+    {
+      "word": "delegate",
+      "part_of_speech": "verb",
+      "translation": "делегировать, поручать другим",
+      "translations": {
+        "ru": "делегировать, поручать другим",
+        "uz": "boshqalarga topshirmoq"
+      },
+      "example": "A good manager knows how to delegate tasks.",
+      "example_translations": {
+        "ru": "Хороший руководитель умеет делегировать задачи.",
+        "uz": "Yaxshi rahbar vazifalarni boshqalarga topshirishni biladi."
+      }
+    },
+    {
+      "word": "subordinate",
+      "part_of_speech": "noun",
+      "translation": "подчинённый",
+      "translations": {
+        "ru": "подчинённый",
+        "uz": "qo'l ostidagi xodim"
+      },
+      "example": "She always listens to the ideas of her subordinates.",
+      "example_translations": {
+        "ru": "Она всегда прислушивается к идеям своих подчинённых.",
+        "uz": "U doim qo'l ostidagi xodimlarining g'oyalariga quloq soladi."
+      }
+    },
+    {
+      "word": "mentor",
+      "part_of_speech": "noun",
+      "translation": "наставник",
+      "translations": {
+        "ru": "наставник",
+        "uz": "ustoz, murabbiy"
+      },
+      "example": "An experienced colleague became my mentor at work.",
+      "example_translations": {
+        "ru": "Опытный коллега стал моим наставником на работе.",
+        "uz": "Tajribali hamkasbim ishda mening ustozim bo'ldi."
+      }
+    },
+    {
+      "word": "oversee",
+      "part_of_speech": "verb",
+      "translation": "контролировать, курировать",
+      "translations": {
+        "ru": "контролировать, курировать",
+        "uz": "nazorat qilmoq"
+      },
+      "example": "Malika oversees the work of ten designers.",
+      "example_translations": {
+        "ru": "Малика контролирует работу десяти дизайнеров.",
+        "uz": "Malika o'nta dizaynerning ishini nazorat qiladi."
+      }
+    },
+    {
+      "word": "coordinate",
+      "part_of_speech": "verb",
+      "translation": "координировать",
+      "translations": {
+        "ru": "координировать",
+        "uz": "muvofiqlashtirmoq"
+      },
+      "example": "We need someone to coordinate the whole project.",
+      "example_translations": {
+        "ru": "Нам нужен человек, который будет координировать весь проект.",
+        "uz": "Bizga butun loyihani muvofiqlashtiradigan odam kerak."
+      }
+    },
+    {
+      "word": "hierarchy",
+      "part_of_speech": "noun",
+      "translation": "иерархия",
+      "translations": {
+        "ru": "иерархия",
+        "uz": "ierarxiya"
+      },
+      "example": "In a strict hierarchy, orders come from the top.",
+      "example_translations": {
+        "ru": "В строгой иерархии приказы идут сверху.",
+        "uz": "Qat'iy ierarxiyada buyruqlar yuqoridan keladi."
+      }
+    },
+    {
+      "word": "chairperson",
+      "part_of_speech": "noun",
+      "translation": "председатель",
+      "translations": {
+        "ru": "председатель",
+        "uz": "rais"
+      },
+      "example": "The chairperson opened the meeting at nine o'clock.",
+      "example_translations": {
+        "ru": "Председатель открыл собрание в девять часов.",
+        "uz": "Rais yig'ilishni soat to'qqizda ochdi."
+      }
+    }
+  ]
+}

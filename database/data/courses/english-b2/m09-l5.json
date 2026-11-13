@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 9,
+    "title": "Право и безопасность",
+    "title_uz": "Huquq va xavfsizlik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Безопасность",
+    "title_uz": "Xavfsizlik"
+  },
+  "words": [
+    {
+      "word": "evacuate",
+      "part_of_speech": "verb",
+      "translation": "эвакуировать",
+      "translations": {
+        "ru": "эвакуировать",
+        "uz": "evakuatsiya qilmoq"
+      },
+      "example": "Firefighters evacuated everyone from the building.",
+      "example_translations": {
+        "ru": "Пожарные эвакуировали всех из здания.",
+        "uz": "O't o'chiruvchilar hammani binodan evakuatsiya qilishdi."
+      }
+    },
+    {
+      "word": "surveillance",
+      "part_of_speech": "noun",
+      "translation": "слежка, наблюдение",
+      "translations": {
+        "ru": "слежка, наблюдение",
+        "uz": "kuzatuv"
+      },
+      "example": "Surveillance cameras watch the entrance all day.",
+      "example_translations": {
+        "ru": "Камеры наблюдения весь день следят за входом.",
+        "uz": "Kuzatuv kameralari kun bo'yi kirish joyini nazorat qiladi."
+      }
+    },
+    {
+      "word": "checkpoint",
+      "part_of_speech": "noun",
+      "translation": "контрольно-пропускной пункт",
+      "translations": {
+        "ru": "контрольно-пропускной пункт",
+        "uz": "nazorat-o'tkazish punkti"
+      },
+      "example": "Officers check every car at the checkpoint.",
+      "example_translations": {
+        "ru": "Сотрудники проверяют каждую машину на контрольно-пропускном пункте.",
+        "uz": "Xodimlar nazorat-o'tkazish punktida har bir mashinani tekshiradi."
+      }
+    },
+    {
+      "word": "precaution",
+      "part_of_speech": "noun",
+      "translation": "мера предосторожности",
+      "translations": {
+        "ru": "мера предосторожности",
+        "uz": "ehtiyot chorasi"
+      },
+      "example": "As a precaution, we locked all the windows.",
+      "example_translations": {
+        "ru": "В качестве меры предосторожности мы заперли все окна.",
+        "uz": "Ehtiyot chorasi sifatida barcha derazalarni qulflab qo'ydik."
+      }
+    },
+    {
+      "word": "hazard",
+      "part_of_speech": "noun",
+      "translation": "опасность",
+      "translations": {
+        "ru": "опасность",
+        "uz": "xavf"
+      },
+      "example": "Wet floors are a hazard in the kitchen.",
+      "example_translations": {
+        "ru": "Мокрый пол на кухне представляет опасность.",
+        "uz": "Oshxonadagi ho'l pol xavf tug'diradi."
+      }
+    },
+    {
+      "word": "safeguard",
+      "part_of_speech": "verb",
+      "translation": "защищать, охранять",
+      "translations": {
+        "ru": "защищать, охранять",
+        "uz": "muhofaza qilmoq, himoyalamoq"
+      },
+      "example": "Strong passwords safeguard your personal data.",
+      "example_translations": {
+        "ru": "Надёжные пароли защищают ваши личные данные.",
+        "uz": "Kuchli parollar shaxsiy ma'lumotlaringizni muhofaza qiladi."
+      }
+    },
+    {
+      "word": "patrol",
+      "part_of_speech": "noun",
+      "translation": "патруль",
+      "translations": {
+        "ru": "патруль",
+        "uz": "patrul"
+      },
+      "example": "A police patrol passes our street every night.",
+      "example_translations": {
+        "ru": "Полицейский патруль проезжает по нашей улице каждую ночь.",
+        "uz": "Politsiya patruli har kecha ko'chamizdan o'tadi."
+      }
+    },
+    {
+      "word": "inspection",
+      "part_of_speech": "noun",
+      "translation": "проверка, инспекция",
+      "translations": {
+        "ru": "проверка, инспекция",
+        "uz": "tekshiruv"
+      },
+      "example": "A safety inspection of the factory takes two hours.",
+      "example_translations": {
+        "ru": "Проверка безопасности на заводе занимает два часа.",
+        "uz": "Zavoddagi xavfsizlik tekshiruvi ikki soat davom etadi."
+      }
+    },
+    {
+      "word": "alert",
+      "part_of_speech": "adjective",
+      "translation": "бдительный",
+      "translations": {
+        "ru": "бдительный",
+        "uz": "hushyor"
+      },
+      "example": "Guards must stay alert during the night shift.",
+      "example_translations": {
+        "ru": "Охранники должны оставаться бдительными во время ночной смены.",
+        "uz": "Qo'riqchilar tungi smenada hushyor bo'lishi kerak."
+      }
+    },
+    {
+      "word": "prevention",
+      "part_of_speech": "noun",
+      "translation": "предотвращение",
+      "translations": {
+        "ru": "предотвращение",
+        "uz": "oldini olish"
+      },
+      "example": "Fire prevention is part of our safety training.",
+      "example_translations": {
+        "ru": "Предотвращение пожаров — часть нашего обучения технике безопасности.",
+        "uz": "Yong'inning oldini olish xavfsizlik bo'yicha mashg'ulotlarimizning bir qismidir."
+      }
+    }
+  ]
+}

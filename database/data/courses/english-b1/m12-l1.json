@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 12,
+    "title": "Спорт и активный отдых",
+    "title_uz": "Sport va faol dam olish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Виды спорта",
+    "title_uz": "Sport turlari"
+  },
+  "words": [
+    {
+      "word": "athletics",
+      "part_of_speech": "noun",
+      "translation": "лёгкая атлетика",
+      "translations": {
+        "ru": "лёгкая атлетика",
+        "uz": "yengil atletika"
+      },
+      "example": "Running and jumping are part of athletics.",
+      "example_translations": {
+        "ru": "Бег и прыжки — часть лёгкой атлетики.",
+        "uz": "Yugurish va sakrash yengil atletikaga kiradi."
+      }
+    },
+    {
+      "word": "gymnastics",
+      "part_of_speech": "noun",
+      "translation": "гимнастика",
+      "translations": {
+        "ru": "гимнастика",
+        "uz": "gimnastika"
+      },
+      "example": "My daughter does gymnastics three times a week.",
+      "example_translations": {
+        "ru": "Моя дочь занимается гимнастикой три раза в неделю.",
+        "uz": "Qizim haftada uch marta gimnastika bilan shug'ullanadi."
+      }
+    },
+    {
+      "word": "wrestling",
+      "part_of_speech": "noun",
+      "translation": "борьба",
+      "translations": {
+        "ru": "борьба",
+        "uz": "kurash"
+      },
+      "example": "Wrestling is a very popular sport in Uzbekistan.",
+      "example_translations": {
+        "ru": "Борьба — очень популярный вид спорта в Узбекистане.",
+        "uz": "Kurash O'zbekistonda juda mashhur sport turi."
+      }
+    },
+    {
+      "word": "boxing",
+      "part_of_speech": "noun",
+      "translation": "бокс",
+      "translations": {
+        "ru": "бокс",
+        "uz": "boks"
+      },
+      "example": "In boxing, you must wear special gloves.",
+      "example_translations": {
+        "ru": "В боксе нужно надевать специальные перчатки.",
+        "uz": "Boksda maxsus qo'lqop kiyish kerak."
+      }
+    },
+    {
+      "word": "rowing",
+      "part_of_speech": "noun",
+      "translation": "гребля",
+      "translations": {
+        "ru": "гребля",
+        "uz": "eshkak eshish"
+      },
+      "example": "Rowing is hard work for your arms and back.",
+      "example_translations": {
+        "ru": "Гребля — тяжёлая работа для рук и спины.",
+        "uz": "Eshkak eshish — qo'llar va bel uchun og'ir mehnat."
+      }
+    },
+    {
+      "word": "sailing",
+      "part_of_speech": "noun",
+      "translation": "парусный спорт",
+      "translations": {
+        "ru": "парусный спорт",
+        "uz": "yelkanli sport"
+      },
+      "example": "You need wind and a boat for sailing.",
+      "example_translations": {
+        "ru": "Для парусного спорта нужны ветер и лодка.",
+        "uz": "Yelkanli sport uchun shamol va qayiq kerak."
+      }
+    },
+    {
+      "word": "diving",
+      "part_of_speech": "noun",
+      "translation": "дайвинг, ныряние",
+      "translations": {
+        "ru": "дайвинг, ныряние",
+        "uz": "sho'ng'ish"
+      },
+      "example": "Diving lets you see fish and plants under water.",
+      "example_translations": {
+        "ru": "Дайвинг позволяет увидеть рыб и растения под водой.",
+        "uz": "Sho'ng'ish suv ostidagi baliqlar va o'simliklarni ko'rish imkonini beradi."
+      }
+    },
+    {
+      "word": "skating",
+      "part_of_speech": "noun",
+      "translation": "катание на коньках",
+      "translations": {
+        "ru": "катание на коньках",
+        "uz": "konkida uchish"
+      },
+      "example": "Skating on the frozen lake is fun in winter.",
+      "example_translations": {
+        "ru": "Зимой катание на коньках по замёрзшему озеру — большое удовольствие.",
+        "uz": "Qishda muzlagan ko'lda konkida uchish juda maroqli."
+      }
+    },
+    {
+      "word": "surfing",
+      "part_of_speech": "noun",
+      "translation": "сёрфинг",
+      "translations": {
+        "ru": "сёрфинг",
+        "uz": "serfing"
+      },
+      "example": "Surfing is popular where the waves are big.",
+      "example_translations": {
+        "ru": "Сёрфинг популярен там, где большие волны.",
+        "uz": "Serfing to'lqinlar katta bo'lgan joylarda mashhur."
+      }
+    },
+    {
+      "word": "marathon",
+      "part_of_speech": "noun",
+      "translation": "марафон",
+      "translations": {
+        "ru": "марафон",
+        "uz": "marafon"
+      },
+      "example": "She ran her first marathon in four hours.",
+      "example_translations": {
+        "ru": "Она пробежала свой первый марафон за четыре часа.",
+        "uz": "U birinchi marafonini to'rt soatda yugurib o'tdi."
+      }
+    }
+  ]
+}

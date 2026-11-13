@@ -21,7 +21,6 @@ use App\Models\Course;
 use App\Models\Friendship;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -30,9 +29,9 @@ use Illuminate\Support\Facades\DB;
  * ({@see CityNames}), the titles are the ones of the cards ({@see DeckTitles}, the language of the learner).
  *
  *   - a stop is OPEN exactly when the learner has a `word_repetitions` row of an active word of the lesson (the lesson has been
- *     started in the cards; a `new` row counts). It is not stored, the same query that reads the course reads it;
- *   - stars, runs, the score and the defeated boss are the learner's `game_stop_progress` / `game_city_progress` rows, joined in
- *     that one query (they are 1:1 with the lesson / the module of the learner, so the join does not multiply anything);
+ *     started in the cards; a `new` row counts). It is not stored, the counts of the learner's word rows
+ *     per lesson ({@see CourseCatalogService::lessonsStarted()}) beside the cached tree of the course;
+ *   - stars, runs, the score and the defeated boss are the learner's `game_stop_progress` / `game_city_progress` rows (one statement each);
  *   - the state of the boss only SAYS whether the fight may start (the fight is BossService's, the readiness is the one rule of
  *     {@see BossReadiness}): defeated / locked by the plan / ready / not ready;
  *   - the friends are the cached `game:friends` ({@see GameFriendsCache}), the rest of the learner's own state is one statement each.
@@ -44,7 +43,6 @@ final class MapService
     public function __construct(
         private readonly GameAccess $access,
         private readonly CourseCatalogService $catalog,
-        private readonly DeckTitles $deckTitles,
         private readonly LocaleResolver $locales,
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerStatsService $stats,
@@ -90,70 +88,49 @@ final class MapService
     }
 
     /**
-     * The cities with their stops and bosses, from ONE statement: the lessons with active words, the learner's word rows counted per
-     * lesson and their stop / city progress.
+     * The cities with their stops and bosses: the cached tree of the course (the lessons with active words, titles of the learner's
+     * locale) plus statements by the learner's own rows - the word rows counted per lesson ({@see CourseCatalogService::lessonsStarted()})
+     * and the stop / city progress ({@see progress()}). The statements do not grow with the lessons of the course.
      *
      * @return list<array{stage_id: int, number: int, city: string, title: string|null, unlocked: bool, stops: list<array{lesson_id: int, number: int, title: string|null, unlocked: bool, stars: int, best_score: int, runs: int}>, boss: array{state: string, defeated_at: string|null, introduced: int, required: int, cleared_stops: int, required_stops: int}}>
      */
     private function cities(Course $course, Learner $learner, string $locale, ?int $bossStages): array
     {
-        $rows = DB::table('lessons')
-            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->join('words', function (JoinClause $join): void {
-                $join->on('words.lesson_id', '=', 'lessons.id')->where('words.is_active', '=', true);
-            })
-            ->leftJoin('word_repetitions', function (JoinClause $join) use ($learner): void {
-                $join->on('word_repetitions.word_id', '=', 'words.id')->where('word_repetitions.learner_id', '=', $learner->id);
-            })
-            ->leftJoin('game_stop_progress', function (JoinClause $join) use ($learner): void {
-                $join->on('game_stop_progress.lesson_id', '=', 'lessons.id')->where('game_stop_progress.learner_id', '=', $learner->id);
-            })
-            ->leftJoin('game_city_progress', function (JoinClause $join) use ($learner): void {
-                $join->on('game_city_progress.stage_id', '=', 'stages.id')->where('game_city_progress.learner_id', '=', $learner->id);
-            })
-            ->where('stages.course_id', $course->id)
-            ->groupBy(
-                'stages.id', 'stages.number', 'stages.title', 'stages.title_uz',
-                'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz',
-                'game_stop_progress.stars', 'game_stop_progress.best_score', 'game_stop_progress.runs_count',
-                'game_city_progress.boss_defeated_at',
-            )
-            ->orderBy('stages.number')
-            ->orderBy('lessons.number')
-            ->selectRaw(
-                'stages.id as stage_id, stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, '
-                .'lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, '
-                .'COUNT(word_repetitions.id) as opened, '
-                .'game_stop_progress.stars as stars, game_stop_progress.best_score as best_score, game_stop_progress.runs_count as runs, '
-                .'game_city_progress.boss_defeated_at as boss_defeated_at',
-            )
-            ->get();
+        // The stops are the lessons of the tree with active words (a lesson without any is not a stop, and a module of such lessons only is no city).
+        $tree = array_values(array_filter(
+            $this->catalog->tree($course, $locale),
+            static fn (array $row): bool => $row['total'] > 0,
+        ));
+        if ($tree === []) {
+            return [];
+        }
 
-        $text = static fn (mixed $value): ?string => $value === null ? null : (string) $value;
+        $started = $this->catalog->lessonsStarted($course, $learner);
+        [$stops, $defeated] = $this->progress($learner, $tree);
 
         /** @var array<int, array{stage_id: int, number: int, title: string|null, defeated_at: string|null, stops: list<array{lesson_id: int, number: int, title: string|null, unlocked: bool, stars: int, best_score: int, runs: int}>, introduced: int}> $stages */
         $stages = [];
-        foreach ($rows as $row) {
-            $stageId = (int) $row->stage_id;
+        foreach ($tree as $row) {
+            $stageId = $row['stage_id'];
             $stages[$stageId] ??= [
                 'stage_id' => $stageId,
-                'number' => (int) $row->stage_number,
-                'title' => $this->deckTitles->stageIn($course, $locale, $text($row->stage_title), $text($row->stage_title_uz)),
-                'defeated_at' => $row->boss_defeated_at === null ? null : CarbonImmutable::parse((string) $row->boss_defeated_at, 'UTC')->toIso8601ZuluString('millisecond'),
+                'number' => $row['stage_number'],
+                'title' => $row['stage_title'],
+                'defeated_at' => $defeated[$stageId] ?? null,
                 'stops' => [],
                 'introduced' => 0,
             ];
 
-            $opened = (int) $row->opened;
+            $opened = $started[$row['lesson_id']]['started'] ?? 0;
             $stages[$stageId]['introduced'] += $opened;
             $stages[$stageId]['stops'][] = [
-                'lesson_id' => (int) $row->lesson_id,
-                'number' => (int) $row->lesson_number,
-                'title' => $this->deckTitles->lessonIn($course, $locale, (int) $row->lesson_number, $text($row->lesson_title), $text($row->lesson_title_uz)),
+                'lesson_id' => $row['lesson_id'],
+                'number' => $row['lesson_number'],
+                'title' => $row['lesson_title'],
                 'unlocked' => $opened > 0,
-                'stars' => (int) $row->stars,
-                'best_score' => (int) $row->best_score,
-                'runs' => (int) $row->runs,
+                'stars' => $stops[$row['lesson_id']]['stars'] ?? 0,
+                'best_score' => $stops[$row['lesson_id']]['best_score'] ?? 0,
+                'runs' => $stops[$row['lesson_id']]['runs'] ?? 0,
             ];
         }
 
@@ -188,6 +165,38 @@ final class MapService
         }
 
         return $cities;
+    }
+
+    /**
+     * The learner's own game rows over the stops and the cities of the tree: two statements by `learner_id` and the ids of the tree
+     * (the unique `(learner_id, lesson_id)` / `(learner_id, stage_id)` indexes), so they follow the learner and the course, not the
+     * size of the course's words.
+     *
+     * @param  list<array{stage_id: int, lesson_id: int}>  $tree
+     * @return array{0: array<int, array{stars: int, best_score: int, runs: int}>, 1: array<int, string>} stop progress by lesson id, ISO `boss_defeated_at` by stage id
+     */
+    private function progress(Learner $learner, array $tree): array
+    {
+        $stops = [];
+        $rows = DB::table('game_stop_progress')
+            ->where('learner_id', $learner->id)
+            ->whereIn('lesson_id', array_column($tree, 'lesson_id'))
+            ->get(['lesson_id', 'stars', 'best_score', 'runs_count']);
+        foreach ($rows as $row) {
+            $stops[(int) $row->lesson_id] = ['stars' => (int) $row->stars, 'best_score' => (int) $row->best_score, 'runs' => (int) $row->runs_count];
+        }
+
+        $defeated = [];
+        $rows = DB::table('game_city_progress')
+            ->where('learner_id', $learner->id)
+            ->whereIn('stage_id', array_values(array_unique(array_column($tree, 'stage_id'))))
+            ->whereNotNull('boss_defeated_at')
+            ->get(['stage_id', 'boss_defeated_at']);
+        foreach ($rows as $row) {
+            $defeated[(int) $row->stage_id] = CarbonImmutable::parse((string) $row->boss_defeated_at, 'UTC')->toIso8601ZuluString('millisecond');
+        }
+
+        return [$stops, $defeated];
     }
 
     /**

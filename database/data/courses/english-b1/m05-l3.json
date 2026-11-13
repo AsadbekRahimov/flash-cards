@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 5,
+    "title": "Здоровье и медицина",
+    "title_uz": "Salomatlik va tibbiyot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Лечение",
+    "title_uz": "Davolash"
+  },
+  "words": [
+    {
+      "word": "cure",
+      "part_of_speech": "verb",
+      "translation": "вылечивать",
+      "translations": {
+        "ru": "вылечивать",
+        "uz": "sog'aytirmoq, tuzatmoq"
+      },
+      "example": "The new medicine cured him in a week.",
+      "example_translations": {
+        "ru": "Новое лекарство вылечило его за неделю.",
+        "uz": "Yangi dori uni bir haftada sog'aytirdi."
+      }
+    },
+    {
+      "word": "heal",
+      "part_of_speech": "verb",
+      "translation": "заживать",
+      "translations": {
+        "ru": "заживать",
+        "uz": "bitmoq, tuzalmoq"
+      },
+      "example": "The cut on my finger healed quickly.",
+      "example_translations": {
+        "ru": "Порез на моём пальце быстро зажил.",
+        "uz": "Barmog'imdagi kesilgan joy tez bitdi."
+      }
+    },
+    {
+      "word": "syrup",
+      "part_of_speech": "noun",
+      "translation": "сироп",
+      "translations": {
+        "ru": "сироп",
+        "uz": "sirop"
+      },
+      "example": "Give the child this cough syrup twice a day.",
+      "example_translations": {
+        "ru": "Давайте ребёнку этот сироп от кашля два раза в день.",
+        "uz": "Bolaga bu yo'tal siropini kuniga ikki marta bering."
+      }
+    },
+    {
+      "word": "operation",
+      "part_of_speech": "noun",
+      "translation": "операция",
+      "translations": {
+        "ru": "операция",
+        "uz": "operatsiya"
+      },
+      "example": "My grandfather needs an operation on his knee.",
+      "example_translations": {
+        "ru": "Моему дедушке нужна операция на колене.",
+        "uz": "Bobomning tizzasini operatsiya qilish kerak."
+      }
+    },
+    {
+      "word": "injection",
+      "part_of_speech": "noun",
+      "translation": "укол",
+      "translations": {
+        "ru": "укол",
+        "uz": "ukol"
+      },
+      "example": "A nurse gave me an injection in my arm.",
+      "example_translations": {
+        "ru": "Медсестра сделала мне укол в руку.",
+        "uz": "Hamshira qo'limga ukol qildi."
+      }
+    },
+    {
+      "word": "therapy",
+      "part_of_speech": "noun",
+      "translation": "терапия",
+      "translations": {
+        "ru": "терапия",
+        "uz": "terapiya"
+      },
+      "example": "Music therapy helps some patients feel calmer.",
+      "example_translations": {
+        "ru": "Музыкальная терапия помогает некоторым пациентам успокоиться.",
+        "uz": "Musiqa terapiyasi ba'zi bemorlarga tinchlanishga yordam beradi."
+      }
+    },
+    {
+      "word": "treat",
+      "part_of_speech": "verb",
+      "translation": "лечить",
+      "translations": {
+        "ru": "лечить",
+        "uz": "davolamoq"
+      },
+      "example": "Doctors treat this illness with rest and medicine.",
+      "example_translations": {
+        "ru": "Врачи лечат эту болезнь покоем и лекарствами.",
+        "uz": "Shifokorlar bu xastalikni dam olish va dori bilan davolaydi."
+      }
+    },
+    {
+      "word": "dose",
+      "part_of_speech": "noun",
+      "translation": "доза",
+      "translations": {
+        "ru": "доза",
+        "uz": "doza"
+      },
+      "example": "Never take more than the recommended dose.",
+      "example_translations": {
+        "ru": "Никогда не принимайте больше рекомендованной дозы.",
+        "uz": "Hech qachon tavsiya etilgan dozadan ortiq qabul qilmang."
+      }
+    },
+    {
+      "word": "prevent",
+      "part_of_speech": "verb",
+      "translation": "предотвращать",
+      "translations": {
+        "ru": "предотвращать",
+        "uz": "oldini olmoq"
+      },
+      "example": "Washing your hands helps prevent many illnesses.",
+      "example_translations": {
+        "ru": "Мытьё рук помогает предотвратить многие болезни.",
+        "uz": "Qo'l yuvish ko'p xastaliklarning oldini olishga yordam beradi."
+      }
+    },
+    {
+      "word": "painkiller",
+      "part_of_speech": "noun",
+      "translation": "обезболивающее",
+      "translations": {
+        "ru": "обезболивающее",
+        "uz": "og'riq qoldiruvchi dori"
+      },
+      "example": "She took a painkiller for her headache.",
+      "example_translations": {
+        "ru": "Она приняла обезболивающее от головной боли.",
+        "uz": "U bosh og'rig'iga og'riq qoldiruvchi dori ichdi."
+      }
+    }
+  ]
+}

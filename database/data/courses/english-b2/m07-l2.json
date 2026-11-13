@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 7,
+    "title": "Окружающая среда и климат",
+    "title_uz": "Atrof-muhit va iqlim"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Экосистемы",
+    "title_uz": "Ekotizimlar"
+  },
+  "words": [
+    {
+      "word": "ecosystem",
+      "part_of_speech": "noun",
+      "translation": "экосистема",
+      "translations": {
+        "ru": "экосистема",
+        "uz": "ekotizim"
+      },
+      "example": "Every lake is a small ecosystem.",
+      "example_translations": {
+        "ru": "Каждое озеро — это небольшая экосистема.",
+        "uz": "Har bir ko'l kichik ekotizimdir."
+      }
+    },
+    {
+      "word": "biodiversity",
+      "part_of_speech": "noun",
+      "translation": "биоразнообразие",
+      "translations": {
+        "ru": "биоразнообразие",
+        "uz": "bioxilma-xillik"
+      },
+      "example": "Rainforests are famous for their rich biodiversity.",
+      "example_translations": {
+        "ru": "Тропические леса славятся богатым биоразнообразием.",
+        "uz": "Tropik o'rmonlar boy bioxilma-xilligi bilan mashhur."
+      }
+    },
+    {
+      "word": "habitat",
+      "part_of_speech": "noun",
+      "translation": "среда обитания",
+      "translations": {
+        "ru": "среда обитания",
+        "uz": "yashash muhiti"
+      },
+      "example": "The river is a habitat for many birds.",
+      "example_translations": {
+        "ru": "Река — среда обитания многих птиц.",
+        "uz": "Daryo ko'plab qushlarning yashash muhitidir."
+      }
+    },
+    {
+      "word": "mammal",
+      "part_of_speech": "noun",
+      "translation": "млекопитающее",
+      "translations": {
+        "ru": "млекопитающее",
+        "uz": "sutemizuvchi"
+      },
+      "example": "A whale is a mammal, not a fish.",
+      "example_translations": {
+        "ru": "Кит — млекопитающее, а не рыба.",
+        "uz": "Kit baliq emas, sutemizuvchidir."
+      }
+    },
+    {
+      "word": "extinction",
+      "part_of_speech": "noun",
+      "translation": "вымирание",
+      "translations": {
+        "ru": "вымирание",
+        "uz": "yo'qolib ketish"
+      },
+      "example": "Many species are now facing extinction.",
+      "example_translations": {
+        "ru": "Многим видам сейчас грозит вымирание.",
+        "uz": "Hozir ko'plab turlar yo'qolib ketish xavfi ostida."
+      }
+    },
+    {
+      "word": "sanctuary",
+      "part_of_speech": "noun",
+      "translation": "заповедник",
+      "translations": {
+        "ru": "заповедник",
+        "uz": "qo'riqxona"
+      },
+      "example": "Rare birds live safely in this sanctuary.",
+      "example_translations": {
+        "ru": "Редкие птицы живут в безопасности в этом заповеднике.",
+        "uz": "Noyob qushlar bu qo'riqxonada xavfsiz yashaydi."
+      }
+    },
+    {
+      "word": "conservation",
+      "part_of_speech": "noun",
+      "translation": "охрана природы",
+      "translations": {
+        "ru": "охрана природы",
+        "uz": "tabiatni muhofaza qilish"
+      },
+      "example": "Conservation helps rare animals survive.",
+      "example_translations": {
+        "ru": "Охрана природы помогает редким животным выжить.",
+        "uz": "Tabiatni muhofaza qilish noyob hayvonlarning omon qolishiga yordam beradi."
+      }
+    },
+    {
+      "word": "predator",
+      "part_of_speech": "noun",
+      "translation": "хищник",
+      "translations": {
+        "ru": "хищник",
+        "uz": "yirtqich"
+      },
+      "example": "A wolf is a predator that hunts deer.",
+      "example_translations": {
+        "ru": "Волк — хищник, который охотится на оленей.",
+        "uz": "Bo'ri — kiyiklarni ovlaydigan yirtqich."
+      }
+    },
+    {
+      "word": "prey",
+      "part_of_speech": "noun",
+      "translation": "добыча",
+      "translations": {
+        "ru": "добыча",
+        "uz": "o'lja"
+      },
+      "example": "The eagle watched its prey from high above.",
+      "example_translations": {
+        "ru": "Орёл следил за добычей с большой высоты.",
+        "uz": "Burgut o'ljasini balanddan kuzatdi."
+      }
+    },
+    {
+      "word": "vegetation",
+      "part_of_speech": "noun",
+      "translation": "растительность",
+      "translations": {
+        "ru": "растительность",
+        "uz": "o'simlik qoplami"
+      },
+      "example": "There is very little vegetation in the desert.",
+      "example_translations": {
+        "ru": "В пустыне очень мало растительности.",
+        "uz": "Cho'lda o'simlik qoplami juda siyrak."
+      }
+    }
+  ]
+}

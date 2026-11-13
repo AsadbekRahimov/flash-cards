@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 14,
+    "title": "Наука и открытия",
+    "title_uz": "Fan va kashfiyotlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Космос",
+    "title_uz": "Koinot"
+  },
+  "words": [
+    {
+      "word": "universe",
+      "part_of_speech": "noun",
+      "translation": "вселенная",
+      "translations": {
+        "ru": "вселенная",
+        "uz": "koinot"
+      },
+      "example": "Nobody knows how big the universe really is.",
+      "example_translations": {
+        "ru": "Никто не знает, насколько на самом деле велика Вселенная.",
+        "uz": "Koinot aslida qanchalik katta ekanini hech kim bilmaydi."
+      }
+    },
+    {
+      "word": "galaxy",
+      "part_of_speech": "noun",
+      "translation": "галактика",
+      "translations": {
+        "ru": "галактика",
+        "uz": "galaktika"
+      },
+      "example": "Our galaxy has billions of stars.",
+      "example_translations": {
+        "ru": "В нашей галактике миллиарды звёзд.",
+        "uz": "Bizning galaktikamizda milliardlab yulduz bor."
+      }
+    },
+    {
+      "word": "orbit",
+      "part_of_speech": "noun",
+      "translation": "орбита",
+      "translations": {
+        "ru": "орбита",
+        "uz": "orbita"
+      },
+      "example": "Many satellites are in orbit around our planet.",
+      "example_translations": {
+        "ru": "На орбите вокруг нашей планеты находится много спутников.",
+        "uz": "Sayyoramiz atrofidagi orbitada ko'plab sun'iy yo'ldoshlar bor."
+      }
+    },
+    {
+      "word": "astronaut",
+      "part_of_speech": "noun",
+      "translation": "космонавт, астронавт",
+      "translations": {
+        "ru": "космонавт, астронавт",
+        "uz": "kosmonavt, fazogir"
+      },
+      "example": "Every astronaut trains for years before a flight.",
+      "example_translations": {
+        "ru": "Каждый космонавт годами тренируется перед полётом.",
+        "uz": "Har bir kosmonavt parvozdan oldin yillar davomida mashq qiladi."
+      }
+    },
+    {
+      "word": "satellite",
+      "part_of_speech": "noun",
+      "translation": "спутник",
+      "translations": {
+        "ru": "спутник",
+        "uz": "sun'iy yo'ldosh"
+      },
+      "example": "This satellite sends weather pictures to Earth.",
+      "example_translations": {
+        "ru": "Этот спутник отправляет на Землю снимки погоды.",
+        "uz": "Bu sun'iy yo'ldosh Yerga ob-havo suratlarini yuboradi."
+      }
+    },
+    {
+      "word": "rocket",
+      "part_of_speech": "noun",
+      "translation": "ракета",
+      "translations": {
+        "ru": "ракета",
+        "uz": "raketa"
+      },
+      "example": "A powerful rocket carried the satellite into space.",
+      "example_translations": {
+        "ru": "Мощная ракета вывела спутник в космос.",
+        "uz": "Kuchli raketa sun'iy yo'ldoshni kosmosga olib chiqdi."
+      }
+    },
+    {
+      "word": "telescope",
+      "part_of_speech": "noun",
+      "translation": "телескоп",
+      "translations": {
+        "ru": "телескоп",
+        "uz": "teleskop"
+      },
+      "example": "Aziz looked at the stars through his telescope.",
+      "example_translations": {
+        "ru": "Азиз смотрел на звёзды в свой телескоп.",
+        "uz": "Aziz teleskopi orqali yulduzlarga qaradi."
+      }
+    },
+    {
+      "word": "space",
+      "part_of_speech": "noun",
+      "translation": "космос",
+      "translations": {
+        "ru": "космос",
+        "uz": "kosmos, fazo"
+      },
+      "example": "Would you like to travel into space someday?",
+      "example_translations": {
+        "ru": "Вы хотели бы когда-нибудь полететь в космос?",
+        "uz": "Qachondir kosmosga uchishni xohlarmidingiz?"
+      }
+    },
+    {
+      "word": "mission",
+      "part_of_speech": "noun",
+      "translation": "миссия",
+      "translations": {
+        "ru": "миссия",
+        "uz": "missiya"
+      },
+      "example": "Their mission to Mars will last three years.",
+      "example_translations": {
+        "ru": "Их миссия на Марс продлится три года.",
+        "uz": "Ularning Marsga missiyasi uch yil davom etadi."
+      }
+    },
+    {
+      "word": "spaceship",
+      "part_of_speech": "noun",
+      "translation": "космический корабль",
+      "translations": {
+        "ru": "космический корабль",
+        "uz": "kosmik kema"
+      },
+      "example": "The spaceship returned safely to Earth.",
+      "example_translations": {
+        "ru": "Космический корабль благополучно вернулся на Землю.",
+        "uz": "Kosmik kema Yerga eson-omon qaytdi."
+      }
+    }
+  ]
+}

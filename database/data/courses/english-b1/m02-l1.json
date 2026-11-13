@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 2,
+    "title": "Отношения и общение",
+    "title_uz": "Munosabatlar va muloqot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Семья и близкие",
+    "title_uz": "Oila va yaqinlar"
+  },
+  "words": [
+    {
+      "word": "relative",
+      "part_of_speech": "noun",
+      "translation": "родственник",
+      "translations": {
+        "ru": "родственник",
+        "uz": "qarindosh"
+      },
+      "example": "All our relatives came to the wedding.",
+      "example_translations": {
+        "ru": "Все наши родственники пришли на свадьбу.",
+        "uz": "Barcha qarindoshlarimiz to'yga kelishdi."
+      }
+    },
+    {
+      "word": "relationship",
+      "part_of_speech": "noun",
+      "translation": "отношения",
+      "translations": {
+        "ru": "отношения",
+        "uz": "o'zaro munosabat"
+      },
+      "example": "I have a close relationship with my sister.",
+      "example_translations": {
+        "ru": "У меня близкие отношения с сестрой.",
+        "uz": "Singlim bilan munosabatimiz yaqin."
+      }
+    },
+    {
+      "word": "couple",
+      "part_of_speech": "noun",
+      "translation": "пара",
+      "translations": {
+        "ru": "пара",
+        "uz": "juftlik"
+      },
+      "example": "The young couple bought a house last year.",
+      "example_translations": {
+        "ru": "Молодая пара купила дом в прошлом году.",
+        "uz": "Yosh juftlik o'tgan yili uy sotib oldi."
+      }
+    },
+    {
+      "word": "partner",
+      "part_of_speech": "noun",
+      "translation": "спутник жизни, партнёр",
+      "translations": {
+        "ru": "спутник жизни, партнёр",
+        "uz": "umr yo'ldoshi, sherik"
+      },
+      "example": "My aunt met her partner at the university.",
+      "example_translations": {
+        "ru": "Моя тётя познакомилась со своим спутником жизни в университете.",
+        "uz": "Xolam umr yo'ldoshi bilan universitetda tanishgan."
+      }
+    },
+    {
+      "word": "bride",
+      "part_of_speech": "noun",
+      "translation": "невеста",
+      "translations": {
+        "ru": "невеста",
+        "uz": "kelin"
+      },
+      "example": "The bride wore a beautiful white dress.",
+      "example_translations": {
+        "ru": "На невесте было красивое белое платье.",
+        "uz": "Kelin chiroyli oq ko'ylak kiygan edi."
+      }
+    },
+    {
+      "word": "engaged",
+      "part_of_speech": "adjective",
+      "translation": "помолвленный",
+      "translations": {
+        "ru": "помолвленный",
+        "uz": "unashtirilgan"
+      },
+      "example": "They are engaged and will marry in June.",
+      "example_translations": {
+        "ru": "Они помолвлены и поженятся в июне.",
+        "uz": "Ular unashtirilgan va iyun oyida turmush qurishadi."
+      }
+    },
+    {
+      "word": "divorce",
+      "part_of_speech": "noun",
+      "translation": "развод",
+      "translations": {
+        "ru": "развод",
+        "uz": "ajrashish"
+      },
+      "example": "Divorce is a difficult time for any family.",
+      "example_translations": {
+        "ru": "Развод — трудное время для любой семьи.",
+        "uz": "Ajrashish har qanday oila uchun qiyin davr."
+      }
+    },
+    {
+      "word": "twin",
+      "part_of_speech": "noun",
+      "translation": "близнец",
+      "translations": {
+        "ru": "близнец",
+        "uz": "egizak"
+      },
+      "example": "Tom has a twin, and they look the same.",
+      "example_translations": {
+        "ru": "У Тома есть близнец, и они выглядят одинаково.",
+        "uz": "Tomning egizagi bor, ular ko'rinishidan bir xil."
+      }
+    },
+    {
+      "word": "nephew",
+      "part_of_speech": "noun",
+      "translation": "племянник",
+      "translations": {
+        "ru": "племянник",
+        "uz": "o'g'il jiyan"
+      },
+      "example": "My nephew is my sister's youngest son.",
+      "example_translations": {
+        "ru": "Мой племянник — младший сын моей сестры.",
+        "uz": "Jiyanim — opamning kenja o'g'li."
+      }
+    },
+    {
+      "word": "niece",
+      "part_of_speech": "noun",
+      "translation": "племянница",
+      "translations": {
+        "ru": "племянница",
+        "uz": "qiz jiyan"
+      },
+      "example": "My brother's daughter is my niece.",
+      "example_translations": {
+        "ru": "Дочь моего брата — моя племянница.",
+        "uz": "Akamning qizi mening jiyanim bo'ladi."
+      }
+    }
+  ]
+}

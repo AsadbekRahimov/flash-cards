@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 4,
+    "title": "Еда и кулинария",
+    "title_uz": "Taom va pazandachilik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Способы приготовления",
+    "title_uz": "Pishirish usullari"
+  },
+  "words": [
+    {
+      "word": "boil",
+      "part_of_speech": "verb",
+      "translation": "варить, кипятить",
+      "translations": {
+        "ru": "варить, кипятить",
+        "uz": "qaynatmoq"
+      },
+      "example": "Boil the eggs for ten minutes.",
+      "example_translations": {
+        "ru": "Варите яйца десять минут.",
+        "uz": "Tuxumlarni o'n daqiqa qaynating."
+      }
+    },
+    {
+      "word": "fry",
+      "part_of_speech": "verb",
+      "translation": "жарить",
+      "translations": {
+        "ru": "жарить",
+        "uz": "qovurmoq"
+      },
+      "example": "Mom is frying potatoes for dinner.",
+      "example_translations": {
+        "ru": "Мама жарит картошку на ужин.",
+        "uz": "Onam kechki ovqatga kartoshka qovuryapti."
+      }
+    },
+    {
+      "word": "bake",
+      "part_of_speech": "verb",
+      "translation": "печь, выпекать",
+      "translations": {
+        "ru": "печь, выпекать",
+        "uz": "non yopmoq, pishirmoq"
+      },
+      "example": "My grandmother bakes fresh bread every Saturday.",
+      "example_translations": {
+        "ru": "Моя бабушка каждую субботу печёт свежий хлеб.",
+        "uz": "Buvim har shanba kuni yangi non yopadi."
+      }
+    },
+    {
+      "word": "roast",
+      "part_of_speech": "verb",
+      "translation": "запекать",
+      "translations": {
+        "ru": "запекать",
+        "uz": "duxovkada pishirmoq"
+      },
+      "example": "We roasted a chicken with potatoes for our guests.",
+      "example_translations": {
+        "ru": "Мы запекли курицу с картошкой для наших гостей.",
+        "uz": "Mehmonlarimiz uchun tovuqni kartoshka bilan duxovkada pishirdik."
+      }
+    },
+    {
+      "word": "grill",
+      "part_of_speech": "verb",
+      "translation": "жарить на гриле",
+      "translations": {
+        "ru": "жарить на гриле",
+        "uz": "grilda pishirmoq"
+      },
+      "example": "Dad grilled fish and vegetables in the garden.",
+      "example_translations": {
+        "ru": "Папа пожарил на гриле рыбу и овощи в саду.",
+        "uz": "Dadam bog'da baliq va sabzavotlarni grilda pishirdi."
+      }
+    },
+    {
+      "word": "stir",
+      "part_of_speech": "verb",
+      "translation": "помешивать, мешать",
+      "translations": {
+        "ru": "помешивать, мешать",
+        "uz": "aralashtirib turmoq"
+      },
+      "example": "Stir the soup slowly with a wooden spoon.",
+      "example_translations": {
+        "ru": "Медленно помешивайте суп деревянной ложкой.",
+        "uz": "Sho'rvani yog'och qoshiq bilan sekin aralashtirib turing."
+      }
+    },
+    {
+      "word": "chop",
+      "part_of_speech": "verb",
+      "translation": "нарезать, рубить",
+      "translations": {
+        "ru": "нарезать, рубить",
+        "uz": "to'g'ramoq"
+      },
+      "example": "Chop the onions and put them in the pan.",
+      "example_translations": {
+        "ru": "Нарежьте лук и положите его на сковороду.",
+        "uz": "Piyozni to'g'rang va tovaga soling."
+      }
+    },
+    {
+      "word": "slice",
+      "part_of_speech": "verb",
+      "translation": "нарезать ломтиками",
+      "translations": {
+        "ru": "нарезать ломтиками",
+        "uz": "tilimlab kesmoq"
+      },
+      "example": "Could you slice the bread for the sandwiches?",
+      "example_translations": {
+        "ru": "Не могли бы вы нарезать хлеб ломтиками для бутербродов?",
+        "uz": "Buterbrodlar uchun nonni tilimlab kesib bera olasizmi?"
+      }
+    },
+    {
+      "word": "peel",
+      "part_of_speech": "verb",
+      "translation": "чистить от кожуры",
+      "translations": {
+        "ru": "чистить от кожуры",
+        "uz": "po'stini archmoq"
+      },
+      "example": "Peel the potatoes before you boil them.",
+      "example_translations": {
+        "ru": "Почистите картошку от кожуры, прежде чем варить её.",
+        "uz": "Kartoshkani qaynatishdan oldin po'stini arching."
+      }
+    },
+    {
+      "word": "pour",
+      "part_of_speech": "verb",
+      "translation": "наливать",
+      "translations": {
+        "ru": "наливать",
+        "uz": "quymoq"
+      },
+      "example": "She poured cold juice into two glasses.",
+      "example_translations": {
+        "ru": "Она налила холодный сок в два стакана.",
+        "uz": "U ikkita stakanga sovuq sharbat quydi."
+      }
+    }
+  ]
+}

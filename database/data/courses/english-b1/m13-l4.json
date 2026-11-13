@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 13,
+    "title": "Природа и окружающая среда",
+    "title_uz": "Tabiat va atrof-muhit"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Погода и климат",
+    "title_uz": "Ob-havo va iqlim"
+  },
+  "words": [
+    {
+      "word": "humid",
+      "part_of_speech": "adjective",
+      "translation": "влажный",
+      "translations": {
+        "ru": "влажный",
+        "uz": "nam"
+      },
+      "example": "It is hot and humid here in summer.",
+      "example_translations": {
+        "ru": "Летом здесь жарко и влажно.",
+        "uz": "Yozda bu yerda havo issiq va nam bo'ladi."
+      }
+    },
+    {
+      "word": "mild",
+      "part_of_speech": "adjective",
+      "translation": "мягкий, умеренный",
+      "translations": {
+        "ru": "мягкий, умеренный",
+        "uz": "yumshoq, mo'tadil"
+      },
+      "example": "Winters are mild in the south of the country.",
+      "example_translations": {
+        "ru": "На юге страны зимы мягкие.",
+        "uz": "Mamlakat janubida qish yumshoq keladi."
+      }
+    },
+    {
+      "word": "breeze",
+      "part_of_speech": "noun",
+      "translation": "ветерок, лёгкий ветер",
+      "translations": {
+        "ru": "ветерок, лёгкий ветер",
+        "uz": "shabada"
+      },
+      "example": "A cool breeze was blowing from the sea.",
+      "example_translations": {
+        "ru": "С моря дул прохладный ветерок.",
+        "uz": "Dengizdan salqin shabada esib turardi."
+      }
+    },
+    {
+      "word": "frost",
+      "part_of_speech": "noun",
+      "translation": "мороз",
+      "translations": {
+        "ru": "мороз",
+        "uz": "sovuq, ayoz"
+      },
+      "example": "The first frost usually comes in late October.",
+      "example_translations": {
+        "ru": "Первые морозы обычно приходят в конце октября.",
+        "uz": "Birinchi sovuq odatda oktabr oxirida tushadi."
+      }
+    },
+    {
+      "word": "hail",
+      "part_of_speech": "noun",
+      "translation": "град",
+      "translations": {
+        "ru": "град",
+        "uz": "do'l"
+      },
+      "example": "Heavy hail damaged many cars last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью сильный град повредил много машин.",
+        "uz": "Kecha tunda kuchli do'l ko'plab mashinalarga zarar yetkazdi."
+      }
+    },
+    {
+      "word": "chilly",
+      "part_of_speech": "adjective",
+      "translation": "прохладный, зябкий",
+      "translations": {
+        "ru": "прохладный, зябкий",
+        "uz": "salqin, sovuqroq"
+      },
+      "example": "Take a jacket because evenings are chilly here.",
+      "example_translations": {
+        "ru": "Возьмите куртку, потому что вечера здесь прохладные.",
+        "uz": "Kurtka olib oling, chunki bu yerda kechqurunlari salqin bo'ladi."
+      }
+    },
+    {
+      "word": "hurricane",
+      "part_of_speech": "noun",
+      "translation": "ураган",
+      "translations": {
+        "ru": "ураган",
+        "uz": "dovul"
+      },
+      "example": "People left the coast before the hurricane arrived.",
+      "example_translations": {
+        "ru": "Люди покинули побережье до прихода урагана.",
+        "uz": "Odamlar dovul yetib kelishidan oldin sohilni tark etishdi."
+      }
+    },
+    {
+      "word": "thunderstorm",
+      "part_of_speech": "noun",
+      "translation": "гроза",
+      "translations": {
+        "ru": "гроза",
+        "uz": "momaqaldiroqli yomg'ir"
+      },
+      "example": "Dark clouds mean a thunderstorm is coming soon.",
+      "example_translations": {
+        "ru": "Тёмные тучи означают, что скоро начнётся гроза.",
+        "uz": "Qora bulutlar tez orada momaqaldiroqli yomg'ir boshlanishini bildiradi."
+      }
+    },
+    {
+      "word": "tropical",
+      "part_of_speech": "adjective",
+      "translation": "тропический",
+      "translations": {
+        "ru": "тропический",
+        "uz": "tropik"
+      },
+      "example": "Bananas grow well in a tropical climate.",
+      "example_translations": {
+        "ru": "Бананы хорошо растут в тропическом климате.",
+        "uz": "Bananlar tropik iqlimda yaxshi o'sadi."
+      }
+    },
+    {
+      "word": "sunshine",
+      "part_of_speech": "noun",
+      "translation": "солнечный свет",
+      "translations": {
+        "ru": "солнечный свет",
+        "uz": "quyosh nuri"
+      },
+      "example": "Plants need water and sunshine to grow.",
+      "example_translations": {
+        "ru": "Растениям для роста нужны вода и солнечный свет.",
+        "uz": "O'simliklarga o'sish uchun suv va quyosh nuri kerak."
+      }
+    }
+  ]
+}

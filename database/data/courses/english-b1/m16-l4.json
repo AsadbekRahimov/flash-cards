@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 16,
+    "title": "Чувства и мнения",
+    "title_uz": "His-tuyg'ular va fikrlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мнения и оценки",
+    "title_uz": "Fikr va baholar"
+  },
+  "words": [
+    {
+      "word": "attitude",
+      "part_of_speech": "noun",
+      "translation": "отношение",
+      "translations": {
+        "ru": "отношение",
+        "uz": "munosabat, qarash"
+      },
+      "example": "His attitude to school changed after the trip.",
+      "example_translations": {
+        "ru": "После поездки его отношение к школе изменилось.",
+        "uz": "Sayohatdan keyin uning maktabga munosabati o'zgardi."
+      }
+    },
+    {
+      "word": "wonder",
+      "part_of_speech": "verb",
+      "translation": "задаваться вопросом",
+      "translations": {
+        "ru": "задаваться вопросом",
+        "uz": "o'ylab qolmoq, bilgisi kelmoq"
+      },
+      "example": "She often wonders why people believe everything online.",
+      "example_translations": {
+        "ru": "Она часто задаётся вопросом, почему люди верят всему в интернете.",
+        "uz": "Nega odamlar internetdagi hamma narsaga ishonadi, deb u ko'p o'ylab qoladi."
+      }
+    },
+    {
+      "word": "suppose",
+      "part_of_speech": "verb",
+      "translation": "полагать, предполагать",
+      "translations": {
+        "ru": "полагать, предполагать",
+        "uz": "deb o'ylamoq, taxmin qilmoq"
+      },
+      "example": "I suppose you are tired after the long trip.",
+      "example_translations": {
+        "ru": "Полагаю, вы устали после долгой поездки.",
+        "uz": "Uzoq safardan keyin charchagansiz, deb o'ylayman."
+      }
+    },
+    {
+      "word": "doubt",
+      "part_of_speech": "verb",
+      "translation": "сомневаться",
+      "translations": {
+        "ru": "сомневаться",
+        "uz": "shubha qilmoq"
+      },
+      "example": "My parents doubt that he will come on time.",
+      "example_translations": {
+        "ru": "Мои родители сомневаются, что он придёт вовремя.",
+        "uz": "Ota-onam uning vaqtida kelishiga shubha qiladi."
+      }
+    },
+    {
+      "word": "consider",
+      "part_of_speech": "verb",
+      "translation": "считать",
+      "translations": {
+        "ru": "считать",
+        "uz": "hisoblamoq, deb bilmoq"
+      },
+      "example": "Many people consider him the best player.",
+      "example_translations": {
+        "ru": "Многие считают его лучшим игроком.",
+        "uz": "Ko'pchilik uni eng yaxshi o'yinchi deb hisoblaydi."
+      }
+    },
+    {
+      "word": "prefer",
+      "part_of_speech": "verb",
+      "translation": "предпочитать",
+      "translations": {
+        "ru": "предпочитать",
+        "uz": "afzal ko'rmoq"
+      },
+      "example": "Do you prefer tea or coffee in the morning?",
+      "example_translations": {
+        "ru": "Что вы предпочитаете утром — чай или кофе?",
+        "uz": "Ertalab choyni afzal ko'rasizmi yoki qahvanimi?"
+      }
+    },
+    {
+      "word": "convince",
+      "part_of_speech": "verb",
+      "translation": "убеждать",
+      "translations": {
+        "ru": "убеждать",
+        "uz": "ishontirmoq"
+      },
+      "example": "Her words convinced everyone that she was right.",
+      "example_translations": {
+        "ru": "Её слова убедили всех, что она права.",
+        "uz": "Uning so'zlari hammani u haq ekaniga ishontirdi."
+      }
+    },
+    {
+      "word": "certain",
+      "part_of_speech": "adjective",
+      "translation": "уверенный",
+      "translations": {
+        "ru": "уверенный",
+        "uz": "amin, ishonchi komil"
+      },
+      "example": "Are you certain that you locked the door?",
+      "example_translations": {
+        "ru": "Вы уверены, что заперли дверь?",
+        "uz": "Eshikni qulflaganingizga aminmisiz?"
+      }
+    },
+    {
+      "word": "obvious",
+      "part_of_speech": "adjective",
+      "translation": "очевидный",
+      "translations": {
+        "ru": "очевидный",
+        "uz": "yaqqol, ravshan"
+      },
+      "example": "It was obvious that she was very tired.",
+      "example_translations": {
+        "ru": "Было очевидно, что она очень устала.",
+        "uz": "Uning juda charchagani yaqqol ko'rinib turardi."
+      }
+    },
+    {
+      "word": "necessary",
+      "part_of_speech": "adjective",
+      "translation": "необходимый",
+      "translations": {
+        "ru": "необходимый",
+        "uz": "zarur"
+      },
+      "example": "Is it necessary to book a table?",
+      "example_translations": {
+        "ru": "Необходимо ли бронировать столик?",
+        "uz": "Stol band qilish zarurmi?"
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 6,
+    "title": "Путешествия и транспорт",
+    "title_uz": "Sayohat va transport"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Проживание и отдых",
+    "title_uz": "Turar joy va dam olish"
+  },
+  "words": [
+    {
+      "word": "hostel",
+      "part_of_speech": "noun",
+      "translation": "хостел",
+      "translations": {
+        "ru": "хостел",
+        "uz": "xostel"
+      },
+      "example": "Students often stay in a cheap hostel.",
+      "example_translations": {
+        "ru": "Студенты часто останавливаются в дешёвом хостеле.",
+        "uz": "Talabalar ko'pincha arzon xostelda turadi."
+      }
+    },
+    {
+      "word": "resort",
+      "part_of_speech": "noun",
+      "translation": "курорт",
+      "translations": {
+        "ru": "курорт",
+        "uz": "kurort"
+      },
+      "example": "We spent a week at a mountain resort.",
+      "example_translations": {
+        "ru": "Мы провели неделю на горном курорте.",
+        "uz": "Biz bir haftani tog' kurortida o'tkazdik."
+      }
+    },
+    {
+      "word": "campsite",
+      "part_of_speech": "noun",
+      "translation": "кемпинг, палаточный лагерь",
+      "translations": {
+        "ru": "кемпинг, палаточный лагерь",
+        "uz": "kemping, chodirli oromgoh"
+      },
+      "example": "The campsite is near a beautiful lake.",
+      "example_translations": {
+        "ru": "Кемпинг находится рядом с красивым озером.",
+        "uz": "Kemping go'zal ko'l yaqinida joylashgan."
+      }
+    },
+    {
+      "word": "tent",
+      "part_of_speech": "noun",
+      "translation": "палатка",
+      "translations": {
+        "ru": "палатка",
+        "uz": "chodir"
+      },
+      "example": "Can you help me put up the tent?",
+      "example_translations": {
+        "ru": "Вы можете помочь мне поставить палатку?",
+        "uz": "Menga chodir tikishga yordam bera olasizmi?"
+      }
+    },
+    {
+      "word": "backpack",
+      "part_of_speech": "noun",
+      "translation": "рюкзак",
+      "translations": {
+        "ru": "рюкзак",
+        "uz": "ryukzak"
+      },
+      "example": "Her backpack was too heavy to carry.",
+      "example_translations": {
+        "ru": "Её рюкзак был слишком тяжёлым, чтобы его нести.",
+        "uz": "Uning ryukzagi ko'tarib yurish uchun juda og'ir edi."
+      }
+    },
+    {
+      "word": "lobby",
+      "part_of_speech": "noun",
+      "translation": "холл, вестибюль",
+      "translations": {
+        "ru": "холл, вестибюль",
+        "uz": "vestibyul, xoll"
+      },
+      "example": "Let's meet in the hotel lobby at nine.",
+      "example_translations": {
+        "ru": "Давайте встретимся в холле отеля в девять.",
+        "uz": "Keling, soat to'qqizda mehmonxona vestibyulida uchrashaylik."
+      }
+    },
+    {
+      "word": "brochure",
+      "part_of_speech": "noun",
+      "translation": "брошюра",
+      "translations": {
+        "ru": "брошюра",
+        "uz": "broshyura"
+      },
+      "example": "This brochure has information about city tours.",
+      "example_translations": {
+        "ru": "В этой брошюре есть информация об экскурсиях по городу.",
+        "uz": "Bu broshyurada shahar bo'ylab ekskursiyalar haqida ma'lumot bor."
+      }
+    },
+    {
+      "word": "sightseeing",
+      "part_of_speech": "noun",
+      "translation": "осмотр достопримечательностей",
+      "translations": {
+        "ru": "осмотр достопримечательностей",
+        "uz": "diqqatga sazovor joylarni tomosha qilish"
+      },
+      "example": "Two days is enough for sightseeing in Samarkand.",
+      "example_translations": {
+        "ru": "Двух дней достаточно для осмотра достопримечательностей Самарканда.",
+        "uz": "Samarqandning diqqatga sazovor joylarini tomosha qilish uchun ikki kun yetarli."
+      }
+    },
+    {
+      "word": "excursion",
+      "part_of_speech": "noun",
+      "translation": "экскурсия",
+      "translations": {
+        "ru": "экскурсия",
+        "uz": "ekskursiya"
+      },
+      "example": "The hotel offers a boat excursion every morning.",
+      "example_translations": {
+        "ru": "Отель каждое утро предлагает экскурсию на лодке.",
+        "uz": "Mehmonxona har kuni ertalab qayiqda ekskursiya taklif qiladi."
+      }
+    },
+    {
+      "word": "cruise",
+      "part_of_speech": "noun",
+      "translation": "круиз",
+      "translations": {
+        "ru": "круиз",
+        "uz": "kruiz"
+      },
+      "example": "They went on a cruise around the islands.",
+      "example_translations": {
+        "ru": "Они отправились в круиз вокруг островов.",
+        "uz": "Ular orollar atrofida kruizga chiqdi."
+      }
+    }
+  ]
+}

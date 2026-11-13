@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 2,
+    "title": "Карьера и управление",
+    "title_uz": "Karyera va boshqaruv"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Эффективность",
+    "title_uz": "Samaradorlik"
+  },
+  "words": [
+    {
+      "word": "productivity",
+      "part_of_speech": "noun",
+      "translation": "производительность",
+      "translations": {
+        "ru": "производительность",
+        "uz": "unumdorlik"
+      },
+      "example": "Short breaks can increase productivity at work.",
+      "example_translations": {
+        "ru": "Короткие перерывы могут повысить производительность на работе.",
+        "uz": "Qisqa tanaffuslar ishdagi unumdorlikni oshirishi mumkin."
+      }
+    },
+    {
+      "word": "efficiency",
+      "part_of_speech": "noun",
+      "translation": "эффективность",
+      "translations": {
+        "ru": "эффективность",
+        "uz": "samaradorlik"
+      },
+      "example": "New machines improved efficiency and reduced our costs.",
+      "example_translations": {
+        "ru": "Новые станки повысили эффективность и снизили наши затраты.",
+        "uz": "Yangi dastgohlar samaradorlikni oshirib, xarajatlarimizni kamaytirdi."
+      }
+    },
+    {
+      "word": "appraisal",
+      "part_of_speech": "noun",
+      "translation": "аттестация, оценка работы",
+      "translations": {
+        "ru": "аттестация, оценка работы",
+        "uz": "attestatsiya, ishni baholash"
+      },
+      "example": "Every employee has an appraisal once a year.",
+      "example_translations": {
+        "ru": "Раз в год каждый сотрудник проходит аттестацию.",
+        "uz": "Har bir xodim yiliga bir marta attestatsiyadan o'tadi."
+      }
+    },
+    {
+      "word": "objective",
+      "part_of_speech": "noun",
+      "translation": "цель",
+      "translations": {
+        "ru": "цель",
+        "uz": "maqsad"
+      },
+      "example": "Our main objective this year is to open two stores.",
+      "example_translations": {
+        "ru": "Наша главная цель в этом году — открыть два магазина.",
+        "uz": "Bu yilgi asosiy maqsadimiz — ikkita do'kon ochish."
+      }
+    },
+    {
+      "word": "incentive",
+      "part_of_speech": "noun",
+      "translation": "стимул, поощрение",
+      "translations": {
+        "ru": "стимул, поощрение",
+        "uz": "rag'bat"
+      },
+      "example": "The bonus is a strong incentive to work harder.",
+      "example_translations": {
+        "ru": "Премия — сильный стимул работать усерднее.",
+        "uz": "Mukofot puli — yanada yaxshiroq ishlash uchun kuchli rag'bat."
+      }
+    },
+    {
+      "word": "accomplish",
+      "part_of_speech": "verb",
+      "translation": "выполнять, достигать",
+      "translations": {
+        "ru": "выполнять, достигать",
+        "uz": "bajarmoq, erishmoq"
+      },
+      "example": "The team accomplished the task in just two days.",
+      "example_translations": {
+        "ru": "Команда выполнила задачу всего за два дня.",
+        "uz": "Jamoa vazifani atigi ikki kunda bajardi."
+      }
+    },
+    {
+      "word": "exceed",
+      "part_of_speech": "verb",
+      "translation": "превышать, превосходить",
+      "translations": {
+        "ru": "превышать, превосходить",
+        "uz": "oshib ketmoq"
+      },
+      "example": "Sales exceeded our expectations in the first quarter.",
+      "example_translations": {
+        "ru": "Продажи превзошли наши ожидания в первом квартале.",
+        "uz": "Birinchi chorakda savdo hajmi kutganimizdan oshib ketdi."
+      }
+    },
+    {
+      "word": "milestone",
+      "part_of_speech": "noun",
+      "translation": "веха, важный этап",
+      "translations": {
+        "ru": "веха, важный этап",
+        "uz": "muhim bosqich"
+      },
+      "example": "Opening the second office was a milestone for us.",
+      "example_translations": {
+        "ru": "Открытие второго офиса стало для нас важной вехой.",
+        "uz": "Ikkinchi ofisning ochilishi biz uchun muhim bosqich bo'ldi."
+      }
+    },
+    {
+      "word": "competence",
+      "part_of_speech": "noun",
+      "translation": "компетентность",
+      "translations": {
+        "ru": "компетентность",
+        "uz": "malaka, layoqat"
+      },
+      "example": "Nobody doubts his competence as a project manager.",
+      "example_translations": {
+        "ru": "Никто не сомневается в его компетентности как руководителя проекта.",
+        "uz": "Uning loyiha rahbari sifatidagi malakasiga hech kim shubha qilmaydi."
+      }
+    },
+    {
+      "word": "initiative",
+      "part_of_speech": "noun",
+      "translation": "инициатива",
+      "translations": {
+        "ru": "инициатива",
+        "uz": "tashabbus"
+      },
+      "example": "Employees who show initiative often get promoted first.",
+      "example_translations": {
+        "ru": "Сотрудников, проявляющих инициативу, часто повышают первыми.",
+        "uz": "Tashabbus ko'rsatadigan xodimlar ko'pincha birinchi bo'lib lavozimga ko'tariladi."
+      }
+    }
+  ]
+}

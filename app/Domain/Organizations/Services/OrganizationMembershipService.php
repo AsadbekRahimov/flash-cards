@@ -50,7 +50,8 @@ use Throwable;
  * subscription paths (`SubscriptionService::grantManual` / `applyCharge`) lock
  * `organizations -> subscriptions` and call `reseat()` after their commit, so nobody holding
  * `organization_members` waits for `subscriptions` or the other way round. Learner rows are
- * never locked here; the FK inserts (`organization_members`, `product_events`) only take
+ * never locked here; the FK inserts (`organization_members`, `product_events` - the latter only outside the
+ * `api` group, which buffers events until after commit) only take
  * KEY SHARE on the learner, which a `grantManual(learner)` holding the learner FOR UPDATE never
  * waits on in reverse (it does not touch organizations).
  *

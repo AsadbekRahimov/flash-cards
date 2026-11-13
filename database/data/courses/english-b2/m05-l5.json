@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 5,
+    "title": "Технологии и инновации",
+    "title_uz": "Texnologiyalar va innovatsiyalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Техника и устройства",
+    "title_uz": "Texnika va qurilmalar"
+  },
+  "words": [
+    {
+      "word": "durable",
+      "part_of_speech": "adjective",
+      "translation": "прочный, долговечный",
+      "translations": {
+        "ru": "прочный, долговечный",
+        "uz": "chidamli"
+      },
+      "example": "This phone case is durable and lasts for years.",
+      "example_translations": {
+        "ru": "Этот чехол для телефона прочный и служит годами.",
+        "uz": "Bu telefon g'ilofi chidamli va yillab xizmat qiladi."
+      }
+    },
+    {
+      "word": "mechanism",
+      "part_of_speech": "noun",
+      "translation": "механизм",
+      "translations": {
+        "ru": "механизм",
+        "uz": "mexanizm"
+      },
+      "example": "A complex mechanism moves the hands of the clock.",
+      "example_translations": {
+        "ru": "Сложный механизм приводит в движение стрелки часов.",
+        "uz": "Murakkab mexanizm soat millarini harakatga keltiradi."
+      }
+    },
+    {
+      "word": "component",
+      "part_of_speech": "noun",
+      "translation": "компонент, составная часть",
+      "translations": {
+        "ru": "компонент, составная часть",
+        "uz": "tarkibiy qism"
+      },
+      "example": "The battery is the heaviest component of the laptop.",
+      "example_translations": {
+        "ru": "Аккумулятор — самый тяжёлый компонент ноутбука.",
+        "uz": "Batareya — noutbukning eng og'ir tarkibiy qismi."
+      }
+    },
+    {
+      "word": "circuit",
+      "part_of_speech": "noun",
+      "translation": "электрическая цепь",
+      "translations": {
+        "ru": "электрическая цепь",
+        "uz": "elektr zanjiri"
+      },
+      "example": "Electricity flows through the circuit to the lamp.",
+      "example_translations": {
+        "ru": "Ток идёт по электрической цепи к лампе.",
+        "uz": "Tok elektr zanjiri orqali chiroqqa boradi."
+      }
+    },
+    {
+      "word": "antenna",
+      "part_of_speech": "noun",
+      "translation": "антенна",
+      "translations": {
+        "ru": "антенна",
+        "uz": "antenna"
+      },
+      "example": "The antenna on the roof improves the signal.",
+      "example_translations": {
+        "ru": "Антенна на крыше улучшает сигнал.",
+        "uz": "Tomdagi antenna signalni yaxshilaydi."
+      }
+    },
+    {
+      "word": "socket",
+      "part_of_speech": "noun",
+      "translation": "розетка",
+      "translations": {
+        "ru": "розетка",
+        "uz": "rozetka"
+      },
+      "example": "Plug the charger into the socket by the door.",
+      "example_translations": {
+        "ru": "Включите зарядное устройство в розетку у двери.",
+        "uz": "Zaryadlash qurilmasini eshik yonidagi rozetkaga ulang."
+      }
+    },
+    {
+      "word": "transmit",
+      "part_of_speech": "verb",
+      "translation": "передавать",
+      "translations": {
+        "ru": "передавать",
+        "uz": "uzatmoq"
+      },
+      "example": "This tower transmits radio signals across the valley.",
+      "example_translations": {
+        "ru": "Эта вышка передаёт радиосигналы через всю долину.",
+        "uz": "Bu minora radiosignallarni butun vodiy bo'ylab uzatadi."
+      }
+    },
+    {
+      "word": "appliance",
+      "part_of_speech": "noun",
+      "translation": "бытовой прибор",
+      "translations": {
+        "ru": "бытовой прибор",
+        "uz": "maishiy texnika"
+      },
+      "example": "Modern appliances like dishwashers save a lot of time.",
+      "example_translations": {
+        "ru": "Современные бытовые приборы, например посудомоечные машины, экономят много времени.",
+        "uz": "Idish yuvish mashinasi kabi zamonaviy maishiy texnika ko'p vaqtni tejaydi."
+      }
+    },
+    {
+      "word": "manual",
+      "part_of_speech": "noun",
+      "translation": "руководство, инструкция",
+      "translations": {
+        "ru": "руководство, инструкция",
+        "uz": "qo'llanma"
+      },
+      "example": "Read the manual before you use the printer.",
+      "example_translations": {
+        "ru": "Прочитайте руководство, прежде чем пользоваться принтером.",
+        "uz": "Printerdan foydalanishdan oldin qo'llanmani o'qing."
+      }
+    },
+    {
+      "word": "compact",
+      "part_of_speech": "adjective",
+      "translation": "компактный",
+      "translations": {
+        "ru": "компактный",
+        "uz": "ixcham"
+      },
+      "example": "This compact camera fits in my pocket.",
+      "example_translations": {
+        "ru": "Эта компактная камера помещается у меня в кармане.",
+        "uz": "Bu ixcham kamera cho'ntagimga sig'adi."
+      }
+    }
+  ]
+}

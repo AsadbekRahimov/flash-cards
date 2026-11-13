@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 6,
+    "title": "Путешествия и транспорт",
+    "title_uz": "Sayohat va transport"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Виды транспорта",
+    "title_uz": "Transport turlari"
+  },
+  "words": [
+    {
+      "word": "vehicle",
+      "part_of_speech": "noun",
+      "translation": "транспортное средство",
+      "translations": {
+        "ru": "транспортное средство",
+        "uz": "transport vositasi"
+      },
+      "example": "A bus is a large vehicle for many passengers.",
+      "example_translations": {
+        "ru": "Автобус — это большое транспортное средство для многих пассажиров.",
+        "uz": "Avtobus ko'p yo'lovchi tashiydigan katta transport vositasidir."
+      }
+    },
+    {
+      "word": "ferry",
+      "part_of_speech": "noun",
+      "translation": "паром",
+      "translations": {
+        "ru": "паром",
+        "uz": "parom"
+      },
+      "example": "We crossed the river on a small ferry.",
+      "example_translations": {
+        "ru": "Мы переправились через реку на небольшом пароме.",
+        "uz": "Biz daryodan kichik paromda o'tdik."
+      }
+    },
+    {
+      "word": "tram",
+      "part_of_speech": "noun",
+      "translation": "трамвай",
+      "translations": {
+        "ru": "трамвай",
+        "uz": "tramvay"
+      },
+      "example": "Trams run through the city center every ten minutes.",
+      "example_translations": {
+        "ru": "Трамваи ходят через центр города каждые десять минут.",
+        "uz": "Tramvaylar shahar markazi orqali har o'n daqiqada qatnaydi."
+      }
+    },
+    {
+      "word": "motorcycle",
+      "part_of_speech": "noun",
+      "translation": "мотоцикл",
+      "translations": {
+        "ru": "мотоцикл",
+        "uz": "mototsikl"
+      },
+      "example": "My brother rides his motorcycle to work.",
+      "example_translations": {
+        "ru": "Мой брат ездит на работу на мотоцикле.",
+        "uz": "Akam ishga mototsiklda boradi."
+      }
+    },
+    {
+      "word": "helicopter",
+      "part_of_speech": "noun",
+      "translation": "вертолёт",
+      "translations": {
+        "ru": "вертолёт",
+        "uz": "vertolyot"
+      },
+      "example": "A helicopter landed on the hospital roof.",
+      "example_translations": {
+        "ru": "Вертолёт приземлился на крышу больницы.",
+        "uz": "Vertolyot kasalxona tomiga qo'ndi."
+      }
+    },
+    {
+      "word": "minibus",
+      "part_of_speech": "noun",
+      "translation": "микроавтобус",
+      "translations": {
+        "ru": "микроавтобус",
+        "uz": "mikroavtobus"
+      },
+      "example": "Ten of us traveled there by minibus.",
+      "example_translations": {
+        "ru": "Мы вдесятером поехали туда на микроавтобусе.",
+        "uz": "Biz o'n kishi u yerga mikroavtobusda bordik."
+      }
+    },
+    {
+      "word": "subway",
+      "part_of_speech": "noun",
+      "translation": "метро",
+      "translations": {
+        "ru": "метро",
+        "uz": "metro"
+      },
+      "example": "She takes the subway to avoid traffic.",
+      "example_translations": {
+        "ru": "Она ездит на метро, чтобы не стоять в пробках.",
+        "uz": "U tirbandlikka tushmaslik uchun metroda yuradi."
+      }
+    },
+    {
+      "word": "scooter",
+      "part_of_speech": "noun",
+      "translation": "скутер",
+      "translations": {
+        "ru": "скутер",
+        "uz": "skuter"
+      },
+      "example": "Tourists often rent a scooter on the island.",
+      "example_translations": {
+        "ru": "Туристы часто берут напрокат скутер на острове.",
+        "uz": "Sayyohlar orolda ko'pincha skuter ijaraga oladi."
+      }
+    },
+    {
+      "word": "aircraft",
+      "part_of_speech": "noun",
+      "translation": "воздушное судно",
+      "translations": {
+        "ru": "воздушное судно",
+        "uz": "havo kemasi"
+      },
+      "example": "This aircraft can carry three hundred passengers.",
+      "example_translations": {
+        "ru": "Это воздушное судно может перевозить триста пассажиров.",
+        "uz": "Bu havo kemasi uch yuz yo'lovchini tashiy oladi."
+      }
+    },
+    {
+      "word": "railway",
+      "part_of_speech": "noun",
+      "translation": "железная дорога",
+      "translations": {
+        "ru": "железная дорога",
+        "uz": "temir yo'l"
+      },
+      "example": "A new railway connects the two cities.",
+      "example_translations": {
+        "ru": "Новая железная дорога соединяет два города.",
+        "uz": "Yangi temir yo'l ikki shaharni bog'laydi."
+      }
+    }
+  ]
+}

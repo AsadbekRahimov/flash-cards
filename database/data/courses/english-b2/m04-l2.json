@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 4,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Числа и расчёты",
+    "title_uz": "Sonlar va hisob-kitoblar"
+  },
+  "words": [
+    {
+      "word": "statistics",
+      "part_of_speech": "noun",
+      "translation": "статистика",
+      "translations": {
+        "ru": "статистика",
+        "uz": "statistika"
+      },
+      "example": "Statistics show that people are living longer.",
+      "example_translations": {
+        "ru": "Статистика показывает, что люди стали жить дольше.",
+        "uz": "Statistika odamlar uzoqroq umr ko'rayotganini ko'rsatadi."
+      }
+    },
+    {
+      "word": "measurement",
+      "part_of_speech": "noun",
+      "translation": "измерение",
+      "translations": {
+        "ru": "измерение",
+        "uz": "o'lchov, o'lchash"
+      },
+      "example": "Each measurement was repeated three times for accuracy.",
+      "example_translations": {
+        "ru": "Для точности каждое измерение повторяли три раза.",
+        "uz": "Aniqlik uchun har bir o'lchov uch marta takrorlandi."
+      }
+    },
+    {
+      "word": "digit",
+      "part_of_speech": "noun",
+      "translation": "цифра",
+      "translations": {
+        "ru": "цифра",
+        "uz": "raqam"
+      },
+      "example": "Your password must contain at least one digit.",
+      "example_translations": {
+        "ru": "Ваш пароль должен содержать хотя бы одну цифру.",
+        "uz": "Parolingizda kamida bitta raqam bo'lishi kerak."
+      }
+    },
+    {
+      "word": "decimal",
+      "part_of_speech": "noun",
+      "translation": "десятичная дробь",
+      "translations": {
+        "ru": "десятичная дробь",
+        "uz": "o'nli kasr"
+      },
+      "example": "Write one half as a decimal: 0.5.",
+      "example_translations": {
+        "ru": "Запишите одну вторую в виде десятичной дроби: 0,5.",
+        "uz": "Ikkidan birni o'nli kasr ko'rinishida yozing: 0,5."
+      }
+    },
+    {
+      "word": "ratio",
+      "part_of_speech": "noun",
+      "translation": "соотношение",
+      "translations": {
+        "ru": "соотношение",
+        "uz": "nisbat"
+      },
+      "example": "The ratio of students to teachers is twenty to one.",
+      "example_translations": {
+        "ru": "Соотношение учеников и учителей — двадцать к одному.",
+        "uz": "O'quvchilar va o'qituvchilar nisbati — yigirmaga bir."
+      }
+    },
+    {
+      "word": "proportion",
+      "part_of_speech": "noun",
+      "translation": "доля, часть",
+      "translations": {
+        "ru": "доля, часть",
+        "uz": "ulush, qism"
+      },
+      "example": "Only a small proportion of people answered the survey.",
+      "example_translations": {
+        "ru": "Лишь небольшая доля людей ответила на опрос.",
+        "uz": "Odamlarning faqat kichik bir qismi so'rovnomaga javob berdi."
+      }
+    },
+    {
+      "word": "probability",
+      "part_of_speech": "noun",
+      "translation": "вероятность",
+      "translations": {
+        "ru": "вероятность",
+        "uz": "ehtimollik"
+      },
+      "example": "The probability of rain tomorrow is very low.",
+      "example_translations": {
+        "ru": "Вероятность дождя завтра очень мала.",
+        "uz": "Ertaga yomg'ir yog'ish ehtimolligi juda past."
+      }
+    },
+    {
+      "word": "numerical",
+      "part_of_speech": "adjective",
+      "translation": "числовой",
+      "translations": {
+        "ru": "числовой",
+        "uz": "sonli"
+      },
+      "example": "The table presents the numerical results of the test.",
+      "example_translations": {
+        "ru": "В таблице представлены числовые результаты теста.",
+        "uz": "Jadvalda testning sonli natijalari keltirilgan."
+      }
+    },
+    {
+      "word": "equation",
+      "part_of_speech": "noun",
+      "translation": "уравнение",
+      "translations": {
+        "ru": "уравнение",
+        "uz": "tenglama"
+      },
+      "example": "Can you solve this equation without a calculator?",
+      "example_translations": {
+        "ru": "Вы можете решить это уравнение без калькулятора?",
+        "uz": "Bu tenglamani kalkulyatorsiz yecha olasizmi?"
+      }
+    },
+    {
+      "word": "fraction",
+      "part_of_speech": "noun",
+      "translation": "дробь",
+      "translations": {
+        "ru": "дробь",
+        "uz": "kasr"
+      },
+      "example": "Three quarters is a fraction, not a whole number.",
+      "example_translations": {
+        "ru": "Три четверти — это дробь, а не целое число.",
+        "uz": "To'rtdan uch — bu kasr, butun son emas."
+      }
+    }
+  ]
+}

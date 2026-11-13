@@ -24,6 +24,7 @@ final class LessonContentRefresher
         private readonly LearningCache $cache,
         private readonly CoursePublisher $publisher,
         private readonly WordAudioService $audio,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /**
@@ -65,7 +66,7 @@ final class LessonContentRefresher
     /**
      * Brings every derived figure of the content back in step with the words (`php artisan courses:recount-words`):
      * `courses.words_count` of EVERY course - the decks of learners are courses, archived ones too - through
-     * {@see CoursePublisher::recount()}, and the cached active-word count of every lesson. Every path that changes
+     * {@see CoursePublisher::recount()}, the cached active-word count of every lesson and the cached tree of every platform course. Every path that changes
      * words keeps these figures up to date; this is the repair for rows that drifted anyway (a path that forgot,
      * a restored dump, hand-made SQL), and what a deploy runs after the migrations because `words_count` is the
      * `total` of `GET /courses` (docs/03 §6). Idempotent: a second run corrects nothing - and writes nothing: a course
@@ -87,6 +88,11 @@ final class LessonContentRefresher
             foreach ($courses as $course) {
                 $checked++;
                 if ($this->publisher->countActiveWords($course) === $course->words_count) {
+                    // Words may have moved between lessons at the same total: the cached tree is stale anyway.
+                    if (! $course->isLearnerOwned()) {
+                        $this->catalog->forgetCourseTree($course->id);
+                    }
+
                     continue;
                 }
 

@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 5,
+    "title": "Технологии и инновации",
+    "title_uz": "Texnologiyalar va innovatsiyalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Инновации",
+    "title_uz": "Innovatsiyalar"
+  },
+  "words": [
+    {
+      "word": "innovation",
+      "part_of_speech": "noun",
+      "translation": "инновация",
+      "translations": {
+        "ru": "инновация",
+        "uz": "innovatsiya"
+      },
+      "example": "This innovation saves farmers a lot of water.",
+      "example_translations": {
+        "ru": "Эта инновация экономит фермерам много воды.",
+        "uz": "Bu innovatsiya tufayli fermerlar ko'p suv tejaydi."
+      }
+    },
+    {
+      "word": "futuristic",
+      "part_of_speech": "adjective",
+      "translation": "футуристический",
+      "translations": {
+        "ru": "футуристический",
+        "uz": "futuristik"
+      },
+      "example": "The new airport has a futuristic design.",
+      "example_translations": {
+        "ru": "У нового аэропорта футуристический дизайн.",
+        "uz": "Yangi aeroport futuristik dizaynga ega."
+      }
+    },
+    {
+      "word": "prototype",
+      "part_of_speech": "noun",
+      "translation": "прототип, опытный образец",
+      "translations": {
+        "ru": "прототип, опытный образец",
+        "uz": "prototip, tajriba namunasi"
+      },
+      "example": "Engineers tested the first prototype of the car.",
+      "example_translations": {
+        "ru": "Инженеры испытали первый прототип автомобиля.",
+        "uz": "Muhandislar avtomobilning birinchi prototipini sinovdan o'tkazdi."
+      }
+    },
+    {
+      "word": "patent",
+      "part_of_speech": "noun",
+      "translation": "патент",
+      "translations": {
+        "ru": "патент",
+        "uz": "patent"
+      },
+      "example": "She received a patent for her invention.",
+      "example_translations": {
+        "ru": "Она получила патент на своё изобретение.",
+        "uz": "U o'z ixtirosi uchun patent oldi."
+      }
+    },
+    {
+      "word": "modernize",
+      "part_of_speech": "verb",
+      "translation": "модернизировать",
+      "translations": {
+        "ru": "модернизировать",
+        "uz": "zamonaviylashtirmoq"
+      },
+      "example": "The city plans to modernize its old factories.",
+      "example_translations": {
+        "ru": "Город планирует модернизировать свои старые заводы.",
+        "uz": "Shahar eski zavodlarini zamonaviylashtirishni rejalashtirmoqda."
+      }
+    },
+    {
+      "word": "refine",
+      "part_of_speech": "verb",
+      "translation": "дорабатывать, совершенствовать",
+      "translations": {
+        "ru": "дорабатывать, совершенствовать",
+        "uz": "takomillashtirmoq"
+      },
+      "example": "Our team refined the design after each test.",
+      "example_translations": {
+        "ru": "Наша команда дорабатывала дизайн после каждого испытания.",
+        "uz": "Jamoamiz har bir sinovdan keyin dizaynni takomillashtirdi."
+      }
+    },
+    {
+      "word": "obsolete",
+      "part_of_speech": "adjective",
+      "translation": "вышедший из употребления",
+      "translations": {
+        "ru": "вышедший из употребления",
+        "uz": "iste'moldan chiqqan"
+      },
+      "example": "Smartphones have made paper maps almost obsolete.",
+      "example_translations": {
+        "ru": "Из-за смартфонов бумажные карты почти вышли из употребления.",
+        "uz": "Smartfonlar tufayli qog'oz xaritalar deyarli iste'moldan chiqdi."
+      }
+    },
+    {
+      "word": "outdated",
+      "part_of_speech": "adjective",
+      "translation": "устаревший",
+      "translations": {
+        "ru": "устаревший",
+        "uz": "eskirgan"
+      },
+      "example": "This software is outdated and needs an update.",
+      "example_translations": {
+        "ru": "Эта программа устарела и нуждается в обновлении.",
+        "uz": "Bu dastur eskirgan va uni yangilash kerak."
+      }
+    },
+    {
+      "word": "revolutionary",
+      "part_of_speech": "adjective",
+      "translation": "революционный",
+      "translations": {
+        "ru": "революционный",
+        "uz": "inqilobiy"
+      },
+      "example": "Many people call the internet a revolutionary invention.",
+      "example_translations": {
+        "ru": "Многие называют интернет революционным изобретением.",
+        "uz": "Ko'pchilik internetni inqilobiy ixtiro deb ataydi."
+      }
+    },
+    {
+      "word": "enhance",
+      "part_of_speech": "verb",
+      "translation": "улучшать",
+      "translations": {
+        "ru": "улучшать",
+        "uz": "yaxshilamoq"
+      },
+      "example": "New cameras enhance the quality of night photos.",
+      "example_translations": {
+        "ru": "Новые камеры улучшают качество ночных снимков.",
+        "uz": "Yangi kameralar tungi suratlar sifatini yaxshilaydi."
+      }
+    }
+  ]
+}

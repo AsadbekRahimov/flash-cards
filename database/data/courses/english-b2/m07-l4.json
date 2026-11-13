@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 7,
+    "title": "Окружающая среда и климат",
+    "title_uz": "Atrof-muhit va iqlim"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Энергия и ресурсы",
+    "title_uz": "Energiya va resurslar"
+  },
+  "words": [
+    {
+      "word": "renewable",
+      "part_of_speech": "adjective",
+      "translation": "возобновляемый",
+      "translations": {
+        "ru": "возобновляемый",
+        "uz": "qayta tiklanuvchi"
+      },
+      "example": "Wind is a clean and renewable energy source.",
+      "example_translations": {
+        "ru": "Ветер — чистый и возобновляемый источник энергии.",
+        "uz": "Shamol toza va qayta tiklanuvchi energiya manbaidir."
+      }
+    },
+    {
+      "word": "sustainable",
+      "part_of_speech": "adjective",
+      "translation": "устойчивый",
+      "translations": {
+        "ru": "устойчивый",
+        "uz": "barqaror"
+      },
+      "example": "Sustainable farming protects the soil for the future.",
+      "example_translations": {
+        "ru": "Устойчивое земледелие сохраняет почву для будущего.",
+        "uz": "Barqaror dehqonchilik tuproqni kelajak uchun asraydi."
+      }
+    },
+    {
+      "word": "coal",
+      "part_of_speech": "noun",
+      "translation": "уголь",
+      "translations": {
+        "ru": "уголь",
+        "uz": "ko'mir"
+      },
+      "example": "This power station still burns coal.",
+      "example_translations": {
+        "ru": "Эта электростанция до сих пор сжигает уголь.",
+        "uz": "Bu elektr stansiyasi hali ham ko'mir yoqadi."
+      }
+    },
+    {
+      "word": "hydropower",
+      "part_of_speech": "noun",
+      "translation": "гидроэнергия",
+      "translations": {
+        "ru": "гидроэнергия",
+        "uz": "gidroenergiya"
+      },
+      "example": "Mountain rivers give the country cheap hydropower.",
+      "example_translations": {
+        "ru": "Горные реки дают стране дешёвую гидроэнергию.",
+        "uz": "Tog' daryolari mamlakatga arzon gidroenergiya beradi."
+      }
+    },
+    {
+      "word": "nuclear",
+      "part_of_speech": "adjective",
+      "translation": "атомный, ядерный",
+      "translations": {
+        "ru": "атомный, ядерный",
+        "uz": "atom, yadroviy"
+      },
+      "example": "Nuclear energy produces electricity without any smoke.",
+      "example_translations": {
+        "ru": "Атомная энергия вырабатывает электричество без всякого дыма.",
+        "uz": "Atom energiyasi hech qanday tutunsiz elektr toki ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "turbine",
+      "part_of_speech": "noun",
+      "translation": "турбина",
+      "translations": {
+        "ru": "турбина",
+        "uz": "turbina"
+      },
+      "example": "The wind turns the blades of the turbine.",
+      "example_translations": {
+        "ru": "Ветер вращает лопасти турбины.",
+        "uz": "Shamol turbina parraklarini aylantiradi."
+      }
+    },
+    {
+      "word": "scarce",
+      "part_of_speech": "adjective",
+      "translation": "скудный, дефицитный",
+      "translations": {
+        "ru": "скудный, дефицитный",
+        "uz": "tanqis, kamyob"
+      },
+      "example": "Clean water is scarce in this dry region.",
+      "example_translations": {
+        "ru": "В этом засушливом регионе запасы чистой воды скудны.",
+        "uz": "Bu qurg'oqchil hududda toza suv tanqis."
+      }
+    },
+    {
+      "word": "deplete",
+      "part_of_speech": "verb",
+      "translation": "истощать",
+      "translations": {
+        "ru": "истощать",
+        "uz": "tugatmoq"
+      },
+      "example": "Too much fishing depletes the ocean's resources.",
+      "example_translations": {
+        "ru": "Чрезмерный вылов рыбы истощает ресурсы океана.",
+        "uz": "Haddan tashqari baliq ovlash okean resurslarini tugatadi."
+      }
+    },
+    {
+      "word": "reservoir",
+      "part_of_speech": "noun",
+      "translation": "водохранилище",
+      "translations": {
+        "ru": "водохранилище",
+        "uz": "suv ombori"
+      },
+      "example": "The reservoir supplies water to the whole city.",
+      "example_translations": {
+        "ru": "Водохранилище снабжает водой весь город.",
+        "uz": "Suv ombori butun shaharni suv bilan ta'minlaydi."
+      }
+    },
+    {
+      "word": "mineral",
+      "part_of_speech": "noun",
+      "translation": "полезное ископаемое",
+      "translations": {
+        "ru": "полезное ископаемое",
+        "uz": "foydali qazilma"
+      },
+      "example": "This region is rich in valuable minerals.",
+      "example_translations": {
+        "ru": "Этот регион богат ценными полезными ископаемыми.",
+        "uz": "Bu hudud qimmatbaho foydali qazilmalarga boy."
+      }
+    }
+  ]
+}

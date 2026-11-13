@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 2,
+    "title": "Отношения и общение",
+    "title_uz": "Munosabatlar va muloqot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Дружба",
+    "title_uz": "Do'stlik"
+  },
+  "words": [
+    {
+      "word": "friendship",
+      "part_of_speech": "noun",
+      "translation": "дружба",
+      "translations": {
+        "ru": "дружба",
+        "uz": "do'stlik"
+      },
+      "example": "Our friendship began at school many years ago.",
+      "example_translations": {
+        "ru": "Наша дружба началась в школе много лет назад.",
+        "uz": "Bizning do'stligimiz ko'p yillar oldin maktabda boshlangan."
+      }
+    },
+    {
+      "word": "classmate",
+      "part_of_speech": "noun",
+      "translation": "одноклассник",
+      "translations": {
+        "ru": "одноклассник",
+        "uz": "sinfdosh"
+      },
+      "example": "I still meet my old classmates every summer.",
+      "example_translations": {
+        "ru": "Я до сих пор каждое лето встречаюсь со старыми одноклассниками.",
+        "uz": "Men hali ham har yozda eski sinfdoshlarim bilan uchrashaman."
+      }
+    },
+    {
+      "word": "roommate",
+      "part_of_speech": "noun",
+      "translation": "сосед по комнате",
+      "translations": {
+        "ru": "сосед по комнате",
+        "uz": "xonadosh"
+      },
+      "example": "My roommate and I cook dinner together.",
+      "example_translations": {
+        "ru": "Мы с соседом по комнате вместе готовим ужин.",
+        "uz": "Xonadoshim bilan kechki ovqatni birga tayyorlaymiz."
+      }
+    },
+    {
+      "word": "loyal",
+      "part_of_speech": "adjective",
+      "translation": "верный, преданный",
+      "translations": {
+        "ru": "верный, преданный",
+        "uz": "sodiq"
+      },
+      "example": "A loyal friend stays with you in hard times.",
+      "example_translations": {
+        "ru": "Верный друг остаётся рядом с вами в трудные времена.",
+        "uz": "Sodiq do'st qiyin paytlarda yoningizda bo'ladi."
+      }
+    },
+    {
+      "word": "secret",
+      "part_of_speech": "noun",
+      "translation": "секрет, тайна",
+      "translations": {
+        "ru": "секрет, тайна",
+        "uz": "sir"
+      },
+      "example": "Can you keep a secret, Malika?",
+      "example_translations": {
+        "ru": "Ты умеешь хранить секреты, Малика?",
+        "uz": "Sir saqlay olasanmi, Malika?"
+      }
+    },
+    {
+      "word": "introduce",
+      "part_of_speech": "verb",
+      "translation": "знакомить, представлять",
+      "translations": {
+        "ru": "знакомить, представлять",
+        "uz": "tanishtirmoq"
+      },
+      "example": "Let me introduce you to my friend Aziz.",
+      "example_translations": {
+        "ru": "Позвольте познакомить вас с моим другом Азизом.",
+        "uz": "Keling, sizni do'stim Aziz bilan tanishtiray."
+      }
+    },
+    {
+      "word": "quarrel",
+      "part_of_speech": "verb",
+      "translation": "ссориться",
+      "translations": {
+        "ru": "ссориться",
+        "uz": "janjallashmoq"
+      },
+      "example": "Best friends sometimes quarrel about small things.",
+      "example_translations": {
+        "ru": "Лучшие друзья иногда ссорятся из-за мелочей.",
+        "uz": "Eng yaqin do'stlar ba'zan arzimas narsalar uchun janjallashadi."
+      }
+    },
+    {
+      "word": "jealous",
+      "part_of_speech": "adjective",
+      "translation": "завистливый",
+      "translations": {
+        "ru": "завистливый",
+        "uz": "hasadgo'y"
+      },
+      "example": "A jealous friend is never happy about your success.",
+      "example_translations": {
+        "ru": "Завистливый друг никогда не радуется вашему успеху.",
+        "uz": "Hasadgo'y do'st sizning muvaffaqiyatingizdan hech qachon quvonmaydi."
+      }
+    },
+    {
+      "word": "gossip",
+      "part_of_speech": "noun",
+      "translation": "сплетни",
+      "translations": {
+        "ru": "сплетни",
+        "uz": "g'iybat"
+      },
+      "example": "I don't listen to gossip about my friends.",
+      "example_translations": {
+        "ru": "Я не слушаю сплетни о своих друзьях.",
+        "uz": "Men do'stlarim haqidagi g'iybatlarga quloq solmayman."
+      }
+    },
+    {
+      "word": "favor",
+      "part_of_speech": "noun",
+      "translation": "одолжение",
+      "translations": {
+        "ru": "одолжение",
+        "uz": "yaxshilik"
+      },
+      "example": "Could you do me a favor and call Tom?",
+      "example_translations": {
+        "ru": "Не могли бы вы сделать мне одолжение и позвонить Тому?",
+        "uz": "Menga bir yaxshilik qilib, Tomga qo'ng'iroq qila olasizmi?"
+      }
+    }
+  ]
+}

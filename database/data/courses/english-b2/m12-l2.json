@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 12,
+    "title": "Образование и мышление",
+    "title_uz": "Ta'lim va tafakkur"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Оценивание",
+    "title_uz": "Baholash"
+  },
+  "words": [
+    {
+      "word": "assessment",
+      "part_of_speech": "noun",
+      "translation": "оценивание",
+      "translations": {
+        "ru": "оценивание",
+        "uz": "baholash"
+      },
+      "example": "The final assessment includes a test and an essay.",
+      "example_translations": {
+        "ru": "Итоговое оценивание включает тест и эссе.",
+        "uz": "Yakuniy baholash test va inshoni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "evaluate",
+      "part_of_speech": "verb",
+      "translation": "оценивать",
+      "translations": {
+        "ru": "оценивать",
+        "uz": "baholamoq"
+      },
+      "example": "Teachers evaluate every project at the end of the semester.",
+      "example_translations": {
+        "ru": "Преподаватели оценивают каждый проект в конце семестра.",
+        "uz": "O'qituvchilar semestr oxirida har bir loyihani baholaydi."
+      }
+    },
+    {
+      "word": "criterion",
+      "part_of_speech": "noun",
+      "translation": "критерий",
+      "translations": {
+        "ru": "критерий",
+        "uz": "mezon"
+      },
+      "example": "Clear writing is the main criterion for a high grade.",
+      "example_translations": {
+        "ru": "Ясное изложение — главный критерий высокой оценки.",
+        "uz": "Aniq bayon — yuqori bahoning asosiy mezoni."
+      }
+    },
+    {
+      "word": "plagiarism",
+      "part_of_speech": "noun",
+      "translation": "плагиат",
+      "translations": {
+        "ru": "плагиат",
+        "uz": "plagiat, ko'chirmachilik"
+      },
+      "example": "Copying another student's essay is plagiarism.",
+      "example_translations": {
+        "ru": "Списывать эссе у другого студента — это плагиат.",
+        "uz": "Boshqa talabaning inshosini ko'chirib olish — plagiat."
+      }
+    },
+    {
+      "word": "proficiency",
+      "part_of_speech": "noun",
+      "translation": "уровень владения",
+      "translations": {
+        "ru": "уровень владения",
+        "uz": "bilish darajasi"
+      },
+      "example": "The test measures your proficiency in English.",
+      "example_translations": {
+        "ru": "Тест измеряет ваш уровень владения английским языком.",
+        "uz": "Test ingliz tilini bilish darajangizni o'lchaydi."
+      }
+    },
+    {
+      "word": "coursework",
+      "part_of_speech": "noun",
+      "translation": "курсовая работа",
+      "translations": {
+        "ru": "курсовая работа",
+        "uz": "kurs ishi"
+      },
+      "example": "Coursework counts for half of the final grade.",
+      "example_translations": {
+        "ru": "Курсовая работа составляет половину итоговой оценки.",
+        "uz": "Kurs ishi yakuniy bahoning yarmini tashkil etadi."
+      }
+    },
+    {
+      "word": "merit",
+      "part_of_speech": "noun",
+      "translation": "достоинство, преимущество",
+      "translations": {
+        "ru": "достоинство, преимущество",
+        "uz": "afzallik"
+      },
+      "example": "The judges discussed the merits of each essay.",
+      "example_translations": {
+        "ru": "Жюри обсудило достоинства каждого эссе.",
+        "uz": "Hakamlar har bir inshoning afzalliklarini muhokama qilishdi."
+      }
+    },
+    {
+      "word": "aptitude",
+      "part_of_speech": "noun",
+      "translation": "способность, склонность",
+      "translations": {
+        "ru": "способность, склонность",
+        "uz": "layoqat, qobiliyat"
+      },
+      "example": "Aziz showed an aptitude for math at an early age.",
+      "example_translations": {
+        "ru": "Азиз с ранних лет проявлял способности к математике.",
+        "uz": "Aziz yoshligidan matematikaga layoqat ko'rsatgan."
+      }
+    },
+    {
+      "word": "literacy",
+      "part_of_speech": "noun",
+      "translation": "грамотность",
+      "translations": {
+        "ru": "грамотность",
+        "uz": "savodxonlik"
+      },
+      "example": "The program improves literacy among adults in villages.",
+      "example_translations": {
+        "ru": "Программа повышает грамотность среди взрослых в сёлах.",
+        "uz": "Dastur qishloqlardagi kattalar orasida savodxonlikni oshiradi."
+      }
+    },
+    {
+      "word": "revision",
+      "part_of_speech": "noun",
+      "translation": "доработка, правка",
+      "translations": {
+        "ru": "доработка, правка",
+        "uz": "qayta ishlash, tahrir"
+      },
+      "example": "Your essay needs one more revision before Friday.",
+      "example_translations": {
+        "ru": "Вашему эссе нужна ещё одна доработка до пятницы.",
+        "uz": "Inshongizni juma kunigacha yana bir marta qayta ishlash kerak."
+      }
+    }
+  ]
+}

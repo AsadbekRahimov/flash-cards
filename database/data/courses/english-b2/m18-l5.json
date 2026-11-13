@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 18,
+    "title": "Причины, следствия и изменения",
+    "title_uz": "Sabablar, oqibatlar va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Тенденции",
+    "title_uz": "Tendensiyalar"
+  },
+  "words": [
+    {
+      "word": "momentum",
+      "part_of_speech": "noun",
+      "translation": "темп, импульс",
+      "translations": {
+        "ru": "темп, импульс",
+        "uz": "sur'at, shiddat"
+      },
+      "example": "Economic growth lost momentum last year.",
+      "example_translations": {
+        "ru": "В прошлом году экономический рост потерял темп.",
+        "uz": "O'tgan yili iqtisodiy o'sish sur'atini yo'qotdi."
+      }
+    },
+    {
+      "word": "pattern",
+      "part_of_speech": "noun",
+      "translation": "закономерность",
+      "translations": {
+        "ru": "закономерность",
+        "uz": "qonuniyat"
+      },
+      "example": "Scientists noticed a clear pattern in the weather data.",
+      "example_translations": {
+        "ru": "Учёные заметили чёткую закономерность в данных о погоде.",
+        "uz": "Olimlar ob-havo ma'lumotlarida aniq qonuniyatni payqadilar."
+      }
+    },
+    {
+      "word": "stability",
+      "part_of_speech": "noun",
+      "translation": "стабильность, устойчивость",
+      "translations": {
+        "ru": "стабильность, устойчивость",
+        "uz": "barqarorlik"
+      },
+      "example": "After years of change, the market needs stability.",
+      "example_translations": {
+        "ru": "После многих лет перемен рынку нужна стабильность.",
+        "uz": "Ko'p yillik o'zgarishlardan so'ng bozorga barqarorlik kerak."
+      }
+    },
+    {
+      "word": "gradual",
+      "part_of_speech": "adjective",
+      "translation": "постепенный",
+      "translations": {
+        "ru": "постепенный",
+        "uz": "asta-sekin, bosqichma-bosqich"
+      },
+      "example": "There has been a gradual rise in temperatures.",
+      "example_translations": {
+        "ru": "Наблюдается постепенное повышение температуры.",
+        "uz": "Haroratning asta-sekin ko'tarilishi kuzatilmoqda."
+      }
+    },
+    {
+      "word": "steady",
+      "part_of_speech": "adjective",
+      "translation": "устойчивый, стабильный",
+      "translations": {
+        "ru": "устойчивый, стабильный",
+        "uz": "barqaror, bir maromdagi"
+      },
+      "example": "The company has shown steady growth for years.",
+      "example_translations": {
+        "ru": "Компания уже много лет показывает устойчивый рост.",
+        "uz": "Kompaniya ko'p yillardan beri barqaror o'sishni ko'rsatmoqda."
+      }
+    },
+    {
+      "word": "abrupt",
+      "part_of_speech": "adjective",
+      "translation": "резкий, внезапный",
+      "translations": {
+        "ru": "резкий, внезапный",
+        "uz": "keskin, kutilmagan"
+      },
+      "example": "The abrupt change in weather surprised everyone.",
+      "example_translations": {
+        "ru": "Резкая перемена погоды удивила всех.",
+        "uz": "Ob-havoning keskin o'zgarishi hammani hayratda qoldirdi."
+      }
+    },
+    {
+      "word": "ongoing",
+      "part_of_speech": "adjective",
+      "translation": "продолжающийся, текущий",
+      "translations": {
+        "ru": "продолжающийся, текущий",
+        "uz": "davom etayotgan"
+      },
+      "example": "The ongoing repairs will finish next month.",
+      "example_translations": {
+        "ru": "Продолжающийся ремонт завершится в следующем месяце.",
+        "uz": "Davom etayotgan ta'mirlash ishlari keyingi oyda tugaydi."
+      }
+    },
+    {
+      "word": "emerge",
+      "part_of_speech": "verb",
+      "translation": "появляться, возникать",
+      "translations": {
+        "ru": "появляться, возникать",
+        "uz": "paydo bo'lmoq, yuzaga kelmoq"
+      },
+      "example": "New trends emerge in fashion every season.",
+      "example_translations": {
+        "ru": "Каждый сезон в моде появляются новые тенденции.",
+        "uz": "Har mavsumda modada yangi tendensiyalar paydo bo'ladi."
+      }
+    },
+    {
+      "word": "phase",
+      "part_of_speech": "noun",
+      "translation": "этап, фаза",
+      "translations": {
+        "ru": "этап, фаза",
+        "uz": "bosqich"
+      },
+      "example": "The project is now in its final phase.",
+      "example_translations": {
+        "ru": "Проект сейчас находится на заключительном этапе.",
+        "uz": "Loyiha hozir yakuniy bosqichda."
+      }
+    },
+    {
+      "word": "accelerate",
+      "part_of_speech": "verb",
+      "translation": "ускоряться",
+      "translations": {
+        "ru": "ускоряться",
+        "uz": "tezlashmoq"
+      },
+      "example": "Population growth accelerated in the last century.",
+      "example_translations": {
+        "ru": "В прошлом веке рост населения ускорился.",
+        "uz": "O'tgan asrda aholi o'sishi tezlashdi."
+      }
+    }
+  ]
+}

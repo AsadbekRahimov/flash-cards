@@ -112,6 +112,11 @@ return [
             //                        round trip more for nothing), and nothing is left on the server; required for pgbouncer in
             //                        transaction mode when libpq < 17 (its `DEALLOCATE` would abort the transaction). Values
             //                        still travel as bound parameters ($1, $2 ...), never interpolated into SQL.
+            //                        Measured through pgbouncer with libpq 17 (13.11.2026, docs/DEVOPS_GUIDE.md §0): named
+            //                        statements cut planning by 90 % and still leave PostgreSQL's CPU where it was - the two
+            //                        extra round trips cost what the plans save - while pgbouncer's CPU nearly doubles, and a
+            //                        migration that changes a table's columns breaks every `select *` on it ("cached plan
+            //                        must not change result type") until pgbouncer RECONNECTs. Keep it true.
             'options' => extension_loaded('pdo_pgsql') ? [
                 PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
                 Pgsql::ATTR_DISABLE_PREPARES => (bool) env('DB_DISABLE_PREPARES', true),

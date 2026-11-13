@@ -7,8 +7,10 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\DTO\CatalogCourse;
 use App\Domain\Content\DTO\CourseDetail;
 use App\Domain\Content\DTO\CourseListing;
+use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LessonProgress;
+use App\Domain\Content\DTO\NextLesson;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
@@ -18,7 +20,6 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -46,8 +47,8 @@ final class CourseCatalogService
 
     private const PUBLISHED_CACHE_TTL = 600;
 
-    /** `catalog:course:v1:{course id}:{locale}:n{data version}`: the tree of one course in one locale (docs/19 K3). */
-    private const COURSE_TREE_PREFIX = 'catalog:course:v1:';
+    /** `catalog:course:v2:{course id}:{locale}:n{data version}`: the tree of one course in one locale (docs/19 K3). */
+    private const COURSE_TREE_PREFIX = 'catalog:course:v2:';
 
     private const COURSE_TREE_TTL = 1800;
 
@@ -110,40 +111,6 @@ final class CourseCatalogService
             ->where('stage_id', $stage->id)
             ->where('number', $lessonNumber)
             ->first();
-    }
-
-    /**
-     * The first lesson of the course (in study order) that still has an active word the
-     * learner has never been served — where `daily_review` takes its new words from
-     * (docs/12 §7.3). Null when the learner has seen the whole course.
-     *
-     * Not used by the picker (it selects new words with one query); kept for task 1.3b
-     * (`TodayService`: `active_course.next_lesson`).
-     *
-     * One anti-join at the level of WORDS (never-served active words of the course, `LIMIT 1` in study
-     * order) instead of a correlated `EXISTS` per lesson: the lookup is one pass over the words of the
-     * course and the learner's rows, not lessons × the learner's cards. The lesson comes with its `stage`
-     * loaded from the very same row (the join is there anyway for the order), not by a second query.
-     */
-    public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
-    {
-        /** @var Lesson|null $lesson */
-        $lesson = Lesson::query()
-            ->select('lessons.*')
-            ->addSelect(self::stageColumns())
-            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->join('words', 'words.lesson_id', '=', 'lessons.id')
-            ->where('stages.course_id', $course->id)
-            ->where('words.is_active', true)
-            ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
-                ->from('word_repetitions')
-                ->whereColumn('word_repetitions.word_id', 'words.id')
-                ->where('word_repetitions.learner_id', $learner->id))
-            ->orderBy('stages.number')
-            ->orderBy('lessons.number')
-            ->first();
-
-        return $lesson === null ? null : $this->withJoinedRelations($lesson);
     }
 
     /**
@@ -408,16 +375,49 @@ final class CourseCatalogService
     }
 
     /**
+     * The active-course block of the "Today" screen in ONE query of the learner's own rows ({@see lessonsStarted()}) beside the cached
+     * {@see courseTree()}: `done` of the course is the sum over all their answered active words, `total` is `courses.words_count`, and the
+     * next lesson is the first lesson of the tree (study order) with more active words than the learner has rows for - a lesson with no
+     * active words never is. Its titles come from the tree row (already picked for the learner's locale). A word added since the tree was
+     * read is in the learner's counts but not yet in `total` for the moment before the tree is dropped ({@see forgetCourseTree()}).
+     */
+    public function todayCourse(Course $course, Learner $learner): CourseToday
+    {
+        $locale = $this->locales->forLearner($learner);
+        $tree = $this->courseTree($course, $locale);
+        $lessons = $this->lessonsStarted($course, $learner);
+
+        $done = 0;
+        foreach ($lessons as $counts) {
+            $done += $counts['done'];
+        }
+
+        $next = null;
+        foreach ($tree as $row) {
+            if ($row['total'] > ($lessons[$row['lesson_id']]['started'] ?? 0)) {
+                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title']);
+                break;
+            }
+        }
+
+        return new CourseToday(
+            $this->present($course, $locale),
+            new LearnerProgress($done, $course->words_count),
+            $next,
+        );
+    }
+
+    /**
      * Lessons of the course in study order with the learner's progress. Only active words count. Progress is the learner's
      * own (`word_repetitions` is per learner and word), so a word studied in two groups is counted once. The lessons and their
-     * word totals are the cached {@see courseTree()}; `done` is the learner's one query ({@see lessonsDone()}).
+     * word totals are the cached {@see courseTree()}; `done` is from the learner's one query ({@see lessonsStarted()}).
      *
      * @return list<LessonProgress>
      */
     public function lessonsWithProgress(Course $course, Learner $learner): array
     {
         $tree = $this->courseTree($course, $this->locales->forLearner($learner));
-        $done = $this->lessonsDone($course, $learner);
+        $done = $this->lessonsStarted($course, $learner);
 
         $lessons = [];
         foreach ($tree as $row) {
@@ -428,7 +428,7 @@ final class CourseCatalogService
                 $row['lesson_number'],
                 $row['lesson_title'],
                 // A word added since the tree was read is in `done` but not yet in `total` for the moment before its drop.
-                new LearnerProgress(min($done[$row['lesson_id']] ?? 0, $row['total']), $row['total']),
+                new LearnerProgress(min($done[$row['lesson_id']]['done'] ?? 0, $row['total']), $row['total']),
             );
         }
 
@@ -465,7 +465,15 @@ final class CourseCatalogService
      * is the same for everybody of that locale who may open the course and safe to share (docs/19 K3). A
      * learner's own deck is the exception: it is private, small and edited all the time, so it is read, never cached.
      *
-     * @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
+     * @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
+     */
+    public function tree(Course $course, string $locale): array
+    {
+        return $this->courseTree($course, $locale);
+    }
+
+    /**
+     * @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}>
      */
     private function courseTree(Course $course, string $locale): array
     {
@@ -474,7 +482,7 @@ final class CourseCatalogService
         }
 
         // The key (with the data version) is made BEFORE the rows are read.
-        /** @var list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+        /** @var list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
         return PureCache::store()->remember(
             self::courseTreeKey($course->id, $locale),
             self::COURSE_TREE_TTL,
@@ -482,7 +490,7 @@ final class CourseCatalogService
         );
     }
 
-    /** @return list<array{stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
+    /** @return list<array{stage_id: int, stage_number: int, stage_title: string|null, lesson_id: int, lesson_number: int, lesson_title: string|null, total: int}> */
     private function buildCourseTree(Course $course, string $locale): array
     {
         $rows = DB::table('lessons')
@@ -491,10 +499,10 @@ final class CourseCatalogService
                 $join->on('words.lesson_id', '=', 'lessons.id')->where('words.is_active', '=', true);
             })
             ->where('stages.course_id', $course->id)
-            ->groupBy('stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
+            ->groupBy('stages.id', 'stages.number', 'stages.title', 'stages.title_uz', 'lessons.id', 'lessons.number', 'lessons.title', 'lessons.title_uz')
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
-            ->selectRaw('stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
+            ->selectRaw('stages.id as stage_id, stages.number as stage_number, stages.title as stage_title, stages.title_uz as stage_title_uz, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, lessons.title_uz as lesson_title_uz, COUNT(words.id) as total')
             ->get();
 
         $text = static fn (mixed $value): ?string => $value === null ? null : (string) $value;
@@ -503,6 +511,7 @@ final class CourseCatalogService
         $tree = [];
         foreach ($rows as $row) {
             $tree[] = [
+                'stage_id' => (int) $row->stage_id,
                 'stage_number' => (int) $row->stage_number,
                 'stage_title' => $this->deckTitles->stageIn($course, $locale, $text($row->stage_title), $text($row->stage_title_uz)),
                 'lesson_id' => (int) $row->lesson_id,
@@ -516,31 +525,31 @@ final class CourseCatalogService
     }
 
     /**
-     * Active words the learner has answered (`repetitions >= 1`) per lesson of the course - their own rows only, so the size of the
-     * query follows what they have studied, not the size of the course.
+     * Active words the learner has a row for (`started`) and has answered (`done`, `repetitions >= 1`) per lesson of the course -
+     * their own rows only. THE one query "the learner's progress over the lessons of a course": "Today"
+     * ({@see todayCourse()}) and the map of the game use it, each beside the cached {@see tree()}.
      *
-     * @return array<int, int> lesson id => words learned
+     * @return array<int, array{started: int, done: int}> lesson id => counts
      */
-    private function lessonsDone(Course $course, Learner $learner): array
+    public function lessonsStarted(Course $course, Learner $learner): array
     {
         $rows = DB::table('word_repetitions')
             ->join('words', 'words.id', '=', 'word_repetitions.word_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('word_repetitions.learner_id', $learner->id)
-            ->where('word_repetitions.repetitions', '>=', 1)
             ->where('words.is_active', true)
             ->where('stages.course_id', $course->id)
             ->groupBy('words.lesson_id')
-            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as done')
+            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as started, SUM(CASE WHEN word_repetitions.repetitions >= 1 THEN 1 ELSE 0 END) as done')
             ->get();
 
-        $done = [];
+        $counts = [];
         foreach ($rows as $row) {
-            $done[(int) $row->lesson_id] = (int) $row->done;
+            $counts[(int) $row->lesson_id] = ['started' => (int) $row->started, 'done' => (int) $row->done];
         }
 
-        return $done;
+        return $counts;
     }
 
     /**

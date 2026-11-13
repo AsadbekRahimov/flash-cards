@@ -1,0 +1,155 @@
+{
+  "course": "english-b2",
+  "stage": {
+    "number": 8,
+    "title": "Политика и государство",
+    "title_uz": "Siyosat va davlat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Формы правления",
+    "title_uz": "Boshqaruv shakllari"
+  },
+  "words": [
+    {
+      "word": "democracy",
+      "part_of_speech": "noun",
+      "translation": "демократия",
+      "translations": {
+        "ru": "демократия",
+        "uz": "demokratiya"
+      },
+      "example": "Citizens choose their leaders in a democracy.",
+      "example_translations": {
+        "ru": "При демократии граждане выбирают своих руководителей.",
+        "uz": "Demokratiyada fuqarolar o'z rahbarlarini saylaydi."
+      }
+    },
+    {
+      "word": "republic",
+      "part_of_speech": "noun",
+      "translation": "республика",
+      "translations": {
+        "ru": "республика",
+        "uz": "respublika"
+      },
+      "example": "A republic has a president instead of a king.",
+      "example_translations": {
+        "ru": "В республике вместо короля — президент.",
+        "uz": "Respublikada qirol o'rniga prezident bo'ladi."
+      }
+    },
+    {
+      "word": "monarchy",
+      "part_of_speech": "noun",
+      "translation": "монархия",
+      "translations": {
+        "ru": "монархия",
+        "uz": "monarxiya"
+      },
+      "example": "In a monarchy, a king or queen rules.",
+      "example_translations": {
+        "ru": "При монархии правит король или королева.",
+        "uz": "Monarxiyada qirol yoki qirolicha hukmronlik qiladi."
+      }
+    },
+    {
+      "word": "constitution",
+      "part_of_speech": "noun",
+      "translation": "конституция",
+      "translations": {
+        "ru": "конституция",
+        "uz": "konstitutsiya"
+      },
+      "example": "The constitution protects the rights of all citizens.",
+      "example_translations": {
+        "ru": "Конституция защищает права всех граждан.",
+        "uz": "Konstitutsiya barcha fuqarolarning huquqlarini himoya qiladi."
+      }
+    },
+    {
+      "word": "federation",
+      "part_of_speech": "noun",
+      "translation": "федерация",
+      "translations": {
+        "ru": "федерация",
+        "uz": "federatsiya"
+      },
+      "example": "The federation consists of twelve separate regions.",
+      "example_translations": {
+        "ru": "Федерация состоит из двенадцати отдельных регионов.",
+        "uz": "Federatsiya o'n ikkita alohida hududdan iborat."
+      }
+    },
+    {
+      "word": "sovereignty",
+      "part_of_speech": "noun",
+      "translation": "суверенитет",
+      "translations": {
+        "ru": "суверенитет",
+        "uz": "suverenitet"
+      },
+      "example": "Sovereignty means a country governs itself independently.",
+      "example_translations": {
+        "ru": "Суверенитет означает, что страна управляет собой самостоятельно.",
+        "uz": "Suverenitet mamlakatning o'zini mustaqil boshqarishini anglatadi."
+      }
+    },
+    {
+      "word": "parliament",
+      "part_of_speech": "noun",
+      "translation": "парламент",
+      "translations": {
+        "ru": "парламент",
+        "uz": "parlament"
+      },
+      "example": "Parliament votes on the new law tomorrow.",
+      "example_translations": {
+        "ru": "Завтра парламент голосует по новому закону.",
+        "uz": "Ertaga parlament yangi qonun bo'yicha ovoz beradi."
+      }
+    },
+    {
+      "word": "regime",
+      "part_of_speech": "noun",
+      "translation": "режим",
+      "translations": {
+        "ru": "режим",
+        "uz": "rejim"
+      },
+      "example": "A political regime is a way of governing a country.",
+      "example_translations": {
+        "ru": "Политический режим — это способ управления страной.",
+        "uz": "Siyosiy rejim — mamlakatni boshqarish usuli."
+      }
+    },
+    {
+      "word": "autonomy",
+      "part_of_speech": "noun",
+      "translation": "автономия",
+      "translations": {
+        "ru": "автономия",
+        "uz": "muxtoriyat"
+      },
+      "example": "This region has autonomy in education and culture.",
+      "example_translations": {
+        "ru": "Этот регион обладает автономией в сфере образования и культуры.",
+        "uz": "Bu hudud ta'lim va madaniyat sohasida muxtoriyatga ega."
+      }
+    },
+    {
+      "word": "empire",
+      "part_of_speech": "noun",
+      "translation": "империя",
+      "translations": {
+        "ru": "империя",
+        "uz": "imperiya"
+      },
+      "example": "Long ago, the empire included many different peoples.",
+      "example_translations": {
+        "ru": "В давние времена империя включала много разных народов.",
+        "uz": "Qadim zamonlarda imperiya tarkibiga ko'plab turli xalqlar kirgan."
+      }
+    }
+  ]
+}

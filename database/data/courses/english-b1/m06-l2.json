@@ -1,0 +1,155 @@
+{
+  "course": "english-b1",
+  "stage": {
+    "number": 6,
+    "title": "Путешествия и транспорт",
+    "title_uz": "Sayohat va transport"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "На дороге",
+    "title_uz": "Yo'lda"
+  },
+  "words": [
+    {
+      "word": "highway",
+      "part_of_speech": "noun",
+      "translation": "шоссе, автомагистраль",
+      "translations": {
+        "ru": "шоссе, автомагистраль",
+        "uz": "katta yo'l, avtomagistral"
+      },
+      "example": "We drove on the highway for three hours.",
+      "example_translations": {
+        "ru": "Мы ехали по шоссе три часа.",
+        "uz": "Biz katta yo'lda uch soat yurdik."
+      }
+    },
+    {
+      "word": "lane",
+      "part_of_speech": "noun",
+      "translation": "полоса движения",
+      "translations": {
+        "ru": "полоса движения",
+        "uz": "harakatlanish bo'lagi"
+      },
+      "example": "Slow cars should stay in the right lane.",
+      "example_translations": {
+        "ru": "Медленные машины должны держаться правой полосы движения.",
+        "uz": "Sekin yuradigan mashinalar o'ng harakatlanish bo'lagida yurishi kerak."
+      }
+    },
+    {
+      "word": "brake",
+      "part_of_speech": "noun",
+      "translation": "тормоз",
+      "translations": {
+        "ru": "тормоз",
+        "uz": "tormoz"
+      },
+      "example": "Check the brakes before a long trip.",
+      "example_translations": {
+        "ru": "Проверьте тормоза перед долгой поездкой.",
+        "uz": "Uzoq safardan oldin tormozlarni tekshiring."
+      }
+    },
+    {
+      "word": "wheel",
+      "part_of_speech": "noun",
+      "translation": "колесо",
+      "translations": {
+        "ru": "колесо",
+        "uz": "g'ildirak"
+      },
+      "example": "A bicycle has two wheels, not four.",
+      "example_translations": {
+        "ru": "У велосипеда два колеса, а не четыре.",
+        "uz": "Velosipedning to'rtta emas, ikkita g'ildiragi bor."
+      }
+    },
+    {
+      "word": "tire",
+      "part_of_speech": "noun",
+      "translation": "шина",
+      "translations": {
+        "ru": "шина",
+        "uz": "shina"
+      },
+      "example": "He changed the old tire in ten minutes.",
+      "example_translations": {
+        "ru": "Он поменял старую шину за десять минут.",
+        "uz": "U eski shinani o'n daqiqada almashtirdi."
+      }
+    },
+    {
+      "word": "engine",
+      "part_of_speech": "noun",
+      "translation": "двигатель",
+      "translations": {
+        "ru": "двигатель",
+        "uz": "dvigatel"
+      },
+      "example": "The engine made a strange noise this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром двигатель издавал странный шум.",
+        "uz": "Bugun ertalab dvigateldan g'alati ovoz chiqdi."
+      }
+    },
+    {
+      "word": "steer",
+      "part_of_speech": "verb",
+      "translation": "управлять, рулить",
+      "translations": {
+        "ru": "управлять, рулить",
+        "uz": "boshqarmoq"
+      },
+      "example": "It is hard to steer a car on ice.",
+      "example_translations": {
+        "ru": "Трудно управлять машиной на льду.",
+        "uz": "Muz ustida mashinani boshqarish qiyin."
+      }
+    },
+    {
+      "word": "license",
+      "part_of_speech": "noun",
+      "translation": "водительские права",
+      "translations": {
+        "ru": "водительские права",
+        "uz": "haydovchilik guvohnomasi"
+      },
+      "example": "Aziz got his driver's license last summer.",
+      "example_translations": {
+        "ru": "Азиз получил водительские права прошлым летом.",
+        "uz": "Aziz o'tgan yozda haydovchilik guvohnomasini oldi."
+      }
+    },
+    {
+      "word": "speed",
+      "part_of_speech": "noun",
+      "translation": "скорость",
+      "translations": {
+        "ru": "скорость",
+        "uz": "tezlik"
+      },
+      "example": "Drivers must reduce their speed near schools.",
+      "example_translations": {
+        "ru": "Водители должны снижать скорость возле школ.",
+        "uz": "Haydovchilar maktablar yaqinida tezlikni kamaytirishi kerak."
+      }
+    },
+    {
+      "word": "crash",
+      "part_of_speech": "noun",
+      "translation": "авария, столкновение",
+      "translations": {
+        "ru": "авария, столкновение",
+        "uz": "avariya, to'qnashuv"
+      },
+      "example": "Nobody was hurt in the crash, luckily.",
+      "example_translations": {
+        "ru": "К счастью, в аварии никто не пострадал.",
+        "uz": "Yaxshiyamki, avariyada hech kim jabrlanmadi."
+      }
+    }
+  ]
+}

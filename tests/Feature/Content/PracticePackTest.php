@@ -30,33 +30,98 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\Practice\PracticeKit;
+use Tests\Support\Practice\PracticePackRules;
 
 uses(RefreshDatabase::class);
 
 /*
- * The practice packs of the course `english-a1-a2` (database/data/practice/english-a1-a2*.json, docs/CONTENT_A1_A2.md): 936
- * tasks in files the importer takes whole (300 at most each). The files must keep: unique keys, at least three tasks of each
- * authored type in every one of the 100 lessons, target words of the task's own lesson only, the level of the module (1-10 A1,
+ * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2*.json, docs/CONTENT_A1_A2.md,
+ * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, tasks of each authored type in every one of
+ * the 100 lessons (per_type of the course exactly, else at least three; targets: that many different target words over a lesson),
+ * every target word written in the English text of its task (the word or a regular form; `unwritten` lists the exceptions), target words of the task's own lesson only, the level of the module (1-10 A1,
  * 11-20 A2), uz in Latin script on «Siz» and ru on «вы», the writings of a dictation by the one rule of docs/16 §5.2, every
  * accepted writing and order graded `correct`, every word known to the lexicon of the dictation. Imported after the course: no
  * refusal, a second import changes nothing, `practice:import --publish` passes, and a lesson of every module opens a solo session
  * of each authored mode in ru and in uz.
  */
 
-const PPK_COURSE_DIR = 'database/data/courses/english-a1-a2';
-
-const PPK_PACKS = 'database/data/practice/english-a1-a2*.json';
-
-const PPK_COURSE = 'english-a1-a2';
-
-const PPK_TASKS = 936;
-
 const PPK_TYPES = ['collocation', 'sentence', 'dictation'];
 
-/** @return list<string> the pack files */
-function ppk_files(): array
+/**
+ * The courses with practice packs: add a course by adding a row here. Per course: the folder of its pack, the glob of its practice
+ * files, the number of tasks, the level of a task by the number of its module, and the lesson of a module the session test opens.
+ *
+ * `per_type`: exactly so many tasks of each type in each lesson (null: at least three). `targets`: at least so many different target
+ * words over the tasks of a lesson (null: not checked). `unwritten`: task key => why the target word is not in the English text of the
+ * task as a word or a regular form of it (an irregular form, a compound).
+ *
+ * @return array<string, array{dir: string, glob: string, tasks: int, per_type: ?int, targets: ?int, unwritten: array<string, string>, level: Closure(int): string, lesson: Closure(int): int}>
+ */
+function ppk_courses(): array
 {
-    $files = glob(base_path(PPK_PACKS)) ?: [];
+    return [
+        'english-a1-a2' => [
+            'dir' => 'database/data/courses/english-a1-a2',
+            'glob' => 'database/data/practice/english-a1-a2*.json',
+            'tasks' => 936,
+            'per_type' => null,
+            'targets' => null,
+            'unwritten' => [
+                'a1a2-m08-c04' => 'irregular past: won',
+                'a1a2-m09-s03' => 'irregular plural: teeth',
+                'a1a2-m10-c09' => 'irregular plural: mice',
+                'a1a2-m17-c02' => 'contrast pair: the text has lend, borrow is a wrong option and a target word only',
+                'a1a2-m19-c06' => 'irregular plural: leaves',
+                'a1a2-m17-c10' => 'contrast pair: the text has fit, suit is a wrong option and a target word only',
+                'a1a2-m01-d14' => 'irregular plural: men',
+                'a1a2-m02-d04' => 'irregular plural: shelves',
+                'a1a2-m08-d12' => 'irregular past: lost',
+                'a1a2-m19-d12' => 'irregular plural: wolves',
+                'a1a2-time-c07' => 'the target word year is not in the sentence (a number of a year: 2010)',
+                'a1a2-time-c08' => 'the target word now is not in the sentence (at the moment)',
+                'a1a2-time-c09' => 'the target word month is not in the sentence (the name of a month: May)',
+                'a1a2-family-c03' => 'irregular plural: children',
+            ],
+            'level' => static fn (int $module): string => $module <= 10 ? 'A1' : 'A2',
+            // Modules 2, 4 and 7 show the lessons the tasks of the old pack left: down to three tasks of a type there.
+            'lesson' => static fn (int $module): int => in_array($module, [2, 4, 7], true) ? 1 : ($module - 1) % 5 + 1,
+        ],
+        'english-b1' => [
+            'dir' => 'database/data/courses/english-b1',
+            'glob' => 'database/data/practice/english-b1-p*.json',
+            'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
+            'level' => static fn (int $module): string => 'B1',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
+        ],
+        'english-b2' => [
+            'dir' => 'database/data/courses/english-b2',
+            'glob' => 'database/data/practice/english-b2-p*.json',
+            'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
+            'level' => static fn (int $module): string => 'B2',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
+        ],
+    ];
+}
+
+dataset('ppk_courses', function (): array {
+    $rows = [];
+    foreach (array_keys(ppk_courses()) as $slug) {
+        $rows[$slug] = [$slug];
+    }
+
+    return $rows;
+});
+
+/** @return list<string> the pack files */
+function ppk_files(string $slug): array
+{
+    $files = glob(base_path(ppk_courses()[$slug]['glob'])) ?: [];
     natsort($files);
 
     return array_values($files);
@@ -69,36 +134,36 @@ function ppk_read(string $file): array
 }
 
 /** @return list<array<string, mixed>> every task of every pack (the files are read once per process) */
-function ppk_tasks(): array
+function ppk_tasks(string $slug): array
 {
-    static $tasks = null;
-    if ($tasks === null) {
-        $tasks = [];
-        foreach (ppk_files() as $file) {
+    static $tasks = [];
+    if (! isset($tasks[$slug])) {
+        $tasks[$slug] = [];
+        foreach (ppk_files($slug) as $file) {
             foreach (ppk_read($file)['items'] as $task) {
-                $tasks[] = $task;
+                $tasks[$slug][] = $task;
             }
         }
     }
 
-    return $tasks;
+    return $tasks[$slug];
 }
 
 /** @return array<string, string> every word of the course => "module.lesson" */
-function ppk_course_words(): array
+function ppk_course_words(string $slug): array
 {
-    static $words = null;
-    if ($words === null) {
-        $words = [];
-        foreach (glob(base_path(PPK_COURSE_DIR).'/m*-l*.json') ?: [] as $file) {
+    static $words = [];
+    if (! isset($words[$slug])) {
+        $words[$slug] = [];
+        foreach (glob(base_path(ppk_courses()[$slug]['dir']).'/m*-l*.json') ?: [] as $file) {
             $data = ppk_read($file);
             foreach ($data['words'] as $word) {
-                $words[$word['word']] = $data['stage']['number'].'.'.$data['lesson']['number'];
+                $words[$slug][$word['word']] = $data['stage']['number'].'.'.$data['lesson']['number'];
             }
         }
     }
 
-    return $words;
+    return $words[$slug];
 }
 
 /** @param array<string, mixed> $task */
@@ -108,10 +173,10 @@ function ppk_lesson(array $task): string
 }
 
 /** @return list<array{0: string, 1: string, 2: string}> every text of the tasks in a language: [where, locale, text] */
-function ppk_texts(): array
+function ppk_texts(string $slug): array
 {
     $texts = [];
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         foreach (['prompt', 'translation', 'explanation'] as $field) {
             foreach ((array) ($task[$field] ?? []) as $locale => $text) {
                 $texts[] = ["{$task['key']} {$field}.{$locale}", (string) $locale, (string) $text];
@@ -122,146 +187,26 @@ function ppk_texts(): array
     return $texts;
 }
 
-/**
- * The forms of the informal «sen» in an uz text that their shape gives away: the pronoun and the verbs of the 2nd person singular
- * (-san, -yapsan, -gansan, -ding, -sang, -gin). The English words an explanation quotes (`building`, `reading`) are not Uzbek. The
- * bare imperative (`qil`, `yubor`) and the possessive in -ng (`otang`) look like other words: the packs were read for them by hand.
- *
- * @return list<string>
- */
-function ppk_uz_informal(string $text): array
-{
-    preg_match_all("/[a-z][a-z']*/i", $text, $matches);
-    $found = [];
-    foreach ($matches[0] as $word) {
-        $lower = strtolower(rtrim($word, "'"));
-        if (EnglishLexicon::isWord($lower)) {
-            continue;
-        }
-        if (preg_match('/\\A(?:sen|seni|senga|senda|sendan|sening|senlar)\\z/', $lower) === 1
-            || preg_match('/(?:[ay]san|yapsan|gansan|ding|sang)(?:mi|u|chi|ku)?\\z|gin\\z/', $lower) === 1) {
-            $found[] = $word;
-        }
-    }
-
-    return $found;
-}
-
-/**
- * The forms of the informal «ты» in a ru text: the pronoun with its possessive, a verb of the 2nd person singular, `давай`. A bare
- * imperative (`позвони`) looks like other words: the packs were read for it by hand.
- *
- * @return list<string>
- */
-function ppk_ru_informal(string $text): array
-{
-    preg_match_all('/\p{L}+/u', mb_strtolower($text), $matches);
-
-    return array_values(array_filter($matches[0], static fn (string $word): bool => preg_match('/\A(?:ты|тебя|тебе|тобой|тобою|твой|твоя|твоё|твое|твои|твоего|твоей|твоему|твоим|твоих|твоими|твою|давай)\z/u', $word) === 1
-        || (preg_match('/(?:ешь|ёшь|ишь)(?:ся)?\z/u', $word) === 1 && ! in_array($word, ['лишь', 'тишь'], true))));
-}
-
-/**
- * The writings the rule of docs/16 §5.2 asks of a dictation phrase: every combination of the places of the text where a function
- * word with a verb or a negative is contracted or written out (both ways), and where a number is written in words or in digits.
- * A noun with `is` is no such place: its contraction is accepted only when the text has it.
- *
- * @return list<string> the text itself among them
- */
-function ppk_expected_writings(string $text): array
-{
-    $pronoun = 'he|she|it|everything|everyone|everybody|something|someone|somebody|nothing|nobody|anything|anyone';
-    $clause = 'that|there|here|what|who|where|when|how|why';
-    // A pronoun anywhere; a clause word only where it opens the clause (`The service here is` has no `here's`).
-    $is = "((?<![a-z'])(?:{$pronoun})|(?:^|(?<=[,;:] ))(?:{$clause}))";
-    $will = '\\b(I|you|he|she|it|we|they|that|there|who)';
-    $three = static fn (array $m): array => ["{$m[1]} is not", "{$m[1]} isn't", "{$m[1]}'s not"];
-    $rules = [
-        ["/{$is} is not\\b/i", $three],
-        ["/{$is}'s not\\b/i", $three],
-        ["/{$is} isn't\\b/i", $three],
-        ['/\\b(I) am not\\b/', static fn (): array => ['I am not', "I'm not"]],
-        ["/\\b(I)'m not\\b/", static fn (): array => ['I am not', "I'm not"]],
-        ['/\\b(you|we|they) are not\\b/i', static fn (array $m): array => ["{$m[1]} are not", "{$m[1]} aren't", "{$m[1]}'re not"]],
-        ['/\\b(I) am\\b/', static fn (): array => ['I am', "I'm"]],
-        ["/\\b(I)'m\\b/", static fn (): array => ['I am', "I'm"]],
-        ['/\\b(you|we|they) are\\b/i', static fn (array $m): array => ["{$m[1]} are", "{$m[1]}'re"]],
-        ["/\\b(you|we|they)'re\\b/i", static fn (array $m): array => ["{$m[1]} are", "{$m[1]}'re"]],
-        ["/{$is} is\\b(?!\\s*[?.!]?$)/i", static fn (array $m): array => ["{$m[1]} is", "{$m[1]}'s"]],
-        ["/{$is}'s\\b/i", static fn (array $m): array => ["{$m[1]} is", "{$m[1]}'s"]],
-        ["/{$will} will\\b/i", static fn (array $m): array => ["{$m[1]} will", "{$m[1]}'ll"]],
-        ["/{$will}'ll\\b/i", static fn (array $m): array => ["{$m[1]} will", "{$m[1]}'ll"]],
-        ["/\\b(let)'s\\b/i", static fn (array $m): array => ["{$m[1]}'s", "{$m[1]} us"]],
-        ['/\\b(let) us\\b/i', static fn (array $m): array => ["{$m[1]}'s", "{$m[1]} us"]],
-    ];
-    $negatives = ["don't" => 'do not', "doesn't" => 'does not', "didn't" => 'did not', "can't" => 'cannot', "won't" => 'will not',
-        "isn't" => 'is not', "aren't" => 'are not', "wasn't" => 'was not', "weren't" => 'were not', "haven't" => 'have not',
-        "hasn't" => 'has not', "couldn't" => 'could not', "shouldn't" => 'should not', "wouldn't" => 'would not', "mustn't" => 'must not'];
-    foreach ($negatives as $short => $full) {
-        $both = static fn (): array => [$short, $full];
-        $rules[] = ['/\b'.preg_quote($short, '/').'\b/i', $both];
-        $rules[] = ['/\b'.preg_quote($full, '/').'\b/i', $both];
-    }
-    $numbers = ['two thousand' => ['2000', '2,000'], 'a thousand' => ['1000', '1,000'], 'a hundred' => ['100'], 'zero' => ['0'],
-        'one' => ['1'], 'two' => ['2'], 'three' => ['3'], 'four' => ['4'], 'five' => ['5'], 'six' => ['6'], 'seven' => ['7'],
-        'eight' => ['8'], 'nine' => ['9'], 'ten' => ['10'], 'eleven' => ['11'], 'twelve' => ['12'], 'thirteen' => ['13'],
-        'fourteen' => ['14'], 'fifteen' => ['15'], 'sixteen' => ['16'], 'seventeen' => ['17'], 'eighteen' => ['18'],
-        'nineteen' => ['19'], 'twenty' => ['20'], 'thirty' => ['30'], 'forty' => ['40'], 'fifty' => ['50'], 'sixty' => ['60'],
-        'seventy' => ['70'], 'eighty' => ['80'], 'ninety' => ['90'], 'hundred' => ['100'], 'thousand' => ['1000']];
-    foreach ($numbers as $word => $digits) {
-        $rules[] = ['/\b'.$word.'\b/i', static fn (array $m): array => [$m[0], ...$digits]];
-    }
-
-    $slots = [];
-    foreach ($rules as [$pattern, $alternatives]) {
-        preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-        foreach ($matches as $match) {
-            [$whole, $start] = $match[0];
-            $end = $start + strlen($whole);
-            foreach ($slots as [$from, $length]) {
-                if ($start < $from + $length && $from < $end) {
-                    continue 2;   // a place an earlier rule has taken (`he is not` before `he is`, `two thousand` before `two`)
-                }
-            }
-            $slots[] = [$start, strlen($whole), $alternatives(array_column($match, 0))];
-        }
-    }
-
-    usort($slots, static fn (array $a, array $b): int => $b[0] <=> $a[0]);   // from the end: the offsets before stay right
-    $writings = [$text];
-    foreach ($slots as [$start, $length, $alternatives]) {
-        $next = [];
-        foreach ($writings as $writing) {
-            foreach ($alternatives as $alternative) {
-                $next[] = substr_replace($writing, $alternative, $start, $length);
-            }
-        }
-        $writings = $next;
-    }
-
-    return $writings;
-}
-
 /** The course imported from its pack, as a draft. */
-function ppk_import_course(): Course
+function ppk_import_course(string $slug): Course
 {
-    $report = app(CoursePackImporter::class)->import(base_path(PPK_COURSE_DIR), create: true);
+    $report = app(CoursePackImporter::class)->import(base_path(ppk_courses()[$slug]['dir']), create: true);
     expect($report->errors)->toBe([]);
 
-    return Course::query()->where('slug', PPK_COURSE)->firstOrFail();
+    return Course::query()->where('slug', $slug)->firstOrFail();
 }
 
 // ---------------------------------------------------------------- the files
 
-it('keeps the 936 tasks in files the importer takes whole: one course, one format, at most 300 tasks a file, every key once', function (): void {
+it('keeps the tasks of the course in files the importer takes whole: one course, one format, at most 300 tasks a file, every key once', function (string $slug): void {
     $limit = min(300, (int) config('practice.import.max_items'));
     $keys = [];
     $total = 0;
-    foreach (ppk_files() as $file) {
+    foreach (ppk_files($slug) as $file) {
         $data = ppk_read($file);
         expect(array_keys($data))->toBe(['format', 'course', 'items'])
             ->and($data['format'])->toBe(PracticeImporter::FORMAT)
-            ->and($data['course'])->toBe(PPK_COURSE)
+            ->and($data['course'])->toBe($slug)
             ->and(count($data['items']))->toBeLessThanOrEqual($limit, basename($file));
         foreach ($data['items'] as $task) {
             expect($keys)->not->toHaveKey($task['key'], "{$task['key']} is in ".basename($file).' and in '.($keys[$task['key']] ?? ''));
@@ -270,29 +215,63 @@ it('keeps the 936 tasks in files the importer takes whole: one course, one forma
         $total += count($data['items']);
     }
 
-    expect($total)->toBe(PPK_TASKS);
-});
+    expect($total)->toBe(ppk_courses()[$slug]['tasks']);
+})->with('ppk_courses');
 
-it('gives each of the 100 lessons of the course at least three tasks of each authored type', function (): void {
+it('gives each of the 100 lessons of the course the tasks of each authored type: exactly per_type of them, or at least three where the course has no per_type', function (string $slug): void {
     $count = [];
-    foreach (array_unique(ppk_course_words()) as $lesson) {
+    foreach (array_unique(ppk_course_words($slug)) as $lesson) {
         foreach (PPK_TYPES as $type) {
             $count["{$lesson} {$type}"] = 0;
         }
     }
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         $slot = ppk_lesson($task).' '.$task['type'];
         $count[$slot] = ($count[$slot] ?? 0) + 1;   // a lesson the course does not have adds a slot
     }
+    $exact = ppk_courses()[$slug]['per_type'];
 
     expect($count)->toHaveCount(300)
-        ->and(array_keys(array_filter($count, static fn (int $n): bool => $n < 3)))->toBe([]);
+        ->and(array_keys(array_filter($count, static fn (int $n): bool => $exact === null ? $n < 3 : $n !== $exact)))->toBe([]);
+})->with('ppk_courses');
+
+dataset('ppk_courses_with_targets', function (): array {
+    $rows = [];
+    foreach (ppk_courses() as $slug => $row) {
+        if ($row['targets'] !== null) {
+            $rows[$slug] = [$slug];
+        }
+    }
+
+    return $rows;
 });
 
-it('takes every target word of a task from the lesson of the task', function (): void {
-    $words = ppk_course_words();
+it('covers at least `targets` different words of its lesson with the tasks of every lesson', function (string $slug): void {
+    $need = (int) ppk_courses()[$slug]['targets'];
+    $covered = [];
+    foreach (array_unique(ppk_course_words($slug)) as $lesson) {
+        $covered[$lesson] = [];
+    }
+    foreach (ppk_tasks($slug) as $task) {
+        foreach ($task['target_words'] as $target) {
+            $covered[ppk_lesson($task)][mb_strtolower(trim($target))] = true;
+        }
+    }
     $offences = [];
-    foreach (ppk_tasks() as $task) {
+    foreach ($covered as $lesson => $words) {
+        if (count($words) < $need) {
+            $offences[] = "lesson {$lesson}: ".count($words)." different target words, {$need} needed";
+        }
+    }
+
+    expect($covered)->toHaveCount(100)
+        ->and($offences)->toBe([]);
+})->with('ppk_courses_with_targets');
+
+it('takes every target word of a task from the lesson of the task', function (string $slug): void {
+    $words = ppk_course_words($slug);
+    $offences = [];
+    foreach (ppk_tasks($slug) as $task) {
         if ($task['target_words'] === []) {
             $offences[] = "{$task['key']}: no target word";
         }
@@ -305,32 +284,71 @@ it('takes every target word of a task from the lesson of the task', function ():
     }
 
     expect($offences)->toBe([]);
-});
+})->with('ppk_courses');
 
-it('sets the level of a task by its module: A1 in modules 1-10, A2 in modules 11-20', function (): void {
+it('writes every target word of a task in its English text: the word itself or a regular form of it', function (string $slug): void {
+    $unwritten = ppk_courses()[$slug]['unwritten'];
     $offences = [];
-    foreach (ppk_tasks() as $task) {
-        $level = $task['lesson']['stage'] <= 10 ? 'A1' : 'A2';
+    $used = [];
+    foreach (ppk_tasks($slug) as $task) {
+        $text = match ($task['type']) {
+            'dictation' => $task['text'],
+            'sentence' => $task['display'],
+            default => str_replace('___', $task['correct'][0], $task['text']),
+        };
+        $tokens = PracticeTextNormalizer::tokens($text);
+        foreach ($task['target_words'] as $target) {
+            // A target of several words (`take off`) is written word by word.
+            foreach (PracticeTextNormalizer::tokens($target) as $word) {
+                $found = false;
+                foreach ($tokens as $token) {
+                    if ($token === $word || in_array($word, EnglishLexicon::lemmas($token), true)) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if ($found) {
+                    continue;
+                }
+                if (isset($unwritten[$task['key']])) {
+                    $used[$task['key']] = true;
+
+                    continue;
+                }
+                $offences[] = "{$task['key']}: «{$target}» is not in «{$text}»";
+            }
+        }
+    }
+
+    // An exception stays only while the task needs it.
+    expect($offences)->toBe([])
+        ->and(array_diff(array_keys($unwritten), array_keys($used)))->toBe([]);
+})->with('ppk_courses');
+
+it('sets the level of a task by its module (a1-a2: A1 in modules 1-10, A2 in modules 11-20)', function (string $slug): void {
+    $offences = [];
+    foreach (ppk_tasks($slug) as $task) {
+        $level = ppk_courses()[$slug]['level']($task['lesson']['stage']);
         if (($task['level'] ?? null) !== $level) {
             $offences[] = "{$task['key']} (module {$task['lesson']['stage']}): ".($task['level'] ?? 'none');
         }
     }
 
     expect($offences)->toBe([]);
-});
+})->with('ppk_courses');
 
-it('writes uz in Latin script with the ASCII apostrophe and addresses the learner as «Siz» in uz and «вы» in ru', function (): void {
+it('writes uz in Latin script with the ASCII apostrophe and addresses the learner as «Siz» in uz and «вы» in ru', function (string $slug): void {
     $offences = [];
-    foreach (ppk_texts() as [$where, $locale, $text]) {
+    foreach (ppk_texts($slug) as [$where, $locale, $text]) {
         if ($locale === 'uz') {
             if (preg_match('/[’ʻʼ‘`]|\p{Cyrillic}/u', $text) === 1) {
                 $offences[] = "{$where}: Cyrillic or a typographic apostrophe";
             }
-            foreach (ppk_uz_informal($text) as $word) {
+            foreach (PracticePackRules::uzInformal($text) as $word) {
                 $offences[] = "{$where}: «{$word}»";
             }
         } elseif ($locale === 'ru') {
-            foreach (ppk_ru_informal($text) as $word) {
+            foreach (PracticePackRules::ruInformal($text) as $word) {
                 $offences[] = "{$where}: «{$word}»";
             }
         } else {
@@ -339,26 +357,43 @@ it('writes uz in Latin script with the ASCII apostrophe and addresses the learne
     }
 
     expect($offences)->toBe([]);
-});
+})->with('ppk_courses');
 
 it('tells the informal address by its forms: «sen» in uz, «ты» in ru', function (): void {
-    expect(ppk_uz_informal("Senga keyinroq qo'ng'iroq qilaman"))->toBe(['Senga'])
-        ->and(ppk_uz_informal('Kechirasan, Xatimni oldingmi? Menga xat yubora olasanmi? Nima qilyapsan?'))->toBe(['Kechirasan', 'oldingmi', 'olasanmi', 'qilyapsan'])
-        ->and(ppk_uz_informal("Kechirasiz, xatimni oldingizmi? Menga xat yubora olasizmi? Siz ko'rgansiz."))->toBe([])
-        ->and(ppk_uz_informal('reading, a wedding, the building'))->toBe([])
-        ->and(ppk_ru_informal('Ты получил моё письмо? Можешь прислать? Давай встретимся. Лишь бы успеть.'))->toBe(['ты', 'можешь', 'давай'])
-        ->and(ppk_ru_informal('Вы получили моё письмо? Можете прислать? Давайте встретимся.'))->toBe([]);
+    expect(PracticePackRules::uzInformal("Senga keyinroq qo'ng'iroq qilaman"))->toBe(['Senga'])
+        ->and(PracticePackRules::uzInformal('Kechirasan, Xatimni oldingmi? Menga xat yubora olasanmi? Nima qilyapsan?'))->toBe(['Kechirasan', 'oldingmi', 'olasanmi', 'qilyapsan'])
+        ->and(PracticePackRules::uzInformal("Kechirasiz, xatimni oldingizmi? Menga xat yubora olasizmi? Siz ko'rgansiz."))->toBe([])
+        ->and(PracticePackRules::uzInformal('reading, a wedding, the building'))->toBe([])
+        ->and(PracticePackRules::ruInformal('Ты получил моё письмо? Можешь прислать? Давай встретимся. Лишь бы успеть.'))->toBe(['ты', 'можешь', 'давай'])
+        ->and(PracticePackRules::ruInformal('Вы получили моё письмо? Можете прислать? Давайте встретимся.'))->toBe([]);
+});
+
+it('keeps every practice file of a course in the glob of that course and of no other', function (): void {
+    $courses = ppk_courses();
+    $seen = 0;
+    foreach (glob(base_path('database/data/practice/*.json')) ?: [] as $file) {
+        $course = ppk_read($file)['course'] ?? null;
+        if (! isset($courses[$course]) || (ppk_read($file)['format'] ?? null) !== PracticeImporter::FORMAT) {
+            continue;   // another course (`pilot-a1-a2.json` is of `default`), not a pack of this list
+        }
+        $seen++;
+        foreach ($courses as $slug => $row) {
+            expect(in_array($file, ppk_files($slug), true))->toBe($slug === $course, basename($file)." is of {$course}, glob of {$slug}");
+        }
+    }
+
+    expect($seen)->toBeGreaterThan(0);
 });
 
 // ---------------------------------------------------------------- the grading
 
-it('grades every accepted writing of a dictation and every accepted order of a sentence as correct', function (): void {
+it('grades every accepted writing of a dictation and every accepted order of a sentence as correct', function (string $slug): void {
     $validator = app(PracticeContentValidator::class);
     $dictation = app(DictationGrader::class);
     $sentence = app(SentenceGrader::class);
     $offences = [];
     $graded = 0;
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         $type = PracticeItemType::from($task['type']);
         if ($type === PracticeItemType::Collocation) {
             continue;
@@ -394,17 +429,17 @@ it('grades every accepted writing of a dictation and every accepted order of a s
     }
 
     expect($offences)->toBe([])
-        ->and($graded)->toBeGreaterThan(PPK_TASKS * 2 / 3);
-});
+        ->and($graded)->toBeGreaterThan(ppk_courses()[$slug]['tasks'] * 2 / 3);
+})->with('ppk_courses');
 
-it('lists the writings of a dictation phrase by the one rule of docs/16 §5.2', function (): void {
+it('lists the writings of a dictation phrase by the one rule of docs/16 §5.2', function (string $slug): void {
     $offences = [];
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         if ($task['type'] !== 'dictation') {
             continue;
         }
         $accepted = array_map(PracticeTextNormalizer::normalize(...), [$task['text'], ...$task['accepted']]);
-        $expected = array_map(PracticeTextNormalizer::normalize(...), ppk_expected_writings($task['text']));
+        $expected = array_map(PracticeTextNormalizer::normalize(...), PracticePackRules::expectedWritings($task['text']));
 
         // Both ways for a function word with a verb and for a negative, words and digits for a number.
         foreach (array_diff($expected, $accepted) as $writing) {
@@ -426,29 +461,29 @@ it('lists the writings of a dictation phrase by the one rule of docs/16 §5.2', 
     }
 
     expect($offences)->toBe([]);
-});
+})->with('ppk_courses');
 
 it('expands a phrase by the rule: contractions both ways, numbers in words and digits, a noun with is left alone', function (): void {
-    expect(ppk_expected_writings("It's seven o'clock"))->toEqualCanonicalizing(["It's seven o'clock", "It's 7 o'clock", "It is seven o'clock", "It is 7 o'clock"])
-        ->and(ppk_expected_writings('He is not at home'))->toEqualCanonicalizing(['He is not at home', "He isn't at home", "He's not at home"])
-        ->and(ppk_expected_writings('Two thousand people live here'))->toEqualCanonicalizing(['Two thousand people live here', '2000 people live here', '2,000 people live here'])
-        ->and(ppk_expected_writings("Let's go"))->toEqualCanonicalizing(["Let's go", 'Let us go'])
-        ->and(ppk_expected_writings('Where is my scarf?'))->toEqualCanonicalizing(['Where is my scarf?', "Where's my scarf?"])
-        ->and(ppk_expected_writings('The train is late'))->toBe(['The train is late'])
-        ->and(ppk_expected_writings('The service here is very good'))->toBe(['The service here is very good'])
-        ->and(ppk_expected_writings('What time is it?'))->toBe(['What time is it?']);
+    expect(PracticePackRules::expectedWritings("It's seven o'clock"))->toEqualCanonicalizing(["It's seven o'clock", "It's 7 o'clock", "It is seven o'clock", "It is 7 o'clock"])
+        ->and(PracticePackRules::expectedWritings('He is not at home'))->toEqualCanonicalizing(['He is not at home', "He isn't at home", "He's not at home"])
+        ->and(PracticePackRules::expectedWritings('Two thousand people live here'))->toEqualCanonicalizing(['Two thousand people live here', '2000 people live here', '2,000 people live here'])
+        ->and(PracticePackRules::expectedWritings("Let's go"))->toEqualCanonicalizing(["Let's go", 'Let us go'])
+        ->and(PracticePackRules::expectedWritings('Where is my scarf?'))->toEqualCanonicalizing(['Where is my scarf?', "Where's my scarf?"])
+        ->and(PracticePackRules::expectedWritings('The train is late'))->toBe(['The train is late'])
+        ->and(PracticePackRules::expectedWritings('The service here is very good'))->toBe(['The service here is very good'])
+        ->and(PracticePackRules::expectedWritings('What time is it?'))->toBe(['What time is it?']);
 });
 
-it('knows every word of the course and every word of the dictation phrases, so that writing one of them for another is a mistake', function (): void {
+it('knows every word of the course and every word of the dictation phrases, so that writing one of them for another is a mistake', function (string $slug): void {
     $unknown = [];
-    foreach (array_keys(ppk_course_words()) as $word) {
+    foreach (array_keys(ppk_course_words($slug)) as $word) {
         foreach (PracticeTextNormalizer::tokens($word) as $token) {
             if (! EnglishLexicon::isWord($token)) {
                 $unknown[] = "the course: {$token}";
             }
         }
     }
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         if ($task['type'] !== 'dictation') {
             continue;
         }
@@ -465,17 +500,17 @@ it('knows every word of the course and every word of the dictation phrases, so t
     }
 
     expect(array_values(array_unique($unknown)))->toBe([]);
-});
+})->with('ppk_courses');
 
 // ---------------------------------------------------------------- the import and the sessions
 
-it('imports the course and every pack without a refusal, again as a no-op, publishes them with practice:import --publish, and opens a lesson session of each authored mode', function (): void {
+it('imports the course and every pack without a refusal, again as a no-op, publishes them with practice:import --publish, and opens a lesson session of each authored mode', function (string $slug): void {
     Queue::fake();
     Storage::fake('practice_audio');
-    $course = ppk_import_course();
+    $course = ppk_import_course($slug);
     $importer = app(PracticeImporter::class);
 
-    foreach (ppk_files() as $file) {
+    foreach (ppk_files($slug) as $file) {
         $count = count(ppk_read($file)['items']);
         expect($importer->importAsSystem((string) file_get_contents($file), false)->toArray())
             ->toBe(['added' => $count, 'updated' => 0, 'skipped' => 0, 'published' => 0, 'errors' => [], 'aborted' => false], basename($file));
@@ -487,8 +522,8 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
         $lessons[$lesson->id] = $lesson->stage->number.'.'.$lesson->number;
     }
     $items = PracticeItem::query()->where('course_id', $course->id)->with('words')->get()->keyBy('key');
-    expect($items)->toHaveCount(PPK_TASKS);
-    foreach (ppk_tasks() as $task) {
+    expect($items)->toHaveCount(ppk_courses()[$slug]['tasks']);
+    foreach (ppk_tasks($slug) as $task) {
         $item = $items->get($task['key']);
         expect($item)->not->toBeNull($task['key']);
         expect($lessons[(int) $item->lesson_id] ?? null)->toBe(ppk_lesson($task), $task['key'])
@@ -499,7 +534,7 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
 
     // The same files again: every task skipped, no version written.
     $versions = PracticeItemVersion::query()->count();
-    foreach (ppk_files() as $file) {
+    foreach (ppk_files($slug) as $file) {
         $count = count(ppk_read($file)['items']);
         expect($importer->importAsSystem((string) file_get_contents($file), false)->toArray())
             ->toBe(['added' => 0, 'updated' => 0, 'skipped' => $count, 'published' => 0, 'errors' => [], 'aborted' => false], basename($file));
@@ -507,21 +542,21 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
     expect(PracticeItemVersion::query()->count())->toBe($versions);
 
     // The step of docs/CONTENT_A1_A2.md after the owner's review: the command publishes the very versions that were imported.
-    foreach (ppk_files() as $file) {
+    foreach (ppk_files($slug) as $file) {
         expect(Artisan::call('practice:import', ['file' => 'database/data/practice/'.basename($file), '--publish' => true]))->toBe(0, basename($file))
             ->and(Artisan::output())->toContain('Practice import finished.');
     }
-    expect(PracticeItem::query()->where('status', PracticeItemStatus::Published)->count())->toBe(PPK_TASKS)
+    expect(PracticeItem::query()->where('status', PracticeItemStatus::Published)->count())->toBe(ppk_courses()[$slug]['tasks'])
         ->and(PracticeItemVersion::query()->count())->toBe($versions);
 
     // The sessions, once the course is published: a lesson of every module, each in every authored mode, in ru and in uz by turns.
-    // The lesson numbers go 1..5 in turn, but modules 2, 4 and 7 show the lessons the tasks of the old pack left: down to three
-    // tasks of a type there, so a single locked task would close the mode.
+    // The lesson of a module is the one of the course row (a1-a2: modules 2, 4 and 7 show the lessons with down to three tasks of
+    // a type, so a single locked task would close the mode).
     PracticeKit::openAccess();
     $course->forceFill(['status' => CoursePublisher::PUBLISHED, 'published_at' => now()])->save();
     $wanted = [];
     foreach (range(1, 20) as $module) {
-        $wanted[] = $module.'.'.(in_array($module, [2, 4, 7], true) ? 1 : ($module - 1) % 5 + 1);
+        $wanted[] = $module.'.'.ppk_courses()[$slug]['lesson']($module);
     }
     $chosen = array_keys(array_intersect($lessons, $wanted));
     expect($chosen)->toHaveCount(20);
@@ -546,7 +581,7 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
 
     $tasks = [];
     $stock = [];
-    foreach (ppk_tasks() as $task) {
+    foreach (ppk_tasks($slug) as $task) {
         $tasks[$task['key']] = $task;
         $slot = ppk_lesson($task).' '.$task['type'];
         $stock[$slot] = ($stock[$slot] ?? 0) + 1;
@@ -559,7 +594,7 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
         $locale = $turn % 2 === 0 ? 'ru' : 'uz';
         foreach ([PracticeMode::Collocation, PracticeMode::Sentence, PracticeMode::Dictation] as $mode) {
             $where = "{$lessons[$lessonId]} {$mode->value} {$locale}";
-            $session = $sessions->open($learners[$locale], $mode, PPK_COURSE, $lessonId, PracticeSession::SOURCE_HUB, true, null);
+            $session = $sessions->open($learners[$locale], $mode, $slug, $lessonId, PracticeSession::SOURCE_HUB, true, null);
             $elements = $session->snapshot['elements'];
 
             // Every task of the type is open to a learner who knows the words of the lesson (no target word of another lesson
@@ -578,4 +613,4 @@ it('imports the course and every pack without a refusal, again as a no-op, publi
             }
         }
     }
-});
+})->with('ppk_courses');
