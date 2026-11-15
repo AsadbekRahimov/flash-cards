@@ -47,7 +47,8 @@ x-app: &app
     - app_audio:/var/www/html/storage/app/public/audio
 
 services:
-  # One-shot: migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
+  # One-shot: first a restore point (backup:run --only-db to BACKUP_DISKS; a failed backup only warns, docs/DEVOPS_GUIDE.md
+  # §11.1), then migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
   # deploy.sh, then the reference data (roles, shop items: idempotent, never demo data), then the bot's command menu, Mini App
   # button and webhook (docker/telegram-setup.sh: skipped with a warning without the variables, an error of the Telegram API
   # only warns). Every other application service starts only after it exited with 0.
@@ -58,7 +59,7 @@ services:
     command:
       - sh
       - -c
-      - php artisan migrate --force --database=pgsql_direct && php artisan db:seed --class=ReferenceDataSeeder --force && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed') && (sh docker/telegram-setup.sh || echo 'WARNING telegram setup failed')
+      - (php artisan backup:run --only-db --isolated || echo 'WARNING backup:run failed') && php artisan migrate --force --database=pgsql_direct && php artisan db:seed --class=ReferenceDataSeeder --force && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed') && (sh docker/telegram-setup.sh || echo 'WARNING telegram setup failed')
 
   # php-fpm: Filament (/admin, /org), 2FA, Livewire, Telegram webhook, billing return.
   lf-app:

@@ -66,6 +66,25 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Off-site backups (spatie/laravel-backup, BACKUP_DISKS). Cloudflare R2 speaks S3: region `auto`,
+         * endpoint https://<account-id>.r2.cloudflarestorage.com (without the bucket). A bucket and keys
+         * of their own, because the dump holds personal data; the bucket must not be public.
+         * throw: a failed upload must fail backup:run loudly, never silently.
+         */
+        'backups' => [
+            'driver' => 's3',
+            'key' => env('BACKUP_ACCESS_KEY_ID'),
+            'secret' => env('BACKUP_SECRET_ACCESS_KEY'),
+            'region' => env('BACKUP_DEFAULT_REGION') ?: 'auto',
+            'bucket' => env('BACKUP_BUCKET'),
+            'endpoint' => env('BACKUP_ENDPOINT'),
+            'use_path_style_endpoint' => (bool) env('BACKUP_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -68,7 +68,7 @@ bash deploy.sh <sha>        # SHA зелёного коммита master; без
 1. Берёт лок `.deploy.lock`, проверяет том PostgreSQL (`docker/postgres/upgrade.sh --check`), делает checkout SHA.
 2. Проверяет `.env`: пароли Redis не пустые и не `null`; печатает **предупреждения** (деплой не останавливают) о настройках прода,
    забытых по умолчанию: `TELEGRAM_IP_ALLOWLIST_ENABLED` не `true`, `PAYME_ALLOW_TEST_KEY=true`, `APP_DEBUG=true`, пустой
-   `BACKUP_ARCHIVE_PASSWORD`, бэкапы только на `local`, `SENTRY_TRACES_SAMPLE_RATE` > 0,01 (чек-лист — docs/24 §10).
+   `BACKUP_ARCHIVE_PASSWORD`, бэкапы только на `local` (нужен `backups` — R2), `SENTRY_TRACES_SAMPLE_RATE` > 0,01 (чек-лист — docs/24 §10).
 3. Собирает образы `app`, `app-api` (стадия `app-fpm`; под `APP_SERVER=octane` — ещё и `app-octane`), `nginx`, `pgbouncer`
    (`docker build` — 10–15 минут на первом деплое, дальше кэш).
 4. Миграции через `pgsql_direct` (мимо pgbouncer); `--skip-migrate` их пропускает. Затем справочники (`ReferenceDataSeeder`),

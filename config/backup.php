@@ -13,6 +13,16 @@ use Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy;
 use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays;
 use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes;
 
+/*
+ * BACKUP_DISKS="local,backups": trimmed, empty entries dropped, `local` by default.
+ * One list for both the destination and the monitor, so the monitor checks
+ * the same disks the backups go to.
+ */
+$backupDisks = array_values(array_filter(
+    array_map('trim', explode(',', (string) env('BACKUP_DISKS', 'local'))),
+    static fn (string $disk): bool => $disk !== '',
+)) ?: ['local'];
+
 return [
 
     'backup' => [
@@ -172,9 +182,12 @@ return [
             'filename_prefix' => '',
 
             /*
-             * The disk names on which the backups will be stored.
+             * The disk names on which the backups will be stored (BACKUP_DISKS, comma-separated):
+             * `local` = the server's own disk (storage/app/private/<APP_NAME>),
+             * `backups` = the off-site Cloudflare R2 disk (config/filesystems.php).
+             * Recommended: `backups` or `local,backups`.
              */
-            'disks' => explode(',', (string) env('BACKUP_DISKS', 'local')),
+            'disks' => $backupDisks,
 
             /*
              * Determines whether to allow backups to continue when some targets fail instead of failing completely.
@@ -306,7 +319,7 @@ return [
     'monitor_backups' => [
         [
             'name' => env('APP_NAME', 'laravel-backup'),
-            'disks' => ['local'],
+            'disks' => $backupDisks,
             'health_checks' => [
                 MaximumAgeInDays::class => 1,
                 MaximumStorageInMegabytes::class => 5000,
@@ -337,18 +350,19 @@ return [
          */
         'strategy' => DefaultStrategy::class,
 
+        // Hourly archives (--only-db): keep all for 2 days, then one per day for 28 days, and so on.
         'default_strategy' => [
             /*
              * The number of days for which backups must be kept.
              */
-            'keep_all_backups_for_days' => 7,
+            'keep_all_backups_for_days' => 2,
 
             /*
              * After the "keep_all_backups_for_days" period is over, the most recent backup
              * of that day will be kept. Older backups within the same day will be removed.
              * If you create backups only once a day, no backups will be removed yet.
              */
-            'keep_daily_backups_for_days' => 16,
+            'keep_daily_backups_for_days' => 28,
 
             /*
              * After the "keep_daily_backups_for_days" period is over, the most recent backup
@@ -367,7 +381,7 @@ return [
              * After the "keep_monthly_backups_for_months" period is over, the most recent backup
              * of that year will be kept. Older backups within the same year will be removed.
              */
-            'keep_yearly_backups_for_years' => 2,
+            'keep_yearly_backups_for_years' => 1,
 
             /*
              * After cleaning up the backups remove the oldest backup until
