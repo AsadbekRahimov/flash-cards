@@ -44,7 +44,11 @@ interface TelegramClient
         ?array $replyMarkup = null,
     ): void;
 
-    public function answerCallbackQuery(string $callbackQueryId): void;
+    /**
+     * Answers a tapped inline button. Without a text it only dismisses the spinner; with one the tapper alone sees it
+     * (a toast, or a modal alert with `$showAlert`) and nothing is posted to the chat. Telegram cuts the text at 200 characters.
+     */
+    public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void;
 
     /**
      * Replaces the inline keyboard of an already sent message; `null` removes it.

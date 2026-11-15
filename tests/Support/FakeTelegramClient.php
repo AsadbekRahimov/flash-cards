@@ -23,6 +23,9 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<string> */
     public array $answered = [];
 
+    /** @var array<string, array{text: string, show_alert: bool}> answers that carried a text, by callback query id */
+    public array $answeredTexts = [];
+
     /** @var list<array{chat_id:int|string, message_id:int, markup:array<string, mixed>|null}> */
     public array $edits = [];
 
@@ -49,6 +52,9 @@ final class FakeTelegramClient implements TelegramClient
 
     /** @var list<array{chat_id:int|string, user_id:int}> */
     public array $chatMemberLookups = [];
+
+    /** Called on every getChatMemberStatus before the answer: a test hooks it to act "meanwhile" (a parallel write between the read and the lock). */
+    public ?Closure $onChatMemberLookup = null;
 
     /** @var list<array{title:string, description:string, payload:string, currency:string, prices:list<array{label:string, amount:int}>, subscription_period:int|null}> */
     public array $invoiceLinks = [];
@@ -121,13 +127,16 @@ final class FakeTelegramClient implements TelegramClient
         ];
     }
 
-    public function answerCallbackQuery(string $callbackQueryId): void
+    public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
     {
         if ($this->failAnswers) {
             throw new TelegramApiException('query is too old and response timeout expired');
         }
 
         $this->answered[] = $callbackQueryId;
+        if ($text !== null) {
+            $this->answeredTexts[$callbackQueryId] = ['text' => $text, 'show_alert' => $showAlert];
+        }
     }
 
     public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void
@@ -142,6 +151,10 @@ final class FakeTelegramClient implements TelegramClient
     public function getChatMemberStatus(int|string $chatId, int $userId): string
     {
         $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
+
+        if ($this->onChatMemberLookup !== null) {
+            ($this->onChatMemberLookup)($chatId, $userId);
+        }
 
         if ($this->failChatMember) {
             throw new TelegramApiException('Bad Request: chat not found');

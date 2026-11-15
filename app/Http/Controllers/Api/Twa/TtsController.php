@@ -32,17 +32,17 @@ final class TtsController
         if ($bytes !== null) {
             return response($bytes, 200)
                 ->header('Content-Type', 'audio/mpeg')
-                ->header('Cache-Control', 'public, max-age=2592000');
+                ->header('Cache-Control', 'private, max-age=2592000');
         }
 
         try {
-            $synth = $this->tts->synthesize($data['word'], $data['voice'] ?? null);
+            $synth = $this->tts->synthesizeLive($data['word'], $data['voice'] ?? null);
         } catch (RuntimeException|ConnectionException) {
             return ApiErrorResource::respond(503, 'tts_unavailable', 'TTS fallback service is unavailable.');
         }
 
         return response($synth['body'], 200)
             ->header('Content-Type', $synth['content_type'])
-            ->header('Cache-Control', 'public, max-age=2592000');
+            ->header('Cache-Control', 'private, max-age=2592000');
     }
 }

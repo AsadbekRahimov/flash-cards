@@ -2,21 +2,26 @@
 
 declare(strict_types=1);
 
+use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\OrganizationResource\Pages\EditOrganization;
 use App\Filament\Resources\OrganizationResource\RelationManagers\InvitesRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\MembersRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\StaffRelationManager;
+use App\Mail\OrgStaffInvitationMail;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationUser;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -317,4 +322,69 @@ it('finds learners to add by name, username and Telegram id', function (): void 
         ->and(array_keys($search('555001')))->toBe([$ali->id])
         ->and($search('nobody'))->toBe([])
         ->and($search('alish')[$ali->id])->toBe('Alisher Karimov (@alisher_k) · 555001');
+});
+
+// --- staff: the first owner of a center -------------------------------------------
+
+it('lets an admin invite the first owner of a center: staff row with the owner role, audit record, invitation letter', function (): void {
+    Mail::fake();
+    $org = orgRmCenter();
+    $this->actingAs($this->admin);
+
+    orgRm(StaffRelationManager::class, $org)
+        ->callTableAction('inviteStaff', data: ['email' => 'Boss@Example.com', 'name' => 'Boss', 'role' => 'owner'])
+        ->assertHasNoTableActionErrors()
+        ->assertNotified('Приглашение отправлено');
+
+    $user = User::query()->where('email', 'boss@example.com')->sole();
+    $staff = OrganizationUser::query()->where('organization_id', $org->id)->sole();
+
+    expect($staff->user_id)->toBe($user->id)
+        ->and($staff->role)->toBe(OrganizationRole::Owner->value)
+        ->and($staff->invited_by_user_id)->toBe($this->admin->id)
+        ->and(AuditLog::query()->where('action', 'organization.staff_invited')->count())->toBe(1);
+
+    Mail::assertSent(OrgStaffInvitationMail::class, fn (OrgStaffInvitationMail $mail): bool => $mail->hasTo('boss@example.com') && $mail->withResetLink);
+
+    orgRm(StaffRelationManager::class, $org)->assertCanSeeTableRecords([$staff])->assertSee('Boss');
+});
+
+it('refuses a repeated invitation of the same address with a readable text', function (): void {
+    Mail::fake();
+    $org = orgRmCenter();
+    $this->actingAs($this->admin);
+
+    $manager = orgRm(StaffRelationManager::class, $org);
+    $manager->callTableAction('inviteStaff', data: ['email' => 'boss@example.com', 'role' => 'owner']);
+    $manager->callTableAction('inviteStaff', data: ['email' => 'boss@example.com', 'role' => 'teacher'])
+        ->assertNotified('Приглашение не отправлено');
+
+    expect(OrganizationUser::query()->where('organization_id', $org->id)->count())->toBe(1);
+    Mail::assertSent(OrgStaffInvitationMail::class, 1);
+});
+
+it('hides the staff manager and refuses the invitation to a teacher and an inactive admin', function (): void {
+    Mail::fake();
+    $org = orgRmCenter();
+    $inactive = User::factory()->create(['is_active' => false]);
+    $inactive->assignRole('admin');
+
+    foreach ([$this->teacher, $inactive] as $user) {
+        $this->actingAs($user);
+        expect(StaffRelationManager::canViewForRecord($org, EditOrganization::class))->toBeFalse();
+    }
+
+    $this->actingAs($this->teacher);
+    try {
+        orgRm(StaffRelationManager::class, $org)->callTableAction('inviteStaff', data: ['email' => 'x@example.com', 'role' => 'owner']);
+    } catch (Throwable) {
+        // a hidden action may also fail loudly — what matters is the data below
+    }
+
+    expect(OrganizationUser::query()->count())->toBe(0);
+    Mail::assertNothingSent();
+
+    $this->actingAs($this->admin);
+    expect(StaffRelationManager::canViewForRecord($org, EditOrganization::class))->toBeTrue()
+        ->and(OrganizationResource::getRelations())->toContain(StaffRelationManager::class);
 });

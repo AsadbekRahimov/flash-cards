@@ -6,9 +6,11 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\ChatMemberStatusCache;
 use App\Domain\Telegram\Services\GroupBotAccessChecker;
+use App\Domain\Telegram\Services\GroupWelcomeMessenger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
 
@@ -19,6 +21,8 @@ final class MyChatMemberHandler implements UpdateHandler
         private readonly DmLearnerResolver $dmLearners,
         private readonly GroupBotAccessChecker $botAccess,
         private readonly ChatMemberStatusCache $members,
+        private readonly GroupWelcomeMessenger $welcome,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -81,7 +85,7 @@ final class MyChatMemberHandler implements UpdateHandler
             $group->status = 'pending';
         }
 
-        $group->title = (string) ($chat['title'] ?? 'Untitled group');
+        $group->title = (string) ($chat['title'] ?? __('bot.group.untitled', [], $this->locales->forGroup($group)));
         // Merge: admin-managed keys such as `locale` must survive a re-add.
         $group->meta = array_merge($group->meta ?? [], ['type' => $chatType]);
         $group->save();
@@ -97,7 +101,14 @@ final class MyChatMemberHandler implements UpdateHandler
             );
 
             $botId = $event['new_chat_member']['user']['id'] ?? null;
-            $this->botAccess->warnIfNotAdmin($group, is_int($botId) ? $botId : null);
+            $botId = is_int($botId) ? $botId : null;
+
+            // A group that waits for activation gets ONE message: what to do next (+ the admin warning inside it).
+            if ($group->status === 'pending') {
+                $this->welcome->send($group, $botId);
+            } else {
+                $this->botAccess->warnIfNotAdmin($group, $botId);
+            }
         }
     }
 

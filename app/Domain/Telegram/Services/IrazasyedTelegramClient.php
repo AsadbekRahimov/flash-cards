@@ -143,9 +143,15 @@ class IrazasyedTelegramClient implements TelegramClient
         $this->call(fn () => $this->api->sendPhoto($params), mapForbidden: true);
     }
 
-    public function answerCallbackQuery(string $callbackQueryId): void
+    public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
     {
-        $this->call(fn () => $this->api->answerCallbackQuery(['callback_query_id' => $callbackQueryId]));
+        $params = ['callback_query_id' => $callbackQueryId];
+        if ($text !== null && $text !== '') {
+            $params['text'] = $text;
+            $params['show_alert'] = $showAlert;
+        }
+
+        $this->call(fn () => $this->api->answerCallbackQuery($params));
     }
 
     /**

@@ -183,7 +183,7 @@ describe('ExamResultView', () => {
     const { wrapper } = await render(group())
 
     const close = wrapper.get('[data-testid=close-btn]')
-    expect(close.text()).toBe('Закрыть')
+    expect(close.text()).toBe('Выйти в Telegram')
     expect(close.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-lg', 'btn-block']))
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     expect(wrapper.get('[data-testid=actions]').find('[data-testid=close-btn]').exists()).toBe(true)
@@ -228,7 +228,7 @@ describe('ExamResultView', () => {
 
     expect(wrapper.get('[data-testid=result-title]').text()).toBe('Sinov imtihoni natijasi')
     expect(wrapper.get('[data-testid=mock-score]').text()).toBe('40 tadan 10 ta · 25%')
-    expect(wrapper.get('[data-testid=mock-percentile]').text()).toContain('13%')
+    expect(wrapper.get('[data-testid=mock-percentile]').text()).toContain('13 foizi')
     expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Sizning natijangiz')
   })
 })

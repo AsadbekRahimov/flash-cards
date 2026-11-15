@@ -52,6 +52,12 @@ class WordTranslationsRelationManager extends RelationManager
                 ),
             Forms\Components\TextInput::make('translation')->label(__('admin.words.translations.fields.translation'))->required()->maxLength(500),
             Forms\Components\Textarea::make('example_translation')->label(__('admin.words.translations.fields.example_translation'))->rows(2)->columnSpanFull(),
+            Forms\Components\Textarea::make('hook')
+                ->label(__('admin.words.translations.fields.hook'))
+                ->helperText(__('admin.words.translations.fields.hook_help'))
+                ->rows(2)
+                ->maxLength(500)
+                ->columnSpanFull(),
         ]);
     }
 
@@ -107,6 +113,7 @@ class WordTranslationsRelationManager extends RelationManager
             (string) $data['locale'],
             (string) $data['translation'],
             isset($data['example_translation']) && $data['example_translation'] !== '' ? (string) $data['example_translation'] : null,
+            isset($data['hook']) && $data['hook'] !== '' ? (string) $data['hook'] : null,
         );
     }
 }

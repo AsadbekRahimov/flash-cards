@@ -21,7 +21,26 @@ it('parses the supported deep-link prefixes', function (string $raw, StartPayloa
     'course with underscore' => ['c_ielts_academic', StartPayloadKind::Course, 'ielts_academic', 'course:ielts_academic'],
     'org' => ['org_Center-7', StartPayloadKind::Org, 'Center-7', 'org'],
     'friend' => ['f_ABC234', StartPayloadKind::Friend, 'ABC234', 'friend'],
+    'account link (not attributed)' => ['link_'.str_repeat('Ab1-_', 6).'Ab', StartPayloadKind::AccountLink, str_repeat('Ab1-_', 6).'Ab', null],
 ]);
+
+it('keeps a malformed link_ payload an account-link attempt (refused by the service), never a learner onboarding', function (string $raw, bool $parsed): void {
+    $payload = StartPayload::parse($raw);
+
+    expect($payload->kind === StartPayloadKind::AccountLink)->toBe($parsed)
+        ->and($payload->acquisitionSource())->toBeNull();
+})->with([
+    'short' => ['link_abc', true],
+    'long' => ['link_'.str_repeat('a', 33), true],
+    'foreign chars (fails the global charset rule)' => ['link_'.str_repeat('a', 31).'!', false],
+]);
+
+it('exposes the account-link token of a link_ payload only', function (): void {
+    $token = str_repeat('x', 32);
+
+    expect(StartPayload::parse('link_'.$token)->accountLinkToken())->toBe($token)
+        ->and(StartPayload::parse('ref_ABC234')->accountLinkToken())->toBeNull();
+});
 
 it('exposes the typed parts', function (): void {
     expect(StartPayload::parse('ref_ABC234')->referralCode())->toBe('ABC234')

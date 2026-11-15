@@ -69,13 +69,13 @@ it('words the shipped limits as the landing always did, and adds the own deck to
         ],
     ])->and((new LandingPricing)->limits('uz'))->toBe([
         'free' => "kuniga 20 ta yangi so'z",
-        'freeFeatures' => ['Ommaviy kurslar', "Kuniga 20 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 50 tagacha so'z", 'Bot va mini-ilova'],
+        'freeFeatures' => ['Ochiq kurslar', "Kuniga 20 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 50 tagacha so'z", 'Bot va mini-ilova'],
         'proFeatures' => [
-            "Yangi so'zlar uchun kunlik limitsiz",
+            "Kuniga istagancha yangi so'z",
             "Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy»",
-            "Shaxsiy to'plamlar: 2000 tadan so'zli 20 tagacha to'plam",
-            "Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi",
-            'IELTS va SAT sinov testlari',
+            "Shaxsiy to'plamlar: 20 tagacha, har birida 2000 tagacha so'z",
+            "Bir kun shug'ullanmasangiz ham, ketma-ketlikni saqlab qolish",
+            'IELTS va SAT sinov imtihonlari',
         ],
     ]);
 });
@@ -111,9 +111,9 @@ it('says "no daily limit" instead of a number when Free has none, and then Pro h
     expect($ru['free'])->toBe('новые слова без дневного лимита')
         ->and($ru['freeFeatures'])->toBe(['Публичные курсы', 'Новые слова без дневного лимита', 'Повторения без ограничений', 'Своя колода до 50 слов', 'Бот и мини-приложение'])
         ->and($ru['proFeatures'])->toHaveCount(4)->not->toContain('Без дневного лимита новых слов')
-        ->and($uz['free'])->toBe("yangi so'zlar uchun kunlik limitsiz")
-        ->and($uz['freeFeatures'][1])->toBe("Yangi so'zlar uchun kunlik limitsiz")
-        ->and($uz['proFeatures'])->toHaveCount(4)->not->toContain("Yangi so'zlar uchun kunlik limitsiz");
+        ->and($uz['free'])->toBe("kuniga istagancha yangi so'z")
+        ->and($uz['freeFeatures'][1])->toBe("Kuniga istagancha yangi so'z")
+        ->and($uz['proFeatures'])->toHaveCount(4)->not->toContain("Kuniga istagancha yangi so'z");
 
     foreach ([...$ru['freeFeatures'], ...$ru['proFeatures'], ...$uz['freeFeatures'], ...$uz['proFeatures']] as $tick) {
         expect($tick)->not->toBe('')->not->toStartWith(':');
@@ -126,7 +126,7 @@ it('lists several decks of Free in the plural form, and the single one of Pro in
 
     expect((new LandingPricing)->limits('ru')['freeFeatures'])->toContain('Свои колоды: до 3 колод по 70 слов')
         ->and((new LandingPricing)->limits('ru')['proFeatures'])->toContain('Своя колода до 400 слов')
-        ->and((new LandingPricing)->limits('uz')['freeFeatures'])->toContain("Shaxsiy to'plamlar: 70 tadan so'zli 3 tagacha to'plam")
+        ->and((new LandingPricing)->limits('uz')['freeFeatures'])->toContain("Shaxsiy to'plamlar: 3 tagacha, har birida 70 tagacha so'z")
         ->and((new LandingPricing)->limits('uz')['proFeatures'])->toContain("Shaxsiy to'plam: 400 tagacha so'z");
 });
 
@@ -175,7 +175,7 @@ it('quotes the configured limits on the landing in ru and in uz, and not the old
     $this->get('/uz')->assertOk()
         ->assertSee("Bepul: kuniga 15 ta yangi so'z, takrorlash esa cheklovsiz.")
         ->assertSee("Shaxsiy to'plam: 70 tagacha so'z")
-        ->assertSee("Shaxsiy to'plamlar: 300 tadan so'zli 5 tagacha to'plam")
+        ->assertSee("Shaxsiy to'plamlar: 5 tagacha, har birida 300 tagacha so'z")
         ->assertDontSee('kuniga 20 ta')
         ->assertDontSee('2000')
         ->assertDontSee('50 tagacha');
@@ -195,8 +195,8 @@ it('puts the plan limits into the ticks of the plan cards', function (): void {
         ]);
 
     [$free, $pro] = landingTicks($this->get('/uz')->getContent());
-    expect($free)->toBe(['Ommaviy kurslar', "Kuniga 15 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 70 tagacha so'z", 'Bot va mini-ilova'])
-        ->and($pro[2])->toBe("Shaxsiy to'plamlar: 300 tadan so'zli 5 tagacha to'plam");
+    expect($free)->toBe(['Ochiq kurslar', "Kuniga 15 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 70 tagacha so'z", 'Bot va mini-ilova'])
+        ->and($pro[2])->toBe("Shaxsiy to'plamlar: 5 tagacha, har birida 300 tagacha so'z");
 });
 
 it('puts the daily limit into the meta description and the og:description of every public page', function (string $url, string $needle): void {
@@ -222,10 +222,10 @@ it('shows no number and no hole on the pages when Free has no daily limit', func
         ->assertSee('Бесплатно: новые слова без дневного лимита, повторения — без ограничений.')
         ->assertDontSee('новых слов в день');
     $uz = $this->get('/uz')->assertOk()
-        ->assertSee("Bepul: yangi so'zlar uchun kunlik limitsiz, takrorlash esa cheklovsiz.");
+        ->assertSee("Bepul: kuniga istagancha yangi so'z, takrorlash esa cheklovsiz.");
 
     expect(landingMetaDescription($ru->getContent()))->toEndWith('Бесплатно: новые слова без дневного лимита.')
-        ->and(landingMetaDescription($uz->getContent()))->toEndWith("Bepul: yangi so'zlar uchun kunlik limitsiz.");
+        ->and(landingMetaDescription($uz->getContent()))->toEndWith("Bepul: kuniga istagancha yangi so'z.");
 
     foreach ([$ru, $uz] as $response) {
         [$free, $pro] = landingTicks($response->getContent());
@@ -243,7 +243,7 @@ it('shows the limits of the shipped config as before', function (): void {
         ->assertSee('Свои колоды: до 20 колод по 2000 слов');
     $this->get('/uz')
         ->assertSee("Bepul: kuniga 20 ta yangi so'z, takrorlash esa cheklovsiz.")
-        ->assertSee("Shaxsiy to'plamlar: 2000 tadan so'zli 20 tagacha to'plam");
+        ->assertSee("Shaxsiy to'plamlar: 20 tagacha, har birida 2000 tagacha so'z");
 });
 
 // --- nothing typed in lang ----------------------------------------------------------

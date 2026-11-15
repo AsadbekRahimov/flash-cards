@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Services;
 
+use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Word;
 use App\Models\WordTranslation;
@@ -19,7 +20,10 @@ use InvalidArgumentException;
  */
 final class WordTranslationWriter
 {
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly LearningCache $cache,
+    ) {}
 
     /**
      * Creates or updates the translation of one locale.
@@ -29,19 +33,22 @@ final class WordTranslationWriter
      *
      * @throws InvalidArgumentException for a locale outside `config('localization.supported')`
      */
-    public function save(Word $word, string $locale, string $translation, ?string $exampleTranslation = null): WordTranslation
+    public function save(Word $word, string $locale, string $translation, ?string $exampleTranslation = null, ?string $hook = null): WordTranslation
     {
         if (! $this->locales->isSupported($locale)) {
             throw new InvalidArgumentException("Unsupported locale '{$locale}'.");
         }
 
-        return DB::transaction(function () use ($word, $locale, $translation, $exampleTranslation): WordTranslation {
+        return DB::transaction(function () use ($word, $locale, $translation, $exampleTranslation, $hook): WordTranslation {
             $row = WordTranslation::query()->firstOrNew(['word_id' => $word->id, 'locale' => $locale]);
 
             $textChanged = ! $row->exists || $row->translation !== $translation;
 
             $row->translation = $translation;
             $row->example_translation = $exampleTranslation;
+            // The memory hook of this language (docs/06 §12.3); a blank clears it. Not a translation: no review mark reset.
+            $hook = trim((string) $hook);
+            $row->hook = $hook === '' ? null : $hook;
             if ($textChanged) {
                 $row->source = 'manual';
                 $row->reviewed_at = null;
@@ -50,6 +57,10 @@ final class WordTranslationWriter
 
             if ($locale === $this->locales->fallback() && $word->translation !== $translation) {
                 $word->forceFill(['translation' => $translation])->save();
+
+                // The pool of distractors of the lesson holds `words.translation`.
+                $lessonId = (int) $word->lesson_id;
+                DB::afterCommit(fn () => $this->cache->forgetLessonId($lessonId));
             }
 
             return $row;
@@ -68,7 +79,7 @@ final class WordTranslationWriter
             return;
         }
 
-        $this->save($word, $locale, (string) $word->translation, $row?->example_translation);
+        $this->save($word, $locale, (string) $word->translation, $row?->example_translation, $row?->hook);
     }
 
     public function markReviewed(WordTranslation $translation): void

@@ -66,10 +66,16 @@ bash deploy.sh <sha>        # SHA зелёного коммита master; без
 Что делает `deploy.sh` (по порядку, останавливается на первой ошибке, лог — в stdout):
 
 1. Берёт лок `.deploy.lock`, проверяет том PostgreSQL (`docker/postgres/upgrade.sh --check`), делает checkout SHA.
-2. Проверяет `.env`: пароли Redis не пустые и не `null`.
+2. Проверяет `.env`: пароли Redis не пустые и не `null`; печатает **предупреждения** (деплой не останавливают) о настройках прода,
+   забытых по умолчанию: `TELEGRAM_IP_ALLOWLIST_ENABLED` не `true`, `PAYME_ALLOW_TEST_KEY=true`, `APP_DEBUG=true`, пустой
+   `BACKUP_ARCHIVE_PASSWORD`, бэкапы только на `local`, `SENTRY_TRACES_SAMPLE_RATE` > 0,01 (чек-лист — docs/24 §10).
 3. Собирает образы `app`, `app-api` (стадия `app-fpm`; под `APP_SERVER=octane` — ещё и `app-octane`), `nginx`, `pgbouncer`
    (`docker build` — 10–15 минут на первом деплое, дальше кэш).
-4. Миграции через `pgsql_direct` (мимо pgbouncer); `--skip-migrate` их пропускает.
+4. Миграции через `pgsql_direct` (мимо pgbouncer); `--skip-migrate` их пропускает. Затем справочники (`ReferenceDataSeeder`),
+   пересчёт слов курсов и **Telegram**: `docker/telegram-setup.sh` — `telegram:setup-bot` (меню команд ru/uz и кнопка Mini App) и
+   `telegram:set-webhook`. Идемпотентно; без `TELEGRAM_BOT_TOKEN` / `TELEGRAM_WEBHOOK_URL` / `TELEGRAM_URL_SECRET` /
+   `TELEGRAM_HEADER_SECRET` шаг пропускается с `WARNING`, ошибка Telegram API — тоже только `WARNING` (деплой идёт дальше). На
+   откате (`--rollback`) шаг не выполняется.
 5. `docker compose up -d --remove-orphans` — пересоздаёт изменившиеся контейнеры. **В первом деплое R13 пересоздаётся
    `postgres`** (новый `command` и `shm_size`): 5–15 секунд база недоступна, запросы в полёте получают ошибки,
    `/health/ready` на это время — 503. Делать в тихий час. Дальше `postgres` не трогается, пока не меняется `PG_*`.
@@ -186,3 +192,91 @@ make load-test BASE_URL=https://<домен> TARGET_VUS=300 HOLD=5m
 5. **Откат:** в `.env` `APP_SERVER=fpm` (или удалить строку), затем
    `docker compose -f docker-compose.prod.yml --env-file .env up -d app-api nginx`. Сборки не нужно: образ `app-fpm` собирается
    при каждом деплое. `TRUSTED_PROXIES` и `NGINX_IPV4` можно оставить: под fpm доверие адресу nginx безвредно. Откат на коммит без `ipam` пересоздаст сеть (см. выше, `down`).
+
+## 8. Coolify: сети, Traefik, проверка изоляции
+
+Относится к `docker-compose.coolify.yml` (стек `lf-*` на Coolify; обычный VPS — `docker-compose.prod.yml`, там сеть своя и
+`app`/`app-api` недоступны извне). Аудит 2026-11-10 §1 M3 и M4.
+
+**Сети стека.**
+
+| Сеть | Кто в ней | Зачем |
+|---|---|---|
+| `lf-internal` (мост, подсеть `LF_INTERNAL_SUBNET`, умолчание `10.254.77.0/24`, порты не публикуются) | все сервисы `lf-*` | nginx → php-fpm (`lf-app-private:9000`) и Octane (`lf-api-private:8000`) |
+| `proxy` (внешняя, `LF_PROXY_NETWORK`, умолчание `coolify`) | **только `lf-nginx`** | Traefik доходит до nginx |
+| `infra` (внешняя, `LF_INFRA_NETWORK`, умолчание `coolify`) | всё, кроме `lf-nginx`: миграция, `lf-app`, `lf-api`, очереди, планировщик | PostgreSQL / pgbouncer / Redis из ресурса server-infra |
+
+Приватная сеть — **обычный мост, не `internal: true`**: флаг `internal` отрезает исходящий маршрут, а приложению нужен выход в интернет
+(Telegram API, платёжные провайдеры, TTS, Sentry). Мост без `ports:` и так закрыт снаружи: с хоста и из интернета в него не
+войти. `TRUSTED_PROXIES` у `lf-api` теперь — подсеть `lf-internal` (nginx — единственный сервис в ней, который ходит в Octane); чужой контейнер
+общей сети из этой подсети не приходит, его `X-Forwarded-For` не принимается. Переопределить: `LF_TRUSTED_PROXIES` (адрес или короткий
+список; `*` и `/0`–`/8` запрещены `App\Support\TrustedProxies`). nginx ходит к приложению по алиасам `lf-app-private` / `lf-api-private`,
+которые есть **только** в `lf-internal`: обычное имя сервиса Docker DNS разрешил бы в адрес любой общей сети, и Octane увидел бы nginx с
+адреса вне подсети.
+
+**Полная изоляция требует шага на сервере** (в репозитории его не сделать): пока `LF_INFRA_NETWORK=coolify` (умолчание), БД и Redis
+живут в той же сети, что и Traefik, поэтому `lf-app` / `lf-api` остаются в ней видны соседям (чужой FastCGI на `lf-app:9000` — исполнение
+кода). Поддельный `X-Forwarded-For` в `lf-api` уже не пройдёт, а FastCGI — пройдёт. Чтобы закрыть и его:
+
+```bash
+docker network create lexiflow-infra
+# в compose-ресурсе server-infra: подключить pgbouncer и redis(и redis-cache) к сети lexiflow-infra (external) и передеплоить его
+# затем в переменных окружения ресурса LexiFlow в Coolify:
+LF_INFRA_NETWORK=lexiflow-infra
+```
+
+Coolify может сам добавлять свои сети сервисам compose-ресурса («Connect To Predefined Network»): после первого деплоя проверьте.
+
+**Проверка изоляции** (на сервере Coolify, после деплоя):
+
+```bash
+# 1) к proxy-сети подключён только nginx (а при LF_INFRA_NETWORK=lexiflow-infra - к `coolify` нет ни app, ни api):
+docker network inspect coolify --format '{{range .Containers}}{{.Name}}{{"\n"}}{{end}}' | grep -i lf-
+# 2) lf-app и lf-api видят приватную сеть и (если вынесли) infra, но не coolify:
+for c in $(docker ps --format '{{.Names}}' | grep -E 'lf-(app|api)'); do echo "$c: $(docker inspect $c --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}')"; done
+# 3) FastCGI соседа не достучится: из постороннего контейнера сети coolify
+docker run --rm --network coolify busybox sh -c 'nc -zv -w2 lf-app 9000; nc -zv -w2 lf-api 8000'   # должно не соединиться
+# 4) подсеть Octane доверяет: TRUSTED_PROXIES в контейнере
+docker exec $(docker ps -qf name=lf-api) php artisan config:show trustedproxy
+```
+
+**M4: настоящий IP клиента зависит от Traefik** (настройки вне репозитория). Цепочка «клиент → (Cloudflare) → Traefik → `lf-nginx` →
+`lf-api`»: nginx берёт адрес из `X-Forwarded-For`, но верит заголовку, только если TCP-сосед nginx — прокси (`TRUSTED_PROXY_CIDRS`, умолчание —
+частные диапазоны Docker; сузить до подсети сети Traefik:
+`docker network inspect coolify --format '{{(index .IPAM.Config 0).Subnet}}'` → переменная `LF_PROXY_CIDRS` в Coolify) или край Cloudflare
+(`docker/nginx/snippets/realip-cloudflare.conf`); `lf-api` верит `X-Forwarded-For` от nginx, который кладёт туда уже **один** адрес `$remote_addr`.
+Что должно быть в Traefik (`/data/coolify/proxy/docker-compose.yml`, `command:` точек входа `http` и `https`):
+
+```yaml
+- '--entrypoints.https.forwardedHeaders.trustedIPs=<диапазоны Cloudflare через запятую>'   # только если домен за Cloudflare
+- '--entrypoints.http.forwardedHeaders.trustedIPs=<те же>'
+# НЕ ставить --entrypoints.*.forwardedHeaders.insecure=true: Traefik тогда пропустит клиентский X-Forwarded-For как есть.
+```
+
+Без `trustedIPs` Traefik **заменяет** `X-Forwarded-For` адресом соседа по TCP: без Cloudflare это уже реальный клиент (хорошо), за Cloudflare —
+адрес его края (все ученики на одном адресе: лимитеры и allowlist вебхуков работают на одного «клиента»). С `trustedIPs` = Cloudflare Traefik
+сохраняет цепочку `клиент, край` — nginx снимает край (диапазоны Cloudflare) и получает клиента. Список — `https://www.cloudflare.com/ips`.
+
+**Проверка цепочки командой** (с любой машины, не из Cloudflare-сети; лимит `twa-auth` — 60 в минуту на адрес): 70 запросов с **меняющимся**
+`X-Forwarded-For` должны упереться в 429, потому что поддельный заголовок отбрасывается и все 70 приходят с одного настоящего адреса:
+
+```bash
+for i in $(seq 1 70); do
+  curl -s -o /dev/null -w '%{http_code}\n' -X POST "https://<домен>/api/twa/auth" \
+    -H 'Content-Type: application/json' -H "X-Forwarded-For: 203.0.113.$i" --data '{}'
+done | sort | uniq -c
+# ожидаем: ~60 x 401/422 и 10 x 429.  Все 70 без 429 = заголовку верят (Traefik `insecure` / нет trustedIPs-границы / nginx доверяет лишнему):
+# каждый клиент выбирает себе адрес для лимитеров и allowlist - чинить до запуска.
+```
+
+Если за Cloudflare все ученики получают 429 одновременно (один адрес у всех) — наоборот, Traefik не доверяет Cloudflare: `trustedIPs` выше.
+
+**nginx (оба конфига, `prod.conf` и `coolify.conf`).** `worker_connections` — 4096 (`Dockerfile`, стадия `nginx`: в образе 1024); зона
+`limit_req` для публичных путей без входа (`/api/twa/auth`, `/telegram/webhook/`, `/billing/return`, лендинг и юридические страницы): 30 запросов в
+секунду на адрес, burst 60 без задержки, сверх — 429 от самого nginx. Не считаются: `/up`, `/health/*`, ACME, ассеты, авторизованные части
+(`/api/*` кроме auth, `/admin`, `/org`, `/livewire`, `/2fa`) и адреса Telegram (`149.154.160.0/20`, `91.108.4.0/22`: вебхук приходит с
+нескольких адресов с растущей частотой).
+
+**`php-fpm`.** Пул `app-api` в `docker-compose.prod.yml` — `pm = static` (`PHP_FPM_API_PM`, умолчание `static`; `dynamic` вернуть можно строкой в
+`.env`): все воркеры уже подняты, нет задержки на spawn. Память занята сразу: `PHP_FPM_API_MAX_CHILDREN` × ~50 МБ. Пул `app` и Coolify-`lf-app` остаются `dynamic`.
+

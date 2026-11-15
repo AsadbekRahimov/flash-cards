@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $locale
  * @property string $translation
  * @property string|null $example_translation
+ * @property string|null $hook the authored memory hook in this locale (docs/06 §12.3)
  * @property string $source
  * @property Carbon|null $reviewed_at
  */
@@ -33,6 +34,7 @@ class WordTranslation extends Model
         'locale',
         'translation',
         'example_translation',
+        'hook',
         'source',
         'reviewed_at',
     ];

@@ -54,7 +54,7 @@ final class ReadinessProbe
             };
         }
 
-        // Production must have the bot username (Mini App links), the bot token and webhook secrets, and a TWA JWT secret of 32+ bytes.
+        // Production must run with APP_DEBUG=false, have the bot username (Mini App links), the bot token and webhook secrets, and a TWA JWT secret of 32+ bytes.
         if (app()->isProduction()) {
             $checks['config'] = $this->guard('config', $this->checkConfig(...));
         }
@@ -113,6 +113,13 @@ final class ReadinessProbe
 
     private function checkConfig(): bool
     {
+        // APP_DEBUG=true in production shows stack traces with environment values to anyone.
+        if (config('app.debug') === true) {
+            Log::warning('readiness.config_failed', ['reason' => 'app.debug is enabled in production']);
+
+            return false;
+        }
+
         // The username builds group Mini App links; the secrets keep initData, the webhook URL and header unforgeable.
         foreach (['telegram.bot_username', 'telegram.bot_token', 'telegram.url_secret', 'telegram.header_secret'] as $key) {
             if (trim((string) config($key)) === '') {

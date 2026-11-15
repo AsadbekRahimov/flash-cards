@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Operations\Support\PureCache;
-use App\Domain\Organizations\Exceptions\OrgGroupLinkException;
+use App\Domain\Organizations\Enums\GroupLinkResult;
 use App\Domain\Organizations\Services\OrgGroupLinkService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\ChatMemberStatusCache;
@@ -12,6 +12,7 @@ use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Contracts\Cache\Repository;
@@ -40,8 +41,21 @@ beforeEach(function (): void {
     $this->tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $this->tg);
     $this->org = Organization::factory()->create();
-    $this->owner = User::factory()->create(['telegram_user_id' => 4242, 'is_active' => true]);
+    $this->owner = User::factory()->create(['telegram_user_id' => 4242, 'telegram_verified_at' => now(), 'is_active' => true]);
+    OrganizationUser::factory()->create(['organization_id' => $this->org->id, 'user_id' => $this->owner->id, 'role' => 'owner']);
 });
+
+/** The center links the group from the chat: the owner posts `/link <token>` there (OrgGroupLinkService::linkFromChat). */
+function memberCacheLink(): TelegramGroup
+{
+    $service = app(OrgGroupLinkService::class);
+    $link = $service->issueLink(test()->org, test()->owner);
+    $outcome = $service->linkFromChat($link->code, ['id' => MEMBER_CACHE_CHAT, 'type' => 'supergroup', 'title' => 'Class 1'], ['id' => 4242]);
+
+    expect($outcome->result->isSuccess())->toBeTrue();
+
+    return $outcome->group ?? TelegramGroup::query()->where('chat_id', MEMBER_CACHE_CHAT)->firstOrFail();
+}
 
 /** A `my_chat_member` update about the bot in the group: `$old` -> `$new`. */
 function memberCacheBotUpdate(string $old, string $new, int $chatId = MEMBER_CACHE_CHAT): void
@@ -82,7 +96,7 @@ it('asks Telegram once for the bot when it is added and the center links the gro
     memberCacheBotUpdate('left', 'member');
     expect(memberCacheBotLookups($this->tg))->toBe(1);
 
-    $group = app(OrgGroupLinkService::class)->link($this->org, MEMBER_CACHE_CHAT, $this->owner);
+    $group = memberCacheLink();
 
     expect($group->organization_id)->toBe($this->org->id)
         ->and($this->tg->chatMemberLookups)->toHaveCount(2, 'the bot at the add, the owner at the link - the bot check of the link came from the cache')
@@ -119,7 +133,7 @@ it('knows a promotion to administrator at the next check, so a stale "member" ne
     expect(PureCache::store()->has(ChatMemberStatusCache::key(MEMBER_CACHE_CHAT, MEMBER_CACHE_BOT)))->toBeFalse();
 
     // The center links the group afterwards: the check sees an administrator and warns nobody.
-    app(OrgGroupLinkService::class)->link($this->org, MEMBER_CACHE_CHAT, $this->owner);
+    memberCacheLink();
 
     expect($this->tg->sent)->toHaveCount(1, 'only the first warning')
         ->and(memberCacheBotLookups($this->tg))->toBe(2)
@@ -129,7 +143,8 @@ it('knows a promotion to administrator at the next check, so a stale "member" ne
 it('knows a demotion at the next check and warns then', function (): void {
     $this->tg->chatMemberStatus = 'administrator';
     memberCacheBotUpdate('left', 'administrator');
-    expect($this->tg->sent)->toBe([]);
+    // Only the welcome of the new group, with no admin warning in it.
+    expect($this->tg->sent)->toHaveCount(1)->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'));
 
     $this->tg->chatMemberStatus = 'member';
     memberCacheBotUpdate('administrator', 'member');
@@ -137,8 +152,8 @@ it('knows a demotion at the next check and warns then', function (): void {
     memberCacheBotCheck();
 
     // Only the check warns (a demotion is not an "added" event): had the administrator status stayed in the cache, nobody would be told.
-    expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($this->tg->sent[1]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
 });
 
 it('drops the status when the bot is removed from the group, and when the update names no bot id', function (): void {
@@ -175,8 +190,10 @@ it('does not remember a failed call: the group is asked again', function (): voi
     memberCacheBotUpdate('left', 'member');
 
     $key = ChatMemberStatusCache::key(MEMBER_CACHE_CHAT, MEMBER_CACHE_BOT);
+    // The welcome still goes out, without the warning: the bot's status is unknown.
     expect(PureCache::store()->has($key))->toBeFalse()
-        ->and($this->tg->sent)->toBe([]);
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'));
 
     $this->tg->failChatMember = false;
     $this->tg->chatMemberStatus = 'administrator';
@@ -191,14 +208,16 @@ it('never remembers whether the OWNER is an administrator: that decides who may 
     memberCacheBotUpdate('left', 'member');
     $service = app(OrgGroupLinkService::class);
 
-    $service->link($this->org, MEMBER_CACHE_CHAT, $this->owner);
+    memberCacheLink();
     $service->unlink($this->org, TelegramGroup::query()->where('chat_id', MEMBER_CACHE_CHAT)->firstOrFail(), $this->owner);
 
     // The owner is no administrator any more: the next try asks Telegram again and is refused.
     $this->tg->chatMemberStatus = 'member';
     $owner = array_filter($this->tg->chatMemberLookups, fn (array $l): bool => $l['user_id'] === 4242);
     expect($owner)->toHaveCount(1);
-    expect(fn () => $service->link($this->org, MEMBER_CACHE_CHAT, $this->owner))->toThrow(OrgGroupLinkException::class);
+    $link = $service->issueLink($this->org, $this->owner);
+    $outcome = $service->linkFromChat($link->code, ['id' => MEMBER_CACHE_CHAT, 'type' => 'supergroup', 'title' => 'Class 1'], ['id' => 4242]);
+    expect($outcome->result)->toBe(GroupLinkResult::NotChatAdmin);
 
     expect(array_filter($this->tg->chatMemberLookups, fn (array $l): bool => $l['user_id'] === 4242))->toHaveCount(2)
         ->and(PureCache::store()->has(ChatMemberStatusCache::key(MEMBER_CACHE_CHAT, 4242)))->toBeFalse();
@@ -234,7 +253,7 @@ it('registers a group the bot was added to while the pure cache is down, and sti
     expect(TelegramGroup::query()->where('chat_id', MEMBER_CACHE_CHAT)->value('status'))->toBe('pending')
         ->and(memberCacheBotLookups($this->tg))->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe(__('bot.group.bot_not_admin', [], 'ru'));
+        ->and($this->tg->sent[0]['text'])->toContain(__('bot.group.bot_not_admin', [], 'ru'));
     Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
 });
 

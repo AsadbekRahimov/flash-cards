@@ -71,12 +71,8 @@ class WordsRelationManager extends RelationManager
             ->actions([
                 Actions\EditAction::make()
                     ->after(function (Word $record): void {
-                        $textChanged = $record->wasChanged('word');
-
+                        app(LessonContentRefresher::class)->wordEdited($record);
                         app(WordTranslationWriter::class)->syncDefaultFromWord($record);
-                        if ($textChanged) {
-                            app(LessonContentRefresher::class)->wordTextChanged($record);
-                        }
                     }),
                 Actions\Action::make('translations')
                     ->label(__('admin.lessons.words.translations'))

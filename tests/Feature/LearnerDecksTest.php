@@ -338,7 +338,7 @@ it('names the stage of a deck in the interface language of the learner even if i
     dkImport($this, $learner, $slug, dkList(3))->assertOk();
     DB::table('stages')->where('course_id', dkDeck($slug)->id)->update(['title' => null]);
 
-    dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk()->assertJsonPath('stages.0.title', "Mening lug'atim");
+    dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk()->assertJsonPath('stages.0.title', "Mening to'plamim");
 });
 
 it('shows the stage and the parts of a deck in the interface language of the learner', function (): void {
@@ -350,7 +350,7 @@ it('shows the stage and the parts of a deck in the interface language of the lea
         $detail = dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk();
 
         if ($learner->is($uz)) {
-            $detail->assertJsonPath('stages.0.title', "Mening lug'atim")
+            $detail->assertJsonPath('stages.0.title', "Mening to'plamim")
                 ->assertJsonPath('stages.0.lessons.0.title', '1-qism')
                 ->assertJsonPath('stages.0.lessons.1.title', '2-qism');
         } else {

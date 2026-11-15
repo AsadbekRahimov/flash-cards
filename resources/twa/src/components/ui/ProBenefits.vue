@@ -23,10 +23,15 @@ import type { StringKey } from '@/i18n/ru'
  */
 defineProps<{ compact?: boolean }>()
 
-/** `practice` stands for the line about practice, which `practice.pro_promise` picks (or leaves out); the others are always on the list. */
-const BENEFITS: readonly (StringKey | 'practice')[] = [
+/**
+ * `practice` stands for the line about practice, which `practice.pro_promise` picks (or leaves out); `game` for the line about the game,
+ * which is there only while `game.pro_promise` is `full` (the game is open to this learner: Pro lifts the daily limit of its runs,
+ * `game.unlimited_runs`); the others are always on the list.
+ */
+const BENEFITS: readonly (StringKey | 'practice' | 'game')[] = [
   'benefits.new_words',
   'practice',
+  'game',
   'benefits.exercises',
   'benefits.decks',
   'benefits.freezes',
@@ -45,7 +50,13 @@ const { t } = useI18n()
 const benefits = computed((): StringKey[] => {
   const practice = PRACTICE_LINES[billing.practiceAccess.pro_promise]
 
-  return BENEFITS.flatMap((key) => (key !== 'practice' ? [key] : practice ? [practice] : []))
+  const game: StringKey | undefined = billing.gameAccess.pro_promise === 'full' ? 'benefits.game' : undefined
+
+  return BENEFITS.flatMap((key) => {
+    if (key === 'practice') return practice ? [practice] : []
+    if (key === 'game') return game ? [game] : []
+    return [key]
+  })
 })
 </script>
 

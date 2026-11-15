@@ -1,6 +1,24 @@
 # LexiFlow on Coolify. PostgreSQL, pgbouncer and Redis are NOT here: they live in the separate
-# server-infra resource and are reached over the shared `coolify` network (Advanced -> "Connect To Predefined Network").
-# docker-compose.prod.yml + deploy.sh stay as they are for the plain-VPS deploy.
+# server-infra resource and are reached over an external network (`infra` below; by default the shared `coolify` network,
+# Advanced -> "Connect To Predefined Network"). docker-compose.prod.yml + deploy.sh stay as they are for the plain-VPS deploy.
+#
+# Networks (docs/22_DEPLOY_R13_RU.md §«Coolify: сети», audit 2026-11-10 M3/M4):
+#   lf-internal - the private network of this stack (a plain bridge with a fixed subnet, nothing published). Every service
+#                 of the stack is on it; php-fpm (lf-app:9000) and Octane (lf-api:8000) are reached by lf-nginx over it.
+#                 It is NOT `internal: true`: that flag cuts the outbound route, and the application must reach the
+#                 Telegram API, the payment providers, the TTS service and Sentry. A bridge without published ports is
+#                 closed to the outside already: nothing from the host or the internet can open a connection into it.
+#   proxy       - the network Traefik (coolify-proxy) is on. ONLY lf-nginx joins it.
+#   infra       - the network with PostgreSQL / pgbouncer / Redis. Only the services that need the database or Redis join it
+#                 (every one except lf-nginx). LF_INFRA_NETWORK is `coolify` by default - the same network as the proxy, then
+#                 the neighbours of the `coolify` network still see lf-app / lf-api on it (their X-Forwarded-For is not
+#                 believed any more, see TRUSTED_PROXIES, but FastCGI stays open): for the full isolation give server-infra a
+#                 network of its own (`docker network create lexiflow-infra`, attach pgbouncer and redis to it, redeploy with
+#                 LF_INFRA_NETWORK=lexiflow-infra). Coolify may add its own networks to the services: after the first deploy
+#                 check with the commands of docs/22 §«Проверка изоляции».
+#   nginx reaches php-fpm / Octane by the aliases lf-app-private / lf-api-private, which exist on lf-internal ONLY: a plain
+#   service name would resolve to an address on any shared network, and Octane would then see nginx from outside
+#   LF_INTERNAL_SUBNET and not believe the X-Forwarded-For it sends.
 #
 # Application variables are set in Coolify -> Environment Variables; Coolify writes them to the .env next to this file
 # (env_file below). Hosts: DB_HOST = pgbouncer, DB_DIRECT_HOST = postgres (migrations, pg_dump), REDIS_HOST = redis,
@@ -17,6 +35,9 @@ x-app: &app
     dockerfile: Dockerfile
     target: app
   restart: unless-stopped
+  networks:
+    - lf-internal
+    - infra
   env_file:
     # required: false - the build step of Coolify runs without this file; at runtime Coolify writes it.
     - path: .env
@@ -27,7 +48,9 @@ x-app: &app
 
 services:
   # One-shot: migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
-  # deploy.sh, then the reference data (roles, shop items: idempotent, never demo data). Every other application service starts only after it exited with 0.
+  # deploy.sh, then the reference data (roles, shop items: idempotent, never demo data), then the bot's command menu, Mini App
+  # button and webhook (docker/telegram-setup.sh: skipped with a warning without the variables, an error of the Telegram API
+  # only warns). Every other application service starts only after it exited with 0.
   lf-migrate:
     <<: *app
     restart: "no"
@@ -35,11 +58,16 @@ services:
     command:
       - sh
       - -c
-      - php artisan migrate --force --database=pgsql_direct && php artisan db:seed --class=ReferenceDataSeeder --force && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed')
+      - php artisan migrate --force --database=pgsql_direct && php artisan db:seed --class=ReferenceDataSeeder --force && (php artisan courses:recount-words || echo 'WARNING courses:recount-words failed') && (sh docker/telegram-setup.sh || echo 'WARNING telegram setup failed')
 
   # php-fpm: Filament (/admin, /org), 2FA, Livewire, Telegram webhook, billing return.
   lf-app:
     <<: *app
+    networks:
+      lf-internal:
+        aliases:
+          - lf-app-private
+      infra:
     depends_on:
       lf-migrate:
         condition: service_completed_successfully
@@ -62,23 +90,28 @@ services:
       context: .
       dockerfile: Dockerfile
       target: app-octane
+    networks:
+      lf-internal:
+        aliases:
+          - lf-api-private
+      infra:
     depends_on:
       lf-migrate:
         condition: service_completed_successfully
     environment:
       APP_SURFACE: api
       DB_PERSISTENT: "false"
-      OCTANE_WORKERS: "4"
-      OCTANE_MAX_REQUESTS: "500"
+      OCTANE_WORKERS: "${OCTANE_WORKERS:-4}"
+      OCTANE_MAX_REQUESTS: "${OCTANE_MAX_REQUESTS:-5000}"
       OCTANE_HTTPS: "true"
-      # Behind nginx REMOTE_ADDR is the nginx container. Coolify assigns the network subnets itself, so the Docker
-      # private ranges are trusted (not a catch-all: App\Support\TrustedProxies rejects those). The container publishes
-      # no port, only containers on its networks can reach it.
-      TRUSTED_PROXIES: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+      # Behind nginx REMOTE_ADDR is the nginx container. Only the private network of the stack is trusted (nginx is the
+      # only service on it that talks to Octane); a neighbour on the shared network is a stranger and its X-Forwarded-For
+      # is ignored. LF_TRUSTED_PROXIES overrides (an address or a short list, never `*` or a /0-/8: App\Support\TrustedProxies).
+      TRUSTED_PROXIES: "${LF_TRUSTED_PROXIES:-${LF_INTERNAL_SUBNET:-10.254.77.0/24}}"
       SENTRY_BREADCRUMBS_LIVEWIRE_ENABLED: "false"
       SENTRY_TRACE_LIVEWIRE_ENABLED: "false"
     stop_grace_period: 30s
-    mem_limit: 896m
+    mem_limit: ${API_MEM_LIMIT:-896m}
 
   lf-queue-high:
     <<: *app
@@ -121,6 +154,10 @@ services:
       dockerfile: Dockerfile
       target: nginx-coolify
     restart: unless-stopped
+    # The only service on the proxy network (and the only one reachable from it); the database network is not needed.
+    networks:
+      - lf-internal
+      - proxy
     depends_on:
       lf-app:
         condition: service_healthy
@@ -132,6 +169,10 @@ services:
       # Cloudflare generator of nginx-entrypoint.sh: behind Traefik nginx never sees a Cloudflare address directly.
       CLOUDFLARE_PROXY: "false"
       CLOUDFLARE_ONLY: "false"
+      # Whose X-Forwarded-For nginx believes (the TCP peers of nginx on the proxy network: Traefik). Comma-separated CIDRs;
+      # the default is the Docker private ranges. Narrow it to the subnet of the proxy network once it is known:
+      # `docker network inspect coolify --format '{{(index .IPAM.Config 0).Subnet}}'` (docs/22 §«Coolify: сети»).
+      TRUSTED_PROXY_CIDRS: "${LF_PROXY_CIDRS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}"
     volumes:
       - app_audio:/var/www/html/storage/app/public/audio:ro
     mem_limit: 128m
@@ -139,3 +180,22 @@ services:
 volumes:
   app_storage:
   app_audio:
+
+networks:
+  # The private network of the stack (see the header). The subnet is fixed so that TRUSTED_PROXIES of lf-api can name it;
+  # change LF_INTERNAL_SUBNET if it overlaps a network of the server (`docker network ls`, `docker network inspect`); the
+  # default is a rare corner of 10.0.0.0/8 (Coolify hands out 10.0.x.0/24 from the bottom). A changed subnet needs the
+  # network recreated: a redeploy from Coolify does it.
+  lf-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${LF_INTERNAL_SUBNET:-10.254.77.0/24}
+  # Traefik's network: Coolify's `coolify`.
+  proxy:
+    external: true
+    name: ${LF_PROXY_NETWORK:-coolify}
+  # PostgreSQL / pgbouncer / Redis of server-infra.
+  infra:
+    external: true
+    name: ${LF_INFRA_NETWORK:-coolify}

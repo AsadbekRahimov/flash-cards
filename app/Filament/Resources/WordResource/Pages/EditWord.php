@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\WordResource\Pages;
 
 use App\Domain\Content\Services\LessonContentRefresher;
+use App\Domain\Content\Services\WordContentEditor;
 use App\Domain\Content\Services\WordTranslationWriter;
 use App\Filament\Resources\WordResource;
 use App\Models\Word;
@@ -25,19 +26,13 @@ class EditWord extends EditRecord
         /** @var Word $word */
         $word = $this->getRecord();
 
-        $textChanged = $word->wasChanged('word');
-        $activeChanged = $word->wasChanged('is_active');
+        // Audio, the lesson cache and (for `is_active`) the course counter follow the edit; read before the sync below.
+        app(LessonContentRefresher::class)->wordEdited($word);
 
         app(WordTranslationWriter::class)->syncDefaultFromWord($word);
 
-        // The pre-generated audio belongs to the old text: drop it and voice the new one.
-        if ($textChanged) {
-            app(LessonContentRefresher::class)->wordTextChanged($word);
-        }
-
-        // An inactive word leaves cards and exams, so the lesson cache and the course counter must follow.
-        if ($activeChanged) {
-            app(LessonContentRefresher::class)->wordChanged($word);
-        }
+        // "Confused with" is not a column of the form: it goes into `words.meta` through the editor (docs/06 §12.5).
+        $tags = $this->data['confusable_with'] ?? [];
+        app(WordContentEditor::class)->saveConfusable($word, is_array($tags) ? $tags : []);
     }
 }

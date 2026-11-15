@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 return [
 
-    'blocked' => 'Доступ к аккаунту ограничен. Обратитесь в поддержку.',
+    'blocked' => 'Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport.',
+
+    // The first message of a new person is a welcome in both languages (the language is chosen only at the first step):
+    // this paragraph, then the `welcome` of lang/uz (OnboardingMessenger).
+    'welcome' => '👋 Привет! Я LexiFlow — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём.',
+    'step_counter' => 'Шаг :n из :total',
+    'invited_by_organization' => 'Вас пригласил центр «:organization»',
+    'invited_by_learner' => 'Вас пригласил(а) :name',
 
     // The five onboarding steps (docs/12 §7.1), one message each.
     'steps' => [
@@ -46,9 +53,9 @@ return [
     ],
 
     'done' => [
-        'text' => 'Готово! Ваш курс: :course. Нажмите кнопку — первая тренировка займёт пару минут.',
-        'text_plain' => 'Готово! Нажмите кнопку — первая тренировка займёт пару минут.',
-        'button' => '🎯 Начать первую тренировку',
+        'text' => 'Готово! Ваш курс: :course. Нажмите кнопку — первое занятие займёт пару минут.',
+        'text_plain' => 'Готово! Нажмите кнопку — первое занятие займёт пару минут.',
+        'button' => '🎯 Начать первое занятие',
     ],
 
     // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.

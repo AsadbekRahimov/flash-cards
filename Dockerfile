@@ -72,7 +72,8 @@ RUN set -eu; \
 # ("server reached pm.max_children"). The values come from the environment; these are the defaults, a
 # PHP_FPM_* variable of the container (.env via compose env_file) overrides them. Sizing: docs/DEVOPS_GUIDE.md.
 COPY docker/php/zz-lexiflow-pool.conf /usr/local/etc/php-fpm.d/zz-lexiflow-pool.conf
-ENV PHP_FPM_MAX_CHILDREN=16 \
+ENV PHP_FPM_PM=dynamic \
+    PHP_FPM_MAX_CHILDREN=16 \
     PHP_FPM_START_SERVERS=4 \
     PHP_FPM_MIN_SPARE_SERVERS=2 \
     PHP_FPM_MAX_SPARE_SERVERS=6 \
@@ -241,6 +242,11 @@ COPY docker/nginx-entrypoint.sh /usr/local/bin/lexiflow-nginx-entrypoint
 
 # snippets-generated: written by the entrypoint (root) at start, included by prod.conf (not a bind mount: snippets/ is read-only).
 RUN chmod +x /usr/local/bin/lexiflow-nginx-entrypoint && mkdir -p /etc/nginx/snippets-generated
+
+# worker_connections: the image's nginx.conf says 1024 per worker; with keep-alive clients, the upstream pool to Octane and the
+# short polls of the battle that is the first ceiling to hit (audit 2026-11-10 §2). The build fails if the line is not there.
+RUN sed -i 's/^\([[:space:]]*worker_connections[[:space:]]\+\)1024;/\14096;/' /etc/nginx/nginx.conf \
+    && grep -Eq '^[[:space:]]*worker_connections[[:space:]]+4096;' /etc/nginx/nginx.conf
 
 ENTRYPOINT ["/usr/local/bin/lexiflow-nginx-entrypoint"]
 

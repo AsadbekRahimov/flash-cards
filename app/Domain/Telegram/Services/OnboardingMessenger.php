@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
+use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\LearnerOrganizationsService;
+use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Models\Course;
@@ -43,15 +47,23 @@ final class OnboardingMessenger
         private readonly CourseCatalogService $catalog,
         private readonly LearnerClock $clock,
         private readonly LearnerOrganizationsService $organizations,
+        private readonly OrganizationMembershipService $memberships,
+        private readonly FriendshipService $friendships,
     ) {}
 
-    /** `/start` and any message of a learner who has not finished the onboarding: begin it or repeat the current step. */
-    public function resume(Learner $learner, int|string $chatId, StartPayload $payload): void
+    /**
+     * `/start` and any message of a learner who has not finished the onboarding: begin it or repeat the current step.
+     * `$greet` (the `/start` command): the first step is preceded by a short welcome and, for an invitation link, by who invited.
+     */
+    public function resume(Learner $learner, int|string $chatId, StartPayload $payload, bool $greet = false): void
     {
-        $this->sendStep($learner, $chatId, $this->onboarding->start($learner, $payload));
+        $step = $this->onboarding->start($learner, $payload);
+
+        $this->sendStep($learner, $chatId, $step, $greet && $step->state === OnboardingService::STEPS[0] ? $payload : null);
     }
 
-    public function sendStep(Learner $learner, int|string $chatId, OnboardingStep $step): void
+    /** @param StartPayload|null $welcome set for the first message of a new person: the welcome (and the inviter) is put before the step */
+    public function sendStep(Learner $learner, int|string $chatId, OnboardingStep $step, ?StartPayload $welcome = null): void
     {
         $locale = $this->locales->forLearner($learner);
 
@@ -70,11 +82,55 @@ final class OnboardingMessenger
             return;
         }
 
-        $this->telegram->sendMessage(
-            $chatId,
-            __($step->messageKey, [], $locale),
-            replyMarkup: $this->keyboard($step, $locale, self::ONBOARDING_PREFIX),
-        );
+        $text = __('onboarding.step_counter', [
+            'n' => (int) array_search($step->state, OnboardingService::STEPS, true) + 1,
+            'total' => count(OnboardingService::STEPS),
+        ], $locale)."\n".__($step->messageKey, [], $locale);
+
+        if ($welcome !== null) {
+            $invited = $this->invitedBy($learner, $welcome, $locale);
+            $text = ($invited === null ? '' : $invited."\n\n").__('onboarding.welcome', [], 'ru')."\n\n".__('onboarding.welcome', [], 'uz')."\n\n".$text;
+        }
+
+        $this->telegram->sendMessage($chatId, $text, replyMarkup: $this->keyboard($step, $locale, self::ONBOARDING_PREFIX));
+    }
+
+    /**
+     * "Invited by center X / by Y" for an `org_` / `f_` / `ref_` link: the name is looked up here, a code that names nobody
+     * (unknown, expired, the person's own link) gives no line. The link itself is handled elsewhere (OrganizationMessenger, FriendsMessenger).
+     */
+    private function invitedBy(Learner $learner, StartPayload $payload, string $locale): ?string
+    {
+        if ($payload->value === null) {
+            return null;
+        }
+
+        if ($payload->kind === StartPayloadKind::Org) {
+            try {
+                $name = $this->memberships->previewInvite($payload->value)->organization->name;
+            } catch (OrganizationMembershipException) {
+                return null;
+            }
+
+            $line = __('onboarding.invited_by_organization', ['organization' => $name], $locale);
+
+            return is_string($line) ? $line : null;
+        }
+
+        if (! in_array($payload->kind, [StartPayloadKind::Friend, StartPayloadKind::Ref], true)) {
+            return null;
+        }
+
+        $inviter = $this->friendships->ownerOfCode($payload->value);
+        $name = $inviter === null ? '' : trim((string) $inviter->first_name);
+
+        if ($inviter === null || $inviter->id === $learner->id || $name === '') {
+            return null;
+        }
+
+        $line = __('onboarding.invited_by_learner', ['name' => $name], $locale);
+
+        return is_string($line) ? $line : null;
     }
 
     /**

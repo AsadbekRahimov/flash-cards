@@ -7,12 +7,16 @@ import AudioCard from '@/components/AudioCard.vue'
 import ClosedState from '@/components/ClosedState.vue'
 import FlashCard from '@/components/FlashCard.vue'
 import GapFillCard from '@/components/GapFillCard.vue'
+import PretestCard from '@/components/PretestCard.vue'
+import PretestReveal from '@/components/PretestReveal.vue'
 import ReverseCard from '@/components/ReverseCard.vue'
 import SpellingCard from '@/components/SpellingCard.vue'
+import WordNoteSheet from '@/components/WordNoteSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import MeaningCard from '@/components/MeaningCard.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
@@ -47,10 +51,20 @@ const {
   verdict,
   opened,
   serveSeq,
+  lastExercise,
+  savingNote,
+  choiceResult,
+  unsupportedExercise,
 } = storeToRefs(training)
 
 /** The text of the last typed answer, for the verdict screen. */
 const lastAnswer = ref('')
+
+/** "My hint" sheet (docs/06 §12.3) is open for the card on screen. */
+const noteOpen = ref(false)
+
+/** The limit of "my hint" (the server cuts to the same). */
+const NOTE_MAX = 200
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(
@@ -148,11 +162,22 @@ function onGrade(q: Quality): void {
 }
 
 /**
- * Reverse / audio: the grade goes to the server at the pick, so it is saved even if the learner leaves at once; the
- * card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
+ * Meaning / reverse / audio: the picked option goes to the server at the pick (it grades it, docs/06 §12.2), so it is saved even if
+ * the learner leaves at once; the card has no right option in it, the options are coloured by `choiceResult` when the
+ * server answers; the card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
  */
-function onChoiceGrade(q: Quality): void {
-  void training.submitChoice(q)
+function onChoicePick(picked: string): void {
+  void training.submitChoice(picked)
+}
+
+/** The pretest pick (or "I don't know" = ''): the server grades, the reveal shows the meaning. */
+function onPretestAnswer(text: string): void {
+  lastAnswer.value = text
+  void training.submitAnswer(text)
+}
+
+async function onSaveNote(note: string): Promise<void> {
+  if (await training.saveNote(note)) noteOpen.value = false
 }
 
 /** The pause after a right pick is over, or "Next" was pressed after a wrong one: show the held card. */
@@ -220,7 +245,7 @@ async function onRestart(): Promise<void> {
       </button>
       <!-- The same way out as ✕ and the system "Back": Home for a personal session, the end of the Mini App for a group one. -->
       <button v-else type="button" class="btn btn-primary btn-block" :data-testid="isPersonal ? 'home-btn' : 'close-btn'" @click="leave">
-        {{ isPersonal ? t('finished.home') : t('common.close') }}
+        {{ isPersonal ? t('finished.home') : t('common.exit_app') }}
       </button>
     </ClosedState>
 
@@ -261,16 +286,49 @@ async function onRestart(): Promise<void> {
 
       <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="onRetry" />
 
+      <PretestReveal
+        v-else-if="status === 'verdict' && verdict && lastExercise === 'pretest' && card"
+        :card="card"
+        :verdict="verdict"
+        @continue="onContinue"
+      />
+
       <AnswerVerdict v-else-if="status === 'verdict' && verdict" :verdict="verdict" :answer="lastAnswer" @continue="onContinue" />
+
+      <!--
+        An exercise this build does not know (a newer server): it cannot be shown as a flash card — the answer is not in the card —
+        so the learner is asked to reopen the Mini App, which loads the current build (the session keeps its place).
+      -->
+      <ClosedState
+        v-else-if="card && unsupportedExercise"
+        icon="arrow-path"
+        :title="t('training.update.title')"
+        :text="t('training.update.text')"
+        data-testid="update-required"
+      >
+        <button type="button" class="btn btn-primary btn-block" data-testid="update-close-btn" @click="close">
+          {{ t('common.exit_app') }}
+        </button>
+      </ClosedState>
 
       <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve. -->
       <template v-else-if="card">
+        <MeaningCard
+          v-if="exercise === 'meaning'"
+          :key="`meaning-${serveSeq}`"
+          :card="card"
+          :disabled="isBusy"
+          :result="choiceResult"
+          @pick="onChoicePick"
+          @advance="onChoiceAdvance"
+        />
         <ReverseCard
-          v-if="exercise === 'reverse'"
+          v-else-if="exercise === 'reverse'"
           :key="`reverse-${serveSeq}`"
           :card="card"
           :disabled="isBusy"
-          @grade="onChoiceGrade"
+          :result="choiceResult"
+          @pick="onChoicePick"
           @advance="onChoiceAdvance"
         />
         <AudioCard
@@ -278,20 +336,34 @@ async function onRestart(): Promise<void> {
           :key="`audio-${serveSeq}`"
           :card="card"
           :disabled="isBusy"
-          @grade="onChoiceGrade"
+          :result="choiceResult"
+          @pick="onChoicePick"
           @advance="onChoiceAdvance"
         />
         <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
         <GapFillCard v-else-if="exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
+        <PretestCard v-else-if="exercise === 'pretest'" :key="`pretest-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onPretestAnswer" />
         <FlashCard
           v-else
+          :key="`flash-${serveSeq}`"
           :card="card"
           :show-translation="training.showTranslation"
           :disabled="isBusy"
           @reveal="training.reveal()"
           @grade="onGrade"
+          @edit-note="noteOpen = true"
         />
       </template>
+
+      <WordNoteSheet
+        v-if="noteOpen && card"
+        :word="card.word"
+        :note="card.note ?? null"
+        :saving="savingNote"
+        :max="NOTE_MAX"
+        @save="onSaveNote"
+        @close="noteOpen = false"
+      />
     </template>
   </section>
 </template>

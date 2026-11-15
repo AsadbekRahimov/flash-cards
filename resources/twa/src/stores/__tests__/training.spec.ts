@@ -174,11 +174,11 @@ describe('training store — localized errors', () => {
     await store.start(1)
 
     expect(store.status).toBe('closed')
-    expect(store.errorMessage).toBe('Эта тренировка уже закрыта: она завершена или время сессии истекло.')
+    expect(store.errorMessage).toBe('Это занятие уже закрыто: оно завершено или время вышло.')
 
     setLocale('uz')
     await store.start(1)
-    expect(store.errorMessage).toBe("Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.")
+    expect(store.errorMessage).toBe("Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki vaqti tugagan.")
   })
 
   it('explains API error codes in the active language instead of the English server message', async () => {
@@ -190,11 +190,11 @@ describe('training store — localized errors', () => {
     await store.start(1)
 
     expect(store.status).toBe('error')
-    expect(store.errorMessage).toBe('Сессия не найдена. Попросите учителя запустить её заново.')
+    expect(store.errorMessage).toBe('Занятие не найдено. Попросите учителя запустить его заново.')
 
     setLocale('uz')
     await store.start(1)
-    expect(store.errorMessage).toBe("Sessiya topilmadi. O'qituvchidan uni qaytadan boshlashini so'rang.")
+    expect(store.errorMessage).toBe("Mashg'ulot topilmadi. O'qituvchidan uni qaytadan boshlashini so'rang.")
   })
 
   it('shows a localized network error and a generic fallback for unexpected errors', async () => {
@@ -457,7 +457,7 @@ describe('training store — personal sessions', () => {
     )
     const store = useTrainingStore()
     await store.start(1)
-    expect(store.errorMessage).toBe('Это слово не относится к этой тренировке.')
+    expect(store.errorMessage).toBe('Это слово не относится к этому занятию.')
 
     setLocale('uz')
     await store.start(1)

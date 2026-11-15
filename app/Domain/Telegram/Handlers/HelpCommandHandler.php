@@ -8,6 +8,9 @@ use App\Domain\Game\Services\GameAccess;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
+use App\Domain\Telegram\Services\BotSupportContact;
+use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Models\Learner;
 use App\Models\TelegramGroup;
 
 final class HelpCommandHandler implements GroupUpdateHandler
@@ -16,6 +19,8 @@ final class HelpCommandHandler implements GroupUpdateHandler
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly GameAccess $game,
+        private readonly BotSupportContact $support,
+        private readonly DmLearnerResolver $learners,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -23,7 +28,8 @@ final class HelpCommandHandler implements GroupUpdateHandler
     {
         $text = (string) ($update['message']['text'] ?? '');
 
-        return str_starts_with($text, '/help');
+        // `/help`, `/help@BotName`, `/help something` — but not `/helpme`.
+        return preg_match('~^/help(?:@\w+)?(\s|$)~', $text) === 1;
     }
 
     // Group Lock is enforced centrally by the dispatcher: /help only answers in
@@ -40,20 +46,42 @@ final class HelpCommandHandler implements GroupUpdateHandler
         $message = $update['message'];
         $chatId = (int) $message['chat']['id'];
         $chatType = (string) $message['chat']['type'];
+        $parseMode = null;
 
         if ($chatType === 'private') {
-            // Anyone may ask for help in a DM: follow their Telegram language.
+            $fromId = (int) ($message['from']['id'] ?? 0);
             $languageCode = $message['from']['language_code'] ?? null;
-            $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
-            $text = __('bot.help.private', ['caravan' => $this->game->classCaravanOpen() ? __('bot.help.private_caravan', [], $locale) : ''], $locale);
+            // The language the learner has chosen; for anybody else (a teacher, a person who never started) the Telegram one.
+            // Who is a teacher is the rule of DmLearnerResolver::isStaff(), so /help and /today agree.
+            $learner = $fromId > 0 ? Learner::query()->where('telegram_user_id', $fromId)->first() : null;
+            $locale = $learner !== null
+                ? $this->locales->forLearner($learner)
+                : $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
+            $text = $this->learners->isStaff($fromId)
+                ? __('bot.help.private_teacher', ['caravan' => $this->caravan('bot.help.private_caravan', $locale)], $locale)
+                : $this->learnerHelp($locale);
         } else {
             $group ??= TelegramGroup::query()->where('chat_id', $chatId)->first();
             $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
             // The caravan commands are listed only with GAME_ACCESS=all (G2.9b, G2.13): off and pilot hide them everywhere.
-            $caravan = ! $this->game->classCaravanOpen() ? '' : __('bot.help.group_caravan', [], $locale);
-            $text = __('bot.help.group', ['caravan' => $caravan], $locale);
+            $text = __('bot.help.group', ['caravan' => $this->caravan('bot.help.group_caravan', $locale), 'chat_id' => $chatId], $locale);
+            $parseMode = 'HTML';
         }
 
-        $this->telegram->sendMessage($chatId, $text);
+        $this->telegram->sendMessage($chatId, $text, $parseMode);
+    }
+
+    /** The commands of a learner; teachers and owners of centers are pointed to support (when there is a contact to point to). */
+    private function learnerHelp(string $locale): string
+    {
+        $text = __('bot.help.private', [], $locale);
+        $contact = $this->support->label();
+
+        return $contact === null ? $text : $text."\n\n".__('bot.help.teacher_hint', ['contact' => $contact], $locale);
+    }
+
+    private function caravan(string $key, string $locale): string
+    {
+        return $this->game->classCaravanOpen() ? __($key, [], $locale) : '';
     }
 }

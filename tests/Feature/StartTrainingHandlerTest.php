@@ -132,16 +132,18 @@ it('names a module without a title of its own by its number, in the language of 
     'uz' => ['uz', '3-modul · 2-dars', '3-modul, 2-dars'],
 ]);
 
-it('stays silent on the lesson picker path in a non-active group (Group Lock)', function (): void {
+it('shows no lesson picker in a non-active group (Group Lock): only the activation notice', function (): void {
     // Regression: previously the no-args picker bypassed the active-group check
-    // (only the service validated status), so the bot replied in pending groups.
+    // (only the service validated status), so the bot showed the picker in pending groups.
     $group = TelegramGroup::factory()->create(['chat_id' => -2009, 'status' => 'pending']);
     $teacher = User::factory()->create(['telegram_user_id' => 889]);
     attachTeacher($teacher, $group);
     $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
-    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendMessage')->once()
+        ->withArgs(fn (int $chatId, string $text, ?string $parseMode, ?array $markup = null): bool => $chatId === -2009
+            && str_contains($text, 'ещё не активирована') && $markup === null);
     $this->api->shouldReceive('sendWebAppButton')->never();
 
     app(TelegramDispatcher::class)->dispatch([
@@ -294,14 +296,14 @@ it('rejects users that do not teach the group', function (): void {
     expect(TrainingSession::query()->count())->toBe(0);
 });
 
-it('stays silent when the group is not active (Group Lock)', function (): void {
-    // FR-BOT-01: the bot must not reveal itself in non-whitelisted groups, so
-    // even an authorised teacher's command is dropped silently by the dispatcher.
+it('does not open a session in a non-active group (Group Lock) and only tells why', function (): void {
+    // FR-BOT-01: no session in a non-active group, even for an authorised teacher; the group is told (once an hour) that it is not activated.
     $group = TelegramGroup::factory()->pending()->create(['chat_id' => -5005]);
     $teacher = User::factory()->create(['telegram_user_id' => 111]);
     attachTeacher($teacher, $group);
 
-    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendMessage')->once()
+        ->with(-5005, 'Группа ещё не активирована, поэтому команды пока не работают.', 'HTML');
     $this->api->shouldReceive('sendWebAppButton')->never();
 
     app(TelegramDispatcher::class)->dispatch([

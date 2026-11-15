@@ -30,6 +30,7 @@ export const KNOWN_ERROR_CODES = [
   'answer_not_accepted',
   'quality_not_accepted',
   'exercise_pro_required',
+  'exercise_mismatch',
   'exam_still_open',
   'tts_unavailable',
   'promo_not_found',

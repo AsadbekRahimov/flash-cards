@@ -222,11 +222,11 @@ describe('DeckEditView', () => {
   })
 
   describe('main deck', () => {
-    it('offers "Сделать основной" as the primary block button', async () => {
+    it('offers "Учить вместо курса" as the primary block button', async () => {
       const { wrapper } = await render()
 
       const choose = wrapper.get('[data-testid=choose-btn]')
-      expect(choose.text()).toBe('Сделать основной')
+      expect(choose.text()).toBe('Учить вместо курса')
       expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
       expect(wrapper.find('[data-testid=active-badge]').exists()).toBe(false)
       // The one primary button of the screen.
@@ -238,7 +238,7 @@ describe('DeckEditView', () => {
 
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
       const hint = wrapper.get('[data-testid=choose-hint]')
-      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы учить её вместо курса.')
       expect(hint.classes()).toContain('text-tg-hint')
     })
 
@@ -255,7 +255,7 @@ describe('DeckEditView', () => {
       setLocale('uz')
       const { wrapper } = await render(detail({ words: [], words_count: 0 }))
 
-      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kurs o'rniga o'rganish uchun to'plamga kamida bitta so'z qo'shing.")
     })
 
     it('chooses the deck through the course selection and shows the chip instead of the button', async () => {
@@ -266,6 +266,8 @@ describe('DeckEditView', () => {
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=choose-btn]').trigger('click')
+      expect(api.courses.select).not.toHaveBeenCalled()
+      await wrapper.get('[data-testid=activate-yes]').trigger('click')
       await flushPromises()
 
       expect(api.courses.select).toHaveBeenCalledWith('deck-1-abc')
@@ -289,6 +291,7 @@ describe('DeckEditView', () => {
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=choose-btn]').trigger('click')
+      await wrapper.get('[data-testid=activate-yes]').trigger('click')
       await flushPromises()
 
       const alert = wrapper.get('[data-testid=write-error]')
@@ -314,7 +317,7 @@ describe('DeckEditView', () => {
 
       expect(csv.attributes('aria-checked')).toBe('true')
       expect(list.attributes('aria-checked')).toBe('false')
-      expect(wrapper.get('[data-testid=hint]').text()).toContain('word,translation_ru')
+      expect(wrapper.get('[data-testid=hint]').text()).toContain('Файл CSV')
 
       await list.trigger('click')
       expect(wrapper.get('[data-testid=hint]').text()).toContain('слово — перевод')
@@ -459,7 +462,7 @@ describe('DeckEditView', () => {
 
         const { wrapper } = await addTooMany(FREE_LIMITS)
 
-        expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 1 колода до 50 слов.')
+        expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод бесплатного тарифа: 1 колода до 50 слов.')
         expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
       })
 
@@ -475,7 +478,7 @@ describe('DeckEditView', () => {
         )
         expect(notice.attributes('role')).toBe('status')
         expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
-        expect(wrapper.text()).not.toContain('тариф Free')
+        expect(wrapper.text()).not.toContain('бесплатный тариф')
         expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
       })
 
@@ -683,7 +686,7 @@ describe('DeckEditView', () => {
 
     expect(wrapper.get('[data-testid=add-btn]').text()).toBe("Qo'shish")
     expect(wrapper.get('[data-testid=delete-btn]').text()).toBe("To'plamni o'chirish")
-    expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
+    expect(wrapper.get('[data-testid=choose-btn]').text()).toBe("Kurs o'rniga o'rganish")
     expect(wrapper.get('[data-testid=words] .section-label').text()).toBe("So'zlar (2)")
     expect(wrapper.get('[data-testid=import] [role=radiogroup]').attributes('aria-label')).toBe('Format')
     expect(wrapper.get('[data-testid=remove-word]').attributes('aria-label')).toBe("So'zni olib tashlash: apple")

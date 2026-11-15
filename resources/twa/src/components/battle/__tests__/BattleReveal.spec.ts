@@ -39,7 +39,7 @@ describe('BattleReveal — a sentence', () => {
 
     const them = side(w, 'opponent')
     expect(them.get('[data-testid=side-name]').text()).toBe('Dilnoza')
-    expect(them.get('[data-testid=side-verdict]').text()).toBe('Ошибка')
+    expect(them.get('[data-testid=side-verdict]').text()).toBe('Неверно')
     expect(them.get('[data-testid=side-verdict]').classes()).toContain('chip-danger')
     expect(them.get('[data-testid=side-answer]').text()).toBe('mother My is teacher a')
     expect(them.get('[data-testid=side-points]').text()).toBe('+0')
@@ -71,8 +71,8 @@ describe('BattleReveal — the verdicts', () => {
   it.each([
     ['correct', 'Верно', 'chip-success'],
     ['typo', 'Опечатка', 'chip-warning'],
-    ['wrong', 'Ошибка', 'chip-danger'],
-    ['skipped', 'Пропуск', 'chip-accent'],
+    ['wrong', 'Неверно', 'chip-danger'],
+    ['skipped', 'Пропущено', 'chip-accent'],
     ['timeout', 'Время вышло', 'chip-neutral'],
   ] as const)('%s: the word “%s”, a symbol and the colour of the chip', (verdict, word, chip) => {
     const w = render(revealRound({ reveal: sentenceReveal({ me: { answer: null, verdict, points: 0 } }) }))

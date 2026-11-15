@@ -15,9 +15,7 @@ use Filament\Facades\Filament;
 /**
  * `/org` in a private chat (docs/13 §6.3): for a staff user whose Telegram account is linked
  * (`users.telegram_user_id`) — one block per organization with the role, the seats (owner), the
- * learners active in the last 7 days and the cabinet URL. Anyone else gets a one-line hint. Not
- * registered in TelegramDispatcher yet (its constructor is being changed by 2A.3): add
- * `OrgCommandHandler` to `messageHandlers` before `/start`.
+ * learners active in the last 7 days and the cabinet URL. Anyone else gets a one-line hint.
  */
 final class OrgCommandHandler implements UpdateHandler
 {

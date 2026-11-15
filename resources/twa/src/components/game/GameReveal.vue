@@ -99,9 +99,18 @@ function next(): void {
         <article v-if="word" class="card flex flex-col gap-1 text-center">
           <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle">{{ t('gameRun.reveal.right') }}</p>
           <p class="text-[22px] leading-7 font-bold break-words" lang="en" data-testid="right-answer">{{ word.correct_text }}</p>
-          <p v-if="word.full_text" class="mt-1 text-[15px] leading-5 break-words" lang="en" data-testid="full-text">{{ word.full_text }}</p>
-          <p v-if="word.word && word.word !== word.correct_text" class="text-[15px] leading-5 text-tg-hint" lang="en" data-testid="word">{{ word.word }}</p>
-          <p v-if="word.translation" class="text-[15px] leading-5 text-tg-hint" data-testid="translation">{{ word.translation }}</p>
+          <div v-if="word.full_text" class="mt-2" data-testid="full-text-block">
+            <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle">{{ t('gameRun.reveal.example') }}</p>
+            <p class="text-[15px] leading-5 break-words" lang="en" data-testid="full-text">{{ word.full_text }}</p>
+          </div>
+          <div v-if="word.word && word.word !== word.correct_text" class="mt-2" data-testid="word-block">
+            <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle">{{ t('gameRun.reveal.word') }}</p>
+            <p class="text-[15px] leading-5 text-tg-hint" lang="en" data-testid="word">{{ word.word }}</p>
+          </div>
+          <div v-if="word.translation" class="mt-2" data-testid="translation-block">
+            <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle">{{ t('gameRun.reveal.translation') }}</p>
+            <p class="text-[15px] leading-5 text-tg-hint" data-testid="translation">{{ word.translation }}</p>
+          </div>
         </article>
 
         <p v-if="yours" class="text-center text-[15px] leading-5 text-tg-hint" data-testid="your-answer">{{ t('practice.reveal.your_answer') }}: {{ yours }}</p>

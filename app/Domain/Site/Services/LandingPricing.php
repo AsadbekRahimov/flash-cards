@@ -6,6 +6,7 @@ namespace App\Domain\Site\Services;
 
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Domain\Billing\Support\ProPromises;
 use Illuminate\Support\Str;
@@ -81,6 +82,33 @@ final class LandingPricing
                 ':practice' => $this->practiceLine($locale),
                 ':decks' => $this->decks(Plan::Pro, $locale),
             ], $locale),
+        ];
+    }
+
+    /**
+     * The tiers a learning center can take, for the "teachers" section of the landing: the name of the cabinet (`org.billing.tiers`)
+     * and the seats from config (`billing.org_tiers`), in the order of the config. No price is quoted here: a center is connected
+     * by request. `discount` is the configured year discount in percent, 0 = none.
+     *
+     * @return array{tiers: list<array{name: string, seats: string}>, discount: int}
+     */
+    public function orgTiers(string $locale): array
+    {
+        $tiers = [];
+        foreach (OrgTiers::keys() as $key) {
+            $seats = OrgTiers::seats($key);
+
+            $tiers[] = [
+                'name' => $this->line("org.billing.tiers.{$key}.name", $locale),
+                'seats' => $seats === null
+                    ? $this->line('landing.teachers.seats_unlimited', $locale)
+                    : trans_choice('landing.teachers.seats', $seats, ['count' => $seats], $locale),
+            ];
+        }
+
+        return [
+            'tiers' => $tiers,
+            'discount' => max(0, min(99, (int) config('billing.org_year_discount_percent', 0))),
         ];
     }
 

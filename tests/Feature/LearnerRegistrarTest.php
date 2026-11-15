@@ -7,6 +7,7 @@ use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -296,4 +297,31 @@ it('creates the learner with an empty JSON object in meta, as the column default
     // A later write of real content keeps working through the array cast.
     $learner->forceFill(['meta' => ['locale_chosen' => true]])->save();
     expect($learner->fresh()?->meta)->toBe(['locale_chosen' => true]);
+});
+
+it('skips the write of last_seen_at on a repeated visit within 10 minutes when the profile is the same', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $this->freezeTime();
+    $learner = $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A']);
+
+    $this->travel(5)->minutes();
+    $updates = QueryLog::matching(QueryLog::during(fn () => $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A'])), '/^update/i');
+
+    expect($updates)->toBe([])
+        ->and($learner->fresh()->last_seen_at?->timestamp)->toBe(now()->subMinutes(5)->timestamp);
+});
+
+it('writes last_seen_at again after 10 minutes, and at once when the profile changed', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $this->freezeTime();
+    $learner = $registrar->fromTelegramUser(['id' => 4011, 'first_name' => 'A']);
+
+    $this->travel(11)->minutes();
+    $registrar->fromTelegramUser(['id' => 4011, 'first_name' => 'A']);
+    expect($learner->fresh()->last_seen_at?->timestamp)->toBe(now()->timestamp);
+
+    $this->travel(1)->minutes();
+    $registrar->fromTelegramUser(['id' => 4011, 'first_name' => 'B']);
+    $fresh = $learner->fresh();
+    expect($fresh->first_name)->toBe('B')->and($fresh->last_seen_at?->timestamp)->toBe(now()->timestamp);
 });

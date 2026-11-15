@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Domain\Administration\Services\PendingGroupsBadge;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Organizations\Services\GroupAssignmentCloser;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
@@ -39,7 +40,8 @@ use WeakMap;
  *  3. the cached `/org` overview of both centers, the one the group left and the one it joined (docs/19 K2) - last: the overview
  *     recomputed from now on counts the members the relink moved, even when the relink stopped half way.
  *
- * A change of the status alone is only step 2.
+ * A change of the status alone is only step 2. A new group, a status change and a delete also drop the cached number of the groups
+ * waiting for activation (the `/admin` menu badge, {@see PendingGroupsBadge}).
  */
 final class TelegramGroupObserver
 {
@@ -57,8 +59,18 @@ final class TelegramGroupObserver
         $this->members = new WeakMap;
     }
 
+    /** A new group waits for activation: the `/admin` menu badge counts it (the cached number is dropped after the commit). */
+    public function created(TelegramGroup $group): void
+    {
+        DB::afterCommit(PendingGroupsBadge::forget(...));
+    }
+
     public function updated(TelegramGroup $group): void
     {
+        if ($group->wasChanged('status')) {
+            DB::afterCommit(PendingGroupsBadge::forget(...));
+        }
+
         if (! $group->wasChanged('organization_id')) {
             if ($group->wasChanged('status')) {
                 DB::afterCommit(fn () => $this->guard(self::ENTITLEMENT_FORGET_FAILED, $group, fn () => $this->entitlements->forgetGroup($group->id)));
@@ -117,6 +129,8 @@ final class TelegramGroupObserver
     {
         $learnerIds = $this->members[$group] ?? [];
         unset($this->members[$group]);
+
+        DB::afterCommit(PendingGroupsBadge::forget(...));
 
         $organizationId = $group->organization_id === null ? null : (int) $group->organization_id;
 

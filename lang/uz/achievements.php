@@ -7,15 +7,15 @@ return [
     // Title and description of every achievement: the TWA list, the share card and the DM use them.
     'items' => [
         'first_session' => ['title' => 'Birinchi qadam', 'description' => 'Birinchi baholangan kartochka'],
-        'streak_7' => ['title' => '7 kunlik seriya', 'description' => 'Bir hafta tanaffussiz mashq'],
-        'streak_30' => ['title' => '30 kunlik seriya', 'description' => 'Bir oy tanaffussiz mashq'],
-        'streak_100' => ['title' => '100 kunlik seriya', 'description' => 'Ketma-ket yuz kun — mustahkam odat'],
+        'streak_7' => ['title' => '7 kunlik ketma-ketlik', 'description' => 'Bir hafta kun qoldirmay shug\'ullanish'],
+        'streak_30' => ['title' => '30 kunlik ketma-ketlik', 'description' => 'Bir oy kun qoldirmay shug\'ullanish'],
+        'streak_100' => ['title' => '100 kunlik ketma-ketlik', 'description' => 'Ketma-ket yuz kun — mustahkam odat'],
         'words_100' => ['title' => "100 ta so'z", 'description' => "100 ta so'z o'rganildi"],
         'words_500' => ['title' => "500 ta so'z", 'description' => "500 ta so'z o'rganildi"],
         'words_1000' => ['title' => "1000 ta so'z", 'description' => "1000 ta so'z o'rganildi"],
         'league_top1' => ['title' => "Liga g'olibi", 'description' => "Haftada liga guruhida birinchi o'rin"],
         'first_friend' => ['title' => "Birinchi do'st", 'description' => "LexiFlow'da birinchi do'st paydo bo'ldi"],
-        'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "\"Karvon\" o'yinida shahar bossi ustidan birinchi g'alaba"],
+        'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "«Karvon» o'yinida shahar qo'riqchisi ustidan birinchi g'alaba"],
     ],
 
     // Text on the card under the description.

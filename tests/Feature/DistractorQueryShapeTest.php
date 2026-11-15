@@ -32,7 +32,7 @@ function dqLesson(string $prefix, int $words, ?Course $course = null, array $cou
     return $lesson;
 }
 
-/** @return list<Builder<Word>> */
+/** @return list<Builder<Word>|list<Word>> the lesson layer is the cached pool of the lesson (plain rows), the others are queries */
 function dqPromptLayers(Word $word): array
 {
     $method = new ReflectionMethod(ExercisePromptBuilder::class, 'layers');
@@ -49,7 +49,10 @@ it('orders only the course layer of the exercise distractors by an expression th
 
     [$lessonLayer, $courseLayer, $platformLayer] = dqPromptLayers($word);
 
-    expect($lessonLayer->toSql())->toMatch('/order by ["`]id["`] asc limit/i')
+    // The lesson layer is no statement at all: the cached pool of the lesson, in id order, without the card itself.
+    expect($lessonLayer)->toBeArray()
+        ->and(array_map(static fn (Word $w): int => (int) $w->id, $lessonLayer))
+        ->toBe(Word::query()->where('lesson_id', $own->id)->whereKeyNot($word->id)->orderBy('id')->pluck('id')->all())
         ->and($courseLayer->toSql())->toContain('order by words.id + 0 limit')
         ->and($platformLayer->toSql())->toMatch('/order by ["`]id["`] asc limit/i');
 

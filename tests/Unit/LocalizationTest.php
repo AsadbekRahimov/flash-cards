@@ -187,7 +187,7 @@ it('takes the fallback locale from config/localization.php even if APP_FALLBACK_
 // --- plural forms ---------------------------------------------------------
 
 it('picks the correct ru plural form for review reminders', function (int $count, string $expected): void {
-    expect(trans_choice('reminders.review', $count, [], 'ru'))->toBe("Пора повторить {$count} {$expected} в LexiFlow.");
+    expect(trans_choice('reminders.review', $count, [], 'ru'))->toBe("Пора повторить {$count} {$expected} в LexiFlow.\n\nИзменить время или отключить: /settings");
 })->with([
     [0, 'слов'],
     [1, 'слово'],
@@ -208,7 +208,7 @@ it('picks the correct ru plural form for review reminders', function (int $count
 
 it('does not inflect the noun in uz review reminders', function (int $count): void {
     expect(trans_choice('reminders.review', $count, [], 'uz'))
-        ->toBe("LexiFlow'da {$count} ta so'zni takrorlash vaqti keldi.");
+        ->toBe("LexiFlow'da {$count} ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
 })->with([1, 2, 5, 11, 21, 22, 25]);
 
 it('picks the correct ru plural form for the Today screen in the bot', function (int $count, string $expected): void {

@@ -57,7 +57,7 @@ describe('billingFormat', () => {
       setLocale('uz')
 
       expect(graceText('2026-11-03T12:00:00+00:00', 'uz')).toMatch(
-        /^Telegram yangilash uchun Stars'ni yecha olmadi\. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi\. Pro .*2026.* gacha amal qiladi\.$/,
+        /^Telegram obunani uzaytirish uchun Stars'ni yechib ola olmadi\. Stars balansingizni to'ldiring — Telegram yana urinib ko'radi\. Pro .*2026.* gacha amal qiladi\.$/,
       )
     })
 

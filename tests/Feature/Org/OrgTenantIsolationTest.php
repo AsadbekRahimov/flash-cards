@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Domain\Organizations\Enums\GroupLinkResult;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Services\OrganizationStaffService;
+use App\Domain\Organizations\Services\OrgGroupLinkService;
 use App\Domain\Organizations\Services\OrgTenantScope;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Filament\Org\Pages\OrgSettings;
@@ -11,6 +13,7 @@ use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
 use App\Filament\Org\Resources\InviteResource\Pages\ListInvites;
 use App\Filament\Org\Resources\MemberResource\Pages\ListMembers;
 use App\Filament\Org\Resources\StaffResource\Pages\ListStaff;
+use App\Filament\Org\Widgets\MemberInvitationsWidget;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Mail\OrgStaffInvitationMail;
@@ -19,9 +22,11 @@ use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
+use App\Models\TelegramLinkToken;
 use App\Models\User;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Facades\Filament;
@@ -251,26 +256,49 @@ it('renders the owner dashboard widgets with the seats of the tenant', function 
     Livewire::test(OrgActivityWidget::class)->assertOk();
 });
 
-it('removes and adds members through the membership service with an audit record', function (): void {
+it('removes members, and invites learners through the membership service — one neutral answer and one identical row, found or not', function (): void {
     isoEnter($this->ownerA, $this->a);
 
     Livewire::test(ListMembers::class)->callTableAction('remove', $this->memberA1)->assertNotified();
     expect($this->memberA1->fresh()?->status)->toBe('removed')
         ->and(AuditLog::query()->where('action', 'organization.member_removed')->where('user_id', $this->ownerA->id)->exists())->toBeTrue();
 
-    $newcomer = Learner::factory()->create(['username' => 'New_Comer', 'telegram_user_id' => 555_000_111]);
+    $newcomer = Learner::factory()->onboarded()->create(['username' => 'New_Comer', 'telegram_user_id' => 555_000_111]);
+    $neutral = 'Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников.';
 
-    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@new_comer'])->assertNotified();
-    expect(OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $newcomer->id)->value('status'))->toBe('active');
+    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@new_comer'])->assertNotified($neutral);
+    $invitation = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@new_comer')->sole();
+    expect(OrganizationMember::query()->where('learner_id', $newcomer->id)->exists())->toBeFalse()
+        ->and(end($this->tg->sent)['chat_id'])->toBe(555_000_111);
 
-    // Unknown Telegram: nothing is created, no learner of the platform is listed.
-    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@nobody_here'])->assertNotified();
-    expect(OrganizationMember::query()->where('organization_id', $this->a->id)->count())->toBe(3);
+    // Unknown Telegram: no DM, the SAME notification and a row that reads the same — the cabinet does not say who uses LexiFlow.
+    $sent = count($this->tg->sent);
+    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@nobody_here'])->assertNotified($neutral);
+    $ghost = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@nobody_here')->sole();
+    expect(count($this->tg->sent))->toBe($sent)
+        ->and($ghost->state())->toBe($invitation->state())
+        ->and(abs($ghost->expires_at->diffInSeconds($invitation->expires_at)))->toBeLessThanOrEqual(5);
 
-    // A learner of center B can be added to A by its exact Telegram id (a learner may belong to several centers).
-    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => (string) $this->learnerB->telegram_user_id]);
-    expect(OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $this->learnerB->id)->exists())->toBeTrue()
+    // A malformed value is the one refusal of its own: a format check.
+    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => 'x!'])->assertNotified('Укажите @username или числовой Telegram ID ученика.');
+
+    // A learner of center B can be invited to A by exact Telegram id (a learner may belong to several centers); B is untouched.
+    $this->learnerB->forceFill(['onboarding_state' => 'done'])->save();
+    Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => (string) $this->learnerB->telegram_user_id])->assertNotified($neutral);
+    expect(OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', (string) $this->learnerB->telegram_user_id)->exists())->toBeTrue()
+        ->and(OrganizationMember::query()->where('organization_id', $this->a->id)->where('learner_id', $this->learnerB->id)->exists())->toBeFalse()
         ->and($this->memberB->fresh()?->organization_id)->toBe($this->b->id);
+
+    // The owner takes an invitation back in the block under the list; an invitation of center B is out of reach.
+    Livewire::test(ListMembers::class)->assertCanSeeTableRecords([$this->memberA2])->assertCanNotSeeTableRecords([$this->memberA1]);
+    Livewire::test(MemberInvitationsWidget::class)
+        ->assertCanSeeTableRecords([$invitation, $ghost])
+        ->callTableAction('revoke', $invitation)
+        ->assertNotified('Приглашение отозвано.');
+    expect($invitation->fresh()?->revoked_at)->not->toBeNull();
+
+    $foreign = OrganizationMemberInvitation::factory()->create(['organization_id' => $this->b->id]);
+    Livewire::test(MemberInvitationsWidget::class)->assertCanNotSeeTableRecords([$foreign]);
 });
 
 it('creates and deactivates invites of the tenant only', function (): void {
@@ -294,25 +322,39 @@ it('creates and deactivates invites of the tenant only', function (): void {
     expect($invite->fresh()?->is_active)->toBeFalse();
 });
 
-it('links a group only when the owner is an administrator of the chat, and unlinks it', function (): void {
+it('links a group only from the chat, by the verified owner who is an administrator there, and unlinks it from the cabinet', function (): void {
     Mail::fake();
     // Created BEFORE entering the cabinet: inside it Filament's tenancy hook would attach every new row to the tenant.
     $free = TelegramGroup::factory()->create(['organization_id' => null, 'title' => 'Free group', 'status' => 'active']);
-    isoEnter($this->ownerA, $this->a);
+    $this->ownerA->forceFill(['telegram_user_id' => 424242, 'telegram_verified_at' => now()])->save();
+    isoEnter($this->ownerA->fresh() ?? $this->ownerA, $this->a);
+
+    Livewire::test(ListGroups::class)->mountTableAction('link')->assertTableActionMounted('link');
+    $tokenRow = TelegramLinkToken::query()->sole();
+    expect($tokenRow->organization_id)->toBe($this->a->id);
+
+    // The raw token is shown once in the modal; the test takes it from the mounted action's data.
+    $component = Livewire::test(ListGroups::class)->mountTableAction('link');
+    $command = (string) ($component->instance()->mountedActions[0]['data']['command'] ?? '');
+    $token = substr($command, strlen('/link '));
+    $service = app(OrgGroupLinkService::class);
+    $chat = fn (TelegramGroup $g): array => ['id' => $g->chat_id, 'type' => 'supergroup', 'title' => $g->title];
 
     $this->tg->chatMemberStatus = 'member';
-    Livewire::test(ListGroups::class)->callTableAction('link', data: ['chat_id' => (string) $free->chat_id])->assertNotified();
-    expect($free->fresh()?->organization_id)->toBeNull();
+    expect($service->linkFromChat($token, $chat($free), ['id' => 424242])->result)->toBe(GroupLinkResult::NotChatAdmin)
+        ->and($free->fresh()?->organization_id)->toBeNull();
 
     $this->tg->chatMemberStatus = 'administrator';
-    Livewire::test(ListGroups::class)->callTableAction('link', data: ['chat_id' => (string) $free->chat_id])->assertNotified();
-    expect($free->fresh()?->organization_id)->toBe($this->a->id)
-        ->and($this->tg->chatMemberLookups)->toContain(['chat_id' => $free->chat_id, 'user_id' => $this->ownerA->telegram_user_id])
+    expect($service->linkFromChat($token, $chat($free), ['id' => 424242])->result)->toBe(GroupLinkResult::Linked)
+        ->and($free->fresh()?->organization_id)->toBe($this->a->id)
+        ->and($this->tg->chatMemberLookups)->toContain(['chat_id' => $free->chat_id, 'user_id' => 424242])
         ->and(AuditLog::query()->where('action', 'organization.linked_group')->where('user_id', $this->ownerA->id)->exists())->toBeTrue();
 
-    // The other center's group is not linkable from here even as a chat administrator.
-    Livewire::test(ListGroups::class)->callTableAction('link', data: ['chat_id' => (string) $this->groupB->chat_id]);
-    expect($this->groupB->fresh()?->organization_id)->toBe($this->b->id);
+    // The other center's group is not linkable even as a chat administrator with a fresh link.
+    Livewire::test(ListGroups::class)->mountTableAction('link');
+    $token = substr((string) (Livewire::test(ListGroups::class)->mountTableAction('link')->instance()->mountedActions[0]['data']['command'] ?? ''), strlen('/link '));
+    expect($service->linkFromChat($token, $chat($this->groupB), ['id' => 424242])->result)->toBe(GroupLinkResult::GroupTaken)
+        ->and($this->groupB->fresh()?->organization_id)->toBe($this->b->id);
 
     Livewire::test(ListGroups::class)->callTableAction('unlink', $free->fresh())->assertNotified();
     expect($free->fresh()?->organization_id)->toBeNull();

@@ -8,11 +8,13 @@ use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Models\Assignment;
 use App\Models\ClassCaravan;
+use App\Models\ExamSession;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
+use App\Models\OrganizationMemberInvitation;
 use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -119,9 +121,9 @@ final class OrgTenantScope
     }
 
     /**
-     * Membership rows of the organization visible to the user: owner — every row (the resource
-     * filters by status itself); teacher — the active memberships of learners who are active in
-     * one of the teacher's groups.
+     * Membership rows of the organization visible to the user: owner — every row (present and past memberships; the resource
+     * filters by status itself); teacher — the active memberships of learners who are active in one of the teacher's groups.
+     * Invitations are not memberships and are never here ({@see self::memberInvitations()}).
      *
      * @return Builder<OrganizationMember>
      */
@@ -136,6 +138,19 @@ final class OrgTenantScope
                 ->whereIn('organization_members.learner_id', $this->groupLearnerIdsSubquery($user, $organization)),
             null => $query->whereKey([]),
         };
+    }
+
+    /**
+     * Invitations of learners by the staff (`organization_member_invitations`, review finding B1): owner only — a teacher invites
+     * nobody and sees no invitation. The rows carry what the staff typed and when; nothing about the learner.
+     *
+     * @return Builder<OrganizationMemberInvitation>
+     */
+    public function memberInvitations(User $user, Organization $organization): Builder
+    {
+        $query = OrganizationMemberInvitation::query()->where('organization_member_invitations.organization_id', $organization->id);
+
+        return $this->isOwner($user, $organization) ? $query : $query->whereKey([]);
     }
 
     /**
@@ -218,6 +233,26 @@ final class OrgTenantScope
         }
 
         return in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
+    }
+
+    /**
+     * Group exams (`exam_sessions`, mode `group_exam`) of the groups the user sees in the organization: owner - every linked group of the
+     * center, teacher - their own. A personal mock has no group and is never listed; a group unlinked or moved since is not ours any more.
+     *
+     * @return Builder<ExamSession>
+     */
+    public function exams(User $user, Organization $organization): Builder
+    {
+        return ExamSession::query()
+            ->where('exam_sessions.mode', ExamSession::MODE_GROUP_EXAM)
+            ->whereIn('exam_sessions.telegram_group_id', $this->teacherGroupIds($user, $organization));
+    }
+
+    /** Whether the user may see this exam (same rule as exams()); no query of its own. */
+    public function canSeeExam(User $user, Organization $organization, ExamSession $exam): bool
+    {
+        return $exam->mode === ExamSession::MODE_GROUP_EXAM
+            && in_array($exam->telegram_group_id, $this->teacherGroupIds($user, $organization), true);
     }
 
     /**

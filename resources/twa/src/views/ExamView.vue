@@ -217,7 +217,7 @@ function onRetry(): void {
         {{ t('result.mock_title') }}
       </button>
       <button v-else type="button" class="btn btn-primary btn-block" data-testid="close-btn" @click="close()">
-        {{ t('common.close') }}
+        {{ t('common.exit_app') }}
       </button>
     </ClosedState>
 

@@ -39,7 +39,7 @@ onBeforeUnmount(() => {
   <div class="page flex flex-1 flex-col" data-testid="account-deleted-view">
     <ClosedState icon="check-circle" :title="t('settings.deleted.title')" :text="text">
       <button type="button" class="btn btn-primary btn-block" data-testid="account-deleted-close" @click="close()">
-        {{ t('common.close') }}
+        {{ t('common.exit_app') }}
       </button>
     </ClosedState>
   </div>

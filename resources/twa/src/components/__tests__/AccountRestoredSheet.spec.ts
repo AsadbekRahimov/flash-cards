@@ -106,6 +106,6 @@ describe('AccountRestoredSheet in the app shell', () => {
     await useAuthStore().login()
     await flushPromises()
 
-    expect(byId('restored-title')?.textContent).toBe('Xush kelibsiz!')
+    expect(byId('restored-title')?.textContent).toBe('Qaytganingizdan xursandmiz!')
   })
 })

@@ -4,31 +4,32 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
-use App\Domain\Analytics\Enums\ProductEventName;
-use App\Domain\Analytics\Services\ProductEventRecorder;
-use App\Domain\Learning\Exceptions\ExamSessionException;
-use App\Domain\Learning\Services\ExamSessionService;
+use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
-use App\Domain\Telegram\Services\GroupSessionAnnouncer;
-use App\Models\ExamSession;
+use App\Domain\Telegram\Services\ExamLauncher;
+use App\Domain\Telegram\Services\LessonPicker;
 use App\Models\TelegramGroup;
 use App\Models\User;
 
 /**
  * Handles `/start_exam [stage] [lesson] [minutes]` from a teacher in a group.
  *
- * Defaults: stage=1, lesson=1, minutes=10.
+ * With arguments the exam opens at once (a missing lesson is 1, missing minutes are 10). Without
+ * arguments the teacher gets the lesson picker, then the duration row: see StartExamCallbackHandler.
  */
 final class StartExamHandler implements GroupUpdateHandler
 {
+    /** Callback data prefix shared with StartExamCallbackHandler: `estart:<stage>:<lesson>[:<minutes>]`. */
+    public const CALLBACK_PREFIX = 'estart:';
+
     public function __construct(
         private readonly TelegramClient $telegram,
-        private readonly ExamSessionService $exams,
-        private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
-        private readonly GroupSessionAnnouncer $announcer,
+        private readonly ExamLauncher $launcher,
+        private readonly LessonPicker $picker,
+        private readonly TeacherAuthority $authority,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -80,35 +81,30 @@ final class StartExamHandler implements GroupUpdateHandler
             return;
         }
 
-        [$stage, $lesson, $minutes] = $this->parseArgs($text);
+        $args = $this->parseArgs($text);
 
-        try {
-            $session = $this->exams->open($group, $stage, $lesson, $minutes, $teacher);
-        } catch (ExamSessionException $e) {
-            $this->telegram->sendMessage($chatId, $this->humanizeError($e, $locale));
+        if ($args === null) {
+            // The picker is a menu of actions: show it to the group's teachers only.
+            if (! $this->authority->canTeach($teacher, $group)) {
+                $this->telegram->sendMessage($chatId, __('errors.exam.not_teacher', [], $locale));
+
+                return;
+            }
+
+            $this->picker->send($chatId, $group, $locale, self::CALLBACK_PREFIX, 'exam.picker.prompt');
 
             return;
         }
 
-        $this->events->record(
-            ProductEventName::ExamStarted,
-            [
-                'exam_session_id' => $session->id,
-                'stage' => $stage,
-                'lesson' => $lesson,
-                'minutes' => $minutes,
-            ],
-            group: $group,
-            user: $teacher,
-        );
+        [$stage, $lesson, $minutes] = $args;
 
-        $this->postWebAppButton($chatId, $session, $stage, $lesson, $minutes, $locale);
+        $this->launcher->launch($chatId, $group, $teacher, $stage, $lesson, $minutes, $locale);
     }
 
     /**
-     * @return array{0:int, 1:int, 2:int}
+     * @return array{0:int, 1:int, 2:int}|null null when no arguments were provided
      */
-    private function parseArgs(string $text): array
+    private function parseArgs(string $text): ?array
     {
         if (preg_match('~^/start_exam(?:@\w+)?\s+(\d+)\s+(\d+)\s+(\d+)~', $text, $m) === 1) {
             return [(int) $m[1], (int) $m[2], (int) $m[3]];
@@ -120,42 +116,6 @@ final class StartExamHandler implements GroupUpdateHandler
             return [(int) $m[1], 1, 10];
         }
 
-        return [1, 1, 10];
-    }
-
-    private function humanizeError(ExamSessionException $e, string $locale): string
-    {
-        return match ($e->reason) {
-            ExamSessionException::REASON_NOT_TEACHER => __('errors.exam.not_teacher', [], $locale),
-            ExamSessionException::REASON_GROUP_INACTIVE => __('errors.group_inactive', [], $locale),
-            ExamSessionException::REASON_STAGE_NOT_FOUND => __('errors.stage_not_found', [], $locale),
-            ExamSessionException::REASON_LESSON_NOT_FOUND => __('errors.lesson_not_found', [], $locale),
-            ExamSessionException::REASON_NOT_ENOUGH_WORDS => __('errors.exam.not_enough_words', [], $locale),
-            ExamSessionException::REASON_NOT_ENOUGH_DISTRACTORS => __('errors.exam.not_enough_distractors', [], $locale),
-            ExamSessionException::REASON_ALREADY_OPEN => __('errors.exam.already_open', [], $locale),
-            ExamSessionException::REASON_INVALID_DURATION => __('errors.exam.invalid_duration', [], $locale),
-            default => __('errors.exam.failed', [], $locale),
-        };
-    }
-
-    private function postWebAppButton(
-        int $chatId,
-        ExamSession $session,
-        int $stage,
-        int $lesson,
-        int $minutes,
-        string $locale,
-    ): void {
-        $base = rtrim((string) config('twa.base_url'), '/');
-
-        $this->announcer->announce(
-            chatId: $chatId,
-            text: __('exam.started', ['stage' => $stage, 'lesson' => $lesson, 'minutes' => $minutes], $locale),
-            buttonText: __('exam.open_button', [], $locale),
-            url: "{$base}/twa/exam/{$session->id}",
-            failureText: __('errors.exam.not_delivered', [], $locale),
-            cancel: fn () => $this->exams->cancelUndelivered($session),
-            parseMode: 'HTML',
-        );
+        return null;
     }
 }

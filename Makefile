@@ -1,4 +1,4 @@
-.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-test load-test-webhook zap-baseline
+.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-seed load-test load-test-mature load-test-game load-test-practice load-test-battle load-test-mixed load-test-webhook zap-baseline
 
 DC      ?= docker compose
 APP     ?= $(DC) exec app
@@ -103,7 +103,11 @@ K6_RUN        = docker run --rm -i $(if $(K6_NET),--network $(K6_NET)) --user "$
 	-v "$(CURDIR)/$(K6_DIR):/scripts:ro" -v "$(abspath $(K6_OUT)):/out" \
 	$(if $(wildcard $(TOKENS_FILE)),-v "$(abspath $(TOKENS_FILE)):/data/load-tokens.json:ro") \
 	-e BASE_URL="$(BASE_URL)" -e TARGET_VUS="$(TARGET_VUS)" -e HOLD -e THINK_SCALE -e CARDS_PER_SESSION -e WEBHOOK_RPS \
+	-e TARGET_PAIRS -e PRACTICE_MODE -e BATTLE_MODE -e MIX_TRAINING -e MIX_GAME -e MIX_PRACTICE -e MIX_BATTLE \
 	-e TELEGRAM_URL_SECRET -e TELEGRAM_HEADER_SECRET -e K6_INSECURE_SKIP_TLS_VERIFY $(K6_IMAGE)
+
+# The heavier scenarios default to a smaller size than the 1250 learners of the hot paths: TARGET_VUS from the command line wins.
+K6_RUN_300   = $(subst TARGET_VUS="$(TARGET_VUS)",TARGET_VUS="$(if $(filter command line,$(origin TARGET_VUS)),$(TARGET_VUS),300)",$(K6_RUN))
 
 load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (local, testing, staging only)
 	@mkdir -p "$(dir $(TOKENS_FILE))"
@@ -118,6 +122,37 @@ load-test: ## k6: learner hot paths up to TARGET_VUS (BASE_URL=https://staging..
 	@test -f "$(TOKENS_FILE)" || { echo "No $(TOKENS_FILE): run 'make load-tokens' first"; exit 1; }
 	@mkdir -p "$(abspath $(K6_OUT))" && chmod a+rwx "$(abspath $(K6_OUT))"
 	$(K6_RUN) run --summary-export=/out/twa-hot-paths-summary.json /scripts/twa-hot-paths.js
+
+load-seed: ## Staging: mature due cards, practice pilot and friend pairs for the test learners (after load-tokens; LOAD_SCENARIO_WORDS, LOAD_SCENARIO_COURSE)
+	$(LOAD_ARTISAN) db:seed --class=LoadScenarioSeeder --force
+
+# The scenarios beyond the hot paths (tests/load/k6/README.md). Run `make load-tokens` and `make load-seed` first. Each has its own
+# default size (TARGET_VUS 300 / TARGET_PAIRS 100 for the heavier paths, 1250 for training and the mix).
+define K6_SCENARIO
+	@test -n "$(BASE_URL)" || { echo "BASE_URL is required, e.g. make $(1) BASE_URL=https://staging.example.com"; exit 1; }
+	@test -f "$(TOKENS_FILE)" || { echo "No $(TOKENS_FILE): run 'make load-tokens' first"; exit 1; }
+	@mkdir -p "$(abspath $(K6_OUT))" && chmod a+rwx "$(abspath $(K6_OUT))"
+endef
+
+load-test-mature: ## k6: training with mature cards (reverse / audio / typed, the path with distractors); TARGET_VUS=1250
+	$(call K6_SCENARIO,load-test-mature)
+	$(K6_RUN) run --summary-export=/out/twa-training-mature-summary.json /scripts/twa-training-mature.js
+
+load-test-game: ## k6: the game Caravan, a run from start to end; TARGET_VUS=300
+	$(call K6_SCENARIO,load-test-game)
+	$(K6_RUN_300) run --summary-export=/out/game-caravan-summary.json /scripts/game-caravan.js
+
+load-test-practice: ## k6: practice, one session of PRACTICE_MODE (pairs|collocation|sentence|dictation); TARGET_VUS=300
+	$(call K6_SCENARIO,load-test-practice)
+	$(K6_RUN_300) run --summary-export=/out/practice-session-$(or $(PRACTICE_MODE),collocation)-summary.json /scripts/practice-session.js
+
+load-test-battle: ## k6: battle, TARGET_PAIRS pairs (default 100) with the 5/3/2 s poll beat
+	$(call K6_SCENARIO,load-test-battle)
+	$(K6_RUN) run --summary-export=/out/battle-summary.json /scripts/battle.js
+
+load-test-mixed: ## k6: the mixed profile (training / game / practice / battle shares MIX_*) for TARGET_VUS active learners
+	$(call K6_SCENARIO,load-test-mixed)
+	$(K6_RUN) run --summary-export=/out/mixed-profile-summary.json /scripts/mixed-profile.js
 
 load-test-webhook: ## k6: Telegram webhook (BASE_URL, env TELEGRAM_URL_SECRET and TELEGRAM_HEADER_SECRET): p95 < 300 ms
 	@test -n "$(BASE_URL)" || { echo "BASE_URL is required"; exit 1; }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
@@ -33,6 +33,7 @@ import type { GameActiveRun } from '@/api/types'
 const props = defineProps<{ id: number }>()
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const classes = useGameClassStore()
 const game = useGameStore()
@@ -43,7 +44,9 @@ const { t, locale } = useI18n()
 const { caravan, status, error } = storeToRefs(classes)
 const { starting } = storeToRefs(game)
 
-useBackButton({ name: 'today' })
+// With `?course=` (an entry from the course) "Back" leads to that course, else to Home.
+const backCourse = typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null
+useBackButton(backCourse !== null ? { name: 'course', params: { slug: backCourse } } : { name: 'today' })
 
 let left = false
 
