@@ -1078,7 +1078,7 @@ it('gives the general course of the level when no course fits the chosen goal', 
     expect(onbLearner(7087)->active_course_id)->toBe($b1->id);
 });
 
-it('prefers the general recommendation over an empty default course and keeps the learner without a course when there is none', function (): void {
+it('leaves the learner without a course when the default course is empty and nothing else is published', function (): void {
     // The default course is created empty, exactly as `defaultCourse()` does on first use.
     app(CourseCatalogService::class)->defaultCourse();
 

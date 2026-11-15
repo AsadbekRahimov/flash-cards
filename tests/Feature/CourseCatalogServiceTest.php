@@ -138,7 +138,7 @@ it('does not list a public course without words in the learner catalog, even whe
     expect($listed)->toBe([$filled->id]);
 });
 
-it('still lists an empty unlisted course or own deck as the active course of the learner', function (): void {
+it('still lists an empty unlisted course as the active course of the learner', function (): void {
     $catalog = app(CourseCatalogService::class);
     $unlisted = Course::factory()->published()->create(['visibility' => 'unlisted', 'words_count' => 0]);
     $learner = Learner::factory()->create(['active_course_id' => $unlisted->id]);
@@ -148,4 +148,26 @@ it('still lists an empty unlisted course or own deck as the active course of the
     expect($listings)->toHaveCount(1)
         ->and($listings[0]->course->id)->toBe($unlisted->id)
         ->and($listings[0]->isActive)->toBeTrue();
+});
+
+it('still lists an empty deck of the learner as their active course, and never to another learner', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    $owner = Learner::factory()->create();
+    // A deck right after it was created: private, published, no words yet.
+    $deck = Course::factory()->published()->create([
+        'owner_type' => 'learner',
+        'owner_id' => $owner->id,
+        'visibility' => 'private',
+        'source' => 'learner',
+        'words_count' => 0,
+    ]);
+    $owner->forceFill(['active_course_id' => $deck->id])->save();
+    $stranger = Learner::factory()->create(['active_course_id' => $deck->id]);
+
+    $own = $catalog->forLearner($owner);
+
+    expect($own)->toHaveCount(1)
+        ->and($own[0]->course->id)->toBe($deck->id)
+        ->and($own[0]->isActive)->toBeTrue()
+        ->and($catalog->forLearner($stranger))->toBe([]);
 });
