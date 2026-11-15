@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\PendingGroupsBadge;
+use App\Domain\Operations\Support\PureCache;
 use App\Filament\Resources\TelegramGroupResource;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -38,6 +39,16 @@ it('shows the number of pending groups to an admin, nothing when there are none'
 
     expect(TelegramGroupResource::getNavigationBadge())->toBe('2')
         ->and(TelegramGroupResource::getNavigationBadgeTooltip())->toBe('Ждут активации');
+});
+
+// Redis stores a number as is and hands it back as a STRING ("2"); the `array` store of the tests keeps the int, so the
+// production 500 (a TypeError under strict_types) is only reproducible by putting the string in by hand.
+it('returns an int and shows the badge when the cached number comes back as a string (Redis)', function (): void {
+    $this->actingAs($this->admin);
+    PureCache::store()->put(PendingGroupsBadge::KEY, '2', 60);
+
+    expect(PendingGroupsBadge::count())->toBe(2)
+        ->and(TelegramGroupResource::getNavigationBadge())->toBe('2');
 });
 
 it('shows nothing to a teacher', function (): void {

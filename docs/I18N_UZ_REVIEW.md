@@ -3644,3 +3644,16 @@
 | `settings.exercises.meaning.hint` | So'z → to'rtta variantdan tarjima | Слово → перевод из четырёх вариантов |
 | `training.update.title` | Ilovani yangilang | Обновите приложение |
 | `training.update.text` | Bu topshiriq faqat yangi versiyada bor. Ilovani yopib, qayta oching — mashg'ulot shu joydan davom etadi. | Это задание есть только в новой версии. Закройте приложение и откройте его снова — занятие продолжится с этого места. |
+
+## Курс без новых слов: «Сегодня» и экран завершения (16.11.2026) — на проверку носителю
+
+Ученик с активным курсом, в котором для него не осталось новых слов (курс пуст или пройден), вместо пустого занятия получает ссылку в каталог курсов.
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.course.empty` | Bu kursda hozircha so'z yo'q | В этом курсе пока нет слов |
+| `today.new.course_done` | Bu kursda yangi so'z qolmadi | Новых слов в этом курсе не осталось |
+| `today.course.choose_other` | Boshqa kursni tanlash | Выбрать другой курс |
+| `finished.choose_course` | Kursni tanlash | Выбрать курс |

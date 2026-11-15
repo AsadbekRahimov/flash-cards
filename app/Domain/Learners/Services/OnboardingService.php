@@ -47,7 +47,7 @@ final class OnboardingService
     /** In the order they are asked. */
     public const STEPS = ['locale', 'goal', 'level', 'timezone', 'reminder'];
 
-    public const GOALS = ['general', 'ielts', 'sat', 'school'];
+    public const GOALS = [self::GENERAL_GOAL, 'ielts', 'sat', 'school'];
 
     public const LEVELS = ['A1', 'A2', 'B1', 'B2'];
 
@@ -58,6 +58,9 @@ final class OnboardingService
 
     /** Callback value => local time. */
     public const REMINDER_TIMES = ['0800' => '08:00', '1300' => '13:00', '1900' => '19:00', '2100' => '21:00'];
+
+    /** The goal whose courses form the base catalog: the second step of the course recommendation. */
+    private const GENERAL_GOAL = 'general';
 
     /** `learners.meta` key: the course slug of a `c_<slug>` link, applied when the onboarding completes. */
     private const PENDING_COURSE = 'pending_course';
@@ -367,7 +370,8 @@ final class OnboardingService
     /**
      * Sets `active_course_id` as the onboarding ends: the course of a `c_<slug>` link when it is
      * still available, else (unless the learner already picked one) the recommendation for the
-     * goal and level, else the default course.
+     * goal and level, else the general course of the level, else the default course - only when it
+     * can be opened and has words. With none of them the learner stays without an active course.
      *
      * @return array{0: Course|null, 1: string|null} the course chosen now and how (`deeplink` / `onboarding`)
      */
@@ -389,9 +393,15 @@ final class OnboardingService
             return [null, null];
         }
 
-        // The default course is a fallback only while it can be opened (published, not private).
-        $course = $this->catalog->recommend($learner->goal, $learner->level)
-            ?? $this->catalog->findAvailable($this->catalog->defaultCourse()->slug);
+        $course = $this->catalog->recommend($learner->goal, $learner->level);
+        if ($course === null && $learner->goal !== self::GENERAL_GOAL) {
+            $course = $this->catalog->recommend(self::GENERAL_GOAL, $learner->level);
+        }
+        // The default course is a fallback only while it can be opened (published, not private) and has words.
+        if ($course === null) {
+            $default = $this->catalog->findAvailable($this->catalog->defaultCourse()->slug);
+            $course = $default !== null && $default->words_count > 0 ? $default : null;
+        }
         if ($course === null) {
             return [null, null];
         }
