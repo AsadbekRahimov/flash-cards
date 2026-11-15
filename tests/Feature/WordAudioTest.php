@@ -257,7 +257,7 @@ it('GET /tts serves the stored file without calling the TTS service', function (
 
     $response->assertOk()
         ->assertHeader('Content-Type', 'audio/mpeg')
-        ->assertHeader('Cache-Control', 'max-age=2592000, public');
+        ->assertHeader('Cache-Control', 'max-age=2592000, private');
     expect($response->getContent())->toBe('stored-bytes');
     Http::assertNothingSent();
 });

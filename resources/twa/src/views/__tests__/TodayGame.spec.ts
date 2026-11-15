@@ -37,6 +37,7 @@ async function render(response: TodayResponse) {
       { path: '/courses', name: 'courses', component: stub },
       { path: '/billing', name: 'billing', component: stub },
       { path: '/league', name: 'league', component: stub },
+      { path: '/settings', name: 'settings', component: stub },
       { path: '/game/daily', name: 'game-daily', component: stub },
       { path: '/game/runs/:id(\\d+)', name: 'game-run', component: stub },
     ],

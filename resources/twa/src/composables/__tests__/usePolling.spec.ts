@@ -28,7 +28,7 @@ afterEach(() => {
 })
 
 /** Polling inside an effect scope, like a screen: `dispose()` is the unmount. */
-function poll(tick: () => Promise<void>, enabled = ref(true), extra: { immediate?: boolean; intervalMs?: number } = {}) {
+function poll(tick: () => Promise<void>, enabled = ref(true), extra: { immediate?: boolean; intervalMs?: number | (() => number) } = {}) {
   const scope = effectScope()
   const handle = scope.run(() => usePolling(tick, { enabled, ...extra }))!
   return { enabled, handle, dispose: () => scope.stop() }
@@ -57,6 +57,39 @@ describe('usePolling — the beat', () => {
     await vi.advanceTimersByTimeAsync(0)
     expect(tick).toHaveBeenCalledTimes(1)
     await vi.advanceTimersByTimeAsync(2000)
+    expect(tick).toHaveBeenCalledTimes(2)
+  })
+
+  it('reads the beat from a function before every beat, and a change of it moves the beat that waits', async () => {
+    const tick = vi.fn().mockResolvedValue(undefined)
+    const beat = ref(5000)
+    poll(tick, ref(true), { intervalMs: () => beat.value })
+
+    await vi.advanceTimersByTimeAsync(4999)
+    expect(tick).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(tick).toHaveBeenCalledTimes(1)
+
+    // the next beat is waiting for 5 s; the length falls to 3 s at once, and the wait starts again by it
+    await vi.advanceTimersByTimeAsync(1000)
+    beat.value = 3000
+    await vi.advanceTimersByTimeAsync(2999)
+    expect(tick).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(tick).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(tick).toHaveBeenCalledTimes(3)
+  })
+
+  it('backs off from the beat of the moment when the function gives a long one', async () => {
+    const tick = vi.fn().mockRejectedValueOnce(new Error('x')).mockResolvedValue(undefined)
+    poll(tick, ref(true), { intervalMs: () => 3000 })
+
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(tick).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(5999)
+    expect(tick).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1)
     expect(tick).toHaveBeenCalledTimes(2)
   })
 

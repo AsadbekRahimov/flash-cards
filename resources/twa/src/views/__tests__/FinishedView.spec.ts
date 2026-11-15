@@ -74,7 +74,7 @@ describe('FinishedView', () => {
     const w = render(5, 3)
     expect(w.get('[data-testid=reviewed]').text()).toBe("Siz 5 ta so'zni takrorladingiz.")
     expect(w.get('[data-testid=next-label]').text()).toBe('3 kundan keyin')
-    expect(w.get('[data-testid=close-btn]').text()).toBe('Yopish')
+    expect(w.get('[data-testid=close-btn]').text()).toBe('Telegramga qaytish')
     expect(render(3, 0).get('[data-testid=next-label]').text()).toBe('Bugun')
   })
 
@@ -82,7 +82,7 @@ describe('FinishedView', () => {
     ['lesson_complete', 'Все слова урока пройдены.'],
     ['nothing_due', 'На сегодня повторять нечего.'],
     ['new_quota_exhausted', 'Лимит новых слов на сегодня исчерпан. Новые слова откроются завтра.'],
-    ['session_cap', 'Это была длинная сессия — сделайте перерыв.'],
+    ['session_cap', 'Это было длинное занятие — сделайте перерыв.'],
   ])('explains done_reason %s', (reason, text) => {
     expect(render(3, 1, reason).get('[data-testid=reason]').text()).toBe(text)
   })
@@ -97,6 +97,41 @@ describe('FinishedView', () => {
     expect(w.find('[data-testid=reviewed]').exists()).toBe(false)
     expect(w.find('[data-testid=reason]').exists()).toBe(true)
     expect(render(0, 0).find('[data-testid=reviewed]').exists()).toBe(true)
+  })
+
+  describe('an empty session (nothing was reviewed)', () => {
+    it('says "That is all for today" with its reason, not "Great!", and has no "next review" card', () => {
+      const w = render(0, 0, 'nothing_due')
+
+      expect(w.get('h1').text()).toBe('На сегодня всё')
+      expect(w.get('[data-testid=reason]').text()).toBe('На сегодня повторять нечего.')
+      expect(w.find('[data-testid=next]').exists()).toBe(false)
+      expect(w.find('[data-testid=next-label]').exists()).toBe(false)
+    })
+
+    it('takes the numbers of the server summary when there are some, and a session with cards keeps "Great!" and the next review', () => {
+      useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0 })
+      expect(render(7, 0).get('h1').text()).toBe('На сегодня всё')
+
+      useTrainingStore().summary = summary({ reviewed: 5 })
+      const w = render(0, 2)
+      expect(w.get('h1').text()).toBe('Отлично!')
+      expect(w.get('[data-testid=next-label]').text()).toBe('Через 2 дня')
+    })
+
+    it('does not open the paywall by itself when the quota is used up, but keeps the button to open it', async () => {
+      const w = render(0, 0, 'new_quota_exhausted')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(w.get('[data-testid=paywall-open]').text()).toBe('Узнать о Pro')
+    })
+
+    it('says it in Uzbek', () => {
+      setLocale('uz')
+
+      expect(render(0, 0, 'nothing_due').get('h1').text()).toBe('Bugun uchun hammasi tayyor')
+    })
   })
 
   it('renders the reason in Uzbek', () => {
@@ -131,7 +166,7 @@ describe('FinishedView', () => {
       expect(w.findAll('.btn-primary')).toHaveLength(1)
 
       const closeButton = w.get('[data-testid=close-btn]')
-      expect(closeButton.text()).toBe('Закрыть')
+      expect(closeButton.text()).toBe('Выйти в Telegram')
       expect(closeButton.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
       await closeButton.trigger('click')
       expect(telegram.close).toHaveBeenCalledTimes(1)
@@ -348,7 +383,7 @@ describe('FinishedView', () => {
       const w = render(3, 1, 'new_quota_exhausted')
       await flushPromises()
 
-      expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
       expect(w.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
 

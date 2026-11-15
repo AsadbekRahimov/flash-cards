@@ -185,7 +185,7 @@ it('/start tells about the return once, in the learner language', function (stri
         ->and(restoredNotices())->toBe(1);
 })->with([
     'ru' => ['ru', 'Аккаунт восстановлен'],
-    'uz' => ['uz', 'Hisobingiz tiklandi'],
+    'uz' => ['uz', 'Akkauntingiz tiklandi'],
 ]);
 
 it('/start adds the auto-renewal line only when it can be switched on again', function (): void {

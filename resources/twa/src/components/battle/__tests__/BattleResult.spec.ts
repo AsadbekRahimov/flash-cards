@@ -65,7 +65,7 @@ describe('BattleResult — the outcome', () => {
     const w = render(closedBattle('both_absent', { starts_at: at(-30), result: { outcome: 'none', end_reason: 'both_absent', rounds: [...played] } }))
 
     expect(w.get('h1').text()).toBe('Матч прерван')
-    expect(w.get('[data-testid=result-reason]').text()).toBe('Оба игрока пропали — матч закрыт без победителя.')
+    expect(w.get('[data-testid=result-reason]').text()).toBe('Оба игрока пропали — баттл закрыт без победителя.')
     expect(w.find('[data-testid=result-rounds]').exists()).toBe(true)
     expect(w.find('[data-testid=scoreboard]').exists()).toBe(false)
   })
@@ -97,14 +97,14 @@ describe('BattleResult — why it ended (end_reason), in words', () => {
     ['completed', 'draw', 'Сыграны все раунды, счёт равный.'],
     ['surrender', 'won', 'Соперник сдался — победа ваша.'],
     ['surrender', 'lost', 'Вы сдались: победа засчитана сопернику.'],
-    ['absent', 'won', 'Соперник вышел из матча и не вернулся — победа ваша.'],
-    ['absent', 'lost', 'Вы пропали из матча: засчитано поражение.'],
-    ['both_absent', 'none', 'Оба игрока пропали — матч закрыт без победителя.'],
+    ['absent', 'won', 'Соперник вышел из баттла и не вернулся — победа ваша.'],
+    ['absent', 'lost', 'Вы не вернулись в баттл: засчитано поражение.'],
+    ['both_absent', 'none', 'Оба игрока пропали — баттл закрыт без победителя.'],
     ['declined', 'none', 'Приглашение отклонено.'],
     ['invite_expired', 'none', 'Приглашение не приняли вовремя.'],
-    ['room_expired', 'none', 'Комната закрыта: матч не начался вовремя.'],
-    ['canceled', 'none', 'Матч отменили до начала.'],
-    ['voided', 'none', 'Матч аннулирован из-за технической проблемы. Очки не засчитаны.'],
+    ['room_expired', 'none', 'Комната закрыта: баттл не начался вовремя.'],
+    ['canceled', 'none', 'Баттл отменили до начала.'],
+    ['voided', 'none', 'Баттл аннулирован из-за технической проблемы. Очки не засчитаны.'],
   ]
 
   it.each(cases)('%s (%s): %s', (reason, outcome, text) => {
@@ -118,14 +118,14 @@ describe('BattleResult — why it ended (end_reason), in words', () => {
   it('a dictation voided: the recording that is not there, in words (the room could not load it)', () => {
     const w = render(closedBattle('voided', { mode: 'dictation' }))
 
-    expect(w.get('[data-testid=result-reason]').text()).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(w.get('[data-testid=result-reason]').text()).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
     expect(w.get('[data-testid=battle-result]').attributes('data-reason')).toBe('voided')
     setLocale('uz')
     expect(render(closedBattle('voided', { mode: 'dictation' })).get('[data-testid=result-reason]').text()).toBe('Bellashuv bekor qilindi: yozuv mavjud emas. Ochkolar hisoblanmaydi.')
   })
 
   it('the other formats have no recording to lack: the plain word', () => {
-    expect(render(closedBattle('voided', { mode: 'pairs' })).get('[data-testid=result-reason]').text()).toBe('Матч аннулирован из-за технической проблемы. Очки не засчитаны.')
+    expect(render(closedBattle('voided', { mode: 'pairs' })).get('[data-testid=result-reason]').text()).toBe('Баттл аннулирован из-за технической проблемы. Очки не засчитаны.')
   })
 
   it('has a word for every reason in Uzbek too', () => {
@@ -157,11 +157,11 @@ describe('BattleResult — the score and the rounds', () => {
     expect(first.get('[data-testid=round-me]').attributes('data-verdict')).toBe('correct')
     expect(first.get('[data-testid=round-me]').find('.sr-only').text()).toBe('Верно')
     expect(first.get('[data-testid=round-opponent]').attributes('data-verdict')).toBe('wrong')
-    expect(first.get('[data-testid=round-opponent]').find('.sr-only').text()).toBe('Ошибка')
+    expect(first.get('[data-testid=round-opponent]').find('.sr-only').text()).toBe('Неверно')
     expect(first.get('[data-testid=round-opponent]').find('svg').exists()).toBe(true)
     // the other verdicts of the list
     expect(rows[2]!.get('[data-testid=round-me]').find('.sr-only').text()).toBe('Опечатка')
-    expect(rows[3]!.get('[data-testid=round-me]').find('.sr-only').text()).toBe('Пропуск')
+    expect(rows[3]!.get('[data-testid=round-me]').find('.sr-only').text()).toBe('Пропущено')
     expect(rows[3]!.get('[data-testid=round-opponent]').find('.sr-only').text()).toBe('Время вышло')
   })
 

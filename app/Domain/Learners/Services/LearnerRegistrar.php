@@ -32,6 +32,9 @@ final class LearnerRegistrar
 
     private const LANGUAGE_MAX = 10;
 
+    /** A self-initiated visit moves `last_seen_at` only when the stored value is older than this. */
+    private const LAST_SEEN_REFRESH_MINUTES = 10;
+
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
@@ -239,7 +242,9 @@ final class LearnerRegistrar
         }
 
         $learner->fill($profile);
-        if ($selfInitiated) {
+        // Every /auth lands here: the write of the indexed `last_seen_at` is skipped while it is fresh and the profile is
+        // unchanged (a model with no dirty attribute saves with no UPDATE at all).
+        if ($selfInitiated && ($learner->isDirty() || $learner->last_seen_at === null || $learner->last_seen_at->lt(now()->subMinutes(self::LAST_SEEN_REFRESH_MINUTES)))) {
             $learner->last_seen_at = now();
         }
 

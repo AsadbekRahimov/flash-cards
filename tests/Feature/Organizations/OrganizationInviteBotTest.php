@@ -289,7 +289,8 @@ it('explains a code that cannot be used and runs the ordinary onboarding', funct
     $learner = orgbLearner(8010);
     expect($this->tg->sent)->toHaveCount(2)
         ->and($this->tg->sent[0]['text'])->toBe($expected)
-        ->and($this->tg->sent[1]['text'])->toBe('Выберите язык интерфейса') // the ordinary first step
+        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 5\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
+        ->and($this->tg->sent[1]['text'])->not->toContain('Вас пригласил')
         ->and($learner->onboarding_state)->toBe('locale')
         ->and($learner->meta)->not->toHaveKey('pending_org_invite');
 

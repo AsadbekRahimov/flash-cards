@@ -45,6 +45,9 @@ final class SitePageCache
         'billing.periods',
         'billing.plans',
         'decks.limits',
+        // The tiers of a learning center and the year discount of the "teachers" section (LandingPricing::orgTiers()).
+        'billing.org_tiers',
+        'billing.org_year_discount_percent',
         'practice.access',
         'practice.plan',
         'practice.battle',
@@ -71,6 +74,7 @@ final class SitePageCache
         'app/Domain/Site/Services/SiteLinks.php',
         'app/Domain/Billing/Support/PriceFormatter.php',
         'app/Domain/Billing/Support/ProPromises.php',
+        'app/Domain/Billing/Support/OrgTiers.php',
         'app/Domain/Billing/Enums/ProPracticePromise.php',
         'app/Domain/Billing/Enums/Plan.php',
         'app/Domain/Billing/Enums/SubscriptionProvider.php',
@@ -79,7 +83,7 @@ final class SitePageCache
     ];
 
     /** Language files the pages take their texts and prices from, by name. */
-    private const LANG_FILES = ['landing', 'legal', 'billing'];
+    private const LANG_FILES = ['landing', 'legal', 'billing', 'org'];
 
     /** @param  string|null  $root  the project root the PHP sources are looked up under (the application's, unless a test says otherwise) */
     public function __construct(private readonly ?string $root = null) {}

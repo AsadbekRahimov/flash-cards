@@ -98,3 +98,75 @@ export function json(res) {
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Helpers of the scenarios beyond the hot paths (flows.js): ids, random answers, optional media.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** RFC 4122 version 4 UUID (`request_id` of an answer: the server validates the `uuid` rule and de-duplicates on it). */
+export function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.floor(Math.random() * 16);
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+
+export function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function shuffled(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+/**
+ * An answer for an element of a practice session, a game run or a battle round, built from what the API shows of it. The API never
+ * sends the right answers (docs/16 §12), so this is a LEARNER WHO GUESSES: the server does the same work for a wrong answer as for
+ * a right one (grading, the snapshot, the state, the counters), which is what the load test measures; the browser e2e
+ * (resources/twa/scripts/e2e) reads the snapshot from the database to answer right, a load test against a remote staging cannot.
+ * Consequence: a game run of a guesser usually ends when the flasks are out (a terminal state, counted as completed), a practice
+ * session or a battle runs to its last element.
+ */
+export function answerFor(element) {
+  if (Array.isArray(element.options) && element.options.length > 0) {
+    return { option_id: pick(element.options).id };
+  }
+  if (Array.isArray(element.fragments) && element.fragments.length > 0) {
+    return { order: shuffled(element.fragments.map((f) => f.id)) };
+  }
+  if (Array.isArray(element.left) && Array.isArray(element.right) && element.right.length > 0) {
+    // A round of pairs: one pair per answer, the first left card not matched yet with any right card.
+    const matched = new Set((element.matched || []).map((m) => m[0]));
+    const left = element.left.find((card) => !matched.has(card.id)) || element.left[0];
+    return { left_id: left.id, right_id: pick(element.right).id };
+  }
+  if (element.answer_length !== undefined || element.masked !== undefined || element.audio_url !== undefined || element.words !== undefined) {
+    return { text: 'test' };
+  }
+  return { skip: true };
+}
+
+/**
+ * GET of a media file (the clip of a task): 200 is a clip, 404 / 503 mean the staging has no audio for it - not a server error of the
+ * scenario, so they are counted apart (`audio_missing`) and kept out of `server_errors` and `http_req_failed`.
+ */
+export const audioMissing = new Counter('audio_missing');
+
+export function getAudio(path, token, name) {
+  const res = http.get(`${BASE_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: '*/*' },
+    tags: { endpoint: name, name },
+    responseCallback: http.expectedStatuses({ min: 200, max: 399 }, 404, 503),
+  });
+  if (res.status === 429) {
+    rateLimited.add(1);
+  } else if (res.status !== 200) {
+    audioMissing.add(1);
+  }
+  return res;
+}

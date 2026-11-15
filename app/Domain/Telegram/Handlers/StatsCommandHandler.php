@@ -62,7 +62,7 @@ final class StatsCommandHandler implements UpdateHandler
             $languageCode = $message['from']['language_code'] ?? null;
             $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
 
-            $this->telegram->sendMessage($chatId, __('bot.stats.not_linked', ['id' => $fromId], $locale));
+            $this->telegram->sendMessage($chatId, __('bot.stats.not_linked', ['id' => $fromId], $locale), 'HTML');
 
             return;
         }

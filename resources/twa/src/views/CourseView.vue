@@ -245,7 +245,7 @@ onBeforeUnmount(() => {
         @click="router.push({ name: 'game', query: { course: props.slug } })"
       >
         <AppIcon name="flag" :size="20" />
-        {{ t('game.title') }}
+        {{ t('game.enter') }}
       </button>
 
       <section v-if="offersMock" class="card mt-4" data-testid="mock-exam">
@@ -306,21 +306,23 @@ onBeforeUnmount(() => {
                   {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
                 </span>
                 <!--
-                  The practice of the lesson: a quiet icon that closes the line of the progress ("learned N of M" - practise it). It is not a
-                  second button beside "Learn": at 320 px that took 40 px from the title (the column fell from 138 to 98 px, in Uzbek to 72)
-                  and broke words. The button is 36 px (-my cancels the height, the line stays 18 px); its touch area is the 44 x 44 px
-                  layer of `.btn-sm`.
+                  The practice of the lesson: a quiet button that closes the line of the progress ("learned N of M" - practise it), an icon with
+                  a short caption "Practice" (an icon alone was not understood). It is not a second button beside "Learn": at 320 px that took
+                  40 px from the title (the column fell from 138 to 98 px, in Uzbek to 72) and broke words; here it is part of the line of the
+                  progress and wraps under it when there is no room. The button is 36 px (-my cancels the height, the line stays 18 px); its
+                  touch area is the 44 px layer of `.btn-sm`.
                 -->
                 <button
                   v-if="practice.available"
                   type="button"
-                  class="btn btn-plain btn-sm -top-0.5 -my-2.5 ml-1 size-9 px-0 align-middle"
+                  class="btn btn-plain btn-sm -top-0.5 -my-2.5 ml-1 h-9 gap-1 px-2 align-middle"
                   :disabled="opening || lesson.progress.total === 0"
                   :aria-label="practiceLessonLabel(stage, lesson)"
                   data-testid="practice-lesson-btn"
                   @click="openLessonPractice(lesson.id)"
                 >
-                  <AppIcon name="puzzle-piece" :size="20" />
+                  <AppIcon name="puzzle-piece" :size="18" />
+                  <span class="text-[13px] leading-[18px]">{{ t('practice.hub.title') }}</span>
                 </button>
               </p>
             </div>

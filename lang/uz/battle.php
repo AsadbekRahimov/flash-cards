@@ -9,9 +9,9 @@ return [
     // The formats of a battle, in the words of the app (resources/twa/src/i18n: practice.mode.*.title).
     'mode' => [
         'pairs' => 'Juftlarni toping',
-        'collocation' => "So'z birikmasini tanlang",
+        'collocation' => "Birikmani to'ldiring",
         'sentence' => 'Gap tuzing',
-        'dictation' => 'Eshiting va yozing',
+        'dictation' => 'Tinglang va yozing',
     ],
 
     // The DM that invites a friend to a battle (docs/16 §8.7): who, which format, which course and lesson, how long it is open.

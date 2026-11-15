@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { ANSWER_REPEATS, RESULT_CHECKS_MAX, useBattleStore } from '../battle'
+import { ANSWER_REPEATS, POLL_INTERVAL_MS, RESULT_CHECKS_MAX, useBattleStore } from '../battle'
 import {
   SERVER_NOW,
   answeringRound,
@@ -189,6 +189,22 @@ describe('battle store — opening a battle', () => {
 
     expect(store.gone).toBe(true)
     expect(store.errorMessage).toBe('Практика сейчас недоступна.')
+  })
+})
+
+describe('battle store — the beat of the poll', () => {
+  it('is 5 s for an invitation, 3 s in the room, 2 s in the countdown and the match', async () => {
+    expect((await opened(invitedBattle())).pollIntervalMs).toBe(5000)
+    expect((await opened(roomBattle())).pollIntervalMs).toBe(3000)
+    expect((await opened(countdownBattle())).pollIntervalMs).toBe(2000)
+    expect((await opened()).pollIntervalMs).toBe(2000)
+    expect(POLL_INTERVAL_MS).toMatchObject({ invited: 5000, room: 3000, countdown: 2000, playing: 2000 })
+  })
+
+  it('is 2 s while no battle is open', () => {
+    setActivePinia(createPinia())
+
+    expect(useBattleStore().pollIntervalMs).toBe(2000)
   })
 })
 
@@ -743,7 +759,7 @@ describe('battle store — the answer of a round', () => {
 
     await store.answer(ORDER)
 
-    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Закройте приложение и откройте снова.')
     expect(api.battles.round).toHaveBeenCalledTimes(2)
   })
 
@@ -1511,7 +1527,7 @@ describe('battle store — a repeat that is late after a try with no reply is no
     await vi.advanceTimersByTimeAsync(500)
     await sending
 
-    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Закройте приложение и откройте снова.')
   })
 
   it('says what the trouble was: the connection, or the server', async () => {
@@ -1783,7 +1799,7 @@ describe('battle store — the invitations of the list', () => {
 // The words for a refused "Accept" (re-review Ж-2): whoever accepts has no other format to choose - they have "Accept" and "Decline".
 describe('battle store — the words for a refused “Accept”', () => {
   const DISABLED = () => apiError('conflict', 409, 'practice_mode_disabled', { mode: 'pairs' })
-  const FORMAT_OFF = 'Этот формат сейчас выключен — принять приглашение нельзя.'
+  const FORMAT_OFF = 'Этот режим сейчас выключен — принять приглашение нельзя.'
   const SETUP_TEXT = 'Этот режим сейчас выключен. Выберите другой.'
 
   it('an invitation of the list to a format that is switched off: its own words, not “Choose another”; the list is read again', async () => {
@@ -1829,7 +1845,7 @@ describe('battle store — the words for a refused “Accept”', () => {
 
       await store.accept()
 
-      expect(store.actionError).toBe("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+      expect(store.actionError).toBe("Bu rejim hozir o'chirilgan — taklifni qabul qila olmaysiz.")
     } finally {
       setLocale('ru')
     }

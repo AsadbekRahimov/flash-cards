@@ -13,6 +13,14 @@ return [
 
     'already' => 'Вы уже в центре «:organization».',
 
+    // A membership offered by the center's staff from the cabinet (audit 2026-11-10 M2): the learner decides in the bot.
+    'invite' => [
+        'text' => 'Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в LexiFlow. Вступить?',
+        'accept' => 'Вступить',
+        'decline' => 'Отклонить',
+        'declined' => 'Хорошо, вы отклонили приглашение центра «:organization». Ничего не изменилось.',
+    ],
+
     'skipped' => 'Хорошо. Вступить можно в любой момент по ссылке центра.',
 
     // DM after joining (invite / added by an administrator) and when a waiting place becomes free.
@@ -36,6 +44,7 @@ return [
         'not_a_member' => 'Вы уже не состоите в этом центре.',
         'membership_not_found' => 'Вы уже не состоите в этом центре.',
         'membership_via_group' => 'Вы в центре «:organization» через группу: покинуть его можно, выйдя из группы центра в Telegram.',
+        'invite_not_pending' => 'Это приглашение больше не действует.',
         'generic' => 'Не получилось. Попробуйте ещё раз позже.',
     ],
 

@@ -257,6 +257,52 @@ it('narrows the candidates to the hinted lesson, walks the course once per lesso
     }
 });
 
+it('keeps the hint on the lesson of a word held back by a confusable one, so the word comes back in study order', function (): void {
+    // docs/06 §12.5 next to the frontier: a held-back word is still unseen, the hint must not move past its lesson.
+    $fx = Fx::course([1 => [1 => 2, 2 => 2]]);
+    $course = $fx['course'];
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    [$lesson1] = nwfLessons($course);
+    [$mother, $father] = $fx['words']['1.1']['active'];
+    [$table, $chair] = $fx['words']['1.2']['active'];
+    Word::query()->whereKey($mother)->update(['word' => 'mother']);
+    Word::query()->whereKey($father)->update(['word' => 'father', 'meta' => json_encode(['confusable_with' => ['mother']])]);
+
+    expect(nwfPick($learner, $course)->word?->id)->toBe($mother)
+        ->and(nwfHint($learner, $course))->toBe((int) $lesson1->id);
+
+    // father waits for mother: the hinted lesson has nothing free, the full statement serves the next lesson's word -
+    // and names the lesson of father, its first candidate, not the lesson of the word it served.
+    $held = nwfStatements($learner, $course, null, $pick);
+    expect($pick->word?->id)->toBe($table)
+        ->and(QueryLog::matching($held, NWF_NARROWED))->toHaveCount(1)
+        ->and(QueryLog::matching($held, NWF_FULL))->toHaveCount(1)
+        ->and(nwfHint($learner, $course))->toBe((int) $lesson1->id);
+
+    // A day later mother is outside the window: father goes before the rest of the later lesson, from the narrowed statement.
+    WordRepetition::query()->where('learner_id', $learner->id)->update(['created_at' => now()->subHours(25)]);
+    $free = nwfStatements($learner, $course, null, $pick);
+    expect($pick->word?->id)->toBe($father)
+        ->and(QueryLog::matching($free, NWF_FULL))->toBe([]);
+
+    expect(nwfPick($learner, $course)->word?->id)->toBe($chair)
+        ->and(nwfPick($learner, $course)->word)->toBeNull()
+        ->and(nwfHint($learner, $course))->toBe(NewWordFrontier::NONE_LEFT);
+});
+
+it('serves a held-back word anyway when nothing else is left, as without a hint', function (): void {
+    $fx = Fx::course([1 => [1 => 2]]);
+    $course = $fx['course'];
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    [$mother, $father] = $fx['words']['1.1']['active'];
+    Word::query()->whereKey($mother)->update(['word' => 'mother', 'meta' => json_encode(['confusable_with' => ['father']])]);
+    Word::query()->whereKey($father)->update(['word' => 'father']);
+
+    expect(nwfPick($learner, $course)->word?->id)->toBe($mother)
+        ->and(nwfPick($learner, $course)->word?->id)->toBe($father)
+        ->and(nwfPick($learner, $course)->word)->toBeNull();
+});
+
 it('does not touch the lesson scope or a daily review without a course', function (): void {
     $fx = Fx::course([1 => [1 => 2]]);
     $learner = Learner::factory()->create();

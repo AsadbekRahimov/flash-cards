@@ -92,7 +92,7 @@ describe('PracticeSummary — the mistakes', () => {
     })
 
     const chips = wrapper.findAll('[data-testid=mistake-chip]')
-    expect(chips.map((chip) => chip.text())).toEqual(['Опечатка', 'Ошибка', 'Подсказка'])
+    expect(chips.map((chip) => chip.text())).toEqual(['Опечатка', 'Неверно', 'Пропущено'])
     expect(chips.map((chip) => chip.classes().find((c) => c.startsWith('chip-')))).toEqual(['chip-warning', 'chip-danger', 'chip-accent'])
     expect(chips.every((chip) => chip.find('svg').exists())).toBe(true)
   })

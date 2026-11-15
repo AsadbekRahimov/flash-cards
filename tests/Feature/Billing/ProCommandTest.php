@@ -178,7 +178,7 @@ it('tells the learner the discounted payment is still being processed (offer_bus
         ->and($holder->refresh()->status)->toBe(PaymentOrder::STATUS_PENDING);
 })->with([
     'ru' => ['ru', 'Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту.'],
-    'uz' => ['uz', "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring."],
+    'uz' => ['uz', "Chegirmali oldingi to'lov hali yakunlanmagan — bir daqiqadan so'ng urinib ko'ring."],
 ]);
 
 it('limits the taps of one learner per minute', function (): void {
@@ -203,11 +203,12 @@ it('ignores taps from a group chat and /pro typed in a group', function (): void
     expect($this->sent)->toBe([])->and(PaymentOrder::query()->count())->toBe(0);
 });
 
-it('stays silent for a linked teacher', function (): void {
+it('points a linked teacher to the teacher commands instead of showing the subscription', function (): void {
     User::factory()->create(['telegram_user_id' => 555]);
 
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro'));
-    expect($this->sent)->toBe([]);
+    expect($this->sent)->toHaveCount(1)
+        ->and($this->sent[0]['text'])->toBe('Эта команда — для учеников. Ваши команды учителя: /help');
 });
 
 it('shows the renewal state and only the cancel button while the auto-renewal runs, then resume', function (): void {

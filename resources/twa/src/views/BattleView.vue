@@ -50,7 +50,7 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  * back in 21 s, the victory is yours" (the poll says `opponent_present = false`; the seconds are what is left of the wait of the
  * server, `AbsentStrip`).
  *
- * The poll (`usePolling`, every two seconds) runs only while the battle is alive, stops in the background and when the
+ * The poll (`usePolling`, every 5 s for an invitation, 3 s in the room, 2 s in the countdown and the match) runs only while the battle is alive, stops in the background and when the
  * screen is left, and reads at once on return; the screen is also woken at the moments the server moves the battle on
  * (the start, the deadline of a round and its grace, the end of the pause, the end of the wait for an absent opponent), so that a round
  * does not begin two seconds late and the strip does not stand at "0".
@@ -120,7 +120,7 @@ onBeforeUnmount(() => {
   roundAudio.revoke()
 })
 
-usePolling(() => store.tick(), { enabled: computed(() => store.polling) })
+usePolling(() => store.tick(), { enabled: computed(() => store.polling), intervalMs: () => store.pollIntervalMs })
 // The end of a battle: the other side may offer a rematch in the next seconds, so the result is read again, slowly.
 usePolling(() => store.refreshResult(), { enabled: computed(() => store.watchingResult), intervalMs: 5000 })
 

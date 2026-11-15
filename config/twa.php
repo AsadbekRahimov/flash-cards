@@ -46,6 +46,14 @@ return [
         'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
 
         /**
+         * `GET /api/twa/tts` synthesizes inside an API worker: short timeouts and a cap on simultaneous syntheses
+         * (a refusal is the same 503 as an unavailable service). The long `timeout` above stays for pre-generation jobs.
+         */
+        'live_timeout' => (int) env('TTS_LIVE_TIMEOUT', 3),
+        'live_connect_timeout' => (int) env('TTS_LIVE_CONNECT_TIMEOUT', 2),
+        'live_concurrency' => (int) env('TTS_LIVE_CONCURRENCY', 2),
+
+        /**
          * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
          * on the `public` disk. Bump `audio_version` to re-voice the whole library
          * (new hash -> new files; `php artisan audio:pregenerate <course>`).

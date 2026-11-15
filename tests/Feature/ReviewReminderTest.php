@@ -89,7 +89,7 @@ it('sends "N words to review" with the TWA button to the Today screen and logs i
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(777001)
-        ->and($this->tg->sent[0]['text'])->toBe('Пора повторить 5 слов в LexiFlow.')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=reminder');
 
@@ -111,7 +111,7 @@ it('reminds about a single due word — the threshold is 1 (docs/12 §7.5)', fun
     rmDue($learner, 1);
 
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe('Пора повторить 1 слово в LexiFlow.');
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings");
 });
 
 it('warns about the streak when nothing is due but yesterday\'s streak has not been extended today', function (): void {
@@ -119,7 +119,7 @@ it('warns about the streak when nothing is due but yesterday\'s streak has not b
     rmStreakAtRisk($learner, 3);
 
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe('Ваша серия — 3 дня. Выполните цель дня, чтобы не прервать её.')
+        ->and($this->tg->sent[0]['text'])->toBe("Ваша серия — 3 дня. Выполните цель дня, чтобы не прервать её.\n\nИзменить время или отключить: /settings")
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=reminder');
 
     $log = NotificationLog::query()->where('learner_id', $learner->id)->sole();
@@ -139,7 +139,7 @@ it('prefers the review text over the streak warning when both apply', function (
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe('Пора повторить 2 слова в LexiFlow.')
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->value('type'))->toBe('review_reminder');
 });
 
@@ -161,13 +161,13 @@ it('speaks the learner\'s interface language', function (): void {
     rmDue($learner, 21);
 
     rmSend($learner);
-    expect($this->tg->sent[0]['text'])->toBe("LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.")
+    expect($this->tg->sent[0]['text'])->toBe("LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings")
         ->and($this->tg->sent[0]['button'])->toBe("LexiFlow'ni ochish");
 
     $streak = rmLearner(['telegram_user_id' => 777004, 'interface_locale' => 'uz']);
     rmStreakAtRisk($streak, 7);
     rmSend($streak);
-    expect($this->tg->sent[1]['text'])->toBe("Ketma-ket 7 kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.");
+    expect($this->tg->sent[1]['text'])->toBe("Ketma-ket 7 kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
 });
 
 it('reminds a learner who never finished the onboarding — the DM decides, not the state', function (): void {
@@ -409,7 +409,7 @@ it('goes from the dispatcher through the job to a Telegram message', function ()
 
     expect($report->queued)->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe('Пора повторить 2 слова в LexiFlow.')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and($learner->fresh()?->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 });
 
@@ -441,7 +441,7 @@ it('ignores fresh minute-step learning cards when counting due words', function 
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe('Пора повторить 4 слова в LexiFlow.')
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 4 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and(app(LearnerStatsService::class)->dueCount($learner))->toBe(4);
 });
 
@@ -489,7 +489,7 @@ it('counts (re)learning cards abandoned longer than abandoned_after_hours, but n
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe('Пора повторить 5 слов в LexiFlow.')
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
         // Same number the learner sees in GET /me and on the Today screen.
         ->and(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
@@ -507,7 +507,7 @@ it('does not count a relearning card abandoned less than abandoned_after_hours a
     // Two hours later the same card crosses the 12h line.
     $this->travel(2)->hours();
     expect(rmSend($learner, CarbonImmutable::now()->subMinutes(5)))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe('Пора повторить 1 слово в LexiFlow.')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and($abandoned->fresh()?->state)->toBe(RepetitionState::Relearning);
 });
 
@@ -543,7 +543,7 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
         ->toBe([RepetitionState::Relearning]);
 
     rmSend($learner);
-    expect($this->tg->sent[0]['text'])->toBe('Пора повторить 5 слов в LexiFlow.')
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
         ->and(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
 

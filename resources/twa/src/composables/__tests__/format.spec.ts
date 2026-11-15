@@ -97,7 +97,8 @@ describe('formatDate', () => {
     fresh.formatDate(NOON, 'dayMonth', 'uz')
     fresh.formatDate(NOON, 'dayMonth', 'uz')
 
-    expect(created).toEqual(['ru', 'ru', 'uz-Latn'])
+    // The second 'uz-Latn' is the one question whether this browser knows Uzbek at all.
+    expect(created).toEqual(['ru', 'ru', 'uz-Latn', 'uz-Latn'])
   })
 
   it('builds one Intl formatter per zone as well, also for a zone it does not know', async () => {
@@ -184,5 +185,30 @@ describe('formatNumber', () => {
     fresh.formatNumber(4, 'uz')
 
     expect(created).toEqual(['ru', 'uz-Latn'])
+  })
+})
+
+describe('formatDate — Uzbek in a browser whose Intl has no Uzbek data', () => {
+  afterEach(async () => {
+    vi.restoreAllMocks()
+    ;(await import('../format')).resetUzbekProbe()
+  })
+
+  it('names the day and the month itself instead of printing "M11 10, Tue"', async () => {
+    const { formatDate: format, resetUzbekProbe } = await import('../format')
+    const Native = Intl.DateTimeFormat
+    // The browser of the finding: asked for uz-Latn it answers with the root locale ("M11").
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (tag?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions) {
+      return new Native(tag === 'uz-Latn' ? 'en-GB' : tag, options) as never
+    })
+    resetUzbekProbe()
+
+    expect(format('2026-11-10', 'weekdayDayMonth', 'uz')).toBe('seshanba, 10-noyabr')
+    expect(format('2026-11-10', 'dayMonth', 'uz')).toBe('10-noyabr')
+    expect(format('2026-11-10', 'dayMonthShortYear', 'uz')).toBe('10-noy, 2026')
+    expect(format('2026-11-10T18:05:00+05:00', 'dayMonthShortTime', 'uz', 'Asia/Tashkent')).toBe('10-noy, 18:05')
+    expect(format('2026-11-10T18:05:00+05:00', 'weekdayTime', 'uz', 'Asia/Tashkent')).toBe('Sesh 18:05')
+    // Russian is untouched.
+    expect(format('2026-11-10', 'dayMonth', 'ru')).toBe('10 ноября')
   })
 })

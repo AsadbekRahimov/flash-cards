@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Learning\DTO\CardPick;
 use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\RepetitionWithWord;
@@ -16,6 +17,7 @@ use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -54,8 +56,9 @@ use Illuminate\Support\Facades\DB;
  * The hint narrows the candidate query to that lesson - it does not replace it: the narrowed statement runs under the
  * same learner lock with the same quota subquery, and the database still decides that the word is unseen and active,
  * the course available and the quota not spent (docs/19 §3 rule 9; the cached thing is where to look, not what to
- * serve). An empty narrowed result - the lesson is finished, gone or someone else's - falls back to the full query,
- * whose finding is written back after the commit. A cached "nothing left" skips the transaction altogether.
+ * serve). An empty narrowed result - the lesson is finished, gone or someone else's, or every word in reach there is
+ * held back by a confusable one (docs/06 §12.5) - falls back to the full query, whose finding is written back after the
+ * commit: the lesson of its first candidate, served or held back. A cached "nothing left" skips the transaction altogether.
  *
  * `ahead` is true only for step 3: that is the only path that serves a card
  * with a live ticket (a card that later became due is served as due, `ahead`
@@ -71,6 +74,7 @@ final class CardPicker
     public function __construct(
         private readonly LearningPolicy $policy,
         private readonly NewWordFrontier $frontier,
+        private readonly LadderPolicy $ladder,
     ) {}
 
     public function pickNext(
@@ -162,16 +166,19 @@ final class CardPicker
             $new = null;
             $lesson = $hint?->lesson();
             if ($lesson !== null) {
-                /** @var Word|null $new */
-                $new = $scope->narrowCandidatesToLesson($candidates, $lesson)->first();
+                // Only a word that is NOT held back is taken from the hinted lesson: when everything in reach there waits
+                // for a confusable word, the full walk below decides, exactly as it would without a hint.
+                [, $new] = $this->firstUnblocked($learnerId, $scope, $scope->narrowCandidatesToLesson($candidates, $lesson), $now);
             }
 
             if ($new === null) {
-                // No hint, or the hinted lesson has nothing left for this learner (finished, deactivated, moved,
-                // deleted - or the hint was stale): the full walk, as before, and its finding is the next hint.
-                /** @var Word|null $new */
-                $new = $candidates->first();
-                $frontier = $new === null ? NewWordFrontier::NONE_LEFT : (int) $new->lesson_id;
+                // No hint, or the hinted lesson has nothing to serve to this learner (finished, deactivated, moved,
+                // deleted, held back - or the hint was stale): the full walk, as before, and its finding is the next
+                // hint. The hint is the lesson of the FIRST candidate of the study order, not of the served one: a word
+                // held back by a confusable is still unseen, and a hint past its lesson would hide it.
+                [$first, $free] = $this->firstUnblocked($learnerId, $scope, $candidates, $now);
+                $new = $free ?? $first;
+                $frontier = $first === null ? NewWordFrontier::NONE_LEFT : (int) $first->lesson_id;
             }
 
             if ($new === null) {
@@ -214,6 +221,86 @@ final class CardPicker
 
         /** @var array{0: CardPick|null, 1: bool} $result */
         return $result;
+    }
+
+    /**
+     * The first candidate that is not held back by a confusable word (docs/06 §12.5): a word whose `meta.confusable_with`
+     * names a word introduced to the learner within `confusables.window_hours`, or that is named by such a word, waits —
+     * the next candidate of the study order goes first (the lesson order is kept otherwise; the word comes the next day or
+     * at the end of the portion). The look-ahead is `confusables.lookahead` rows of the SAME statement that used to fetch
+     * one; the recent words are read only when a candidate carries a mark, so a course without marks costs nothing more.
+     * When every candidate in reach is held back, the caller serves the first one anyway: a confusable pair is worse than
+     * nothing only for the same day, not for the lesson. Group lessons follow the teacher's lesson as it is.
+     *
+     * Both words are returned because they answer different questions: the first candidate of the study order is where
+     * the learner's unseen words begin (the frontier hint, {@see NewWordFrontier}), the free one is what to serve.
+     *
+     * @param  Builder<Word>  $candidates
+     * @return array{0: Word|null, 1: Word|null} [the first candidate, the first candidate that is not held back]
+     */
+    private function firstUnblocked(int $learnerId, TrainingScope $scope, Builder $candidates, CarbonImmutable $now): array
+    {
+        if (! $this->ladder->confusablesEnabled || $scope->isGroupLesson()) {
+            /** @var Word|null $first */
+            $first = $candidates->first();
+
+            return [$first, $first];
+        }
+
+        /** @var list<Word> $rows */
+        $rows = $candidates->limit($this->ladder->confusablesLookahead)->get()->all();
+        if ($rows === []) {
+            return [null, null];
+        }
+
+        $marked = false;
+        foreach ($rows as $row) {
+            if ($row->confusableWith() !== []) {
+                $marked = true;
+                break;
+            }
+        }
+        if (! $marked) {
+            return [$rows[0], $rows[0]];
+        }
+
+        // The words introduced lately, with their own marks (the pair may be marked on either side).
+        $recent = [];
+        $recentMarks = [];
+        $rowsRecent = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->where('word_repetitions.learner_id', $learnerId)
+            ->where('word_repetitions.created_at', '>=', $now->subHours($this->ladder->confusablesWindowHours))
+            ->get(['words.word', 'words.meta']);
+        foreach ($rowsRecent as $r) {
+            $text = mb_strtolower(trim((string) $r->word));
+            $recent[$text] = true;
+            $meta = is_string($r->meta) ? json_decode($r->meta, true) : $r->meta;
+            foreach (is_array($meta) && is_array($meta['confusable_with'] ?? null) ? $meta['confusable_with'] : [] as $other) {
+                if (is_string($other)) {
+                    $recentMarks[mb_strtolower(trim($other))] = true;
+                }
+            }
+        }
+
+        foreach ($rows as $row) {
+            $text = mb_strtolower(trim($row->word));
+            if (isset($recentMarks[$text])) {
+                continue;
+            }
+            $blocked = false;
+            foreach ($row->confusableWith() as $other) {
+                if (isset($recent[$other])) {
+                    $blocked = true;
+                    break;
+                }
+            }
+            if (! $blocked) {
+                return [$rows[0], $row];
+            }
+        }
+
+        return [$rows[0], null];
     }
 
     /**

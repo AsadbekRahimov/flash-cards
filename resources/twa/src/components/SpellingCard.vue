@@ -28,6 +28,7 @@ const answerLength = computed((): number | null => props.card.prompt?.answer_len
   <div class="flex flex-1 flex-col" data-testid="spelling-card">
     <div class="flex flex-1 flex-col px-4 pt-4 pb-4">
       <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+        <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
         <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.spelling.title') }}</p>
         <h2 class="text-3xl leading-9 font-bold break-words" data-testid="front">{{ front }}</h2>
         <p v-if="card.translation_fallback" class="text-[13px] leading-[18px] text-tg-hint" data-testid="translation-fallback">

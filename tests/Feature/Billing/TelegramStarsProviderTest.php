@@ -99,7 +99,7 @@ it('creates a monthly Stars subscription invoice: payload = token, XTR, one pric
         ->and($invoice['title'])->toBe('LexiFlow Pro — 1 oy')
         ->and(mb_strlen($invoice['title']))->toBeLessThanOrEqual(32)
         ->and(mb_strlen($invoice['description']))->toBeLessThanOrEqual(255)
-        ->and($invoice['description'])->toContain('Har 30 kunda avtomatik yangilanadi');
+        ->and($invoice['description'])->toContain('Har 30 kunda avtomatik uzayadi');
 
     expect($order->refresh()->provider_ref)->toBe('https://t.me/$fake-invoice-1')
         ->and($order->checkoutLink()?->kind)->toBe('invoice_link')

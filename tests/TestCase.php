@@ -10,6 +10,7 @@ use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -49,6 +50,11 @@ abstract class TestCase extends BaseTestCase
         // a Filament page rendered by one test would get Livewire's <script> injected into every later HTML response
         // of the same process, the script-free public pages included (see LivewireAssetLeakTest).
         Livewire::flushState();
+
+        // The host pinning (`trustHosts`) stores its patterns in a static of Request once a request runs in the production
+        // environment (the CSRF and Payme tests do): without the reset every later test of the process that sends
+        // a foreign Host (PublicSiteTest) would get a 400.
+        Request::setTrustedHosts([]);
 
         // Nothing a test renders or saves (achievement cards on a sync queue, audio) may land on the real public disk.
         Storage::fake('public');

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Support\TrustedHosts;
+
 return [
 
     /*
@@ -61,6 +63,12 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    /*
+    | Host names besides the host of `url` that the application answers to in production (comma-separated, see
+    | App\Support\TrustedHosts); any other Host header is refused with 400.
+    */
+    'trusted_hosts' => TrustedHosts::fromEnv(env('APP_TRUSTED_HOSTS')),
 
     /*
     |--------------------------------------------------------------------------

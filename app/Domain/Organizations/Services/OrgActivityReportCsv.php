@@ -79,7 +79,7 @@ final class OrgActivityReportCsv
     }
 
     /** @param  resource  $out */
-    private function bom($out): void
+    public function bom($out): void
     {
         fwrite($out, "\xEF\xBB\xBF");
     }
@@ -88,7 +88,7 @@ final class OrgActivityReportCsv
      * @param  resource  $out
      * @param  list<string|int>  $cells
      */
-    private function line($out, array $cells): void
+    public function line($out, array $cells): void
     {
         $safe = array_map(function (string|int $cell): string {
             $cell = (string) $cell;

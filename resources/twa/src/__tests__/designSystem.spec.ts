@@ -356,8 +356,8 @@ describe('My caravan and the boosters: touch targets', () => {
     for (const button of buttons) expect(button).toMatch(/\bmin-h-11\b/)
   })
 
-  it('makes the booster button 48 px and the "My caravan" button of the map 44 px', () => {
-    expect(row).toMatch(/<button[^>]*class="[^"]*\bsize-12\b/s)
+  it('makes the booster button 48 px high (an icon with its name under it) and the "My caravan" button of the map 44 px', () => {
+    expect(row).toMatch(/<button[^>]*class="[^"]*\bmin-h-12\b/s)
     expect(sources.get('views/GameMapView.vue')).toMatch(/<button[^>]*class="[^"]*\bmin-h-11\b[^"]*"[^>]*data-testid="caravan-btn"/s)
   })
 

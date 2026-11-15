@@ -69,30 +69,37 @@ describe('SettingsView — exercises', () => {
   })
 
   it('shows one switch per exercise type with the server values', async () => {
-    const w = await render(settingsFixture({ exercises: { reverse: true, audio: false, spelling: true, gap_fill: false } }))
+    const w = await render(settingsFixture({ exercises: { meaning: true, reverse: true, audio: false, spelling: true, gap_fill: false } }))
 
+    expect(isOn(w, 'meaning')).toBe(true)
     expect(isOn(w, 'reverse')).toBe(true)
     expect(isOn(w, 'audio')).toBe(false)
     expect(isOn(w, 'spelling')).toBe(true)
     expect(isOn(w, 'gap_fill')).toBe(false)
-    for (const key of ['reverse', 'audio', 'spelling', 'gap_fill']) {
+    for (const key of ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill']) {
       expect(toggle(w, key).attributes('role'), key).toBe('switch')
     }
     expect(w.get('[data-testid=exercises-card]').text()).toContain('Написание слова')
   })
 
-  it('names them plainly, in display order, and marks the two that need Pro with a chip', async () => {
+  it('names them plainly, in the order of the ladder, and marks the two that need Pro with a chip', async () => {
     const w = await render()
 
     const card = w.get('[data-testid=exercises-card]')
-    // The chip is a span of its own, so its text follows the name without a space.
+    // The chip is a span of its own, so its text follows the name without a space; the meaning row carries its hint.
     expect(card.findAll('[data-testid^=exercise-row-]').map((row) => row.text().replace(/Pro$/, ''))).toEqual([
+      'Выбор значенияСлово → перевод из четырёх вариантов',
       'Перевод → слово',
       'На слух',
       'Написание слова',
       'Пропуск в примере',
     ])
-    for (const key of ['reverse', 'audio']) {
+    expect(card.get('[data-testid=exercise-hint-meaning]').text()).toBe('Слово → перевод из четырёх вариантов')
+    expect(card.get('[data-testid=exercise-hint-meaning]').classes()).toContain('text-tg-hint')
+    for (const key of ['reverse', 'audio', 'spelling', 'gap_fill']) {
+      expect(card.get(`[data-testid=exercise-row-${key}]`).find('[data-testid^=exercise-hint-]').exists(), key).toBe(false)
+    }
+    for (const key of ['meaning', 'reverse', 'audio']) {
       expect(card.get(`[data-testid=exercise-row-${key}]`).find('[data-testid=exercise-pro]').exists(), key).toBe(false)
     }
     for (const key of ['spelling', 'gap_fill']) {
@@ -112,14 +119,31 @@ describe('SettingsView — exercises', () => {
   it('names each switch for a screen reader', async () => {
     const w = await render()
 
+    expect(toggle(w, 'meaning').attributes('aria-label')).toBe('Выбор значения')
     expect(toggle(w, 'audio').attributes('aria-label')).toBe('На слух')
     expect(toggle(w, 'gap_fill').attributes('aria-label')).toBe('Пропуск в примере')
+  })
+
+  it('switches the meaning exercise off and on like the others, with a partial patch', async () => {
+    const w = await render()
+    vi.mocked(api.me.updateSettings).mockResolvedValue(
+      me(settingsFixture({ exercises: { meaning: false, reverse: true, audio: true, spelling: true, gap_fill: true } })),
+    )
+
+    await toggle(w, 'meaning').trigger('click')
+    await flushPromises()
+
+    expect(api.me.updateSettings).toHaveBeenCalledWith({ exercises: { meaning: false } })
+    expect(isOn(w, 'meaning')).toBe(false)
+    expect(isOn(w, 'reverse')).toBe(true)
+    // Not a Pro exercise: no chip.
+    expect(w.get('[data-testid=exercise-row-meaning]').find('[data-testid=exercise-pro]').exists()).toBe(false)
   })
 
   it('saves a switch as a partial exercises patch, takes the server answer and says «Saved»', async () => {
     const w = await render()
     vi.mocked(api.me.updateSettings).mockResolvedValue(
-      me(settingsFixture({ exercises: { reverse: true, audio: false, spelling: true, gap_fill: true } })),
+      me(settingsFixture({ exercises: { meaning: true, reverse: true, audio: false, spelling: true, gap_fill: true } })),
     )
 
     await toggle(w, 'audio').trigger('click')
@@ -131,9 +155,9 @@ describe('SettingsView — exercises', () => {
   })
 
   it('switches an exercise on with the opposite value', async () => {
-    const w = await render(settingsFixture({ exercises: { reverse: true, audio: true, spelling: false, gap_fill: true } }))
+    const w = await render(settingsFixture({ exercises: { meaning: true, reverse: true, audio: true, spelling: false, gap_fill: true } }))
     vi.mocked(api.me.updateSettings).mockResolvedValue(
-      me(settingsFixture({ exercises: { reverse: true, audio: true, spelling: true, gap_fill: true } })),
+      me(settingsFixture({ exercises: { meaning: true, reverse: true, audio: true, spelling: true, gap_fill: true } })),
     )
 
     await toggle(w, 'spelling').trigger('click')
@@ -165,7 +189,7 @@ describe('SettingsView — exercises', () => {
     await toggle(w, 'audio').trigger('click')
     expect(toggle(w, 'reverse').attributes('disabled')).toBeDefined()
     await toggle(w, 'reverse').trigger('click')
-    finish(me(settingsFixture({ exercises: { reverse: true, audio: false, spelling: true, gap_fill: true } })))
+    finish(me(settingsFixture({ exercises: { meaning: true, reverse: true, audio: false, spelling: true, gap_fill: true } })))
     await flushPromises()
 
     expect(api.me.updateSettings).toHaveBeenCalledTimes(1)
@@ -180,5 +204,7 @@ describe('SettingsView — exercises', () => {
     expect(w.get('[data-testid=exercises-card]').text()).toContain("«So'z → tarjima» kartochkalari doim yoqilgan")
     expect(w.get('[data-testid=exercise-row-reverse]').text()).toBe("Tarjima → so'z")
     expect(w.get('[data-testid=exercise-row-audio]').text()).toBe('Eshitib')
+    expect(w.get('[data-testid=exercise-row-meaning]').text()).toBe("Ma'noni tanlashSo'z → to'rtta variantdan tarjima")
+    expect(toggle(w, 'meaning').attributes('aria-label')).toBe("Ma'noni tanlash")
   })
 })

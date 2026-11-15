@@ -103,7 +103,7 @@ it('accepts /promo@bot CODE', function (): void {
 it('refuses a blocked learner without redeeming', function (): void {
     Learner::factory()->create(['telegram_user_id' => 555, 'blocked_at' => now()]);
     PromoCode::factory()->create(['code' => 'BLOCKED']);
-    $this->api->shouldReceive('sendMessage')->once()->with(555, 'Доступ к аккаунту ограничен. Обратитесь в поддержку.');
+    $this->api->shouldReceive('sendMessage')->once()->with(555, 'Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport.');
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo BLOCKED'));
 

@@ -15,14 +15,15 @@ final readonly class LearnerExerciseSettings
 {
     public const META_KEY = 'exercises';
 
-    /** @var list<string> the keys of `PATCH /me/settings {exercises}` */
-    public const KEYS = ['reverse', 'audio', 'spelling', 'gap_fill'];
+    /** @var list<string> the keys of `PATCH /me/settings {exercises}`, in the order of the ladder (docs/06 §12.1) */
+    public const KEYS = ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill'];
 
     public function __construct(
         public bool $reverse = true,
         public bool $audio = true,
         public bool $spelling = true,
         public bool $gapFill = true,
+        public bool $meaning = true,
     ) {}
 
     public static function fromLearner(Learner $learner): self
@@ -40,13 +41,15 @@ final readonly class LearnerExerciseSettings
             audio: ($raw['audio'] ?? true) !== false,
             spelling: ($raw['spelling'] ?? true) !== false,
             gapFill: ($raw['gap_fill'] ?? true) !== false,
+            meaning: ($raw['meaning'] ?? true) !== false,
         );
     }
 
     public function allows(ExerciseType $type): bool
     {
         return match ($type) {
-            ExerciseType::Flash => true,
+            ExerciseType::Flash, ExerciseType::Pretest => true,
+            ExerciseType::Meaning => $this->meaning,
             ExerciseType::Reverse => $this->reverse,
             ExerciseType::Audio => $this->audio,
             ExerciseType::Spelling => $this->spelling,
@@ -54,10 +57,11 @@ final readonly class LearnerExerciseSettings
         };
     }
 
-    /** @return array{reverse: bool, audio: bool, spelling: bool, gap_fill: bool} */
+    /** @return array{meaning: bool, reverse: bool, audio: bool, spelling: bool, gap_fill: bool} */
     public function toArray(): array
     {
         return [
+            'meaning' => $this->meaning,
             'reverse' => $this->reverse,
             'audio' => $this->audio,
             'spelling' => $this->spelling,

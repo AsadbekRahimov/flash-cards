@@ -74,10 +74,10 @@ async function render(props: { limitHit?: PracticeLimitHit | null; reason?: 'pra
 const lead = (w: Awaited<ReturnType<typeof render>>) => w.get('[data-testid=paywall-lead]').text()
 
 /** What the end of the sale adds after the reason, in each mode: `Pro opens soon`, or what Pro gives. */
-const SOON_RU = 'Pro скоро откроется.'
+const SOON_RU = 'Оплата откроется позже — мы сообщим в боте.'
 const SALE_RU = 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
-const SOON_UZ = 'Pro tez orada ochiladi.'
-const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, ketma-ketlik uchun zaxira va sinov imtihonlari."
+const SOON_UZ = "To'lov keyinroq ochiladi — botda xabar beramiz."
+const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, zaxira kunlar va sinov imtihonlari."
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -105,7 +105,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render()
 
-    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. ${SOON_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da mashq qilishingiz mumkin. ${SOON_UZ}`)
   })
 
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
@@ -118,7 +118,7 @@ describe('PaywallSheet — the end of the free practice', () => {
     setLocale('uz')
     const w = await render({}, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul mashg'ulotlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
   })
 
   it('quotes the limit of the refusal twice, never "3 of 2": a limit that was lowered meanwhile is still a limit', async () => {
@@ -314,7 +314,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
   it('is the same sheet otherwise: the title, what Free gives, the promo code, "Got it"', async () => {
     const w = await render({ limitHit: NO_BATTLES })
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
@@ -410,7 +410,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
   it('is the same sheet: the title, what Free gives, what Pro gives, the promo code and "Got it"', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.findAll('[data-testid=benefit]').length).toBeGreaterThan(0)
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
@@ -502,7 +502,7 @@ describe('PaywallSheet — without the numbers of a refusal', () => {
   it('says what the sheet of the practice says: nothing is quoted that is not known', async () => {
     const w = await render({ limitHit: null })
 
-    expect(lead(w)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Pro скоро откроется.')
+    expect(lead(w)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Оплата откроется позже — мы сообщим в боте.')
   })
 
   it('names the battles only where there are battles: with them switched off the word on the practice is about the practice alone', async () => {
@@ -530,6 +530,6 @@ describe('PaywallSheet — without the numbers of a refusal', () => {
   it('the other reasons ignore the numbers they are given', async () => {
     const w = await render({ reason: 'practice', limitHit: SESSIONS })
 
-    expect(lead(w)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Pro скоро откроется.')
+    expect(lead(w)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Оплата откроется позже — мы сообщим в боте.')
   })
 })

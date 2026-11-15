@@ -12,6 +12,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\ExercisePromptBuilder;
 use App\Domain\Learning\Services\ExerciseSelector;
 use App\Domain\Learning\Services\ReviewSubmissionService;
+use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -30,8 +31,9 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 /*
- * Exercise types (docs/13 §2.5, §8.2; docs/06 §4.3; docs/04 A.3): the selector is deterministic, the
- * prompt carries what the screen needs, spelling / gap-fill are graded by the server and are Pro.
+ * Exercise types (docs/13 §2.5, §8.2; docs/06 §4.3, §12; docs/04 A.3): the selector is deterministic and climbs the
+ * ladder with the card's maturity, the prompt carries what the screen needs, spelling / gap-fill are graded by the
+ * server and are Pro. The ladder's own rules are in tests/Unit/ExerciseLadderTest.php.
  */
 
 function exHeaders(Learner $learner): array
@@ -44,7 +46,7 @@ function exHeaders(Learner $learner): array
  *
  * @return array{learner: Learner, lesson: Lesson, session: TrainingSession, words: list<Word>}
  */
-function exScenario(int $count = 1, int $repetitions = 3, bool $pro = false, array $wordAttributes = []): array
+function exScenario(int $count = 1, int $repetitions = 3, bool $pro = false, array $wordAttributes = [], int $intervalDays = 6): array
 {
     $learner = Learner::factory()->create();
     if ($pro) {
@@ -65,7 +67,7 @@ function exScenario(int $count = 1, int $repetitions = 3, bool $pro = false, arr
             'word_id' => $word->id,
             'state' => RepetitionState::Review->value,
             'repetitions' => $repetitions,
-            'interval_days' => 6,
+            'interval_days' => $intervalDays,
             'next_review_at' => now()->subHour(),
             'introduced_mode' => 'lesson',
         ]);
@@ -76,9 +78,9 @@ function exScenario(int $count = 1, int $repetitions = 3, bool $pro = false, arr
     return compact('learner', 'lesson', 'session', 'words');
 }
 
-function exRepetition(int $repetitions, RepetitionState $state = RepetitionState::Review): WordRepetition
+function exRepetition(int $repetitions, RepetitionState $state = RepetitionState::Review, int $intervalDays = 0): WordRepetition
 {
-    return new WordRepetition(['repetitions' => $repetitions, 'state' => $state->value]);
+    return new WordRepetition(['repetitions' => $repetitions, 'state' => $state->value, 'interval_days' => $intervalDays, 'meta' => []]);
 }
 
 function exWord(int $id, string $word = 'walk', ?string $example = 'They walked home.'): Word
@@ -107,63 +109,66 @@ describe('ExerciseSelector', function (): void {
             expect($this->selector->select(exRepetition(5, $state), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash);
         }
         expect($this->selector->select(exRepetition(0), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash)
-            ->and($this->selector->select(exRepetition(1), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash);
+            ->and($this->selector->select(exRepetition(1, intervalDays: 1), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Flash)
+            // The second pass asks for the meaning (docs/06 §12.1), the third for the word.
+            ->and($this->selector->select(exRepetition(2, intervalDays: 6), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Meaning);
     });
 
-    it('is deterministic: the same inputs always give the same type, and spreads over the three Free types', function (): void {
+    it('is deterministic: the same inputs always give the same type, and the recognition rung alternates reverse / audio', function (): void {
         $seen = [];
         for ($wordId = 1; $wordId <= 60; $wordId++) {
-            $first = $this->selector->select(exRepetition(2), exWord($wordId), Entitlement::free(), $this->all, 'lesson');
-            $again = $this->selector->select(exRepetition(2), exWord($wordId), Entitlement::free(), $this->all, 'lesson');
+            $first = $this->selector->select(exRepetition(3, intervalDays: 15), exWord($wordId), Entitlement::free(), $this->all, 'lesson');
+            $again = $this->selector->select(exRepetition(3, intervalDays: 15), exWord($wordId), Entitlement::free(), $this->all, 'lesson');
             expect($again)->toBe($first);
             $seen[$first->value] = true;
         }
 
-        expect(array_keys($seen))->toEqualCanonicalizing(['flash', 'reverse', 'audio']);
+        expect(array_keys($seen))->toEqualCanonicalizing(['reverse', 'audio']);
     });
 
-    it('never gives a server-graded exercise to Free, whatever the repetitions', function (): void {
+    it('never gives a typed exercise to Free, whatever the maturity (typed recall stays Pro by default)', function (): void {
         for ($reps = 2; $reps <= 12; $reps++) {
             for ($wordId = 1; $wordId <= 10; $wordId++) {
-                $type = $this->selector->select(exRepetition($reps), exWord($wordId), Entitlement::free(), $this->all, 'daily_review');
-                expect($type->serverGraded())->toBeFalse();
+                $type = $this->selector->select(exRepetition($reps, intervalDays: $reps * 10), exWord($wordId), Entitlement::free(), $this->all, 'daily_review');
+                expect($type->hidesWord())->toBeFalse()->and($type->rung())->toBeLessThan(LadderPolicy::RUNG_TYPED);
             }
         }
     });
 
-    it('gives Pro gap_fill every third pass when the example carries the word, else spelling', function (): void {
-        expect($this->selector->select(exRepetition(3), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::GapFill)
-            ->and($this->selector->select(exRepetition(6), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::GapFill)
-            ->and($this->selector->select(exRepetition(3), exWord(1, 'go', 'She went home.'), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Spelling)
-            ->and($this->selector->select(exRepetition(3), exWord(1, 'go', null), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Spelling);
+    it('asks Pro to type a mature card: gap_fill when the example carries the word, else spelling', function (): void {
+        // Parity (repetitions + word id) decides which typed exercise is preferred when both fit.
+        expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord(2), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::GapFill)
+            ->and($this->selector->select(exRepetition(4, intervalDays: 37), exWord(1), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Spelling)
+            ->and($this->selector->select(exRepetition(4, intervalDays: 37), exWord(2, 'go', 'She went home.'), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Spelling)
+            ->and($this->selector->select(exRepetition(4, intervalDays: 37), exWord(2, 'go', null), proEntitlement(), $this->all, 'lesson'))->toBe(ExerciseType::Spelling);
 
-        // Not a third pass: one of the client-graded types.
-        foreach ([2, 4, 5, 7] as $reps) {
-            expect($this->selector->select(exRepetition($reps), exWord(1), proEntitlement(), $this->all, 'lesson')->serverGraded())->toBeFalse();
+        // Below the typed threshold: one of the four-option types.
+        foreach ([3, 4, 5, 7] as $reps) {
+            expect($this->selector->select(exRepetition($reps, intervalDays: 15), exWord(1), proEntitlement(), $this->all, 'lesson')->serverGraded())->toBeFalse();
         }
     });
 
     it('respects the learner settings: a switched-off type is skipped, flash never is', function (): void {
         $noTyped = new LearnerExerciseSettings(spelling: false, gapFill: false);
-        expect($this->selector->select(exRepetition(3), exWord(1), proEntitlement(), $noTyped, 'lesson')->serverGraded())->toBeFalse();
+        expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord(1), proEntitlement(), $noTyped, 'lesson')->serverGraded())->toBeFalse();
 
         $noGap = new LearnerExerciseSettings(gapFill: false);
-        expect($this->selector->select(exRepetition(3), exWord(1), proEntitlement(), $noGap, 'lesson'))->toBe(ExerciseType::Spelling);
+        expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord(2), proEntitlement(), $noGap, 'lesson'))->toBe(ExerciseType::Spelling);
 
-        $onlyFlash = new LearnerExerciseSettings(false, false, false, false);
+        // The options off: the rung below (the meaning) takes the card; that off too: flash.
+        $onlyMeaning = new LearnerExerciseSettings(false, false, false, false);
+        $onlyFlash = new LearnerExerciseSettings(false, false, false, false, false);
         for ($wordId = 1; $wordId <= 20; $wordId++) {
-            expect($this->selector->select(exRepetition(3), exWord($wordId), proEntitlement(), $onlyFlash, 'lesson'))->toBe(ExerciseType::Flash);
+            expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $onlyMeaning, 'lesson'))->toBe(ExerciseType::Meaning)
+                ->and($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $onlyFlash, 'lesson'))->toBe(ExerciseType::Flash);
         }
     });
 
-    it('limits a group lesson to flash and reverse, even for Pro on a third pass', function (): void {
-        $seen = [];
+    it('limits a group lesson to flash and reverse, even for Pro on a mature card', function (): void {
         for ($wordId = 1; $wordId <= 40; $wordId++) {
-            $type = $this->selector->select(exRepetition(3), exWord($wordId), proEntitlement(), $this->all, 'group_lesson');
-            expect($type)->toBeIn([ExerciseType::Flash, ExerciseType::Reverse]);
-            $seen[$type->value] = true;
+            expect($this->selector->select(exRepetition(4, intervalDays: 37), exWord($wordId), proEntitlement(), $this->all, 'group_lesson'))->toBe(ExerciseType::Reverse);
+            expect($this->selector->select(exRepetition(1, intervalDays: 1), exWord($wordId), proEntitlement(), $this->all, 'group_lesson'))->toBe(ExerciseType::Flash);
         }
-        expect(array_keys($seen))->toEqualCanonicalizing(['flash', 'reverse']);
     });
 });
 
@@ -282,7 +287,7 @@ it('refuses both quality and answer in one request', function (): void {
 });
 
 it('serves spelling to Pro on the third pass, refuses quality and grades the typed answer itself', function (): void {
-    $s = exScenario(1, 3, pro: true, wordAttributes: ['word' => 'resilient', 'example' => 'A paraphrase without the word.']);
+    $s = exScenario(1, 3, pro: true, wordAttributes: ['word' => 'resilient', 'example' => 'A paraphrase without the word.'], intervalDays: 21);
     $headers = exHeaders($s['learner']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
@@ -311,18 +316,18 @@ it('serves spelling to Pro on the third pass, refuses quality and grades the typ
         ->assertOk();
 
     expect($response->json('graded'))->toBe(['quality' => 4, 'correct' => true, 'expected' => 'resilient'])
-        ->and($response->json('new_interval_days'))->toBeGreaterThan(6);
+        ->and($response->json('new_interval_days'))->toBeGreaterThan(21);
 
     $review = TrainingReview::query()->sole();
     expect($review->quality)->toBe(4)
         ->and($review->exercise)->toBe(ExerciseType::Spelling)
         ->and($review->answer_text)->toBe('Resiliant') // TrimStrings middleware; the grader normalizes the case
-        ->and($review->interval_before_days)->toBe(6)
+        ->and($review->interval_before_days)->toBe(21)
         ->and($review->scheduler)->toBe('sm2');
 });
 
 it('grades a wrong typed answer as a lapse (quality 1) and an empty answer as wrong', function (): void {
-    $s = exScenario(2, 3, pro: true, wordAttributes: ['example' => null]);
+    $s = exScenario(2, 3, pro: true, wordAttributes: ['example' => null], intervalDays: 21);
     $headers = exHeaders($s['learner']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
@@ -346,7 +351,7 @@ it('grades a wrong typed answer as a lapse (quality 1) and an empty answer as wr
 });
 
 it('cuts answer_text to 100 characters but grades the full text', function (): void {
-    $s = exScenario(1, 3, pro: true, wordAttributes: ['word' => 'resilient', 'example' => null]);
+    $s = exScenario(1, 3, pro: true, wordAttributes: ['word' => 'resilient', 'example' => null], intervalDays: 21);
     $long = str_repeat('a', 150);
 
     $this->withHeaders(exHeaders($s['learner']))
@@ -358,7 +363,11 @@ it('cuts answer_text to 100 characters but grades the full text', function (): v
 });
 
 it('serves gap_fill when the example carries the word and grades the form in the gap', function (): void {
-    $s = exScenario(1, 3, pro: true, wordAttributes: ['word' => 'walk', 'example' => 'They walked home late.']);
+    // An even (repetitions + word id) prefers gap_fill: the pass count is set to the parity of the word's id.
+    $s = exScenario(1, 4, pro: true, wordAttributes: ['word' => 'walk', 'example' => 'They walked home late.'], intervalDays: 21);
+    if ((int) $s['words'][0]->id % 2 !== 0) {
+        WordRepetition::query()->where('word_id', $s['words'][0]->id)->update(['repetitions' => 5]);
+    }
     $headers = exHeaders($s['learner']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
@@ -380,8 +389,8 @@ it('serves gap_fill when the example carries the word and grades the form in the
         ->and(TrainingReview::query()->sole()->exercise)->toBe(ExerciseType::GapFill);
 });
 
-it('never serves a Free learner a server-graded exercise, even on a third pass with an example', function (): void {
-    $s = exScenario(6, 3, wordAttributes: ['example' => null]);
+it('never serves a Free learner a server-graded exercise, even on a mature card with an example', function (): void {
+    $s = exScenario(6, 4, wordAttributes: ['example' => null], intervalDays: 37);
     $headers = exHeaders($s['learner']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
@@ -438,7 +447,8 @@ it('limits a group lesson to flash and reverse', function (): void {
             ->assertOk();
     }
 
-    expect(array_keys($types))->toEqualCanonicalizing(['flash', 'reverse']);
+    // Mature cards of a group lesson: the four English options (reverse) and nothing else; flash only without distractors.
+    expect(array_keys($types))->toBe(['reverse']);
 });
 
 it('leaves the SM-2 path of a self-graded card unchanged and records exercise = flash', function (): void {
@@ -460,15 +470,22 @@ it('exposes and updates the exercise settings through /me/settings (partial obje
     $headers = exHeaders($learner);
 
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => true]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => true]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['audio' => false]])->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => false, 'spelling' => true, 'gap_fill' => true]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => false, 'spelling' => true, 'gap_fill' => true]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['gap_fill' => false, 'audio' => true]])->assertOk()
-        ->assertJsonPath('settings.exercises', ['reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
 
     expect(LearnerExerciseSettings::fromLearner($learner->fresh() ?? $learner)->gapFill)->toBeFalse();
+
+    // The meaning exercise (docs/06 §12.1) is a switch like the others, on by default, for every plan.
+    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['meaning' => false]])->assertOk()
+        ->assertJsonPath('settings.exercises.meaning', false);
+    expect(LearnerExerciseSettings::fromLearner($learner->fresh() ?? $learner)->meaning)->toBeFalse();
+    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['meaning' => true]])->assertOk()
+        ->assertJsonPath('settings.exercises', ['meaning' => true, 'reverse' => true, 'audio' => true, 'spelling' => true, 'gap_fill' => false]);
 
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['audio' => 'no']])->assertStatus(422);
     $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['exercises' => ['flash' => false]])->assertStatus(422);

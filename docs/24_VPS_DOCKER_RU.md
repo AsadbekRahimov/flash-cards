@@ -144,7 +144,7 @@ bash deploy.sh $(git rev-parse origin/master)     # SHA зелёного ком�
 `pgbouncer` (первая сборка 10–15 минут), **первичный сертификат** (`certbot certonly --standalone` на порту 80 — поэтому серое
 облако и свободный порт 80), миграции мимо pgbouncer, `up -d`, проверки (`about`, список маршрутов `app-api`, настройки
 PostgreSQL), HTTPS-smoke (`/up`, `/api/twa/me` → 401, `/health/ready` — ждёт пульсы планировщика и очередей до 5 минут,
-`/twa/index.html`, `/build/manifest.json`). Любая ошибка — `exit 1` с подсказкой.
+`/twa/index.html`, `/build/manifest.json`). Любая ошибка — `exit 1` с подсказкой. Предупреждения (не остановки) о забытых настройках прода — §10.
 
 Сразу после:
 
@@ -155,8 +155,9 @@ $C ps                                                      # все healthy
 $C exec -T app php artisan db:seed --class=ReferenceDataSeeder --force
 $C exec -T app php artisan tinker                          # первый администратор:
 # >>> \App\Models\User::create(['name' => 'Admin', 'email' => 'admin@<домен>', 'password' => bcrypt('<пароль>')])->assignRole('admin');
-$C exec -T app php artisan telegram:set-webhook            # https://<домен>/telegram/webhook/<URL_SECRET>, секрет заголовка — HEADER_SECRET
-$C exec -T app php artisan telegram:setup-bot              # меню команд ru/uz и кнопка Mini App (TWA_BASE_URL уже https)
+# вебхук Telegram и меню команд / кнопка Mini App deploy.sh ставит сам (docker/telegram-setup.sh: telegram:setup-bot, telegram:set-webhook);
+# без TELEGRAM_BOT_TOKEN / TELEGRAM_WEBHOOK_URL / секретов шаг пропускается с WARNING, ошибка Telegram API - тоже только WARNING. Вручную:
+$C exec -T app sh docker/telegram-setup.sh                 # https://<домен>/telegram/webhook/<URL_SECRET>, секрет заголовка — HEADER_SECRET
 ```
 
 Проверить руками: `https://<домен>/admin/login` → вход → настройка 2FA; в Telegram боту `/start`, кнопка Mini App открывается;
@@ -241,8 +242,33 @@ cd /var/www/lexiflow && git fetch origin master && bash deploy.sh <sha-зелё�
 - [ ] §1 система, `deploy`, ufw 22/80/443, Docker из репозитория Docker
 - [ ] §2 `A`-запись с серым облаком, `dig` отдаёт IP сервера
 - [ ] §3 `.env` (двенадцать обязательных значений непустые, блок запуска из VPS_DEPLOY_GUIDE §10), `chmod 600`
-- [ ] §4 `deploy.sh <sha>` зелёный; роли, админ, 2FA; `telegram:set-webhook`, `telegram:setup-bot`; Mini App открывается
+- [ ] §4 `deploy.sh <sha>` зелёный (вебхук и меню бота он ставит сам — проверить, что нет `WARNING` про Telegram); роли, админ, 2FA; Mini App открывается
 - [ ] §5 k6 в php-fpm — числа записаны (docs/19 §8)
 - [ ] §6 `APP_SERVER=octane` + `APP_API_DB_PERSISTENT=false`, деплой, проверки, k6 повторно
 - [ ] §7 Cloudflare: панель (Full strict, Cache Rules, без AAAA) → `CLOUDFLARE_PROXY=true` → оранжевое облако → проверка → позже `CLOUDFLARE_ONLY=true`
+- [ ] §10 чек-лист запуска (allowlist Telegram, Payme, бэкапы, `APP_DEBUG`, хосты, Sentry)
 - [ ] `07_SECURITY.md` «перед открытием продаж», бэкапы (`make backup` — архив есть), Sentry DSN
+
+---
+
+## 10. Чек-лист запуска: что выключено по умолчанию
+
+Значения по умолчанию в `.env.example` рассчитаны на локальную разработку и **небезопасны** (или бесполезны) в проде. `deploy.sh` печатает
+`WARNING` на каждое из них до сборки, но не останавливается — смотреть вывод деплоя. Проверить на сервере (`grep -E '^(NAME1|NAME2)=' .env`):
+
+| Настройка | Значение в проде | Почему |
+|---|---|---|
+| `TELEGRAM_IP_ALLOWLIST_ENABLED` | `true` | вебхук принимает запросы только с адресов Telegram, а не с любого, кто узнал секрет URL и заголовка (аудит L3). Умолчание `false` нужно ngrok-у и локальной разработке |
+| `PAYME_ALLOW_TEST_KEY` | `false` | иначе принимается тестовый ключ Payme |
+| `PAYME_IP_ALLOWLIST`, `CLICK_IP_ALLOWLIST` | заданы, когда провайдер включён | иначе платёжные вебхуки открыты всем (проверяются подписью, но allowlist — второй рубеж) |
+| `BACKUP_ARCHIVE_PASSWORD` | задан (`openssl rand -base64 48`) | архивы шифруются; пустой — бэкап падает или лежит открытым |
+| `BACKUP_DISKS` | не только `local` (добавить `s3`) | бэкап на диске самого сервера пропадает вместе с сервером |
+| `APP_DEBUG` | `false` | страницы ошибок раскрывают код, пути, окружение (`ReadinessProbe::checkConfig` сообщает об этом) |
+| `APP_TRUSTED_HOSTS` | задан при нескольких доменах (основной + алиасы, www) | иначе Host подделывается: отравление ссылок (сброс пароля) |
+| `SENTRY_TRACES_SAMPLE_RATE` | `0` (не больше `0.01`) | трейсы каждого запроса API стоят CPU на горячем пути (аудит H1) |
+| `SENTRY_BREADCRUMBS_SQL_QUERIES_ENABLED` / `_CACHE_ENABLED` | `false` | то же |
+| юридические страницы, режим пейвола | заполнены (`SITE_LEGAL_*`, `BILLING_PAYWALL_MODE`) | блокер запуска, аудит §4 |
+
+`deploy.sh` проверяет из них: `TELEGRAM_IP_ALLOWLIST_ENABLED`, `PAYME_ALLOW_TEST_KEY`, `APP_DEBUG`, `BACKUP_ARCHIVE_PASSWORD`, `BACKUP_DISKS`,
+`SENTRY_TRACES_SAMPLE_RATE`. Остальное — руками по этой таблице.
+

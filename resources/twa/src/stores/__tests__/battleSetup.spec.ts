@@ -593,7 +593,7 @@ describe('battle setup — the invitation', () => {
 
     await setup.invite()
 
-    expect(setup.inviteError).toBe('Для баттла в этом формате не хватает материала. Выберите другой урок или формат.')
+    expect(setup.inviteError).toBe('Для баттла в этом режиме не хватает материала. Выберите другой урок или режим.')
     expect(api.battles.options).toHaveBeenCalledTimes(1)
     expect(setup.mode).toBe('collocation')
   })

@@ -327,7 +327,7 @@ describe('ReferralsView', () => {
     expect(wrapper.get('h1').text()).toBe("Do'stni taklif qilish")
     expect(text(wrapper, 'hero-title')).toBe("Sizga va do'stingizga — 7 kunlik Pro")
     expect(text(wrapper, 'rule')).toContain("Do'stingizga havolani yuboring")
-    expect(text(wrapper, 'rule')).toContain("Do'stingiz 14 kun ichida 3 kun shug'ullanadi (kuniga 10 ta kartochkadan)")
+    expect(text(wrapper, 'rule')).toContain("Do'stingiz 14 kun ichida 3 kun shug'ullanadi (kuniga kamida 10 ta kartochka)")
     expect(text(wrapper, 'rule')).toContain('Ikkalangiz ham 7 kunlik Pro olasiz')
     expect(text(wrapper, 'share-btn')).toBe('Ulashish')
     expect(text(wrapper, 'copy-btn')).toBe('Havolani nusxalash')

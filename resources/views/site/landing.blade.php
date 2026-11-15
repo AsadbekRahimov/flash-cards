@@ -24,9 +24,25 @@
 <section id="how" class="section">
     <div class="wrap">
         <h2>{{ __('landing.how.title', [], $locale) }}</h2>
-        <ol class="grid steps">
+        <p class="lead">{{ __('landing.how.lead', [], $locale) }}</p>
+
+        {{-- One word on its way through the reviews: the gaps between the points grow, like the intervals do. --}}
+        <div class="timeline">
+            <p class="timeline-word" lang="en">{{ __('landing.how.timeline.word', [], $locale) }}</p>
+            <ol class="timeline-points">
+                @foreach (__('landing.how.timeline.points', [], $locale) as $point)
+                    <li>
+                        <span class="timeline-when">{{ $point['when'] }}</span>
+                        <span class="timeline-what">{{ $point['what'] }}</span>
+                    </li>
+                @endforeach
+            </ol>
+            <p class="muted small">{{ __('landing.how.timeline.note', [], $locale) }}</p>
+        </div>
+
+        <ol class="steps">
             @foreach (__('landing.how.steps', [], $locale) as $step)
-                <li class="card step">
+                <li class="step">
                     <span class="step-num" aria-hidden="true">{{ $loop->iteration }}</span>
                     <h3>{{ $step['title'] }}</h3>
                     <p>{{ $step['text'] }}</p>
@@ -41,9 +57,9 @@
         <h2>{{ __('landing.features.title', [], $locale) }}</h2>
         {{-- One icon per item of landing.features.items, in the same order. --}}
         @php($featureIcons = ['chat', 'clock', 'speaker', 'globe'])
-        <ul class="grid features">
+        <ul class="features">
             @foreach (__('landing.features.items', [], $locale) as $item)
-                <li class="card feature">
+                <li class="feature">
                     <span class="feature-icon">@include('site._icon', ['name' => $featureIcons[$loop->index] ?? 'chat'])</span>
                     <div>
                         <h3>{{ $item['title'] }}</h3>
@@ -62,7 +78,7 @@
     <div class="wrap">
         <h2>{{ __('landing.pricing.title', [], $locale) }}</h2>
         <p class="muted">{{ __($open ? 'landing.pricing.subtitle_open' : 'landing.pricing.subtitle', [], $locale) }}</p>
-        <div class="grid plans">
+        <div class="plans">
             <article class="card plan">
                 <h3>{{ __('landing.pricing.free.name', [], $locale) }}</h3>
                 <p class="muted">{{ __('landing.pricing.free.tagline', [], $locale) }}</p>
@@ -95,25 +111,57 @@
                 <p class="muted small">{{ __($open ? 'landing.pricing.pro.note_open' : 'landing.pricing.pro.note', [], $locale) }}</p>
             </article>
 
-            <article class="card plan">
-                <h3>{{ __('landing.pricing.centers.name', [], $locale) }}</h3>
-                <p class="muted">{{ __('landing.pricing.centers.tagline', [], $locale) }}</p>
-                <ul class="ticks">
-                    @foreach (__('landing.pricing.centers.features', [], $locale) as $feature)
-                        <li>{{ $feature }}</li>
-                    @endforeach
-                </ul>
-                @if ($contact)
-                    <p>{{ __('landing.pricing.centers.contact', [], $locale) }}
-                        @if ($contact['href'])
-                            <a href="{{ $contact['href'] }}" rel="noopener">{{ $contact['label'] }}</a>
-                        @else
-                            {{ $contact['label'] }}
-                        @endif
-                    </p>
-                @endif
-            </article>
         </div>
+    </div>
+</section>
+{{-- $orgTiers (LandingPricing::orgTiers): the tiers of a learning center with their seats, from config. --}}
+<section id="teachers" class="section alt">
+    <div class="wrap teachers">
+        <div class="teachers-copy">
+            <h2>{{ __('landing.teachers.title', [], $locale) }}</h2>
+            <p class="lead">{{ __('landing.teachers.lead', [], $locale) }}</p>
+            <ol class="steps steps-stacked">
+                @foreach (__('landing.teachers.steps', [], $locale) as $step)
+                    <li class="step">
+                        <span class="step-num" aria-hidden="true">{{ $loop->iteration }}</span>
+                        <h3>{{ $step['title'] }}</h3>
+                        <p>{{ $step['text'] }}</p>
+                    </li>
+                @endforeach
+            </ol>
+        </div>
+
+        <article class="card centers">
+            <h3>{{ __('landing.teachers.tiers_title', [], $locale) }}</h3>
+            <p class="muted">{{ __('landing.pricing.centers.tagline', [], $locale) }}</p>
+            @if ($orgTiers['tiers'] !== [])
+                <dl class="tiers">
+                    @foreach ($orgTiers['tiers'] as $tier)
+                        <div>
+                            <dt>{{ $tier['name'] }}</dt>
+                            <dd>{{ $tier['seats'] }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+                <p class="muted small">{{ __('landing.teachers.seat_note', [], $locale) }}</p>
+            @endif
+            <ul class="ticks">
+                @foreach (__('landing.pricing.centers.features', [], $locale) as $feature)
+                    <li>{{ $feature }}</li>
+                @endforeach
+                @if ($orgTiers['discount'] > 0)
+                    <li>{{ __('landing.teachers.year_discount', ['percent' => $orgTiers['discount']], $locale) }}</li>
+                @endif
+            </ul>
+            <p class="centers-actions">
+                @if ($contact && $contact['href'])
+                    <a class="btn" href="{{ $contact['href'] }}" rel="noopener">{{ __('landing.teachers.cta', [], $locale) }}</a>
+                @elseif ($contact)
+                    <span>{{ __('landing.pricing.centers.contact', [], $locale) }} {{ $contact['label'] }}</span>
+                @endif
+                <a class="link-quiet" href="/org">{{ __('landing.teachers.login', [], $locale) }}</a>
+            </p>
+        </article>
     </div>
 </section>
 @endsection

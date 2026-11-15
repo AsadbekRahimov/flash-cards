@@ -79,10 +79,21 @@ class StaffResource extends OrgResource
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => __('org.teachers.role.'.$state))
                     ->color(fn (string $state): string => $state === OrganizationRole::Owner->value ? 'primary' : 'gray'),
-                Tables\Columns\IconColumn::make('telegram_linked')
+                // From the already loaded `user` row (`with('user')`): no lookup per row (docs/20 §1.3).
+                Tables\Columns\TextColumn::make('telegram_state')
                     ->label(__('org.teachers.columns.telegram'))
-                    ->boolean()
-                    ->state(fn (OrganizationUser $record): bool => $record->user?->telegram_user_id !== null),
+                    ->badge()
+                    ->state(fn (OrganizationUser $record): string => match (true) {
+                        $record->user?->hasVerifiedTelegram() === true => 'verified',
+                        $record->user?->telegram_user_id !== null => 'unverified',
+                        default => 'none',
+                    })
+                    ->formatStateUsing(fn (string $state): string => __('org.teachers.telegram.'.$state))
+                    ->color(fn (string $state): string => match ($state) {
+                        'verified' => 'success',
+                        'unverified' => 'warning',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('groups_count')
                     ->label(__('org.teachers.columns.groups')),
                 Tables\Columns\TextColumn::make('user.last_login_at')

@@ -405,7 +405,7 @@ describe('LeagueView', () => {
     expect(wrapper.get('h1').text()).toBe('Reyting')
     expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
-    expect(text(wrapper, 'my-place')).toBe("4 tadan 3-o'rin")
+    expect(text(wrapper, 'my-place')).toBe("4 ishtirokchi orasida 3-o'rin")
     expect(text(wrapper, 'my-points')).toBe('41 ochko')
     expect(text(wrapper, 'my-card')).toContain('Kumush')
     expect(text(wrapper, 'zone')).toBe('Xavfsiz zona')

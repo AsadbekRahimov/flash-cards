@@ -37,22 +37,7 @@ final class GroupBotAccessChecker
     /** Returns true when the warning was sent. */
     public function warnIfNotAdmin(TelegramGroup $group, ?int $botId = null): bool
     {
-        $botId ??= $this->members->botId();
-        if ($botId === null) {
-            Log::warning('telegram.group_bot_admin_check_skipped', ['chat_id' => $group->chat_id, 'reason' => 'bot_id_unknown']);
-
-            return false;
-        }
-
-        try {
-            $status = $this->members->status($group->chat_id, $botId, fn (): string => $this->telegram->getChatMemberStatus($group->chat_id, $botId));
-        } catch (TelegramApiException $e) {
-            Log::warning('telegram.group_bot_admin_check_failed', ['chat_id' => $group->chat_id, 'error' => $e->getMessage()]);
-
-            return false;
-        }
-
-        if (in_array($status, self::ADMIN_STATUSES, true)) {
+        if ($this->botIsAdmin($group, $botId) !== false) {
             return false;
         }
 
@@ -68,5 +53,26 @@ final class GroupBotAccessChecker
         }
 
         return true;
+    }
+
+    /** Whether the bot is an administrator of the group; null when that could not be found out (logged). */
+    public function botIsAdmin(TelegramGroup $group, ?int $botId = null): ?bool
+    {
+        $botId ??= $this->members->botId();
+        if ($botId === null) {
+            Log::warning('telegram.group_bot_admin_check_skipped', ['chat_id' => $group->chat_id, 'reason' => 'bot_id_unknown']);
+
+            return null;
+        }
+
+        try {
+            $status = $this->members->status($group->chat_id, $botId, fn (): string => $this->telegram->getChatMemberStatus($group->chat_id, $botId));
+        } catch (TelegramApiException $e) {
+            Log::warning('telegram.group_bot_admin_check_failed', ['chat_id' => $group->chat_id, 'error' => $e->getMessage()]);
+
+            return null;
+        }
+
+        return in_array($status, self::ADMIN_STATUSES, true);
     }
 }

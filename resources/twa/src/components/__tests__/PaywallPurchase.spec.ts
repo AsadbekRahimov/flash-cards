@@ -459,7 +459,7 @@ describe('PaywallSheet in purchase mode', () => {
     setLocale('uz')
     await w.get('[data-testid=pay-payme]').trigger('click')
     await flushPromises()
-    expect(w.get('[data-testid=purchase-error]').text()).toBe("Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.")
+    expect(w.get('[data-testid=purchase-error]').text()).toBe("Chegirmali oldingi to'lov hali yakunlanmagan — bir daqiqadan so'ng urinib ko'ring.")
   })
 
   it('shows a replaced order as information, not as an error, and follows the new order', async () => {
@@ -522,7 +522,7 @@ describe('PaywallSheet in purchase mode', () => {
     }))
     const w = await render()
 
-    expect(w.get('[data-testid=purchase-grace]').text()).toContain("Stars balansini to'ldiring")
+    expect(w.get('[data-testid=purchase-grace]').text()).toContain("Stars balansingizni to'ldiring")
     expect(w.find('[data-testid=pay-payme]').exists()).toBe(false)
     expect(w.find('[data-testid=paywall-review]').exists()).toBe(true) // reviews stay free of a payment
     expect(w.find('[data-testid=paywall-close]').exists()).toBe(true)
@@ -595,7 +595,7 @@ describe('PaywallSheet in purchase mode', () => {
       const w = await render()
 
       expect(w.get('[data-testid=paywall-title]').text()).toBe("Pro'ni uzaytirish")
-      expect(w.get('[data-testid=paywall-lead]').text()).toMatch(/^To'lov joriy Pro muddatiga qo'shiladi \(.*2026.*gacha\)\.$/)
+      expect(w.get('[data-testid=paywall-lead]').text()).toMatch(/^To'lovdan so'ng joriy Pro muddati \(.*2026.*gacha\) uzayadi\.$/)
       expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
     })
 
@@ -833,27 +833,27 @@ describe('PaywallSheet in purchase mode', () => {
     expect(payName(w, 'telegram_stars')).toBe('Telegram Stars')
     expect(w.get('[data-testid=period-year]').text()).toBe('Yil · −28%')
     expect(w.get('[data-testid=pay-method]').text()).toBe("To'lov usuli")
-    expect(w.get('[role=radiogroup]').attributes('aria-label')).toBe("To'lov muddati")
+    expect(w.get('[role=radiogroup]').attributes('aria-label')).toBe("Obuna muddati")
   })
 
   it('falls back to coming soon when the server says coming_soon, without asking for the catalog', async () => {
     vi.mocked(api.me.get).mockResolvedValue(me('coming_soon'))
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.find('[data-testid=purchase]').exists()).toBe(false)
     expect(api.billing.catalog).not.toHaveBeenCalled()
   })
 
   it('falls back to coming soon when the mode is purchase but nothing is for sale or the catalog cannot be loaded', async () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ items: [], providers: [] }))
-    expect((await render()).get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect((await render()).get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
 
     setActivePinia(createPinia())
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.mocked(api.billing.catalog).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
     const w = await render()
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.find('[data-testid=purchase]').exists()).toBe(false)
     warn.mockRestore()
   })

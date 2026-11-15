@@ -136,9 +136,96 @@ final class LearningCache
         return array_replace(array_fill_keys(array_keys($keys), 0), $counts);
     }
 
+    /**
+     * The first {@see ExercisePromptBuilder::POOL} + 1 active words of the lesson in `id` order, as plain rows (never models), for
+     * the distractors of reverse / audio cards: the card's own word is dropped by the caller. Dropped by {@see forgetLesson()}.
+     *
+     * @return list<array{id: int, word: string, translation: string}>
+     */
+    public function lessonDistractorPool(int $lessonId): array
+    {
+        /** @var list<array{id: int, word: string, translation: string}> $pool */
+        $pool = PureCache::store()->remember(
+            self::distractorsKey($lessonId),
+            self::LESSON_WORD_COUNT_TTL,
+            fn (): array => DB::table('words')
+                ->where('lesson_id', $lessonId)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->limit(ExercisePromptBuilder::POOL + 1)
+                ->get(['id', 'word', 'translation'])
+                ->map(static fn (object $row): array => [
+                    'id' => (int) $row->id,
+                    'word' => (string) $row->word,
+                    'translation' => (string) $row->translation,
+                ])
+                ->all(),
+        );
+
+        return $pool;
+    }
+
+    /**
+     * The additional examples of a word (`word_examples`, docs/06 §12.4) as plain rows in `position` order; an empty list
+     * is an entry too (most words have none, and the card must not query for them on every serve). Dropped by
+     * {@see forgetWordExamples()} after whatever writes the rows (the importer, the admin panel).
+     *
+     * @return list<array{text: string, translations: array<string, string>}>
+     */
+    public function wordExamples(int $wordId): array
+    {
+        /** @var list<array{text: string, translations: array<string, string>}> $rows */
+        $rows = PureCache::store()->remember(
+            self::examplesKey($wordId),
+            self::LESSON_WORD_COUNT_TTL,
+            static fn (): array => DB::table('word_examples')
+                ->where('word_id', $wordId)
+                ->orderBy('position')
+                ->get(['text', 'translations'])
+                ->map(static function (object $row): array {
+                    $translations = is_string($row->translations) ? json_decode($row->translations, true) : $row->translations;
+                    $map = [];
+                    foreach (is_array($translations) ? $translations : [] as $locale => $text) {
+                        if (is_string($text) && $text !== '') {
+                            $map[(string) $locale] = $text;
+                        }
+                    }
+
+                    return ['text' => (string) $row->text, 'translations' => $map];
+                })
+                ->all(),
+        );
+
+        return $rows;
+    }
+
+    /** @param  list<int>  $wordIds */
+    public function forgetWordExamples(array $wordIds): void
+    {
+        $keys = array_map(static fn (int $id): string => self::examplesKey($id), array_values(array_unique($wordIds)));
+        if ($keys !== []) {
+            PureCache::forgetMany($keys);
+        }
+    }
+
+    private static function examplesKey(int $wordId): string
+    {
+        return "word:examples:v1:{$wordId}";
+    }
+
     public function forgetLesson(Lesson $lesson): void
     {
-        PureCache::store()->forget("lesson:{$lesson->id}:word_count");
+        $this->forgetLessonId((int) $lesson->id);
+    }
+
+    public function forgetLessonId(int $lessonId): void
+    {
+        PureCache::forgetMany(["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId)]);
+    }
+
+    private static function distractorsKey(int $lessonId): string
+    {
+        return "lesson:{$lessonId}:distractors:v1";
     }
 
     public function forgetExam(ExamSession $session): void

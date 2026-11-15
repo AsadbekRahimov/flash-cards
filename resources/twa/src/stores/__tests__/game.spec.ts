@@ -252,7 +252,7 @@ describe('game store: the boss of a city (docs/05 §5b.8)', () => {
   it.each([
     ['forbidden', 403, 'game_pro_required', 'Это доступно в Pro.'],
     ['forbidden', 403, 'game_limit_reached', 'Бесплатные забеги на сегодня закончились.'],
-    ['conflict', 409, 'boss_not_ready', 'Босс пока не готов: пройдите больше стоянок.'],
+    ['conflict', 409, 'boss_not_ready', 'Хранитель пока не готов: пройдите больше стоянок.'],
     ['not_found', 404, 'stage_not_found', null],
   ] as const)('returns %s %i %s typed, with the text of the code', async (kind, status, code, text) => {
     vi.mocked(api.game.startRun).mockRejectedValue(apiError(kind, status, code))

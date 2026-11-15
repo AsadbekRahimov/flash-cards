@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Content\Services\WordContentEditor;
 use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\WordResource\Pages;
+use App\Filament\Resources\WordResource\RelationManagers\WordExamplesRelationManager;
 use App\Filament\Resources\WordResource\RelationManagers\WordTranslationsRelationManager;
 use App\Models\Word;
+use Closure;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Pages\PageRegistration;
@@ -85,6 +88,28 @@ class WordResource extends Resource
                 ->helperText(__('admin.words.fields.translation_help')),
             Forms\Components\Textarea::make('example')->label(__('admin.words.fields.example'))->rows(2)->columnSpanFull(),
             Forms\Components\TextInput::make('transcription')->label(__('admin.words.fields.transcription'))->maxLength(100),
+            Forms\Components\TagsInput::make('confusable_with')
+                ->label(__('admin.words.fields.confusable_with'))
+                ->helperText(__('admin.words.fields.confusable_with_help'))
+                ->placeholder(__('admin.words.fields.confusable_with_placeholder'))
+                ->splitKeys([',', 'Enter'])
+                ->nestedRecursiveRules(['string', 'max:100'])
+                ->rule('max:'.WordContentEditor::MAX_CONFUSABLE)
+                // Not a column: written by EditWord::afterSave through the content editor into `words.meta`.
+                ->dehydrated(false)
+                ->afterStateHydrated(function (Forms\Components\TagsInput $component, ?Word $record): void {
+                    $component->state($record?->confusableWith() ?? []);
+                })
+                ->rule(fn (?Word $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                    if ($record === null || ! is_array($value)) {
+                        return;
+                    }
+                    $unknown = app(WordContentEditor::class)->unknownConfusable($record, $value);
+                    if ($unknown !== []) {
+                        $fail(__('admin.words.fields.confusable_with_unknown', ['words' => implode(', ', $unknown)]));
+                    }
+                })
+                ->columnSpanFull(),
             Forms\Components\Toggle::make('is_active')->label(__('admin.words.fields.is_active'))->default(true),
         ]);
     }
@@ -129,7 +154,7 @@ class WordResource extends Resource
     /** @return array<int, class-string> */
     public static function getRelations(): array
     {
-        return [WordTranslationsRelationManager::class];
+        return [WordTranslationsRelationManager::class, WordExamplesRelationManager::class];
     }
 
     /** @return array<string, PageRegistration> */

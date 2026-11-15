@@ -62,7 +62,7 @@ class GameItemSeeder extends Seeder
             ['key' => 'camel_golden', 'slot' => ItemSlot::Camel, 'effect' => null, 'price' => 400, 'availability' => ItemAvailability::Exclusive,
                 'title' => ['ru' => 'Золотой верблюд', 'uz' => 'Oltin tuya'], 'description' => ['ru' => 'Верблюд эмира: только для Pro.', 'uz' => 'Amir tuyasi: faqat Pro uchun.'], 'asset' => 'camel_golden'],
             ['key' => 'carpet_plain', 'slot' => ItemSlot::Carpet, 'effect' => null, 'price' => 0, 'availability' => $base,
-                'title' => ['ru' => 'Простой ковёр', 'uz' => 'Oddiy gilam'], 'description' => ['ru' => 'Войлочный коврик на первую стоянку.', 'uz' => 'Birinchi to\'xtash uchun namat.'], 'asset' => 'carpet_plain'],
+                'title' => ['ru' => 'Простой ковёр', 'uz' => 'Oddiy gilam'], 'description' => ['ru' => 'Войлочный коврик на первую стоянку.', 'uz' => 'Birinchi bekat uchun namat.'], 'asset' => 'carpet_plain'],
             ['key' => 'carpet_bukhara', 'slot' => ItemSlot::Carpet, 'effect' => null, 'price' => 80, 'availability' => $base,
                 'title' => ['ru' => 'Бухарский ковёр', 'uz' => 'Buxoro gilami'], 'description' => ['ru' => 'Узор, который ткали сто лет.', 'uz' => 'Yuz yil to\'qilgan naqsh.'], 'asset' => 'carpet_bukhara'],
             ['key' => 'tent_nomad', 'slot' => ItemSlot::Tent, 'effect' => null, 'price' => 0, 'availability' => $base,
@@ -76,9 +76,9 @@ class GameItemSeeder extends Seeder
             ['key' => 'booster_hint', 'slot' => null, 'effect' => BoosterEffect::Hint, 'price' => 15, 'availability' => $base,
                 'title' => ['ru' => 'Подсказка', 'uz' => 'Maslahat'], 'description' => ['ru' => 'Убирает два неверных варианта или открывает первые две буквы.', 'uz' => 'Ikkita noto\'g\'ri variantni olib tashlaydi yoki dastlabki ikki harfni ochadi.'], 'asset' => 'booster_hint'],
             ['key' => 'booster_extra_flask', 'slot' => null, 'effect' => BoosterEffect::ExtraFlask, 'price' => 30, 'availability' => $base,
-                'title' => ['ru' => 'Запасная фляга', 'uz' => 'Zaxira surohi'], 'description' => ['ru' => 'Плюс одна фляга в забеге: ещё одна ошибка не страшна.', 'uz' => 'Yurishda yana bitta surohi: yana bir xato qo\'rqinchli emas.'], 'asset' => 'booster_extra_flask'],
+                'title' => ['ru' => 'Запасная фляга', 'uz' => 'Zaxira mesh'], 'description' => ['ru' => 'Плюс одна фляга в забеге: ещё одна ошибка не страшна.', 'uz' => 'Safarda yana bitta mesh: yana bir marta xato qilsangiz ham bo\'ladi.'], 'asset' => 'booster_extra_flask'],
             ['key' => 'booster_second_chance', 'slot' => null, 'effect' => BoosterEffect::SecondChance, 'price' => 40, 'availability' => $base,
-                'title' => ['ru' => 'Второй шанс', 'uz' => 'Ikkinchi imkon'], 'description' => ['ru' => 'Первая ошибка забега не стоит фляги.', 'uz' => 'Yurishdagi birinchi xato surohiga tushmaydi.'], 'asset' => 'booster_second_chance'],
+                'title' => ['ru' => 'Второй шанс', 'uz' => 'Ikkinchi imkon'], 'description' => ['ru' => 'Первая ошибка забега не стоит фляги.', 'uz' => 'Safardagi birinchi xato uchun mesh yo\'qolmaydi.'], 'asset' => 'booster_second_chance'],
         ];
     }
 }

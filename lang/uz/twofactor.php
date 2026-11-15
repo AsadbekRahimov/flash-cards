@@ -7,9 +7,9 @@ return [
     'confirm_button' => 'Tasdiqlash',
 
     'setup' => [
-        'title' => '2FA sozlash',
+        'title' => 'Kirishni ilovadagi kod bilan himoyalash',
         'heading' => 'Ikki bosqichli autentifikatsiyani yoqing',
-        'intro' => "QR-kodni Google Authenticator, 1Password yoki Authy ilovasida skanerlang, so'ng tasdiqlash uchun 6 xonali kodni kiriting.",
+        'intro' => "Telefoningizga bepul Google Authenticator ilovasini (yoki kirish kodlari uchun boshqa istalgan ilovani) o'rnating, undagi «+» tugmasini bosing va kamerani QR-kodga qarating. Keyin ilovadagi 6 ta raqamni kiriting.",
         'manual_key' => "Yoki kalitni qo'lda kiriting:",
         'code_label' => 'Ilovadagi kod',
     ],
@@ -17,15 +17,16 @@ return [
     'challenge' => [
         'title' => 'Ikki bosqichli tekshiruv',
         'heading' => 'Kodni kiriting',
-        'intro' => 'Autentifikator ilovasini oching va 6 xonali kodni kiriting. Yoki tiklash kodidan foydalaning.',
+        'intro' => 'Autentifikator ilovasini oching va 6 xonali kodni kiriting. Yoki zaxira koddan foydalaning.',
         'code_label' => 'Kod',
+        'lost' => "Telefon ham, kodlar ham yo'qoldimi? Qo'llab-quvvatlash xizmatiga yozing — tekshiruvdan so'ng kirish huquqini tiklaymiz.",
     ],
 
     'recovery' => [
-        'title' => 'Tiklash kodlari',
-        'heading' => "Tiklash kodlarini saqlab qo'ying",
+        'title' => 'Zaxira kodlar',
+        'heading' => "Zaxira kodlarni saqlab qo'ying",
         // `:emphasis` is replaced in the view by an escaped, <strong>-wrapped `intro_emphasis`.
-        'intro' => "Har bir kod :emphasis amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parollar menejerida saqlang.",
+        'intro' => "Telefoningizni yo'qotsangiz, ulardan biri kirishga yordam beradi. Har bir kod :emphasis ishlaydi. Kodlarni parollar menejerida saqlang.",
         'intro_emphasis' => 'faqat bir marta',
         'to_admin' => "→ Admin panelga o'tish",
         'to_org' => "→ Markaz kabinetiga o'tish",
@@ -33,7 +34,7 @@ return [
 
     'errors' => [
         'invalid_code' => "Kod noto'g'ri. Qayta urinib ko'ring.",
-        'invalid_code_or_recovery' => "Kod yoki tiklash kodi noto'g'ri.",
+        'invalid_code_or_recovery' => "Kod yoki zaxira kod noto'g'ri.",
         'too_many_attempts' => "Juda ko'p urinish. :seconds soniyadan keyin qayta urinib ko'ring.",
     ],
 

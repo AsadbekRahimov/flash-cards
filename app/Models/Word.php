@@ -49,6 +49,36 @@ class Word extends Model
         return $this->hasMany(WordTranslation::class);
     }
 
+    /** @return HasMany<WordExample, $this> */
+    public function examples(): HasMany
+    {
+        return $this->hasMany(WordExample::class)->orderBy('position');
+    }
+
+    /**
+     * The words (of the same course, by their English text) this word is mixed up with: `meta.confusable_with`
+     * (docs/06 §12.5). Lower-cased, trimmed, without duplicates; empty when the content has no mark.
+     *
+     * @return list<string>
+     */
+    public function confusableWith(): array
+    {
+        $meta = $this->getAttribute('meta');
+        $raw = is_array($meta) ? ($meta['confusable_with'] ?? null) : null;
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($raw as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                $out[mb_strtolower(trim($value))] = true;
+            }
+        }
+
+        return array_keys($out);
+    }
+
     /** @return HasMany<WordRepetition, $this> */
     public function repetitions(): HasMany
     {

@@ -1002,7 +1002,7 @@ describe('practice store — a request that may be repeated', () => {
 
     expect(store.pendingRequestId).toBeNull()
     expect(store.status).toBe('ready')
-    expect(store.actionError).toBe('Не получилось отправить ответ. Обновите экран и попробуйте ещё раз.')
+    expect(store.actionError).toBe('Не получилось отправить ответ. Попробуйте ещё раз.')
   })
 })
 
@@ -1070,7 +1070,7 @@ describe('practice store — answers that the server does not take', () => {
     expect(store.status).toBe('ready')
     expect(store.current?.id).toBe('eSent00001')
     expect(store.elementSeq).toBe(seq + 1)
-    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Закройте приложение и откройте снова.')
   })
 
   it('unknown_element_id when the session cannot be read again: the failure is the one shown', async () => {
@@ -1206,7 +1206,7 @@ describe('practice store — answers that the server does not take', () => {
     await store.answer({ order })
 
     expect(store.status).toBe('ready')
-    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Закройте приложение и откройте снова.')
   })
 })
 

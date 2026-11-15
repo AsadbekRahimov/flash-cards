@@ -300,7 +300,7 @@ describe('BattleRoom — Uzbek', () => {
     expect(room.get('h1').text()).toBe('Xona tayyor')
     expect(room.get('[data-testid=ready-btn]').text()).toBe('Tayyorman')
     expect(room.get('[data-testid=leave-btn]').text()).toBe('Chiqish')
-    expect(sent.get('h1').text()).toBe('Dilnoza kutilmoqda…')
+    expect(sent.get('h1').text()).toBe('Dilnoza javobi kutilmoqda…')
     expect(sent.get('[data-testid=cancel-btn]').text()).toBe('Bekor qilish')
   })
 })

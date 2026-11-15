@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Models\WordTranslation;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,10 @@ final class WordTranslationObserver
     /** @var array<int, true> the words whose rows changed since the last drop, by id */
     private array $batch = [];
 
-    public function __construct(private readonly WordTranslationResolver $translations) {}
+    public function __construct(
+        private readonly WordTranslationResolver $translations,
+        private readonly WordHookResolver $hooks,
+    ) {}
 
     public function saved(WordTranslation $translation): void
     {
@@ -60,6 +64,8 @@ final class WordTranslationObserver
 
         if ($wordIds !== []) {
             $this->translations->forget($wordIds);
+            // The hooks ride in the same rows (docs/06 §12.3) and have their own entry.
+            $this->hooks->forget($wordIds);
         }
     }
 }

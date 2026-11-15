@@ -57,3 +57,19 @@ it('answers the webhook statelessly: no session started, no cookies', function (
         ->and($response->headers->has('Set-Cookie'))->toBeFalse()
         ->and(app('session.store')->isStarted())->toBeFalse();
 });
+
+it('dispatches a re-sent update (same update_id) once, answering 200 to both', function (): void {
+    Bus::fake();
+    $send = fn (int $id) => $this->postJson(
+        '/telegram/webhook/url-secret-value-1234567890',
+        ['update_id' => $id, 'message' => ['text' => '/help']],
+        ['X-Telegram-Bot-Api-Secret-Token' => 'header-secret-value-abcdef'],
+    )->assertOk()->assertJson(['ok' => true]);
+
+    $send(500);
+    $send(500);
+    Bus::assertDispatchedTimes(HandleTelegramUpdate::class, 1);
+
+    $send(501);
+    Bus::assertDispatchedTimes(HandleTelegramUpdate::class, 2);
+});

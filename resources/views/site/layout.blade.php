@@ -37,6 +37,7 @@
             <nav class="nav" aria-label="{{ __('landing.nav.label', [], $locale) }}">
                 <a href="#how">{{ __('landing.nav.how', [], $locale) }}</a>
                 <a href="#pricing">{{ __('landing.nav.pricing', [], $locale) }}</a>
+                <a href="#teachers">{{ __('landing.nav.teachers', [], $locale) }}</a>
             </nav>
         @endif
         <nav class="langs" aria-label="{{ __('landing.footer.language', [], $locale) }}">

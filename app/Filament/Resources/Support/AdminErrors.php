@@ -9,6 +9,7 @@ use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
+use App\Domain\Organizations\Exceptions\OrganizationStaffException;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Exceptions\PracticeItemStateException;
 use Illuminate\Support\Facades\Lang;
@@ -34,7 +35,7 @@ final class AdminErrors
         [$code, $context] = match (true) {
             $e instanceof BillingException => [$e->errorCode, self::billingContext($e->context)],
             $e instanceof CoursePublishException => [$e->reason, self::courseContext($e->context)],
-            $e instanceof OrganizationMembershipException, $e instanceof OrganizationGroupLinkException => [$e->errorCode, []],
+            $e instanceof OrganizationMembershipException, $e instanceof OrganizationGroupLinkException, $e instanceof OrganizationStaffException => [$e->errorCode, []],
             // The text of a practice task is refused with the field it is in; the editor names the field by its caption.
             $e instanceof PracticeContentException => [$e->errorCode, self::practiceContext([...$e->context, 'field' => AdminLabels::value('practice_items.field_names', $e->field)])],
             $e instanceof PracticeItemStateException => [$e->errorCode, []],

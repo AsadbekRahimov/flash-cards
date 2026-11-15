@@ -44,7 +44,7 @@ describe('PaywallSheet: reason "game" (docs/05 §5b.1)', () => {
   it('keeps the rest of the sheet: the pitch, the promo code and the dismiss button', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Pro скоро откроется.')
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Оплата откроется позже — мы сообщим в боте.')
     expect(w.find('[data-testid=paywall-close]').exists()).toBe(true)
   })
 

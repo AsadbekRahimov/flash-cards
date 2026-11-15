@@ -427,7 +427,7 @@ describe('gameRun store — conflicts', () => {
     await store.answer({ option_id: 'zzz' })
 
     expect(store.status).toBe('playing')
-    expect(store.actionError).toBe('Такого варианта в задании нет. Обновите экран.')
+    expect(store.actionError).toBe('Такого варианта в задании нет. Закройте приложение и откройте снова.')
     expect(store.elementSeq).toBe(seq + 1)
     expect(store.pendingRequestId).toBeNull()
   })
@@ -525,7 +525,7 @@ describe('gameRun store — the hint of the bazaar', () => {
     await store.hint()
 
     expect(store.status).toBe('playing')
-    expect(store.actionError).toBe('Не хватает монет. Монеты дают за забеги и боссов.')
+    expect(store.actionError).toBe('Не хватает монет. Монеты дают за забеги и хранителей.')
     expect(store.coins).toBe(2)
     expect(store.hintOffer).toEqual({ price: 5 })
   })
@@ -619,6 +619,6 @@ describe('gameRun store — texts', () => {
     vi.mocked(api.gameRuns.answer).mockRejectedValue(apiError('not_found', 404, 'game_run_not_found'))
     await store.answer({ option_id: 'o1' })
     expect(store.status).toBe('error')
-    expect(store.errorMessage).toBe('Yurish topilmadi.')
+    expect(store.errorMessage).toBe('Safar topilmadi.')
   })
 })

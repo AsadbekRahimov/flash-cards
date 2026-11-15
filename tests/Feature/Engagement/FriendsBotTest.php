@@ -357,7 +357,7 @@ it('speaks Uzbek in the offer', function (): void {
 
     frSend(9113, '/start f_FRIEND23');
 
-    expect($this->tg->sent[0]['text'])->toContain("Dilnoza'ga do'stlik so'rovini yuboraylikmi?")
+    expect($this->tg->sent[0]['text'])->toContain("Dilnoza yuborgan taklif havolasini ochdingiz. Do'stlik so'rovi yuborilsinmi?")
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe("So'rov yuborish");
 });
 
@@ -430,7 +430,7 @@ it('sends each side its own result, once, in its own language', function (): voi
         ->and($this->tg->sent[0]['chat_id'])->toBe(9201)
         ->and($this->tg->sent[0]['text'])->toBe('Вызов с Bek завершён: вы победили! Счёт 40 : 25.')
         ->and($this->tg->sent[1]['chat_id'])->toBe(9202)
-        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Qayta bellashuv — ilovada!");
+        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Revansh — ilovada!");
 });
 
 it('sends nothing to a learner whose DM is closed or who is blocked', function (): void {

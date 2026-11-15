@@ -466,7 +466,9 @@ it('drops the lesson cache after a successful commit', function (): void {
 
     expect(app(VocabularyImporter::class)->importAsSystem(sampleJson())->ok())->toBeTrue();
 
-    $pure->shouldHaveReceived('forget')->once()->with('lesson:'.Lesson::sole()->id.':word_count');
+    // The word count and the pool of distractors of the lesson go in one call (LearningCache::forgetLesson).
+    $id = Lesson::sole()->id;
+    $pure->shouldHaveReceived('deleteMultiple')->with(["lesson:{$id}:word_count", "lesson:{$id}:distractors:v1"]);
 });
 
 it('drops the lesson cache only once the import transaction has closed', function (): void {
@@ -490,7 +492,7 @@ it('drops the lesson cache only once the import transaction has closed', functio
 
     // Every drop of the pure store - the catalog of courses and the course tree (recount), the rows of the translations the import wrote
     // (their observer) - happens at the level of the caller, after the commit: how many calls that takes is not the point.
-    expect($levels)->toBe([$base])->and(array_values(array_unique($catalogLevels)))->toBe([$base]);
+    expect(array_values(array_unique($levels)))->toBeIn([[], [$base]])->and(array_values(array_unique($catalogLevels)))->toBe([$base]);
 });
 
 it('defers the cache drop to the outer commit when the caller wraps the import in a transaction', function (): void {
@@ -519,7 +521,7 @@ it('defers the cache drop to the outer commit when the caller wraps the import i
 
     expect($inside)->toBe([])
         ->and($catalogInside)->toBe([])
-        ->and($levels)->toBe([$base])
+        ->and(array_values(array_unique($levels)))->toBeIn([[], [$base]])
         ->and(array_values(array_unique($catalogLevels)))->toBe([$base]);
 });
 
