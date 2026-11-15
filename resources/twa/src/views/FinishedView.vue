@@ -86,6 +86,12 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
   paywallOpen.value = false
 })
 
+/**
+ * An empty `nothing_due` session means there was nowhere to take new words from (no course, an empty or finished one): the way out
+ * is the catalog. Only for a personal session: a group lesson of the teacher has nothing to choose.
+ */
+const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_due' && training.mode !== 'group_lesson')
+
 notificationHaptic('success')
 
 // A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
@@ -188,6 +194,9 @@ onBeforeUnmount(() => {
       <RouterLink v-if="practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
         <AppIcon name="puzzle-piece" :size="20" />
         {{ practiceLabel }}
+      </RouterLink>
+      <RouterLink v-if="showCourses" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="courses-btn">
+        {{ t('finished.choose_course') }}
       </RouterLink>
       <button v-if="quotaExhausted" type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
         {{ t('paywall.open') }}

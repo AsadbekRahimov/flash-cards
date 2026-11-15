@@ -25,6 +25,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'landing', component: { template: '<div />' } },
     { path: '/today', name: 'today', component: { template: '<div />' } },
+    { path: '/courses', name: 'courses', component: { template: '<div />' } },
     { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
   ],
@@ -125,6 +126,34 @@ describe('FinishedView', () => {
 
       expect(w.find('[data-testid=paywall]').exists()).toBe(false)
       expect(w.get('[data-testid=paywall-open]').text()).toBe('Узнать о Pro')
+    })
+
+    it('offers to choose a course only for an empty nothing_due session of a personal training', () => {
+      const w = render(0, 0, 'nothing_due')
+      const btn = w.get('[data-testid=courses-btn]')
+      expect(btn.text()).toBe('Выбрать курс')
+      expect(btn.attributes('href')).toBe('/courses')
+      expect(btn.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(w.find('[data-testid=home-btn]').exists()).toBe(true)
+
+      for (const reason of ['new_quota_exhausted', 'lesson_complete', 'session_cap', null]) {
+        expect(render(0, 0, reason).find('[data-testid=courses-btn]').exists()).toBe(false)
+      }
+      expect(render(3, 1, 'nothing_due').find('[data-testid=courses-btn]').exists()).toBe(false)
+      useTrainingStore().summary = summary({ reviewed: 5 })
+      expect(render(0, 1, 'nothing_due').find('[data-testid=courses-btn]').exists()).toBe(false)
+    })
+
+    it('never offers it after a group session', () => {
+      useTrainingStore().mode = 'group_lesson'
+
+      expect(render(0, 0, 'nothing_due').find('[data-testid=courses-btn]').exists()).toBe(false)
+    })
+
+    it('says the course button in Uzbek', () => {
+      setLocale('uz')
+
+      expect(render(0, 0, 'nothing_due').get('[data-testid=courses-btn]').text()).toBe('Kursni tanlash')
     })
 
     it('says it in Uzbek', () => {

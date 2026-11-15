@@ -139,6 +139,9 @@ export const uz: Translations = {
   'today.course.learn': "Keyingi darsni o'rganish",
   'today.course.learn_hint': "Faqat shu darsning so'zlari, takrorlashsiz",
   'today.course.choose': 'Kursni tanlash',
+  'today.course.choose_other': 'Boshqa kursni tanlash',
+  'today.course.empty': "Bu kursda hozircha so'z yo'q",
+  'today.new.course_done': "Bu kursda yangi so'z qolmadi",
   'today.league.title': 'Liga · {tier}',
   'today.league.subtitle': "{members} ishtirokchi orasida {rank}-o'rin · {points}",
 
@@ -245,6 +248,7 @@ export const uz: Translations = {
   'finished.reason.new_quota_exhausted': "Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.",
   'finished.reason.session_cap': "Bu uzun mashg'ulot bo'ldi — biroz dam oling.",
   'finished.home': 'Asosiy sahifaga',
+  'finished.choose_course': 'Kursni tanlash',
   'finished.goal': 'Kunlik maqsad: {target} tadan {done} tasi',
   'finished.goal_met': 'Kunlik maqsad bajarildi!',
   'finished.next_label': 'Keyingi takrorlash',

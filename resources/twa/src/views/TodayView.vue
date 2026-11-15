@@ -136,13 +136,23 @@ const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
 
 /**
+ * The server's sign that the active course has no unlearned words left (`next_lesson` is null: the course is empty or finished).
+ * `new_words_remaining` is only the tariff's daily quota and says nothing about the course.
+ */
+const courseHasNoNewWords = computed(() => data.value !== null && data.value.active_course !== null && data.value.active_course.next_lesson === null)
+const courseIsEmpty = computed(() => courseHasNoNewWords.value && data.value?.active_course?.progress.total === 0)
+/** No new words in the course and nothing to review: "Start session" would only open an empty session, so the card leads to the catalog. */
+const needsOtherCourse = computed(() => courseHasNoNewWords.value && data.value !== null && data.value.due_count === 0 && data.value.open_session_id === null)
+const noNewWordsText = computed(() => t(courseIsEmpty.value ? 'today.course.empty' : 'today.new.course_done'))
+
+/**
  * Nothing to do today: no review is due, no session is open and the free quota of new words is used up (the server says
  * `0`, not `null`). The primary "Start session" would only open an empty session, so the card says so calmly instead.
  */
 const allDone = computed(() => {
   const current = data.value
   return current !== null && current.active_course !== null && current.due_count === 0
-    && current.open_session_id === null && current.new_words_remaining === 0
+    && current.open_session_id === null && current.new_words_remaining === 0 && !courseHasNoNewWords.value
 })
 
 const practice = computed(() => billing.practiceAccess)
@@ -323,6 +333,18 @@ onBeforeUnmount(() => training.clearOpenError())
               <span class="flex-1 text-[15px] leading-5 font-medium">{{ t('today.new.no_course') }}</span>
               <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
             </RouterLink>
+            <RouterLink
+              v-else-if="courseHasNoNewWords"
+              :to="{ name: 'courses' }"
+              class="flex min-h-11 items-center gap-3 text-accent"
+              data-testid="new-course-empty"
+            >
+              <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
+                <AppIcon name="sparkles" :size="18" />
+              </span>
+              <span class="flex-1 text-[15px] leading-5 font-medium">{{ noNewWordsText }}</span>
+              <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
+            </RouterLink>
             <div v-else class="flex min-h-11 items-center gap-3">
               <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
                 <AppIcon name="sparkles" :size="18" />
@@ -340,6 +362,15 @@ onBeforeUnmount(() => training.clearOpenError())
         >
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
+        </RouterLink>
+        <RouterLink
+          v-else-if="needsOtherCourse"
+          :to="{ name: 'courses' }"
+          class="btn btn-primary btn-lg btn-block mt-3"
+          data-testid="start-next-course"
+        >
+          <AppIcon name="academic-cap" :size="20" />
+          {{ t('today.course.choose_other') }}
         </RouterLink>
         <div v-else-if="allDone" class="mt-3 space-y-2" data-testid="all-done">
           <p class="flex items-center justify-center gap-2 text-center text-[17px] leading-[22px] font-semibold">
@@ -372,7 +403,7 @@ onBeforeUnmount(() => training.clearOpenError())
         <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
 
         <p v-if="!allDone" class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
-          {{ t(needsCourseToStart ? 'today.new.no_course' : 'today.session.hint') }}
+          {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
       </section>
@@ -462,6 +493,7 @@ onBeforeUnmount(() => training.clearOpenError())
           <div>
             <h3 class="text-[17px] leading-[22px] font-semibold" data-testid="course-title">{{ data.active_course.title }}</h3>
             <div
+              v-if="!courseIsEmpty"
               class="progress mt-2"
               role="progressbar"
               aria-valuemin="0"
@@ -471,7 +503,7 @@ onBeforeUnmount(() => training.clearOpenError())
             >
               <div class="progress-fill" :style="{ width: `${coursePercent}%` }" />
             </div>
-            <p class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="course-progress">{{ courseProgressText }}</p>
+            <p v-if="!courseIsEmpty" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="course-progress">{{ courseProgressText }}</p>
           </div>
 
           <template v-if="data.active_course.next_lesson">
@@ -498,14 +530,18 @@ onBeforeUnmount(() => training.clearOpenError())
               <p class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
             </template>
           </template>
-          <p
-            v-else
-            class="flex items-center gap-2 border-t pt-3 text-[15px] leading-5 text-tg-subtitle"
-            data-testid="course-completed"
-          >
-            <AppIcon name="check-circle" solid :size="20" class="shrink-0 text-success" />
-            <span>{{ t('today.course.completed') }}</span>
-          </p>
+          <template v-else>
+            <p
+              class="flex items-center gap-2 border-t pt-3 text-[15px] leading-5 text-tg-subtitle"
+              data-testid="course-completed"
+            >
+              <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
+              <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
+            </p>
+            <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
+              {{ t('today.course.choose_other') }}
+            </RouterLink>
+          </template>
         </div>
 
         <div v-else class="card p-0">

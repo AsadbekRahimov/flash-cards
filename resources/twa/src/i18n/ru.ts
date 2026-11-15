@@ -158,6 +158,9 @@ export const ru = {
   'today.course.learn': 'Учить следующий урок',
   'today.course.learn_hint': 'Только слова этого урока, без повторений',
   'today.course.choose': 'Выбрать курс',
+  'today.course.choose_other': 'Выбрать другой курс',
+  'today.course.empty': 'В этом курсе пока нет слов',
+  'today.new.course_done': 'Новых слов в этом курсе не осталось',
   'today.league.title': 'Лига · {tier}',
   'today.league.subtitle': '{rank}-е место из {members} · {points}',
 
@@ -269,6 +272,7 @@ export const ru = {
   'finished.reason.new_quota_exhausted': 'Лимит новых слов на сегодня исчерпан. Новые слова откроются завтра.',
   'finished.reason.session_cap': 'Это было длинное занятие — сделайте перерыв.',
   'finished.home': 'На главную',
+  'finished.choose_course': 'Выбрать курс',
   'finished.goal': 'Цель дня: {done} из {target}',
   'finished.goal_met': 'Цель дня выполнена!',
   'finished.next_label': 'Следующее повторение',

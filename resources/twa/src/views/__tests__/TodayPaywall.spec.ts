@@ -37,7 +37,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   ...overrides,
 })
 
-const course = { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 120, total: 900 }, next_lesson: null }
+const course = { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 120, total: 900 }, next_lesson: { id: 41, stage: 2, lesson: 4, title: 'Food' } }
 
 const me = (plan: 'free' | 'pro', contact: string | null = null): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
