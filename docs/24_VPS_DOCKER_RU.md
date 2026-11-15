@@ -117,7 +117,7 @@ TWA_JWT_SECRET=<openssl rand -hex 32>
 TWA_BASE_URL=https://<домен>/twa/
 
 # Бэкапы
-BACKUP_DISKS=local
+BACKUP_DISKS=local,backups                       # backups = Cloudflare R2; BACKUP_ACCESS_KEY_ID/_SECRET_ACCESS_KEY/_BUCKET/_ENDPOINT — docs/DEVOPS_GUIDE.md §11.1
 BACKUP_ARCHIVE_PASSWORD=<openssl rand -base64 48>
 
 # Биллинг и практика на запуск — блок из VPS_DEPLOY_GUIDE_RU.md §10 (BILLING_PAYWALL_MODE=purchase, BILLING_STARS_ENABLED=true,
@@ -262,7 +262,7 @@ cd /var/www/lexiflow && git fetch origin master && bash deploy.sh <sha-зелё�
 | `PAYME_ALLOW_TEST_KEY` | `false` | иначе принимается тестовый ключ Payme |
 | `PAYME_IP_ALLOWLIST`, `CLICK_IP_ALLOWLIST` | заданы, когда провайдер включён | иначе платёжные вебхуки открыты всем (проверяются подписью, но allowlist — второй рубеж) |
 | `BACKUP_ARCHIVE_PASSWORD` | задан (`openssl rand -base64 48`) | архивы шифруются; пустой — бэкап падает или лежит открытым |
-| `BACKUP_DISKS` | не только `local` (добавить `s3`) | бэкап на диске самого сервера пропадает вместе с сервером |
+| `BACKUP_DISKS` | не только `local` (добавить `backups` — R2, docs/DEVOPS_GUIDE.md §11.1) | бэкап на диске самого сервера пропадает вместе с сервером |
 | `APP_DEBUG` | `false` | страницы ошибок раскрывают код, пути, окружение (`ReadinessProbe::checkConfig` сообщает об этом) |
 | `APP_TRUSTED_HOSTS` | задан при нескольких доменах (основной + алиасы, www) | иначе Host подделывается: отравление ссылок (сброс пароля) |
 | `SENTRY_TRACES_SAMPLE_RATE` | `0` (не больше `0.01`) | трейсы каждого запроса API стоят CPU на горячем пути (аудит H1) |

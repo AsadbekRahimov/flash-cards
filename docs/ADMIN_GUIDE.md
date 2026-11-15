@@ -847,7 +847,7 @@ make backup
 docker compose -f docker-compose.prod.yml exec -T app php artisan backup:run
 ```
 
-Backup files are encrypted with `BACKUP_ARCHIVE_PASSWORD`, verified after creation, and stored in `storage/app/private/Laravel/` (local disk) or on S3 if `BACKUP_DISKS=local,s3` is set. Keep that password in a separate secret store; it is required for restore.
+Backup files are encrypted with `BACKUP_ARCHIVE_PASSWORD`, verified after creation, and stored in `storage/app/private/<APP_NAME>/` (`local` disk) and/or in the off-site Cloudflare R2 bucket (`backups` disk, `BACKUP_DISKS=local,backups`); hourly, database only. Setup and restore: docs/DEVOPS_GUIDE.md §11.1. Keep that password in a separate secret store; it is required for restore.
 
 ### Restore from backup
 1. Extract the `.zip` backup file.

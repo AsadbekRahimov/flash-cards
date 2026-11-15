@@ -181,7 +181,7 @@ env_flag() { redis_password_of "$1" | tr -d '[:space:]' | tr '[:upper:]' '[:lowe
     || warn_setting "BACKUP_ARCHIVE_PASSWORD is empty: the database backups would not be encrypted (or the backup run fails); set it (openssl rand -base64 48)."
 BACKUP_DISKS_VALUE="$(env_flag BACKUP_DISKS)"
 case ",${BACKUP_DISKS_VALUE:-local}," in
-    *,local,*) case "$BACKUP_DISKS_VALUE" in *,*) ;; *) warn_setting "BACKUP_DISKS is '${BACKUP_DISKS_VALUE:-local}': the backups stay on the server's own disk; add an off-site disk (s3) so that a lost server does not take the backups with it." ;; esac ;;
+    *,local,*) case "$BACKUP_DISKS_VALUE" in *,*) ;; *) warn_setting "BACKUP_DISKS is '${BACKUP_DISKS_VALUE:-local}': the backups stay on the server's own disk; add the off-site disk (BACKUP_DISKS=local,backups with the BACKUP_* variables of the R2 bucket set) so that a lost server does not take the backups with it." ;; esac ;;
 esac
 TRACES_RATE="$(redis_password_of SENTRY_TRACES_SAMPLE_RATE | tr -d '[:space:]')"
 case "${TRACES_RATE:-0}" in

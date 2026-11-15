@@ -157,7 +157,15 @@ Schedule::command('game:wallets-verify')
     ->dailyAt('04:10')
     ->withoutOverlapping(30);
 
-// Daily DB + storage backup via spatie/laravel-backup.
-Schedule::command('backup:clean')->daily()->at('01:00');
-Schedule::command('backup:run')->daily()->at('01:30');
-Schedule::command('backup:monitor')->daily()->at('02:00');
+// DB backups via spatie/laravel-backup: hourly, database only (RPO <= 1 h; the code is in the image and nothing in storage
+// needs a backup: audio is regenerable TTS). --isolated so a deploy's pre-migration backup and the schedule never run
+// together (the lock lives in the default cache store). :20, away from the top-of-hour peak; the lock is shorter than the
+// interval, so a killed run cannot block the next ones for a day.
+Schedule::command('backup:run', ['--only-db', '--isolated'])
+    ->hourlyAt(20)
+    ->withoutOverlapping(55);
+Schedule::command('backup:clean')
+    ->dailyAt('01:00')
+    ->withoutOverlapping(55);
+Schedule::command('backup:monitor')
+    ->dailyAt('02:00');
