@@ -80,7 +80,9 @@ final class TwoFactorAttemptService
         $last = Cache::get($cacheKey);
 
         // A non-null old timestamp makes the library return the matched step (null would give `true`).
-        $step = $this->g2fa->verifyKeyNewer($secret, $code, is_int($last) ? $last : 0);
+        // Redis returns a stored integer as a numeric string ("12345"): accept both, or the replay check silently turns off.
+        $lastStep = is_int($last) || (is_string($last) && ctype_digit($last)) ? (int) $last : 0;
+        $step = $this->g2fa->verifyKeyNewer($secret, $code, $lastStep);
 
         if (! is_int($step)) {
             return false;

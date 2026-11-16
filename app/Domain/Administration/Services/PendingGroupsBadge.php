@@ -22,7 +22,9 @@ final class PendingGroupsBadge
 
     public static function count(): int
     {
-        return PureCache::store()->remember(
+        // The cast is not decoration: Redis hands a cached number back as a string ("3"), and the menu is drawn on every
+        // page of the panel - without it every page after the first one answers 500 for the TTL (strict types).
+        return (int) PureCache::store()->remember(
             self::KEY,
             self::TTL_SECONDS,
             fn (): int => TelegramGroup::query()->withoutGlobalScopes()->where('status', 'pending')->count(),

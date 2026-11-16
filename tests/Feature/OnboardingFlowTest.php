@@ -67,7 +67,7 @@ function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', s
     onbTap($tgId, "onb1:reminder:{$reminder}", 5);
 }
 
-function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public'): Course
+function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public', int $words = 10): Course
 {
     return Course::factory()->published()->create([
         'slug' => $slug,
@@ -75,6 +75,7 @@ function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $feat
         'level' => $level,
         'is_featured' => $featured,
         'visibility' => $visibility,
+        'words_count' => $words,
         'title' => ['ru' => 'Курс '.$slug, 'uz' => 'Kurs '.$slug],
     ]);
 }
@@ -152,6 +153,10 @@ it('walks a new learner through the five steps with five callbacks', function ()
 });
 
 it('stores "I do not know" as A1, switches reminders off and falls back to the default course', function (): void {
+    // The fallback is only a course with words: an empty default would leave the learner nothing to train.
+    $default = app(CourseCatalogService::class)->defaultCourse();
+    $default->update(['words_count' => 5]);
+
     onbSend(7002, '/start');
     onbComplete(7002, 'ru', 'general', 'unknown', 'Asia/Tashkent', 'off');
 
@@ -160,7 +165,7 @@ it('stores "I do not know" as A1, switches reminders off and falls back to the d
         ->and($learner->level)->toBe('A1')
         ->and($learner->reminder_time)->toBeNull()
         ->and($learner->next_reminder_at)->toBeNull()
-        ->and($learner->active_course_id)->toBe(app(CourseCatalogService::class)->defaultCourse()->id);
+        ->and($learner->active_course_id)->toBe($default->id);
 });
 
 it('keeps a course the learner already picked instead of recommending one', function (): void {
@@ -199,6 +204,19 @@ it('recommends by goal, then level, then featured, and ignores private and draft
         ->and($catalog->recommend('ielts', 'B2'))->toBeNull()
         ->and($catalog->recommend(null, 'B2'))->toBeNull()
         ->and($plain->id)->not->toBe($featured->id);
+});
+
+it('does not recommend a course without words', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    onbCourse('sat-empty', 'sat', 'B2', true, words: 0);
+    $filled = onbCourse('sat-filled', 'sat');
+
+    expect($catalog->recommend('sat', 'B2')?->id)->toBe($filled->id);
+
+    $filled->update(['words_count' => 0]);
+    $catalog->forgetPublished();
+
+    expect($catalog->recommend('sat', 'B2'))->toBeNull();
 });
 
 // --- idempotency and untrusted callback_data ---------------------------------
@@ -1033,7 +1051,7 @@ it('creates no learner and sends nothing when a linked teacher presses onboardin
 // --- the default course -----------------------------------------------------------------
 
 it('leaves the active course empty when the default course cannot be opened', function (string $state): void {
-    Course::factory()->create(['slug' => (string) config('content.default_course_slug'), ...match ($state) {
+    Course::factory()->create(['slug' => (string) config('content.default_course_slug'), 'words_count' => 5, ...match ($state) {
         'draft' => ['status' => 'draft'],
         'archived' => ['status' => 'archived'],
         'private' => ['status' => 'published', 'visibility' => 'private'],
@@ -1048,6 +1066,39 @@ it('leaves the active course empty when the default course cannot be opened', fu
         ->and($last['text'])->toBe('Готово! Нажмите кнопку — первое занятие займёт пару минут.')
         ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
 })->with(['draft', 'archived', 'private']);
+
+it('gives the general course of the level when no course fits the chosen goal', function (): void {
+    onbCourse('general-a1', 'general', 'A1');
+    $b1 = onbCourse('general-b1', 'general', 'B1');
+    onbCourse('ielts-empty', 'ielts', 'B1', true, words: 0);
+
+    onbSend(7087, '/start');
+    onbComplete(7087, 'ru', 'ielts', 'B1');
+
+    expect(onbLearner(7087)->active_course_id)->toBe($b1->id);
+});
+
+it('leaves the learner without a course when the default course is empty and nothing else is published', function (): void {
+    // The default course is created empty, exactly as `defaultCourse()` does on first use.
+    app(CourseCatalogService::class)->defaultCourse();
+
+    onbSend(7088, '/start');
+    onbComplete(7088, 'ru', 'general', 'A1');
+
+    expect(onbLearner(7088)->onboarding_state)->toBe('done')
+        ->and(onbLearner(7088)->active_course_id)->toBeNull()
+        ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
+});
+
+it('falls back to the default course with words when nothing else fits', function (): void {
+    $default = app(CourseCatalogService::class)->defaultCourse();
+    $default->update(['words_count' => 12]);
+
+    onbSend(7089, '/start');
+    onbComplete(7089, 'ru', 'sat', 'B1');
+
+    expect(onbLearner(7089)->active_course_id)->toBe($default->id);
+});
 
 // --- the zone step after an earlier zone change ------------------------------------------
 

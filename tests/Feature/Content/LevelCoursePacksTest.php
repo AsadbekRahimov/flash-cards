@@ -260,6 +260,7 @@ it('recommends the level course for a general goal from the real manifests of th
             'visibility' => $m['visibility'],
             'position' => $m['position'],
             'is_featured' => $m['is_featured'],
+            'words_count' => 1000,
         ]);
     }
 

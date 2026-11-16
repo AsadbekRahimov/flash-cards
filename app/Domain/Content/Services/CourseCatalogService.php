@@ -253,8 +253,8 @@ final class CourseCatalogService
     /**
      * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
      * public published courses with `exam_tag = goal`, the one of the same level first, then
-     * featured ones, then catalog order. Null when no course fits the goal — the caller falls
-     * back to the default course.
+     * featured ones, then catalog order. A course without words is never suggested. Null when no
+     * course fits the goal — the caller falls back to the general catalog, then to the default course.
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
@@ -264,7 +264,7 @@ final class CourseCatalogService
 
         $matching = array_values(array_filter(
             $this->published($this->locales->default()),
-            fn (CatalogCourse $c): bool => $c->examTag === $goal,
+            fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0,
         ));
 
         // usort is stable: equal candidates stay in catalog order (position, id).
@@ -275,20 +275,21 @@ final class CourseCatalogService
     }
 
     /**
-     * The catalog with the learner's progress. The learner's own active course is listed even when
-     * it is `unlisted` (chosen by a link) or the learner's own deck, as long as it is still available.
+     * The catalog with the learner's progress. Public courses without words are not listed. The learner's own
+     * active course is listed even when it is `unlisted` (chosen by a link) or the learner's own deck, as long
+     * as it is still available (a public one without words stays out, like in the catalog).
      *
      * @return list<CourseListing>
      */
     public function forLearner(Learner $learner): array
     {
         $locale = $this->locales->forLearner($learner);
-        $courses = $this->published($locale);
+        $courses = array_values(array_filter($this->published($locale), static fn (CatalogCourse $c): bool => $c->wordsCount > 0));
         $activeId = $learner->active_course_id;
 
         if ($activeId !== null && collect($courses)->doesntContain(fn (CatalogCourse $c): bool => $c->id === $activeId)) {
             $active = Course::query()->availableTo($learner->id)->whereKey($activeId)->first();
-            if ($active !== null) {
+            if ($active !== null && ($active->visibility !== 'public' || $active->words_count > 0)) {
                 $courses[] = $this->present($active, $locale);
             }
         }

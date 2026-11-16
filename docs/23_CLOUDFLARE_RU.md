@@ -73,7 +73,9 @@ Online» выключить; «Development Mode» только на время �
 ## 4. Speed
 
 Безопасно включить: **Brotli**, **HTTP/2**, **HTTP/3 (QUIC)**, Early Hints (по желанию). 0-RTT лучше оставить выключенным: он допускает повтор запроса,
-а API содержит POST.
+а API содержит POST. С Brotli Cloudflare может пережать gzip-ответ origin'а в br на пути к браузеру; защита панелей от BREACH это переживает,
+потому что случайная добавка `RandomizeResponseLength` лежит в теле ответа (комментарий в HTML, ключ `_pad` в JSON), а не в gzip-заголовке
+(DEVOPS_GUIDE «Compression and BREACH»).
 
 **Выключить** (Speed → Optimization и Rules):
 - **Rocket Loader** — переписывает загрузку скриптов, ломает SPA на Vue и порядок `telegram-web-app.js`.

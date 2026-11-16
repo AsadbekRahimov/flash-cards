@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\InitialAvatarProvider;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\GameActivityWidget;
@@ -42,7 +43,12 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // SPA with hover prefetch (docs/20 §1.14): links to pages outside the panel (the 2FA pages are plain Blade, not
+            // Filament layouts) must stay full page loads.
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions(['*/2fa/*'])
             ->brandName('LexiFlow Pro')
+            ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->colors([
                 'primary' => Color::Amber,
             ])

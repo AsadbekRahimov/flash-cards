@@ -11,6 +11,7 @@ use App\Filament\Org\Pages\OrgSettings;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgChecklistWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
+use App\Filament\Support\InitialAvatarProvider;
 use App\Http\Controllers\Org\OrgInvoiceController;
 use App\Http\Middleware\RequireOrgTwoFactor;
 use App\Http\Middleware\SetOrgLocale;
@@ -60,7 +61,12 @@ class OrgPanelProvider extends PanelProvider
             ->login()
             ->passwordReset(OrgRequestPasswordReset::class)
             ->profile(OrgProfile::class, isSimple: false)
+            // SPA with hover prefetch (docs/20 §1.14): the 2FA pages are plain Blade outside the panel layout and the
+            // printable invoice is a standalone document — both stay full page loads.
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions(['*/2fa/*', '*/org/*/invoice/*'])
             ->brandName('LexiFlow Pro')
+            ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->colors([
                 'primary' => Color::Indigo,
             ])

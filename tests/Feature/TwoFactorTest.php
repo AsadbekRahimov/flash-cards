@@ -426,6 +426,29 @@ it('claims a TOTP step atomically: a step already taken by another request is a 
     expect(app(TwoFactorAttemptService::class)->verifyTotp('web', $user, $secret, $code))->toBeFalse();
 });
 
+it('rejects a code of an earlier step than the last accepted one, also when the cache returns that step as a string (Redis)', function (string $type): void {
+    [$user, $secret] = twoFactorUser();
+    $g2fa = app(Google2FA::class);
+    $current = $g2fa->getTimestamp();
+    $earlierCode = $g2fa->oathTotp($secret, $current - 1);
+
+    // The step of the newer code was accepted before; Redis hands the stored integer back as a numeric string.
+    Cache::put("2fa:last_step:{$user->id}", $type === 'string' ? (string) $current : $current, 180);
+
+    expect(app(TwoFactorAttemptService::class)->verifyTotp('web', $user, $secret, $earlierCode))->toBeFalse();
+})->with([
+    'int' => ['int'],
+    'numeric string' => ['string'],
+]);
+
+it('still accepts a code of the previous step when no later step was accepted', function (): void {
+    [$user, $secret] = twoFactorUser();
+    $g2fa = app(Google2FA::class);
+    $earlierCode = $g2fa->oathTotp($secret, $g2fa->getTimestamp() - 1);
+
+    expect(app(TwoFactorAttemptService::class)->verifyTotp('web', $user, $secret, $earlierCode))->toBeTrue();
+});
+
 it('keeps the 2FA mark after the session id is regenerated on verify', function (): void {
     [$user, $secret] = twoFactorUser();
     $this->actingAs($user)->withSession(['x' => 1]);

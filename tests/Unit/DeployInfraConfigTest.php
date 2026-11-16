@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\RandomizeResponseLength;
 use Illuminate\Support\Facades\Process;
 use Symfony\Component\Yaml\Yaml;
 
@@ -130,6 +131,71 @@ it('limits the public paths in both nginx configs and raises worker_connections 
     }
 
     expect(infraFile('Dockerfile'))->toContain('worker_connections[[:space:]]+4096;');
+});
+
+// --- Compression of the panels and BREACH (16.11.2026): nginx compresses /admin, /org, /2fa, /livewire-*; the noise
+// --- against BREACH comes from App\Http\Middleware\RandomizeResponseLength, whose path list must equal the nginx location.
+
+const NGINX_CONFIGS = ['docker/nginx/prod.conf', 'docker/nginx/coolify.conf', 'docker/nginx/default.conf'];
+
+/** The direct-fastcgi `location ~ …` block of the panels: the regex and the body, or null when the file has none. */
+function panelLocation(string $conf): ?array
+{
+    if (preg_match('/^    location ~ \^\/\(\?:(?<alternatives>[^\n]*?)\) \{\n(?<body>.*?)^    \}/ms', $conf, $m) !== 1) {
+        return null;
+    }
+
+    return ['alternatives' => $m['alternatives'], 'body' => $m['body']];
+}
+
+it('hands the padded paths of RandomizeResponseLength, the webhook and the payment return to PHP-FPM directly, compressed', function (): void {
+    // The two non-panel paths share the block for the access-log map; they are not padded (no secret in the body).
+    $expected = implode('|', [...RandomizeResponseLength::nginxLocationAlternatives(), 'telegram/webhook/', 'billing/return/?$']);
+
+    foreach (NGINX_CONFIGS as $file) {
+        $location = panelLocation(infraFile($file));
+
+        expect($location)->not->toBeNull("{$file}: no direct-fastcgi location of the panels")
+            ->and($location['alternatives'])->toBe($expected)
+            ->and($location['body'])->not->toContain('gzip off')
+            ->and($location['body'])->toContain('fastcgi_param SCRIPT_FILENAME $document_root/index.php;')
+            ->and($location['body'])->toContain('fastcgi_param SCRIPT_NAME /index.php;')
+            ->and($location['body'])->toContain('fastcgi_param DOCUMENT_URI /index.php;');
+    }
+});
+
+it('keeps gzip on for the panel location, text/html included, and off for the mp3 audio only', function (): void {
+    foreach (NGINX_CONFIGS as $file) {
+        $conf = infraFile($file);
+
+        expect($conf)->toContain("\n    gzip on;\n")
+            ->and($conf)->toContain('application/json')
+            ->and($conf)->toContain('application/javascript')
+            ->and(substr_count($conf, 'gzip off;'))->toBe(1)
+            ->and($conf)->toMatch('/location \^~ \/storage\/audio\/ \{\n(?:.*\n)*?\s+gzip off;/');
+    }
+});
+
+it('caches the versioned Filament static files for a year, served by nginx, with the server-level headers repeated', function (): void {
+    foreach (NGINX_CONFIGS as $file) {
+        $conf = infraFile($file);
+
+        expect(preg_match('/^    location ~ \^\/\(\?:css\|js\|fonts\)\/filament\/ \{\n(?<body>.*?)^    \}/ms', $conf, $m))->toBe(1, "{$file}: no Filament static location");
+
+        expect($m['body'])->toContain('try_files $uri =404;')
+            ->and($m['body'])->toContain('add_header Cache-Control "public, max-age=31536000, immutable";')
+            ->and($m['body'])->not->toContain('fastcgi_pass');
+
+        if ($file !== 'docker/nginx/default.conf') {
+            expect($m['body'])->toContain('add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;')
+                ->and($m['body'])->toContain('add_header X-Content-Type-Options "nosniff" always;');
+        }
+
+        // Filament assets are padded by nobody and must not be in the padded paths.
+        foreach (['css/filament/filament/app.css', 'js/filament/filament/app.js', 'fonts/filament/filament/inter.woff2'] as $asset) {
+            expect(RandomizeResponseLength::appliesTo($asset))->toBeFalse();
+        }
+    }
 });
 
 it('runs the Telegram setup after the migrations, before the stack is switched, never on a rollback, never fatally', function (): void {

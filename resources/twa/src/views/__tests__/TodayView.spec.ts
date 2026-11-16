@@ -331,7 +331,7 @@ describe('TodayView', () => {
         const newcomer = await render(allDone({
           goal: { target: 20, done: 0, met: false },
           streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
-          active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null },
+          active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: { id: 41, stage: 2, lesson: 4, title: 'Food' } },
         }))
         expect(newcomer.find('[data-testid=all-done]').exists()).toBe(true)
         expect(newcomer.find('[data-testid=all-done-pro]').exists()).toBe(false)
@@ -945,6 +945,94 @@ describe('TodayView', () => {
       expect(choose.text()).toBe('Выбрать курс')
       expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
       expect(choose.attributes('href')).toBe('/courses')
+    })
+  })
+
+  describe('an active course without new words (next_lesson is null)', () => {
+    const course = today().active_course!
+    const empty = (overrides: Partial<TodayResponse> = {}) =>
+      today({ due_count: 0, new_words_remaining: 20, active_course: { ...course, progress: { learned: 0, total: 0 }, next_lesson: null }, ...overrides })
+    const finished = (overrides: Partial<TodayResponse> = {}) =>
+      today({ due_count: 0, new_words_remaining: 20, active_course: { ...course, progress: { learned: 900, total: 900 }, next_lesson: null }, ...overrides })
+
+    it('an empty course with nothing to review: no "Start session", no quota promise, a way to another course', async () => {
+      const w = await render(empty())
+
+      expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+      expect(w.find('[data-testid=new-remaining]').exists()).toBe(false)
+      expect(w.find('[data-testid=all-done]').exists()).toBe(false)
+      expect(w.find('[data-testid=start-choose-course]').exists()).toBe(false)
+      expect(text(w, 'new-course-empty')).toBe('В этом курсе пока нет слов')
+      const next = w.get('[data-testid=start-next-course]')
+      expect(next.text()).toBe('Выбрать другой курс')
+      expect(next.attributes('href')).toBe('/courses')
+      expect(text(w, 'session-hint')).toBe('Выберите курс, чтобы учить новые слова')
+
+      // "My course": no meaningless "0 of 0", an honest text and a quiet link
+      expect(text(w, 'course-completed')).toBe('В этом курсе пока нет слов')
+      expect(w.find('[data-testid=course-progress]').exists()).toBe(false)
+      expect(w.find('[data-testid=course-card] [role=progressbar]').exists()).toBe(false)
+      const other = w.get('[data-testid=course-choose-other]')
+      expect(other.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(other.attributes('href')).toBe('/courses')
+    })
+
+    it('a finished course with nothing to review says the words are over, not that the quota is left', async () => {
+      const w = await render(finished())
+
+      expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
+      expect(w.find('[data-testid=new-remaining]').exists()).toBe(false)
+      expect(w.find('[data-testid=all-done]').exists()).toBe(false)
+      expect(text(w, 'new-course-empty')).toBe('Новых слов в этом курсе не осталось')
+      expect(w.get('[data-testid=start-next-course]').attributes('href')).toBe('/courses')
+      expect(text(w, 'course-completed')).toBe('Все слова курса уже показаны')
+      expect(text(w, 'course-progress')).toBe('Изучено 900 из 900')
+      expect(w.get('[data-testid=course-choose-other]').attributes('href')).toBe('/courses')
+    })
+
+    it('with reviews due, keeps "Start session" and turns the new-words line into a link to the catalog', async () => {
+      const w = await render(finished({ due_count: 4 }))
+
+      expect(w.get('[data-testid=review-btn]').text()).toBe('Начать занятие')
+      expect(w.find('[data-testid=start-next-course]').exists()).toBe(false)
+      expect(w.find('[data-testid=new-remaining]').exists()).toBe(false)
+      const line = w.get('[data-testid=new-course-empty]')
+      expect(line.text()).toBe('Новых слов в этом курсе не осталось')
+      expect(line.attributes('href')).toBe('/courses')
+    })
+
+    it('with a session open, keeps "Continue session"', async () => {
+      const w = await render(finished({ open_session_id: 9 }))
+
+      expect(w.get('[data-testid=review-btn]').text()).toBe('Продолжить занятие')
+      expect(w.find('[data-testid=start-next-course]').exists()).toBe(false)
+      expect(w.find('[data-testid=new-course-empty]').exists()).toBe(true)
+    })
+
+    it('does not say "new words tomorrow" when the quota is used up: tomorrow there will be none either', async () => {
+      const w = await render(finished({ new_words_remaining: 0 }))
+
+      expect(w.find('[data-testid=all-done]').exists()).toBe(false)
+      expect(w.find('[data-testid=start-next-course]').exists()).toBe(true)
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render(empty())
+
+      expect(text(w, 'new-course-empty')).toBe("Bu kursda hozircha so'z yo'q")
+      expect(text(w, 'start-next-course')).toBe('Boshqa kursni tanlash')
+      expect(text(await render(finished()), 'new-course-empty')).toBe("Bu kursda yangi so'z qolmadi")
+    })
+
+    it('a course with a next lesson stays as before', async () => {
+      const w = await render(today({ due_count: 0, new_words_remaining: 20 }))
+
+      expect(w.find('[data-testid=review-btn]').exists()).toBe(true)
+      expect(text(w, 'new-remaining')).toBe('Новых слов на сегодня: 20')
+      expect(w.find('[data-testid=start-next-course]').exists()).toBe(false)
+      expect(w.find('[data-testid=new-course-empty]').exists()).toBe(false)
+      expect(w.find('[data-testid=course-choose-other]').exists()).toBe(false)
     })
   })
 

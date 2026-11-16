@@ -522,7 +522,7 @@
       чужой `GET /billing/orders/{token}` → 404; пользователь организации A на URL организации B → 404; `answer` для flash-карточки → 422; 31-й по инвайту Tutor → `waitlisted`.
 - [ ] Подмена `initData` → 401; токен заблокированного learner'а → 401 `learner_blocked` (docs/07 §14).
 - [ ] Заголовки: CSP/HSTS на `/admin/login`; страницы `/`, `/offer`, `/privacy`, `/billing/return` без `Set-Cookie`; `/billing/return` — `Cache-Control: no-store`, `noindex`.
-- [ ] Сжатие (BREACH): gzip у статики TWA есть, у `/admin/login` и `/2fa/challenge` — нет (DEVOPS §13 п. 8–9).
+- [ ] Сжатие: gzip (за Cloudflare — br) у статики TWA и у `/admin/login` (с 16.11.2026 панели сжимаются); в конце HTML `/admin/login` — комментарий `<!--…-->` из 32–160 base64-символов, разный у двух запросов подряд (шум против BREACH, `RandomizeResponseLength`); `/css/filament/filament/app.css` — `Cache-Control: public, max-age=31536000, immutable` (DEVOPS §13 п. 8–9a).
 - [ ] `composer audit` и `cd resources/twa && npm audit` — без critical/high.
 
 ### 7.3 Нагрузка k6

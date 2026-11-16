@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\Course;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
@@ -124,4 +125,49 @@ it('reads a lesson with its stage and the course facts in ONE statement', functi
 
 it('answers null for a lesson that does not exist', function (): void {
     expect(app(CourseCatalogService::class)->lessonWithContext(999_999))->toBeNull();
+});
+
+it('does not list a public course without words in the learner catalog, even when it is the active one', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    $filled = Course::factory()->published()->create(['words_count' => 4]);
+    $empty = $catalog->defaultCourse();
+    $learner = Learner::factory()->create(['active_course_id' => $empty->id]);
+
+    $listed = array_map(fn ($listing): int => $listing->course->id, $catalog->forLearner($learner));
+
+    expect($listed)->toBe([$filled->id]);
+});
+
+it('still lists an empty unlisted course as the active course of the learner', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    $unlisted = Course::factory()->published()->create(['visibility' => 'unlisted', 'words_count' => 0]);
+    $learner = Learner::factory()->create(['active_course_id' => $unlisted->id]);
+
+    $listings = $catalog->forLearner($learner);
+
+    expect($listings)->toHaveCount(1)
+        ->and($listings[0]->course->id)->toBe($unlisted->id)
+        ->and($listings[0]->isActive)->toBeTrue();
+});
+
+it('still lists an empty deck of the learner as their active course, and never to another learner', function (): void {
+    $catalog = app(CourseCatalogService::class);
+    $owner = Learner::factory()->create();
+    // A deck right after it was created: private, published, no words yet.
+    $deck = Course::factory()->published()->create([
+        'owner_type' => 'learner',
+        'owner_id' => $owner->id,
+        'visibility' => 'private',
+        'source' => 'learner',
+        'words_count' => 0,
+    ]);
+    $owner->forceFill(['active_course_id' => $deck->id])->save();
+    $stranger = Learner::factory()->create(['active_course_id' => $deck->id]);
+
+    $own = $catalog->forLearner($owner);
+
+    expect($own)->toHaveCount(1)
+        ->and($own[0]->course->id)->toBe($deck->id)
+        ->and($own[0]->isActive)->toBeTrue()
+        ->and($catalog->forLearner($stranger))->toBe([]);
 });

@@ -181,12 +181,13 @@ it('counts learned active words per course and ignores inactive words', function
     expect($row['progress'])->toBe(['done' => 1, 'total' => 4]);
 });
 
-it('reports zero progress for a course without words', function (): void {
-    Course::factory()->published()->create(['slug' => 'empty']);
+it('hides a public course without words from the catalog, also when it is the active course of the learner', function (): void {
+    $empty = Course::factory()->published()->create(['slug' => 'empty']);
+    $learner = Learner::factory()->create(['active_course_id' => $empty->id]);
 
-    $rows = $this->withHeaders(courseHeaders(Learner::factory()->create()))->getJson('/api/twa/courses')->json('courses');
+    $rows = $this->withHeaders(courseHeaders($learner))->getJson('/api/twa/courses')->json('courses');
 
-    expect($rows[0]['progress'])->toBe(['done' => 0, 'total' => 0]);
+    expect($rows)->toBe([]);
 });
 
 it('keeps one progress per learner no matter how many groups the learner studies in', function (): void {
@@ -406,6 +407,7 @@ it('caches the public list and serves new data after publication', function (): 
         WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => 'ru']);
         WordTranslation::factory()->uz()->create(['word_id' => $word->id]);
     }
+    app(CoursePublisher::class)->recount($course); // a course with words: the catalog hides the empty ones
 
     $learner = Learner::factory()->create();
     $headers = courseHeaders($learner);
