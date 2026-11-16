@@ -42,6 +42,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // SPA with hover prefetch (docs/20 §1.14): links to pages outside the panel (the 2FA pages are plain Blade, not
+            // Filament layouts) must stay full page loads.
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions(['*/2fa/*'])
             ->brandName('LexiFlow Pro')
             ->colors([
                 'primary' => Color::Amber,

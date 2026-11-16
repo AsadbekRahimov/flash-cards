@@ -60,6 +60,10 @@ class OrgPanelProvider extends PanelProvider
             ->login()
             ->passwordReset(OrgRequestPasswordReset::class)
             ->profile(OrgProfile::class, isSimple: false)
+            // SPA with hover prefetch (docs/20 §1.14): the 2FA pages are plain Blade outside the panel layout and the
+            // printable invoice is a standalone document — both stay full page loads.
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions(['*/2fa/*', '*/org/*/invoice/*'])
             ->brandName('LexiFlow Pro')
             ->colors([
                 'primary' => Color::Indigo,

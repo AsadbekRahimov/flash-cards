@@ -7,6 +7,7 @@
     @include('2fa._styles')
 </head>
 <body>
+@include('2fa._full_load')
 <div class="card">
     <h1>{{ __('twofactor.setup.heading', [], $locale) }}</h1>
     <p>{{ __('twofactor.setup.intro', [], $locale) }}</p>
