@@ -83,6 +83,11 @@ beforeEach(function (): void {
         'leagues.monthly.daily_cap' => 300,
         'leagues.monthly.top' => 5,
         'leagues.monthly.places' => 3,
+        'leagues.monthly.prizes' => [
+            1 => ['ru' => 'Telegram Premium на 3 месяца', 'uz' => 'Telegram Premium 3 oyga'],
+            2 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+            3 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+        ],
         'leagues.monthly.candidates' => 4,
         'leagues.monthly.min_active_days' => 3,
         'leagues.monthly.min_account_days' => 7,
@@ -570,4 +575,26 @@ it('never writes to the month tables from the review transaction: a grade touche
     DB::disableQueryLog();
 
     expect(array_filter($queries, static fn (string $sql): bool => str_contains($sql, 'league_month')))->toBe([]);
+});
+
+// --- default prizes ------------------------------------------------------------------------
+
+it('promises no prize by default: the shipped config has empty titles, blank ones never become a prize, partial ones show only what is set', function (): void {
+    $month = LeagueMonth::factory()->create();
+
+    // What the repository ships (no LEAGUES_MONTHLY_PRIZE_* in the environment): every title is empty.
+    $shipped = (array) (require config_path('leagues.php'))['monthly']['prizes'];
+    foreach ($shipped as $titles) {
+        expect(array_filter((array) $titles, static fn (mixed $t): bool => $t !== ''))->toBe([]);
+    }
+    config(['leagues.monthly.prizes' => $shipped]);
+    expect(mrService()->prizes($month))->toBe([]);
+
+    // Spaces only are no title.
+    config(['leagues.monthly.prizes' => [1 => ['ru' => '  ', 'uz' => ''], 2 => ['ru' => "\t", 'uz' => ' ']]]);
+    expect(mrService()->prizes($month))->toBe([]);
+
+    // Only the places that are set.
+    config(['leagues.monthly.prizes' => [1 => ['ru' => '', 'uz' => ''], 2 => ['ru' => ' Книга ', 'uz' => ''], 3 => ['ru' => '', 'uz' => '']]]);
+    expect(array_map(fn ($p) => [$p->place, $p->title('ru'), $p->title('uz')], mrService()->prizes($month)))->toBe([[2, 'Книга', 'Книга']]);
 });

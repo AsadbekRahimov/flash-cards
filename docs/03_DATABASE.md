@@ -417,7 +417,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 |---------|-----|
 | id | bigint PK |
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
-| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9») |
+| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
 | payload | jsonb | — что отправили: `{kind, due_count, streak, scheduled_for}` |
 | sent_at | timestamp |
 

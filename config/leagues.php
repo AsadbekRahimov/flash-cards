@@ -106,11 +106,12 @@ return [
         /**
          * The prizes of a month that has none of its own (`league_months.prizes` IS NULL), by place, ru / uz. An empty title for a
          * place = no prize for it; no prizes at all = the prize block is hidden and the rating still runs.
+         * Empty by default: a prize is a promise to everybody who sees it, so none is made until the owner sets one (here, or per month in /admin).
          */
         'prizes' => [
-            1 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_1_RU', 'Telegram Premium на 3 месяца'), 'uz' => env('LEAGUES_MONTHLY_PRIZE_1_UZ', 'Telegram Premium 3 oyga')],
-            2 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_2_RU', 'Telegram Premium на 1 месяц'), 'uz' => env('LEAGUES_MONTHLY_PRIZE_2_UZ', 'Telegram Premium 1 oyga')],
-            3 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_3_RU', 'Telegram Premium на 1 месяц'), 'uz' => env('LEAGUES_MONTHLY_PRIZE_3_UZ', 'Telegram Premium 1 oyga')],
+            1 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_1_RU', ''), 'uz' => env('LEAGUES_MONTHLY_PRIZE_1_UZ', '')],
+            2 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_2_RU', ''), 'uz' => env('LEAGUES_MONTHLY_PRIZE_2_UZ', '')],
+            3 => ['ru' => env('LEAGUES_MONTHLY_PRIZE_3_RU', ''), 'uz' => env('LEAGUES_MONTHLY_PRIZE_3_UZ', '')],
         ],
 
         /**

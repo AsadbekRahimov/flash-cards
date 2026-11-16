@@ -753,6 +753,63 @@ for the players, i.e. at least one completed or failed run in the week, and for 
 
 ---
 
+## Monthly rating (Рейтинг месяца, docs/13 §7.6)
+
+Navigate to **Administration → Рейтинг месяца**. Admin only (an active `admin`; teachers do not see the item or the pages). The menu item carries a
+yellow badge «Ждёт проверки» with the number of months that wait for your review (normally 1 in the first days of a month).
+
+**What happens.** Every learner earns league points for each session (the same points as the weekly leagues); the month's total counts at most
+`LEAGUES_MONTHLY_DAILY_CAP` (300) points per local day. The month ends on the 1st at 00:00 (`LEAGUES_TIMEZONE`) and is closed
+`LEAGUES_MONTHLY_CLOSE_DELAY_MINUTES` (180) later by `leagues:close-month`: the scores become final, the best `LEAGUES_MONTHLY_CANDIDATES` (10) eligible
+participants are frozen as **candidates** with their anti-abuse signals, the month goes to status «Ждёт проверки». Eligible = at least
+`LEAGUES_MONTHLY_MIN_ACTIVE_DAYS` (10) days with points and an account at least `LEAGUES_MONTHLY_MIN_ACCOUNT_DAYS` (14) days old at the month's end.
+Nothing is given automatically: you decide.
+
+**The list** shows every month: status (Идёт / Закрывается / Ждёт проверки / Подтверждён), participants, candidates, when it was closed, who confirmed it.
+**«Открыть»** opens the month.
+
+**The month page** shows the prizes (RU / UZ by place, and whether they are the month's own or the defaults) and the candidates by rank: the provisional place
+(1–3 go to the best candidates that are not disqualified), the learner (a link to the learner's page), points, active days, **signals**, status, the reason of a
+disqualification, and for a confirmed month «Приз вручён» with the date. Next to a candidate who holds a place you see `@username` (a link to `t.me`) and the
+Telegram ID (a `tg://user?id=…` link): this is how you contact the winner to give the prize. These are shown to admins only and never leave the panel.
+
+**Reading the signals.** The facts are under the badges (accuracy, mean time per answer, days at the cap, best day, spike, account age, overall place);
+the coloured badges are flags with a tooltip. A flag is a reason to look, not a verdict — nothing is decided automatically:
+
+| Flag | Means | Look at |
+|---|---|---|
+| Низкая точность | fewer than 55 % correct answers (50+ grades): cards may be tapped at random for points | «Баллы по дням», the learner's page |
+| Слишком высокая точность | more than 98 % correct (50+ grades): a script, or always «easy» | the same |
+| Слишком быстро | under 1.5 s per graded card on average: words cannot be read that fast | the time per answer |
+| Новый аккаунт | the account is under 30 days old at the month's end: a fresh account with a huge total | the account age, the referrals of the learner |
+| Всплеск | the best day is 3+ times the mean active day: points made in one burst | «Баллы по дням» |
+| Часто упирался в потолок | 5+ days at the daily cap: thousands of grades a day | «Баллы по дням» (the «Засчитано» column is cut by the cap) |
+
+The thresholds are `LEAGUES_MONTHLY_SIGNAL_*`. **«Баллы по дням»** opens a window with every day of the month: repetitions, correct, new words, goal, points and
+the points counted after the cap.
+
+**Order of work.**
+1. **Check** the candidates (signals, «Баллы по дням», the learner's page).
+2. **Disqualify** whoever played unfairly: «Дисквалифицировать» → a reason is required (it stays with the row and in the audit log) → confirm. The next
+   candidate takes the place at once (the page shows it). A mistaken decision is taken back with «Вернуть» — only until the month is confirmed.
+3. **Prizes** (see below) — before the confirmation.
+4. **Confirm**: «Подтвердить итоги». The window lists the final places 1–3 with the prize of each and warns that the action is **irreversible**: after it
+   the places, disqualifications and prizes never change, and the bot sends every winner a congratulation in their language («Вы заняли N-е место … Ваш приз: …;
+   мы свяжемся с вами в Telegram»; without prizes the message has no prize sentences). The Mini App shows the winners in «last month».
+5. **Give the prize** by hand (e.g. Telegram Premium as a gift via the winner's contact) and press **«Приз вручён»** on the winner's row (confirmation; once, cannot be undone). The date
+   is shown in the row.
+
+If another administrator is faster, your click ends with a notification («Месяц не ждёт проверки…») and the page refreshes: nothing is done twice.
+Every decision is written to the audit log (`league_month.*`).
+
+**Prizes.** By default there are **no prizes** (the prize block is hidden in the Mini App, the rating works). Two ways to set them:
+- **For one month**, in the panel: «Изменить призы» — a form with places 1–3 × RU / UZ (a place with empty titles has no prize; up to 200 characters). «Убрать призы» = no prizes this month;
+  «По умолчанию» = back to the defaults of the environment. Not available after the confirmation.
+- **Defaults for every month** without its own prizes: `.env` variables `LEAGUES_MONTHLY_PRIZE_{1..3}_{RU,UZ}` (for example `LEAGUES_MONTHLY_PRIZE_1_RU="Telegram Premium на 3 месяца"`). Empty by default, because a published prize is a promise to every learner.
+  Set the prizes **before** the month starts, or at the latest before the confirmation — learners read them on the rating screen.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Engagement\Services;
 
+use App\Domain\Administration\Services\PendingLeagueMonthsBadge;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\DTO\MonthCandidateReview;
@@ -128,6 +129,7 @@ final class MonthlyRatingReviewService
         });
 
         PureCache::forgetMany([MonthlyRatingService::topKey($month->id)]);
+        PendingLeagueMonthsBadge::forget();
         $this->events->record(ProductEventName::LeagueMonthConfirmed, [
             'month_id' => $month->id,
             'starts_on' => $month->starts_on->toDateString(),

@@ -73,7 +73,15 @@ function mrrPlaces(LeagueMonth $month): array
 }
 
 beforeEach(function (): void {
-    config(['leagues.timezone' => 'Asia/Tashkent', 'leagues.monthly.places' => 3]);
+    config([
+        'leagues.timezone' => 'Asia/Tashkent',
+        'leagues.monthly.places' => 3,
+        'leagues.monthly.prizes' => [
+            1 => ['ru' => 'Telegram Premium на 3 месяца', 'uz' => 'Telegram Premium 3 oyga'],
+            2 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+            3 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+        ],
+    ]);
     $this->travelTo(CarbonImmutable::parse('2026-11-01 05:00:00', 'UTC'));
 });
 

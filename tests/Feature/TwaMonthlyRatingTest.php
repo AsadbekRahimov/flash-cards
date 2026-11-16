@@ -32,6 +32,11 @@ beforeEach(function (): void {
         'leagues.monthly.daily_cap' => 300,
         'leagues.monthly.top' => 50,
         'leagues.monthly.places' => 3,
+        'leagues.monthly.prizes' => [
+            1 => ['ru' => 'Telegram Premium на 3 месяца', 'uz' => 'Telegram Premium 3 oyga'],
+            2 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+            3 => ['ru' => 'Telegram Premium на 1 месяц', 'uz' => 'Telegram Premium 1 oyga'],
+        ],
         'leagues.monthly.min_active_days' => 3,
         'leagues.monthly.min_account_days' => 7,
     ]);
@@ -101,6 +106,17 @@ it('GET /league/month keeps its exact JSON shape and shows of others a first nam
     // The prize title follows the interface locale.
     $me->forceFill(['interface_locale' => 'uz'])->save();
     expect(twmGet($me, '/api/twa/league/month')->json('prizes.0.title'))->toBe('Telegram Premium 3 oyga');
+});
+
+it('GET /league/month hides the prize block when no prize is configured, and shows only the places that are set', function (): void {
+    $me = twmLearner();
+
+    config(['leagues.monthly.prizes' => [1 => ['ru' => '', 'uz' => ''], 2 => ['ru' => ' ', 'uz' => ''], 3 => ['ru' => '', 'uz' => '']]]);
+    twmGet($me, '/api/twa/league/month')->assertOk()->assertJsonPath('prizes', []);
+
+    config(['leagues.monthly.prizes' => [1 => ['ru' => '', 'uz' => ''], 2 => ['ru' => 'Книга', 'uz' => 'Kitob']]]);
+    twmGet($me, '/api/twa/league/month')->assertOk()
+        ->assertJsonPath('prizes', [['place' => 2, 'title' => 'Книга']]);
 });
 
 it('answers a learner without activity with `me: null`, an opted-out one without a place, and a disabled rating with the flag', function (): void {
