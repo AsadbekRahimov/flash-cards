@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\InitialAvatarProvider;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\GameActivityWidget;
@@ -47,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
             ->spa(hasPrefetching: true)
             ->spaUrlExceptions(['*/2fa/*'])
             ->brandName('LexiFlow Pro')
+            ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->colors([
                 'primary' => Color::Amber,
             ])

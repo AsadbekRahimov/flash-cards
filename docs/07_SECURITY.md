@@ -269,6 +269,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
   default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self';
   ```
   Для TWA отдельный less-restrictive CSP с разрешением на Telegram-домены.
+  Аватар в меню пользователя и переключателе центра обеих панелей рисуется локально (`App\Filament\Support\InitialAvatarProvider`: первая буква имени на тёмном фоне, `data:` SVG), а не берётся у ui-avatars.com: внешняя картинка блокировалась бы `img-src`, а имена сотрудников уходили бы третьей стороне.
 - **HTTP security headers** (middleware):
   - `Strict-Transport-Security: max-age=15552000; includeSubDomains`
   - `X-Content-Type-Options: nosniff`
