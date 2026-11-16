@@ -18,7 +18,7 @@ use Tests\Support\FakeTelegramClient;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    config(['telegram.bot_username' => 'LexiFlowBot', 'referrals.reward_days' => 7]);
+    config(['telegram.bot_username' => 'LexiFlowBot']);
     $this->tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $this->tg);
 });
@@ -33,10 +33,12 @@ function inviteSend(int $tgId, string $text = '/invite', string $chatType = 'pri
     ]]);
 }
 
-it('answers /invite with the link, the rule, the counts and a share button', function (): void {
+it('answers /invite with the link, the milestone rule, the counts and a share button', function (): void {
+    config(['referrals.milestones' => [3, 6], 'referrals.milestone_days' => 7, 'referrals.activation.reviews_per_day' => 10]);
     $learner = Learner::factory()->create(['telegram_user_id' => 8101, 'onboarding_state' => 'done', 'interface_locale' => 'ru']);
     $referee = Learner::factory()->create();
     Referral::factory()->rewarded()->create(['referrer_learner_id' => $learner->id, 'referee_learner_id' => $referee->id]);
+    Referral::factory()->create(['referrer_learner_id' => $learner->id]); // pending: came, not counted yet
 
     inviteSend(8101);
 
@@ -44,9 +46,9 @@ it('answers /invite with the link, the rule, the counts and a share button', fun
     expect($code)->toMatch('/^[A-Z2-9]{8}$/')
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['text'])->toContain("https://t.me/LexiFlowBot?start=ref_{$code}")
-        ->and($this->tg->sent[0]['text'])->toContain('3 дня')
-        ->and($this->tg->sent[0]['text'])->toContain('7 дней Pro')
-        ->and($this->tg->sent[0]['text'])->toContain('Пришли по вашей ссылке: 1 · занимаются: 1 · награждены: 1')
+        ->and($this->tg->sent[0]['text'])->toContain('10 карточек')
+        ->and($this->tg->sent[0]['text'])->toContain('за 3, 6 друзей вы получите по 7 дней Pro')
+        ->and($this->tg->sent[0]['text'])->toContain('Пришли по вашей ссылке: 2 · засчитаны: 1 · до награды ещё 2 (из 3)')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('Поделиться ссылкой')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'])->toStartWith('https://t.me/share/url?url=')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'])->toContain(urlencode("https://t.me/LexiFlowBot?start=ref_{$code}"));

@@ -73,19 +73,20 @@ final class InviteCommandHandler implements UpdateHandler
     private function text(Learner $learner, string $locale): string
     {
         $overview = $this->referrals->overview($learner, limit: 0);
+        // The milestone scheme (docs/13 §7.1 "2C.9"): "+N days of Pro at 3 and at 6 counted friends".
         $rule = __('referrals.invite.rule', [
-            'days' => $overview->activationDays,
             'reviews' => $overview->activationReviewsPerDay,
-            'reward' => $overview->rewardDays,
+            'milestones' => implode(', ', array_map(static fn (array $m): string => (string) $m['friends'], $overview->milestones)),
+            'reward' => $overview->milestoneDays,
         ], $locale);
         $link = $overview->link ?? __('referrals.invite.no_link', ['code' => $overview->code], $locale);
 
-        return __('referrals.invite.text', ['rule' => $rule, 'link' => $link], $locale)
-            ."\n\n".__('referrals.invite.stats', [
-                'invited' => $overview->invited,
-                'activated' => $overview->activated,
-                'rewarded' => $overview->rewarded,
-            ], $locale);
+        $stats = __('referrals.invite.stats', ['invited' => $overview->invited, 'counted' => $overview->counted], $locale);
+        if ($overview->next !== null) {
+            $stats .= ' · '.__('referrals.invite.next', ['remaining' => $overview->next['remaining'], 'friends' => $overview->next['friends']], $locale);
+        }
+
+        return __('referrals.invite.text', ['rule' => $rule, 'link' => $link], $locale)."\n\n".$stats;
     }
 
     /** @return array<string, mixed>|null */

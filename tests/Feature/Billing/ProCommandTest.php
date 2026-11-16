@@ -68,6 +68,8 @@ function callbacks(?array $markup): array
 
 it('/pro says Pro is coming, with the contact, while nothing is for sale', function (): void {
     config()->set('billing.paywall.mode', 'coming_soon');
+    // A learner of before the launch: a brand-new one would be on the welcome trial (docs/13 §7.1 "2C.9"), not on Free.
+    Learner::factory()->create(['telegram_user_id' => 555]);
 
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro'));
 

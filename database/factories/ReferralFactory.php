@@ -36,7 +36,7 @@ class ReferralFactory extends Factory
         ]);
     }
 
-    /** Both sides granted; `linked_at`/`rewarded_at` default to now (pass one for "30 days ago" cases). */
+    /** Counted for the inviter; `linked_at`/`rewarded_at` default to now (pass one for "30 days ago" cases). */
     public function rewarded(?\DateTimeInterface $at = null): static
     {
         return $this->state(fn (): array => [
@@ -44,13 +44,7 @@ class ReferralFactory extends Factory
             'linked_at' => $at ?? now(),
             'activated_at' => $at ?? now(),
             'rewarded_at' => $at ?? now(),
-            'meta' => [
-                'rewards' => [
-                    Referral::SIDE_REFEREE => ['subscription_id' => null, 'skipped' => 'perpetual'],
-                    Referral::SIDE_REFERRER => ['subscription_id' => null, 'skipped' => 'perpetual'],
-                ],
-                'reward_subscription_ids' => [],
-            ],
+            'meta' => [],
         ]);
     }
 

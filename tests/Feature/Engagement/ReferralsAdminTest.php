@@ -9,6 +9,7 @@ use App\Filament\Resources\LearnerResource\RelationManagers\ReferralsRelationMan
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Referral;
+use App\Models\ReferralMilestone;
 use App\Models\Subscription;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -16,14 +17,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 /*
- * Referrals on the learner page (docs/13 §11 2C.1): admin only, read-only, "Clear flag" rewards a parked
+ * Referrals on the learner page (docs/13 §11 2C.1): admin only, read-only, "Clear flag" counts a parked
  * activated referral at once, "Reject" refuses it; both audited. The list column counts non-rejected referrals.
  */
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    config(['referrals.reward_days' => 7]);
     $this->seed(RolePermissionSeeder::class);
     $this->admin = User::factory()->create(['is_active' => true]);
     $this->admin->assignRole('admin');
@@ -43,7 +43,9 @@ it('lists only the referrals this learner made', function (): void {
         ->assertCanNotSeeTableRecords([$asReferee, $foreign]);
 });
 
-it('clears the flag of a flagged activated referral, which rewards both sides and is audited', function (): void {
+it('clears the flag of a flagged activated referral, which counts it for the inviter (here: the 3rd friend, +7 days) and is audited', function (): void {
+    config(['referrals.milestones' => [3, 6], 'referrals.milestone_days' => 7]);
+    Referral::factory()->count(2)->rewarded()->create(['referrer_learner_id' => $this->learner->id]);
     $flagged = Referral::factory()->activated()->flagged()->create(['referrer_learner_id' => $this->learner->id]);
     $clean = Referral::factory()->create(['referrer_learner_id' => $this->learner->id]);
 
@@ -59,8 +61,10 @@ it('clears the flag of a flagged activated referral, which rewards both sides an
     $flagged->refresh();
     expect($flagged->flagged_at)->toBeNull()
         ->and($flagged->status)->toBe('rewarded')
+        ->and(ReferralMilestone::query()->where('referrer_learner_id', $this->learner->id)->where('milestone', 3)->whereNotNull('granted_at')->count())->toBe(1)
         ->and(Subscription::query()->where('subscriber_id', $this->learner->id)->where('provider', 'reward')->count())->toBe(1)
-        ->and(Subscription::query()->where('subscriber_id', $flagged->referee_learner_id)->where('provider', 'reward')->count())->toBe(1);
+        // The invited learner gets nothing by the referral (the welcome trial is every new learner's, not the referral's).
+        ->and(Subscription::query()->where('subscriber_id', $flagged->referee_learner_id)->count())->toBe(0);
 
     $audit = AuditLog::query()->where('action', 'referral.unflagged')->sole();
     expect($audit->user_id)->toBe($this->admin->id)

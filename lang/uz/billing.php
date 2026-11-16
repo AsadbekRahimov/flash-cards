@@ -120,6 +120,9 @@ return [
         'org_dm' => '{1} «:organization» markazining obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date).',
         'hint' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun obunani oldindan uzaytiring.',
         'hint_canceled' => 'Avtoyangilash o\'chirilgan, shuning uchun Pro o\'zi uzaymaydi. Cheklovsiz imkoniyatlarni yo\'qotmaslik uchun oldindan uzaytiring.',
+        // The welcome trial (docs/13 §7.1 "2C.9"): not a renewal — the first purchase.
+        'trial_dm' => '{1} Sinov LexiFlow Pro ertaga tugaydi (:date).|[2,*] Sinov LexiFlow Pro :count kundan keyin tugaydi (:date).',
+        'hint_trial' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun Pro\'ni rasmiylashtiring.',
         'org_hint' => 'Obuna tugagach, markaz o\'quvchilari yana Free tarifiga o\'tadi.',
         'button' => "Pro'ni uzaytirish",
         'mail' => [

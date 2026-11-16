@@ -119,8 +119,8 @@ Schedule::command('leagues:close-week')
     ->withoutOverlapping(30)
     ->runInBackground();
 
-// Referral rewards (docs/13 §7.1): re-queues the reward job of a referral that is `activated`, or
-// `rewarded` with a side still missing, after a lost / failed job. Idempotent by the data.
+// Referral rewards (docs/13 §7.1): re-queues the job of a referral left `activated` (not counted), or of a
+// milestone reached and not granted, after a lost / failed job. Idempotent by the data.
 Schedule::command('referrals:recover')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20)

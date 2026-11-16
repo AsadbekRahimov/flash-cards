@@ -906,14 +906,22 @@ it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void
         ->getJson('/api/twa/referrals')
         ->assertOk()
         ->assertExactJsonStructure([
-            'code', 'link', 'reward_days',
+            'code', 'link',
             'activation' => ['days', 'reviews_per_day', 'window_days'],
-            'counts' => ['invited', 'activated', 'rewarded', 'capped'],
+            'milestone_days',
+            'counts' => ['invited', 'activated', 'counted'],
+            'milestones' => ['*' => ['friends', 'days', 'reached_at', 'rewarded']],
+            'next' => ['friends', 'remaining'],
             'referrals' => [['first_name', 'status', 'linked_at']],
         ]);
 
     expect($response->json('code'))->toMatch('/^[A-Z2-9]{8}$/')
         ->and($response->json('link'))->toBe('https://t.me/LexiFlowBot?start=ref_'.$response->json('code'))
+        ->and($response->json('milestones'))->toBe([
+            ['friends' => 3, 'days' => 7, 'reached_at' => null, 'rewarded' => false],
+            ['friends' => 6, 'days' => 7, 'reached_at' => null, 'rewarded' => false],
+        ])
+        ->and($response->json('next'))->toBe(['friends' => 3, 'remaining' => 3])
         ->and($response->json('referrals.0.first_name'))->toBe('Bek')
         ->and($response->json('referrals.0.status'))->toBe('pending');
 });

@@ -59,10 +59,16 @@ enum ProductEventName: string
     case ReferralLinked = 'referral.linked';
     /** The invited learner studied enough (props: referral_id, active_days). */
     case ReferralActivated = 'referral.activated';
-    /** Both sides were granted (or skipped: perpetual Pro) their reward (props: referral_id, days, referee_skipped, referrer_skipped — `referrer_capped` when the inviter's cap was reached). */
-    case ReferralRewarded = 'referral.rewarded';
+    /** The invited learner was counted towards the inviter's milestones (props: referral_id, referrer_learner_id, counted — the friend's number; docs/13 §7.1 "2C.9"). Until 2C.9 `referral.rewarded` marked the per-friend reward of both sides. */
+    case ReferralCounted = 'referral.counted';
+    /** The inviter reached a milestone and its reward was settled (props: milestone, days, referral_id, subscription_id, skipped — perpetual / learner_missing / learner_deleted / learner_blocked); actor = the inviter. */
+    case ReferralMilestoneReached = 'referral.milestone_reached';
     /** A referral was refused (props: reason — self / existing_learner / unknown_code / flagged; legacy referrer_capped). */
     case ReferralRejected = 'referral.rejected';
+    /** The welcome trial of a new learner was granted (props: days, subscription_id, ends_at, extended — docs/13 §7.1 "2C.9"). */
+    case TrialGranted = 'trial.granted';
+    /** A learner eligible by the row was refused the trial (props: reason — already_used: this Telegram account had one before). */
+    case TrialRefused = 'trial.refused';
     case DailyGoalMet = 'daily_goal.met';
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */

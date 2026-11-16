@@ -916,14 +916,44 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | reject_reason | string(24) nullable | `self` (своя ссылка), `existing_learner` (learner существовал до этого `/start`), `referrer_capped` (исторический: до 2C.6 лимит наград пригласившего отклонял реферал; теперь лимит лишь пропускает награду пригласившего — `meta.rewards.referrer.skipped = referrer_capped`, статус `rewarded`), `flagged` (отклонён админом) |
 | linked_at | timestamp NOT NULL | момент `/start ref_<code>` |
 | activated_at | timestamp nullable | правило активации выполнено (`config('referrals.activation')`: ≥ 3 локальных дня с `learner_daily_stats.reviews_count ≥ 10` в окне 14 дней от локального дня привязки) |
-| rewarded_at | timestamp nullable | клейм награды (`activated → rewarded`); сами гранты — по `meta.rewards` |
-| flagged_at | timestamp nullable | всплеск (≥ 20 привязок пригласившего за 24 ч): награда ждёт снятия флага админом |
-| meta | jsonb default '{}' | `rewards: {referee: {subscription_id, skipped}, referrer: {...}}` (одна транзакция на сторону — повтор доначисляет недостающее; `skipped`: `perpetual` / `learner_missing`), `reward_subscription_ids`, `active_days` |
+| rewarded_at | timestamp nullable | клейм (`activated → rewarded`): с 2C.9 — «засчитан пригласившему»; награды — `referral_milestones` (§2.33a) |
+| flagged_at | timestamp nullable | всплеск (≥ 20 привязок пригласившего за 24 ч): не засчитывается до снятия флага админом |
+| meta | jsonb default '{}' | `active_days` (локальные дни активации), `counted` (номер друга у пригласившего, 2C.9); `rewards` / `reward_subscription_ids` — только у строк до 2C.9 (гранты обеим сторонам старой схемы), никем не читаются |
 | created_at, updated_at | | |
 
-**Индексы:** `referee_learner_id` unique; `(referrer_learner_id, status, linked_at)`.
+**Индексы:** `referee_learner_id` unique; `(referrer_learner_id, status, linked_at)`; `(status, activated_at)`, `(status, rewarded_at)`.
 
-**Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок пути награды: `referrals` (FOR UPDATE, строки пригласившего по `id`) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit).
+**Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок (docs/13 §3 п.4, 2C.9): клейм — `referrals` (FOR UPDATE, строки пригласившего по `id`) → INSERT `referral_milestones`; выдача вехи — `referral_milestones` (FOR UPDATE) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit). Активация с 2C.9: `onboarding_state = done` и ≥ 1 локальный день с `reviews_count ≥ 10` в окне.
+
+### 2.33a `referral_milestones` — вехи пригласившего *(2C.9, docs/13 §1.5, §7.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| referrer_learner_id | bigint FK → learners, ON DELETE CASCADE | пригласивший |
+| milestone | smallint | число засчитанных друзей (`config('referrals.milestones')`: 3, 6) |
+| days | smallint | дни Pro вехи на момент достижения (`referrals.milestone_days`) |
+| referral_id | bigint FK → referrals, ON DELETE SET NULL | реферал, закрывший веху |
+| reached_at | timestamp NOT NULL | момент клейма, под замком строк `referrals` пригласившего |
+| granted_at | timestamp nullable | выдача (`SubscriptionService::grantReward`, `provider_ref = referral_milestone:<referrer>:<milestone>`); `NULL` = награда ещё должна (`referrals:recover`) |
+| subscription_id | bigint nullable (без FK) | продлённая / созданная подписка |
+| skipped | string(24) nullable | выдано без Pro: `perpetual` / `learner_missing` / `learner_deleted` / `learner_blocked` |
+| created_at, updated_at | | |
+
+**Индексы:** **unique `(referrer_learner_id, milestone)`** — «каждая веха ровно один раз»; `(granted_at, reached_at)`. Пишет только `ReferralService` (`insertOrIgnore` в клейме, `grantMilestone` под `FOR UPDATE` строки).
+
+### 2.33b `pro_trials` — книга пробного Pro *(2C.9, docs/13 §7.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| telegram_hash | string(64) **unique** | HMAC-SHA256 от Telegram id с `APP_KEY` (`ProTrialService::hashFor`); сам id не хранится — строка переживает purge learner'а (§8 правило 2) и запрещает второй пробный тому же аккаунту |
+| learner_id | bigint FK → learners, ON DELETE SET NULL | кому выдан (пока строка learner'а есть) |
+| subscription_id | bigint nullable (без FK) | пробная подписка (`provider = trial`, `status = trialing`) |
+| days | smallint | `billing.trial.days` на момент выдачи |
+| granted_at | timestamp NOT NULL | |
+| ends_at | timestamp nullable | конец пробного (`NULL` — бессрочная подписка уже была) |
+| created_at, updated_at | | |
+
+Пишет только `ProTrialService` (`learners` FOR UPDATE → INSERT в savepoint → `subscriptions`). Маркер претендента — `learners.meta.pro_trial_pending` (пишет `LearnerRegistrar` при создании строки), уведомление — `learners.meta.pro_trial_notice`.
 
 ### 2.34 `league_weeks` — неделя лиг *(2C.3, docs/13 §1.5, §7.3)*
 | Колонка | Тип | Описание |
@@ -1391,6 +1421,8 @@ CHECK не создаются — инвариант дублируют серв
 72. `2026_11_10_130001_add_prompt_to_telegram_link_tokens_table` — `telegram_link_tokens.prompted_telegram_user_id` *(ревью W2, §2.32a)*
 73. `2026_11_10_130002_add_telegram_superseded_at_to_users_table` — `users.telegram_superseded_at` *(ревью W1, §2.1)*
 74. `2026_11_12_100001_add_training_reviews_learner_word_idx` — индекс `training_reviews (learner_id, word_id, id)` для `LeechInsight` (CONCURRENTLY на PostgreSQL) *(ревью, §2.10)*
+75. `2026_11_16_100001_create_pro_trials_table` — книга пробного Pro *(2C.9, §2.33b)*
+76. `2026_11_16_100002_create_referral_milestones_table` — вехи пригласившего *(2C.9, §2.33a)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

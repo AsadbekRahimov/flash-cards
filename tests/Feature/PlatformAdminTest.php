@@ -174,6 +174,7 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
         // active, expiring, perpetual, pastDue, canceled + 2 sponsored members (the third is `active`, counted once)
         'pro_learners' => 7,
         'personal' => 5,
+        'trials' => 0,
         'organizations' => 1,
         'expiring' => 3, // $expiring (3 days), $pastDue (grace ends in 2 days) and org A (5 days)
     ]);

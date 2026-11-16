@@ -690,10 +690,10 @@ final class SubscriptionService
     /**
      * Scheduler (`subscriptions:remind-expiring`, daily; docs/13 §4.4): for every live paid
      * subscription that will NOT renew by itself — a Payme / Click period, or a `canceled`
-     * auto-renewal — whose period ends within the next N days (N from
-     * `billing.checkout.renewal_reminder_days`, e.g. 3 and 1), raises
+     * auto-renewal — and for every welcome trial (`trial`, docs/13 §7.1 "2C.9") whose period ends
+     * within the next N days (N from `billing.checkout.renewal_reminder_days`, e.g. 3 and 1), raises
      * {@see SubscriptionRenewalDue} once per (subscription, period end, N). Grants (`manual`,
-     * `promo`, `reward`) are never reminded. Returns how many events were raised.
+     * `promo`, `reward`) are never reminded ({@see SubscriptionProvider::isReminded()}). Returns how many events were raised.
      *
      * Idempotency: the marker "<N>@<period end>" is written to `meta.renewal_reminders` under
      * the subject + subscription locks before the event is dispatched (after commit); the
@@ -710,7 +710,7 @@ final class SubscriptionService
 
         $grants = array_values(array_map(
             static fn (SubscriptionProvider $p): string => $p->value,
-            array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => ! $p->isPaid()),
+            array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => ! $p->isReminded()),
         ));
 
         $autoRenewing = array_values(array_map(
@@ -816,6 +816,40 @@ final class SubscriptionService
         $this->events->record(
             ProductEventName::SubscriptionGranted,
             ['plan' => $subscription->plan, 'provider' => SubscriptionProvider::Reward->value, 'subscriber_type' => 'learner', 'extended' => $live !== null, 'source' => $source, 'days' => $days],
+            learner: $learner,
+        );
+
+        $this->forgetAfterCommit($subscription);
+
+        return $subscription;
+    }
+
+    /**
+     * The welcome trial of a new learner (docs/13 §7.1 "2C.9"): `$days` of Pro, provider `trial`, status `trialing`
+     * for a fresh row. A live subscription (rare for a brand-new learner: an admin's manual grant between the
+     * registration and the first contact) is extended like a reward extends it and keeps its own provider; a
+     * perpetual one is returned untouched. Who is eligible, and the "once per Telegram account" book, is
+     * {@see ProTrialService}'s business: this method only writes the subscription. Must run inside the caller's
+     * transaction; locks the learner row itself.
+     *
+     * @internal for ProTrialService
+     */
+    public function grantTrial(Learner $learner, int $days, CarbonImmutable $now): Subscription
+    {
+        $days = max(1, $days);
+
+        $this->lockSubscriber($learner);
+        $live = $this->lockedLive($learner);
+
+        if ($live !== null && $live->current_period_ends_at === null) {
+            return $live;
+        }
+
+        $subscription = $this->grantDays($learner, $live, Plan::Pro, $days, SubscriptionProvider::Trial, 'trial', 'trial', ['days' => $days], $now);
+
+        $this->events->record(
+            ProductEventName::SubscriptionGranted,
+            ['plan' => $subscription->plan, 'provider' => SubscriptionProvider::Trial->value, 'subscriber_type' => 'learner', 'extended' => $live !== null, 'days' => $days],
             learner: $learner,
         );
 
@@ -954,8 +988,11 @@ final class SubscriptionService
     }
 
     /**
-     * Shared body of grantFromPromo / grantReward: a new active row, or the live row extended
-     * from max(its end, now) by $days and re-activated (a canceled row stays canceled).
+     * Shared body of grantFromPromo / grantReward / grantTrial: a new row (`active`; `trialing` for a trial), or the
+     * live row extended from max(its end, now) by $days and re-activated (a canceled row stays canceled). A live
+     * TRIAL that is extended by a promo or a reward stops being a trial: the row takes the provider and the reference
+     * of the grant (the history keeps `from.provider = trial`), so "trial until X" is never shown for a period a
+     * promo paid for, and the trial reminders stop with it (`remindExpiring` reminds trials, not grants).
      *
      * @param  array<string, mixed>  $historyExtra
      */
@@ -975,7 +1012,7 @@ final class SubscriptionService
                 'subscriber_type' => 'learner',
                 'subscriber_id' => $learner->id,
                 'plan' => $plan->value,
-                'status' => SubscriptionStatus::Active->value,
+                'status' => $provider === SubscriptionProvider::Trial ? SubscriptionStatus::Trialing->value : SubscriptionStatus::Active->value,
                 'provider' => $provider->value,
                 'provider_ref' => $providerRef,
                 'starts_at' => $now,
@@ -1000,10 +1037,12 @@ final class SubscriptionService
         // A canceled row stays canceled (it lives to the end of the extended period): re-activating it would
         // mark a Stars subscription as auto-renewing again although it is canceled in Telegram.
         $canceled = $live->status === SubscriptionStatus::Canceled->value;
+        $fromTrial = $live->provider === SubscriptionProvider::Trial->value && $provider !== SubscriptionProvider::Trial;
 
         $live->fill([
             'plan' => $plan->outranks(Plan::fromKey($live->plan)) ? $plan->value : $live->plan,
             'status' => $canceled ? SubscriptionStatus::Canceled->value : SubscriptionStatus::Active->value,
+            ...($fromTrial ? ['provider' => $provider->value, 'provider_ref' => $providerRef] : []),
             'current_period_ends_at' => $from->addDays($days),
             'grace_until' => null,
             'canceled_at' => $canceled ? $live->canceled_at : null,

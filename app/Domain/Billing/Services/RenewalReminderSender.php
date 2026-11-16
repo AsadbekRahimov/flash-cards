@@ -94,7 +94,7 @@ final class RenewalReminderSender
         $period = $subscription->current_period_ends_at;
 
         return $provider !== null
-            && $provider->isPaid()
+            && $provider->isReminded()
             && $period !== null
             && CarbonImmutable::instance($period)->equalTo($endsAt)
             && SubscriptionLiveness::isLive($subscription, $now)
@@ -287,7 +287,10 @@ final class RenewalReminderSender
 
     private function dmText(string $key, Subscription $subscription, int $daysLeft, CarbonImmutable $endsAt, string $timezone, string $locale, string $organization = ''): string
     {
-        $text = trans_choice($key, $daysLeft, [
+        // The welcome trial (docs/13 §7.1 "2C.9") is not a renewal: its own words, `billing.renewal.trial_dm` / `hint_trial`.
+        $trial = $organization === '' && $subscription->provider === SubscriptionProvider::Trial->value;
+
+        $text = trans_choice($trial ? 'billing.renewal.trial_dm' : $key, $daysLeft, [
             'date' => $endsAt->setTimezone($timezone)->format('d.m.Y'),
             'organization' => $organization,
         ], $locale);
@@ -295,6 +298,7 @@ final class RenewalReminderSender
         // A stopped Stars auto-renewal needs a different hint than a Payme / Click period.
         $hint = match (true) {
             $organization !== '' => 'billing.renewal.org_hint',
+            $trial => 'billing.renewal.hint_trial',
             $subscription->status === SubscriptionStatus::Canceled->value => 'billing.renewal.hint_canceled',
             default => 'billing.renewal.hint',
         };

@@ -140,6 +140,8 @@ it('walks a new learner through the five steps with five callbacks', function ()
         ->and($this->tg->answered)->toHaveCount(5);
 
     expect(onbEvents())->toBe([
+        // The welcome trial of a new learner goes with the /start itself (docs/13 §7.1 "2C.9"), before the onboarding begins.
+        'subscription.granted', 'trial.granted',
         'onboarding.started',
         'onboarding.step_completed', 'onboarding.step_completed', 'onboarding.step_completed',
         'onboarding.step_completed', 'onboarding.step_completed',

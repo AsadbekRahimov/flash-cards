@@ -13,10 +13,11 @@ use Illuminate\Support\Carbon;
 
 /**
  * "Invite a friend" (docs/13 §1.5): the inviter (`referrer`) and the invited new learner
- * (`referee`, unique), the state machine and its timestamps. `meta`:
- *   rewards: {referee: {subscription_id|null, skipped|null}, referrer: {...}} — filled by one
- *            transaction per side, so a retry grants only what is missing;
- *   reward_subscription_ids: list<int>; active_days: list<string> (the local days that activated it).
+ * (`referee`, unique), the state machine and its timestamps. `rewarded` = counted towards the inviter's
+ * milestones (docs/13 §7.1 "2C.9"; the rewards themselves are `referral_milestones`). `meta`:
+ *   active_days: list<string> (the local days that activated it);
+ *   counted: int (the friend's number for the inviter at the claim);
+ *   rewards / reward_subscription_ids: rows of before 2C.9 only (the per-friend grants of both sides), read by nobody.
  *
  * @property int $id
  * @property int $referrer_learner_id
@@ -37,11 +38,6 @@ class Referral extends Model
 {
     /** @use HasFactory<ReferralFactory> */
     use HasFactory;
-
-    /** Keys of `meta.rewards`: the two sides of a referral. */
-    public const SIDE_REFEREE = 'referee';
-
-    public const SIDE_REFERRER = 'referrer';
 
     /** @var list<string> */
     protected $fillable = [
@@ -93,32 +89,5 @@ class Referral extends Model
     public function referee(): BelongsTo
     {
         return $this->belongsTo(Learner::class, 'referee_learner_id');
-    }
-
-    /**
-     * What `meta.rewards.<side>` holds, or null when that side was not granted yet.
-     *
-     * @return array{subscription_id: int|null, skipped: string|null}|null
-     */
-    public function rewardOf(string $side): ?array
-    {
-        $rewards = $this->meta['rewards'] ?? null;
-        if (! is_array($rewards) || ! is_array($rewards[$side] ?? null)) {
-            return null;
-        }
-
-        /** @var array{subscription_id?: mixed, skipped?: mixed} $entry */
-        $entry = $rewards[$side];
-
-        return [
-            'subscription_id' => is_int($entry['subscription_id'] ?? null) ? $entry['subscription_id'] : null,
-            'skipped' => is_string($entry['skipped'] ?? null) ? $entry['skipped'] : null,
-        ];
-    }
-
-    /** Both sides granted (or deliberately skipped): the reward job has nothing left to do. */
-    public function fullyRewarded(): bool
-    {
-        return $this->rewardOf(self::SIDE_REFEREE) !== null && $this->rewardOf(self::SIDE_REFERRER) !== null;
     }
 }
