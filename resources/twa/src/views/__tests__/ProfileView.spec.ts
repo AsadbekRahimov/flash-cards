@@ -89,6 +89,38 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Бесплатный тариф: 20 новых слов в день')
     })
 
+    it('has the bilingual "Til · Язык" row with the current language by its own name, right before "Настройки"', async () => {
+      const w = await render()
+
+      const row = w.get('[data-testid=row-language]')
+      expect(row.text()).toContain('Til · Язык')
+      expect(row.text()).toContain('🇷🇺 Русский')
+      expect(row.element.tagName).toBe('BUTTON')
+      expect(row.find('.icon-tile svg').exists()).toBe(true)
+      expect(row.element.nextElementSibling).toBe(w.get('[data-testid=row-settings]').element)
+    })
+
+    it('keeps the row bilingual in Uzbek too and shows the Uzbek name', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ interface_locale: 'uz' }) })
+      const w = await render()
+
+      expect(w.get('[data-testid=row-language]').text()).toContain('Til · Язык')
+      expect(w.get('[data-testid=row-language]').text()).toContain("🇺🇿 O'zbekcha")
+    })
+
+    it('opens the language sheet from the row and closes it', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+      await w.get('[data-testid=row-language]').trigger('click')
+      expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
+      expect(w.get('[data-testid=language-ru]').attributes('aria-checked')).toBe('true')
+
+      await w.get('[data-testid=sheet-x]').trigger('click')
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+    })
+
     it('opens the sheet "How it works" from its own row, and closes it', async () => {
       const w = await render()
 

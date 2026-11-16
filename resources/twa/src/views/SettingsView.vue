@@ -14,6 +14,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
+import { saveSetting } from '@/composables/useLocaleSwitch'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
@@ -24,8 +25,8 @@ import type { StringKey } from '@/i18n/ru'
 import type { ExerciseSettings, LearnerSettings, SettingsPatch } from '@/api/types'
 
 /**
- * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Learning (daily goal, main course,
- * exercises), reminders, language and region, leagues and "My centers". Every change is saved at once ("Saved" is a
+ * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Language and region come first (the
+ * language must be easy to find), then learning (daily goal, my course, exercises), reminders, leagues and "My centers". Every change is saved at once ("Saved" is a
  * toast); a refused change leaves the control at the value the server still has and is told in a toast too — the screen
  * is long, an alert at its top would be out of sight when the learner changes a league or a time zone further down.
  * A page of the Profile tab: the system "Back" button leads to the Profile. The last group is the danger zone with
@@ -138,7 +139,7 @@ async function leave(id: number): Promise<void> {
 
 /** Saves one change and says "Saved" (in the language the change has just switched to); a refusal puts the selects back. */
 async function save(patch: SettingsPatch): Promise<void> {
-  if (await settings.update(patch)) toast.show(t('common.saved'))
+  await saveSetting(patch)
   syncDraft()
 }
 
@@ -195,6 +196,47 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="!data" :message="message || t('error.generic')" @retry="load" />
 
     <div v-else class="space-y-4">
+      <ListGroup :header="t('settings.group.region')">
+        <div class="list-row flex-col items-stretch gap-2" data-testid="language-row">
+          <span class="text-base leading-[22px]">{{ t('settings.language') }}</span>
+          <div data-testid="locale-select">
+            <SegmentedControl
+              :model-value="data.interface_locale"
+              :options="localeOptions"
+              :disabled="saving"
+              :ariaLabel="t('settings.language')"
+              @update:model-value="onLocale"
+            />
+          </div>
+        </div>
+
+        <div class="list-row flex-col items-stretch gap-1.5" data-testid="timezone-row">
+          <label class="flex items-center gap-3">
+            <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.timezone') }}</span>
+            <select
+              v-model="draft.timezone"
+              class="field field-inline max-w-[62%] min-w-0 truncate"
+              :disabled="saving || timezoneLockMessage !== null"
+              data-testid="timezone-select"
+              @change="onTimezone"
+            >
+              <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
+            </select>
+          </label>
+          <p v-if="timezoneLockMessage" class="text-[13px] leading-[18px] text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</p>
+          <button
+            v-if="undoLeft !== null"
+            type="button"
+            class="btn btn-tinted btn-sm self-start"
+            :disabled="saving"
+            data-testid="timezone-undo"
+            @click="revertTimezone"
+          >
+            {{ t('settings.timezone.undo', { time: undoLeft }) }}
+          </button>
+        </div>
+      </ListGroup>
+
       <ListGroup :header="t('settings.group.learning')" :footer="t('settings.daily_goal.unit')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="goal-row">
           <span class="text-base leading-[22px]">{{ t('settings.daily_goal') }}</span>
@@ -275,47 +317,6 @@ onBeforeUnmount(() => {
             <option value="">{{ t('settings.reminder.off') }}</option>
           </select>
         </label>
-      </ListGroup>
-
-      <ListGroup :header="t('settings.group.region')">
-        <div class="list-row flex-col items-stretch gap-2" data-testid="language-row">
-          <span class="text-base leading-[22px]">{{ t('settings.language') }}</span>
-          <div data-testid="locale-select">
-            <SegmentedControl
-              :model-value="data.interface_locale"
-              :options="localeOptions"
-              :disabled="saving"
-              :ariaLabel="t('settings.language')"
-              @update:model-value="onLocale"
-            />
-          </div>
-        </div>
-
-        <div class="list-row flex-col items-stretch gap-1.5" data-testid="timezone-row">
-          <label class="flex items-center gap-3">
-            <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.timezone') }}</span>
-            <select
-              v-model="draft.timezone"
-              class="field field-inline max-w-[62%] min-w-0 truncate"
-              :disabled="saving || timezoneLockMessage !== null"
-              data-testid="timezone-select"
-              @change="onTimezone"
-            >
-              <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
-            </select>
-          </label>
-          <p v-if="timezoneLockMessage" class="text-[13px] leading-[18px] text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</p>
-          <button
-            v-if="undoLeft !== null"
-            type="button"
-            class="btn btn-tinted btn-sm self-start"
-            :disabled="saving"
-            data-testid="timezone-undo"
-            @click="revertTimezone"
-          >
-            {{ t('settings.timezone.undo', { time: undoLeft }) }}
-          </button>
-        </div>
       </ListGroup>
 
       <ListGroup :header="t('settings.group.leagues')" :footer="t('settings.leagues.hint')">

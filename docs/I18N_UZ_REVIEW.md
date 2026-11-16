@@ -694,6 +694,8 @@
 | `billing.renewal.org_dm` | {1} «:organization» markazining obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date). | {1} Подписка центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка центра «:organization» заканчивается через :count дн. (:date). |
 | `billing.renewal.hint` | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang. | Продлите заранее, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.hint_canceled` | Avtoyangilash o'chirilgan, shuning uchun Pro o'zi yangilanmaydi. Cheklovsiz imkoniyatni yo'qotmaslik uchun oldindan yangilang. | Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит. |
+| `billing.renewal.trial_dm` (2C.9, черновик) | {1} Sinov LexiFlow Pro ertaga tugaydi (:date).\|[2,*] Sinov LexiFlow Pro :count kundan keyin tugaydi (:date). | {1} Пробный LexiFlow Pro заканчивается завтра (:date).\|[2,*] Пробный LexiFlow Pro заканчивается через :count дн. (:date). |
+| `billing.renewal.hint_trial` (2C.9, черновик) | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun Pro'ni rasmiylashtiring. | Оформите Pro, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.org_hint` | Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo'ladi. | После окончания у участников центра снова будет тариф Free. |
 | `billing.renewal.button` | Pro'ni uzaytirish | Продлить Pro |
 | `billing.renewal.mail.subject` | {1} «:organization» markazining obunasi ertaga tugaydi\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi | {1} Подписка центра «:organization» заканчивается завтра\|[2,*] Подписка центра «:organization» заканчивается через :count дн. |
@@ -1342,9 +1344,10 @@
 |---|---|---|
 | `referrals.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
 | `referrals.invite.text` | Do'stingizni LexiFlow'ga taklif qiling — :rule\n\nSizning havolangiz:\n:link | Пригласите друга в LexiFlow — :rule\n\nВаша ссылка:\n:link |
-| `referrals.invite.rule` | do'stingiz :days kun shug'ullansa (kuniga :reviews ta kartochkadan), ikkalangiz ham :reward kunlik Pro olasiz. | когда друг позанимается :days дня (от :reviews карточек в день), вы оба получите :reward дней Pro. |
+| `referrals.invite.rule` (2C.9, черновик) | do'stingiz tanishuvdan o'tib bir kunda :reviews ta kartochkani baholagach hisobga olinadi; :milestones do'st uchun har safar :reward kunlik Pro olasiz. | друг засчитывается, когда пройдёт знакомство и оценит :reviews карточек за день; за :milestones друзей вы получите по :reward дней Pro. |
 | `referrals.invite.no_link` | kod :code (havola administrator bot nomini ko'rsatgach paydo bo'ladi) | код :code (ссылка появится, когда администратор укажет имя бота) |
-| `referrals.invite.stats` | Havolangiz orqali kelganlar: :invited · shug'ullanayotganlar: :activated · mukofotlanganlar: :rewarded | Пришли по вашей ссылке: :invited · занимаются: :activated · награждены: :rewarded |
+| `referrals.invite.stats` (2C.9, черновик) | Havolangiz orqali kelganlar: :invited · hisobga olinganlar: :counted | Пришли по вашей ссылке: :invited · засчитаны: :counted |
+| `referrals.invite.next` (2C.9, черновик) | mukofotga yana :remaining ta do'st kerak (:friends tadan) | до награды ещё :remaining (из :friends) |
 | `referrals.invite.share_button` | Havolani ulashish | Поделиться ссылкой |
 | `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
 | `bot.help.private` (новая строка) | Do'stni taklif qilib Pro olish: /invite | Пригласить друга и получить Pro: /invite |
@@ -3657,3 +3660,38 @@
 | `today.new.course_done` | Bu kursda yangi so'z qolmadi | Новых слов в этом курсе не осталось |
 | `today.course.choose_other` | Boshqa kursni tanlash | Выбрать другой курс |
 | `finished.choose_course` | Kursni tanlash | Выбрать курс |
+
+## Напоминания о перерыве в занятиях (16.11.2026) — на проверку носителю
+
+Бот напоминает не больше одного раза в день: после 3 дней без занятий — «вы N дней не занимались», далее реже, после 60 дней — тишина. Ключи `reminders.review`, `reminders.streak_at_risk`, `reminders.open_button` без изменений.
+
+### Бот (`lang/uz/reminders.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.inactive_due` | LexiFlow: :count kundan beri shug'ullanmadingiz. Takrorlash kerak bo'lgan so'zlar: :due. Qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слов к повторению: :due. Хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.never_started` | Siz LexiFlow'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot atigi 5 daqiqa oladi. | Вы ещё не начали заниматься в LexiFlow. Первое занятие займёт всего 5 минут. |
+| `reminders.new_words` | Bugun LexiFlow'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli. | Сегодня вас ждут новые слова в LexiFlow. Хватит 5 минут. |
+| `reminders.choose_course` | Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang. | Выберите курс в LexiFlow, чтобы начать заниматься. |
+
+`:count` — число дней без занятий, `:due` — число слов к повторению. В каждом тексте после пустой строки — прежний хвост «Vaqtni o'zgartirish yoki o'chirish: /settings». Проверить: «kundan beri shug'ullanmadingiz» (N дней не занимались), «takrorlanmasa unutiladi» (без повторения забываются), «Takrorlash kerak bo'lgan so'zlar» (слова к повторению).
+
+## Язык в один тап и первый заход (16.11.2026) — на проверку носителю
+
+Смена языка вынесена на «Сегодня», в «Профиль» и в первое интро; «основной курс» везде заменён на «мой курс», кнопки каталога — «Начать курс» / «Перейти на этот курс». Заголовок листа языка «Til · Язык» (он же подпись чипа, строки профиля и переключателя в интро) намеренно двуязычный и одинаковый в обоих языках: в словаре его нет (`LANGUAGE_TITLE` в `src/i18n/index.ts`), потому что человек, не читающий текущий язык, должен узнать его по слову «Til» или «Язык».
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `intro.skip` | O'tkazib yuborish | Пропустить |
+| `today.start.title` | Keling, boshlaymiz! | Начнём! |
+| `today.start.text` | Kursni tanlang — har kuni yangi so'zlar o'rganasiz | Выберите курс — и каждый день будете учить новые слова |
+| `today.course.none` | Kurs tanlanmagan | Курс не выбран |
+| `catalog.start` | Kursni boshlash | Начать курс |
+| `catalog.choose` | Shu kursga o'tish | Перейти на этот курс |
+| `catalog.selected` | Kurs tanlandi | Курс выбран |
+| `catalog.active` | Siz shu kursni o'rganyapsiz | Вы учите этот курс |
+| `catalog.hint` | Har kuni yangi so'zlar — sizning kursingizdan | Каждый день новые слова — из вашего курса |
+| `settings.course` | Mening kursim | Мой курс |

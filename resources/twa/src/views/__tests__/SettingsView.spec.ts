@@ -146,12 +146,22 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture(), [membership()])
 
       const sections = w.findAll('h2.section-label').map((h) => h.text())
-      expect(sections).toEqual(['Обучение', 'Упражнения', 'Напоминания', 'Язык и регион', 'Лиги', 'Мои центры', 'Опасная зона'])
+      expect(sections).toEqual(['Язык и регион', 'Обучение', 'Упражнения', 'Напоминания', 'Лиги', 'Мои центры', 'Опасная зона'])
       const text = w.text()
       expect(text).toContain('слов в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
       expect(text).toContain('Время — по вашему часовому поясу.')
       expect(text).toContain('Выход из лиг действует со следующей недели')
+    })
+
+    it('puts the language and the time zone first, above "Обучение", and keeps the segment switch', async () => {
+      const w = await render()
+
+      const first = w.get('h2.section-label')
+      expect(first.text()).toBe('Язык и регион')
+      expect(first.element.parentElement?.querySelector('[data-testid=locale-select] [role=radiogroup]')).not.toBeNull()
+      expect(first.element.parentElement?.querySelector('[data-testid=timezone-select]')).not.toBeNull()
+      expect(w.get('[data-testid=settings-view] .space-y-4').element.firstElementChild).toBe(first.element.parentElement)
     })
 
     it('explains the leagues switch in plain words: from next week, the current week stays, and it can be switched on again any time', async () => {
@@ -251,7 +261,7 @@ describe('SettingsView', () => {
       const row = withCourse.get('[data-testid=course-card]')
       expect(row.element.tagName).toBe('A')
       expect(row.attributes('href')).toBe('/courses')
-      expect(row.text()).toContain('Основной курс')
+      expect(row.text()).toContain('Мой курс')
       expect(withCourse.get('[data-testid=course-title]').text()).toBe('English A1')
 
       const without = await render()
@@ -264,7 +274,7 @@ describe('SettingsView', () => {
 
       const row = w.get('[data-testid=course-card]')
       expect(row.get('span').classes()).toContain('shrink-0') // «Main course» never wraps
-      expect(row.get('span').text()).toBe('Основной курс')
+      expect(row.get('span').text()).toBe('Мой курс')
       expect(w.get('[data-testid=course-title]').classes()).toEqual(expect.arrayContaining(['line-clamp-2', 'min-w-0', 'flex-1', 'text-right']))
       expect(w.get('[data-testid=course-title]').text()).toBe('Английский A2: повседневные темы для путешествий и работы')
       expect(row.find('svg').exists()).toBe(true) // the chevron
@@ -820,9 +830,9 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture({ interface_locale: 'uz', active_course: null }))
 
       expect(w.get('h1').text()).toBe('Sozlamalar')
-      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(["O'rganish", 'Mashqlar', 'Eslatmalar', 'Til va hudud', 'Ligalar', 'Xavfli hudud'])
+      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(['Til va hudud', "O'rganish", 'Mashqlar', 'Eslatmalar', 'Ligalar', 'Xavfli hudud'])
       expect(w.text()).toContain("kuniga nechta so'z")
-      expect(w.text()).toContain('Asosiy kurs')
+      expect(w.text()).toContain('Mening kursim')
       expect(w.get('[data-testid=course-title]').text()).toBe('Tanlanmagan')
       expect(w.text()).toContain('Eslatma vaqti')
       expect(w.text()).toContain('Haftalik ligalarda qatnashish')

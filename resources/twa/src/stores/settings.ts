@@ -162,6 +162,16 @@ export const useSettingsStore = defineStore('settings', {
       }
     },
 
+    /**
+     * Takes the settings that came with another reading of `/me` (the billing store's): the language row of the Profile and the
+     * language sheet then need no request of their own. Unlike `apply` it leaves the interface language alone - that one is
+     * the business of `load` and `update`.
+     */
+    adopt(settings: LearnerSettings): void {
+      this.data = settings
+      if (this.status === 'idle') this.status = 'ready'
+    },
+
     apply(settings: LearnerSettings): void {
       this.data = settings
 

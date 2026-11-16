@@ -6,6 +6,7 @@ import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
+import LanguageSheet from '@/components/LanguageSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -29,7 +30,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
-import { useI18n } from '@/i18n'
+import { LANGUAGE_TITLE, useI18n } from '@/i18n'
 import type { OpenSessionRequest } from '@/api/types'
 
 /**
@@ -106,6 +107,9 @@ watch(data, (current) => {
   introOpen.value = true
 })
 
+/** "Til · Язык": the language chip of the header opens the sheet. */
+const languageOpen = ref(false)
+
 const paywallOpen = ref(false)
 /** Why the sheet was opened: the session card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
 const paywallReason = ref<PaywallReason>('info')
@@ -132,6 +136,14 @@ const dateLine = computed(() =>
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+/**
+ * A newcomer who has not picked a course yet (docs/14 §6.1): no active course, no open session, nothing to review and no
+ * assignment of a group. Home is then ONE start card with one button instead of an empty goal ring, "nothing to review" and
+ * a second "choose a course" further down. Any of those things turns the usual screen back on.
+ */
+const showStart = computed(() => data.value !== null && data.value.active_course === null && data.value.open_session_id === null
+  && data.value.due_count === 0 && assignments.items.length === 0)
+
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
 
@@ -256,11 +268,19 @@ onBeforeUnmount(() => training.clearOpenError())
       <PageHeader large :title="greeting" :subtitle="dateLine">
         <template #trailing>
           <!-- A chip is 24 px high: the padding (cancelled by the margin) makes the touch target 44 px. -->
-          <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
-            <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
-              {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
-            </span>
-          </RouterLink>
+          <div class="flex items-center gap-4">
+            <button type="button" class="-m-2.5 block p-2.5" :aria-label="LANGUAGE_TITLE" data-testid="lang-btn" @click="languageOpen = true">
+              <span class="chip chip-neutral">
+                <AppIcon name="globe-alt" :size="14" />
+                {{ locale.toUpperCase() }}
+              </span>
+            </button>
+            <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
+              <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
+                {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
+              </span>
+            </RouterLink>
+          </div>
         </template>
       </PageHeader>
 
@@ -268,7 +288,26 @@ onBeforeUnmount(() => training.clearOpenError())
 
       <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
-      <div v-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
+      <section v-if="showStart" class="card flex flex-col items-center gap-3 py-6 text-center" data-testid="start-card">
+        <span class="icon-tile size-16 rounded-2xl tile-blue"><AppIcon name="academic-cap" :size="32" /></span>
+        <h2 class="text-[22px] leading-7 font-bold">{{ t('today.start.title') }}</h2>
+        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('today.start.text') }}</p>
+        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course">
+          <AppIcon name="academic-cap" :size="20" />
+          {{ t('today.course.choose') }}
+        </RouterLink>
+      </section>
+
+      <!-- Under the start card the reminder to finish the setup in the bot is a quiet line, not a second card. -->
+      <div v-if="showStart && !data.onboarding_completed" class="flex items-center gap-2 px-1" data-testid="onboarding-hint">
+        <AppIcon name="information-circle" :size="18" class="shrink-0 text-accent" />
+        <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-tg-subtitle">{{ t('today.onboarding_hint') }}</p>
+        <button type="button" class="btn btn-plain btn-sm shrink-0" data-testid="onboarding-btn" @click="close()">
+          {{ t('today.onboarding_btn') }}
+        </button>
+      </div>
+
+      <div v-else-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
         <AppIcon name="information-circle" :size="22" class="mt-px text-accent" />
         <div class="min-w-0 flex-1 space-y-3">
           <p class="text-[15px] leading-5">{{ t('today.onboarding_hint') }}</p>
@@ -278,7 +317,7 @@ onBeforeUnmount(() => training.clearOpenError())
         </div>
       </div>
 
-      <section class="card" data-testid="review-card">
+      <section v-if="!showStart" class="card" data-testid="review-card">
         <div class="flex items-center gap-4" data-testid="goal-card">
           <GoalRing :done="data.goal.done" :target="data.goal.target" :met="data.goal.met" />
           <div class="min-w-0 flex-1">
@@ -428,7 +467,7 @@ onBeforeUnmount(() => training.clearOpenError())
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
       </RouterLink>
 
-      <section v-if="streak" class="card" data-testid="streak-card">
+      <section v-if="streak && !showStart" class="card" data-testid="streak-card">
         <div class="flex items-start gap-3">
           <span class="icon-tile size-10 rounded-xl" :class="streak.current > 0 ? 'tile-orange' : 'tile-gray'">
             <AppIcon name="fire" solid :size="22" />
@@ -486,7 +525,7 @@ onBeforeUnmount(() => training.clearOpenError())
 
       <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
 
-      <section data-testid="course-card">
+      <section v-if="!showStart" data-testid="course-card">
         <h2 class="section-label">{{ t('today.course.title') }}</h2>
 
         <div v-if="data.active_course" class="card space-y-3">
@@ -568,6 +607,7 @@ onBeforeUnmount(() => training.clearOpenError())
     </div>
 
     <IntroSheet v-if="introOpen" @close="introOpen = false" />
+    <LanguageSheet v-if="languageOpen" @close="languageOpen = false" />
 
     <PaywallSheet
       v-if="paywallOpen"

@@ -11,18 +11,20 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, courseChips, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useCourseSelect } from '@/composables/useCourseSelect'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
 import { useI18n } from '@/i18n'
 
 /**
  * "Courses" tab root (docs/14 §6.5): the catalog of courses with the learner's progress. A card opens the course;
- * its button makes the course the main one (the source of the new words of the daily session). The twin screen
+ * its button starts the course (or switches to it: the source of the new words of the daily session) and leads to Home. The twin screen
  * of the tab is "My decks" (the switch under the heading). A tab root: no system "Back" button.
  */
 const auth = useAuthStore()
 const catalog = useCoursesStore()
 const { t } = useI18n()
+const { chooseLabel, choose } = useCourseSelect()
 
 const { courses, listStatus: status, selecting, errorMessage } = storeToRefs(catalog)
 
@@ -101,9 +103,9 @@ onMounted(() => {
             class="btn btn-tinted btn-block"
             :disabled="selecting !== null"
             data-testid="choose-btn"
-            @click="catalog.select(course.slug)"
+            @click="choose(course.slug)"
           >
-            {{ t('catalog.choose') }}
+            {{ chooseLabel }}
           </button>
         </div>
       </article>

@@ -18,7 +18,7 @@ const state = vi.hoisted(() => ({
   useBackButton: vi.fn(),
 }))
 
-vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, assignments: { list: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, assignments: { list: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn(), updateSettings: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({
@@ -120,6 +120,64 @@ describe('TodayView', () => {
   afterEach(() => {
     setLocale('ru')
     vi.useRealTimers()
+  })
+
+  describe('language button', () => {
+    const meWithSettings = (locale: 'ru' | 'uz' = 'ru'): MeResponse => ({
+      learner: { id: 1, first_name: 'A', username: null, locale, onboarding_completed: true },
+      groups: [],
+      stats: { words_learned: 0, words_due_today: 0 },
+      entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
+      paywall: { mode: 'coming_soon', contact: null },
+      settings: settingsFixture({ interface_locale: locale }),
+    })
+
+    it('is a chip with a globe and the code of the current language next to the plan badge, with a 44 px area and a bilingual name', async () => {
+      const w = await render()
+
+      const btn = w.get('[data-testid=lang-btn]')
+      expect(btn.text()).toBe('RU')
+      expect(btn.attributes('aria-label')).toBe('Til · Язык')
+      expect(btn.find('svg').exists()).toBe(true)
+      expect(btn.classes()).toEqual(expect.arrayContaining(['p-2.5', '-m-2.5']))
+      expect(btn.element.parentElement).toBe(w.get('[data-testid=plan-badge]').element.parentElement)
+    })
+
+    it('shows UZ in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render()
+
+      expect(w.get('[data-testid=lang-btn]').text()).toBe('UZ')
+    })
+
+    it('opens the language sheet in one tap, also for a newcomer without a course, and closes it again', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
+      const w = await render(today({ active_course: null, due_count: 0 }))
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+
+      await w.get('[data-testid=lang-btn]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
+      expect(w.get('[data-testid=language-ru]').attributes('aria-checked')).toBe('true')
+      await w.get('[data-testid=sheet-x]').trigger('click')
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+    })
+
+    it('switches the whole screen when another language is chosen', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
+      vi.mocked(api.me.updateSettings).mockResolvedValue(meWithSettings('uz'))
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      await w.get('[data-testid=lang-btn]').trigger('click')
+      await flushPromises()
+      await w.get('[data-testid=language-uz]').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+      expect(w.get('[data-testid=lang-btn]').text()).toBe('UZ')
+      expect(w.get('[data-testid=start-card] h2').text()).toBe('Keling, boshlaymiz!')
+    })
   })
 
   describe('header', () => {
@@ -414,6 +472,62 @@ describe('TodayView', () => {
       expect(choose.attributes('href')).toBe('/courses')
       expect(w.find('[data-testid=review-btn]').exists()).toBe(false)
       expect(api.training.open).not.toHaveBeenCalled()
+    })
+
+    it('shows one start card instead of the empty goal, the counters and the course block for a newcomer without a course', async () => {
+      const w = await render(today({ active_course: null, due_count: 0, new_words_remaining: 12, streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false }, goal: { target: 20, done: 0, met: false } }))
+
+      const card = w.get('[data-testid=start-card]')
+      expect(card.get('h2').text()).toBe('Начнём!')
+      expect(card.text()).toContain('Выберите курс — и каждый день будете учить новые слова')
+      expect(card.findAll('a,button')).toHaveLength(1)
+      expect(w.findAll('[data-testid=start-choose-course]')).toHaveLength(1)
+      for (const id of ['review-card', 'goal-card', 'goal-setting', 'due-count', 'new-no-course', 'session-hint', 'streak-card', 'course-card', 'no-course', 'choose-course']) {
+        expect(w.find(`[data-testid=${id}]`).exists(), id).toBe(false)
+      }
+      expect(w.text()).not.toContain('Пока нечего повторять')
+    })
+
+    it('keeps the "finish the setup in the bot" banner under the start card, compact', async () => {
+      const w = await render(today({ active_course: null, due_count: 0, onboarding_completed: false }))
+
+      const html = w.html()
+      expect(html.indexOf('data-testid="start-card"')).toBeLessThan(html.indexOf('data-testid="onboarding-hint"'))
+      expect(w.get('[data-testid=onboarding-hint]').classes()).not.toContain('card')
+      await w.get('[data-testid=onboarding-btn]').trigger('click')
+      expect(telegram.close).toHaveBeenCalledTimes(1)
+    })
+
+    it('has no start card when there is something to review, a session is open or the group gave an assignment', async () => {
+      const due = await render(today({ active_course: null, due_count: 4 }))
+      expect(due.find('[data-testid=start-card]').exists()).toBe(false)
+      expect(due.find('[data-testid=review-card]').exists()).toBe(true)
+
+      const open = await render(today({ active_course: null, due_count: 0, open_session_id: 9 }))
+      expect(open.find('[data-testid=start-card]').exists()).toBe(false)
+      expect(text(open, 'review-btn')).toBe('Продолжить занятие')
+
+      vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })
+      const group = await render(today({ active_course: null, due_count: 0 }))
+      expect(group.find('[data-testid=start-card]').exists()).toBe(false)
+      expect(group.find('[data-testid=assignments-card]').exists()).toBe(true)
+    })
+
+    it('has no start card for a learner with a course', async () => {
+      const w = await render(today({ due_count: 0 }))
+
+      expect(w.find('[data-testid=start-card]').exists()).toBe(false)
+      expect(w.find('[data-testid=review-card]').exists()).toBe(true)
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      const card = w.get('[data-testid=start-card]')
+      expect(card.get('h2').text()).toBe('Keling, boshlaymiz!')
+      expect(card.text()).toContain("Kursni tanlang — har kuni yangi so'zlar o'rganasiz")
+      expect(card.get('[data-testid=start-choose-course]').text()).toBe('Kursni tanlash')
     })
 
     it('has no "Learn about Pro" link in the card: the plan chip in the header is the way to Pro', async () => {
@@ -936,7 +1050,7 @@ describe('TodayView', () => {
       const w = await render(today({ active_course: null }))
 
       const empty = w.get('[data-testid=no-course]')
-      expect(empty.text()).toContain('Основной курс не выбран')
+      expect(empty.text()).toContain('Курс не выбран')
       expect(empty.get('path').attributes('d')).toBe(ICONS['academic-cap'].outline[0]?.d)
       expect(w.find('[data-testid=next-lesson-btn]').exists()).toBe(false)
       expect(w.find('[data-testid=course-title]').exists()).toBe(false)
