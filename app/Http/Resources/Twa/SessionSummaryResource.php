@@ -29,7 +29,8 @@ final class SessionSummaryResource extends TwaResource
      *   goal: array{target: int, done: int, met: bool},
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   practice_entry: array{course: string, lesson_id: int|null}|null,
-     *   league_points: int
+     *   league_points: int,
+     *   stages: array{graduated: int, promoted: int, mastered: int}
      * }
      */
     public function toArray(Request $request): array
@@ -41,6 +42,13 @@ final class SessionSummaryResource extends TwaResource
             'reviewed' => $summary->reviewed,
             'correct' => $summary->correct,
             'new_words' => $summary->newWords,
+            // The growth of the words in this session (docs/06 §13.3): new words that left the minute steps, older words
+            // that climbed a stage (new → learning → known → mastered), words that reached the top.
+            'stages' => [
+                'graduated' => $summary->graduated,
+                'promoted' => $summary->promoted,
+                'mastered' => $summary->mastered,
+            ],
             'goal' => $progress->goal->toArray(),
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),

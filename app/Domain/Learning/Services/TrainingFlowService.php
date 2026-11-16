@@ -17,6 +17,7 @@ use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\DTO\AcceptedReview;
+use App\Domain\Learning\DTO\CardPick;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\DTO\RevealedCard;
 use App\Domain\Learning\DTO\ReviewOutcome;
@@ -27,7 +28,10 @@ use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LadderPolicy;
+use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
+use App\Domain\Learning\Support\SprintLimits;
+use App\Domain\Learning\Support\SprintPolicy;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
@@ -57,6 +61,12 @@ use Illuminate\Support\Facades\Cache;
  * handed to the grade, the budget and the exercise selector; the session's counters come in one statement
  * ({@see CardPicker::stepCounts()}); the quota shown after a pick is the number the picker checked under the lock,
  * less the card it issued ({@see NewCardBudget}), not a second count.
+ *
+ * The sprint (docs/06 §13.2, `learning.sprint.*`): a daily session is a round of at most `due_cards` day-based reviews
+ * and `new_words` new words with their learning steps. The round's counters ride in the same counters statement; the
+ * picker gets them as {@see SprintLimits}; the progress is "grades in this session / the round's estimated size"
+ * ({@see sprintProgress()}) and the session ends with `sprint_complete` + `can_continue` when another round would have
+ * cards. Lesson sessions are not rounds.
  */
 final class TrainingFlowService
 {
@@ -81,6 +91,8 @@ final class TrainingFlowService
         private readonly WordHookResolver $hooks,
         private readonly LeechInsight $leeches,
         private readonly LadderPolicy $ladder,
+        private readonly SprintPolicy $sprint,
+        private readonly LearningPolicy $learning,
     ) {}
 
     /**
@@ -92,8 +104,10 @@ final class TrainingFlowService
     {
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
             $goal = $this->dailyGoal($learner);
+            $step = $this->nextStep($session, $learner, $goal);
 
-            return new TrainingStart($session, null, $goal, $this->nextStep($session, $learner, $goal));
+            // `total_words` of a daily session: the round's size with a sprint, the daily goal without one.
+            return new TrainingStart($session, null, $this->sprint->enabled ? $step->progress['total'] : $goal, $step);
         }
 
         // The lesson with its stage and the access facts of its course in ONE query (not lesson, stage, course
@@ -128,13 +142,26 @@ final class TrainingFlowService
         $scope = TrainingScope::forSession($session);
         $entitlement ??= $this->entitlements->for($learner, $now);
 
-        // The session's grades (the cap) and the lesson's graduated words (the progress) in one statement.
-        $counts = $this->picker->stepCounts((int) $learner->id, (int) $session->id, $scope->isLesson() ? (int) $scope->lessonId : null);
+        // The session's grades (the cap), the lesson's graduated words (the progress) and, for a round, its counters
+        // in one statement.
+        $sprintOn = $scope->isDaily() && $this->sprint->enabled;
+        $startedAt = CarbonImmutable::instance($session->started_at);
+        $counts = $this->picker->stepCounts(
+            (int) $learner->id,
+            (int) $session->id,
+            $scope->isLesson() ? (int) $scope->lessonId : null,
+            $sprintOn ? ['started_at' => $startedAt, 'due_cap' => max(0, $this->sprint->dueCards), 'now' => $now] : null,
+        );
         $reviewCount = $counts['reviews'];
+        $limits = $sprintOn
+            ? new SprintLimits($startedAt, $this->sprint->newWords, $counts['new_done'], $this->sprint->dueCards - $counts['due_done'])
+            : null;
 
-        $progress = $scope->isDaily()
-            ? ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)]
-            : ['done' => (int) $counts['done'], 'total' => $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId)];
+        $progress = match (true) {
+            $sprintOn => ['done' => $reviewCount, 'total' => $reviewCount],
+            $scope->isDaily() => ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)],
+            default => ['done' => (int) $counts['done'], 'total' => $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId)],
+        };
 
         // Group lessons are outside the Free quota (docs/12 §5.3); same lock order either way —
         // the budget is resolved before the picker's transaction.
@@ -144,7 +171,7 @@ final class TrainingFlowService
             return TrainingStep::done(DoneReason::SessionCap, $progress, $budget->remaining((int) $learner->id, $now));
         }
 
-        $pick = $this->picker->pickNext((int) $learner->id, $scope, $budget, $now);
+        $pick = $this->picker->pickNext((int) $learner->id, $scope, $budget, $now, $limits);
 
         // What is left of today's new-card budget AFTER this pick: the number the picker checked under the learner
         // lock less the card it just issued (one count a request), or one plain read when the picker never got
@@ -157,7 +184,11 @@ final class TrainingFlowService
                 $this->recordPaywallShown($learner, $now);
             }
 
-            return TrainingStep::done($reason, $progress, $remaining);
+            return TrainingStep::done($reason, $progress, $remaining, $pick->canContinue);
+        }
+
+        if ($limits !== null) {
+            $progress = $this->sprintProgress($counts, $limits, $pick, $scope->includesNew() ? $remaining : 0);
         }
 
         $locale = $this->locales->forTrainingSession($session, $learner);
@@ -175,6 +206,7 @@ final class TrainingFlowService
             LearnerExerciseSettings::fromLearner($learner),
             $session->mode,
             $example,
+            $audioUrl !== null,
         );
         $prompt = $this->prompts->build(
             $exercise,
@@ -223,6 +255,36 @@ final class TrainingFlowService
     private function dailyGoal(Learner $learner): int
     {
         return max(1, (int) $learner->daily_goal);
+    }
+
+    /**
+     * The round's progress (docs/06 §13.2): `done` = grades in this session; `total` = done + what the round still owes
+     * after this pick — the due reviews it may still take (counted up to the cap), the new words it may still introduce
+     * (within the day's quota) times the learning steps each one costs, and the grades the cards in minute steps still
+     * need. The estimate never falls below `done`, so the bar never shows "35 / 20"; a failed step adds its repeat to
+     * `total`, an "already knew it" takes a step away from it.
+     *
+     * @param  array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int}  $counts  counted BEFORE the pick
+     * @param  int|null  $quotaRemaining  the day's new cards left after this pick; null = unlimited; 0 when the scope has no
+     *                                    source of new words (a daily session without a course)
+     * @return array{done:int, total:int}
+     */
+    private function sprintProgress(array $counts, SprintLimits $limits, CardPick $pick, ?int $quotaRemaining): array
+    {
+        $done = $counts['reviews'];
+        $steps = count($this->learning->learningStepsMinutes);
+        $pickedNew = $pick->kind === 'new';
+
+        $newLeft = max(0, $limits->newRemaining() - ($pickedNew ? 1 : 0));
+        if ($quotaRemaining !== null) {
+            $newLeft = min($newLeft, $quotaRemaining);
+        }
+        // The new row of this pick was not there when the counters ran: it owes the full learning steps.
+        $pending = $counts['pending'] + ($pickedNew ? $steps : 0);
+        // Due cards are counted up to the cap; the round may take only what is left of it.
+        $dueLeft = min($counts['due_left'], max(0, $limits->dueRemaining));
+
+        return ['done' => $done, 'total' => max($done, $done + $dueLeft + $newLeft * $steps + $pending)];
     }
 
     /**

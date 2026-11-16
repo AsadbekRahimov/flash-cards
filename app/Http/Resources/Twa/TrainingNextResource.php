@@ -22,6 +22,7 @@ final class TrainingNextResource extends TwaResource
      *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null,
+     *   can_continue: bool,
      *   quota: array{new_words_remaining: int|null}
      * }
      */
@@ -80,6 +81,8 @@ final class TrainingNextResource extends TwaResource
             ],
             // Why `card` is null (docs/04 A.3); null while there is a card.
             'done_reason' => $this->resource->doneReason?->value,
+            // The round is over but another one would have cards (`sprint_complete`, docs/06 §13.2): "one more round".
+            'can_continue' => $this->resource->canContinue,
             // New cards left today after this step (Free plan); null = unlimited (docs/12 §5.3).
             'quota' => ['new_words_remaining' => $this->resource->newWordsRemaining],
         ];

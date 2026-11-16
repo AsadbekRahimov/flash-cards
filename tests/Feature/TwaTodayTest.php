@@ -410,6 +410,8 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
 
     $expected = [
         'reviewed' => 2, 'correct' => 2, 'new_words' => 2,
+        // Two new words graded "good" once: still in their minute steps, nothing climbed yet (docs/06 §13.3).
+        'stages' => ['graduated' => 0, 'promoted' => 0, 'mastered' => 0],
         'goal' => ['target' => 2, 'done' => 2, 'met' => true],
         'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal'],
         'practice_entry' => null, // the practice is off by default (docs/16 §3.2): no entry to it

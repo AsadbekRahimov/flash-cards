@@ -30,6 +30,9 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
+// The thresholds these tests were written against (docs/06 §12.1), whatever a local .env or the config default says.
+beforeEach(fn () => config(['learning.ladder.typed_from_interval_days' => 21]));
+
 /*
  * Exercise types (docs/13 §2.5, §8.2; docs/06 §4.3, §12; docs/04 A.3): the selector is deterministic and climbs the
  * ladder with the card's maturity, the prompt carries what the screen needs, spelling / gap-fill are graded by the
@@ -100,6 +103,9 @@ function proEntitlement(): Entitlement
 
 describe('ExerciseSelector', function (): void {
     beforeEach(function (): void {
+        // The parity ladder (docs/06 §12.1) with its original typed threshold; the early ladder on top of it is covered by
+        // ExerciseLadderTest / LearningSprintTest.
+        config(['learning.ladder.early.enabled' => false, 'learning.ladder.typed_from_interval_days' => 21]);
         $this->selector = app(ExerciseSelector::class);
         $this->all = new LearnerExerciseSettings;
     });

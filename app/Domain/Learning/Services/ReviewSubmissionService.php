@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\DailyStatsService;
@@ -66,8 +67,9 @@ use Illuminate\Support\Facades\DB;
  *
  * The ladder (docs/06 §12.1): a lapse of a `review` card writes `meta.ladder_floor` = the rung below the one it failed at,
  * a pass at the top clears it; `meta.last_exercise` remembers the exercise of this grade. Both ride in the scheduler's
- * UPDATE — no extra statement. The self-grade mismatch metric (docs/25 "metrics"): a wrong objectively graded answer that
- * follows a flash self-grade of 4 or 5 on the same word records `review.self_grade_mismatch` AFTER the commit.
+ * UPDATE — no extra statement. The self-grade mismatch metric (docs/25 "metrics"): a wrong objectively graded answer on a
+ * day-based (`review`) card that follows a flash self-grade of 4 or 5 on the same word records `review.self_grade_mismatch`
+ * AFTER the commit (a card in minute steps is left out: its last flash was the meeting with the answer open, docs/06 §13.1).
  *
  * Statements of the transaction (R12g): the session row `FOR UPDATE` (status and expiry only - the mode and the
  * lesson of a session never change, the model in hand has them), the repetition WITH its word in one joined read
@@ -97,6 +99,7 @@ final class ReviewSubmissionService
         private readonly WordTranslationResolver $translations,
         private readonly WordExamples $examples,
         private readonly ProductEventRecorder $events,
+        private readonly WordAudioService $audio,
     ) {}
 
     /**
@@ -241,11 +244,12 @@ final class ReviewSubmissionService
             }
 
             // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2), with the example of this
-            // serve (docs/06 §12.4). A four-option pick without enough distractors was shown as flash — record what the client saw.
+            // serve (docs/06 §12.4) and whether the word has audio (docs/06 §13.1; `urlFor` compares a hash, no I/O).
+            // A four-option pick without enough distractors was shown as flash — record what the client saw.
             $example = $this->examples->pick($word, $repetition);
             $translation = $this->translations->resolve($word, $locale);
             $exercise = $this->prompts->effectiveType(
-                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example),
+                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example, $this->audio->urlFor($word) !== null),
                 $word,
                 $locale,
                 crc32($repetition->repetitions.':'.$word->id),
@@ -395,7 +399,10 @@ final class ReviewSubmissionService
         $previousQuality = $repetition->getAttribute('last_quality');
         $failed = $quality < SpacedRepetitionEngine::PASS_QUALITY;
 
+        // Only a day-based card: under the early ladder (docs/06 §13.1) a wrong first check follows the "remembered" of the
+        // meeting card, whose answer was open — that is no self-grade to measure.
         $mismatch = $failed
+            && $repetition->state === RepetitionState::Review
             && ! $exercise->selfGraded()
             && $previousExercise === ExerciseType::Flash->value
             && is_numeric($previousQuality)

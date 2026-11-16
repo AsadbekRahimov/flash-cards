@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Support;
 
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Services\ExerciseSelector;
 use App\Models\WordRepetition;
 
@@ -45,11 +46,22 @@ final readonly class LadderPolicy
 
     public const RETENTION_MODES = ['calm', 'normal', 'intense'];
 
+    /** The preference lists of the early ladder when the config has none: recognition (minute steps, rungs 0–1) and form (rung 2). */
+    public const DEFAULT_EARLY_RECOGNITION = [ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio];
+
+    public const DEFAULT_EARLY_FORM = [ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Flash];
+
+    /**
+     * @param  list<ExerciseType>  $earlyRecognition  the early ladder's preference order for cards in minute steps and
+     *                                                `review` cards below `choiceFromRepetitions` (docs/06 §13.1)
+     * @param  list<ExerciseType>  $earlyForm  the preference order of rung 2 under the early ladder
+     * @param  bool  $earlyAudioRequiresFile  audio is served by the early ladder only with a pre-generated file
+     */
     public function __construct(
         public bool $ladderEnabled = true,
         public int $meaningFromRepetitions = 2,
         public int $choiceFromRepetitions = 3,
-        public int $typedFromIntervalDays = 21,
+        public int $typedFromIntervalDays = 6,
         public bool $meaningEnabled = true,
         public bool $typedRecallInFree = false,
         public bool $acceptLegacyChoiceQuality = true,
@@ -61,6 +73,10 @@ final readonly class LadderPolicy
         public int $confusablesWindowHours = 20,
         public int $confusablesLookahead = 5,
         public bool $pretestEnabled = false,
+        public bool $earlyEnabled = true,
+        public array $earlyRecognition = self::DEFAULT_EARLY_RECOGNITION,
+        public array $earlyForm = self::DEFAULT_EARLY_FORM,
+        public bool $earlyAudioRequiresFile = true,
     ) {}
 
     public static function fromConfig(): self
@@ -83,7 +99,7 @@ final readonly class LadderPolicy
             ladderEnabled: (bool) $get('ladder.enabled', true),
             meaningFromRepetitions: max(1, (int) $get('ladder.meaning_from_repetitions', 2)),
             choiceFromRepetitions: max(1, (int) $get('ladder.choice_from_repetitions', 3)),
-            typedFromIntervalDays: max(1, (int) $get('ladder.typed_from_interval_days', 21)),
+            typedFromIntervalDays: max(1, (int) $get('ladder.typed_from_interval_days', 6)),
             meaningEnabled: (bool) $get('ladder.meaning_enabled', true),
             typedRecallInFree: (bool) $get('ladder.typed_recall_in_free', false),
             acceptLegacyChoiceQuality: (bool) $get('objective_grading.accept_legacy_quality', true),
@@ -95,7 +111,42 @@ final readonly class LadderPolicy
             confusablesWindowHours: max(1, (int) $get('confusables.window_hours', 20)),
             confusablesLookahead: max(1, (int) $get('confusables.lookahead', 5)),
             pretestEnabled: (bool) $get('pretest.enabled', false),
+            earlyEnabled: (bool) $get('ladder.early.enabled', true),
+            earlyRecognition: self::exerciseList($get('ladder.early.recognition', null), self::DEFAULT_EARLY_RECOGNITION),
+            earlyForm: self::exerciseList($get('ladder.early.form', null), self::DEFAULT_EARLY_FORM),
+            earlyAudioRequiresFile: (bool) $get('ladder.early.audio_requires_file', true),
         );
+    }
+
+    /**
+     * A comma-separated list of exercise types from the env (`meaning,reverse,audio`): unknown names, the pretest and the
+     * typed exercises (they have their own rung) are dropped, duplicates collapse; an empty result falls back to $default.
+     *
+     * @param  list<ExerciseType>  $default
+     * @return list<ExerciseType>
+     */
+    public static function exerciseList(mixed $raw, array $default): array
+    {
+        if (! is_string($raw) || trim($raw) === '') {
+            return $default;
+        }
+
+        $list = [];
+        foreach (explode(',', $raw) as $name) {
+            $type = ExerciseType::tryFrom(trim($name));
+            if ($type === null || $type === ExerciseType::Pretest || $type->rung() === self::RUNG_TYPED || in_array($type, $list, true)) {
+                continue;
+            }
+            $list[] = $type;
+        }
+
+        return $list === [] ? $default : $list;
+    }
+
+    /** The early ladder is on: the ladder itself and its early part (docs/06 §13.1). */
+    public function earlyLadder(): bool
+    {
+        return $this->ladderEnabled && $this->earlyEnabled;
     }
 
     /** A "hard word" (docs/25 §3.3): failed at least `leech.threshold` times as a graduated card. 0 = never. */

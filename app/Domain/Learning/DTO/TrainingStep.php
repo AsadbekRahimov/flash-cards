@@ -17,7 +17,10 @@ final readonly class TrainingStep
     /**
      * @param  'due'|'new'|'learning'|null  $kind  null exactly when $word is null
      * @param  array{done:int, total:int}  $progress  lesson scope: graduated / active words of the lesson;
-     *                                                daily scope: grades in this session / learner's daily_goal
+     *                                                daily scope with a sprint: grades in this session / the round's
+     *                                                estimated size (docs/06 §13.2), `total` never below `done`; without
+     *                                                a sprint: grades in this session / learner's daily_goal
+     * @param  bool  $canContinue  no card, and another round would have cards (`sprint_complete`); false with a card
      * @param  string|null  $serveToken  learn-ahead ticket the client must echo in POST /review
      *                                   (docs/06 §5.2); null for due/new cards and when $word is null
      * @param  ResolvedTranslation|null  $translation  the card's translation in the session's locale (with the ru
@@ -50,13 +53,14 @@ final readonly class TrainingStep
         public ?string $hook = null,
         public ?string $note = null,
         public ?array $confusedWith = null,
+        public bool $canContinue = false,
     ) {}
 
     /**
      * @param  array{done:int, total:int}  $progress
      */
-    public static function done(DoneReason $reason, array $progress, ?int $newWordsRemaining = null): self
+    public static function done(DoneReason $reason, array $progress, ?int $newWordsRemaining = null, bool $canContinue = false): self
     {
-        return new self(null, null, $progress, doneReason: $reason, newWordsRemaining: $newWordsRemaining);
+        return new self(null, null, $progress, doneReason: $reason, newWordsRemaining: $newWordsRemaining, canContinue: $canContinue);
     }
 }

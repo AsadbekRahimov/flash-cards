@@ -32,10 +32,12 @@ function ladderWord(int $id, string $word = 'walk', ?string $example = 'They wal
     return $w;
 }
 
+/** The ladder WITHOUT its early part (docs/06 §12.1): the parity rules the early ladder (§13.1, `ladderEarlySelector`) builds on. */
 function ladderSelector(array $config = []): ExerciseSelector
 {
     config(['learning.ladder' => array_replace([
         'enabled' => true, 'meaning_enabled' => true, 'meaning_from_repetitions' => 2, 'choice_from_repetitions' => 3, 'typed_from_interval_days' => 21, 'typed_recall_in_free' => false,
+        'early' => ['enabled' => false],
     ], $config)]);
 
     return new ExerciseSelector(new GapFillBuilder, LadderPolicy::fromConfig());
@@ -85,7 +87,7 @@ describe('LadderPolicy', function (): void {
             // A long interval alone is maturity (FSRS can grow it fast); few passes with a short one is not.
             ->and($policy->maturityRung(ladderRep(1, 30)))->toBe(LadderPolicy::RUNG_TYPED)
             // The meaning rung is the maturity whether or not the exercise is on: the selector serves it lower when it is off.
-            ->and((new LadderPolicy(meaningEnabled: false))->maturityRung(ladderRep(2, 6)))->toBe(LadderPolicy::RUNG_MEANING);
+            ->and((new LadderPolicy(meaningEnabled: false, typedFromIntervalDays: 21))->maturityRung(ladderRep(2, 6)))->toBe(LadderPolicy::RUNG_MEANING);
     });
 
     it('never serves below the floor a lapse left, clamps garbage, and the floor cannot exceed the top rung', function (): void {
@@ -270,6 +272,143 @@ describe('ExerciseSelector on the ladder', function (): void {
             $seen[$selector->select(ladderRep(4, 6), ladderWord($id), Entitlement::free(), $all, 'group_lesson')->value] = true;
         }
         expect(array_keys($seen))->toEqualCanonicalizing(['flash', 'reverse', 'audio']);
+    });
+});
+
+/** The early ladder (docs/06 §13.1): the parity ladder with its early part on, all four lists at their defaults. */
+function ladderEarlySelector(array $early = [], array $config = []): ExerciseSelector
+{
+    return ladderSelector(array_replace(['typed_from_interval_days' => 6, 'early' => array_replace(['enabled' => true, 'recognition' => 'meaning,reverse,audio', 'form' => 'reverse,audio,flash', 'audio_requires_file' => true], $early)], $config));
+}
+
+/** A row whose last grade was given with $last (`meta.last_exercise`). */
+function ladderRepAfter(?string $last, RepetitionState $state = RepetitionState::Learning, int $repetitions = 0, int $intervalDays = 0, array $meta = []): WordRepetition
+{
+    return ladderRep($repetitions, $intervalDays, $last === null ? $meta : $meta + [LadderPolicy::LAST_EXERCISE_META => $last], $state);
+}
+
+describe('The early ladder', function (): void {
+    it('teaches a new word with a flash card and asks every later serve objectively, never twice in a row in one format', function (): void {
+        $selector = ladderEarlySelector();
+        $all = new LearnerExerciseSettings;
+        $free = Entitlement::free();
+
+        // The first meeting: flash (the pretest, when on, replaces it — tested below).
+        expect($selector->select(ladderRepAfter(null, RepetitionState::New), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Flash)
+            // The first check (10 min later): the meaning — the easiest recognition.
+            ->and($selector->select(ladderRepAfter('flash'), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Meaning)
+            ->and($selector->select(ladderRepAfter(null), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Meaning)
+            // Failed at the meaning: the next check is the reverse, not the meaning again.
+            ->and($selector->select(ladderRepAfter('meaning'), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Reverse)
+            // After the reverse, with no audio file: round to the meaning (audio waits for its file).
+            ->and($selector->select(ladderRepAfter('reverse'), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Meaning)
+            // With a file, audio takes its turn in the cycle, then the meaning again.
+            ->and($selector->select(ladderRepAfter('reverse'), ladderWord(1), $free, $all, 'daily_review', null, true))->toBe(ExerciseType::Audio)
+            ->and($selector->select(ladderRepAfter('audio'), ladderWord(1), $free, $all, 'daily_review', null, true))->toBe(ExerciseType::Meaning)
+            // A lapsed card relearning after a failed typed exercise starts the recognition over.
+            ->and($selector->select(ladderRepAfter('spelling', RepetitionState::Relearning), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Meaning);
+    });
+
+    it('serves the first day-based reviews from the recognition list and the mature ones from the form list, alternating', function (): void {
+        $selector = ladderEarlySelector();
+        $all = new LearnerExerciseSettings;
+        $free = Entitlement::free();
+        $review = RepetitionState::Review;
+
+        // Day 2 (rung 0): recognition, after the in-session meaning check — the reverse.
+        expect($selector->select(ladderRepAfter('meaning', $review, 1, 1), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Reverse)
+            // Rung 1 (two passes, interval below the typed threshold): still recognition.
+            ->and($selector->select(ladderRepAfter('reverse', $review, 2, 5), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Meaning)
+            // From the typed threshold on (interval 6) Free is served one rung lower: the form list.
+            ->and($selector->select(ladderRepAfter('reverse', $review, 2, 6), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Flash)
+            // Rung 2 (three passes): the form list — reverse, then (no audio file) a recall flash, then reverse again.
+            ->and($selector->select(ladderRepAfter('meaning', $review, 3, 15), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Reverse)
+            ->and($selector->select(ladderRepAfter('reverse', $review, 3, 15), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('flash', $review, 4, 37), ladderWord(1), $free, $all, 'daily_review'))->toBe(ExerciseType::Reverse)
+            // With audio files the form list cycles reverse → audio → flash → reverse.
+            ->and($selector->select(ladderRepAfter('reverse', $review, 3, 15), ladderWord(1), $free, $all, 'daily_review', null, true))->toBe(ExerciseType::Audio)
+            ->and($selector->select(ladderRepAfter('audio', $review, 3, 15), ladderWord(1), $free, $all, 'daily_review', null, true))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('flash', $review, 3, 15), ladderWord(1), $free, $all, 'daily_review', null, true))->toBe(ExerciseType::Reverse);
+    });
+
+    it('alternates gap-fill and spelling on the typed rung and borrows from the rung below rather than repeat', function (): void {
+        $selector = ladderEarlySelector();
+        $all = new LearnerExerciseSettings;
+        $review = RepetitionState::Review;
+
+        // Interval 6 (the default threshold): typed for Pro, gap-fill first when the example carries the word.
+        expect($selector->select(ladderRepAfter('reverse', $review, 2, 6), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::GapFill)
+            ->and($selector->select(ladderRepAfter('gap_fill', $review, 3, 15), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Spelling)
+            ->and($selector->select(ladderRepAfter('spelling', $review, 4, 37), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::GapFill)
+            // No form in the example: spelling; after a spelling the rung has nothing else, so the options rung lends the reverse.
+            ->and($selector->select(ladderRepAfter('gap_fill', $review, 3, 15), ladderWord(1, 'go', 'She went home.'), pro(), $all, 'lesson'))->toBe(ExerciseType::Spelling)
+            ->and($selector->select(ladderRepAfter('spelling', $review, 3, 15), ladderWord(1, 'go', 'She went home.'), pro(), $all, 'lesson'))->toBe(ExerciseType::Reverse)
+            // Free never types: the same card is the form list.
+            ->and($selector->select(ladderRepAfter('reverse', $review, 2, 6), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('meaning', $review, 2, 6), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Reverse);
+    });
+
+    it('keeps the floor a lapse left: a relearned card comes back on its floor\'s list', function (): void {
+        $selector = ladderEarlySelector();
+        $all = new LearnerExerciseSettings;
+
+        // Failed at a typed card (floor: the options), relearned (one pass, interval 1): the form list, not recognition.
+        expect($selector->select(ladderRepAfter('meaning', RepetitionState::Review, 1, 1, [LadderPolicy::FLOOR_META => LadderPolicy::RUNG_CHOICE]), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Reverse)
+            ->and($selector->select(ladderRepAfter('reverse', RepetitionState::Review, 1, 1, [LadderPolicy::FLOOR_META => LadderPolicy::RUNG_CHOICE]), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Flash);
+    });
+
+    it('falls back to flash when the learner switched the objective exercises off, and never repeats the only one left', function (): void {
+        $selector = ladderEarlySelector();
+        $onlyMeaning = new LearnerExerciseSettings(reverse: false, audio: false);
+        $none = new LearnerExerciseSettings(reverse: false, audio: false, meaning: false);
+        $free = Entitlement::free();
+
+        expect($selector->select(ladderRepAfter('flash'), ladderWord(1), $free, $onlyMeaning, 'lesson'))->toBe(ExerciseType::Meaning)
+            // The meaning was just served and nothing else is on: a flash check rather than the same card again.
+            ->and($selector->select(ladderRepAfter('meaning'), ladderWord(1), $free, $onlyMeaning, 'lesson'))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('flash'), ladderWord(1), $free, $none, 'lesson'))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('meaning'), ladderWord(1), $free, $none, 'lesson'))->toBe(ExerciseType::Flash)
+            // The meaning off in the config: the recognition list is reverse (audio waits for its file).
+            ->and(ladderEarlySelector(config: ['meaning_enabled' => false])->select(ladderRepAfter('flash'), ladderWord(1), $free, new LearnerExerciseSettings, 'lesson'))->toBe(ExerciseType::Reverse);
+    });
+
+    it('serves audio without a file when the file is not required, and reads the lists from the config', function (): void {
+        $relaxed = ladderEarlySelector(['audio_requires_file' => false]);
+        $all = new LearnerExerciseSettings;
+        expect($relaxed->select(ladderRepAfter('reverse'), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Audio);
+
+        $custom = ladderEarlySelector(['recognition' => 'reverse, meaning', 'form' => 'flash,reverse']);
+        expect($custom->select(ladderRepAfter('flash'), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Reverse)
+            ->and($custom->select(ladderRepAfter('reverse'), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Meaning)
+            ->and($custom->select(ladderRepAfter('reverse', RepetitionState::Review, 3, 15), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Flash);
+
+        // Garbage, duplicates, the typed exercises and the pretest are dropped from a list; an empty list is the default.
+        expect(LadderPolicy::exerciseList('audio,nope,audio,spelling,pretest,meaning', LadderPolicy::DEFAULT_EARLY_FORM))->toBe([ExerciseType::Audio, ExerciseType::Meaning])
+            ->and(LadderPolicy::exerciseList('nope', LadderPolicy::DEFAULT_EARLY_FORM))->toBe(LadderPolicy::DEFAULT_EARLY_FORM)
+            ->and(LadderPolicy::exerciseList(null, LadderPolicy::DEFAULT_EARLY_RECOGNITION))->toBe(LadderPolicy::DEFAULT_EARLY_RECOGNITION)
+            ->and(LadderPolicy::fromConfig()->earlyRecognition)->toBe([ExerciseType::Reverse, ExerciseType::Meaning]);
+    });
+
+    it('leaves group lessons, the pretest and the switched-off early ladder as they were', function (): void {
+        $all = new LearnerExerciseSettings;
+        $selector = ladderEarlySelector();
+
+        // A group lesson: one screen for the class — the parity ladder, cards in minute steps are flash.
+        expect($selector->select(ladderRepAfter('meaning'), ladderWord(1), pro(), $all, 'group_lesson'))->toBe(ExerciseType::Flash)
+            ->and($selector->select(ladderRepAfter('meaning', RepetitionState::Review, 1, 1), ladderWord(1), pro(), $all, 'group_lesson'))->toBe(ExerciseType::Flash);
+
+        // The early ladder off: the ladder of docs/06 §12.1.
+        $off = ladderEarlySelector(['enabled' => false], ['typed_from_interval_days' => 21]);
+        expect($off->select(ladderRepAfter('meaning'), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Flash)
+            ->and($off->select(ladderRepAfter('meaning', RepetitionState::Review, 1, 1), ladderWord(1), pro(), $all, 'lesson'))->toBe(ExerciseType::Flash)
+            ->and($off->select(ladderRepAfter('reverse', RepetitionState::Review, 3, 15), ladderWord(3), pro(), $all, 'lesson'))->toBe(ExerciseType::Reverse); // parity, whatever the last
+
+        // The pretest still takes the first meeting (the early ladder on again).
+        ladderEarlySelector();
+        config(['learning.pretest.enabled' => true]);
+        $pretest = new ExerciseSelector(new GapFillBuilder, LadderPolicy::fromConfig());
+        expect($pretest->select(ladderRepAfter(null, RepetitionState::New), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Pretest)
+            ->and($pretest->select(ladderRepAfter('pretest'), ladderWord(1), Entitlement::free(), $all, 'lesson'))->toBe(ExerciseType::Meaning);
     });
 });
 

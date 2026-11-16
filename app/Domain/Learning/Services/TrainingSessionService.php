@@ -6,6 +6,8 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\DTO\SessionSummary;
+use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Models\Assignment;
 use App\Models\Course;
@@ -511,33 +513,59 @@ final class TrainingSessionService
     }
 
     /**
-     * The three numbers of the summary in ONE statement: the grades and the correct ones as conditional aggregates,
-     * the new words as a scalar subquery (bindings only, no values in the SQL).
+     * The numbers of the summary in ONE statement (bindings only, no values in the SQL): one row per word graded in the
+     * session (its grades, the correct ones, whether its progress row was born in the session, the stage it started
+     * the session on and the stage it holds now — docs/06 §13.3), aggregated once.
+     *
+     * The stage before = the smallest `interval_before_days` of the word's grades in the session (0 for a card in minute
+     * steps); a word born in the session starts at `new`. The stage after = the current row: `review` by its interval,
+     * a lapsed card in relearning is `learning`, a new word still in the minute steps stays `new`. An approximation kept
+     * from before: a word first served to the learner in another tab while this session was open counts as new here too,
+     * as long as it was graded in this session.
      */
     private function summarise(TrainingSession $session, bool $wasOpen): SessionSummary
     {
-        $reviews = DB::table('training_reviews')
-            ->where('training_reviews.training_session_id', $session->id);
-        if ($session->learner_id !== null) {
-            $reviews->where('training_reviews.learner_id', $session->learner_id);
-        }
+        $t = WordStage::thresholds();
+        $startedAt = $session->started_at->format(DB::connection()->getQueryGrammar()->getDateFormat());
 
-        // Words whose progress row was born during this session = first served here. An
-        // approximation: a word first served to the learner in another tab while this session was
-        // open is counted here too, as long as it was graded in this session.
-        $newWords = (clone $reviews)
-            ->selectRaw('count(distinct "training_reviews"."word_id")')
-            ->join('word_repetitions', function ($join): void {
+        // A LEFT join: every grade counts as before even if its progress row is gone (the app never deletes rows; data made by hand may lack them).
+        $perWord = DB::table('training_reviews')
+            ->leftJoin('word_repetitions', function ($join): void {
                 $join->on('word_repetitions.word_id', '=', 'training_reviews.word_id')
                     ->on('word_repetitions.learner_id', '=', 'training_reviews.learner_id');
             })
-            ->where('word_repetitions.created_at', '>=', $session->started_at);
+            ->where('training_reviews.training_session_id', $session->id)
+            ->groupBy('training_reviews.word_id')
+            ->selectRaw('count(*) as grades')
+            ->selectRaw('sum(case when "training_reviews"."quality" >= ? then 1 else 0 end) as correct', [3])
+            ->selectRaw('max(case when "word_repetitions"."created_at" >= ? then 1 else 0 end) as born', [$startedAt])
+            // The stage the word held when the session began: by the interval before its first grade here
+            // (3 mastered, 2 known, 1 learning — the ranks of WordStage).
+            ->selectRaw(
+                'min(case when "training_reviews"."interval_before_days" >= ? then 3 when "training_reviews"."interval_before_days" >= ? then 2 else 1 end) as stage_before',
+                [$t['mastered'], $t['known']],
+            )
+            // The stage it holds now: a graduated card by its interval, a card in relearning is `learning`, still new is `new`.
+            ->selectRaw(
+                'max(case when "word_repetitions"."state" = ? then (case when "word_repetitions"."interval_days" >= ? then 3 when "word_repetitions"."interval_days" >= ? then 2 else 1 end)'
+                .' when "word_repetitions"."state" = ? then 1 else 0 end) as stage_after',
+                [RepetitionState::Review->value, $t['mastered'], $t['known'], RepetitionState::Relearning->value],
+            );
+        if ($session->learner_id !== null) {
+            $perWord->where('training_reviews.learner_id', $session->learner_id);
+        }
 
-        /** @var object{reviewed: int|string, correct: int|string|null, new_words: int|string}|null $row */
-        $row = $reviews
-            ->selectRaw('count(*) as reviewed')
-            ->selectRaw('coalesce(sum(case when "training_reviews"."quality" >= ? then 1 else 0 end), 0) as correct', [3])
-            ->selectSub($newWords, 'new_words')
+        /** @var object{reviewed: int|string|null, correct: int|string|null, new_words: int|string|null, graduated: int|string|null, promoted: int|string|null, mastered: int|string|null}|null $row */
+        $row = DB::query()
+            ->fromSub($perWord, 'w')
+            ->selectRaw('coalesce(sum("w"."grades"), 0) as reviewed')
+            ->selectRaw('coalesce(sum("w"."correct"), 0) as correct')
+            ->selectRaw('coalesce(sum("w"."born"), 0) as new_words')
+            // A new word that left the minute steps: born here and graduated (its stage is `learning` or above).
+            ->selectRaw('coalesce(sum(case when "w"."born" = 1 and "w"."stage_after" >= 1 then 1 else 0 end), 0) as graduated')
+            // An older word that climbed: a word born here starts at `new`, its climb is `graduated` above.
+            ->selectRaw('coalesce(sum(case when "w"."born" = 0 and "w"."stage_after" > "w"."stage_before" then 1 else 0 end), 0) as promoted')
+            ->selectRaw('coalesce(sum(case when "w"."stage_after" = ? and ("w"."born" = 1 or "w"."stage_before" < ?) then 1 else 0 end), 0) as mastered', [WordStage::Mastered->rank(), WordStage::Mastered->rank()])
             ->first();
 
         return new SessionSummary(
@@ -546,6 +574,9 @@ final class TrainingSessionService
             (int) ($row->correct ?? 0),
             (int) ($row->new_words ?? 0),
             $wasOpen,
+            graduated: (int) ($row->graduated ?? 0),
+            promoted: (int) ($row->promoted ?? 0),
+            mastered: (int) ($row->mastered ?? 0),
         );
     }
 

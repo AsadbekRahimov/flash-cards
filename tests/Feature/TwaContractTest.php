@@ -522,6 +522,7 @@ it('POST /training/start keeps its exact JSON shape', function (): void {
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('mode', 'group_lesson')
@@ -547,6 +548,7 @@ it('POST /training/sessions keeps its exact JSON shape, for a lesson and for a d
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ]);
 
@@ -561,6 +563,7 @@ it('POST /training/sessions keeps its exact JSON shape, for a lesson and for a d
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('lesson', null);
@@ -580,6 +583,7 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
         ->assertOk()
         ->assertExactJsonStructure([
             'reviewed', 'correct', 'new_words',
+            'stages' => ['graduated', 'promoted', 'mastered'],
             'goal' => CONTRACT_GOAL,
             'streak' => CONTRACT_STREAK,
             'practice_entry',
@@ -608,10 +612,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])
@@ -625,7 +629,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
+        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason', 'can_continue', 'quota' => CONTRACT_QUOTA]);
 
     // Pretend the only card was already graduated and is not due: nothing to show.
     WordRepetition::query()->where('learner_id', $s['learner']->id)->update([
@@ -637,7 +641,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $response = $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
+        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason', 'can_continue', 'quota' => CONTRACT_QUOTA]);
 
     expect($response->json('card'))->toBeNull()
         ->and($response->json('done_reason'))->toBe('lesson_complete');
@@ -668,6 +672,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ]);
 

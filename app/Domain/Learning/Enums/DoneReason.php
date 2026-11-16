@@ -20,4 +20,10 @@ enum DoneReason: string
 
     /** `twa.training.max_cards_per_session` grades were accepted in this session. */
     case SessionCap = 'session_cap';
+
+    /**
+     * Daily scope: the round's portion is done (`learning.sprint.*`, docs/06 §13.2) while more cards would be there for
+     * another round — due reviews beyond the round's cap, or unseen words within the day's quota. `can_continue` is true.
+     */
+    case SprintComplete = 'sprint_complete';
 }
