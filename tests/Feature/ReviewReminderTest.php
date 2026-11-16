@@ -15,6 +15,7 @@ use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\NotificationLog;
 use App\Models\ProductEvent;
 use App\Models\Word;
@@ -68,6 +69,16 @@ function rmDue(Learner $learner, int $count): void
 function rmSend(Learner $learner, ?CarbonImmutable $scheduledFor = null): ReminderOutcome
 {
     return app(ReminderSender::class)->send($learner->id, $scheduledFor ?? CarbonImmutable::parse('2026-10-18 14:00:00', 'UTC'));
+}
+
+/** A day with reviews `$daysAgo` local days before today (2026-10-18). */
+function rmStudy(Learner $learner, int $daysAgo): void
+{
+    LearnerDailyStats::factory()->create([
+        'learner_id' => $learner->id,
+        'date' => CarbonImmutable::parse('2026-10-18')->subDays($daysAgo)->toDateString(),
+        'reviews_count' => 5,
+    ]);
 }
 
 /** Yesterday's goal was met, today's not yet: the streak is at risk. */
@@ -143,10 +154,15 @@ it('prefers the review text over the streak warning when both apply', function (
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->value('type'))->toBe('review_reminder');
 });
 
-it('stays silent when nothing is due and the streak is safe or absent', function (): void {
+it('stays silent when nothing is due, the learner studied today and the streak is safe or absent', function (): void {
+    // Since 2026-11-16 a learner who has not studied today hears about new words instead (ReminderIdleTest);
+    // silence is for the one who already studied today.
     $noStreak = rmLearner();
     $metToday = rmLearner(['telegram_user_id' => 777002, 'streak_current' => 4, 'streak_best' => 4, 'streak_last_date' => '2026-10-18']);
     $broken = rmLearner(['telegram_user_id' => 777003, 'streak_current' => 4, 'streak_best' => 4, 'streak_last_date' => '2026-10-15']);
+    foreach ([$noStreak, $metToday, $broken] as $learner) {
+        rmStudy($learner, 0);
+    }
 
     expect(rmSend($noStreak))->toBe(ReminderOutcome::SkippedNothingToSay)
         ->and(rmSend($metToday))->toBe(ReminderOutcome::SkippedNothingToSay)
@@ -501,6 +517,7 @@ it('does not count a relearning card abandoned less than abandoned_after_hours a
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subHours(11),
     ]);
+    rmStudy($learner, 0); // studied today: no "new words" message, only the due count matters here
 
     expect(rmSend($learner))->toBe(ReminderOutcome::SkippedNothingToSay);
 

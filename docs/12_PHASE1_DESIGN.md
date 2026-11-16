@@ -907,6 +907,20 @@ flowchart TD
 
 > **Финальные правки 1.5b (после ревью).** (1) `reminders:dispatch` — `withoutOverlapping(10)->runInBackground()`, job'ы в очереди `default` (не `high`). (2) **Не больше одного раза:** `ReminderSender` пишет `notifications_log` до вызова Telegram под тем же `Cache::lock`; 403 / 400 `chat not found` (`reason = chat_not_found`) → строка удаляется, `dm_blocked_at`, `reminder.failed`; прочие ошибки → строка остаётся, исключение пробрасывается, повтор job = `skipped_recent`. (3) Окно идемпотентности — «одно напоминание за локальный день learner'а» (`LearnerClock::dayBoundsUtc`) плюс минимум `REMINDERS_MIN_INTERVAL_HOURS` (2) между любыми двумя. (4) Разнос пика: n-е job'у запуска — задержка `floor(n / REMINDERS_SEND_RATE_PER_SECOND)` с (25), не более 14 мин. (5) `REMINDERS_BACKFILL_LIMIT` 10000. (6) `my_chat_member` в личном чате: `kicked` → `dm_blocked_at = now`, `member` → `NULL`, learner не создаётся. (7) `notifications_log` — `MassPrunable`, `NOTIFICATIONS_LOG_RETENTION_DAYS` (400), в `model:prune`. Нижние границы конфига: `max_delay_minutes` ≥ 15, `min_interval_hours` ≥ 1, `send_rate_per_second` ≥ 1.
 
+> **Изменение 2026-11-16 (решение владельца): напоминания о перерыве.** Режим «умеренный»: не больше одного сообщения в день, особый текст при перерыве, давно ушедшим — реже, после 60 дней — тишина (иначе бота блокируют). `idle` = число локальных дней (`LearnerClock`) между сегодня и последним днём с `learner_daily_stats.reviews_count > 0` (один запрос `max(date)`; не занимался никогда — от локального дня `created_at`; занимался сегодня — 0). `ReminderContentResolver` берёт первое подходящее правило:
+>
+> | # | Условие | Вид (`ReminderKind`, `notifications_log.type`) |
+> |---|---|---|
+> | 1 | `idle > REMINDERS_STOP_AFTER_DAYS` (60) | тишина |
+> | 2 | `idle > REMINDERS_DAILY_UNTIL_DAYS` (7) и `idle` не в `REMINDERS_SPARSE_DAYS` (`10,14,21,30,45,60`) | тишина в этот день |
+> | 3 | `idle >= REMINDERS_WINBACK_FROM_DAYS` (3) | `inactive` / `inactive_reminder` («вы N дней не занимались», плюс число слов к повторению, если они есть); не занимался никогда — `never_started` / `never_started_reminder` |
+> | 4 | `due >= due_threshold` | `review` / `review_reminder` |
+> | 5 | серия под угрозой | `streak_at_risk` / `streak_reminder` |
+> | 6 | сегодня нет оценённых карточек: никогда не занимался → `never_started`; иначе → `new_words` / `new_words_reminder` | см. справа |
+> | 7 | иначе (сегодня уже занимался, повторять нечего) | тишина |
+>
+> Ученик без активного курса (`active_course_id IS NULL`) вместо `never_started` / `new_words` получает `choose_course` / `choose_course_reminder` («Выберите курс»); остаток непройденных слов курса не считается. Правило «одно в локальный день» и клейм `next_reminder_at` не менялись; `notifications_log.payload` дополнен `idle_days`.
+
 ### 7.6 Жизненный цикл личной сессии
 
 `openPersonal` идемпотентен (partial unique → вернуть открытую); `expires_at = now + 12 ч`; `training:close-expired` каждые 15 мин закрывает просроченные личные сессии (`status = closed`, `ended_at = now`, `done_reason = expired`). `finish` — явное закрытие с summary (`done_reason = finished`). Повторный `/start` сессии после закрытия → 410 `session_closed`, клиент создаёт новую. Групповые сессии (D5 из docs/11) — закрытие через 24 ч тем же планировщиком (`mode = group_lesson AND started_at < now - 24h`) — безопасно, учитель всегда может открыть снова (`open` идемпотентен).

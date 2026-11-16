@@ -417,6 +417,20 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 был «завтра») в `relearning`. По правилу выше они снова попадают в напоминания через
 `abandoned_after_hours` после своего `next_review_at`; слова не теряются.
 
+> **Изменение 2026-11-16 (решение владельца): напоминания о перерыве.** Режим «умеренный»: не больше одного сообщения в день, особый текст при перерыве, давно ушедшим — реже, после 60 дней — тишина (иначе бота блокируют). `idle` = число локальных дней (`LearnerClock`) между сегодня и последним днём с `learner_daily_stats.reviews_count > 0` (один запрос `max(date)`; не занимался никогда — от локального дня `created_at`; занимался сегодня — 0). `ReminderContentResolver` берёт первое подходящее правило:
+>
+> | # | Условие | Вид (`ReminderKind`, `notifications_log.type`) |
+> |---|---|---|
+> | 1 | `idle > REMINDERS_STOP_AFTER_DAYS` (60) | тишина |
+> | 2 | `idle > REMINDERS_DAILY_UNTIL_DAYS` (7) и `idle` не в `REMINDERS_SPARSE_DAYS` (`10,14,21,30,45,60`) | тишина в этот день |
+> | 3 | `idle >= REMINDERS_WINBACK_FROM_DAYS` (3) | `inactive` / `inactive_reminder` («вы N дней не занимались», плюс число слов к повторению, если они есть); не занимался никогда — `never_started` / `never_started_reminder` |
+> | 4 | `due >= due_threshold` | `review` / `review_reminder` |
+> | 5 | серия под угрозой | `streak_at_risk` / `streak_reminder` |
+> | 6 | сегодня нет оценённых карточек: никогда не занимался → `never_started`; иначе → `new_words` / `new_words_reminder` | см. справа |
+> | 7 | иначе (сегодня уже занимался, повторять нечего) | тишина |
+>
+> Ученик без активного курса (`active_course_id IS NULL`) вместо `never_started` / `new_words` получает `choose_course` / `choose_course_reminder` («Выберите курс»); остаток непройденных слов курса не считается. Правило «одно в локальный день» и клейм `next_reminder_at` не менялись; `notifications_log.payload` дополнен `idle_days`.
+
 ## 6a. Заморозка серии (streak freeze, Pro) — 2C.2
 
 Правила streak — docs/12 §7.4; здесь — что меняет заморозка (docs/13 §2.4, §7.2). Код: `App\Domain\Engagement\Services\StreakFreezeService`
