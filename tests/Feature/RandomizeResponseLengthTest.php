@@ -10,6 +10,7 @@ use Filament\Facades\Filament;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\View;
 use Livewire\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware;
 use Livewire\Mechanisms\HandleRequests\HandleRequests;
 use PragmaRX\Google2FA\Google2FA;
@@ -50,6 +51,23 @@ function padTestRoutes(): void
     }, 200, ['Content-Type' => 'text/html']));
     Route::get('/api/_probe', fn () => response()->json(['components' => []]));
     Route::get('/administration/_probe', fn () => response(PROBE_HTML, 200, ['Content-Type' => 'text/html']));
+    // The same handler with and without a session, outside every panel path.
+    Route::middleware('web')->get('/_probe/session', fn () => response(PROBE_HTML, 200, ['Content-Type' => 'text/html']));
+    Route::get('/_probe/stateless', fn () => response(PROBE_HTML, 200, ['Content-Type' => 'text/html']));
+}
+
+function twoFactorAdminForPadding(): User
+{
+    test()->seed(RolePermissionSeeder::class);
+    $admin = User::factory()->create([
+        'is_active' => true,
+        'two_factor_secret' => app(Google2FA::class)->generateSecretKey(),
+        'two_factor_recovery_codes' => ['r1'],
+        'two_factor_confirmed_at' => now(),
+    ]);
+    $admin->assignRole('admin');
+
+    return $admin;
 }
 
 uses(RefreshDatabase::class);
@@ -157,14 +175,7 @@ it('leaves a JSON array alone', function (): void {
 });
 
 it('pads the JSON of a real Livewire update and the client still finds its keys', function (): void {
-    $this->seed(RolePermissionSeeder::class);
-    $admin = User::factory()->create([
-        'is_active' => true,
-        'two_factor_secret' => app(Google2FA::class)->generateSecretKey(),
-        'two_factor_recovery_codes' => ['r1'],
-        'two_factor_confirmed_at' => now(),
-    ]);
-    $admin->assignRole('admin');
+    $admin = twoFactorAdminForPadding();
 
     $html = (string) $this->actingAs($admin)
         ->withSession(['2fa.web.passed_at' => time(), '2fa.web.user_id' => $admin->id])
@@ -193,6 +204,82 @@ it('pads the JSON of a real Livewire update and the client still finds its keys'
         ->and($json)->toHaveKeys(['components', 'assets', '_pad'])
         ->and($json['components'][0])->toHaveKeys(['snapshot', 'effects'])
         ->and(json_decode($json['components'][0]['snapshot'], true, 512, JSON_THROW_ON_ERROR))->toHaveKey('memo');
+});
+
+// --- The decision must not depend on how the attacker spelled the URL (review finding, 16.11.2026) -----------------
+
+it('normalises the path the way the router matches it', function (): void {
+    expect(RandomizeResponseLength::normalizePath('/%61dmin/courses'))->toBe('admin/courses')
+        ->and(RandomizeResponseLength::normalizePath('/admin%2Fcourses'))->toBe('admin/courses')
+        ->and(RandomizeResponseLength::normalizePath('/2f%61/challenge'))->toBe('2fa/challenge')
+        ->and(RandomizeResponseLength::normalizePath('//admin//courses/'))->toBe('admin/courses')
+        ->and(RandomizeResponseLength::normalizePath('/livewire-5%35/update'))->toBe('livewire-55/update')
+        ->and(RandomizeResponseLength::normalizePath('/'))->toBe('')
+        ->and(RandomizeResponseLength::normalizePath('/%61dministration'))->toBe('administration');
+
+    foreach (['/%61dmin/courses', '/admin%2Fcourses', '/2f%61/challenge', '//admin//courses', '/%6Civewire-55/update'] as $raw) {
+        expect(RandomizeResponseLength::appliesTo(RandomizeResponseLength::normalizePath($raw)))->toBeTrue($raw);
+    }
+    // Neither the router nor this check resolves `..` or case: such URLs reach no session route (404) and carry no secret.
+    foreach (['/%61dministration', '/ADMIN/x', '/x/../admin/x'] as $raw) {
+        expect(RandomizeResponseLength::appliesTo(RandomizeResponseLength::normalizePath($raw)))->toBeFalse($raw);
+    }
+});
+
+it('pads a panel path however it is percent-encoded', function (string $url): void {
+    $response = $this->get($url)->assertOk();
+
+    expect((string) $response->getContent())->toMatch('/^'.preg_quote(PROBE_HTML, '/').'<!--'.NOISE.'-->$/');
+})->with(['/%61dmin/_probe', '/admin%2F_probe', '/%32fa/_probe/length', '/2f%61/_probe/length', '/2fa%2F_probe%2Flength']);
+
+it('pads the encoded JSON path too', function (): void {
+    expect((string) $this->get('/%6Civewire-probe/empty-object')->assertOk()->getContent())->toMatch('/^\{"_pad":"'.NOISE.'"\}$/');
+});
+
+it('pads the real 2FA challenge reached through an encoded path, and keeps the view in `original`', function (): void {
+    $admin = twoFactorAdminForPadding();
+
+    foreach (['/2fa/challenge?guard=web', '/2f%61/challenge?guard=web', '/%32fa/challenge?guard=web'] as $url) {
+        $response = $this->actingAs($admin)->get($url)->assertOk();
+
+        expect((string) $response->getContent())->toMatch('/<\/html>\s*<!--'.NOISE.'-->$/')
+            ->and((string) $response->getContent())->toContain('_token');
+
+        $response->assertViewIs('2fa.challenge')->assertViewHas('guard', 'web');
+        expect($response->baseResponse->original)->toBeInstanceOf(View::class);
+    }
+});
+
+it('pads every response of a request with a session, whatever the path, and not the same handler without one', function (): void {
+    expect((string) $this->get('/_probe/session')->assertOk()->getContent())->toMatch('/^'.preg_quote(PROBE_HTML, '/').'<!--'.NOISE.'-->$/');
+    expect($this->get('/_probe/stateless')->assertOk()->getContent())->toBe(PROBE_HTML);
+});
+
+it('leaves the stateless public responses alone: the payment return page, the Telegram webhook, the readiness probe', function (): void {
+    $return = $this->get('/billing/return?order=nope&lang=ru')->assertOk();
+    expect((string) $return->headers->get('Content-Type'))->toContain('text/html')
+        ->and((string) $return->getContent())->not->toMatch('/<!--'.NOISE.'-->\s*$/')
+        ->and($return->headers->has('Set-Cookie'))->toBeFalse();
+
+    $webhook = $this->postJson('/telegram/webhook/not-the-secret-0123456789', ['update_id' => 1]);
+    expect($webhook->getStatusCode())->toBeIn([401, 403, 404])
+        ->and((string) $webhook->getContent())->not->toMatch('/<!--'.NOISE.'-->\s*$/')
+        ->and((string) $webhook->getContent())->not->toContain('"_pad"');
+
+    $ready = $this->get('/health/ready');
+    expect((string) $ready->getContent())->not->toContain('"_pad"')
+        ->and((string) $ready->getContent())->not->toMatch('/<!--'.NOISE.'-->\s*$/');
+});
+
+it('keeps `original` of a JSON response', function (): void {
+    $response = $this->get('/livewire-probe/empty-object')->assertOk();
+    expect($response->baseResponse->original)->toBe('{}');
+
+    $json = $this->get('/livewire-probe/array')->assertOk();
+    expect($json->baseResponse->original)->toBe([1, 2, 3]);
+
+    $padded = $this->get('/livewire-probe/update')->assertOk();
+    expect($padded->baseResponse->original)->toBeArray()->toHaveKeys(['components', 'assets', 'empty'])->not->toHaveKey('_pad');
 });
 
 it('corrects a Content-Length a response had set', function (): void {

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as IlluminateResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -24,6 +26,20 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * Cloudflare re-compressing gzip into brotli between the origin and the browser (docs/23 §4) - a gzip-header trick
  * would not.
  *
+ * Which responses get the noise - either of two conditions, both independent of how the attacker spells the URL:
+ * 1. The request has a session (`$request->hasSession()`, set by `StartSession`). The secret exists only in the
+ *    responses of session routes - the panel pages and login pages, /2fa/*, `POST /livewire-<hash>/update` - and this
+ *    covers any session route added later. The public site, the Telegram and payment webhooks, /billing/return and
+ *    /health/ready strip `StartSession` (routes/web.php, routes/health.php): no session, no secret, no noise - and the
+ *    public pages are cached with `Cache-Control: public`, where a random body would defeat the cache. /api/* has no
+ *    session (JWT; the token is not reflected).
+ * 2. The path, normalised the way the router matches it (`rawurldecode(getPathInfo())`, repeated slashes merged,
+ *    trimmed), is under {@see self::PATHS} - the panel prefixes nginx hands to PHP directly. This catches a panel
+ *    response produced before `StartSession` ran (a 404 of the router, an exception in an earlier middleware).
+ *    A raw `Request::path()` would NOT do: `/%61dmin/courses` and `/admin%2Fcourses` reach the `admin/courses` route
+ *    (the router decodes), nginx compresses them (it matches the decoded URI), and the raw path starts with `%61`.
+ *    `tests/Unit/DeployInfraConfigTest.php` keeps PATHS equal to the nginx location regex.
+ *
  * Where and what:
  * - HTML: an HTML comment `<!--…-->` appended after the end of the document. The HTML parser attaches a comment that
  *   follows `</html>` to the Document, not to `<body>`: `wire:navigate` (Filament SPA mode) swaps `document.body` and
@@ -40,35 +56,35 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *   ~100-128 bytes of spread in the compressed size under gzip and under brotli, with the character values adding
  *   their own jitter. Whitespace or a repeated character would NOT do: deflate codes a run in a few bytes whatever its
  *   length, and the compressed size would barely move. The cost is <= 165 bytes a response against 24-30 KB.
- * - A comment / a key is used rather than something the page renders: nothing changes for the user, nothing for
- *   Blade or Alpine.
+ * - `original` of the Illuminate response (the View / the array a test inspects with `assertViewHas`) is kept:
+ *   `Illuminate\Http\Response::setContent()` would overwrite it with the padded string.
  *
- * Which responses: only the paths of {@see self::PATHS} - the same paths as the direct-fastcgi `location` of
- * docker/nginx/{prod,coolify,default}.conf, where nginx now compresses the dynamic output
- * (tests/Unit/DeployInfraConfigTest.php keeps the two lists equal). Left alone: `StreamedResponse` (Filament CSV
- * exports, `wire:stream`), `BinaryFileResponse` (livewire.min.js, downloads), redirects, 1xx/204/304 and empty
- * bodies, HEAD, anything already `Content-Encoding`d, every content type but HTML and JSON. The TWA API (/api/*)
- * carries no CSRF token and does not reflect the JWT, the public site pages are cached with `Cache-Control: public`
- * (a random body would defeat the cache) - both are outside the paths. `Content-Length`, when a response sets one, is
- * corrected to the new length.
+ * Left alone whatever the path: `StreamedResponse` (Filament CSV exports, `wire:stream`), `BinaryFileResponse`
+ * (livewire.min.js, downloads), redirects, 1xx/204/304 and empty bodies, HEAD, anything already `Content-Encoding`d,
+ * every content type but HTML and JSON. `Content-Length`, when a response sets one, is corrected to the new length.
  *
  * Registered globally in bootstrap/app.php (appended: the innermost global middleware, so it runs on the way out
  * right after the route middleware and nothing after it replaces the body - the outer global middleware only touch
  * headers). No state in the instance: safe under Octane.
  *
- * What it does and does not give: the noise raises the number of requests an attacker needs by orders of magnitude
- * (averaging over the noise is possible in theory, in practice it needs tens of thousands of requests per guessed
- * character); it is not a proof. The real defences remain: `SameSite=Lax` on the session cookie (the attacker's page
- * cannot make the browser send the panel session on a cross-site POST - and BREACH needs the victim's session on
- * thousands of attacker-controlled requests), 2FA on both panels, and the CSRF token being useless without the
- * session. Per-response masking of the CSRF token would remove the secret instead of hiding it; it is not done here.
+ * What it does and does not give. Against bounded uniform noise the attacker's best move is not the mean but the
+ * MINIMUM compressed length over repeated requests of the same candidate: the minimum settles at the true length plus
+ * the smallest noise, and one request in 129 hits that floor, so seeing it with confidence 1-δ takes about
+ * 129·ln(1/δ) ≈ 600 requests per candidate (δ = 1 %), ~37 000 per character of a 62-symbol token, ~1.5 million for a
+ * 40-character token - all of them issued by the victim's browser while the session lives, and the floor is blurred
+ * further by the per-character jitter of the codes. A cost multiplier, not a proof. The real defences remain:
+ * `SameSite=Lax` on the session cookie (the attacker's page cannot make the browser send the panel session on a
+ * cross-site POST, and BREACH needs the victim's session on every one of those requests), 2FA on both panels, and the
+ * CSRF token being useless without the session. Per-response masking of the CSRF token would remove the secret
+ * instead of hiding it; it is not done here.
  */
 final class RandomizeResponseLength
 {
     /**
-     * The paths nginx compresses dynamically and this middleware pads. An entry ending in `/` is a path segment
-     * (`admin/` matches `admin` and `admin/...`, not `administration`); any other entry is a raw prefix
-     * (`livewire-` matches `livewire-<hash>/update`). {@see self::nginxLocationRegex()} renders the nginx form.
+     * The panel paths nginx compresses dynamically (its direct-fastcgi location) and this middleware pads even without
+     * a session. An entry ending in `/` is a path segment (`admin/` matches `admin` and `admin/...`, not
+     * `administration`); any other entry is a raw prefix (`livewire-` matches `livewire-<hash>/update`).
+     * {@see self::nginxLocationAlternatives()} renders the nginx form.
      *
      * @var list<string>
      */
@@ -85,7 +101,7 @@ final class RandomizeResponseLength
         /** @var Response $response */
         $response = $next($request);
 
-        if (! self::appliesTo($request->path())) {
+        if (! $request->hasSession() && ! self::appliesTo(self::normalizePath($request->getPathInfo()))) {
             return $response;
         }
 
@@ -117,7 +133,7 @@ final class RandomizeResponseLength
             return $response;
         }
 
-        $response->setContent($padded);
+        self::replaceContent($response, $padded);
 
         if ($response->headers->has('Content-Length')) {
             $response->headers->set('Content-Length', (string) strlen($padded));
@@ -126,7 +142,18 @@ final class RandomizeResponseLength
         return $response;
     }
 
-    /** `$path` as {@see Request::path()} gives it: no leading slash, `/` for the root. */
+    /**
+     * The path the way the router sees it: percent-decoded (`%61dmin` -> `admin`, `%2F` -> `/`), repeated slashes
+     * merged (nginx does the same before matching its locations), no leading or trailing slash; `` for the root.
+     */
+    public static function normalizePath(string $pathInfo): string
+    {
+        $decoded = preg_replace('#/{2,}#', '/', rawurldecode($pathInfo)) ?? '';
+
+        return trim($decoded, '/');
+    }
+
+    /** `$path` normalised by {@see self::normalizePath()} (or {@see Request::path()} for an already plain URL). */
     public static function appliesTo(string $path): bool
     {
         $segments = $path.'/';
@@ -166,6 +193,20 @@ final class RandomizeResponseLength
                 : $prefix,
             self::PATHS,
         );
+    }
+
+    /** Sets the body and keeps `original` (the View or array of an Illuminate response), which setContent() would replace. */
+    private static function replaceContent(Response $response, string $padded): void
+    {
+        if ($response instanceof IlluminateResponse || $response instanceof JsonResponse) {
+            $original = $response->original;
+            $response->setContent($padded);
+            $response->original = $original;
+
+            return;
+        }
+
+        $response->setContent($padded);
     }
 
     /** `{…}` -> `{…,"_pad":"…"}`; `{}` -> `{"_pad":"…"}`; anything that is not a JSON object is left as it is (null). */

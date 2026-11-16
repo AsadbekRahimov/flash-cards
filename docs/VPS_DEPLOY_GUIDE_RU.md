@@ -1102,6 +1102,7 @@ ASSET=$(ls public/twa/assets/*.js | head -1 | xargs basename)
 curl -sI -H 'Accept-Encoding: gzip' "https://lexiflow.uz/twa/assets/$ASSET" | grep -i content-encoding
 curl -sI -H 'Accept-Encoding: gzip' https://lexiflow.uz/admin/login | grep -i content-encoding
 curl -s https://lexiflow.uz/admin/login | tail -c 200 | grep -o '<!--[A-Za-z0-9+/]*-->' | wc -c
+curl -s https://lexiflow.uz/%61dmin/login | tail -c 200 | grep -o '<!--[A-Za-z0-9+/]*-->' | wc -c   # то же для закодированного пути
 curl -sI "https://lexiflow.uz/css/filament/filament/app.css?v=1" | grep -i cache-control   # public, max-age=31536000, immutable
 ```
 
