@@ -107,7 +107,10 @@ export interface OrganizationsResponse {
   organizations: OrganizationMembership[]
 }
 
-/** GET /referrals (docs/04 A.12): "Invite a friend". `link` is null while the bot username is not configured. */
+/**
+ * GET /referrals (docs/04 A.12): "Invite a friend". `link` is null while the bot username is not configured.
+ * `rewarded` of a referral means "counted" towards the milestones (the friend did the setup and studied `activation`).
+ */
 export type ReferralStatus = 'pending' | 'activated' | 'rewarded'
 
 export interface ReferralItem {
@@ -116,12 +119,25 @@ export interface ReferralItem {
   linked_at: string
 }
 
+/** A reward step: `days` of Pro for the inviter when `friends` are counted. */
+export interface ReferralMilestone {
+  friends: number
+  days: number
+  /** null = not reached yet. */
+  reached_at: string | null
+  /** The reward is paid out. */
+  rewarded: boolean
+}
+
 export interface ReferralsResponse {
   code: string
   link: string | null
-  reward_days: number
   activation: { days: number; reviews_per_day: number; window_days: number }
-  counts: { invited: number; activated: number; rewarded: number; capped: number }
+  milestone_days: number
+  counts: { invited: number; activated: number; counted: number }
+  milestones: ReferralMilestone[]
+  /** The first milestone not reached; null after the last one. */
+  next: { friends: number; remaining: number } | null
   referrals: ReferralItem[]
 }
 
@@ -284,6 +300,7 @@ export interface Entitlement {
 }
 
 export interface Lapsed {
+  /** `trial` = the welcome trial of a new learner ended (the other values are paid subscriptions). */
   provider: string
   /** ISO 8601 moment the subscription expired; also the key of the local "dismissed" mark. */
   ended_at: string
@@ -292,6 +309,7 @@ export interface Lapsed {
 export interface Renewal {
   /** The auto-renewal is running (Telegram Stars, status `active`). */
   auto: boolean
+  /** `trial` = the welcome Pro of a new learner; otherwise a paid subscription (`telegram_stars`, `payme`, ...). */
   provider: string
   /** null = no end. */
   ends_at: string | null

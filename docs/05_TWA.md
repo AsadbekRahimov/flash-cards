@@ -626,6 +626,16 @@ export function useTts() {
 - **«Сегодня» без курса:** условие `showStart` = `active_course === null && open_session_id === null && due_count === 0 && нет заданий группы` → одна карточка `start-card` вместо кольца цели, «нечего повторять», серии, блока «Мой курс»; баннер «завершите настройку в боте» — компактной строкой под ней.
 - **Слова:** «основной курс» → «мой курс»; кнопка каталога/курса — «Начать курс» (курса ещё нет) / «Перейти на этот курс» (активен другой), `composables/useCourseSelect.ts`; после выбора — переход на «Сегодня» с тостом «Курс выбран» (`courses.select` теперь возвращает `boolean`; экран курса, открытый по ссылке, берёт список тихо — `courses.loadListQuietly`). Ключи i18n не переименованы, менялись тексты (список — docs/I18N_UZ_REVIEW.md, раздел 16.11.2026).
 
+### 8c. Пробный Pro и Pro за приглашения (16.11.2026)
+
+Контракт — `docs/04_API_AND_BOT.md` A.12 / A.2. Что в TWA:
+
+- **Типы и стор.** `ReferralsResponse`: `activation`, `milestone_days`, `counts {invited, activated, counted}`, `milestones[] {friends, days, reached_at, rewarded}`, `next {friends, remaining} | null`; `reward_days`, `counts.rewarded`, `counts.capped` убраны. Статус реферала `rewarded` теперь значит «засчитан».
+- **Пробный Pro** отдельного поля не имеет: `entitlement.renewal.provider === 'trial'` (с `ends_at`), после конца — `entitlement.lapsed.provider === 'trial'` (`composables/trial.ts`: `trialEndsAt`, `trialDaysLeft` — целые дни вверх, минимум 1). В `/today` `renewal` нет, поэтому «Сегодня» для Pro с концом срока (`source = subscription`, `until` не `null`) читает `/me` через `billing.load()` (свежесть 30 с); вечный Pro и Pro центра `/me` не читают.
+- **`ReferralsView`:** герой, кружки-друзья (до 8; длиннее лестница — без кружков, остаются подписи вех), подписи вех, строка «следующий шаг», три шага (шаг 2 — «за один день» при `activation.days === 1`, иначе с днями; шаг 3 собирается из `milestones`), строка про друга без числа, ссылка, счётчики, список. «Назад» ведёт в профиль, а при `?from=today|billing` — туда, откуда пришли.
+- **Где ещё сказано про «Pro за приглашения»:** строка рефералов в «Профиле»; `invite-card` внизу «Сегодня» (крестик — на 14 дней, ключ `lexiflow:invite-card-hidden` в `localStorage`, `composables/seenFlag.ts` `snooze`/`isSnoozed`; не на `showStart`, не при `lapsed`, не для платного Pro); `invite-link` в `PaywallSheet` (только Free) и в «Подписке» (Free и пробный).
+- **Пробный виден:** `trial-line` на «Сегодня» (тап → «Подписка»), «Пробный Pro до …» в «Профиле», «Пробный период до …» в «Подписке» без текста про оплату и автопродление, `LapsedBanner` с `lapsed.provider === 'trial'`: «Оформить Pro» + «Пригласить друзей» (событие `invite`).
+
 ## 9. Производительность
 
 - Экраны подгружаются лениво (`() => import(...)` в `router/index.ts`), в том числе `ExamView` и `ExamResultView`: для тренировок они не нужны.

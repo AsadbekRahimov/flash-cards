@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
@@ -13,6 +14,7 @@ import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
+import { trialEndsAt } from '@/composables/trial'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
@@ -34,6 +36,7 @@ import type { BillingProviderKey, MeResponse } from '@/api/types'
 const auth = useAuthStore()
 const billing = useBillingStore()
 const { t, tn, locale } = useI18n()
+const router = useRouter()
 
 useBackButton({ name: 'profile' })
 
@@ -72,7 +75,11 @@ const canBuy = computed(
   () => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value && !sponsored.value,
 )
 
+/** The welcome trial: "Trial period until ..." with no word on renewal or on who pays. */
+const trialEnd = computed(() => trialEndsAt(entitlement.value))
+
 const untilText = computed(() => {
+  if (trialEnd.value !== null) return t('billing.trial_until', { date: formatDate(trialEnd.value, 'dayMonthYear', locale.value) })
   const until = renewal.value?.ends_at ?? entitlement.value?.until ?? null
   return until ? t('billing.until', { date: formatDate(until, 'dayMonthYear', locale.value) }) : t('billing.forever')
 })
@@ -169,7 +176,13 @@ onMounted(() => {
     <LoadingState v-else-if="status === 'loading'" />
 
     <div v-else-if="entitlement" class="space-y-4">
-      <LapsedBanner v-if="!isPro" preloaded :renewable="billing.canPurchase" @renew="onLapsedRenew()" />
+      <LapsedBanner
+        v-if="!isPro"
+        preloaded
+        :renewable="billing.canPurchase"
+        @renew="onLapsedRenew()"
+        @invite="router.push({ name: 'referrals', query: { from: 'billing' } })"
+      />
 
       <section class="card" data-testid="plan-card">
         <div class="flex items-start gap-3">
@@ -275,6 +288,13 @@ onMounted(() => {
       >
         <AppIcon name="clock" :size="16" />
         <span>{{ t('billing.unavailable') }}</span>
+      </p>
+
+      <!-- Pro for free: the way to the invite screen sits right under the payment (a trial learner may earn more days too). -->
+      <p v-if="!isPro || trialEnd !== null" class="text-center text-[15px] leading-5">
+        <button type="button" class="text-tg-link underline" data-testid="invite-link" @click="router.push({ name: 'referrals', query: { from: 'billing' } })">
+          {{ t('paywall.invite') }}
+        </button>
       </p>
 
       <section class="card space-y-2" data-testid="promo-card">

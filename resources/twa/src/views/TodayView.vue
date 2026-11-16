@@ -20,7 +20,8 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
 import { tierLabelKey } from '@/composables/leagueTiers'
-import { hasSeen, markSeen } from '@/composables/seenFlag'
+import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
+import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -134,6 +135,34 @@ const dateLine = computed(() =>
   formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),
 )
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
+
+/**
+ * The welcome trial (docs/04 A.2): `/today` carries no `renewal`, so for a Pro learner `/me` is asked (the billing store keeps it
+ * fresh for a minute) and `renewal.provider === 'trial'` tells it. Only a Pro that has an end can be the trial (a perpetual
+ * grant or a center's Pro cannot), so those read no `/me`. A paid or a center's Pro has no such line.
+ */
+watch(isPro, (pro) => {
+  const current = data.value?.entitlement
+  if (pro && current?.source === 'subscription' && current.until !== null) void billing.load()
+}, { immediate: true })
+const trialEnd = computed(() => (isPro.value ? trialEndsAt(billing.entitlement) : null))
+const trialText = computed(() => {
+  if (trialEnd.value === null) return ''
+  const days = trialDaysLeft(trialEnd.value)
+  return days <= 1 ? t('today.trial.last') : t('today.trial.line', { count: days })
+})
+
+/** The invitation card "Pro for free" (docs/13 §7.1): closed with the cross for 14 days, remembered on the device. */
+const INVITE_KEY = 'lexiflow:invite-card-hidden'
+const INVITE_SNOOZE_MS = 14 * 24 * 60 * 60 * 1000
+const inviteHidden = ref(isSnoozed(INVITE_KEY))
+function hideInvite(): void {
+  inviteHidden.value = true
+  snooze(INVITE_KEY, INVITE_SNOOZE_MS)
+}
+/** Not for a paying Pro, not on the first card, not next to the "Pro ended" banner (it has its own way to the invitations). */
+const showInvite = computed(() => (!isPro.value || trialEnd.value !== null) && !showStart.value && !inviteHidden.value
+  && (data.value?.entitlement.lapsed ?? null) === null)
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
 /**
@@ -284,7 +313,12 @@ onBeforeUnmount(() => training.clearOpenError())
         </template>
       </PageHeader>
 
-      <LapsedBanner v-if="data.entitlement.plan === 'free'" :lapsed="data.entitlement.lapsed" @renew="router.push({ name: 'billing' })" />
+      <LapsedBanner
+        v-if="data.entitlement.plan === 'free'"
+        :lapsed="data.entitlement.lapsed"
+        @renew="router.push({ name: 'billing' })"
+        @invite="router.push({ name: 'referrals', query: { from: 'today' } })"
+      />
 
       <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
@@ -316,6 +350,18 @@ onBeforeUnmount(() => training.clearOpenError())
           </button>
         </div>
       </div>
+
+      <!-- A line, not a card: it says how long the welcome Pro lasts and leads to the subscription. Under the start card on the first visit. -->
+      <RouterLink
+        v-if="trialEnd !== null"
+        :to="{ name: 'billing' }"
+        class="flex min-h-11 items-center gap-2 px-1 text-[15px] leading-5"
+        data-testid="trial-line"
+      >
+        <AppIcon name="sparkles" :size="18" class="shrink-0 text-accent" />
+        <span class="min-w-0 flex-1">{{ trialText }}</span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+      </RouterLink>
 
       <section v-if="!showStart" class="card" data-testid="review-card">
         <div class="flex items-center gap-4" data-testid="goal-card">
@@ -604,6 +650,31 @@ onBeforeUnmount(() => training.clearOpenError())
           data-testid="league-line"
         />
       </ListGroup>
+
+      <section v-if="showInvite" class="card flex items-start gap-3" data-testid="invite-card">
+        <span class="icon-tile tile-pink size-10 rounded-xl"><AppIcon name="gift" :size="20" /></span>
+        <div class="min-w-0 flex-1">
+          <p class="text-[15px] leading-5 font-semibold" data-testid="invite-text">{{ t('today.invite.text') }}</p>
+          <button
+            type="button"
+            class="mt-1 inline-flex min-h-11 items-center text-[15px] leading-5 text-tg-link underline"
+            data-testid="invite-more"
+            @click="router.push({ name: 'referrals', query: { from: 'today' } })"
+          >
+            {{ t('today.invite.more') }}
+          </button>
+        </div>
+        <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
+        <button
+          type="button"
+          class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
+          :aria-label="t('today.invite.dismiss')"
+          data-testid="invite-dismiss"
+          @click="hideInvite()"
+        >
+          <AppIcon name="x-mark" :size="20" />
+        </button>
+      </section>
     </div>
 
     <IntroSheet v-if="introOpen" @close="introOpen = false" />

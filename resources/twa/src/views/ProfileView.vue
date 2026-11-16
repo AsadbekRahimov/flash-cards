@@ -11,6 +11,7 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { formatDate } from '@/composables/format'
+import { trialEndsAt } from '@/composables/trial'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
@@ -76,7 +77,7 @@ const { currentLabel: languageLabel } = useLocaleSwitch()
 
 const isPro = computed(() => entitlement.value?.plan === 'pro')
 
-/** «Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «Бесплатный тариф: 20 новых слов в день». */
+/** «Pro до 1 декабря 2026 г.» / «Пробный Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «Бесплатный тариф: 20 новых слов в день». */
 const planLine = computed(() => {
   const current = entitlement.value
   if (current === null) return ''
@@ -84,6 +85,9 @@ const planLine = computed(() => {
   if (current.plan === 'pro') {
     const renewal = current.renewal ?? null
     if (renewal === null && current.source.startsWith('sponsor:')) return t('profile.plan.pro_center')
+
+    const trialEnd = trialEndsAt(current)
+    if (trialEnd !== null) return t('profile.plan.trial_until', { date: formatDate(trialEnd, 'dayMonthYear', locale.value) })
 
     const until = renewal?.ends_at ?? current.until
     return until

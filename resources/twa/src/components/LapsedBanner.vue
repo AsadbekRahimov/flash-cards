@@ -14,11 +14,14 @@ import { useI18n } from '@/i18n'
  * Today passes `lapsed` (including null). BillingView already loaded `/me` and passes `preloaded`.
  * With an older Today response, the banner loads `/me` itself and waits for fresh data.
  *
+ * An ended welcome trial (`lapsed.provider === 'trial'`, docs/04 A.2) has its own words: "Trial Pro ended: buy Pro or invite
+ * friends" and a second button `invite` (the parent opens the "Invite a friend" screen; the banner knows no router).
+ *
  * `renewable` (default true): there is something to buy. A screen that knows nothing is for sale (BillingView while
  * payment is not open) sets it to false: the banner still says Pro ended, but has no "Renew" button that does nothing.
  */
 const props = withDefaults(defineProps<{ lapsed?: Lapsed | null; preloaded?: boolean; renewable?: boolean }>(), { preloaded: false, renewable: true })
-const emit = defineEmits<{ renew: [] }>()
+const emit = defineEmits<{ renew: []; invite: [] }>()
 
 const DISMISSED_KEY = 'lexiflow:lapsed-dismissed'
 
@@ -41,6 +44,7 @@ const lapsed = computed(() => props.lapsed !== undefined
   : (billing.entitlement?.plan === 'free' ? (billing.entitlement.lapsed ?? null) : null))
 const visible = computed(() => (props.lapsed !== undefined || ready.value) && lapsed.value !== null && lapsed.value.ended_at !== dismissedAt.value)
 
+const isTrial = computed(() => lapsed.value?.provider === 'trial')
 const dateText = computed(() => (lapsed.value ? formatDate(lapsed.value.ended_at, 'dayMonth', locale.value) : ''))
 
 function dismiss(): void {
@@ -65,9 +69,9 @@ onMounted(async () => {
     <div class="flex items-start gap-3">
       <span class="icon-tile size-10 rounded-xl bg-warning"><AppIcon name="clock" :size="22" /></span>
       <div class="min-w-0 flex-1">
-        <p class="text-[17px] leading-[22px] font-semibold" data-testid="lapsed-title">{{ t('lapsed.title') }}</p>
+        <p class="text-[17px] leading-[22px] font-semibold" data-testid="lapsed-title">{{ t(isTrial ? 'lapsed.trial.title' : 'lapsed.title') }}</p>
         <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="lapsed-text">
-          {{ t('lapsed.text', { date: dateText }) }}
+          {{ isTrial ? t('lapsed.trial.text') : t('lapsed.text', { date: dateText }) }}
         </p>
       </div>
       <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
@@ -83,7 +87,10 @@ onMounted(async () => {
     </div>
     <!-- Tinted, not primary: the screens around it (Home, Subscription) have their own one primary button. -->
     <button v-if="renewable" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
-      {{ t('lapsed.renew') }}
+      {{ t(isTrial ? 'lapsed.trial.renew' : 'lapsed.renew') }}
+    </button>
+    <button v-if="isTrial" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-invite" @click="emit('invite')">
+      {{ t('lapsed.invite') }}
     </button>
   </section>
 </template>

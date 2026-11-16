@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useDialogFocus } from '@/composables/useDialogFocus'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -53,6 +54,8 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * line for students of a center ("ask your center") are for Free. A Stars month over a period that is paid far ahead is
  * refused by the server (`subscribe_too_early`); the error text says what to choose instead.
  *
+ * Under the pay buttons (Free only) a text link says "Or get Pro free - invite friends" and opens the referrals screen.
+ *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
  * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session
  * (`useReviewFromPaywall`, the same for every screen that shows the sheet).
@@ -75,6 +78,8 @@ const props = withDefaults(
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t, tn, locale } = useI18n()
+const router = useRouter()
+const route = useRoute()
 const billing = useBillingStore()
 const today = useTodayStore()
 
@@ -259,6 +264,12 @@ const paidMessage = computed(() => {
   return until ? t('billing.paid_until', { date: formatDate(until, 'dayMonthYear', locale.value) }) : t('billing.paid_forever')
 })
 
+/** "Or get Pro free - invite friends": the sheet gives way to the invite screen (the router is absent in a bare mount of the sheet). */
+function openInvite(): void {
+  emit('close')
+  void router?.push({ name: 'referrals', query: { from: route?.name === 'billing' || route?.name === 'today' ? route.name : undefined } })
+}
+
 function pay(provider: BillingProviderKey): void {
   if (period.value && !busy.value) void billing.buy(period.value, provider)
 }
@@ -439,6 +450,12 @@ onBeforeUnmount(() => {
             data-testid="purchase-error"
           />
         </section>
+
+        <p v-if="!done && !isPro" class="text-center text-[15px] leading-5">
+          <button type="button" class="text-tg-link underline" data-testid="invite-link" @click="openInvite">
+            {{ t('paywall.invite') }}
+          </button>
+        </p>
 
         <button
           v-if="!done && dueCount > 0"

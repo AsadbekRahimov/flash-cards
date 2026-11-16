@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -20,32 +21,70 @@ import type { StringKey } from '@/i18n/ru'
 import type { ReferralStatus } from '@/api/types'
 
 /**
- * "Invite a friend" (docs/13 §7.1, docs/14 §6.7, docs/04 A.12): the reward and the three steps of the rule, the
- * learner's invite link with Telegram's share dialog, the counts and the invited learners (first names only).
- * Back -> Profile; the way to the friends and challenges is the row at the bottom.
+ * "Invite a friend" (docs/13 §7.1, docs/14 §6.7, docs/04 A.12): the hero "invite friends - get Pro", the progress to the
+ * milestones (friends counted, 3 -> +7 days, 6 -> +7 days: all the numbers are the server's), the three steps of the
+ * rule, the learner's invite link with Telegram's share dialog, the counts and the invited learners (first names only).
+ * Back -> Profile (or Today / Billing, where `?from=` says the learner came from); the way to the friends and challenges is the row at the bottom.
  */
 const auth = useAuthStore()
 const referrals = useReferralsStore()
 const { shareUrl, haptic } = useTelegram()
 const { copy } = useCopyToClipboard()
-const { t, locale } = useI18n()
+const { t, tn, locale } = useI18n()
 
-useBackButton({ name: 'profile' })
+/** Opened from Today or Billing (`?from=`) goes back there; from the Profile (no marker) back to the Profile. */
+const route = useRoute()
+useBackButton({ name: route.query.from === 'today' ? 'today' : route.query.from === 'billing' ? 'billing' : 'profile' })
 
 const failed = ref('')
 
 const data = computed(() => referrals.data)
 const message = computed(() => failed.value || referrals.errorMessage)
 
-/** 1. send the link, 2. the friend studies, 3. both get Pro: the old one-sentence rule, split in the order of events. */
+/** 1. send the link, 2. the friend starts studying, 3. the milestones pay Pro to the inviter. */
 const steps = computed<string[]>(() => {
   const d = data.value
   if (!d) return []
+  const { days, reviews_per_day: reviews, window_days: window } = d.activation
+  const reward = d.milestones.map((m, index) =>
+    t(index === 0 ? 'referrals.step3.first' : 'referrals.step3.more', { friends: tn('referrals.for_friends', m.friends), days: m.days }),
+  )
   return [
     t('referrals.step1'),
-    t('referrals.step2', { days: d.activation.days, reviews: d.activation.reviews_per_day, window: d.activation.window_days }),
-    t('referrals.step3', { reward: d.reward_days }),
+    t(days > 1 ? 'referrals.step2.days' : 'referrals.step2.day', { days, reviews, window }),
+    reward.join(', '),
   ]
+})
+
+/** The dots of the progress: one per friend up to the last milestone; a ladder too long for one line at 390 px has no dots (the milestones below stay). */
+const MAX_DOTS = 8
+
+interface Dot {
+  number: number
+  filled: boolean
+  milestone: boolean
+}
+
+const dots = computed<Dot[]>(() => {
+  const d = data.value
+  if (!d) return []
+  const total = Math.max(0, ...d.milestones.map((m) => m.friends))
+  if (total > MAX_DOTS) return []
+  const marks = new Set(d.milestones.map((m) => m.friends))
+  return Array.from({ length: total }, (_, index) => ({
+    number: index + 1,
+    filled: index < d.counts.counted,
+    milestone: marks.has(index + 1),
+  }))
+})
+
+/** What the line under the dots says: the next step, or thanks once the last milestone is paid. */
+const nextText = computed(() => {
+  const d = data.value
+  if (!d) return ''
+  if (d.next === null) return t('referrals.next.done')
+  const target = d.next.friends
+  return tn('referrals.next', d.next.remaining, { days: d.milestones.find((m) => m.friends === target)?.days ?? d.milestone_days })
 })
 
 const STATUSES: Record<ReferralStatus, { label: StringKey; chip: string }> = {
@@ -54,10 +93,10 @@ const STATUSES: Record<ReferralStatus, { label: StringKey; chip: string }> = {
   rewarded: { label: 'referrals.status.rewarded', chip: 'chip-success' },
 }
 
-const COUNTS: { key: 'invited' | 'activated' | 'rewarded'; label: StringKey }[] = [
+const COUNTS: { key: 'invited' | 'activated' | 'counted'; label: StringKey }[] = [
   { key: 'invited', label: 'referrals.counts.invited' },
   { key: 'activated', label: 'referrals.counts.activated' },
-  { key: 'rewarded', label: 'referrals.counts.rewarded' },
+  { key: 'counted', label: 'referrals.counts.counted' },
 ]
 
 function share(): void {
@@ -99,9 +138,57 @@ onMounted(() => {
       <section class="card" data-testid="hero">
         <div class="flex items-center gap-3">
           <span class="icon-tile tile-pink size-12 rounded-2xl"><AppIcon name="gift" :size="26" /></span>
-          <h2 class="min-w-0 flex-1 text-xl leading-6 font-bold" data-testid="hero-title">
-            {{ t('referrals.hero', { reward: data.reward_days }) }}
-          </h2>
+          <h2 class="min-w-0 flex-1 text-xl leading-6 font-bold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
+        </div>
+
+        <div class="mt-4" data-testid="progress">
+          <ol
+            v-if="dots.length > 0"
+            class="flex items-center justify-between gap-1"
+            role="img"
+            :aria-label="t('referrals.progress.label', { counted: data.counts.counted, total: dots.length })"
+            data-testid="progress-dots"
+          >
+            <li
+              v-for="dot in dots"
+              :key="dot.number"
+              class="flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] leading-none font-semibold"
+              :class="[
+                dot.filled ? 'bg-accent text-tg-button-text' : 'bg-fill text-tg-hint',
+                dot.milestone ? 'ring-2 ring-accent ring-offset-2 ring-offset-tg-section-bg' : '',
+              ]"
+              :data-filled="dot.filled ? 'true' : 'false'"
+              :data-milestone="dot.milestone ? 'true' : 'false'"
+              data-testid="progress-dot"
+            >
+              <AppIcon v-if="dot.filled" name="check" :size="18" />
+              <span v-else aria-hidden="true">{{ dot.number }}</span>
+            </li>
+          </ol>
+
+          <ul class="mt-3 space-y-1.5" data-testid="milestones">
+            <li
+              v-for="m in data.milestones"
+              :key="m.friends"
+              class="flex items-center justify-between gap-2 text-[15px] leading-5"
+              :data-testid="`milestone-${m.friends}`"
+            >
+              <span class="min-w-0 font-semibold">
+                {{ t('referrals.milestone.caption', { friends: tn('referrals.friends', m.friends), days: m.days }) }}
+              </span>
+              <span
+                v-if="m.reached_at !== null"
+                class="chip shrink-0"
+                :class="m.rewarded ? 'chip-success' : 'chip-accent'"
+                data-testid="milestone-done"
+              >
+                <AppIcon name="check" :size="14" />
+                {{ t(m.rewarded ? 'referrals.milestone.done' : 'referrals.milestone.paying') }}
+              </span>
+            </li>
+          </ul>
+
+          <p class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="next-step">{{ nextText }}</p>
         </div>
 
         <ol class="mt-4 space-y-3" data-testid="rule">
@@ -115,6 +202,8 @@ onMounted(() => {
             <span class="text-[15px] leading-6">{{ step }}</span>
           </li>
         </ol>
+
+        <p class="mt-3 text-[13px] leading-[18px] text-tg-hint" data-testid="friend-gets">{{ t('referrals.friend_gets') }}</p>
 
         <template v-if="data.link">
           <p class="mt-4 text-[13px] leading-[18px] text-tg-hint">{{ t('referrals.link_label') }}</p>
@@ -142,9 +231,6 @@ onMounted(() => {
           <div class="mt-0.5 text-xs leading-4 break-words text-tg-hint">{{ t(count.label) }}</div>
         </div>
       </div>
-      <p v-if="data.counts.capped > 0" class="px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="capped-hint">
-        {{ t('referrals.counts.capped', { count: data.counts.capped }) }}
-      </p>
 
       <ListGroup :header="t('referrals.list.title')" :data-testid="data.referrals.length > 0 ? 'list' : undefined">
         <EmptyState v-if="data.referrals.length === 0" icon="user-plus" :text="t('referrals.list.empty')" data-testid="list-empty" />
