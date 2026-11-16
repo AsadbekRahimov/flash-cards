@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
 import StickyActions from '@/components/StickyActions.vue'
@@ -26,6 +26,12 @@ import { useI18n } from '@/i18n'
  * reveal — a cued recall is what a word that does not stick needs (docs/25 §3.3); otherwise the hooks (the authored one,
  * "my hint", the confusable pair) come with the translation. "My hint" can be edited from the card (`edit-note`). On every
  * third card a quiet "say the word aloud" line sits under the speaker (docs/25 §3.11), unless switched off in the settings.
+ */
+/**
+ * The answer is acknowledged on the spot (docs/14 §6.2): the pressed grade is lit while the answer is on its way, and the
+ * "got it" / "knew it" grades give a short pulse with a check. "Not yet" is an honest grade, not a failure: its button
+ * turns calm (the accent, not red) and shows the "again" arrow. Nothing waits for it — the grade is emitted at once — and the
+ * pulse is switched off by `prefers-reduced-motion` (the lit button stays).
  */
 const props = defineProps<{
   card: Card
@@ -85,8 +91,17 @@ function onReveal(): void {
   emit('reveal')
 }
 
+/** The grade pressed on this card (a new serve is a new component, so it starts empty). */
+const picked = ref<Quality | null>(null)
+
+function gradeClasses(grade: { quality: Quality; tone: string }): string[] {
+  if (picked.value !== grade.quality) return [grade.tone]
+  return grade.quality === 2 ? ['btn-tinted', 'grade-picked'] : [grade.tone, 'grade-picked', 'grade-pulse']
+}
+
 function onGrade(q: Quality): void {
   if (props.disabled) return
+  picked.value = q
   haptic('medium')
   emit('grade', q)
 }
@@ -164,12 +179,16 @@ function onGrade(q: Quality): void {
             :key="grade.quality"
             type="button"
             class="btn min-h-[72px] flex-col gap-0.5 px-1 py-2.5"
-            :class="grade.tone"
+            :class="gradeClasses(grade)"
             :data-testid="grade.testid"
+            :data-picked="picked === grade.quality ? 'true' : undefined"
             :disabled="disabled"
             @click="onGrade(grade.quality)"
           >
-            <span class="text-[15px] leading-5 font-semibold">{{ grade.label }}</span>
+            <span class="flex items-center gap-1 text-[15px] leading-5 font-semibold">
+              <AppIcon v-if="picked === grade.quality" :name="grade.quality === 2 ? 'arrow-path' : 'check'" :size="16" data-testid="grade-mark" />
+              {{ grade.label }}
+            </span>
             <span v-if="grade.hint" class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
           </button>
         </div>

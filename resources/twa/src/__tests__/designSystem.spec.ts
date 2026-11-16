@@ -396,3 +396,23 @@ describe('the boss of a city', () => {
     for (const code of [boss, card]) expect(code).not.toMatch(/\bw-\[\d{3,}px\]|\bmin-w-\[\d{3,}px\]/)
   })
 })
+
+describe('motion of the lesson (docs/14 §6.2)', () => {
+  const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? ''
+
+  it.each(['.grade-pulse', '.combo-pop', '.confetti-piece', '.card-swap-enter-active', '.card-swap-leave-active', '.combo-enter-active', '.confetti'])(
+    'switches %s off with prefers-reduced-motion',
+    (selector) => {
+      expect(reduced).toContain(selector)
+    },
+  )
+
+  it('animates only transform and opacity', () => {
+    const keyframes = [...css.matchAll(/@keyframes (grade-pulse|combo-pop|confetti-burst)\s*\{([\s\S]*?\n {2}\})/g)]
+    expect(keyframes).toHaveLength(3)
+    for (const [, name, body] of keyframes) {
+      const properties = [...(body ?? '').matchAll(/([a-z-]+)\s*:/g)].map((m) => m[1])
+      expect(properties.every((p) => p === 'transform' || p === 'opacity'), name).toBe(true)
+    }
+  })
+})

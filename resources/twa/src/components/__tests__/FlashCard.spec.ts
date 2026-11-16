@@ -258,4 +258,56 @@ describe('FlashCard', () => {
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('Oson')
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('keyinroq yana chiqadi')
   })
+
+  describe('feedback on the grade (docs/14 §6.2)', () => {
+    const revealedCard = { card, showTranslation: true }
+
+    it.each([
+      ['grade-medium', 4],
+      ['grade-easy', 5],
+    ])('%s lights up with a short pulse and a check, and the grade goes out at once', async (testid, quality) => {
+      const w = mount(FlashCard, { props: revealedCard })
+      expect(w.find('[data-testid=grade-mark]').exists()).toBe(false)
+
+      await w.get(`[data-testid=${testid}]`).trigger('click')
+
+      expect(w.emitted('grade')).toEqual([[quality]])
+      const button = w.get(`[data-testid=${testid}]`)
+      expect(button.classes()).toEqual(expect.arrayContaining(['grade-picked', 'grade-pulse']))
+      expect(button.attributes('data-picked')).toBe('true')
+      expect(button.findComponent(AppIcon).props('name')).toBe('check')
+      // Only the pressed one is marked.
+      expect(w.findAll('[data-testid=grade-mark]')).toHaveLength(1)
+    })
+
+    it('"Not yet" is acknowledged calmly: no red, no pulse, the "again" arrow', async () => {
+      const w = mount(FlashCard, { props: revealedCard })
+      expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-danger')
+
+      await w.get('[data-testid=grade-hard]').trigger('click')
+
+      const button = w.get('[data-testid=grade-hard]')
+      expect(w.emitted('grade')).toEqual([[2]])
+      expect(button.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'grade-picked']))
+      expect(button.classes()).not.toContain('btn-danger')
+      expect(button.classes()).not.toContain('grade-pulse')
+      expect(button.findComponent(AppIcon).props('name')).toBe('arrow-path')
+    })
+
+    it('does not mark anything for a press that is refused while the card is busy', async () => {
+      const w = mount(FlashCard, { props: { ...revealedCard, disabled: true } })
+
+      await w.get('[data-testid=grade-easy]').trigger('click')
+
+      expect(w.emitted('grade')).toBeUndefined()
+      expect(w.find('[data-testid=grade-mark]').exists()).toBe(false)
+    })
+
+    it('has no mark on a card that was only revealed', async () => {
+      const w = mount(FlashCard, { props: { card, showTranslation: false } })
+      await w.setProps({ showTranslation: true })
+
+      expect(w.find('.grade-picked').exists()).toBe(false)
+    })
+  })
 })

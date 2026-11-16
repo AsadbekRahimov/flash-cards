@@ -3858,3 +3858,20 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `settings.group.region` | Til | Язык (заголовок блока в «Настройках» Mini App; раньше «Til va hudud» / «Язык и регион»; теперь в блоке только выбор языка) |
+
+## Живой экран занятия и итога (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: серия верных ответов, звуки, заголовки итога по результату, новое достижение, карточка «новые слова закончились» (раньше после занятия сам открывался экран оплаты).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.combo_label` | Ketma-ket to'g'ri javoblar: {count} | Верных ответов подряд: {count} (подпись для чтения с экрана к значку «🔥 ×N») |
+| `finished.title_good` | Yaxshi ish! | Хорошая работа! (заголовок итога при 60–79% верных) |
+| `finished.title_keep` | Shunday davom eting! | Так держать! (40–59% верных) |
+| `finished.title_effort` | Asosiysi — mashq qildingiz | Главное — вы позанимались (меньше 40% верных) |
+| `finished.best_combo` | Eng uzun ketma-ketlik: {count} | Лучшая серия: {count} (число верных ответов подряд за занятие) |
+| `finished.new_achievement` | Yangi yutuq: {title} | Новое достижение: {title} (карточка со ссылкой на экран достижений) |
+| `finished.quota.title` | Bugun yangi so'zlar tugadi. Ertaga yangilari bo'ladi | На сегодня новые слова закончились. Завтра будут новые (тарифа Free) |
+| `finished.quota.pro` | Pro nima beradi | Что даёт Pro (кнопка открывает окно о Pro) |
+| `finished.quota.invite` | Do'stlarni taklif qiling — Pro bepul | Пригласить друзей — Pro бесплатно |
+| `settings.sounds` | Tovushlar | Звуки (переключатель в «Настройках», раздел обучения) |

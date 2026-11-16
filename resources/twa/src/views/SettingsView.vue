@@ -13,6 +13,7 @@ import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedC
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { isSoundEnabled, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
 import { saveSetting } from '@/composables/useLocaleSwitch'
 import { useAuthStore } from '@/stores/auth'
@@ -94,6 +95,13 @@ const sayAloud = ref(isSayAloudEnabled())
 function onSayAloud(on: boolean): void {
   setSayAloudEnabled(on)
   sayAloud.value = on
+}
+
+/** The short sounds of a lesson (right / wrong / done): kept on the device, on by default. */
+const sounds = ref(isSoundEnabled())
+function onSounds(on: boolean): void {
+  setSoundEnabled(on)
+  sounds.value = on
 }
 
 const localeOptions = computed<SegmentOption[]>(() =>
@@ -218,6 +226,11 @@ onMounted(() => {
         <div class="list-row" data-testid="say-aloud-row">
           <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.say_aloud') }}</span>
           <ToggleSwitch :model-value="sayAloud" :label="t('settings.say_aloud')" data-testid="say-aloud-toggle" @update:model-value="onSayAloud" />
+        </div>
+
+        <div class="list-row" data-testid="sounds-row">
+          <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.sounds') }}</span>
+          <ToggleSwitch :model-value="sounds" :label="t('settings.sounds')" data-testid="sounds-toggle" @update:model-value="onSounds" />
         </div>
       </ListGroup>
 

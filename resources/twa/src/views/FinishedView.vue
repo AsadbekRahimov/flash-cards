@@ -4,8 +4,14 @@ import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import { useAchievementsStore } from '@/stores/achievements'
+import { useBillingStore } from '@/stores/billing'
 import { useMonthlyRatingStore } from '@/stores/monthlyRating'
-import { useTrainingStore } from '@/stores/training'
+import { useTodayStore } from '@/stores/today'
+import { COMBO_MIN, useTrainingStore } from '@/stores/training'
+import { prefersReducedMotion } from '@/composables/motion'
+import { playSound } from '@/composables/useFeedbackSound'
+import { useCountUp } from '@/composables/useCountUp'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -31,6 +37,9 @@ const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
 const training = useTrainingStore()
 const monthly = useMonthlyRatingStore()
+const achievements = useAchievementsStore()
+const billing = useBillingStore()
+const today = useTodayStore()
 
 // Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
 const summary = computed(() => training.summary)
@@ -46,17 +55,60 @@ const nextLabel = computed(() =>
 
 const reasonLabel = computed(() => {
   const reason = REASONS.find((r) => r === props.reason)
+  // The quota card says the same, and says what to do next.
+  if (reason === 'new_quota_exhausted' && showQuotaCard.value) return null
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
 /** An empty session that a reason already explains ("nothing is due") has no numbers worth showing. */
 const hasNumbers = computed(() => (summary.value?.reviewed ?? props.reviewed) > 0 || reasonLabel.value === null)
 
-/** Share of right answers, whole percent; «—» while nothing was answered. */
-const correctPercent = computed(() => {
+/** Share of right answers, whole percent; null while nothing was answered. */
+const correctValue = computed((): number | null => {
   const current = summary.value
-  return current !== null && current.reviewed > 0 ? `${Math.round((current.correct / current.reviewed) * 100)}%` : '—'
+  return current !== null && current.reviewed > 0 ? Math.round((current.correct / current.reviewed) * 100) : null
 })
+
+// The numbers of the tiles count up once when the screen opens (not with reduced motion).
+const reviewedShown = useCountUp(() => summary.value?.reviewed ?? 0)
+const correctShown = useCountUp(() => correctValue.value ?? 0)
+const newShown = useCountUp(() => summary.value?.new_words ?? 0)
+
+/**
+ * The title follows how the session went: by the share of right answers, and a long run of right answers lifts it to the top
+ * one. Without the numbers (a group session) it is the plain "Great!".
+ */
+const title = computed((): string => {
+  if (isEmpty.value) return t('finished.title_empty')
+  const percent = correctValue.value
+  if (percent === null || percent >= 80 || training.bestCombo >= 10) return t('finished.title')
+  if (percent >= 60) return t('finished.title_good')
+  if (percent >= 40) return t('finished.title_keep')
+  return t('finished.title_effort')
+})
+
+/** "Best run: 12": only a run that the chip showed. */
+const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bestCombo : 0))
+
+/** Confetti, once, for a session that reviewed something (and not with reduced motion): it removes itself after its ~1.2 s. */
+const CONFETTI_PIECES = 20
+const CONFETTI_MS = 1500
+const confetti = ref(!isEmpty.value && !prefersReducedMotion())
+const confettiPieces = Array.from({ length: CONFETTI_PIECES }, (_, i) => {
+  // Fixed spread (no random: the same burst every time, and a stable test): the pieces fan out and fall.
+  const angle = (i / CONFETTI_PIECES) * Math.PI * 2
+  const reach = 90 + ((i * 37) % 90)
+  return {
+    color: i % 4,
+    style: {
+      '--dx': `${Math.round(Math.cos(angle) * reach)}px`,
+      '--dy': `${Math.round(Math.sin(angle) * reach * 0.6 + 140 + ((i * 53) % 120))}px`,
+      '--rot': `${180 + ((i * 71) % 360)}deg`,
+      '--delay': `${(i % 5) * 40}ms`,
+    },
+  }
+})
+let confettiTimer: ReturnType<typeof setTimeout> | null = null
 
 const goalPercent = computed(() => {
   const current = goal.value
@@ -79,9 +131,29 @@ const monthLine = computed(() => {
   return t('finished.month_line', { rank: mine.me.rank, points: tn('month.points', mine.me.points) })
 })
 
+/**
+ * The achievement that came during this session (docs/04 A.15): until now it went to the chat of the bot only. One light request
+ * after the screen is shown (it never blocks it, a failure leaves no card); the newest unlocked one that is not older than the
+ * start of the session — `unlocked_at` is the server's, the start is the device's clock, a small skew only moves the edge.
+ */
+const newAchievement = computed(() => {
+  const since = training.startedAt
+  if (since <= 0) return null
+  let found: { key: string; title: string; at: number } | null = null
+  for (const item of achievements.data?.items ?? []) {
+    const at = item.unlocked_at === null ? NaN : Date.parse(item.unlocked_at)
+    if (Number.isFinite(at) && at >= since && (found === null || at > found.at)) found = { key: item.key, title: item.title, at }
+  }
+  return found
+})
+
 onMounted(() => {
   monthly.mine = null
-  if (summary.value !== null && !isEmpty.value) void monthly.loadMine()
+  if (summary.value !== null && !isEmpty.value) {
+    void monthly.loadMine()
+    void achievements.load()
+  }
+  if (confetti.value) confettiTimer = setTimeout(() => (confetti.value = false), CONFETTI_MS)
 })
 
 /**
@@ -98,9 +170,15 @@ const practiceTarget = computed((): RouteLocationRaw | null => {
 /** "Practice of the lesson" after a lesson, "Practice of the course" after a daily review. */
 const practiceLabel = computed(() => (practiceEntry.value?.lesson_id === null ? t('finished.practice_course') : t('finished.practice_lesson')))
 
-// The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
+/**
+ * The end of today's new words (docs/12 §5.4): on Free a calm card says so and offers the two ways on — what Pro gives (the
+ * sheet opens only when the learner asks for it) and the invitations. Nothing pops up by itself. Pro (paid or the welcome
+ * trial) has no such card: its plan is read from `/today` if it is at hand, and from `/me` (asked once, only for this reason).
+ */
 const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
-const paywallOpen = ref(quotaExhausted.value && !isEmpty.value)
+const paywallOpen = ref(false)
+const plan = computed(() => billing.entitlement?.plan ?? today.data?.entitlement?.plan ?? null)
+const showQuotaCard = computed(() => quotaExhausted.value && plan.value === 'free')
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
 const { reviewFromPaywall } = useReviewFromPaywall(() => {
@@ -114,15 +192,21 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
 const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_due' && training.mode !== 'group_lesson')
 
 notificationHaptic('success')
+if (!isEmpty.value) playSound('done')
+if (quotaExhausted.value) void billing.load()
 
 // A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
 onBeforeUnmount(() => {
+  if (confettiTimer !== null) clearTimeout(confettiTimer)
   training.clearOpenError()
 })
 </script>
 
 <template>
   <div class="page" data-testid="finished-view">
+    <div v-if="confetti" class="confetti" aria-hidden="true" data-testid="confetti">
+      <span v-for="(piece, i) in confettiPieces" :key="i" class="confetti-piece" :class="`confetti-${piece.color}`" :style="piece.style" />
+    </div>
     <div class="flex flex-1 flex-col justify-center gap-5 py-4">
       <header class="text-center">
         <span
@@ -131,21 +215,21 @@ onBeforeUnmount(() => {
         >
           <AppIcon name="check-circle" solid :size="48" />
         </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ isEmpty ? t('finished.title_empty') : t('finished.title') }}</h1>
+        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ title }}</h1>
         <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
       </header>
 
       <div v-if="summary && hasNumbers" class="grid grid-cols-3 gap-2" data-testid="stats">
         <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-reviewed">{{ reviewedShown }}</p>
           <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.cards') }}</p>
         </div>
         <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-correct">{{ correctPercent }}</p>
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctShown}%` }}</p>
           <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.correct') }}</p>
         </div>
         <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-new">{{ summary.new_words }}</p>
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-new">{{ newShown }}</p>
           <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.new') }}</p>
         </div>
       </div>
@@ -156,6 +240,34 @@ onBeforeUnmount(() => {
       >
         {{ tn('finished.reviewed', reviewed) }}
       </p>
+
+      <p v-if="bestCombo > 0" class="card flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="best-combo">
+        <span class="icon-tile tile-orange"><AppIcon name="fire" solid :size="18" /></span>
+        {{ t('finished.best_combo', { count: bestCombo }) }}
+      </p>
+
+      <RouterLink
+        v-if="newAchievement"
+        :to="{ name: 'achievements' }"
+        class="card flex items-center gap-3"
+        data-testid="new-achievement"
+      >
+        <span class="icon-tile tile-blue"><AppIcon name="trophy" solid :size="18" /></span>
+        <span class="min-w-0 flex-1 text-[17px] leading-[22px] font-semibold break-words">{{ t('finished.new_achievement', { title: newAchievement.title }) }}</span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+      </RouterLink>
+
+      <section v-if="showQuotaCard" class="card space-y-3" data-testid="quota-card">
+        <p class="text-[17px] leading-[22px] font-semibold">{{ t('finished.quota.title') }}</p>
+        <div class="flex flex-col gap-2">
+          <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
+            {{ t('finished.quota.pro') }}
+          </button>
+          <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
+            {{ t('finished.quota.invite') }}
+          </RouterLink>
+        </div>
+      </section>
 
       <section v-if="pointsEarned > 0 || monthLine" class="card space-y-2">
         <p v-if="pointsEarned > 0" class="flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="points-earned">
@@ -229,9 +341,6 @@ onBeforeUnmount(() => {
       <RouterLink v-if="showCourses" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="courses-btn">
         {{ t('finished.choose_course') }}
       </RouterLink>
-      <button v-if="quotaExhausted" type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
-        {{ t('paywall.open') }}
-      </button>
       <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="close()">
         {{ t('common.exit_app') }}
       </button>

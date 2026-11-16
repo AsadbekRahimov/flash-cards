@@ -6,6 +6,7 @@ import SettingsView from '../SettingsView.vue'
 import { api } from '@/api'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
+import { SOUNDS_KEY, isSoundEnabled, resetSounds, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { useToast } from '@/composables/useToast'
 import { getLocale, setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
@@ -669,6 +670,43 @@ describe('SettingsView', () => {
       expect(w.text()).toContain('Eslatma vaqti')
       expect(w.text()).toContain('Haftalik ligalarda qatnashish')
       expect(labels(w, 'reminder-select').at(-1)).toBe("O'chirilgan")
+    })
+  })
+
+  describe('the sounds of a lesson', () => {
+    afterEach(() => resetSounds())
+
+    it('are on by default, and the switch is kept on the device, not sent to the server', async () => {
+      resetSounds()
+      const w = await render()
+      const toggle = w.get('[data-testid=sounds-toggle]')
+
+      expect(w.get('[data-testid=sounds-row]').text()).toContain('Звуки')
+      expect(toggle.attributes('aria-checked')).toBe('true')
+
+      await toggle.trigger('click')
+
+      expect(w.get('[data-testid=sounds-toggle]').attributes('aria-checked')).toBe('false')
+      expect(isSoundEnabled()).toBe(false)
+      expect(window.localStorage.getItem(SOUNDS_KEY)).toBe('off')
+      expect(api.me.updateSettings).not.toHaveBeenCalled()
+
+      await w.get('[data-testid=sounds-toggle]').trigger('click')
+      expect(isSoundEnabled()).toBe(true)
+      expect(window.localStorage.getItem(SOUNDS_KEY)).toBeNull()
+    })
+
+    it('read as off after a reload when they were switched off', async () => {
+      setSoundEnabled(false)
+      const w = await render()
+
+      expect(w.get('[data-testid=sounds-toggle]').attributes('aria-checked')).toBe('false')
+    })
+
+    it('are called "Tovushlar" in Uzbek', async () => {
+      const w = await render(uzSettings())
+
+      expect(w.get('[data-testid=sounds-row]').text()).toContain('Tovushlar')
     })
   })
 })

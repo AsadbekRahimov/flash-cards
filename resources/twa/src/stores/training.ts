@@ -34,6 +34,13 @@ function clampProgress(p: Progress): Progress {
   return p.done > p.total ? { done: p.total, total: p.total } : p
 }
 
+/** The run of good answers (the "combo" chip): shown from this many in a row, and celebrated on every `COMBO_STEP`-th. */
+export const COMBO_MIN = 3
+export const COMBO_STEP = 5
+
+/** How the last answer counts for the run: `right` and `wrong` (an objective check), `again` ("not yet" on a flash card). */
+export type OutcomeKind = 'right' | 'wrong' | 'again'
+
 export type TrainingStatus =
   | 'idle'          // initial
   | 'starting'      // POST /start in flight
@@ -101,6 +108,14 @@ interface TrainingState {
   deferred: { card: Card | null; doneReason: DoneReason | null } | null
   /** The learner already moved on from a four-choice card whose grade is still on its way: show the next card on arrival. */
   advanceWhenAnswered: boolean
+  /** The run of good answers in a row in this session (client only); 0 after a miss. */
+  combo: number
+  /** The longest run of the session: the finish screen says it. */
+  bestCombo: number
+  /** The last answer that counted for the run; `seq` grows with each, so the screen can react to every one. */
+  outcome: { seq: number; kind: OutcomeKind }
+  /** `Date.now()` when the screen entered the session: the finish screen asks which achievement came after it. */
+  startedAt: number
   /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
   generation: number
 }
@@ -132,6 +147,10 @@ export const useTrainingStore = defineStore('training', {
     choiceResult: null,
     deferred: null,
     advanceWhenAnswered: false,
+    combo: 0,
+    bestCombo: 0,
+    outcome: { seq: 0, kind: 'right' },
+    startedAt: 0,
     generation: 0,
   }),
 
@@ -238,6 +257,7 @@ export const useTrainingStore = defineStore('training', {
         (sessionId, wordId, timeSpent, serveToken, exercise) =>
           api.training.review(sessionId, wordId, quality, timeSpent, serveToken, exercise),
         false,
+        quality,
       )
     },
 
@@ -268,7 +288,10 @@ export const useTrainingStore = defineStore('training', {
       )
     },
 
-    /** @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card) */
+    /**
+     * @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card)
+     * @param selfGrade the learner's own grade of a flash card (the other exercises are graded by the server)
+     */
     async submit(
       send: (
         sessionId: number,
@@ -278,6 +301,7 @@ export const useTrainingStore = defineStore('training', {
         exercise: ExerciseType,
       ) => Promise<ReviewResponse>,
       hold: boolean,
+      selfGrade?: Quality,
     ): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
       const generation = this.generation
@@ -297,6 +321,7 @@ export const useTrainingStore = defineStore('training', {
         if (generation !== this.generation) return
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
+        this.recordOutcome(shown, selfGrade, res.graded ?? null)
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
@@ -370,6 +395,21 @@ export const useTrainingStore = defineStore('training', {
       } finally {
         this.savingNote = false
       }
+    },
+
+    /**
+     * The run of good answers (client only, for the chip and the finish screen): a right pick / typed answer or "got it" /
+     * "knew it" on a flash card goes on, a wrong one and "not yet" stop it. The pretest is a guess before learning, not a
+     * check: it neither goes on nor breaks the run.
+     */
+    recordOutcome(shown: ExerciseType, selfGrade: Quality | undefined, graded: Graded | null): void {
+      if (shown === 'pretest') return
+      const right = selfGrade !== undefined ? selfGrade >= 4 : graded?.correct
+      if (right === undefined) return
+      const kind: OutcomeKind = right ? 'right' : selfGrade !== undefined ? 'again' : 'wrong'
+      this.combo = right ? this.combo + 1 : 0
+      this.bestCombo = Math.max(this.bestCombo, this.combo)
+      this.outcome = { seq: this.outcome.seq + 1, kind }
     },
 
     /** The learner has seen the verdict: show what the review answered with. */
@@ -447,6 +487,9 @@ export const useTrainingStore = defineStore('training', {
       this.choiceResult = null
       this.deferred = null
       this.advanceWhenAnswered = false
+      this.combo = 0
+      this.bestCombo = 0
+      this.startedAt = Date.now()
     },
 
     applyCard(card: Card | null): void {

@@ -7,6 +7,8 @@
  * to `voiceschanged` to pick a voice asynchronously.
  */
 
+import { trackTtsAudio } from '@/composables/ttsActivity'
+
 // One sound at a time, across all useTts() instances: a fast second tap stops the first
 // instead of layering on top of it. `seq` lets a stale (superseded) speak() drop out quietly.
 let current: HTMLAudioElement | null = null
@@ -47,6 +49,7 @@ export function useTts() {
       try {
         const audio = new Audio(audioUrl)
         current = audio
+        trackTtsAudio(audio)
         await audio.play()
         return
       } catch {
@@ -80,6 +83,7 @@ export function useTts() {
       const url = `/api/twa/tts?word=${encodeURIComponent(text)}`
       const audio = new Audio(url)
       current = audio
+      trackTtsAudio(audio)
       await audio.play()
     } catch {
       // Silent — TTS is best-effort.

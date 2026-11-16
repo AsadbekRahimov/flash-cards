@@ -189,6 +189,7 @@ export const uz: Translations = {
   // ---- training ----
   'training.lesson_header': '{stage}-modul · {lesson}-dars',
   'training.daily_header': "Mashg'ulot",
+  'training.combo_label': "Ketma-ket to'g'ri javoblar: {count}",
   'training.closed_title': "Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
   'training.update.title': 'Ilovani yangilang',
@@ -247,6 +248,14 @@ export const uz: Translations = {
 
   // ---- finished (training) ----
   'finished.title': 'Ajoyib!',
+  'finished.title_good': 'Yaxshi ish!',
+  'finished.title_keep': 'Shunday davom eting!',
+  'finished.title_effort': 'Asosiysi — mashq qildingiz',
+  'finished.best_combo': 'Eng uzun ketma-ketlik: {count}',
+  'finished.new_achievement': 'Yangi yutuq: {title}',
+  'finished.quota.title': "Bugun yangi so'zlar tugadi. Ertaga yangilari bo'ladi",
+  'finished.quota.pro': 'Pro nima beradi',
+  'finished.quota.invite': "Do'stlarni taklif qiling — Pro bepul",
   'finished.title_empty': 'Bugun uchun hammasi tayyor',
   'finished.reviewed': {
     one: "Siz {count} ta so'zni takrorladingiz.",
@@ -475,6 +484,7 @@ export const uz: Translations = {
   'settings.exercises.gap_fill': "Misoldagi bo'sh joy",
   'settings.group.learning': "O'rganish",
   'settings.say_aloud': "So'zni ovoz chiqarib aytishni eslatish",
+  'settings.sounds': 'Tovushlar',
   'settings.retention': 'Eslab qolish maqsadi',
   'settings.retention.calm': 'Sokin',
   'settings.retention.normal': 'Odatiy',

@@ -208,6 +208,7 @@ export const ru = {
   // ---- training ----
   'training.lesson_header': 'Модуль {stage} · Урок {lesson}',
   'training.daily_header': 'Занятие',
+  'training.combo_label': 'Верных ответов подряд: {count}',
   'training.closed_title': 'Занятие завершено',
   'training.restart': 'Начать заново',
   // A card with an exercise this build does not know (a newer server): the answer is hidden, a flash card would be empty.
@@ -269,6 +270,14 @@ export const ru = {
 
   // ---- finished (training) ----
   'finished.title': 'Отлично!',
+  'finished.title_good': 'Хорошая работа!',
+  'finished.title_keep': 'Так держать!',
+  'finished.title_effort': 'Главное — вы позанимались',
+  'finished.best_combo': 'Лучшая серия: {count}',
+  'finished.new_achievement': 'Новое достижение: {title}',
+  'finished.quota.title': 'На сегодня новые слова закончились. Завтра будут новые',
+  'finished.quota.pro': 'Что даёт Pro',
+  'finished.quota.invite': 'Пригласить друзей — Pro бесплатно',
   'finished.title_empty': 'На сегодня всё',
   'finished.reviewed': {
     one: 'Вы повторили {count} слово.',
@@ -513,6 +522,7 @@ export const ru = {
   'settings.exercises.gap_fill': 'Пропуск в примере',
   'settings.group.learning': 'Обучение',
   'settings.say_aloud': 'Напоминать произносить слово вслух',
+  'settings.sounds': 'Звуки',
   'settings.retention': 'Цель удержания',
   'settings.retention.calm': 'Спокойно',
   'settings.retention.normal': 'Обычно',
