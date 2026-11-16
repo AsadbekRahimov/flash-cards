@@ -370,23 +370,34 @@ it('puts the variant of the description into the Stars invoice by the promise', 
     'off, practice behind Pro' => ['off', true, '', 'pro', false],
 ])->with(['ru', 'uz'])->with(['month', 'year']);
 
-it('ships with practice open to everybody: the landing and the invoice say practice and battles, and switching it off takes the words away', function (): void {
-    // config/practice.php as it ships: PRACTICE_ACCESS=all, PRACTICE_PLAN=all, 2 sessions and 1 battle a day for Free, battles on.
+it('ships with practice open to everybody and the battles off: the landing and the invoice speak of practice alone, the battles come back with their switch, and switching practice off takes the words away', function (): void {
+    // config/practice.php as it ships: PRACTICE_ACCESS=all, PRACTICE_PLAN=all, 2 sessions and 1 battle a day for Free, battles OFF until checked on the stand.
     // The limits are compared by value: from config/practice.php's defaults they are the integers 2 and 1, from a `.env` made
     // of `.env.example` (as CI makes it) env() reads the strings '2' and '1' - the same setting either way.
     expect(config('practice.access'))->toBe('all')
         ->and(config('practice.plan'))->toBe('all')
-        ->and(config('practice.free_limits'))->toEqual(['sessions_per_day' => 2, 'battles_per_day' => 1])
-        ->and(config('practice.battle.enabled'))->toBeTrue()
-        ->and(ProPromises::publicPractice())->toBe(ProPracticePromise::Both);
+        ->and(config('practice.free_limits'))->toEqual(['sessions_per_day' => 2, 'battles_per_day' => 1]);
+
+    // The local `.env` may have the battle on and leaks into the tests: the switch is pinned to what the ship has (config/practice.php).
+    config(['practice.battle.enabled' => false]);
+    expect(ProPromises::publicPractice())->toBe(ProPracticePromise::Solo);
 
     foreach (['ru', 'uz'] as $locale) {
         $features = (new LandingPricing)->limits($locale)['proFeatures'];
 
         expect($features)->toHaveCount(6)
-            ->and($features[1])->toBe(__('landing.limits.pro_practice', [], $locale))
-            ->and(proStarsDescription($locale, 'month'))->toBe(__('billing.stars.invoice.description_month_practice', [], $locale))
-            ->and(proStarsDescription($locale, 'year'))->toBe(__('billing.stars.invoice.description_year_practice', [], $locale));
+            ->and($features[1])->toBe(__('landing.limits.pro_practice_solo', [], $locale))
+            ->and(proStarsDescription($locale, 'month'))->toBe(__('billing.stars.invoice.description_month_practice_solo', [], $locale))
+            ->and(proStarsDescription($locale, 'year'))->toBe(__('billing.stars.invoice.description_year_practice_solo', [], $locale));
+    }
+
+    // The operator switches the battles on (PRACTICE_BATTLE=true): practice and battles.
+    config(['practice.battle.enabled' => true]);
+    expect(ProPromises::publicPractice())->toBe(ProPracticePromise::Both);
+
+    foreach (['ru', 'uz'] as $locale) {
+        expect((new LandingPricing)->limits($locale)['proFeatures'][1])->toBe(__('landing.limits.pro_practice', [], $locale))
+            ->and(proStarsDescription($locale, 'month'))->toBe(__('billing.stars.invoice.description_month_practice', [], $locale));
     }
 
     // The operator switches practice off (PRACTICE_ACCESS=off): no practice on the landing or in the invoice - what they were before.

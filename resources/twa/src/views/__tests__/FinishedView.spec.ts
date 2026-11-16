@@ -455,13 +455,27 @@ describe('FinishedView', () => {
     })
 
     describe('what grew (stages)', () => {
-      it('lists the new words, the words that moved up and the learned ones, under the button of the round', () => {
+      it('lists the new words, the words that moved up and the learned ones, right under the three tiles and above the buttons', () => {
         afterRound(true, summary({ stages: { graduated: 6, promoted: 2, mastered: 1 } }))
         const w = render(12, 1, 'sprint_complete')
 
         expect(w.get('[data-testid=stages]').text()).toBe('Новых слов: 6 · Поднялись: 2 · Выучено: 1')
-        const order = w.findAll('[data-testid=next-round-btn], [data-testid=stages], [data-testid=home-btn]').map((b) => b.attributes('data-testid'))
-        expect(order).toEqual(['next-round-btn', 'stages', 'home-btn'])
+        const order = w.findAll('[data-testid=stats], [data-testid=stages], [data-testid=next-round-btn], [data-testid=home-btn]').map((b) => b.attributes('data-testid'))
+        expect(order).toEqual(['stats', 'stages', 'next-round-btn', 'home-btn'])
+      })
+
+      it('is not there when only words graduated: the tile of the new words says the same', () => {
+        afterRound(true, summary({ new_words: 6, stages: { graduated: 6, promoted: 0, mastered: 0 } }))
+        const w = render(12, 1, 'sprint_complete')
+
+        expect(w.get('[data-testid=stat-new]').text()).toBe('6')
+        expect(w.find('[data-testid=stages]').exists()).toBe(false)
+      })
+
+      it('is there when a word is learned or moved up, and keeps the zeros out', () => {
+        afterRound(true, summary({ stages: { graduated: 0, promoted: 0, mastered: 2 } }))
+
+        expect(render(12, 1, 'sprint_complete').get('[data-testid=stages]').text()).toBe('Выучено: 2')
       })
 
       it('leaves the zeros out', () => {

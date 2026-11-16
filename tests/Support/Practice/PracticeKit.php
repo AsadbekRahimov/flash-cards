@@ -32,11 +32,13 @@ final class PracticeKit
 
     /**
      * The practice is `off` by default (docs/16 §3.2): open it to everyone, drop the plan restriction and the Free limits of the
-     * day (docs/18 G1; an empty limit = none, so `limits` is `null` as for Pro). The tests of the limits set them themselves.
+     * day (docs/18 G1; an empty limit = none, so `limits` is `null` as for Pro). The battle is off by default (`PRACTICE_BATTLE=false`, to
+     * be switched on after the stand check) and the local `.env` leaks into the tests: it is switched on here, a test of the off state sets
+     * it itself. The tests of the limits set them themselves.
      */
     public static function openAccess(): void
     {
-        config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.free_limits.sessions_per_day' => null, 'practice.free_limits.battles_per_day' => null]);
+        config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => true, 'practice.free_limits.sessions_per_day' => null, 'practice.free_limits.battles_per_day' => null]);
     }
 
     /** The Free limits of the day (docs/18 G1): `null` = none of that kind. */

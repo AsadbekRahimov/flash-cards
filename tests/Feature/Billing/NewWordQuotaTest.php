@@ -33,6 +33,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\CardAnswers;
 
 uses(RefreshDatabase::class);
 
@@ -141,7 +142,58 @@ it('is the bound new-card budget resolver', function (): void {
     expect(app(NewCardBudgetResolver::class))->toBeInstanceOf(NewWordQuota::class);
 });
 
-it('serves 20 new cards to a Free learner and not the 21st: done_reason new_quota_exhausted', function (): void {
+it('serves 20 new words a day to a Free learner over several rounds and not the 21st: the last round ends with new_quota_exhausted', function (): void {
+    $learner = nwqLearner(25);
+    $headers = nwqHeaders($learner);
+    $introduced = [];
+    $remaining = [];
+    $ends = [];
+
+    // "One more round" = finish the session + open a new one, as the Mini App does. 6 new words per round: 6, 6, 6, then 2.
+    for ($round = 1; $round <= 4; $round++) {
+        $this->travel(1)->seconds(); // rounds are told apart by the session's start (second precision)
+        $step = $this->withHeaders($headers)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk();
+        $sessionId = (int) $step->json('session_id');
+
+        while ($step->json('card') !== null) {
+            $card = $step->json('card');
+            if ($card['card_kind'] === 'new') {
+                $introduced[] = (int) $card['word_id'];
+            }
+            $remaining[] = $step->json('quota.new_words_remaining');
+            $step = $this->withHeaders($headers)
+                ->postJson("/api/twa/training/sessions/{$sessionId}/review", CardAnswers::body($card, 5))->assertOk();
+        }
+
+        $ends[] = [$step->json('done_reason'), $step->json('can_continue'), $step->json('quota.new_words_remaining')];
+        $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$sessionId}/finish")->assertOk();
+    }
+
+    expect($ends)->toBe([
+        ['sprint_complete', true, 14],
+        ['sprint_complete', true, 8],
+        ['sprint_complete', true, 2],
+        ['new_quota_exhausted', false, 0],
+    ])
+        ->and($introduced)->toHaveCount(20)
+        ->and(array_unique($introduced))->toHaveCount(20)
+        // The remaining quota never goes up inside the day: it counts down 19 → 0 as the new cards come on screen.
+        ->and($remaining === collect($remaining)->sortDesc()->values()->all())->toBeTrue()
+        ->and(max($remaining))->toBe(19)
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(20);
+
+    // The wall holds: a fifth round the same day has no card and no 21st row.
+    $this->travel(1)->seconds();
+    $again = $this->withHeaders($headers)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk();
+    expect($again->json('card'))->toBeNull()
+        ->and($again->json('done_reason'))->toBe('new_quota_exhausted')
+        ->and($again->json('can_continue'))->toBeFalse()
+        ->and($again->json('quota'))->toBe(['new_words_remaining' => 0])
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(20);
+});
+
+it('without the sprint a daily session runs to the quota in one go: 20 new cards, then new_quota_exhausted', function (): void {
+    config()->set('learning.sprint.enabled', false);
     $learner = nwqLearner(25);
 
     $walk = nwqWalk($this, $learner);

@@ -6,8 +6,9 @@ declare(strict_types=1);
  * The statement budget of `GET /me` and `GET /today` on the second and later calls (docs/19 K9, R12i) for the learner the
  * client meets on every opening of the Mini App: Free, an active course, a session graded today, a place in the league.
  *
- *   /me:    the learner (auth) and ONE statement of counts (learned, due) - the plan, the groups, the subscription blocks
- *           and the course are the profile snapshot of the pure cache;
+ *   /me:    the learner (auth), ONE statement of counts (learned, due) and - the practice being open to everybody by default -
+ *           ONE statement of the day's use of the Free practice limits (`practice.limits`: sessions, battles); the plan, the groups,
+ *           the subscription blocks and the course are the profile snapshot of the pure cache;
  *   /today: the learner, today + yesterday in one statement, due + served today in one statement, the course, its
  *           progress, the next lesson, the open session - the plan is read once (from its cache) and the league line comes
  *           from the cached facts and standings. One additional indexed lapse lookup for Free saves a full /me call.
@@ -43,13 +44,15 @@ function todayMeScenario(object $test): array
     return ['learner' => $learner, 'headers' => $headers];
 }
 
-it('answers the second /me with the learner and one statement of counts', function (): void {
+it('answers the second /me with the learner, one statement of counts and one of the practice limits', function (): void {
     ['headers' => $h] = todayMeScenario($this);
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/me')->assertOk()->assertJsonStructure(['stats' => ['words_learned', 'words_due_today']]));
 
-    // Before R12i: 7 - the groups, the live and the lapsed subscription, the course and two counts.
-    expect(count($queries))->toBeLessThanOrEqual(2)
+    // Before R12i: 7 - the groups, the live and the lapsed subscription, the course and two counts. Since the practice is open to
+    // everybody (PRACTICE_ACCESS=all) the Free learner's use of the day is the third (not part of the snapshot: it changes per session).
+    expect(count($queries))->toBeLessThanOrEqual(3)
+        ->and(QueryLog::matching($queries, '/from practice_sessions/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`](telegram_groups|subscriptions|courses)["`]/'))->toBe([]);
 });

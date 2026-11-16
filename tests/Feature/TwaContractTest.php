@@ -137,7 +137,7 @@ it('POST /auth keeps its exact JSON shape', function (): void {
 it('GET /me keeps its exact JSON shape', function (): void {
     $s = contractTraining();
     // The shipped default is `all` (docs/16 §3.3); this test pins the block of a closed practice, the open one is read in the test below.
-    config(['practice.access' => 'off']);
+    config(['practice.access' => 'off', 'practice.battle.enabled' => true]); // the battle is off by default: pinned on to see the flag
 
     $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')

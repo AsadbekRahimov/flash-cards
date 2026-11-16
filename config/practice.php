@@ -31,7 +31,7 @@ return [
         'dictation' => (bool) env('PRACTICE_MODE_DICTATION', true),
     ],
     'battle' => [
-        'enabled' => (bool) env('PRACTICE_BATTLE', true),
+        'enabled' => (bool) env('PRACTICE_BATTLE', false), // off until checked on the stand: turn on with PRACTICE_BATTLE=true
         'rounds' => 5, 'pairs_per_round' => 4,
         'round_seconds' => ['collocation' => 30, 'pairs' => 45, 'sentence' => 45, 'dictation' => 60],
         'countdown_seconds' => 3, 'reveal_seconds' => 4,

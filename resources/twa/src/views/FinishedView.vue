@@ -23,7 +23,8 @@ import { useI18n } from '@/i18n'
  * reviewed. The buttons at the bottom lead out: "One more round" (the primary one, only when the server says another round would have
  * cards: `can_continue`, docs/06 §13.2), "Play: practise the words" (a tinted secondary action: the server's `practice_entry` says
  * whether there is one and where it leads, docs/16 §11.1), "Home" (primary when there is no other round) and "Close". Under the
- * round button: what grew in the session (`stages`: new words, a stage up, learned), without the zeros.
+ * stats: what grew in the session (`stages`: new words, a stage up, learned), without the zeros - only when words climbed a stage
+ * (the tile of the new words already says how many were met).
  */
 const props = defineProps<{
   reviewed: number
@@ -95,10 +96,13 @@ const title = computed((): string => {
  */
 const canContinue = computed(() => props.reason === 'sprint_complete' && training.canContinue && training.mode !== 'group_lesson')
 
-/** What grew in the session, the zeros left out: "New words: 6 · Moved up: 2 · Learned: 1"; null when nothing did (or an older server). */
+/**
+ * What grew in the session, the zeros left out: "New words: 6 · Moved up: 2 · Learned: 1"; null when no word climbed a stage (or an
+ * older server): with only `graduated` the line would repeat the tile of the new words.
+ */
 const stagesLine = computed((): string | null => {
   const stages = summary.value?.stages
-  if (!stages) return null
+  if (!stages || (stages.promoted <= 0 && stages.mastered <= 0)) return null
   const parts = [
     stages.graduated > 0 ? t('finished.stages.graduated', { count: stages.graduated }) : '',
     stages.promoted > 0 ? t('finished.stages.promoted', { count: stages.promoted }) : '',
@@ -266,6 +270,7 @@ onBeforeUnmount(() => {
       >
         {{ tn('finished.reviewed', reviewed) }}
       </p>
+      <p v-if="stagesLine" class="card text-center text-[15px] leading-5 text-tg-subtitle" data-testid="stages">{{ stagesLine }}</p>
 
       <p v-if="bestCombo > 0" class="card flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="best-combo">
         <span class="icon-tile tile-orange"><AppIcon name="fire" solid :size="18" /></span>
@@ -362,7 +367,6 @@ onBeforeUnmount(() => {
           {{ t('finished.next_round') }}
         </button>
       </template>
-      <p v-if="stagesLine" class="px-2 text-center text-[15px] leading-5 text-tg-subtitle" data-testid="stages">{{ stagesLine }}</p>
       <!-- A secondary action: playing with what was just learned (docs/15 §4). -->
       <RouterLink v-if="showPractice && practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
         <AppIcon name="puzzle-piece" :size="20" />

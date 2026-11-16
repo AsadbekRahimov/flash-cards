@@ -91,7 +91,7 @@ it('says in GET /me what the learner sees: the flags of the modes and of the bat
     $headers = PracticeKit::headers($learner);
     PracticeKit::limits(null, null); // the block `limits` is PracticeLimitsTest's; here it is null
 
-    config(['practice.access' => 'off']);
+    config(['practice.access' => 'off', 'practice.battle.enabled' => true]); // the battle is off by default
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
         ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null]);
 
@@ -231,7 +231,7 @@ it('checks the switch of a mode only where something is created', function (): v
 });
 
 it('describes the state with the entitlement it is given, without asking again', function (): void {
-    config(['practice.access' => 'all', 'practice.plan' => 'pro']);
+    config(['practice.access' => 'all', 'practice.plan' => 'pro', 'practice.battle.enabled' => true]);
     $learner = Learner::factory()->create();
     $free = app(EntitlementResolver::class)->for($learner);
 
