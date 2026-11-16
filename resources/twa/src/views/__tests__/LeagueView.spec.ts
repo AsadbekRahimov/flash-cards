@@ -63,6 +63,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/league/month', name: 'league-month', component: { template: '<div />' } },
       { path: '/friends', name: 'friends', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: LeagueView },
     ],
@@ -125,12 +126,14 @@ describe('LeagueView', () => {
   })
 
   describe('the header', () => {
-    it('is the "Rating" tab with a Лига | Друзья switch, League active', async () => {
+    it('is the "Rating" tab with a Лига | Месяц | Друзья switch, League active', async () => {
       const { wrapper, router } = await render()
 
       expect(wrapper.get('h1').text()).toBe('Рейтинг')
       expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Лига')
       expect(wrapper.get('[data-testid=seg-league]').attributes('aria-current')).toBe('page')
+      expect(wrapper.get('[data-testid=seg-month]').text()).toBe('Месяц')
+      expect(wrapper.get('[data-testid=seg-month]').attributes('aria-current')).toBeUndefined()
       expect(wrapper.get('[data-testid=seg-friends]').text()).toBe('Друзья')
       expect(wrapper.get('[data-testid=seg-friends]').attributes('aria-current')).toBeUndefined()
 

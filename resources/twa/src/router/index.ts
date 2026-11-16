@@ -213,6 +213,12 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'rating' },
   },
   {
+    path: '/league/month',
+    name: 'league-month',
+    component: () => import('@/views/MonthlyRatingView.vue'),
+    meta: { tab: 'rating' },
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),

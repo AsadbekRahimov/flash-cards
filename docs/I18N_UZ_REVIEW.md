@@ -3784,3 +3784,59 @@
 | `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Готово! Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite |
 | `onboarding.menu.text` | Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/language — til\n/invite — do'stlarni taklif qilish va Pro olish\n/promo KOD — Pro uchun promokod\n/help — yordam | Что дальше?\n/today — занятие на сегодня\n/settings — настройки\n/language — язык\n/invite — пригласить друзей и получить Pro\n/promo КОД — промокод на Pro\n/help — справка |
 | `bot.help.private` | (целиком, две строки заменены) • /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /language — tilni o'zgartirish<br>• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | • /settings — цель, уровень, часовой пояс, напоминания<br>• /language — сменить язык / Tilni o'zgartirish<br>• Пригласите друзей — получите Pro бесплатно: /invite |
+
+## Рейтинг месяца в Mini App (16.11.2026) — на проверку носителю
+
+Вкладка «Рейтинг» получила переключатель «Лига | Месяц | Друзья»; экран месяца — призы, моё место, топ, прошлый месяц; на экране итога занятия — «+N ball» и строка месяца. Склонения в ru — по числу; в uz после числительных ничего не меняется. Заголовок месяца («2026-yil noyabr») собирается кодом, не строкой словаря.
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `month.tab` | Oy | Месяц |
+| `month.days_left` | Oy tugashiga {count} kun qoldi | До конца месяца — {count} дн. |
+| `month.last_day` | Bugun oyning oxirgi kuni | Сегодня последний день месяца |
+| `month.closing` | Oy yakunlari hisoblanmoqda | Итоги месяца подводятся |
+| `month.disabled` | Oylik reyting tez orada paydo bo'ladi | Рейтинг месяца скоро появится |
+| `month.prizes` | Sovrinlar | Призы |
+| `month.prize_place` | {place}-o'rin — {title} | {place} место — {title} |
+| `month.prizes_note` | Sovrinlar natijalar tekshirilgandan keyin topshiriladi | Призы вручаются после проверки результатов |
+| `month.points.one/other` | {count} ball | {count} балл |
+| `month.my_place` | Siz {rank}-o'rindasiz · {points} | Вы на {rank} месте · {points} |
+| `month.my_noplace` | Hozircha o'rin yo'q · {points} | Пока без места · {points} |
+| `month.start_prompt` | Mashg'ulotni boshlang — oylik reytingga kirasiz | Начните заниматься — и попадёте в рейтинг месяца |
+| `month.opted_out` | Siz reytinglarda qatnashmayapsiz. Sozlamalarda yoqish mumkin | Вы не участвуете в рейтингах. Включить можно в настройках |
+| `month.missing_days` | Sovrin uchun shu oyda yana {count} kun shug'ullanish kerak | Для приза нужно заниматься ещё {count} дн. в этом месяце |
+| `month.missing_account` | Sovrin uchun akkaunt kamida {count} kunlik bo'lishi kerak | Для приза аккаунту должно быть не меньше {count} дн. |
+| `month.eligible` | Siz sovrinlar o'yinida qatnashyapsiz | Вы участвуете в розыгрыше призов |
+| `month.top` | Oy topi | Топ месяца |
+| `month.empty` | Bu oyda hozircha hech kim ball to'plamagan | Пока никто не набрал баллов в этом месяце |
+| `month.rules_title` | Ballar qanday hisoblanadi | Как начисляются баллы |
+| `month.rules_points` | Ballar kartochkalarni takrorlash, to'g'ri javoblar, yangi so'zlar va bajarilgan kunlik maqsad uchun beriladi — haftalik ligadagi kabi. Oylik reytingga kuniga ko'pi bilan {cap} ball hisoblanadi. | Баллы дают за повторение карточек, верные ответы, новые слова и выполненную цель дня — те же, что в недельной лиге. В рейтинг месяца идёт не больше {cap} баллов в день. |
+| `month.rules_prize` | Sovrinni 1-dan {places}-o'ringacha egallaganlar oladi, agar oy davomida kamida {days} kun shug'ullangan bo'lsangiz va akkauntingiz kamida {account} kunlik bo'lsa. | Призы получают места с 1 по {places}, если за месяц вы занимались не меньше {days} дн., а аккаунту не меньше {account} дн. |
+| `month.last_winners` | G'oliblar: {month} | Победители: {month} |
+| `month.last_pending` | Oy yakunlari ({month}) tekshirilmoqda | Итоги месяца ({month}) проверяются |
+| `month.last_me` | Sizning o'rningiz: {rank} | Ваше место: {rank} |
+| `finished.points_earned.one/other` | +{count} ball | +{count} балл |
+| `finished.month_line` | Oylik reytingda: {rank}-o'rin · {points} | В рейтинге месяца: {rank} место · {points} |
+
+### Бот, ЛС победителям месячного рейтинга (`lang/uz/leagues.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.month.label` | :year-yil :name | :name :year (ноябрь 2026) |
+| `leagues.month.names.1` | yanvar | январь |
+| `leagues.month.names.2` | fevral | февраль |
+| `leagues.month.names.3` | mart | март |
+| `leagues.month.names.4` | aprel | апрель |
+| `leagues.month.names.5` | may | май |
+| `leagues.month.names.6` | iyun | июнь |
+| `leagues.month.names.7` | iyul | июль |
+| `leagues.month.names.8` | avgust | август |
+| `leagues.month.names.9` | sentyabr | сентябрь |
+| `leagues.month.names.10` | oktyabr | октябрь |
+| `leagues.month.names.11` | noyabr | ноябрь |
+| `leagues.month.names.12` | dekabr | декабрь |
+| `leagues.month.points` | :count ball | :count балл / балла / баллов |
+| `leagues.month.won` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. Sovg'angiz: :prize. Uni topshirish uchun Telegram orqali siz bilan bog'lanamiz. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. Ваш приз: :prize. Мы свяжемся с вами в Telegram, чтобы вручить его. |
+| `leagues.month.won_plain` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. (без приза) |

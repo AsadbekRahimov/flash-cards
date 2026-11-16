@@ -178,6 +178,80 @@ export interface LeagueResponse {
   last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
 }
 
+/** GET /league/month (docs/04 A.19, docs/13 §7.6): the monthly rating over the same league points. */
+export type MonthlyRatingStatus = 'open' | 'closing' | 'pending_review' | 'confirmed'
+
+export interface MonthlyRatingRules {
+  /** Points that count towards the month per day. */
+  daily_cap: number
+  min_active_days: number
+  min_account_days: number
+  places: number
+  top: number
+}
+
+export interface MonthlyPrize {
+  place: number
+  /** In the interface language already. */
+  title: string
+}
+
+export interface MonthlyTopRow {
+  rank: number
+  /** First name; null = no name to show. */
+  name: string | null
+  points: number
+  active_days: number
+  is_me: boolean
+}
+
+export interface MonthlyMe {
+  /** null while the learner has no place yet. */
+  rank: number | null
+  points: number
+  active_days: number
+  participant: boolean
+  /** Whether the learner takes part in the prize draw; `missing` says what is not enough yet. */
+  eligible: boolean
+  missing: { active_days: number; account_days: number }
+}
+
+export interface MonthlyLastMonth {
+  starts_on: string
+  ends_on: string
+  status: MonthlyRatingStatus
+  winners: { place: number; name: string | null; points: number }[]
+  me: { rank: number; points: number } | null
+}
+
+export interface MonthlyRatingResponse {
+  enabled: boolean
+  opted_out: boolean
+  month: {
+    starts_on: string
+    ends_on: string
+    closes_at: string
+    days_left: number
+    /** null: the month has no row yet (nobody has earned anything). */
+    status: MonthlyRatingStatus | null
+    participants: number
+  }
+  rules: MonthlyRatingRules
+  /** `[]`: no prizes are announced, the block is not shown. */
+  prizes: MonthlyPrize[]
+  top: MonthlyTopRow[]
+  /** null: the learner has not studied this month yet. */
+  me: MonthlyMe | null
+  last_month: MonthlyLastMonth | null
+}
+
+/** GET /league/month/me: the light variant for the finish screen. */
+export interface MonthlyRatingMeResponse {
+  enabled: boolean
+  month: { starts_on: string; ends_on: string; days_left: number }
+  me: MonthlyMe | null
+}
+
 /** GET /achievements (docs/04 A.15): the whole catalog; `title` / `description` / `share_text` are in the request language. */
 export interface AchievementItem {
   /** `first_session`, `streak_7`, `words_100`, `league_top1`, … */
@@ -454,6 +528,8 @@ export interface SessionSummary {
   new_words: number
   goal?: DailyGoal
   streak?: Streak
+  /** League points earned by this session (docs/13 §7.6); absent on an older server. */
+  league_points?: number
   /** Where "Practice of the lesson / course" leads (docs/16 §11.1); null: no entry (daily review, group session, no access). */
   practice_entry?: { course: string; lesson_id: number | null } | null
 }

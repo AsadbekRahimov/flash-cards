@@ -103,6 +103,7 @@ const makeRouter = () =>
   createRouter({
     history: createMemoryHistory(),
     routes: [
+      { path: '/league/month', name: 'league-month', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/friends', name: 'friends', component: FriendsView },
       { path: '/battles/new', name: 'battle-new', component: { template: '<div />' } },

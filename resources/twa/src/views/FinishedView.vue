@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import { useMonthlyRatingStore } from '@/stores/monthlyRating'
 import { useTrainingStore } from '@/stores/training'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -29,6 +30,7 @@ const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'sessi
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
 const training = useTrainingStore()
+const monthly = useMonthlyRatingStore()
 
 // Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
 const summary = computed(() => training.summary)
@@ -61,6 +63,25 @@ const goalPercent = computed(() => {
   if (current === null) return 0
   if (current.met) return 100
   return current.target > 0 ? Math.min(100, Math.round((current.done / current.target) * 100)) : 0
+})
+
+/** League points of this session (docs/13 §7.6): shown only when the server counted some. */
+const pointsEarned = computed(() => summary.value?.league_points ?? 0)
+
+/**
+ * "In the month's rating: 12th place · 340 points": a light request after the screen is shown (it never blocks it; a failure
+ * leaves no line). Only for a session that reviewed something — a group or an empty one earns nothing.
+ */
+const monthMe = computed(() => monthly.mine)
+const monthLine = computed(() => {
+  const mine = monthMe.value
+  if (mine === null || !mine.enabled || mine.me === null || mine.me.rank === null) return null
+  return t('finished.month_line', { rank: mine.me.rank, points: tn('month.points', mine.me.points) })
+})
+
+onMounted(() => {
+  monthly.mine = null
+  if (summary.value !== null && !isEmpty.value) void monthly.loadMine()
 })
 
 /**
@@ -135,6 +156,16 @@ onBeforeUnmount(() => {
       >
         {{ tn('finished.reviewed', reviewed) }}
       </p>
+
+      <section v-if="pointsEarned > 0 || monthLine" class="card space-y-2">
+        <p v-if="pointsEarned > 0" class="flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="points-earned">
+          <span class="icon-tile tile-blue"><AppIcon name="trophy" solid :size="18" /></span>
+          {{ tn('finished.points_earned', pointsEarned) }}
+        </p>
+        <RouterLink v-if="monthLine" :to="{ name: 'league-month' }" class="block text-[15px] leading-5 text-accent" data-testid="month-line">
+          {{ monthLine }}
+        </RouterLink>
+      </section>
 
       <section v-if="goal" class="card" data-testid="goal">
         <div class="flex items-center justify-between gap-3">

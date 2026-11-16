@@ -12,6 +12,7 @@
  * - `weekdayTime` — пн 00:00
  * - `weekdayDayMonth` — вторник, 28 октября
  * - `time` — 00:00
+ * - `month` — ноябрь (the name alone; `formatMonthYear` writes it with the year)
  */
 export type DateStyle =
   | 'dayMonth'
@@ -22,6 +23,7 @@ export type DateStyle =
   | 'weekdayTime'
   | 'weekdayDayMonth'
   | 'time'
+  | 'month'
 
 const DATE_OPTIONS: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   dayMonth: { day: 'numeric', month: 'long' },
@@ -32,6 +34,7 @@ const DATE_OPTIONS: Record<DateStyle, Intl.DateTimeFormatOptions> = {
   weekdayTime: { weekday: 'short', hour: '2-digit', minute: '2-digit' },
   weekdayDayMonth: { weekday: 'long', day: 'numeric', month: 'long' },
   time: { hour: '2-digit', minute: '2-digit' },
+  month: { month: 'long' },
 }
 
 /** The interface locale (`ru` / `uz`) as a BCP 47 tag; Uzbek is always Latin script. */
@@ -103,6 +106,8 @@ function formatUzbekByHand(date: Date, style: DateStyle, zone: string): string {
       return `${UZ_WEEKDAYS[weekday]}, ${day}-${month}`
     case 'time':
       return time
+    case 'month':
+      return month
   }
 }
 
@@ -146,6 +151,15 @@ export function formatDate(iso: string, style: DateStyle, locale: string, timeZo
     dateFormatters.set(key, formatter)
   }
   return formatter.format(date)
+}
+
+/** A calendar month as a title: «Ноябрь 2026» / «2026-yil noyabr»; '' for a value that is not a date. */
+export function formatMonthYear(iso: string, locale: string): string {
+  const month = formatDate(iso, 'month', locale)
+  if (month === '') return ''
+  const year = iso.slice(0, 4)
+  if (locale === 'uz') return `${year}-yil ${month.toLowerCase()}`
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${year}`
 }
 
 const dayFormatters = new Map<string, Intl.DateTimeFormat>()

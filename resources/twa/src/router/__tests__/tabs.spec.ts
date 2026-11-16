@@ -5,7 +5,7 @@ import router from '../index'
 const TABS = {
   today: ['today'],
   courses: ['courses', 'course', 'decks', 'deck', 'practice-hub'],
-  rating: ['league', 'friends', 'battle-new'],
+  rating: ['league', 'league-month', 'friends', 'battle-new'],
   profile: ['profile', 'achievements', 'referrals', 'billing', 'settings'],
 } as const
 
