@@ -16,6 +16,10 @@ use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learners\Services\LearnerDeletionService;
+use App\Domain\Learners\Services\LearnerModerationService;
+use App\Domain\Learners\Services\LearnerRegistrar;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -26,10 +30,13 @@ use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\ProductEvent;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 
 uses(RefreshDatabase::class);
 
@@ -597,4 +604,83 @@ it('promises no prize by default: the shipped config has empty titles, blank one
     // Only the places that are set.
     config(['leagues.monthly.prizes' => [1 => ['ru' => '', 'uz' => ''], 2 => ['ru' => ' Книга ', 'uz' => ''], 3 => ['ru' => '', 'uz' => '']]]);
     expect(array_map(fn ($p) => [$p->place, $p->title('ru'), $p->title('uz')], mrService()->prizes($month)))->toBe([[2, 'Книга', 'Книга']]);
+});
+
+// --- participation changes inside the open month ---------------------------------------------------
+
+/** Three learners with a day row each: 300 / 200 / 100 points, the leader first. @return array{0: LeagueMonth, 1: list<Learner>} */
+function mrThreeRanked(): array
+{
+    $month = mrService()->currentMonth(mrNow());
+    $learners = [mrLearner(), mrLearner(), mrLearner()];
+    foreach ([300, 200, 100] as $i => $reviews) {
+        mrDay($learners[$i], '2026-11-10', reviews: $reviews, correct: $reviews, new: 0);
+    }
+    mrService()->refresh($month, mrNow(), full: true);
+
+    return [$month, $learners];
+}
+
+it('takes a blocked leader out of the top at once and puts them back when unblocked', function (): void {
+    [$month, $learners] = mrThreeRanked();
+    $before = mrTop($month);
+    expect($before)->toHaveCount(3)->and($before[0])->toEndWith(':'.$learners[0]->id);
+
+    $admin = User::factory()->create();
+    $moderation = app(LearnerModerationService::class);
+
+    $moderation->block($learners[0], $admin);
+    $top = mrTop($month);
+    expect($top)->toHaveCount(2)
+        ->and($top[0])->toEndWith(':'.$learners[1]->id)
+        ->and($top[0])->toStartWith('1:')
+        ->and($top[1])->toStartWith('2:')
+        ->and(mrScore($month, $learners[0])?->participant)->toBeFalse();
+
+    $moderation->unblock($learners[0], $admin);
+    expect(mrTop($month))->toBe($before);
+});
+
+it('takes a learner who opted out of the leagues out of the top at once, and back on opting in', function (): void {
+    [$month, $learners] = mrThreeRanked();
+    $before = mrTop($month);
+    $settings = app(LearnerSettingsService::class);
+
+    $settings->update($learners[0], ['leagues_opt_out' => true]);
+    $top = mrTop($month);
+    expect($top)->toHaveCount(2)->and($top[0])->toEndWith(':'.$learners[1]->id);
+
+    $settings->update($learners[0], ['leagues_opt_out' => false]);
+    expect(mrTop($month))->toBe($before);
+});
+
+it('takes a deleted account out of the top at once, and back when it is restored', function (): void {
+    [$month, $learners] = mrThreeRanked();
+    $before = mrTop($month);
+
+    app(LearnerDeletionService::class)->delete($learners[0]);
+    $top = mrTop($month);
+    expect($top)->toHaveCount(2)->and($top[0])->toEndWith(':'.$learners[1]->id);
+
+    $this->travelTo(mrNow()->addMinute());
+    app(LearnerRegistrar::class)->fromTelegramUser(['id' => $learners[0]->telegram_user_id, 'first_name' => 'Back']);
+    expect(mrTop($month))->toHaveCount(3)->and(mrTop($month)[0])->toEndWith(':'.$learners[0]->id);
+    expect($before)->toHaveCount(3);
+});
+
+it('does nothing for a learner with no row in the month, and never breaks the action when the recompute fails', function (): void {
+    [$month] = mrThreeRanked();
+    $outsider = mrLearner();
+    $admin = User::factory()->create();
+    $moderation = app(LearnerModerationService::class);
+
+    expect($moderation->block($outsider, $admin))->toBeTrue()
+        ->and(mrScore($month, $outsider))->toBeNull();
+
+    Exceptions::fake();
+    DB::statement('drop table league_month_scores');
+    $leader = Learner::query()->orderBy('id')->firstOrFail();
+    expect($moderation->block($leader, $admin))->toBeTrue()
+        ->and($leader->fresh()?->blocked_at)->not->toBeNull();
+    Exceptions::assertReported(QueryException::class);
 });

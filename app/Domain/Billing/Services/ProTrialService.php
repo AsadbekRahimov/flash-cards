@@ -35,8 +35,8 @@ use Throwable;
  * One transaction: the learner row FOR UPDATE (two parallel first contacts — `/start` and the Mini App — serialize
  * here and the second finds the marker gone) → the book row (the unique key is the last word) → the subscription
  * ({@see SubscriptionService::grantTrial()}, which locks the learner again) → the marker and the one-shot notice
- * (`meta.pro_trial_notice`, consumed by the bot or the Mini App, whichever shows "you have 7 days of Pro" first —
- * the pattern of AccountRestoreNotice). Lock order: `learners` → `pro_trials` → `subscriptions` → `product_events`.
+ * (`meta.pro_trial_notice`, consumed by the bot's welcome DM — the Mini App shows the trial from the entitlement and does
+ * not take it — the pattern of AccountRestoreNotice). Lock order: `learners` → `pro_trials` → `subscriptions` → `product_events`.
  *
  * A failure never fails the registration ({@see offer()} reports and returns null); the marker stays, so the next
  * contact tries again.
@@ -102,6 +102,22 @@ final class ProTrialService
     }
 
     /**
+     * Whether a notice that ends at `$endsAt` still tells the truth: the end is in the future and the learner's live
+     * subscription is still the trial (not paid / promo over it). Reads one subscription; the caller has taken the notice
+     * already, so a stale one is dropped silently.
+     */
+    public function noticeIsCurrent(Learner $learner, CarbonImmutable $endsAt, ?CarbonImmutable $now = null): bool
+    {
+        if ($endsAt->lessThanOrEqualTo($now ?? CarbonImmutable::now())) {
+            return false;
+        }
+
+        $live = $this->subscriptions->liveFor($learner);
+
+        return $live !== null && $live->provider === SubscriptionProvider::Trial->value;
+    }
+
+    /**
      * Takes the notice: the end of the trial when this call got it, null when there was none or another channel was
      * first. A short transaction under the row lock, like AccountRestoreNotice::consume().
      */
@@ -129,10 +145,10 @@ final class ProTrialService
         return $taken === null ? null : CarbonImmutable::parse($taken['ends_at']);
     }
 
-    /** The book key of a Telegram account: an HMAC with the application key, so the raw id is never stored. */
+    /** The book key of a Telegram account: an HMAC with `billing.trial.hash_key` (APP_KEY when empty; set it once and never change it, or a rotation of APP_KEY reopens the trial for everybody), so the raw id is never stored. */
     public static function hashFor(int $telegramUserId): string
     {
-        return hash_hmac('sha256', 'pro_trial:'.$telegramUserId, (string) config('app.key'));
+        return hash_hmac('sha256', 'pro_trial:'.$telegramUserId, (string) (config('billing.trial.hash_key') ?: config('app.key')));
     }
 
     private function decide(Learner $learner, CarbonImmutable $now): ?Subscription

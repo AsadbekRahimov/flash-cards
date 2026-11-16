@@ -82,7 +82,7 @@
                 <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.league_month.candidates.hint', ['places' => $places]) }}</p>
             @endunless
 
-            <div class="overflow-x-auto">
+            <div>
                 <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-gray-200 dark:border-white/10">
@@ -101,7 +101,11 @@
                             @php
                                 $candidate = $row->candidate;
                                 $learner = $row->learner;
-                                $name = $learner?->first_name ?: ($learner ? '#'.$learner->id : __('admin.league_month.candidates.deleted'));
+                                $unreachable = LeagueMonthDisplay::unreachable($learner);
+                                // A deleted account keeps no name on the page (it is going to be purged); the others show it.
+                                $name = $unreachable === 'deleted'
+                                    ? ($learner ? '#'.$learner->id : __('admin.league_month.candidates.deleted'))
+                                    : ($learner?->first_name ?: '#'.$learner?->id);
                                 $signals = is_array($candidate->signals) ? $candidate->signals : [];
                                 $username = LeagueMonthDisplay::telegramUsername($learner?->username);
                             @endphp
@@ -111,7 +115,10 @@
                                     <div class="text-xs font-normal text-gray-500 dark:text-gray-400">#{{ $candidate->rank }}</div>
                                 </td>
                                 <td class="py-2 pe-3">
-                                    @if ($learner)
+                                    @if ($unreachable !== null)
+                                        <x-filament::badge class="mb-1 w-fit whitespace-nowrap" color="danger">{{ __('admin.league_month.candidates.state.'.$unreachable) }}</x-filament::badge>
+                                    @endif
+                                    @if ($learner && $unreachable !== 'deleted')
                                         <x-filament::link :href="LearnerResource::getUrl('view', ['record' => $learner->id])">{{ $name }}</x-filament::link>
                                         {{-- The way to reach a winner who is to be given a prize by hand: for the administrator only. --}}
                                         @if ($row->provisionalPlace !== null)
@@ -141,13 +148,13 @@
                                             <span class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.league_month.signals.none') }}</span>
                                         @endforelse
                                     </div>
-                                    <ul class="mt-1 space-y-0.5 text-xs text-gray-600 dark:text-gray-400">
+                                    <ul class="mt-1 grid max-w-md grid-cols-2 gap-x-4 gap-y-0.5 text-xs text-gray-600 dark:text-gray-400">
                                         @foreach (LeagueMonthDisplay::facts($signals) as $fact)
                                             <li>{{ $fact }}</li>
                                         @endforeach
                                     </ul>
                                 </td>
-                                <td class="py-2 pe-3">
+                                <td class="whitespace-nowrap py-2 pe-3">
                                     <x-filament::badge :color="$candidate->isDisqualified() ? 'danger' : ($candidate->isWinner() ? 'success' : 'gray')">
                                         {{ AdminLabels::value('league_month.candidate_status', $candidate->status) }}
                                     </x-filament::badge>

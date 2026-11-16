@@ -28,7 +28,9 @@ use DateTimeZone;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 
 /**
  * The monthly rating with prizes (docs/13 §7.6). One rating of everybody per calendar month of the league time zone, on
@@ -218,6 +220,36 @@ final class MonthlyRatingService
             $this->upsertScores($locked, $now, $learner->id, null);
 
             return true;
+        });
+    }
+
+    /**
+     * The learner's right to the rating changed (blocked / unblocked, deleted / restored, opted out of / back into the
+     * leagues): recomputes their row of the CURRENT open month at once and drops the cached top, so the list does not keep
+     * a blocked leader until the month's close. After the commit of the caller's transaction (at once outside one); a failure
+     * is reported and logged, never thrown — the action itself has succeeded. A learner with no row in the month: nothing to do.
+     */
+    public function participationChanged(Learner $learner, ?CarbonImmutable $now = null): void
+    {
+        DB::afterCommit(function () use ($learner, $now): void {
+            try {
+                if (! $this->enabled()) {
+                    return;
+                }
+
+                $now ??= CarbonImmutable::now();
+                $month = $this->findMonth($now);
+                if ($month === null || ! $month->isOpen() || $this->scoreOf($month, $learner->id) === null) {
+                    return;
+                }
+
+                if ($this->refreshLearner($month, $learner, $now)) {
+                    PureCache::forgetMany([self::topKey($month->id)]);
+                }
+            } catch (Throwable $e) {
+                report($e);
+                Log::warning('league.month_participation_refresh_failed', ['learner_id' => $learner->id, 'exception' => $e::class, 'error' => $e->getMessage()]);
+            }
         });
     }
 

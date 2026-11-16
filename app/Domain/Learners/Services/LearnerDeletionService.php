@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\LearnerBillingService;
+use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\User;
@@ -44,7 +45,10 @@ final class LearnerDeletionService
 
     public const BY_ADMIN = 'admin';
 
-    public function __construct(private readonly LearnerBillingService $billing) {}
+    public function __construct(
+        private readonly LearnerBillingService $billing,
+        private readonly MonthlyRatingService $monthly,
+    ) {}
 
     /**
      * @param  User|null  $by  the admin; null = the learner themselves
@@ -74,6 +78,7 @@ final class LearnerDeletionService
             ]);
 
             $learner->setRawAttributes($current->getAttributes(), true);
+            $this->monthly->participationChanged($current);
 
             return true;
         });

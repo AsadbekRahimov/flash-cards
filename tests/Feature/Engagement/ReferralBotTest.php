@@ -154,3 +154,33 @@ it('points to /invite in /help, in both languages, and to /language', function (
     'ru' => ['ru', 'Пригласите друзей — получите Pro бесплатно: /invite', '/language'],
     'uz' => ['uz', "Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite", '/language'],
 ]);
+
+it('says "on N days" when the friend has to study on several days, and "in a day" when one is enough', function (): void {
+    config(['referrals.milestones' => [3, 6], 'referrals.activation.reviews_per_day' => 10, 'referrals.activation.days' => 3, 'referrals.activation.window_days' => 7]);
+    Learner::factory()->create(['telegram_user_id' => 8120, 'onboarding_state' => 'done', 'interface_locale' => 'ru']);
+    Learner::factory()->create(['telegram_user_id' => 8121, 'onboarding_state' => 'done', 'interface_locale' => 'uz']);
+
+    inviteSend(8120);
+    inviteSend(8121, from: ['language_code' => 'uz']);
+
+    expect($this->tg->sent[0]['text'])->toContain('будет заниматься 3 дн., оценивая не менее 10 карточек в день')
+        ->and($this->tg->sent[0]['text'])->not->toContain('за день')
+        ->and($this->tg->sent[1]['text'])->toContain('3 kun davomida kuniga kamida 10 ta kartochkani');
+
+    config(['referrals.activation.days' => 1]);
+    inviteSend(8120);
+    expect($this->tg->sent[2]['text'])->toContain('оценит 10 карточек за день');
+});
+
+it('promises no reward and shows no progress when no milestone is configured', function (): void {
+    config(['referrals.milestones' => []]);
+    $learner = Learner::factory()->create(['telegram_user_id' => 8122, 'onboarding_state' => 'done', 'interface_locale' => 'ru']);
+
+    inviteSend(8122);
+
+    expect($this->tg->sent[0]['text'])->toContain("ref_{$learner->fresh()?->referral_code}")
+        ->and($this->tg->sent[0]['text'])->not->toContain('За  ')
+        ->and($this->tg->sent[0]['text'])->not->toContain('Pro бесплатно')
+        ->and($this->tg->sent[0]['text'])->not->toContain('Засчитано друзей')
+        ->and($this->tg->sent[0]['text'])->toContain('награды за приглашения не выдаются');
+});

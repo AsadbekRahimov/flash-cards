@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Domain\Administration\Services\PendingLeagueMonthsBadge;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Events\LeagueMonthConfirmed;
+use App\Domain\Engagement\Exceptions\LeagueMonthException;
 use App\Domain\Engagement\Services\MonthlyRatingReviewService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Operations\Support\PureCache;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Filament\Pages\LeagueMonthReview;
 use App\Filament\Pages\LeagueMonths;
 use App\Filament\Resources\Support\AdminErrors;
@@ -16,6 +18,7 @@ use App\Models\LeagueMonth;
 use App\Models\LeagueMonthCandidate;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
+use App\Models\NotificationLog;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
@@ -27,6 +30,7 @@ use Livewire\Livewire;
 
 use function Pest\Livewire\livewire;
 
+use Tests\Support\FakeTelegramClient;
 use Tests\Support\QueryLog;
 
 /*
@@ -424,4 +428,65 @@ it('keeps the page of a month at a constant number of statements however many ca
     $large = $measure();
 
     expect($large)->toBe($small)->and($large)->toBeLessThanOrEqual(8);
+});
+
+it('marks a blocked, a deleted and a purged candidate, and warns in the confirmation when one of them holds a place', function (): void {
+    ['month' => $month, 'candidates' => $c] = lmpMonth(4);
+    Learner::query()->whereKey($c[0]->learner_id)->update(['blocked_at' => now()]);
+    Learner::query()->whereKey($c[1]->learner_id)->first()?->delete();
+
+    $page = lmpReview($month);
+    $page->assertSee('Заблокирован')->assertSee('Удалён')->assertDontSee('Learner2');
+
+    $page->mountAction('confirm')
+        ->assertMountedActionModalSee(['недоступные ученики', 'Бот не сможет его поздравить', 'дисквалифицируйте', 'Заблокирован', 'Удалён']);
+
+    // They are still in the places: the confirmation does not drop anybody, the administrator decides.
+    $page->callMountedAction()->assertNotified('Итоги подтверждены');
+    expect(LeagueMonthCandidate::query()->where('league_month_id', $month->id)->where('status', 'winner')->count())->toBe(3);
+});
+
+it('does not warn in the confirmation when everybody can be reached', function (): void {
+    ['month' => $month] = lmpMonth(3);
+
+    lmpReview($month)->mountAction('confirm')->assertMountedActionModalDontSee(['недоступные ученики']);
+});
+
+it('sends the congratulations again: the ones already served get nothing, the missed one gets the DM', function (): void {
+    $tg = new FakeTelegramClient;
+    $this->app->instance(TelegramClient::class, $tg);
+    ['month' => $month, 'candidates' => $c] = lmpMonth(3);
+    app(MonthlyRatingReviewService::class)->confirm($month, $this->admin);
+    expect($tg->sent)->toHaveCount(3);
+
+    // The DM of the third winner was lost (the event failed after the commit): its log row is gone.
+    NotificationLog::query()->where('learner_id', $c[2]->learner_id)->where('type', 'league_month_won')->delete();
+    $tg->sent = [];
+
+    lmpReview($month->fresh() ?? $month)
+        ->callAction('resend')
+        ->assertNotified('Поздравления отправлены повторно');
+
+    expect($tg->sent)->toHaveCount(1)
+        ->and($tg->sent[0]['chat_id'])->toBe($c[2]->learner->telegram_user_id)
+        ->and(AuditLog::query()->where('action', MonthlyRatingReviewService::ACTION_CONGRATS_RESENT)->count())->toBe(1);
+
+    // A second press: nobody gets anything again.
+    $tg->sent = [];
+    lmpReview($month->fresh() ?? $month)->callAction('resend');
+    expect($tg->sent)->toBe([]);
+});
+
+it('offers the resend only for a confirmed month, and refuses a month that is not confirmed and a teacher', function (): void {
+    ['month' => $month] = lmpMonth(2);
+    lmpReview($month)->assertActionHidden('resend');
+
+    expect(fn () => app(MonthlyRatingReviewService::class)->resendCongratulations($month, $this->admin))
+        ->toThrow(LeagueMonthException::class);
+
+    app(MonthlyRatingReviewService::class)->confirm($month, $this->admin);
+    lmpReview($month->fresh() ?? $month)->assertActionVisible('resend');
+
+    $this->actingAs(lmpUser('teacher'));
+    lmpReview($month->fresh() ?? $month)->assertForbidden();
 });

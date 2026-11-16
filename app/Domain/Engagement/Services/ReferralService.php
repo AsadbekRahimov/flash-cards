@@ -475,6 +475,15 @@ final class ReferralService
         return max(1, (int) config('referrals.milestone_days', 7));
     }
 
+    /** How many friends are COUNTED for the inviter (`rewarded`: the status that overview() reports as `counted`) — one query. */
+    public function countedFor(Learner $learner): int
+    {
+        return Referral::query()
+            ->where('referrer_learner_id', $learner->id)
+            ->where('status', ReferralStatus::Rewarded->value)
+            ->count();
+    }
+
     /**
      * What the TWA screen and `/invite` show: the code, the link, the rule, the counts, the milestones with their
      * state, the next one, and the invited learners (names only).

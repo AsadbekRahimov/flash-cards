@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\User;
@@ -19,6 +20,8 @@ final class LearnerModerationService
     public const ACTION_BLOCKED = 'learner.blocked';
 
     public const ACTION_UNBLOCKED = 'learner.unblocked';
+
+    public function __construct(private readonly MonthlyRatingService $monthly) {}
 
     /** @return bool whether the learner was blocked by this call (false: already blocked) */
     public function block(Learner $learner, User $actor, ?string $ip = null): bool
@@ -61,6 +64,7 @@ final class LearnerModerationService
             ]);
 
             $learner->setRawAttributes($current->getAttributes(), true);
+            $this->monthly->participationChanged($current);
 
             return true;
         });

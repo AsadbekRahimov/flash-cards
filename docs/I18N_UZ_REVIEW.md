@@ -3840,3 +3840,13 @@
 | `leagues.month.points` | :count ball | :count балл / балла / баллов |
 | `leagues.month.won` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. Sovg'angiz: :prize. Uni topshirish uchun Telegram orqali siz bilan bog'lanamiz. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. Ваш приз: :prize. Мы свяжемся с вами в Telegram, чтобы вручить его. |
 | `leagues.month.won_plain` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. (без приза) |
+
+## /invite: правило на несколько дней и текст без наград (16.11.2026) — на проверку носителю
+
+### Бот (`lang/uz/referrals.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.invite.rule_days` | Do'st sozlashdan o'tib, :days kun davomida kuniga kamida :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz. | Друг засчитывается, когда пройдёт настройку и будет заниматься :days дн., оценивая не менее :cards в день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro. (когда `referrals.activation.days` > 1) |
+| `referrals.invite.cards_min` | :count ta kartochkani | :count карточки \| :count карточек (родительный: «не менее 10 карточек») |
+| `referrals.invite.text_plain` | Do'stlaringizni LexiFlow'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link | Пригласите друзей в LexiFlow.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link (когда вехи наград не заданы) |

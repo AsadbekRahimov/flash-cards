@@ -19,7 +19,12 @@ return [
         // The friend counts once they have started (the setup and :cards in a day); the inviter gets :reward of Pro at each of
         // the :milestones counted friends ("3 и 6"). Nobody else is rewarded: the friend has the welcome trial of every newcomer.
         'rule' => "Друг засчитывается, когда пройдёт настройку и оценит :cards за день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro.",
+        // `referrals.activation.days` > 1: the friend has to study on several days (the Mini App says the same, `referrals.step2.days`).
+        'rule_days' => "Друг засчитывается, когда пройдёт настройку и будет заниматься :days дн., оценивая не менее :cards в день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro.",
         'cards' => ':count карточку|:count карточки|:count карточек',
+        'cards_min' => ':count карточки|:count карточек|:count карточек',
+        // No milestones configured: nothing is promised.
+        'text_plain' => "Пригласите друзей в LexiFlow.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link",
         'and' => 'и',
         'no_link' => 'код :code (ссылка появится, когда администратор укажет имя бота)',
         'stats' => 'Пришли по вашей ссылке: :invited',

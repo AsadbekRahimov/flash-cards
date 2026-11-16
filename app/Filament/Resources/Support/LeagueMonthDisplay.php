@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Support;
 
 use App\Models\LeagueMonth;
+use App\Models\Learner;
 use Illuminate\Support\Facades\Lang;
 
 /**
@@ -25,6 +26,21 @@ final class LeagueMonthDisplay
         'spiky' => 'danger',
         'capped_often' => 'warning',
     ];
+
+    /**
+     * Why the bot cannot reach a candidate: 'blocked' (blocked by an administrator), 'deleted' (soft-deleted or purged),
+     * null when nothing stands in the way. From the loaded learner, no query.
+     *
+     * @return 'blocked'|'deleted'|null
+     */
+    public static function unreachable(?Learner $learner): ?string
+    {
+        if ($learner === null || $learner->trashed()) {
+            return 'deleted';
+        }
+
+        return $learner->blocked_at !== null ? 'blocked' : null;
+    }
 
     /** «ноябрь 2026» — Russian whatever the request's locale (the panel is Russian). */
     public static function month(LeagueMonth $month): string

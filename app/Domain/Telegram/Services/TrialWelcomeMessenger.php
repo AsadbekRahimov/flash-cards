@@ -11,9 +11,9 @@ use App\Models\Learner;
 
 /**
  * "A week of Pro is yours — free, until DATE. Invite 3 friends and get 7 more days: /invite" (docs/13 §7.1 "2C.9"): one short
- * DM after the welcome trial was granted. The notice is one-shot ({@see ProTrialService::consumeNotice()}): the bot and the
- * Mini App race for it, whoever takes it first tells the learner, the other stays silent — so a learner who opened the Mini
- * App first gets nothing here, and a second `/start` nothing again.
+ * DM after the welcome trial was granted. The notice is one-shot ({@see ProTrialService::consumeNotice()}): only the bot takes it (the Mini App shows the trial from
+ * the entitlement), so a second `/start` says nothing again. A notice that has gone stale by the time the person comes back —
+ * the trial is over, or a paid / promo subscription replaced it — is taken silently and nothing is sent.
  *
  * It is sent where the language is known and no question is pending: right BEFORE the closing message of the onboarding (so its
  * "Start" button stays last; or on `/start` of a learner who has finished it already) — not before the first step, where the person has not chosen the language yet, and
@@ -38,6 +38,10 @@ final class TrialWelcomeMessenger
 
         $endsAt = $this->trials->consumeNotice($learner);
         if ($endsAt === null) {
+            return false;
+        }
+
+        if (! $this->trials->noticeIsCurrent($learner, $endsAt)) {
             return false;
         }
 

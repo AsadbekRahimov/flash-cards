@@ -103,6 +103,7 @@ class LeagueMonthReview extends Page
     {
         return [
             $this->confirmAction(),
+            $this->resendAction(),
             $this->editPrizesAction(),
             $this->clearPrizesAction(),
             $this->defaultPrizesAction(),
@@ -122,6 +123,21 @@ class LeagueMonthReview extends Page
             ->action(fn () => $this->decide(
                 fn (User $by) => app(MonthlyRatingReviewService::class)->confirm($this->month, $by, request()->ip()),
                 'confirmed',
+            ));
+    }
+
+    public function resendAction(): Action
+    {
+        return Action::make('resend')
+            ->label(__('admin.league_month.actions.resend'))
+            ->icon('heroicon-o-paper-airplane')
+            ->color('gray')
+            ->visible(fn (): bool => $this->month->status === 'confirmed')
+            ->requiresConfirmation()
+            ->modalDescription(__('admin.league_month.actions.resend_description'))
+            ->action(fn () => $this->decide(
+                fn (User $by) => app(MonthlyRatingReviewService::class)->resendCongratulations($this->month, $by, request()->ip()),
+                'resent',
             ));
     }
 
@@ -297,7 +313,7 @@ class LeagueMonthReview extends Page
     /**
      * Who gets which place if the month is confirmed now, with the prize of the place (for the confirmation modal).
      *
-     * @return list<array{place: int, name: string, points: int, prize: string}>
+     * @return list<array{place: int, name: string, points: int, prize: string, unreachable: 'blocked'|'deleted'|null}>
      */
     private function finalPlaces(): array
     {
@@ -313,9 +329,11 @@ class LeagueMonthReview extends Page
                 continue;
             }
             $first = $row->learner?->first_name;
+            $unreachable = LeagueMonthDisplay::unreachable($row->learner);
             $places[$row->provisionalPlace] = [
                 'place' => $row->provisionalPlace,
-                'name' => is_string($first) && $first !== '' ? $first : Lang::string('admin.league_month.candidates.deleted'),
+                'name' => $unreachable !== 'deleted' && is_string($first) && $first !== '' ? $first : Lang::string('admin.league_month.candidates.deleted'),
+                'unreachable' => $unreachable,
                 'points' => $row->candidate->points,
                 'prize' => $prizes[$row->provisionalPlace] ?? '',
             ];

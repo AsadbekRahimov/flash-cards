@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\LeagueService;
+use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
@@ -129,6 +130,7 @@ final class LearnerSettingsService
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
         private readonly SchedulerResolver $schedulers,
+        private readonly MonthlyRatingService $monthly,
     ) {}
 
     /**
@@ -206,6 +208,10 @@ final class LearnerSettingsService
         });
 
         $learner->refresh();
+
+        if (in_array('leagues_opt_out', $changed, true)) {
+            $this->monthly->participationChanged($learner);
+        }
 
         if ($changed !== []) {
             $this->events->record(ProductEventName::SettingsChanged, ['fields' => implode(',', $changed)], learner: $learner);

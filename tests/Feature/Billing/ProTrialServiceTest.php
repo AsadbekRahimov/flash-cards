@@ -267,6 +267,18 @@ it('is the hash of the Telegram id with the application key: stable, different p
     expect(ProTrialService::hashFor(1))->not->toBe($a);
 });
 
+it('keeps the hash when APP_KEY rotates once billing.trial.hash_key is set, and equals the APP_KEY one without it', function (): void {
+    $withAppKey = ProTrialService::hashFor(7);
+    expect($withAppKey)->toBe(hash_hmac('sha256', 'pro_trial:7', (string) config('app.key')));
+
+    config(['billing.trial.hash_key' => (string) config('app.key')]);
+    $pinned = ProTrialService::hashFor(7);
+    config(['app.key' => 'base64:'.base64_encode(random_bytes(32))]);
+
+    expect($pinned)->toBe($withAppKey)
+        ->and(ProTrialService::hashFor(7))->toBe($withAppKey);
+});
+
 it('grants one trial when two contacts carry the pending marker at the same time: the second finds the marker gone', function (): void {
     $passive = trialRegistrar()->observeTelegramUser(['id' => 910_012, 'first_name' => 'Ali'], 'group');
     // Two in-memory copies of the row, both still "pending" — the bot's /start and the Mini App's /auth of one instant.

@@ -30,6 +30,8 @@ return [
      */
     'trial' => [
         'days' => (int) env('BILLING_TRIAL_DAYS', 7),
+        // Key of the HMAC in the `pro_trials` book; empty = `app.key`. Set once and never change it.
+        'hash_key' => env('BILLING_TRIAL_HASH_KEY'),
     ],
 
     /**

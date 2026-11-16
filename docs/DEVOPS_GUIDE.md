@@ -1365,6 +1365,7 @@ chmod 600 .env
 | Variable | Required | Example |
 |---|---|---|
 | `APP_KEY` | ✅ | `base64:...` |
+| `BILLING_TRIAL_HASH_KEY` | — | задать один раз и НЕ менять; пусто = APP_KEY; при ротации APP_KEY сначала записать сюда старое значение APP_KEY (иначе пробный Pro откроется повторно) |
 | `APP_URL` | ✅ | `https://yourdomain.com` |
 | `DB_HOST` | ✅ | `127.0.0.1` |
 | `DB_DATABASE` | ✅ | `lexiflow` |

@@ -170,8 +170,11 @@ const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target
  * assignment of a group. Home is then ONE start card with one button instead of an empty goal ring, "nothing to review" and
  * a second "choose a course" further down. Any of those things turns the usual screen back on.
  */
-const showStart = computed(() => data.value !== null && data.value.active_course === null && data.value.open_session_id === null
-  && data.value.due_count === 0 && assignments.items.length === 0)
+const startCandidate = computed(() => data.value !== null && data.value.active_course === null && data.value.open_session_id === null
+  && data.value.due_count === 0)
+/** Only the assignments of a group can still turn the start card off, so only then is the screen held back for them (a failed load counts as loaded). */
+const awaitingAssignments = computed(() => startCandidate.value && !assignments.loaded)
+const showStart = computed(() => startCandidate.value && assignments.loaded && assignments.items.length === 0)
 
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
@@ -289,7 +292,7 @@ onBeforeUnmount(() => training.clearOpenError())
 
 <template>
   <div class="page" data-testid="today-view">
-    <LoadingState v-if="status === 'idle' || status === 'loading'" />
+    <LoadingState v-if="status === 'idle' || status === 'loading' || awaitingAssignments" />
 
     <ErrorState v-else-if="!data" :message="loadError" @retry="load" />
 
