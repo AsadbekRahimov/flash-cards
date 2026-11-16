@@ -878,9 +878,19 @@ server {
         }
     }
 
-    # Админка, 2FA и Livewire — напрямую в PHP-FPM и БЕЗ сжатия (защита от BREACH)
+    # Версионированная статика Filament (?v=<версия>, шрифты с хэшем) — кэш на год.
+    # add_header в location отменяет серверные заголовки: HSTS и nosniff повторить.
+    location ~ ^/(?:css|js|fonts)/filament/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        location ~ /\. { deny all; }   # этот regex-location объявлен раньше серверного правила для dot-файлов
+    }
+
+    # Админка, 2FA и Livewire — напрямую в PHP-FPM. Сжатие включено (с 16.11.2026); шум против BREACH
+    # добавляет приложение — App\Http\Middleware\RandomizeResponseLength (DEVOPS_GUIDE «Compression and BREACH»)
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
-        gzip off;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_hide_header Strict-Transport-Security;
         fastcgi_hide_header X-Content-Type-Options;
@@ -1086,10 +1096,13 @@ curl -sI https://lexiflow.uz/twa/index.html | head -5         # 200 + nosniff / 
 curl -sf https://lexiflow.uz/build/manifest.json >/dev/null && echo OK
 php artisan about --only=environment                          # production, debug OFF
 
-# Сжатие: статика TWA отдаётся в gzip, админка — без сжатия (пустой вывод)
+# Сжатие: статика TWA и админка отдаются в gzip (за Cloudflare — возможно br); в конце HTML админки —
+# случайный комментарий против BREACH, от запроса к запросу разной длины (40–170 байт)
 ASSET=$(ls public/twa/assets/*.js | head -1 | xargs basename)
 curl -sI -H 'Accept-Encoding: gzip' "https://lexiflow.uz/twa/assets/$ASSET" | grep -i content-encoding
 curl -sI -H 'Accept-Encoding: gzip' https://lexiflow.uz/admin/login | grep -i content-encoding
+curl -s https://lexiflow.uz/admin/login | tail -c 200 | grep -o '<!--[A-Za-z0-9+/]*-->' | wc -c
+curl -sI "https://lexiflow.uz/css/filament/filament/app.css?v=1" | grep -i cache-control   # public, max-age=31536000, immutable
 ```
 
 Ручная проверка:

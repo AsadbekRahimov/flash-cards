@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\DeferProductEvents;
+use App\Http\Middleware\RandomizeResponseLength;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TwaAuth;
 use App\Support\Surface;
@@ -44,6 +45,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(SecurityHeaders::class);
+
+        // BREACH noise for the panel responses nginx compresses (/admin, /org, /2fa, /livewire-*): appended last, so it is
+        // the innermost global middleware and pads the body right after the route middleware have finished with it.
+        $middleware->append(RandomizeResponseLength::class);
 
         // Product events of API requests are written in one INSERT after the response (webhooks, panels, console, queue - at once).
         $middleware->api(append: [DeferProductEvents::class]);

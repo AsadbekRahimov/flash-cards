@@ -616,13 +616,21 @@ server {
         }
     }
 
+    # Filament's versioned static files (?v=<version>, hashed font names): a year of cache.
+    # add_header in a location drops the server-level ones: repeat HSTS and nosniff.
+    location ~ ^/(?:css|js|fonts)/filament/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        location ~ /\. { deny all; }   # this regex location precedes the server-level dotfile rule
+    }
+
     # Admin panel, 2FA pages and Livewire (hash-prefixed routes such as
-    # /livewire-<hash>/livewire.min.js). Handled by Laravel, never by a static
-    # *.js location, and never compressed (BREACH). PHP-FPM is called directly:
-    # `gzip off` inside a try_files location would be lost on the internal
-    # redirect to `location ~ \.php$`.
+    # /livewire-<hash>/livewire.min.js), straight to PHP-FPM. Compressed like
+    # everything else; the BREACH noise comes from the application
+    # (see "Compression and BREACH" below).
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
-        gzip off;
         fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_hide_header Strict-Transport-Security;
         fastcgi_hide_header X-Content-Type-Options;
@@ -668,10 +676,13 @@ The Docker configs (`docker/nginx/prod.conf`, `docker/nginx/default.conf`) and t
 | TWA static (`/twa/`) | `npm run build` runs `resources/twa/scripts/precompress.mjs` (built-in `node:zlib`, gzip level 9) and writes `file.gz` next to every `.js .css .html .svg .json .webmanifest .txt` of at least 512 bytes (only if smaller). nginx serves them with `gzip_static on`, no CPU per request. Files without `.gz` fall back to on-the-fly gzip. Run `npm run precompress --prefix resources/twa` to redo it by hand. |
 | API / other dynamic responses | on-the-fly `gzip`, level 6, `gzip_min_length 512`; types: JS, JSON, `manifest+json`, XML, wasm, SVG, CSS, text, `font/ttf`, `font/otf`. |
 | Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts` and `/storage/audio/`), `png/jpg/webp` — already compressed. |
-| `/admin`, `/org`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
-| Brotli | not enabled (no module in `nginx:alpine`); a possible later step. |
+| `/admin`, `/org`, `/2fa`, `/livewire-*` | compressed since 16.11.2026 (HTML and JSON of the panels, `livewire.min.js`). BREACH is answered by `App\Http\Middleware\RandomizeResponseLength`, see below. Until then these paths had `gzip off`: a list page is 210–260 KB of HTML (24–30 KB gzipped) on every click and every Livewire round trip, and on a mobile link (120 ms RTT, 4 Mbit/s) a menu click took 662 ms / 223 KB uncompressed against 286 ms / 30 KB compressed. |
+| Filament static (`/css/filament`, `/js/filament`, `/fonts/filament`) | served by nginx (`try_files $uri =404`), `Cache-Control: public, max-age=31536000, immutable`: the URLs carry `?v=<Filament version>`, the fonts a hash. Without it the browser revalidated every file after a deploy (918 ms → 671 ms for a page right after a release). |
+| Brotli | not enabled in nginx (no module in `nginx:alpine`); Cloudflare may re-compress gzip into brotli on its way to the browser (docs/23 §4). |
 
-Why admin paths are separate `location` blocks with their own `fastcgi_pass`: `gzip off` inside `location /admin { try_files ... /index.php; }` does not help — `try_files` makes an internal redirect to `/index.php`, and the response is then produced by `location ~ \.php$`, where gzip is on. Therefore these paths go straight to PHP-FPM with `SCRIPT_FILENAME`/`SCRIPT_NAME`/`DOCUMENT_URI` pointing at `index.php` (the same values the internal redirect would give). If you change the fastcgi params in `location ~ \.php$`, mirror the change in that block. Filament's static files live in `/css/filament`, `/js/filament`, `/fonts/filament` (not under `/admin`) and stay compressed.
+**BREACH.** A compressed HTTPS response that contains a secret (the CSRF token in Filament's `<meta>` tag and in `data-csrf` of the Livewire script) and reflects attacker-chosen input (a search string, a URL parameter) leaks the secret through its *compressed length*: a guess that matches a prefix of the secret compresses one byte better. The global middleware `App\Http\Middleware\RandomizeResponseLength` takes that signal away (Heal-the-BREACH, as Django 4.2's `GZipMiddleware` does, but in the body rather than in the gzip header so that Cloudflare's re-compression keeps it): on `/admin`, `/org`, `/2fa`, `/livewire-*` every HTML response gets an HTML comment appended after `</html>` and every JSON object response one extra top-level key `_pad`, both filled with 32–160 base64 characters from `random_bytes` — incompressible, so the compressed size moves by ~100–128 random bytes per response and a one-byte difference can no longer be read. Untouched: `StreamedResponse` and `BinaryFileResponse` (CSV exports, `livewire.min.js`), redirects, empty bodies, HEAD, `/api/*` (no CSRF token, the JWT is not reflected), the public site pages (`Cache-Control: public` — a random body would defeat the cache). The path list of the middleware and the nginx `location` are compared by `tests/Unit/DeployInfraConfigTest.php`. The noise is a cost multiplier, not a proof: the attack also needs the victim's session cookie on thousands of cross-site requests, which `SameSite=Lax` denies, and both panels sit behind 2FA.
+
+Why the panel paths have a `location` of their own with a direct `fastcgi_pass`: the Telegram webhook and the payment return share it so that the access-log map sees their original `$uri` (an internal redirect of `try_files` would rewrite it to `/index.php` and the log would show the secret). For the panels the block is no longer required (it used to carry `gzip off`); they stay as the documented list of padded paths. `SCRIPT_FILENAME`/`SCRIPT_NAME`/`DOCUMENT_URI` point at `index.php` (the values the internal redirect would give); if you change the fastcgi params in `location ~ \.php$`, mirror the change in that block.
 
 ---
 
@@ -918,9 +929,12 @@ php artisan composer:audit 2>/dev/null || composer audit
 ASSET=$(ls public/twa/assets/*.js | head -1 | xargs basename)
 curl -sI -H 'Accept-Encoding: gzip' "https://yourdomain.com/twa/assets/$ASSET" | grep -i "content-encoding"   # -> gzip
 
-# 9. Compression is OFF for the admin panel and 2FA (BREACH): expect no output
-curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/admin/login | grep -i "content-encoding"
-curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/2fa/challenge | grep -i "content-encoding"
+# 9. Compression is ON for the admin panel too (since 16.11.2026), and the BREACH noise is in the body:
+#    a random HTML comment after </html>, different on every request
+curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/admin/login | grep -i "content-encoding"   # -> gzip (or br behind Cloudflare)
+curl -s https://yourdomain.com/admin/login | tail -c 200 | grep -o '<!--[A-Za-z0-9+/]*-->' | wc -c   # -> a number between 40 and 170, changing between runs
+# 9a. Filament static files are cached for a year
+curl -sI "https://yourdomain.com/css/filament/filament/app.css?v=1" | grep -i "cache-control"   # -> public, max-age=31536000, immutable
 ```
 
 ---
@@ -1170,7 +1184,7 @@ Product events (`product_events` table, see `docs/03_DATABASE.md`) are for produ
 | Support contact | `BILLING_SUPPORT_CONTACT` (-> `config('billing.paywall.contact')`): e-mail, `@telegram_handle`, `https://` URL or plain text. Empty -> the contact line is not rendered anywhere |
 | security.txt | `public/.well-known/security.txt` (RFC 9116) |
 
-The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets, so they are *not* in the BREACH `gzip off` block) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).
+The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets and are cached, so they are *not* among the paths `RandomizeResponseLength` pads against BREACH) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).
 
 **Legal texts.** `offer` and `privacy` hold drafts (ru/uz) in `lang/{ru,uz}/legal.php`: `sections` is a list of `['title' => ..., 'text' => "Paragraph 1\n\nParagraph 2"]` (paragraphs split on blank lines; a plain string stays a placeholder section). Tokens `{contact}` (support contact, else `SITE_LEGAL_EMAIL`, else a pointer to `/paysupport`) and `{requisites}` (the filled `SITE_LEGAL_*` fields) are substituted by the view; the number and order of sections must be identical in `ru` and `uz` (`LocalizationTest`). Places the owner or the lawyer must fill are marked in square brackets in the texts (data storage country/provider, minimum age, mail provider, terms). While `SITE_LEGAL_DRAFT=true` (default) the pages show the "draft" notice and `noindex`; after the lawyer's approval set `SITE_LEGAL_DRAFT=false` and restart (the page cache key includes the flag): the notice disappears and the pages become indexable.
 
