@@ -76,6 +76,15 @@ enum ProductEventName: string
     /** Leagues (docs/13 §7.3): a learner joined a group of the week / a week was closed (no learner). */
     case LeaguePlaced = 'league.placed';
     case LeagueWeekClosed = 'league.week_closed';
+    /** Monthly rating (docs/13 §7.6): a month was closed into `pending_review` (props: month_id, starts_on, participants, candidates; no learner). */
+    case LeagueMonthClosed = 'league.month_closed';
+    /** An administrator confirmed the winners of a month (props: month_id, starts_on, winners; actor = the user). */
+    case LeagueMonthConfirmed = 'league.month_confirmed';
+    /** A candidate was disqualified / taken back by an administrator (props: month_id, candidate_id, rank; actor = the user, the learner). */
+    case LeagueMonthCandidateDisqualified = 'league.month_candidate_disqualified';
+    case LeagueMonthCandidateReinstated = 'league.month_candidate_reinstated';
+    /** A prize of a confirmed winner was marked as delivered (props: month_id, candidate_id, place; actor = the user, the learner). */
+    case LeagueMonthPrizeDelivered = 'league.month_prize_delivered';
     /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
     case FriendRequested = 'friend.requested';
     /** A friend request was accepted (props: friendship_id); actor = the acceptor. */

@@ -257,9 +257,11 @@ Learner завершает **свою личную** сессию (`status = clo
   "reviewed": 14, "correct": 11, "new_words": 4,
   "goal": { "target": 20, "done": 14, "met": false },
   "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
-  "practice_entry": { "course": "english-a1", "lesson_id": 41 }
+  "practice_entry": { "course": "english-a1", "lesson_id": 41 },
+  "league_points": 35
 }
 ```
+`league_points` — баллы лиг / месячного рейтинга, которые принесло занятие (A.19, docs/13 §7.6): `reviewed×1 + correct×1 + new_words×2` + 10, если цель дня была достигнута во время этой сессии; считается по числам ответа, запросов не добавляет.
 `reviewed` — принятые оценки в сессии, `correct` — из них с `quality >= 3`, `new_words` — слова, у которых строка
 `word_repetitions` создана не раньше начала сессии. `goal` и `streak` — состояние **дня** learner'а на момент ответа (те же
 поля и правила, что в `GET /today`, A.2a): `goal.done` считает все оценки локального дня, а не только этой сессии. Повторный
@@ -1547,6 +1549,41 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - Ошибки экипировки: **404** `item_not_found` — ключа нет, предмета нет в инвентаре ученика, предмет не косметика или он не этого слота (все четыре случая выглядят одинаково).
 - `ledger[].title` — по виду проводки (`lang/{ru,uz}/game.php`, `ledger.*`); `tickets.max` = `game.tickets.max`.
 - События (после commit, `product_events`): `game.item_bought {item_key, kind, price}` · `game.coins_spent {amount, kind = item_purchase, ref_type = game_item, ref_id, balance}` (только при настоящем списании, не при повторе) · `game.cosmetic_equipped {slot, item_key | null}`.
+
+### A.19 Месячный рейтинг с призами (docs/13 §7.6; решение владельца 2026-11-16)
+`MonthlyRatingService`. Только чтение; в рейтинг ученик попадает своими занятиями (те же баллы, что в недельных лигах, сумма по локальным датам календарного месяца `LEAGUES_TIMEZONE`, день — не больше `LEAGUES_MONTHLY_DAILY_CAP` баллов). Общий лимит `twa-api`; `MonthlyRatingResource` / `MonthlyRatingMeResource`.
+
+**`GET /api/twa/league/month`** — экран рейтинга:
+```json
+{
+  "enabled": true,
+  "opted_out": false,
+  "month": { "starts_on": "2026-11-01", "ends_on": "2026-11-30", "closes_at": "2026-11-30T19:00:00+00:00", "days_left": 15, "status": "open", "participants": 1234 },
+  "rules": { "daily_cap": 300, "min_active_days": 10, "min_account_days": 14, "places": 3, "top": 50 },
+  "prizes": [ { "place": 1, "title": "Telegram Premium на 3 месяца" }, { "place": 2, "title": "…" }, { "place": 3, "title": "…" } ],
+  "top": [
+    { "rank": 1, "name": "Dilnoza", "points": 3120, "active_days": 16, "is_me": false },
+    { "rank": 12, "name": "Aziz", "points": 820, "active_days": 9, "is_me": true }
+  ],
+  "me": { "rank": 12, "points": 820, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 } },
+  "last_month": {
+    "starts_on": "2026-10-01", "ends_on": "2026-10-31", "status": "confirmed",
+    "winners": [ { "place": 1, "name": "Dilnoza", "points": 4200 }, { "place": 2, "name": null, "points": 3900 } ],
+    "me": { "rank": 57, "points": 820 }
+  }
+}
+```
+`enabled` — `LEAGUES_ENABLED && LEAGUES_MONTHLY_ENABLED`; при `false` остальное пустое (`top: []`, `me: null`, `prizes: []`, `month.status: null`, `last_month: null`). `month.closes_at` — UTC-момент 1-го числа следующего месяца 00:00 по зоне лиг; `days_left` — календарных дней до конца **включая сегодня** (1 в последний день, 0 после); `status` — `open | closing | pending_review | confirmed`; `participants` — на момент последнего пересчёта. `prizes` — на языке интерфейса (uz → ru, если нет), пустой список = блок призов не показывать. `top` — первые `rules.top` участников по `points ↓, active_days ↓, старший аккаунт`: **только** `name` (имя, может быть `null`), `points`, `active_days`, `rank`, `is_me`; никаких id, username, Telegram-данных. `me` — **своя строка пересчитана этим же запросом** (остальные — планировщиком, отставание ≤ 10 мин); `null`, если в месяце не было ни одного занятия; `rank: null` у не-участника (`participant: false` — отключил лиги `leagues_opt_out`, заблокирован, не прошёл онбординг); `eligible` — право на приз, `missing` — сколько активных дней / дней возраста аккаунта не хватает (0 — хватает). `last_month` — предыдущий месяц или `null`: `winners` заполнен **только** у `confirmed` (до подтверждения — «итоги проверяются», `[]`), `me` — моё финальное место, если участвовал (есть у `pending_review` и `confirmed`).
+
+**`GET /api/twa/league/month/me`** — лёгкий запрос экрана итога занятия (после `POST /finish`): пересчитывает только строку ученика и отвечает
+```json
+{ "enabled": true, "month": { "starts_on": "2026-11-01", "ends_on": "2026-11-30", "days_left": 15 }, "me": { "rank": 12, "points": 855, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 } } }
+```
+(`me` — как выше). Экран итога показывает «+N баллов» из `POST /finish.league_points` (A.3) и этой строкой — «в рейтинге месяца: 855 баллов, 12-е место».
+
+**`POST /training/sessions/{id}/finish`** += `league_points: int` — баллы занятия по той же формуле (`reviewed×1 + correct×1 + new_words×2`, плюс бонус цели дня 10, если `goal_met_at` попал в интервал этой сессии); без дополнительных запросов. В месячную сумму день входит с потолком, поэтому «+N» может быть больше прироста места.
+
+**События** (`product_events`): `league.month_closed {month_id, starts_on, participants, candidates}` · `league.month_confirmed {month_id, starts_on, winners}` (user) · `league.month_candidate_disqualified / _reinstated {month_id, candidate_id, rank}` (user, learner) · `league.month_prize_delivered {month_id, candidate_id, place}` (user, learner). Событие Laravel `App\Domain\Engagement\Events\LeagueMonthConfirmed {monthId, startsOn, winners[{learner_id, place, points}]}` — после commit подтверждения; ЛС победителям вешает бот (слушатель; тексты `leagues.month.*`). Массовой рассылки итогов нет — итоги в `last_month`.
 
 ## Часть B — Telegram Bot
 

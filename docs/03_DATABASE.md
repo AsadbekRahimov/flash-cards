@@ -663,7 +663,7 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией и считается в неё `+1`, как день с целью (docs/18 §12.6, docs/12 §7.4); ставится один раз, пока `NULL`; читается `StreakService` вместе с `goal_met_at` / `frozen_at` *(G2.1; серия — G2.10)* |
 | created_at, updated_at | | |
 
-**Индексы:** `(learner_id, date)` unique.
+**Индексы:** `(learner_id, date)` unique; `learner_daily_stats_date_idx (date)` — пересчёт месячного рейтинга по диапазону дат (§2.63; 2026-11-16).
 
 **Представление `date` (17.12).** Eloquent пишет `date`-каст как `Y-m-d 00:00:00`. PostgreSQL приводит это к DATE в любом виде, а в sqlite колонка —
 текст, и `'2026-10-28'` ≠ `'2026-10-28 00:00:00'`: запись, равенство, границы диапазона и unique `(learner_id, date)` обязаны идти в одном
@@ -1320,6 +1320,65 @@ CHECK не создаются — инвариант дублируют серв
 
 Пишут таблицы игры только сервисы домена `Game` (`app/Domain/Game`); порядок блокировок и транзакция завершения — docs/18 §12.5.
 
+## Месячный рейтинг с призами *(docs/13 §7.6, решение владельца 2026-11-16; API — docs/04 A.19)*
+
+### 2.62 `league_months` — месяц рейтинга
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| starts_on | date **unique** | 1-е число месяца в `config('leagues.timezone')` — одна граница для всех, как у недель лиг |
+| ends_on | date | последний день месяца |
+| status | string(16) default `open` | `open` (баллы движутся) → `closing` (барьер: пересчёты больше не пишут; закрыватель считает всё) → `pending_review` (кандидаты заморожены, решает администратор) → `confirmed` (места окончательны) |
+| prizes | jsonb nullable | `[{place, ru, uz}]` — призы месяца, редактирует администратор; `NULL` = дефолт `config('leagues.monthly.prizes')`, `[]` = без призов (блок скрыт) |
+| participants_count | int default 0 | участников (`league_month_scores.participant = true`) на момент последнего пересчёта / закрытия |
+| refreshed_at | timestamp nullable | последний пересчёт планировщиком или закрытие |
+| closed_at | timestamp nullable | момент `closing → pending_review` |
+| confirmed_at, confirmed_by_user_id | timestamp nullable, FK → users SET NULL | подтверждение администратором |
+| created_at, updated_at | | |
+
+Строка создаётся при первом обращении (`MonthlyRatingService::currentMonth`: `GET /league/month`, `leagues:refresh-month`; create в savepoint — гонка создателей безопасна). Закрытие — `leagues:close-month` (ежедневно в `LEAGUES_MONTHLY_CLOSE_DELAY_MINUTES` после 00:00 1-го по зоне лиг + страховочный запуск через 5 минут той же записью). Пересчёт держит строку `FOR SHARE` и пишет только в `open`-месяц; барьер, закрытие и каждое действие администратора — `FOR UPDATE` (docs/13 §3 правило 25).
+
+### 2.63 `league_month_scores` — материализованные баллы ученика за месяц
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_month_id | bigint FK → league_months, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| points | int default 0 | баллы рейтинга: Σ по дням месяца `min(баллы дня, LEAGUES_MONTHLY_DAILY_CAP)`; баллы дня — формула недельных лиг (§2.36, `LeaguePoints`) |
+| raw_points | int default 0 | та же сумма без потолка |
+| active_days | smallint default 0 | дней с баллами > 0 |
+| capped_days | smallint default 0 | дней, упёршихся в потолок |
+| max_day_points | int default 0 | лучший день (сырой) |
+| reviews, correct, new_words, goal_days, game_points, time_spent_ms | int / smallint / bigint | суммы счётчиков дней — сигналы для ревью (доля верных, средняя скорость ответа) |
+| participant | boolean default true | в рейтинге: не удалён, не заблокирован, `onboarding_state = done`, нет `meta.leagues_opt_out` — считается при пересчёте строки |
+| final_rank | int nullable | место среди участников, пишется закрытием один раз (оконная функция; порядок — `points desc, active_days desc, learner_id`); у не-участников `NULL` |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(league_month_id, learner_id)`; `league_month_scores_standings_idx (league_month_id, participant, points desc, active_days desc, learner_id)` — топ-N и «участников впереди меня».
+
+**Правила:** пишет только `MonthlyRatingService::upsertScores` — ОДИН `INSERT … SELECT … ON CONFLICT (league_month_id, learner_id) DO UPDATE … WHERE <любая колонка изменилась>` по строкам `learner_daily_stats` месяца для множества учеников (все / недавно активные / один), **никогда** в транзакции оценки (docs/13 §3 правило 5): планировщик каждые 10 минут, строка зрителя при показе рейтинга. Пока месяц `open`, строки других учеников отстают не больше чем на 10 минут; закрытие пересчитывает всех.
+
+### 2.64 `league_month_candidates` — кандидаты на приз, снимок закрытия
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_month_id | bigint FK → league_months, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| rank | int | место среди **подходящих** участников на момент закрытия (1 — лучший); лучшие `LEAGUES_MONTHLY_CANDIDATES` (10) |
+| points, active_days | int, smallint | на момент закрытия |
+| signals | jsonb default '{}' | `{active_days, reviews, correct, accuracy, avg_ms_per_review, new_words, goal_days, game_points, raw_points, capped_days, max_day_points, spike_ratio, account_age_days, overall_rank, flags[]}` — факты для ревью, ничего не решают |
+| status | string(16) default `candidate` | `candidate` → `winner` (при подтверждении, с `place`) \| `disqualified` |
+| place | smallint nullable | 1..`places`, выдаётся при подтверждении по рангу среди не дисквалифицированных |
+| disqualified_at, disqualified_by_user_id, disqualify_reason | timestamp, FK → users SET NULL, string(500) | дисквалификация (только `pending_review`; возврат — `reinstate`) |
+| prize_delivered_at, prize_delivered_by_user_id | timestamp, FK → users SET NULL | «приз вручён» (только у `winner` подтверждённого месяца, один раз) |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(league_month_id, learner_id)`; `(league_month_id, rank)`.
+
+**Правила:** строки пишет закрытие (`snapshotCandidates`, под `FOR UPDATE` месяца; строки прерванного запуска заменяются) и `MonthlyRatingReviewService` (под тем же замком, с `audit_logs` `league_month.*` в той же транзакции). После `confirmed` меняется только `prize_delivered_*`.
+
+**`learner_daily_stats`** +: индекс `learner_daily_stats_date_idx (date)` *(2026_11_16_200002, §2.22)* — полный пересчёт месяца читает диапазон дат всех учеников; `date` не меняется после вставки, так что UPDATE'ы оценок остаются HOT (индекс по `updated_at` отвергнут). PostgreSQL строит его `CONCURRENTLY`.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1423,6 +1482,8 @@ CHECK не создаются — инвариант дублируют серв
 74. `2026_11_12_100001_add_training_reviews_learner_word_idx` — индекс `training_reviews (learner_id, word_id, id)` для `LeechInsight` (CONCURRENTLY на PostgreSQL) *(ревью, §2.10)*
 75. `2026_11_16_100001_create_pro_trials_table` — книга пробного Pro *(2C.9, §2.33b)*
 76. `2026_11_16_100002_create_referral_milestones_table` — вехи пригласившего *(2C.9, §2.33a)*
+77. `2026_11_16_200001_create_league_month_tables` — `league_months`, `league_month_scores`, `league_month_candidates` *(месячный рейтинг, docs/13 §7.6, §2.62–2.64)*
+78. `2026_11_16_200002_add_date_index_to_learner_daily_stats_table` — индекс `learner_daily_stats (date)` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.22, §2.63)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

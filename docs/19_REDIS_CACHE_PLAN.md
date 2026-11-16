@@ -54,6 +54,7 @@
 | `Learning/Services/LearningCache` | слова урока, лидерборд экзамена, «выучено слов» друзей | 3600 / 300 / 600 с | кэш |
 | `Administration/Services/PlatformStatsService` + `WidgetCache` (F7-1) | `admin:widget:platform_subscriptions:v1:all`, `admin:widget:onboarding_funnel:v1:all` | свежий 120 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; прежние ключи `platform_stats:*` без версии не читаются и истекают сами |
 | `Engagement/Services/LeagueService` | `league:standings:v2:{группа}` (v2 с G2.10: `+ game_points`) | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш |
+| `Engagement/Services/MonthlyRatingService` (docs/13 §7.6) | `league:month:top:v1:{месяц}` — топ-N месячного рейтинга: массив `{learner_id, name, points, active_days, rank}` (DTO приводит числа к int) | `LEAGUES_MONTHLY_TOP_CACHE_SECONDS` (120 с) | кэш; сброс после пересчёта планировщиком, при закрытии и подтверждении месяца, иначе TTL |
 | `Learning/Services/MockExamService` | `mock_exam:distribution:course:{id}` | конфиг | кэш |
 | `Filament/Widgets/SchedulerComparisonWidget` + `WidgetCache` (F7-1) | `admin:widget:scheduler_comparison:v1:all` | свежий 300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; прежний `admin:scheduler-comparison:v1` истекает сам |
 | `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
@@ -93,6 +94,7 @@
 | `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
 | `PlatformStatsService` — `admin:widget:platform_subscriptions \| onboarding_funnel:v1:all` (F7-1) | `lru` |
 | `LeagueService` — `league:standings:v2:{группа}` | `lru` |
+| `MonthlyRatingService` — `league:month:top:v1:{месяц}` | `lru` |
 | `AdminDashboardStats` — `admin:widget:*` (C3) | `lru` |
 | `WidgetCache` — ключ версии денег `admin:widget:money:ver` (C3) | `redis` (невытесняемое) |
 | `OrgOverviewService` — значения `org:{id}:overview:v1:*` (C3) | `lru` |

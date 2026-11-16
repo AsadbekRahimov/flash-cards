@@ -584,11 +584,13 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
             'goal' => CONTRACT_GOAL,
             'streak' => CONTRACT_STREAK,
             'practice_entry',
+            'league_points',
         ]);
 
     expect($response->json('reviewed'))->toBeInt()
         ->and($response->json('correct'))->toBeInt()
         ->and($response->json('new_words'))->toBeInt()
+        ->and($response->json('league_points'))->toBe(0)
         ->and($response->json('goal.target'))->toBeInt()
         ->and($response->json('goal.met'))->toBeBool()
         ->and($response->json('streak.at_risk'))->toBeBool()
@@ -607,10 +609,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id']]);
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id']]);
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])
