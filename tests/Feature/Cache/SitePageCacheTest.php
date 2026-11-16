@@ -161,7 +161,7 @@ it('changes the key with each input the pages quote', function (string $key, mix
     'free new words' => ['billing.plans.free.limits.new_words_per_day', 7],
     'a provider switched on' => ['billing.providers.click.enabled', true],
     'deck limits' => ['decks.limits.pro.decks', 99],
-    'practice access' => ['practice.access', 'all'],
+    'practice access' => ['practice.access', 'off'],
     'practice plan' => ['practice.plan', 'pro'],
     'battle switch' => ['practice.battle.enabled', false],
     'free practice limit' => ['practice.free_limits.sessions_per_day', 9],

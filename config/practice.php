@@ -18,7 +18,7 @@ declare(strict_types=1);
 */
 
 return [
-    'access' => env('PRACTICE_ACCESS', 'off'),          // off | pilot | all
+    'access' => env('PRACTICE_ACCESS', 'all'),          // off | pilot | all
     'plan' => env('PRACTICE_PLAN', 'all'),              // all | pro
     'free_limits' => [
         'sessions_per_day' => env('PRACTICE_FREE_SESSIONS_PER_DAY', 2),

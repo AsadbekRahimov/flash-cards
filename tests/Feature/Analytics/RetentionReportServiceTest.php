@@ -247,7 +247,50 @@ it('works out the first session: opened, finished, abandoned, medians and the se
         ->and($first['median_seconds'])->toBe(7.5)
         // First sessions begun a day ago or earlier: L1, L2, L4 -> 1 of 3 came back within 24 hours; 7 days: L1, L2.
         ->and($first['second_24h'])->toBe(['count' => 1, 'of' => 3, 'pct' => 33.3])
-        ->and($first['second_7d'])->toBe(['count' => 2, 'of' => 3, 'pct' => 66.7]);
+        ->and($first['second_7d'])->toBe(['count' => 2, 'of' => 3, 'pct' => 66.7])
+        // Nobody played another round at once: first sessions begun an hour ago or earlier are L1, L2, L3, L4, L6.
+        ->and($first['round_again'])->toBe(['count' => 0, 'of' => 5, 'pct' => 0.0]);
+});
+
+it('tells "one more round at once" from "came back": a second session within an hour is a round, a later one is a return', function (): void {
+    // now = 2026-11-18 10:00 UTC; every first session began two days ago (all are old enough for both bases).
+    $round = rt_learner('2026-11-10 08:00:00');
+    $back = rt_learner('2026-11-10 08:00:00');
+    $both = rt_learner('2026-11-10 08:00:00');
+    $alone = rt_learner('2026-11-10 08:00:00');
+
+    // Another round 5 minutes after the first one: not a return.
+    rt_session($round, '2026-11-10 08:00:00');
+    rt_session($round, '2026-11-10 08:05:00');
+    // Back after 2 hours: a return, not a round.
+    rt_session($back, '2026-11-10 08:00:00');
+    rt_session($back, '2026-11-10 10:00:00');
+    // A round at once AND, later the same day, a return: both count (the round does not hide the return).
+    rt_session($both, '2026-11-10 08:00:00');
+    rt_session($both, '2026-11-10 08:03:00');
+    rt_session($both, '2026-11-10 18:00:00');
+    // One session and nothing else.
+    rt_session($alone, '2026-11-10 08:00:00');
+
+    $first = rt_report()['first_session'];
+
+    expect($first['round_again'])->toBe(['count' => 2, 'of' => 4, 'pct' => 50.0])
+        ->and($first['second_24h'])->toBe(['count' => 2, 'of' => 4, 'pct' => 50.0])
+        ->and($first['second_7d'])->toBe(['count' => 2, 'of' => 4, 'pct' => 50.0]);
+});
+
+it('counts a return only a round-gap after the first session began: exactly at the gap it is a return, a minute earlier a round', function (): void {
+    $edge = rt_learner('2026-11-10 08:00:00');
+    $early = rt_learner('2026-11-10 08:00:00');
+    rt_session($edge, '2026-11-10 08:00:00');
+    rt_session($edge, '2026-11-10 09:00:00');
+    rt_session($early, '2026-11-10 08:00:00');
+    rt_session($early, '2026-11-10 08:59:00');
+
+    $first = rt_report()['first_session'];
+
+    expect($first['round_again'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($first['second_24h'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0]);
 });
 
 it('has nothing to show for the first session when nobody registered: dashes and no median', function (): void {

@@ -112,7 +112,8 @@ describe('GameMapView: the card of the class caravan', () => {
 
 describe('TodayView: the card of the class caravan', () => {
   it('shows the card by /today.game.class_caravan and leads to the caravan, even with no caravan of the day', async () => {
-    const { wrapper, router } = await renderToday(today({ game: { daily_available: false, active_run: null, class_caravan: card } }))
+    // No learned words yet: the "Word games" card, which reads /me, is not a candidate - the caravan card must not need it.
+    const { wrapper, router } = await renderToday(today({ game: { daily_available: false, active_run: null, class_caravan: card }, active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null } }))
 
     expect(wrapper.get('[data-testid=class-caravan-text]').text()).toMatch(/^12 \/ 40 · до /)
     // 13:00 UTC is 18:00 in the zone of /today

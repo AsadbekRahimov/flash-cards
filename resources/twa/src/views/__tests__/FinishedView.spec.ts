@@ -14,7 +14,7 @@ import type { MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
-  api: { achievements: { list: vi.fn() }, league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn() } },
+  api: { achievements: { list: vi.fn() }, league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn(), finish: vi.fn() } },
 }))
 
 const telegram = vi.hoisted(() => ({ close: vi.fn(), notificationHaptic: vi.fn() }))
@@ -268,23 +268,23 @@ describe('FinishedView', () => {
   describe('the entry to the practice (docs/16 §11.1)', () => {
     const entry = (lessonId: number | null) => ({ course: 'english-a1', lesson_id: lessonId })
 
-    it('offers "Практика урока" after a lesson, as a tinted secondary action that leads to the hub of that lesson', () => {
+    it('offers "Поиграть: закрепить слова" after a lesson, as a tinted secondary action that leads to the hub of that lesson', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
       const w = render(5, 1)
 
       const practice = w.get('[data-testid=practice-btn]')
-      expect(practice.text()).toBe('Практика урока')
+      expect(practice.text()).toBe('Поиграть: закрепить слова')
       expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
       expect(practice.classes()).not.toContain('btn-primary')
       expect(practice.attributes('href')).toBe('/practice/english-a1?lesson=41&from=finished')
       expect(practice.get('path').attributes('d')).toBe(ICONS['puzzle-piece'].outline[0]?.d)
     })
 
-    it('offers "Практика курса" after a daily review, without a lesson in the address', () => {
+    it('says the same after a daily review, with the hub of the course and no lesson in the address', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=practice-btn]').text()).toBe('Практика курса')
+      expect(w.get('[data-testid=practice-btn]').text()).toBe('Поиграть: закрепить слова')
       expect(w.get('[data-testid=practice-btn]').attributes('href')).toBe('/practice/english-a1?from=finished')
     })
 
@@ -301,13 +301,20 @@ describe('FinishedView', () => {
       expect(route.query).toEqual({ lesson: '41', from: 'finished' })
     })
 
-    it('does not compete with the main action: "На главную" is still the only primary button, and comes first', () => {
+    it('does not compete with the main action: "На главную" is the only primary button without another round, and comes after the play button', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
       const w = render(5, 1)
 
       expect(w.findAll('.btn-primary')).toHaveLength(1)
       const order = w.findAll('[data-testid=home-btn], [data-testid=practice-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
-      expect(order).toEqual(['home-btn', 'practice-btn', 'close-btn'])
+      expect(order).toEqual(['practice-btn', 'home-btn', 'close-btn'])
+      expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+    })
+
+    it('is not offered after an empty round: there is nothing to practise', () => {
+      useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0, practice_entry: entry(41) })
+
+      expect(render(0, 0, 'nothing_due').find('[data-testid=practice-btn]').exists()).toBe(false)
     })
 
     it('keeps the buttons of the screen in order when the new words ran out: the card about it is above them, the learner can still practise today', async () => {
@@ -317,7 +324,7 @@ describe('FinishedView', () => {
       await flushPromises()
 
       const order = w.findAll('[data-testid=quota-card], [data-testid=home-btn], [data-testid=practice-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
-      expect(order).toEqual(['quota-card', 'home-btn', 'practice-btn', 'close-btn'])
+      expect(order).toEqual(['quota-card', 'practice-btn', 'home-btn', 'close-btn'])
       expect(w.findAll('.btn-primary')).toHaveLength(1)
     })
 
@@ -337,10 +344,149 @@ describe('FinishedView', () => {
     it('speaks Uzbek', () => {
       setLocale('uz')
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
-      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("Dars bo'yicha mashqlar")
+      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("O'ynab mustahkamlash")
+    })
+  })
 
-      useTrainingStore().summary = summary({ practice_entry: entry(null) })
-      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("Kurs bo'yicha mashqlar")
+  describe('one more round (docs/06 §13.2)', () => {
+    /** The store as the training screen leaves it after the last card of a round: a daily review that ended with `sprint_complete`. */
+    function afterRound(canContinue = true, summaryValue: SessionSummary | null = summary()): ReturnType<typeof useTrainingStore> {
+      const training = useTrainingStore()
+      training.sessionId = 77
+      training.mode = 'daily_review'
+      training.canContinue = canContinue
+      training.summary = summaryValue
+      return training
+    }
+
+    it('says the round is passed, and makes "Ещё раунд" the main button, above the play button and "На главную"', () => {
+      afterRound()
+      useTrainingStore().summary = summary({ practice_entry: { course: 'english-a1', lesson_id: null } })
+      const w = render(12, 1, 'sprint_complete')
+
+      expect(w.get('[data-testid=reason]').text()).toBe('Раунд пройден')
+      const next = w.get('[data-testid=next-round-btn]')
+      expect(next.text()).toBe('Ещё раунд')
+      expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
+      const order = w.findAll('[data-testid=next-round-btn], [data-testid=practice-btn], [data-testid=home-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
+      expect(order).toEqual(['next-round-btn', 'practice-btn', 'home-btn', 'close-btn'])
+      expect(w.findAll('.btn-primary')).toHaveLength(1)
+      expect(w.get('[data-testid=home-btn]').classes()).not.toContain('btn-primary')
+    })
+
+    it('has no such button when the server did not say the learner can go on, or the reason is another one', () => {
+      afterRound(false)
+      expect(render(12, 1, 'sprint_complete').find('[data-testid=next-round-btn]').exists()).toBe(false)
+
+      afterRound(true)
+      expect(render(12, 1, 'nothing_due').find('[data-testid=next-round-btn]').exists()).toBe(false)
+      expect(render(12, 1).find('[data-testid=next-round-btn]').exists()).toBe(false)
+      // "На главную" is the main button again
+      expect(render(12, 1, 'nothing_due').get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+    })
+
+    it('opens a new daily review and goes into it; the session is already closed (the finish screen did it)', async () => {
+      afterRound()
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 78, mode: 'daily_review', lesson: null, total_words: 12 })
+      const w = render(12, 1, 'sprint_complete')
+
+      await w.get('[data-testid=next-round-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.finish).not.toHaveBeenCalled()
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      expect(router.currentRoute.value.name).toBe('training')
+      expect(router.currentRoute.value.params.sessionId).toBe('78')
+    })
+
+    it('closes the session first when its finish had failed, and only then opens the new one', async () => {
+      afterRound(true, null)
+      vi.mocked(api.training.finish).mockResolvedValue(summary())
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 79, mode: 'daily_review', lesson: null, total_words: 12 })
+      const w = render(12, 1, 'sprint_complete')
+
+      await w.get('[data-testid=next-round-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.finish).toHaveBeenCalledWith(77)
+      expect(vi.mocked(api.training.finish).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(api.training.open).mock.invocationCallOrder[0]!)
+      expect(router.currentRoute.value.params.sessionId).toBe('79')
+    })
+
+    it('shows a refusal on this screen and leaves the button free to press again', async () => {
+      const training = afterRound()
+      vi.mocked(api.training.open).mockRejectedValueOnce(new ApiClientError('server', 500, 'unknown', 'Boom'))
+      await router.push('/today')
+      const w = render(12, 1, 'sprint_complete')
+
+      await w.get('[data-testid=next-round-btn]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=open-error]').text()).not.toBe('')
+      expect(router.currentRoute.value.name).toBe('today')
+      expect(w.get('[data-testid=next-round-btn]').attributes('disabled')).toBeUndefined()
+      expect(training.opening).toBe(false)
+
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 80, mode: 'daily_review', lesson: null, total_words: 12 })
+      await w.get('[data-testid=next-round-btn]').trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.params.sessionId).toBe('80')
+    })
+
+    it('shows a failed finish the same way and does not open a session that the server would answer with the same finished one', async () => {
+      afterRound(true, null)
+      vi.mocked(api.training.finish).mockRejectedValue(new ApiClientError('server', 500, 'unknown', 'Boom'))
+      const w = render(12, 1, 'sprint_complete')
+
+      await w.get('[data-testid=next-round-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(w.find('[data-testid=open-error]').exists()).toBe(true)
+    })
+
+    it('speaks Uzbek', () => {
+      setLocale('uz')
+      afterRound()
+      const w = render(12, 1, 'sprint_complete')
+
+      expect(w.get('[data-testid=reason]').text()).toBe('Raund tugadi')
+      expect(w.get('[data-testid=next-round-btn]').text()).toBe('Yana bir raund')
+    })
+
+    describe('what grew (stages)', () => {
+      it('lists the new words, the words that moved up and the learned ones, under the button of the round', () => {
+        afterRound(true, summary({ stages: { graduated: 6, promoted: 2, mastered: 1 } }))
+        const w = render(12, 1, 'sprint_complete')
+
+        expect(w.get('[data-testid=stages]').text()).toBe('Новых слов: 6 · Поднялись: 2 · Выучено: 1')
+        const order = w.findAll('[data-testid=next-round-btn], [data-testid=stages], [data-testid=home-btn]').map((b) => b.attributes('data-testid'))
+        expect(order).toEqual(['next-round-btn', 'stages', 'home-btn'])
+      })
+
+      it('leaves the zeros out', () => {
+        afterRound(true, summary({ stages: { graduated: 0, promoted: 3, mastered: 0 } }))
+
+        expect(render(12, 1, 'sprint_complete').get('[data-testid=stages]').text()).toBe('Поднялись: 3')
+      })
+
+      it('is not there when everything is zero, when the server sent none, or without a summary', () => {
+        afterRound(true, summary({ stages: { graduated: 0, promoted: 0, mastered: 0 } }))
+        expect(render(12, 1).find('[data-testid=stages]').exists()).toBe(false)
+
+        afterRound(true, summary())
+        expect(render(12, 1).find('[data-testid=stages]').exists()).toBe(false)
+
+        setActivePinia(createPinia())
+        expect(render(12, 1).find('[data-testid=stages]').exists()).toBe(false)
+      })
+
+      it('speaks Uzbek', () => {
+        setLocale('uz')
+        afterRound(true, summary({ stages: { graduated: 6, promoted: 2, mastered: 1 } }))
+
+        expect(render(12, 1).get('[data-testid=stages]').text()).toBe("Yangi so'zlar: 6 · Yuksaldi: 2 · O'rganildi: 1")
+      })
     })
   })
 

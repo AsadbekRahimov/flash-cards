@@ -127,7 +127,7 @@ describe('ProfileView', () => {
       expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)
       expect(w.get('[data-testid=row-intro]').text()).toBe('Как это работает')
       await w.get('[data-testid=row-intro]').trigger('click')
-      expect(w.get('[data-testid=intro-title]').text()).toBe('Вы видите слово и вспоминаете перевод')
+      expect(w.get('[data-testid=intro-title]').text()).toBe('Занятие — короткий раунд')
 
       await w.get('[data-testid=sheet-x]').trigger('click')
       expect(w.find('[data-testid=intro-sheet]').exists()).toBe(false)

@@ -218,6 +218,37 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
+  it.each(['audio_pending', 'no_audio_words'] as const)('does not show a mode that lacks only its recordings (%s)', async (reason) => {
+    const { wrapper } = await render({}, hub({ modes: { dictation: { state: 'not_enough', available: 0, required: 3, reason } } }))
+
+    expect(wrapper.find('[data-testid=mode-card-dictation]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Записи для заданий ещё готовятся')
+    expect(wrapper.text()).not.toContain('Для ваших слов пока нет записей')
+    // the other three are there
+    expect(wrapper.findAll('[data-testid=mode-cards] > *')).toHaveLength(3)
+    expect(card(wrapper, 'pairs').attributes('data-state')).toBe('available')
+    wrapper.unmount()
+  })
+
+  it('keeps a mode that waits for the words ("learn the words") or for the tasks: those say what to do next', async () => {
+    const { wrapper } = await render(
+      {},
+      hub({ modes: { dictation: { state: 'not_enough', available: 1, required: 3, reason: 'items_locked' }, sentence: { state: 'not_enough', available: 0, reason: 'no_words' } } }),
+    )
+
+    expect(card(wrapper, 'dictation').text()).toContain('Выучите слова урока')
+    expect(card(wrapper, 'sentence').attributes('data-state')).toBe('not_enough')
+    expect(wrapper.findAll('[data-testid=mode-cards] > *')).toHaveLength(4)
+    wrapper.unmount()
+  })
+
+  it('shows a dictation that is playable, or behind Pro, whatever its reason is', async () => {
+    const { wrapper } = await render({}, hub({ modes: { dictation: { state: 'pro_required' } } }))
+
+    expect(card(wrapper, 'dictation').attributes('data-state')).toBe('pro_required')
+    wrapper.unmount()
+  })
+
   it('has no primary button: pressing a card is the main action; the battle is a tinted button', async () => {
     const { wrapper } = await render()
 

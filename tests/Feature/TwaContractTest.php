@@ -136,6 +136,8 @@ it('POST /auth keeps its exact JSON shape', function (): void {
 
 it('GET /me keeps its exact JSON shape', function (): void {
     $s = contractTraining();
+    // The shipped default is `all` (docs/16 §3.3); this test pins the block of a closed practice, the open one is read in the test below.
+    config(['practice.access' => 'off']);
 
     $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
@@ -164,7 +166,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
-        // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
+        // The block is always there; `PRACTICE_ACCESS=off` closes it (docs/16 §3.3).
         ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
         // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
         ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);

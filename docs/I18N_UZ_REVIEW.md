@@ -3875,3 +3875,26 @@ Mini App, `resources/twa/src/i18n/uz.ts`: серия верных ответов
 | `finished.quota.pro` | Pro nima beradi | Что даёт Pro (кнопка открывает окно о Pro) |
 | `finished.quota.invite` | Do'stlarni taklif qiling — Pro bepul | Пригласить друзей — Pro бесплатно |
 | `settings.sounds` | Tovushlar | Звуки (переключатель в «Настройках», раздел обучения) |
+
+## Раунды, игры на виду (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: ежедневное занятие стало коротким раундом (экран итога с кнопкой «Ещё раунд», строкой роста слов), на «Сегодня» появилась карточка игр, переписан лист «Bu qanday ishlaydi» и подсказка под кнопкой занятия. Прежние «Dars bo'yicha mashqlar» / «Kurs bo'yicha mashqlar» заменены одной подписью.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `intro.step1.title` | Mashg'ulot — qisqa raund | Занятие — короткий раунд |
+| `intro.step1.text` | Raund bir necha daqiqa davom etadi: ozgina takrorlash va bir nechta yangi so'z. Tugatdingizmi — to'xtashingiz mumkin. | Раунд занимает несколько минут: немного повторения и несколько новых слов. Закончили — можно остановиться. |
+| `intro.step3.title` | Topshiriqlar birinchi kundan xilma-xil | Задания разные с первого дня |
+| `intro.step3.text` | Avval so'z bilan tanishasiz, keyin tarjimani tanlaysiz, so'ng so'zni o'zingiz eslaysiz, yozasiz va gapga qo'yasiz — shunda so'z uzoq vaqt esda qoladi. | Сначала вы знакомитесь со словом, потом выбираете перевод, а позже вспоминаете слово сами, пишете и вставляете в предложение — так оно остаётся надолго. |
+| `intro.step4.title` | Yana xohlasangiz — yana bir raund o'ynang | Хочется ещё — сыграйте ещё раунд |
+| `intro.step4.text` | Raunddan keyin keyingisini o'ynashingiz yoki so'zlarni o'yinlarda mustahkamlashingiz mumkin. Kuniga 10 daqiqa yetarli. | После раунда можно сыграть следующий или закрепить слова в играх. Хватит и 10 минут в день. |
+| `today.session.hint` | Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar | Короткий раунд на несколько минут: повторение и новые слова из вашего курса (подпись под кнопкой «Начать занятие») |
+| `training.daily_header` | Raund | Раунд (шапка экрана ежедневного занятия; раньше «Mashg'ulot» / «Занятие») |
+| `finished.reason.sprint_complete` | Raund tugadi | Раунд пройден (под заголовком итога) |
+| `finished.next_round` | Yana bir raund | Ещё раунд (главная кнопка итога: начать следующий раунд) |
+| `finished.stages.graduated` | Yangi so'zlar: {count} | Новых слов: {count} (слова, впервые введённые в раунде) |
+| `finished.stages.promoted` | Yuksaldi: {count} | Поднялись: {count} (слова, перешедшие на ступень выше) |
+| `finished.stages.mastered` | O'rganildi: {count} | Выучено: {count} (слова, ставшие выученными) |
+| `finished.practice` | O'ynab mustahkamlash | Поиграть: закрепить слова (кнопка на итоге → игры со словами) |
+| `today.games.title` | So'z o'yinlari | Игры со словами (карточка на «Сегодня») |
+| `today.games.play` | O'ynash | Играть (кнопка карточки) |

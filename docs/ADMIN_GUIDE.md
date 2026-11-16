@@ -837,8 +837,13 @@ computed); **«Обновить»** recomputes them at once. The page is read-on
 
 **First session** (learners registered in the last 30 days, their first personal training session): the share that opened it, finished it (pressed «Завершить»),
 abandoned it (the session expired or was left open past its time), how many are in progress right now, the median number of graded cards, the median time on the
-cards (the sum of the card times, not the time from opening to closing), and the share that started a second session within 24 hours / 7 days of the first
-one's start (among learners whose first session began at least that long ago). Games (the Caravan) and the practice are not training sessions and are not here.
+cards (the sum of the card times, not the time from opening to closing), and the share that **came back**: started a second session within 24 hours / 7 days of
+the first one's start (among learners whose first session began at least that long ago). A second session counts only if it began **at least 60 minutes** after the
+first one began (`RetentionReportService::ROUND_GAP_MINUTES`): «Ещё раунд» on the finish screen opens a new session a minute later, and that is not coming back.
+Such sessions are counted on their own line, **«Сыграли ещё раунд сразу»** — the share of learners whose next session began **sooner than 60 minutes** after the first
+one (among learners whose first session began at least an hour ago); it is an engagement signal (the learner wanted more), not retention. A learner can be in both lines.
+«Finished» is `done_reason = finished`: a round that ended with `sprint_complete` is closed by the Mini App with «finish» and is stored as `finished` (`sprint_complete`
+is only the reason cards stopped coming, it is never a session's closing reason). Games (the Caravan) and the practice are not training sessions and are not here.
 
 **Slice** — D1 and D7 of the last four weeks by interface language (ru / uz) and by «had a trial Pro» (a subscription with provider `trial`, at any time).
 Only the weeks whose day has ended for the whole cohort take part; if none has, a dash.
@@ -846,7 +851,7 @@ Only the weeks whose day has ended for the whole cohort take part; if none has, 
 **How to read it after a change of the training.**
 1. Compare cohorts, not days: the week before the change against the first full week after it. A cohort of fewer than about 100 learners moves by several points
    by chance — wait for more weeks rather than reading a trend into it.
-2. The first signal appears in **«Начали занятие»** and in the first-session block (opened, finished, cards, second session in 24 hours) within days; D1 and the
+2. The first signal appears in **«Начали занятие»** and in the first-session block (opened, finished, cards, «ещё раунд сразу», came back in 24 hours) within days; D1 and the
    «within 7 days» a week or two later; D7 two weeks later; D30 — only after a month and a half. Do not judge a change by D30 first.
 3. Rough orientation, not a promise: for educational apps D1 around 14 % and D30 around 3 % is typical; good is D1 25-30 % and D7 10-15 %. A change that works
    should move D1 and D7 up by several points and the first-session «finished» share and the second session in 24 hours up, without «начали занятие» falling.

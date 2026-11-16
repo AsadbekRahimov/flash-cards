@@ -405,6 +405,7 @@ it('runs a constant number of queries however many lessons the course has', func
 // --- /finish summary ------------------------------------------------------------------
 
 it('adds the day\'s goal and streak to the /finish summary and keeps them on a repeat', function (): void {
+    config(['practice.access' => 'off']); // the shipped default is `all`: this test pins the answer of a closed practice
     $learner = todayLearner(['daily_goal' => 2]);
     $id = todayGrade($this, $learner, 2);
 
@@ -414,7 +415,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'stages' => ['graduated' => 0, 'promoted' => 0, 'mastered' => 0],
         'goal' => ['target' => 2, 'done' => 2, 'met' => true],
         'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal'],
-        'practice_entry' => null, // the practice is off by default (docs/16 §3.2): no entry to it
+        'practice_entry' => null, // the practice is switched off (docs/16 §3.2): no entry to it
         // The league points of the session (docs/13 §7.6): 2 reviews + 2 correct + 2 new words × 2 + the goal met in this session (10).
         'league_points' => 18,
     ];

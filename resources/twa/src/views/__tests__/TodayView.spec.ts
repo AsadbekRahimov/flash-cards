@@ -59,6 +59,11 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
 
 const PRO = { plan: 'pro', source: 'subscription', until: null } as const
 
+/** A course with no learned words: the "Word games" card is not a candidate, so Home reads no `/me` for it. */
+const NO_LEARNED: Partial<TodayResponse> = {
+  active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: { id: 41, stage: 2, lesson: 4, title: 'Food' } },
+}
+
 const assignment = (overrides: Partial<AssignmentItem> = {}): AssignmentItem => ({
   id: 7,
   title: 'Food',
@@ -301,6 +306,71 @@ describe('TodayView', () => {
       expect(w.get('[data-testid=goal-ring]').attributes('data-met')).toBe('true')
     })
 
+    describe('the "Word games" card (docs/16 §11.1)', () => {
+      const practiceMe = (overrides: Record<string, unknown> = {}) =>
+        ({
+          entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
+          paywall: { mode: 'coming_soon', contact: null },
+          practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: false, pro_promise: 'none', ...overrides },
+        }) as never
+      const course = (learned: number) => ({
+        active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned, total: 900 }, next_lesson: { id: 41, stage: 2, lesson: 4, title: 'Food' } },
+      })
+
+      it('sits under the session card with three modes and one button that leads to the hub of the active course', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe())
+        const w = await render()
+
+        const card = w.get('[data-testid=games-card]')
+        expect(card.text()).toContain('Игры со словами')
+        expect(w.get('[data-testid=games-modes]').findAll('.icon-tile')).toHaveLength(3)
+        expect(w.get('[data-testid=games-play-btn]').text()).toBe('Играть')
+        // under the session card, not above it
+        const order = w.html().indexOf('data-testid="review-card"') < w.html().indexOf('data-testid="games-card"')
+        expect(order).toBe(true)
+        // the one primary button of Home is still the session one
+        expect(w.findAll('.btn-primary')).toHaveLength(1)
+
+        await w.get('[data-testid=games-play-btn]').trigger('click')
+        await flushPromises()
+        expect(w.router.currentRoute.value.name).toBe('practice-hub')
+        expect(w.router.currentRoute.value.params.slug).toBe('english-a1')
+      })
+
+      it('shows from the third learned word and not before', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe())
+
+        expect((await render(today(course(3)))).find('[data-testid=games-card]').exists()).toBe(true)
+        expect((await render(today(course(2)))).find('[data-testid=games-card]').exists()).toBe(false)
+        expect((await render(today(course(0)))).find('[data-testid=games-card]').exists()).toBe(false)
+      })
+
+      it('is not on the start card, and not for a learner with no course', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe())
+
+        const start = await render(today({ active_course: null, due_count: 0, open_session_id: null }))
+        expect(start.find('[data-testid=start-card]').exists()).toBe(true)
+        expect(start.find('[data-testid=games-card]').exists()).toBe(false)
+
+        const noCourse = await render(today({ active_course: null, due_count: 5 }))
+        expect(noCourse.find('[data-testid=games-card]').exists()).toBe(false)
+      })
+
+      it('has no card without the practice access (/me says so)', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe({ available: false, modes: [] }))
+        expect((await render()).find('[data-testid=games-card]').exists()).toBe(false)
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+        vi.mocked(api.me.get).mockResolvedValue(practiceMe())
+        const w = await render()
+
+        expect(w.get('[data-testid=games-card]').text()).toContain("So'z o'yinlari")
+        expect(w.get('[data-testid=games-play-btn]').text()).toBe("O'ynash")
+      })
+    })
+
     describe('nothing to do today (no review due, the quota of new words is used up)', () => {
       const allDone = (overrides: Partial<TodayResponse> = {}) => today({ due_count: 0, new_words_remaining: 0, ...overrides })
       const practiceMe = (overrides: Record<string, unknown> = {}) =>
@@ -322,14 +392,14 @@ describe('TodayView', () => {
         expect(text(w, 'next-lesson')).toBe('Урок 4 · Food')
       })
 
-      it('offers the practice as a quiet button when /me says the learner has it, and leads to the hub of the course', async () => {
+      it('has one entry to the practice, the "Word games" card, and no second button of its own in the "all done" state', async () => {
         vi.mocked(api.me.get).mockResolvedValue(practiceMe())
         const w = await render(allDone())
 
-        const button = w.get('[data-testid=practice-btn]')
-        expect(button.text()).toBe('Практика')
-        expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
-        await button.trigger('click')
+        expect(w.find('[data-testid=games-card]').exists()).toBe(true)
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+        expect(w.get('[data-testid=all-done]').find('button.btn-tinted').exists()).toBe(false)
+        await w.get('[data-testid=games-play-btn]').trigger('click')
         await flushPromises()
 
         expect(w.router.currentRoute.value.name).toBe('practice-hub')
@@ -340,19 +410,19 @@ describe('TodayView', () => {
         vi.mocked(api.me.get).mockResolvedValue(practiceMe({ pro_required: true }))
         const w = await render(allDone())
 
-        await w.get('[data-testid=practice-btn]').trigger('click')
+        await w.get('[data-testid=games-play-btn]').trigger('click')
         await flushPromises()
 
         expect(w.router.currentRoute.value.name).not.toBe('practice-hub')
         expect(w.find('[data-testid=paywall]').exists() || w.find('[data-testid=paywall-title]').exists()).toBe(true)
       })
 
-      it('has no practice button for a learner without the practice', async () => {
+      it('has no games card for a learner without the practice', async () => {
         vi.mocked(api.me.get).mockResolvedValue(practiceMe({ available: false, modes: [] }))
         const w = await render(allDone())
 
         expect(w.find('[data-testid=all-done]').exists()).toBe(true)
-        expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+        expect(w.find('[data-testid=games-card]').exists()).toBe(false)
       })
 
       it('is not the state of a learner with a review due, an open session, or no limit of new words', async () => {
@@ -363,9 +433,9 @@ describe('TodayView', () => {
         expect((await render(today({ due_count: 4, new_words_remaining: 0 }))).find('[data-testid=review-btn]').exists()).toBe(true)
       })
 
-      it('does not read /me for a learner who has something to do (Home asks it only for this state)', async () => {
+      it('does not read /me for a learner with nothing learned yet (Home asks it only for the "Word games" card)', async () => {
         vi.mocked(api.me.get).mockClear()
-        const w = await render(today({ entitlement: PRO }))
+        const w = await render(today({ ...NO_LEARNED, entitlement: PRO }))
 
         expect(w.find('[data-testid=all-done]').exists()).toBe(false)
         expect(api.me.get).not.toHaveBeenCalled()
@@ -425,7 +495,7 @@ describe('TodayView', () => {
       expect(button.text()).toBe('Начать занятие')
       expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
       expect(button.get('path').attributes('d')).toBe(ICONS.play.solid[0]?.d)
-      expect(text(w, 'session-hint')).toBe('Сначала повторение, потом новые слова из вашего курса')
+      expect(text(w, 'session-hint')).toBe('Короткий раунд на несколько минут: повторение и новые слова из вашего курса')
       expect(w.findAll('.btn-primary')).toHaveLength(1)
       expect(w.find('[data-testid=review-card]').exists()).toBe(true)
 
@@ -724,17 +794,17 @@ describe('TodayView', () => {
         const w = await render(newcomer())
 
         expect(w.find('[data-testid=intro-sheet]').exists()).toBe(true)
-        expect(text(w, 'intro-title')).toBe('Вы видите слово и вспоминаете перевод')
-        expect(text(w, 'intro-text')).toBe('Потом открываете ответ и честно отмечаете, помните ли его.')
+        expect(text(w, 'intro-title')).toBe('Занятие — короткий раунд')
+        expect(text(w, 'intro-text')).toBe('Раунд занимает несколько минут: немного повторения и несколько новых слов. Закончили — можно остановиться.')
         expect(text(w, 'intro-next')).toBe('Дальше')
 
         await w.get('[data-testid=intro-next]').trigger('click')
         expect(text(w, 'intro-title')).toBe('Слова возвращаются сами')
         await w.get('[data-testid=intro-next]').trigger('click')
-        expect(text(w, 'intro-title')).toBe('Задания становятся сложнее')
+        expect(text(w, 'intro-title')).toBe('Задания разные с первого дня')
         await w.get('[data-testid=intro-next]').trigger('click')
-        expect(text(w, 'intro-title')).toBe('Хватит 10 минут в день')
-        expect(text(w, 'intro-text')).toBe('Нажмите «Начать занятие» — остальное приложение сделает само.')
+        expect(text(w, 'intro-title')).toBe('Хочется ещё — сыграйте ещё раунд')
+        expect(text(w, 'intro-text')).toBe('После раунда можно сыграть следующий или закрепить слова в играх. Хватит и 10 минут в день.')
         expect(text(w, 'intro-next')).toBe('Начать')
 
         await w.get('[data-testid=intro-next]').trigger('click')
@@ -758,7 +828,7 @@ describe('TodayView', () => {
         setLocale('uz')
         const w = await render(newcomer())
 
-        expect(text(w, 'intro-title')).toBe("Siz so'zni ko'rasiz va tarjimasini eslaysiz")
+        expect(text(w, 'intro-title')).toBe("Mashg'ulot — qisqa raund")
         expect(text(w, 'intro-next')).toBe('Keyingi')
       })
 
@@ -803,12 +873,12 @@ describe('TodayView', () => {
 
       it('uses the Today payload for the lapse banner without a profile request', async () => {
         const initial = today()
-        const w = await render(today({ entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
+        const w = await render(today({ ...NO_LEARNED, entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
 
         expect(text(w, 'lapsed-title')).toBe('Pro закончился')
         expect(api.me.get).not.toHaveBeenCalled()
 
-        await render(today({ entitlement: { ...initial.entitlement, lapsed: null } }))
+        await render(today({ ...NO_LEARNED, entitlement: { ...initial.entitlement, lapsed: null } }))
         expect(api.me.get).not.toHaveBeenCalled()
       })
 
@@ -830,7 +900,7 @@ describe('TodayView', () => {
 
         vi.mocked(api.me.get).mockClear()
         setActivePinia(createPinia())
-        await render(today({ entitlement: PRO }))
+        await render(today({ ...NO_LEARNED, entitlement: PRO }))
         expect(api.me.get).not.toHaveBeenCalled()
       })
     })
@@ -1258,7 +1328,7 @@ describe('TodayView', () => {
     expect(w.get('header p').text()).toBe('chorshanba, 28-oktabr')
     expect(text(w, 'goal-text')).toBe("20 ta so'zdan 8 tasi")
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
-    expect(text(w, 'session-hint')).toBe("Avval oldingi so'zlarni takrorlaysiz, keyin yangilarini o'rganasiz")
+    expect(text(w, 'session-hint')).toBe("Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar")
     expect(text(w, 'streak-current')).toBe('5 kun ketma-ket')
     expect(text(w, 'streak-best')).toBe('Rekord: 12')
     expect(text(w, 'due-count')).toBe("Takrorlash uchun 23 ta so'z")

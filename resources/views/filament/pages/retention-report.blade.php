@@ -123,9 +123,9 @@
                 <dt>{{ __('admin.retention.first_session.registered') }}</dt>
                 <dd>{{ (int) $first['registered'] }}</dd>
             </div>
-            @foreach (['opened', 'finished', 'abandoned', 'second_24h', 'second_7d'] as $metric)
+            @foreach (['opened', 'finished', 'abandoned', 'round_again', 'second_24h', 'second_7d'] as $metric)
                 <div>
-                    <dt>{{ __('admin.retention.first_session.'.$metric) }}</dt>
+                    <dt>{{ __('admin.retention.first_session.'.$metric, ['minutes' => RetentionReportService::ROUND_GAP_MINUTES]) }}</dt>
                     <dd>{{ $cellPct($first[$metric]) }} @if (is_array($first[$metric]))<small>{{ (int) $first[$metric]['count'] }} / {{ (int) $first[$metric]['of'] }}</small>@endif</dd>
                 </div>
             @endforeach
@@ -142,7 +142,7 @@
                 <dd>{{ $seconds($first['median_seconds']) }}</dd>
             </div>
         </dl>
-        <p class="lm-note">{{ __('admin.retention.first_session.note') }}</p>
+        <p class="lm-note">{{ __('admin.retention.first_session.note', ['minutes' => RetentionReportService::ROUND_GAP_MINUTES]) }}</p>
     </x-filament::section>
 
     <x-filament::section

@@ -56,7 +56,8 @@ beforeEach(() => {
 
 describe('TodayView: the entry of Karvon', () => {
   it('says "the caravan of the day is waiting" and leads to it, without asking /me (a Pro learner reads no /me on Today)', async () => {
-    const { wrapper, router } = await render(today({ game: { daily_available: true, active_run: null } }))
+    // No learned words yet: the "Word games" card, which reads /me, is not a candidate - the entry of Karvon must not need it.
+    const { wrapper, router } = await render(today({ game: { daily_available: true, active_run: null }, active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null } }))
 
     expect(wrapper.get('[data-testid=game-entry-text]').text()).toBe('Караван дня ждёт')
     expect(wrapper.get('[data-testid=game-entry]').attributes('data-kind')).toBe('daily')
@@ -81,8 +82,8 @@ describe('TodayView: the entry of Karvon', () => {
   })
 
   it('has no entry while the game is closed (the server says nothing to do) or when there is no game block', async () => {
-    expect((await render(today({ game: { daily_available: false, active_run: null } }))).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
-    expect((await render(today())).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
+    expect((await render(today({ game: { daily_available: false, active_run: null }, active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null } }))).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
+    expect((await render(today({ active_course: { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 0, total: 900 }, next_lesson: null } }))).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
     expect(api.me.get).not.toHaveBeenCalled()
   })
 

@@ -143,6 +143,33 @@ describe('training store — the run of right answers', () => {
     expect(store.outcome.seq).toBe(2)
   })
 
+  it('leaves the introduction card of a new word out: "Got it" there answers no question, and "Not yet" breaks nothing', async () => {
+    const intro: Card = { ...flash, card_kind: 'new' }
+    const store = await start(flash)
+    await grade(store, 4)
+    await grade(store, 4)
+    store.applyCard(intro)
+
+    vi.mocked(api.training.review).mockResolvedValue(reply({ card: intro }))
+    await store.submitReview(4)
+    await store.submitReview(2)
+    await store.submitReview(5)
+
+    expect([store.combo, store.bestCombo, store.outcome.seq]).toEqual([2, 2, 2])
+    // The grades still went to the server and were counted as reviewed.
+    expect(api.training.review).toHaveBeenCalledTimes(5)
+    expect(store.reviewedCount).toBe(5)
+  })
+
+  it('counts a new word that is checked: a four-choice card of a new word (card_kind new) is an answer', async () => {
+    const store = await start({ ...meaning, card_kind: 'new' })
+    vi.mocked(api.training.answer).mockResolvedValue(reply({ graded: graded(true), card: meaning }))
+
+    await store.submitChoice('a')
+
+    expect([store.combo, store.outcome.kind]).toEqual([1, 'right'])
+  })
+
   it('does not count an answer the server refused', async () => {
     const store = await start(flash)
     vi.mocked(api.training.review).mockRejectedValue(new Error('offline'))

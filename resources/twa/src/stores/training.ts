@@ -27,8 +27,8 @@ type Progress = { done: number; total: number }
 const EXERCISE_MISMATCH_CODES = ['answer_not_accepted', 'quality_not_accepted', 'exercise_pro_required', 'exercise_mismatch']
 
 /**
- * A daily review may go past its goal (`done` = grades in the session, `total` = daily goal),
- * and the bar must not show "12 / 10".
+ * The progress of a daily review is that of the round (`total >= done`, docs/04 A.3); a safety net for an older server
+ * that counted against the daily goal, so the bar never shows "12 / 10".
  */
 function clampProgress(p: Progress): Progress {
   return p.done > p.total ? { done: p.total, total: p.total } : p
@@ -70,6 +70,8 @@ interface TrainingState {
   progress: Progress
   /** Why the last answer had no card; drives the text of the finish screen. */
   doneReason: DoneReason | null
+  /** The daily round is over and the server can serve another one (`can_continue`, only with `sprint_complete`). */
+  canContinue: boolean
   /** Server-side summary of a finished personal session; null for group sessions or when finish failed. */
   summary: SessionSummary | null
   opening: boolean
@@ -105,7 +107,7 @@ interface TrainingState {
    * for a four-choice card until the right answer is seen (`continueAfterChoice()`). `null` while nothing is held, and in
    * the held state of an older server that sent no `card`: then the next card is fetched when the learner moves on.
    */
-  deferred: { card: Card | null; doneReason: DoneReason | null } | null
+  deferred: { card: Card | null; doneReason: DoneReason | null; canContinue: boolean } | null
   /** The learner already moved on from a four-choice card whose grade is still on its way: show the next card on arrival. */
   advanceWhenAnswered: boolean
   /** The run of good answers in a row in this session (client only); 0 after a miss. */
@@ -132,6 +134,7 @@ export const useTrainingStore = defineStore('training', {
     cardShownAt: 0,
     progress: { done: 0, total: 0 },
     doneReason: null,
+    canContinue: false,
     summary: null,
     opening: false,
     openError: '',
@@ -219,6 +222,7 @@ export const useTrainingStore = defineStore('training', {
       if (res.progress) this.progress = clampProgress(res.progress)
       if ('card' in res) {
         this.doneReason = res.done_reason ?? null
+        this.canContinue = res.can_continue === true
         this.applyCard(res.card ?? null)
         return
       }
@@ -240,6 +244,7 @@ export const useTrainingStore = defineStore('training', {
         if (generation !== this.generation) return
         this.progress = clampProgress(res.progress)
         this.doneReason = res.done_reason ?? null
+        this.canContinue = res.can_continue === true
         this.applyCard(res.card)
       } catch (err) {
         if (generation !== this.generation) return
@@ -312,6 +317,8 @@ export const useTrainingStore = defineStore('training', {
       this.advanceWhenAnswered = false
       // The exercise this card was shown with: the server refuses (409 `exercise_mismatch`) an answer of another kind.
       const shown = this.exercise
+      // A new word's flash card shows its answer at once: "Got it" there is not an answer to a question (see `recordOutcome`).
+      const introduction = shown === 'flash' && this.card.card_kind === 'new'
       this.lastExercise = shown
       this.choiceResult = null
       this.status = 'submitting'
@@ -321,19 +328,20 @@ export const useTrainingStore = defineStore('training', {
         if (generation !== this.generation) return
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
-        this.recordOutcome(shown, selfGrade, res.graded ?? null)
+        if (!introduction) this.recordOutcome(shown, selfGrade, res.graded ?? null)
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
+          const canContinue = res.can_continue === true
           // A four-choice card is graded by the server too, but its screen has shown the answer already: no verdict screen.
           if (res.graded && !hold) {
             this.verdict = res.graded
-            this.deferred = { card: res.card ?? null, doneReason }
+            this.deferred = { card: res.card ?? null, doneReason, canContinue }
             this.status = 'verdict'
             return
           }
           if (hold) {
-            const deferred = { card: res.card ?? null, doneReason }
+            const deferred = { card: res.card ?? null, doneReason, canContinue }
             if (res.graded) {
               this.choiceResult = {
                 correct: res.graded.correct,
@@ -349,6 +357,7 @@ export const useTrainingStore = defineStore('training', {
             return
           }
           this.doneReason = doneReason
+          this.canContinue = canContinue
           this.applyCard(res.card ?? null)
           return
         }
@@ -400,7 +409,8 @@ export const useTrainingStore = defineStore('training', {
     /**
      * The run of good answers (client only, for the chip and the finish screen): a right pick / typed answer or "got it" /
      * "knew it" on a flash card goes on, a wrong one and "not yet" stop it. The pretest is a guess before learning, not a
-     * check: it neither goes on nor breaks the run.
+     * check: it neither goes on nor breaks the run. Nor does the introduction card of a new word (a flash card with its answer
+     * open, `card_kind = new`; `submit` does not report it): "Got it" there answers no question.
      */
     recordOutcome(shown: ExerciseType, selfGrade: Quality | undefined, graded: Graded | null): void {
       if (shown === 'pretest') return
@@ -446,7 +456,30 @@ export const useTrainingStore = defineStore('training', {
         return
       }
       this.doneReason = deferred.doneReason
+      this.canContinue = deferred.canContinue
       this.applyCard(deferred.card)
+    },
+
+    /**
+     * "One more round" (docs/06 §13.2): the finished session is closed first (without it the server hands back the same finished
+     * one; the finish screen already did it, so only a failed finish is repeated), then a new daily review is opened. Returns the id
+     * of the new session, or null with `openError` set.
+     */
+    async nextRound(): Promise<number | null> {
+      if (this.sessionId === null || this.opening) return null
+      if (this.summary === null && this.mode !== 'group_lesson') {
+        this.opening = true
+        this.openError = ''
+        try {
+          this.summary = await api.training.finish(this.sessionId)
+        } catch (err) {
+          this.openError = errorMessage(err, 'training')
+          return null
+        } finally {
+          this.opening = false
+        }
+      }
+      return this.open({ mode: 'daily_review', source: 'self' })
     },
 
     /**
@@ -472,6 +505,7 @@ export const useTrainingStore = defineStore('training', {
       this.sessionId = sessionId
       this.mode = null
       this.doneReason = null
+      this.canContinue = false
       this.summary = null
       this.lesson = null
       this.totalWords = 0

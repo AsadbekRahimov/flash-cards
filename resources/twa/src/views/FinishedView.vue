@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { RouterLink, type RouteLocationRaw } from 'vue-router'
+import { RouterLink, useRouter, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -20,9 +20,10 @@ import { useI18n } from '@/i18n'
  * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
  * The numbers of a personal session (cards, share of right answers, new words) and the goal and streak of the day
  * come with the server summary (`training.summary`); a group session has none, so it says only how many cards were
- * reviewed. The buttons at the bottom lead out: "Home" (the one primary button), "Practice of the lesson / of the course"
- * (a tinted secondary action: the server's `practice_entry` says whether there is one and where it leads, docs/16 §11.1) and
- * "Close".
+ * reviewed. The buttons at the bottom lead out: "One more round" (the primary one, only when the server says another round would have
+ * cards: `can_continue`, docs/06 §13.2), "Play: practise the words" (a tinted secondary action: the server's `practice_entry` says
+ * whether there is one and where it leads, docs/16 §11.1), "Home" (primary when there is no other round) and "Close". Under the
+ * round button: what grew in the session (`stages`: new words, a stage up, learned), without the zeros.
  */
 const props = defineProps<{
   reviewed: number
@@ -31,8 +32,9 @@ const props = defineProps<{
   reason?: string | null
 }>()
 
-const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'session_cap'] as const
+const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'session_cap', 'sprint_complete'] as const
 
+const router = useRouter()
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
 const training = useTrainingStore()
@@ -86,6 +88,30 @@ const title = computed((): string => {
   if (percent >= 40) return t('finished.title_keep')
   return t('finished.title_effort')
 })
+
+/**
+ * "One more round" (docs/06 §13.2): the server said another round would have cards (`can_continue`, only with `sprint_complete`) and
+ * the session is the learner's own. The finish screen is also reached by a reload, with nothing in the store: then there is no button.
+ */
+const canContinue = computed(() => props.reason === 'sprint_complete' && training.canContinue && training.mode !== 'group_lesson')
+
+/** What grew in the session, the zeros left out: "New words: 6 · Moved up: 2 · Learned: 1"; null when nothing did (or an older server). */
+const stagesLine = computed((): string | null => {
+  const stages = summary.value?.stages
+  if (!stages) return null
+  const parts = [
+    stages.graduated > 0 ? t('finished.stages.graduated', { count: stages.graduated }) : '',
+    stages.promoted > 0 ? t('finished.stages.promoted', { count: stages.promoted }) : '',
+    stages.mastered > 0 ? t('finished.stages.mastered', { count: stages.mastered }) : '',
+  ].filter((part) => part !== '')
+  return parts.length > 0 ? parts.join(' · ') : null
+})
+
+/** The finish of this session (if it did not go through) and a new daily review; a failure stays on this screen, the button is free again. */
+async function nextRound(): Promise<void> {
+  const sessionId = await training.nextRound()
+  if (sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
+}
 
 /** "Best run: 12": only a run that the chip showed. */
 const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bestCombo : 0))
@@ -167,8 +193,8 @@ const practiceTarget = computed((): RouteLocationRaw | null => {
   const lesson = entry.lesson_id === null ? {} : { lesson: String(entry.lesson_id) }
   return { name: 'practice-hub', params: { slug: entry.course }, query: { ...lesson, from: 'finished' } }
 })
-/** "Practice of the lesson" after a lesson, "Practice of the course" after a daily review. */
-const practiceLabel = computed(() => (practiceEntry.value?.lesson_id === null ? t('finished.practice_course') : t('finished.practice_lesson')))
+/** Only after a round that did something: an empty one has nothing to practise. */
+const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.value)
 
 /**
  * The end of today's new words (docs/12 §5.4): on Free a calm card says so and offers the two ways on — what Pro gives (the
@@ -330,13 +356,20 @@ onBeforeUnmount(() => {
     <div class="space-y-2 pt-4">
       <InlineAlert v-if="training.openError" tone="danger" :message="training.openError" data-testid="open-error" />
 
-      <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
-        {{ t('finished.home') }}
-      </RouterLink>
-      <!-- A secondary action under the primary one: practising what was just learned (docs/15 §4). -->
-      <RouterLink v-if="practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
+      <template v-if="canContinue">
+        <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="training.opening" data-testid="next-round-btn" @click="nextRound">
+          <AppIcon name="play" solid :size="20" />
+          {{ t('finished.next_round') }}
+        </button>
+      </template>
+      <p v-if="stagesLine" class="px-2 text-center text-[15px] leading-5 text-tg-subtitle" data-testid="stages">{{ stagesLine }}</p>
+      <!-- A secondary action: playing with what was just learned (docs/15 §4). -->
+      <RouterLink v-if="showPractice && practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
         <AppIcon name="puzzle-piece" :size="20" />
-        {{ practiceLabel }}
+        {{ t('finished.practice') }}
+      </RouterLink>
+      <RouterLink :to="{ name: 'today' }" class="btn btn-lg btn-block" :class="canContinue ? 'btn-secondary' : 'btn-primary'" data-testid="home-btn">
+        {{ t('finished.home') }}
       </RouterLink>
       <RouterLink v-if="showCourses" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="courses-btn">
         {{ t('finished.choose_course') }}

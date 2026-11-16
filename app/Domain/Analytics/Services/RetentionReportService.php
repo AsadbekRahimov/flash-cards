@@ -35,8 +35,11 @@ use stdClass;
  *  - first session: the learner's first personal `training_sessions` row; "finished" = `done_reason = finished`, "abandoned" =
  *    closed any other way or still open past `expires_at`; cards = `training_reviews` rows of that session; time = the sum of
  *    their `time_spent_ms` (the active time, not `ended_at - started_at`, which for an expired session is the moment the
- *    scheduler closed it); second session in 24 hours / 7 days counts from the START of the first one, among learners whose
- *    first session began at least that long ago.
+ *    scheduler closed it); "second session in 24 hours / 7 days" is the first session that began at least
+ *    {@see ROUND_GAP_MINUTES} minutes after the START of the first one and no later than 24 hours / 7 days after it (a round played
+ *    at once is not "coming back"), among learners whose first session began at least that long ago; "one more round at once" is
+ *    a session that began sooner than {@see ROUND_GAP_MINUTES} minutes after the first one, among learners whose first session
+ *    began at least that long ago.
  *
  * Queries: a constant number (zones, cohorts, retention, first-session totals, first-session histograms), each one
  * aggregate over the learners of the window - no learner is loaded into memory, so the count does not depend on their number;
@@ -62,6 +65,12 @@ final class RetentionReportService
 
     /** The first-session block looks at learners registered in this many last days. */
     public const FIRST_SESSION_DAYS = 30;
+
+    /**
+     * A session that starts sooner than this after the first one began is "one more round" played at once (the Mini App opens it
+     * a minute after the previous one, docs/06 §13); only a later one means the learner came back.
+     */
+    public const ROUND_GAP_MINUTES = 60;
 
     public const CACHE_WIDGET = 'retention';
 
@@ -147,7 +156,7 @@ final class RetentionReportService
     {
         return isset($report['generated_at'], $report['cohorts'], $report['segments'], $report['first_session'])
             && is_string($report['generated_at']) && is_array($report['cohorts']) && is_array($report['segments'])
-            && is_array($report['first_session']);
+            && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session']);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -424,10 +433,12 @@ final class RetentionReportService
         $day = 86400;
         $dayAgo = self::db($now->subSeconds($day));
         $weekAgo = self::db($now->subSeconds(7 * $day));
+        $gap = self::ROUND_GAP_MINUTES * 60;
+        $gapAgo = self::db($now->subSeconds($gap));
 
         $totals = DB::selectOne(
             "WITH {$cte}, g AS (SELECT f.learner_id AS learner_id, f.s1 AS s1, "
-            .'(SELECT MIN(b.id) FROM training_sessions b WHERE b.learner_id = f.learner_id AND b.id > f.s1) AS s2 FROM f) '
+            .'(SELECT MIN(r.id) FROM training_sessions r WHERE r.learner_id = f.learner_id AND r.id > f.s1) AS s2 FROM f) '
             .'SELECT COUNT(*) AS registered, '
             .'SUM(CASE WHEN a.id IS NOT NULL THEN 1 ELSE 0 END) AS opened, '
             .'SUM(CASE WHEN a.done_reason = ? THEN 1 ELSE 0 END) AS finished, '
@@ -435,8 +446,12 @@ final class RetentionReportService
             ."SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= {$sql->ts()} THEN 1 ELSE 0 END) AS of_24h, "
             .'SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= '.$sql->ts().' AND b.id IS NOT NULL AND b.started_at <= '.$sql->shift('a.started_at', $sql->int()).' THEN 1 ELSE 0 END) AS again_24h, '
             ."SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= {$sql->ts()} THEN 1 ELSE 0 END) AS of_7d, "
-            .'SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= '.$sql->ts().' AND b.id IS NOT NULL AND b.started_at <= '.$sql->shift('a.started_at', $sql->int()).' THEN 1 ELSE 0 END) AS again_7d '
-            .'FROM g LEFT JOIN training_sessions a ON a.id = g.s1 LEFT JOIN training_sessions b ON b.id = g.s2',
+            .'SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= '.$sql->ts().' AND b.id IS NOT NULL AND b.started_at <= '.$sql->shift('a.started_at', $sql->int()).' THEN 1 ELSE 0 END) AS again_7d, '
+            ."SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= {$sql->ts()} THEN 1 ELSE 0 END) AS of_round, "
+            .'SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= '.$sql->ts().' AND r.id IS NOT NULL AND r.started_at < '.$sql->shift('a.started_at', $sql->int()).' THEN 1 ELSE 0 END) AS round_again '
+            .'FROM g LEFT JOIN training_sessions a ON a.id = g.s1 LEFT JOIN training_sessions r ON r.id = g.s2 '
+            // The "second session" is the first one that began a round-gap or more after the first (by id: they grow with time).
+            .'LEFT JOIN training_sessions b ON b.id = (SELECT MIN(c.id) FROM training_sessions c WHERE c.learner_id = g.learner_id AND c.id > g.s1 AND c.started_at >= '.$sql->shift('a.started_at', $sql->int()).')',
             [
                 ...$cteBindings,
                 TrainingSession::DONE_FINISHED,
@@ -445,6 +460,9 @@ final class RetentionReportService
                 $dayAgo, $day,
                 $weekAgo,
                 $weekAgo, 7 * $day,
+                $gapAgo,
+                $gapAgo, $gap,
+                $gap,
             ],
         );
 
@@ -484,6 +502,7 @@ final class RetentionReportService
             'median_seconds' => self::median($seconds),
             'second_24h' => self::cell((int) ($totals->again_24h ?? 0), (int) ($totals->of_24h ?? 0)),
             'second_7d' => self::cell((int) ($totals->again_7d ?? 0), (int) ($totals->of_7d ?? 0)),
+            'round_again' => self::cell((int) ($totals->round_again ?? 0), (int) ($totals->of_round ?? 0)),
         ];
     }
 

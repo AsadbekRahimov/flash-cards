@@ -19,6 +19,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
+import { GAMES_CARD_MODES, MODE_LOOK, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
@@ -200,10 +201,18 @@ const allDone = computed(() => {
 })
 
 const practice = computed(() => billing.practiceAccess)
-// `/me` tells whether the learner has the practice: asked only when the calm "all done" card needs it (Home reads no `/me` otherwise).
-// Best effort, it never throws; the practice button shows once the answer is there.
-watch(allDone, (done) => {
-  if (done) void billing.load()
+/**
+ * The "Word games" card (docs/16 §11.1): under the session card, when the learner has a course and a few learned words (the
+ * first mode of the hub opens with them; `PRACTICE_MIN_LEARNED`) - never on the start card. One entry to the practice of the
+ * main course: "all done" no longer has a button of its own.
+ */
+const gamesCandidate = computed(() => !showStart.value
+  && (data.value?.active_course?.progress.learned ?? 0) >= PRACTICE_MIN_LEARNED)
+const showGames = computed(() => gamesCandidate.value && practice.value.available)
+// `/me` tells whether the learner has the practice: asked only when the card could show (Home reads no `/me` otherwise).
+// Best effort, it never throws; the card shows once the answer is there.
+watch(gamesCandidate, (candidate) => {
+  if (candidate) void billing.load()
 }, { immediate: true })
 /** Practice of the main course (docs/16 §11.1): the same rule as on the course screen - behind Pro it opens the paywall. */
 function openPractice(): void {
@@ -471,10 +480,6 @@ onBeforeUnmount(() => training.clearOpenError())
               {{ t('today.all_done.pro') }}
             </button>
           </p>
-          <button v-if="practice.available" type="button" class="btn btn-tinted btn-block" data-testid="practice-btn" @click="openPractice">
-            <AppIcon name="puzzle-piece" :size="20" />
-            {{ t('practice.hub.title') }}
-          </button>
         </div>
         <button
           v-else
@@ -494,6 +499,27 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
+      </section>
+
+      <!-- Practice of the main course, one entry (docs/16 §11.1): three modes by their icons and one button. -->
+      <section v-if="showGames" class="card flex items-center gap-3" data-testid="games-card">
+        <div class="min-w-0 flex-1">
+          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('today.games.title') }}</h2>
+          <div class="mt-2 flex gap-2" aria-hidden="true" data-testid="games-modes">
+            <span
+              v-for="mode in GAMES_CARD_MODES"
+              :key="mode"
+              class="icon-tile size-9 rounded-xl"
+              :class="`tile-${MODE_LOOK[mode].tile}`"
+              :title="modeTitle(mode)"
+            >
+              <AppIcon :name="MODE_LOOK[mode].icon" :size="18" />
+            </span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-tinted shrink-0" data-testid="games-play-btn" @click="openPractice">
+          {{ t('today.games.play') }}
+        </button>
       </section>
 
       <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. The teacher starts it for the whole group, so a newcomer of the center is its addressee too. -->
