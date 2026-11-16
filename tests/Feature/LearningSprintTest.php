@@ -234,6 +234,10 @@ it('alternates the formats of a word that fails its checks and moves the learnin
 // --- the end of a round -----------------------------------------------------------------------
 
 it('tells a Free learner apart: sprint_complete while the day has new words left, new_quota_exhausted once they are spent', function (): void {
+    // Noon of the learner's day: "an hour ago" below must be the same local day. Run in the first hour after the local
+    // midnight (19:00–20:00 UTC for Tashkent), the words would belong to yesterday and the day would have all 20 left.
+    $this->travelTo(now('Asia/Tashkent')->setTime(12, 0));
+
     ['course' => $course, 'lessons' => $lessons] = spCourse(3);
     $learner = spLearner($course);
 

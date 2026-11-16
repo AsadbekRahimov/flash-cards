@@ -534,6 +534,12 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
 
     /** @var Migration $migration */
     $migration = require base_path('database/migrations/2026_10_18_000002_add_learning_state_to_word_repetitions.php');
+    // The partial index on `state` (2026_11_17_100002) is rolled back first, as `migrate:rollback` would do it (newest first):
+    // SQLite refuses to drop a column an index names, PostgreSQL would drop the index with the column.
+    /** @var Migration $inSteps */
+    $inSteps = require base_path('database/migrations/2026_11_17_100002_add_word_repetitions_in_steps_idx.php');
+
+    $inSteps->down();
     $migration->down();
 
     // Legacy SM-2: failed cards had repetitions = 0, interval 1 day, next_review_at = fail time + 1 day.
@@ -555,6 +561,7 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
     }
 
     $migration->up();
+    $inSteps->up();
 
     expect(WordRepetition::query()->where('learner_id', $learner->id)->pluck('state')->unique()->all())
         ->toBe([RepetitionState::Relearning]);
