@@ -506,3 +506,162 @@ it('does not touch lesson sessions: a lesson has no round and keeps its own prog
         ->and($step->progress)->toBe(['done' => 10, 'total' => 10])
         ->and(TrainingSession::query()->where('learner_id', $learner->id)->count())->toBe(1);
 });
+
+// --- the review debt, the limits, the counters (review of 2026-11-17) ----------------------------------
+
+it('holds new words back while more reviews are due than one round takes, and lets them in once the debt fits a round', function (): void {
+    config(['learning.sprint.due_cards' => 15]);
+    ['course' => $course, 'lessons' => $lessons] = spCourse(3);
+    $learner = spLearner($course, pro: true);
+    // Twenty day-based cards due (two passes: the recognition list, the meaning first), in lessons 2 and 3; lesson 1 is unseen.
+    foreach ([$lessons[1], $lessons[2]] as $lesson) {
+        foreach ($lesson->words()->orderBy('id')->get() as $word) {
+            spDue($learner, $word, 2, 6, ['meta' => [LadderPolicy::LAST_EXERCISE_META => 'flash']]);
+        }
+    }
+
+    // Round 1: fifteen reviews, not one new word; the bar says fifteen from the first card; another round is on offer.
+    $first = spRound($this, $learner);
+    expect($first['serves'])->toHaveCount(15)
+        ->and(array_unique(array_map(static fn (array $s): string => $s['card']['card_kind'], $first['serves'])))->toBe(['due'])
+        ->and($first['serves'][0]['progress'])->toBe(['done' => 0, 'total' => 15])
+        ->and($first['last']['done_reason'])->toBe('sprint_complete')->and($first['last']['can_continue'])->toBeTrue()
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(20);
+
+    // Round 2: the five left fit a round - the new words come back: 5 + 6 × 2.
+    spFinish($this, $learner, $first['session_id']);
+    $second = spRound($this, $learner);
+    $kinds = array_count_values(array_map(static fn (array $s): string => $s['card']['card_kind'], $second['serves']));
+    expect($second['serves'])->toHaveCount(17)
+        ->and($kinds['due'])->toBe(5)->and($kinds['new'])->toBe(6)
+        ->and($second['serves'][0]['progress'])->toBe(['done' => 0, 'total' => 17])
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(26);
+
+});
+
+it('lets the backlog and the new words share a round when the debt rule is switched off', function (): void {
+    config(['learning.sprint.due_cards' => 15, 'learning.sprint.debt_holds_new' => false]);
+    ['course' => $course, 'lessons' => $lessons] = spCourse(3);
+    $learner = spLearner($course, pro: true);
+    foreach ([$lessons[1], $lessons[2]] as $lesson) {
+        foreach ($lesson->words()->orderBy('id')->get() as $word) {
+            spDue($learner, $word, 2, 6, ['meta' => [LadderPolicy::LAST_EXERCISE_META => 'flash']]);
+        }
+    }
+
+    $round = spRound($this, $learner);
+    expect(array_count_values(array_map(static fn (array $s): string => $s['card']['card_kind'], $round['serves'])))->toMatchArray(['due' => 15, 'new' => 6]);
+});
+
+it('reads a limit of 0 new words as no limit: the whole lesson in one round, then nothing due - no endless empty rounds', function (): void {
+    config(['learning.sprint.new_words' => 0]);
+    ['course' => $course] = spCourse(1);
+    $learner = spLearner($course, pro: true);
+
+    $round = spRound($this, $learner);
+    expect($round['serves'])->toHaveCount(20)
+        ->and($round['last']['done_reason'])->toBe('nothing_due')->and($round['last']['can_continue'])->toBeFalse()
+        // Without a limit the bar cannot foresee the new words: it grows with each one met, and never runs past.
+        ->and($round['serves'][0]['progress'])->toBe(['done' => 0, 'total' => 2])
+        ->and($round['last']['progress'])->toBe(['done' => 20, 'total' => 20]);
+});
+
+it('reads a limit of 0 due cards as no limit: twenty due in one round, the bar counting all of them', function (): void {
+    config(['learning.sprint.due_cards' => 0]);
+    ['lessons' => $lessons] = spCourse(1);
+    $reviewer = Learner::factory()->create(['active_course_id' => null]);
+    foreach ($lessons[0]->words()->orderBy('id')->get() as $word) {
+        spDue($reviewer, $word, 3, 15, ['meta' => [LadderPolicy::LAST_EXERCISE_META => 'flash']]);
+    }
+    foreach (spCourse(1)['lessons'][0]->words()->orderBy('id')->get() as $word) {
+        spDue($reviewer, $word, 3, 15, ['meta' => [LadderPolicy::LAST_EXERCISE_META => 'flash']]);
+    }
+
+    $all = spRound($this, $reviewer);
+    expect($all['serves'])->toHaveCount(20)
+        ->and($all['serves'][0]['progress'])->toBe(['done' => 0, 'total' => 20])
+        ->and($all['last']['done_reason'])->toBe('nothing_due')->and($all['last']['can_continue'])->toBeFalse();
+});
+
+it('does not let a withdrawn word in its minute steps keep the round\'s total above done', function (): void {
+    ['course' => $course, 'lessons' => $lessons] = spCourse(1);
+    $learner = Learner::factory()->create(['active_course_id' => null]);
+    $word = $lessons[0]->words()->orderBy('id')->first();
+    spDue($learner, $word, 0, 0, ['state' => RepetitionState::Learning->value, 'learning_step' => 1, 'next_review_at' => now()->subHour()]);
+    $word->forceFill(['is_active' => false])->save();
+
+    $round = spRound($this, $learner);
+    expect($round['serves'])->toBe([])
+        ->and($round['last']['progress'])->toBe(['done' => 0, 'total' => 0])
+        ->and($round['last']['done_reason'])->toBe('nothing_due');
+});
+
+it('runs the round for a learner scheduled by FSRS: the first round, then the checks of the next day', function (): void {
+    ['course' => $course] = spCourse(2);
+    $learner = spLearner($course, attributes: ['scheduler' => 'fsrs']);
+
+    $first = spRound($this, $learner);
+    expect($first['serves'])->toHaveCount(12)
+        ->and($first['last']['done_reason'])->toBe('sprint_complete')
+        ->and(TrainingReview::query()->where('learner_id', $learner->id)->distinct()->pluck('scheduler')->all())->toBe(['fsrs']);
+    $rows = WordRepetition::query()->where('learner_id', $learner->id)->get();
+    expect($rows)->toHaveCount(6)
+        ->and($rows->pluck('state')->unique()->all())->toBe([RepetitionState::Review])
+        ->and($rows->min('interval_days'))->toBeGreaterThanOrEqual(1);
+
+    // When the six are due again: a round of their checks in another format than the meaning (the recognition list goes on).
+    spFinish($this, $learner, $first['session_id']);
+    $this->travelTo($rows->max('next_review_at')->addMinute());
+    $next = spRound($this, $learner);
+    $due = array_values(array_filter($next['serves'], static fn (array $s): bool => $s['card']['card_kind'] === 'due'));
+    expect($due)->toHaveCount(6)
+        ->and(array_unique(array_map(static fn (array $s): string => $s['card']['prompt']['type'], $due)))->toBe(['reverse'])
+        ->and($next['last']['done_reason'])->toBe('sprint_complete')
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->where('repetitions', '>=', 2)->count())->toBe(6);
+});
+
+it('counts a word left in its learning steps by an earlier session as promoted when it graduates here, and a relearning one as nothing', function (): void {
+    ['course' => $course, 'lessons' => $lessons] = spCourse(1);
+    $learner = Learner::factory()->create(['active_course_id' => null]);
+    $words = $lessons[0]->words()->orderBy('id')->get();
+    // Met yesterday, left at the second step (stage `new`): graduating here is a climb.
+    $left = spDue($learner, $words[0], 0, 0, ['state' => RepetitionState::Learning->value, 'learning_step' => 1, 'next_review_at' => now()->subHour(), 'created_at' => now()->subDay()]);
+    // Lapsed yesterday, in relearning (stage `learning`): graduating back to one day is no climb.
+    $lapsed = spDue($learner, $words[1], 0, 0, ['state' => RepetitionState::Relearning->value, 'learning_step' => 0, 'lapses' => 1, 'next_review_at' => now()->subHour(), 'created_at' => now()->subDays(9)]);
+    // Known, lapses here: its first grade says known, the relearning grade says nothing new - no climb either.
+    $falls = spDue($learner, $words[2], 3, 15);
+
+    $failed = false;
+    $round = spRound($this, $learner, function (array $card) use ($falls, &$failed): int {
+        if ((int) $card['word_id'] === (int) $falls->word_id && ! $failed) {
+            $failed = true;
+
+            return 2;
+        }
+
+        return 4;
+    });
+    expect($round['serves'])->toHaveCount(4);
+    $summary = spFinish($this, $learner, $round['session_id']);
+
+    expect($summary)->toMatchArray(['reviewed' => 4, 'correct' => 3, 'new_words' => 0, 'stages' => ['graduated' => 0, 'promoted' => 1, 'mastered' => 0]])
+        ->and(WordStage::of($left->fresh()))->toBe(WordStage::Learning)
+        ->and(WordStage::of($lapsed->fresh()))->toBe(WordStage::Learning)
+        ->and(WordStage::of($falls->fresh()))->toBe(WordStage::Learning);
+});
+
+it('stops estimating new words once the picker has seen the course run dry: the last round\'s bar ends exact', function (): void {
+    ['course' => $course] = spCourse(1); // ten words: 6 + 4
+    $learner = spLearner($course, pro: true);
+    $first = spRound($this, $learner);
+    spFinish($this, $learner, $first['session_id']);
+
+    $last = spRound($this, $learner);
+    $totals = array_map(static fn (array $s): int => $s['progress']['total'], $last['serves']);
+    // Four new words are met (the limit of six still counted while the picker has not looked past them), then the
+    // picker finds nothing new and the bar is the four checks that are left: 8 from the fifth card on, 8 / 8 at the end.
+    expect($last['serves'])->toHaveCount(8)
+        ->and(array_slice($totals, 4))->toBe([8, 8, 8, 8])
+        ->and($last['last']['progress'])->toBe(['done' => 8, 'total' => 8])
+        ->and($last['last']['done_reason'])->toBe('nothing_due');
+});

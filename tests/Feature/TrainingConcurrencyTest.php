@@ -6,6 +6,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Services\NewWordFrontier;
+use App\Domain\Learning\Services\TrainingFlowService;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
@@ -317,4 +318,68 @@ it('aggregates six simultaneous grades into one day row, meets the goal once and
         ->and($fresh->streak_best)->toBe(1)
         ->and($fresh->streak_last_date?->toDateString())->toBe('2026-10-18')
         ->and(ProductEvent::query()->where('name', ProductEventName::DailyGoalMet->value)->where('learner_id', $learnerId)->count())->toBe(1);
+});
+
+it('does not let four tabs jointly exceed the round\'s two new words (sprint_used under the learner lock)', function (): void {
+    // The round's limit is read by the children from the config they inherit at the fork; the sprint is on by default.
+    config(['learning.sprint.new_words' => 2, 'learning.sprint.due_cards' => 15]);
+    $fx = Fx::course([1 => [1 => 8]]);
+    $learner = Learner::factory()->create(['active_course_id' => $fx['course']->id]);
+    $learnerId = (int) $learner->id;
+    $session = app(TrainingSessionService::class)->openPersonal($learner, 'daily_review');
+    $sessionId = (int) $session->id;
+
+    $results = runConcurrently(array_fill(0, 4, function () use ($learnerId, $sessionId): string {
+        $learner = Learner::query()->findOrFail($learnerId);
+        $session = TrainingSession::query()->findOrFail($sessionId);
+        $step = app(TrainingFlowService::class)->nextStep($session, $learner);
+
+        return $step->word === null ? 'done:'.$step->doneReason?->value : 'card:'.$step->kind.':'.$step->word->id;
+    }));
+
+    expect(array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error'))->toBe([]);
+
+    $outcomes = array_column($results, 'result');
+    $introduced = WordRepetition::query()->where('learner_id', $learnerId)->where('introduced_mode', 'daily_review')->pluck('word_id');
+
+    // Never more than two words were introduced, whatever the interleaving: the round's count rides in the candidates
+    // statement under the learner lock. A tab held back by the limit gets `sprint_complete` (more words are there), and a
+    // tab that started after another committed may receive that tab's ungraded `new` card through the due step.
+    expect($introduced)->toHaveCount(2)
+        ->and($introduced->unique())->toHaveCount(2);
+    foreach ($outcomes as $outcome) {
+        expect($outcome)->toMatch('/^(card:(new|learning):\d+|done:sprint_complete)$/');
+    }
+    expect(array_filter($outcomes, fn (string $o): bool => str_starts_with($o, 'card:')))->not->toBe([]);
+});
+
+it('replaces a round played to the end exactly once when several tabs open the daily review at the same instant', function (): void {
+    $fx = Fx::course([1 => [1 => 3]]);
+    $learner = Learner::factory()->create(['active_course_id' => $fx['course']->id, 'timezone' => 'Asia/Tashkent']);
+    $learnerId = (int) $learner->id;
+    $sessions = app(TrainingSessionService::class);
+    $old = $sessions->openPersonal($learner, 'daily_review');
+    // A grade in it, and the server's mark that nothing was left (what the step with `card: null` stamps, docs/06 §13.2).
+    DB::table('training_reviews')->insert([
+        'training_session_id' => $old->id, 'learner_id' => $learnerId, 'word_id' => $fx['words']['1.1']['active'][0],
+        'quality' => 4, 'exercise' => 'flash', 'scheduler' => 'sm2', 'interval_before_days' => 0, 'time_spent_ms' => 500, 'created_at' => now(),
+    ]);
+    $sessions->markCompleted($old);
+    $oldId = (int) $old->id;
+
+    $results = runConcurrently(array_fill(0, 4, function () use ($learnerId): int {
+        return (int) app(TrainingSessionService::class)->openPersonal(Learner::query()->findOrFail($learnerId), 'daily_review')->id;
+    }));
+
+    expect(array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error'))->toBe([]);
+
+    // One new open session for everybody; the old one closed as finished once, with one `training.session_finished` event.
+    $ids = array_unique(array_column($results, 'result'));
+    $closed = TrainingSession::query()->findOrFail($oldId);
+    expect($ids)->toHaveCount(1)
+        ->and($ids[0])->not->toBe($oldId)
+        ->and(TrainingSession::query()->where('learner_id', $learnerId)->count())->toBe(2)
+        ->and(TrainingSession::query()->where('learner_id', $learnerId)->where('status', 'open')->count())->toBe(1)
+        ->and($closed->status)->toBe('closed')->and($closed->done_reason)->toBe(TrainingSession::DONE_FINISHED)
+        ->and(ProductEvent::query()->where('learner_id', $learnerId)->where('name', ProductEventName::TrainingSessionFinished->value)->count())->toBe(1);
 });

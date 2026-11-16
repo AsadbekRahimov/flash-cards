@@ -24,6 +24,8 @@ final class TrainingStartResource extends TwaResource
         return [
             'session_id' => $this->resource->session->id,
             'mode' => $this->resource->session->mode,
+            // When the session began, server time (ISO-8601, UTC): the summary screen tells "earned in this session" by it, not by the device clock.
+            'started_at' => $this->resource->session->started_at->toImmutable()->utc()->toIso8601String(),
             // null for daily_review: the scope spans every lesson of the learner.
             'lesson' => $lesson === null ? null : [
                 'stage' => $lesson->stage?->number,

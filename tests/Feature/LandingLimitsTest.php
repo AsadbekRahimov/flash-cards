@@ -18,11 +18,15 @@ beforeEach(function (): void {
     Config::set('billing.paywall.mode', 'coming_soon');
 });
 
-/** The limits of the shipped config (config/billing.php, config/decks.php), whatever the .env of the host says. */
+/**
+ * The limits of the shipped config (config/billing.php, config/decks.php, config/practice.php), whatever the .env of the host says:
+ * practice open to everybody with a Free limit of the day (so Pro has a practice tick), the battles off until tried.
+ */
 function landingShippedLimits(): void
 {
     Config::set('billing.plans.free.limits.new_words_per_day', 20);
     Config::set('decks.limits', ['free' => ['decks' => 1, 'deck_words' => 50], 'pro' => ['decks' => 20, 'deck_words' => 2000]]);
+    landingShippedPractice();
 }
 
 /** Different from the shipped ones in every number, so nothing can match by accident. */
@@ -30,6 +34,21 @@ function landingCustomLimits(): void
 {
     Config::set('billing.plans.free.limits.new_words_per_day', 15);
     Config::set('decks.limits', ['free' => ['decks' => 1, 'deck_words' => 70], 'pro' => ['decks' => 5, 'deck_words' => 300]]);
+    landingShippedPractice();
+}
+
+function landingShippedPractice(): void
+{
+    Config::set('practice.access', 'all');
+    Config::set('practice.plan', 'all');
+    Config::set('practice.free_limits', ['sessions_per_day' => 2, 'battles_per_day' => 1]);
+    Config::set('practice.battle.enabled', false);
+}
+
+/** The practice tick of the Pro card while practice is open to everybody and the battles are off (ProPromises::publicPractice). */
+function landingPracticeTick(string $locale): string
+{
+    return (string) __('landing.limits.pro_practice_solo', [], $locale);
 }
 
 /** @return string the text of `<meta name="description">`, entities decoded */
@@ -62,6 +81,7 @@ it('words the shipped limits as the landing always did, and adds the own deck to
         'freeFeatures' => ['Публичные курсы', '20 новых слов в день', 'Повторения без ограничений', 'Своя колода до 50 слов', 'Бот и мини-приложение'],
         'proFeatures' => [
             'Без дневного лимита новых слов',
+            'Практика без дневного лимита',
             'Упражнения «Написание слова» и «Пропуск в примере»',
             'Свои колоды: до 20 колод по 2000 слов',
             'Заморозки серии: пропущенный день не обрывает серию',
@@ -72,6 +92,7 @@ it('words the shipped limits as the landing always did, and adds the own deck to
         'freeFeatures' => ['Ochiq kurslar', "Kuniga 20 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 50 tagacha so'z", 'Bot va mini-ilova'],
         'proFeatures' => [
             "Kuniga istagancha yangi so'z",
+            'Mustahkamlash mashqlari cheklovsiz',
             "Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy»",
             "Shaxsiy to'plamlar: 20 tagacha, har birida 2000 tagacha so'z",
             "Bir kun shug'ullanmasangiz ham, ketma-ketlikni saqlab qolish",
@@ -110,10 +131,10 @@ it('says "no daily limit" instead of a number when Free has none, and then Pro h
 
     expect($ru['free'])->toBe('новые слова без дневного лимита')
         ->and($ru['freeFeatures'])->toBe(['Публичные курсы', 'Новые слова без дневного лимита', 'Повторения без ограничений', 'Своя колода до 50 слов', 'Бот и мини-приложение'])
-        ->and($ru['proFeatures'])->toHaveCount(4)->not->toContain('Без дневного лимита новых слов')
+        ->and($ru['proFeatures'])->toHaveCount(5)->not->toContain('Без дневного лимита новых слов')
         ->and($uz['free'])->toBe("kuniga istagancha yangi so'z")
         ->and($uz['freeFeatures'][1])->toBe("Kuniga istagancha yangi so'z")
-        ->and($uz['proFeatures'])->toHaveCount(4)->not->toContain("Kuniga istagancha yangi so'z");
+        ->and($uz['proFeatures'])->toHaveCount(5)->not->toContain("Kuniga istagancha yangi so'z");
 
     foreach ([...$ru['freeFeatures'], ...$ru['proFeatures'], ...$uz['freeFeatures'], ...$uz['proFeatures']] as $tick) {
         expect($tick)->not->toBe('')->not->toStartWith(':');
@@ -148,7 +169,7 @@ it('leaves out the deck tick of a plan that cannot make decks', function (array 
         $limits = (new LandingPricing)->limits($locale);
 
         expect($limits['freeFeatures'])->toHaveCount(4)
-            ->and($limits['proFeatures'])->toHaveCount(5);
+            ->and($limits['proFeatures'])->toHaveCount(6);
     }
     expect((new LandingPricing)->limits('ru')['freeFeatures'])->toBe(['Публичные курсы', '20 новых слов в день', 'Повторения без ограничений', 'Бот и мини-приложение']);
 })->with([
@@ -188,6 +209,7 @@ it('puts the plan limits into the ticks of the plan cards', function (): void {
     expect($free)->toBe(['Публичные курсы', '15 новых слов в день', 'Повторения без ограничений', 'Своя колода до 70 слов', 'Бот и мини-приложение'])
         ->and($pro)->toBe([
             'Без дневного лимита новых слов',
+            'Практика без дневного лимита',
             'Упражнения «Написание слова» и «Пропуск в примере»',
             'Свои колоды: до 5 колод по 300 слов',
             'Заморозки серии: пропущенный день не обрывает серию',
@@ -196,7 +218,8 @@ it('puts the plan limits into the ticks of the plan cards', function (): void {
 
     [$free, $pro] = landingTicks($this->get('/uz')->getContent());
     expect($free)->toBe(['Ochiq kurslar', "Kuniga 15 ta yangi so'z", 'Cheklovsiz takrorlash', "Shaxsiy to'plam: 70 tagacha so'z", 'Bot va mini-ilova'])
-        ->and($pro[2])->toBe("Shaxsiy to'plamlar: 5 tagacha, har birida 300 tagacha so'z");
+        ->and($pro[1])->toBe(landingPracticeTick('uz'))
+        ->and($pro[3])->toBe("Shaxsiy to'plamlar: 5 tagacha, har birida 300 tagacha so'z");
 });
 
 it('puts the daily limit into the meta description and the og:description of every public page', function (string $url, string $needle): void {
@@ -230,9 +253,36 @@ it('shows no number and no hole on the pages when Free has no daily limit', func
     foreach ([$ru, $uz] as $response) {
         [$free, $pro] = landingTicks($response->getContent());
 
-        expect($free)->toHaveCount(5)->and($pro)->toHaveCount(4)
-            ->and($response->getContent())->not->toContain('<li></li>')->not->toContain(':new_words')->not->toContain(':decks');
+        expect($free)->toHaveCount(5)->and($pro)->toHaveCount(5)
+            ->and($response->getContent())->not->toContain('<li></li>')->not->toContain(':new_words')->not->toContain(':decks')->not->toContain(':practice');
     }
+});
+
+it('drops the practice tick of Pro, and nothing else, while practice is closed (PRACTICE_ACCESS=off) - the ticks of before', function (): void {
+    landingShippedLimits();
+    Config::set('practice.access', 'off');
+
+    expect((new LandingPricing)->limits('ru')['proFeatures'])->toBe([
+        'Без дневного лимита новых слов',
+        'Упражнения «Написание слова» и «Пропуск в примере»',
+        'Свои колоды: до 20 колод по 2000 слов',
+        'Заморозки серии: пропущенный день не обрывает серию',
+        'Пробные тесты IELTS и SAT',
+    ]);
+
+    foreach (['ru', 'uz'] as $locale) {
+        [$free, $pro] = landingTicks($this->get("/{$locale}")->assertOk()->getContent());
+
+        expect($free)->toHaveCount(5)->and($pro)->toHaveCount(5)->not->toContain(landingPracticeTick($locale))
+            ->and((new LandingPricing)->limits($locale)['proFeatures'])->toBe($pro);
+    }
+
+    // No daily limit and no decks on top of that: three ticks of Pro, no hole among them.
+    Config::set('billing.plans.free.limits.new_words_per_day', null);
+    Config::set('decks.limits.pro', ['decks' => 0, 'deck_words' => 0]);
+    $pro = (new LandingPricing)->limits('ru')['proFeatures'];
+    expect($pro)->toBe(['Упражнения «Написание слова» и «Пропуск в примере»', 'Заморозки серии: пропущенный день не обрывает серию', 'Пробные тесты IELTS и SAT'])
+        ->and($this->get('/ru')->assertOk()->getContent())->not->toContain('<li></li>');
 });
 
 it('shows the limits of the shipped config as before', function (): void {

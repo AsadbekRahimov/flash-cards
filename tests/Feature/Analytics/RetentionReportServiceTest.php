@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Analytics\Services\RetentionReportService;
+use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -250,6 +251,29 @@ it('works out the first session: opened, finished, abandoned, medians and the se
         ->and($first['second_7d'])->toBe(['count' => 2, 'of' => 3, 'pct' => 66.7])
         // Nobody played another round at once: first sessions begun an hour ago or earlier are L1, L2, L3, L4, L6.
         ->and($first['round_again'])->toBe(['count' => 0, 'of' => 5, 'pct' => 0.0]);
+});
+
+it('counts a round played to the end but never finished by the client as finished once the scheduler closed it, not as abandoned', function (): void {
+    // Registered ten days ago; the first session was played through (completed on the server, docs/06 §13.2) and the Mini App
+    // was closed on the last verdict: no `/finish`. Left open past its expiry, then closed by the scheduler.
+    $learner = rt_learner('2026-11-08 08:00:00');
+    $session = rt_session($learner, '2026-11-08 09:00:00', [
+        'status' => 'open', 'done_reason' => null, 'ended_at' => null, 'expires_at' => '2026-11-08 21:00:00', 'completed_at' => '2026-11-08 09:20:00',
+    ]);
+    rt_reviews($session, 3_000, 3_000);
+    // Another learner's first session, abandoned in the middle the same way (no completion), for contrast.
+    $other = rt_learner('2026-11-08 08:00:00');
+    rt_reviews(rt_session($other, '2026-11-08 09:00:00', ['status' => 'open', 'done_reason' => null, 'ended_at' => null, 'expires_at' => '2026-11-08 21:00:00']), 2_000);
+
+    // Before the scheduler: both are open past their expiry - the report reads them as abandoned (a dash would hide nothing).
+    expect(rt_report()['first_session']['finished'])->toBe(['count' => 0, 'of' => 2, 'pct' => 0.0]);
+
+    expect(app(TrainingSessionService::class)->closeExpired(CarbonImmutable::parse(RT_NOW, 'UTC')))->toBe(2);
+    $first = rt_report()['first_session'];
+    expect($session->fresh()?->done_reason)->toBe(TrainingSession::DONE_FINISHED)
+        ->and($first['finished'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($first['abandoned'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($first['in_progress'])->toBe(0);
 });
 
 it('tells "one more round at once" from "came back": a second session within an hour is a round, a later one is a return', function (): void {

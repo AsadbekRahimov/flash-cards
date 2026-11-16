@@ -246,6 +246,12 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   5977 буферов / 2,8 мс → 7 буферов / 0,05 мс). Заменил `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`):
   по `is_hard` сортирует только пикер, остальным запросам хватает индексов по `learner_id` / `(learner_id, next_review_at)`.
   В sqlite создаётся так же (`DESC` поддерживается).
+- partial `(learner_id) WHERE state IN ('new', 'learning', 'relearning')` (`word_repetitions_in_steps_idx`, миграция `2026_11_17_100002`) — счётчик
+  `pending` раунда (`CardPicker::stepCounts`, docs/06 §13.2): сколько оценок ещё должны карточки ученика в минутных шагах, читается на каждом `/next`
+  и `/review` ежедневной сессии. Ни один индекс не начинается со `state`, поэтому счётчик обходил все строки ученика по `learner_id` и фильтровал:
+  5 000 строк — 5 007 буферов / 24 мс на шаг (EXPLAIN ANALYZE, 2 000 000 строк, 400 учеников × 5 000, по 8 в шагах). Строк в шагах у ученика единицы,
+  индекс крошечный (48 КБ при таблице 284 МБ): 11 буферов / 0,07 мс. Предикат в запросе должен быть записан ровно так же (`state IN (...)`, не
+  `state <> 'review'`) — иначе планировщик не докажет применимость частичного индекса. PostgreSQL строит `CONCURRENTLY`.
 - ~~`(next_review_at, learner_id)`~~ (`word_repetitions_due_learners_idx`) — **удалён** миграцией `2026_10_28_300001_drop_word_repetitions_due_learners_idx`
   (17.12). Задумывался под «batch scan learner'ов, которым пора напомнить о повторении», но этот скан — `learners.next_reminder_at`
   (`learners_next_reminder_at_idx`, `ReminderDispatcher`), а запроса к `word_repetitions` с фильтром по `next_review_at` **без** learner'а в приложении нет:
@@ -277,7 +283,8 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | started_at | timestamp |
 | ended_at | timestamp nullable |
 | expires_at | timestamp nullable — автозакрытие личных сессий планировщиком |
-| done_reason | varchar(16) nullable — почему закрыта: `finished` (learner нажал «Завершить») / `expired` (планировщик `training:close-expired` или замена просроченной при повторном открытии); `NULL` пока открыта *(1.3a)* |
+| completed_at | timestamp nullable *(2026_11_17_100001, docs/06 §13.2)* — личная сессия пройдена до конца: сервер ответил `card: null` после её оценок (раунд / урок окончен), независимо от `/finish`. Пустая сессия (без оценок) не помечается. Читают `TrainingSessionService::openPersonal` (пройденная `daily_review` при следующем открытии закрывается `finished` и заменяется новой), `closeExpired` (пройденная закрывается `finished`, а не `expired`) и `TodayService` (`open_session_id` только у не пройденной) |
+| done_reason | varchar(16) nullable — почему закрыта: `finished` (learner нажал «Завершить», либо раунд был пройден до конца — `completed_at` — и закрыт при следующем открытии или планировщиком) / `expired` (планировщик `training:close-expired` или замена просроченной / вчерашней незаконченной при повторном открытии); `NULL` пока открыта *(1.3a)* |
 
 **Ограничения:**
 - `(telegram_group_id, lesson_id) WHERE status = 'open'` unique — одна открытая тренировка урока на группу даже при параллельных командах (у личных сессий группа `NULL`, они не конфликтуют);
@@ -1484,6 +1491,8 @@ CHECK не создаются — инвариант дублируют серв
 76. `2026_11_16_100002_create_referral_milestones_table` — вехи пригласившего *(2C.9, §2.33a)*
 77. `2026_11_16_200001_create_league_month_tables` — `league_months`, `league_month_scores`, `league_month_candidates` *(месячный рейтинг, docs/13 §7.6, §2.62–2.64)*
 78. `2026_11_16_200002_add_date_index_to_learner_daily_stats_table` — индекс `learner_daily_stats (date)` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.22, §2.63)*
+79. `2026_11_17_100001_add_completed_at_to_training_sessions_table` — `training_sessions.completed_at`: раунд / урок пройден до конца без `/finish` *(docs/06 §13.2, §2.9)*
+80. `2026_11_17_100002_add_word_repetitions_in_steps_idx` — partial `word_repetitions (learner_id) WHERE state IN ('new','learning','relearning')` для счётчика `pending` раунда (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.7)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

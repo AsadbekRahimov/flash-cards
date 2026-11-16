@@ -156,11 +156,14 @@
   "entitlement": { "plan": "free", "source": "free", "until": null, "lapsed": null },
   "onboarding_completed": true,
   "timezone": "Asia/Tashkent",
-  "game": { "daily_available": true, "active_run": null, "class_caravan": null }
+  "game": { "daily_available": true, "active_run": null, "class_caravan": null },
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" }
 }
 ```
 
 - `due_count` — то же правило, что `words_due_today` в `/me` (`DueRepetitionCriteria`, A.2): слова, выведенные из курса (`is_active = false`), не считаются.
+- `practice` **(с 17.11.2026)** — доступность практики ученику для карточки игр на «Сегодня»: те же поля, что `/me.practice` (docs/16 §3.3) **без** `limits` — `available`, `pro_required`, `modes`, `battle`, `pro_promise`; считается из конфига и уже разрешённого тарифа, запросов не добавляет (бюджет `/today` прежний). Клиенту больше не нужен `/me` ради этого признака; дневные лимиты Free по-прежнему только в `/me.practice.limits`.
+- `open_session_id` — открытая `daily_review`-сессия, которую есть смысл продолжать: сессия, чей раунд уже пройден до конца (`completed_at`, A.3), сюда не попадает — «Начать занятие» откроет новый раунд.
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **личных** сессиях за **локальный** день (`word_repetitions.created_at` в окне `LearnerClock::limitWindowUtc` по `learners.timezone` с переносом дня при смене пояса, `introduced_mode <> 'group_lesson'`), не меньше 0; слова групповых уроков не считаются (docs/12 §5.3). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
 - `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
@@ -231,9 +234,16 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 }
 ```
 
-**Response (200, всегда — и для новой, и для уже открытой сессии):** ровно как у `/start` ниже (`session_id`, `mode`, `lesson`,
+**Response (200, всегда — и для новой, и для уже открытой сессии):** ровно как у `/start` ниже (`session_id`, `mode`, `started_at`, `lesson`,
 `total_words`, `card`, `progress`, `done_reason`). Клиент после ответа переходит на экран тренировки по `session_id`
 (экран снова вызывает `/start`, это идемпотентно: первая карточка та же).
+
+**Какая сессия возвращается (с 17.11.2026, docs/06 §13.2).** Открытая `daily_review`-сессия возвращается как есть, пока в ней есть карточки
+и она начата в текущем локальном дне ученика. Сессия, чей раунд **пройден до конца** (сервер уже отвечал `card: null` после её оценок —
+`training_sessions.completed_at`), либо начатая **до локального «сегодня»**, не возвращается: она закрывается здесь же (`finished` с теми же
+побочными эффектами, что у `/finish` — событие `training.session_finished`, проверка реферала; незаконченная вчерашняя — `expired`, как закрыл бы
+планировщик) и открывается новая. Поэтому «Начать занятие» после закрытого на вердикте Mini App всегда даёт новый раунд, а `/finish` старой сессии
+остаётся идемпотентным (200 с её итогом, без второго события). Урочная сессия (`lesson`) возвращается как есть в любом случае.
 
 **Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`, `lesson_id` не integer, `source` вне списка) →
 422 `lesson_mismatch` (`lesson` без `lesson_id` или `daily_review` с ним) → 404 `lesson_not_found` (урока нет **или** его курс
@@ -252,6 +262,7 @@ Learner завершает **свою личную** сессию (`status = clo
 **Response:**
 ```json
 {
+  "started_at": "2026-11-17T05:00:00+00:00",   // серверное время начала сессии, ISO-8601 UTC (с 17.11.2026): по нему экран итога решает, что получено «в этой сессии»
   "reviewed": 14, "correct": 11, "new_words": 4,
   "stages": { "graduated": 3, "promoted": 2, "mastered": 1 },
   "goal": { "target": 20, "done": 14, "met": false },
@@ -278,7 +289,9 @@ Learner завершает **свою личную** сессию (`status = clo
 
 Незавершённые сессии закрывает команда `training:close-expired` (планировщик, каждые 15 минут, `withoutOverlapping`): личные — по
 `expires_at` (`now + learning.session_ttl_hours`, 12 ч, при открытии), групповые — старше `group_session_ttl_hours`; обе с
-`done_reason = expired`, `ended_at` = момент закрытия.
+`done_reason = expired`, `ended_at` = момент закрытия. **Исключение (с 17.11.2026):** личная сессия, пройденная до конца, но без `/finish`
+(`completed_at` стоит — сервер отвечал `card: null` после её оценок), закрывается планировщиком как `finished` — в отчёте «Удержание» она
+не «брошена»; событий при этом нет (итог ученику не показывался).
 
 После `finish` (и после закрытия планировщиком) `/start`, `/next`, `/review` этой сессии отвечают 410 `session_closed`; то же — для личной сессии с `expires_at <= now`, которую планировщик ещё не закрыл. Открытая групповая сессия старше половины `group_session_ttl_hours` при повторном `/start_training` или открытии по ссылке напоминания закрывается (`expired`) и заменяется новой.
 
@@ -296,6 +309,7 @@ Learner присоединяется к открытой тренировке. �
 {
   "session_id": 123,
   "mode": "group_lesson",    // group_lesson | lesson | daily_review
+  "started_at": "2026-11-17T05:00:00+00:00",   // серверное время начала сессии, ISO-8601 UTC (с 17.11.2026); то же в итоге /finish
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" } | null,   // null для daily_review
   "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: размер раунда (= progress.total, docs/06 §13.2; без спринта — learners.daily_goal)
   "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null, "prompt": { "type": "flash", "front": "Resilient", "masked_example": null, "options": null, "answer_length": null } } | null,
@@ -364,9 +378,10 @@ Learner присоединяется к открытой тренировке. �
 | `sprint_complete` | scope `daily_review` (с 17.11.2026, docs/06 §13.2): раунд окончен — выбраны `LEARNING_SPRINT_DUE_CARDS` (15) дневных повторений и/или `LEARNING_SPRINT_NEW_WORDS` (6) новых слов с их шагами, а для следующего раунда ещё есть карточки (due сверх потолка или невыданные слова в пределах дневной квоты). Всегда с `can_continue = true` |
 
 `can_continue: bool` — есть всегда; `true` только вместе с `sprint_complete`. Экран итога при этом показывает «Ещё раунд»: клиент
-делает `POST /finish` текущей сессии и `POST /training/sessions {mode: daily_review}` — открытая сессия возвращается как есть, поэтому
-без `finish` «ещё раунд» вернёт ту же законченную сессию. Free, исчерпавший дневные новые слова, получает `new_quota_exhausted`
-(`can_continue = false`) — его клиент отличает от «спринт окончен»; `nothing_due` — ни повторений, ни новых слов (на сегодня всё).
+делает `POST /finish` текущей сессии и `POST /training/sessions {mode: daily_review}`. Шаг с `card: null` после оценок сессии сам
+помечает её пройденной (`completed_at`), поэтому `POST /training/sessions` откроет новый раунд и без `/finish` (A.3 выше) — `/finish`
+клиент всё равно вызывает сразу при получении `card: null`, чтобы получить итог и событие. Free, исчерпавший дневные новые слова, получает
+`new_quota_exhausted` (`can_continue = false`) — его клиент отличает от «спринт окончен»; `nothing_due` — ни повторений, ни новых слов (на сегодня всё).
 
 Клиент показывает экран «готово» с текстом по `done_reason`; для `new_quota_exhausted` — ещё и `PaywallSheet` (ниже).
 

@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordTranslationResolver;
@@ -269,7 +270,7 @@ final class ReviewSubmissionService
             $verdict = null;
 
             if ($answer !== null) {
-                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement, $example, $this->prompts->correctOption($exercise, $word, $translation));
+                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement, $example, $translation, $locale);
                 $quality = $verdict->quality;
             } else {
                 $quality = $this->acceptQuality($exercise, (int) $quality);
@@ -345,11 +346,15 @@ final class ReviewSubmissionService
     }
 
     /**
-     * @param  string  $correctOption  the right option of a four-option card (reverse: the word; meaning / audio / pretest: the translation)
+     * A four-option card (reverse: the word; meaning / audio / pretest: the translation) is right when the pick is the right
+     * option, or names the same sense as it does (docs/06 §12.2, {@see ExercisePromptBuilder::acceptsPick()}: two words of the
+     * course with one translation are both right, whichever of them an older serve put among the options).
+     *
+     * @param  ResolvedTranslation  $translation  the card's translation in the session's language
      *
      * @throws ReviewSubmissionException when the card's exercise is the learner's own grade
      */
-    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement, ?string $example, string $correctOption): SpellingVerdict
+    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement, ?string $example, ResolvedTranslation $translation, string $locale): SpellingVerdict
     {
         if ($exercise->selfGraded()) {
             if (! $this->selector->typedAvailableToPlan($entitlement)) {
@@ -368,9 +373,9 @@ final class ReviewSubmissionService
         }
 
         if ($exercise->isChoice()) {
-            $expected = $this->grader->normalize($correctOption);
+            $expected = $this->grader->normalize($this->prompts->correctOption($exercise, $word, $translation));
             $picked = $this->grader->normalize($answer);
-            $right = $expected !== '' && $expected === $picked;
+            $right = $expected !== '' && ($expected === $picked || $this->prompts->acceptsPick($exercise, $word, $translation, $locale, $answer));
             $pass = $exercise === ExerciseType::Pretest ? SpacedRepetitionEngine::EASY_QUALITY : self::CHOICE_PASS_QUALITY;
 
             return new SpellingVerdict($right ? $pass : self::CHOICE_FAIL_QUALITY, $right ? 0 : 1, $expected, $picked);
@@ -411,7 +416,10 @@ final class ReviewSubmissionService
             : null;
 
         if ($repetition->state === RepetitionState::Review && $this->ladder->ladderEnabled) {
-            $rung = $exercise->rung();
+            // The rung the CARD was served at (its maturity, or the floor an earlier lapse left), not the rung of the exercise:
+            // under the early ladder the formats of a rung alternate (reverse, audio, flash on the form rung), and a lapse
+            // sends the card one rung down from where it stood whichever format it failed in (docs/06 §12.1).
+            $rung = $this->ladder->rungOf($repetition);
             if ($failed) {
                 $floor = max(LadderPolicy::RUNG_FLASH, $rung - 1);
                 if ($floor > LadderPolicy::RUNG_FLASH) {

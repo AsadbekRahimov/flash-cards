@@ -12,32 +12,38 @@ use Carbon\CarbonImmutable;
  * Built per request by TrainingFlowService from {@see SprintPolicy} and the session counters of
  * {@see CardPicker::stepCounts()}; a daily session without a sprint passes null instead.
  *
- * `dueRemaining <= 0` — the picker serves no more day-based (`review`) cards, only cards in minute steps and new words;
- * `newUsed >= newLimit` — no more new words this round. The new-word limit is also projected under the learner lock
- * (`sprint_used`), so two tabs cannot jointly exceed it; the due cap is a soft reading (one extra card in a race at worst).
+ * `dueCapReached()` — the picker serves no more day-based (`review`) cards, only cards in minute steps and new words;
+ * `newRemaining() <= 0` — no more new words this round (also while a review debt holds them back: `newLimit` 0). The
+ * new-word limit is also projected under the learner lock (`sprint_used`), so two tabs cannot jointly exceed it; the
+ * due cap is a soft reading (one extra card in a race at worst). A null limit is no limit of that kind.
  */
 final readonly class SprintLimits
 {
     /**
      * @param  CarbonImmutable  $startedAt  the session's start: a word introduced at or after it belongs to this round
-     * @param  int  $newLimit  new words a round may introduce
+     * @param  int|null  $newLimit  new words a round may introduce; null = as many as there are
      * @param  int  $newUsed  new words this round introduced so far (counted before the pick)
-     * @param  int  $dueRemaining  day-based reviews the round may still take
+     * @param  int|null  $dueRemaining  day-based reviews the round may still take; null = all that are due
      */
     public function __construct(
         public CarbonImmutable $startedAt,
-        public int $newLimit,
+        public ?int $newLimit,
         public int $newUsed,
-        public int $dueRemaining,
+        public ?int $dueRemaining,
     ) {}
 
+    /** New words the round may still introduce; without a limit, more than any course holds. */
     public function newRemaining(): int
     {
+        if ($this->newLimit === null) {
+            return PHP_INT_MAX;
+        }
+
         return max(0, $this->newLimit - $this->newUsed);
     }
 
     public function dueCapReached(): bool
     {
-        return $this->dueRemaining <= 0;
+        return $this->dueRemaining !== null && $this->dueRemaining <= 0;
     }
 }

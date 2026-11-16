@@ -25,6 +25,7 @@ final class SessionSummaryResource extends TwaResource
 {
     /**
      * @return array{
+     *   started_at: string,
      *   reviewed: int, correct: int, new_words: int,
      *   goal: array{target: int, done: int, met: bool},
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
@@ -39,6 +40,8 @@ final class SessionSummaryResource extends TwaResource
         $progress = $this->resource['progress'];
 
         return [
+            // When the session began, server time (ISO-8601, UTC): what "achieved in this session" is measured from.
+            'started_at' => CarbonImmutable::instance($summary->session->started_at)->utc()->toIso8601String(),
             'reviewed' => $summary->reviewed,
             'correct' => $summary->correct,
             'new_words' => $summary->newWords,

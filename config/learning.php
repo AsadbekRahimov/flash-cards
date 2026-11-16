@@ -181,11 +181,17 @@ return [
      * `done_reason = sprint_complete` and `can_continue` when another round would have cards. The daily new-word quota of the
      * Free plan is untouched (it is the day's limit; `new_words` is the round's). `enabled = false`: the session runs until
      * nothing is left (or the per-session cap), the progress is "grades / daily goal" as before.
+     * A limit of 0 (or less) is NO limit of that kind: the round is bounded by the other one alone (a round that could hold
+     * no card of a kind would end empty with "one more round" on offer, forever).
+     * `debt_holds_new`: while more day-based reviews are due than one round takes (`due_cards`), the round introduces no new
+     * words — the backlog is cleared first, round by round, as new words only came after the due ones before the sprint;
+     * a newcomer and a learner with no backlog are not affected.
      */
     'sprint' => [
         'enabled' => (bool) env('LEARNING_SPRINT_ENABLED', true),
         'new_words' => (int) env('LEARNING_SPRINT_NEW_WORDS', 6),
         'due_cards' => (int) env('LEARNING_SPRINT_DUE_CARDS', 15),
+        'debt_holds_new' => (bool) env('LEARNING_SPRINT_DEBT_HOLDS_NEW', true),
     ],
 
     /**

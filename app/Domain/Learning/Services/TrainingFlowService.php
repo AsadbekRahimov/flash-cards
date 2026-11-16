@@ -93,6 +93,7 @@ final class TrainingFlowService
         private readonly LadderPolicy $ladder,
         private readonly SprintPolicy $sprint,
         private readonly LearningPolicy $learning,
+        private readonly TrainingSessionService $sessions,
     ) {}
 
     /**
@@ -150,12 +151,21 @@ final class TrainingFlowService
             (int) $learner->id,
             (int) $session->id,
             $scope->isLesson() ? (int) $scope->lessonId : null,
-            $sprintOn ? ['started_at' => $startedAt, 'due_cap' => max(0, $this->sprint->dueCards), 'now' => $now] : null,
+            $sprintOn ? ['started_at' => $startedAt, 'due_cap' => $this->sprint->dueCards, 'now' => $now] : null,
         );
         $reviewCount = $counts['reviews'];
-        $limits = $sprintOn
-            ? new SprintLimits($startedAt, $this->sprint->newWords, $counts['new_done'], $this->sprint->dueCards - $counts['due_done'])
-            : null;
+        $limits = null;
+        if ($sprintOn) {
+            // The review debt (docs/06 §13.2): more day-based cards due than one round takes (those graded in this round
+            // included, so the answer holds for the whole round) - the backlog is cleared first, no new words meanwhile.
+            $debt = $this->sprint->debtHoldsNew && $this->sprint->dueCards !== null && $this->sprint->dueCards < $counts['due_left'] + $counts['due_done'];
+            $limits = new SprintLimits(
+                $startedAt,
+                $debt ? 0 : $this->sprint->newWords,
+                $counts['new_done'],
+                $this->sprint->dueCards === null ? null : $this->sprint->dueCards - $counts['due_done'],
+            );
+        }
 
         $progress = match (true) {
             $sprintOn => ['done' => $reviewCount, 'total' => $reviewCount],
@@ -168,6 +178,8 @@ final class TrainingFlowService
         $budget = $scope->isGroupLesson() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now, $entitlement);
 
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
+            $this->completed($session, $reviewCount, $now);
+
             return TrainingStep::done(DoneReason::SessionCap, $progress, $budget->remaining((int) $learner->id, $now));
         }
 
@@ -183,6 +195,7 @@ final class TrainingFlowService
             if ($reason === DoneReason::NewQuotaExhausted) {
                 $this->recordPaywallShown($learner, $now);
             }
+            $this->completed($session, $reviewCount, $now);
 
             return TrainingStep::done($reason, $progress, $remaining, $pick->canContinue);
         }
@@ -252,6 +265,17 @@ final class TrainingFlowService
         return $text === '' ? null : $text;
     }
 
+    /**
+     * No more cards for a personal session that was played (docs/06 §13.2): stamped once, so the next open of the daily
+     * session starts a fresh round and the scheduler closes this one as `finished`. A session without grades is left alone.
+     */
+    private function completed(TrainingSession $session, int $reviewCount, CarbonImmutable $now): void
+    {
+        if ($reviewCount > 0 && $session->learner_id !== null) {
+            $this->sessions->markCompleted($session, $now);
+        }
+    }
+
     private function dailyGoal(Learner $learner): int
     {
         return max(1, (int) $learner->daily_goal);
@@ -260,9 +284,9 @@ final class TrainingFlowService
     /**
      * The round's progress (docs/06 §13.2): `done` = grades in this session; `total` = done + what the round still owes
      * after this pick — the due reviews it may still take (counted up to the cap), the new words it may still introduce
-     * (within the day's quota) times the learning steps each one costs, and the grades the cards in minute steps still
-     * need. The estimate never falls below `done`, so the bar never shows "35 / 20"; a failed step adds its repeat to
-     * `total`, an "already knew it" takes a step away from it.
+     * (within the day's quota, and none once the picker has seen the course run dry) times the learning steps each one
+     * costs, and the grades the cards in minute steps still need. The estimate never falls below `done`, so the bar never
+     * shows "35 / 20"; a failed step adds its repeat to `total`, an "already knew it" takes a step away from it.
      *
      * @param  array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int}  $counts  counted BEFORE the pick
      * @param  int|null  $quotaRemaining  the day's new cards left after this pick; null = unlimited; 0 when the scope has no
@@ -275,14 +299,22 @@ final class TrainingFlowService
         $steps = count($this->learning->learningStepsMinutes);
         $pickedNew = $pick->kind === 'new';
 
-        $newLeft = max(0, $limits->newRemaining() - ($pickedNew ? 1 : 0));
-        if ($quotaRemaining !== null) {
-            $newLeft = min($newLeft, $quotaRemaining);
+        if ($pick->newExhausted) {
+            // The picker looked and the course has no unseen word left: the round owes none, whatever its limit says.
+            $newLeft = 0;
+        } elseif ($limits->newLimit === null) {
+            // No round limit: the day's quota is the only bound; without one either, nothing to estimate beyond the pick.
+            $newLeft = max(0, ($quotaRemaining ?? 0));
+        } else {
+            $newLeft = max(0, $limits->newRemaining() - ($pickedNew ? 1 : 0));
+            if ($quotaRemaining !== null) {
+                $newLeft = min($newLeft, $quotaRemaining);
+            }
         }
         // The new row of this pick was not there when the counters ran: it owes the full learning steps.
         $pending = $counts['pending'] + ($pickedNew ? $steps : 0);
-        // Due cards are counted up to the cap; the round may take only what is left of it.
-        $dueLeft = min($counts['due_left'], max(0, $limits->dueRemaining));
+        // Due cards are counted up to the cap (+ 1); the round may take only what is left of it.
+        $dueLeft = $limits->dueRemaining === null ? $counts['due_left'] : min($counts['due_left'], max(0, $limits->dueRemaining));
 
         return ['done' => $done, 'total' => max($done, $done + $dueLeft + $newLeft * $steps + $pending)];
     }

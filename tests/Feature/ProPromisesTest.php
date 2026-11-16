@@ -371,15 +371,10 @@ it('puts the variant of the description into the Stars invoice by the promise', 
 ])->with(['ru', 'uz'])->with(['month', 'year']);
 
 it('ships with practice open to everybody and the battles off: the landing and the invoice speak of practice alone, the battles come back with their switch, and switching practice off takes the words away', function (): void {
-    // config/practice.php as it ships: PRACTICE_ACCESS=all, PRACTICE_PLAN=all, 2 sessions and 1 battle a day for Free, battles OFF until checked on the stand.
-    // The limits are compared by value: from config/practice.php's defaults they are the integers 2 and 1, from a `.env` made
-    // of `.env.example` (as CI makes it) env() reads the strings '2' and '1' - the same setting either way.
-    expect(config('practice.access'))->toBe('all')
-        ->and(config('practice.plan'))->toBe('all')
-        ->and(config('practice.free_limits'))->toEqual(['sessions_per_day' => 2, 'battles_per_day' => 1]);
-
-    // The local `.env` may have the battle on and leaks into the tests: the switch is pinned to what the ship has (config/practice.php).
-    config(['practice.battle.enabled' => false]);
+    // config/practice.php as it ships: PRACTICE_ACCESS=all, PRACTICE_PLAN=all, 2 sessions and 1 battle a day for Free, battles OFF until
+    // checked on the stand. Pinned here rather than read: a local `.env` (PRACTICE_ACCESS=off, PRACTICE_BATTLE=true, other limits)
+    // leaks into the tests, and this test is about the ship, not about the host. `.env.example` carries the same values (EnvExampleTest).
+    proPracticeConfig('all', 2, 1, battleOn: false, plan: 'all');
     expect(ProPromises::publicPractice())->toBe(ProPracticePromise::Solo);
 
     foreach (['ru', 'uz'] as $locale) {

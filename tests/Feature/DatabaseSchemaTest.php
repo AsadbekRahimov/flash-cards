@@ -363,7 +363,7 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_next_card_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_in_steps_idx'],
         'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx', 'training_reviews_learner_word_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
@@ -447,12 +447,15 @@ it('has the next-card index in the exact order of CardPicker and the partial ind
         ->toContain('(learner_id, is_hard DESC, next_review_at, id)')
         ->and($defs->get('words_inactive_idx'))
         ->toContain('ON public.words USING btree (id) WHERE (is_active = false)')
+        // The round's `pending` counter (2026_11_17_100002): the few rows in minute steps, by learner.
+        ->and($defs->get('word_repetitions_in_steps_idx'))
+        ->toContain('ON public.word_repetitions USING btree (learner_id) WHERE ((state)::text = ANY')
         ->and($defs->has('word_repetitions_learner_hard_due_idx'))->toBeFalse();
 
-    // Both are plain valid btree indexes (a CONCURRENTLY build that failed would leave an INVALID one).
+    // All are plain valid btree indexes (a CONCURRENTLY build that failed would leave an INVALID one).
     $invalid = DB::table('pg_index')
         ->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')
-        ->whereIn('pg_class.relname', ['word_repetitions_next_card_idx', 'words_inactive_idx'])
+        ->whereIn('pg_class.relname', ['word_repetitions_next_card_idx', 'words_inactive_idx', 'word_repetitions_in_steps_idx'])
         ->where('pg_index.indisvalid', false)
         ->count();
     expect($invalid)->toBe(0);

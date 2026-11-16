@@ -91,6 +91,8 @@ it('requires authentication', function (): void {
 });
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
+    // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true]]);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
@@ -105,6 +107,8 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'league' => null,
         'timezone' => $learner->timezone,
         'game' => ['daily_available' => false, 'active_run' => null, 'class_caravan' => null],
+        // The practice card (docs/04 A.2a): the flags of `/me.practice`, no limits - the screen asks `/me` for nothing.
+        'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo'],
     ]);
 });
 
@@ -410,6 +414,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
     $id = todayGrade($this, $learner, 2);
 
     $expected = [
+        'started_at' => CarbonImmutable::instance(TrainingSession::query()->findOrFail($id)->started_at)->utc()->toIso8601String(),
         'reviewed' => 2, 'correct' => 2, 'new_words' => 2,
         // Two new words graded "good" once: still in their minute steps, nothing climbed yet (docs/06 §13.3).
         'stages' => ['graduated' => 0, 'promoted' => 0, 'mastered' => 0],

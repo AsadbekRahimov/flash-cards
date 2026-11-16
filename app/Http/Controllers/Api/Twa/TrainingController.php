@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
-use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
@@ -37,7 +36,6 @@ final class TrainingController
         private readonly TrainingSessionPolicy $policy,
         private readonly ProductEventRecorder $events,
         private readonly TodayService $today,
-        private readonly ReferralService $referrals,
         private readonly PracticeEntryResolver $practiceEntries,
         private readonly CourseCatalogService $catalog,
     ) {}
@@ -120,27 +118,11 @@ final class TrainingController
         }
 
         try {
-            $summary = $this->sessions->finish($session);
+            // The event `training.session_finished` and the referral evaluation are the service's (after its commit, once):
+            // the re-open of a round played to the end without `/finish` closes it the same way (docs/06 §13.2).
+            $summary = $this->sessions->finish($session, learner: $learner);
         } catch (TrainingSessionException $e) {
             return ApiErrorResource::respond(403, $e->reason, $e->getMessage());
-        }
-
-        if ($summary->wasOpen) {
-            $this->events->record(
-                ProductEventName::TrainingSessionFinished,
-                [
-                    'training_session_id' => $session->id,
-                    'mode' => $session->mode,
-                    'reviewed' => $summary->reviewed,
-                    'correct' => $summary->correct,
-                    'new_words' => $summary->newWords,
-                ],
-                learner: $learner,
-            );
-
-            // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
-            // After the session's own transaction, never inside it.
-            $this->referrals->evaluate($learner, CarbonImmutable::now());
         }
 
         return (new SessionSummaryResource([
