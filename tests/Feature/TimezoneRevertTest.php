@@ -206,7 +206,9 @@ it('answers POST /me/settings/timezone/revert with the profile and the undo mark
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     revPost($this, $learner)->assertStatus(422)->assertJsonPath('error.code', 'timezone_revert_unavailable');
 
-    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['timezone' => 'Asia/Kolkata'])
+    // No client changes the zone any more (a PATCH with `timezone` is ignored): the change comes from the service.
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => 'Asia/Kolkata']);
+    $this->withHeaders($headers)->getJson('/api/twa/me')
         ->assertOk()
         ->assertJsonPath('settings.timezone_undo_available_until', '2026-10-19T10:10:00+00:00');
 
@@ -219,7 +221,7 @@ it('answers POST /me/settings/timezone/revert with the profile and the undo mark
     revPost($this, $learner)->assertStatus(422)->assertJsonPath('error.code', 'timezone_revert_unavailable');
 });
 
-it('offers an undo button under the confirmation of a /settings zone change and takes the change back', function (): void {
+it('takes a zone change back through the old "Отменить" button of the bot (the bot no longer changes the zone itself)', function (): void {
     $tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $tg);
     $learner = revLearner(['telegram_user_id' => 7301, 'interface_locale' => 'ru']);
@@ -231,14 +233,15 @@ it('offers an undo button under the confirmation of a /settings zone change and 
     ]]);
 
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
-    $tap('set1:timezone:Europe/Moscow', 10);
-    $sent = end($tg->sent);
-    expect($sent['text'])->toBe('Сохранено.')
-        ->and($sent['markup']['inline_keyboard'][0][0])->toBe(['text' => 'Отменить', 'callback_data' => 'set1:tzundo']);
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => 'Europe/Moscow']);
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:01:00', 'UTC'));
 
-    // A non-zone setting has no button.
-    $tap('set1:goal:ielts', 11);
-    expect(end($tg->sent)['markup'])->toBeNull();
+    // A zone button is not a setting any more; no setting leaves an undo button.
+    $tap('set1:timezone:Asia/Almaty', 10);
+    $tap('set1:reminder:2100', 11);
+    expect(end($tg->sent)['text'])->toBe('Сохранено.')
+        ->and(end($tg->sent)['markup'])->toBeNull()
+        ->and($learner->fresh()->timezone)->toBe('Europe/Moscow');
 
     CarbonImmutable::setTestNow('2026-10-19 10:05:00');
     $tap('set1:tzundo', 12);

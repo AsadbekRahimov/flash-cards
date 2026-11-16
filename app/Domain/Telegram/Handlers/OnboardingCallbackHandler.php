@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learners\Exceptions\OnboardingException;
-use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
@@ -83,7 +82,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
             || $fromId <= 0
             || (int) ($message['chat']['id'] ?? 0) !== $fromId
             || preg_match(self::FORMAT, (string) ($cq['data'] ?? ''), $m) !== 1
-            || ! (in_array($m[2], OnboardingService::STEPS, true) || $this->isTimezoneUndo($m))
+            || ! $this->knownStep($m)
         ) {
             return;
         }
@@ -107,6 +106,17 @@ final class OnboardingCallbackHandler implements UpdateHandler
         try {
             if ($m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
                 if ($value === null) {
+                    return;
+                }
+
+                if (OnboardingService::isRetiredStep($step)) {
+                    // A button of the removed time zone step or of the goal step that is off: not an error. A learner
+                    // stuck on that step goes on with the next one, anybody else's tap is a stale one and changes nothing.
+                    if ($this->onboarding->settle($learner)) {
+                        $this->messenger->clearKeyboard($chatId, $messageId);
+                        $this->messenger->sendStep($learner, $chatId, $this->onboarding->current($learner));
+                    }
+
                     return;
                 }
 
@@ -137,21 +147,31 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
             $this->onboarding->applySetting($learner, $step, $value);
             $this->messenger->clearKeyboard($chatId, $messageId);
-            $this->messenger->sendSettingSaved(
-                $learner,
-                $chatId,
-                withTimezoneUndo: $step === 'timezone' && $this->settings->timezoneUndoAvailableUntil($learner->refresh()) !== null,
-            );
+            $this->messenger->sendSettingSaved($learner, $chatId);
         } catch (OnboardingException $e) {
             // Stale or tampered button: already answered, nothing to change or say —
             // except the retry of a half-delivered answer, see the class comment.
             if ($e->errorCode === OnboardingException::STALE_STEP && $m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
                 $this->repeatLostStep($learner, $step, $chatId);
             }
-        } catch (TimezoneChangeTooSoonException $e) {
-            // A legitimate tap the rules refuse: the learner is told when the zone can change again.
-            $this->messenger->sendTimezoneChangeTooSoon($learner, $chatId, $e->availableAt);
         }
+    }
+
+    /**
+     * The step of a button is one we know: the onboarding's own (also the retired ones, which are answered gracefully)
+     * or, for `/settings`, a step that is asked now; the "undo" of a zone change is always known.
+     *
+     * @param  array<int, string>  $m
+     */
+    private function knownStep(array $m): bool
+    {
+        if ($this->isTimezoneUndo($m)) {
+            return true;
+        }
+
+        return $m[1] === OnboardingMessenger::ONBOARDING_PREFIX
+            ? in_array($m[2], [...OnboardingService::STEPS, OnboardingService::LEGACY_TIMEZONE_STEP], true)
+            : in_array($m[2], OnboardingService::steps(), true);
     }
 
     /** @param array<int, string> $m the matches of {@see FORMAT}: `set1:tzundo` is the "undo" button under the confirmation of a zone change */
@@ -176,7 +196,8 @@ final class OnboardingCallbackHandler implements UpdateHandler
     {
         $learner->refresh();
 
-        $following = OnboardingService::STEPS[(int) array_search($answeredStep, OnboardingService::STEPS, true) + 1] ?? OnboardingService::DONE;
+        $steps = OnboardingService::steps();
+        $following = $steps[(int) array_search($answeredStep, $steps, true) + 1] ?? OnboardingService::DONE;
 
         if ($learner->onboarding_state === $following) {
             $step = $this->onboarding->current($learner);

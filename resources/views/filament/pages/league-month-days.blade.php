@@ -1,29 +1,31 @@
+@include('filament.pages.partials.league-month-styles')
+
 @if ($days === [])
-    <p class="text-sm">{{ __('admin.league_month.days.empty') }}</p>
+    <p class="lm-text">{{ __('admin.league_month.days.empty') }}</p>
 @else
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+    <div class="lm-scroll lm-days">
+        <table class="lm-table">
             <thead>
-                <tr class="border-b border-gray-200 dark:border-white/10">
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.date') }}</th>
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.reviews') }}</th>
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.correct') }}</th>
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.new_words') }}</th>
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.goal') }}</th>
-                    <th class="py-1 pe-3 font-semibold">{{ __('admin.league_month.days.points') }}</th>
-                    <th class="py-1 font-semibold" title="{{ __('admin.league_month.days.counted_hint', ['cap' => $cap > 0 ? $cap : '—']) }}">{{ __('admin.league_month.days.counted') }}</th>
+                <tr>
+                    <th>{{ __('admin.league_month.days.date') }}</th>
+                    <th class="lm-num">{{ __('admin.league_month.days.reviews') }}</th>
+                    <th class="lm-num">{{ __('admin.league_month.days.correct') }}</th>
+                    <th class="lm-num">{{ __('admin.league_month.days.new_words') }}</th>
+                    <th>{{ __('admin.league_month.days.goal') }}</th>
+                    <th class="lm-num">{{ __('admin.league_month.days.points') }}</th>
+                    <th class="lm-num" title="{{ __('admin.league_month.days.counted_hint', ['cap' => $cap > 0 ? $cap : '—']) }}">{{ __('admin.league_month.days.counted') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($days as $day)
-                    <tr class="border-b border-gray-100 dark:border-white/5">
-                        <td class="py-1 pe-3">{{ \App\Filament\Resources\Support\AdminDates::date(\Carbon\CarbonImmutable::parse($day['date'])) }}</td>
-                        <td class="py-1 pe-3">{{ $day['reviews'] }}</td>
-                        <td class="py-1 pe-3">{{ $day['correct'] }}</td>
-                        <td class="py-1 pe-3">{{ $day['new_words'] }}</td>
-                        <td class="py-1 pe-3">{{ $day['goal_met'] ? __('admin.common.yes') : __('admin.common.no') }}</td>
-                        <td class="py-1 pe-3">{{ $day['points'] }}</td>
-                        <td class="py-1 font-medium {{ $day['counted'] < $day['points'] ? 'text-warning-600 dark:text-warning-400' : '' }}">{{ $day['counted'] }}</td>
+                    <tr>
+                        <td class="lm-nowrap">{{ \App\Filament\Resources\Support\AdminDates::date(\Carbon\CarbonImmutable::parse($day['date'])) }}</td>
+                        <td class="lm-num">{{ $day['reviews'] }}</td>
+                        <td class="lm-num">{{ $day['correct'] }}</td>
+                        <td class="lm-num">{{ $day['new_words'] }}</td>
+                        <td>{{ $day['goal_met'] ? __('admin.common.yes') : __('admin.common.no') }}</td>
+                        <td class="lm-num">{{ $day['points'] }}</td>
+                        <td class="lm-num {{ $day['counted'] < $day['points'] ? 'lm-warn' : '' }}"><strong>{{ $day['counted'] }}</strong></td>
                     </tr>
                 @endforeach
             </tbody>

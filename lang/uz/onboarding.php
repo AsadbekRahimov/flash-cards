@@ -12,12 +12,11 @@ return [
     'invited_by_organization' => 'Sizni «:organization» markazi taklif qildi',
     'invited_by_learner' => 'Sizni :name taklif qildi',
 
-    // The five onboarding steps (docs/12 §7.1), one message each.
+    // The onboarding steps (the goal one only while several goals are enabled; no time zone step) (docs/12 §7.1), one message each.
     'steps' => [
         'locale' => 'Interfeys tilini tanlang',
         'goal' => "Ingliz tilini nima uchun o'rganmoqchisiz?",
         'level' => "Darajangiz qanday? O'zingizni baholang — keyinroq o'zgartirish mumkin.",
-        'timezone' => "Qaysi vaqt mintaqasida yashaysiz? Eslatmalar o'z vaqtida kelishi uchun.",
         'reminder' => "So'zlarni takrorlashni qachon eslatib turay?",
     ],
 
@@ -34,16 +33,6 @@ return [
             'B1' => "B1 — o'rta",
             'B2' => "B2 — o'rtadan yuqori",
             'unknown' => 'Bilmayman',
-        ],
-        // City names; `:offset` is filled in from the current UTC offset of the zone.
-        'timezone' => [
-            'tashkent' => 'Toshkent (:offset)',
-            'almaty' => 'Almati (:offset)',
-            'bishkek' => 'Bishkek (:offset)',
-            'dushanbe' => 'Dushanbe (:offset)',
-            'ashgabat' => 'Ashxobod (:offset)',
-            'moscow' => 'Moskva (:offset)',
-            'istanbul' => 'Istanbul (:offset)',
         ],
         'reminder' => [
             'time' => ':time',
@@ -79,15 +68,12 @@ return [
         'menu' => "Nimani o'zgartirmoqchisiz?",
         'language_title' => 'Tilni tanlang',
         'saved' => 'Saqlandi.',
-        'timezone_too_soon' => "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha).",
-        'timezone_undo' => 'Bekor qilish',
         'timezone_reverted' => 'Vaqt mintaqasi qaytarildi.',
         'timezone_revert_unavailable' => "Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan.",
         'buttons' => [
             'locale' => 'Til',
             'goal' => 'Maqsad',
             'level' => 'Daraja',
-            'timezone' => 'Vaqt mintaqasi',
             'reminder' => 'Eslatmalar',
         ],
     ],

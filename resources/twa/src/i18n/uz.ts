@@ -461,9 +461,6 @@ export const uz: Translations = {
   // ---- settings ----
   'settings.title': 'Sozlamalar',
   'settings.language': 'Interfeys tili',
-  'settings.timezone': 'Vaqt mintaqasi',
-  'settings.timezone.undo': "Mintaqa o'zgarishini bekor qilish ({time})",
-  'settings.timezone.locked': "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — {when}.",
   'settings.reminder.off': "O'chirilgan",
   'settings.reminder.hint': "Vaqt sizning vaqt mintaqangiz bo'yicha.",
   'settings.daily_goal': 'Kunlik maqsad',
@@ -484,7 +481,7 @@ export const uz: Translations = {
   'settings.retention.intense': 'Jadal',
   'settings.retention.hint': "Takrorlash vaqtida so'zlarning qancha qismi esda qolishi kerak: sokin — 85 %, odatiy — 90 %, jadal — 93 %. Maqsad qanchalik yuqori bo'lsa, takrorlashlar shuncha tez-tez bo'ladi.",
   'settings.group.reminders': 'Eslatmalar',
-  'settings.group.region': 'Til va hudud',
+  'settings.group.region': 'Til',
   'settings.group.leagues': 'Ligalar',
   'settings.daily_goal.unit': "kuniga nechta so'z",
   'settings.reminder.time': 'Eslatma vaqti',

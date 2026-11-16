@@ -15,7 +15,7 @@ import type { MeResponse } from '@/api/types'
 const state = vi.hoisted(() => ({ close: vi.fn() }))
 
 vi.mock('@/api', () => ({
-  api: { me: { get: vi.fn(), updateSettings: vi.fn(), revertTimezone: vi.fn(), deleteAccount: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } },
+  api: { me: { get: vi.fn(), updateSettings: vi.fn(), deleteAccount: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } },
 }))
 
 vi.mock('@/composables/useTelegram', () => ({

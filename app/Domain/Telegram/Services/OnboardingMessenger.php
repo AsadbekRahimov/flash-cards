@@ -9,7 +9,6 @@ use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
-use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
@@ -19,7 +18,6 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Models\Course;
 use App\Models\Learner;
-use Carbon\CarbonImmutable;
 
 /**
  * Renders onboarding and `/settings` screens: message text from `lang/{ru,uz}/onboarding.php` in the
@@ -45,7 +43,6 @@ final class OnboardingMessenger
         private readonly LocaleResolver $locales,
         private readonly OnboardingService $onboarding,
         private readonly CourseCatalogService $catalog,
-        private readonly LearnerClock $clock,
         private readonly LearnerOrganizationsService $organizations,
         private readonly OrganizationMembershipService $memberships,
         private readonly FriendshipService $friendships,
@@ -59,7 +56,7 @@ final class OnboardingMessenger
     {
         $step = $this->onboarding->start($learner, $payload);
 
-        $this->sendStep($learner, $chatId, $step, $greet && $step->state === OnboardingService::STEPS[0] ? $payload : null);
+        $this->sendStep($learner, $chatId, $step, $greet && $step->state === OnboardingService::steps()[0] ? $payload : null);
     }
 
     /** @param StartPayload|null $welcome set for the first message of a new person: the welcome (and the inviter) is put before the step */
@@ -82,9 +79,10 @@ final class OnboardingMessenger
             return;
         }
 
+        $steps = OnboardingService::steps();
         $text = __('onboarding.step_counter', [
-            'n' => (int) array_search($step->state, OnboardingService::STEPS, true) + 1,
-            'total' => count(OnboardingService::STEPS),
+            'n' => (int) array_search($step->state, $steps, true) + 1,
+            'total' => count($steps),
         ], $locale)."\n".__($step->messageKey, [], $locale);
 
         if ($welcome !== null) {
@@ -166,7 +164,7 @@ final class OnboardingMessenger
                 'text' => __('onboarding.settings.buttons.'.$step, [], $locale),
                 'callback_data' => self::SETTINGS_PREFIX.':'.$step,
             ],
-            OnboardingService::STEPS,
+            OnboardingService::steps(),
         );
 
         $rows = array_chunk($buttons, 2);
@@ -193,7 +191,7 @@ final class OnboardingMessenger
     public function sendSettingStep(Learner $learner, int|string $chatId, string $step): void
     {
         $locale = $this->locales->forLearner($learner);
-        // The caller has checked that $step is one of OnboardingService::STEPS.
+        // The caller has checked that $step is one of OnboardingService::steps().
         $stepView = $this->onboarding->step($step);
 
         $this->telegram->sendMessage(
@@ -215,18 +213,9 @@ final class OnboardingMessenger
         $this->telegram->sendMessage($chatId, __('onboarding.settings.language_title', [], 'uz').' · '.__('onboarding.settings.language_title', [], 'ru'), replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX));
     }
 
-    public function sendSettingSaved(Learner $learner, int|string $chatId, bool $withTimezoneUndo = false): void
+    public function sendSettingSaved(Learner $learner, int|string $chatId): void
     {
-        $locale = $this->locales->forLearner($learner);
-
-        $this->telegram->sendMessage(
-            $chatId,
-            __('onboarding.settings.saved', [], $locale),
-            replyMarkup: $withTimezoneUndo ? ['inline_keyboard' => [[[
-                'text' => __('onboarding.settings.timezone_undo', [], $locale),
-                'callback_data' => self::SETTINGS_PREFIX.':'.self::TIMEZONE_UNDO_STEP,
-            ]]]] : null,
-        );
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.saved', [], $this->locales->forLearner($learner)));
     }
 
     public function sendTimezoneReverted(Learner $learner, int|string $chatId): void
@@ -237,17 +226,6 @@ final class OnboardingMessenger
     public function sendTimezoneRevertUnavailable(Learner $learner, int|string $chatId): void
     {
         $this->telegram->sendMessage($chatId, __('onboarding.settings.timezone_revert_unavailable', [], $this->locales->forLearner($learner)));
-    }
-
-    /** `/settings` refused a time-zone change (once per 24 h): says when it is possible again, in the learner's current local time. */
-    public function sendTimezoneChangeTooSoon(Learner $learner, int|string $chatId, CarbonImmutable $availableAt): void
-    {
-        $local = $availableAt->setTimezone($this->clock->timezone($learner));
-
-        $this->telegram->sendMessage(
-            $chatId,
-            __('onboarding.settings.timezone_too_soon', ['when' => $local->format('d.m H:i')], $this->locales->forLearner($learner)),
-        );
     }
 
     /** Removes the buttons of an answered message; a message Telegram no longer lets us edit is not worth failing for. */

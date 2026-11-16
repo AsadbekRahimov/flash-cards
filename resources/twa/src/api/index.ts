@@ -120,7 +120,6 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
-    revertTimezone: () => client().post<MeResponse>('/me/settings/timezone/revert'),
     /** "Delete account": soft delete with the explicit confirmation; the token stops working at once. */
     /** The "account restored" sheet was shown; idempotent, 204. */
     accountRestoredSeen: () => client().post<void>('/me/account-restored/seen'),

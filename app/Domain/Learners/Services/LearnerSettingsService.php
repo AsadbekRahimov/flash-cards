@@ -18,11 +18,9 @@ use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
-use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Lang;
 use Throwable;
 
 /**
@@ -37,10 +35,12 @@ use Throwable;
  *                        `meta.locale_chosen`, after which {@see LearnerRegistrar} no longer derives
  *                        the language from Telegram's `language_code`;
  *  - `timezone`          any id PHP knows, also the legacy aliases (`DateTimeZone::ALL_WITH_BC`, e.g.
- *                        `Asia/Calcutta`), stored as given;
+ *                        `Asia/Calcutta`), stored as given. No learner-facing entry point changes it any more
+ *                        (owner's decision of 16.11.2026: new learners get `learners.default_timezone`); the rule
+ *                        and the machinery below stay for the code that still calls it (undo, operations);
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
  *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
- *  - `goal`, `level`     the onboarding whitelists;
+ *  - `goal`, `level`     the onboarding whitelists (`goal`: the goals enabled in `learners.goals`);
  *  - `leagues_opt_out`   bool, kept in `learners.meta` (docs/13 §7.3): `true` = not placed in league groups any more.
  *  - `exercises`         `{meaning, reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
  *                        given change), stored in `learners.meta.exercises` (docs/13 §8.2); flash cards
@@ -91,7 +91,6 @@ use Throwable;
  *   retention_mode: string,
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
- *     timezones: list<array{id: string, label: string}>,
  *     reminder_times: list<string>,
  *     daily_goals: list<int>,
  *     retention_modes: list<string>
@@ -247,11 +246,6 @@ final class LearnerSettingsService
         $locale = $this->locales->forLearner($learner);
         $reminder = $this->shortTime($learner->reminder_time);
 
-        $zones = $this->timezoneOptions();
-        if (! in_array($learner->timezone, $zones, true)) {
-            $zones[] = $learner->timezone;
-        }
-
         $times = $this->reminderPresets();
         if ($reminder !== null && ! in_array($reminder, $times, true)) {
             $times[] = $reminder;
@@ -278,31 +272,11 @@ final class LearnerSettingsService
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
                     $this->locales->supported(),
                 ),
-                'timezones' => array_map(
-                    fn (string $zone): array => ['id' => $zone, 'label' => $this->timezoneLabel($zone, $locale)],
-                    $zones,
-                ),
                 'reminder_times' => $times,
                 'daily_goals' => $this->dailyGoals(),
                 'retention_modes' => LadderPolicy::RETENTION_MODES,
             ],
         ];
-    }
-
-    /**
-     * Time zones offered in pickers (the bot's `/settings` and the TWA): `config('learners.timezone_options')`
-     * limited to ids PHP also knows, so a typo in the config can never become a value.
-     *
-     * @return list<string>
-     */
-    public function timezoneOptions(): array
-    {
-        $known = $this->knownTimezones();
-
-        return array_values(array_filter(
-            array_map('strval', (array) config('learners.timezone_options', [])),
-            fn (string $zone): bool => in_array($zone, $known, true),
-        ));
     }
 
     /** @return list<string> every time zone id a learner may set (IANA ids and their legacy aliases) */
@@ -440,25 +414,6 @@ final class LearnerSettingsService
         return $time === null || $time === '' ? null : substr($time, 0, 5);
     }
 
-    /** "Ташкент (UTC+5)": the city name of the bot's strings when there is one, else the id; plus the current UTC offset. */
-    public function timezoneLabel(string $zone, string $locale): string
-    {
-        $offset = $this->offsetLabel($zone);
-        $key = 'onboarding.options.timezone.'.strtolower(substr((string) strrchr($zone, '/'), 1));
-
-        return Lang::has($key, $locale, false)
-            ? __($key, ['offset' => $offset], $locale)
-            : "{$zone} ({$offset})";
-    }
-
-    public function offsetLabel(string $zone): string
-    {
-        $seconds = (new DateTimeZone($zone))->getOffset(new DateTimeImmutable('now'));
-        $minutes = intdiv(abs($seconds) % 3600, 60);
-
-        return 'UTC'.($seconds < 0 ? '-' : '+').intdiv(abs($seconds), 3600).($minutes > 0 ? sprintf(':%02d', $minutes) : '');
-    }
-
     /**
      * @param  array<string, mixed>  $changes
      * @return array<string, int|string|bool|array<string, bool>|null>
@@ -474,7 +429,7 @@ final class LearnerSettingsService
                 'timezone' => is_string($value) && in_array($value, $this->knownTimezones(), true) ? $value : throw InvalidSettingException::invalid($field),
                 'reminder_time' => $value === null || (is_string($value) && $this->isReminderTime($value)) ? $value : throw InvalidSettingException::invalid($field),
                 'daily_goal' => is_int($value) && in_array($value, $this->dailyGoals(), true) ? $value : throw InvalidSettingException::invalid($field),
-                'goal' => is_string($value) && in_array($value, OnboardingService::GOALS, true) ? $value : throw InvalidSettingException::invalid($field),
+                'goal' => is_string($value) && in_array($value, OnboardingService::availableGoals(), true) ? $value : throw InvalidSettingException::invalid($field),
                 'level' => is_string($value) && in_array($value, OnboardingService::LEVELS, true) ? $value : throw InvalidSettingException::invalid($field),
                 'leagues_opt_out' => is_bool($value) ? $value : throw InvalidSettingException::invalid($field),
                 'retention_mode' => is_string($value) && in_array($value, LadderPolicy::RETENTION_MODES, true) ? $value : throw InvalidSettingException::invalid($field),

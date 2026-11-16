@@ -83,7 +83,6 @@ export interface LearnerSettings {
   retention_mode?: RetentionMode
   options: {
     locales: SettingsChoice[]
-    timezones: SettingsChoice[]
     reminder_times: string[]
     daily_goals: number[]
     retention_modes?: RetentionMode[]
@@ -342,7 +341,7 @@ export interface ExerciseSettings {
 
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
-  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out' | 'retention_mode'>
+  Pick<LearnerSettings, 'interface_locale' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out' | 'retention_mode'>
 > & { exercises?: Partial<ExerciseSettings> }
 
 /** The FSRS target retention the learner picked (docs/06 §12.8); shown only to learners scheduled by FSRS. */

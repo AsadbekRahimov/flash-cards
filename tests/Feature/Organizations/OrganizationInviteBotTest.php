@@ -68,14 +68,12 @@ function orgbTap(int $tgId, string $data, int $messageId = 100, string $chatType
     ]]);
 }
 
-/** Runs the five onboarding steps from the first one to `done` (Russian). */
+/** Runs the three onboarding steps (the default: no goal and no time zone step) from the first one to `done` (Russian). */
 function orgbOnboard(int $tgId): void
 {
     orgbTap($tgId, 'onb1:locale:ru', 1);
-    orgbTap($tgId, 'onb1:goal:general', 2);
-    orgbTap($tgId, 'onb1:level:A1', 3);
-    orgbTap($tgId, 'onb1:timezone:Asia/Tashkent', 4);
-    orgbTap($tgId, 'onb1:reminder:1900', 5);
+    orgbTap($tgId, 'onb1:level:A1', 2);
+    orgbTap($tgId, 'onb1:reminder:1900', 3);
 }
 
 function orgbLearner(int $tgId): Learner
@@ -289,7 +287,7 @@ it('explains a code that cannot be used and runs the ordinary onboarding', funct
     $learner = orgbLearner(8010);
     expect($this->tg->sent)->toHaveCount(2)
         ->and($this->tg->sent[0]['text'])->toBe($expected)
-        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 5\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
+        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 3\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
         ->and($this->tg->sent[1]['text'])->not->toContain('Вас пригласил')
         ->and($learner->onboarding_state)->toBe('locale')
         ->and($learner->meta)->not->toHaveKey('pending_org_invite');
@@ -356,7 +354,7 @@ it('ignores "Join" from a group chat, from a blocked learner and before the onbo
     $invite = orgbInvite($org);
     orgbOnboarded(8015);
     Learner::factory()->create(['telegram_user_id' => 8016, 'blocked_at' => now(), 'onboarding_state' => 'done']);
-    Learner::factory()->create(['telegram_user_id' => 8017, 'onboarding_state' => 'goal']);
+    Learner::factory()->create(['telegram_user_id' => 8017, 'onboarding_state' => 'level']);
 
     orgbTap(8015, 'org1:join:'.$invite->code, 100, 'supergroup');
     orgbTap(8016, 'org1:join:'.$invite->code);
@@ -460,7 +458,7 @@ it('shows "My centers" in /settings only to a member', function (): void {
 
     orgbSend(8031, '/settings');
     expect($this->tg->lastCallbackData())->toContain('org1:list')
-        ->and(end($this->tg->sent)['markup']['inline_keyboard'][3][0]['text'])->toBe('Мои центры');
+        ->and(end($this->tg->sent)['markup']['inline_keyboard'][2][0]['text'])->toBe('Мои центры');
 });
 
 it('lists the centers with the state of the seat and offers "Leave" only where it is possible', function (): void {

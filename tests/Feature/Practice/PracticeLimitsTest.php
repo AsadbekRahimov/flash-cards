@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Practice\DTO\PracticeLimitState;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\PracticeException;
@@ -495,7 +496,7 @@ it('keeps the limits of the day across a change of timezone: the day is carried 
     limitsOpen($learner, $course->slug)->assertCreated();
 
     // Kiritimati is past midnight already (UTC+14: 00:00 of the 31st at 10:00 UTC) - a fresh day, were the zone alone to decide.
-    test()->withHeaders(PracticeKit::headers($learner))->patchJson('/api/twa/me/settings', ['timezone' => 'Pacific/Kiritimati'])->assertOk();
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => 'Pacific/Kiritimati']);
     $learner->refresh();
 
     // The day is carried over (docs/12 §5.3): both places stay taken until the first midnight of the new zone after the old day's end.

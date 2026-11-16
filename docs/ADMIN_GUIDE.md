@@ -471,6 +471,15 @@ invited, rejected ones excluded), last seen.
   shows the current algorithm ("(default)" = no own bucket, the platform default applies). Rollback of the whole
   experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
 
+### Onboarding: goals and time zone (`LEARNERS_*`)
+
+Set in `.env` (defaults in `.env.example`, `config/learners.php`). A change needs a config reload.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `LEARNERS_GOALS` | `general` | The goals the bot offers at `/start` and in `/settings`, comma-separated: `general`, `ielts`, `sat`, `school`. Unknown names are ignored; an empty list means `general`. With **one** goal the question is skipped (the onboarding is three steps: language, level, reminder time) and that goal is written for the learner; the «Цель» item is not in `/settings`. With two or more, the question comes back showing only the enabled goals. To bring IELTS / SAT back once they are ready: `LEARNERS_GOALS=general,ielts,sat,school` (no code change; the captions are in `lang/{ru,uz}/onboarding.php`). Goals already stored for learners are never changed |
+| `LEARNERS_DEFAULT_TIMEZONE` | `Asia/Tashkent` | The time zone of every **new** learner. There is no time zone question or picker in the bot and in the Mini App; existing learners keep their zone (their streak days and reminder times depend on it). To change a zone of one learner use the admin tools, not `.env` |
+
 ### Account deletion
 
 A learner deletes their account themselves (Mini App: Profile → Settings → Danger zone → *Delete account*; bot: `/delete_account` or the

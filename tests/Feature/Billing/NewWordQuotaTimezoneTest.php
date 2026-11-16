@@ -90,7 +90,7 @@ function tzqMaxInRolling24h(array $times): int
     return $max;
 }
 
-it('REGRESSION (review 1.4b): hourly zone hopping through PATCH /me/settings yields one quota, not one per hour', function (): void {
+it('REGRESSION (review 1.4b): hourly zone hopping through the settings service (no client calls it any more, the rule stays) yields one quota, not one per hour', function (): void {
     config()->set('billing.plans.free.limits.new_words_per_day', 5);
     [$learner] = tzqLearner(200);
     $headers = fn () => ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
@@ -104,7 +104,12 @@ it('REGRESSION (review 1.4b): hourly zone hopping through PATCH /me/settings yie
         // counters by wall-clock TTL: end the elapsed hour for them (the quota itself lives in the DB).
         Cache::flush();
 
-        $statuses[] = $this->withHeaders($headers())->patchJson('/api/twa/me/settings', ['timezone' => tzqZoneAtMidnight($now)])->status();
+        try {
+            app(LearnerSettingsService::class)->update($learner, ['timezone' => tzqZoneAtMidnight($now)]);
+            $statuses[] = 200;
+        } catch (TimezoneChangeTooSoonException) {
+            $statuses[] = 422;
+        }
 
         $before = WordRepetition::query()->where('learner_id', $learner->id)->count();
         $open = $this->withHeaders($headers())->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk();
@@ -126,9 +131,11 @@ it('REGRESSION (review 1.4b): hourly zone hopping through PATCH /me/settings yie
         ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(5);
 
     CarbonImmutable::setTestNow('2026-10-19 12:00:00');
-    $this->withHeaders($headers())->patchJson('/api/twa/me/settings', ['timezone' => 'Asia/Tokyo'])
-        ->assertStatus(422)
-        ->assertJsonPath('error.code', TimezoneChangeTooSoonException::ERROR_CODE);
+    expect(fn () => app(LearnerSettingsService::class)->update($learner, ['timezone' => 'Asia/Tokyo']))->toThrow(TimezoneChangeTooSoonException::class);
+
+    // A PATCH with a zone is ignored: no 422, no change.
+    $this->withHeaders($headers())->patchJson('/api/twa/me/settings', ['timezone' => 'Asia/Tokyo'])->assertOk();
+    expect($learner->fresh()->timezone)->not->toBe('Asia/Tokyo');
 });
 
 it('gives an adversary who waits 24 h between changes no more than one quota per local day over a week', function (): void {
