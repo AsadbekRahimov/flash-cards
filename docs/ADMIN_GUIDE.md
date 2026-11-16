@@ -819,6 +819,42 @@ Every decision is written to the audit log (`league_month.*`).
 
 ---
 
+## Retention (Удержание)
+
+Navigate to **Administration → Удержание**. Admin only (an active `admin`; teachers do not see it). The page answers one question: **do people come back**,
+and it is what you compare before and after a change of the training. The figures are cached for 10 minutes (the line at the top shows when they were
+computed); **«Обновить»** recomputes them at once. The page is read-only and does not change any data.
+
+**Definitions.**
+- **Studied on a day** — the learner has a daily-stats row of that day with at least one graded card (`reviews_count > 0`). A day that only has a game run does
+  not count. The day is the learner's own **local** calendar day, so a learner in another time zone is judged by his own midnight.
+- **D-N** — the share of the cohort that studied exactly on day N after the local day of registration (D1 is the next day). **«За 7 дней»** — studied on any of
+  the days 1-7. The percentage is of the whole cohort; the number of learners is under it.
+- **Cohort** — learners registered in one week, Monday-Sunday in Tashkent time; the last 12 weeks, the current one is partial. Deleted learners are not counted.
+  «Онбординг» is how many of them finished the onboarding, «Начали занятие» — how many have at least one graded answer.
+- **A dash** means the day has not ended yet for at least one learner of the cohort (in his own zone) — it is **not** 0 %. A cell appears when the whole
+  cohort has lived through day N.
+
+**First session** (learners registered in the last 30 days, their first personal training session): the share that opened it, finished it (pressed «Завершить»),
+abandoned it (the session expired or was left open past its time), how many are in progress right now, the median number of graded cards, the median time on the
+cards (the sum of the card times, not the time from opening to closing), and the share that started a second session within 24 hours / 7 days of the first
+one's start (among learners whose first session began at least that long ago). Games (the Caravan) and the practice are not training sessions and are not here.
+
+**Slice** — D1 and D7 of the last four weeks by interface language (ru / uz) and by «had a trial Pro» (a subscription with provider `trial`, at any time).
+Only the weeks whose day has ended for the whole cohort take part; if none has, a dash.
+
+**How to read it after a change of the training.**
+1. Compare cohorts, not days: the week before the change against the first full week after it. A cohort of fewer than about 100 learners moves by several points
+   by chance — wait for more weeks rather than reading a trend into it.
+2. The first signal appears in **«Начали занятие»** and in the first-session block (opened, finished, cards, second session in 24 hours) within days; D1 and the
+   «within 7 days» a week or two later; D7 two weeks later; D30 — only after a month and a half. Do not judge a change by D30 first.
+3. Rough orientation, not a promise: for educational apps D1 around 14 % and D30 around 3 % is typical; good is D1 25-30 % and D7 10-15 %. A change that works
+   should move D1 and D7 up by several points and the first-session «finished» share and the second session in 24 hours up, without «начали занятие» falling.
+4. Check the slice: if the change helped Russian-speaking learners but not Uzbek ones (or the trial ones but not the others), the cohort average hides it.
+5. Learners who registered in different time zones are read in their own days; the week borders are Tashkent time only.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |
