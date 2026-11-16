@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter, type RouteLocationRaw } from 'vue-router'
-import PaywallSheet from '@/components/PaywallSheet.vue'
+import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useAchievementsStore } from '@/stores/achievements'
@@ -10,6 +10,24 @@ import { useMonthlyRatingStore } from '@/stores/monthlyRating'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, useTrainingStore } from '@/stores/training'
 import { prefersReducedMotion } from '@/composables/motion'
+import { resolveBenefits } from '@/composables/proBenefits'
+import {
+  FINISHED_BEFORE_KEY,
+  LAPSED_DISMISSED_KEY,
+  PRO_TIP_DAY_KEY,
+  PRO_TIP_KEY,
+  PRO_TIP_SNOOZE_MS,
+  TIP_SLOTS,
+  TIP_TEXTS,
+  TRIAL_ENDING_DAYS,
+  TRIAL_ENDING_DAY_KEY,
+  advanceTurn,
+  dayFree,
+  markDay,
+  readTurn,
+} from '@/composables/proReminders'
+import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
+import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useCountUp } from '@/composables/useCountUp'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -161,13 +179,19 @@ const monthLine = computed(() => {
   return t('finished.month_line', { rank: mine.me.rank, points: tn('month.points', mine.me.points) })
 })
 
+function parseStart(value: string | undefined): number | null {
+  const at = value === undefined ? NaN : Date.parse(value)
+  return Number.isFinite(at) ? at : null
+}
+
 /**
  * The achievement that came during this session (docs/04 A.15): until now it went to the chat of the bot only. One light request
  * after the screen is shown (it never blocks it, a failure leaves no card); the newest unlocked one that is not older than the
- * start of the session — `unlocked_at` is the server's, the start is the device's clock, a small skew only moves the edge.
+ * start of the session. Both are the server's time: `started_at` of the finish summary (or of the start answer, kept in the store); the
+ * device's clock is only the fallback of an older server that sends none.
  */
 const newAchievement = computed(() => {
-  const since = training.startedAt
+  const since = parseStart(summary.value?.started_at) ?? training.startedAt
   if (since <= 0) return null
   let found: { key: string; title: string; at: number } | null = null
   for (const item of achievements.data?.items ?? []) {
@@ -207,8 +231,105 @@ const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.va
  */
 const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
 const paywallOpen = ref(false)
+/** Why the sheet was opened: the end of the new words, or the learner asked what Pro gives (the tip, the trial card). */
+const paywallReason = ref<PaywallReason>('quota')
+function openPaywall(reason: PaywallReason): void {
+  paywallReason.value = reason
+  paywallOpen.value = true
+}
 const plan = computed(() => billing.entitlement?.plan ?? today.data?.entitlement?.plan ?? null)
 const showQuotaCard = computed(() => quotaExhausted.value && plan.value === 'free')
+
+/**
+ * Reminders about Pro (docs/14, "Напоминания о Pro"). Only here, in the pause after a round, and only by what the learner has just done: a
+ * personal session that reviewed something, with the plan known from `/me` (asked once, best effort; the screen never waits for it).
+ * Nothing pops up; every button is the learner's own press. No more than one of these three at a time; the terms are in `proReminders.ts`.
+ *
+ * - the tip (`pro-tip`): Free only; one benefit at a time, round and round (the turn is kept on the device); not in the first session of the
+ *   device nor of a learner whose streak says they studied before (the first impression is not an advertisement); not more than once in a
+ *   local day; not with the card of the end of the new words (which already speaks of Pro) nor while the "trial ended" banner of Today
+ *   is still there; the cross hides it for 3 days;
+ * - the end of the trial (`trial-ending`): a trial with 2 days or less left, once in a local day.
+ *
+ * The first button is the way that works: while payment is not open (`paywall.mode = coming_soon`) it is the invitation of friends and "What Pro
+ * gives" is the second one; with payment open it is the other way round. The cards stand under the buttons: above them they would push
+ * "One more round" off the first screen of a phone.
+ */
+const reminderZone = today.data?.timezone ?? null
+const finishedBefore = hasSeen(FINISHED_BEFORE_KEY)
+if (!isEmpty.value) markSeen(FINISHED_BEFORE_KEY)
+const tipDayFree = dayFree(PRO_TIP_DAY_KEY, reminderZone)
+const endingDayFree = dayFree(TRIAL_ENDING_DAY_KEY, reminderZone)
+const tipTurn = readTurn()
+const tipHidden = ref(isSnoozed(PRO_TIP_KEY))
+
+const remindable = computed(() => !isEmpty.value && summary.value !== null && training.mode !== 'group_lesson' && billing.entitlement !== null)
+const paymentOpen = computed(() => billing.paywall?.mode === 'purchase')
+/** The way that works goes first (and is the tinted one): the invitation while payment is not open, "What Pro gives" once it is. */
+const reminderActions = computed((): ('details' | 'invite')[] => (paymentOpen.value ? ['details', 'invite'] : ['invite', 'details']))
+
+/** The learner studied before: this device finished a session, or the streak has more than the one day of today. */
+const studiedBefore = computed(() => finishedBefore || (summary.value?.streak?.best ?? 0) > 1)
+
+/** "Pro ended" of a trial is on Today until it is closed there: the tip does not come on top of it. */
+function lapsedBannerStands(): boolean {
+  const lapsed = billing.entitlement?.lapsed ?? today.data?.entitlement.lapsed ?? null
+  if (lapsed === null || lapsed.provider !== 'trial') return false
+  try {
+    return window.localStorage.getItem(LAPSED_DISMISSED_KEY) !== lapsed.ended_at
+  } catch {
+    return true
+  }
+}
+
+const tipText = computed((): string | null => {
+  const keys = resolveBenefits(TIP_SLOTS, billing.practiceAccess.pro_promise, billing.gameAccess.pro_promise)
+    .map((key) => TIP_TEXTS[key])
+    .filter((key): key is NonNullable<typeof key> => key !== undefined)
+  const key = keys[tipTurn % Math.max(1, keys.length)]
+  return key === undefined ? null : t(key)
+})
+const showTip = computed(() => remindable.value && billing.entitlement?.plan === 'free' && studiedBefore.value && tipDayFree && !tipHidden.value
+  && !showQuotaCard.value && !lapsedBannerStands() && tipText.value !== null)
+function hideTip(): void {
+  tipHidden.value = true
+  snooze(PRO_TIP_KEY, PRO_TIP_SNOOZE_MS)
+}
+
+const trialEnd = computed(() => trialEndsAt(billing.entitlement))
+const trialDays = computed(() => (trialEnd.value === null ? 0 : trialDaysLeft(trialEnd.value)))
+const showTrialEnding = computed(() => remindable.value && trialEnd.value !== null && trialDays.value <= TRIAL_ENDING_DAYS && endingDayFree)
+const trialEndingText = computed(() => {
+  const days = trialDays.value
+  const lead = days <= 1 ? t('finished.trial_ending.last') : t('finished.trial_ending.days', { count: days })
+  return `${lead} ${t(paymentOpen.value ? 'finished.trial_ending.keep' : 'finished.trial_ending.keep_invite')}`
+})
+
+/**
+ * The payment mode, the end of the trial and what Pro gives this learner are `/me`: asked (best effort, never blocking) only when a reminder could
+ * come out of it by what `/today` already says - a Free learner who studied before with today's tip not yet used, or a Pro with an end (the
+ * trial can be one: only `/me` tells) with today's trial card not yet used.
+ */
+const mayRemind = computed(() => {
+  if (isEmpty.value || summary.value === null || training.mode === 'group_lesson') return false
+  const entitlement = today.data?.entitlement
+  if (entitlement === undefined) return false
+  if (entitlement.plan === 'free') return studiedBefore.value && tipDayFree && !tipHidden.value
+  return entitlement.source === 'subscription' && entitlement.until !== null && endingDayFree
+})
+watch(mayRemind, (on) => {
+  if (on) void billing.load()
+}, { immediate: true })
+
+// Counted the moment the card is on screen, not before: a card that did not show is not "once in a day" spent.
+watch(showTip, (on, was) => {
+  if (!on || was) return
+  markDay(PRO_TIP_DAY_KEY, reminderZone)
+  advanceTurn()
+}, { immediate: true })
+watch(showTrialEnding, (on, was) => {
+  if (on && !was) markDay(TRIAL_ENDING_DAY_KEY, reminderZone)
+}, { immediate: true })
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
 const { reviewFromPaywall } = useReviewFromPaywall(() => {
@@ -291,7 +412,7 @@ onBeforeUnmount(() => {
       <section v-if="showQuotaCard" class="card space-y-3" data-testid="quota-card">
         <p class="text-[17px] leading-[22px] font-semibold">{{ t('finished.quota.title') }}</p>
         <div class="flex flex-col gap-2">
-          <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
+          <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
             {{ t('finished.quota.pro') }}
           </button>
           <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
@@ -381,8 +502,66 @@ onBeforeUnmount(() => {
       <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="close()">
         {{ t('common.exit_app') }}
       </button>
+
+      <!-- Reminders about Pro: under the buttons, so that "One more round" stays on the first screen. One at a time. -->
+      <section v-if="showTrialEnding" class="card mt-3 space-y-3" data-testid="trial-ending">
+        <p class="text-[15px] leading-5 font-semibold">{{ trialEndingText }}</p>
+        <div class="flex flex-col gap-2" data-testid="trial-ending-actions">
+          <template v-for="action in reminderActions" :key="action">
+            <button
+              v-if="action === 'details'"
+              type="button"
+              class="btn btn-block"
+              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              data-testid="trial-ending-pro"
+              @click="openPaywall('info')"
+            >
+              {{ t(paymentOpen ? 'lapsed.trial.renew' : 'protip.more') }}
+            </button>
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="trial-ending-invite">
+              {{ t('lapsed.invite') }}
+            </RouterLink>
+          </template>
+        </div>
+      </section>
+      <section v-else-if="showTip" class="card mt-3 space-y-3" data-testid="pro-tip">
+        <div class="flex items-start gap-3">
+          <span class="icon-tile tile-blue"><AppIcon name="sparkles" solid :size="18" /></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('protip.title') }}</p>
+            <p class="text-[15px] leading-5 font-semibold" data-testid="pro-tip-text">{{ tipText }}</p>
+          </div>
+          <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
+          <button
+            type="button"
+            class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
+            :aria-label="t('today.invite.dismiss')"
+            data-testid="pro-tip-close"
+            @click="hideTip()"
+          >
+            <AppIcon name="x-mark" :size="20" />
+          </button>
+        </div>
+        <div class="flex flex-col gap-2" data-testid="pro-tip-actions">
+          <template v-for="action in reminderActions" :key="action">
+            <button
+              v-if="action === 'details'"
+              type="button"
+              class="btn btn-block"
+              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              data-testid="pro-tip-details"
+              @click="openPaywall('info')"
+            >
+              {{ t('protip.more') }}
+            </button>
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="pro-tip-invite">
+              {{ t('protip.invite') }}
+            </RouterLink>
+          </template>
+        </div>
+      </section>
     </div>
 
-    <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" @review="reviewFromPaywall" />
+    <PaywallSheet v-if="paywallOpen" :reason="paywallReason" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </div>
 </template>

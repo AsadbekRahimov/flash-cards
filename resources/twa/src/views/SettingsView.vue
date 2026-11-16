@@ -18,6 +18,7 @@ import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloud
 import { saveSetting } from '@/composables/useLocaleSwitch'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
+import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useOrganizationsStore } from '@/stores/organizations'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
@@ -50,8 +51,7 @@ const MAX_SEGMENTS = 4
 const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill']
 /** The rows with a line under the name: what the exercise asks (the names of the others say it themselves). */
 const EXERCISE_HINTS: Partial<Record<keyof ExerciseSettings, StringKey>> = { meaning: 'settings.exercises.meaning.hint' }
-/** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip. */
-const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fill']
+/** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip (`PRO_EXERCISES`, the same list marks the cards of a round). */
 
 // The native selects work on a copy of the server's values. When a change is refused the copy is set back from the
 // data (through state: Vue then puts the select back), never by touching the DOM element.

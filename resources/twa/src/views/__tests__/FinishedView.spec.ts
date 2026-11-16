@@ -956,6 +956,33 @@ describe('FinishedView', () => {
         expect(card.attributes('href')).toBe('/achievements')
       })
 
+      it('measures the session by the SERVER start of the summary, not by the clock of the device', async () => {
+        // The device clock is an hour fast: by it the unlock of 10:12 would be before the start, by the server it is after it.
+        useTrainingStore().startedAt = Date.parse('2026-11-17T11:00:00Z')
+        useTrainingStore().summary = summary({ started_at: '2026-11-17T10:00:00+00:00' })
+        vi.mocked(api.achievements.list).mockResolvedValue({
+          unlocked_count: 1, total: 9, share_link: null,
+          items: [achievement('words_10', '10 слов', '2026-11-17T10:12:00Z')],
+        })
+        const w = render(5, 1)
+        await flushPromises()
+
+        expect(w.get('[data-testid=new-achievement]').text()).toBe('Новое достижение: 10 слов')
+      })
+
+      it('does not take an unlock from before the server start, however late the device clock is', async () => {
+        useTrainingStore().startedAt = Date.parse('2026-11-17T09:00:00Z')
+        useTrainingStore().summary = summary({ started_at: '2026-11-17T10:00:00+00:00' })
+        vi.mocked(api.achievements.list).mockResolvedValue({
+          unlocked_count: 1, total: 9, share_link: null,
+          items: [achievement('words_10', '10 слов', '2026-11-17T09:30:00Z')],
+        })
+        const w = render(5, 1)
+        await flushPromises()
+
+        expect(w.find('[data-testid=new-achievement]').exists()).toBe(false)
+      })
+
       it('shows the latest one when several came', async () => {
         vi.mocked(api.achievements.list).mockResolvedValue({
           unlocked_count: 2, total: 9, share_link: null,

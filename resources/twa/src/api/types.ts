@@ -479,6 +479,8 @@ export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'ass
 export interface TrainingStartResponse {
   session_id: number
   mode: TrainingMode
+  /** When the session began, server time (ISO-8601, UTC); absent on an older server. */
+  started_at?: string
   /** null for `daily_review`: the scope spans every lesson. */
   lesson: LessonHeader | null
   total_words: number
@@ -524,6 +526,8 @@ export interface Streak {
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
 export interface SessionSummary {
+  /** When the session began, server time (ISO-8601, UTC); absent on an older server. */
+  started_at?: string
   reviewed: number
   correct: number
   new_words: number
@@ -583,6 +587,8 @@ export interface TodayResponse {
   timezone: string
   /** The entry of Karvon (docs/04 A.2a, G2.3): always there; a closed game says `{daily_available: false, active_run: null}`. */
   game?: TodayGame
+  /** The practice access without its day limits (docs/04 A.2a): the "Word games" card reads it, `/me` is not asked. Absent: an older server (no practice). */
+  practice?: PracticeAccessToday
 }
 
 export interface TodayGame {
@@ -1100,6 +1106,9 @@ export interface PracticeAccess {
   /** The Free limits of today; absent: an older server (nothing is shown, nothing is blocked). */
   limits?: PracticeLimits | null
 }
+
+/** `practice` of GET /today: the block of `/me` without `limits`. */
+export type PracticeAccessToday = Omit<PracticeAccess, 'limits'>
 
 export interface PracticeCourseRef {
   slug: string

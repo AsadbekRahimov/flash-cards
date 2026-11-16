@@ -116,10 +116,23 @@ interface TrainingState {
   bestCombo: number
   /** The last answer that counted for the run; `seq` grows with each, so the screen can react to every one. */
   outcome: { seq: number; kind: OutcomeKind }
-  /** `Date.now()` when the screen entered the session: the finish screen asks which achievement came after it. */
+  /**
+   * When the session began, epoch ms: the SERVER's `started_at` (the start / open answer), so the finish screen can tell "achieved in
+   * this session" by one clock; `Date.now()` of the device only for an older server that sends none.
+   */
   startedAt: number
   /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
   generation: number
+}
+
+/** The finish request in flight, so the eager close at the last card and the one of the finish screen are one request. */
+let finishing: { generation: number; promise: Promise<void> } | null = null
+
+/** `started_at` of the server as epoch ms; null when absent or not a date. */
+function parseStartedAt(value: string | undefined): number | null {
+  if (value === undefined) return null
+  const at = Date.parse(value)
+  return Number.isFinite(at) ? at : null
 }
 
 export const useTrainingStore = defineStore('training', {
@@ -216,6 +229,7 @@ export const useTrainingStore = defineStore('training', {
 
     async applyStart(res: TrainingStartResponse): Promise<void> {
       this.mode = res.mode
+      this.startedAt = parseStartedAt(res.started_at) ?? this.startedAt
       this.lesson = res.lesson
       this.totalWords = res.total_words
       this.progress = { done: 0, total: res.total_words }
@@ -333,6 +347,8 @@ export const useTrainingStore = defineStore('training', {
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
           const canContinue = res.can_continue === true
+          // No card after this answer: the round is over, so it is closed now - the verdict / answer screen may be left by closing the app.
+          if (!res.card) void this.finalize()
           // A four-choice card is graded by the server too, but its screen has shown the answer already: no verdict screen.
           if (res.graded && !hold) {
             this.verdict = res.graded
@@ -489,11 +505,27 @@ export const useTrainingStore = defineStore('training', {
      */
     async finalize(): Promise<void> {
       if (this.sessionId === null || this.mode === null || this.mode === 'group_lesson') return
+      // Closed already (at the last card, or by an earlier call): the summary is in hand, there is nothing to ask again.
+      if (this.summary !== null) return
       const generation = this.generation
+      if (finishing !== null && finishing.generation === generation) return finishing.promise
+      const promise = this.finishNow(generation)
+      const entry = { generation, promise }
+      finishing = entry
+      try {
+        await promise
+      } finally {
+        if (finishing === entry) finishing = null
+      }
+    },
+
+    async finishNow(generation: number): Promise<void> {
+      if (this.sessionId === null) return
       try {
         const summary = await api.training.finish(this.sessionId)
         if (generation !== this.generation) return
         this.summary = summary
+        this.startedAt = parseStartedAt(summary.started_at) ?? this.startedAt
       } catch {
         if (generation !== this.generation) return
         this.summary = null
@@ -532,6 +564,9 @@ export const useTrainingStore = defineStore('training', {
       if (card === null) {
         this.card = null
         this.status = 'finished'
+        // The round is closed at once, not when the learner presses "Continue" on the last verdict: closing the Mini App there
+        // would leave it open. Idempotent and best effort; the summary reaches the finish screen whenever it is ready.
+        void this.finalize()
         return
       }
 

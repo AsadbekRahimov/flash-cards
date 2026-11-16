@@ -17,7 +17,10 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import MeaningCard from '@/components/MeaningCard.vue'
+import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, COMBO_STEP, useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
 import { playSound } from '@/composables/useFeedbackSound'
@@ -59,6 +62,15 @@ const {
   combo,
   outcome,
 } = storeToRefs(training)
+
+/**
+ * The "Pro" chip on the cards that are a feature of Pro (spelling, gap fill; the same list as the settings): shown to a learner who has Pro
+ * - the trial, a paid one, a center's - so that they see this is what Pro gives; never in a group lesson. The server does not say which
+ * types are paid (the ladder can open typed answers to Free, `typed_recall_in_free`), so a Free learner gets no chip: for them a typed card
+ * is not a Pro one. The plan is the one `/today` or `/me` already brought; when neither did (opened from a reminder) there is no chip.
+ */
+const plan = computed(() => useTodayStore().data?.entitlement.plan ?? useBillingStore().entitlement?.plan ?? null)
+const proChip = computed(() => plan.value === 'pro' && mode.value !== 'group_lesson' && PRO_EXERCISES.includes(exercise.value))
 
 /** The text of the last typed answer, for the verdict screen. */
 const lastAnswer = ref('')
@@ -379,8 +391,8 @@ async function onRestart(): Promise<void> {
         @pick="onChoicePick"
         @advance="onChoiceAdvance"
       />
-      <SpellingCard v-else-if="card && exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
-      <GapFillCard v-else-if="card && exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
+      <SpellingCard v-else-if="card && exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" :pro-chip="proChip" @answer="onAnswer" />
+      <GapFillCard v-else-if="card && exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" :pro-chip="proChip" @answer="onAnswer" />
       <PretestCard v-else-if="card && exercise === 'pretest'" :key="`pretest-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onPretestAnswer" />
       <FlashCard
         v-else-if="card"

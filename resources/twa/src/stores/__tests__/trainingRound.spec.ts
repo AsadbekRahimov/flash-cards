@@ -108,12 +108,15 @@ describe('training store — the round (docs/06 §13.2)', () => {
 
       expect(await store.nextRound()).toBe(2)
 
-      expect(api.training.finish).not.toHaveBeenCalled()
+      // Only the close at the last card: the round is not finished a second time.
+      expect(api.training.finish).toHaveBeenCalledTimes(1)
       expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
       expect(store.preloaded?.sessionId).toBe(2)
     })
 
     it('finishes a session whose finish failed first, and only then opens the new one', async () => {
+      // The close at the last card failed (best effort): the next round repeats it.
+      vi.mocked(api.training.finish).mockRejectedValueOnce(new ApiClientError('network', 0, 'unknown', 'fetch failed'))
       const store = await start(null, { done_reason: 'sprint_complete', can_continue: true })
       vi.mocked(api.training.finish).mockResolvedValue(summary)
       vi.mocked(api.training.open).mockResolvedValue({ session_id: 3, mode: 'daily_review', lesson: null, total_words: 12 })
@@ -122,12 +125,13 @@ describe('training store — the round (docs/06 §13.2)', () => {
 
       expect(api.training.finish).toHaveBeenCalledWith(1)
       expect(store.summary).toEqual(summary)
-      expect(vi.mocked(api.training.finish).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(api.training.open).mock.invocationCallOrder[0]!)
+      expect(api.training.finish).toHaveBeenCalledTimes(2)
+      expect(vi.mocked(api.training.finish).mock.invocationCallOrder[1]).toBeLessThan(vi.mocked(api.training.open).mock.invocationCallOrder[0]!)
     })
 
     it('stops with a message when the finish fails again: opening would only bring the same finished session back', async () => {
-      const store = await start(null, { done_reason: 'sprint_complete', can_continue: true })
       vi.mocked(api.training.finish).mockRejectedValue(new ApiClientError('server', 500, 'unknown', 'Boom'))
+      const store = await start(null, { done_reason: 'sprint_complete', can_continue: true })
 
       expect(await store.nextRound()).toBeNull()
 

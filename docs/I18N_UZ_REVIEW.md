@@ -3898,3 +3898,25 @@ Mini App, `resources/twa/src/i18n/uz.ts`: ежедневное занятие с
 | `finished.practice` | O'ynab mustahkamlash | Поиграть: закрепить слова (кнопка на итоге → игры со словами) |
 | `today.games.title` | So'z o'yinlari | Игры со словами (карточка на «Сегодня») |
 | `today.games.play` | O'ynash | Играть (кнопка карточки) |
+
+## Напоминания о Pro (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: совет о Pro и карточка конца пробного на экране итога раунда, строка о заморозке серии на «Сегодня». Тон спокойный, без давления; «Zaxira kun» — как уже в `benefits.freezes` и `today.streak.freeze_teaser`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `protip.title` | Pro haqida maslahat | Совет о Pro (заголовок карточки на итоге раунда) |
+| `protip.more` | Pro haqida batafsil | Подробнее о Pro (кнопка открывает окно о Pro) |
+| `protip.invite` | Do'stlar orqali Pro olish | Получить Pro за друзей (кнопка ведёт к приглашениям) |
+| `protip.item.new_words` | Pro'da yangi so'zlar kunlik limitsiz | В Pro новые слова без дневного лимита |
+| `protip.item.freezes` | Pro'da o'tkazib yuborilgan kun ketma-ketlikni uzmaydi — zaxira kunlar bor | В Pro пропущенный день не обрывает серию — есть заморозки |
+| `protip.item.exercises` | Pro'da so'zni yozish mashqlari bor | В Pro есть упражнения на написание слова |
+| `protip.item.practice_both` | Pro'da mustahkamlash mashqlari va bellashuvlar cheklovsiz | В Pro практика и баттлы без дневного лимита (только если баттлы включены) |
+| `protip.item.practice_solo` | Pro'da mustahkamlash mashqlari cheklovsiz | В Pro практика без дневного лимита |
+| `protip.item.game` | Pro'da Karvon kunlik limitsiz | В Pro караван без дневного лимита (только если игра открыта) |
+| `finished.trial_ending.days` | Sinov Pro {count} kundan keyin tugaydi. | Пробный Pro закончится через {count} дн. |
+| `finished.trial_ending.last` | Sinov Pro bugun tugaydi. | Пробный Pro заканчивается сегодня. |
+| `finished.trial_ending.keep` | Pro'ni saqlab qolish uchun obunani rasmiylashtiring yoki do'stlaringizni taklif qiling. | Чтобы сохранить Pro, оформите подписку или пригласите друзей. (оплата открыта) |
+| `finished.trial_ending.keep_invite` | Pro'ni saqlab qolish uchun do'stlaringizni taklif qiling. | Чтобы сохранить Pro, пригласите друзей. (оплата ещё не открыта) |
+| `today.streak.freeze_line` | Pro'da zaxira kun ketma-ketlikni saqlab qolgan bo'lardi | В Pro заморозка сохранила бы серию (строка под карточкой серии, когда серия оборвалась) |
+

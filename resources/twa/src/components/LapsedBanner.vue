@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { Lapsed } from '@/api/types'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatDate } from '@/composables/format'
+import { LAPSED_DISMISSED_KEY } from '@/composables/proReminders'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
 
@@ -23,7 +24,7 @@ import { useI18n } from '@/i18n'
 const props = withDefaults(defineProps<{ lapsed?: Lapsed | null; preloaded?: boolean; renewable?: boolean }>(), { preloaded: false, renewable: true })
 const emit = defineEmits<{ renew: []; invite: [] }>()
 
-const DISMISSED_KEY = 'lexiflow:lapsed-dismissed'
+const DISMISSED_KEY = LAPSED_DISMISSED_KEY
 
 const billing = useBillingStore()
 const { t, locale } = useI18n()

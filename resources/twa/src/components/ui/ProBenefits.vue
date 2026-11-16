@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import AppIcon from './AppIcon.vue'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
-import type { ProPromise } from '@/api/types'
+import { resolveBenefits, type BenefitSlot } from '@/composables/proBenefits'
 import type { StringKey } from '@/i18n/ru'
 
 /**
@@ -23,12 +23,8 @@ import type { StringKey } from '@/i18n/ru'
  */
 defineProps<{ compact?: boolean }>()
 
-/**
- * `practice` stands for the line about practice, which `practice.pro_promise` picks (or leaves out); `game` for the line about the game,
- * which is there only while `game.pro_promise` is `full` (the game is open to this learner: Pro lifts the daily limit of its runs,
- * `game.unlimited_runs`); the others are always on the list.
- */
-const BENEFITS: readonly (StringKey | 'practice' | 'game')[] = [
+/** The slots of the list, in order (`resolveBenefits` decides which of `practice` / `game` is there for this learner). */
+const BENEFITS: readonly BenefitSlot[] = [
   'benefits.new_words',
   'practice',
   'game',
@@ -38,26 +34,12 @@ const BENEFITS: readonly (StringKey | 'practice' | 'game')[] = [
   'benefits.mock_exams',
 ]
 
-/** The sentence of each word that sells something; `none` — and a word this app does not know yet — has none. */
-const PRACTICE_LINES: Partial<Record<ProPromise, StringKey>> = {
-  both: 'benefits.practice',
-  solo: 'benefits.practice_solo',
-}
-
 const billing = useBillingStore()
 const { t } = useI18n()
 
-const benefits = computed((): StringKey[] => {
-  const practice = PRACTICE_LINES[billing.practiceAccess.pro_promise]
-
-  const game: StringKey | undefined = billing.gameAccess.pro_promise === 'full' ? 'benefits.game' : undefined
-
-  return BENEFITS.flatMap((key) => {
-    if (key === 'practice') return practice ? [practice] : []
-    if (key === 'game') return game ? [game] : []
-    return [key]
-  })
-})
+const benefits = computed((): StringKey[] =>
+  resolveBenefits(BENEFITS, billing.practiceAccess.pro_promise, billing.gameAccess.pro_promise),
+)
 </script>
 
 <template>

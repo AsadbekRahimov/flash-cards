@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -47,6 +48,11 @@ use Illuminate\Database\Eloquent\Builder;
  * in the other language. Inside every layer, candidates sharing the word's
  * `part_of_speech` are preferred. Candidates are de-duplicated
  * case/whitespace-insensitively and can never collide with the correct translation.
+ * A distractor is never a second right answer either (docs/06 §12.2): a translation that shares a sense with the correct one
+ * — or with a distractor already picked — is left out ({@see TranslationParts}: he / it are both "u" in uz, home / house
+ * "uy"), by the same rule as the training options. A candidate skipped that way counts as missing: with too few left the
+ * question has fewer options, and none at all still makes the exam impossible, as before. Nothing is read from the
+ * database for it: the senses come from the texts already loaded.
  *
  * If a word still has fewer than 3 distractors, the question is emitted
  * with fewer options (but at least MIN_OPTIONS_PER_QUESTION). A word with no
@@ -352,6 +358,8 @@ final class ExamQuestionBuilder
     private function pickDistractors(array $layers, int $count, string $correct, ?string $partOfSpeech, string $locale): array
     {
         $seen = [$this->normalize($correct) => true];
+        // The senses no distractor may name: the correct answer's, then those of every distractor picked.
+        $senses = array_fill_keys(TranslationParts::keys($correct), true);
         $picked = [];
 
         foreach ([true, false] as $sameLanguage) {
@@ -373,7 +381,13 @@ final class ExamQuestionBuilder
                             continue;
                         }
 
+                        $candidateSenses = TranslationParts::keys($candidate['translation']);
+                        if (array_intersect_key($senses, array_flip($candidateSenses)) !== []) {
+                            continue;
+                        }
+
                         $seen[$key] = true;
+                        $senses += array_fill_keys($candidateSenses, true);
                         $picked[] = $candidate['translation'];
                     }
                 }

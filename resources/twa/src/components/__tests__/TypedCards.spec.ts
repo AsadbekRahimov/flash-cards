@@ -35,6 +35,20 @@ const gapFill: Card = {
 
 afterEach(() => setLocale('ru'))
 
+describe('the Pro chip of the typed cards', () => {
+  it.each([
+    ['spelling', SpellingCard, spelling],
+    ['gap fill', GapFillCard, gapFill],
+  ])('%s: only when the screen asks for it', (_name, component, card) => {
+    expect(mount(component, { props: { card } }).find('[data-testid=pro-chip]').exists()).toBe(false)
+    expect(mount(component, { props: { card, proChip: false } }).find('[data-testid=pro-chip]').exists()).toBe(false)
+
+    const w = mount(component, { props: { card, proChip: true } })
+    expect(w.get('[data-testid=pro-chip]').text()).toBe('Pro')
+    expect(w.get('article').find('[data-testid=pro-chip]').exists()).toBe(true)
+  })
+})
+
 describe('SpellingCard', () => {
   it('shows the translation and the length hint, never the word or the example', () => {
     const w = mount(SpellingCard, { props: { card: spelling } })
