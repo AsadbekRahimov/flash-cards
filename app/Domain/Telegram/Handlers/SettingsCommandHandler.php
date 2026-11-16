@@ -14,8 +14,8 @@ use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Domain\Telegram\Support\TeacherDmNotice;
 
 /**
- * `/settings` in a DM — a menu that re-runs one onboarding step at a time (language, goal, level,
- * time zone, reminder). Someone who has not finished the onboarding is taken back to it instead.
+ * `/settings` in a DM — a menu that re-runs one onboarding step at a time (language, goal — only while
+ * several goals are enabled —, level, reminder). Someone who has not finished the onboarding is taken back to it instead.
  */
 final class SettingsCommandHandler implements UpdateHandler
 {

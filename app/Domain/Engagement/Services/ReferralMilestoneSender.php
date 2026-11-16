@@ -119,7 +119,7 @@ final class ReferralMilestoneSender
         }
 
         if ($next !== null) {
-            $remaining = max(1, $next - max($milestone, $this->referrals->overview($learner, limit: 0)->counted));
+            $remaining = max(1, $next - max($milestone, $this->referrals->countedFor($learner)));
             $text .= "\n".trans_choice('referrals.milestone.next', $remaining, ['count' => $remaining], $locale);
         }
 

@@ -513,6 +513,28 @@ describe('TodayView', () => {
       expect(group.find('[data-testid=assignments-card]').exists()).toBe(true)
     })
 
+    it('shows the loading state, not the start card or the usual screen, until the assignments of a courseless learner are in', async () => {
+      let release: (v: { assignments: never[] }) => void = () => {}
+      vi.mocked(api.assignments.list).mockReturnValue(new Promise((resolve) => { release = resolve }))
+
+      const w = await render(today({ active_course: null, due_count: 0 }))
+      expect(w.find('[data-testid=start-card]').exists()).toBe(false)
+      expect(w.find('[data-testid=review-card]').exists()).toBe(false)
+      expect(w.find('[data-testid=plan-badge]').exists()).toBe(false)
+
+      release({ assignments: [] })
+      await flushPromises()
+      expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+    })
+
+    it('does not hang on the loading state when the assignments fail: the start card is shown', async () => {
+      vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+    })
+
     it('has no start card for a learner with a course', async () => {
       const w = await render(today({ due_count: 0 }))
 

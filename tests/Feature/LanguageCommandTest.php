@@ -72,12 +72,12 @@ it('answers /language@BotName too, and not in a group', function (): void {
 });
 
 it('takes a learner who has not finished the onboarding back to it, as /settings does', function (): void {
-    Learner::factory()->create(['telegram_user_id' => 950_004, 'onboarding_state' => 'goal', 'interface_locale' => 'ru']);
+    Learner::factory()->create(['telegram_user_id' => 950_004, 'onboarding_state' => 'level', 'interface_locale' => 'ru']);
 
     langSend(950_004);
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Шаг 2 из 5')
+        ->and($this->tg->sent[0]['text'])->toContain('Шаг 2 из 3')
         ->and($this->tg->sent[0]['text'])->not->toContain('Tilni tanlang');
 });
 

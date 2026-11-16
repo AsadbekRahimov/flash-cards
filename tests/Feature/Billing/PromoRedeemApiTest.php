@@ -34,7 +34,6 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
                 'exercises' => ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill'],
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
-                    'timezones' => ['*' => ['id', 'label']],
                     'reminder_times',
                     'daily_goals',
                     'retention_modes',

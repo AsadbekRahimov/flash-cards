@@ -152,7 +152,6 @@ it('GET /me keeps its exact JSON shape', function (): void {
                 'scheduler', 'retention_mode',
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
-                    'timezones' => ['*' => ['id', 'label']],
                     'reminder_times',
                     'daily_goals',
                     'retention_modes',
@@ -394,7 +393,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
             'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
             'exercises' => ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill'],
             'scheduler', 'retention_mode',
-            'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals', 'retention_modes'],
+            'options' => ['locales' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals', 'retention_modes'],
         ],
         'practice' => CONTRACT_PRACTICE_ME,
         'game' => CONTRACT_GAME_ME,

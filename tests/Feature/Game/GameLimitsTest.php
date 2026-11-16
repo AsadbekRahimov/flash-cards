@@ -12,6 +12,7 @@ use App\Domain\Game\Exceptions\GameException;
 use App\Domain\Game\Services\Economy\TicketService;
 use App\Domain\Game\Services\GameLimits;
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Models\GameBoosterUse;
 use App\Models\GameItem;
 use App\Models\GameProfile;
@@ -384,7 +385,7 @@ it('keeps the limit of the day across a change of timezone: the day is carried o
     gameLimitsPlayed($learner, $course->slug, $lesson->id);
 
     // Kiritimati is past midnight already (UTC+14): a fresh day, were the zone alone to decide.
-    test()->withHeaders(PracticeKit::headers($learner))->patchJson('/api/twa/me/settings', ['timezone' => 'Pacific/Kiritimati'])->assertOk();
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => 'Pacific/Kiritimati']);
     $learner->refresh();
 
     // The day is carried over (docs/12 §5.3): the place stays taken until the first midnight of the new zone after the old day's end.

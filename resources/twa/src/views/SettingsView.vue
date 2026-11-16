@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
@@ -15,7 +15,6 @@ import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
 import { saveSetting } from '@/composables/useLocaleSwitch'
-import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
 import { useOrganizationsStore } from '@/stores/organizations'
@@ -25,10 +24,10 @@ import type { StringKey } from '@/i18n/ru'
 import type { ExerciseSettings, LearnerSettings, SettingsPatch } from '@/api/types'
 
 /**
- * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Language and region come first (the
- * language must be easy to find), then learning (daily goal, my course, exercises), reminders, leagues and "My centers". Every change is saved at once ("Saved" is a
+ * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Language comes first (the
+ * language must be easy to find; there is no time zone row - owner's decision of 16.11.2026, everybody is in Uzbekistan's zone), then learning (daily goal, my course, exercises), reminders, leagues and "My centers". Every change is saved at once ("Saved" is a
  * toast); a refused change leaves the control at the value the server still has and is told in a toast too — the screen
- * is long, an alert at its top would be out of sight when the learner changes a league or a time zone further down.
+ * is long, an alert at its top would be out of sight when the learner changes a league further down.
  * A page of the Profile tab: the system "Back" button leads to the Profile. The last group is the danger zone with
  * "Delete account" (owner's decision of 03.11.2026): a sheet says what happens, "Yes, delete" deletes and leads to the
  * "Account deleted" screen.
@@ -36,13 +35,12 @@ import type { ExerciseSettings, LearnerSettings, SettingsPatch } from '@/api/typ
 const auth = useAuthStore()
 const settings = useSettingsStore()
 const organizations = useOrganizationsStore()
-const toast = useToast()
 const router = useRouter()
 const { t } = useI18n()
 
 useBackButton({ name: 'profile' })
 
-const { data, status, saving, deleting, errorMessage: message, timezoneLockMessage } = storeToRefs(settings)
+const { data, status, saving, deleting, errorMessage: message } = storeToRefs(settings)
 
 /** Up to this many daily goals fit side by side as a segmented control; more go to a select. */
 const MAX_SEGMENTS = 4
@@ -56,13 +54,12 @@ const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fil
 
 // The native selects work on a copy of the server's values. When a change is refused the copy is set back from the
 // data (through state: Vue then puts the select back), never by touching the DOM element.
-const draft = reactive({ timezone: '', reminder: '', goal: 0 })
+const draft = reactive({ reminder: '', goal: 0 })
 
 function syncDraft(): void {
   const current = data.value
   if (!current) return
 
-  draft.timezone = current.timezone
   draft.reminder = current.reminder_time ?? '' // '' is the "no reminders" option
   draft.goal = current.daily_goal
 }
@@ -105,19 +102,6 @@ const localeOptions = computed<SegmentOption[]>(() =>
 
 // "My centers": the membership whose "Leave" waits for the confirmation tap (null = none).
 const confirmingId = ref<number | null>(null)
-
-// The "undo" of a time zone change: counts down to `timezone_undo_available_until`.
-const nowMs = ref(Date.now())
-let tick: ReturnType<typeof setInterval> | null = null
-
-const undoLeft = computed((): string | null => {
-  const iso = data.value?.timezone_undo_available_until
-  const left = iso ? new Date(iso).getTime() - nowMs.value : Number.NaN
-  if (!(left > 0)) return null
-
-  const seconds = Math.ceil(left / 1000)
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
-})
 
 async function load(): Promise<void> {
   try {
@@ -164,26 +148,15 @@ async function deleteAccount(): Promise<void> {
   await router.replace({ name: 'account-deleted', query: { until: result.until } })
 }
 
-async function revertTimezone(): Promise<void> {
-  if (await settings.revertTimezone()) toast.show(t('common.saved'))
-  syncDraft()
-}
-
 const onLocale = (value: string | number) => save({ interface_locale: String(value) })
 const onGoal = (value: string | number) => save({ daily_goal: Number(value) })
-const onTimezone = () => save({ timezone: draft.timezone })
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
 const onRetention = (value: string | number) => save({ retention_mode: String(value) as LearnerSettings['retention_mode'] })
 const onExercise = (key: keyof ExerciseSettings, enabled: boolean) => save({ exercises: { [key]: enabled } })
 
 onMounted(() => {
-  tick = setInterval(() => (nowMs.value = Date.now()), 1000)
   void load()
-})
-
-onBeforeUnmount(() => {
-  if (tick !== null) clearInterval(tick)
 })
 </script>
 
@@ -208,32 +181,6 @@ onBeforeUnmount(() => {
               @update:model-value="onLocale"
             />
           </div>
-        </div>
-
-        <div class="list-row flex-col items-stretch gap-1.5" data-testid="timezone-row">
-          <label class="flex items-center gap-3">
-            <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.timezone') }}</span>
-            <select
-              v-model="draft.timezone"
-              class="field field-inline max-w-[62%] min-w-0 truncate"
-              :disabled="saving || timezoneLockMessage !== null"
-              data-testid="timezone-select"
-              @change="onTimezone"
-            >
-              <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
-            </select>
-          </label>
-          <p v-if="timezoneLockMessage" class="text-[13px] leading-[18px] text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</p>
-          <button
-            v-if="undoLeft !== null"
-            type="button"
-            class="btn btn-tinted btn-sm self-start"
-            :disabled="saving"
-            data-testid="timezone-undo"
-            @click="revertTimezone"
-          >
-            {{ t('settings.timezone.undo', { time: undoLeft }) }}
-          </button>
         </div>
       </ListGroup>
 

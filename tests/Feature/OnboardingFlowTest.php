@@ -28,6 +28,10 @@ uses(RefreshDatabase::class);
 beforeEach(function (): void {
     config(['twa.base_url' => 'https://twa.test']);
 
+    // The goal step exists only while several goals are enabled (the default is `general` alone, see the section at the
+    // end of this file): the walks below go through it, so they enable the goals that existed before.
+    config(['learners.goals' => ['general', 'ielts', 'sat', 'school']]);
+
     $this->tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $this->tg);
 });
@@ -57,14 +61,13 @@ function onbLearner(int $tgId): Learner
     return Learner::query()->where('telegram_user_id', $tgId)->firstOrFail();
 }
 
-/** Runs the five steps from `/start` to `done`. */
-function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', string $level = 'B1', string $zone = 'Asia/Almaty', string $reminder = '2100'): void
+/** Runs the four steps (goal enabled) from `/start` to `done`. */
+function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', string $level = 'B1', string $reminder = '2100'): void
 {
     onbTap($tgId, "onb1:locale:{$locale}", 1);
     onbTap($tgId, "onb1:goal:{$goal}", 2);
     onbTap($tgId, "onb1:level:{$level}", 3);
-    onbTap($tgId, "onb1:timezone:{$zone}", 4);
-    onbTap($tgId, "onb1:reminder:{$reminder}", 5);
+    onbTap($tgId, "onb1:reminder:{$reminder}", 4);
 }
 
 function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public', int $words = 10): Course
@@ -88,7 +91,7 @@ function onbEvents(): array
 
 // --- the happy path --------------------------------------------------------
 
-it('walks a new learner through the five steps with five callbacks', function (): void {
+it('walks a new learner through the four steps (goal enabled) with four callbacks', function (): void {
     $course = onbCourse('ielts-academic', 'ielts', 'B1');
     onbCourse('general-a1', 'general', 'A1');
 
@@ -97,24 +100,21 @@ it('walks a new learner through the five steps with five callbacks', function ()
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('locale')
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("1/5-qadam\nInterfeys tilini tanlang")
+        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("1/4-qadam\nInterfeys tilini tanlang")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:locale:ru', 'onb1:locale:uz']);
 
     onbTap(7001, 'onb1:locale:uz', 1);
     expect(onbLearner(7001)->onboarding_state)->toBe('goal')
-        ->and(end($this->tg->sent)['text'])->toBe("2/5-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
+        ->and(end($this->tg->sent)['text'])->toBe("2/4-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts', 'onb1:goal:sat', 'onb1:goal:school']);
 
     onbTap(7001, 'onb1:goal:ielts', 2);
     expect($this->tg->lastCallbackData())->toBe(['onb1:level:A1', 'onb1:level:A2', 'onb1:level:B1', 'onb1:level:B2', 'onb1:level:unknown']);
 
     onbTap(7001, 'onb1:level:B1', 3);
-    expect($this->tg->lastCallbackData())->toContain('onb1:timezone:Asia/Tashkent', 'onb1:timezone:Asia/Almaty');
-
-    onbTap(7001, 'onb1:timezone:Asia/Almaty', 4);
     expect($this->tg->lastCallbackData())->toBe(['onb1:reminder:0800', 'onb1:reminder:1300', 'onb1:reminder:1900', 'onb1:reminder:2100', 'onb1:reminder:off']);
 
-    onbTap(7001, 'onb1:reminder:2100', 5);
+    onbTap(7001, 'onb1:reminder:2100', 4);
 
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('done')
@@ -122,7 +122,8 @@ it('walks a new learner through the five steps with five callbacks', function ()
         ->and($learner->interface_locale)->toBe('uz')
         ->and($learner->goal)->toBe('ielts')
         ->and($learner->level)->toBe('B1')
-        ->and($learner->timezone)->toBe('Asia/Almaty')
+        // No time zone step: every new learner gets the default zone.
+        ->and($learner->timezone)->toBe('Asia/Tashkent')
         ->and(substr((string) DB::table('learners')->where('id', $learner->id)->value('reminder_time'), 0, 5))->toBe('21:00')
         ->and($learner->daily_goal)->toBe(20)
         ->and($learner->active_course_id)->toBe($course->id);
@@ -134,17 +135,17 @@ it('walks a new learner through the five steps with five callbacks', function ()
         ->and($last['text'])->toContain('Kurs ielts-academic');
 
     // Every answered message lost its buttons, every query was answered.
-    expect($this->tg->edits)->toHaveCount(5)
+    expect($this->tg->edits)->toHaveCount(4)
         ->and(array_column($this->tg->edits, 'markup'))->each->toBeNull()
-        ->and(array_column($this->tg->edits, 'message_id'))->toBe([1, 2, 3, 4, 5])
-        ->and($this->tg->answered)->toHaveCount(5);
+        ->and(array_column($this->tg->edits, 'message_id'))->toBe([1, 2, 3, 4])
+        ->and($this->tg->answered)->toHaveCount(4);
 
     expect(onbEvents())->toBe([
         // The welcome trial of a new learner goes with the /start itself (docs/13 §7.1 "2C.9"), before the onboarding begins.
         'subscription.granted', 'trial.granted',
         'onboarding.started',
         'onboarding.step_completed', 'onboarding.step_completed', 'onboarding.step_completed',
-        'onboarding.step_completed', 'onboarding.step_completed',
+        'onboarding.step_completed',
         'onboarding.completed',
         'course.selected',
     ]);
@@ -160,7 +161,7 @@ it('stores "I do not know" as A1, switches reminders off and falls back to the d
     $default->update(['words_count' => 5]);
 
     onbSend(7002, '/start');
-    onbComplete(7002, 'ru', 'general', 'unknown', 'Asia/Tashkent', 'off');
+    onbComplete(7002, 'ru', 'general', 'unknown', 'off');
 
     $learner = onbLearner(7002);
     expect($learner->onboarding_state)->toBe('done')
@@ -291,13 +292,12 @@ it('sends the closing message again when the retry follows a lost last reply', f
     onbTap(7017, 'onb1:locale:ru', 1);
     onbTap(7017, 'onb1:goal:general', 2);
     onbTap(7017, 'onb1:level:A1', 3);
-    onbTap(7017, 'onb1:timezone:Asia/Tashkent', 4);
 
     $this->tg->failSends = 1;
-    expect(fn () => onbTap(7017, 'onb1:reminder:1900', 5))->toThrow(TelegramApiException::class);
+    expect(fn () => onbTap(7017, 'onb1:reminder:1900', 4))->toThrow(TelegramApiException::class);
     $sentBefore = count($this->tg->sent);
 
-    onbTap(7017, 'onb1:reminder:1900', 5);
+    onbTap(7017, 'onb1:reminder:1900', 4);
 
     expect($this->tg->sent)->toHaveCount($sentBefore + 1)
         ->and(end($this->tg->sent)['url'])->toBe('https://twa.test/twa/?from=onboarding')
@@ -312,7 +312,7 @@ it('keeps answering the callback when Telegram refuses the acknowledgement', fun
 
     expect(onbLearner(7018)->onboarding_state)->toBe('goal')
         ->and(onbLearner(7018)->interface_locale)->toBe('uz')
-        ->and(end($this->tg->sent)['text'])->toBe("2/5-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
+        ->and(end($this->tg->sent)['text'])->toBe("2/4-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {
@@ -329,7 +329,7 @@ it('does not reopen a finished onboarding when an old button is tapped', functio
         ->and($this->tg->sent)->toHaveCount($sentBefore);
 
     // The button of the LAST step is the retry case: the closing message may have been lost, so it is sent again.
-    onbTap(7011, 'onb1:reminder:off', 5);
+    onbTap(7011, 'onb1:reminder:off', 4);
 
     expect(onbLearner(7011)->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time', 'active_course_id']))->toBe($before)
         ->and(onbLearner(7011)->onboarding_state)->toBe('done')
@@ -341,7 +341,7 @@ it('does not reopen a finished onboarding when an old button is tapped', functio
 it('rejects values outside the whitelists and malformed callback_data without changing anything', function (string $step, string $data): void {
     // Walk to the step under test, then send the tampered data for it.
     onbSend(7012, '/start');
-    $answers = ['locale' => 'onb1:locale:ru', 'goal' => 'onb1:goal:general', 'level' => 'onb1:level:A1', 'timezone' => 'onb1:timezone:Asia/Tashkent'];
+    $answers = ['locale' => 'onb1:locale:ru', 'goal' => 'onb1:goal:general', 'level' => 'onb1:level:A1'];
     foreach ($answers as $name => $answer) {
         if ($name === $step) {
             break;
@@ -362,9 +362,6 @@ it('rejects values outside the whitelists and malformed callback_data without ch
     'goal in upper case' => ['goal', 'onb1:goal:IELTS'],
     'level C2' => ['level', 'onb1:level:C2'],
     'level lower case' => ['level', 'onb1:level:b1'],
-    'valid IANA zone not offered' => ['timezone', 'onb1:timezone:Europe/Berlin'],
-    'not a zone' => ['timezone', 'onb1:timezone:Mars/Base'],
-    'zone with a dot-dot' => ['timezone', 'onb1:timezone:Asia/../Tashkent'],
     'reminder not offered' => ['reminder', 'onb1:reminder:0300'],
     'extra segment' => ['goal', 'onb1:goal:ielts:extra'],
     'no value' => ['goal', 'onb1:goal'],
@@ -379,7 +376,6 @@ it('treats the reminder step value as a whitelist key, not a free time', functio
     onbTap(7013, 'onb1:locale:ru');
     onbTap(7013, 'onb1:goal:general');
     onbTap(7013, 'onb1:level:A1');
-    onbTap(7013, 'onb1:timezone:Asia/Tashkent');
 
     onbTap(7013, 'onb1:reminder:25:00');
     onbTap(7013, 'onb1:reminder:1900;DROP');
@@ -414,7 +410,7 @@ it('applies only the current step in the service, under any order of calls', fun
     expect(fn () => $service->apply($learner, 'goal', 'sat'))->toThrow(OnboardingException::class);
 });
 
-it('schedules next_reminder_at in UTC from the chosen time zone and reminder time', function (): void {
+it('schedules next_reminder_at in UTC from the default time zone and the chosen reminder time', function (): void {
     // 15:00 in Tashkent (UTC+5).
     $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
 
@@ -425,14 +421,12 @@ it('schedules next_reminder_at in UTC from the chosen time zone and reminder tim
     // Scheduled from the defaults (Tashkent, 19:00) the moment the learner is created (docs/12 §7.5, 1.5b).
     expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 
-    // The time zone step alone recomputes the (default 19:00) reminder: 19:00 in Moscow = 16:00 UTC.
-    onbTap(7090, 'onb1:timezone:Europe/Moscow', 4);
-    expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 16:00:00');
-
-    onbTap(7090, 'onb1:reminder:2100', 5);
+    onbTap(7090, 'onb1:reminder:2100', 4);
     $learner = onbLearner(7090);
     expect($learner->onboarding_state)->toBe('done')
-        ->and($learner->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 18:00:00');
+        ->and($learner->timezone)->toBe('Asia/Tashkent')
+        // 21:00 in Tashkent.
+        ->and($learner->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 16:00:00');
 });
 
 it('takes the next day when the chosen time has already passed today and ends with NULL for "no reminders"', function (): void {
@@ -440,17 +434,17 @@ it('takes the next day when the chosen time has already passed today and ends wi
     $this->travelTo(CarbonImmutable::parse('2026-10-19 16:00:00', 'UTC'));
 
     onbSend(7091, '/start');
-    onbComplete(7091, 'ru', 'general', 'A1', 'Asia/Tashkent', '1900');
+    onbComplete(7091, 'ru', 'general', 'A1', '1900');
     expect(onbLearner(7091)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-20 14:00:00');
 
     onbSend(7092, '/start');
-    onbComplete(7092, 'ru', 'general', 'A1', 'Asia/Tashkent', 'off');
+    onbComplete(7092, 'ru', 'general', 'A1', 'off');
     expect(onbLearner(7092)->reminder_time)->toBeNull()
         ->and(onbLearner(7092)->next_reminder_at)->toBeNull();
 });
 
-it('recomputes next_reminder_at when /settings changes the time zone or the reminder time, and only then', function (): void {
-    // 16:00 in Bishkek (UTC+6), 15:00 in Tashkent.
+it('recomputes next_reminder_at when /settings changes the reminder time, and only then', function (): void {
+    // 15:00 in Tashkent (UTC+5).
     $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
     $service = app(OnboardingService::class);
     $learner = Learner::factory()->onboarded()->create([
@@ -460,50 +454,37 @@ it('recomputes next_reminder_at when /settings changes the time zone or the remi
     $service->applySetting($learner, 'goal', 'sat');
     expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 
-    $service->applySetting($learner, 'timezone', 'Asia/Bishkek');
-    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 13:00:00');
-
-    // 08:00 in Bishkek has passed today.
+    // 08:00 in Tashkent has passed today.
     $service->applySetting($learner, 'reminder', '0800');
-    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-20 02:00:00');
+    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-20 03:00:00');
 
     $service->applySetting($learner, 'reminder', 'off');
     expect($learner->fresh()->reminder_time)->toBeNull()
         ->and($learner->fresh()->next_reminder_at)->toBeNull();
 
-    // Reminders off stay off when only the time zone changes (a day later: the zone changes once in 24 h).
-    $this->travelTo(CarbonImmutable::parse('2026-10-20 10:00:00', 'UTC'));
-    $service->applySetting($learner, 'timezone', 'Asia/Almaty');
-    expect($learner->fresh()->next_reminder_at)->toBeNull();
+    // The time zone is not a setting of the bot any more.
+    expect(fn () => $service->applySetting($learner, 'timezone', 'Asia/Bishkek'))->toThrow(OnboardingException::class);
+    expect($learner->fresh()->timezone)->toBe('Asia/Tashkent');
 });
 
-it('tells the learner in their language when /settings refuses a second time-zone change within 24 h', function (string $locale, string $expected): void {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
-    $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7094, 'timezone' => 'Asia/Tashkent', 'interface_locale' => $locale]);
+it('ignores the old /settings time zone buttons: nothing changes and nothing is sent', function (string $data): void {
+    $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7094, 'timezone' => 'Asia/Tashkent']);
+    $before = $learner->fresh()->only(['timezone', 'meta', 'next_reminder_at']);
 
-    onbTap(7094, 'set1:timezone:Europe/Moscow', 100);
-    expect(end($this->tg->sent)['text'])->toBe(__('onboarding.settings.saved', [], $locale));
+    onbTap(7094, $data, 100);
 
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 20:00:00', 'UTC'));
-    $edits = count($this->tg->edits);
-    onbTap(7094, 'set1:timezone:Asia/Almaty', 101);
-
-    // Next change at 20 Oct 10:00 UTC = 13:00 in Moscow, the learner's current zone; the keyboard stays, nothing changed.
-    expect(end($this->tg->sent)['text'])->toBe($expected)
-        ->and($this->tg->edits)->toHaveCount($edits)
-        ->and(onbLearner(7094)->timezone)->toBe('Europe/Moscow');
-})->with([
-    'ru' => ['ru', 'Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после 20.10 13:00 (по вашему текущему времени).'],
-    'uz' => ['uz', "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — 20.10 13:00 dan keyin (joriy vaqtingiz bo'yicha)."],
-]);
+    expect($learner->fresh()->only(['timezone', 'meta', 'next_reminder_at']))->toBe($before)
+        ->and($this->tg->sent)->toBe([])
+        ->and($this->tg->answered)->toHaveCount(1);
+})->with(['set1:timezone', 'set1:timezone:Europe/Moscow']);
 
 it('recomputes next_reminder_at through the /settings buttons', function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
     $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7093, 'timezone' => 'Asia/Tashkent', 'reminder_time' => '19:00']);
 
-    onbTap(7093, 'set1:timezone:Europe/Moscow');
+    onbTap(7093, 'set1:reminder:2100');
 
-    // 19:00 in Moscow (UTC+3) = 16:00 UTC.
+    // 21:00 in Tashkent (UTC+5) = 16:00 UTC.
     expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 16:00:00');
 });
 
@@ -894,14 +875,15 @@ it('lets a finished learner change one value at a time through /settings', funct
     ]);
 
     onbSend(7060, '/settings');
-    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:timezone', 'set1:reminder', 'del1:ask']);
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
 
-    onbTap(7060, 'set1:timezone', 10);
-    expect($this->tg->sent[1]['text'])->toContain('часовом поясе')
-        ->and($this->tg->lastCallbackData())->toContain('set1:timezone:Asia/Bishkek');
+    onbTap(7060, 'set1:reminder', 10);
+    expect($this->tg->sent[1]['text'])->toContain('напоминать')
+        ->and($this->tg->lastCallbackData())->toContain('set1:reminder:0800');
 
-    onbTap(7060, 'set1:timezone:Asia/Bishkek', 11);
-    expect($learner->fresh()->timezone)->toBe('Asia/Bishkek')
+    onbTap(7060, 'set1:reminder:0800', 11);
+    expect(substr((string) DB::table('learners')->where('id', $learner->id)->value('reminder_time'), 0, 5))->toBe('08:00')
+        ->and($learner->fresh()->timezone)->toBe('Asia/Tashkent')
         ->and(end($this->tg->sent)['text'])->toBe('Сохранено.')
         ->and($this->tg->edits)->toHaveCount(1);
 
@@ -921,7 +903,6 @@ it('validates /settings values against the same whitelists', function (string $d
     expect($learner->fresh()->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time']))->toBe($before)
         ->and($this->tg->sent)->toBe([]);
 })->with([
-    'zone not offered' => ['set1:timezone:Europe/Berlin'],
     'unknown goal' => ['set1:goal:hacker'],
     'unknown step' => ['set1:role:admin'],
     'level C2' => ['set1:level:C2'],
@@ -931,7 +912,7 @@ it('sends a learner who has not finished the onboarding back to it on /settings 
     onbSend(7062, '/start');
 
     onbSend(7062, '/settings');
-    expect(end($this->tg->sent)['text'])->toBe("Шаг 1 из 5\nВыберите язык интерфейса");
+    expect(end($this->tg->sent)['text'])->toBe("Шаг 1 из 4\nВыберите язык интерфейса");
 
     $sentBefore = count($this->tg->sent);
     onbTap(7062, 'set1:locale:uz');
@@ -1049,7 +1030,7 @@ it('creates no learner and sends nothing when a linked teacher presses onboardin
         ->and($this->tg->sent)->toBe([])
         ->and($this->tg->edits)->toBe([])
         ->and(Learner::query()->where('telegram_user_id', 7085)->exists())->toBeFalse();
-})->with(['onb1:locale:uz', 'set1:timezone', 'set1:timezone:Asia/Bishkek']);
+})->with(['onb1:locale:uz', 'set1:reminder', 'set1:reminder:0800']);
 
 // --- the default course -----------------------------------------------------------------
 
@@ -1103,84 +1084,222 @@ it('falls back to the default course with words when nothing else fits', functio
     expect(onbLearner(7089)->active_course_id)->toBe($default->id);
 });
 
-// --- the zone step after an earlier zone change ------------------------------------------
+// --- no time zone step, one goal: the default onboarding (owner's decision of 16.11.2026) -------------------------
 
-function onbAtZoneStep(int $tgId, array $meta = [], array $attributes = []): Learner
+/** Learner stuck on a state of the old onboarding. */
+function onbStuckAt(int $tgId, string $state, array $attributes = []): Learner
 {
     return Learner::factory()->create([
         'telegram_user_id' => $tgId,
-        'onboarding_state' => 'timezone',
+        'onboarding_state' => $state,
         'interface_locale' => 'ru',
-        'goal' => 'general',
+        'goal' => null,
         'level' => 'A1',
         'timezone' => 'Asia/Tashkent',
-        'meta' => $meta,
         ...$attributes,
     ]);
 }
 
-it('keeps the zone step when the zone was changed through the settings less than 24 h ago, and says when it is possible again', function (): void {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
-    $changedAt = CarbonImmutable::parse('2026-10-19 08:00:00', 'UTC')->toIso8601String();
-    $learner = onbAtZoneStep(7201, ['timezone_changed_at' => $changedAt]);
+it('walks through three steps by default: language, level, reminder; the goal is general and the zone is Tashkent', function (): void {
+    config(['learners.goals' => ['general']]);
+    $course = onbCourse('general-b1', 'general', 'B1');
 
-    onbTap(7201, 'onb1:timezone:Asia/Almaty', 4);
+    onbSend(7301, '/start', ['language_code' => 'uz']);
+    expect($this->tg->sent[0]['text'])->toEndWith("1/3-qadam\nInterfeys tilini tanlang");
 
-    $learner->refresh();
-    expect($learner->timezone)->toBe('Asia/Tashkent')
-        ->and($learner->onboarding_state)->toBe('timezone')
-        ->and($learner->meta['timezone_changed_at'])->toBe($changedAt)
-        // 08:00 UTC + 24 h = 20.10 08:00 UTC = 13:00 in Tashkent.
-        ->and(end($this->tg->sent)['text'])->toBe(__('onboarding.settings.timezone_too_soon', ['when' => '20.10 13:00'], 'ru'));
+    onbTap(7301, 'onb1:locale:ru', 1);
+    expect(onbLearner(7301)->onboarding_state)->toBe('level')
+        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 3')
+        ->and(onbLearner(7301)->goal)->toBe('general');
 
-    // Allowed again after the interval: the step moves on, the change is stamped and the day carried.
-    $this->travelTo(CarbonImmutable::parse('2026-10-20 08:30:00', 'UTC'));
-    onbTap(7201, 'onb1:timezone:Asia/Almaty', 5);
+    onbTap(7301, 'onb1:level:B1', 2);
+    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 3 из 3');
 
-    $learner->refresh();
-    expect($learner->timezone)->toBe('Asia/Almaty')
-        ->and($learner->onboarding_state)->toBe('reminder')
-        ->and($learner->meta['timezone_changed_at'])->toBe('2026-10-20T08:30:00+00:00')
-        ->and($learner->meta)->toHaveKey('local_day_carry');
+    onbTap(7301, 'onb1:reminder:1900', 3);
+
+    $learner = onbLearner(7301);
+    expect($learner->onboarding_state)->toBe('done')
+        ->and($learner->goal)->toBe('general')
+        ->and($learner->timezone)->toBe('Asia/Tashkent')
+        ->and($learner->active_course_id)->toBe($course->id)
+        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(3)
+        ->and(ksorted(ProductEvent::query()->where('name', 'onboarding.completed')->firstOrFail()->props))->toBe(['goal' => 'general', 'level' => 'B1', 'locale' => 'ru']);
 });
 
-it('also guards the zone step while a carried day is active (a carry without a stamp)', function (): void {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
-    $carry = ['date' => '2026-10-19', 'timezone' => 'Asia/Tashkent', 'start' => '2026-10-18T19:00:00+00:00', 'end' => '2026-10-19T19:00:00+00:00'];
-    $learner = onbAtZoneStep(7202, ['local_day_carry' => $carry]);
+it('does not offer the goal step: a tap on a goal button is answered and changes nothing', function (string $goal): void {
+    config(['learners.goals' => ['general']]);
+    onbSend(7302, '/start');
+    $sentBefore = count($this->tg->sent);
 
-    onbTap(7202, 'onb1:timezone:Asia/Almaty', 4);
+    onbTap(7302, "onb1:goal:{$goal}", 1);
 
-    $learner->refresh();
-    // No stamp, so the 24 h rule lets it through — but via the settings path: stamped, and the running carry kept.
-    expect($learner->timezone)->toBe('Asia/Almaty')
-        ->and($learner->onboarding_state)->toBe('reminder')
-        ->and($learner->meta['timezone_changed_at'])->toBe('2026-10-19T10:00:00+00:00')
-        ->and(ksorted($learner->meta['local_day_carry']))->toBe(ksorted($carry));
+    // The goal was written at /start; a tap on any goal button cannot change it.
+    expect(onbLearner(7302)->onboarding_state)->toBe('locale')
+        ->and(onbLearner(7302)->goal)->toBe('general')
+        ->and($this->tg->sent)->toHaveCount($sentBefore)
+        ->and($this->tg->answered)->toHaveCount(1);
+})->with(['general', 'ielts', 'sat', 'school']);
+
+it('takes a learner stuck on the goal step to the level step, with the goal general, on a message or on an old goal button', function (string $action): void {
+    config(['learners.goals' => ['general']]);
+    onbStuckAt(7303, 'goal');
+
+    if ($action === 'message') {
+        onbSend(7303, 'hello');
+    } else {
+        onbTap(7303, "onb1:goal:{$action}", 2);
+    }
+
+    expect(onbLearner(7303)->onboarding_state)->toBe('level')
+        ->and(onbLearner(7303)->goal)->toBe('general')
+        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 3')
+        ->and($this->tg->lastCallbackData())->toContain('onb1:level:B1');
+
+    onbTap(7303, 'onb1:level:B1', 3);
+    onbTap(7303, 'onb1:reminder:off', 4);
+    expect(onbLearner(7303)->onboarding_state)->toBe('done');
+})->with(['message', 'ielts', 'sat', 'school']);
+
+it('takes a learner stuck on the time zone step to the reminder step, keeping their zone, on a message or on an old zone button', function (string $action): void {
+    config(['learners.goals' => ['general']]);
+    onbStuckAt(7304, 'timezone', ['goal' => 'general', 'timezone' => 'Europe/Moscow']);
+
+    if ($action === 'message') {
+        onbSend(7304, 'hello');
+    } else {
+        onbTap(7304, "onb1:timezone:{$action}", 4);
+    }
+
+    $learner = onbLearner(7304);
+    expect($learner->onboarding_state)->toBe('reminder')
+        ->and($learner->timezone)->toBe('Europe/Moscow')
+        ->and($learner->goal)->toBe('general')
+        ->and($this->tg->lastCallbackData())->toContain('onb1:reminder:2100');
+
+    onbTap(7304, 'onb1:reminder:2100', 5);
+    expect(onbLearner(7304)->onboarding_state)->toBe('done')
+        ->and(onbLearner(7304)->timezone)->toBe('Europe/Moscow');
+})->with(['message', 'Asia/Almaty', 'Europe/Berlin']);
+
+it('does not fail on an old zone button of a learner who has moved on or finished', function (string $state): void {
+    onbStuckAt(7305, $state, ['goal' => 'general', 'onboarding_completed_at' => $state === 'done' ? now() : null]);
+    $before = onbLearner(7305)->only(['onboarding_state', 'timezone', 'goal']);
+
+    onbTap(7305, 'onb1:timezone:Asia/Almaty', 4);
+
+    expect(onbLearner(7305)->only(['onboarding_state', 'timezone', 'goal']))->toBe($before)
+        ->and($this->tg->sent)->toBe([])
+        ->and($this->tg->answered)->toHaveCount(1);
+})->with(['level', 'reminder', 'done']);
+
+it('walks a learner who is stuck on the goal step while several goals are enabled through it as before', function (): void {
+    onbStuckAt(7306, 'goal');
+
+    onbSend(7306, 'hello');
+    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 4');
+
+    onbTap(7306, 'onb1:goal:sat', 2);
+    expect(onbLearner(7306)->goal)->toBe('sat')
+        ->and(onbLearner(7306)->onboarding_state)->toBe('level');
 });
 
-it('sets the very first zone as before: no stamp, no carry, no time limit', function (): void {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
-    $learner = onbAtZoneStep(7203);
+it('offers only the enabled goals and ignores the unknown ones in the config', function (): void {
+    config(['learners.goals' => ['general', 'ielts', 'mars', 'IELTS', ' sat']]);
 
-    onbTap(7203, 'onb1:timezone:Asia/Almaty', 4);
+    $service = app(OnboardingService::class);
+    expect(OnboardingService::availableGoals())->toBe(['general', 'ielts'])
+        ->and(OnboardingService::steps())->toBe(['locale', 'goal', 'level', 'reminder'])
+        ->and(array_map(fn ($o) => $o->value, $service->options('goal')))->toBe(['general', 'ielts']);
 
-    $learner->refresh();
-    expect($learner->timezone)->toBe('Asia/Almaty')
-        ->and($learner->onboarding_state)->toBe('reminder')
-        ->and($learner->meta ?? [])->not->toHaveKey('timezone_changed_at')
-        ->and($learner->meta ?? [])->not->toHaveKey('local_day_carry');
+    onbSend(7307, '/start');
+    onbTap(7307, 'onb1:locale:ru', 1);
+    expect($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts']);
+
+    // A goal that is not enabled is refused like any value outside the whitelist.
+    onbTap(7307, 'onb1:goal:sat', 2);
+    expect(onbLearner(7307)->onboarding_state)->toBe('goal')
+        ->and(onbLearner(7307)->goal)->toBeNull();
+
+    onbTap(7307, 'onb1:goal:ielts', 2);
+    expect(onbLearner(7307)->goal)->toBe('ielts');
 });
 
-it('does not stamp a zone step that keeps the current zone', function (): void {
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
-    $changedAt = CarbonImmutable::parse('2026-10-19 08:00:00', 'UTC')->toIso8601String();
-    $learner = onbAtZoneStep(7204, ['timezone_changed_at' => $changedAt]);
+it('falls back to general when the goals config is empty or has nothing valid', function (array $configured): void {
+    config(['learners.goals' => $configured]);
 
-    onbTap(7204, 'onb1:timezone:Asia/Tashkent', 4);
+    expect(OnboardingService::availableGoals())->toBe(['general'])
+        ->and(OnboardingService::steps())->toBe(['locale', 'level', 'reminder']);
+})->with([[[]], [['mars']]]);
 
-    $learner->refresh();
-    expect($learner->timezone)->toBe('Asia/Tashkent')
-        ->and($learner->onboarding_state)->toBe('reminder')
-        ->and($learner->meta['timezone_changed_at'])->toBe($changedAt);
+it('reads the goals from LEARNERS_GOALS as a comma-separated list', function (): void {
+    $config = (function (string $value): array {
+        $_ENV['LEARNERS_GOALS'] = $_SERVER['LEARNERS_GOALS'] = $value;
+        putenv('LEARNERS_GOALS='.$value);
+
+        return require config_path('learners.php');
+    });
+
+    try {
+        expect($config('general, ielts')['goals'])->toBe(['general', 'ielts'])
+            ->and($config('')['goals'])->toBe([]);
+    } finally {
+        unset($_ENV['LEARNERS_GOALS'], $_SERVER['LEARNERS_GOALS']);
+        putenv('LEARNERS_GOALS');
+    }
+
+    expect((require config_path('learners.php'))['goals'])->toBe(['general']);
+});
+
+it('keeps the stored goal and zone of an existing learner and still recommends the general course for a retired goal', function (): void {
+    config(['learners.goals' => ['general']]);
+    $general = onbCourse('general-b1', 'general', 'B1');
+    $learner = Learner::factory()->onboarded()->create(['goal' => 'sat', 'timezone' => 'Europe/Moscow', 'level' => 'B1']);
+    $before = $learner->only(['goal', 'timezone', 'level']);
+
+    onbSend((int) $learner->telegram_user_id, '/start');
+    onbSend((int) $learner->telegram_user_id, '/settings');
+
+    expect($learner->fresh()->only(['goal', 'timezone', 'level']))->toBe($before)
+        ->and(app(CourseCatalogService::class)->recommend('general', 'B1')?->id)->toBe($general->id);
+
+    // A learner with a retired goal who reaches the end of the onboarding still gets the general course.
+    $stuck = onbStuckAt(7308, 'level', ['goal' => 'sat', 'timezone' => 'Europe/Moscow', 'level' => null]);
+    onbTap(7308, 'onb1:level:B1', 3);
+    onbTap(7308, 'onb1:reminder:off', 4);
+
+    expect(onbLearner(7308)->active_course_id)->toBe($general->id)
+        ->and(onbLearner(7308)->goal)->toBe('sat')
+        ->and(onbLearner(7308)->timezone)->toBe('Europe/Moscow');
+});
+
+it('shows /settings without the time zone and, with one goal, without the goal', function (): void {
+    config(['learners.goals' => ['general']]);
+    Learner::factory()->onboarded()->create(['telegram_user_id' => 7309, 'interface_locale' => 'ru']);
+
+    onbSend(7309, '/settings');
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:level', 'set1:reminder', 'del1:ask']);
+
+    // Old buttons of the goal and zone menus are not opened.
+    $sent = count($this->tg->sent);
+    onbTap(7309, 'set1:goal');
+    onbTap(7309, 'set1:goal:ielts');
+    onbTap(7309, 'set1:timezone');
+    expect($this->tg->sent)->toHaveCount($sent)
+        ->and(Learner::query()->where('telegram_user_id', 7309)->value('goal'))->toBeNull();
+
+    config(['learners.goals' => ['general', 'ielts']]);
+    onbSend(7309, '/settings');
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
+
+    onbTap(7309, 'set1:goal');
+    expect($this->tg->lastCallbackData())->toBe(['set1:goal:general', 'set1:goal:ielts']);
+});
+
+it('creates every new learner with the default time zone from the config', function (): void {
+    onbSend(7310, '/start');
+    expect(onbLearner(7310)->timezone)->toBe('Asia/Tashkent');
+
+    config(['learners.default_timezone' => 'Asia/Almaty']);
+    onbSend(7311, '/start');
+    expect(onbLearner(7311)->timezone)->toBe('Asia/Almaty');
 });

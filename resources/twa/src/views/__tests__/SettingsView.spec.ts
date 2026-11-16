@@ -45,13 +45,6 @@ const me = (settings: LearnerSettings = settingsFixture()): MeResponse => ({
 const uzSettings = (): LearnerSettings =>
   settingsFixture({
     interface_locale: 'uz',
-    options: {
-      ...settingsFixture().options,
-      timezones: [
-        { id: 'Asia/Tashkent', label: 'Toshkent (UTC+5)' },
-        { id: 'Europe/Moscow', label: 'Moskva (UTC+3)' },
-      ],
-    },
   })
 
 const makeRouter = () =>
@@ -122,12 +115,10 @@ describe('SettingsView', () => {
 
   describe('what it shows', () => {
     it('shows the current settings with the choices of the server', async () => {
-      const w = await render(settingsFixture({ timezone: 'Europe/Moscow', reminder_time: '21:00', daily_goal: 40 }))
+      const w = await render(settingsFixture({ reminder_time: '21:00', daily_goal: 40 }))
 
       expect(selectedSegment(w, 'locale-select')).toBe('🇷🇺 Русский')
       expect(segments(w, 'locale-select')).toEqual(['🇷🇺 Русский', "🇺🇿 O'zbekcha"])
-      expect(value(w, 'timezone-select')).toBe('Europe/Moscow')
-      expect(labels(w, 'timezone-select')).toEqual(['Ташкент (UTC+5)', 'Москва (UTC+3)'])
       expect(value(w, 'reminder-select')).toBe('21:00')
       expect(labels(w, 'reminder-select')).toEqual(['08:00', '13:00', '19:00', '21:00', 'Выключены'])
       expect(selectedSegment(w, 'goal-select')).toBe('40')
@@ -146,7 +137,7 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture(), [membership()])
 
       const sections = w.findAll('h2.section-label').map((h) => h.text())
-      expect(sections).toEqual(['Язык и регион', 'Обучение', 'Упражнения', 'Напоминания', 'Лиги', 'Мои центры', 'Опасная зона'])
+      expect(sections).toEqual(['Язык', 'Обучение', 'Упражнения', 'Напоминания', 'Лиги', 'Мои центры', 'Опасная зона'])
       const text = w.text()
       expect(text).toContain('слов в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
@@ -154,13 +145,13 @@ describe('SettingsView', () => {
       expect(text).toContain('Выход из лиг действует со следующей недели')
     })
 
-    it('puts the language and the time zone first, above "Обучение", and keeps the segment switch', async () => {
+    it('puts the language first, above "Обучение", and keeps the segment switch', async () => {
       const w = await render()
 
       const first = w.get('h2.section-label')
-      expect(first.text()).toBe('Язык и регион')
+      expect(first.text()).toBe('Язык')
       expect(first.element.parentElement?.querySelector('[data-testid=locale-select] [role=radiogroup]')).not.toBeNull()
-      expect(first.element.parentElement?.querySelector('[data-testid=timezone-select]')).not.toBeNull()
+      expect(first.element.parentElement?.querySelector('[data-testid=timezone-select]')).toBeNull()
       expect(w.get('[data-testid=settings-view] .space-y-4').element.firstElementChild).toBe(first.element.parentElement)
     })
 
@@ -233,27 +224,16 @@ describe('SettingsView', () => {
       expect(value(w, 'reminder-select')).toBe('')
     })
 
-    it('has the reminder and the time zone as values on the right of their rows', async () => {
-      const w = await render()
+    it('has the reminder as a value on the right of its row, and no time zone row or picker (owner\'s decision of 16.11.2026)', async () => {
+      const w = await render(settingsFixture({ timezone: 'Europe/Moscow' }))
 
-      for (const id of ['reminder-select', 'timezone-select']) {
-        expect(box(w, id).classes(), id).toEqual(expect.arrayContaining(['field', 'field-inline']))
-      }
+      expect(box(w, 'reminder-select').classes()).toEqual(expect.arrayContaining(['field', 'field-inline']))
       expect(w.text()).toContain('Время напоминания')
-      expect(w.text()).toContain('Часовой пояс')
-    })
-
-    it('shows the time zone the learner already has even when the picker does not list it', async () => {
-      const base = settingsFixture()
-      const w = await render(
-        settingsFixture({
-          timezone: 'Asia/Kolkata',
-          options: { ...base.options, timezones: [...base.options.timezones, { id: 'Asia/Kolkata', label: 'Asia/Kolkata (UTC+5:30)' }] },
-        }),
-      )
-
-      expect(value(w, 'timezone-select')).toBe('Asia/Kolkata')
-      expect(labels(w, 'timezone-select')).toContain('Asia/Kolkata (UTC+5:30)')
+      expect(w.text()).not.toContain('Часовой пояс —')
+      expect(w.find('[data-testid=timezone-row]').exists()).toBe(false)
+      expect(w.find('[data-testid=timezone-select]').exists()).toBe(false)
+      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
+      expect(w.find('[data-testid=timezone-locked]').exists()).toBe(false)
     })
 
     it('shows the main course in a row that leads to the courses, also without a course', async () => {
@@ -284,7 +264,6 @@ describe('SettingsView', () => {
   describe('saving', () => {
     // [control to touch, how, patch the screen has to send]
     it.each([
-      ['timezone-select', 'Europe/Moscow', { timezone: 'Europe/Moscow' }],
       ['reminder-select', '13:00', { reminder_time: '13:00' }],
       ['reminder-select', '', { reminder_time: null }],
     ] satisfies [string, string, SettingsPatch][])('saves a change of the select %s to "%s" and says «Saved»', async (id, newValue, patch) => {
@@ -377,7 +356,6 @@ describe('SettingsView', () => {
       expect(document.documentElement.lang).toBe('uz')
       expect(w.get('h1').text()).toBe('Sozlamalar')
       expect(selectedSegment(w, 'locale-select')).toBe("🇺🇿 O'zbekcha")
-      expect(labels(w, 'timezone-select')).toEqual(['Toshkent (UTC+5)', 'Moskva (UTC+3)'])
       expect(labels(w, 'reminder-select').at(-1)).toBe("O'chirilgan")
       expect(w.text()).toContain("kuniga nechta so'z")
       expect(toastText()).toBe('Saqlandi')
@@ -387,12 +365,12 @@ describe('SettingsView', () => {
 
     it('keeps the language when a change is refused, tells the reason in a toast and puts the select back', async () => {
       const w = await render()
-      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('validation', 422, 'unknown', 'The timezone field is invalid.'))
+      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('validation', 422, 'unknown', 'The reminder time field is invalid.'))
 
-      await choose(w, 'timezone-select', 'Europe/Moscow')
+      await choose(w, 'reminder-select', '13:00')
 
       expect(toastText()).toBe('Что-то пошло не так.')
-      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
+      expect(value(w, 'reminder-select')).toBe('19:00')
       expect(getLocale()).toBe('ru')
     })
 
@@ -483,13 +461,12 @@ describe('SettingsView', () => {
       for (const id of ['goal-10', 'goal-20', 'goal-40', 'locale-ru', 'locale-uz', 'leagues-toggle', 'exercise-audio']) {
         expect(box(w, id).attributes('disabled'), id).toBeDefined()
       }
-      expect(select(w, 'timezone-select').disabled).toBe(true)
       expect(select(w, 'reminder-select').disabled).toBe(true)
 
       finish(me(settingsFixture({ daily_goal: 40 })))
       await flushPromises()
       expect(box(w, 'goal-10').attributes('disabled')).toBeUndefined()
-      expect(select(w, 'timezone-select').disabled).toBe(false)
+      expect(select(w, 'reminder-select').disabled).toBe(false)
     })
   })
 
@@ -529,151 +506,6 @@ describe('SettingsView', () => {
 
       expect(w.get('[data-testid=error]').text()).toContain('Откройте приложение через Telegram.')
       expect(api.me.get).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('time zone change limit (once in 24 h)', () => {
-    afterEach(() => vi.useRealTimers())
-
-    // 2026-10-20T10:00:00Z is 15:00 in Tashkent (UTC+5).
-    const locked = (timezone = 'Asia/Tashkent') => settingsFixture({ timezone, timezone_change_available_at: '2026-10-20T10:00:00+00:00' })
-
-    it('locks the time zone select with a hint while the next change is in the future, in the learner zone', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
-      const w = await render(locked())
-
-      expect(select(w, 'timezone-select').disabled).toBe(true)
-      expect(box(w, 'goal-10').attributes('disabled')).toBeUndefined()
-      expect(w.get('[data-testid=timezone-locked]').text()).toMatch(
-        /^Часовой пояс можно менять не чаще раза в сутки\. Следующая смена — 20 октября(?: в)?,? 15:00\.$/,
-      )
-    })
-
-    it('says it under the time zone row, as a footnote', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
-      const w = await render(locked())
-
-      const row = box(w, 'timezone-row')
-      expect(row.get('[data-testid=timezone-locked]').classes()).toContain('text-tg-hint')
-      expect(row.text()).toContain('Часовой пояс')
-    })
-
-    it('says it in Uzbek and in the zone of the learner, not of the device', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
-      const w = await render({ ...locked('Europe/Moscow'), interface_locale: 'uz' })
-
-      expect(w.get('[data-testid=timezone-locked]').text()).toContain("Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — ")
-      expect(w.get('[data-testid=timezone-locked]').text()).toContain('13:00')
-    })
-
-    it.each([[null], ['2026-10-19T11:59:59+00:00']])('does not lock the select when the available time is %s', async (at) => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
-      const w = await render(settingsFixture({ timezone_change_available_at: at }))
-
-      expect(select(w, 'timezone-select').disabled).toBe(false)
-      expect(w.find('[data-testid=timezone-locked]').exists()).toBe(false)
-    })
-
-    it('on 422 timezone_change_too_soon puts the select back, takes the server settings and shows the same text', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
-      const w = await render()
-      vi.mocked(api.me.updateSettings).mockRejectedValue(
-        new ApiClientError('validation', 422, 'timezone_change_too_soon', 'The time zone can be changed once in 24 hours; next change at 2026-10-20T10:00:00+00:00.'),
-      )
-      vi.mocked(api.me.get).mockResolvedValue(me(locked()))
-
-      await choose(w, 'timezone-select', 'Europe/Moscow')
-
-      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
-      expect(toastText()).toBe(w.get('[data-testid=timezone-locked]').text())
-      expect(toastText()).toContain('Следующая смена — 20 октября')
-      expect(select(w, 'timezone-select').disabled).toBe(true)
-      expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
-    })
-
-    it('on 422 timezone_change_too_soon falls back to the text without a date when the settings cannot be reloaded', async () => {
-      const w = await render()
-      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('validation', 422, 'timezone_change_too_soon', 'x'))
-      vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
-
-      await choose(w, 'timezone-select', 'Europe/Moscow')
-
-      expect(toastText()).toBe('Часовой пояс можно менять не чаще раза в сутки.')
-      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
-    })
-  })
-
-  describe('undo of a time zone change (10 minutes)', () => {
-    afterEach(() => vi.useRealTimers())
-
-    const undoable = (timezone = 'Europe/Moscow') => settingsFixture({ timezone, timezone_undo_available_until: '2026-10-19T12:10:00+00:00' })
-
-    it('shows no button without an undo mark or after its time', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:10:00Z') })
-
-      expect((await render(settingsFixture())).find('[data-testid=timezone-undo]').exists()).toBe(false)
-      expect((await render(undoable())).find('[data-testid=timezone-undo]').exists()).toBe(false)
-    })
-
-    it('shows a small tinted button with the time left, counting down', async () => {
-      vi.useFakeTimers({ now: new Date('2026-10-19T12:05:30Z') })
-      const w = await render(undoable())
-
-      expect(w.get('[data-testid=timezone-undo]').text()).toBe('Отменить смену пояса (4:30)')
-      expect(w.get('[data-testid=timezone-undo]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-sm']))
-      expect(box(w, 'timezone-row').find('[data-testid=timezone-undo]').exists()).toBe(true)
-
-      await vi.advanceTimersByTimeAsync(31_000)
-      expect(w.get('[data-testid=timezone-undo]').text()).toBe('Отменить смену пояса (3:59)')
-
-      await vi.advanceTimersByTimeAsync(240_000)
-      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
-    })
-
-    it('is in Uzbek for an Uzbek learner', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
-      const w = await render({ ...undoable(), interface_locale: 'uz' })
-
-      expect(w.get('[data-testid=timezone-undo]').text()).toBe("Mintaqa o'zgarishini bekor qilish (5:00)")
-    })
-
-    it('stops the countdown when the screen is left', async () => {
-      vi.useFakeTimers({ now: new Date('2026-10-19T12:05:00Z') })
-      const w = await render(undoable())
-      const clear = vi.spyOn(globalThis, 'clearInterval')
-
-      w.unmount()
-
-      expect(clear).toHaveBeenCalled()
-      clear.mockRestore()
-    })
-
-    it('reverts through the API, takes the server settings (the zone is back, the button gone) and says «Saved»', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
-      const w = await render(undoable())
-      vi.mocked(api.me.revertTimezone).mockResolvedValue(me(settingsFixture({ timezone: 'Asia/Tashkent' })))
-
-      await w.get('[data-testid=timezone-undo]').trigger('click')
-      await flushPromises()
-
-      expect(api.me.revertTimezone).toHaveBeenCalledTimes(1)
-      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
-      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
-      expect(toastText()).toBe('Сохранено')
-    })
-
-    it('on 422 timezone_revert_unavailable reloads the settings, drops the button and says why', async () => {
-      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
-      const w = await render(undoable())
-      vi.mocked(api.me.revertTimezone).mockRejectedValue(new ApiClientError('validation', 422, 'timezone_revert_unavailable', 'x'))
-      vi.mocked(api.me.get).mockResolvedValue(me(settingsFixture({ timezone: 'Europe/Moscow' })))
-
-      await w.get('[data-testid=timezone-undo]').trigger('click')
-      await flushPromises()
-
-      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
-      expect(toastText()).toContain('Отменить смену часового пояса уже нельзя')
-      expect(value(w, 'timezone-select')).toBe('Europe/Moscow')
     })
   })
 
@@ -830,7 +662,7 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture({ interface_locale: 'uz', active_course: null }))
 
       expect(w.get('h1').text()).toBe('Sozlamalar')
-      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(['Til va hudud', "O'rganish", 'Mashqlar', 'Eslatmalar', 'Ligalar', 'Xavfli hudud'])
+      expect(w.findAll('h2.section-label').map((h) => h.text())).toEqual(['Til', "O'rganish", 'Mashqlar', 'Eslatmalar', 'Ligalar', 'Xavfli hudud'])
       expect(w.text()).toContain("kuniga nechta so'z")
       expect(w.text()).toContain('Mening kursim')
       expect(w.get('[data-testid=course-title]').text()).toBe('Tanlanmagan')

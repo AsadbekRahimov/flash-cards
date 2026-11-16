@@ -15,9 +15,9 @@ use App\Models\Learner;
 
 /**
  * `/invite` in a DM (docs/13 §7.1 "2C.9", docs/04 B.3): the rule ("a friend counts once they have set up and rated N cards in
- * a day; +M days of Pro at 3 and at 6 counted friends"), the progress to the next reward, the learner's invite link and a
+ * a day — or on N days, when `referrals.activation.days` > 1; +M days of Pro at 3 and at 6 counted friends"), the progress to the next reward, the learner's invite link and a
  * "Share" button (`t.me/share/url`). The friend is not rewarded: they have the welcome trial. Private-chat only; groups and
- * teachers get no answer.
+ * teachers get no answer. With no milestones configured the text is just the link, without any promise of a reward.
  */
 final class InviteCommandHandler implements UpdateHandler
 {
@@ -80,12 +80,19 @@ final class InviteCommandHandler implements UpdateHandler
         $reward = trans_choice('referrals.days', $overview->milestoneDays, ['count' => $overview->milestoneDays], $locale);
 
         // The milestone scheme (docs/13 §7.1 "2C.9"): "+N days of Pro at 3 and at 6 counted friends".
-        $rule = __('referrals.invite.rule', [
-            'cards' => trans_choice('referrals.invite.cards', $cards, ['count' => $cards], $locale),
+        $days = $overview->activationDays;
+        $rule = __($days > 1 ? 'referrals.invite.rule_days' : 'referrals.invite.rule', [
+            'days' => $days,
+            'cards' => trans_choice($days > 1 ? 'referrals.invite.cards_min' : 'referrals.invite.cards', $cards, ['count' => $cards], $locale),
             'milestones' => $this->enumerate(array_map(static fn (array $m): int => $m['friends'], $overview->milestones), $locale),
             'reward' => $reward,
         ], $locale);
         $link = $overview->link ?? __('referrals.invite.no_link', ['code' => $overview->code], $locale);
+
+        // No milestones configured: no reward to promise, so no rule, no progress — only the link.
+        if ($overview->milestones === []) {
+            return __('referrals.invite.text_plain', ['link' => $link], $locale);
+        }
 
         $progress = [];
         if ($overview->invited > 0) {

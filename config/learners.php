@@ -11,8 +11,18 @@ declare(strict_types=1);
 */
 
 return [
-    /** IANA timezone assigned to a new learner until onboarding changes it. */
+    /**
+     * IANA timezone of every new learner (the learners come mostly from Uzbekistan; there is no time zone step in the
+     * onboarding and the Mini App has no picker). Existing learners keep the zone they have.
+     */
     'default_timezone' => env('LEARNERS_DEFAULT_TIMEZONE', 'Asia/Tashkent'),
+
+    /**
+     * Goals offered in the onboarding and the `/settings` (comma-separated in env; only the known ones count, see
+     * OnboardingService::GOALS; `general` when nothing valid is left). With ONE goal the goal step is skipped and
+     * that goal is written for the learner. Goals a learner already has are never changed.
+     */
+    'goals' => array_values(array_filter(array_map('trim', explode(',', (string) env('LEARNERS_GOALS', 'general'))), fn (string $goal): bool => $goal !== '')),
 
     /** Local reminder time (HH:MM) of a new learner; NULL in the column = reminders off. */
     'default_reminder_time' => env('LEARNERS_DEFAULT_REMINDER_TIME', '19:00'),
@@ -46,9 +56,8 @@ return [
     ],
 
     /**
-     * Time zones offered in the onboarding / `/settings` picker (IANA ids, the default first;
-     * each needs a `onboarding.options.timezone.<city>` string in lang/{ru,uz}). Only ids that
-     * are also valid for PHP (`DateTimeZone::listIdentifiers()`) are ever accepted.
+     * Time zones the system itself may offer (IANA ids, the default first; each needs a `onboarding.options.timezone.<city>`
+     * string in lang/{ru,uz}). No picker uses it now (owner's decision of 16.11.2026); kept for a way back.
      */
     'timezone_options' => [
         'Asia/Tashkent',

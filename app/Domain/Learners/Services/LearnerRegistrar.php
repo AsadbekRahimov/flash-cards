@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\Services\ProTrialService;
+use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learning\Services\SchedulerResolver;
@@ -45,6 +46,7 @@ final class LearnerRegistrar
         private readonly SchedulerResolver $schedulers,
         private readonly AccountRestoreNotice $restoreNotice,
         private readonly ProTrialService $trials,
+        private readonly MonthlyRatingService $monthly,
     ) {}
 
     /**
@@ -253,6 +255,8 @@ final class LearnerRegistrar
 
             // R11b: the bot's /start or the Mini App tells "the account is restored" once; a new row gets no notice.
             $this->restoreNotice->markPending($learner);
+            // A restored account is back in the open month's rating.
+            $this->monthly->participationChanged($learner);
         }
 
         $learner->fill($profile);

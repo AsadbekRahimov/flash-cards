@@ -13,12 +13,11 @@ return [
     'invited_by_organization' => 'Вас пригласил центр «:organization»',
     'invited_by_learner' => 'Вас пригласил(а) :name',
 
-    // The five onboarding steps (docs/12 §7.1), one message each.
+    // The onboarding steps (the goal one only while several goals are enabled; no time zone step) (docs/12 §7.1), one message each.
     'steps' => [
         'locale' => 'Выберите язык интерфейса',
         'goal' => 'Для чего вам английский?',
         'level' => 'Какой у вас уровень? Оцените себя как получится — позже его можно изменить.',
-        'timezone' => 'В каком часовом поясе вы живёте? Так напоминания придут вовремя.',
         'reminder' => 'Когда напоминать о повторении слов?',
     ],
 
@@ -35,16 +34,6 @@ return [
             'B1' => 'B1 — средний',
             'B2' => 'B2 — выше среднего',
             'unknown' => 'Не знаю',
-        ],
-        // City names; `:offset` is filled in from the current UTC offset of the zone.
-        'timezone' => [
-            'tashkent' => 'Ташкент (:offset)',
-            'almaty' => 'Алматы (:offset)',
-            'bishkek' => 'Бишкек (:offset)',
-            'dushanbe' => 'Душанбе (:offset)',
-            'ashgabat' => 'Ашхабад (:offset)',
-            'moscow' => 'Москва (:offset)',
-            'istanbul' => 'Стамбул (:offset)',
         ],
         'reminder' => [
             'time' => ':time',
@@ -81,15 +70,12 @@ return [
         // `/language`: the title is both languages — this line after the uz one (OnboardingMessenger::sendLanguagePicker).
         'language_title' => 'Выберите язык',
         'saved' => 'Сохранено.',
-        'timezone_too_soon' => 'Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после :when (по вашему текущему времени).',
-        'timezone_undo' => 'Отменить',
         'timezone_reverted' => 'Часовой пояс возвращён.',
         'timezone_revert_unavailable' => 'Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена.',
         'buttons' => [
             'locale' => 'Язык',
             'goal' => 'Цель',
             'level' => 'Уровень',
-            'timezone' => 'Часовой пояс',
             'reminder' => 'Напоминания',
         ],
     ],

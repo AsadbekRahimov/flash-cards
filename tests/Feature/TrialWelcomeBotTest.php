@@ -180,3 +180,33 @@ it('puts the way to free Pro into /pro for a learner on Free, and not for one wh
     expect($this->tg->sent[0]['text'])->toContain('Пригласите друзей — получите Pro бесплатно: /invite')
         ->and($this->tg->sent[1]['text'])->not->toContain('/invite');
 });
+
+it('takes the notice silently and sends nothing when the trial is over by the time the learner comes back', function (): void {
+    twStart(940_011);
+    $learner = Learner::query()->where('telegram_user_id', 940_011)->firstOrFail();
+    $this->tg->sent = [];
+
+    $this->travel(10)->days();
+    twOnboard(940_011);
+
+    expect(implode('
+', twTexts($this->tg)))->not->toContain('Вам открыт Pro')
+        ->and($learner->fresh()?->meta)->not->toHaveKey(ProTrialService::META_NOTICE);
+
+    $this->tg->sent = [];
+    twStart(940_011);
+    expect(implode('
+', twTexts($this->tg)))->not->toContain('Вам открыт Pro');
+});
+
+it('sends nothing when a paid subscription replaced the trial before the notice', function (): void {
+    twStart(940_012);
+    $learner = Learner::query()->where('telegram_user_id', 940_012)->firstOrFail();
+    $learner->subscriptions()->update(['provider' => 'payme']);
+    $this->tg->sent = [];
+
+    twOnboard(940_012);
+
+    expect(implode("\n", twTexts($this->tg)))->not->toContain('Вам открыт Pro')
+        ->and($learner->fresh()?->meta)->not->toHaveKey(ProTrialService::META_NOTICE);
+});

@@ -46,6 +46,17 @@ function settingsHeaders(Learner $learner): array
     return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
 }
 
+/**
+ * The zone is not a setting of the Mini App or the bot any more (owner's decision of 16.11.2026); the service keeps the
+ * machinery (24 h interval, day carry, undo), which these tests drive directly.
+ *
+ * @param  array<string, mixed>  $changes
+ */
+function setZone(Learner $learner, string $zone, array $changes = []): void
+{
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => $zone, ...$changes]);
+}
+
 /** @param  array<string, mixed>  $body */
 function patchSettings(object $test, Learner $learner, array $body): TestResponse
 {
@@ -90,8 +101,8 @@ it('GET /me reports the current settings and the choices of each field', functio
         ])
         ->and($settings['options']['reminder_times'])->toBe(['08:00', '13:00', '19:00', '21:00'])
         ->and($settings['options']['daily_goals'])->toBe([10, 20, 40])
-        ->and($settings['options']['timezones'][0])->toBe(['id' => 'Asia/Tashkent', 'label' => 'Ташкент (UTC+5)'])
-        ->and(array_column($settings['options']['timezones'], 'id'))->toBe(config('learners.timezone_options'));
+        // No time zone picker: the zone itself is reported (the Today screen reads it), its choices are not.
+        ->and($settings['options'])->not->toHaveKey('timezones');
 });
 
 it('GET /me has no active course for a learner without one, and "off" reminders as null', function (): void {
@@ -118,23 +129,13 @@ it('writes the reminder time as HH:MM even where the database returns HH:MM:SS',
     $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertJsonPath('settings.reminder_time', '19:00');
 });
 
-it('adds a time zone and a reminder time the lists do not offer, so the picker can show them', function (): void {
+it('adds a reminder time the list does not offer, so the picker can show it, and keeps the zone of the learner as it is', function (): void {
     $learner = settingsLearner(['timezone' => 'Asia/Kolkata', 'reminder_time' => '07:45']);
 
-    $options = $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->json('settings.options');
+    $settings = $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->json('settings');
 
-    expect(collect($options['timezones'])->last())->toBe(['id' => 'Asia/Kolkata', 'label' => 'Asia/Kolkata (UTC+5:30)'])
-        ->and($options['reminder_times'])->toBe(['07:45', '08:00', '13:00', '19:00', '21:00']);
-});
-
-it('labels the time zones in the interface language of the learner', function (): void {
-    $learner = settingsLearner(['interface_locale' => 'uz']);
-
-    $first = $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->json('settings.options.timezones.0');
-
-    expect($first['id'])->toBe('Asia/Tashkent')
-        ->and($first['label'])->toBe(__('onboarding.options.timezone.tashkent', ['offset' => 'UTC+5'], 'uz'))
-        ->and($first['label'])->not->toBe('Ташкент (UTC+5)');
+    expect($settings['options']['reminder_times'])->toBe(['07:45', '08:00', '13:00', '19:00', '21:00'])
+        ->and($settings['timezone'])->toBe('Asia/Kolkata');
 });
 
 // --- PATCH /me/settings ------------------------------------------------------
@@ -162,12 +163,36 @@ it('applies a partial update and answers with the refreshed profile', function (
         ->and($fresh->timezone)->toBe('Asia/Tashkent');
 });
 
-it('accepts the onboarding goal and level too', function (): void {
-    $learner = settingsLearner();
+it('accepts the onboarding goal and level too, the goal only while it is enabled', function (): void {
+    $learner = settingsLearner(['goal' => 'sat']);
 
-    patchSettings($this, $learner, ['goal' => 'sat', 'level' => 'B2'])->assertOk()
-        ->assertJsonPath('settings.goal', 'sat')
+    // The default config offers `general` alone: a goal that is switched off is refused, the stored one stays.
+    patchSettings($this, $learner, ['goal' => 'ielts'])->assertStatus(422)->assertJsonValidationErrors(['goal']);
+    expect($learner->fresh()->goal)->toBe('sat');
+
+    patchSettings($this, $learner, ['goal' => 'general', 'level' => 'B2'])->assertOk()
+        ->assertJsonPath('settings.goal', 'general')
         ->assertJsonPath('settings.level', 'B2');
+
+    config(['learners.goals' => ['general', 'sat']]);
+    patchSettings($this, $learner, ['goal' => 'sat'])->assertOk()->assertJsonPath('settings.goal', 'sat');
+});
+
+it('ignores a time zone sent by an older cached client: no 422, the other fields are saved, the zone stays', function (): void {
+    $learner = settingsLearner(['timezone' => 'Europe/Moscow']);
+
+    foreach (['America/New_York', 'Mars/Olympus', '', null, 5] as $zone) {
+        patchSettings($this, $learner, ['timezone' => $zone, 'daily_goal' => 40])
+            ->assertOk()
+            ->assertJsonPath('settings.timezone', 'Europe/Moscow')
+            ->assertJsonPath('settings.daily_goal', 40);
+    }
+
+    $fresh = $learner->fresh();
+    expect($fresh->timezone)->toBe('Europe/Moscow')
+        ->and($fresh->meta)->not->toHaveKey(LearnerSettingsService::TIMEZONE_CHANGED_AT_META);
+    patchSettings($this, $learner, ['timezone' => 'Asia/Tokyo'])->assertOk();
+    expect($learner->fresh()->timezone)->toBe('Europe/Moscow');
 });
 
 it('ignores fields that are not settings and treats an empty body as a no-op', function (): void {
@@ -183,31 +208,28 @@ it('ignores fields that are not settings and treats an empty body as a no-op', f
         ->and(ProductEvent::query()->where('name', ProductEventName::SettingsChanged->value)->count())->toBe(0);
 });
 
-it('accepts any IANA time zone, not only the ones the picker offers', function (): void {
+it('accepts any IANA time zone in the service, not only the ones of the config', function (): void {
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     $learner = settingsLearner();
 
-    patchSettings($this, $learner, ['timezone' => 'America/New_York'])->assertOk()->assertJsonPath('settings.timezone', 'America/New_York');
+    setZone($learner, 'America/New_York');
+    expect($learner->fresh()->timezone)->toBe('America/New_York');
 
     CarbonImmutable::setTestNow('2026-10-20 10:00:00'); // a zone may change once in 24 h
-    patchSettings($this, $learner, ['timezone' => 'UTC'])->assertOk()->assertJsonPath('settings.timezone', 'UTC');
+    setZone($learner, 'UTC');
+    expect($learner->fresh()->timezone)->toBe('UTC');
 });
 
 // --- Time zone: once in 24 h, and the running day is carried (docs/12 §5.3) -------------------
 
-it('refuses a second time-zone change within 24 h with 422 timezone_change_too_soon and applies nothing of the update', function (): void {
+it('refuses a second time-zone change within 24 h and applies nothing of the update', function (): void {
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     $learner = settingsLearner();
-    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
+    setZone($learner, 'Europe/Moscow');
     $events = ProductEvent::query()->count();
 
     CarbonImmutable::setTestNow('2026-10-20 09:59:59');
-    patchSettings($this, $learner, ['timezone' => 'Asia/Tokyo', 'daily_goal' => 40])
-        ->assertStatus(422)
-        ->assertExactJson(['error' => [
-            'code' => 'timezone_change_too_soon',
-            'message' => 'The time zone can be changed once in 24 hours; next change at 2026-10-20T10:00:00+00:00.',
-        ]]);
+    expect(fn () => setZone($learner, 'Asia/Tokyo', ['daily_goal' => 40]))->toThrow(TimezoneChangeTooSoonException::class);
 
     $fresh = $learner->fresh();
     expect($fresh->timezone)->toBe('Europe/Moscow')
@@ -218,9 +240,9 @@ it('refuses a second time-zone change within 24 h with 422 timezone_change_too_s
     // Exactly 24 h later it is allowed again.
     CarbonImmutable::setTestNow('2026-10-20 10:00:00');
     expect(app(LearnerSettingsService::class)->timezoneChangeAvailableAt($learner->fresh()))->toBeNull();
-    patchSettings($this, $learner, ['timezone' => 'Asia/Tokyo', 'daily_goal' => 40])->assertOk()
-        ->assertJsonPath('settings.timezone', 'Asia/Tokyo')
-        ->assertJsonPath('settings.daily_goal', 40);
+    setZone($learner, 'Asia/Tokyo', ['daily_goal' => 40]);
+    expect($learner->fresh()->timezone)->toBe('Asia/Tokyo')
+        ->and($learner->fresh()->daily_goal)->toBe(40);
 });
 
 it('tells the settings screen when the time zone may be changed next (null = now)', function (): void {
@@ -228,8 +250,8 @@ it('tells the settings screen when the time zone may be changed next (null = now
     $learner = settingsLearner();
     $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertOk()->assertJsonPath('settings.timezone_change_available_at', null);
 
-    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk()
-        ->assertJsonPath('settings.timezone_change_available_at', '2026-10-20T10:00:00+00:00');
+    setZone($learner, 'Europe/Moscow');
+    $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertJsonPath('settings.timezone_change_available_at', '2026-10-20T10:00:00+00:00');
 
     CarbonImmutable::setTestNow('2026-10-20 09:59:59');
     $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertJsonPath('settings.timezone_change_available_at', '2026-10-20T10:00:00+00:00');
@@ -243,11 +265,11 @@ it('does not count the onboarding zone or a repeated same value as a change', fu
     $learner = settingsLearner(); // zone set by the factory / onboarding: no `timezone_changed_at`
     expect(app(LearnerSettingsService::class)->timezoneChangeAvailableAt($learner))->toBeNull();
 
-    patchSettings($this, $learner, ['timezone' => 'Asia/Tashkent'])->assertOk(); // same value: nothing happens
+    setZone($learner, 'Asia/Tashkent'); // same value: nothing happens
     expect($learner->fresh()->meta)->toBe([]);
 
-    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
-    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow', 'daily_goal' => 10])->assertOk(); // same again: not a change, not refused
+    setZone($learner, 'Europe/Moscow');
+    setZone($learner, 'Europe/Moscow', ['daily_goal' => 10]); // same again: not a change, not refused
 
     expect($learner->fresh()->daily_goal)->toBe(10)
         ->and($learner->fresh()->meta[LearnerSettingsService::TIMEZONE_CHANGED_AT_META])->toBe('2026-10-19T10:00:00+00:00')
@@ -282,14 +304,6 @@ it('rejects invalid values with 422 and changes nothing', function (string $fiel
 
     expect($learner->fresh()->getAttributes())->toBe($before);
 })->with([
-    'timezone garbage' => ['timezone', 'Mars/Olympus'],
-    'timezone traversal' => ['timezone', '../../etc/passwd'],
-    'timezone lower case' => ['timezone', 'asia/tashkent'],
-    'timezone empty' => ['timezone', ''],
-    'timezone offset' => ['timezone', '+05:00'],
-    'timezone number' => ['timezone', 5],
-    'timezone null' => ['timezone', null],
-    'timezone too long' => ['timezone', str_repeat('A', 65)],
     'locale unsupported' => ['interface_locale', 'en'],
     'locale null' => ['interface_locale', null],
     'locale array' => ['interface_locale', ['ru']],
@@ -308,6 +322,7 @@ it('rejects invalid values with 422 and changes nothing', function (string $fiel
     'goal null' => ['daily_goal', null],
     'goal huge' => ['daily_goal', 1000000],
     'learning goal unknown' => ['goal', 'toefl'],
+    'learning goal switched off' => ['goal', 'ielts'],
     'level beyond the self-assessment' => ['level', 'C2'],
     'level unknown' => ['level', 'unknown'],
 ]);
@@ -315,7 +330,7 @@ it('rejects invalid values with 422 and changes nothing', function (string $fiel
 it('does not change anything when one of several fields is invalid', function (): void {
     $learner = settingsLearner();
 
-    patchSettings($this, $learner, ['daily_goal' => 40, 'timezone' => 'Nowhere/Land'])->assertStatus(422)->assertJsonValidationErrors(['timezone']);
+    patchSettings($this, $learner, ['daily_goal' => 40, 'reminder_time' => '19:07'])->assertStatus(422)->assertJsonValidationErrors(['reminder_time']);
 
     expect($learner->fresh()->daily_goal)->toBe(20);
 });
@@ -354,21 +369,21 @@ it('recomputes next_reminder_at when the reminder time changes (Tashkent 19:00 =
     expect(nextReminder($learner))->toBe('2026-10-19 10:30:00');
 });
 
-it('recomputes next_reminder_at when the time zone changes, and keeps null while the reminders are off', function (): void {
+it('recomputes next_reminder_at when the time zone changes in the service, and keeps null while the reminders are off', function (): void {
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     $learner = settingsLearner(['next_reminder_at' => '2026-10-19 14:00:00']);
 
-    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
+    setZone($learner, 'Europe/Moscow');
     expect(nextReminder($learner))->toBe('2026-10-19 16:00:00');
 
     CarbonImmutable::setTestNow('2026-10-20 10:00:00'); // one zone change per 24 h
-    patchSettings($this, $learner, ['timezone' => 'America/New_York'])->assertOk();
+    setZone($learner, 'America/New_York');
     // 19:00 EDT (UTC-4) on 20 Oct.
     expect(nextReminder($learner))->toBe('2026-10-20 23:00:00');
 
     CarbonImmutable::setTestNow('2026-10-21 10:00:00');
     patchSettings($this, $learner, ['reminder_time' => null])->assertOk();
-    patchSettings($this, $learner, ['timezone' => 'Asia/Almaty'])->assertOk();
+    setZone($learner, 'Asia/Almaty');
     expect(nextReminder($learner))->toBeNull();
 
     // Switching the reminders back on schedules the next one in the CURRENT zone (Almaty UTC+5).
@@ -381,18 +396,18 @@ it('follows daylight saving time of the zone when it recomputes', function (): v
     CarbonImmutable::setTestNow('2026-10-31 12:00:00');
     $learner = settingsLearner();
 
-    patchSettings($this, $learner, ['timezone' => 'America/New_York'])->assertOk();
+    setZone($learner, 'America/New_York');
     expect(nextReminder($learner))->toBe('2026-10-31 23:00:00');
 
     CarbonImmutable::setTestNow('2026-11-01 12:00:00');
-    patchSettings($this, $learner, ['reminder_time' => '19:00', 'timezone' => 'America/Chicago'])->assertOk();
+    setZone($learner, 'America/Chicago', ['reminder_time' => '19:00']);
     expect(nextReminder($learner))->toBe('2026-11-02 01:00:00');
 });
 
 it('leaves next_reminder_at alone when only other settings change', function (): void {
     $learner = settingsLearner(['next_reminder_at' => '2026-10-19 14:00:00']);
 
-    patchSettings($this, $learner, ['daily_goal' => 10, 'interface_locale' => 'uz', 'goal' => 'sat'])->assertOk();
+    patchSettings($this, $learner, ['daily_goal' => 10, 'interface_locale' => 'uz', 'goal' => 'general'])->assertOk();
 
     expect(nextReminder($learner))->toBe('2026-10-19 14:00:00');
 });
@@ -602,15 +617,17 @@ it('applies the bot /settings answers through the service: event, next_reminder_
     $learner = settingsLearner(['next_reminder_at' => '2026-10-19 14:00:00']);
     $onboarding = app(OnboardingService::class);
 
-    $onboarding->applySetting($learner, 'timezone', 'Europe/Moscow');
+    $onboarding->applySetting($learner, 'reminder', '2100');
 
     expect(nextReminder($learner))->toBe('2026-10-19 16:00:00')
-        ->and(ProductEvent::query()->where('name', ProductEventName::SettingsChanged->value)->value('props'))->toBe(['fields' => 'timezone']);
+        ->and(ProductEvent::query()->where('name', ProductEventName::SettingsChanged->value)->value('props'))->toBe(['fields' => 'reminder_time']);
 
-    // The bot keeps its narrower whitelists: a valid IANA zone that is not offered is refused.
-    expect(fn () => $onboarding->applySetting($learner, 'timezone', 'America/New_York'))->toThrow(OnboardingException::class)
-        ->and(fn () => $onboarding->applySetting($learner, 'reminder', '0730'))->toThrow(OnboardingException::class)
-        ->and($learner->fresh()->timezone)->toBe('Europe/Moscow');
+    // The bot keeps its narrower whitelists: a time that is not offered, the time zone (not a bot setting any more) and a
+    // goal that is switched off are refused.
+    expect(fn () => $onboarding->applySetting($learner, 'reminder', '0730'))->toThrow(OnboardingException::class)
+        ->and(fn () => $onboarding->applySetting($learner, 'timezone', 'Europe/Moscow'))->toThrow(OnboardingException::class)
+        ->and(fn () => $onboarding->applySetting($learner, 'goal', 'ielts'))->toThrow(OnboardingException::class)
+        ->and($learner->fresh()->timezone)->toBe('Asia/Tashkent');
 
     $unfinished = Learner::factory()->create(['onboarding_state' => 'goal']);
     expect(fn () => $onboarding->applySetting($unfinished, 'level', 'B1'))->toThrow(OnboardingException::class);
@@ -732,7 +749,7 @@ it('answers 401 learner_blocked to PATCH /me/settings from a blocked learner and
     expect($learner->fresh()->daily_goal)->toBe(20);
 });
 
-it('accepts the legacy aliases PHP lists (DateTimeZone::ALL_WITH_BC, e.g. Asia/Calcutta) as they are', function (): void {
+it('accepts, in the service, the legacy aliases PHP lists (DateTimeZone::ALL_WITH_BC, e.g. Asia/Calcutta) as they are', function (): void {
     // Which aliases exist depends on the tz database of the PHP build; take the ones this runtime has.
     $aliases = array_values(array_filter(
         array_diff(DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC), DateTimeZone::listIdentifiers()),
@@ -743,8 +760,8 @@ it('accepts the legacy aliases PHP lists (DateTimeZone::ALL_WITH_BC, e.g. Asia/C
 
     foreach (array_slice($aliases, 0, 3) as $i => $alias) {
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC')->addDays($i)); // a zone changes once in 24 h
-        patchSettings($this, $learner, ['timezone' => $alias])->assertOk()->assertJsonPath('settings.timezone', $alias);
+        setZone($learner, $alias);
+        expect($learner->fresh()->timezone)->toBe($alias);
     }
-    expect($learner->fresh()->timezone)->toBe($alias);
-    patchSettings($this, $learner, ['timezone' => 'Mars/Olympus'])->assertStatus(422);
+    expect(fn () => setZone($learner, 'Mars/Olympus'))->toThrow(InvalidSettingException::class);
 });

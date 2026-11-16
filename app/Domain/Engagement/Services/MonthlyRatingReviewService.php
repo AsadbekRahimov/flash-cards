@@ -47,6 +47,8 @@ final class MonthlyRatingReviewService
 
     public const ACTION_PRIZES_CHANGED = 'league_month.prizes_changed';
 
+    public const ACTION_CONGRATS_RESENT = 'league_month.congratulations_resent';
+
     public const MAX_REASON_LENGTH = 500;
 
     public const MAX_PRIZE_LENGTH = 200;
@@ -74,7 +76,8 @@ final class MonthlyRatingReviewService
     {
         /** @var EloquentCollection<int, LeagueMonthCandidate> $candidates */
         $candidates = LeagueMonthCandidate::query()
-            ->with('learner')
+            // Soft-deleted learners too: the page marks them (the winner's DM cannot reach them).
+            ->with(['learner' => fn ($q) => $q->withTrashed()])
             ->where('league_month_id', $month->id)
             ->orderBy('rank')
             ->get();
@@ -138,6 +141,40 @@ final class MonthlyRatingReviewService
         LeagueMonthConfirmed::dispatch($month->id, $month->starts_on->toDateString(), $winners);
 
         return $month;
+    }
+
+    /**
+     * Raises {@see LeagueMonthConfirmed} again for a confirmed month (the first one may have been lost after the commit: the
+     * queue or the dispatch failed). The DM of {@see MonthWinnerSender} is once per (winner, month), so those already
+     * congratulated get nothing and the rest are served. Audit row in the same transaction; the event goes after the commit.
+     */
+    public function resendCongratulations(LeagueMonth $month, User $by, ?string $ip = null): int
+    {
+        /** @var list<array{learner_id: int, place: int, points: int}> $winners */
+        $winners = [];
+
+        DB::transaction(function () use ($month, $by, $ip, &$winners): void {
+            $locked = $this->lockMonth($month);
+            if (! $locked->isConfirmed()) {
+                throw LeagueMonthException::monthNotConfirmed();
+            }
+
+            $candidates = LeagueMonthCandidate::query()
+                ->where('league_month_id', $locked->id)
+                ->where('status', LeagueMonthCandidateStatus::Winner->value)
+                ->whereNotNull('place')
+                ->orderBy('place')
+                ->get();
+            foreach ($candidates as $candidate) {
+                $winners[] = ['learner_id' => $candidate->learner_id, 'place' => (int) $candidate->place, 'points' => $candidate->points];
+            }
+
+            $this->audit(self::ACTION_CONGRATS_RESENT, $locked, $by, $ip, ['winners' => count($winners)]);
+        });
+
+        LeagueMonthConfirmed::dispatch($month->id, $month->starts_on->toDateString(), $winners);
+
+        return count($winners);
     }
 
     /** Disqualifies a candidate of a `pending_review` month with a reason (kept with the row and in the audit log). */

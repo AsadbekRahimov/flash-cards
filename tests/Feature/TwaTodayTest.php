@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\LessonContentRefresher;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;
@@ -211,7 +212,7 @@ it('follows the zone of the settings the moment it changes', function (): void {
 
     todayGet($this, $learner)->assertOk()->assertJsonPath('timezone', 'Asia/Tashkent');
 
-    $this->withHeaders(todayHeaders($learner))->patchJson('/api/twa/me/settings', ['timezone' => 'America/New_York'])->assertOk();
+    app(LearnerSettingsService::class)->update($learner, ['timezone' => 'America/New_York']);
 
     todayGet($this, $learner)->assertOk()->assertJsonPath('timezone', 'America/New_York');
 });

@@ -19,10 +19,6 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
         { id: 'ru', label: '🇷🇺 Русский' },
         { id: 'uz', label: "🇺🇿 O'zbekcha" },
       ],
-      timezones: [
-        { id: 'Asia/Tashkent', label: 'Ташкент (UTC+5)' },
-        { id: 'Europe/Moscow', label: 'Москва (UTC+3)' },
-      ],
       reminder_times: ['08:00', '13:00', '19:00', '21:00'],
       daily_goals: [10, 20, 40],
     },

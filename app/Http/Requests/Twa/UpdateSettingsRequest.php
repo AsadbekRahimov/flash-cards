@@ -15,6 +15,8 @@ use Illuminate\Validation\Rule;
 /**
  * PATCH /api/twa/me/settings — a partial update: only the fields present are validated and changed.
  * Access is the `TwaAuth` middleware; the same rules are enforced again by LearnerSettingsService.
+ * `timezone` is not a rule any more (owner's decision of 16.11.2026): `validated()` only returns fields with a rule, so a
+ * cached older client that still sends it gets its other fields saved, the zone is ignored and there is no 422.
  */
 final class UpdateSettingsRequest extends FormRequest
 {
@@ -25,11 +27,10 @@ final class UpdateSettingsRequest extends FormRequest
 
         return [
             'interface_locale' => ['sometimes', 'string', Rule::in($this->container->make(LocaleResolver::class)->supported())],
-            'timezone' => ['sometimes', 'string', 'max:64', Rule::in($settings->knownTimezones())],
             // `null` turns the reminders off; otherwise HH:MM on a quarter of an hour.
             'reminder_time' => ['sometimes', 'nullable', 'string', 'regex:/^([01]\d|2[0-3]):(00|15|30|45)$/'],
             'daily_goal' => ['sometimes', 'integer:strict', Rule::in($settings->dailyGoals())],
-            'goal' => ['sometimes', 'string', Rule::in(OnboardingService::GOALS)],
+            'goal' => ['sometimes', 'string', Rule::in(OnboardingService::availableGoals())],
             'level' => ['sometimes', 'string', Rule::in(OnboardingService::LEVELS)],
             // Leagues (docs/13 §7.3): a JSON boolean only — no "1" / "on".
             'leagues_opt_out' => ['sometimes', 'boolean:strict'],

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\DTO;
 
 /**
- * What the bot shows next: the step (`state` — one of the five steps or `done`), the translation
+ * What the bot shows next: the step (`state` — one of the onboarding steps or `done`), the translation
  * key of its message and the buttons. `columns` is only a layout hint for the keyboard.
  */
 final readonly class OnboardingStep

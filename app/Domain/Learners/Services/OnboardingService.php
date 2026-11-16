@@ -12,7 +12,6 @@ use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Exceptions\OnboardingException;
-use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Models\Course;
@@ -20,9 +19,13 @@ use App\Models\Learner;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The five-step `/start` onboarding in the bot (docs/12 §7.1): interface language → goal → level
- * (self-assessment) → time zone → reminder time. `learners.onboarding_state` is the step the
- * learner has to answer now (`new` until `/start`, then `locale` … `reminder`, finally `done`).
+ * The `/start` onboarding in the bot (docs/12 §7.1): interface language → goal → level (self-assessment)
+ * → reminder time. The goal step exists only while more than one goal is enabled (`learners.goals`,
+ * {@see self::availableGoals()}): with one, it is skipped and that goal is written. There is no time zone step
+ * (owner's decision of 16.11.2026): a new learner gets `learners.default_timezone`. `learners.onboarding_state`
+ * is the step the learner has to answer now (`new` until `/start`, then `locale` … `reminder`, finally `done`).
+ * A learner stuck on a step that no longer exists (`timezone`, or `goal` while it is off) is moved to the next
+ * live one by {@see self::settle()}.
  *
  * `apply()` accepts only the answer to the CURRENT step, under a row lock: a tap on an old
  * message, a double tap or two parallel webhook deliveries are rejected with
@@ -30,12 +33,7 @@ use Illuminate\Support\Facades\DB;
  * Every value is checked against a whitelist; `callback_data` is not signed and is treated as
  * untrusted input.
  *
- * The first time zone is set here directly. When the learner already changed the zone through the
- * settings (`meta.timezone_changed_at`) or a carried quota day is running, the zone step goes through
- * {@see LearnerSettingsService::update()} instead: 24 h between changes and the day carry apply, a
- * refusal ({@see TimezoneChangeTooSoonException}) leaves the step open.
- *
- * Setting or changing the time zone or the reminder time recomputes `next_reminder_at` — the next
+ * Setting or changing the reminder time recomputes `next_reminder_at` — the next
  * UTC instant at which the learner's wall clock shows `reminder_time` ({@see LearnerClock}), `NULL`
  * when reminders are off; the reminder scheduler keeps it up to date after each send
  * (docs/12 §7.5, task 1.5b).
@@ -44,9 +42,13 @@ final class OnboardingService
 {
     public const DONE = 'done';
 
-    /** In the order they are asked. */
-    public const STEPS = ['locale', 'goal', 'level', 'timezone', 'reminder'];
+    /** In the order they are asked; the `goal` step is skipped while only one goal is enabled, see {@see self::steps()}. */
+    public const STEPS = ['locale', 'goal', 'level', 'reminder'];
 
+    /** The step that was removed from the onboarding: a learner may still be stored on it. */
+    public const LEGACY_TIMEZONE_STEP = 'timezone';
+
+    /** Every goal the system knows (captions in lang); which of them are offered is `learners.goals`. */
     public const GOALS = [self::GENERAL_GOAL, 'ielts', 'sat', 'school'];
 
     public const LEVELS = ['A1', 'A2', 'B1', 'B2'];
@@ -76,8 +78,86 @@ final class OnboardingService
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
         private readonly LearnerSettingsService $settings,
-        private readonly LearnerClock $clock,
     ) {}
+
+    /**
+     * The goals a learner can choose now: `config('learners.goals')` limited to the known ones, `general` when
+     * nothing valid is left. Stored goals of existing learners are never touched, whatever this returns.
+     *
+     * @return list<string>
+     */
+    public static function availableGoals(): array
+    {
+        $configured = config('learners.goals', [self::GENERAL_GOAL]);
+        $goals = array_values(array_filter(
+            self::GOALS,
+            fn (string $goal): bool => in_array($goal, is_array($configured) ? array_map('strval', $configured) : [], true),
+        ));
+
+        return $goals === [] ? [self::GENERAL_GOAL] : $goals;
+    }
+
+    /** @return list<string> the steps asked now, in order */
+    public static function steps(): array
+    {
+        $goalAsked = count(self::availableGoals()) > 1;
+
+        return array_values(array_filter(self::STEPS, fn (string $step): bool => $step !== 'goal' || $goalAsked));
+    }
+
+    /** A button of a step that is not asked any more (the old time zone picker, or the goal while it is off). */
+    public static function isRetiredStep(string $step): bool
+    {
+        return $step === self::LEGACY_TIMEZONE_STEP || ($step === 'goal' && ! in_array('goal', self::steps(), true));
+    }
+
+    /**
+     * Moves a learner stuck on a step that is not asked any more to the next live one (the goal is written when it is
+     * skipped), so that the next action goes on without an error. Returns whether anything moved.
+     */
+    public function settle(Learner $learner): bool
+    {
+        $moved = false;
+
+        DB::transaction(function () use ($learner, &$moved): void {
+            $fresh = $this->lock($learner);
+            $moved = $this->settleLocked($fresh);
+            if ($moved || $this->fillSkippedGoal($fresh)) {
+                $fresh->save();
+            }
+        });
+
+        $learner->refresh();
+
+        return $moved;
+    }
+
+    /** In memory, under the row lock: a `timezone` / retired `goal` state becomes the next live step. */
+    private function settleLocked(Learner $fresh): bool
+    {
+        $state = $fresh->onboarding_state;
+        if ($state === self::DONE || ! in_array($state, [self::LEGACY_TIMEZONE_STEP, 'goal'], true) || in_array($state, self::steps(), true)) {
+            return false;
+        }
+
+        $this->fillSkippedGoal($fresh);
+        $fresh->onboarding_state = $state === 'goal' ? 'level' : 'reminder';
+
+        return true;
+    }
+
+    /** With one goal enabled the goal step is never asked: the learner gets it (only while they have none). */
+    private function fillSkippedGoal(Learner $fresh): bool
+    {
+        $goals = self::availableGoals();
+        if (count($goals) > 1 || $fresh->goal !== null) {
+            return false;
+        }
+
+        $fresh->goal = $goals[0];
+
+        return true;
+    }
 
     /**
      * `/start` of a learner who has not finished the onboarding: `new` moves to the first step
@@ -97,9 +177,11 @@ final class OnboardingService
             }
 
             $began = $fresh->onboarding_state === 'new';
-            if (! in_array($fresh->onboarding_state, self::STEPS, true)) {
-                $fresh->onboarding_state = self::STEPS[0];
+            $this->settleLocked($fresh);
+            if (! in_array($fresh->onboarding_state, self::steps(), true)) {
+                $fresh->onboarding_state = self::steps()[0];
             }
+            $this->fillSkippedGoal($fresh);
 
             if ($payload->courseSlug() !== null) {
                 $fresh->meta = [...$fresh->meta, self::PENDING_COURSE => $payload->courseSlug()];
@@ -191,28 +273,22 @@ final class OnboardingService
 
         DB::transaction(function () use ($learner, $step, $changes, &$completed, &$course, &$via): void {
             $fresh = $this->lock($learner);
+            $this->settleLocked($fresh);
             if ($fresh->onboarding_state !== $step) {
                 throw OnboardingException::staleStep($step);
             }
 
-            if ($step === 'timezone' && $this->zoneChangeIsGuarded($fresh)) {
-                // Not the learner's first zone: the rules of /settings apply to this entry point too —
-                // 24 h between changes and the running quota day carried over — or re-running this step
-                // would be a way around them (docs/12 §5.3). A refusal rolls the transaction back and
-                // leaves the step as it was.
-                $this->settings->update($fresh, $changes);
-                $fresh->refresh();
-            } else {
-                $fresh->fill($changes);
-            }
+            $fresh->fill($changes);
             if ($step === 'locale') {
                 $fresh->meta = [...$fresh->meta, LearnerSettingsService::LOCALE_CHOSEN => true];
             }
-            if ($step === 'timezone' || $step === 'reminder') {
+            if ($step === 'reminder') {
                 $this->settings->scheduleReminder($fresh);
             }
+            $this->fillSkippedGoal($fresh);
 
-            $next = self::STEPS[array_search($step, self::STEPS, true) + 1] ?? self::DONE;
+            $steps = self::steps();
+            $next = $steps[array_search($step, $steps, true) + 1] ?? self::DONE;
             $fresh->onboarding_state = $next;
 
             if ($next === self::DONE) {
@@ -247,13 +323,6 @@ final class OnboardingService
         return $this->current($learner);
     }
 
-    /** A zone change already happened through the settings, or its carried day is still running. */
-    private function zoneChangeIsGuarded(Learner $learner): bool
-    {
-        return isset(($learner->meta ?? [])[LearnerSettingsService::TIMEZONE_CHANGED_AT_META])
-            || $this->clock->hasActiveDayCarry($learner);
-    }
-
     /**
      * `/settings` — change one onboarding value of a learner who has finished the onboarding.
      * Same whitelists as {@see self::apply()}, but no state machine; the change itself (and the
@@ -279,16 +348,12 @@ final class OnboardingService
     {
         return match ($state) {
             self::DONE => new OnboardingStep(self::DONE, 'onboarding.done.text'),
-            'goal', 'level', 'timezone', 'reminder' => new OnboardingStep(
-                $state,
-                'onboarding.steps.'.$state,
-                $this->options($state),
-                match ($state) {
-                    'level' => 3,
-                    'timezone' => 1,
-                    default => 2,
-                },
-            ),
+            'goal' => in_array('goal', self::steps(), true)
+                ? new OnboardingStep('goal', 'onboarding.steps.goal', $this->options('goal'), 2)
+                : $this->step('level'),
+            'level', 'reminder' => new OnboardingStep($state, 'onboarding.steps.'.$state, $this->options($state), $state === 'level' ? 3 : 2),
+            // A state stored before the time zone step was removed: the step after it.
+            self::LEGACY_TIMEZONE_STEP => $this->step('reminder'),
             default => new OnboardingStep('locale', 'onboarding.steps.locale', $this->options('locale')),
         };
     }
@@ -305,21 +370,12 @@ final class OnboardingService
             case 'goal':
                 return array_map(
                     fn (string $goal): OnboardingOption => new OnboardingOption($goal, 'onboarding.options.goal.'.$goal),
-                    self::GOALS,
+                    self::availableGoals(),
                 );
             case 'level':
                 return array_map(
                     fn (string $level): OnboardingOption => new OnboardingOption($level, 'onboarding.options.level.'.$level),
                     [...self::LEVELS, self::LEVEL_UNKNOWN],
-                );
-            case 'timezone':
-                return array_map(
-                    fn (string $zone): OnboardingOption => new OnboardingOption(
-                        $zone,
-                        'onboarding.options.timezone.'.strtolower((string) substr((string) strrchr($zone, '/'), 1)),
-                        ['offset' => $this->settings->offsetLabel($zone)],
-                    ),
-                    $this->settings->timezoneOptions(),
                 );
             case 'reminder':
                 return [
@@ -347,7 +403,7 @@ final class OnboardingService
             'locale' => in_array($value, $this->locales->supported(), true)
                 ? ['interface_locale' => $value]
                 : throw OnboardingException::invalidValue($step),
-            'goal' => in_array($value, self::GOALS, true)
+            'goal' => in_array($value, self::availableGoals(), true)
                 ? ['goal' => $value]
                 : throw OnboardingException::invalidValue($step),
             'level' => match (true) {
@@ -355,9 +411,6 @@ final class OnboardingService
                 in_array($value, self::LEVELS, true) => ['level' => $value],
                 default => throw OnboardingException::invalidValue($step),
             },
-            'timezone' => in_array($value, $this->settings->timezoneOptions(), true)
-                ? ['timezone' => $value]
-                : throw OnboardingException::invalidValue($step),
             'reminder' => match (true) {
                 $value === self::REMINDER_OFF => ['reminder_time' => null],
                 array_key_exists($value, self::REMINDER_TIMES) => ['reminder_time' => self::REMINDER_TIMES[$value]],

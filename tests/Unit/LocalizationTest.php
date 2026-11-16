@@ -257,19 +257,15 @@ it('names every supported language in the language picker', function (): void {
     }
 });
 
-it('offers only time zones that PHP knows and that have a caption', function (): void {
-    $known = DateTimeZone::listIdentifiers();
-    $offered = array_map(fn ($option) => $option->value, app(OnboardingService::class)->options('timezone'));
-
-    expect($offered)->toBe(array_map('strval', config('learners.timezone_options')))
-        ->and($offered[0])->toBe(config('learners.default_timezone'));
-
-    foreach ($offered as $zone) {
-        expect($known)->toContain($zone);
+it('has a caption in ru and uz for every goal the system knows, also those that are switched off', function (): void {
+    foreach (['ru', 'uz'] as $locale) {
+        foreach (OnboardingService::GOALS as $goal) {
+            expect(__('onboarding.options.goal.'.$goal, [], $locale))->not->toBe('onboarding.options.goal.'.$goal);
+        }
     }
 
-    config(['learners.timezone_options' => ['Asia/Tashkent', 'Mars/Base']]);
-    expect(array_map(fn ($option) => $option->value, app(OnboardingService::class)->options('timezone')))->toBe(['Asia/Tashkent']);
+    // Only the enabled goals are offered; the rest stays in lang until it is enabled.
+    expect(array_map(fn ($option) => $option->value, app(OnboardingService::class)->options('goal')))->toBe(['general']);
 });
 
 it('does not change the process locale when translating with an explicit locale', function (): void {

@@ -499,9 +499,6 @@ export const ru = {
   // ---- settings ----
   'settings.title': 'Настройки',
   'settings.language': 'Язык интерфейса',
-  'settings.timezone': 'Часовой пояс',
-  'settings.timezone.undo': 'Отменить смену пояса ({time})',
-  'settings.timezone.locked': 'Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}.',
   'settings.reminder.off': 'Выключены',
   'settings.reminder.hint': 'Время — по вашему часовому поясу.',
   'settings.daily_goal': 'Цель на день',
@@ -522,7 +519,7 @@ export const ru = {
   'settings.retention.intense': 'Интенсивно',
   'settings.retention.hint': 'Сколько слов должно помниться к моменту повторения: спокойно — 85 %, обычно — 90 %, интенсивно — 93 %. Чем выше цель, тем чаще повторения.',
   'settings.group.reminders': 'Напоминания',
-  'settings.group.region': 'Язык и регион',
+  'settings.group.region': 'Язык',
   'settings.group.leagues': 'Лиги',
   'settings.daily_goal.unit': 'слов в день',
   'settings.reminder.time': 'Время напоминания',
