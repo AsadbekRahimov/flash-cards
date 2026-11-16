@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Services\ProTrialService;
 use App\Domain\Game\Enums\ClassCaravanStatus;
 use App\Domain\Game\Enums\ItemKind;
 use App\Domain\Game\Enums\RunFinishReason;
@@ -70,8 +71,10 @@ use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
+use App\Models\ProTrial;
 use App\Models\ProviderTransaction;
 use App\Models\Referral;
+use App\Models\ReferralMilestone;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -123,8 +126,8 @@ $expectedTables = [
     'telegram_link_tokens',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
-    // Phase 2 (docs/13 §1.5): referrals, leagues.
-    'referrals',
+    // Phase 2 (docs/13 §1.5): referrals (+ the milestone book and the trial book of 2C.9), leagues.
+    'referrals', 'referral_milestones', 'pro_trials',
     'league_weeks', 'league_groups', 'league_members',
     // Phase 2 (docs/13 §1.5): friends and challenges.
     'friendships', 'challenges',
@@ -1122,7 +1125,7 @@ it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', funct
         'achievements',
         'friendships', 'challenges',
         'league_members', 'league_groups', 'league_weeks',
-        'referrals',
+        'referral_milestones', 'pro_trials', 'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
@@ -1323,6 +1326,45 @@ it('rolls back and re-applies the referrals migration (2C.1)', function (): void
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasTable('referrals'))->toBeTrue()
         ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
+});
+
+// --- 2C.9 milestones and the welcome trial (docs/13 §1.5, §7.1) ---------------------
+
+it('keeps one milestone per inviter and one trial per Telegram account, and cascades / nulls them with the learner', function (): void {
+    $inviter = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    $referral = Referral::factory()->rewarded()->create(['referrer_learner_id' => $inviter->id, 'referee_learner_id' => $friend->id]);
+    $milestone = ReferralMilestone::factory()->create(['referrer_learner_id' => $inviter->id, 'milestone' => 3, 'referral_id' => $referral->id]);
+    expectConstraintViolation(fn () => ReferralMilestone::factory()->create(['referrer_learner_id' => $inviter->id, 'milestone' => 3]));
+    ReferralMilestone::factory()->create(['referrer_learner_id' => $inviter->id, 'milestone' => 6]);
+
+    $trial = ProTrial::factory()->forTelegramId(424_242)->create(['learner_id' => $friend->id]);
+    expectConstraintViolation(fn () => ProTrial::factory()->forTelegramId(424_242)->create());
+
+    // The friend goes: the referral cascades, the milestone keeps its row and loses the reference, the trial book keeps the hash.
+    $friend->forceDelete();
+    expect($milestone->fresh()?->referral_id)->toBeNull()
+        ->and($trial->fresh()?->learner_id)->toBeNull()
+        ->and($trial->fresh()?->telegram_hash)->toBe(ProTrialService::hashFor(424_242));
+
+    // The inviter goes: the milestones go with them.
+    $inviter->forceDelete();
+    expect(ReferralMilestone::query()->count())->toBe(0);
+
+    expect(array_column(Schema::getIndexes('referral_milestones'), 'columns'))->toContain(['referrer_learner_id', 'milestone'])
+        ->toContain(['granted_at', 'reached_at'])
+        ->and(array_column(Schema::getIndexes('pro_trials'), 'columns'))->toContain(['telegram_hash']);
+});
+
+it('rolls back and re-applies the milestone and trial migrations (2C.9)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_11_16_100001_create_pro_trials_table')])->assertSuccessful();
+    expect(Schema::hasTable('pro_trials'))->toBeFalse()
+        ->and(Schema::hasTable('referral_milestones'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('pro_trials'))->toBeTrue()
+        ->and(Schema::hasTable('referral_milestones'))->toBeTrue();
 });
 
 // --- 2D.4 personal mocks (docs/13 §1.6) -----------------------------------------

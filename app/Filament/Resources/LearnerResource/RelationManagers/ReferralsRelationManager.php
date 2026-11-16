@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\LearnerResource\RelationManagers;
 
 use App\Domain\Engagement\Enums\ReferralStatus;
+use App\Domain\Engagement\Services\ReferralMilestoneReport;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\LearnerResource;
@@ -18,17 +19,22 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 /**
  * The learners this one invited (docs/13 §1.5 `referrals`, §7.1), read-only except the two actions on a
  * flagged row: "Clear flag" (the parked reward is granted at once when the referral is activated) and
- * "Reject" (`rejected {flagged}`). Both are audited (`referral.unflagged` / `referral.rejected`). Admin only.
+ * "Reject" (`rejected {flagged}`). Both are audited (`referral.unflagged` / `referral.rejected`). Admin only. Above the table:
+ * the milestones of this inviter (docs/13 §7.1 "2C.9") — two statements, whatever the number of rows.
  */
 class ReferralsRelationManager extends RelationManager
 {
     use RequiresActiveAdmin;
 
     protected static string $relationship = 'referrals';
+
+    /** The summary above the table, built once per request (Filament asks for the description more than once). */
+    private ?HtmlString $summary = null;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -51,6 +57,7 @@ class ReferralsRelationManager extends RelationManager
             ->modelLabel(__('admin.learners.referrals.singular'))
             ->pluralModelLabel(__('admin.learners.referrals.plural'))
             ->emptyStateHeading(__('admin.learners.referrals.empty'))
+            ->description(fn (): HtmlString => $this->milestoneSummary())
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('referee'))
             ->columns([
                 Tables\Columns\TextColumn::make('referee_name')
@@ -130,5 +137,39 @@ class ReferralsRelationManager extends RelationManager
             ->paginated([25, 50])
             ->enforcePaginationPageOptions()
             ->defaultSort('id', 'desc');
+    }
+
+    /** The milestones reached by the owner of the page, one line each. */
+    private function milestoneSummary(): HtmlString
+    {
+        return $this->summary ??= $this->buildMilestoneSummary();
+    }
+
+    private function buildMilestoneSummary(): HtmlString
+    {
+        $report = app(ReferralMilestoneReport::class)->forReferrer((int) $this->getOwnerRecord()->getKey());
+        $tz = (string) config('app.timezone');
+        $lines = [e(__('admin.learners.referrals.milestones.heading'))];
+
+        if ($report['reached'] === []) {
+            $lines[] = e(__('admin.learners.referrals.milestones.none_yet', ['counted' => $report['counted']]));
+        }
+
+        foreach ($report['reached'] as $m) {
+            $state = match (true) {
+                $m['skipped'] !== null => __('admin.learners.referrals.milestones.skipped', ['reason' => AdminLabels::value('learners.referrals.milestones.skip_reason', $m['skipped'])]),
+                $m['granted_at'] === null => __('admin.learners.referrals.milestones.pending'),
+                default => __('admin.learners.referrals.milestones.granted', ['until' => $m['until']?->setTimezone($tz)->format('d.m.Y') ?? '—']),
+            };
+
+            $lines[] = e(__('admin.learners.referrals.milestones.line', [
+                'friends' => $m['milestone'],
+                'days' => $m['days'],
+                'reached' => $m['reached_at']->setTimezone($tz)->format('d.m.Y'),
+                'state' => $state,
+            ]));
+        }
+
+        return new HtmlString(implode('<br>', $lines));
     }
 }

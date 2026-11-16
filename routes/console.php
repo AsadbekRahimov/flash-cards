@@ -119,8 +119,25 @@ Schedule::command('leagues:close-week')
     ->withoutOverlapping(30)
     ->runInBackground();
 
-// Referral rewards (docs/13 §7.1): re-queues the reward job of a referral that is `activated`, or
-// `rewarded` with a side still missing, after a lost / failed job. Idempotent by the data.
+// Monthly rating (docs/13 §7.6): the materialised scores of the open months are recomputed from the day rows every ten
+// minutes (the recently active learners only; one statement per month, nothing in the review transaction).
+Schedule::command('leagues:refresh-month')
+    ->everyTenMinutes()
+    ->withoutOverlapping(9)
+    ->runInBackground();
+
+// The close of a month: `close_delay_minutes` after the 1st 00:00 in the league zone (03:00 by default - the lagging local
+// evenings west of the zone are counted), and a safety run five minutes later on the same mutex; runs daily, so a missed
+// 1st is caught up the next night. Idempotent by `league_months.status`.
+$monthCloseDelay = max(0, min(23 * 60, (int) config('leagues.monthly.close_delay_minutes', 180)));
+Schedule::command('leagues:close-month')
+    ->cron(sprintf('%d,%d %d * * *', $monthCloseDelay % 60, min(59, ($monthCloseDelay % 60) + 5), intdiv($monthCloseDelay, 60)))
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(30)
+    ->runInBackground();
+
+// Referral rewards (docs/13 §7.1): re-queues the job of a referral left `activated` (not counted), or of a
+// milestone reached and not granted, after a lost / failed job. Idempotent by the data.
 Schedule::command('referrals:recover')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20)

@@ -224,3 +224,42 @@ describe('courses store — next lesson ("Continue: lesson N")', () => {
     expect(store.nextLesson?.id).toBe(42)
   })
 })
+
+describe('courses store — choosing and the quiet list', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('select says whether the course was chosen', async () => {
+    const store = useCoursesStore()
+    store.courses = [{ ...course('a'), is_active: true }, course('b')]
+    vi.mocked(api.courses.select).mockResolvedValueOnce({ ...course('b'), is_active: true })
+
+    expect(await store.select('b')).toBe(true)
+    expect(store.courses.map((c) => c.is_active)).toEqual([false, true])
+
+    vi.mocked(api.courses.select).mockRejectedValueOnce(new ApiClientError('not_found', 404, 'course_not_found', 'x'))
+    expect(await store.select('a')).toBe(false)
+    expect(store.errorMessage).not.toBe('')
+  })
+
+  it('loadListQuietly fills an empty list without touching the status or the message, and never fails', async () => {
+    const store = useCoursesStore()
+    vi.mocked(api.courses.list).mockResolvedValueOnce({ courses: [course('a')] })
+
+    await store.loadListQuietly()
+    expect(store.courses).toHaveLength(1)
+    expect(store.listStatus).toBe('idle')
+
+    await store.loadListQuietly()
+    expect(api.courses.list).toHaveBeenCalledTimes(1)
+
+    const other = useCoursesStore()
+    other.courses = []
+    vi.mocked(api.courses.list).mockRejectedValueOnce(new ApiClientError('network', 0, 'unknown', 'offline'))
+    await expect(other.loadListQuietly()).resolves.toBeUndefined()
+    expect(other.listStatus).toBe('idle')
+    expect(other.errorMessage).toBe('')
+  })
+})

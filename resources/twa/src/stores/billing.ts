@@ -5,6 +5,7 @@ import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimit
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
+import { useSettingsStore } from '@/stores/settings'
 import { useTodayStore } from '@/stores/today'
 import type {
   BillingCatalog,
@@ -109,7 +110,10 @@ interface MeTarget {
 async function readMe(store: MeTarget): Promise<void> {
   store.loading = true
   try {
-    store.apply(await api.me.get())
+    const me = await api.me.get()
+    store.apply(me)
+    // `/me` carries the settings too: the language row of the Profile reads them without a second request.
+    if (me.settings) useSettingsStore().adopt(me.settings)
   } catch (err) {
     // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
     store.loadedAt = null

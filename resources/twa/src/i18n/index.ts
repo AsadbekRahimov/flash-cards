@@ -20,6 +20,9 @@ export type Locale = 'ru' | 'uz'
 export const SUPPORTED_LOCALES: readonly Locale[] = ['ru', 'uz']
 export const DEFAULT_LOCALE: Locale = 'ru'
 
+/** Name of everything about the language: both languages at once, so that a learner who cannot read the current one still finds it (not a dictionary string: it is the same in both). */
+export const LANGUAGE_TITLE = 'Til · Язык'
+
 export type Params = Record<string, string | number>
 
 const dictionaries: Record<Locale, Translations> = { ru, uz }

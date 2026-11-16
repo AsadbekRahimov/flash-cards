@@ -13,6 +13,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { useCourseSelect } from '@/composables/useCourseSelect'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
@@ -24,7 +25,7 @@ import type { CourseLesson, CourseStage } from '@/api/types'
 
 /**
  * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
- * main course, "Make main" in any other), "Practice" under it (the hub of the course, docs/16 §11.1; shown while
+ * course the learner is on, "Start course" / "Switch to this course" in any other), "Practice" under it (the hub of the course, docs/16 §11.1; shown while
  * `/me.practice.available`, with a Pro chip and the paywall while it is behind Pro), the IELTS / SAT mock for Pro, and
  * the modules with their lessons and statuses; a lesson row has "Learn" and a quiet icon button "Practice of the lesson"
  * that closes the line of its progress (the hub of that lesson, same rules). "Back" is the system button (-> the catalog).
@@ -53,6 +54,7 @@ const training = useTrainingStore()
 const exam = useExamStore()
 const billing = useBillingStore()
 const { t, tn } = useI18n()
+const { chooseLabel, choose } = useCourseSelect()
 
 const { detail, detailStatus: status, selecting, errorMessage, nextLesson, allLessonsDone } = storeToRefs(catalog)
 const { opening, openError } = storeToRefs(training)
@@ -145,6 +147,8 @@ watch(openError, (message) => {
 
 onMounted(() => {
   void load()
+  // Whether the learner has a course already decides "Start course" / "Switch to this course": the list is the catalog's.
+  void catalog.loadListQuietly()
   // `/me` is kept for half a minute by the store: the Today screen or the paywall may have asked already.
   void billing.load()
 })
@@ -220,9 +224,9 @@ onBeforeUnmount(() => {
           class="btn btn-primary btn-lg btn-block mt-4"
           :disabled="selecting !== null"
           data-testid="choose-btn"
-          @click="catalog.select(detail.slug)"
+          @click="choose(detail.slug)"
         >
-          {{ t('catalog.choose') }}
+          {{ chooseLabel }}
         </button>
         <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">{{ t('course.choose_hint') }}</p>
       </template>

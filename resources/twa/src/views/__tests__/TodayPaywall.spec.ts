@@ -152,7 +152,7 @@ describe('TodayView paywall entry', () => {
   })
 
   it('does not offer "Repeat words" when nothing is due', async () => {
-    const w = await render(today({ due_count: 0, new_words_remaining: 0 }))
+    const w = await render(today({ active_course: course, due_count: 0, new_words_remaining: 0 }))
     await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
 
     expect(w.find('[data-testid=paywall-review]').exists()).toBe(false)

@@ -16,6 +16,7 @@ use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
 use App\Domain\Telegram\Handlers\GroupLinkCommandHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\InviteCommandHandler;
+use App\Domain\Telegram\Handlers\LanguageCommandHandler;
 use App\Domain\Telegram\Handlers\LearnerDmHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
@@ -78,6 +79,7 @@ final class TelegramDispatcher
         ChatMemberHandler $chatMember,
         TodayCommandHandler $today,
         SettingsCommandHandler $settings,
+        LanguageCommandHandler $language,
         UnlinkCommandHandler $unlink,
         DeleteAccountCommandHandler $deleteAccount,
         LearnerDmHandler $learnerDm,
@@ -113,6 +115,7 @@ final class TelegramDispatcher
             $start,
             $today,
             $settings,
+            $language,
             $unlink,
             $deleteAccount,
             $help,

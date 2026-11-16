@@ -107,6 +107,8 @@ To switch a group to Uzbek (Latin), open the group record, set **Bot language** 
 removed and re-added. Personal messages (e.g. review reminders) follow each learner's interface language
 (`learners.interface_locale`; for a new learner it starts from the Telegram language: `uz*` → Uzbek, anything else → Russian).
 The Web App follows the learner's Telegram language.
+
+Reminder cadence (owner decision 2026-11-16): at most one personal reminder per local day. After 3 idle days it says "N days without lessons"; after 7 idle days it is sent only on days 10, 14, 21, 30, 45 and 60; after 60 idle days the bot stays silent. A learner who never started gets a "start" reminder (or "choose a course" when they have no active course). Thresholds: `REMINDERS_WINBACK_FROM_DAYS`, `REMINDERS_DAILY_UNTIL_DAYS`, `REMINDERS_SPARSE_DAYS`, `REMINDERS_STOP_AFTER_DAYS`; see docs/12 §7.5.
 The group language also decides the language of **exam questions** (answers and distractors) and of the
 translations on cards in a group training session; personal sessions use the learner's own language.
 
@@ -503,14 +505,19 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
   no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
   (it is written on every TWA open); pick it in the *Event* filter to see it, or pick any other name to narrow the list.
 - *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
-- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1): the invited learner (link to
-  their page), the state (`pending` — came, not active yet; `activated` — studied 3 days × 10 cards within
-  14 days; `rewarded` — both got 7 days of Pro; `rejected` with the reason: `self`, `existing_learner`,
-  `referrer_capped` — legacy rows only, `flagged`; an inviter who already collected 10 rewards in 30 days / 50 in total gets no further reward, but the invited learner is still rewarded: the row stays `rewarded`), the
-  **Flagged** mark and the dates. A referral is flagged automatically when the inviter collected 20 or more
-  links within 24 hours (a farm is likely); its reward waits. Two row buttons for a flagged row, both written
+- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1 "2C.9"). **Above the table** the milestones of this
+  inviter: one line per reached milestone — "Веха «3 засчитанных друзей»: +7 дн. Pro, достигнута 20.11.2026 — выдано, подписка до …"
+  (or "награда ещё не выдана" while the grant is owed — `referrals:recover` retries it — or "не выдано (причина)": a perpetual
+  subscription, a deleted or blocked learner); before the first milestone the line says how many friends are counted. Below,
+  the table: the invited learner (link to their page), the state (`pending` — came, not counted yet; `activated` — started, the
+  count waits; `rewarded`, shown as **Засчитан** — counted towards the milestones: the setup is done and 10 cards were rated in a day within
+  14 days; `rejected` with the reason: `self`, `existing_learner`, `referrer_capped` — legacy rows only, `flagged`), the
+  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner
+  (provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
+  A referral is flagged automatically when the inviter collected 20 or more
+  links within 24 hours (a farm is likely); it is not counted meanwhile. Two row buttons for a flagged row, both written
   to the audit log: **Clear flag** (Снять пометку; `referral.unflagged`) — the referral is genuine, an activated one is
-  rewarded at once; **Reject** (Отклонить; `referral.rejected`) — no reward will ever be granted. The numbers come from
+  counted at once; **Reject** (Отклонить; `referral.rejected`) — it will never be counted. The numbers come from
   `config/referrals.php` (`REFERRALS_*` in `.env`). The invite link needs `TELEGRAM_BOT_USERNAME`; without
   it the learners only see their code.
 
@@ -527,7 +534,7 @@ the payment screens stay empty and Pro is granted by hand or with promo codes.
 
 ### Subscriptions
 The table shows every subscription: subject (learner or organization), plan, status, provider (`manual` — granted
-by an admin, `promo` — from a promo code), start, **Until** (empty = no end), who granted it and the reason.
+by an admin, `promo` — from a promo code, `reward` — a referral milestone, `trial` — the welcome trial of a new learner), start, **Until** (empty = no end), who granted it and the reason.
 Filters: status, provider, plan, subject, and *Live status* (live = trialing / active / past due).
 
 - **Grant Pro** (Выдать Pro; button above the table): pick the subject — a *Learner* (search by name, @username or Telegram ID)
@@ -746,6 +753,63 @@ for the players, i.e. at least one completed or failed run in the week, and for 
 
 ---
 
+## Monthly rating (Рейтинг месяца, docs/13 §7.6)
+
+Navigate to **Administration → Рейтинг месяца**. Admin only (an active `admin`; teachers do not see the item or the pages). The menu item carries a
+yellow badge «Ждёт проверки» with the number of months that wait for your review (normally 1 in the first days of a month).
+
+**What happens.** Every learner earns league points for each session (the same points as the weekly leagues); the month's total counts at most
+`LEAGUES_MONTHLY_DAILY_CAP` (300) points per local day. The month ends on the 1st at 00:00 (`LEAGUES_TIMEZONE`) and is closed
+`LEAGUES_MONTHLY_CLOSE_DELAY_MINUTES` (180) later by `leagues:close-month`: the scores become final, the best `LEAGUES_MONTHLY_CANDIDATES` (10) eligible
+participants are frozen as **candidates** with their anti-abuse signals, the month goes to status «Ждёт проверки». Eligible = at least
+`LEAGUES_MONTHLY_MIN_ACTIVE_DAYS` (10) days with points and an account at least `LEAGUES_MONTHLY_MIN_ACCOUNT_DAYS` (14) days old at the month's end.
+Nothing is given automatically: you decide.
+
+**The list** shows every month: status (Идёт / Закрывается / Ждёт проверки / Подтверждён), participants, candidates, when it was closed, who confirmed it.
+**«Открыть»** opens the month.
+
+**The month page** shows the prizes (RU / UZ by place, and whether they are the month's own or the defaults) and the candidates by rank: the provisional place
+(1–3 go to the best candidates that are not disqualified), the learner (a link to the learner's page), points, active days, **signals**, status, the reason of a
+disqualification, and for a confirmed month «Приз вручён» with the date. Next to a candidate who holds a place you see `@username` (a link to `t.me`) and the
+Telegram ID (a `tg://user?id=…` link): this is how you contact the winner to give the prize. These are shown to admins only and never leave the panel.
+
+**Reading the signals.** The facts are under the badges (accuracy, mean time per answer, days at the cap, best day, spike, account age, overall place);
+the coloured badges are flags with a tooltip. A flag is a reason to look, not a verdict — nothing is decided automatically:
+
+| Flag | Means | Look at |
+|---|---|---|
+| Низкая точность | fewer than 55 % correct answers (50+ grades): cards may be tapped at random for points | «Баллы по дням», the learner's page |
+| Слишком высокая точность | more than 98 % correct (50+ grades): a script, or always «easy» | the same |
+| Слишком быстро | under 1.5 s per graded card on average: words cannot be read that fast | the time per answer |
+| Новый аккаунт | the account is under 30 days old at the month's end: a fresh account with a huge total | the account age, the referrals of the learner |
+| Всплеск | the best day is 3+ times the mean active day: points made in one burst | «Баллы по дням» |
+| Часто упирался в потолок | 5+ days at the daily cap: thousands of grades a day | «Баллы по дням» (the «Засчитано» column is cut by the cap) |
+
+The thresholds are `LEAGUES_MONTHLY_SIGNAL_*`. **«Баллы по дням»** opens a window with every day of the month: repetitions, correct, new words, goal, points and
+the points counted after the cap.
+
+**Order of work.**
+1. **Check** the candidates (signals, «Баллы по дням», the learner's page).
+2. **Disqualify** whoever played unfairly: «Дисквалифицировать» → a reason is required (it stays with the row and in the audit log) → confirm. The next
+   candidate takes the place at once (the page shows it). A mistaken decision is taken back with «Вернуть» — only until the month is confirmed.
+3. **Prizes** (see below) — before the confirmation.
+4. **Confirm**: «Подтвердить итоги». The window lists the final places 1–3 with the prize of each and warns that the action is **irreversible**: after it
+   the places, disqualifications and prizes never change, and the bot sends every winner a congratulation in their language («Вы заняли N-е место … Ваш приз: …;
+   мы свяжемся с вами в Telegram»; without prizes the message has no prize sentences). The Mini App shows the winners in «last month».
+5. **Give the prize** by hand (e.g. Telegram Premium as a gift via the winner's contact) and press **«Приз вручён»** on the winner's row (confirmation; once, cannot be undone). The date
+   is shown in the row.
+
+If another administrator is faster, your click ends with a notification («Месяц не ждёт проверки…») and the page refreshes: nothing is done twice.
+Every decision is written to the audit log (`league_month.*`).
+
+**Prizes.** By default there are **no prizes** (the prize block is hidden in the Mini App, the rating works). Two ways to set them:
+- **For one month**, in the panel: «Изменить призы» — a form with places 1–3 × RU / UZ (a place with empty titles has no prize; up to 200 characters). «Убрать призы» = no prizes this month;
+  «По умолчанию» = back to the defaults of the environment. Not available after the confirmation.
+- **Defaults for every month** without its own prizes: `.env` variables `LEAGUES_MONTHLY_PRIZE_{1..3}_{RU,UZ}` (for example `LEAGUES_MONTHLY_PRIZE_1_RU="Telegram Premium на 3 месяца"`). Empty by default, because a published prize is a promise to every learner.
+  Set the prizes **before** the month starts, or at the latest before the confirmation — learners read them on the rating screen.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |
@@ -755,7 +819,7 @@ for the players, i.e. at least one completed or failed run in the week, and for 
 | Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Line chart of **repetitions per day** over the last 30 days: how many cards were answered in training sessions that day (the dataset is called «Повторений»). It is not the number of learners: a learner who answers 30 cards counts 30. Admin: all sessions, including personal practice; teacher: group trainings of their own groups only |
 | Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
 | Hardest Words (Самые трудные слова за 30 дней) | admin, teacher | Top 20 words with lowest accuracy |
-| Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
+| Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / welcome trials / sponsoring organizations" (the trials, **пробных**, are a figure of their own and are not part of "own"); *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days (Первичная настройка — 7 дней) | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats (Учебные центры — места и очередь) | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
 | SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty. A fourth tile, *Honesty of self-grading* (Честность самооценки), is the share of wrong answers in four-option and typed exercises (last 28 days) that came right after the learner had rated the same word «Легко» (`review.self_grade_mismatch` events / wrong objective answers); a high share means learners overrate themselves. Cached for 10 minutes |
@@ -810,7 +874,7 @@ php artisan telegram:set-webhook
 ```bash
 php artisan telegram:setup-bot
 ```
-Sets the list of bot commands that Telegram shows after «/» (Russian and Uzbek; private chats and group chats have
+Sets the list of bot commands that Telegram shows after «/» (in private chats: `/today`, `/settings`, `/language` — «Язык / Til» —, `/invite`, `/pro`, `/promo`, `/delete_account`, `/help`; Russian and Uzbek; private chats and group chats have
 their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
 administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
 command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.

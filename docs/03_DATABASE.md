@@ -417,7 +417,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 |---------|-----|
 | id | bigint PK |
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
-| type | string(50) | `review_reminder` / `streak_reminder` (вид напоминания, docs/06 §6) |
+| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
 | payload | jsonb | — что отправили: `{kind, due_count, streak, scheduled_for}` |
 | sent_at | timestamp |
 
@@ -663,7 +663,7 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 | game_held_at | timestamp nullable | первый завершённый забег дня: день удержан серией и считается в неё `+1`, как день с целью (docs/18 §12.6, docs/12 §7.4); ставится один раз, пока `NULL`; читается `StreakService` вместе с `goal_met_at` / `frozen_at` *(G2.1; серия — G2.10)* |
 | created_at, updated_at | | |
 
-**Индексы:** `(learner_id, date)` unique.
+**Индексы:** `(learner_id, date)` unique; `learner_daily_stats_date_idx (date)` — пересчёт месячного рейтинга по диапазону дат (§2.63; 2026-11-16).
 
 **Представление `date` (17.12).** Eloquent пишет `date`-каст как `Y-m-d 00:00:00`. PostgreSQL приводит это к DATE в любом виде, а в sqlite колонка —
 текст, и `'2026-10-28'` ≠ `'2026-10-28 00:00:00'`: запись, равенство, границы диапазона и unique `(learner_id, date)` обязаны идти в одном
@@ -916,14 +916,44 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | reject_reason | string(24) nullable | `self` (своя ссылка), `existing_learner` (learner существовал до этого `/start`), `referrer_capped` (исторический: до 2C.6 лимит наград пригласившего отклонял реферал; теперь лимит лишь пропускает награду пригласившего — `meta.rewards.referrer.skipped = referrer_capped`, статус `rewarded`), `flagged` (отклонён админом) |
 | linked_at | timestamp NOT NULL | момент `/start ref_<code>` |
 | activated_at | timestamp nullable | правило активации выполнено (`config('referrals.activation')`: ≥ 3 локальных дня с `learner_daily_stats.reviews_count ≥ 10` в окне 14 дней от локального дня привязки) |
-| rewarded_at | timestamp nullable | клейм награды (`activated → rewarded`); сами гранты — по `meta.rewards` |
-| flagged_at | timestamp nullable | всплеск (≥ 20 привязок пригласившего за 24 ч): награда ждёт снятия флага админом |
-| meta | jsonb default '{}' | `rewards: {referee: {subscription_id, skipped}, referrer: {...}}` (одна транзакция на сторону — повтор доначисляет недостающее; `skipped`: `perpetual` / `learner_missing`), `reward_subscription_ids`, `active_days` |
+| rewarded_at | timestamp nullable | клейм (`activated → rewarded`): с 2C.9 — «засчитан пригласившему»; награды — `referral_milestones` (§2.33a) |
+| flagged_at | timestamp nullable | всплеск (≥ 20 привязок пригласившего за 24 ч): не засчитывается до снятия флага админом |
+| meta | jsonb default '{}' | `active_days` (локальные дни активации), `counted` (номер друга у пригласившего, 2C.9); `rewards` / `reward_subscription_ids` — только у строк до 2C.9 (гранты обеим сторонам старой схемы), никем не читаются |
 | created_at, updated_at | | |
 
-**Индексы:** `referee_learner_id` unique; `(referrer_learner_id, status, linked_at)`.
+**Индексы:** `referee_learner_id` unique; `(referrer_learner_id, status, linked_at)`; `(status, activated_at)`, `(status, rewarded_at)`.
 
-**Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок пути награды: `referrals` (FOR UPDATE, строки пригласившего по `id`) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit).
+**Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок (docs/13 §3 п.4, 2C.9): клейм — `referrals` (FOR UPDATE, строки пригласившего по `id`) → INSERT `referral_milestones`; выдача вехи — `referral_milestones` (FOR UPDATE) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit). Активация с 2C.9: `onboarding_state = done` и ≥ 1 локальный день с `reviews_count ≥ 10` в окне.
+
+### 2.33a `referral_milestones` — вехи пригласившего *(2C.9, docs/13 §1.5, §7.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| referrer_learner_id | bigint FK → learners, ON DELETE CASCADE | пригласивший |
+| milestone | smallint | число засчитанных друзей (`config('referrals.milestones')`: 3, 6) |
+| days | smallint | дни Pro вехи на момент достижения (`referrals.milestone_days`) |
+| referral_id | bigint FK → referrals, ON DELETE SET NULL | реферал, закрывший веху |
+| reached_at | timestamp NOT NULL | момент клейма, под замком строк `referrals` пригласившего |
+| granted_at | timestamp nullable | выдача (`SubscriptionService::grantReward`, `provider_ref = referral_milestone:<referrer>:<milestone>`); `NULL` = награда ещё должна (`referrals:recover`) |
+| subscription_id | bigint nullable (без FK) | продлённая / созданная подписка |
+| skipped | string(24) nullable | выдано без Pro: `perpetual` / `learner_missing` / `learner_deleted` / `learner_blocked` |
+| created_at, updated_at | | |
+
+**Индексы:** **unique `(referrer_learner_id, milestone)`** — «каждая веха ровно один раз»; `(granted_at, reached_at)`. Пишет только `ReferralService` (`insertOrIgnore` в клейме, `grantMilestone` под `FOR UPDATE` строки).
+
+### 2.33b `pro_trials` — книга пробного Pro *(2C.9, docs/13 §7.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| telegram_hash | string(64) **unique** | HMAC-SHA256 от Telegram id с `APP_KEY` (`ProTrialService::hashFor`); сам id не хранится — строка переживает purge learner'а (§8 правило 2) и запрещает второй пробный тому же аккаунту |
+| learner_id | bigint FK → learners, ON DELETE SET NULL | кому выдан (пока строка learner'а есть) |
+| subscription_id | bigint nullable (без FK) | пробная подписка (`provider = trial`, `status = trialing`) |
+| days | smallint | `billing.trial.days` на момент выдачи |
+| granted_at | timestamp NOT NULL | |
+| ends_at | timestamp nullable | конец пробного (`NULL` — бессрочная подписка уже была) |
+| created_at, updated_at | | |
+
+Пишет только `ProTrialService` (`learners` FOR UPDATE → INSERT в savepoint → `subscriptions`). Маркер претендента — `learners.meta.pro_trial_pending` (пишет `LearnerRegistrar` при создании строки), уведомление — `learners.meta.pro_trial_notice`.
 
 ### 2.34 `league_weeks` — неделя лиг *(2C.3, docs/13 §1.5, §7.3)*
 | Колонка | Тип | Описание |
@@ -1290,6 +1320,65 @@ CHECK не создаются — инвариант дублируют серв
 
 Пишут таблицы игры только сервисы домена `Game` (`app/Domain/Game`); порядок блокировок и транзакция завершения — docs/18 §12.5.
 
+## Месячный рейтинг с призами *(docs/13 §7.6, решение владельца 2026-11-16; API — docs/04 A.19)*
+
+### 2.62 `league_months` — месяц рейтинга
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| starts_on | date **unique** | 1-е число месяца в `config('leagues.timezone')` — одна граница для всех, как у недель лиг |
+| ends_on | date | последний день месяца |
+| status | string(16) default `open` | `open` (баллы движутся) → `closing` (барьер: пересчёты больше не пишут; закрыватель считает всё) → `pending_review` (кандидаты заморожены, решает администратор) → `confirmed` (места окончательны) |
+| prizes | jsonb nullable | `[{place, ru, uz}]` — призы месяца, редактирует администратор; `NULL` = дефолт `config('leagues.monthly.prizes')`, `[]` = без призов (блок скрыт) |
+| participants_count | int default 0 | участников (`league_month_scores.participant = true`) на момент последнего пересчёта / закрытия |
+| refreshed_at | timestamp nullable | последний пересчёт планировщиком или закрытие |
+| closed_at | timestamp nullable | момент `closing → pending_review` |
+| confirmed_at, confirmed_by_user_id | timestamp nullable, FK → users SET NULL | подтверждение администратором |
+| created_at, updated_at | | |
+
+Строка создаётся при первом обращении (`MonthlyRatingService::currentMonth`: `GET /league/month`, `leagues:refresh-month`; create в savepoint — гонка создателей безопасна). Закрытие — `leagues:close-month` (ежедневно в `LEAGUES_MONTHLY_CLOSE_DELAY_MINUTES` после 00:00 1-го по зоне лиг + страховочный запуск через 5 минут той же записью). Пересчёт держит строку `FOR SHARE` и пишет только в `open`-месяц; барьер, закрытие и каждое действие администратора — `FOR UPDATE` (docs/13 §3 правило 25).
+
+### 2.63 `league_month_scores` — материализованные баллы ученика за месяц
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_month_id | bigint FK → league_months, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| points | int default 0 | баллы рейтинга: Σ по дням месяца `min(баллы дня, LEAGUES_MONTHLY_DAILY_CAP)`; баллы дня — формула недельных лиг (§2.36, `LeaguePoints`) |
+| raw_points | int default 0 | та же сумма без потолка |
+| active_days | smallint default 0 | дней с баллами > 0 |
+| capped_days | smallint default 0 | дней, упёршихся в потолок |
+| max_day_points | int default 0 | лучший день (сырой) |
+| reviews, correct, new_words, goal_days, game_points, time_spent_ms | int / smallint / bigint | суммы счётчиков дней — сигналы для ревью (доля верных, средняя скорость ответа) |
+| participant | boolean default true | в рейтинге: не удалён, не заблокирован, `onboarding_state = done`, нет `meta.leagues_opt_out` — считается при пересчёте строки |
+| final_rank | int nullable | место среди участников, пишется закрытием один раз (оконная функция; порядок — `points desc, active_days desc, learner_id`); у не-участников `NULL` |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(league_month_id, learner_id)`; `league_month_scores_standings_idx (league_month_id, participant, points desc, active_days desc, learner_id)` — топ-N и «участников впереди меня».
+
+**Правила:** пишет только `MonthlyRatingService::upsertScores` — ОДИН `INSERT … SELECT … ON CONFLICT (league_month_id, learner_id) DO UPDATE … WHERE <любая колонка изменилась>` по строкам `learner_daily_stats` месяца для множества учеников (все / недавно активные / один), **никогда** в транзакции оценки (docs/13 §3 правило 5): планировщик каждые 10 минут, строка зрителя при показе рейтинга. Пока месяц `open`, строки других учеников отстают не больше чем на 10 минут; закрытие пересчитывает всех.
+
+### 2.64 `league_month_candidates` — кандидаты на приз, снимок закрытия
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_month_id | bigint FK → league_months, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| rank | int | место среди **подходящих** участников на момент закрытия (1 — лучший); лучшие `LEAGUES_MONTHLY_CANDIDATES` (10) |
+| points, active_days | int, smallint | на момент закрытия |
+| signals | jsonb default '{}' | `{active_days, reviews, correct, accuracy, avg_ms_per_review, new_words, goal_days, game_points, raw_points, capped_days, max_day_points, spike_ratio, account_age_days, overall_rank, flags[]}` — факты для ревью, ничего не решают |
+| status | string(16) default `candidate` | `candidate` → `winner` (при подтверждении, с `place`) \| `disqualified` |
+| place | smallint nullable | 1..`places`, выдаётся при подтверждении по рангу среди не дисквалифицированных |
+| disqualified_at, disqualified_by_user_id, disqualify_reason | timestamp, FK → users SET NULL, string(500) | дисквалификация (только `pending_review`; возврат — `reinstate`) |
+| prize_delivered_at, prize_delivered_by_user_id | timestamp, FK → users SET NULL | «приз вручён» (только у `winner` подтверждённого месяца, один раз) |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(league_month_id, learner_id)`; `(league_month_id, rank)`.
+
+**Правила:** строки пишет закрытие (`snapshotCandidates`, под `FOR UPDATE` месяца; строки прерванного запуска заменяются) и `MonthlyRatingReviewService` (под тем же замком, с `audit_logs` `league_month.*` в той же транзакции). После `confirmed` меняется только `prize_delivered_*`.
+
+**`learner_daily_stats`** +: индекс `learner_daily_stats_date_idx (date)` *(2026_11_16_200002, §2.22)* — полный пересчёт месяца читает диапазон дат всех учеников; `date` не меняется после вставки, так что UPDATE'ы оценок остаются HOT (индекс по `updated_at` отвергнут). PostgreSQL строит его `CONCURRENTLY`.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1391,6 +1480,10 @@ CHECK не создаются — инвариант дублируют серв
 72. `2026_11_10_130001_add_prompt_to_telegram_link_tokens_table` — `telegram_link_tokens.prompted_telegram_user_id` *(ревью W2, §2.32a)*
 73. `2026_11_10_130002_add_telegram_superseded_at_to_users_table` — `users.telegram_superseded_at` *(ревью W1, §2.1)*
 74. `2026_11_12_100001_add_training_reviews_learner_word_idx` — индекс `training_reviews (learner_id, word_id, id)` для `LeechInsight` (CONCURRENTLY на PostgreSQL) *(ревью, §2.10)*
+75. `2026_11_16_100001_create_pro_trials_table` — книга пробного Pro *(2C.9, §2.33b)*
+76. `2026_11_16_100002_create_referral_milestones_table` — вехи пригласившего *(2C.9, §2.33a)*
+77. `2026_11_16_200001_create_league_month_tables` — `league_months`, `league_month_scores`, `league_month_candidates` *(месячный рейтинг, docs/13 §7.6, §2.62–2.64)*
+78. `2026_11_16_200002_add_date_index_to_learner_daily_stats_table` — индекс `learner_daily_stats (date)` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.22, §2.63)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

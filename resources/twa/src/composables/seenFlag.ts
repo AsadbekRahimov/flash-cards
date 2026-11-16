@@ -4,6 +4,8 @@
  * on every visit: the flags are also kept in memory for the session.
  */
 const seenInSession = new Set<string>()
+/** Snoozed hints: the moment (`Date.now()`) until which a hint stays hidden, kept in memory too. */
+const snoozedInSession = new Map<string, number>()
 
 export function hasSeen(key: string): boolean {
   if (seenInSession.has(key)) return true
@@ -23,7 +25,30 @@ export function markSeen(key: string): void {
   }
 }
 
+/** Whether a hint was hidden for a period that has not passed yet ("close for 14 days"). */
+export function isSnoozed(key: string, now: number = Date.now()): boolean {
+  let until = snoozedInSession.get(key) ?? 0
+  try {
+    until = Math.max(until, Number(window.localStorage.getItem(key)) || 0)
+  } catch {
+    // no storage: the memory value above is all there is
+  }
+  return until > now
+}
+
+/** Hides a hint for `ms` from now. */
+export function snooze(key: string, ms: number, now: number = Date.now()): void {
+  const until = now + ms
+  snoozedInSession.set(key, until)
+  try {
+    window.localStorage.setItem(key, String(until))
+  } catch {
+    // the memory value above holds for this session
+  }
+}
+
 /** For tests: forgets the in-memory flags. */
 export function resetSeenSession(): void {
   seenInSession.clear()
+  snoozedInSession.clear()
 }

@@ -166,4 +166,49 @@ describe('LapsedBanner', () => {
     get.mockRestore()
     set.mockRestore()
   })
+
+  describe('an ended welcome trial', () => {
+    const trial = (): Lapsed => ({ provider: 'trial', ended_at: ENDED })
+
+    it('has its own words: trial over, buy Pro or invite friends (no numbers)', async () => {
+      const w = await render(me(trial()))
+
+      expect(w.get('[data-testid=lapsed-title]').text()).toBe('Пробный Pro закончился')
+      expect(w.get('[data-testid=lapsed-text]').text()).toBe('Оформите Pro или пригласите друзей и получите Pro бесплатно.')
+      expect(w.get('[data-testid=lapsed-renew]').text()).toBe('Оформить Pro')
+      expect(w.get('[data-testid=lapsed-invite]').text()).toBe('Пригласить друзей')
+    })
+
+    it('emits renew and invite from its two buttons', async () => {
+      const w = await render(me(trial()))
+
+      await w.get('[data-testid=lapsed-renew]').trigger('click')
+      await w.get('[data-testid=lapsed-invite]').trigger('click')
+
+      expect(w.emitted('renew')).toHaveLength(1)
+      expect(w.emitted('invite')).toHaveLength(1)
+    })
+
+    it('keeps the invite button where nothing is for sale (not renewable)', async () => {
+      const w = await render(me(trial()), { preloaded: true, renewable: false })
+
+      expect(w.find('[data-testid=lapsed-renew]').exists()).toBe(false)
+      expect(w.find('[data-testid=lapsed-invite]').exists()).toBe(true)
+    })
+
+    it('speaks Uzbek', async () => {
+      setLocale('uz')
+      const w = await render(me(trial()))
+
+      expect(w.get('[data-testid=lapsed-title]').text()).toBe('Sinov Pro tugadi')
+      expect(w.get('[data-testid=lapsed-invite]').text()).toBe("Do'stlarni taklif qilish")
+      expect(w.get('[data-testid=lapsed-renew]').text()).toBe("Pro'ni rasmiylashtirish")
+    })
+
+    it('is not the trial banner for a paid subscription: no invite button', async () => {
+      const w = await render(me(lapsed()))
+
+      expect(w.find('[data-testid=lapsed-invite]').exists()).toBe(false)
+    })
+  })
 })

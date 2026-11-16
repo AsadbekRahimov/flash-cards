@@ -14,6 +14,7 @@ use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
+use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
 use App\Jobs\SendLeagueResultsJob;
@@ -867,7 +868,7 @@ final class LeagueService
     {
         $from = StoredDate::of($week->starts_on->toDateString());
         $to = StoredDate::of($week->ends_on->toDateString());
-        $weights = $this->weights();
+        [$dayPoints, $weights] = LeaguePoints::dayExpression('s');
 
         $rows = DB::table('league_members as lm')
             ->leftJoin('learners as l', 'l.id', '=', 'lm.learner_id')
@@ -880,9 +881,8 @@ final class LeagueService
             ->groupBy('lm.id', 'lm.learner_id', 'l.first_name', 'l.deleted_at')
             ->selectRaw(
                 'lm.id as member_id, lm.learner_id, l.first_name, l.deleted_at, '
-                .'coalesce(sum(s.reviews_count * ? + s.correct_count * ? + s.new_words_count * ? '
-                .'+ case when s.goal_met_at is not null then ? else 0 end + s.game_points), 0) as points',
-                [$weights['review'], $weights['correct'], $weights['new_word'], $weights['goal_met']],
+                ."coalesce(sum({$dayPoints}), 0) as points",
+                $weights,
             )
             ->orderByDesc('points')
             ->orderBy('lm.id')
@@ -997,16 +997,5 @@ final class LeagueService
             pointsToSafety: $pointsToSafety,
             standings: $list,
         );
-    }
-
-    /** @return array{review: int, correct: int, new_word: int, goal_met: int} */
-    private function weights(): array
-    {
-        return [
-            'review' => (int) config('leagues.points.review', 1),
-            'correct' => (int) config('leagues.points.correct', 1),
-            'new_word' => (int) config('leagues.points.new_word', 2),
-            'goal_met' => (int) config('leagues.points.goal_met', 10),
-        ];
     }
 }

@@ -93,6 +93,7 @@ async function render(slug = 'english-a1') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
+      { path: '/today', name: 'today', component: stub },
       { path: '/courses', name: 'courses', component: stub },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: stub },
       { path: '/exam/:sessionId(\\d+)', name: 'exam', component: stub },
@@ -119,6 +120,7 @@ describe('CourseView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.courses.list).mockReset()
     useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
@@ -173,18 +175,32 @@ describe('CourseView', () => {
   })
 
   describe('main action in a course that is not the main one', () => {
-    it('offers "Сделать основным" as the primary button with the explanation', async () => {
+    it('offers "Начать курс" as the primary button with the explanation while the learner has no course', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
 
       const { wrapper } = await render()
 
       const choose = wrapper.get('[data-testid=choose-btn]')
-      expect(choose.text()).toBe('Сделать основным')
+      expect(choose.text()).toBe('Начать курс')
       expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
       expect(wrapper.get('[data-testid=choose-hint]').text()).toBe('Новые слова в ежедневном занятии будут из этого курса')
       expect(wrapper.find('[data-testid=active-badge]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=all-done]').exists()).toBe(false)
+    })
+
+    it('offers "Перейти на этот курс" when another course is active', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail())
+      vi.mocked(api.courses.list).mockResolvedValue({
+        courses: [{
+          slug: 'other', title: 'Other', description: null, level: null, exam_tag: null,
+          words_count: 1, is_featured: false, is_active: true, progress: { done: 0, total: 1 },
+        } satisfies Course],
+      })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Перейти на этот курс')
     })
 
     it('has exactly one primary button, whichever the course', async () => {
@@ -197,22 +213,23 @@ describe('CourseView', () => {
       expect(main.wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
 
-    it('selects the course; the screen turns into the main course: chip, "Продолжить", no hint', async () => {
+    it('selects the course and leads to Today with "Курс выбран"', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.courses.select).mockResolvedValue({
         slug: 'english-a1', title: 'Английский A1', description: null, level: 'A1', exam_tag: null,
         words_count: 6, is_featured: false, is_active: true, progress: { done: 2, total: 5 },
       } satisfies Course)
 
-      const { wrapper } = await render()
+      const { wrapper, router } = await render()
       await wrapper.get('[data-testid=choose-btn]').trigger('click')
       await flushPromises()
 
       expect(api.courses.select).toHaveBeenCalledWith('english-a1')
+      expect(router.currentRoute.value.name).toBe('today')
+      expect(useToast().toast.value?.text).toBe('Курс выбран')
       expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(false)
-      expect(wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
       const badge = wrapper.get('[data-testid=active-badge]')
-      expect(badge.text()).toBe('Основной курс')
+      expect(badge.text()).toBe('Вы учите этот курс')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       expect(wrapper.get('[data-testid=continue-btn]').text()).toBe('Продолжить: модуль 1, урок 1')
     })
@@ -235,7 +252,7 @@ describe('CourseView', () => {
         new ApiClientError('not_found', 404, 'course_not_found', 'Course not found.'),
       )
 
-      const { wrapper } = await render()
+      const { wrapper, router } = await render()
       await wrapper.get('[data-testid=choose-btn]').trigger('click')
       await flushPromises()
 
@@ -243,6 +260,8 @@ describe('CourseView', () => {
       expect(alert.text()).toBe('Курс не найден или недоступен.')
       expect(alert.attributes('role')).toBe('alert')
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeUndefined()
+      expect(router.currentRoute.value.name).not.toBe('today')
+      expect(useToast().toast.value).toBeNull()
     })
   })
 
@@ -255,7 +274,7 @@ describe('CourseView', () => {
 
       const { wrapper } = await render()
 
-      expect(wrapper.get('[data-testid=active-badge]').text()).toBe('Основной курс')
+      expect(wrapper.get('[data-testid=active-badge]').text()).toBe('Вы учите этот курс')
       const next = wrapper.get('[data-testid=continue-btn]')
       expect(next.text()).toBe('Продолжить: модуль 1, урок 2')
       expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
@@ -814,7 +833,7 @@ describe('CourseView', () => {
     expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 2 tasi")
     expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 0 tasi")
     expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
-    expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
+    expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Kursni boshlash')
     expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi")
     expect(wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').text()).toBe("O'rganish")
 
@@ -822,7 +841,7 @@ describe('CourseView', () => {
     const main = await render()
     expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov imtihoni')
     expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Testni boshlash')
-    expect(main.wrapper.get('[data-testid=active-badge]').text()).toBe('Asosiy kurs')
+    expect(main.wrapper.get('[data-testid=active-badge]').text()).toBe("Siz shu kursni o'rganyapsiz")
     expect(main.wrapper.get('[data-testid=continue-btn]').text()).toBe('Davom etish: 1-modul, 1-dars')
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({

@@ -70,6 +70,20 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
+    /**
+     * The list for a screen that only needs to know which course is active (the course screen opened by a link): takes it
+     * when the store has none yet, and never touches the status or the message of the screens - a failure changes nothing.
+     */
+    async loadListQuietly(): Promise<void> {
+      if (this.courses.length > 0) return
+      try {
+        const res = await api.courses.list()
+        if (this.courses.length === 0) this.courses = res.courses
+      } catch {
+        // the button then says "Start course"; the server decides anyway
+      }
+    },
+
     async loadDetail(slug: string): Promise<void> {
       const seq = ++this.detailSeq
       this.detailStatus = 'loading'
@@ -85,9 +99,13 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
-    /** Makes `slug` the active course; the server answers with the refreshed course row. */
-    async select(slug: string): Promise<void> {
-      if (this.selecting !== null) return
+    /**
+     * Makes `slug` the active course; the server answers with the refreshed course row.
+     *
+     * @returns whether the course was chosen (a screen then leads to Home)
+     */
+    async select(slug: string): Promise<boolean> {
+      if (this.selecting !== null) return false
       this.selecting = slug
       this.errorMessage = ''
       try {
@@ -98,8 +116,10 @@ export const useCoursesStore = defineStore('courses', {
         )
         if (this.detail?.slug === chosen.slug) this.detail = { ...this.detail, is_active: true }
         else if (this.detail) this.detail = { ...this.detail, is_active: false }
+        return true
       } catch (err) {
         this.errorMessage = errorMessage(err, 'catalog')
+        return false
       } finally {
         this.selecting = null
       }

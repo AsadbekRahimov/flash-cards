@@ -106,6 +106,7 @@ app.mount('#app')
 | `/practice/sessions/:id` | PracticeSessionView | — | Сольная сессия практики (§5a.2): шапка, элемент режима, разбор, итоги. Иммерсивный экран; ✕ и «Назад» ведут в хаб сессии. |
 | `/battles/new` (query `friendship`, `course`, `lesson`) | BattleSetupView | `rating` | Настройка баттла: друг, курс, урок, формат → «Пригласить» (§5a.5). Назад — `/friends`. |
 | `/battles/:id` | BattleView | — | Баттл по статусу матча: приглашение, комната, отсчёт, раунды, итог (§5a.5). Иммерсивный экран; адрес приглашения из ЛС бота. |
+| `/league/month` | MonthlyRatingView | `rating` | Месячный рейтинг на баллах лиги (2026-11-16, docs/13 §7.6, docs/04 A.19): месяц и «до конца N дн.», призы, моя карточка, топ, «Как начисляются баллы», прошлый месяц; `GET /league/month` (стор `monthlyRating`). Корень вкладки, «Назад» нет; `enabled=false` — заглушка. Переключатель «Лига \| Месяц \| Друзья» (`useRatingTabs`) общий для трёх экранов. Итог занятия (`FinishedView`) показывает `league_points` («+N баллов», `points-earned`) и после лёгкого `GET /league/month/me` строку `month-line` со ссылкой сюда (сбой запроса, `me: null`, `rank: null`, `enabled=false` — строки нет; группового и пустого занятия запрос не касается). |
 | `/league`, `/friends` | LeagueView, FriendsView | `rating` | Недельная лига; друзья и вызовы; при `me.practice.available && me.practice.battle` — кнопка «Баттл» у друга, «Приглашения на баттл» с «Принять» / «Отклонить» и строка идущего баттла (§5a.5). |
 | `/profile` | ProfileView | `profile` | Профиль (корень вкладки): имя, тариф Free/Pro, вход в достижения, приглашения, друзей, подписку и настройки, контакт поддержки. Данные — `GET /me` (стор `billing`) и имя из стора `auth`; новых эндпоинтов нет. |
 | `/achievements`, `/referrals`, `/billing`, `/settings` | AchievementsView, ReferralsView, BillingView, SettingsView | `profile` | Экраны, в которые ведёт «Профиль». |
@@ -616,6 +617,25 @@ export function useTts() {
 - **API:** `t(key, params?)` — подстановка `{name}`; `tn(key, count, params?)` — форма по `Intl.PluralRules` (ru: one/few/many, uz: one/other; `{count}` подставляется автоматически); `useI18n()` в компонентах.
 - **Ошибки API:** клиент не показывает `error.message` сервера (он английский), а локализует по `error.code` (`src/i18n/errors.ts`, список `KNOWN_ERROR_CODES`; остальное — по `kind` ответа: сеть, 403, 410, 429, 5xx). Новый код ошибки в бэкенде = новая запись в `KNOWN_ERROR_CODES` + строки `error.code.<code>` в обоих словарях.
 - **Правила:** в `.vue`/`.ts` вне `src/i18n` кириллицы быть не должно (проверяет vitest). Новый текст = ключ в `ru.ts` и `uz.ts` одновременно.
+
+### 8b. Язык в один тап и первый заход (16.11.2026)
+
+Владелец: «смену языка очень трудно найти, интерфейс не интуитивен». Что сделано в TWA:
+
+- **Лист языка** `components/LanguageSheet.vue` (на `ui/BottomSheet`): заголовок «Til · Язык» (константа `LANGUAGE_TITLE` в `src/i18n/index.ts`, не зависит от языка), список из `settings.data.options.locales` (флаг + название на самом языке, ставится галочка), тап — `settings.update({ interface_locale })`, мгновенная смена языка, «Сохранено» уже на новом языке, лист закрывается; отказ — тост с причиной, язык и лист остаются. Нет настроек в сторе — грузятся (`/me`), при сбое — «Повторить». Общая логика — `composables/useLocaleSwitch.ts` (`saveSetting` — им же пользуются «Настройки»; `useLocaleSwitch` — список, текущий язык, `change`). `billing.load()` отдаёт `settings` из `/me` в стор настроек (`settings.adopt`, язык не переключает): строка профиля не делает второй запрос.
+- **Входы:** чип «🌐 RU/UZ» (`lang-btn`) в шапке «Сегодня»; строка `row-language` в «Профиле» перед «Настройками»; блок «Язык и регион» — первый в «Настройках»; `intro-locale` (SegmentedControl) на первом слайде интро и текстовая кнопка `intro-skip` «Пропустить» (закрывает так же, как ✕; на последнем слайде её нет — там «Начать»).
+- **«Сегодня» без курса:** условие `showStart` = `active_course === null && open_session_id === null && due_count === 0 && нет заданий группы` → одна карточка `start-card` вместо кольца цели, «нечего повторять», серии, блока «Мой курс»; баннер «завершите настройку в боте» — компактной строкой под ней.
+- **Слова:** «основной курс» → «мой курс»; кнопка каталога/курса — «Начать курс» (курса ещё нет) / «Перейти на этот курс» (активен другой), `composables/useCourseSelect.ts`; после выбора — переход на «Сегодня» с тостом «Курс выбран» (`courses.select` теперь возвращает `boolean`; экран курса, открытый по ссылке, берёт список тихо — `courses.loadListQuietly`). Ключи i18n не переименованы, менялись тексты (список — docs/I18N_UZ_REVIEW.md, раздел 16.11.2026).
+
+### 8c. Пробный Pro и Pro за приглашения (16.11.2026)
+
+Контракт — `docs/04_API_AND_BOT.md` A.12 / A.2. Что в TWA:
+
+- **Типы и стор.** `ReferralsResponse`: `activation`, `milestone_days`, `counts {invited, activated, counted}`, `milestones[] {friends, days, reached_at, rewarded}`, `next {friends, remaining} | null`; `reward_days`, `counts.rewarded`, `counts.capped` убраны. Статус реферала `rewarded` теперь значит «засчитан».
+- **Пробный Pro** отдельного поля не имеет: `entitlement.renewal.provider === 'trial'` (с `ends_at`), после конца — `entitlement.lapsed.provider === 'trial'` (`composables/trial.ts`: `trialEndsAt`, `trialDaysLeft` — целые дни вверх, минимум 1). В `/today` `renewal` нет, поэтому «Сегодня» для Pro с концом срока (`source = subscription`, `until` не `null`) читает `/me` через `billing.load()` (свежесть 30 с); вечный Pro и Pro центра `/me` не читают.
+- **`ReferralsView`:** герой, кружки-друзья (до 8; длиннее лестница — без кружков, остаются подписи вех), подписи вех, строка «следующий шаг», три шага (шаг 2 — «за один день» при `activation.days === 1`, иначе с днями; шаг 3 собирается из `milestones`), строка про друга без числа, ссылка, счётчики, список. «Назад» ведёт в профиль, а при `?from=today|billing` — туда, откуда пришли.
+- **Где ещё сказано про «Pro за приглашения»:** строка рефералов в «Профиле»; `invite-card` внизу «Сегодня» (крестик — на 14 дней, ключ `lexiflow:invite-card-hidden` в `localStorage`, `composables/seenFlag.ts` `snooze`/`isSnoozed`; не на `showStart`, не при `lapsed`, не для платного Pro); `invite-link` в `PaywallSheet` (только Free) и в «Подписке» (Free и пробный).
+- **Пробный виден:** `trial-line` на «Сегодня» (тап → «Подписка»), «Пробный Pro до …» в «Профиле», «Пробный период до …» в «Подписке» без текста про оплату и автопродление, `LapsedBanner` с `lapsed.provider === 'trial'`: «Оформить Pro» + «Пригласить друзей» (событие `invite`).
 
 ## 9. Производительность
 

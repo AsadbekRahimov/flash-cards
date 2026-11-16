@@ -37,9 +37,14 @@ const LINK = 'https://t.me/LexiFlowBot?start=ref_ABCD2345'
 const response = (overrides: Partial<ReferralsResponse> = {}): ReferralsResponse => ({
   code: 'ABCD2345',
   link: LINK,
-  reward_days: 7,
-  activation: { days: 3, reviews_per_day: 10, window_days: 14 },
-  counts: { invited: 3, activated: 2, rewarded: 1, capped: 0 },
+  activation: { days: 1, reviews_per_day: 10, window_days: 14 },
+  milestone_days: 7,
+  counts: { invited: 3, activated: 2, counted: 1 },
+  milestones: [
+    { friends: 3, days: 7, reached_at: null, rewarded: false },
+    { friends: 6, days: 7, reached_at: null, rewarded: false },
+  ],
+  next: { friends: 3, remaining: 2 },
   referrals: [
     { first_name: 'Dilnoza', status: 'rewarded', linked_at: '2026-10-20T10:00:00+00:00' },
     { first_name: null, status: 'activated', linked_at: '2026-10-21T10:00:00+00:00' },
@@ -52,6 +57,8 @@ const makeRouter = () =>
   createRouter({
     history: createMemoryHistory(),
     routes: [
+      { path: '/today', name: 'today', component: { template: '<div />' } },
+      { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/profile', name: 'profile', component: { template: '<div />' } },
       { path: '/referrals', name: 'referrals', component: ReferralsView },
       { path: '/friends', name: 'friends', component: { template: '<div />' } },
@@ -97,24 +104,120 @@ describe('ReferralsView', () => {
     useToast().hide()
   })
 
-  it('shows the hero, the three steps, the link, the counts and the invited learners', async () => {
+  it('shows the hero, the progress, the link, the counts and the invited learners', async () => {
     const { wrapper } = await render()
 
     expect(wrapper.get('h1').text()).toBe('Пригласить друга')
-    expect(text(wrapper, 'hero-title')).toBe('Вам и другу — 7 дн. Pro')
+    expect(text(wrapper, 'hero-title')).toBe('Приглашайте друзей — получайте Pro')
     expect(text(wrapper, 'link')).toBe(LINK)
     expect(text(wrapper, 'count-invited')).toBe('3')
     expect(text(wrapper, 'count-activated')).toBe('2')
-    expect(text(wrapper, 'count-rewarded')).toBe('1')
+    expect(text(wrapper, 'count-counted')).toBe('1')
+    expect(text(wrapper, 'friend-gets')).toBe('Друг получает пробный Pro при регистрации')
 
     const rows = wrapper.findAll('[data-testid=referral-row]')
     expect(rows).toHaveLength(3)
     expect(rows[0]?.text()).toContain('Dilnoza')
-    expect(rows[0]?.text()).toContain('Pro получен')
+    expect(rows[0]?.text()).toContain('засчитан')
     expect(rows[1]?.text()).toContain('Друг')
     expect(rows[1]?.text()).toContain('занимается')
-    expect(rows[2]?.text()).toContain('ещё не активен')
+    expect(rows[2]?.text()).toContain('ещё не начал')
     expect(wrapper.find('[data-testid=list-empty]').exists()).toBe(false)
+  })
+
+  describe('the progress', () => {
+    const filled = (w: Wrapper): string[] => w.findAll('[data-testid=progress-dot]').map((d) => d.attributes('data-filled') ?? '')
+    const marks = (w: Wrapper): number[] =>
+      w.findAll('[data-testid=progress-dot]').flatMap((d, i) => (d.attributes('data-milestone') === 'true' ? [i + 1] : []))
+    const milestone = (counted: number, reached: number[], rewarded: number[]): Partial<ReferralsResponse> => ({
+      counts: { invited: 6, activated: counted, counted },
+      milestones: [3, 6].map((friends) => ({
+        friends,
+        days: 7,
+        reached_at: reached.includes(friends) ? '2026-11-10T09:00:00+00:00' : null,
+        rewarded: rewarded.includes(friends),
+      })),
+      next: counted >= 6 ? null : { friends: counted >= 3 ? 6 : 3, remaining: (counted >= 3 ? 6 : 3) - counted },
+    })
+
+    it('is six friends with a mark on the 3rd and the 6th, none counted yet', async () => {
+      const { wrapper } = await render(response(milestone(0, [], [])))
+
+      expect(filled(wrapper)).toEqual(['false', 'false', 'false', 'false', 'false', 'false'])
+      expect(marks(wrapper)).toEqual([3, 6])
+      expect(text(wrapper, 'milestone-3')).toBe('3 друга → +7 дн. Pro')
+      expect(text(wrapper, 'milestone-6')).toBe('6 друзей → +7 дн. Pro')
+      expect(text(wrapper, 'next-step')).toBe('Ещё 3 друга — и +7 дн. Pro ваши')
+      expect(wrapper.find('[data-testid=milestone-done]').exists()).toBe(false)
+    })
+
+    it('fills the counted friends and says how many are left to the next reward', async () => {
+      const { wrapper } = await render(response(milestone(2, [], [])))
+
+      expect(filled(wrapper)).toEqual(['true', 'true', 'false', 'false', 'false', 'false'])
+      expect(text(wrapper, 'next-step')).toBe('Ещё 1 друг — и +7 дн. Pro ваши')
+    })
+
+    it('marks the reached milestone as received once the third friend is counted', async () => {
+      const { wrapper } = await render(response(milestone(3, [3], [3])))
+
+      expect(filled(wrapper).filter((f) => f === 'true')).toHaveLength(3)
+      expect(text(wrapper, 'milestone-3')).toContain('получено')
+      expect(wrapper.find('[data-testid=milestone-6] [data-testid=milestone-done]').exists()).toBe(false)
+      expect(text(wrapper, 'next-step')).toBe('Ещё 3 друга — и +7 дн. Pro ваши')
+    })
+
+    it('says the reward is being paid while it is reached but not yet given', async () => {
+      const { wrapper } = await render(response(milestone(3, [3], [])))
+
+      expect(text(wrapper, 'milestone-3')).toContain('начисляется')
+      expect(text(wrapper, 'milestone-3')).not.toContain('получено')
+    })
+
+    it('counts five of six', async () => {
+      const { wrapper } = await render(response(milestone(5, [3], [3])))
+
+      expect(filled(wrapper).filter((f) => f === 'true')).toHaveLength(5)
+      expect(text(wrapper, 'next-step')).toBe('Ещё 1 друг — и +7 дн. Pro ваши')
+    })
+
+    it('thanks the learner when all rewards are received (next is null)', async () => {
+      const { wrapper } = await render(response(milestone(6, [3, 6], [3, 6])))
+
+      expect(filled(wrapper).every((f) => f === 'true')).toBe(true)
+      expect(wrapper.findAll('[data-testid=milestone-done]')).toHaveLength(2)
+      expect(text(wrapper, 'next-step')).toBe('Все награды получены. Спасибо, что зовёте друзей')
+    })
+
+    it('takes the numbers from the milestones, not from the code', async () => {
+      const { wrapper } = await render(
+        response({
+          counts: { invited: 1, activated: 1, counted: 1 },
+          milestones: [{ friends: 2, days: 10, reached_at: null, rewarded: false }, { friends: 5, days: 20, reached_at: null, rewarded: false }],
+          next: { friends: 2, remaining: 1 },
+        }),
+      )
+
+      expect(wrapper.findAll('[data-testid=progress-dot]')).toHaveLength(5)
+      expect(marks(wrapper)).toEqual([2, 5])
+      expect(text(wrapper, 'milestone-2')).toBe('2 друга → +10 дн. Pro')
+      expect(text(wrapper, 'next-step')).toBe('Ещё 1 друг — и +10 дн. Pro ваши')
+    })
+
+    it('has no dots for a ladder too long for one line, but keeps the milestones', async () => {
+      const { wrapper } = await render(
+        response({ milestones: [{ friends: 20, days: 7, reached_at: null, rewarded: false }], next: { friends: 20, remaining: 19 } }),
+      )
+
+      expect(wrapper.find('[data-testid=progress-dots]').exists()).toBe(false)
+      expect(text(wrapper, 'milestone-20')).toBe('20 друзей → +7 дн. Pro')
+    })
+
+    it('has no horizontal overflow classes on the row of dots: fixed 32 px dots, six of them', async () => {
+      const { wrapper } = await render()
+
+      for (const dot of wrapper.findAll('[data-testid=progress-dot]')) expect(dot.classes()).toContain('size-8')
+    })
   })
 
   describe('the rule', () => {
@@ -126,9 +229,15 @@ describe('ReferralsView', () => {
       const steps = rule.findAll('li')
       expect(steps.map((li) => li.find('span:last-child').text())).toEqual([
         'Отправьте другу ссылку',
-        'Друг занимается 3 дн. (от 10 карточек в день) в течение 14 дней',
-        'Вы оба получаете 7 дн. Pro',
+        'Друг проходит настройку в боте и оценивает 10 карточек за один день — в течение 14 дн. после перехода по ссылке',
+        'Pro бесплатно: за 3 друга — +7 дн., за 6 друзей — ещё +7 дн.',
       ])
+    })
+
+    it('promises Pro to nobody but the inviter: no "both" in the rule', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.text()).not.toMatch(/Вам и другу|оба получаете|Pro получен/)
     })
 
     it('puts the numbers in accent circles', async () => {
@@ -143,12 +252,10 @@ describe('ReferralsView', () => {
       }
     })
 
-    it('follows the reward and the activation of the server', async () => {
-      const { wrapper } = await render(response({ reward_days: 30, activation: { days: 5, reviews_per_day: 15, window_days: 21 } }))
+    it('follows the activation of the server: several days are told with days', async () => {
+      const { wrapper } = await render(response({ activation: { days: 5, reviews_per_day: 15, window_days: 21 } }))
 
-      expect(text(wrapper, 'hero-title')).toBe('Вам и другу — 30 дн. Pro')
-      expect(text(wrapper, 'rule')).toContain('Друг занимается 5 дн. (от 15 карточек в день) в течение 21 дней')
-      expect(text(wrapper, 'rule')).toContain('Вы оба получаете 30 дн. Pro')
+      expect(text(wrapper, 'rule')).toContain('Друг проходит настройку в боте и занимается 5 дн. (от 15 карточек в день) в течение 21 дн. после перехода по ссылке')
     })
 
     it('has a pink gift tile in the hero', async () => {
@@ -186,7 +293,7 @@ describe('ReferralsView', () => {
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Учу английский в LexiFlow — присоединяйся, получим Pro вместе!')
+      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период')
       expect(state.haptic).toHaveBeenCalled()
     })
 
@@ -227,7 +334,7 @@ describe('ReferralsView', () => {
     })
 
     it('shows the code and an explanation while the bot username is not configured', async () => {
-      const { wrapper } = await render(response({ link: null, referrals: [], counts: { invited: 0, activated: 0, rewarded: 0, capped: 0 } }))
+      const { wrapper } = await render(response({ link: null, referrals: [], counts: { invited: 0, activated: 0, counted: 0 } }))
 
       expect(text(wrapper, 'code')).toBe('ABCD2345')
       expect(text(wrapper, 'no-link')).toContain('/start ref_ABCD2345')
@@ -238,33 +345,31 @@ describe('ReferralsView', () => {
   })
 
   describe('the counts', () => {
-    it('are three tiles: came, studying, rewarded', async () => {
+    it('are three tiles: came, studying, counted', async () => {
       const { wrapper } = await render()
 
       const counts = wrapper.get('[data-testid=counts]')
       expect(counts.classes()).toEqual(expect.arrayContaining(['grid', 'grid-cols-3']))
       const tiles = counts.findAll('.card')
       expect(tiles).toHaveLength(3)
-      expect(tiles.map((tile) => tile.text())).toEqual(['3Пришли', '2Занимаются', '1Награждены'])
+      expect(tiles.map((tile) => tile.text())).toEqual(['3Пришли', '2Занимаются', '1Засчитаны'])
     })
 
-    it('explains the reached reward limit only when some referrals were capped', async () => {
-      const plain = await render()
-      expect(plain.wrapper.find('[data-testid=capped-hint]').exists()).toBe(false)
+    it('has no block about a reward limit any more', async () => {
+      const { wrapper } = await render()
 
-      const { wrapper } = await render(response({ counts: { invited: 3, activated: 3, rewarded: 1, capped: 2 } }))
-      expect(text(wrapper, 'capped-hint')).toContain('Лимит наград достигнут')
-      expect(text(wrapper, 'capped-hint')).toContain('2')
+      expect(wrapper.find('[data-testid=capped-hint]').exists()).toBe(false)
+      expect(wrapper.text()).not.toContain('Лимит наград')
     })
   })
 
   describe('the invited learners', () => {
-    it('are rows with an initial avatar, the date and a status chip: waiting neutral, studying accent, rewarded success', async () => {
+    it('are rows with an initial avatar, the date and a status chip: waiting neutral, studying accent, counted success', async () => {
       const { wrapper } = await render()
 
       const rows = wrapper.findAll('[data-testid=referral-row]')
       const chips = rows.map((row) => row.get('[data-testid=referral-status]'))
-      expect(chips.map((c) => c.text())).toEqual(['Pro получен', 'занимается', 'ещё не активен'])
+      expect(chips.map((c) => c.text())).toEqual(['засчитан', 'занимается', 'ещё не начал'])
       expect(chips[0]?.classes()).toContain('chip-success')
       expect(chips[1]?.classes()).toContain('chip-accent')
       expect(chips[2]?.classes()).toContain('chip-neutral')
@@ -276,7 +381,7 @@ describe('ReferralsView', () => {
     })
 
     it('say so when nobody has come yet, with an icon', async () => {
-      const { wrapper } = await render(response({ referrals: [], counts: { invited: 0, activated: 0, rewarded: 0, capped: 0 } }))
+      const { wrapper } = await render(response({ referrals: [], counts: { invited: 0, activated: 0, counted: 0 } }))
 
       expect(text(wrapper, 'list-empty')).toBe('Пока никто не пришёл по вашей ссылке.')
       expect(wrapper.find('[data-testid=list-empty] svg').exists()).toBe(true)
@@ -325,10 +430,13 @@ describe('ReferralsView', () => {
     const { wrapper } = await render()
 
     expect(wrapper.get('h1').text()).toBe("Do'stni taklif qilish")
-    expect(text(wrapper, 'hero-title')).toBe("Sizga va do'stingizga — 7 kunlik Pro")
+    expect(text(wrapper, 'hero-title')).toBe("Do'stlarni taklif qiling — Pro oling")
+    expect(text(wrapper, 'milestone-3')).toBe("3 ta do'st → +7 kun Pro")
+    expect(text(wrapper, 'next-step')).toBe("Yana 2 ta do'st — va +7 kun Pro sizniki")
     expect(text(wrapper, 'rule')).toContain("Do'stingizga havolani yuboring")
-    expect(text(wrapper, 'rule')).toContain("Do'stingiz 14 kun ichida 3 kun shug'ullanadi (kuniga kamida 10 ta kartochka)")
-    expect(text(wrapper, 'rule')).toContain('Ikkalangiz ham 7 kunlik Pro olasiz')
+    expect(text(wrapper, 'rule')).toContain("bir kunda 10 ta kartochkani baholaydi")
+    expect(text(wrapper, 'rule')).toContain("Bepul Pro: 3 ta do'st uchun — +7 kun, 6 ta do'st uchun — yana +7 kun")
+    expect(text(wrapper, 'friend-gets')).toBe("Do'st ro'yxatdan o'tganda sinov Pro oladi")
     expect(text(wrapper, 'share-btn')).toBe('Ulashish')
     expect(text(wrapper, 'copy-btn')).toBe('Havolani nusxalash')
     expect(text(wrapper, 'friends-link')).toBe("Do'stlar va musobaqalar")
@@ -344,6 +452,19 @@ describe('ReferralsView', () => {
 
       wrapper.unmount()
       expect(state.hideBack).toHaveBeenCalled()
+    })
+
+    it('goes back to Today when the learner came from the invitation card there', async () => {
+      vi.mocked(api.referrals.get).mockResolvedValue(response())
+      const router = makeRouter()
+      await router.push('/referrals?from=today')
+      await router.isReady()
+      mount(ReferralsView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      state.back?.()
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('today')
     })
   })
 
@@ -384,7 +505,7 @@ describe('ReferralsView', () => {
   })
 
   it('uses only the tokens of the design system: no raw palette colours', async () => {
-    const { wrapper } = await render(response({ counts: { invited: 3, activated: 3, rewarded: 1, capped: 2 } }))
+    const { wrapper } = await render(response())
 
     expect(wrapper.html()).not.toMatch(/\b(?:text|bg|border)-(?:red|green|gray|black|white)\b|\b(?:text|bg|border)-(?:red|green|gray|blue)-\d{2,3}\b/)
   })

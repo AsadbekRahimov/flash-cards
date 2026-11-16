@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Billing\Services\ProTrialService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learning\Services\SchedulerResolver;
@@ -13,7 +14,6 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use stdClass;
 
 /**
  * The single entry point that turns a Telegram user (initData, bot update,
@@ -24,6 +24,10 @@ use stdClass;
  *    revives a soft-deleted learner and bumps `last_seen_at`;
  *  - a passive event about them (someone else added them, their group status changed) —
  *    `observeTelegramUser()`: never revives, never bumps `last_seen_at`.
+ *
+ * The welcome trial (docs/13 §7.1 "2C.9"): every row created here carries `meta.pro_trial_pending`; the first own
+ * contact hands it to {@see ProTrialService::offer()}, which grants the trial (once per Telegram account) and
+ * removes the marker. Nothing of it can fail the registration.
  */
 final class LearnerRegistrar
 {
@@ -40,6 +44,7 @@ final class LearnerRegistrar
         private readonly LearnerClock $clock,
         private readonly SchedulerResolver $schedulers,
         private readonly AccountRestoreNotice $restoreNotice,
+        private readonly ProTrialService $trials,
     ) {}
 
     /**
@@ -156,11 +161,19 @@ final class LearnerRegistrar
         }
 
         try {
-            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
+            $learner = $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
         } catch (UniqueConstraintViolationException) {
             // Lost a creation race with a parallel request (e.g. /auth and a chat update): reuse its row.
-            return $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
+            $learner = $this->upsert($telegramUserId, $profile, $source, $startPayload, $selfInitiated, $authDate);
         }
+
+        // The welcome trial goes with the person's own first contact, never with a passive event about them
+        // (its clock must not start before they show up). An in-memory check for everybody who has no marker.
+        if ($learner !== null && $selfInitiated && $this->trials->isPending($learner)) {
+            $this->trials->offer($learner);
+        }
+
+        return $learner;
     }
 
     /**
@@ -199,8 +212,9 @@ final class LearnerRegistrar
                 'acquisition_source' => $source,
                 'start_payload' => $startPayload,
                 'last_seen_at' => $selfInitiated ? now() : null,
-                // An object, like the column default `{}`: the `array` cast would store an empty PHP array as `[]`.
-                'meta' => new stdClass,
+                // The welcome trial is owed to this row (docs/13 §7.1 "2C.9"): decided at the first own contact. The
+                // key also keeps `meta` a JSON object (an empty PHP array would be stored as `[]`).
+                'meta' => [ProTrialService::META_PENDING => true],
             ]);
 
             return $created;

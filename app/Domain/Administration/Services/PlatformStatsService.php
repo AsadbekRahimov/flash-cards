@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -46,11 +47,11 @@ final class PlatformStatsService
      * - `organizations`: granting subscriptions of ACTIVE organizations (sponsor Pro);
      * - `expiring`: granting subscriptions (learners + organizations) that end within 7 days.
      *
-     * @return array{pro_learners:int, personal:int, organizations:int, expiring:int}
+     * @return array{pro_learners:int, personal:int, trials:int, organizations:int, expiring:int}
      */
     public function subscriptions(): array
     {
-        /** @var array{pro_learners:int, personal:int, organizations:int, expiring:int} */
+        /** @var array{pro_learners:int, personal:int, trials:int, organizations:int, expiring:int} */
         return $this->cache->remember(self::SUBSCRIPTIONS_WIDGET, 'all', self::CACHE_TTL, function (): array {
             $now = CarbonImmutable::now();
             // Only an ACTIVE organization sponsors (a suspended one keeps its row but grants nothing).
@@ -65,7 +66,10 @@ final class PlatformStatsService
                         ->whereExists(PaidSubscriptionQuery::personalFor($now)->select('subscriptions.id'))
                         ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now)))
                     ->count(),
-                'personal' => PaidSubscriptionQuery::granting($learnerSubscriptions(), $now)->count(),
+                // The welcome trials (docs/13 §7.1 "2C.9") are Pro for the learner but no subscription anybody paid for or
+                // was granted by hand: they are a figure of their own, not part of `personal`.
+                'personal' => PaidSubscriptionQuery::granting($learnerSubscriptions(), $now)->where('subscriptions.provider', '<>', SubscriptionProvider::Trial->value)->count(),
+                'trials' => PaidSubscriptionQuery::granting($learnerSubscriptions(), $now)->where('subscriptions.provider', SubscriptionProvider::Trial->value)->count(),
                 'organizations' => PaidSubscriptionQuery::granting($organizationSubscriptions(), $now)->count(),
                 'expiring' => PaidSubscriptionQuery::expiringWithin($learnerSubscriptions(), $now, self::EXPIRING_DAYS)->count()
                     + PaidSubscriptionQuery::expiringWithin($organizationSubscriptions(), $now, self::EXPIRING_DAYS)->count(),

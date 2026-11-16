@@ -32,9 +32,11 @@ function promoUpdate(string $text, string $chatType = 'private', int $chatId = 5
 }
 
 it('redeems the code in a DM, replies with the end date and grants Pro', function (): void {
+    config(['billing.trial.days' => 7]);
     PromoCode::factory()->create(['code' => 'WELCOME30', 'duration_days' => 30]);
     $this->api->shouldReceive('sendMessage')->once()->withArgs(function (int $chat, string $text): bool {
-        $until = now()->addDays(30)->setTimezone('Asia/Tashkent')->format('d.m.Y');
+        // A new learner is on the welcome trial (docs/13 §7.1 "2C.9"): the promo days follow its 7 days.
+        $until = now()->addDays(37)->setTimezone('Asia/Tashkent')->format('d.m.Y');
 
         return $chat === 555 && $text === "Готово! LexiFlow Pro активен до {$until}.";
     });
@@ -43,7 +45,8 @@ it('redeems the code in a DM, replies with the end date and grants Pro', functio
 
     $learner = Learner::query()->where('telegram_user_id', 555)->firstOrFail();
     expect(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro)
-        ->and(PromoRedemption::query()->where('learner_id', $learner->id)->count())->toBe(1);
+        ->and(PromoRedemption::query()->where('learner_id', $learner->id)->count())->toBe(1)
+        ->and(Subscription::query()->where('subscriber_id', $learner->id)->sole()->provider)->toBe('promo');
 });
 
 it('answers in the learner Uzbek locale', function (): void {
@@ -73,7 +76,9 @@ it('explains every promo error by code', function (string $code, string $message
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo '.$code));
 
-    expect(Subscription::query()->count())->toBe(0);
+    // Nothing of the promo (the welcome trial of a new learner is not the promo's).
+    expect(Subscription::query()->where('provider', 'promo')->count())->toBe(0)
+        ->and(PromoRedemption::query()->count())->toBe($code === 'TWICE' ? 1 : 0);
 })->with([
     'unknown' => ['NOPE', 'Промокод не найден. Проверьте, нет ли опечатки.', null],
     'expired' => ['OLD', 'Срок действия промокода истёк.', fn () => PromoCode::factory()->create(['code' => 'OLD', 'expires_at' => now()->subDay()])],

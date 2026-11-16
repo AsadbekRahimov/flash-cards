@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Log;
  *     (a floor that also covers midnight and a changed reminder time) — this is what
  *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
  *     level);
- *  4. {@see ReminderContentResolver} picks review / streak_at_risk / nothing.
+ *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing).
  *
  * At most once: the `notifications_log` row is written BEFORE the Telegram call, inside
  * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
@@ -99,6 +99,7 @@ final class ReminderSender
                     'kind' => $content->kind->value,
                     'due_count' => $content->dueCount,
                     'streak' => $content->streakCurrent,
+                    'idle_days' => $content->idleDays,
                     'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
                 ],
                 'sent_at' => $now,
@@ -144,6 +145,16 @@ final class ReminderSender
         return match ($content->kind) {
             ReminderKind::Review => trans_choice('reminders.review', $content->dueCount, [], $locale),
             ReminderKind::StreakAtRisk => trans_choice('reminders.streak_at_risk', $content->streakCurrent, [], $locale),
+            // The plural form follows the number of days; the due count is a separate, agreement-free placeholder.
+            ReminderKind::Inactive => trans_choice(
+                $content->dueCount > 0 ? 'reminders.inactive_due' : 'reminders.inactive',
+                $content->idleDays,
+                ['due' => $content->dueCount],
+                $locale,
+            ),
+            ReminderKind::NeverStarted => __('reminders.never_started', [], $locale),
+            ReminderKind::NewWords => __('reminders.new_words', [], $locale),
+            ReminderKind::ChooseCourse => __('reminders.choose_course', [], $locale),
         };
     }
 

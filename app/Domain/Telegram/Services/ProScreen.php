@@ -54,6 +54,11 @@ final class ProScreen
             $lines[] = $limit === null
                 ? __('billing.pro.status_free_generic', [], $locale)
                 : __('billing.pro.status_free', ['count' => $limit], $locale);
+
+            // The way to Pro that costs nothing (docs/13 §7.1 "2C.9"); left out while no milestone is configured.
+            if ((array) config('referrals.milestones', []) !== []) {
+                $lines[] = __('referrals.hint', [], $locale);
+            }
         }
 
         if ($subscription !== null && $subscription['auto_renew']) {

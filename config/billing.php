@@ -23,6 +23,16 @@ return [
     'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
 
     /**
+     * The welcome trial (docs/13 §7.1 "2C.9", owner's decision of 16.11.2026): every learner CREATED after the launch
+     * gets `days` of Pro at their first own contact (`/start`, the Mini App), once per Telegram account for good
+     * (`pro_trials`, ProTrialService). 0 = switched off: nobody receives a trial while it is 0; a learner created
+     * meanwhile keeps the pending marker and gets one if the trial is switched on again before their next contact.
+     */
+    'trial' => [
+        'days' => (int) env('BILLING_TRIAL_DAYS', 7),
+    ],
+
+    /**
      * Grace period (days) after a paid period ends before the subscription expires
      * (status `past_due`). Applies only to the auto-renewing provider (Telegram
      * Stars); grants and pay-per-period providers have a fixed end and expire at

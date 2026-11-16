@@ -13,6 +13,7 @@ import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import type { IconName } from '@/components/ui/icons'
 import { formatDate } from '@/composables/format'
 import { tierColor, tierLabelKey } from '@/composables/leagueTiers'
+import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
 import { useLeagueStore } from '@/stores/league'
@@ -38,10 +39,7 @@ const data = computed(() => league.data)
 const message = computed(() => failed.value || league.errorMessage)
 const membership = computed(() => data.value?.membership ?? null)
 
-const ratingTabs = computed(() => [
-  { to: { name: 'league' }, label: t('league.title'), testid: 'seg-league' },
-  { to: { name: 'friends' }, label: t('friends.title'), testid: 'seg-friends' },
-])
+const ratingTabs = useRatingTabs()
 
 const ZONES: Record<LeagueZone, { label: StringKey; chip: string; icon: IconName | null }> = {
   promotion: { label: 'league.zone.promotion', chip: 'chip-success', icon: 'arrow-trending-up' },

@@ -89,6 +89,38 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Бесплатный тариф: 20 новых слов в день')
     })
 
+    it('has the bilingual "Til · Язык" row with the current language by its own name, right before "Настройки"', async () => {
+      const w = await render()
+
+      const row = w.get('[data-testid=row-language]')
+      expect(row.text()).toContain('Til · Язык')
+      expect(row.text()).toContain('🇷🇺 Русский')
+      expect(row.element.tagName).toBe('BUTTON')
+      expect(row.find('.icon-tile svg').exists()).toBe(true)
+      expect(row.element.nextElementSibling).toBe(w.get('[data-testid=row-settings]').element)
+    })
+
+    it('keeps the row bilingual in Uzbek too and shows the Uzbek name', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ interface_locale: 'uz' }) })
+      const w = await render()
+
+      expect(w.get('[data-testid=row-language]').text()).toContain('Til · Язык')
+      expect(w.get('[data-testid=row-language]').text()).toContain("🇺🇿 O'zbekcha")
+    })
+
+    it('opens the language sheet from the row and closes it', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+      await w.get('[data-testid=row-language]').trigger('click')
+      expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
+      expect(w.get('[data-testid=language-ru]').attributes('aria-checked')).toBe('true')
+
+      await w.get('[data-testid=sheet-x]').trigger('click')
+      expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
+    })
+
     it('opens the sheet "How it works" from its own row, and closes it', async () => {
       const w = await render()
 
@@ -157,6 +189,25 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-billing]').text()).toContain('Pro')
     })
 
+    it('says "Trial Pro until ..." for the welcome trial, with the Pro chip', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(
+        me({ ...PRO, until: '2026-11-23T12:00:00+00:00', renewal: { auto: false, provider: 'trial', ends_at: '2026-11-23T12:00:00+00:00', reminder_sent: false } }),
+      )
+
+      const w = await render()
+
+      expect(w.get('[data-testid=profile-plan]').text()).toBe('Пробный Pro до 23 ноября 2026 г.')
+      expect(w.get('[data-testid=profile-chip]').text()).toBe('Pro')
+    })
+
+    it('says "Pro until ..." and not the trial for a paid subscription', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(
+        me({ ...PRO, until: '2026-12-01T12:00:00+00:00', renewal: { auto: false, provider: 'payme', ends_at: '2026-12-01T12:00:00+00:00', reminder_sent: false } }),
+      )
+
+      expect((await render()).get('[data-testid=profile-plan]').text()).toBe('Pro до 1 декабря 2026 г.')
+    })
+
     it('prefers the end of the own subscription over the entitlement end', async () => {
       vi.mocked(api.me.get).mockResolvedValue(
         me({
@@ -212,10 +263,16 @@ describe('ProfileView', () => {
 
       expect(w.get('[data-testid=row-achievements]').text()).toBe('Достижения')
       expect(w.get('[data-testid=row-referrals]').text()).toContain('Пригласить друга')
-      expect(w.get('[data-testid=row-referrals]').text()).toContain('Вам и другу — Pro бесплатно')
+      expect(w.get('[data-testid=row-referrals]').text()).toContain('Приглашайте друзей — получайте Pro')
       expect(w.get('[data-testid=row-friends]').text()).toBe('Друзья и вызовы')
       expect(w.get('[data-testid=row-billing]').text()).toBe('ПодпискаFree')
       expect(w.get('[data-testid=row-settings]').text()).toBe('Настройки')
+    })
+
+    it('does not promise Pro to both sides any more', async () => {
+      const w = await render()
+
+      expect(w.get('[data-testid=row-referrals]').text()).not.toContain('Вам и другу')
     })
 
     it('colours the tiles as designed (docs/14 §5.2)', async () => {

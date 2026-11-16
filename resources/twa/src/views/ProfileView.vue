@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import IntroSheet from '@/components/IntroSheet.vue'
+import LanguageSheet from '@/components/LanguageSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -10,13 +11,15 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { formatDate } from '@/composables/format'
+import { trialEndsAt } from '@/composables/trial'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
+import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { useGameShopStore } from '@/stores/gameShop'
 import { errorMessage } from '@/i18n/errors'
-import { useI18n } from '@/i18n'
+import { LANGUAGE_TITLE, useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { GameItemSlot } from '@/api/gameShopTypes'
 
@@ -68,9 +71,13 @@ const initial = computed(() => (Array.from(name.value)[0] ?? '').toUpperCase())
 /** The sheet "How it works" (the same one Home shows to a newcomer). */
 const introOpen = ref(false)
 
+/** "Til · Язык": the row shows the current language by its own name (the settings' list), the sheet changes it. */
+const languageOpen = ref(false)
+const { currentLabel: languageLabel } = useLocaleSwitch()
+
 const isPro = computed(() => entitlement.value?.plan === 'pro')
 
-/** «Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «Бесплатный тариф: 20 новых слов в день». */
+/** «Pro до 1 декабря 2026 г.» / «Пробный Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «Бесплатный тариф: 20 новых слов в день». */
 const planLine = computed(() => {
   const current = entitlement.value
   if (current === null) return ''
@@ -78,6 +85,9 @@ const planLine = computed(() => {
   if (current.plan === 'pro') {
     const renewal = current.renewal ?? null
     if (renewal === null && current.source.startsWith('sponsor:')) return t('profile.plan.pro_center')
+
+    const trialEnd = trialEndsAt(current)
+    if (trialEnd !== null) return t('profile.plan.trial_until', { date: formatDate(trialEnd, 'dayMonthYear', locale.value) })
 
     const until = renewal?.ends_at ?? current.until
     return until
@@ -218,6 +228,14 @@ onMounted(() => {
           data-testid="row-billing"
         />
         <ListRow
+          icon="globe-alt"
+          tile="green"
+          :title="LANGUAGE_TITLE"
+          :value="languageLabel || locale.toUpperCase()"
+          data-testid="row-language"
+          @click="languageOpen = true"
+        />
+        <ListRow
           :to="{ name: 'settings' }"
           icon="cog-6-tooth"
           tile="gray"
@@ -248,5 +266,6 @@ onMounted(() => {
     </div>
 
     <IntroSheet v-if="introOpen" @close="introOpen = false" />
+    <LanguageSheet v-if="languageOpen" @close="languageOpen = false" />
   </div>
 </template>

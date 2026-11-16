@@ -114,6 +114,7 @@ final class TodayService
                 target: max(1, $learner->daily_goal),
                 done: $stats->reviews_count ?? 0,
                 met: $stats?->goal_met_at !== null,
+                metAt: $stats?->goal_met_at === null ? null : CarbonImmutable::instance($stats->goal_met_at),
             ),
             $this->streaks->current($learner, $today, $stats, $now, $entitlement, $dayRows),
         );

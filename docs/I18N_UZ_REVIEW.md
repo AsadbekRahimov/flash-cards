@@ -694,6 +694,8 @@
 | `billing.renewal.org_dm` | {1} «:organization» markazining obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date). | {1} Подписка центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка центра «:organization» заканчивается через :count дн. (:date). |
 | `billing.renewal.hint` | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang. | Продлите заранее, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.hint_canceled` | Avtoyangilash o'chirilgan, shuning uchun Pro o'zi yangilanmaydi. Cheklovsiz imkoniyatni yo'qotmaslik uchun oldindan yangilang. | Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит. |
+| `billing.renewal.trial_dm` (2C.9, черновик) | {1} Sinov LexiFlow Pro ertaga tugaydi (:date).\|[2,*] Sinov LexiFlow Pro :count kundan keyin tugaydi (:date). | {1} Пробный LexiFlow Pro заканчивается завтра (:date).\|[2,*] Пробный LexiFlow Pro заканчивается через :count дн. (:date). |
+| `billing.renewal.hint_trial` (2C.9, черновик) | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun Pro'ni rasmiylashtiring. | Оформите Pro, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.org_hint` | Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo'ladi. | После окончания у участников центра снова будет тариф Free. |
 | `billing.renewal.button` | Pro'ni uzaytirish | Продлить Pro |
 | `billing.renewal.mail.subject` | {1} «:organization» markazining obunasi ertaga tugaydi\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi | {1} Подписка центра «:organization» заканчивается завтра\|[2,*] Подписка центра «:organization» заканчивается через :count дн. |
@@ -1342,9 +1344,10 @@
 |---|---|---|
 | `referrals.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
 | `referrals.invite.text` | Do'stingizni LexiFlow'ga taklif qiling — :rule\n\nSizning havolangiz:\n:link | Пригласите друга в LexiFlow — :rule\n\nВаша ссылка:\n:link |
-| `referrals.invite.rule` | do'stingiz :days kun shug'ullansa (kuniga :reviews ta kartochkadan), ikkalangiz ham :reward kunlik Pro olasiz. | когда друг позанимается :days дня (от :reviews карточек в день), вы оба получите :reward дней Pro. |
+| `referrals.invite.rule` (2C.9, черновик) | do'stingiz tanishuvdan o'tib bir kunda :reviews ta kartochkani baholagach hisobga olinadi; :milestones do'st uchun har safar :reward kunlik Pro olasiz. | друг засчитывается, когда пройдёт знакомство и оценит :reviews карточек за день; за :milestones друзей вы получите по :reward дней Pro. |
 | `referrals.invite.no_link` | kod :code (havola administrator bot nomini ko'rsatgach paydo bo'ladi) | код :code (ссылка появится, когда администратор укажет имя бота) |
-| `referrals.invite.stats` | Havolangiz orqali kelganlar: :invited · shug'ullanayotganlar: :activated · mukofotlanganlar: :rewarded | Пришли по вашей ссылке: :invited · занимаются: :activated · награждены: :rewarded |
+| `referrals.invite.stats` (2C.9, черновик) | Havolangiz orqali kelganlar: :invited · hisobga olinganlar: :counted | Пришли по вашей ссылке: :invited · засчитаны: :counted |
+| `referrals.invite.next` (2C.9, черновик) | mukofotga yana :remaining ta do'st kerak (:friends tadan) | до награды ещё :remaining (из :friends) |
 | `referrals.invite.share_button` | Havolani ulashish | Поделиться ссылкой |
 | `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
 | `bot.help.private` (новая строка) | Do'stni taklif qilib Pro olish: /invite | Пригласить друга и получить Pro: /invite |
@@ -3657,3 +3660,183 @@
 | `today.new.course_done` | Bu kursda yangi so'z qolmadi | Новых слов в этом курсе не осталось |
 | `today.course.choose_other` | Boshqa kursni tanlash | Выбрать другой курс |
 | `finished.choose_course` | Kursni tanlash | Выбрать курс |
+
+## Напоминания о перерыве в занятиях (16.11.2026) — на проверку носителю
+
+Бот напоминает не больше одного раза в день: после 3 дней без занятий — «вы N дней не занимались», далее реже, после 60 дней — тишина. Ключи `reminders.review`, `reminders.streak_at_risk`, `reminders.open_button` без изменений.
+
+### Бот (`lang/uz/reminders.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.inactive_due` | LexiFlow: :count kundan beri shug'ullanmadingiz. Takrorlash kerak bo'lgan so'zlar: :due. Qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слов к повторению: :due. Хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.never_started` | Siz LexiFlow'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot atigi 5 daqiqa oladi. | Вы ещё не начали заниматься в LexiFlow. Первое занятие займёт всего 5 минут. |
+| `reminders.new_words` | Bugun LexiFlow'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli. | Сегодня вас ждут новые слова в LexiFlow. Хватит 5 минут. |
+| `reminders.choose_course` | Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang. | Выберите курс в LexiFlow, чтобы начать заниматься. |
+
+`:count` — число дней без занятий, `:due` — число слов к повторению. В каждом тексте после пустой строки — прежний хвост «Vaqtni o'zgartirish yoki o'chirish: /settings». Проверить: «kundan beri shug'ullanmadingiz» (N дней не занимались), «takrorlanmasa unutiladi» (без повторения забываются), «Takrorlash kerak bo'lgan so'zlar» (слова к повторению).
+
+## Язык в один тап и первый заход (16.11.2026) — на проверку носителю
+
+Смена языка вынесена на «Сегодня», в «Профиль» и в первое интро; «основной курс» везде заменён на «мой курс», кнопки каталога — «Начать курс» / «Перейти на этот курс». Заголовок листа языка «Til · Язык» (он же подпись чипа, строки профиля и переключателя в интро) намеренно двуязычный и одинаковый в обоих языках: в словаре его нет (`LANGUAGE_TITLE` в `src/i18n/index.ts`), потому что человек, не читающий текущий язык, должен узнать его по слову «Til» или «Язык».
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `intro.skip` | O'tkazib yuborish | Пропустить |
+| `today.start.title` | Keling, boshlaymiz! | Начнём! |
+| `today.start.text` | Kursni tanlang — har kuni yangi so'zlar o'rganasiz | Выберите курс — и каждый день будете учить новые слова |
+| `today.course.none` | Kurs tanlanmagan | Курс не выбран |
+| `catalog.start` | Kursni boshlash | Начать курс |
+| `catalog.choose` | Shu kursga o'tish | Перейти на этот курс |
+| `catalog.selected` | Kurs tanlandi | Курс выбран |
+| `catalog.active` | Siz shu kursni o'rganyapsiz | Вы учите этот курс |
+| `catalog.hint` | Har kuni yangi so'zlar — sizning kursingizdan | Каждый день новые слова — из вашего курса |
+| `settings.course` | Mening kursim | Мой курс |
+
+## Пробный Pro и Pro за приглашения (16.11.2026) — на проверку носителю
+
+Схема «вам и другу по 7 дней Pro» отменена. Теперь каждый новый ученик получает пробный Pro при регистрации, а пригласивший получает +7 дней Pro, когда засчитано 3 друга, и ещё +7, когда засчитано 6 (друг «засчитан», когда прошёл настройку в боте и оценил 10 карточек за один день). Тексты ниже заменяют строки `referrals.*` и `profile.referrals.hint` из прежних разделов (`referrals.hero`, `referrals.step2`, `referrals.step3`, `referrals.counts.rewarded`, `referrals.counts.capped` удалены). Числа (3, 6, 7, 10, 14) в строках подставляет сервер или они выводятся из ответа `GET /referrals`; в текстах «Сегодня», профиля и оплаты чисел нет намеренно. Проверить: «Pro oling» (получите Pro), «sinov Pro» (пробный Pro), «hisobga olindi / hisobga olinganlar» (засчитан / засчитаны), «Yana N ta do'st — va +7 kun Pro sizniki» (Ещё N друга — и +7 дней Pro ваши).
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `profile.referrals.hint` | Do'stlarni taklif qiling — Pro oling | Приглашайте друзей — получайте Pro |
+| `profile.plan.trial_until` | Sinov Pro {date} gacha | Пробный Pro до {date} |
+| `billing.trial_until` | Sinov davri {date} gacha. | Пробный период до {date} |
+| `lapsed.trial.title` | Sinov Pro tugadi | Пробный Pro закончился |
+| `lapsed.trial.text` | Pro'ni rasmiylashtiring yoki do'stlarni taklif qilib, Pro'ni bepul oling. | Оформите Pro или пригласите друзей и получите Pro бесплатно. |
+| `lapsed.trial.renew` | Pro'ni rasmiylashtirish | Оформить Pro |
+| `lapsed.invite` | Do'stlarni taklif qilish | Пригласить друзей |
+| `paywall.invite` | Yoki Pro'ni bepul oling — do'stlarni taklif qiling | Или получите Pro бесплатно — пригласите друзей |
+| `today.trial.line` | Sizda sinov Pro — yana {count} kun | У вас пробный Pro — ещё {count} дн. |
+| `today.trial.last` | Sinov Pro bugun tugaydi | Пробный Pro заканчивается сегодня |
+| `today.invite.text` | Do'stlarni taklif qiling — Pro'ni bepul oling | Пригласите друзей — получите Pro бесплатно |
+| `today.invite.more` | Bu qanday ishlaydi | Как это работает |
+| `today.invite.dismiss` | Yopish | Скрыть |
+| `referrals.title` | Do'stni taklif qilish | Пригласить друга |
+| `referrals.hero` | Do'stlarni taklif qiling — Pro oling | Приглашайте друзей — получайте Pro |
+| `referrals.link_label` | Sizning havolangiz | Ваша ссылка |
+| `referrals.code_label` | Sizning kodingiz | Ваш код |
+| `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
+| `referrals.share` | Ulashish | Поделиться |
+| `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
+| `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman. Havola orqali kiring — sinov davri uchun Pro'ni bepul olasiz | Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период |
+| `referrals.counts.invited` | Kelganlar | Пришли |
+| `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
+| `referrals.counts.counted` | Hisobga olinganlar | Засчитаны |
+| `referrals.list.title` | Taklif qilinganlar | Приглашённые |
+| `referrals.list.empty` | Havolangiz orqali hali hech kim kelmadi. | Пока никто не пришёл по вашей ссылке. |
+| `referrals.list.anonymous` | Do'st | Друг |
+| `referrals.status.pending` | hali boshlamagan | ещё не начал |
+| `referrals.status.activated` | shug'ullanmoqda | занимается |
+| `referrals.status.rewarded` | hisobga olindi | засчитан |
+| `referrals.progress.label` | Hisobga olingan do'stlar: {counted} / {total} | Засчитано друзей: {counted} из {total} |
+| `referrals.milestone.caption` | {friends} → +{days} kun Pro | {friends} → +{days} дн. Pro |
+| `referrals.milestone.done` | olindi | получено |
+| `referrals.milestone.paying` | hisoblanmoqda | начисляется |
+| `referrals.next.done` | Barcha mukofotlar olindi. Do'stlarni taklif qilayotganingiz uchun rahmat | Все награды получены. Спасибо, что зовёте друзей |
+| `referrals.step1` | Do'stingizga havolani yuboring | Отправьте другу ссылку |
+| `referrals.step2.day` | Do'stingiz botda sozlashni tugatadi va bir kunda {reviews} ta kartochkani baholaydi — havoladan o'tgandan keyin {window} kun ichida | Друг проходит настройку в боте и оценивает {reviews} карточек за один день — в течение {window} дн. после перехода по ссылке |
+| `referrals.step2.days` | Do'stingiz botda sozlashni tugatadi va {days} kun shug'ullanadi (kuniga kamida {reviews} ta kartochka) — havoladan o'tgandan keyin {window} kun ichida | Друг проходит настройку в боте и занимается {days} дн. (от {reviews} карточек в день) в течение {window} дн. после перехода по ссылке |
+| `referrals.step3.first` | Bepul Pro: {friends} — +{days} kun | Pro бесплатно: {friends} — +{days} дн. |
+| `referrals.step3.more` | {friends} — yana +{days} kun | {friends} — ещё +{days} дн. |
+| `referrals.friend_gets` | Do'st ro'yxatdan o'tganda sinov Pro oladi | Друг получает пробный Pro при регистрации |
+| `referrals.friends` | {count} ta do'st \| {count} ta do'st | {count} друг \| {count} друга \| {count} друзей \| {count} друга |
+| `referrals.for_friends` | {count} ta do'st uchun \| {count} ta do'st uchun | за {count} друга \| за {count} друга \| за {count} друзей \| за {count} друга |
+| `referrals.next` | Yana {count} ta do'st — va +{days} kun Pro sizniki \| Yana {count} ta do'st — va +{days} kun Pro sizniki | Ещё {count} друг — и +{days} дн. Pro ваши \| Ещё {count} друга — и +{days} дн. Pro ваши \| Ещё {count} друзей — и +{days} дн. Pro ваши \| Ещё {count} друга — и +{days} дн. Pro ваши |
+
+Плюральные ключи (`referrals.friends`, `referrals.for_friends`, `referrals.next`) показаны формами через «\|»: для uz формы совпадают (one = other).
+
+## Бот: пробный Pro, /invite и /language (16.11.2026) — на проверку носителю
+
+Пробный Pro новичку (7 дней), Pro за 3 и 6 засчитанных друзей, команда `/language`. Строки ниже **заменяют** прежние строки тех же ключей выше (черновики 2C.9 и «вам и другу»). Заголовок `/language` — «Tilni tanlang · Выберите язык» — двуязычный и одинаковый для обоих языков намеренно: собирается из `onboarding.settings.language_title` на uz и на ru (ниже строка uz). Проверить: «Pro'ni bepul oling», «hisobga olinadi» (засчитывается), «:count kun» без склонения числа, «ta do'stni» (винительный: пригласите N друзей).
+
+### Бот (`lang/uz/referrals.php`, `billing.php`, `onboarding.php`, `commands.php`, `bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.invite.text` | Do'stlaringizni LexiFlow'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link | Пригласите друзей в LexiFlow — получите Pro бесплатно.\n\n:rule\n\n:progress\n\nВаша ссылка:\n:link |
+| `referrals.invite.rule` | Do'st sozlashdan o'tib, bir kunda :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz. | Друг засчитывается, когда пройдёт настройку и оценит :cards за день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro. |
+| `referrals.invite.cards` | :count ta kartochkani | 10 карточек (:count карточку \| :count карточки \| :count карточек) |
+| `referrals.invite.and` | va | и (между вехами: «3 va 6») |
+| `referrals.invite.stats` | Havolangiz orqali kelganlar: :invited | Пришли по вашей ссылке: :invited |
+| `referrals.invite.next` | Hisobga olingan do'stlar: :counted / :target — +:days Pro'gacha yana :remaining ta do'st qoldi. | Засчитано друзей: :counted из :target — до +:days Pro осталось :remaining. |
+| `referrals.invite.owed` | Hisobga olingan do'stlar: :counted — +:days Pro mukofoti rasmiylashtirilmoqda. | Засчитано друзей: :counted — награда +:days Pro уже оформляется. |
+| `referrals.invite.done` | Hisobga olingan do'stlar: :counted. Takliflar uchun barcha mukofotlar olindi — rahmat! | Засчитано друзей: :counted. Все награды за приглашения получены — спасибо! |
+| `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul! | Учу английский в LexiFlow — присоединяйся, первые :trial Pro бесплатно! |
+| `referrals.invite.share_text_plain` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling! | Учу английский в LexiFlow — присоединяйся! |
+| `referrals.days` | :count kun | 7 дней (:count день \| :count дня \| :count дней) |
+| `referrals.friends_gen` | :count ta do'stni | 3 друзей (:count друга \| :count друзей \| :count друзей) |
+| `referrals.hint` | Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Пригласите друзей — получите Pro бесплатно: /invite |
+| `referrals.milestone.reached` | 🎉 :count ta do'stingiz o'rganishni boshladi — sizga +:days Pro (:date gacha). | 🎉 :count ваших друга/друзей начали заниматься — вам +:days Pro (до :date). |
+| `referrals.milestone.next` | Keyingi mukofotgacha yana :count ta do'st qoldi. | До следующей награды: ещё :count друга/друзей. |
+| `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite |
+| `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. | 🎁 Вам открыт Pro на :days — бесплатно, до :date. |
+| `billing.renewal.hint_trial` | Pro'ni yo'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do'stlaringizni taklif qiling (/invite). | Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite). |
+| `onboarding.settings.language_title` | Tilni tanlang | Выберите язык |
+| `commands.private.language` | Til | Язык / Til |
+| `commands.private.invite` | Do'stlarni taklif qilish | Пригласить друзей |
+| `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Готово! Ваш курс: :course. Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite |
+| `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Готово! Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite |
+| `onboarding.menu.text` | Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/language — til\n/invite — do'stlarni taklif qilish va Pro olish\n/promo KOD — Pro uchun promokod\n/help — yordam | Что дальше?\n/today — занятие на сегодня\n/settings — настройки\n/language — язык\n/invite — пригласить друзей и получить Pro\n/promo КОД — промокод на Pro\n/help — справка |
+| `bot.help.private` | (целиком, две строки заменены) • /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /language — tilni o'zgartirish<br>• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | • /settings — цель, уровень, часовой пояс, напоминания<br>• /language — сменить язык / Tilni o'zgartirish<br>• Пригласите друзей — получите Pro бесплатно: /invite |
+
+## Рейтинг месяца в Mini App (16.11.2026) — на проверку носителю
+
+Вкладка «Рейтинг» получила переключатель «Лига | Месяц | Друзья»; экран месяца — призы, моё место, топ, прошлый месяц; на экране итога занятия — «+N ball» и строка месяца. Склонения в ru — по числу; в uz после числительных ничего не меняется. Заголовок месяца («2026-yil noyabr») собирается кодом, не строкой словаря.
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `month.tab` | Oy | Месяц |
+| `month.days_left` | Oy tugashiga {count} kun qoldi | До конца месяца — {count} дн. |
+| `month.last_day` | Bugun oyning oxirgi kuni | Сегодня последний день месяца |
+| `month.closing` | Oy yakunlari hisoblanmoqda | Итоги месяца подводятся |
+| `month.disabled` | Oylik reyting tez orada paydo bo'ladi | Рейтинг месяца скоро появится |
+| `month.prizes` | Sovrinlar | Призы |
+| `month.prize_place` | {place}-o'rin — {title} | {place} место — {title} |
+| `month.prizes_note` | Sovrinlar natijalar tekshirilgandan keyin topshiriladi | Призы вручаются после проверки результатов |
+| `month.points.one/other` | {count} ball | {count} балл |
+| `month.my_place` | Siz {rank}-o'rindasiz · {points} | Вы на {rank} месте · {points} |
+| `month.my_noplace` | Hozircha o'rin yo'q · {points} | Пока без места · {points} |
+| `month.start_prompt` | Mashg'ulotni boshlang — oylik reytingga kirasiz | Начните заниматься — и попадёте в рейтинг месяца |
+| `month.opted_out` | Siz reytinglarda qatnashmayapsiz. Sozlamalarda yoqish mumkin | Вы не участвуете в рейтингах. Включить можно в настройках |
+| `month.missing_days` | Sovrin uchun shu oyda yana {count} kun shug'ullanish kerak | Для приза нужно заниматься ещё {count} дн. в этом месяце |
+| `month.missing_account` | Sovrin uchun akkaunt kamida {count} kunlik bo'lishi kerak | Для приза аккаунту должно быть не меньше {count} дн. |
+| `month.eligible` | Siz sovrinlar o'yinida qatnashyapsiz | Вы участвуете в розыгрыше призов |
+| `month.top` | Oy topi | Топ месяца |
+| `month.empty` | Bu oyda hozircha hech kim ball to'plamagan | Пока никто не набрал баллов в этом месяце |
+| `month.rules_title` | Ballar qanday hisoblanadi | Как начисляются баллы |
+| `month.rules_points` | Ballar kartochkalarni takrorlash, to'g'ri javoblar, yangi so'zlar va bajarilgan kunlik maqsad uchun beriladi — haftalik ligadagi kabi. Oylik reytingga kuniga ko'pi bilan {cap} ball hisoblanadi. | Баллы дают за повторение карточек, верные ответы, новые слова и выполненную цель дня — те же, что в недельной лиге. В рейтинг месяца идёт не больше {cap} баллов в день. |
+| `month.rules_prize` | Sovrinni 1-dan {places}-o'ringacha egallaganlar oladi, agar oy davomida kamida {days} kun shug'ullangan bo'lsangiz va akkauntingiz kamida {account} kunlik bo'lsa. | Призы получают места с 1 по {places}, если за месяц вы занимались не меньше {days} дн., а аккаунту не меньше {account} дн. |
+| `month.last_winners` | G'oliblar: {month} | Победители: {month} |
+| `month.last_pending` | Oy yakunlari ({month}) tekshirilmoqda | Итоги месяца ({month}) проверяются |
+| `month.last_me` | Sizning o'rningiz: {rank} | Ваше место: {rank} |
+| `finished.points_earned.one/other` | +{count} ball | +{count} балл |
+| `finished.month_line` | Oylik reytingda: {rank}-o'rin · {points} | В рейтинге месяца: {rank} место · {points} |
+
+### Бот, ЛС победителям месячного рейтинга (`lang/uz/leagues.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.month.label` | :year-yil :name | :name :year (ноябрь 2026) |
+| `leagues.month.names.1` | yanvar | январь |
+| `leagues.month.names.2` | fevral | февраль |
+| `leagues.month.names.3` | mart | март |
+| `leagues.month.names.4` | aprel | апрель |
+| `leagues.month.names.5` | may | май |
+| `leagues.month.names.6` | iyun | июнь |
+| `leagues.month.names.7` | iyul | июль |
+| `leagues.month.names.8` | avgust | август |
+| `leagues.month.names.9` | sentyabr | сентябрь |
+| `leagues.month.names.10` | oktyabr | октябрь |
+| `leagues.month.names.11` | noyabr | ноябрь |
+| `leagues.month.names.12` | dekabr | декабрь |
+| `leagues.month.points` | :count ball | :count балл / балла / баллов |
+| `leagues.month.won` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. Sovg'angiz: :prize. Uni topshirish uchun Telegram orqali siz bilan bog'lanamiz. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. Ваш приз: :prize. Мы свяжемся с вами в Telegram, чтобы вручить его. |
+| `leagues.month.won_plain` | 🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. | 🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. (без приза) |

@@ -9,7 +9,8 @@ use App\Domain\Learners\Enums\ReminderKind;
 /**
  * What the reminder job decided to say (docs/12 §7.5): the kind plus the numbers
  * the message is built from. `dueCount` is always the learner's current due count,
- * whatever the kind — it goes to `reminder.sent` for analytics.
+ * whatever the kind — it goes to `reminder.sent` for analytics. `idleDays` is the number
+ * of local days without reviews (0 = studied today).
  */
 final readonly class ReminderContent
 {
@@ -17,5 +18,6 @@ final readonly class ReminderContent
         public ReminderKind $kind,
         public int $dueCount,
         public int $streakCurrent,
+        public int $idleDays = 0,
     ) {}
 }

@@ -276,5 +276,21 @@ return [
          * Read as at least 1.
          */
         'send_rate_per_second' => (int) env('REMINDERS_SEND_RATE_PER_SECOND', 25),
+
+        /**
+         * Break in learning (owner decision 2026-11-16, docs/12 §7.5). `idle` = local days since
+         * the last day with reviews. From `winback_from_days` the text becomes "N days without
+         * lessons"; up to `daily_until_days` a reminder goes out every day, after that only on
+         * the `sparse_days`; beyond `stop_after_days` the bot stays silent (a learner who left
+         * for good would otherwise block it). Each is read as at least 1; the list is
+         * filtered to positive integers.
+         */
+        'winback_from_days' => max(1, (int) env('REMINDERS_WINBACK_FROM_DAYS', 3)),
+        'daily_until_days' => max(1, (int) env('REMINDERS_DAILY_UNTIL_DAYS', 7)),
+        'sparse_days' => array_values(array_filter(
+            array_map('intval', explode(',', (string) env('REMINDERS_SPARSE_DAYS', '10,14,21,30,45,60'))),
+            static fn (int $day): bool => $day > 0,
+        )),
+        'stop_after_days' => max(1, (int) env('REMINDERS_STOP_AFTER_DAYS', 60)),
     ],
 ];

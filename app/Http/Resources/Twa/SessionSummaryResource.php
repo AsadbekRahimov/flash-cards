@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Practice\DTO\PracticeEntry;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 /**
  * POST /api/twa/training/sessions/{id}/finish: what the learner did in the session plus the goal
- * and streak of the current local day (TodayService::progress) and the entry to the practice of the lesson / of the
- * course (`practice_entry`, docs/16 §11.1: `null` when there is none).
+ * and streak of the current local day (TodayService::progress), the entry to the practice of the lesson / of the
+ * course (`practice_entry`, docs/16 §11.1: `null` when there is none) and `league_points` — what the session brought to
+ * the leagues and the monthly rating (docs/13 §7.6): the one formula of {@see LeaguePoints} over the session's own
+ * numbers, plus the goal bonus when the daily goal was met during this session. No statement of its own: everything
+ * is in hand already (the monthly place is a separate light request, `GET /league/month/me`).
  *
  * @property array{summary: SessionSummary, progress: DailyProgress, practice_entry: PracticeEntry|null} $resource
  */
@@ -23,7 +28,8 @@ final class SessionSummaryResource extends TwaResource
      *   reviewed: int, correct: int, new_words: int,
      *   goal: array{target: int, done: int, met: bool},
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
-     *   practice_entry: array{course: string, lesson_id: int|null}|null
+     *   practice_entry: array{course: string, lesson_id: int|null}|null,
+     *   league_points: int
      * }
      */
     public function toArray(Request $request): array
@@ -38,6 +44,16 @@ final class SessionSummaryResource extends TwaResource
             'goal' => $progress->goal->toArray(),
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),
+            'league_points' => LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
         ];
+    }
+
+    /** The goal was met while this session ran: `goal_met_at` is at or after the session's start. */
+    private function goalMetInSession(SessionSummary $summary, DailyProgress $progress): bool
+    {
+        $metAt = $progress->goal->metAt;
+        $startedAt = $summary->session->started_at;
+
+        return $metAt !== null && ! $metAt->isBefore(CarbonImmutable::instance($startedAt));
     }
 }

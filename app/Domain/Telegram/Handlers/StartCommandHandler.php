@@ -19,10 +19,12 @@ use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TelegramAccountLinkService;
 use App\Domain\Telegram\Services\TodayScreen;
+use App\Domain\Telegram\Services\TrialWelcomeMessenger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Throwable;
 
 /**
  * `/start [payload]` in a DM (docs/12 §7.1). A linked teacher gets the greeting as before; anyone
@@ -30,7 +32,8 @@ use Carbon\CarbonImmutable;
  * starts — or, for a learner who has finished it, the "Today" screen is shown. An `org_<code>` link
  * (docs/13 §6.2) adds a "Join center X?" question: at once for a learner who has finished the
  * onboarding, after its last step otherwise; a code that cannot be used is explained and ignored.
- * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
+ * The welcome trial (docs/13 §7.1 "2C.9") is announced once, after the onboarding (here for a learner who has finished it, else
+ * before its closing message): the language is chosen by then and no question is pending. A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
  * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
  * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
  * question after the last step (the code is remembered) for one who has not. A `link_<token>` link (docs/13 §6.2) is not a
@@ -51,6 +54,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly FriendsMessenger $friends,
         private readonly AccountRestoreNotice $restoreNotice,
         private readonly TelegramAccountLinkService $accountLinks,
+        private readonly TrialWelcomeMessenger $trialWelcome,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -135,6 +139,10 @@ final class StartCommandHandler implements UpdateHandler
         $friendCode = $payload->friendCode();
 
         if ($learner->onboarding_state === OnboardingService::DONE) {
+            // The welcome trial (docs/13 §7.1 "2C.9") of a learner who finished the onboarding elsewhere (the Mini App) and
+            // has not been told yet; whoever is still in the onboarding hears it before the closing message (OnboardingCallbackHandler).
+            $this->announceTrial($learner, $chatId);
+
             if ($friendCode !== null) {
                 // The invitation is why they came: the question replaces "Today".
                 $this->friends->offer($learner, $chatId, $friendCode);
@@ -165,6 +173,16 @@ final class StartCommandHandler implements UpdateHandler
         }
 
         $this->messenger->resume($learner, $chatId, $payload, greet: true);
+    }
+
+    /** The one-shot "you have a week of Pro" DM; a failure of it must not take the answer to `/start` with it. */
+    private function announceTrial(Learner $learner, int $chatId): void
+    {
+        try {
+            $this->trialWelcome->announce($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /**

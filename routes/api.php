@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\Twa\GameWalletController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
+use App\Http\Controllers\Api\Twa\MonthlyRatingController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -59,6 +60,9 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');
+        // The monthly rating with prizes (docs/13 §7.6, docs/04 A.19): the rating, and the viewer's own line for the finish screen.
+        Route::get('/league/month', [MonthlyRatingController::class, 'show'])->name('twa.league.month');
+        Route::get('/league/month/me', [MonthlyRatingController::class, 'me'])->name('twa.league.month.me');
 
         // Achievements (docs/13 §7.4, docs/04 A.13).
         Route::get('/achievements', [AchievementController::class, 'index'])->name('twa.achievements');

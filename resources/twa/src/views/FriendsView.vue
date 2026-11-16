@@ -16,6 +16,7 @@ import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -173,10 +174,7 @@ async function declineBattle(invitation: BattleIncoming): Promise<void> {
   await battles.declineInvitation(invitation.id)
 }
 
-const ratingTabs = computed(() => [
-  { to: { name: 'league' }, label: t('league.title'), testid: 'seg-league' },
-  { to: { name: 'friends' }, label: t('friends.title'), testid: 'seg-friends' },
-])
+const ratingTabs = useRatingTabs()
 
 const METRICS: ChallengeMetric[] = ['reviews', 'new_words']
 

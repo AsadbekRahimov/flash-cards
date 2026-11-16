@@ -51,6 +51,8 @@ import type {
   Quality,
   ReferralsResponse,
   LeagueResponse,
+  MonthlyRatingResponse,
+  MonthlyRatingMeResponse,
   FriendsResponse,
   ChallengesResponse,
   ChallengeItem,
@@ -140,6 +142,8 @@ export const api = {
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
+    month: () => client().get<MonthlyRatingResponse>('/league/month'),
+    monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me'),
   },
   achievements: {
     list: () => client().get<AchievementsResponse>('/achievements'),

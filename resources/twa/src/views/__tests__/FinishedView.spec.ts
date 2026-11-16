@@ -9,11 +9,11 @@ import { ApiClientError } from '@/api/client'
 import { ICONS } from '@/components/ui/icons'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
-import type { SessionSummary } from '@/api/types'
+import type { MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
-  api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn() } },
+  api: { league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn() } },
 }))
 
 const telegram = vi.hoisted(() => ({ close: vi.fn(), notificationHaptic: vi.fn() }))
@@ -25,6 +25,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'landing', component: { template: '<div />' } },
     { path: '/today', name: 'today', component: { template: '<div />' } },
+    { path: '/league/month', name: 'league-month', component: { template: '<div />' } },
     { path: '/courses', name: 'courses', component: { template: '<div />' } },
     { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
@@ -561,5 +562,76 @@ describe('FinishedView', () => {
     await home.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('today')
+  })
+
+  describe('league points and the month line (docs/13 §7.6)', () => {
+    const mine = (me: MonthlyRatingMeResponse['me'], enabled = true): MonthlyRatingMeResponse => ({
+      enabled,
+      month: { starts_on: '2026-11-01', ends_on: '2026-11-30', days_left: 14 },
+      me,
+    })
+    const placed = { rank: 12, points: 340, active_days: 5, participant: true, eligible: false, missing: { active_days: 2, account_days: 0 } }
+
+    function renderWith(summaryValue: SessionSummary | null) {
+      useTrainingStore().summary = summaryValue
+      return render(summaryValue?.reviewed ?? 3, 1)
+    }
+
+    it('shows "+35 баллов" next to the stats, then the month line with a link to the month screen', async () => {
+      vi.mocked(api.league.monthMe).mockResolvedValue(mine(placed))
+      const w = renderWith(summary({ league_points: 35 }))
+      await flushPromises()
+
+      expect(w.get('[data-testid=points-earned]').text()).toBe('+35 баллов')
+      expect(w.get('[data-testid=month-line]').text()).toBe('В рейтинге месяца: 12 место · 340 баллов')
+      expect(w.get('[data-testid=month-line]').attributes('href')).toBe('/league/month')
+    })
+
+    it('says "+35 ball" in Uzbek', async () => {
+      setLocale('uz')
+      vi.mocked(api.league.monthMe).mockResolvedValue(mine(placed))
+      const w = renderWith(summary({ league_points: 35 }))
+      await flushPromises()
+
+      expect(w.get('[data-testid=points-earned]').text()).toBe('+35 ball')
+      expect(w.get('[data-testid=month-line]').text()).toBe("Oylik reytingda: 12-o'rin · 340 ball")
+    })
+
+    it('has no points line for 0 points or an older server, but still shows the month line', async () => {
+      vi.mocked(api.league.monthMe).mockResolvedValue(mine(placed))
+      expect(renderWith(summary({ league_points: 0 })).find('[data-testid=points-earned]').exists()).toBe(false)
+      expect(renderWith(summary()).find('[data-testid=points-earned]').exists()).toBe(false)
+    })
+
+    it('shows no month line when the request fails, and the screen stays intact', async () => {
+      vi.mocked(api.league.monthMe).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+      const w = renderWith(summary({ league_points: 35 }))
+      await flushPromises()
+
+      expect(w.find('[data-testid=month-line]').exists()).toBe(false)
+      expect(w.get('[data-testid=points-earned]').text()).toBe('+35 баллов')
+    })
+
+    it.each([
+      ['me is null', mine(null)],
+      ['rank is null', mine({ ...placed, rank: null })],
+      ['the rating is off', mine(placed, false)],
+    ])('shows no month line when %s', async (_name, response) => {
+      vi.mocked(api.league.monthMe).mockResolvedValue(response)
+      const w = renderWith(summary({ league_points: 10 }))
+      await flushPromises()
+
+      expect(w.find('[data-testid=month-line]').exists()).toBe(false)
+    })
+
+    it('asks for nothing in a group lesson (no summary) or after an empty session', async () => {
+      const group = renderWith(null)
+      const empty = renderWith(summary({ reviewed: 0, correct: 0, new_words: 0 }))
+      await flushPromises()
+
+      expect(api.league.monthMe).not.toHaveBeenCalled()
+      expect(group.find('[data-testid=points-earned]').exists()).toBe(false)
+      expect(empty.find('[data-testid=month-line]').exists()).toBe(false)
+    })
   })
 })

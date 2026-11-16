@@ -52,8 +52,8 @@ return [
     ],
 
     'done' => [
-        'text' => "Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.",
-        'text_plain' => "Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.",
+        'text' => "Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite",
+        'text_plain' => "Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite",
         'button' => "🎯 Birinchi mashg'ulotni boshlash",
     ],
 
@@ -72,11 +72,12 @@ return [
     ],
 
     'menu' => [
-        'text' => "Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/promo KOD — Pro uchun promokod\n/help — yordam",
+        'text' => "Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/language — til\n/invite — do'stlarni taklif qilish va Pro olish\n/promo KOD — Pro uchun promokod\n/help — yordam",
     ],
 
     'settings' => [
         'menu' => "Nimani o'zgartirmoqchisiz?",
+        'language_title' => 'Tilni tanlang',
         'saved' => 'Saqlandi.',
         'timezone_too_soon' => "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha).",
         'timezone_undo' => 'Bekor qilish',

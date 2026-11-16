@@ -11,10 +11,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
 /**
- * Grants the referral reward to both sides (docs/13 §2.4). Idempotent: {@see ReferralService::reward()}
- * claims the referral once and records every granted side in `meta.rewards`, so a retry after a
- * partial failure (the second transaction died) only grants what is still missing, and a duplicate
- * job does nothing.
+ * Counts an activated referral for its inviter and settles the milestones it completes (docs/13 §2.4, §7.1 "2C.9").
+ * Idempotent: {@see ReferralService::reward()} claims the referral once (`activated` → `rewarded`), the milestone
+ * rows are unique per (inviter, milestone) and each is granted under its own lock, so a retry after a partial
+ * failure settles only what is still owed, and a duplicate job does nothing.
  */
 final class RewardReferralJob implements ShouldQueue
 {

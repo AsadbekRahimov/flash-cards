@@ -4,6 +4,8 @@ import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ME_FRESH_MS, useBillingStore } from '../billing'
+import { useSettingsStore } from '../settings'
+import { getLocale } from '@/i18n'
 import type { MeResponse, PracticeAccess, PracticeLimitHit, ProPromise } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { counter, freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
@@ -38,6 +40,17 @@ describe('billing store', () => {
     expect(billing.entitlement?.new_words_per_day).toBe(20)
     expect(billing.paywall?.contact).toBe('@lexiflow_help')
     expect(billing.loading).toBe(false)
+  })
+
+  it('hands the settings of /me to the settings store without switching the interface language', async () => {
+    vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ interface_locale: 'uz' }) })
+    const settings = useSettingsStore()
+
+    await useBillingStore().load()
+
+    expect(settings.data?.interface_locale).toBe('uz')
+    expect(settings.status).toBe('ready')
+    expect(getLocale()).toBe('ru')
   })
 
   it('warns, keeps what it had and does not throw when /me fails', async () => {

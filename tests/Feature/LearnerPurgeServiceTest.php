@@ -332,7 +332,10 @@ it('lets the same Telegram user start afresh after the purge: a new learner that
         ->and($fresh->onboarding_state)->toBe('new')
         ->and($fresh->streak_current)->toBe(0)
         ->and(Learner::withTrashed()->where('telegram_user_id', 777_001)->count())->toBe(1)
-        ->and(app(SubscriptionService::class)->liveFor($fresh))->toBeNull()
+        // Nothing of the old Stars subscription: the only live row is the welcome trial of a new learner (docs/13 §7.1 "2C.9")
+        // — this account never had one (the old row was a learner of before the launch).
+        ->and(app(SubscriptionService::class)->liveFor($fresh)?->provider)->toBe('trial')
+        ->and(Subscription::query()->where('subscriber_id', $fresh->id)->count())->toBe(1)
         ->and(WordRepetition::query()->where('learner_id', $fresh->id)->count())->toBe(0)
         ->and(Friendship::query()->where('learner_id', min($fresh->id, $friend->id))->where('friend_id', max($fresh->id, $friend->id))->count())->toBe(0)
         ->and(OrganizationMember::query()->where('learner_id', $fresh->id)->count())->toBe(0)

@@ -6,6 +6,7 @@ import CoursesView from '../CoursesView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
 import type { Course } from '@/api/types'
 
 const tg = vi.hoisted(() => ({ showBack: vi.fn(), hideBack: vi.fn() }))
@@ -46,6 +47,7 @@ async function render() {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
+      { path: '/today', name: 'today', component: stub },
       { path: '/courses', name: 'courses', component: stub },
       { path: '/courses/:slug', name: 'course', component: stub },
       { path: '/decks', name: 'decks', component: stub },
@@ -69,11 +71,15 @@ describe('CoursesView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useToast().hide()
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    setLocale('ru')
+    useToast().hide()
+  })
 
   describe('heading and switch', () => {
-    it('has a large "Курсы" heading, the Courses | My decks switch and the hint about the main course', async () => {
+    it('has a large "Курсы" heading, the Courses | My decks switch and the hint about the learner course', async () => {
       vi.mocked(api.courses.list).mockResolvedValue({ courses: [course()] })
 
       const { wrapper } = await render()
@@ -90,7 +96,7 @@ describe('CoursesView', () => {
       expect(decks.attributes('href')).toBe('/decks')
       expect(decks.attributes('aria-current')).toBeUndefined()
 
-      expect(wrapper.get('[data-testid=hint]').text()).toBe('Новые слова для ежедневного занятия берутся из основного курса')
+      expect(wrapper.get('[data-testid=hint]').text()).toBe('Каждый день новые слова — из вашего курса')
     })
 
     it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
@@ -189,7 +195,7 @@ describe('CoursesView', () => {
   })
 
   describe('the main course', () => {
-    it('marks the main course with a chip and offers "Сделать основным" on the others', async () => {
+    it('marks the learner course with a chip and offers "Перейти на этот курс" on the others', async () => {
       vi.mocked(api.courses.list).mockResolvedValue({
         courses: [course({ is_active: true }), course({ slug: 'other', title: 'Other' })],
       })
@@ -198,35 +204,45 @@ describe('CoursesView', () => {
 
       const active = wrapper.get('[data-testid=course-english-a1]')
       const badge = active.get('[data-testid=active-badge]')
-      expect(badge.text()).toBe('Основной курс')
+      expect(badge.text()).toBe('Вы учите этот курс')
       expect(badge.element.tagName).toBe('SPAN')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       expect(badge.find('svg').exists()).toBe(true)
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
 
       const choose = wrapper.get('[data-testid=course-other] [data-testid=choose-btn]')
-      expect(choose.text()).toBe('Сделать основным')
+      expect(choose.text()).toBe('Перейти на этот курс')
       expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
       expect(wrapper.find('[data-testid=course-other] [data-testid=active-badge]').exists()).toBe(false)
     })
 
-    it('selects a course and moves the main mark to it', async () => {
+    it('offers "Начать курс" on every course while the learner has none', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course(), course({ slug: 'other', title: 'Other' })] })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.findAll('[data-testid=choose-btn]').map((b) => b.text())).toEqual(['Начать курс', 'Начать курс'])
+    })
+
+    it('selects a course, moves the mark to it and leads to Today with "Курс выбран"', async () => {
       vi.mocked(api.courses.list).mockResolvedValue({
         courses: [course({ is_active: true }), course({ slug: 'other', title: 'Other', progress: { done: 1, total: 4 } })],
       })
       vi.mocked(api.courses.select).mockResolvedValue(course({ slug: 'other', title: 'Other', is_active: true, progress: { done: 1, total: 4 } }))
 
-      const { wrapper } = await render()
+      const { wrapper, router } = await render()
       await wrapper.get('[data-testid=course-other] [data-testid=choose-btn]').trigger('click')
       await flushPromises()
 
       expect(api.courses.select).toHaveBeenCalledWith('other')
+      expect(router.currentRoute.value.name).toBe('today')
+      expect(useToast().toast.value?.text).toBe('Курс выбран')
       expect(wrapper.find('[data-testid=course-other] [data-testid=active-badge]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=course-english-a1] [data-testid=active-badge]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=course-english-a1] [data-testid=choose-btn]').exists()).toBe(true)
     })
 
-    it('disables every "Сделать основным" while a selection is in flight', async () => {
+    it('disables every choose button while a selection is in flight', async () => {
       vi.mocked(api.courses.list).mockResolvedValue({
         courses: [course({ is_active: true }), course({ slug: 'b', title: 'B' }), course({ slug: 'c', title: 'C' })],
       })
@@ -252,10 +268,12 @@ describe('CoursesView', () => {
         new ApiClientError('not_found', 404, 'course_not_found', 'Course not found.'),
       )
 
-      const { wrapper } = await render()
+      const { wrapper, router } = await render()
       await wrapper.get('[data-testid=choose-btn]').trigger('click')
       await flushPromises()
 
+      expect(router.currentRoute.value.name).toBe('courses')
+      expect(useToast().toast.value).toBeNull()
       const alert = wrapper.get('[data-testid=select-error]')
       expect(alert.text()).toBe('Курс не найден или недоступен.')
       expect(alert.attributes('role')).toBe('alert')
@@ -332,11 +350,11 @@ describe('CoursesView', () => {
 
     expect(wrapper.get('h1').text()).toBe('Kurslar')
     expect(wrapper.get('[data-testid=seg-decks]').text()).toBe("Mening to'plamlarim")
-    expect(wrapper.get('[data-testid=hint]').text()).toBe("Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi")
+    expect(wrapper.get('[data-testid=hint]').text()).toBe("Har kuni yangi so'zlar — sizning kursingizdan")
     const first = wrapper.get('[data-testid=course-english-a1]')
     expect(chips(first.get('[data-testid=meta]')).map((c) => c.text)).toEqual(['A1', 'Umumiy ingliz tili', "5 ta so'z"])
     expect(first.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
-    expect(first.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
-    expect(wrapper.get('[data-testid=course-a] [data-testid=active-badge]').text()).toBe('Asosiy kurs')
+    expect(first.get('[data-testid=choose-btn]').text()).toBe("Shu kursga o'tish")
+    expect(wrapper.get('[data-testid=course-a] [data-testid=active-badge]').text()).toBe("Siz shu kursni o'rganyapsiz")
   })
 })

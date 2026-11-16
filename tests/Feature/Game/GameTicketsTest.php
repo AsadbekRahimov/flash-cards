@@ -75,7 +75,7 @@ function gameTicketLedger(Learner $learner): array
         ->map(fn (GameTicketLedgerEntry $e): array => ['delta' => $e->delta, 'source' => $e->source->value, 'key' => $e->idempotency_key])->all();
 }
 
-/** An activated referral of a fresh learner, rewarded by the service (both sides), the way the job does it. */
+/** An activated referral of a fresh learner, counted by the service (the milestone scheme of 2C.9), the way the job does it. */
 function gameTicketReferral(Learner $inviter, ?Learner $referee = null, bool $flagged = false): Referral
 {
     $referral = Referral::factory()->activated()->create([
@@ -199,7 +199,8 @@ it('gives the inviter 3 tickets for a rewarded referral, once - a repeat of the 
     expect(gameTickets()->grantForReferral($referral->refresh())?->applied)->toBeFalse()
         ->and(gameTickets()->balance($inviter->id))->toBe(3)
         ->and(GameTicketLedgerEntry::query()->count())->toBe(1)
-        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(1);
+        // The tickets are per counted friend; the days of Pro come by milestones (docs/13 §7.1 "2C.9"), not for one friend.
+        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(0);
     expectGameTicketInvariant($inviter);
 });
 

@@ -59,10 +59,16 @@ enum ProductEventName: string
     case ReferralLinked = 'referral.linked';
     /** The invited learner studied enough (props: referral_id, active_days). */
     case ReferralActivated = 'referral.activated';
-    /** Both sides were granted (or skipped: perpetual Pro) their reward (props: referral_id, days, referee_skipped, referrer_skipped — `referrer_capped` when the inviter's cap was reached). */
-    case ReferralRewarded = 'referral.rewarded';
+    /** The invited learner was counted towards the inviter's milestones (props: referral_id, referrer_learner_id, counted — the friend's number; docs/13 §7.1 "2C.9"). Until 2C.9 `referral.rewarded` marked the per-friend reward of both sides. */
+    case ReferralCounted = 'referral.counted';
+    /** The inviter reached a milestone and its reward was settled (props: milestone, days, referral_id, subscription_id, skipped — perpetual / learner_missing / learner_deleted / learner_blocked); actor = the inviter. */
+    case ReferralMilestoneReached = 'referral.milestone_reached';
     /** A referral was refused (props: reason — self / existing_learner / unknown_code / flagged; legacy referrer_capped). */
     case ReferralRejected = 'referral.rejected';
+    /** The welcome trial of a new learner was granted (props: days, subscription_id, ends_at, extended — docs/13 §7.1 "2C.9"). */
+    case TrialGranted = 'trial.granted';
+    /** A learner eligible by the row was refused the trial (props: reason — already_used: this Telegram account had one before). */
+    case TrialRefused = 'trial.refused';
     case DailyGoalMet = 'daily_goal.met';
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
@@ -70,6 +76,15 @@ enum ProductEventName: string
     /** Leagues (docs/13 §7.3): a learner joined a group of the week / a week was closed (no learner). */
     case LeaguePlaced = 'league.placed';
     case LeagueWeekClosed = 'league.week_closed';
+    /** Monthly rating (docs/13 §7.6): a month was closed into `pending_review` (props: month_id, starts_on, participants, candidates; no learner). */
+    case LeagueMonthClosed = 'league.month_closed';
+    /** An administrator confirmed the winners of a month (props: month_id, starts_on, winners; actor = the user). */
+    case LeagueMonthConfirmed = 'league.month_confirmed';
+    /** A candidate was disqualified / taken back by an administrator (props: month_id, candidate_id, rank; actor = the user, the learner). */
+    case LeagueMonthCandidateDisqualified = 'league.month_candidate_disqualified';
+    case LeagueMonthCandidateReinstated = 'league.month_candidate_reinstated';
+    /** A prize of a confirmed winner was marked as delivered (props: month_id, candidate_id, place; actor = the user, the learner). */
+    case LeagueMonthPrizeDelivered = 'league.month_prize_delivered';
     /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
     case FriendRequested = 'friend.requested';
     /** A friend request was accepted (props: friendship_id); actor = the acceptor. */

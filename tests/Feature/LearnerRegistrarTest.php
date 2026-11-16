@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Services\ProTrialService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Models\Learner;
@@ -284,15 +285,20 @@ it('schedules the first reminder at creation from the default zone and time, or 
         ->and($off->next_reminder_at)->toBeNull();
 });
 
-it('creates the learner with an empty JSON object in meta, as the column default does, not an empty array', function (): void {
-    $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4090, 'first_name' => 'Alex']);
-
-    $raw = DB::table('learners')->where('id', $learner->id)->value('meta');
-
+it('creates the learner with a JSON object in meta, as the column default does, not an empty array', function (): void {
+    // The marker of the welcome trial (docs/13 §7.1 "2C.9") is the first key of every new row; a passive event leaves it
+    // pending, an own contact turns it into the one-shot notice of the granted trial. Either way `meta` is an object.
+    $observed = app(LearnerRegistrar::class)->observeTelegramUser(['id' => 4091, 'first_name' => 'Bek']);
+    $raw = DB::table('learners')->where('id', $observed?->id)->value('meta');
     expect(json_decode((string) $raw, false))->toBeObject()
-        ->and(str_replace(' ', '', (string) $raw))->toBe('{}')
-        ->and($learner->meta)->toBe([])
-        ->and($learner->fresh()?->meta)->toBe([]);
+        ->and($observed?->meta)->toBe([ProTrialService::META_PENDING => true])
+        ->and($observed?->fresh()?->meta)->toBe([ProTrialService::META_PENDING => true]);
+
+    $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4090, 'first_name' => 'Alex']);
+    $raw = DB::table('learners')->where('id', $learner->id)->value('meta');
+    expect(json_decode((string) $raw, false))->toBeObject()
+        ->and(array_keys($learner->meta))->toBe([ProTrialService::META_NOTICE])
+        ->and($learner->fresh()?->meta)->toBe($learner->meta);
 
     // A later write of real content keeps working through the array cast.
     $learner->forceFill(['meta' => ['locale_chosen' => true]])->save();

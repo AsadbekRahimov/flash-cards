@@ -78,6 +78,7 @@ function routerOf() {
       { path: '/battles/new', name: 'battle-new', component: stub },
       { path: '/battles/:id(\\d+)', name: 'battle', component: stub },
       { path: '/friends', name: 'friends', component: stub },
+      { path: '/league/month', name: 'league-month', component: stub },
       { path: '/league', name: 'league', component: stub },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: stub },
     ],
