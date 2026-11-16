@@ -6,6 +6,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Learner;
 use App\Models\Referral;
+use App\Models\ReferralMilestone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\FakeTelegramClient;
@@ -47,8 +48,10 @@ it('answers /invite with the link, the milestone rule, the counts and a share bu
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['text'])->toContain("https://t.me/LexiFlowBot?start=ref_{$code}")
         ->and($this->tg->sent[0]['text'])->toContain('10 карточек')
-        ->and($this->tg->sent[0]['text'])->toContain('за 3, 6 друзей вы получите по 7 дней Pro')
-        ->and($this->tg->sent[0]['text'])->toContain('Пришли по вашей ссылке: 2 · засчитаны: 1 · до награды ещё 2 (из 3)')
+        ->and($this->tg->sent[0]['text'])->toContain('За 3 и 6 засчитанных друзей вы получите по +7 дней Pro')
+        ->and($this->tg->sent[0]['text'])->toContain('Пришли по вашей ссылке: 2')
+        ->and($this->tg->sent[0]['text'])->toContain('Засчитано друзей: 1 из 3 — до +7 дней Pro осталось 2.')
+        ->and($this->tg->sent[0]['text'])->not->toContain('вам и другу')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('Поделиться ссылкой')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'])->toStartWith('https://t.me/share/url?url=')
         ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'])->toContain(urlencode("https://t.me/LexiFlowBot?start=ref_{$code}"));
@@ -65,7 +68,7 @@ it('speaks Uzbek to an uz learner and shows the code only while the bot username
     inviteSend(8102);
 
     expect($this->tg->sent[0]['text'])->toContain('kod UZCODE23')
-        ->and($this->tg->sent[0]['text'])->toContain("Do'stingizni")
+        ->and($this->tg->sent[0]['text'])->toContain("Do'stlaringizni LexiFlow'ga taklif qiling")
         ->and($this->tg->sent[0]['markup'])->toBeNull();
 });
 
@@ -90,3 +93,64 @@ it('mentions /invite in the private help', function (): void {
 
     expect($this->tg->sent[0]['text'])->toContain('/invite');
 });
+
+it('shows the progress to the next reward at 0, 2, 3 and 6 counted friends, in the new scheme only', function (int $counted, array $reached, string $expected): void {
+    config(['referrals.milestones' => [3, 6], 'referrals.milestone_days' => 7]);
+    $learner = Learner::factory()->create(['telegram_user_id' => 8110 + $counted, 'onboarding_state' => 'done', 'interface_locale' => 'ru']);
+    Referral::factory()->count($counted)->rewarded()->create(['referrer_learner_id' => $learner->id]);
+    foreach ($reached as $milestone) {
+        ReferralMilestone::factory()->granted()->create(['referrer_learner_id' => $learner->id, 'milestone' => $milestone]);
+    }
+
+    inviteSend(8110 + $counted);
+
+    $text = $this->tg->sent[0]['text'];
+    expect($text)->toContain($expected)
+        ->and($text)->toContain('Пригласите друзей в LexiFlow')
+        ->and($text)->not->toContain('вам и другу')
+        ->and($text)->not->toContain('обоим');
+})->with([
+    'nobody yet' => [0, [], 'Засчитано друзей: 0 из 3 — до +7 дней Pro осталось 3.'],
+    'two' => [2, [], 'Засчитано друзей: 2 из 3 — до +7 дней Pro осталось 1.'],
+    'three: the first reward is paid, six is next' => [3, [3], 'Засчитано друзей: 3 из 6 — до +7 дней Pro осталось 3.'],
+    'six: nothing left to earn' => [6, [3, 6], 'Засчитано друзей: 6. Все награды за приглашения получены — спасибо!'],
+    'three, the reward is still being settled' => [3, [], 'Засчитано друзей: 3 — награда +7 дней Pro уже оформляется.'],
+]);
+
+it('shows the progress in Uzbek and takes the days and the milestones from the config', function (): void {
+    config(['referrals.milestones' => [2, 4, 8], 'referrals.milestone_days' => 10]);
+    $learner = Learner::factory()->create(['telegram_user_id' => 8120, 'onboarding_state' => 'done', 'interface_locale' => 'uz']);
+    Referral::factory()->count(1)->rewarded()->create(['referrer_learner_id' => $learner->id]);
+
+    inviteSend(8120);
+
+    expect($this->tg->sent[0]['text'])->toContain("2, 4 va 8 ta hisobga olingan do'st uchun har safar +10 kun Pro olasiz")
+        ->and($this->tg->sent[0]['text'])->toContain("Hisobga olingan do'stlar: 1 / 2 — +10 kun Pro'gacha yana 1 ta do'st qoldi.");
+});
+
+it('names the welcome trial in the text the learner shares, and only while there is one', function (): void {
+    Learner::factory()->create(['telegram_user_id' => 8121, 'onboarding_state' => 'done', 'interface_locale' => 'ru']);
+    config(['billing.trial.days' => 7]);
+    inviteSend(8121);
+
+    parse_str((string) parse_url($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'], PHP_URL_QUERY), $query);
+    expect($query['text'])->toBe('Учу английский в LexiFlow — присоединяйся, первые 7 дней Pro бесплатно!');
+
+    config(['billing.trial.days' => 0]);
+    inviteSend(8121);
+    parse_str((string) parse_url($this->tg->sent[1]['markup']['inline_keyboard'][0][0]['url'], PHP_URL_QUERY), $query);
+    expect($query['text'])->toBe('Учу английский в LexiFlow — присоединяйся!');
+});
+
+it('points to /invite in /help, in both languages, and to /language', function (string $lang, string $line, string $language): void {
+    Learner::factory()->create(['telegram_user_id' => 8130, 'onboarding_state' => 'done', 'interface_locale' => $lang]);
+
+    inviteSend(8130, '/help');
+
+    expect($this->tg->sent[0]['text'])->toContain($line)->toContain($language)
+        ->and($this->tg->sent[0]['text'])->not->toContain('birga')
+        ->and($this->tg->sent[0]['text'])->not->toContain('вместе получить');
+})->with([
+    'ru' => ['ru', 'Пригласите друзей — получите Pro бесплатно: /invite', '/language'],
+    'uz' => ['uz', "Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite", '/language'],
+]);

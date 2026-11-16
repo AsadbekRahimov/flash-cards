@@ -12,7 +12,8 @@ return [
     'private' => [
         'today' => "Bugungi mashg'ulot",
         'settings' => 'Sozlamalar',
-        'invite' => "Do'stni taklif qilish",
+        'language' => 'Til',
+        'invite' => "Do'stlarni taklif qilish",
         'pro' => 'Pro obuna',
         'promo' => 'Promokodni faollashtirish',
         'delete_account' => "Akkauntni o'chirish",

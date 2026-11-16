@@ -13,6 +13,7 @@ use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
+use App\Domain\Telegram\Services\TrialWelcomeMessenger;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
@@ -48,6 +49,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
         private readonly OnboardingMessenger $messenger,
         private readonly OrganizationMessenger $organizations,
         private readonly FriendsMessenger $friends,
+        private readonly TrialWelcomeMessenger $trialWelcome,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -110,6 +112,9 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
                 $next = $this->onboarding->apply($learner, $step, $value);
                 $this->messenger->clearKeyboard($chatId, $messageId);
+                if ($next->isDone()) {
+                    $this->announceTrial($learner, $chatId);
+                }
                 $this->messenger->sendStep($learner, $chatId, $next);
 
                 if ($next->isDone()) {
@@ -175,11 +180,28 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
         if ($learner->onboarding_state === $following) {
             $step = $this->onboarding->current($learner);
+            if ($step->isDone()) {
+                $this->announceTrial($learner, $chatId);
+            }
             $this->messenger->sendStep($learner, $chatId, $step);
 
             if ($step->isDone()) {
                 $this->offerPending($learner, $chatId);
             }
+        }
+    }
+
+    /**
+     * The one-shot "week of Pro" notice (docs/13 §7.1 "2C.9") goes BEFORE the closing message of the onboarding: the language is
+     * chosen by now, and the closing message with its "Start" button stays the last thing on the screen. A failure of the notice
+     * must not take the closing message with it.
+     */
+    private function announceTrial(Learner $learner, int $chatId): void
+    {
+        try {
+            $this->trialWelcome->announce($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
         }
     }
 

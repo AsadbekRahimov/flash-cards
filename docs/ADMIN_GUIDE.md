@@ -505,14 +505,19 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
   no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
   (it is written on every TWA open); pick it in the *Event* filter to see it, or pick any other name to narrow the list.
 - *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
-- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1): the invited learner (link to
-  their page), the state (`pending` — came, not active yet; `activated` — studied 3 days × 10 cards within
-  14 days; `rewarded` — both got 7 days of Pro; `rejected` with the reason: `self`, `existing_learner`,
-  `referrer_capped` — legacy rows only, `flagged`; an inviter who already collected 10 rewards in 30 days / 50 in total gets no further reward, but the invited learner is still rewarded: the row stays `rewarded`), the
-  **Flagged** mark and the dates. A referral is flagged automatically when the inviter collected 20 or more
-  links within 24 hours (a farm is likely); its reward waits. Two row buttons for a flagged row, both written
+- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1 "2C.9"). **Above the table** the milestones of this
+  inviter: one line per reached milestone — "Веха «3 засчитанных друзей»: +7 дн. Pro, достигнута 20.11.2026 — выдано, подписка до …"
+  (or "награда ещё не выдана" while the grant is owed — `referrals:recover` retries it — or "не выдано (причина)": a perpetual
+  subscription, a deleted or blocked learner); before the first milestone the line says how many friends are counted. Below,
+  the table: the invited learner (link to their page), the state (`pending` — came, not counted yet; `activated` — started, the
+  count waits; `rewarded`, shown as **Засчитан** — counted towards the milestones: the setup is done and 10 cards were rated in a day within
+  14 days; `rejected` with the reason: `self`, `existing_learner`, `referrer_capped` — legacy rows only, `flagged`), the
+  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner
+  (provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
+  A referral is flagged automatically when the inviter collected 20 or more
+  links within 24 hours (a farm is likely); it is not counted meanwhile. Two row buttons for a flagged row, both written
   to the audit log: **Clear flag** (Снять пометку; `referral.unflagged`) — the referral is genuine, an activated one is
-  rewarded at once; **Reject** (Отклонить; `referral.rejected`) — no reward will ever be granted. The numbers come from
+  counted at once; **Reject** (Отклонить; `referral.rejected`) — it will never be counted. The numbers come from
   `config/referrals.php` (`REFERRALS_*` in `.env`). The invite link needs `TELEGRAM_BOT_USERNAME`; without
   it the learners only see their code.
 
@@ -529,7 +534,7 @@ the payment screens stay empty and Pro is granted by hand or with promo codes.
 
 ### Subscriptions
 The table shows every subscription: subject (learner or organization), plan, status, provider (`manual` — granted
-by an admin, `promo` — from a promo code), start, **Until** (empty = no end), who granted it and the reason.
+by an admin, `promo` — from a promo code, `reward` — a referral milestone, `trial` — the welcome trial of a new learner), start, **Until** (empty = no end), who granted it and the reason.
 Filters: status, provider, plan, subject, and *Live status* (live = trialing / active / past due).
 
 - **Grant Pro** (Выдать Pro; button above the table): pick the subject — a *Learner* (search by name, @username or Telegram ID)
@@ -757,7 +762,7 @@ for the players, i.e. at least one completed or failed run in the week, and for 
 | Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Line chart of **repetitions per day** over the last 30 days: how many cards were answered in training sessions that day (the dataset is called «Повторений»). It is not the number of learners: a learner who answers 30 cards counts 30. Admin: all sessions, including personal practice; teacher: group trainings of their own groups only |
 | Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
 | Hardest Words (Самые трудные слова за 30 дней) | admin, teacher | Top 20 words with lowest accuracy |
-| Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
+| Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / welcome trials / sponsoring organizations" (the trials, **пробных**, are a figure of their own and are not part of "own"); *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days (Первичная настройка — 7 дней) | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats (Учебные центры — места и очередь) | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
 | SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty. A fourth tile, *Honesty of self-grading* (Честность самооценки), is the share of wrong answers in four-option and typed exercises (last 28 days) that came right after the learner had rated the same word «Легко» (`review.self_grade_mismatch` events / wrong objective answers); a high share means learners overrate themselves. Cached for 10 minutes |
@@ -812,7 +817,7 @@ php artisan telegram:set-webhook
 ```bash
 php artisan telegram:setup-bot
 ```
-Sets the list of bot commands that Telegram shows after «/» (Russian and Uzbek; private chats and group chats have
+Sets the list of bot commands that Telegram shows after «/» (in private chats: `/today`, `/settings`, `/language` — «Язык / Til» —, `/invite`, `/pro`, `/promo`, `/delete_account`, `/help`; Russian and Uzbek; private chats and group chats have
 their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
 administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
 command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.

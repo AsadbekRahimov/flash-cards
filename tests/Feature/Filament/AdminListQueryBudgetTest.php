@@ -60,6 +60,7 @@ use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\ProviderTransaction;
 use App\Models\Referral;
+use App\Models\ReferralMilestone;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -485,9 +486,11 @@ it('lists the offers of a learner with the center that made them', function (): 
 it('lists the referrals of a learner with the invited learner loaded in one statement', function (): void {
     $learner = Learner::factory()->create();
 
+    // The milestone summary above the table (ReferralMilestoneReport) is 2 statements per render, whatever the number of rows.
     FilamentQueryBudget::assert(ReferralsRelationManager::class, function (int $rows) use ($learner): void {
         Referral::factory()->count($rows - Referral::query()->where('referrer_learner_id', $learner->id)->count())->create(['referrer_learner_id' => $learner->id]);
-    }, ceiling: 9, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
+        ReferralMilestone::query()->firstOrCreate(['referrer_learner_id' => $learner->id, 'milestone' => 3], ['days' => 7, 'reached_at' => now()]);
+    }, ceiling: 11, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
 });
 
 it('lists the last product events of a learner', function (): void {

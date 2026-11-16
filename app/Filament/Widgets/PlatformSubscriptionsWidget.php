@@ -36,7 +36,7 @@ class PlatformSubscriptionsWidget extends StatsOverviewWidget
 
         return [
             Stat::make(__('admin.widgets.platform_subscriptions.pro_learners'), (string) $stats['pro_learners'])
-                ->description(__('admin.widgets.platform_subscriptions.pro_learners_help', ['personal' => $stats['personal'], 'organizations' => $stats['organizations']]))
+                ->description(__('admin.widgets.platform_subscriptions.pro_learners_help', ['personal' => $stats['personal'], 'trials' => $stats['trials'], 'organizations' => $stats['organizations']]))
                 ->color($stats['pro_learners'] > 0 ? 'success' : 'gray')
                 ->icon('heroicon-o-star'),
             Stat::make(__('admin.widgets.platform_subscriptions.expiring'), (string) $stats['expiring'])

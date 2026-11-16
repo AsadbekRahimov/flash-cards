@@ -52,6 +52,13 @@ return [
         ],
     ],
 
+    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding (TrialWelcomeMessenger): `:days` / `:reward` are
+    // "7 дней", `:friends` is "3 друзей" (lang/ru/referrals.php).
+    'trial' => [
+        'welcome' => '🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite',
+        'welcome_plain' => '🎁 Вам открыт Pro на :days — бесплатно, до :date.',
+    ],
+
     'paysupport' => [
         'with_contact' => "Платёжная поддержка LexiFlow.\n\n".
             "Вопросы по оплате и отмена подписки: :contact\n".
@@ -120,8 +127,8 @@ return [
         'hint' => 'Продлите заранее, чтобы новые слова не ограничивались дневным лимитом.',
         'hint_canceled' => 'Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит.',
         // The welcome trial (docs/13 §7.1 "2C.9"): not a renewal — the first purchase.
-        'trial_dm' => '{1} Пробный LexiFlow Pro заканчивается завтра (:date).|[2,*] Пробный LexiFlow Pro заканчивается через :count дн. (:date).',
-        'hint_trial' => 'Оформите Pro, чтобы новые слова не ограничивались дневным лимитом.',
+        'trial_dm' => '{1} Пробный Pro заканчивается завтра (:date).|[2,*] Пробный Pro заканчивается через :count дн. (:date).',
+        'hint_trial' => 'Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite).',
         'org_hint' => 'После окончания у участников центра снова будет тариф Free.',
         'button' => 'Продлить Pro',
         'mail' => [

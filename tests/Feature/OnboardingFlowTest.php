@@ -285,6 +285,7 @@ it('sends the next step on the retry of an update whose answer was saved but who
 });
 
 it('sends the closing message again when the retry follows a lost last reply', function (): void {
+    config(['billing.trial.days' => 0]); // no welcome notice: the one failing send is the closing message's
     onbCourse('general-a1', 'general');
     onbSend(7017, '/start');
     onbTap(7017, 'onb1:locale:ru', 1);
@@ -1065,7 +1066,7 @@ it('leaves the active course empty when the default course cannot be opened', fu
     $last = end($this->tg->sent);
     expect(onbLearner(7086)->onboarding_state)->toBe('done')
         ->and(onbLearner(7086)->active_course_id)->toBeNull()
-        ->and($last['text'])->toBe('Готово! Нажмите кнопку — первое занятие займёт пару минут.')
+        ->and($last['text'])->toBe("Готово! Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite")
         ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
 })->with(['draft', 'archived', 'private']);
 

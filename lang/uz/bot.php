@@ -12,8 +12,9 @@ return [
         'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Kartochkalardan talaffuzni eshitasiz, bot esa takrorlashni eslatadi.\n\n".
             "Qanday shug'ullanish kerak:\n".
             "• Bugungi mashg'ulot uchun xabar yozish joyining yonidagi «LexiFlow» tugmasini bosing yoki /today yuboring.\n".
-            "• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
-            "• /invite — do'stingizni taklif qiling va birgalikda Pro oling\n".
+            "• /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
+            "• /language — tilni o'zgartirish\n".
+            "• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite\n".
             "• /pro — Pro obuna, /promo KOD — promokod\n".
             "• /paysupport — to'lov bo'yicha savollar\n".
             "• /delete_account — akkauntni o'chirish",

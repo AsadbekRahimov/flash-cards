@@ -38,7 +38,8 @@ it('lists the private commands in the order of the menu with the Russian descrip
     expect($this->telegram->myCommands[0]['commands'])->toBe([
         ['command' => 'today', 'description' => 'Занятие на сегодня'],
         ['command' => 'settings', 'description' => 'Настройки'],
-        ['command' => 'invite', 'description' => 'Пригласить друга'],
+        ['command' => 'language', 'description' => 'Язык / Til'],
+        ['command' => 'invite', 'description' => 'Пригласить друзей'],
         ['command' => 'pro', 'description' => 'Подписка Pro'],
         ['command' => 'promo', 'description' => 'Активировать промокод'],
         ['command' => 'delete_account', 'description' => 'Удалить аккаунт'],
@@ -121,8 +122,8 @@ it('sets the Mini App as the menu button of every private chat, with a single sl
 
 it('reports what it has set', function (): void {
     $this->artisan('telegram:setup-bot')
-        ->expectsOutputToContain('Commands all_private_chats, default (ru): /today /settings /invite /pro /promo /delete_account /help')
-        ->expectsOutputToContain('Commands all_private_chats, uz: /today /settings /invite /pro /promo /delete_account /help')
+        ->expectsOutputToContain('Commands all_private_chats, default (ru): /today /settings /language /invite /pro /promo /delete_account /help')
+        ->expectsOutputToContain('Commands all_private_chats, uz: /today /settings /language /invite /pro /promo /delete_account /help')
         ->expectsOutputToContain('Commands all_group_chats, default (ru): /help')
         ->expectsOutputToContain('Commands all_group_chats, uz: /help')
         ->expectsOutputToContain('Commands all_chat_administrators, default (ru): /start_training /start_exam /close_exam /help')

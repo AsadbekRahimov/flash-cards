@@ -52,6 +52,12 @@ return [
         ],
     ],
 
+    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding; `:days` / `:reward` are "7 kun", `:friends` is "3 ta do'stni".
+    'trial' => [
+        'welcome' => '🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite',
+        'welcome_plain' => '🎁 Sizga :days Pro bepul ochildi — :date gacha.',
+    ],
+
     'paysupport' => [
         'with_contact' => "LexiFlow to'lovlar bo'yicha yordam.\n\n".
             "To'lov va obunani bekor qilish masalalari: :contact\n".
@@ -122,7 +128,7 @@ return [
         'hint_canceled' => 'Avtoyangilash o\'chirilgan, shuning uchun Pro o\'zi uzaymaydi. Cheklovsiz imkoniyatlarni yo\'qotmaslik uchun oldindan uzaytiring.',
         // The welcome trial (docs/13 §7.1 "2C.9"): not a renewal — the first purchase.
         'trial_dm' => '{1} Sinov LexiFlow Pro ertaga tugaydi (:date).|[2,*] Sinov LexiFlow Pro :count kundan keyin tugaydi (:date).',
-        'hint_trial' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun Pro\'ni rasmiylashtiring.',
+        'hint_trial' => 'Pro\'ni yo\'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do\'stlaringizni taklif qiling (/invite).',
         'org_hint' => 'Obuna tugagach, markaz o\'quvchilari yana Free tarifiga o\'tadi.',
         'button' => "Pro'ni uzaytirish",
         'mail' => [

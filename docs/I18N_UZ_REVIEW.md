@@ -3753,7 +3753,7 @@
 
 ## Бот: пробный Pro, /invite и /language (16.11.2026) — на проверку носителю
 
-Пробный Pro новичку (7 дней), Pro за 3 и 6 засчитанных друзей, команда `/language`. Строки ниже **заменяют** прежние строки тех же ключей выше (черновики 2C.9 и «вам и другу»). Заголовок `/language` — «Tilni tanlang · Выберите язык» — двуязычный и одинаковый для обоих языков намеренно (в словаре его нет, `OnboardingMessenger::LANGUAGE_TITLE`). Проверить: «Pro'ni bepul oling», «hisobga olinadi» (засчитывается), «:count kun» без склонения числа, «ta do'stni» (винительный: пригласите N друзей).
+Пробный Pro новичку (7 дней), Pro за 3 и 6 засчитанных друзей, команда `/language`. Строки ниже **заменяют** прежние строки тех же ключей выше (черновики 2C.9 и «вам и другу»). Заголовок `/language` — «Tilni tanlang · Выберите язык» — двуязычный и одинаковый для обоих языков намеренно: собирается из `onboarding.settings.language_title` на uz и на ru (ниже строка uz). Проверить: «Pro'ni bepul oling», «hisobga olinadi» (засчитывается), «:count kun» без склонения числа, «ta do'stni» (винительный: пригласите N друзей).
 
 ### Бот (`lang/uz/referrals.php`, `billing.php`, `onboarding.php`, `commands.php`, `bot.php`)
 
@@ -3777,9 +3777,10 @@
 | `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite |
 | `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. | 🎁 Вам открыт Pro на :days — бесплатно, до :date. |
 | `billing.renewal.hint_trial` | Pro'ni yo'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do'stlaringizni taklif qiling (/invite). | Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite). |
-| `commands.private.language` | Til / Язык | Язык / Til |
+| `onboarding.settings.language_title` | Tilni tanlang | Выберите язык |
+| `commands.private.language` | Til | Язык / Til |
 | `commands.private.invite` | Do'stlarni taklif qilish | Пригласить друзей |
 | `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Готово! Ваш курс: :course. Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite |
 | `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi.\n\nDo'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Готово! Нажмите кнопку — первое занятие займёт пару минут.\n\nПригласите друзей — получите Pro бесплатно: /invite |
 | `onboarding.menu.text` | Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/language — til\n/invite — do'stlarni taklif qilish va Pro olish\n/promo KOD — Pro uchun promokod\n/help — yordam | Что дальше?\n/today — занятие на сегодня\n/settings — настройки\n/language — язык\n/invite — пригласить друзей и получить Pro\n/promo КОД — промокод на Pro\n/help — справка |
-| `bot.help.private` | (целиком, две строки заменены) • /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /language — tilni o'zgartirish / Сменить язык<br>• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | • /settings — цель, уровень, часовой пояс, напоминания<br>• /language — сменить язык / Tilni o'zgartirish<br>• Пригласите друзей — получите Pro бесплатно: /invite |
+| `bot.help.private` | (целиком, две строки заменены) • /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /language — tilni o'zgartirish<br>• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | • /settings — цель, уровень, часовой пояс, напоминания<br>• /language — сменить язык / Tilni o'zgartirish<br>• Пригласите друзей — получите Pro бесплатно: /invite |

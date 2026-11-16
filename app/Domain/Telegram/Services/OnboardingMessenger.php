@@ -203,6 +203,18 @@ final class OnboardingMessenger
         );
     }
 
+    /**
+     * `/language`: the language step of `/settings` at once. The title is in both languages — the person who looks for it may
+     * not read the current one; the buttons are the settings' own (`set1:locale:<code>`), so saving is the one path of `/settings`.
+     */
+    public function sendLanguagePicker(Learner $learner, int|string $chatId): void
+    {
+        $locale = $this->locales->forLearner($learner);
+        $stepView = $this->onboarding->step('locale');
+
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.language_title', [], 'uz').' · '.__('onboarding.settings.language_title', [], 'ru'), replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX));
+    }
+
     public function sendSettingSaved(Learner $learner, int|string $chatId, bool $withTimezoneUndo = false): void
     {
         $locale = $this->locales->forLearner($learner);

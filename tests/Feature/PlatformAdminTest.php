@@ -183,7 +183,7 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     Livewire::test(PlatformSubscriptionsWidget::class)
         ->assertSee('Учеников с Pro')
         ->assertSee('7')
-        ->assertSee('Своих подписок: 5, спонсирующих центров: 1');
+        ->assertSee('Своих подписок: 5, пробных: 0, спонсирующих центров: 1');
 });
 
 it('adds the grace period of the auto-renewing provider (Stars) before a subscription stops granting; pay-per-period and grants get none', function (): void {
@@ -586,4 +586,13 @@ it('hides twa.authenticated in the recent events until it is picked in the filte
     $logins = Livewire::test(ProductEventsRelationManager::class, $props)->filterTable('name', 'twa.authenticated');
     expect($logins->instance()->getTableRecords())->toHaveCount(ProductEventsRelationManager::LIMIT);
     $logins->assertCanNotSeeTableRecords([$started]);
+});
+
+it('shows the welcome trials next to the personal subscriptions on the dashboard', function (): void {
+    pa_pro(Learner::factory()->create());
+    pa_pro(Learner::factory()->create(), '+5 days', ['provider' => 'trial']);
+
+    $this->actingAs(pa_user('admin'));
+    Livewire::test(PlatformSubscriptionsWidget::class)
+        ->assertSee('Своих подписок: 1, пробных: 1, спонсирующих центров: 0');
 });

@@ -419,8 +419,8 @@ it('is reminded before it ends with its own words, while a trial turned promo is
     expect(app(SubscriptionService::class)->remindExpiring($inFiveDays))->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(910_050)
-        ->and($this->tg->sent[0]['text'])->toContain('Пробный LexiFlow Pro заканчивается через 3 дн.')
-        ->and($this->tg->sent[0]['text'])->toContain('Оформите Pro')
+        ->and($this->tg->sent[0]['text'])->toContain('Пробный Pro заканчивается через 3 дн.')
+        ->and($this->tg->sent[0]['text'])->toContain('оформите подписку (/pro) или пригласите друзей (/invite)')
         ->and($this->tg->sent[0]['button'])->toBe('Продлить Pro')
         ->and(app(LearnerBillingService::class)->renewal($learner, $inFiveDays)['reminder_sent'] ?? null)->toBeTrue();
 
