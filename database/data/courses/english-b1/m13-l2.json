@@ -14,6 +14,7 @@
     {
       "word": "penguin",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛŋgwɪn/",
       "translation": "пингвин",
       "translations": {
         "ru": "пингвин",
@@ -28,6 +29,7 @@
     {
       "word": "shark",
       "part_of_speech": "noun",
+      "transcription": "/ʃɑrk/",
       "translation": "акула",
       "translations": {
         "ru": "акула",
@@ -42,6 +44,7 @@
     {
       "word": "squirrel",
       "part_of_speech": "noun",
+      "transcription": "/ˈskwɜrəl/",
       "translation": "белка",
       "translations": {
         "ru": "белка",
@@ -56,6 +59,7 @@
     {
       "word": "owl",
       "part_of_speech": "noun",
+      "transcription": "/aʊl/",
       "translation": "сова",
       "translations": {
         "ru": "сова",
@@ -70,6 +74,7 @@
     {
       "word": "turtle",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrtəl/",
       "translation": "черепаха",
       "translations": {
         "ru": "черепаха",
@@ -84,6 +89,7 @@
     {
       "word": "camel",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæməl/",
       "translation": "верблюд",
       "translations": {
         "ru": "верблюд",
@@ -98,6 +104,7 @@
     {
       "word": "goat",
       "part_of_speech": "noun",
+      "transcription": "/goʊt/",
       "translation": "коза",
       "translations": {
         "ru": "коза",
@@ -112,6 +119,7 @@
     {
       "word": "parrot",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛrət/",
       "translation": "попугай",
       "translations": {
         "ru": "попугай",
@@ -126,6 +134,7 @@
     {
       "word": "spider",
       "part_of_speech": "noun",
+      "transcription": "/ˈspaɪdər/",
       "translation": "паук",
       "translations": {
         "ru": "паук",
@@ -140,6 +149,7 @@
     {
       "word": "mosquito",
       "part_of_speech": "noun",
+      "transcription": "/məˈskitoʊ/",
       "translation": "комар",
       "translations": {
         "ru": "комар",

@@ -14,6 +14,7 @@
     {
       "word": "start",
       "part_of_speech": "verb",
+      "transcription": "/stɑrt/",
       "translation": "начинать",
       "translations": {
         "ru": "начинать",
@@ -28,6 +29,7 @@
     {
       "word": "stop",
       "part_of_speech": "verb",
+      "transcription": "/stɑp/",
       "translation": "останавливаться",
       "translations": {
         "ru": "останавливаться",
@@ -42,6 +44,7 @@
     {
       "word": "help",
       "part_of_speech": "verb",
+      "transcription": "/hɛlp/",
       "translation": "помогать",
       "translations": {
         "ru": "помогать",
@@ -56,6 +59,7 @@
     {
       "word": "ask",
       "part_of_speech": "verb",
+      "transcription": "/æsk/",
       "translation": "спрашивать",
       "translations": {
         "ru": "спрашивать",
@@ -70,6 +74,7 @@
     {
       "word": "answer",
       "part_of_speech": "verb",
+      "transcription": "/ˈænsər/",
       "translation": "отвечать",
       "translations": {
         "ru": "отвечать",
@@ -84,6 +89,7 @@
     {
       "word": "write",
       "part_of_speech": "verb",
+      "transcription": "/raɪt/",
       "translation": "писать",
       "translations": {
         "ru": "писать",
@@ -98,6 +104,7 @@
     {
       "word": "read",
       "part_of_speech": "verb",
+      "transcription": "/rid/",
       "translation": "читать",
       "translations": {
         "ru": "читать",
@@ -112,6 +119,7 @@
     {
       "word": "listen",
       "part_of_speech": "verb",
+      "transcription": "/ˈlɪsən/",
       "translation": "слушать",
       "translations": {
         "ru": "слушать",
@@ -126,6 +134,7 @@
     {
       "word": "speak",
       "part_of_speech": "verb",
+      "transcription": "/spik/",
       "translation": "говорить",
       "translations": {
         "ru": "говорить",
@@ -140,6 +149,7 @@
     {
       "word": "understand",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈstænd/",
       "translation": "понимать",
       "translations": {
         "ru": "понимать",

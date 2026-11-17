@@ -14,6 +14,7 @@
     {
       "word": "vehicle",
       "part_of_speech": "noun",
+      "transcription": "/ˈviəkəl/",
       "translation": "транспортное средство",
       "translations": {
         "ru": "транспортное средство",
@@ -28,6 +29,7 @@
     {
       "word": "ferry",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛri/",
       "translation": "паром",
       "translations": {
         "ru": "паром",
@@ -42,6 +44,7 @@
     {
       "word": "tram",
       "part_of_speech": "noun",
+      "transcription": "/træm/",
       "translation": "трамвай",
       "translations": {
         "ru": "трамвай",
@@ -56,6 +59,7 @@
     {
       "word": "motorcycle",
       "part_of_speech": "noun",
+      "transcription": "/ˈmoʊtərˌsaɪkəl/",
       "translation": "мотоцикл",
       "translations": {
         "ru": "мотоцикл",
@@ -70,6 +74,7 @@
     {
       "word": "helicopter",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛləkɑptər/",
       "translation": "вертолёт",
       "translations": {
         "ru": "вертолёт",
@@ -84,6 +89,7 @@
     {
       "word": "minibus",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪnibʌs/",
       "translation": "микроавтобус",
       "translations": {
         "ru": "микроавтобус",
@@ -98,6 +104,7 @@
     {
       "word": "subway",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbweɪ/",
       "translation": "метро",
       "translations": {
         "ru": "метро",
@@ -112,6 +119,7 @@
     {
       "word": "scooter",
       "part_of_speech": "noun",
+      "transcription": "/ˈskutər/",
       "translation": "скутер",
       "translations": {
         "ru": "скутер",
@@ -126,6 +134,7 @@
     {
       "word": "aircraft",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛrkræft/",
       "translation": "воздушное судно",
       "translations": {
         "ru": "воздушное судно",
@@ -140,6 +149,7 @@
     {
       "word": "railway",
       "part_of_speech": "noun",
+      "transcription": "/ˈreɪlweɪ/",
       "translation": "железная дорога",
       "translations": {
         "ru": "железная дорога",

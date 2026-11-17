@@ -14,6 +14,7 @@
     {
       "word": "biography",
       "part_of_speech": "noun",
+      "transcription": "/baɪˈɑgrəfi/",
       "translation": "биография",
       "translations": {
         "ru": "биография",
@@ -28,6 +29,7 @@
     {
       "word": "success",
       "part_of_speech": "noun",
+      "transcription": "/səkˈsɛs/",
       "translation": "успех",
       "translations": {
         "ru": "успех",
@@ -42,6 +44,7 @@
     {
       "word": "talent",
       "part_of_speech": "noun",
+      "transcription": "/ˈtælənt/",
       "translation": "талант",
       "translations": {
         "ru": "талант",
@@ -56,6 +59,7 @@
     {
       "word": "ability",
       "part_of_speech": "noun",
+      "transcription": "/əˈbɪləti/",
       "translation": "способность",
       "translations": {
         "ru": "способность",
@@ -70,6 +74,7 @@
     {
       "word": "goal",
       "part_of_speech": "noun",
+      "transcription": "/goʊl/",
       "translation": "цель",
       "translations": {
         "ru": "цель",
@@ -84,6 +89,7 @@
     {
       "word": "award",
       "part_of_speech": "noun",
+      "transcription": "/əˈwɔrd/",
       "translation": "награда",
       "translations": {
         "ru": "награда",
@@ -98,6 +104,7 @@
     {
       "word": "challenge",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃælɪndʒ/",
       "translation": "трудная задача, испытание",
       "translations": {
         "ru": "трудная задача, испытание",
@@ -112,6 +119,7 @@
     {
       "word": "inspire",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈspaɪər/",
       "translation": "вдохновлять",
       "translations": {
         "ru": "вдохновлять",
@@ -126,6 +134,7 @@
     {
       "word": "admire",
       "part_of_speech": "verb",
+      "transcription": "/ədˈmaɪər/",
       "translation": "восхищаться",
       "translations": {
         "ru": "восхищаться",
@@ -140,6 +149,7 @@
     {
       "word": "hero",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɪroʊ/",
       "translation": "герой",
       "translations": {
         "ru": "герой",

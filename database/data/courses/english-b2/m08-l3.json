@@ -14,6 +14,7 @@
     {
       "word": "ministry",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪnəstri/",
       "translation": "министерство",
       "translations": {
         "ru": "министерство",
@@ -28,6 +29,7 @@
     {
       "word": "administration",
       "part_of_speech": "noun",
+      "transcription": "/ədˌmɪnəˈstreɪʃən/",
       "translation": "администрация",
       "translations": {
         "ru": "администрация",
@@ -42,6 +44,7 @@
     {
       "word": "cabinet",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæbənət/",
       "translation": "кабинет министров",
       "translations": {
         "ru": "кабинет министров",
@@ -56,6 +59,7 @@
     {
       "word": "council",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊnsəl/",
       "translation": "совет",
       "translations": {
         "ru": "совет",
@@ -70,6 +74,7 @@
     {
       "word": "assembly",
       "part_of_speech": "noun",
+      "transcription": "/əˈsɛmbli/",
       "translation": "собрание, ассамблея",
       "translations": {
         "ru": "собрание, ассамблея",
@@ -84,6 +89,7 @@
     {
       "word": "governor",
       "part_of_speech": "noun",
+      "transcription": "/ˈgʌvərnər/",
       "translation": "губернатор",
       "translations": {
         "ru": "губернатор",
@@ -98,6 +104,7 @@
     {
       "word": "committee",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmɪti/",
       "translation": "комитет",
       "translations": {
         "ru": "комитет",
@@ -112,6 +119,7 @@
     {
       "word": "bureaucracy",
       "part_of_speech": "noun",
+      "transcription": "/bjʊˈrɑkrəsi/",
       "translation": "бюрократия",
       "translations": {
         "ru": "бюрократия",
@@ -126,6 +134,7 @@
     {
       "word": "agency",
       "part_of_speech": "noun",
+      "transcription": "/ˈeɪdʒənsi/",
       "translation": "агентство",
       "translations": {
         "ru": "агентство",
@@ -140,6 +149,7 @@
     {
       "word": "deputy",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛpjəti/",
       "translation": "заместитель",
       "translations": {
         "ru": "заместитель",

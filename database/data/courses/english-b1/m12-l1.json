@@ -14,6 +14,7 @@
     {
       "word": "athletics",
       "part_of_speech": "noun",
+      "transcription": "/æθˈlɛtɪks/",
       "translation": "лёгкая атлетика",
       "translations": {
         "ru": "лёгкая атлетика",
@@ -28,6 +29,7 @@
     {
       "word": "gymnastics",
       "part_of_speech": "noun",
+      "transcription": "/dʒɪmˈnæstɪks/",
       "translation": "гимнастика",
       "translations": {
         "ru": "гимнастика",
@@ -42,6 +44,7 @@
     {
       "word": "wrestling",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛslɪŋ/",
       "translation": "борьба",
       "translations": {
         "ru": "борьба",
@@ -56,6 +59,7 @@
     {
       "word": "boxing",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑksɪŋ/",
       "translation": "бокс",
       "translations": {
         "ru": "бокс",
@@ -70,6 +74,7 @@
     {
       "word": "rowing",
       "part_of_speech": "noun",
+      "transcription": "/ˈroʊɪŋ/",
       "translation": "гребля",
       "translations": {
         "ru": "гребля",
@@ -84,6 +89,7 @@
     {
       "word": "sailing",
       "part_of_speech": "noun",
+      "transcription": "/ˈseɪlɪŋ/",
       "translation": "парусный спорт",
       "translations": {
         "ru": "парусный спорт",
@@ -98,6 +104,7 @@
     {
       "word": "diving",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaɪvɪŋ/",
       "translation": "дайвинг, ныряние",
       "translations": {
         "ru": "дайвинг, ныряние",
@@ -112,6 +119,7 @@
     {
       "word": "skating",
       "part_of_speech": "noun",
+      "transcription": "/ˈskeɪtɪŋ/",
       "translation": "катание на коньках",
       "translations": {
         "ru": "катание на коньках",
@@ -126,6 +134,7 @@
     {
       "word": "surfing",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrfɪŋ/",
       "translation": "сёрфинг",
       "translations": {
         "ru": "сёрфинг",
@@ -140,6 +149,7 @@
     {
       "word": "marathon",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛrəθɑn/",
       "translation": "марафон",
       "translations": {
         "ru": "марафон",

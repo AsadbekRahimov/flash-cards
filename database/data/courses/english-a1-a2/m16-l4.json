@@ -14,6 +14,7 @@
     {
       "word": "rent",
       "part_of_speech": "verb",
+      "transcription": "/rɛnt/",
       "translation": "снимать, арендовать",
       "translations": {
         "ru": "снимать, арендовать",
@@ -28,6 +29,7 @@
     {
       "word": "landlord",
       "part_of_speech": "noun",
+      "transcription": "/ˈlændlɔrd/",
       "translation": "хозяин жилья",
       "translations": {
         "ru": "хозяин жилья",
@@ -42,6 +44,7 @@
     {
       "word": "tenant",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛnənt/",
       "translation": "арендатор",
       "translations": {
         "ru": "арендатор",
@@ -56,6 +59,7 @@
     {
       "word": "electricity",
       "part_of_speech": "noun",
+      "transcription": "/ɪˌlɛkˈtrɪsəti/",
       "translation": "электричество",
       "translations": {
         "ru": "электричество",
@@ -70,6 +74,7 @@
     {
       "word": "gas",
       "part_of_speech": "noun",
+      "transcription": "/gæs/",
       "translation": "газ",
       "translations": {
         "ru": "газ",
@@ -84,6 +89,7 @@
     {
       "word": "heating",
       "part_of_speech": "noun",
+      "transcription": "/ˈhitɪŋ/",
       "translation": "отопление",
       "translations": {
         "ru": "отопление",
@@ -98,6 +104,7 @@
     {
       "word": "deposit",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈpɑzət/",
       "translation": "залог",
       "translations": {
         "ru": "залог",
@@ -112,6 +119,7 @@
     {
       "word": "furnished",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɜrnɪʃt/",
       "translation": "с мебелью",
       "translations": {
         "ru": "с мебелью",
@@ -126,6 +134,7 @@
     {
       "word": "plumber",
       "part_of_speech": "noun",
+      "transcription": "/ˈplʌmər/",
       "translation": "сантехник",
       "translations": {
         "ru": "сантехник",
@@ -140,6 +149,7 @@
     {
       "word": "lock",
       "part_of_speech": "noun",
+      "transcription": "/lɑk/",
       "translation": "замок",
       "translations": {
         "ru": "замок",

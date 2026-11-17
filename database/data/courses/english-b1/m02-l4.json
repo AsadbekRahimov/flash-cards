@@ -14,6 +14,7 @@
     {
       "word": "request",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈkwɛst/",
       "translation": "просьба",
       "translations": {
         "ru": "просьба",
@@ -28,6 +29,7 @@
     {
       "word": "permission",
       "part_of_speech": "noun",
+      "transcription": "/pərˈmɪʃən/",
       "translation": "разрешение",
       "translations": {
         "ru": "разрешение",
@@ -42,6 +44,7 @@
     {
       "word": "allow",
       "part_of_speech": "verb",
+      "transcription": "/əˈlaʊ/",
       "translation": "разрешать, позволять",
       "translations": {
         "ru": "разрешать, позволять",
@@ -56,6 +59,7 @@
     {
       "word": "refuse",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈfjuz/",
       "translation": "отказываться",
       "translations": {
         "ru": "отказываться",
@@ -70,6 +74,7 @@
     {
       "word": "accept",
       "part_of_speech": "verb",
+      "transcription": "/əkˈsɛpt/",
       "translation": "принимать",
       "translations": {
         "ru": "принимать",
@@ -84,6 +89,7 @@
     {
       "word": "suggest",
       "part_of_speech": "verb",
+      "transcription": "/səgˈdʒɛst/",
       "translation": "предлагать, советовать",
       "translations": {
         "ru": "предлагать, советовать",
@@ -98,6 +104,7 @@
     {
       "word": "advise",
       "part_of_speech": "verb",
+      "transcription": "/ədˈvaɪz/",
       "translation": "советовать",
       "translations": {
         "ru": "советовать",
@@ -112,6 +119,7 @@
     {
       "word": "encourage",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkɜrɪdʒ/",
       "translation": "поощрять, подбадривать",
       "translations": {
         "ru": "поощрять, подбадривать",
@@ -126,6 +134,7 @@
     {
       "word": "remind",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈmaɪnd/",
       "translation": "напоминать",
       "translations": {
         "ru": "напоминать",
@@ -140,6 +149,7 @@
     {
       "word": "persuade",
       "part_of_speech": "verb",
+      "transcription": "/pərˈsweɪd/",
       "translation": "уговаривать, убеждать",
       "translations": {
         "ru": "уговаривать, убеждать",

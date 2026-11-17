@@ -14,6 +14,7 @@
     {
       "word": "journey",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɜrni/",
       "translation": "путешествие",
       "translations": {
         "ru": "путешествие",
@@ -28,6 +29,7 @@
     {
       "word": "passport",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæspɔrt/",
       "translation": "паспорт",
       "translations": {
         "ru": "паспорт",
@@ -42,6 +44,7 @@
     {
       "word": "luggage",
       "part_of_speech": "noun",
+      "transcription": "/ˈlʌgɪdʒ/",
       "translation": "багаж",
       "translations": {
         "ru": "багаж",
@@ -56,6 +59,7 @@
     {
       "word": "tourist",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʊrɪst/",
       "translation": "турист",
       "translations": {
         "ru": "турист",
@@ -70,6 +74,7 @@
     {
       "word": "abroad",
       "part_of_speech": "adverb",
+      "transcription": "/əˈbrɔd/",
       "translation": "за границей",
       "translations": {
         "ru": "за границей",
@@ -84,6 +89,7 @@
     {
       "word": "travel",
       "part_of_speech": "verb",
+      "transcription": "/ˈtrævəl/",
       "translation": "путешествовать",
       "translations": {
         "ru": "путешествовать",
@@ -98,6 +104,7 @@
     {
       "word": "plan",
       "part_of_speech": "verb",
+      "transcription": "/plæn/",
       "translation": "планировать",
       "translations": {
         "ru": "планировать",
@@ -112,6 +119,7 @@
     {
       "word": "reservation",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛzərˈveɪʃən/",
       "translation": "бронь",
       "translations": {
         "ru": "бронь",
@@ -126,6 +134,7 @@
     {
       "word": "visa",
       "part_of_speech": "noun",
+      "transcription": "/ˈvizə/",
       "translation": "виза",
       "translations": {
         "ru": "виза",
@@ -140,6 +149,7 @@
     {
       "word": "pack",
       "part_of_speech": "verb",
+      "transcription": "/pæk/",
       "translation": "собирать вещи",
       "translations": {
         "ru": "собирать вещи",

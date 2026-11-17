@@ -14,6 +14,7 @@
     {
       "word": "friendly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrɛndli/",
       "translation": "дружелюбный",
       "translations": {
         "ru": "дружелюбный",
@@ -28,6 +29,7 @@
     {
       "word": "shy",
       "part_of_speech": "adjective",
+      "transcription": "/ʃaɪ/",
       "translation": "застенчивый",
       "translations": {
         "ru": "застенчивый",
@@ -42,6 +44,7 @@
     {
       "word": "polite",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈlaɪt/",
       "translation": "вежливый",
       "translations": {
         "ru": "вежливый",
@@ -56,6 +59,7 @@
     {
       "word": "rude",
       "part_of_speech": "adjective",
+      "transcription": "/rud/",
       "translation": "грубый",
       "translations": {
         "ru": "грубый",
@@ -70,6 +74,7 @@
     {
       "word": "honest",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑnəst/",
       "translation": "честный",
       "translations": {
         "ru": "честный",
@@ -84,6 +89,7 @@
     {
       "word": "lazy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈleɪzi/",
       "translation": "ленивый",
       "translations": {
         "ru": "ленивый",
@@ -98,6 +104,7 @@
     {
       "word": "clever",
       "part_of_speech": "adjective",
+      "transcription": "/ˈklɛvər/",
       "translation": "сообразительный",
       "translations": {
         "ru": "сообразительный",
@@ -112,6 +119,7 @@
     {
       "word": "brave",
       "part_of_speech": "adjective",
+      "transcription": "/breɪv/",
       "translation": "смелый",
       "translations": {
         "ru": "смелый",
@@ -126,6 +134,7 @@
     {
       "word": "generous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɛnərəs/",
       "translation": "щедрый",
       "translations": {
         "ru": "щедрый",
@@ -140,6 +149,7 @@
     {
       "word": "patient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpeɪʃənt/",
       "translation": "терпеливый",
       "translations": {
         "ru": "терпеливый",

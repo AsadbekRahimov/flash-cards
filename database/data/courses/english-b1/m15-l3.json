@@ -14,6 +14,7 @@
     {
       "word": "thief",
       "part_of_speech": "noun",
+      "transcription": "/θif/",
       "translation": "вор",
       "translations": {
         "ru": "вор",
@@ -28,6 +29,7 @@
     {
       "word": "rob",
       "part_of_speech": "verb",
+      "transcription": "/rɑb/",
       "translation": "грабить",
       "translations": {
         "ru": "грабить",
@@ -42,6 +44,7 @@
     {
       "word": "burglar",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɜrglər/",
       "translation": "вор-взломщик",
       "translations": {
         "ru": "вор-взломщик",
@@ -56,6 +59,7 @@
     {
       "word": "arrest",
       "part_of_speech": "verb",
+      "transcription": "/əˈrɛst/",
       "translation": "арестовывать",
       "translations": {
         "ru": "арестовывать",
@@ -70,6 +74,7 @@
     {
       "word": "suspect",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌspɛkt/",
       "translation": "подозреваемый",
       "translations": {
         "ru": "подозреваемый",
@@ -84,6 +89,7 @@
     {
       "word": "victim",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɪktɪm/",
       "translation": "пострадавший, жертва",
       "translations": {
         "ru": "пострадавший, жертва",
@@ -98,6 +104,7 @@
     {
       "word": "investigate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɛstəgeɪt/",
       "translation": "расследовать",
       "translations": {
         "ru": "расследовать",
@@ -112,6 +119,7 @@
     {
       "word": "detective",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈtɛktɪv/",
       "translation": "детектив, сыщик",
       "translations": {
         "ru": "детектив, сыщик",
@@ -126,6 +134,7 @@
     {
       "word": "alarm",
       "part_of_speech": "noun",
+      "transcription": "/əˈlɑrm/",
       "translation": "сигнализация",
       "translations": {
         "ru": "сигнализация",
@@ -140,6 +149,7 @@
     {
       "word": "safety",
       "part_of_speech": "noun",
+      "transcription": "/ˈseɪfti/",
       "translation": "безопасность",
       "translations": {
         "ru": "безопасность",

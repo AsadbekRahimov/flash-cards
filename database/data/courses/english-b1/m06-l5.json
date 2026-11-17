@@ -14,6 +14,7 @@
     {
       "word": "adventure",
       "part_of_speech": "noun",
+      "transcription": "/ədˈvɛntʃər/",
       "translation": "приключение",
       "translations": {
         "ru": "приключение",
@@ -28,6 +29,7 @@
     {
       "word": "landmark",
       "part_of_speech": "noun",
+      "transcription": "/ˈlændmɑrk/",
       "translation": "достопримечательность",
       "translations": {
         "ru": "достопримечательность",
@@ -42,6 +44,7 @@
     {
       "word": "scenery",
       "part_of_speech": "noun",
+      "transcription": "/ˈsinəri/",
       "translation": "пейзаж",
       "translations": {
         "ru": "пейзаж",
@@ -56,6 +59,7 @@
     {
       "word": "foreign",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɔrən/",
       "translation": "иностранный",
       "translations": {
         "ru": "иностранный",
@@ -70,6 +74,7 @@
     {
       "word": "wander",
       "part_of_speech": "verb",
+      "transcription": "/ˈwɑndər/",
       "translation": "бродить",
       "translations": {
         "ru": "бродить",
@@ -84,6 +89,7 @@
     {
       "word": "homesick",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhoʊmsɪk/",
       "translation": "тоскующий по дому",
       "translations": {
         "ru": "тоскующий по дому",
@@ -98,6 +104,7 @@
     {
       "word": "expedition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛkspəˈdɪʃən/",
       "translation": "экспедиция",
       "translations": {
         "ru": "экспедиция",
@@ -112,6 +119,7 @@
     {
       "word": "remote",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈmoʊt/",
       "translation": "отдалённый",
       "translations": {
         "ru": "отдалённый",
@@ -126,6 +134,7 @@
     {
       "word": "exotic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɑtɪk/",
       "translation": "экзотический",
       "translations": {
         "ru": "экзотический",
@@ -140,6 +149,7 @@
     {
       "word": "memorable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛmərəbəl/",
       "translation": "запоминающийся",
       "translations": {
         "ru": "запоминающийся",

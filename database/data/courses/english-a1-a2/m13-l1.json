@@ -14,6 +14,7 @@
     {
       "word": "angry",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæŋgri/",
       "translation": "сердитый",
       "translations": {
         "ru": "сердитый",
@@ -28,6 +29,7 @@
     {
       "word": "afraid",
       "part_of_speech": "adjective",
+      "transcription": "/əˈfreɪd/",
       "translation": "испуганный",
       "translations": {
         "ru": "испуганный",
@@ -42,6 +44,7 @@
     {
       "word": "nervous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɜrvəs/",
       "translation": "нервничающий",
       "translations": {
         "ru": "нервничающий",
@@ -56,6 +59,7 @@
     {
       "word": "excited",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsaɪtəd/",
       "translation": "взволнованный",
       "translations": {
         "ru": "взволнованный",
@@ -70,6 +74,7 @@
     {
       "word": "worried",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɜrid/",
       "translation": "обеспокоенный",
       "translations": {
         "ru": "обеспокоенный",
@@ -84,6 +89,7 @@
     {
       "word": "proud",
       "part_of_speech": "adjective",
+      "transcription": "/praʊd/",
       "translation": "гордый",
       "translations": {
         "ru": "гордый",
@@ -98,6 +104,7 @@
     {
       "word": "lonely",
       "part_of_speech": "adjective",
+      "transcription": "/ˈloʊnli/",
       "translation": "одинокий",
       "translations": {
         "ru": "одинокий",
@@ -112,6 +119,7 @@
     {
       "word": "surprised",
       "part_of_speech": "adjective",
+      "transcription": "/sərˈpraɪzd/",
       "translation": "удивлённый",
       "translations": {
         "ru": "удивлённый",
@@ -126,6 +134,7 @@
     {
       "word": "calm",
       "part_of_speech": "adjective",
+      "transcription": "/kɑm/",
       "translation": "спокойный",
       "translations": {
         "ru": "спокойный",
@@ -140,6 +149,7 @@
     {
       "word": "upset",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌpˈsɛt/",
       "translation": "расстроенный",
       "translations": {
         "ru": "расстроенный",

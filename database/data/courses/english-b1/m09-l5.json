@@ -14,6 +14,7 @@
     {
       "word": "expert",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛkspɜrt/",
       "translation": "эксперт, специалист",
       "translations": {
         "ru": "эксперт, специалист",
@@ -28,6 +29,7 @@
     {
       "word": "intermediate",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈmidiət/",
       "translation": "средний, промежуточный",
       "translations": {
         "ru": "средний, промежуточный",
@@ -42,6 +44,7 @@
     {
       "word": "motivation",
       "part_of_speech": "noun",
+      "transcription": "/ˌmoʊtəˈveɪʃən/",
       "translation": "мотивация",
       "translations": {
         "ru": "мотивация",
@@ -56,6 +59,7 @@
     {
       "word": "effort",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛfərt/",
       "translation": "усилие",
       "translations": {
         "ru": "усилие",
@@ -70,6 +74,7 @@
     {
       "word": "discipline",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪsəplɪn/",
       "translation": "дисциплина",
       "translations": {
         "ru": "дисциплина",
@@ -84,6 +89,7 @@
     {
       "word": "method",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛθəd/",
       "translation": "метод",
       "translations": {
         "ru": "метод",
@@ -98,6 +104,7 @@
     {
       "word": "technique",
       "part_of_speech": "noun",
+      "transcription": "/tɛkˈnik/",
       "translation": "техника, приём",
       "translations": {
         "ru": "техника, приём",
@@ -112,6 +119,7 @@
     {
       "word": "summary",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌməri/",
       "translation": "краткое изложение",
       "translations": {
         "ru": "краткое изложение",
@@ -126,6 +134,7 @@
     {
       "word": "define",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈfaɪn/",
       "translation": "давать определение",
       "translations": {
         "ru": "давать определение",
@@ -140,6 +149,7 @@
     {
       "word": "resource",
       "part_of_speech": "noun",
+      "transcription": "/ˈrisɔrs/",
       "translation": "ресурс, источник",
       "translations": {
         "ru": "ресурс, источник",

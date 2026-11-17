@@ -14,6 +14,7 @@
     {
       "word": "evacuate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈvækjueɪt/",
       "translation": "эвакуировать",
       "translations": {
         "ru": "эвакуировать",
@@ -28,6 +29,7 @@
     {
       "word": "surveillance",
       "part_of_speech": "noun",
+      "transcription": "/sərˈveɪləns/",
       "translation": "слежка, наблюдение",
       "translations": {
         "ru": "слежка, наблюдение",
@@ -42,6 +44,7 @@
     {
       "word": "checkpoint",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛkpɔɪnt/",
       "translation": "контрольно-пропускной пункт",
       "translations": {
         "ru": "контрольно-пропускной пункт",
@@ -56,6 +59,7 @@
     {
       "word": "precaution",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈkɔʃən/",
       "translation": "мера предосторожности",
       "translations": {
         "ru": "мера предосторожности",
@@ -70,6 +74,7 @@
     {
       "word": "hazard",
       "part_of_speech": "noun",
+      "transcription": "/ˈhæzərd/",
       "translation": "опасность",
       "translations": {
         "ru": "опасность",
@@ -84,6 +89,7 @@
     {
       "word": "safeguard",
       "part_of_speech": "verb",
+      "transcription": "/ˈseɪfgɑrd/",
       "translation": "защищать, охранять",
       "translations": {
         "ru": "защищать, охранять",
@@ -98,6 +104,7 @@
     {
       "word": "patrol",
       "part_of_speech": "noun",
+      "transcription": "/pəˈtroʊl/",
       "translation": "патруль",
       "translations": {
         "ru": "патруль",
@@ -112,6 +119,7 @@
     {
       "word": "inspection",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈspɛkʃən/",
       "translation": "проверка, инспекция",
       "translations": {
         "ru": "проверка, инспекция",
@@ -126,6 +134,7 @@
     {
       "word": "alert",
       "part_of_speech": "adjective",
+      "transcription": "/əˈlɜrt/",
       "translation": "бдительный",
       "translations": {
         "ru": "бдительный",
@@ -140,6 +149,7 @@
     {
       "word": "prevention",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈvɛnʃən/",
       "translation": "предотвращение",
       "translations": {
         "ru": "предотвращение",

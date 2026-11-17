@@ -14,6 +14,7 @@
     {
       "word": "grab",
       "part_of_speech": "verb",
+      "transcription": "/græb/",
       "translation": "хватать",
       "translations": {
         "ru": "хватать",
@@ -28,6 +29,7 @@
     {
       "word": "drag",
       "part_of_speech": "verb",
+      "transcription": "/dræg/",
       "translation": "тащить, волочить",
       "translations": {
         "ru": "тащить, волочить",
@@ -42,6 +44,7 @@
     {
       "word": "press",
       "part_of_speech": "verb",
+      "transcription": "/prɛs/",
       "translation": "нажимать",
       "translations": {
         "ru": "нажимать",
@@ -56,6 +59,7 @@
     {
       "word": "squeeze",
       "part_of_speech": "verb",
+      "transcription": "/skwiz/",
       "translation": "сжимать, выжимать",
       "translations": {
         "ru": "сжимать, выжимать",
@@ -70,6 +74,7 @@
     {
       "word": "cover",
       "part_of_speech": "verb",
+      "transcription": "/ˈkʌvər/",
       "translation": "накрывать, покрывать",
       "translations": {
         "ru": "накрывать, покрывать",
@@ -84,6 +89,7 @@
     {
       "word": "wrap",
       "part_of_speech": "verb",
+      "transcription": "/ræp/",
       "translation": "заворачивать",
       "translations": {
         "ru": "заворачивать",
@@ -98,6 +104,7 @@
     {
       "word": "raise",
       "part_of_speech": "verb",
+      "transcription": "/reɪz/",
       "translation": "поднимать",
       "translations": {
         "ru": "поднимать",
@@ -112,6 +119,7 @@
     {
       "word": "spill",
       "part_of_speech": "verb",
+      "transcription": "/spɪl/",
       "translation": "проливать",
       "translations": {
         "ru": "проливать",
@@ -126,6 +134,7 @@
     {
       "word": "wipe",
       "part_of_speech": "verb",
+      "transcription": "/waɪp/",
       "translation": "вытирать",
       "translations": {
         "ru": "вытирать",
@@ -140,6 +149,7 @@
     {
       "word": "fasten",
       "part_of_speech": "verb",
+      "transcription": "/ˈfæsən/",
       "translation": "пристёгивать, застёгивать",
       "translations": {
         "ru": "пристёгивать, застёгивать",

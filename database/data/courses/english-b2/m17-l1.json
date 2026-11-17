@@ -14,6 +14,7 @@
     {
       "word": "assert",
       "part_of_speech": "verb",
+      "transcription": "/əˈsɜrt/",
       "translation": "уверенно заявлять",
       "translations": {
         "ru": "уверенно заявлять",
@@ -28,6 +29,7 @@
     {
       "word": "claim",
       "part_of_speech": "verb",
+      "transcription": "/kleɪm/",
       "translation": "утверждать",
       "translations": {
         "ru": "утверждать",
@@ -42,6 +44,7 @@
     {
       "word": "advocate",
       "part_of_speech": "verb",
+      "transcription": "/ˈædvəkeɪt/",
       "translation": "выступать за, отстаивать",
       "translations": {
         "ru": "выступать за, отстаивать",
@@ -56,6 +59,7 @@
     {
       "word": "insist",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈsɪst/",
       "translation": "настаивать",
       "translations": {
         "ru": "настаивать",
@@ -70,6 +74,7 @@
     {
       "word": "underline",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈlaɪn/",
       "translation": "подчёркивать",
       "translations": {
         "ru": "подчёркивать",
@@ -84,6 +89,7 @@
     {
       "word": "emphasize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛmfəsaɪz/",
       "translation": "делать акцент, выделять",
       "translations": {
         "ru": "делать акцент, выделять",
@@ -98,6 +104,7 @@
     {
       "word": "acknowledge",
       "part_of_speech": "verb",
+      "transcription": "/əkˈnɑlɪdʒ/",
       "translation": "признавать",
       "translations": {
         "ru": "признавать",
@@ -112,6 +119,7 @@
     {
       "word": "stance",
       "part_of_speech": "noun",
+      "transcription": "/stæns/",
       "translation": "позиция",
       "translations": {
         "ru": "позиция",
@@ -126,6 +134,7 @@
     {
       "word": "viewpoint",
       "part_of_speech": "noun",
+      "transcription": "/ˈvjupɔɪnt/",
       "translation": "точка зрения",
       "translations": {
         "ru": "точка зрения",
@@ -140,6 +149,7 @@
     {
       "word": "firmly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈfɜrmli/",
       "translation": "твёрдо",
       "translations": {
         "ru": "твёрдо",

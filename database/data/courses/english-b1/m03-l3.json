@@ -14,6 +14,7 @@
     {
       "word": "renovate",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛnəveɪt/",
       "translation": "делать ремонт",
       "translations": {
         "ru": "делать ремонт",
@@ -28,6 +29,7 @@
     {
       "word": "fix",
       "part_of_speech": "verb",
+      "transcription": "/fɪks/",
       "translation": "чинить",
       "translations": {
         "ru": "чинить",
@@ -42,6 +44,7 @@
     {
       "word": "replace",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpleɪs/",
       "translation": "заменять",
       "translations": {
         "ru": "заменять",
@@ -56,6 +59,7 @@
     {
       "word": "remove",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈmuv/",
       "translation": "снимать, убирать",
       "translations": {
         "ru": "снимать, убирать",
@@ -70,6 +74,7 @@
     {
       "word": "leak",
       "part_of_speech": "verb",
+      "transcription": "/lik/",
       "translation": "протекать",
       "translations": {
         "ru": "протекать",
@@ -84,6 +89,7 @@
     {
       "word": "settle",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɛtəl/",
       "translation": "обосноваться, поселиться",
       "translations": {
         "ru": "обосноваться, поселиться",
@@ -98,6 +104,7 @@
     {
       "word": "unpack",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌnˈpæk/",
       "translation": "распаковывать",
       "translations": {
         "ru": "распаковывать",
@@ -112,6 +119,7 @@
     {
       "word": "storage",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɔrɪdʒ/",
       "translation": "хранение",
       "translations": {
         "ru": "хранение",
@@ -126,6 +134,7 @@
     {
       "word": "switch",
       "part_of_speech": "noun",
+      "transcription": "/swɪtʃ/",
       "translation": "выключатель",
       "translations": {
         "ru": "выключатель",
@@ -140,6 +149,7 @@
     {
       "word": "pipe",
       "part_of_speech": "noun",
+      "transcription": "/paɪp/",
       "translation": "труба",
       "translations": {
         "ru": "труба",

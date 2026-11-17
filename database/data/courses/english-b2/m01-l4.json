@@ -14,6 +14,7 @@
     {
       "word": "conduct",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑndʌkt/",
       "translation": "поведение",
       "translations": {
         "ru": "поведение",
@@ -28,6 +29,7 @@
     {
       "word": "tendency",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛndənsi/",
       "translation": "склонность",
       "translations": {
         "ru": "склонность",
@@ -42,6 +44,7 @@
     {
       "word": "misbehave",
       "part_of_speech": "verb",
+      "transcription": "/ˌmɪsbɪˈheɪv/",
       "translation": "плохо себя вести",
       "translations": {
         "ru": "плохо себя вести",
@@ -56,6 +59,7 @@
     {
       "word": "instinct",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnstɪŋkt/",
       "translation": "инстинкт",
       "translations": {
         "ru": "инстинкт",
@@ -70,6 +74,7 @@
     {
       "word": "imitate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪməteɪt/",
       "translation": "подражать",
       "translations": {
         "ru": "подражать",
@@ -84,6 +89,7 @@
     {
       "word": "provoke",
       "part_of_speech": "verb",
+      "transcription": "/prəˈvoʊk/",
       "translation": "провоцировать",
       "translations": {
         "ru": "провоцировать",
@@ -98,6 +104,7 @@
     {
       "word": "flatter",
       "part_of_speech": "verb",
+      "transcription": "/ˈflætər/",
       "translation": "льстить",
       "translations": {
         "ru": "льстить",
@@ -112,6 +119,7 @@
     {
       "word": "deceive",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈsiv/",
       "translation": "обманывать",
       "translations": {
         "ru": "обманывать",
@@ -126,6 +134,7 @@
     {
       "word": "boast",
       "part_of_speech": "verb",
+      "transcription": "/boʊst/",
       "translation": "хвастаться",
       "translations": {
         "ru": "хвастаться",
@@ -140,6 +149,7 @@
     {
       "word": "interfere",
       "part_of_speech": "verb",
+      "transcription": "/ˌɪntərˈfɪr/",
       "translation": "вмешиваться",
       "translations": {
         "ru": "вмешиваться",

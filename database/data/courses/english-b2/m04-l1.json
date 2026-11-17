@@ -14,6 +14,7 @@
     {
       "word": "hypothesis",
       "part_of_speech": "noun",
+      "transcription": "/haɪˈpɑθəsɪs/",
       "translation": "гипотеза",
       "translations": {
         "ru": "гипотеза",
@@ -28,6 +29,7 @@
     {
       "word": "methodology",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛθəˈdɑlədʒi/",
       "translation": "методология",
       "translations": {
         "ru": "методология",
@@ -42,6 +44,7 @@
     {
       "word": "observation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑbzərˈveɪʃən/",
       "translation": "наблюдение",
       "translations": {
         "ru": "наблюдение",
@@ -56,6 +59,7 @@
     {
       "word": "systematic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsɪstəˈmætɪk/",
       "translation": "систематический",
       "translations": {
         "ru": "систематический",
@@ -70,6 +74,7 @@
     {
       "word": "variable",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛriəbəl/",
       "translation": "переменная",
       "translations": {
         "ru": "переменная",
@@ -84,6 +89,7 @@
     {
       "word": "specimen",
       "part_of_speech": "noun",
+      "transcription": "/ˈspɛsəmən/",
       "translation": "образец",
       "translations": {
         "ru": "образец",
@@ -98,6 +104,7 @@
     {
       "word": "experimental",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˌspɛrəˈmɛntəl/",
       "translation": "экспериментальный",
       "translations": {
         "ru": "экспериментальный",
@@ -112,6 +119,7 @@
     {
       "word": "prediction",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈdɪkʃən/",
       "translation": "прогноз, предсказание",
       "translations": {
         "ru": "прогноз, предсказание",
@@ -126,6 +134,7 @@
     {
       "word": "empirical",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpɪrɪkəl/",
       "translation": "эмпирический",
       "translations": {
         "ru": "эмпирический",
@@ -140,6 +149,7 @@
     {
       "word": "verify",
       "part_of_speech": "verb",
+      "transcription": "/ˈvɛrəfaɪ/",
       "translation": "проверять, подтверждать",
       "translations": {
         "ru": "проверять, подтверждать",

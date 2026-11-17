@@ -14,6 +14,7 @@
     {
       "word": "statistics",
       "part_of_speech": "noun",
+      "transcription": "/stəˈtɪstɪks/",
       "translation": "статистика",
       "translations": {
         "ru": "статистика",
@@ -28,6 +29,7 @@
     {
       "word": "measurement",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛʒərmənt/",
       "translation": "измерение",
       "translations": {
         "ru": "измерение",
@@ -42,6 +44,7 @@
     {
       "word": "digit",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪdʒɪt/",
       "translation": "цифра",
       "translations": {
         "ru": "цифра",
@@ -56,6 +59,7 @@
     {
       "word": "decimal",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛsəməl/",
       "translation": "десятичная дробь",
       "translations": {
         "ru": "десятичная дробь",
@@ -70,6 +74,7 @@
     {
       "word": "ratio",
       "part_of_speech": "noun",
+      "transcription": "/ˈreɪʃioʊ/",
       "translation": "соотношение",
       "translations": {
         "ru": "соотношение",
@@ -84,6 +89,7 @@
     {
       "word": "proportion",
       "part_of_speech": "noun",
+      "transcription": "/prəˈpɔrʃən/",
       "translation": "доля, часть",
       "translations": {
         "ru": "доля, часть",
@@ -98,6 +104,7 @@
     {
       "word": "probability",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɑbəˈbɪləti/",
       "translation": "вероятность",
       "translations": {
         "ru": "вероятность",
@@ -112,6 +119,7 @@
     {
       "word": "numerical",
       "part_of_speech": "adjective",
+      "transcription": "/nuˈmɛrɪkəl/",
       "translation": "числовой",
       "translations": {
         "ru": "числовой",
@@ -126,6 +134,7 @@
     {
       "word": "equation",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈkweɪʒən/",
       "translation": "уравнение",
       "translations": {
         "ru": "уравнение",
@@ -140,6 +149,7 @@
     {
       "word": "fraction",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrækʃən/",
       "translation": "дробь",
       "translations": {
         "ru": "дробь",

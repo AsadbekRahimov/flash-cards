@@ -14,6 +14,7 @@
     {
       "word": "humid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhjumɪd/",
       "translation": "влажный",
       "translations": {
         "ru": "влажный",
@@ -28,6 +29,7 @@
     {
       "word": "mild",
       "part_of_speech": "adjective",
+      "transcription": "/maɪld/",
       "translation": "мягкий, умеренный",
       "translations": {
         "ru": "мягкий, умеренный",
@@ -42,6 +44,7 @@
     {
       "word": "breeze",
       "part_of_speech": "noun",
+      "transcription": "/briz/",
       "translation": "ветерок, лёгкий ветер",
       "translations": {
         "ru": "ветерок, лёгкий ветер",
@@ -56,6 +59,7 @@
     {
       "word": "frost",
       "part_of_speech": "noun",
+      "transcription": "/frɔst/",
       "translation": "мороз",
       "translations": {
         "ru": "мороз",
@@ -70,6 +74,7 @@
     {
       "word": "hail",
       "part_of_speech": "noun",
+      "transcription": "/heɪl/",
       "translation": "град",
       "translations": {
         "ru": "град",
@@ -84,6 +89,7 @@
     {
       "word": "chilly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtʃɪli/",
       "translation": "прохладный, зябкий",
       "translations": {
         "ru": "прохладный, зябкий",
@@ -98,6 +104,7 @@
     {
       "word": "hurricane",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɜrəkeɪn/",
       "translation": "ураган",
       "translations": {
         "ru": "ураган",
@@ -112,6 +119,7 @@
     {
       "word": "thunderstorm",
       "part_of_speech": "noun",
+      "transcription": "/ˈθʌndərstɔrm/",
       "translation": "гроза",
       "translations": {
         "ru": "гроза",
@@ -126,6 +134,7 @@
     {
       "word": "tropical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtrɑpɪkəl/",
       "translation": "тропический",
       "translations": {
         "ru": "тропический",
@@ -140,6 +149,7 @@
     {
       "word": "sunshine",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌnʃaɪn/",
       "translation": "солнечный свет",
       "translations": {
         "ru": "солнечный свет",

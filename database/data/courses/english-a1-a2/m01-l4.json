@@ -14,6 +14,7 @@
     {
       "word": "man",
       "part_of_speech": "noun",
+      "transcription": "/mæn/",
       "translation": "мужчина",
       "translations": {
         "ru": "мужчина",
@@ -28,6 +29,7 @@
     {
       "word": "woman",
       "part_of_speech": "noun",
+      "transcription": "/ˈwʊmən/",
       "translation": "женщина",
       "translations": {
         "ru": "женщина",
@@ -42,6 +44,7 @@
     {
       "word": "boy",
       "part_of_speech": "noun",
+      "transcription": "/bɔɪ/",
       "translation": "мальчик",
       "translations": {
         "ru": "мальчик",
@@ -56,6 +59,7 @@
     {
       "word": "girl",
       "part_of_speech": "noun",
+      "transcription": "/gɜrl/",
       "translation": "девочка",
       "translations": {
         "ru": "девочка",
@@ -70,6 +74,7 @@
     {
       "word": "person",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrsən/",
       "translation": "человек",
       "translations": {
         "ru": "человек",
@@ -84,6 +89,7 @@
     {
       "word": "people",
       "part_of_speech": "noun",
+      "transcription": "/ˈpipəl/",
       "translation": "люди",
       "translations": {
         "ru": "люди",
@@ -98,6 +104,7 @@
     {
       "word": "friend",
       "part_of_speech": "noun",
+      "transcription": "/frɛnd/",
       "translation": "друг",
       "translations": {
         "ru": "друг",
@@ -112,6 +119,7 @@
     {
       "word": "neighbor",
       "part_of_speech": "noun",
+      "transcription": "/ˈneɪbər/",
       "translation": "сосед",
       "translations": {
         "ru": "сосед",
@@ -126,6 +134,7 @@
     {
       "word": "stranger",
       "part_of_speech": "noun",
+      "transcription": "/ˈstreɪndʒər/",
       "translation": "незнакомец",
       "translations": {
         "ru": "незнакомец",
@@ -140,6 +149,7 @@
     {
       "word": "guest",
       "part_of_speech": "noun",
+      "transcription": "/gɛst/",
       "translation": "гость",
       "translations": {
         "ru": "гость",

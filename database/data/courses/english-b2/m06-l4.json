@@ -14,6 +14,7 @@
     {
       "word": "consciousness",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnʃəsnəs/",
       "translation": "сознание",
       "translations": {
         "ru": "сознание",
@@ -28,6 +29,7 @@
     {
       "word": "perception",
       "part_of_speech": "noun",
+      "transcription": "/pərˈsɛpʃən/",
       "translation": "восприятие",
       "translations": {
         "ru": "восприятие",
@@ -42,6 +44,7 @@
     {
       "word": "cognitive",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑgnətɪv/",
       "translation": "когнитивный, познавательный",
       "translations": {
         "ru": "когнитивный, познавательный",
@@ -56,6 +59,7 @@
     {
       "word": "mindset",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪndsɛt/",
       "translation": "образ мышления",
       "translations": {
         "ru": "образ мышления",
@@ -70,6 +74,7 @@
     {
       "word": "intuition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪntuˈɪʃən/",
       "translation": "интуиция",
       "translations": {
         "ru": "интуиция",
@@ -84,6 +89,7 @@
     {
       "word": "willpower",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪlˌpaʊər/",
       "translation": "сила воли",
       "translations": {
         "ru": "сила воли",
@@ -98,6 +104,7 @@
     {
       "word": "awareness",
       "part_of_speech": "noun",
+      "transcription": "/əˈwɛrnəs/",
       "translation": "осознание",
       "translations": {
         "ru": "осознание",
@@ -112,6 +119,7 @@
     {
       "word": "concentration",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnsənˈtreɪʃən/",
       "translation": "концентрация, сосредоточенность",
       "translations": {
         "ru": "концентрация, сосредоточенность",
@@ -126,6 +134,7 @@
     {
       "word": "reflex",
       "part_of_speech": "noun",
+      "transcription": "/ˈriflɛks/",
       "translation": "рефлекс",
       "translations": {
         "ru": "рефлекс",
@@ -140,6 +149,7 @@
     {
       "word": "recall",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkɔl/",
       "translation": "вспоминать",
       "translations": {
         "ru": "вспоминать",

@@ -14,6 +14,7 @@
     {
       "word": "exist",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɪst/",
       "translation": "существовать",
       "translations": {
         "ru": "существовать",
@@ -28,6 +29,7 @@
     {
       "word": "occur",
       "part_of_speech": "verb",
+      "transcription": "/əˈkɜr/",
       "translation": "происходить, случаться",
       "translations": {
         "ru": "происходить, случаться",
@@ -42,6 +44,7 @@
     {
       "word": "appear",
       "part_of_speech": "verb",
+      "transcription": "/əˈpɪr/",
       "translation": "появляться",
       "translations": {
         "ru": "появляться",
@@ -56,6 +59,7 @@
     {
       "word": "disappear",
       "part_of_speech": "verb",
+      "transcription": "/ˌdɪsəˈpɪr/",
       "translation": "исчезать",
       "translations": {
         "ru": "исчезать",
@@ -70,6 +74,7 @@
     {
       "word": "belong",
       "part_of_speech": "verb",
+      "transcription": "/bɪˈlɔŋ/",
       "translation": "принадлежать",
       "translations": {
         "ru": "принадлежать",
@@ -84,6 +89,7 @@
     {
       "word": "depend",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈpɛnd/",
       "translation": "зависеть",
       "translations": {
         "ru": "зависеть",
@@ -98,6 +104,7 @@
     {
       "word": "contain",
       "part_of_speech": "verb",
+      "transcription": "/kənˈteɪn/",
       "translation": "содержать",
       "translations": {
         "ru": "содержать",
@@ -112,6 +119,7 @@
     {
       "word": "include",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈklud/",
       "translation": "включать в себя",
       "translations": {
         "ru": "включать в себя",
@@ -126,6 +134,7 @@
     {
       "word": "involve",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɑlv/",
       "translation": "предполагать, требовать",
       "translations": {
         "ru": "предполагать, требовать",
@@ -140,6 +149,7 @@
     {
       "word": "seem",
       "part_of_speech": "verb",
+      "transcription": "/sim/",
       "translation": "казаться",
       "translations": {
         "ru": "казаться",

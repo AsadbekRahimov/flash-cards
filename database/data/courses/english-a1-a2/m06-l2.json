@@ -14,6 +14,7 @@
     {
       "word": "shirt",
       "part_of_speech": "noun",
+      "transcription": "/ʃɜrt/",
       "translation": "рубашка",
       "translations": {
         "ru": "рубашка",
@@ -28,6 +29,7 @@
     {
       "word": "dress",
       "part_of_speech": "noun",
+      "transcription": "/drɛs/",
       "translation": "платье",
       "translations": {
         "ru": "платье",
@@ -42,6 +44,7 @@
     {
       "word": "jacket",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒækət/",
       "translation": "куртка, пиджак",
       "translations": {
         "ru": "куртка, пиджак",
@@ -56,6 +59,7 @@
     {
       "word": "coat",
       "part_of_speech": "noun",
+      "transcription": "/koʊt/",
       "translation": "пальто",
       "translations": {
         "ru": "пальто",
@@ -70,6 +74,7 @@
     {
       "word": "shoe",
       "part_of_speech": "noun",
+      "transcription": "/ʃu/",
       "translation": "туфля, ботинок",
       "translations": {
         "ru": "туфля, ботинок",
@@ -84,6 +89,7 @@
     {
       "word": "hat",
       "part_of_speech": "noun",
+      "transcription": "/hæt/",
       "translation": "шапка, шляпа",
       "translations": {
         "ru": "шапка, шляпа",
@@ -98,6 +104,7 @@
     {
       "word": "skirt",
       "part_of_speech": "noun",
+      "transcription": "/skɜrt/",
       "translation": "юбка",
       "translations": {
         "ru": "юбка",
@@ -112,6 +119,7 @@
     {
       "word": "sock",
       "part_of_speech": "noun",
+      "transcription": "/sɑk/",
       "translation": "носок",
       "translations": {
         "ru": "носок",
@@ -126,6 +134,7 @@
     {
       "word": "jeans",
       "part_of_speech": "noun",
+      "transcription": "/dʒinz/",
       "translation": "джинсы",
       "translations": {
         "ru": "джинсы",
@@ -140,6 +149,7 @@
     {
       "word": "trousers",
       "part_of_speech": "noun",
+      "transcription": "/ˈtraʊzərz/",
       "translation": "брюки",
       "translations": {
         "ru": "брюки",

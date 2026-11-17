@@ -14,6 +14,7 @@
     {
       "word": "transfer",
       "part_of_speech": "verb",
+      "transcription": "/trænsˈfɜr/",
       "translation": "переводить деньги",
       "translations": {
         "ru": "переводить деньги",
@@ -28,6 +29,7 @@
     {
       "word": "payment",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪmənt/",
       "translation": "платёж, оплата",
       "translations": {
         "ru": "платёж, оплата",
@@ -42,6 +44,7 @@
     {
       "word": "fee",
       "part_of_speech": "noun",
+      "transcription": "/fi/",
       "translation": "комиссия, плата",
       "translations": {
         "ru": "комиссия, плата",
@@ -56,6 +59,7 @@
     {
       "word": "charge",
       "part_of_speech": "verb",
+      "transcription": "/tʃɑrdʒ/",
       "translation": "взимать, брать плату",
       "translations": {
         "ru": "взимать, брать плату",
@@ -70,6 +74,7 @@
     {
       "word": "banknote",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæŋknoʊt/",
       "translation": "банкнота, купюра",
       "translations": {
         "ru": "банкнота, купюра",
@@ -84,6 +89,7 @@
     {
       "word": "rate",
       "part_of_speech": "noun",
+      "transcription": "/reɪt/",
       "translation": "курс, ставка",
       "translations": {
         "ru": "курс, ставка",
@@ -98,6 +104,7 @@
     {
       "word": "percent",
       "part_of_speech": "noun",
+      "transcription": "/pərˈsɛnt/",
       "translation": "процент",
       "translations": {
         "ru": "процент",
@@ -112,6 +119,7 @@
     {
       "word": "secure",
       "part_of_speech": "adjective",
+      "transcription": "/sɪˈkjʊr/",
       "translation": "безопасный, надёжный",
       "translations": {
         "ru": "безопасный, надёжный",
@@ -126,6 +134,7 @@
     {
       "word": "amount",
       "part_of_speech": "noun",
+      "transcription": "/əˈmaʊnt/",
       "translation": "сумма, количество",
       "translations": {
         "ru": "сумма, количество",
@@ -140,6 +149,7 @@
     {
       "word": "sum",
       "part_of_speech": "noun",
+      "transcription": "/sʌm/",
       "translation": "сумма",
       "translations": {
         "ru": "сумма",

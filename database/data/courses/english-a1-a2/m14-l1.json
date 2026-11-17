@@ -14,6 +14,7 @@
     {
       "word": "career",
       "part_of_speech": "noun",
+      "transcription": "/kəˈrɪr/",
       "translation": "карьера",
       "translations": {
         "ru": "карьера",
@@ -28,6 +29,7 @@
     {
       "word": "apply",
       "part_of_speech": "verb",
+      "transcription": "/əˈplaɪ/",
       "translation": "подавать заявку",
       "translations": {
         "ru": "подавать заявку",
@@ -42,6 +44,7 @@
     {
       "word": "interview",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌvju/",
       "translation": "собеседование",
       "translations": {
         "ru": "собеседование",
@@ -56,6 +59,7 @@
     {
       "word": "experience",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspɪriəns/",
       "translation": "опыт",
       "translations": {
         "ru": "опыт",
@@ -70,6 +74,7 @@
     {
       "word": "skill",
       "part_of_speech": "noun",
+      "transcription": "/skɪl/",
       "translation": "навык",
       "translations": {
         "ru": "навык",
@@ -84,6 +89,7 @@
     {
       "word": "candidate",
       "part_of_speech": "noun",
+      "transcription": "/ˈkændəˌdeɪt/",
       "translation": "кандидат",
       "translations": {
         "ru": "кандидат",
@@ -98,6 +104,7 @@
     {
       "word": "vacancy",
       "part_of_speech": "noun",
+      "transcription": "/ˈveɪkənsi/",
       "translation": "вакансия",
       "translations": {
         "ru": "вакансия",
@@ -112,6 +119,7 @@
     {
       "word": "employer",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈplɔɪər/",
       "translation": "работодатель",
       "translations": {
         "ru": "работодатель",
@@ -126,6 +134,7 @@
     {
       "word": "employee",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈplɔɪi/",
       "translation": "сотрудник",
       "translations": {
         "ru": "сотрудник",
@@ -140,6 +149,7 @@
     {
       "word": "hire",
       "part_of_speech": "verb",
+      "transcription": "/ˈhaɪər/",
       "translation": "нанимать",
       "translations": {
         "ru": "нанимать",

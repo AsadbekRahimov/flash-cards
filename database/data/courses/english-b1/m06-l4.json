@@ -14,6 +14,7 @@
     {
       "word": "hostel",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑstəl/",
       "translation": "хостел",
       "translations": {
         "ru": "хостел",
@@ -28,6 +29,7 @@
     {
       "word": "resort",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈzɔrt/",
       "translation": "курорт",
       "translations": {
         "ru": "курорт",
@@ -42,6 +44,7 @@
     {
       "word": "campsite",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæmpsaɪt/",
       "translation": "кемпинг, палаточный лагерь",
       "translations": {
         "ru": "кемпинг, палаточный лагерь",
@@ -56,6 +59,7 @@
     {
       "word": "tent",
       "part_of_speech": "noun",
+      "transcription": "/tɛnt/",
       "translation": "палатка",
       "translations": {
         "ru": "палатка",
@@ -70,6 +74,7 @@
     {
       "word": "backpack",
       "part_of_speech": "noun",
+      "transcription": "/ˈbækpæk/",
       "translation": "рюкзак",
       "translations": {
         "ru": "рюкзак",
@@ -84,6 +89,7 @@
     {
       "word": "lobby",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑbi/",
       "translation": "холл, вестибюль",
       "translations": {
         "ru": "холл, вестибюль",
@@ -98,6 +104,7 @@
     {
       "word": "brochure",
       "part_of_speech": "noun",
+      "transcription": "/broʊˈʃʊr/",
       "translation": "брошюра",
       "translations": {
         "ru": "брошюра",
@@ -112,6 +119,7 @@
     {
       "word": "sightseeing",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪtˌsiɪŋ/",
       "translation": "осмотр достопримечательностей",
       "translations": {
         "ru": "осмотр достопримечательностей",
@@ -126,6 +134,7 @@
     {
       "word": "excursion",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈskɜrʒən/",
       "translation": "экскурсия",
       "translations": {
         "ru": "экскурсия",
@@ -140,6 +149,7 @@
     {
       "word": "cruise",
       "part_of_speech": "noun",
+      "transcription": "/kruz/",
       "translation": "круиз",
       "translations": {
         "ru": "круиз",

@@ -14,6 +14,7 @@
     {
       "word": "fare",
       "part_of_speech": "noun",
+      "transcription": "/fɛr/",
       "translation": "плата за проезд, стоимость проезда",
       "translations": {
         "ru": "плата за проезд, стоимость проезда",
@@ -28,6 +29,7 @@
     {
       "word": "direct",
       "part_of_speech": "adjective",
+      "transcription": "/dəˈrɛkt/",
       "translation": "прямой",
       "translations": {
         "ru": "прямой",
@@ -42,6 +44,7 @@
     {
       "word": "terminal",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrmənəl/",
       "translation": "терминал",
       "translations": {
         "ru": "терминал",
@@ -56,6 +59,7 @@
     {
       "word": "aisle",
       "part_of_speech": "noun",
+      "transcription": "/aɪl/",
       "translation": "проход между рядами",
       "translations": {
         "ru": "проход между рядами",
@@ -70,6 +74,7 @@
     {
       "word": "crew",
       "part_of_speech": "noun",
+      "transcription": "/kru/",
       "translation": "экипаж",
       "translations": {
         "ru": "экипаж",
@@ -84,6 +89,7 @@
     {
       "word": "baggage",
       "part_of_speech": "noun",
+      "transcription": "/ˈbægɪdʒ/",
       "translation": "багаж",
       "translations": {
         "ru": "багаж",
@@ -98,6 +104,7 @@
     {
       "word": "cabin",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæbɪn/",
       "translation": "салон самолёта",
       "translations": {
         "ru": "салон самолёта",
@@ -112,6 +119,7 @@
     {
       "word": "airline",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛrlaɪn/",
       "translation": "авиакомпания",
       "translations": {
         "ru": "авиакомпания",
@@ -126,6 +134,7 @@
     {
       "word": "arrival",
       "part_of_speech": "noun",
+      "transcription": "/əˈraɪvəl/",
       "translation": "прибытие",
       "translations": {
         "ru": "прибытие",
@@ -140,6 +149,7 @@
     {
       "word": "announce",
       "part_of_speech": "verb",
+      "transcription": "/əˈnaʊns/",
       "translation": "объявлять",
       "translations": {
         "ru": "объявлять",

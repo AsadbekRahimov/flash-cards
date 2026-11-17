@@ -14,6 +14,7 @@
     {
       "word": "consumer",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsumər/",
       "translation": "потребитель",
       "translations": {
         "ru": "потребитель",
@@ -28,6 +29,7 @@
     {
       "word": "satisfied",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsætəsfaɪd/",
       "translation": "довольный",
       "translations": {
         "ru": "довольный",
@@ -42,6 +44,7 @@
     {
       "word": "feedback",
       "part_of_speech": "noun",
+      "transcription": "/ˈfidbæk/",
       "translation": "обратная связь",
       "translations": {
         "ru": "обратная связь",
@@ -56,6 +59,7 @@
     {
       "word": "review",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈvju/",
       "translation": "отзыв",
       "translations": {
         "ru": "отзыв",
@@ -70,6 +74,7 @@
     {
       "word": "shipping",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɪpɪŋ/",
       "translation": "пересылка, доставка",
       "translations": {
         "ru": "пересылка, доставка",
@@ -84,6 +89,7 @@
     {
       "word": "complaint",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpleɪnt/",
       "translation": "жалоба",
       "translations": {
         "ru": "жалоба",
@@ -98,6 +104,7 @@
     {
       "word": "genuine",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɛnjuɪn/",
       "translation": "настоящий, подлинный",
       "translations": {
         "ru": "настоящий, подлинный",
@@ -112,6 +119,7 @@
     {
       "word": "fake",
       "part_of_speech": "adjective",
+      "transcription": "/feɪk/",
       "translation": "поддельный",
       "translations": {
         "ru": "поддельный",
@@ -126,6 +134,7 @@
     {
       "word": "warranty",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔrənti/",
       "translation": "гарантия",
       "translations": {
         "ru": "гарантия",
@@ -140,6 +149,7 @@
     {
       "word": "variety",
       "part_of_speech": "noun",
+      "transcription": "/vəˈraɪəti/",
       "translation": "разнообразие",
       "translations": {
         "ru": "разнообразие",

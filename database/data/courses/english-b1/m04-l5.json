@@ -14,6 +14,7 @@
     {
       "word": "cuisine",
       "part_of_speech": "noun",
+      "transcription": "/kwɪˈzin/",
       "translation": "кухня, кулинария",
       "translations": {
         "ru": "кухня, кулинария",
@@ -28,6 +29,7 @@
     {
       "word": "portion",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɔrʃən/",
       "translation": "порция",
       "translations": {
         "ru": "порция",
@@ -42,6 +44,7 @@
     {
       "word": "vegan",
       "part_of_speech": "noun",
+      "transcription": "/ˈvigən/",
       "translation": "веган",
       "translations": {
         "ru": "веган",
@@ -56,6 +59,7 @@
     {
       "word": "appetizer",
       "part_of_speech": "noun",
+      "transcription": "/ˈæpətaɪzər/",
       "translation": "закуска",
       "translations": {
         "ru": "закуска",
@@ -70,6 +74,7 @@
     {
       "word": "tip",
       "part_of_speech": "noun",
+      "transcription": "/tɪp/",
       "translation": "чаевые",
       "translations": {
         "ru": "чаевые",
@@ -84,6 +89,7 @@
     {
       "word": "serve",
       "part_of_speech": "verb",
+      "transcription": "/sɜrv/",
       "translation": "подавать",
       "translations": {
         "ru": "подавать",
@@ -98,6 +104,7 @@
     {
       "word": "chef",
       "part_of_speech": "noun",
+      "transcription": "/ʃɛf/",
       "translation": "шеф-повар",
       "translations": {
         "ru": "шеф-повар",
@@ -112,6 +119,7 @@
     {
       "word": "chew",
       "part_of_speech": "verb",
+      "transcription": "/tʃu/",
       "translation": "жевать",
       "translations": {
         "ru": "жевать",
@@ -126,6 +134,7 @@
     {
       "word": "swallow",
       "part_of_speech": "verb",
+      "transcription": "/ˈswɑloʊ/",
       "translation": "глотать",
       "translations": {
         "ru": "глотать",
@@ -140,6 +149,7 @@
     {
       "word": "buffet",
       "part_of_speech": "noun",
+      "transcription": "/bəˈfeɪ/",
       "translation": "шведский стол",
       "translations": {
         "ru": "шведский стол",

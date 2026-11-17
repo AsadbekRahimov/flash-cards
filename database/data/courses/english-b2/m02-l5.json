@@ -14,6 +14,7 @@
     {
       "word": "expertise",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛkspərˈtiz/",
       "translation": "профессиональные знания, опыт",
       "translations": {
         "ru": "профессиональные знания, опыт",
@@ -28,6 +29,7 @@
     {
       "word": "vocation",
       "part_of_speech": "noun",
+      "transcription": "/voʊˈkeɪʃən/",
       "translation": "призвание",
       "translations": {
         "ru": "призвание",
@@ -42,6 +44,7 @@
     {
       "word": "paycheck",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪtʃɛk/",
       "translation": "зарплата",
       "translations": {
         "ru": "зарплата",
@@ -56,6 +59,7 @@
     {
       "word": "retirement",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈtaɪərmənt/",
       "translation": "выход на пенсию",
       "translations": {
         "ru": "выход на пенсию",
@@ -70,6 +74,7 @@
     {
       "word": "allowance",
       "part_of_speech": "noun",
+      "transcription": "/əˈlaʊəns/",
       "translation": "доплата, пособие",
       "translations": {
         "ru": "доплата, пособие",
@@ -84,6 +89,7 @@
     {
       "word": "compensation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑmpənˈseɪʃən/",
       "translation": "компенсация, возмещение",
       "translations": {
         "ru": "компенсация, возмещение",
@@ -98,6 +104,7 @@
     {
       "word": "relocate",
       "part_of_speech": "verb",
+      "transcription": "/riˈloʊkeɪt/",
       "translation": "переезжать",
       "translations": {
         "ru": "переезжать",
@@ -112,6 +119,7 @@
     {
       "word": "workforce",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkfɔrs/",
       "translation": "рабочая сила",
       "translations": {
         "ru": "рабочая сила",
@@ -126,6 +134,7 @@
     {
       "word": "union",
       "part_of_speech": "noun",
+      "transcription": "/ˈjunjən/",
       "translation": "профсоюз",
       "translations": {
         "ru": "профсоюз",
@@ -140,6 +149,7 @@
     {
       "word": "strike",
       "part_of_speech": "noun",
+      "transcription": "/straɪk/",
       "translation": "забастовка",
       "translations": {
         "ru": "забастовка",

@@ -14,6 +14,7 @@
     {
       "word": "entertainment",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛntərˈteɪnmənt/",
       "translation": "развлечение",
       "translations": {
         "ru": "развлечение",
@@ -28,6 +29,7 @@
     {
       "word": "leisure",
       "part_of_speech": "noun",
+      "transcription": "/ˈliʒər/",
       "translation": "досуг",
       "translations": {
         "ru": "досуг",
@@ -42,6 +44,7 @@
     {
       "word": "amusing",
       "part_of_speech": "adjective",
+      "transcription": "/əˈmjuzɪŋ/",
       "translation": "забавный",
       "translations": {
         "ru": "забавный",
@@ -56,6 +59,7 @@
     {
       "word": "circus",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrkəs/",
       "translation": "цирк",
       "translations": {
         "ru": "цирк",
@@ -70,6 +74,7 @@
     {
       "word": "parade",
       "part_of_speech": "noun",
+      "transcription": "/pəˈreɪd/",
       "translation": "парад",
       "translations": {
         "ru": "парад",
@@ -84,6 +89,7 @@
     {
       "word": "magic",
       "part_of_speech": "noun",
+      "transcription": "/ˈmædʒɪk/",
       "translation": "волшебство",
       "translations": {
         "ru": "волшебство",
@@ -98,6 +104,7 @@
     {
       "word": "puzzle",
       "part_of_speech": "noun",
+      "transcription": "/ˈpʌzəl/",
       "translation": "головоломка",
       "translations": {
         "ru": "головоломка",
@@ -112,6 +119,7 @@
     {
       "word": "chess",
       "part_of_speech": "noun",
+      "transcription": "/tʃɛs/",
       "translation": "шахматы",
       "translations": {
         "ru": "шахматы",
@@ -126,6 +134,7 @@
     {
       "word": "carnival",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrnəvəl/",
       "translation": "карнавал",
       "translations": {
         "ru": "карнавал",
@@ -140,6 +149,7 @@
     {
       "word": "host",
       "part_of_speech": "noun",
+      "transcription": "/hoʊst/",
       "translation": "ведущий",
       "translations": {
         "ru": "ведущий",

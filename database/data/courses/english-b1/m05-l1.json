@@ -14,6 +14,7 @@
     {
       "word": "organ",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrgən/",
       "translation": "орган",
       "translations": {
         "ru": "орган",
@@ -28,6 +29,7 @@
     {
       "word": "brain",
       "part_of_speech": "noun",
+      "transcription": "/breɪn/",
       "translation": "мозг",
       "translations": {
         "ru": "мозг",
@@ -42,6 +44,7 @@
     {
       "word": "lung",
       "part_of_speech": "noun",
+      "transcription": "/lʌŋ/",
       "translation": "лёгкое",
       "translations": {
         "ru": "лёгкое",
@@ -56,6 +59,7 @@
     {
       "word": "skin",
       "part_of_speech": "noun",
+      "transcription": "/skɪn/",
       "translation": "кожа",
       "translations": {
         "ru": "кожа",
@@ -70,6 +74,7 @@
     {
       "word": "bone",
       "part_of_speech": "noun",
+      "transcription": "/boʊn/",
       "translation": "кость",
       "translations": {
         "ru": "кость",
@@ -84,6 +89,7 @@
     {
       "word": "throat",
       "part_of_speech": "noun",
+      "transcription": "/θroʊt/",
       "translation": "горло",
       "translations": {
         "ru": "горло",
@@ -98,6 +104,7 @@
     {
       "word": "chest",
       "part_of_speech": "noun",
+      "transcription": "/tʃɛst/",
       "translation": "грудь, грудная клетка",
       "translations": {
         "ru": "грудь, грудная клетка",
@@ -112,6 +119,7 @@
     {
       "word": "wrist",
       "part_of_speech": "noun",
+      "transcription": "/rɪst/",
       "translation": "запястье",
       "translations": {
         "ru": "запястье",
@@ -126,6 +134,7 @@
     {
       "word": "ankle",
       "part_of_speech": "noun",
+      "transcription": "/ˈæŋkəl/",
       "translation": "лодыжка",
       "translations": {
         "ru": "лодыжка",
@@ -140,6 +149,7 @@
     {
       "word": "elbow",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛlboʊ/",
       "translation": "локоть",
       "translations": {
         "ru": "локоть",

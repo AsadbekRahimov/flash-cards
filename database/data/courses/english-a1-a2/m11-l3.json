@@ -14,6 +14,7 @@
     {
       "word": "reception",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsɛpʃən/",
       "translation": "стойка регистрации",
       "translations": {
         "ru": "стойка регистрации",
@@ -28,6 +29,7 @@
     {
       "word": "stay",
       "part_of_speech": "verb",
+      "transcription": "/steɪ/",
       "translation": "останавливаться, жить",
       "translations": {
         "ru": "останавливаться, жить",
@@ -42,6 +44,7 @@
     {
       "word": "view",
       "part_of_speech": "noun",
+      "transcription": "/vju/",
       "translation": "вид",
       "translations": {
         "ru": "вид",
@@ -56,6 +59,7 @@
     {
       "word": "balcony",
       "part_of_speech": "noun",
+      "transcription": "/ˈbælkəni/",
       "translation": "балкон",
       "translations": {
         "ru": "балкон",
@@ -70,6 +74,7 @@
     {
       "word": "pool",
       "part_of_speech": "noun",
+      "transcription": "/pul/",
       "translation": "бассейн",
       "translations": {
         "ru": "бассейн",
@@ -84,6 +89,7 @@
     {
       "word": "noise",
       "part_of_speech": "noun",
+      "transcription": "/nɔɪz/",
       "translation": "шум",
       "translations": {
         "ru": "шум",
@@ -98,6 +104,7 @@
     {
       "word": "quiet",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkwaɪət/",
       "translation": "тихий",
       "translations": {
         "ru": "тихий",
@@ -112,6 +119,7 @@
     {
       "word": "comfortable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkʌmftərbəl/",
       "translation": "удобный",
       "translations": {
         "ru": "удобный",
@@ -126,6 +134,7 @@
     {
       "word": "double",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʌbəl/",
       "translation": "двойной",
       "translations": {
         "ru": "двойной",
@@ -140,6 +149,7 @@
     {
       "word": "available",
       "part_of_speech": "adjective",
+      "transcription": "/əˈveɪləbəl/",
       "translation": "свободный, доступный",
       "translations": {
         "ru": "свободный, доступный",

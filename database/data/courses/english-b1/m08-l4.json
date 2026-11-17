@@ -14,6 +14,7 @@
     {
       "word": "coupon",
       "part_of_speech": "noun",
+      "transcription": "/ˈkupɑn/",
       "translation": "купон",
       "translations": {
         "ru": "купон",
@@ -28,6 +29,7 @@
     {
       "word": "reduce",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈdus/",
       "translation": "снижать, уменьшать",
       "translations": {
         "ru": "снижать, уменьшать",
@@ -42,6 +44,7 @@
     {
       "word": "affordable",
       "part_of_speech": "adjective",
+      "transcription": "/əˈfɔrdəbəl/",
       "translation": "доступный по цене",
       "translations": {
         "ru": "доступный по цене",
@@ -56,6 +59,7 @@
     {
       "word": "luxury",
       "part_of_speech": "noun",
+      "transcription": "/ˈlʌkʃəri/",
       "translation": "роскошь",
       "translations": {
         "ru": "роскошь",
@@ -70,6 +74,7 @@
     {
       "word": "deal",
       "part_of_speech": "noun",
+      "transcription": "/dil/",
       "translation": "выгодное предложение, сделка",
       "translations": {
         "ru": "выгодное предложение, сделка",
@@ -84,6 +89,7 @@
     {
       "word": "guarantee",
       "part_of_speech": "verb",
+      "transcription": "/ˌgɛrənˈti/",
       "translation": "гарантировать",
       "translations": {
         "ru": "гарантировать",
@@ -98,6 +104,7 @@
     {
       "word": "estimate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛstəmeɪt/",
       "translation": "приблизительно оценивать",
       "translations": {
         "ru": "приблизительно оценивать",
@@ -112,6 +119,7 @@
     {
       "word": "total",
       "part_of_speech": "noun",
+      "transcription": "/ˈtoʊtəl/",
       "translation": "общая сумма, итог",
       "translations": {
         "ru": "общая сумма, итог",
@@ -126,6 +134,7 @@
     {
       "word": "range",
       "part_of_speech": "noun",
+      "transcription": "/reɪndʒ/",
       "translation": "диапазон",
       "translations": {
         "ru": "диапазон",
@@ -140,6 +149,7 @@
     {
       "word": "compare",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈpɛr/",
       "translation": "сравнивать",
       "translations": {
         "ru": "сравнивать",

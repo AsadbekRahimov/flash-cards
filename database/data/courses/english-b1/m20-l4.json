@@ -14,6 +14,7 @@
     {
       "word": "especially",
       "part_of_speech": "adverb",
+      "transcription": "/ɪˈspɛʃəli/",
       "translation": "особенно",
       "translations": {
         "ru": "особенно",
@@ -28,6 +29,7 @@
     {
       "word": "mainly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈmeɪnli/",
       "translation": "в основном, главным образом",
       "translations": {
         "ru": "в основном, главным образом",
@@ -42,6 +44,7 @@
     {
       "word": "definitely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈdɛfənətli/",
       "translation": "обязательно, определённо",
       "translations": {
         "ru": "обязательно, определённо",
@@ -56,6 +59,7 @@
     {
       "word": "actually",
       "part_of_speech": "adverb",
+      "transcription": "/ˈæktʃuəli/",
       "translation": "на самом деле",
       "translations": {
         "ru": "на самом деле",
@@ -70,6 +74,7 @@
     {
       "word": "absolutely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈæbsəlutli/",
       "translation": "совершенно, абсолютно",
       "translations": {
         "ru": "совершенно, абсолютно",
@@ -84,6 +89,7 @@
     {
       "word": "unfortunately",
       "part_of_speech": "adverb",
+      "transcription": "/ʌnˈfɔrtʃənətli/",
       "translation": "к сожалению",
       "translations": {
         "ru": "к сожалению",
@@ -98,6 +104,7 @@
     {
       "word": "extremely",
       "part_of_speech": "adverb",
+      "transcription": "/ɪkˈstrimli/",
       "translation": "крайне, чрезвычайно",
       "translations": {
         "ru": "крайне, чрезвычайно",
@@ -112,6 +119,7 @@
     {
       "word": "slightly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈslaɪtli/",
       "translation": "немного, слегка",
       "translations": {
         "ru": "немного, слегка",
@@ -126,6 +134,7 @@
     {
       "word": "hardly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈhɑrdli/",
       "translation": "едва, почти не",
       "translations": {
         "ru": "едва, почти не",
@@ -140,6 +149,7 @@
     {
       "word": "nearly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈnɪrli/",
       "translation": "почти",
       "translations": {
         "ru": "почти",

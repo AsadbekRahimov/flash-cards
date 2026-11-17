@@ -14,6 +14,7 @@
     {
       "word": "laptop",
       "part_of_speech": "noun",
+      "transcription": "/ˈlæptɑp/",
       "translation": "ноутбук",
       "translations": {
         "ru": "ноутбук",
@@ -28,6 +29,7 @@
     {
       "word": "screen",
       "part_of_speech": "noun",
+      "transcription": "/skrin/",
       "translation": "экран",
       "translations": {
         "ru": "экран",
@@ -42,6 +44,7 @@
     {
       "word": "keyboard",
       "part_of_speech": "noun",
+      "transcription": "/ˈkibɔrd/",
       "translation": "клавиатура",
       "translations": {
         "ru": "клавиатура",
@@ -56,6 +59,7 @@
     {
       "word": "charger",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɑrdʒər/",
       "translation": "зарядное устройство",
       "translations": {
         "ru": "зарядное устройство",
@@ -70,6 +74,7 @@
     {
       "word": "battery",
       "part_of_speech": "noun",
+      "transcription": "/ˈbætəri/",
       "translation": "батарея",
       "translations": {
         "ru": "батарея",
@@ -84,6 +89,7 @@
     {
       "word": "tablet",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæblət/",
       "translation": "планшет",
       "translations": {
         "ru": "планшет",
@@ -98,6 +104,7 @@
     {
       "word": "headphones",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛdfoʊnz/",
       "translation": "наушники",
       "translations": {
         "ru": "наушники",
@@ -112,6 +119,7 @@
     {
       "word": "printer",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɪntər/",
       "translation": "принтер",
       "translations": {
         "ru": "принтер",
@@ -126,6 +134,7 @@
     {
       "word": "speaker",
       "part_of_speech": "noun",
+      "transcription": "/ˈspikər/",
       "translation": "колонка",
       "translations": {
         "ru": "колонка",
@@ -140,6 +149,7 @@
     {
       "word": "device",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈvaɪs/",
       "translation": "устройство",
       "translations": {
         "ru": "устройство",

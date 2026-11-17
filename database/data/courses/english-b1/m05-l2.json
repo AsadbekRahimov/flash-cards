@@ -14,6 +14,7 @@
     {
       "word": "disease",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈziz/",
       "translation": "заболевание",
       "translations": {
         "ru": "заболевание",
@@ -28,6 +29,7 @@
     {
       "word": "illness",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪlnəs/",
       "translation": "болезнь",
       "translations": {
         "ru": "болезнь",
@@ -42,6 +44,7 @@
     {
       "word": "sore",
       "part_of_speech": "adjective",
+      "transcription": "/sɔr/",
       "translation": "больной, воспалённый",
       "translations": {
         "ru": "больной, воспалённый",
@@ -56,6 +59,7 @@
     {
       "word": "dizzy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪzi/",
       "translation": "чувствующий головокружение",
       "translations": {
         "ru": "чувствующий головокружение",
@@ -70,6 +74,7 @@
     {
       "word": "ache",
       "part_of_speech": "verb",
+      "transcription": "/eɪk/",
       "translation": "болеть, ныть",
       "translations": {
         "ru": "болеть, ныть",
@@ -84,6 +89,7 @@
     {
       "word": "burn",
       "part_of_speech": "verb",
+      "transcription": "/bɜrn/",
       "translation": "обжигать",
       "translations": {
         "ru": "обжигать",
@@ -98,6 +104,7 @@
     {
       "word": "injure",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪndʒər/",
       "translation": "травмировать",
       "translations": {
         "ru": "травмировать",
@@ -112,6 +119,7 @@
     {
       "word": "bruise",
       "part_of_speech": "noun",
+      "transcription": "/bruz/",
       "translation": "синяк",
       "translations": {
         "ru": "синяк",
@@ -126,6 +134,7 @@
     {
       "word": "faint",
       "part_of_speech": "verb",
+      "transcription": "/feɪnt/",
       "translation": "падать в обморок",
       "translations": {
         "ru": "падать в обморок",
@@ -140,6 +149,7 @@
     {
       "word": "virus",
       "part_of_speech": "noun",
+      "transcription": "/ˈvaɪrəs/",
       "translation": "вирус",
       "translations": {
         "ru": "вирус",

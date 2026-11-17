@@ -14,6 +14,7 @@
     {
       "word": "sport",
       "part_of_speech": "noun",
+      "transcription": "/spɔrt/",
       "translation": "спорт",
       "translations": {
         "ru": "спорт",
@@ -28,6 +29,7 @@
     {
       "word": "football",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʊtbɔl/",
       "translation": "футбол",
       "translations": {
         "ru": "футбол",
@@ -42,6 +44,7 @@
     {
       "word": "tennis",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛnəs/",
       "translation": "теннис",
       "translations": {
         "ru": "теннис",
@@ -56,6 +59,7 @@
     {
       "word": "swim",
       "part_of_speech": "verb",
+      "transcription": "/swɪm/",
       "translation": "плавать",
       "translations": {
         "ru": "плавать",
@@ -70,6 +74,7 @@
     {
       "word": "player",
       "part_of_speech": "noun",
+      "transcription": "/ˈpleɪər/",
       "translation": "игрок",
       "translations": {
         "ru": "игрок",
@@ -84,6 +89,7 @@
     {
       "word": "ball",
       "part_of_speech": "noun",
+      "transcription": "/bɔl/",
       "translation": "мяч",
       "translations": {
         "ru": "мяч",
@@ -98,6 +104,7 @@
     {
       "word": "win",
       "part_of_speech": "verb",
+      "transcription": "/wɪn/",
       "translation": "выигрывать",
       "translations": {
         "ru": "выигрывать",
@@ -112,6 +119,7 @@
     {
       "word": "lose",
       "part_of_speech": "verb",
+      "transcription": "/luz/",
       "translation": "проигрывать",
       "translations": {
         "ru": "проигрывать",
@@ -126,6 +134,7 @@
     {
       "word": "match",
       "part_of_speech": "noun",
+      "transcription": "/mætʃ/",
       "translation": "матч",
       "translations": {
         "ru": "матч",
@@ -140,6 +149,7 @@
     {
       "word": "gym",
       "part_of_speech": "noun",
+      "transcription": "/dʒɪm/",
       "translation": "спортзал",
       "translations": {
         "ru": "спортзал",

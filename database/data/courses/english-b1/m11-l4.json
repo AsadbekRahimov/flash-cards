@@ -14,6 +14,7 @@
     {
       "word": "fiction",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪkʃən/",
       "translation": "художественная литература",
       "translations": {
         "ru": "художественная литература",
@@ -28,6 +29,7 @@
     {
       "word": "poetry",
       "part_of_speech": "noun",
+      "transcription": "/ˈpoʊətri/",
       "translation": "поэзия",
       "translations": {
         "ru": "поэзия",
@@ -42,6 +44,7 @@
     {
       "word": "tale",
       "part_of_speech": "noun",
+      "transcription": "/teɪl/",
       "translation": "сказка",
       "translations": {
         "ru": "сказка",
@@ -56,6 +59,7 @@
     {
       "word": "legend",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛdʒənd/",
       "translation": "легенда",
       "translations": {
         "ru": "легенда",
@@ -70,6 +74,7 @@
     {
       "word": "masterpiece",
       "part_of_speech": "noun",
+      "transcription": "/ˈmæstərpis/",
       "translation": "шедевр",
       "translations": {
         "ru": "шедевр",
@@ -84,6 +89,7 @@
     {
       "word": "sculpture",
       "part_of_speech": "noun",
+      "transcription": "/ˈskʌlptʃər/",
       "translation": "скульптура",
       "translations": {
         "ru": "скульптура",
@@ -98,6 +104,7 @@
     {
       "word": "gallery",
       "part_of_speech": "noun",
+      "transcription": "/ˈgæləri/",
       "translation": "галерея",
       "translations": {
         "ru": "галерея",
@@ -112,6 +119,7 @@
     {
       "word": "portrait",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɔrtrət/",
       "translation": "портрет",
       "translations": {
         "ru": "портрет",
@@ -126,6 +134,7 @@
     {
       "word": "sketch",
       "part_of_speech": "noun",
+      "transcription": "/skɛtʃ/",
       "translation": "набросок, эскиз",
       "translations": {
         "ru": "набросок, эскиз",
@@ -140,6 +149,7 @@
     {
       "word": "craft",
       "part_of_speech": "noun",
+      "transcription": "/kræft/",
       "translation": "ремесло",
       "translations": {
         "ru": "ремесло",

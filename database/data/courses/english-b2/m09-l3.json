@@ -14,6 +14,7 @@
     {
       "word": "legislation",
       "part_of_speech": "noun",
+      "transcription": "/ˌlɛdʒəˈsleɪʃən/",
       "translation": "законодательство",
       "translations": {
         "ru": "законодательство",
@@ -28,6 +29,7 @@
     {
       "word": "regulation",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛgjəˈleɪʃən/",
       "translation": "правило, норма",
       "translations": {
         "ru": "правило, норма",
@@ -42,6 +44,7 @@
     {
       "word": "lawful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɔfəl/",
       "translation": "законный",
       "translations": {
         "ru": "законный",
@@ -56,6 +59,7 @@
     {
       "word": "legitimate",
       "part_of_speech": "adjective",
+      "transcription": "/lɪˈdʒɪtəmət/",
       "translation": "обоснованный, законный",
       "translations": {
         "ru": "обоснованный, законный",
@@ -70,6 +74,7 @@
     {
       "word": "liberty",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪbərti/",
       "translation": "свобода",
       "translations": {
         "ru": "свобода",
@@ -84,6 +89,7 @@
     {
       "word": "obligation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑbləˈgeɪʃən/",
       "translation": "обязанность, обязательство",
       "translations": {
         "ru": "обязанность, обязательство",
@@ -98,6 +104,7 @@
     {
       "word": "violation",
       "part_of_speech": "noun",
+      "transcription": "/ˌvaɪəˈleɪʃən/",
       "translation": "нарушение",
       "translations": {
         "ru": "нарушение",
@@ -112,6 +119,7 @@
     {
       "word": "prohibit",
       "part_of_speech": "verb",
+      "transcription": "/proʊˈhɪbɪt/",
       "translation": "запрещать",
       "translations": {
         "ru": "запрещать",
@@ -126,6 +134,7 @@
     {
       "word": "enforce",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈfɔrs/",
       "translation": "обеспечивать соблюдение",
       "translations": {
         "ru": "обеспечивать соблюдение",
@@ -140,6 +149,7 @@
     {
       "word": "comply",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈplaɪ/",
       "translation": "соблюдать",
       "translations": {
         "ru": "соблюдать",

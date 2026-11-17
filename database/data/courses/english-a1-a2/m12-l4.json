@@ -14,6 +14,7 @@
     {
       "word": "program",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊgræm/",
       "translation": "программа",
       "translations": {
         "ru": "программа",
@@ -28,6 +29,7 @@
     {
       "word": "app",
       "part_of_speech": "noun",
+      "transcription": "/æp/",
       "translation": "приложение",
       "translations": {
         "ru": "приложение",
@@ -42,6 +44,7 @@
     {
       "word": "file",
       "part_of_speech": "noun",
+      "transcription": "/faɪl/",
       "translation": "файл",
       "translations": {
         "ru": "файл",
@@ -56,6 +59,7 @@
     {
       "word": "folder",
       "part_of_speech": "noun",
+      "transcription": "/ˈfoʊldər/",
       "translation": "папка",
       "translations": {
         "ru": "папка",
@@ -70,6 +74,7 @@
     {
       "word": "save",
       "part_of_speech": "verb",
+      "transcription": "/seɪv/",
       "translation": "сохранять",
       "translations": {
         "ru": "сохранять",
@@ -84,6 +89,7 @@
     {
       "word": "delete",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈlit/",
       "translation": "удалять",
       "translations": {
         "ru": "удалять",
@@ -98,6 +104,7 @@
     {
       "word": "update",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌpˈdeɪt/",
       "translation": "обновлять",
       "translations": {
         "ru": "обновлять",
@@ -112,6 +119,7 @@
     {
       "word": "install",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈstɔl/",
       "translation": "устанавливать",
       "translations": {
         "ru": "устанавливать",
@@ -126,6 +134,7 @@
     {
       "word": "data",
       "part_of_speech": "noun",
+      "transcription": "/ˈdeɪtə/",
       "translation": "данные",
       "translations": {
         "ru": "данные",
@@ -140,6 +149,7 @@
     {
       "word": "cable",
       "part_of_speech": "noun",
+      "transcription": "/ˈkeɪbəl/",
       "translation": "кабель",
       "translations": {
         "ru": "кабель",

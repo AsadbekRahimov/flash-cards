@@ -14,6 +14,7 @@
     {
       "word": "cozy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊzi/",
       "translation": "уютный",
       "translations": {
         "ru": "уютный",
@@ -28,6 +29,7 @@
     {
       "word": "spacious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈspeɪʃəs/",
       "translation": "просторный",
       "translations": {
         "ru": "просторный",
@@ -42,6 +44,7 @@
     {
       "word": "decorate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɛkəreɪt/",
       "translation": "украшать",
       "translations": {
         "ru": "украшать",
@@ -56,6 +59,7 @@
     {
       "word": "cushion",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʊʃən/",
       "translation": "диванная подушка",
       "translations": {
         "ru": "диванная подушка",
@@ -70,6 +74,7 @@
     {
       "word": "rug",
       "part_of_speech": "noun",
+      "transcription": "/rʌg/",
       "translation": "коврик",
       "translations": {
         "ru": "коврик",
@@ -84,6 +89,7 @@
     {
       "word": "cupboard",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌbərd/",
       "translation": "кухонный шкаф",
       "translations": {
         "ru": "кухонный шкаф",
@@ -98,6 +104,7 @@
     {
       "word": "fireplace",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaɪərpleɪs/",
       "translation": "камин",
       "translations": {
         "ru": "камин",
@@ -112,6 +119,7 @@
     {
       "word": "attic",
       "part_of_speech": "noun",
+      "transcription": "/ˈætɪk/",
       "translation": "чердак",
       "translations": {
         "ru": "чердак",
@@ -126,6 +134,7 @@
     {
       "word": "entrance",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛntrəns/",
       "translation": "вход",
       "translations": {
         "ru": "вход",
@@ -140,6 +149,7 @@
     {
       "word": "corridor",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrədər/",
       "translation": "коридор",
       "translations": {
         "ru": "коридор",

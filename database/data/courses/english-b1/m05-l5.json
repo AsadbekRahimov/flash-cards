@@ -14,6 +14,7 @@
     {
       "word": "hygiene",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪdʒin/",
       "translation": "гигиена",
       "translations": {
         "ru": "гигиена",
@@ -28,6 +29,7 @@
     {
       "word": "exhausted",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɔstɪd/",
       "translation": "измученный, обессиленный",
       "translations": {
         "ru": "измученный, обессиленный",
@@ -42,6 +44,7 @@
     {
       "word": "overweight",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈweɪt/",
       "translation": "с лишним весом",
       "translations": {
         "ru": "с лишним весом",
@@ -56,6 +59,7 @@
     {
       "word": "awake",
       "part_of_speech": "adjective",
+      "transcription": "/əˈweɪk/",
       "translation": "бодрствующий, не спящий",
       "translations": {
         "ru": "бодрствующий, не спящий",
@@ -70,6 +74,7 @@
     {
       "word": "nap",
       "part_of_speech": "noun",
+      "transcription": "/næp/",
       "translation": "короткий сон",
       "translations": {
         "ru": "короткий сон",
@@ -84,6 +89,7 @@
     {
       "word": "anxious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæŋkʃəs/",
       "translation": "встревоженный",
       "translations": {
         "ru": "встревоженный",
@@ -98,6 +104,7 @@
     {
       "word": "depressed",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈprɛst/",
       "translation": "подавленный",
       "translations": {
         "ru": "подавленный",
@@ -112,6 +119,7 @@
     {
       "word": "breath",
       "part_of_speech": "noun",
+      "transcription": "/brɛθ/",
       "translation": "вдох, дыхание",
       "translations": {
         "ru": "вдох, дыхание",
@@ -126,6 +134,7 @@
     {
       "word": "sweat",
       "part_of_speech": "verb",
+      "transcription": "/swɛt/",
       "translation": "потеть",
       "translations": {
         "ru": "потеть",
@@ -140,6 +149,7 @@
     {
       "word": "yawn",
       "part_of_speech": "verb",
+      "transcription": "/jɔn/",
       "translation": "зевать",
       "translations": {
         "ru": "зевать",

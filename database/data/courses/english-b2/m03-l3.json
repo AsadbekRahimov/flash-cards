@@ -14,6 +14,7 @@
     {
       "word": "bond",
       "part_of_speech": "noun",
+      "transcription": "/bɑnd/",
       "translation": "облигация",
       "translations": {
         "ru": "облигация",
@@ -28,6 +29,7 @@
     {
       "word": "stake",
       "part_of_speech": "noun",
+      "transcription": "/steɪk/",
       "translation": "доля",
       "translations": {
         "ru": "доля",
@@ -42,6 +44,7 @@
     {
       "word": "shareholder",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɛrˌhoʊldər/",
       "translation": "акционер",
       "translations": {
         "ru": "акционер",
@@ -56,6 +59,7 @@
     {
       "word": "stock",
       "part_of_speech": "noun",
+      "transcription": "/stɑk/",
       "translation": "акция",
       "translations": {
         "ru": "акция",
@@ -70,6 +74,7 @@
     {
       "word": "dividend",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪvədɛnd/",
       "translation": "дивиденд",
       "translations": {
         "ru": "дивиденд",
@@ -84,6 +89,7 @@
     {
       "word": "asset",
       "part_of_speech": "noun",
+      "transcription": "/ˈæsɛt/",
       "translation": "актив",
       "translations": {
         "ru": "актив",
@@ -98,6 +104,7 @@
     {
       "word": "portfolio",
       "part_of_speech": "noun",
+      "transcription": "/pɔrtˈfoʊlioʊ/",
       "translation": "инвестиционный портфель",
       "translations": {
         "ru": "инвестиционный портфель",
@@ -112,6 +119,7 @@
     {
       "word": "commodity",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmɑdəti/",
       "translation": "сырьевой товар",
       "translations": {
         "ru": "сырьевой товар",
@@ -126,6 +134,7 @@
     {
       "word": "broker",
       "part_of_speech": "noun",
+      "transcription": "/ˈbroʊkər/",
       "translation": "брокер",
       "translations": {
         "ru": "брокер",
@@ -140,6 +149,7 @@
     {
       "word": "speculate",
       "part_of_speech": "verb",
+      "transcription": "/ˈspɛkjəleɪt/",
       "translation": "спекулировать",
       "translations": {
         "ru": "спекулировать",

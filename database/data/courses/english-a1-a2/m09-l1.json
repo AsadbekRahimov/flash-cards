@@ -14,6 +14,7 @@
     {
       "word": "head",
       "part_of_speech": "noun",
+      "transcription": "/hɛd/",
       "translation": "голова",
       "translations": {
         "ru": "голова",
@@ -28,6 +29,7 @@
     {
       "word": "face",
       "part_of_speech": "noun",
+      "transcription": "/feɪs/",
       "translation": "лицо",
       "translations": {
         "ru": "лицо",
@@ -42,6 +44,7 @@
     {
       "word": "eye",
       "part_of_speech": "noun",
+      "transcription": "/aɪ/",
       "translation": "глаз",
       "translations": {
         "ru": "глаз",
@@ -56,6 +59,7 @@
     {
       "word": "ear",
       "part_of_speech": "noun",
+      "transcription": "/ɪr/",
       "translation": "ухо",
       "translations": {
         "ru": "ухо",
@@ -70,6 +74,7 @@
     {
       "word": "nose",
       "part_of_speech": "noun",
+      "transcription": "/noʊz/",
       "translation": "нос",
       "translations": {
         "ru": "нос",
@@ -84,6 +89,7 @@
     {
       "word": "mouth",
       "part_of_speech": "noun",
+      "transcription": "/maʊθ/",
       "translation": "рот",
       "translations": {
         "ru": "рот",
@@ -98,6 +104,7 @@
     {
       "word": "hair",
       "part_of_speech": "noun",
+      "transcription": "/hɛr/",
       "translation": "волосы",
       "translations": {
         "ru": "волосы",
@@ -112,6 +119,7 @@
     {
       "word": "hand",
       "part_of_speech": "noun",
+      "transcription": "/hænd/",
       "translation": "кисть руки, рука",
       "translations": {
         "ru": "кисть руки, рука",
@@ -126,6 +134,7 @@
     {
       "word": "arm",
       "part_of_speech": "noun",
+      "transcription": "/ɑrm/",
       "translation": "рука от плеча до кисти",
       "translations": {
         "ru": "рука от плеча до кисти",
@@ -140,6 +149,7 @@
     {
       "word": "leg",
       "part_of_speech": "noun",
+      "transcription": "/lɛg/",
       "translation": "нога",
       "translations": {
         "ru": "нога",

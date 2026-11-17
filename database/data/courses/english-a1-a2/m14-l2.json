@@ -14,6 +14,7 @@
     {
       "word": "desk",
       "part_of_speech": "noun",
+      "transcription": "/dɛsk/",
       "translation": "рабочий стол",
       "translations": {
         "ru": "рабочий стол",
@@ -28,6 +29,7 @@
     {
       "word": "schedule",
       "part_of_speech": "noun",
+      "transcription": "/ˈskɛdʒul/",
       "translation": "расписание",
       "translations": {
         "ru": "расписание",
@@ -42,6 +44,7 @@
     {
       "word": "colleague",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑlig/",
       "translation": "коллега",
       "translations": {
         "ru": "коллега",
@@ -56,6 +59,7 @@
     {
       "word": "document",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɑkjəmənt/",
       "translation": "документ",
       "translations": {
         "ru": "документ",
@@ -70,6 +74,7 @@
     {
       "word": "contract",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntrækt/",
       "translation": "контракт",
       "translations": {
         "ru": "контракт",
@@ -84,6 +89,7 @@
     {
       "word": "appointment",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɔɪntmənt/",
       "translation": "встреча по записи",
       "translations": {
         "ru": "встреча по записи",
@@ -98,6 +104,7 @@
     {
       "word": "presentation",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɛzənˈteɪʃən/",
       "translation": "презентация",
       "translations": {
         "ru": "презентация",
@@ -112,6 +119,7 @@
     {
       "word": "customer",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌstəmər/",
       "translation": "покупатель",
       "translations": {
         "ru": "покупатель",
@@ -126,6 +134,7 @@
     {
       "word": "department",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈpɑrtmənt/",
       "translation": "отдел",
       "translations": {
         "ru": "отдел",
@@ -140,6 +149,7 @@
     {
       "word": "company",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌmpəni/",
       "translation": "компания",
       "translations": {
         "ru": "компания",

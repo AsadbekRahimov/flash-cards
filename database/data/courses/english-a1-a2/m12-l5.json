@@ -14,6 +14,7 @@
     {
       "word": "technology",
       "part_of_speech": "noun",
+      "transcription": "/tɛkˈnɑlədʒi/",
       "translation": "технология",
       "translations": {
         "ru": "технология",
@@ -28,6 +29,7 @@
     {
       "word": "robot",
       "part_of_speech": "noun",
+      "transcription": "/ˈroʊbɑt/",
       "translation": "робот",
       "translations": {
         "ru": "робот",
@@ -42,6 +44,7 @@
     {
       "word": "invent",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɛnt/",
       "translation": "изобретать",
       "translations": {
         "ru": "изобретать",
@@ -56,6 +59,7 @@
     {
       "word": "modern",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɑdərn/",
       "translation": "современный",
       "translations": {
         "ru": "современный",
@@ -70,6 +74,7 @@
     {
       "word": "digital",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪdʒətəl/",
       "translation": "цифровой",
       "translations": {
         "ru": "цифровой",
@@ -84,6 +89,7 @@
     {
       "word": "smart",
       "part_of_speech": "adjective",
+      "transcription": "/smɑrt/",
       "translation": "умный",
       "translations": {
         "ru": "умный",
@@ -98,6 +104,7 @@
     {
       "word": "connect",
       "part_of_speech": "verb",
+      "transcription": "/kəˈnɛkt/",
       "translation": "подключать",
       "translations": {
         "ru": "подключать",
@@ -112,6 +119,7 @@
     {
       "word": "network",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛtwɜrk/",
       "translation": "сеть",
       "translations": {
         "ru": "сеть",
@@ -126,6 +134,7 @@
     {
       "word": "social",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsoʊʃəl/",
       "translation": "социальный",
       "translations": {
         "ru": "социальный",
@@ -140,6 +149,7 @@
     {
       "word": "machine",
       "part_of_speech": "noun",
+      "transcription": "/məˈʃin/",
       "translation": "аппарат",
       "translations": {
         "ru": "аппарат",

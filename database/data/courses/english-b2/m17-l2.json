@@ -14,6 +14,7 @@
     {
       "word": "objection",
       "part_of_speech": "noun",
+      "transcription": "/əbˈdʒɛkʃən/",
       "translation": "возражение",
       "translations": {
         "ru": "возражение",
@@ -28,6 +29,7 @@
     {
       "word": "oppose",
       "part_of_speech": "verb",
+      "transcription": "/əˈpoʊz/",
       "translation": "выступать против",
       "translations": {
         "ru": "выступать против",
@@ -42,6 +44,7 @@
     {
       "word": "dispute",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈspjut/",
       "translation": "спор, разногласие",
       "translations": {
         "ru": "спор, разногласие",
@@ -56,6 +59,7 @@
     {
       "word": "contradict",
       "part_of_speech": "verb",
+      "transcription": "/ˌkɑntrəˈdɪkt/",
       "translation": "противоречить",
       "translations": {
         "ru": "противоречить",
@@ -70,6 +74,7 @@
     {
       "word": "endorse",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈdɔrs/",
       "translation": "одобрять, поддерживать",
       "translations": {
         "ru": "одобрять, поддерживать",
@@ -84,6 +89,7 @@
     {
       "word": "concede",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsid/",
       "translation": "нехотя признавать, уступать",
       "translations": {
         "ru": "нехотя признавать, уступать",
@@ -98,6 +104,7 @@
     {
       "word": "consensus",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsɛnsəs/",
       "translation": "консенсус, общее согласие",
       "translations": {
         "ru": "консенсус, общее согласие",
@@ -112,6 +119,7 @@
     {
       "word": "skeptical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈskɛptɪkəl/",
       "translation": "скептический, недоверчивый",
       "translations": {
         "ru": "скептический, недоверчивый",
@@ -126,6 +134,7 @@
     {
       "word": "reject",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈdʒɛkt/",
       "translation": "отвергать, отклонять",
       "translations": {
         "ru": "отвергать, отклонять",
@@ -140,6 +149,7 @@
     {
       "word": "disapprove",
       "part_of_speech": "verb",
+      "transcription": "/ˌdɪsəˈpruv/",
       "translation": "не одобрять",
       "translations": {
         "ru": "не одобрять",

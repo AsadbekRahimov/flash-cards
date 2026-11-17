@@ -14,6 +14,7 @@
     {
       "word": "wallet",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɑlət/",
       "translation": "кошелёк",
       "translations": {
         "ru": "кошелёк",
@@ -28,6 +29,7 @@
     {
       "word": "purse",
       "part_of_speech": "noun",
+      "transcription": "/pɜrs/",
       "translation": "женская сумочка",
       "translations": {
         "ru": "женская сумочка",
@@ -42,6 +44,7 @@
     {
       "word": "necklace",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛkləs/",
       "translation": "ожерелье",
       "translations": {
         "ru": "ожерелье",
@@ -56,6 +59,7 @@
     {
       "word": "scarf",
       "part_of_speech": "noun",
+      "transcription": "/skɑrf/",
       "translation": "шарф",
       "translations": {
         "ru": "шарф",
@@ -70,6 +74,7 @@
     {
       "word": "gloves",
       "part_of_speech": "noun",
+      "transcription": "/glʌvz/",
       "translation": "перчатки",
       "translations": {
         "ru": "перчатки",
@@ -84,6 +89,7 @@
     {
       "word": "belt",
       "part_of_speech": "noun",
+      "transcription": "/bɛlt/",
       "translation": "ремень",
       "translations": {
         "ru": "ремень",
@@ -98,6 +104,7 @@
     {
       "word": "sunglasses",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌnˌglæsəz/",
       "translation": "солнцезащитные очки",
       "translations": {
         "ru": "солнцезащитные очки",
@@ -112,6 +119,7 @@
     {
       "word": "jewelry",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒuəlri/",
       "translation": "украшения",
       "translations": {
         "ru": "украшения",
@@ -126,6 +134,7 @@
     {
       "word": "perfume",
       "part_of_speech": "noun",
+      "transcription": "/pərˈfjum/",
       "translation": "духи",
       "translations": {
         "ru": "духи",
@@ -140,6 +149,7 @@
     {
       "word": "bracelet",
       "part_of_speech": "noun",
+      "transcription": "/ˈbreɪslət/",
       "translation": "браслет",
       "translations": {
         "ru": "браслет",

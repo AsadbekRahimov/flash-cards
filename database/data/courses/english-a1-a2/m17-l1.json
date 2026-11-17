@@ -14,6 +14,7 @@
     {
       "word": "account",
       "part_of_speech": "noun",
+      "transcription": "/əˈkaʊnt/",
       "translation": "счёт",
       "translations": {
         "ru": "счёт",
@@ -28,6 +29,7 @@
     {
       "word": "cash",
       "part_of_speech": "noun",
+      "transcription": "/kæʃ/",
       "translation": "наличные",
       "translations": {
         "ru": "наличные",
@@ -42,6 +44,7 @@
     {
       "word": "credit",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɛdət/",
       "translation": "кредит",
       "translations": {
         "ru": "кредит",
@@ -56,6 +59,7 @@
     {
       "word": "loan",
       "part_of_speech": "noun",
+      "transcription": "/loʊn/",
       "translation": "заём",
       "translations": {
         "ru": "заём",
@@ -70,6 +74,7 @@
     {
       "word": "coin",
       "part_of_speech": "noun",
+      "transcription": "/kɔɪn/",
       "translation": "монета",
       "translations": {
         "ru": "монета",
@@ -84,6 +89,7 @@
     {
       "word": "exchange",
       "part_of_speech": "verb",
+      "transcription": "/ɪksˈtʃeɪndʒ/",
       "translation": "обменивать",
       "translations": {
         "ru": "обменивать",
@@ -98,6 +104,7 @@
     {
       "word": "withdraw",
       "part_of_speech": "verb",
+      "transcription": "/wɪðˈdrɔ/",
       "translation": "снимать со счёта",
       "translations": {
         "ru": "снимать со счёта",
@@ -112,6 +119,7 @@
     {
       "word": "borrow",
       "part_of_speech": "verb",
+      "transcription": "/ˈbɑroʊ/",
       "translation": "занимать",
       "translations": {
         "ru": "занимать",
@@ -126,6 +134,7 @@
     {
       "word": "lend",
       "part_of_speech": "verb",
+      "transcription": "/lɛnd/",
       "translation": "одалживать",
       "translations": {
         "ru": "одалживать",
@@ -140,6 +149,7 @@
     {
       "word": "tax",
       "part_of_speech": "noun",
+      "transcription": "/tæks/",
       "translation": "налог",
       "translations": {
         "ru": "налог",

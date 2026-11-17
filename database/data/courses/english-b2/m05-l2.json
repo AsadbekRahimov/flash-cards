@@ -14,6 +14,7 @@
     {
       "word": "chatbot",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃætbɑt/",
       "translation": "чат-бот",
       "translations": {
         "ru": "чат-бот",
@@ -28,6 +29,7 @@
     {
       "word": "intelligence",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɛlədʒəns/",
       "translation": "интеллект",
       "translations": {
         "ru": "интеллект",
@@ -42,6 +44,7 @@
     {
       "word": "automation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɔtəˈmeɪʃən/",
       "translation": "автоматизация",
       "translations": {
         "ru": "автоматизация",
@@ -56,6 +59,7 @@
     {
       "word": "neural",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnʊrəl/",
       "translation": "нейронный",
       "translations": {
         "ru": "нейронный",
@@ -70,6 +74,7 @@
     {
       "word": "simulation",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪmjəˈleɪʃən/",
       "translation": "симуляция, моделирование",
       "translations": {
         "ru": "симуляция, моделирование",
@@ -84,6 +89,7 @@
     {
       "word": "mimic",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɪmɪk/",
       "translation": "имитировать, подражать",
       "translations": {
         "ru": "имитировать, подражать",
@@ -98,6 +104,7 @@
     {
       "word": "recognition",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛkəgˈnɪʃən/",
       "translation": "распознавание",
       "translations": {
         "ru": "распознавание",
@@ -112,6 +119,7 @@
     {
       "word": "robotics",
       "part_of_speech": "noun",
+      "transcription": "/roʊˈbɑtɪks/",
       "translation": "робототехника",
       "translations": {
         "ru": "робототехника",
@@ -126,6 +134,7 @@
     {
       "word": "drone",
       "part_of_speech": "noun",
+      "transcription": "/droʊn/",
       "translation": "дрон, беспилотник",
       "translations": {
         "ru": "дрон, беспилотник",
@@ -140,6 +149,7 @@
     {
       "word": "processor",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑsɛsər/",
       "translation": "процессор",
       "translations": {
         "ru": "процессор",

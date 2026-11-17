@@ -14,6 +14,7 @@
     {
       "word": "bias",
       "part_of_speech": "noun",
+      "transcription": "/ˈbaɪəs/",
       "translation": "предвзятость",
       "translations": {
         "ru": "предвзятость",
@@ -28,6 +29,7 @@
     {
       "word": "credibility",
       "part_of_speech": "noun",
+      "transcription": "/ˌkrɛdəˈbɪləti/",
       "translation": "надёжность, достоверность",
       "translations": {
         "ru": "надёжность, достоверность",
@@ -42,6 +44,7 @@
     {
       "word": "misinformation",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɪsɪnfərˈmeɪʃən/",
       "translation": "недостоверная информация",
       "translations": {
         "ru": "недостоверная информация",
@@ -56,6 +59,7 @@
     {
       "word": "hoax",
       "part_of_speech": "noun",
+      "transcription": "/hoʊks/",
       "translation": "фальшивка, обман",
       "translations": {
         "ru": "фальшивка, обман",
@@ -70,6 +74,7 @@
     {
       "word": "propaganda",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɑpəˈgændə/",
       "translation": "пропаганда",
       "translations": {
         "ru": "пропаганда",
@@ -84,6 +89,7 @@
     {
       "word": "censorship",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛnsərʃɪp/",
       "translation": "цензура",
       "translations": {
         "ru": "цензура",
@@ -98,6 +104,7 @@
     {
       "word": "misleading",
       "part_of_speech": "adjective",
+      "transcription": "/mɪsˈlidɪŋ/",
       "translation": "вводящий в заблуждение",
       "translations": {
         "ru": "вводящий в заблуждение",
@@ -112,6 +119,7 @@
     {
       "word": "distort",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈstɔrt/",
       "translation": "искажать",
       "translations": {
         "ru": "искажать",
@@ -126,6 +134,7 @@
     {
       "word": "exaggerate",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzædʒəreɪt/",
       "translation": "преувеличивать",
       "translations": {
         "ru": "преувеличивать",
@@ -140,6 +149,7 @@
     {
       "word": "impartial",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpɑrʃəl/",
       "translation": "беспристрастный",
       "translations": {
         "ru": "беспристрастный",

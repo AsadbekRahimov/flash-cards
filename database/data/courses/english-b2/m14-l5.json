@@ -14,6 +14,7 @@
     {
       "word": "spectacular",
       "part_of_speech": "adjective",
+      "transcription": "/spɛkˈtækjələr/",
       "translation": "впечатляющий, великолепный",
       "translations": {
         "ru": "впечатляющий, великолепный",
@@ -28,6 +29,7 @@
     {
       "word": "picturesque",
       "part_of_speech": "adjective",
+      "transcription": "/ˌpɪktʃəˈrɛsk/",
       "translation": "живописный",
       "translations": {
         "ru": "живописный",
@@ -42,6 +44,7 @@
     {
       "word": "breathtaking",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbrɛθˌteɪkɪŋ/",
       "translation": "захватывающий дух",
       "translations": {
         "ru": "захватывающий дух",
@@ -56,6 +59,7 @@
     {
       "word": "scenic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsinɪk/",
       "translation": "с красивыми видами",
       "translations": {
         "ru": "с красивыми видами",
@@ -70,6 +74,7 @@
     {
       "word": "cosmopolitan",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkɑzməˈpɑlətən/",
       "translation": "космополитичный, многонациональный",
       "translations": {
         "ru": "космополитичный, многонациональный",
@@ -84,6 +89,7 @@
     {
       "word": "nomad",
       "part_of_speech": "noun",
+      "transcription": "/ˈnoʊmæd/",
       "translation": "кочевник",
       "translations": {
         "ru": "кочевник",
@@ -98,6 +104,7 @@
     {
       "word": "stroll",
       "part_of_speech": "verb",
+      "transcription": "/stroʊl/",
       "translation": "прогуливаться, гулять",
       "translations": {
         "ru": "прогуливаться, гулять",
@@ -112,6 +119,7 @@
     {
       "word": "encounter",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkaʊntər/",
       "translation": "встречать, сталкиваться",
       "translations": {
         "ru": "встречать, сталкиваться",
@@ -126,6 +134,7 @@
     {
       "word": "nostalgia",
       "part_of_speech": "noun",
+      "transcription": "/nɑˈstældʒə/",
       "translation": "ностальгия",
       "translations": {
         "ru": "ностальгия",
@@ -140,6 +149,7 @@
     {
       "word": "dialect",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaɪəlɛkt/",
       "translation": "диалект",
       "translations": {
         "ru": "диалект",

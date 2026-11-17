@@ -14,6 +14,7 @@
     {
       "word": "diagnose",
       "part_of_speech": "verb",
+      "transcription": "/ˌdaɪəgˈnoʊs/",
       "translation": "диагностировать, ставить диагноз",
       "translations": {
         "ru": "диагностировать, ставить диагноз",
@@ -28,6 +29,7 @@
     {
       "word": "rehabilitation",
       "part_of_speech": "noun",
+      "transcription": "/ˌrihəˌbɪləˈteɪʃən/",
       "translation": "реабилитация",
       "translations": {
         "ru": "реабилитация",
@@ -42,6 +44,7 @@
     {
       "word": "physician",
       "part_of_speech": "noun",
+      "transcription": "/fɪˈzɪʃən/",
       "translation": "врач",
       "translations": {
         "ru": "врач",
@@ -56,6 +59,7 @@
     {
       "word": "transplant",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrænsplænt/",
       "translation": "пересадка, трансплантация",
       "translations": {
         "ru": "пересадка, трансплантация",
@@ -70,6 +74,7 @@
     {
       "word": "medication",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛdɪˈkeɪʃən/",
       "translation": "лекарство",
       "translations": {
         "ru": "лекарство",
@@ -84,6 +89,7 @@
     {
       "word": "paramedic",
       "part_of_speech": "noun",
+      "transcription": "/ˌpærəˈmɛdɪk/",
       "translation": "фельдшер скорой помощи",
       "translations": {
         "ru": "фельдшер скорой помощи",
@@ -98,6 +104,7 @@
     {
       "word": "remedy",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛmədi/",
       "translation": "лечебное средство",
       "translations": {
         "ru": "лечебное средство",
@@ -112,6 +119,7 @@
     {
       "word": "ward",
       "part_of_speech": "noun",
+      "transcription": "/wɔrd/",
       "translation": "больничная палата",
       "translations": {
         "ru": "больничная палата",
@@ -126,6 +134,7 @@
     {
       "word": "prescribe",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈskraɪb/",
       "translation": "прописывать, назначать",
       "translations": {
         "ru": "прописывать, назначать",
@@ -140,6 +149,7 @@
     {
       "word": "antibiotic",
       "part_of_speech": "noun",
+      "transcription": "/ˌæntibaɪˈɑtɪk/",
       "translation": "антибиотик",
       "translations": {
         "ru": "антибиотик",

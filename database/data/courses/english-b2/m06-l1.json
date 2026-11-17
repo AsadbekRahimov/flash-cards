@@ -14,6 +14,7 @@
     {
       "word": "disorder",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˈɔrdər/",
       "translation": "расстройство",
       "translations": {
         "ru": "расстройство",
@@ -28,6 +29,7 @@
     {
       "word": "diabetes",
       "part_of_speech": "noun",
+      "transcription": "/ˌdaɪəˈbitiz/",
       "translation": "сахарный диабет",
       "translations": {
         "ru": "сахарный диабет",
@@ -42,6 +44,7 @@
     {
       "word": "obesity",
       "part_of_speech": "noun",
+      "transcription": "/oʊˈbisəti/",
       "translation": "ожирение",
       "translations": {
         "ru": "ожирение",
@@ -56,6 +59,7 @@
     {
       "word": "epidemic",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛpəˈdɛmɪk/",
       "translation": "эпидемия",
       "translations": {
         "ru": "эпидемия",
@@ -70,6 +74,7 @@
     {
       "word": "chronic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkrɑnɪk/",
       "translation": "хронический",
       "translations": {
         "ru": "хронический",
@@ -84,6 +89,7 @@
     {
       "word": "contagious",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈteɪdʒəs/",
       "translation": "заразный",
       "translations": {
         "ru": "заразный",
@@ -98,6 +104,7 @@
     {
       "word": "asthma",
       "part_of_speech": "noun",
+      "transcription": "/ˈæzmə/",
       "translation": "астма",
       "translations": {
         "ru": "астма",
@@ -112,6 +119,7 @@
     {
       "word": "stroke",
       "part_of_speech": "noun",
+      "transcription": "/stroʊk/",
       "translation": "инсульт",
       "translations": {
         "ru": "инсульт",
@@ -126,6 +134,7 @@
     {
       "word": "fatigue",
       "part_of_speech": "noun",
+      "transcription": "/fəˈtig/",
       "translation": "сильная усталость",
       "translations": {
         "ru": "сильная усталость",
@@ -140,6 +149,7 @@
     {
       "word": "insomnia",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈsɑmniə/",
       "translation": "бессонница",
       "translations": {
         "ru": "бессонница",

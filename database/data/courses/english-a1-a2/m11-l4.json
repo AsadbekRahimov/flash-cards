@@ -14,6 +14,7 @@
     {
       "word": "tour",
       "part_of_speech": "noun",
+      "transcription": "/tʊr/",
       "translation": "экскурсия",
       "translations": {
         "ru": "экскурсия",
@@ -28,6 +29,7 @@
     {
       "word": "guide",
       "part_of_speech": "noun",
+      "transcription": "/gaɪd/",
       "translation": "гид",
       "translations": {
         "ru": "гид",
@@ -42,6 +44,7 @@
     {
       "word": "souvenir",
       "part_of_speech": "noun",
+      "transcription": "/ˌsuvəˈnɪr/",
       "translation": "сувенир",
       "translations": {
         "ru": "сувенир",
@@ -56,6 +59,7 @@
     {
       "word": "camera",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæmrə/",
       "translation": "фотоаппарат",
       "translations": {
         "ru": "фотоаппарат",
@@ -70,6 +74,7 @@
     {
       "word": "castle",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæsəl/",
       "translation": "замок",
       "translations": {
         "ru": "замок",
@@ -84,6 +89,7 @@
     {
       "word": "beach",
       "part_of_speech": "noun",
+      "transcription": "/bitʃ/",
       "translation": "пляж",
       "translations": {
         "ru": "пляж",
@@ -98,6 +104,7 @@
     {
       "word": "island",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪlənd/",
       "translation": "остров",
       "translations": {
         "ru": "остров",
@@ -112,6 +119,7 @@
     {
       "word": "monument",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑnjəmənt/",
       "translation": "памятник",
       "translations": {
         "ru": "памятник",
@@ -126,6 +134,7 @@
     {
       "word": "palace",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæləs/",
       "translation": "дворец",
       "translations": {
         "ru": "дворец",
@@ -140,6 +149,7 @@
     {
       "word": "postcard",
       "part_of_speech": "noun",
+      "transcription": "/ˈpoʊstkɑrd/",
       "translation": "открытка",
       "translations": {
         "ru": "открытка",

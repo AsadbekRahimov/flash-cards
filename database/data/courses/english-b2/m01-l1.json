@@ -14,6 +14,7 @@
     {
       "word": "diligent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪlədʒənt/",
       "translation": "прилежный, старательный",
       "translations": {
         "ru": "прилежный, старательный",
@@ -28,6 +29,7 @@
     {
       "word": "persistent",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈsɪstənt/",
       "translation": "настойчивый",
       "translations": {
         "ru": "настойчивый",
@@ -42,6 +44,7 @@
     {
       "word": "resilient",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈzɪliənt/",
       "translation": "стойкий, жизнестойкий",
       "translations": {
         "ru": "стойкий, жизнестойкий",
@@ -56,6 +59,7 @@
     {
       "word": "decisive",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈsaɪsɪv/",
       "translation": "решительный",
       "translations": {
         "ru": "решительный",
@@ -70,6 +74,7 @@
     {
       "word": "disciplined",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪsəplɪnd/",
       "translation": "дисциплинированный",
       "translations": {
         "ru": "дисциплинированный",
@@ -84,6 +89,7 @@
     {
       "word": "trustworthy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtrʌstˌwɜrði/",
       "translation": "надёжный, заслуживающий доверия",
       "translations": {
         "ru": "надёжный, заслуживающий доверия",
@@ -98,6 +104,7 @@
     {
       "word": "integrity",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɛgrəti/",
       "translation": "честность, порядочность",
       "translations": {
         "ru": "честность, порядочность",
@@ -112,6 +119,7 @@
     {
       "word": "courage",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɜrɪdʒ/",
       "translation": "мужество, смелость",
       "translations": {
         "ru": "мужество, смелость",
@@ -126,6 +134,7 @@
     {
       "word": "dedication",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɛdɪˈkeɪʃən/",
       "translation": "самоотдача, преданность делу",
       "translations": {
         "ru": "самоотдача, преданность делу",
@@ -140,6 +149,7 @@
     {
       "word": "committed",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈmɪtɪd/",
       "translation": "преданный делу",
       "translations": {
         "ru": "преданный делу",

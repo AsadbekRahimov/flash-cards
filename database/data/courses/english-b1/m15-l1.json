@@ -14,6 +14,7 @@
     {
       "word": "state",
       "part_of_speech": "noun",
+      "transcription": "/steɪt/",
       "translation": "государство",
       "translations": {
         "ru": "государство",
@@ -28,6 +29,7 @@
     {
       "word": "authority",
       "part_of_speech": "noun",
+      "transcription": "/əˈθɔrəti/",
       "translation": "полномочия, власть",
       "translations": {
         "ru": "полномочия, власть",
@@ -42,6 +44,7 @@
     {
       "word": "official",
       "part_of_speech": "noun",
+      "transcription": "/əˈfɪʃəl/",
       "translation": "чиновник, должностное лицо",
       "translations": {
         "ru": "чиновник, должностное лицо",
@@ -56,6 +59,7 @@
     {
       "word": "minister",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪnəstər/",
       "translation": "министр",
       "translations": {
         "ru": "министр",
@@ -70,6 +74,7 @@
     {
       "word": "leader",
       "part_of_speech": "noun",
+      "transcription": "/ˈlidər/",
       "translation": "лидер, руководитель",
       "translations": {
         "ru": "лидер, руководитель",
@@ -84,6 +89,7 @@
     {
       "word": "politics",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑlətɪks/",
       "translation": "политика",
       "translations": {
         "ru": "политика",
@@ -98,6 +104,7 @@
     {
       "word": "power",
       "part_of_speech": "noun",
+      "transcription": "/ˈpaʊər/",
       "translation": "власть",
       "translations": {
         "ru": "власть",
@@ -112,6 +119,7 @@
     {
       "word": "region",
       "part_of_speech": "noun",
+      "transcription": "/ˈridʒən/",
       "translation": "регион, область",
       "translations": {
         "ru": "регион, область",
@@ -126,6 +134,7 @@
     {
       "word": "embassy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛmbəsi/",
       "translation": "посольство",
       "translations": {
         "ru": "посольство",
@@ -140,6 +149,7 @@
     {
       "word": "independence",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪndəˈpɛndəns/",
       "translation": "независимость",
       "translations": {
         "ru": "независимость",

@@ -14,6 +14,7 @@
     {
       "word": "ingredient",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈgridiənt/",
       "translation": "ингредиент",
       "translations": {
         "ru": "ингредиент",
@@ -28,6 +29,7 @@
     {
       "word": "flour",
       "part_of_speech": "noun",
+      "transcription": "/ˈflaʊər/",
       "translation": "мука",
       "translations": {
         "ru": "мука",
@@ -42,6 +44,7 @@
     {
       "word": "honey",
       "part_of_speech": "noun",
+      "transcription": "/ˈhʌni/",
       "translation": "мёд",
       "translations": {
         "ru": "мёд",
@@ -56,6 +59,7 @@
     {
       "word": "garlic",
       "part_of_speech": "noun",
+      "transcription": "/ˈgɑrlɪk/",
       "translation": "чеснок",
       "translations": {
         "ru": "чеснок",
@@ -70,6 +74,7 @@
     {
       "word": "herb",
       "part_of_speech": "noun",
+      "transcription": "/ɜrb/",
       "translation": "пряная трава, зелень",
       "translations": {
         "ru": "пряная трава, зелень",
@@ -84,6 +89,7 @@
     {
       "word": "sauce",
       "part_of_speech": "noun",
+      "transcription": "/sɔs/",
       "translation": "соус",
       "translations": {
         "ru": "соус",
@@ -98,6 +104,7 @@
     {
       "word": "vinegar",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɪnəgər/",
       "translation": "уксус",
       "translations": {
         "ru": "уксус",
@@ -112,6 +119,7 @@
     {
       "word": "seafood",
       "part_of_speech": "noun",
+      "transcription": "/ˈsifud/",
       "translation": "морепродукты",
       "translations": {
         "ru": "морепродукты",
@@ -126,6 +134,7 @@
     {
       "word": "cabbage",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæbɪdʒ/",
       "translation": "капуста",
       "translations": {
         "ru": "капуста",
@@ -140,6 +149,7 @@
     {
       "word": "nut",
       "part_of_speech": "noun",
+      "transcription": "/nʌt/",
       "translation": "орех",
       "translations": {
         "ru": "орех",

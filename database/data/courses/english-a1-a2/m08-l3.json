@@ -14,6 +14,7 @@
     {
       "word": "holiday",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑlədeɪ/",
       "translation": "праздник",
       "translations": {
         "ru": "праздник",
@@ -28,6 +29,7 @@
     {
       "word": "party",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrti/",
       "translation": "вечеринка",
       "translations": {
         "ru": "вечеринка",
@@ -42,6 +44,7 @@
     {
       "word": "picnic",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪknɪk/",
       "translation": "пикник",
       "translations": {
         "ru": "пикник",
@@ -56,6 +59,7 @@
     {
       "word": "trip",
       "part_of_speech": "noun",
+      "transcription": "/trɪp/",
       "translation": "поездка",
       "translations": {
         "ru": "поездка",
@@ -70,6 +74,7 @@
     {
       "word": "visit",
       "part_of_speech": "verb",
+      "transcription": "/ˈvɪzət/",
       "translation": "посещать, навещать",
       "translations": {
         "ru": "посещать, навещать",
@@ -84,6 +89,7 @@
     {
       "word": "relax",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈlæks/",
       "translation": "отдыхать, расслабляться",
       "translations": {
         "ru": "отдыхать, расслабляться",
@@ -98,6 +104,7 @@
     {
       "word": "rest",
       "part_of_speech": "noun",
+      "transcription": "/rɛst/",
       "translation": "отдых",
       "translations": {
         "ru": "отдых",
@@ -112,6 +119,7 @@
     {
       "word": "invite",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvaɪt/",
       "translation": "приглашать",
       "translations": {
         "ru": "приглашать",
@@ -126,6 +134,7 @@
     {
       "word": "enjoy",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈdʒɔɪ/",
       "translation": "наслаждаться",
       "translations": {
         "ru": "наслаждаться",
@@ -140,6 +149,7 @@
     {
       "word": "fun",
       "part_of_speech": "noun",
+      "transcription": "/fʌn/",
       "translation": "веселье",
       "translations": {
         "ru": "веселье",

@@ -14,6 +14,7 @@
     {
       "word": "trust",
       "part_of_speech": "verb",
+      "transcription": "/trʌst/",
       "translation": "доверять",
       "translations": {
         "ru": "доверять",
@@ -28,6 +29,7 @@
     {
       "word": "argue",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑrgju/",
       "translation": "спорить, ссориться",
       "translations": {
         "ru": "спорить, ссориться",
@@ -42,6 +44,7 @@
     {
       "word": "forgive",
       "part_of_speech": "verb",
+      "transcription": "/fərˈgɪv/",
       "translation": "прощать",
       "translations": {
         "ru": "прощать",
@@ -56,6 +59,7 @@
     {
       "word": "miss",
       "part_of_speech": "verb",
+      "transcription": "/mɪs/",
       "translation": "скучать",
       "translations": {
         "ru": "скучать",
@@ -70,6 +74,7 @@
     {
       "word": "care",
       "part_of_speech": "verb",
+      "transcription": "/kɛr/",
       "translation": "заботиться",
       "translations": {
         "ru": "заботиться",
@@ -84,6 +89,7 @@
     {
       "word": "respect",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈspɛkt/",
       "translation": "уважать",
       "translations": {
         "ru": "уважать",
@@ -98,6 +104,7 @@
     {
       "word": "promise",
       "part_of_speech": "verb",
+      "transcription": "/ˈprɑməs/",
       "translation": "обещать",
       "translations": {
         "ru": "обещать",
@@ -112,6 +119,7 @@
     {
       "word": "apologize",
       "part_of_speech": "verb",
+      "transcription": "/əˈpɑləˌdʒaɪz/",
       "translation": "извиняться",
       "translations": {
         "ru": "извиняться",
@@ -126,6 +134,7 @@
     {
       "word": "hug",
       "part_of_speech": "verb",
+      "transcription": "/hʌg/",
       "translation": "обнимать",
       "translations": {
         "ru": "обнимать",
@@ -140,6 +149,7 @@
     {
       "word": "support",
       "part_of_speech": "verb",
+      "transcription": "/səˈpɔrt/",
       "translation": "поддерживать",
       "translations": {
         "ru": "поддерживать",

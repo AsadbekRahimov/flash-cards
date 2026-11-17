@@ -14,6 +14,7 @@
     {
       "word": "trilogy",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrɪlədʒi/",
       "translation": "трилогия",
       "translations": {
         "ru": "трилогия",
@@ -28,6 +29,7 @@
     {
       "word": "narrative",
       "part_of_speech": "noun",
+      "transcription": "/ˈnærətɪv/",
       "translation": "повествование",
       "translations": {
         "ru": "повествование",
@@ -42,6 +44,7 @@
     {
       "word": "prose",
       "part_of_speech": "noun",
+      "transcription": "/proʊz/",
       "translation": "проза",
       "translations": {
         "ru": "проза",
@@ -56,6 +59,7 @@
     {
       "word": "epic",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛpɪk/",
       "translation": "эпос",
       "translations": {
         "ru": "эпос",
@@ -70,6 +74,7 @@
     {
       "word": "parody",
       "part_of_speech": "noun",
+      "transcription": "/ˈpærədi/",
       "translation": "пародия",
       "translations": {
         "ru": "пародия",
@@ -84,6 +89,7 @@
     {
       "word": "memoir",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛmwɑr/",
       "translation": "мемуары",
       "translations": {
         "ru": "мемуары",
@@ -98,6 +104,7 @@
     {
       "word": "myth",
       "part_of_speech": "noun",
+      "transcription": "/mɪθ/",
       "translation": "миф",
       "translations": {
         "ru": "миф",
@@ -112,6 +119,7 @@
     {
       "word": "satire",
       "part_of_speech": "noun",
+      "transcription": "/ˈsætaɪər/",
       "translation": "сатира",
       "translations": {
         "ru": "сатира",
@@ -126,6 +134,7 @@
     {
       "word": "tragedy",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrædʒədi/",
       "translation": "трагедия",
       "translations": {
         "ru": "трагедия",
@@ -140,6 +149,7 @@
     {
       "word": "fable",
       "part_of_speech": "noun",
+      "transcription": "/ˈfeɪbəl/",
       "translation": "басня",
       "translations": {
         "ru": "басня",

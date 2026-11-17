@@ -14,6 +14,7 @@
     {
       "word": "quiz",
       "part_of_speech": "noun",
+      "transcription": "/kwɪz/",
       "translation": "короткий тест",
       "translations": {
         "ru": "короткий тест",
@@ -28,6 +29,7 @@
     {
       "word": "preparation",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɛpəˈreɪʃən/",
       "translation": "подготовка",
       "translations": {
         "ru": "подготовка",
@@ -42,6 +44,7 @@
     {
       "word": "attempt",
       "part_of_speech": "noun",
+      "transcription": "/əˈtɛmpt/",
       "translation": "попытка",
       "translations": {
         "ru": "попытка",
@@ -56,6 +59,7 @@
     {
       "word": "cheat",
       "part_of_speech": "verb",
+      "transcription": "/tʃit/",
       "translation": "списывать, жульничать",
       "translations": {
         "ru": "списывать, жульничать",
@@ -70,6 +74,7 @@
     {
       "word": "correction",
       "part_of_speech": "noun",
+      "transcription": "/kəˈrɛkʃən/",
       "translation": "исправление",
       "translations": {
         "ru": "исправление",
@@ -84,6 +89,7 @@
     {
       "word": "oral",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɔrəl/",
       "translation": "устный",
       "translations": {
         "ru": "устный",
@@ -98,6 +104,7 @@
     {
       "word": "error",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛrər/",
       "translation": "ошибка",
       "translations": {
         "ru": "ошибка",
@@ -112,6 +119,7 @@
     {
       "word": "progress",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑgrɛs/",
       "translation": "прогресс, успехи",
       "translations": {
         "ru": "прогресс, успехи",
@@ -126,6 +134,7 @@
     {
       "word": "accurate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈækjərət/",
       "translation": "точный",
       "translations": {
         "ru": "точный",
@@ -140,6 +149,7 @@
     {
       "word": "strict",
       "part_of_speech": "adjective",
+      "transcription": "/strɪkt/",
       "translation": "строгий",
       "translations": {
         "ru": "строгий",

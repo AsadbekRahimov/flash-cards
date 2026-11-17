@@ -14,6 +14,7 @@
     {
       "word": "panel",
       "part_of_speech": "noun",
+      "transcription": "/ˈpænəl/",
       "translation": "группа экспертов",
       "translations": {
         "ru": "группа экспертов",
@@ -28,6 +29,7 @@
     {
       "word": "statement",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪtmənt/",
       "translation": "заявление",
       "translations": {
         "ru": "заявление",
@@ -42,6 +44,7 @@
     {
       "word": "spokesperson",
       "part_of_speech": "noun",
+      "transcription": "/ˈspoʊksˌpɜrsən/",
       "translation": "официальный представитель",
       "translations": {
         "ru": "официальный представитель",
@@ -56,6 +59,7 @@
     {
       "word": "disclose",
       "part_of_speech": "verb",
+      "transcription": "/dɪsˈkloʊz/",
       "translation": "раскрывать, разглашать",
       "translations": {
         "ru": "раскрывать, разглашать",
@@ -70,6 +74,7 @@
     {
       "word": "briefing",
       "part_of_speech": "noun",
+      "transcription": "/ˈbrifɪŋ/",
       "translation": "брифинг",
       "translations": {
         "ru": "брифинг",
@@ -84,6 +89,7 @@
     {
       "word": "declare",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈklɛr/",
       "translation": "объявлять",
       "translations": {
         "ru": "объявлять",
@@ -98,6 +104,7 @@
     {
       "word": "commentary",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑməntɛri/",
       "translation": "комментарий",
       "translations": {
         "ru": "комментарий",
@@ -112,6 +119,7 @@
     {
       "word": "publicity",
       "part_of_speech": "noun",
+      "transcription": "/pʌˈblɪsəti/",
       "translation": "внимание общественности, огласка",
       "translations": {
         "ru": "внимание общественности, огласка",
@@ -126,6 +134,7 @@
     {
       "word": "quotation",
       "part_of_speech": "noun",
+      "transcription": "/kwoʊˈteɪʃən/",
       "translation": "цитата",
       "translations": {
         "ru": "цитата",
@@ -140,6 +149,7 @@
     {
       "word": "transcript",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrænskrɪpt/",
       "translation": "стенограмма",
       "translations": {
         "ru": "стенограмма",

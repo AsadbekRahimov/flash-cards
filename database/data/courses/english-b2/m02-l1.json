@@ -14,6 +14,7 @@
     {
       "word": "recruit",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkrut/",
       "translation": "нанимать, набирать",
       "translations": {
         "ru": "нанимать, набирать",
@@ -28,6 +29,7 @@
     {
       "word": "applicant",
       "part_of_speech": "noun",
+      "transcription": "/ˈæplɪkənt/",
       "translation": "соискатель, кандидат",
       "translations": {
         "ru": "соискатель, кандидат",
@@ -42,6 +44,7 @@
     {
       "word": "apprenticeship",
       "part_of_speech": "noun",
+      "transcription": "/əˈprɛntɪsʃɪp/",
       "translation": "ученичество, обучение ремеслу",
       "translations": {
         "ru": "ученичество, обучение ремеслу",
@@ -56,6 +59,7 @@
     {
       "word": "probation",
       "part_of_speech": "noun",
+      "transcription": "/proʊˈbeɪʃən/",
       "translation": "испытательный срок",
       "translations": {
         "ru": "испытательный срок",
@@ -70,6 +74,7 @@
     {
       "word": "appoint",
       "part_of_speech": "verb",
+      "transcription": "/əˈpɔɪnt/",
       "translation": "назначать",
       "translations": {
         "ru": "назначать",
@@ -84,6 +89,7 @@
     {
       "word": "resignation",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛzɪgˈneɪʃən/",
       "translation": "отставка, уход с должности",
       "translations": {
         "ru": "отставка, уход с должности",
@@ -98,6 +104,7 @@
     {
       "word": "dismiss",
       "part_of_speech": "verb",
+      "transcription": "/dɪsˈmɪs/",
       "translation": "увольнять",
       "translations": {
         "ru": "увольнять",
@@ -112,6 +119,7 @@
     {
       "word": "layoff",
       "part_of_speech": "noun",
+      "transcription": "/ˈleɪɔf/",
       "translation": "сокращение штата",
       "translations": {
         "ru": "сокращение штата",
@@ -126,6 +134,7 @@
     {
       "word": "personnel",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɜrsəˈnɛl/",
       "translation": "персонал, кадры",
       "translations": {
         "ru": "персонал, кадры",
@@ -140,6 +149,7 @@
     {
       "word": "shortlist",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɔrtlɪst/",
       "translation": "список отобранных кандидатов",
       "translations": {
         "ru": "список отобранных кандидатов",

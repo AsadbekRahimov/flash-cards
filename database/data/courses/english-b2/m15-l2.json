@@ -14,6 +14,7 @@
     {
       "word": "commuter",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmjutər/",
       "translation": "пассажир, ездящий на работу",
       "translations": {
         "ru": "пассажир, ездящий на работу",
@@ -28,6 +29,7 @@
     {
       "word": "congestion",
       "part_of_speech": "noun",
+      "transcription": "/kənˈdʒɛstʃən/",
       "translation": "затор, пробка",
       "translations": {
         "ru": "затор, пробка",
@@ -42,6 +44,7 @@
     {
       "word": "crosswalk",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɔswɔk/",
       "translation": "пешеходный переход",
       "translations": {
         "ru": "пешеходный переход",
@@ -56,6 +59,7 @@
     {
       "word": "bypass",
       "part_of_speech": "noun",
+      "transcription": "/ˈbaɪpæs/",
       "translation": "объездная дорога",
       "translations": {
         "ru": "объездная дорога",
@@ -70,6 +74,7 @@
     {
       "word": "junction",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒʌŋkʃən/",
       "translation": "пересечение дорог",
       "translations": {
         "ru": "пересечение дорог",
@@ -84,6 +89,7 @@
     {
       "word": "fleet",
       "part_of_speech": "noun",
+      "transcription": "/flit/",
       "translation": "автопарк",
       "translations": {
         "ru": "автопарк",
@@ -98,6 +104,7 @@
     {
       "word": "toll",
       "part_of_speech": "noun",
+      "transcription": "/toʊl/",
       "translation": "плата за проезд",
       "translations": {
         "ru": "плата за проезд",
@@ -112,6 +119,7 @@
     {
       "word": "shuttle",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃʌtəl/",
       "translation": "шаттл, челночный автобус",
       "translations": {
         "ru": "шаттл, челночный автобус",
@@ -126,6 +134,7 @@
     {
       "word": "freight",
       "part_of_speech": "noun",
+      "transcription": "/freɪt/",
       "translation": "перевозимый груз",
       "translations": {
         "ru": "перевозимый груз",
@@ -140,6 +149,7 @@
     {
       "word": "cargo",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrgoʊ/",
       "translation": "груз",
       "translations": {
         "ru": "груз",

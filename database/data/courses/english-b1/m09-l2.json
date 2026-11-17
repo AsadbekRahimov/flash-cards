@@ -14,6 +14,7 @@
     {
       "word": "topic",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɑpɪk/",
       "translation": "тема",
       "translations": {
         "ru": "тема",
@@ -28,6 +29,7 @@
     {
       "word": "semester",
       "part_of_speech": "noun",
+      "transcription": "/səˈmɛstər/",
       "translation": "семестр",
       "translations": {
         "ru": "семестр",
@@ -42,6 +44,7 @@
     {
       "word": "seminar",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛmənɑr/",
       "translation": "семинар",
       "translations": {
         "ru": "семинар",
@@ -56,6 +59,7 @@
     {
       "word": "tutor",
       "part_of_speech": "noun",
+      "transcription": "/ˈtutər/",
       "translation": "репетитор",
       "translations": {
         "ru": "репетитор",
@@ -70,6 +74,7 @@
     {
       "word": "enroll",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈroʊl/",
       "translation": "записываться на курс",
       "translations": {
         "ru": "записываться на курс",
@@ -84,6 +89,7 @@
     {
       "word": "timetable",
       "part_of_speech": "noun",
+      "transcription": "/ˈtaɪmˌteɪbəl/",
       "translation": "расписание занятий",
       "translations": {
         "ru": "расписание занятий",
@@ -98,6 +104,7 @@
     {
       "word": "workshop",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkʃɑp/",
       "translation": "мастер-класс",
       "translations": {
         "ru": "мастер-класс",
@@ -112,6 +119,7 @@
     {
       "word": "absent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæbsənt/",
       "translation": "отсутствующий",
       "translations": {
         "ru": "отсутствующий",
@@ -126,6 +134,7 @@
     {
       "word": "chapter",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃæptər/",
       "translation": "глава",
       "translations": {
         "ru": "глава",
@@ -140,6 +149,7 @@
     {
       "word": "paragraph",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəgræf/",
       "translation": "абзац",
       "translations": {
         "ru": "абзац",

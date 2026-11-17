@@ -14,6 +14,7 @@
     {
       "word": "court",
       "part_of_speech": "noun",
+      "transcription": "/kɔrt/",
       "translation": "суд",
       "translations": {
         "ru": "суд",
@@ -28,6 +29,7 @@
     {
       "word": "judge",
       "part_of_speech": "noun",
+      "transcription": "/dʒʌdʒ/",
       "translation": "судья",
       "translations": {
         "ru": "судья",
@@ -42,6 +44,7 @@
     {
       "word": "trial",
       "part_of_speech": "noun",
+      "transcription": "/ˈtraɪəl/",
       "translation": "судебный процесс",
       "translations": {
         "ru": "судебный процесс",
@@ -56,6 +59,7 @@
     {
       "word": "witness",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪtnəs/",
       "translation": "свидетель",
       "translations": {
         "ru": "свидетель",
@@ -70,6 +74,7 @@
     {
       "word": "guilty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgɪlti/",
       "translation": "виновный",
       "translations": {
         "ru": "виновный",
@@ -84,6 +89,7 @@
     {
       "word": "innocent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɪnəsənt/",
       "translation": "невиновный",
       "translations": {
         "ru": "невиновный",
@@ -98,6 +104,7 @@
     {
       "word": "legal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈligəl/",
       "translation": "законный",
       "translations": {
         "ru": "законный",
@@ -112,6 +119,7 @@
     {
       "word": "justice",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒʌstɪs/",
       "translation": "справедливость, правосудие",
       "translations": {
         "ru": "справедливость, правосудие",
@@ -126,6 +134,7 @@
     {
       "word": "punish",
       "part_of_speech": "verb",
+      "transcription": "/ˈpʌnɪʃ/",
       "translation": "наказывать",
       "translations": {
         "ru": "наказывать",
@@ -140,6 +149,7 @@
     {
       "word": "prison",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɪzən/",
       "translation": "тюрьма",
       "translations": {
         "ru": "тюрьма",

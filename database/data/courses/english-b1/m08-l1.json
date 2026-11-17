@@ -14,6 +14,7 @@
     {
       "word": "expense",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspɛns/",
       "translation": "расход",
       "translations": {
         "ru": "расход",
@@ -28,6 +29,7 @@
     {
       "word": "debt",
       "part_of_speech": "noun",
+      "transcription": "/dɛt/",
       "translation": "долг",
       "translations": {
         "ru": "долг",
@@ -42,6 +44,7 @@
     {
       "word": "owe",
       "part_of_speech": "verb",
+      "transcription": "/oʊ/",
       "translation": "быть должным",
       "translations": {
         "ru": "быть должным",
@@ -56,6 +59,7 @@
     {
       "word": "wealthy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɛlθi/",
       "translation": "состоятельный, богатый",
       "translations": {
         "ru": "состоятельный, богатый",
@@ -70,6 +74,7 @@
     {
       "word": "fortune",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrtʃən/",
       "translation": "состояние, богатство",
       "translations": {
         "ru": "состояние, богатство",
@@ -84,6 +89,7 @@
     {
       "word": "finance",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaɪnæns/",
       "translation": "финансы",
       "translations": {
         "ru": "финансы",
@@ -98,6 +104,7 @@
     {
       "word": "economy",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈkɑnəmi/",
       "translation": "экономика",
       "translations": {
         "ru": "экономика",
@@ -112,6 +119,7 @@
     {
       "word": "fund",
       "part_of_speech": "noun",
+      "transcription": "/fʌnd/",
       "translation": "фонд",
       "translations": {
         "ru": "фонд",
@@ -126,6 +134,7 @@
     {
       "word": "loss",
       "part_of_speech": "noun",
+      "transcription": "/lɔs/",
       "translation": "убыток",
       "translations": {
         "ru": "убыток",
@@ -140,6 +149,7 @@
     {
       "word": "value",
       "part_of_speech": "noun",
+      "transcription": "/ˈvælju/",
       "translation": "стоимость, ценность",
       "translations": {
         "ru": "стоимость, ценность",

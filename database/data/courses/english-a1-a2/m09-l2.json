@@ -14,6 +14,7 @@
     {
       "word": "foot",
       "part_of_speech": "noun",
+      "transcription": "/fʊt/",
       "translation": "ступня",
       "translations": {
         "ru": "ступня",
@@ -28,6 +29,7 @@
     {
       "word": "finger",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪŋgər/",
       "translation": "палец руки",
       "translations": {
         "ru": "палец руки",
@@ -42,6 +44,7 @@
     {
       "word": "tooth",
       "part_of_speech": "noun",
+      "transcription": "/tuθ/",
       "translation": "зуб",
       "translations": {
         "ru": "зуб",
@@ -56,6 +59,7 @@
     {
       "word": "neck",
       "part_of_speech": "noun",
+      "transcription": "/nɛk/",
       "translation": "шея",
       "translations": {
         "ru": "шея",
@@ -70,6 +74,7 @@
     {
       "word": "back",
       "part_of_speech": "noun",
+      "transcription": "/bæk/",
       "translation": "спина",
       "translations": {
         "ru": "спина",
@@ -84,6 +89,7 @@
     {
       "word": "stomach",
       "part_of_speech": "noun",
+      "transcription": "/ˈstʌmək/",
       "translation": "живот",
       "translations": {
         "ru": "живот",
@@ -98,6 +104,7 @@
     {
       "word": "heart",
       "part_of_speech": "noun",
+      "transcription": "/hɑrt/",
       "translation": "сердце",
       "translations": {
         "ru": "сердце",
@@ -112,6 +119,7 @@
     {
       "word": "shoulder",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃoʊldər/",
       "translation": "плечо",
       "translations": {
         "ru": "плечо",
@@ -126,6 +134,7 @@
     {
       "word": "knee",
       "part_of_speech": "noun",
+      "transcription": "/ni/",
       "translation": "колено",
       "translations": {
         "ru": "колено",
@@ -140,6 +149,7 @@
     {
       "word": "body",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑdi/",
       "translation": "тело",
       "translations": {
         "ru": "тело",

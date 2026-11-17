@@ -14,6 +14,7 @@
     {
       "word": "table",
       "part_of_speech": "noun",
+      "transcription": "/ˈteɪbəl/",
       "translation": "стол",
       "translations": {
         "ru": "стол",
@@ -28,6 +29,7 @@
     {
       "word": "chair",
       "part_of_speech": "noun",
+      "transcription": "/tʃɛr/",
       "translation": "стул",
       "translations": {
         "ru": "стул",
@@ -42,6 +44,7 @@
     {
       "word": "bed",
       "part_of_speech": "noun",
+      "transcription": "/bɛd/",
       "translation": "кровать",
       "translations": {
         "ru": "кровать",
@@ -56,6 +59,7 @@
     {
       "word": "sofa",
       "part_of_speech": "noun",
+      "transcription": "/ˈsoʊfə/",
       "translation": "диван",
       "translations": {
         "ru": "диван",
@@ -70,6 +74,7 @@
     {
       "word": "lamp",
       "part_of_speech": "noun",
+      "transcription": "/læmp/",
       "translation": "лампа",
       "translations": {
         "ru": "лампа",
@@ -84,6 +89,7 @@
     {
       "word": "shelf",
       "part_of_speech": "noun",
+      "transcription": "/ʃɛlf/",
       "translation": "полка",
       "translations": {
         "ru": "полка",
@@ -98,6 +104,7 @@
     {
       "word": "carpet",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrpət/",
       "translation": "ковёр",
       "translations": {
         "ru": "ковёр",
@@ -112,6 +119,7 @@
     {
       "word": "mirror",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪrər/",
       "translation": "зеркало",
       "translations": {
         "ru": "зеркало",
@@ -126,6 +134,7 @@
     {
       "word": "key",
       "part_of_speech": "noun",
+      "transcription": "/ki/",
       "translation": "ключ",
       "translations": {
         "ru": "ключ",
@@ -140,6 +149,7 @@
     {
       "word": "clock",
       "part_of_speech": "noun",
+      "transcription": "/klɑk/",
       "translation": "часы",
       "translations": {
         "ru": "часы",

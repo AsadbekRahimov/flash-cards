@@ -14,6 +14,7 @@
     {
       "word": "discover",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈskʌvər/",
       "translation": "открывать, обнаруживать",
       "translations": {
         "ru": "открывать, обнаруживать",
@@ -28,6 +29,7 @@
     {
       "word": "process",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑsɛs/",
       "translation": "процесс",
       "translations": {
         "ru": "процесс",
@@ -42,6 +44,7 @@
     {
       "word": "force",
       "part_of_speech": "noun",
+      "transcription": "/fɔrs/",
       "translation": "сила",
       "translations": {
         "ru": "сила",
@@ -56,6 +59,7 @@
     {
       "word": "motion",
       "part_of_speech": "noun",
+      "transcription": "/ˈmoʊʃən/",
       "translation": "движение",
       "translations": {
         "ru": "движение",
@@ -70,6 +74,7 @@
     {
       "word": "heat",
       "part_of_speech": "noun",
+      "transcription": "/hit/",
       "translation": "тепло",
       "translations": {
         "ru": "тепло",
@@ -84,6 +89,7 @@
     {
       "word": "magnet",
       "part_of_speech": "noun",
+      "transcription": "/ˈmægnət/",
       "translation": "магнит",
       "translations": {
         "ru": "магнит",
@@ -98,6 +104,7 @@
     {
       "word": "laser",
       "part_of_speech": "noun",
+      "transcription": "/ˈleɪzər/",
       "translation": "лазер",
       "translations": {
         "ru": "лазер",
@@ -112,6 +119,7 @@
     {
       "word": "cell",
       "part_of_speech": "noun",
+      "transcription": "/sɛl/",
       "translation": "клетка организма",
       "translations": {
         "ru": "клетка организма",
@@ -126,6 +134,7 @@
     {
       "word": "reaction",
       "part_of_speech": "noun",
+      "transcription": "/riˈækʃən/",
       "translation": "реакция",
       "translations": {
         "ru": "реакция",
@@ -140,6 +149,7 @@
     {
       "word": "electric",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlɛktrɪk/",
       "translation": "электрический",
       "translations": {
         "ru": "электрический",

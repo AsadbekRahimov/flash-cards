@@ -14,6 +14,7 @@
     {
       "word": "cyclone",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪkloʊn/",
       "translation": "циклон",
       "translations": {
         "ru": "циклон",
@@ -28,6 +29,7 @@
     {
       "word": "tornado",
       "part_of_speech": "noun",
+      "transcription": "/tɔrˈneɪdoʊ/",
       "translation": "торнадо, смерч",
       "translations": {
         "ru": "торнадо, смерч",
@@ -42,6 +44,7 @@
     {
       "word": "tsunami",
       "part_of_speech": "noun",
+      "transcription": "/tsuˈnɑmi/",
       "translation": "цунами",
       "translations": {
         "ru": "цунами",
@@ -56,6 +59,7 @@
     {
       "word": "landslide",
       "part_of_speech": "noun",
+      "transcription": "/ˈlændslaɪd/",
       "translation": "оползень",
       "translations": {
         "ru": "оползень",
@@ -70,6 +74,7 @@
     {
       "word": "avalanche",
       "part_of_speech": "noun",
+      "transcription": "/ˈævəlæntʃ/",
       "translation": "лавина",
       "translations": {
         "ru": "лавина",
@@ -84,6 +89,7 @@
     {
       "word": "erosion",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈroʊʒən/",
       "translation": "эрозия",
       "translations": {
         "ru": "эрозия",
@@ -98,6 +104,7 @@
     {
       "word": "wildfire",
       "part_of_speech": "noun",
+      "transcription": "/ˈwaɪldfaɪər/",
       "translation": "лесной пожар",
       "translations": {
         "ru": "лесной пожар",
@@ -112,6 +119,7 @@
     {
       "word": "eruption",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈrʌpʃən/",
       "translation": "извержение",
       "translations": {
         "ru": "извержение",
@@ -126,6 +134,7 @@
     {
       "word": "deforestation",
       "part_of_speech": "noun",
+      "transcription": "/diˌfɔrəˈsteɪʃən/",
       "translation": "вырубка лесов",
       "translations": {
         "ru": "вырубка лесов",
@@ -140,6 +149,7 @@
     {
       "word": "catastrophe",
       "part_of_speech": "noun",
+      "transcription": "/kəˈtæstrəfi/",
       "translation": "катастрофа",
       "translations": {
         "ru": "катастрофа",

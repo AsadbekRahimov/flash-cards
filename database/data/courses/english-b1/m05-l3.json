@@ -14,6 +14,7 @@
     {
       "word": "cure",
       "part_of_speech": "verb",
+      "transcription": "/kjʊr/",
       "translation": "вылечивать",
       "translations": {
         "ru": "вылечивать",
@@ -28,6 +29,7 @@
     {
       "word": "heal",
       "part_of_speech": "verb",
+      "transcription": "/hil/",
       "translation": "заживать",
       "translations": {
         "ru": "заживать",
@@ -42,6 +44,7 @@
     {
       "word": "syrup",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪrəp/",
       "translation": "сироп",
       "translations": {
         "ru": "сироп",
@@ -56,6 +59,7 @@
     {
       "word": "operation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑpəˈreɪʃən/",
       "translation": "операция",
       "translations": {
         "ru": "операция",
@@ -70,6 +74,7 @@
     {
       "word": "injection",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʒɛkʃən/",
       "translation": "укол",
       "translations": {
         "ru": "укол",
@@ -84,6 +89,7 @@
     {
       "word": "therapy",
       "part_of_speech": "noun",
+      "transcription": "/ˈθɛrəpi/",
       "translation": "терапия",
       "translations": {
         "ru": "терапия",
@@ -98,6 +104,7 @@
     {
       "word": "treat",
       "part_of_speech": "verb",
+      "transcription": "/trit/",
       "translation": "лечить",
       "translations": {
         "ru": "лечить",
@@ -112,6 +119,7 @@
     {
       "word": "dose",
       "part_of_speech": "noun",
+      "transcription": "/doʊs/",
       "translation": "доза",
       "translations": {
         "ru": "доза",
@@ -126,6 +134,7 @@
     {
       "word": "prevent",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈvɛnt/",
       "translation": "предотвращать",
       "translations": {
         "ru": "предотвращать",
@@ -140,6 +149,7 @@
     {
       "word": "painkiller",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪnˌkɪlər/",
       "translation": "обезболивающее",
       "translations": {
         "ru": "обезболивающее",

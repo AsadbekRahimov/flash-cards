@@ -14,6 +14,7 @@
     {
       "word": "curriculum",
       "part_of_speech": "noun",
+      "transcription": "/kəˈrɪkjələm/",
       "translation": "учебный план",
       "translations": {
         "ru": "учебный план",
@@ -28,6 +29,7 @@
     {
       "word": "syllabus",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪləbəs/",
       "translation": "программа курса",
       "translations": {
         "ru": "программа курса",
@@ -42,6 +44,7 @@
     {
       "word": "dean",
       "part_of_speech": "noun",
+      "transcription": "/din/",
       "translation": "декан",
       "translations": {
         "ru": "декан",
@@ -56,6 +59,7 @@
     {
       "word": "lecturer",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛktʃərər/",
       "translation": "преподаватель вуза",
       "translations": {
         "ru": "преподаватель вуза",
@@ -70,6 +74,7 @@
     {
       "word": "faculty",
       "part_of_speech": "noun",
+      "transcription": "/ˈfækəlti/",
       "translation": "факультет",
       "translations": {
         "ru": "факультет",
@@ -84,6 +89,7 @@
     {
       "word": "undergraduate",
       "part_of_speech": "noun",
+      "transcription": "/ˌʌndərˈgrædʒuət/",
       "translation": "студент бакалавриата",
       "translations": {
         "ru": "студент бакалавриата",
@@ -98,6 +104,7 @@
     {
       "word": "postgraduate",
       "part_of_speech": "noun",
+      "transcription": "/ˌpoʊstˈgrædʒuət/",
       "translation": "магистрант, аспирант",
       "translations": {
         "ru": "магистрант, аспирант",
@@ -112,6 +119,7 @@
     {
       "word": "tutorial",
       "part_of_speech": "noun",
+      "transcription": "/tuˈtɔriəl/",
       "translation": "занятие в малой группе",
       "translations": {
         "ru": "занятие в малой группе",
@@ -126,6 +134,7 @@
     {
       "word": "module",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑdʒul/",
       "translation": "учебный модуль",
       "translations": {
         "ru": "учебный модуль",
@@ -140,6 +149,7 @@
     {
       "word": "admission",
       "part_of_speech": "noun",
+      "transcription": "/ədˈmɪʃən/",
       "translation": "приём, зачисление",
       "translations": {
         "ru": "приём, зачисление",

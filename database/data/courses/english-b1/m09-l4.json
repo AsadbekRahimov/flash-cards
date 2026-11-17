@@ -14,6 +14,7 @@
     {
       "word": "concentrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑnsəntreɪt/",
       "translation": "сосредоточиваться",
       "translations": {
         "ru": "сосредоточиваться",
@@ -28,6 +29,7 @@
     {
       "word": "notice",
       "part_of_speech": "verb",
+      "transcription": "/ˈnoʊtɪs/",
       "translation": "замечать",
       "translations": {
         "ru": "замечать",
@@ -42,6 +44,7 @@
     {
       "word": "memory",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛməri/",
       "translation": "память",
       "translations": {
         "ru": "память",
@@ -56,6 +59,7 @@
     {
       "word": "logic",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑdʒɪk/",
       "translation": "логика",
       "translations": {
         "ru": "логика",
@@ -70,6 +74,7 @@
     {
       "word": "recognize",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛkəgnaɪz/",
       "translation": "узнавать",
       "translations": {
         "ru": "узнавать",
@@ -84,6 +89,7 @@
     {
       "word": "solve",
       "part_of_speech": "verb",
+      "transcription": "/sɑlv/",
       "translation": "решать",
       "translations": {
         "ru": "решать",
@@ -98,6 +104,7 @@
     {
       "word": "creative",
       "part_of_speech": "adjective",
+      "transcription": "/kriˈeɪtɪv/",
       "translation": "творческий",
       "translations": {
         "ru": "творческий",
@@ -112,6 +119,7 @@
     {
       "word": "intelligent",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtɛlədʒənt/",
       "translation": "умный",
       "translations": {
         "ru": "умный",
@@ -126,6 +134,7 @@
     {
       "word": "realize",
       "part_of_speech": "verb",
+      "transcription": "/ˈriəlaɪz/",
       "translation": "осознавать, понимать",
       "translations": {
         "ru": "осознавать, понимать",
@@ -140,6 +149,7 @@
     {
       "word": "attention",
       "part_of_speech": "noun",
+      "transcription": "/əˈtɛnʃən/",
       "translation": "внимание",
       "translations": {
         "ru": "внимание",

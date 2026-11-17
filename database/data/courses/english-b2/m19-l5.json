@@ -14,6 +14,7 @@
     {
       "word": "complex",
       "part_of_speech": "adjective",
+      "transcription": "/kɑmˈplɛks/",
       "translation": "сложный",
       "translations": {
         "ru": "сложный",
@@ -28,6 +29,7 @@
     {
       "word": "sophisticated",
       "part_of_speech": "adjective",
+      "transcription": "/səˈfɪstɪkeɪtɪd/",
       "translation": "усовершенствованный, сложный",
       "translations": {
         "ru": "усовершенствованный, сложный",
@@ -42,6 +44,7 @@
     {
       "word": "vital",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvaɪtəl/",
       "translation": "жизненно важный",
       "translations": {
         "ru": "жизненно важный",
@@ -56,6 +59,7 @@
     {
       "word": "elaborate",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlæbərət/",
       "translation": "тщательно продуманный, детальный",
       "translations": {
         "ru": "тщательно продуманный, детальный",
@@ -70,6 +74,7 @@
     {
       "word": "fundamental",
       "part_of_speech": "adjective",
+      "transcription": "/ˌfʌndəˈmɛntəl/",
       "translation": "основополагающий, фундаментальный",
       "translations": {
         "ru": "основополагающий, фундаментальный",
@@ -84,6 +89,7 @@
     {
       "word": "crucial",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkruʃəl/",
       "translation": "решающий, крайне важный",
       "translations": {
         "ru": "решающий, крайне важный",
@@ -98,6 +104,7 @@
     {
       "word": "trivial",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtrɪviəl/",
       "translation": "пустяковый, незначительный",
       "translations": {
         "ru": "пустяковый, незначительный",
@@ -112,6 +119,7 @@
     {
       "word": "relevant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛləvənt/",
       "translation": "относящийся к делу, уместный",
       "translations": {
         "ru": "относящийся к делу, уместный",
@@ -126,6 +134,7 @@
     {
       "word": "widespread",
       "part_of_speech": "adjective",
+      "transcription": "/ˌwaɪdˈsprɛd/",
       "translation": "широко распространённый",
       "translations": {
         "ru": "широко распространённый",
@@ -140,6 +149,7 @@
     {
       "word": "abundant",
       "part_of_speech": "adjective",
+      "transcription": "/əˈbʌndənt/",
       "translation": "обильный",
       "translations": {
         "ru": "обильный",

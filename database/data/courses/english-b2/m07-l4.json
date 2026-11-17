@@ -14,6 +14,7 @@
     {
       "word": "renewable",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈnuəbəl/",
       "translation": "возобновляемый",
       "translations": {
         "ru": "возобновляемый",
@@ -28,6 +29,7 @@
     {
       "word": "sustainable",
       "part_of_speech": "adjective",
+      "transcription": "/səˈsteɪnəbəl/",
       "translation": "устойчивый",
       "translations": {
         "ru": "устойчивый",
@@ -42,6 +44,7 @@
     {
       "word": "coal",
       "part_of_speech": "noun",
+      "transcription": "/koʊl/",
       "translation": "уголь",
       "translations": {
         "ru": "уголь",
@@ -56,6 +59,7 @@
     {
       "word": "hydropower",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪdroʊˌpaʊər/",
       "translation": "гидроэнергия",
       "translations": {
         "ru": "гидроэнергия",
@@ -70,6 +74,7 @@
     {
       "word": "nuclear",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnukliər/",
       "translation": "атомный, ядерный",
       "translations": {
         "ru": "атомный, ядерный",
@@ -84,6 +89,7 @@
     {
       "word": "turbine",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrbaɪn/",
       "translation": "турбина",
       "translations": {
         "ru": "турбина",
@@ -98,6 +104,7 @@
     {
       "word": "scarce",
       "part_of_speech": "adjective",
+      "transcription": "/skɛrs/",
       "translation": "скудный, дефицитный",
       "translations": {
         "ru": "скудный, дефицитный",
@@ -112,6 +119,7 @@
     {
       "word": "deplete",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈplit/",
       "translation": "истощать",
       "translations": {
         "ru": "истощать",
@@ -126,6 +134,7 @@
     {
       "word": "reservoir",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛzərvwɑr/",
       "translation": "водохранилище",
       "translations": {
         "ru": "водохранилище",
@@ -140,6 +149,7 @@
     {
       "word": "mineral",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪnərəl/",
       "translation": "полезное ископаемое",
       "translations": {
         "ru": "полезное ископаемое",

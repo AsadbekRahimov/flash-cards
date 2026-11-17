@@ -14,6 +14,7 @@
     {
       "word": "culture",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌltʃər/",
       "translation": "культура",
       "translations": {
         "ru": "культура",
@@ -28,6 +29,7 @@
     {
       "word": "tradition",
       "part_of_speech": "noun",
+      "transcription": "/trəˈdɪʃən/",
       "translation": "традиция",
       "translations": {
         "ru": "традиция",
@@ -42,6 +44,7 @@
     {
       "word": "custom",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌstəm/",
       "translation": "обычай",
       "translations": {
         "ru": "обычай",
@@ -56,6 +59,7 @@
     {
       "word": "festival",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛstəvəl/",
       "translation": "фестиваль",
       "translations": {
         "ru": "фестиваль",
@@ -70,6 +74,7 @@
     {
       "word": "painting",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪntɪŋ/",
       "translation": "картина",
       "translations": {
         "ru": "картина",
@@ -84,6 +89,7 @@
     {
       "word": "poem",
       "part_of_speech": "noun",
+      "transcription": "/ˈpoʊəm/",
       "translation": "стихотворение",
       "translations": {
         "ru": "стихотворение",
@@ -98,6 +104,7 @@
     {
       "word": "novel",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɑvəl/",
       "translation": "роман",
       "translations": {
         "ru": "роман",
@@ -112,6 +119,7 @@
     {
       "word": "author",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔθər/",
       "translation": "автор",
       "translations": {
         "ru": "автор",
@@ -126,6 +134,7 @@
     {
       "word": "exhibition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛksəˈbɪʃən/",
       "translation": "выставка",
       "translations": {
         "ru": "выставка",
@@ -140,6 +149,7 @@
     {
       "word": "orchestra",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrkəstrə/",
       "translation": "оркестр",
       "translations": {
         "ru": "оркестр",

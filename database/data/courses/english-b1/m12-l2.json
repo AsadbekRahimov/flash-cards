@@ -14,6 +14,7 @@
     {
       "word": "competition",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑmpəˈtɪʃən/",
       "translation": "соревнование",
       "translations": {
         "ru": "соревнование",
@@ -28,6 +29,7 @@
     {
       "word": "tournament",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʊrnəmənt/",
       "translation": "турнир",
       "translations": {
         "ru": "турнир",
@@ -42,6 +44,7 @@
     {
       "word": "champion",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃæmpiən/",
       "translation": "чемпион",
       "translations": {
         "ru": "чемпион",
@@ -56,6 +59,7 @@
     {
       "word": "opponent",
       "part_of_speech": "noun",
+      "transcription": "/əˈpoʊnənt/",
       "translation": "соперник",
       "translations": {
         "ru": "соперник",
@@ -70,6 +74,7 @@
     {
       "word": "referee",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛfəˈri/",
       "translation": "спортивный судья",
       "translations": {
         "ru": "спортивный судья",
@@ -84,6 +89,7 @@
     {
       "word": "coach",
       "part_of_speech": "noun",
+      "transcription": "/koʊtʃ/",
       "translation": "тренер",
       "translations": {
         "ru": "тренер",
@@ -98,6 +104,7 @@
     {
       "word": "medal",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛdəl/",
       "translation": "медаль",
       "translations": {
         "ru": "медаль",
@@ -112,6 +119,7 @@
     {
       "word": "victory",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɪktəri/",
       "translation": "победа",
       "translations": {
         "ru": "победа",
@@ -126,6 +134,7 @@
     {
       "word": "defeat",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈfit/",
       "translation": "поражение",
       "translations": {
         "ru": "поражение",
@@ -140,6 +149,7 @@
     {
       "word": "score",
       "part_of_speech": "noun",
+      "transcription": "/skɔr/",
       "translation": "счёт",
       "translations": {
         "ru": "счёт",

@@ -14,6 +14,7 @@
     {
       "word": "wage",
       "part_of_speech": "noun",
+      "transcription": "/weɪdʒ/",
       "translation": "заработная плата",
       "translations": {
         "ru": "заработная плата",
@@ -28,6 +29,7 @@
     {
       "word": "income",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnkʌm/",
       "translation": "доход",
       "translations": {
         "ru": "доход",
@@ -42,6 +44,7 @@
     {
       "word": "earn",
       "part_of_speech": "verb",
+      "transcription": "/ɜrn/",
       "translation": "зарабатывать",
       "translations": {
         "ru": "зарабатывать",
@@ -56,6 +59,7 @@
     {
       "word": "bonus",
       "part_of_speech": "noun",
+      "transcription": "/ˈboʊnəs/",
       "translation": "премия, бонус",
       "translations": {
         "ru": "премия, бонус",
@@ -70,6 +74,7 @@
     {
       "word": "benefit",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɛnəfɪt/",
       "translation": "льгота",
       "translations": {
         "ru": "льгота",
@@ -84,6 +89,7 @@
     {
       "word": "freelance",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrilæns/",
       "translation": "внештатный",
       "translations": {
         "ru": "внештатный",
@@ -98,6 +104,7 @@
     {
       "word": "reward",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈwɔrd/",
       "translation": "вознаграждение, награда",
       "translations": {
         "ru": "вознаграждение, награда",
@@ -112,6 +119,7 @@
     {
       "word": "unemployed",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌnɪmˈplɔɪd/",
       "translation": "безработный",
       "translations": {
         "ru": "безработный",
@@ -126,6 +134,7 @@
     {
       "word": "workload",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkloʊd/",
       "translation": "рабочая нагрузка",
       "translations": {
         "ru": "рабочая нагрузка",
@@ -140,6 +149,7 @@
     {
       "word": "pressure",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛʃər/",
       "translation": "давление",
       "translations": {
         "ru": "давление",

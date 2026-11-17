@@ -14,6 +14,7 @@
     {
       "word": "recipe",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛsəpi/",
       "translation": "рецепт",
       "translations": {
         "ru": "рецепт",
@@ -28,6 +29,7 @@
     {
       "word": "saucepan",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɔspæn/",
       "translation": "ковшик",
       "translations": {
         "ru": "ковшик",
@@ -42,6 +44,7 @@
     {
       "word": "pot",
       "part_of_speech": "noun",
+      "transcription": "/pɑt/",
       "translation": "кастрюля",
       "translations": {
         "ru": "кастрюля",
@@ -56,6 +59,7 @@
     {
       "word": "lid",
       "part_of_speech": "noun",
+      "transcription": "/lɪd/",
       "translation": "крышка",
       "translations": {
         "ru": "крышка",
@@ -70,6 +74,7 @@
     {
       "word": "tray",
       "part_of_speech": "noun",
+      "transcription": "/treɪ/",
       "translation": "поднос",
       "translations": {
         "ru": "поднос",
@@ -84,6 +89,7 @@
     {
       "word": "jar",
       "part_of_speech": "noun",
+      "transcription": "/dʒɑr/",
       "translation": "банка",
       "translations": {
         "ru": "банка",
@@ -98,6 +104,7 @@
     {
       "word": "napkin",
       "part_of_speech": "noun",
+      "transcription": "/ˈnæpkɪn/",
       "translation": "салфетка",
       "translations": {
         "ru": "салфетка",
@@ -112,6 +119,7 @@
     {
       "word": "freezer",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrizər/",
       "translation": "морозильник",
       "translations": {
         "ru": "морозильник",
@@ -126,6 +134,7 @@
     {
       "word": "microwave",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪkrəweɪv/",
       "translation": "микроволновая печь",
       "translations": {
         "ru": "микроволновая печь",
@@ -140,6 +149,7 @@
     {
       "word": "stove",
       "part_of_speech": "noun",
+      "transcription": "/stoʊv/",
       "translation": "кухонная плита",
       "translations": {
         "ru": "кухонная плита",

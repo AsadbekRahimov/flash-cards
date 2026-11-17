@@ -14,6 +14,7 @@
     {
       "word": "condition",
       "part_of_speech": "noun",
+      "transcription": "/kənˈdɪʃən/",
       "translation": "состояние",
       "translations": {
         "ru": "состояние",
@@ -28,6 +29,7 @@
     {
       "word": "common",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑmən/",
       "translation": "распространённый",
       "translations": {
         "ru": "распространённый",
@@ -42,6 +44,7 @@
     {
       "word": "basic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbeɪsɪk/",
       "translation": "базовый, основной",
       "translations": {
         "ru": "базовый, основной",
@@ -56,6 +59,7 @@
     {
       "word": "messy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛsi/",
       "translation": "неубранный, неряшливый",
       "translations": {
         "ru": "неубранный, неряшливый",
@@ -70,6 +74,7 @@
     {
       "word": "neat",
       "part_of_speech": "adjective",
+      "transcription": "/nit/",
       "translation": "опрятный, аккуратный",
       "translations": {
         "ru": "опрятный, аккуратный",
@@ -84,6 +89,7 @@
     {
       "word": "ordinary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɔrdənɛri/",
       "translation": "обычный",
       "translations": {
         "ru": "обычный",
@@ -98,6 +104,7 @@
     {
       "word": "unique",
       "part_of_speech": "adjective",
+      "transcription": "/juˈnik/",
       "translation": "уникальный",
       "translations": {
         "ru": "уникальный",
@@ -112,6 +119,7 @@
     {
       "word": "practical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpræktɪkəl/",
       "translation": "практичный",
       "translations": {
         "ru": "практичный",
@@ -126,6 +134,7 @@
     {
       "word": "typical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɪpɪkəl/",
       "translation": "типичный",
       "translations": {
         "ru": "типичный",
@@ -140,6 +149,7 @@
     {
       "word": "similar",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɪmələr/",
       "translation": "похожий",
       "translations": {
         "ru": "похожий",

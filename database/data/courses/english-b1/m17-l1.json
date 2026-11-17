@@ -14,6 +14,7 @@
     {
       "word": "period",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪriəd/",
       "translation": "период",
       "translations": {
         "ru": "период",
@@ -28,6 +29,7 @@
     {
       "word": "decade",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛkeɪd/",
       "translation": "десятилетие",
       "translations": {
         "ru": "десятилетие",
@@ -42,6 +44,7 @@
     {
       "word": "century",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛntʃəri/",
       "translation": "век, столетие",
       "translations": {
         "ru": "век, столетие",
@@ -56,6 +59,7 @@
     {
       "word": "noon",
       "part_of_speech": "noun",
+      "transcription": "/nun/",
       "translation": "полдень",
       "translations": {
         "ru": "полдень",
@@ -70,6 +74,7 @@
     {
       "word": "ancient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈeɪnʃənt/",
       "translation": "древний",
       "translations": {
         "ru": "древний",
@@ -84,6 +89,7 @@
     {
       "word": "midnight",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪdnaɪt/",
       "translation": "полночь",
       "translations": {
         "ru": "полночь",
@@ -98,6 +104,7 @@
     {
       "word": "weekday",
       "part_of_speech": "noun",
+      "transcription": "/ˈwikdeɪ/",
       "translation": "будний день",
       "translations": {
         "ru": "будний день",
@@ -112,6 +119,7 @@
     {
       "word": "sunset",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌnsɛt/",
       "translation": "закат",
       "translations": {
         "ru": "закат",
@@ -126,6 +134,7 @@
     {
       "word": "dawn",
       "part_of_speech": "noun",
+      "transcription": "/dɔn/",
       "translation": "рассвет",
       "translations": {
         "ru": "рассвет",
@@ -140,6 +149,7 @@
     {
       "word": "anniversary",
       "part_of_speech": "noun",
+      "transcription": "/ˌænəˈvɜrsəri/",
       "translation": "годовщина",
       "translations": {
         "ru": "годовщина",

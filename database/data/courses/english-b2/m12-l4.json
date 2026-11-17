@@ -14,6 +14,7 @@
     {
       "word": "concept",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnsɛpt/",
       "translation": "понятие",
       "translations": {
         "ru": "понятие",
@@ -28,6 +29,7 @@
     {
       "word": "notion",
       "part_of_speech": "noun",
+      "transcription": "/ˈnoʊʃən/",
       "translation": "представление",
       "translations": {
         "ru": "представление",
@@ -42,6 +44,7 @@
     {
       "word": "principle",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɪnsəpəl/",
       "translation": "принцип",
       "translations": {
         "ru": "принцип",
@@ -56,6 +59,7 @@
     {
       "word": "comprehension",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑmprɪˈhɛnʃən/",
       "translation": "понимание",
       "translations": {
         "ru": "понимание",
@@ -70,6 +74,7 @@
     {
       "word": "framework",
       "part_of_speech": "noun",
+      "transcription": "/ˈfreɪmwɜrk/",
       "translation": "основа, структура",
       "translations": {
         "ru": "основа, структура",
@@ -84,6 +89,7 @@
     {
       "word": "perspective",
       "part_of_speech": "noun",
+      "transcription": "/pərˈspɛktɪv/",
       "translation": "угол зрения",
       "translations": {
         "ru": "угол зрения",
@@ -98,6 +104,7 @@
     {
       "word": "context",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntɛkst/",
       "translation": "контекст",
       "translations": {
         "ru": "контекст",
@@ -112,6 +119,7 @@
     {
       "word": "insight",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnsaɪt/",
       "translation": "глубокое понимание",
       "translations": {
         "ru": "глубокое понимание",
@@ -126,6 +134,7 @@
     {
       "word": "misconception",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɪskənˈsɛpʃən/",
       "translation": "заблуждение",
       "translations": {
         "ru": "заблуждение",
@@ -140,6 +149,7 @@
     {
       "word": "ignorance",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪgnərəns/",
       "translation": "невежество, незнание",
       "translations": {
         "ru": "невежество, незнание",

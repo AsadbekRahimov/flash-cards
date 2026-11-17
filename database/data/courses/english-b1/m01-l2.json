@@ -14,6 +14,7 @@
     {
       "word": "childhood",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃaɪldhʊd/",
       "translation": "детство",
       "translations": {
         "ru": "детство",
@@ -28,6 +29,7 @@
     {
       "word": "teenager",
       "part_of_speech": "noun",
+      "transcription": "/ˈtineɪdʒər/",
       "translation": "подросток",
       "translations": {
         "ru": "подросток",
@@ -42,6 +44,7 @@
     {
       "word": "adult",
       "part_of_speech": "noun",
+      "transcription": "/əˈdʌlt/",
       "translation": "взрослый",
       "translations": {
         "ru": "взрослый",
@@ -56,6 +59,7 @@
     {
       "word": "youth",
       "part_of_speech": "noun",
+      "transcription": "/juθ/",
       "translation": "молодость",
       "translations": {
         "ru": "молодость",
@@ -70,6 +74,7 @@
     {
       "word": "generation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdʒɛnəˈreɪʃən/",
       "translation": "поколение",
       "translations": {
         "ru": "поколение",
@@ -84,6 +89,7 @@
     {
       "word": "birth",
       "part_of_speech": "noun",
+      "transcription": "/bɜrθ/",
       "translation": "рождение",
       "translations": {
         "ru": "рождение",
@@ -98,6 +104,7 @@
     {
       "word": "death",
       "part_of_speech": "noun",
+      "transcription": "/dɛθ/",
       "translation": "смерть",
       "translations": {
         "ru": "смерть",
@@ -112,6 +119,7 @@
     {
       "word": "elderly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛldərli/",
       "translation": "пожилой",
       "translations": {
         "ru": "пожилой",
@@ -126,6 +134,7 @@
     {
       "word": "mature",
       "part_of_speech": "adjective",
+      "transcription": "/məˈtʃʊr/",
       "translation": "зрелый",
       "translations": {
         "ru": "зрелый",
@@ -140,6 +149,7 @@
     {
       "word": "senior",
       "part_of_speech": "noun",
+      "transcription": "/ˈsinjər/",
       "translation": "пожилой человек",
       "translations": {
         "ru": "пожилой человек",

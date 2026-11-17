@@ -14,6 +14,7 @@
     {
       "word": "wooden",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwʊdən/",
       "translation": "деревянный",
       "translations": {
         "ru": "деревянный",
@@ -28,6 +29,7 @@
     {
       "word": "leather",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛðər/",
       "translation": "натуральная кожа",
       "translations": {
         "ru": "натуральная кожа",
@@ -42,6 +44,7 @@
     {
       "word": "cotton",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑtən/",
       "translation": "хлопок",
       "translations": {
         "ru": "хлопок",
@@ -56,6 +59,7 @@
     {
       "word": "wool",
       "part_of_speech": "noun",
+      "transcription": "/wʊl/",
       "translation": "шерсть",
       "translations": {
         "ru": "шерсть",
@@ -70,6 +74,7 @@
     {
       "word": "rubber",
       "part_of_speech": "noun",
+      "transcription": "/ˈrʌbər/",
       "translation": "резина",
       "translations": {
         "ru": "резина",
@@ -84,6 +89,7 @@
     {
       "word": "brick",
       "part_of_speech": "noun",
+      "transcription": "/brɪk/",
       "translation": "кирпич",
       "translations": {
         "ru": "кирпич",
@@ -98,6 +104,7 @@
     {
       "word": "silk",
       "part_of_speech": "noun",
+      "transcription": "/sɪlk/",
       "translation": "шёлк",
       "translations": {
         "ru": "шёлк",
@@ -112,6 +119,7 @@
     {
       "word": "smooth",
       "part_of_speech": "adjective",
+      "transcription": "/smuð/",
       "translation": "гладкий",
       "translations": {
         "ru": "гладкий",
@@ -126,6 +134,7 @@
     {
       "word": "rough",
       "part_of_speech": "adjective",
+      "transcription": "/rʌf/",
       "translation": "грубый, шершавый",
       "translations": {
         "ru": "грубый, шершавый",
@@ -140,6 +149,7 @@
     {
       "word": "shiny",
       "part_of_speech": "adjective",
+      "transcription": "/ˈʃaɪni/",
       "translation": "блестящий",
       "translations": {
         "ru": "блестящий",

@@ -14,6 +14,7 @@
     {
       "word": "therefore",
       "part_of_speech": "adverb",
+      "transcription": "/ˈðɛrfɔr/",
       "translation": "поэтому, следовательно",
       "translations": {
         "ru": "поэтому, следовательно",
@@ -28,6 +29,7 @@
     {
       "word": "cause",
       "part_of_speech": "verb",
+      "transcription": "/kɔz/",
       "translation": "вызывать, быть причиной",
       "translations": {
         "ru": "вызывать, быть причиной",
@@ -42,6 +44,7 @@
     {
       "word": "effect",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈfɛkt/",
       "translation": "эффект, действие",
       "translations": {
         "ru": "эффект, действие",
@@ -56,6 +59,7 @@
     {
       "word": "reason",
       "part_of_speech": "noun",
+      "transcription": "/ˈrizən/",
       "translation": "причина",
       "translations": {
         "ru": "причина",
@@ -70,6 +74,7 @@
     {
       "word": "result",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈzʌlt/",
       "translation": "результат",
       "translations": {
         "ru": "результат",
@@ -84,6 +89,7 @@
     {
       "word": "due",
       "part_of_speech": "preposition",
+      "transcription": "/du/",
       "translation": "из-за, вследствие",
       "translations": {
         "ru": "из-за, вследствие",
@@ -98,6 +104,7 @@
     {
       "word": "influence",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfluəns/",
       "translation": "влияние",
       "translations": {
         "ru": "влияние",
@@ -112,6 +119,7 @@
     {
       "word": "impact",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmpækt/",
       "translation": "воздействие, сильное влияние",
       "translations": {
         "ru": "воздействие, сильное влияние",
@@ -126,6 +134,7 @@
     {
       "word": "affect",
       "part_of_speech": "verb",
+      "transcription": "/əˈfɛkt/",
       "translation": "влиять, воздействовать",
       "translations": {
         "ru": "влиять, воздействовать",
@@ -140,6 +149,7 @@
     {
       "word": "explanation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛkspləˈneɪʃən/",
       "translation": "объяснение",
       "translations": {
         "ru": "объяснение",

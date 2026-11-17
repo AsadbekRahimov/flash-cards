@@ -14,6 +14,7 @@
     {
       "word": "carving",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrvɪŋ/",
       "translation": "резьба",
       "translations": {
         "ru": "резьба",
@@ -28,6 +29,7 @@
     {
       "word": "abstract",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæbstrækt/",
       "translation": "абстрактный",
       "translations": {
         "ru": "абстрактный",
@@ -42,6 +44,7 @@
     {
       "word": "watercolor",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔtərˌkʌlər/",
       "translation": "акварель",
       "translations": {
         "ru": "акварель",
@@ -56,6 +59,7 @@
     {
       "word": "canvas",
       "part_of_speech": "noun",
+      "transcription": "/ˈkænvəs/",
       "translation": "холст",
       "translations": {
         "ru": "холст",
@@ -70,6 +74,7 @@
     {
       "word": "artwork",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtwɜrk/",
       "translation": "произведение искусства",
       "translations": {
         "ru": "произведение искусства",
@@ -84,6 +89,7 @@
     {
       "word": "mosaic",
       "part_of_speech": "noun",
+      "transcription": "/moʊˈzeɪɪk/",
       "translation": "мозаика",
       "translations": {
         "ru": "мозаика",
@@ -98,6 +104,7 @@
     {
       "word": "calligraphy",
       "part_of_speech": "noun",
+      "transcription": "/kəˈlɪgrəfi/",
       "translation": "каллиграфия",
       "translations": {
         "ru": "каллиграфия",
@@ -112,6 +119,7 @@
     {
       "word": "pottery",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑtəri/",
       "translation": "гончарное дело",
       "translations": {
         "ru": "гончарное дело",
@@ -126,6 +134,7 @@
     {
       "word": "mural",
       "part_of_speech": "noun",
+      "transcription": "/ˈmjʊrəl/",
       "translation": "настенная роспись",
       "translations": {
         "ru": "настенная роспись",
@@ -140,6 +149,7 @@
     {
       "word": "curator",
       "part_of_speech": "noun",
+      "transcription": "/ˈkjʊreɪtər/",
       "translation": "куратор",
       "translations": {
         "ru": "куратор",

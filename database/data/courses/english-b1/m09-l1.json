@@ -14,6 +14,7 @@
     {
       "word": "education",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛdʒəˈkeɪʃən/",
       "translation": "образование",
       "translations": {
         "ru": "образование",
@@ -28,6 +29,7 @@
     {
       "word": "primary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpraɪmɛri/",
       "translation": "начальный, первичный",
       "translations": {
         "ru": "начальный, первичный",
@@ -42,6 +44,7 @@
     {
       "word": "secondary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛkəndɛri/",
       "translation": "средний, вторичный",
       "translations": {
         "ru": "средний, вторичный",
@@ -56,6 +59,7 @@
     {
       "word": "compulsory",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpʌlsəri/",
       "translation": "обязательный",
       "translations": {
         "ru": "обязательный",
@@ -70,6 +74,7 @@
     {
       "word": "optional",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑpʃənəl/",
       "translation": "необязательный, по желанию",
       "translations": {
         "ru": "необязательный, по желанию",
@@ -84,6 +89,7 @@
     {
       "word": "tuition",
       "part_of_speech": "noun",
+      "transcription": "/tuˈɪʃən/",
       "translation": "плата за обучение",
       "translations": {
         "ru": "плата за обучение",
@@ -98,6 +104,7 @@
     {
       "word": "elementary",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛləˈmɛntəri/",
       "translation": "начальный, элементарный",
       "translations": {
         "ru": "начальный, элементарный",
@@ -112,6 +119,7 @@
     {
       "word": "academic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌækəˈdɛmɪk/",
       "translation": "учебный, академический",
       "translations": {
         "ru": "учебный, академический",
@@ -126,6 +134,7 @@
     {
       "word": "certificate",
       "part_of_speech": "noun",
+      "transcription": "/sərˈtɪfɪkət/",
       "translation": "сертификат",
       "translations": {
         "ru": "сертификат",
@@ -140,6 +149,7 @@
     {
       "word": "private",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpraɪvət/",
       "translation": "частный",
       "translations": {
         "ru": "частный",

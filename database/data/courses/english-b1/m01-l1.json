@@ -14,6 +14,7 @@
     {
       "word": "surname",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrneɪm/",
       "translation": "фамилия",
       "translations": {
         "ru": "фамилия",
@@ -28,6 +29,7 @@
     {
       "word": "nickname",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɪkneɪm/",
       "translation": "прозвище",
       "translations": {
         "ru": "прозвище",
@@ -42,6 +44,7 @@
     {
       "word": "gender",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛndər/",
       "translation": "пол",
       "translations": {
         "ru": "пол",
@@ -56,6 +59,7 @@
     {
       "word": "nationality",
       "part_of_speech": "noun",
+      "transcription": "/ˌnæʃəˈnæləti/",
       "translation": "национальность",
       "translations": {
         "ru": "национальность",
@@ -70,6 +74,7 @@
     {
       "word": "birthplace",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɜrθpleɪs/",
       "translation": "место рождения",
       "translations": {
         "ru": "место рождения",
@@ -84,6 +89,7 @@
     {
       "word": "signature",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪgnətʃər/",
       "translation": "подпись",
       "translations": {
         "ru": "подпись",
@@ -98,6 +104,7 @@
     {
       "word": "identity",
       "part_of_speech": "noun",
+      "transcription": "/aɪˈdɛntəti/",
       "translation": "личность",
       "translations": {
         "ru": "личность",
@@ -112,6 +119,7 @@
     {
       "word": "background",
       "part_of_speech": "noun",
+      "transcription": "/ˈbækgraʊnd/",
       "translation": "происхождение",
       "translations": {
         "ru": "происхождение",
@@ -126,6 +134,7 @@
     {
       "word": "occupation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑkjəˈpeɪʃən/",
       "translation": "профессия, род занятий",
       "translations": {
         "ru": "профессия, род занятий",
@@ -140,6 +149,7 @@
     {
       "word": "personal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɜrsənəl/",
       "translation": "личный",
       "translations": {
         "ru": "личный",

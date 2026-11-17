@@ -14,6 +14,7 @@
     {
       "word": "television",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛləˌvɪʒən/",
       "translation": "телевизор",
       "translations": {
         "ru": "телевизор",
@@ -28,6 +29,7 @@
     {
       "word": "radio",
       "part_of_speech": "noun",
+      "transcription": "/ˈreɪdioʊ/",
       "translation": "радио",
       "translations": {
         "ru": "радио",
@@ -42,6 +44,7 @@
     {
       "word": "newspaper",
       "part_of_speech": "noun",
+      "transcription": "/ˈnuzˌpeɪpər/",
       "translation": "газета",
       "translations": {
         "ru": "газета",
@@ -56,6 +59,7 @@
     {
       "word": "magazine",
       "part_of_speech": "noun",
+      "transcription": "/ˈmægəˌzin/",
       "translation": "журнал",
       "translations": {
         "ru": "журнал",
@@ -70,6 +74,7 @@
     {
       "word": "story",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɔri/",
       "translation": "рассказ, история",
       "translations": {
         "ru": "рассказ, история",
@@ -84,6 +89,7 @@
     {
       "word": "video",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɪdioʊ/",
       "translation": "видео",
       "translations": {
         "ru": "видео",
@@ -98,6 +104,7 @@
     {
       "word": "picture",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪktʃər/",
       "translation": "картина, рисунок",
       "translations": {
         "ru": "картина, рисунок",
@@ -112,6 +119,7 @@
     {
       "word": "watch",
       "part_of_speech": "verb",
+      "transcription": "/wɑtʃ/",
       "translation": "смотреть",
       "translations": {
         "ru": "смотреть",
@@ -126,6 +134,7 @@
     {
       "word": "play",
       "part_of_speech": "verb",
+      "transcription": "/pleɪ/",
       "translation": "играть",
       "translations": {
         "ru": "играть",
@@ -140,6 +149,7 @@
     {
       "word": "sing",
       "part_of_speech": "verb",
+      "transcription": "/sɪŋ/",
       "translation": "петь",
       "translations": {
         "ru": "петь",

@@ -14,6 +14,7 @@
     {
       "word": "monday",
       "part_of_speech": "noun",
+      "transcription": "/ˈmʌndeɪ/",
       "translation": "понедельник",
       "translations": {
         "ru": "понедельник",
@@ -28,6 +29,7 @@
     {
       "word": "tuesday",
       "part_of_speech": "noun",
+      "transcription": "/ˈtuzdeɪ/",
       "translation": "вторник",
       "translations": {
         "ru": "вторник",
@@ -42,6 +44,7 @@
     {
       "word": "wednesday",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛnzdeɪ/",
       "translation": "среда",
       "translations": {
         "ru": "среда",
@@ -56,6 +59,7 @@
     {
       "word": "thursday",
       "part_of_speech": "noun",
+      "transcription": "/ˈθɜrzdeɪ/",
       "translation": "четверг",
       "translations": {
         "ru": "четверг",
@@ -70,6 +74,7 @@
     {
       "word": "friday",
       "part_of_speech": "noun",
+      "transcription": "/ˈfraɪdeɪ/",
       "translation": "пятница",
       "translations": {
         "ru": "пятница",
@@ -84,6 +89,7 @@
     {
       "word": "saturday",
       "part_of_speech": "noun",
+      "transcription": "/ˈsætərdeɪ/",
       "translation": "суббота",
       "translations": {
         "ru": "суббота",
@@ -98,6 +104,7 @@
     {
       "word": "sunday",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌndeɪ/",
       "translation": "воскресенье",
       "translations": {
         "ru": "воскресенье",
@@ -112,6 +119,7 @@
     {
       "word": "week",
       "part_of_speech": "noun",
+      "transcription": "/wik/",
       "translation": "неделя",
       "translations": {
         "ru": "неделя",
@@ -126,6 +134,7 @@
     {
       "word": "day",
       "part_of_speech": "noun",
+      "transcription": "/deɪ/",
       "translation": "день",
       "translations": {
         "ru": "день",
@@ -140,6 +149,7 @@
     {
       "word": "weekend",
       "part_of_speech": "noun",
+      "transcription": "/ˈwikɛnd/",
       "translation": "выходные",
       "translations": {
         "ru": "выходные",

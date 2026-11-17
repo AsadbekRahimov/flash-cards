@@ -14,6 +14,7 @@
     {
       "word": "ballot",
       "part_of_speech": "noun",
+      "transcription": "/ˈbælət/",
       "translation": "избирательный бюллетень",
       "translations": {
         "ru": "избирательный бюллетень",
@@ -28,6 +29,7 @@
     {
       "word": "campaign",
       "part_of_speech": "noun",
+      "transcription": "/kæmˈpeɪn/",
       "translation": "кампания",
       "translations": {
         "ru": "кампания",
@@ -42,6 +44,7 @@
     {
       "word": "electorate",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈlɛktərət/",
       "translation": "избиратели, электорат",
       "translations": {
         "ru": "избиратели, электорат",
@@ -56,6 +59,7 @@
     {
       "word": "poll",
       "part_of_speech": "noun",
+      "transcription": "/poʊl/",
       "translation": "опрос",
       "translations": {
         "ru": "опрос",
@@ -70,6 +74,7 @@
     {
       "word": "referendum",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛfəˈrɛndəm/",
       "translation": "референдум",
       "translations": {
         "ru": "референдум",
@@ -84,6 +89,7 @@
     {
       "word": "majority",
       "part_of_speech": "noun",
+      "transcription": "/məˈdʒɔrəti/",
       "translation": "большинство",
       "translations": {
         "ru": "большинство",
@@ -98,6 +104,7 @@
     {
       "word": "minority",
       "part_of_speech": "noun",
+      "transcription": "/məˈnɔrəti/",
       "translation": "меньшинство",
       "translations": {
         "ru": "меньшинство",
@@ -112,6 +119,7 @@
     {
       "word": "turnout",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrnaʊt/",
       "translation": "явка избирателей",
       "translations": {
         "ru": "явка избирателей",
@@ -126,6 +134,7 @@
     {
       "word": "nominate",
       "part_of_speech": "verb",
+      "transcription": "/ˈnɑməneɪt/",
       "translation": "выдвигать кандидатом",
       "translations": {
         "ru": "выдвигать кандидатом",
@@ -140,6 +149,7 @@
     {
       "word": "coalition",
       "part_of_speech": "noun",
+      "transcription": "/ˌkoʊəˈlɪʃən/",
       "translation": "коалиция",
       "translations": {
         "ru": "коалиция",

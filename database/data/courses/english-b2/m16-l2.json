@@ -14,6 +14,7 @@
     {
       "word": "packaging",
       "part_of_speech": "noun",
+      "transcription": "/ˈpækɪdʒɪŋ/",
       "translation": "упаковка",
       "translations": {
         "ru": "упаковка",
@@ -28,6 +29,7 @@
     {
       "word": "slogan",
       "part_of_speech": "noun",
+      "transcription": "/ˈsloʊgən/",
       "translation": "слоган",
       "translations": {
         "ru": "слоган",
@@ -42,6 +44,7 @@
     {
       "word": "logo",
       "part_of_speech": "noun",
+      "transcription": "/ˈloʊgoʊ/",
       "translation": "логотип",
       "translations": {
         "ru": "логотип",
@@ -56,6 +59,7 @@
     {
       "word": "commercial",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmɜrʃəl/",
       "translation": "рекламный ролик",
       "translations": {
         "ru": "рекламный ролик",
@@ -70,6 +74,7 @@
     {
       "word": "sponsor",
       "part_of_speech": "noun",
+      "transcription": "/ˈspɑnsər/",
       "translation": "спонсор",
       "translations": {
         "ru": "спонсор",
@@ -84,6 +89,7 @@
     {
       "word": "billboard",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɪlbɔrd/",
       "translation": "рекламный щит",
       "translations": {
         "ru": "рекламный щит",
@@ -98,6 +104,7 @@
     {
       "word": "leaflet",
       "part_of_speech": "noun",
+      "transcription": "/ˈliflət/",
       "translation": "листовка",
       "translations": {
         "ru": "листовка",
@@ -112,6 +119,7 @@
     {
       "word": "niche",
       "part_of_speech": "noun",
+      "transcription": "/nɪtʃ/",
       "translation": "рыночная ниша",
       "translations": {
         "ru": "рыночная ниша",
@@ -126,6 +134,7 @@
     {
       "word": "promote",
       "part_of_speech": "verb",
+      "transcription": "/prəˈmoʊt/",
       "translation": "рекламировать, продвигать",
       "translations": {
         "ru": "рекламировать, продвигать",
@@ -140,6 +149,7 @@
     {
       "word": "trademark",
       "part_of_speech": "noun",
+      "transcription": "/ˈtreɪdmɑrk/",
       "translation": "товарный знак",
       "translations": {
         "ru": "товарный знак",

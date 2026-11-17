@@ -14,6 +14,7 @@
     {
       "word": "vocabulary",
       "part_of_speech": "noun",
+      "transcription": "/voʊˈkæbjəˌlɛri/",
       "translation": "словарный запас",
       "translations": {
         "ru": "словарный запас",
@@ -28,6 +29,7 @@
     {
       "word": "pronunciation",
       "part_of_speech": "noun",
+      "transcription": "/prəˌnʌnsiˈeɪʃən/",
       "translation": "произношение",
       "translations": {
         "ru": "произношение",
@@ -42,6 +44,7 @@
     {
       "word": "spell",
       "part_of_speech": "verb",
+      "transcription": "/spɛl/",
       "translation": "писать по буквам",
       "translations": {
         "ru": "писать по буквам",
@@ -56,6 +59,7 @@
     {
       "word": "translate",
       "part_of_speech": "verb",
+      "transcription": "/trænsˈleɪt/",
       "translation": "переводить",
       "translations": {
         "ru": "переводить",
@@ -70,6 +74,7 @@
     {
       "word": "dictionary",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪkʃəˌnɛri/",
       "translation": "словарь",
       "translations": {
         "ru": "словарь",
@@ -84,6 +89,7 @@
     {
       "word": "sentence",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛntəns/",
       "translation": "предложение",
       "translations": {
         "ru": "предложение",
@@ -98,6 +104,7 @@
     {
       "word": "knowledge",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɑlɪdʒ/",
       "translation": "знания",
       "translations": {
         "ru": "знания",
@@ -112,6 +119,7 @@
     {
       "word": "fluent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfluənt/",
       "translation": "беглый",
       "translations": {
         "ru": "беглый",
@@ -126,6 +134,7 @@
     {
       "word": "beginner",
       "part_of_speech": "noun",
+      "transcription": "/bɪˈgɪnər/",
       "translation": "новичок",
       "translations": {
         "ru": "новичок",
@@ -140,6 +149,7 @@
     {
       "word": "advanced",
       "part_of_speech": "adjective",
+      "transcription": "/ədˈvænst/",
       "translation": "продвинутый",
       "translations": {
         "ru": "продвинутый",

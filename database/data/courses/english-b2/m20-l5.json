@@ -14,6 +14,7 @@
     {
       "word": "capacity",
       "part_of_speech": "noun",
+      "transcription": "/kəˈpæsəti/",
       "translation": "вместимость, ёмкость",
       "translations": {
         "ru": "вместимость, ёмкость",
@@ -28,6 +29,7 @@
     {
       "word": "capability",
       "part_of_speech": "noun",
+      "transcription": "/ˌkeɪpəˈbɪləti/",
       "translation": "способность, возможность",
       "translations": {
         "ru": "способность, возможность",
@@ -42,6 +44,7 @@
     {
       "word": "potential",
       "part_of_speech": "noun",
+      "transcription": "/pəˈtɛnʃəl/",
       "translation": "потенциал",
       "translations": {
         "ru": "потенциал",
@@ -56,6 +59,7 @@
     {
       "word": "necessity",
       "part_of_speech": "noun",
+      "transcription": "/nəˈsɛsəti/",
       "translation": "необходимость",
       "translations": {
         "ru": "необходимость",
@@ -70,6 +74,7 @@
     {
       "word": "existence",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɪstəns/",
       "translation": "существование",
       "translations": {
         "ru": "существование",
@@ -84,6 +89,7 @@
     {
       "word": "frequency",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrikwənsi/",
       "translation": "частота",
       "translations": {
         "ru": "частота",
@@ -98,6 +104,7 @@
     {
       "word": "uncertainty",
       "part_of_speech": "noun",
+      "transcription": "/ʌnˈsɜrtənti/",
       "translation": "неопределённость",
       "translations": {
         "ru": "неопределённость",
@@ -112,6 +119,7 @@
     {
       "word": "absence",
       "part_of_speech": "noun",
+      "transcription": "/ˈæbsəns/",
       "translation": "отсутствие",
       "translations": {
         "ru": "отсутствие",
@@ -126,6 +134,7 @@
     {
       "word": "correlation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɔrəˈleɪʃən/",
       "translation": "взаимосвязь, корреляция",
       "translations": {
         "ru": "взаимосвязь, корреляция",
@@ -140,6 +149,7 @@
     {
       "word": "likelihood",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪklihʊd/",
       "translation": "вероятность, возможность",
       "translations": {
         "ru": "вероятность, возможность",

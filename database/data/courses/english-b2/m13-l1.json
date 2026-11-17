@@ -14,6 +14,7 @@
     {
       "word": "inequality",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnɪˈkwɑləti/",
       "translation": "неравенство",
       "translations": {
         "ru": "неравенство",
@@ -28,6 +29,7 @@
     {
       "word": "barrier",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæriər/",
       "translation": "барьер, преграда",
       "translations": {
         "ru": "барьер, преграда",
@@ -42,6 +44,7 @@
     {
       "word": "discrimination",
       "part_of_speech": "noun",
+      "transcription": "/dɪˌskrɪməˈneɪʃən/",
       "translation": "дискриминация",
       "translations": {
         "ru": "дискриминация",
@@ -56,6 +59,7 @@
     {
       "word": "prejudice",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛdʒədɪs/",
       "translation": "предубеждение",
       "translations": {
         "ru": "предубеждение",
@@ -70,6 +74,7 @@
     {
       "word": "privilege",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɪvəlɪdʒ/",
       "translation": "привилегия",
       "translations": {
         "ru": "привилегия",
@@ -84,6 +89,7 @@
     {
       "word": "injustice",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʒʌstɪs/",
       "translation": "несправедливость",
       "translations": {
         "ru": "несправедливость",
@@ -98,6 +104,7 @@
     {
       "word": "welfare",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛlfɛr/",
       "translation": "благосостояние",
       "translations": {
         "ru": "благосостояние",
@@ -112,6 +119,7 @@
     {
       "word": "hardship",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑrdʃɪp/",
       "translation": "трудности, лишения",
       "translations": {
         "ru": "трудности, лишения",
@@ -126,6 +134,7 @@
     {
       "word": "disadvantage",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɪsədˈvæntɪdʒ/",
       "translation": "невыгодное положение",
       "translations": {
         "ru": "невыгодное положение",
@@ -140,6 +149,7 @@
     {
       "word": "deprived",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈpraɪvd/",
       "translation": "обездоленный, нуждающийся",
       "translations": {
         "ru": "обездоленный, нуждающийся",

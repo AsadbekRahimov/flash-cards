@@ -14,6 +14,7 @@
     {
       "word": "science",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪəns/",
       "translation": "наука, естествознание",
       "translations": {
         "ru": "наука, естествознание",
@@ -28,6 +29,7 @@
     {
       "word": "math",
       "part_of_speech": "noun",
+      "transcription": "/mæθ/",
       "translation": "математика",
       "translations": {
         "ru": "математика",
@@ -42,6 +44,7 @@
     {
       "word": "history",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɪstəri/",
       "translation": "история",
       "translations": {
         "ru": "история",
@@ -56,6 +59,7 @@
     {
       "word": "geography",
       "part_of_speech": "noun",
+      "transcription": "/dʒiˈɑgrəfi/",
       "translation": "география",
       "translations": {
         "ru": "география",
@@ -70,6 +74,7 @@
     {
       "word": "physics",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪzɪks/",
       "translation": "физика",
       "translations": {
         "ru": "физика",
@@ -84,6 +89,7 @@
     {
       "word": "chemistry",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɛməstri/",
       "translation": "химия",
       "translations": {
         "ru": "химия",
@@ -98,6 +104,7 @@
     {
       "word": "biology",
       "part_of_speech": "noun",
+      "transcription": "/baɪˈɑlədʒi/",
       "translation": "биология",
       "translations": {
         "ru": "биология",
@@ -112,6 +119,7 @@
     {
       "word": "literature",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪtərətʃər/",
       "translation": "литература",
       "translations": {
         "ru": "литература",
@@ -126,6 +134,7 @@
     {
       "word": "art",
       "part_of_speech": "noun",
+      "transcription": "/ɑrt/",
       "translation": "искусство, рисование",
       "translations": {
         "ru": "искусство, рисование",
@@ -140,6 +149,7 @@
     {
       "word": "grammar",
       "part_of_speech": "noun",
+      "transcription": "/ˈgræmər/",
       "translation": "грамматика",
       "translations": {
         "ru": "грамматика",

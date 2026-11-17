@@ -14,6 +14,7 @@
     {
       "word": "wolf",
       "part_of_speech": "noun",
+      "transcription": "/wʊlf/",
       "translation": "волк",
       "translations": {
         "ru": "волк",
@@ -28,6 +29,7 @@
     {
       "word": "fox",
       "part_of_speech": "noun",
+      "transcription": "/fɑks/",
       "translation": "лиса",
       "translations": {
         "ru": "лиса",
@@ -42,6 +44,7 @@
     {
       "word": "deer",
       "part_of_speech": "noun",
+      "transcription": "/dɪr/",
       "translation": "олень",
       "translations": {
         "ru": "олень",
@@ -56,6 +59,7 @@
     {
       "word": "eagle",
       "part_of_speech": "noun",
+      "transcription": "/ˈigəl/",
       "translation": "орёл",
       "translations": {
         "ru": "орёл",
@@ -70,6 +74,7 @@
     {
       "word": "snake",
       "part_of_speech": "noun",
+      "transcription": "/sneɪk/",
       "translation": "змея",
       "translations": {
         "ru": "змея",
@@ -84,6 +89,7 @@
     {
       "word": "frog",
       "part_of_speech": "noun",
+      "transcription": "/frɑg/",
       "translation": "лягушка",
       "translations": {
         "ru": "лягушка",
@@ -98,6 +104,7 @@
     {
       "word": "insect",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnsɛkt/",
       "translation": "насекомое",
       "translations": {
         "ru": "насекомое",
@@ -112,6 +119,7 @@
     {
       "word": "butterfly",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʌtərˌflaɪ/",
       "translation": "бабочка",
       "translations": {
         "ru": "бабочка",
@@ -126,6 +134,7 @@
     {
       "word": "bee",
       "part_of_speech": "noun",
+      "transcription": "/bi/",
       "translation": "пчела",
       "translations": {
         "ru": "пчела",
@@ -140,6 +149,7 @@
     {
       "word": "whale",
       "part_of_speech": "noun",
+      "transcription": "/weɪl/",
       "translation": "кит",
       "translations": {
         "ru": "кит",

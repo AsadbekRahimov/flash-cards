@@ -14,6 +14,7 @@
     {
       "word": "big",
       "part_of_speech": "adjective",
+      "transcription": "/bɪg/",
       "translation": "большой",
       "translations": {
         "ru": "большой",
@@ -28,6 +29,7 @@
     {
       "word": "small",
       "part_of_speech": "adjective",
+      "transcription": "/smɔl/",
       "translation": "маленький",
       "translations": {
         "ru": "маленький",
@@ -42,6 +44,7 @@
     {
       "word": "new",
       "part_of_speech": "adjective",
+      "transcription": "/nu/",
       "translation": "новый",
       "translations": {
         "ru": "новый",
@@ -56,6 +59,7 @@
     {
       "word": "good",
       "part_of_speech": "adjective",
+      "transcription": "/gʊd/",
       "translation": "хороший",
       "translations": {
         "ru": "хороший",
@@ -70,6 +74,7 @@
     {
       "word": "bad",
       "part_of_speech": "adjective",
+      "transcription": "/bæd/",
       "translation": "плохой",
       "translations": {
         "ru": "плохой",
@@ -84,6 +89,7 @@
     {
       "word": "long",
       "part_of_speech": "adjective",
+      "transcription": "/lɔŋ/",
       "translation": "длинный",
       "translations": {
         "ru": "длинный",
@@ -98,6 +104,7 @@
     {
       "word": "heavy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɛvi/",
       "translation": "тяжёлый",
       "translations": {
         "ru": "тяжёлый",
@@ -112,6 +119,7 @@
     {
       "word": "full",
       "part_of_speech": "adjective",
+      "transcription": "/fʊl/",
       "translation": "полный",
       "translations": {
         "ru": "полный",
@@ -126,6 +134,7 @@
     {
       "word": "empty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛmpti/",
       "translation": "пустой",
       "translations": {
         "ru": "пустой",
@@ -140,6 +149,7 @@
     {
       "word": "different",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪfrənt/",
       "translation": "другой, разный",
       "translations": {
         "ru": "другой, разный",

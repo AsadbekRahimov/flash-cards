@@ -14,6 +14,7 @@
     {
       "word": "gadget",
       "part_of_speech": "noun",
+      "transcription": "/ˈgædʒɪt/",
       "translation": "гаджет",
       "translations": {
         "ru": "гаджет",
@@ -28,6 +29,7 @@
     {
       "word": "projector",
       "part_of_speech": "noun",
+      "transcription": "/prəˈdʒɛktər/",
       "translation": "проектор",
       "translations": {
         "ru": "проектор",
@@ -42,6 +44,7 @@
     {
       "word": "monitor",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑnətər/",
       "translation": "монитор",
       "translations": {
         "ru": "монитор",
@@ -56,6 +59,7 @@
     {
       "word": "hardware",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑrdwɛr/",
       "translation": "аппаратное обеспечение",
       "translations": {
         "ru": "аппаратное обеспечение",
@@ -70,6 +74,7 @@
     {
       "word": "software",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɔftwɛr/",
       "translation": "программное обеспечение",
       "translations": {
         "ru": "программное обеспечение",
@@ -84,6 +89,7 @@
     {
       "word": "microphone",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪkrəfoʊn/",
       "translation": "микрофон",
       "translations": {
         "ru": "микрофон",
@@ -98,6 +104,7 @@
     {
       "word": "wireless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwaɪərləs/",
       "translation": "беспроводной",
       "translations": {
         "ru": "беспроводной",
@@ -112,6 +119,7 @@
     {
       "word": "portable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɔrtəbəl/",
       "translation": "портативный, переносной",
       "translations": {
         "ru": "портативный, переносной",
@@ -126,6 +134,7 @@
     {
       "word": "equipment",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈkwɪpmənt/",
       "translation": "оборудование",
       "translations": {
         "ru": "оборудование",
@@ -140,6 +149,7 @@
     {
       "word": "button",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʌtən/",
       "translation": "кнопка",
       "translations": {
         "ru": "кнопка",

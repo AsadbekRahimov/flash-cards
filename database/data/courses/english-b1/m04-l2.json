@@ -14,6 +14,7 @@
     {
       "word": "boil",
       "part_of_speech": "verb",
+      "transcription": "/bɔɪl/",
       "translation": "варить, кипятить",
       "translations": {
         "ru": "варить, кипятить",
@@ -28,6 +29,7 @@
     {
       "word": "fry",
       "part_of_speech": "verb",
+      "transcription": "/fraɪ/",
       "translation": "жарить",
       "translations": {
         "ru": "жарить",
@@ -42,6 +44,7 @@
     {
       "word": "bake",
       "part_of_speech": "verb",
+      "transcription": "/beɪk/",
       "translation": "печь, выпекать",
       "translations": {
         "ru": "печь, выпекать",
@@ -56,6 +59,7 @@
     {
       "word": "roast",
       "part_of_speech": "verb",
+      "transcription": "/roʊst/",
       "translation": "запекать",
       "translations": {
         "ru": "запекать",
@@ -70,6 +74,7 @@
     {
       "word": "grill",
       "part_of_speech": "verb",
+      "transcription": "/grɪl/",
       "translation": "жарить на гриле",
       "translations": {
         "ru": "жарить на гриле",
@@ -84,6 +89,7 @@
     {
       "word": "stir",
       "part_of_speech": "verb",
+      "transcription": "/stɜr/",
       "translation": "помешивать, мешать",
       "translations": {
         "ru": "помешивать, мешать",
@@ -98,6 +104,7 @@
     {
       "word": "chop",
       "part_of_speech": "verb",
+      "transcription": "/tʃɑp/",
       "translation": "нарезать, рубить",
       "translations": {
         "ru": "нарезать, рубить",
@@ -112,6 +119,7 @@
     {
       "word": "slice",
       "part_of_speech": "verb",
+      "transcription": "/slaɪs/",
       "translation": "нарезать ломтиками",
       "translations": {
         "ru": "нарезать ломтиками",
@@ -126,6 +134,7 @@
     {
       "word": "peel",
       "part_of_speech": "verb",
+      "transcription": "/pil/",
       "translation": "чистить от кожуры",
       "translations": {
         "ru": "чистить от кожуры",
@@ -140,6 +149,7 @@
     {
       "word": "pour",
       "part_of_speech": "verb",
+      "transcription": "/pɔr/",
       "translation": "наливать",
       "translations": {
         "ru": "наливать",

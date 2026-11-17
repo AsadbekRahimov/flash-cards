@@ -14,6 +14,7 @@
     {
       "word": "business",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɪznəs/",
       "translation": "бизнес",
       "translations": {
         "ru": "бизнес",
@@ -28,6 +29,7 @@
     {
       "word": "product",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑdʌkt/",
       "translation": "продукт, товар",
       "translations": {
         "ru": "продукт, товар",
@@ -42,6 +44,7 @@
     {
       "word": "profit",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑfət/",
       "translation": "прибыль",
       "translations": {
         "ru": "прибыль",
@@ -56,6 +59,7 @@
     {
       "word": "budget",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʌdʒət/",
       "translation": "бюджет",
       "translations": {
         "ru": "бюджет",
@@ -70,6 +74,7 @@
     {
       "word": "advertise",
       "part_of_speech": "verb",
+      "transcription": "/ˈædvərˌtaɪz/",
       "translation": "рекламировать",
       "translations": {
         "ru": "рекламировать",
@@ -84,6 +89,7 @@
     {
       "word": "negotiate",
       "part_of_speech": "verb",
+      "transcription": "/nɪˈgoʊʃiˌeɪt/",
       "translation": "вести переговоры",
       "translations": {
         "ru": "вести переговоры",
@@ -98,6 +104,7 @@
     {
       "word": "invest",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɛst/",
       "translation": "инвестировать",
       "translations": {
         "ru": "инвестировать",
@@ -112,6 +119,7 @@
     {
       "word": "trade",
       "part_of_speech": "noun",
+      "transcription": "/treɪd/",
       "translation": "торговля",
       "translations": {
         "ru": "торговля",
@@ -126,6 +134,7 @@
     {
       "word": "quality",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɑləti/",
       "translation": "качество",
       "translations": {
         "ru": "качество",
@@ -140,6 +149,7 @@
     {
       "word": "offer",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔfər/",
       "translation": "предложение",
       "translations": {
         "ru": "предложение",

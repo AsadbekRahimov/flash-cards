@@ -14,6 +14,7 @@
     {
       "word": "aim",
       "part_of_speech": "noun",
+      "transcription": "/eɪm/",
       "translation": "цель, намерение",
       "translations": {
         "ru": "цель, намерение",
@@ -28,6 +29,7 @@
     {
       "word": "purpose",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrpəs/",
       "translation": "цель, назначение",
       "translations": {
         "ru": "цель, назначение",
@@ -42,6 +44,7 @@
     {
       "word": "arrange",
       "part_of_speech": "verb",
+      "transcription": "/əˈreɪndʒ/",
       "translation": "организовывать, устраивать",
       "translations": {
         "ru": "организовывать, устраивать",
@@ -56,6 +59,7 @@
     {
       "word": "postpone",
       "part_of_speech": "verb",
+      "transcription": "/poʊstˈpoʊn/",
       "translation": "откладывать, переносить",
       "translations": {
         "ru": "откладывать, переносить",
@@ -70,6 +74,7 @@
     {
       "word": "predict",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈdɪkt/",
       "translation": "предсказывать",
       "translations": {
         "ru": "предсказывать",
@@ -84,6 +89,7 @@
     {
       "word": "opportunity",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑpərˈtunəti/",
       "translation": "возможность, шанс",
       "translations": {
         "ru": "возможность, шанс",
@@ -98,6 +104,7 @@
     {
       "word": "possibility",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɑsəˈbɪləti/",
       "translation": "вероятность, возможность",
       "translations": {
         "ru": "вероятность, возможность",
@@ -112,6 +119,7 @@
     {
       "word": "alternative",
       "part_of_speech": "noun",
+      "transcription": "/ɔlˈtɜrnətɪv/",
       "translation": "альтернатива",
       "translations": {
         "ru": "альтернатива",
@@ -126,6 +134,7 @@
     {
       "word": "propose",
       "part_of_speech": "verb",
+      "transcription": "/prəˈpoʊz/",
       "translation": "предлагать, выдвигать",
       "translations": {
         "ru": "предлагать, выдвигать",
@@ -140,6 +149,7 @@
     {
       "word": "likely",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlaɪkli/",
       "translation": "вероятный",
       "translations": {
         "ru": "вероятный",

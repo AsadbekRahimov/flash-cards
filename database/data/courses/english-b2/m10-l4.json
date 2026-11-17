@@ -14,6 +14,7 @@
     {
       "word": "gesture",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛstʃər/",
       "translation": "жест",
       "translations": {
         "ru": "жест",
@@ -28,6 +29,7 @@
     {
       "word": "convey",
       "part_of_speech": "verb",
+      "transcription": "/kənˈveɪ/",
       "translation": "передавать, выражать",
       "translations": {
         "ru": "передавать, выражать",
@@ -42,6 +44,7 @@
     {
       "word": "articulate",
       "part_of_speech": "verb",
+      "transcription": "/ɑrˈtɪkjəleɪt/",
       "translation": "чётко выражать",
       "translations": {
         "ru": "чётко выражать",
@@ -56,6 +59,7 @@
     {
       "word": "clarify",
       "part_of_speech": "verb",
+      "transcription": "/ˈklærəfaɪ/",
       "translation": "уточнять, прояснять",
       "translations": {
         "ru": "уточнять, прояснять",
@@ -70,6 +74,7 @@
     {
       "word": "tone",
       "part_of_speech": "noun",
+      "transcription": "/toʊn/",
       "translation": "тон",
       "translations": {
         "ru": "тон",
@@ -84,6 +89,7 @@
     {
       "word": "hint",
       "part_of_speech": "noun",
+      "transcription": "/hɪnt/",
       "translation": "намёк",
       "translations": {
         "ru": "намёк",
@@ -98,6 +104,7 @@
     {
       "word": "mumble",
       "part_of_speech": "verb",
+      "transcription": "/ˈmʌmbəl/",
       "translation": "бормотать",
       "translations": {
         "ru": "бормотать",
@@ -112,6 +119,7 @@
     {
       "word": "exclaim",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈskleɪm/",
       "translation": "восклицать",
       "translations": {
         "ru": "восклицать",
@@ -126,6 +134,7 @@
     {
       "word": "verbal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɜrbəl/",
       "translation": "устный",
       "translations": {
         "ru": "устный",
@@ -140,6 +149,7 @@
     {
       "word": "misunderstanding",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɪsʌndərˈstændɪŋ/",
       "translation": "недоразумение",
       "translations": {
         "ru": "недоразумение",

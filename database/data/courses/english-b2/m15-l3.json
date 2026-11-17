@@ -14,6 +14,7 @@
     {
       "word": "construction",
       "part_of_speech": "noun",
+      "transcription": "/kənˈstrʌkʃən/",
       "translation": "строительство",
       "translations": {
         "ru": "строительство",
@@ -28,6 +29,7 @@
     {
       "word": "architecture",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrkətɛktʃər/",
       "translation": "архитектура",
       "translations": {
         "ru": "архитектура",
@@ -42,6 +44,7 @@
     {
       "word": "premises",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛmɪsɪz/",
       "translation": "помещение",
       "translations": {
         "ru": "помещение",
@@ -56,6 +59,7 @@
     {
       "word": "foundation",
       "part_of_speech": "noun",
+      "transcription": "/faʊnˈdeɪʃən/",
       "translation": "фундамент",
       "translations": {
         "ru": "фундамент",
@@ -70,6 +74,7 @@
     {
       "word": "housing",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaʊzɪŋ/",
       "translation": "жильё",
       "translations": {
         "ru": "жильё",
@@ -84,6 +89,7 @@
     {
       "word": "estate",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈsteɪt/",
       "translation": "недвижимость",
       "translations": {
         "ru": "недвижимость",
@@ -98,6 +104,7 @@
     {
       "word": "contractor",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntræktər/",
       "translation": "подрядчик",
       "translations": {
         "ru": "подрядчик",
@@ -112,6 +119,7 @@
     {
       "word": "demolish",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈmɑlɪʃ/",
       "translation": "сносить",
       "translations": {
         "ru": "сносить",
@@ -126,6 +134,7 @@
     {
       "word": "lease",
       "part_of_speech": "noun",
+      "transcription": "/lis/",
       "translation": "договор аренды",
       "translations": {
         "ru": "договор аренды",
@@ -140,6 +149,7 @@
     {
       "word": "concrete",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnkrit/",
       "translation": "бетон",
       "translations": {
         "ru": "бетон",

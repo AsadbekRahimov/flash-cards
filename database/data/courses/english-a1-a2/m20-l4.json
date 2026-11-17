@@ -14,6 +14,7 @@
     {
       "word": "news",
       "part_of_speech": "noun",
+      "transcription": "/nuz/",
       "translation": "новости",
       "translations": {
         "ru": "новости",
@@ -28,6 +29,7 @@
     {
       "word": "journalist",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɜrnəlɪst/",
       "translation": "журналист",
       "translations": {
         "ru": "журналист",
@@ -42,6 +44,7 @@
     {
       "word": "headline",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛdlaɪn/",
       "translation": "заголовок",
       "translations": {
         "ru": "заголовок",
@@ -56,6 +59,7 @@
     {
       "word": "article",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtɪkəl/",
       "translation": "статья",
       "translations": {
         "ru": "статья",
@@ -70,6 +74,7 @@
     {
       "word": "channel",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃænəl/",
       "translation": "канал",
       "translations": {
         "ru": "канал",
@@ -84,6 +89,7 @@
     {
       "word": "celebrity",
       "part_of_speech": "noun",
+      "transcription": "/səˈlɛbrəti/",
       "translation": "знаменитость",
       "translations": {
         "ru": "знаменитость",
@@ -98,6 +104,7 @@
     {
       "word": "advertisement",
       "part_of_speech": "noun",
+      "transcription": "/ˌædvərˈtaɪzmənt/",
       "translation": "реклама",
       "translations": {
         "ru": "реклама",
@@ -112,6 +119,7 @@
     {
       "word": "audience",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔdiəns/",
       "translation": "зрители",
       "translations": {
         "ru": "зрители",
@@ -126,6 +134,7 @@
     {
       "word": "documentary",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɑkjəˈmɛntəri/",
       "translation": "документальный фильм",
       "translations": {
         "ru": "документальный фильм",
@@ -140,6 +149,7 @@
     {
       "word": "comedy",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmədi/",
       "translation": "комедия",
       "translations": {
         "ru": "комедия",

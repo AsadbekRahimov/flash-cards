@@ -14,6 +14,7 @@
     {
       "word": "aspect",
       "part_of_speech": "noun",
+      "transcription": "/ˈæspɛkt/",
       "translation": "аспект, сторона",
       "translations": {
         "ru": "аспект, сторона",
@@ -28,6 +29,7 @@
     {
       "word": "element",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛləmənt/",
       "translation": "элемент, составная часть",
       "translations": {
         "ru": "элемент, составная часть",
@@ -42,6 +44,7 @@
     {
       "word": "sequence",
       "part_of_speech": "noun",
+      "transcription": "/ˈsikwəns/",
       "translation": "последовательность",
       "translations": {
         "ru": "последовательность",
@@ -56,6 +59,7 @@
     {
       "word": "function",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʌŋkʃən/",
       "translation": "функция, назначение",
       "translations": {
         "ru": "функция, назначение",
@@ -70,6 +74,7 @@
     {
       "word": "category",
       "part_of_speech": "noun",
+      "transcription": "/ˈkætəgɔri/",
       "translation": "категория",
       "translations": {
         "ru": "категория",
@@ -84,6 +89,7 @@
     {
       "word": "instance",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnstəns/",
       "translation": "случай",
       "translations": {
         "ru": "случай",
@@ -98,6 +104,7 @@
     {
       "word": "scope",
       "part_of_speech": "noun",
+      "transcription": "/skoʊp/",
       "translation": "рамки, охват",
       "translations": {
         "ru": "рамки, охват",
@@ -112,6 +119,7 @@
     {
       "word": "extent",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈstɛnt/",
       "translation": "масштаб, степень",
       "translations": {
         "ru": "масштаб, степень",
@@ -126,6 +134,7 @@
     {
       "word": "dimension",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈmɛnʃən/",
       "translation": "измерение, размер",
       "translations": {
         "ru": "измерение, размер",
@@ -140,6 +149,7 @@
     {
       "word": "circumstance",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrkəmstæns/",
       "translation": "обстоятельство",
       "translations": {
         "ru": "обстоятельство",

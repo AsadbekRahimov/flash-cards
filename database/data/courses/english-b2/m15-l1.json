@@ -14,6 +14,7 @@
     {
       "word": "urbanization",
       "part_of_speech": "noun",
+      "transcription": "/ˌɜrbənəˈzeɪʃən/",
       "translation": "урбанизация",
       "translations": {
         "ru": "урбанизация",
@@ -28,6 +29,7 @@
     {
       "word": "vicinity",
       "part_of_speech": "noun",
+      "transcription": "/vəˈsɪnəti/",
       "translation": "окрестности",
       "translations": {
         "ru": "окрестности",
@@ -42,6 +44,7 @@
     {
       "word": "industrial",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʌstriəl/",
       "translation": "промышленный",
       "translations": {
         "ru": "промышленный",
@@ -56,6 +59,7 @@
     {
       "word": "metropolis",
       "part_of_speech": "noun",
+      "transcription": "/məˈtrɑpəlɪs/",
       "translation": "мегаполис",
       "translations": {
         "ru": "мегаполис",
@@ -70,6 +74,7 @@
     {
       "word": "layout",
       "part_of_speech": "noun",
+      "transcription": "/ˈleɪaʊt/",
       "translation": "планировка",
       "translations": {
         "ru": "планировка",
@@ -84,6 +89,7 @@
     {
       "word": "outskirts",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtskɜrts/",
       "translation": "окраина",
       "translations": {
         "ru": "окраина",
@@ -98,6 +104,7 @@
     {
       "word": "zone",
       "part_of_speech": "noun",
+      "transcription": "/zoʊn/",
       "translation": "зона",
       "translations": {
         "ru": "зона",
@@ -112,6 +119,7 @@
     {
       "word": "infrastructure",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfrəˌstrʌktʃər/",
       "translation": "инфраструктура",
       "translations": {
         "ru": "инфраструктура",
@@ -126,6 +134,7 @@
     {
       "word": "municipal",
       "part_of_speech": "adjective",
+      "transcription": "/mjuˈnɪsəpəl/",
       "translation": "муниципальный",
       "translations": {
         "ru": "муниципальный",
@@ -140,6 +149,7 @@
     {
       "word": "residential",
       "part_of_speech": "adjective",
+      "transcription": "/ˌrɛzəˈdɛnʃəl/",
       "translation": "жилой",
       "translations": {
         "ru": "жилой",

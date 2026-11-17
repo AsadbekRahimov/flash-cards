@@ -14,6 +14,7 @@
     {
       "word": "conflict",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnflɪkt/",
       "translation": "конфликт",
       "translations": {
         "ru": "конфликт",
@@ -28,6 +29,7 @@
     {
       "word": "blame",
       "part_of_speech": "verb",
+      "transcription": "/bleɪm/",
       "translation": "винить, обвинять",
       "translations": {
         "ru": "винить, обвинять",
@@ -42,6 +44,7 @@
     {
       "word": "complain",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈpleɪn/",
       "translation": "жаловаться",
       "translations": {
         "ru": "жаловаться",
@@ -56,6 +59,7 @@
     {
       "word": "offend",
       "part_of_speech": "verb",
+      "transcription": "/əˈfɛnd/",
       "translation": "обижать",
       "translations": {
         "ru": "обижать",
@@ -70,6 +74,7 @@
     {
       "word": "argument",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrgjəmənt/",
       "translation": "спор",
       "translations": {
         "ru": "спор",
@@ -84,6 +89,7 @@
     {
       "word": "fault",
       "part_of_speech": "noun",
+      "transcription": "/fɔlt/",
       "translation": "вина",
       "translations": {
         "ru": "вина",
@@ -98,6 +104,7 @@
     {
       "word": "criticize",
       "part_of_speech": "verb",
+      "transcription": "/ˈkrɪtəsaɪz/",
       "translation": "критиковать",
       "translations": {
         "ru": "критиковать",
@@ -112,6 +119,7 @@
     {
       "word": "admit",
       "part_of_speech": "verb",
+      "transcription": "/ədˈmɪt/",
       "translation": "признавать",
       "translations": {
         "ru": "признавать",
@@ -126,6 +134,7 @@
     {
       "word": "deny",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈnaɪ/",
       "translation": "отрицать",
       "translations": {
         "ru": "отрицать",
@@ -140,6 +149,7 @@
     {
       "word": "disagree",
       "part_of_speech": "verb",
+      "transcription": "/ˌdɪsəˈgri/",
       "translation": "не соглашаться",
       "translations": {
         "ru": "не соглашаться",

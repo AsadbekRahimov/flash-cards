@@ -14,6 +14,7 @@
     {
       "word": "innovation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnəˈveɪʃən/",
       "translation": "инновация",
       "translations": {
         "ru": "инновация",
@@ -28,6 +29,7 @@
     {
       "word": "futuristic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌfjutʃəˈrɪstɪk/",
       "translation": "футуристический",
       "translations": {
         "ru": "футуристический",
@@ -42,6 +44,7 @@
     {
       "word": "prototype",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊtətaɪp/",
       "translation": "прототип, опытный образец",
       "translations": {
         "ru": "прототип, опытный образец",
@@ -56,6 +59,7 @@
     {
       "word": "patent",
       "part_of_speech": "noun",
+      "transcription": "/ˈpætənt/",
       "translation": "патент",
       "translations": {
         "ru": "патент",
@@ -70,6 +74,7 @@
     {
       "word": "modernize",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɑdərnaɪz/",
       "translation": "модернизировать",
       "translations": {
         "ru": "модернизировать",
@@ -84,6 +89,7 @@
     {
       "word": "refine",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈfaɪn/",
       "translation": "дорабатывать, совершенствовать",
       "translations": {
         "ru": "дорабатывать, совершенствовать",
@@ -98,6 +104,7 @@
     {
       "word": "obsolete",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɑbsəˈlit/",
       "translation": "вышедший из употребления",
       "translations": {
         "ru": "вышедший из употребления",
@@ -112,6 +119,7 @@
     {
       "word": "outdated",
       "part_of_speech": "adjective",
+      "transcription": "/ˌaʊtˈdeɪtɪd/",
       "translation": "устаревший",
       "translations": {
         "ru": "устаревший",
@@ -126,6 +134,7 @@
     {
       "word": "revolutionary",
       "part_of_speech": "adjective",
+      "transcription": "/ˌrɛvəˈluʃənɛri/",
       "translation": "революционный",
       "translations": {
         "ru": "революционный",
@@ -140,6 +149,7 @@
     {
       "word": "enhance",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈhæns/",
       "translation": "улучшать",
       "translations": {
         "ru": "улучшать",

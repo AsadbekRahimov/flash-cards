@@ -14,6 +14,7 @@
     {
       "word": "consequence",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnsəkwɛns/",
       "translation": "последствие",
       "translations": {
         "ru": "последствие",
@@ -28,6 +29,7 @@
     {
       "word": "outcome",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtkʌm/",
       "translation": "исход, результат",
       "translations": {
         "ru": "исход, результат",
@@ -42,6 +44,7 @@
     {
       "word": "setback",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛtbæk/",
       "translation": "неудача, препятствие",
       "translations": {
         "ru": "неудача, препятствие",
@@ -56,6 +59,7 @@
     {
       "word": "implication",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪmplɪˈkeɪʃən/",
       "translation": "возможное последствие",
       "translations": {
         "ru": "возможное последствие",
@@ -70,6 +74,7 @@
     {
       "word": "aftermath",
       "part_of_speech": "noun",
+      "transcription": "/ˈæftərmæθ/",
       "translation": "тяжёлые последствия",
       "translations": {
         "ru": "тяжёлые последствия",
@@ -84,6 +89,7 @@
     {
       "word": "backfire",
       "part_of_speech": "verb",
+      "transcription": "/ˈbækfaɪər/",
       "translation": "приводить к обратному результату",
       "translations": {
         "ru": "приводить к обратному результату",
@@ -98,6 +104,7 @@
     {
       "word": "inevitable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɛvətəbəl/",
       "translation": "неизбежный",
       "translations": {
         "ru": "неизбежный",
@@ -112,6 +119,7 @@
     {
       "word": "ultimately",
       "part_of_speech": "adverb",
+      "transcription": "/ˈʌltəmətli/",
       "translation": "в конечном счёте",
       "translations": {
         "ru": "в конечном счёте",
@@ -126,6 +134,7 @@
     {
       "word": "beneficial",
       "part_of_speech": "adjective",
+      "transcription": "/ˌbɛnəˈfɪʃəl/",
       "translation": "полезный, благотворный",
       "translations": {
         "ru": "полезный, благотворный",
@@ -140,6 +149,7 @@
     {
       "word": "lasting",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlæstɪŋ/",
       "translation": "долговременный",
       "translations": {
         "ru": "долговременный",

@@ -14,6 +14,7 @@
     {
       "word": "appearance",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɪrəns/",
       "translation": "внешность",
       "translations": {
         "ru": "внешность",
@@ -28,6 +29,7 @@
     {
       "word": "slim",
       "part_of_speech": "adjective",
+      "transcription": "/slɪm/",
       "translation": "стройный",
       "translations": {
         "ru": "стройный",
@@ -42,6 +44,7 @@
     {
       "word": "handsome",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhænsəm/",
       "translation": "красивый, статный",
       "translations": {
         "ru": "красивый, статный",
@@ -56,6 +59,7 @@
     {
       "word": "attractive",
       "part_of_speech": "adjective",
+      "transcription": "/əˈtræktɪv/",
       "translation": "привлекательный",
       "translations": {
         "ru": "привлекательный",
@@ -70,6 +74,7 @@
     {
       "word": "beard",
       "part_of_speech": "noun",
+      "transcription": "/bɪrd/",
       "translation": "борода",
       "translations": {
         "ru": "борода",
@@ -84,6 +89,7 @@
     {
       "word": "curly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɜrli/",
       "translation": "кудрявый",
       "translations": {
         "ru": "кудрявый",
@@ -98,6 +104,7 @@
     {
       "word": "bald",
       "part_of_speech": "adjective",
+      "transcription": "/bɔld/",
       "translation": "лысый",
       "translations": {
         "ru": "лысый",
@@ -112,6 +119,7 @@
     {
       "word": "pale",
       "part_of_speech": "adjective",
+      "transcription": "/peɪl/",
       "translation": "бледный",
       "translations": {
         "ru": "бледный",
@@ -126,6 +134,7 @@
     {
       "word": "elegant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛləgənt/",
       "translation": "элегантный",
       "translations": {
         "ru": "элегантный",
@@ -140,6 +149,7 @@
     {
       "word": "height",
       "part_of_speech": "noun",
+      "transcription": "/haɪt/",
       "translation": "рост, высота",
       "translations": {
         "ru": "рост, высота",

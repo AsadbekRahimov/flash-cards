@@ -14,6 +14,7 @@
     {
       "word": "tree",
       "part_of_speech": "noun",
+      "transcription": "/tri/",
       "translation": "дерево",
       "translations": {
         "ru": "дерево",
@@ -28,6 +29,7 @@
     {
       "word": "flower",
       "part_of_speech": "noun",
+      "transcription": "/ˈflaʊər/",
       "translation": "цветок",
       "translations": {
         "ru": "цветок",
@@ -42,6 +44,7 @@
     {
       "word": "grass",
       "part_of_speech": "noun",
+      "transcription": "/græs/",
       "translation": "трава",
       "translations": {
         "ru": "трава",
@@ -56,6 +59,7 @@
     {
       "word": "river",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɪvər/",
       "translation": "река",
       "translations": {
         "ru": "река",
@@ -70,6 +74,7 @@
     {
       "word": "lake",
       "part_of_speech": "noun",
+      "transcription": "/leɪk/",
       "translation": "озеро",
       "translations": {
         "ru": "озеро",
@@ -84,6 +89,7 @@
     {
       "word": "sea",
       "part_of_speech": "noun",
+      "transcription": "/si/",
       "translation": "море",
       "translations": {
         "ru": "море",
@@ -98,6 +104,7 @@
     {
       "word": "mountain",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaʊntən/",
       "translation": "гора",
       "translations": {
         "ru": "гора",
@@ -112,6 +119,7 @@
     {
       "word": "forest",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrəst/",
       "translation": "лес",
       "translations": {
         "ru": "лес",
@@ -126,6 +134,7 @@
     {
       "word": "field",
       "part_of_speech": "noun",
+      "transcription": "/fild/",
       "translation": "поле",
       "translations": {
         "ru": "поле",
@@ -140,6 +149,7 @@
     {
       "word": "stone",
       "part_of_speech": "noun",
+      "transcription": "/stoʊn/",
       "translation": "камень",
       "translations": {
         "ru": "камень",

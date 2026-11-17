@@ -14,6 +14,7 @@
     {
       "word": "subject",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbdʒɪkt/",
       "translation": "предмет",
       "translations": {
         "ru": "предмет",
@@ -28,6 +29,7 @@
     {
       "word": "university",
       "part_of_speech": "noun",
+      "transcription": "/ˌjunəˈvɜrsəti/",
       "translation": "университет",
       "translations": {
         "ru": "университет",
@@ -42,6 +44,7 @@
     {
       "word": "college",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑlɪdʒ/",
       "translation": "колледж",
       "translations": {
         "ru": "колледж",
@@ -56,6 +59,7 @@
     {
       "word": "kindergarten",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɪndərˌgɑrtən/",
       "translation": "детский сад",
       "translations": {
         "ru": "детский сад",
@@ -70,6 +74,7 @@
     {
       "word": "classroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈklæsrum/",
       "translation": "класс, аудитория",
       "translations": {
         "ru": "класс, аудитория",
@@ -84,6 +89,7 @@
     {
       "word": "textbook",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛkstbʊk/",
       "translation": "учебник",
       "translations": {
         "ru": "учебник",
@@ -98,6 +104,7 @@
     {
       "word": "notebook",
       "part_of_speech": "noun",
+      "transcription": "/ˈnoʊtbʊk/",
       "translation": "тетрадь",
       "translations": {
         "ru": "тетрадь",
@@ -112,6 +119,7 @@
     {
       "word": "pupil",
       "part_of_speech": "noun",
+      "transcription": "/ˈpjupəl/",
       "translation": "ученик",
       "translations": {
         "ru": "ученик",
@@ -126,6 +134,7 @@
     {
       "word": "principal",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɪnsəpəl/",
       "translation": "директор школы",
       "translations": {
         "ru": "директор школы",
@@ -140,6 +149,7 @@
     {
       "word": "uniform",
       "part_of_speech": "noun",
+      "transcription": "/ˈjunəˌfɔrm/",
       "translation": "форма",
       "translations": {
         "ru": "форма",

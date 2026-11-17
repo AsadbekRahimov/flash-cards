@@ -14,6 +14,7 @@
     {
       "word": "taxpayer",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæksˌpeɪər/",
       "translation": "налогоплательщик",
       "translations": {
         "ru": "налогоплательщик",
@@ -28,6 +29,7 @@
     {
       "word": "tariff",
       "part_of_speech": "noun",
+      "transcription": "/ˈtærɪf/",
       "translation": "пошлина, тариф",
       "translations": {
         "ru": "пошлина, тариф",
@@ -42,6 +44,7 @@
     {
       "word": "taxation",
       "part_of_speech": "noun",
+      "transcription": "/tækˈseɪʃən/",
       "translation": "налогообложение",
       "translations": {
         "ru": "налогообложение",
@@ -56,6 +59,7 @@
     {
       "word": "deduct",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈdʌkt/",
       "translation": "удерживать, вычитать",
       "translations": {
         "ru": "удерживать, вычитать",
@@ -70,6 +74,7 @@
     {
       "word": "exempt",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɛmpt/",
       "translation": "освобождённый",
       "translations": {
         "ru": "освобождённый",
@@ -84,6 +89,7 @@
     {
       "word": "audit",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔdɪt/",
       "translation": "аудит, ревизия",
       "translations": {
         "ru": "аудит, ревизия",
@@ -98,6 +104,7 @@
     {
       "word": "invoice",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnvɔɪs/",
       "translation": "счёт-фактура",
       "translations": {
         "ru": "счёт-фактура",
@@ -112,6 +119,7 @@
     {
       "word": "wholesale",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhoʊlseɪl/",
       "translation": "оптовый",
       "translations": {
         "ru": "оптовый",
@@ -126,6 +134,7 @@
     {
       "word": "retail",
       "part_of_speech": "noun",
+      "transcription": "/ˈriteɪl/",
       "translation": "розничная торговля",
       "translations": {
         "ru": "розничная торговля",
@@ -140,6 +149,7 @@
     {
       "word": "quota",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwoʊtə/",
       "translation": "квота",
       "translations": {
         "ru": "квота",

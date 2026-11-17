@@ -14,6 +14,7 @@
     {
       "word": "momentum",
       "part_of_speech": "noun",
+      "transcription": "/moʊˈmɛntəm/",
       "translation": "темп, импульс",
       "translations": {
         "ru": "темп, импульс",
@@ -28,6 +29,7 @@
     {
       "word": "pattern",
       "part_of_speech": "noun",
+      "transcription": "/ˈpætərn/",
       "translation": "закономерность",
       "translations": {
         "ru": "закономерность",
@@ -42,6 +44,7 @@
     {
       "word": "stability",
       "part_of_speech": "noun",
+      "transcription": "/stəˈbɪləti/",
       "translation": "стабильность, устойчивость",
       "translations": {
         "ru": "стабильность, устойчивость",
@@ -56,6 +59,7 @@
     {
       "word": "gradual",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgrædʒuəl/",
       "translation": "постепенный",
       "translations": {
         "ru": "постепенный",
@@ -70,6 +74,7 @@
     {
       "word": "steady",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstɛdi/",
       "translation": "устойчивый, стабильный",
       "translations": {
         "ru": "устойчивый, стабильный",
@@ -84,6 +89,7 @@
     {
       "word": "abrupt",
       "part_of_speech": "adjective",
+      "transcription": "/əˈbrʌpt/",
       "translation": "резкий, внезапный",
       "translations": {
         "ru": "резкий, внезапный",
@@ -98,6 +104,7 @@
     {
       "word": "ongoing",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑnˌgoʊɪŋ/",
       "translation": "продолжающийся, текущий",
       "translations": {
         "ru": "продолжающийся, текущий",
@@ -112,6 +119,7 @@
     {
       "word": "emerge",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈmɜrdʒ/",
       "translation": "появляться, возникать",
       "translations": {
         "ru": "появляться, возникать",
@@ -126,6 +134,7 @@
     {
       "word": "phase",
       "part_of_speech": "noun",
+      "transcription": "/feɪz/",
       "translation": "этап, фаза",
       "translations": {
         "ru": "этап, фаза",
@@ -140,6 +149,7 @@
     {
       "word": "accelerate",
       "part_of_speech": "verb",
+      "transcription": "/əkˈsɛləreɪt/",
       "translation": "ускоряться",
       "translations": {
         "ru": "ускоряться",

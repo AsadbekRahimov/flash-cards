@@ -14,6 +14,7 @@
     {
       "word": "duty",
       "part_of_speech": "noun",
+      "transcription": "/ˈduti/",
       "translation": "обязанность",
       "translations": {
         "ru": "обязанность",
@@ -28,6 +29,7 @@
     {
       "word": "responsibility",
       "part_of_speech": "noun",
+      "transcription": "/rɪˌspɑnsəˈbɪləti/",
       "translation": "ответственность",
       "translations": {
         "ru": "ответственность",
@@ -42,6 +44,7 @@
     {
       "word": "assignment",
       "part_of_speech": "noun",
+      "transcription": "/əˈsaɪnmənt/",
       "translation": "задание, поручение",
       "translations": {
         "ru": "задание, поручение",
@@ -56,6 +59,7 @@
     {
       "word": "attend",
       "part_of_speech": "verb",
+      "transcription": "/əˈtɛnd/",
       "translation": "присутствовать, посещать",
       "translations": {
         "ru": "присутствовать, посещать",
@@ -70,6 +74,7 @@
     {
       "word": "conference",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnfərəns/",
       "translation": "конференция",
       "translations": {
         "ru": "конференция",
@@ -84,6 +89,7 @@
     {
       "word": "routine",
       "part_of_speech": "noun",
+      "transcription": "/ruˈtin/",
       "translation": "распорядок",
       "translations": {
         "ru": "распорядок",
@@ -98,6 +104,7 @@
     {
       "word": "teamwork",
       "part_of_speech": "noun",
+      "transcription": "/ˈtimwɜrk/",
       "translation": "командная работа",
       "translations": {
         "ru": "командная работа",
@@ -112,6 +119,7 @@
     {
       "word": "approve",
       "part_of_speech": "verb",
+      "transcription": "/əˈpruv/",
       "translation": "одобрять, утверждать",
       "translations": {
         "ru": "одобрять, утверждать",
@@ -126,6 +134,7 @@
     {
       "word": "priority",
       "part_of_speech": "noun",
+      "transcription": "/praɪˈɔrəti/",
       "translation": "приоритет",
       "translations": {
         "ru": "приоритет",
@@ -140,6 +149,7 @@
     {
       "word": "efficient",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈfɪʃənt/",
       "translation": "эффективный",
       "translations": {
         "ru": "эффективный",

@@ -14,6 +14,7 @@
     {
       "word": "bid",
       "part_of_speech": "noun",
+      "transcription": "/bɪd/",
       "translation": "ценовое предложение",
       "translations": {
         "ru": "ценовое предложение",
@@ -28,6 +29,7 @@
     {
       "word": "settlement",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛtəlmənt/",
       "translation": "соглашение, урегулирование",
       "translations": {
         "ru": "соглашение, урегулирование",
@@ -42,6 +44,7 @@
     {
       "word": "terminate",
       "part_of_speech": "verb",
+      "transcription": "/ˈtɜrməneɪt/",
       "translation": "расторгать, прекращать",
       "translations": {
         "ru": "расторгать, прекращать",
@@ -56,6 +59,7 @@
     {
       "word": "clause",
       "part_of_speech": "noun",
+      "transcription": "/klɔz/",
       "translation": "пункт договора",
       "translations": {
         "ru": "пункт договора",
@@ -70,6 +74,7 @@
     {
       "word": "compromise",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmprəmaɪz/",
       "translation": "компромисс",
       "translations": {
         "ru": "компромисс",
@@ -84,6 +89,7 @@
     {
       "word": "mutual",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmjutʃuəl/",
       "translation": "взаимный",
       "translations": {
         "ru": "взаимный",
@@ -98,6 +104,7 @@
     {
       "word": "commission",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmɪʃən/",
       "translation": "комиссионные",
       "translations": {
         "ru": "комиссионные",
@@ -112,6 +119,7 @@
     {
       "word": "binding",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbaɪndɪŋ/",
       "translation": "обязательный к исполнению",
       "translations": {
         "ru": "обязательный к исполнению",
@@ -126,6 +134,7 @@
     {
       "word": "finalize",
       "part_of_speech": "verb",
+      "transcription": "/ˈfaɪnəlaɪz/",
       "translation": "окончательно оформлять",
       "translations": {
         "ru": "окончательно оформлять",
@@ -140,6 +149,7 @@
     {
       "word": "proposal",
       "part_of_speech": "noun",
+      "transcription": "/prəˈpoʊzəl/",
       "translation": "предложение",
       "translations": {
         "ru": "предложение",

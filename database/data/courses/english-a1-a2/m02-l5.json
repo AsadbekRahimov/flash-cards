@@ -14,6 +14,7 @@
     {
       "word": "clean",
       "part_of_speech": "verb",
+      "transcription": "/klin/",
       "translation": "убирать, чистить",
       "translations": {
         "ru": "убирать, чистить",
@@ -28,6 +29,7 @@
     {
       "word": "wash",
       "part_of_speech": "verb",
+      "transcription": "/wɑʃ/",
       "translation": "мыть, стирать",
       "translations": {
         "ru": "мыть, стирать",
@@ -42,6 +44,7 @@
     {
       "word": "cook",
       "part_of_speech": "verb",
+      "transcription": "/kʊk/",
       "translation": "готовить еду",
       "translations": {
         "ru": "готовить еду",
@@ -56,6 +59,7 @@
     {
       "word": "open",
       "part_of_speech": "verb",
+      "transcription": "/ˈoʊpən/",
       "translation": "открывать",
       "translations": {
         "ru": "открывать",
@@ -70,6 +74,7 @@
     {
       "word": "close",
       "part_of_speech": "verb",
+      "transcription": "/kloʊz/",
       "translation": "закрывать",
       "translations": {
         "ru": "закрывать",
@@ -84,6 +89,7 @@
     {
       "word": "live",
       "part_of_speech": "verb",
+      "transcription": "/lɪv/",
       "translation": "жить",
       "translations": {
         "ru": "жить",
@@ -98,6 +104,7 @@
     {
       "word": "sit",
       "part_of_speech": "verb",
+      "transcription": "/sɪt/",
       "translation": "сидеть, садиться",
       "translations": {
         "ru": "сидеть, садиться",
@@ -112,6 +119,7 @@
     {
       "word": "stand",
       "part_of_speech": "verb",
+      "transcription": "/stænd/",
       "translation": "стоять",
       "translations": {
         "ru": "стоять",
@@ -126,6 +134,7 @@
     {
       "word": "move",
       "part_of_speech": "verb",
+      "transcription": "/muv/",
       "translation": "переезжать",
       "translations": {
         "ru": "переезжать",
@@ -140,6 +149,7 @@
     {
       "word": "share",
       "part_of_speech": "verb",
+      "transcription": "/ʃɛr/",
       "translation": "делить, делиться",
       "translations": {
         "ru": "делить, делиться",

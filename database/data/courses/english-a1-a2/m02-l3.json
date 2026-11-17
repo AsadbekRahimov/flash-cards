@@ -14,6 +14,7 @@
     {
       "word": "house",
       "part_of_speech": "noun",
+      "transcription": "/haʊs/",
       "translation": "дом, здание",
       "translations": {
         "ru": "дом, здание",
@@ -28,6 +29,7 @@
     {
       "word": "room",
       "part_of_speech": "noun",
+      "transcription": "/rum/",
       "translation": "комната",
       "translations": {
         "ru": "комната",
@@ -42,6 +44,7 @@
     {
       "word": "kitchen",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɪtʃən/",
       "translation": "кухня",
       "translations": {
         "ru": "кухня",
@@ -56,6 +59,7 @@
     {
       "word": "bedroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɛdrum/",
       "translation": "спальня",
       "translations": {
         "ru": "спальня",
@@ -70,6 +74,7 @@
     {
       "word": "bathroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæθrum/",
       "translation": "ванная комната",
       "translations": {
         "ru": "ванная комната",
@@ -84,6 +89,7 @@
     {
       "word": "door",
       "part_of_speech": "noun",
+      "transcription": "/dɔr/",
       "translation": "дверь",
       "translations": {
         "ru": "дверь",
@@ -98,6 +104,7 @@
     {
       "word": "window",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪndoʊ/",
       "translation": "окно",
       "translations": {
         "ru": "окно",
@@ -112,6 +119,7 @@
     {
       "word": "floor",
       "part_of_speech": "noun",
+      "transcription": "/flɔr/",
       "translation": "пол",
       "translations": {
         "ru": "пол",
@@ -126,6 +134,7 @@
     {
       "word": "wall",
       "part_of_speech": "noun",
+      "transcription": "/wɔl/",
       "translation": "стена",
       "translations": {
         "ru": "стена",
@@ -140,6 +149,7 @@
     {
       "word": "garden",
       "part_of_speech": "noun",
+      "transcription": "/ˈgɑrdən/",
       "translation": "сад",
       "translations": {
         "ru": "сад",

@@ -14,6 +14,7 @@
     {
       "word": "although",
       "part_of_speech": "conjunction",
+      "transcription": "/ɔlˈðoʊ/",
       "translation": "хотя",
       "translations": {
         "ru": "хотя",
@@ -28,6 +29,7 @@
     {
       "word": "though",
       "part_of_speech": "conjunction",
+      "transcription": "/ðoʊ/",
       "translation": "хоть, хотя",
       "translations": {
         "ru": "хоть, хотя",
@@ -42,6 +44,7 @@
     {
       "word": "despite",
       "part_of_speech": "preposition",
+      "transcription": "/dɪˈspaɪt/",
       "translation": "несмотря на",
       "translations": {
         "ru": "несмотря на",
@@ -56,6 +59,7 @@
     {
       "word": "however",
       "part_of_speech": "adverb",
+      "transcription": "/haʊˈɛvər/",
       "translation": "однако",
       "translations": {
         "ru": "однако",
@@ -70,6 +74,7 @@
     {
       "word": "rather",
       "part_of_speech": "adverb",
+      "transcription": "/ˈræðər/",
       "translation": "скорее",
       "translations": {
         "ru": "скорее",
@@ -84,6 +89,7 @@
     {
       "word": "yet",
       "part_of_speech": "conjunction",
+      "transcription": "/jɛt/",
       "translation": "и всё же, но",
       "translations": {
         "ru": "и всё же, но",
@@ -98,6 +104,7 @@
     {
       "word": "instead",
       "part_of_speech": "adverb",
+      "transcription": "/ɪnˈstɛd/",
       "translation": "вместо этого, взамен",
       "translations": {
         "ru": "вместо этого, взамен",
@@ -112,6 +119,7 @@
     {
       "word": "otherwise",
       "part_of_speech": "adverb",
+      "transcription": "/ˈʌðərwaɪz/",
       "translation": "иначе, в противном случае",
       "translations": {
         "ru": "иначе, в противном случае",
@@ -126,6 +134,7 @@
     {
       "word": "unlike",
       "part_of_speech": "preposition",
+      "transcription": "/ˌʌnˈlaɪk/",
       "translation": "в отличие от",
       "translations": {
         "ru": "в отличие от",
@@ -140,6 +149,7 @@
     {
       "word": "except",
       "part_of_speech": "preposition",
+      "transcription": "/ɪkˈsɛpt/",
       "translation": "кроме",
       "translations": {
         "ru": "кроме",

@@ -14,6 +14,7 @@
     {
       "word": "pharmacist",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɑrməsɪst/",
       "translation": "фармацевт",
       "translations": {
         "ru": "фармацевт",
@@ -28,6 +29,7 @@
     {
       "word": "treatment",
       "part_of_speech": "noun",
+      "transcription": "/ˈtritmənt/",
       "translation": "лечение",
       "translations": {
         "ru": "лечение",
@@ -42,6 +44,7 @@
     {
       "word": "prescription",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈskrɪpʃən/",
       "translation": "рецепт",
       "translations": {
         "ru": "рецепт",
@@ -56,6 +59,7 @@
     {
       "word": "surgery",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrdʒəri/",
       "translation": "операция",
       "translations": {
         "ru": "операция",
@@ -70,6 +74,7 @@
     {
       "word": "examine",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzæmən/",
       "translation": "осматривать",
       "translations": {
         "ru": "осматривать",
@@ -84,6 +89,7 @@
     {
       "word": "ambulance",
       "part_of_speech": "noun",
+      "transcription": "/ˈæmbjələns/",
       "translation": "скорая помощь",
       "translations": {
         "ru": "скорая помощь",
@@ -98,6 +104,7 @@
     {
       "word": "emergency",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈmɜrdʒənsi/",
       "translation": "экстренный случай",
       "translations": {
         "ru": "экстренный случай",
@@ -112,6 +119,7 @@
     {
       "word": "vaccine",
       "part_of_speech": "noun",
+      "transcription": "/vækˈsin/",
       "translation": "вакцина",
       "translations": {
         "ru": "вакцина",
@@ -126,6 +134,7 @@
     {
       "word": "blood",
       "part_of_speech": "noun",
+      "transcription": "/blʌd/",
       "translation": "кровь",
       "translations": {
         "ru": "кровь",
@@ -140,6 +149,7 @@
     {
       "word": "clinic",
       "part_of_speech": "noun",
+      "transcription": "/ˈklɪnɪk/",
       "translation": "клиника",
       "translations": {
         "ru": "клиника",

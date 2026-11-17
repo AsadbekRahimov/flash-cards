@@ -14,6 +14,7 @@
     {
       "word": "pollutant",
       "part_of_speech": "noun",
+      "transcription": "/pəˈlutənt/",
       "translation": "загрязняющее вещество",
       "translations": {
         "ru": "загрязняющее вещество",
@@ -28,6 +29,7 @@
     {
       "word": "contaminate",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtæməneɪt/",
       "translation": "загрязнять",
       "translations": {
         "ru": "загрязнять",
@@ -42,6 +44,7 @@
     {
       "word": "poisonous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɔɪzənəs/",
       "translation": "ядовитый",
       "translations": {
         "ru": "ядовитый",
@@ -56,6 +59,7 @@
     {
       "word": "landfill",
       "part_of_speech": "noun",
+      "transcription": "/ˈlændfɪl/",
       "translation": "свалка, мусорный полигон",
       "translations": {
         "ru": "свалка, мусорный полигон",
@@ -70,6 +74,7 @@
     {
       "word": "sewage",
       "part_of_speech": "noun",
+      "transcription": "/ˈsuɪdʒ/",
       "translation": "сточные воды",
       "translations": {
         "ru": "сточные воды",
@@ -84,6 +89,7 @@
     {
       "word": "disposal",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈspoʊzəl/",
       "translation": "утилизация",
       "translations": {
         "ru": "утилизация",
@@ -98,6 +104,7 @@
     {
       "word": "exhaust",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɔst/",
       "translation": "выхлопные газы",
       "translations": {
         "ru": "выхлопные газы",
@@ -112,6 +119,7 @@
     {
       "word": "pesticide",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛstəsaɪd/",
       "translation": "пестицид",
       "translations": {
         "ru": "пестицид",
@@ -126,6 +134,7 @@
     {
       "word": "smog",
       "part_of_speech": "noun",
+      "transcription": "/smɑg/",
       "translation": "смог",
       "translations": {
         "ru": "смог",
@@ -140,6 +149,7 @@
     {
       "word": "dump",
       "part_of_speech": "verb",
+      "transcription": "/dʌmp/",
       "translation": "сбрасывать, сваливать",
       "translations": {
         "ru": "сбрасывать, сваливать",

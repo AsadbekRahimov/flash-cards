@@ -14,6 +14,7 @@
     {
       "word": "overtime",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərˌtaɪm/",
       "translation": "сверхурочная работа",
       "translations": {
         "ru": "сверхурочная работа",
@@ -28,6 +29,7 @@
     {
       "word": "shift",
       "part_of_speech": "noun",
+      "transcription": "/ʃɪft/",
       "translation": "смена",
       "translations": {
         "ru": "смена",
@@ -42,6 +44,7 @@
     {
       "word": "vacation",
       "part_of_speech": "noun",
+      "transcription": "/veɪˈkeɪʃən/",
       "translation": "отпуск",
       "translations": {
         "ru": "отпуск",
@@ -56,6 +59,7 @@
     {
       "word": "promotion",
       "part_of_speech": "noun",
+      "transcription": "/prəˈmoʊʃən/",
       "translation": "повышение",
       "translations": {
         "ru": "повышение",
@@ -70,6 +74,7 @@
     {
       "word": "retire",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈtaɪər/",
       "translation": "уходить на пенсию",
       "translations": {
         "ru": "уходить на пенсию",
@@ -84,6 +89,7 @@
     {
       "word": "quit",
       "part_of_speech": "verb",
+      "transcription": "/kwɪt/",
       "translation": "увольняться",
       "translations": {
         "ru": "увольняться",
@@ -98,6 +104,7 @@
     {
       "word": "busy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbɪzi/",
       "translation": "занятой",
       "translations": {
         "ru": "занятой",
@@ -112,6 +119,7 @@
     {
       "word": "stressful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstrɛsfəl/",
       "translation": "стрессовый",
       "translations": {
         "ru": "стрессовый",
@@ -126,6 +134,7 @@
     {
       "word": "flexible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈflɛksəbəl/",
       "translation": "гибкий",
       "translations": {
         "ru": "гибкий",
@@ -140,6 +149,7 @@
     {
       "word": "pension",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛnʃən/",
       "translation": "пенсия",
       "translations": {
         "ru": "пенсия",

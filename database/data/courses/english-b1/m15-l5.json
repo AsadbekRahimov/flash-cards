@@ -14,6 +14,7 @@
     {
       "word": "obey",
       "part_of_speech": "verb",
+      "transcription": "/oʊˈbeɪ/",
       "translation": "соблюдать, подчиняться",
       "translations": {
         "ru": "соблюдать, подчиняться",
@@ -28,6 +29,7 @@
     {
       "word": "illegal",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈligəl/",
       "translation": "незаконный",
       "translations": {
         "ru": "незаконный",
@@ -42,6 +44,7 @@
     {
       "word": "ban",
       "part_of_speech": "verb",
+      "transcription": "/bæn/",
       "translation": "запрещать",
       "translations": {
         "ru": "запрещать",
@@ -56,6 +59,7 @@
     {
       "word": "permit",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrmɪt/",
       "translation": "официальное разрешение",
       "translations": {
         "ru": "официальное разрешение",
@@ -70,6 +74,7 @@
     {
       "word": "require",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkwaɪər/",
       "translation": "требовать",
       "translations": {
         "ru": "требовать",
@@ -84,6 +89,7 @@
     {
       "word": "penalty",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛnəlti/",
       "translation": "штраф, наказание",
       "translations": {
         "ru": "штраф, наказание",
@@ -98,6 +104,7 @@
     {
       "word": "valid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvælɪd/",
       "translation": "действительный",
       "translations": {
         "ru": "действительный",
@@ -112,6 +119,7 @@
     {
       "word": "limit",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪmɪt/",
       "translation": "ограничение, предел",
       "translations": {
         "ru": "ограничение, предел",
@@ -126,6 +134,7 @@
     {
       "word": "register",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛdʒəstər/",
       "translation": "регистрироваться",
       "translations": {
         "ru": "регистрироваться",
@@ -140,6 +149,7 @@
     {
       "word": "participate",
       "part_of_speech": "verb",
+      "transcription": "/pɑrˈtɪsəpeɪt/",
       "translation": "участвовать",
       "translations": {
         "ru": "участвовать",

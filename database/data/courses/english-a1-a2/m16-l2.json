@@ -14,6 +14,7 @@
     {
       "word": "wardrobe",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔrdroʊb/",
       "translation": "шкаф для одежды",
       "translations": {
         "ru": "шкаф для одежды",
@@ -28,6 +29,7 @@
     {
       "word": "curtain",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɜrtən/",
       "translation": "штора",
       "translations": {
         "ru": "штора",
@@ -42,6 +44,7 @@
     {
       "word": "pillow",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪloʊ/",
       "translation": "подушка",
       "translations": {
         "ru": "подушка",
@@ -56,6 +59,7 @@
     {
       "word": "blanket",
       "part_of_speech": "noun",
+      "transcription": "/ˈblæŋkət/",
       "translation": "одеяло",
       "translations": {
         "ru": "одеяло",
@@ -70,6 +74,7 @@
     {
       "word": "fridge",
       "part_of_speech": "noun",
+      "transcription": "/frɪdʒ/",
       "translation": "холодильник",
       "translations": {
         "ru": "холодильник",
@@ -84,6 +89,7 @@
     {
       "word": "oven",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌvən/",
       "translation": "духовка",
       "translations": {
         "ru": "духовка",
@@ -98,6 +104,7 @@
     {
       "word": "kettle",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɛtəl/",
       "translation": "чайник",
       "translations": {
         "ru": "чайник",
@@ -112,6 +119,7 @@
     {
       "word": "heater",
       "part_of_speech": "noun",
+      "transcription": "/ˈhitər/",
       "translation": "обогреватель",
       "translations": {
         "ru": "обогреватель",
@@ -126,6 +134,7 @@
     {
       "word": "drawer",
       "part_of_speech": "noun",
+      "transcription": "/drɔr/",
       "translation": "ящик",
       "translations": {
         "ru": "ящик",
@@ -140,6 +149,7 @@
     {
       "word": "vacuum",
       "part_of_speech": "noun",
+      "transcription": "/ˈvækjum/",
       "translation": "пылесос",
       "translations": {
         "ru": "пылесос",

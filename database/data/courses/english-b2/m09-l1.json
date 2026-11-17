@@ -14,6 +14,7 @@
     {
       "word": "jury",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒʊri/",
       "translation": "присяжные",
       "translations": {
         "ru": "присяжные",
@@ -28,6 +29,7 @@
     {
       "word": "courtroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrtrum/",
       "translation": "зал суда",
       "translations": {
         "ru": "зал суда",
@@ -42,6 +44,7 @@
     {
       "word": "verdict",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɜrdɪkt/",
       "translation": "вердикт",
       "translations": {
         "ru": "вердикт",
@@ -56,6 +59,7 @@
     {
       "word": "attorney",
       "part_of_speech": "noun",
+      "transcription": "/əˈtɜrni/",
       "translation": "адвокат",
       "translations": {
         "ru": "адвокат",
@@ -70,6 +74,7 @@
     {
       "word": "defendant",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈfɛndənt/",
       "translation": "подсудимый",
       "translations": {
         "ru": "подсудимый",
@@ -84,6 +89,7 @@
     {
       "word": "oath",
       "part_of_speech": "noun",
+      "transcription": "/oʊθ/",
       "translation": "клятва, присяга",
       "translations": {
         "ru": "клятва, присяга",
@@ -98,6 +104,7 @@
     {
       "word": "testimony",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛstəmoʊni/",
       "translation": "показания",
       "translations": {
         "ru": "показания",
@@ -112,6 +119,7 @@
     {
       "word": "prosecutor",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑsɪkjutər/",
       "translation": "прокурор",
       "translations": {
         "ru": "прокурор",
@@ -126,6 +134,7 @@
     {
       "word": "lawsuit",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɔsut/",
       "translation": "иск",
       "translations": {
         "ru": "иск",
@@ -140,6 +149,7 @@
     {
       "word": "appeal",
       "part_of_speech": "noun",
+      "transcription": "/əˈpil/",
       "translation": "апелляция",
       "translations": {
         "ru": "апелляция",

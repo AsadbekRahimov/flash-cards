@@ -14,6 +14,7 @@
     {
       "word": "assessment",
       "part_of_speech": "noun",
+      "transcription": "/əˈsɛsmənt/",
       "translation": "оценивание",
       "translations": {
         "ru": "оценивание",
@@ -28,6 +29,7 @@
     {
       "word": "evaluate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈvæljueɪt/",
       "translation": "оценивать",
       "translations": {
         "ru": "оценивать",
@@ -42,6 +44,7 @@
     {
       "word": "criterion",
       "part_of_speech": "noun",
+      "transcription": "/kraɪˈtɪriən/",
       "translation": "критерий",
       "translations": {
         "ru": "критерий",
@@ -56,6 +59,7 @@
     {
       "word": "plagiarism",
       "part_of_speech": "noun",
+      "transcription": "/ˈpleɪdʒərɪzəm/",
       "translation": "плагиат",
       "translations": {
         "ru": "плагиат",
@@ -70,6 +74,7 @@
     {
       "word": "proficiency",
       "part_of_speech": "noun",
+      "transcription": "/prəˈfɪʃənsi/",
       "translation": "уровень владения",
       "translations": {
         "ru": "уровень владения",
@@ -84,6 +89,7 @@
     {
       "word": "coursework",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrswɜrk/",
       "translation": "курсовая работа",
       "translations": {
         "ru": "курсовая работа",
@@ -98,6 +104,7 @@
     {
       "word": "merit",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛrɪt/",
       "translation": "достоинство, преимущество",
       "translations": {
         "ru": "достоинство, преимущество",
@@ -112,6 +119,7 @@
     {
       "word": "aptitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈæptətud/",
       "translation": "способность, склонность",
       "translations": {
         "ru": "способность, склонность",
@@ -126,6 +134,7 @@
     {
       "word": "literacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪtərəsi/",
       "translation": "грамотность",
       "translations": {
         "ru": "грамотность",
@@ -140,6 +149,7 @@
     {
       "word": "revision",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈvɪʒən/",
       "translation": "доработка, правка",
       "translations": {
         "ru": "доработка, правка",

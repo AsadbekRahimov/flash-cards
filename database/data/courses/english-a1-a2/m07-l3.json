@@ -14,6 +14,7 @@
     {
       "word": "doctor",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɑktər/",
       "translation": "врач",
       "translations": {
         "ru": "врач",
@@ -28,6 +29,7 @@
     {
       "word": "nurse",
       "part_of_speech": "noun",
+      "transcription": "/nɜrs/",
       "translation": "медсестра",
       "translations": {
         "ru": "медсестра",
@@ -42,6 +44,7 @@
     {
       "word": "driver",
       "part_of_speech": "noun",
+      "transcription": "/ˈdraɪvər/",
       "translation": "водитель",
       "translations": {
         "ru": "водитель",
@@ -56,6 +59,7 @@
     {
       "word": "engineer",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛndʒəˈnɪr/",
       "translation": "инженер",
       "translations": {
         "ru": "инженер",
@@ -70,6 +74,7 @@
     {
       "word": "farmer",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɑrmər/",
       "translation": "фермер",
       "translations": {
         "ru": "фермер",
@@ -84,6 +89,7 @@
     {
       "word": "worker",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkər/",
       "translation": "рабочий",
       "translations": {
         "ru": "рабочий",
@@ -98,6 +104,7 @@
     {
       "word": "waiter",
       "part_of_speech": "noun",
+      "transcription": "/ˈweɪtər/",
       "translation": "официант",
       "translations": {
         "ru": "официант",
@@ -112,6 +119,7 @@
     {
       "word": "artist",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtɪst/",
       "translation": "художник",
       "translations": {
         "ru": "художник",
@@ -126,6 +134,7 @@
     {
       "word": "pilot",
       "part_of_speech": "noun",
+      "transcription": "/ˈpaɪlət/",
       "translation": "лётчик, пилот",
       "translations": {
         "ru": "лётчик, пилот",
@@ -140,6 +149,7 @@
     {
       "word": "dentist",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛntɪst/",
       "translation": "стоматолог",
       "translations": {
         "ru": "стоматолог",

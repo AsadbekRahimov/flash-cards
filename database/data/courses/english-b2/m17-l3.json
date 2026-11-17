@@ -14,6 +14,7 @@
     {
       "word": "proof",
       "part_of_speech": "noun",
+      "transcription": "/pruf/",
       "translation": "доказательство",
       "translations": {
         "ru": "доказательство",
@@ -28,6 +29,7 @@
     {
       "word": "justify",
       "part_of_speech": "verb",
+      "transcription": "/ˈdʒʌstəfaɪ/",
       "translation": "обосновывать, оправдывать",
       "translations": {
         "ru": "обосновывать, оправдывать",
@@ -42,6 +44,7 @@
     {
       "word": "plausible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈplɔzəbəl/",
       "translation": "правдоподобный",
       "translations": {
         "ru": "правдоподобный",
@@ -56,6 +59,7 @@
     {
       "word": "consistent",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈsɪstənt/",
       "translation": "последовательный",
       "translations": {
         "ru": "последовательный",
@@ -70,6 +74,7 @@
     {
       "word": "assumption",
       "part_of_speech": "noun",
+      "transcription": "/əˈsʌmpʃən/",
       "translation": "предположение, допущение",
       "translations": {
         "ru": "предположение, допущение",
@@ -84,6 +89,7 @@
     {
       "word": "convincing",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈvɪnsɪŋ/",
       "translation": "убедительный",
       "translations": {
         "ru": "убедительный",
@@ -98,6 +104,7 @@
     {
       "word": "factual",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfæktʃuəl/",
       "translation": "основанный на фактах",
       "translations": {
         "ru": "основанный на фактах",
@@ -112,6 +119,7 @@
     {
       "word": "coherent",
       "part_of_speech": "adjective",
+      "transcription": "/koʊˈhɪrənt/",
       "translation": "связный, логичный",
       "translations": {
         "ru": "связный, логичный",
@@ -126,6 +134,7 @@
     {
       "word": "flaw",
       "part_of_speech": "noun",
+      "transcription": "/flɔ/",
       "translation": "изъян, недостаток",
       "translations": {
         "ru": "изъян, недостаток",
@@ -140,6 +149,7 @@
     {
       "word": "basis",
       "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsɪs/",
       "translation": "основание, основа",
       "translations": {
         "ru": "основание, основа",

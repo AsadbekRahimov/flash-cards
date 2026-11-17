@@ -14,6 +14,7 @@
     {
       "word": "arrogant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈærəgənt/",
       "translation": "высокомерный",
       "translations": {
         "ru": "высокомерный",
@@ -28,6 +29,7 @@
     {
       "word": "ruthless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈruθləs/",
       "translation": "безжалостный",
       "translations": {
         "ru": "безжалостный",
@@ -42,6 +44,7 @@
     {
       "word": "greedy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgridi/",
       "translation": "жадный",
       "translations": {
         "ru": "жадный",
@@ -56,6 +59,7 @@
     {
       "word": "impulsive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpʌlsɪv/",
       "translation": "импульсивный",
       "translations": {
         "ru": "импульсивный",
@@ -70,6 +74,7 @@
     {
       "word": "reckless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛkləs/",
       "translation": "безрассудный, неосторожный",
       "translations": {
         "ru": "безрассудный, неосторожный",
@@ -84,6 +89,7 @@
     {
       "word": "naive",
       "part_of_speech": "adjective",
+      "transcription": "/naɪˈiv/",
       "translation": "наивный",
       "translations": {
         "ru": "наивный",
@@ -98,6 +104,7 @@
     {
       "word": "cynical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɪnɪkəl/",
       "translation": "циничный",
       "translations": {
         "ru": "циничный",
@@ -112,6 +119,7 @@
     {
       "word": "immature",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪməˈtʃʊr/",
       "translation": "незрелый",
       "translations": {
         "ru": "незрелый",
@@ -126,6 +134,7 @@
     {
       "word": "pessimistic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌpɛsəˈmɪstɪk/",
       "translation": "пессимистичный",
       "translations": {
         "ru": "пессимистичный",
@@ -140,6 +149,7 @@
     {
       "word": "envy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnvi/",
       "translation": "зависть",
       "translations": {
         "ru": "зависть",

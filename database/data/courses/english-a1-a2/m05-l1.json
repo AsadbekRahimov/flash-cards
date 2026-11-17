@@ -14,6 +14,7 @@
     {
       "word": "city",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪti/",
       "translation": "город",
       "translations": {
         "ru": "город",
@@ -28,6 +29,7 @@
     {
       "word": "town",
       "part_of_speech": "noun",
+      "transcription": "/taʊn/",
       "translation": "городок",
       "translations": {
         "ru": "городок",
@@ -42,6 +44,7 @@
     {
       "word": "street",
       "part_of_speech": "noun",
+      "transcription": "/strit/",
       "translation": "улица",
       "translations": {
         "ru": "улица",
@@ -56,6 +59,7 @@
     {
       "word": "road",
       "part_of_speech": "noun",
+      "transcription": "/roʊd/",
       "translation": "дорога",
       "translations": {
         "ru": "дорога",
@@ -70,6 +74,7 @@
     {
       "word": "building",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɪldɪŋ/",
       "translation": "здание",
       "translations": {
         "ru": "здание",
@@ -84,6 +89,7 @@
     {
       "word": "market",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑrkət/",
       "translation": "рынок",
       "translations": {
         "ru": "рынок",
@@ -98,6 +104,7 @@
     {
       "word": "bank",
       "part_of_speech": "noun",
+      "transcription": "/bæŋk/",
       "translation": "банк",
       "translations": {
         "ru": "банк",
@@ -112,6 +119,7 @@
     {
       "word": "hospital",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑspɪtəl/",
       "translation": "больница",
       "translations": {
         "ru": "больница",
@@ -126,6 +134,7 @@
     {
       "word": "park",
       "part_of_speech": "noun",
+      "transcription": "/pɑrk/",
       "translation": "парк",
       "translations": {
         "ru": "парк",
@@ -140,6 +149,7 @@
     {
       "word": "bridge",
       "part_of_speech": "noun",
+      "transcription": "/brɪdʒ/",
       "translation": "мост",
       "translations": {
         "ru": "мост",

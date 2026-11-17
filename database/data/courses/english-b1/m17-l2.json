@@ -14,6 +14,7 @@
     {
       "word": "recently",
       "part_of_speech": "adverb",
+      "transcription": "/ˈrisəntli/",
       "translation": "недавно",
       "translations": {
         "ru": "недавно",
@@ -28,6 +29,7 @@
     {
       "word": "nowadays",
       "part_of_speech": "adverb",
+      "transcription": "/ˈnaʊədeɪz/",
       "translation": "в наше время",
       "translations": {
         "ru": "в наше время",
@@ -42,6 +44,7 @@
     {
       "word": "immediately",
       "part_of_speech": "adverb",
+      "transcription": "/ɪˈmidiətli/",
       "translation": "немедленно, сразу",
       "translations": {
         "ru": "немедленно, сразу",
@@ -56,6 +59,7 @@
     {
       "word": "suddenly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsʌdənli/",
       "translation": "внезапно, вдруг",
       "translations": {
         "ru": "внезапно, вдруг",
@@ -70,6 +74,7 @@
     {
       "word": "forever",
       "part_of_speech": "adverb",
+      "transcription": "/fərˈɛvər/",
       "translation": "навсегда",
       "translations": {
         "ru": "навсегда",
@@ -84,6 +89,7 @@
     {
       "word": "eventually",
       "part_of_speech": "adverb",
+      "transcription": "/ɪˈvɛntʃuəli/",
       "translation": "в конце концов",
       "translations": {
         "ru": "в конце концов",
@@ -98,6 +104,7 @@
     {
       "word": "afterwards",
       "part_of_speech": "adverb",
+      "transcription": "/ˈæftərwərdz/",
       "translation": "потом, после этого",
       "translations": {
         "ru": "потом, после этого",
@@ -112,6 +119,7 @@
     {
       "word": "frequently",
       "part_of_speech": "adverb",
+      "transcription": "/ˈfrikwəntli/",
       "translation": "часто",
       "translations": {
         "ru": "часто",
@@ -126,6 +134,7 @@
     {
       "word": "occasionally",
       "part_of_speech": "adverb",
+      "transcription": "/əˈkeɪʒənəli/",
       "translation": "время от времени",
       "translations": {
         "ru": "время от времени",
@@ -140,6 +149,7 @@
     {
       "word": "rarely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈrɛrli/",
       "translation": "редко",
       "translations": {
         "ru": "редко",

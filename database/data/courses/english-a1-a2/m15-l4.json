@@ -14,6 +14,7 @@
     {
       "word": "lecture",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛktʃər/",
       "translation": "лекция",
       "translations": {
         "ru": "лекция",
@@ -28,6 +29,7 @@
     {
       "word": "diploma",
       "part_of_speech": "noun",
+      "transcription": "/dəˈploʊmə/",
       "translation": "диплом",
       "translations": {
         "ru": "диплом",
@@ -42,6 +44,7 @@
     {
       "word": "course",
       "part_of_speech": "noun",
+      "transcription": "/kɔrs/",
       "translation": "курс",
       "translations": {
         "ru": "курс",
@@ -56,6 +59,7 @@
     {
       "word": "scholarship",
       "part_of_speech": "noun",
+      "transcription": "/ˈskɑlərˌʃɪp/",
       "translation": "стипендия",
       "translations": {
         "ru": "стипендия",
@@ -70,6 +74,7 @@
     {
       "word": "professor",
       "part_of_speech": "noun",
+      "transcription": "/prəˈfɛsər/",
       "translation": "профессор",
       "translations": {
         "ru": "профессор",
@@ -84,6 +89,7 @@
     {
       "word": "graduate",
       "part_of_speech": "verb",
+      "transcription": "/ˈgrædʒuˌeɪt/",
       "translation": "оканчивать вуз",
       "translations": {
         "ru": "оканчивать вуз",
@@ -98,6 +104,7 @@
     {
       "word": "research",
       "part_of_speech": "noun",
+      "transcription": "/ˈrisɜrtʃ/",
       "translation": "исследование",
       "translations": {
         "ru": "исследование",
@@ -112,6 +119,7 @@
     {
       "word": "essay",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛseɪ/",
       "translation": "эссе",
       "translations": {
         "ru": "эссе",
@@ -126,6 +134,7 @@
     {
       "word": "dormitory",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɔrməˌtɔri/",
       "translation": "общежитие",
       "translations": {
         "ru": "общежитие",
@@ -140,6 +149,7 @@
     {
       "word": "campus",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæmpəs/",
       "translation": "кампус",
       "translations": {
         "ru": "кампус",

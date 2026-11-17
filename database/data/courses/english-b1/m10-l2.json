@@ -14,6 +14,7 @@
     {
       "word": "upload",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌpˈloʊd/",
       "translation": "загружать в сеть",
       "translations": {
         "ru": "загружать в сеть",
@@ -28,6 +29,7 @@
     {
       "word": "backup",
       "part_of_speech": "noun",
+      "transcription": "/ˈbækʌp/",
       "translation": "резервная копия",
       "translations": {
         "ru": "резервная копия",
@@ -42,6 +44,7 @@
     {
       "word": "paste",
       "part_of_speech": "verb",
+      "transcription": "/peɪst/",
       "translation": "вставлять",
       "translations": {
         "ru": "вставлять",
@@ -56,6 +59,7 @@
     {
       "word": "attach",
       "part_of_speech": "verb",
+      "transcription": "/əˈtætʃ/",
       "translation": "прикреплять",
       "translations": {
         "ru": "прикреплять",
@@ -70,6 +74,7 @@
     {
       "word": "scroll",
       "part_of_speech": "verb",
+      "transcription": "/skroʊl/",
       "translation": "прокручивать, листать",
       "translations": {
         "ru": "прокручивать, листать",
@@ -84,6 +89,7 @@
     {
       "word": "display",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈspleɪ/",
       "translation": "показывать, отображать",
       "translations": {
         "ru": "показывать, отображать",
@@ -98,6 +104,7 @@
     {
       "word": "desktop",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛsktɑp/",
       "translation": "рабочий стол",
       "translations": {
         "ru": "рабочий стол",
@@ -112,6 +119,7 @@
     {
       "word": "database",
       "part_of_speech": "noun",
+      "transcription": "/ˈdeɪtəbeɪs/",
       "translation": "база данных",
       "translations": {
         "ru": "база данных",
@@ -126,6 +134,7 @@
     {
       "word": "icon",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪkɑn/",
       "translation": "значок, иконка",
       "translations": {
         "ru": "значок, иконка",
@@ -140,6 +149,7 @@
     {
       "word": "browser",
       "part_of_speech": "noun",
+      "transcription": "/ˈbraʊzər/",
       "translation": "браузер",
       "translations": {
         "ru": "браузер",

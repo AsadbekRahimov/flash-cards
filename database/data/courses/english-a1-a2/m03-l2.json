@@ -14,6 +14,7 @@
     {
       "word": "apple",
       "part_of_speech": "noun",
+      "transcription": "/ˈæpəl/",
       "translation": "яблоко",
       "translations": {
         "ru": "яблоко",
@@ -28,6 +29,7 @@
     {
       "word": "orange",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrɪndʒ/",
       "translation": "апельсин",
       "translations": {
         "ru": "апельсин",
@@ -42,6 +44,7 @@
     {
       "word": "grape",
       "part_of_speech": "noun",
+      "transcription": "/greɪp/",
       "translation": "виноград",
       "translations": {
         "ru": "виноград",
@@ -56,6 +59,7 @@
     {
       "word": "lemon",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛmən/",
       "translation": "лимон",
       "translations": {
         "ru": "лимон",
@@ -70,6 +74,7 @@
     {
       "word": "potato",
       "part_of_speech": "noun",
+      "transcription": "/pəˈteɪtoʊ/",
       "translation": "картофель",
       "translations": {
         "ru": "картофель",
@@ -84,6 +89,7 @@
     {
       "word": "tomato",
       "part_of_speech": "noun",
+      "transcription": "/təˈmeɪtoʊ/",
       "translation": "помидор",
       "translations": {
         "ru": "помидор",
@@ -98,6 +104,7 @@
     {
       "word": "onion",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌnjən/",
       "translation": "лук",
       "translations": {
         "ru": "лук",
@@ -112,6 +119,7 @@
     {
       "word": "carrot",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɛrət/",
       "translation": "морковь",
       "translations": {
         "ru": "морковь",
@@ -126,6 +134,7 @@
     {
       "word": "cucumber",
       "part_of_speech": "noun",
+      "transcription": "/ˈkjuˌkʌmbər/",
       "translation": "огурец",
       "translations": {
         "ru": "огурец",
@@ -140,6 +149,7 @@
     {
       "word": "vegetable",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛdʒtəbəl/",
       "translation": "овощ",
       "translations": {
         "ru": "овощ",

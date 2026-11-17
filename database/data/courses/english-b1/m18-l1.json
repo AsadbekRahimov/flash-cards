@@ -14,6 +14,7 @@
     {
       "word": "shape",
       "part_of_speech": "noun",
+      "transcription": "/ʃeɪp/",
       "translation": "форма",
       "translations": {
         "ru": "форма",
@@ -28,6 +29,7 @@
     {
       "word": "circle",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrkəl/",
       "translation": "круг",
       "translations": {
         "ru": "круг",
@@ -42,6 +44,7 @@
     {
       "word": "flat",
       "part_of_speech": "adjective",
+      "transcription": "/flæt/",
       "translation": "плоский, ровный",
       "translations": {
         "ru": "плоский, ровный",
@@ -56,6 +59,7 @@
     {
       "word": "sharp",
       "part_of_speech": "adjective",
+      "transcription": "/ʃɑrp/",
       "translation": "острый",
       "translations": {
         "ru": "острый",
@@ -70,6 +74,7 @@
     {
       "word": "narrow",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɛroʊ/",
       "translation": "узкий",
       "translations": {
         "ru": "узкий",
@@ -84,6 +89,7 @@
     {
       "word": "medium",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmidiəm/",
       "translation": "средний по размеру",
       "translations": {
         "ru": "средний по размеру",
@@ -98,6 +104,7 @@
     {
       "word": "enormous",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɔrməs/",
       "translation": "огромный",
       "translations": {
         "ru": "огромный",
@@ -112,6 +119,7 @@
     {
       "word": "tiny",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtaɪni/",
       "translation": "крошечный",
       "translations": {
         "ru": "крошечный",
@@ -126,6 +134,7 @@
     {
       "word": "shallow",
       "part_of_speech": "adjective",
+      "transcription": "/ˈʃæloʊ/",
       "translation": "мелкий, неглубокий",
       "translations": {
         "ru": "мелкий, неглубокий",
@@ -140,6 +149,7 @@
     {
       "word": "steep",
       "part_of_speech": "adjective",
+      "transcription": "/stip/",
       "translation": "крутой",
       "translations": {
         "ru": "крутой",

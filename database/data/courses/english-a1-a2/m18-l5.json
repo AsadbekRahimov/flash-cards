@@ -14,6 +14,7 @@
     {
       "word": "habit",
       "part_of_speech": "noun",
+      "transcription": "/ˈhæbət/",
       "translation": "привычка",
       "translations": {
         "ru": "привычка",
@@ -28,6 +29,7 @@
     {
       "word": "smoke",
       "part_of_speech": "verb",
+      "transcription": "/smoʊk/",
       "translation": "курить",
       "translations": {
         "ru": "курить",
@@ -42,6 +44,7 @@
     {
       "word": "stress",
       "part_of_speech": "noun",
+      "transcription": "/strɛs/",
       "translation": "стресс",
       "translations": {
         "ru": "стресс",
@@ -56,6 +59,7 @@
     {
       "word": "balance",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæləns/",
       "translation": "баланс",
       "translations": {
         "ru": "баланс",
@@ -70,6 +74,7 @@
     {
       "word": "lifestyle",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪfstaɪl/",
       "translation": "образ жизни",
       "translations": {
         "ru": "образ жизни",
@@ -84,6 +89,7 @@
     {
       "word": "avoid",
       "part_of_speech": "verb",
+      "transcription": "/əˈvɔɪd/",
       "translation": "избегать",
       "translations": {
         "ru": "избегать",
@@ -98,6 +104,7 @@
     {
       "word": "regular",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛgjələr/",
       "translation": "регулярный",
       "translations": {
         "ru": "регулярный",
@@ -112,6 +119,7 @@
     {
       "word": "harmful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɑrmfəl/",
       "translation": "вредный",
       "translations": {
         "ru": "вредный",
@@ -126,6 +134,7 @@
     {
       "word": "mental",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛntəl/",
       "translation": "психический",
       "translations": {
         "ru": "психический",
@@ -140,6 +149,7 @@
     {
       "word": "active",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæktɪv/",
       "translation": "активный",
       "translations": {
         "ru": "активный",

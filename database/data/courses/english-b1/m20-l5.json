@@ -14,6 +14,7 @@
     {
       "word": "standard",
       "part_of_speech": "noun",
+      "transcription": "/ˈstændərd/",
       "translation": "стандарт, норма",
       "translations": {
         "ru": "стандарт, норма",
@@ -28,6 +29,7 @@
     {
       "word": "detail",
       "part_of_speech": "noun",
+      "transcription": "/ˈditeɪl/",
       "translation": "деталь, подробность",
       "translations": {
         "ru": "деталь, подробность",
@@ -42,6 +44,7 @@
     {
       "word": "situation",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪtʃuˈeɪʃən/",
       "translation": "ситуация, положение",
       "translations": {
         "ru": "ситуация, положение",
@@ -56,6 +59,7 @@
     {
       "word": "advantage",
       "part_of_speech": "noun",
+      "transcription": "/ədˈvæntɪdʒ/",
       "translation": "преимущество",
       "translations": {
         "ru": "преимущество",
@@ -70,6 +74,7 @@
     {
       "word": "risk",
       "part_of_speech": "noun",
+      "transcription": "/rɪsk/",
       "translation": "риск",
       "translations": {
         "ru": "риск",
@@ -84,6 +89,7 @@
     {
       "word": "role",
       "part_of_speech": "noun",
+      "transcription": "/roʊl/",
       "translation": "роль",
       "translations": {
         "ru": "роль",
@@ -98,6 +104,7 @@
     {
       "word": "structure",
       "part_of_speech": "noun",
+      "transcription": "/ˈstrʌktʃər/",
       "translation": "структура, строение",
       "translations": {
         "ru": "структура, строение",
@@ -112,6 +119,7 @@
     {
       "word": "system",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪstəm/",
       "translation": "система",
       "translations": {
         "ru": "система",
@@ -126,6 +134,7 @@
     {
       "word": "truth",
       "part_of_speech": "noun",
+      "transcription": "/truθ/",
       "translation": "правда, истина",
       "translations": {
         "ru": "правда, истина",
@@ -140,6 +149,7 @@
     {
       "word": "quantity",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɑntəti/",
       "translation": "количество",
       "translations": {
         "ru": "количество",

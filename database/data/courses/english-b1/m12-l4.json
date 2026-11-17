@@ -14,6 +14,7 @@
     {
       "word": "gear",
       "part_of_speech": "noun",
+      "transcription": "/gɪr/",
       "translation": "снаряжение",
       "translations": {
         "ru": "снаряжение",
@@ -28,6 +29,7 @@
     {
       "word": "helmet",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛlmɪt/",
       "translation": "шлем",
       "translations": {
         "ru": "шлем",
@@ -42,6 +44,7 @@
     {
       "word": "racket",
       "part_of_speech": "noun",
+      "transcription": "/ˈrækɪt/",
       "translation": "ракетка",
       "translations": {
         "ru": "ракетка",
@@ -56,6 +59,7 @@
     {
       "word": "net",
       "part_of_speech": "noun",
+      "transcription": "/nɛt/",
       "translation": "сетка",
       "translations": {
         "ru": "сетка",
@@ -70,6 +74,7 @@
     {
       "word": "whistle",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪsəl/",
       "translation": "свисток",
       "translations": {
         "ru": "свисток",
@@ -84,6 +89,7 @@
     {
       "word": "track",
       "part_of_speech": "noun",
+      "transcription": "/træk/",
       "translation": "беговая дорожка",
       "translations": {
         "ru": "беговая дорожка",
@@ -98,6 +104,7 @@
     {
       "word": "arena",
       "part_of_speech": "noun",
+      "transcription": "/əˈrinə/",
       "translation": "арена",
       "translations": {
         "ru": "арена",
@@ -112,6 +119,7 @@
     {
       "word": "locker",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑkər/",
       "translation": "шкафчик",
       "translations": {
         "ru": "шкафчик",
@@ -126,6 +134,7 @@
     {
       "word": "target",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɑrgɪt/",
       "translation": "мишень",
       "translations": {
         "ru": "мишень",
@@ -140,6 +149,7 @@
     {
       "word": "mat",
       "part_of_speech": "noun",
+      "transcription": "/mæt/",
       "translation": "спортивный коврик",
       "translations": {
         "ru": "спортивный коврик",

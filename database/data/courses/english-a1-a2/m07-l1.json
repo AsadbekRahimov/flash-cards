@@ -14,6 +14,7 @@
     {
       "word": "work",
       "part_of_speech": "verb",
+      "transcription": "/wɜrk/",
       "translation": "работать",
       "translations": {
         "ru": "работать",
@@ -28,6 +29,7 @@
     {
       "word": "job",
       "part_of_speech": "noun",
+      "transcription": "/dʒɑb/",
       "translation": "работа, должность",
       "translations": {
         "ru": "работа, должность",
@@ -42,6 +44,7 @@
     {
       "word": "office",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔfəs/",
       "translation": "офис",
       "translations": {
         "ru": "офис",
@@ -56,6 +59,7 @@
     {
       "word": "boss",
       "part_of_speech": "noun",
+      "transcription": "/bɔs/",
       "translation": "начальник",
       "translations": {
         "ru": "начальник",
@@ -70,6 +74,7 @@
     {
       "word": "manager",
       "part_of_speech": "noun",
+      "transcription": "/ˈmænɪdʒər/",
       "translation": "менеджер, управляющий",
       "translations": {
         "ru": "менеджер, управляющий",
@@ -84,6 +89,7 @@
     {
       "word": "team",
       "part_of_speech": "noun",
+      "transcription": "/tim/",
       "translation": "команда",
       "translations": {
         "ru": "команда",
@@ -98,6 +104,7 @@
     {
       "word": "client",
       "part_of_speech": "noun",
+      "transcription": "/ˈklaɪənt/",
       "translation": "клиент",
       "translations": {
         "ru": "клиент",
@@ -112,6 +119,7 @@
     {
       "word": "salary",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæləri/",
       "translation": "зарплата",
       "translations": {
         "ru": "зарплата",
@@ -126,6 +134,7 @@
     {
       "word": "meeting",
       "part_of_speech": "noun",
+      "transcription": "/ˈmitɪŋ/",
       "translation": "встреча, совещание",
       "translations": {
         "ru": "встреча, совещание",
@@ -140,6 +149,7 @@
     {
       "word": "project",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑdʒɛkt/",
       "translation": "проект",
       "translations": {
         "ru": "проект",

@@ -14,6 +14,7 @@
     {
       "word": "wildlife",
       "part_of_speech": "noun",
+      "transcription": "/ˈwaɪldlaɪf/",
       "translation": "дикая природа",
       "translations": {
         "ru": "дикая природа",
@@ -28,6 +29,7 @@
     {
       "word": "species",
       "part_of_speech": "noun",
+      "transcription": "/ˈspiʃiz/",
       "translation": "вид",
       "translations": {
         "ru": "вид",
@@ -42,6 +44,7 @@
     {
       "word": "hunt",
       "part_of_speech": "verb",
+      "transcription": "/hʌnt/",
       "translation": "охотиться",
       "translations": {
         "ru": "охотиться",
@@ -56,6 +59,7 @@
     {
       "word": "creature",
       "part_of_speech": "noun",
+      "transcription": "/ˈkritʃər/",
       "translation": "существо",
       "translations": {
         "ru": "существо",
@@ -70,6 +74,7 @@
     {
       "word": "cage",
       "part_of_speech": "noun",
+      "transcription": "/keɪdʒ/",
       "translation": "клетка",
       "translations": {
         "ru": "клетка",
@@ -84,6 +89,7 @@
     {
       "word": "nest",
       "part_of_speech": "noun",
+      "transcription": "/nɛst/",
       "translation": "гнездо",
       "translations": {
         "ru": "гнездо",
@@ -98,6 +104,7 @@
     {
       "word": "wing",
       "part_of_speech": "noun",
+      "transcription": "/wɪŋ/",
       "translation": "крыло",
       "translations": {
         "ru": "крыло",
@@ -112,6 +119,7 @@
     {
       "word": "feather",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛðər/",
       "translation": "перо",
       "translations": {
         "ru": "перо",
@@ -126,6 +134,7 @@
     {
       "word": "fur",
       "part_of_speech": "noun",
+      "transcription": "/fɜr/",
       "translation": "шерсть, мех",
       "translations": {
         "ru": "шерсть, мех",
@@ -140,6 +149,7 @@
     {
       "word": "tail",
       "part_of_speech": "noun",
+      "transcription": "/teɪl/",
       "translation": "хвост",
       "translations": {
         "ru": "хвост",

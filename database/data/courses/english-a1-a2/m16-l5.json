@@ -14,6 +14,7 @@
     {
       "word": "hammer",
       "part_of_speech": "noun",
+      "transcription": "/ˈhæmər/",
       "translation": "молоток",
       "translations": {
         "ru": "молоток",
@@ -28,6 +29,7 @@
     {
       "word": "nail",
       "part_of_speech": "noun",
+      "transcription": "/neɪl/",
       "translation": "гвоздь",
       "translations": {
         "ru": "гвоздь",
@@ -42,6 +44,7 @@
     {
       "word": "ladder",
       "part_of_speech": "noun",
+      "transcription": "/ˈlædər/",
       "translation": "стремянка",
       "translations": {
         "ru": "стремянка",
@@ -56,6 +59,7 @@
     {
       "word": "paint",
       "part_of_speech": "verb",
+      "transcription": "/peɪnt/",
       "translation": "красить",
       "translations": {
         "ru": "красить",
@@ -70,6 +74,7 @@
     {
       "word": "candle",
       "part_of_speech": "noun",
+      "transcription": "/ˈkændəl/",
       "translation": "свеча",
       "translations": {
         "ru": "свеча",
@@ -84,6 +89,7 @@
     {
       "word": "bulb",
       "part_of_speech": "noun",
+      "transcription": "/bʌlb/",
       "translation": "лампочка",
       "translations": {
         "ru": "лампочка",
@@ -98,6 +104,7 @@
     {
       "word": "plug",
       "part_of_speech": "noun",
+      "transcription": "/plʌg/",
       "translation": "вилка, розетка",
       "translations": {
         "ru": "вилка, розетка",
@@ -112,6 +119,7 @@
     {
       "word": "rope",
       "part_of_speech": "noun",
+      "transcription": "/roʊp/",
       "translation": "верёвка",
       "translations": {
         "ru": "верёвка",
@@ -126,6 +134,7 @@
     {
       "word": "bucket",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʌkət/",
       "translation": "ведро",
       "translations": {
         "ru": "ведро",
@@ -140,6 +149,7 @@
     {
       "word": "tool",
       "part_of_speech": "noun",
+      "transcription": "/tul/",
       "translation": "инструмент",
       "translations": {
         "ru": "инструмент",

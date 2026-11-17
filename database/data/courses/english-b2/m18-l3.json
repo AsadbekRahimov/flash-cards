@@ -14,6 +14,7 @@
     {
       "word": "lessen",
       "part_of_speech": "verb",
+      "transcription": "/ˈlɛsən/",
       "translation": "уменьшать, ослаблять",
       "translations": {
         "ru": "уменьшать, ослаблять",
@@ -28,6 +29,7 @@
     {
       "word": "decline",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈklaɪn/",
       "translation": "снижаться, сокращаться",
       "translations": {
         "ru": "снижаться, сокращаться",
@@ -42,6 +44,7 @@
     {
       "word": "surge",
       "part_of_speech": "verb",
+      "transcription": "/sɜrdʒ/",
       "translation": "резко возрастать",
       "translations": {
         "ru": "резко возрастать",
@@ -56,6 +59,7 @@
     {
       "word": "soar",
       "part_of_speech": "verb",
+      "transcription": "/sɔr/",
       "translation": "взлетать, стремительно расти",
       "translations": {
         "ru": "взлетать, стремительно расти",
@@ -70,6 +74,7 @@
     {
       "word": "plunge",
       "part_of_speech": "verb",
+      "transcription": "/plʌndʒ/",
       "translation": "резко падать",
       "translations": {
         "ru": "резко падать",
@@ -84,6 +89,7 @@
     {
       "word": "diminish",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈmɪnɪʃ/",
       "translation": "уменьшаться, ослабевать",
       "translations": {
         "ru": "уменьшаться, ослабевать",
@@ -98,6 +104,7 @@
     {
       "word": "escalate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛskəleɪt/",
       "translation": "обостряться",
       "translations": {
         "ru": "обостряться",
@@ -112,6 +119,7 @@
     {
       "word": "intensify",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈtɛnsəfaɪ/",
       "translation": "усиливаться",
       "translations": {
         "ru": "усиливаться",
@@ -126,6 +134,7 @@
     {
       "word": "boost",
       "part_of_speech": "verb",
+      "transcription": "/bust/",
       "translation": "повышать, увеличивать",
       "translations": {
         "ru": "повышать, увеличивать",
@@ -140,6 +149,7 @@
     {
       "word": "fluctuate",
       "part_of_speech": "verb",
+      "transcription": "/ˈflʌktʃueɪt/",
       "translation": "колебаться, изменяться",
       "translations": {
         "ru": "колебаться, изменяться",

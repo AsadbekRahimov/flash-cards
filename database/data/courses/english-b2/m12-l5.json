@@ -14,6 +14,7 @@
     {
       "word": "summarize",
       "part_of_speech": "verb",
+      "transcription": "/ˈsʌməraɪz/",
       "translation": "кратко излагать",
       "translations": {
         "ru": "кратко излагать",
@@ -28,6 +29,7 @@
     {
       "word": "paraphrase",
       "part_of_speech": "verb",
+      "transcription": "/ˈpærəfreɪz/",
       "translation": "перефразировать",
       "translations": {
         "ru": "перефразировать",
@@ -42,6 +44,7 @@
     {
       "word": "outline",
       "part_of_speech": "verb",
+      "transcription": "/ˈaʊtlaɪn/",
       "translation": "составлять план",
       "translations": {
         "ru": "составлять план",
@@ -56,6 +59,7 @@
     {
       "word": "draft",
       "part_of_speech": "verb",
+      "transcription": "/dræft/",
       "translation": "писать черновик",
       "translations": {
         "ru": "писать черновик",
@@ -70,6 +74,7 @@
     {
       "word": "proofread",
       "part_of_speech": "verb",
+      "transcription": "/ˈprufrid/",
       "translation": "вычитывать",
       "translations": {
         "ru": "вычитывать",
@@ -84,6 +89,7 @@
     {
       "word": "retain",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈteɪn/",
       "translation": "удерживать в памяти",
       "translations": {
         "ru": "удерживать в памяти",
@@ -98,6 +104,7 @@
     {
       "word": "brainstorm",
       "part_of_speech": "verb",
+      "transcription": "/ˈbreɪnstɔrm/",
       "translation": "проводить мозговой штурм",
       "translations": {
         "ru": "проводить мозговой штурм",
@@ -112,6 +119,7 @@
     {
       "word": "skim",
       "part_of_speech": "verb",
+      "transcription": "/skɪm/",
       "translation": "бегло просматривать",
       "translations": {
         "ru": "бегло просматривать",
@@ -126,6 +134,7 @@
     {
       "word": "compile",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈpaɪl/",
       "translation": "составлять",
       "translations": {
         "ru": "составлять",
@@ -140,6 +149,7 @@
     {
       "word": "acquire",
       "part_of_speech": "verb",
+      "transcription": "/əˈkwaɪər/",
       "translation": "овладевать, приобретать",
       "translations": {
         "ru": "овладевать, приобретать",

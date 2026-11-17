@@ -14,6 +14,7 @@
     {
       "word": "weather",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛðər/",
       "translation": "погода",
       "translations": {
         "ru": "погода",
@@ -28,6 +29,7 @@
     {
       "word": "sun",
       "part_of_speech": "noun",
+      "transcription": "/sʌn/",
       "translation": "солнце",
       "translations": {
         "ru": "солнце",
@@ -42,6 +44,7 @@
     {
       "word": "rain",
       "part_of_speech": "noun",
+      "transcription": "/reɪn/",
       "translation": "дождь",
       "translations": {
         "ru": "дождь",
@@ -56,6 +59,7 @@
     {
       "word": "snow",
       "part_of_speech": "noun",
+      "transcription": "/snoʊ/",
       "translation": "снег",
       "translations": {
         "ru": "снег",
@@ -70,6 +74,7 @@
     {
       "word": "wind",
       "part_of_speech": "noun",
+      "transcription": "/wɪnd/",
       "translation": "ветер",
       "translations": {
         "ru": "ветер",
@@ -84,6 +89,7 @@
     {
       "word": "cloud",
       "part_of_speech": "noun",
+      "transcription": "/klaʊd/",
       "translation": "облако",
       "translations": {
         "ru": "облако",
@@ -98,6 +104,7 @@
     {
       "word": "storm",
       "part_of_speech": "noun",
+      "transcription": "/stɔrm/",
       "translation": "буря, гроза",
       "translations": {
         "ru": "буря, гроза",
@@ -112,6 +119,7 @@
     {
       "word": "fog",
       "part_of_speech": "noun",
+      "transcription": "/fɑg/",
       "translation": "туман",
       "translations": {
         "ru": "туман",
@@ -126,6 +134,7 @@
     {
       "word": "ice",
       "part_of_speech": "noun",
+      "transcription": "/aɪs/",
       "translation": "лёд",
       "translations": {
         "ru": "лёд",
@@ -140,6 +149,7 @@
     {
       "word": "sky",
       "part_of_speech": "noun",
+      "transcription": "/skaɪ/",
       "translation": "небо",
       "translations": {
         "ru": "небо",

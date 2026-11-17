@@ -14,6 +14,7 @@
     {
       "word": "outlook",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtlʊk/",
       "translation": "взгляд на жизнь, мировоззрение",
       "translations": {
         "ru": "взгляд на жизнь, мировоззрение",
@@ -28,6 +29,7 @@
     {
       "word": "trait",
       "part_of_speech": "noun",
+      "transcription": "/treɪt/",
       "translation": "черта характера",
       "translations": {
         "ru": "черта характера",
@@ -42,6 +44,7 @@
     {
       "word": "temperament",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛmprəmənt/",
       "translation": "темперамент",
       "translations": {
         "ru": "темперамент",
@@ -56,6 +59,7 @@
     {
       "word": "dignity",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪgnəti/",
       "translation": "достоинство",
       "translations": {
         "ru": "достоинство",
@@ -70,6 +74,7 @@
     {
       "word": "conscience",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnʃəns/",
       "translation": "совесть",
       "translations": {
         "ru": "совесть",
@@ -84,6 +89,7 @@
     {
       "word": "pride",
       "part_of_speech": "noun",
+      "transcription": "/praɪd/",
       "translation": "гордость",
       "translations": {
         "ru": "гордость",
@@ -98,6 +104,7 @@
     {
       "word": "modesty",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑdəsti/",
       "translation": "скромность",
       "translations": {
         "ru": "скромность",
@@ -112,6 +119,7 @@
     {
       "word": "introvert",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntrəvɜrt/",
       "translation": "интроверт",
       "translations": {
         "ru": "интроверт",
@@ -126,6 +134,7 @@
     {
       "word": "extrovert",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛkstrəvɜrt/",
       "translation": "экстраверт",
       "translations": {
         "ru": "экстраверт",
@@ -140,6 +149,7 @@
     {
       "word": "charisma",
       "part_of_speech": "noun",
+      "transcription": "/kəˈrɪzmə/",
       "translation": "харизма",
       "translations": {
         "ru": "харизма",
