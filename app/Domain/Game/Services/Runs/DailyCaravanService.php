@@ -132,20 +132,21 @@ final class DailyCaravanService
     }
 
     /**
-     * The block `game` of `GET /today` (docs/04 A.2a): nothing is read while the game is closed. `class_caravan` (G2.9b) is the card of
+     * The block `game` of `GET /today` (docs/04 A.2a): nothing is read while the game is closed; `available` is the answer of `GameAccess` (the config and the learner's pilot mark, no query). `class_caravan` (G2.9b) is the card of
      * the caravan of the learner's class that is on its way (one more read), the same as on the map.
      *
-     * @return array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}
+     * @return array{available: bool, daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}
      */
     public function todayBlock(Learner $learner, CarbonImmutable $now, int $dueCount): array
     {
         if (! $this->access->state($learner)->isAvailable()) {
-            return ['daily_available' => false, 'active_run' => null, 'class_caravan' => null];
+            return ['available' => false, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null];
         }
 
         $state = $this->state($learner, $now, $dueCount);
 
         return [
+            'available' => true,
             'daily_available' => $state['daily']['available'],
             'active_run' => $state['active_run'],
             'class_caravan' => $this->classCaravans->activeCardFor($learner, $now),

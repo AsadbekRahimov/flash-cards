@@ -92,7 +92,7 @@ it('requires authentication', function (): void {
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
-    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true], 'game.access' => 'off']);
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true, 'pairs_timed' => true], 'game.access' => 'off']);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
@@ -106,9 +106,9 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'onboarding_completed' => false,
         'league' => null,
         'timezone' => $learner->timezone,
-        'game' => ['daily_available' => false, 'active_run' => null, 'class_caravan' => null],
+        'game' => ['available' => false, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null],
         // The practice card (docs/04 A.2a): the flags of `/me.practice`, no limits - the screen asks `/me` for nothing.
-        'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo'],
+        'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'solo'],
         // The round of hard words (docs/06 §14): a fresh learner has no hard words.
         'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
     ]);

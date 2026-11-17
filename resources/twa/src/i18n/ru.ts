@@ -158,6 +158,15 @@ export const ru = {
   'today.session.hint': 'Короткий раунд на несколько минут: повторение и новые слова из вашего курса',
   'today.games.title': 'Игры со словами',
   'today.games.play': 'Играть',
+  'today.hard_round.title': 'Раунд трудных слов',
+  'today.hard_round.subtitle': {
+    one: '{count} трудное слово ждёт разбора',
+    few: '{count} трудных слова ждут разбора',
+    many: '{count} трудных слов ждут разбора',
+    other: '{count} трудных слова ждут разбора',
+  },
+  'today.hard_round.start': 'Разобрать',
+  'today.hard_round.continue': 'Продолжить',
   'today.new.unlimited': 'Новые слова — без ограничений',
   'today.new.no_course': 'Выберите курс, чтобы учить новые слова',
   'today.streak.in_row': {
@@ -212,6 +221,8 @@ export const ru = {
   // ---- training ----
   'training.lesson_header': 'Модуль {stage} · Урок {lesson}',
   'training.daily_header': 'Раунд',
+  'training.hard_round.chip': 'Раунд трудных слов',
+  'training.hard_round.progress': 'Побеждено {done} из {total}',
   'training.combo_label': 'Верных ответов подряд: {count}',
   'training.closed_title': 'Занятие завершено',
   'training.restart': 'Начать заново',
@@ -381,6 +392,16 @@ export const ru = {
   'finished.stages.promoted': 'Поднялись: {count}',
   'finished.stages.mastered': 'Выучено: {count}',
   'finished.practice': 'Поиграть: закрепить слова',
+  'finished.hard_round.title': 'Вы победили {won} из {total} трудных слов',
+  'finished.hard_round.title_none': 'Раунд трудных слов пройден',
+  'finished.hard_round.all': 'Все трудные слова побеждены. Так держать!',
+  'finished.hard_round.later': 'Эти слова ещё вернутся — так и задумано',
+  'finished.hard_round.offer': {
+    one: 'Разобрать {count} трудное слово',
+    few: 'Разобрать {count} трудных слова',
+    many: 'Разобрать {count} трудных слов',
+    other: 'Разобрать {count} трудных слова',
+  },
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',
@@ -1468,6 +1489,11 @@ export const ru = {
   'error.code.practice_unavailable': 'Практика сейчас недоступна.',
   'error.code.practice_pro_required': 'Практика доступна в Pro.',
   'error.code.practice_limit_reached': 'Бесплатный лимит на сегодня закончился. Он обновится завтра.',
+  'error.code.hard_round_unavailable': 'Раунд трудных слов сейчас недоступен.',
+  'error.hard_round.disabled': 'Раунд трудных слов сейчас недоступен.',
+  'error.hard_round.not_enough': 'Трудных слов пока мало — раунд откроется, когда их станет больше.',
+  'error.hard_round.played_today': 'Раунд трудных слов на сегодня уже пройден. Следующий — завтра.',
+  'error.hard_round.no_objective_exercise': 'Для этих слов пока нет подходящих заданий.',
   'error.code.practice_mode_disabled': 'Этот режим сейчас выключен. Выберите другой.',
   'error.code.practice_not_enough_material': 'Для этого режима пока мало материала. Выучите ещё несколько слов.',
   'error.code.practice_session_active': 'У вас уже есть незавершённая практика.',

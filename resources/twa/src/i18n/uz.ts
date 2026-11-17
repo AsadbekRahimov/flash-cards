@@ -141,6 +141,13 @@ export const uz: Translations = {
   'today.session.hint': "Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar",
   'today.games.title': "So'z o'yinlari",
   'today.games.play': "O'ynash",
+  'today.hard_round.title': "Qiyin so'zlar raundi",
+  'today.hard_round.subtitle': {
+    one: "{count} ta qiyin so'z tahlilni kutmoqda",
+    other: "{count} ta qiyin so'z tahlilni kutmoqda",
+  },
+  'today.hard_round.start': 'Tahlil qilish',
+  'today.hard_round.continue': 'Davom ettirish',
   'today.new.unlimited': "Yangi so'zlar — cheklovsiz",
   'today.new.no_course': "Yangi so'zlarni o'rganish uchun kursni tanlang",
   'today.streak.in_row': {
@@ -193,6 +200,8 @@ export const uz: Translations = {
   // ---- training ----
   'training.lesson_header': '{stage}-modul · {lesson}-dars',
   'training.daily_header': 'Raund',
+  'training.hard_round.chip': "Qiyin so'zlar raundi",
+  'training.hard_round.progress': "{total} tadan {done} tasi yengildi",
   'training.combo_label': "Ketma-ket to'g'ri javoblar: {count}",
   'training.closed_title': "Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
@@ -351,6 +360,14 @@ export const uz: Translations = {
   'finished.stages.promoted': 'Yuksaldi: {count}',
   'finished.stages.mastered': "O'rganildi: {count}",
   'finished.practice': "O'ynab mustahkamlash",
+  'finished.hard_round.title': "{total} ta qiyin so'zdan {won} tasini yengdingiz",
+  'finished.hard_round.title_none': "Qiyin so'zlar raundi tugadi",
+  'finished.hard_round.all': "Barcha qiyin so'zlar yengildi. Shunday davom eting!",
+  'finished.hard_round.later': "Bu so'zlar yana qaytadi — shunday rejalashtirilgan",
+  'finished.hard_round.offer': {
+    one: "{count} ta qiyin so'zni tahlil qilish",
+    other: "{count} ta qiyin so'zni tahlil qilish",
+  },
 
   // ---- promo code ----
   'promo.toggle': 'Promokodingiz bormi?',
@@ -1396,6 +1413,11 @@ export const uz: Translations = {
   'error.code.practice_unavailable': 'Mashqlar hozircha ochilmagan.',
   'error.code.practice_pro_required': "Mashqlar Pro'da bor.",
   'error.code.practice_limit_reached': 'Bugungi bepul limit tugadi. U ertaga yangilanadi.',
+  'error.code.hard_round_unavailable': "Qiyin so'zlar raundi hozir mavjud emas.",
+  'error.hard_round.disabled': "Qiyin so'zlar raundi hozir mavjud emas.",
+  'error.hard_round.not_enough': "Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi.",
+  'error.hard_round.played_today': "Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga.",
+  'error.hard_round.no_objective_exercise': "Bu so'zlar uchun hozircha mos topshiriqlar yo'q.",
   'error.code.practice_mode_disabled': "Bu rejim hozir o'chirilgan. Boshqasini tanlang.",
   'error.code.practice_not_enough_material': "Bu rejim uchun material hali kam. Yana bir nechta so'z o'rganing.",
   'error.code.practice_session_active': "Tugallanmagan mashqingiz bor.",

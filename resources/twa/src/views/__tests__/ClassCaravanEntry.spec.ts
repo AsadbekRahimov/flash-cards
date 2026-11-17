@@ -123,7 +123,7 @@ describe('TodayView: the card of the class caravan', () => {
     await wrapper.get('[data-testid=class-caravan-card]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/game/class/5')
-    expect(api.me.get).toHaveBeenCalledTimes(1)
+    expect(api.me.get).not.toHaveBeenCalled()
   })
 
   it('shows the card to a newcomer with no progress yet: the teacher starts it for the whole group', async () => {

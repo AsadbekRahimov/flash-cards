@@ -57,8 +57,9 @@ function meCacheCourse(string $slug, array $title): Course
     return Course::factory()->published()->create(['slug' => $slug, 'title' => $title]);
 }
 
-it('serves the second /me from the snapshot: the learner and one statement of counts, the same answer', function (): void {
-    config(['game.access' => 'off']); // the budget of a closed game (an open one reads its limits, coins and tickets on top)
+it('serves the second /me from the snapshot: the learner and one statement of counts (and of the game limits, while it is open), the same answer', function (string $game, int $budget): void {
+    // Pinned at both ends of GAME_ACCESS; the practice as shipped (a Pro learner here: no practice limits to read).
+    config(['game.access' => $game, 'practice.access' => 'all', 'practice.plan' => 'all', 'practice.modes.pairs_timed' => true]);
     $course = meCacheCourse('english-a1', ['ru' => 'Английский A1', 'uz' => 'Ingliz tili A1']);
     $learner = Learner::factory()->onboarded()->create(['active_course_id' => $course->id, 'interface_locale' => 'ru']);
     $group = TelegramGroup::factory()->create(['title' => 'Group 7B']);
@@ -71,7 +72,7 @@ it('serves the second /me from the snapshot: the learner and one statement of co
 
     $queries = QueryLog::during(fn () => expect(meCacheGet($this, $learner)->json())->toBe($first));
 
-    expect(count($queries))->toBeLessThanOrEqual(2)
+    expect(count($queries))->toBe($budget)
         ->and(QueryLog::matching($queries, '/from ["`]learners["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`](telegram_groups|subscriptions|courses)["`]/'))->toBe([])
@@ -79,7 +80,7 @@ it('serves the second /me from the snapshot: the learner and one statement of co
         ->and($first['entitlement']['plan'])->toBe('pro')
         ->and($first['entitlement']['renewal']['provider'])->toBe('payme')
         ->and($first['settings']['active_course'])->toBe(['slug' => 'english-a1', 'title' => 'Английский A1']);
-});
+})->with(['game closed' => ['off', 2], 'game open' => ['all', 3]]);
 
 it('shows a subscription granted after the snapshot at once: the grant moves the version', function (): void {
     $learner = Learner::factory()->onboarded()->create();

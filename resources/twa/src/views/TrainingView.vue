@@ -113,7 +113,7 @@ const lessonHeader = computed((): string => {
  */
 const isPersonal = computed(
   (): boolean =>
-    mode.value === 'lesson' || mode.value === 'daily_review' || opened.value?.sessionId === props.sessionId,
+    mode.value === 'lesson' || mode.value === 'daily_review' || mode.value === 'hard_review' || opened.value?.sessionId === props.sessionId,
 )
 
 function leave(): void {
@@ -320,7 +320,16 @@ async function onRestart(): Promise<void> {
             {{ progress.done }} / {{ progress.total }}
           </span>
         </div>
-        <p v-if="lesson" class="mt-1 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="lesson-header">
+        <!-- The round of hard words: its own mark and how many of its words are won (`progress.done`, docs/06 §14). -->
+        <p
+          v-if="mode === 'hard_review'"
+          class="mt-1 flex items-center justify-center gap-2 text-[15px] leading-5 font-medium text-tg-subtitle"
+          data-testid="hard-round-header"
+        >
+          <span class="chip chip-warning" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
+          <span class="tabular-nums" data-testid="hard-round-progress">{{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}</span>
+        </p>
+        <p v-else-if="lesson" class="mt-1 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="lesson-header">
           {{ lessonHeader }}
         </p>
         <p v-else-if="mode === 'daily_review'" class="mt-1 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="daily-header">

@@ -412,7 +412,7 @@ it('keeps the exact shape of the caravans of the class, of their card on the map
     ]);
     PracticeKit::course('silk');
     $mapJson = test()->withHeaders($headers)->getJson('/api/twa/game/map?course=silk')->assertOk()->assertJsonStructure(['class_caravan' => $card]);
-    $today = test()->withHeaders($headers)->getJson('/api/twa/today')->assertOk()->assertJsonStructure(['game' => ['daily_available', 'active_run', 'class_caravan' => $card]]);
+    $today = test()->withHeaders($headers)->getJson('/api/twa/today')->assertOk()->assertJsonStructure(['game' => ['available', 'daily_available', 'active_run', 'class_caravan' => $card]]);
 
     foreach ([$list, $active, $over, $mapJson, $today] as $response) {
         expect(array_values(array_intersect(gameContractKeys($response->json()), $leaks)))->toBe([]);

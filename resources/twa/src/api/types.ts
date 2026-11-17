@@ -461,7 +461,7 @@ export interface LessonHeader {
 }
 
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
-export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete'
+export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete' | 'hard_round_complete'
 
 /**
  * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
@@ -471,10 +471,10 @@ export interface Quota {
   new_words_remaining: number | null
 }
 
-export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
+export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -494,7 +494,8 @@ export interface TrainingStartResponse {
 
 /** Body of POST /training/sessions. */
 export interface OpenSessionRequest {
-  mode: 'lesson' | 'daily_review'
+  /** `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`. */
+  mode: 'lesson' | 'daily_review' | 'hard_review'
   lesson_id?: number
   source?: SessionSource
 }
@@ -539,6 +540,24 @@ export interface SessionSummary {
   practice_entry?: { course: string; lesson_id: number | null } | null
   /** Growth of the words in the session (docs/06 §13.3); absent on an older server. */
   stages?: SessionStages
+  /** The round of hard words (docs/06 §14): how many of its set were won; null / absent in every other mode. */
+  hard_round?: { total: number; won: number } | null
+  /** The invitation to the round of hard words after a daily round / a lesson; null: none (the round itself, the feature is off). */
+  hard_round_offer?: HardRound | null
+}
+
+export type HardRoundReason = 'not_enough' | 'played_today' | 'no_objective_exercise'
+
+/** The round of hard words as `/today` and the finish summary tell it (docs/04 A.2a); `hard_round: null` there means the feature is off. */
+export interface HardRound {
+  available: boolean
+  reason: HardRoundReason | null
+  /** How many hard words wait (the set of the round is at most 10 of them). */
+  words: number
+  /** A round that was opened and not finished: "Continue". */
+  open_session_id: number | null
+  /** When the next round opens after `played_today` (ISO-8601). */
+  resets_at: string | null
 }
 
 export interface SessionStages {
@@ -648,9 +667,13 @@ export interface TodayResponse {
   game?: TodayGame
   /** The practice access without its day limits (docs/04 A.2a): the "Word games" card reads it, `/me` is not asked. Absent: an older server (no practice). */
   practice?: PracticeAccessToday
+  /** The round of hard words (docs/06 §14); null: the feature is off; absent: an older server. */
+  hard_round?: HardRound | null
 }
 
 export interface TodayGame {
+  /** The game is open to this learner (the standing entry of the map); absent: an older server - no entry. */
+  available?: boolean
   daily_available: boolean
   active_run: GameActiveRun | null
   /** The class caravan that is on (docs/05 §5b.7); `null` or absent: none. */

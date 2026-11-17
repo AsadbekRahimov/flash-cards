@@ -35,7 +35,7 @@ final class TodayResource extends TwaResource
      *   onboarding_completed: bool,
      *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
      *   timezone: string,
-     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null},
+     *   game: array{available: bool, daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null},
      *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: string},
      *   hard_round: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null
      * }

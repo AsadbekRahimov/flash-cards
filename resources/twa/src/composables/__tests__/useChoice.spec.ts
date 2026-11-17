@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { ChoiceResult } from '@/api/types'
-import { CHOICE_FEEDBACK_MS, sameText, useChoice } from '../useChoice'
+import { trackTtsAudio } from '../ttsActivity'
+import { resetAutoSpeak, setAutoSpeakEnabled } from '../useAutoSpeak'
+import { CHOICE_FEEDBACK_MS, CHOICE_SPEECH_CAP_MS, sameText, useChoice } from '../useChoice'
 
 /** `useChoice` hooks into the component lifecycle (the timer is dropped on unmount), so it runs inside a component. */
 function mountChoice(options: string[]) {
@@ -61,6 +63,89 @@ describe('useChoice', () => {
     vi.advanceTimersByTime(1)
     expect(handlers.advance).toHaveBeenCalledTimes(1)
     expect(handlers.pick).toHaveBeenCalledTimes(1)
+  })
+
+  describe('the word read aloud by auto-speak', () => {
+    /** A sound that is playing: the element `useTts` hands over, with the events the tracker listens to. */
+    function playingSound() {
+      const listeners: Record<string, Array<() => void>> = {}
+      const el = {
+        paused: false,
+        ended: false,
+        addEventListener: (type: string, fn: () => void) => (listeners[type] ??= []).push(fn),
+      }
+      trackTtsAudio(el as unknown as HTMLAudioElement)
+      return {
+        end: () => {
+          el.ended = true
+          el.paused = true
+          listeners.ended?.forEach((fn) => fn())
+        },
+      }
+    }
+
+    afterEach(() => {
+      trackTtsAudio(null)
+      resetAutoSpeak()
+    })
+
+    it('waits for the end of the sound before moving on', async () => {
+      const sound = playingSound()
+      const { choice, handlers, answer } = mountChoice(OPTIONS)
+      choice.pick(0)
+      await answer(true)
+
+      vi.advanceTimersByTime(CHOICE_FEEDBACK_MS + 500)
+      expect(handlers.advance).not.toHaveBeenCalled()
+
+      sound.end()
+      await vi.advanceTimersByTimeAsync(0)
+      expect(handlers.advance).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not wait longer than the ceiling', async () => {
+      playingSound()
+      const { choice, handlers, answer } = mountChoice(OPTIONS)
+      choice.pick(0)
+      await answer(true)
+
+      await vi.advanceTimersByTimeAsync(CHOICE_SPEECH_CAP_MS - 1)
+      expect(handlers.advance).not.toHaveBeenCalled()
+      await vi.advanceTimersByTimeAsync(1)
+      expect(handlers.advance).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the usual pause when auto-speak is off, however long a sound plays', async () => {
+      setAutoSpeakEnabled(false)
+      playingSound()
+      const { choice, handlers, answer } = mountChoice(OPTIONS)
+      choice.pick(0)
+      await answer(true)
+
+      vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+      expect(handlers.advance).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the usual pause when no sound has started (no gesture, no voice)', async () => {
+      const { choice, handlers, answer } = mountChoice(OPTIONS)
+      choice.pick(0)
+      await answer(true)
+
+      vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+      expect(handlers.advance).toHaveBeenCalledTimes(1)
+    })
+
+    it('moves on once only when the card is gone while the word is still playing', async () => {
+      playingSound()
+      const { choice, handlers, answer, wrapper } = mountChoice(OPTIONS)
+      choice.pick(0)
+      await answer(true)
+      vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+      wrapper.unmount()
+
+      await vi.advanceTimersByTimeAsync(CHOICE_SPEECH_CAP_MS)
+      expect(handlers.advance).not.toHaveBeenCalled()
+    })
   })
 
   it('a right pick has no use for confirm()', async () => {

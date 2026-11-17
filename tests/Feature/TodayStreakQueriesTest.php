@@ -68,8 +68,18 @@ function todayStreakStored(Learner $learner): array
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow(TODAY_STREAK_NOW);
-    config(['game.access' => 'off']); // the statement budgets are those of a closed game (an open one adds its block)
+    config(['game.access' => 'off']); // the tests below pin nothing about the game; the budget tests choose it with `todayStreakShipped()`
 });
+
+/** The statement budgets are pinned at both ends of GAME_ACCESS, the other switches of the stage 2 (readiness, hard round, practice) as shipped. */
+function todayStreakShipped(string $game): void
+{
+    config([
+        'game.access' => $game,
+        'practice.access' => 'all', 'practice.plan' => 'all', 'practice.modes.pairs_timed' => true,
+        'readiness.enabled' => true, 'learning.hard_round.enabled' => true,
+    ]);
+}
 
 it('shows a Free learner who never studied an empty streak and stores nothing', function (): void {
     $learner = todayStreakLearner(0, null);
@@ -161,7 +171,8 @@ function todayStreakStatements(object $test, Learner $learner, ?Closure $beforeM
     return QueryLog::during(fn () => todayStreakGet($test, $learner)->assertOk());
 }
 
-it('reads the day row, yesterday and the freeze stock once for a Free learner, whatever the series, and writes nothing', function (string $kind, int $budget): void {
+it('reads the day row, yesterday and the freeze stock once for a Free learner, whatever the series, and writes nothing', function (string $kind, string $game, int $budget): void {
+    todayStreakShipped($game);
     $learner = match ($kind) {
         'never studied' => todayStreakLearner(0, null),
         'living series' => todayStreakLearner(3, '2026-10-20'),
@@ -176,24 +187,28 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
     // today and yesterday in one statement, the due cards and the quota in one statement.
     // R12i: today and yesterday come in ONE statement (`date in (?, ?)`); yesterday is not read on its own any more.
     // The Free lapse lookup costs one statement and replaces the separate /me request from the home screen.
-    expect(count($queries))->toBeLessThanOrEqual($budget)
+    expect(count($queries))->toBe($budget)
         ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
 })->with([
-    // +1 each: the candidates of the round of hard words (docs/06 §14).
-    'never studied' => ['never studied', 7],
-    'living series' => ['living series', 7],
-    'lapsed series' => ['lapsed series', 8],
+    // +1 each: the candidates of the round of hard words (docs/06 §14). GAME_ACCESS=all (the default) adds the two statements of the game block.
+    'never studied, game closed' => ['never studied', 'off', 7],
+    'living series, game closed' => ['living series', 'off', 7],
+    'lapsed series, game closed' => ['lapsed series', 'off', 8],
+    'never studied, game open' => ['never studied', 'all', 9],
+    'living series, game open' => ['living series', 'all', 9],
+    'lapsed series, game open' => ['lapsed series', 'all', 10],
 ]);
 
-it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (): void {
+it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (string $game, int $steadyBudget, int $firstBudget): void {
+    todayStreakShipped($game);
     $handled = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
     $steady = todayStreakStatements($this, $handled);
 
     // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing; R12i: 10 -> 5.
-    expect(count($steady))->toBeLessThanOrEqual(6) // 5 + the candidates of the round of hard words (docs/06 §14)
+    expect(count($steady))->toBe($steadyBudget) // 6 with the game closed, 8 open: 5 + the candidates of the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($steady, '/^(insert|update|delete)/'))->toBe([])
         ->and(QueryLog::matching($steady, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1);
 
@@ -201,11 +216,11 @@ it('writes nothing for a Pro learner whose week was handled, and shares today\'s
     $first = todayStreakStatements($this, $monday, fn (Learner $l) => $l->forceFill(['streak_freezes' => 1, 'streak_freezes_refilled_on' => '2026-10-12'])->save());
 
     // Before: 14 statements - today's row was read for the settle and again for the goal block; R12i: 13 -> 8.
-    expect(count($first))->toBeLessThanOrEqual(9) // 8 + the candidates of the round of hard words (docs/06 §14)
+    expect(count($first))->toBe($firstBudget) // 9 with the game closed, 11 open: 8 + the candidates of the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($first, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
         ->and(QueryLog::matching($first, '/^update ["`]learners["`] set ["`]streak_freezes["`] = ["`]streak_freezes["`] \+ 1/'))->toHaveCount(1)
         ->and(todayStreakStored($monday)['freezes'])->toBe(2);
-});
+})->with(['game closed' => ['off', 6, 9], 'game open' => ['all', 8, 11]]);
 
 it('settles a Free learner\'s series exactly once: the state is the one two reads would have left', function (): void {
     $learner = todayStreakLearner(4, '2026-10-17', freezes: 2);

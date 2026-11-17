@@ -968,7 +968,7 @@ UPDATE word_repetitions SET next_review_at = :now, updated_at = :now
 
 Тесты: `tests/Feature/HardRoundTest.php` (политика, кандидаты и границы окна дня Ташкента, смена пояса, доступность, открытие, притягивание, scope, пикер, упражнения без `flash`, закрытие просроченных, удержание), `HardRoundFlowTest.php`
 (полный раунд по HTTP для Free / Pro, с аудио и без; 9 из 10; блоки; приглашение; отказы; выключатель; бюджеты), `HardRoundConcurrencyTest.php` (PostgreSQL, fork: одна сессия при одновременных открытиях, открытие ∥ оценка в daily без дедлока),
-`DatabaseSchemaTest` (индексы, откат миграций), `TwaContractTest` (ключи), бюджеты `TwaTodayMeQueryBudgetTest` (/today 9) и `TrainingCycleQueryBudgetTest` (/finish 11).
+`DatabaseSchemaTest` (индексы, откат миграций), `TwaContractTest` (ключи), бюджеты `TwaTodayMeQueryBudgetTest` (/today 9 при закрытой игре, 11 при `GAME_ACCESS=all`) и `TrainingCycleQueryBudgetTest` (/finish 11).
 
 ## 11. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`

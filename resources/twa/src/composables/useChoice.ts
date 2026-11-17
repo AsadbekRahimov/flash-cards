@@ -1,8 +1,13 @@
 import { computed, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import type { ChoiceResult } from '@/api/types'
+import { isTtsPlaying, whenTtsEnds } from '@/composables/ttsActivity'
+import { isAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 
 /** How long a right pick stays on screen, coloured, before the next card may appear. */
 export const CHOICE_FEEDBACK_MS = 700
+
+/** With auto-speak on, a right pick waits for the word to finish, but never longer than this from the moment the verdict is on screen. */
+export const CHOICE_SPEECH_CAP_MS = 1800
 
 export type OptionState = 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal'
 
@@ -26,7 +31,8 @@ export interface ChoiceHandlers {
  * The pick is final, so it is handed over at once (`handlers.pick`): leaving the card afterwards loses nothing. Until the
  * server answers, the picked option is `selected`. What is left to the learner is only when the next card appears
  * (`handlers.advance`):
- * - a right pick: after a short pause (`CHOICE_FEEDBACK_MS`) from the moment the result arrives, nothing to press;
+ * - a right pick: after a short pause (`CHOICE_FEEDBACK_MS`) from the moment the result arrives, nothing to press; if auto-speak
+ *   is on and the word is being read by then, the move waits for its end, at most until `CHOICE_SPEECH_CAP_MS`;
  * - a wrong pick (docs/14 N6): no automatic move — the right option stays highlighted for the learner to read it,
  *   `awaitingConfirm` turns on, and `confirm()` (the "Next" button) calls `advance`, once.
  */
@@ -49,6 +55,7 @@ export function useChoice(
   const picked = ref<number | null>(null)
   const confirmed = ref(false)
   let timer: ReturnType<typeof setTimeout> | null = null
+  let unmounted = false
 
   const isCorrect = computed((): boolean | null => (picked.value === null || result.value === null ? null : result.value.correct))
   const awaitingConfirm = computed((): boolean => isCorrect.value === false)
@@ -75,20 +82,31 @@ export function useChoice(
     handlers.advance()
   }
 
+  function finish(): void {
+    if (unmounted) return
+    timer = null
+    handlers.advance()
+  }
+
   // A right pick moves on by itself, a short while after the colour is on screen.
   watch(
     () => isCorrect.value,
     (right) => {
       if (right !== true || timer !== null) return
       timer = setTimeout(() => {
-        timer = null
-        handlers.advance()
+        // The word that auto-speak started must not be cut off by the next card.
+        if (isAutoSpeakEnabled() && isTtsPlaying()) {
+          void whenTtsEnds(CHOICE_SPEECH_CAP_MS - CHOICE_FEEDBACK_MS).then(finish)
+          return
+        }
+        finish()
       }, CHOICE_FEEDBACK_MS)
     },
     { flush: 'sync' },
   )
 
   onBeforeUnmount(() => {
+    unmounted = true
     if (timer !== null) clearTimeout(timer)
   })
 

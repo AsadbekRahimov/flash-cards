@@ -7,7 +7,7 @@
  * to `voiceschanged` to pick a voice asynchronously.
  */
 
-import { trackTtsAudio } from '@/composables/ttsActivity'
+import { trackTtsAudio, trackTtsUtterance } from '@/composables/ttsActivity'
 
 // One sound at a time, across all useTts() instances: a fast second tap stops the first
 // instead of layering on top of it. `seq` lets a stale (superseded) speak() drop out quietly.
@@ -68,6 +68,7 @@ export function useTts() {
         u.lang = lang
         u.rate = 0.9
         if (voice) u.voice = voice
+        trackTtsUtterance(u)
         synth.cancel()
         synth.speak(u)
         return

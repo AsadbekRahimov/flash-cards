@@ -43,6 +43,11 @@ import { useI18n } from '@/i18n'
  * whether there is one and where it leads, docs/16 §11.1), "Home" (primary when there is no other round) and "Close". Under the
  * stats: what grew in the session (`stages`: new words, a stage up, learned), without the zeros - only when words climbed a stage
  * (the tile of the new words already says how many were met).
+ *
+ * The round of hard words (docs/06 §14) has its own finish: the headline is "You won X of N hard words" (by `hard_round` of the summary, or by
+ * the progress of the store when the summary did not come), the confetti and the sound only for a win of all or of 80 % and more, no shame
+ * for less ("these words will come back - that is the plan"); no "One more round" and no practice. After an ordinary round the server may
+ * add an invitation (`hard_round_offer`): one tinted line among the actions, before the practice and the reminders.
  */
 const props = defineProps<{
   reviewed: number
@@ -95,11 +100,28 @@ const reviewedShown = useCountUp(() => summary.value?.reviewed ?? 0)
 const correctShown = useCountUp(() => correctValue.value ?? 0)
 const newShown = useCountUp(() => summary.value?.new_words ?? 0)
 
+/** The round of hard words: by the reason of the last answer, the summary, or the mode of the session this run opened. */
+const isHardRound = computed(() => props.reason === 'hard_round_complete' || summary.value?.hard_round != null || training.mode === 'hard_review')
+/** Words of the set and how many of them were won; the progress of the store (`done` = won) when the finish summary did not come. */
+const hardTotal = computed(() => summary.value?.hard_round?.total ?? training.progress.total)
+const hardWon = computed(() => Math.min(summary.value?.hard_round?.won ?? training.progress.done, hardTotal.value))
+/** A win of all the words or of 80 % and more is celebrated; less is told calmly. */
+const hardCelebrate = computed(() => isHardRound.value && hardTotal.value > 0 && hardWon.value >= hardTotal.value * 0.8)
+const hardNote = computed((): string | null => {
+  if (!isHardRound.value || hardTotal.value <= 0) return null
+  return t(hardWon.value >= hardTotal.value ? 'finished.hard_round.all' : 'finished.hard_round.later')
+})
+
 /**
  * The title follows how the session went: by the share of right answers, and a long run of right answers lifts it to the top
  * one. Without the numbers (a group session) it is the plain "Great!".
  */
 const title = computed((): string => {
+  if (isHardRound.value && hardTotal.value > 0) {
+    return hardWon.value > 0
+      ? t('finished.hard_round.title', { won: hardWon.value, total: hardTotal.value })
+      : t('finished.hard_round.title_none')
+  }
   if (isEmpty.value) return t('finished.title_empty')
   const percent = correctValue.value
   if (percent === null || percent >= 80 || training.bestCombo >= 10) return t('finished.title')
@@ -112,7 +134,7 @@ const title = computed((): string => {
  * "One more round" (docs/06 §13.2): the server said another round would have cards (`can_continue`, only with `sprint_complete`) and
  * the session is the learner's own. The finish screen is also reached by a reload, with nothing in the store: then there is no button.
  */
-const canContinue = computed(() => props.reason === 'sprint_complete' && training.canContinue && training.mode !== 'group_lesson')
+const canContinue = computed(() => props.reason === 'sprint_complete' && training.canContinue && training.mode !== 'group_lesson' && !isHardRound.value)
 
 /**
  * What grew in the session, the zeros left out: "New words: 6 · Moved up: 2 · Learned: 1"; null when no word climbed a stage (or an
@@ -141,7 +163,7 @@ const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bes
 /** Confetti, once, for a session that reviewed something (and not with reduced motion): it removes itself after its ~1.2 s. */
 const CONFETTI_PIECES = 20
 const CONFETTI_MS = 1500
-const confetti = ref(!isEmpty.value && !prefersReducedMotion())
+const confetti = ref(!isEmpty.value && !prefersReducedMotion() && (!isHardRound.value || hardCelebrate.value))
 const confettiPieces = Array.from({ length: CONFETTI_PIECES }, (_, i) => {
   // Fixed spread (no random: the same burst every time, and a stable test): the pieces fan out and fall.
   const angle = (i / CONFETTI_PIECES) * Math.PI * 2
@@ -215,6 +237,20 @@ onMounted(() => {
  * hub then starts its sessions with `source = after_training` (docs/16 §2.5, the `source` of `practice_sessions`).
  */
 const practiceEntry = computed(() => summary.value?.practice_entry ?? null)
+/**
+ * "Review N hard words": the invitation of the server after an ordinary round (`hard_round_offer.available`); never at the end of the round
+ * itself. It opens the round with `source = finish`; a refusal (played in another tab) stays on this screen as the text above the buttons
+ * and the line goes away.
+ */
+const hardOffer = computed(() => summary.value?.hard_round_offer ?? null)
+const offerFailed = ref(false)
+const showHardOffer = computed(() => !isHardRound.value && !offerFailed.value && hardOffer.value !== null && hardOffer.value.available && hardOffer.value.words > 0)
+async function startHardRound(): Promise<void> {
+  const sessionId = await training.open({ mode: 'hard_review', source: 'finish' })
+  if (sessionId === null) offerFailed.value = true
+  else await router.replace({ name: 'training', params: { sessionId } })
+}
+
 const practiceTarget = computed((): RouteLocationRaw | null => {
   const entry = practiceEntry.value
   if (entry === null) return null
@@ -343,7 +379,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
 const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_due' && training.mode !== 'group_lesson')
 
 notificationHaptic('success')
-if (!isEmpty.value) playSound('done')
+if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')
 if (quotaExhausted.value) void billing.load()
 
 // A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
@@ -366,8 +402,9 @@ onBeforeUnmount(() => {
         >
           <AppIcon name="check-circle" solid :size="48" />
         </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ title }}</h1>
-        <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
+        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight" :data-testid="isHardRound ? 'hard-round-title' : undefined">{{ title }}</h1>
+        <p v-if="hardNote" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="hard-round-note">{{ hardNote }}</p>
+        <p v-else-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
       </header>
 
       <div v-if="summary && hasNumbers" class="grid grid-cols-3 gap-2" data-testid="stats">
@@ -488,6 +525,18 @@ onBeforeUnmount(() => {
           {{ t('finished.next_round') }}
         </button>
       </template>
+      <!-- The round of hard words, offered by the server after an ordinary round: one line, before the practice and the reminders. -->
+      <button
+        v-if="showHardOffer && hardOffer"
+        type="button"
+        class="btn btn-tinted btn-block"
+        :disabled="training.opening"
+        data-testid="hard-round-offer-btn"
+        @click="startHardRound"
+      >
+        <AppIcon name="flag" :size="20" />
+        {{ tn('finished.hard_round.offer', hardOffer.words) }}
+      </button>
       <!-- A secondary action: playing with what was just learned (docs/15 §4). -->
       <RouterLink v-if="showPractice && practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
         <AppIcon name="puzzle-piece" :size="20" />

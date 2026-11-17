@@ -330,14 +330,14 @@ describe('TodayView', () => {
         expect(w.router.currentRoute.value.params.slug).toBe('english-a1')
       })
 
-      it('takes the access from /today: /me is read once, for the Karvon entry only (the store keeps it)', async () => {
+      it('takes the access from /today and never reads /me for it', async () => {
         vi.mocked(api.me.get).mockClear()
         // `lapsed: null` is what the server always sends: without it the banner of "Pro ended" asks `/me` for it, for its own reason.
         const free = { plan: 'free', source: 'free', until: null, lapsed: null } as const
         await render(today({ ...practiceBlock(), entitlement: free }))
         await render(today({ ...practiceBlock({ available: false, modes: [] }), entitlement: PRO }))
 
-        expect(api.me.get).toHaveBeenCalledTimes(1)
+        expect(api.me.get).not.toHaveBeenCalled()
       })
 
       it('shows from the third learned word and not before', async () => {
@@ -421,13 +421,13 @@ describe('TodayView', () => {
         expect((await render(today({ due_count: 4, new_words_remaining: 0 }))).find('[data-testid=review-btn]').exists()).toBe(true)
       })
 
-      it('does not wait for /me to draw the "Word games" card (it comes with /today); /me is read once, for the Karvon entry', async () => {
+      it('does not read /me for a learner who has something to do (the "Word games" card comes with /today)', async () => {
         vi.mocked(api.me.get).mockClear()
         const w = await render(today({ entitlement: PRO, ...practiceBlock() }))
 
         expect(w.find('[data-testid=all-done]').exists()).toBe(false)
         expect(w.find('[data-testid=games-card]').exists()).toBe(true)
-        expect(api.me.get).toHaveBeenCalledTimes(1)
+        expect(api.me.get).not.toHaveBeenCalled()
       })
 
       it('offers a quiet way to Pro under the text when the free quota ended the day, and opens the paywall for quota', async () => {
@@ -830,15 +830,9 @@ describe('TodayView', () => {
 
     describe('the standing entry of the Karvon map', () => {
       const withProgress = (overrides: Partial<TodayResponse> = {}): TodayResponse =>
-        newcomer({ due_count: 4, game: { daily_available: false, active_run: null }, ...overrides })
-      const meWithGame = (available: boolean) => vi.mocked(api.me.get).mockResolvedValue({
-        entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
-        paywall: { mode: 'coming_soon', contact: null },
-        game: { available, limits: null, pro_promise: 'none', coins: 0, tickets: 0 },
-      } as never)
+        newcomer({ due_count: 4, game: { available: true, daily_available: false, active_run: null }, ...overrides })
 
-      it('shows the row that leads to the map while /me says the game is open and the learner has a course', async () => {
-        meWithGame(true)
+      it('shows the row that leads to the map while /today says the game is open and the learner has a course', async () => {
         const w = await render(withProgress())
 
         expect(w.get('[data-testid=game-map-entry]').text()).toContain('Карта каравана')
@@ -847,28 +841,26 @@ describe('TodayView', () => {
         expect(w.router.currentRoute.value.name).toBe('game')
       })
 
-      it('is hidden while the game is closed, without a course, and for a newcomer', async () => {
-        meWithGame(false)
-        expect((await render(withProgress())).find('[data-testid=game-map-entry]').exists()).toBe(false)
-        meWithGame(true)
+      it('is hidden while the game is closed, without the field (an older server), without a course, and for a newcomer, and asks no /me', async () => {
+        expect((await render(withProgress({ game: { available: false, daily_available: false, active_run: null } }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
+        expect((await render(withProgress({ game: { daily_available: false, active_run: null } }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
         expect((await render(withProgress({ active_course: null }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
         expect((await render(newcomer())).find('[data-testid=game-map-entry]').exists()).toBe(false)
+        expect(api.me.get).not.toHaveBeenCalled()
       })
 
       it('does not repeat the game when the caravan of the day or a run is already shown', async () => {
-        meWithGame(true)
-        const daily = await render(withProgress({ game: { daily_available: true, active_run: null } }))
+        const daily = await render(withProgress({ game: { available: true, daily_available: true, active_run: null } }))
         expect(daily.find('[data-testid=game-entry]').exists()).toBe(true)
         expect(daily.find('[data-testid=game-map-entry]').exists()).toBe(false)
 
-        const run = await render(withProgress({ game: { daily_available: false, active_run: { id: 5, progress: { answered: 2, total: 8 } } } as never }))
+        const run = await render(withProgress({ game: { available: true, daily_available: false, active_run: { id: 5, progress: { answered: 2, total: 8 } } } as never }))
         expect(run.find('[data-testid=game-entry]').exists()).toBe(true)
         expect(run.find('[data-testid=game-map-entry]').exists()).toBe(false)
       })
 
       it('speaks Uzbek', async () => {
         setLocale('uz')
-        meWithGame(true)
         expect((await render(withProgress())).get('[data-testid=game-map-entry]').text()).toContain('Karvon xaritasi')
       })
     })
@@ -955,15 +947,15 @@ describe('TodayView', () => {
     describe('"Pro ended" (2A.6)', () => {
       beforeEach(() => window.localStorage.clear())
 
-      it('uses the Today payload for the lapse banner without a profile request of its own', async () => {
+      it('uses the Today payload for the lapse banner without a profile request', async () => {
         const initial = today()
         const w = await render(today({ entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
 
         expect(text(w, 'lapsed-title')).toBe('Pro закончился')
-        expect(api.me.get).toHaveBeenCalledTimes(1) // the one read of the Karvon entry, not the banner's
+        expect(api.me.get).not.toHaveBeenCalled()
 
         await render(today({ entitlement: { ...initial.entitlement, lapsed: null } }))
-        expect(api.me.get).toHaveBeenCalledTimes(1)
+        expect(api.me.get).not.toHaveBeenCalled()
       })
 
       it('offers renewal to a Free learner whose Pro lapsed and leads to the subscription screen', async () => {
@@ -985,7 +977,7 @@ describe('TodayView', () => {
         vi.mocked(api.me.get).mockClear()
         setActivePinia(createPinia())
         await render(today({ entitlement: PRO }))
-        expect(api.me.get).toHaveBeenCalledTimes(1) // the Karvon entry's read; a Pro learner's banner asks nothing
+        expect(api.me.get).not.toHaveBeenCalled()
       })
     })
 

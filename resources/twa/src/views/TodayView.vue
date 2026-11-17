@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
+import HardRoundCard from '@/components/HardRoundCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
@@ -99,6 +100,9 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
 
 const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
 
+/** The round of hard words: opens it, or continues the one that is open (docs/06 §14); a refusal shows under the session button. */
+const startHardRound = (): Promise<void> => openSession({ mode: 'hard_review', source: 'self' })
+
 const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
 
 function learnNext(lessonId: number): Promise<void> {
@@ -156,14 +160,11 @@ watch(isPro, (pro) => {
   if (pro && current?.source === 'subscription' && current.until !== null) void billing.load()
 }, { immediate: true })
 /**
- * The standing entry of the Karvon map (owner's decision of 2026-11-17: the game is open to everybody): `/me.game.available` (the
- * billing store keeps `/me` for a minute, the Profile and the course screen read it the same way) and an active course. The caravan of
- * the day / a run that is on already has its own row (`gameEntry`): then this one is not shown.
+ * The standing entry of the Karvon map (owner's decision of 2026-11-17: the game is open to everybody): `/today.game.available`
+ * (the game is open to this learner; no field - an older server - no row, `/me` is not asked for it) and an active course. The
+ * caravan of the day / a run that is on already has its own row (`gameEntry`): then this one is not shown.
  */
-watch(() => data.value?.active_course != null, (has) => {
-  if (has) void billing.load()
-}, { immediate: true })
-const showGameMap = computed(() => data.value?.active_course != null && billing.gameAccess.available && !gameEntry.value)
+const showGameMap = computed(() => data.value?.active_course != null && data.value.game?.available === true && !gameEntry.value)
 const trialEnd = computed(() => (isPro.value ? trialEndsAt(billing.entitlement) : null))
 const trialText = computed(() => {
   if (trialEnd.value === null) return ''
@@ -541,6 +542,9 @@ onBeforeUnmount(() => {
         </p>
 
       </section>
+
+      <!-- The round of hard words (docs/06 §14): compact, under the session card and above the games; nothing while it is not on offer (or was played today). -->
+      <HardRoundCard v-if="hasProgress" :round="data.hard_round" :busy="opening" @start="startHardRound" />
 
       <!-- Practice of the main course, one entry (docs/16 §11.1): three modes by their icons and one button. -->
       <section v-if="showGames" class="card flex items-center gap-3" data-testid="games-card">

@@ -151,6 +151,23 @@ it('gives every word a ru and uz translation, an example usable for gap-fill, an
     }
 })->with('lcp_packs');
 
+it('gives every word of the three packs an IPA transcription in slashes, of the sounds of the shipped alphabet only, at most 100 characters', function (string $slug): void {
+    $count = 0;
+    foreach (lcp_lesson_files($slug) as $file) {
+        foreach (lcp_read($file)['words'] as $w) {
+            $where = basename($file).' / '.$w['word'];
+
+            expect($w)->toHaveKey('transcription')
+                ->and($w['transcription'])->toBeString($where)
+                ->and($w['transcription'])->toMatch('/^\/[^\/]+\/$/u', $where)
+                ->and($w['transcription'])->toMatch('/^[abdefghijklmnoprstuvwzæðŋɑɔəɛɜɪʃʊʌʒθˈˌ\/]+$/u', $where)
+                ->and(mb_strlen($w['transcription']))->toBeLessThanOrEqual(100, $where);
+            $count++;
+        }
+    }
+    expect($count)->toBe(1000);
+})->with(['a1-a2' => [LCP_A1_A2], 'b1' => ['english-b1'], 'b2' => ['english-b2']]);
+
 it('shares no word between english-a1-a2, english-b1 and english-b2: 3 000 different words', function (): void {
     $all = [];
     foreach ([LCP_A1_A2, 'english-b1', 'english-b2'] as $slug) {
