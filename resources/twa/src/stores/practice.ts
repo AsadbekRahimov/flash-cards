@@ -541,12 +541,14 @@ export const usePracticeStore = defineStore('practice', {
       this.outcome = null
       this.syncTimed(session)
       this.syncHub(session)
-      if (session.status === 'finished' || session.current === null) {
+      // A timed game that waits for "Start" has no board yet (`current: null`): that is the "Ready?" screen, not the end.
+      const waiting = session.status === 'active' && session.timed != null && !session.timed.started
+      if (session.status === 'finished' || (session.current === null && !waiting)) {
         this.status = 'finished'
         return
       }
       // The same element again (a re-read after a conflict) is not a new one: the mode component keeps what the learner did.
-      if (session.current.id !== previous) {
+      if (session.current !== null && session.current.id !== previous) {
         this.elementSeq += 1
         this.elementShownAt = Date.now()
       }

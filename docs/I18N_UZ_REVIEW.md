@@ -3973,3 +3973,23 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `finished.hard_round.offer` | {count} ta qiyin so'zni tahlil qilish | Разобрать N трудных слов (строка на финале обычного раунда) |
 | `error.code.hard_round_unavailable` / `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд сейчас недоступен |
 | `error.hard_round.not_enough` / `.played_today` / `.no_objective_exercise` | Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi. / Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. / Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Трудных слов пока мало / Раунд на сегодня уже пройден, следующий завтра / Для этих слов нет подходящих заданий |
+
+### Напоминание-вопрос (`lang/uz/reminders.php`, блок `quiz`; решение владельца 17.11.2026, docs/12 §7.5) — на проверку носителю
+
+Текст без разметки: вводная строка, вопрос про слово (кнопки с вариантами — сами слова, не ключи), подвал и ответ после выбора.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.quiz.lead.review` | LexiFlow'da :count ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz. | Пора повторить :count слово. Начнём с одного прямо здесь.\|Пора повторить :count слова. Начнём с одного прямо здесь.\|Пора повторить :count слов. Начнём с одного прямо здесь. |
+| `reminders.quiz.lead.streak_at_risk` | Ketma-ket :count kun shug'ullandingiz. Natijani saqlash uchun bugungi maqsadni bajaring. Mashq: | Серия — :count день. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дня. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дней. Выполните цель дня, чтобы не прервать её. Разминка: |
+| `reminders.quiz.lead.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz: | Вы :count день не занимались. Проверим одно слово:\|Вы :count дня не занимались. Проверим одно слово:\|Вы :count дней не занимались. Проверим одно слово: |
+| `reminders.quiz.lead.new_words` | Yangi so'zlardan oldin mashq: | Разминка перед новыми словами: |
+| `reminders.quiz.question.meaning` | «:word» nima degani? | Что значит «:word»? |
+| `reminders.quiz.question.reverse` | «:translation» inglizchada qanday? | Как по-английски «:translation»? |
+| `reminders.quiz.footer` | Vaqtni o'zgartirish yoki o'chirish: /settings | Изменить время или отключить: /settings |
+| `reminders.quiz.correct` | ✅ To'g'ri! :word — :answer. | ✅ Верно! :word — :answer. |
+| `reminders.quiz.wrong` | ❌ Unday emas. :word — :answer. | ❌ Не совсем. :word — :answer. |
+| `reminders.quiz.after_due` | Ilovada sizni :count ta so'z kutmoqda — 5 daqiqa yetarli. | В приложении ждут :count слово — хватит 5 минут.\|В приложении ждут :count слова — хватит 5 минут.\|В приложении ждут :count слов — хватит 5 минут. |
+| `reminders.quiz.after_none` | Ilovada davom eting — u yerda yangi so'zlar bor. | Продолжите в приложении — там новые слова. |
+| `reminders.quiz.open_more` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `reminders.quiz.expired` | Bu savol eskirgan. Ilovani oching — u yerda yangi so'zlar bor. | Этот вопрос устарел. Откройте приложение — там свежие слова. |

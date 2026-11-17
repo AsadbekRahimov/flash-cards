@@ -42,14 +42,15 @@ describe('modeComponents — which component draws which element', () => {
 })
 
 describe.each([
-  ['PairsBoard', PairsBoard, ['answer']],
-  ['CollocationChoice', CollocationChoice, ['answer']],
-  ['SentenceBuilder', SentenceBuilder, ['answer', 'skip']],
+  // The board also takes `showRound`: a timed game turns "Round N of M" off.
+  ['PairsBoard', PairsBoard, ['answer'], ['disabled', 'element', 'mode', 'showRound']],
+  ['CollocationChoice', CollocationChoice, ['answer'], ['disabled', 'element', 'mode']],
+  ['SentenceBuilder', SentenceBuilder, ['answer', 'skip'], ['disabled', 'element', 'mode']],
   // The dictation also says `silent` ("No sound for now", solo only, docs/15 §3.4): the solo screen leads to the hub, a battle ignores it.
-  ['DictationInput', DictationInput, ['answer', 'silent', 'skip']],
-] as const)('%s keeps the interface of a mode component', (_name, component, events) => {
-  it('takes `element`, `mode` and `disabled`', () => {
-    expect(Object.keys(declared(component).props ?? {}).sort()).toEqual(['disabled', 'element', 'mode'])
+  ['DictationInput', DictationInput, ['answer', 'silent', 'skip'], ['disabled', 'element', 'mode']],
+] as const)('%s keeps the interface of a mode component', (_name, component, events, props) => {
+  it('takes ' + props.map((prop) => '`' + prop + '`').join(', '), () => {
+    expect(Object.keys(declared(component).props ?? {}).sort()).toEqual([...props])
   })
 
   it('sends ' + events.map((event) => '`' + event + '`').join(', '), () => {

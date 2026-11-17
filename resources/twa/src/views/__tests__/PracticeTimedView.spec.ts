@@ -20,10 +20,10 @@ vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorT
 vi.mock('@/components/practice/modeComponents', async () => {
   const { defineComponent, h } = await import('vue')
   const Probe = defineComponent({
-    props: { element: { type: Object, required: true }, mode: { type: String, default: 'solo' }, disabled: { type: Boolean, default: false } },
+    props: { element: { type: Object, required: true }, mode: { type: String, default: 'solo' }, disabled: { type: Boolean, default: false }, showRound: { type: Boolean, default: true } },
     emits: ['answer'],
     setup: (props, { emit }) => () =>
-      h('div', { 'data-testid': 'probe', 'data-element': (props.element as { id: string }).id, 'data-disabled': String(props.disabled) }, [
+      h('div', { 'data-testid': 'probe', 'data-element': (props.element as { id: string }).id, 'data-disabled': String(props.disabled), 'data-show-round': String(props.showRound) }, [
         h('button', { 'data-testid': 'probe-answer', onClick: () => emit('answer', { left_id: 'lM1', right_id: 'rU2' }) }),
       ]),
   })
@@ -72,6 +72,46 @@ describe('PracticeSessionView — timed pairs', () => {
     expect(wrapper.get('[data-testid=timed-ready-text]').text()).toContain('60 секунд')
     expect(wrapper.find('[data-testid=timed-bar]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=probe]').exists()).toBe(false)
+  })
+
+  it('before the start the board is not on screen whether the server sends it (old) or `current: null` (new)', async () => {
+    const hidden = await render(timedSession(null, 0, { current: null }))
+    expect(hidden.wrapper.find('[data-testid=timed-ready]').exists()).toBe(true)
+    expect(hidden.wrapper.find('[data-testid=probe]').exists()).toBe(false)
+    hidden.wrapper.unmount()
+
+    const old = await render(timedSession(null))
+    expect(old.wrapper.find('[data-testid=timed-ready]').exists()).toBe(true)
+    expect(old.wrapper.find('[data-testid=probe]').exists()).toBe(false)
+  })
+
+  it('Start with `current: null` before it: the board comes from the answer of /start', async () => {
+    const { wrapper } = await render(timedSession(null, 0, { current: null }))
+    vi.mocked(api.practice.start).mockResolvedValue(timedSession(60_000))
+
+    await wrapper.get('[data-testid=timed-start-btn]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid=timed-ready]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=probe]').exists()).toBe(true)
+  })
+
+  it('the rounds counter and its bar are not drawn in a timed game (ready, play, summary); the board does not say the round', async () => {
+    const ready = await render(timedSession(null, 0, { current: null }))
+    expect(ready.wrapper.find('[data-testid=progress]').exists()).toBe(false)
+    expect(ready.wrapper.find('[data-testid=progress-bar]').exists()).toBe(false)
+    ready.wrapper.unmount()
+
+    const play = await render(timedSession(30_000, 3))
+    expect(play.wrapper.find('[data-testid=progress]').exists()).toBe(false)
+    expect(play.wrapper.find('[data-testid=progress-bar]').exists()).toBe(false)
+    expect(play.wrapper.get('[data-testid=timed-score]').text()).toBe('Пар: 3')
+    expect(play.wrapper.get('[data-testid=probe]').attributes('data-show-round')).toBe('false')
+    play.wrapper.unmount()
+
+    const done = await render(closed())
+    expect(done.wrapper.find('[data-testid=progress]').exists()).toBe(false)
+    expect(done.wrapper.find('[data-testid=progress-bar]').exists()).toBe(false)
   })
 
   it('Start: POST /start, then the clock and the board', async () => {

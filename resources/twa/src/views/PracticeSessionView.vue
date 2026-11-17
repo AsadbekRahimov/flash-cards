@@ -141,7 +141,11 @@ const caption = computed((): string => {
 
 const busy = computed(() => status.value === 'submitting' || timeUp.value)
 /** A timed game that waits for "Start": the clock has not begun (the server starts it with `start`). */
-const waitingStart = computed(() => timed.value !== null && !timed.value.started && session.value?.status === 'active')
+const isTimed = computed(() => timed.value !== null || session.value?.mode === 'pairs_timed')
+/** The board is not read here: a server that hides it before the start sends `current: null`, an older one sends the first round. */
+const waitingStart = computed(
+  () => status.value === 'ready' && timed.value !== null && !timed.value.started && session.value?.status === 'active',
+)
 const element = computed(() => (status.value === 'ready' || status.value === 'submitting' ? current.value : null))
 const lastElement = computed(() => session.value?.status === 'finished')
 
@@ -308,7 +312,9 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
               <AppIcon name="x-mark" :size="20" />
             </span>
           </button>
+          <!-- A timed game has no use for the rounds counter: the clock and the score tell how it goes. -->
           <div
+            v-if="!isTimed"
             class="progress flex-1"
             role="progressbar"
             aria-valuemin="0"
@@ -320,6 +326,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
             <div class="progress-fill" :style="{ width: `${progressWidth}%` }" data-testid="progress-fill" />
           </div>
           <span
+            v-if="!isTimed"
             class="min-w-14 text-right text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
@@ -364,7 +371,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       />
 
       <!-- A timed game before its start: a short "Ready?" - the first tap of the learner must not eat the time. -->
-      <div v-else-if="element && waitingStart && timed" class="flex flex-1 flex-col" data-testid="timed-ready">
+      <div v-else-if="waitingStart && timed" class="flex flex-1 flex-col" data-testid="timed-ready">
         <div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
           <span class="flex size-20 items-center justify-center rounded-full bg-accent-soft text-accent"><AppIcon name="bolt" solid :size="44" /></span>
           <h1 class="text-[28px] leading-[34px] font-bold tracking-tight" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
@@ -389,6 +396,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
           :element="element"
           mode="solo"
           :disabled="busy"
+          v-bind="timed ? { showRound: false } : {}"
           @answer="onAnswer"
           @skip="onSkip"
           @silent="silent"

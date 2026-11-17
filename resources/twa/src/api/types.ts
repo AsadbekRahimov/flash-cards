@@ -1475,7 +1475,7 @@ export interface PracticeSession {
   server_now: string
   /** A timed game's clock; null (or absent in an older server) for the other modes. */
   timed?: PracticeTimed | null
-  /** The element to answer; null once the session is finished. */
+  /** The element to answer; null once the session is finished, and in a timed game that has not been started (`timed.started === false`): the board comes with `start`. */
   current: PracticeElement | null
   summary: PracticeSummary | null
   /** Only in the 201 of `POST /practice/sessions`: the Free limits after the session was created (`null`: Pro, or no limit). */

@@ -311,8 +311,10 @@ final class PracticeSessionService
 
         $current = null;
         $summary = null;
+        // A timed session that has not been started has no board yet: the first round is seen only once the clock runs (`POST /start`).
+        $waiting = $session->mode->isTimed() && $session->deadline_at === null;
         if ($session->isActive()) {
-            $element = $snapshot->at((int) ($session->state['current'] ?? 0));
+            $element = $waiting ? null : $snapshot->at((int) ($session->state['current'] ?? 0));
             if ($element !== null) {
                 $current = $handler->project($element, $session->locale, $this->elementState($session, $element));
             }

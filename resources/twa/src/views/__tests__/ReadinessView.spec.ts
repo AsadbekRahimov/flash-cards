@@ -97,9 +97,9 @@ describe('ReadinessView', () => {
 
     expect(text(wrapper, 'quiz-this-week')).toContain('8 из 12')
     expect(text(wrapper, 'quiz-best')).toBe('Лучший результат: 66%')
-    expect(text(wrapper, 'quiz-btn')).toBe('Пройти ещё раз (тренировочно, без записи)')
+    expect(text(wrapper, 'quiz-btn')).toBe('Пройти ещё раз (тренировочно, не в зачёт)')
     expect(wrapper.get('[data-testid=quiz-btn]').attributes('data-scored')).toBe('done')
-    expect(text(wrapper, 'quiz-hint')).toContain('не запишется')
+    expect(text(wrapper, 'quiz-hint')).toContain('не идёт в зачёт недели')
     expect(wrapper.find('[data-testid=quiz-bar-2026-11-16]').exists()).toBe(true)
   })
 

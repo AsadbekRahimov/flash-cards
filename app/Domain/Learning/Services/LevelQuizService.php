@@ -82,11 +82,16 @@ final class LevelQuizService
             throw LevelQuizException::notEnoughWords($available, ExamQuestionBuilder::MIN_QUESTIONS);
         }
 
-        // An expired quiz the scheduler has not reached yet: finalize it first (its own transaction, idempotent under the row
-        // lock), so its result counts for the week before the new one decides whether it is counted, and the insert is not blocked.
+        // A quiz that is over (time out / everything answered) the scheduler has not reached yet, or one of ANOTHER course (a learner
+        // has one open quiz): finalize it first (its own transaction, idempotent under the row lock, with its own counted/practice
+        // rule), so its result counts for the week before the new one decides whether it is counted, and the insert is not blocked.
+        // Only a running quiz of THIS course is resumed.
         $stale = $this->openQuizOf($learner)->first();
-        if ($stale !== null && ! $this->isRunning($stale, $now)) {
-            $this->finalize($stale, 'expired', $now);
+        if ($stale !== null) {
+            $stale = $this->finalizeIfDue($stale, $now);
+            if ($stale->status === 'open' && $stale->course_id !== $course->id) {
+                $this->finalize($stale, 'replaced', $now);
+            }
         }
 
         $weekStart = $this->weekStart($learner, $now);
@@ -104,7 +109,7 @@ final class LevelQuizService
         try {
             $session = DB::transaction(function () use ($learner, $course, $now, $total, $seconds, $locale, $weekStart, $scored): ExamSession {
                 /** @var ExamSession|null $existing */
-                $existing = $this->openQuizOf($learner)->lockForUpdate()->first();
+                $existing = $this->openQuizOf($learner)->where('course_id', $course->id)->lockForUpdate()->first();
                 if ($existing !== null) {
                     return $existing;
                 }
@@ -150,9 +155,14 @@ final class LevelQuizService
 
                 return $session;
             });
-        } catch (UniqueConstraintViolationException) {
-            // Lost the race against a parallel open: the winner's row is the learner's quiz.
-            return $this->openQuizOf($learner)->firstOrFail();
+        } catch (UniqueConstraintViolationException $e) {
+            // Lost the race against a parallel open: the winner's row is the learner's quiz (when it is of this course).
+            $winner = $this->openQuizOf($learner)->where('course_id', $course->id)->first();
+            if ($winner === null) {
+                throw $e;
+            }
+
+            return $winner;
         }
 
         if ($session->wasRecentlyCreated) {
@@ -207,22 +217,23 @@ final class LevelQuizService
      * Closes a quiz (idempotent, under the row lock: a parallel finalize is a no-op) and writes its result row when something was
      * answered. Records `level_quiz.finished` once, after the commit.
      *
-     * @param  string  $reason  `finished` (everything answered) | `expired` (time over / scheduler / the next open)
+     * @param  string  $reason  `finished` (everything answered) | `expired` (time over / scheduler) | `replaced` (the learner opened a
+     *                          quiz of another course); a quiz with everything answered is `finished` whatever was passed
      */
     public function finalize(ExamSession $session, string $reason, ?CarbonImmutable $now = null): ExamSession
     {
         $now ??= CarbonImmutable::now();
 
-        /** @var array{session: ExamSession, closed: bool, correct: int, answered: int, scored: bool} $outcome */
-        $outcome = DB::transaction(function () use ($session, $now): array {
+        /** @var array{session: ExamSession, closed: bool, correct: int, answered: int, scored: bool, reason: string} $outcome */
+        $outcome = DB::transaction(function () use ($session, $now, $reason): array {
             /** @var ExamSession|null $locked */
             $locked = ExamSession::query()->lockForUpdate()->find($session->id);
             if ($locked === null || ! $locked->isLevelQuiz()) {
-                return ['session' => $session, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false];
+                return ['session' => $session, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'reason' => $reason];
             }
 
             if ($locked->status !== 'open') {
-                return ['session' => $locked, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false];
+                return ['session' => $locked, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'reason' => $reason];
             }
 
             $locked->update(['status' => 'closed', 'closed_at' => $now]);
@@ -241,7 +252,11 @@ final class LevelQuizService
                 $scored = $this->recordResult($locked, $correct, $now);
             }
 
-            return ['session' => $locked, 'closed' => true, 'correct' => $correct, 'answered' => $answered, 'scored' => $scored];
+            // A quiz with every question answered is `finished` whoever closes it (the scheduler passes `expired`).
+            $total = (int) ($locked->config['total_questions'] ?? 0);
+            $why = $total > 0 && $answered >= $total ? 'finished' : $reason;
+
+            return ['session' => $locked, 'closed' => true, 'correct' => $correct, 'answered' => $answered, 'scored' => $scored, 'reason' => $why];
         });
 
         $closed = $outcome['session'];
@@ -259,7 +274,7 @@ final class LevelQuizService
             'total' => $total,
             'percent' => self::percent($outcome['correct'], $total),
             'answered' => $outcome['answered'],
-            'reason' => $reason,
+            'reason' => $outcome['reason'],
         ], learner: $closed->learner);
 
         return $closed;

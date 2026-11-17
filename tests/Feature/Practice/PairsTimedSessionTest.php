@@ -146,7 +146,7 @@ function pairsTimedKeys(mixed $value): array
     return $keys;
 }
 
-it('opens a game without a clock: no deadline, score 0, ten rounds of four, nothing that gives the pairs away', function (): void {
+it('opens a game without a clock and without a board: no deadline, score 0, no current round until the start', function (): void {
     [$learner, $course] = PairsTimedKit::world(8);
 
     $opened = pairsTimedOpen($learner, $course)->assertCreated();
@@ -154,10 +154,18 @@ it('opens a game without a clock: no deadline, score 0, ten rounds of four, noth
     $opened->assertJsonPath('mode', 'pairs_timed')
         ->assertJsonPath('timed', ['seconds' => 60, 'deadline_at' => null, 'started' => false, 'score' => 0, 'penalty_ms' => 2000])
         ->assertJsonPath('progress', ['done' => 0, 'total' => 10])
+        ->assertJsonPath('current', null);
+    expect(array_intersect(pairsTimedKeys($opened->json()), [...PAIRS_TIMED_FORBIDDEN_KEYS, 'left', 'right', 'matched', 'round', 'rounds']))->toBe([]);
+
+    // The same on a read of the session, until the start.
+    pairsTimedCall($learner, 'GET', 'sessions/'.$opened->json('id'))->assertOk()->assertJsonPath('current', null);
+
+    // After the start the board of the first round is there: four words against four cards, nothing that gives the pairs away.
+    $started = pairsTimedStart($learner, (int) $opened->json('id'))->assertOk()
         ->assertJsonPath('current.rounds', 10)
         ->assertJsonPath('current.round', 1);
-    expect($opened->json('current.left'))->toHaveCount(4)->and($opened->json('current.right'))->toHaveCount(4)
-        ->and(array_intersect(pairsTimedKeys($opened->json()), PAIRS_TIMED_FORBIDDEN_KEYS))->toBe([]);
+    expect($started->json('current.left'))->toHaveCount(4)->and($started->json('current.right'))->toHaveCount(4)
+        ->and(array_intersect(pairsTimedKeys($started->json()), PAIRS_TIMED_FORBIDDEN_KEYS))->toBe([]);
     $row = PracticeSession::query()->sole();
     expect($row->deadline_at)->toBeNull()->and($row->score)->toBe(0)->and($row->mode)->toBe(PracticeMode::PairsTimed);
 });
@@ -165,9 +173,11 @@ it('opens a game without a clock: no deadline, score 0, ten rounds of four, noth
 it('refuses an answer before the clock is started', function (): void {
     [$learner, $course] = PairsTimedKit::world();
     $session = pairsTimedOpen($learner, $course)->assertCreated()->json();
-    $left = pairsTimedOpenLeft($session);
+    $elementId = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'][0]['id'];
+    $table = pairsTimedTable($session['id'], $elementId);
+    $left = array_key_first($table);
 
-    pairsTimedAnswer($learner, $session['id'], $session['current']['id'], $left, pairsTimedTable($session['id'], $session['current']['id'])[$left])
+    pairsTimedAnswer($learner, $session['id'], $elementId, $left, $table[$left])
         ->assertStatus(409)->assertJsonPath('error.code', 'practice_not_started');
 
     expect(PracticeSession::query()->sole()->score)->toBe(0)->and(PracticeAttempt::query()->count())->toBe(0);
