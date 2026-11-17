@@ -71,6 +71,8 @@ export const KNOWN_ERROR_CODES = [
   'course_not_exam',
   'not_enough_words',
   'not_enough_distractors',
+  'readiness_disabled',
+  'level_quiz_disabled',
   'friendship_self',
   'friend_unavailable',
   'friendship_not_found',

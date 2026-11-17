@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
  * numbers, plus the goal bonus when the daily goal was met during this session. No statement of its own: everything
  * is in hand already (the monthly place is a separate light request, `GET /league/month/me`).
  *
- * @property array{summary: SessionSummary, progress: DailyProgress, practice_entry: PracticeEntry|null} $resource
+ * @property array{summary: SessionSummary, progress: DailyProgress, practice_entry: PracticeEntry|null, hard_round_offer?: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null} $resource
  */
 final class SessionSummaryResource extends TwaResource
 {
@@ -31,7 +31,9 @@ final class SessionSummaryResource extends TwaResource
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   practice_entry: array{course: string, lesson_id: int|null}|null,
      *   league_points: int,
-     *   stages: array{graduated: int, promoted: int, mastered: int}
+     *   stages: array{graduated: int, promoted: int, mastered: int},
+     *   hard_round: array{total: int, won: int}|null,
+     *   hard_round_offer: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null
      * }
      */
     public function toArray(Request $request): array
@@ -56,6 +58,10 @@ final class SessionSummaryResource extends TwaResource
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),
             'league_points' => LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
+            // The round of hard words (docs/06 §14): how many of its set were won; null in every other mode.
+            'hard_round' => $summary->hardTotal === null ? null : ['total' => $summary->hardTotal, 'won' => $summary->hardWon ?? 0],
+            // The invitation to that round on the end of a daily round / a lesson: the block of `GET /today`; null after the round itself and while it is off.
+            'hard_round_offer' => $this->resource['hard_round_offer'] ?? null,
         ];
     }
 

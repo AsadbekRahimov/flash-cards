@@ -35,7 +35,10 @@ import type {
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
+  LevelQuizSession,
   MockExamOpenResponse,
+  ReadinessResponse,
+  ReadinessSource,
   MeResponse,
   AccountDeletedResponse,
   NextCardResponse,
@@ -261,6 +264,14 @@ export const api = {
     /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
     openMock: (slug: string) =>
       client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
+    /** The test of the week (docs/04 A.20); free for everybody. 201 new, 200 the one that is on. */
+    openLevelQuiz: (slug: string) =>
+      client().post<LevelQuizSession>(`/courses/${encodeURIComponent(slug)}/level-quiz`),
+  },
+  readiness: {
+    /** Readiness for the level of a course (docs/04 A.20); `source` is the screen the learner came from (analytics). */
+    get: (slug: string, source: ReadinessSource) =>
+      client().get<ReadinessResponse>(`/courses/${encodeURIComponent(slug)}/readiness`, { source }),
   },
   gameRuns: {
     /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */

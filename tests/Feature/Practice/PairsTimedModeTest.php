@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
 use App\Domain\Practice\Enums\PracticeMode;
@@ -128,5 +129,5 @@ it('knows no mistakes to list: a game against the clock is played again from the
     [$learner, $course, $lesson] = PairsTimedKit::world(8);
     $snapshot = app(PracticeSnapshotBuilder::class)->build(PracticeMode::PairsTimed, new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'), 10, false, 'x');
 
-    expect(app(PairsTimedMode::class)->mistakeLabel($snapshot->elements[0], \App\Domain\Practice\DTO\ElementState::fromStored(null, ['matched' => [], 'wrong_left' => ['l1']]), 'ru'))->toBe([]);
+    expect(app(PairsTimedMode::class)->mistakeLabel($snapshot->elements[0], ElementState::fromStored(null, ['matched' => [], 'wrong_left' => ['l1']]), 'ru'))->toBe([]);
 });

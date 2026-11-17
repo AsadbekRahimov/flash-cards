@@ -59,6 +59,8 @@ const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
 
 /** The practice card of «Today» (docs/04 A.2a): the flags of `/me.practice` without its limits. */
+/** The round of hard words (docs/06 §14): the block of `GET /today.hard_round` and of `/finish.hard_round_offer`. */
+const CONTRACT_HARD_ROUND = ['available', 'reason', 'words', 'open_session_id', 'resets_at'];
 const CONTRACT_PRACTICE_TODAY = ['available', 'pro_required', 'modes', 'battle', 'pro_promise'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 // The method (docs/06 §12): `is_leech`, `is_hard`, `hook`, `note`, `confused_with` were added to the card (fields only ever added).
@@ -247,6 +249,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'timezone',
             'game' => ['daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
+            'hard_round' => CONTRACT_HARD_ROUND,
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -267,6 +270,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
             'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
+            'hard_round' => CONTRACT_HARD_ROUND,
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)
@@ -618,6 +622,8 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
             'streak' => CONTRACT_STREAK,
             'practice_entry',
             'league_points',
+            'hard_round',
+            'hard_round_offer' => CONTRACT_HARD_ROUND,
         ]);
 
     // When the session began, server time in UTC (ISO-8601): the summary screen measures "earned in this session" by it.
@@ -645,10 +651,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])

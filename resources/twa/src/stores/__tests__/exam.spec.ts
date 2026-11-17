@@ -12,6 +12,7 @@ vi.mock('@/api', () => ({
       answer: vi.fn(),
       result: vi.fn(),
       openMock: vi.fn(),
+      openLevelQuiz: vi.fn(),
     },
   },
 }))
@@ -133,5 +134,79 @@ describe('exam store — loadResults', () => {
 
     expect(store.status).toBe('error')
     expect(store.errorMessage).not.toBe('')
+  })
+})
+
+describe('exam store — test of the week', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  const session = {
+    session_id: 91, mode: 'level_quiz' as const, course_id: 3, week_start: '2026-11-16', scored: true,
+    started_at: null, ends_at: null, total_questions: 12, seconds: 600, resumed: false,
+  }
+
+  it('openLevelQuiz returns the session id', async () => {
+    vi.mocked(api.exam.openLevelQuiz).mockResolvedValue(session)
+    const store = useExamStore()
+
+    await expect(store.openLevelQuiz('english-a1-a2')).resolves.toBe(91)
+    expect(api.exam.openLevelQuiz).toHaveBeenCalledWith('english-a1-a2')
+    expect(store.quizError).toBe('')
+    expect(store.openingQuiz).toBe(false)
+  })
+
+  it('openLevelQuiz explains too little material in the words of the test and other errors by code', async () => {
+    const store = useExamStore()
+    vi.mocked(api.exam.openLevelQuiz).mockRejectedValueOnce(new ApiClientError('validation', 422, 'not_enough_words', 'x'))
+    await expect(store.openLevelQuiz('c')).resolves.toBeNull()
+    expect(store.quizError).toBe('В курсе пока мало слов для теста недели.')
+
+    vi.mocked(api.exam.openLevelQuiz).mockRejectedValueOnce(new ApiClientError('validation', 422, 'not_enough_distractors', 'x'))
+    await store.openLevelQuiz('c')
+    expect(store.quizError).toBe('Для теста недели в курсе не хватает слов для вариантов ответа.')
+
+    vi.mocked(api.exam.openLevelQuiz).mockRejectedValueOnce(new ApiClientError('not_found', 404, 'level_quiz_disabled', 'x'))
+    await store.openLevelQuiz('c')
+    expect(store.quizError).toBe('Тест недели сейчас недоступен.')
+
+    store.clearQuizError()
+    expect(store.quizError).toBe('')
+  })
+
+  it('plays on one timer, like a mock', async () => {
+    vi.mocked(api.exam.join).mockResolvedValue({
+      session_id: 91, ends_at: null, total_questions: 12, seconds_per_question: 600,
+      question: { question_index: 0, word_id: 1, word: 'cat', options: ['a', 'b', 'c', 'd'], seconds_left: 600 },
+    })
+    const store = useExamStore()
+    await store.join(91, 'level_quiz')
+
+    expect(store.singleTimer).toBe(true)
+    expect(store.isQuiz).toBe(true)
+    expect(store.isMock).toBe(false)
+
+    await store.join(92, 'personal_mock')
+    expect(store.singleTimer).toBe(true)
+    await store.join(93, 'group_exam')
+    expect(store.singleTimer).toBe(false)
+  })
+
+  it('keeps the result of the test of the week apart from a mock and a leaderboard', async () => {
+    vi.mocked(api.exam.result).mockResolvedValue({
+      mode: 'level_quiz', correct: 8, total: 12, answered: 12, percent: 66, scored: true,
+      week_start: '2026-11-16', course_id: 3, course_slug: 'english-a1-a2',
+    })
+    const store = useExamStore()
+    store.resetForSession(91)
+    await store.loadResults()
+
+    expect(store.mode).toBe('level_quiz')
+    expect(store.quizResult?.correct).toBe(8)
+    expect(store.mockResult).toBeNull()
+    expect(store.leaderboard).toEqual([])
+    expect(store.finalScore).toBe(8)
   })
 })

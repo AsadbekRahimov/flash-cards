@@ -84,6 +84,10 @@ final class ExerciseSelector
             return ExerciseType::Pretest;
         }
 
+        if ($sessionMode === TrainingSession::MODE_HARD_REVIEW) {
+            return $this->hardRound($repetition, $word, $entitlement, $settings, $example, $hasAudio);
+        }
+
         $early = $this->policy->earlyLadder() && ! $group;
 
         if ($repetition->state !== RepetitionState::Review) {
@@ -118,6 +122,44 @@ final class ExerciseSelector
         }
 
         return ExerciseType::Flash;
+    }
+
+    /**
+     * The round of hard words (`hard_review`, docs/06 §14): the cards of its set are `review` or `relearning`, and the round is
+     * objective-only - never a self-graded flash. The lists are those of the ladder in use (the early lists, or the rungs of the
+     * classic ladder: typed -> options -> meaning), highest rung first, with flash struck out of each; a card in minute steps takes the
+     * recognition list. When no list has a servable exercise: the meaning, if available, else the reverse. A pure function of the
+     * same inputs as every other mode, so `/review` recomputes the type of the serve.
+     */
+    private function hardRound(WordRepetition $repetition, Word $word, Entitlement $entitlement, LearnerExerciseSettings $settings, ?string $example, bool $hasAudio): ExerciseType
+    {
+        $strip = static fn (array $list): array => array_values(array_filter($list, static fn (ExerciseType $t): bool => $t !== ExerciseType::Flash));
+
+        $lists = [];
+        if ($repetition->state === RepetitionState::Review) {
+            for ($rung = $this->policy->rungOf($repetition); $rung > LadderPolicy::RUNG_FLASH; $rung--) {
+                $lists[] = match ($rung) {
+                    LadderPolicy::RUNG_TYPED => [ExerciseType::GapFill, ExerciseType::Spelling],
+                    LadderPolicy::RUNG_CHOICE => $this->policy->earlyLadder() ? $strip($this->policy->earlyForm) : [ExerciseType::Reverse, ExerciseType::Audio],
+                    default => $strip($this->policy->earlyRecognition),
+                };
+            }
+        }
+        $lists[] = $strip($this->policy->earlyRecognition);
+
+        $type = $this->alternate($lists, $repetition, $word, $entitlement, $settings, $example, $hasAudio);
+        if ($type !== ExerciseType::Flash) {
+            return $type;
+        }
+
+        // Nothing servable on the lists (the learner's settings, a deck without audio, a typed rung with no form): the plain pick.
+        foreach ([ExerciseType::Meaning, ExerciseType::Reverse] as $fallback) {
+            if ($this->available($fallback, $entitlement, $settings)) {
+                return $fallback;
+            }
+        }
+
+        return ExerciseType::Meaning;
     }
 
     /** The plan has the feature the type needs (if any), the type is on in the config and the learner has not switched it off. */
@@ -163,7 +205,8 @@ final class ExerciseSelector
      * so every format of the list gets its turn and none comes twice in a row; a last exercise that is not in the list
      * starts it from the top. Unavailable exercises are skipped; a list whose only available exercise was just served is
      * skipped for the next one; nothing left — flash (or, when flash was the last and some list had a candidate, that
-     * candidate: a repeat beats nothing).
+     * candidate: a repeat beats nothing). The lists of the round of hard words carry no flash, so
+     * a flash result is "nothing servable" to its caller.
      *
      * @param  list<list<ExerciseType>>  $lists
      */

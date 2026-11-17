@@ -500,7 +500,7 @@ it('keeps the daily round inside the statement budget of the lesson cycle, and t
     $finish = QueryLog::during(function () use ($base, $headers): void {
         $this->withHeaders($headers)->postJson("{$base}/finish")->assertOk();
     });
-    expect(count($finish))->toBeLessThanOrEqual(9)
+    expect(count($finish))->toBeLessThanOrEqual(11) // 9 + the two of the invitation to the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
 });
 

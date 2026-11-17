@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Services\PracticeSessionService;
 use App\Models\Course;
@@ -352,7 +353,7 @@ it('completes the game when all ten rounds are matched before the clock, with th
     expect($session['status'])->toBe('finished')
         ->and($session['summary'])->toMatchArray(['finish_reason' => 'completed', 'score' => 40, 'answered' => 10, 'total' => 10, 'is_record' => true, 'best_score' => 40, 'retry_available' => false])
         ->and($session['timed']['score'])->toBe(40)
-        ->and(PracticeSession::query()->sole())->finish_reason->toBe(\App\Domain\Practice\Enums\FinishReason::Completed)
+        ->and(PracticeSession::query()->sole())->finish_reason->toBe(FinishReason::Completed)
         ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe(1);
 });
 
@@ -489,4 +490,22 @@ it('stays within the statement budgets: start 4, an answer 6, the last one with 
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
         ->and(count($last))->toBeLessThanOrEqual(9, implode("\n", $last))
         ->and(count($show))->toBeLessThanOrEqual(4, implode("\n", $show));
+});
+
+it('keeps the milliseconds of the clock: the deadline, a penalty and the grace are exact to the millisecond', function (): void {
+    [$learner, $course] = PairsTimedKit::world();
+    $id = (int) pairsTimedOpen($learner, $course)->assertCreated()->json('id');
+    pairsTimedAt(250);
+    $session = pairsTimedStart($learner, $id)->assertOk()->assertJsonPath('timed.deadline_at', '2026-11-18T10:01:00.250Z')->json();
+
+    $wrong = pairsTimedWrong($learner, $session)->assertOk()->assertJsonPath('session.timed.deadline_at', '2026-11-18T10:00:58.250Z');
+    expect(PracticeSession::query()->sole()->deadline_at->format('Y-m-d H:i:s.v'))->toBe('2026-11-18 10:00:58.250');
+
+    pairsTimedAt(58_250 + 1_499); // 1 ms inside the grace of the moved deadline
+    $session = pairsTimedRight($learner, $wrong->json('session'), 1);
+    expect($session['timed']['score'])->toBe(1);
+
+    pairsTimedAt(58_250 + 1_501);
+    pairsTimedAnswer($learner, $session['id'], $session['current']['id'], pairsTimedOpenLeft($session), array_values(pairsTimedTable($session['id'], $session['current']['id']))[0])
+        ->assertStatus(409)->assertJsonPath('error.code', 'practice_time_over');
 });

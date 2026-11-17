@@ -190,7 +190,6 @@ it('starts the clock once when two tabs press start at the same instant', functi
         [0, 1, 2],
     ));
 
-    fwrite(STDERR, json_encode($results)."\n");
     expect(pairsTimedRaceCrashes($results))->toBe([])
         ->and(array_unique(array_column($results, 'value')))->toHaveCount(1)
         ->and(PracticeSession::query()->findOrFail($session->id)->deadline_at)->not->toBeNull();

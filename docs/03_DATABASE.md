@@ -1120,17 +1120,19 @@ CHECK не создаются — инвариант дублируют серв
 | id | bigint PK | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | владелец; чужая сессия отвечает 404, как несуществующая |
 | active_learner_id | bigint nullable **unique** | `= learner_id`, пока `status = active`, иначе `NULL` — «одна активная сессия на ученика» |
-| mode | varchar(12) | `pairs` / `collocation` / `sentence` / `dictation` |
+| mode | varchar(12) | `pairs` / `collocation` / `sentence` / `dictation` / `pairs_timed` |
 | course_id | bigint FK → courses, ON DELETE CASCADE | |
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | |
 | source | varchar(16) | откуда открыта: `hub` / `after_training` (хаб, открытый кнопкой «Практика урока / курса» на итоге занятия) / `retry` («Повторить ошибки») / `deeplink`; для аналитики |
 | retry_of_session_id | bigint nullable FK → practice_sessions, ON DELETE SET NULL | исходная сессия «Повторить ошибки» |
 | status | varchar(10) default 'active' | `active` / `finished` |
-| finish_reason | varchar(12) nullable | `completed` / `expired` (TTL) / `replaced` (ученик начал новую с `replace_active`) |
+| finish_reason | varchar(12) nullable | `completed` / `expired` (TTL) / `replaced` (ученик начал новую с `replace_active`) / `time_over` (вышли часы `pairs_timed`) |
 | snapshot | jsonb | выдача целиком (серверная) |
 | state | jsonb default '{}' | прогресс по элементам: текущий, ответы, пары (`matched`, `wrong_left`), замены; меняется только под `FOR UPDATE` строки |
 | total | smallint | число элементов (у пар — раундов) |
 | answered, correct_first, hints, mismatches | smallint default 0 | счётчики для итогов и отчётов: завершено / верно с первой попытки (`typo` не считается) / «Не знаю» / неверных сопоставлений пар |
+| score | smallint default 0 | `pairs_timed`: сопоставлено верно пар; меняет только ответ под `FOR UPDATE` |
+| deadline_at | timestamp(3) nullable | `pairs_timed`: `NULL` до `POST …/start`, затем `start + 60 с`, неверный ответ сдвигает на 2 с раньше; миллисекунды |
 | locale | varchar(5) | язык текстов снимка (локаль ученика при открытии) |
 | expires_at | timestamp | `started_at + practice.solo.session_ttl_hours` (24 ч) |
 | started_at | timestamp | |
@@ -1159,6 +1161,9 @@ CHECK не создаются — инвариант дублируют серв
 | created_at | timestamp default now | **без `updated_at`**: строки не меняются |
 
 **Индексы:** unique `(session_id, request_id)` — идемпотентность и защита от двойной отправки (нарушение при гонке → перечитать победителя); `(session_id, element_id)`; `(learner_id, accepted_at)`.
+
+### 2.44a `practice_records` — личный рекорд *(«Пары на время»)*
+`id`, `learner_id` FK → learners ON DELETE CASCADE, `mode` varchar(12) (`pairs_timed`; PG CHECK как у сессий), `best_score` smallint, `best_session_id` FK → practice_sessions ON DELETE SET NULL, `achieved_at` timestamp, `created_at`/`updated_at`. **Индекс:** unique `(learner_id, mode)`. Пишет только `PracticeRecords::record()` в транзакции, завершающей сессию (`completed` / `time_over`), под `FOR UPDATE` своей строки после строки сессии (docs/16 §2.10, §9 правило 24). Миграция `2026_11_18_200001_add_timed_pairs_to_practice` (откат отказывает, если есть строки `pairs_timed`).
 
 ### 2.45 `battles` — матч «Баттл 1 на 1» *(18.1; ядро — 18.6, HTTP и ЛС — 18.6b; контракт — docs/04 A.17)*
 | Колонка | Тип | Описание |

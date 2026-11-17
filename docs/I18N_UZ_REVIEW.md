@@ -3921,3 +3921,40 @@ Mini App, `resources/twa/src/i18n/uz.ts`: совет о Pro и карточка 
 | `finished.trial_ending.keep_invite` | Pro'ni saqlab qolish uchun do'stlaringizni taklif qiling. | Чтобы сохранить Pro, пригласите друзей. (оплата ещё не открыта) |
 | `today.streak.freeze_line` | Pro'da zaxira kun ketma-ketlikni saqlab qolgan bo'lardi | В Pro заморозка сохранила бы серию (строка под карточкой серии, когда серия оборвалась) |
 
+## Готовность к уровню и тест недели (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают результат экзамена: это доля освоенного словаря курса. «O'zlashtirildi» — освоено (в отличие от «o'rganildi» в `finished.stages.mastered`: там «выучено»), «Hafta testi» — тест недели. Прошу проверить падежи, порядок слов в «{total} tadan {correct} ta» и выбор «mashq» для тренировочной попытки.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `readiness.title` | Darajaga tayyorlik | Готовность к уровню |
+| `readiness.percent_level` | {level} darajasi so'zlarining {percent}% o'zlashtirildi | Освоено {percent}% слов уровня {level} |
+| `readiness.percent_course` | Kurs so'zlarining {percent}% o'zlashtirildi | Освоено {percent}% слов курса (когда у курса нет подписи уровня) |
+| `readiness.progress_label` | So'zlarning {percent}% o'zlashtirildi: {learned} ta o'zlashtirildi, {in_progress} ta o'rganilmoqda, {not_started} ta hali oldinda | Подпись полосы для экранных дикторов |
+| `readiness.learned` / `.in_progress` / `.not_started` | o'zlashtirildi / o'rganilmoqda / hali oldinda | освоено / в работе / ещё впереди |
+| `readiness.mastered` | shundan mustahkam: {count} ta | из них надёжно: {count} |
+| `readiness.explain` | So'z {count} kunlik tanaffusdan keyin ishonch bilan eslansa, o'zlashtirilgan hisoblanadi. Bu lug'at bahosi, imtihon natijasi emas. | Слово считается освоенным, когда вы уверенно вспоминаете его с перерывом в {count} дней. Это оценка словаря, а не результат экзамена. |
+| `readiness.modules` / `readiness.module` | Modullar bo'yicha / {number}-modul | По модулям / Модуль N |
+| `readiness.quiz.title` | Hafta testi | Тест недели |
+| `readiness.quiz.result` / `.line` | {total} tadan {correct} ta / Hafta testi: {total} tadan {correct} ta | «8 из 12» / «Тест недели: 8 из 12» |
+| `readiness.quiz.take` | Hafta testini topshirish | Пройти тест недели |
+| `readiness.quiz.again` | Yana topshirish (mashq, yozilmaydi) | Пройти ещё раз (тренировочно, без записи) |
+| `readiness.quiz.practice_hint` | Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: natija yozilmaydi va grafikka tushmaydi. | Зачётный тест недели уже пройден; повтор тренировочный и не записывается |
+| `readiness.quiz.hint` | Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test. | N вопросов по словам курса, около M мин. Один зачётный тест в неделю. |
+| `readiness.quiz.best` | Eng yaxshi natija: {percent}% | Лучший результат |
+| `readiness.quiz.chart_title` / `.chart_empty` | Haftalar bo'yicha / Hozircha natijalar yo'q | По неделям / Пока нет результатов |
+| `readiness.quiz.bar` / `.bar_empty` | {week} dan boshlanadigan hafta: {total} tadan {correct} ta / ...: test bo'lmagan | Подпись столбика графика (для экранных дикторов) |
+| `readiness.quiz.disabled`, `readiness.unavailable`, `error.code.level_quiz_disabled`, `error.code.readiness_disabled` | Hafta testi hozir mavjud emas. / Darajaga tayyorlik hozir mavjud emas. | Функция выключена |
+| `readiness.not_enough_words` | Kursda hafta testi uchun so'z hozircha kam. | В курсе пока мало слов для теста недели. |
+| `readiness.not_enough_distractors` | Hafta testi uchun kursda javob variantlariga so'z yetmaydi. | Для теста недели не хватает слов для вариантов ответа. |
+| `readiness.open` | Tayyorlik haqida batafsil | Подробнее о готовности |
+| `exam.quiz_header` / `exam.quiz_closed_title` | Hafta testi / Vaqt tugadi | Тест недели / Время вышло |
+| `result.quiz_title` | Hafta testi natijalari | Итоги теста недели |
+| `result.quiz_score` | {total} tadan {correct} ta | N из M |
+| `result.quiz_percent` | Test savollarining {percent}% | {percent}% слов теста |
+| `result.quiz_scored` | {week} dan boshlanadigan haftaning hisobga olinadigan testi | Зачётный тест недели с {week} |
+| `result.quiz_practice` | Mashq urinishi — yozilmadi | Тренировочная попытка — не записана |
+| `result.quiz_unanswered` | Javobsiz: {count} | Без ответа |
+| `result.to_readiness` | Tayyorlikka | К готовности |
+| `profile.readiness` / `profile.readiness.hint` | Darajaga tayyorlik / O'zlashtirilgan so'zlar ulushi va hafta testi | Готовность к уровню / Доля освоенных слов и тест недели |
+| `course.readiness` | Tayyorlik va hafta testi | Готовность и тест недели |

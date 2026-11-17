@@ -18,6 +18,7 @@ import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { useGameShopStore } from '@/stores/gameShop'
+import { useSettingsStore } from '@/stores/settings'
 import { errorMessage } from '@/i18n/errors'
 import { LANGUAGE_TITLE, useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
@@ -33,6 +34,7 @@ const { t, tn, locale } = useI18n()
 const auth = useAuthStore()
 const billing = useBillingStore()
 const shop = useGameShopStore()
+const settings = useSettingsStore()
 const { entitlement, paywall } = storeToRefs(billing)
 
 useBackButton(null)
@@ -99,6 +101,9 @@ const planLine = computed(() => {
     ? t('profile.plan.free_plain')
     : tn('profile.plan.free', current.new_words_per_day)
 })
+
+/** The active course (`/me.settings`, adopted by the billing store): the row "Readiness for the level" leads to it; no course - no row. */
+const activeCourseSlug = computed(() => settings.data?.active_course?.slug ?? null)
 
 const planChip = computed(() => t(isPro.value ? 'profile.chip.pro' : 'profile.chip.free'))
 const support = computed(() => supportContactLink(paywall.value?.contact))
@@ -215,6 +220,15 @@ onMounted(() => {
           tile="blue"
           :title="t('profile.friends')"
           data-testid="row-friends"
+        />
+        <ListRow
+          v-if="activeCourseSlug"
+          :to="`/courses/${encodeURIComponent(activeCourseSlug)}/readiness?source=profile`"
+          icon="chart-bar"
+          tile="green"
+          :title="t('profile.readiness')"
+          :subtitle="t('profile.readiness.hint')"
+          data-testid="row-readiness"
         />
       </ListGroup>
 

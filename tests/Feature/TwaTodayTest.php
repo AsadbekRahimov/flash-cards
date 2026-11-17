@@ -109,6 +109,8 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'game' => ['daily_available' => false, 'active_run' => null, 'class_caravan' => null],
         // The practice card (docs/04 A.2a): the flags of `/me.practice`, no limits - the screen asks `/me` for nothing.
         'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo'],
+        // The round of hard words (docs/06 §14): a fresh learner has no hard words.
+        'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
     ]);
 });
 
@@ -426,6 +428,9 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'practice_entry' => null, // the practice is switched off (docs/16 §3.2): no entry to it
         // The league points of the session (docs/13 §7.6): 2 reviews + 2 correct + 2 new words × 2 + the goal met in this session (10).
         'league_points' => 18,
+        // The round of hard words (docs/06 §14): none in this session; the invitation is the block of /today (no hard words yet).
+        'hard_round' => null,
+        'hard_round_offer' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()->assertExactJson($expected);

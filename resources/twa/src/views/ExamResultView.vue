@@ -7,9 +7,10 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
-import { formatNumber } from '@/composables/format'
+import { formatDate, formatNumber } from '@/composables/format'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
+import { useTodayStore } from '@/stores/today'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -23,14 +24,28 @@ const props = defineProps<{ sessionId: number }>()
 const router = useRouter()
 const auth = useAuthStore()
 const exam = useExamStore()
+const today = useTodayStore()
 const { close, notificationHaptic } = useTelegram()
 const { t, locale } = useI18n()
 
-const { finalScore, finalRank, totalParticipants, leaderboard, errorMessage, mockResult } = storeToRefs(exam)
+const { finalScore, finalRank, totalParticipants, leaderboard, errorMessage, mockResult, quizResult } = storeToRefs(exam)
 
 // A personal IELTS / SAT mock (docs/13 §8.4) ends with percent + percentile instead of a leaderboard.
 const isMock = computed((): boolean => mockResult.value !== null)
 const unanswered = computed((): number => (mockResult.value ? mockResult.value.total - mockResult.value.answered : 0))
+
+// The test of the week (docs/04 A.20): "N of M", whether it was recorded, and the way back to the readiness screen.
+const isQuiz = computed((): boolean => quizResult.value !== null)
+const quizUnanswered = computed((): number => (quizResult.value ? quizResult.value.total - quizResult.value.answered : 0))
+const quizWeek = computed((): string => (quizResult.value ? formatDate(quizResult.value.week_start, 'dayMonthShort', locale.value) : ''))
+
+/** Back to readiness: Home's block and the screen both read the numbers afresh (a scored test changed them). */
+async function toReadiness(): Promise<void> {
+  const result = quizResult.value
+  if (result === null) return
+  if (result.scored) void today.load()
+  await router.push({ name: 'readiness', params: { slug: result.course_slug }, query: { source: 'today' } })
+}
 
 onMounted(async () => {
   try {
@@ -66,12 +81,27 @@ function place(rank: number): string {
         <AppIcon name="flag" solid :size="36" />
       </span>
       <h1 class="text-[22px] leading-7 font-bold" data-testid="result-title">
-        {{ isMock ? t('result.mock_title') : t('result.title') }}
+        {{ isQuiz ? t('result.quiz_title') : isMock ? t('result.mock_title') : t('result.title') }}
       </h1>
 
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="w-full" data-testid="result-error" />
 
-      <section v-if="isMock && mockResult" class="card w-full px-5 py-6" data-testid="mock-result">
+      <section v-if="isQuiz && quizResult" class="card w-full px-5 py-6" data-testid="quiz-result">
+        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
+        <p class="mt-1 text-5xl leading-[52px] font-bold tabular-nums" data-testid="quiz-score">
+          {{ t('result.quiz_score', { correct: quizResult.correct, total: quizResult.total }) }}
+        </p>
+        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="quiz-percent">{{ t('result.quiz_percent', { percent: quizResult.percent }) }}</p>
+        <p v-if="quizUnanswered > 0" class="mt-1 text-[15px] leading-5 text-warning-ink" data-testid="quiz-unanswered">
+          {{ t('result.quiz_unanswered', { count: quizUnanswered }) }}
+        </p>
+        <hr class="my-4 border-hairline" />
+        <p class="text-[15px] leading-5" :data-testid="quizResult.scored ? 'quiz-scored' : 'quiz-practice'">
+          {{ quizResult.scored ? t('result.quiz_scored', { week: quizWeek }) : t('result.quiz_practice') }}
+        </p>
+      </section>
+
+      <section v-else-if="isMock && mockResult" class="card w-full px-5 py-6" data-testid="mock-result">
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
         <p class="mt-1 text-5xl leading-[52px] font-bold tabular-nums" data-testid="mock-percent">{{ mockResult.percent }}%</p>
         <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="mock-score">
@@ -110,7 +140,7 @@ function place(rank: number): string {
         </span>
       </section>
 
-      <ListGroup v-if="!isMock && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
+      <ListGroup v-if="!isMock && !isQuiz && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
         <!-- Equal scores share a place (1, 2, 2, 4), and the API names no learner: a row is told by its position in the list. -->
         <ListRow v-for="(row, index) in leaderboard" :key="index" :title="row.name" :data-testid="`leader-${index + 1}`">
           <template #leading>
@@ -130,7 +160,16 @@ function place(rank: number): string {
 
     <StickyActions>
       <button
-        v-if="isMock"
+        v-if="isQuiz"
+        type="button"
+        class="btn btn-primary btn-lg btn-block"
+        data-testid="quiz-readiness-btn"
+        @click="toReadiness"
+      >
+        {{ t('result.to_readiness') }}
+      </button>
+      <button
+        v-else-if="isMock"
         type="button"
         class="btn btn-tinted btn-lg btn-block"
         data-testid="mock-courses-btn"
@@ -138,7 +177,7 @@ function place(rank: number): string {
       >
         {{ t('result.mock_again') }}
       </button>
-      <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="close-btn" @click="close()">
+      <button type="button" class="btn btn-lg btn-block" :class="isQuiz ? 'btn-tinted' : 'btn-primary'" data-testid="close-btn" @click="close()">
         {{ t('common.exit_app') }}
       </button>
     </StickyActions>

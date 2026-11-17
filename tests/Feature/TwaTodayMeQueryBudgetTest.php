@@ -59,7 +59,7 @@ it('answers the second /me with the learner, one statement of counts and one of 
         ->and(QueryLog::matching($queries, '/from ["`](telegram_groups|subscriptions|courses)["`]/'))->toBe([]);
 });
 
-it('answers the second /today within eight statements, including the lapse banner that used to request /me', function (): void {
+it('answers the second /today within nine statements, including the lapse banner that used to request /me', function (): void {
     ['headers' => $h] = todayMeScenario($this);
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()
@@ -68,8 +68,10 @@ it('answers the second /today within eight statements, including the lapse banne
     // The active course is one learner query beside the cached tree (was two: the progress and the next-lesson anti-join: 8 -> 7).
     // 7 -> 8 (docs/13 §8.5): the quiz line of the week of the readiness block is ONE indexed read of `level_quiz_results`; the readiness
     // itself costs nothing - its counts are two more sums of the statement above (no cache, nothing else is read for it).
+    // 8 -> 9 (docs/06 §14): the candidates of the round of hard words are ONE indexed read; the day's rounds ride in the statement of the
+    // open daily session (no statement of their own).
     // Before R12i: 13 - the plan six times (from its cache), two day rows, two counts, five league statements.
-    expect(count($queries))->toBe(8)
+    expect(count($queries))->toBe(9)
         ->and(QueryLog::matching($queries, '/from ["`]level_quiz_results["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]due["`], \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]served["`]/'))->toHaveCount(1)

@@ -181,4 +181,6 @@ enum ProductEventName: string
     case LevelQuizStarted = 'level_quiz.started';
     /** A quiz of the week was finalized, once (props: exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason - finished / expired). */
     case LevelQuizFinished = 'level_quiz.finished';
+    /** The round of hard words was refused (props: reason - disabled / not_enough / played_today / no_objective_exercise, source; docs/06 §14). Opening is `training.session_opened` with mode = hard_review. */
+    case HardRoundRefused = 'hard_round.refused';
 }

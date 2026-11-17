@@ -564,7 +564,66 @@ export interface TodayCourse {
   progress: { learned: number; total: number }
   /** null once every word of the course has been served. */
   next_lesson: TodayLesson | null
+  /** Readiness for the level (docs/04 A.20): null while the feature is off; absent on an older server. */
+  readiness?: TodayReadiness | null
 }
+
+/** "Test of the week" of a course as `/today` and the readiness screen say it. */
+export interface ReadinessWeek {
+  correct: number
+  total: number
+  percent: number
+}
+
+/** `active_course.readiness` of GET /today: the compact block of Home, no extra request. */
+export interface TodayReadiness {
+  /** `A1–A2`, `B1`; null = the course names no level. */
+  level_label: string | null
+  percent: number
+  words: { total: number; learned: number; mastered: number; in_progress: number; not_started: number }
+  quiz: { enabled: false } | { enabled: true; week_start: string; this_week: ReadinessWeek | null }
+}
+
+/** GET /courses/{slug}/readiness (docs/04 A.20). */
+export interface ReadinessResponse {
+  course: { id: number; slug: string; title: string; level: string | null; level_label: string | null }
+  percent: number
+  words: { total: number; learned: number; mastered: number; known: number; in_progress: number; not_started: number }
+  thresholds: { known_days: number; mastered_days: number }
+  modules: ReadinessModule[]
+  quiz: ReadinessQuiz
+}
+
+export interface ReadinessModule {
+  number: number
+  title: string | null
+  learned: number
+  total: number
+}
+
+export interface ReadinessHistoryItem {
+  /** Monday of the week, `Y-m-d`. */
+  week_start: string
+  correct: number
+  total: number
+  percent: number
+}
+
+export type ReadinessQuiz =
+  | { enabled: false }
+  | {
+      enabled: true
+      questions: number
+      seconds: number
+      week_start: string
+      this_week: (ReadinessWeek & { finished_at: string }) | null
+      /** Scored results, oldest first. */
+      history: ReadinessHistoryItem[]
+      best_percent: number | null
+    }
+
+/** Where the readiness screen was opened from (the server's `readiness.viewed` event). */
+export type ReadinessSource = 'today' | 'profile' | 'course'
 
 /** Answer of GET /today (docs/04 A.2a). */
 export interface TodayResponse {
@@ -818,7 +877,7 @@ export interface ExamResultResponse {
   leaderboard: ExamLeaderboardEntry[]
 }
 
-export type ExamMode = 'group_exam' | 'personal_mock'
+export type ExamMode = 'group_exam' | 'personal_mock' | 'level_quiz'
 
 /** POST /courses/{slug}/mock-exam (docs/04 A.4a): the learner's IELTS / SAT mock, new (201) or the open one (200). */
 export interface MockExamOpenResponse {
@@ -846,10 +905,42 @@ export interface MockExamResultResponse {
   course_id: number | null
 }
 
-export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse
+/** POST /courses/{slug}/level-quiz (docs/04 A.20): the test of the week, new (201) or the one that is on (200). */
+export interface LevelQuizSession {
+  session_id: number
+  mode: 'level_quiz'
+  course_id: number
+  week_start: string
+  /** true = the first test of the week (it is recorded); false = practice, not recorded. */
+  scored: boolean
+  started_at: string | null
+  ends_at: string | null
+  total_questions: number
+  seconds: number
+  resumed: boolean
+}
+
+/** GET /exam/sessions/{id}/result of a `level_quiz` session. */
+export interface LevelQuizResultResponse {
+  mode: 'level_quiz'
+  correct: number
+  total: number
+  answered: number
+  percent: number
+  scored: boolean
+  week_start: string
+  course_id: number
+  course_slug: string
+}
+
+export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse | LevelQuizResultResponse
 
 export function isMockExamResult(result: AnyExamResultResponse): result is MockExamResultResponse {
   return 'mode' in result && result.mode === 'personal_mock'
+}
+
+export function isLevelQuizResult(result: AnyExamResultResponse): result is LevelQuizResultResponse {
+  return 'mode' in result && result.mode === 'level_quiz'
 }
 
 // ---------------- Course catalog ----------------

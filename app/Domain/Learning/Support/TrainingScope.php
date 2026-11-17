@@ -25,6 +25,9 @@ use LogicException;
  *     available to the learner (published and not private, or the learner's own deck) — otherwise only due cards. Without a course the
  *     daily session serves due cards only.
  *
+ *   - hard scope (`hard_review`, docs/06 §14): due repetitions of the FIXED set of words of the round (`training_sessions.meta.hard_words`),
+ *     never a new word, whatever the course.
+ *
  * Inactive words (`words.is_active = false`, the replacement for deletion) are never
  * served in either scope; their `word_repetitions` rows are left untouched.
  */
@@ -34,17 +37,21 @@ final readonly class TrainingScope
 
     private const KIND_DAILY = 'daily';
 
+    private const KIND_HARD = 'hard';
+
     /**
      * @param  string  $sessionMode  `TrainingSession::MODE_*` of the session the scope was built for. Does not
      *                               change what is served; CardPicker stamps it on every word it introduces
      *                               (`word_repetitions.introduced_mode`), so the Free quota can leave words of a
      *                               teacher's group lesson out (docs/12 §5.3).
+     * @param  list<int>  $wordIds  hard scope only: the words of the round
      */
     private function __construct(
         private string $kind,
         public ?int $lessonId,
         public ?int $courseId,
         public string $sessionMode,
+        public array $wordIds = [],
     ) {}
 
     /** @param string $sessionMode `lesson` (personal, default) or `group_lesson` */
@@ -58,14 +65,30 @@ final readonly class TrainingScope
         return new self(self::KIND_DAILY, null, $courseId, TrainingSession::MODE_DAILY_REVIEW);
     }
 
+    /** @param  list<int>  $wordIds  the set of the round of hard words, fixed when it was opened */
+    public static function hard(array $wordIds): self
+    {
+        return new self(self::KIND_HARD, null, null, TrainingSession::MODE_HARD_REVIEW, $wordIds);
+    }
+
     /**
-     * @throws LogicException when a lesson-mode session has no lesson (the `mode_shape`
+     * @throws LogicException when a lesson-mode session has no lesson, or a hard-review session no set of words (the `mode_shape`
      *                        invariant guarded by the DB CHECK and TrainingSessionService)
      */
     public static function forSession(TrainingSession $session): self
     {
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
             return self::daily($session->course_id === null ? null : (int) $session->course_id);
+        }
+
+        if ($session->mode === TrainingSession::MODE_HARD_REVIEW) {
+            $raw = ($session->meta ?? [])['hard_words'] ?? null;
+            $ids = is_array($raw) ? array_values(array_unique(array_map('intval', $raw))) : [];
+            if ($ids === []) {
+                throw new LogicException("Training session {$session->id} (hard_review) has no words.");
+            }
+
+            return self::hard($ids);
         }
 
         if ($session->lesson_id === null) {
@@ -91,10 +114,15 @@ final readonly class TrainingScope
         return $this->kind === self::KIND_DAILY;
     }
 
-    /** Whether this scope can serve words the learner has never seen. */
+    public function isHard(): bool
+    {
+        return $this->kind === self::KIND_HARD;
+    }
+
+    /** Whether this scope can serve words the learner has never seen. Never the round of hard words: only words released before. */
     public function includesNew(): bool
     {
-        return $this->isLesson() || $this->courseId !== null;
+        return ! $this->isHard() && ($this->isLesson() || $this->courseId !== null);
     }
 
     /** Can a grade for $word be accepted in this scope? (The repetition row must already exist — checked by the caller.) */
@@ -104,13 +132,21 @@ final readonly class TrainingScope
             return false;
         }
 
+        if ($this->isHard()) {
+            return in_array((int) $word->id, $this->wordIds, true);
+        }
+
         return $this->isDaily() || (int) $word->lesson_id === $this->lessonId;
     }
 
     /** `done_reason` when the scope has nothing left to serve. */
     public function exhaustedReason(): DoneReason
     {
-        return $this->isLesson() ? DoneReason::LessonComplete : DoneReason::NothingDue;
+        return match (true) {
+            $this->isLesson() => DoneReason::LessonComplete,
+            $this->isHard() => DoneReason::HardRoundComplete,
+            default => DoneReason::NothingDue,
+        };
     }
 
     /**
@@ -125,6 +161,9 @@ final readonly class TrainingScope
             $word->where('is_active', true);
             if ($this->isLesson()) {
                 $word->where('lesson_id', $this->lessonId);
+            }
+            if ($this->isHard()) {
+                $word->whereIn('id', $this->wordIds);
             }
         });
     }

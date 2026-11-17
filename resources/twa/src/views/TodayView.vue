@@ -9,6 +9,7 @@ import IntroSheet from '@/components/IntroSheet.vue'
 import LanguageSheet from '@/components/LanguageSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
+import ReadinessBlock from '@/components/ReadinessBlock.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -30,6 +31,7 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useExamStore } from '@/stores/exam'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
@@ -49,9 +51,11 @@ const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
 const billing = useBillingStore()
+const exam = useExamStore()
 const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
+const { openingQuiz, quizError } = storeToRefs(exam)
 
 useBackButton(null)
 
@@ -283,6 +287,19 @@ const coursePercent = computed(() => {
   const progress = data.value?.active_course?.progress
   return progress && progress.total > 0 ? Math.min(100, Math.round((progress.learned / progress.total) * 100)) : 0
 })
+/**
+ * The readiness block (docs/04 A.20) lives in the card of the course and reads `/today` only. A newcomer who has not met a word
+ * yet does not see it: with no progress it would only show 0 % and a test with nothing to ask about.
+ */
+const readiness = computed(() => (hasProgress.value ? (data.value?.active_course?.readiness ?? null) : null))
+
+/** "Take the test of the week" right from Home: opens (or resumes) it and goes to the exam screen; a refusal shows under the button. */
+async function takeQuiz(): Promise<void> {
+  const slug = data.value?.active_course?.slug
+  if (!slug) return
+  const sessionId = await exam.openLevelQuiz(slug)
+  if (sessionId !== null) await router.push({ name: 'exam', params: { sessionId }, query: { mode: 'quiz' } })
+}
 const courseProgressText = computed(() => {
   const progress = data.value?.active_course?.progress
   return progress ? t('catalog.progress', { done: progress.learned, total: progress.total }) : ''
@@ -317,7 +334,10 @@ onMounted(() => {
 })
 
 // An open error belongs to this screen only; it must not greet the learner on the next one.
-onBeforeUnmount(() => training.clearOpenError())
+onBeforeUnmount(() => {
+  training.clearOpenError()
+  exam.clearQuizError()
+})
 </script>
 
 <template>
@@ -661,6 +681,15 @@ onBeforeUnmount(() => training.clearOpenError())
             </div>
             <p v-if="!courseIsEmpty" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="course-progress">{{ courseProgressText }}</p>
           </div>
+
+          <ReadinessBlock
+            v-if="readiness"
+            :readiness="readiness"
+            :slug="data.active_course.slug"
+            :busy="openingQuiz"
+            :error="quizError"
+            @take-quiz="takeQuiz"
+          />
 
           <template v-if="data.active_course.next_lesson">
             <div class="flex items-center gap-3 border-t pt-3">

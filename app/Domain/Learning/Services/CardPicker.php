@@ -498,13 +498,18 @@ final class CardPicker
      *   `due_left` — due `review` cards of the scope, counted up to `due_cap` + 1: the round's remainder is `min(due_left,
      *                cap - due_done)`, and `due_left + due_done > due_cap` is the review debt that holds new words back.
      *
+     * The round of hard words (docs/06 §14) adds `hard_won` to the same statement: the words of the session whose LAST grade in it
+     * was a pass (`quality >= 3`) - the "N of 10" of its progress. At most a few dozen rows of the session, by the index
+     * `(training_session_id, learner_id)`.
+     *
      * @param  int|null  $sessionId  null: the session count is not needed (`reviews` = 0)
      * @param  int|null  $lessonId  null: a daily scope, `done` is null
      * @param  array{started_at: CarbonImmutable, due_cap: int|null, now: CarbonImmutable}|null  $sprint  the round to count for;
      *                                                                                                    `due_cap` = reviews a round takes, null = all
-     * @return array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int}
+     * @param  bool  $hardWon  count `hard_won` (needs `$sessionId`)
+     * @return array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int, hard_won:int}
      */
-    public function stepCounts(int $learnerId, ?int $sessionId, ?int $lessonId, ?array $sprint = null): array
+    public function stepCounts(int $learnerId, ?int $sessionId, ?int $lessonId, ?array $sprint = null, bool $hardWon = false): array
     {
         $query = DB::query();
 
@@ -563,6 +568,21 @@ final class CardPicker
             $query->selectSub(DB::query()->selectRaw('count(*)')->fromSub($window, 'due_window'), 'due_left');
         }
 
+        if ($hardWon && $sessionId !== null) {
+            $query->selectSub(
+                DB::table('training_reviews as r')
+                    ->selectRaw('count(*)')
+                    ->where('r.training_session_id', $sessionId)
+                    ->where('r.learner_id', $learnerId)
+                    ->where('r.quality', '>=', 3)
+                    ->where('r.id', '=', DB::table('training_reviews as r2')
+                        ->selectRaw('max(r2.id)')
+                        ->whereColumn('r2.training_session_id', 'r.training_session_id')
+                        ->whereColumn('r2.word_id', 'r.word_id')),
+                'hard_won',
+            );
+        }
+
         if ($lessonId !== null) {
             $query->selectSub(
                 WordRepetition::query()
@@ -580,10 +600,10 @@ final class CardPicker
         }
 
         if ($sessionId === null && $lessonId === null) {
-            return ['reviews' => 0, 'done' => null, 'due_done' => 0, 'new_done' => 0, 'pending' => 0, 'due_left' => 0];
+            return ['reviews' => 0, 'done' => null, 'due_done' => 0, 'new_done' => 0, 'pending' => 0, 'due_left' => 0, 'hard_won' => 0];
         }
 
-        /** @var object{reviews?: int|string, done?: int|string, due_done?: int|string, new_done?: int|string, pending?: int|string|null, due_left?: int|string}|null $row */
+        /** @var object{reviews?: int|string, done?: int|string, due_done?: int|string, new_done?: int|string, pending?: int|string|null, due_left?: int|string, hard_won?: int|string}|null $row */
         $row = $query->first();
 
         return [
@@ -593,6 +613,7 @@ final class CardPicker
             'new_done' => (int) ($row->new_done ?? 0),
             'pending' => (int) ($row->pending ?? 0),
             'due_left' => (int) ($row->due_left ?? 0),
+            'hard_won' => (int) ($row->hard_won ?? 0),
         ];
     }
 }

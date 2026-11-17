@@ -998,7 +998,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 `title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`), `current` не больше `target`; у разовых — `null`. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
 - `POST /api/twa/achievements/{key}/shared` — learner открыл диалог «Поделиться» (`useTelegram().shareUrl`): ставит `shared_at` один раз (+ событие `achievement.shared`), повтор — без изменений. **404** `achievement_not_found` — ключ неизвестен, не получен или чужой.
 
-### A.16 Практика — четыре режима (docs/16 §7, §10; задачи 18.1–18.5)
+### A.16 Практика — четыре режима и «Пары на время» (docs/16 §7, §10; задачи 18.1–18.5)
 Самостоятельная практика закрепляет **уже введённые** ученику слова: «Найди пары» (`pairs`), «Подбери сочетание» (`collocation`), «Собери предложение» (`sentence`), «Слушай и пиши» (`dictation`). Она **не пишет**
 `word_repetitions`, `training_*`, цель дня, серию, лиги, задания центра и достижения (docs/16 §0, `PracticeIsolationTest`). Контроллеры `PracticeHubController`, `PracticeSessionController`, `PracticeAudioController` тонкие
 (валидация → сервис → Resource): `PracticeHubService`, `PracticeSessionService`, `PracticeAudioService`; ответы — `PracticeHubResource`, `PracticeSessionResource`, `PracticeAnswerResource`; ошибки — `ApiErrorResource` (A.6, с `details`).
@@ -1064,6 +1064,14 @@ TWA различает отказ по статусу, а не по коду: `a
   `practice_session_not_found` (чужая или несуществующая `retry_of`); **422** `lesson_not_in_course`, `practice_not_enough_material`, валидация.
 - **422 `practice_not_enough_material`** — `details`: `{ "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }` (те же `reason`, что в хабе). TWA по нему объясняет причину и предлагает «Учить урок».
 - Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок); отказ 403 `practice_limit_reached` — `practice.limit_reached {kind, limit}`.
+
+#### «Пары на время» (`pairs_timed`, docs/16 §5.5a) — отличия контракта
+- **Хаб:** строка `{mode: "pairs_timed", state, available, required: 8, reason, estimate_seconds: 60, record: {score, achieved_at} | null}`; ключ `record` есть только у неё. Баттл режим не предлагает (`POST /battles` с ним — 422, `GET /battles/options` его не перечисляет).
+- **`POST /practice/sessions`** `{mode: "pairs_timed", course, lesson_id?, source}`: 201, `timed: {seconds: 60, deadline_at: null, started: false, score: 0, penalty_ms: 2000}`, `current` — `pairs_round` (`round`, `rounds: 10`), `progress {done: 0, total: 10}`. Лимит Free как у любой сессии. Выключен `PRACTICE_MODE_PAIRS_TIMED` → 409 `practice_mode_disabled`.
+- **`POST /practice/sessions/{id}/start`** (`twa-api` + `twa-practice-answer`, без тела) → 200 `PracticeSessionResource` с `timed.deadline_at` (серверный, `start + 60 с`), `timed.started: true`. Идемпотентен: повтор — тот же `deadline_at`. Ошибки: 404, 410 `practice_session_closed`, 409 `practice_not_timed`.
+- **`POST …/answer`:** как у пар (`{left_id, right_id}`); ответ до `start` — 409 `practice_not_started`; после `deadline_at + 1,5 с` — 409 `practice_time_over` `details {score}` (сессия закрыта `time_over`); неверный → `penalty_ms: 2000` в теле и `session.timed.deadline_at` на 2 с раньше (счёт не меняется), верный → `penalty_ms: 0`, `session.timed.score + 1`. Повтор `request_id` не штрафует второй раз. `score` / `deadline_at` в теле игнорируются.
+- **`GET /practice/sessions/{id}`:** ключ `timed` — `{seconds, deadline_at | null, started, score, penalty_ms}` у `pairs_timed`, `null` у остальных. Осталось секунд = `deadline_at − server_now` (оба из одного ответа). После `deadline_at + 1,5 с` `GET` лениво закрывает игру и отдаёт `summary`.
+- **`summary`** (`pairs_timed`): обычные ключи (`total: 10`, `answered`, `correct_first`, `typos: 0`, `hints: 0`, `mismatches`, `duration_ms`, `finish_reason: time_over | completed | …`, `retry_available: false`, `mistakes: []`) + `score`, `best_score`, `is_record`. «Повторить ошибки» нет: `retry_of` → 409 `retry_not_available`.
 
 #### `GET /api/twa/practice/sessions/{id}` — сессия
 ```json

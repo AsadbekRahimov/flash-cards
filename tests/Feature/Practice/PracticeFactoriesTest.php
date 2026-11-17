@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
+use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\VersionState;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Models\Course;
@@ -17,6 +18,7 @@ use App\Models\PracticeSession;
 use App\Models\Stage;
 use App\Models\Word;
 use Database\Factories\PracticeItemVersionFactory;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /*
@@ -200,11 +202,11 @@ it('makes the personal best of a learner in the clock mode, for a session or for
         ->and($record->best_session_id)->toBeNull()
         ->and($record->learner->id)->toBe($record->learner_id);
 
-    $session = PracticeSession::factory()->ofMode(\App\Domain\Practice\Enums\PracticeMode::PairsTimed)->finished()->create(['score' => 31]);
+    $session = PracticeSession::factory()->ofMode(PracticeMode::PairsTimed)->finished()->create(['score' => 31]);
     $best = PracticeRecord::factory()->create(['learner_id' => $session->learner_id, 'best_score' => 31, 'best_session_id' => $session->id]);
 
     expect($best->bestSession->is($session))->toBeTrue()
         ->and($session->score)->toBe(31)
         ->and($session->deadline_at)->toBeNull();
-    expect(fn () => PracticeRecord::factory()->create(['learner_id' => $session->learner_id]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+    expect(fn () => PracticeRecord::factory()->create(['learner_id' => $session->learner_id]))->toThrow(UniqueConstraintViolationException::class);
 });

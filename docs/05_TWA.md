@@ -117,7 +117,8 @@ app.mount('#app')
 **«С возвращением! Аккаунт восстановлен»** (R11b). Если ответ `POST /auth` несёт `account_restored` (docs/04 A.1), оболочка приложения (`App.vue`) один раз за сессию открывает лист `AccountRestoredSheet` (`BottomSheet`) поверх любого экрана, с которого открыто Mini App, включая deep link: «Аккаунт восстановлен — слова и прогресс на месте.», при `pro_can_resume` — ещё «Автопродление Pro было выключено при удалении…» и кнопка «Открыть «Подписку»» (→ `/billing`); «Понятно» закрывает. Стор `auth` берёт поле из ответа `/auth`, лист забирает его (`takeAccountRestored`) и сразу один раз вызывает `POST /me/account-restored/seen` (docs/04 A.2d; ошибка игнорируется). Флаг «показано» живёт в сторе всю сессию: перелогин после истечения токена (~15 мин) лист не повторяет, даже если `seen` не дошёл. Лишних запросов `/me` нет. Тексты — `restored.*` (ru/uz).
 | `/finished` | FinishedView | — | «Итог занятия» (§5.3, docs/14 §6.3); query `reviewed`, `next`, `reason`. Данные личной сессии — из `finish`-summary (стор `training.summary`); при `done_reason = sprint_complete` и `can_continue` (стор `training.canContinue`) главная кнопка «Ещё раунд» (`next-round-btn`, `training.nextRound()`: `finish`, если summary ещё нет, затем `POST /training/sessions {daily_review}`), под ней строка `summary.stages` («Новых слов · Поднялись · Выучено», нули не показываются); затем `btn-tinted` «Поиграть: закрепить слова» при `summary.practice_entry` после непустого раунда (→ `/practice/<course>?lesson=<id>&from=finished`, §5a.1); «На главную» → `/today` (главная, если «Ещё раунда» нет); при `done_reason = new_quota_exhausted` открывает `PaywallSheet` (docs/04 A.3, 1.4b). |
 | `/training/:sessionId` | TrainingView | — | Тренировка: карточки и упражнения, действия внизу экрана (§5.2). Ежедневное занятие — раунд (шапка «Раунд», счётчик — прогресс раунда, `total ≥ done`); серия верных ответов (`combo`) не считает карточку-знакомство нового слова (`flash` + `card_kind = new`: ответ открыт). |
-| `/exam/:sessionId` | ExamView | — | Экзамен с таймером (§6.3): групповой и личный «Пробный тест» (`?mode=mock`). |
+| `/exam/:sessionId` | ExamView | — | Экзамен с таймером (§6.3): групповой, личный «Пробный тест» (`?mode=mock`) и «Тест недели» (`?mode=quiz`, §5c). |
+| `/courses/:slug/readiness` | ReadinessView | `courses` | «Готовность к уровню» и тест недели (§5c); `?source=today\|profile\|course` — откуда пришли (аналитика, «Назад»); `GET /courses/{slug}/readiness`. |
 | `/exam/:sessionId/result` | ExamResultView | — | Итоги: результат и «Топ участников» либо процент пробного теста (§6.4). |
 
 Определяем режим по параметрам query из ссылки, которую бот прислал.
@@ -514,6 +515,15 @@ _(G2.9b; контракт — `docs/04` A.18 «Караван класса», п
 
 **Не входит.** После боя итог забега ведёт на карту (а не на экран класса); экран класса не обновляется сам — он читается при каждом открытии.
 
+## 5c. Готовность к уровню и тест недели (docs/04 A.20, docs/13 §8.5)
+
+Честная метрика: доля освоенного словаря курса (слово освоено, когда ученик вспоминает его с интервалом от N дней, N из `thresholds`), а не обещание сдать экзамен — об этом сказано на экране («Это оценка словаря, а не результат экзамена»).
+
+- **«Сегодня»** (`components/ReadinessBlock.vue`): компактный блок внутри карточки «Мой курс» (`readiness-block`): «Освоено 42% слов уровня A1–A2» (без `level_label` — «слов курса»), полоса из трёх частей «освоено / в работе / ещё впереди» (`role="progressbar"`) и строка теста: «Тест недели: 8 из 12» или кнопка «Пройти тест недели» (`readiness-quiz-btn`, открывает тест сразу; отказ — понятное сообщение под кнопкой). Верх блока — ссылка на экран (`readiness-link`). Данные — только `/today` (`active_course.readiness`), запросов не добавляет. Не показывается без `readiness` (`null` — функция выключена, поле отсутствует — старый сервер) и новичку без прогресса (`hasLearnerProgress` ложно).
+- **Экран** `ReadinessView` (`readiness-view`, стор `readiness`: `load(slug, source)`, всегда перезагружает): крупный процент (`readiness-percent`), три числа (`readiness-learned`, `-in-progress`, `-not-started`) и «из них надёжно», формула одной фразой (`readiness-explain`), блок теста недели (`readiness-quiz`): результат недели, лучший результат, `WeeklyQuizChart` (столбики за 12 недель на CSS, пропуски пустые, пусто — «Пока нет результатов»), подсказка и кнопка `quiz-btn`: пока зачётного нет — «Пройти тест недели», после — «Пройти ещё раз (тренировочно, без записи)» с пояснением, что повтор не записывается (`data-scored=done|open`). Прогресс по модулям (`readiness-module-N`).404 `readiness_disabled` — «Готовность к уровню сейчас недоступна».
+- **Входы:** блок на «Сегодня» (`source=today`), строка `row-readiness` в профиле (только при активном курсе из `/me.settings.active_course`, `source=profile`), строка `readiness-row` на экране курса (`source=course`). Ссылки — путями (`/courses/{slug}/readiness?source=…`).
+- **Тест** — тот же `ExamView` (`?mode=quiz`): чип «Тест недели» (`quiz-header`), один таймер, без полосы вопроса (геттер `singleTimer` стора `exam` — mock и quiz). `exam.openLevelQuiz(slug)` → id сессии; `not_enough_words` / `not_enough_distractors` — свои сообщения про тест недели (`quizError`), не общий тост. `ExamResultView`: «N из M» (`quiz-score`), «Зачётный тест недели с …» (`quiz-scored`) или «Тренировочная попытка — не записана» (`quiz-practice`), «Без ответа: K»; кнопка «К готовности» (`quiz-readiness-btn`) ведёт на экран и после зачётного теста перечитывает стор «Сегодня».
+
 ## 6. Режим «Exam»
 
 ### 6.1 Состояние
@@ -531,7 +541,7 @@ interface ExamState {
 }
 ```
 
-> Устарело: схема MVP. Актуальное состояние — `stores/exam.ts`: `status` (`idle` / `joining` / `loading` / `answering` / `submitting` / `feedback` / `finished` / `closed` / `error`), `mode` (`group_exam` | `personal_mock`), `mockResult` и итоги (`finalScore`, `finalRank`, `leaderboard`).
+> Устарело: схема MVP. Актуальное состояние — `stores/exam.ts`: `status` (`idle` / `joining` / `loading` / `answering` / `submitting` / `feedback` / `finished` / `closed` / `error`), `mode` (`group_exam` | `personal_mock` | `level_quiz`), `mockResult`, `quizResult` и итоги (`finalScore`, `finalRank`, `leaderboard`).
 
 ### 6.2 Таймер
 - Глобальный таймер до `endsAt` (MM:SS).
@@ -554,6 +564,7 @@ interface ExamState {
 - Флаг, «Итоги экзамена» («Итоги пробного теста») и карточка «Ваш результат»: очки крупно и чип «Место 3 из 14» (пока итоги считаются — «Результаты ещё считаются…»).
 - Групповой экзамен: «Топ участников» — сгруппированный список (у первых трёх медали).
 - Пробный тест: вместо очков процент, «N из M · P%», «Без ответа: K», процентиль среди результатов по курсу за 90 дней (или «первый результат — сравнить пока не с чем») и число попыток.
+- Тест недели (`?mode=quiz`, §5c): «N из M», зачётный или тренировочный, кнопка «К готовности».
 - Кнопки внизу: «Закрыть» (`btn-primary`) и, у пробного теста, «К курсам» (`btn-tinted`).
 
 ## 7. TTS (useTts)

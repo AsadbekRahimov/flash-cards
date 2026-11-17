@@ -29,6 +29,9 @@ const exam = useExamStore()
 // A personal IELTS / SAT mock (docs/13 §8.4) is reached from the course screen with `?mode=mock`:
 // one timer for the whole exam, no per-question countdown, and its own "time is over" screen.
 const isMock = computed((): boolean => route.query.mode === 'mock' || exam.mode === 'personal_mock')
+// The test of the week (docs/04 A.20) is reached from the readiness screen with `?mode=quiz`; it plays like a mock.
+const isQuiz = computed((): boolean => route.query.mode === 'quiz' || exam.mode === 'level_quiz')
+const singleTimer = computed((): boolean => isMock.value || isQuiz.value)
 const { close, haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
@@ -106,7 +109,7 @@ async function begin(): Promise<void> {
   try {
     await auth.ensure({ type: 'exam', sessionId })
     if (left || sequence !== beginSequence) return
-    await exam.join(sessionId, route.query.mode === 'mock' ? 'personal_mock' : 'group_exam')
+    await exam.join(sessionId, route.query.mode === 'mock' ? 'personal_mock' : route.query.mode === 'quiz' ? 'level_quiz' : 'group_exam')
   } catch (err) {
     // join() handles its own errors; this is an auth failure.
     if (!left && sequence === beginSequence) exam.handleApiError(err)
@@ -128,7 +131,7 @@ onBeforeUnmount(() => {
 
 // Restart per-question timer whenever a fresh question arrives (a mock has only the overall timer).
 watch(currentQuestion, (q) => {
-  if (q !== null && status.value === 'answering' && !isMock.value) {
+  if (q !== null && status.value === 'answering' && !singleTimer.value) {
     questionTimer.start(Math.min(secondsPerQuestion.value, q.seconds_left))
   }
 })
@@ -192,7 +195,8 @@ function onRetry(): void {
         {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
       </span>
       <div class="flex justify-end">
-        <span v-if="isMock" class="chip chip-accent" data-testid="mock-header">{{ t('exam.mock_header') }}</span>
+        <span v-if="isQuiz" class="chip chip-accent" data-testid="quiz-header">{{ t('exam.quiz_header') }}</span>
+        <span v-else-if="isMock" class="chip chip-accent" data-testid="mock-header">{{ t('exam.mock_header') }}</span>
         <span v-else class="chip chip-warning tabular-nums" data-testid="score">
           <AppIcon name="star" solid :size="14" />{{ totalScore }}
         </span>
@@ -203,18 +207,18 @@ function onRetry(): void {
 
     <ClosedState
       v-else-if="status === 'closed'"
-      :icon="isMock ? 'clock' : 'lock-closed'"
-      :title="isMock ? t('exam.mock_closed_title') : t('exam.closed_title')"
-      :text="isMock ? undefined : errorMessage"
+      :icon="singleTimer ? 'clock' : 'lock-closed'"
+      :title="isQuiz ? t('exam.quiz_closed_title') : isMock ? t('exam.mock_closed_title') : t('exam.closed_title')"
+      :text="singleTimer ? undefined : errorMessage"
     >
       <button
-        v-if="isMock"
+        v-if="singleTimer"
         type="button"
         class="btn btn-primary btn-block"
-        data-testid="mock-results-btn"
+        :data-testid="isQuiz ? 'quiz-results-btn' : 'mock-results-btn'"
         @click="router.replace({ name: 'exam-result', params: { sessionId: props.sessionId } })"
       >
-        {{ t('result.mock_title') }}
+        {{ isQuiz ? t('result.quiz_title') : t('result.mock_title') }}
       </button>
       <button v-else type="button" class="btn btn-primary btn-block" data-testid="close-btn" @click="close()">
         {{ t('common.exit_app') }}
@@ -229,7 +233,7 @@ function onRetry(): void {
       style="padding-bottom: calc(1.5rem + var(--app-safe-b))"
     >
       <!-- The time left for the question (group exams only: a mock has one timer for the whole test). -->
-      <div v-if="!isMock" class="progress" aria-hidden="true">
+      <div v-if="!singleTimer" class="progress" aria-hidden="true">
         <div
           class="progress-fill duration-1000 ease-linear"
           :class="{ 'bg-danger': questionLow }"

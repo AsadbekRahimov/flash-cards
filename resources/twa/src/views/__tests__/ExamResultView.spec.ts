@@ -13,7 +13,7 @@ import type { AnyExamResultResponse, ExamResultResponse } from '@/api/types'
 // The group-exam result keeps its leaderboard.
 
 vi.mock('@/api', () => ({
-  api: { exam: { result: vi.fn(), join: vi.fn(), question: vi.fn(), answer: vi.fn(), openMock: vi.fn() } },
+  api: { exam: { result: vi.fn(), join: vi.fn(), question: vi.fn(), answer: vi.fn(), openMock: vi.fn() }, today: { get: vi.fn() } },
 }))
 
 const state = vi.hoisted(() => ({ close: vi.fn() }))
@@ -33,6 +33,7 @@ async function render(result: AnyExamResultResponse | Error) {
     history: createMemoryHistory(),
     routes: [
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/courses/:slug/readiness', name: 'readiness', component: { template: '<div />' } },
       { path: '/exam/:sessionId(\\d+)/result', name: 'exam-result', component: { template: '<div />' } },
     ],
   })
@@ -218,6 +219,61 @@ describe('ExamResultView', () => {
     const { wrapper } = await render(group())
 
     expect(wrapper.find('[data-testid=result-error]').exists()).toBe(false)
+  })
+
+  describe('test of the week', () => {
+    const quiz = (overrides: Record<string, unknown> = {}): AnyExamResultResponse => ({
+      mode: 'level_quiz', correct: 8, total: 12, answered: 11, percent: 66, scored: true,
+      week_start: '2026-11-16', course_id: 3, course_slug: 'english-a1-a2', ...overrides,
+    }) as AnyExamResultResponse
+
+    it('shows "N of M" and that the scored test of the week was recorded', async () => {
+      const { wrapper } = await render(quiz())
+
+      expect(wrapper.get('[data-testid=result-title]').text()).toBe('Итоги теста недели')
+      expect(wrapper.get('[data-testid=quiz-score]').text()).toBe('8 из 12')
+      expect(wrapper.get('[data-testid=quiz-unanswered]').text()).toBe('Без ответа: 1')
+      expect(wrapper.get('[data-testid=quiz-scored]').text()).toContain('Зачётный тест недели')
+      expect(wrapper.find('[data-testid=leaderboard]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=mock-result]').exists()).toBe(false)
+    })
+
+    it('says a practice attempt was not recorded', async () => {
+      const { wrapper } = await render(quiz({ scored: false, answered: 12 }))
+
+      expect(wrapper.get('[data-testid=quiz-practice]').text()).toBe('Тренировочная попытка — не записана')
+      expect(wrapper.find('[data-testid=quiz-unanswered]').exists()).toBe(false)
+    })
+
+    it('leads back to the readiness screen of the course and refreshes Home after a scored test', async () => {
+      vi.mocked(api.today.get).mockResolvedValue({} as never)
+      const { wrapper, router } = await render(quiz())
+
+      await wrapper.get('[data-testid=quiz-readiness-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.today.get).toHaveBeenCalledTimes(1)
+      expect(router.currentRoute.value.name).toBe('readiness')
+      expect(router.currentRoute.value.params.slug).toBe('english-a1-a2')
+    })
+
+    it('does not refresh Home after a practice attempt', async () => {
+      const { wrapper, router } = await render(quiz({ scored: false }))
+
+      await wrapper.get('[data-testid=quiz-readiness-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.today.get).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('readiness')
+    })
+
+    it('renders Uzbek texts', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(quiz())
+
+      expect(wrapper.get('[data-testid=quiz-score]').text()).toBe('12 tadan 8 ta')
+      expect(wrapper.get('[data-testid=quiz-readiness-btn]').text()).toBe('Tayyorlikka')
+    })
   })
 
   it('renders Uzbek texts', async () => {

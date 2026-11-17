@@ -1,13 +1,16 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import {
+  isLevelQuizResult,
   isMockExamResult,
   type ExamAnswerResponse,
   type ExamLeaderboardEntry,
   type ExamMode,
   type ExamQuestionResponse,
+  type LevelQuizResultResponse,
   type MockExamResultResponse,
 } from '@/api/types'
 
@@ -51,12 +54,19 @@ export interface ExamStoreState {
   leaderboard: ExamLeaderboardEntry[]
   /** Result of a personal mock (null for group exams). */
   mockResult: MockExamResultResponse | null
+  /** Result of the test of the week (null otherwise). */
+  quizResult: LevelQuizResultResponse | null
 
   // Opening a personal mock from the course screen
   openingMock: boolean
   /** The server refused the mock with the Pro paywall reason. */
   mockPaywall: boolean
   mockError: string
+
+  // Opening the test of the week from the readiness screen
+  openingQuiz: boolean
+  /** Why the test could not be opened (localized); '' = no failure. */
+  quizError: string
 }
 
 export const useExamStore = defineStore('exam', {
@@ -83,14 +93,20 @@ export const useExamStore = defineStore('exam', {
     totalParticipants: 0,
     leaderboard: [],
     mockResult: null,
+    quizResult: null,
 
     openingMock: false,
     mockPaywall: false,
     mockError: '',
+    openingQuiz: false,
+    quizError: '',
   }),
 
   getters: {
     isMock: (s): boolean => s.mode === 'personal_mock',
+    isQuiz: (s): boolean => s.mode === 'level_quiz',
+    /** One timer for the whole test (a mock and the test of the week), no per-question countdown. */
+    singleTimer: (s): boolean => s.mode === 'personal_mock' || s.mode === 'level_quiz',
   },
 
   actions: {
@@ -116,6 +132,32 @@ export const useExamStore = defineStore('exam', {
       } finally {
         this.openingMock = false
       }
+    },
+
+    /**
+     * Opens (or resumes) the test of the week of a course; returns the session id to navigate to, null when refused
+     * (`quizError` says why: too few words / answer options, the feature off).
+     */
+    async openLevelQuiz(slug: string): Promise<number | null> {
+      if (this.openingQuiz) return null
+      this.openingQuiz = true
+      this.quizError = ''
+      try {
+        const res = await api.exam.openLevelQuiz(slug)
+        return res.session_id
+      } catch (err) {
+        // Too little material is explained in the words of the test of the week; the rest by the usual error codes.
+        if (err instanceof ApiClientError && err.code === 'not_enough_words') this.quizError = t('readiness.not_enough_words')
+        else if (err instanceof ApiClientError && err.code === 'not_enough_distractors') this.quizError = t('readiness.not_enough_distractors')
+        else this.quizError = errorMessage(err, 'exam')
+        return null
+      } finally {
+        this.openingQuiz = false
+      }
+    },
+
+    clearQuizError(): void {
+      this.quizError = ''
     },
 
     dismissMockPaywall(): void {
@@ -233,6 +275,15 @@ export const useExamStore = defineStore('exam', {
       try {
         const res = await api.exam.result(this.sessionId)
         if (generation !== this.generation) return
+        if (isLevelQuizResult(res)) {
+          this.mode = 'level_quiz'
+          this.quizResult = res
+          this.finalScore = res.correct
+          this.finalRank = null
+          this.totalParticipants = 0
+          this.leaderboard = []
+          return
+        }
         if (isMockExamResult(res)) {
           this.mode = 'personal_mock'
           this.mockResult = res
@@ -275,6 +326,7 @@ export const useExamStore = defineStore('exam', {
       this.totalParticipants = 0
       this.leaderboard = []
       this.mockResult = null
+      this.quizResult = null
     },
 
     applyQuestion(question: ExamQuestionResponse): void {

@@ -27,7 +27,7 @@ use Tests\Support\QueryLog;
 uses(RefreshDatabase::class);
 
 /** The statements of the hub (the same number as the budget of PracticeQueryBudgetTest). */
-const PARITY_BUDGET_HUB = 9;
+const PARITY_BUDGET_HUB = 10;
 
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-10-30 10:00:00');

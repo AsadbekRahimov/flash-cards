@@ -182,9 +182,10 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
 })->with([
-    'never studied' => ['never studied', 6],
-    'living series' => ['living series', 6],
-    'lapsed series' => ['lapsed series', 7],
+    // +1 each: the candidates of the round of hard words (docs/06 §14).
+    'never studied' => ['never studied', 7],
+    'living series' => ['living series', 7],
+    'lapsed series' => ['lapsed series', 8],
 ]);
 
 it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (): void {
@@ -192,7 +193,7 @@ it('writes nothing for a Pro learner whose week was handled, and shares today\'s
     $steady = todayStreakStatements($this, $handled);
 
     // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing; R12i: 10 -> 5.
-    expect(count($steady))->toBeLessThanOrEqual(5)
+    expect(count($steady))->toBeLessThanOrEqual(6) // 5 + the candidates of the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($steady, '/^(insert|update|delete)/'))->toBe([])
         ->and(QueryLog::matching($steady, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1);
 
@@ -200,7 +201,7 @@ it('writes nothing for a Pro learner whose week was handled, and shares today\'s
     $first = todayStreakStatements($this, $monday, fn (Learner $l) => $l->forceFill(['streak_freezes' => 1, 'streak_freezes_refilled_on' => '2026-10-12'])->save());
 
     // Before: 14 statements - today's row was read for the settle and again for the goal block; R12i: 13 -> 8.
-    expect(count($first))->toBeLessThanOrEqual(8)
+    expect(count($first))->toBeLessThanOrEqual(9) // 8 + the candidates of the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($first, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
         ->and(QueryLog::matching($first, '/^update ["`]learners["`] set ["`]streak_freezes["`] = ["`]streak_freezes["`] \+ 1/'))->toHaveCount(1)
         ->and(todayStreakStored($monday)['freezes'])->toBe(2);

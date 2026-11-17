@@ -181,7 +181,6 @@ it('takes surrender only with `confirm: true`: a body without it is 422 and the 
     expect(Battle::query()->count())->toBe(1);
 });
 
-
 it('refuses to invite to the clock mode and leaves it out of the options: a game against the clock is solo only', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
 

@@ -195,6 +195,21 @@ return [
     ],
 
     /**
+     * The round of hard words (`hard_review`, docs/06 §14): an occasional round of the words the learner stumbles on - `words` of
+     * them at most, offered when at least `min_words` qualify, `per_day` times a local day. A word qualifies when it was released
+     * (`review` / `relearning`), is hard (`is_hard`) or failed `lapses_from` times or more, and was not graded today. The answers
+     * are real repetitions (SM-2 / FSRS untouched); the words are brought to "due now" when the round opens. `enabled = false`:
+     * no block on "Today", no offer after a session, opening is refused (a round already open is played on).
+     */
+    'hard_round' => [
+        'enabled' => (bool) env('LEARNING_HARD_ROUND_ENABLED', true),
+        'words' => (int) env('LEARNING_HARD_ROUND_WORDS', 10),
+        'min_words' => (int) env('LEARNING_HARD_ROUND_MIN_WORDS', 8),
+        'per_day' => (int) env('LEARNING_HARD_ROUND_PER_DAY', 1),
+        'lapses_from' => (int) env('LEARNING_HARD_ROUND_LAPSES_FROM', 2),
+    ],
+
+    /**
      * The stages of a word as the learner sees them (docs/06 §13.3), from the row of `word_repetitions`:
      *   new      — met, not graduated yet (state new / learning);
      *   learning — graduated, interval below `known_from_interval_days` (and a lapsed card in relearning);

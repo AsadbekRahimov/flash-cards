@@ -111,6 +111,13 @@ final class TrainingFlowService
             return new TrainingStart($session, null, $this->sprint->enabled ? $step->progress['total'] : $goal, $step);
         }
 
+        if ($session->mode === TrainingSession::MODE_HARD_REVIEW) {
+            $step = $this->nextStep($session, $learner);
+
+            // `total_words` of a round of hard words: the size of its set (the progress counts the words won).
+            return new TrainingStart($session, null, $step->progress['total'], $step);
+        }
+
         // The lesson with its stage and the access facts of its course in ONE query (not lesson, stage, course
         // one after another): what the response shows (stage number, lesson, own-deck title) and nothing more.
         if ($lesson === null || (int) $lesson->id !== (int) $session->lesson_id || ! $lesson->relationLoaded('stage')) {
@@ -152,6 +159,7 @@ final class TrainingFlowService
             (int) $session->id,
             $scope->isLesson() ? (int) $scope->lessonId : null,
             $sprintOn ? ['started_at' => $startedAt, 'due_cap' => $this->sprint->dueCards, 'now' => $now] : null,
+            $scope->isHard(),
         );
         $reviewCount = $counts['reviews'];
         $limits = null;
@@ -168,6 +176,8 @@ final class TrainingFlowService
         }
 
         $progress = match (true) {
+            // The round of hard words: the words WON (the last grade of the word in the session is a pass) of the fixed set.
+            $scope->isHard() => ['done' => $counts['hard_won'], 'total' => count($scope->wordIds)],
             $sprintOn => ['done' => $reviewCount, 'total' => $reviewCount],
             $scope->isDaily() => ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)],
             default => ['done' => (int) $counts['done'], 'total' => $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId)],
@@ -175,7 +185,8 @@ final class TrainingFlowService
 
         // Group lessons are outside the Free quota (docs/12 §5.3); same lock order either way —
         // the budget is resolved before the picker's transaction.
-        $budget = $scope->isGroupLesson() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now, $entitlement);
+        // The round of hard words introduces no new word: no budget, the quota of Free is neither read nor spent.
+        $budget = $scope->isGroupLesson() || $scope->isHard() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now, $entitlement);
 
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
             $this->completed($session, $reviewCount, $now);
@@ -289,7 +300,7 @@ final class TrainingFlowService
      * costs, and the grades the cards in minute steps still need. The estimate never falls below `done`, so the bar never
      * shows "35 / 20"; a failed step adds its repeat to `total`, an "already knew it" takes a step away from it.
      *
-     * @param  array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int}  $counts  counted BEFORE the pick
+     * @param  array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int, hard_won:int}  $counts  counted BEFORE the pick
      * @param  int|null  $quotaRemaining  the day's new cards left after this pick; null = unlimited; 0 when the scope has no
      *                                    source of new words (a daily session without a course)
      * @return array{done:int, total:int}

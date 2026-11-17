@@ -859,6 +859,11 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     /** @var Migration $inSteps */
     $inSteps = require base_path('database/migrations/2026_11_17_100002_add_word_repetitions_in_steps_idx.php');
 
+    // The same for the partial index on `lapses` of the round of hard words (2026_11_18_300002).
+    /** @var Migration $hardIdx */
+    $hardIdx = require base_path('database/migrations/2026_11_18_300002_add_word_repetitions_hard_idx.php');
+
+    $hardIdx->down();
     $inSteps->down();
     $migration->down();
     expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeFalse();
@@ -880,8 +885,9 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
 
     $migration->up();
     $inSteps->up();
+    $hardIdx->up();
     expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeTrue()
-        ->and(array_column(Schema::getIndexes('word_repetitions'), 'name'))->toContain('word_repetitions_in_steps_idx');
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'name'))->toContain('word_repetitions_in_steps_idx', 'word_repetitions_hard_idx');
 
     $states = WordRepetition::query()->where('learner_id', $s['learner']->id)->pluck('state', 'word_id');
     expect($states[$graduated])->toBe(RepetitionState::Review)

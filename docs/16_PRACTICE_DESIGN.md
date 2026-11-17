@@ -36,7 +36,7 @@
 - `ApiErrorResource::respond(…, array $details = [])`: `details` лежит внутри `error` и появляется только у кодов, где он описан (`docs/04` A.6, закреплено `PracticeContractTest`); `answer_already_accepted` в соло отдаёт `{verdict}`, в баттле — ещё `points`.
 - Контракт `finish.practice_entry` закреплён в `TwaContractTest` (а не в `PracticeContractTest`, как предполагал §14.1) и в `PracticeEntryTest` (варианты, цена в запросах).
 - Вход «Практика урока» в строке урока (§11.1) стоит в конце строки прогресса, а не второй кнопкой рядом с «Учить» (подробности — «Реализация 18.7b»).
-- Бюджеты запросов (§13) выдержаны (`PracticeQueryBudgetTest`: хаб ≤ 9, открытие ≤ 12, показ ≤ 3, ответ ≤ 6, аудио ≤ 2); `finish` с записью `practice_entry` — на один запрос больше. С 18.9b: последний ответ сессии ≤ 7 и замена диктанта ≤ 7 (`DictationSessionTest`), открытие повтора ≤ 13 (`PracticeRetryTest`) — хаб остался на 9.
+- Бюджеты запросов (§13) выдержаны (`PracticeQueryBudgetTest`: хаб ≤ 9, открытие ≤ 12, показ ≤ 3, ответ ≤ 6, аудио ≤ 2); `finish` с записью `practice_entry` — на один запрос больше. С 18.9b: последний ответ сессии ≤ 7 и замена диктанта ≤ 7 (`DictationSessionTest`), открытие повтора ≤ 13 (`PracticeRetryTest`) — хаб остался на 9. С «парами на время» (2026-11-17) хаб ≤ 10: +1 чтение личного рекорда.
 - Баттл (18.6): реванш идёт **без** `friendship_id` (`invite(?int $friendshipId, …, ?int $rematchOf)`); счёт участника растёт при разрешении раунда в той же транзакции, что и ответы (`finish()` без SUM; досрочный конец считает только разрешённые раунды); `meta` хранит `answered`, `rounds_played`, `left`, `voided_reason`, `audio_failed_by`, `audio_reports`; ответ во время отсчёта — 409 `round_not_open` (не `battle_wrong_state`); повтор `request_id` ответа отвечает прежним результатом и после закрытия раунда; дворник закрывает просроченные приглашения поштучным условным клеймом (точные события), бюджет sweep — `4 + 2 × просроченных + 7 × live`; опрос ≤ 3 запросов без перехода и ≤ 9 с переходом (на сервисах, без `learners` от `TwaAuth`). Read-модели несут поля, которые ждёт TWA 18.6-T: `opponent_absent_since`, `presence_grace_seconds`, `deadline_grace_ms`, `rematch {battle_id, status, by_me}`, `friendship_id`, `audio_preload` (room и countdown), `round` в отсчёте без фазы. Правила блокировок §9 проверены гонками (без `FOR UPDATE` падают 5 из 7 сценариев, два остальных держит unique `active_learner_id`).
 - Баттл (18.6b, HTTP): опрос и аудио — отдельные маршрутные группы вне `twa-api` (`twa-battle-poll` 90/мин, `twa-practice-audio` 60/мин), остальное — внутри `twa-api` плюс `twa-battle-action` / `twa-battle-invite` (+ `twa-practice-open`); отказанные приглашения тоже считаются. Id матча в маршруте — до 18 цифр (длиннее — 404 роутера, а не TypeError). Встречное приглашение друга — 409 `battle_busy` с id **его** приглашения; `rematch_of` не читает остальные поля тела;
   `surrender` требует `{confirm: true}`; 503 аудио баттла только сообщает о беде, аннулирует матч `audio-failed`; предупреждение «соперник молчит» — через 10 с (`presence_warn_seconds`), конец матча — по-прежнему через 30 с. `accept` не бросает `battle_friend_no_access` (его проверяет приглашение; принимающий без доступа получает 403 `practice_unavailable`). Тексты ЛС-приглашения — в `lang/{ru,uz}/battle.php`, отправка кнопки — не `immediate`.
@@ -50,8 +50,8 @@
 
 | Тема | Решение |
 |---|---|
-| Объём (этапы 0–7 docs/15 §6) | Четыре сольных режима (`pairs`, `collocation`, `sentence`, `dictation`), баттл 1 на 1 с другом, входы из курса / после занятия / из друзей, итоги, повтор ошибок, ru/uz, админ-редактор + JSON-импорт, пилотный контент, флаги. Этап 8 (публичный выпуск, тарифы) — не делаем |
-| Значения docs/15 §8 | Приняты все: самостоятельная практика без влияния на основное обучение; 3 темы A1–A2; пилот по флагу; соло без таймера; баттл — 5 раундов, лимиты раунда, без бонуса за скорость, ничья при равном счёте; два друга, один формат |
+| Объём (этапы 0–7 docs/15 §6) | Пять сольных режимов (`pairs`, `collocation`, `sentence`, `dictation` и «Пары на время» `pairs_timed`, §5.5a — только соло, баттлу недоступен: `PracticeMode::battleable()`), баттл 1 на 1 с другом, входы из курса / после занятия / из друзей, итоги, повтор ошибок, ru/uz, админ-редактор + JSON-импорт, пилотный контент, флаги. Этап 8 (публичный выпуск, тарифы) — не делаем |
+| Значения docs/15 §8 | Приняты все: самостоятельная практика без влияния на основное обучение; 3 темы A1–A2; пилот по флагу; соло без таймера (кроме «Пар на время»: там часы и счёт — серверные, §5.5a); баттл — 5 раундов, лимиты раунда, без бонуса за скорость, ничья при равном счёте; два друга, один формат |
 | Изоляция | Практика и баттл **не пишут** `word_repetitions`, `training_sessions`, `training_reviews`, `learner_daily_stats`, `learners.streak_*`/`streak_freezes`, лиги, `assignment_results`, `achievements`, квоту новых слов, `challenges`. Пишут только свои таблицы (§2) и `product_events` (§3.4). Инвариант закреплён тестом `PracticeIsolationTest` (§14) |
 | Домен | Один домен `app/Domain/Practice` (подпапки `Services/Modes`, `Services/Grading`, `Services/Battle`); тексты бота — `app/Domain/Telegram/Services/BattleMessenger`. Отдельный `app/Domain/Battle` отвергнут: баттл переиспользует материал, снимки и грейдеры режимов на уровне классов (§1.1) |
 | Контент | `practice_items` (задание, стабильный `key`) + append-only `practice_item_versions` (текст, **целевые слова, урок, уровень**, аудио) + `practice_item_words` (проекция целевых слов одной версии). Опубликованная версия выдаётся, пока правка (новая версия-черновик) не прошла «проверено → опубликовано»; слова, урок и уровень правки вступают в силу вместе с ней. Целевые слова обязательны (≥ 1) — правила «без целевых слов» нет (§4.2) |
@@ -407,13 +407,13 @@ final class BattleReader
 | id | bigint PK | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | владелец |
 | active_learner_id | bigint nullable **unique** | `= learner_id`, пока `status = active`; `NULL` после завершения — **«одна активная соло-сессия на ученика» как факт БД** (NULL не конфликтуют) |
-| mode | varchar(12) | `pairs` / `collocation` / `sentence` / `dictation` |
+| mode | varchar(12) | `pairs` / `collocation` / `sentence` / `dictation` / `pairs_timed` |
 | course_id | bigint FK → courses, ON DELETE CASCADE | |
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | |
 | source | varchar(16) | `hub` / `after_training` / `retry` / `deeplink` (откуда открыта; аналитика) |
 | retry_of_session_id | bigint nullable FK → practice_sessions, ON DELETE SET NULL | исходная сессия «Повторить ошибки» |
 | status | varchar(10) default 'active' | `active` / `finished` |
-| finish_reason | varchar(12) nullable | `completed` / `expired` / `replaced` (ученик начал новую с `replace_active`) |
+| finish_reason | varchar(12) nullable | `completed` / `expired` / `replaced` (ученик начал новую с `replace_active`) / `time_over` (вышли часы «Пар на время») |
 | snapshot | jsonb NOT NULL | выдача (§2.8); **серверный**, в ответы не попадает (Resource — белый список) |
 | state | jsonb NOT NULL default '{}' | прогресс по элементам (§6.2); меняется только под `FOR UPDATE` |
 | total | smallint | число элементов (пары — раундов) |
@@ -421,6 +421,8 @@ final class BattleReader
 | correct_first | smallint default 0 | верно с первой попытки (`typo` не считается) |
 | hints | smallint default 0 | «Не знаю» |
 | mismatches | smallint default 0 | пары: неверных сопоставлений |
+| score | smallint default 0 | `pairs_timed`: сопоставлено верно пар; меняет только ответ под `FOR UPDATE` строки (клиент счёт не присылает) |
+| deadline_at | timestamp(3) nullable | `pairs_timed`: `NULL`, пока не нажат `POST …/start`; затем `start + seconds`, неверное сопоставление сдвигает его на `mismatch_penalty_ms` раньше. Миллисекунды хранятся (cast `MillisecondDateTime`) |
 | locale | varchar(5) | язык текстов снимка (локаль ученика при создании) |
 | expires_at | timestamp NOT NULL | `now + practice.solo.session_ttl_hours` (24) |
 | started_at | timestamp NOT NULL | |
@@ -558,10 +560,25 @@ final class BattleReader
 | 5 | `2026_10_30_100005_add_open_pair_to_battles_table` (18.6-fix) | `battles.open_pair` nullable unique + PG CHECK `battles_open_pair_shape_check`; backfill нетерминальных строк (первый матч пары берёт ключ); `down()` — drop CHECK, unique, column |
 | 6 | `2026_10_30_100010_add_scope_to_practice_item_versions_table` | `practice_item_versions.target_word_ids` / `lesson_id` / `level` + backfill всех версий из их заданий (чанки по `chunkById`, query builder); на SQLite FK добавляется пересборкой таблицы, поэтому partial-индекс аудио снимается и ставится заново; `down()` — drop FK и три колонки |
 | 7 | `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` (18.11b) | индекс `practice_item_versions (lesson_id)` (внешний ключ версии на урок, `ON DELETE SET NULL`, без индекса); `down()` — drop index |
+| 8 | `2026_11_18_200001_add_timed_pairs_to_practice` | `practice_sessions.deadline_at` timestamp(3) nullable + `score` smallint default 0; PG: `practice_sessions_mode_check` пересоздан с `pairs_timed`; таблица `practice_records` (§2.10) с PG CHECK режима; `down()` — **отказывает** (RuntimeException), если есть строки `pairs_timed` (не терять данные молча), иначе drop таблицы, возврат CHECK к четырём режимам, drop колонок |
 
 Правила: новые forward-миграции (не правка на месте — прод-релиз был); `uuid` — `$table->uuid('request_id')` (на SQLite — `char(36)`); CHECK — только `if (DB::getDriverName() === 'pgsql')` (образец `2026_10_23_400001`); partial-индекс — raw `CREATE INDEX` для `pgsql`/`sqlite` (образец `2026_07_13_000002`). **На SQLite** инварианты «один активный» держат unique-колонки `active_learner_id` (работают везде), а CHECK-инварианты дублируются в сервисах (`assertShape`) и тестах.
 
 Отвергнуто: partial unique `(learner_id) WHERE status = 'active'` — на SQLite `ALTER TABLE` терял бы предикат при перестройке (прецедент 2D.4), unique-колонка проще и уже применяется (`challenges.open_pair`); FK `practice_items.current_version_id → versions` — цикл FK усложняет создание/`down()`, выигрыш нулевой (пишет один сервис).
+
+### 2.10 `practice_records` — личный рекорд
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| mode | varchar(12) | пока только `pairs_timed`; PG CHECK как у сессий |
+| best_score | smallint | лучший счёт |
+| best_session_id | bigint nullable FK → practice_sessions, ON DELETE SET NULL | сессия рекорда |
+| achieved_at | timestamp | |
+| created_at / updated_at | | |
+
+`unique (learner_id, mode)`. Пишет только `PracticeRecords::record()` **в транзакции, завершающей сессию** (`completed` / `time_over`; `expired` / `replaced` — игра не доиграна, рекорд не пишут), под `SELECT … FOR UPDATE` строки `(learner_id, mode)`: нет строки → INSERT (в savepoint; `UniqueConstraintViolation` при гонке → перечитать под замком), счёт строго больше → UPDATE, иначе ничего. Счёт 0 рекордом не считается и строки не создаёт. Не `learners.meta`: практика не пишет `learners`, а UPDATE этой строки из транзакции ответа взял бы её замок после `practice_sessions` — против §9. Порядок замков: `practice_sessions` → `practice_records` (правило 24, §9).
 
 ---
 
@@ -582,6 +599,7 @@ return [
         'collocation' => (bool) env('PRACTICE_MODE_COLLOCATION', true),
         'sentence' => (bool) env('PRACTICE_MODE_SENTENCE', true),
         'dictation' => (bool) env('PRACTICE_MODE_DICTATION', true),
+        'pairs_timed' => (bool) env('PRACTICE_MODE_PAIRS_TIMED', true),
     ],
     'battle' => [
         'enabled' => (bool) env('PRACTICE_BATTLE', true),
@@ -598,6 +616,7 @@ return [
         'items' => ['size' => 5, 'min' => 3],
         'pairs' => ['rounds' => 3, 'per_round' => 4, 'min_per_round' => 3],
         'dictation' => ['max_replacements' => 2, 'phrases_max' => 3],
+        'pairs_timed' => ['seconds' => 60, 'rounds' => 10, 'per_round' => 4, 'min_words' => 8, 'mismatch_penalty_ms' => 2000, 'grace_ms' => 1500],
     ],
     'content' => [
         'sentence_fragments' => ['min' => 3, 'max' => 8], 'sentence_accepted_max' => 6, 'fragment_max_length' => 40,
@@ -747,6 +766,10 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 { "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }
 ```
 `reason`: `no_words` (введённых слов меньше минимума; у диктанта — и когда озвученные слова уже есть, но вместе с фразами их меньше минимума: ещё одно выученное слово откроет режим, поэтому карточка говорит «изучено слов: N из M» и предлагает «Учить урок», а не «заданий нет»), `ambiguous` (слов хватает, но после исключения неоднозначных — нет), `no_items` (опубликованных заданий типа меньше минимума и «запертые» их не дополнят), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с «запертыми» хватило бы — выучите слова урока), `audio_pending` (заданий хватает, но аудио не готово), `no_audio_words` (диктант слов: нет слов с готовой озвучкой). TWA по `reason` + `lesson_id` объясняет причину и предлагает «Учить урок» (`POST /training/sessions {mode: lesson, lesson_id}`) либо другой урок.
+
+### 4.3a Материал «Пар на время» (`pairs_timed`)
+
+Слова — те же, что у `pairs` (§4.1, `introducedWords`: введённые ученику, активные, курс / урок), годные — с английским текстом и вариантом перевода в каждой локали снимка (`PairsMode::candidate`). Годных должно быть не меньше `max(min_words, per_round)` (8), иначе 422 `practice_not_enough_material` `reason = no_words`, `required = 8`; хватает слов, но они не складываются в раунд (все переводы совпадают) — `ambiguous`. Снимок — `rounds` (10) раундов по ровно `per_round` (4): цикл за циклом все годные слова раскладываются `PairsPacker` под seed цикла (`{seed}`, затем `{seed}:cycle:{k}`) без коллизий переводов, пока раундов не набралось: при 8 словах каждое встречается в 5 раундах — между раундами слова повторяются, внутри раунда никогда. Размер: ≤ 10 × 4 пар одной локали; слова на пределах колонок (100 / 500 символов) не помещаются в `Snapshot::MAX_BYTES` с запасом четверти, поэтому сборка **укорачивает игру** (меньше 10 раундов, `rounds` в каждом раунде — реальное число): снимок, который нельзя открыть, хуже короткой игры. Обычные слова (десятки байт) дают весь комплект из 10 раундов (~11 КБ). `SnapshotSizeTest` это закрепляет. Баттл режим не предлагает (`PracticeMode::battleable()`; `BattleInviteRequest` → 422, `BattleReader::options` его пропускает).
 
 ### 4.4 Однозначность пар
 
@@ -945,6 +968,19 @@ Seed создаётся вызывающим (`PracticeSessionService`, `BattleS
 - Запасного пула у пар нет (`pool` не пишется: замены для пар не существует). Если все строки доски случайно оказались напротив своих переводов, правая колонка сдвигается на одну позицию (циклический сдвиг целой колонки не бывает соответствием).
 - Итог сессии: слово из `wrong_left` — ошибка с вердиктом `wrong` в `mistakes[]`, хотя раунд хранится как пройденный (поправка ядра в `PracticeSessionService::summary`); на нём же строится «Повторить ошибки» (слова `wrong_left`, не меньше раунда).
 
+### 5.5a «Пары на время» (`pairs_timed`): часы и счёт — серверные
+
+Доска, `PairsGrader::gradeChoice` и защита от раскрытия те же, что у `pairs`: клиент получает `left`/`right` карточки и `matched`; таблица `pairs` и `word_id` из ответа вычищаются (`PracticeSessionResource::NEVER_SHOWN`), неверное сопоставление не раскрывает верное (`reveal: null`). Подбор перебором стоит времени (штраф), а не безвозмездный, как в `pairs`.
+
+- **Старт часов.** `POST /practice/sessions` создаёт сессию с `deadline_at = NULL`, `score = 0` (ответ: `timed.started = false`). `POST /practice/sessions/{id}/start` под `FOR UPDATE`: `deadline_at = now + seconds` (60 с), в `state.timed` — `started_at`; повтор (вторая вкладка, потерянный ответ) возвращает тот же `deadline_at`. Не `pairs_timed` → 409 `practice_not_timed`, завершена → 410, чужая → 404. Таймер не от открытия (загрузка экрана съела бы секунды) и не от первого ответа.
+- **Ответ** (`PracticeSessionService::answer` → `timedGate` → `accept`), после повтора `request_id` и `refuseEnded`: `deadline_at IS NULL` → 409 `practice_not_started`; `now > deadline_at + grace_ms` (1500) → сессия закрывается `time_over` **в этой же транзакции** (рекорд пишется), ошибка 409 `practice_time_over` `details {score}` бросается после commit; иначе оценка: верно → `score + 1`; неверно → `deadline_at −= mismatch_penalty_ms` (2000) — **штраф временем**, не очками (слепой перебор иначе обгонял бы честную игру), `mismatches + 1`. Тело ответа получает `penalty_ms` (2000 или 0). Повтор `request_id` отдаёт сохранённый результат, штраф второй раз не берётся; два разных неверных ответа в двух вкладках — два штрафа. Все 10 раундов собраны до дедлайна → `completed`.
+- **Счёт и дедлайн меняет только `accept()` под замком.** Клиент шлёт лишь `{left_id, right_id}` непрозрачных id; поля `score` / `deadline_at` в теле игнорируются. Потолок скорости — лимитер `twa-practice-answer` 90/мин.
+- **Закрытие по часам.** Лениво: `find()` / `activeFor()` / `open()` / `start()` закрывают игру с `deadline_at + grace < now` в транзакции с перечитыванием под замком (`closeTimeOver`; счёт — последний, закрывает ровно один вызов, событие `practice.session_finished` с `reason = time_over`, `score`, `deadline_at` — одно). Планировщик `practice:close-expired` после обычного `expires_at` закрывает и такие игры. `open()` не упирается в 409 `practice_session_active` на игру, у которой часы вышли.
+- **Рекорд** — §2.10; пишется в транзакции финализации (`completed`, `time_over`).
+- **Лимит Free.** Игра — обычная соло-сессия: берёт место в `PRACTICE_FREE_SESSIONS_PER_DAY`; «Повторить ошибки» нет (`retry_available: false`, `retry_of` → 409 `retry_not_available`), «Ещё раз» — новая сессия (тоже место дня).
+- **Очки рейтинга** — нет (практика не пишет `learner_daily_stats`, §0; 90 пар/мин были бы накруткой). Рекорд — личный.
+- **Итог** (§6.4): `{total: 10, answered, correct_first, typos: 0, hints: 0, mismatches, duration_ms (сыгранные мс: от старта часов до min(конец, дедлайн)), finish_reason, retry_available: false, mistakes: [], score, best_score, is_record}`; `is_record` фиксируется при финализации в `state.timed.is_record`, `best_score` — рекорд на момент чтения (один запрос).
+
 ---
 
 ## 6. Жизненный цикл сольной сессии
@@ -957,7 +993,9 @@ Seed создаётся вызывающим (`PracticeSessionService`, `BattleS
                                       │  expires_at <= now (planировщик practice:close-expired каждые 15 мин,
                                       │  либо лениво при любом обращении)      ──► finished/expired
                                       │  POST /practice/sessions {replace_active: true} другой/той же практики
-                                      └──────────────────────────────────────────► finished/replaced
+                                      ├──────────────────────────────────────────► finished/replaced
+                                      │  pairs_timed: POST …/start → deadline_at; deadline_at + grace <= now (ответ, чтение, планировщик)
+                                      └──────────────────────────────────────────► finished/time_over (рекорд)
 ```
 
 - **Одна активная на ученика** — `active_learner_id` unique. `open()` в транзакции: `SELECT … WHERE active_learner_id = :me FOR UPDATE` → есть и не просрочена → без `replace_active` → 409 `practice_session_active` (details `{session_id, mode, course, course_title, lesson_id, lesson, progress}`); с флагом → `finished/replaced` (+ `active_learner_id = NULL`, событие `practice.session_finished{reason: replaced}`); просрочена → `finished/expired`; затем `INSERT` новой. `UniqueConstraintViolationException` (гонка двух вкладок) → повторное чтение активной строки ученика и ответ ею (как `openPersonal`). Нельзя вызывать внутри внешней транзакции.
@@ -1035,14 +1073,16 @@ afterCommit: product_events (session_finished при завершении)
     { "mode": "pairs", "state": "available", "available": 14, "required": 3, "reason": null, "estimate_seconds": 120 },
     { "mode": "collocation", "state": "not_enough", "available": 1, "required": 3, "reason": "no_items", "estimate_seconds": 90 },
     { "mode": "sentence", "state": "disabled", "available": 0, "required": 3, "reason": null, "estimate_seconds": 150 },
-    { "mode": "dictation", "state": "available", "available": 7, "required": 3, "reason": null, "estimate_seconds": 180 }
+    { "mode": "dictation", "state": "available", "available": 7, "required": 3, "reason": null, "estimate_seconds": 180 },
+    { "mode": "pairs_timed", "state": "available", "available": 12, "required": 8, "reason": null, "estimate_seconds": 60,
+      "record": { "score": 28, "achieved_at": "2026-11-17T09:00:00.000Z" } | null }
   ],
   "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
                       "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } } | null,
   "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 },
   "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "…" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "…" } } | null }
 ```
-`state`: `available` / `not_enough` / `disabled` / `pro_required`. Поле `available` при `state = available` — «не меньше»: курс считается по выборке до `practice.count_sample` (300) слов, чтобы не грузить весь курс ради экрана; при `not_enough` число (и `reason`) точное — режим, которому на выборке не хватило, пересчитывается по всем словам. `limits` — лимиты Free на сегодня (§3.3, G1; `null` у Pro и за пейволом). Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
+Ключ `record` есть только у строки `pairs_timed` (личный рекорд — один запрос к `practice_records`, пропускается за paywall'ом). `state`: `available` / `not_enough` / `disabled` / `pro_required`. Поле `available` при `state = available` — «не меньше»: курс считается по выборке до `practice.count_sample` (300) слов, чтобы не грузить весь курс ради экрана; при `not_enough` число (и `reason`) точное — режим, которому на выборке не хватило, пересчитывается по всем словам. `limits` — лимиты Free на сегодня (§3.3, G1; `null` у Pro и за пейволом). Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
 
 `active_session` называет место сессии и id, и словами (М4 повторного ревью; `PracticeSessionService::activeSummary`): `course_title` — название курса на языке сессии (иначе любой язык снимка, иначе slug), `lesson` — `{stage, number, title}` либо `null`
 (практика курса; снимок без названий; часть, которой у урока нет, — `null`). Всё берётся из снимка, который `activeSummary` и так разбирает ради slug: ни одного запроса сверх бюджета хаба. Те же поля — в `details` 409 `practice_session_active` (`session_id` вместо `id`).
@@ -1053,7 +1093,7 @@ afterCommit: product_events (session_finished при завершении)
 ```json
 { "mode": "pairs", "course": "english-a1", "lesson_id": 41, "source": "hub", "replace_active": false, "retry_of": null }
 ```
-`mode` ∈ 4; `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionOpenedResource` — сессия как в `GET` плюс `limits` (§3.3, значение после открытия; `null` у Pro). Ошибки: 403 `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (G1, details `{kind: sessions, limit, used, resets_at}`; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются как сессия); 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
+`mode` ∈ 5 (`pairs`, `collocation`, `sentence`, `dictation`, `pairs_timed`); `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionOpenedResource` — сессия как в `GET` плюс `limits` (§3.3, значение после открытия; `null` у Pro). Ошибки: 403 `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (G1, details `{kind: sessions, limit, used, resets_at}`; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются как сессия); 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
 
 **`GET /practice/sessions/{id}`** — `PracticeSessionResource`:
 ```json
@@ -1063,14 +1103,18 @@ afterCommit: product_events (session_finished при завершении)
   "expires_at": "2026-10-31T10:00:00.000Z", "server_now": "2026-10-30T10:00:05.321Z",
   "current": { "id": "eK7qM2x9Ab", "kind": "sentence", "prompt": "Моя мама — учитель.",
                "fragments": [ { "id": "fQ1…", "text": "teacher" }, { "id": "fW2…", "text": "My" }, … ] } | null,
-  "summary": null }
+  "summary": null,
+  "timed": { "seconds": 60, "deadline_at": "2026-11-18T10:01:00.000Z" | null, "started": true, "score": 7, "penalty_ms": 2000 } | null }
 ```
-Формы `current` по режиму:
+`timed` — только у `pairs_timed` (у остальных режимов `null`): `deadline_at` — серверный дедлайн (`null` до `start`), сдвигается раньше после каждого неверного сопоставления; осталось `deadline_at − server_now` (оба из одного ответа; клиент считает по своим часам от этой разности); `penalty_ms` — штраф одной ошибки из конфига. 201 открытия несёт то же.
+Формы `current` по режиму (для `pairs_timed` — `pairs_round` с `rounds: 10`, `progress` — собранные раунды):
 - `pairs_round`: `{ "id", "kind": "pairs_round", "round": 2, "rounds": 3, "left": [{id, text}], "right": [{id, text}], "matched": [["lM…","rT…"]], "mismatches": 1 }`;
 - `collocation`: `{ "id", "kind": "collocation", "text": "Let's ___ a meeting on Monday.", "options": [{id, text} ×3] }`;
 - `sentence`: как выше;
 - `dictation`: `{ "id", "kind": "dictation", "source": "phrase", "audio_url": "/api/twa/practice/sessions/77/audio/eD4…", "words": 3, "replacements_left": 2 }` — текста нет; `words` — число слов (для пустых плашек), не буквы.
 `status = finished` → `current: null`, `summary` (§6.4). Ошибки: 404 `practice_session_not_found`.
+
+**`POST /practice/sessions/{id}/start`** (`twa-api` + `twa-practice-answer`; без тела) — `pairs_timed`: запускает часы (§5.5a), 200 `PracticeSessionResource` с `timed.deadline_at` и `server_now`; повтор — тот же `deadline_at`. Ошибки: 404, 410 `practice_session_closed`, 409 `practice_not_timed`.
 
 **`POST /practice/sessions/{id}/answer`** (лимитеры `twa-api` + `twa-practice-answer` 90/мин) — тело:
 ```json
@@ -1084,7 +1128,7 @@ afterCommit: product_events (session_finished при завершении)
   "pair": null,
   "session": { "...PracticeSessionResource..." } }
 ```
-Пары: `verdict` `correct|wrong`, `pair: {left_id, right_id}`, `reveal: null`, `round_done: bool`. Ошибки: 404; 410 `practice_session_closed`; 409 `element_not_current` (details `{current}`), `answer_already_accepted` (details `{verdict}`), `pair_already_matched`, `request_id_reused` (этот `request_id` уже принят как замена, §6.3); 422 `invalid_answer_shape`, `unknown_element_id`, валидация.
+Пары: `verdict` `correct|wrong`, `pair: {left_id, right_id}`, `reveal: null`, `round_done: bool`; у `pairs_timed` ещё `penalty_ms` (2000 за неверный, 0 за верный) и `session.timed` с новым `deadline_at`; ошибки `pairs_timed`: 409 `practice_not_started`, 409 `practice_time_over` `{score}`. Ошибки: 404; 410 `practice_session_closed`; 409 `element_not_current` (details `{current}`), `answer_already_accepted` (details `{verdict}`), `pair_already_matched`, `request_id_reused` (этот `request_id` уже принят как замена, §6.3); 422 `invalid_answer_shape`, `unknown_element_id`, валидация.
 Разбор сочетания в **соло-ответе** — `{correct_option_ids, full_text, translation, explanation, your_option_id}`: `your_option_id` — id варианта, который выбрал ученик (`null` при «Не знаю»), чтобы экран отметил выбор среди трёх (18.9b). Разбор раунда баттла (`reveal()`) один на двоих, без этого ключа; повтор `request_id` отдаёт его же из `practice_attempts.result`.
 
 **`POST /practice/sessions/{id}/replace`** (`twa-practice-answer`) — `{ "request_id", "element_id", "reason": "audio_unavailable" }` → 200 `PracticeSessionResource` (элемент заменён/удалён, `progress.total` мог уменьшиться). Ошибки: 409 `replace_not_allowed` (не диктант, не текущий, лимит `max_replacements`), `request_id_reused` (этот `request_id` уже принят как ответ), 404, 410.
@@ -1212,6 +1256,9 @@ afterCommit: product_events (session_finished при завершении)
 | `replace_not_allowed` | 409 | `{reason: not_dictation|not_current|limit}` |
 | `request_id_reused` | 409 | — (`request_id` уже принят как запрос другого вида: ответ ≠ замена, §6.3) |
 | `retry_not_available` | 409 | — |
+| `practice_not_started` | 409 | — (`pairs_timed`: часы не запущены, `POST …/start`) |
+| `practice_time_over` | 409 | `{score}` (`pairs_timed`: ответ позже `deadline_at + grace`; игра закрыта `time_over`) |
+| `practice_not_timed` | 409 | — (`POST …/start` режима без часов) |
 | `practice_audio_unavailable` | 503 | — |
 | `lesson_not_in_course` | 422 | — |
 | `battle_disabled` | 409 | — |
@@ -1411,6 +1458,8 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 15. (18.12a) Порядок шагов под замком `battles` един для всех точек входа: `advance` (часы по прежним `last_seen_at`) → при живом матче — heartbeat автора (`UPDATE` своей строки `battle_participants`, в документированном порядке `battles → battle_participants`) → проверки действия. Опрос без назревшего перехода замок не берёт и пишет только heartbeat (как прежде); опрос с переходом пишет heartbeat под замком **после** `advance`, а не до транзакции. Новых замков нет: heartbeat вне транзакции держит только свою строку участника и ничего не ждёт; heartbeat под замком пишет строку того же матча. Гонки «оба вернулись в один миг ∥ дворник» и «отсутствующий опрашивает и отвечает ∥ опрос соперника ∥ дворник» — `BattleConcurrencyTest` (одно событие, одни отметки).
 16. (G1) **Единственное исключение из правила 8 — строка самого создающего ученика при лимите Free.** Транзакция создания (открытие сессии, приглашение) у Free берёт **первым** замок `learners (FOR NO KEY UPDATE, своя строка)` → затем `practice_sessions` (`FOR UPDATE` активной) или `battles` → `battle_participants`. Тот же первый замок берут `CardPicker` и `LearnerSettingsService`, которые практику не трогают; ничто, держащее строки практики или баттла, не ждёт `learners` (ответ, опрос, дворник, `accept` — без замка ученика), поэтому цикла нет. Друг (вторая сторона) не блокируется никогда (правило 4 docs/13 §3). Pro замок не берёт. `FOR NO KEY UPDATE`, а не `FOR UPDATE`: вставки строк с FK на ученика (сессии, ответы, события) других транзакций не ждут. Проверка — `PracticeLimitsConcurrencyTest` (три вкладки за последнее место, два приглашения за один вызов, открытие ∥ приглашение другу ∥ замок пикера).
 
+24. («Пары на время») Запись рекорда `practice_records` — только из транзакции, уже держащей `practice_sessions` (`FOR UPDATE` строки сессии), и сама под `FOR UPDATE` строки `(learner_id, mode)`: порядок `practice_sessions` → `practice_records`, обратного нигде нет (строку рекорда читает и хаб, без блокировки). `learners` рекорд не трогает. Игра закрывается по часам одной транзакцией с перечитыванием строки под замком (`closeTimeOver`), а не слепым UPDATE: счёт для рекорда берётся из заблокированной строки.
+
 17–23. (G2) Игра «Караван» продолжает нумерацию: её транзакции не блокируют ни строк практики, ни `word_repetitions` (приближение SRS — после commit), а строку `learners` берут первой и только у Free при старте забега, как правило 16. Текст правил 17–23 и порядок замков игры — **docs/18 §12.5.1**; `MaterialScope::forStage` (пул слов города) — расширение §1.3 из G2.2a, читает те же `introducedWords` / `eligibleItems` по `stages.id`.
 
 **Реализация 18.6:** правила 8–11 выполнены буквально: внутри транзакции матча читаются без блокировки только `friendships` (при `accept`: пара ещё accepted?) и `battle_answers`; проверка файлов диктанта при `ready`/`audio-failed` — локальный диск (≤ 5 `stat`) под блокировкой строки, внешних вызовов нет. Каждый воркер `BattleConcurrencyTest` ставит `SET lock_timeout = '8000'`: deadlock (40P01) или бесконечное ожидание (55P03) видны как падение, а не как зависший тест. Проверка «зубастости»: без `lockForUpdate()` падают 5 из 7 сценариев (accept ∥ cancel, два ответа, answer ∥ дворник, финализация, surrender ∥ answer); два оставшихся (два приглашения одному адресату, три приглашения одного инициатора) держатся на unique `active_learner_id` — как и задумано правилом 9. В docs/13 §3 добавлена строка-ссылка на эти правила.
@@ -1548,6 +1597,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | Подмена участника / чужая сессия | Все выборки — с `learner_id = me` (сессии) или участник ∈ {challenger, opponent} (матч); чужой/несуществующий id → один и тот же 404; `learner_id` никогда не берётся из тела |
 | Подмена элемента/варианта/фрагмента | id проверяются по снимку (422 `unknown_element_id`); перестановка должна содержать **все** фрагменты ровно по одному (`invalid_answer_shape`); биекция пар; `round` обязан быть текущим |
 | Повтор/двойная отправка | `request_id` (uuid, обязателен) + unique `(session_id, request_id)` / `(battle_id, learner_id, request_id)`; один окончательный ответ — unique `(battle_id, round, learner_id)`; состояние меняется только под `FOR UPDATE` строки |
+| Счёт и время «Пар на время» с клиента | Закрыто: клиент шлёт только `{left_id, right_id}`; `score` — колонка, которую пишет лишь `accept()` под `FOR UPDATE`; дедлайн, штраф и грейс — серверные часы (§5.5a); ответ до `start` и после `deadline + grace` отклоняется, повтор `request_id` не штрафует дважды; подбор перебором стоит времени. Тесты — `PairsTimedSessionTest`, `PairsTimedConcurrencyTest` |
 | Клиентское время | Клиентские `time_spent_ms` — телеметрия; дедлайны, `accepted_at`, грейс — только серверные часы; `server_now` в ответах |
 | Накрутка/абьюз приглашений | Только принятый друг, не сам себе, `blocked_at` обеих сторон; один активный (БД); `twa-battle-invite` 5/мин; срок приглашения 5 мин; у выключенного баттла/режима — 409 |
 | Доступ к аудио | Только владелец/участник, по id элемента снимка, JWT; `no-store`; каталог `practice-audio` не раздаётся nginx; имя файла не содержит текста; клипы будущих раундов не отдаются (кроме комнаты диктанта) |
@@ -1571,7 +1621,10 @@ Blob не загрузился (503/сеть) → экран показывае�
 
 | Эндпоинт | Бюджет SQL | Состав |
 |---|---|---|
-| `GET /practice/hub` | ≤ 9 | learner, курс, урок (join), введённые слова + переводы (2), задания ×3 типа (3: один запрос по типам `IN (...)` + версии), активная сессия, активный баттл/входящие (1) |
+| `GET /practice/hub` | ≤ 10 | learner, курс, урок (join), введённые слова + переводы (2), задания ×3 типа (3: один запрос по типам `IN (...)` + версии), активная сессия, активный баттл/входящие (1), личный рекорд «пар на время» (1, `practice_records`) |
+| `POST /practice/sessions/{id}/start` (`pairs_timed`) | ≤ 4 (факт 3) | learner, сессия `FOR UPDATE`, UPDATE (часы) |
+| `POST …/answer` `pairs_timed` | ≤ 6 (факт 5); последний ответ с записью рекорда ≤ 9 (факт 9) | как ответ пар + строка рекорда `FOR UPDATE` + INSERT/UPDATE рекорда |
+| `GET /practice/sessions/{id}` финишной `pairs_timed` | ≤ 4 (факт 3) | learner, сессия, рекорд (`best_score`) |
 | `POST /practice/sessions` | ≤ 12 (повтор — ≤ 13) | как хаб для одного режима (≤ 4) + чтение активной сессии до сборки снимка (§6.1; с `replace_active` его нет) + транзакция (lock активной, update/insert ≤ 3) + событие (1) + диск ≤ 5 `exists` у диктанта; повтор — ещё чтение исходной сессии и один запрос о заданиях-ошибках (§6.1) |
 | `GET /practice/sessions/{id}` | ≤ 3 | learner, сессия (+ курс/урок подписи — из снимка: `course_title` и `lesson_titles` — карты `{locale => название}`, кладутся в снимок при создании; читатель берёт свою локаль и не подставляет чужую; снимок v1 с одной строкой `lesson_title` читается как имя во всех локалях. Обратная совместимость при откате (expand/contract): `lesson_title` по-прежнему пишется строкой — название в первой локали снимка (так писал код до R3c, он читает только её и игнорирует лишние ключи и версию `v`); карта идёт в новый ключ `lesson_titles`. Строку `lesson_title` убрать в одном из следующих релизов, когда откат на код до R3c уже не нужен); у завершённой с ошибками-заданиями — + один запрос о них для `retry_available` (у пар и без ошибок его нет: 2) |
 | `POST …/answer` | ≤ 6; последний, с итогом — ≤ 7 | learner, lock, attempt lookup, insert attempt, update session, событие при завершении; итог спрашивает, можно ли повторить ошибки (+1 запрос о заданиях, у пар нет) |
@@ -1624,9 +1677,11 @@ Blob не загрузился (503/сеть) → экран показывае�
 | `tests/Unit/Practice/BattleSettingsTest` | (18.12a) нижняя граница grace `max(значение, heartbeat_write_seconds + 10)`, граница следует за heartbeat; предупреждение не выше действующего grace |
 | `tests/Feature/Practice/BattleMessengerTest` | ЛС приглашения один раз (маркер), молчание при `declined`/просроченном, 403 → `dm_blocked_at`, web_app URL. **Реализация 18.6b:** 9 тестов |
 | `tests/Feature/Practice/PracticeQueryBudgetTest` | бюджеты §13 через `QueryLog::during` |
+| `tests/Feature/Practice/PairsTimedModeTest` | «Пары на время»: 8 слов → 10 раундов по 4, без коллизий переводов в раунде, один seed — одна раскладка, 40 слов — все разные, 7 слов → `no_words` (required 8), `ambiguous`, нет списка ошибок |
+| `tests/Feature/Practice/PairsTimedSessionTest` | §5.5a: ответ до `start` → 409, `start` идемпотентен, верный +1 / неверный −2 с без смены счёта, повтор неверного без второго штрафа, грейс 1400 / 1600 мс, ленивое закрытие и планировщик `time_over`, 10 раундов → `completed`, рекорд (первый / ниже / выше / `replaced`, `expired`), лимит Free, флаг режима, нет `retry`, бюджеты запросов, миллисекунды |
 | `tests/Feature/Practice/PracticeAdminTest` | Filament: список/фильтры, формы по типам, действия «Проверено/Опубликовать/В архив», импорт JSON, переключатель пилота + `audit_logs`, teacher → 403 |
 | `tests/Feature/Practice/PracticeSchedulerTest` | `practice:close-expired`, `practice:battles-sweep` (expire, advance, voided при `off`) |
-| `DatabaseSchemaTest` | rollback четырёх миграций |
+| `DatabaseSchemaTest` | rollback четырёх миграций; миграция «Пар на время» (колонки, `practice_records`, отказ отката при строках `pairs_timed`) |
 
 ### 14.2 PostgreSQL-гонки (pcntl, `DatabaseTruncation`, образец `ImportConcurrencyTest`)
 
@@ -1636,6 +1691,9 @@ Blob не загрузился (503/сеть) → экран показывае�
 | | два `answer` одного элемента с разными `request_id` | одна строка `practice_attempts` с вердиктом, второй — 409 `answer_already_accepted` |
 | | тот же `request_id` ×2 одновременно | одна строка, одинаковые тела |
 | | `answer` ∥ `practice:close-expired` просроченной | либо 410, либо принято до закрытия; строка сессии консистентна |
+| `PairsTimedConcurrencyTest` | два ответа на последнюю пару раунда одновременно | один `correct`, второй `pair_already_matched` / `answer_already_accepted`, `score` +1 |
+| | ответ ∥ чтения ∥ планировщик после дедлайна + грейс | игра `time_over` один раз, счёт не растёт, одно событие, одна строка рекорда |
+| | два `start` одновременно | один `deadline_at` |
 | `BattleConcurrencyTest` | один адресат принимает два приглашения одновременно | один `room`, второй 409 `battle_busy`; `active_learner_id` ровно один |
 | | `accept` ∥ `cancel` | ровно один терминальный/комнатный исход, без deadlock |
 | | два `invite` одного инициатора одновременно | один `invited` |

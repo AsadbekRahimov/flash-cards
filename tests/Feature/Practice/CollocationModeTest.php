@@ -813,8 +813,8 @@ it('stays within the statement budgets of docs/16 §13 with the real handler: th
     $stored = collStored($opened['id'], $opened['current']['id']);
     $answer = QueryLog::during(fn () => collAnswer($learner, $opened['id'], $stored['id'], ['option_id' => collPick($stored)])->assertOk());
 
-    expect(count($hub))->toBeLessThanOrEqual(9, implode("\n", $hub))
-        ->and(count($hubCourse))->toBeLessThanOrEqual(9, implode("\n", $hubCourse))
+    expect(count($hub))->toBeLessThanOrEqual(10, implode("\n", $hub))
+        ->and(count($hubCourse))->toBeLessThanOrEqual(10, implode("\n", $hubCourse))
         ->and(collReads($hub, 'practice_items'))->toBe(1)
         ->and(collReads($hub, 'practice_item_versions'))->toBe(1)
         ->and(count($open))->toBeLessThanOrEqual(12, implode("\n", $open))

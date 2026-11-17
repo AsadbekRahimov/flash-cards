@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\SessionStatus;
+use App\Models\Casts\MillisecondDateTime;
 use Carbon\CarbonImmutable;
 use Database\Factories\PracticeSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -110,8 +111,8 @@ class PracticeSession extends Model
             'expires_at' => 'immutable_datetime',
             'started_at' => 'immutable_datetime',
             'finished_at' => 'immutable_datetime',
-            // Milliseconds matter (a penalty of 2 s, a grace of 1.5 s): the default format of a date drops them.
-            'deadline_at' => 'immutable_datetime:Y-m-d H:i:s.v',
+            // Milliseconds matter (a penalty of 2 s, a grace of 1.5 s): the cast of a date drops them.
+            'deadline_at' => MillisecondDateTime::class,
             'score' => 'integer',
         ];
     }

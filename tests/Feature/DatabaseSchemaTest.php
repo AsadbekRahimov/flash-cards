@@ -2235,7 +2235,6 @@ it('has the CHECK constraints of the game tables (PostgreSQL)', function (): voi
     DB::table('class_caravans')->insert([...$caravan, 'status' => 'canceled', 'active_group_id' => null]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');
 
-
 it('adds the clock of pairs_timed to the practice, keeps one record per learner and mode, refuses a rollback that would lose a timed session, and rolls back clean', function (): void {
     $migration = require database_path('migrations/2026_11_18_200001_add_timed_pairs_to_practice.php');
 

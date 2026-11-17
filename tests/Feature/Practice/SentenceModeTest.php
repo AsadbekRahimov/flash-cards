@@ -841,7 +841,7 @@ it('stays within the query budgets of docs/16 §13 on the real handler, and read
         $session = smAnswer($learner, $session['id'], $session['current']['id'], smRight($session['current']))->assertOk()->json('session');
     });
 
-    expect(count($hub))->toBeLessThanOrEqual(9, implode("\n", $hub))
+    expect(count($hub))->toBeLessThanOrEqual(10, implode("\n", $hub))
         ->and(count($open))->toBeLessThanOrEqual(12, implode("\n", $open))
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
         ->and($reads($hub, 'practice_items'))->toBe(1)
