@@ -6,12 +6,14 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Exceptions\ExamParticipationException;
 use App\Domain\Learning\Services\ExamFlowService;
+use App\Domain\Learning\Services\LevelQuizService;
 use App\Domain\Learning\Services\MockExamService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamAnswerResource;
 use App\Http\Resources\Twa\ExamJoinResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
 use App\Http\Resources\Twa\ExamResultResource;
+use App\Http\Resources\Twa\LevelQuizResultResource;
 use App\Http\Resources\Twa\MockExamResultResource;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -25,6 +27,7 @@ final class ExamController
         private readonly ExamSessionPolicy $policy,
         private readonly ExamFlowService $flow,
         private readonly MockExamService $mocks,
+        private readonly LevelQuizService $quizzes,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -116,6 +119,20 @@ final class ExamController
             }
 
             return (new MockExamResultResource($this->mocks->result($session)))->response();
+        }
+
+        // The quiz of the week closes itself the same way (docs/13 §8.5).
+        if ($session->isLevelQuiz()) {
+            $session = $this->quizzes->finalizeIfDue($session);
+            if (! $this->policy->canViewResult($learner, $session)) {
+                return ApiErrorResource::respond(
+                    409,
+                    'exam_still_open',
+                    'Results are available only after the exam is closed.',
+                );
+            }
+
+            return (new LevelQuizResultResource($this->quizzes->result($session)))->response();
         }
 
         if (! $this->policy->canViewResult($learner, $session)) {

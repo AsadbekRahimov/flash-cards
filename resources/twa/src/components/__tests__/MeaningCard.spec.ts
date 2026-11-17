@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MeaningCard from '../MeaningCard.vue'
+import { AFTER_FEEDBACK_MS, resetAutoSpeak, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { CHOICE_FEEDBACK_MS } from '@/composables/useChoice'
 import type { Card, ChoiceResult } from '@/api/types'
 import { setLocale } from '@/i18n'
@@ -59,6 +60,7 @@ describe('MeaningCard', () => {
   afterEach(() => {
     vi.useRealTimers()
     setLocale('ru')
+    resetAutoSpeak()
     speak.mockClear()
   })
 
@@ -83,6 +85,28 @@ describe('MeaningCard', () => {
     await w.get('[data-testid=speak-btn]').trigger('click')
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
     expect(w.get('[data-testid=speak-btn]').attributes('aria-label')).toBe('Произнести')
+  })
+
+  it('reads the word aloud after the verdict (not before), unless auto-speak is off; shows the translation of the example', async () => {
+    const w = mount(MeaningCard, { props: { card } })
+    await w.get('[data-testid=option-1]').trigger('click')
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 3)
+    expect(speak).not.toHaveBeenCalled()
+
+    await w.setProps({ result: { ...answered(true), revealed: { ...answered(true).revealed!, example_translation: 'Она стойкая девочка.' } } })
+    expect(speak).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS)
+    expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
+    expect(w.get('[data-testid=example-translation]').text()).toBe('Она стойкая девочка.')
+
+    speak.mockClear()
+    setAutoSpeakEnabled(false)
+    const off = mount(MeaningCard, { props: { card } })
+    await off.get('[data-testid=option-1]').trigger('click')
+    await off.setProps({ result: answered(false) })
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 3)
+    expect(speak).not.toHaveBeenCalled()
+    expect(off.find('[data-testid=example-translation]').exists()).toBe(false)
   })
 
   it('sends the pick at once and colours nothing but the pick until the server has answered', async () => {

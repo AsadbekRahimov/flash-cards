@@ -70,6 +70,14 @@ beforeEach(function (): void {
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
+/** The rows of the hub: each has the keys of a mode; the clock mode alone has `record` too (the best score, or null). */
+function contractModeRows(array $modes): void
+{
+    foreach ($modes as $row) {
+        expect(array_keys($row))->toEqualCanonicalizing($row['mode'] === 'pairs_timed' ? [...CONTRACT_PRACTICE_MODE_ROW, 'record'] : CONTRACT_PRACTICE_MODE_ROW);
+    }
+}
+
 /** The structure of a session as the TWA reads it; `$current` is the structure of the current element (null = it has none). */
 function contractSession(?array $current, bool $lesson = false, bool $summary = false): array
 {
@@ -79,7 +87,7 @@ function contractSession(?array $current, bool $lesson = false, bool $summary = 
         ...($lesson ? ['lesson' => CONTRACT_PRACTICE_LESSON] : ['lesson']),
         'progress' => CONTRACT_PRACTICE_PROGRESS,
         'counters' => ['correct_first', 'hints', 'mismatches'],
-        'expires_at', 'server_now',
+        'expires_at', 'server_now', 'timed',
         ...($current === null ? ['current'] : ['current' => $current]),
         ...($summary ? ['summary' => [...CONTRACT_PRACTICE_SUMMARY, 'mistakes' => ['*' => CONTRACT_PRACTICE_MISTAKE]]] : ['summary']),
     ];
@@ -187,26 +195,28 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
         ->assertExactJsonStructure([
             'course' => CONTRACT_PRACTICE_COURSE,
             'lesson' => CONTRACT_PRACTICE_LESSON,
-            'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW],
+            'modes',
             'active_session',
             'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits',
         ]);
 
-    expect($response->json('modes'))->toHaveCount(4)
-        ->and(array_column($response->json('modes'), 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation'])
+    contractModeRows($response->json('modes'));
+    expect($response->json('modes'))->toHaveCount(5)
+        ->and(array_column($response->json('modes'), 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'])
         ->and($response->json('lesson'))->toBe(['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'])
         ->and($response->json('battle'))->toBe(['enabled' => true, 'active_battle_id' => null, 'incoming_count' => 0]);
 
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")
         ->assertOk()
-        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session', 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits'])
+        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes', 'active_session', 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits'])
         ->assertJsonPath('lesson', null);
+    contractModeRows($this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")->json('modes'));
 
     $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")
         ->assertOk()
         ->assertExactJsonStructure([
-            'course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW],
+            'course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes',
             'active_session' => CONTRACT_PRACTICE_ACTIVE,
             'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits',
         ])
@@ -628,7 +638,7 @@ it('names the place of an unfinished session - the title of its course in the la
     // The hub of ANOTHER course: the unfinished session is not of this place, yet it is named.
     $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$other->slug}")
         ->assertOk()
-        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session' => ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson' => ['stage', 'number', 'title'], 'progress' => CONTRACT_PRACTICE_PROGRESS], 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits']);
+        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes', 'active_session' => ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson' => ['stage', 'number', 'title'], 'progress' => CONTRACT_PRACTICE_PROGRESS], 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits']);
     expect($hub->json('active_session'))->toBe(['id' => $session['id'], 'mode' => 'collocation', ...$place]);
 
     $details = contractError(contractOpen($learner, $other->slug, 'pairs'), 409, 'practice_session_active', CONTRACT_PRACTICE_ACTIVE_DETAILS);

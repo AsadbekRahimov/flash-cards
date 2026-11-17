@@ -60,6 +60,16 @@ interface TelegramClient
     public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void;
 
     /**
+     * Replaces the text (and the inline keyboard) of an already sent message; plain text unless `$parseMode` is given. The keyboard
+     * goes away when `$replyMarkup` is null.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified")
+     */
+    public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void;
+
+    /**
      * Status of a user in a chat (`creator`, `administrator`, `member`, `restricted`, `left`, `kicked`).
      *
      * @throws TelegramApiException when Telegram refuses or cannot be reached

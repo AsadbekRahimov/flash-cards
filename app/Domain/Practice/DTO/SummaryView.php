@@ -6,7 +6,8 @@ namespace App\Domain\Practice\DTO;
 
 /**
  * The summary of a finished solo session (docs/16 §6.4). `mismatches` is null outside pairs; `mistakes` is one row per
- * thing to repeat (pairs: one per word of `wrong_left`, `label` = "mother — мама").
+ * thing to repeat (pairs: one per word of `wrong_left`, `label` = "mother — мама"). `score`, `bestScore`, `isRecord` are a timed
+ * session's (null elsewhere): `bestScore` is the learner's best NOW, `isRecord` whether THIS session set it.
  */
 final readonly class SummaryView
 {
@@ -22,5 +23,8 @@ final readonly class SummaryView
         public string $finishReason,
         public bool $retryAvailable,
         public array $mistakes,
+        public ?int $score = null,
+        public ?int $bestScore = null,
+        public ?bool $isRecord = null,
     ) {}
 }

@@ -1408,7 +1408,7 @@ chmod 600 .env
 | `READINESS_QUEUE_MAX_SIZE` | optional | `1000` |
 | `READINESS_QUEUE_HEARTBEAT_MAX_AGE` | optional | `300` |
 | `REDIS_QUEUE_RETRY_AFTER` | recommended | `180` (must be above the workers' `--timeout`, 120) |
-| `LEARNERS_DEFAULT_TIMEZONE` / `LEARNERS_DEFAULT_REMINDER_TIME` / `LEARNERS_DEFAULT_DAILY_GOAL` | optional | `Asia/Tashkent` / `19:00` / `20` |
+| `LEARNERS_DEFAULT_TIMEZONE` / `LEARNERS_DEFAULT_REMINDER_TIME` / `LEARNERS_DEFAULT_DAILY_GOAL` | optional | `Asia/Tashkent` / `19:00` / `10` |
 | `LEARNING_SESSION_TTL_HOURS` / `LEARNING_GROUP_SESSION_TTL_HOURS` | optional | `12` / `24` |
 | `BILLING_CACHE_TTL` | optional | `300` (seconds, entitlement cache) |
 | `BILLING_PAYWALL_MODE` | optional | `coming_soon` (default) / `purchase` (see 17) |
@@ -1424,6 +1424,9 @@ chmod 600 .env
 | `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
 | `REMINDERS_BATCH_SIZE` / `REMINDERS_BACKFILL_LIMIT` | optional | `200` / `10000` |
 | `REMINDERS_SEND_RATE_PER_SECOND` | optional | `25` (>= 1; Telegram allows about 30/s per bot) |
+| `REMINDERS_QUIZ_ENABLED` | optional | `true` (the reminder is a question with four answers in the chat, docs/12 §7.5; `false` = the plain text with one button, as before, no redeploy of code needed) |
+| `REMINDERS_QUIZ_MAX_IDLE_DAYS` | optional | `7` (a question goes out up to this many idle days; the rarer sparse days stay text; raise up to 60 to ask there too) |
+| `REMINDERS_QUIZ_TTL_HOURS` | optional | `26` (how long a question can be answered; its state `reminders:quiz:v1:{learner}` lives in the non-evicting Redis, so a Redis restart without persistence only turns old taps into "outdated") |
 | `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
 
@@ -1484,7 +1487,7 @@ Read from `.env`; everything else of `config/game.php` (run sizes, scoring, econ
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `GAME_ACCESS` | `off` | Who plays: `off` (nobody; every endpoint answers 403 `game_unavailable`), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `all`. Anything else counts as `off`. `GET /me` → `game.available`. The **class caravan** (`/start_caravan`, `/cancel_caravan`, the page «Караваны» in `/org`, the cards on the map and on «Сегодня») exists **only with `all`**: in `pilot` the game is seen by single learners, a caravan is for the whole group. After any change of `GAME_ACCESS`: `php artisan config:cache` and `php artisan telegram:setup-bot` (the command menu is built when the command runs: the caravan commands are in it only with `all`) |
+| `GAME_ACCESS` | `all` | Who plays: `all` (everybody — the default since the owner's decision of 2026-11-17), `pilot` (the learners of the practice pilot, `learners.practice_pilot_at` — one audience for both), `off` (nobody; every endpoint answers 403 `game_unavailable`; this is how to switch the game off). Anything else counts as `off`. `GET /me` → `game.available`. The **class caravan** (`/start_caravan`, `/cancel_caravan`, the page «Караваны» in `/org`, the cards on the map and on «Сегодня») exists **only with `all`**: in `pilot` the game is seen by single learners, a caravan is for the whole group. After any change of `GAME_ACCESS`: `php artisan config:cache` and `php artisan telegram:setup-bot` (the command menu is built when the command runs: the caravan commands are in it only with `all`) |
 | `GAME_FREE_RUNS_PER_DAY` | `1` | Free map runs (stops + bosses) a Free learner plays per local day; more cost a ticket. Pro (feature `game.unlimited_runs`) has no limit; the daily caravan is not limited. `0` — only Pro; empty — no limit for Free |
 | `GAME_FREE_BOSS_STAGES` | `1` | The bosses of the first N cities of a course a Free learner may fight (Pro: `game.all_bosses`); past that 403 `game_pro_required`. Empty — all |
 | `GAME_FREE_BOOSTERS_PER_WEEK` / `GAME_PRO_BOOSTERS_PER_WEEK` | `1` / `5` | Boosters a learner may use per local week (Pro: `game.boosters_plus`) |
@@ -1492,7 +1495,7 @@ Read from `.env`; everything else of `config/game.php` (run sizes, scoring, econ
 | `GAME_LEAGUE_DAILY_CAP` | `40` | The cap of the league points the game gives per local day |
 | `GAME_CLASS_CENTERS_ONLY` | `true` | The caravan of a class only for the centers with a live subscription |
 
-Turning the game on (the pilot checklist): `php artisan migrate --force` (the game tables and the index `game_runs (started_at, learner_id)`); put the pilot learners in (`learners.practice_pilot_at`, as for the practice); `GAME_ACCESS=pilot`; then **`php artisan config:cache` and `php artisan telegram:setup-bot`** (the bot menu is built when the command runs, not on every request); watch the widget «Караван — 7 дней»; later `GAME_ACCESS=all` and the same two commands again — only then the caravan of a class appears in the bot, in `/org` and in the Mini App. **Before switching `GAME_ACCESS` from `all` back to `pilot` or `off`, cancel the class caravans that are on their way** (`/cancel_caravan`, `/org` or `/admin`): afterwards the bot is silent and `/org` has no page, so a teacher cannot cancel them, and runs no longer count for them; they only finish on their own at the end of the week (the summary still goes to the chat).
+The game is on for everybody by default (`GAME_ACCESS=all`, 2026-11-17); the 12 shop items come with `ReferenceDataSeeder` (`GameItemSeeder`) on deploy, the map is derived from the course. To switch it off: `GAME_ACCESS=off`, then `config:cache` and `telegram:setup-bot`. Staged turning on (the pilot checklist): `php artisan migrate --force` (the game tables and the index `game_runs (started_at, learner_id)`); put the pilot learners in (`learners.practice_pilot_at`, as for the practice); `GAME_ACCESS=pilot`; then **`php artisan config:cache` and `php artisan telegram:setup-bot`** (the bot menu is built when the command runs, not on every request); watch the widget «Караван — 7 дней»; later `GAME_ACCESS=all` and the same two commands again — only then the caravan of a class appears in the bot, in `/org` and in the Mini App. **Before switching `GAME_ACCESS` from `all` back to `pilot` or `off`, cancel the class caravans that are on their way** (`/cancel_caravan`, `/org` or `/admin`): afterwards the bot is silent and `/org` has no page, so a teacher cannot cancel them, and runs no longer count for them; they only finish on their own at the end of the week (the summary still goes to the chat).
 
 ### Деплой: Telegram, предупреждения, nginx (аудит 2026-11-10)
 

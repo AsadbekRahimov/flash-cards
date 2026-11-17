@@ -208,7 +208,7 @@ final class TrainingFlowService
         $translation = $this->translations->resolve($pick->word, $locale);
         $audioUrl = $this->audio->urlFor($pick->word);
         // The example of this serve (docs/06 §12.4): the anchor until graduation, then the rotation.
-        $example = $this->examples->pick($pick->word, $pick->repetition);
+        ['text' => $example, 'translation' => $exampleTranslation] = $this->examples->pickRow($pick->word, $pick->repetition, $locale, $translation->exampleTranslation);
 
         // The exercise of this serve (docs/13 §2.5): recomputed from the same inputs by
         // ReviewSubmissionService when the grade comes back — nothing is stored.
@@ -250,6 +250,7 @@ final class TrainingFlowService
             prompt: $prompt,
             audioUrl: $audioUrl,
             example: $example,
+            exampleTranslation: $exampleTranslation,
             isLeech: $isLeech,
             isHard: $isHard,
             hook: $showsHook ? $this->hooks->for($pick->word, $translation->locale) : null,
@@ -410,6 +411,7 @@ final class TrainingFlowService
             // The right option exactly as it stands among the options: reverse — the word; meaning / audio — the translation.
             correct: $reverse ? trim($word->word) : trim($translation->text),
             example: $accepted->example,
+            exampleTranslation: $accepted->exampleTranslation,
             transcription: $word->transcription,
             audioUrl: $this->audio->urlFor($word),
             hook: $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,

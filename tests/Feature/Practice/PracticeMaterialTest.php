@@ -438,12 +438,13 @@ it('reports the material of the four modes: nothing yet for the skeletons, the n
     $locales = LocaleSet::of('ru');
 
     $report = matService()->availability($scope, $learner, $locales);
-    expect(array_keys($report))->toBe(['pairs', 'collocation', 'sentence', 'dictation'])
+    expect(array_keys($report))->toBe(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'])
         ->and(array_map(fn ($a) => [$a->isAvailable, $a->available, $a->required, $a->reason], $report))->toBe([
             'pairs' => [false, 0, 3, 'no_words'], // a real handler: no word introduced yet
             'collocation' => [false, 0, 3, 'no_items'], // a real handler since 18.3: no task yet
             'sentence' => [false, 0, 3, 'no_items'], // a real handler since 18.4: it says why
             'dictation' => [false, 0, 3, 'no_words'], // a real handler since 18.5: nothing introduced yet
+            'pairs_timed' => [false, 0, 8, 'no_words'], // the clock mode: the minimum is its own
         ]);
 
     PracticeKit::fake(PracticeMode::Sentence, candidates: 7);

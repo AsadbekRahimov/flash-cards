@@ -18,7 +18,7 @@ declare(strict_types=1);
 */
 
 return [
-    'access' => env('GAME_ACCESS', 'off'),                              // off | pilot | all
+    'access' => env('GAME_ACCESS', 'all'),                              // off | pilot | all
     'free_limits' => [
         'runs_per_day' => env('GAME_FREE_RUNS_PER_DAY', 1),
         'boss_stages' => env('GAME_FREE_BOSS_STAGES', 1),

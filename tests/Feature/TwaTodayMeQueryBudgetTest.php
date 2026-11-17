@@ -26,6 +26,8 @@ uses(RefreshDatabase::class);
 /** @return array{learner: Learner, headers: array<string, string>} a Free learner with a course, five cards graded today, placed in the league */
 function todayMeScenario(object $test): array
 {
+    // The budgets below are those of a closed game (GAME_ACCESS=off); an open one reads its block on top (see docs/18).
+    config(['game.access' => 'off']);
     ['course' => $course, 'lessons' => $lessons] = Fx::course([1 => [1 => 25, 2 => 25]]);
     $learner = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent', 'active_course_id' => $course->id]);
     $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
@@ -57,15 +59,18 @@ it('answers the second /me with the learner, one statement of counts and one of 
         ->and(QueryLog::matching($queries, '/from ["`](telegram_groups|subscriptions|courses)["`]/'))->toBe([]);
 });
 
-it('answers the second /today within seven statements, including the lapse banner that used to request /me', function (): void {
+it('answers the second /today within eight statements, including the lapse banner that used to request /me', function (): void {
     ['headers' => $h] = todayMeScenario($this);
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()
         ->assertJsonPath('league.rank', 1)->assertJsonPath('goal.done', 5)->assertJsonPath('new_words_remaining', 14)); // five graded, a sixth served
 
     // The active course is one learner query beside the cached tree (was two: the progress and the next-lesson anti-join: 8 -> 7).
+    // 7 -> 8 (docs/13 §8.5): the quiz line of the week of the readiness block is ONE indexed read of `level_quiz_results`; the readiness
+    // itself costs nothing - its counts are two more sums of the statement above (no cache, nothing else is read for it).
     // Before R12i: 13 - the plan six times (from its cache), two day rows, two counts, five league statements.
-    expect(count($queries))->toBe(7)
+    expect(count($queries))->toBe(8)
+        ->and(QueryLog::matching($queries, '/from ["`]level_quiz_results["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]due["`], \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]served["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`](league_weeks|league_members|league_groups)["`]|from ["`]league_members["`] as/'))->toBe([])

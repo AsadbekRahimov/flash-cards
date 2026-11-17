@@ -29,7 +29,7 @@ final class BattleInviteRequest extends FormRequest
         return [
             'rematch_of' => ['nullable', 'integer', 'min:1', 'max:'.self::MAX_ID],
             'friendship_id' => ['required', 'integer', 'min:1', 'max:'.self::MAX_ID],
-            'mode' => ['required', 'string', Rule::enum(PracticeMode::class)],
+            'mode' => ['required', 'string', Rule::enum(PracticeMode::class)->only(array_values(array_filter(PracticeMode::cases(), static fn (PracticeMode $mode): bool => $mode->battleable())))],
             'course' => ['required', 'string', 'max:64'],
             'lesson_id' => ['nullable', 'integer', 'min:1'],
         ];

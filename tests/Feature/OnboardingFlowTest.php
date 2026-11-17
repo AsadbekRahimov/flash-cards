@@ -125,7 +125,7 @@ it('walks a new learner through the four steps (goal enabled) with four callback
         // No time zone step: every new learner gets the default zone.
         ->and($learner->timezone)->toBe('Asia/Tashkent')
         ->and(substr((string) DB::table('learners')->where('id', $learner->id)->value('reminder_time'), 0, 5))->toBe('21:00')
-        ->and($learner->daily_goal)->toBe(20)
+        ->and($learner->daily_goal)->toBe(10)
         ->and($learner->active_course_id)->toBe($course->id);
 
     // The last message: the TWA button, in the chosen language, naming the course.

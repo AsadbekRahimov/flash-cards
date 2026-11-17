@@ -32,6 +32,9 @@ final class PracticeAnswerResource extends TwaResource
         if (array_key_exists('round_done', $result)) {
             $body['round_done'] = (bool) $result['round_done'];
         }
+        if (array_key_exists('penalty_ms', $result)) {
+            $body['penalty_ms'] = (int) $result['penalty_ms'];
+        }
         $body['session'] = (new PracticeSessionResource($this->resource->session))->toArray($request);
 
         return $body;

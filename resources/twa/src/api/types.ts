@@ -474,7 +474,7 @@ export interface Quota {
 export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'assignment'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -674,6 +674,8 @@ export interface Card {
    */
   translation_fallback: boolean
   example: string | null
+  /** The translation of exactly that example, in the session's language (the ru one when it has none); null when there is none or the example is hidden. */
+  example_translation?: string | null
   transcription: string | null
   /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech / `GET /tts` fallback. */
   audio_url?: string | null
@@ -736,6 +738,7 @@ export interface Revealed {
   /** The right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation). */
   correct: string
   example: string | null
+  example_translation?: string | null
   transcription: string | null
   audio_url: string | null
   hook: string | null

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Content\Services\VocabularyImporter;
+use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\SchedulerKind;
@@ -184,7 +185,7 @@ it('sends a meaning / reverse / audio card without anything that gives the right
     $s = lmScenario(5, $type === 'meaning' ? 2 : 3, $type === 'meaning' ? 6 : 15, rowAttributes: ['note' => 'word0 or перевод 0 - my hint', 'is_hard' => true]);
     foreach ($s['words'] as $i => $word) {
         $word->forceFill(['transcription' => "/wɜːd{$i}/"])->save();
-        WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => "перевод {$i}", 'hook' => "word{$i} = перевод {$i}", 'source' => 'import']);
+        WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => "перевод {$i}", 'example_translation' => "Мне это очень нравится ({$i}).", 'hook' => "word{$i} = перевод {$i}", 'source' => 'import']);
     }
     lmOnly($s, $type);
 
@@ -196,7 +197,7 @@ it('sends a meaning / reverse / audio card without anything that gives the right
     foreach (lmCardStrings($card) as $value) {
         expect(mb_stripos($value, $correct))->toBeFalse("the card carries the right option in `{$value}`");
     }
-    expect($card['hook'])->toBeNull()->and($card['note'])->toBeNull()->and($card['confused_with'])->toBeNull()->and($card['example'])->toBeNull();
+    expect($card['hook'])->toBeNull()->and($card['note'])->toBeNull()->and($card['confused_with'])->toBeNull()->and($card['example'])->toBeNull()->and($card['example_translation'])->toBeNull();
     if ($type === 'reverse') {
         expect($card['word'])->toBe('')->and($card['transcription'])->toBeNull()->and($card['audio_url'])->toBeNull()
             ->and($card['translation'])->not->toBe('');
@@ -214,10 +215,11 @@ it('sends a meaning / reverse / audio card without anything that gives the right
 
     $i = (int) mb_substr($correct, -1);
     $revealed = $response->json('revealed');
-    expect(array_keys($revealed))->toBe(['word', 'translation', 'correct', 'example', 'transcription', 'audio_url', 'hook', 'note', 'confused_with'])
+    expect(array_keys($revealed))->toBe(['word', 'translation', 'correct', 'example', 'example_translation', 'transcription', 'audio_url', 'hook', 'note', 'confused_with'])
         ->and($revealed['correct'])->toBe($correct)
         ->and($revealed['word'])->toBe("word{$i}")
         ->and($revealed['example'])->toBe("I like {$revealed['word']} a lot.")
+        ->and($revealed['example_translation'])->toBe("Мне это очень нравится ({$i}).")
         ->and($revealed['transcription'])->toStartWith('/wɜːd')
         ->and($revealed['hook'])->toBe("{$revealed['word']} = {$revealed['translation']}")
         ->and($revealed['note'])->toBe("word{$i} or перевод {$i} - my hint")
@@ -679,7 +681,8 @@ it('hides the hooks and the pair on a typed card, where they would give the word
     expect($card['prompt']['type'])->toBeIn(['spelling', 'gap_fill'])
         ->and($card['hook'])->toBeNull()
         ->and($card['note'])->toBeNull()
-        ->and($card['example'])->toBeNull();
+        ->and($card['example'])->toBeNull()
+        ->and($card['example_translation'])->toBeNull();
 });
 
 // --- several examples (docs/06 §12.4) ----------------------------------------------------------
@@ -939,4 +942,114 @@ it('keeps the new word open with its translation when the pretest is off (the de
     expect(config('learning.pretest.enabled'))->toBeFalse()
         ->and($card['prompt']['type'])->toBe('flash')
         ->and($card['translation'])->not->toBe('');
+});
+
+// --- the translation of the example (stage 2: card content) ----------------------------------
+
+/** Flash cards only: the exercises with options and the typed ones are switched off. */
+function lmFlashOnly(array $s): void
+{
+    $s['learner']->forceFill(['meta' => ['exercises' => ['meaning' => false, 'reverse' => false, 'audio' => false, 'spelling' => false, 'gap_fill' => false]]])->save();
+}
+
+it('shows the translation of the anchor example on a flash card, in the learner\'s language with the fallback of the word translation', function (): void {
+    $s = lmScenario(1, 0, 0, rowAttributes: ['state' => 'new']);
+    lmFlashOnly($s);
+    $word = $s['words'][0];
+    WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'example_translation' => 'Мне очень нравится word0.', 'source' => 'import']);
+
+    // No uz row at all: the word translation falls back to ru, and so does the example's.
+    $s['learner']->forceFill(['interface_locale' => 'uz'])->save();
+    $card = lmCard($s);
+    expect($card['example'])->toBe('I like word0 a lot.')
+        ->and($card['example_translation'])->toBe('Мне очень нравится word0.')
+        ->and($card['translation_fallback'])->toBeTrue();
+
+    // An uz row without the example translation: the word is Uzbek, the example's translation still the ru one.
+    WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'uz', 'translation' => 'tarjima 0', 'source' => 'import']);
+    expect(lmCard($s)['example_translation'])->toBe('Мне очень нравится word0.');
+
+    // With the Uzbek one, it wins; the ru learner keeps the ru one.
+    WordTranslation::query()->where('word_id', $word->id)->where('locale', 'uz')->update(['example_translation' => 'Menga word0 juda yoqadi.']);
+    // The edit goes through the observer in the app; the raw update leaves the cached rows, so drop them like it does.
+    app(WordTranslationResolver::class)->forget([(int) $word->id]);
+    $card = lmCard($s);
+    expect($card['example_translation'])->toBe('Menga word0 juda yoqadi.')
+        ->and($card['translation'])->toBe('tarjima 0')
+        ->and($card['translation_fallback'])->toBeFalse();
+
+    $s['learner']->forceFill(['interface_locale' => 'ru'])->save();
+    expect(lmCard($s)['example_translation'])->toBe('Мне очень нравится word0.');
+});
+
+it('has no example translation when the word has none, and none for a word without an example', function (): void {
+    $s = lmScenario(1, 0, 0, rowAttributes: ['state' => 'new']);
+    lmFlashOnly($s);
+    WordTranslation::query()->create(['word_id' => $s['words'][0]->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'source' => 'import']);
+    expect(lmCard($s)['example_translation'])->toBeNull();
+
+    $s['words'][0]->forceFill(['example' => null])->save();
+    WordTranslation::query()->where('word_id', $s['words'][0]->id)->update(['example_translation' => 'Осиротевший перевод.']);
+    app(WordTranslationResolver::class)->forget([(int) $s['words'][0]->id]);
+    $card = lmCard($s);
+    expect($card['example'])->toBeNull()->and($card['example_translation'])->toBeNull();
+});
+
+it('takes the translation of the example of this serve: the rotated sentence brings its own, not the anchor\'s', function (): void {
+    $s = lmScenario(1, 1, 1);
+    lmFlashOnly($s);
+    $word = $s['words'][0];
+    WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'example_translation' => 'Мне очень нравится word0.', 'source' => 'import']);
+    WordExample::query()->create(['word_id' => $word->id, 'position' => 1, 'text' => 'We word0 together.', 'translations' => ['ru' => 'Мы word0 вместе.', 'uz' => 'Biz word0 birga.']]);
+    WordExample::query()->create(['word_id' => $word->id, 'position' => 2, 'text' => 'She word0s daily.', 'translations' => []]);
+
+    // Not graduated yet: the anchor.
+    WordRepetition::query()->where('word_id', $word->id)->update(['state' => 'learning']);
+    expect(lmCard($s))->toMatchArray(['example' => 'I like word0 a lot.', 'example_translation' => 'Мне очень нравится word0.']);
+
+    // Graduated: index `repetitions mod 3` - the anchor, the first, the second extra.
+    lmReset($s['learner'], (int) $word->id, 3, 15);
+    expect(lmCard($s))->toMatchArray(['example' => 'I like word0 a lot.', 'example_translation' => 'Мне очень нравится word0.']);
+    lmReset($s['learner'], (int) $word->id, 1, 1);
+    expect(lmCard($s))->toMatchArray(['example' => 'We word0 together.', 'example_translation' => 'Мы word0 вместе.']);
+    // A rotated sentence without a translation: none - never the anchor's.
+    lmReset($s['learner'], (int) $word->id, 2, 6);
+    expect(lmCard($s))->toMatchArray(['example' => 'She word0s daily.', 'example_translation' => null]);
+
+    // The Uzbek learner: the sentence's own uz translation, else its ru one (the same fallback as the word's).
+    $s['learner']->forceFill(['interface_locale' => 'uz'])->save();
+    lmReset($s['learner'], (int) $word->id, 1, 1);
+    expect(lmCard($s)['example_translation'])->toBe('Biz word0 birga.');
+    WordExample::query()->where('position', 1)->update(['translations' => json_encode(['ru' => 'Мы word0 вместе.'])]);
+    app(LearningCache::class)->forgetWordExamples([(int) $word->id]);
+    expect(lmCard($s)['example_translation'])->toBe('Мы word0 вместе.');
+});
+
+it('returns the translation of the rotated example in `revealed` for the cards that hide the example', function (): void {
+    config(['learning.ladder.early.enabled' => false]);
+    $s = lmScenario(5, 4, 15);
+    lmOnly($s, 'reverse');
+    $word = $s['words'][0];
+    foreach ($s['words'] as $w) {
+        if ((int) $w->id !== (int) $word->id) {
+            WordRepetition::query()->where('word_id', $w->id)->update(['next_review_at' => now()->addDay()]);
+        }
+    }
+    WordTranslation::query()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'перевод 0', 'example_translation' => 'Мне очень нравится word0.', 'source' => 'import']);
+    // repetitions 4 mod 2 (the anchor and one extra) = 0: the anchor; 5 -> the extra one.
+    WordExample::query()->create(['word_id' => $word->id, 'position' => 1, 'text' => 'We word0 together.', 'translations' => ['ru' => 'Мы word0 вместе.']]);
+
+    foreach ([[4, 'I like word0 a lot.', 'Мне очень нравится word0.'], [5, 'We word0 together.', 'Мы word0 вместе.']] as [$reps, $text, $translation]) {
+        lmReset($s['learner'], (int) $word->id, $reps, 15);
+        $card = lmCard($s);
+        expect($card['prompt']['type'])->toBe('reverse')
+            ->and($card['example'])->toBeNull()
+            ->and($card['example_translation'])->toBeNull();
+
+        $response = $this->withHeaders($s['headers'])
+            ->postJson("{$s['url']}/review", ['word_id' => $card['word_id'], 'answer' => lmCorrect($card), 'exercise' => 'reverse', 'time_spent_ms' => 500])
+            ->assertOk();
+        expect($response->json('revealed.example'))->toBe($text)
+            ->and($response->json('revealed.example_translation'))->toBe($translation);
+    }
 });

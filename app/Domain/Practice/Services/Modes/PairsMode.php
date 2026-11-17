@@ -149,6 +149,16 @@ final class PairsMode implements PracticeModeHandler
 
     public function project(SnapshotElement $element, string $locale, ElementState $state): array
     {
+        return self::projectRound($element, $locale, $state);
+    }
+
+    /**
+     * What the client sees of a round; shared with `pairs_timed` (same board, same keys: no `pairs`, no `word_id`).
+     *
+     * @return array<string, mixed>
+     */
+    public static function projectRound(SnapshotElement $element, string $locale, ElementState $state): array
+    {
         $round = PairsRound::of($element);
         $matched = PairsRound::matched($state);
 

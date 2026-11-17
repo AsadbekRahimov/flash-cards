@@ -9,8 +9,11 @@ use App\Domain\Content\DTO\CourseDetail;
 use App\Domain\Content\DTO\CourseListing;
 use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Content\DTO\LearnerProgress;
+use App\Domain\Content\DTO\LearnerWordStages;
 use App\Domain\Content\DTO\LessonProgress;
 use App\Domain\Content\DTO\NextLesson;
+use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
@@ -389,8 +392,14 @@ final class CourseCatalogService
         $lessons = $this->lessonsStarted($course, $learner);
 
         $done = 0;
+        $started = 0;
+        $learned = 0;
+        $mastered = 0;
         foreach ($lessons as $counts) {
             $done += $counts['done'];
+            $started += $counts['started'];
+            $learned += $counts['learned'];
+            $mastered += $counts['mastered'];
         }
 
         $next = null;
@@ -405,6 +414,7 @@ final class CourseCatalogService
             $this->present($course, $locale),
             new LearnerProgress($done, $course->words_count),
             $next,
+            new LearnerWordStages($started, $learned, $mastered),
         );
     }
 
@@ -530,10 +540,16 @@ final class CourseCatalogService
      * their own rows only. THE one query "the learner's progress over the lessons of a course": "Today"
      * ({@see todayCourse()}) and the map of the game use it, each beside the cached {@see tree()}.
      *
-     * @return array<int, array{started: int, done: int}> lesson id => counts
+     * `learned` / `mastered` are the same rows by the stage of the word (docs/06 §13.3: a card in `review` with an interval from
+     * `learning.stages.known_from_interval_days` / `mastered_from_interval_days`, the thresholds of {@see WordStage}) - the readiness
+     * to the level (docs/13 §8.5) is read from this very statement, so "Today" pays nothing extra for it.
+     *
+     * @return array<int, array{started: int, done: int, learned: int, mastered: int}> lesson id => counts
      */
     public function lessonsStarted(Course $course, Learner $learner): array
     {
+        $t = WordStage::thresholds();
+
         $rows = DB::table('word_repetitions')
             ->join('words', 'words.id', '=', 'word_repetitions.word_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
@@ -542,12 +558,23 @@ final class CourseCatalogService
             ->where('words.is_active', true)
             ->where('stages.course_id', $course->id)
             ->groupBy('words.lesson_id')
-            ->selectRaw('words.lesson_id as lesson_id, COUNT(*) as started, SUM(CASE WHEN word_repetitions.repetitions >= 1 THEN 1 ELSE 0 END) as done')
+            ->selectRaw(
+                'words.lesson_id as lesson_id, COUNT(*) as started,
+                 SUM(CASE WHEN word_repetitions.repetitions >= 1 THEN 1 ELSE 0 END) as done,
+                 SUM(CASE WHEN word_repetitions.state = ? AND word_repetitions.interval_days >= ? THEN 1 ELSE 0 END) as learned,
+                 SUM(CASE WHEN word_repetitions.state = ? AND word_repetitions.interval_days >= ? THEN 1 ELSE 0 END) as mastered',
+                [RepetitionState::Review->value, $t['known'], RepetitionState::Review->value, $t['mastered']],
+            )
             ->get();
 
         $counts = [];
         foreach ($rows as $row) {
-            $counts[(int) $row->lesson_id] = ['started' => (int) $row->started, 'done' => (int) $row->done];
+            $counts[(int) $row->lesson_id] = [
+                'started' => (int) $row->started,
+                'done' => (int) $row->done,
+                'learned' => (int) $row->learned,
+                'mastered' => (int) $row->mastered,
+            ];
         }
 
         return $counts;

@@ -12,4 +12,6 @@ enum FinishReason: string
     case Expired = 'expired';
     /** The learner opened a new session with `replace_active`. */
     case Replaced = 'replaced';
+    /** A timed session: `deadline_at` + the grace passed (lazily on a request, an answer or by `practice:close-expired`). */
+    case TimeOver = 'time_over';
 }

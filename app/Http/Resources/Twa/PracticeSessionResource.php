@@ -51,15 +51,24 @@ final class PracticeSessionResource extends TwaResource
             'server_now' => IsoTime::format($view->serverNow),
             'current' => $view->current === null ? null : self::clean($view->current),
             'summary' => $view->summary === null ? null : self::summary($view->summary),
+            // The clock of a timed game; null for the other modes. `deadline_at` moves closer with every wrong match; the time left is
+            // `deadline_at - server_now` (this very response), the client counts it down on its own clock.
+            'timed' => $view->timed === null ? null : [
+                'seconds' => $view->timed['seconds'],
+                'deadline_at' => $view->timed['deadline_at'] === null ? null : IsoTime::format($view->timed['deadline_at']),
+                'started' => $view->timed['started'],
+                'score' => $view->timed['score'],
+                'penalty_ms' => $view->timed['penalty_ms'],
+            ],
         ];
     }
 
     /**
-     * @return array{total: int, answered: int, correct_first: int, typos: int, hints: int, mismatches: int|null, duration_ms: int, finish_reason: string, retry_available: bool, mistakes: list<array{element_id: string, kind: string, label: string, your_answer: string|null, verdict: string}>}
+     * @return array{total: int, answered: int, correct_first: int, typos: int, hints: int, mismatches: int|null, duration_ms: int, finish_reason: string, retry_available: bool, mistakes: list<array{element_id: string, kind: string, label: string, your_answer: string|null, verdict: string}>, score?: int, best_score?: int|null, is_record?: bool}
      */
     public static function summary(SummaryView $summary): array
     {
-        return [
+        $body = [
             'total' => $summary->total,
             'answered' => $summary->answered,
             'correct_first' => $summary->correctFirst,
@@ -71,6 +80,14 @@ final class PracticeSessionResource extends TwaResource
             'retry_available' => $summary->retryAvailable,
             'mistakes' => $summary->mistakes,
         ];
+        // Only a timed game has them: the pairs, the best score now, whether this game set it.
+        if ($summary->score !== null) {
+            $body['score'] = $summary->score;
+            $body['best_score'] = $summary->bestScore;
+            $body['is_record'] = $summary->isRecord ?? false;
+        }
+
+        return $body;
     }
 
     /**

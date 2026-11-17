@@ -438,6 +438,8 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 >
 > Ученик без активного курса (`active_course_id IS NULL`) вместо `never_started` / `new_words` получает `choose_course` / `choose_course_reminder` («Выберите курс»); остаток непройденных слов курса не считается. Правило «одно в локальный день» и клейм `next_reminder_at` не менялись; `notifications_log.payload` дополнен `idle_days`.
 
+> **Изменение 2026-11-17: вопрос в напоминании.** Напоминание может быть вопросом с четырьмя кнопками прямо в чате (docs/12 §7.5). Ответ в чате **не меняет** `word_repetitions` и `learner_daily_stats` (и не пишет в `training_sessions` / `training_reviews`): ни шага SM-2/FSRS, ни серии, ни цели дня, ни очков рейтинга. Слово — due по `DueRepetitionCriteria` (то же определение, что число в напоминании), иначе ближайшее к сроку из уже отвеченных; варианты строит `ExercisePromptBuilder` (§12.2).
+
 ## 6a. Заморозка серии (streak freeze, Pro) — 2C.2
 
 Правила streak — docs/12 §7.4; здесь — что меняет заморозка (docs/13 §2.4, §7.2). Код: `App\Domain\Engagement\Services\StreakFreezeService`
@@ -682,6 +684,7 @@ pass-rate «созревших» карточек `review` (`interval_before_day
 по `graded`/`revealed.correct` (docs/04 A.3). Варианты `meaning` строятся тем же `ExercisePromptBuilder`, что у `audio`/`pretest`: пул дистракторов
 урока из кэша, переводы одним MGET, дедупликация без учёта регистра и пробелов — второе слово с тем же переводом не даёт второго верного варианта.
 Выключив в настройках все упражнения с проверкой, ученик остаётся на самооценке `flash` — это допустимо и считается метрикой честности (ниже).
+Те же варианты (`meaning`, при выключенном `meaning` — `reverse`) идут в чат как вопрос напоминания бота (docs/12 §7.5): тот же `ExercisePromptBuilder` и фильтр общих смыслов, но ответ там проверяется по индексу из состояния вопроса и **не** оценивается как повторение (§6).
 
 **Метрика честности самооценки** (docs/25 «Общие метрики»): если неверный объективный ответ (вариант или ввод) следует за самооценкой
 `flash` с `quality ≥ 4` по тому же слову (`last_quality` + `meta.last_exercise` из той же строки — без лишних SQL), после коммита пишется
@@ -711,6 +714,14 @@ translations json)` (docs/03 §2.21a), импорт — ключ `examples: [{te
 не было. Детерминировано: `POST /review` берёт тот же пример и проверяет форму из него. Кэш `LearningCache::wordExamples`
 (`word:examples:v1:{word_id}`, массивы, TTL 1 ч, пустой список — тоже запись; сброс `forgetWordExamples` после коммита импорта).
 Без дополнительных примеров поведение прежнее. `card.example` — пример этой выдачи.
+
+`card.example_translation` — перевод ИМЕННО этого примера на язык сессии (откат на ru, как у перевода слова, без второго механизма):
+якорь берёт `word_translations.example_translation` (читается тем же запросом и тем же кэшем `word:tr:v2:*`, что и перевод слова:
+`ResolvedTranslation::$exampleTranslation`, дополнительных запросов нет), ротируемый — `word_examples.translations[locale]` своего
+предложения (`WordExamples::pickRow`), никогда не перевод якоря. Нет перевода — `null`. Скрыт вместе с `example`: у
+`meaning`/`reverse`/`audio`/`pretest`/`spelling`/`gap_fill` в карточке `null` (перевод предложения с пропуском или примера у reverse выдал бы
+ответ), а для `meaning`/`reverse`/`audio` приходит в `revealed.example_translation` ответа `/review`. У `spelling`/`gap_fill`/`pretest`
+`revealed` нет и пример после ответа не показывается.
 
 ### 12.5 Путаемые слова (`CardPicker`, `learning.confusables.*`)
 
@@ -881,6 +892,8 @@ translations json)` (docs/03 §2.21a), импорт — ключ `examples: [{te
 выпущенная карточка в учебные шаги не возвращается, провал на строке отличает одно от другого); после = по текущей строке); слова, достигшие
 `mastered` в этой сессии. Так слово, введённое в прошлой сессии и выпущенное в этой, попадает в `promoted` (ревью 17.11.2026: раньше получало
 стадию 1 «до» и не считалось нигде). Бюджет `/finish` прежний (одно обращение к `training_reviews`, оконная функция внутри подзапроса).
+
+Готовность к уровню (docs/13 §8.5) читает **те же** стадии и пороги: доля активных слов курса, у которых `state = review` и `interval_days >= known_from_interval_days`, считается суммой в запросе строк ученика по курсу (`CourseCatalogService::lessonsStarted`). Тест недели расписание не меняет: он не пишет в `word_repetitions`.
 
 ### 13.4 Стоимость и тесты
 

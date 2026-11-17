@@ -39,6 +39,7 @@ final class ReviewResultResource extends TwaResource
                 'translation' => $revealed->translation,
                 'correct' => $revealed->correct,
                 'example' => $revealed->example,
+                'example_translation' => $revealed->exampleTranslation,
                 'transcription' => $revealed->transcription,
                 'audio_url' => $revealed->audioUrl,
                 'hook' => $revealed->hook,

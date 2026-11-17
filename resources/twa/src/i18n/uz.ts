@@ -101,6 +101,7 @@ export const uz: Translations = {
   'today.game.title': 'Karvon',
   'today.game.daily': 'Bugungi karvon safarini boshlang',
   'today.game.continue': 'Safarni davom ettirish',
+  'today.game.map': "Karvon xaritasi: shaharlarni so'zlar bilan bosib o'ting",
   'today.streak.best': 'Rekord: {best}',
   'today.streak.freezes': {
     one: '❄️ {count} ta zaxira kun',
@@ -504,6 +505,7 @@ export const uz: Translations = {
   'settings.exercises.gap_fill': "Misoldagi bo'sh joy",
   'settings.group.learning': "O'rganish",
   'settings.say_aloud': "So'zni ovoz chiqarib aytishni eslatish",
+  'settings.autospeak': "So'zlarni avtomatik o'qish",
   'settings.sounds': 'Tovushlar',
   'settings.retention': 'Eslab qolish maqsadi',
   'settings.retention.calm': 'Sokin',

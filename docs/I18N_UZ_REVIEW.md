@@ -3875,6 +3875,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`: серия верных ответов
 | `finished.quota.pro` | Pro nima beradi | Что даёт Pro (кнопка открывает окно о Pro) |
 | `finished.quota.invite` | Do'stlarni taklif qiling — Pro bepul | Пригласить друзей — Pro бесплатно |
 | `settings.sounds` | Tovushlar | Звуки (переключатель в «Настройках», раздел обучения) |
+| `settings.autospeak` | So'zlarni avtomatik o'qish | Автоозвучка слов (переключатель в «Настройках», раздел обучения; слово произносится само при показе) |
 
 ## Раунды, игры на виду (17.11.2026) — на проверку носителю
 

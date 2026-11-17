@@ -134,7 +134,7 @@ $expectedTables = [
     // Phase 2 (docs/13 §1.5): achievements.
     'achievements',
     // Practice and battle (docs/16 §2).
-    'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts',
+    'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts', 'practice_records',
     'battles', 'battle_participants', 'battle_answers',
     // The game "Caravan" (docs/18 §12.2).
     'game_runs', 'game_run_attempts', 'game_stop_progress', 'game_city_progress', 'game_word_misses',
@@ -2234,3 +2234,38 @@ it('has the CHECK constraints of the game tables (PostgreSQL)', function (): voi
     DB::table('class_caravans')->insert([...$caravan, 'status' => 'active', 'active_group_id' => $caravan['telegram_group_id']]);
     DB::table('class_caravans')->insert([...$caravan, 'status' => 'canceled', 'active_group_id' => null]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');
+
+
+it('adds the clock of pairs_timed to the practice, keeps one record per learner and mode, refuses a rollback that would lose a timed session, and rolls back clean', function (): void {
+    $migration = require database_path('migrations/2026_11_18_200001_add_timed_pairs_to_practice.php');
+
+    expect(Schema::hasColumns('practice_sessions', ['deadline_at', 'score']))->toBeTrue()
+        ->and(Schema::hasTable('practice_records'))->toBeTrue();
+
+    // A timed session fits the table (on PostgreSQL the CHECK of the mode knows the value) and starts with score 0 and no deadline.
+    $id = DB::table('practice_sessions')->insertGetId(practiceRawSession(['mode' => 'pairs_timed']));
+    expect(DB::table('practice_sessions')->where('id', $id)->first())->toMatchObject(['score' => 0, 'deadline_at' => null]);
+
+    // One record per (learner, mode).
+    $learnerId = (int) DB::table('practice_sessions')->where('id', $id)->value('learner_id');
+    $record = ['learner_id' => $learnerId, 'mode' => 'pairs_timed', 'best_score' => 12, 'best_session_id' => $id, 'achieved_at' => now()];
+    DB::table('practice_records')->insert($record);
+    expectConstraintViolation(fn () => DB::table('practice_records')->insert($record));
+
+    // The rollback does not drop the rows of a mode the older CHECK cannot hold: it says so.
+    expect(fn () => $migration->down())->toThrow(RuntimeException::class, 'pairs_timed');
+    expect(Schema::hasTable('practice_records'))->toBeTrue();
+
+    DB::table('practice_sessions')->where('id', $id)->delete();
+    $migration->down();
+    expect(Schema::hasTable('practice_records'))->toBeFalse()
+        ->and(Schema::hasColumn('practice_sessions', 'deadline_at'))->toBeFalse()
+        ->and(Schema::hasColumn('practice_sessions', 'score'))->toBeFalse();
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'pairs_timed'])));
+    }
+
+    $migration->up();
+    expect(Schema::hasColumns('practice_sessions', ['deadline_at', 'score']))->toBeTrue()
+        ->and(Schema::hasTable('practice_records'))->toBeTrue();
+});

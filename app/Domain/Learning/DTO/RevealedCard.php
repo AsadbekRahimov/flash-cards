@@ -19,6 +19,7 @@ final readonly class RevealedCard
         public string $translation,
         public string $correct,
         public ?string $example,
+        public ?string $exampleTranslation,
         public ?string $transcription,
         public ?string $audioUrl,
         public ?string $hook,

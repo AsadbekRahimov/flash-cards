@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ReverseCard from '../ReverseCard.vue'
+import { AFTER_FEEDBACK_MS, resetAutoSpeak, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { CHOICE_FEEDBACK_MS } from '@/composables/useChoice'
 import type { Card, ChoiceResult } from '@/api/types'
 import { setLocale } from '@/i18n'
@@ -35,7 +36,8 @@ function answered(correct: boolean): ChoiceResult {
       translation: 'Устойчивый',
       correct: 'resilient',
       example: 'She is a resilient girl.',
-      transcription: null,
+      example_translation: 'Она стойкая девочка.',
+      transcription: 'rɪˈzɪl.i.ənt',
       audio_url: 'https://x.test/a.mp3',
       hook: null,
       note: null,
@@ -49,6 +51,7 @@ describe('ReverseCard', () => {
   afterEach(() => {
     vi.useRealTimers()
     setLocale('ru')
+    resetAutoSpeak()
     speak.mockClear()
   })
 
@@ -59,6 +62,7 @@ describe('ReverseCard', () => {
     expect(w.findAll('button[data-testid^=option-]')).toHaveLength(4)
     expect(w.text()).not.toContain('Resilient')
     expect(w.find('[data-testid=example]').exists()).toBe(false)
+    expect(w.find('[data-testid=transcription]').exists()).toBe(false)
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
     // The options are outside the question card (docs/14 §6.2).
     expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
@@ -85,12 +89,17 @@ describe('ReverseCard', () => {
 
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
+    // The word follows the tone of the verdict, not on top of it.
+    expect(speak).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS)
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
+    expect(w.get('[data-testid=example-translation]').text()).toBe('Она стойкая девочка.')
+    expect(w.get('[data-testid=transcription]').text()).toBe('rɪˈzɪl.i.ənt')
     // A right pick moves on by itself: there is nothing to press.
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
 
-    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS - 1)
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS - AFTER_FEEDBACK_MS - 1)
     expect(w.emitted('advance')).toBeUndefined()
     vi.advanceTimersByTime(1)
     expect(w.emitted('advance')).toHaveLength(1)
@@ -105,7 +114,9 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
-    expect(speak).not.toHaveBeenCalled()
+    // After a miss the learner hears the word he did not find.
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS)
+    expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
 
     // Reading takes as long as it takes: the next card does not come by itself.
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
@@ -119,6 +130,18 @@ describe('ReverseCard', () => {
     expect(w.emitted('advance')).toHaveLength(1)
     // "Next" only moves on: the pick went at the pick and is not sent a second time.
     expect(w.emitted('pick')).toEqual([['Fragile']])
+  })
+
+  it('does not speak the word by itself when auto-speak is off, and never before the verdict', async () => {
+    setAutoSpeakEnabled(false)
+    const w = mount(ReverseCard, { props: { card } })
+    await w.get('[data-testid=option-1]').trigger('click')
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 5)
+    expect(speak).not.toHaveBeenCalled()
+
+    await w.setProps({ result: answered(true) })
+    vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 5)
+    expect(speak).not.toHaveBeenCalled()
   })
 
   it('accepts one pick only and none while disabled', async () => {

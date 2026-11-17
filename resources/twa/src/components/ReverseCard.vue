@@ -5,8 +5,8 @@ import CardHooks from '@/components/CardHooks.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import { useChoice } from '@/composables/useChoice'
+import { useAutoSpeak } from '@/composables/useAutoSpeak'
 import { useTelegram } from '@/composables/useTelegram'
-import { useTts } from '@/composables/useTts'
 import { useI18n } from '@/i18n'
 
 /**
@@ -30,7 +30,7 @@ const emit = defineEmits<{
 }>()
 
 const { haptic, notificationHaptic } = useTelegram()
-const { speak } = useTts()
+const { speakWord } = useAutoSpeak()
 const { t } = useI18n()
 
 const options = computed((): string[] => props.card.prompt?.options ?? [])
@@ -53,6 +53,7 @@ const shown = computed((): Card => {
     ...props.card,
     word: r.word,
     example: r.example,
+    example_translation: r.example_translation ?? null,
     transcription: r.transcription,
     audio_url: r.audio_url,
     hook: r.hook,
@@ -70,11 +71,12 @@ function onPick(index: number): void {
   haptic('medium')
 }
 
-// The verdict arrives with the server's answer: the haptic and the word's sound follow it.
+// The verdict arrives with the server's answer: the haptic and the word's sound follow it (right or wrong: after a miss the
+// learner hears the word he did not find), after the tone of the verdict. Never before: the word is the answer.
 watch(isCorrect, (right) => {
   if (right === null) return
   notificationHaptic(right ? 'success' : 'error')
-  if (right) void speak(shown.value.word, 'en-US', shown.value.audio_url)
+  speakWord(shown.value.word, shown.value.audio_url, true)
 })
 
 function onContinue(): void {
@@ -107,8 +109,19 @@ function onContinue(): void {
         />
       </div>
 
+      <!-- The word is the right option above; its transcription comes with it once the answer is on screen. -->
+      <p v-if="isCorrect !== null && shown.transcription" class="text-center text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
+        {{ shown.transcription }}
+      </p>
       <p v-if="isCorrect !== null && shown.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
         {{ shown.example }}
+      </p>
+      <p
+        v-if="isCorrect !== null && shown.example && shown.example_translation"
+        class="-mt-2 px-2 text-center text-[13px] leading-[18px] text-tg-hint"
+        data-testid="example-translation"
+      >
+        {{ shown.example_translation }}
       </p>
       <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
       <CardHooks v-if="isCorrect !== null" :card="shown" class="px-2" />

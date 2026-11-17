@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /*
 |--------------------------------------------------------------------------
-| Practice (four solo modes) and the 1-on-1 battle (docs/16 §3.1)
+| Practice (five solo modes) and the 1-on-1 battle (docs/16 §3.1)
 |--------------------------------------------------------------------------
 |
 | The keys are final (docs/16): `env()` is read only by the switches and the Free limits. `access`: off | pilot | all;
@@ -29,6 +29,7 @@ return [
         'collocation' => (bool) env('PRACTICE_MODE_COLLOCATION', true),
         'sentence' => (bool) env('PRACTICE_MODE_SENTENCE', true),
         'dictation' => (bool) env('PRACTICE_MODE_DICTATION', true),
+        'pairs_timed' => (bool) env('PRACTICE_MODE_PAIRS_TIMED', true),
     ],
     'battle' => [
         'enabled' => (bool) env('PRACTICE_BATTLE', false), // off until checked on the stand: turn on with PRACTICE_BATTLE=true
@@ -49,6 +50,9 @@ return [
         'items' => ['size' => 5, 'min' => 3],
         'pairs' => ['rounds' => 3, 'per_round' => 4, 'min_per_round' => 3],
         'dictation' => ['max_replacements' => 2, 'phrases_max' => 3],
+        // Pairs against the clock (docs/16 §5.5a): `seconds` from POST /start; a wrong match moves the deadline by `mismatch_penalty_ms`;
+        // an answer is taken until `deadline + grace_ms`; `rounds` x `per_round` pairs, laid out again from the same words when there are few.
+        'pairs_timed' => ['seconds' => 60, 'rounds' => 10, 'per_round' => 4, 'min_words' => 8, 'mismatch_penalty_ms' => 2000, 'grace_ms' => 1500],
     ],
     'content' => [
         'sentence_fragments' => ['min' => 3, 'max' => 8], 'sentence_accepted_max' => 6, 'fragment_max_length' => 40,
@@ -68,7 +72,7 @@ return [
     ],
     // How many words (of a whole course) the hub and the options of a battle look at to tell a mode has material: the counts of
     // `available` of an available mode are "at least" this much (a shortage is always counted over every word). Far above the
-    // biggest `required` of a mode (battle: rounds x pairs_per_round = 20; solo: 3 words, 5 tasks), so a sample of fit words is ample.
+    // biggest `required` of a mode (battle: rounds x pairs_per_round = 20; solo: 3 words, 5 tasks, pairs_timed 8 words), so a sample of fit words is ample.
     'count_sample' => 300,
     // How many words a session / a battle on a WHOLE course is built from when the learner has started (a battle: the course has) more:
     // a sample of this size chosen by the seed of the snapshot, so opening costs the same at 300 and at 8000 words (no lesson, module or

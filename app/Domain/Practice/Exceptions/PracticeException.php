@@ -35,6 +35,9 @@ use RuntimeException;
  *   replace_not_allowed             409  {reason}: not_dictation | not_current | limit
  *   retry_not_available             409  nothing (enough) to repeat
  *   request_id_reused               409  the `request_id` is the one of a request of another kind (an answer / a swap)
+ *   practice_not_started            409  a timed session: the clock has not been started (`POST …/start`)
+ *   practice_time_over              409  {score}: a timed session: the answer came after `deadline_at` + the grace; the session is closed
+ *   practice_not_timed              409  `POST …/start` of a session of a mode that has no clock
  *   practice_audio_unavailable      503  the file of the audio is not there
  *   course_not_found                404  / lesson_not_found 404 / lesson_not_in_course 422
  */
@@ -71,6 +74,12 @@ final class PracticeException extends RuntimeException
     public const RETRY_NOT_AVAILABLE = 'retry_not_available';
 
     public const REQUEST_ID_REUSED = 'request_id_reused';
+
+    public const NOT_STARTED = 'practice_not_started';
+
+    public const TIME_OVER = 'practice_time_over';
+
+    public const NOT_TIMED = 'practice_not_timed';
 
     public const AUDIO_UNAVAILABLE = 'practice_audio_unavailable';
 
@@ -210,6 +219,21 @@ final class PracticeException extends RuntimeException
     public static function requestIdReused(): self
     {
         return new self(self::REQUEST_ID_REUSED, 'This request_id belongs to a request of another kind.');
+    }
+
+    public static function notStarted(): self
+    {
+        return new self(self::NOT_STARTED, 'The clock of this session has not been started.');
+    }
+
+    public static function timeOver(int $score): self
+    {
+        return new self(self::TIME_OVER, 'The time of this session is over.', ['score' => $score]);
+    }
+
+    public static function notTimed(): self
+    {
+        return new self(self::NOT_TIMED, 'This session has no clock.');
     }
 
     public static function audioUnavailable(): self

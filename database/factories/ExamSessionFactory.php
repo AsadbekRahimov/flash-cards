@@ -62,6 +62,27 @@ class ExamSessionFactory extends Factory
     }
 
     /**
+     * The quiz of the week of a learner (docs/13 §8.5): the shape of a personal mock with one 10-minute timer and the week of the quiz in `config`.
+     * The course is a published platform course unless given.
+     */
+    public function levelQuiz(Learner|int|null $learner = null, Course|int|null $course = null, string $weekStart = '2026-11-16', bool $scored = true): static
+    {
+        return $this->state(fn (): array => [
+            'mode' => ExamSession::MODE_LEVEL_QUIZ,
+            'telegram_group_id' => null,
+            'lesson_id' => null,
+            'started_by_user_id' => null,
+            'learner_id' => $learner instanceof Learner ? $learner->id : ($learner ?? Learner::factory()),
+            'course_id' => $course instanceof Course ? $course->id : ($course ?? Course::factory()->published()),
+            'ends_at' => now()->addMinutes(10),
+            'config' => array_merge(
+                self::config(self::placeholderQuestions(4)),
+                ['seconds' => 600, 'seconds_per_question' => 600, 'duration_minutes' => 10, 'week_start' => $weekStart, 'scored' => $scored],
+            ),
+        ]);
+    }
+
+    /**
      * Gives the session `$n` answerable questions in the canonical
      * `config.questions` format (what `ExamQuestionBuilder` stores): real
      * `words` rows are created in the session's lesson (for a personal mock —

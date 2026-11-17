@@ -42,7 +42,8 @@ final class CoursePackImporter
 
         $slug = $manifest['slug'];
 
-        if ($this->catalog->findBySlug($slug) === null) {
+        $existing = $this->catalog->findBySlug($slug);
+        if ($existing === null) {
             if (! $create) {
                 $report->errors[] = "Course '{$slug}' does not exist: run with --create to create it as a draft.";
 
@@ -51,6 +52,8 @@ final class CoursePackImporter
 
             $this->createCourse($manifest);
             $report->courseCreated = true;
+        } else {
+            $this->syncLevelLabel($existing, $manifest['level_label']);
         }
 
         $files = glob($dir.'/'.self::LESSON_GLOB) ?: [];
@@ -84,7 +87,7 @@ final class CoursePackImporter
         return $report;
     }
 
-    /** @return array{slug:string, title:array<string,string>, description:array<string,string>, level:?string, exam_tag:?string, visibility:string, position:int, is_featured:bool}|null */
+    /** @return array{slug:string, title:array<string,string>, description:array<string,string>, level:?string, level_label:?string, exam_tag:?string, visibility:string, position:int, is_featured:bool}|null */
     private function readManifest(string $dir, CoursePackReport $report): ?array
     {
         $path = $dir.'/'.self::MANIFEST;
@@ -125,6 +128,7 @@ final class CoursePackImporter
             'title' => $title,
             'description' => $this->texts($data['description'] ?? null),
             'level' => is_string($data['level'] ?? null) ? $data['level'] : null,
+            'level_label' => is_string($data['level_label'] ?? null) && trim($data['level_label']) !== '' ? trim($data['level_label']) : null,
             'exam_tag' => is_string($data['exam_tag'] ?? null) ? $data['exam_tag'] : null,
             'visibility' => is_string($data['visibility'] ?? null) ? $data['visibility'] : 'public',
             'position' => is_int($data['position'] ?? null) ? $data['position'] : 0,
@@ -145,7 +149,17 @@ final class CoursePackImporter
         return $out;
     }
 
-    /** @param  array{slug:string, title:array<string,string>, description:array<string,string>, level:?string, exam_tag:?string, visibility:string, position:int, is_featured:bool}  $manifest */
+    /** The label the learner sees for the level (`meta.level_label`, docs/13 §8.5), merged into `meta` without touching the rest of it. */
+    private function syncLevelLabel(Course $course, ?string $label): void
+    {
+        if ($label === null || ($course->meta['level_label'] ?? null) === $label) {
+            return;
+        }
+
+        $course->update(['meta' => [...$course->meta, 'level_label' => $label]]);
+    }
+
+    /** @param  array{slug:string, title:array<string,string>, description:array<string,string>, level:?string, level_label:?string, exam_tag:?string, visibility:string, position:int, is_featured:bool}  $manifest */
     private function createCourse(array $manifest): Course
     {
         return Course::create([
@@ -156,6 +170,7 @@ final class CoursePackImporter
             'description' => $manifest['description'],
             'target_language' => 'en',
             'level' => $manifest['level'],
+            'meta' => $manifest['level_label'] === null ? [] : ['level_label' => $manifest['level_label']],
             'exam_tag' => $manifest['exam_tag'],
             'visibility' => $manifest['visibility'],
             'status' => CoursePublisher::DRAFT,

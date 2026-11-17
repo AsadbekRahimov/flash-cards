@@ -92,7 +92,7 @@ it('requires authentication', function (): void {
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
-    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true]]);
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true], 'game.access' => 'off']);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
@@ -283,7 +283,10 @@ it('describes the active course with its progress and the next lesson with new w
     $lessons = todayCourse(2, 2, ['title' => ['ru' => 'Английский A1', 'uz' => 'Ingliz tili A1']]);
     $learner = Learner::factory()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
 
-    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', [
+    $first = todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.readiness.words.total', 4); // the readiness block: TwaReadinessTest
+    $course = $first->json('active_course');
+    unset($course['readiness']);
+    expect($course)->toBe([
         'id' => $lessons[0]->stage?->course_id,
         'slug' => Course::query()->findOrFail($lessons[0]->stage?->course_id)->slug,
         'title' => 'Английский A1',

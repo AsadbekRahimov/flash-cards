@@ -354,5 +354,18 @@ return [
             static fn (int $day): bool => $day > 0,
         )),
         'stop_after_days' => max(1, (int) env('REMINDERS_STOP_AFTER_DAYS', 60)),
+
+        /**
+         * The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). `enabled` = false brings
+         * back the plain text with one button. A question only goes to the first `max_idle_days` of a break (the rarer
+         * reminders of the sparse days stay text); `ttl_hours` = how long a question can be answered (the state lives in
+         * the non-evictable Redis, docs/19 §2.2); `candidates` = how many cards are tried to build four options for.
+         */
+        'quiz' => [
+            'enabled' => (bool) env('REMINDERS_QUIZ_ENABLED', true),
+            'max_idle_days' => max(0, (int) env('REMINDERS_QUIZ_MAX_IDLE_DAYS', 7)),
+            'ttl_hours' => max(1, (int) env('REMINDERS_QUIZ_TTL_HOURS', 26)),
+            'candidates' => 3,
+        ],
     ],
 ];

@@ -114,6 +114,7 @@ export const ru = {
   'today.game.title': 'Караван',
   'today.game.daily': 'Караван дня ждёт',
   'today.game.continue': 'Продолжить забег',
+  'today.game.map': 'Карта каравана: проходи города словами',
   'today.streak.best': 'Рекорд: {best}',
   'today.streak.freezes': {
     one: '❄️ {count} заморозка',
@@ -542,6 +543,7 @@ export const ru = {
   'settings.exercises.gap_fill': 'Пропуск в примере',
   'settings.group.learning': 'Обучение',
   'settings.say_aloud': 'Напоминать произносить слово вслух',
+  'settings.autospeak': 'Автоозвучка слов',
   'settings.sounds': 'Звуки',
   'settings.retention': 'Цель удержания',
   'settings.retention.calm': 'Спокойно',

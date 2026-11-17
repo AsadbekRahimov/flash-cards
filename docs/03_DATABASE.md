@@ -322,9 +322,9 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | telegram_group_id | bigint FK nullable | — группа (`group_exam`); у `personal_mock` NULL |
 | lesson_id | bigint FK nullable | — урок (`group_exam`); у `personal_mock` NULL (слова берутся из курса) |
 | started_by_user_id | bigint FK nullable | — учитель (`group_exam`); у `personal_mock` NULL |
-| learner_id | bigint FK nullable cascade | — владелец `personal_mock` (2D.4, docs/13 §1.6) |
-| mode | varchar(16) default 'group_exam' | — `group_exam` / `personal_mock` |
-| course_id | bigint FK nullable cascade | — курс `personal_mock` (процентиль считается по курсу) |
+| learner_id | bigint FK nullable cascade | — владелец `personal_mock` и `level_quiz` (2D.4, docs/13 §1.6, §8.5) |
+| mode | varchar(16) default 'group_exam' | — `group_exam` / `personal_mock` / `level_quiz` (тест недели, docs/13 §8.5) |
+| course_id | bigint FK nullable cascade | — курс `personal_mock` (процентиль считается по курсу) и `level_quiz` |
 | status | enum('open','closed') default 'open' |
 | started_at | timestamp |
 | ends_at | timestamp |
@@ -353,6 +353,13 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 
 `config` у `personal_mock` (пишется `MockExamService::open`): те же ключи плюс `seconds` (лимит всего теста);
 `seconds_per_question = seconds` — таймер один на весь тест; `locale` — локаль learner'а.
+
+`config` у `level_quiz` (пишется `LevelQuizService::open`, docs/13 §8.5): ключи mock'а (`seconds = seconds_per_question = 600`) плюс
+`week_start` (`Y-m-d`, понедельник ISO-недели в поясе learner'а на момент открытия), `scored` (bool: тест открыт как зачётный),
+`met_count` / `unmet_count` (сколько вопросов из встреченных и не встреченных слов). Форма режимов — PG CHECK
+`exam_sessions_mode_shape_check`: `group_exam` — группа + урок + учитель; `personal_mock` и `level_quiz` — `learner_id` + `course_id`.
+Не больше одного открытого теста на learner'а: partial unique `exam_sessions_one_open_quiz_per_learner (learner_id) WHERE status = 'open' AND mode = 'level_quiz'`
+(рядом с `…_one_open_mock_per_learner`; sqlite — без CHECK, форму держит сервис).
 
 **Индексы:** `status`, `ends_at` (для scheduler).
 Дополнительно для нагрузки:
@@ -489,7 +496,7 @@ Append-only журнал для продуктовой аналитики (не 
 | goal | string(20) nullable | `general` / `ielts` / `sat` / `school` |
 | level | string(2) nullable | `A1`..`C2` |
 | active_course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для новых слов экрана «Сегодня» |
-| daily_goal | smallint default 20 | карточек (оценок) в день |
+| daily_goal | smallint default 20 (колонка; новым ученикам — 10 из config) | карточек (оценок) в день |
 | reminder_time | time nullable default '19:00' | локальное время напоминания; `NULL` = выключено |
 | next_reminder_at | timestamp nullable | ближайшее напоминание, UTC |
 | dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС |
@@ -1386,6 +1393,27 @@ CHECK не создаются — инвариант дублируют серв
 
 **`learner_daily_stats`** +: индекс `learner_daily_stats_date_idx (date)` *(2026_11_16_200002, §2.22)* — полный пересчёт месяца читает диапазон дат всех учеников; `date` не меняется после вставки, так что UPDATE'ы оценок остаются HOT (индекс по `updated_at` отвергнут). PostgreSQL строит его `CONCURRENTLY`.
 
+### 2.65 `level_quiz_results` — результаты теста недели *(docs/13 §8.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| course_id | bigint FK → courses, ON DELETE CASCADE | |
+| exam_session_id | bigint FK → exam_sessions, ON DELETE CASCADE | сессия `level_quiz` с вопросами и ответами; unique |
+| week_start | date | понедельник ISO-недели в поясе learner'а на момент **открытия** теста; пишется и сравнивается через `StoredDate::of` (§2.22) |
+| scored | boolean | зачётный: первый завершённый тест learner'а по курсу за эту неделю; остальные — тренировочные |
+| correct | smallint | верных ответов |
+| total | smallint | число вопросов (неотвеченные — неверные) |
+| finished_at | timestamp | |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `exam_session_id`; `(learner_id, course_id, week_start)` — строка недели и история одним range-чтением; partial unique
+`level_quiz_results_one_scored_per_week (learner_id, course_id, week_start) WHERE scored` (pgsql и sqlite) — «один зачётный тест в неделю» держит БД.
+
+**Правила:** строку пишет `LevelQuizService::finalize` под `FOR UPDATE` строки сессии, **только если был хотя бы один ответ**; вставка зачётной строки — во вложенной транзакции
+(savepoint), нарушение partial unique → та же строка записывается как `scored = false`. Тест не пишет в `word_repetitions`, `training_*`, `learner_daily_stats`.
+Читают: `LevelQuizService::weekLine` (`/today`, один запрос) и `overview` / `history` (экран готовности, один запрос).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1493,6 +1521,9 @@ CHECK не создаются — инвариант дублируют серв
 78. `2026_11_16_200002_add_date_index_to_learner_daily_stats_table` — индекс `learner_daily_stats (date)` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.22, §2.63)*
 79. `2026_11_17_100001_add_completed_at_to_training_sessions_table` — `training_sessions.completed_at`: раунд / урок пройден до конца без `/finish` *(docs/06 §13.2, §2.9)*
 80. `2026_11_17_100002_add_word_repetitions_in_steps_idx` — partial `word_repetitions (learner_id) WHERE state IN ('new','learning','relearning')` для счётчика `pending` раунда (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.7)*
+
+81. `2026_11_18_100001_add_level_quiz_mode_to_exam_sessions` — режим `level_quiz`: partial unique `exam_sessions_one_open_quiz_per_learner`, PG CHECK `exam_sessions_mode_shape_check` расширен (DROP + ADD); `down()` удаляет quiz-сессии и возвращает прежний CHECK *(docs/13 §8.5, §2.11)*
+82. `2026_11_18_100002_create_level_quiz_results_table` — `level_quiz_results` и partial unique «один зачётный на неделю» *(§2.65)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

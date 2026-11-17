@@ -37,6 +37,9 @@ class ExamSession extends Model
     /** A learner's own timed mock of an IELTS / SAT course (docs/13 §8.4). */
     public const MODE_PERSONAL_MOCK = 'personal_mock';
 
+    /** The quiz of the week of a learner over a course (docs/13 §8.5). */
+    public const MODE_LEVEL_QUIZ = 'level_quiz';
+
     /** @var list<string> */
     protected $fillable = [
         'telegram_group_id',
@@ -113,6 +116,17 @@ class ExamSession extends Model
     public function isPersonalMock(): bool
     {
         return $this->mode === self::MODE_PERSONAL_MOCK;
+    }
+
+    public function isLevelQuiz(): bool
+    {
+        return $this->mode === self::MODE_LEVEL_QUIZ;
+    }
+
+    /** A session of one learner over a course (a mock or a quiz): visible to its owner only, no group. */
+    public function isLearnerOwned(): bool
+    {
+        return $this->isPersonalMock() || $this->isLevelQuiz();
     }
 
     /** @return HasMany<ExamAnswer, $this> */

@@ -58,6 +58,7 @@ function meCacheCourse(string $slug, array $title): Course
 }
 
 it('serves the second /me from the snapshot: the learner and one statement of counts, the same answer', function (): void {
+    config(['game.access' => 'off']); // the budget of a closed game (an open one reads its limits, coins and tickets on top)
     $course = meCacheCourse('english-a1', ['ru' => 'Английский A1', 'uz' => 'Ingliz tili A1']);
     $learner = Learner::factory()->onboarded()->create(['active_course_id' => $course->id, 'interface_locale' => 'ru']);
     $group = TelegramGroup::factory()->create(['title' => 'Group 7B']);

@@ -62,6 +62,18 @@ describe('AudioCard', () => {
     expect(speak).toHaveBeenCalledTimes(2)
   })
 
+  it('does not read the word again after the verdict (the sound was the question), and shows the translation of the example', async () => {
+    const w = mount(AudioCard, { props: { card } })
+    expect(speak).toHaveBeenCalledTimes(1)
+    await w.get('[data-testid=option-2]').trigger('click')
+    const result = answered(true)
+    await w.setProps({ result: { ...result, revealed: { ...result.revealed!, example_translation: 'Она стойкая девочка.' } } })
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 3)
+
+    expect(speak).toHaveBeenCalledTimes(1)
+    expect(w.get('[data-testid=example-translation]').text()).toBe('Она стойкая девочка.')
+  })
+
   it('asks "What did you hear?" and says how to listen again, on a big round play button', () => {
     const w = mount(AudioCard, { props: { card } })
 

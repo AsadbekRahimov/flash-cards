@@ -12,6 +12,8 @@ use App\Models\Lesson;
 use App\Models\PracticeItem;
 use App\Models\PracticeItemVersion;
 use App\Models\PracticeItemWord;
+use App\Models\PracticeRecord;
+use App\Models\PracticeSession;
 use App\Models\Stage;
 use App\Models\Word;
 use Database\Factories\PracticeItemVersionFactory;
@@ -188,4 +190,21 @@ it('writes contents that pass the rules of docs/16 §4.5', function (PracticeIte
             yield "{$type->value} #{$sample}" => [$type, $sample];
         }
     }
+});
+
+it('makes the personal best of a learner in the clock mode, for a session or for none, one per learner and mode', function (): void {
+    $record = PracticeRecord::factory()->create();
+
+    expect($record->mode->value)->toBe('pairs_timed')
+        ->and($record->best_score)->toBe(20)
+        ->and($record->best_session_id)->toBeNull()
+        ->and($record->learner->id)->toBe($record->learner_id);
+
+    $session = PracticeSession::factory()->ofMode(\App\Domain\Practice\Enums\PracticeMode::PairsTimed)->finished()->create(['score' => 31]);
+    $best = PracticeRecord::factory()->create(['learner_id' => $session->learner_id, 'best_score' => 31, 'best_session_id' => $session->id]);
+
+    expect($best->bestSession->is($session))->toBeTrue()
+        ->and($session->score)->toBe(31)
+        ->and($session->deadline_at)->toBeNull();
+    expect(fn () => PracticeRecord::factory()->create(['learner_id' => $session->learner_id]))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
 });

@@ -10,6 +10,7 @@ use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\WordRepetition;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -101,6 +102,35 @@ it('re-importing with changed translation increments updated', function (): void
     expect($report->added)->toBe(0);
     expect($report->updated)->toBe(1);
     expect($report->skipped)->toBe(1);
+});
+
+it('re-importing a lesson with a transcription fills it in on the existing word, keeping its id and the learners\' progress', function (): void {
+    app(VocabularyImporter::class)->importAsSystem(sampleJson());
+    $hello = Word::query()->where('word', 'hello')->sole();
+    $repetition = WordRepetition::factory()->create(['word_id' => $hello->id, 'repetitions' => 4, 'interval_days' => 15]);
+    expect($hello->transcription)->toBeNull();
+
+    $report = app(VocabularyImporter::class)->importAsSystem(sampleJson([
+        'words' => [
+            ['word' => 'hello', 'translation' => 'привет', 'part_of_speech' => 'interjection', 'transcription' => 'həˈləʊ'],
+            ['word' => 'world', 'translation' => 'мир', 'part_of_speech' => 'noun'],
+        ],
+    ]));
+
+    expect($report->added)->toBe(0)->and($report->updated)->toBe(1)->and($report->skipped)->toBe(1)
+        ->and(Word::query()->where('word', 'hello')->count())->toBe(1)
+        ->and(Word::query()->count())->toBe(2)
+        ->and(Word::query()->where('word', 'hello')->sole())->id->toBe($hello->id)
+        ->transcription->toBe('həˈləʊ')
+        ->and(WordRepetition::query()->findOrFail($repetition->id))->repetitions->toBe(4)->interval_days->toBe(15);
+
+    // A later file that has no transcription does not wipe the one the word has; a new one replaces it.
+    app(VocabularyImporter::class)->importAsSystem(sampleJson());
+    expect(Word::query()->where('word', 'hello')->sole()->transcription)->toBe('həˈləʊ');
+    app(VocabularyImporter::class)->importAsSystem(sampleJson([
+        'words' => [['word' => 'hello', 'translation' => 'привет', 'part_of_speech' => 'interjection', 'transcription' => 'hɛˈləʊ']],
+    ]));
+    expect(Word::query()->where('word', 'hello')->sole()->transcription)->toBe('hɛˈləʊ');
 });
 
 it('aborts on invalid JSON and writes nothing', function (): void {

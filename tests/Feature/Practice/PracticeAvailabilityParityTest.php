@@ -111,7 +111,7 @@ function parityReport(Course $course, ?Lesson $lesson, ?Learner $learner, array 
 it('counts the modes of a lesson, of a course and of a battle as the code that hydrated the versions did', function (): void {
     ['course' => $course, 'lesson' => $lesson, 'learner' => $learner] = parityWorld();
 
-    $mode = ['pairs' => [4, 3, null], 'collocation' => [2, 3, 'items_locked'], 'sentence' => [2, 3, 'items_locked'], 'dictation' => [2, 3, 'audio_pending']];
+    $mode = ['pairs' => [4, 3, null], 'collocation' => [2, 3, 'items_locked'], 'sentence' => [2, 3, 'items_locked'], 'dictation' => [2, 3, 'audio_pending'], 'pairs_timed' => [4, 8, 'no_words']];
 
     expect(parityReport($course, $lesson, $learner))->toBe($mode)
         ->and(parityReport($course, null, $learner, ['ru', 'uz']))->toBe($mode)
@@ -120,6 +120,7 @@ it('counts the modes of a lesson, of a course and of a battle as the code that h
             'collocation' => [4, 5, 'no_items'],
             'sentence' => [3, 5, 'no_items'],
             'dictation' => [3, 5, 'audio_pending'],
+            'pairs_timed' => [5, 8, 'no_words'], // a battle has no such mode; the report still counts the words
         ]);
 });
 
@@ -131,6 +132,7 @@ it('tells a learner without words that the tasks are there and the words are not
         'collocation' => [0, 3, 'items_locked'],
         'sentence' => [0, 3, 'items_locked'],
         'dictation' => [0, 3, 'items_locked'],
+        'pairs_timed' => [0, 8, 'no_words'],
     ]);
 });
 
@@ -143,6 +145,7 @@ it('opens the modes when the minimum is low enough', function (): void {
         'collocation' => [2, 1, null],
         'sentence' => [2, 1, null],
         'dictation' => [2, 1, null],
+        'pairs_timed' => [4, 8, 'no_words'],
     ]);
 });
 
@@ -163,8 +166,8 @@ it('gives the same numbers on the hub endpoint, with no model of a task or of a 
             ->assertOk()->json('modes');
     });
 
-    expect(array_column($modes, 'available', 'mode'))->toBe(['pairs' => 4, 'collocation' => 2, 'sentence' => 2, 'dictation' => 2])
-        ->and(array_column($modes, 'reason', 'mode'))->toBe(['pairs' => null, 'collocation' => 'items_locked', 'sentence' => 'items_locked', 'dictation' => 'audio_pending'])
+    expect(array_column($modes, 'available', 'mode'))->toBe(['pairs' => 4, 'collocation' => 2, 'sentence' => 2, 'dictation' => 2, 'pairs_timed' => 4])
+        ->and(array_column($modes, 'reason', 'mode'))->toBe(['pairs' => null, 'collocation' => 'items_locked', 'sentence' => 'items_locked', 'dictation' => 'audio_pending', 'pairs_timed' => 'no_words'])
         ->and($retrieved)->toBe([])
         ->and(count($queries))->toBeLessThanOrEqual(PARITY_BUDGET_HUB, implode("\n", $queries));
 });

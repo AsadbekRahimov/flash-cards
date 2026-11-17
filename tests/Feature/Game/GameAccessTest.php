@@ -50,12 +50,15 @@ it('decides the state by the flag and the pilot, in that order', function (strin
     'case and spaces, pilot' => [' Pilot ', false, 'not_in_pilot'],
 ]);
 
-it('is off by default: the shipped config opens the game to nobody', function (): void {
-    expect(config('game.access'))->toBe('off')
-        ->and(app(GameAccess::class)->isOff())->toBeTrue();
+it('is on for everybody by default (owner\'s decision of 2026-11-17), and `off` switches it off', function (): void {
+    // The shipped default is read from the file: a local .env may differ.
+    expect(file_get_contents(config_path('game.php')))->toContain("env('GAME_ACCESS', 'all')");
 
-    config(['game.access' => 'pilot']);
+    config(['game.access' => 'all']);
     expect(app(GameAccess::class)->isOff())->toBeFalse();
+
+    config(['game.access' => 'off']);
+    expect(app(GameAccess::class)->isOff())->toBeTrue();
 });
 
 it('refuses with game_unavailable (403) when the game is off or the learner is not in the pilot - one code, no hint', function (): void {

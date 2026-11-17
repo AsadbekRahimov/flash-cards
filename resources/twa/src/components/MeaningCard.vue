@@ -6,6 +6,7 @@ import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useChoice } from '@/composables/useChoice'
+import { useAutoSpeak } from '@/composables/useAutoSpeak'
 import { useTelegram } from '@/composables/useTelegram'
 import { useTts } from '@/composables/useTts'
 import { useI18n } from '@/i18n'
@@ -16,7 +17,8 @@ import { useI18n } from '@/i18n'
  * (they give the right option away, docs/06 §12.2): the pick is emitted (`pick`) and saved at once, the SERVER grades it,
  * and `result` brings the verdict with the rest of the screen (`result.revealed`). `advance` says when the next card may
  * appear: a right pick moves on by itself after a short pause; a wrong one stays on screen (the right option and the
- * example are shown) until "Next" (docs/14 N6). The same `useChoice` as the reverse and audio cards.
+ * example are shown) until "Next" (docs/14 N6). The same `useChoice` as the reverse and audio cards. After the verdict the word is read aloud by itself
+ * (auto-speak, a setting of the learner).
  */
 const props = defineProps<{
   card: Card
@@ -33,6 +35,7 @@ const emit = defineEmits<{
 
 const { haptic, notificationHaptic, selectionHaptic } = useTelegram()
 const { speak } = useTts()
+const { speakWord } = useAutoSpeak()
 const { t } = useI18n()
 
 const options = computed((): string[] => props.card.prompt?.options ?? [])
@@ -55,6 +58,7 @@ const shown = computed((): Card => {
     ...props.card,
     translation: r.translation,
     example: r.example,
+    example_translation: r.example_translation ?? null,
     hook: r.hook,
     note: r.note,
     confused_with: r.confused_with,
@@ -76,8 +80,11 @@ function onPick(index: number): void {
 }
 
 // The verdict arrives with the server's answer: the haptic follows it.
+// The word is read aloud once it is checked (the answer is out, the word is no secret), after the tone of the verdict.
 watch(isCorrect, (right) => {
-  if (right !== null) notificationHaptic(right ? 'success' : 'error')
+  if (right === null) return
+  notificationHaptic(right ? 'success' : 'error')
+  speakWord(word.value, props.card.audio_url, true)
 })
 
 function onContinue(): void {
@@ -124,6 +131,13 @@ function onContinue(): void {
 
       <p v-if="isCorrect !== null && shown.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
         {{ shown.example }}
+      </p>
+      <p
+        v-if="isCorrect !== null && shown.example && shown.example_translation"
+        class="-mt-2 px-2 text-center text-[13px] leading-[18px] text-tg-hint"
+        data-testid="example-translation"
+      >
+        {{ shown.example_translation }}
       </p>
       <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
       <CardHooks v-if="isCorrect !== null" :card="shown" class="px-2" />

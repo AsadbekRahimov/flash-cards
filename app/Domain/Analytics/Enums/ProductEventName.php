@@ -21,8 +21,15 @@ enum ProductEventName: string
     case ExamMockStarted = 'exam.mock_started';
     /** A personal mock was finalized (props: exam_session_id, course_id, percent, percentile, answered, reason — finished / expired). */
     case ExamMockFinished = 'exam.mock_finished';
+    /** A personal reminder went out (props: kind, due_count, and quiz = true when the reminder is a question with four answers, docs/12 §7.5). */
     case ReminderSent = 'reminder.sent';
     case ReminderFailed = 'reminder.failed';
+    /** The reminder was a question (props: kind, word_id, exercise, due_count); sent together with `reminder.sent`. */
+    case ReminderQuizSent = 'reminder.quiz_sent';
+    /** The learner tapped an answer, once per question (props: kind, word_id, exercise, correct, picked, latency_s, due_count). */
+    case ReminderQuizAnswered = 'reminder.quiz_answered';
+    /** A tap on a question that is no longer there (props: reason — missing / token_mismatch / no_message). */
+    case ReminderQuizExpired = 'reminder.quiz_expired';
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';
@@ -168,4 +175,10 @@ enum ProductEventName: string
      * followed, on the same word, by a WRONG objectively graded answer (props: word_id, exercise, previous_quality, interval_before_days).
      */
     case ReviewSelfGradeMismatch = 'review.self_grade_mismatch';
+    /** The learner opened the readiness screen (props: course_id, percent, learned, total, source - today / profile / course; docs/13 §8.5). */
+    case ReadinessViewed = 'readiness.viewed';
+    /** A quiz of the week was opened (props: exam_session_id, course_id, week_start, scored, questions, met, unmet). */
+    case LevelQuizStarted = 'level_quiz.started';
+    /** A quiz of the week was finalized, once (props: exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason - finished / expired). */
+    case LevelQuizFinished = 'level_quiz.finished';
 }

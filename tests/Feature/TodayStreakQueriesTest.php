@@ -66,7 +66,10 @@ function todayStreakStored(Learner $learner): array
     ];
 }
 
-beforeEach(fn () => CarbonImmutable::setTestNow(TODAY_STREAK_NOW));
+beforeEach(function (): void {
+    CarbonImmutable::setTestNow(TODAY_STREAK_NOW);
+    config(['game.access' => 'off']); // the statement budgets are those of a closed game (an open one adds its block)
+});
 
 it('shows a Free learner who never studied an empty streak and stores nothing', function (): void {
     $learner = todayStreakLearner(0, null);

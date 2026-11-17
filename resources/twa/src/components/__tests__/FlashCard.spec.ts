@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import FlashCard from '../FlashCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { Card } from '@/api/types'
+import { AFTER_FEEDBACK_MS, resetAutoSpeak, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { setLocale } from '@/i18n'
 
 // Stub Telegram SDK and TTS to avoid DOM/Telegram dependencies in unit tests.
@@ -33,6 +34,9 @@ const newCard: Card = { ...card, card_kind: 'new' }
 describe('FlashCard', () => {
   afterEach(() => {
     setLocale('ru')
+    resetAutoSpeak()
+    vi.useRealTimers()
+    vi.restoreAllMocks()
     speak.mockClear()
   })
 
@@ -46,6 +50,85 @@ describe('FlashCard', () => {
     speak.mockClear()
     await mount(FlashCard, { props: { card, showTranslation: false } }).get('button[aria-label]').trigger('click')
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', undefined)
+  })
+
+  describe('the translation of the example', () => {
+    const translated: Card = { ...card, example_translation: 'Она стойкая девочка.' }
+
+    it('sits under the example, with the translation of the word, and only after the reveal on a review card', () => {
+      expect(mount(FlashCard, { props: { card: translated, showTranslation: false } }).find('[data-testid=example-translation]').exists()).toBe(false)
+
+      const w = mount(FlashCard, { props: { card: translated, showTranslation: true } })
+      const note = w.get('[data-testid=example-translation]')
+      expect(note.text()).toBe('Она стойкая девочка.')
+      expect(w.get('[data-testid=example]').element.nextElementSibling).toBe(note.element)
+    })
+
+    it('is open at once on a new word', () => {
+      const w = mount(FlashCard, { props: { card: { ...translated, card_kind: 'new' }, showTranslation: false } })
+      expect(w.get('[data-testid=example-translation]').text()).toBe('Она стойкая девочка.')
+    })
+
+    it('is left out when the card has none (or no example to translate)', () => {
+      expect(mount(FlashCard, { props: { card: { ...card, example_translation: null }, showTranslation: true } }).find('[data-testid=example-translation]').exists()).toBe(false)
+      expect(mount(FlashCard, { props: { card, showTranslation: true } }).find('[data-testid=example-translation]').exists()).toBe(false)
+      expect(mount(FlashCard, { props: { card: { ...translated, example: null }, showTranslation: true } }).find('[data-testid=example-translation]').exists()).toBe(false)
+    })
+  })
+
+  describe('auto-speak', () => {
+    it('reads a new word aloud as it opens, after the tone of the previous grade', () => {
+      vi.useFakeTimers()
+      mount(FlashCard, { props: { card: { ...newCard, audio_url: 'https://x.test/a.mp3' }, showTranslation: false } })
+      expect(speak).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(AFTER_FEEDBACK_MS)
+      expect(speak).toHaveBeenCalledTimes(1)
+      expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
+    })
+
+    it('keeps a review card silent until the reveal, then reads the word at once', async () => {
+      vi.useFakeTimers()
+      const w = mount(FlashCard, { props: { card, showTranslation: false } })
+      vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 5)
+      expect(speak).not.toHaveBeenCalled()
+
+      await w.setProps({ showTranslation: true })
+      expect(speak).toHaveBeenCalledTimes(1)
+      expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', undefined)
+    })
+
+    it('says nothing when the learner switched auto-speak off', async () => {
+      vi.useFakeTimers()
+      setAutoSpeakEnabled(false)
+      mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+      const w = mount(FlashCard, { props: { card, showTranslation: false } })
+      await w.setProps({ showTranslation: true })
+      vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 5)
+      expect(speak).not.toHaveBeenCalled()
+    })
+
+    it('says nothing in a hidden tab, and a blocked sound shows nothing', async () => {
+      vi.useFakeTimers()
+      const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+      mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+      vi.advanceTimersByTime(AFTER_FEEDBACK_MS)
+      expect(speak).not.toHaveBeenCalled()
+
+      visibility.mockReturnValue('visible')
+      speak.mockRejectedValueOnce(new Error('NotAllowedError'))
+      const w = mount(FlashCard, { props: { card, showTranslation: false } })
+      await w.setProps({ showTranslation: true })
+      expect(speak).toHaveBeenCalledTimes(1)
+      expect(w.get('[data-testid=translation]').text()).toBe('Устойчивый')
+    })
+
+    it('does not speak for a card that left before the pause was over', () => {
+      vi.useFakeTimers()
+      const w = mount(FlashCard, { props: { card: newCard, showTranslation: false } })
+      w.unmount()
+      vi.advanceTimersByTime(AFTER_FEEDBACK_MS * 2)
+      expect(speak).not.toHaveBeenCalled()
+    })
   })
 
   it('has a round speaker button next to the type chip', () => {

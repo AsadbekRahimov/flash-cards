@@ -68,10 +68,13 @@ async function load(): Promise<void> {
   await today.load()
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
-  // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
-  if (route.query.from === 'reminder' && today.data !== null) {
+  // review. `from=reminder_quiz` is the button left on the reminder after the answer in the chat; it
+  // opens the same review, and the source tells the two apart in the funnel. The marker is dropped
+  // from the URL first so a reload or "back" does not reopen it.
+  const from = route.query.from
+  if ((from === 'reminder' || from === 'reminder_quiz') && today.data !== null) {
     await router.replace({ name: 'today', query: {} })
-    await openSession({ mode: 'daily_review', source: 'reminder' })
+    await openSession({ mode: 'daily_review', source: from })
     return
   }
 
@@ -148,6 +151,15 @@ watch(isPro, (pro) => {
   const current = data.value?.entitlement
   if (pro && current?.source === 'subscription' && current.until !== null) void billing.load()
 }, { immediate: true })
+/**
+ * The standing entry of the Karvon map (owner's decision of 2026-11-17: the game is open to everybody): `/me.game.available` (the
+ * billing store keeps `/me` for a minute, the Profile and the course screen read it the same way) and an active course. The caravan of
+ * the day / a run that is on already has its own row (`gameEntry`): then this one is not shown.
+ */
+watch(() => data.value?.active_course != null, (has) => {
+  if (has) void billing.load()
+}, { immediate: true })
+const showGameMap = computed(() => data.value?.active_course != null && billing.gameAccess.available && !gameEntry.value)
 const trialEnd = computed(() => (isPro.value ? trialEndsAt(billing.entitlement) : null))
 const trialText = computed(() => {
   if (trialEnd.value === null) return ''
@@ -547,6 +559,21 @@ onBeforeUnmount(() => training.clearOpenError())
           <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
           <span class="block text-[15px] leading-5 font-medium" data-testid="game-entry-text">{{ gameEntry.text }}</span>
           <span v-if="gameEntry.progress" class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="game-entry-progress">{{ gameEntry.progress }}</span>
+        </span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+      </RouterLink>
+
+      <!-- The standing entry of the Karvon map (docs/05 §5b.4): while the game is open and there is no caravan of the day to show. -->
+      <RouterLink
+        v-if="hasProgress && showGameMap"
+        :to="{ name: 'game' }"
+        class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
+        data-testid="game-map-entry"
+      >
+        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="sparkles" :size="20" /></span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
+          <span class="block text-[15px] leading-5 font-medium">{{ t('today.game.map') }}</span>
         </span>
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
       </RouterLink>

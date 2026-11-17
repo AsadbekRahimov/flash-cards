@@ -508,7 +508,7 @@ it('shows the client the phrase and the options and nothing else - the blank and
         'lesson' => ['id', 'stage', 'number', 'title'],
         'progress' => ['done', 'total'],
         'counters' => ['correct_first', 'hints', 'mismatches'],
-        'expires_at', 'server_now',
+        'expires_at', 'server_now', 'timed',
         'current' => ['id', 'kind', 'text', 'options' => ['*' => ['id', 'text']]],
         'summary',
         'limits', // the 201 alone carries the Free limits of the day (docs/18 G1)
@@ -568,7 +568,7 @@ it('plays a whole session: an answer, its review, the next phrase, the summary w
             'verdict', 'first_attempt', 'pair',
             'reveal' => ['correct_option_ids', 'full_text', 'translation', 'explanation', 'your_option_id'],
             'session' => ['id', 'status', 'mode', 'source', 'retry_of', 'course' => ['slug', 'title'], 'lesson' => ['id', 'stage', 'number', 'title'], 'progress' => ['done', 'total'],
-                'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now', 'current', 'summary'],
+                'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now', 'timed', 'current', 'summary'],
         ]);
 
         expect($response->json('verdict'))->toBe(['right' => 'correct', 'wrong' => 'wrong', 'skip' => 'skipped'][$how])

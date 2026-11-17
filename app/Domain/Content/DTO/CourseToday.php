@@ -11,5 +11,6 @@ final readonly class CourseToday
         public CatalogCourse $course,
         public LearnerProgress $progress,
         public ?NextLesson $nextLesson,
+        public LearnerWordStages $stages = new LearnerWordStages(0, 0, 0),
     ) {}
 }

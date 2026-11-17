@@ -55,7 +55,7 @@ beforeEach(() => {
 })
 
 describe('TodayView: the entry of Karvon', () => {
-  it('says "the caravan of the day is waiting" and leads to it, without asking /me (a Pro learner reads no /me on Today)', async () => {
+  it('says "the caravan of the day is waiting" and leads to it, without asking /me (Today reads /me once, for the map entry, not for this one)', async () => {
     const { wrapper, router } = await render(today({ game: { daily_available: true, active_run: null } }))
 
     expect(wrapper.get('[data-testid=game-entry-text]').text()).toBe('Караван дня ждёт')
@@ -65,7 +65,7 @@ describe('TodayView: the entry of Karvon', () => {
     await wrapper.get('[data-testid=game-entry]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/game/daily')
-    expect(api.me.get).not.toHaveBeenCalled()
+    expect(api.me.get).toHaveBeenCalledTimes(1)
   })
 
   it('a run that is on wins: "Continue the run" with its progress, to that run', async () => {
@@ -83,7 +83,7 @@ describe('TodayView: the entry of Karvon', () => {
   it('has no entry while the game is closed (the server says nothing to do) or when there is no game block', async () => {
     expect((await render(today({ game: { daily_available: false, active_run: null } }))).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
     expect((await render(today())).wrapper.find('[data-testid=game-entry]').exists()).toBe(false)
-    expect(api.me.get).not.toHaveBeenCalled()
+    expect(api.me.get).toHaveBeenCalledTimes(2) // one read of the Karvon map entry per render (a fresh store each)
   })
 
   it('tells "the streak is held by a run" when the run held the day, and the usual words otherwise', async () => {

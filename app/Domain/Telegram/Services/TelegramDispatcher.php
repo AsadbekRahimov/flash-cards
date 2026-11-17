@@ -28,6 +28,7 @@ use App\Domain\Telegram\Handlers\ProCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCommandHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
 use App\Domain\Telegram\Handlers\RefundedPaymentHandler;
+use App\Domain\Telegram\Handlers\ReminderQuizCallbackHandler;
 use App\Domain\Telegram\Handlers\SettingsCommandHandler;
 use App\Domain\Telegram\Handlers\StartCaravanHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
@@ -89,6 +90,7 @@ final class TelegramDispatcher
         FriendsCallbackHandler $friendsCallback,
         DeleteAccountCallbackHandler $deleteAccountCallback,
         AccountLinkCallbackHandler $accountLinkCallback,
+        ReminderQuizCallbackHandler $reminderQuizCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -132,6 +134,7 @@ final class TelegramDispatcher
             $friendsCallback,
             $deleteAccountCallback,
             $accountLinkCallback,
+            $reminderQuizCallback,
         ];
     }
 

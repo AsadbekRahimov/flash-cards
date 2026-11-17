@@ -9,6 +9,7 @@
     "uz": "Boshlovchilar uchun eng kerakli 1 000 ta so'z: mavzular bo'yicha 20 ta modul, har bir so'zga misol va rus hamda o'zbek tilidagi tarjima berilgan."
   },
   "level": "A1",
+  "level_label": "A1–A2",
   "exam_tag": "general",
   "visibility": "public",
   "position": 10,

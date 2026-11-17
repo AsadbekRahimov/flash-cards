@@ -28,7 +28,7 @@ return [
     'default_reminder_time' => env('LEARNERS_DEFAULT_REMINDER_TIME', '19:00'),
 
     /** Daily goal in reviewed cards (options in the UI: 10 / 20 / 40). */
-    'default_daily_goal' => (int) env('LEARNERS_DEFAULT_DAILY_GOAL', 20),
+    'default_daily_goal' => (int) env('LEARNERS_DEFAULT_DAILY_GOAL', 10),
 
     /** Values of `daily_goal` a learner can choose (settings, docs/12 §7.4); the default above must be one of them. */
     'daily_goal_options' => [10, 20, 40],

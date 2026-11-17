@@ -7,17 +7,20 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learners\DTO\ReminderContent;
+use App\Domain\Learners\DTO\ReminderQuiz;
 use App\Domain\Learners\Enums\ReminderKind;
 use App\Domain\Learners\Enums\ReminderOutcome;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\ReminderQuizMessenger;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Sends one claimed personal reminder (docs/12 §7.5) — the body of
@@ -32,7 +35,11 @@ use Illuminate\Support\Facades\Log;
  *     (a floor that also covers midnight and a changed reminder time) — this is what
  *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
  *     level);
- *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing).
+ *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing);
+ *  5. {@see ReminderQuizBuilder} may turn it into a question with four answers (owner decision 2026-11-17): then the
+ *     state of the question is stored BEFORE the Telegram call (a tap can only come after it) and the message has the
+ *     answer buttons instead of the one app button. Whatever goes wrong while building or storing it, the reminder goes
+ *     out as the plain text — it is never lost to the question.
  *
  * At most once: the `notifications_log` row is written BEFORE the Telegram call, inside
  * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
@@ -40,7 +47,7 @@ use Illuminate\Support\Facades\Log;
  * {@see ReminderOutcome::SkippedRecent} — a missed reminder is better than a double one.
  *
  * Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) or 400 `chat not found`
- * means certainly not delivered: the row is deleted again and `dm_blocked_at` is set —
+ * means certainly not delivered: the row (and the stored question) is deleted again and `dm_blocked_at` is set —
  * the learner leaves the dispatcher's selection until they write to the bot (any DM
  * clears the flag; so does a `my_chat_member` `member` update in the private chat).
  *
@@ -57,6 +64,9 @@ final class ReminderSender
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
         private readonly LearnerClock $clock,
+        private readonly ReminderQuizBuilder $quizzes,
+        private readonly ReminderQuizStore $quizStore,
+        private readonly ReminderQuizMessenger $quizMessenger,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -90,6 +100,7 @@ final class ReminderSender
             }
 
             $locale = $this->locales->forLearner($learner);
+            $quiz = $this->quizFor($learner, $content, $locale, $now);
 
             // Before the call, not after: see the class comment.
             $log = NotificationLog::query()->create([
@@ -100,21 +111,30 @@ final class ReminderSender
                     'due_count' => $content->dueCount,
                     'streak' => $content->streakCurrent,
                     'idle_days' => $content->idleDays,
+                    'quiz' => $quiz === null ? null : ['word_id' => $quiz->wordId, 'exercise' => $quiz->exercise->value],
                     'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
                 ],
                 'sent_at' => $now,
             ]);
 
             try {
-                $this->telegram->sendWebAppButton(
-                    chatId: $learner->telegram_user_id,
-                    text: $this->text($content, $locale),
-                    buttonText: __('reminders.open_button', [], $locale),
-                    url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
-                );
+                if ($quiz !== null) {
+                    $view = $this->quizMessenger->question($content, $quiz, $locale);
+                    $this->telegram->sendMessage($learner->telegram_user_id, $view['text'], null, $view['reply_markup']);
+                } else {
+                    $this->telegram->sendWebAppButton(
+                        chatId: $learner->telegram_user_id,
+                        text: $this->text($content, $locale),
+                        buttonText: __('reminders.open_button', [], $locale),
+                        url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                    );
+                }
             } catch (TelegramForbiddenException $e) {
-                // Definitely not delivered: it must not count against the day.
+                // Definitely not delivered: it must not count against the day, and nobody can answer the question.
                 $log->delete();
+                if ($quiz !== null) {
+                    $this->forgetQuiz($learner);
+                }
                 $this->markDmBlocked($learner, $now);
 
                 Log::warning('telegram.reminder_forbidden', [
@@ -130,14 +150,54 @@ final class ReminderSender
                 return ReminderOutcome::Forbidden;
             }
 
+            // `quiz` only on a question: the props of a plain reminder stay exactly what they were.
             $this->events->record(
                 ProductEventName::ReminderSent,
-                ['kind' => $content->kind->value, 'due_count' => $content->dueCount],
+                ['kind' => $content->kind->value, 'due_count' => $content->dueCount, ...($quiz === null ? [] : ['quiz' => true])],
                 learner: $learner,
             );
+            if ($quiz !== null) {
+                $this->events->record(
+                    ProductEventName::ReminderQuizSent,
+                    ['kind' => $content->kind->value, 'word_id' => $quiz->wordId, 'exercise' => $quiz->exercise->value, 'due_count' => $content->dueCount],
+                    learner: $learner,
+                );
+            }
 
             return ReminderOutcome::Sent;
         });
+    }
+
+    /**
+     * The question of this reminder, already stored for the answer, or null for the plain text: nothing to ask, the
+     * builder failed, or Redis refused the state (a question whose taps all say "outdated" is worse than none).
+     */
+    private function quizFor(Learner $learner, ReminderContent $content, string $locale, CarbonImmutable $now): ?ReminderQuiz
+    {
+        $quiz = $this->quizzes->tryBuild($learner, $content, $locale, $now);
+        if ($quiz === null) {
+            return null;
+        }
+
+        try {
+            $this->quizStore->put($learner->id, $quiz, $content, $now);
+        } catch (Throwable $e) {
+            report($e);
+
+            return null;
+        }
+
+        return $quiz;
+    }
+
+    private function forgetQuiz(Learner $learner): void
+    {
+        try {
+            $this->quizStore->forget($learner->id);
+        } catch (Throwable $e) {
+            // The key expires on its own; the 403 handling must go on.
+            report($e);
+        }
     }
 
     private function text(ReminderContent $content, string $locale): string

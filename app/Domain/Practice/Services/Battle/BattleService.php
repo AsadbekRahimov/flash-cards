@@ -130,6 +130,9 @@ final class BattleService
         if ($source !== null) {
             $mode = $source->mode;
         }
+        if (! $mode->battleable()) {
+            throw new LogicException("The mode {$mode->value} is not played in a battle."); // the request refuses it (422) before
+        }
         $this->access->assertModeEnabled($mode);
 
         [$friend, $friendship] = $source === null

@@ -16,6 +16,7 @@ final readonly class SessionView
      * @param  array{slug: string, title: string}  $course
      * @param  array{id: int|null, stage: int|null, number: int|null, title: string|null}|null  $lesson
      * @param  array<string, mixed>|null  $current
+     * @param  array{seconds: int, deadline_at: CarbonImmutable|null, started: bool, score: int, penalty_ms: int}|null  $timed  a timed session only
      */
     public function __construct(
         public int $id,
@@ -34,5 +35,6 @@ final readonly class SessionView
         public CarbonImmutable $serverNow,
         public ?array $current,
         public ?SummaryView $summary,
+        public ?array $timed = null,
     ) {}
 }

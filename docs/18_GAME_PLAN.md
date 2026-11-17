@@ -1,5 +1,7 @@
 # 18. «Караван»: игровой слой, Pro и бесплатная часть — план и задачи
 
+> **Игра включена для всех решением владельца от 2026-11-17** (`GAME_ACCESS=all` по умолчанию); выключить — `GAME_ACCESS=off`.
+>
 > **Статус:** G1.1–G1.2 сделаны 02.11.2026; G1.3 и решения по G2 приняты владельцем 03.11.2026 (§11). **G2.0 — технический проект домена `Game` — готов 03.11.2026 (§12)**; **G2.1–G2.13 сделаны и приняты 04.11.2026** (ревью трёх частей, исправления, повторное ревью; `PROGRESS.md`, строки G2.*). Игра закрыта `GAME_ACCESS=off` до пилота у владельца (`PROGRESS.md`, «Что сделать владельцу до запуска», п. 11). Нарезка и волны — §12.14; открытые вопросы владельцу — §12.16. G3–G4 — после релиза.
 > **Основание:** запрос владельца — сделать игру в основном для Pro, а Free дать небольшую её часть.
 > **Опирается на:**
@@ -246,7 +248,7 @@
 | Серия и лига | Новые колонки `learner_daily_stats.game_runs_count`, `game_points`, `game_held_at`; пишутся в транзакции завершения забега. День **удержан** серией, если `goal_met_at` **или** `game_held_at` **или** `frozen_at`. Очки лиги: верный ответ 2, ошибка 1 (как карточка: `review` 1 + `correct` 1), **потолок 40 очков в день** = два безошибочных забега — Free достигает его ежедневно (караван + бесплатный забег), поэтому Pro очков в лиге не докупает (§12.6) |
 | Билеты Free | 1 бесплатный забег по карте в локальный день (`GAME_FREE_RUNS_PER_DAY`) + баланс билетов `game_profiles.tickets` с леджером `game_ticket_ledger`: +1 за каждые 7 дней серии, +3 пригласившему за активированного друга (хук `ReferralService::reward`), потолок 10. Решающая проверка — под замком строки ученика, как `PracticeLimits` |
 | Караван класса | `class_caravans` (одна активная на группу — `active_group_id` unique) + вклад участников `class_caravan_members`; запуск учителем командой `/start_caravan` в группе (как `/start_exam`) или из `/org`; итоги недели — `PostClassCaravanSummaryJob` с маркером `summary_posted_at` и `Cache::lock`, как лидерборд экзамена |
-| Доступ | `config/game.php`: `GAME_ACCESS=off\|pilot\|all` (пилот — та же `learners.practice_pilot_at`), фичи entitlement `game.unlimited_runs`, `game.all_bosses`, `game.boosters_plus`; все числа — через env |
+| Доступ | `config/game.php`: `GAME_ACCESS=all\|pilot\|off` (по умолчанию `all` с 2026-11-17; пилот — та же `learners.practice_pilot_at`), фичи entitlement `game.unlimited_runs`, `game.all_bosses`, `game.boosters_plus`; все числа — через env |
 | Карточка шеринга | Победа над боссом — `AchievementCardRenderer::renderSpec(CardSpec)` (обобщение существующего рендера) с именем города; ЛС через тот же путь, что `SendAchievementJob` (`notifications_log`, один раз) |
 
 Отвергнутые варианты — в конце соответствующих разделов, одной строкой.
@@ -797,7 +799,7 @@ RunView::view(run) — после commit (правило 24): бустеры и�
 
 ```php
 return [
-    'access' => env('GAME_ACCESS', 'off'),                              // off | pilot | all; pilot — learners.practice_pilot_at (общий пилот практики и игры)
+    'access' => env('GAME_ACCESS', 'all'),                              // off | pilot | all (default all since 2026-11-17); pilot — learners.practice_pilot_at (общий пилот практики и игры)
     'free_limits' => [                                                  // 0 — только Pro; пусто — без лимита (как practice.free_limits)
         'runs_per_day' => env('GAME_FREE_RUNS_PER_DAY', 1),             // бесплатные забеги по карте (stop + boss) в локальный день; сверх — билеты
         'boss_stages' => env('GAME_FREE_BOSS_STAGES', 1),               // боссы первых N городов курса (по stages.number)

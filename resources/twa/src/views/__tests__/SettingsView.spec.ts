@@ -6,6 +6,7 @@ import SettingsView from '../SettingsView.vue'
 import { api } from '@/api'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
+import { AUTOSPEAK_KEY, isAutoSpeakEnabled, resetAutoSpeak, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { SOUNDS_KEY, isSoundEnabled, resetSounds, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { useToast } from '@/composables/useToast'
 import { getLocale, setLocale } from '@/i18n'
@@ -670,6 +671,37 @@ describe('SettingsView', () => {
       expect(w.text()).toContain('Eslatma vaqti')
       expect(w.text()).toContain('Haftalik ligalarda qatnashish')
       expect(labels(w, 'reminder-select').at(-1)).toBe("O'chirilgan")
+    })
+  })
+
+  describe('auto-speak of the words', () => {
+    afterEach(() => resetAutoSpeak())
+
+    it('is on by default, and the switch is kept on the device, not sent to the server', async () => {
+      resetAutoSpeak()
+      const w = await render()
+      const toggle = w.get('[data-testid=autospeak-toggle]')
+
+      expect(w.get('[data-testid=autospeak-row]').text()).toContain('Автоозвучка слов')
+      expect(toggle.attributes('aria-checked')).toBe('true')
+
+      await toggle.trigger('click')
+
+      expect(w.get('[data-testid=autospeak-toggle]').attributes('aria-checked')).toBe('false')
+      expect(isAutoSpeakEnabled()).toBe(false)
+      expect(window.localStorage.getItem(AUTOSPEAK_KEY)).toBe('off')
+      expect(api.me.updateSettings).not.toHaveBeenCalled()
+
+      await w.get('[data-testid=autospeak-toggle]').trigger('click')
+      expect(isAutoSpeakEnabled()).toBe(true)
+      expect(window.localStorage.getItem(AUTOSPEAK_KEY)).toBeNull()
+    })
+
+    it('reads as off after a reload when it was switched off, and is named in Uzbek', async () => {
+      setAutoSpeakEnabled(false)
+      expect((await render()).get('[data-testid=autospeak-toggle]').attributes('aria-checked')).toBe('false')
+
+      expect((await render(uzSettings())).get('[data-testid=autospeak-row]').text()).toContain("So'zlarni avtomatik o'qish")
     })
   })
 

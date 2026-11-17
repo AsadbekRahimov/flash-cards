@@ -18,6 +18,8 @@ use App\Domain\Learners\DTO\TodayCourse;
 use App\Domain\Learners\DTO\TodayLesson;
 use App\Domain\Learners\DTO\TodaySummary;
 use App\Domain\Learning\Services\LearnerStatsService;
+use App\Domain\Learning\Services\LevelQuizService;
+use App\Domain\Learning\Services\LevelReadinessService;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Models\Course;
 use App\Models\Learner;
@@ -53,6 +55,8 @@ final class TodayService
         private readonly DailyCaravanService $caravan,
         private readonly LearnerBillingService $billing,
         private readonly PracticeAccess $practice,
+        private readonly LevelReadinessService $readiness,
+        private readonly LevelQuizService $quizzes,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -83,7 +87,7 @@ final class TodayService
             dueCount: $dueCount,
             newWordsRemaining: $this->quota->remaining($learner, $now, $entitlement, $counts['served'] ?? null),
             progress: $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows),
-            activeCourse: $this->activeCourse($learner),
+            activeCourse: $this->activeCourse($learner, $now),
             openSessionId: $this->openDailySessionId($learner, $now),
             entitlement: $entitlement,
             lapsed: $this->billing->lapsed($learner, $entitlement, $now),
@@ -154,7 +158,7 @@ final class TodayService
     }
 
     /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */
-    private function activeCourse(Learner $learner): ?TodayCourse
+    private function activeCourse(Learner $learner, CarbonImmutable $now): ?TodayCourse
     {
         if ($learner->active_course_id === null) {
             return null;
@@ -176,6 +180,9 @@ final class TodayService
             learned: $today->progress->done,
             total: $today->progress->total,
             nextLesson: $next === null ? null : new TodayLesson($next->id, $next->stageNumber, $next->number, $next->title),
+            // The readiness comes from the counts of the statement above; the quiz line is ONE indexed read (none while the quiz is off).
+            readiness: $this->readiness->enabled() ? $this->readiness->fromCounts($course, $today->stages) : null,
+            quiz: $this->readiness->enabled() ? $this->quizzes->weekLine($learner, $course, $now) : null,
         );
     }
 

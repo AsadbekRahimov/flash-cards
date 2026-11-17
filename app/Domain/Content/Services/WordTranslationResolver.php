@@ -31,8 +31,14 @@ use App\Models\WordTranslation;
  */
 final class WordTranslationResolver
 {
-    /** `word:tr:v1:{word id}:{locale}:{fallback}`: the rows the locale and the fallback read for the word, `locale => text`. */
-    private const CACHE_PREFIX = 'word:tr:v1:';
+    /**
+     * `word:tr:v2:{word id}:{locale}:{fallback}`: the rows the locale and the fallback read for the word, `locale => text`
+     * and, where the row has one, `ex:locale => the translation of the anchor example`.
+     */
+    private const CACHE_PREFIX = 'word:tr:v2:';
+
+    /** Key prefix of the translation of the anchor example inside an entry: `ex:{locale}` next to `{locale}`. */
+    private const EXAMPLE_KEY = 'ex:';
 
     private const CACHE_TTL = 7200;
 
@@ -49,6 +55,9 @@ final class WordTranslationResolver
             $rows = [];
             foreach ($word->translations as $row) {
                 $rows[$row->locale] = $row->translation;
+                if (is_string($row->example_translation) && trim($row->example_translation) !== '') {
+                    $rows[self::EXAMPLE_KEY.$row->locale] = $row->example_translation;
+                }
             }
 
             return $this->pick($word, $locale, $rows);
@@ -165,10 +174,13 @@ final class WordTranslationResolver
         $rows = WordTranslation::query()
             ->whereIn('word_id', $missing)
             ->whereIn('locale', $this->chain($locale))
-            ->get(['word_id', 'locale', 'translation']);
+            ->get(['word_id', 'locale', 'translation', 'example_translation']);
 
         foreach ($rows as $row) {
             $loaded[(int) $row->word_id][$row->locale] = $row->translation;
+            if (is_string($row->example_translation) && trim($row->example_translation) !== '') {
+                $loaded[(int) $row->word_id][self::EXAMPLE_KEY.$row->locale] = $row->example_translation;
+            }
         }
 
         $fresh = [];
@@ -182,20 +194,29 @@ final class WordTranslationResolver
     }
 
     /**
-     * @param  array<string, string>  $rows  locale => translation of one word
+     * @param  array<string, string>  $rows  `locale => translation` (and `ex:locale => example translation`) of one word
      */
     private function pick(Word $word, string $locale, array $rows): ResolvedTranslation
     {
         $fallback = $this->locales->fallback();
 
+        $example = null;
         foreach ([$locale, $fallback] as $candidate) {
-            $text = $rows[$candidate] ?? null;
+            $text = $rows[self::EXAMPLE_KEY.$candidate] ?? null;
             if (is_string($text) && trim($text) !== '') {
-                return new ResolvedTranslation($text, $candidate, $candidate !== $locale);
+                $example = $text;
+                break;
             }
         }
 
-        return new ResolvedTranslation((string) $word->translation, $fallback, $locale !== $fallback);
+        foreach ([$locale, $fallback] as $candidate) {
+            $text = $rows[$candidate] ?? null;
+            if (is_string($text) && trim($text) !== '') {
+                return new ResolvedTranslation($text, $candidate, $candidate !== $locale, $example);
+            }
+        }
+
+        return new ResolvedTranslation((string) $word->translation, $fallback, $locale !== $fallback, $example);
     }
 
     /** @return list<string> */
