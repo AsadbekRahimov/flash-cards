@@ -182,8 +182,8 @@
 - `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `available` — игра открыта этому ученику (`GameAccess`: `off` → `false`, `pilot` → только участникам пилота, `all` → `true`; читает конфиг и поле ученика, без запросов; клиент решает по нему, рисовать ли вход, без запроса `/me`); `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{available: false, daily_available: false, active_run: null, class_caravan: null}` **без запросов к таблицам игры**, при открытой — два запроса: к `game_runs` (`due_count` берётся из уже посчитанного) и карточка каравана класса `class_caravan` (G2.9b; `{id, stars_total, target_stars, ends_at}` или `null`; `null` при закрытой игре).
 
 - `hard_round` **(с 18.11.2026, docs/06 §14)** — карточка «Раунд трудных слов»; ключ **есть всегда**, `null` только при `LEARNING_HARD_ROUND_ENABLED=false`. `available` — раунд можно открыть или продолжить;
-  `reason` (когда `available = false`): `not_enough` (трудных слов меньше `LEARNING_HARD_ROUND_MIN_WORDS`, 8) · `played_today` (в локальном дне уже был раунд; `resets_at` — ISO-8601 UTC с миллисекундами, конец окна дня) ·
-  `no_objective_exercise` (выключены и «Выбери перевод», и «Выбери слово») · `disabled` не приходит (вместо блока `null`); `words` — размер раунда, который откроется (0 при `not_enough`; у живого раунда — размер его набора);
+  `reason` (когда `available = false`): `not_enough` (трудных слов ближайших дней — срок не позже `now + LEARNING_HARD_ROUND_DUE_WITHIN_DAYS` (2) дней — меньше `LEARNING_HARD_ROUND_MIN_WORDS`, 6) · `played_today` (в локальном дне уже был раунд; `resets_at` — ISO-8601 UTC с миллисекундами, конец окна дня) ·
+  `no_objective_exercise` (недоступны и «Выбери перевод», и «Выбери слово»: выключены конфигом или учеником) · `disabled` не приходит (вместо блока `null`); `words` — размер раунда, который откроется (0 при `not_enough`; у живого раунда — размер его набора);
   `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: +1 оператор (кандидаты по
   индексу `word_repetitions_hard_idx`); «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
 
@@ -265,7 +265,7 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 
 Побочный эффект: событие `training.session_opened` `{training_session_id, mode, source, reused}` (`reused = true`, если вернулась уже открытая сессия).
 
-**`mode: hard_review` — раунд трудных слов (с 18.11.2026, docs/06 §14).** Открывает `HardRoundService::open`: набор 8-10 слов фиксируется при открытии (`training_sessions.meta.hard_words`), слова притягиваются к «сейчас»
+**`mode: hard_review` — раунд трудных слов (с 18.11.2026, docs/06 §14).** Открывает `HardRoundService::open`: набор 6-10 слов фиксируется при открытии (`training_sessions.meta.hard_words`), слова притягиваются к «сейчас»
 (`next_review_at`, без `is_hard`); не чаще `LEARNING_HARD_ROUND_PER_DAY` (1) раза в локальный день. Ответ 200 — как у `/start`: `mode: "hard_review"`, `lesson: null`, `total_words` = размер набора, `card` (только объективные
 упражнения, **никогда** `flash`, кроме редкого понижения для слова без трёх вариантов), `progress: {done: побеждено, total: размер набора}`, `quota: {new_words_remaining: null}` (новых слов нет, квота Free не тратится).
 Идемпотентно для живой сегодняшней сессии (две вкладки — одна сессия). Ошибки сверх общих: **409 `hard_round_unavailable`** с `error.details {reason: disabled | not_enough | played_today | no_objective_exercise, resets_at}`

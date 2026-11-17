@@ -316,8 +316,10 @@ it('reads the candidates by the partial index over the range of the term (Postgr
     // either. The question here is whether the partial index CAN serve the statement (the predicate proved, the range on its key), so the
     // other indexes of the learner are out of the picture (DDL is transactional in PostgreSQL: the test's transaction takes it back) and a
     // seq scan is not offered. The choice among real indexes is measured on seeded data (docs/06 §14).
-    DB::statement('DROP INDEX word_repetitions_next_card_idx');
-    DB::statement('DROP INDEX word_repetitions_learner_id_word_id_unique');
+    foreach (['word_repetitions_next_card_idx', 'word_repetitions_learner_id_next_review_at_index', 'word_repetitions_learner_id_created_at_index'] as $index) {
+        DB::statement("DROP INDEX {$index}");
+    }
+    DB::statement('ALTER TABLE word_repetitions DROP CONSTRAINT word_repetitions_learner_id_word_id_unique');
     DB::statement('SET LOCAL enable_seqscan = off');
     $plan = collect(DB::select('EXPLAIN '.$sql, $bindings))->map(fn ($row): string => (string) ((array) $row)['QUERY PLAN'])->implode("\n");
 

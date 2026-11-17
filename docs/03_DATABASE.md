@@ -241,10 +241,13 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   (30 learner'ов, 12 % `is_hard`) по всем путям кода и `idx_scan = 0` за весь прогон тестов на PostgreSQL; индекс только удорожал записи
   `POST /review` по трудным карточкам. Если когда-нибудь понадобится выборка «трудные слова learner'а» — вернуть вместе с этим запросом.
   **Запрос появился** — кандидаты раунда трудных слов (`HardRoundService::candidates`, docs/06 §14), и индекс вернулся под другим именем, вместе с ним:
-- partial `(learner_id, lapses DESC) WHERE is_hard = true OR lapses >= 1` (`word_repetitions_hard_idx`, миграция `2026_11_18_300002`, CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) —
+- partial `(learner_id, next_review_at) WHERE is_hard = true OR lapses >= 1` (`word_repetitions_hard_idx`, миграция `2026_11_18_300002`, CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) —
   кандидаты раунда трудных слов, читаются на каждом `/today` без раунда дня и на `/finish` ежедневной сессии / урока. Предикат в запросе записан константами слово в слово как в индексе
-  (планировщик доказывает применимость partial-индекса только для того же текста; порог ученика `lapses >= :lapses_from` — вторым условием, оно следует из первого). EXPLAIN на 60 000 строк
-  (20 учеников × 3 000, ≈ 8 % слов с провалами): Index Scan по нему, 230 буферов, 0,97 мс; без индекса — обход всех строк ученика. Индекс частичный (строки с провалами), запись трудной карточки трогает его только при смене `is_hard` / `lapses`.
+  (планировщик доказывает применимость partial-индекса только для того же текста; порог ученика `lapses >= :lapses_from` — вторым условием, оно следует из первого). Ключ — срок, а не число провалов:
+  кандидат — трудное слово, срок которого наступил или наступит в ближайшие `due_within_days` (2) дней (`next_review_at <= now + N·24ч`, docs/06 §14), так что запрос — диапазон `learner_id = ? AND next_review_at <= ?`
+  по десяткам строк; ключ `(learner_id, lapses DESC)` для него бесполезен (читал бы все строки ученика с провалами). EXPLAIN (ANALYZE, BUFFERS) на 100 000 строк (20 учеников × 5 000, ≈ 8 % слов с провалами):
+  Index Scan по нему (а не по общим `(learner_id, next_review_at)` / `next_card_idx`), 41 буфер на индекс, 146 на весь оператор, 0,16 мс. Индекс частичный (строки с провалами); **цена (Р-А6):** запись трудной карточки трогает его при смене
+  `is_hard` / `lapses` **и `next_review_at`**, то есть на каждой оценке слова с провалами (раньше — только при смене `is_hard` / `lapses`); индекс маленький — принято, следить за `pg_stat_user_indexes` после выката, как за `in_steps_idx`.
 - `(learner_id, is_hard DESC, next_review_at, id)` (`word_repetitions_next_card_idx`) — hot path выбора следующей карточки:
   ровно порядок `CardPicker::pickNext` шаг 1 (`WHERE learner_id = ? AND next_review_at <= now ORDER BY is_hard DESC, next_review_at, id LIMIT 1`,
   docs/06 §4.2), поэтому due-карточка — первая подходящая запись индекса, а не top-N sort по всем просроченным (1500 просроченных:
@@ -1539,7 +1542,7 @@ CHECK не создаются — инвариант дублируют серв
 81. `2026_11_18_100001_add_level_quiz_mode_to_exam_sessions` — режим `level_quiz`: partial unique `exam_sessions_one_open_quiz_per_learner`, PG CHECK `exam_sessions_mode_shape_check` расширен (DROP + ADD); `down()` удаляет quiz-сессии и возвращает прежний CHECK *(docs/13 §8.5, §2.11)*
 82. `2026_11_18_100002_create_level_quiz_results_table` — `level_quiz_results` и partial unique «один зачётный на неделю» *(§2.65)*
 82a. `2026_11_18_300001_add_hard_review_to_training_sessions` — `training_sessions.meta` jsonb и partial unique `training_sessions_one_open_hard_per_learner` (режим `hard_review`) *(docs/06 §14, §2.9)*
-82b. `2026_11_18_300002_add_word_repetitions_hard_idx` — partial `word_repetitions (learner_id, lapses DESC) WHERE is_hard = true OR lapses >= 1` для кандидатов раунда трудных слов (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`, `down()` — `DROP INDEX`; на sqlite откатывается раньше миграции, снимающей `lapses`) *(§2.8)*
+82b. `2026_11_18_300002_add_word_repetitions_hard_idx` — partial `word_repetitions (learner_id, next_review_at) WHERE is_hard = true OR lapses >= 1` для кандидатов раунда трудных слов (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`, `down()` — `DROP INDEX`; на sqlite откатывается раньше миграции, снимающей `lapses`) *(§2.8)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 
