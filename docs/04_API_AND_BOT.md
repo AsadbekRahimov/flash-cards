@@ -162,7 +162,8 @@
   "onboarding_completed": true,
   "timezone": "Asia/Tashkent",
   "game": { "daily_available": true, "active_run": null, "class_caravan": null },
-  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" }
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" },
+  "hard_round": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null }
 }
 ```
 
@@ -179,6 +180,12 @@
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
 - `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
 - `game` (G2.3) — вход «Караван» на «Сегодня» (вторичное действие): `daily_available` — ежедневный караван можно начать (тот же `DailyCaravanService::state`, что у `daily.available` карты: не сыгран сегодня, нет идущего забега, `due_count > 0`); `active_run` — идущий и не просроченный забег `{id, kind, progress {answered, total}}` или `null`. Блок есть всегда; при закрытой игре (`GAME_ACCESS=off`, вне пилота) это `{daily_available: false, active_run: null}` **без запросов к таблицам игры**, при открытой — два запроса: к `game_runs` (`due_count` берётся из уже посчитанного) и карточка каравана класса `class_caravan` (G2.9b; `{id, stars_total, target_stars, ends_at}` или `null`; `{daily_available: false, active_run: null, class_caravan: null}` при закрытой игре).
+
+- `hard_round` **(с 18.11.2026, docs/06 §14)** — карточка «Раунд трудных слов»; ключ **есть всегда**, `null` только при `LEARNING_HARD_ROUND_ENABLED=false`. `available` — раунд можно открыть или продолжить;
+  `reason` (когда `available = false`): `not_enough` (трудных слов меньше `LEARNING_HARD_ROUND_MIN_WORDS`, 8) · `played_today` (в локальном дне уже был раунд; `resets_at` — ISO-8601 UTC с миллисекундами, конец окна дня) ·
+  `no_objective_exercise` (выключены и «Выбери перевод», и «Выбери слово») · `disabled` не приходит (вместо блока `null`); `words` — размер раунда, который откроется (0 при `not_enough`; у живого раунда — размер его набора);
+  `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: +1 оператор (кандидаты по
+  индексу `word_repetitions_hard_idx`); «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -234,9 +241,9 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 **Request:**
 ```json
 {
-  "mode": "lesson",          // lesson | daily_review (group_lesson открывает только учитель из бота)
-  "lesson_id": 321,          // обязателен для lesson (integer ≥ 1), запрещён для daily_review
-  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding; записывается только в НОВУЮ сессию
+  "mode": "lesson",          // lesson | daily_review | hard_review (group_lesson открывает только учитель из бота)
+  "lesson_id": 321,          // обязателен для lesson (integer ≥ 1), запрещён для daily_review и hard_review
+  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding | assignment | finish (кнопка на итоге занятия); записывается только в НОВУЮ сессию
 }
 ```
 
@@ -251,12 +258,18 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 планировщик) и открывается новая. Поэтому «Начать занятие» после закрытого на вердикте Mini App всегда даёт новый раунд, а `/finish` старой сессии
 остаётся идемпотентным (200 с её итогом, без второго события). Урочная сессия (`lesson`) возвращается как есть в любом случае.
 
-**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`, `lesson_id` не integer, `source` вне списка) →
+**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`/`hard_review`, `lesson_id` не integer, `source` вне списка) →
 422 `lesson_mismatch` (`lesson` без `lesson_id` или `daily_review` с ним) → 404 `lesson_not_found` (урока нет **или** его курс
 не `published` — статус курса не раскрывается) → 429 (лимит `twa-session-create`, 10 запросов/мин на learner'а).
 (`invalid_mode` из сервиса при HTTP недостижим — режим отсекает валидация; код оставлен в списке для клиента.)
 
 Побочный эффект: событие `training.session_opened` `{training_session_id, mode, source, reused}` (`reused = true`, если вернулась уже открытая сессия).
+
+**`mode: hard_review` — раунд трудных слов (с 18.11.2026, docs/06 §14).** Открывает `HardRoundService::open`: набор 8-10 слов фиксируется при открытии (`training_sessions.meta.hard_words`), слова притягиваются к «сейчас»
+(`next_review_at`, без `is_hard`); не чаще `LEARNING_HARD_ROUND_PER_DAY` (1) раза в локальный день. Ответ 200 — как у `/start`: `mode: "hard_review"`, `lesson: null`, `total_words` = размер набора, `card` (только объективные
+упражнения, **никогда** `flash`, кроме редкого понижения для слова без трёх вариантов), `progress: {done: побеждено, total: размер набора}`, `quota: {new_words_remaining: null}` (новых слов нет, квота Free не тратится).
+Идемпотентно для живой сегодняшней сессии (две вкладки — одна сессия). Ошибки сверх общих: **409 `hard_round_unavailable`** с `error.details {reason: disabled | not_enough | played_today | no_objective_exercise, resets_at}`
+(`resets_at` только при `played_today`, иначе `null`); 422 `lesson_mismatch`, если передан `lesson_id` (урок не проверяется на существование); 429 `twa-session-create`. Событие отказа — `hard_round.refused {reason, source}`.
 
 #### `POST /api/twa/training/sessions/{session_id}/finish`
 Learner завершает **свою личную** сессию (`status = closed`, `ended_at`, `done_reason = finished`) и получает итог по ней.
@@ -274,9 +287,14 @@ Learner завершает **свою личную** сессию (`status = clo
   "goal": { "target": 20, "done": 14, "met": false },
   "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "practice_entry": { "course": "english-a1", "lesson_id": 41 },
-  "league_points": 35
+  "league_points": 35,
+  "hard_round": null,
+  "hard_round_offer": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null }
 }
 ```
+**С 18.11.2026 (docs/06 §14):** `hard_round` — `{"total": 10, "won": 8}` у сессии `hard_review` (`won` — слова набора, чья ПОСЛЕДНЯЯ оценка в сессии ≥ 3), `null` у остальных режимов; `hard_round_offer` — приглашение на раунд трудных слов
+на итоге ежедневного занятия / урока: тот же блок, что `hard_round` в `GET /today` (A.2a), `null` у самого раунда трудных слов и при `LEARNING_HARD_ROUND_ENABLED=false`. Стоимость `/finish` — +2 оператора (сессии окна дня и
+кандидаты). Событие `training.session_finished` у `hard_review` получает `hard_won`, `hard_total`; `practice_entry` у него `null`.
 `league_points` — баллы лиг / месячного рейтинга, которые принесло занятие (A.19, docs/13 §7.6): `reviewed×1 + correct×1 + new_words×2` + 10, если цель дня была достигнута во время этой сессии; считается по числам ответа, запросов не добавляет.
 **С 17.11.2026 (docs/06 §13.3):** `+ "stages": { "graduated": 5, "promoted": 2, "mastered": 1 }` — рост слов за сессию: `graduated` — новые слова
 сессии, вышедшие из минутных шагов (ступень `learning`); `promoted` — слова, встреченные раньше, чья ступень выросла (`new → learning → known → mastered`,
@@ -383,6 +401,7 @@ Learner присоединяется к открытой тренировке. �
 | `new_quota_exhausted` | новые слова ещё есть, но дневной лимит новых карточек исчерпан, а due и learning-карточек нет (план Free, 1.4b); клиент показывает paywall |
 | `session_cap` | принято `TWA_MAX_CARDS_PER_SESSION` оценок в этой сессии |
 | `sprint_complete` | scope `daily_review` (с 17.11.2026, docs/06 §13.2): раунд окончен — выбраны `LEARNING_SPRINT_DUE_CARDS` (15) дневных повторений и/или `LEARNING_SPRINT_NEW_WORDS` (6) новых слов с их шагами, а для следующего раунда ещё есть карточки (due сверх потолка или невыданные слова в пределах дневной квоты). Всегда с `can_continue = true` |
+| `hard_round_complete` | scope `hard_review` (с 18.11.2026, docs/06 §14): все слова набора выданы, повторять нечего; `can_continue = false`, `progress.done` — побеждённые слова (последняя оценка слова в сессии ≥ 3) |
 
 `can_continue: bool` — есть всегда; `true` только вместе с `sprint_complete`. Экран итога при этом показывает «Ещё раунд»: клиент
 делает `POST /finish` текущей сессии и `POST /training/sessions {mode: daily_review}`. Шаг с `card: null` после оценок сессии сам

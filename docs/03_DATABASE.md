@@ -240,6 +240,11 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   (его обслуживает `word_repetitions_next_card_idx`) и читается по `(learner_id, word_id)` в `ExamAnswerService`. EXPLAIN на 90 000 строк
   (30 learner'ов, 12 % `is_hard`) по всем путям кода и `idx_scan = 0` за весь прогон тестов на PostgreSQL; индекс только удорожал записи
   `POST /review` по трудным карточкам. Если когда-нибудь понадобится выборка «трудные слова learner'а» — вернуть вместе с этим запросом.
+  **Запрос появился** — кандидаты раунда трудных слов (`HardRoundService::candidates`, docs/06 §14), и индекс вернулся под другим именем, вместе с ним:
+- partial `(learner_id, lapses DESC) WHERE is_hard = true OR lapses >= 1` (`word_repetitions_hard_idx`, миграция `2026_11_18_300002`, CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) —
+  кандидаты раунда трудных слов, читаются на каждом `/today` без раунда дня и на `/finish` ежедневной сессии / урока. Предикат в запросе записан константами слово в слово как в индексе
+  (планировщик доказывает применимость partial-индекса только для того же текста; порог ученика `lapses >= :lapses_from` — вторым условием, оно следует из первого). EXPLAIN на 60 000 строк
+  (20 учеников × 3 000, ≈ 8 % слов с провалами): Index Scan по нему, 230 буферов, 0,97 мс; без индекса — обход всех строк ученика. Индекс частичный (строки с провалами), запись трудной карточки трогает его только при смене `is_hard` / `lapses`.
 - `(learner_id, is_hard DESC, next_review_at, id)` (`word_repetitions_next_card_idx`) — hot path выбора следующей карточки:
   ровно порядок `CardPicker::pickNext` шаг 1 (`WHERE learner_id = ? AND next_review_at <= now ORDER BY is_hard DESC, next_review_at, id LIMIT 1`,
   docs/06 §4.2), поэтому due-карточка — первая подходящая запись индекса, а не top-N sort по всем просроченным (1500 просроченных:
@@ -267,7 +272,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3) и окно «недавно введённых» слов в `CardPicker::firstUnblocked` (`learner_id = ? AND created_at >= ?`, ревью: отдельный индекс не нужен).
 
 ### 2.9 `training_sessions`
-Одна таблица для групповых (`mode = group_lesson`, открывает учитель) и личных сессий (`lesson`, `daily_review` — открывает сам learner через `TrainingSessionService::openPersonal`, задача 1.3a).
+Одна таблица для групповых (`mode = group_lesson`, открывает учитель) и личных сессий (`lesson`, `daily_review` — открывает сам learner через `TrainingSessionService::openPersonal`, задача 1.3a; `hard_review` — раунд трудных слов, открывает `HardRoundService::open`, docs/06 §14).
 
 | Колонка | Тип |
 |---------|-----|
@@ -276,7 +281,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | lesson_id | bigint FK nullable, ON DELETE RESTRICT — `NULL` у `daily_review` |
 | started_by_user_id | bigint FK nullable → users — `NULL` у личной сессии |
 | learner_id | bigint FK nullable → learners, ON DELETE CASCADE — владелец личной сессии |
-| mode | varchar(16) default 'group_lesson' — `group_lesson` / `lesson` / `daily_review` |
+| mode | varchar(16) default 'group_lesson' — `group_lesson` / `lesson` / `daily_review` / `hard_review` |
 | source | varchar(16) default 'command' — `command` / `picker` / `self` / `reminder` / `onboarding` |
 | course_id | bigint FK nullable → courses, ON DELETE SET NULL — откуда брать новые слова в `daily_review` |
 | status | enum('open','closed') default 'open' |
@@ -284,12 +289,14 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | ended_at | timestamp nullable |
 | expires_at | timestamp nullable — автозакрытие личных сессий планировщиком |
 | completed_at | timestamp nullable *(2026_11_17_100001, docs/06 §13.2)* — личная сессия пройдена до конца: сервер ответил `card: null` после её оценок (раунд / урок окончен), независимо от `/finish`. Пустая сессия (без оценок) не помечается. Читают `TrainingSessionService::openPersonal` (пройденная `daily_review` при следующем открытии закрывается `finished` и заменяется новой), `closeExpired` (пройденная закрывается `finished`, а не `expired`) и `TodayService` (`open_session_id` только у не пройденной) |
+| meta | jsonb NOT NULL default '{}' *(2026_11_18_300001, docs/06 §14)* — `{"hard_words": [word ids]}` у `hard_review`: набор раунда, зафиксированный при открытии (`TrainingScope::hard`, итог «N из 10»); `{}` у остальных режимов |
 | done_reason | varchar(16) nullable — почему закрыта: `finished` (learner нажал «Завершить», либо раунд был пройден до конца — `completed_at` — и закрыт при следующем открытии или планировщиком) / `expired` (планировщик `training:close-expired` или замена просроченной / вчерашней незаконченной при повторном открытии); `NULL` пока открыта *(1.3a)* |
 
 **Ограничения:**
 - `(telegram_group_id, lesson_id) WHERE status = 'open'` unique — одна открытая тренировка урока на группу даже при параллельных командах (у личных сессий группа `NULL`, они не конфликтуют);
 - `(learner_id) WHERE status = 'open' AND mode = 'daily_review'` unique (`training_sessions_one_open_daily_per_learner`);
 - `(learner_id, lesson_id) WHERE status = 'open' AND mode = 'lesson'` unique (`training_sessions_one_open_lesson_per_learner`);
+- `(learner_id) WHERE status = 'open' AND mode = 'hard_review'` unique (`training_sessions_one_open_hard_per_learner`) — один открытый раунд трудных слов на ученика; раунд трудных слов и ежедневный открыты одновременно — это разные режимы;
 - PostgreSQL-only CHECK `training_sessions_mode_shape_check`: `group_lesson` ⇒ есть группа и урок, любой другой режим ⇒ есть `learner_id` (на других драйверах инвариант держит сервис);
 - индексы `(learner_id, status, started_at)`, `(status, expires_at)`, `course_id`.
 
@@ -466,6 +473,8 @@ Append-only журнал для продуктовой аналитики (не 
 | user_id | bigint FK nullable → users, ON DELETE SET NULL (учитель) |
 | props | jsonb | только скаляры, ≤ 20 ключей, строки ≤ 100 символов, **без PII** |
 | occurred_at | timestamp |
+
+События раунда трудных слов (docs/06 §14): открытие — `training.session_opened {mode: hard_review, source: self | finish, reused}`; конец — `training.session_finished` с `hard_won`, `hard_total`; отказ — `hard_round.refused {reason: disabled | not_enough | played_today | no_objective_exercise, source}`.
 
 **Индексы:** `(name, occurred_at)`, `(learner_id, occurred_at)`, `(telegram_group_id, occurred_at)`, `(user_id)`, `(occurred_at)` (пакетный prune)
 (индексы на FK нужны для `ON DELETE SET NULL` и аналитики по группе/учителю).
@@ -1529,6 +1538,8 @@ CHECK не создаются — инвариант дублируют серв
 
 81. `2026_11_18_100001_add_level_quiz_mode_to_exam_sessions` — режим `level_quiz`: partial unique `exam_sessions_one_open_quiz_per_learner`, PG CHECK `exam_sessions_mode_shape_check` расширен (DROP + ADD); `down()` удаляет quiz-сессии и возвращает прежний CHECK *(docs/13 §8.5, §2.11)*
 82. `2026_11_18_100002_create_level_quiz_results_table` — `level_quiz_results` и partial unique «один зачётный на неделю» *(§2.65)*
+82a. `2026_11_18_300001_add_hard_review_to_training_sessions` — `training_sessions.meta` jsonb и partial unique `training_sessions_one_open_hard_per_learner` (режим `hard_review`) *(docs/06 §14, §2.9)*
+82b. `2026_11_18_300002_add_word_repetitions_hard_idx` — partial `word_repetitions (learner_id, lapses DESC) WHERE is_hard = true OR lapses >= 1` для кандидатов раунда трудных слов (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`, `down()` — `DROP INDEX`; на sqlite откатывается раньше миграции, снимающей `lapses`) *(§2.8)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

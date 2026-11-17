@@ -120,7 +120,7 @@ erDiagram
 | started_by_user_id | → **nullable** |
 | lesson_id | → **nullable** (`daily_review` охватывает все уроки) |
 | learner_id | **новая**, bigint nullable FK → learners `cascadeOnDelete` — владелец личной сессии |
-| mode | **новая**, varchar(16) NOT NULL default `'group_lesson'`: `group_lesson` (как сейчас) / `lesson` (личная тренировка урока) / `daily_review` (экран «Сегодня») |
+| mode | **новая**, varchar(16) NOT NULL default `'group_lesson'`: `group_lesson` (как сейчас) / `lesson` (личная тренировка урока) / `daily_review` (экран «Сегодня») / `hard_review` (раунд трудных слов, 18.11.2026, docs/06 §14: набор слов в `meta.hard_words`, без урока и курса) |
 | source | **новая**, varchar(16) NOT NULL default `'command'`: `command` / `picker` / `self` / `reminder` / `onboarding` |
 | course_id | **новая**, bigint nullable FK → courses `nullOnDelete` — для `daily_review`: откуда брать новые слова |
 | expires_at | **новая**, timestamp nullable — личные сессии закрываются планировщиком через `config('learning.session_ttl_hours')` (12 ч) |
@@ -130,6 +130,7 @@ erDiagram
 - существующий partial unique `(telegram_group_id, lesson_id) WHERE status='open'` остаётся (NULL не конфликтуют ни в PG, ни в sqlite);
 - новый partial unique `training_sessions_one_open_daily_per_learner` `(learner_id) WHERE status='open' AND mode='daily_review'`;
 - новый partial unique `training_sessions_one_open_lesson_per_learner` `(learner_id, lesson_id) WHERE status='open' AND mode='lesson'`;
+- новый partial unique `training_sessions_one_open_hard_per_learner` `(learner_id) WHERE status='open' AND mode='hard_review'` (18.11.2026, docs/06 §14; открывает `HardRoundService::open` под `LearnerRowLock`, не `openPersonal`);
 - PG-only CHECK `training_sessions_mode_shape_check`: `(mode='group_lesson' AND telegram_group_id IS NOT NULL AND lesson_id IS NOT NULL) OR (mode<>'group_lesson' AND learner_id IS NOT NULL)` (как в `2026_07_13_000002` — пропуск на других драйверах, инвариант дублируется в `TrainingSessionService`);
 - индекс `(learner_id, status, started_at)`; `(status, expires_at)` для закрытия просроченных.
 
@@ -949,6 +950,8 @@ flowchart TD
 ### 7.6 Жизненный цикл личной сессии
 
 `openPersonal` идемпотентен (partial unique → вернуть открытую); `expires_at = now + 12 ч`; `training:close-expired` каждые 15 мин закрывает просроченные личные сессии (`status = closed`, `ended_at = now`, `done_reason = expired`). `finish` — явное закрытие с summary (`done_reason = finished`). Повторный `/start` сессии после закрытия → 410 `session_closed`, клиент создаёт новую. Групповые сессии (D5 из docs/11) — закрытие через 24 ч тем же планировщиком (`mode = group_lesson AND started_at < now - 24h`) — безопасно, учитель всегда может открыть снова (`open` идемпотентен).
+
+**Раунд трудных слов (`hard_review`, 18.11.2026, docs/06 §14)** — третий личный режим: открывает `HardRoundService::open` (идемпотентный возврат живой сегодняшней сессии; вчерашняя живая — `expired`; не чаще `learning.hard_round.per_day` в локальный день), набор слов фиксируется в `training_sessions.meta`; закрывает его так же `/finish` и `training:close-expired` (`expired`, а доигранный — `finished`).
 
 ### 7.7 Продуктовые события Фазы 1
 
