@@ -4,7 +4,7 @@ import type { TileColor } from '@/components/ui/ListRow.vue'
 import type { PracticeElementKind, PracticeLessonRef, PracticeMode, PracticeVerdict } from '@/api/types'
 
 /** The order of the cards of the hub: the order of the plan (docs/15 §6). */
-export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation']
+export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed']
 
 /** The icon tile of a mode: the same one on the hub card, in the "Continue" card and in the invitations. */
 export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }> = {
@@ -12,6 +12,7 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
   collocation: { icon: 'puzzle-piece', tile: 'purple' },
   sentence: { icon: 'bars-3-bottom-left', tile: 'orange' },
   dictation: { icon: 'speaker-wave', tile: 'teal' },
+  pairs_timed: { icon: 'bolt', tile: 'orange' },
 }
 
 /**

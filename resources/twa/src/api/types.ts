@@ -1042,7 +1042,7 @@ export interface DeckImportResult {
 
 // ---------------- Practice and battle (docs/16 §7, §11.7) ----------------
 
-export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation'
+export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation' | 'pairs_timed'
 
 /** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
 export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
@@ -1242,6 +1242,8 @@ export interface PracticeModeInfo {
   /** Set with `not_enough`. */
   reason: PracticeHubReason | null
   estimate_seconds: number
+  /** Only the timed pairs (`pairs_timed`): the personal best, null before the first game. Absent on the other cards. */
+  record?: { score: number; achieved_at: string } | null
 }
 
 /**
@@ -1404,7 +1406,7 @@ export interface PracticeMistake {
   verdict: 'typo' | 'wrong' | 'skipped'
 }
 
-export type PracticeFinishReason = 'completed' | 'expired' | 'replaced'
+export type PracticeFinishReason = 'completed' | 'expired' | 'replaced' | 'time_over'
 
 /** `summary` of a finished session (docs/16 §6.4). */
 export interface PracticeSummary {
@@ -1419,6 +1421,20 @@ export interface PracticeSummary {
   finish_reason: PracticeFinishReason
   retry_available: boolean
   mistakes: PracticeMistake[]
+  /** Only a timed game (`pairs_timed`): the pairs made, the best score now (null: none), whether this game set the record. */
+  score?: number
+  best_score?: number | null
+  is_record?: boolean
+}
+
+/** `timed` of a session: the clock of a timed game, kept by the server (docs/16 §5.5a); null for the other modes. */
+export interface PracticeTimed {
+  seconds: number
+  /** The end of the game, server clock; null until `start`. Moves closer with every wrong match. */
+  deadline_at: string | null
+  started: boolean
+  score: number
+  penalty_ms: number
 }
 
 /** GET /practice/sessions/{id}; also what open, replace and every answer return (docs/16 §7.2). */
@@ -1434,6 +1450,8 @@ export interface PracticeSession {
   counters: { correct_first: number; hints: number; mismatches: number }
   expires_at: string
   server_now: string
+  /** A timed game's clock; null (or absent in an older server) for the other modes. */
+  timed?: PracticeTimed | null
   /** The element to answer; null once the session is finished. */
   current: PracticeElement | null
   summary: PracticeSummary | null
@@ -1449,6 +1467,8 @@ export interface PracticeAnswerResponse {
   pair: { left_id: string; right_id: string } | null
   /** Pairs: the round is complete. Absent for the other modes. */
   round_done?: boolean
+  /** Timed pairs: the time a wrong match cost (ms), 0 for a right one. */
+  penalty_ms?: number
   session: PracticeSession
 }
 

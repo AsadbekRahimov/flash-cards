@@ -294,6 +294,8 @@ export const api = {
     /** Opens a solo session (201). 409 `practice_session_active` carries the unfinished one in `details`. */
     open: (body: PracticeOpenRequest) => client().post<PracticeSession>('/practice/sessions', { ...body }),
     get: (id: number) => client().get<PracticeSession>(`/practice/sessions/${id}`),
+    /** Starts the clock of a timed game (no body); idempotent: a second call returns the same deadline. */
+    start: (id: number) => client().post<PracticeSession>(`/practice/sessions/${id}/start`),
     /** One answer; a repeat with the same `request_id` returns the first result. */
     answer: (id: number, body: PracticeAnswerRequest) =>
       client().post<PracticeAnswerResponse>(`/practice/sessions/${id}/answer`, { ...body }),
