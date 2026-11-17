@@ -29,6 +29,9 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
+// The thresholds these tests were written against (docs/06 §12.1), whatever a local .env or the config default says.
+beforeEach(fn () => config(['learning.ladder.typed_from_interval_days' => 21]));
+
 /*
  * The method (docs/25 §3, docs/06 §12): objective grading of the four-option cards, the ladder floor after a lapse, the
  * self-grade mismatch metric, leeches and the confusable pair, the memory hooks (authored and the learner's own note),
@@ -176,6 +179,7 @@ function lmCardStrings(array $card): array
 }
 
 it('sends a meaning / reverse / audio card without anything that gives the right option away, and returns it with the verdict', function (string $type): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     // The meaning is asked on its own rung (two passes); the word on the next (three).
     $s = lmScenario(5, $type === 'meaning' ? 2 : 3, $type === 'meaning' ? 6 : 15, rowAttributes: ['note' => 'word0 or перевод 0 - my hint', 'is_hard' => true]);
     foreach ($s['words'] as $i => $word) {
@@ -313,6 +317,7 @@ it('offers the right meaning exactly once: a second word with the same translati
 });
 
 it('costs a meaning card no more statements than an audio card, on /next and on /review', function (): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     $cost = function (string $type): array {
         $s = lmScenario(5, 3, 15);
         lmOnly($s, $type);
@@ -453,6 +458,7 @@ it('still takes the learner\'s own quality on a flash card, with its full range'
 });
 
 it('records the self-grade mismatch once: "remember / easy" on flash followed by a wrong objective answer on the same word', function (): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     $s = lmScenario(5, 1, 1);
     $card = lmCard($s);
     expect($card['prompt']['type'])->toBe('flash');
@@ -491,6 +497,7 @@ it('records the self-grade mismatch once: "remember / easy" on flash followed by
 // --- the ladder floor (docs/06 §12.1) ---------------------------------------------------------
 
 it('lowers the ceiling by one rung on a lapse of a review card and serves the relearned card there, in the scheduler\'s own UPDATE', function (): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     $s = lmScenario(5, 4, 21, pro: true);
     // The other words only give the four options their distractors: not due.
     foreach (array_slice($s['words'], 1) as $other) {
@@ -552,6 +559,7 @@ it('clears the floor once the interval has grown back to it', function (): void 
 // --- leeches (docs/06 §12.6) ------------------------------------------------------------------
 
 it('marks a hard word from the leech threshold, shows the pair it is confused with, and costs one statement only for leeches', function (): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     $s = lmScenario(5, 1, 1, rowAttributes: ['lapses' => 4, 'is_hard' => true]);
     $plain = lmScenario(5, 1, 1);
 
@@ -880,6 +888,7 @@ it('lets the learner pick a retention mode; it applies to FSRS learners only and
 // --- the pretest (docs/06 §12.7) ---------------------------------------------------------------
 
 it('asks "do you know this word?" before the first show when the pretest is on: a right pick graduates it as known, a wrong one starts learning', function (): void {
+    config(['learning.ladder.early.enabled' => false]); // the parity ladder of docs/06 §12.1; the early ladder (§13.1) is LearningSprintTest
     config(['learning.pretest.enabled' => true]);
     $s = lmScenario(5, 0, 0);
     foreach ($s['words'] as $i => $w) {

@@ -27,12 +27,19 @@ type Progress = { done: number; total: number }
 const EXERCISE_MISMATCH_CODES = ['answer_not_accepted', 'quality_not_accepted', 'exercise_pro_required', 'exercise_mismatch']
 
 /**
- * A daily review may go past its goal (`done` = grades in the session, `total` = daily goal),
- * and the bar must not show "12 / 10".
+ * The progress of a daily review is that of the round (`total >= done`, docs/04 A.3); a safety net for an older server
+ * that counted against the daily goal, so the bar never shows "12 / 10".
  */
 function clampProgress(p: Progress): Progress {
   return p.done > p.total ? { done: p.total, total: p.total } : p
 }
+
+/** The run of good answers (the "combo" chip): shown from this many in a row, and celebrated on every `COMBO_STEP`-th. */
+export const COMBO_MIN = 3
+export const COMBO_STEP = 5
+
+/** How the last answer counts for the run: `right` and `wrong` (an objective check), `again` ("not yet" on a flash card). */
+export type OutcomeKind = 'right' | 'wrong' | 'again'
 
 export type TrainingStatus =
   | 'idle'          // initial
@@ -63,6 +70,8 @@ interface TrainingState {
   progress: Progress
   /** Why the last answer had no card; drives the text of the finish screen. */
   doneReason: DoneReason | null
+  /** The daily round is over and the server can serve another one (`can_continue`, only with `sprint_complete`). */
+  canContinue: boolean
   /** Server-side summary of a finished personal session; null for group sessions or when finish failed. */
   summary: SessionSummary | null
   opening: boolean
@@ -98,11 +107,32 @@ interface TrainingState {
    * for a four-choice card until the right answer is seen (`continueAfterChoice()`). `null` while nothing is held, and in
    * the held state of an older server that sent no `card`: then the next card is fetched when the learner moves on.
    */
-  deferred: { card: Card | null; doneReason: DoneReason | null } | null
+  deferred: { card: Card | null; doneReason: DoneReason | null; canContinue: boolean } | null
   /** The learner already moved on from a four-choice card whose grade is still on its way: show the next card on arrival. */
   advanceWhenAnswered: boolean
+  /** The run of good answers in a row in this session (client only); 0 after a miss. */
+  combo: number
+  /** The longest run of the session: the finish screen says it. */
+  bestCombo: number
+  /** The last answer that counted for the run; `seq` grows with each, so the screen can react to every one. */
+  outcome: { seq: number; kind: OutcomeKind }
+  /**
+   * When the session began, epoch ms: the SERVER's `started_at` (the start / open answer), so the finish screen can tell "achieved in
+   * this session" by one clock; `Date.now()` of the device only for an older server that sends none.
+   */
+  startedAt: number
   /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
   generation: number
+}
+
+/** The finish request in flight, so the eager close at the last card and the one of the finish screen are one request. */
+let finishing: { generation: number; promise: Promise<void> } | null = null
+
+/** `started_at` of the server as epoch ms; null when absent or not a date. */
+function parseStartedAt(value: string | undefined): number | null {
+  if (value === undefined) return null
+  const at = Date.parse(value)
+  return Number.isFinite(at) ? at : null
 }
 
 export const useTrainingStore = defineStore('training', {
@@ -117,6 +147,7 @@ export const useTrainingStore = defineStore('training', {
     cardShownAt: 0,
     progress: { done: 0, total: 0 },
     doneReason: null,
+    canContinue: false,
     summary: null,
     opening: false,
     openError: '',
@@ -132,6 +163,10 @@ export const useTrainingStore = defineStore('training', {
     choiceResult: null,
     deferred: null,
     advanceWhenAnswered: false,
+    combo: 0,
+    bestCombo: 0,
+    outcome: { seq: 0, kind: 'right' },
+    startedAt: 0,
     generation: 0,
   }),
 
@@ -194,12 +229,14 @@ export const useTrainingStore = defineStore('training', {
 
     async applyStart(res: TrainingStartResponse): Promise<void> {
       this.mode = res.mode
+      this.startedAt = parseStartedAt(res.started_at) ?? this.startedAt
       this.lesson = res.lesson
       this.totalWords = res.total_words
       this.progress = { done: 0, total: res.total_words }
       if (res.progress) this.progress = clampProgress(res.progress)
       if ('card' in res) {
         this.doneReason = res.done_reason ?? null
+        this.canContinue = res.can_continue === true
         this.applyCard(res.card ?? null)
         return
       }
@@ -221,6 +258,7 @@ export const useTrainingStore = defineStore('training', {
         if (generation !== this.generation) return
         this.progress = clampProgress(res.progress)
         this.doneReason = res.done_reason ?? null
+        this.canContinue = res.can_continue === true
         this.applyCard(res.card)
       } catch (err) {
         if (generation !== this.generation) return
@@ -238,6 +276,7 @@ export const useTrainingStore = defineStore('training', {
         (sessionId, wordId, timeSpent, serveToken, exercise) =>
           api.training.review(sessionId, wordId, quality, timeSpent, serveToken, exercise),
         false,
+        quality,
       )
     },
 
@@ -268,7 +307,10 @@ export const useTrainingStore = defineStore('training', {
       )
     },
 
-    /** @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card) */
+    /**
+     * @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card)
+     * @param selfGrade the learner's own grade of a flash card (the other exercises are graded by the server)
+     */
     async submit(
       send: (
         sessionId: number,
@@ -278,6 +320,7 @@ export const useTrainingStore = defineStore('training', {
         exercise: ExerciseType,
       ) => Promise<ReviewResponse>,
       hold: boolean,
+      selfGrade?: Quality,
     ): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
       const generation = this.generation
@@ -288,6 +331,8 @@ export const useTrainingStore = defineStore('training', {
       this.advanceWhenAnswered = false
       // The exercise this card was shown with: the server refuses (409 `exercise_mismatch`) an answer of another kind.
       const shown = this.exercise
+      // A new word's flash card shows its answer at once: "Got it" there is not an answer to a question (see `recordOutcome`).
+      const introduction = shown === 'flash' && this.card.card_kind === 'new'
       this.lastExercise = shown
       this.choiceResult = null
       this.status = 'submitting'
@@ -297,18 +342,22 @@ export const useTrainingStore = defineStore('training', {
         if (generation !== this.generation) return
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
+        if (!introduction) this.recordOutcome(shown, selfGrade, res.graded ?? null)
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
+          const canContinue = res.can_continue === true
+          // No card after this answer: the round is over, so it is closed now - the verdict / answer screen may be left by closing the app.
+          if (!res.card) void this.finalize()
           // A four-choice card is graded by the server too, but its screen has shown the answer already: no verdict screen.
           if (res.graded && !hold) {
             this.verdict = res.graded
-            this.deferred = { card: res.card ?? null, doneReason }
+            this.deferred = { card: res.card ?? null, doneReason, canContinue }
             this.status = 'verdict'
             return
           }
           if (hold) {
-            const deferred = { card: res.card ?? null, doneReason }
+            const deferred = { card: res.card ?? null, doneReason, canContinue }
             if (res.graded) {
               this.choiceResult = {
                 correct: res.graded.correct,
@@ -324,6 +373,7 @@ export const useTrainingStore = defineStore('training', {
             return
           }
           this.doneReason = doneReason
+          this.canContinue = canContinue
           this.applyCard(res.card ?? null)
           return
         }
@@ -372,6 +422,22 @@ export const useTrainingStore = defineStore('training', {
       }
     },
 
+    /**
+     * The run of good answers (client only, for the chip and the finish screen): a right pick / typed answer or "got it" /
+     * "knew it" on a flash card goes on, a wrong one and "not yet" stop it. The pretest is a guess before learning, not a
+     * check: it neither goes on nor breaks the run. Nor does the introduction card of a new word (a flash card with its answer
+     * open, `card_kind = new`; `submit` does not report it): "Got it" there answers no question.
+     */
+    recordOutcome(shown: ExerciseType, selfGrade: Quality | undefined, graded: Graded | null): void {
+      if (shown === 'pretest') return
+      const right = selfGrade !== undefined ? selfGrade >= 4 : graded?.correct
+      if (right === undefined) return
+      const kind: OutcomeKind = right ? 'right' : selfGrade !== undefined ? 'again' : 'wrong'
+      this.combo = right ? this.combo + 1 : 0
+      this.bestCombo = Math.max(this.bestCombo, this.combo)
+      this.outcome = { seq: this.outcome.seq + 1, kind }
+    },
+
     /** The learner has seen the verdict: show what the review answered with. */
     continueAfterVerdict(): void {
       if (this.status !== 'verdict') return
@@ -406,7 +472,30 @@ export const useTrainingStore = defineStore('training', {
         return
       }
       this.doneReason = deferred.doneReason
+      this.canContinue = deferred.canContinue
       this.applyCard(deferred.card)
+    },
+
+    /**
+     * "One more round" (docs/06 §13.2): the finished session is closed first (without it the server hands back the same finished
+     * one; the finish screen already did it, so only a failed finish is repeated), then a new daily review is opened. Returns the id
+     * of the new session, or null with `openError` set.
+     */
+    async nextRound(): Promise<number | null> {
+      if (this.sessionId === null || this.opening) return null
+      if (this.summary === null && this.mode !== 'group_lesson') {
+        this.opening = true
+        this.openError = ''
+        try {
+          this.summary = await api.training.finish(this.sessionId)
+        } catch (err) {
+          this.openError = errorMessage(err, 'training')
+          return null
+        } finally {
+          this.opening = false
+        }
+      }
+      return this.open({ mode: 'daily_review', source: 'self' })
     },
 
     /**
@@ -416,11 +505,27 @@ export const useTrainingStore = defineStore('training', {
      */
     async finalize(): Promise<void> {
       if (this.sessionId === null || this.mode === null || this.mode === 'group_lesson') return
+      // Closed already (at the last card, or by an earlier call): the summary is in hand, there is nothing to ask again.
+      if (this.summary !== null) return
       const generation = this.generation
+      if (finishing !== null && finishing.generation === generation) return finishing.promise
+      const promise = this.finishNow(generation)
+      const entry = { generation, promise }
+      finishing = entry
+      try {
+        await promise
+      } finally {
+        if (finishing === entry) finishing = null
+      }
+    },
+
+    async finishNow(generation: number): Promise<void> {
+      if (this.sessionId === null) return
       try {
         const summary = await api.training.finish(this.sessionId)
         if (generation !== this.generation) return
         this.summary = summary
+        this.startedAt = parseStartedAt(summary.started_at) ?? this.startedAt
       } catch {
         if (generation !== this.generation) return
         this.summary = null
@@ -432,6 +537,7 @@ export const useTrainingStore = defineStore('training', {
       this.sessionId = sessionId
       this.mode = null
       this.doneReason = null
+      this.canContinue = false
       this.summary = null
       this.lesson = null
       this.totalWords = 0
@@ -447,6 +553,9 @@ export const useTrainingStore = defineStore('training', {
       this.choiceResult = null
       this.deferred = null
       this.advanceWhenAnswered = false
+      this.combo = 0
+      this.bestCombo = 0
+      this.startedAt = Date.now()
     },
 
     applyCard(card: Card | null): void {
@@ -455,6 +564,9 @@ export const useTrainingStore = defineStore('training', {
       if (card === null) {
         this.card = null
         this.status = 'finished'
+        // The round is closed at once, not when the learner presses "Continue" on the last verdict: closing the Mini App there
+        // would leave it open. Idempotent and best effort; the summary reaches the finish screen whenever it is ready.
+        void this.finalize()
         return
       }
 

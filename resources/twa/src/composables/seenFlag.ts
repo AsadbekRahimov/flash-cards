@@ -6,6 +6,8 @@
 const seenInSession = new Set<string>()
 /** Snoozed hints: the moment (`Date.now()`) until which a hint stays hidden, kept in memory too. */
 const snoozedInSession = new Map<string, number>()
+/** Short values (`readValue` / `writeValue`), kept in memory too. */
+const valuesInSession = new Map<string, string>()
 
 export function hasSeen(key: string): boolean {
   if (seenInSession.has(key)) return true
@@ -36,6 +38,26 @@ export function isSnoozed(key: string, now: number = Date.now()): boolean {
   return until > now
 }
 
+/** A short text kept on the device (the day a hint was last shown, the turn of a rotation); `null` when none was kept. */
+export function readValue(key: string): string | null {
+  try {
+    const stored = window.localStorage.getItem(key)
+    if (stored !== null) return stored
+  } catch {
+    // no storage: the memory value below is all there is
+  }
+  return valuesInSession.get(key) ?? null
+}
+
+export function writeValue(key: string, value: string): void {
+  valuesInSession.set(key, value)
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // the memory value above holds for this session
+  }
+}
+
 /** Hides a hint for `ms` from now. */
 export function snooze(key: string, ms: number, now: number = Date.now()): void {
   const until = now + ms
@@ -51,4 +73,5 @@ export function snooze(key: string, ms: number, now: number = Date.now()): void 
 export function resetSeenSession(): void {
   seenInSession.clear()
   snoozedInSession.clear()
+  valuesInSession.clear()
 }

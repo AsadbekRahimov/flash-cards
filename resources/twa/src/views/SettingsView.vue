@@ -13,10 +13,12 @@ import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedC
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { isSoundEnabled, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
 import { saveSetting } from '@/composables/useLocaleSwitch'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
+import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useOrganizationsStore } from '@/stores/organizations'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
@@ -49,8 +51,7 @@ const MAX_SEGMENTS = 4
 const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill']
 /** The rows with a line under the name: what the exercise asks (the names of the others say it themselves). */
 const EXERCISE_HINTS: Partial<Record<keyof ExerciseSettings, StringKey>> = { meaning: 'settings.exercises.meaning.hint' }
-/** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip. */
-const PRO_EXERCISES: readonly (keyof ExerciseSettings)[] = ['spelling', 'gap_fill']
+/** Typed answers are a Pro feature (docs/13 §8.2): their rows carry the "Pro" chip (`PRO_EXERCISES`, the same list marks the cards of a round). */
 
 // The native selects work on a copy of the server's values. When a change is refused the copy is set back from the
 // data (through state: Vue then puts the select back), never by touching the DOM element.
@@ -94,6 +95,13 @@ const sayAloud = ref(isSayAloudEnabled())
 function onSayAloud(on: boolean): void {
   setSayAloudEnabled(on)
   sayAloud.value = on
+}
+
+/** The short sounds of a lesson (right / wrong / done): kept on the device, on by default. */
+const sounds = ref(isSoundEnabled())
+function onSounds(on: boolean): void {
+  setSoundEnabled(on)
+  sounds.value = on
 }
 
 const localeOptions = computed<SegmentOption[]>(() =>
@@ -218,6 +226,11 @@ onMounted(() => {
         <div class="list-row" data-testid="say-aloud-row">
           <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.say_aloud') }}</span>
           <ToggleSwitch :model-value="sayAloud" :label="t('settings.say_aloud')" data-testid="say-aloud-toggle" @update:model-value="onSayAloud" />
+        </div>
+
+        <div class="list-row" data-testid="sounds-row">
+          <span class="min-w-0 flex-1 text-base leading-[22px]">{{ t('settings.sounds') }}</span>
+          <ToggleSwitch :model-value="sounds" :label="t('settings.sounds')" data-testid="sounds-toggle" @update:model-value="onSounds" />
         </div>
       </ListGroup>
 

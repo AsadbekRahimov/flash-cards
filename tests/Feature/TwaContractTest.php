@@ -57,6 +57,9 @@ uses(RefreshDatabase::class);
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
+
+/** The practice card of «Today» (docs/04 A.2a): the flags of `/me.practice` without its limits. */
+const CONTRACT_PRACTICE_TODAY = ['available', 'pro_required', 'modes', 'battle', 'pro_promise'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 // The method (docs/06 §12): `is_leech`, `is_hard`, `hook`, `note`, `confused_with` were added to the card (fields only ever added).
 const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with'];
@@ -136,6 +139,8 @@ it('POST /auth keeps its exact JSON shape', function (): void {
 
 it('GET /me keeps its exact JSON shape', function (): void {
     $s = contractTraining();
+    // The shipped default is `all` (docs/16 §3.3); this test pins the block of a closed practice, the open one is read in the test below.
+    config(['practice.access' => 'off', 'practice.battle.enabled' => true]); // the battle is off by default: pinned on to see the flag
 
     $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
@@ -164,7 +169,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
-        // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
+        // The block is always there; `PRACTICE_ACCESS=off` closes it (docs/16 §3.3).
         ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
         // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
         ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);
@@ -205,6 +210,13 @@ it('GET /me carries the block `game` with the coins and the tickets once the gam
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
+    // The shipped practice switches (a local .env may differ): open to everybody, every mode on, the battles off.
+    Config::set('practice.access', 'all');
+    Config::set('practice.plan', 'all');
+    Config::set('practice.battle.enabled', false);
+    foreach (['pairs', 'collocation', 'sentence', 'dictation'] as $mode) {
+        Config::set("practice.modes.{$mode}", true);
+    }
     $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 1]))->create(['number' => 1]);
     Word::factory()->for($lesson)->create();
     $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lesson->stage?->course_id]);
@@ -229,6 +241,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'league',
             'timezone',
             'game' => ['daily_available', 'active_run', 'class_caravan'],
+            'practice' => CONTRACT_PRACTICE_TODAY,
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -237,7 +250,9 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->and($response->json('onboarding_completed'))->toBeTrue()
         ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null, 'lapsed' => null])
         // the IANA id of the learner's zone: the TWA dates the header of the screen by it
-        ->and($response->json('timezone'))->toBe($learner->timezone);
+        ->and($response->json('timezone'))->toBe($learner->timezone)
+        // the practice card: the flags of `/me.practice` (practice open to everybody, battles off - pinned above), no limits here
+        ->and($response->json('practice'))->toBe(['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo']);
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))
@@ -246,6 +261,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
             'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
+            'practice' => CONTRACT_PRACTICE_TODAY,
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)
@@ -517,11 +533,13 @@ it('POST /training/start keeps its exact JSON shape', function (): void {
         ->assertExactJsonStructure([
             'session_id',
             'mode',
+            'started_at',
             'lesson' => ['stage', 'lesson', 'title'],
             'total_words',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('mode', 'group_lesson')
@@ -542,28 +560,37 @@ it('POST /training/sessions keeps its exact JSON shape, for a lesson and for a d
         ->assertExactJsonStructure([
             'session_id',
             'mode',
+            'started_at',
             'lesson' => ['stage', 'lesson', 'title'],
             'total_words',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ]);
 
-    $this->withHeaders($headers)
+    $daily = $this->withHeaders($headers)
         ->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])
         ->assertOk()
         ->assertExactJsonStructure([
             'session_id',
             'mode',
+            'started_at',
             'lesson',
             'total_words',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('lesson', null);
+
+    // `started_at`: the server's start of the session, ISO-8601 in UTC - the same string on a repeat (the session is reused).
+    $started = TrainingSession::query()->findOrFail((int) $daily->json('session_id'))->started_at;
+    expect($daily->json('started_at'))->toBe(CarbonImmutable::instance($started)->utc()->toIso8601String())->toEndWith('+00:00');
+    $this->withHeaders($headers)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk()->assertJsonPath('started_at', $daily->json('started_at'));
 
     $this->withHeaders($headers)
         ->postJson('/api/twa/training/sessions', ['mode' => 'lesson'])
@@ -579,14 +606,19 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
         ->postJson("/api/twa/training/sessions/{$session->id}/finish")
         ->assertOk()
         ->assertExactJsonStructure([
+            'started_at',
             'reviewed', 'correct', 'new_words',
+            'stages' => ['graduated', 'promoted', 'mastered'],
             'goal' => CONTRACT_GOAL,
             'streak' => CONTRACT_STREAK,
             'practice_entry',
             'league_points',
         ]);
 
-    expect($response->json('reviewed'))->toBeInt()
+    // When the session began, server time in UTC (ISO-8601): the summary screen measures "earned in this session" by it.
+    expect($response->json('started_at'))->toBe(CarbonImmutable::instance($session->started_at)->utc()->toIso8601String())
+        ->and($response->json('started_at'))->toEndWith('+00:00')
+        ->and($response->json('reviewed'))->toBeInt()
         ->and($response->json('correct'))->toBeInt()
         ->and($response->json('new_words'))->toBeInt()
         ->and($response->json('league_points'))->toBe(0)
@@ -608,10 +640,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])
@@ -625,7 +657,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
+        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason', 'can_continue', 'quota' => CONTRACT_QUOTA]);
 
     // Pretend the only card was already graduated and is not due: nothing to show.
     WordRepetition::query()->where('learner_id', $s['learner']->id)->update([
@@ -637,7 +669,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $response = $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
+        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason', 'can_continue', 'quota' => CONTRACT_QUOTA]);
 
     expect($response->json('card'))->toBeNull()
         ->and($response->json('done_reason'))->toBe('lesson_complete');
@@ -668,6 +700,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'can_continue',
             'quota' => CONTRACT_QUOTA,
         ]);
 

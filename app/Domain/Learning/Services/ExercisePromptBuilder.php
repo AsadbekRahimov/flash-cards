@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Models\Course;
@@ -25,6 +26,12 @@ use Illuminate\Database\Eloquent\Builder;
  * the same serve show the same screen. When there are not enough distractors the card falls back
  * to a flash prompt — the type in the prompt is what the client must follow.
  *
+ * A distractor is never a second right answer (docs/06 §12.2): a word whose translation in the session's language shares a
+ * sense with the card's ({@see TranslationParts}: he / she / it are all "u" in uz, watch / look are "смотреть") is left out of
+ * the reverse options, and a translation sharing a sense with the right one — or with a distractor already picked — is left
+ * out of the meaning / audio / pretest options. {@see acceptsPick()} grades by the same rule, so a card built before this
+ * rule (an old serve) still cannot fail a learner for a right pick.
+ *
  * Spelling and gap-fill prompts never depend on the database beyond the word and the example the card shows
  * (docs/06 §12.4); their type is what the server recomputes on `POST /review` (ExerciseSelector).
  */
@@ -33,6 +40,9 @@ final class ExercisePromptBuilder
     public const OPTIONS = 4;
 
     public const POOL = 40;
+
+    /** Words of the course with the picked English text looked at by {@see acceptsPick()} (a stale option, at most a few). */
+    private const PICK_LOOKUP = 5;
 
     public function __construct(
         private readonly WordTranslationResolver $translations,
@@ -50,7 +60,7 @@ final class ExercisePromptBuilder
             ExerciseType::Meaning, ExerciseType::Reverse, ExerciseType::Audio, ExerciseType::Pretest => count($this->distractors(
                 $type,
                 $word,
-                $this->correctOption($type, $word, $this->translations->resolve($word, $locale)),
+                $this->translations->resolve($word, $locale),
                 $locale,
                 $seed,
             )) < self::OPTIONS - 1 ? ExerciseType::Flash : $type,
@@ -63,6 +73,65 @@ final class ExercisePromptBuilder
     public function correctOption(ExerciseType $type, Word $word, ResolvedTranslation $translation): string
     {
         return $type === ExerciseType::Reverse ? trim($word->word) : trim($translation->text);
+    }
+
+    /**
+     * Whether a picked option of a four-option card is right by its SENSE, when it is not the right option itself: for reverse,
+     * an English word of the card's lesson or course whose translation in the session's language shares a sense with the card's
+     * (`she` for "u" when the card is `he`); for meaning / audio / pretest, a translation sharing a sense with the right one
+     * ("u" for `it` = "u, bu"). The options built by {@see build()} never contain such a pick any more; this is for a card
+     * built before the rule, or by an older serve, and for the second word of a pair that slipped in from a course the
+     * distractors do not read (docs/06 §12.2). Costs nothing for a right pick and for the translations; for a stale reverse
+     * pick, the cached lesson pool and at most one query over the course of the lesson.
+     */
+    public function acceptsPick(ExerciseType $type, Word $word, ResolvedTranslation $translation, string $locale, string $picked): bool
+    {
+        if (! $type->isChoice()) {
+            return false;
+        }
+
+        $senses = TranslationParts::keys($translation->text);
+        if ($senses === []) {
+            return false;
+        }
+
+        if ($type !== ExerciseType::Reverse) {
+            return TranslationParts::share($senses, $picked);
+        }
+
+        $key = self::key($picked);
+        if ($key === '' || $key === self::key($word->word)) {
+            return false;
+        }
+
+        $matches = [];
+        foreach ($this->lessonPool($word) as $other) {
+            if (self::key($other->word) === $key) {
+                $matches[] = $other;
+            }
+        }
+        if ($matches === []) {
+            $courseId = $this->courseIdOf($word);
+            $matches = $courseId === null ? [] : Word::query()
+                ->where('is_active', true)
+                ->whereKeyNot($word->id)
+                ->whereIn('lesson_id', Lesson::query()->select('id')->whereIn('stage_id', Stage::query()->select('id')->where('course_id', $courseId)))
+                ->whereRaw('lower(trim(word)) = ?', [$key])
+                ->limit(self::PICK_LOOKUP)
+                ->get()
+                ->all();
+        }
+        if ($matches === []) {
+            return false;
+        }
+
+        foreach ($this->translations->resolveMany($matches, $locale) as $resolved) {
+            if (TranslationParts::share($senses, $resolved->text)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function build(
@@ -113,7 +182,7 @@ final class ExercisePromptBuilder
         int $seed,
     ): ExercisePrompt {
         $correct = $this->correctOption($type, $word, $translation);
-        $distractors = $this->distractors($type, $word, $correct, $locale, $seed);
+        $distractors = $this->distractors($type, $word, $translation, $locale, $seed);
 
         if (count($distractors) < self::OPTIONS - 1) {
             return ExercisePrompt::flash($word->word, $audioUrl);
@@ -136,16 +205,22 @@ final class ExercisePromptBuilder
     }
 
     /**
-     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for meaning / audio / pretest), distinct
-     * from the right answer and from each other case-insensitively, from the nearest layer that has enough of them —
-     * so a second word with the same translation never yields a second right option.
+     * Up to {@see OPTIONS} - 1 texts (English words for reverse, translations for meaning / audio / pretest), from the nearest
+     * layer that has enough of them: distinct from the right answer and from each other case-insensitively, and never a second
+     * right answer — a reverse option whose translation shares a sense with the card's is left out; a meaning / audio / pretest
+     * option is left out when it shares a sense with the right translation or with an option picked before it (so the four
+     * never read "u" and "u, bu" side by side). The translations of the candidates come from the cached rows of the resolver,
+     * one `many` per layer.
      *
      * @return list<string>
      */
-    private function distractors(ExerciseType $type, Word $word, string $correct, string $locale, int $seed): array
+    private function distractors(ExerciseType $type, Word $word, ResolvedTranslation $translation, string $locale, int $seed): array
     {
         $need = self::OPTIONS - 1;
-        $taken = [self::key($correct) => true];
+        $reverse = $type === ExerciseType::Reverse;
+        $taken = [self::key($this->correctOption($type, $word, $translation)) => true];
+        // The senses no option may name: the card's own, and (for translation options) those of the options picked so far.
+        $senses = array_fill_keys(TranslationParts::keys($translation->text), true);
         $picked = [];
 
         foreach ($this->layers($word) as $layer) {
@@ -157,7 +232,23 @@ final class ExercisePromptBuilder
                 if ($key === '' || isset($taken[$key])) {
                     continue;
                 }
+                $shared = false;
+                foreach ($candidate['senses'] as $sense) {
+                    if (isset($senses[$sense])) {
+                        $shared = true;
+                        break;
+                    }
+                }
+                if ($shared) {
+                    continue;
+                }
+
                 $taken[$key] = true;
+                if (! $reverse) {
+                    foreach ($candidate['senses'] as $sense) {
+                        $senses[$sense] = true;
+                    }
+                }
                 $picked[] = $candidate['text'];
                 if (count($picked) >= $need) {
                     return $picked;
@@ -169,8 +260,11 @@ final class ExercisePromptBuilder
     }
 
     /**
+     * The candidates of a layer: the option text (the English word for reverse, the translation otherwise) and the senses of
+     * the candidate's translation in `$locale` (what the learner would read for it, after the fallback).
+     *
      * @param  iterable<Word>  $words
-     * @return list<array{id: int, text: string}>
+     * @return list<array{id: int, text: string, senses: list<string>}>
      */
     private function texts(ExerciseType $type, iterable $words, string $locale): array
     {
@@ -179,17 +273,18 @@ final class ExercisePromptBuilder
             $list[] = $w;
         }
 
-        if ($type === ExerciseType::Reverse) {
-            return array_map(static fn (Word $w): array => ['id' => (int) $w->id, 'text' => trim($w->word)], $list);
-        }
-
         $resolved = $this->translations->resolveMany($list, $locale);
         $texts = [];
         foreach ($list as $w) {
             $translation = $resolved[(int) $w->id] ?? null;
-            if ($translation !== null) {
-                $texts[] = ['id' => (int) $w->id, 'text' => trim($translation->text)];
+            if ($translation === null) {
+                continue;
             }
+            $texts[] = [
+                'id' => (int) $w->id,
+                'text' => $type === ExerciseType::Reverse ? trim($w->word) : trim($translation->text),
+                'senses' => TranslationParts::keys($translation->text),
+            ];
         }
 
         return $texts;
@@ -204,8 +299,7 @@ final class ExercisePromptBuilder
     {
         yield $this->lessonPool($word);
 
-        $stageId = Lesson::query()->whereKey($word->lesson_id)->value('stage_id');
-        $courseId = $stageId === null ? null : Stage::query()->whereKey($stageId)->value('course_id');
+        $courseId = $this->courseIdOf($word);
         if ($courseId !== null) {
             // `ORDER BY id LIMIT` makes the planner walk the words primary key and filter, which reads
             // almost the whole table for a course with high ids (107 ms at 100k words vs 0.1 ms for
@@ -223,6 +317,15 @@ final class ExercisePromptBuilder
             ->whereIn('lesson_id', Lesson::query()->select('id')
                 ->whereIn('stage_id', Stage::query()->select('id')
                     ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
+    }
+
+    /** The course of the word's lesson (two key lookups), null when the lesson or its stage is gone. */
+    private function courseIdOf(Word $word): ?int
+    {
+        $stageId = Lesson::query()->whereKey($word->lesson_id)->value('stage_id');
+        $courseId = $stageId === null ? null : Stage::query()->whereKey($stageId)->value('course_id');
+
+        return $courseId === null ? null : (int) $courseId;
     }
 
     /**

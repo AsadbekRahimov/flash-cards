@@ -6,6 +6,8 @@ import TrainingView from '../TrainingView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useBillingStore } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { CHOICE_FEEDBACK_MS } from '@/composables/useChoice'
 import type { Card, ExercisePrompt, ReviewResponse, TrainingStartResponse } from '@/api/types'
@@ -63,9 +65,9 @@ const prompts = {
   gap_fill: { type: 'gap_fill', front: 'идти', masked_example: 'They ____ home.', options: null, answer_length: 6 },
 } satisfies Record<string, ExercisePrompt>
 
-const started = (first: Card): TrainingStartResponse => ({
+const started = (first: Card, mode: TrainingStartResponse['mode'] = 'lesson'): TrainingStartResponse => ({
   session_id: 1,
-  mode: 'lesson',
+  mode,
   lesson: { stage: 1, lesson: 2, title: null },
   total_words: 3,
   card: first,
@@ -73,8 +75,8 @@ const started = (first: Card): TrainingStartResponse => ({
   done_reason: null,
 })
 
-async function render(first: Card) {
-  vi.mocked(api.training.start).mockResolvedValue(started(first))
+async function render(first: Card, mode: TrainingStartResponse['mode'] = 'lesson') {
+  vi.mocked(api.training.start).mockResolvedValue(started(first, mode))
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -446,9 +448,9 @@ describe('TrainingView — exercises', () => {
       await flushPromises()
       vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
       await flushPromises()
-      // The session is over on the server, but the learner is still reading the right answer.
+      // The learner is still reading the right answer, but the round is closed on the server already: closing the app here loses nothing.
       expect(wrong.router.currentRoute.value.name).toBe('training')
-      expect(api.training.finish).not.toHaveBeenCalled()
+      expect(api.training.finish).toHaveBeenCalledTimes(1)
 
       await wrong.wrapper.get('[data-testid=continue-btn]').trigger('click')
       await flushPromises()
@@ -593,6 +595,59 @@ describe('TrainingView — exercises', () => {
       await flushPromises()
       expect(wrapper.find('[data-testid=update-required]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=meaning-card]').exists()).toBe(true)
+    })
+  })
+  describe('the "Pro" chip of the exercises that are a feature of Pro', () => {
+    const plan = (value: 'free' | 'pro') => {
+      useTodayStore().data = { entitlement: { plan: value, source: value === 'pro' ? 'subscription' : 'free', until: null, lapsed: null } } as never
+    }
+
+    it('marks the typed exercises for a learner who has Pro, with no text and no action of its own', async () => {
+      plan('pro')
+      const spelling = (await render(card(prompts.spelling))).wrapper
+      const chip = spelling.get('[data-testid=pro-chip]')
+      expect(chip.text()).toBe('Pro')
+      expect(chip.classes()).toEqual(expect.arrayContaining(['chip', 'chip-accent']))
+      expect(chip.element.tagName).toBe('SPAN')
+      expect(spelling.find('[data-testid=spelling-card] article button').exists()).toBe(false)
+
+      expect((await render(card(prompts.gap_fill))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(true)
+    })
+
+    it('is in the header next to the mark of a hard word, not instead of it', async () => {
+      plan('pro')
+      const w = (await render(card(prompts.spelling, { is_leech: true }))).wrapper
+
+      expect(w.find('[data-testid=leech-chip]').exists()).toBe(true)
+      expect(w.find('[data-testid=pro-chip]').exists()).toBe(true)
+    })
+
+    it('is not on the exercises of every plan', async () => {
+      plan('pro')
+      for (const prompt of [prompts.meaning, prompts.reverse, prompts.audio]) {
+        expect((await render(card(prompt))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(false)
+      }
+      expect((await render(card(null))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(false)
+    })
+
+    it('is not shown to a Free learner (a typed card there means the ladder opened it to Free), nor when the plan is not known', async () => {
+      plan('free')
+      expect((await render(card(prompts.spelling))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(false)
+
+      setActivePinia(createPinia())
+      expect((await render(card(prompts.spelling))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(false)
+    })
+
+    it('takes the plan of /me when Today was not opened', async () => {
+      useBillingStore().entitlement = { plan: 'pro', source: 'subscription', until: null, new_words_per_day: null } as never
+
+      expect((await render(card(prompts.gap_fill))).wrapper.find('[data-testid=pro-chip]').exists()).toBe(true)
+    })
+
+    it('is not in a group lesson', async () => {
+      plan('pro')
+
+      expect((await render(card(prompts.spelling), 'group_lesson')).wrapper.find('[data-testid=pro-chip]').exists()).toBe(false)
     })
   })
 })

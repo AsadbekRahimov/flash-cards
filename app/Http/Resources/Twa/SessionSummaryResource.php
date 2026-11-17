@@ -25,11 +25,13 @@ final class SessionSummaryResource extends TwaResource
 {
     /**
      * @return array{
+     *   started_at: string,
      *   reviewed: int, correct: int, new_words: int,
      *   goal: array{target: int, done: int, met: bool},
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   practice_entry: array{course: string, lesson_id: int|null}|null,
-     *   league_points: int
+     *   league_points: int,
+     *   stages: array{graduated: int, promoted: int, mastered: int}
      * }
      */
     public function toArray(Request $request): array
@@ -38,9 +40,18 @@ final class SessionSummaryResource extends TwaResource
         $progress = $this->resource['progress'];
 
         return [
+            // When the session began, server time (ISO-8601, UTC): what "achieved in this session" is measured from.
+            'started_at' => CarbonImmutable::instance($summary->session->started_at)->utc()->toIso8601String(),
             'reviewed' => $summary->reviewed,
             'correct' => $summary->correct,
             'new_words' => $summary->newWords,
+            // The growth of the words in this session (docs/06 §13.3): new words that left the minute steps, older words
+            // that climbed a stage (new → learning → known → mastered), words that reached the top.
+            'stages' => [
+                'graduated' => $summary->graduated,
+                'promoted' => $summary->promoted,
+                'mastered' => $summary->mastered,
+            ],
             'goal' => $progress->goal->toArray(),
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),

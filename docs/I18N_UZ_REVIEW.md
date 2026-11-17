@@ -3858,3 +3858,65 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `settings.group.region` | Til | Язык (заголовок блока в «Настройках» Mini App; раньше «Til va hudud» / «Язык и регион»; теперь в блоке только выбор языка) |
+
+## Живой экран занятия и итога (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: серия верных ответов, звуки, заголовки итога по результату, новое достижение, карточка «новые слова закончились» (раньше после занятия сам открывался экран оплаты).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.combo_label` | Ketma-ket to'g'ri javoblar: {count} | Верных ответов подряд: {count} (подпись для чтения с экрана к значку «🔥 ×N») |
+| `finished.title_good` | Yaxshi ish! | Хорошая работа! (заголовок итога при 60–79% верных) |
+| `finished.title_keep` | Shunday davom eting! | Так держать! (40–59% верных) |
+| `finished.title_effort` | Asosiysi — mashq qildingiz | Главное — вы позанимались (меньше 40% верных) |
+| `finished.best_combo` | Eng uzun ketma-ketlik: {count} | Лучшая серия: {count} (число верных ответов подряд за занятие) |
+| `finished.new_achievement` | Yangi yutuq: {title} | Новое достижение: {title} (карточка со ссылкой на экран достижений) |
+| `finished.quota.title` | Bugun yangi so'zlar tugadi. Ertaga yangilari bo'ladi | На сегодня новые слова закончились. Завтра будут новые (тарифа Free) |
+| `finished.quota.pro` | Pro nima beradi | Что даёт Pro (кнопка открывает окно о Pro) |
+| `finished.quota.invite` | Do'stlarni taklif qiling — Pro bepul | Пригласить друзей — Pro бесплатно |
+| `settings.sounds` | Tovushlar | Звуки (переключатель в «Настройках», раздел обучения) |
+
+## Раунды, игры на виду (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: ежедневное занятие стало коротким раундом (экран итога с кнопкой «Ещё раунд», строкой роста слов), на «Сегодня» появилась карточка игр, переписан лист «Bu qanday ishlaydi» и подсказка под кнопкой занятия. Прежние «Dars bo'yicha mashqlar» / «Kurs bo'yicha mashqlar» заменены одной подписью.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `intro.step1.title` | Mashg'ulot — qisqa raund | Занятие — короткий раунд |
+| `intro.step1.text` | Raund bir necha daqiqa davom etadi: ozgina takrorlash va bir nechta yangi so'z. Tugatdingizmi — to'xtashingiz mumkin. | Раунд занимает несколько минут: немного повторения и несколько новых слов. Закончили — можно остановиться. |
+| `intro.step3.title` | Topshiriqlar birinchi kundan xilma-xil | Задания разные с первого дня |
+| `intro.step3.text` | Avval so'z bilan tanishasiz, keyin tarjimani tanlaysiz, so'ng so'zni o'zingiz eslaysiz, yozasiz va gapga qo'yasiz — shunda so'z uzoq vaqt esda qoladi. | Сначала вы знакомитесь со словом, потом выбираете перевод, а позже вспоминаете слово сами, пишете и вставляете в предложение — так оно остаётся надолго. |
+| `intro.step4.title` | Yana xohlasangiz — yana bir raund o'ynang | Хочется ещё — сыграйте ещё раунд |
+| `intro.step4.text` | Raunddan keyin keyingisini o'ynashingiz yoki so'zlarni o'yinlarda mustahkamlashingiz mumkin. Kuniga 10 daqiqa yetarli. | После раунда можно сыграть следующий или закрепить слова в играх. Хватит и 10 минут в день. |
+| `today.session.hint` | Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar | Короткий раунд на несколько минут: повторение и новые слова из вашего курса (подпись под кнопкой «Начать занятие») |
+| `training.daily_header` | Raund | Раунд (шапка экрана ежедневного занятия; раньше «Mashg'ulot» / «Занятие») |
+| `finished.reason.sprint_complete` | Raund tugadi | Раунд пройден (под заголовком итога) |
+| `finished.next_round` | Yana bir raund | Ещё раунд (главная кнопка итога: начать следующий раунд) |
+| `finished.stages.graduated` | Yangi so'zlar: {count} | Новых слов: {count} (слова, впервые введённые в раунде) |
+| `finished.stages.promoted` | Yuksaldi: {count} | Поднялись: {count} (слова, перешедшие на ступень выше) |
+| `finished.stages.mastered` | O'rganildi: {count} | Выучено: {count} (слова, ставшие выученными) |
+| `finished.practice` | O'ynab mustahkamlash | Поиграть: закрепить слова (кнопка на итоге → игры со словами) |
+| `today.games.title` | So'z o'yinlari | Игры со словами (карточка на «Сегодня») |
+| `today.games.play` | O'ynash | Играть (кнопка карточки) |
+
+## Напоминания о Pro (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: совет о Pro и карточка конца пробного на экране итога раунда, строка о заморозке серии на «Сегодня». Тон спокойный, без давления; «Zaxira kun» — как уже в `benefits.freezes` и `today.streak.freeze_teaser`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `protip.title` | Pro haqida maslahat | Совет о Pro (заголовок карточки на итоге раунда) |
+| `protip.more` | Pro haqida batafsil | Подробнее о Pro (кнопка открывает окно о Pro) |
+| `protip.invite` | Do'stlar orqali Pro olish | Получить Pro за друзей (кнопка ведёт к приглашениям) |
+| `protip.item.new_words` | Pro'da yangi so'zlar kunlik limitsiz | В Pro новые слова без дневного лимита |
+| `protip.item.freezes` | Pro'da o'tkazib yuborilgan kun ketma-ketlikni uzmaydi — zaxira kunlar bor | В Pro пропущенный день не обрывает серию — есть заморозки |
+| `protip.item.exercises` | Pro'da so'zni yozish mashqlari bor | В Pro есть упражнения на написание слова |
+| `protip.item.practice_both` | Pro'da mustahkamlash mashqlari va bellashuvlar cheklovsiz | В Pro практика и баттлы без дневного лимита (только если баттлы включены) |
+| `protip.item.practice_solo` | Pro'da mustahkamlash mashqlari cheklovsiz | В Pro практика без дневного лимита |
+| `protip.item.game` | Pro'da Karvon kunlik limitsiz | В Pro караван без дневного лимита (только если игра открыта) |
+| `finished.trial_ending.days` | Sinov Pro {count} kundan keyin tugaydi. | Пробный Pro закончится через {count} дн. |
+| `finished.trial_ending.last` | Sinov Pro bugun tugaydi. | Пробный Pro заканчивается сегодня. |
+| `finished.trial_ending.keep` | Pro'ni saqlab qolish uchun obunani rasmiylashtiring yoki do'stlaringizni taklif qiling. | Чтобы сохранить Pro, оформите подписку или пригласите друзей. (оплата открыта) |
+| `finished.trial_ending.keep_invite` | Pro'ni saqlab qolish uchun do'stlaringizni taklif qiling. | Чтобы сохранить Pro, пригласите друзей. (оплата ещё не открыта) |
+| `today.streak.freeze_line` | Pro'da zaxira kun ketma-ketlikni saqlab qolgan bo'lardi | В Pro заморозка сохранила бы серию (строка под карточкой серии, когда серия оборвалась) |
+

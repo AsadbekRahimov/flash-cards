@@ -250,7 +250,7 @@ describe('training store — four-choice cards: the grade goes at the pick, the 
     expect(store.card?.word_id).toBe(7)
     expect(store.serveSeq).toBe(1)
     expect(store.verdict).toBeNull()
-    expect(store.deferred).toEqual({ card: expect.objectContaining({ word_id: 8 }), doneReason: null })
+    expect(store.deferred).toEqual({ card: expect.objectContaining({ word_id: 8 }), doneReason: null, canContinue: false })
     // What the answer says about the session is already true: the grade counted.
     expect(store.reviewedCount).toBe(1)
     expect(store.progress).toEqual({ done: 1, total: 3 })

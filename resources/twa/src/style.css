@@ -463,6 +463,98 @@ body {
     background: var(--tile-gray);
   }
 
+  /* ---- feedback of the lesson (docs/14 §6.2): only transform and opacity, nothing runs all the time ---- */
+
+  /* The grade that was pressed: lit even while the card is still on its way out. */
+  .grade-picked {
+    box-shadow: inset 0 0 0 2px currentColor;
+    opacity: 1 !important;
+  }
+  .grade-pulse {
+    animation: grade-pulse 220ms ease-out;
+  }
+  @keyframes grade-pulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  /* The swap of the cards: the old one fades out on top of the new one, which is shown at once (it is never waited for). */
+  .card-stage {
+    @apply relative flex flex-1 flex-col;
+    overflow-x: clip;
+  }
+  .card-swap-enter-active,
+  .card-swap-leave-active {
+    transition: transform 200ms ease-out, opacity 200ms ease-out;
+  }
+  .card-swap-leave-active {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .card-swap-enter-from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  .card-swap-leave-to {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+
+  /* The chip of the run of right answers: it grows in, and on every fifth answer it jumps once. */
+  .combo-enter-active {
+    transition: transform 180ms ease-out, opacity 180ms ease-out;
+  }
+  .combo-enter-from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  .combo-pop {
+    animation: combo-pop 320ms ease-out;
+  }
+  @keyframes combo-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  /* Confetti of the finish screen: a one-off burst from the top of the screen, ~1.2 s. The pieces take the colours of the theme. */
+  .confetti {
+    @apply pointer-events-none fixed inset-x-0 top-0 z-40 h-0;
+  }
+  .confetti-piece {
+    @apply absolute top-24 left-1/2 h-3 w-1.5 rounded-sm;
+    opacity: 0;
+    animation: confetti-burst 1200ms ease-out forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+  .confetti-0 { background: var(--app-accent); }
+  .confetti-1 { background: var(--app-success); }
+  .confetti-2 { background: var(--app-warning); }
+  .confetti-3 { background: var(--app-danger); }
+  @keyframes confetti-burst {
+    0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+    70% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grade-pulse,
+    .combo-pop,
+    .confetti-piece {
+      animation: none;
+    }
+    .card-swap-enter-active,
+    .card-swap-leave-active,
+    .combo-enter-active {
+      transition: none;
+    }
+    .confetti {
+      display: none;
+    }
+  }
+
   /* ---- states and overlays ---- */
 
   /* The track colour, not the fill: a fill-coloured block is barely visible on a card in the light theme. */

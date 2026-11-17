@@ -144,6 +144,7 @@ it('does not serve an old price or an old link after the config changes: the pag
 });
 
 it('changes the key with each input the pages quote', function (string $key, mixed $value): void {
+    config(['practice.battle.enabled' => false]); // the shipped default, whatever the local `.env` says
     $cache = app(SitePageCache::class);
     $before = $cache->key('home', 'ru');
 
@@ -161,9 +162,9 @@ it('changes the key with each input the pages quote', function (string $key, mix
     'free new words' => ['billing.plans.free.limits.new_words_per_day', 7],
     'a provider switched on' => ['billing.providers.click.enabled', true],
     'deck limits' => ['decks.limits.pro.decks', 99],
-    'practice access' => ['practice.access', 'all'],
+    'practice access' => ['practice.access', 'off'],
     'practice plan' => ['practice.plan', 'pro'],
-    'battle switch' => ['practice.battle.enabled', false],
+    'battle switch' => ['practice.battle.enabled', true], // off by default
     'free practice limit' => ['practice.free_limits.sessions_per_day', 9],
     'locales' => ['localization.supported', ['ru']],
 ]);

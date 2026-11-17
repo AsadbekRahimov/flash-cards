@@ -17,6 +17,7 @@ use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Learning\Support\SprintPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\CacheCircuitBreaker;
 use App\Domain\Operations\Support\CircuitBreakerFailoverRepository;
@@ -152,6 +153,7 @@ class AppServiceProvider extends ServiceProvider
 
         // The method settings (docs/06 §12) are read per request, not a singleton: a `config()` change in a test applies at once.
         $this->app->bind(LadderPolicy::class, static fn (): LadderPolicy => LadderPolicy::fromConfig());
+        $this->app->bind(SprintPolicy::class, static fn (): SprintPolicy => SprintPolicy::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

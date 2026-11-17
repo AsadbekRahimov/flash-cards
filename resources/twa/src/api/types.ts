@@ -461,7 +461,7 @@ export interface LessonHeader {
 }
 
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
-export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap'
+export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete'
 
 /**
  * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
@@ -479,12 +479,16 @@ export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'ass
 export interface TrainingStartResponse {
   session_id: number
   mode: TrainingMode
+  /** When the session began, server time (ISO-8601, UTC); absent on an older server. */
+  started_at?: string
   /** null for `daily_review`: the scope spans every lesson. */
   lesson: LessonHeader | null
   total_words: number
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  /** The daily round ended and one more can be played (only with `done_reason = 'sprint_complete'`); absent on an older server. */
+  can_continue?: boolean
   quota?: Quota
 }
 
@@ -522,6 +526,8 @@ export interface Streak {
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
 export interface SessionSummary {
+  /** When the session began, server time (ISO-8601, UTC); absent on an older server. */
+  started_at?: string
   reviewed: number
   correct: number
   new_words: number
@@ -531,6 +537,17 @@ export interface SessionSummary {
   league_points?: number
   /** Where "Practice of the lesson / course" leads (docs/16 §11.1); null: no entry (daily review, group session, no access). */
   practice_entry?: { course: string; lesson_id: number | null } | null
+  /** Growth of the words in the session (docs/06 §13.3); absent on an older server. */
+  stages?: SessionStages
+}
+
+export interface SessionStages {
+  /** Words entered for the first time (left the minute steps). */
+  graduated: number
+  /** Words that climbed a stage. */
+  promoted: number
+  /** Words that became learned. */
+  mastered: number
 }
 
 export interface TodayLesson {
@@ -570,6 +587,8 @@ export interface TodayResponse {
   timezone: string
   /** The entry of Karvon (docs/04 A.2a, G2.3): always there; a closed game says `{daily_available: false, active_run: null}`. */
   game?: TodayGame
+  /** The practice access without its day limits (docs/04 A.2a): the "Word games" card reads it, `/me` is not asked. Absent: an older server (no practice). */
+  practice?: PracticeAccessToday
 }
 
 export interface TodayGame {
@@ -683,6 +702,8 @@ export interface NextCardResponse {
   card: Card | null
   progress: { done: number; total: number }
   done_reason?: DoneReason | null
+  /** The daily round ended and one more can be played (only with `done_reason = 'sprint_complete'`); absent on an older server. */
+  can_continue?: boolean
   quota?: Quota
 }
 
@@ -741,6 +762,8 @@ export interface ReviewResponse {
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  /** The daily round ended and one more can be played (only with `done_reason = 'sprint_complete'`); absent on an older server. */
+  can_continue?: boolean
   quota?: Quota
 }
 
@@ -1083,6 +1106,9 @@ export interface PracticeAccess {
   /** The Free limits of today; absent: an older server (nothing is shown, nothing is blocked). */
   limits?: PracticeLimits | null
 }
+
+/** `practice` of GET /today: the block of `/me` without `limits`. */
+export type PracticeAccessToday = Omit<PracticeAccess, 'limits'>
 
 export interface PracticeCourseRef {
   slug: string

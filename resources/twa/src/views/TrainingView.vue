@@ -17,9 +17,13 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import MeaningCard from '@/components/MeaningCard.vue'
+import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useAuthStore } from '@/stores/auth'
-import { useTrainingStore } from '@/stores/training'
+import { useBillingStore } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
+import { COMBO_MIN, COMBO_STEP, useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
+import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { Quality } from '@/api/types'
@@ -34,7 +38,7 @@ const props = defineProps<{ sessionId: number }>()
 const router = useRouter()
 const auth = useAuthStore()
 const training = useTrainingStore()
-const { close } = useTelegram()
+const { close, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
 const {
@@ -55,7 +59,18 @@ const {
   savingNote,
   choiceResult,
   unsupportedExercise,
+  combo,
+  outcome,
 } = storeToRefs(training)
+
+/**
+ * The "Pro" chip on the cards that are a feature of Pro (spelling, gap fill; the same list as the settings): shown to a learner who has Pro
+ * - the trial, a paid one, a center's - so that they see this is what Pro gives; never in a group lesson. The server does not say which
+ * types are paid (the ladder can open typed answers to Free, `typed_recall_in_free`), so a Free learner gets no chip: for them a typed card
+ * is not a Pro one. The plan is the one `/today` or `/me` already brought; when neither did (opened from a reminder) there is no chip.
+ */
+const plan = computed(() => useTodayStore().data?.entitlement.plan ?? useBillingStore().entitlement?.plan ?? null)
+const proChip = computed(() => plan.value === 'pro' && mode.value !== 'group_lesson' && PRO_EXERCISES.includes(exercise.value))
 
 /** The text of the last typed answer, for the verdict screen. */
 const lastAnswer = ref('')
@@ -154,6 +169,25 @@ watch(
     if (current === 'finished') void redirectToFinished()
   },
   { flush: 'sync' },
+)
+
+/** The chip of the run of right answers (from `COMBO_MIN` in a row); every `COMBO_STEP`-th answer of the run is a milestone. */
+const showCombo = computed(() => combo.value >= COMBO_MIN)
+const comboMilestone = computed(() => showCombo.value && combo.value % COMBO_STEP === 0)
+
+/**
+ * Every answer that counted for the run: the short sound (right / wrong; "not yet" on a flash card is an honest grade, no
+ * sound) and, on a milestone of the run, the success haptic — except after a four-choice card, whose own verdict has just
+ * given that haptic.
+ */
+watch(
+  () => outcome.value.seq,
+  () => {
+    const { kind } = outcome.value
+    if (kind === 'right') playSound('right')
+    else if (kind === 'wrong') playSound('wrong')
+    if (comboMilestone.value && !['meaning', 'reverse', 'audio'].includes(lastExercise.value ?? '')) notificationHaptic('success')
+  },
 )
 
 /** A flash card: the grade is the learner's own. */
@@ -266,6 +300,18 @@ async function onRestart(): Promise<void> {
           <div class="progress flex-1" aria-hidden="true" data-testid="progress-bar">
             <div class="progress-fill" :style="{ width: `${progressPercent}%` }" data-testid="progress-fill" />
           </div>
+          <Transition name="combo">
+            <span
+              v-if="showCombo"
+              :key="comboMilestone ? `milestone-${combo}` : 'combo'"
+              class="chip chip-warning shrink-0 tabular-nums"
+              :class="{ 'combo-pop': comboMilestone }"
+              data-testid="combo"
+              :aria-label="t('training.combo_label', { count: combo })"
+            >
+              🔥 ×{{ combo }}
+            </span>
+          </Transition>
           <span
             class="min-w-14 text-right text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums"
             :class="{ invisible: progress.total === 0 }"
@@ -282,6 +328,8 @@ async function onRestart(): Promise<void> {
         </p>
       </header>
 
+      <div class="card-stage">
+      <Transition name="card-swap">
       <LoadingState v-if="showSpinner" variant="center" />
 
       <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="onRetry" />
@@ -311,49 +359,53 @@ async function onRestart(): Promise<void> {
         </button>
       </ClosedState>
 
-      <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve. -->
-      <template v-else-if="card">
-        <MeaningCard
-          v-if="exercise === 'meaning'"
-          :key="`meaning-${serveSeq}`"
-          :card="card"
-          :disabled="isBusy"
-          :result="choiceResult"
-          @pick="onChoicePick"
-          @advance="onChoiceAdvance"
-        />
-        <ReverseCard
-          v-else-if="exercise === 'reverse'"
-          :key="`reverse-${serveSeq}`"
-          :card="card"
-          :disabled="isBusy"
-          :result="choiceResult"
-          @pick="onChoicePick"
-          @advance="onChoiceAdvance"
-        />
-        <AudioCard
-          v-else-if="exercise === 'audio'"
-          :key="`audio-${serveSeq}`"
-          :card="card"
-          :disabled="isBusy"
-          :result="choiceResult"
-          @pick="onChoicePick"
-          @advance="onChoiceAdvance"
-        />
-        <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
-        <GapFillCard v-else-if="exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
-        <PretestCard v-else-if="exercise === 'pretest'" :key="`pretest-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onPretestAnswer" />
-        <FlashCard
-          v-else
-          :key="`flash-${serveSeq}`"
-          :card="card"
-          :show-translation="training.showTranslation"
-          :disabled="isBusy"
-          @reveal="training.reveal()"
-          @grade="onGrade"
-          @edit-note="noteOpen = true"
-        />
-      </template>
+      <!--
+        The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve.
+        The cards swap with one short transition (`card-swap`, docs/14 §6.2); the old one fades out on top of the new one,
+        so the next card is on screen the moment it is there, with nothing waited for.
+      -->
+      <MeaningCard
+        v-else-if="card && exercise === 'meaning'"
+        :key="`meaning-${serveSeq}`"
+        :card="card"
+        :disabled="isBusy"
+        :result="choiceResult"
+        @pick="onChoicePick"
+        @advance="onChoiceAdvance"
+      />
+      <ReverseCard
+        v-else-if="card && exercise === 'reverse'"
+        :key="`reverse-${serveSeq}`"
+        :card="card"
+        :disabled="isBusy"
+        :result="choiceResult"
+        @pick="onChoicePick"
+        @advance="onChoiceAdvance"
+      />
+      <AudioCard
+        v-else-if="card && exercise === 'audio'"
+        :key="`audio-${serveSeq}`"
+        :card="card"
+        :disabled="isBusy"
+        :result="choiceResult"
+        @pick="onChoicePick"
+        @advance="onChoiceAdvance"
+      />
+      <SpellingCard v-else-if="card && exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" :pro-chip="proChip" @answer="onAnswer" />
+      <GapFillCard v-else-if="card && exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" :pro-chip="proChip" @answer="onAnswer" />
+      <PretestCard v-else-if="card && exercise === 'pretest'" :key="`pretest-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onPretestAnswer" />
+      <FlashCard
+        v-else-if="card"
+        :key="`flash-${serveSeq}`"
+        :card="card"
+        :show-translation="training.showTranslation"
+        :disabled="isBusy"
+        @reveal="training.reveal()"
+        @grade="onGrade"
+        @edit-note="noteOpen = true"
+      />
+    </Transition>
+    </div>
 
       <WordNoteSheet
         v-if="noteOpen && card"

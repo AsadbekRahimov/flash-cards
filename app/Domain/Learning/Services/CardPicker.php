@@ -11,13 +11,16 @@ use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\RepetitionWithWord;
+use App\Domain\Learning\Support\SprintLimits;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Models\TrainingReview;
+use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -44,6 +47,13 @@ use Illuminate\Support\Facades\DB;
  *   4. Otherwise, no card with a DoneReason: `new_quota_exhausted` when (and only
  *      when) step 2 was stopped by the budget while unseen words remain, else the
  *      scope's own reason (`lesson_complete` / `nothing_due`).
+ *
+ * The sprint of a daily session ({@see SprintLimits}, docs/06 §13.2) narrows the steps: once the round's cap of
+ * day-based reviews is reached, step 1 serves only cards in minute steps (a `review` card waits for the next round);
+ * once the round's new words are introduced, step 2 is skipped — and when any of the two held something back that is
+ * there, the reason is `sprint_complete` with `canContinue`. The round's new-word count is projected under the
+ * learner lock like the day's quota (`sprint_used`), so two tabs cannot jointly exceed it; the day's quota keeps
+ * precedence: a Free learner whose day is spent gets `new_quota_exhausted`, not a round that would be empty.
  *
  * Words with `is_active = false` are never served (new, due or ahead).
  *
@@ -77,18 +87,28 @@ final class CardPicker
         private readonly LadderPolicy $ladder,
     ) {}
 
+    /**
+     * @param  SprintLimits|null  $sprint  the round's limits of a daily session with a sprint (docs/06 §13.2); null = none
+     */
     public function pickNext(
         int $learnerId,
         TrainingScope $scope,
         ?NewCardBudget $budget = null,
         ?CarbonImmutable $now = null,
+        ?SprintLimits $sprint = null,
     ): CardPick {
         $now ??= CarbonImmutable::now();
         $budget ??= NewCardBudget::unlimited();
 
+        $dueQuery = RepetitionWithWord::query($learnerId, $scope)
+            ->where('word_repetitions.next_review_at', '<=', $now);
+        if ($sprint?->dueCapReached() === true) {
+            // The round took its share of day-based reviews: only cards in minute steps are still served here.
+            $dueQuery->where('word_repetitions.state', '<>', RepetitionState::Review->value);
+        }
+
         /** @var WordRepetition|null $due */
-        $due = RepetitionWithWord::query($learnerId, $scope)
-            ->where('word_repetitions.next_review_at', '<=', $now)
+        $due = $dueQuery
             ->orderByDesc('word_repetitions.is_hard')
             ->orderBy('word_repetitions.next_review_at')
             ->orderBy('word_repetitions.id')
@@ -99,17 +119,59 @@ final class CardPicker
             return CardPick::card($due, $word, self::kindOf($due));
         }
 
-        [$new, $quotaBlocked] = $this->pickNewInTransaction($learnerId, $scope, $budget, $now);
+        [$new, $quotaBlocked, $sprintBlocked, $sprintCapped, $newExhausted] = $this->pickNewInTransaction($learnerId, $scope, $budget, $now, $sprint);
         if ($new !== null) {
             return $new;
         }
 
-        $ahead = $this->pickLearnAhead($learnerId, $scope, $now);
+        $ahead = $this->pickLearnAhead($learnerId, $scope, $now, $newExhausted);
         if ($ahead !== null) {
             return $ahead;
         }
 
-        return CardPick::done($quotaBlocked ? DoneReason::NewQuotaExhausted : $scope->exhaustedReason());
+        if ($sprint !== null) {
+            // The round is over. Is there anything for another one? Looked at only now, once per session end.
+            if ($sprintCapped) {
+                $candidates = $scope->newWordCandidates($learnerId);
+                if ($candidates !== null && $candidates->exists()) {
+                    $remaining = $budget->remaining($learnerId, $now);
+                    if ($remaining === null || $remaining > 0) {
+                        $sprintBlocked = true;
+                    } else {
+                        $quotaBlocked = true;
+                    }
+                }
+            }
+            if ($sprintBlocked || ($sprint->dueCapReached() && $this->hasDueReview($learnerId, $scope, $now))) {
+                return CardPick::done(DoneReason::SprintComplete, canContinue: true, newExhausted: $newExhausted);
+            }
+        }
+
+        return CardPick::done($quotaBlocked ? DoneReason::NewQuotaExhausted : $scope->exhaustedReason(), newExhausted: $newExhausted);
+    }
+
+    /** A day-based (`review`) card of the scope is due now — what the next round would start with. */
+    private function hasDueReview(int $learnerId, TrainingScope $scope, CarbonImmutable $now): bool
+    {
+        return RepetitionWithWord::query($learnerId, $scope)
+            ->where('word_repetitions.state', RepetitionState::Review->value)
+            ->where('word_repetitions.next_review_at', '<=', $now)
+            ->exists();
+    }
+
+    /**
+     * The round's new words so far: the rows born at or after the session started in a daily session (the session that
+     * introduced a word is not stored; a closed daily session ended before this one started, and a lesson session marks
+     * its words `lesson`). For the projection under the learner lock and for the counters of {@see stepCounts()}.
+     *
+     * @return Builder<WordRepetition>
+     */
+    private static function sprintNewQuery(int $learnerId, CarbonImmutable $startedAt): Builder
+    {
+        return WordRepetition::query()
+            ->where('learner_id', $learnerId)
+            ->where('created_at', '>=', $startedAt)
+            ->where('introduced_mode', TrainingSession::MODE_DAILY_REVIEW);
     }
 
     /**
@@ -123,17 +185,27 @@ final class CardPicker
      * it, and nothing when it threw or was rolled back. A failing cache leaves `$hint` null: the full
      * query, as before.
      *
-     * @return array{0: CardPick|null, 1: bool} [pick, quotaBlocked]
+     * @return array{0: CardPick|null, 1: bool, 2: bool, 3: bool, 4: bool} [pick, quotaBlocked, sprintBlocked (a word was there,
+     *                                                                     the round's limit held it back), sprintCapped (the round's
+     *                                                                     limit was reached before looking: unknown whether a word
+     *                                                                     is there), newExhausted (looked: no unseen word is left)]
      */
     private function pickNewInTransaction(
         int $learnerId,
         TrainingScope $scope,
         NewCardBudget $budget,
         CarbonImmutable $now,
+        ?SprintLimits $sprint = null,
     ): array {
         $candidates = $scope->newWordCandidates($learnerId);
         if ($candidates === null) {
-            return [null, false];
+            return [null, false, false, false, true];
+        }
+
+        if ($sprint !== null && $sprint->newRemaining() <= 0) {
+            // The round's new words are out (counted before the pick): no lock, no statements; whether a word was there
+            // is looked at only when the session turns out to be over.
+            return [null, false, false, true, false];
         }
 
         $courseId = $scope->frontierCourseId();
@@ -141,7 +213,7 @@ final class CardPicker
         if ($hint?->isExhausted() === true) {
             // The same answer the full query gave within the TTL and at this data version: no new word, whatever the
             // quota (`$new === null` below returns the same pair), so neither the lock nor the statements are needed.
-            return [null, false];
+            return [null, false, false, false, true];
         }
 
         /** @var ConnectionInterface $db */
@@ -151,7 +223,7 @@ final class CardPicker
         // narrowed statement of the hint found the word), nothing to write back.
         $frontier = null;
 
-        $result = $db->transaction(function () use ($learnerId, $scope, $candidates, $budget, $now, $hint, &$frontier): array {
+        $result = $db->transaction(function () use ($learnerId, $scope, $candidates, $budget, $now, $hint, $sprint, &$frontier): array {
             // Serialises the learner's tabs. On PostgreSQL `FOR NO KEY UPDATE`, not `FOR UPDATE`: it
             // conflicts with itself but not with the `FOR KEY SHARE` that every FK insert referencing
             // learners (word_repetitions, training_reviews, ...) takes, so those never wait for us.
@@ -161,6 +233,10 @@ final class CardPicker
             $usage = $budget->usageCount($learnerId, $now);
             if ($usage !== null) {
                 $candidates->addSelect(['quota_used' => $usage]);
+            }
+            if ($sprint !== null) {
+                // The round's own count, fresh under the same lock (docs/19 §3 rule 9), in the same statement.
+                $candidates->addSelect(['sprint_used' => self::sprintNewQuery($learnerId, $sprint->startedAt)->toBase()->selectRaw('count(*)')]);
             }
 
             $new = null;
@@ -182,13 +258,17 @@ final class CardPicker
             }
 
             if ($new === null) {
-                return [null, false];
+                // The full walk ran and found nothing (a narrowed walk alone never gets here): the scope is spent.
+                return [null, false, false, false, true];
             }
 
             // The decision, under the lock and never from memory (docs/19 §3 rule 9).
             $remaining = $budget->check($learnerId, $now, $usage === null ? null : (int) $new->getAttribute('quota_used'));
             if ($remaining !== null && $remaining <= 0) {
-                return [null, true];
+                return [null, true, false, false, false];
+            }
+            if ($sprint !== null && $sprint->newLimit !== null && $sprint->newLimit - (int) $new->getAttribute('sprint_used') <= 0) {
+                return [null, false, true, false, false];
             }
 
             /** @var WordRepetition $rep */
@@ -209,7 +289,7 @@ final class CardPicker
             ]);
             $budget->spend();
 
-            return [CardPick::card($rep, $new, 'new'), false];
+            return [CardPick::card($rep, $new, 'new'), false, false, false, false];
         });
 
         if ($hint !== null && $frontier !== null) {
@@ -219,7 +299,7 @@ final class CardPicker
             DB::afterCommit(fn () => $this->frontier->write($hint, $frontier));
         }
 
-        /** @var array{0: CardPick|null, 1: bool} $result */
+        /** @var array{0: CardPick|null, 1: bool, 2: bool, 3: bool, 4: bool} $result */
         return $result;
     }
 
@@ -306,8 +386,10 @@ final class CardPicker
     /**
      * Serve the nearest (re)learning card before its step elapsed, so the
      * session does not end with cards hanging for a few minutes.
+     *
+     * @param  bool  $newExhausted  what the new-word step found out before this one ({@see CardPick::$newExhausted})
      */
-    private function pickLearnAhead(int $learnerId, TrainingScope $scope, CarbonImmutable $now): ?CardPick
+    private function pickLearnAhead(int $learnerId, TrainingScope $scope, CarbonImmutable $now, bool $newExhausted = false): ?CardPick
     {
         if ($this->policy->learnAheadMinutes <= 0) {
             return null;
@@ -328,7 +410,7 @@ final class CardPicker
 
         $this->issueTicket($ahead, $now);
 
-        return CardPick::card($ahead, $word, 'learning', ahead: true);
+        return CardPick::card($ahead, $word, 'learning', ahead: true, newExhausted: $newExhausted);
     }
 
     /**
@@ -404,13 +486,25 @@ final class CardPicker
     /**
      * What every step of a session counts, in ONE statement: the grades given in the session (the per-session cap,
      * `twa.training.max_cards_per_session`) and, for a lesson scope, the graduated active words of the lesson
-     * (`progress.done`). Two scalar subqueries, no FROM — one round trip instead of two.
+     * (`progress.done`). Scalar subqueries, no FROM — one round trip instead of several.
+     *
+     * A daily session with a sprint (docs/06 §13.2) adds the round's counters to the same statement:
+     *   `due_done` — day-based reviews graded in the session (`interval_before_days > 0`: the card was `review`);
+     *   `new_done` — words the round introduced ({@see sprintNewQuery()});
+     *   `pending`  — grades the learner's cards in minute steps still need (a `new` row the full learning steps, a
+     *                learning / relearning row the steps left), what the round still owes; a withdrawn word
+     *                (`words.is_active = false`) owes nothing — it is never served. Served by the partial index
+     *                `word_repetitions_in_steps_idx` (the few rows in minute steps, not every row of the learner);
+     *   `due_left` — due `review` cards of the scope, counted up to `due_cap` + 1: the round's remainder is `min(due_left,
+     *                cap - due_done)`, and `due_left + due_done > due_cap` is the review debt that holds new words back.
      *
      * @param  int|null  $sessionId  null: the session count is not needed (`reviews` = 0)
      * @param  int|null  $lessonId  null: a daily scope, `done` is null
-     * @return array{reviews:int, done:int|null}
+     * @param  array{started_at: CarbonImmutable, due_cap: int|null, now: CarbonImmutable}|null  $sprint  the round to count for;
+     *                                                                                                    `due_cap` = reviews a round takes, null = all
+     * @return array{reviews:int, done:int|null, due_done:int, new_done:int, pending:int, due_left:int}
      */
-    public function stepCounts(int $learnerId, ?int $sessionId, ?int $lessonId): array
+    public function stepCounts(int $learnerId, ?int $sessionId, ?int $lessonId, ?array $sprint = null): array
     {
         $query = DB::query();
 
@@ -423,6 +517,50 @@ final class CardPicker
                     ->toBase(),
                 'reviews',
             );
+        }
+
+        if ($sprint !== null && $sessionId !== null) {
+            $query->selectSub(
+                TrainingReview::query()
+                    ->selectRaw('count(*)')
+                    ->where('training_session_id', $sessionId)
+                    ->where('learner_id', $learnerId)
+                    ->where('interval_before_days', '>', 0)
+                    ->toBase(),
+                'due_done',
+            );
+            $query->selectSub(self::sprintNewQuery($learnerId, $sprint['started_at'])->toBase()->selectRaw('count(*)'), 'new_done');
+
+            $learningSteps = count($this->policy->learningStepsMinutes);
+            $relearningSteps = count($this->policy->relearningStepsMinutes);
+            // The `state IN (...)` list is written out as the predicate of `word_repetitions_in_steps_idx` is, so the planner
+            // can prove the partial index applies; the inactive words are an anti-join on `words_inactive_idx` (docs/03 §2.7).
+            $query->selectSub(
+                DB::table('word_repetitions')
+                    ->selectRaw(
+                        'coalesce(sum(case when "word_repetitions"."state" = ? then ? when "word_repetitions"."state" = ? then ? - "word_repetitions"."learning_step" else ? - "word_repetitions"."learning_step" end), 0)',
+                        [RepetitionState::New->value, $learningSteps, RepetitionState::Learning->value, $learningSteps, $relearningSteps],
+                    )
+                    ->where('word_repetitions.learner_id', $learnerId)
+                    ->whereIn('word_repetitions.state', [RepetitionState::New->value, RepetitionState::Learning->value, RepetitionState::Relearning->value])
+                    ->whereNotExists(fn (QueryBuilder $inactive) => $inactive
+                        ->from('words')
+                        ->whereColumn('words.id', 'word_repetitions.word_id')
+                        ->where('words.is_active', false)),
+                'pending',
+            );
+
+            $window = DB::table('word_repetitions')
+                ->selectRaw('1')
+                ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+                ->where('word_repetitions.learner_id', $learnerId)
+                ->where('word_repetitions.state', RepetitionState::Review->value)
+                ->where('word_repetitions.next_review_at', '<=', $sprint['now'])
+                ->where('words.is_active', true);
+            if ($sprint['due_cap'] !== null) {
+                $window->limit($sprint['due_cap'] + 1);
+            }
+            $query->selectSub(DB::query()->selectRaw('count(*)')->fromSub($window, 'due_window'), 'due_left');
         }
 
         if ($lessonId !== null) {
@@ -442,15 +580,19 @@ final class CardPicker
         }
 
         if ($sessionId === null && $lessonId === null) {
-            return ['reviews' => 0, 'done' => null];
+            return ['reviews' => 0, 'done' => null, 'due_done' => 0, 'new_done' => 0, 'pending' => 0, 'due_left' => 0];
         }
 
-        /** @var object{reviews?: int|string, done?: int|string}|null $row */
+        /** @var object{reviews?: int|string, done?: int|string, due_done?: int|string, new_done?: int|string, pending?: int|string|null, due_left?: int|string}|null $row */
         $row = $query->first();
 
         return [
             'reviews' => (int) ($row->reviews ?? 0),
             'done' => $lessonId === null ? null : (int) ($row->done ?? 0),
+            'due_done' => (int) ($row->due_done ?? 0),
+            'new_done' => (int) ($row->new_done ?? 0),
+            'pending' => (int) ($row->pending ?? 0),
+            'due_left' => (int) ($row->due_left ?? 0),
         ];
     }
 }

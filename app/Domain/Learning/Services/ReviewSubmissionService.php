@@ -8,6 +8,8 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\DTO\ResolvedTranslation;
+use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\DailyStatsService;
@@ -66,8 +68,9 @@ use Illuminate\Support\Facades\DB;
  *
  * The ladder (docs/06 §12.1): a lapse of a `review` card writes `meta.ladder_floor` = the rung below the one it failed at,
  * a pass at the top clears it; `meta.last_exercise` remembers the exercise of this grade. Both ride in the scheduler's
- * UPDATE — no extra statement. The self-grade mismatch metric (docs/25 "metrics"): a wrong objectively graded answer that
- * follows a flash self-grade of 4 or 5 on the same word records `review.self_grade_mismatch` AFTER the commit.
+ * UPDATE — no extra statement. The self-grade mismatch metric (docs/25 "metrics"): a wrong objectively graded answer on a
+ * day-based (`review`) card that follows a flash self-grade of 4 or 5 on the same word records `review.self_grade_mismatch`
+ * AFTER the commit (a card in minute steps is left out: its last flash was the meeting with the answer open, docs/06 §13.1).
  *
  * Statements of the transaction (R12g): the session row `FOR UPDATE` (status and expiry only - the mode and the
  * lesson of a session never change, the model in hand has them), the repetition WITH its word in one joined read
@@ -97,6 +100,7 @@ final class ReviewSubmissionService
         private readonly WordTranslationResolver $translations,
         private readonly WordExamples $examples,
         private readonly ProductEventRecorder $events,
+        private readonly WordAudioService $audio,
     ) {}
 
     /**
@@ -241,11 +245,12 @@ final class ReviewSubmissionService
             }
 
             // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2), with the example of this
-            // serve (docs/06 §12.4). A four-option pick without enough distractors was shown as flash — record what the client saw.
+            // serve (docs/06 §12.4) and whether the word has audio (docs/06 §13.1; `urlFor` compares a hash, no I/O).
+            // A four-option pick without enough distractors was shown as flash — record what the client saw.
             $example = $this->examples->pick($word, $repetition);
             $translation = $this->translations->resolve($word, $locale);
             $exercise = $this->prompts->effectiveType(
-                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example),
+                $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example, $this->audio->urlFor($word) !== null),
                 $word,
                 $locale,
                 crc32($repetition->repetitions.':'.$word->id),
@@ -265,7 +270,7 @@ final class ReviewSubmissionService
             $verdict = null;
 
             if ($answer !== null) {
-                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement, $example, $this->prompts->correctOption($exercise, $word, $translation));
+                $verdict = $this->gradeAnswer($exercise, $word, $answer, $entitlement, $example, $translation, $locale);
                 $quality = $verdict->quality;
             } else {
                 $quality = $this->acceptQuality($exercise, (int) $quality);
@@ -341,11 +346,15 @@ final class ReviewSubmissionService
     }
 
     /**
-     * @param  string  $correctOption  the right option of a four-option card (reverse: the word; meaning / audio / pretest: the translation)
+     * A four-option card (reverse: the word; meaning / audio / pretest: the translation) is right when the pick is the right
+     * option, or names the same sense as it does (docs/06 §12.2, {@see ExercisePromptBuilder::acceptsPick()}: two words of the
+     * course with one translation are both right, whichever of them an older serve put among the options).
+     *
+     * @param  ResolvedTranslation  $translation  the card's translation in the session's language
      *
      * @throws ReviewSubmissionException when the card's exercise is the learner's own grade
      */
-    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement, ?string $example, string $correctOption): SpellingVerdict
+    private function gradeAnswer(ExerciseType $exercise, Word $word, string $answer, Entitlement $entitlement, ?string $example, ResolvedTranslation $translation, string $locale): SpellingVerdict
     {
         if ($exercise->selfGraded()) {
             if (! $this->selector->typedAvailableToPlan($entitlement)) {
@@ -364,9 +373,9 @@ final class ReviewSubmissionService
         }
 
         if ($exercise->isChoice()) {
-            $expected = $this->grader->normalize($correctOption);
+            $expected = $this->grader->normalize($this->prompts->correctOption($exercise, $word, $translation));
             $picked = $this->grader->normalize($answer);
-            $right = $expected !== '' && $expected === $picked;
+            $right = $expected !== '' && ($expected === $picked || $this->prompts->acceptsPick($exercise, $word, $translation, $locale, $answer));
             $pass = $exercise === ExerciseType::Pretest ? SpacedRepetitionEngine::EASY_QUALITY : self::CHOICE_PASS_QUALITY;
 
             return new SpellingVerdict($right ? $pass : self::CHOICE_FAIL_QUALITY, $right ? 0 : 1, $expected, $picked);
@@ -395,7 +404,10 @@ final class ReviewSubmissionService
         $previousQuality = $repetition->getAttribute('last_quality');
         $failed = $quality < SpacedRepetitionEngine::PASS_QUALITY;
 
+        // Only a day-based card: under the early ladder (docs/06 §13.1) a wrong first check follows the "remembered" of the
+        // meeting card, whose answer was open — that is no self-grade to measure.
         $mismatch = $failed
+            && $repetition->state === RepetitionState::Review
             && ! $exercise->selfGraded()
             && $previousExercise === ExerciseType::Flash->value
             && is_numeric($previousQuality)
@@ -404,7 +416,10 @@ final class ReviewSubmissionService
             : null;
 
         if ($repetition->state === RepetitionState::Review && $this->ladder->ladderEnabled) {
-            $rung = $exercise->rung();
+            // The rung the CARD was served at (its maturity, or the floor an earlier lapse left), not the rung of the exercise:
+            // under the early ladder the formats of a rung alternate (reverse, audio, flash on the form rung), and a lapse
+            // sends the card one rung down from where it stood whichever format it failed in (docs/06 §12.1).
+            $rung = $this->ladder->rungOf($repetition);
             if ($failed) {
                 $floor = max(LadderPolicy::RUNG_FLASH, $rung - 1);
                 if ($floor > LadderPolicy::RUNG_FLASH) {

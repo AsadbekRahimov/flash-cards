@@ -94,16 +94,17 @@ it('is idempotent over HTTP: two POSTs give one session and the same first card'
         ->and(TrainingSession::query()->where('learner_id', $learner->id)->count())->toBe(2);
 });
 
-it('opens a daily review with lesson: null, the goal as total and no source needed', function (): void {
+it('opens a daily review with lesson: null, the round as total and no source needed', function (): void {
     $lesson = ptCourseLessons(1, 2)->first();
     $learner = Learner::factory()->create(['active_course_id' => $lesson->stage?->course_id, 'daily_goal' => 15]);
 
+    // The round of a fresh learner (docs/06 §13.2): 6 new words × 2 learning steps; the daily goal stays on "Today".
     $response = ptOpen($this, $learner, ['mode' => 'daily_review'])
         ->assertOk()
         ->assertJsonPath('mode', 'daily_review')
         ->assertJsonPath('lesson', null)
-        ->assertJsonPath('total_words', 15)
-        ->assertJsonPath('progress', ['done' => 0, 'total' => 15]);
+        ->assertJsonPath('total_words', 12)
+        ->assertJsonPath('progress', ['done' => 0, 'total' => 12]);
 
     expect(TrainingSession::query()->findOrFail($response->json('session_id'))->source)->toBe('self');
 });

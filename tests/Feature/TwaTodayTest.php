@@ -91,6 +91,8 @@ it('requires authentication', function (): void {
 });
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
+    // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true]]);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
@@ -105,6 +107,8 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'league' => null,
         'timezone' => $learner->timezone,
         'game' => ['daily_available' => false, 'active_run' => null, 'class_caravan' => null],
+        // The practice card (docs/04 A.2a): the flags of `/me.practice`, no limits - the screen asks `/me` for nothing.
+        'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo'],
     ]);
 });
 
@@ -405,14 +409,18 @@ it('runs a constant number of queries however many lessons the course has', func
 // --- /finish summary ------------------------------------------------------------------
 
 it('adds the day\'s goal and streak to the /finish summary and keeps them on a repeat', function (): void {
+    config(['practice.access' => 'off']); // the shipped default is `all`: this test pins the answer of a closed practice
     $learner = todayLearner(['daily_goal' => 2]);
     $id = todayGrade($this, $learner, 2);
 
     $expected = [
+        'started_at' => CarbonImmutable::instance(TrainingSession::query()->findOrFail($id)->started_at)->utc()->toIso8601String(),
         'reviewed' => 2, 'correct' => 2, 'new_words' => 2,
+        // Two new words graded "good" once: still in their minute steps, nothing climbed yet (docs/06 §13.3).
+        'stages' => ['graduated' => 0, 'promoted' => 0, 'mastered' => 0],
         'goal' => ['target' => 2, 'done' => 2, 'met' => true],
         'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal'],
-        'practice_entry' => null, // the practice is off by default (docs/16 §3.2): no entry to it
+        'practice_entry' => null, // the practice is switched off (docs/16 §3.2): no entry to it
         // The league points of the session (docs/13 §7.6): 2 reviews + 2 correct + 2 new words × 2 + the goal met in this session (10).
         'league_points' => 18,
     ];

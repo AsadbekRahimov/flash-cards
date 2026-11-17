@@ -36,6 +36,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\CardAnswers;
 use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
@@ -216,7 +217,9 @@ it('finishes a personal session with a summary, idempotently, and refuses group 
     // Two new cards graded: one right (Easy), one wrong; plus a card that was learned before this session.
     $old = dueRow($learner, Word::factory()->for($lesson)->create());
     $old->forceFill(['created_at' => now()->subDay()])->save(); // seen long before this session
-    $flow->review($session, $learner, (int) $old->word_id, 4, 500);
+    $oldStep = $flow->nextStep($session, $learner);
+    expect($oldStep->word?->id)->toBe((int) $old->word_id);
+    CardAnswers::grade($flow, $session, $learner, $oldStep, 4); // an objective card under the early ladder (docs/06 §13.1)
     $w1 = $flow->nextStep($session, $learner)->word;
     $flow->review($session, $learner, (int) $w1?->id, 5, 700);
     $w2 = $flow->nextStep($session, $learner)->word;
@@ -229,6 +232,10 @@ it('finishes a personal session with a summary, idempotently, and refuses group 
         ->and($summary->reviewed)->toBe(3)
         ->and($summary->correct)->toBe(2)
         ->and($summary->newWords)->toBe(2)
+        // The stages (docs/06 §13.3): "Easy" graduated one new word; the old card's pass keeps it at `learning` (6 days).
+        ->and($summary->graduated)->toBe(1)
+        ->and($summary->promoted)->toBe(0)
+        ->and($summary->mastered)->toBe(0)
         ->and($summary->session->status)->toBe('closed')
         ->and($summary->session->done_reason)->toBe('finished')
         ->and($summary->session->ended_at?->toIso8601String())->toBe($closedAt->toIso8601String());
@@ -325,16 +332,18 @@ it('serves due cards from different lessons and courses in a daily review, hard 
         $step = $flow->nextStep($session, $learner);
         expect($step->kind)->toBe('due');
         $served[] = (int) $step->word?->id;
-        $flow->review($session, $learner, (int) $step->word?->id, 4, 300);
+        CardAnswers::grade($flow, $session, $learner, $step, 4);
     }
 
     // hard first, then the earliest due.
     expect($served)->toBe([(int) $fromA2->word_id, (int) $fromA1->word_id, (int) $fromB1->word_id]);
 
+    // The round is over with nothing left for another one: the progress of a sprint closes on what was done (docs/06 §13.2).
     $done = $flow->nextStep($session, $learner);
     expect($done->word)->toBeNull()
         ->and($done->doneReason)->toBe(DoneReason::NothingDue)
-        ->and($done->progress)->toBe(['done' => 3, 'total' => (int) $learner->daily_goal]);
+        ->and($done->canContinue)->toBeFalse()
+        ->and($done->progress)->toBe(['done' => 3, 'total' => 3]);
 });
 
 it('takes new words for a daily review from the active course in study order, skipping other courses', function (): void {
@@ -709,19 +718,20 @@ it('rolls the grade back when the day aggregate cannot be written', function ():
 
 // --- HTTP shape of a daily review + group regression --------------------------------
 
-it('starts a daily review over HTTP with lesson: null and the daily goal as total', function (): void {
+it('starts a daily review over HTTP with lesson: null and the round as total', function (): void {
     $course = publishedCourse(1, 2);
     $learner = Learner::factory()->create(['active_course_id' => $course->id, 'daily_goal' => 10]);
     $session = app(TrainingSessionService::class)->openPersonal($learner, 'daily_review');
 
+    // A fresh learner's round (docs/06 §13.2): 6 new words × 2 learning steps = 12 grades, nothing due.
     $this->withHeaders(personalHeaders($learner))
         ->postJson("/api/twa/training/sessions/{$session->id}/start")
         ->assertOk()
         ->assertJsonPath('session_id', $session->id)
         ->assertJsonPath('lesson', null)
-        ->assertJsonPath('total_words', 10)
+        ->assertJsonPath('total_words', 12)
         ->assertJsonPath('card.card_kind', 'new')
-        ->assertJsonPath('progress', ['done' => 0, 'total' => 10]);
+        ->assertJsonPath('progress', ['done' => 0, 'total' => 12]);
 
     $stranger = Learner::factory()->create();
     $this->withHeaders(personalHeaders($stranger))

@@ -30,7 +30,8 @@ final class TodayResource extends TwaResource
      *   onboarding_completed: bool,
      *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
      *   timezone: string,
-     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}
+     *   game: array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null},
+     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: string}
      * }
      */
     public function toArray(Request $request): array
@@ -67,6 +68,8 @@ final class TodayResource extends TwaResource
             'league' => $summary->league?->toArray(),
             'timezone' => $summary->timezone,
             'game' => $summary->game,
+            // The practice card (docs/16 §3.3): the same flags as `/me.practice`, without its day limits - no second request for them.
+            'practice' => $summary->practice,
         ];
     }
 }

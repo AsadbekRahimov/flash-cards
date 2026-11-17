@@ -14,6 +14,16 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
   dictation: { icon: 'speaker-wave', tile: 'teal' },
 }
 
+/**
+ * How many learned words of a course open the first practice mode: the most that a mode asks of the words (`config/practice.php`:
+ * `solo.items.min` = 3 tasks, `solo.pairs.min_per_round` = 3 pairs). `/today` carries no hub (the hub is per course and costs
+ * queries), so the "Word games" card of Home uses this number; the hub itself still says what a mode lacks (`required`).
+ */
+export const PRACTICE_MIN_LEARNED = 3
+
+/** The modes the "Word games" card shows: the ones that need no recordings (the dictation has no files yet and is hidden by the hub). */
+export const GAMES_CARD_MODES: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence']
+
 /** "Find the pairs". */
 export const modeTitle = (mode: PracticeMode): string => t(`practice.mode.${mode}.title`)
 

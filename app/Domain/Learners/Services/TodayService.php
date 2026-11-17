@@ -18,6 +18,7 @@ use App\Domain\Learners\DTO\TodayCourse;
 use App\Domain\Learners\DTO\TodayLesson;
 use App\Domain\Learners\DTO\TodaySummary;
 use App\Domain\Learning\Services\LearnerStatsService;
+use App\Domain\Practice\Services\PracticeAccess;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -51,6 +52,7 @@ final class TodayService
         private readonly LeagueService $leagues,
         private readonly DailyCaravanService $caravan,
         private readonly LearnerBillingService $billing,
+        private readonly PracticeAccess $practice,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -90,6 +92,9 @@ final class TodayService
             timezone: $this->clock->timezone($learner)->getName(),
             league: $this->leagues->todayLine($learner, $now),
             game: $this->caravan->todayBlock($learner, $now, $dueCount),
+            // The practice card of "Today": the same block as `/me.practice` without its limits (the flags and the plan resolved
+            // above, no statement), so the screen does not request `/me` for it (docs/04 A.2a).
+            practice: $this->practice->describe($learner, $entitlement),
         );
     }
 
@@ -177,10 +182,12 @@ final class TodayService
     private function openDailySessionId(Learner $learner, CarbonImmutable $now): ?int
     {
         /** @var TrainingSession|null $session */
+        // A round played to the end (`completed_at`, docs/06 §13.2) is not one to continue: the next open starts a fresh one.
         $session = TrainingSession::query()
             ->where('learner_id', $learner->id)
             ->where('mode', TrainingSession::MODE_DAILY_REVIEW)
             ->where('status', 'open')
+            ->whereNull('completed_at')
             ->where(fn (Builder $q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', $now))
             ->first(['id']);
 

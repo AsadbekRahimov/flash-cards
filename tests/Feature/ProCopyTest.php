@@ -36,6 +36,8 @@ it('gates every Pro feature the copy names behind the plan config', function ():
 
 it('lists the five real Pro features on the landing', function (string $locale): void {
     // The ticks as the landing shows them: the limits in them are filled in from config (LandingPricing::limits()).
+    // The practice line is a sixth one, there while the practice is open to Free with a limit (ProPromisesTest): not this test's.
+    config(['practice.access' => 'off']);
     $features = (new LandingPricing)->limits($locale)['proFeatures'];
 
     expect($features)->toHaveCount(5)

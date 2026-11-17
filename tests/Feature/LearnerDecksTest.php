@@ -664,17 +664,25 @@ it('applies the Free quota of 20 new words a day to a deck, and not to Pro', fun
     dkImport($this, $free, $slug, dkList(30))->assertOk();
     dkCall($this, $free, 'POST', '/me/course', ['slug' => $slug])->assertOk();
 
-    $step = dkCall($this, $free, 'POST', '/training/sessions', ['mode' => 'daily_review'])->assertOk();
-    $sessionId = (int) $step->json('session_id');
+    // Rounds of six new words (docs/06 §13.2), "one more round" after each, until the day's quota ends the last one.
     $served = 0;
-    while ($step->json('card') !== null) {
-        $served++;
-        $step = dkCall($this, $free, 'POST', "/training/sessions/{$sessionId}/review", [
-            'word_id' => $step->json('card.word_id'), 'quality' => 5, 'time_spent_ms' => 300,
-        ])->assertOk();
-    }
+    $rounds = 0;
+    do {
+        $this->travel(1)->seconds();
+        $step = dkCall($this, $free, 'POST', '/training/sessions', ['mode' => 'daily_review'])->assertOk();
+        $sessionId = (int) $step->json('session_id');
+        $rounds++;
+        while ($step->json('card') !== null) {
+            $served++;
+            $step = dkCall($this, $free, 'POST', "/training/sessions/{$sessionId}/review", [
+                'word_id' => $step->json('card.word_id'), 'quality' => 5, 'time_spent_ms' => 300,
+            ])->assertOk();
+        }
+        dkCall($this, $free, 'POST', "/training/sessions/{$sessionId}/finish")->assertOk();
+    } while ($step->json('done_reason') === 'sprint_complete' && $rounds < 6);
 
     expect($served)->toBe(20)
+        ->and($rounds)->toBe(4)
         ->and($step->json('done_reason'))->toBe('new_quota_exhausted')
         ->and(WordRepetition::query()->where('learner_id', $free->id)->count())->toBe(20);
 

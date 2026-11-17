@@ -135,14 +135,76 @@ return [
         'meaning_from_repetitions' => (int) env('LEARNING_LADDER_MEANING_FROM_REPETITIONS', 2),
         /** From this many passes on (`repetitions`), a `review` card is asked for the word: four English words or by ear. */
         'choice_from_repetitions' => (int) env('LEARNING_LADDER_CHOICE_FROM_REPETITIONS', 3),
-        /** From this interval (days) on, a `review` card is asked to be typed (spelling / gap-fill). */
-        'typed_from_interval_days' => (int) env('LEARNING_LADDER_TYPED_FROM_INTERVAL_DAYS', 21),
+        /**
+         * From this interval (days) on, a `review` card is asked to be typed (spelling / gap-fill). 6 (owner's decision of
+         * 2026-11-17, was 21): a word that has survived its first day-based interval is typed at its next review (day ~8 under
+         * SM-2); the typo allowance of SpellingGrader and the ladder floor after a lapse soften the step.
+         */
+        'typed_from_interval_days' => (int) env('LEARNING_LADDER_TYPED_FROM_INTERVAL_DAYS', 6),
         /**
          * Whether a Free learner gets the typed rung. `false` (default): the typed exercises stay a Pro feature
          * (`exercise.spelling` / `exercise.gap_fill` of config/billing.php) and a Free learner's ladder tops out at the four
          * options. The owner's decision (docs/25 §3.2): `true` opens typed recall to everybody.
          */
         'typed_recall_in_free' => (bool) env('LEARNING_LADDER_TYPED_IN_FREE', false),
+
+        /**
+         * Objective exercises from the first day (owner's decision of 2026-11-17, docs/06 §13.1). The first meeting with a word
+         * stays a flash card (the word, its translation and example are TAUGHT, not asked); every later serve — the minute steps
+         * of the same session, the first day-based reviews — is an active recall in a format the server grades, and no word
+         * gets the same format twice in a row (`word_repetitions.meta.last_exercise`). Each list is the preference order of a
+         * stage, the first entry whose exercise is available (plan, the learner's settings, audio) and differs from the last
+         * one served wins; a stage whose only candidate was just served borrows from the stage below, and flash is the
+         * universal fallback:
+         *   recognition — cards in minute steps (learning / relearning) and `review` cards below `choice_from_repetitions`;
+         *   form        — `review` cards from `choice_from_repetitions` on (rung 2);
+         *   the typed rung alternates gap-fill and spelling the same way.
+         * Group lessons keep the parity ladder (one screen for the class). `enabled = false` restores the ladder as it was:
+         * cards in minute steps and the first passes are flash, the upper rungs alternate by parity.
+         */
+        'early' => [
+            'enabled' => (bool) env('LEARNING_LADDER_EARLY_ENABLED', true),
+            'recognition' => env('LEARNING_LADDER_EARLY_RECOGNITION', 'meaning,reverse,audio'),
+            'form' => env('LEARNING_LADDER_EARLY_FORM', 'reverse,audio,flash'),
+            /**
+             * Serve the audio exercise only when the word has a pre-generated file (`card.audio_url`): the Mini App falls back
+             * to Web Speech, whose voice is not guaranteed on every device, and a silent audio card is unanswerable. The
+             * delivered courses have no files yet (`php artisan audio:pregenerate <course>`), so audio waits for them.
+             */
+            'audio_requires_file' => (bool) env('LEARNING_LADDER_AUDIO_REQUIRES_FILE', true),
+        ],
+    ],
+
+    /**
+     * The sprint (owner's decision of 2026-11-17, docs/06 §13.2): a `daily_review` session ends by itself after a short, fixed
+     * portion — at most `due_cards` day-based reviews plus at most `new_words` new words with their learning steps — with
+     * `done_reason = sprint_complete` and `can_continue` when another round would have cards. The daily new-word quota of the
+     * Free plan is untouched (it is the day's limit; `new_words` is the round's). `enabled = false`: the session runs until
+     * nothing is left (or the per-session cap), the progress is "grades / daily goal" as before.
+     * A limit of 0 (or less) is NO limit of that kind: the round is bounded by the other one alone (a round that could hold
+     * no card of a kind would end empty with "one more round" on offer, forever).
+     * `debt_holds_new`: while more day-based reviews are due than one round takes (`due_cards`), the round introduces no new
+     * words — the backlog is cleared first, round by round, as new words only came after the due ones before the sprint;
+     * a newcomer and a learner with no backlog are not affected.
+     */
+    'sprint' => [
+        'enabled' => (bool) env('LEARNING_SPRINT_ENABLED', true),
+        'new_words' => (int) env('LEARNING_SPRINT_NEW_WORDS', 6),
+        'due_cards' => (int) env('LEARNING_SPRINT_DUE_CARDS', 15),
+        'debt_holds_new' => (bool) env('LEARNING_SPRINT_DEBT_HOLDS_NEW', true),
+    ],
+
+    /**
+     * The stages of a word as the learner sees them (docs/06 §13.3), from the row of `word_repetitions`:
+     *   new      — met, not graduated yet (state new / learning);
+     *   learning — graduated, interval below `known_from_interval_days` (and a lapsed card in relearning);
+     *   known    — interval from `known_from_interval_days` on;
+     *   mastered — interval from `mastered_from_interval_days` on.
+     * The session summary counts the words that climbed a stage during the session.
+     */
+    'stages' => [
+        'known_from_interval_days' => (int) env('LEARNING_STAGE_KNOWN_FROM_INTERVAL_DAYS', 7),
+        'mastered_from_interval_days' => (int) env('LEARNING_STAGE_MASTERED_FROM_INTERVAL_DAYS', 21),
     ],
 
     /**

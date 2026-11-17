@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamQuestionBuilder;
 use App\Models\Course;
@@ -577,4 +578,156 @@ it('forWords returns nothing for an empty list and throws when a word has no dis
     expect($builder->forWords([], $course, 'ru'))->toBe([]);
     expect(fn () => $builder->forWords([$only], $course, 'ru'))
         ->toThrow(ExamSessionException::class);
+});
+
+// ---------------------------------------------------------------------------
+// Words that share a translation (docs/06 §12.2, §13.1): never a second right answer among the options
+// ---------------------------------------------------------------------------
+
+/**
+ * A target lesson (ru translations given by `$targets`, word => translation) and a sibling lesson of the same stage with `$others`.
+ *
+ * @param  array<string, string>  $targets
+ * @param  array<string, string>  $others
+ */
+function lessonsWithTranslations(array $targets, array $others): Lesson
+{
+    $stage = Stage::factory()->create();
+    $target = Lesson::factory()->for($stage)->create();
+    $sibling = Lesson::factory()->for($stage)->create();
+
+    foreach ($targets as $word => $translation) {
+        Word::factory()->for($target)->create(['word' => $word, 'translation' => $translation, 'part_of_speech' => 'noun']);
+    }
+    foreach ($others as $word => $translation) {
+        Word::factory()->for($sibling)->create(['word' => $word, 'translation' => $translation, 'part_of_speech' => 'noun']);
+    }
+
+    return $target;
+}
+
+/** @return array<string, array{word_id:int, word:string, correct_translation:string, options:list<string>}> by word */
+function questionsByWord(Lesson $lesson, string $locale = 'ru'): array
+{
+    $questions = app(ExamQuestionBuilder::class)->build($lesson, totalQuestions: 30, locale: $locale);
+
+    return collect($questions)->keyBy('word')->all();
+}
+
+it('does not stand "u" against "u, bu": a word that shares a sense with the right answer is no distractor', function (): void {
+    $lesson = lessonsWithTranslations(
+        ['it' => 'u, bu', 'a' => 'olma', 'b' => 'nok', 'c' => 'uzum'],
+        ['he' => 'u', 'x1' => 'kitob', 'x2' => 'qalam', 'x3' => 'stol', 'x4' => 'deraza'],
+    );
+
+    // The pick is shuffled: many builds, none of them may put "u" next to "u, bu".
+    for ($i = 0; $i < 40; $i++) {
+        $questions = questionsByWord($lesson, 'ru');
+
+        expect($questions['it']['options'])->not->toContain('u')
+            ->and($questions['it']['options'])->toContain('u, bu')
+            ->and($questions['it']['options'])->toHaveCount(ExamQuestionBuilder::OPTIONS_PER_QUESTION);
+    }
+});
+
+it('does not stand "u" against "u, bu" the other way round, nor two options that share a sense with each other', function (): void {
+    $lesson = lessonsWithTranslations(
+        ['a' => 'olma', 'b' => 'nok', 'c' => 'uzum', 'd' => 'anor'],
+        ['he' => 'u', 'it' => 'u, bu', 'this' => 'bu', 'x1' => 'kitob', 'x2' => 'qalam'],
+    );
+
+    for ($i = 0; $i < 40; $i++) {
+        foreach (questionsByWord($lesson) as $question) {
+            foreach ($question['options'] as $i1 => $first) {
+                foreach ($question['options'] as $i2 => $second) {
+                    if ($i1 < $i2) {
+                        expect(TranslationParts::share(TranslationParts::keys($first), $second))->toBeFalse("{$first} / {$second}");
+                    }
+                }
+            }
+        }
+    }
+});
+
+it('reads the Russian pairs the same way: "дом (здание)" and "дом", "смотреть" and "глядеть, смотреть"', function (): void {
+    $lesson = lessonsWithTranslations(
+        ['house' => 'дом (здание)', 'look' => 'глядеть, смотреть', 'a' => 'яблоко', 'b' => 'груша'],
+        ['home' => 'Дом', 'watch' => 'смотреть', 'x1' => 'книга', 'x2' => 'стол', 'x3' => 'окно'],
+    );
+
+    for ($i = 0; $i < 40; $i++) {
+        $questions = questionsByWord($lesson);
+
+        expect($questions['house']['options'])->not->toContain('Дом')
+            ->and($questions['look']['options'])->not->toContain('смотреть');
+    }
+});
+
+it('leaves an ordinary question as it was: four distinct real options, the right one once', function (): void {
+    $lesson = seedLessonForBuilder(10, 30);
+
+    foreach (app(ExamQuestionBuilder::class)->build($lesson, totalQuestions: 10, locale: 'ru') as $q) {
+        assertWellFormedQuestion($q);
+        expect($q['options'])->toHaveCount(ExamQuestionBuilder::OPTIONS_PER_QUESTION);
+    }
+});
+
+it('keeps the shortage behaviour: fewer options when the rest share a sense, an exception when none is left', function (): void {
+    // "it" has only "zzz" left to stand next to (he / this share a sense with it): two options, as with any short library.
+    $lesson = lessonsWithTranslations(['it' => 'u, bu', 'he' => 'u', 'this' => 'bu', 'z' => 'zzz'], []);
+
+    for ($i = 0; $i < 20; $i++) {
+        $questions = questionsByWord($lesson);
+
+        expect($questions['it']['options'])->toHaveCount(2)
+            ->and($questions['it']['options'])->toContain('u, bu', 'zzz');
+        foreach ($questions as $question) {
+            expect(count($question['options']))->toBeGreaterThanOrEqual(ExamQuestionBuilder::MIN_OPTIONS_PER_QUESTION);
+        }
+    }
+
+    $impossible = lessonsWithTranslations(['it' => 'u, bu', 'he' => 'u', 'this' => 'bu', 'that' => 'BU'], []);
+    expect(fn () => app(ExamQuestionBuilder::class)->build($impossible, totalQuestions: 4, locale: 'ru'))
+        ->toThrow(ExamSessionException::class);
+});
+
+it('does the same for the Uzbek texts of a group', function (): void {
+    $stage = Stage::factory()->create();
+    $target = Lesson::factory()->for($stage)->create();
+    $words = [];
+    foreach (['it' => 'u, bu', 'he' => 'u', 'a' => 'olma', 'b' => 'nok', 'c' => 'uzum', 'd' => 'anor', 'e' => 'kitob'] as $word => $uz) {
+        $model = Word::factory()->for($target)->create(['word' => $word, 'translation' => "ru-{$word}", 'part_of_speech' => 'noun']);
+        WordTranslation::factory()->uz()->create(['word_id' => $model->id, 'translation' => $uz]);
+        $words[$word] = $model;
+    }
+
+    for ($i = 0; $i < 30; $i++) {
+        $questions = questionsByWord($target, 'uz');
+
+        expect($questions['it']['options'])->not->toContain('u')
+            ->and($questions['he']['options'])->not->toContain('u, bu');
+    }
+});
+
+it('reads no more of the database for the filter: the same number of queries as a library with no shared translation', function (): void {
+    $sharing = lessonsWithTranslations(
+        ['it' => 'u, bu', 'a' => 'olma', 'b' => 'nok', 'c' => 'uzum'],
+        ['he' => 'u', 'x1' => 'kitob', 'x2' => 'qalam', 'x3' => 'stol'],
+    );
+    $plain = lessonsWithTranslations(
+        ['it' => 'p, q', 'a' => 'olma', 'b' => 'nok', 'c' => 'uzum'],
+        ['he' => 'r', 'x1' => 'kitob', 'x2' => 'qalam', 'x3' => 'stol'],
+    );
+
+    $count = function (Lesson $lesson): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        app(ExamQuestionBuilder::class)->build($lesson, totalQuestions: 4, locale: 'ru');
+        $queries = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $queries;
+    };
+
+    expect($count($sharing))->toBe($count($plain));
 });

@@ -19,7 +19,9 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
+import { GAMES_CARD_MODES, MODE_LOOK, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
 import { tierLabelKey } from '@/composables/leagueTiers'
+import { STREAK_LINE_EVERY_MS, STREAK_LINE_KEY } from '@/composables/proReminders'
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { useBackButton } from '@/composables/useBackButton'
@@ -32,7 +34,7 @@ import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
 import { LANGUAGE_TITLE, useI18n } from '@/i18n'
-import type { OpenSessionRequest } from '@/api/types'
+import type { OpenSessionRequest, PracticeAccessToday } from '@/api/types'
 
 /**
  * "Home" tab (docs/14 §6.1): a greeting with the date and the plan, the session card (goal ring, what is waiting,
@@ -135,6 +137,7 @@ const dateLine = computed(() =>
   formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),
 )
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
+const NO_PRACTICE: PracticeAccessToday = { available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' }
 
 /**
  * The welcome trial (docs/04 A.2): `/today` carries no `renewal`, so for a Pro learner `/me` is asked (the billing store keeps it
@@ -199,12 +202,16 @@ const allDone = computed(() => {
     && current.open_session_id === null && current.new_words_remaining === 0 && !courseHasNoNewWords.value
 })
 
-const practice = computed(() => billing.practiceAccess)
-// `/me` tells whether the learner has the practice: asked only when the calm "all done" card needs it (Home reads no `/me` otherwise).
-// Best effort, it never throws; the practice button shows once the answer is there.
-watch(allDone, (done) => {
-  if (done) void billing.load()
-}, { immediate: true })
+/** The practice access comes with `/today` itself (docs/04 A.2a): no `/me` is read for the games card. Absent (an older server): no practice. */
+const practice = computed(() => data.value?.practice ?? NO_PRACTICE)
+/**
+ * The "Word games" card (docs/16 §11.1): under the session card, when the learner has a course and a few learned words (the
+ * first mode of the hub opens with them; `PRACTICE_MIN_LEARNED`) - never on the start card. One entry to the practice of the
+ * main course: "all done" no longer has a button of its own.
+ */
+const gamesCandidate = computed(() => !showStart.value
+  && (data.value?.active_course?.progress.learned ?? 0) >= PRACTICE_MIN_LEARNED)
+const showGames = computed(() => gamesCandidate.value && practice.value.available)
 /** Practice of the main course (docs/16 §11.1): the same rule as on the course screen - behind Pro it opens the paywall. */
 function openPractice(): void {
   const slug = data.value?.active_course?.slug
@@ -222,6 +229,17 @@ const newWordsText = computed(() => {
 
 const assignmentItems = computed(() => assignments.items)
 const streak = computed(() => data.value?.streak ?? null)
+/**
+ * A Free learner whose streak broke (`current` is 0 while the `best` says there was one - the server sends no "reset" flag, this is the state
+ * the card already shows as "streak-none"): one line under it, "In Pro a freeze would have kept the streak", that leads to the sheet of
+ * the freezes. Once in 7 days (`STREAK_LINE_EVERY_MS`): it is counted when the line first shows, and the screen keeps it while it is open.
+ */
+const freezeLineAllowed = !isSnoozed(STREAK_LINE_KEY)
+const showFreezeLine = computed(() => freezeLineAllowed && data.value !== null && !isPro.value && !showStart.value
+  && streak.value !== null && streak.value.current === 0 && streak.value.best > 0)
+watch(showFreezeLine, (on) => {
+  if (on) snooze(STREAK_LINE_KEY, STREAK_LINE_EVERY_MS)
+}, { immediate: true })
 
 /**
  * The entry of Karvon, by `/today.game` (never `/me`): a run that is on first, else the caravan of the day. A closed game sends
@@ -471,10 +489,6 @@ onBeforeUnmount(() => training.clearOpenError())
               {{ t('today.all_done.pro') }}
             </button>
           </p>
-          <button v-if="practice.available" type="button" class="btn btn-tinted btn-block" data-testid="practice-btn" @click="openPractice">
-            <AppIcon name="puzzle-piece" :size="20" />
-            {{ t('practice.hub.title') }}
-          </button>
         </div>
         <button
           v-else
@@ -494,6 +508,27 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
         </p>
 
+      </section>
+
+      <!-- Practice of the main course, one entry (docs/16 §11.1): three modes by their icons and one button. -->
+      <section v-if="showGames" class="card flex items-center gap-3" data-testid="games-card">
+        <div class="min-w-0 flex-1">
+          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('today.games.title') }}</h2>
+          <div class="mt-2 flex gap-2" aria-hidden="true" data-testid="games-modes">
+            <span
+              v-for="mode in GAMES_CARD_MODES"
+              :key="mode"
+              class="icon-tile size-9 rounded-xl"
+              :class="`tile-${MODE_LOOK[mode].tile}`"
+              :title="modeTitle(mode)"
+            >
+              <AppIcon :name="MODE_LOOK[mode].icon" :size="18" />
+            </span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-tinted shrink-0" data-testid="games-play-btn" @click="openPractice">
+          {{ t('today.games.play') }}
+        </button>
       </section>
 
       <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. The teacher starts it for the whole group, so a newcomer of the center is its addressee too. -->
@@ -569,6 +604,12 @@ onBeforeUnmount(() => training.clearOpenError())
               {{ t('today.streak.freeze_teaser') }}
             </button>
           </div>
+        </div>
+
+        <div v-if="showFreezeLine" class="mt-3 flex justify-center border-t pt-3">
+          <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-line" @click="openPaywall('streak_freeze')">
+            {{ t('today.streak.freeze_line') }}
+          </button>
         </div>
       </section>
 

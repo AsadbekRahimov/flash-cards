@@ -53,8 +53,8 @@ describe('IntroSheet', () => {
 
     expect(w.get('[data-testid=intro-dots]').findAll('span')).toHaveLength(4)
     await toStep(w, 3)
-    expect(w.get('[data-testid=intro-title]').text()).toBe('Задания становятся сложнее')
-    expect(w.get('[data-testid=intro-text]').text()).toContain('потом пишете и вставляете в предложение')
+    expect(w.get('[data-testid=intro-title]').text()).toBe('Задания разные с первого дня')
+    expect(w.get('[data-testid=intro-text]').text()).toContain('пишете и вставляете в предложение')
     w.unmount()
   })
 
@@ -64,7 +64,7 @@ describe('IntroSheet', () => {
     await toStep(w, 3)
     expect(w.get('[data-testid=intro-next]').text()).toBe('Дальше')
     await w.get('[data-testid=intro-next]').trigger('click')
-    expect(w.get('[data-testid=intro-title]').text()).toBe('Хватит 10 минут в день')
+    expect(w.get('[data-testid=intro-title]').text()).toBe('Хочется ещё — сыграйте ещё раунд')
     expect(w.get('[data-testid=intro-next]').text()).toBe('Начать')
     await w.get('[data-testid=intro-next]').trigger('click')
     expect(w.emitted('close')).toHaveLength(1)
@@ -98,14 +98,14 @@ describe('IntroSheet', () => {
     it('saves the language like the settings do and redraws the slides at once', async () => {
       vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ interface_locale: 'uz' })))
       const w = await mountIntro()
-      expect(w.get('[data-testid=intro-title]').text()).toBe('Вы видите слово и вспоминаете перевод')
+      expect(w.get('[data-testid=intro-title]').text()).toBe('Занятие — короткий раунд')
 
       await w.get('[data-testid=intro-locale-uz]').trigger('click')
       await flushPromises()
 
       expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ interface_locale: 'uz' }]])
       expect(getLocale()).toBe('uz')
-      expect(w.get('[data-testid=intro-title]').text()).toBe("Siz so'zni ko'rasiz va tarjimasini eslaysiz")
+      expect(w.get('[data-testid=intro-title]').text()).toBe("Mashg'ulot — qisqa raund")
       expect(w.get('[data-testid=intro-next]').text()).toBe('Keyingi')
       expect(w.get('[data-testid=intro-locale-uz]').attributes('aria-checked')).toBe('true')
       expect(useToast().toast.value?.text).toBe('Saqlandi')
@@ -131,7 +131,7 @@ describe('IntroSheet', () => {
       const w = await mountIntro()
 
       expect(w.find('[data-testid=intro-locale]').exists()).toBe(false)
-      expect(w.get('[data-testid=intro-title]').text()).toBe('Вы видите слово и вспоминаете перевод')
+      expect(w.get('[data-testid=intro-title]').text()).toBe('Занятие — короткий раунд')
       w.unmount()
     })
   })

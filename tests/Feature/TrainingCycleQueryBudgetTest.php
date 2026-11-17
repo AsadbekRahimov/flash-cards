@@ -21,6 +21,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\CardAnswers;
 use Tests\Support\HotPathFixtures as Fx;
 use Tests\Support\QueryLog;
 
@@ -112,8 +113,11 @@ it('keeps every step of the training cycle inside its statement budget', functio
     for ($i = 0; $i < 18; $i++) {
         $card = trainingCall($this, $h, 'POST', "{$base}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 100, 'serve_token' => $card['serve_token']])['card'];
     }
-    $ahead = QueryLog::during(function () use (&$card, $base, $h): void {
-        $card = trainingCall($this, $h, 'POST', "{$base}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 100, 'serve_token' => $card['serve_token']])['card'];
+    // The learn-ahead card is a repeat: an objective (four-option) card under the early ladder (docs/06 §13.1). The body is
+    // built outside the measured closure (the helper reads the word to pick the right option).
+    $body = CardAnswers::body($card, 4, 100);
+    $ahead = QueryLog::during(function () use (&$card, $base, $h, $body): void {
+        $card = trainingCall($this, $h, 'POST', "{$base}/review", $body)['card'];
     });
     expect($card['card_kind'])->toBe('learning')
         ->and($card['serve_token'])->not->toBeNull()

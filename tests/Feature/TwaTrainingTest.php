@@ -854,7 +854,12 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
 
     /** @var Migration $migration */
     $migration = require base_path('database/migrations/2026_10_18_000002_add_learning_state_to_word_repetitions.php');
+    // The partial index on `state` (2026_11_17_100002) is rolled back first, as `migrate:rollback` would do it (newest first):
+    // SQLite refuses to drop a column an index names, PostgreSQL would drop the index with the column.
+    /** @var Migration $inSteps */
+    $inSteps = require base_path('database/migrations/2026_11_17_100002_add_word_repetitions_in_steps_idx.php');
 
+    $inSteps->down();
     $migration->down();
     expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeFalse();
 
@@ -874,7 +879,9 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     ]);
 
     $migration->up();
-    expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeTrue();
+    $inSteps->up();
+    expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeTrue()
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'name'))->toContain('word_repetitions_in_steps_idx');
 
     $states = WordRepetition::query()->where('learner_id', $s['learner']->id)->pluck('state', 'word_id');
     expect($states[$graduated])->toBe(RepetitionState::Review)

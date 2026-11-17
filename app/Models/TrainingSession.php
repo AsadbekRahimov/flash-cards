@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string $status
  * @property Carbon $started_at
  * @property Carbon|null $ended_at
+ * @property Carbon|null $completed_at the server had no more cards for this personal session after its grades (docs/06 §13.2)
  * @property Carbon|null $expires_at
  * @property string|null $done_reason
  */
@@ -59,6 +60,7 @@ class TrainingSession extends Model
         'status',
         'started_at',
         'ended_at',
+        'completed_at',
         'expires_at',
         'done_reason',
     ];
@@ -70,6 +72,7 @@ class TrainingSession extends Model
             'course_id' => 'integer',
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
+            'completed_at' => 'datetime',
             'expires_at' => 'datetime',
         ];
     }

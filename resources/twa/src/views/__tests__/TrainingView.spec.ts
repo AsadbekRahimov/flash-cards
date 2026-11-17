@@ -416,7 +416,7 @@ describe('TrainingView — header and states', () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'daily_review'))
     const { wrapper } = await render(1)
 
-    expect(wrapper.get('[data-testid=daily-header]').text()).toBe('Занятие')
+    expect(wrapper.get('[data-testid=daily-header]').text()).toBe('Раунд')
     expect(wrapper.find('[data-testid=lesson-header]').exists()).toBe(false)
   })
 

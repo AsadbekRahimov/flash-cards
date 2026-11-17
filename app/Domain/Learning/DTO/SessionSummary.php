@@ -17,6 +17,9 @@ final readonly class SessionSummary
      * @param  int  $correct  grades with quality >= 3
      * @param  int  $newWords  distinct words first served during this session
      * @param  bool  $wasOpen  false when the session had already been closed before this call (idempotent finish)
+     * @param  int  $graduated  of the new words, those that left the minute steps in this session (stage `learning` reached)
+     * @param  int  $promoted  words met before this session whose stage rose in it (docs/06 §13.3)
+     * @param  int  $mastered  words that reached the `mastered` stage in this session
      */
     public function __construct(
         public TrainingSession $session,
@@ -24,5 +27,8 @@ final readonly class SessionSummary
         public int $correct,
         public int $newWords,
         public bool $wasOpen,
+        public int $graduated = 0,
+        public int $promoted = 0,
+        public int $mastered = 0,
     ) {}
 }

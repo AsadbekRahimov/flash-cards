@@ -36,7 +36,7 @@ import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, P
  * States: loading, error (Retry), "practice is not available yet" (`practice_unavailable`), the hub. A card is playable
  * (the whole card is the button), short of material ("Learn the lesson"), switched off, or behind Pro (the paywall).
  * The one unfinished session of a learner: a mode pressed while there is one asks what to do (`ActiveSessionSheet`).
- * "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
+ * A mode that lacks only recordings (the dictation without audio files) is not shown. "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
  * "Practice of the lesson / of the course") starts its sessions with `source = after_training` instead of `hub`.
  *
  * Free has a few sessions of practice a day (docs/18 §3): under "Choose a mode" a quiet line says how many are left ("Free today: 1 of 2
@@ -115,6 +115,16 @@ function resumeFor(info: PracticeModeInfo): PracticeActiveSession | null {
   if (current === null || active === null || active.mode !== info.mode) return null
   return active.course === current.course.slug && active.lesson_id === (current.lesson?.id ?? null) ? active : null
 }
+
+/**
+ * A mode that lacks only its recordings (`not_enough` with the reason `audio_pending` / `no_audio_words`: the dictation, while the files of
+ * the course are not made) is not shown at all - there is nothing the learner can do about it, and a card that never opens is noise.
+ * The other reasons ("learn the words", "no tasks yet") stay: they say what the next step is.
+ */
+const AUDIO_SHORTAGES: readonly (PracticeModeInfo['reason'])[] = ['audio_pending', 'no_audio_words']
+const modes = computed((): PracticeModeInfo[] =>
+  (hub.value?.modes ?? []).filter((info) => !(info.state === 'not_enough' && AUDIO_SHORTAGES.includes(info.reason))),
+)
 
 const learnKind = computed(() => (hub.value?.lesson ? 'lesson' : 'course'))
 
@@ -345,7 +355,7 @@ onBeforeUnmount(() => {
       </p>
       <div class="flex flex-col gap-3" data-testid="mode-cards">
         <ModeCard
-          v-for="info in hub.modes"
+          v-for="info in modes"
           :key="info.mode"
           :info="info"
           :resume="resumeFor(info)"

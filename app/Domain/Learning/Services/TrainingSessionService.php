@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\ReferralService;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\DTO\SessionSummary;
+use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Models\Assignment;
 use App\Models\Course;
@@ -35,12 +41,22 @@ use LogicException;
  *
  * The `mode_shape` invariant (group session ⇒ group and lesson; personal ⇒ learner)
  * is enforced here for every driver and additionally by a PostgreSQL CHECK.
+ *
+ * A personal session is COMPLETED (`completed_at`, docs/06 §13.2) once the server answered `card: null` after its grades: the
+ * round or the lesson was played to the end, whether or not `/finish` ever comes (the Mini App may be closed on the verdict of
+ * the last card). A completed `daily_review` session is not handed back on the next open — it is closed as `finished`, with
+ * the side effects of `/finish`, and a fresh round is opened; the same for a daily session begun before the learner's local
+ * today (as `finished` when completed, else `expired`, like the scheduler would). A round of today with cards left goes on.
+ * The scheduler closes a completed session as `finished` too, so the retention report does not count it as abandoned.
  */
 final class TrainingSessionService
 {
     public function __construct(
         private readonly CourseCatalogService $catalog,
         private readonly TeacherAuthority $authority,
+        private readonly ProductEventRecorder $events,
+        private readonly ReferralService $referrals,
+        private readonly LearnerClock $clock,
     ) {}
 
     /**
@@ -106,7 +122,10 @@ final class TrainingSessionService
      *
      * Idempotent: an open, unexpired session is returned as-is. An open session whose
      * `expires_at` has passed (the scheduler has not run yet) is closed with
-     * `done_reason = expired` and replaced. Two concurrent calls end up with one session.
+     * `done_reason = expired` and replaced. A `daily_review` session that is completed ({@see markCompleted()}) or was
+     * begun before the learner's local today is closed as well (`finished` when completed, with the side effects of
+     * {@see finish()}; `expired` otherwise) and replaced by a fresh round. Two concurrent calls end up with one session:
+     * the open row is locked first, so the second caller sees it closed, loses the INSERT race and re-reads the winner's row.
      *
      * Must not be called inside an outer transaction: the lost-race recovery re-reads the winner's
      * row after a unique violation, which on PostgreSQL would run in an already aborted transaction.
@@ -159,24 +178,39 @@ final class TrainingSessionService
 
                 if ($existing !== null) {
                     if ($existing->expires_at === null || $existing->expires_at->isAfter($now)) {
-                        if ($mode === TrainingSession::MODE_DAILY_REVIEW) {
-                            // The snapshot was taken a moment ago; re-reading after the lock wait would narrow the race only
-                            // by the wait itself, and the snapshot is refreshed on every open anyway.
+                        if ($mode !== TrainingSession::MODE_DAILY_REVIEW) {
+                            return $existing;
+                        }
+
+                        if ($existing->completed_at !== null) {
+                            // The round was played to the end but never closed (the app was shut on the last verdict): what
+                            // `/finish` would have done, then a fresh round - never the exhausted one handed back.
+                            $this->finish($existing, TrainingSession::DONE_FINISHED, $now, $learner);
+                        } elseif ($existing->started_at->lt($this->clock->today($learner, $now))) {
+                            // Yesterday's round, left in the middle: closed the way the scheduler closes it, a new one for today.
+                            $existing->update([
+                                'status' => 'closed',
+                                'ended_at' => $now,
+                                'done_reason' => TrainingSession::DONE_EXPIRED,
+                            ]);
+                        } else {
+                            // Today's round with cards left goes on. The course snapshot was taken a moment ago; re-reading after
+                            // the lock wait would narrow the race only by the wait itself, and it is refreshed on every open anyway.
                             $courseId = $attributes['course_id'];
                             if ($existing->course_id !== $courseId) {
                                 $existing->update(['course_id' => $courseId]);
                             }
+
+                            return $existing;
                         }
-
-                        return $existing;
+                    } else {
+                        // Expired but not yet closed by the scheduler: close it, open a fresh one.
+                        $existing->update([
+                            'status' => 'closed',
+                            'ended_at' => $existing->expires_at,
+                            'done_reason' => $existing->completed_at === null ? TrainingSession::DONE_EXPIRED : TrainingSession::DONE_FINISHED,
+                        ]);
                     }
-
-                    // Expired but not yet closed by the scheduler: close it, open a fresh one.
-                    $existing->update([
-                        'status' => 'closed',
-                        'ended_at' => $existing->expires_at,
-                        'done_reason' => TrainingSession::DONE_EXPIRED,
-                    ]);
                 }
 
                 return TrainingSession::query()->create($attributes);
@@ -190,7 +224,13 @@ final class TrainingSessionService
     /**
      * Closes a personal session (idempotent) and summarises what the learner did in it.
      *
+     * The side effects of a session the learner finished — the event `training.session_finished` with the summary's numbers
+     * and the evaluation of a pending referral (docs/13 §7.1) — happen here, once, after the commit, and only when THIS call
+     * closed the session with `finished`: `/finish` and the re-open of a completed round share them, a repeat of `/finish`
+     * and a close as `expired` have none.
+     *
      * @param  string  $reason  `done_reason` to store: `finished` (default) | `expired`
+     * @param  Learner|null  $learner  the owner, when the caller has the row (read otherwise, for the side effects only)
      *
      * @throws TrainingSessionException not_personal for a group session
      */
@@ -198,6 +238,7 @@ final class TrainingSessionService
         TrainingSession $session,
         string $reason = TrainingSession::DONE_FINISHED,
         ?CarbonImmutable $now = null,
+        ?Learner $learner = null,
     ): SessionSummary {
         $now ??= CarbonImmutable::now();
 
@@ -205,7 +246,7 @@ final class TrainingSessionService
             throw TrainingSessionException::notPersonal();
         }
 
-        return DB::transaction(function () use ($session, $reason, $now): SessionSummary {
+        return DB::transaction(function () use ($session, $reason, $now, $learner): SessionSummary {
             /** @var TrainingSession $locked */
             $locked = TrainingSession::query()->lockForUpdate()->findOrFail($session->id);
 
@@ -218,8 +259,62 @@ final class TrainingSessionService
                 ]);
             }
 
-            return $this->summarise($locked, $wasOpen);
+            $summary = $this->summarise($locked, $wasOpen);
+
+            if ($wasOpen && $reason === TrainingSession::DONE_FINISHED) {
+                // After the locks are released (the referral claims its own transaction; the event buffer takes rows after a commit).
+                DB::afterCommit(fn () => $this->recordFinished($summary, $learner, $now));
+            }
+
+            return $summary;
         });
+    }
+
+    /**
+     * The round or the lesson of a personal session is over: the server answered `card: null` after the session's grades
+     * (TrainingFlowService). Stamped once (`completed_at`, a conditional UPDATE: still open, not stamped yet); a session without
+     * grades is never stamped — there was nothing to play, and the same open session serves whatever comes due later.
+     */
+    public function markCompleted(TrainingSession $session, ?CarbonImmutable $now = null): void
+    {
+        if ($session->mode === TrainingSession::MODE_GROUP_LESSON || $session->completed_at !== null) {
+            return;
+        }
+        $now ??= CarbonImmutable::now();
+
+        $stamped = TrainingSession::query()
+            ->whereKey($session->id)
+            ->where('status', 'open')
+            ->whereNull('completed_at')
+            ->update(['completed_at' => $now, 'updated_at' => $now]);
+
+        if ($stamped > 0) {
+            $session->forceFill(['completed_at' => $now])->syncOriginalAttribute('completed_at');
+        }
+    }
+
+    private function recordFinished(SessionSummary $summary, ?Learner $learner, CarbonImmutable $now): void
+    {
+        $session = $summary->session;
+        $learner ??= $session->learner_id === null ? null : Learner::query()->find($session->learner_id);
+        if ($learner === null) {
+            return;
+        }
+
+        $this->events->record(
+            ProductEventName::TrainingSessionFinished,
+            [
+                'training_session_id' => $session->id,
+                'mode' => $session->mode,
+                'reviewed' => $summary->reviewed,
+                'correct' => $summary->correct,
+                'new_words' => $summary->newWords,
+            ],
+            learner: $learner,
+        );
+
+        // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
+        $this->referrals->evaluate($learner, $now);
     }
 
     /**
@@ -243,7 +338,9 @@ final class TrainingSessionService
     /**
      * Scheduler (`training:close-expired`, every 15 min): closes personal sessions whose
      * `expires_at` has passed and group sessions older than `group_session_ttl_hours`.
-     * `ended_at` is the moment of closing: grades were accepted until then.
+     * `ended_at` is the moment of closing: grades were accepted until then. A personal session that was
+     * played to its end ({@see markCompleted()}) closes as `finished` — the learner did not abandon it, `/finish`
+     * just never came — every other one as `expired`. No side effects either way (the summary was never shown).
      *
      * @return int number of sessions closed
      */
@@ -251,17 +348,21 @@ final class TrainingSessionService
     {
         $now ??= CarbonImmutable::now();
 
-        $personal = TrainingSession::query()
-            ->where('status', 'open')
-            ->where('mode', '<>', TrainingSession::MODE_GROUP_LESSON)
-            ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', $now)
-            ->update([
-                'status' => 'closed',
-                'ended_at' => $now,
-                'done_reason' => TrainingSession::DONE_EXPIRED,
-                'updated_at' => $now,
-            ]);
+        $personal = 0;
+        foreach ([TrainingSession::DONE_FINISHED => true, TrainingSession::DONE_EXPIRED => false] as $reason => $completed) {
+            $personal += TrainingSession::query()
+                ->where('status', 'open')
+                ->where('mode', '<>', TrainingSession::MODE_GROUP_LESSON)
+                ->whereNotNull('expires_at')
+                ->where('expires_at', '<=', $now)
+                ->when($completed, fn (Builder $q) => $q->whereNotNull('completed_at'), fn (Builder $q) => $q->whereNull('completed_at'))
+                ->update([
+                    'status' => 'closed',
+                    'ended_at' => $now,
+                    'done_reason' => $reason,
+                    'updated_at' => $now,
+                ]);
+        }
 
         $group = TrainingSession::query()
             ->where('status', 'open')
@@ -511,33 +612,68 @@ final class TrainingSessionService
     }
 
     /**
-     * The three numbers of the summary in ONE statement: the grades and the correct ones as conditional aggregates,
-     * the new words as a scalar subquery (bindings only, no values in the SQL).
+     * The numbers of the summary in ONE statement (bindings only, no values in the SQL): one row per word graded in the
+     * session (its grades, the correct ones, whether its progress row was born in the session, the stage it started
+     * the session on and the stage it holds now — docs/06 §13.3), aggregated once.
+     *
+     * The stage before = by `interval_before_days` of the word's FIRST grade in the session (the window `first_value` over the
+     * grades by id; not the smallest one: a card that lapses here has a 0 on its relearning grade and must not look like it
+     * began as new). An interval of 0 is a card in minute steps: `new` when it had never graduated (`lapses` = 0: the word was
+     * met in an earlier session and left in its steps), `learning` when it was in relearning (`lapses` > 0 — a card never
+     * returns to the learning steps once graduated, so a lapse on the row tells the two apart). A word born in the session
+     * starts at `new`. The stage after = the current row: `review` by its interval, a lapsed card in relearning is `learning`,
+     * a new word still in the minute steps stays `new`. An approximation kept from before: a word first served to the learner
+     * in another tab while this session was open counts as new here too, as long as it was graded in this session.
      */
     private function summarise(TrainingSession $session, bool $wasOpen): SessionSummary
     {
-        $reviews = DB::table('training_reviews')
-            ->where('training_reviews.training_session_id', $session->id);
+        $t = WordStage::thresholds();
+        $startedAt = $session->started_at->format(DB::connection()->getQueryGrammar()->getDateFormat());
+
+        // The grades of the session, each carrying the interval before the word's first grade here.
+        $grades = DB::table('training_reviews')
+            ->where('training_reviews.training_session_id', $session->id)
+            ->select(['training_reviews.learner_id', 'training_reviews.word_id', 'training_reviews.quality'])
+            ->selectRaw('first_value("training_reviews"."interval_before_days") over (partition by "training_reviews"."word_id" order by "training_reviews"."id") as first_interval');
         if ($session->learner_id !== null) {
-            $reviews->where('training_reviews.learner_id', $session->learner_id);
+            $grades->where('training_reviews.learner_id', $session->learner_id);
         }
 
-        // Words whose progress row was born during this session = first served here. An
-        // approximation: a word first served to the learner in another tab while this session was
-        // open is counted here too, as long as it was graded in this session.
-        $newWords = (clone $reviews)
-            ->selectRaw('count(distinct "training_reviews"."word_id")')
-            ->join('word_repetitions', function ($join): void {
-                $join->on('word_repetitions.word_id', '=', 'training_reviews.word_id')
-                    ->on('word_repetitions.learner_id', '=', 'training_reviews.learner_id');
+        // A LEFT join: every grade counts as before even if its progress row is gone (the app never deletes rows; data made by hand may lack them).
+        $perWord = DB::query()
+            ->fromSub($grades, 'g')
+            ->leftJoin('word_repetitions', function ($join): void {
+                $join->on('word_repetitions.word_id', '=', 'g.word_id')
+                    ->on('word_repetitions.learner_id', '=', 'g.learner_id');
             })
-            ->where('word_repetitions.created_at', '>=', $session->started_at);
+            ->groupBy('g.word_id')
+            ->selectRaw('count(*) as grades')
+            ->selectRaw('sum(case when "g"."quality" >= ? then 1 else 0 end) as correct', [3])
+            ->selectRaw('max(case when "word_repetitions"."created_at" >= ? then 1 else 0 end) as born', [$startedAt])
+            // The stage the word held when the session began (3 mastered, 2 known, 1 learning, 0 new — the ranks of WordStage).
+            ->selectRaw(
+                'max(case when "g"."first_interval" >= ? then 3 when "g"."first_interval" >= ? then 2 when "g"."first_interval" >= 1 then 1'
+                .' when coalesce("word_repetitions"."lapses", 0) > 0 then 1 else 0 end) as stage_before',
+                [$t['mastered'], $t['known']],
+            )
+            // The stage it holds now: a graduated card by its interval, a card in relearning is `learning`, still new is `new`.
+            ->selectRaw(
+                'max(case when "word_repetitions"."state" = ? then (case when "word_repetitions"."interval_days" >= ? then 3 when "word_repetitions"."interval_days" >= ? then 2 else 1 end)'
+                .' when "word_repetitions"."state" = ? then 1 else 0 end) as stage_after',
+                [RepetitionState::Review->value, $t['mastered'], $t['known'], RepetitionState::Relearning->value],
+            );
 
-        /** @var object{reviewed: int|string, correct: int|string|null, new_words: int|string}|null $row */
-        $row = $reviews
-            ->selectRaw('count(*) as reviewed')
-            ->selectRaw('coalesce(sum(case when "training_reviews"."quality" >= ? then 1 else 0 end), 0) as correct', [3])
-            ->selectSub($newWords, 'new_words')
+        /** @var object{reviewed: int|string|null, correct: int|string|null, new_words: int|string|null, graduated: int|string|null, promoted: int|string|null, mastered: int|string|null}|null $row */
+        $row = DB::query()
+            ->fromSub($perWord, 'w')
+            ->selectRaw('coalesce(sum("w"."grades"), 0) as reviewed')
+            ->selectRaw('coalesce(sum("w"."correct"), 0) as correct')
+            ->selectRaw('coalesce(sum("w"."born"), 0) as new_words')
+            // A new word that left the minute steps: born here and graduated (its stage is `learning` or above).
+            ->selectRaw('coalesce(sum(case when "w"."born" = 1 and "w"."stage_after" >= 1 then 1 else 0 end), 0) as graduated')
+            // An older word that climbed: a word born here starts at `new`, its climb is `graduated` above.
+            ->selectRaw('coalesce(sum(case when "w"."born" = 0 and "w"."stage_after" > "w"."stage_before" then 1 else 0 end), 0) as promoted')
+            ->selectRaw('coalesce(sum(case when "w"."stage_after" = ? and ("w"."born" = 1 or "w"."stage_before" < ?) then 1 else 0 end), 0) as mastered', [WordStage::Mastered->rank(), WordStage::Mastered->rank()])
             ->first();
 
         return new SessionSummary(
@@ -546,6 +682,9 @@ final class TrainingSessionService
             (int) ($row->correct ?? 0),
             (int) ($row->new_words ?? 0),
             $wasOpen,
+            graduated: (int) ($row->graduated ?? 0),
+            promoted: (int) ($row->promoted ?? 0),
+            mastered: (int) ($row->mastered ?? 0),
         );
     }
 
