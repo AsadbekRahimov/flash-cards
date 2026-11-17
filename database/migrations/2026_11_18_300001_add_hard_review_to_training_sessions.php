@@ -36,6 +36,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        // The set of a round of hard words lives in `meta`: without the column these rows are broken, and a rollback must not do it silently.
+        if (DB::table('training_sessions')->where('mode', 'hard_review')->exists()) {
+            throw new RuntimeException('Cannot roll back: training_sessions has rows of the mode hard_review. Delete them first.');
+        }
+
         if (in_array(DB::getDriverName(), ['pgsql', 'sqlite'], true)) {
             DB::statement('DROP INDEX IF EXISTS '.self::INDEX);
         }

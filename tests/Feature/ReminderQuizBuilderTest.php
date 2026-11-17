@@ -220,3 +220,16 @@ it('does not take the buttons of two options that read the same once cut', funct
 
     expect(reminderQuizBuild($learner))->toBeNull();
 });
+
+it('asks only an exercise that is really available: meaning off in the config makes it reverse, nothing when reverse is off too', function (): void {
+    config(['learning.ladder.meaning_enabled' => false]);
+    $words = Fx::lesson(6);
+    $learner = Fx::learner();
+    Fx::due($learner, $words[1]);
+
+    expect(reminderQuizBuild($learner)?->exercise)->toBe(ExerciseType::Reverse);
+
+    $learner->forceFill(['meta' => ['exercises' => ['reverse' => false]]])->save();
+
+    expect(reminderQuizBuild($learner->fresh() ?? $learner))->toBeNull();
+});

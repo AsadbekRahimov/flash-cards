@@ -56,7 +56,10 @@ final class ReminderQuizAnswerService
             $correct = $picked === $state['correct'];
 
             if (! $repeated) {
-                $this->store->markAnswered($learner->id, $state, $picked, $now);
+                // A newer question was stored while this tap was handled: the tap belongs to the old one.
+                if (! $this->store->markAnswered($learner->id, $state, $picked, $now)) {
+                    return $this->expired($learner, 'token_mismatch');
+                }
                 $this->events->record(
                     ProductEventName::ReminderQuizAnswered,
                     [

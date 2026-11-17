@@ -92,7 +92,7 @@ it('rejects a quiz without a learner or a course on PostgreSQL (the CHECK of the
         ->and(levelQuizSavepoint(fn () => ExamSession::factory()->levelQuiz()->create(['learner_id' => null])))->toThrow(QueryException::class);
 });
 
-it('removes the quiz mode and its table on down() and brings them back on up()', function (): void {
+it('refuses to remove the quiz mode while quizzes exist, and removes it and its table on down() after they are gone and brings them back on up()', function (): void {
     $learner = Learner::factory()->create();
     $course = Course::factory()->published()->create();
     $quiz = ExamSession::factory()->levelQuiz($learner, $course)->closed()->create();
@@ -103,6 +103,13 @@ it('removes the quiz mode and its table on down() and brings them back on up()',
     $sessions = require database_path('migrations/2026_11_18_100001_add_level_quiz_mode_to_exam_sessions.php');
 
     $results->down();
+
+    // Rows of the mode are not lost silently: the rollback refuses until they are removed by hand.
+    expect(fn () => $sessions->down())->toThrow(RuntimeException::class, 'level_quiz')
+        ->and(ExamSession::query()->whereKey($quiz->id)->exists())->toBeTrue()
+        ->and(levelQuizIndexExists('exam_sessions_one_open_quiz_per_learner'))->toBeTrue();
+
+    ExamSession::query()->whereKey($quiz->id)->delete();
     $sessions->down();
 
     expect(Schema::hasTable('level_quiz_results'))->toBeFalse()

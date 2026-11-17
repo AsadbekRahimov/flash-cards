@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\DTO\ReminderContent;
 use App\Domain\Learners\DTO\ReminderQuiz;
@@ -12,6 +13,7 @@ use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\ExercisePromptBuilder;
+use App\Domain\Learning\Services\ExerciseSelector;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Models\Learner;
 use App\Models\WordRepetition;
@@ -28,8 +30,8 @@ use Throwable;
  * The word: only a card the learner already answered (`state <> new`) of an active word. First the due cards by
  * {@see LearnerStatsService::dueQuery()} (the same rule as the number in the reminder; hard cards first, then the
  * oldest due — the order of the card picker), and when nothing is due the cards nearest to their date. At most
- * `quiz.candidates` of them are tried, one query for the lot. The exercise is `meaning`, or `reverse` when the learner
- * switched `meaning` off (`learners.meta.exercises`); both off — no question.
+ * `quiz.candidates` of them are tried, one query for the lot. The exercise is `meaning`, or `reverse` when `meaning` is not
+ * available to the learner (`ExerciseSelector::available`: config flag, plan, `learners.meta.exercises`); neither — no question.
  *
  * The options come from {@see ExercisePromptBuilder} with a seed of the question's token: the same distractor rules as
  * in the app (a word sharing a sense with the right answer is never an option), and a card it could not give four
@@ -44,6 +46,8 @@ final class ReminderQuizBuilder
         private readonly LearnerStatsService $stats,
         private readonly WordTranslationResolver $translations,
         private readonly ExercisePromptBuilder $prompts,
+        private readonly ExerciseSelector $selector,
+        private readonly EntitlementResolver $entitlements,
     ) {}
 
     /** Whether this reminder may be a question at all (the table of docs/12 §7.5): not before the learner has a word of their own. */
@@ -78,12 +82,16 @@ final class ReminderQuizBuilder
 
     private function build(Learner $learner, string $locale, CarbonImmutable $now): ?ReminderQuiz
     {
+        // The exercise the learner really has: the same check as the training (config flag of the exercise, the plan, their settings).
         $settings = LearnerExerciseSettings::fromLearner($learner);
-        $type = match (true) {
-            $settings->meaning => ExerciseType::Meaning,
-            $settings->reverse => ExerciseType::Reverse,
-            default => null,
-        };
+        $entitlement = $this->entitlements->for($learner, $now);
+        $type = null;
+        foreach ([ExerciseType::Meaning, ExerciseType::Reverse] as $candidate) {
+            if ($this->selector->available($candidate, $entitlement, $settings)) {
+                $type = $candidate;
+                break;
+            }
+        }
         if ($type === null) {
             return null;
         }

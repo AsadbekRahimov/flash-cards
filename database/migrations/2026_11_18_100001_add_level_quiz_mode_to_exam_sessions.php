@@ -38,8 +38,11 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Quizzes cannot exist under the narrower CHECK (their answers and results go with them by the cascade).
-        DB::table('exam_sessions')->where('mode', 'level_quiz')->delete();
+        // The narrower CHECK cannot hold these rows, and a rollback must not lose them (and, by the cascade, their answers and
+        // results) silently.
+        if (DB::table('exam_sessions')->where('mode', 'level_quiz')->exists()) {
+            throw new RuntimeException('Cannot roll back: exam_sessions has rows of the mode level_quiz. Delete them first.');
+        }
 
         if (! in_array(DB::getDriverName(), ['pgsql', 'sqlite'], true)) {
             return;

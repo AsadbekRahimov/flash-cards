@@ -109,3 +109,23 @@ it('marks the answer without stretching the life of the question', function (): 
     $this->travelTo($now->addHours(27));
     expect($store->get(7))->toBeNull();
 });
+
+it('does not write the pick over a newer question that the sender stored after the state was read', function (): void {
+    $now = CarbonImmutable::parse('2026-10-18 14:05:00', 'UTC');
+    $this->travelTo($now);
+    $store = app(ReminderQuizStore::class);
+    $store->put(7, reminderQuizStoreQuiz(), new ReminderContent(ReminderKind::Review, 4, 3), $now);
+    $old = $store->get(7) ?? [];
+
+    // The sender puts tomorrow's question between the read of the answer and its write.
+    $store->put(7, new ReminderQuiz(56, 'tree', ExerciseType::Meaning, ['дом', 'кот', 'лес', 'мир'], 1, 'дерево', 'NewToken12'), new ReminderContent(ReminderKind::Review, 2, 0), $now);
+
+    expect($store->markAnswered(7, $old, 1, $now))->toBeFalse()
+        ->and($store->get(7))->toMatchArray(['token' => 'NewToken12', 'answered_at' => null, 'picked' => null]);
+
+    // The current question is still answered normally, and a vanished one is not brought back.
+    expect($store->markAnswered(7, $store->get(7) ?? [], 2, $now))->toBeTrue()
+        ->and($store->get(7))->toMatchArray(['picked' => 2]);
+    $store->forget(7);
+    expect($store->markAnswered(7, $old, 1, $now))->toBeFalse()->and($store->get(7))->toBeNull();
+});

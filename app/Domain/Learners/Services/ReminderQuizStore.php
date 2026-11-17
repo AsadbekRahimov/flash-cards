@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Learners\DTO\ReminderContent;
 use App\Domain\Learners\DTO\ReminderQuiz;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -37,7 +38,7 @@ final class ReminderQuizStore
     {
         $ttl = $this->ttlSeconds();
 
-        Cache::put(self::key($learnerId), [
+        $this->locked($learnerId, fn () => Cache::put(self::key($learnerId), [
             'token' => $quiz->token,
             'word_id' => $quiz->wordId,
             'exercise' => $quiz->exercise->value,
@@ -51,7 +52,7 @@ final class ReminderQuizStore
             'expires_at' => $now->getTimestamp() + $ttl,
             'answered_at' => null,
             'picked' => null,
-        ], $ttl);
+        ], $ttl));
     }
 
     /**
@@ -87,18 +88,43 @@ final class ReminderQuizStore
     }
 
     /**
-     * Records the pick, keeping the original expiry (the answer does not stretch the life of the question).
+     * Records the pick, keeping the original expiry (the answer does not stretch the life of the question). Compare-and-write under
+     * the state lock that {@see put()} takes too: the state is read again and written only when it is still the question of
+     * `$state` (the same token) - a newer question that the sender stored meanwhile is never overwritten by the old one.
      *
      * @param  array<string, mixed>  $state  what {@see get()} returned
+     * @return bool false when nothing was written: the question is gone, expired or has been replaced
      */
-    public function markAnswered(int $learnerId, array $state, int $picked, CarbonImmutable $now): void
+    public function markAnswered(int $learnerId, array $state, int $picked, CarbonImmutable $now): bool
     {
-        $remaining = (int) ($state['expires_at'] ?? 0) - $now->getTimestamp();
-        if ($remaining <= 0) {
-            return;
-        }
+        return $this->locked($learnerId, function () use ($learnerId, $state, $picked, $now): bool {
+            $current = $this->get($learnerId);
+            if ($current === null || ! hash_equals($current['token'], (string) ($state['token'] ?? ''))) {
+                return false;
+            }
 
-        Cache::put(self::key($learnerId), [...$state, 'answered_at' => $now->getTimestamp(), 'picked' => $picked], $remaining);
+            $remaining = $current['expires_at'] - $now->getTimestamp();
+            if ($remaining <= 0) {
+                return false;
+            }
+
+            Cache::put(self::key($learnerId), [...$current, 'answered_at' => $now->getTimestamp(), 'picked' => $picked], $remaining);
+
+            return true;
+        });
+    }
+
+    /**
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     *
+     * @throws LockTimeoutException
+     */
+    private function locked(int $learnerId, callable $callback): mixed
+    {
+        return Cache::lock("reminders:quiz:state:{$learnerId}", 5)->block(3, $callback);
     }
 
     public function forget(int $learnerId): void

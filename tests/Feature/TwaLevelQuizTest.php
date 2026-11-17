@@ -449,3 +449,87 @@ it('never offers an option that shares a sense with the right answer of the ques
         }
     }
 });
+
+// --- one open quiz per learner: another course, a finished-but-open one, resuming -----------------
+
+it('closes the open quiz of ANOTHER course with its own rules before it opens the quiz of this one', function (): void {
+    ['course' => $courseA, 'learner' => $learner] = levelQuizWorld();
+    ['course' => $courseB] = levelQuizWorld();
+    $a = levelQuizSession(levelQuizOpen($this, $learner, $courseA)->assertCreated());
+    $right = levelQuizPlay($this, $learner, $a, 1, 3);
+
+    $b = levelQuizOpen($this, $learner, $courseB)->assertCreated()->assertJsonPath('resumed', false)->assertJsonPath('course_id', $courseB->id);
+
+    $row = LevelQuizResult::query()->where('exam_session_id', $a->id)->sole();
+    expect($b->json('session_id'))->not->toBe($a->id)
+        ->and($a->refresh()->status)->toBe('closed')
+        ->and([$row->course_id, $row->scored, $row->correct])->toBe([$courseA->id, true, $right])
+        ->and(ExamSession::query()->where('learner_id', $learner->id)->where('status', 'open')->count())->toBe(1)
+        ->and(ProductEvent::query()->where('name', 'level_quiz.finished')->sole()->props['reason'])->toBe('replaced');
+
+    // The running quiz of B is resumed by B.
+    levelQuizOpen($this, $learner, $courseB)->assertOk()->assertJsonPath('session_id', $b->json('session_id'))->assertJsonPath('resumed', true);
+});
+
+it('does not return a fully answered but unclosed quiz as resumed: it is finalized and a new one opens', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $old = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    $right = levelQuizPlay($this, $learner, $old, 1);
+
+    $new = levelQuizOpen($this, $learner, $course)->assertCreated()->assertJsonPath('resumed', false)->assertJsonPath('scored', false);
+
+    $row = LevelQuizResult::query()->where('exam_session_id', $old->id)->sole();
+    expect($new->json('session_id'))->not->toBe($old->id)
+        ->and($old->refresh()->status)->toBe('closed')
+        ->and([$row->scored, $row->correct, $row->total])->toBe([true, $right, 12])
+        ->and(ProductEvent::query()->where('name', 'level_quiz.finished')->sole()->props['reason'])->toBe('finished');
+});
+
+it('resumes a quiz on join at the first question that has no answer, with the timer kept', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    levelQuizPlay($this, $learner, $session, 1, 3);
+
+    $personalizer = app(ExamQuestionPersonalizer::class);
+    CarbonImmutable::setTestNow('2026-11-17 10:00:20');
+    $first = $this->withHeaders(levelQuizHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question.question_index', 3)
+        ->assertJsonPath('question.word_id', $personalizer->questionAt($session, $learner, 3)['word_id'])
+        ->assertJsonPath('total_questions', 12);
+
+    // The same question again, the question timer is the one that started at the first display.
+    CarbonImmutable::setTestNow('2026-11-17 10:00:50');
+    $again = $this->withHeaders(levelQuizHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question.question_index', 3);
+    expect($again->json('question.seconds_left'))->toBeLessThan($first->json('question.seconds_left'));
+
+    // ...and it can be answered (no 409 already_answered).
+    $view = $personalizer->questionAt($session, $learner, 3);
+    $this->withHeaders(levelQuizHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/answer", [
+        'question_index' => 3, 'word_id' => $view['word_id'], 'selected_option_index' => $view['correct_index'], 'time_spent_ms' => 1000,
+    ])->assertOk();
+});
+
+it('joins a fully answered quiz with no question, and /result closes it and gives the result', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    $right = levelQuizPlay($this, $learner, $session, 1);
+
+    $this->withHeaders(levelQuizHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question', null)->assertJsonPath('total_questions', 12);
+
+    $this->withHeaders(levelQuizHeaders($learner))->getJson("/api/twa/exam/sessions/{$session->id}/result")->assertOk()
+        ->assertJsonPath('correct', $right)->assertJsonPath('answered', 12);
+});
+
+it('records a fully answered quiz that the scheduler closes as finished, not expired', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    levelQuizPlay($this, $learner, $session, 1);
+
+    CarbonImmutable::setTestNow('2026-11-17 10:30:00');
+    Artisan::call('exams:close-expired');
+
+    expect($session->refresh()->status)->toBe('closed')
+        ->and(ProductEvent::query()->where('name', 'level_quiz.finished')->sole()->props['reason'])->toBe('finished');
+});

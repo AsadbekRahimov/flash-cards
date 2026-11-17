@@ -2305,6 +2305,13 @@ it('rolls back and re-applies the migrations of the round of hard words (sqlite 
     $sessions = require database_path('migrations/2026_11_18_300001_add_hard_review_to_training_sessions.php');
     $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
 
+    // Rows of the mode are not left without their `meta` silently: the rollback refuses until they are removed by hand.
+    $hardRow = ['learner_id' => Learner::factory()->create()->id, 'mode' => 'hard_review', 'status' => 'closed', 'started_at' => now(), 'created_at' => now(), 'updated_at' => now(), 'meta' => '{}'];
+    DB::table('training_sessions')->insert($hardRow);
+    expect(fn () => $sessions->down())->toThrow(RuntimeException::class, 'hard_review')
+        ->and(Schema::hasColumn('training_sessions', 'meta'))->toBeTrue();
+    DB::table('training_sessions')->where('mode', 'hard_review')->delete();
+
     $hardIdx->down();
     $sessions->down();
     expect($names('word_repetitions'))->not->toContain('word_repetitions_hard_idx')

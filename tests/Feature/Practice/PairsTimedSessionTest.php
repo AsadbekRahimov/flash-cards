@@ -157,6 +157,9 @@ it('opens a game without a clock and without a board: no deadline, score 0, no c
         ->assertJsonPath('current', null);
     expect(array_intersect(pairsTimedKeys($opened->json()), [...PAIRS_TIMED_FORBIDDEN_KEYS, 'left', 'right', 'matched', 'round', 'rounds']))->toBe([]);
 
+    $row = PracticeSession::query()->sole();
+    expect($row->deadline_at)->toBeNull()->and($row->score)->toBe(0)->and($row->mode)->toBe(PracticeMode::PairsTimed);
+
     // The same on a read of the session, until the start.
     pairsTimedCall($learner, 'GET', 'sessions/'.$opened->json('id'))->assertOk()->assertJsonPath('current', null);
 
@@ -166,8 +169,6 @@ it('opens a game without a clock and without a board: no deadline, score 0, no c
         ->assertJsonPath('current.round', 1);
     expect($started->json('current.left'))->toHaveCount(4)->and($started->json('current.right'))->toHaveCount(4)
         ->and(array_intersect(pairsTimedKeys($started->json()), PAIRS_TIMED_FORBIDDEN_KEYS))->toBe([]);
-    $row = PracticeSession::query()->sole();
-    expect($row->deadline_at)->toBeNull()->and($row->score)->toBe(0)->and($row->mode)->toBe(PracticeMode::PairsTimed);
 });
 
 it('refuses an answer before the clock is started', function (): void {
