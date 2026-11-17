@@ -14,6 +14,7 @@
     {
       "word": "government",
       "part_of_speech": "noun",
+      "transcription": "/ˈgʌvərnmənt/",
       "translation": "правительство",
       "translations": {
         "ru": "правительство",
@@ -28,6 +29,7 @@
     {
       "word": "law",
       "part_of_speech": "noun",
+      "transcription": "/lɔ/",
       "translation": "закон",
       "translations": {
         "ru": "закон",
@@ -42,6 +44,7 @@
     {
       "word": "president",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛzədənt/",
       "translation": "президент",
       "translations": {
         "ru": "президент",
@@ -56,6 +59,7 @@
     {
       "word": "vote",
       "part_of_speech": "verb",
+      "transcription": "/voʊt/",
       "translation": "голосовать",
       "translations": {
         "ru": "голосовать",
@@ -70,6 +74,7 @@
     {
       "word": "election",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈlɛkʃən/",
       "translation": "выборы",
       "translations": {
         "ru": "выборы",
@@ -84,6 +89,7 @@
     {
       "word": "citizen",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪtəzən/",
       "translation": "гражданин",
       "translations": {
         "ru": "гражданин",
@@ -98,6 +104,7 @@
     {
       "word": "police",
       "part_of_speech": "noun",
+      "transcription": "/pəˈlis/",
       "translation": "полиция",
       "translations": {
         "ru": "полиция",
@@ -112,6 +119,7 @@
     {
       "word": "army",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrmi/",
       "translation": "армия",
       "translations": {
         "ru": "армия",
@@ -126,6 +134,7 @@
     {
       "word": "crime",
       "part_of_speech": "noun",
+      "transcription": "/kraɪm/",
       "translation": "преступление",
       "translations": {
         "ru": "преступление",
@@ -140,6 +149,7 @@
     {
       "word": "rule",
       "part_of_speech": "noun",
+      "transcription": "/rul/",
       "translation": "правило",
       "translations": {
         "ru": "правило",

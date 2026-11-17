@@ -14,6 +14,7 @@
     {
       "word": "atmosphere",
       "part_of_speech": "noun",
+      "transcription": "/ˈætməsfɪr/",
       "translation": "атмосфера",
       "translations": {
         "ru": "атмосфера",
@@ -28,6 +29,7 @@
     {
       "word": "stunning",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstʌnɪŋ/",
       "translation": "потрясающий",
       "translations": {
         "ru": "потрясающий",
@@ -42,6 +44,7 @@
     {
       "word": "magnificent",
       "part_of_speech": "adjective",
+      "transcription": "/mægˈnɪfəsənt/",
       "translation": "великолепный",
       "translations": {
         "ru": "великолепный",
@@ -56,6 +59,7 @@
     {
       "word": "charming",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtʃɑrmɪŋ/",
       "translation": "очаровательный",
       "translations": {
         "ru": "очаровательный",
@@ -70,6 +74,7 @@
     {
       "word": "familiar",
       "part_of_speech": "adjective",
+      "transcription": "/fəˈmɪljər/",
       "translation": "знакомый",
       "translations": {
         "ru": "знакомый",
@@ -84,6 +89,7 @@
     {
       "word": "vivid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɪvɪd/",
       "translation": "яркий",
       "translations": {
         "ru": "яркий",
@@ -98,6 +104,7 @@
     {
       "word": "dull",
       "part_of_speech": "adjective",
+      "transcription": "/dʌl/",
       "translation": "скучный, унылый",
       "translations": {
         "ru": "скучный, унылый",
@@ -112,6 +119,7 @@
     {
       "word": "peaceful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpisfəl/",
       "translation": "спокойный, мирный",
       "translations": {
         "ru": "спокойный, мирный",
@@ -126,6 +134,7 @@
     {
       "word": "historic",
       "part_of_speech": "adjective",
+      "transcription": "/hɪˈstɔrɪk/",
       "translation": "исторический",
       "translations": {
         "ru": "исторический",
@@ -140,6 +149,7 @@
     {
       "word": "mysterious",
       "part_of_speech": "adjective",
+      "transcription": "/mɪˈstɪriəs/",
       "translation": "таинственный, загадочный",
       "translations": {
         "ru": "таинственный, загадочный",

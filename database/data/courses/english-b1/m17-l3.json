@@ -14,6 +14,7 @@
     {
       "word": "major",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmeɪdʒər/",
       "translation": "значительный, крупный",
       "translations": {
         "ru": "значительный, крупный",
@@ -28,6 +29,7 @@
     {
       "word": "improvement",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈpruvmənt/",
       "translation": "улучшение",
       "translations": {
         "ru": "улучшение",
@@ -42,6 +44,7 @@
     {
       "word": "rise",
       "part_of_speech": "noun",
+      "transcription": "/raɪz/",
       "translation": "повышение, подъём",
       "translations": {
         "ru": "повышение, подъём",
@@ -56,6 +59,7 @@
     {
       "word": "develop",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈvɛləp/",
       "translation": "развивать",
       "translations": {
         "ru": "развивать",
@@ -70,6 +74,7 @@
     {
       "word": "increase",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkris/",
       "translation": "увеличиваться",
       "translations": {
         "ru": "увеличиваться",
@@ -84,6 +89,7 @@
     {
       "word": "decrease",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈkris/",
       "translation": "уменьшаться",
       "translations": {
         "ru": "уменьшаться",
@@ -98,6 +104,7 @@
     {
       "word": "growth",
       "part_of_speech": "noun",
+      "transcription": "/groʊθ/",
       "translation": "рост, увеличение",
       "translations": {
         "ru": "рост, увеличение",
@@ -112,6 +119,7 @@
     {
       "word": "remain",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈmeɪn/",
       "translation": "оставаться",
       "translations": {
         "ru": "оставаться",
@@ -126,6 +134,7 @@
     {
       "word": "trend",
       "part_of_speech": "noun",
+      "transcription": "/trɛnd/",
       "translation": "тенденция",
       "translations": {
         "ru": "тенденция",
@@ -140,6 +149,7 @@
     {
       "word": "rapid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈræpɪd/",
       "translation": "быстрый, стремительный",
       "translations": {
         "ru": "быстрый, стремительный",

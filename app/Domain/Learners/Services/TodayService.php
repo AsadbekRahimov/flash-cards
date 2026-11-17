@@ -17,7 +17,10 @@ use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learners\DTO\TodayCourse;
 use App\Domain\Learners\DTO\TodayLesson;
 use App\Domain\Learners\DTO\TodaySummary;
+use App\Domain\Learning\Services\HardRoundService;
 use App\Domain\Learning\Services\LearnerStatsService;
+use App\Domain\Learning\Services\LevelQuizService;
+use App\Domain\Learning\Services\LevelReadinessService;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Models\Course;
 use App\Models\Learner;
@@ -26,6 +29,7 @@ use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * The "Today" screen (`GET /api/twa/today`, docs/12 §7.3) and the goal / streak block of the
@@ -53,6 +57,9 @@ final class TodayService
         private readonly DailyCaravanService $caravan,
         private readonly LearnerBillingService $billing,
         private readonly PracticeAccess $practice,
+        private readonly LevelReadinessService $readiness,
+        private readonly LevelQuizService $quizzes,
+        private readonly HardRoundService $hardRound,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -79,12 +86,15 @@ final class TodayService
         $counts = $this->stats->counts($queries);
         $dueCount = $counts['due'];
 
+        // The open daily round and the rounds of hard words begun in the day window: ONE statement (docs/06 §14).
+        $sessions = $this->openSessions($learner, $now);
+
         return new TodaySummary(
             dueCount: $dueCount,
             newWordsRemaining: $this->quota->remaining($learner, $now, $entitlement, $counts['served'] ?? null),
             progress: $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows),
-            activeCourse: $this->activeCourse($learner),
-            openSessionId: $this->openDailySessionId($learner, $now),
+            activeCourse: $this->activeCourse($learner, $now),
+            openSessionId: $sessions->first(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_DAILY_REVIEW)?->id,
             entitlement: $entitlement,
             lapsed: $this->billing->lapsed($learner, $entitlement, $now),
             onboardingCompleted: $learner->onboarding_state === 'done',
@@ -95,6 +105,10 @@ final class TodayService
             // The practice card of "Today": the same block as `/me.practice` without its limits (the flags and the plan resolved
             // above, no statement), so the screen does not request `/me` for it (docs/04 A.2a).
             practice: $this->practice->describe($learner, $entitlement),
+            // The round of hard words (docs/06 §14): null while switched off. Costs one statement (the candidates) unless the day's round is known.
+            hardRound: $this->hardRound->enabled()
+                ? $this->hardRound->availability($learner, $now, $sessions->filter(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_HARD_REVIEW), $entitlement)->toArray()
+                : null,
         );
     }
 
@@ -154,7 +168,7 @@ final class TodayService
     }
 
     /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */
-    private function activeCourse(Learner $learner): ?TodayCourse
+    private function activeCourse(Learner $learner, CarbonImmutable $now): ?TodayCourse
     {
         if ($learner->active_course_id === null) {
             return null;
@@ -176,21 +190,37 @@ final class TodayService
             learned: $today->progress->done,
             total: $today->progress->total,
             nextLesson: $next === null ? null : new TodayLesson($next->id, $next->stageNumber, $next->number, $next->title),
+            // The readiness comes from the counts of the statement above; the quiz line is ONE indexed read (none while the quiz is off).
+            readiness: $this->readiness->enabled() ? $this->readiness->fromCounts($course, $today->stages) : null,
+            quiz: $this->readiness->enabled() ? $this->quizzes->weekLine($learner, $course, $now) : null,
         );
     }
 
-    private function openDailySessionId(Learner $learner, CarbonImmutable $now): ?int
+    /**
+     * The open, unexpired `daily_review` session to continue and - while the round of hard words is on - the `hard_review` sessions
+     * begun in the learner's day window (open or not: "played today"), in ONE statement. A daily round played to the end
+     * (`completed_at`, docs/06 §13.2) is not one to continue: the next open starts a fresh one.
+     *
+     * @return Collection<int, TrainingSession>
+     */
+    private function openSessions(Learner $learner, CarbonImmutable $now): Collection
     {
-        /** @var TrainingSession|null $session */
-        // A round played to the end (`completed_at`, docs/06 §13.2) is not one to continue: the next open starts a fresh one.
-        $session = TrainingSession::query()
-            ->where('learner_id', $learner->id)
-            ->where('mode', TrainingSession::MODE_DAILY_REVIEW)
-            ->where('status', 'open')
-            ->whereNull('completed_at')
-            ->where(fn (Builder $q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', $now))
-            ->first(['id']);
+        $hardFrom = $this->hardRound->enabled() ? $this->hardRound->window($learner, $now)->startUtc : null;
 
-        return $session?->id;
+        return TrainingSession::query()
+            ->where('learner_id', $learner->id)
+            ->where(function (Builder $q) use ($now, $hardFrom): void {
+                $q->where(fn (Builder $daily) => $daily
+                    ->where('mode', TrainingSession::MODE_DAILY_REVIEW)
+                    ->where('status', 'open')
+                    ->whereNull('completed_at')
+                    ->where(fn (Builder $live) => $live->whereNull('expires_at')->orWhere('expires_at', '>', $now)));
+                if ($hardFrom !== null) {
+                    $q->orWhere(fn (Builder $hard) => $hard
+                        ->where('mode', TrainingSession::MODE_HARD_REVIEW)
+                        ->where('started_at', '>=', $hardFrom));
+                }
+            })
+            ->get(['id', 'mode', 'status', 'started_at', 'expires_at', 'completed_at', 'meta']);
     }
 }

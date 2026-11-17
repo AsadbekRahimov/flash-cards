@@ -851,4 +851,13 @@ describe('CourseView', () => {
     const done = await render()
     expect(done.wrapper.get('[data-testid=all-done]').text()).toBe('Kursning barcha darslari tugallandi')
   })
+
+  it('leads to the readiness screen of the course from a row', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ slug: 'english-a1', words_count: 100 }))
+    const { wrapper } = await render()
+
+    const row = wrapper.get('[data-testid=readiness-row]')
+    expect(row.text()).toContain('Готовность и тест недели')
+    expect(row.attributes('href')).toBe('/courses/english-a1/readiness?source=course')
+  })
 })

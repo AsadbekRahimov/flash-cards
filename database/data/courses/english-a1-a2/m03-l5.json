@@ -14,6 +14,7 @@
     {
       "word": "restaurant",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛstəˌrɑnt/",
       "translation": "ресторан",
       "translations": {
         "ru": "ресторан",
@@ -28,6 +29,7 @@
     {
       "word": "order",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔrdər/",
       "translation": "заказывать",
       "translations": {
         "ru": "заказывать",
@@ -42,6 +44,7 @@
     {
       "word": "bill",
       "part_of_speech": "noun",
+      "transcription": "/bɪl/",
       "translation": "счёт",
       "translations": {
         "ru": "счёт",
@@ -56,6 +59,7 @@
     {
       "word": "hungry",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhʌŋgri/",
       "translation": "голодный",
       "translations": {
         "ru": "голодный",
@@ -70,6 +74,7 @@
     {
       "word": "thirsty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈθɜrsti/",
       "translation": "испытывающий жажду",
       "translations": {
         "ru": "испытывающий жажду",
@@ -84,6 +89,7 @@
     {
       "word": "delicious",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈlɪʃəs/",
       "translation": "вкусный",
       "translations": {
         "ru": "вкусный",
@@ -98,6 +104,7 @@
     {
       "word": "sweet",
       "part_of_speech": "adjective",
+      "transcription": "/swit/",
       "translation": "сладкий",
       "translations": {
         "ru": "сладкий",
@@ -112,6 +119,7 @@
     {
       "word": "eat",
       "part_of_speech": "verb",
+      "transcription": "/it/",
       "translation": "есть, кушать",
       "translations": {
         "ru": "есть, кушать",
@@ -126,6 +134,7 @@
     {
       "word": "fresh",
       "part_of_speech": "adjective",
+      "transcription": "/frɛʃ/",
       "translation": "свежий",
       "translations": {
         "ru": "свежий",
@@ -140,6 +149,7 @@
     {
       "word": "spicy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈspaɪsi/",
       "translation": "острый",
       "translations": {
         "ru": "острый",

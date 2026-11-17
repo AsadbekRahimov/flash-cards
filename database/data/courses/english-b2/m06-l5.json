@@ -14,6 +14,7 @@
     {
       "word": "wellness",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛlnəs/",
       "translation": "здоровье, хорошее самочувствие",
       "translations": {
         "ru": "здоровье, хорошее самочувствие",
@@ -28,6 +29,7 @@
     {
       "word": "digestion",
       "part_of_speech": "noun",
+      "transcription": "/daɪˈdʒɛstʃən/",
       "translation": "пищеварение",
       "translations": {
         "ru": "пищеварение",
@@ -42,6 +44,7 @@
     {
       "word": "nutrient",
       "part_of_speech": "noun",
+      "transcription": "/ˈnutriənt/",
       "translation": "питательное вещество",
       "translations": {
         "ru": "питательное вещество",
@@ -56,6 +59,7 @@
     {
       "word": "metabolism",
       "part_of_speech": "noun",
+      "transcription": "/məˈtæbəlɪzəm/",
       "translation": "обмен веществ",
       "translations": {
         "ru": "обмен веществ",
@@ -70,6 +74,7 @@
     {
       "word": "immunity",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈmjunəti/",
       "translation": "иммунитет",
       "translations": {
         "ru": "иммунитет",
@@ -84,6 +89,7 @@
     {
       "word": "posture",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑstʃər/",
       "translation": "осанка",
       "translations": {
         "ru": "осанка",
@@ -98,6 +104,7 @@
     {
       "word": "stamina",
       "part_of_speech": "noun",
+      "transcription": "/ˈstæmənə/",
       "translation": "выносливость",
       "translations": {
         "ru": "выносливость",
@@ -112,6 +119,7 @@
     {
       "word": "supplement",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌpləmənt/",
       "translation": "пищевая добавка",
       "translations": {
         "ru": "пищевая добавка",
@@ -126,6 +134,7 @@
     {
       "word": "meditation",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛdəˈteɪʃən/",
       "translation": "медитация",
       "translations": {
         "ru": "медитация",
@@ -140,6 +149,7 @@
     {
       "word": "lifespan",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪfspæn/",
       "translation": "продолжительность жизни",
       "translations": {
         "ru": "продолжительность жизни",

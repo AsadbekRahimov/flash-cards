@@ -14,6 +14,7 @@
     {
       "word": "environmental",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˌvaɪrənˈmɛntəl/",
       "translation": "экологический",
       "translations": {
         "ru": "экологический",
@@ -28,6 +29,7 @@
     {
       "word": "rainforest",
       "part_of_speech": "noun",
+      "transcription": "/ˈreɪnˌfɔrɪst/",
       "translation": "тропический лес",
       "translations": {
         "ru": "тропический лес",
@@ -42,6 +44,7 @@
     {
       "word": "solar",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsoʊlər/",
       "translation": "солнечный",
       "translations": {
         "ru": "солнечный",
@@ -56,6 +59,7 @@
     {
       "word": "global",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgloʊbəl/",
       "translation": "глобальный",
       "translations": {
         "ru": "глобальный",
@@ -70,6 +74,7 @@
     {
       "word": "preserve",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈzɜrv/",
       "translation": "сохранять",
       "translations": {
         "ru": "сохранять",
@@ -84,6 +89,7 @@
     {
       "word": "toxic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɑksɪk/",
       "translation": "токсичный, ядовитый",
       "translations": {
         "ru": "токсичный, ядовитый",
@@ -98,6 +104,7 @@
     {
       "word": "endangered",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdeɪndʒərd/",
       "translation": "исчезающий, под угрозой исчезновения",
       "translations": {
         "ru": "исчезающий, под угрозой исчезновения",
@@ -112,6 +119,7 @@
     {
       "word": "extinct",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈstɪŋkt/",
       "translation": "вымерший",
       "translations": {
         "ru": "вымерший",
@@ -126,6 +134,7 @@
     {
       "word": "survive",
       "part_of_speech": "verb",
+      "transcription": "/sərˈvaɪv/",
       "translation": "выживать",
       "translations": {
         "ru": "выживать",
@@ -140,6 +149,7 @@
     {
       "word": "destroy",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈstrɔɪ/",
       "translation": "уничтожать, разрушать",
       "translations": {
         "ru": "уничтожать, разрушать",

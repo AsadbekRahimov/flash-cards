@@ -14,6 +14,7 @@
     {
       "word": "storyline",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɔrilaɪn/",
       "translation": "сюжетная линия",
       "translations": {
         "ru": "сюжетная линия",
@@ -28,6 +29,7 @@
     {
       "word": "setting",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛtɪŋ/",
       "translation": "место действия",
       "translations": {
         "ru": "место действия",
@@ -42,6 +44,7 @@
     {
       "word": "protagonist",
       "part_of_speech": "noun",
+      "transcription": "/proʊˈtægənɪst/",
       "translation": "главный герой",
       "translations": {
         "ru": "главный герой",
@@ -56,6 +59,7 @@
     {
       "word": "theme",
       "part_of_speech": "noun",
+      "transcription": "/θim/",
       "translation": "тема",
       "translations": {
         "ru": "тема",
@@ -70,6 +74,7 @@
     {
       "word": "metaphor",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛtəfɔr/",
       "translation": "метафора",
       "translations": {
         "ru": "метафора",
@@ -84,6 +89,7 @@
     {
       "word": "symbol",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmbəl/",
       "translation": "символ",
       "translations": {
         "ru": "символ",
@@ -98,6 +104,7 @@
     {
       "word": "irony",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪrəni/",
       "translation": "ирония",
       "translations": {
         "ru": "ирония",
@@ -112,6 +119,7 @@
     {
       "word": "rhyme",
       "part_of_speech": "noun",
+      "transcription": "/raɪm/",
       "translation": "рифма",
       "translations": {
         "ru": "рифма",
@@ -126,6 +134,7 @@
     {
       "word": "verse",
       "part_of_speech": "noun",
+      "transcription": "/vɜrs/",
       "translation": "стихи, стихотворная форма",
       "translations": {
         "ru": "стихи, стихотворная форма",
@@ -140,6 +149,7 @@
     {
       "word": "excerpt",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛksɜrpt/",
       "translation": "отрывок",
       "translations": {
         "ru": "отрывок",

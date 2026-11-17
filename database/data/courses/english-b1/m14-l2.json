@@ -14,6 +14,7 @@
     {
       "word": "universe",
       "part_of_speech": "noun",
+      "transcription": "/ˈjunəvɜrs/",
       "translation": "вселенная",
       "translations": {
         "ru": "вселенная",
@@ -28,6 +29,7 @@
     {
       "word": "galaxy",
       "part_of_speech": "noun",
+      "transcription": "/ˈgæləksi/",
       "translation": "галактика",
       "translations": {
         "ru": "галактика",
@@ -42,6 +44,7 @@
     {
       "word": "orbit",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrbɪt/",
       "translation": "орбита",
       "translations": {
         "ru": "орбита",
@@ -56,6 +59,7 @@
     {
       "word": "astronaut",
       "part_of_speech": "noun",
+      "transcription": "/ˈæstrənɔt/",
       "translation": "космонавт, астронавт",
       "translations": {
         "ru": "космонавт, астронавт",
@@ -70,6 +74,7 @@
     {
       "word": "satellite",
       "part_of_speech": "noun",
+      "transcription": "/ˈsætəlaɪt/",
       "translation": "спутник",
       "translations": {
         "ru": "спутник",
@@ -84,6 +89,7 @@
     {
       "word": "rocket",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɑkɪt/",
       "translation": "ракета",
       "translations": {
         "ru": "ракета",
@@ -98,6 +104,7 @@
     {
       "word": "telescope",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛləskoʊp/",
       "translation": "телескоп",
       "translations": {
         "ru": "телескоп",
@@ -112,6 +119,7 @@
     {
       "word": "space",
       "part_of_speech": "noun",
+      "transcription": "/speɪs/",
       "translation": "космос",
       "translations": {
         "ru": "космос",
@@ -126,6 +134,7 @@
     {
       "word": "mission",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪʃən/",
       "translation": "миссия",
       "translations": {
         "ru": "миссия",
@@ -140,6 +149,7 @@
     {
       "word": "spaceship",
       "part_of_speech": "noun",
+      "transcription": "/ˈspeɪsʃɪp/",
       "translation": "космический корабль",
       "translations": {
         "ru": "космический корабль",

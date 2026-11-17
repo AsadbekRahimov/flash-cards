@@ -14,6 +14,7 @@
     {
       "word": "firm",
       "part_of_speech": "noun",
+      "transcription": "/fɜrm/",
       "translation": "фирма",
       "translations": {
         "ru": "фирма",
@@ -28,6 +29,7 @@
     {
       "word": "marketing",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑrkɪtɪŋ/",
       "translation": "маркетинг",
       "translations": {
         "ru": "маркетинг",
@@ -42,6 +44,7 @@
     {
       "word": "competitor",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpɛtətər/",
       "translation": "конкурент",
       "translations": {
         "ru": "конкурент",
@@ -56,6 +59,7 @@
     {
       "word": "supply",
       "part_of_speech": "verb",
+      "transcription": "/səˈplaɪ/",
       "translation": "поставлять, снабжать",
       "translations": {
         "ru": "поставлять, снабжать",
@@ -70,6 +74,7 @@
     {
       "word": "expand",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈspænd/",
       "translation": "расширять",
       "translations": {
         "ru": "расширять",
@@ -84,6 +89,7 @@
     {
       "word": "launch",
       "part_of_speech": "verb",
+      "transcription": "/lɔntʃ/",
       "translation": "запускать, выпускать на рынок",
       "translations": {
         "ru": "запускать, выпускать на рынок",
@@ -98,6 +104,7 @@
     {
       "word": "industry",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪndəstri/",
       "translation": "промышленность, отрасль",
       "translations": {
         "ru": "промышленность, отрасль",
@@ -112,6 +119,7 @@
     {
       "word": "factory",
       "part_of_speech": "noun",
+      "transcription": "/ˈfæktəri/",
       "translation": "фабрика, завод",
       "translations": {
         "ru": "фабрика, завод",
@@ -126,6 +134,7 @@
     {
       "word": "export",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈspɔrt/",
       "translation": "экспортировать",
       "translations": {
         "ru": "экспортировать",
@@ -140,6 +149,7 @@
     {
       "word": "import",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈpɔrt/",
       "translation": "импортировать",
       "translations": {
         "ru": "импортировать",

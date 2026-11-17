@@ -41,7 +41,7 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-const BUDGET_HUB = 9;
+const BUDGET_HUB = 10; // +1 since pairs_timed: the personal record (practice_records)
 const BUDGET_OPEN = 11;
 const BUDGET_SHOW = 3;
 const BUDGET_ANSWER = 6;

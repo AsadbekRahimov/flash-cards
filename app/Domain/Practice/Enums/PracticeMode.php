@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Practice\Enums;
 
 /**
- * The four formats of the practice (docs/16 §0). A solo session and a battle each play exactly one of them.
+ * The formats of the practice (docs/16 §0). A solo session and a battle each play exactly one of them; `pairs_timed` is solo only
+ * ({@see battleable()}).
  * The `value` is the key everywhere: `practice_sessions.mode`, `battles.mode`, `config('practice.modes.<value>')`,
  * the route payloads.
  */
@@ -15,12 +16,14 @@ enum PracticeMode: string
     case Collocation = 'collocation';
     case Sentence = 'sentence';
     case Dictation = 'dictation';
+    /** "Find the pairs" against the clock (docs/16 §5.5a): the clock and the score are the server's. */
+    case PairsTimed = 'pairs_timed';
 
     /** The kind of an element of the snapshot: the mode itself, except for pairs (a round of pairs). */
     public function elementKind(): string
     {
         return match ($this) {
-            self::Pairs => 'pairs_round',
+            self::Pairs, self::PairsTimed => 'pairs_round',
             default => $this->value,
         };
     }
@@ -29,7 +32,7 @@ enum PracticeMode: string
     public function itemType(): ?PracticeItemType
     {
         return match ($this) {
-            self::Pairs => null,
+            self::Pairs, self::PairsTimed => null,
             self::Collocation => PracticeItemType::Collocation,
             self::Sentence => PracticeItemType::Sentence,
             self::Dictation => PracticeItemType::Dictation,
@@ -44,7 +47,20 @@ enum PracticeMode: string
             self::Collocation => 90,
             self::Sentence => 150,
             self::Dictation => 180,
+            self::PairsTimed => 60,
         };
+    }
+
+    /** Whether a battle may play the mode (the invitation and the options of a battle leave the others out). */
+    public function battleable(): bool
+    {
+        return $this !== self::PairsTimed;
+    }
+
+    /** A mode with a clock: `deadline_at`, `score`, `POST …/start`. */
+    public function isTimed(): bool
+    {
+        return $this === self::PairsTimed;
     }
 
     /** The mode switch `PRACTICE_MODE_*` (config/practice.php); it blocks only the creation of a session. */

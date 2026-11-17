@@ -14,6 +14,7 @@
     {
       "word": "annoyed",
       "part_of_speech": "adjective",
+      "transcription": "/əˈnɔɪd/",
       "translation": "раздражённый",
       "translations": {
         "ru": "раздражённый",
@@ -28,6 +29,7 @@
     {
       "word": "negative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɛgətɪv/",
       "translation": "негативный, отрицательный",
       "translations": {
         "ru": "негативный, отрицательный",
@@ -42,6 +44,7 @@
     {
       "word": "frustrated",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrʌstreɪtɪd/",
       "translation": "раздосадованный",
       "translations": {
         "ru": "раздосадованный",
@@ -56,6 +59,7 @@
     {
       "word": "disappointed",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdɪsəˈpɔɪntɪd/",
       "translation": "разочарованный",
       "translations": {
         "ru": "разочарованный",
@@ -70,6 +74,7 @@
     {
       "word": "miserable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɪzərəbəl/",
       "translation": "несчастный",
       "translations": {
         "ru": "несчастный",
@@ -84,6 +89,7 @@
     {
       "word": "frightened",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfraɪtənd/",
       "translation": "испуганный",
       "translations": {
         "ru": "испуганный",
@@ -98,6 +104,7 @@
     {
       "word": "embarrassed",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈbɛrəst/",
       "translation": "смущённый",
       "translations": {
         "ru": "смущённый",
@@ -112,6 +119,7 @@
     {
       "word": "ashamed",
       "part_of_speech": "adjective",
+      "transcription": "/əˈʃeɪmd/",
       "translation": "испытывающий стыд",
       "translations": {
         "ru": "испытывающий стыд",
@@ -126,6 +134,7 @@
     {
       "word": "confused",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈfjuzd/",
       "translation": "сбитый с толку, растерянный",
       "translations": {
         "ru": "сбитый с толку, растерянный",
@@ -140,6 +149,7 @@
     {
       "word": "uncomfortable",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈkʌmftərbəl/",
       "translation": "неловкий, неудобный",
       "translations": {
         "ru": "неловкий, неудобный",

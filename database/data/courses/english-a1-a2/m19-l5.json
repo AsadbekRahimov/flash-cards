@@ -14,6 +14,7 @@
     {
       "word": "flood",
       "part_of_speech": "noun",
+      "transcription": "/flʌd/",
       "translation": "наводнение",
       "translations": {
         "ru": "наводнение",
@@ -28,6 +29,7 @@
     {
       "word": "drought",
       "part_of_speech": "noun",
+      "transcription": "/draʊt/",
       "translation": "засуха",
       "translations": {
         "ru": "засуха",
@@ -42,6 +44,7 @@
     {
       "word": "earthquake",
       "part_of_speech": "noun",
+      "transcription": "/ˈɜrθkweɪk/",
       "translation": "землетрясение",
       "translations": {
         "ru": "землетрясение",
@@ -56,6 +59,7 @@
     {
       "word": "thunder",
       "part_of_speech": "noun",
+      "transcription": "/ˈθʌndər/",
       "translation": "гром",
       "translations": {
         "ru": "гром",
@@ -70,6 +74,7 @@
     {
       "word": "lightning",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪtnɪŋ/",
       "translation": "молния",
       "translations": {
         "ru": "молния",
@@ -84,6 +89,7 @@
     {
       "word": "melt",
       "part_of_speech": "verb",
+      "transcription": "/mɛlt/",
       "translation": "таять",
       "translations": {
         "ru": "таять",
@@ -98,6 +104,7 @@
     {
       "word": "freeze",
       "part_of_speech": "verb",
+      "transcription": "/friz/",
       "translation": "замерзать",
       "translations": {
         "ru": "замерзать",
@@ -112,6 +119,7 @@
     {
       "word": "rainbow",
       "part_of_speech": "noun",
+      "transcription": "/ˈreɪnboʊ/",
       "translation": "радуга",
       "translations": {
         "ru": "радуга",
@@ -126,6 +134,7 @@
     {
       "word": "shade",
       "part_of_speech": "noun",
+      "transcription": "/ʃeɪd/",
       "translation": "тень",
       "translations": {
         "ru": "тень",
@@ -140,6 +149,7 @@
     {
       "word": "disaster",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈzæstər/",
       "translation": "катастрофа",
       "translations": {
         "ru": "катастрофа",

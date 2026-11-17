@@ -244,6 +244,10 @@ function isolationPlay(Learner $learner, array $session): array
 function isolationPlayEverything(Learner $learner, Course $course, Lesson $lesson): void
 {
     foreach (PracticeMode::cases() as $mode) {
+        if ($mode->isTimed()) {
+            continue; // the clock mode has its own board and its own start: the REAL handlers' run below plays it
+        }
+
         isolationGet($learner, "hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
         $session = isolationOpen($learner, $course, $mode->value, ['lesson_id' => $lesson->id, 'source' => 'after_training'])->assertCreated()->json();
 
@@ -435,6 +439,17 @@ function isolationPlayEverythingReal(Learner $learner, Course $course, Lesson $l
         isolationGet($learner, "hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
         $session = isolationOpen($learner, $course, $mode->value, ['lesson_id' => $lesson->id, 'source' => 'after_training'])->assertCreated()->json();
 
+        if ($mode->isTimed()) {
+            // The clock mode: start it, play the ten rounds to their end (a record is written), no retry of the mistakes.
+            $session = isolationPost($learner, "sessions/{$session['id']}/start", [])->assertOk()->json();
+            $finished = isolationPlayReal($learner, $session);
+            expect($finished['status'])->toBe('finished')
+                ->and($finished['summary']['finish_reason'])->toBe('completed')
+                ->and($finished['summary']['retry_available'])->toBeFalse();
+
+            continue;
+        }
+
         if ($mode === PracticeMode::Dictation) {
             // The first clip is gone from its disk: 503 and the event, then the swap for a spare whose clip is there.
             $gone = isolationElement($session['id'], $session['current']['id']);
@@ -488,6 +503,9 @@ function isolationAssertSoloEvents(Learner $learner): void
     foreach (ProductEvent::query()->get() as $event) {
         $keys = array_keys($event->props ?? []);
         $expected = ISOLATION_SOLO_EVENT_PROPS[$event->name];
+        if ($event->name === 'practice.session_finished' && ($event->props['mode'] ?? null) === 'pairs_timed') {
+            $expected = [...$expected, 'score', 'deadline_at']; // a clock mode's finish also says its score and its deadline
+        }
         sort($keys);
         sort($expected);
 
@@ -553,16 +571,18 @@ it('leaves the learning of the learner exactly as it was when the four REAL hand
     expect(isolationChecksums())->toBe($before);
 
     // ... and nothing was written anywhere but the tables of the practice and the events.
-    expect(isolationWrittenTables($queries))->toBe(ISOLATION_WRITTEN);
+    // (the personal best of the clock mode is a table of the practice too)
+    expect(isolationWrittenTables($queries))->toBe(['practice_attempts', 'practice_records', 'practice_sessions', 'product_events']);
 
-    // It was the real thing that was played: every mode to its end and its mistakes once more, and the three sessions that were cut short.
+    // It was the real thing that was played: every mode to its end and its mistakes once more (the clock mode has no retry), and the three sessions that were cut short.
     foreach (PracticeMode::cases() as $mode) {
         $sessions = PracticeSession::query()->where('mode', $mode->value)->where('status', 'finished')->where('finish_reason', 'completed');
         expect((clone $sessions)->whereNull('retry_of_session_id')->count())->toBe(1, "{$mode->value}: sessions")
-            ->and((clone $sessions)->whereNotNull('retry_of_session_id')->count())->toBe(1, "{$mode->value}: retries");
+            ->and((clone $sessions)->whereNotNull('retry_of_session_id')->count())->toBe($mode->isTimed() ? 0 : 1, "{$mode->value}: retries");
     }
     expect(PracticeSession::query()->whereIn('finish_reason', ['replaced', 'expired'])->count())->toBe(3)
-        ->and(PracticeSession::query()->count())->toBe(11);
+        ->and(PracticeSession::query()->count())->toBe(12)
+        ->and(DB::table('practice_records')->where('mode', 'pairs_timed')->count())->toBe(1);
 });
 
 it('writes only the events of docs/16 §3.4 on the REAL handlers too, with the props the document lists and no personal data', function (): void {
@@ -587,7 +607,7 @@ function isolationBattleEverything(Learner $me, Learner $friend, Course $course,
     $janitor = app(BattleJanitor::class);
     $now = static fn (): CarbonImmutable => CarbonImmutable::now();
 
-    foreach (PracticeMode::cases() as $i => $mode) {
+    foreach (array_values(array_filter(PracticeMode::cases(), static fn (PracticeMode $mode): bool => $mode->battleable())) as $i => $mode) {
         CarbonImmutable::setTestNow(CarbonImmutable::parse(BattleKit::T0)->addMinutes($i * 10));
         $reader->options($me, $friendship->id, $course->slug, $lesson->id);
         $battle = BattleKit::playing($me, $friend, $friendship, $mode, $course, $lesson);

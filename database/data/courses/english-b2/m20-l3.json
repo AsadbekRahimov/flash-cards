@@ -14,6 +14,7 @@
     {
       "word": "establish",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈstæblɪʃ/",
       "translation": "основывать, учреждать",
       "translations": {
         "ru": "основывать, учреждать",
@@ -28,6 +29,7 @@
     {
       "word": "obtain",
       "part_of_speech": "verb",
+      "transcription": "/əbˈteɪn/",
       "translation": "получать, добывать",
       "translations": {
         "ru": "получать, добывать",
@@ -42,6 +44,7 @@
     {
       "word": "maintain",
       "part_of_speech": "verb",
+      "transcription": "/meɪnˈteɪn/",
       "translation": "поддерживать, сохранять",
       "translations": {
         "ru": "поддерживать, сохранять",
@@ -56,6 +59,7 @@
     {
       "word": "pursue",
       "part_of_speech": "verb",
+      "transcription": "/pərˈsu/",
       "translation": "добиваться, стремиться",
       "translations": {
         "ru": "добиваться, стремиться",
@@ -70,6 +74,7 @@
     {
       "word": "restrict",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈstrɪkt/",
       "translation": "ограничивать",
       "translations": {
         "ru": "ограничивать",
@@ -84,6 +89,7 @@
     {
       "word": "enable",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈneɪbəl/",
       "translation": "давать возможность, позволять",
       "translations": {
         "ru": "давать возможность, позволять",
@@ -98,6 +104,7 @@
     {
       "word": "ensure",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈʃʊr/",
       "translation": "обеспечивать, гарантировать",
       "translations": {
         "ru": "обеспечивать, гарантировать",
@@ -112,6 +119,7 @@
     {
       "word": "generate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdʒɛnəreɪt/",
       "translation": "вырабатывать, производить",
       "translations": {
         "ru": "вырабатывать, производить",
@@ -126,6 +134,7 @@
     {
       "word": "incorporate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkɔrpəreɪt/",
       "translation": "включать, вносить",
       "translations": {
         "ru": "включать, вносить",
@@ -140,6 +149,7 @@
     {
       "word": "eliminate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈlɪməneɪt/",
       "translation": "устранять, ликвидировать",
       "translations": {
         "ru": "устранять, ликвидировать",

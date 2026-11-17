@@ -309,6 +309,8 @@ final class TrainingSessionService
                 'reviewed' => $summary->reviewed,
                 'correct' => $summary->correct,
                 'new_words' => $summary->newWords,
+                // The round of hard words: how many of its set were won (docs/06 §14).
+                ...($summary->hardTotal === null ? [] : ['hard_won' => $summary->hardWon, 'hard_total' => $summary->hardTotal]),
             ],
             learner: $learner,
         );
@@ -398,7 +400,7 @@ final class TrainingSessionService
             return;
         }
 
-        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW], true)) {
+        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW, TrainingSession::MODE_HARD_REVIEW], true)) {
             throw new LogicException("Unknown training session mode '{$mode}'.");
         }
 
@@ -638,6 +640,11 @@ final class TrainingSessionService
         if ($session->learner_id !== null) {
             $grades->where('training_reviews.learner_id', $session->learner_id);
         }
+        $hard = $session->mode === TrainingSession::MODE_HARD_REVIEW;
+        if ($hard) {
+            // The round of hard words: the word is won when its LAST grade in the session is a pass (docs/06 §14).
+            $grades->selectRaw('first_value("training_reviews"."quality") over (partition by "training_reviews"."word_id" order by "training_reviews"."id" desc) as last_quality');
+        }
 
         // A LEFT join: every grade counts as before even if its progress row is gone (the app never deletes rows; data made by hand may lack them).
         $perWord = DB::query()
@@ -650,6 +657,7 @@ final class TrainingSessionService
             ->selectRaw('count(*) as grades')
             ->selectRaw('sum(case when "g"."quality" >= ? then 1 else 0 end) as correct', [3])
             ->selectRaw('max(case when "word_repetitions"."created_at" >= ? then 1 else 0 end) as born', [$startedAt])
+            ->when($hard, fn (QueryBuilder $q) => $q->selectRaw('max(case when "g"."last_quality" >= ? then 1 else 0 end) as won', [3]))
             // The stage the word held when the session began (3 mastered, 2 known, 1 learning, 0 new — the ranks of WordStage).
             ->selectRaw(
                 'max(case when "g"."first_interval" >= ? then 3 when "g"."first_interval" >= ? then 2 when "g"."first_interval" >= 1 then 1'
@@ -663,12 +671,13 @@ final class TrainingSessionService
                 [RepetitionState::Review->value, $t['mastered'], $t['known'], RepetitionState::Relearning->value],
             );
 
-        /** @var object{reviewed: int|string|null, correct: int|string|null, new_words: int|string|null, graduated: int|string|null, promoted: int|string|null, mastered: int|string|null}|null $row */
+        /** @var object{reviewed: int|string|null, correct: int|string|null, new_words: int|string|null, graduated: int|string|null, promoted: int|string|null, mastered: int|string|null, hard_won?: int|string|null}|null $row */
         $row = DB::query()
             ->fromSub($perWord, 'w')
             ->selectRaw('coalesce(sum("w"."grades"), 0) as reviewed')
             ->selectRaw('coalesce(sum("w"."correct"), 0) as correct')
             ->selectRaw('coalesce(sum("w"."born"), 0) as new_words')
+            ->when($hard, fn (QueryBuilder $q) => $q->selectRaw('coalesce(sum("w"."won"), 0) as hard_won'))
             // A new word that left the minute steps: born here and graduated (its stage is `learning` or above).
             ->selectRaw('coalesce(sum(case when "w"."born" = 1 and "w"."stage_after" >= 1 then 1 else 0 end), 0) as graduated')
             // An older word that climbed: a word born here starts at `new`, its climb is `graduated` above.
@@ -685,7 +694,17 @@ final class TrainingSessionService
             graduated: (int) ($row->graduated ?? 0),
             promoted: (int) ($row->promoted ?? 0),
             mastered: (int) ($row->mastered ?? 0),
+            hardWon: $hard ? (int) ($row->hard_won ?? 0) : null,
+            hardTotal: $hard ? $this->hardWordCount($session) : null,
         );
+    }
+
+    /** The size of the set of a round of hard words (`meta.hard_words`). */
+    private function hardWordCount(TrainingSession $session): int
+    {
+        $words = ($session->meta ?? [])['hard_words'] ?? [];
+
+        return is_array($words) ? count($words) : 0;
     }
 
     private function sessionTtlHours(): int

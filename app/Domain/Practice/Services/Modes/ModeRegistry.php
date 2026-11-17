@@ -51,6 +51,7 @@ final class ModeRegistry
             PracticeMode::Collocation => CollocationMode::class,
             PracticeMode::Sentence => SentenceMode::class,
             PracticeMode::Dictation => DictationMode::class,
+            PracticeMode::PairsTimed => PairsTimedMode::class,
         };
     }
 }

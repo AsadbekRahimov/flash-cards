@@ -15,6 +15,7 @@ use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
+use App\Domain\Learning\Support\HardRoundPolicy;
 use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\SprintPolicy;
@@ -154,6 +155,7 @@ class AppServiceProvider extends ServiceProvider
         // The method settings (docs/06 §12) are read per request, not a singleton: a `config()` change in a test applies at once.
         $this->app->bind(LadderPolicy::class, static fn (): LadderPolicy => LadderPolicy::fromConfig());
         $this->app->bind(SprintPolicy::class, static fn (): SprintPolicy => SprintPolicy::fromConfig());
+        $this->app->bind(HardRoundPolicy::class, static fn (): HardRoundPolicy => HardRoundPolicy::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

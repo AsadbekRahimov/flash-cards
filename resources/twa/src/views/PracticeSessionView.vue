@@ -4,9 +4,11 @@ import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClosedState from '@/components/ClosedState.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import StickyActions from '@/components/StickyActions.vue'
 import AnswerReveal from '@/components/practice/AnswerReveal.vue'
 import AudioTrouble from '@/components/practice/AudioTrouble.vue'
 import PracticeSummary from '@/components/practice/PracticeSummary.vue'
+import TimedBar from '@/components/practice/TimedBar.vue'
 import { modeComponentFor } from '@/components/practice/modeComponents'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -52,7 +54,8 @@ const audio = usePracticeAudio()
 const { close, haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
-const { status, session, outcome, errorMessage, actionError, paywall, limitHit, retryUnavailable, opening, elementSeq, progress, current } = storeToRefs(practice)
+const { status, session, outcome, errorMessage, actionError, paywall, limitHit, retryUnavailable, opening, elementSeq, progress, current, timed, timedDeadline, timeUp, timedStarting, penalty } =
+  storeToRefs(practice)
 
 /** The hub the session belongs to; the courses while nothing is known about it. */
 function hubLocation(): RouteLocationRaw {
@@ -96,7 +99,17 @@ async function begin(): Promise<void> {
 
 onMounted(() => {
   void begin()
+  document.addEventListener('visibilitychange', onBack)
+  window.addEventListener('online', onBack)
 })
+
+/**
+ * The app is back (visible again, network back): a timed game may have ended meanwhile, so the session is read and shown as the server has it.
+ * The clock does not guess what happened while the page slept.
+ */
+function onBack(): void {
+  if (document.visibilityState === 'visible') void practice.resync()
+}
 
 // "Repeat mistakes" and "Again" replace the route with a new session id; the component is reused.
 watch(
@@ -106,6 +119,8 @@ watch(
 
 onBeforeUnmount(() => {
   left = true
+  document.removeEventListener('visibilitychange', onBack)
+  window.removeEventListener('online', onBack)
   audio.revoke()
   // What a repeat / "Again" asked for may still come back: a refusal of it is not told to the next screen.
   practice.leaveOpen()
@@ -124,7 +139,13 @@ const caption = computed((): string => {
 
 // ---- the element ----
 
-const busy = computed(() => status.value === 'submitting')
+const busy = computed(() => status.value === 'submitting' || timeUp.value)
+/** A timed game that waits for "Start": the clock has not begun (the server starts it with `start`). */
+const isTimed = computed(() => timed.value !== null || session.value?.mode === 'pairs_timed')
+/** The board is not read here: a server that hides it before the start sends `current: null`, an older one sends the first round. */
+const waitingStart = computed(
+  () => status.value === 'ready' && timed.value !== null && !timed.value.started && session.value?.status === 'active',
+)
 const element = computed(() => (status.value === 'ready' || status.value === 'submitting' ? current.value : null))
 const lastElement = computed(() => session.value?.status === 'finished')
 
@@ -243,6 +264,11 @@ async function goTo(id: number | null): Promise<void> {
   if (!left && id !== null) await router.replace({ name: 'practice-session', params: { id } })
 }
 
+function onStart(): void {
+  haptic('medium')
+  void practice.startTimed()
+}
+
 async function onRetry(): Promise<void> {
   await goTo(await practice.retry())
 }
@@ -286,7 +312,9 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
               <AppIcon name="x-mark" :size="20" />
             </span>
           </button>
+          <!-- A timed game has no use for the rounds counter: the clock and the score tell how it goes. -->
           <div
+            v-if="!isTimed"
             class="progress flex-1"
             role="progressbar"
             aria-valuemin="0"
@@ -298,6 +326,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
             <div class="progress-fill" :style="{ width: `${progressWidth}%` }" data-testid="progress-fill" />
           </div>
           <span
+            v-if="!isTimed"
             class="min-w-14 text-right text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
@@ -327,6 +356,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
         @again="onAgain"
         @course="toCourse"
         @close="close()"
+        @hub="leave"
       />
 
       <ClosedState v-else-if="status === 'finished'" icon="lock-closed" :title="t('practice.session.closed_title')">
@@ -340,18 +370,38 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
         @continue="onContinue"
       />
 
-      <!-- The component of the mode (modeComponents.ts); the key makes every element a new one, with no pick left over. -->
-      <component
-        :is="modeComponentFor(element)"
-        v-else-if="element"
-        :key="`${element.kind}-${elementSeq}`"
-        :element="element"
-        mode="solo"
-        :disabled="busy"
-        @answer="onAnswer"
-        @skip="onSkip"
-        @silent="silent"
-      />
+      <!-- A timed game before its start: a short "Ready?" - the first tap of the learner must not eat the time. -->
+      <div v-else-if="waitingStart && timed" class="flex flex-1 flex-col" data-testid="timed-ready">
+        <div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <span class="flex size-20 items-center justify-center rounded-full bg-accent-soft text-accent"><AppIcon name="bolt" solid :size="44" /></span>
+          <h1 class="text-[28px] leading-[34px] font-bold tracking-tight" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
+          <p class="text-[17px] leading-[22px] text-tg-subtitle" data-testid="timed-ready-text">{{ t('practice.timed.ready_text', { seconds: timed.seconds }) }}</p>
+        </div>
+        <StickyActions>
+          <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="timedStarting" data-testid="timed-start-btn" @click="onStart">
+            {{ timedStarting ? t('practice.timed.starting') : t('practice.timed.go') }}
+          </button>
+        </StickyActions>
+      </div>
+
+      <template v-else-if="element">
+        <TimedBar v-if="timed" :deadline="timedDeadline" :seconds="timed.seconds" :score="timed.score" :penalty="penalty" @expired="practice.expire()" />
+        <p v-if="timed && timeUp" class="px-4 pt-2 text-center text-[17px] leading-[22px] font-semibold text-danger-ink" role="status" data-testid="timed-time-up">
+          {{ t('practice.timed.time_up') }}
+        </p>
+        <!-- The component of the mode (modeComponents.ts); the key makes every element a new one, with no pick left over. -->
+        <component
+          :is="modeComponentFor(element)"
+          :key="`${element.kind}-${elementSeq}`"
+          :element="element"
+          mode="solo"
+          :disabled="busy"
+          v-bind="timed ? { showRound: false } : {}"
+          @answer="onAnswer"
+          @skip="onSkip"
+          @silent="silent"
+        />
+      </template>
     </template>
 
     <AudioTrouble

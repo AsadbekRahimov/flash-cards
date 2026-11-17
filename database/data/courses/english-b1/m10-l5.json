@@ -14,6 +14,7 @@
     {
       "word": "invention",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈvɛnʃən/",
       "translation": "изобретение",
       "translations": {
         "ru": "изобретение",
@@ -28,6 +29,7 @@
     {
       "word": "artificial",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɑrtəˈfɪʃəl/",
       "translation": "искусственный",
       "translations": {
         "ru": "искусственный",
@@ -42,6 +44,7 @@
     {
       "word": "virtual",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɜrtʃuəl/",
       "translation": "виртуальный",
       "translations": {
         "ru": "виртуальный",
@@ -56,6 +59,7 @@
     {
       "word": "automatic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɔtəˈmætɪk/",
       "translation": "автоматический",
       "translations": {
         "ru": "автоматический",
@@ -70,6 +74,7 @@
     {
       "word": "technical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛknɪkəl/",
       "translation": "технический",
       "translations": {
         "ru": "технический",
@@ -84,6 +89,7 @@
     {
       "word": "code",
       "part_of_speech": "noun",
+      "transcription": "/koʊd/",
       "translation": "программный код",
       "translations": {
         "ru": "программный код",
@@ -98,6 +104,7 @@
     {
       "word": "developer",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈvɛləpər/",
       "translation": "разработчик",
       "translations": {
         "ru": "разработчик",
@@ -112,6 +119,7 @@
     {
       "word": "sensor",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛnsər/",
       "translation": "датчик, сенсор",
       "translations": {
         "ru": "датчик, сенсор",
@@ -126,6 +134,7 @@
     {
       "word": "upgrade",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌpˈgreɪd/",
       "translation": "обновлять, улучшать",
       "translations": {
         "ru": "обновлять, улучшать",
@@ -140,6 +149,7 @@
     {
       "word": "feature",
       "part_of_speech": "noun",
+      "transcription": "/ˈfitʃər/",
       "translation": "функция, особенность",
       "translations": {
         "ru": "функция, особенность",

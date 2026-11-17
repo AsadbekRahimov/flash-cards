@@ -14,6 +14,7 @@
     {
       "word": "hot",
       "part_of_speech": "adjective",
+      "transcription": "/hɑt/",
       "translation": "жаркий, горячий",
       "translations": {
         "ru": "жаркий, горячий",
@@ -28,6 +29,7 @@
     {
       "word": "cold",
       "part_of_speech": "adjective",
+      "transcription": "/koʊld/",
       "translation": "холодный",
       "translations": {
         "ru": "холодный",
@@ -42,6 +44,7 @@
     {
       "word": "warm",
       "part_of_speech": "adjective",
+      "transcription": "/wɔrm/",
       "translation": "тёплый",
       "translations": {
         "ru": "тёплый",
@@ -56,6 +59,7 @@
     {
       "word": "cool",
       "part_of_speech": "adjective",
+      "transcription": "/kul/",
       "translation": "прохладный",
       "translations": {
         "ru": "прохладный",
@@ -70,6 +74,7 @@
     {
       "word": "wet",
       "part_of_speech": "adjective",
+      "transcription": "/wɛt/",
       "translation": "мокрый",
       "translations": {
         "ru": "мокрый",
@@ -84,6 +89,7 @@
     {
       "word": "dry",
       "part_of_speech": "adjective",
+      "transcription": "/draɪ/",
       "translation": "сухой",
       "translations": {
         "ru": "сухой",
@@ -98,6 +104,7 @@
     {
       "word": "sunny",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsʌni/",
       "translation": "солнечный",
       "translations": {
         "ru": "солнечный",
@@ -112,6 +119,7 @@
     {
       "word": "cloudy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈklaʊdi/",
       "translation": "облачный",
       "translations": {
         "ru": "облачный",
@@ -126,6 +134,7 @@
     {
       "word": "rainy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈreɪni/",
       "translation": "дождливый",
       "translations": {
         "ru": "дождливый",
@@ -140,6 +149,7 @@
     {
       "word": "windy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɪndi/",
       "translation": "ветреный",
       "translations": {
         "ru": "ветреный",

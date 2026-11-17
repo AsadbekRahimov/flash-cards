@@ -14,6 +14,7 @@
     {
       "word": "twenty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtwɛnti/",
       "translation": "двадцать",
       "translations": {
         "ru": "двадцать",
@@ -28,6 +29,7 @@
     {
       "word": "fifty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɪfti/",
       "translation": "пятьдесят",
       "translations": {
         "ru": "пятьдесят",
@@ -42,6 +44,7 @@
     {
       "word": "hundred",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhʌndrəd/",
       "translation": "сто",
       "translations": {
         "ru": "сто",
@@ -56,6 +59,7 @@
     {
       "word": "thousand",
       "part_of_speech": "adjective",
+      "transcription": "/ˈθaʊzənd/",
       "translation": "тысяча",
       "translations": {
         "ru": "тысяча",
@@ -70,6 +74,7 @@
     {
       "word": "first",
       "part_of_speech": "adjective",
+      "transcription": "/fɜrst/",
       "translation": "первый",
       "translations": {
         "ru": "первый",
@@ -84,6 +89,7 @@
     {
       "word": "last",
       "part_of_speech": "adjective",
+      "transcription": "/læst/",
       "translation": "последний",
       "translations": {
         "ru": "последний",
@@ -98,6 +104,7 @@
     {
       "word": "next",
       "part_of_speech": "adjective",
+      "transcription": "/nɛkst/",
       "translation": "следующий",
       "translations": {
         "ru": "следующий",
@@ -112,6 +119,7 @@
     {
       "word": "number",
       "part_of_speech": "noun",
+      "transcription": "/ˈnʌmbər/",
       "translation": "число, номер",
       "translations": {
         "ru": "число, номер",
@@ -126,6 +134,7 @@
     {
       "word": "half",
       "part_of_speech": "noun",
+      "transcription": "/hæf/",
       "translation": "половина",
       "translations": {
         "ru": "половина",
@@ -140,6 +149,7 @@
     {
       "word": "date",
       "part_of_speech": "noun",
+      "transcription": "/deɪt/",
       "translation": "дата, число",
       "translations": {
         "ru": "дата, число",

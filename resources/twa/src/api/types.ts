@@ -461,7 +461,7 @@ export interface LessonHeader {
 }
 
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
-export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete'
+export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete' | 'hard_round_complete'
 
 /**
  * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
@@ -471,10 +471,10 @@ export interface Quota {
   new_words_remaining: number | null
 }
 
-export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
+export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'assignment'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -494,7 +494,8 @@ export interface TrainingStartResponse {
 
 /** Body of POST /training/sessions. */
 export interface OpenSessionRequest {
-  mode: 'lesson' | 'daily_review'
+  /** `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`. */
+  mode: 'lesson' | 'daily_review' | 'hard_review'
   lesson_id?: number
   source?: SessionSource
 }
@@ -539,6 +540,24 @@ export interface SessionSummary {
   practice_entry?: { course: string; lesson_id: number | null } | null
   /** Growth of the words in the session (docs/06 §13.3); absent on an older server. */
   stages?: SessionStages
+  /** The round of hard words (docs/06 §14): how many of its set were won; null / absent in every other mode. */
+  hard_round?: { total: number; won: number } | null
+  /** The invitation to the round of hard words after a daily round / a lesson; null: none (the round itself, the feature is off). */
+  hard_round_offer?: HardRound | null
+}
+
+export type HardRoundReason = 'not_enough' | 'played_today' | 'no_objective_exercise'
+
+/** The round of hard words as `/today` and the finish summary tell it (docs/04 A.2a); `hard_round: null` there means the feature is off. */
+export interface HardRound {
+  available: boolean
+  reason: HardRoundReason | null
+  /** How many hard words wait (the set of the round is at most 10 of them). */
+  words: number
+  /** A round that was opened and not finished: "Continue". */
+  open_session_id: number | null
+  /** When the next round opens after `played_today` (ISO-8601). */
+  resets_at: string | null
 }
 
 export interface SessionStages {
@@ -564,7 +583,66 @@ export interface TodayCourse {
   progress: { learned: number; total: number }
   /** null once every word of the course has been served. */
   next_lesson: TodayLesson | null
+  /** Readiness for the level (docs/04 A.20): null while the feature is off; absent on an older server. */
+  readiness?: TodayReadiness | null
 }
+
+/** "Test of the week" of a course as `/today` and the readiness screen say it. */
+export interface ReadinessWeek {
+  correct: number
+  total: number
+  percent: number
+}
+
+/** `active_course.readiness` of GET /today: the compact block of Home, no extra request. */
+export interface TodayReadiness {
+  /** `A1–A2`, `B1`; null = the course names no level. */
+  level_label: string | null
+  percent: number
+  words: { total: number; learned: number; mastered: number; in_progress: number; not_started: number }
+  quiz: { enabled: false } | { enabled: true; week_start: string; this_week: ReadinessWeek | null }
+}
+
+/** GET /courses/{slug}/readiness (docs/04 A.20). */
+export interface ReadinessResponse {
+  course: { id: number; slug: string; title: string; level: string | null; level_label: string | null }
+  percent: number
+  words: { total: number; learned: number; mastered: number; known: number; in_progress: number; not_started: number }
+  thresholds: { known_days: number; mastered_days: number }
+  modules: ReadinessModule[]
+  quiz: ReadinessQuiz
+}
+
+export interface ReadinessModule {
+  number: number
+  title: string | null
+  learned: number
+  total: number
+}
+
+export interface ReadinessHistoryItem {
+  /** Monday of the week, `Y-m-d`. */
+  week_start: string
+  correct: number
+  total: number
+  percent: number
+}
+
+export type ReadinessQuiz =
+  | { enabled: false }
+  | {
+      enabled: true
+      questions: number
+      seconds: number
+      week_start: string
+      this_week: (ReadinessWeek & { finished_at: string }) | null
+      /** Scored results, oldest first. */
+      history: ReadinessHistoryItem[]
+      best_percent: number | null
+    }
+
+/** Where the readiness screen was opened from (the server's `readiness.viewed` event). */
+export type ReadinessSource = 'today' | 'profile' | 'course'
 
 /** Answer of GET /today (docs/04 A.2a). */
 export interface TodayResponse {
@@ -589,9 +667,13 @@ export interface TodayResponse {
   game?: TodayGame
   /** The practice access without its day limits (docs/04 A.2a): the "Word games" card reads it, `/me` is not asked. Absent: an older server (no practice). */
   practice?: PracticeAccessToday
+  /** The round of hard words (docs/06 §14); null: the feature is off; absent: an older server. */
+  hard_round?: HardRound | null
 }
 
 export interface TodayGame {
+  /** The game is open to this learner (the standing entry of the map); absent: an older server - no entry. */
+  available?: boolean
   daily_available: boolean
   active_run: GameActiveRun | null
   /** The class caravan that is on (docs/05 §5b.7); `null` or absent: none. */
@@ -674,6 +756,8 @@ export interface Card {
    */
   translation_fallback: boolean
   example: string | null
+  /** The translation of exactly that example, in the session's language (the ru one when it has none); null when there is none or the example is hidden. */
+  example_translation?: string | null
   transcription: string | null
   /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech / `GET /tts` fallback. */
   audio_url?: string | null
@@ -736,6 +820,7 @@ export interface Revealed {
   /** The right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation). */
   correct: string
   example: string | null
+  example_translation?: string | null
   transcription: string | null
   audio_url: string | null
   hook: string | null
@@ -815,7 +900,7 @@ export interface ExamResultResponse {
   leaderboard: ExamLeaderboardEntry[]
 }
 
-export type ExamMode = 'group_exam' | 'personal_mock'
+export type ExamMode = 'group_exam' | 'personal_mock' | 'level_quiz'
 
 /** POST /courses/{slug}/mock-exam (docs/04 A.4a): the learner's IELTS / SAT mock, new (201) or the open one (200). */
 export interface MockExamOpenResponse {
@@ -843,10 +928,42 @@ export interface MockExamResultResponse {
   course_id: number | null
 }
 
-export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse
+/** POST /courses/{slug}/level-quiz (docs/04 A.20): the test of the week, new (201) or the one that is on (200). */
+export interface LevelQuizSession {
+  session_id: number
+  mode: 'level_quiz'
+  course_id: number
+  week_start: string
+  /** true = the first test of the week (it is recorded); false = practice, not recorded. */
+  scored: boolean
+  started_at: string | null
+  ends_at: string | null
+  total_questions: number
+  seconds: number
+  resumed: boolean
+}
+
+/** GET /exam/sessions/{id}/result of a `level_quiz` session. */
+export interface LevelQuizResultResponse {
+  mode: 'level_quiz'
+  correct: number
+  total: number
+  answered: number
+  percent: number
+  scored: boolean
+  week_start: string
+  course_id: number
+  course_slug: string
+}
+
+export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse | LevelQuizResultResponse
 
 export function isMockExamResult(result: AnyExamResultResponse): result is MockExamResultResponse {
   return 'mode' in result && result.mode === 'personal_mock'
+}
+
+export function isLevelQuizResult(result: AnyExamResultResponse): result is LevelQuizResultResponse {
+  return 'mode' in result && result.mode === 'level_quiz'
 }
 
 // ---------------- Course catalog ----------------
@@ -948,7 +1065,7 @@ export interface DeckImportResult {
 
 // ---------------- Practice and battle (docs/16 §7, §11.7) ----------------
 
-export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation'
+export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation' | 'pairs_timed'
 
 /** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
 export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
@@ -1148,6 +1265,8 @@ export interface PracticeModeInfo {
   /** Set with `not_enough`. */
   reason: PracticeHubReason | null
   estimate_seconds: number
+  /** Only the timed pairs (`pairs_timed`): the personal best, null before the first game. Absent on the other cards. */
+  record?: { score: number; achieved_at: string } | null
 }
 
 /**
@@ -1310,7 +1429,7 @@ export interface PracticeMistake {
   verdict: 'typo' | 'wrong' | 'skipped'
 }
 
-export type PracticeFinishReason = 'completed' | 'expired' | 'replaced'
+export type PracticeFinishReason = 'completed' | 'expired' | 'replaced' | 'time_over'
 
 /** `summary` of a finished session (docs/16 §6.4). */
 export interface PracticeSummary {
@@ -1325,6 +1444,20 @@ export interface PracticeSummary {
   finish_reason: PracticeFinishReason
   retry_available: boolean
   mistakes: PracticeMistake[]
+  /** Only a timed game (`pairs_timed`): the pairs made, the best score now (null: none), whether this game set the record. */
+  score?: number
+  best_score?: number | null
+  is_record?: boolean
+}
+
+/** `timed` of a session: the clock of a timed game, kept by the server (docs/16 §5.5a); null for the other modes. */
+export interface PracticeTimed {
+  seconds: number
+  /** The end of the game, server clock; null until `start`. Moves closer with every wrong match. */
+  deadline_at: string | null
+  started: boolean
+  score: number
+  penalty_ms: number
 }
 
 /** GET /practice/sessions/{id}; also what open, replace and every answer return (docs/16 §7.2). */
@@ -1340,7 +1473,9 @@ export interface PracticeSession {
   counters: { correct_first: number; hints: number; mismatches: number }
   expires_at: string
   server_now: string
-  /** The element to answer; null once the session is finished. */
+  /** A timed game's clock; null (or absent in an older server) for the other modes. */
+  timed?: PracticeTimed | null
+  /** The element to answer; null once the session is finished, and in a timed game that has not been started (`timed.started === false`): the board comes with `start`. */
   current: PracticeElement | null
   summary: PracticeSummary | null
   /** Only in the 201 of `POST /practice/sessions`: the Free limits after the session was created (`null`: Pro, or no limit). */
@@ -1355,6 +1490,8 @@ export interface PracticeAnswerResponse {
   pair: { left_id: string; right_id: string } | null
   /** Pairs: the round is complete. Absent for the other modes. */
   round_done?: boolean
+  /** Timed pairs: the time a wrong match cost (ms), 0 for a right one. */
+  penalty_ms?: number
   session: PracticeSession
 }
 

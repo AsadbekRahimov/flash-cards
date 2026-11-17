@@ -14,6 +14,7 @@
     {
       "word": "roof",
       "part_of_speech": "noun",
+      "transcription": "/ruf/",
       "translation": "крыша",
       "translations": {
         "ru": "крыша",
@@ -28,6 +29,7 @@
     {
       "word": "stairs",
       "part_of_speech": "noun",
+      "transcription": "/stɛrz/",
       "translation": "лестница",
       "translations": {
         "ru": "лестница",
@@ -42,6 +44,7 @@
     {
       "word": "ceiling",
       "part_of_speech": "noun",
+      "transcription": "/ˈsilɪŋ/",
       "translation": "потолок",
       "translations": {
         "ru": "потолок",
@@ -56,6 +59,7 @@
     {
       "word": "apartment",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɑrtmənt/",
       "translation": "квартира",
       "translations": {
         "ru": "квартира",
@@ -70,6 +74,7 @@
     {
       "word": "garage",
       "part_of_speech": "noun",
+      "transcription": "/gəˈrɑʒ/",
       "translation": "гараж",
       "translations": {
         "ru": "гараж",
@@ -84,6 +89,7 @@
     {
       "word": "yard",
       "part_of_speech": "noun",
+      "transcription": "/jɑrd/",
       "translation": "двор",
       "translations": {
         "ru": "двор",
@@ -98,6 +104,7 @@
     {
       "word": "fence",
       "part_of_speech": "noun",
+      "transcription": "/fɛns/",
       "translation": "забор",
       "translations": {
         "ru": "забор",
@@ -112,6 +119,7 @@
     {
       "word": "hall",
       "part_of_speech": "noun",
+      "transcription": "/hɔl/",
       "translation": "прихожая, коридор",
       "translations": {
         "ru": "прихожая, коридор",
@@ -126,6 +134,7 @@
     {
       "word": "basement",
       "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsmənt/",
       "translation": "подвал",
       "translations": {
         "ru": "подвал",
@@ -140,6 +149,7 @@
     {
       "word": "elevator",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛləˌveɪtər/",
       "translation": "лифт",
       "translations": {
         "ru": "лифт",

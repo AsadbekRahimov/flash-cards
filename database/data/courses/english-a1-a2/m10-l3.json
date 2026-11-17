@@ -14,6 +14,7 @@
     {
       "word": "season",
       "part_of_speech": "noun",
+      "transcription": "/ˈsizən/",
       "translation": "время года",
       "translations": {
         "ru": "время года",
@@ -28,6 +29,7 @@
     {
       "word": "spring",
       "part_of_speech": "noun",
+      "transcription": "/sprɪŋ/",
       "translation": "весна",
       "translations": {
         "ru": "весна",
@@ -42,6 +44,7 @@
     {
       "word": "summer",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌmər/",
       "translation": "лето",
       "translations": {
         "ru": "лето",
@@ -56,6 +59,7 @@
     {
       "word": "autumn",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔtəm/",
       "translation": "осень",
       "translations": {
         "ru": "осень",
@@ -70,6 +74,7 @@
     {
       "word": "winter",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪntər/",
       "translation": "зима",
       "translations": {
         "ru": "зима",
@@ -84,6 +89,7 @@
     {
       "word": "temperature",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛmprətʃər/",
       "translation": "температура воздуха",
       "translations": {
         "ru": "температура воздуха",
@@ -98,6 +104,7 @@
     {
       "word": "degree",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈgri/",
       "translation": "градус",
       "translations": {
         "ru": "градус",
@@ -112,6 +119,7 @@
     {
       "word": "forecast",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrkæst/",
       "translation": "прогноз",
       "translations": {
         "ru": "прогноз",
@@ -126,6 +134,7 @@
     {
       "word": "umbrella",
       "part_of_speech": "noun",
+      "transcription": "/ʌmˈbrɛlə/",
       "translation": "зонт",
       "translations": {
         "ru": "зонт",
@@ -140,6 +149,7 @@
     {
       "word": "climate",
       "part_of_speech": "noun",
+      "transcription": "/ˈklaɪmət/",
       "translation": "климат",
       "translations": {
         "ru": "климат",

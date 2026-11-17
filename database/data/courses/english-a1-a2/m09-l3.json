@@ -14,6 +14,7 @@
     {
       "word": "healthy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɛlθi/",
       "translation": "здоровый, полезный",
       "translations": {
         "ru": "здоровый, полезный",
@@ -28,6 +29,7 @@
     {
       "word": "sick",
       "part_of_speech": "adjective",
+      "transcription": "/sɪk/",
       "translation": "больной",
       "translations": {
         "ru": "больной",
@@ -42,6 +44,7 @@
     {
       "word": "pain",
       "part_of_speech": "noun",
+      "transcription": "/peɪn/",
       "translation": "боль",
       "translations": {
         "ru": "боль",
@@ -56,6 +59,7 @@
     {
       "word": "headache",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛdeɪk/",
       "translation": "головная боль",
       "translations": {
         "ru": "головная боль",
@@ -70,6 +74,7 @@
     {
       "word": "fever",
       "part_of_speech": "noun",
+      "transcription": "/ˈfivər/",
       "translation": "температура, жар",
       "translations": {
         "ru": "температура, жар",
@@ -84,6 +89,7 @@
     {
       "word": "medicine",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛdəsən/",
       "translation": "лекарство",
       "translations": {
         "ru": "лекарство",
@@ -98,6 +104,7 @@
     {
       "word": "pill",
       "part_of_speech": "noun",
+      "transcription": "/pɪl/",
       "translation": "таблетка",
       "translations": {
         "ru": "таблетка",
@@ -112,6 +119,7 @@
     {
       "word": "tired",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtaɪərd/",
       "translation": "уставший",
       "translations": {
         "ru": "уставший",
@@ -126,6 +134,7 @@
     {
       "word": "hurt",
       "part_of_speech": "verb",
+      "transcription": "/hɜrt/",
       "translation": "болеть",
       "translations": {
         "ru": "болеть",
@@ -140,6 +149,7 @@
     {
       "word": "cough",
       "part_of_speech": "noun",
+      "transcription": "/kɔf/",
       "translation": "кашель",
       "translations": {
         "ru": "кашель",

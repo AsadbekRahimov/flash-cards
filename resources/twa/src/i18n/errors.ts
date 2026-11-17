@@ -71,6 +71,8 @@ export const KNOWN_ERROR_CODES = [
   'course_not_exam',
   'not_enough_words',
   'not_enough_distractors',
+  'readiness_disabled',
+  'level_quiz_disabled',
   'friendship_self',
   'friend_unavailable',
   'friendship_not_found',
@@ -93,6 +95,9 @@ export const KNOWN_ERROR_CODES = [
   'practice_session_active',
   'practice_session_not_found',
   'practice_session_closed',
+  'practice_not_started',
+  'practice_time_over',
+  'practice_not_timed',
   'element_not_current',
   'answer_already_accepted',
   'pair_already_matched',
@@ -143,6 +148,8 @@ export const KNOWN_ERROR_CODES = [
   'booster_limit_reached',
   'booster_already_used',
   'booster_not_applicable',
+  // The round of hard words (docs/06 §14, docs/04 A.3): `error.details.reason` tells which of the four refusals it is.
+  'hard_round_unavailable',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
@@ -153,11 +160,23 @@ function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)
 }
 
+/** Why the round of hard words did not open (`error.details.reason` of 409 `hard_round_unavailable`); an unknown reason gets the general words. */
+function hardRoundMessage(reason: unknown): string {
+  switch (reason) {
+    case 'disabled': return t('error.hard_round.disabled')
+    case 'not_enough': return t('error.hard_round.not_enough')
+    case 'played_today': return t('error.hard_round.played_today')
+    case 'no_objective_exercise': return t('error.hard_round.no_objective_exercise')
+    default: return t('error.code.hard_round_unavailable')
+  }
+}
+
 /** Human-readable, localized text for anything thrown by the API layer. */
 export function errorMessage(err: unknown, context: ErrorContext): string {
   if (err instanceof ApiClientError) {
     // Promo codes answer 410 (expired) too — that is not a closed session.
     if (err.code.startsWith('promo_') && isKnownCode(err.code)) return t(`error.code.${err.code}`)
+    if (err.code === 'hard_round_unavailable') return hardRoundMessage(err.details?.reason)
     if (err.kind === 'gone') return t(`error.closed.${context}`)
     if (err.kind === 'network') return t('error.network')
     if (err.code === 'forbidden') return t(`error.forbidden.${context}`)

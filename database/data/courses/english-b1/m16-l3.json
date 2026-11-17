@@ -14,6 +14,7 @@
     {
       "word": "emotion",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈmoʊʃən/",
       "translation": "эмоция",
       "translations": {
         "ru": "эмоция",
@@ -28,6 +29,7 @@
     {
       "word": "fear",
       "part_of_speech": "noun",
+      "transcription": "/fɪr/",
       "translation": "страх",
       "translations": {
         "ru": "страх",
@@ -42,6 +44,7 @@
     {
       "word": "panic",
       "part_of_speech": "noun",
+      "transcription": "/ˈpænɪk/",
       "translation": "паника",
       "translations": {
         "ru": "паника",
@@ -56,6 +59,7 @@
     {
       "word": "shock",
       "part_of_speech": "noun",
+      "transcription": "/ʃɑk/",
       "translation": "шок, потрясение",
       "translations": {
         "ru": "шок, потрясение",
@@ -70,6 +74,7 @@
     {
       "word": "regret",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈgrɛt/",
       "translation": "сожалеть",
       "translations": {
         "ru": "сожалеть",
@@ -84,6 +89,7 @@
     {
       "word": "sympathy",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmpəθi/",
       "translation": "сочувствие",
       "translations": {
         "ru": "сочувствие",
@@ -98,6 +104,7 @@
     {
       "word": "suffer",
       "part_of_speech": "verb",
+      "transcription": "/ˈsʌfər/",
       "translation": "страдать",
       "translations": {
         "ru": "страдать",
@@ -112,6 +119,7 @@
     {
       "word": "anger",
       "part_of_speech": "noun",
+      "transcription": "/ˈæŋgər/",
       "translation": "гнев, злость",
       "translations": {
         "ru": "гнев, злость",
@@ -126,6 +134,7 @@
     {
       "word": "react",
       "part_of_speech": "verb",
+      "transcription": "/riˈækt/",
       "translation": "реагировать",
       "translations": {
         "ru": "реагировать",
@@ -140,6 +149,7 @@
     {
       "word": "express",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈsprɛs/",
       "translation": "выражать",
       "translations": {
         "ru": "выражать",

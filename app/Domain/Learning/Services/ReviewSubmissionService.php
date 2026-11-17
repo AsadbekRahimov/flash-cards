@@ -247,8 +247,8 @@ final class ReviewSubmissionService
             // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2), with the example of this
             // serve (docs/06 §12.4) and whether the word has audio (docs/06 §13.1; `urlFor` compares a hash, no I/O).
             // A four-option pick without enough distractors was shown as flash — record what the client saw.
-            $example = $this->examples->pick($word, $repetition);
             $translation = $this->translations->resolve($word, $locale);
+            ['text' => $example, 'translation' => $exampleTranslation] = $this->examples->pickRow($word, $repetition, $locale, $translation->exampleTranslation);
             $exercise = $this->prompts->effectiveType(
                 $this->selector->select($repetition, $word, $entitlement, $settings, $session->mode, $example, $this->audio->urlFor($word) !== null),
                 $word,
@@ -318,7 +318,7 @@ final class ReviewSubmissionService
                 return new AcceptedReview($repetition, $exercise, $verdict);
             }
 
-            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech);
+            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech, $exampleTranslation);
         });
     }
 

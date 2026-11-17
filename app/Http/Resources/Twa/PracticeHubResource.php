@@ -23,7 +23,7 @@ final class PracticeHubResource extends TwaResource
      * @return array{
      *   course: array{slug: string, title: string},
      *   lesson: array{id: int, stage: int|null, number: int|null, title: string|null}|null,
-     *   modes: list<array{mode: string, state: string, available: int, required: int, reason: string|null, estimate_seconds: int}>,
+     *   modes: list<array{mode: string, state: string, available: int, required: int, reason: string|null, estimate_seconds: int, record?: array{score: int, achieved_at: string}|null}>,
      *   active_session: ActiveSummary|null,
      *   battle: array{enabled: bool, active_battle_id: int|null, incoming_count: int},
      *   limits: LimitsBlock|null

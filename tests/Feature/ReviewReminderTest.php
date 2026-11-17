@@ -534,11 +534,14 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
 
     /** @var Migration $migration */
     $migration = require base_path('database/migrations/2026_10_18_000002_add_learning_state_to_word_repetitions.php');
-    // The partial index on `state` (2026_11_17_100002) is rolled back first, as `migrate:rollback` would do it (newest first):
-    // SQLite refuses to drop a column an index names, PostgreSQL would drop the index with the column.
+    // The partial indexes on `state` (2026_11_17_100002) and on `lapses` (2026_11_18_300002) are rolled back first, as `migrate:rollback`
+    // would do it (newest first): SQLite refuses to drop a column an index names, PostgreSQL would drop the index with the column.
+    /** @var Migration $hardIdx */
+    $hardIdx = require base_path('database/migrations/2026_11_18_300002_add_word_repetitions_hard_idx.php');
     /** @var Migration $inSteps */
     $inSteps = require base_path('database/migrations/2026_11_17_100002_add_word_repetitions_in_steps_idx.php');
 
+    $hardIdx->down();
     $inSteps->down();
     $migration->down();
 

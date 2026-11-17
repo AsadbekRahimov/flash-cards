@@ -14,6 +14,7 @@
     {
       "word": "task",
       "part_of_speech": "noun",
+      "transcription": "/tæsk/",
       "translation": "задача, задание",
       "translations": {
         "ru": "задача, задание",
@@ -28,6 +29,7 @@
     {
       "word": "deadline",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛdlaɪn/",
       "translation": "срок сдачи",
       "translations": {
         "ru": "срок сдачи",
@@ -42,6 +44,7 @@
     {
       "word": "report",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈpɔrt/",
       "translation": "отчёт",
       "translations": {
         "ru": "отчёт",
@@ -56,6 +59,7 @@
     {
       "word": "email",
       "part_of_speech": "noun",
+      "transcription": "/ˈimeɪl/",
       "translation": "электронное письмо",
       "translations": {
         "ru": "электронное письмо",
@@ -70,6 +74,7 @@
     {
       "word": "computer",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpjutər/",
       "translation": "компьютер",
       "translations": {
         "ru": "компьютер",
@@ -84,6 +89,7 @@
     {
       "word": "phone",
       "part_of_speech": "noun",
+      "transcription": "/foʊn/",
       "translation": "телефон",
       "translations": {
         "ru": "телефон",
@@ -98,6 +104,7 @@
     {
       "word": "send",
       "part_of_speech": "verb",
+      "transcription": "/sɛnd/",
       "translation": "отправлять",
       "translations": {
         "ru": "отправлять",
@@ -112,6 +119,7 @@
     {
       "word": "receive",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈsiv/",
       "translation": "получать",
       "translations": {
         "ru": "получать",
@@ -126,6 +134,7 @@
     {
       "word": "discuss",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈskʌs/",
       "translation": "обсуждать",
       "translations": {
         "ru": "обсуждать",
@@ -140,6 +149,7 @@
     {
       "word": "finish",
       "part_of_speech": "verb",
+      "transcription": "/ˈfɪnɪʃ/",
       "translation": "заканчивать",
       "translations": {
         "ru": "заканчивать",

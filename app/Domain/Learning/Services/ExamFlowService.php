@@ -10,6 +10,7 @@ use App\Domain\Learning\DTO\ExamLearnerResult;
 use App\Domain\Learning\DTO\ServedExamQuestion;
 use App\Domain\Learning\Exceptions\ExamParticipationException;
 use App\Models\ExamAnswer;
+use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -32,13 +33,40 @@ final class ExamFlowService
     public function join(ExamSession $session, Learner $learner): ExamJoin
     {
         $config = $session->config;
+        $total = (int) ($config['total_questions'] ?? 0);
 
         return new ExamJoin(
             $session,
-            (int) ($config['total_questions'] ?? 0),
+            $total,
             (int) ($config['seconds_per_question'] ?? 0),
-            $this->serveQuestion($session, $learner, 0),
+            $this->serveQuestion($session, $learner, $session->isLearnerOwned() ? $this->firstUnanswered($session, $learner, $total) : 0),
         );
+    }
+
+    /**
+     * A learner's own run (personal mock, quiz of the week) is resumed where they stopped: the first question of THEIR order with no
+     * answer yet (one read of their attempts). `$total` when everything is answered (the question is then null: go to the result).
+     * A group exam is synchronous, it always starts at 0.
+     */
+    private function firstUnanswered(ExamSession $session, Learner $learner, int $total): int
+    {
+        /** @var list<int> $done */
+        $done = ExamQuestionAttempt::query()
+            ->where('exam_session_id', $session->id)
+            ->where('learner_id', $learner->id)
+            ->whereNotNull('answered_at')
+            ->pluck('question_index')
+            ->map(static fn (mixed $i): int => (int) $i)
+            ->all();
+
+        $done = array_flip($done);
+        for ($i = 0; $i < $total; $i++) {
+            if (! isset($done[$i])) {
+                return $i;
+            }
+        }
+
+        return $total;
     }
 
     /**

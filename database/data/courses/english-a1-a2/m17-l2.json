@@ -14,6 +14,7 @@
     {
       "word": "letter",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛtər/",
       "translation": "письмо",
       "translations": {
         "ru": "письмо",
@@ -28,6 +29,7 @@
     {
       "word": "parcel",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrsəl/",
       "translation": "посылка",
       "translations": {
         "ru": "посылка",
@@ -42,6 +44,7 @@
     {
       "word": "stamp",
       "part_of_speech": "noun",
+      "transcription": "/stæmp/",
       "translation": "марка",
       "translations": {
         "ru": "марка",
@@ -56,6 +59,7 @@
     {
       "word": "envelope",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnvəˌloʊp/",
       "translation": "конверт",
       "translations": {
         "ru": "конверт",
@@ -70,6 +74,7 @@
     {
       "word": "deliver",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈlɪvər/",
       "translation": "доставлять",
       "translations": {
         "ru": "доставлять",
@@ -84,6 +89,7 @@
     {
       "word": "hairdresser",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛrˌdrɛsər/",
       "translation": "парикмахер",
       "translations": {
         "ru": "парикмахер",
@@ -98,6 +104,7 @@
     {
       "word": "tailor",
       "part_of_speech": "noun",
+      "transcription": "/ˈteɪlər/",
       "translation": "портной",
       "translations": {
         "ru": "портной",
@@ -112,6 +119,7 @@
     {
       "word": "service",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrvəs/",
       "translation": "обслуживание",
       "translations": {
         "ru": "обслуживание",
@@ -126,6 +134,7 @@
     {
       "word": "mechanic",
       "part_of_speech": "noun",
+      "transcription": "/məˈkænɪk/",
       "translation": "механик",
       "translations": {
         "ru": "механик",
@@ -140,6 +149,7 @@
     {
       "word": "queue",
       "part_of_speech": "noun",
+      "transcription": "/kju/",
       "translation": "очередь",
       "translations": {
         "ru": "очередь",

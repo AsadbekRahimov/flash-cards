@@ -14,6 +14,7 @@
     {
       "word": "length",
       "part_of_speech": "noun",
+      "transcription": "/lɛŋθ/",
       "translation": "длина",
       "translations": {
         "ru": "длина",
@@ -28,6 +29,7 @@
     {
       "word": "width",
       "part_of_speech": "noun",
+      "transcription": "/wɪdθ/",
       "translation": "ширина",
       "translations": {
         "ru": "ширина",
@@ -42,6 +44,7 @@
     {
       "word": "depth",
       "part_of_speech": "noun",
+      "transcription": "/dɛpθ/",
       "translation": "глубина",
       "translations": {
         "ru": "глубина",
@@ -56,6 +59,7 @@
     {
       "word": "distance",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪstəns/",
       "translation": "расстояние",
       "translations": {
         "ru": "расстояние",
@@ -70,6 +74,7 @@
     {
       "word": "measure",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɛʒər/",
       "translation": "измерять",
       "translations": {
         "ru": "измерять",
@@ -84,6 +89,7 @@
     {
       "word": "calculate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkælkjəleɪt/",
       "translation": "вычислять, рассчитывать",
       "translations": {
         "ru": "вычислять, рассчитывать",
@@ -98,6 +104,7 @@
     {
       "word": "multiply",
       "part_of_speech": "verb",
+      "transcription": "/ˈmʌltəplaɪ/",
       "translation": "умножать",
       "translations": {
         "ru": "умножать",
@@ -112,6 +119,7 @@
     {
       "word": "divide",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈvaɪd/",
       "translation": "делить",
       "translations": {
         "ru": "делить",
@@ -126,6 +134,7 @@
     {
       "word": "average",
       "part_of_speech": "adjective",
+      "transcription": "/ˈævrɪdʒ/",
       "translation": "средний, усреднённый",
       "translations": {
         "ru": "средний, усреднённый",
@@ -140,6 +149,7 @@
     {
       "word": "graph",
       "part_of_speech": "noun",
+      "transcription": "/græf/",
       "translation": "график",
       "translations": {
         "ru": "график",

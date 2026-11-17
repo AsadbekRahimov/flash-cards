@@ -14,6 +14,7 @@
     {
       "word": "young",
       "part_of_speech": "adjective",
+      "transcription": "/jʌŋ/",
       "translation": "молодой",
       "translations": {
         "ru": "молодой",
@@ -28,6 +29,7 @@
     {
       "word": "old",
       "part_of_speech": "adjective",
+      "transcription": "/oʊld/",
       "translation": "старый",
       "translations": {
         "ru": "старый",
@@ -42,6 +44,7 @@
     {
       "word": "tall",
       "part_of_speech": "adjective",
+      "transcription": "/tɔl/",
       "translation": "высокий",
       "translations": {
         "ru": "высокий",
@@ -56,6 +59,7 @@
     {
       "word": "short",
       "part_of_speech": "adjective",
+      "transcription": "/ʃɔrt/",
       "translation": "невысокий",
       "translations": {
         "ru": "невысокий",
@@ -70,6 +74,7 @@
     {
       "word": "happy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhæpi/",
       "translation": "счастливый, радостный",
       "translations": {
         "ru": "счастливый, радостный",
@@ -84,6 +89,7 @@
     {
       "word": "sad",
       "part_of_speech": "adjective",
+      "transcription": "/sæd/",
       "translation": "грустный",
       "translations": {
         "ru": "грустный",
@@ -98,6 +104,7 @@
     {
       "word": "nice",
       "part_of_speech": "adjective",
+      "transcription": "/naɪs/",
       "translation": "приятный, милый",
       "translations": {
         "ru": "приятный, милый",
@@ -112,6 +119,7 @@
     {
       "word": "kind",
       "part_of_speech": "adjective",
+      "transcription": "/kaɪnd/",
       "translation": "добрый",
       "translations": {
         "ru": "добрый",
@@ -126,6 +134,7 @@
     {
       "word": "funny",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfʌni/",
       "translation": "смешной",
       "translations": {
         "ru": "смешной",
@@ -140,6 +149,7 @@
     {
       "word": "beautiful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbjutəfəl/",
       "translation": "красивый",
       "translations": {
         "ru": "красивый",

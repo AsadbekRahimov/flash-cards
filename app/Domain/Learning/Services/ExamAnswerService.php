@@ -112,7 +112,7 @@ final class ExamAnswerService
                 // Different learners can answer together. Closing the exam still waits on this shared lock,
                 // and the individual attempt below serializes two submissions of the same answer.
                 $sessionLock = ExamSession::query();
-                $lockedSession = ($session->isPersonalMock() ? $sessionLock->lockForUpdate() : $sessionLock->sharedLock())->find($session->id);
+                $lockedSession = ($session->isLearnerOwned() ? $sessionLock->lockForUpdate() : $sessionLock->sharedLock())->find($session->id);
 
                 if (
                     $lockedSession === null

@@ -564,4 +564,16 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-caravan-open]').text()).toBe('Karvonni ochish')
     })
   })
+
+  it('leads to the readiness of the active course, and has no row without one', async () => {
+    vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ active_course: { slug: 'english-a1-a2', title: 'A1-A2' } }) })
+    const withCourse = await render()
+    const row = withCourse.get('[data-testid=row-readiness]')
+    expect(row.text()).toContain('Готовность к уровню')
+    expect(row.attributes('href')).toBe('/courses/english-a1-a2/readiness?source=profile')
+
+    vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ active_course: null }) })
+    setActivePinia(createPinia())
+    expect((await render()).find('[data-testid=row-readiness]').exists()).toBe(false)
+  })
 })

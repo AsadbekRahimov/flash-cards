@@ -14,6 +14,7 @@
     {
       "word": "issue",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪʃu/",
       "translation": "проблема, вопрос",
       "translations": {
         "ru": "проблема, вопрос",
@@ -28,6 +29,7 @@
     {
       "word": "homeless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhoʊmləs/",
       "translation": "бездомный",
       "translations": {
         "ru": "бездомный",
@@ -42,6 +44,7 @@
     {
       "word": "equal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈikwəl/",
       "translation": "равный",
       "translations": {
         "ru": "равный",
@@ -56,6 +59,7 @@
     {
       "word": "volunteer",
       "part_of_speech": "noun",
+      "transcription": "/ˌvɑlənˈtɪr/",
       "translation": "волонтёр, доброволец",
       "translations": {
         "ru": "волонтёр, доброволец",
@@ -70,6 +74,7 @@
     {
       "word": "donate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdoʊneɪt/",
       "translation": "жертвовать",
       "translations": {
         "ru": "жертвовать",
@@ -84,6 +89,7 @@
     {
       "word": "aid",
       "part_of_speech": "noun",
+      "transcription": "/eɪd/",
       "translation": "помощь",
       "translations": {
         "ru": "помощь",
@@ -98,6 +104,7 @@
     {
       "word": "shelter",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɛltər/",
       "translation": "приют",
       "translations": {
         "ru": "приют",
@@ -112,6 +119,7 @@
     {
       "word": "crisis",
       "part_of_speech": "noun",
+      "transcription": "/ˈkraɪsɪs/",
       "translation": "кризис",
       "translations": {
         "ru": "кризис",
@@ -126,6 +134,7 @@
     {
       "word": "fair",
       "part_of_speech": "adjective",
+      "transcription": "/fɛr/",
       "translation": "справедливый",
       "translations": {
         "ru": "справедливый",
@@ -140,6 +149,7 @@
     {
       "word": "disabled",
       "part_of_speech": "adjective",
+      "transcription": "/dɪsˈeɪbəld/",
       "translation": "с инвалидностью",
       "translations": {
         "ru": "с инвалидностью",

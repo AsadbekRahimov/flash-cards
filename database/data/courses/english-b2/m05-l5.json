@@ -14,6 +14,7 @@
     {
       "word": "durable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʊrəbəl/",
       "translation": "прочный, долговечный",
       "translations": {
         "ru": "прочный, долговечный",
@@ -28,6 +29,7 @@
     {
       "word": "mechanism",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛkənɪzəm/",
       "translation": "механизм",
       "translations": {
         "ru": "механизм",
@@ -42,6 +44,7 @@
     {
       "word": "component",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpoʊnənt/",
       "translation": "компонент, составная часть",
       "translations": {
         "ru": "компонент, составная часть",
@@ -56,6 +59,7 @@
     {
       "word": "circuit",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrkɪt/",
       "translation": "электрическая цепь",
       "translations": {
         "ru": "электрическая цепь",
@@ -70,6 +74,7 @@
     {
       "word": "antenna",
       "part_of_speech": "noun",
+      "transcription": "/ænˈtɛnə/",
       "translation": "антенна",
       "translations": {
         "ru": "антенна",
@@ -84,6 +89,7 @@
     {
       "word": "socket",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑkɪt/",
       "translation": "розетка",
       "translations": {
         "ru": "розетка",
@@ -98,6 +104,7 @@
     {
       "word": "transmit",
       "part_of_speech": "verb",
+      "transcription": "/trænzˈmɪt/",
       "translation": "передавать",
       "translations": {
         "ru": "передавать",
@@ -112,6 +119,7 @@
     {
       "word": "appliance",
       "part_of_speech": "noun",
+      "transcription": "/əˈplaɪəns/",
       "translation": "бытовой прибор",
       "translations": {
         "ru": "бытовой прибор",
@@ -126,6 +134,7 @@
     {
       "word": "manual",
       "part_of_speech": "noun",
+      "transcription": "/ˈmænjuəl/",
       "translation": "руководство, инструкция",
       "translations": {
         "ru": "руководство, инструкция",
@@ -140,6 +149,7 @@
     {
       "word": "compact",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpækt/",
       "translation": "компактный",
       "translations": {
         "ru": "компактный",

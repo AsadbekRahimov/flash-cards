@@ -167,6 +167,27 @@ class IrazasyedTelegramClient implements TelegramClient
         ]));
     }
 
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
+    {
+        $params = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'text' => $text,
+            // Without a `reply_markup` the Bot API removes the keyboard; an empty one says it explicitly.
+            'reply_markup' => json_encode($replyMarkup ?? ['inline_keyboard' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+        ];
+
+        if ($parseMode !== null) {
+            $params['parse_mode'] = $parseMode;
+        }
+
+        // No `mapForbidden`: a refusal here is "the message cannot be edited", never "the learner is unreachable".
+        $this->call(fn () => $this->api->editMessageText($params));
+    }
+
     public function getChatMemberStatus(int|string $chatId, int $userId): string
     {
         $member = $this->call(fn () => $this->api->getChatMember(['chat_id' => $chatId, 'user_id' => $userId]));

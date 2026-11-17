@@ -14,6 +14,7 @@
     {
       "word": "original",
       "part_of_speech": "adjective",
+      "transcription": "/əˈrɪdʒənəl/",
       "translation": "первоначальный",
       "translations": {
         "ru": "первоначальный",
@@ -28,6 +29,7 @@
     {
       "word": "current",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɜrənt/",
       "translation": "нынешний, текущий",
       "translations": {
         "ru": "нынешний, текущий",
@@ -42,6 +44,7 @@
     {
       "word": "continue",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtɪnju/",
       "translation": "продолжать",
       "translations": {
         "ru": "продолжать",
@@ -56,6 +59,7 @@
     {
       "word": "pause",
       "part_of_speech": "noun",
+      "transcription": "/pɔz/",
       "translation": "пауза",
       "translations": {
         "ru": "пауза",
@@ -70,6 +74,7 @@
     {
       "word": "complete",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈplit/",
       "translation": "завершать, заканчивать",
       "translations": {
         "ru": "завершать, заканчивать",
@@ -84,6 +89,7 @@
     {
       "word": "final",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfaɪnəl/",
       "translation": "заключительный, последний",
       "translations": {
         "ru": "заключительный, последний",
@@ -98,6 +104,7 @@
     {
       "word": "previous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpriviəs/",
       "translation": "предыдущий",
       "translations": {
         "ru": "предыдущий",
@@ -112,6 +119,7 @@
     {
       "word": "following",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɑloʊɪŋ/",
       "translation": "следующий",
       "translations": {
         "ru": "следующий",
@@ -126,6 +134,7 @@
     {
       "word": "punctual",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpʌŋktʃuəl/",
       "translation": "пунктуальный",
       "translations": {
         "ru": "пунктуальный",
@@ -140,6 +149,7 @@
     {
       "word": "brief",
       "part_of_speech": "adjective",
+      "transcription": "/brif/",
       "translation": "краткий, короткий",
       "translations": {
         "ru": "краткий, короткий",

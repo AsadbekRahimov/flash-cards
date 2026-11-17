@@ -73,6 +73,14 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'courses' },
     props: (route) => ({ slug: String(route.params.slug) }),
   },
+  // Readiness for the level and the test of the week (docs/05 §5); `?source=` is where the learner came from (the server's analytics, the Back button).
+  {
+    path: '/courses/:slug/readiness',
+    name: 'readiness',
+    component: () => import('@/views/ReadinessView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ slug: String(route.params.slug) }),
+  },
   {
     path: '/decks',
     name: 'decks',

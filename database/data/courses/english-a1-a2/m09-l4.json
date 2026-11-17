@@ -14,6 +14,7 @@
     {
       "word": "wake",
       "part_of_speech": "verb",
+      "transcription": "/weɪk/",
       "translation": "просыпаться",
       "translations": {
         "ru": "просыпаться",
@@ -28,6 +29,7 @@
     {
       "word": "sleep",
       "part_of_speech": "verb",
+      "transcription": "/slip/",
       "translation": "спать",
       "translations": {
         "ru": "спать",
@@ -42,6 +44,7 @@
     {
       "word": "shower",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃaʊər/",
       "translation": "душ",
       "translations": {
         "ru": "душ",
@@ -56,6 +59,7 @@
     {
       "word": "bath",
       "part_of_speech": "noun",
+      "transcription": "/bæθ/",
       "translation": "ванна",
       "translations": {
         "ru": "ванна",
@@ -70,6 +74,7 @@
     {
       "word": "soap",
       "part_of_speech": "noun",
+      "transcription": "/soʊp/",
       "translation": "мыло",
       "translations": {
         "ru": "мыло",
@@ -84,6 +89,7 @@
     {
       "word": "towel",
       "part_of_speech": "noun",
+      "transcription": "/ˈtaʊəl/",
       "translation": "полотенце",
       "translations": {
         "ru": "полотенце",
@@ -98,6 +104,7 @@
     {
       "word": "brush",
       "part_of_speech": "verb",
+      "transcription": "/brʌʃ/",
       "translation": "чистить щёткой",
       "translations": {
         "ru": "чистить щёткой",
@@ -112,6 +119,7 @@
     {
       "word": "smile",
       "part_of_speech": "verb",
+      "transcription": "/smaɪl/",
       "translation": "улыбаться",
       "translations": {
         "ru": "улыбаться",
@@ -126,6 +134,7 @@
     {
       "word": "laugh",
       "part_of_speech": "verb",
+      "transcription": "/læf/",
       "translation": "смеяться",
       "translations": {
         "ru": "смеяться",
@@ -140,6 +149,7 @@
     {
       "word": "breathe",
       "part_of_speech": "verb",
+      "transcription": "/brið/",
       "translation": "дышать",
       "translations": {
         "ru": "дышать",

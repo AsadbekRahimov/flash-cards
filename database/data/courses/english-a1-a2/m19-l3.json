@@ -14,6 +14,7 @@
     {
       "word": "plant",
       "part_of_speech": "noun",
+      "transcription": "/plænt/",
       "translation": "растение",
       "translations": {
         "ru": "растение",
@@ -28,6 +29,7 @@
     {
       "word": "seed",
       "part_of_speech": "noun",
+      "transcription": "/sid/",
       "translation": "семя",
       "translations": {
         "ru": "семя",
@@ -42,6 +44,7 @@
     {
       "word": "leaf",
       "part_of_speech": "noun",
+      "transcription": "/lif/",
       "translation": "лист",
       "translations": {
         "ru": "лист",
@@ -56,6 +59,7 @@
     {
       "word": "branch",
       "part_of_speech": "noun",
+      "transcription": "/bræntʃ/",
       "translation": "ветка",
       "translations": {
         "ru": "ветка",
@@ -70,6 +74,7 @@
     {
       "word": "root",
       "part_of_speech": "noun",
+      "transcription": "/rut/",
       "translation": "корень",
       "translations": {
         "ru": "корень",
@@ -84,6 +89,7 @@
     {
       "word": "soil",
       "part_of_speech": "noun",
+      "transcription": "/sɔɪl/",
       "translation": "почва",
       "translations": {
         "ru": "почва",
@@ -98,6 +104,7 @@
     {
       "word": "sand",
       "part_of_speech": "noun",
+      "transcription": "/sænd/",
       "translation": "песок",
       "translations": {
         "ru": "песок",
@@ -112,6 +119,7 @@
     {
       "word": "rock",
       "part_of_speech": "noun",
+      "transcription": "/rɑk/",
       "translation": "камень, скала",
       "translations": {
         "ru": "камень, скала",
@@ -126,6 +134,7 @@
     {
       "word": "mud",
       "part_of_speech": "noun",
+      "transcription": "/mʌd/",
       "translation": "грязь",
       "translations": {
         "ru": "грязь",
@@ -140,6 +149,7 @@
     {
       "word": "bush",
       "part_of_speech": "noun",
+      "transcription": "/bʊʃ/",
       "translation": "куст",
       "translations": {
         "ru": "куст",

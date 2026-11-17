@@ -10,7 +10,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * POST /api/twa/training/sessions. Access is the `TwaAuth` middleware; whether the lesson
- * exists, is published and fits the mode is a service rule (`TrainingSessionService::openPersonal`).
+ * exists, is published and fits the mode is a service rule (`TrainingSessionService::openPersonal`); the round of hard words
+ * (`hard_review`, docs/06 §14) opens through `HardRoundService::open` and takes no lesson. `source = finish`: opened from the end of a session.
  */
 final class OpenTrainingSessionRequest extends FormRequest
 {
@@ -18,9 +19,9 @@ final class OpenTrainingSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'mode' => ['required', 'string', Rule::in([TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW])],
+            'mode' => ['required', 'string', Rule::in([TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW, TrainingSession::MODE_HARD_REVIEW])],
             'lesson_id' => ['nullable', 'integer', 'min:1'],
-            'source' => ['nullable', 'string', Rule::in(['self', 'picker', 'reminder', 'onboarding', 'assignment'])],
+            'source' => ['nullable', 'string', Rule::in(['self', 'picker', 'reminder', 'reminder_quiz', 'onboarding', 'assignment', 'finish'])],
         ];
     }
 

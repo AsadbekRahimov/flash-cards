@@ -14,6 +14,7 @@
     {
       "word": "approach",
       "part_of_speech": "verb",
+      "transcription": "/əˈproʊtʃ/",
       "translation": "приближаться",
       "translations": {
         "ru": "приближаться",
@@ -28,6 +29,7 @@
     {
       "word": "enter",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛntər/",
       "translation": "входить",
       "translations": {
         "ru": "входить",
@@ -42,6 +44,7 @@
     {
       "word": "exit",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛgzɪt/",
       "translation": "выходить",
       "translations": {
         "ru": "выходить",
@@ -56,6 +59,7 @@
     {
       "word": "flow",
       "part_of_speech": "verb",
+      "transcription": "/floʊ/",
       "translation": "течь",
       "translations": {
         "ru": "течь",
@@ -70,6 +74,7 @@
     {
       "word": "chase",
       "part_of_speech": "verb",
+      "transcription": "/tʃeɪs/",
       "translation": "гнаться, преследовать",
       "translations": {
         "ru": "гнаться, преследовать",
@@ -84,6 +89,7 @@
     {
       "word": "escape",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈskeɪp/",
       "translation": "сбегать, убегать",
       "translations": {
         "ru": "сбегать, убегать",
@@ -98,6 +104,7 @@
     {
       "word": "hurry",
       "part_of_speech": "verb",
+      "transcription": "/ˈhɜri/",
       "translation": "спешить, торопиться",
       "translations": {
         "ru": "спешить, торопиться",
@@ -112,6 +119,7 @@
     {
       "word": "crawl",
       "part_of_speech": "verb",
+      "transcription": "/krɔl/",
       "translation": "ползать",
       "translations": {
         "ru": "ползать",
@@ -126,6 +134,7 @@
     {
       "word": "roll",
       "part_of_speech": "verb",
+      "transcription": "/roʊl/",
       "translation": "катиться",
       "translations": {
         "ru": "катиться",
@@ -140,6 +149,7 @@
     {
       "word": "float",
       "part_of_speech": "verb",
+      "transcription": "/floʊt/",
       "translation": "плавать на поверхности",
       "translations": {
         "ru": "плавать на поверхности",

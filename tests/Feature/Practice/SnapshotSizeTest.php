@@ -230,3 +230,36 @@ it('keeps a round limit with the reserve on top of the biggest snapshot, and no 
         ->and(Snapshot::MAX_BYTES % 1024)->toBe(0)
         ->and(Snapshot::MAX_BYTES / 1024)->toBeLessThanOrEqual(64);
 });
+
+it('builds the biggest board of the clock mode - words at the limits of their columns - shortened to fit the limit with a quarter to spare, in ru and in uz', function (string $locale): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => $locale]);
+    foreach (PracticeKit::words($lesson, 40, $learner, state: 'review') as $i => $word) {
+        $word->forceFill(['word' => snapLatin(100, "w{$i}x"), 'translation' => $locale === 'ru' ? snapCyrillic(500) : snapLatin(500, "t{$i}x")])->save();
+        if ($locale === 'ru') {
+            $word->forceFill(['translation' => "{$i} ".mb_substr(snapCyrillic(500), 0, 496)])->save();
+        }
+    }
+
+    $snapshot = app(PracticeSnapshotBuilder::class)->build(PracticeMode::PairsTimed, new MaterialScope($course, $lesson), $learner, LocaleSet::of($locale), 10, false, str_repeat('a', 32));
+    [$utf8] = snapSizes($snapshot);
+
+    // The columns allow more than the ten rounds can carry: the game is shorter, still a whole number of whole rounds, and the numbers on the boards say so.
+    expect($snapshot->count())->toBeGreaterThanOrEqual(5)->toBeLessThanOrEqual(10)
+        ->and($locale === 'ru' ? $snapshot->count() < 10 : true)->toBeTrue() // Cyrillic is two bytes a letter: ru does not carry ten such rounds
+        ->and(array_unique(array_map(fn ($element): int => $element->data['rounds'], $snapshot->elements)))->toBe([$snapshot->count()])
+        ->and($utf8)->toBeLessThanOrEqual(Snapshot::MAX_BYTES)
+        ->and(Snapshot::MAX_BYTES)->toBeGreaterThanOrEqual((int) ceil($utf8 * SNAPSHOT_RESERVE), "the biggest {$locale} pairs_timed snapshot is {$utf8} bytes");
+})->with(['ru', 'uz']);
+
+it('opens the clock mode on a board of ordinary long words with a wide margin', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    foreach (PracticeKit::words($lesson, 8, $learner, state: 'review') as $i => $word) {
+        $word->forceFill(['word' => snapLatin(30, "w{$i}x"), 'translation' => mb_substr("{$i} ".snapCyrillic(80), 0, 60)])->save();
+    }
+
+    $snapshot = app(PracticeSnapshotBuilder::class)->build(PracticeMode::PairsTimed, new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'), 10, false, str_repeat('a', 32));
+
+    expect(snapSizes($snapshot)[0])->toBeLessThan(Snapshot::MAX_BYTES / SNAPSHOT_RESERVE)->and($snapshot->count())->toBe(10);
+});

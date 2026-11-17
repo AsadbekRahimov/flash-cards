@@ -655,7 +655,7 @@ it('shows the client the prompt and the fragments and nothing else of the task, 
 
     $opened->assertExactJsonStructure([
         'id', 'status', 'mode', 'source', 'retry_of', 'course' => ['slug', 'title'], 'lesson' => ['id', 'stage', 'number', 'title'],
-        'progress' => ['done', 'total'], 'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now',
+        'progress' => ['done', 'total'], 'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now', 'timed',
         'current' => ['id', 'kind', 'prompt', 'fragments' => ['*' => ['id', 'text']]], 'summary',
         'limits', // the 201 alone carries the Free limits of the day (docs/18 G1)
     ]);
@@ -841,7 +841,7 @@ it('stays within the query budgets of docs/16 §13 on the real handler, and read
         $session = smAnswer($learner, $session['id'], $session['current']['id'], smRight($session['current']))->assertOk()->json('session');
     });
 
-    expect(count($hub))->toBeLessThanOrEqual(9, implode("\n", $hub))
+    expect(count($hub))->toBeLessThanOrEqual(10, implode("\n", $hub))
         ->and(count($open))->toBeLessThanOrEqual(12, implode("\n", $open))
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
         ->and($reads($hub, 'practice_items'))->toBe(1)

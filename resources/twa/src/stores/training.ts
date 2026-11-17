@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { useTodayStore } from '@/stores/today'
 import {
   EXERCISE_TYPES,
   type Card,
@@ -205,6 +206,8 @@ export const useTrainingStore = defineStore('training', {
         return res.session_id
       } catch (err) {
         this.openError = errorMessage(err, 'training')
+        // The round of hard words was played in another tab (or the words went): "Today" is read again, so its invitation matches the server.
+        if (err instanceof ApiClientError && err.code === 'hard_round_unavailable') void useTodayStore().load()
         return null
       } finally {
         this.opening = false

@@ -161,6 +161,8 @@ it('posts the summary once when the job is delivered three times at once (two wo
     $caravan = ClassCaravan::factory()->finished()->create(['telegram_group_id' => $w['group']->id, 'course_id' => ClassCaravan::factory()->make()->course_id ?? null]);
     ClassCaravanMember::factory()->create(['class_caravan_id' => $caravan->id, 'learner_id' => $w['learners'][0]->id, 'runs' => 2, 'stars' => 5]);
     $caravanId = $caravan->id;
+    // The lock of the job must be shared by the forked workers: the `array` store of phpunit.xml is private to each process.
+    config(['cache.default' => 'redis']);
     $sends = sys_get_temp_dir().'/lexiflow-class-summary-'.bin2hex(random_bytes(4)).'.log';
     @unlink($sends);
 

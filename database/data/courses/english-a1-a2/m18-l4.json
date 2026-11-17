@@ -14,6 +14,7 @@
     {
       "word": "exercise",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛksərˌsaɪz/",
       "translation": "упражнение",
       "translations": {
         "ru": "упражнение",
@@ -28,6 +29,7 @@
     {
       "word": "jog",
       "part_of_speech": "verb",
+      "transcription": "/dʒɑg/",
       "translation": "бегать трусцой",
       "translations": {
         "ru": "бегать трусцой",
@@ -42,6 +44,7 @@
     {
       "word": "stretch",
       "part_of_speech": "verb",
+      "transcription": "/strɛtʃ/",
       "translation": "растягиваться",
       "translations": {
         "ru": "растягиваться",
@@ -56,6 +59,7 @@
     {
       "word": "muscle",
       "part_of_speech": "noun",
+      "transcription": "/ˈmʌsəl/",
       "translation": "мышца",
       "translations": {
         "ru": "мышца",
@@ -70,6 +74,7 @@
     {
       "word": "weight",
       "part_of_speech": "noun",
+      "transcription": "/weɪt/",
       "translation": "вес",
       "translations": {
         "ru": "вес",
@@ -84,6 +89,7 @@
     {
       "word": "lift",
       "part_of_speech": "verb",
+      "transcription": "/lɪft/",
       "translation": "поднимать",
       "translations": {
         "ru": "поднимать",
@@ -98,6 +104,7 @@
     {
       "word": "yoga",
       "part_of_speech": "noun",
+      "transcription": "/ˈjoʊgə/",
       "translation": "йога",
       "translations": {
         "ru": "йога",
@@ -112,6 +119,7 @@
     {
       "word": "energy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnərdʒi/",
       "translation": "энергия",
       "translations": {
         "ru": "энергия",
@@ -126,6 +134,7 @@
     {
       "word": "cycle",
       "part_of_speech": "verb",
+      "transcription": "/ˈsaɪkəl/",
       "translation": "ездить на велосипеде",
       "translations": {
         "ru": "ездить на велосипеде",
@@ -140,6 +149,7 @@
     {
       "word": "workout",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkaʊt/",
       "translation": "тренировка",
       "translations": {
         "ru": "тренировка",

@@ -189,3 +189,38 @@ describe('PracticeSummary — what next', () => {
     expect(render({ busy: true, summary: summary({ retry_available: false }) }).get('[data-testid=again-btn]').attributes('disabled')).toBeDefined()
   })
 })
+
+describe('PracticeSummary — timed pairs', () => {
+  const timedSummary = (overrides = {}) =>
+    summary({ total: 10, answered: 3, correct_first: 23, hints: 0, typos: 0, mismatches: 4, mistakes: [], retry_available: false, finish_reason: 'time_over', score: 23, best_score: 23, is_record: false, ...overrides })
+
+  it('says the score and the record, with "Again" and "To the games" only', async () => {
+    const wrapper = render({ summary: timedSummary() }, 'pairs_timed')
+
+    expect(text(wrapper, 'timed-summary-score')).toBe('Счёт: 23')
+    expect(text(wrapper, 'timed-best')).toBe('Рекорд: 23')
+    expect(wrapper.find('[data-testid=timed-new-record]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=confetti]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=retry-btn]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mistakes]').exists()).toBe(false)
+    expect(text(wrapper, 'again-btn')).toBe('Ещё раз')
+    expect(text(wrapper, 'hub-btn')).toBe('К играм')
+
+    await wrapper.get('[data-testid=again-btn]').trigger('click')
+    await wrapper.get('[data-testid=hub-btn]').trigger('click')
+    expect(wrapper.emitted('again')).toHaveLength(1)
+    expect(wrapper.emitted('hub')).toHaveLength(1)
+  })
+
+  it('celebrates a new record', () => {
+    const wrapper = render({ summary: timedSummary({ is_record: true }) }, 'pairs_timed')
+
+    expect(text(wrapper, 'timed-new-record')).toBe('Новый рекорд!')
+    expect(wrapper.find('[data-testid=timed-best]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=confetti]').exists()).toBe(true)
+  })
+
+  it('a game that went through all the rounds says so', () => {
+    expect(text(render({ summary: timedSummary({ finish_reason: 'completed' }) }, 'pairs_timed'), 'summary-reason')).toBe('Все раунды пройдены!')
+  })
+})

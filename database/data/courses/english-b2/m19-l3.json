@@ -14,6 +14,7 @@
     {
       "word": "adequate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈædɪkwət/",
       "translation": "приемлемый, достаточный",
       "translations": {
         "ru": "приемлемый, достаточный",
@@ -28,6 +29,7 @@
     {
       "word": "sufficient",
       "part_of_speech": "adjective",
+      "transcription": "/səˈfɪʃənt/",
       "translation": "достаточный",
       "translations": {
         "ru": "достаточный",
@@ -42,6 +44,7 @@
     {
       "word": "superior",
       "part_of_speech": "adjective",
+      "transcription": "/suˈpɪriər/",
       "translation": "более качественный, лучший",
       "translations": {
         "ru": "более качественный, лучший",
@@ -56,6 +59,7 @@
     {
       "word": "inferior",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈfɪriər/",
       "translation": "низкосортный, худший",
       "translations": {
         "ru": "низкосортный, худший",
@@ -70,6 +74,7 @@
     {
       "word": "outstanding",
       "part_of_speech": "adjective",
+      "transcription": "/aʊtˈstændɪŋ/",
       "translation": "выдающийся",
       "translations": {
         "ru": "выдающийся",
@@ -84,6 +89,7 @@
     {
       "word": "remarkable",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈmɑrkəbəl/",
       "translation": "поразительный, замечательный",
       "translations": {
         "ru": "поразительный, замечательный",
@@ -98,6 +104,7 @@
     {
       "word": "exceptional",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsɛpʃənəl/",
       "translation": "исключительный",
       "translations": {
         "ru": "исключительный",
@@ -112,6 +119,7 @@
     {
       "word": "decent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdisənt/",
       "translation": "приличный, достойный",
       "translations": {
         "ru": "приличный, достойный",
@@ -126,6 +134,7 @@
     {
       "word": "superb",
       "part_of_speech": "adjective",
+      "transcription": "/suˈpɜrb/",
       "translation": "великолепный, превосходный",
       "translations": {
         "ru": "великолепный, превосходный",
@@ -140,6 +149,7 @@
     {
       "word": "worthwhile",
       "part_of_speech": "adjective",
+      "transcription": "/ˌwɜrθˈwaɪl/",
       "translation": "стоящий, полезный",
       "translations": {
         "ru": "стоящий, полезный",

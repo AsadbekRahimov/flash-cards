@@ -14,6 +14,7 @@
     {
       "word": "valley",
       "part_of_speech": "noun",
+      "transcription": "/ˈvæli/",
       "translation": "долина",
       "translations": {
         "ru": "долина",
@@ -28,6 +29,7 @@
     {
       "word": "desert",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛzərt/",
       "translation": "пустыня",
       "translations": {
         "ru": "пустыня",
@@ -42,6 +44,7 @@
     {
       "word": "hill",
       "part_of_speech": "noun",
+      "transcription": "/hɪl/",
       "translation": "холм",
       "translations": {
         "ru": "холм",
@@ -56,6 +59,7 @@
     {
       "word": "coast",
       "part_of_speech": "noun",
+      "transcription": "/koʊst/",
       "translation": "побережье",
       "translations": {
         "ru": "побережье",
@@ -70,6 +74,7 @@
     {
       "word": "waterfall",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔtərˌfɔl/",
       "translation": "водопад",
       "translations": {
         "ru": "водопад",
@@ -84,6 +89,7 @@
     {
       "word": "cave",
       "part_of_speech": "noun",
+      "transcription": "/keɪv/",
       "translation": "пещера",
       "translations": {
         "ru": "пещера",
@@ -98,6 +104,7 @@
     {
       "word": "volcano",
       "part_of_speech": "noun",
+      "transcription": "/vɑlˈkeɪnoʊ/",
       "translation": "вулкан",
       "translations": {
         "ru": "вулкан",
@@ -112,6 +119,7 @@
     {
       "word": "jungle",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒʌŋgəl/",
       "translation": "джунгли",
       "translations": {
         "ru": "джунгли",
@@ -126,6 +134,7 @@
     {
       "word": "ocean",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊʃən/",
       "translation": "океан",
       "translations": {
         "ru": "океан",
@@ -140,6 +149,7 @@
     {
       "word": "cliff",
       "part_of_speech": "noun",
+      "transcription": "/klɪf/",
       "translation": "утёс",
       "translations": {
         "ru": "утёс",

@@ -14,6 +14,7 @@
     {
       "word": "outdoor",
       "part_of_speech": "adjective",
+      "transcription": "/ˈaʊtdɔr/",
       "translation": "на открытом воздухе",
       "translations": {
         "ru": "на открытом воздухе",
@@ -28,6 +29,7 @@
     {
       "word": "hike",
       "part_of_speech": "noun",
+      "transcription": "/haɪk/",
       "translation": "поход",
       "translations": {
         "ru": "поход",
@@ -42,6 +44,7 @@
     {
       "word": "rescue",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛskju/",
       "translation": "спасать",
       "translations": {
         "ru": "спасать",
@@ -56,6 +59,7 @@
     {
       "word": "trail",
       "part_of_speech": "noun",
+      "transcription": "/treɪl/",
       "translation": "тропа",
       "translations": {
         "ru": "тропа",
@@ -70,6 +74,7 @@
     {
       "word": "peak",
       "part_of_speech": "noun",
+      "transcription": "/pik/",
       "translation": "вершина",
       "translations": {
         "ru": "вершина",
@@ -84,6 +89,7 @@
     {
       "word": "slope",
       "part_of_speech": "noun",
+      "transcription": "/sloʊp/",
       "translation": "склон",
       "translations": {
         "ru": "склон",
@@ -98,6 +104,7 @@
     {
       "word": "compass",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌmpəs/",
       "translation": "компас",
       "translations": {
         "ru": "компас",
@@ -112,6 +119,7 @@
     {
       "word": "canoe",
       "part_of_speech": "noun",
+      "transcription": "/kəˈnu/",
       "translation": "каноэ",
       "translations": {
         "ru": "каноэ",
@@ -126,6 +134,7 @@
     {
       "word": "bonfire",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑnfaɪər/",
       "translation": "костёр",
       "translations": {
         "ru": "костёр",
@@ -140,6 +149,7 @@
     {
       "word": "barbecue",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑrbɪkju/",
       "translation": "барбекю",
       "translations": {
         "ru": "барбекю",

@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * The hub of the practice for a course / a lesson (docs/16 §7.1): the four modes with their state, the unfinished session and
+ * The hub of the practice for a course / a lesson (docs/16 §7.1): the modes with their state (a mode with a clock also has `record`: the best score or null), the unfinished session and
  * the summary of the battles. A read: it changes nothing but the closing of an expired session it comes across.
  *
  * `state` of a mode: `available`, `not_enough` (with the reason of ModeAvailability), `disabled` (the switch is off: only the
@@ -39,6 +39,7 @@ final class PracticeHubService
         private readonly DeckTitles $deckTitles,
         private readonly LocaleResolver $locales,
         private readonly PracticeLimits $limits,
+        private readonly PracticeRecords $records,
     ) {}
 
     /**
@@ -61,9 +62,16 @@ final class PracticeHubService
             ? []
             : $this->material->availability(MaterialScope::forCount($course, $lesson), $learner, new LocaleSet([$locale]));
 
+        // The personal bests (one statement): only the modes with a clock show one.
+        $records = $access->isProRequired() ? [] : $this->records->forLearner($learner->id);
+
         $modes = [];
         foreach (PracticeMode::cases() as $mode) {
-            $modes[] = $this->modeRow($mode, $access->isProRequired(), $availability[$mode->value] ?? null);
+            $row = $this->modeRow($mode, $access->isProRequired(), $availability[$mode->value] ?? null);
+            if ($mode->isTimed()) {
+                $row['record'] = $records[$mode->value] ?? null;
+            }
+            $modes[] = $row;
         }
 
         $active = $this->sessions->activeFor($learner, $now);
@@ -86,9 +94,11 @@ final class PracticeHubService
     /** @return array{mode: string, state: string, available: int, required: int, reason: string|null, estimate_seconds: int} */
     private function modeRow(PracticeMode $mode, bool $proRequired, ?ModeAvailability $availability): array
     {
-        $required = $mode === PracticeMode::Pairs
-            ? max(1, (int) config('practice.solo.pairs.min_per_round'))
-            : max(1, (int) config('practice.solo.items.min'));
+        $required = match ($mode) {
+            PracticeMode::Pairs => max(1, (int) config('practice.solo.pairs.min_per_round')),
+            PracticeMode::PairsTimed => max((int) config('practice.solo.pairs_timed.min_words'), (int) config('practice.solo.pairs_timed.per_round'), 1),
+            default => max(1, (int) config('practice.solo.items.min')),
+        };
 
         $state = match (true) {
             $proRequired => 'pro_required',

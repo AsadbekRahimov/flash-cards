@@ -55,8 +55,8 @@ final class ExamSessionPolicy
      * Error code to answer with (403) when the learner may not see this exam,
      * null when access is granted: an active member of the session's active
      * group (`not_a_member` / `group_inactive`; 410 for a closed session is
-     * decided separately). A `personal_mock` is visible to its owner only
-     * (`forbidden`, docs/13 §8.4).
+     * decided separately). A `personal_mock` and a `level_quiz` are visible to
+     * their owner only (`forbidden`, docs/13 §8.4, §8.5).
      */
     public function denial(Learner $learner, ExamSession $session): ?string
     {
@@ -64,7 +64,7 @@ final class ExamSessionPolicy
             return 'forbidden';
         }
 
-        if ($session->isPersonalMock()) {
+        if ($session->isLearnerOwned()) {
             return $session->learner_id === (int) $learner->id ? null : 'forbidden';
         }
 

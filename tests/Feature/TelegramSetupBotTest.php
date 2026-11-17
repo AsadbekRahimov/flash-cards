@@ -14,7 +14,7 @@ use App\Domain\Telegram\Services\BotMenuBuilder;
  */
 
 beforeEach(function (): void {
-    config(['twa.base_url' => 'https://twa.test']);
+    config(['twa.base_url' => 'https://twa.test', 'game.access' => 'off']); // the class caravan commands are in the menu only with the game open
 
     $this->telegram = app(TelegramClient::class);
 });

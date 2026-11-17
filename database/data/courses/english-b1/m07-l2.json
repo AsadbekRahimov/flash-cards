@@ -14,6 +14,7 @@
     {
       "word": "qualification",
       "part_of_speech": "noun",
+      "transcription": "/ˌkwɑləfəˈkeɪʃən/",
       "translation": "квалификация",
       "translations": {
         "ru": "квалификация",
@@ -28,6 +29,7 @@
     {
       "word": "requirement",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈkwaɪərmənt/",
       "translation": "требование",
       "translations": {
         "ru": "требование",
@@ -42,6 +44,7 @@
     {
       "word": "position",
       "part_of_speech": "noun",
+      "transcription": "/pəˈzɪʃən/",
       "translation": "должность",
       "translations": {
         "ru": "должность",
@@ -56,6 +59,7 @@
     {
       "word": "permanent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɜrmənənt/",
       "translation": "постоянный",
       "translations": {
         "ru": "постоянный",
@@ -70,6 +74,7 @@
     {
       "word": "temporary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛmpərɛri/",
       "translation": "временный",
       "translations": {
         "ru": "временный",
@@ -84,6 +89,7 @@
     {
       "word": "trainee",
       "part_of_speech": "noun",
+      "transcription": "/ˌtreɪˈni/",
       "translation": "стажёр",
       "translations": {
         "ru": "стажёр",
@@ -98,6 +104,7 @@
     {
       "word": "internship",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntɜrnʃɪp/",
       "translation": "стажировка",
       "translations": {
         "ru": "стажировка",
@@ -112,6 +119,7 @@
     {
       "word": "staff",
       "part_of_speech": "noun",
+      "transcription": "/stæf/",
       "translation": "персонал, сотрудники",
       "translations": {
         "ru": "персонал, сотрудники",
@@ -126,6 +134,7 @@
     {
       "word": "resign",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈzaɪn/",
       "translation": "увольняться",
       "translations": {
         "ru": "увольняться",
@@ -140,6 +149,7 @@
     {
       "word": "suitable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsutəbəl/",
       "translation": "подходящий",
       "translations": {
         "ru": "подходящий",

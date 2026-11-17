@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Twa\GameRunController;
 use App\Http\Controllers\Api\Twa\GameShopController;
 use App\Http\Controllers\Api\Twa\GameWalletController;
 use App\Http\Controllers\Api\Twa\LeagueController;
+use App\Http\Controllers\Api\Twa\LevelQuizController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
 use App\Http\Controllers\Api\Twa\PracticeSessionController;
 use App\Http\Controllers\Api\Twa\PromoController;
+use App\Http\Controllers\Api\Twa\ReadinessController;
 use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
@@ -106,6 +108,11 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/courses/{slug}/mock-exam', [MockExamController::class, 'open'])
             ->middleware('throttle:twa-session-create')
             ->name('twa.courses.mock-exam');
+        // Readiness to the level and the quiz of the week of a course (docs/04 A.20); the quiz is played on the exam routes below.
+        Route::get('/courses/{slug}/readiness', [ReadinessController::class, 'show'])->name('twa.courses.readiness');
+        Route::post('/courses/{slug}/level-quiz', [LevelQuizController::class, 'open'])
+            ->middleware('throttle:twa-session-create')
+            ->name('twa.courses.level-quiz');
 
         // Learner decks (docs/04 A.10): reads share `twa-api`; writes and imports have their own caps.
         Route::get('/decks', [DeckController::class, 'index'])->name('twa.decks.index');
@@ -197,6 +204,7 @@ Route::prefix('twa')->group(function (): void {
         Route::prefix('practice/sessions/{session}')->whereNumber('session')->group(function (): void {
             Route::get('/', [PracticeSessionController::class, 'show'])->name('twa.practice.sessions.show');
             Route::middleware('throttle:twa-practice-answer')->group(function (): void {
+                Route::post('/start', [PracticeSessionController::class, 'start'])->name('twa.practice.sessions.start');
                 Route::post('/answer', [PracticeSessionController::class, 'answer'])->name('twa.practice.sessions.answer');
                 Route::post('/replace', [PracticeSessionController::class, 'replace'])->name('twa.practice.sessions.replace');
             });

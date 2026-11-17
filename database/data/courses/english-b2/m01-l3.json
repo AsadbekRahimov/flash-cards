@@ -14,6 +14,7 @@
     {
       "word": "considerate",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈsɪdərət/",
       "translation": "внимательный к другим",
       "translations": {
         "ru": "внимательный к другим",
@@ -28,6 +29,7 @@
     {
       "word": "tolerant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɑlərənt/",
       "translation": "терпимый, толерантный",
       "translations": {
         "ru": "терпимый, толерантный",
@@ -42,6 +44,7 @@
     {
       "word": "sympathetic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsɪmpəˈθɛtɪk/",
       "translation": "участливый, сочувствующий",
       "translations": {
         "ru": "участливый, сочувствующий",
@@ -56,6 +59,7 @@
     {
       "word": "sincere",
       "part_of_speech": "adjective",
+      "transcription": "/sɪnˈsɪr/",
       "translation": "искренний",
       "translations": {
         "ru": "искренний",
@@ -70,6 +74,7 @@
     {
       "word": "devoted",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈvoʊtɪd/",
       "translation": "преданный",
       "translations": {
         "ru": "преданный",
@@ -84,6 +89,7 @@
     {
       "word": "humble",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhʌmbəl/",
       "translation": "скромный",
       "translations": {
         "ru": "скромный",
@@ -98,6 +104,7 @@
     {
       "word": "empathy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛmpəθi/",
       "translation": "эмпатия, сопереживание",
       "translations": {
         "ru": "эмпатия, сопереживание",
@@ -112,6 +119,7 @@
     {
       "word": "compassion",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpæʃən/",
       "translation": "сострадание",
       "translations": {
         "ru": "сострадание",
@@ -126,6 +134,7 @@
     {
       "word": "hostile",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɑstəl/",
       "translation": "враждебный",
       "translations": {
         "ru": "враждебный",
@@ -140,6 +149,7 @@
     {
       "word": "indifferent",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdɪfərənt/",
       "translation": "равнодушный, безразличный",
       "translations": {
         "ru": "равнодушный, безразличный",

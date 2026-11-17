@@ -14,6 +14,7 @@
     {
       "word": "manage",
       "part_of_speech": "verb",
+      "transcription": "/ˈmænɪdʒ/",
       "translation": "управлять",
       "translations": {
         "ru": "управлять",
@@ -28,6 +29,7 @@
     {
       "word": "organize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔrgəˌnaɪz/",
       "translation": "организовывать",
       "translations": {
         "ru": "организовывать",
@@ -42,6 +44,7 @@
     {
       "word": "prepare",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈpɛr/",
       "translation": "готовить",
       "translations": {
         "ru": "готовить",
@@ -56,6 +59,7 @@
     {
       "word": "produce",
       "part_of_speech": "verb",
+      "transcription": "/prəˈdus/",
       "translation": "производить",
       "translations": {
         "ru": "производить",
@@ -70,6 +74,7 @@
     {
       "word": "repair",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpɛr/",
       "translation": "ремонтировать",
       "translations": {
         "ru": "ремонтировать",
@@ -84,6 +89,7 @@
     {
       "word": "build",
       "part_of_speech": "verb",
+      "transcription": "/bɪld/",
       "translation": "строить",
       "translations": {
         "ru": "строить",
@@ -98,6 +104,7 @@
     {
       "word": "design",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈzaɪn/",
       "translation": "проектировать",
       "translations": {
         "ru": "проектировать",
@@ -112,6 +119,7 @@
     {
       "word": "supervise",
       "part_of_speech": "verb",
+      "transcription": "/ˈsupərˌvaɪz/",
       "translation": "контролировать",
       "translations": {
         "ru": "контролировать",
@@ -126,6 +134,7 @@
     {
       "word": "lead",
       "part_of_speech": "verb",
+      "transcription": "/lid/",
       "translation": "возглавлять",
       "translations": {
         "ru": "возглавлять",
@@ -140,6 +149,7 @@
     {
       "word": "achieve",
       "part_of_speech": "verb",
+      "transcription": "/əˈtʃiv/",
       "translation": "достигать",
       "translations": {
         "ru": "достигать",

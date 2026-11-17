@@ -412,6 +412,29 @@ describe('TrainingView — header and states', () => {
     expect(wrapper.get('[data-testid=lesson-header]').text()).toBe('2-modul · 4-dars · Food')
   })
 
+  it('the round of hard words has its own mark and "won X of N" from the progress, and ✕ leads Home', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({ ...started(1, 'hard_review'), total_words: 10, progress: { done: 3, total: 10 } })
+    const { wrapper, router } = await render(1)
+
+    expect(wrapper.get('[data-testid=hard-round-chip]').text()).toBe('Раунд трудных слов')
+    expect(wrapper.get('[data-testid=hard-round-progress]').text()).toBe('Побеждено 3 из 10')
+    expect(wrapper.find('[data-testid=lesson-header]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=daily-header]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid=close-btn]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('today')
+    expect(state.close).not.toHaveBeenCalled()
+  })
+
+  it('writes the hard round header in Uzbek', async () => {
+    setLocale('uz')
+    vi.mocked(api.training.start).mockResolvedValue({ ...started(1, 'hard_review'), progress: { done: 2, total: 10 } })
+    const { wrapper } = await render(1)
+
+    expect(wrapper.get('[data-testid=hard-round-progress]').text()).toBe('10 tadan 2 tasi yengildi')
+  })
+
   it('a daily review says «Review» instead of a lesson', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'daily_review'))
     const { wrapper } = await render(1)

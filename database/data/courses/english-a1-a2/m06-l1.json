@@ -14,6 +14,7 @@
     {
       "word": "buy",
       "part_of_speech": "verb",
+      "transcription": "/baɪ/",
       "translation": "покупать",
       "translations": {
         "ru": "покупать",
@@ -28,6 +29,7 @@
     {
       "word": "sell",
       "part_of_speech": "verb",
+      "transcription": "/sɛl/",
       "translation": "продавать",
       "translations": {
         "ru": "продавать",
@@ -42,6 +44,7 @@
     {
       "word": "shop",
       "part_of_speech": "noun",
+      "transcription": "/ʃɑp/",
       "translation": "магазин",
       "translations": {
         "ru": "магазин",
@@ -56,6 +59,7 @@
     {
       "word": "price",
       "part_of_speech": "noun",
+      "transcription": "/praɪs/",
       "translation": "цена",
       "translations": {
         "ru": "цена",
@@ -70,6 +74,7 @@
     {
       "word": "money",
       "part_of_speech": "noun",
+      "transcription": "/ˈmʌni/",
       "translation": "деньги",
       "translations": {
         "ru": "деньги",
@@ -84,6 +89,7 @@
     {
       "word": "pay",
       "part_of_speech": "verb",
+      "transcription": "/peɪ/",
       "translation": "платить",
       "translations": {
         "ru": "платить",
@@ -98,6 +104,7 @@
     {
       "word": "cost",
       "part_of_speech": "verb",
+      "transcription": "/kɔst/",
       "translation": "стоить",
       "translations": {
         "ru": "стоить",
@@ -112,6 +119,7 @@
     {
       "word": "cheap",
       "part_of_speech": "adjective",
+      "transcription": "/tʃip/",
       "translation": "дешёвый",
       "translations": {
         "ru": "дешёвый",
@@ -126,6 +134,7 @@
     {
       "word": "expensive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈspɛnsɪv/",
       "translation": "дорогой",
       "translations": {
         "ru": "дорогой",
@@ -140,6 +149,7 @@
     {
       "word": "bag",
       "part_of_speech": "noun",
+      "transcription": "/bæg/",
       "translation": "сумка",
       "translations": {
         "ru": "сумка",

@@ -14,6 +14,7 @@
     {
       "word": "analyze",
       "part_of_speech": "verb",
+      "transcription": "/ˈænəlaɪz/",
       "translation": "анализировать",
       "translations": {
         "ru": "анализировать",
@@ -28,6 +29,7 @@
     {
       "word": "isolate",
       "part_of_speech": "verb",
+      "transcription": "/ˈaɪsəleɪt/",
       "translation": "выделять, вычленять",
       "translations": {
         "ru": "выделять, вычленять",
@@ -42,6 +44,7 @@
     {
       "word": "classify",
       "part_of_speech": "verb",
+      "transcription": "/ˈklæsəfaɪ/",
       "translation": "классифицировать",
       "translations": {
         "ru": "классифицировать",
@@ -56,6 +59,7 @@
     {
       "word": "conclude",
       "part_of_speech": "verb",
+      "transcription": "/kənˈklud/",
       "translation": "делать вывод, заключать",
       "translations": {
         "ru": "делать вывод, заключать",
@@ -70,6 +74,7 @@
     {
       "word": "contrast",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtræst/",
       "translation": "противопоставлять",
       "translations": {
         "ru": "противопоставлять",
@@ -84,6 +89,7 @@
     {
       "word": "distinguish",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈstɪŋgwɪʃ/",
       "translation": "отличать, различать",
       "translations": {
         "ru": "отличать, различать",
@@ -98,6 +104,7 @@
     {
       "word": "differentiate",
       "part_of_speech": "verb",
+      "transcription": "/ˌdɪfəˈrɛnʃieɪt/",
       "translation": "разграничивать, дифференцировать",
       "translations": {
         "ru": "разграничивать, дифференцировать",
@@ -112,6 +119,7 @@
     {
       "word": "interpret",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈtɜrprɪt/",
       "translation": "толковать, интерпретировать",
       "translations": {
         "ru": "толковать, интерпретировать",
@@ -126,6 +134,7 @@
     {
       "word": "determine",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈtɜrmɪn/",
       "translation": "устанавливать, выяснять",
       "translations": {
         "ru": "устанавливать, выяснять",
@@ -140,6 +149,7 @@
     {
       "word": "quantify",
       "part_of_speech": "verb",
+      "transcription": "/ˈkwɑntəfaɪ/",
       "translation": "выражать в цифрах",
       "translations": {
         "ru": "выражать в цифрах",

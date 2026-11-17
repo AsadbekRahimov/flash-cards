@@ -14,6 +14,7 @@
     {
       "word": "flight",
       "part_of_speech": "noun",
+      "transcription": "/flaɪt/",
       "translation": "рейс",
       "translations": {
         "ru": "рейс",
@@ -28,6 +29,7 @@
     {
       "word": "departure",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈpɑrtʃər/",
       "translation": "вылет",
       "translations": {
         "ru": "вылет",
@@ -42,6 +44,7 @@
     {
       "word": "gate",
       "part_of_speech": "noun",
+      "transcription": "/geɪt/",
       "translation": "выход на посадку",
       "translations": {
         "ru": "выход на посадку",
@@ -56,6 +59,7 @@
     {
       "word": "platform",
       "part_of_speech": "noun",
+      "transcription": "/ˈplætfɔrm/",
       "translation": "платформа",
       "translations": {
         "ru": "платформа",
@@ -70,6 +74,7 @@
     {
       "word": "delay",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈleɪ/",
       "translation": "задержка",
       "translations": {
         "ru": "задержка",
@@ -84,6 +89,7 @@
     {
       "word": "cancel",
       "part_of_speech": "verb",
+      "transcription": "/ˈkænsəl/",
       "translation": "отменять",
       "translations": {
         "ru": "отменять",
@@ -98,6 +104,7 @@
     {
       "word": "passenger",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæsəndʒər/",
       "translation": "пассажир",
       "translations": {
         "ru": "пассажир",
@@ -112,6 +119,7 @@
     {
       "word": "customs",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌstəmz/",
       "translation": "таможня",
       "translations": {
         "ru": "таможня",
@@ -126,6 +134,7 @@
     {
       "word": "suitcase",
       "part_of_speech": "noun",
+      "transcription": "/ˈsutkeɪs/",
       "translation": "чемодан",
       "translations": {
         "ru": "чемодан",
@@ -140,6 +149,7 @@
     {
       "word": "land",
       "part_of_speech": "verb",
+      "transcription": "/lænd/",
       "translation": "приземляться",
       "translations": {
         "ru": "приземляться",

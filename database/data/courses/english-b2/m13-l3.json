@@ -14,6 +14,7 @@
     {
       "word": "globalization",
       "part_of_speech": "noun",
+      "transcription": "/ˌgloʊbələˈzeɪʃən/",
       "translation": "глобализация",
       "translations": {
         "ru": "глобализация",
@@ -28,6 +29,7 @@
     {
       "word": "famine",
       "part_of_speech": "noun",
+      "transcription": "/ˈfæmɪn/",
       "translation": "массовый голод",
       "translations": {
         "ru": "массовый голод",
@@ -42,6 +44,7 @@
     {
       "word": "hunger",
       "part_of_speech": "noun",
+      "transcription": "/ˈhʌŋgər/",
       "translation": "голод",
       "translations": {
         "ru": "голод",
@@ -56,6 +59,7 @@
     {
       "word": "pandemic",
       "part_of_speech": "noun",
+      "transcription": "/pænˈdɛmɪk/",
       "translation": "пандемия",
       "translations": {
         "ru": "пандемия",
@@ -70,6 +74,7 @@
     {
       "word": "outbreak",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtbreɪk/",
       "translation": "вспышка болезни",
       "translations": {
         "ru": "вспышка болезни",
@@ -84,6 +89,7 @@
     {
       "word": "shortage",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɔrtɪdʒ/",
       "translation": "нехватка, дефицит",
       "translations": {
         "ru": "нехватка, дефицит",
@@ -98,6 +104,7 @@
     {
       "word": "humanitarian",
       "part_of_speech": "adjective",
+      "transcription": "/hjuˌmænəˈtɛriən/",
       "translation": "гуманитарный",
       "translations": {
         "ru": "гуманитарный",
@@ -112,6 +119,7 @@
     {
       "word": "relief",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈlif/",
       "translation": "помощь пострадавшим",
       "translations": {
         "ru": "помощь пострадавшим",
@@ -126,6 +134,7 @@
     {
       "word": "malnutrition",
       "part_of_speech": "noun",
+      "transcription": "/ˌmælnuˈtrɪʃən/",
       "translation": "недоедание",
       "translations": {
         "ru": "недоедание",
@@ -140,6 +149,7 @@
     {
       "word": "sanitation",
       "part_of_speech": "noun",
+      "transcription": "/ˌsænəˈteɪʃən/",
       "translation": "санитария",
       "translations": {
         "ru": "санитария",

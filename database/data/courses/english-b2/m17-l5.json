@@ -14,6 +14,7 @@
     {
       "word": "nevertheless",
       "part_of_speech": "adverb",
+      "transcription": "/ˌnɛvərðəˈlɛs/",
       "translation": "тем не менее",
       "translations": {
         "ru": "тем не менее",
@@ -28,6 +29,7 @@
     {
       "word": "moreover",
       "part_of_speech": "adverb",
+      "transcription": "/mɔrˈoʊvər/",
       "translation": "более того",
       "translations": {
         "ru": "более того",
@@ -42,6 +44,7 @@
     {
       "word": "furthermore",
       "part_of_speech": "adverb",
+      "transcription": "/ˈfɜrðərmɔr/",
       "translation": "кроме того",
       "translations": {
         "ru": "кроме того",
@@ -56,6 +59,7 @@
     {
       "word": "whereas",
       "part_of_speech": "conjunction",
+      "transcription": "/wɛrˈæz/",
       "translation": "тогда как",
       "translations": {
         "ru": "тогда как",
@@ -70,6 +74,7 @@
     {
       "word": "thus",
       "part_of_speech": "adverb",
+      "transcription": "/ðʌs/",
       "translation": "таким образом",
       "translations": {
         "ru": "таким образом",
@@ -84,6 +89,7 @@
     {
       "word": "hence",
       "part_of_speech": "adverb",
+      "transcription": "/hɛns/",
       "translation": "следовательно, поэтому",
       "translations": {
         "ru": "следовательно, поэтому",
@@ -98,6 +104,7 @@
     {
       "word": "indeed",
       "part_of_speech": "adverb",
+      "transcription": "/ɪnˈdid/",
       "translation": "действительно, в самом деле",
       "translations": {
         "ru": "действительно, в самом деле",
@@ -112,6 +119,7 @@
     {
       "word": "regardless",
       "part_of_speech": "adverb",
+      "transcription": "/rɪˈgɑrdləs/",
       "translation": "независимо от",
       "translations": {
         "ru": "независимо от",
@@ -126,6 +134,7 @@
     {
       "word": "similarly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsɪmələrli/",
       "translation": "подобным образом, аналогично",
       "translations": {
         "ru": "подобным образом, аналогично",
@@ -140,6 +149,7 @@
     {
       "word": "alternatively",
       "part_of_speech": "adverb",
+      "transcription": "/ɔlˈtɜrnətɪvli/",
       "translation": "как вариант, или же",
       "translations": {
         "ru": "как вариант, или же",

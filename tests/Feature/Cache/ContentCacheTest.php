@@ -432,7 +432,7 @@ it('keeps the rows of a word under a key of its own per locale and fallback, a w
     [$a, , $c] = translatedWords();
     app(WordTranslationResolver::class)->map([$a, $c], 'uz');
 
-    expect(translationKey($a->id, 'uz'))->toBe("word:tr:v1:{$a->id}:uz:ru")
+    expect(translationKey($a->id, 'uz'))->toBe("word:tr:v2:{$a->id}:uz:ru")
         ->and(PureCache::store()->get(translationKey($a->id, 'uz')))->toBe(['ru' => 'а-ru', 'uz' => 'a-uz'])
         ->and(PureCache::store()->get(translationKey($c->id, 'uz')))->toBe([])
         ->and(PureCache::store()->has(translationKey($a->id, 'ru')))->toBeFalse('no one asked for ru');

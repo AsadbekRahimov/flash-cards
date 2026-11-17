@@ -35,7 +35,10 @@ import type {
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
+  LevelQuizSession,
   MockExamOpenResponse,
+  ReadinessResponse,
+  ReadinessSource,
   MeResponse,
   AccountDeletedResponse,
   NextCardResponse,
@@ -261,6 +264,14 @@ export const api = {
     /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
     openMock: (slug: string) =>
       client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
+    /** The test of the week (docs/04 A.20); free for everybody. 201 new, 200 the one that is on. */
+    openLevelQuiz: (slug: string) =>
+      client().post<LevelQuizSession>(`/courses/${encodeURIComponent(slug)}/level-quiz`),
+  },
+  readiness: {
+    /** Readiness for the level of a course (docs/04 A.20); `source` is the screen the learner came from (analytics). */
+    get: (slug: string, source: ReadinessSource) =>
+      client().get<ReadinessResponse>(`/courses/${encodeURIComponent(slug)}/readiness`, { source }),
   },
   gameRuns: {
     /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */
@@ -283,6 +294,8 @@ export const api = {
     /** Opens a solo session (201). 409 `practice_session_active` carries the unfinished one in `details`. */
     open: (body: PracticeOpenRequest) => client().post<PracticeSession>('/practice/sessions', { ...body }),
     get: (id: number) => client().get<PracticeSession>(`/practice/sessions/${id}`),
+    /** Starts the clock of a timed game (no body); idempotent: a second call returns the same deadline. */
+    start: (id: number) => client().post<PracticeSession>(`/practice/sessions/${id}/start`),
     /** One answer; a repeat with the same `request_id` returns the first result. */
     answer: (id: number, body: PracticeAnswerRequest) =>
       client().post<PracticeAnswerResponse>(`/practice/sessions/${id}/answer`, { ...body }),

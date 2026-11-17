@@ -14,6 +14,7 @@
     {
       "word": "mortgage",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɔrgɪdʒ/",
       "translation": "ипотека",
       "translations": {
         "ru": "ипотека",
@@ -28,6 +29,7 @@
     {
       "word": "borrower",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑroʊər/",
       "translation": "заёмщик",
       "translations": {
         "ru": "заёмщик",
@@ -42,6 +44,7 @@
     {
       "word": "creditor",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɛdɪtər/",
       "translation": "кредитор",
       "translations": {
         "ru": "кредитор",
@@ -56,6 +59,7 @@
     {
       "word": "installment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈstɔlmənt/",
       "translation": "взнос, платёж в рассрочку",
       "translations": {
         "ru": "взнос, платёж в рассрочку",
@@ -70,6 +74,7 @@
     {
       "word": "transaction",
       "part_of_speech": "noun",
+      "transcription": "/trænˈzækʃən/",
       "translation": "операция, транзакция",
       "translations": {
         "ru": "операция, транзакция",
@@ -84,6 +89,7 @@
     {
       "word": "bankruptcy",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæŋkrʌptsi/",
       "translation": "банкротство",
       "translations": {
         "ru": "банкротство",
@@ -98,6 +104,7 @@
     {
       "word": "repay",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpeɪ/",
       "translation": "возвращать долг, погашать",
       "translations": {
         "ru": "возвращать долг, погашать",
@@ -112,6 +119,7 @@
     {
       "word": "lender",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛndər/",
       "translation": "заимодавец, кредитор",
       "translations": {
         "ru": "заимодавец, кредитор",
@@ -126,6 +134,7 @@
     {
       "word": "overdue",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈdu/",
       "translation": "просроченный",
       "translations": {
         "ru": "просроченный",
@@ -140,6 +149,7 @@
     {
       "word": "overdraft",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərdræft/",
       "translation": "овердрафт",
       "translations": {
         "ru": "овердрафт",

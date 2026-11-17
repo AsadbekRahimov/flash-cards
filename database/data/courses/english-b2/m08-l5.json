@@ -14,6 +14,7 @@
     {
       "word": "diplomacy",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈploʊməsi/",
       "translation": "дипломатия",
       "translations": {
         "ru": "дипломатия",
@@ -28,6 +29,7 @@
     {
       "word": "ambassador",
       "part_of_speech": "noun",
+      "transcription": "/æmˈbæsədər/",
       "translation": "посол",
       "translations": {
         "ru": "посол",
@@ -42,6 +44,7 @@
     {
       "word": "negotiation",
       "part_of_speech": "noun",
+      "transcription": "/nɪˌgoʊʃiˈeɪʃən/",
       "translation": "переговоры",
       "translations": {
         "ru": "переговоры",
@@ -56,6 +59,7 @@
     {
       "word": "treaty",
       "part_of_speech": "noun",
+      "transcription": "/ˈtriti/",
       "translation": "договор",
       "translations": {
         "ru": "договор",
@@ -70,6 +74,7 @@
     {
       "word": "alliance",
       "part_of_speech": "noun",
+      "transcription": "/əˈlaɪəns/",
       "translation": "союз, альянс",
       "translations": {
         "ru": "союз, альянс",
@@ -84,6 +89,7 @@
     {
       "word": "summit",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌmɪt/",
       "translation": "саммит",
       "translations": {
         "ru": "саммит",
@@ -98,6 +104,7 @@
     {
       "word": "neutral",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnutrəl/",
       "translation": "нейтральный",
       "translations": {
         "ru": "нейтральный",
@@ -112,6 +119,7 @@
     {
       "word": "cooperation",
       "part_of_speech": "noun",
+      "transcription": "/koʊˌɑpəˈreɪʃən/",
       "translation": "сотрудничество",
       "translations": {
         "ru": "сотрудничество",
@@ -126,6 +134,7 @@
     {
       "word": "consulate",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnsələt/",
       "translation": "консульство",
       "translations": {
         "ru": "консульство",
@@ -140,6 +149,7 @@
     {
       "word": "territory",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛrətɔri/",
       "translation": "территория",
       "translations": {
         "ru": "территория",

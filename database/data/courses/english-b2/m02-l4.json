@@ -14,6 +14,7 @@
     {
       "word": "procedure",
       "part_of_speech": "noun",
+      "transcription": "/prəˈsidʒər/",
       "translation": "процедура, порядок",
       "translations": {
         "ru": "процедура, порядок",
@@ -28,6 +29,7 @@
     {
       "word": "agenda",
       "part_of_speech": "noun",
+      "transcription": "/əˈdʒɛndə/",
       "translation": "повестка дня",
       "translations": {
         "ru": "повестка дня",
@@ -42,6 +44,7 @@
     {
       "word": "assign",
       "part_of_speech": "verb",
+      "transcription": "/əˈsaɪn/",
       "translation": "поручать",
       "translations": {
         "ru": "поручать",
@@ -56,6 +59,7 @@
     {
       "word": "allocate",
       "part_of_speech": "verb",
+      "transcription": "/ˈæləkeɪt/",
       "translation": "выделять, распределять",
       "translations": {
         "ru": "выделять, распределять",
@@ -70,6 +74,7 @@
     {
       "word": "implement",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪmpləmɛnt/",
       "translation": "внедрять, осуществлять",
       "translations": {
         "ru": "внедрять, осуществлять",
@@ -84,6 +89,7 @@
     {
       "word": "consult",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsʌlt/",
       "translation": "консультироваться, советоваться",
       "translations": {
         "ru": "консультироваться, советоваться",
@@ -98,6 +104,7 @@
     {
       "word": "collaborate",
       "part_of_speech": "verb",
+      "transcription": "/kəˈlæbəreɪt/",
       "translation": "сотрудничать",
       "translations": {
         "ru": "сотрудничать",
@@ -112,6 +119,7 @@
     {
       "word": "submit",
       "part_of_speech": "verb",
+      "transcription": "/səbˈmɪt/",
       "translation": "сдавать, подавать",
       "translations": {
         "ru": "сдавать, подавать",
@@ -126,6 +134,7 @@
     {
       "word": "authorize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔθəraɪz/",
       "translation": "официально разрешать",
       "translations": {
         "ru": "официально разрешать",
@@ -140,6 +149,7 @@
     {
       "word": "prioritize",
       "part_of_speech": "verb",
+      "transcription": "/praɪˈɔrətaɪz/",
       "translation": "расставлять приоритеты",
       "translations": {
         "ru": "расставлять приоритеты",

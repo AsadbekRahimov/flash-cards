@@ -19,7 +19,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, example_translation: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null,
      *   can_continue: bool,
@@ -53,6 +53,9 @@ final class TrainingNextResource extends TwaResource
                 'translation_fallback' => $translation->isFallback ?? false,
                 // The example of this serve (docs/06 §12.4): the anchor until graduation, then the rotation.
                 'example' => $hidden ? null : $this->resource->example,
+                // The translation of exactly that example, in the session's language: hidden with it (the translation of a gap-fill
+                // sentence or of a reverse card's example would give the answer away), and back in `revealed` for meaning / reverse / audio.
+                'example_translation' => $hidden ? null : $this->resource->exampleTranslation,
                 'transcription' => $hidesWord || $reverse ? null : $word->transcription,
                 // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
                 'audio_url' => $hidesWord || $reverse ? null : $this->resource->audioUrl,

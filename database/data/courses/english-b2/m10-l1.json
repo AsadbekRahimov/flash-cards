@@ -14,6 +14,7 @@
     {
       "word": "editorial",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛdəˈtɔriəl/",
       "translation": "редакционная статья",
       "translations": {
         "ru": "редакционная статья",
@@ -28,6 +29,7 @@
     {
       "word": "exclusive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsklusɪv/",
       "translation": "эксклюзивный",
       "translations": {
         "ru": "эксклюзивный",
@@ -42,6 +44,7 @@
     {
       "word": "caption",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæpʃən/",
       "translation": "подпись под фото",
       "translations": {
         "ru": "подпись под фото",
@@ -56,6 +59,7 @@
     {
       "word": "coverage",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌvərɪdʒ/",
       "translation": "освещение событий",
       "translations": {
         "ru": "освещение событий",
@@ -70,6 +74,7 @@
     {
       "word": "newsroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈnuzrum/",
       "translation": "редакция новостей",
       "translations": {
         "ru": "редакция новостей",
@@ -84,6 +89,7 @@
     {
       "word": "journalism",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɜrnəlɪzəm/",
       "translation": "журналистика",
       "translations": {
         "ru": "журналистика",
@@ -98,6 +104,7 @@
     {
       "word": "tabloid",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæblɔɪd/",
       "translation": "бульварная газета, таблоид",
       "translations": {
         "ru": "бульварная газета, таблоид",
@@ -112,6 +119,7 @@
     {
       "word": "columnist",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑləmnɪst/",
       "translation": "колумнист",
       "translations": {
         "ru": "колумнист",
@@ -126,6 +134,7 @@
     {
       "word": "bulletin",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʊlətɪn/",
       "translation": "выпуск новостей",
       "translations": {
         "ru": "выпуск новостей",
@@ -140,6 +149,7 @@
     {
       "word": "publisher",
       "part_of_speech": "noun",
+      "transcription": "/ˈpʌblɪʃər/",
       "translation": "издатель",
       "translations": {
         "ru": "издатель",

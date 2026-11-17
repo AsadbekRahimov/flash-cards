@@ -19,8 +19,9 @@ final readonly class TodaySummary
      * @param  array{provider: string, ended_at: string}|null  $lapsed  a recently expired personal paid subscription
      * @param  string  $timezone  IANA id of the zone the learner's day (goal, streak) is counted in: the one LearnerClock uses
      * @param  TodayLeague|null  $league  the learner's place in this week's league group; null while not placed
-     * @param  array{daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}  $game  the entry "Caravan" (docs/04 A.2a)
+     * @param  array{available: bool, daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}  $game  the entry "Caravan" (docs/04 A.2a)
      * @param  array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: string}  $practice  the availability of the practice to the learner, as `/me.practice` without the limits (docs/16 §3.3)
+     * @param  array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null  $hardRound  the round of hard words (docs/06 §14); null while it is switched off
      */
     public function __construct(
         public int $dueCount,
@@ -33,7 +34,8 @@ final readonly class TodaySummary
         public bool $onboardingCompleted,
         public string $timezone,
         public ?TodayLeague $league = null,
-        public array $game = ['daily_available' => false, 'active_run' => null, 'class_caravan' => null],
+        public array $game = ['available' => false, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null],
         public array $practice = ['available' => false, 'pro_required' => false, 'modes' => [], 'battle' => false, 'pro_promise' => 'none'],
+        public ?array $hardRound = null,
     ) {}
 }

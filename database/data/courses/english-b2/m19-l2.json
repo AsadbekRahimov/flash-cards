@@ -14,6 +14,7 @@
     {
       "word": "approximately",
       "part_of_speech": "adverb",
+      "transcription": "/əˈprɑksəmətli/",
       "translation": "приблизительно",
       "translations": {
         "ru": "приблизительно",
@@ -28,6 +29,7 @@
     {
       "word": "roughly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈrʌfli/",
       "translation": "примерно",
       "translations": {
         "ru": "примерно",
@@ -42,6 +44,7 @@
     {
       "word": "thoroughly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈθɜroʊli/",
       "translation": "тщательно",
       "translations": {
         "ru": "тщательно",
@@ -56,6 +59,7 @@
     {
       "word": "relatively",
       "part_of_speech": "adverb",
+      "transcription": "/ˈrɛlətɪvli/",
       "translation": "относительно, сравнительно",
       "translations": {
         "ru": "относительно, сравнительно",
@@ -70,6 +74,7 @@
     {
       "word": "somewhat",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsʌmwʌt/",
       "translation": "несколько, отчасти",
       "translations": {
         "ru": "несколько, отчасти",
@@ -84,6 +89,7 @@
     {
       "word": "entirely",
       "part_of_speech": "adverb",
+      "transcription": "/ɪnˈtaɪərli/",
       "translation": "целиком, полностью",
       "translations": {
         "ru": "целиком, полностью",
@@ -98,6 +104,7 @@
     {
       "word": "barely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈbɛrli/",
       "translation": "едва, с трудом",
       "translations": {
         "ru": "едва, с трудом",
@@ -112,6 +119,7 @@
     {
       "word": "merely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈmɪrli/",
       "translation": "всего лишь, просто",
       "translations": {
         "ru": "всего лишь, просто",
@@ -126,6 +134,7 @@
     {
       "word": "largely",
       "part_of_speech": "adverb",
+      "transcription": "/ˈlɑrdʒli/",
       "translation": "во многом, в основном",
       "translations": {
         "ru": "во многом, в основном",
@@ -140,6 +149,7 @@
     {
       "word": "primarily",
       "part_of_speech": "adverb",
+      "transcription": "/praɪˈmɛrəli/",
       "translation": "в первую очередь, главным образом",
       "translations": {
         "ru": "в первую очередь, главным образом",

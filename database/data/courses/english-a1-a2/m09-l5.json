@@ -14,6 +14,7 @@
     {
       "word": "see",
       "part_of_speech": "verb",
+      "transcription": "/si/",
       "translation": "видеть",
       "translations": {
         "ru": "видеть",
@@ -28,6 +29,7 @@
     {
       "word": "hear",
       "part_of_speech": "verb",
+      "transcription": "/hɪr/",
       "translation": "слышать",
       "translations": {
         "ru": "слышать",
@@ -42,6 +44,7 @@
     {
       "word": "smell",
       "part_of_speech": "verb",
+      "transcription": "/smɛl/",
       "translation": "пахнуть",
       "translations": {
         "ru": "пахнуть",
@@ -56,6 +59,7 @@
     {
       "word": "touch",
       "part_of_speech": "verb",
+      "transcription": "/tʌtʃ/",
       "translation": "трогать, касаться",
       "translations": {
         "ru": "трогать, касаться",
@@ -70,6 +74,7 @@
     {
       "word": "taste",
       "part_of_speech": "verb",
+      "transcription": "/teɪst/",
       "translation": "пробовать на вкус",
       "translations": {
         "ru": "пробовать на вкус",
@@ -84,6 +89,7 @@
     {
       "word": "feel",
       "part_of_speech": "verb",
+      "transcription": "/fil/",
       "translation": "чувствовать",
       "translations": {
         "ru": "чувствовать",
@@ -98,6 +104,7 @@
     {
       "word": "look",
       "part_of_speech": "verb",
+      "transcription": "/lʊk/",
       "translation": "смотреть",
       "translations": {
         "ru": "смотреть",
@@ -112,6 +119,7 @@
     {
       "word": "hold",
       "part_of_speech": "verb",
+      "transcription": "/hoʊld/",
       "translation": "держать",
       "translations": {
         "ru": "держать",
@@ -126,6 +134,7 @@
     {
       "word": "carry",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɛri/",
       "translation": "нести",
       "translations": {
         "ru": "нести",
@@ -140,6 +149,7 @@
     {
       "word": "cry",
       "part_of_speech": "verb",
+      "transcription": "/kraɪ/",
       "translation": "плакать",
       "translations": {
         "ru": "плакать",

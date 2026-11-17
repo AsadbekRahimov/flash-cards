@@ -229,3 +229,19 @@ it('refuses a pack without a usable manifest', function (): void {
         File::deleteDirectory($dir);
     }
 });
+
+it('carries the level label of the manifest into meta.level_label, merged into the meta of an existing course', function (): void {
+    cpi_import();
+    $course = Course::query()->where('slug', 'english-a1-a2')->firstOrFail();
+
+    // The label shown for the level (docs/13 §8.5): the course is A1-A2, its `level` column says A1.
+    expect($course->level)->toBe('A1')
+        ->and($course->meta['level_label'])->toBe('A1–A2');
+
+    // Re-importing an existing course updates the label and keeps everything else in `meta`.
+    $course->update(['meta' => ['keep' => 'me', 'level_label' => 'old']]);
+    $report = app(CoursePackImporter::class)->import(base_path(CPI_DIR), create: false);
+
+    expect($report->errors)->toBe([])
+        ->and($course->refresh()->meta)->toBe(['keep' => 'me', 'level_label' => 'A1–A2']);
+});

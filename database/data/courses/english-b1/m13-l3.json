@@ -14,6 +14,7 @@
     {
       "word": "landscape",
       "part_of_speech": "noun",
+      "transcription": "/ˈlændskeɪp/",
       "translation": "пейзаж, ландшафт",
       "translations": {
         "ru": "пейзаж, ландшафт",
@@ -28,6 +29,7 @@
     {
       "word": "stream",
       "part_of_speech": "noun",
+      "transcription": "/strim/",
       "translation": "ручей",
       "translations": {
         "ru": "ручей",
@@ -42,6 +44,7 @@
     {
       "word": "pond",
       "part_of_speech": "noun",
+      "transcription": "/pɑnd/",
       "translation": "пруд",
       "translations": {
         "ru": "пруд",
@@ -56,6 +59,7 @@
     {
       "word": "shore",
       "part_of_speech": "noun",
+      "transcription": "/ʃɔr/",
       "translation": "берег",
       "translations": {
         "ru": "берег",
@@ -70,6 +74,7 @@
     {
       "word": "meadow",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛdoʊ/",
       "translation": "луг",
       "translations": {
         "ru": "луг",
@@ -84,6 +89,7 @@
     {
       "word": "bay",
       "part_of_speech": "noun",
+      "transcription": "/beɪ/",
       "translation": "залив, бухта",
       "translations": {
         "ru": "залив, бухта",
@@ -98,6 +104,7 @@
     {
       "word": "horizon",
       "part_of_speech": "noun",
+      "transcription": "/həˈraɪzən/",
       "translation": "горизонт",
       "translations": {
         "ru": "горизонт",
@@ -112,6 +119,7 @@
     {
       "word": "wave",
       "part_of_speech": "noun",
+      "transcription": "/weɪv/",
       "translation": "волна",
       "translations": {
         "ru": "волна",
@@ -126,6 +134,7 @@
     {
       "word": "continent",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntənənt/",
       "translation": "континент, материк",
       "translations": {
         "ru": "континент, материк",
@@ -140,6 +149,7 @@
     {
       "word": "countryside",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌntrisaɪd/",
       "translation": "сельская местность",
       "translations": {
         "ru": "сельская местность",

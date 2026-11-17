@@ -25,7 +25,7 @@ class LearnerFactory extends Factory
             'language_code' => fake()->randomElement(['en', 'ru', 'uz']),
             'interface_locale' => 'ru',
             'timezone' => (string) config('learners.default_timezone'),
-            'daily_goal' => (int) config('learners.default_daily_goal'),
+            'daily_goal' => 20, // explicit: tests must not depend on the default for new learners (config)
             'reminder_time' => (string) config('learners.default_reminder_time'),
             'onboarding_state' => 'new',
             'meta' => [],

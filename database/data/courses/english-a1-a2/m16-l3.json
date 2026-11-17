@@ -14,6 +14,7 @@
     {
       "word": "sweep",
       "part_of_speech": "verb",
+      "transcription": "/swip/",
       "translation": "подметать",
       "translations": {
         "ru": "подметать",
@@ -28,6 +29,7 @@
     {
       "word": "tidy",
       "part_of_speech": "verb",
+      "transcription": "/ˈtaɪdi/",
       "translation": "прибираться",
       "translations": {
         "ru": "прибираться",
@@ -42,6 +44,7 @@
     {
       "word": "iron",
       "part_of_speech": "verb",
+      "transcription": "/ˈaɪərn/",
       "translation": "гладить",
       "translations": {
         "ru": "гладить",
@@ -56,6 +59,7 @@
     {
       "word": "fold",
       "part_of_speech": "verb",
+      "transcription": "/foʊld/",
       "translation": "складывать",
       "translations": {
         "ru": "складывать",
@@ -70,6 +74,7 @@
     {
       "word": "laundry",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɔndri/",
       "translation": "стирка, бельё",
       "translations": {
         "ru": "стирка, бельё",
@@ -84,6 +89,7 @@
     {
       "word": "trash",
       "part_of_speech": "noun",
+      "transcription": "/træʃ/",
       "translation": "мусор",
       "translations": {
         "ru": "мусор",
@@ -98,6 +104,7 @@
     {
       "word": "dust",
       "part_of_speech": "noun",
+      "transcription": "/dʌst/",
       "translation": "пыль",
       "translations": {
         "ru": "пыль",
@@ -112,6 +119,7 @@
     {
       "word": "mop",
       "part_of_speech": "verb",
+      "transcription": "/mɑp/",
       "translation": "мыть пол шваброй",
       "translations": {
         "ru": "мыть пол шваброй",
@@ -126,6 +134,7 @@
     {
       "word": "dishes",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪʃəz/",
       "translation": "посуда",
       "translations": {
         "ru": "посуда",
@@ -140,6 +149,7 @@
     {
       "word": "chore",
       "part_of_speech": "noun",
+      "transcription": "/tʃɔr/",
       "translation": "домашняя обязанность",
       "translations": {
         "ru": "домашняя обязанность",

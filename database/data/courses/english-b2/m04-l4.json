@@ -14,6 +14,7 @@
     {
       "word": "molecule",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑləkjul/",
       "translation": "молекула",
       "translations": {
         "ru": "молекула",
@@ -28,6 +29,7 @@
     {
       "word": "atom",
       "part_of_speech": "noun",
+      "transcription": "/ˈætəm/",
       "translation": "атом",
       "translations": {
         "ru": "атом",
@@ -42,6 +44,7 @@
     {
       "word": "particle",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrtɪkəl/",
       "translation": "частица",
       "translations": {
         "ru": "частица",
@@ -56,6 +59,7 @@
     {
       "word": "nucleus",
       "part_of_speech": "noun",
+      "transcription": "/ˈnukliəs/",
       "translation": "ядро",
       "translations": {
         "ru": "ядро",
@@ -70,6 +74,7 @@
     {
       "word": "gene",
       "part_of_speech": "noun",
+      "transcription": "/dʒin/",
       "translation": "ген",
       "translations": {
         "ru": "ген",
@@ -84,6 +89,7 @@
     {
       "word": "organism",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrgənɪzəm/",
       "translation": "организм",
       "translations": {
         "ru": "организм",
@@ -98,6 +104,7 @@
     {
       "word": "gravity",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrævəti/",
       "translation": "гравитация, сила тяжести",
       "translations": {
         "ru": "гравитация, сила тяжести",
@@ -112,6 +119,7 @@
     {
       "word": "radiation",
       "part_of_speech": "noun",
+      "transcription": "/ˌreɪdiˈeɪʃən/",
       "translation": "излучение, радиация",
       "translations": {
         "ru": "излучение, радиация",
@@ -126,6 +134,7 @@
     {
       "word": "substance",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbstəns/",
       "translation": "вещество",
       "translations": {
         "ru": "вещество",
@@ -140,6 +149,7 @@
     {
       "word": "hydrogen",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪdrədʒən/",
       "translation": "водород",
       "translations": {
         "ru": "водород",

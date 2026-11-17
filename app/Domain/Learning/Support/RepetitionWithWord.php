@@ -59,6 +59,9 @@ final class RepetitionWithWord
                     if ($scope->isLesson()) {
                         $join->where('words.lesson_id', $scope->lessonId);
                     }
+                    if ($scope->isHard()) {
+                        $join->whereIn('words.id', $scope->wordIds);
+                    }
                 }
             });
     }

@@ -14,6 +14,7 @@
     {
       "word": "democracy",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈmɑkrəsi/",
       "translation": "демократия",
       "translations": {
         "ru": "демократия",
@@ -28,6 +29,7 @@
     {
       "word": "republic",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈpʌblɪk/",
       "translation": "республика",
       "translations": {
         "ru": "республика",
@@ -42,6 +44,7 @@
     {
       "word": "monarchy",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑnərki/",
       "translation": "монархия",
       "translations": {
         "ru": "монархия",
@@ -56,6 +59,7 @@
     {
       "word": "constitution",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnstəˈtuʃən/",
       "translation": "конституция",
       "translations": {
         "ru": "конституция",
@@ -70,6 +74,7 @@
     {
       "word": "federation",
       "part_of_speech": "noun",
+      "transcription": "/ˌfɛdəˈreɪʃən/",
       "translation": "федерация",
       "translations": {
         "ru": "федерация",
@@ -84,6 +89,7 @@
     {
       "word": "sovereignty",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑvrənti/",
       "translation": "суверенитет",
       "translations": {
         "ru": "суверенитет",
@@ -98,6 +104,7 @@
     {
       "word": "parliament",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrləmənt/",
       "translation": "парламент",
       "translations": {
         "ru": "парламент",
@@ -112,6 +119,7 @@
     {
       "word": "regime",
       "part_of_speech": "noun",
+      "transcription": "/reɪˈʒim/",
       "translation": "режим",
       "translations": {
         "ru": "режим",
@@ -126,6 +134,7 @@
     {
       "word": "autonomy",
       "part_of_speech": "noun",
+      "transcription": "/ɔˈtɑnəmi/",
       "translation": "автономия",
       "translations": {
         "ru": "автономия",
@@ -140,6 +149,7 @@
     {
       "word": "empire",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛmpaɪər/",
       "translation": "империя",
       "translations": {
         "ru": "империя",

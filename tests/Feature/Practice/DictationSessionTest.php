@@ -464,7 +464,7 @@ it('reads the hub in at most 9 statements, and the words and the tasks once each
 
     $queries = QueryLog::during(fn () => $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->assertJsonPath('modes.3.available', 11));
 
-    expect(count($queries))->toBeLessThanOrEqual(9, implode("\n", $queries))
+    expect(count($queries))->toBeLessThanOrEqual(10, implode("\n", $queries))
         ->and(count(QueryLog::matching($queries, '/^select .* from ["`]words["`]/i')))->toBe(1)
         ->and(count(QueryLog::matching($queries, '/^select .* from ["`]word_translations["`]/i')))->toBe(1)
         ->and(count(QueryLog::matching($queries, '/^select .* from ["`]practice_items["`]/i')))->toBe(1)

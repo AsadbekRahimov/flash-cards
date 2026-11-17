@@ -14,6 +14,7 @@
     {
       "word": "aesthetic",
       "part_of_speech": "adjective",
+      "transcription": "/ɛsˈθɛtɪk/",
       "translation": "эстетический",
       "translations": {
         "ru": "эстетический",
@@ -28,6 +29,7 @@
     {
       "word": "critic",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɪtɪk/",
       "translation": "критик",
       "translations": {
         "ru": "критик",
@@ -42,6 +44,7 @@
     {
       "word": "acclaim",
       "part_of_speech": "noun",
+      "transcription": "/əˈkleɪm/",
       "translation": "признание",
       "translations": {
         "ru": "признание",
@@ -56,6 +59,7 @@
     {
       "word": "inspiration",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnspəˈreɪʃən/",
       "translation": "вдохновение",
       "translations": {
         "ru": "вдохновение",
@@ -70,6 +74,7 @@
     {
       "word": "creativity",
       "part_of_speech": "noun",
+      "transcription": "/ˌkrieɪˈtɪvəti/",
       "translation": "творческие способности",
       "translations": {
         "ru": "творческие способности",
@@ -84,6 +89,7 @@
     {
       "word": "authentic",
       "part_of_speech": "adjective",
+      "transcription": "/ɔˈθɛntɪk/",
       "translation": "подлинный",
       "translations": {
         "ru": "подлинный",
@@ -98,6 +104,7 @@
     {
       "word": "striking",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstraɪkɪŋ/",
       "translation": "поразительный",
       "translations": {
         "ru": "поразительный",
@@ -112,6 +119,7 @@
     {
       "word": "depict",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈpɪkt/",
       "translation": "изображать",
       "translations": {
         "ru": "изображать",
@@ -126,6 +134,7 @@
     {
       "word": "graceful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgreɪsfəl/",
       "translation": "грациозный, изящный",
       "translations": {
         "ru": "грациозный, изящный",
@@ -140,6 +149,7 @@
     {
       "word": "harmony",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑrməni/",
       "translation": "гармония",
       "translations": {
         "ru": "гармония",

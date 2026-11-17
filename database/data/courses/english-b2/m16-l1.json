@@ -14,6 +14,7 @@
     {
       "word": "enterprise",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛntərpraɪz/",
       "translation": "предприятие",
       "translations": {
         "ru": "предприятие",
@@ -28,6 +29,7 @@
     {
       "word": "entrepreneur",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑntrəprəˈnɜr/",
       "translation": "предприниматель",
       "translations": {
         "ru": "предприниматель",
@@ -42,6 +44,7 @@
     {
       "word": "corporation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɔrpəˈreɪʃən/",
       "translation": "корпорация",
       "translations": {
         "ru": "корпорация",
@@ -56,6 +59,7 @@
     {
       "word": "startup",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɑrtʌp/",
       "translation": "стартап",
       "translations": {
         "ru": "стартап",
@@ -70,6 +74,7 @@
     {
       "word": "venture",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛntʃər/",
       "translation": "деловое начинание",
       "translations": {
         "ru": "деловое начинание",
@@ -84,6 +89,7 @@
     {
       "word": "franchise",
       "part_of_speech": "noun",
+      "transcription": "/ˈfræntʃaɪz/",
       "translation": "франшиза",
       "translations": {
         "ru": "франшиза",
@@ -98,6 +104,7 @@
     {
       "word": "merger",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɜrdʒər/",
       "translation": "слияние",
       "translations": {
         "ru": "слияние",
@@ -112,6 +119,7 @@
     {
       "word": "partnership",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrtnərʃɪp/",
       "translation": "партнёрство",
       "translations": {
         "ru": "партнёрство",
@@ -126,6 +134,7 @@
     {
       "word": "founder",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaʊndər/",
       "translation": "основатель",
       "translations": {
         "ru": "основатель",
@@ -140,6 +149,7 @@
     {
       "word": "stakeholder",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪkˌhoʊldər/",
       "translation": "заинтересованная сторона",
       "translations": {
         "ru": "заинтересованная сторона",

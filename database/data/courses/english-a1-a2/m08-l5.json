@@ -14,6 +14,7 @@
     {
       "word": "favorite",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfeɪvərət/",
       "translation": "любимый",
       "translations": {
         "ru": "любимый",
@@ -28,6 +29,7 @@
     {
       "word": "boring",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbɔrɪŋ/",
       "translation": "скучный",
       "translations": {
         "ru": "скучный",
@@ -42,6 +44,7 @@
     {
       "word": "interesting",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɪntrəstɪŋ/",
       "translation": "интересный",
       "translations": {
         "ru": "интересный",
@@ -56,6 +59,7 @@
     {
       "word": "popular",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɑpjələr/",
       "translation": "популярный",
       "translations": {
         "ru": "популярный",
@@ -70,6 +74,7 @@
     {
       "word": "easy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈizi/",
       "translation": "лёгкий, простой",
       "translations": {
         "ru": "лёгкий, простой",
@@ -84,6 +89,7 @@
     {
       "word": "difficult",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪfɪkəlt/",
       "translation": "трудный",
       "translations": {
         "ru": "трудный",
@@ -98,6 +104,7 @@
     {
       "word": "fast",
       "part_of_speech": "adjective",
+      "transcription": "/fæst/",
       "translation": "быстрый",
       "translations": {
         "ru": "быстрый",
@@ -112,6 +119,7 @@
     {
       "word": "slow",
       "part_of_speech": "adjective",
+      "transcription": "/sloʊ/",
       "translation": "медленный",
       "translations": {
         "ru": "медленный",
@@ -126,6 +134,7 @@
     {
       "word": "strong",
       "part_of_speech": "adjective",
+      "transcription": "/strɔŋ/",
       "translation": "сильный",
       "translations": {
         "ru": "сильный",
@@ -140,6 +149,7 @@
     {
       "word": "weak",
       "part_of_speech": "adjective",
+      "transcription": "/wik/",
       "translation": "слабый",
       "translations": {
         "ru": "слабый",

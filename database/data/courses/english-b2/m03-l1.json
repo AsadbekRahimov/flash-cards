@@ -14,6 +14,7 @@
     {
       "word": "boom",
       "part_of_speech": "noun",
+      "transcription": "/bum/",
       "translation": "бум, подъём",
       "translations": {
         "ru": "бум, подъём",
@@ -28,6 +29,7 @@
     {
       "word": "inflation",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈfleɪʃən/",
       "translation": "инфляция",
       "translations": {
         "ru": "инфляция",
@@ -42,6 +44,7 @@
     {
       "word": "recession",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsɛʃən/",
       "translation": "рецессия",
       "translations": {
         "ru": "рецессия",
@@ -56,6 +59,7 @@
     {
       "word": "unemployment",
       "part_of_speech": "noun",
+      "transcription": "/ˌʌnɪmˈplɔɪmənt/",
       "translation": "безработица",
       "translations": {
         "ru": "безработица",
@@ -70,6 +74,7 @@
     {
       "word": "prosperity",
       "part_of_speech": "noun",
+      "transcription": "/prɑˈspɛrəti/",
       "translation": "процветание",
       "translations": {
         "ru": "процветание",
@@ -84,6 +89,7 @@
     {
       "word": "deficit",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛfəsɪt/",
       "translation": "дефицит",
       "translations": {
         "ru": "дефицит",
@@ -98,6 +104,7 @@
     {
       "word": "surplus",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrpləs/",
       "translation": "профицит",
       "translations": {
         "ru": "профицит",
@@ -112,6 +119,7 @@
     {
       "word": "sector",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛktər/",
       "translation": "сектор, отрасль",
       "translations": {
         "ru": "сектор, отрасль",
@@ -126,6 +134,7 @@
     {
       "word": "subsidy",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbsədi/",
       "translation": "субсидия",
       "translations": {
         "ru": "субсидия",
@@ -140,6 +149,7 @@
     {
       "word": "downturn",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaʊntɜrn/",
       "translation": "спад",
       "translations": {
         "ru": "спад",

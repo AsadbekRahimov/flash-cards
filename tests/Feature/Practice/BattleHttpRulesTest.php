@@ -180,3 +180,13 @@ it('takes surrender only with `confirm: true`: a body without it is 422 and the 
         ->and(BattleHttp::view($friend, $id)->json('result.outcome'))->toBe('won');
     expect(Battle::query()->count())->toBe(1);
 });
+
+it('refuses to invite to the clock mode and leaves it out of the options: a game against the clock is solo only', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    BattleHttp::invite($me, $friendship, PracticeMode::PairsTimed, $course)->assertStatus(422)->assertJsonValidationErrors('mode');
+
+    $modes = BattleHttp::options($me, $friendship, $course, $lesson)->assertOk()->json('modes');
+    expect(array_column($modes, 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation']);
+    expect(Battle::query()->count())->toBe(0);
+});

@@ -335,7 +335,7 @@ it('writes game.daily_completed next to game.run_finished for a completed carava
 it('shows the caravan on /today: available with due words, the live run, spent after the play, nothing while the game is closed', function (): void {
     [$learner] = dailyWorld(8);
 
-    dailyToday($learner)->assertOk()->assertJsonPath('game', ['daily_available' => true, 'active_run' => null, 'class_caravan' => null]);
+    dailyToday($learner)->assertOk()->assertJsonPath('game', ['available' => true, 'daily_available' => true, 'active_run' => null, 'class_caravan' => null]);
 
     $id = dailyPost($learner)->assertCreated()->json('id');
     $live = dailyToday($learner)->assertOk()->json('game');
@@ -343,13 +343,28 @@ it('shows the caravan on /today: available with due words, the live run, spent a
         ->and($live['active_run'])->toBe(['id' => $id, 'kind' => 'daily', 'progress' => ['answered' => 0, 'total' => 8]]);
 
     GameKit::play(app(RunService::class), GameRun::query()->findOrFail($id), $learner);
-    dailyToday($learner)->assertOk()->assertJsonPath('game', ['daily_available' => false, 'active_run' => null, 'class_caravan' => null]);
+    dailyToday($learner)->assertOk()->assertJsonPath('game', ['available' => true, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null]);
 });
+
+it('tells /today.game.available by GAME_ACCESS: off - nobody, pilot - the pilot only, all - everybody', function (string $access, bool $inPilot, bool $expected): void {
+    [$learner] = dailyWorld(8);
+    config(['game.access' => $access]);
+    $learner->forceFill(['practice_pilot_at' => $inPilot ? now() : null])->save();
+
+    $game = dailyToday($learner)->assertOk()->json('game');
+    expect($game['available'])->toBe($expected)
+        ->and($game['daily_available'])->toBe($expected);
+})->with([
+    'off' => ['off', true, false],
+    'pilot, in it' => ['pilot', true, true],
+    'pilot, out of it' => ['pilot', false, false],
+    'all' => ['all', false, true],
+]);
 
 it('has no caravan on /today without due words', function (): void {
     $learner = Learner::factory()->create();
 
-    dailyToday($learner)->assertOk()->assertJsonPath('game', ['daily_available' => false, 'active_run' => null, 'class_caravan' => null]);
+    dailyToday($learner)->assertOk()->assertJsonPath('game', ['available' => true, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null]);
 });
 
 it('reads nothing of the game tables for /today while the game is closed, and one statement while it is open', function (): void {

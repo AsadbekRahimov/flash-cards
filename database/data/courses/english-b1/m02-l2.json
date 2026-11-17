@@ -14,6 +14,7 @@
     {
       "word": "friendship",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrɛndʃɪp/",
       "translation": "дружба",
       "translations": {
         "ru": "дружба",
@@ -28,6 +29,7 @@
     {
       "word": "classmate",
       "part_of_speech": "noun",
+      "transcription": "/ˈklæsmeɪt/",
       "translation": "одноклассник",
       "translations": {
         "ru": "одноклассник",
@@ -42,6 +44,7 @@
     {
       "word": "roommate",
       "part_of_speech": "noun",
+      "transcription": "/ˈrummeɪt/",
       "translation": "сосед по комнате",
       "translations": {
         "ru": "сосед по комнате",
@@ -56,6 +59,7 @@
     {
       "word": "loyal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɔɪəl/",
       "translation": "верный, преданный",
       "translations": {
         "ru": "верный, преданный",
@@ -70,6 +74,7 @@
     {
       "word": "secret",
       "part_of_speech": "noun",
+      "transcription": "/ˈsikrət/",
       "translation": "секрет, тайна",
       "translations": {
         "ru": "секрет, тайна",
@@ -84,6 +89,7 @@
     {
       "word": "introduce",
       "part_of_speech": "verb",
+      "transcription": "/ˌɪntrəˈdus/",
       "translation": "знакомить, представлять",
       "translations": {
         "ru": "знакомить, представлять",
@@ -98,6 +104,7 @@
     {
       "word": "quarrel",
       "part_of_speech": "verb",
+      "transcription": "/ˈkwɔrəl/",
       "translation": "ссориться",
       "translations": {
         "ru": "ссориться",
@@ -112,6 +119,7 @@
     {
       "word": "jealous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɛləs/",
       "translation": "завистливый",
       "translations": {
         "ru": "завистливый",
@@ -126,6 +134,7 @@
     {
       "word": "gossip",
       "part_of_speech": "noun",
+      "transcription": "/ˈgɑsəp/",
       "translation": "сплетни",
       "translations": {
         "ru": "сплетни",
@@ -140,6 +149,7 @@
     {
       "word": "favor",
       "part_of_speech": "noun",
+      "transcription": "/ˈfeɪvər/",
       "translation": "одолжение",
       "translations": {
         "ru": "одолжение",

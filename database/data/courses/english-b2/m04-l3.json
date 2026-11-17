@@ -14,6 +14,7 @@
     {
       "word": "discovery",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈskʌvəri/",
       "translation": "открытие",
       "translations": {
         "ru": "открытие",
@@ -28,6 +29,7 @@
     {
       "word": "breakthrough",
       "part_of_speech": "noun",
+      "transcription": "/ˈbreɪkθru/",
       "translation": "прорыв",
       "translations": {
         "ru": "прорыв",
@@ -42,6 +44,7 @@
     {
       "word": "finding",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaɪndɪŋ/",
       "translation": "вывод, результат исследования",
       "translations": {
         "ru": "вывод, результат исследования",
@@ -56,6 +59,7 @@
     {
       "word": "pioneer",
       "part_of_speech": "noun",
+      "transcription": "/ˌpaɪəˈnɪr/",
       "translation": "пионер, первопроходец",
       "translations": {
         "ru": "пионер, первопроходец",
@@ -70,6 +74,7 @@
     {
       "word": "phenomenon",
       "part_of_speech": "noun",
+      "transcription": "/fəˈnɑmənɑn/",
       "translation": "явление, феномен",
       "translations": {
         "ru": "явление, феномен",
@@ -84,6 +89,7 @@
     {
       "word": "reveal",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈvil/",
       "translation": "раскрывать, показывать",
       "translations": {
         "ru": "раскрывать, показывать",
@@ -98,6 +104,7 @@
     {
       "word": "detect",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈtɛkt/",
       "translation": "улавливать, обнаруживать",
       "translations": {
         "ru": "улавливать, обнаруживать",
@@ -112,6 +119,7 @@
     {
       "word": "identify",
       "part_of_speech": "verb",
+      "transcription": "/aɪˈdɛntəfaɪ/",
       "translation": "определять, устанавливать",
       "translations": {
         "ru": "определять, устанавливать",
@@ -126,6 +134,7 @@
     {
       "word": "uncover",
       "part_of_speech": "verb",
+      "transcription": "/ʌnˈkʌvər/",
       "translation": "обнаруживать, раскрывать",
       "translations": {
         "ru": "обнаруживать, раскрывать",
@@ -140,6 +149,7 @@
     {
       "word": "demonstrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɛmənstreɪt/",
       "translation": "демонстрировать, наглядно показывать",
       "translations": {
         "ru": "демонстрировать, наглядно показывать",

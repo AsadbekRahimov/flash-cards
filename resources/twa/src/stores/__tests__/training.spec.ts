@@ -8,6 +8,7 @@ import type { Card } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
+    today: { get: vi.fn() },
     training: {
       open: vi.fn(),
       start: vi.fn(),
@@ -462,5 +463,71 @@ describe('training store — personal sessions', () => {
     setLocale('uz')
     await store.start(1)
     expect(store.errorMessage).toBe("Bu so'z ushbu mashg'ulotga tegishli emas.")
+  })
+})
+
+describe('training store — the round of hard words', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+  afterEach(() => setLocale('ru'))
+
+  const refusal = (reason: string) =>
+    new ApiClientError('conflict', 409, 'hard_round_unavailable', 'Hard round unavailable.', undefined, { reason, resets_at: null })
+
+  it.each([
+    ['disabled', 'Раунд трудных слов сейчас недоступен.'],
+    ['not_enough', 'Трудных слов пока мало — раунд откроется, когда их станет больше.'],
+    ['played_today', 'Раунд трудных слов на сегодня уже пройден. Следующий — завтра.'],
+    ['no_objective_exercise', 'Для этих слов пока нет подходящих заданий.'],
+    ['something_new', 'Раунд трудных слов сейчас недоступен.'],
+  ])('a refused open (%s) says why, not "something went wrong", and /today is read again', async (reason, text) => {
+    vi.mocked(api.training.open).mockRejectedValue(refusal(reason))
+    vi.mocked(api.today.get).mockResolvedValue({ hard_round: null } as never)
+    const store = useTrainingStore()
+
+    expect(await store.open({ mode: 'hard_review', source: 'self' })).toBeNull()
+
+    expect(store.openError).toBe(text)
+    expect(api.today.get).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not read /today again after another failure of open', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'fetch failed'))
+    const store = useTrainingStore()
+    await store.open({ mode: 'hard_review', source: 'self' })
+
+    expect(api.today.get).not.toHaveBeenCalled()
+  })
+
+  it('plays the round: mode, progress as "won of total", and hard_round_complete closes it with no further round', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 50, mode: 'hard_review', lesson: null, total_words: 10, progress: { done: 0, total: 10 },
+      card: { word_id: 1, word: 'a', translation: 'б', translation_fallback: false, example: null, transcription: null, card_kind: 'due', serve_token: null },
+      done_reason: null, can_continue: false, quota: { new_words_remaining: null },
+    })
+    const store = useTrainingStore()
+    const id = await store.open({ mode: 'hard_review', source: 'finish' })
+    await store.start(id as number)
+
+    expect(store.mode).toBe('hard_review')
+    expect(store.lesson).toBeNull()
+    expect(store.progress).toEqual({ done: 0, total: 10 })
+    expect(store.status).toBe('ready')
+
+    vi.mocked(api.training.review).mockResolvedValue({
+      new_interval_days: 1, card: null, progress: { done: 7, total: 10 }, done_reason: 'hard_round_complete', can_continue: false,
+    } as never)
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 10, correct: 8, new_words: 0, hard_round: { total: 10, won: 7 }, hard_round_offer: null })
+    await store.submitReview(4)
+    await store.finalize()
+
+    expect(store.status).toBe('finished')
+    expect(store.doneReason).toBe('hard_round_complete')
+    expect(store.canContinue).toBe(false)
+    expect(store.progress).toEqual({ done: 7, total: 10 })
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+    expect(store.summary?.hard_round).toEqual({ total: 10, won: 7 })
   })
 })

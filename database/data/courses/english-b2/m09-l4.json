@@ -14,6 +14,7 @@
     {
       "word": "accuse",
       "part_of_speech": "verb",
+      "transcription": "/əˈkjuz/",
       "translation": "обвинять",
       "translations": {
         "ru": "обвинять",
@@ -28,6 +29,7 @@
     {
       "word": "confess",
       "part_of_speech": "verb",
+      "transcription": "/kənˈfɛs/",
       "translation": "признаваться",
       "translations": {
         "ru": "признаваться",
@@ -42,6 +44,7 @@
     {
       "word": "custody",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌstədi/",
       "translation": "содержание под стражей",
       "translations": {
         "ru": "содержание под стражей",
@@ -56,6 +59,7 @@
     {
       "word": "imprison",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈprɪzən/",
       "translation": "заключать в тюрьму",
       "translations": {
         "ru": "заключать в тюрьму",
@@ -70,6 +74,7 @@
     {
       "word": "fingerprint",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪŋgərprɪnt/",
       "translation": "отпечаток пальца",
       "translations": {
         "ru": "отпечаток пальца",
@@ -84,6 +89,7 @@
     {
       "word": "convict",
       "part_of_speech": "verb",
+      "transcription": "/kənˈvɪkt/",
       "translation": "признавать виновным",
       "translations": {
         "ru": "признавать виновным",
@@ -98,6 +104,7 @@
     {
       "word": "alibi",
       "part_of_speech": "noun",
+      "transcription": "/ˈæləbaɪ/",
       "translation": "алиби",
       "translations": {
         "ru": "алиби",
@@ -112,6 +119,7 @@
     {
       "word": "detain",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈteɪn/",
       "translation": "задерживать",
       "translations": {
         "ru": "задерживать",
@@ -126,6 +134,7 @@
     {
       "word": "inquiry",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈkwaɪri/",
       "translation": "расследование",
       "translations": {
         "ru": "расследование",
@@ -140,6 +149,7 @@
     {
       "word": "clue",
       "part_of_speech": "noun",
+      "transcription": "/klu/",
       "translation": "улика, зацепка",
       "translations": {
         "ru": "улика, зацепка",

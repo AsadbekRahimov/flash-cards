@@ -14,6 +14,7 @@
     {
       "word": "counter",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntər/",
       "translation": "прилавок",
       "translations": {
         "ru": "прилавок",
@@ -28,6 +29,7 @@
     {
       "word": "cart",
       "part_of_speech": "noun",
+      "transcription": "/kɑrt/",
       "translation": "тележка",
       "translations": {
         "ru": "тележка",
@@ -42,6 +44,7 @@
     {
       "word": "delivery",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈlɪvəri/",
       "translation": "доставка",
       "translations": {
         "ru": "доставка",
@@ -56,6 +59,7 @@
     {
       "word": "item",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪtəm/",
       "translation": "товар, предмет",
       "translations": {
         "ru": "товар, предмет",
@@ -70,6 +74,7 @@
     {
       "word": "purchase",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrtʃəs/",
       "translation": "покупка",
       "translations": {
         "ru": "покупка",
@@ -84,6 +89,7 @@
     {
       "word": "mall",
       "part_of_speech": "noun",
+      "transcription": "/mɔl/",
       "translation": "торговый центр",
       "translations": {
         "ru": "торговый центр",
@@ -98,6 +104,7 @@
     {
       "word": "grocery",
       "part_of_speech": "noun",
+      "transcription": "/ˈgroʊsəri/",
       "translation": "продуктовый магазин",
       "translations": {
         "ru": "продуктовый магазин",
@@ -112,6 +119,7 @@
     {
       "word": "bakery",
       "part_of_speech": "noun",
+      "transcription": "/ˈbeɪkəri/",
       "translation": "пекарня, булочная",
       "translations": {
         "ru": "пекарня, булочная",
@@ -126,6 +134,7 @@
     {
       "word": "package",
       "part_of_speech": "noun",
+      "transcription": "/ˈpækɪdʒ/",
       "translation": "упаковка",
       "translations": {
         "ru": "упаковка",
@@ -140,6 +149,7 @@
     {
       "word": "butcher",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʊtʃər/",
       "translation": "мясник",
       "translations": {
         "ru": "мясник",

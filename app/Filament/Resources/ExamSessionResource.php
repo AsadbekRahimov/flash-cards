@@ -37,6 +37,7 @@ class ExamSessionResource extends Resource
      */
     private const LIST_COLUMNS = [
         'exam_sessions.id',
+        'exam_sessions.mode',
         'exam_sessions.telegram_group_id',
         'exam_sessions.lesson_id',
         'exam_sessions.status',
@@ -95,8 +96,13 @@ class ExamSessionResource extends Resource
             // A row action loads its own record (`$isResolvingRecord`): the whole row.
             ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
+                Tables\Columns\TextColumn::make('mode')
+                    ->label(__('admin.exams.fields.mode'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('exams.mode', $state)),
                 Tables\Columns\TextColumn::make('group.title')
                     ->label(__('admin.exams.fields.group'))
+                    ->placeholder('—')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('lesson.number')
@@ -125,6 +131,12 @@ class ExamSessionResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
+                // The weekly quizzes and the personal mocks of every learner would drown the exams of the groups: those are shown first.
+                Tables\Filters\SelectFilter::make('mode')
+                    ->label(__('admin.exams.fields.mode'))
+                    ->options(AdminLabels::options('exams.mode', [ExamSession::MODE_GROUP_EXAM, ExamSession::MODE_PERSONAL_MOCK, ExamSession::MODE_LEVEL_QUIZ]))
+                    ->default(ExamSession::MODE_GROUP_EXAM)
+                    ->selectablePlaceholder(true),
                 // The groups are found by typing, not rendered into the page (GroupFilter).
                 GroupFilter::make('telegram_group_id', __('admin.exams.fields.group')),
                 Tables\Filters\SelectFilter::make('status')

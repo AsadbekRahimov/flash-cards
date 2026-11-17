@@ -14,6 +14,7 @@
     {
       "word": "media",
       "part_of_speech": "noun",
+      "transcription": "/ˈmidiə/",
       "translation": "СМИ",
       "translations": {
         "ru": "СМИ",
@@ -28,6 +29,7 @@
     {
       "word": "fact",
       "part_of_speech": "noun",
+      "transcription": "/fækt/",
       "translation": "факт",
       "translations": {
         "ru": "факт",
@@ -42,6 +44,7 @@
     {
       "word": "editor",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛdətər/",
       "translation": "редактор",
       "translations": {
         "ru": "редактор",
@@ -56,6 +59,7 @@
     {
       "word": "reporter",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈpɔrtər/",
       "translation": "репортёр",
       "translations": {
         "ru": "репортёр",
@@ -70,6 +74,7 @@
     {
       "word": "broadcast",
       "part_of_speech": "verb",
+      "transcription": "/ˈbrɔdkæst/",
       "translation": "транслировать",
       "translations": {
         "ru": "транслировать",
@@ -84,6 +89,7 @@
     {
       "word": "publish",
       "part_of_speech": "verb",
+      "transcription": "/ˈpʌblɪʃ/",
       "translation": "публиковать",
       "translations": {
         "ru": "публиковать",
@@ -98,6 +104,7 @@
     {
       "word": "source",
       "part_of_speech": "noun",
+      "transcription": "/sɔrs/",
       "translation": "источник",
       "translations": {
         "ru": "источник",
@@ -112,6 +119,7 @@
     {
       "word": "rumor",
       "part_of_speech": "noun",
+      "transcription": "/ˈrumər/",
       "translation": "слух",
       "translations": {
         "ru": "слух",
@@ -126,6 +134,7 @@
     {
       "word": "event",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈvɛnt/",
       "translation": "событие",
       "translations": {
         "ru": "событие",
@@ -140,6 +149,7 @@
     {
       "word": "viewer",
       "part_of_speech": "noun",
+      "transcription": "/ˈvjuər/",
       "translation": "зритель",
       "translations": {
         "ru": "зритель",

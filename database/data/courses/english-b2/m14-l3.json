@@ -14,6 +14,7 @@
     {
       "word": "etiquette",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛtɪkət/",
       "translation": "этикет",
       "translations": {
         "ru": "этикет",
@@ -28,6 +29,7 @@
     {
       "word": "ritual",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɪtʃuəl/",
       "translation": "обряд, ритуал",
       "translations": {
         "ru": "обряд, ритуал",
@@ -42,6 +44,7 @@
     {
       "word": "hospitality",
       "part_of_speech": "noun",
+      "transcription": "/ˌhɑspəˈtæləti/",
       "translation": "гостеприимство",
       "translations": {
         "ru": "гостеприимство",
@@ -56,6 +59,7 @@
     {
       "word": "courtesy",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɜrtəsi/",
       "translation": "учтивость, вежливость",
       "translations": {
         "ru": "учтивость, вежливость",
@@ -70,6 +74,7 @@
     {
       "word": "superstition",
       "part_of_speech": "noun",
+      "transcription": "/ˌsupərˈstɪʃən/",
       "translation": "суеверие",
       "translations": {
         "ru": "суеверие",
@@ -84,6 +89,7 @@
     {
       "word": "folklore",
       "part_of_speech": "noun",
+      "transcription": "/ˈfoʊklɔr/",
       "translation": "фольклор",
       "translations": {
         "ru": "фольклор",
@@ -98,6 +104,7 @@
     {
       "word": "proverb",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑvɜrb/",
       "translation": "пословица",
       "translations": {
         "ru": "пословица",
@@ -112,6 +119,7 @@
     {
       "word": "delicacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛlɪkəsi/",
       "translation": "деликатес",
       "translations": {
         "ru": "деликатес",
@@ -126,6 +134,7 @@
     {
       "word": "feast",
       "part_of_speech": "noun",
+      "transcription": "/fist/",
       "translation": "пир, застолье",
       "translations": {
         "ru": "пир, застолье",
@@ -140,6 +149,7 @@
     {
       "word": "ancestor",
       "part_of_speech": "noun",
+      "transcription": "/ˈænsɛstər/",
       "translation": "предок",
       "translations": {
         "ru": "предок",

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Runs;
 
+use App\Domain\Learning\Services\ReviewPull;
 use App\Models\GameWordMiss;
-use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 
 /**
@@ -24,6 +24,8 @@ use Carbon\CarbonImmutable;
  */
 final class GameSrsAdjuster
 {
+    public function __construct(private readonly ReviewPull $pull) {}
+
     /**
      * @param  list<int>  $wordIds  the words of the mistake (an authored task: all its target words)
      * @return int how many repetitions were really brought closer (`next_review_at` was in the future)
@@ -35,24 +37,9 @@ final class GameSrsAdjuster
             return 0;
         }
 
-        // Which rows the UPDATE will move: read first, so the misses know who was pulled (the UPDATE itself returns a count only).
-        /** @var list<int> $pulled */
-        $pulled = WordRepetition::query()
-            ->where('learner_id', $learnerId)
-            ->whereIn('word_id', $wordIds)
-            ->where('next_review_at', '>', $now)
-            ->pluck('word_id')
-            ->map(static fn (mixed $id): int => (int) $id)
-            ->all();
-
-        $moved = 0;
-        if ($pulled !== []) {
-            $moved = WordRepetition::query()
-                ->where('learner_id', $learnerId)
-                ->whereIn('word_id', $pulled)
-                ->where('next_review_at', '>', $now)
-                ->update(['next_review_at' => $now, 'is_hard' => true, 'updated_at' => $now]);
-        }
+        // The formula of the schedule is the one of the round of hard words too (docs/06 §5a, §14).
+        $pulled = $this->pull->toNow($learnerId, $wordIds, $now, markHard: true);
+        $moved = count($pulled);
 
         $this->countMisses($learnerId, $wordIds, $pulled, $now);
 

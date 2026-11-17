@@ -200,6 +200,8 @@ final class VocabularyImporter
                     continue;
                 }
 
+                // A file without a transcription keeps the one the word has (filled by an earlier import or in the panel).
+                $payload['transcription'] = $payload['transcription'] !== null && trim($payload['transcription']) !== '' ? $payload['transcription'] : $existing->transcription;
                 $existing->fill($payload);
                 $currentMeta = $existing->getAttribute('meta');
                 $existing->setAttribute('meta', $this->metaWith(is_array($currentMeta) ? $currentMeta : [], $w));

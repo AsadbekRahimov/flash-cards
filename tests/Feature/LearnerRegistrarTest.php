@@ -41,6 +41,14 @@ it('creates a learner with the configured defaults', function (): void {
         ->and($learner->acquisition_source)->toBeNull();
 });
 
+it('gives a new learner the default daily goal of 10: one training round of 12 cards closes it (owner\'s decision of 2026-11-17)', function (): void {
+    expect(config('learners.daily_goal_options'))->toContain(10);
+
+    $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4010, 'first_name' => 'A', 'language_code' => 'ru'])->fresh();
+
+    expect($learner->daily_goal)->toBe(10);
+});
+
 it('falls back to the default locale for an unsupported Telegram language', function (): void {
     $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4002, 'first_name' => 'A', 'language_code' => 'en']);
 

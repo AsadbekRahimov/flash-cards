@@ -32,6 +32,7 @@ beforeEach(function (): void {
     PracticeKit::openAccess();
     Storage::fake('practice_audio');
     config()->set('practice.count_sample', 5);
+    config()->set('practice.solo.pairs_timed.min_words', 4); // a sample of 5 is far below the real 300; the mode must fit in it like the others
 });
 
 /** @return list<Word> words of the lesson, the learner introduced to them; `$fit(i)`: false = no translation to put on a card */

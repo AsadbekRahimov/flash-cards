@@ -195,6 +195,64 @@ it('removes or replaces the inline keyboard of a sent message through the SDK', 
     ]);
 });
 
+it('edits the text of a sent message through the SDK, with the keyboard replaced or removed', function (): void {
+    $sdk = new class extends Api
+    {
+        /** @var list<array<string, mixed>> */
+        public array $edits = [];
+
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function editMessageText(array $params): MessageObject
+        {
+            $this->edits[] = $params;
+
+            return new MessageObject([]);
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->editMessageText(555, 42, 'Верно!');
+    $client->editMessageText(555, 43, 'Done', 'HTML', ['inline_keyboard' => [[['text' => 'Go', 'callback_data' => 'x:y']]]]);
+
+    expect($sdk->edits)->toBe([
+        ['chat_id' => 555, 'message_id' => 42, 'text' => 'Верно!', 'reply_markup' => '{"inline_keyboard":[]}'],
+        ['chat_id' => 555, 'message_id' => 43, 'text' => 'Done', 'reply_markup' => '{"inline_keyboard":[[{"text":"Go","callback_data":"x:y"}]]}', 'parse_mode' => 'HTML'],
+    ]);
+});
+
+it('reports a 400 "message is not modified" of editMessageText as a plain API exception, not as an unreachable recipient', function (): void {
+    $sdk = new class extends Api
+    {
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function editMessageText(array $params): MessageObject
+        {
+            throw new TelegramResponseException(new TelegramResponse(new TelegramRequest('t', 'POST', 'editMessageText'), new Response(400, [], '{"ok":false,"error_code":400,"description":"Bad Request: message is not modified"}')));
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    try {
+        $client->editMessageText(555, 42, 'same');
+        $this->fail('expected an exception');
+    } catch (TelegramApiException $e) {
+        expect($e)->not->toBeInstanceOf(TelegramForbiddenException::class)
+            ->and($e->isApiResponse())->toBeTrue()
+            ->and($e->getMessage())->toContain('message is not modified');
+    }
+});
+
 it('registers the webhook with pre_checkout_query among the allowed updates', function (): void {
     $sdk = new class extends Api
     {

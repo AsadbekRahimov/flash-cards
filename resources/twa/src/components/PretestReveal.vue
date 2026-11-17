@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import type { Card, Graded } from '@/api/types'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import { useAutoSpeak } from '@/composables/useAutoSpeak'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -10,7 +12,7 @@ import { useI18n } from '@/i18n'
  * this word already" (it graduated as known); a wrong one or "I don't know" — the first meeting with the word, as the
  * open new card would have been. "Next" goes on to the card the review answered with.
  */
-defineProps<{
+const props = defineProps<{
   card: Card
   verdict: Graded
 }>()
@@ -21,6 +23,10 @@ const emit = defineEmits<{
 
 const { haptic } = useTelegram()
 const { t } = useI18n()
+const { speakWord } = useAutoSpeak()
+
+// The pick is checked: the word is read aloud by itself (auto-speak), after the tone of the verdict.
+onMounted(() => speakWord(props.card.word, props.card.audio_url, true))
 
 function onContinue(): void {
   haptic('light')

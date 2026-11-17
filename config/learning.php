@@ -195,6 +195,24 @@ return [
     ],
 
     /**
+     * The round of hard words (`hard_review`, docs/06 §14): an occasional round of the words the learner stumbles on - `words` of
+     * them at most, offered when at least `min_words` qualify, `per_day` times a local day. A word qualifies when it was released
+     * (`review` / `relearning`), is hard (`is_hard`) or failed `lapses_from` times or more, and was not graded today. The answers
+     * are real repetitions (SM-2 / FSRS untouched); the words are brought to "due now" when the round opens. `enabled = false`:
+     * no block on "Today", no offer after a session, opening is refused (a round already open is played on).
+     * `due_within_days`: a candidate's term is due or comes within this many days - the round never pulls a word more than that
+     * ahead of its schedule, otherwise SM-2 would inflate its interval (docs/06 §14); 0 = overdue words only.
+     */
+    'hard_round' => [
+        'enabled' => (bool) env('LEARNING_HARD_ROUND_ENABLED', true),
+        'words' => (int) env('LEARNING_HARD_ROUND_WORDS', 10),
+        'min_words' => (int) env('LEARNING_HARD_ROUND_MIN_WORDS', 6),
+        'per_day' => (int) env('LEARNING_HARD_ROUND_PER_DAY', 1),
+        'lapses_from' => (int) env('LEARNING_HARD_ROUND_LAPSES_FROM', 2),
+        'due_within_days' => (int) env('LEARNING_HARD_ROUND_DUE_WITHIN_DAYS', 2),
+    ],
+
+    /**
      * The stages of a word as the learner sees them (docs/06 §13.3), from the row of `word_repetitions`:
      *   new      — met, not graduated yet (state new / learning);
      *   learning — graduated, interval below `known_from_interval_days` (and a lapsed card in relearning);
@@ -354,5 +372,18 @@ return [
             static fn (int $day): bool => $day > 0,
         )),
         'stop_after_days' => max(1, (int) env('REMINDERS_STOP_AFTER_DAYS', 60)),
+
+        /**
+         * The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). `enabled` = false brings
+         * back the plain text with one button. A question only goes to the first `max_idle_days` of a break (the rarer
+         * reminders of the sparse days stay text); `ttl_hours` = how long a question can be answered (the state lives in
+         * the non-evictable Redis, docs/19 §2.2); `candidates` = how many cards are tried to build four options for.
+         */
+        'quiz' => [
+            'enabled' => (bool) env('REMINDERS_QUIZ_ENABLED', true),
+            'max_idle_days' => max(0, (int) env('REMINDERS_QUIZ_MAX_IDLE_DAYS', 7)),
+            'ttl_hours' => max(1, (int) env('REMINDERS_QUIZ_TTL_HOURS', 26)),
+            'candidates' => 3,
+        ],
     ],
 ];

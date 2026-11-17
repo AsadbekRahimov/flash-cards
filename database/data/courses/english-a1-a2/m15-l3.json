@@ -14,6 +14,7 @@
     {
       "word": "practice",
       "part_of_speech": "verb",
+      "transcription": "/ˈpræktəs/",
       "translation": "практиковать, тренироваться",
       "translations": {
         "ru": "практиковать, тренироваться",
@@ -28,6 +29,7 @@
     {
       "word": "repeat",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpit/",
       "translation": "повторять",
       "translations": {
         "ru": "повторять",
@@ -42,6 +44,7 @@
     {
       "word": "memorize",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɛməˌraɪz/",
       "translation": "запоминать",
       "translations": {
         "ru": "запоминать",
@@ -56,6 +59,7 @@
     {
       "word": "explain",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈspleɪn/",
       "translation": "объяснять",
       "translations": {
         "ru": "объяснять",
@@ -70,6 +74,7 @@
     {
       "word": "correct",
       "part_of_speech": "verb",
+      "transcription": "/kəˈrɛkt/",
       "translation": "исправлять",
       "translations": {
         "ru": "исправлять",
@@ -84,6 +89,7 @@
     {
       "word": "improve",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈpruv/",
       "translation": "улучшать",
       "translations": {
         "ru": "улучшать",
@@ -98,6 +104,7 @@
     {
       "word": "pass",
       "part_of_speech": "verb",
+      "transcription": "/pæs/",
       "translation": "сдавать успешно",
       "translations": {
         "ru": "сдавать успешно",
@@ -112,6 +119,7 @@
     {
       "word": "fail",
       "part_of_speech": "verb",
+      "transcription": "/feɪl/",
       "translation": "провалить",
       "translations": {
         "ru": "провалить",
@@ -126,6 +134,7 @@
     {
       "word": "grade",
       "part_of_speech": "noun",
+      "transcription": "/greɪd/",
       "translation": "оценка",
       "translations": {
         "ru": "оценка",
@@ -140,6 +149,7 @@
     {
       "word": "mistake",
       "part_of_speech": "noun",
+      "transcription": "/mɪˈsteɪk/",
       "translation": "ошибка",
       "translations": {
         "ru": "ошибка",

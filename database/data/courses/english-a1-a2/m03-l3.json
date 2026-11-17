@@ -14,6 +14,7 @@
     {
       "word": "water",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔtər/",
       "translation": "вода",
       "translations": {
         "ru": "вода",
@@ -28,6 +29,7 @@
     {
       "word": "tea",
       "part_of_speech": "noun",
+      "transcription": "/ti/",
       "translation": "чай",
       "translations": {
         "ru": "чай",
@@ -42,6 +44,7 @@
     {
       "word": "coffee",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔfi/",
       "translation": "кофе",
       "translations": {
         "ru": "кофе",
@@ -56,6 +59,7 @@
     {
       "word": "milk",
       "part_of_speech": "noun",
+      "transcription": "/mɪlk/",
       "translation": "молоко",
       "translations": {
         "ru": "молоко",
@@ -70,6 +74,7 @@
     {
       "word": "juice",
       "part_of_speech": "noun",
+      "transcription": "/dʒus/",
       "translation": "сок",
       "translations": {
         "ru": "сок",
@@ -84,6 +89,7 @@
     {
       "word": "sugar",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃʊgər/",
       "translation": "сахар",
       "translations": {
         "ru": "сахар",
@@ -98,6 +104,7 @@
     {
       "word": "salt",
       "part_of_speech": "noun",
+      "transcription": "/sɔlt/",
       "translation": "соль",
       "translations": {
         "ru": "соль",
@@ -112,6 +119,7 @@
     {
       "word": "drink",
       "part_of_speech": "verb",
+      "transcription": "/drɪŋk/",
       "translation": "пить",
       "translations": {
         "ru": "пить",
@@ -126,6 +134,7 @@
     {
       "word": "cup",
       "part_of_speech": "noun",
+      "transcription": "/kʌp/",
       "translation": "чашка",
       "translations": {
         "ru": "чашка",
@@ -140,6 +149,7 @@
     {
       "word": "glass",
       "part_of_speech": "noun",
+      "transcription": "/glæs/",
       "translation": "стакан",
       "translations": {
         "ru": "стакан",

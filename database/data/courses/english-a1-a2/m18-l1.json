@@ -14,6 +14,7 @@
     {
       "word": "flu",
       "part_of_speech": "noun",
+      "transcription": "/flu/",
       "translation": "грипп",
       "translations": {
         "ru": "грипп",
@@ -28,6 +29,7 @@
     {
       "word": "allergy",
       "part_of_speech": "noun",
+      "transcription": "/ˈælərdʒi/",
       "translation": "аллергия",
       "translations": {
         "ru": "аллергия",
@@ -42,6 +44,7 @@
     {
       "word": "infection",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈfɛkʃən/",
       "translation": "инфекция",
       "translations": {
         "ru": "инфекция",
@@ -56,6 +59,7 @@
     {
       "word": "injury",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪndʒəri/",
       "translation": "травма",
       "translations": {
         "ru": "травма",
@@ -70,6 +74,7 @@
     {
       "word": "wound",
       "part_of_speech": "noun",
+      "transcription": "/wund/",
       "translation": "рана",
       "translations": {
         "ru": "рана",
@@ -84,6 +89,7 @@
     {
       "word": "bandage",
       "part_of_speech": "noun",
+      "transcription": "/ˈbændɪdʒ/",
       "translation": "бинт",
       "translations": {
         "ru": "бинт",
@@ -98,6 +104,7 @@
     {
       "word": "symptom",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmptəm/",
       "translation": "симптом",
       "translations": {
         "ru": "симптом",
@@ -112,6 +119,7 @@
     {
       "word": "sneeze",
       "part_of_speech": "verb",
+      "transcription": "/sniz/",
       "translation": "чихать",
       "translations": {
         "ru": "чихать",
@@ -126,6 +134,7 @@
     {
       "word": "bleed",
       "part_of_speech": "verb",
+      "transcription": "/blid/",
       "translation": "кровоточить",
       "translations": {
         "ru": "кровоточить",
@@ -140,6 +149,7 @@
     {
       "word": "recover",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkʌvər/",
       "translation": "выздоравливать",
       "translations": {
         "ru": "выздоравливать",

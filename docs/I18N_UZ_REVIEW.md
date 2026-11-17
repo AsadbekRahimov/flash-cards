@@ -3875,6 +3875,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`: серия верных ответов
 | `finished.quota.pro` | Pro nima beradi | Что даёт Pro (кнопка открывает окно о Pro) |
 | `finished.quota.invite` | Do'stlarni taklif qiling — Pro bepul | Пригласить друзей — Pro бесплатно |
 | `settings.sounds` | Tovushlar | Звуки (переключатель в «Настройках», раздел обучения) |
+| `settings.autospeak` | So'zlarni avtomatik o'qish | Автоозвучка слов (переключатель в «Настройках», раздел обучения; слово произносится само при показе) |
 
 ## Раунды, игры на виду (17.11.2026) — на проверку носителю
 
@@ -3920,3 +3921,115 @@ Mini App, `resources/twa/src/i18n/uz.ts`: совет о Pro и карточка 
 | `finished.trial_ending.keep_invite` | Pro'ni saqlab qolish uchun do'stlaringizni taklif qiling. | Чтобы сохранить Pro, пригласите друзей. (оплата ещё не открыта) |
 | `today.streak.freeze_line` | Pro'da zaxira kun ketma-ketlikni saqlab qolgan bo'lardi | В Pro заморозка сохранила бы серию (строка под карточкой серии, когда серия оборвалась) |
 
+## Готовность к уровню и тест недели (17.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают результат экзамена: это доля освоенного словаря курса. «O'zlashtirildi» — освоено (в отличие от «o'rganildi» в `finished.stages.mastered`: там «выучено»), «Hafta testi» — тест недели. Прошу проверить падежи, порядок слов в «{total} tadan {correct} ta» и выбор «mashq» для тренировочной попытки.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `readiness.title` | Darajaga tayyorlik | Готовность к уровню |
+| `readiness.percent_level` | {level} darajasi so'zlarining {percent}% o'zlashtirildi | Освоено {percent}% слов уровня {level} |
+| `readiness.percent_course` | Kurs so'zlarining {percent}% o'zlashtirildi | Освоено {percent}% слов курса (когда у курса нет подписи уровня) |
+| `readiness.progress_label` | So'zlarning {percent}% o'zlashtirildi: {learned} ta o'zlashtirildi, {in_progress} ta o'rganilmoqda, {not_started} ta hali oldinda | Подпись полосы для экранных дикторов |
+| `readiness.learned` / `.in_progress` / `.not_started` | o'zlashtirildi / o'rganilmoqda / hali oldinda | освоено / в работе / ещё впереди |
+| `readiness.mastered` | shundan mustahkam: {count} ta | из них надёжно: {count} |
+| `readiness.explain` | So'z {count} kunlik tanaffusdan keyin ishonch bilan eslansa, o'zlashtirilgan hisoblanadi. Bu lug'at bahosi, imtihon natijasi emas. | Слово считается освоенным, когда вы уверенно вспоминаете его с перерывом в {count} дней. Это оценка словаря, а не результат экзамена. |
+| `readiness.modules` / `readiness.module` | Modullar bo'yicha / {number}-modul | По модулям / Модуль N |
+| `readiness.quiz.title` | Hafta testi | Тест недели |
+| `readiness.quiz.result` / `.line` | {total} tadan {correct} ta / Hafta testi: {total} tadan {correct} ta | «8 из 12» / «Тест недели: 8 из 12» |
+| `readiness.quiz.take` | Hafta testini topshirish | Пройти тест недели |
+| `readiness.quiz.again` | Yana topshirish (mashq, hisobga olinmaydi) | Пройти ещё раз (тренировочно, не в зачёт) |
+| `readiness.quiz.practice_hint` | Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: u hafta hisobiga o'tmaydi va grafikka tushmaydi. | Зачётный тест недели уже пройден; повтор тренировочный: не идёт в зачёт недели и в график |
+| `readiness.quiz.hint` | Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test. Savollarning yarmidan kamiga javob berilsa, urinish hisobga olinmaydi. | N вопросов по словам курса, около M мин. Один зачётный тест в неделю. Если ответить меньше чем на половину вопросов, попытка не идёт в зачёт. |
+| `readiness.quiz.best` | Eng yaxshi natija: {percent}% | Лучший результат |
+| `readiness.quiz.chart_title` / `.chart_empty` | Haftalar bo'yicha / Hozircha natijalar yo'q | По неделям / Пока нет результатов |
+| `readiness.quiz.bar` / `.bar_empty` | {week} dan boshlanadigan hafta: {total} tadan {correct} ta / ...: test bo'lmagan | Подпись столбика графика (для экранных дикторов) |
+| `readiness.quiz.disabled`, `readiness.unavailable`, `error.code.level_quiz_disabled`, `error.code.readiness_disabled` | Hafta testi hozir mavjud emas. / Darajaga tayyorlik hozir mavjud emas. | Функция выключена |
+| `readiness.not_enough_words` | Kursda hafta testi uchun so'z hozircha kam. | В курсе пока мало слов для теста недели. |
+| `readiness.not_enough_distractors` | Hafta testi uchun kursda javob variantlariga so'z yetmaydi. | Для теста недели не хватает слов для вариантов ответа. |
+| `readiness.open` | Tayyorlik haqida batafsil | Подробнее о готовности |
+| `exam.quiz_header` / `exam.quiz_closed_title` | Hafta testi / Vaqt tugadi | Тест недели / Время вышло |
+| `result.quiz_title` | Hafta testi natijalari | Итоги теста недели |
+| `result.quiz_score` | {total} tadan {correct} ta | N из M |
+| `result.quiz_percent` | Test savollarining {percent}% | {percent}% слов теста |
+| `result.quiz_scored` | {week} dan boshlanadigan haftaning hisobga olinadigan testi | Зачётный тест недели с {week} |
+| `result.quiz_practice` | Mashq urinishi — hafta hisobiga o'tmaydi | Тренировочная попытка — не идёт в зачёт недели |
+| `result.quiz_unanswered` | Javobsiz: {count} | Без ответа |
+| `result.to_readiness` | Tayyorlikka | К готовности |
+| `profile.readiness` / `profile.readiness.hint` | Darajaga tayyorlik / O'zlashtirilgan so'zlar ulushi va hafta testi | Готовность к уровню / Доля освоенных слов и тест недели |
+| `course.readiness` | Tayyorlik va hafta testi | Готовность и тест недели |
+| `practice.mode.pairs_timed.title` / `.example` | Vaqtga juftlar / 60 soniya — iloji boricha ko'proq juft toping | Пары на время / 60 секунд — собери как можно больше пар (хаб практики, карточка режима) |
+| `practice.timed.record_line` | Rekord: {score} | Рекорд: N (личный рекорд на карточке) |
+| `practice.timed.ready_title` / `.ready_text` / `.go` / `.starting` | Tayyormisiz? / {seconds} soniya — iloji boricha ko'proq juft toping. Har bir xato 2 soniya oladi. / Start / Boshlanmoqda… | Готов? / 60 секунд — собери как можно больше пар. Каждая ошибка отнимает 2 секунды. / Старт / Запускаем… |
+| `practice.timed.seconds_left` / `.score` / `.penalty` / `.time_up` | {seconds} soniya qoldi / Juftlar: {score} / −{seconds} soniya / Vaqt tugadi… | Осталось N с (для экранных дикторов) / Пар: N / −2 с (вспышка штрафа; на узбекском «soniya» целиком) / Время вышло… |
+| `practice.timed.summary_score` / `.summary_new_record` / `.summary_best` / `.summary_completed` | Hisob: {score} / Yangi rekord! / Rekord: {score} / Barcha raundlar tugadi! | Счёт: N / Новый рекорд! / Рекорд: M / Все раунды пройдены! |
+| `practice.timed.again` / `.to_games` | Yana bir marta / O'yinlarga | Ещё раз / К играм |
+| `practice.summary.reason.time_over` | Vaqt tugadi. | Время вышло. |
+| `error.code.practice_not_started` / `.practice_time_over` / `.practice_not_timed` | O'yin hali boshlanmagan. «Start» tugmasini bosing. / Vaqt tugadi. Natijani ko'ramiz. / Bu vaqtga o'yin emas. | Игра ещё не началась. / Время вышло, смотрим результат. / Это не игра на время. |
+| `today.hard_round.title` / `.subtitle` / `.start` / `.continue` | Qiyin so'zlar raundi / {count} ta qiyin so'z tahlilni kutmoqda / Tahlil qilish / Davom ettirish | Раунд трудных слов / N трудных слов ждут разбора / Разобрать / Продолжить (карточка на «Сегодня») |
+| `training.hard_round.chip` / `.progress` | Qiyin so'zlar raundi / {total} tadan {done} tasi yengildi | Раунд трудных слов / Побеждено X из N (шапка раунда) |
+| `finished.hard_round.title` / `.title_none` | {total} ta qiyin so'zdan {won} tasini yengdingiz / Qiyin so'zlar raundi tugadi | Вы победили X из N трудных слов / Раунд трудных слов пройден (при 0) |
+| `finished.hard_round.all` / `.later` | Barcha qiyin so'zlar yengildi. Shunday davom eting! / Bu so'zlar yana qaytadi — shunday rejalashtirilgan | Все трудные слова побеждены. Так держать! / Эти слова ещё вернутся — так и задумано |
+| `finished.hard_round.offer` | {count} ta qiyin so'zni tahlil qilish | Разобрать N трудных слов (строка на финале обычного раунда) |
+| `error.code.hard_round_unavailable` / `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд сейчас недоступен |
+| `error.hard_round.not_enough` / `.played_today` / `.no_objective_exercise` | Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi. / Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. / Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Трудных слов пока мало / Раунд на сегодня уже пройден, следующий завтра / Для этих слов нет подходящих заданий |
+
+Те же ключи отдельными строками (выше они записаны составными; проверка полноты ищет полный ключ):
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.game.map` | Karvon xaritasi: shaharlarni so'zlar bilan bosib o'ting | Карта каравана: проходи города словами (подпись карточки «Сегодня») |
+| `today.hard_round.subtitle.one` | {count} ta qiyin so'z tahlilni kutmoqda | {count} трудное слово ждёт разбора (ru: one / few / many / other; uz: one = other) |
+| `today.hard_round.subtitle.other` | {count} ta qiyin so'z tahlilni kutmoqda | {count} трудных слова ждут разбора |
+| `today.hard_round.start` | Tahlil qilish | Разобрать |
+| `today.hard_round.continue` | Davom ettirish | Продолжить |
+| `training.hard_round.progress` | {total} tadan {done} tasi yengildi | Побеждено {done} из {total} (шапка раунда) |
+| `readiness.in_progress` | o'rganilmoqda | в работе |
+| `readiness.not_started` | hali oldinda | ещё впереди |
+| `readiness.module` | {number}-modul | Модуль {number} |
+| `readiness.quiz.line` | Hafta testi: {total} tadan {correct} ta | Тест недели: {correct} из {total} |
+| `readiness.quiz.chart_empty` | Hozircha natijalar yo'q | Пока нет результатов |
+| `readiness.quiz.bar_empty` | {week} dan boshlanadigan hafta: test bo'lmagan | Неделя с {week}: теста не было (подпись столбика для экранных дикторов) |
+| `readiness.unavailable` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
+| `exam.quiz_closed_title` | Vaqt tugadi | Время вышло |
+| `profile.readiness.hint` | O'zlashtirilgan so'zlar ulushi va hafta testi | Доля освоенных слов и тест недели |
+| `error.code.level_quiz_disabled` | Hafta testi hozir mavjud emas. | Тест недели сейчас недоступен. |
+| `error.code.readiness_disabled` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
+| `finished.hard_round.title_none` | Qiyin so'zlar raundi tugadi | Раунд трудных слов пройден (при 0 побеждённых) |
+| `finished.hard_round.later` | Bu so'zlar yana qaytadi — shunday rejalashtirilgan | Эти слова ещё вернутся — так и задумано |
+| `practice.mode.pairs_timed.example` | 60 soniya — iloji boricha ko'proq juft toping | 60 секунд — собери как можно больше пар (карточка в хабе практики) |
+| `practice.timed.ready_text` | {seconds} soniya — iloji boricha ko'proq juft toping. Har bir xato 2 soniya oladi. | {seconds} секунд — собери как можно больше пар. Каждая ошибка отнимает 2 секунды. |
+| `practice.timed.go` | Start | Старт |
+| `practice.timed.starting` | Boshlanmoqda… | Запускаем… |
+| `practice.timed.score` | Juftlar: {score} | Пар: {score} |
+| `practice.timed.penalty` | −{seconds} soniya | −{seconds} с (вспышка штрафа) |
+| `practice.timed.time_up` | Vaqt tugadi… | Время вышло… |
+| `practice.timed.summary_new_record` | Yangi rekord! | Новый рекорд! |
+| `practice.timed.summary_best` | Rekord: {score} | Рекорд: {score} |
+| `practice.timed.summary_completed` | Barcha raundlar tugadi! | Все раунды пройдены! |
+| `practice.timed.to_games` | O'yinlarga | К играм |
+| `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд трудных слов сейчас недоступен. |
+| `error.hard_round.played_today` | Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. | Раунд трудных слов на сегодня уже пройден. Следующий — завтра. |
+| `error.hard_round.no_objective_exercise` | Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Для этих слов пока нет подходящих заданий. |
+| `error.code.practice_time_over` | Vaqt tugadi. Natijani ko'ramiz. | Время вышло. Смотрим результат. |
+| `error.code.practice_not_timed` | Bu vaqtga o'yin emas. | Это не игра на время. |
+
+### Напоминание-вопрос (`lang/uz/reminders.php`, блок `quiz`; решение владельца 17.11.2026, docs/12 §7.5) — на проверку носителю
+
+Текст без разметки: вводная строка, вопрос про слово (кнопки с вариантами — сами слова, не ключи), подвал и ответ после выбора.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.quiz.lead.review` | LexiFlow'da :count ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz. | Пора повторить :count слово. Начнём с одного прямо здесь.\|Пора повторить :count слова. Начнём с одного прямо здесь.\|Пора повторить :count слов. Начнём с одного прямо здесь. |
+| `reminders.quiz.lead.streak_at_risk` | Ketma-ket :count kun shug'ullandingiz. Natijani saqlash uchun bugungi maqsadni bajaring. Mashq: | Серия — :count день. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дня. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дней. Выполните цель дня, чтобы не прервать её. Разминка: |
+| `reminders.quiz.lead.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz: | Вы :count день не занимались. Проверим одно слово:\|Вы :count дня не занимались. Проверим одно слово:\|Вы :count дней не занимались. Проверим одно слово: |
+| `reminders.quiz.lead.new_words` | Yangi so'zlardan oldin mashq: | Разминка перед новыми словами: |
+| `reminders.quiz.question.meaning` | «:word» nima degani? | Что значит «:word»? |
+| `reminders.quiz.question.reverse` | «:translation» inglizchada qanday? | Как по-английски «:translation»? |
+| `reminders.quiz.footer` | Vaqtni o'zgartirish yoki o'chirish: /settings | Изменить время или отключить: /settings |
+| `reminders.quiz.correct` | ✅ To'g'ri! :word — :answer. | ✅ Верно! :word — :answer. |
+| `reminders.quiz.wrong` | ❌ Unday emas. :word — :answer. | ❌ Не совсем. :word — :answer. |
+| `reminders.quiz.after_due` | Ilovada sizni :count ta so'z kutmoqda — 5 daqiqa yetarli. | В приложении ждут :count слово — хватит 5 минут.\|В приложении ждут :count слова — хватит 5 минут.\|В приложении ждут :count слов — хватит 5 минут. |
+| `reminders.quiz.after_none` | Ilovada davom eting — u yerda yangi so'zlar bor. | Продолжите в приложении — там новые слова. |
+| `reminders.quiz.open_more` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `reminders.quiz.expired` | Bu savol eskirgan. Ilovani oching — u yerda yangi so'zlar bor. | Этот вопрос устарел. Откройте приложение — там свежие слова. |

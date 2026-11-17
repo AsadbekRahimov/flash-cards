@@ -14,6 +14,7 @@
     {
       "word": "dog",
       "part_of_speech": "noun",
+      "transcription": "/dɔg/",
       "translation": "собака",
       "translations": {
         "ru": "собака",
@@ -28,6 +29,7 @@
     {
       "word": "cat",
       "part_of_speech": "noun",
+      "transcription": "/kæt/",
       "translation": "кошка",
       "translations": {
         "ru": "кошка",
@@ -42,6 +44,7 @@
     {
       "word": "bird",
       "part_of_speech": "noun",
+      "transcription": "/bɜrd/",
       "translation": "птица",
       "translations": {
         "ru": "птица",
@@ -56,6 +59,7 @@
     {
       "word": "horse",
       "part_of_speech": "noun",
+      "transcription": "/hɔrs/",
       "translation": "лошадь",
       "translations": {
         "ru": "лошадь",
@@ -70,6 +74,7 @@
     {
       "word": "cow",
       "part_of_speech": "noun",
+      "transcription": "/kaʊ/",
       "translation": "корова",
       "translations": {
         "ru": "корова",
@@ -84,6 +89,7 @@
     {
       "word": "sheep",
       "part_of_speech": "noun",
+      "transcription": "/ʃip/",
       "translation": "овца",
       "translations": {
         "ru": "овца",
@@ -98,6 +104,7 @@
     {
       "word": "chicken",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɪkən/",
       "translation": "курица",
       "translations": {
         "ru": "курица",
@@ -112,6 +119,7 @@
     {
       "word": "animal",
       "part_of_speech": "noun",
+      "transcription": "/ˈænəməl/",
       "translation": "животное",
       "translations": {
         "ru": "животное",
@@ -126,6 +134,7 @@
     {
       "word": "mouse",
       "part_of_speech": "noun",
+      "transcription": "/maʊs/",
       "translation": "мышь",
       "translations": {
         "ru": "мышь",
@@ -140,6 +149,7 @@
     {
       "word": "bear",
       "part_of_speech": "noun",
+      "transcription": "/bɛr/",
       "translation": "медведь",
       "translations": {
         "ru": "медведь",

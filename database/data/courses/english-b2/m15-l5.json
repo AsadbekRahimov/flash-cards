@@ -14,6 +14,7 @@
     {
       "word": "overcrowded",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈkraʊdɪd/",
       "translation": "переполненный",
       "translations": {
         "ru": "переполненный",
@@ -28,6 +29,7 @@
     {
       "word": "bustling",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbʌslɪŋ/",
       "translation": "оживлённый, шумный",
       "translations": {
         "ru": "оживлённый, шумный",
@@ -42,6 +44,7 @@
     {
       "word": "vibrant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvaɪbrənt/",
       "translation": "полный жизни, яркий",
       "translations": {
         "ru": "полный жизни, яркий",
@@ -56,6 +59,7 @@
     {
       "word": "hectic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɛktɪk/",
       "translation": "суматошный",
       "translations": {
         "ru": "суматошный",
@@ -70,6 +74,7 @@
     {
       "word": "deserted",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈzɜrtɪd/",
       "translation": "безлюдный, пустынный",
       "translations": {
         "ru": "безлюдный, пустынный",
@@ -84,6 +89,7 @@
     {
       "word": "boulevard",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʊləvɑrd/",
       "translation": "бульвар",
       "translations": {
         "ru": "бульвар",
@@ -98,6 +104,7 @@
     {
       "word": "plaza",
       "part_of_speech": "noun",
+      "transcription": "/ˈplɑzə/",
       "translation": "площадь",
       "translations": {
         "ru": "площадь",
@@ -112,6 +119,7 @@
     {
       "word": "venue",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛnju/",
       "translation": "место проведения",
       "translations": {
         "ru": "место проведения",
@@ -126,6 +134,7 @@
     {
       "word": "skyline",
       "part_of_speech": "noun",
+      "transcription": "/ˈskaɪlaɪn/",
       "translation": "силуэт города",
       "translations": {
         "ru": "силуэт города",
@@ -140,6 +149,7 @@
     {
       "word": "hub",
       "part_of_speech": "noun",
+      "transcription": "/hʌb/",
       "translation": "центр, узел",
       "translations": {
         "ru": "центр, узел",

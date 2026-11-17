@@ -9,8 +9,10 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\ExerciseType;
+use App\Domain\Learning\Exceptions\HardRoundException;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Learning\Services\HardRoundService;
 use App\Domain\Learning\Services\PracticeEntryResolver;
 use App\Domain\Learning\Services\TrainingFlowService;
 use App\Domain\Learning\Services\TrainingSessionService;
@@ -38,6 +40,7 @@ final class TrainingController
         private readonly TodayService $today,
         private readonly PracticeEntryResolver $practiceEntries,
         private readonly CourseCatalogService $catalog,
+        private readonly HardRoundService $hardRound,
     ) {}
 
     /**
@@ -48,6 +51,13 @@ final class TrainingController
     {
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
+
+        // The round of hard words spans the learner's words: it takes no lesson (whether the lesson exists is not asked).
+        if ($request->string('mode')->toString() === TrainingSession::MODE_HARD_REVIEW && $request->lessonId() !== null) {
+            $e = TrainingSessionException::lessonNotAllowed();
+
+            return ApiErrorResource::respond(422, $e->reason, $e->getMessage());
+        }
 
         // The lesson with its stage and course in one read: the availability check of openPersonal() and the
         // start payload both need them, and neither reads them again.
@@ -63,7 +73,11 @@ final class TrainingController
         $source = $request->source();
 
         try {
-            $session = $this->sessions->openPersonal($learner, $mode, $lesson, $source);
+            $session = $mode === TrainingSession::MODE_HARD_REVIEW
+                ? $this->hardRound->open($learner, $source)
+                : $this->sessions->openPersonal($learner, $mode, $lesson, $source);
+        } catch (HardRoundException $e) {
+            return ApiErrorResource::respond(409, HardRoundException::CODE, $e->getMessage(), $e->details());
         } catch (TrainingSessionException $e) {
             return match ($e->reason) {
                 TrainingSessionException::REASON_LESSON_NOT_AVAILABLE => $this->lessonNotFound(),
@@ -129,6 +143,10 @@ final class TrainingController
             'summary' => $summary,
             'progress' => $this->today->progress($learner),
             'practice_entry' => $this->practiceEntries->forSession($summary->session, $learner),
+            // The invitation to the round of hard words after a daily round / a lesson (docs/06 §14); none after the round itself or while it is off.
+            'hard_round_offer' => $summary->session->mode === TrainingSession::MODE_HARD_REVIEW || ! $this->hardRound->enabled()
+                ? null
+                : $this->hardRound->availability($learner)->toArray(),
         ]))->response();
     }
 

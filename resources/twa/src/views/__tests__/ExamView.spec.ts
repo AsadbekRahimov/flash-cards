@@ -285,6 +285,29 @@ describe('ExamView', () => {
     })
   })
 
+  describe('test of the week (?mode=quiz)', () => {
+    it('shows the "Test of the week" chip, one timer and no bar for the question', async () => {
+      const { wrapper } = await render({ mode: 'quiz' })
+
+      expect(wrapper.get('[data-testid=quiz-header]').text()).toBe('Тест недели')
+      expect(wrapper.find('[data-testid=score]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=mock-header]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=question-timer]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=overall-timer]').text()).toBe('04:32')
+    })
+
+    it('says so in Uzbek, and when the time is up leads to the result', async () => {
+      setLocale('uz')
+      const { wrapper } = await render({ mode: 'quiz' })
+      expect(wrapper.get('[data-testid=quiz-header]').text()).toBe('Hafta testi')
+
+      vi.mocked(api.exam.join).mockRejectedValue(new ApiClientError('gone', 410, 'session_closed', 'closed'))
+      const closed = await render({ mode: 'quiz' })
+      expect(closed.wrapper.get('[data-testid=closed]').text()).toContain('Vaqt tugadi')
+      expect(closed.wrapper.find('[data-testid=quiz-results-btn]').exists()).toBe(true)
+    })
+  })
+
   describe('closed by the server (410)', () => {
     const gone = () => new ApiClientError('gone', 410, 'session_closed', 'closed')
 

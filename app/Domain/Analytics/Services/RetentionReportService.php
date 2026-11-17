@@ -426,9 +426,11 @@ final class RetentionReportService
         $since = $now->subDays(self::FIRST_SESSION_DAYS);
         $nowDb = self::db($now);
 
-        $cte = 'f AS (SELECT l.id AS learner_id, (SELECT MIN(a.id) FROM training_sessions a WHERE a.learner_id = l.id) AS s1 '
+        // The round of hard words (docs/06 §14) is activity (its grades are in `learner_daily_stats`) but not a "session" of this
+        // report: never the learner's first session and never their second (a constant of the code, passed as a binding).
+        $cte = 'f AS (SELECT l.id AS learner_id, (SELECT MIN(a.id) FROM training_sessions a WHERE a.learner_id = l.id AND a.mode <> ?) AS s1 '
             ."FROM learners l WHERE l.deleted_at IS NULL AND l.created_at >= {$sql->ts()} AND l.created_at <= {$sql->ts()})";
-        $cteBindings = [self::db($since), $nowDb];
+        $cteBindings = [TrainingSession::MODE_HARD_REVIEW, self::db($since), $nowDb];
 
         $day = 86400;
         $dayAgo = self::db($now->subSeconds($day));
@@ -438,7 +440,7 @@ final class RetentionReportService
 
         $totals = DB::selectOne(
             "WITH {$cte}, g AS (SELECT f.learner_id AS learner_id, f.s1 AS s1, "
-            .'(SELECT MIN(r.id) FROM training_sessions r WHERE r.learner_id = f.learner_id AND r.id > f.s1) AS s2 FROM f) '
+            .'(SELECT MIN(r.id) FROM training_sessions r WHERE r.learner_id = f.learner_id AND r.mode <> ? AND r.id > f.s1) AS s2 FROM f) '
             .'SELECT COUNT(*) AS registered, '
             .'SUM(CASE WHEN a.id IS NOT NULL THEN 1 ELSE 0 END) AS opened, '
             .'SUM(CASE WHEN a.done_reason = ? THEN 1 ELSE 0 END) AS finished, '
@@ -451,9 +453,10 @@ final class RetentionReportService
             .'SUM(CASE WHEN a.id IS NOT NULL AND a.started_at <= '.$sql->ts().' AND r.id IS NOT NULL AND r.started_at < '.$sql->shift('a.started_at', $sql->int()).' THEN 1 ELSE 0 END) AS round_again '
             .'FROM g LEFT JOIN training_sessions a ON a.id = g.s1 LEFT JOIN training_sessions r ON r.id = g.s2 '
             // The "second session" is the first one that began a round-gap or more after the first (by id: they grow with time).
-            .'LEFT JOIN training_sessions b ON b.id = (SELECT MIN(c.id) FROM training_sessions c WHERE c.learner_id = g.learner_id AND c.id > g.s1 AND c.started_at >= '.$sql->shift('a.started_at', $sql->int()).')',
+            .'LEFT JOIN training_sessions b ON b.id = (SELECT MIN(c.id) FROM training_sessions c WHERE c.learner_id = g.learner_id AND c.mode <> ? AND c.id > g.s1 AND c.started_at >= '.$sql->shift('a.started_at', $sql->int()).')',
             [
                 ...$cteBindings,
+                TrainingSession::MODE_HARD_REVIEW,
                 TrainingSession::DONE_FINISHED,
                 $nowDb,
                 $dayAgo,
@@ -462,7 +465,7 @@ final class RetentionReportService
                 $weekAgo, 7 * $day,
                 $gapAgo,
                 $gapAgo, $gap,
-                $gap,
+                TrainingSession::MODE_HARD_REVIEW, $gap,
             ],
         );
 

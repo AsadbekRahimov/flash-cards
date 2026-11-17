@@ -14,6 +14,7 @@
     {
       "word": "name",
       "part_of_speech": "noun",
+      "transcription": "/neɪm/",
       "translation": "имя",
       "translations": {
         "ru": "имя",
@@ -28,6 +29,7 @@
     {
       "word": "age",
       "part_of_speech": "noun",
+      "transcription": "/eɪdʒ/",
       "translation": "возраст",
       "translations": {
         "ru": "возраст",
@@ -42,6 +44,7 @@
     {
       "word": "country",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌntri/",
       "translation": "страна",
       "translations": {
         "ru": "страна",
@@ -56,6 +59,7 @@
     {
       "word": "language",
       "part_of_speech": "noun",
+      "transcription": "/ˈlæŋgwɪdʒ/",
       "translation": "язык",
       "translations": {
         "ru": "язык",
@@ -70,6 +74,7 @@
     {
       "word": "address",
       "part_of_speech": "noun",
+      "transcription": "/ˈædrɛs/",
       "translation": "адрес",
       "translations": {
         "ru": "адрес",
@@ -84,6 +89,7 @@
     {
       "word": "birthday",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɜrθdeɪ/",
       "translation": "день рождения",
       "translations": {
         "ru": "день рождения",
@@ -98,6 +104,7 @@
     {
       "word": "married",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛrid/",
       "translation": "женатый, замужняя",
       "translations": {
         "ru": "женатый, замужняя",
@@ -112,6 +119,7 @@
     {
       "word": "single",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɪŋgəl/",
       "translation": "не женат, не замужем",
       "translations": {
         "ru": "не женат, не замужем",
@@ -126,6 +134,7 @@
     {
       "word": "call",
       "part_of_speech": "verb",
+      "transcription": "/kɔl/",
       "translation": "звать, называть",
       "translations": {
         "ru": "звать, называть",
@@ -140,6 +149,7 @@
     {
       "word": "meet",
       "part_of_speech": "verb",
+      "transcription": "/mit/",
       "translation": "встречать, знакомиться",
       "translations": {
         "ru": "встречать, знакомиться",

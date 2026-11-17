@@ -55,6 +55,8 @@ beforeEach(function (): void {
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
+        public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void {}
+
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {
             return 'administrator';

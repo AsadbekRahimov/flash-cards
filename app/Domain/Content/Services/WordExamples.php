@@ -7,6 +7,7 @@ namespace App\Domain\Content\Services;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Learning\Support\LadderPolicy;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Word;
 use App\Models\WordRepetition;
 
@@ -27,6 +28,7 @@ final class WordExamples
     public function __construct(
         private readonly LearningCache $cache,
         private readonly LadderPolicy $policy,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /** The English sentence the card shows this time; null when the word has no example at all. */
@@ -36,27 +38,29 @@ final class WordExamples
     }
 
     /**
-     * The example and its translation in a locale (the translation of the anchor is not read here: it lives in
-     * `word_translations.example_translation` and is not part of the card today).
+     * The example of this serve and its translation in a locale: a rotated row brings its own `translations`; the anchor
+     * takes `$anchorTranslation` (`word_translations.example_translation`, read with the word's translation by
+     * {@see WordTranslationResolver}). The locale falls back to the fallback one like the translation of the word does.
      *
      * @return array{text: string|null, translation: string|null}
      */
-    public function pickRow(Word $word, WordRepetition $repetition, ?string $locale = null): array
+    public function pickRow(Word $word, WordRepetition $repetition, ?string $locale = null, ?string $anchorTranslation = null): array
     {
         $anchor = self::text($word->example);
+        $anchorRow = ['text' => $anchor, 'translation' => $anchor === null ? null : self::text($anchorTranslation)];
 
         if (! $this->policy->rotateExamples || $repetition->state !== RepetitionState::Review) {
-            return ['text' => $anchor, 'translation' => null];
+            return $anchorRow;
         }
 
         $extra = $this->cache->wordExamples((int) $word->id);
         if ($extra === []) {
-            return ['text' => $anchor, 'translation' => null];
+            return $anchorRow;
         }
 
         $all = [];
         if ($anchor !== null) {
-            $all[] = ['text' => $anchor, 'translations' => []];
+            $all[] = ['text' => $anchor, 'translations' => $locale === null || $anchorRow['translation'] === null ? [] : [$locale => $anchorRow['translation']]];
         }
         foreach ($extra as $row) {
             if (self::text($row['text']) !== null) {
@@ -68,11 +72,12 @@ final class WordExamples
         }
 
         $row = $all[((int) $repetition->repetitions) % count($all)];
+        $translation = null;
+        if ($locale !== null) {
+            $translation = self::text($row['translations'][$locale] ?? null) ?? self::text($row['translations'][$this->locales->fallback()] ?? null);
+        }
 
-        return [
-            'text' => $row['text'],
-            'translation' => $locale === null ? null : ($row['translations'][$locale] ?? null),
-        ];
+        return ['text' => $row['text'], 'translation' => $translation];
     }
 
     private static function text(?string $raw): ?string

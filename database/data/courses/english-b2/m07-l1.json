@@ -14,6 +14,7 @@
     {
       "word": "emission",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈmɪʃən/",
       "translation": "выброс",
       "translations": {
         "ru": "выброс",
@@ -28,6 +29,7 @@
     {
       "word": "greenhouse",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrinhaʊs/",
       "translation": "теплица",
       "translations": {
         "ru": "теплица",
@@ -42,6 +44,7 @@
     {
       "word": "absorb",
       "part_of_speech": "verb",
+      "transcription": "/əbˈzɔrb/",
       "translation": "поглощать",
       "translations": {
         "ru": "поглощать",
@@ -56,6 +59,7 @@
     {
       "word": "carbon",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrbən/",
       "translation": "углерод",
       "translations": {
         "ru": "углерод",
@@ -70,6 +74,7 @@
     {
       "word": "glacier",
       "part_of_speech": "noun",
+      "transcription": "/ˈgleɪʃər/",
       "translation": "ледник",
       "translations": {
         "ru": "ледник",
@@ -84,6 +89,7 @@
     {
       "word": "methane",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛθeɪn/",
       "translation": "метан",
       "translations": {
         "ru": "метан",
@@ -98,6 +104,7 @@
     {
       "word": "ozone",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊzoʊn/",
       "translation": "озон",
       "translations": {
         "ru": "озон",
@@ -112,6 +119,7 @@
     {
       "word": "fossil",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɑsəl/",
       "translation": "ископаемый",
       "translations": {
         "ru": "ископаемый",
@@ -126,6 +134,7 @@
     {
       "word": "footprint",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʊtprɪnt/",
       "translation": "след",
       "translations": {
         "ru": "след",
@@ -140,6 +149,7 @@
     {
       "word": "humidity",
       "part_of_speech": "noun",
+      "transcription": "/hjuˈmɪdəti/",
       "translation": "влажность",
       "translations": {
         "ru": "влажность",

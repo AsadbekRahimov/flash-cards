@@ -14,6 +14,7 @@
     {
       "word": "receipt",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsit/",
       "translation": "чек",
       "translations": {
         "ru": "чек",
@@ -28,6 +29,7 @@
     {
       "word": "discount",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪskaʊnt/",
       "translation": "скидка",
       "translations": {
         "ru": "скидка",
@@ -42,6 +44,7 @@
     {
       "word": "sale",
       "part_of_speech": "noun",
+      "transcription": "/seɪl/",
       "translation": "распродажа",
       "translations": {
         "ru": "распродажа",
@@ -56,6 +59,7 @@
     {
       "word": "refund",
       "part_of_speech": "noun",
+      "transcription": "/ˈrifʌnd/",
       "translation": "возврат денег",
       "translations": {
         "ru": "возврат денег",
@@ -70,6 +74,7 @@
     {
       "word": "basket",
       "part_of_speech": "noun",
+      "transcription": "/ˈbæskət/",
       "translation": "корзина",
       "translations": {
         "ru": "корзина",
@@ -84,6 +89,7 @@
     {
       "word": "checkout",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛkaʊt/",
       "translation": "касса",
       "translations": {
         "ru": "касса",
@@ -98,6 +104,7 @@
     {
       "word": "brand",
       "part_of_speech": "noun",
+      "transcription": "/brænd/",
       "translation": "бренд",
       "translations": {
         "ru": "бренд",
@@ -112,6 +119,7 @@
     {
       "word": "label",
       "part_of_speech": "noun",
+      "transcription": "/ˈleɪbəl/",
       "translation": "этикетка",
       "translations": {
         "ru": "этикетка",
@@ -126,6 +134,7 @@
     {
       "word": "shopping",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃɑpɪŋ/",
       "translation": "покупки",
       "translations": {
         "ru": "покупки",
@@ -140,6 +149,7 @@
     {
       "word": "supermarket",
       "part_of_speech": "noun",
+      "transcription": "/ˈsupərˌmɑrkət/",
       "translation": "супермаркет",
       "translations": {
         "ru": "супермаркет",

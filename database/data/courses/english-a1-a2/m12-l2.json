@@ -14,6 +14,7 @@
     {
       "word": "internet",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌnɛt/",
       "translation": "интернет",
       "translations": {
         "ru": "интернет",
@@ -28,6 +29,7 @@
     {
       "word": "website",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛbsaɪt/",
       "translation": "сайт",
       "translations": {
         "ru": "сайт",
@@ -42,6 +44,7 @@
     {
       "word": "password",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæswɜrd/",
       "translation": "пароль",
       "translations": {
         "ru": "пароль",
@@ -56,6 +59,7 @@
     {
       "word": "link",
       "part_of_speech": "noun",
+      "transcription": "/lɪŋk/",
       "translation": "ссылка",
       "translations": {
         "ru": "ссылка",
@@ -70,6 +74,7 @@
     {
       "word": "search",
       "part_of_speech": "verb",
+      "transcription": "/sɜrtʃ/",
       "translation": "искать",
       "translations": {
         "ru": "искать",
@@ -84,6 +89,7 @@
     {
       "word": "download",
       "part_of_speech": "verb",
+      "transcription": "/ˈdaʊnloʊd/",
       "translation": "скачивать",
       "translations": {
         "ru": "скачивать",
@@ -98,6 +104,7 @@
     {
       "word": "online",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɑnˈlaɪn/",
       "translation": "онлайн",
       "translations": {
         "ru": "онлайн",
@@ -112,6 +119,7 @@
     {
       "word": "wifi",
       "part_of_speech": "noun",
+      "transcription": "/ˈwaɪfaɪ/",
       "translation": "вайфай",
       "translations": {
         "ru": "вайфай",
@@ -126,6 +134,7 @@
     {
       "word": "click",
       "part_of_speech": "verb",
+      "transcription": "/klɪk/",
       "translation": "нажимать",
       "translations": {
         "ru": "нажимать",
@@ -140,6 +149,7 @@
     {
       "word": "page",
       "part_of_speech": "noun",
+      "transcription": "/peɪdʒ/",
       "translation": "страница",
       "translations": {
         "ru": "страница",

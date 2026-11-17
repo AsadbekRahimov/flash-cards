@@ -14,6 +14,7 @@
     {
       "word": "environment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈvaɪrənmənt/",
       "translation": "окружающая среда",
       "translations": {
         "ru": "окружающая среда",
@@ -28,6 +29,7 @@
     {
       "word": "pollution",
       "part_of_speech": "noun",
+      "transcription": "/pəˈluʃən/",
       "translation": "загрязнение",
       "translations": {
         "ru": "загрязнение",
@@ -42,6 +44,7 @@
     {
       "word": "recycle",
       "part_of_speech": "verb",
+      "transcription": "/ˌriˈsaɪkəl/",
       "translation": "перерабатывать",
       "translations": {
         "ru": "перерабатывать",
@@ -56,6 +59,7 @@
     {
       "word": "waste",
       "part_of_speech": "noun",
+      "transcription": "/weɪst/",
       "translation": "отходы",
       "translations": {
         "ru": "отходы",
@@ -70,6 +74,7 @@
     {
       "word": "plastic",
       "part_of_speech": "noun",
+      "transcription": "/ˈplæstɪk/",
       "translation": "пластик",
       "translations": {
         "ru": "пластик",
@@ -84,6 +89,7 @@
     {
       "word": "protect",
       "part_of_speech": "verb",
+      "transcription": "/prəˈtɛkt/",
       "translation": "защищать",
       "translations": {
         "ru": "защищать",
@@ -98,6 +104,7 @@
     {
       "word": "fuel",
       "part_of_speech": "noun",
+      "transcription": "/ˈfjuəl/",
       "translation": "топливо",
       "translations": {
         "ru": "топливо",
@@ -112,6 +119,7 @@
     {
       "word": "nature",
       "part_of_speech": "noun",
+      "transcription": "/ˈneɪtʃər/",
       "translation": "природа",
       "translations": {
         "ru": "природа",
@@ -126,6 +134,7 @@
     {
       "word": "planet",
       "part_of_speech": "noun",
+      "transcription": "/ˈplænət/",
       "translation": "планета",
       "translations": {
         "ru": "планета",
@@ -140,6 +149,7 @@
     {
       "word": "damage",
       "part_of_speech": "verb",
+      "transcription": "/ˈdæmɪdʒ/",
       "translation": "вредить, повреждать",
       "translations": {
         "ru": "вредить, повреждать",

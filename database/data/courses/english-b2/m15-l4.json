@@ -14,6 +14,7 @@
     {
       "word": "utility",
       "part_of_speech": "noun",
+      "transcription": "/juˈtɪləti/",
       "translation": "коммунальная услуга",
       "translations": {
         "ru": "коммунальная услуга",
@@ -28,6 +29,7 @@
     {
       "word": "drainage",
       "part_of_speech": "noun",
+      "transcription": "/ˈdreɪnɪdʒ/",
       "translation": "водоотвод, дренаж",
       "translations": {
         "ru": "водоотвод, дренаж",
@@ -42,6 +44,7 @@
     {
       "word": "pipeline",
       "part_of_speech": "noun",
+      "transcription": "/ˈpaɪplaɪn/",
       "translation": "трубопровод",
       "translations": {
         "ru": "трубопровод",
@@ -56,6 +59,7 @@
     {
       "word": "grid",
       "part_of_speech": "noun",
+      "transcription": "/grɪd/",
       "translation": "электросеть",
       "translations": {
         "ru": "электросеть",
@@ -70,6 +74,7 @@
     {
       "word": "insulation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnsəˈleɪʃən/",
       "translation": "теплоизоляция",
       "translations": {
         "ru": "теплоизоляция",
@@ -84,6 +89,7 @@
     {
       "word": "pump",
       "part_of_speech": "noun",
+      "transcription": "/pʌmp/",
       "translation": "насос",
       "translations": {
         "ru": "насос",
@@ -98,6 +104,7 @@
     {
       "word": "outage",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtɪdʒ/",
       "translation": "отключение, перебой",
       "translations": {
         "ru": "отключение, перебой",
@@ -112,6 +119,7 @@
     {
       "word": "facility",
       "part_of_speech": "noun",
+      "transcription": "/fəˈsɪləti/",
       "translation": "сооружение, объект",
       "translations": {
         "ru": "сооружение, объект",
@@ -126,6 +134,7 @@
     {
       "word": "amenity",
       "part_of_speech": "noun",
+      "transcription": "/əˈmɛnəti/",
       "translation": "удобство",
       "translations": {
         "ru": "удобство",
@@ -140,6 +149,7 @@
     {
       "word": "ventilation",
       "part_of_speech": "noun",
+      "transcription": "/ˌvɛntəˈleɪʃən/",
       "translation": "вентиляция",
       "translations": {
         "ru": "вентиляция",

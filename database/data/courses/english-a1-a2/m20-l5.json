@@ -14,6 +14,7 @@
     {
       "word": "religion",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈlɪdʒən/",
       "translation": "религия",
       "translations": {
         "ru": "религия",
@@ -28,6 +29,7 @@
     {
       "word": "wedding",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛdɪŋ/",
       "translation": "свадьба",
       "translations": {
         "ru": "свадьба",
@@ -42,6 +44,7 @@
     {
       "word": "ceremony",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛrəˌmoʊni/",
       "translation": "церемония",
       "translations": {
         "ru": "церемония",
@@ -56,6 +59,7 @@
     {
       "word": "celebrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɛləˌbreɪt/",
       "translation": "праздновать",
       "translations": {
         "ru": "праздновать",
@@ -70,6 +74,7 @@
     {
       "word": "congratulate",
       "part_of_speech": "verb",
+      "transcription": "/kənˈgrætʃəˌleɪt/",
       "translation": "поздравлять",
       "translations": {
         "ru": "поздравлять",
@@ -84,6 +89,7 @@
     {
       "word": "pray",
       "part_of_speech": "verb",
+      "transcription": "/preɪ/",
       "translation": "молиться",
       "translations": {
         "ru": "молиться",
@@ -98,6 +104,7 @@
     {
       "word": "flag",
       "part_of_speech": "noun",
+      "transcription": "/flæg/",
       "translation": "флаг",
       "translations": {
         "ru": "флаг",
@@ -112,6 +119,7 @@
     {
       "word": "national",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnæʃənəl/",
       "translation": "национальный",
       "translations": {
         "ru": "национальный",
@@ -126,6 +134,7 @@
     {
       "word": "capital",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæpətəl/",
       "translation": "столица",
       "translations": {
         "ru": "столица",
@@ -140,6 +149,7 @@
     {
       "word": "nation",
       "part_of_speech": "noun",
+      "transcription": "/ˈneɪʃən/",
       "translation": "нация",
       "translations": {
         "ru": "нация",

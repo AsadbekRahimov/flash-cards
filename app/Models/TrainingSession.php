@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $completed_at the server had no more cards for this personal session after its grades (docs/06 §13.2)
  * @property Carbon|null $expires_at
  * @property string|null $done_reason
+ * @property array<string, mixed>|null $meta `{"hard_words": list<int>}` of a `hard_review` session (the set of the round); `{}` otherwise
  */
 class TrainingSession extends Model
 {
@@ -38,6 +39,9 @@ class TrainingSession extends Model
     public const MODE_LESSON = 'lesson';
 
     public const MODE_DAILY_REVIEW = 'daily_review';
+
+    /** The round of hard words (docs/06 §14): a personal session over a fixed set of words, `meta.hard_words`. */
+    public const MODE_HARD_REVIEW = 'hard_review';
 
     /** `done_reason`: closed explicitly by the learner (`/finish`). */
     public const DONE_FINISHED = 'finished';
@@ -63,6 +67,7 @@ class TrainingSession extends Model
         'completed_at',
         'expires_at',
         'done_reason',
+        'meta',
     ];
 
     /** @return array<string, string> */
@@ -74,6 +79,7 @@ class TrainingSession extends Model
             'ended_at' => 'datetime',
             'completed_at' => 'datetime',
             'expires_at' => 'datetime',
+            'meta' => 'array',
         ];
     }
 

@@ -14,6 +14,7 @@
     {
       "word": "left",
       "part_of_speech": "adverb",
+      "transcription": "/lɛft/",
       "translation": "налево, левый",
       "translations": {
         "ru": "налево, левый",
@@ -28,6 +29,7 @@
     {
       "word": "right",
       "part_of_speech": "adverb",
+      "transcription": "/raɪt/",
       "translation": "направо, правый",
       "translations": {
         "ru": "направо, правый",
@@ -42,6 +44,7 @@
     {
       "word": "straight",
       "part_of_speech": "adverb",
+      "transcription": "/streɪt/",
       "translation": "прямо",
       "translations": {
         "ru": "прямо",
@@ -56,6 +59,7 @@
     {
       "word": "near",
       "part_of_speech": "preposition",
+      "transcription": "/nɪr/",
       "translation": "рядом с, около",
       "translations": {
         "ru": "рядом с, около",
@@ -70,6 +74,7 @@
     {
       "word": "far",
       "part_of_speech": "adverb",
+      "transcription": "/fɑr/",
       "translation": "далеко",
       "translations": {
         "ru": "далеко",
@@ -84,6 +89,7 @@
     {
       "word": "corner",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrnər/",
       "translation": "угол",
       "translations": {
         "ru": "угол",
@@ -98,6 +104,7 @@
     {
       "word": "map",
       "part_of_speech": "noun",
+      "transcription": "/mæp/",
       "translation": "карта местности",
       "translations": {
         "ru": "карта местности",
@@ -112,6 +119,7 @@
     {
       "word": "between",
       "part_of_speech": "preposition",
+      "transcription": "/bɪˈtwin/",
       "translation": "между",
       "translations": {
         "ru": "между",
@@ -126,6 +134,7 @@
     {
       "word": "behind",
       "part_of_speech": "preposition",
+      "transcription": "/bɪˈhaɪnd/",
       "translation": "позади, за",
       "translations": {
         "ru": "позади, за",
@@ -140,6 +149,7 @@
     {
       "word": "north",
       "part_of_speech": "noun",
+      "transcription": "/nɔrθ/",
       "translation": "север",
       "translations": {
         "ru": "север",

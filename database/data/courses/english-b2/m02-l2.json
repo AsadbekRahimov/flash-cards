@@ -14,6 +14,7 @@
     {
       "word": "leadership",
       "part_of_speech": "noun",
+      "transcription": "/ˈlidərʃɪp/",
       "translation": "руководство, лидерство",
       "translations": {
         "ru": "руководство, лидерство",
@@ -28,6 +29,7 @@
     {
       "word": "executive",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɛkjətɪv/",
       "translation": "руководитель высшего звена",
       "translations": {
         "ru": "руководитель высшего звена",
@@ -42,6 +44,7 @@
     {
       "word": "guidance",
       "part_of_speech": "noun",
+      "transcription": "/ˈgaɪdəns/",
       "translation": "наставление, совет",
       "translations": {
         "ru": "наставление, совет",
@@ -56,6 +59,7 @@
     {
       "word": "delegate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɛləgeɪt/",
       "translation": "делегировать, поручать другим",
       "translations": {
         "ru": "делегировать, поручать другим",
@@ -70,6 +74,7 @@
     {
       "word": "subordinate",
       "part_of_speech": "noun",
+      "transcription": "/səˈbɔrdənət/",
       "translation": "подчинённый",
       "translations": {
         "ru": "подчинённый",
@@ -84,6 +89,7 @@
     {
       "word": "mentor",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛntɔr/",
       "translation": "наставник",
       "translations": {
         "ru": "наставник",
@@ -98,6 +104,7 @@
     {
       "word": "oversee",
       "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈsi/",
       "translation": "контролировать, курировать",
       "translations": {
         "ru": "контролировать, курировать",
@@ -112,6 +119,7 @@
     {
       "word": "coordinate",
       "part_of_speech": "verb",
+      "transcription": "/koʊˈɔrdəneɪt/",
       "translation": "координировать",
       "translations": {
         "ru": "координировать",
@@ -126,6 +134,7 @@
     {
       "word": "hierarchy",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪərɑrki/",
       "translation": "иерархия",
       "translations": {
         "ru": "иерархия",
@@ -140,6 +149,7 @@
     {
       "word": "chairperson",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛrˌpɜrsən/",
       "translation": "председатель",
       "translations": {
         "ru": "председатель",

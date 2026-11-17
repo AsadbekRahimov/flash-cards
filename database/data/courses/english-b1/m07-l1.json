@@ -14,6 +14,7 @@
     {
       "word": "profession",
       "part_of_speech": "noun",
+      "transcription": "/prəˈfɛʃən/",
       "translation": "профессия",
       "translations": {
         "ru": "профессия",
@@ -28,6 +29,7 @@
     {
       "word": "lawyer",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɔɪər/",
       "translation": "юрист, адвокат",
       "translations": {
         "ru": "юрист, адвокат",
@@ -42,6 +44,7 @@
     {
       "word": "accountant",
       "part_of_speech": "noun",
+      "transcription": "/əˈkaʊntənt/",
       "translation": "бухгалтер",
       "translations": {
         "ru": "бухгалтер",
@@ -56,6 +59,7 @@
     {
       "word": "architect",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrkətɛkt/",
       "translation": "архитектор",
       "translations": {
         "ru": "архитектор",
@@ -70,6 +74,7 @@
     {
       "word": "psychologist",
       "part_of_speech": "noun",
+      "transcription": "/saɪˈkɑlədʒɪst/",
       "translation": "психолог",
       "translations": {
         "ru": "психолог",
@@ -84,6 +89,7 @@
     {
       "word": "firefighter",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaɪərˌfaɪtər/",
       "translation": "пожарный",
       "translations": {
         "ru": "пожарный",
@@ -98,6 +104,7 @@
     {
       "word": "soldier",
       "part_of_speech": "noun",
+      "transcription": "/ˈsoʊldʒər/",
       "translation": "солдат",
       "translations": {
         "ru": "солдат",
@@ -112,6 +119,7 @@
     {
       "word": "carpenter",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrpəntər/",
       "translation": "плотник",
       "translations": {
         "ru": "плотник",
@@ -126,6 +134,7 @@
     {
       "word": "cashier",
       "part_of_speech": "noun",
+      "transcription": "/kæˈʃɪr/",
       "translation": "кассир",
       "translations": {
         "ru": "кассир",
@@ -140,6 +149,7 @@
     {
       "word": "consultant",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsʌltənt/",
       "translation": "консультант",
       "translations": {
         "ru": "консультант",

@@ -14,6 +14,7 @@
     {
       "word": "school",
       "part_of_speech": "noun",
+      "transcription": "/skul/",
       "translation": "школа",
       "translations": {
         "ru": "школа",
@@ -28,6 +29,7 @@
     {
       "word": "student",
       "part_of_speech": "noun",
+      "transcription": "/ˈstudənt/",
       "translation": "студент, ученик",
       "translations": {
         "ru": "студент, ученик",
@@ -42,6 +44,7 @@
     {
       "word": "teacher",
       "part_of_speech": "noun",
+      "transcription": "/ˈtitʃər/",
       "translation": "учитель",
       "translations": {
         "ru": "учитель",
@@ -56,6 +59,7 @@
     {
       "word": "class",
       "part_of_speech": "noun",
+      "transcription": "/klæs/",
       "translation": "класс",
       "translations": {
         "ru": "класс",
@@ -70,6 +74,7 @@
     {
       "word": "lesson",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛsən/",
       "translation": "урок",
       "translations": {
         "ru": "урок",
@@ -84,6 +89,7 @@
     {
       "word": "homework",
       "part_of_speech": "noun",
+      "transcription": "/ˈhoʊmwɜrk/",
       "translation": "домашнее задание",
       "translations": {
         "ru": "домашнее задание",
@@ -98,6 +104,7 @@
     {
       "word": "exam",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzæm/",
       "translation": "экзамен",
       "translations": {
         "ru": "экзамен",
@@ -112,6 +119,7 @@
     {
       "word": "learn",
       "part_of_speech": "verb",
+      "transcription": "/lɜrn/",
       "translation": "учить, выучить",
       "translations": {
         "ru": "учить, выучить",
@@ -126,6 +134,7 @@
     {
       "word": "study",
       "part_of_speech": "verb",
+      "transcription": "/ˈstʌdi/",
       "translation": "учиться, изучать",
       "translations": {
         "ru": "учиться, изучать",
@@ -140,6 +149,7 @@
     {
       "word": "pen",
       "part_of_speech": "noun",
+      "transcription": "/pɛn/",
       "translation": "ручка",
       "translations": {
         "ru": "ручка",

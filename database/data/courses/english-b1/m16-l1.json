@@ -14,6 +14,7 @@
     {
       "word": "delighted",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈlaɪtɪd/",
       "translation": "очень рад",
       "translations": {
         "ru": "очень рад",
@@ -28,6 +29,7 @@
     {
       "word": "impressed",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈprɛst/",
       "translation": "впечатлённый",
       "translations": {
         "ru": "впечатлённый",
@@ -42,6 +44,7 @@
     {
       "word": "positive",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɑzətɪv/",
       "translation": "позитивный, положительный",
       "translations": {
         "ru": "позитивный, положительный",
@@ -56,6 +59,7 @@
     {
       "word": "grateful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgreɪtfəl/",
       "translation": "благодарный",
       "translations": {
         "ru": "благодарный",
@@ -70,6 +74,7 @@
     {
       "word": "relieved",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈlivd/",
       "translation": "почувствовавший облегчение",
       "translations": {
         "ru": "почувствовавший облегчение",
@@ -84,6 +89,7 @@
     {
       "word": "joy",
       "part_of_speech": "noun",
+      "transcription": "/dʒɔɪ/",
       "translation": "радость",
       "translations": {
         "ru": "радость",
@@ -98,6 +104,7 @@
     {
       "word": "pleasure",
       "part_of_speech": "noun",
+      "transcription": "/ˈplɛʒər/",
       "translation": "удовольствие",
       "translations": {
         "ru": "удовольствие",
@@ -112,6 +119,7 @@
     {
       "word": "amazed",
       "part_of_speech": "adjective",
+      "transcription": "/əˈmeɪzd/",
       "translation": "поражённый, изумлённый",
       "translations": {
         "ru": "поражённый, изумлённый",
@@ -126,6 +134,7 @@
     {
       "word": "enthusiastic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˌθuziˈæstɪk/",
       "translation": "полный энтузиазма",
       "translations": {
         "ru": "полный энтузиазма",
@@ -140,6 +149,7 @@
     {
       "word": "optimistic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɑptəˈmɪstɪk/",
       "translation": "оптимистичный",
       "translations": {
         "ru": "оптимистичный",

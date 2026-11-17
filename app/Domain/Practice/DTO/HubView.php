@@ -20,7 +20,7 @@ final readonly class HubView
     /**
      * @param  array{slug: string, title: string}  $course
      * @param  array{id: int, stage: int|null, number: int|null, title: string|null}|null  $lesson
-     * @param  list<array{mode: string, state: string, available: int, required: int, reason: string|null, estimate_seconds: int}>  $modes
+     * @param  list<array{mode: string, state: string, available: int, required: int, reason: string|null, estimate_seconds: int, record?: array{score: int, achieved_at: string}|null}>  $modes
      * @param  ActiveSummary|null  $activeSession
      * @param  array{enabled: bool, active_battle_id: int|null, incoming_count: int}  $battle
      * @param  LimitsBlock|null  $limits

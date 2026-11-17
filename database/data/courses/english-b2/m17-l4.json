@@ -14,6 +14,7 @@
     {
       "word": "persuasive",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈsweɪsɪv/",
       "translation": "умеющий убеждать",
       "translations": {
         "ru": "умеющий убеждать",
@@ -28,6 +29,7 @@
     {
       "word": "constructive",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈstrʌktɪv/",
       "translation": "конструктивный",
       "translations": {
         "ru": "конструктивный",
@@ -42,6 +44,7 @@
     {
       "word": "outweigh",
       "part_of_speech": "verb",
+      "transcription": "/aʊtˈweɪ/",
       "translation": "перевешивать",
       "translations": {
         "ru": "перевешивать",
@@ -56,6 +59,7 @@
     {
       "word": "debate",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈbeɪt/",
       "translation": "дебаты, прения",
       "translations": {
         "ru": "дебаты, прения",
@@ -70,6 +74,7 @@
     {
       "word": "controversy",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntrəvɜrsi/",
       "translation": "споры, полемика",
       "translations": {
         "ru": "споры, полемика",
@@ -84,6 +89,7 @@
     {
       "word": "compelling",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpɛlɪŋ/",
       "translation": "веский, убедительный",
       "translations": {
         "ru": "веский, убедительный",
@@ -98,6 +104,7 @@
     {
       "word": "moderator",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑdəreɪtər/",
       "translation": "модератор, ведущий дебатов",
       "translations": {
         "ru": "модератор, ведущий дебатов",
@@ -112,6 +119,7 @@
     {
       "word": "confront",
       "part_of_speech": "verb",
+      "transcription": "/kənˈfrʌnt/",
       "translation": "противостоять",
       "translations": {
         "ru": "противостоять",
@@ -126,6 +134,7 @@
     {
       "word": "mediate",
       "part_of_speech": "verb",
+      "transcription": "/ˈmidieɪt/",
       "translation": "выступать посредником",
       "translations": {
         "ru": "выступать посредником",
@@ -140,6 +149,7 @@
     {
       "word": "counterargument",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntərˌɑrgjəmənt/",
       "translation": "контраргумент",
       "translations": {
         "ru": "контраргумент",

@@ -14,6 +14,7 @@
     {
       "word": "month",
       "part_of_speech": "noun",
+      "transcription": "/mʌnθ/",
       "translation": "месяц",
       "translations": {
         "ru": "месяц",
@@ -28,6 +29,7 @@
     {
       "word": "year",
       "part_of_speech": "noun",
+      "transcription": "/jɪr/",
       "translation": "год",
       "translations": {
         "ru": "год",
@@ -42,6 +44,7 @@
     {
       "word": "hour",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊər/",
       "translation": "час",
       "translations": {
         "ru": "час",
@@ -56,6 +59,7 @@
     {
       "word": "minute",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɪnət/",
       "translation": "минута",
       "translations": {
         "ru": "минута",
@@ -70,6 +74,7 @@
     {
       "word": "early",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɜrli/",
       "translation": "рано",
       "translations": {
         "ru": "рано",
@@ -84,6 +89,7 @@
     {
       "word": "late",
       "part_of_speech": "adverb",
+      "transcription": "/leɪt/",
       "translation": "поздно",
       "translations": {
         "ru": "поздно",
@@ -98,6 +104,7 @@
     {
       "word": "always",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɔlweɪz/",
       "translation": "всегда",
       "translations": {
         "ru": "всегда",
@@ -112,6 +119,7 @@
     {
       "word": "never",
       "part_of_speech": "adverb",
+      "transcription": "/ˈnɛvər/",
       "translation": "никогда",
       "translations": {
         "ru": "никогда",
@@ -126,6 +134,7 @@
     {
       "word": "often",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɔfən/",
       "translation": "часто",
       "translations": {
         "ru": "часто",
@@ -140,6 +149,7 @@
     {
       "word": "sometimes",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsʌmtaɪmz/",
       "translation": "иногда",
       "translations": {
         "ru": "иногда",

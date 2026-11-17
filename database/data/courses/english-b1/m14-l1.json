@@ -14,6 +14,7 @@
     {
       "word": "scientist",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪəntɪst/",
       "translation": "учёный",
       "translations": {
         "ru": "учёный",
@@ -28,6 +29,7 @@
     {
       "word": "laboratory",
       "part_of_speech": "noun",
+      "transcription": "/ˈlæbrətɔri/",
       "translation": "лаборатория",
       "translations": {
         "ru": "лаборатория",
@@ -42,6 +44,7 @@
     {
       "word": "experiment",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspɛrəmənt/",
       "translation": "эксперимент, опыт",
       "translations": {
         "ru": "эксперимент, опыт",
@@ -56,6 +59,7 @@
     {
       "word": "theory",
       "part_of_speech": "noun",
+      "transcription": "/ˈθiəri/",
       "translation": "теория",
       "translations": {
         "ru": "теория",
@@ -70,6 +74,7 @@
     {
       "word": "evidence",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛvədəns/",
       "translation": "доказательство",
       "translations": {
         "ru": "доказательство",
@@ -84,6 +89,7 @@
     {
       "word": "prove",
       "part_of_speech": "verb",
+      "transcription": "/pruv/",
       "translation": "доказывать",
       "translations": {
         "ru": "доказывать",
@@ -98,6 +104,7 @@
     {
       "word": "researcher",
       "part_of_speech": "noun",
+      "transcription": "/ˈrisɜrtʃər/",
       "translation": "исследователь",
       "translations": {
         "ru": "исследователь",
@@ -112,6 +119,7 @@
     {
       "word": "conclusion",
       "part_of_speech": "noun",
+      "transcription": "/kənˈkluʒən/",
       "translation": "вывод",
       "translations": {
         "ru": "вывод",
@@ -126,6 +134,7 @@
     {
       "word": "sample",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæmpəl/",
       "translation": "образец, проба",
       "translations": {
         "ru": "образец, проба",
@@ -140,6 +149,7 @@
     {
       "word": "microscope",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪkrəskoʊp/",
       "translation": "микроскоп",
       "translations": {
         "ru": "микроскоп",

@@ -19,7 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * The solo practice (docs/16 §7.2): open, read, answer, swap. Thin: the request is validated by a FormRequest, the work is
+ * The solo practice (docs/16 §7.2): open, read, start (the clock), answer, swap. Thin: the request is validated by a FormRequest, the work is
  * PracticeSessionService's, the body is a Resource. Somebody else's session is "not found".
  */
 final class PracticeSessionController
@@ -80,6 +80,16 @@ final class PracticeSessionController
             );
 
             return (new PracticeAnswerResource($outcome))->response();
+        } catch (PracticeException $e) {
+            return $this->error($e);
+        }
+    }
+
+    /** POST /api/twa/practice/sessions/{session}/start — starts the clock of a timed session (idempotent: the same `deadline_at`). */
+    public function start(Request $request, int $session): JsonResponse
+    {
+        try {
+            return (new PracticeSessionResource($this->sessions->start($session, $this->learner($request))))->response();
         } catch (PracticeException $e) {
             return $this->error($e);
         }

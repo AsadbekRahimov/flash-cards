@@ -14,6 +14,7 @@
     {
       "word": "anxiety",
       "part_of_speech": "noun",
+      "transcription": "/æŋˈzaɪəti/",
       "translation": "тревога",
       "translations": {
         "ru": "тревога",
@@ -28,6 +29,7 @@
     {
       "word": "depression",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈprɛʃən/",
       "translation": "депрессия",
       "translations": {
         "ru": "депрессия",
@@ -42,6 +44,7 @@
     {
       "word": "trauma",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrɔmə/",
       "translation": "психологическая травма",
       "translations": {
         "ru": "психологическая травма",
@@ -56,6 +59,7 @@
     {
       "word": "phobia",
       "part_of_speech": "noun",
+      "transcription": "/ˈfoʊbiə/",
       "translation": "фобия",
       "translations": {
         "ru": "фобия",
@@ -70,6 +74,7 @@
     {
       "word": "distress",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈstrɛs/",
       "translation": "страдание, душевная боль",
       "translations": {
         "ru": "страдание, душевная боль",
@@ -84,6 +89,7 @@
     {
       "word": "grief",
       "part_of_speech": "noun",
+      "transcription": "/grif/",
       "translation": "горе, скорбь",
       "translations": {
         "ru": "горе, скорбь",
@@ -98,6 +104,7 @@
     {
       "word": "frustration",
       "part_of_speech": "noun",
+      "transcription": "/frʌˈstreɪʃən/",
       "translation": "досада, разочарование",
       "translations": {
         "ru": "досада, разочарование",
@@ -112,6 +119,7 @@
     {
       "word": "guilt",
       "part_of_speech": "noun",
+      "transcription": "/gɪlt/",
       "translation": "чувство вины",
       "translations": {
         "ru": "чувство вины",
@@ -126,6 +134,7 @@
     {
       "word": "shame",
       "part_of_speech": "noun",
+      "transcription": "/ʃeɪm/",
       "translation": "стыд",
       "translations": {
         "ru": "стыд",
@@ -140,6 +149,7 @@
     {
       "word": "despair",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈspɛr/",
       "translation": "отчаяние",
       "translations": {
         "ru": "отчаяние",

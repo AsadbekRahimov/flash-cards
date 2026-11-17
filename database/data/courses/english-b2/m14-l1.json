@@ -14,6 +14,7 @@
     {
       "word": "itinerary",
       "part_of_speech": "noun",
+      "transcription": "/aɪˈtɪnərɛri/",
       "translation": "маршрут поездки",
       "translations": {
         "ru": "маршрут поездки",
@@ -28,6 +29,7 @@
     {
       "word": "stopover",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɑpˌoʊvər/",
       "translation": "остановка в пути",
       "translations": {
         "ru": "остановка в пути",
@@ -42,6 +44,7 @@
     {
       "word": "outing",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtɪŋ/",
       "translation": "короткая поездка, прогулка",
       "translations": {
         "ru": "короткая поездка, прогулка",
@@ -56,6 +59,7 @@
     {
       "word": "detour",
       "part_of_speech": "noun",
+      "transcription": "/ˈditʊr/",
       "translation": "объезд, крюк",
       "translations": {
         "ru": "объезд, крюк",
@@ -70,6 +74,7 @@
     {
       "word": "voyage",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɔɪɪdʒ/",
       "translation": "плавание, морское путешествие",
       "translations": {
         "ru": "плавание, морское путешествие",
@@ -84,6 +89,7 @@
     {
       "word": "backpacker",
       "part_of_speech": "noun",
+      "transcription": "/ˈbækˌpækər/",
       "translation": "турист с рюкзаком",
       "translations": {
         "ru": "турист с рюкзаком",
@@ -98,6 +104,7 @@
     {
       "word": "trek",
       "part_of_speech": "noun",
+      "transcription": "/trɛk/",
       "translation": "пеший поход",
       "translations": {
         "ru": "пеший поход",
@@ -112,6 +119,7 @@
     {
       "word": "depart",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈpɑrt/",
       "translation": "отправляться",
       "translations": {
         "ru": "отправляться",
@@ -126,6 +134,7 @@
     {
       "word": "embark",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈbɑrk/",
       "translation": "садиться на борт",
       "translations": {
         "ru": "садиться на борт",
@@ -140,6 +149,7 @@
     {
       "word": "navigate",
       "part_of_speech": "verb",
+      "transcription": "/ˈnævəgeɪt/",
       "translation": "ориентироваться, находить дорогу",
       "translations": {
         "ru": "ориентироваться, находить дорогу",

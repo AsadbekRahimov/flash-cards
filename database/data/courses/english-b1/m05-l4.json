@@ -14,6 +14,7 @@
     {
       "word": "medical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛdɪkəl/",
       "translation": "медицинский",
       "translations": {
         "ru": "медицинский",
@@ -28,6 +29,7 @@
     {
       "word": "surgeon",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrdʒən/",
       "translation": "хирург",
       "translations": {
         "ru": "хирург",
@@ -42,6 +44,7 @@
     {
       "word": "specialist",
       "part_of_speech": "noun",
+      "transcription": "/ˈspɛʃəlɪst/",
       "translation": "специалист",
       "translations": {
         "ru": "специалист",
@@ -56,6 +59,7 @@
     {
       "word": "wheelchair",
       "part_of_speech": "noun",
+      "transcription": "/ˈwiltʃɛr/",
       "translation": "инвалидная коляска",
       "translations": {
         "ru": "инвалидная коляска",
@@ -70,6 +74,7 @@
     {
       "word": "insurance",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈʃʊrəns/",
       "translation": "страховка",
       "translations": {
         "ru": "страховка",
@@ -84,6 +89,7 @@
     {
       "word": "urgent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɜrdʒənt/",
       "translation": "срочный",
       "translations": {
         "ru": "срочный",
@@ -98,6 +104,7 @@
     {
       "word": "visitor",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɪzətər/",
       "translation": "посетитель",
       "translations": {
         "ru": "посетитель",
@@ -112,6 +119,7 @@
     {
       "word": "checkup",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛkʌp/",
       "translation": "медосмотр",
       "translations": {
         "ru": "медосмотр",
@@ -126,6 +134,7 @@
     {
       "word": "pulse",
       "part_of_speech": "noun",
+      "transcription": "/pʌls/",
       "translation": "пульс",
       "translations": {
         "ru": "пульс",
@@ -140,6 +149,7 @@
     {
       "word": "thermometer",
       "part_of_speech": "noun",
+      "transcription": "/θərˈmɑmətər/",
       "translation": "термометр, градусник",
       "translations": {
         "ru": "термометр, градусник",

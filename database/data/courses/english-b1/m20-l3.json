@@ -14,6 +14,7 @@
     {
       "word": "unless",
       "part_of_speech": "conjunction",
+      "transcription": "/ənˈlɛs/",
       "translation": "если не",
       "translations": {
         "ru": "если не",
@@ -28,6 +29,7 @@
     {
       "word": "whether",
       "part_of_speech": "conjunction",
+      "transcription": "/ˈwɛðər/",
       "translation": "ли",
       "translations": {
         "ru": "ли",
@@ -42,6 +44,7 @@
     {
       "word": "whatever",
       "part_of_speech": "pronoun",
+      "transcription": "/wətˈɛvər/",
       "translation": "что бы ни",
       "translations": {
         "ru": "что бы ни",
@@ -56,6 +59,7 @@
     {
       "word": "addition",
       "part_of_speech": "noun",
+      "transcription": "/əˈdɪʃən/",
       "translation": "дополнение",
       "translations": {
         "ru": "дополнение",
@@ -70,6 +74,7 @@
     {
       "word": "besides",
       "part_of_speech": "adverb",
+      "transcription": "/bɪˈsaɪdz/",
       "translation": "кроме того",
       "translations": {
         "ru": "кроме того",
@@ -84,6 +89,7 @@
     {
       "word": "meanwhile",
       "part_of_speech": "adverb",
+      "transcription": "/ˈminwaɪl/",
       "translation": "тем временем",
       "translations": {
         "ru": "тем временем",
@@ -98,6 +104,7 @@
     {
       "word": "whenever",
       "part_of_speech": "conjunction",
+      "transcription": "/wɛnˈɛvər/",
       "translation": "всякий раз, когда",
       "translations": {
         "ru": "всякий раз, когда",
@@ -112,6 +119,7 @@
     {
       "word": "wherever",
       "part_of_speech": "conjunction",
+      "transcription": "/wɛrˈɛvər/",
       "translation": "куда бы ни, где бы ни",
       "translations": {
         "ru": "куда бы ни, где бы ни",
@@ -126,6 +134,7 @@
     {
       "word": "anyway",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɛniweɪ/",
       "translation": "всё равно, в любом случае",
       "translations": {
         "ru": "всё равно, в любом случае",
@@ -140,6 +149,7 @@
     {
       "word": "overall",
       "part_of_speech": "adverb",
+      "transcription": "/ˌoʊvərˈɔl/",
       "translation": "в целом",
       "translations": {
         "ru": "в целом",

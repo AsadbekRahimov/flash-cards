@@ -14,6 +14,7 @@
     {
       "word": "polar",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpoʊlər/",
       "translation": "полярный",
       "translations": {
         "ru": "полярный",
@@ -28,6 +29,7 @@
     {
       "word": "hemisphere",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛməsfɪr/",
       "translation": "полушарие",
       "translations": {
         "ru": "полушарие",
@@ -42,6 +44,7 @@
     {
       "word": "equator",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈkweɪtər/",
       "translation": "экватор",
       "translations": {
         "ru": "экватор",
@@ -56,6 +59,7 @@
     {
       "word": "latitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈlætətud/",
       "translation": "широта",
       "translations": {
         "ru": "широта",
@@ -70,6 +74,7 @@
     {
       "word": "peninsula",
       "part_of_speech": "noun",
+      "transcription": "/pəˈnɪnsələ/",
       "translation": "полуостров",
       "translations": {
         "ru": "полуостров",
@@ -84,6 +89,7 @@
     {
       "word": "longitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑndʒətud/",
       "translation": "долгота",
       "translations": {
         "ru": "долгота",
@@ -98,6 +104,7 @@
     {
       "word": "terrain",
       "part_of_speech": "noun",
+      "transcription": "/təˈreɪn/",
       "translation": "местность, рельеф",
       "translations": {
         "ru": "местность, рельеф",
@@ -112,6 +119,7 @@
     {
       "word": "plateau",
       "part_of_speech": "noun",
+      "transcription": "/plæˈtoʊ/",
       "translation": "плато, плоскогорье",
       "translations": {
         "ru": "плато, плоскогорье",
@@ -126,6 +134,7 @@
     {
       "word": "canyon",
       "part_of_speech": "noun",
+      "transcription": "/ˈkænjən/",
       "translation": "каньон",
       "translations": {
         "ru": "каньон",
@@ -140,6 +149,7 @@
     {
       "word": "altitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈæltətud/",
       "translation": "высота над уровнем моря",
       "translations": {
         "ru": "высота над уровнем моря",

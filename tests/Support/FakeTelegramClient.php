@@ -29,6 +29,12 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<array{chat_id:int|string, message_id:int, markup:array<string, mixed>|null}> */
     public array $edits = [];
 
+    /** @var list<array{chat_id:int|string, message_id:int, text:string, parse_mode:string|null, markup:array<string, mixed>|null}> editMessageText calls */
+    public array $textEdits = [];
+
+    /** When true, editMessageText throws like Telegram does for an unchanged / too old message. */
+    public bool $failTextEdits = false;
+
     /** When true, editMessageReplyMarkup throws like Telegram does for a deleted / unchanged message. */
     public bool $failEdits = false;
 
@@ -146,6 +152,21 @@ final class FakeTelegramClient implements TelegramClient
         }
 
         $this->edits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'markup' => $replyMarkup];
+    }
+
+    public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
+    {
+        if ($this->failTextEdits) {
+            throw TelegramApiException::apiError('Bad Request: message is not modified', 400);
+        }
+
+        $this->textEdits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'text' => $text, 'parse_mode' => $parseMode, 'markup' => $replyMarkup];
+    }
+
+    /** @return array{chat_id:int|string, message_id:int, text:string, parse_mode:string|null, markup:array<string, mixed>|null}|null */
+    public function lastTextEdit(): ?array
+    {
+        return $this->textEdits === [] ? null : $this->textEdits[array_key_last($this->textEdits)];
     }
 
     public function getChatMemberStatus(int|string $chatId, int $userId): string

@@ -14,6 +14,7 @@
     {
       "word": "bread",
       "part_of_speech": "noun",
+      "transcription": "/brɛd/",
       "translation": "хлеб",
       "translations": {
         "ru": "хлеб",
@@ -28,6 +29,7 @@
     {
       "word": "rice",
       "part_of_speech": "noun",
+      "transcription": "/raɪs/",
       "translation": "рис",
       "translations": {
         "ru": "рис",
@@ -42,6 +44,7 @@
     {
       "word": "meat",
       "part_of_speech": "noun",
+      "transcription": "/mit/",
       "translation": "мясо",
       "translations": {
         "ru": "мясо",
@@ -56,6 +59,7 @@
     {
       "word": "fish",
       "part_of_speech": "noun",
+      "transcription": "/fɪʃ/",
       "translation": "рыба",
       "translations": {
         "ru": "рыба",
@@ -70,6 +74,7 @@
     {
       "word": "egg",
       "part_of_speech": "noun",
+      "transcription": "/ɛg/",
       "translation": "яйцо",
       "translations": {
         "ru": "яйцо",
@@ -84,6 +89,7 @@
     {
       "word": "cheese",
       "part_of_speech": "noun",
+      "transcription": "/tʃiz/",
       "translation": "сыр",
       "translations": {
         "ru": "сыр",
@@ -98,6 +104,7 @@
     {
       "word": "butter",
       "part_of_speech": "noun",
+      "transcription": "/ˈbʌtər/",
       "translation": "сливочное масло",
       "translations": {
         "ru": "сливочное масло",
@@ -112,6 +119,7 @@
     {
       "word": "soup",
       "part_of_speech": "noun",
+      "transcription": "/sup/",
       "translation": "суп",
       "translations": {
         "ru": "суп",
@@ -126,6 +134,7 @@
     {
       "word": "salad",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæləd/",
       "translation": "салат",
       "translations": {
         "ru": "салат",
@@ -140,6 +149,7 @@
     {
       "word": "food",
       "part_of_speech": "noun",
+      "transcription": "/fud/",
       "translation": "еда",
       "translations": {
         "ru": "еда",

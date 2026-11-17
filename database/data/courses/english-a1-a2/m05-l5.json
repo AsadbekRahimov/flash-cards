@@ -14,6 +14,7 @@
     {
       "word": "go",
       "part_of_speech": "verb",
+      "transcription": "/goʊ/",
       "translation": "идти, ехать",
       "translations": {
         "ru": "идти, ехать",
@@ -28,6 +29,7 @@
     {
       "word": "come",
       "part_of_speech": "verb",
+      "transcription": "/kʌm/",
       "translation": "приходить",
       "translations": {
         "ru": "приходить",
@@ -42,6 +44,7 @@
     {
       "word": "walk",
       "part_of_speech": "verb",
+      "transcription": "/wɔk/",
       "translation": "ходить пешком",
       "translations": {
         "ru": "ходить пешком",
@@ -56,6 +59,7 @@
     {
       "word": "run",
       "part_of_speech": "verb",
+      "transcription": "/rʌn/",
       "translation": "бегать",
       "translations": {
         "ru": "бегать",
@@ -70,6 +74,7 @@
     {
       "word": "turn",
       "part_of_speech": "verb",
+      "transcription": "/tɜrn/",
       "translation": "поворачивать",
       "translations": {
         "ru": "поворачивать",
@@ -84,6 +89,7 @@
     {
       "word": "cross",
       "part_of_speech": "verb",
+      "transcription": "/krɔs/",
       "translation": "переходить",
       "translations": {
         "ru": "переходить",
@@ -98,6 +104,7 @@
     {
       "word": "arrive",
       "part_of_speech": "verb",
+      "transcription": "/əˈraɪv/",
       "translation": "прибывать, приезжать",
       "translations": {
         "ru": "прибывать, приезжать",
@@ -112,6 +119,7 @@
     {
       "word": "leave",
       "part_of_speech": "verb",
+      "transcription": "/liv/",
       "translation": "уходить, уезжать",
       "translations": {
         "ru": "уходить, уезжать",
@@ -126,6 +134,7 @@
     {
       "word": "drive",
       "part_of_speech": "verb",
+      "transcription": "/draɪv/",
       "translation": "водить машину",
       "translations": {
         "ru": "водить машину",
@@ -140,6 +149,7 @@
     {
       "word": "ride",
       "part_of_speech": "verb",
+      "transcription": "/raɪd/",
       "translation": "ездить, кататься",
       "translations": {
         "ru": "ездить, кататься",

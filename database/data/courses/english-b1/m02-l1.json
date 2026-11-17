@@ -14,6 +14,7 @@
     {
       "word": "relative",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛlətɪv/",
       "translation": "родственник",
       "translations": {
         "ru": "родственник",
@@ -28,6 +29,7 @@
     {
       "word": "relationship",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈleɪʃənʃɪp/",
       "translation": "отношения",
       "translations": {
         "ru": "отношения",
@@ -42,6 +44,7 @@
     {
       "word": "couple",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌpəl/",
       "translation": "пара",
       "translations": {
         "ru": "пара",
@@ -56,6 +59,7 @@
     {
       "word": "partner",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrtnər/",
       "translation": "спутник жизни, партнёр",
       "translations": {
         "ru": "спутник жизни, партнёр",
@@ -70,6 +74,7 @@
     {
       "word": "bride",
       "part_of_speech": "noun",
+      "transcription": "/braɪd/",
       "translation": "невеста",
       "translations": {
         "ru": "невеста",
@@ -84,6 +89,7 @@
     {
       "word": "engaged",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈgeɪdʒd/",
       "translation": "помолвленный",
       "translations": {
         "ru": "помолвленный",
@@ -98,6 +104,7 @@
     {
       "word": "divorce",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈvɔrs/",
       "translation": "развод",
       "translations": {
         "ru": "развод",
@@ -112,6 +119,7 @@
     {
       "word": "twin",
       "part_of_speech": "noun",
+      "transcription": "/twɪn/",
       "translation": "близнец",
       "translations": {
         "ru": "близнец",
@@ -126,6 +134,7 @@
     {
       "word": "nephew",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛfju/",
       "translation": "племянник",
       "translations": {
         "ru": "племянник",
@@ -140,6 +149,7 @@
     {
       "word": "niece",
       "part_of_speech": "noun",
+      "transcription": "/nis/",
       "translation": "племянница",
       "translations": {
         "ru": "племянница",

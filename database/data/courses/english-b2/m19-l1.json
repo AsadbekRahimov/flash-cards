@@ -14,6 +14,7 @@
     {
       "word": "considerable",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈsɪdərəbəl/",
       "translation": "значительный, немалый",
       "translations": {
         "ru": "значительный, немалый",
@@ -28,6 +29,7 @@
     {
       "word": "substantial",
       "part_of_speech": "adjective",
+      "transcription": "/səbˈstænʃəl/",
       "translation": "солидный, весомый",
       "translations": {
         "ru": "солидный, весомый",
@@ -42,6 +44,7 @@
     {
       "word": "significant",
       "part_of_speech": "adjective",
+      "transcription": "/sɪgˈnɪfɪkənt/",
       "translation": "существенный, значимый",
       "translations": {
         "ru": "существенный, значимый",
@@ -56,6 +59,7 @@
     {
       "word": "slight",
       "part_of_speech": "adjective",
+      "transcription": "/slaɪt/",
       "translation": "небольшой, лёгкий",
       "translations": {
         "ru": "небольшой, лёгкий",
@@ -70,6 +74,7 @@
     {
       "word": "moderate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɑdərət/",
       "translation": "умеренный",
       "translations": {
         "ru": "умеренный",
@@ -84,6 +89,7 @@
     {
       "word": "tremendous",
       "part_of_speech": "adjective",
+      "transcription": "/trɪˈmɛndəs/",
       "translation": "колоссальный, огромный",
       "translations": {
         "ru": "колоссальный, огромный",
@@ -98,6 +104,7 @@
     {
       "word": "immense",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈmɛns/",
       "translation": "громадный, безмерный",
       "translations": {
         "ru": "громадный, безмерный",
@@ -112,6 +119,7 @@
     {
       "word": "vast",
       "part_of_speech": "adjective",
+      "transcription": "/væst/",
       "translation": "обширный, бескрайний",
       "translations": {
         "ru": "обширный, бескрайний",
@@ -126,6 +134,7 @@
     {
       "word": "minimal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɪnəməl/",
       "translation": "минимальный",
       "translations": {
         "ru": "минимальный",
@@ -140,6 +149,7 @@
     {
       "word": "excessive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsɛsɪv/",
       "translation": "чрезмерный",
       "translations": {
         "ru": "чрезмерный",

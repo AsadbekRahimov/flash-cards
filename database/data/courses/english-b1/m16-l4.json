@@ -14,6 +14,7 @@
     {
       "word": "attitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈætətud/",
       "translation": "отношение",
       "translations": {
         "ru": "отношение",
@@ -28,6 +29,7 @@
     {
       "word": "wonder",
       "part_of_speech": "verb",
+      "transcription": "/ˈwʌndər/",
       "translation": "задаваться вопросом",
       "translations": {
         "ru": "задаваться вопросом",
@@ -42,6 +44,7 @@
     {
       "word": "suppose",
       "part_of_speech": "verb",
+      "transcription": "/səˈpoʊz/",
       "translation": "полагать, предполагать",
       "translations": {
         "ru": "полагать, предполагать",
@@ -56,6 +59,7 @@
     {
       "word": "doubt",
       "part_of_speech": "verb",
+      "transcription": "/daʊt/",
       "translation": "сомневаться",
       "translations": {
         "ru": "сомневаться",
@@ -70,6 +74,7 @@
     {
       "word": "consider",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsɪdər/",
       "translation": "считать",
       "translations": {
         "ru": "считать",
@@ -84,6 +89,7 @@
     {
       "word": "prefer",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈfɜr/",
       "translation": "предпочитать",
       "translations": {
         "ru": "предпочитать",
@@ -98,6 +104,7 @@
     {
       "word": "convince",
       "part_of_speech": "verb",
+      "transcription": "/kənˈvɪns/",
       "translation": "убеждать",
       "translations": {
         "ru": "убеждать",
@@ -112,6 +119,7 @@
     {
       "word": "certain",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɜrtən/",
       "translation": "уверенный",
       "translations": {
         "ru": "уверенный",
@@ -126,6 +134,7 @@
     {
       "word": "obvious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑbviəs/",
       "translation": "очевидный",
       "translations": {
         "ru": "очевидный",
@@ -140,6 +149,7 @@
     {
       "word": "necessary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɛsəsɛri/",
       "translation": "необходимый",
       "translations": {
         "ru": "необходимый",

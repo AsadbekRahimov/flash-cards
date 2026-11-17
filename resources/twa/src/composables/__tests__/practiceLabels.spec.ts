@@ -7,16 +7,16 @@ afterEach(() => setLocale('ru'))
 
 describe('practiceLabels', () => {
   it('the four modes in the order of the hub, each with an icon that exists and a colour of its own', () => {
-    expect(PRACTICE_MODE_ORDER).toEqual(['pairs', 'collocation', 'sentence', 'dictation'])
+    expect(PRACTICE_MODE_ORDER).toEqual(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'])
     const tiles = PRACTICE_MODE_ORDER.map((mode) => MODE_LOOK[mode].tile)
-    expect(new Set(tiles).size).toBe(4)
+    expect(new Set(tiles).size).toBe(5)
     for (const mode of PRACTICE_MODE_ORDER) expect(ICONS[MODE_LOOK[mode].icon], mode).toBeDefined()
   })
 
   it('names a mode in the language of the learner', () => {
-    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Найди пары', 'Подбери сочетание', 'Собери предложение', 'Слушай и пиши'])
+    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Найди пары', 'Подбери сочетание', 'Собери предложение', 'Слушай и пиши', 'Пары на время'])
     setLocale('uz')
-    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Juftlarni toping', "Birikmani to'ldiring", 'Gap tuzing', 'Tinglang va yozing'])
+    expect(PRACTICE_MODE_ORDER.map(modeTitle)).toEqual(['Juftlarni toping', "Birikmani to'ldiring", 'Gap tuzing', 'Tinglang va yozing', 'Vaqtga juftlar'])
   })
 
   it('says where a lesson is, with its name when it has one', () => {

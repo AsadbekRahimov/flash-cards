@@ -14,6 +14,7 @@
     {
       "word": "doctorate",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɑktərət/",
       "translation": "докторская степень",
       "translations": {
         "ru": "докторская степень",
@@ -28,6 +29,7 @@
     {
       "word": "scholar",
       "part_of_speech": "noun",
+      "transcription": "/ˈskɑlər/",
       "translation": "учёный",
       "translations": {
         "ru": "учёный",
@@ -42,6 +44,7 @@
     {
       "word": "academy",
       "part_of_speech": "noun",
+      "transcription": "/əˈkædəmi/",
       "translation": "академия",
       "translations": {
         "ru": "академия",
@@ -56,6 +59,7 @@
     {
       "word": "journal",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɜrnəl/",
       "translation": "научный журнал",
       "translations": {
         "ru": "научный журнал",
@@ -70,6 +74,7 @@
     {
       "word": "dissertation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɪsərˈteɪʃən/",
       "translation": "диссертация",
       "translations": {
         "ru": "диссертация",
@@ -84,6 +89,7 @@
     {
       "word": "thesis",
       "part_of_speech": "noun",
+      "transcription": "/ˈθisɪs/",
       "translation": "дипломная работа, диссертация",
       "translations": {
         "ru": "дипломная работа, диссертация",
@@ -98,6 +104,7 @@
     {
       "word": "citation",
       "part_of_speech": "noun",
+      "transcription": "/saɪˈteɪʃən/",
       "translation": "ссылка на источник",
       "translations": {
         "ru": "ссылка на источник",
@@ -112,6 +119,7 @@
     {
       "word": "grant",
       "part_of_speech": "noun",
+      "transcription": "/grænt/",
       "translation": "грант",
       "translations": {
         "ru": "грант",
@@ -126,6 +134,7 @@
     {
       "word": "institute",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnstətut/",
       "translation": "институт",
       "translations": {
         "ru": "институт",
@@ -140,6 +149,7 @@
     {
       "word": "peer",
       "part_of_speech": "noun",
+      "transcription": "/pɪr/",
       "translation": "коллега, равный по статусу",
       "translations": {
         "ru": "коллега, равный по статусу",

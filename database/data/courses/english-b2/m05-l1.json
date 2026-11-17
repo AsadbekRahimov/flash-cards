@@ -14,6 +14,7 @@
     {
       "word": "compatible",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpætəbəl/",
       "translation": "совместимый",
       "translations": {
         "ru": "совместимый",
@@ -28,6 +29,7 @@
     {
       "word": "spreadsheet",
       "part_of_speech": "noun",
+      "transcription": "/ˈsprɛdʃit/",
       "translation": "электронная таблица",
       "translations": {
         "ru": "электронная таблица",
@@ -42,6 +44,7 @@
     {
       "word": "algorithm",
       "part_of_speech": "noun",
+      "transcription": "/ˈælgərɪðəm/",
       "translation": "алгоритм",
       "translations": {
         "ru": "алгоритм",
@@ -56,6 +59,7 @@
     {
       "word": "template",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛmplət/",
       "translation": "шаблон",
       "translations": {
         "ru": "шаблон",
@@ -70,6 +74,7 @@
     {
       "word": "server",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrvər/",
       "translation": "сервер",
       "translations": {
         "ru": "сервер",
@@ -84,6 +89,7 @@
     {
       "word": "interface",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntərfeɪs/",
       "translation": "интерфейс",
       "translations": {
         "ru": "интерфейс",
@@ -98,6 +104,7 @@
     {
       "word": "bug",
       "part_of_speech": "noun",
+      "transcription": "/bʌg/",
       "translation": "ошибка в программе",
       "translations": {
         "ru": "ошибка в программе",
@@ -112,6 +119,7 @@
     {
       "word": "archive",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrkaɪv/",
       "translation": "архив",
       "translations": {
         "ru": "архив",
@@ -126,6 +134,7 @@
     {
       "word": "default",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈfɔlt/",
       "translation": "по умолчанию, стандартный",
       "translations": {
         "ru": "по умолчанию, стандартный",
@@ -140,6 +149,7 @@
     {
       "word": "format",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrmæt/",
       "translation": "формат",
       "translations": {
         "ru": "формат",

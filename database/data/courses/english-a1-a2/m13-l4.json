@@ -14,6 +14,7 @@
     {
       "word": "think",
       "part_of_speech": "verb",
+      "transcription": "/θɪŋk/",
       "translation": "думать",
       "translations": {
         "ru": "думать",
@@ -28,6 +29,7 @@
     {
       "word": "believe",
       "part_of_speech": "verb",
+      "transcription": "/bɪˈliv/",
       "translation": "верить",
       "translations": {
         "ru": "верить",
@@ -42,6 +44,7 @@
     {
       "word": "agree",
       "part_of_speech": "verb",
+      "transcription": "/əˈgri/",
       "translation": "соглашаться",
       "translations": {
         "ru": "соглашаться",
@@ -56,6 +59,7 @@
     {
       "word": "opinion",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɪnjən/",
       "translation": "мнение",
       "translations": {
         "ru": "мнение",
@@ -70,6 +74,7 @@
     {
       "word": "idea",
       "part_of_speech": "noun",
+      "transcription": "/aɪˈdiə/",
       "translation": "идея",
       "translations": {
         "ru": "идея",
@@ -84,6 +89,7 @@
     {
       "word": "decide",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈsaɪd/",
       "translation": "решать",
       "translations": {
         "ru": "решать",
@@ -98,6 +104,7 @@
     {
       "word": "remember",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈmɛmbər/",
       "translation": "помнить",
       "translations": {
         "ru": "помнить",
@@ -112,6 +119,7 @@
     {
       "word": "forget",
       "part_of_speech": "verb",
+      "transcription": "/fərˈgɛt/",
       "translation": "забывать",
       "translations": {
         "ru": "забывать",
@@ -126,6 +134,7 @@
     {
       "word": "hope",
       "part_of_speech": "verb",
+      "transcription": "/hoʊp/",
       "translation": "надеяться",
       "translations": {
         "ru": "надеяться",
@@ -140,6 +149,7 @@
     {
       "word": "imagine",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈmædʒən/",
       "translation": "представлять",
       "translations": {
         "ru": "представлять",

@@ -3,12 +3,14 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
+import HardRoundCard from '@/components/HardRoundCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
 import LanguageSheet from '@/components/LanguageSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
+import ReadinessBlock from '@/components/ReadinessBlock.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -68,10 +70,13 @@ async function load(): Promise<void> {
   await today.load()
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
-  // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
-  if (route.query.from === 'reminder' && today.data !== null) {
+  // review. `from=reminder_quiz` is the button left on the reminder after the answer in the chat; it
+  // opens the same review, and the source tells the two apart in the funnel. The marker is dropped
+  // from the URL first so a reload or "back" does not reopen it.
+  const from = route.query.from
+  if ((from === 'reminder' || from === 'reminder_quiz') && today.data !== null) {
     await router.replace({ name: 'today', query: {} })
-    await openSession({ mode: 'daily_review', source: 'reminder' })
+    await openSession({ mode: 'daily_review', source: from })
     return
   }
 
@@ -91,6 +96,9 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
 }
 
 const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
+
+/** The round of hard words: opens it, or continues the one that is open (docs/06 §14); a refusal shows under the session button. */
+const startHardRound = (): Promise<void> => openSession({ mode: 'hard_review', source: 'self' })
 
 const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
 
@@ -148,6 +156,12 @@ watch(isPro, (pro) => {
   const current = data.value?.entitlement
   if (pro && current?.source === 'subscription' && current.until !== null) void billing.load()
 }, { immediate: true })
+/**
+ * The standing entry of the Karvon map (owner's decision of 2026-11-17: the game is open to everybody): `/today.game.available`
+ * (the game is open to this learner; no field - an older server - no row, `/me` is not asked for it) and an active course. The
+ * caravan of the day / a run that is on already has its own row (`gameEntry`): then this one is not shown.
+ */
+const showGameMap = computed(() => data.value?.active_course != null && data.value.game?.available === true && !gameEntry.value)
 const trialEnd = computed(() => (isPro.value ? trialEndsAt(billing.entitlement) : null))
 const trialText = computed(() => {
   if (trialEnd.value === null) return ''
@@ -271,6 +285,12 @@ const coursePercent = computed(() => {
   const progress = data.value?.active_course?.progress
   return progress && progress.total > 0 ? Math.min(100, Math.round((progress.learned / progress.total) * 100)) : 0
 })
+/**
+ * The readiness block (docs/04 A.20) lives in the card of the course and reads `/today` only. A newcomer who has not met a word
+ * yet does not see it: with no progress it would only show 0 % and a test with nothing to ask about.
+ */
+const readiness = computed(() => (hasProgress.value ? (data.value?.active_course?.readiness ?? null) : null))
+
 const courseProgressText = computed(() => {
   const progress = data.value?.active_course?.progress
   return progress ? t('catalog.progress', { done: progress.learned, total: progress.total }) : ''
@@ -305,7 +325,9 @@ onMounted(() => {
 })
 
 // An open error belongs to this screen only; it must not greet the learner on the next one.
-onBeforeUnmount(() => training.clearOpenError())
+onBeforeUnmount(() => {
+  training.clearOpenError()
+})
 </script>
 
 <template>
@@ -510,6 +532,9 @@ onBeforeUnmount(() => training.clearOpenError())
 
       </section>
 
+      <!-- The round of hard words (docs/06 §14): compact, under the session card and above the games; nothing while it is not on offer (or was played today). -->
+      <HardRoundCard v-if="hasProgress" :round="data.hard_round" :busy="opening" @start="startHardRound" />
+
       <!-- Practice of the main course, one entry (docs/16 §11.1): three modes by their icons and one button. -->
       <section v-if="showGames" class="card flex items-center gap-3" data-testid="games-card">
         <div class="min-w-0 flex-1">
@@ -547,6 +572,21 @@ onBeforeUnmount(() => training.clearOpenError())
           <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
           <span class="block text-[15px] leading-5 font-medium" data-testid="game-entry-text">{{ gameEntry.text }}</span>
           <span v-if="gameEntry.progress" class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="game-entry-progress">{{ gameEntry.progress }}</span>
+        </span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+      </RouterLink>
+
+      <!-- The standing entry of the Karvon map (docs/05 §5b.4): while the game is open and there is no caravan of the day to show. -->
+      <RouterLink
+        v-if="hasProgress && showGameMap"
+        :to="{ name: 'game' }"
+        class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
+        data-testid="game-map-entry"
+      >
+        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="sparkles" :size="20" /></span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
+          <span class="block text-[15px] leading-5 font-medium">{{ t('today.game.map') }}</span>
         </span>
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
       </RouterLink>
@@ -634,6 +674,12 @@ onBeforeUnmount(() => training.clearOpenError())
             </div>
             <p v-if="!courseIsEmpty" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="course-progress">{{ courseProgressText }}</p>
           </div>
+
+          <ReadinessBlock
+            v-if="readiness"
+            :readiness="readiness"
+            :slug="data.active_course.slug"
+          />
 
           <template v-if="data.active_course.next_lesson">
             <div class="flex items-center gap-3 border-t pt-3">

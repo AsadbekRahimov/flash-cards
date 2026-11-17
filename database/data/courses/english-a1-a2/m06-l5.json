@@ -14,6 +14,7 @@
     {
       "word": "want",
       "part_of_speech": "verb",
+      "transcription": "/wɑnt/",
       "translation": "хотеть",
       "translations": {
         "ru": "хотеть",
@@ -28,6 +29,7 @@
     {
       "word": "need",
       "part_of_speech": "verb",
+      "transcription": "/nid/",
       "translation": "нуждаться, быть нужным",
       "translations": {
         "ru": "нуждаться, быть нужным",
@@ -42,6 +44,7 @@
     {
       "word": "like",
       "part_of_speech": "verb",
+      "transcription": "/laɪk/",
       "translation": "любить, нравиться",
       "translations": {
         "ru": "любить, нравиться",
@@ -56,6 +59,7 @@
     {
       "word": "take",
       "part_of_speech": "verb",
+      "transcription": "/teɪk/",
       "translation": "брать",
       "translations": {
         "ru": "брать",
@@ -70,6 +74,7 @@
     {
       "word": "give",
       "part_of_speech": "verb",
+      "transcription": "/gɪv/",
       "translation": "давать",
       "translations": {
         "ru": "давать",
@@ -84,6 +89,7 @@
     {
       "word": "show",
       "part_of_speech": "verb",
+      "transcription": "/ʃoʊ/",
       "translation": "показывать",
       "translations": {
         "ru": "показывать",
@@ -98,6 +104,7 @@
     {
       "word": "try",
       "part_of_speech": "verb",
+      "transcription": "/traɪ/",
       "translation": "пробовать, примерять",
       "translations": {
         "ru": "пробовать, примерять",
@@ -112,6 +119,7 @@
     {
       "word": "wear",
       "part_of_speech": "verb",
+      "transcription": "/wɛr/",
       "translation": "носить одежду",
       "translations": {
         "ru": "носить одежду",
@@ -126,6 +134,7 @@
     {
       "word": "size",
       "part_of_speech": "noun",
+      "transcription": "/saɪz/",
       "translation": "размер",
       "translations": {
         "ru": "размер",
@@ -140,6 +149,7 @@
     {
       "word": "gift",
       "part_of_speech": "noun",
+      "transcription": "/gɪft/",
       "translation": "подарок",
       "translations": {
         "ru": "подарок",

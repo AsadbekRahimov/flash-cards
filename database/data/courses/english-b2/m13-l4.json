@@ -14,6 +14,7 @@
     {
       "word": "activist",
       "part_of_speech": "noun",
+      "transcription": "/ˈæktɪvɪst/",
       "translation": "активист",
       "translations": {
         "ru": "активист",
@@ -28,6 +29,7 @@
     {
       "word": "protest",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊtɛst/",
       "translation": "протест",
       "translations": {
         "ru": "протест",
@@ -42,6 +44,7 @@
     {
       "word": "solidarity",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɑləˈdærəti/",
       "translation": "солидарность",
       "translations": {
         "ru": "солидарность",
@@ -56,6 +59,7 @@
     {
       "word": "engage",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈgeɪdʒ/",
       "translation": "вовлекать",
       "translations": {
         "ru": "вовлекать",
@@ -70,6 +74,7 @@
     {
       "word": "donation",
       "part_of_speech": "noun",
+      "transcription": "/doʊˈneɪʃən/",
       "translation": "пожертвование",
       "translations": {
         "ru": "пожертвование",
@@ -84,6 +89,7 @@
     {
       "word": "movement",
       "part_of_speech": "noun",
+      "transcription": "/ˈmuvmənt/",
       "translation": "общественное движение",
       "translations": {
         "ru": "общественное движение",
@@ -98,6 +104,7 @@
     {
       "word": "voluntary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɑləntɛri/",
       "translation": "добровольный",
       "translations": {
         "ru": "добровольный",
@@ -112,6 +119,7 @@
     {
       "word": "civic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɪvɪk/",
       "translation": "гражданский",
       "translations": {
         "ru": "гражданский",
@@ -126,6 +134,7 @@
     {
       "word": "participation",
       "part_of_speech": "noun",
+      "transcription": "/pɑrˌtɪsəˈpeɪʃən/",
       "translation": "участие",
       "translations": {
         "ru": "участие",
@@ -140,6 +149,7 @@
     {
       "word": "empower",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈpaʊər/",
       "translation": "расширять возможности",
       "translations": {
         "ru": "расширять возможности",

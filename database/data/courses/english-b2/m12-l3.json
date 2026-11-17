@@ -14,6 +14,7 @@
     {
       "word": "reasoning",
       "part_of_speech": "noun",
+      "transcription": "/ˈrizənɪŋ/",
       "translation": "рассуждение",
       "translations": {
         "ru": "рассуждение",
@@ -28,6 +29,7 @@
     {
       "word": "logical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɑdʒɪkəl/",
       "translation": "логический",
       "translations": {
         "ru": "логический",
@@ -42,6 +44,7 @@
     {
       "word": "rational",
       "part_of_speech": "adjective",
+      "transcription": "/ˈræʃənəl/",
       "translation": "рациональный, разумный",
       "translations": {
         "ru": "рациональный, разумный",
@@ -56,6 +59,7 @@
     {
       "word": "intellectual",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntəˈlɛktʃuəl/",
       "translation": "интеллектуальный, умственный",
       "translations": {
         "ru": "интеллектуальный, умственный",
@@ -70,6 +74,7 @@
     {
       "word": "reflect",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈflɛkt/",
       "translation": "размышлять",
       "translations": {
         "ru": "размышлять",
@@ -84,6 +89,7 @@
     {
       "word": "wisdom",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪzdəm/",
       "translation": "мудрость",
       "translations": {
         "ru": "мудрость",
@@ -98,6 +104,7 @@
     {
       "word": "curiosity",
       "part_of_speech": "noun",
+      "transcription": "/ˌkjʊriˈɑsəti/",
       "translation": "любознательность, любопытство",
       "translations": {
         "ru": "любознательность, любопытство",
@@ -112,6 +119,7 @@
     {
       "word": "infer",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈfɜr/",
       "translation": "делать вывод",
       "translations": {
         "ru": "делать вывод",
@@ -126,6 +134,7 @@
     {
       "word": "grasp",
       "part_of_speech": "verb",
+      "transcription": "/græsp/",
       "translation": "схватывать, понимать",
       "translations": {
         "ru": "схватывать, понимать",
@@ -140,6 +149,7 @@
     {
       "word": "judgment",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒʌdʒmənt/",
       "translation": "суждение",
       "translations": {
         "ru": "суждение",

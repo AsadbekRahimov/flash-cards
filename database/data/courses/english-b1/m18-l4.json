@@ -14,6 +14,7 @@
     {
       "word": "location",
       "part_of_speech": "noun",
+      "transcription": "/loʊˈkeɪʃən/",
       "translation": "расположение, местоположение",
       "translations": {
         "ru": "расположение, местоположение",
@@ -28,6 +29,7 @@
     {
       "word": "area",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛriə/",
       "translation": "район, территория",
       "translations": {
         "ru": "район, территория",
@@ -42,6 +44,7 @@
     {
       "word": "spot",
       "part_of_speech": "noun",
+      "transcription": "/spɑt/",
       "translation": "место, местечко",
       "translations": {
         "ru": "место, местечко",
@@ -56,6 +59,7 @@
     {
       "word": "edge",
       "part_of_speech": "noun",
+      "transcription": "/ɛdʒ/",
       "translation": "край",
       "translations": {
         "ru": "край",
@@ -70,6 +74,7 @@
     {
       "word": "bottom",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑtəm/",
       "translation": "дно, низ",
       "translations": {
         "ru": "дно, низ",
@@ -84,6 +89,7 @@
     {
       "word": "opposite",
       "part_of_speech": "preposition",
+      "transcription": "/ˈɑpəzɪt/",
       "translation": "напротив",
       "translations": {
         "ru": "напротив",
@@ -98,6 +104,7 @@
     {
       "word": "within",
       "part_of_speech": "preposition",
+      "transcription": "/wɪˈðɪn/",
       "translation": "в пределах",
       "translations": {
         "ru": "в пределах",
@@ -112,6 +119,7 @@
     {
       "word": "among",
       "part_of_speech": "preposition",
+      "transcription": "/əˈmʌŋ/",
       "translation": "среди",
       "translations": {
         "ru": "среди",
@@ -126,6 +134,7 @@
     {
       "word": "surround",
       "part_of_speech": "verb",
+      "transcription": "/səˈraʊnd/",
       "translation": "окружать",
       "translations": {
         "ru": "окружать",
@@ -140,6 +149,7 @@
     {
       "word": "central",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛntrəl/",
       "translation": "центральный",
       "translations": {
         "ru": "центральный",

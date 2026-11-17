@@ -14,6 +14,7 @@
     {
       "word": "security",
       "part_of_speech": "noun",
+      "transcription": "/sɪˈkjʊrəti/",
       "translation": "безопасность, защита",
       "translations": {
         "ru": "безопасность, защита",
@@ -28,6 +29,7 @@
     {
       "word": "privacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈpraɪvəsi/",
       "translation": "конфиденциальность, приватность",
       "translations": {
         "ru": "конфиденциальность, приватность",
@@ -42,6 +44,7 @@
     {
       "word": "hacker",
       "part_of_speech": "noun",
+      "transcription": "/ˈhækər/",
       "translation": "хакер",
       "translations": {
         "ru": "хакер",
@@ -56,6 +59,7 @@
     {
       "word": "scam",
       "part_of_speech": "noun",
+      "transcription": "/skæm/",
       "translation": "мошенничество",
       "translations": {
         "ru": "мошенничество",
@@ -70,6 +74,7 @@
     {
       "word": "spam",
       "part_of_speech": "noun",
+      "transcription": "/spæm/",
       "translation": "спам",
       "translations": {
         "ru": "спам",
@@ -84,6 +89,7 @@
     {
       "word": "access",
       "part_of_speech": "noun",
+      "transcription": "/ˈæksɛs/",
       "translation": "доступ",
       "translations": {
         "ru": "доступ",
@@ -98,6 +104,7 @@
     {
       "word": "username",
       "part_of_speech": "noun",
+      "transcription": "/ˈjuzərneɪm/",
       "translation": "имя пользователя",
       "translations": {
         "ru": "имя пользователя",
@@ -112,6 +119,7 @@
     {
       "word": "unknown",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌnˈnoʊn/",
       "translation": "неизвестный",
       "translations": {
         "ru": "неизвестный",
@@ -126,6 +134,7 @@
     {
       "word": "warning",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔrnɪŋ/",
       "translation": "предупреждение",
       "translations": {
         "ru": "предупреждение",
@@ -140,6 +149,7 @@
     {
       "word": "threat",
       "part_of_speech": "noun",
+      "transcription": "/θrɛt/",
       "translation": "угроза",
       "translations": {
         "ru": "угроза",

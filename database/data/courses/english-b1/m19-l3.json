@@ -14,6 +14,7 @@
     {
       "word": "create",
       "part_of_speech": "verb",
+      "transcription": "/kriˈeɪt/",
       "translation": "создавать",
       "translations": {
         "ru": "создавать",
@@ -28,6 +29,7 @@
     {
       "word": "construct",
       "part_of_speech": "verb",
+      "transcription": "/kənˈstrʌkt/",
       "translation": "строить, сооружать",
       "translations": {
         "ru": "строить, сооружать",
@@ -42,6 +44,7 @@
     {
       "word": "mix",
       "part_of_speech": "verb",
+      "transcription": "/mɪks/",
       "translation": "смешивать",
       "translations": {
         "ru": "смешивать",
@@ -56,6 +59,7 @@
     {
       "word": "combine",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈbaɪn/",
       "translation": "объединять, сочетать",
       "translations": {
         "ru": "объединять, сочетать",
@@ -70,6 +74,7 @@
     {
       "word": "separate",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɛpəreɪt/",
       "translation": "отделять, разделять",
       "translations": {
         "ru": "отделять, разделять",
@@ -84,6 +89,7 @@
     {
       "word": "extend",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈstɛnd/",
       "translation": "продлевать, удлинять",
       "translations": {
         "ru": "продлевать, удлинять",
@@ -98,6 +104,7 @@
     {
       "word": "restore",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈstɔr/",
       "translation": "восстанавливать",
       "translations": {
         "ru": "восстанавливать",
@@ -112,6 +119,7 @@
     {
       "word": "ruin",
       "part_of_speech": "verb",
+      "transcription": "/ˈruɪn/",
       "translation": "губить, разрушать",
       "translations": {
         "ru": "губить, разрушать",
@@ -126,6 +134,7 @@
     {
       "word": "spoil",
       "part_of_speech": "verb",
+      "transcription": "/spɔɪl/",
       "translation": "портить",
       "translations": {
         "ru": "портить",
@@ -140,6 +149,7 @@
     {
       "word": "convert",
       "part_of_speech": "verb",
+      "transcription": "/kənˈvɜrt/",
       "translation": "превращать, преобразовывать",
       "translations": {
         "ru": "превращать, преобразовывать",

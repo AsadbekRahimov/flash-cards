@@ -14,6 +14,7 @@
     {
       "word": "series",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪriz/",
       "translation": "сериал",
       "translations": {
         "ru": "сериал",
@@ -28,6 +29,7 @@
     {
       "word": "episode",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛpəsoʊd/",
       "translation": "серия",
       "translations": {
         "ru": "серия",
@@ -42,6 +44,7 @@
     {
       "word": "scene",
       "part_of_speech": "noun",
+      "transcription": "/sin/",
       "translation": "сцена, эпизод",
       "translations": {
         "ru": "сцена, эпизод",
@@ -56,6 +59,7 @@
     {
       "word": "plot",
       "part_of_speech": "noun",
+      "transcription": "/plɑt/",
       "translation": "сюжет",
       "translations": {
         "ru": "сюжет",
@@ -70,6 +74,7 @@
     {
       "word": "character",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɛrəktər/",
       "translation": "персонаж, герой",
       "translations": {
         "ru": "персонаж, герой",
@@ -84,6 +89,7 @@
     {
       "word": "genre",
       "part_of_speech": "noun",
+      "transcription": "/ˈʒɑnrə/",
       "translation": "жанр",
       "translations": {
         "ru": "жанр",
@@ -98,6 +104,7 @@
     {
       "word": "director",
       "part_of_speech": "noun",
+      "transcription": "/dəˈrɛktər/",
       "translation": "режиссёр",
       "translations": {
         "ru": "режиссёр",
@@ -112,6 +119,7 @@
     {
       "word": "script",
       "part_of_speech": "noun",
+      "transcription": "/skrɪpt/",
       "translation": "сценарий",
       "translations": {
         "ru": "сценарий",
@@ -126,6 +134,7 @@
     {
       "word": "trailer",
       "part_of_speech": "noun",
+      "transcription": "/ˈtreɪlər/",
       "translation": "трейлер",
       "translations": {
         "ru": "трейлер",
@@ -140,6 +149,7 @@
     {
       "word": "subtitle",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌtaɪtəl/",
       "translation": "субтитр",
       "translations": {
         "ru": "субтитр",

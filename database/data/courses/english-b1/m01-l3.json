@@ -14,6 +14,7 @@
     {
       "word": "confident",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑnfədənt/",
       "translation": "уверенный в себе",
       "translations": {
         "ru": "уверенный в себе",
@@ -28,6 +29,7 @@
     {
       "word": "reliable",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈlaɪəbəl/",
       "translation": "надёжный",
       "translations": {
         "ru": "надёжный",
@@ -42,6 +44,7 @@
     {
       "word": "stubborn",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstʌbərn/",
       "translation": "упрямый",
       "translations": {
         "ru": "упрямый",
@@ -56,6 +59,7 @@
     {
       "word": "ambitious",
       "part_of_speech": "adjective",
+      "transcription": "/æmˈbɪʃəs/",
       "translation": "амбициозный, целеустремлённый",
       "translations": {
         "ru": "амбициозный, целеустремлённый",
@@ -70,6 +74,7 @@
     {
       "word": "modest",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɑdɪst/",
       "translation": "скромный",
       "translations": {
         "ru": "скромный",
@@ -84,6 +89,7 @@
     {
       "word": "curious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkjʊriəs/",
       "translation": "любознательный, любопытный",
       "translations": {
         "ru": "любознательный, любопытный",
@@ -98,6 +104,7 @@
     {
       "word": "sensible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛnsəbəl/",
       "translation": "благоразумный",
       "translations": {
         "ru": "благоразумный",
@@ -112,6 +119,7 @@
     {
       "word": "cheerful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtʃɪrfəl/",
       "translation": "жизнерадостный, весёлый",
       "translations": {
         "ru": "жизнерадостный, весёлый",
@@ -126,6 +134,7 @@
     {
       "word": "selfish",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛlfɪʃ/",
       "translation": "эгоистичный",
       "translations": {
         "ru": "эгоистичный",
@@ -140,6 +149,7 @@
     {
       "word": "talkative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɔkətɪv/",
       "translation": "разговорчивый",
       "translations": {
         "ru": "разговорчивый",

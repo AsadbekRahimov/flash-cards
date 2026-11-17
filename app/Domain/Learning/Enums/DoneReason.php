@@ -26,4 +26,7 @@ enum DoneReason: string
      * another round — due reviews beyond the round's cap, or unseen words within the day's quota. `can_continue` is true.
      */
     case SprintComplete = 'sprint_complete';
+
+    /** Hard-words scope (`hard_review`, docs/06 §14): every word of the round's set was served and none is left to repeat. */
+    case HardRoundComplete = 'hard_round_complete';
 }

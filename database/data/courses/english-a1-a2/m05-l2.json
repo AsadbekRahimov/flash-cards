@@ -14,6 +14,7 @@
     {
       "word": "cinema",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪnəmə/",
       "translation": "кинотеатр",
       "translations": {
         "ru": "кинотеатр",
@@ -28,6 +29,7 @@
     {
       "word": "theatre",
       "part_of_speech": "noun",
+      "transcription": "/ˈθiətər/",
       "translation": "театр",
       "translations": {
         "ru": "театр",
@@ -42,6 +44,7 @@
     {
       "word": "museum",
       "part_of_speech": "noun",
+      "transcription": "/mjuˈziəm/",
       "translation": "музей",
       "translations": {
         "ru": "музей",
@@ -56,6 +59,7 @@
     {
       "word": "library",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪˌbrɛri/",
       "translation": "библиотека",
       "translations": {
         "ru": "библиотека",
@@ -70,6 +74,7 @@
     {
       "word": "hotel",
       "part_of_speech": "noun",
+      "transcription": "/hoʊˈtɛl/",
       "translation": "гостиница, отель",
       "translations": {
         "ru": "гостиница, отель",
@@ -84,6 +89,7 @@
     {
       "word": "pharmacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɑrməsi/",
       "translation": "аптека",
       "translations": {
         "ru": "аптека",
@@ -98,6 +104,7 @@
     {
       "word": "mosque",
       "part_of_speech": "noun",
+      "transcription": "/mɑsk/",
       "translation": "мечеть",
       "translations": {
         "ru": "мечеть",
@@ -112,6 +119,7 @@
     {
       "word": "airport",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛrpɔrt/",
       "translation": "аэропорт",
       "translations": {
         "ru": "аэропорт",
@@ -126,6 +134,7 @@
     {
       "word": "station",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪʃən/",
       "translation": "вокзал, станция",
       "translations": {
         "ru": "вокзал, станция",
@@ -140,6 +149,7 @@
     {
       "word": "stadium",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪdiəm/",
       "translation": "стадион",
       "translations": {
         "ru": "стадион",

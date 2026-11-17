@@ -61,6 +61,9 @@ use LogicException;
  */
 final class PracticeSessionService
 {
+    /** `deadline_at` is compared to a bound written with its milliseconds (a date binding would drop them). */
+    private const DEADLINE_FORMAT = 'Y-m-d H:i:s.v';
+
     public function __construct(
         private readonly PracticeAccess $access,
         private readonly PracticeMaterialService $material,
@@ -69,6 +72,7 @@ final class PracticeSessionService
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
         private readonly PracticeLimits $limits,
+        private readonly PracticeRecords $records,
     ) {}
 
     /**
@@ -138,6 +142,11 @@ final class PracticeSessionService
 
         if (! $replaceActive) {
             $busy = $this->activeOf($learner);
+            if ($busy !== null && $this->isTimeOver($busy, $now)) {
+                // A timed game whose clock has run out is over, whoever has not closed it so far: it does not block a new one.
+                $this->closeTimeOver($busy, $learner, $now);
+                $busy = $this->activeOf($learner);
+            }
             if ($busy !== null && $busy->expires_at->gt($now)) {
                 throw PracticeException::sessionActive($this->activeDetails($busy));
             }
@@ -162,6 +171,8 @@ final class PracticeSessionService
             'correct_first' => 0,
             'hints' => 0,
             'mismatches' => 0,
+            'score' => 0,
+            'deadline_at' => null,
             'locale' => $locale,
             'expires_at' => $now->addHours($this->ttlHours()),
             'started_at' => $now,
@@ -185,6 +196,8 @@ final class PracticeSessionService
                     if ($active !== null) {
                         if ($active->expires_at->lte($now)) {
                             $this->finish($active, FinishReason::Expired, $now, $learner);
+                        } elseif ($this->isTimeOver($active, $now)) {
+                            $this->finish($active, FinishReason::TimeOver, $now, $learner);
                         } elseif ($replaceActive) {
                             $this->finish($active, FinishReason::Replaced, $now, $learner);
                         } else {
@@ -298,13 +311,26 @@ final class PracticeSessionService
 
         $current = null;
         $summary = null;
+        // A timed session that has not been started has no board yet: the first round is seen only once the clock runs (`POST /start`).
+        $waiting = $session->mode->isTimed() && $session->deadline_at === null;
         if ($session->isActive()) {
-            $element = $snapshot->at((int) ($session->state['current'] ?? 0));
+            $element = $waiting ? null : $snapshot->at((int) ($session->state['current'] ?? 0));
             if ($element !== null) {
                 $current = $handler->project($element, $session->locale, $this->elementState($session, $element));
             }
         } else {
             $summary = $this->summary($session, $snapshot, $handler, $learner);
+        }
+
+        $timed = null;
+        if ($session->mode->isTimed()) {
+            $timed = [
+                'seconds' => $this->timedSeconds(),
+                'deadline_at' => $session->deadline_at,
+                'started' => $session->deadline_at !== null,
+                'score' => $session->score,
+                'penalty_ms' => $this->penaltyMs(),
+            ];
         }
 
         return new SessionView(
@@ -329,6 +355,7 @@ final class PracticeSessionService
             serverNow: $now ?? CarbonImmutable::now(),
             current: $current,
             summary: $summary,
+            timed: $timed,
         );
     }
 
@@ -375,10 +402,61 @@ final class PracticeSessionService
                 return $closed;
             }
 
+            $gated = $this->timedGate($locked, $learner, $now);
+            if ($gated !== null) {
+                return $gated;
+            }
+
             return $this->accept($locked, $learner, $requestId, $elementId, $answer, $timeSpentMs, $now);
         });
 
         // An error raised AFTER the commit, so that the closing of an expired session is kept.
+        if ($outcome instanceof PracticeException) {
+            throw $outcome;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * Starts the clock of a timed session (docs/16 §5.5a): `deadline_at = now + seconds`, once. The server's clock, the only one:
+     * a repeat (a second tab, a retried request) changes nothing and returns the same `deadline_at`. A session whose clock has run out
+     * meanwhile is closed (`time_over`) and returned finished. Under the lock of the session.
+     *
+     * @throws PracticeException practice_unavailable | practice_pro_required | practice_session_not_found | practice_not_timed |
+     *                           practice_session_closed
+     */
+    public function start(PracticeSession|int $session, Learner $learner, ?CarbonImmutable $now = null): SessionView
+    {
+        $now ??= CarbonImmutable::now();
+        $this->access->assertCanPractice($learner);
+        $sessionId = $session instanceof PracticeSession ? $session->id : $session;
+
+        $outcome = DB::transaction(function () use ($sessionId, $learner, $now): SessionView|PracticeException {
+            $locked = $this->lock($sessionId, $learner);
+            if ($locked === null) {
+                return PracticeException::sessionNotFound();
+            }
+            if (! $locked->mode->isTimed()) {
+                return PracticeException::notTimed();
+            }
+
+            $closed = $this->refuseEnded($locked, $learner, $now);
+            if ($closed !== null) {
+                return $closed;
+            }
+
+            if ($locked->deadline_at === null) {
+                $state = $locked->state;
+                $state['timed'] = ['started_at' => IsoTime::format($now), 'penalty_total_ms' => 0, 'is_record' => false];
+                $locked->forceFill(['deadline_at' => $now->addSeconds($this->timedSeconds()), 'state' => $state])->save();
+            } elseif ($this->isTimeOver($locked, $now)) {
+                $this->finish($locked, FinishReason::TimeOver, $now, $learner);
+            }
+
+            return $this->view($locked, $learner, $now);
+        });
+
         if ($outcome instanceof PracticeException) {
             throw $outcome;
         }
@@ -449,7 +527,7 @@ final class PracticeSessionService
         $closed = 0;
 
         PracticeSession::query()
-            ->select(['id', 'learner_id', 'mode', 'total', 'answered', 'correct_first', 'hints', 'mismatches', 'started_at'])
+            ->select(['id', 'learner_id', 'mode', 'total', 'answered', 'correct_first', 'hints', 'mismatches', 'score', 'deadline_at', 'started_at'])
             ->with('learner')
             ->where('status', SessionStatus::Active->value)
             ->where('expires_at', '<=', $now)
@@ -462,6 +540,21 @@ final class PracticeSessionService
                 }
             });
 
+        // The timed games whose clock has run out (deadline + the grace), long before `expires_at`: `time_over`, the record kept. Each one
+        // is read again under its lock, so a request that closed it in the meantime is skipped and raises no second event.
+        PracticeSession::query()
+            ->select(['id', 'learner_id'])
+            ->with('learner')
+            ->where('status', SessionStatus::Active->value)
+            ->where('mode', PracticeMode::PairsTimed->value)
+            ->where('deadline_at', '<=', $now->subMilliseconds($this->graceMs())->format(self::DEADLINE_FORMAT))
+            ->lazyById(200)
+            ->each(function (PracticeSession $session) use ($now, &$closed): void {
+                if ($this->closeTimeOver($session, $session->learner, $now)) {
+                    $closed++;
+                }
+            });
+
         return $closed;
     }
 
@@ -471,6 +564,10 @@ final class PracticeSessionService
      */
     public function retryAvailable(PracticeSession $session, Learner $learner): bool
     {
+        if ($session->mode->isTimed()) {
+            return false;
+        }
+
         return $this->retryBlocker($session, $this->retryMaterial($session), $learner) === null;
     }
 
@@ -489,6 +586,10 @@ final class PracticeSessionService
      */
     private function retryBlocker(PracticeSession $source, RetryMaterial $material, Learner $learner): ?PracticeException
     {
+        if ($source->mode->isTimed()) {
+            return PracticeException::retryNotAvailable(); // a game against the clock is played again from the start
+        }
+
         $words = count($material->wordIds);
         $items = count($material->itemIds);
 
@@ -577,9 +678,11 @@ final class PracticeSessionService
                     throw PracticeException::notEnoughMaterial($mode, $availability, $scope->course->slug, $scope->lesson?->id);
                 }
 
-                $size = $mode === PracticeMode::Pairs
-                    ? max(1, (int) config('practice.solo.pairs.rounds'))
-                    : max(1, (int) config('practice.solo.items.size'));
+                $size = match ($mode) {
+                    PracticeMode::Pairs => max(1, (int) config('practice.solo.pairs.rounds')),
+                    PracticeMode::PairsTimed => max(1, (int) config('practice.solo.pairs_timed.rounds')),
+                    default => max(1, (int) config('practice.solo.items.size')),
+                };
 
                 return $this->snapshots->build($mode, $scope, $learner, $locales, $size, strictSize: false, seed: $seed);
             });
@@ -754,10 +857,17 @@ final class PracticeSessionService
 
         $result = $this->modes->for($session->mode)->grade($element, $answer, $elementState);
 
+        // A timed game (docs/16 §5.5a): a right match is a point, a wrong one costs TIME - the deadline moves closer. Only here, under the lock.
+        $timed = $session->mode->isTimed();
+        $penalty = $timed && $result->verdict === Verdict::Wrong ? $this->penaltyMs() : 0;
+
         $pair = $element->isPairsRound() ? Arr::only($result->normalizedAnswer, ['left_id', 'right_id']) : null;
         $body = ['verdict' => $result->verdict->value, 'first_attempt' => $result->firstAttempt, 'reveal' => $result->reveal, 'pair' => $pair];
         if ($element->isPairsRound()) {
             $body['round_done'] = $result->final;
+        }
+        if ($timed) {
+            $body['penalty_ms'] = $penalty;
         }
         $body = JsonbKeyOrder::object($body);
 
@@ -792,14 +902,28 @@ final class PracticeSessionService
             $answered++;
         }
 
+        $completed = $result->final && $state['current'] >= $session->total;
+
+        $extra = [];
+        if ($timed) {
+            $score = $session->score + ($result->verdict === Verdict::Correct ? 1 : 0);
+            $deadline = $session->deadline_at?->subMilliseconds($penalty);
+            $state['timed'] = [...(array) ($state['timed'] ?? []), 'penalty_total_ms' => (int) ($state['timed']['penalty_total_ms'] ?? 0) + $penalty];
+            if ($completed) {
+                // Every round is done before the clock: the best score of the learner is settled in this transaction (the lock of the session is held).
+                $state['timed']['is_record'] = $this->records->record($learner->id, $session->mode, $score, $session->id, $now);
+            }
+            $extra = ['score' => $score, 'deadline_at' => $deadline];
+        }
+
         $updates = [
             'state' => $state,
             'answered' => $answered,
             'correct_first' => $session->correct_first + ($result->verdict === Verdict::Correct && $result->firstAttempt ? 1 : 0),
             'hints' => $session->hints + ($result->verdict === Verdict::Skipped ? 1 : 0),
             'mismatches' => $session->mismatches + ($element->isPairsRound() && $result->verdict === Verdict::Wrong ? 1 : 0),
+            ...$extra,
         ];
-        $completed = $result->final && $state['current'] >= $session->total;
         if ($completed) {
             $updates += ['status' => SessionStatus::Finished, 'finish_reason' => FinishReason::Completed, 'finished_at' => $now, 'active_learner_id' => null];
         }
@@ -905,12 +1029,19 @@ final class PracticeSessionService
      */
     private function finish(PracticeSession $session, FinishReason $reason, CarbonImmutable $now, ?Learner $learner): void
     {
-        $session->forceFill([
+        $updates = [
             'status' => SessionStatus::Finished,
             'finish_reason' => $reason,
             'finished_at' => $now,
             'active_learner_id' => null,
-        ])->save();
+        ];
+        // A game that was played to its end (the clock or the last round) may set a record; one that was dropped (expired, replaced) may not.
+        if ($session->mode->isTimed() && ($reason === FinishReason::TimeOver || $reason === FinishReason::Completed)) {
+            $state = $session->state;
+            $state['timed'] = [...(array) ($state['timed'] ?? []), 'is_record' => $this->records->record($session->learner_id, $session->mode, $session->score, $session->id, $now)];
+            $updates['state'] = $state;
+        }
+        $session->forceFill($updates)->save();
 
         DB::afterCommit(fn () => $this->recordFinished($session, $reason, $learner));
     }
@@ -921,6 +1052,12 @@ final class PracticeSessionService
      */
     private function expireIfDue(PracticeSession $session, ?Learner $learner, CarbonImmutable $now): PracticeSession
     {
+        if ($this->isTimeOver($session, $now) && ! $session->isExpiredAt($now)) {
+            $this->closeTimeOver($session, $learner, $now);
+
+            return $session->refresh();
+        }
+
         if (! $session->isExpiredAt($now)) {
             return $session;
         }
@@ -956,11 +1093,57 @@ final class PracticeSessionService
             ]) === 1;
     }
 
+    /** A timed session that is active, started and past `deadline_at` + the grace. */
+    private function isTimeOver(PracticeSession $session, CarbonImmutable $now): bool
+    {
+        return $session->mode->isTimed() && $session->isTimeOverAt($now, $this->graceMs());
+    }
+
+    /**
+     * Under the lock of a timed session (an answer, after `refuseEnded`): the clock must have been started, and the answer must come
+     * before `deadline_at` + the grace. Else the game is over: it is closed here (`time_over`, the record kept) and the refusal
+     * - with the score - is RETURNED, to be thrown after the commit. Null for a mode without a clock.
+     */
+    private function timedGate(PracticeSession $locked, Learner $learner, CarbonImmutable $now): ?PracticeException
+    {
+        if (! $locked->mode->isTimed()) {
+            return null;
+        }
+        if ($locked->deadline_at === null) {
+            return PracticeException::notStarted();
+        }
+        if ($this->isTimeOver($locked, $now)) {
+            $this->finish($locked, FinishReason::TimeOver, $now, $learner);
+
+            return PracticeException::timeOver($locked->score);
+        }
+
+        return null;
+    }
+
+    /**
+     * Closes ONE timed session whose clock has run out - lazily (a read) or by the scheduler. Read again under its lock, so the
+     * score is the last one and a session that somebody closed meanwhile is left alone: true only for the call that closed it.
+     */
+    private function closeTimeOver(PracticeSession $session, ?Learner $learner, CarbonImmutable $now): bool
+    {
+        return DB::transaction(function () use ($session, $learner, $now): bool {
+            /** @var PracticeSession|null $locked */
+            $locked = PracticeSession::query()->whereKey($session->id)->lockForUpdate()->first();
+            if ($locked === null || ! $this->isTimeOver($locked, $now)) {
+                return false;
+            }
+            $this->finish($locked, FinishReason::TimeOver, $now, $learner);
+
+            return true;
+        });
+    }
+
     private function recordFinished(PracticeSession $session, FinishReason $reason, ?Learner $learner): void
     {
         $finishedAt = $session->finished_at ?? CarbonImmutable::now();
 
-        $this->events->record(ProductEventName::PracticeSessionFinished, [
+        $props = [
             'session_id' => $session->id,
             'mode' => $session->mode->value,
             'total' => $session->total,
@@ -970,7 +1153,13 @@ final class PracticeSessionService
             'mismatches' => $session->mismatches,
             'reason' => $reason->value,
             'duration_ms' => max(0, ($finishedAt->getTimestamp() - $session->started_at->getTimestamp()) * 1000),
-        ], learner: $learner);
+        ];
+        if ($session->mode->isTimed()) {
+            $props['score'] = $session->score;
+            $props['deadline_at'] = $session->deadline_at === null ? null : IsoTime::format($session->deadline_at);
+        }
+
+        $this->events->record(ProductEventName::PracticeSessionFinished, $props, learner: $learner);
     }
 
     /**
@@ -1003,6 +1192,10 @@ final class PracticeSessionService
      */
     private function summary(PracticeSession $session, Snapshot $snapshot, PracticeModeHandler $handler, Learner $learner): SummaryView
     {
+        if ($session->mode->isTimed()) {
+            return $this->timedSummary($session, $learner);
+        }
+
         $typos = 0;
         $mistakes = [];
         foreach ($snapshot->elements as $element) {
@@ -1041,6 +1234,53 @@ final class PracticeSessionService
             retryAvailable: $this->retryAvailable($session, $learner),
             mistakes: $mistakes,
         );
+    }
+
+    /**
+     * The summary of a timed game (docs/16 §6.4): the score, the seconds actually played (from the start of the clock to its end, or to
+     * the last round if that came first; a penalty ate its share), the best score NOW (one statement) and whether THIS game set it
+     * (written at the finish). No list of mistakes, no retry.
+     */
+    private function timedSummary(PracticeSession $session, Learner $learner): SummaryView
+    {
+        $timed = (array) ($session->state['timed'] ?? []);
+        $started = isset($timed['started_at']) && is_string($timed['started_at']) ? CarbonImmutable::parse($timed['started_at']) : null;
+        $end = $session->finished_at ?? $session->started_at;
+        if ($session->deadline_at !== null && $session->deadline_at->lt($end)) {
+            $end = $session->deadline_at;
+        }
+        $played = $started === null ? 0 : max(0, $end->getTimestampMs() - $started->getTimestampMs());
+
+        return new SummaryView(
+            total: $session->total,
+            answered: $session->answered,
+            correctFirst: $session->correct_first,
+            typos: 0,
+            hints: 0,
+            mismatches: $session->mismatches,
+            durationMs: $played,
+            finishReason: ($session->finish_reason ?? FinishReason::Completed)->value,
+            retryAvailable: false,
+            mistakes: [],
+            score: $session->score,
+            bestScore: $this->records->best($learner->id, $session->mode)?->best_score,
+            isRecord: ($timed['is_record'] ?? false) === true,
+        );
+    }
+
+    private function timedSeconds(): int
+    {
+        return max(1, (int) config('practice.solo.pairs_timed.seconds'));
+    }
+
+    private function penaltyMs(): int
+    {
+        return max(0, (int) config('practice.solo.pairs_timed.mismatch_penalty_ms'));
+    }
+
+    private function graceMs(): int
+    {
+        return max(0, (int) config('practice.solo.pairs_timed.grace_ms'));
     }
 
     private function ttlHours(): int

@@ -14,6 +14,7 @@
     {
       "word": "morning",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɔrnɪŋ/",
       "translation": "утро",
       "translations": {
         "ru": "утро",
@@ -28,6 +29,7 @@
     {
       "word": "afternoon",
       "part_of_speech": "noun",
+      "transcription": "/ˌæftərˈnun/",
       "translation": "время после полудня",
       "translations": {
         "ru": "время после полудня",
@@ -42,6 +44,7 @@
     {
       "word": "evening",
       "part_of_speech": "noun",
+      "transcription": "/ˈivnɪŋ/",
       "translation": "вечер",
       "translations": {
         "ru": "вечер",
@@ -56,6 +59,7 @@
     {
       "word": "night",
       "part_of_speech": "noun",
+      "transcription": "/naɪt/",
       "translation": "ночь",
       "translations": {
         "ru": "ночь",
@@ -70,6 +74,7 @@
     {
       "word": "today",
       "part_of_speech": "adverb",
+      "transcription": "/təˈdeɪ/",
       "translation": "сегодня",
       "translations": {
         "ru": "сегодня",
@@ -84,6 +89,7 @@
     {
       "word": "tomorrow",
       "part_of_speech": "adverb",
+      "transcription": "/təˈmɑroʊ/",
       "translation": "завтра",
       "translations": {
         "ru": "завтра",
@@ -98,6 +104,7 @@
     {
       "word": "yesterday",
       "part_of_speech": "adverb",
+      "transcription": "/ˈjɛstərdeɪ/",
       "translation": "вчера",
       "translations": {
         "ru": "вчера",
@@ -112,6 +119,7 @@
     {
       "word": "now",
       "part_of_speech": "adverb",
+      "transcription": "/naʊ/",
       "translation": "сейчас",
       "translations": {
         "ru": "сейчас",
@@ -126,6 +134,7 @@
     {
       "word": "later",
       "part_of_speech": "adverb",
+      "transcription": "/ˈleɪtər/",
       "translation": "позже",
       "translations": {
         "ru": "позже",
@@ -140,6 +149,7 @@
     {
       "word": "time",
       "part_of_speech": "noun",
+      "transcription": "/taɪm/",
       "translation": "время",
       "translations": {
         "ru": "время",

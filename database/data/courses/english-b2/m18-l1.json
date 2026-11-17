@@ -14,6 +14,7 @@
     {
       "word": "factor",
       "part_of_speech": "noun",
+      "transcription": "/ˈfæktər/",
       "translation": "фактор",
       "translations": {
         "ru": "фактор",
@@ -28,6 +29,7 @@
     {
       "word": "origin",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrədʒɪn/",
       "translation": "происхождение",
       "translations": {
         "ru": "происхождение",
@@ -42,6 +44,7 @@
     {
       "word": "motive",
       "part_of_speech": "noun",
+      "transcription": "/ˈmoʊtɪv/",
       "translation": "мотив, побуждение",
       "translations": {
         "ru": "мотив, побуждение",
@@ -56,6 +59,7 @@
     {
       "word": "prompt",
       "part_of_speech": "verb",
+      "transcription": "/prɑmpt/",
       "translation": "побуждать",
       "translations": {
         "ru": "побуждать",
@@ -70,6 +74,7 @@
     {
       "word": "trigger",
       "part_of_speech": "verb",
+      "transcription": "/ˈtrɪgər/",
       "translation": "вызывать, провоцировать",
       "translations": {
         "ru": "вызывать, провоцировать",
@@ -84,6 +89,7 @@
     {
       "word": "contribute",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtrɪbjut/",
       "translation": "способствовать",
       "translations": {
         "ru": "способствовать",
@@ -98,6 +104,7 @@
     {
       "word": "attribute",
       "part_of_speech": "verb",
+      "transcription": "/əˈtrɪbjut/",
       "translation": "объяснять чем-либо, приписывать",
       "translations": {
         "ru": "объяснять чем-либо, приписывать",
@@ -112,6 +119,7 @@
     {
       "word": "derive",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈraɪv/",
       "translation": "происходить",
       "translations": {
         "ru": "происходить",
@@ -126,6 +134,7 @@
     {
       "word": "underlying",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈlaɪɪŋ/",
       "translation": "глубинный, лежащий в основе",
       "translations": {
         "ru": "глубинный, лежащий в основе",
@@ -140,6 +149,7 @@
     {
       "word": "stimulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈstɪmjəleɪt/",
       "translation": "стимулировать",
       "translations": {
         "ru": "стимулировать",

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import { useAutoSpeak } from '@/composables/useAutoSpeak'
 import { useSayAloudHint } from '@/composables/useSayAloudHint'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
@@ -26,6 +27,9 @@ import { useI18n } from '@/i18n'
  * reveal — a cued recall is what a word that does not stick needs (docs/25 §3.3); otherwise the hooks (the authored one,
  * "my hint", the confusable pair) come with the translation. "My hint" can be edited from the card (`edit-note`). On every
  * third card a quiet "say the word aloud" line sits under the speaker (docs/25 §3.11), unless switched off in the settings.
+ *
+ * The word is read aloud by itself (unless the learner switched "auto-speak" off): when a new word opens, and at the reveal of a
+ * review card — never before it, the word is what is being recalled. The translation of the example comes with the example.
  */
 /**
  * The answer is acknowledged on the spot (docs/14 §6.2): the pressed grade is lit while the answer is on its way, and the
@@ -49,6 +53,7 @@ const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
 const { t } = useI18n()
 const { show: sayAloud } = useSayAloudHint()
+const { speakWord } = useAutoSpeak()
 
 const isNew = computed(() => props.card.card_kind === 'new')
 /** A new word shows its translation at once. */
@@ -85,6 +90,18 @@ function onSpeak(): void {
   selectionHaptic()
   void speak(props.card.word, 'en-US', props.card.audio_url)
 }
+
+// A new word is open at once: it is spoken as it appears (after the tone of the previous grade). A review card is silent until
+// the reveal, then the word sounds.
+onMounted(() => {
+  if (isNew.value) speakWord(props.card.word, props.card.audio_url, true)
+})
+watch(
+  () => props.showTranslation,
+  (on) => {
+    if (on && !isNew.value) speakWord(props.card.word, props.card.audio_url)
+  },
+)
 
 function onReveal(): void {
   haptic('light')
@@ -148,6 +165,13 @@ function onGrade(q: Quality): void {
             </p>
             <p v-if="card.example" class="mt-3 text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
               {{ card.example }}
+            </p>
+            <p
+              v-if="card.example && card.example_translation"
+              class="mt-1 text-[13px] leading-[18px] text-tg-hint"
+              data-testid="example-translation"
+            >
+              {{ card.example_translation }}
             </p>
           </div>
         </template>

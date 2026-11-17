@@ -14,6 +14,7 @@
     {
       "word": "hobby",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑbi/",
       "translation": "хобби",
       "translations": {
         "ru": "хобби",
@@ -28,6 +29,7 @@
     {
       "word": "music",
       "part_of_speech": "noun",
+      "transcription": "/ˈmjuzɪk/",
       "translation": "музыка",
       "translations": {
         "ru": "музыка",
@@ -42,6 +44,7 @@
     {
       "word": "movie",
       "part_of_speech": "noun",
+      "transcription": "/ˈmuvi/",
       "translation": "фильм",
       "translations": {
         "ru": "фильм",
@@ -56,6 +59,7 @@
     {
       "word": "game",
       "part_of_speech": "noun",
+      "transcription": "/geɪm/",
       "translation": "игра",
       "translations": {
         "ru": "игра",
@@ -70,6 +74,7 @@
     {
       "word": "book",
       "part_of_speech": "noun",
+      "transcription": "/bʊk/",
       "translation": "книга",
       "translations": {
         "ru": "книга",
@@ -84,6 +89,7 @@
     {
       "word": "photo",
       "part_of_speech": "noun",
+      "transcription": "/ˈfoʊtoʊ/",
       "translation": "фотография",
       "translations": {
         "ru": "фотография",
@@ -98,6 +104,7 @@
     {
       "word": "guitar",
       "part_of_speech": "noun",
+      "transcription": "/gɪˈtɑr/",
       "translation": "гитара",
       "translations": {
         "ru": "гитара",
@@ -112,6 +119,7 @@
     {
       "word": "song",
       "part_of_speech": "noun",
+      "transcription": "/sɔŋ/",
       "translation": "песня",
       "translations": {
         "ru": "песня",
@@ -126,6 +134,7 @@
     {
       "word": "dance",
       "part_of_speech": "verb",
+      "transcription": "/dæns/",
       "translation": "танцевать",
       "translations": {
         "ru": "танцевать",
@@ -140,6 +149,7 @@
     {
       "word": "draw",
       "part_of_speech": "verb",
+      "transcription": "/drɔ/",
       "translation": "рисовать",
       "translations": {
         "ru": "рисовать",

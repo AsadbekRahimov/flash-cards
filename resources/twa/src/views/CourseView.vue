@@ -8,6 +8,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
+import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
@@ -62,6 +63,8 @@ const { openingMock, mockPaywall, mockError } = storeToRefs(exam)
 
 useBackButton({ name: 'courses' })
 
+/** Readiness for the level has something to count only in a course with words. */
+const offersReadiness = computed(() => (detail.value?.words_count ?? 0) > 0)
 const offersMock = computed((): boolean => detail.value !== null && detail.value.exam_tag !== null && MOCK_EXAM_TAGS.includes(detail.value.exam_tag))
 const mockHint = computed((): string =>
   tn('course.mock_exam_hint', Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS), { minutes: MOCK_EXAM_MINUTES }),
@@ -251,6 +254,17 @@ onBeforeUnmount(() => {
         <AppIcon name="flag" :size="20" />
         {{ t('game.enter') }}
       </button>
+
+      <!-- Readiness for the level and the test of the week (docs/04 A.20): for courses of the platform; a learner's own deck has no "level". -->
+      <ListGroup v-if="offersReadiness" class="mt-2">
+        <ListRow
+          :to="`/courses/${encodeURIComponent(props.slug)}/readiness?source=course`"
+          icon="chart-bar"
+          tile="green"
+          :title="t('course.readiness')"
+          data-testid="readiness-row"
+        />
+      </ListGroup>
 
       <section v-if="offersMock" class="card mt-4" data-testid="mock-exam">
         <div class="flex items-start gap-3">

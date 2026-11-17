@@ -126,6 +126,19 @@ function spDue(Learner $learner, Word $word, int $repetitions, int $intervalDays
     ], $extra));
 }
 
+it('lets one round of a newcomer with the default goal of 10 close the day\'s goal and start the streak', function (): void {
+    ['course' => $course] = spCourse();
+    $learner = spLearner($course, attributes: ['daily_goal' => 10]);
+
+    $round = spRound($this, $learner);
+
+    $day = LearnerDailyStats::query()->where('learner_id', $learner->id)->sole();
+    expect($round['serves'])->toHaveCount(12)
+        ->and($day->reviews_count)->toBe(12)
+        ->and($day->goal_met_at)->not->toBeNull()
+        ->and($learner->fresh()->streak_current)->toBe(1);
+});
+
 // --- the first round of a newcomer ------------------------------------------------------------
 
 it('walks a newcomer through the first round: six words met on flash cards, each asked back objectively, then sprint_complete', function (): void {
@@ -487,7 +500,7 @@ it('keeps the daily round inside the statement budget of the lesson cycle, and t
     $finish = QueryLog::during(function () use ($base, $headers): void {
         $this->withHeaders($headers)->postJson("{$base}/finish")->assertOk();
     });
-    expect(count($finish))->toBeLessThanOrEqual(9)
+    expect(count($finish))->toBeLessThanOrEqual(11) // 9 + the two of the invitation to the round of hard words (docs/06 §14)
         ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
 });
 

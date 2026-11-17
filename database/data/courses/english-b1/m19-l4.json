@@ -14,6 +14,7 @@
     {
       "word": "control",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtroʊl/",
       "translation": "контролировать",
       "translations": {
         "ru": "контролировать",
@@ -28,6 +29,7 @@
     {
       "word": "handle",
       "part_of_speech": "verb",
+      "transcription": "/ˈhændəl/",
       "translation": "справляться",
       "translations": {
         "ru": "справляться",
@@ -42,6 +44,7 @@
     {
       "word": "operate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑpəreɪt/",
       "translation": "управлять, приводить в действие",
       "translations": {
         "ru": "управлять, приводить в действие",
@@ -56,6 +59,7 @@
     {
       "word": "inspect",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈspɛkt/",
       "translation": "осматривать, проверять",
       "translations": {
         "ru": "осматривать, проверять",
@@ -70,6 +74,7 @@
     {
       "word": "confirm",
       "part_of_speech": "verb",
+      "transcription": "/kənˈfɜrm/",
       "translation": "подтверждать",
       "translations": {
         "ru": "подтверждать",
@@ -84,6 +89,7 @@
     {
       "word": "store",
       "part_of_speech": "verb",
+      "transcription": "/stɔr/",
       "translation": "хранить",
       "translations": {
         "ru": "хранить",
@@ -98,6 +104,7 @@
     {
       "word": "provide",
       "part_of_speech": "verb",
+      "transcription": "/prəˈvaɪd/",
       "translation": "предоставлять, обеспечивать",
       "translations": {
         "ru": "предоставлять, обеспечивать",
@@ -112,6 +119,7 @@
     {
       "word": "select",
       "part_of_speech": "verb",
+      "transcription": "/səˈlɛkt/",
       "translation": "отбирать, выбирать",
       "translations": {
         "ru": "отбирать, выбирать",
@@ -126,6 +134,7 @@
     {
       "word": "sort",
       "part_of_speech": "verb",
+      "transcription": "/sɔrt/",
       "translation": "сортировать",
       "translations": {
         "ru": "сортировать",
@@ -140,6 +149,7 @@
     {
       "word": "gather",
       "part_of_speech": "verb",
+      "transcription": "/ˈgæðər/",
       "translation": "собирать",
       "translations": {
         "ru": "собирать",

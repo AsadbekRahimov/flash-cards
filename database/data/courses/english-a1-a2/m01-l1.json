@@ -14,6 +14,7 @@
     {
       "word": "hello",
       "part_of_speech": "interjection",
+      "transcription": "/həˈloʊ/",
       "translation": "привет",
       "translations": {
         "ru": "привет",
@@ -28,6 +29,7 @@
     {
       "word": "bye",
       "part_of_speech": "interjection",
+      "transcription": "/baɪ/",
       "translation": "пока",
       "translations": {
         "ru": "пока",
@@ -42,6 +44,7 @@
     {
       "word": "goodbye",
       "part_of_speech": "interjection",
+      "transcription": "/ˌgʊdˈbaɪ/",
       "translation": "до свидания",
       "translations": {
         "ru": "до свидания",
@@ -56,6 +59,7 @@
     {
       "word": "please",
       "part_of_speech": "interjection",
+      "transcription": "/pliz/",
       "translation": "пожалуйста",
       "translations": {
         "ru": "пожалуйста",
@@ -70,6 +74,7 @@
     {
       "word": "thanks",
       "part_of_speech": "interjection",
+      "transcription": "/θæŋks/",
       "translation": "спасибо",
       "translations": {
         "ru": "спасибо",
@@ -84,6 +89,7 @@
     {
       "word": "sorry",
       "part_of_speech": "interjection",
+      "transcription": "/ˈsɑri/",
       "translation": "извините, простите",
       "translations": {
         "ru": "извините, простите",
@@ -98,6 +104,7 @@
     {
       "word": "yes",
       "part_of_speech": "interjection",
+      "transcription": "/jɛs/",
       "translation": "да",
       "translations": {
         "ru": "да",
@@ -112,6 +119,7 @@
     {
       "word": "no",
       "part_of_speech": "interjection",
+      "transcription": "/noʊ/",
       "translation": "нет",
       "translations": {
         "ru": "нет",
@@ -126,6 +134,7 @@
     {
       "word": "welcome",
       "part_of_speech": "interjection",
+      "transcription": "/ˈwɛlkəm/",
       "translation": "добро пожаловать",
       "translations": {
         "ru": "добро пожаловать",
@@ -140,6 +149,7 @@
     {
       "word": "excuse",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈskjuz/",
       "translation": "извинять",
       "translations": {
         "ru": "извинять",

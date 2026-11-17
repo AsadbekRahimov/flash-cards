@@ -14,6 +14,7 @@
     {
       "word": "indicate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪndɪkeɪt/",
       "translation": "указывать, свидетельствовать",
       "translations": {
         "ru": "указывать, свидетельствовать",
@@ -28,6 +29,7 @@
     {
       "word": "illustrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪləstreɪt/",
       "translation": "иллюстрировать, пояснять примером",
       "translations": {
         "ru": "иллюстрировать, пояснять примером",
@@ -42,6 +44,7 @@
     {
       "word": "refer",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈfɜr/",
       "translation": "ссылаться",
       "translations": {
         "ru": "ссылаться",
@@ -56,6 +59,7 @@
     {
       "word": "highlight",
       "part_of_speech": "verb",
+      "transcription": "/ˈhaɪlaɪt/",
       "translation": "особо отмечать, выделять",
       "translations": {
         "ru": "особо отмечать, выделять",
@@ -70,6 +74,7 @@
     {
       "word": "specify",
       "part_of_speech": "verb",
+      "transcription": "/ˈspɛsəfaɪ/",
       "translation": "точно указывать, уточнять",
       "translations": {
         "ru": "точно указывать, уточнять",
@@ -84,6 +89,7 @@
     {
       "word": "formulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈfɔrmjəleɪt/",
       "translation": "формулировать",
       "translations": {
         "ru": "формулировать",
@@ -98,6 +104,7 @@
     {
       "word": "reinforce",
       "part_of_speech": "verb",
+      "transcription": "/ˌriɪnˈfɔrs/",
       "translation": "подкреплять, усиливать",
       "translations": {
         "ru": "подкреплять, усиливать",
@@ -112,6 +119,7 @@
     {
       "word": "represent",
       "part_of_speech": "verb",
+      "transcription": "/ˌrɛprɪˈzɛnt/",
       "translation": "обозначать, представлять",
       "translations": {
         "ru": "обозначать, представлять",
@@ -126,6 +134,7 @@
     {
       "word": "correspond",
       "part_of_speech": "verb",
+      "transcription": "/ˌkɔrəˈspɑnd/",
       "translation": "соответствовать",
       "translations": {
         "ru": "соответствовать",
@@ -140,6 +149,7 @@
     {
       "word": "comprise",
       "part_of_speech": "verb",
+      "transcription": "/kəmˈpraɪz/",
       "translation": "включать в себя",
       "translations": {
         "ru": "включать в себя",

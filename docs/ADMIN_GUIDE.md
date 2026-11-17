@@ -108,7 +108,7 @@ removed and re-added. Personal messages (e.g. review reminders) follow each lear
 (`learners.interface_locale`; for a new learner it starts from the Telegram language: `uz*` → Uzbek, anything else → Russian).
 The Web App follows the learner's Telegram language.
 
-Reminder cadence (owner decision 2026-11-16): at most one personal reminder per local day. After 3 idle days it says "N days without lessons"; after 7 idle days it is sent only on days 10, 14, 21, 30, 45 and 60; after 60 idle days the bot stays silent. A learner who never started gets a "start" reminder (or "choose a course" when they have no active course). Thresholds: `REMINDERS_WINBACK_FROM_DAYS`, `REMINDERS_DAILY_UNTIL_DAYS`, `REMINDERS_SPARSE_DAYS`, `REMINDERS_STOP_AFTER_DAYS`; see docs/12 §7.5.
+Reminder cadence (owner decision 2026-11-16): at most one personal reminder per local day. After 3 idle days it says "N days without lessons"; after 7 idle days it is sent only on days 10, 14, 21, 30, 45 and 60; after 60 idle days the bot stays silent. A learner who never started gets a "start" reminder (or "choose a course" when they have no active course). Thresholds: `REMINDERS_WINBACK_FROM_DAYS`, `REMINDERS_DAILY_UNTIL_DAYS`, `REMINDERS_SPARSE_DAYS`, `REMINDERS_STOP_AFTER_DAYS`; see docs/12 §7.5. Since 2026-11-17 the reminder of a learner who has words of their own is a question with four answer buttons in the chat (switch off with `REMINDERS_QUIZ_ENABLED=false`); the answer is not a repetition and counts neither for the streak nor for the league.
 The group language also decides the language of **exam questions** (answers and distractors) and of the
 translations on cards in a group training session; personal sessions use the learner's own language.
 

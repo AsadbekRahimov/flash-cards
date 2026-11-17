@@ -292,7 +292,7 @@ it('does not select the answer key of an exam, the payload of a payment or the m
 
     $first = fn (string $page) => Livewire::test($page)->toggleAllTableColumns()->instance()->getTableRecords()->first()->getAttributes();
 
-    expect($first(ListExamSessions::class))->not->toHaveKeys(['config', 'closed_at', 'mode'])->toHaveKeys(['status', 'started_at', 'results_count', 'answers_count'])
+    expect($first(ListExamSessions::class))->not->toHaveKeys(['config', 'closed_at'])->toHaveKeys(['mode', 'status', 'started_at', 'results_count', 'answers_count'])
         ->and($first(ListPayments::class))->not->toHaveKeys(['raw', 'period_ends_at'])->toHaveKeys(['provider_charge_id', 'provider_event_id', 'amount'])
         // The flags of the order are in its meta: the list reads them.
         ->and($first(ListPaymentOrders::class))->not->toHaveKeys(['token', 'provider_ref'])->toHaveKeys(['meta', 'status'])

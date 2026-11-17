@@ -14,6 +14,7 @@
     {
       "word": "afford",
       "part_of_speech": "verb",
+      "transcription": "/əˈfɔrd/",
       "translation": "позволить себе",
       "translations": {
         "ru": "позволить себе",
@@ -28,6 +29,7 @@
     {
       "word": "enough",
       "part_of_speech": "adverb",
+      "transcription": "/ɪˈnʌf/",
       "translation": "достаточно",
       "translations": {
         "ru": "достаточно",
@@ -42,6 +44,7 @@
     {
       "word": "worth",
       "part_of_speech": "adjective",
+      "transcription": "/wɜrθ/",
       "translation": "стоящий",
       "translations": {
         "ru": "стоящий",
@@ -56,6 +59,7 @@
     {
       "word": "fashionable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfæʃənəbəl/",
       "translation": "модный",
       "translations": {
         "ru": "модный",
@@ -70,6 +74,7 @@
     {
       "word": "tight",
       "part_of_speech": "adjective",
+      "transcription": "/taɪt/",
       "translation": "тесный",
       "translations": {
         "ru": "тесный",
@@ -84,6 +89,7 @@
     {
       "word": "loose",
       "part_of_speech": "adjective",
+      "transcription": "/lus/",
       "translation": "свободный",
       "translations": {
         "ru": "свободный",
@@ -98,6 +104,7 @@
     {
       "word": "fit",
       "part_of_speech": "verb",
+      "transcription": "/fɪt/",
       "translation": "подходить по размеру",
       "translations": {
         "ru": "подходить по размеру",
@@ -112,6 +119,7 @@
     {
       "word": "suit",
       "part_of_speech": "verb",
+      "transcription": "/sut/",
       "translation": "идти, быть к лицу",
       "translations": {
         "ru": "идти, быть к лицу",
@@ -126,6 +134,7 @@
     {
       "word": "reasonable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrizənəbəl/",
       "translation": "разумный, приемлемый",
       "translations": {
         "ru": "разумный, приемлемый",
@@ -140,6 +149,7 @@
     {
       "word": "bargain",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑrgən/",
       "translation": "выгодная покупка",
       "translations": {
         "ru": "выгодная покупка",

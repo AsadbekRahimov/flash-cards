@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\SessionStatus;
+use App\Models\Casts\MillisecondDateTime;
 use Carbon\CarbonImmutable;
 use Database\Factories\PracticeSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +41,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $locale
  * @property CarbonImmutable $expires_at
  * @property CarbonImmutable $started_at
+ * @property CarbonImmutable|null $deadline_at only a timed session: NULL until `POST /start` (docs/16 §5.5a); milliseconds
+ * @property int $score the pairs matched in a timed session; changed only by the answer under the lock
  * @property CarbonImmutable|null $finished_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -82,6 +85,8 @@ class PracticeSession extends Model
         'expires_at',
         'started_at',
         'finished_at',
+        'deadline_at',
+        'score',
     ];
 
     /** @return array<string, string> */
@@ -106,6 +111,9 @@ class PracticeSession extends Model
             'expires_at' => 'immutable_datetime',
             'started_at' => 'immutable_datetime',
             'finished_at' => 'immutable_datetime',
+            // Milliseconds matter (a penalty of 2 s, a grace of 1.5 s): the cast of a date drops them.
+            'deadline_at' => MillisecondDateTime::class,
+            'score' => 'integer',
         ];
     }
 
@@ -118,6 +126,12 @@ class PracticeSession extends Model
     public function isExpiredAt(CarbonImmutable $now): bool
     {
         return $this->isActive() && $this->expires_at->lte($now);
+    }
+
+    /** A timed session that is active, started and past `deadline_at` + `$graceMs`: nobody has closed it so far. */
+    public function isTimeOverAt(CarbonImmutable $now, int $graceMs): bool
+    {
+        return $this->isActive() && $this->deadline_at !== null && $this->deadline_at->addMilliseconds($graceMs)->lt($now);
     }
 
     /** @return BelongsTo<Learner, $this> */

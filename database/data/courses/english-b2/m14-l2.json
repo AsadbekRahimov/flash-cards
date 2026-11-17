@@ -14,6 +14,7 @@
     {
       "word": "heritage",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛrətɪdʒ/",
       "translation": "культурное наследие",
       "translations": {
         "ru": "культурное наследие",
@@ -28,6 +29,7 @@
     {
       "word": "civilization",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪvələˈzeɪʃən/",
       "translation": "цивилизация",
       "translations": {
         "ru": "цивилизация",
@@ -42,6 +44,7 @@
     {
       "word": "archaeology",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑrkiˈɑlədʒi/",
       "translation": "археология",
       "translations": {
         "ru": "археология",
@@ -56,6 +59,7 @@
     {
       "word": "sacred",
       "part_of_speech": "adjective",
+      "transcription": "/ˈseɪkrɪd/",
       "translation": "священный",
       "translations": {
         "ru": "священный",
@@ -70,6 +74,7 @@
     {
       "word": "antique",
       "part_of_speech": "adjective",
+      "transcription": "/ænˈtik/",
       "translation": "старинный, антикварный",
       "translations": {
         "ru": "старинный, антикварный",
@@ -84,6 +89,7 @@
     {
       "word": "legacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛgəsi/",
       "translation": "наследие",
       "translations": {
         "ru": "наследие",
@@ -98,6 +104,7 @@
     {
       "word": "fortress",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrtrəs/",
       "translation": "крепость",
       "translations": {
         "ru": "крепость",
@@ -112,6 +119,7 @@
     {
       "word": "artifact",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtəfækt/",
       "translation": "артефакт",
       "translations": {
         "ru": "артефакт",
@@ -126,6 +134,7 @@
     {
       "word": "dynasty",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaɪnəsti/",
       "translation": "династия",
       "translations": {
         "ru": "династия",
@@ -140,6 +149,7 @@
     {
       "word": "medieval",
       "part_of_speech": "adjective",
+      "transcription": "/ˌmidiˈivəl/",
       "translation": "средневековый",
       "translations": {
         "ru": "средневековый",

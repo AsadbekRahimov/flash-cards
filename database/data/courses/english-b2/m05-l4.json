@@ -14,6 +14,7 @@
     {
       "word": "unauthorized",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈɔθəraɪzd/",
       "translation": "несанкционированный",
       "translations": {
         "ru": "несанкционированный",
@@ -28,6 +29,7 @@
     {
       "word": "intruder",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtrudər/",
       "translation": "взломщик, нарушитель",
       "translations": {
         "ru": "взломщик, нарушитель",
@@ -42,6 +44,7 @@
     {
       "word": "malware",
       "part_of_speech": "noun",
+      "transcription": "/ˈmælwɛr/",
       "translation": "вредоносная программа",
       "translations": {
         "ru": "вредоносная программа",
@@ -56,6 +59,7 @@
     {
       "word": "breach",
       "part_of_speech": "noun",
+      "transcription": "/britʃ/",
       "translation": "нарушение безопасности",
       "translations": {
         "ru": "нарушение безопасности",
@@ -70,6 +74,7 @@
     {
       "word": "encrypt",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkrɪpt/",
       "translation": "шифровать",
       "translations": {
         "ru": "шифровать",
@@ -84,6 +89,7 @@
     {
       "word": "firewall",
       "part_of_speech": "noun",
+      "transcription": "/ˈfaɪərwɔl/",
       "translation": "межсетевой экран, брандмауэр",
       "translations": {
         "ru": "межсетевой экран, брандмауэр",
@@ -98,6 +104,7 @@
     {
       "word": "vulnerable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvʌlnərəbəl/",
       "translation": "уязвимый",
       "translations": {
         "ru": "уязвимый",
@@ -112,6 +119,7 @@
     {
       "word": "anonymous",
       "part_of_speech": "adjective",
+      "transcription": "/əˈnɑnəməs/",
       "translation": "анонимный",
       "translations": {
         "ru": "анонимный",
@@ -126,6 +134,7 @@
     {
       "word": "confidential",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkɑnfəˈdɛnʃəl/",
       "translation": "конфиденциальный",
       "translations": {
         "ru": "конфиденциальный",
@@ -140,6 +149,7 @@
     {
       "word": "phishing",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪʃɪŋ/",
       "translation": "фишинг",
       "translations": {
         "ru": "фишинг",

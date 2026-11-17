@@ -14,6 +14,7 @@
     {
       "word": "consumption",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsʌmpʃən/",
       "translation": "потребление",
       "translations": {
         "ru": "потребление",
@@ -28,6 +29,7 @@
     {
       "word": "expenditure",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspɛndɪtʃər/",
       "translation": "расходы, затраты",
       "translations": {
         "ru": "расходы, затраты",
@@ -42,6 +44,7 @@
     {
       "word": "costly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɔstli/",
       "translation": "дорогостоящий",
       "translations": {
         "ru": "дорогостоящий",
@@ -56,6 +59,7 @@
     {
       "word": "revenue",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛvənu/",
       "translation": "выручка",
       "translations": {
         "ru": "выручка",
@@ -70,6 +74,7 @@
     {
       "word": "earnings",
       "part_of_speech": "noun",
+      "transcription": "/ˈɜrnɪŋz/",
       "translation": "заработок, доход",
       "translations": {
         "ru": "заработок, доход",
@@ -84,6 +89,7 @@
     {
       "word": "wealth",
       "part_of_speech": "noun",
+      "transcription": "/wɛlθ/",
       "translation": "богатство",
       "translations": {
         "ru": "богатство",
@@ -98,6 +104,7 @@
     {
       "word": "funding",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʌndɪŋ/",
       "translation": "финансирование",
       "translations": {
         "ru": "финансирование",
@@ -112,6 +119,7 @@
     {
       "word": "economical",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛkəˈnɑmɪkəl/",
       "translation": "экономичный",
       "translations": {
         "ru": "экономичный",
@@ -126,6 +134,7 @@
     {
       "word": "turnover",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrnˌoʊvər/",
       "translation": "оборот",
       "translations": {
         "ru": "оборот",
@@ -140,6 +149,7 @@
     {
       "word": "profitable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈprɑfɪtəbəl/",
       "translation": "прибыльный",
       "translations": {
         "ru": "прибыльный",

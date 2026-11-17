@@ -14,6 +14,7 @@
     {
       "word": "you",
       "part_of_speech": "pronoun",
+      "transcription": "/ju/",
       "translation": "ты, вы",
       "translations": {
         "ru": "ты, вы",
@@ -28,6 +29,7 @@
     {
       "word": "he",
       "part_of_speech": "pronoun",
+      "transcription": "/hi/",
       "translation": "он",
       "translations": {
         "ru": "он",
@@ -42,6 +44,7 @@
     {
       "word": "she",
       "part_of_speech": "pronoun",
+      "transcription": "/ʃi/",
       "translation": "она",
       "translations": {
         "ru": "она",
@@ -56,6 +59,7 @@
     {
       "word": "it",
       "part_of_speech": "pronoun",
+      "transcription": "/ɪt/",
       "translation": "оно, это",
       "translations": {
         "ru": "оно, это",
@@ -70,6 +74,7 @@
     {
       "word": "we",
       "part_of_speech": "pronoun",
+      "transcription": "/wi/",
       "translation": "мы",
       "translations": {
         "ru": "мы",
@@ -84,6 +89,7 @@
     {
       "word": "they",
       "part_of_speech": "pronoun",
+      "transcription": "/ðeɪ/",
       "translation": "они",
       "translations": {
         "ru": "они",
@@ -98,6 +104,7 @@
     {
       "word": "me",
       "part_of_speech": "pronoun",
+      "transcription": "/mi/",
       "translation": "меня, мне",
       "translations": {
         "ru": "меня, мне",
@@ -112,6 +119,7 @@
     {
       "word": "my",
       "part_of_speech": "pronoun",
+      "transcription": "/maɪ/",
       "translation": "мой",
       "translations": {
         "ru": "мой",
@@ -126,6 +134,7 @@
     {
       "word": "your",
       "part_of_speech": "pronoun",
+      "transcription": "/jɔr/",
       "translation": "твой, ваш",
       "translations": {
         "ru": "твой, ваш",
@@ -140,6 +149,7 @@
     {
       "word": "this",
       "part_of_speech": "pronoun",
+      "transcription": "/ðɪs/",
       "translation": "этот, это",
       "translations": {
         "ru": "этот, это",

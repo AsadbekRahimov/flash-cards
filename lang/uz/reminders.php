@@ -16,4 +16,25 @@ return [
     'choose_course' => "Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
     'open_button' => "LexiFlow'ni ochish",
 
+    // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
+    'quiz' => [
+        'lead' => [
+            'review' => "LexiFlow'da :count ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz.",
+            'streak_at_risk' => "Ketma-ket :count kun shug'ullandingiz. Natijani saqlash uchun bugungi maqsadni bajaring. Mashq:",
+            'inactive' => "LexiFlow: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz:",
+            'new_words' => "Yangi so'zlardan oldin mashq:",
+        ],
+        'question' => [
+            'meaning' => '«:word» nima degani?',
+            'reverse' => '«:translation» inglizchada qanday?',
+        ],
+        'footer' => "Vaqtni o'zgartirish yoki o'chirish: /settings",
+        'correct' => "✅ To'g'ri! :word — :answer.",
+        'wrong' => '❌ Unday emas. :word — :answer.',
+        'after_due' => "Ilovada sizni :count ta so'z kutmoqda — 5 daqiqa yetarli.",
+        'after_none' => "Ilovada davom eting — u yerda yangi so'zlar bor.",
+        'open_more' => "LexiFlow'ni ochish",
+        'expired' => "Bu savol eskirgan. Ilovani oching — u yerda yangi so'zlar bor.",
+    ],
+
 ];

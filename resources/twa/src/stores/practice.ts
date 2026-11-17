@@ -18,6 +18,7 @@ import type {
   PracticeOpenRequest,
   PracticeReveal,
   PracticeSession,
+  PracticeTimed,
   PracticeVerdict,
   Progress,
 } from '@/api/types'
@@ -143,10 +144,29 @@ interface PracticeState {
   /** Epoch ms when the element appeared: `time_spent_ms` of the answer is telemetry measured from it. */
   elementShownAt: number
   audio: AudioSlot
+  /**
+   * Timed pairs: the end of the game on the DEVICE clock (epoch ms), worked out from ONE response as `now + (deadline_at - server_now)`
+   * so that a wrong device clock does not matter; null before the start and for the other modes. Recomputed from every reply that carries `timed`.
+   */
+  timedDeadline: number | null
+  /** The time is up (the local clock reached the deadline, or the server said 409 `practice_time_over`): the board is locked, the session is being re-read. */
+  timeUp: boolean
+  /** `start` is on its way. */
+  timedStarting: boolean
+  /** The end of the game is being read from the server (several tries: the server accepts answers for a moment after the deadline). */
+  expiring: boolean
+  /** The last wrong match of a timed game: `seq` grows with each one so that "−2 s" shows again; `ms` is what it cost. */
+  penalty: { seq: number; ms: number }
 }
 
 /** Telemetry only (docs/16 §2.6): an hour in front of an element says nothing more than ten minutes. */
 const MAX_TIME_SPENT_MS = 600_000
+
+/** After the local zero of a timed game: how often the session is read until the server has closed it (it takes answers 1.5 s past the deadline). */
+const EXPIRE_TRIES = 5
+const EXPIRE_RETRY_MS = 900
+
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** A failure after which the server may or may not have counted the request: the same request is repeated as it was. */
 function isUncertain(err: unknown): boolean {
@@ -248,6 +268,11 @@ export const usePracticeStore = defineStore('practice', {
     elementSeq: 0,
     elementShownAt: 0,
     audio: { state: 'idle', blobUrl: null },
+    timedDeadline: null,
+    timeUp: false,
+    timedStarting: false,
+    expiring: false,
+    penalty: { seq: 0, ms: 0 },
   }),
 
   getters: {
@@ -255,6 +280,9 @@ export const usePracticeStore = defineStore('practice', {
     current: (s): PracticeElement | null => s.session?.current ?? null,
 
     progress: (s): Progress => s.session?.progress ?? { done: 0, total: 0 },
+
+    /** The clock of the timed game on screen; null for any other session. */
+    timed: (s): PracticeTimed | null => s.session?.timed ?? null,
 
     /** The verdict of the last answer, while it is on screen (docs/16 §11.4: `verdict` / `reveal`). */
     verdict: (s): PracticeVerdict | null => s.outcome?.verdict ?? null,
@@ -480,7 +508,29 @@ export const usePracticeStore = defineStore('practice', {
       this.paywall = false
       this.limitHit = null
       this.elementShownAt = 0
+      this.timedDeadline = null
+      this.timeUp = false
+      this.timedStarting = false
+      this.expiring = false
+      this.penalty = { seq: 0, ms: 0 }
       this.releaseAudio()
+    },
+
+    /**
+     * The clock of a timed game out of a reply: the deadline on the device clock from `deadline_at - server_now` of THIS reply (the device
+     * clock is only used to count the time down from now). A game that is not timed, not started or over has no deadline.
+     */
+    syncTimed(session: PracticeSession): void {
+      const timed = session.timed ?? null
+      const deadline = Date.parse(timed?.deadline_at ?? '')
+      if (timed === null || session.status !== 'active' || !Number.isFinite(deadline)) {
+        this.timedDeadline = null
+        this.timeUp = false
+        return
+      }
+      const serverNow = Date.parse(session.server_now)
+      this.timedDeadline = Date.now() + (Number.isFinite(serverNow) ? deadline - serverNow : deadline - Date.now())
+      this.timeUp = this.timedDeadline <= Date.now()
     },
 
     /** Takes the session as the server has it: the element to answer, or the summary. */
@@ -489,13 +539,16 @@ export const usePracticeStore = defineStore('practice', {
       this.session = session
       this.sessionId = session.id
       this.outcome = null
+      this.syncTimed(session)
       this.syncHub(session)
-      if (session.status === 'finished' || session.current === null) {
+      // A timed game that waits for "Start" has no board yet (`current: null`): that is the "Ready?" screen, not the end.
+      const waiting = session.status === 'active' && session.timed != null && !session.timed.started
+      if (session.status === 'finished' || (session.current === null && !waiting)) {
         this.status = 'finished'
         return
       }
       // The same element again (a re-read after a conflict) is not a new one: the mode component keeps what the learner did.
-      if (session.current.id !== previous) {
+      if (session.current !== null && session.current.id !== previous) {
         this.elementSeq += 1
         this.elementShownAt = Date.now()
       }
@@ -513,6 +566,8 @@ export const usePracticeStore = defineStore('practice', {
       const session = this.session
       const element = session?.current ?? null
       if (this.status !== 'ready' || session === null || element === null) return
+      // A timed game takes no answer before its start or after its zero: the server would refuse, and the time is the server's anyway.
+      if (session.timed != null && (!session.timed.started || this.timeUp)) return
 
       const generation = this.generation
       const single = element.kind !== 'pairs_round'
@@ -532,6 +587,8 @@ export const usePracticeStore = defineStore('practice', {
         })
         if (generation !== this.generation) return
         this.clearPending(pair)
+        // The game was closed (the summary is on screen) while this answer was on its way: the older reply does not bring it back.
+        if ((this.status as PracticeStatus) === 'finished') return
         this.applyAnswer(res, element, sent)
       } catch (err) {
         if (generation !== this.generation) return
@@ -584,7 +641,20 @@ export const usePracticeStore = defineStore('practice', {
       }
       this.session = res.session
       this.outcome = outcome
+      this.syncTimed(res.session)
       this.syncHub(res.session)
+      if (res.session.timed != null) {
+        // Timed pairs: no verdict screen, the next round (or the summary) is on the board at once; a wrong match costs time.
+        if (res.penalty_ms !== undefined && res.penalty_ms > 0) this.penalty = { seq: this.penalty.seq + 1, ms: res.penalty_ms }
+        this.outcome = null
+        if (res.session.status === 'finished' || res.session.current === null) {
+          this.status = 'finished'
+          return
+        }
+        if (outcome.roundDone) this.elementShownAt = Date.now()
+        this.status = 'ready'
+        return
+      }
       // A match of pairs inside a round: the board goes on (it reads the new `matched` / `mismatches` from the element).
       this.status = element.kind === 'pairs_round' && !outcome.roundDone ? 'ready' : 'verdict'
     },
@@ -609,6 +679,13 @@ export const usePracticeStore = defineStore('practice', {
 
       if (err instanceof ApiClientError) {
         const generation = this.generation
+        if (err.code === 'practice_time_over' || err.code === 'practice_not_started') {
+          // The clock of a timed game is the server's, and it says: over (the session is closed, `details.score`) or not started. Show what is true.
+          if (err.code === 'practice_time_over') this.timeUp = true
+          const fresh = await this.reread(generation)
+          if (fresh !== null) this.applySession(fresh)
+          return
+        }
         if (err.code === 'element_not_current' || err.code === 'pair_already_matched') {
           // Another tab (or a repeat) got there first: show what is true now.
           if (err.code === 'element_not_current') this.actionError = errorMessage(err, 'practice')
@@ -744,6 +821,74 @@ export const usePracticeStore = defineStore('practice', {
         }
         this.handleError(err)
         return false
+      }
+    },
+
+    /**
+     * "Start" of a timed game: the clock begins on the server (so the first tap of the learner does not eat the time). Idempotent on the
+     * server, so a repeat after a lost reply is safe. A refusal is a toast and the button stays.
+     */
+    async startTimed(): Promise<void> {
+      const session = this.session
+      if (session === null || session.timed == null || session.timed.started || session.status !== 'active' || this.timedStarting) return
+      const generation = this.generation
+      this.timedStarting = true
+      this.actionError = ''
+      try {
+        const started = await api.practice.start(session.id)
+        if (generation !== this.generation) return
+        this.applySession(started)
+      } catch (err) {
+        if (generation !== this.generation) return
+        if (err instanceof ApiClientError && err.kind !== 'gone' && err.code !== 'practice_session_closed') {
+          this.actionError = errorMessage(err, 'practice')
+        } else {
+          this.handleError(err)
+        }
+      } finally {
+        if (generation === this.generation) this.timedStarting = false
+      }
+    },
+
+    /**
+     * The local clock of a timed game reached zero: the board is locked, no answer is sent, and the session is read until the server has
+     * closed it (it still takes an answer for 1.5 s after the deadline, and the closing happens on the first read after that).
+     */
+    async expire(): Promise<void> {
+      const session = this.session
+      if (session === null || session.timed == null || session.status !== 'active' || this.expiring) return
+      const generation = this.generation
+      this.timeUp = true
+      this.expiring = true
+      try {
+        for (let attempt = 0; attempt < EXPIRE_TRIES; attempt++) {
+          const fresh = await this.reread(generation)
+          if (fresh === null || generation !== this.generation) return
+          this.applySession(fresh)
+          // Over, or the server has time left (a deadline later than the device thought): the board and its clock go on from there.
+          if (fresh.status === 'finished' || !this.timeUp) return
+          await sleep(EXPIRE_RETRY_MS)
+          if (generation !== this.generation) return
+        }
+      } finally {
+        if (generation === this.generation) this.expiring = false
+      }
+    },
+
+    /**
+     * The app came back (visible again, network back): a timed game may have ended meanwhile, so the session is read and shown as the server
+     * has it. Not while an answer is on its way or the end is being read already.
+     */
+    async resync(): Promise<void> {
+      const session = this.session
+      if (session === null || session.timed == null || session.status !== 'active' || this.status !== 'ready' || this.expiring) return
+      const generation = this.generation
+      try {
+        const fresh = await api.practice.get(session.id)
+        if (generation !== this.generation || this.status !== 'ready') return
+        this.applySession(fresh)
+      } catch {
+        // No network yet: the screen stays as it is; the next answer or the clock's zero reads the session again.
       }
     },
 

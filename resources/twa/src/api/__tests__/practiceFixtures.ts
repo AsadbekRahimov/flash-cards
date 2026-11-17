@@ -99,6 +99,7 @@ export function session(overrides: Partial<PracticeSession> = {}): PracticeSessi
     collocation: collocationElement(),
     sentence: sentenceElement(),
     dictation: dictationElement(),
+    pairs_timed: pairsElement(),
   }[mode]
 
   return {
@@ -207,3 +208,21 @@ export const limitDetails = (
   kind: 'sessions' | 'battles' = 'sessions',
   resetsAt: string = inHours(3),
 ): Record<string, unknown> => ({ kind, limit: kind === 'sessions' ? 2 : 1, used: kind === 'sessions' ? 2 : 1, resets_at: resetsAt })
+
+/**
+ * A timed-pairs session (`pairs_timed`): `deadlineIn` ms after `server_now` (null: not started yet), with `score` pairs made.
+ * `server_now` is the fixed instant of `session()`; the store reads the time left from the two of them.
+ */
+export function timedSession(deadlineIn: number | null = 60_000, score = 0, overrides: Partial<PracticeSession> = {}): PracticeSession {
+  const base = session({ mode: 'pairs_timed', progress: { done: 0, total: 10 }, ...overrides })
+  return {
+    ...base,
+    timed: {
+      seconds: 60,
+      deadline_at: deadlineIn === null ? null : new Date(Date.parse(base.server_now) + deadlineIn).toISOString(),
+      started: deadlineIn !== null,
+      score,
+      penalty_ms: 2000,
+    },
+  }
+}

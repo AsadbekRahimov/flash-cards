@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Learning\Services\LevelQuizService;
 use App\Domain\Learning\Services\MockExamService;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\ExamSession;
@@ -19,8 +20,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Closes every exam session whose `ends_at` is in the past,
  * builds its leaderboard and queues the group announcement.
- * Abandoned personal mocks (docs/13 §8.4) are finalized by `MockExamService`
- * instead: no leaderboard, no group message.
+ * Abandoned personal mocks (docs/13 §8.4) are finalized by `MockExamService` and abandoned
+ * quizzes of the week (§8.5) by `LevelQuizService` instead: no leaderboard, no group message.
  *
  * Intended to be scheduled `everyMinute()->withoutOverlapping()`.
  *
@@ -40,6 +41,7 @@ final class CloseExpiredExams extends Command
         LeaderboardBuilder $leaderboard,
         ProductEventRecorder $events,
         MockExamService $mocks,
+        LevelQuizService $quizzes,
     ): int {
         $grace = max(0, (int) $this->option('grace'));
         $cutoff = CarbonImmutable::now()->subSeconds($grace);
@@ -54,6 +56,19 @@ final class CloseExpiredExams extends Command
         foreach ($expiredMocks as $mock) {
             if ($mocks->finalize($mock, 'expired')->status === 'closed') {
                 $this->info("Finalized mock #{$mock->id}");
+            }
+        }
+
+        /** @var Collection<int, ExamSession> $expiredQuizzes */
+        $expiredQuizzes = ExamSession::query()
+            ->where('status', 'open')
+            ->where('mode', ExamSession::MODE_LEVEL_QUIZ)
+            ->where('ends_at', '<=', $cutoff)
+            ->get();
+
+        foreach ($expiredQuizzes as $quiz) {
+            if ($quizzes->finalize($quiz, 'expired')->status === 'closed') {
+                $this->info("Finalized quiz #{$quiz->id}");
             }
         }
 

@@ -14,6 +14,7 @@
     {
       "word": "conversation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnvərˈseɪʃən/",
       "translation": "разговор, беседа",
       "translations": {
         "ru": "разговор, беседа",
@@ -28,6 +29,7 @@
     {
       "word": "mention",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɛnʃən/",
       "translation": "упоминать",
       "translations": {
         "ru": "упоминать",
@@ -42,6 +44,7 @@
     {
       "word": "interrupt",
       "part_of_speech": "verb",
+      "transcription": "/ˌɪntəˈrʌpt/",
       "translation": "перебивать",
       "translations": {
         "ru": "перебивать",
@@ -56,6 +59,7 @@
     {
       "word": "whisper",
       "part_of_speech": "verb",
+      "transcription": "/ˈwɪspər/",
       "translation": "шептать",
       "translations": {
         "ru": "шептать",
@@ -70,6 +74,7 @@
     {
       "word": "inform",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈfɔrm/",
       "translation": "сообщать",
       "translations": {
         "ru": "сообщать",
@@ -84,6 +89,7 @@
     {
       "word": "respond",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈspɑnd/",
       "translation": "отвечать",
       "translations": {
         "ru": "отвечать",
@@ -98,6 +104,7 @@
     {
       "word": "greet",
       "part_of_speech": "verb",
+      "transcription": "/grit/",
       "translation": "приветствовать, здороваться",
       "translations": {
         "ru": "приветствовать, здороваться",
@@ -112,6 +119,7 @@
     {
       "word": "humor",
       "part_of_speech": "noun",
+      "transcription": "/ˈhjumər/",
       "translation": "юмор",
       "translations": {
         "ru": "юмор",
@@ -126,6 +134,7 @@
     {
       "word": "comment",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmɛnt/",
       "translation": "комментарий",
       "translations": {
         "ru": "комментарий",
@@ -140,6 +149,7 @@
     {
       "word": "silence",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪləns/",
       "translation": "молчание",
       "translations": {
         "ru": "молчание",

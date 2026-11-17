@@ -59,10 +59,12 @@ const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
 
 /** The practice card of «Today» (docs/04 A.2a): the flags of `/me.practice` without its limits. */
+/** The round of hard words (docs/06 §14): the block of `GET /today.hard_round` and of `/finish.hard_round_offer`. */
+const CONTRACT_HARD_ROUND = ['available', 'reason', 'words', 'open_session_id', 'resets_at'];
 const CONTRACT_PRACTICE_TODAY = ['available', 'pro_required', 'modes', 'battle', 'pro_promise'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 // The method (docs/06 §12): `is_leech`, `is_hard`, `hook`, `note`, `confused_with` were added to the card (fields only ever added).
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'example_translation', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 // The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
@@ -140,7 +142,7 @@ it('POST /auth keeps its exact JSON shape', function (): void {
 it('GET /me keeps its exact JSON shape', function (): void {
     $s = contractTraining();
     // The shipped default is `all` (docs/16 §3.3); this test pins the block of a closed practice, the open one is read in the test below.
-    config(['practice.access' => 'off', 'practice.battle.enabled' => true]); // the battle is off by default: pinned on to see the flag
+    config(['practice.access' => 'off', 'practice.battle.enabled' => true, 'practice.modes.pairs_timed' => true, 'game.access' => 'off']); // the battle is off by default: pinned on to see the flag; the game block of a closed game
 
     $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
@@ -170,7 +172,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
         // The block is always there; `PRACTICE_ACCESS=off` closes it (docs/16 §3.3).
-        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
+        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
         // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
         ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);
 });
@@ -214,7 +216,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
     Config::set('practice.access', 'all');
     Config::set('practice.plan', 'all');
     Config::set('practice.battle.enabled', false);
-    foreach (['pairs', 'collocation', 'sentence', 'dictation'] as $mode) {
+    foreach (['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'] as $mode) {
         Config::set("practice.modes.{$mode}", true);
     }
     $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 1]))->create(['number' => 1]);
@@ -234,14 +236,20 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
                 'id', 'slug', 'title',
                 'progress' => ['learned', 'total'],
                 'next_lesson' => ['id', 'stage', 'lesson', 'title'],
+                'readiness' => [
+                    'level_label', 'percent',
+                    'words' => ['total', 'learned', 'mastered', 'in_progress', 'not_started'],
+                    'quiz' => ['enabled', 'week_start', 'this_week'],
+                ],
             ],
             'open_session_id',
             'entitlement' => ['plan', 'source', 'until', 'lapsed'],
             'onboarding_completed',
             'league',
             'timezone',
-            'game' => ['daily_available', 'active_run', 'class_caravan'],
+            'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
+            'hard_round' => CONTRACT_HARD_ROUND,
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -252,7 +260,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         // the IANA id of the learner's zone: the TWA dates the header of the screen by it
         ->and($response->json('timezone'))->toBe($learner->timezone)
         // the practice card: the flags of `/me.practice` (practice open to everybody, battles off - pinned above), no limits here
-        ->and($response->json('practice'))->toBe(['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => false, 'pro_promise' => 'solo']);
+        ->and($response->json('practice'))->toBe(['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'solo']);
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))
@@ -260,8 +268,9 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['daily_available', 'active_run', 'class_caravan'],
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
+            'hard_round' => CONTRACT_HARD_ROUND,
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)
@@ -613,6 +622,8 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
             'streak' => CONTRACT_STREAK,
             'practice_entry',
             'league_points',
+            'hard_round',
+            'hard_round_offer' => CONTRACT_HARD_ROUND,
         ]);
 
     // When the session began, server time in UTC (ISO-8601): the summary screen measures "earned in this session" by it.
@@ -640,10 +651,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points']);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])
@@ -1003,7 +1014,7 @@ it('GET /league keeps its exact JSON shape (docs/04 A.13)', function (): void {
 });
 
 it('GET /friends keeps its exact JSON shape (docs/04 A.13)', function (): void {
-    config(['telegram.bot_username' => 'LexiFlowBot']);
+    config(['telegram.bot_username' => 'LexiFlowBot', 'game.access' => 'off']); // the list of a closed game: no camel_asset
     $me = Learner::factory()->create(['referral_code' => 'CONTRACT']);
     $friend = Learner::factory()->create(['first_name' => 'Bek']);
     $asker = Learner::factory()->create(['first_name' => 'Ana']);

@@ -15,7 +15,7 @@ use App\Models\WordRepetition;
  * exercise the grade was recorded under and — for a typed answer — the server's verdict.
  *
  * For a meaning / reverse / audio card (the card was sent without what gives the right option away) it also carries what the serve
- * showed, to be sent back with the verdict: the word, its translation, the example of the serve, whether the serve would show
+ * showed, to be sent back with the verdict: the word, its translation, the example of the serve (and its translation), whether the serve would show
  * the hooks (decided before the grade moved the card's state) and whether the word was a leech.
  */
 final readonly class AcceptedReview
@@ -29,5 +29,6 @@ final readonly class AcceptedReview
         public ?string $example = null,
         public bool $showedHook = false,
         public bool $wasLeech = false,
+        public ?string $exampleTranslation = null,
     ) {}
 }

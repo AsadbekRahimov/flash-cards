@@ -14,6 +14,7 @@
     {
       "word": "husband",
       "part_of_speech": "noun",
+      "transcription": "/ˈhʌzbənd/",
       "translation": "муж",
       "translations": {
         "ru": "муж",
@@ -28,6 +29,7 @@
     {
       "word": "wife",
       "part_of_speech": "noun",
+      "transcription": "/waɪf/",
       "translation": "жена",
       "translations": {
         "ru": "жена",
@@ -42,6 +44,7 @@
     {
       "word": "uncle",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌŋkəl/",
       "translation": "дядя",
       "translations": {
         "ru": "дядя",
@@ -56,6 +59,7 @@
     {
       "word": "aunt",
       "part_of_speech": "noun",
+      "transcription": "/ænt/",
       "translation": "тётя",
       "translations": {
         "ru": "тётя",
@@ -70,6 +74,7 @@
     {
       "word": "cousin",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌzən/",
       "translation": "двоюродный брат, двоюродная сестра",
       "translations": {
         "ru": "двоюродный брат, двоюродная сестра",
@@ -84,6 +89,7 @@
     {
       "word": "grandfather",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrænˌfɑðər/",
       "translation": "дедушка",
       "translations": {
         "ru": "дедушка",
@@ -98,6 +104,7 @@
     {
       "word": "grandmother",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrænˌmʌðər/",
       "translation": "бабушка",
       "translations": {
         "ru": "бабушка",
@@ -112,6 +119,7 @@
     {
       "word": "together",
       "part_of_speech": "adverb",
+      "transcription": "/təˈgɛðər/",
       "translation": "вместе",
       "translations": {
         "ru": "вместе",
@@ -126,6 +134,7 @@
     {
       "word": "love",
       "part_of_speech": "noun",
+      "transcription": "/lʌv/",
       "translation": "любовь",
       "translations": {
         "ru": "любовь",
@@ -140,6 +149,7 @@
     {
       "word": "home",
       "part_of_speech": "noun",
+      "transcription": "/hoʊm/",
       "translation": "дом, домашний очаг",
       "translations": {
         "ru": "дом, домашний очаг",

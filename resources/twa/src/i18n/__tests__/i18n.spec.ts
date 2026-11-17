@@ -192,6 +192,17 @@ describe('errorMessage', () => {
     }
   })
 
+  it('tells the refusal of the round of hard words by its reason, in both languages', () => {
+    const refused = (reason: unknown) =>
+      new ApiClientError('conflict', 409, 'hard_round_unavailable', 'English backend message', undefined, reason === undefined ? null : { reason })
+    expect(KNOWN_ERROR_CODES).toContain('hard_round_unavailable')
+    expect(errorMessage(refused('played_today'), 'training')).toBe('Раунд трудных слов на сегодня уже пройден. Следующий — завтра.')
+    expect(errorMessage(refused(undefined), 'training')).toBe('Раунд трудных слов сейчас недоступен.')
+    setLocale('uz')
+    expect(errorMessage(refused('not_enough'), 'training')).toBe("Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi.")
+    expect(errorMessage(refused('weird'), 'training')).toBe("Qiyin so'zlar raundi hozir mavjud emas.")
+  })
+
   it('explains a 401 missing_token (TwaAuth) in both languages', () => {
     expect(KNOWN_ERROR_CODES).toContain('missing_token')
     expect(errorMessage(err('unknown', 401, 'missing_token'), 'training')).toBe(

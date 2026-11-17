@@ -14,6 +14,7 @@
     {
       "word": "one",
       "part_of_speech": "adjective",
+      "transcription": "/wʌn/",
       "translation": "один",
       "translations": {
         "ru": "один",
@@ -28,6 +29,7 @@
     {
       "word": "two",
       "part_of_speech": "adjective",
+      "transcription": "/tu/",
       "translation": "два",
       "translations": {
         "ru": "два",
@@ -42,6 +44,7 @@
     {
       "word": "three",
       "part_of_speech": "adjective",
+      "transcription": "/θri/",
       "translation": "три",
       "translations": {
         "ru": "три",
@@ -56,6 +59,7 @@
     {
       "word": "four",
       "part_of_speech": "adjective",
+      "transcription": "/fɔr/",
       "translation": "четыре",
       "translations": {
         "ru": "четыре",
@@ -70,6 +74,7 @@
     {
       "word": "five",
       "part_of_speech": "adjective",
+      "transcription": "/faɪv/",
       "translation": "пять",
       "translations": {
         "ru": "пять",
@@ -84,6 +89,7 @@
     {
       "word": "six",
       "part_of_speech": "adjective",
+      "transcription": "/sɪks/",
       "translation": "шесть",
       "translations": {
         "ru": "шесть",
@@ -98,6 +104,7 @@
     {
       "word": "seven",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛvən/",
       "translation": "семь",
       "translations": {
         "ru": "семь",
@@ -112,6 +119,7 @@
     {
       "word": "eight",
       "part_of_speech": "adjective",
+      "transcription": "/eɪt/",
       "translation": "восемь",
       "translations": {
         "ru": "восемь",
@@ -126,6 +134,7 @@
     {
       "word": "nine",
       "part_of_speech": "adjective",
+      "transcription": "/naɪn/",
       "translation": "девять",
       "translations": {
         "ru": "девять",
@@ -140,6 +149,7 @@
     {
       "word": "ten",
       "part_of_speech": "adjective",
+      "transcription": "/tɛn/",
       "translation": "десять",
       "translations": {
         "ru": "десять",

@@ -14,6 +14,7 @@
     {
       "word": "tune",
       "part_of_speech": "noun",
+      "transcription": "/tun/",
       "translation": "мотив, напев",
       "translations": {
         "ru": "мотив, напев",
@@ -28,6 +29,7 @@
     {
       "word": "musician",
       "part_of_speech": "noun",
+      "transcription": "/mjuˈzɪʃən/",
       "translation": "музыкант",
       "translations": {
         "ru": "музыкант",
@@ -42,6 +44,7 @@
     {
       "word": "composer",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpoʊzər/",
       "translation": "композитор",
       "translations": {
         "ru": "композитор",
@@ -56,6 +59,7 @@
     {
       "word": "instrument",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnstrəmənt/",
       "translation": "музыкальный инструмент",
       "translations": {
         "ru": "музыкальный инструмент",
@@ -70,6 +74,7 @@
     {
       "word": "melody",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛlədi/",
       "translation": "мелодия",
       "translations": {
         "ru": "мелодия",
@@ -84,6 +89,7 @@
     {
       "word": "rhythm",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɪðəm/",
       "translation": "ритм",
       "translations": {
         "ru": "ритм",
@@ -98,6 +104,7 @@
     {
       "word": "album",
       "part_of_speech": "noun",
+      "transcription": "/ˈælbəm/",
       "translation": "альбом",
       "translations": {
         "ru": "альбом",
@@ -112,6 +119,7 @@
     {
       "word": "perform",
       "part_of_speech": "verb",
+      "transcription": "/pərˈfɔrm/",
       "translation": "выступать",
       "translations": {
         "ru": "выступать",
@@ -126,6 +134,7 @@
     {
       "word": "stage",
       "part_of_speech": "noun",
+      "transcription": "/steɪdʒ/",
       "translation": "сцена",
       "translations": {
         "ru": "сцена",
@@ -140,6 +149,7 @@
     {
       "word": "rehearsal",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈhɜrsəl/",
       "translation": "репетиция",
       "translations": {
         "ru": "репетиция",

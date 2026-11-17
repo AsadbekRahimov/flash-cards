@@ -14,6 +14,7 @@
     {
       "word": "red",
       "part_of_speech": "adjective",
+      "transcription": "/rɛd/",
       "translation": "красный",
       "translations": {
         "ru": "красный",
@@ -28,6 +29,7 @@
     {
       "word": "blue",
       "part_of_speech": "adjective",
+      "transcription": "/blu/",
       "translation": "синий, голубой",
       "translations": {
         "ru": "синий, голубой",
@@ -42,6 +44,7 @@
     {
       "word": "green",
       "part_of_speech": "adjective",
+      "transcription": "/grin/",
       "translation": "зелёный",
       "translations": {
         "ru": "зелёный",
@@ -56,6 +59,7 @@
     {
       "word": "yellow",
       "part_of_speech": "adjective",
+      "transcription": "/ˈjɛloʊ/",
       "translation": "жёлтый",
       "translations": {
         "ru": "жёлтый",
@@ -70,6 +74,7 @@
     {
       "word": "black",
       "part_of_speech": "adjective",
+      "transcription": "/blæk/",
       "translation": "чёрный",
       "translations": {
         "ru": "чёрный",
@@ -84,6 +89,7 @@
     {
       "word": "white",
       "part_of_speech": "adjective",
+      "transcription": "/waɪt/",
       "translation": "белый",
       "translations": {
         "ru": "белый",
@@ -98,6 +104,7 @@
     {
       "word": "brown",
       "part_of_speech": "adjective",
+      "transcription": "/braʊn/",
       "translation": "коричневый",
       "translations": {
         "ru": "коричневый",
@@ -112,6 +119,7 @@
     {
       "word": "gray",
       "part_of_speech": "adjective",
+      "transcription": "/greɪ/",
       "translation": "серый",
       "translations": {
         "ru": "серый",
@@ -126,6 +134,7 @@
     {
       "word": "pink",
       "part_of_speech": "adjective",
+      "transcription": "/pɪŋk/",
       "translation": "розовый",
       "translations": {
         "ru": "розовый",
@@ -140,6 +149,7 @@
     {
       "word": "color",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌlər/",
       "translation": "цвет",
       "translations": {
         "ru": "цвет",

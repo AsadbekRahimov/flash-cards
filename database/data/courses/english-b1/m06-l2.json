@@ -14,6 +14,7 @@
     {
       "word": "highway",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪweɪ/",
       "translation": "шоссе, автомагистраль",
       "translations": {
         "ru": "шоссе, автомагистраль",
@@ -28,6 +29,7 @@
     {
       "word": "lane",
       "part_of_speech": "noun",
+      "transcription": "/leɪn/",
       "translation": "полоса движения",
       "translations": {
         "ru": "полоса движения",
@@ -42,6 +44,7 @@
     {
       "word": "brake",
       "part_of_speech": "noun",
+      "transcription": "/breɪk/",
       "translation": "тормоз",
       "translations": {
         "ru": "тормоз",
@@ -56,6 +59,7 @@
     {
       "word": "wheel",
       "part_of_speech": "noun",
+      "transcription": "/wil/",
       "translation": "колесо",
       "translations": {
         "ru": "колесо",
@@ -70,6 +74,7 @@
     {
       "word": "tire",
       "part_of_speech": "noun",
+      "transcription": "/ˈtaɪər/",
       "translation": "шина",
       "translations": {
         "ru": "шина",
@@ -84,6 +89,7 @@
     {
       "word": "engine",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛndʒɪn/",
       "translation": "двигатель",
       "translations": {
         "ru": "двигатель",
@@ -98,6 +104,7 @@
     {
       "word": "steer",
       "part_of_speech": "verb",
+      "transcription": "/stɪr/",
       "translation": "управлять, рулить",
       "translations": {
         "ru": "управлять, рулить",
@@ -112,6 +119,7 @@
     {
       "word": "license",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪsəns/",
       "translation": "водительские права",
       "translations": {
         "ru": "водительские права",
@@ -126,6 +134,7 @@
     {
       "word": "speed",
       "part_of_speech": "noun",
+      "transcription": "/spid/",
       "translation": "скорость",
       "translations": {
         "ru": "скорость",
@@ -140,6 +149,7 @@
     {
       "word": "crash",
       "part_of_speech": "noun",
+      "transcription": "/kræʃ/",
       "translation": "авария, столкновение",
       "translations": {
         "ru": "авария, столкновение",

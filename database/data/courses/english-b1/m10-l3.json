@@ -14,6 +14,7 @@
     {
       "word": "offline",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɔfˈlaɪn/",
       "translation": "офлайн, не в сети",
       "translations": {
         "ru": "офлайн, не в сети",
@@ -28,6 +29,7 @@
     {
       "word": "podcast",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑdkæst/",
       "translation": "подкаст",
       "translations": {
         "ru": "подкаст",
@@ -42,6 +44,7 @@
     {
       "word": "post",
       "part_of_speech": "verb",
+      "transcription": "/poʊst/",
       "translation": "публиковать, выкладывать",
       "translations": {
         "ru": "публиковать, выкладывать",
@@ -56,6 +59,7 @@
     {
       "word": "follower",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɑloʊər/",
       "translation": "подписчик",
       "translations": {
         "ru": "подписчик",
@@ -70,6 +74,7 @@
     {
       "word": "subscribe",
       "part_of_speech": "verb",
+      "transcription": "/səbˈskraɪb/",
       "translation": "подписываться",
       "translations": {
         "ru": "подписываться",
@@ -84,6 +89,7 @@
     {
       "word": "profile",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊfaɪl/",
       "translation": "профиль",
       "translations": {
         "ru": "профиль",
@@ -98,6 +104,7 @@
     {
       "word": "notification",
       "part_of_speech": "noun",
+      "transcription": "/ˌnoʊtəfəˈkeɪʃən/",
       "translation": "уведомление",
       "translations": {
         "ru": "уведомление",
@@ -112,6 +119,7 @@
     {
       "word": "forum",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrəm/",
       "translation": "форум",
       "translations": {
         "ru": "форум",
@@ -126,6 +134,7 @@
     {
       "word": "content",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntɛnt/",
       "translation": "контент",
       "translations": {
         "ru": "контент",
@@ -140,6 +149,7 @@
     {
       "word": "user",
       "part_of_speech": "noun",
+      "transcription": "/ˈjuzər/",
       "translation": "пользователь",
       "translations": {
         "ru": "пользователь",

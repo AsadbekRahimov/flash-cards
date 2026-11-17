@@ -14,6 +14,7 @@
     {
       "word": "productivity",
       "part_of_speech": "noun",
+      "transcription": "/ˌproʊdʌkˈtɪvəti/",
       "translation": "производительность",
       "translations": {
         "ru": "производительность",
@@ -28,6 +29,7 @@
     {
       "word": "efficiency",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈfɪʃənsi/",
       "translation": "эффективность",
       "translations": {
         "ru": "эффективность",
@@ -42,6 +44,7 @@
     {
       "word": "appraisal",
       "part_of_speech": "noun",
+      "transcription": "/əˈpreɪzəl/",
       "translation": "аттестация, оценка работы",
       "translations": {
         "ru": "аттестация, оценка работы",
@@ -56,6 +59,7 @@
     {
       "word": "objective",
       "part_of_speech": "noun",
+      "transcription": "/əbˈdʒɛktɪv/",
       "translation": "цель",
       "translations": {
         "ru": "цель",
@@ -70,6 +74,7 @@
     {
       "word": "incentive",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈsɛntɪv/",
       "translation": "стимул, поощрение",
       "translations": {
         "ru": "стимул, поощрение",
@@ -84,6 +89,7 @@
     {
       "word": "accomplish",
       "part_of_speech": "verb",
+      "transcription": "/əˈkɑmplɪʃ/",
       "translation": "выполнять, достигать",
       "translations": {
         "ru": "выполнять, достигать",
@@ -98,6 +104,7 @@
     {
       "word": "exceed",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈsid/",
       "translation": "превышать, превосходить",
       "translations": {
         "ru": "превышать, превосходить",
@@ -112,6 +119,7 @@
     {
       "word": "milestone",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪlstoʊn/",
       "translation": "веха, важный этап",
       "translations": {
         "ru": "веха, важный этап",
@@ -126,6 +134,7 @@
     {
       "word": "competence",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmpətəns/",
       "translation": "компетентность",
       "translations": {
         "ru": "компетентность",
@@ -140,6 +149,7 @@
     {
       "word": "initiative",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈnɪʃətɪv/",
       "translation": "инициатива",
       "translations": {
         "ru": "инициатива",

@@ -14,6 +14,7 @@
     {
       "word": "breakfast",
       "part_of_speech": "noun",
+      "transcription": "/ˈbrɛkfəst/",
       "translation": "завтрак",
       "translations": {
         "ru": "завтрак",
@@ -28,6 +29,7 @@
     {
       "word": "lunch",
       "part_of_speech": "noun",
+      "transcription": "/lʌntʃ/",
       "translation": "обед",
       "translations": {
         "ru": "обед",
@@ -42,6 +44,7 @@
     {
       "word": "dinner",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪnər/",
       "translation": "ужин",
       "translations": {
         "ru": "ужин",
@@ -56,6 +59,7 @@
     {
       "word": "plate",
       "part_of_speech": "noun",
+      "transcription": "/pleɪt/",
       "translation": "тарелка",
       "translations": {
         "ru": "тарелка",
@@ -70,6 +74,7 @@
     {
       "word": "bowl",
       "part_of_speech": "noun",
+      "transcription": "/boʊl/",
       "translation": "миска, пиала",
       "translations": {
         "ru": "миска, пиала",
@@ -84,6 +89,7 @@
     {
       "word": "spoon",
       "part_of_speech": "noun",
+      "transcription": "/spun/",
       "translation": "ложка",
       "translations": {
         "ru": "ложка",
@@ -98,6 +104,7 @@
     {
       "word": "fork",
       "part_of_speech": "noun",
+      "transcription": "/fɔrk/",
       "translation": "вилка",
       "translations": {
         "ru": "вилка",
@@ -112,6 +119,7 @@
     {
       "word": "knife",
       "part_of_speech": "noun",
+      "transcription": "/naɪf/",
       "translation": "нож",
       "translations": {
         "ru": "нож",
@@ -126,6 +134,7 @@
     {
       "word": "bottle",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑtəl/",
       "translation": "бутылка",
       "translations": {
         "ru": "бутылка",
@@ -140,6 +149,7 @@
     {
       "word": "menu",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛnju/",
       "translation": "меню",
       "translations": {
         "ru": "меню",

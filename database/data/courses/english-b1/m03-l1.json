@@ -14,6 +14,7 @@
     {
       "word": "accommodation",
       "part_of_speech": "noun",
+      "transcription": "/əˌkɑməˈdeɪʃən/",
       "translation": "жильё",
       "translations": {
         "ru": "жильё",
@@ -28,6 +29,7 @@
     {
       "word": "cottage",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑtɪdʒ/",
       "translation": "загородный домик",
       "translations": {
         "ru": "загородный домик",
@@ -42,6 +44,7 @@
     {
       "word": "property",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑpərti/",
       "translation": "недвижимость",
       "translations": {
         "ru": "недвижимость",
@@ -56,6 +59,7 @@
     {
       "word": "owner",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊnər/",
       "translation": "владелец",
       "translations": {
         "ru": "владелец",
@@ -70,6 +74,7 @@
     {
       "word": "suburb",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbɜrb/",
       "translation": "пригород",
       "translations": {
         "ru": "пригород",
@@ -84,6 +89,7 @@
     {
       "word": "district",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪstrɪkt/",
       "translation": "район",
       "translations": {
         "ru": "район",
@@ -98,6 +104,7 @@
     {
       "word": "neighborhood",
       "part_of_speech": "noun",
+      "transcription": "/ˈneɪbərhʊd/",
       "translation": "квартал, район",
       "translations": {
         "ru": "квартал, район",
@@ -112,6 +119,7 @@
     {
       "word": "downtown",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaʊntaʊn/",
       "translation": "центр города",
       "translations": {
         "ru": "центр города",
@@ -126,6 +134,7 @@
     {
       "word": "rural",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrʊrəl/",
       "translation": "сельский",
       "translations": {
         "ru": "сельский",
@@ -140,6 +149,7 @@
     {
       "word": "urban",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɜrbən/",
       "translation": "городской",
       "translations": {
         "ru": "городской",

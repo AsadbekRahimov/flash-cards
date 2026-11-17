@@ -14,6 +14,7 @@
     {
       "word": "strategy",
       "part_of_speech": "noun",
+      "transcription": "/ˈstrætədʒi/",
       "translation": "стратегия",
       "translations": {
         "ru": "стратегия",
@@ -28,6 +29,7 @@
     {
       "word": "competitive",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpɛtətɪv/",
       "translation": "конкурентоспособный",
       "translations": {
         "ru": "конкурентоспособный",
@@ -42,6 +44,7 @@
     {
       "word": "expansion",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspænʃən/",
       "translation": "расширение",
       "translations": {
         "ru": "расширение",
@@ -56,6 +59,7 @@
     {
       "word": "rival",
       "part_of_speech": "noun",
+      "transcription": "/ˈraɪvəl/",
       "translation": "конкурент, соперник",
       "translations": {
         "ru": "конкурент, соперник",
@@ -70,6 +74,7 @@
     {
       "word": "tactic",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæktɪk/",
       "translation": "тактика, приём",
       "translations": {
         "ru": "тактика, приём",
@@ -84,6 +89,7 @@
     {
       "word": "feasible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfizəbəl/",
       "translation": "осуществимый",
       "translations": {
         "ru": "осуществимый",
@@ -98,6 +104,7 @@
     {
       "word": "outsource",
       "part_of_speech": "verb",
+      "transcription": "/ˈaʊtsɔrs/",
       "translation": "передавать на аутсорсинг",
       "translations": {
         "ru": "передавать на аутсорсинг",
@@ -112,6 +119,7 @@
     {
       "word": "takeover",
       "part_of_speech": "noun",
+      "transcription": "/ˈteɪkˌoʊvər/",
       "translation": "поглощение",
       "translations": {
         "ru": "поглощение",
@@ -126,6 +134,7 @@
     {
       "word": "dominate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɑməneɪt/",
       "translation": "доминировать",
       "translations": {
         "ru": "доминировать",
@@ -140,6 +149,7 @@
     {
       "word": "monopoly",
       "part_of_speech": "noun",
+      "transcription": "/məˈnɑpəli/",
       "translation": "монополия",
       "translations": {
         "ru": "монополия",

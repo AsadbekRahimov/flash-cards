@@ -14,6 +14,7 @@
     {
       "word": "bus",
       "part_of_speech": "noun",
+      "transcription": "/bʌs/",
       "translation": "автобус",
       "translations": {
         "ru": "автобус",
@@ -28,6 +29,7 @@
     {
       "word": "train",
       "part_of_speech": "noun",
+      "transcription": "/treɪn/",
       "translation": "поезд",
       "translations": {
         "ru": "поезд",
@@ -42,6 +44,7 @@
     {
       "word": "car",
       "part_of_speech": "noun",
+      "transcription": "/kɑr/",
       "translation": "машина",
       "translations": {
         "ru": "машина",
@@ -56,6 +59,7 @@
     {
       "word": "taxi",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæksi/",
       "translation": "такси",
       "translations": {
         "ru": "такси",
@@ -70,6 +74,7 @@
     {
       "word": "bike",
       "part_of_speech": "noun",
+      "transcription": "/baɪk/",
       "translation": "велосипед",
       "translations": {
         "ru": "велосипед",
@@ -84,6 +89,7 @@
     {
       "word": "plane",
       "part_of_speech": "noun",
+      "transcription": "/pleɪn/",
       "translation": "самолёт",
       "translations": {
         "ru": "самолёт",
@@ -98,6 +104,7 @@
     {
       "word": "metro",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛtroʊ/",
       "translation": "метро",
       "translations": {
         "ru": "метро",
@@ -112,6 +119,7 @@
     {
       "word": "ticket",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɪkət/",
       "translation": "билет",
       "translations": {
         "ru": "билет",
@@ -126,6 +134,7 @@
     {
       "word": "traffic",
       "part_of_speech": "noun",
+      "transcription": "/ˈtræfɪk/",
       "translation": "дорожное движение",
       "translations": {
         "ru": "дорожное движение",
@@ -140,6 +149,7 @@
     {
       "word": "truck",
       "part_of_speech": "noun",
+      "transcription": "/trʌk/",
       "translation": "грузовик",
       "translations": {
         "ru": "грузовик",

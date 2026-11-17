@@ -134,7 +134,7 @@ $expectedTables = [
     // Phase 2 (docs/13 §1.5): achievements.
     'achievements',
     // Practice and battle (docs/16 §2).
-    'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts',
+    'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts', 'practice_records',
     'battles', 'battle_participants', 'battle_answers',
     // The game "Caravan" (docs/18 §12.2).
     'game_runs', 'game_run_attempts', 'game_stop_progress', 'game_city_progress', 'game_word_misses',
@@ -363,7 +363,7 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_in_steps_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_in_steps_idx', 'word_repetitions_hard_idx'],
         'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx', 'training_reviews_learner_word_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
@@ -373,6 +373,7 @@ it('creates the renamed learner indexes and none of the student ones', function 
             'training_sessions_one_open_per_group_lesson_unique',
             'training_sessions_one_open_daily_per_learner',
             'training_sessions_one_open_lesson_per_learner',
+            'training_sessions_one_open_hard_per_learner',
         ],
     ];
 
@@ -386,7 +387,8 @@ it('creates the renamed learner indexes and none of the student ones', function 
         }
     }
 
-    // Dropped as unused (2026_10_28_200001): no query filters by is_hard, so a partial index on it could never be read.
+    // Dropped as unused (2026_10_28_200001): no query filtered by is_hard then, so a partial index on it could never be read
+    // (the round of hard words has one under its own name now: word_repetitions_hard_idx, 2026_11_18_300002).
     expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_learner_is_hard_idx');
 
     // Dropped as unused (2026_10_28_300001): every query that filters word_repetitions by next_review_at also names the
@@ -2234,3 +2236,97 @@ it('has the CHECK constraints of the game tables (PostgreSQL)', function (): voi
     DB::table('class_caravans')->insert([...$caravan, 'status' => 'active', 'active_group_id' => $caravan['telegram_group_id']]);
     DB::table('class_caravans')->insert([...$caravan, 'status' => 'canceled', 'active_group_id' => null]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');
+
+it('adds the clock of pairs_timed to the practice, keeps one record per learner and mode, refuses a rollback that would lose a timed session, and rolls back clean', function (): void {
+    $migration = require database_path('migrations/2026_11_18_200001_add_timed_pairs_to_practice.php');
+
+    expect(Schema::hasColumns('practice_sessions', ['deadline_at', 'score']))->toBeTrue()
+        ->and(Schema::hasTable('practice_records'))->toBeTrue();
+
+    // A timed session fits the table (on PostgreSQL the CHECK of the mode knows the value) and starts with score 0 and no deadline.
+    $id = DB::table('practice_sessions')->insertGetId(practiceRawSession(['mode' => 'pairs_timed']));
+    expect(DB::table('practice_sessions')->where('id', $id)->first())->toMatchObject(['score' => 0, 'deadline_at' => null]);
+
+    // One record per (learner, mode).
+    $learnerId = (int) DB::table('practice_sessions')->where('id', $id)->value('learner_id');
+    $record = ['learner_id' => $learnerId, 'mode' => 'pairs_timed', 'best_score' => 12, 'best_session_id' => $id, 'achieved_at' => now()];
+    DB::table('practice_records')->insert($record);
+    expectConstraintViolation(fn () => DB::table('practice_records')->insert($record));
+
+    // The rollback does not drop the rows of a mode the older CHECK cannot hold: it says so.
+    expect(fn () => $migration->down())->toThrow(RuntimeException::class, 'pairs_timed');
+    expect(Schema::hasTable('practice_records'))->toBeTrue();
+
+    DB::table('practice_sessions')->where('id', $id)->delete();
+    $migration->down();
+    expect(Schema::hasTable('practice_records'))->toBeFalse()
+        ->and(Schema::hasColumn('practice_sessions', 'deadline_at'))->toBeFalse()
+        ->and(Schema::hasColumn('practice_sessions', 'score'))->toBeFalse();
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'pairs_timed'])));
+    }
+
+    $migration->up();
+    expect(Schema::hasColumns('practice_sessions', ['deadline_at', 'score']))->toBeTrue()
+        ->and(Schema::hasTable('practice_records'))->toBeTrue();
+});
+
+// --- the round of hard words (docs/06 §14): 2026_11_18_300001 / 2026_11_18_300002 ---
+
+it('has the meta column and the partial unique index of the round of hard words, and lets a daily and a hard round be open together', function (): void {
+    expect(Schema::hasColumn('training_sessions', 'meta'))->toBeTrue();
+
+    $learner = Learner::factory()->create();
+    $base = ['learner_id' => $learner->id, 'status' => 'open', 'started_at' => now(), 'created_at' => now(), 'updated_at' => now()];
+
+    // The default of a session that has no set: an empty object.
+    DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review']);
+    expect(json_decode((string) DB::table('training_sessions')->value('meta'), true))->toBe([]);
+
+    DB::table('training_sessions')->insert([...$base, 'mode' => 'hard_review', 'meta' => json_encode(['hard_words' => [1, 2]])]);
+    expectConstraintViolation(fn () => DB::table('training_sessions')->insert([...$base, 'mode' => 'hard_review', 'meta' => '{}']));
+
+    // A closed one does not count, and another learner has their own.
+    DB::table('training_sessions')->where('mode', 'hard_review')->update(['status' => 'closed']);
+    DB::table('training_sessions')->insert([...$base, 'mode' => 'hard_review', 'meta' => '{}']);
+    DB::table('training_sessions')->insert([...$base, 'learner_id' => Learner::factory()->create()->id, 'mode' => 'hard_review', 'meta' => '{}']);
+    expect(DB::table('training_sessions')->where('mode', 'hard_review')->where('status', 'open')->count())->toBe(2);
+});
+
+it('writes the partial index of the candidates of the round of hard words as the query does', function (): void {
+    $def = (string) DB::table('pg_indexes')->where('indexname', 'word_repetitions_hard_idx')->value('indexdef');
+
+    expect($def)->toContain('(learner_id, next_review_at)')->toContain('WHERE ((is_hard = true) OR (lapses >= 1))');
+    expect(DB::table('pg_index')->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')->where('pg_class.relname', 'word_repetitions_hard_idx')->value('indisvalid'))->toBeTrue();
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+it('rolls back and re-applies the migrations of the round of hard words (sqlite and PostgreSQL)', function (): void {
+    $hardIdx = require database_path('migrations/2026_11_18_300002_add_word_repetitions_hard_idx.php');
+    $sessions = require database_path('migrations/2026_11_18_300001_add_hard_review_to_training_sessions.php');
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+
+    // Rows of the mode are not left without their `meta` silently: the rollback refuses until they are removed by hand.
+    $hardRow = ['learner_id' => Learner::factory()->create()->id, 'mode' => 'hard_review', 'status' => 'closed', 'started_at' => now(), 'created_at' => now(), 'updated_at' => now(), 'meta' => '{}'];
+    DB::table('training_sessions')->insert($hardRow);
+    expect(fn () => $sessions->down())->toThrow(RuntimeException::class, 'hard_review')
+        ->and(Schema::hasColumn('training_sessions', 'meta'))->toBeTrue();
+    DB::table('training_sessions')->where('mode', 'hard_review')->delete();
+
+    $hardIdx->down();
+    $sessions->down();
+    expect($names('word_repetitions'))->not->toContain('word_repetitions_hard_idx')
+        ->and($names('training_sessions'))->not->toContain('training_sessions_one_open_hard_per_learner')
+        ->and(Schema::hasColumn('training_sessions', 'meta'))->toBeFalse()
+        // The other open-session indexes stay.
+        ->and($names('training_sessions'))->toContain('training_sessions_one_open_daily_per_learner');
+
+    $sessions->up();
+    $hardIdx->up();
+    expect($names('word_repetitions'))->toContain('word_repetitions_hard_idx')
+        ->and($names('training_sessions'))->toContain('training_sessions_one_open_hard_per_learner')
+        ->and(Schema::hasColumn('training_sessions', 'meta'))->toBeTrue();
+
+    // A repeat of the build is harmless (an index left by an interrupted run is cleared first).
+    $hardIdx->up();
+    expect($names('word_repetitions'))->toContain('word_repetitions_hard_idx');
+});

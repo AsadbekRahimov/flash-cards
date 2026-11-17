@@ -327,6 +327,9 @@ final class BattleReader
 
         $modes = [];
         foreach (PracticeMode::cases() as $mode) {
+            if (! $mode->battleable()) {
+                continue; // a game against the clock is solo only
+            }
             $report = $availability[$mode->value] ?? ModeAvailability::unavailable($this->settings->rounds());
             $modes[] = [
                 'mode' => $mode->value,

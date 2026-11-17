@@ -55,7 +55,7 @@ describe('ModeCard — a card that can be played', () => {
   })
 
   it('draws the icon tile of its mode', () => {
-    const tiles: Record<PracticeMode, string> = { pairs: 'tile-blue', collocation: 'tile-purple', sentence: 'tile-orange', dictation: 'tile-teal' }
+    const tiles: Record<PracticeMode, string> = { pairs: 'tile-blue', collocation: 'tile-purple', sentence: 'tile-orange', dictation: 'tile-teal', pairs_timed: 'tile-pink' }
 
     for (const mode of Object.keys(tiles) as PracticeMode[]) {
       const tile = render({ info: info(mode) }).get('.icon-tile')
@@ -285,5 +285,20 @@ describe('ModeCard — switched off and busy', () => {
     expect(card.attributes('disabled')).toBeDefined()
     await card.trigger('click')
     expect(wrapper.emitted('select')).toBeUndefined()
+  })
+})
+
+describe('ModeCard — timed pairs', () => {
+  it('shows the personal best when there is one', () => {
+    const wrapper = render({ info: info('pairs_timed', { estimate_seconds: 60, record: { score: 23, achieved_at: '2026-10-30T10:00:00Z' } }) })
+
+    expect(wrapper.get('[data-testid=mode-title]').text()).toBe('Пары на время')
+    expect(wrapper.get('[data-testid=mode-example]').text()).toBe('60 секунд — собери как можно больше пар')
+    expect(wrapper.get('[data-testid=mode-record]').text()).toBe('Рекорд: 23')
+  })
+
+  it('shows no record line before the first game, and none on the other cards', () => {
+    expect(render({ info: info('pairs_timed', { record: null }) }).find('[data-testid=mode-record]').exists()).toBe(false)
+    expect(render({ info: info('pairs') }).find('[data-testid=mode-record]').exists()).toBe(false)
   })
 })

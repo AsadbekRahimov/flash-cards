@@ -14,6 +14,7 @@
     {
       "word": "migration",
       "part_of_speech": "noun",
+      "transcription": "/maɪˈgreɪʃən/",
       "translation": "миграция",
       "translations": {
         "ru": "миграция",
@@ -28,6 +29,7 @@
     {
       "word": "immigrant",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪməgrənt/",
       "translation": "иммигрант",
       "translations": {
         "ru": "иммигрант",
@@ -42,6 +44,7 @@
     {
       "word": "emigrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛməgreɪt/",
       "translation": "эмигрировать",
       "translations": {
         "ru": "эмигрировать",
@@ -56,6 +59,7 @@
     {
       "word": "refugee",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛfjuˈdʒi/",
       "translation": "беженец",
       "translations": {
         "ru": "беженец",
@@ -70,6 +74,7 @@
     {
       "word": "asylum",
       "part_of_speech": "noun",
+      "transcription": "/əˈsaɪləm/",
       "translation": "убежище",
       "translations": {
         "ru": "убежище",
@@ -84,6 +89,7 @@
     {
       "word": "multicultural",
       "part_of_speech": "adjective",
+      "transcription": "/ˌmʌltiˈkʌltʃərəl/",
       "translation": "мультикультурный",
       "translations": {
         "ru": "мультикультурный",
@@ -98,6 +104,7 @@
     {
       "word": "inhabitant",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈhæbətənt/",
       "translation": "житель",
       "translations": {
         "ru": "житель",
@@ -112,6 +119,7 @@
     {
       "word": "census",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛnsəs/",
       "translation": "перепись населения",
       "translations": {
         "ru": "перепись населения",
@@ -126,6 +134,7 @@
     {
       "word": "integrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪntəgreɪt/",
       "translation": "интегрироваться",
       "translations": {
         "ru": "интегрироваться",
@@ -140,6 +149,7 @@
     {
       "word": "diversity",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈvɜrsəti/",
       "translation": "разнообразие",
       "translations": {
         "ru": "разнообразие",

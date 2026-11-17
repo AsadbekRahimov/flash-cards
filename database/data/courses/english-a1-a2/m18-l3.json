@@ -14,6 +14,7 @@
     {
       "word": "diet",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaɪət/",
       "translation": "диета, рацион",
       "translations": {
         "ru": "диета, рацион",
@@ -28,6 +29,7 @@
     {
       "word": "calorie",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæləri/",
       "translation": "калория",
       "translations": {
         "ru": "калория",
@@ -42,6 +44,7 @@
     {
       "word": "vitamin",
       "part_of_speech": "noun",
+      "transcription": "/ˈvaɪtəmən/",
       "translation": "витамин",
       "translations": {
         "ru": "витамин",
@@ -56,6 +59,7 @@
     {
       "word": "protein",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊtin/",
       "translation": "белок",
       "translations": {
         "ru": "белок",
@@ -70,6 +74,7 @@
     {
       "word": "snack",
       "part_of_speech": "noun",
+      "transcription": "/snæk/",
       "translation": "перекус",
       "translations": {
         "ru": "перекус",
@@ -84,6 +89,7 @@
     {
       "word": "meal",
       "part_of_speech": "noun",
+      "transcription": "/mil/",
       "translation": "приём пищи, блюдо",
       "translations": {
         "ru": "приём пищи, блюдо",
@@ -98,6 +104,7 @@
     {
       "word": "vegetarian",
       "part_of_speech": "adjective",
+      "transcription": "/ˌvɛdʒəˈtɛriən/",
       "translation": "вегетарианский",
       "translations": {
         "ru": "вегетарианский",
@@ -112,6 +119,7 @@
     {
       "word": "organic",
       "part_of_speech": "adjective",
+      "transcription": "/ɔrˈgænɪk/",
       "translation": "органический",
       "translations": {
         "ru": "органический",
@@ -126,6 +134,7 @@
     {
       "word": "appetite",
       "part_of_speech": "noun",
+      "transcription": "/ˈæpəˌtaɪt/",
       "translation": "аппетит",
       "translations": {
         "ru": "аппетит",
@@ -140,6 +149,7 @@
     {
       "word": "nutrition",
       "part_of_speech": "noun",
+      "transcription": "/nuˈtrɪʃən/",
       "translation": "питание",
       "translations": {
         "ru": "питание",

@@ -123,11 +123,12 @@ it('keeps every step of the training cycle inside its statement budget', functio
         ->and($card['serve_token'])->not->toBeNull()
         ->and(count($ahead))->toBeLessThanOrEqual(14);
 
-    // finish: learner, session, the lock + UPDATE, the summary in ONE statement, the event, the referral, today: 9.
+    // finish: learner, session, the lock + UPDATE, the summary in ONE statement, the event, the referral, today: 9; +2 for the
+    // invitation to the round of hard words (docs/06 §14): the hard sessions of the day window and the candidates: 11.
     $finish = QueryLog::during(function () use ($base, $h): void {
         trainingCall($this, $h, 'POST', "{$base}/finish");
     });
-    expect(count($finish))->toBeLessThanOrEqual(9)
+    expect(count($finish))->toBeLessThanOrEqual(11)
         ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
 });
 

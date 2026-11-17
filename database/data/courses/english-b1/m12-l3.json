@@ -14,6 +14,7 @@
     {
       "word": "athlete",
       "part_of_speech": "noun",
+      "transcription": "/ˈæθlit/",
       "translation": "спортсмен",
       "translations": {
         "ru": "спортсмен",
@@ -28,6 +29,7 @@
     {
       "word": "strength",
       "part_of_speech": "noun",
+      "transcription": "/strɛŋθ/",
       "translation": "физическая сила",
       "translations": {
         "ru": "физическая сила",
@@ -42,6 +44,7 @@
     {
       "word": "fitness",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪtnəs/",
       "translation": "физическая форма",
       "translations": {
         "ru": "физическая форма",
@@ -56,6 +59,7 @@
     {
       "word": "session",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛʃən/",
       "translation": "занятие",
       "translations": {
         "ru": "занятие",
@@ -70,6 +74,7 @@
     {
       "word": "instructor",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈstrʌktər/",
       "translation": "инструктор",
       "translations": {
         "ru": "инструктор",
@@ -84,6 +89,7 @@
     {
       "word": "amateur",
       "part_of_speech": "noun",
+      "transcription": "/ˈæmətʃər/",
       "translation": "любитель",
       "translations": {
         "ru": "любитель",
@@ -98,6 +104,7 @@
     {
       "word": "intense",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtɛns/",
       "translation": "интенсивный",
       "translations": {
         "ru": "интенсивный",
@@ -112,6 +119,7 @@
     {
       "word": "sprint",
       "part_of_speech": "noun",
+      "transcription": "/sprɪnt/",
       "translation": "спринт",
       "translations": {
         "ru": "спринт",
@@ -126,6 +134,7 @@
     {
       "word": "kick",
       "part_of_speech": "verb",
+      "transcription": "/kɪk/",
       "translation": "бить ногой",
       "translations": {
         "ru": "бить ногой",
@@ -140,6 +149,7 @@
     {
       "word": "bounce",
       "part_of_speech": "verb",
+      "transcription": "/baʊns/",
       "translation": "отскакивать",
       "translations": {
         "ru": "отскакивать",

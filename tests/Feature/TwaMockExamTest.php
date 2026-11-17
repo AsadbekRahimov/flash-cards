@@ -18,6 +18,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\Course;
 use App\Models\ExamAnswer;
+use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -558,4 +559,42 @@ it('finalize is idempotent and ignores group exams', function (): void {
         ->and(ProductEvent::query()->where('name', 'exam.mock_finished')->count())->toBe(1)
         ->and($service->finalize($group, 'expired')->status)->toBe('open')
         ->and($service->finalizeIfDue($group)->status)->toBe('open');
+});
+
+it('resumes a personal mock on join at the first question the learner has not answered, the question timer kept', function (): void {
+    config(['learning.mock_exam.questions' => 10]);
+    $learner = mkLearner();
+    $session = ExamSession::query()->findOrFail(mkOpen($this, $learner, mkCourse(words: 10))->json('session_id'));
+    $personalizer = app(ExamQuestionPersonalizer::class);
+
+    foreach ([0, 1] as $i) {
+        $view = $personalizer->questionAt($session, $learner, $i);
+        $this->withHeaders(mkHeaders($learner))->getJson("/api/twa/exam/sessions/{$session->id}/question?index={$i}")->assertOk();
+        $this->withHeaders(mkHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/answer", [
+            'question_index' => $i, 'word_id' => $view['word_id'], 'selected_option_index' => $view['correct_index'], 'time_spent_ms' => 1000,
+        ])->assertOk();
+    }
+
+    $joined = $this->withHeaders(mkHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question.question_index', 2)
+        ->assertJsonPath('question.word_id', $personalizer->questionAt($session, $learner, 2)['word_id']);
+    $servedAt = ExamQuestionAttempt::query()->where('exam_session_id', $session->id)->where('question_index', 2)->value('served_at');
+
+    $this->withHeaders(mkHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question.question_index', 2);
+    expect(ExamQuestionAttempt::query()->where('exam_session_id', $session->id)->where('question_index', 2)->count())->toBe(1)
+        ->and(ExamQuestionAttempt::query()->where('exam_session_id', $session->id)->where('question_index', 2)->value('served_at'))->toEqual($servedAt)
+        ->and($joined->json('question.seconds_left'))->toBeInt();
+});
+
+it('joins a fully answered personal mock with no question, and /result finalizes it', function (): void {
+    config(['learning.mock_exam.questions' => 10]);
+    $learner = mkLearner();
+    $session = ExamSession::query()->findOrFail(mkOpen($this, $learner, mkCourse(words: 10))->json('session_id'));
+    $correct = mkPlay($this, $learner, $session);
+
+    $this->withHeaders(mkHeaders($learner))->postJson("/api/twa/exam/sessions/{$session->id}/join")->assertOk()
+        ->assertJsonPath('question', null);
+    $this->withHeaders(mkHeaders($learner))->getJson("/api/twa/exam/sessions/{$session->id}/result")->assertOk()
+        ->assertJsonPath('correct', $correct);
 });

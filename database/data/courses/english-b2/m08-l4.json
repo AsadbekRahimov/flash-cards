@@ -14,6 +14,7 @@
     {
       "word": "policy",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑləsi/",
       "translation": "политика, курс",
       "translations": {
         "ru": "политика, курс",
@@ -28,6 +29,7 @@
     {
       "word": "reform",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈfɔrm/",
       "translation": "реформа",
       "translations": {
         "ru": "реформа",
@@ -42,6 +44,7 @@
     {
       "word": "senate",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛnət/",
       "translation": "сенат",
       "translations": {
         "ru": "сенат",
@@ -56,6 +59,7 @@
     {
       "word": "decree",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈkri/",
       "translation": "указ",
       "translations": {
         "ru": "указ",
@@ -70,6 +74,7 @@
     {
       "word": "amendment",
       "part_of_speech": "noun",
+      "transcription": "/əˈmɛndmənt/",
       "translation": "поправка",
       "translations": {
         "ru": "поправка",
@@ -84,6 +89,7 @@
     {
       "word": "veto",
       "part_of_speech": "noun",
+      "transcription": "/ˈvitoʊ/",
       "translation": "вето",
       "translations": {
         "ru": "вето",
@@ -98,6 +104,7 @@
     {
       "word": "mandate",
       "part_of_speech": "noun",
+      "transcription": "/ˈmændeɪt/",
       "translation": "мандат, полномочия",
       "translations": {
         "ru": "мандат, полномочия",
@@ -112,6 +119,7 @@
     {
       "word": "abolish",
       "part_of_speech": "verb",
+      "transcription": "/əˈbɑlɪʃ/",
       "translation": "отменять, упразднять",
       "translations": {
         "ru": "отменять, упразднять",
@@ -126,6 +134,7 @@
     {
       "word": "petition",
       "part_of_speech": "noun",
+      "transcription": "/pəˈtɪʃən/",
       "translation": "петиция",
       "translations": {
         "ru": "петиция",
@@ -140,6 +149,7 @@
     {
       "word": "ideology",
       "part_of_speech": "noun",
+      "transcription": "/ˌaɪdiˈɑlədʒi/",
       "translation": "идеология",
       "translations": {
         "ru": "идеология",

@@ -14,6 +14,7 @@
     {
       "word": "debut",
       "part_of_speech": "noun",
+      "transcription": "/deɪˈbju/",
       "translation": "дебют",
       "translations": {
         "ru": "дебют",
@@ -28,6 +29,7 @@
     {
       "word": "playwright",
       "part_of_speech": "noun",
+      "transcription": "/ˈpleɪraɪt/",
       "translation": "драматург",
       "translations": {
         "ru": "драматург",
@@ -42,6 +44,7 @@
     {
       "word": "screenplay",
       "part_of_speech": "noun",
+      "transcription": "/ˈskrinpleɪ/",
       "translation": "сценарий",
       "translations": {
         "ru": "сценарий",
@@ -56,6 +59,7 @@
     {
       "word": "audition",
       "part_of_speech": "noun",
+      "transcription": "/ɔˈdɪʃən/",
       "translation": "прослушивание, пробы",
       "translations": {
         "ru": "прослушивание, пробы",
@@ -70,6 +74,7 @@
     {
       "word": "premiere",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈmɪr/",
       "translation": "премьера",
       "translations": {
         "ru": "премьера",
@@ -84,6 +89,7 @@
     {
       "word": "cast",
       "part_of_speech": "noun",
+      "transcription": "/kæst/",
       "translation": "актёрский состав",
       "translations": {
         "ru": "актёрский состав",
@@ -98,6 +104,7 @@
     {
       "word": "choreography",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɔriˈɑgrəfi/",
       "translation": "хореография",
       "translations": {
         "ru": "хореография",
@@ -112,6 +119,7 @@
     {
       "word": "applause",
       "part_of_speech": "noun",
+      "transcription": "/əˈplɔz/",
       "translation": "аплодисменты",
       "translations": {
         "ru": "аплодисменты",
@@ -126,6 +134,7 @@
     {
       "word": "soundtrack",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaʊndtræk/",
       "translation": "саундтрек",
       "translations": {
         "ru": "саундтрек",
@@ -140,6 +149,7 @@
     {
       "word": "sequel",
       "part_of_speech": "noun",
+      "transcription": "/ˈsikwəl/",
       "translation": "продолжение, сиквел",
       "translations": {
         "ru": "продолжение, сиквел",

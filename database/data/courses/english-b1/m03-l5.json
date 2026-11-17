@@ -14,6 +14,7 @@
     {
       "word": "crowded",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkraʊdɪd/",
       "translation": "переполненный, людный",
       "translations": {
         "ru": "переполненный, людный",
@@ -28,6 +29,7 @@
     {
       "word": "rush",
       "part_of_speech": "verb",
+      "transcription": "/rʌʃ/",
       "translation": "спешить, мчаться",
       "translations": {
         "ru": "спешить, мчаться",
@@ -42,6 +44,7 @@
     {
       "word": "lively",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlaɪvli/",
       "translation": "оживлённый",
       "translations": {
         "ru": "оживлённый",
@@ -56,6 +59,7 @@
     {
       "word": "convenient",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈvinjənt/",
       "translation": "удобный",
       "translations": {
         "ru": "удобный",
@@ -70,6 +74,7 @@
     {
       "word": "litter",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪtər/",
       "translation": "мусор",
       "translations": {
         "ru": "мусор",
@@ -84,6 +89,7 @@
     {
       "word": "public",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpʌblɪk/",
       "translation": "общественный",
       "translations": {
         "ru": "общественный",
@@ -98,6 +104,7 @@
     {
       "word": "local",
       "part_of_speech": "adjective",
+      "transcription": "/ˈloʊkəl/",
       "translation": "местный",
       "translations": {
         "ru": "местный",
@@ -112,6 +119,7 @@
     {
       "word": "resident",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛzədənt/",
       "translation": "житель",
       "translations": {
         "ru": "житель",
@@ -126,6 +134,7 @@
     {
       "word": "mayor",
       "part_of_speech": "noun",
+      "transcription": "/ˈmeɪər/",
       "translation": "мэр",
       "translations": {
         "ru": "мэр",
@@ -140,6 +149,7 @@
     {
       "word": "commute",
       "part_of_speech": "verb",
+      "transcription": "/kəˈmjut/",
       "translation": "ездить на работу",
       "translations": {
         "ru": "ездить на работу",

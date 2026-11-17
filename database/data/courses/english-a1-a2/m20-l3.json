@@ -14,6 +14,7 @@
     {
       "word": "society",
       "part_of_speech": "noun",
+      "transcription": "/səˈsaɪəti/",
       "translation": "общество",
       "translations": {
         "ru": "общество",
@@ -28,6 +29,7 @@
     {
       "word": "population",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɑpjəˈleɪʃən/",
       "translation": "население",
       "translations": {
         "ru": "население",
@@ -42,6 +44,7 @@
     {
       "word": "poverty",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑvərti/",
       "translation": "бедность",
       "translations": {
         "ru": "бедность",
@@ -56,6 +59,7 @@
     {
       "word": "rich",
       "part_of_speech": "adjective",
+      "transcription": "/rɪtʃ/",
       "translation": "богатый",
       "translations": {
         "ru": "богатый",
@@ -70,6 +74,7 @@
     {
       "word": "poor",
       "part_of_speech": "adjective",
+      "transcription": "/pʊr/",
       "translation": "бедный",
       "translations": {
         "ru": "бедный",
@@ -84,6 +89,7 @@
     {
       "word": "freedom",
       "part_of_speech": "noun",
+      "transcription": "/ˈfridəm/",
       "translation": "свобода",
       "translations": {
         "ru": "свобода",
@@ -98,6 +104,7 @@
     {
       "word": "peace",
       "part_of_speech": "noun",
+      "transcription": "/pis/",
       "translation": "мир",
       "translations": {
         "ru": "мир",
@@ -112,6 +119,7 @@
     {
       "word": "war",
       "part_of_speech": "noun",
+      "transcription": "/wɔr/",
       "translation": "война",
       "translations": {
         "ru": "война",
@@ -126,6 +134,7 @@
     {
       "word": "community",
       "part_of_speech": "noun",
+      "transcription": "/kəˈmjunəti/",
       "translation": "сообщество",
       "translations": {
         "ru": "сообщество",
@@ -140,6 +149,7 @@
     {
       "word": "charity",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛrəti/",
       "translation": "благотворительность",
       "translations": {
         "ru": "благотворительность",

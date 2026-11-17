@@ -14,6 +14,7 @@
     {
       "word": "newsletter",
       "part_of_speech": "noun",
+      "transcription": "/ˈnuzˌlɛtər/",
       "translation": "рассылка",
       "translations": {
         "ru": "рассылка",
@@ -28,6 +29,7 @@
     {
       "word": "subscriber",
       "part_of_speech": "noun",
+      "transcription": "/səbˈskraɪbər/",
       "translation": "подписчик",
       "translations": {
         "ru": "подписчик",
@@ -42,6 +44,7 @@
     {
       "word": "interactive",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈæktɪv/",
       "translation": "интерактивный",
       "translations": {
         "ru": "интерактивный",
@@ -56,6 +59,7 @@
     {
       "word": "viral",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvaɪrəl/",
       "translation": "вирусный",
       "translations": {
         "ru": "вирусный",
@@ -70,6 +74,7 @@
     {
       "word": "multimedia",
       "part_of_speech": "noun",
+      "transcription": "/ˌmʌltiˈmidiə/",
       "translation": "мультимедиа",
       "translations": {
         "ru": "мультимедиа",
@@ -84,6 +89,7 @@
     {
       "word": "influencer",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfluənsər/",
       "translation": "инфлюенсер",
       "translations": {
         "ru": "инфлюенсер",
@@ -98,6 +104,7 @@
     {
       "word": "blogger",
       "part_of_speech": "noun",
+      "transcription": "/ˈblɑgər/",
       "translation": "блогер",
       "translations": {
         "ru": "блогер",
@@ -112,6 +119,7 @@
     {
       "word": "streaming",
       "part_of_speech": "noun",
+      "transcription": "/ˈstrimɪŋ/",
       "translation": "стриминг",
       "translations": {
         "ru": "стриминг",
@@ -126,6 +134,7 @@
     {
       "word": "hashtag",
       "part_of_speech": "noun",
+      "transcription": "/ˈhæʃtæg/",
       "translation": "хештег",
       "translations": {
         "ru": "хештег",
@@ -140,6 +149,7 @@
     {
       "word": "footage",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʊtɪdʒ/",
       "translation": "видеозапись, кадры",
       "translations": {
         "ru": "видеозапись, кадры",
