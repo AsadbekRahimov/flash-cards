@@ -6,11 +6,14 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Learners\DTO\DayBounds;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Support\LearnerRowLock;
 use App\Domain\Learning\DTO\HardRoundAvailability;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\HardRoundException;
 use App\Domain\Learning\Support\HardRoundPolicy;
@@ -29,8 +32,10 @@ use Illuminate\Support\Facades\DB;
  * the day's statistics come with them); what is special is only the SET of the round and the way it is opened.
  *
  * A candidate is a repetition of an active word that was released (`review` / `relearning`), is hard (`is_hard`) or failed
- * `hard_round.lapses_from` times or more, and was NOT graded in the learner's current day window - a word cannot be pumped for
- * points twice in a day (once in a daily round, once here). The order is that of the game's boss: hard first, most lapses, lowest
+ * `hard_round.lapses_from` times or more, is due within `hard_round.due_within_days` days (`next_review_at <= now + N days`: the round
+ * never pulls a word more than that ahead of its schedule, so SM-2, which multiplies the stored interval whatever the elapsed time,
+ * grows it as the ordinary schedule would, and a word that was answered right leaves the pool until its term), and was NOT graded in
+ * the learner's current day window - a word cannot be pumped for points twice in a day (once in a daily round, once here). The order is that of the game's boss: hard first, most lapses, lowest
  * ease, the longest overdue. One statement, served by `word_repetitions_hard_idx` (the predicate is written exactly as the index has it).
  *
  * Opening ({@see open()}) is one transaction under the learner lock (the first lock, as the picker's): the live round begun today is
@@ -50,6 +55,8 @@ final class HardRoundService
         private readonly TrainingSessionService $sessions,
         private readonly ReviewPull $pull,
         private readonly ProductEventRecorder $events,
+        private readonly EntitlementResolver $entitlements,
+        private readonly ExerciseSelector $selector,
     ) {}
 
     public function enabled(): bool
@@ -66,8 +73,9 @@ final class HardRoundService
     /**
      * @param  iterable<TrainingSession>|null  $today  the `hard_review` sessions begun in the window, when the caller read them already
      *                                                 (columns id, status, started_at, expires_at, completed_at, meta); read here otherwise
+     * @param  Entitlement|null  $entitlement  the learner's plan when the caller resolved it already
      */
-    public function availability(Learner $learner, ?CarbonImmutable $now = null, ?iterable $today = null): HardRoundAvailability
+    public function availability(Learner $learner, ?CarbonImmutable $now = null, ?iterable $today = null, ?Entitlement $entitlement = null): HardRoundAvailability
     {
         $now ??= CarbonImmutable::now();
 
@@ -91,11 +99,11 @@ final class HardRoundService
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_PLAYED_TODAY, resetsAt: $window->endUtc);
         }
 
-        if (! $this->hasObjectiveExercise($learner)) {
+        if (! $this->hasObjectiveExercise($learner, $now, $entitlement)) {
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_NO_OBJECTIVE_EXERCISE);
         }
 
-        $found = count($this->candidates((int) $learner->id, $window->startUtc, $this->policy->words));
+        $found = count($this->candidates((int) $learner->id, $window->startUtc, $now, $this->policy->words));
         if ($found < $this->policy->minWords) {
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_NOT_ENOUGH);
         }
@@ -108,14 +116,18 @@ final class HardRoundService
      *
      * @return list<int>
      */
-    public function candidates(int $learnerId, CarbonImmutable $windowStart, int $limit): array
+    public function candidates(int $learnerId, CarbonImmutable $windowStart, CarbonImmutable $now, int $limit): array
     {
+        $horizon = $now->addDays($this->policy->dueWithinDays);
+
         /** @var list<int> $ids */
         $ids = DB::table('word_repetitions as wr')
             ->join('words as w', fn ($join) => $join->on('w.id', '=', 'wr.word_id')->where('w.is_active', true))
             ->where('wr.learner_id', $learnerId)
             // The predicate of `word_repetitions_hard_idx`, constants as in the index: the planner proves it only for the same text.
             ->whereRaw('(wr.is_hard = true or wr.lapses >= 1)')
+            // The horizon: one rule for every candidate; the range the index is read over.
+            ->where('wr.next_review_at', '<=', $horizon)
             ->where(fn (QueryBuilder $q) => $q->where('wr.is_hard', true)->orWhere('wr.lapses', '>=', $this->policy->lapsesFrom))
             ->whereIn('wr.state', [RepetitionState::Review->value, RepetitionState::Relearning->value])
             ->where(fn (QueryBuilder $q) => $q->whereNull('wr.last_reviewed_at')->orWhere('wr.last_reviewed_at', '<', $windowStart))
@@ -198,11 +210,11 @@ final class HardRoundService
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_PLAYED_TODAY, resetsAt: $window->endUtc);
         }
 
-        if (! $this->hasObjectiveExercise($learner)) {
+        if (! $this->hasObjectiveExercise($learner, $now)) {
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_NO_OBJECTIVE_EXERCISE);
         }
 
-        $ids = $this->candidates((int) $learner->id, $window->startUtc, $this->policy->words);
+        $ids = $this->candidates((int) $learner->id, $window->startUtc, $now, $this->policy->words);
         if (count($ids) < $this->policy->minWords) {
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_NOT_ENOUGH);
         }
@@ -260,12 +272,23 @@ final class HardRoundService
             ->get(['id', 'status', 'started_at', 'expires_at', 'completed_at', 'meta']);
     }
 
-    /** At least one exercise the round can be made of without typing: the meaning or the reverse (audio needs a file, not counted). */
-    private function hasObjectiveExercise(Learner $learner): bool
+    /**
+     * At least one exercise the round can be made of without typing: the meaning or the reverse (audio needs a file, not counted).
+     * The same test as the training's ({@see ExerciseSelector::available()}): the config flags of the exercises, the plan's right to
+     * the reverse, the learner's own switches.
+     */
+    private function hasObjectiveExercise(Learner $learner, CarbonImmutable $now, ?Entitlement $entitlement = null): bool
     {
         $settings = LearnerExerciseSettings::fromLearner($learner);
+        $entitlement ??= $this->entitlements->for($learner, $now);
 
-        return $settings->meaning || $settings->reverse;
+        foreach ([ExerciseType::Meaning, ExerciseType::Reverse] as $type) {
+            if ($this->selector->available($type, $entitlement, $settings)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function wordCount(TrainingSession $session): int

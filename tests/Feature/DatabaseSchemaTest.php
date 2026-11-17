@@ -2296,7 +2296,7 @@ it('has the meta column and the partial unique index of the round of hard words,
 it('writes the partial index of the candidates of the round of hard words as the query does', function (): void {
     $def = (string) DB::table('pg_indexes')->where('indexname', 'word_repetitions_hard_idx')->value('indexdef');
 
-    expect($def)->toContain('(learner_id, lapses DESC)')->toContain('WHERE ((is_hard = true) OR (lapses >= 1))');
+    expect($def)->toContain('(learner_id, next_review_at)')->toContain('WHERE ((is_hard = true) OR (lapses >= 1))');
     expect(DB::table('pg_index')->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')->where('pg_class.relname', 'word_repetitions_hard_idx')->value('indisvalid'))->toBeTrue();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 

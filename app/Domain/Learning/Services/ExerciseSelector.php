@@ -128,7 +128,7 @@ final class ExerciseSelector
      * The round of hard words (`hard_review`, docs/06 §14): the cards of its set are `review` or `relearning`, and the round is
      * objective-only - never a self-graded flash. The lists are those of the ladder in use (the early lists, or the rungs of the
      * classic ladder: typed -> options -> meaning), highest rung first, with flash struck out of each; a card in minute steps takes the
-     * recognition list. When no list has a servable exercise: the meaning, if available, else the reverse. A pure function of the
+     * recognition list. When no list has a servable exercise: the meaning, if available, else the reverse, else flash (a round is not offered to such a learner). A pure function of the
      * same inputs as every other mode, so `/review` recomputes the type of the serve.
      */
     private function hardRound(WordRepetition $repetition, Word $word, Entitlement $entitlement, LearnerExerciseSettings $settings, ?string $example, bool $hasAudio): ExerciseType
@@ -159,7 +159,9 @@ final class ExerciseSelector
             }
         }
 
-        return ExerciseType::Meaning;
+        // Not even those (the config and the settings switched both off - a round is not offered then): flash, the caller's "nothing servable",
+        // never an exercise the config has switched off.
+        return ExerciseType::Flash;
     }
 
     /** The plan has the feature the type needs (if any), the type is on in the config and the learner has not switched it off. */

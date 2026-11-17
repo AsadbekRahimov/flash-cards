@@ -476,6 +476,7 @@ return [
         'empty' => 'Экзаменов пока нет',
         'lesson_label' => 'Модуль :stage · Урок :lesson',
         'fields' => [
+            'mode' => 'Режим',
             'group' => 'Группа',
             'lesson' => 'Урок',
             'status' => 'Статус',
@@ -489,6 +490,11 @@ return [
         'status' => [
             'open' => 'Открыт',
             'closed' => 'Закрыт',
+        ],
+        'mode' => [
+            'group_exam' => 'Групповой экзамен',
+            'personal_mock' => 'Пробный экзамен',
+            'level_quiz' => 'Тест недели',
         ],
         'results' => [
             'title' => 'Результаты учеников',

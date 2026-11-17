@@ -32,7 +32,7 @@ beforeEach(function (): void {
     if (! function_exists('pcntl_fork') || ! function_exists('posix_kill')) {
         $this->markTestSkipped('Needs the pcntl and posix extensions to fork workers.');
     }
-    config(['learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 8, 'per_day' => 1, 'lapses_from' => 2]]);
+    config(['learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 6, 'per_day' => 1, 'lapses_from' => 2, 'due_within_days' => 2]]);
 });
 
 afterEach(function (): void {
@@ -102,7 +102,7 @@ function hardRoundRunConcurrently(array $tasks): array
     return $results;
 }
 
-/** @return array{learner: Learner, words: list<int>} a learner with `$hard` hard words (due in five days, graded three days ago) of thirty */
+/** @return array{learner: Learner, words: list<int>} a learner with `$hard` hard words (due tomorrow, graded three days ago) of thirty */
 function hardRoundRaceWorld(int $hard = 12): array
 {
     ['words' => $ids] = Fx::course([1 => [1 => 30]]);
@@ -113,7 +113,7 @@ function hardRoundRaceWorld(int $hard = 12): array
         WordRepetition::factory()->create([
             'learner_id' => $learner->id, 'word_id' => $wordId, 'state' => RepetitionState::Review->value,
             'repetitions' => 4, 'interval_days' => 10, 'easiness_factor' => 2.5, 'lapses' => 2, 'is_hard' => false,
-            'next_review_at' => now()->addDays(5), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
+            'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
             'introduced_mode' => 'daily_review', 'served_ahead_token' => null, 'meta' => [], 'created_at' => now()->subDays(5),
         ]);
     }
@@ -139,7 +139,7 @@ it('opens exactly one round when several tabs open it at the same instant: one s
         ->and($set)->toHaveCount(10)
         // One pull: the ten words of the set are due now, the other two of the twelve were not touched.
         ->and(WordRepetition::query()->where('learner_id', $learnerId)->whereIn('word_id', $set)->where('next_review_at', '<=', now()->addSeconds(5))->count())->toBe(10)
-        ->and(WordRepetition::query()->where('learner_id', $learnerId)->whereNotIn('word_id', $set)->where('next_review_at', '>', now()->addDay())->count())->toBe(2)
+        ->and(WordRepetition::query()->where('learner_id', $learnerId)->whereNotIn('word_id', $set)->where('next_review_at', '>', now()->addHours(12))->count())->toBe(2)
         ->and(array_intersect($set, $words))->toHaveCount(10);
 });
 

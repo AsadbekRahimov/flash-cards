@@ -210,3 +210,58 @@ describe('exam store — test of the week', () => {
     expect(store.finalScore).toBe(8)
   })
 })
+
+describe('exam store — resuming a join', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  const joinBase = { ends_at: null, total_questions: 12, seconds_per_question: 600 }
+
+  it('resumes at the first unanswered question and answers with its index', async () => {
+    vi.mocked(api.exam.join).mockResolvedValue({
+      ...joinBase, session_id: 91,
+      question: { question_index: 3, word_id: 7, word: 'cat', options: ['a', 'b'], seconds_left: 600 },
+    })
+    vi.mocked(api.exam.answer).mockResolvedValue({
+      is_correct: true, total_score: 1, has_next: true, next_question: null,
+    } as never)
+    const store = useExamStore()
+    await store.join(91, 'level_quiz')
+
+    expect(store.currentIndex).toBe(3)
+    expect(store.status).toBe('answering')
+    expect(api.exam.question).not.toHaveBeenCalled()
+
+    await store.submitAnswer(1)
+    expect(api.exam.answer).toHaveBeenCalledWith(91, expect.objectContaining({ question_index: 3, word_id: 7 }))
+  })
+
+  it('finishes straight away when a learner session has nothing left to answer', async () => {
+    vi.mocked(api.exam.join).mockResolvedValue({ ...joinBase, session_id: 91, question: null })
+    vi.mocked(api.exam.result).mockResolvedValue({
+      mode: 'level_quiz', correct: 8, total: 12, answered: 12, percent: 66, scored: true,
+      week_start: '2026-11-16', course_id: 3, course_slug: 'english-a1-a2',
+    })
+    const store = useExamStore()
+    await store.join(91, 'level_quiz')
+
+    expect(api.exam.question).not.toHaveBeenCalled()
+    expect(store.status).toBe('finished')
+    expect(store.quizResult?.correct).toBe(8)
+  })
+
+  it('keeps loading question 0 for a group exam without a question in the join', async () => {
+    vi.mocked(api.exam.join).mockResolvedValue({ ...joinBase, session_id: 5, question: null })
+    vi.mocked(api.exam.question).mockResolvedValue(
+      { question_index: 0, word_id: 1, word: 'w', options: ['a', 'b'], seconds_left: 10 },
+    )
+    const store = useExamStore()
+    await store.join(5, 'group_exam')
+
+    expect(api.exam.question).toHaveBeenCalledWith(5, 0)
+    expect(store.status).toBe('answering')
+    expect(api.exam.result).not.toHaveBeenCalled()
+  })
+})

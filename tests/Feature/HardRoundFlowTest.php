@@ -33,7 +33,7 @@ beforeEach(function (): void {
     // 2026-11-16 10:00 in Tashkent; the learner's day began 2026-11-15 19:00 UTC.
     $this->travelTo(CarbonImmutable::parse('2026-11-16 05:00:00', 'UTC'));
     config([
-        'learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 8, 'per_day' => 1, 'lapses_from' => 2],
+        'learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 6, 'per_day' => 1, 'lapses_from' => 2, 'due_within_days' => 2],
         'practice.access' => 'all', 'practice.plan' => 'all', 'game.access' => 'off',
     ]);
 });
@@ -44,7 +44,7 @@ function hardRoundFlowHeaders(Learner $learner): array
 }
 
 /**
- * A learner with a course of thirty words and `$hard` hard words (released, two lapses, due in five days, graded three days ago).
+ * A learner with a course of thirty words and `$hard` hard words (released, two lapses, due tomorrow, graded three days ago).
  *
  * @return array{learner: Learner, words: list<int>, headers: array<string, string>}
  */
@@ -58,7 +58,7 @@ function hardRoundFlowWorld(int $hard = 10, bool $pro = false, bool $audio = fal
         WordRepetition::factory()->create([
             'learner_id' => $learner->id, 'word_id' => $wordId, 'state' => RepetitionState::Review->value,
             'repetitions' => 4, 'interval_days' => 10, 'easiness_factor' => 2.5, 'lapses' => 2, 'is_hard' => false,
-            'next_review_at' => now()->addDays(5), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
+            'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
             'introduced_mode' => 'daily_review', 'served_ahead_token' => null, 'meta' => [], 'created_at' => now()->subDays(5),
         ]);
     }
@@ -227,24 +227,24 @@ it('gives a ten-word round to a learner with twelve hard words and leaves the ot
 
 // --- the blocks ---------------------------------------------------------------------------------------------
 
-it('shows the block on Today: not enough, available, in progress with its session, played today', function (): void {
-    ['learner' => $learner, 'headers' => $h] = hardRoundFlowWorld(7);
+it('shows the block on Today (five words: not enough, six: available): not enough, available, in progress with its session, played today', function (): void {
+    ['learner' => $learner, 'headers' => $h] = hardRoundFlowWorld(5);
 
     $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()
         ->assertJsonPath('hard_round', ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null]);
 
     ['headers' => $h2] = (function () use ($learner): array {
         $word = Word::factory()->create();
-        WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id, 'state' => 'review', 'repetitions' => 3, 'interval_days' => 6, 'lapses' => 3, 'is_hard' => true, 'next_review_at' => now()->addDays(2), 'last_reviewed_at' => now()->subDays(2), 'served_ahead_token' => null, 'meta' => []]);
+        WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id, 'state' => 'review', 'repetitions' => 3, 'interval_days' => 6, 'lapses' => 3, 'is_hard' => true, 'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(2), 'served_ahead_token' => null, 'meta' => []]);
 
         return ['headers' => hardRoundFlowHeaders($learner)];
     })();
     $this->withHeaders($h2)->getJson('/api/twa/today')->assertOk()
-        ->assertJsonPath('hard_round', ['available' => true, 'reason' => null, 'words' => 8, 'open_session_id' => null, 'resets_at' => null]);
+        ->assertJsonPath('hard_round', ['available' => true, 'reason' => null, 'words' => 6, 'open_session_id' => null, 'resets_at' => null]);
 
     $opened = hardRoundFlowOpen($this, $h2);
     $today = $this->withHeaders($h2)->getJson('/api/twa/today')->assertOk();
-    $today->assertJsonPath('hard_round', ['available' => true, 'reason' => null, 'words' => 8, 'open_session_id' => $opened['session_id'], 'resets_at' => null])
+    $today->assertJsonPath('hard_round', ['available' => true, 'reason' => null, 'words' => 6, 'open_session_id' => $opened['session_id'], 'resets_at' => null])
         ->assertJsonPath('open_session_id', null); // the daily round's own key is not the hard one
 
     $this->withHeaders($h2)->postJson("/api/twa/training/sessions/{$opened['session_id']}/finish")->assertOk();
@@ -276,7 +276,7 @@ it('invites to the round on the end of a daily round and a lesson, and not on th
 // --- the refusals -------------------------------------------------------------------------------------------
 
 it('answers 409 hard_round_unavailable with the reason, 422 for a lesson and for a source it does not know', function (): void {
-    ['headers' => $h] = hardRoundFlowWorld(7);
+    ['headers' => $h] = hardRoundFlowWorld(5);
 
     $this->withHeaders($h)->postJson('/api/twa/training/sessions', ['mode' => 'hard_review'])
         ->assertStatus(409)->assertJsonPath('error.code', 'hard_round_unavailable')
@@ -367,7 +367,7 @@ it('shows a card as flash, as the card builder does, when the word has too few o
         $word = Fx::course([1 => [1 => 1]], ['visibility' => 'private'])['words']['1.1']['active'][0];
         WordRepetition::factory()->create([
             'learner_id' => $learner->id, 'word_id' => $word, 'state' => 'review', 'repetitions' => 4, 'interval_days' => 10, 'lapses' => 2, 'is_hard' => false,
-            'next_review_at' => now()->addDays(5), 'last_reviewed_at' => now()->subDays(3), 'served_ahead_token' => null, 'meta' => [], 'created_at' => now()->subDays(5),
+            'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(3), 'served_ahead_token' => null, 'meta' => [], 'created_at' => now()->subDays(5),
         ]);
     }
     $h = hardRoundFlowHeaders($learner);

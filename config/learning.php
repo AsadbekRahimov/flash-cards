@@ -200,13 +200,16 @@ return [
      * (`review` / `relearning`), is hard (`is_hard`) or failed `lapses_from` times or more, and was not graded today. The answers
      * are real repetitions (SM-2 / FSRS untouched); the words are brought to "due now" when the round opens. `enabled = false`:
      * no block on "Today", no offer after a session, opening is refused (a round already open is played on).
+     * `due_within_days`: a candidate's term is due or comes within this many days - the round never pulls a word more than that
+     * ahead of its schedule, otherwise SM-2 would inflate its interval (docs/06 §14); 0 = overdue words only.
      */
     'hard_round' => [
         'enabled' => (bool) env('LEARNING_HARD_ROUND_ENABLED', true),
         'words' => (int) env('LEARNING_HARD_ROUND_WORDS', 10),
-        'min_words' => (int) env('LEARNING_HARD_ROUND_MIN_WORDS', 8),
+        'min_words' => (int) env('LEARNING_HARD_ROUND_MIN_WORDS', 6),
         'per_day' => (int) env('LEARNING_HARD_ROUND_PER_DAY', 1),
         'lapses_from' => (int) env('LEARNING_HARD_ROUND_LAPSES_FROM', 2),
+        'due_within_days' => (int) env('LEARNING_HARD_ROUND_DUE_WITHIN_DAYS', 2),
     ],
 
     /**

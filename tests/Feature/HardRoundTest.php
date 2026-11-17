@@ -13,12 +13,14 @@ use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Exceptions\HardRoundException;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Services\ExerciseSelector;
 use App\Domain\Learning\Services\GapFillBuilder;
 use App\Domain\Learning\Services\HardRoundService;
 use App\Domain\Learning\Services\ReviewPull;
+use App\Domain\Learning\Services\TrainingFlowService;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Learning\Support\HardRoundPolicy;
 use App\Domain\Learning\Support\LadderPolicy;
@@ -33,6 +35,7 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\CardAnswers;
 use Tests\Support\HotPathFixtures as Fx;
 
 uses(RefreshDatabase::class);
@@ -49,7 +52,7 @@ const HARD_ROUND_NOW = '2026-11-16 05:00:00';
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse(HARD_ROUND_NOW, 'UTC'));
     // The config as shipped, whatever a local .env says.
-    config(['learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 8, 'per_day' => 1, 'lapses_from' => 2]]);
+    config(['learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 6, 'per_day' => 1, 'lapses_from' => 2, 'due_within_days' => 2]]);
 });
 
 /** @return array{learner: Learner, words: list<int>, course: Course} a Tashkent learner and a course of `$words` active words */
@@ -64,13 +67,13 @@ function hardRoundWorld(int $words = 30, array $learner = []): array
     ];
 }
 
-/** A released card, hard by its lapses (2), due in five days, last graded three days ago; `$attributes` override. */
+/** A released card, hard by its lapses (2), due tomorrow (inside the horizon), last graded three days ago; `$attributes` override. */
 function hardRoundRow(Learner $learner, int $wordId, array $attributes = []): WordRepetition
 {
     return WordRepetition::factory()->create(array_replace([
         'learner_id' => $learner->id, 'word_id' => $wordId, 'state' => RepetitionState::Review->value,
         'repetitions' => 4, 'interval_days' => 10, 'easiness_factor' => 2.5, 'lapses' => 2, 'is_hard' => false,
-        'next_review_at' => now()->addDays(5), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
+        'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(3), 'last_quality' => 4,
         'introduced_mode' => 'daily_review', 'served_ahead_token' => null, 'meta' => [],
     ], $attributes));
 }
@@ -105,20 +108,20 @@ function hardRoundWindowStart(): CarbonImmutable
 it('reads the policy from the config as shipped', function (): void {
     $policy = HardRoundPolicy::fromConfig();
 
-    expect($policy->enabled)->toBeTrue()->and($policy->words)->toBe(10)->and($policy->minWords)->toBe(8)
-        ->and($policy->perDay)->toBe(1)->and($policy->lapsesFrom)->toBe(2);
+    expect($policy->enabled)->toBeTrue()->and($policy->words)->toBe(10)->and($policy->minWords)->toBe(6)
+        ->and($policy->perDay)->toBe(1)->and($policy->lapsesFrom)->toBe(2)->and($policy->dueWithinDays)->toBe(2);
 });
 
-it('keeps the numbers of the policy sane: at least one word, min_words within 1..words, one round a day, one lapse', function (array $config, array $expected): void {
+it('keeps the numbers of the policy sane: at least one word, min_words within 1..words, one round a day, one lapse, a horizon of at least zero days', function (array $config, array $expected): void {
     config(['learning.hard_round' => $config]);
     $policy = HardRoundPolicy::fromConfig();
 
-    expect([$policy->enabled, $policy->words, $policy->minWords, $policy->perDay, $policy->lapsesFrom])->toBe($expected);
+    expect([$policy->enabled, $policy->words, $policy->minWords, $policy->perDay, $policy->lapsesFrom, $policy->dueWithinDays])->toBe($expected);
 })->with([
-    'zeros' => [['enabled' => true, 'words' => 0, 'min_words' => 0, 'per_day' => 0, 'lapses_from' => 0], [true, 1, 1, 1, 1]],
-    'negatives' => [['enabled' => false, 'words' => -5, 'min_words' => -1, 'per_day' => -2, 'lapses_from' => -3], [false, 1, 1, 1, 1]],
-    'min above words' => [['enabled' => true, 'words' => 6, 'min_words' => 9, 'per_day' => 3, 'lapses_from' => 4], [true, 6, 6, 3, 4]],
-    'empty config' => [[], [true, 10, 8, 1, 2]],
+    'zeros' => [['enabled' => true, 'words' => 0, 'min_words' => 0, 'per_day' => 0, 'lapses_from' => 0, 'due_within_days' => 0], [true, 1, 1, 1, 1, 0]],
+    'negatives' => [['enabled' => false, 'words' => -5, 'min_words' => -1, 'per_day' => -2, 'lapses_from' => -3, 'due_within_days' => -1], [false, 1, 1, 1, 1, 0]],
+    'min above words' => [['enabled' => true, 'words' => 6, 'min_words' => 9, 'per_day' => 3, 'lapses_from' => 4, 'due_within_days' => 5], [true, 6, 6, 3, 4, 5]],
+    'empty config' => [[], [true, 10, 6, 1, 2, 2]],
 ]);
 
 // --- the candidates ---------------------------------------------------------------------------------------
@@ -135,14 +138,14 @@ it('takes released words that are hard or failed enough, and nothing else', func
     hardRoundRow($learner, $w[7], ['lapses' => 4]);                                                           // in
     Word::query()->whereKey($w[7])->update(['is_active' => false]);                                           // ... but withdrawn: out
 
-    $ids = hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), 50);
+    $ids = hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 50);
 
     expect($ids)->toEqualCanonicalizing([$w[0], $w[1], $w[2]]);
 });
 
 it('orders the candidates hardest first: is_hard, lapses, ease, the longest overdue, id; and honours the limit', function (): void {
     ['learner' => $learner, 'words' => $w] = hardRoundWorld();
-    hardRoundRow($learner, $w[0], ['lapses' => 3, 'easiness_factor' => 1.8, 'next_review_at' => now()->addDays(2)]); // D
+    hardRoundRow($learner, $w[0], ['lapses' => 3, 'easiness_factor' => 1.8, 'next_review_at' => now()->addDays(2)]); // D: exactly on the horizon (now + 2 days): still in, `<=`
     hardRoundRow($learner, $w[1], ['lapses' => 3, 'easiness_factor' => 1.8, 'next_review_at' => now()->addDay()]);  // E: earlier than D
     hardRoundRow($learner, $w[2], ['lapses' => 3, 'easiness_factor' => 1.5]);                                      // C: the lowest ease
     hardRoundRow($learner, $w[3], ['lapses' => 5, 'easiness_factor' => 2.5]);                                      // B: the most lapses
@@ -151,8 +154,8 @@ it('orders the candidates hardest first: is_hard, lapses, ease, the longest over
 
     $service = hardRoundService();
 
-    expect($service->candidates((int) $learner->id, hardRoundWindowStart(), 50))->toBe([$w[4], $w[3], $w[2], $w[1], $w[0], $w[5]])
-        ->and($service->candidates((int) $learner->id, hardRoundWindowStart(), 3))->toBe([$w[4], $w[3], $w[2]]);
+    expect($service->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 50))->toBe([$w[4], $w[3], $w[2], $w[1], $w[0], $w[5]])
+        ->and($service->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 3))->toBe([$w[4], $w[3], $w[2]]);
 });
 
 it('leaves out a word graded today and takes one graded a minute before the day began (Tashkent)', function (): void {
@@ -162,7 +165,7 @@ it('leaves out a word graded today and takes one graded a minute before the day 
     hardRoundRow($learner, $w[2], ['last_reviewed_at' => null]);                  // never graded: in
     hardRoundRow($learner, $w[3], ['last_reviewed_at' => '2026-11-16 04:00:00']); // this morning: out
 
-    expect(hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), 50))->toEqualCanonicalizing([$w[0], $w[2]]);
+    expect(hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 50))->toEqualCanonicalizing([$w[0], $w[2]]);
 });
 
 it('reads "today" over the window a change of zone carries over, not the new zone\'s own midnight', function (): void {
@@ -177,23 +180,164 @@ it('reads "today" over the window a change of zone carries over, not the new zon
 
     $window = hardRoundService()->window($learner->fresh() ?? $learner, now()->toImmutable());
     expect($window->startUtc->toDateTimeString())->toBe('2026-11-15 19:00:00')
-        ->and(hardRoundService()->candidates((int) $learner->id, $window->startUtc, 50))->toBe([$w[0]]);
+        ->and(hardRoundService()->candidates((int) $learner->id, $window->startUtc, now()->toImmutable(), 50))->toBe([$w[0]]);
 });
+
+// --- the horizon of the term -------------------------------------------------------------------------------
+
+it('takes a word whose term is due or within two days, to the minute, and leaves the rest', function (): void {
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld();
+    hardRoundRow($learner, $w[0], ['next_review_at' => now()->subDay()]);                          // overdue: in
+    hardRoundRow($learner, $w[1], ['next_review_at' => now()->addDays(2)->subMinute()]);           // a minute inside the horizon: in
+    hardRoundRow($learner, $w[2], ['next_review_at' => now()->addDays(2)]);                        // exactly on it: in (<=)
+    hardRoundRow($learner, $w[3], ['next_review_at' => now()->addDays(2)->addMinute()]);           // a minute outside: out
+    hardRoundRow($learner, $w[4], ['next_review_at' => now()->addDays(30), 'lapses' => 9]);        // long away, however many lapses: out
+    hardRoundRow($learner, $w[5], ['next_review_at' => now()->addDays(4), 'lapses' => 0, 'is_hard' => true]); // hard, but not near: out, one rule
+    hardRoundRow($learner, $w[6], ['next_review_at' => now(), 'lapses' => 0, 'is_hard' => true]);  // hard and due now: in
+
+    expect(hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 50))
+        ->toEqualCanonicalizing([$w[0], $w[1], $w[2], $w[6]]);
+});
+
+it('reads only overdue words when due_within_days is zero', function (): void {
+    config(['learning.hard_round.due_within_days' => 0]);
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld();
+    hardRoundRow($learner, $w[0], ['next_review_at' => now()->subMinute()]);
+    hardRoundRow($learner, $w[1], ['next_review_at' => now()]);
+    hardRoundRow($learner, $w[2], ['next_review_at' => now()->addMinute()]);
+
+    expect(hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 50))->toEqualCanonicalizing([$w[0], $w[1]]);
+});
+
+/**
+ * Plays the cards of a session at the service level: answers `$answers` cards (right unless `$fail` names the word), whatever the
+ * exercise of the card is.
+ *
+ * @param  list<int>  $fail  word ids answered wrong
+ */
+function hardRoundPlayRound(Learner $learner, TrainingSession $session, int $answers, array $fail = []): void
+{
+    $flow = app(TrainingFlowService::class);
+    $step = $flow->nextStep($session, $learner);
+
+    for ($i = 0; $i < $answers && $step->word !== null; $i++) {
+        $quality = in_array((int) $step->word->id, $fail, true) ? 1 : 4;
+        $step = CardAnswers::grade($flow, $session, $learner, $step, $quality)->next;
+    }
+}
+
+it('does not bring a word back the next day after it was answered right, and brings back the one that failed', function (): void {
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld();
+    hardRoundRows($learner, $w, 8, ['interval_days' => 10, 'lapses' => 2, 'repetitions' => 4, 'easiness_factor' => 2.5]);
+
+    $session = hardRoundService()->open($learner, 'self');
+    hardRoundPlayRound($learner, $session, 8, fail: [$w[3]]);
+
+    $this->travel(1)->day();
+
+    expect(hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart()->addDay(), now()->toImmutable(), 50))->toBe([$w[3]])
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->where('word_id', $w[3])->value('is_hard'))->toBeTrue();
+
+    // The failed word is one: below min_words.
+    expect(hardRoundService()->availability($learner)->reason)->toBe(HardRoundAvailability::REASON_NOT_ENOUGH);
+});
+
+it('says not_enough from the second day on whatever is done: seven days of opening the round do not inflate an interval', function (string $kind): void {
+    $fsrs = $kind === 'fsrs';
+    ['learner' => $a, 'words' => $w] = hardRoundWorld();
+    $extra = $fsrs ? ['scheduler' => SchedulerKind::Fsrs->value, 'stability' => 10.0, 'difficulty' => 5.0] : [];
+    $ten = hardRoundRows($a, $w, 10, ['interval_days' => 10, 'lapses' => 2, 'repetitions' => 4, 'easiness_factor' => 2.5, ...$extra]);
+
+    // The twin learner: the same words and rows, the ordinary schedule (graded on its term, day 2).
+    $twin = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent', 'active_course_id' => $a->active_course_id, 'daily_goal' => 10]);
+    hardRoundRows($twin, $w, 10, ['interval_days' => 10, 'lapses' => 2, 'repetitions' => 4, 'easiness_factor' => 2.5, ...$extra]);
+    $a->update(['scheduler' => $fsrs ? SchedulerKind::Fsrs->value : SchedulerKind::Sm2->value]);
+    $twin->update(['scheduler' => $fsrs ? SchedulerKind::Fsrs->value : SchedulerKind::Sm2->value]);
+
+    $day1 = now()->toImmutable();
+    $session = hardRoundService()->open($a->fresh() ?? $a, 'self');
+    hardRoundPlayRound($a->fresh() ?? $a, $session, 10);
+    $afterDay1 = WordRepetition::query()->where('learner_id', $a->id)->get()->keyBy('word_id');
+
+    for ($day = 2; $day <= 7; $day++) {
+        $this->travel(1)->day();
+        $fresh = $a->fresh() ?? $a;
+
+        expect(hardRoundService()->availability($fresh)->reason)->toBe(HardRoundAvailability::REASON_NOT_ENOUGH);
+        try {
+            hardRoundService()->open($fresh, 'self');
+            $this->fail("Day {$day}: the round must not open on words answered right.");
+        } catch (HardRoundException $e) {
+            expect($e->reason())->toBe('not_enough');
+        }
+
+        if ($day === 2) {
+            // The twin is graded on its term, in an ordinary daily session.
+            $daily = TrainingSession::factory()->personal($twin, TrainingSession::MODE_DAILY_REVIEW)->create(['lesson_id' => null, 'meta' => []]);
+            hardRoundPlayRound($twin->fresh() ?? $twin, $daily, 10);
+        }
+    }
+
+    expect(TrainingSession::query()->where('learner_id', $a->id)->where('mode', 'hard_review')->count())->toBe(1)
+        ->and(DB::table('training_reviews')->where('learner_id', $a->id)->count())->toBe(10);
+
+    $rows = WordRepetition::query()->where('learner_id', $a->id)->get();
+    $twinRows = WordRepetition::query()->where('learner_id', $twin->id)->get()->keyBy('word_id');
+    foreach ($rows as $row) {
+        $before = $afterDay1[$row->word_id];
+        expect($row->interval_days)->toBe($before->interval_days)->and($row->repetitions)->toBe($before->repetitions)
+            ->and($row->next_review_at->equalTo($before->next_review_at))->toBeTrue();
+        if ($fsrs) {
+            expect($row->stability)->toBe($before->stability);
+        } else {
+            // 10 x 2.5 = 25 days, once: the interval of the ordinary schedule, a day earlier than the twin's by the pull.
+            expect($row->interval_days)->toBe(25)->and($row->repetitions)->toBe(5)
+                ->and($row->next_review_at->equalTo($day1->addDays(25)))->toBeTrue()
+                ->and($twinRows[$row->word_id]->interval_days)->toBe(25)
+                ->and($twinRows[$row->word_id]->next_review_at->equalTo($day1->addDay()->addDays(25)))->toBeTrue();
+        }
+    }
+    expect($rows)->toHaveCount(count($ten));
+})->with(['sm2', 'fsrs']);
+
+it('reads the candidates by the partial index over the range of the term (PostgreSQL plan)', function (): void {
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld();
+    hardRoundRows($learner, $w, 12);
+
+    $captured = null;
+    DB::listen(function ($query) use (&$captured): void {
+        $captured = [$query->sql, $query->bindings];
+    });
+    hardRoundService()->candidates((int) $learner->id, hardRoundWindowStart(), now()->toImmutable(), 10);
+    expect($captured)->not->toBeNull();
+    [$sql, $bindings] = $captured;
+
+    // A table of a dozen rows carries no statistics: the planner ties the partial index with the general ones on the same learner and reads
+    // either. The question here is whether the partial index CAN serve the statement (the predicate proved, the range on its key), so the
+    // other indexes of the learner are out of the picture (DDL is transactional in PostgreSQL: the test's transaction takes it back) and a
+    // seq scan is not offered. The choice among real indexes is measured on seeded data (docs/06 §14).
+    DB::statement('DROP INDEX word_repetitions_next_card_idx');
+    DB::statement('DROP INDEX word_repetitions_learner_id_word_id_unique');
+    DB::statement('SET LOCAL enable_seqscan = off');
+    $plan = collect(DB::select('EXPLAIN '.$sql, $bindings))->map(fn ($row): string => (string) ((array) $row)['QUERY PLAN'])->implode("\n");
+
+    expect($plan)->toContain('word_repetitions_hard_idx')->and($plan)->toMatch('/next_review_at <=/');
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'EXPLAIN of the partial index is PostgreSQL-only.');
 
 // --- the availability -------------------------------------------------------------------------------------
 
-it('is not enough with seven candidates and available with eight, the size being what opens', function (): void {
+it('is not enough with five candidates and available with six, the size being what opens', function (): void {
     ['learner' => $learner, 'words' => $w] = hardRoundWorld();
-    hardRoundRows($learner, $w, 7);
+    hardRoundRows($learner, $w, 5);
 
-    $seven = hardRoundService()->availability($learner);
-    expect($seven->available)->toBeFalse()->and($seven->reason)->toBe(HardRoundAvailability::REASON_NOT_ENOUGH)->and($seven->words)->toBe(0);
+    $five = hardRoundService()->availability($learner);
+    expect($five->available)->toBeFalse()->and($five->reason)->toBe(HardRoundAvailability::REASON_NOT_ENOUGH)->and($five->words)->toBe(0);
 
-    hardRoundRow($learner, $w[7]);
-    $eight = hardRoundService()->availability($learner);
-    expect($eight->available)->toBeTrue()->and($eight->reason)->toBeNull()->and($eight->words)->toBe(8)->and($eight->openSessionId)->toBeNull();
+    hardRoundRow($learner, $w[5]);
+    $six = hardRoundService()->availability($learner);
+    expect($six->available)->toBeTrue()->and($six->reason)->toBeNull()->and($six->words)->toBe(6)->and($six->openSessionId)->toBeNull();
 
-    hardRoundRows($learner, array_slice($w, 8), 6);
+    hardRoundRows($learner, array_slice($w, 6), 6);
     expect(hardRoundService()->availability($learner)->words)->toBe(10);
 });
 
@@ -270,6 +414,7 @@ it('fixes the first ten of twelve in meta, pulls only the rows due later and lea
     hardRoundRow($learner, $w[12], ['lapses' => 99, 'next_review_at' => now()->subDay()]); // already due: stays where it is, still the first
 
     $before = WordRepetition::query()->where('learner_id', $learner->id)->pluck('next_review_at', 'word_id');
+    $beforeRows = WordRepetition::query()->where('learner_id', $learner->id)->get()->keyBy('word_id');
     $session = hardRoundService()->open($learner, 'finish');
 
     $set = array_slice(array_reverse(array_slice($w, 0, 12)), 0, 9);   // lapses 13..5
@@ -284,6 +429,10 @@ it('fixes the first ten of twelve in meta, pulls only the rows due later and lea
     foreach ($expected as $wordId) {
         // Due now (a row that was due earlier keeps its time), nothing else changed.
         expect($after[$wordId]->next_review_at->lte(now()))->toBeTrue()->and($after[$wordId]->is_hard)->toBeFalse();
+    }
+    // The round never pulls a word more than the horizon (2 days) ahead of its schedule.
+    foreach ($expected as $wordId) {
+        expect($beforeRows[$wordId]->next_review_at->subDays(2)->lte($after[$wordId]->next_review_at))->toBeTrue();
     }
     foreach ([$w[0], $w[1]] as $left) {
         expect($after[$left]->next_review_at->equalTo($before[$left] instanceof DateTimeInterface ? CarbonImmutable::instance($before[$left]) : CarbonImmutable::parse((string) $before[$left])))->toBeTrue();
@@ -353,11 +502,11 @@ it('allows a second round when per_day is two and a third not; a round played to
 
 it('refuses with the reason and records hard_round.refused', function (): void {
     ['learner' => $learner, 'words' => $w] = hardRoundWorld();
-    hardRoundRows($learner, $w, 7);
+    hardRoundRows($learner, $w, 5);
 
     try {
         hardRoundService()->open($learner, 'finish');
-        $this->fail('Seven words are not enough.');
+        $this->fail('Five words are not enough.');
     } catch (HardRoundException $e) {
         expect($e->reason())->toBe('not_enough')->and($e->details())->toBe(['reason' => 'not_enough', 'resets_at' => null]);
     }
@@ -365,7 +514,7 @@ it('refuses with the reason and records hard_round.refused', function (): void {
     expect($event->props)->toBe(['reason' => 'not_enough', 'source' => 'finish'])
         ->and(TrainingSession::query()->count())->toBe(0);
 
-    hardRoundRow($learner, $w[7]);
+    hardRoundRow($learner, $w[5]);
     $session = hardRoundService()->open($learner, 'self');
     $session->update(['status' => 'closed', 'ended_at' => now(), 'done_reason' => 'finished']);
     try {
@@ -382,6 +531,46 @@ it('refuses a learner without an objective exercise', function (): void {
 
     expect(fn () => hardRoundService()->open($learner, 'self'))->toThrow(HardRoundException::class, 'no_objective_exercise')
         ->and(WordRepetition::query()->where('learner_id', $learner->id)->where('next_review_at', '<=', now())->count())->toBe(0);
+});
+
+it('uses the training\'s test of an exercise: meaning off by the config and reverse off by the learner leave no objective exercise', function (): void {
+    config(['learning.ladder.meaning_enabled' => false]);
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld(learner: ['meta' => ['exercises' => ['meaning' => true, 'reverse' => false]]]);
+    hardRoundRows($learner, $w, 10);
+
+    expect(hardRoundService()->availability($learner)->reason)->toBe(HardRoundAvailability::REASON_NO_OBJECTIVE_EXERCISE)
+        ->and(fn () => hardRoundService()->open($learner, 'self'))->toThrow(HardRoundException::class, 'no_objective_exercise')
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->where('next_review_at', '<=', now())->count())->toBe(0);
+});
+
+it('plays the round on the reverse when the meaning is off by the config', function (): void {
+    config(['learning.ladder.meaning_enabled' => false]);
+    ['learner' => $learner, 'words' => $w] = hardRoundWorld();
+    hardRoundRows($learner, $w, 10, ['repetitions' => 1, 'interval_days' => 3]);
+
+    expect(hardRoundService()->availability($learner)->available)->toBeTrue();
+    $session = hardRoundService()->open($learner, 'self');
+    $flow = app(TrainingFlowService::class);
+
+    for ($i = 0, $step = $flow->nextStep($session, $learner); $i < 10 && $step->word !== null; $i++) {
+        expect($step->prompt?->type)->not->toBe(ExerciseType::Meaning)->and($step->prompt?->type)->not->toBe(ExerciseType::Flash);
+        $step = CardAnswers::grade($flow, $session, $learner, $step, 4)->next;
+    }
+});
+
+it('never falls back to a meaning card the config has switched off in the round', function (): void {
+    config(['learning.ladder.meaning_enabled' => false]);
+    $selector = new ExerciseSelector(new GapFillBuilder, LadderPolicy::fromConfig());
+    $word = new Word(['word' => 'walk', 'example' => 'They walked home.']);
+    $word->id = 7;
+    $row = new WordRepetition(['repetitions' => 1, 'interval_days' => 1, 'state' => RepetitionState::Review->value, 'meta' => []]);
+    $free = Entitlement::fromPlan(Plan::Free, Entitlement::SOURCE_FREE, null, 1);
+
+    $none = new LearnerExerciseSettings(meaning: true, reverse: false, audio: false, spelling: false, gapFill: false);
+    $reverse = new LearnerExerciseSettings(meaning: true, reverse: true, audio: false, spelling: false, gapFill: false);
+
+    expect($selector->select($row, $word, $free, $none, TrainingSession::MODE_HARD_REVIEW))->toBe(ExerciseType::Flash)
+        ->and($selector->select($row, $word, $free, $reverse, TrainingSession::MODE_HARD_REVIEW))->toBe(ExerciseType::Reverse);
 });
 
 // --- the pull ---------------------------------------------------------------------------------------------

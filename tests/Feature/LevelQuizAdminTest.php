@@ -36,14 +36,22 @@ function levelQuizAdminUser(): User
     return $admin;
 }
 
-it('lists and opens a quiz session for an administrator', function (): void {
+it('lists group exams by default, the quizzes and mocks by the mode filter, and opens a quiz session for an administrator', function (): void {
+    $group = ExamSession::factory()->create();
     $quiz = ExamSession::factory()->levelQuiz()->create();
-    ExamSession::factory()->personalMock()->create();
+    $mock = ExamSession::factory()->personalMock()->create();
 
     $admin = levelQuizAdminUser();
     $this->actingAs($admin)->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => $admin->id]);
 
-    Livewire::test(ListExamSessions::class)->assertSuccessful()->assertCanSeeTableRecords([$quiz]);
+    // The default: the exams of the groups, as before the quizzes appeared.
+    Livewire::test(ListExamSessions::class)->assertSuccessful()
+        ->assertCanSeeTableRecords([$group])->assertCanNotSeeTableRecords([$quiz, $mock])
+        ->assertTableColumnStateSet('mode', 'group_exam', $group)
+        ->filterTable('mode', 'level_quiz')->assertCanSeeTableRecords([$quiz])->assertCanNotSeeTableRecords([$group, $mock])
+        ->assertTableColumnFormattedStateSet('mode', 'Тест недели', $quiz)
+        ->filterTable('mode', 'personal_mock')->assertCanSeeTableRecords([$mock])->assertCanNotSeeTableRecords([$group, $quiz])
+        ->removeTableFilter('mode')->assertCanSeeTableRecords([$group, $quiz, $mock]);
     $this->get(ExamSessionResource::getUrl('view', ['record' => $quiz]))->assertOk();
 });
 

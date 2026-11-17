@@ -184,6 +184,11 @@ export const useExamStore = defineStore('exam', {
           this.applyQuestion(res.question)
           return
         }
+        // Learner sessions resume at the first unanswered question; no question = everything answered.
+        if (this.singleTimer) {
+          await this.finish()
+          return
+        }
         await this.loadQuestion(0)
       } catch (err) {
         if (generation !== this.generation) return

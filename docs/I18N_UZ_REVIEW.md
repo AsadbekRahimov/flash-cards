@@ -3974,6 +3974,46 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `error.code.hard_round_unavailable` / `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд сейчас недоступен |
 | `error.hard_round.not_enough` / `.played_today` / `.no_objective_exercise` | Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi. / Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. / Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Трудных слов пока мало / Раунд на сегодня уже пройден, следующий завтра / Для этих слов нет подходящих заданий |
 
+Те же ключи отдельными строками (выше они записаны составными; проверка полноты ищет полный ключ):
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.game.map` | Karvon xaritasi: shaharlarni so'zlar bilan bosib o'ting | Карта каравана: проходи города словами (подпись карточки «Сегодня») |
+| `today.hard_round.subtitle.one` | {count} ta qiyin so'z tahlilni kutmoqda | {count} трудное слово ждёт разбора (ru: one / few / many / other; uz: one = other) |
+| `today.hard_round.subtitle.other` | {count} ta qiyin so'z tahlilni kutmoqda | {count} трудных слова ждут разбора |
+| `today.hard_round.start` | Tahlil qilish | Разобрать |
+| `today.hard_round.continue` | Davom ettirish | Продолжить |
+| `training.hard_round.progress` | {total} tadan {done} tasi yengildi | Побеждено {done} из {total} (шапка раунда) |
+| `readiness.in_progress` | o'rganilmoqda | в работе |
+| `readiness.not_started` | hali oldinda | ещё впереди |
+| `readiness.module` | {number}-modul | Модуль {number} |
+| `readiness.quiz.line` | Hafta testi: {total} tadan {correct} ta | Тест недели: {correct} из {total} |
+| `readiness.quiz.chart_empty` | Hozircha natijalar yo'q | Пока нет результатов |
+| `readiness.quiz.bar_empty` | {week} dan boshlanadigan hafta: test bo'lmagan | Неделя с {week}: теста не было (подпись столбика для экранных дикторов) |
+| `readiness.unavailable` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
+| `exam.quiz_closed_title` | Vaqt tugadi | Время вышло |
+| `profile.readiness.hint` | O'zlashtirilgan so'zlar ulushi va hafta testi | Доля освоенных слов и тест недели |
+| `error.code.level_quiz_disabled` | Hafta testi hozir mavjud emas. | Тест недели сейчас недоступен. |
+| `error.code.readiness_disabled` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
+| `finished.hard_round.title_none` | Qiyin so'zlar raundi tugadi | Раунд трудных слов пройден (при 0 побеждённых) |
+| `finished.hard_round.later` | Bu so'zlar yana qaytadi — shunday rejalashtirilgan | Эти слова ещё вернутся — так и задумано |
+| `practice.mode.pairs_timed.example` | 60 soniya — iloji boricha ko'proq juft toping | 60 секунд — собери как можно больше пар (карточка в хабе практики) |
+| `practice.timed.ready_text` | {seconds} soniya — iloji boricha ko'proq juft toping. Har bir xato 2 soniya oladi. | {seconds} секунд — собери как можно больше пар. Каждая ошибка отнимает 2 секунды. |
+| `practice.timed.go` | Start | Старт |
+| `practice.timed.starting` | Boshlanmoqda… | Запускаем… |
+| `practice.timed.score` | Juftlar: {score} | Пар: {score} |
+| `practice.timed.penalty` | −{seconds} soniya | −{seconds} с (вспышка штрафа) |
+| `practice.timed.time_up` | Vaqt tugadi… | Время вышло… |
+| `practice.timed.summary_new_record` | Yangi rekord! | Новый рекорд! |
+| `practice.timed.summary_best` | Rekord: {score} | Рекорд: {score} |
+| `practice.timed.summary_completed` | Barcha raundlar tugadi! | Все раунды пройдены! |
+| `practice.timed.to_games` | O'yinlarga | К играм |
+| `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд трудных слов сейчас недоступен. |
+| `error.hard_round.played_today` | Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. | Раунд трудных слов на сегодня уже пройден. Следующий — завтра. |
+| `error.hard_round.no_objective_exercise` | Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Для этих слов пока нет подходящих заданий. |
+| `error.code.practice_time_over` | Vaqt tugadi. Natijani ko'ramiz. | Время вышло. Смотрим результат. |
+| `error.code.practice_not_timed` | Bu vaqtga o'yin emas. | Это не игра на время. |
+
 ### Напоминание-вопрос (`lang/uz/reminders.php`, блок `quiz`; решение владельца 17.11.2026, docs/12 §7.5) — на проверку носителю
 
 Текст без разметки: вводная строка, вопрос про слово (кнопки с вариантами — сами слова, не ключи), подвал и ответ после выбора.

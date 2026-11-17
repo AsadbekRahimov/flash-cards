@@ -107,7 +107,7 @@ final class TodayService
             practice: $this->practice->describe($learner, $entitlement),
             // The round of hard words (docs/06 §14): null while switched off. Costs one statement (the candidates) unless the day's round is known.
             hardRound: $this->hardRound->enabled()
-                ? $this->hardRound->availability($learner, $now, $sessions->filter(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_HARD_REVIEW))->toArray()
+                ? $this->hardRound->availability($learner, $now, $sessions->filter(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_HARD_REVIEW), $entitlement)->toArray()
                 : null,
         );
     }
