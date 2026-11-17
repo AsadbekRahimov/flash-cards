@@ -586,7 +586,7 @@ export const usePracticeStore = defineStore('practice', {
         if (generation !== this.generation) return
         this.clearPending(pair)
         // The game was closed (the summary is on screen) while this answer was on its way: the older reply does not bring it back.
-        if (this.status === 'finished') return
+        if ((this.status as PracticeStatus) === 'finished') return
         this.applyAnswer(res, element, sent)
       } catch (err) {
         if (generation !== this.generation) return

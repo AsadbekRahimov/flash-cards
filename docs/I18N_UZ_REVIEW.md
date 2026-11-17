@@ -3958,3 +3958,11 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `result.to_readiness` | Tayyorlikka | К готовности |
 | `profile.readiness` / `profile.readiness.hint` | Darajaga tayyorlik / O'zlashtirilgan so'zlar ulushi va hafta testi | Готовность к уровню / Доля освоенных слов и тест недели |
 | `course.readiness` | Tayyorlik va hafta testi | Готовность и тест недели |
+| `practice.mode.pairs_timed.title` / `.example` | Vaqtga juftlar / 60 soniya — iloji boricha ko'proq juft toping | Пары на время / 60 секунд — собери как можно больше пар (хаб практики, карточка режима) |
+| `practice.timed.record_line` | Rekord: {score} | Рекорд: N (личный рекорд на карточке) |
+| `practice.timed.ready_title` / `.ready_text` / `.go` / `.starting` | Tayyormisiz? / {seconds} soniya — iloji boricha ko'proq juft toping. Har bir xato 2 soniya oladi. / Start / Boshlanmoqda… | Готов? / 60 секунд — собери как можно больше пар. Каждая ошибка отнимает 2 секунды. / Старт / Запускаем… |
+| `practice.timed.seconds_left` / `.score` / `.penalty` / `.time_up` | {seconds} soniya qoldi / Juftlar: {score} / −{seconds} soniya / Vaqt tugadi… | Осталось N с (для экранных дикторов) / Пар: N / −2 с (вспышка штрафа; на узбекском «soniya» целиком) / Время вышло… |
+| `practice.timed.summary_score` / `.summary_new_record` / `.summary_best` / `.summary_completed` | Hisob: {score} / Yangi rekord! / Rekord: {score} / Barcha raundlar tugadi! | Счёт: N / Новый рекорд! / Рекорд: M / Все раунды пройдены! |
+| `practice.timed.again` / `.to_games` | Yana bir marta / O'yinlarga | Ещё раз / К играм |
+| `practice.summary.reason.time_over` | Vaqt tugadi. | Время вышло. |
+| `error.code.practice_not_started` / `.practice_time_over` / `.practice_not_timed` | O'yin hali boshlanmagan. «Start» tugmasini bosing. / Vaqt tugadi. Natijani ko'ramiz. / Bu vaqtga o'yin emas. | Игра ещё не началась. / Время вышло, смотрим результат. / Это не игра на время. |

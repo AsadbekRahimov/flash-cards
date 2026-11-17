@@ -191,7 +191,7 @@ const option = (mode: PracticeMode, overrides: Partial<BattleModeOption> = {}): 
   available: 26,
   required: 20,
   reason: null,
-  round_seconds: { pairs: 45, collocation: 30, sentence: 45, dictation: 60 }[mode],
+  round_seconds: { pairs: 45, collocation: 30, sentence: 45, dictation: 60, pairs_timed: 60 }[mode],
   ...overrides,
 })
 

@@ -7,7 +7,7 @@ import type { StringKey } from '@/i18n/ru'
 import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeModeInfo } from '@/api/types'
 
 /**
- * One of the four cards of the practice hub (docs/16 §11.2, docs/14 §6.5): the icon tile of the mode, its name, a line
+ * One of the cards of the practice hub (docs/16 §11.2, docs/14 §6.5): the icon tile of the mode, its name, a line
  * of example, "≈ 2 min", and what the learner can do with it.
  *
  * - `info` — the card as the server states it (`state`, `available` / `required`, `reason`, `estimate_seconds`).
@@ -114,6 +114,11 @@ function select(): void {
           <span class="flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="mode-estimate">
             <AppIcon name="clock" :size="14" />
             {{ estimate }}
+          </span>
+          <!-- Timed pairs only: the personal best, once there is one. -->
+          <span v-if="info.record" class="flex items-center gap-1 text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="mode-record">
+            <AppIcon name="trophy" :size="14" />
+            {{ t('practice.timed.record_line', { score: info.record.score }) }}
           </span>
           <span v-if="resume" class="chip chip-accent" data-testid="mode-chip">
             <AppIcon name="play" solid :size="12" />

@@ -52,6 +52,13 @@ final class TrainingController
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
 
+        // The round of hard words spans the learner's words: it takes no lesson (whether the lesson exists is not asked).
+        if ($request->string('mode')->toString() === TrainingSession::MODE_HARD_REVIEW && $request->lessonId() !== null) {
+            $e = TrainingSessionException::lessonNotAllowed();
+
+            return ApiErrorResource::respond(422, $e->reason, $e->getMessage());
+        }
+
         // The lesson with its stage and course in one read: the availability check of openPersonal() and the
         // start payload both need them, and neither reads them again.
         $lesson = null;
@@ -67,7 +74,7 @@ final class TrainingController
 
         try {
             $session = $mode === TrainingSession::MODE_HARD_REVIEW
-                ? $this->openHardRound($learner, $request->lessonId(), $source)
+                ? $this->hardRound->open($learner, $source)
                 : $this->sessions->openPersonal($learner, $mode, $lesson, $source);
         } catch (HardRoundException $e) {
             return ApiErrorResource::respond(409, HardRoundException::CODE, $e->getMessage(), $e->details());
@@ -141,19 +148,6 @@ final class TrainingController
                 ? null
                 : $this->hardRound->availability($learner)->toArray(),
         ]))->response();
-    }
-
-    /**
-     * @throws HardRoundException
-     * @throws TrainingSessionException lesson_mismatch: the round of hard words spans the learner's words, it takes no lesson
-     */
-    private function openHardRound(Learner $learner, ?int $lessonId, string $source): TrainingSession
-    {
-        if ($lessonId !== null) {
-            throw TrainingSessionException::lessonNotAllowed();
-        }
-
-        return $this->hardRound->open($learner, $source);
     }
 
     public function start(Request $request, int $sessionId): JsonResponse

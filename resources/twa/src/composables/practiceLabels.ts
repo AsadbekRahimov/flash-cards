@@ -12,7 +12,7 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
   collocation: { icon: 'puzzle-piece', tile: 'purple' },
   sentence: { icon: 'bars-3-bottom-left', tile: 'orange' },
   dictation: { icon: 'speaker-wave', tile: 'teal' },
-  pairs_timed: { icon: 'bolt', tile: 'orange' },
+  pairs_timed: { icon: 'bolt', tile: 'pink' },
 }
 
 /**

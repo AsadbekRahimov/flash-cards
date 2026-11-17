@@ -148,11 +148,12 @@ review-карточку** (то есть после того, как слово 
 |---|---|---|---|
 | `group_lesson`, `lesson` | `TrainingScope::lesson($lessonId)` | строки `word_repetitions` learner'а по словам **этого урока** | слова урока без строки `word_repetitions`, по `words.id` |
 | `daily_review` | `TrainingScope::daily($courseId)` (`training_sessions.course_id` — снимок `learners.active_course_id`) | строки learner'а по **всем** словам всех уроков и курсов | слова курса `course_id` без строки, в порядке `(stage.number, lesson.number, words.id)`; без курса — только due |
+| `hard_review` | `TrainingScope::hard($wordIds)` (`training_sessions.meta.hard_words`, набор зафиксирован при открытии, §14) | due-строки learner'а по словам **набора** (`words.id IN (набор)`, активные) | **нет**: `includesNew() = false`, `newWordCandidates() = null` |
 
 Слова с `is_active = false` (замена удаления, docs/03 §8) **не выдаются ни в одном шаге** — ни как новые, ни как due,
 ни досрочно; их строки `word_repetitions` не трогаются и не считаются в `DueRepetitionCriteria`, прогрессе урока и
 `LearningCache::lessonWordCount`. `TrainingScope::forSession(TrainingSession)` строит scope из строки сессии; для
-`lesson`-режимов без `lesson_id` бросает `LogicException` (инвариант `mode_shape`).
+`lesson`-режимов без `lesson_id` и для `hard_review` без `meta.hard_words` бросает `LogicException` (инвариант `mode_shape`).
 
 ### 4.2 Порядок выдачи
 
@@ -226,7 +227,7 @@ review-карточку** (то есть после того, как слово 
    Выдача — условный `UPDATE ... WHERE served_ahead_token IS NULL`, проигравший гонку берёт токен победителя.
 4. Иначе карточки нет, и `CardPick::doneReason` объясняет почему (`App\Domain\Learning\Enums\DoneReason`):
    `new_quota_exhausted` — шаг 2 остановил именно бюджет, а невыданные слова в scope есть; иначе `lesson_complete`
-   (lesson-scope) или `nothing_due` (daily-scope). `TrainingFlowService` добавляет `session_cap`, когда достигнут
+   (lesson-scope), `hard_round_complete` (hard-scope, §14) или `nothing_due` (daily-scope). `TrainingFlowService` добавляет `session_cap`, когда достигнут
    `twa.training.max_cards_per_session` — ещё до обращения к пикеру. В ежедневной сессии со спринтом (§13.2) раньше этих
    причин проверяется `sprint_complete` (+ `canContinue = true`): лимиты раунда придержали карточку, которая есть, — due
    `review`-карточку сверх потолка или невыданное слово при оставшейся дневной квоте. Клиент получает `done_reason` и
@@ -350,6 +351,7 @@ review-карточку** (то есть после того, как слово 
 
 Тест — `tests/Feature/Game/GameSrsRuleTest` (ученики SM-2 и FSRS; карточки `new` / `learning` / `review` / `relearning`; остальные колонки байт-в-байт прежние).
 Инвариант «игра не трогает ничего, кроме `next_review_at`, `is_hard`, `updated_at`» — `GameIsolationTest`.
+Формула «приблизить» вынесена в `App\Domain\Learning\Services\ReviewPull::toNow()` и общая с раундом трудных слов (§14, без `is_hard`).
 
 ## 6. Персональные напоминания и `words_due_today`
 
@@ -911,6 +913,62 @@ translations json)` (docs/03 §2.21a), импорт — ключ `examples: [{te
 (пройденная без `/finish` — `finished` в отчёте); `tests/Feature/EarlyLadderGradingTest.php` (пол от ступени карточки, `confused_with`, честность
 самооценки на дневной карточке); `tests/Feature/TrainingConcurrencyTest.php` (PostgreSQL, fork: `sprint_used` двух вкладок, повторное открытие
 пройденной сессии несколькими вкладками); `Tests\Support\CardAnswers` отвечает на карточку как Mini App (по `prompt.type`).
+
+## 14. Раунд трудных слов (`hard_review`, 2026-11-18; `HardRoundService`, `learning.hard_round.*`)
+
+Редкий «событийный» формат из слов, на которых ученик спотыкается: 8-10 слов, только объективные упражнения, свой финал «побеждено N из 10»,
+приглашение на «Сегодня» и на итоге раунда / урока. Ответы — **настоящие повторения** (SM-2 / FSRS, очки, серия, дневная статистика);
+ядро планировщиков не менялось. Образ — «Раунд трудных слов» (без «босса» и «Хранителя»: это лексика «Каравана»); внутренние ключи `hard_review` / `hard_round`.
+
+**Кандидат** (`HardRoundService::candidates`, один оператор с bindings): строка `word_repetitions` ученика по **активному** слову (любой курс / колода),
+`state IN (review, relearning)`, `is_hard = true ИЛИ lapses >= learning.hard_round.lapses_from` (2), и слово **не оценивалось в окне дня**
+(`last_reviewed_at IS NULL OR < начала окна`) — одно слово нельзя «прокачать» дважды за день ради очков (утром в ежедневном раунде и потом здесь).
+Порядок — как у босса игры без промахов: `is_hard DESC, lapses DESC, easiness_factor ASC, next_review_at ASC, id ASC`; раунд — первые `words` (10).
+Окно дня — `LearnerClock::limitWindowUtc` (смена пояса не укорачивает и не удлиняет день). Предикат `is_hard = true OR lapses >= 1` написан в запросе
+константами, слово в слово как в частичном индексе `word_repetitions_hard_idx (learner_id, lapses DESC)` (docs/03 §2.8); EXPLAIN на 60 тыс. строк (20 учеников × 3000, ≈8 % слов с провалами): Index Scan по нему, 230 буферов, ≈1 мс.
+
+**Доступность** (`availability`, порядок причин): `disabled` (`learning.hard_round.enabled = false`) → живая hard-сессия, начатая сегодня и не доигранная (`available`, `open_session_id`)
+→ `played_today` (в окне уже ≥ `per_day` = 1 сессий `hard_review`, любых статусов; `resets_at` — конец окна) → `no_objective_exercise` (у ученика выключены и `meaning`, и `reverse`:
+раунд выродился бы во `flash`) → `not_enough` (кандидатов меньше `min_words` = 8). Размер раунда — `min(кандидаты, words)`; в доступность считается тем же запросом с `LIMIT words`.
+
+**Открытие** (`HardRoundService::open`, одна транзакция; не через `openPersonal`): `LearnerRowLock::take` (первый замок) → открытая hard-сессия ученика под `FOR UPDATE`:
+сегодняшняя живая — вернуть её (идемпотентно, две вкладки получают одну), доигранная (`completed_at`) — закрыть как `finished` со всеми побочными эффектами `/finish`, просроченная или
+вчерашняя — `closed / expired` → лимит `per_day` в окне → объективное упражнение → кандидаты (`LIMIT words`, меньше `min_words` — отказ) → `INSERT training_sessions {mode: hard_review, learner_id,
+course_id/lesson_id: null, source, expires_at: now + session_ttl_hours, meta: {hard_words: [...]}}` → **притягивание** набора: `ReviewPull::toNow(learnerId, wordIds, now, markHard: false)`:
+
+```sql
+UPDATE word_repetitions SET next_review_at = :now, updated_at = :now
+ WHERE learner_id = :me AND word_id IN (:set) AND next_review_at > :now;
+```
+
+Это частный случай §5a: **одна формула** «приблизить, никогда не отдалить» (`ReviewPull`; `GameSrsAdjuster` вызывает её же с `markHard: true`), но без `is_hard` — провала не было.
+После этого слова — обычные due-карточки, `ReviewSubmissionService::isAcceptable` и планировщики не менялись; для FSRS досрочный ответ даёт меньший рост стабильности (§5a). Отказы
+(`HardRoundException` → 409 `hard_round_unavailable`) бросаются после commit; событие `hard_round.refused {reason, source}`. Брошенный раунд оставляет до 10 слов «к повторению» —
+осознанная цена простоты (игра делает то же при промахе): вырастут `due_count`, напоминание «N слов», слова придут в ежедневный раунд первыми. Порядок замков: `learners (FOR NO KEY UPDATE) → training_sessions → word_repetitions`;
+транзакция оценки начинается с `training_sessions` и `learners` не берёт — цикла нет. Частичный unique `training_sessions_one_open_hard_per_learner` ловит гонку в обход замка.
+
+**Выдача и оценка**: `TrainingFlowService` — те же `start / nextStep / review`, scope `TrainingScope::hard`. Шаг 1 пикера — due в наборе (`is_hard DESC, next_review_at, id`); новых слов нет
+(`NewCardBudget::unlimited()`, `quota.new_words_remaining = null`, квота Free не читается и не тратится); learn-ahead возвращает провалившуюся карточку (relearning) в том же раунде; конец — `done_reason = hard_round_complete`
+(`DoneReason::HardRoundComplete`), `can_continue = false`. Слово набора, ставшее `is_active = false`, не выдаётся и не принимается (422 `out_of_scope`); слово вне набора — тоже `out_of_scope`.
+Слово набора, оценённое в ежедневном раунде раньше (оно due после притягивания), в раунде трудных не выдаётся и в «побеждено» не попадает, `total` остаётся прежним (риск А2: «9 из 10» без вины ученика).
+
+**Упражнения** (`ExerciseSelector::hardRound`, чистая функция тех же входов): списки ступени карточки (ранняя лестница: `form` / `recognition`; без неё — типизация → варианты → смысл), **`flash` вычёркнут** из каждого; карточка в минутных шагах — список распознавания;
+чередование «не два раза подряд» то же. Нет ни одного доступного — `meaning`, иначе `reverse`. Известное исключение (риск А5, зафиксировано тестом): `ExercisePromptBuilder::effectiveType`
+понижает карточку до `flash`, когда у слова меньше трёх дистракторов (слово одинокой колоды вне платформенных курсов) — редкий случай, принят.
+
+**Прогресс и итог**: `progress = {done: побеждённые слова, total: размер набора}`; «побеждено» — слово, **последняя** оценка которого в сессии `quality >= 3` (`CardPicker::stepCounts(…, hardWon: true)`, подзапрос в том же операторе счётчиков).
+`done` монотонен: верно отвеченное слово больше не выдаётся (`next_review_at` ≥ завтра). `/finish`: `hard_round: {total, won}` (`TrainingSessionService::summarise`: окно `first_value(quality) over (partition by word_id order by id desc)`
+только для `hard_review`; `SessionSummary.hardWon/hardTotal`; у остальных режимов `null`); событие `training.session_finished` получает `hard_won`, `hard_total`. `PracticeEntryResolver::forSession` для `hard_review` — `null`.
+Очки — как у любой сессии: оценка + верный (+1 +1), новых слов нет (+2 невозможно), цель дня +10; ограничители накрутки — раз в день, ≤ 10 слов, слова дня исключены, повтор `/review` — 409 `card_not_due`.
+
+**Приглашение**: блок `hard_round` в `GET /today` (+1 оператор: кандидаты; «сыграно сегодня» и открытая hard-сессия едут в том же операторе, что и открытая daily-сессия) и `hard_round_offer` в `/finish` ежедневной сессии / урока
+(+2 оператора: сессии окна и кандидаты); `null` в обоих при `enabled = false` и у `/finish` самого раунда. Закрытие просроченных (`training:close-expired`) закрывает `hard_review` как любую личную сессию (`expired`, а доигранную — `finished`).
+Отчёт «Удержание» (`RetentionReportService`): hard-сессия — активность (её оценки в `learner_daily_stats`), но **не** «первое» и **не** «второе занятие» (`mode <> 'hard_review'` в подзапросах).
+Выключатель `LEARNING_HARD_ROUND_ENABLED=false`: блока нет, предложения нет, открытие → 409 `disabled`; уже открытый раунд доигрывается.
+
+Тесты: `tests/Feature/HardRoundTest.php` (политика, кандидаты и границы окна дня Ташкента, смена пояса, доступность, открытие, притягивание, scope, пикер, упражнения без `flash`, закрытие просроченных, удержание), `HardRoundFlowTest.php`
+(полный раунд по HTTP для Free / Pro, с аудио и без; 9 из 10; блоки; приглашение; отказы; выключатель; бюджеты), `HardRoundConcurrencyTest.php` (PostgreSQL, fork: одна сессия при одновременных открытиях, открытие ∥ оценка в daily без дедлока),
+`DatabaseSchemaTest` (индексы, откат миграций), `TwaContractTest` (ключи), бюджеты `TwaTodayMeQueryBudgetTest` (/today 9) и `TrainingCycleQueryBudgetTest` (/finish 11).
 
 ## 11. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`
