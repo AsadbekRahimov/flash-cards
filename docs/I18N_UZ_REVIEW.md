@@ -3938,8 +3938,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `readiness.quiz.title` | Hafta testi | Тест недели |
 | `readiness.quiz.result` / `.line` | {total} tadan {correct} ta / Hafta testi: {total} tadan {correct} ta | «8 из 12» / «Тест недели: 8 из 12» |
 | `readiness.quiz.take` | Hafta testini topshirish | Пройти тест недели |
-| `readiness.quiz.again` | Yana topshirish (mashq, yozilmaydi) | Пройти ещё раз (тренировочно, без записи) |
-| `readiness.quiz.practice_hint` | Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: natija yozilmaydi va grafikka tushmaydi. | Зачётный тест недели уже пройден; повтор тренировочный и не записывается |
+| `readiness.quiz.again` | Yana topshirish (mashq, hisobga olinmaydi) | Пройти ещё раз (тренировочно, не в зачёт) |
+| `readiness.quiz.practice_hint` | Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: u hafta hisobiga o'tmaydi va grafikka tushmaydi. | Зачётный тест недели уже пройден; повтор тренировочный: не идёт в зачёт недели и в график |
 | `readiness.quiz.hint` | Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test. | N вопросов по словам курса, около M мин. Один зачётный тест в неделю. |
 | `readiness.quiz.best` | Eng yaxshi natija: {percent}% | Лучший результат |
 | `readiness.quiz.chart_title` / `.chart_empty` | Haftalar bo'yicha / Hozircha natijalar yo'q | По неделям / Пока нет результатов |

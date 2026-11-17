@@ -32,11 +32,16 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { PairsRoundElement, PracticeAnswerPayload, PracticeChoice } from '@/api/types'
 
-const props = defineProps<{
-  element: PairsRoundElement
-  mode: 'solo' | 'battle'
-  disabled?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    element: PairsRoundElement
+    mode: 'solo' | 'battle'
+    disabled?: boolean
+    /** Solo: "Round N of M" over the board; a timed game turns it off (the rounds mean nothing there: the clock and the score do). */
+    showRound?: boolean
+  }>(),
+  { disabled: false, showRound: true },
+)
 
 const emit = defineEmits<{ answer: [payload: PracticeAnswerPayload] }>()
 
@@ -369,7 +374,7 @@ onBeforeUnmount(clearTimer)
 
       <div class="flex items-baseline justify-between gap-3 px-1 text-[15px] leading-5 text-tg-subtitle">
         <!-- A battle says the round in the header of its screen: the board does not say it twice. -->
-        <p v-if="solo" class="font-medium" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
+        <p v-if="solo && showRound" class="font-medium" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
         <p class="ml-auto tabular-nums" data-testid="pairs-count">{{ counter }}</p>
       </div>
 

@@ -278,8 +278,8 @@ export const uz: Translations = {
   'readiness.quiz.result': '{total} tadan {correct} ta',
   'readiness.quiz.line': 'Hafta testi: {total} tadan {correct} ta',
   'readiness.quiz.take': 'Hafta testini topshirish',
-  'readiness.quiz.again': 'Yana topshirish (mashq, yozilmaydi)',
-  'readiness.quiz.practice_hint': "Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: natija yozilmaydi va grafikka tushmaydi.",
+  'readiness.quiz.again': 'Yana topshirish (mashq, hisobga olinmaydi)',
+  'readiness.quiz.practice_hint': "Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: u hafta hisobiga o'tmaydi va grafikka tushmaydi.",
   'readiness.quiz.hint': {
     one: "Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test.",
     other: "Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test.",

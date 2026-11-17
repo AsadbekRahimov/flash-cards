@@ -841,11 +841,17 @@ describe('TodayView', () => {
         expect(w.router.currentRoute.value.name).toBe('game')
       })
 
-      it('is hidden while the game is closed, without the field (an older server), without a course, and for a newcomer, and asks no /me', async () => {
+      it('is hidden while the game is closed, without the field (an older server), without a course, and for a newcomer', async () => {
         expect((await render(withProgress({ game: { available: false, daily_available: false, active_run: null } }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
         expect((await render(withProgress({ game: { daily_available: false, active_run: null } }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
         expect((await render(withProgress({ active_course: null }))).find('[data-testid=game-map-entry]').exists()).toBe(false)
         expect((await render(newcomer())).find('[data-testid=game-map-entry]').exists()).toBe(false)
+      })
+
+      it('does not ask /me for the row (a Pro learner reads no /me on Today)', async () => {
+        const w = await render(withProgress({ entitlement: PRO }))
+
+        expect(w.find('[data-testid=game-map-entry]').exists()).toBe(true)
         expect(api.me.get).not.toHaveBeenCalled()
       })
 
