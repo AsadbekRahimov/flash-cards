@@ -109,9 +109,9 @@ describe('FinishedView: the round of hard words', () => {
       training.canContinue = true
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, league_points: 12, hard_round_offer: offer() }), 'hard_review')
 
-      expect(w.get('[data-testid=stats]').exists()).toBe(true)
-      expect(w.get('[data-testid=points-earned]').exists()).toBe(true)
-      expect(w.get('[data-testid=streak]').exists()).toBe(true)
+      expect(w.find('[data-testid=stats]').exists()).toBe(true)
+      expect(w.find('[data-testid=points-earned]').exists()).toBe(true)
+      expect(w.find('[data-testid=streak]').exists()).toBe(true)
       expect(w.find('[data-testid=next-round-btn]').exists()).toBe(false)
       expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
       expect(w.find('[data-testid=hard-round-offer-btn]').exists()).toBe(false)

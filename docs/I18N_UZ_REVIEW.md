@@ -3966,3 +3966,10 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `practice.timed.again` / `.to_games` | Yana bir marta / O'yinlarga | Ещё раз / К играм |
 | `practice.summary.reason.time_over` | Vaqt tugadi. | Время вышло. |
 | `error.code.practice_not_started` / `.practice_time_over` / `.practice_not_timed` | O'yin hali boshlanmagan. «Start» tugmasini bosing. / Vaqt tugadi. Natijani ko'ramiz. / Bu vaqtga o'yin emas. | Игра ещё не началась. / Время вышло, смотрим результат. / Это не игра на время. |
+| `today.hard_round.title` / `.subtitle` / `.start` / `.continue` | Qiyin so'zlar raundi / {count} ta qiyin so'z tahlilni kutmoqda / Tahlil qilish / Davom ettirish | Раунд трудных слов / N трудных слов ждут разбора / Разобрать / Продолжить (карточка на «Сегодня») |
+| `training.hard_round.chip` / `.progress` | Qiyin so'zlar raundi / {total} tadan {done} tasi yengildi | Раунд трудных слов / Побеждено X из N (шапка раунда) |
+| `finished.hard_round.title` / `.title_none` | {total} ta qiyin so'zdan {won} tasini yengdingiz / Qiyin so'zlar raundi tugadi | Вы победили X из N трудных слов / Раунд трудных слов пройден (при 0) |
+| `finished.hard_round.all` / `.later` | Barcha qiyin so'zlar yengildi. Shunday davom eting! / Bu so'zlar yana qaytadi — shunday rejalashtirilgan | Все трудные слова побеждены. Так держать! / Эти слова ещё вернутся — так и задумано |
+| `finished.hard_round.offer` | {count} ta qiyin so'zni tahlil qilish | Разобрать N трудных слов (строка на финале обычного раунда) |
+| `error.code.hard_round_unavailable` / `error.hard_round.disabled` | Qiyin so'zlar raundi hozir mavjud emas. | Раунд сейчас недоступен |
+| `error.hard_round.not_enough` / `.played_today` / `.no_objective_exercise` | Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi. / Qiyin so'zlar raundi bugun allaqachon o'tilgan. Keyingisi — ertaga. / Bu so'zlar uchun hozircha mos topshiriqlar yo'q. | Трудных слов пока мало / Раунд на сегодня уже пройден, следующий завтра / Для этих слов нет подходящих заданий |

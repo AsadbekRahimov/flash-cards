@@ -39,6 +39,11 @@ async function render(response: TodayResponse) {
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
+      { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/billing', name: 'billing', component: { template: '<div />' } },
+      { path: '/league', name: 'league', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
     ],
   })
   const wrapper = mount(TodayView, { global: { plugins: [router] } })
